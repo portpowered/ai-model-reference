@@ -116,6 +116,19 @@ describe("validateRegistryContent", () => {
   });
 });
 
+describe("make validate-data", () => {
+  test("succeeds on the committed Phase 1 baseline", async () => {
+    const proc = Bun.spawn({
+      cmd: ["make", "validate-data"],
+      cwd: join(import.meta.dir, "../../.."),
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    const code = await proc.exited;
+    expect(code).toBe(0);
+  });
+});
+
 describe("validate-registry CLI", () => {
   test("exits 0 on baseline and 1 when registry references are broken", async () => {
     const baseline = Bun.spawn({
