@@ -102,6 +102,13 @@ describe("loadRegistry", () => {
     const citation = indexes.byId.get("citation.gqa-paper");
     expect(citation?.kind).toBe("citation");
     expect(indexes.bySlug.get("gqa-paper")?.id).toBe("citation.gqa-paper");
+
+    const concept = indexes.byId.get("concept.token");
+    expect(concept?.kind).toBe("concept");
+    expect(indexes.bySlug.get("token")?.id).toBe("concept.token");
+
+    expect(indexes.tagsBySlug.get("kv-cache")?.id).toBe("tag.kv-cache");
+    expect(module?.tags).toContain("kv-cache");
   });
 
   test("loads concept records from the concepts directory", async () => {

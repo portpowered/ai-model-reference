@@ -5,7 +5,7 @@
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
   "aliases": ["GQA", "grouped-query attention", "grouped query attention"],
-  "tags": ["attention"],
+  "tags": ["attention", "kv-cache"],
   "relatedIds": [],
   "citationIds": ["citation.gqa-paper"],
   "status": "published",
