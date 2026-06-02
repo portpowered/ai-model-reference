@@ -1,0 +1,85 @@
+---
+kind: "paper"
+registryId: "paper.example-paper"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "draft"
+tags:
+  - example-tag
+aliases:
+  - "Example Alias"
+updatedAt: "2026-06-02"
+---
+
+import { Callout } from "@/features/docs/components/Callout";
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { PaperContributionGraph } from "@/features/models/components/PaperContributionGraph";
+import { PaperAtAGlance } from "@/features/models/components/PaperAtAGlance";
+
+# <T k="title" />
+
+<T k="problemStatement" />
+
+<T k="coreIdea" />
+
+<PaperAtAGlance registryId="paper.example-paper" />
+
+<TagPillList registryId="paper.example-paper" />
+
+<Section id="what-the-paper-introduced" titleKey="sections.whatThePaperIntroduced.title">
+  <T k="sections.whatThePaperIntroduced.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+
+  <Callout type="note" titleKey="callouts.readerShortcut.title">
+    <T k="callouts.readerShortcut.body" />
+  </Callout>
+</Section>
+
+<Section id="method-or-architecture" titleKey="sections.methodOrArchitecture.title">
+  <T k="sections.methodOrArchitecture.body" />
+
+  <PaperContributionGraph
+    registryId="paper.example-paper"
+    assetId="contributionGraph"
+  />
+</Section>
+
+<Section id="evidence" titleKey="sections.evidence.title">
+  <T k="sections.evidence.body" />
+</Section>
+
+<Section id="limitations" titleKey="sections.limitations.title">
+  <T k="sections.limitations.body" />
+</Section>
+
+<Section id="what-it-connects-to" titleKey="sections.whatItConnectsTo.title">
+  <DerivedRelatedDocs
+    registryId="paper.example-paper"
+    groups={[
+      "introduced-records",
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="paper.example-paper" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="paper.example-paper" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="paper.example-paper" />
+</Section>

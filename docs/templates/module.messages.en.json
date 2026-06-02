@@ -1,0 +1,76 @@
+{
+  "title": "",
+  "description": "",
+  "problemStatement": "",
+  "coreIdea": "",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": ""
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": ""
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": ""
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": ""
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": ""
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": ""
+    },
+    "variantsAndNearbyModules": {
+      "title": "Variants And Nearby Modules",
+      "body": ""
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": ""
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": ""
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": ""
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": ""
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "",
+      "caption": ""
+    },
+    "computeSchema": {
+      "alt": "",
+      "caption": ""
+    },
+    "comparisonTable": {
+      "caption": ""
+    }
+  }
+}

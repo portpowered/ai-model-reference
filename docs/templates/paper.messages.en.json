@@ -1,0 +1,52 @@
+{
+  "title": "",
+  "description": "",
+  "problemStatement": "",
+  "coreIdea": "",
+  "sections": {
+    "whatThePaperIntroduced": {
+      "title": "What The Paper Introduced",
+      "body": ""
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": ""
+    },
+    "methodOrArchitecture": {
+      "title": "Method Or Architecture",
+      "body": ""
+    },
+    "evidence": {
+      "title": "Evidence",
+      "body": ""
+    },
+    "limitations": {
+      "title": "Limitations",
+      "body": ""
+    },
+    "whatItConnectsTo": {
+      "title": "What It Connects To"
+    },
+    "related": {
+      "title": "Related Reference Pages"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": ""
+    }
+  },
+  "assets": {
+    "contributionGraph": {
+      "alt": "",
+      "caption": ""
+    }
+  }
+}

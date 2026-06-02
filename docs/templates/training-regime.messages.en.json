@@ -1,0 +1,54 @@
+{
+  "title": "",
+  "description": "",
+  "problemStatement": "",
+  "coreIdea": "",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": ""
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": ""
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": ""
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": ""
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": ""
+    },
+    "modelsAndPapers": {
+      "title": "Models And Papers",
+      "body": ""
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": ""
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": ""
+    }
+  },
+  "assets": {
+    "trainingFlow": {
+      "alt": "",
+      "caption": ""
+    }
+  }
+}

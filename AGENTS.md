@@ -27,7 +27,7 @@ to enable this type of search, the internal architecture persists data model for
 By having this internal data model, customers are able to reference from a model and their corresponding associated modules. 
 
 # architecture overall 
-the architecture overall is a statically rendered react site that is composed based on fuma, react flow, recharts, and correspondingly a defined system data model. 
+the architecture overall is a statically rendered Next.js App Router site composed with Fumadocs, React Flow, Recharts, Tailwind, shadcn/ui, and a defined system data model.
 
 # build system
 
@@ -45,13 +45,14 @@ when writing code, we generally look to standardize and minimize complexity.
 As a general rule, we want docs to be fresh and relevant, meaning that all pages should have references to appropriate other pages for relevant information. i.e. a page on attention variants should link to the other pages around attention and explain why this one is better when its written. 
 
 please follow the appropriate documents when writing docs. 
-[documentation template](./docs/ocumentation-template.md)
+[documentation template](./docs/documentation-template.md)
 [quality-documents-standards](./docs/quality-documents-standards.md)
 
 # generally relevant files
 we MUST read these generally when writing anything.
 [site fundamentals](./docs/site-fundamentals.md)
 [data model](./docs/data-model.md)
+[architecture](./docs/architecture.md)
 
 # customer asks
 These files are the files that are being used as the fundamental customer asks that we use to create the entire website.
