@@ -1,0 +1,10 @@
+{
+  "computeFlow": {
+    "type": "graph",
+    "graphId": "graph.grouped-query-attention-compute-flow",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  }
+}
