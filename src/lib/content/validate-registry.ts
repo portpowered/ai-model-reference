@@ -1,4 +1,4 @@
-import { readFile, readdir } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { assetMessageKeys, loadPageAssets } from "./assets";
 import {
@@ -8,10 +8,10 @@ import {
   tokenGlossaryPageDir,
 } from "./messages";
 import {
+  loadRegistry,
   type RegistryIndexes,
   RegistryLoadError,
   type RegistryRecord,
-  loadRegistry,
 } from "./registry";
 import {
   type ModuleRecord,
@@ -74,6 +74,13 @@ function errorsFromRegistryLoadError(
           message: `Registry parse error at ${detail.path}: ${detail.message}`,
           path: detail.path,
         };
+      default: {
+        const unexpected: never = detail;
+        return {
+          code: "parse-error",
+          message: `Registry load error: ${JSON.stringify(unexpected)}`,
+        };
+      }
     }
   });
 }

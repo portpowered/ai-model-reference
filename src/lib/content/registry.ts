@@ -1,13 +1,13 @@
-import { readFile, readdir } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
   type CitationRecord,
   type ConceptRecord,
-  type ModuleRecord,
-  type TagRecord,
   citationRecordSchema,
   conceptRecordSchema,
+  type ModuleRecord,
   moduleRecordSchema,
+  type TagRecord,
   tagRecordSchema,
 } from "./schemas";
 

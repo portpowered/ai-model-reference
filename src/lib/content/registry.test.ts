@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { RegistryLoadError, loadRegistry } from "./registry";
+import { loadRegistry, RegistryLoadError } from "./registry";
 
 const validModuleRecord = {
   id: "module.grouped-query-attention",

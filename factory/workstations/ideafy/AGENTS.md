@@ -216,6 +216,13 @@ Avoid issuing broad, vague ideas such as "build the website." Each idea should
 be concrete enough for the `plan` workstation to create an implementation-ready
 PRD with behavioral acceptance criteria.
 
+## item planning
+- you should try to plan work in a dependency ordered way otherwise the code will stomp on each other
+- for example when initiating the project, do one work item to setup the project, then do the others that depend on the initial subject. 
+- similarly, before creating all the model pages, you should start with one model default vertical and then use that to build the other model pages. 
+- you configure this planning by setting up inside the work submissions to be configured as a relationship between work nodes in the current submission. 
+- in general however, you may want to make it so that when working, you may want to inspect the code results of the current progress to see if its moving in the right direction. so you may not want to create that relationships and wait to submit in next batch.
+
 ## Loop Back
 
 You can be reinstated in two ways:
