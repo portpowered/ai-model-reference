@@ -2,13 +2,20 @@
 - Registry Zod schemas live in `src/lib/content/schemas.ts`; shared base fields use a `baseRecordShape` object spread into kind-specific schemas with `z.literal("module"|"concept"|"tag"|"citation")` for `kind`.
 - `registryRecordSchema` is a `z.discriminatedUnion("kind", [moduleRecordSchema, conceptRecordSchema, tagRecordSchema, citationRecordSchema])` for parsing any Phase 1 registry record by `kind`.
 - Page schemas use `pageKindSchema` (docs page kinds) separate from `registryKindSchema`; `pageAssetSchema` is a `z.discriminatedUnion("type", [...])` and `pageAssetConfigSchema` is `z.record(z.string(), pageAssetSchema)`.
-- `loadRegistry()` in `src/lib/content/registry.ts` reads `src/content/registry/{modules,tags,citations}/*.json`, validates per-directory Zod schemas, and returns `byId`, `bySlug`, and `tagsById` maps; pass `registryRoot` in tests for temp fixtures.
+- `loadRegistry()` in `src/lib/content/registry.ts` reads `src/content/registry/{modules,concepts,tags,citations}/*.json`, validates per-directory Zod schemas, and returns `byId`, `bySlug`, `tagsById`, and `tagsBySlug` maps; pass `registryRoot` in tests for temp fixtures (always mkdir `concepts` in temp registry fixtures).
 - `RegistryLoadError` carries structured `details` for duplicate id/slug (`duplicate-id`, `duplicate-slug`) and parse/validation failures (`parse-error`).
 - `baseline-records.test.ts` reads committed JSON under `src/content/registry/` and validates with kind-specific Zod schemas via `readRegistryJson` helper; use for story-level proof that on-disk records match schemas.
 - Phase 1 toolchain: Bun for install/test, `bun run typecheck` (`tsc --noEmit`), Biome for lint/format; colocate unit tests as `*.test.ts` next to the module under test.
 - `loadPageMessages(pageDirectory, locale)` in `src/lib/content/messages.ts` reads `messages/<locale>.json`, validates with `pageMessagesSchema`, and throws `MessageLoadError` with `missing-file` or `parse-error` details; missing `en` uses an explicit default-locale error message.
 - `loadPageAssets(pageDirectory)` and `resolvePageAsset(pageDirectory, assetId)` in `src/lib/content/assets.ts` read colocated `assets.json`, validate with `pageAssetConfigSchema`, and throw `AssetLoadError` with `missing-file`, `parse-error`, or `unknown-asset-id` details.
+- `resolvePageAssetWithMessages(pageDirectory, assetId, locale?)` loads the asset plus default-locale messages and throws `AssetLoadError` with `missing-message-key` when `altKey`/`captionKey` do not resolve; use `getMessageString(messages, keyPath)` from `messages.ts` for dot-path lookups (shared with `validate-registry.ts`).
+- Export `assetMessageKeys(asset)` from `assets.ts` when listing message keys on a `PageAsset` for validation or tests.
 - `prd.json`, `prd.md`, and `progress.txt` are local workflow tracking only — do not commit them to the PR branch.
+- Phase 1 starter registry set: `module.grouped-query-attention`, `concept.token`, `tag.attention`, `tag.kv-cache` (tag resolution for module discovery), `citation.gqa-paper`; module `tags` must include both `attention` and `kv-cache`.
+- Phase 1 page directories: module at `src/content/docs/modules/grouped-query-attention/`, glossary at `src/content/docs/glossary/token/`; export `tokenGlossaryPageDir` alongside `groupedQueryAttentionPageDir` from `messages.ts`.
+- Use `baseline-page-fixtures.test.ts` to assert both Phase 1 page dirs have template-aligned `messages/en.json` and message-backed `assets.json` keys.
+- `validateRegistryContent()` in `validate-registry.ts` loads registry via `loadRegistry()` (unique id/slug), validates references for all registry kinds including `concepts/`, walks `page.mdx` under `docs/`, and always validates Phase 1 colocated bundles for directories in `phase1PageDirectories` that lack `page.mdx` (token glossary today).
+- Export `validateColocatedPageBundle(pageDirectory)` for colocated-only checks; pass `phase1PageDirectories` in `ValidateRegistryContentOptions` to override in tests.
 
 ## 2026-06-02T13:56:17Z - content-registry-validation-001
 - Implemented Zod schemas and inferred types for `RegistryKind`, `RegistryStatus`, `BaseRecord`, `ModuleRecord`, `TagRecord`, and `CitationRecord` aligned with `docs/data-model.md`.
@@ -83,4 +90,66 @@
   - Patterns discovered: export `conceptRecordSchema` alongside module/tag/citation; use `registryRecordSchema` when validating unknown JSON before routing to a kind-specific loader directory.
   - Gotchas encountered: avoid exporting a second `RegistryRecord` type from `schemas.ts` — `registry.ts` already defines that union for loaded records (story 002 will add concept to the loader).
   - Useful context: page/message/asset schemas from the prior branch commit already satisfy story 001 page-schema criteria; this iteration closed the missing concept registry schema gap.
+---
+
+## 2026-06-02T19:52:23Z - content-registry-validation-002
+- Extended `loadRegistry()` to read and validate `concepts/` with `conceptRecordSchema`, include `ConceptRecord` in `RegistryRecord`, and expose `tagsBySlug` for tag slug resolution alongside existing `byId`, `bySlug`, and `tagsById` maps.
+- Added empty `src/content/registry/concepts/` directory and updated registry/validation test fixtures to always create a `concepts` subdirectory.
+- Files changed: `src/lib/content/registry.ts`, `src/lib/content/registry.test.ts`, `src/lib/content/validate-registry.ts`, `src/lib/content/validate-registry.test.ts`, `src/content/registry/concepts/.gitkeep`
+- **Learnings for future iterations:**
+  - Patterns discovered: `tagsBySlug` is tag-only; `bySlug` still resolves any record kind — use `tagsBySlug` when tag references must not collide with module slugs.
+  - Gotchas encountered: temp registry fixtures without `concepts/` cause `loadRegistry` to fail before relationship validation runs.
+  - Useful context: `concept.token` baseline JSON is story 003; story 002 only requires the loader path and indexes.
+---
+
+## 2026-06-02T19:56:15Z - content-registry-validation-003
+- Added committed Phase 1 starter registry records: `concept.token` (`concepts/token.json`), `tag.kv-cache` for module tag resolution, and updated `module.grouped-query-attention` tags to `attention` and `kv-cache`.
+- Extended `baseline-records.test.ts` and `registry.test.ts` to assert schema validity, variantGroup, and cross-reference resolution via `loadRegistry()`.
+- Files changed: `src/content/registry/concepts/token.json`, `src/content/registry/tags/kv-cache.json`, `src/content/registry/modules/grouped-query-attention.json`, `src/lib/content/baseline-records.test.ts`, `src/lib/content/registry.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: any tag slug referenced on a registry record needs a matching `tag.<slug>` JSON file in Phase 1 validation; use `parentTagId` for shallow tag hierarchies (`kv-cache` → `attention`).
+  - Gotchas encountered: `optimizes` strings are not validated as tag records — only the `tags` array requires tag registry resolution.
+  - Useful context: five committed registry JSON files form the Phase 1 baseline; glossary page colocated content is story 004.
+---
+
+## 2026-06-02T20:00:46Z - content-registry-validation-004
+- Added Phase 1 colocated fixtures for the token glossary at `src/content/docs/glossary/token/` (`messages/en.json` with concept-template sections, `assets.json` with `conceptMap` graph and message-backed alt/caption keys).
+- Exported `tokenGlossaryPageDir` from `messages.ts`; extended message/asset loader tests and added `baseline-page-fixtures.test.ts` proving both grouped-query-attention and token pages meet module/concept template expectations.
+- Files changed: `src/content/docs/glossary/token/messages/en.json`, `src/content/docs/glossary/token/assets.json`, `src/lib/content/messages.ts`, `src/lib/content/messages.test.ts`, `src/lib/content/assets.test.ts`, `src/lib/content/baseline-page-fixtures.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: glossary pages use `src/content/docs/glossary/<slug>/` per `prd.md`; concept-template sections differ from module-template (`simpleExample`, `whereItAppears`, `commonConfusions` vs `whatItOptimizes`, `howItWorks`).
+  - Gotchas encountered: grouped-query-attention fixtures were already present from earlier stories — story 004 work is primarily the token glossary directory plus cross-page fixture tests.
+  - Useful context: `page.mdx` for token glossary is not required for story 004; validation CLI discovers pages via `page.mdx` only (story 007).
+---
+
+## 2026-06-02T20:03:22Z - content-registry-validation-005
+- Verified story 005 already implemented on branch (`fe4ffd5`): `loadPageMessages` with Zod validation, `MessageLoadError` details, baseline loads for grouped-query-attention and token glossary, and error-path tests for missing `en`, invalid JSON, and schema failures.
+- Marked `content-registry-validation-005` as `passes: true` in local `prd.json` (no additional code changes required this iteration).
+- Files changed (prior commits): `src/lib/content/messages.ts`, `src/lib/content/messages.test.ts`, `src/content/docs/modules/grouped-query-attention/messages/en.json`; token glossary messages added in story 004 commit `f28edba`.
+- **Learnings for future iterations:**
+  - Patterns discovered: when loader code lands in an earlier commit than PRD updates, verify acceptance with `bun test` and mark PRD locally without a no-op code commit.
+  - Gotchas encountered: `prd.json` on disk can lag behind branch history — always cross-check `git log` for story-id commits before re-implementing.
+  - Useful context: story 006 still needs runtime altKey resolution against messages (validate-registry may already check keys; asset loader does not yet resolve strings).
+---
+
+## 2026-06-02T20:05:56Z - content-registry-validation-006
+- Added `getMessageString` in `messages.ts` for dot-path message key resolution.
+- Added `resolvePageAssetWithMessages`, `validateAssetMessageKeys`, and `assetMessageKeys` in `assets.ts`; `AssetLoadError` now includes `missing-message-key` details when alt/caption keys are absent from default-locale messages.
+- Refactored `validate-registry.ts` to reuse `getMessageString` and `assetMessageKeys` from the asset loader module.
+- Extended asset and baseline fixture tests for graph altKey resolution on both Phase 1 pages, image altKey success, and missing altKey failure.
+- Files changed: `src/lib/content/messages.ts`, `src/lib/content/assets.ts`, `src/lib/content/assets.test.ts`, `src/lib/content/validate-registry.ts`, `src/lib/content/baseline-page-fixtures.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: `resolvePageAsset` returns raw config keys; call `resolvePageAssetWithMessages` when MDX renderers need validated message-backed alt/caption text.
+  - Gotchas encountered: image `altKey` is required by schema — missing-key tests need both `assets.json` and `messages/en.json` in the temp page directory.
+  - Useful context: graph assets already enforce `webRenderer` and `printRenderer` via `pageAssetSchema`; message key validation applies to optional `altKey`/`captionKey` on any asset type.
+---
+
+## 2026-06-02T20:23:53Z - content-registry-validation-007
+- Completed registry validation CLI story: `validateRegistryContent()` now validates `concepts/` references, always checks Phase 1 colocated messages/assets for page dirs without `page.mdx` (token glossary), and refactors MDX page validation through `validateColocatedPageBundle`.
+- Extended `validate-registry.test.ts` with duplicate-id, missing message-key (page path in error), and token-glossary Phase 1 validation coverage; documented `make validate-data` in the Makefile.
+- Files changed: `src/lib/content/validate-registry.ts`, `src/lib/content/validate-registry.test.ts`, `Makefile`
+- **Learnings for future iterations:**
+  - Patterns discovered: run `validateColocatedPageBundle` before MDX-specific checks; skip Phase 1 dirs already validated via discovered `page.mdx` to avoid duplicate errors.
+  - Gotchas encountered: token glossary has no `page.mdx` — relationship validation alone does not exercise colocated loaders until `phase1PageDirectories` is enforced.
+  - Useful context: `scripts/validate-registry.ts` is the CI entrypoint; `make validate-data` and README list the command for local/CI use.
 ---
