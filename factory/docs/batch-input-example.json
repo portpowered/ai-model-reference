@@ -53,7 +53,7 @@
       "targetWorkName": "docs-template-rendering",
       "requiredState": "complete"
     },
-        {
+    {
       "type": "DEPENDS_ON",
       "sourceWorkName": "docs-template-rendering",
       "targetWorkName": "site-app-scaffold",
@@ -65,7 +65,7 @@
       "targetWorkName": "default-pages-search-tags",
       "requiredState": "complete"
     },
-    {   
+    {
       "type": "DEPENDS_ON",
       "sourceWorkName": "default-pages-search-tags",
       "targetWorkName": "site-app-scaffold",

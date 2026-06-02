@@ -1,0 +1,129 @@
+{
+  "project": "Model Atlas",
+  "branchName": "content-registry-validation",
+  "description": "Establish the Phase 1 structured content baseline: Zod schemas, registry/message/asset loaders, four starter registry records (grouped-query attention module, token concept, attention tag, one citation), colocated English messages and assets for both Phase 1 pages, and a validate-data command that fails on broken relationships or unresolved keys.",
+  "context": {
+    "customerAsk": "Phase 1: implement the minimum structured content baseline needed for one canonical module page and one basic glossary page, including TypeScript/Zod schemas, registry loaders, one grouped-query attention module record, one token glossary/concept record, one attention tag record, one citation record, colocated message loading, colocated asset loading, and validation.",
+    "problem": "Without validated registry JSON and colocated loaders, search, tags, citations, and MDX rendering would duplicate parsing or infer meaning from prose. Broken registryId, tag, or citation references would surface late at runtime.",
+    "solution": "Own content contracts and loading in src/lib/content with Zod schemas, typed registry/message/asset loaders, Phase 1 starter records and colocated fixtures, and scripts/validate-registry.ts wired to make validate-data so CI rejects invalid content before build."
+  },
+  "acceptanceCriteria": [
+    "make validate-data exits 0 on the committed Phase 1 baseline and exits non-zero when a required relationship or message/asset key is broken (proven by tests)",
+    "Registry loader resolves module.grouped-query-attention, concept.token, tag.attention, and the Phase 1 citation by stable id without runtime JSON parse errors",
+    "Colocated message loader returns English title and section keys for grouped-query attention and token glossary page directories",
+    "Colocated asset loader resolves declared asset IDs and rejects missing altKey message references",
+    "Starter records cross-reference tags, relatedIds, and citationIds consistently within the Phase 1 set",
+    "Typecheck passes, lint passes, and tests pass for all changes in this work item"
+  ],
+  "userStories": [
+    {
+      "id": "content-registry-validation-001",
+      "title": "Phase 1 content schemas",
+      "description": "As a maintainer, I need Zod schemas for Phase 1 registry records and colocated page payloads so invalid JSON fails at validation time with typed errors.",
+      "acceptanceCriteria": [
+        "BaseRecord and discriminated schemas for module, concept, tag, and citation match docs/data-model.md Phase 1 fields",
+        "PageMessages and PageAssetConfig schemas align with docs/templates module and concept shapes",
+        "Exported inferred types are available for loaders and tests",
+        "Schema parse tests cover valid minimal fixtures and invalid fixture failure",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "content-registry-validation-002",
+      "title": "Registry loader and lookup maps",
+      "description": "As a downstream feature author, I need one registry loader that builds typed lookup maps so I can resolve records by id, slug, or tag without reading the filesystem myself.",
+      "acceptanceCriteria": [
+        "Loader reads JSON from src/content/registry modules, concepts, tags, and citations directories and validates against Phase 1 schemas",
+        "Exported maps resolve records by id, slug, and tag slug",
+        "Duplicate id or conflicting slug surfaces an error covered by test",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "content-registry-validation-003",
+      "title": "Phase 1 starter registry records",
+      "description": "As a reader-facing feature owner, I need canonical starter registry data for grouped-query attention, token, attention, and one citation so Phase 1 pages and search have structured meaning to attach to.",
+      "acceptanceCriteria": [
+        "module.grouped-query-attention exists with attention moduleType, variantGroup, tags including attention and kv-cache, and citationIds",
+        "concept.token exists with appropriate conceptType and discovery tags",
+        "tag.attention exists with category and landingPage metadata",
+        "One citation record exists with MLA text and stable URL",
+        "All tags, relatedIds, and citationIds on starter records resolve within the Phase 1 set",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "content-registry-validation-004",
+      "title": "Phase 1 colocated content fixtures for both pages",
+      "description": "As a downstream page implementer, I need realistic colocated messages and assets for grouped-query attention and token so loaders and validation reflect real page usage.",
+      "acceptanceCriteria": [
+        "Grouped-query attention messages/en.json includes non-empty title, description, and core module sections aligned to the module template",
+        "Token glossary messages/en.json includes glossary sections aligned to the concept template",
+        "Each page directory includes assets.json with at least one resolvable asset id and message-backed alt or caption keys",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "content-registry-validation-005",
+      "title": "Colocated message loading",
+      "description": "As a docs renderer, I need default-locale messages loaded and validated from page directories so MDX can reference stable message keys.",
+      "acceptanceCriteria": [
+        "Message loader reads messages/en.json for grouped-query attention and token glossary page directories",
+        "Loader validates against PageMessages and returns title, description, and template section keys",
+        "Missing default-locale file or invalid shape fails with a clear error covered by test",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "content-registry-validation-006",
+      "title": "Colocated asset loading and key resolution",
+      "description": "As a docs renderer, I need asset IDs resolved from colocated assets.json with alt and caption keys validated against page messages.",
+      "acceptanceCriteria": [
+        "Asset loader reads assets.json for both Phase 1 page directories and returns typed PageAsset values per asset id",
+        "Image altKey must resolve to a string in default-locale messages with test coverage for success and missing-key failure",
+        "Graph assets declare required web and print renderer fields",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "content-registry-validation-007",
+      "title": "Registry validation CLI and Makefile target",
+      "description": "As a CI maintainer, I need make validate-data to run a single validation entrypoint that checks registry shape, relationships, and Phase 1 page message/asset consistency.",
+      "acceptanceCriteria": [
+        "scripts/validate-registry.ts validates Phase 1 registry JSON, enforces unique id and slug, resolves tags and relationship ids, and checks default-locale messages and asset keys for Phase 1 pages",
+        "make validate-data invokes the script and is documented in Makefile or README",
+        "make validate-data exits 0 on the committed Phase 1 baseline",
+        "Validation emits human-readable errors naming record id or page path on failure covered by test",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": ""
+    }
+  ]
+}

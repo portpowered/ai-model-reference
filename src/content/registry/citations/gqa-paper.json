@@ -1,0 +1,20 @@
+{
+  "id": "citation.gqa-paper",
+  "slug": "gqa-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-01T00:00:00.000Z",
+  "updatedAt": "2026-06-02T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Ainslie et al."],
+  "title": "GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints",
+  "url": "https://arxiv.org/abs/2305.13245",
+  "mla": "Ainslie, Joshua, et al. \"GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints.\" arXiv, 2023.",
+  "year": 2023
+}
