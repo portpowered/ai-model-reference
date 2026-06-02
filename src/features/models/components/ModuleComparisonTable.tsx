@@ -1,3 +1,7 @@
+"use client";
+
+import { PageAsset } from "@/features/docs/components/PageAsset";
+
 export function ModuleComparisonTable({
   registryId: _registryId,
   assetId,
@@ -5,12 +9,5 @@ export function ModuleComparisonTable({
   registryId: string;
   assetId: string;
 }) {
-  return (
-    <div
-      className="my-4 rounded-md border border-border p-4 text-sm text-muted-foreground"
-      data-comparison-table-asset={assetId}
-    >
-      Comparison table placeholder
-    </div>
-  );
+  return <PageAsset assetId={assetId} />;
 }
