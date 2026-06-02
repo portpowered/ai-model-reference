@@ -10,11 +10,14 @@
   },
   "dependencies": {
     "@orama/orama": "^3.1.16",
+    "fumadocs-core": "^16.9.3",
+    "react": "^19.2.7",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@types/bun": "latest",
+    "@types/react": "^19.2.16",
     "typescript": "^5.8.3"
   }
 }

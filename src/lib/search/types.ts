@@ -29,7 +29,7 @@ export type SearchDocument = {
 
 export type FumadocsStructuredData = {
   headings: Array<{ id: string; content: string }>;
-  contents: Array<{ heading?: string; content: string }>;
+  contents: Array<{ heading: string | undefined; content: string }>;
 };
 
 export type FumadocsSearchIndexEntry = {

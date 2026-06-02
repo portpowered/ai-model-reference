@@ -17,9 +17,11 @@ export function toStructuredData(
         .join("\n\n"),
     },
     ...document.aliases.map((alias) => ({
+      heading: undefined,
       content: alias,
     })),
     ...document.tags.map((tag) => ({
+      heading: undefined,
       content: tag,
     })),
   ];
