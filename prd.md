@@ -1,231 +1,215 @@
-# PRD: Content Registry and Validation Baseline
+# PRD: Content Registry Validation (Phase 1 Baseline)
 
 ## Introduction
 
-Model Atlas treats structured JSON registry data, colocated localized messages, and colocated asset config as the source of truth for search, relationships, citations, and page rendering. Phase 1 must prove that one canonical module page—**grouped-query attention**—can be represented end to end with validated data before UI rendering, search, and tag surfaces are built on top.
+Model Atlas separates **meaning** (JSON registry), **structure** (MDX), **localized text** (colocated messages), and **concrete media** (colocated assets). Phase 1 needs a minimum structured content baseline so downstream work can render one canonical module page (grouped-query attention) and one basic glossary page (token) without ad hoc parsing or prose scraping.
 
-This work delivers the minimum structured content stack: TypeScript/Zod schemas, registry loaders, one module record, one tag record, one citation record, colocated message loading, colocated asset loading, the canonical page content bundle, and a validation command that fails on broken references.
+This work item delivers TypeScript/Zod contracts, registry and colocated content loaders, four starter registry records, colocated message/asset resolution for the two Phase 1 pages, and a maintainer-facing validation command that fails fast on broken relationships or unresolved keys.
+
+**Depends on:** `site-app-scaffold` (Next.js/Bun/Biome/TypeScript/Makefile baseline must exist).
+
+**Enables:** `docs-template-rendering`, `basic-token-glossary-page`, and `default-pages-search-tags`.
 
 ## Context
 
 ### Customer ask
 
-Phase 1: implement the minimum structured content baseline needed for one canonical docs page, including TypeScript/Zod schemas, registry loaders, one module record, one tag record, one citation record, colocated message loading, colocated asset loading, and validation.
+Phase 1: implement the minimum structured content baseline needed for one canonical module page and one basic glossary page, including TypeScript/Zod schemas, registry loaders, one grouped-query attention module record, one token glossary/concept record, one attention tag record, one citation record, colocated message loading, colocated asset loading, and validation.
 
 ### Problem
 
-Without a typed content contract and validation gate, registry JSON, page frontmatter, messages, and assets can drift apart. Downstream features (docs rendering, search, tag pages, related links) would scrape prose or guess relationships instead of consuming validated structured data.
+Without a validated registry and colocated loaders, later features (search facets, tag pills, related links, citations, MDX rendering) would infer meaning from prose or duplicate JSON parsing in multiple places. Broken `registryId`, tag, or citation references would only surface at runtime or during manual review.
 
 ### Solution
 
-Establish `src/lib/content` schemas and loaders, seed the grouped-query-attention baseline across registry and page-local files, and add `scripts/validate-registry.ts` plus `make validate-data` so maintainers get a clear pass/fail signal before build or deploy.
+Introduce `src/lib/content` as the single owner for Zod schemas, typed registry/message/asset loaders, and validation logic. Add Phase 1 starter JSON under `src/content/registry` and colocated `messages/en.json` plus `assets.json` for the grouped-query attention module path and token glossary path. Expose `make validate-data` (running `scripts/validate-registry.ts`) so CI and local development reject invalid content before build.
 
 ## Goals
 
-- Define Zod-backed TypeScript schemas for base registry records, module/tag/citation kinds, page frontmatter, page messages, and page asset config.
-- Load registry JSON into typed lookup maps (`id`, `slug`, `tag`) usable by future routes and features.
-- Load colocated `messages/<locale>.json` and `assets.json` for a docs page directory.
-- Publish one coherent baseline: `module.grouped-query-attention`, `tag.attention`, one supporting citation, and matching page files under `src/content/docs/modules/grouped-query-attention/`.
-- Fail validation with actionable errors when schemas break or references do not resolve.
-- Prove correctness with targeted unit tests and a runnable `make validate-data` command.
+- Establish Zod schemas and inferred TypeScript types for Phase 1 registry kinds: module, concept, tag, citation, plus shared base fields, page messages, and page assets.
+- Load all registry JSON into lookup maps (`id`, `slug`, tag slug) usable by routes and search builders without re-parsing files.
+- Ship four interconnected starter records: grouped-query attention module, token concept, attention tag, and one supporting citation.
+- Resolve colocated default-locale messages and asset config for the two Phase 1 page directories.
+- Fail validation with clear, actionable errors when schemas, IDs, tags, citations, message keys, or asset references are inconsistent.
+- Prove loader and validator behavior with focused unit tests (not meta-inventory scans).
 
 ## Project-Level Acceptance Criteria
 
-- [ ] Zod schemas in `src/lib/content/schemas.ts` cover base registry fields plus module, tag, and citation record shapes aligned with `docs/data-model.md`.
-- [ ] Zod schemas also cover page frontmatter, `PageMessages`, and `PageAssetConfig` shapes used by the grouped-query-attention page.
-- [ ] `src/lib/content/registry.ts` loads all registry JSON under `src/content/registry/**` and exposes typed lookups by record `id` and `slug`, plus tag lookup by tag id/slug.
-- [ ] Exactly one published module record (`module.grouped-query-attention`), one tag record (`tag.attention`), and one citation record referenced by that module exist and pass schema validation.
-- [ ] Colocated loaders in `src/lib/content/messages.ts` and `src/lib/content/assets.ts` resolve the grouped-query-attention page’s default-locale messages and asset IDs.
-- [ ] `bun ./scripts/validate-registry.ts` exits 0 on the baseline and exits non-zero with a human-readable error when a relationship id, tag, citation, message key, or asset reference is broken.
-- [ ] `make validate-data` runs the registry validation script and is documented for CI inclusion once the app scaffold exists.
-- [ ] Quality gate: typecheck, lint, and tests pass for all changes in this work item.
+- [ ] Running `make validate-data` exits 0 on the Phase 1 baseline content and exits non-zero when a required relationship or message/asset key is broken (demonstrated by at least one failing test or documented negative case in tests).
+- [ ] Registry loader returns the grouped-query attention module, token concept, attention tag, and citation by stable `id` without runtime JSON parse errors.
+- [ ] Colocated message loader returns English title and section keys for both Phase 1 page directories when given their docs paths.
+- [ ] Colocated asset loader resolves declared asset IDs for both pages and rejects missing `altKey` targets when messages lack the referenced keys.
+- [ ] Starter records cross-reference each other consistently (module and concept use `tag.attention`; module references the citation; tag record exists for `attention`).
+- [ ] Typecheck, lint, and tests pass for all changes introduced by this work item.
 
 ## User Stories
 
-### content-registry-validation-001: Registry base and kind-specific Zod schemas
+### content-registry-validation-001: Phase 1 content schemas
 
-**Description:** As a maintainer, I need typed Zod schemas for shared registry fields and the module, tag, and citation kinds so invalid JSON is caught before loaders or validation run.
-
-**Acceptance Criteria:**
-
-- [ ] `src/lib/content/schemas.ts` exports Zod schemas and inferred types for `BaseRecord`, `RegistryKind`, `RegistryStatus`, `ModuleRecord`, `TagRecord`, and `CitationRecord` matching `docs/data-model.md` field names and required enums.
-- [ ] Module schema enforces `moduleType`, `optimizes`, `practicalBenefits`, and related id arrays; tag schema enforces `category` and `landingPage`; citation schema enforces `citationType`, `authors`, `title`, `url`, and `mla`.
-- [ ] Invalid sample payloads (wrong enum, missing required field, malformed id) fail `safeParse` in a focused schema unit test.
-- [ ] Typecheck passes
-- [ ] Tests pass
-
-### content-registry-validation-002: Page frontmatter, message, and asset Zod schemas
-
-**Description:** As a maintainer, I need schemas for MDX frontmatter and colocated page files so the canonical page structure cannot drift from the registry contract.
+**Description:** As a maintainer, I need Zod schemas for Phase 1 registry records and colocated page payloads so invalid JSON fails at validation time with typed errors.
 
 **Acceptance Criteria:**
 
-- [ ] `src/lib/content/schemas.ts` exports Zod schemas for `PageFrontmatter`, `PageMessages`, and `PageAsset` / `PageAssetConfig` aligned with `docs/data-model.md`.
-- [ ] Frontmatter schema requires `kind`, `registryId`, `messageNamespace`, `assetNamespace`, `tags`, `status`, and `updatedAt` for module pages.
-- [ ] Message schema requires `title` and `description` and validates nested `sections` and optional `assets` alt/caption keys.
-- [ ] Asset schema validates discriminated `type` unions (`image`, `graph`, `chart`, `table`, `code-schema`) and required keys per type.
-- [ ] Invalid frontmatter or asset config fails `safeParse` in a focused unit test.
-- [ ] Typecheck passes
-- [ ] Tests pass
+- [x] `BaseRecord` fields (`id`, `slug`, `kind`, `defaultTitleKey`, `defaultSummaryKey`, `aliases`, `tags`, `relatedIds`, `citationIds`, `status`, timestamps) are defined and validated.
+- [x] Discriminated schemas exist for `module`, `concept`, `tag`, and `citation` records matching `docs/data-model.md` Phase 1 fields (module type/family/variantGroup; concept type; tag category/landingPage; citation MLA fields).
+- [x] `PageMessages` and `PageAssetConfig` schemas match the module and concept template shapes under `docs/templates/`.
+- [x] Exported inferred types are available for loaders and tests.
+- [x] Typecheck passes
+- [x] Tests pass for schema parse success on minimal valid fixtures and parse failure on intentionally invalid fixtures
 
-### content-registry-validation-003: Registry loader with typed lookup maps
+### content-registry-validation-002: Registry loader and lookup maps
 
-**Description:** As a developer building docs features, I want a single registry loader that returns typed records and indexes so I do not parse JSON ad hoc in components.
-
-**Acceptance Criteria:**
-
-- [ ] `src/lib/content/registry.ts` reads JSON files from `src/content/registry/{modules,tags,citations}/` (and is structured to extend to other kinds later without API breakage).
-- [ ] Loader returns maps: `byId`, `bySlug`, and `tagsById` (or equivalent) with values typed from Zod-inferred record types.
-- [ ] Loading the Phase 1 baseline resolves `module.grouped-query-attention`, `tag.attention`, and the sample citation by id.
-- [ ] Duplicate `id` or `slug` across loaded records throws or returns a structured error consumed by validation.
-- [ ] Unit test proves all three baseline records load and are retrievable by id.
-- [ ] Typecheck passes
-- [ ] Tests pass
-
-### content-registry-validation-004: Baseline module, tag, and citation registry records
-
-**Description:** As a content author, I need real registry JSON for grouped-query attention so the canonical page has authoritative metadata, tags, and citations.
+**Description:** As a downstream feature author, I need one registry loader that builds typed lookup maps so I can resolve records by `id`, `slug`, or tag without reading the filesystem myself.
 
 **Acceptance Criteria:**
 
-- [ ] `src/content/registry/modules/grouped-query-attention.json` exists with `id: module.grouped-query-attention`, `kind: module`, `status: published`, attention-related `moduleType`/`variantGroup`, tags including `attention`, and `citationIds` pointing at the sample citation.
-- [ ] `src/content/registry/tags/attention.json` exists with `id: tag.attention`, `kind: tag`, `category: module-type` (or appropriate enum), and aliases useful for search recall (e.g. `attention mechanisms`).
-- [ ] `src/content/registry/citations/<slug>.json` exists with stable `id`, MLA text, and URL for the primary GQA reference used on the module page.
-- [ ] All three files pass the Zod schemas from content-registry-validation-001 when parsed directly.
+- [ ] Loader reads JSON from `src/content/registry/{modules,concepts,tags,citations}/` and returns records validated against the Phase 1 schemas.
+- [ ] Exported maps support `getById`, `getBySlug`, and `getTagBySlug` (or equivalent) for Phase 1 kinds.
+- [ ] Duplicate `id` or conflicting `slug` across loaded records causes loader or validation to surface an error (covered by test).
 - [ ] Typecheck passes
-- [ ] Tests pass
+- [ ] Tests pass for loading an in-memory or fixture registry subset and resolving records by `id` and `slug`
 
-### content-registry-validation-005: Colocated message loader
+### content-registry-validation-003: Phase 1 starter registry records
 
-**Description:** As a developer, I want to load default-locale page messages from `messages/<locale>.json` next to a docs page so MDX components can resolve `T` keys without reading files manually.
+**Description:** As a reader-facing feature owner, I need canonical starter registry data for grouped-query attention, token, attention, and one citation so Phase 1 pages and search have real structured meaning to attach to.
 
 **Acceptance Criteria:**
 
-- [ ] `src/lib/content/messages.ts` exports a function that accepts a page directory path (or slug path) and locale, reads `messages/<locale>.json`, validates against `PageMessages`, and returns typed messages.
-- [ ] Missing default locale file (`en`) produces a clear error.
-- [ ] Loader resolves grouped-query-attention `title`, `description`, and at least one `sections.*` key used by the module template.
-- [ ] Unit test loads the baseline page messages successfully.
+- [ ] `module.grouped-query-attention` exists with `moduleType: "attention"`, `variantGroup` for attention variants, tags including `attention` and `kv-cache`, and at least one `citationIds` entry.
+- [ ] `concept.token` exists as the glossary/concept record for token with appropriate `conceptType` and shared discovery tags.
+- [ ] `tag.attention` exists with `category` and `landingPage` suitable for tag discovery surfaces.
+- [ ] One `citation.*` record exists with MLA text and stable URL for the module’s primary reference.
+- [ ] All `tags`, `relatedIds`, and `citationIds` on starter records resolve to existing Phase 1 records.
 - [ ] Typecheck passes
-- [ ] Tests pass
+- [ ] Tests pass asserting the four records load and cross-reference successfully via the registry loader
 
-### content-registry-validation-006: Colocated asset loader
+### content-registry-validation-004: Phase 1 colocated content fixtures for both pages
 
-**Description:** As a developer, I want to load and resolve `assets.json` next to a docs page so MDX and graph components receive concrete asset config by id.
+**Description:** As a downstream page implementer, I need realistic colocated `messages/en.json` and `assets.json` fixtures for grouped-query attention and token so loaders and validation reflect real page usage.
 
 **Acceptance Criteria:**
 
-- [ ] `src/lib/content/assets.ts` exports a function that loads and validates colocated `assets.json` against `PageAssetConfig`.
-- [ ] Given an asset id (e.g. `computeFlow`), the loader returns the typed asset entry including `type`, renderer fields for graphs, and message keys for alt/caption.
-- [ ] Requesting an unknown asset id returns a clear error.
-- [ ] Unit test loads baseline grouped-query-attention assets and resolves at least `computeFlow`.
+- [ ] Grouped-query attention directory includes default-locale messages with non-empty `title`, `description`, and core module sections (`whatItIs`, `whatItOptimizes`, etc.) aligned to the module template.
+- [ ] Token glossary directory includes default-locale messages with glossary-appropriate sections (`whatItIs`, `whyItMatters`, `simpleExample`, etc.).
+- [ ] Each directory includes `assets.json` with at least one resolvable asset ID and message-backed alt/caption keys (image and/or graph/table per template intent).
 - [ ] Typecheck passes
 - [ ] Tests pass
 
-### content-registry-validation-007: Canonical grouped-query-attention page content bundle
+### content-registry-validation-005: Colocated message loading
 
-**Description:** As a content maintainer, I need the canonical MDX page structure plus colocated messages and assets so validation and future rendering share one baseline page.
+**Description:** As a docs renderer, I need default-locale messages loaded and validated from page directories so MDX can reference stable keys like `sections.whatItIs.title`.
 
 **Acceptance Criteria:**
 
-- [ ] `src/content/docs/modules/grouped-query-attention/page.mdx` exists with frontmatter `registryId: module.grouped-query-attention`, `kind: module`, `messageNamespace: local`, `assetNamespace: local`, and tags that resolve to `tag.attention`.
-- [ ] Page structure follows `docs/templates/module.mdx` patterns: uses `T`, `Section`, and registry-backed components; no raw user-visible prose outside approved structural wrappers.
-- [ ] `messages/en.json` provides non-empty `title`, `description`, `problemStatement`, `coreIdea`, and section bodies/headings for keys referenced in `page.mdx`.
-- [ ] `assets.json` declares at least `computeFlow` (and other ids referenced in MDX if present) with valid `altKey`/`captionKey` paths that exist in `messages/en.json`.
-- [ ] Running message and asset loaders against this directory succeeds without error.
+- [ ] Message loader reads `messages/en.json` for `src/content/docs/modules/grouped-query-attention/` and `src/content/docs/glossary/token/` (or the scaffold’s equivalent glossary path).
+- [ ] Loader validates file content against `PageMessages` and returns typed messages including `title`, `description`, and required section keys used by templates.
+- [ ] Missing default-locale file or unknown top-level shape fails with a clear error (covered by test).
 - [ ] Typecheck passes
-- [ ] Tests pass
+- [ ] Tests pass for successful load of both Phase 1 message files and failure on a malformed fixture
 
-### content-registry-validation-008: Registry validation script
+### content-registry-validation-006: Colocated asset loading and key resolution
 
-**Description:** As a CI maintainer, I want `validate-registry.ts` to fail the build when registry, page, message, or asset data is inconsistent so bad content never ships.
+**Description:** As a docs renderer, I need asset IDs resolved from colocated `assets.json` with alt/caption keys validated against page messages.
 
 **Acceptance Criteria:**
 
-- [ ] `scripts/validate-registry.ts` validates all registry JSON against kind schemas, enforces unique `id` and `slug`, and verifies `relatedIds`, `citationIds`, and tag references resolve to existing records for the Phase 1 baseline.
-- [ ] Script validates the grouped-query-attention page: frontmatter `registryId` exists, default-locale messages exist, MDX-referenced message keys exist in `en.json`, and MDX/asset-referenced asset ids exist in `assets.json`.
-- [ ] Script exits with code 1 and prints the offending file/id when a baseline record is mutated to reference a missing tag or citation (covered by a test or script invocation test).
-- [ ] Script exits 0 on the committed baseline.
+- [ ] Asset loader reads colocated `assets.json` for both Phase 1 page directories and returns typed `PageAsset` values per asset ID.
+- [ ] For each image asset, `altKey` must resolve to a string in the loaded default-locale messages (test covers success and missing-key failure).
+- [ ] Graph/chart/table asset entries declare required renderer fields per `docs/data-model.md` (web and print renderer for graphs).
 - [ ] Typecheck passes
-- [ ] Tests pass
+- [ ] Tests pass for resolving declared asset IDs and rejecting broken `altKey` references
 
-### content-registry-validation-009: Make validate-data target and validation tests
+### content-registry-validation-007: Registry validation CLI and Makefile target
 
-**Description:** As a developer running local CI, I want `make validate-data` and automated tests so registry validation stays wired and regressions are caught quickly.
+**Description:** As a CI maintainer, I need `make validate-data` to run a single validation entrypoint that checks registry shape, relationships, and Phase 1 page/message/asset consistency.
 
 **Acceptance Criteria:**
 
-- [ ] Root `Makefile` defines `validate-data` to run `bun ./scripts/validate-registry.ts`.
-- [ ] `make validate-data` succeeds on a clean checkout after this work item.
-- [ ] Test suite includes cases for: successful baseline validation, schema rejection, and unresolved reference failure (at least one negative path).
+- [ ] `scripts/validate-registry.ts` validates all Phase 1 registry JSON against schemas, enforces unique `id`/`slug`, resolves `tags`, `relatedIds`, and `citationIds`, and checks Phase 1 pages have default-locale messages and resolvable asset keys.
+- [ ] `make validate-data` invokes the script and is documented in the root Makefile help or README command list.
+- [ ] Running `make validate-data` on the committed Phase 1 baseline exits with code 0.
+- [ ] Validation reports human-readable errors including record `id` or page path when a check fails (verified by test with a temporary invalid fixture or inline negative case).
 - [ ] Typecheck passes
-- [ ] Tests pass
+- [ ] Tests pass for at least one validation failure path and the happy path against Phase 1 fixtures
 
 ## Functional Requirements
 
-- FR-1: Registry records use stable kebab-case ids namespaced by kind (`module.*`, `tag.*`, `citation.*`).
-- FR-2: Zod is the schema library; inferred TypeScript types are exported alongside schemas.
-- FR-3: Registry loader is the only supported path for reading registry JSON in application code introduced by this work item.
-- FR-4: Message and asset loaders validate before returning data.
-- FR-5: Phase 1 baseline uses grouped-query-attention as the canonical module page path under `src/content/docs/modules/grouped-query-attention/`.
-- FR-6: `scripts/validate-registry.ts` is the authority for data correctness checks scoped to registry, colocated messages, and colocated assets (not docs link topology or bundle internals).
-- FR-7: Validation errors name the failing record id, page path, message key, or asset id.
+- **FR-1:** Registry JSON lives under `src/content/registry/{modules,concepts,tags,citations}/` with kebab-case filenames matching record `id` suffix.
+- **FR-2:** Stable IDs: `module.grouped-query-attention`, `concept.token`, `tag.attention`, and one `citation.*` record for Phase 1.
+- **FR-3:** `src/lib/content/schemas.ts` owns Zod schemas; `registry.ts`, `messages.ts`, and `assets.ts` own loaders; no duplicate parsing in feature folders.
+- **FR-4:** Validation covers schema match, ID/slug uniqueness, tag resolution, relationship ID resolution, default-locale message presence for Phase 1 pages, asset ID presence, and alt/caption key resolution.
+- **FR-5:** Phase 1 pages use `messageNamespace: local` and `assetNamespace: local` conventions when MDX stubs are added by sibling work; this item provides the colocated files loaders consume.
+- **FR-6:** Starter module record includes aliases discoverable by search (`GQA`, `grouped-query attention`) for downstream Orama work.
 
 ## Non-Goals
 
-- No Next.js route or Fumadocs rendering implementation (handled by `docs-template-rendering` and `site-app-scaffold`).
-- No Orama search index builder or search UI.
-- No home, glossary, or tag landing pages.
-- No graph registry records, React Flow rendering, or PDF export validation.
-- No additional registry kinds beyond module, tag, and citation for Phase 1 baseline (schemas may be extensible, but only these three records are required).
-- No Vietnamese or additional locales beyond proving default `en` for the sample page.
-- No broad refactors of unrelated factory or documentation files.
+- Rendering MDX pages, tag landing UI, search UI, or home/glossary index pages (sibling work items).
+- Implementing Orama search indexing or search document builders.
+- Full registry coverage for models, papers, training regimes, datasets, hardware, organizations, or graphs beyond what Phase 1 pages reference.
+- PDF export validation (`validate-pdf`) or link checking (`validate-links`).
+- Secondary locales beyond English for Phase 1 (structure may allow `vi.json` later).
+- Requiring published MDX pages to exist in this branch if sibling work adds them immediately after; validation may treat missing pages as errors only when matching `page.mdx` files are present in the tree (draft records remain valid until publish).
 
 ## High-Level Technical Design
 
 ```txt
-src/content/registry/          JSON source of truth
-  modules/grouped-query-attention.json
-  tags/attention.json
-  citations/<slug>.json
-
-src/content/docs/modules/grouped-query-attention/
-  page.mdx                       structure + registryId
-  messages/en.json               localized display text
-  assets.json                    asset id -> config
-
-src/lib/content/
-  schemas.ts                     Zod + inferred types
-  registry.ts                    load + index registry JSON
-  messages.ts                    load + validate page messages
-  assets.ts                      load + validate page assets
-
-scripts/validate-registry.ts     CLI validation orchestrator
+src/content/registry/**/*.json
+        |
+        v
+schemas.ts (Zod) --> registry.ts (load + maps)
+        |
+        +--> messages.ts <-- messages/en.json (per page dir)
+        |
+        +--> assets.ts <-- assets.json (per page dir)
+        |
+        v
+scripts/validate-registry.ts
+        |
+        v
+make validate-data  -->  CI / local gate
 ```
 
-**Dependency note:** This work item assumes the `site-app-scaffold` work item provides Bun, TypeScript, Biome, and `src/lib/content` directory placement. If scaffold is incomplete, stories 001–003 may land package wiring first, but must not duplicate full app UI work.
+**Package ownership:** `src/lib/content` is the only import surface for content loading in app and scripts. Validation script imports loaders/schemas; it does not reimplement parsing.
 
-**Validation flow:**
+**Phase 1 page paths (conventional):**
 
-1. Load and schema-parse all registry JSON.
-2. Build indexes; detect duplicate ids/slugs.
-3. Resolve cross-record references for baseline records.
-4. For each published canonical docs page in scope (grouped-query-attention only in Phase 1): validate frontmatter, load messages/assets, check key and id resolution.
+```txt
+src/content/docs/modules/grouped-query-attention/
+  messages/en.json
+  assets.json
+src/content/docs/glossary/token/
+  messages/en.json
+  assets.json
+```
 
-## Supporting Technical and UX Considerations
+**Record relationships (minimum):**
 
-- Follow `docs/data-model.md` and `docs/architecture.md` for field names, id conventions, and file layout.
-- Prefer throwing structured errors with record/page context over silent coercion.
-- Keep loaders pure (read filesystem, parse, validate, return) so unit tests do not require a running Next server.
-- Message keys referenced in MDX must exist in default locale; this is user-visible correctness even before UI stories land.
-- Tag and citation records should include aliases that later support search queries like `GQA`, `attention`, and `KV cache` without prose scraping.
+```txt
+module.grouped-query-attention
+  tags: [attention, kv-cache, ...]
+  citationIds: [citation.<gqa-paper>]
+concept.token
+  tags: [attention, ...]  # as appropriate for discovery
+tag.attention
+  # landing metadata for /tags/attention
+citation.<id>
+  # MLA + URL for module references
+```
+
+## Supporting Technical Considerations
+
+- Align field names and enums with `docs/data-model.md` and `docs/architecture.md`; do not invent parallel naming.
+- Prefer Zod `.strict()` or equivalent for registry records to catch typos early.
+- Validation errors should name the failing `id`, tag, or page path—avoid stack-only failures.
+- Keep starter copy concise but realistic; downstream rendering work will bind MDX structure to these keys.
+- This branch should not modify unrelated factory or planning files except when required by scaffold conventions.
 
 ## Success Metrics
 
-- `make validate-data` completes in under a few seconds on the baseline.
-- A maintainer can add a broken `citationIds` reference and see a single clear validation failure without running the full site.
-- All three baseline registry records and the page bundle load through typed APIs with zero `any` escapes in public loader return types.
-- Negative-path test fails in CI when validation regresses.
+- `make validate-data` completes in under a few seconds on Phase 1 content.
+- A maintainer can add a broken `citationIds` reference and get a single clear error without running the full site build.
+- Downstream `docs-template-rendering` can import registry and colocated loaders without new parsing code.
 
 ## Open Questions
 
-None for Phase 1 baseline scope; grouped-query-attention is the canonical page per `factory/internal/customer-ask.md` and `docs/documentation-site-pages-needed.md`.
+None for Phase 1 scope; glossary page path follows scaffold conventions from `site-app-scaffold` (`glossary/token` vs `concepts/token`—implementers should match the scaffold’s docs tree and keep `registryId` consistent).

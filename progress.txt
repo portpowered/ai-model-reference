@@ -1,5 +1,6 @@
 ## Codebase Patterns
-- Registry Zod schemas live in `src/lib/content/schemas.ts`; shared base fields use a `baseRecordShape` object spread into kind-specific schemas with `z.literal("module"|"tag"|"citation")` for `kind`.
+- Registry Zod schemas live in `src/lib/content/schemas.ts`; shared base fields use a `baseRecordShape` object spread into kind-specific schemas with `z.literal("module"|"concept"|"tag"|"citation")` for `kind`.
+- `registryRecordSchema` is a `z.discriminatedUnion("kind", [moduleRecordSchema, conceptRecordSchema, tagRecordSchema, citationRecordSchema])` for parsing any Phase 1 registry record by `kind`.
 - Page schemas use `pageKindSchema` (docs page kinds) separate from `registryKindSchema`; `pageAssetSchema` is a `z.discriminatedUnion("type", [...])` and `pageAssetConfigSchema` is `z.record(z.string(), pageAssetSchema)`.
 - `loadRegistry()` in `src/lib/content/registry.ts` reads `src/content/registry/{modules,tags,citations}/*.json`, validates per-directory Zod schemas, and returns `byId`, `bySlug`, and `tagsById` maps; pass `registryRoot` in tests for temp fixtures.
 - `RegistryLoadError` carries structured `details` for duplicate id/slug (`duplicate-id`, `duplicate-slug`) and parse/validation failures (`parse-error`).
@@ -72,4 +73,14 @@
   - Patterns discovered: mirror `messages.ts` IO/validation split; `resolvePageAsset` reuses `loadPageAssets` and lists `availableIds` on unknown id.
   - Gotchas encountered: graph assets need narrowing (`asset.type === "graph"`) in tests to access renderer fields on the discriminated union.
   - Useful context: baseline `graphId` is `graph.grouped-query-attention-compute-flow`; full MDX page bundle remains story 007.
+---
+
+## 2026-06-02T19:47:50Z - content-registry-validation-001
+- Added `conceptTypeSchema`, `conceptRecordSchema`, and `registryRecordSchema` (`z.discriminatedUnion("kind", ...)`) aligned with `docs/data-model.md` Phase 1 concept fields (`conceptType`, `prerequisiteIds`, `explainsIds`).
+- Extended schema tests for valid concept fixtures, invalid concept payloads, and discriminated-union parsing of tag records.
+- Files changed: `src/lib/content/schemas.ts`, `src/lib/content/schemas.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: export `conceptRecordSchema` alongside module/tag/citation; use `registryRecordSchema` when validating unknown JSON before routing to a kind-specific loader directory.
+  - Gotchas encountered: avoid exporting a second `RegistryRecord` type from `schemas.ts` — `registry.ts` already defines that union for loaded records (story 002 will add concept to the loader).
+  - Useful context: page/message/asset schemas from the prior branch commit already satisfy story 001 page-schema criteria; this iteration closed the missing concept registry schema gap.
 ---
