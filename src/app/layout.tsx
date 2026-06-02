@@ -1,3 +1,4 @@
+import { RootProvider } from "fumadocs-ui/provider/next";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
@@ -17,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="min-h-screen bg-background text-foreground antialiased">
-        {children}
+        <RootProvider>{children}</RootProvider>
       </body>
     </html>
   );
