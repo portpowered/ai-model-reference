@@ -18,11 +18,10 @@ test:
 build:
 	bun run build
 
-ci: lint typecheck test build
+ci: lint typecheck test build validate-data
 
 validate-data:
-	@echo "validate-data: skipped (not yet implemented in scaffold)"
-	@exit 0
+	bun ./scripts/validate-registry.ts
 
 linkcheck:
 	@echo "linkcheck: skipped (not yet implemented in scaffold)"
