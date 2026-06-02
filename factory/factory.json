@@ -1,13 +1,38 @@
 {
-  "name": "factory",
+  "name": "UNDEFINED",
   "resources": [
     {
       "capacity": 8,
       "name": "executor-slot"
+    },
+    {
+      "capacity": 1,
+      "name": "concurrent-planners"
     }
   ],
   "supportingFiles": {
     "bundledFiles": [
+      {
+        "content": {
+          "encoding": "utf-8"
+        },
+        "targetPath": "factory/docs/batch-input-example.json",
+        "type": "DOC"
+      },
+      {
+        "content": {
+          "encoding": "utf-8"
+        },
+        "targetPath": "factory/docs/batch-inputs.md",
+        "type": "DOC"
+      },
+      {
+        "content": {
+          "encoding": "utf-8"
+        },
+        "targetPath": "factory/docs/overview.md",
+        "type": "DOC"
+      },
       {
         "content": {
           "encoding": "utf-8"
@@ -19,7 +44,7 @@
   },
   "version": {
     "logical": 1780285923114720801,
-    "physical": "2026-06-01T04:23:46.275252Z"
+    "physical": "2026-06-02T13:09:58.919888Z"
   },
   "workTypes": [
     {
@@ -110,7 +135,7 @@
   "workers": [
     {
       "executorProvider": "SCRIPT_WRAP",
-      "modelProvider": "CODEX",
+      "modelProvider": "CURSOR",
       "name": "processor",
       "skipPermissions": true,
       "stopToken": "\u003cCOMPLETE\u003e",
@@ -126,12 +151,9 @@
       "type": "SCRIPT_WORKER"
     },
     {
-      "args": [
-        "factory/scripts/blah"
-      ],
-      "command": "python3",
-      "name": "decima",
-      "type": "SCRIPT_WORKER"
+      "modelProvider": "CODEX",
+      "name": "planner",
+      "type": "MODEL_WORKER"
     }
   ],
   "workstations": [
@@ -158,11 +180,11 @@
       "resources": [
         {
           "capacity": 1,
-          "name": "executor-slot"
+          "name": "concurrent-planners"
         }
       ],
       "type": "MODEL_WORKSTATION",
-      "worker": "processor"
+      "worker": "planner"
     },
     {
       "inputs": [
