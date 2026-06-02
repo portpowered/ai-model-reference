@@ -29,3 +29,4 @@ general style:
 - fantasy/technology
 - vibrant and maximalist. 
 - game world style. 
+- inspired by the metaphor/persona style of games. 

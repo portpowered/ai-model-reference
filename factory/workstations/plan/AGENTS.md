@@ -58,7 +58,9 @@ Please convert the file into the corresponding `tasks/todo/{{ (index .Inputs 0).
 
 The JSON file must be implementation-ready and contain:
 - `project`
-- `branchName` using `ralph/<feature-name-kebab-case>`
+- `branchName` using the exact work item name `{{ (index .Inputs 0).Name }}`.
+  The setup-workspace step uses the PRD/work item name as the git branch and
+  worktree name, so `branchName` must stay aligned with that value.
 - `description`
 - `context.customerAsk`
 - `context.problem`
@@ -171,7 +173,7 @@ Add priority levels to tasks so users can focus on what matters most. Tasks can 
 ```json
 {
   "project": "[Project Name]",
-  "branchName": "ralph/[feature-name-kebab-case]",
+  "branchName": "{{ (index .Inputs 0).Name }}",
   "description": "[Feature description from PRD title/intro]",
   "userStories": [
     {

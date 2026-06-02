@@ -1,0 +1,57 @@
+{
+  "requestId": "phase-1-default-site-batch-001",
+  "type": "FACTORY_REQUEST_BATCH",
+  "works": [
+    {
+      "name": "site-app-scaffold",
+      "workTypeName": "idea",
+      "payload": "Phase 1: create the initial Next.js App Router, Fumadocs, Tailwind, shadcn/ui, Bun, Biome, and Makefile scaffold for the AI model reference website. Include CI-oriented local commands and static docs routing placeholders."
+    },
+    {
+      "name": "content-registry-validation",
+      "workTypeName": "idea",
+      "payload": "Phase 1: implement the minimum structured content baseline needed for one canonical docs page, including TypeScript/Zod schemas, registry loaders, one module record, one tag record, one citation record, colocated message loading, colocated asset loading, and validation."
+    },
+    {
+      "name": "docs-template-rendering",
+      "workTypeName": "idea",
+      "payload": "Phase 1: implement canonical docs rendering for one basic module page, preferably grouped-query attention, using localized message keys, resolved asset references, tag pills, citations, and a minimal derived related-documents section."
+    },
+    {
+      "name": "default-pages-search-tags",
+      "workTypeName": "idea",
+      "payload": "Phase 1: implement the default site pages and discovery surfaces: home/reference entry page, search entry, glossary index, tags index, one attention tag landing page, and basic Fumadocs Orama search for the sample docs page."
+    },
+    {
+      "name": "ideafy-loopback-phase-1-default-site-batch-001",
+      "workTypeName": "thoughts",
+      "payload": "Review the completed Phase 1 default-site ideas, update factory/internal progress and checklist state, wait for manual confirmation if needed, and prepare the next coherent phase batch."
+    }
+  ],
+  "relations": [
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "ideafy-loopback-phase-1-default-site-batch-001",
+      "targetWorkName": "site-app-scaffold",
+      "requiredState": "complete"
+    },
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "ideafy-loopback-phase-1-default-site-batch-001",
+      "targetWorkName": "content-registry-validation",
+      "requiredState": "complete"
+    },
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "ideafy-loopback-phase-1-default-site-batch-001",
+      "targetWorkName": "docs-template-rendering",
+      "requiredState": "complete"
+    },
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "ideafy-loopback-phase-1-default-site-batch-001",
+      "targetWorkName": "default-pages-search-tags",
+      "requiredState": "complete"
+    }
+  ]
+}

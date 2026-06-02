@@ -529,6 +529,16 @@ make clean     # remove generated artifacts
 * Recursive module graph labels and edge labels resolve from localized message keys.
 * Recursive module graph data, page structure, messages, and asset config should stay colocated when the graph is page-specific.
 
+## README
+* readme has one line description of what the project problem, is and how it solves it. 
+
+* readme has a one line description of how to use it (website link)
+* readme has a series of badges denoting the license, the license, supported languages, number of pages
+* readme is in english. (in a later step we should progress forward)
+* readme explains the overall structure of the project
+* readme has a basic instructions on how to build the project and how to use
+* readme explains the build process via the agent factory loop
+* readme has acknowledgements of relevant links/files
 ## Components
 
 * Uses standard shadcn/ui components where possible.

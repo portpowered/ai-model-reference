@@ -40,6 +40,7 @@ You figure out how you works by running `you -h` and `you docs agents`. don't ru
 # writing code
 when writing code, we generally look to standardize and minimize complexity. 
 [design-skills](./docs/design-skills.md)
+[code-standards](./docs/code-standards.md)
 
 # writing docs
 As a general rule, we want docs to be fresh and relevant, meaning that all pages should have references to appropriate other pages for relevant information. i.e. a page on attention variants should link to the other pages around attention and explain why this one is better when its written. 

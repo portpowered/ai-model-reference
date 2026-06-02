@@ -4,7 +4,9 @@ You are an autonomous coding agent working on a software project.
 
 1. Read the PRD at `prd.json` (in the current working directory)
 2. Read the progress log at `progress.txt` 
-3. Check you're on the correct branch from PRD `branchName`. If not, check it out or create from main.
+3. Check you're on the branch named by PRD `branchName`. For this factory,
+   `branchName` should match the PRD/work item name because
+   `setup-workspace.py` creates worktrees from the PRD name.
 4. Do the following: 
 4.1. See if there is an existing PR for this commit and check if there is any feedback. If there is feedback address it. Use PR conversation comments as the single feedback channel for this workflow.
 4.2. Pick the **highest priority** user story where `passes: false`, 

@@ -3,9 +3,9 @@
 
 Usage: python scripts/agents/setup-workspace.py <prd-name>
 
-Reads the PRD from tasks/todo/<prd-name>.json, extracts the branchName,
-syncs main, creates or reuses a git worktree, copies the PRD (and optional
-.md) into the worktree root, and prints a JSON result to stdout.
+Reads tasks/todo/<prd-name>.json, uses <prd-name> as the branch/worktree name,
+syncs main, creates or reuses a git worktree, copies the PRD (and optional .md)
+into the worktree root, and prints a JSON result to stdout.
 
 Exit 0 on success (stdout = JSON blob), exit 1 on failure (stderr = error).
 """
@@ -173,16 +173,16 @@ def main():
     if not prd_md_path.exists():
         prd_md_path = None
 
-    # Read PRD and extract branch name.
+    # Read the PRD to catch malformed input; the branch name is the work item name.
     try:
-        prd = read_prd(prd_json_path)
+        read_prd(prd_json_path)
     except (json.JSONDecodeError, OSError) as e:
         print(f"Failed to read PRD: {e}", file=sys.stderr)
         sys.exit(1)
 
     branch = f"{prd_name}"
     if not branch:
-        print("PRD missing 'branchName' field", file=sys.stderr)
+        print("PRD name must not be empty", file=sys.stderr)
         sys.exit(1)
 
     # Sync main and prune worktrees.
