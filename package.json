@@ -1,0 +1,20 @@
+{
+  "name": "model-atlas",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "test": "bun test",
+    "build:search-index": "bun ./scripts/build-search-index.ts"
+  },
+  "dependencies": {
+    "@orama/orama": "^3.1.16",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/bun": "latest",
+    "typescript": "^5.8.3"
+  }
+}

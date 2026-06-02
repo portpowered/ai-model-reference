@@ -3,6 +3,7 @@ bin/
 .DS_Store
 
 node_modules/
+src/generated/
 storybook-static/
 *.tsbuildinfo
 *.exe

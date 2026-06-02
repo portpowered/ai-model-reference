@@ -1,0 +1,26 @@
+{
+  "title": "Grouped-Query Attention",
+  "description": "An attention variant that reduces KV cache memory by sharing key-value heads across query heads.",
+  "problemStatement": "KV caches grow with context length and head count, increasing memory and bandwidth during inference.",
+  "coreIdea": "Grouped-query attention (GQA) lets several query heads share fewer key-value heads than standard multi-head attention.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Grouped-query attention is an attention variant derived from multi-head attention. It groups query heads so they reuse a smaller set of key-value heads."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "GQA reduces KV-cache size, memory bandwidth, and long-context inference cost compared with multi-head attention."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Instead of one key-value head per query head, GQA maps multiple query heads to a shared KV head group, shrinking the cache footprint."
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Diagram of grouped-query attention head grouping",
+      "caption": "Query heads share grouped key-value heads."
+    }
+  }
+}
