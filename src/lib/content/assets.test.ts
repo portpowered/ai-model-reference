@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { AssetLoadError, loadPageAssets, resolvePageAsset } from "./assets";
-import { groupedQueryAttentionPageDir } from "./messages";
+import { groupedQueryAttentionPageDir, tokenGlossaryPageDir } from "./messages";
 
 const validAssetConfig = {
   computeFlow: {
@@ -22,6 +22,17 @@ describe("loadPageAssets", () => {
     expect(config.computeFlow).toMatchObject({
       type: "graph",
       graphId: "graph.grouped-query-attention-compute-flow",
+      webRenderer: "react-flow",
+      printRenderer: "mermaid",
+    });
+  });
+
+  test("loads baseline token glossary assets.json", async () => {
+    const config = await loadPageAssets(tokenGlossaryPageDir);
+
+    expect(config.conceptMap).toMatchObject({
+      type: "graph",
+      graphId: "graph.token-concept-map",
       webRenderer: "react-flow",
       printRenderer: "mermaid",
     });

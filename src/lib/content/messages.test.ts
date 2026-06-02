@@ -5,6 +5,7 @@ import {
   MessageLoadError,
   groupedQueryAttentionPageDir,
   loadPageMessages,
+  tokenGlossaryPageDir,
 } from "./messages";
 
 const validMessages = {
@@ -30,6 +31,15 @@ describe("loadPageMessages", () => {
     expect(messages.sections?.whatItIs?.body).toContain(
       "Grouped-query attention",
     );
+  });
+
+  test("loads baseline token glossary messages for locale en", async () => {
+    const messages = await loadPageMessages(tokenGlossaryPageDir, "en");
+
+    expect(messages.title).toBe("Token");
+    expect(messages.description).toContain("smallest unit");
+    expect(messages.sections?.whatItIs?.body).toContain("vocabulary");
+    expect(messages.sections?.whyItMatters?.body).toContain("Tokenization");
   });
 });
 

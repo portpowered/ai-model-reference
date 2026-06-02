@@ -21,6 +21,11 @@ export const groupedQueryAttentionPageDir = join(
   "../../content/docs/modules/grouped-query-attention",
 );
 
+export const tokenGlossaryPageDir = join(
+  import.meta.dir,
+  "../../content/docs/glossary/token",
+);
+
 function messagesFilePath(pageDirectory: string, locale: string): string {
   return join(pageDirectory, "messages", `${locale}.json`);
 }
