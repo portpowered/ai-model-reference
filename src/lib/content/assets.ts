@@ -1,15 +1,23 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { getMessageString, loadPageMessages } from "./messages";
 import {
   type PageAsset,
   type PageAssetConfig,
+  type PageMessages,
   pageAssetConfigSchema,
 } from "./schemas";
 
 export type AssetLoadErrorDetail =
   | { type: "missing-file"; path: string }
   | { type: "parse-error"; path: string; message: string }
-  | { type: "unknown-asset-id"; assetId: string; availableIds: string[] };
+  | { type: "unknown-asset-id"; assetId: string; availableIds: string[] }
+  | {
+      type: "missing-message-key";
+      assetId: string;
+      messageKey: string;
+      pageDirectory: string;
+    };
 
 export class AssetLoadError extends Error {
   readonly details: AssetLoadErrorDetail[];
@@ -91,5 +99,58 @@ export async function resolvePageAsset(
       ],
     );
   }
+  return asset;
+}
+
+export function assetMessageKeys(asset: PageAsset): string[] {
+  const keys: string[] = [];
+  if ("altKey" in asset && asset.altKey) {
+    keys.push(asset.altKey);
+  }
+  if ("captionKey" in asset && asset.captionKey) {
+    keys.push(asset.captionKey);
+  }
+  return keys;
+}
+
+export function validateAssetMessageKeys(
+  asset: PageAsset,
+  messages: PageMessages,
+  context: { pageDirectory: string; assetId: string },
+): void {
+  const missingKeys: string[] = [];
+
+  for (const messageKey of assetMessageKeys(asset)) {
+    if (!getMessageString(messages, messageKey)) {
+      missingKeys.push(messageKey);
+    }
+  }
+
+  if (missingKeys.length === 0) {
+    return;
+  }
+
+  const { pageDirectory, assetId } = context;
+  const details: AssetLoadErrorDetail[] = missingKeys.map((messageKey) => ({
+    type: "missing-message-key",
+    assetId,
+    messageKey,
+    pageDirectory,
+  }));
+
+  throw new AssetLoadError(
+    `Asset "${assetId}" in ${pageDirectory} references missing message key(s): ${missingKeys.join(", ")}`,
+    details,
+  );
+}
+
+export async function resolvePageAssetWithMessages(
+  pageDirectory: string,
+  assetId: string,
+  locale = "en",
+): Promise<PageAsset> {
+  const asset = await resolvePageAsset(pageDirectory, assetId);
+  const messages = await loadPageMessages(pageDirectory, locale);
+  validateAssetMessageKeys(asset, messages, { pageDirectory, assetId });
   return asset;
 }

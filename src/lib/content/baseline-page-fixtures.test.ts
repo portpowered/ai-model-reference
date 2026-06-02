@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { loadPageAssets, resolvePageAsset } from "./assets";
+import { loadPageAssets, resolvePageAssetWithMessages } from "./assets";
 import {
   groupedQueryAttentionPageDir,
   loadPageMessages,
@@ -41,7 +41,7 @@ describe("Phase 1 colocated page fixtures", () => {
 
   test("grouped-query-attention assets resolve with message-backed keys", async () => {
     const assets = await loadPageAssets(groupedQueryAttentionPageDir);
-    const computeFlow = await resolvePageAsset(
+    const computeFlow = await resolvePageAssetWithMessages(
       groupedQueryAttentionPageDir,
       "computeFlow",
     );
@@ -74,7 +74,7 @@ describe("Phase 1 colocated page fixtures", () => {
 
   test("token glossary assets resolve with message-backed keys", async () => {
     const assets = await loadPageAssets(tokenGlossaryPageDir);
-    const conceptMap = await resolvePageAsset(
+    const conceptMap = await resolvePageAssetWithMessages(
       tokenGlossaryPageDir,
       "conceptMap",
     );

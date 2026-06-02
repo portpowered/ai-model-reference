@@ -1,7 +1,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
-import { loadPageAssets } from "./assets";
-import { loadPageMessages } from "./messages";
+import { assetMessageKeys, loadPageAssets } from "./assets";
+import { getMessageString, loadPageMessages } from "./messages";
 import {
   type RegistryIndexes,
   RegistryLoadError,
@@ -181,21 +181,6 @@ export function parseYamlFrontmatterBlock(
   return result;
 }
 
-function hasMessageKey(messages: PageMessages, keyPath: string): boolean {
-  const parts = keyPath.split(".");
-  let current: unknown = messages;
-  for (const part of parts) {
-    if (current === null || typeof current !== "object") {
-      return false;
-    }
-    if (!(part in current)) {
-      return false;
-    }
-    current = (current as Record<string, unknown>)[part];
-  }
-  return typeof current === "string";
-}
-
 function extractQuotedAttributeValues(
   content: string,
   attributeName: string,
@@ -235,7 +220,7 @@ function validateAssetMessageKeys(
   for (const [assetId, asset] of Object.entries(assets)) {
     const keys = assetMessageKeys(asset);
     for (const key of keys) {
-      if (!hasMessageKey(messages, key)) {
+      if (!getMessageString(messages, key)) {
         errors.push({
           code: "missing-message-key",
           message: `${pageDirectory}: asset "${assetId}" references missing message key "${key}"`,
@@ -246,17 +231,6 @@ function validateAssetMessageKeys(
   }
 
   return errors;
-}
-
-function assetMessageKeys(asset: PageAsset): string[] {
-  const keys: string[] = [];
-  if ("altKey" in asset && asset.altKey) {
-    keys.push(asset.altKey);
-  }
-  if ("captionKey" in asset && asset.captionKey) {
-    keys.push(asset.captionKey);
-  }
-  return keys;
 }
 
 async function discoverPageMdxFiles(docsRoot: string): Promise<string[]> {
@@ -372,7 +346,7 @@ async function validatePageMdx(
 
   const mdxBody = match[2] ?? "";
   for (const messageKey of extractMdxMessageKeys(mdxBody)) {
-    if (!hasMessageKey(messages, messageKey)) {
+    if (!getMessageString(messages, messageKey)) {
       errors.push({
         code: "missing-message-key",
         message: `${pagePath}: MDX references missing message key "${messageKey}"`,

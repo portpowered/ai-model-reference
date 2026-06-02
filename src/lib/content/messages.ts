@@ -82,3 +82,22 @@ export async function loadPageMessages(
 
   return result.data;
 }
+
+/** Resolves a dot-separated message key (e.g. `assets.hero.alt`) to a string value. */
+export function getMessageString(
+  messages: PageMessages,
+  keyPath: string,
+): string | undefined {
+  const parts = keyPath.split(".");
+  let current: unknown = messages;
+  for (const part of parts) {
+    if (current === null || typeof current !== "object") {
+      return undefined;
+    }
+    if (!(part in current)) {
+      return undefined;
+    }
+    current = (current as Record<string, unknown>)[part];
+  }
+  return typeof current === "string" ? current : undefined;
+}

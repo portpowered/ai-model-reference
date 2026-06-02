@@ -1,8 +1,18 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { AssetLoadError, loadPageAssets, resolvePageAsset } from "./assets";
-import { groupedQueryAttentionPageDir, tokenGlossaryPageDir } from "./messages";
+import {
+  AssetLoadError,
+  loadPageAssets,
+  resolvePageAsset,
+  resolvePageAssetWithMessages,
+} from "./assets";
+import {
+  getMessageString,
+  groupedQueryAttentionPageDir,
+  loadPageMessages,
+  tokenGlossaryPageDir,
+} from "./messages";
 
 const validAssetConfig = {
   computeFlow: {
@@ -55,6 +65,84 @@ describe("resolvePageAsset", () => {
     expect(asset.printRenderer).toBe("mermaid");
     expect(asset.altKey).toBe("assets.computeFlow.alt");
     expect(asset.captionKey).toBe("assets.computeFlow.caption");
+  });
+});
+
+describe("resolvePageAssetWithMessages", () => {
+  test("resolves graph altKey against default-locale messages for baseline pages", async () => {
+    const moduleAsset = await resolvePageAssetWithMessages(
+      groupedQueryAttentionPageDir,
+      "computeFlow",
+    );
+    const moduleMessages = await loadPageMessages(
+      groupedQueryAttentionPageDir,
+      "en",
+    );
+
+    expect(moduleAsset.type).toBe("graph");
+    if (moduleAsset.type !== "graph" || !moduleAsset.altKey) {
+      throw new Error("expected graph asset with altKey");
+    }
+    expect(getMessageString(moduleMessages, moduleAsset.altKey)).toBe(
+      moduleMessages.assets?.computeFlow?.alt,
+    );
+
+    const glossaryAsset = await resolvePageAssetWithMessages(
+      tokenGlossaryPageDir,
+      "conceptMap",
+    );
+    const glossaryMessages = await loadPageMessages(tokenGlossaryPageDir, "en");
+
+    expect(glossaryAsset.type).toBe("graph");
+    if (glossaryAsset.type !== "graph" || !glossaryAsset.altKey) {
+      throw new Error("expected graph asset with altKey");
+    }
+    expect(getMessageString(glossaryMessages, glossaryAsset.altKey)).toBe(
+      glossaryMessages.assets?.conceptMap?.alt,
+    );
+  });
+
+  test("resolves image altKey to a string in default-locale messages", async () => {
+    const tempPageDir = join(
+      import.meta.dir,
+      "__fixtures__",
+      "page-asset-messages",
+    );
+    await mkdir(tempPageDir, { recursive: true });
+    await mkdir(join(tempPageDir, "messages"), { recursive: true });
+    await writeFile(
+      join(tempPageDir, "messages", "en.json"),
+      JSON.stringify({
+        title: "Fixture",
+        description: "Fixture page for image alt resolution.",
+        assets: {
+          hero: { alt: "Diagram of the fixture concept." },
+        },
+      }),
+    );
+    await writeFile(
+      join(tempPageDir, "assets.json"),
+      JSON.stringify({
+        hero: {
+          type: "image",
+          src: "./assets/hero.png",
+          altKey: "assets.hero.alt",
+        },
+      }),
+    );
+
+    const asset = await resolvePageAssetWithMessages(tempPageDir, "hero");
+    const messages = await loadPageMessages(tempPageDir, "en");
+
+    expect(asset.type).toBe("image");
+    if (asset.type !== "image") {
+      throw new Error("expected image asset");
+    }
+    expect(getMessageString(messages, asset.altKey)).toBe(
+      "Diagram of the fixture concept.",
+    );
+
+    await rm(tempPageDir, { recursive: true, force: true });
   });
 });
 
@@ -111,6 +199,54 @@ describe("loadPageAssets errors", () => {
     await writeAssetsFixture(validAssetConfig);
     const config = await loadPageAssets(tempPageDir);
     expect(config.computeFlow?.type).toBe("graph");
+  });
+});
+
+describe("resolvePageAssetWithMessages errors", () => {
+  const tempPageDir = join(
+    import.meta.dir,
+    "__fixtures__",
+    "page-asset-missing-alt",
+  );
+
+  afterEach(async () => {
+    await rm(tempPageDir, { recursive: true, force: true });
+  });
+
+  test("throws when image altKey does not resolve in default-locale messages", async () => {
+    await mkdir(join(tempPageDir, "messages"), { recursive: true });
+    await writeFile(
+      join(tempPageDir, "messages", "en.json"),
+      JSON.stringify({
+        title: "Fixture",
+        description: "Missing alt key.",
+        assets: {},
+      }),
+    );
+    await writeFile(
+      join(tempPageDir, "assets.json"),
+      JSON.stringify({
+        hero: {
+          type: "image",
+          src: "./assets/hero.png",
+          altKey: "assets.hero.alt",
+        },
+      }),
+    );
+
+    await expect(
+      resolvePageAssetWithMessages(tempPageDir, "hero"),
+    ).rejects.toMatchObject({
+      name: "AssetLoadError",
+      message: expect.stringContaining("assets.hero.alt"),
+      details: [
+        expect.objectContaining({
+          type: "missing-message-key",
+          assetId: "hero",
+          messageKey: "assets.hero.alt",
+        }),
+      ],
+    });
   });
 });
 
