@@ -35,6 +35,14 @@ export type UiMessages = {
     onThisPageSearch: string;
     onThisPageBrowse: string;
   };
+  glossaryIndex: {
+    title: string;
+    description: string;
+    listLabel: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    emptyHomeLink: string;
+  };
   pageKind: Record<string, string>;
 };
 

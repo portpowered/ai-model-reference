@@ -35,6 +35,14 @@
     "onThisPageSearch": "Search",
     "onThisPageBrowse": "Browse"
   },
+  "glossaryIndex": {
+    "title": "Glossary",
+    "description": "Defined machine-learning terms with short summaries. Each entry links to a canonical glossary page when published.",
+    "listLabel": "Glossary entries",
+    "emptyTitle": "No glossary entries yet",
+    "emptyDescription": "Published glossary pages will appear here once they are added to the reference. Return home or open search to explore modules and tags in the meantime.",
+    "emptyHomeLink": "Return home"
+  },
   "pageKind": {
     "module": "Module",
     "model": "Model",
