@@ -13,6 +13,28 @@ export type UiMessages = {
     tags: string;
     docs: string;
   };
+  shell: {
+    sidebarTitle: string;
+    sidebarDescription: string;
+    onThisPage: string;
+  };
+  home: {
+    title: string;
+    subtitle: string;
+    intro: string;
+    searchSectionTitle: string;
+    searchSectionDescription: string;
+    browseSectionTitle: string;
+    browseSectionDescription: string;
+    glossaryLinkTitle: string;
+    glossaryLinkDescription: string;
+    tagsLinkTitle: string;
+    tagsLinkDescription: string;
+    docsLinkTitle: string;
+    docsLinkDescription: string;
+    onThisPageSearch: string;
+    onThisPageBrowse: string;
+  };
   pageKind: Record<string, string>;
 };
 

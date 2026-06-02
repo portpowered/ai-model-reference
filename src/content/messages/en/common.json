@@ -13,6 +13,28 @@
     "tags": "Tags",
     "docs": "Docs"
   },
+  "shell": {
+    "sidebarTitle": "Reference",
+    "sidebarDescription": "Browse modules, concepts, and tags.",
+    "onThisPage": "On this page"
+  },
+  "home": {
+    "title": "Model Atlas",
+    "subtitle": "A field guide to modern AI models and modules",
+    "intro": "Model Atlas is a documentation-native reference for transformers, attention variants, training methods, and the systems around them. Search by alias or tag, or browse the glossary and tag index to find canonical pages.",
+    "searchSectionTitle": "Search the reference",
+    "searchSectionDescription": "Jump to a module, concept, or glossary entry by title, alias, or tag.",
+    "browseSectionTitle": "Browse",
+    "browseSectionDescription": "Start from an index when you want to explore topics without a specific query.",
+    "glossaryLinkTitle": "Glossary",
+    "glossaryLinkDescription": "Defined ML terms with short summaries and links to related modules.",
+    "tagsLinkTitle": "Tags",
+    "tagsLinkDescription": "Controlled tags such as attention and kv-cache with landing pages for each topic.",
+    "docsLinkTitle": "Documentation",
+    "docsLinkDescription": "Canonical module and concept pages, starting with the grouped-query attention sample.",
+    "onThisPageSearch": "Search",
+    "onThisPageBrowse": "Browse"
+  },
   "pageKind": {
     "module": "Module",
     "model": "Model",
