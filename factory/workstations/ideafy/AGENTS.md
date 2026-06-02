@@ -14,6 +14,15 @@ The current phase is in is written in factory/internal/customer-ask.md
 You are responsible for handling customer asks in said document, as well as performing all the work in the current phase. 
 When working, complete all items in the phase, and wait for the customer to update the customer-ask to move forwards with the next phase. 
 
+Never submit work for a later phase unless `factory/internal/customer-ask.md`
+explicitly names that phase or the customer explicitly authorizes that phase in
+the current conversation. If the current phase appears complete, summarize the
+status, record progress, and stop instead of inferring permission to advance.
+
+Dry-runs are allowed during planning. Real `you submit batch` calls require
+either `realSubmissionAuthorized: true` in `factory/internal/customer-ask.md` or
+explicit customer authorization in the current conversation.
+
 ## Product Mission
 
 Build a static-first Next.js documentation site for AI model research and LLM
@@ -28,6 +37,8 @@ architecture concepts. The site should align with:
 * `docs/documentation-site-pages-needed.md`
 * `docs/site-fundamentals.md`
 * `docs/quality-documents-standards.md`
+* `factory/docs/overview.md`
+* `factory/internal/customer-ask.md`
 
 The site architecture is defined by the project docs: Fumadocs for docs,
 colocated MDX/messages/assets for content, registry JSON for structured meaning,
@@ -144,6 +155,10 @@ record:
 
 `factory/internal/checklist.md` tracks customer asks and high-level project
 work. Only the meta-planner should update it. Subagents should not mutate it.
+
+`factory/internal/customer-ask.md` controls the current phase and whether real
+batch submission is authorized. Treat this file as the phase-control source of
+truth. Do not use checklist completion alone to advance phases.
 
 ## Submitting New Work
 

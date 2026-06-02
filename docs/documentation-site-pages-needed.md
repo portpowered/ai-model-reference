@@ -1,6 +1,10 @@
-# Documentation Site Pages Needed
+# Model Atlas Pages Needed
 
-This document is the phased content roadmap for the AI model reference site.
+This document is the phased content roadmap for Model Atlas, a general AI model
+reference site. The atlas should explain modern model systems across language,
+vision, audio, video, multimodal, omni, diffusion, transformer, and world-model
+families.
+
 The meta-planner should work one phase at a time and wait for manual review
 before moving to the next phase through Phase 10. After Phase 10, the site
 should have enough structure, validation, templates, and representative pages to
@@ -9,6 +13,11 @@ run long-tail expansion mostly autonomously.
 Each phase should produce working pages, registry records, localized messages,
 asset config, search coverage, related-document behavior, citations where
 needed, and validation coverage appropriate for that phase.
+
+A phase is complete only when all required outcomes are implemented, validation
+passes, the manual review gate is satisfied, and `factory/internal/customer-ask.md`
+is updated by the customer or an authorized operator. Checklist completion alone
+does not authorize phase advancement.
 
 ## Page Candidate Shape
 
@@ -54,15 +63,16 @@ Manual review gate:
 * confirm the batch example validates with `you submit batch --dry-run`
 * confirm Phase 1 can be submitted as 3-5 concrete `idea` work items
 
-## Phase 1: Default Site And One Canonical Docs Page
+## Phase 1: Default Model Atlas Site And One Canonical Docs Page
 
 Goal: prove the site works end to end with the smallest meaningful reference
-surface.
+surface while establishing the broad Model Atlas identity.
 
 Pages:
 
-* home/reference entry page
+* Model Atlas home/reference entry page
 * search page or search dialog entry
+* architecture index page
 * glossary index page
 * tags index page
 * one tag landing page: attention
@@ -83,22 +93,41 @@ Required outcomes:
 
 Manual review gate:
 
-* open the app locally and confirm home, search, glossary, tag, and sample docs
-  routes work
+* open the app locally and confirm home, search, architecture, glossary, tag,
+  and sample docs routes work
 * confirm the sample page uses message keys rather than raw prose in canonical
   MDX
 * confirm search finds `GQA`, `attention`, and `KV cache`
 
 ## Phase 2: Core Foundations
 
-Goal: create the basic pages that make advanced pages readable.
+Goal: create the basic pages that make advanced pages readable across model
+families, not only text language models.
 
 Pages:
 
+* model
+* architecture
+* module
+* component
+* modality
+* foundation model
+* generative model
+* discriminative model
+* representation
 * token
+* patch
+* latent
 * tensor
 * embedding
 * latent space
+* encoder
+* decoder
+* encoder-decoder
+* autoregressive generation
+* denoising generation
+* conditioning
+* alignment
 * logit
 * softmax
 * entropy
@@ -128,15 +157,28 @@ Manual review gate:
 
 * confirm a beginner can move from `token` to `embedding`, `logit`, and
   `softmax`
+* confirm a beginner can move from `architecture` to `transformer`, `diffusion
+  model`, `multimodal model`, and `world model`
 * confirm related docs explain why links appear
 
-## Phase 3: Core Architectures And Components
+## Phase 3: Transformer And Shared Component Foundations
 
-Goal: cover the main model-building blocks and their nearby variants.
+Goal: cover transformer-era building blocks and the shared component concepts
+that later diffusion, multimodal, omni, and world-model pages can reuse.
 
 Pages:
 
+* architectures overview
+* transformer architecture
 * transformer
+* sequence model
+* state space model
+* recurrent neural network
+* convolutional neural network
+* graph neural network
+* encoder-only architecture
+* decoder-only architecture
+* encoder-decoder architecture
 * attention
 * self-attention
 * cross-attention
@@ -205,6 +247,8 @@ Required outcomes:
 * recursive module graph rendering works for a transformer block
 * derived related docs group attention variants by `variantGroup`
 * tag pages enumerate modules, concepts, and glossary entries by tag
+* architecture index pages can group pages by family, modality, and component
+  role
 
 Manual review gate:
 
@@ -462,10 +506,17 @@ Manual review gate:
 
 ## Phase 7: Model And Paper Families
 
-Goal: add recognizable model and paper pages that exercise the registry.
+Goal: add recognizable model and paper pages that exercise the registry across
+language, code, multimodal, diffusion, and agentic families.
 
 Pages:
 
+* model families overview
+* transformer model families
+* diffusion model families
+* multimodal model families
+* omni model families
+* world model families
 * GPT-2
 * GPT-Nano
 * GPT-OSS
@@ -509,6 +560,12 @@ Pages:
 * retrieval-augmented generation models
 * agentic models
 * world models
+* omni models
+* multimodal foundation models
+* vision-language models
+* text-to-image models
+* text-to-video models
+* speech-language models
 * energy-based models
 * autoencoders
 * variational autoencoders
@@ -538,12 +595,33 @@ Manual review gate:
   next-token prediction
 * confirm model pages do not turn into benchmark pages
 
-## Phase 8: Multimodal, Diffusion, Audio, And Video
+## Phase 8: Multimodal, Diffusion, Omni, World, Audio, And Video
 
-Goal: expand beyond text LLMs while preserving the same module abstraction.
+Goal: expand beyond text LLMs while preserving the same module abstraction for
+diffusion, multimodal, omni, video, audio, embodied, and world-model systems.
 
 Pages:
 
+* multimodal models
+* omni models
+* world models
+* embodied models
+* perception-action models
+* latent world models
+* predictive world models
+* model-based reinforcement learning
+* video prediction models
+* action-conditioned models
+* multimodal fusion
+* early fusion
+* late fusion
+* cross-modal attention
+* modality adapters
+* shared embedding space
+* image-language models
+* audio-language models
+* video-language models
+* speech-language models
 * vision transformer
 * patch embeddings
 * ViT patchification

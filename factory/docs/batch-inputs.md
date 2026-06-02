@@ -17,8 +17,6 @@ The example JSON uses the canonical `FACTORY_REQUEST_BATCH` shape from
 * make the loopback depend on the ideas through `DEPENDS_ON` relations
 * use `workTypeName`, not `workType`
 * use `works[]`, not `items[]`
-* write coordinated watched-folder batches to
-  `factory/inputs/BATCH/default/<request_id>.json`
 * prefer `you submit batch <path>` for autonomous meta-planner submission when
   the factory is already running
 
@@ -28,5 +26,3 @@ Before submitting a real batch, run:
 you submit batch --dry-run factory/docs/batch-input-example.json
 ```
 
-Then submit with `you submit batch <path>` or place a copied request file under
-`factory/inputs/BATCH/default/` for watched-folder ingress.
