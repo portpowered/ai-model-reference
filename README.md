@@ -58,24 +58,43 @@ Start with:
 * [docs/site-fundamentals.md](./docs/site-fundamentals.md)
 * [docs/quality-documents-standards.md](./docs/quality-documents-standards.md)
 
-## Expected Commands
+## Local Development
 
-The full website scaffold is still being defined. Once implemented, the root
-Makefile should expose:
+Install dependencies and start the dev server:
 
 ```sh
-make ci
-make test
-make coverage
-make build
-make lint
-make format
-make typecheck
-make validate-data
-make validate-pdf
-make linkcheck
-make pdf LOCALE=en
+bun install
+make dev
 ```
+
+`make dev` runs the same Next.js dev entrypoint as `bun run dev`. Open
+`http://localhost:3000` for the home page and `/docs/getting-started` for the
+placeholder docs route.
+
+## Quality Gates
+
+The root Makefile mirrors CI-oriented checks:
+
+```sh
+make ci          # lint, typecheck, test, build (in order)
+make lint        # Biome check (no auto-fix)
+make format      # Biome format --write
+make typecheck   # tsc --noEmit
+make test        # bun test
+make build       # next build
+```
+
+Stub targets exist for later Phase 1 work and exit successfully without running
+`make ci`:
+
+```sh
+make validate-data
+make linkcheck
+make validate-pdf
+```
+
+Equivalent Bun scripts are in `package.json` (`bun run lint`, `bun run build`,
+and so on).
 
 ## Agent Factory Loop
 
