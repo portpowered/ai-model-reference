@@ -8,5 +8,15 @@
       "title": "What It Is",
       "body": "Grouped-query attention is an attention variant derived from multi-head attention."
     }
+  },
+  "assets": {
+    "hero": {
+      "alt": "Diagram comparing multi-head attention and grouped-query attention head grouping.",
+      "caption": "Query heads share fewer key-value heads in grouped-query attention."
+    },
+    "computeFlow": {
+      "alt": "Compute flow diagram for grouped-query attention.",
+      "caption": "GQA compute flow from queries through shared KV heads."
+    }
   }
 }
