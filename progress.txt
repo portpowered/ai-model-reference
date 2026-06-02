@@ -1,0 +1,28 @@
+## Codebase Patterns
+- Registry Zod schemas live in `src/lib/content/schemas.ts`; shared base fields use a `baseRecordShape` object spread into kind-specific schemas with `z.literal("module"|"tag"|"citation")` for `kind`.
+- Page schemas use `pageKindSchema` (docs page kinds) separate from `registryKindSchema`; `pageAssetSchema` is a `z.discriminatedUnion("type", [...])` and `pageAssetConfigSchema` is `z.record(z.string(), pageAssetSchema)`.
+- Phase 1 toolchain: Bun for install/test, `bun run typecheck` (`tsc --noEmit`), Biome for lint/format; colocate unit tests as `*.test.ts` next to the module under test.
+- `prd.json`, `prd.md`, and `progress.txt` are local workflow tracking only — do not commit them to the PR branch.
+
+## 2026-06-02T13:56:17Z - content-registry-validation-001
+- Implemented Zod schemas and inferred types for `RegistryKind`, `RegistryStatus`, `BaseRecord`, `ModuleRecord`, `TagRecord`, and `CitationRecord` aligned with `docs/data-model.md`.
+- Added minimal Bun/TypeScript/Biome project scaffold (`package.json`, `tsconfig.json`, `biome.json`) so typecheck, lint, and tests can run in this worktree.
+- Added focused unit tests proving valid baseline-shaped payloads pass and invalid payloads fail `safeParse`.
+- Files changed: `package.json`, `bun.lock`, `tsconfig.json`, `biome.json`, `src/lib/content/schemas.ts`, `src/lib/content/schemas.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: spread `baseRecordShape` into each kind schema; export both Zod schemas and `z.infer` types from one module.
+  - Gotchas encountered: Biome format must run before `biome check` passes on multi-line `z.enum` declarations.
+  - Useful context: no `package.json` existed on `main` yet — this work item introduces the first application toolchain files.
+---
+
+## 2026-06-02T14:32:00Z - content-registry-validation-002
+- Added Zod schemas and inferred types for `PageFrontmatter`, `PageMessages`, and `PageAssetConfig` (via `pageAssetSchema` discriminated union) aligned with `docs/data-model.md`.
+- Frontmatter requires `kind`, `registryId`, `messageNamespace`, `assetNamespace`, `tags`, `status`, and `updatedAt`; messages require `title` and `description` with optional nested `sections`, `callouts`, and `assets` alt/caption keys.
+- Asset config validates image, graph, chart, table, and code-schema variants with required keys per type.
+- Added focused unit tests for valid baseline-shaped payloads and invalid frontmatter/messages/asset config failures.
+- Files changed: `src/lib/content/schemas.ts`, `src/lib/content/schemas.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: use `z.discriminatedUnion("type", [...])` for page assets; reuse `registryStatusSchema` in page frontmatter.
+  - Gotchas encountered: `pageKindSchema` is narrower than `registryKindSchema` (docs pages only, no tag/citation/graph).
+  - Useful context: `docs/templates/module.*` files are good reference shapes for baseline page content in later stories.
+---
