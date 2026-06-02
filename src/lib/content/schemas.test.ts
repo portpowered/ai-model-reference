@@ -3,6 +3,9 @@ import {
   baseRecordSchema,
   citationRecordSchema,
   moduleRecordSchema,
+  pageAssetConfigSchema,
+  pageFrontmatterSchema,
+  pageMessagesSchema,
   tagRecordSchema,
 } from "./schemas";
 
@@ -108,5 +111,149 @@ describe("registry schemas", () => {
       mla: "",
     });
     expect(result.success).toBe(false);
+  });
+});
+
+const validModuleFrontmatter = {
+  kind: "module" as const,
+  registryId: "module.grouped-query-attention",
+  messageNamespace: "local" as const,
+  assetNamespace: "local" as const,
+  tags: ["attention", "kv-cache"],
+  status: "published" as const,
+  updatedAt: "2026-06-02",
+};
+
+const validPageMessages = {
+  title: "Grouped-Query Attention",
+  description: "An attention variant that reduces KV cache memory.",
+  problemStatement: "KV caches get expensive as context length grows.",
+  coreIdea: "GQA lets several query heads share fewer key-value heads.",
+  sections: {
+    whatItIs: {
+      title: "What It Is",
+      body: "Grouped-query attention is an attention variant derived from multi-head attention.",
+    },
+  },
+  callouts: {
+    readerShortcut: {
+      title: "Reader Shortcut",
+      body: "Think of GQA as sharing KV heads across query groups.",
+    },
+  },
+  assets: {
+    computeFlow: {
+      alt: "Compute flow diagram",
+      caption: "How GQA routes queries to shared KV heads",
+    },
+  },
+};
+
+const validPageAssetConfig = {
+  hero: {
+    type: "image" as const,
+    src: "./assets/gqa-hero.png",
+    altKey: "assets.hero.alt",
+  },
+  computeFlow: {
+    type: "graph" as const,
+    graphId: "graph.grouped-query-attention-compute-flow",
+    webRenderer: "react-flow" as const,
+    printRenderer: "mermaid" as const,
+    altKey: "assets.computeFlow.alt",
+    captionKey: "assets.computeFlow.caption",
+  },
+  mhaComparison: {
+    type: "chart" as const,
+    chartId: "chart.gqa-mha-comparison",
+    altKey: "assets.mhaComparison.alt",
+  },
+  variantTable: {
+    type: "table" as const,
+    tableId: "table.gqa-variants",
+    captionKey: "assets.variantTable.caption",
+  },
+  computeSchema: {
+    type: "code-schema" as const,
+    schemaId: "schema.gqa-compute",
+    language: "typescript",
+    captionKey: "assets.computeSchema.caption",
+  },
+};
+
+describe("page schemas", () => {
+  test("accepts valid module page frontmatter", () => {
+    const result = pageFrontmatterSchema.safeParse(validModuleFrontmatter);
+    expect(result.success).toBe(true);
+  });
+
+  test("accepts valid page messages with nested sections and asset keys", () => {
+    const result = pageMessagesSchema.safeParse(validPageMessages);
+    expect(result.success).toBe(true);
+  });
+
+  test("accepts valid page asset config with discriminated asset types", () => {
+    const result = pageAssetConfigSchema.safeParse(validPageAssetConfig);
+    expect(result.success).toBe(true);
+  });
+
+  test("rejects module frontmatter missing required fields", () => {
+    const result = pageFrontmatterSchema.safeParse({
+      kind: "module",
+      registryId: "module.grouped-query-attention",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  test("rejects page messages missing title or description", () => {
+    const result = pageMessagesSchema.safeParse({
+      title: "",
+      description: "",
+      sections: {
+        whatItIs: {
+          title: "What It Is",
+        },
+      },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  test("rejects page messages with sections missing title", () => {
+    const result = pageMessagesSchema.safeParse({
+      title: "Grouped-Query Attention",
+      description: "An attention variant.",
+      sections: {
+        whatItIs: {
+          body: "Missing section title",
+        },
+      },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  test("rejects asset config with missing required keys per type", () => {
+    const imageResult = pageAssetConfigSchema.safeParse({
+      hero: {
+        type: "image",
+        src: "./assets/gqa-hero.png",
+      },
+    });
+    expect(imageResult.success).toBe(false);
+
+    const graphResult = pageAssetConfigSchema.safeParse({
+      computeFlow: {
+        type: "graph",
+        graphId: "graph.example",
+        webRenderer: "react-flow",
+      },
+    });
+    expect(graphResult.success).toBe(false);
+
+    const chartResult = pageAssetConfigSchema.safeParse({
+      chart: {
+        type: "chart",
+      },
+    });
+    expect(chartResult.success).toBe(false);
   });
 });
