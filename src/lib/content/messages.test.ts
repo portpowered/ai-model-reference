@@ -25,9 +25,7 @@ describe("loadPageMessages", () => {
     const messages = await loadPageMessages(groupedQueryAttentionPageDir, "en");
 
     expect(messages.title).toBe("Grouped-Query Attention");
-    expect(messages.description).toBe(
-      "An attention variant that reduces KV cache memory.",
-    );
+    expect(messages.description).toContain("reduces KV cache memory");
     expect(messages.sections?.whatItIs?.title).toBe("What It Is");
     expect(messages.sections?.whatItIs?.body).toContain(
       "Grouped-query attention",

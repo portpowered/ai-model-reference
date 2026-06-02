@@ -1,28 +1,76 @@
 {
   "title": "Grouped-Query Attention",
-  "description": "An attention variant that reduces KV cache memory.",
-  "problemStatement": "KV caches get expensive as context length grows.",
-  "coreIdea": "GQA lets several query heads share fewer key-value heads.",
+  "description": "An attention variant that reduces KV cache memory by sharing key-value heads across query groups.",
+  "problemStatement": "KV caches grow with context length and can dominate inference memory for long sequences.",
+  "coreIdea": "Grouped-query attention (GQA) lets several query heads share fewer key-value heads than standard multi-head attention.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Grouped-query attention is an attention variant derived from multi-head attention."
+      "body": "Grouped-query attention is an attention variant derived from multi-head attention. It appears in decoder stacks where models need long-context inference without proportional KV-cache growth."
     },
     "whatItOptimizes": {
       "title": "What It Optimizes",
-      "body": "GQA reduces KV-cache size, memory bandwidth, and long-context inference cost."
+      "body": "GQA targets KV-cache size, memory bandwidth during autoregressive decoding, and long-context inference cost while keeping most of the expressiveness of multi-head attention."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "Engineers get lower KV-cache memory and reduced bandwidth per token during inference, which matters most at long context lengths and large batch sizes."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Queries still use many heads, but keys and values are grouped so multiple query heads read from the same KV head. The compute flow diagram shows how queries route to shared KV groups."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math and Compute Schema",
+      "body": "With H query heads and G KV groups, each KV head serves H/G query heads. Tensor layouts follow grouped head dimensions instead of one KV pair per query head."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared to Nearby Modules",
+      "body": "GQA sits between multi-head attention (one KV head per query head) and multi-query attention (one KV head for all queries). The comparison table summarizes tradeoffs against MHA and MQA."
+    },
+    "variantsAndNearbyModules": {
+      "title": "Variants and Nearby Modules",
+      "body": "Nearby attention variants include multi-query attention, multi-head attention, and sliding-window or sparse attention patterns that also target memory or compute."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Many recent open-weight LLMs adopt GQA or MQA-style KV sharing in their decoder blocks. The model list below comes from registry usage fields when populated."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations and Tradeoffs",
+      "body": "Sharing KV heads can slightly reduce representational flexibility versus full MHA. GQA does not replace other optimizations such as quantization, paging, or sparse attention by itself."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Long-context serving and edge deployment still reward KV-cache savings. GQA remains a practical default when teams want a balance between MHA quality and MQA memory savings."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
     }
   },
   "callouts": {
     "readerShortcut": {
       "title": "Reader Shortcut",
-      "body": "Think of GQA as sharing KV heads across query groups."
+      "body": "Think of GQA as sharing KV heads across query groups: fewer KV tensors to store, with most query-head diversity preserved."
     }
   },
   "assets": {
     "computeFlow": {
-      "alt": "Compute flow diagram",
-      "caption": "How GQA routes queries to shared KV heads"
+      "alt": "Grouped-query attention compute flow diagram",
+      "caption": "How GQA routes multiple query heads to shared key-value head groups"
+    },
+    "computeSchema": {
+      "alt": "Grouped-query attention head grouping schema",
+      "caption": "Query heads mapped to shared KV groups with H query heads and G KV groups"
+    },
+    "comparisonTable": {
+      "caption": "GQA compared with multi-head and multi-query attention on KV memory and expressiveness"
     }
   }
 }
