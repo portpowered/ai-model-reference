@@ -1,7 +1,12 @@
 ## Codebase Patterns
 - Registry Zod schemas live in `src/lib/content/schemas.ts`; shared base fields use a `baseRecordShape` object spread into kind-specific schemas with `z.literal("module"|"tag"|"citation")` for `kind`.
 - Page schemas use `pageKindSchema` (docs page kinds) separate from `registryKindSchema`; `pageAssetSchema` is a `z.discriminatedUnion("type", [...])` and `pageAssetConfigSchema` is `z.record(z.string(), pageAssetSchema)`.
+- `loadRegistry()` in `src/lib/content/registry.ts` reads `src/content/registry/{modules,tags,citations}/*.json`, validates per-directory Zod schemas, and returns `byId`, `bySlug`, and `tagsById` maps; pass `registryRoot` in tests for temp fixtures.
+- `RegistryLoadError` carries structured `details` for duplicate id/slug (`duplicate-id`, `duplicate-slug`) and parse/validation failures (`parse-error`).
+- `baseline-records.test.ts` reads committed JSON under `src/content/registry/` and validates with kind-specific Zod schemas via `readRegistryJson` helper; use for story-level proof that on-disk records match schemas.
 - Phase 1 toolchain: Bun for install/test, `bun run typecheck` (`tsc --noEmit`), Biome for lint/format; colocate unit tests as `*.test.ts` next to the module under test.
+- `loadPageMessages(pageDirectory, locale)` in `src/lib/content/messages.ts` reads `messages/<locale>.json`, validates with `pageMessagesSchema`, and throws `MessageLoadError` with `missing-file` or `parse-error` details; missing `en` uses an explicit default-locale error message.
+- `loadPageAssets(pageDirectory)` and `resolvePageAsset(pageDirectory, assetId)` in `src/lib/content/assets.ts` read colocated `assets.json`, validate with `pageAssetConfigSchema`, and throw `AssetLoadError` with `missing-file`, `parse-error`, or `unknown-asset-id` details.
 - `prd.json`, `prd.md`, and `progress.txt` are local workflow tracking only — do not commit them to the PR branch.
 
 ## 2026-06-02T13:56:17Z - content-registry-validation-001
@@ -25,4 +30,46 @@
   - Patterns discovered: use `z.discriminatedUnion("type", [...])` for page assets; reuse `registryStatusSchema` in page frontmatter.
   - Gotchas encountered: `pageKindSchema` is narrower than `registryKindSchema` (docs pages only, no tag/citation/graph).
   - Useful context: `docs/templates/module.*` files are good reference shapes for baseline page content in later stories.
+---
+
+## 2026-06-02T15:10:00Z - content-registry-validation-003
+- Implemented `loadRegistry()` with `byId`, `bySlug`, and `tagsById` indexes, per-directory Zod validation, and `RegistryLoadError` with structured duplicate id/slug details.
+- Seeded Phase 1 baseline registry JSON under `src/content/registry/` so loader tests can resolve `module.grouped-query-attention`, `tag.attention`, and `citation.gqa-paper` (story 004 may refine copy only).
+- Added unit tests for baseline loading and duplicate detection via injectable `registryRoot` temp fixtures.
+- Files changed: `src/lib/content/registry.ts`, `src/lib/content/registry.test.ts`, `src/content/registry/modules/grouped-query-attention.json`, `src/content/registry/tags/attention.json`, `src/content/registry/citations/gqa-paper.json`
+- **Learnings for future iterations:**
+  - Patterns discovered: default registry root via `join(import.meta.dir, "../../content/registry")`; duplicate detection runs after all files parse so errors list every conflicting path.
+  - Gotchas encountered: loader tests need real JSON on disk or a temp `registryRoot` — cannot test indexes without filesystem fixtures.
+  - Useful context: baseline JSON shapes match `schemas.test.ts` `validBaseFields`; citation id is `citation.gqa-paper` with file `gqa-paper.json`.
+---
+
+## 2026-06-02T16:05:00Z - content-registry-validation-004
+- Confirmed Phase 1 baseline registry JSON for `module.grouped-query-attention`, `tag.attention`, and `citation.gqa-paper` (seeded in story 003) meets story acceptance: published status, attention module fields, tag category/aliases, and module→citation cross-reference.
+- Added `baseline-records.test.ts` to parse each committed registry file from disk and assert `safeParse` success plus key field expectations.
+- Files changed: `src/lib/content/baseline-records.test.ts`
+- **Learnings for future iterations:**
+  - Patterns discovered: validate on-disk registry JSON in tests separate from loader tests when a story requires “passes Zod when parsed directly.”
+  - Gotchas encountered: baseline JSON was already on the branch from story 003 — story 004 is primarily schema-direct validation and acceptance assertions.
+  - Useful context: registry root for tests is `join(import.meta.dir, "../../content/registry")` from `src/lib/content/`.
+---
+
+## 2026-06-02T17:25:00Z - content-registry-validation-005
+- Implemented `loadPageMessages(pageDirectory, locale)` with Zod validation, `MessageLoadError` structured details, and explicit error when default locale `en` is missing.
+- Seeded baseline `messages/en.json` for grouped-query-attention (title, description, problemStatement, coreIdea, sections, callouts, assets keys) so loader tests resolve committed page content.
+- Files changed: `src/lib/content/messages.ts`, `src/lib/content/messages.test.ts`, `src/content/docs/modules/grouped-query-attention/messages/en.json`
+- **Learnings for future iterations:**
+  - Patterns discovered: export `groupedQueryAttentionPageDir` constant for baseline page tests; message path is always `<pageDir>/messages/<locale>.json`.
+  - Gotchas encountered: run `bun run format` before lint when adding multi-line function calls Biome wants on one line.
+  - Useful context: full page bundle (MDX, assets.json) is story 007; story 005 only needs messages for loader proof.
+---
+
+## 2026-06-02T18:40:00Z - content-registry-validation-006
+- Implemented `loadPageAssets` and `resolvePageAsset` with Zod validation, `AssetLoadError` structured details, and explicit errors for missing `assets.json` and unknown asset ids.
+- Seeded baseline `assets.json` for grouped-query-attention with `computeFlow` graph asset (`react-flow` / `mermaid`) and message keys aligned with `messages/en.json`.
+- Added unit tests for baseline load, `computeFlow` resolution, and error paths via temp page fixtures.
+- Files changed: `src/lib/content/assets.ts`, `src/lib/content/assets.test.ts`, `src/content/docs/modules/grouped-query-attention/assets.json`
+- **Learnings for future iterations:**
+  - Patterns discovered: mirror `messages.ts` IO/validation split; `resolvePageAsset` reuses `loadPageAssets` and lists `availableIds` on unknown id.
+  - Gotchas encountered: graph assets need narrowing (`asset.type === "graph"`) in tests to access renderer fields on the discriminated union.
+  - Useful context: baseline `graphId` is `graph.grouped-query-attention-compute-flow`; full MDX page bundle remains story 007.
 ---
