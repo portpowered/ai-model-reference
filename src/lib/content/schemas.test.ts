@@ -2,10 +2,12 @@ import { describe, expect, test } from "bun:test";
 import {
   baseRecordSchema,
   citationRecordSchema,
+  conceptRecordSchema,
   moduleRecordSchema,
   pageAssetConfigSchema,
   pageFrontmatterSchema,
   pageMessagesSchema,
+  registryRecordSchema,
   tagRecordSchema,
 } from "./schemas";
 
@@ -69,6 +71,34 @@ describe("registry schemas", () => {
     expect(result.success).toBe(true);
   });
 
+  test("accepts a valid concept record", () => {
+    const result = conceptRecordSchema.safeParse({
+      ...validBaseFields,
+      id: "concept.token",
+      slug: "token",
+      kind: "concept",
+      conceptType: "architecture",
+      prerequisiteIds: [],
+      explainsIds: [],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  test("parses registry records through the kind discriminated union", () => {
+    const result = registryRecordSchema.safeParse({
+      ...validBaseFields,
+      id: "tag.attention",
+      slug: "attention",
+      kind: "tag",
+      category: "module-type",
+      landingPage: "generated-tag-page",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.kind).toBe("tag");
+    }
+  });
+
   test("rejects base records missing required fields", () => {
     const result = baseRecordSchema.safeParse({
       id: "module.incomplete",
@@ -109,6 +139,16 @@ describe("registry schemas", () => {
       title: "",
       url: "not-a-url",
       mla: "",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  test("rejects concept records missing conceptType or relationship arrays", () => {
+    const result = conceptRecordSchema.safeParse({
+      ...validBaseFields,
+      id: "concept.token",
+      slug: "token",
+      kind: "concept",
     });
     expect(result.success).toBe(false);
   });

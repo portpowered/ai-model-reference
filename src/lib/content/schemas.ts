@@ -119,6 +119,31 @@ export const citationRecordSchema = z.object({
   accessedAt: z.string().optional(),
 });
 
+export const conceptTypeSchema = z.enum([
+  "architecture",
+  "math",
+  "training",
+  "inference",
+  "systems",
+  "evaluation",
+  "general",
+]);
+
+export const conceptRecordSchema = z.object({
+  ...baseRecordShape,
+  kind: z.literal("concept"),
+  conceptType: conceptTypeSchema,
+  prerequisiteIds: z.array(z.string()),
+  explainsIds: z.array(z.string()),
+});
+
+export const registryRecordSchema = z.discriminatedUnion("kind", [
+  moduleRecordSchema,
+  conceptRecordSchema,
+  tagRecordSchema,
+  citationRecordSchema,
+]);
+
 export const pageKindSchema = z.enum([
   "concept",
   "model",
@@ -226,6 +251,7 @@ export type RegistryKind = z.infer<typeof registryKindSchema>;
 export type RegistryStatus = z.infer<typeof registryStatusSchema>;
 export type BaseRecord = z.infer<typeof baseRecordSchema>;
 export type ModuleRecord = z.infer<typeof moduleRecordSchema>;
+export type ConceptRecord = z.infer<typeof conceptRecordSchema>;
 export type TagRecord = z.infer<typeof tagRecordSchema>;
 export type CitationRecord = z.infer<typeof citationRecordSchema>;
 export type PageKind = z.infer<typeof pageKindSchema>;
