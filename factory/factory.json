@@ -153,6 +153,7 @@
     {
       "modelProvider": "CODEX",
       "name": "planner",
+      "skipPermissions": true,
       "type": "MODEL_WORKER"
     }
   ],
