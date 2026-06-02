@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+
 export default function HomePage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
@@ -8,6 +10,9 @@ export default function HomePage() {
         A static documentation reference for AI models, modules, papers, and
         related concepts.
       </p>
+      <div className="mt-8">
+        <Button type="button">Explore the reference</Button>
+      </div>
     </main>
   );
 }
