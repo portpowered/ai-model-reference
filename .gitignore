@@ -3,6 +3,7 @@ bin/
 .DS_Store
 
 node_modules/
+.next/
 storybook-static/
 *.tsbuildinfo
 *.exe

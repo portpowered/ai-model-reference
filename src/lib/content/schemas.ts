@@ -2,6 +2,70 @@ import { z } from "zod";
 
 export const registryStatusSchema = z.enum(["draft", "published", "archived"]);
 
+export const moduleTypeSchema = z.enum([
+  "attention",
+  "normalization",
+  "feed-forward",
+  "activation",
+  "position-encoding",
+  "tokenizer",
+  "optimizer",
+  "quantization",
+  "inference-optimization",
+  "training-method",
+  "systems",
+  "other",
+]);
+
+export const mathLevelSchema = z.enum(["none", "light", "detailed"]);
+
+const baseRecordShape = {
+  id: z.string().min(1),
+  slug: z.string().min(1),
+  defaultTitleKey: z.string().min(1),
+  defaultSummaryKey: z.string().min(1),
+  aliases: z.array(z.string()),
+  tags: z.array(z.string()),
+  relatedIds: z.array(z.string()),
+  citationIds: z.array(z.string()),
+  status: registryStatusSchema,
+  createdAt: z.string().min(1),
+  updatedAt: z.string().min(1),
+};
+
+export const moduleRecordSchema = z.object({
+  ...baseRecordShape,
+  kind: z.literal("module"),
+  moduleType: moduleTypeSchema,
+  optimizes: z.array(z.string()),
+  practicalBenefits: z.array(z.string()),
+  exampleModelIds: z.array(z.string()),
+  improvesOnIds: z.array(z.string()),
+  tradeoffIds: z.array(z.string()),
+  usedByModelIds: z.array(z.string()),
+  introducedByPaperIds: z.array(z.string()),
+  mathLevel: mathLevelSchema,
+  moduleFamily: z.string().optional(),
+  conceptType: z.string().optional(),
+  variantGroup: z.string().optional(),
+  variantOf: z.string().optional(),
+});
+
+export type ModuleRecord = z.infer<typeof moduleRecordSchema>;
+
+export const pageFrontmatterSchema = z.object({
+  kind: z.literal("module"),
+  registryId: z.string().min(1),
+  messageNamespace: z.union([z.literal("local"), z.string().min(1)]),
+  assetNamespace: z.union([z.literal("local"), z.string().min(1)]),
+  tags: z.array(z.string()),
+  aliases: z.array(z.string()).optional(),
+  status: registryStatusSchema,
+  updatedAt: z.string().min(1),
+});
+
+export type PageFrontmatter = z.infer<typeof pageFrontmatterSchema>;
+
 export const pageMessagesSchema = z.object({
   title: z.string(),
   description: z.string(),
