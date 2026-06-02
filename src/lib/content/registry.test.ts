@@ -44,6 +44,24 @@ const validTagRecord = {
   landingPage: "generated-tag-page",
 };
 
+const validConceptRecord = {
+  id: "concept.token",
+  slug: "token",
+  kind: "concept",
+  defaultTitleKey: "title",
+  defaultSummaryKey: "description",
+  aliases: ["tokenizer token"],
+  tags: ["attention"],
+  relatedIds: [],
+  citationIds: [],
+  status: "published",
+  createdAt: "2026-06-01T00:00:00.000Z",
+  updatedAt: "2026-06-02T00:00:00.000Z",
+  conceptType: "architecture",
+  prerequisiteIds: [],
+  explainsIds: [],
+};
+
 const validCitationRecord = {
   id: "citation.gqa-paper",
   slug: "gqa-paper",
@@ -78,11 +96,45 @@ describe("loadRegistry", () => {
     const tag = indexes.byId.get("tag.attention");
     expect(tag?.kind).toBe("tag");
     expect(indexes.tagsById.get("tag.attention")?.slug).toBe("attention");
+    expect(indexes.tagsBySlug.get("attention")?.id).toBe("tag.attention");
     expect(indexes.bySlug.get("attention")?.id).toBe("tag.attention");
 
     const citation = indexes.byId.get("citation.gqa-paper");
     expect(citation?.kind).toBe("citation");
     expect(indexes.bySlug.get("gqa-paper")?.id).toBe("citation.gqa-paper");
+  });
+
+  test("loads concept records from the concepts directory", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", "concept-registry");
+    await rm(tempRoot, { recursive: true, force: true });
+    await mkdir(join(tempRoot, "modules"), { recursive: true });
+    await mkdir(join(tempRoot, "concepts"), { recursive: true });
+    await mkdir(join(tempRoot, "tags"), { recursive: true });
+    await mkdir(join(tempRoot, "citations"), { recursive: true });
+
+    await writeFile(
+      join(tempRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify(validModuleRecord),
+    );
+    await writeFile(
+      join(tempRoot, "concepts", "token.json"),
+      JSON.stringify(validConceptRecord),
+    );
+    await writeFile(
+      join(tempRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(tempRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+
+    const indexes = await loadRegistry({ registryRoot: tempRoot });
+    const concept = indexes.byId.get("concept.token");
+    expect(concept?.kind).toBe("concept");
+    expect(indexes.bySlug.get("token")?.id).toBe("concept.token");
+
+    await rm(tempRoot, { recursive: true, force: true });
   });
 });
 
@@ -95,17 +147,25 @@ describe("loadRegistry duplicate detection", () => {
 
   async function writeFixtureRegistry(files: {
     modules?: Record<string, unknown>[];
+    concepts?: Record<string, unknown>[];
     tags?: Record<string, unknown>[];
     citations?: Record<string, unknown>[];
   }) {
     await rm(tempRoot, { recursive: true, force: true });
     await mkdir(join(tempRoot, "modules"), { recursive: true });
+    await mkdir(join(tempRoot, "concepts"), { recursive: true });
     await mkdir(join(tempRoot, "tags"), { recursive: true });
     await mkdir(join(tempRoot, "citations"), { recursive: true });
 
     for (const [index, record] of (files.modules ?? []).entries()) {
       await writeFile(
         join(tempRoot, "modules", `module-${index}.json`),
+        JSON.stringify(record),
+      );
+    }
+    for (const [index, record] of (files.concepts ?? []).entries()) {
+      await writeFile(
+        join(tempRoot, "concepts", `concept-${index}.json`),
         JSON.stringify(record),
       );
     }

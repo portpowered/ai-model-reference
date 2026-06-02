@@ -75,6 +75,7 @@ describe("validateRegistryContent", () => {
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "concepts"), { recursive: true });
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(registryRoot, "citations"), { recursive: true });
 
@@ -143,6 +144,7 @@ describe("validate-registry CLI", () => {
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "concepts"), { recursive: true });
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(registryRoot, "citations"), { recursive: true });
 

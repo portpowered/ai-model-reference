@@ -2,19 +2,26 @@ import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import {
   type CitationRecord,
+  type ConceptRecord,
   type ModuleRecord,
   type TagRecord,
   citationRecordSchema,
+  conceptRecordSchema,
   moduleRecordSchema,
   tagRecordSchema,
 } from "./schemas";
 
-export type RegistryRecord = ModuleRecord | TagRecord | CitationRecord;
+export type RegistryRecord =
+  | ModuleRecord
+  | ConceptRecord
+  | TagRecord
+  | CitationRecord;
 
 export type RegistryIndexes = {
   byId: Map<string, RegistryRecord>;
   bySlug: Map<string, RegistryRecord>;
   tagsById: Map<string, TagRecord>;
+  tagsBySlug: Map<string, TagRecord>;
 };
 
 export type RegistryLoadErrorDetail =
@@ -35,15 +42,17 @@ export class RegistryLoadError extends Error {
 const defaultRegistryRoot = join(import.meta.dir, "../../content/registry");
 
 type RegistryDirectory = {
-  name: "modules" | "tags" | "citations";
+  name: "modules" | "concepts" | "tags" | "citations";
   schema:
     | typeof moduleRecordSchema
+    | typeof conceptRecordSchema
     | typeof tagRecordSchema
     | typeof citationRecordSchema;
 };
 
 const registryDirectories: RegistryDirectory[] = [
   { name: "modules", schema: moduleRecordSchema },
+  { name: "concepts", schema: conceptRecordSchema },
   { name: "tags", schema: tagRecordSchema },
   { name: "citations", schema: citationRecordSchema },
 ];
@@ -106,6 +115,7 @@ function buildIndexes(files: ParsedRegistryFile[]): RegistryIndexes {
   const byId = new Map<string, RegistryRecord>();
   const bySlug = new Map<string, RegistryRecord>();
   const tagsById = new Map<string, TagRecord>();
+  const tagsBySlug = new Map<string, TagRecord>();
   const idPaths = new Map<string, string[]>();
   const slugPaths = new Map<string, string[]>();
 
@@ -123,6 +133,7 @@ function buildIndexes(files: ParsedRegistryFile[]): RegistryIndexes {
 
     if (record.kind === "tag") {
       tagsById.set(record.id, record);
+      tagsBySlug.set(record.slug, record);
     }
   }
 
@@ -145,7 +156,7 @@ function buildIndexes(files: ParsedRegistryFile[]): RegistryIndexes {
     );
   }
 
-  return { byId, bySlug, tagsById };
+  return { byId, bySlug, tagsById, tagsBySlug };
 }
 
 export type LoadRegistryOptions = {

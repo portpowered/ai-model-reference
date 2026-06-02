@@ -437,6 +437,7 @@ async function validateRegistryFiles(
           byId: new Map(),
           bySlug: new Map(),
           tagsById: new Map(),
+          tagsBySlug: new Map(),
         },
         errors: errorsFromRegistryLoadError(error),
       };
