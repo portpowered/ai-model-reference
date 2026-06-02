@@ -1,0 +1,26 @@
+{
+  "search": {
+    "open": "Open search",
+    "placeholder": "Search Model Atlas…",
+    "close": "Close search",
+    "noResults": "No results found.",
+    "loading": "Searching…",
+    "shortcut": "Search"
+  },
+  "nav": {
+    "home": "Home",
+    "glossary": "Glossary",
+    "tags": "Tags",
+    "docs": "Docs"
+  },
+  "pageKind": {
+    "module": "Module",
+    "model": "Model",
+    "concept": "Concept",
+    "paper": "Paper",
+    "glossary": "Glossary",
+    "training": "Training",
+    "system": "System",
+    "blog": "Blog"
+  }
+}
