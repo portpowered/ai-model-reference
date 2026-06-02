@@ -1,7 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { validateRegistryContent } from "./validate-registry";
+import { tokenGlossaryPageDir } from "./messages";
+import {
+  validateColocatedPageBundle,
+  validateRegistryContent,
+} from "./validate-registry";
 
 const validModuleRecord = {
   id: "module.grouped-query-attention",
@@ -69,6 +73,118 @@ describe("validateRegistryContent", () => {
   test("returns no errors for the committed Phase 1 baseline", async () => {
     const errors = await validateRegistryContent();
     expect(errors).toEqual([]);
+  });
+
+  test("reports duplicate registry ids with record id in the message", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "concepts"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(join(registryRoot, "citations"), { recursive: true });
+
+    const duplicateModule = {
+      ...validModuleRecord,
+      slug: "duplicate-module-a",
+    };
+    await writeFile(
+      join(registryRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify(duplicateModule),
+    );
+    await writeFile(
+      join(registryRoot, "modules", "other-module.json"),
+      JSON.stringify({
+        ...duplicateModule,
+        slug: "duplicate-module-b",
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(registryRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(errors.length).toBeGreaterThan(0);
+      expect(
+        errors.some((error) =>
+          error.message.includes(
+            'Duplicate registry id "module.grouped-query-attention"',
+          ),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports missing asset message keys with the page directory path", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const pageDirectory = join(tempRoot, "token-glossary");
+    await mkdir(join(pageDirectory, "messages"), { recursive: true });
+
+    await writeFile(
+      join(pageDirectory, "messages", "en.json"),
+      JSON.stringify({
+        title: "Token",
+        description: "A token is a unit of text.",
+      }),
+    );
+    await writeFile(
+      join(pageDirectory, "assets.json"),
+      JSON.stringify({
+        conceptMap: {
+          type: "graph",
+          graphId: "graph.token-concept-map",
+          altKey: "assets.conceptMap.missingAlt",
+          webRenderer: "react-flow",
+          printRenderer: "mermaid",
+        },
+      }),
+    );
+
+    try {
+      const { errors } = await validateColocatedPageBundle(pageDirectory);
+      expect(errors.length).toBeGreaterThan(0);
+      expect(
+        errors.some(
+          (error) =>
+            error.message.includes(pageDirectory) &&
+            error.message.includes(
+              'missing message key "assets.conceptMap.missingAlt"',
+            ),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("validates token glossary colocated messages and assets via validateRegistryContent", async () => {
+    const registryRoot = join(import.meta.dir, "../../content/registry");
+    const docsRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+        phase1PageDirectories: [tokenGlossaryPageDir],
+      });
+      expect(errors).toEqual([]);
+    } finally {
+      await rm(docsRoot, { recursive: true, force: true });
+    }
   });
 
   test("reports unresolved citation references", async () => {

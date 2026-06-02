@@ -1,7 +1,12 @@
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { assetMessageKeys, loadPageAssets } from "./assets";
-import { getMessageString, loadPageMessages } from "./messages";
+import {
+  getMessageString,
+  groupedQueryAttentionPageDir,
+  loadPageMessages,
+  tokenGlossaryPageDir,
+} from "./messages";
 import {
   type RegistryIndexes,
   RegistryLoadError,
@@ -10,7 +15,6 @@ import {
 } from "./registry";
 import {
   type ModuleRecord,
-  type PageAsset,
   type PageAssetConfig,
   type PageMessages,
   pageFrontmatterSchema,
@@ -27,13 +31,22 @@ const defaultDocsRoot = join(defaultContentRoot, "docs");
 
 const registryKindDirectories: Record<string, string> = {
   module: "modules",
+  concept: "concepts",
   tag: "tags",
   citation: "citations",
 };
 
+/** Phase 1 page directories validated even when `page.mdx` is not present yet. */
+export const phase1PageDirectories = [
+  groupedQueryAttentionPageDir,
+  tokenGlossaryPageDir,
+] as const;
+
 export type ValidateRegistryContentOptions = {
   registryRoot?: string;
   docsRoot?: string;
+  /** Override Phase 1 page directories (for tests). */
+  phase1PageDirectories?: readonly string[];
 };
 
 export function formatValidationErrors(errors: ValidationError[]): string {
@@ -108,6 +121,13 @@ function validateRegistryRecordReferences(
 
   if (record.kind === "module") {
     referenceFields.push(...moduleReferenceFields(record));
+  }
+
+  if (record.kind === "concept") {
+    referenceFields.push(
+      { field: "prerequisiteIds", ids: record.prerequisiteIds },
+      { field: "explainsIds", ids: record.explainsIds },
+    );
   }
 
   for (const { field, ids } of referenceFields) {
@@ -260,6 +280,46 @@ async function discoverPageMdxFiles(docsRoot: string): Promise<string[]> {
   return pagePaths;
 }
 
+export async function validateColocatedPageBundle(
+  pageDirectory: string,
+): Promise<{
+  errors: ValidationError[];
+  messages?: PageMessages;
+  assets?: PageAssetConfig;
+}> {
+  const errors: ValidationError[] = [];
+
+  let messages: PageMessages;
+  try {
+    messages = await loadPageMessages(pageDirectory, "en");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    errors.push({
+      code: "messages-load-error",
+      message: `${pageDirectory}: ${message}`,
+      path: join(pageDirectory, "messages", "en.json"),
+    });
+    return { errors };
+  }
+
+  let assets: PageAssetConfig;
+  try {
+    assets = await loadPageAssets(pageDirectory);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    errors.push({
+      code: "assets-load-error",
+      message: `${pageDirectory}: ${message}`,
+      path: join(pageDirectory, "assets.json"),
+    });
+    return { errors, messages };
+  }
+
+  errors.push(...validateAssetMessageKeys(pageDirectory, assets, messages));
+
+  return { errors, messages, assets };
+}
+
 async function validatePageMdx(
   pagePath: string,
   indexes: RegistryIndexes,
@@ -316,33 +376,12 @@ async function validatePageMdx(
     }
   }
 
-  let messages: PageMessages;
-  try {
-    messages = await loadPageMessages(pageDirectory, "en");
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    errors.push({
-      code: "messages-load-error",
-      message: `${pageDirectory}: ${message}`,
-      path: join(pageDirectory, "messages", "en.json"),
-    });
+  const bundle = await validateColocatedPageBundle(pageDirectory);
+  errors.push(...bundle.errors);
+  if (!bundle.messages || !bundle.assets) {
     return errors;
   }
-
-  let assets: PageAssetConfig;
-  try {
-    assets = await loadPageAssets(pageDirectory);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    errors.push({
-      code: "assets-load-error",
-      message: `${pageDirectory}: ${message}`,
-      path: join(pageDirectory, "assets.json"),
-    });
-    return errors;
-  }
-
-  errors.push(...validateAssetMessageKeys(pageDirectory, assets, messages));
+  const { messages, assets } = bundle;
 
   const mdxBody = match[2] ?? "";
   for (const messageKey of extractMdxMessageKeys(mdxBody)) {
@@ -434,8 +473,20 @@ export async function validateRegistryContent(
   const errors = [...registryErrors];
 
   const pagePaths = await discoverPageMdxFiles(docsRoot);
+  const validatedPageDirectories = new Set<string>();
+
   for (const pagePath of pagePaths) {
+    validatedPageDirectories.add(join(pagePath, ".."));
     errors.push(...(await validatePageMdx(pagePath, indexes)));
+  }
+
+  const phase1Dirs = options.phase1PageDirectories ?? phase1PageDirectories;
+
+  for (const pageDirectory of phase1Dirs) {
+    if (validatedPageDirectories.has(pageDirectory)) {
+      continue;
+    }
+    errors.push(...(await validateColocatedPageBundle(pageDirectory)).errors);
   }
 
   return errors;
