@@ -26,6 +26,8 @@ export type UiMessages = {
     searchSectionDescription: string;
     browseSectionTitle: string;
     browseSectionDescription: string;
+    architectureLinkTitle: string;
+    architectureLinkDescription: string;
     glossaryLinkTitle: string;
     glossaryLinkDescription: string;
     tagsLinkTitle: string;

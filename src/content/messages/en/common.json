@@ -26,6 +26,8 @@
     "searchSectionDescription": "Jump to a module, concept, or glossary entry by title, alias, or tag.",
     "browseSectionTitle": "Browse",
     "browseSectionDescription": "Start from an index when you want to explore topics without a specific query.",
+    "architectureLinkTitle": "Architecture",
+    "architectureLinkDescription": "Architecture-related concepts, model families, and component patterns collected in one index.",
     "glossaryLinkTitle": "Glossary",
     "glossaryLinkDescription": "Defined ML terms with short summaries and links to related modules.",
     "tagsLinkTitle": "Tags",

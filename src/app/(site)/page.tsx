@@ -52,6 +52,11 @@ export default function HomePage() {
           aria-label={home.browseSectionTitle}
         >
           <HomeBrowseLink
+            href="/docs/architecture"
+            title={home.architectureLinkTitle}
+            description={home.architectureLinkDescription}
+          />
+          <HomeBrowseLink
             href="/docs/glossary"
             title={home.glossaryLinkTitle}
             description={home.glossaryLinkDescription}
