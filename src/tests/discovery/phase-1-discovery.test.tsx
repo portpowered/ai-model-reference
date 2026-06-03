@@ -7,6 +7,10 @@ import HomePage from "@/app/(site)/page";
 import SearchEntryPage from "@/app/(site)/search/page";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import TagsIndexPage from "@/app/(site)/tags/page";
+import TokenGlossaryPage from "@/app/docs/glossary/token/page";
+import GroupedQueryAttentionPage from "@/app/docs/modules/grouped-query-attention/page";
+import { loadTagResourceGroups } from "@/lib/content/tag-resources";
+import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
 import {
   resultsIncludeSampleModule,
@@ -102,5 +106,30 @@ describe("Phase 1 discovery route smoke", () => {
       "Attention",
       "/docs/modules/grouped-query-attention",
     );
+  });
+
+  test("/docs/glossary/token renders without error", async () => {
+    const page = await TokenGlossaryPage();
+    expectRouteRendersOk(page, "Token");
+  });
+
+  test("/docs/modules/grouped-query-attention renders without error", async () => {
+    const page = await GroupedQueryAttentionPage();
+    expectRouteRendersOk(page, "Grouped-Query Attention");
+  });
+});
+
+describe("Phase 1 tag browse helpers", () => {
+  test("attention tag includes grouped-query attention under modules", async () => {
+    const messages = loadUiMessages();
+    const groups = await loadTagResourceGroups("attention", messages, "en");
+    const moduleGroup = groups.find((group) => group.kind === "module");
+
+    expect(moduleGroup).toBeDefined();
+    expect(
+      moduleGroup?.resources.some(
+        (resource) => resource.url === "/docs/modules/grouped-query-attention",
+      ),
+    ).toBe(true);
   });
 });
