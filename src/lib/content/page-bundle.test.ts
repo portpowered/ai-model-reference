@@ -5,6 +5,7 @@ import { loadPageAssets } from "./page-assets-load";
 import {
   groupedQueryAttentionPageDir,
   loadPageMessages,
+  tokenGlossaryPageDir,
 } from "./page-messages-load";
 import { pageFrontmatterSchema } from "./schemas";
 
@@ -76,5 +77,46 @@ describe("grouped-query-attention page bundle", () => {
     expect(assets.computeFlow?.type).toBe("graph");
     expect(assets.computeSchema?.type).toBe("graph");
     expect(assets.comparisonTable?.type).toBe("table");
+  });
+});
+
+describe("token glossary page bundle", () => {
+  test("page.mdx frontmatter matches glossary baseline contract", async () => {
+    const pagePath = join(tokenGlossaryPageDir, "page.mdx");
+    const raw = await readFile(pagePath, "utf8");
+    const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    expect(match?.[1]).toBeDefined();
+    if (!match?.[1]) {
+      throw new Error("missing frontmatter block");
+    }
+
+    const frontmatter = parseYamlFrontmatterBlock(match[1]);
+
+    const parsed = pageFrontmatterSchema.safeParse(frontmatter);
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) {
+      throw new Error(parsed.error.message);
+    }
+
+    expect(parsed.data.registryId).toBe("concept.token");
+    expect(parsed.data.kind).toBe("glossary");
+    expect(parsed.data.messageNamespace).toBe("local");
+    expect(parsed.data.assetNamespace).toBe("local");
+    expect(parsed.data.tags).toContain("attention");
+    expect(parsed.data.status).toBe("published");
+  });
+
+  test("message and asset loaders succeed for the baseline page directory", async () => {
+    const messages = await loadPageMessages(tokenGlossaryPageDir, "en");
+    const assets = await loadPageAssets(tokenGlossaryPageDir);
+
+    expect(messages.title).toBe("Token");
+    expect(messages.description.length).toBeGreaterThan(0);
+    expect(messages.problemStatement?.length).toBeGreaterThan(0);
+    expect(messages.coreIdea?.length).toBeGreaterThan(0);
+    expect(messages.sections?.whatItIs?.body?.length).toBeGreaterThan(0);
+    expect(messages.sections?.whyItMatters?.body?.length).toBeGreaterThan(0);
+
+    expect(assets.conceptMap?.type).toBe("graph");
   });
 });
