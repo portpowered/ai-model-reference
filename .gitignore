@@ -1,5 +1,10 @@
 bin/
 
+# Ralph workstation iteration state (worktree-local only; see factory/workstations/process/AGENTS.md)
+/prd.json
+/prd.md
+/progress.txt
+
 .DS_Store
 
 node_modules/
