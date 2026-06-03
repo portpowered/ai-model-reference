@@ -357,3 +357,13 @@
   - Story 005 completion path when scoping works: verification via `make ci` and the build regression test is sufficient; avoid adding `outputFileTracing*` unless the regression gate still fails after 002–004.
   - Story 006 should run final `make ci` and confirm discovery routes unchanged after this branch’s loader work.
 ---
+
+## 2026-06-04T19:15:00Z - phase-1-turbopack-tracing-warning-cleanup-006
+- Verified full Phase 1 quality gates after tracing cleanup: `make ci` (lint, typecheck, 264 tests, build including `next-build-tracing-warning.test.ts`, Phase 1 static route verification, validate-data) exits 0.
+- Confirmed production build manifest includes all eight Phase 1 discovery paths (`/`, `/search`, `/docs/architecture`, `/docs/glossary`, `/docs/glossary/token`, `/tags`, `/tags/attention`, `/docs/modules/grouped-query-attention`) with no new Phase 2 routes or content.
+- No code changes required for this story outcome.
+- Files changed: none (verification only); PRD/progress tracking updated locally.
+- **Learnings for future iterations:**
+  - Story 006 is the branch exit gate: run `make ci` once after stories 001–005 land; no additional tracing config needed when the build regression test stays green.
+  - Branch is ready for PR creation when all six stories pass and no blocking PR conversation feedback exists.
+---
