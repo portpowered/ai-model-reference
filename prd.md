@@ -1,202 +1,249 @@
-# PRD: Basic Token Glossary Page
+# PRD: Default Pages, Search, and Tags Discovery
 
 ## Introduction
 
-Implement the Phase 1 **token** glossary page so readers can open a foundational ML term reference at `/docs/glossary/token`, browse to it from the glossary index, and find it through site search by title or body text. The page follows the same message-key, registry-backed, colocated asset/message pattern established by the grouped-query attention module page.
+Model Atlas needs default discovery surfaces so readers can enter the reference, search across indexed content, browse architecture and glossary indexes, explore controlled tags, and land on topic pages such as `attention` before drilling into module explainers. This work item delivers Phase 1 browsing and search behavior on top of the app scaffold, registry baseline, canonical sample docs page, and token glossary page delivered by sibling Phase 1 work items.
 
-**Intent:** Prove the glossary content path end-to-end (`page.mdx` + colocated `messages/en.json` + `assets.json` + `concept.token` registry record → rendered glossary page discoverable from index and search) without expanding into Phase 2 foundational glossary coverage.
+The concrete change is to ship `/`, search entry (dialog and/or dedicated route), architecture index, glossary index, tags index, `/tags/attention`, and Fumadocs Orama search that indexes the sample grouped-query attention docs page and published glossary pages. Search must find the grouped-query attention page by `GQA`, `attention`, and `KV cache`.
 
 ## Context
 
 ### Customer ask
 
-Phase 1: implement one basic glossary page for token using the same message-key, registry-backed, colocated asset/message pattern. Ensure it renders at its docs route, appears in the glossary index, and is searchable by title/body text without adding broader Phase 2 glossary coverage.
+Phase 1: implement the default site pages and discovery surfaces — home/reference entry page, search entry, architecture index, glossary index, tags index, one attention tag landing page, and basic Fumadocs Orama search for the sample docs and glossary pages. Search must find the sample grouped-query attention page by GQA, attention, and KV cache.
 
 ### Problem
 
-Model Atlas already ships baseline colocated messages, assets, and a `concept.token` registry record from `content-registry-validation`, and canonical docs rendering components from `docs-template-rendering`. Readers still cannot open `/docs/glossary/token`, see localized glossary copy composed in the docs shell, find **Token** on the glossary index, or search for terms like “subword token” and reach the page. Phase 1 manual review requires a working glossary route alongside the sample module page.
+Without a home entry, architecture index, glossary index, tag index, tag landing page, and working search, readers cannot discover the first canonical docs page or move between topics using the site's intended reference workflow. Phase 1 manual review requires confirming home, search, architecture, glossary, tag routes, and that search finds `GQA`, `attention`, and `KV cache`.
 
 ### Solution
 
-Publish `src/content/docs/glossary/token/page.mdx` following `docs/templates/concept.mdx` with `kind: glossary` and `registryId: concept.token`. Add the missing `graph.token-concept-map` registry record referenced by colocated assets. Register the page in the Fumadocs docs tree. Expose a glossary discovery helper and search-document builder entry so the glossary index and Orama search (completed in sibling `default-pages-search-tags`) can list and retrieve the token page from structured content—not prose scraping.
+Implement registry-backed discovery routes and Fumadocs Orama search wired through the documented app structure: search document builder in `src/lib/search`, Orama API/static index, search UI in `src/features/docs/search`, index/list pages under `src/app`, and `TagResourceList` for the attention tag landing page. All surfaces use the standard docs shell, localized message keys, and dark atlas theme tokens.
 
 ## Description
 
-Deliver one published glossary page for **token**: structural MDX with message-key components, resolved concept map asset, registry-backed tag pills, minimal related-documents section, Fumadocs registration, glossary index discoverability, and search indexing for title, aliases, and body text.
+Ship Phase 1 discovery surfaces for Model Atlas: a reference home page, global search dialog, architecture and glossary browse indexes, tags index, attention tag landing page, and Orama search indexing sample docs and glossary content so readers can find grouped-query attention by alias, tag, and body text.
 
 ## Goals
 
-- Render a complete token glossary page at `/docs/glossary/token` inside the standard docs shell.
-- Keep MDX structural; resolve all reader-facing copy through colocated message keys.
-- Resolve the `conceptMap` graph asset from colocated `assets.json` with message-backed alt/caption text.
-- Surface registry-backed tags and a minimal derived related-documents section.
-- Expose token as a discoverable glossary entry for the glossary index (title, summary, URL).
-- Include token in search documents so queries on title, aliases, and body text return the page.
-- Scope strictly to the token glossary—no Phase 2 terms (embedding, logit, softmax, etc.).
+- Provide a docs-style home/reference entry at `/` with prominent search and links into architecture, glossary, tags, and docs.
+- Enable full-text discovery of the sample grouped-query attention page and published glossary pages via Fumadocs Orama.
+- Expose a consistent search entry from the app shell (keyboard shortcut, focus states, empty and loading states).
+- List architecture-related reference pages at the architecture index route with a clear empty state when none exist.
+- List glossary entries at the glossary index route.
+- List controlled tags at `/tags` with links to tag landing pages.
+- Render `/tags/attention` with resources grouped by kind from registry data.
+- Meet Phase 1 manual search checks for `GQA`, `attention`, and `KV cache`.
 
 ## Project-Level Acceptance Criteria
 
-- [ ] A reader can open `/docs/glossary/token` locally and see a complete glossary reference inside the standard docs shell (top nav, sidebar, article column, on-this-page rail).
-- [ ] Title, problem statement, core idea, and section copy resolve from colocated `messages/en.json` via message-key components—no raw user-visible prose in `page.mdx`.
-- [ ] The `conceptMap` asset renders (graph shell or static placeholder) with alt text from messages; broken asset config fails validation or development builds clearly.
-- [ ] The glossary index lists **Token** with its summary and a link to `/docs/glossary/token` when the index route is rendered.
-- [ ] Search for `token`, `subword token`, or distinctive body phrases (e.g. `128k context`) returns the token glossary page in relevant results.
-- [ ] Tag pills on the page link to tag landing or search destinations for tags on `concept.token` (e.g. `attention`).
-- [ ] Typecheck, lint, and tests pass for all changes in this work item.
+- [ ] `/` renders the Model Atlas reference home inside the standard docs shell with localized copy, search entry, and navigation to architecture, glossary, tags, and docs.
+- [ ] Search opens from the app shell, supports keyboard interaction, and returns the sample grouped-query attention page for queries `GQA`, `attention`, and `KV cache` (or `kv-cache` as indexed).
+- [ ] Architecture index route (per routing contract, e.g. `/docs/architecture`) lists published architecture-related pages with title and summary; shows a clear empty state when none exist.
+- [ ] Glossary index route (e.g. `/docs/glossary`) lists published glossary pages with title and summary; shows a clear empty state when none exist.
+- [ ] `/tags` lists tag records with category labels and links to `/tags/<slug>`.
+- [ ] `/tags/attention` lists all published resources tagged `attention`, grouped by kind, including the sample module page when present.
+- [ ] Discovery pages use message keys for user-visible strings and shadcn semantic tokens per `docs/site-fundamentals.md`.
+- [ ] Typecheck, lint, and tests pass via `make ci` (or equivalent project CI command once scaffold exists).
 
 ## User Stories
 
-### basic-token-glossary-page-001: Publish and render the token glossary page
+### default-pages-search-tags-001: Build search documents and Orama index from content layers
 
-**Description:** As a reader learning ML fundamentals, I want a token glossary page at its docs route so I can understand what a token is before reading module pages like grouped-query attention.
-
-**Acceptance Criteria:**
-
-- [ ] `src/content/docs/glossary/token/page.mdx` exists with `kind: glossary`, `registryId: concept.token`, `messageNamespace: local`, `assetNamespace: local`, and `status: published`.
-- [ ] MDX follows `docs/templates/concept.mdx` structure using `T`, `Section`, `TagPillList`, `DerivedRelatedDocs`, `RelatedDocs`, and `CitationList`—no raw user-visible prose.
-- [ ] Navigating to `/docs/glossary/token` returns HTTP 200 with the standard docs shell in a local dev build.
-- [ ] Title, `problemStatement`, and `coreIdea` render from colocated messages below the page heading.
-- [ ] Typecheck passes
-- [ ] Verify in browser: title and opening paragraphs match `messages/en.json`, not hard-coded MDX prose.
-
-### basic-token-glossary-page-002: Resolve and render the token concept map asset
-
-**Description:** As a reader, I want a visual concept map on the token page so I can see how text becomes token IDs before the transformer stack.
+**Description:** As a maintainer, I need search documents derived from MDX structure, localized messages, asset metadata, and registry records so Orama can retrieve the sample docs page and glossary pages accurately.
 
 **Acceptance Criteria:**
 
-- [ ] `graph.token-concept-map` registry record exists and satisfies Phase 1 graph schema requirements referenced by `assets.json`.
-- [ ] `ConceptMap` (or equivalent docs component) renders the `conceptMap` asset ID with alt text and caption resolved from message keys.
-- [ ] Invalid or missing graph/asset references fail `make validate-data` or surface a clear development error—not a silent empty slot in production.
-- [ ] Automated tests cover asset resolution for the token page `conceptMap` graph asset.
-- [ ] Typecheck passes
-- [ ] Tests pass
-- [ ] Verify in browser: concept map section is visible with accessible alt text.
-
-### basic-token-glossary-page-003: Register token in the Fumadocs docs tree
-
-**Description:** As a reader browsing the docs sidebar, I want the token glossary page registered in navigation so I can reach it without typing the URL.
-
-**Acceptance Criteria:**
-
-- [ ] Fumadocs `meta.json` (or equivalent source config) includes the token glossary page under the glossary section so it appears in the docs sidebar/navigation.
-- [ ] Page frontmatter `title` and `description` align with resolved message keys for SEO/metadata where Fumadocs reads frontmatter.
-- [ ] Internal links to `/docs/glossary/token` from navigation resolve without 404 in the test harness.
-- [ ] Typecheck passes
-- [ ] Verify in browser: token page is reachable from docs sidebar navigation.
-
-### basic-token-glossary-page-004: Expose token for glossary index listing
-
-**Description:** As a reader on the glossary index, I want **Token** listed with its summary so I can browse defined terms in one place.
-
-**Acceptance Criteria:**
-
-- [ ] `src/lib/content` exposes a helper (e.g. `listPublishedGlossaryPages`) that returns published glossary pages with resolved title, summary, slug, and URL.
-- [ ] The helper includes the token page when `status: published` and returns entries sorted alphabetically by title.
-- [ ] Glossary index route (when present) renders **Token** with summary linking to `/docs/glossary/token`; if the index route is not yet implemented, an automated test asserts the helper output includes the token entry with expected title and URL.
-- [ ] When no glossary pages exist, the helper returns an empty list (no throw).
+- [ ] `src/lib/search` exposes a builder that produces normalized search documents matching the `SearchDocument` contract in `docs/data-model.md` (title, description, bodyText, headings, aliases, tags, facets, url, kind).
+- [ ] The builder indexes the published grouped-query attention sample page when present, including registry aliases (e.g. `GQA`), frontmatter tags (e.g. `attention`, `kv-cache`), and resolved default-locale message body text.
+- [ ] The builder indexes published glossary pages (e.g. token) with title, description, resolved body text, aliases, and tags when sibling glossary content exists.
+- [ ] A static Orama index artifact or build step is produced for Fumadocs static search mode without scraping raw MDX prose for core facets.
+- [ ] Unit tests assert the sample page document contains expected title, alias, and tag values used by Phase 1 search checks.
 - [ ] Typecheck passes
 - [ ] Tests pass
 
-### basic-token-glossary-page-005: Index token page for search by title and body text
+### default-pages-search-tags-002: Wire Fumadocs Orama search API and client configuration
 
-**Description:** As a reader using site search, I want to find the token glossary by typing the term or phrases from its explanation.
+**Description:** As a reader, I want the site to query the Orama index through Fumadocs so search works in the static Phase 1 deployment.
 
 **Acceptance Criteria:**
 
-- [ ] Search document builder produces a normalized document for the token glossary page including title, description, resolved default-locale body text, headings, aliases (`tokens`, `token id`, `subword token`), tags, kind `glossary`, and URL `/docs/glossary/token`.
-- [ ] Querying `token` or `subword token` against the built index returns the token glossary page among relevant results in automated tests.
-- [ ] Querying a distinctive body phrase from messages (e.g. `128k context` from the reader shortcut callout) returns the token page in relevant results.
-- [ ] Search facets use registry fields for the page; body text is not scraped from raw MDX prose.
+- [ ] `src/app/api/search/route.ts` is created from the Fumadocs source using `createFromSource` or `createSearchAPI`, exposes `staticGET` for static export, and serves results for indexed docs pages.
+- [ ] `src/features/docs/search/search-client.ts` centralizes `useDocsSearch` with `type: "static"` (or documented fetch mode if static payload is impractical).
+- [ ] Querying `GQA` through the search client returns the grouped-query attention sample page as the top relevant docs result in tests.
+- [ ] Querying `attention` returns the grouped-query attention sample page among relevant results in tests.
+- [ ] Querying `KV cache` (or normalized `kv cache`) returns the grouped-query attention sample page among relevant results in tests.
 - [ ] Typecheck passes
 - [ ] Tests pass
 
-### basic-token-glossary-page-006: Registry-backed tags and minimal related documents on token page
+### default-pages-search-tags-003: Add global search dialog and shell trigger
 
-**Description:** As a reader exploring related topics, I want tag pills and nearby related docs on the token page so I can jump to attention-tagged resources without hand-maintained link lists.
+**Description:** As a reader, I want to open search from anywhere in the site so I can jump to reference pages without browsing the sidebar first.
 
 **Acceptance Criteria:**
 
-- [ ] `TagPillList` renders tags from `concept.token` as keyboard-focusable links to `/tags/<slug>` or equivalent tag-filter URLs.
-- [ ] Tag pills use restrained monochrome styling per `docs/site-fundamentals.md`.
-- [ ] `DerivedRelatedDocs` renders at least `shared-tags` and/or `same-concept-type` groups when matching registry records exist; empty groups are omitted.
-- [ ] `CitationList` renders without broken markup when `citationIds` is empty (omits or shows concise empty state).
+- [ ] `SearchDialog` and `SearchTrigger` live under `src/features/docs/search` and register through `RootProvider` in the app layout.
+- [ ] Keyboard shortcut (e.g. Cmd/Ctrl+K) opens the dialog; Escape closes it; arrow keys move between results; focus ring uses `ring` token.
+- [ ] Dialog shows loading, empty (“no results”), and success states; each result shows title, page kind, short summary, and matched tags when available.
+- [ ] A visible search affordance appears in the top navigation on home, architecture index, glossary, tags, and docs routes.
 - [ ] Typecheck passes
-- [ ] Verify in browser: attention tag pill navigates to a working destination; related section omits empty groups.
+- [ ] Verify in browser using dev-browser skill
+
+### default-pages-search-tags-004: Render Model Atlas home/reference entry page
+
+**Description:** As a reader, I want a reference home page that explains what Model Atlas is and gives me immediate search and browse entry points.
+
+**Acceptance Criteria:**
+
+- [ ] `/` uses the standard docs shell (top nav, left sidebar, article column, right “On this page” rail when applicable) per `docs/site-fundamentals.md`.
+- [ ] Home header uses the irregular brush-stroke treatment behind title and subtitle; search input and primary sections follow in article flow (not a marketing dashboard layout).
+- [ ] User-visible strings resolve from localized message keys (no raw prose in the route component).
+- [ ] Home links to architecture index, glossary index, tags index, and the docs index or sample module.
+- [ ] Typecheck passes
+- [ ] Verify in browser using dev-browser skill
+
+### default-pages-search-tags-005: Render architecture index page
+
+**Description:** As a reader, I want an architecture index so I can browse architecture-related reference pages in one place.
+
+**Acceptance Criteria:**
+
+- [ ] Architecture index route matches the routing contract (e.g. `/docs/architecture`) and lists published architecture-related pages with title and summary from resolved messages or registry (e.g. concept pages with `conceptType: architecture` or pages under the architecture content grouping).
+- [ ] Each row links to its docs route; entries are sorted alphabetically by title.
+- [ ] When no architecture pages exist, the page shows an accessible empty state with guidance to return home or open search.
+- [ ] Typecheck passes
+- [ ] Verify in browser using dev-browser skill
+
+### default-pages-search-tags-006: Render glossary index page
+
+**Description:** As a reader, I want a glossary index so I can browse defined ML terms in one place.
+
+**Acceptance Criteria:**
+
+- [ ] Glossary index route matches the routing contract (e.g. `/docs/glossary`) and lists published glossary pages with title and summary from resolved messages/registry.
+- [ ] Each row links to the glossary entry route; entries are sorted alphabetically by title.
+- [ ] When no glossary pages exist, the page shows an accessible empty state with guidance to return home or open search.
+- [ ] When the token glossary page exists from sibling work, it appears in the index with correct title and link.
+- [ ] Typecheck passes
+- [ ] Verify in browser using dev-browser skill
+
+### default-pages-search-tags-007: Render tags index page
+
+**Description:** As a reader, I want to browse all controlled tags so I can discover topics like attention and kv-cache without knowing exact page slugs.
+
+**Acceptance Criteria:**
+
+- [ ] `/tags` lists published tag registry records with localized title/summary, category label, and link to `/tags/<slug>`.
+- [ ] Tags are grouped or sorted by `category` from the tag record schema.
+- [ ] Tag pills on the page use monochrome styling by default (not rainbow chips).
+- [ ] Typecheck passes
+- [ ] Verify in browser using dev-browser skill
+
+### default-pages-search-tags-008: Render attention tag landing page
+
+**Description:** As a reader searching for attention mechanisms, I want a tag landing page that lists every published resource tagged `attention` grouped by kind.
+
+**Acceptance Criteria:**
+
+- [ ] `/tags/attention` resolves the `attention` tag record and renders `TagResourceList` grouped by kind (modules, concepts, models, papers, glossary, blog, training, systems — omit empty groups).
+- [ ] The grouped-query attention sample module appears under modules when its registry/frontmatter includes the `attention` tag.
+- [ ] Page includes a search handoff (e.g. link or button pre-filtering search for `attention`) and uses localized message keys for headings and empty copy.
+- [ ] Typecheck passes
+- [ ] Verify in browser using dev-browser skill
+
+### default-pages-search-tags-009: Verify Phase 1 search discovery behavior end to end
+
+**Description:** As a maintainer, I want automated checks that Phase 1 search discovery works so regressions are caught in CI.
+
+**Acceptance Criteria:**
+
+- [ ] Integration or search-layer tests assert queries `GQA`, `attention`, and `KV cache` (or normalized `kv cache`) return the sample grouped-query attention page in the top results.
+- [ ] A smoke test (or render test) confirms `/`, architecture index, glossary index, `/tags`, and `/tags/attention` routes return HTTP 200 in the test harness.
+- [ ] Typecheck passes
+- [ ] Tests pass
 
 ## Functional Requirements
 
-- **FR-1:** Glossary MDX must not contain raw user-visible prose outside approved message-key and registry-backed components.
-- **FR-2:** Page frontmatter uses `kind: glossary` and `registryId: concept.token`.
-- **FR-3:** Colocated `messages/en.json` and `assets.json` from the Phase 1 baseline are the authoritative text and asset sources.
-- **FR-4:** Route contract is `/docs/glossary/token` per `docs/architectural-checklist.md`.
-- **FR-5:** Glossary discovery helper returns title, summary, slug, and URL for each published glossary page.
-- **FR-6:** Search documents for glossary pages include resolved message body text, registry aliases, and tags.
-- **FR-7:** Only the token glossary page is in scope—no additional glossary entries or Phase 2 foundational pages.
+- FR-1: Search index derives from MDX page structure, default-locale messages, colocated asset metadata, and registry records per `docs/architecture.md`.
+- FR-2: Orama is the only Phase 1 search engine; use Fumadocs static search mode when practical.
+- FR-3: `/` is the primary reference entry, not a marketing landing page.
+- FR-4: Architecture index lists published architecture-related docs with title, summary, and link.
+- FR-5: Glossary index lists published glossary docs with title, summary, and link.
+- FR-6: Tags index lists published tag records from `src/content/registry/tags`.
+- FR-7: Tag landing pages derive membership from registry tags and MDX frontmatter, not hand-maintained page lists.
+- FR-8: Search dialog meets accessible keyboard and focus requirements from the architectural checklist.
+- FR-9: Discovery routes consume validated loaders from `src/lib/content`; route files stay thin and delegate to `src/features/docs`.
 
 ## Non-Goals
 
-- Phase 2 glossary pages (embedding, logit, softmax, patch, latent, etc.).
-- Home page, search dialog UI, tags index, attention tag landing page (`default-pages-search-tags`—depends on this work item).
-- Grouped-query attention module page authoring (`docs-template-rendering`).
-- Registry schemas, baseline loaders, or `make validate-data` core logic (`content-registry-validation`).
-- Full interactive React Flow graph behavior beyond Phase 1 placeholder/shell rendering.
-- Localization beyond default `en`.
-- PDF/print routes for the token page.
-- Glossary page generation templates or batch authoring tooling for Phase 2.
+- Canonical grouped-query attention MDX page authoring — sibling work item `docs-template-rendering`.
+- Token glossary page content — sibling work item `basic-token-glossary-page` (this item consumes it for index/search only).
+- Registry/schema scaffold — sibling work item `content-registry-validation`.
+- App/toolchain scaffold — sibling work item `site-app-scaffold`.
+- Advanced search facets UI (model family, module type filters) beyond basic tag/text retrieval for Phase 1.
+- Blog index, model pages, PDF export, localization beyond English.
+- Benchmark leaderboards or paper download features.
+- Full Phase 2/3 architecture pages (transformer architecture, architectures overview, etc.) — index only; content comes later.
 
 ## High-Level Technical Design
 
 ### Dependencies
 
+This work item assumes sibling Phase 1 items are complete or merged on the branch:
+
 | Dependency | Provides |
 |------------|----------|
-| `site-app-scaffold` | Next.js App Router, Fumadocs routing, docs shell, Makefile/CI |
-| `content-registry-validation` | `concept.token` record, colocated messages/assets, loaders, validation |
-| `docs-template-rendering` | `T`, `Section`, `TagPillList`, `CitationList`, `DerivedRelatedDocs`, asset resolution |
+| `site-app-scaffold` | Next.js App Router, Fumadocs, layout shell, Makefile/CI |
+| `content-registry-validation` | Registry loaders, `tag.attention`, sample module record, `concept.token` |
+| `docs-template-rendering` | Sample `grouped-query-attention` docs page with messages |
+| `basic-token-glossary-page` | Token glossary page and glossary discovery helper (optional at index render time) |
 
-**Enables:** `default-pages-search-tags` (glossary index UI, global search dialog, Orama wiring for GQA + token).
-
-### Content pipeline
+### Search pipeline
 
 ```txt
-page.mdx + messages/en.json + assets.json + concept.token
-        -> localized page model
-        -> /docs/glossary/token (rendered)
-        -> listPublishedGlossaryPages() (index input)
-        -> buildSearchDocuments() (Orama input)
+page.mdx + messages/en.json + assets.json + registry record
+        -> buildSearchDocuments()
+        -> Orama index (static)
+        -> /api/search (staticGET) + useDocsSearch
+        -> SearchDialog / SearchTrigger
 ```
 
-### Package ownership
+### Routing
 
-| Concern | Owner |
-|--------|--------|
-| Page MDX, colocated messages/assets | `src/content/docs/glossary/token/` |
-| Graph record | `src/content/registry/graphs/` |
-| Glossary discovery + search document shape | `src/lib/content` or `src/lib/search` |
-| MDX components | `src/features/docs/components`, `src/features/models/components` |
-| Route wiring | Fumadocs docs catch-all under `src/app/docs` |
+| Route | Purpose |
+|-------|---------|
+| `/` | Reference home with search entry |
+| `/docs/architecture` | Architecture index (per routing contract) |
+| `/docs/glossary` | Glossary index |
+| `/tags` | Tag index |
+| `/tags/attention` | Attention tag landing |
+| `/api/search` | Fumadocs Orama endpoint |
 
-### Phase 1 glossary scope (token only)
+### Components
 
-**Included:** title, problem statement, core idea, core explanatory sections from concept template, reader shortcut callout, concept map asset slot, tag pills, minimal derived related docs, references section.
-
-**Deferred:** populated citation records for token, rich concept-map interactivity, links to Phase 2 prerequisite concepts (embedding, logit) until those pages exist.
+- `src/lib/search` — index builder, query normalization helpers
+- `src/lib/content` — browse helpers for architecture and glossary indexes
+- `src/features/docs/search/*` — dialog, trigger, client wrapper
+- `src/features/docs/components/TagResourceList.tsx` — tag landing lists
+- `src/app/page.tsx`, `src/app/tags/*`, architecture and glossary index routes
 
 ## Supporting Technical and UX Considerations
 
-- **Accessibility:** Logical heading outline from `Section` components; tag pills and links keyboard-operable; focus rings use `ring` token.
-- **States:** Loading placeholder for graph asset; empty states for citations and related groups; development errors for missing message keys must not ship as blank sections.
-- **Styling:** Standard docs shell, dark atlas theme, monochrome tag chips per `docs/site-fundamentals.md`.
-- **Testing:** Target message resolution, glossary discovery output, search document content, and route smoke tests—not repo file inventories or link-topology scans.
+- Reuse `TagPillList` for inline tags linking to `/tags/<slug>`.
+- Keep tag chips monochrome; use `primary` for focus and `accent` sparingly per site fundamentals.
+- Search empty state should suggest trying aliases (e.g. “GQA”) or browsing `/tags/attention`.
+- No-JS fallback: search trigger links to `/docs` or a simple search route if the dialog cannot run without JavaScript.
+- Loading states must not shift layout abruptly (skeleton or stable min-height).
+- Architecture and glossary indexes share the same docs shell and card/list presentation patterns for consistency.
 
 ## Success Metrics
 
-- A reviewer opens `/docs/glossary/token`, confirms message-driven copy, clicks an attention tag pill, and reaches a tag destination in under three interactions.
-- Glossary index lists **Token** as the sole Phase 1 glossary entry (until more are added in later phases).
-- Search queries `token` and `subword token` surface the glossary page in CI tests.
-- The next glossary page can copy the token folder pattern without a new rendering approach.
+- A new reader can open `/`, search `GQA`, and reach the sample module page in under two interactions.
+- `/tags/attention` surfaces the sample module without manual curation lists.
+- Phase 1 manual gate search checks pass locally and in CI tests for `GQA`, `attention`, and `KV cache`.
+- Architecture and glossary indexes render without error even when only zero or one entries exist in Phase 1.
+- No increase in `make ci` time beyond acceptable static index build cost.
 
 ## Open Questions
 
-None blocking Phase 1. Graph interactivity depth can follow once `graph.token-concept-map` nodes mature; Phase 1 requires a resolvable asset slot and message-backed alt/caption text only.
+None for Phase 1 scope. Search mode (static vs fetch) may be chosen by the implementer based on index size; document the choice in code comments only if non-obvious.

@@ -1,8 +1,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { UiMessages } from "@/lib/content/ui-messages.types";
+import type { UiMessages } from "./ui-messages.types";
 
-export type { UiMessages } from "@/lib/content/ui-messages.types";
+export type { UiMessages } from "./ui-messages.types";
+export { formatPageKind } from "./ui-messages.types";
 
 const MESSAGES_ROOT = join(process.cwd(), "src/content/messages");
 

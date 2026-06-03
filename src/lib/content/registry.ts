@@ -42,7 +42,7 @@ export class RegistryLoadError extends Error {
   }
 }
 
-const defaultRegistryRoot = join(import.meta.dir, "../../content/registry");
+const defaultRegistryRoot = join(process.cwd(), "src/content/registry");
 
 type RegistryDirectory = {
   name: "modules" | "concepts" | "tags" | "citations" | "graphs";
@@ -187,4 +187,14 @@ export async function loadRegistry(
   }
 
   return buildIndexes(files);
+}
+
+export function getRegistryRecord(
+  indexes: RegistryIndexes,
+  registryId?: string,
+): RegistryRecord | undefined {
+  if (!registryId) {
+    return undefined;
+  }
+  return indexes.byId.get(registryId);
 }

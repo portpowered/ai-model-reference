@@ -1,0 +1,4 @@
+{
+  "title": "KV Cache",
+  "summary": "Key-value caching for faster autoregressive inference and lower memory bandwidth during decoding."
+}

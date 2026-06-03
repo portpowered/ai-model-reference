@@ -1,63 +1,66 @@
 {
-  "project": "Model Atlas — Basic Token Glossary Page",
-  "branchName": "basic-token-glossary-page",
-  "description": "Publish the Phase 1 token glossary page at /docs/glossary/token using the message-key, registry-backed, colocated asset/message pattern so readers can open the page, find it on the glossary index, and discover it through search by title or body text—without expanding into Phase 2 glossary coverage.",
+  "project": "Model Atlas — Default Pages, Search, and Tags",
+  "branchName": "default-pages-search-tags",
+  "description": "Ship Phase 1 discovery surfaces: Model Atlas home, architecture and glossary indexes, tags index, attention tag landing page, and Fumadocs Orama search for the sample grouped-query attention docs page and glossary pages so readers can search and browse into canonical reference content.",
   "context": {
-    "customerAsk": "Phase 1: implement one basic glossary page for token using the same message-key, registry-backed, colocated asset/message pattern. Ensure it renders at its docs route, appears in the glossary index, and is searchable by title/body text without adding broader Phase 2 glossary coverage.",
-    "problem": "Baseline colocated messages, assets, and a concept.token registry record exist, but readers cannot open /docs/glossary/token, browse to Token on the glossary index, or search for terms like subword token. Phase 1 requires a working glossary route alongside the sample module page.",
-    "solution": "Publish page.mdx following the concept template with kind glossary and registryId concept.token, add the graph.token-concept-map registry record, register the page in Fumadocs, expose glossary discovery and search document builders for the token page, and render registry-backed tags and minimal related documents in the standard docs shell."
+    "customerAsk": "Phase 1: implement the default site pages and discovery surfaces: home/reference entry page, search entry, architecture index, glossary index, tags index, one attention tag landing page, and basic Fumadocs Orama search for the sample docs and glossary pages. Search must find the sample grouped-query attention page by GQA, attention, and KV cache.",
+    "problem": "Readers cannot discover the first canonical docs page or move between topics without a home entry, architecture index, working search, glossary index, tags index, and an attention tag landing page. Phase 1 manual review requires home, search, architecture, glossary, and tag routes plus search hits for GQA, attention, and KV cache.",
+    "solution": "Implement registry-backed discovery routes and Fumadocs Orama search using the documented app structure: search document builder in src/lib/search, Orama static index and API route, search UI in src/features/docs/search, architecture/glossary/tags index routes under src/app, and TagResourceList for /tags/attention—all within the standard docs shell and localized message keys."
   },
   "acceptanceCriteria": [
-    "A reader can open /docs/glossary/token and see a complete glossary reference inside the standard docs shell with message-key-driven copy from colocated messages/en.json.",
-    "The conceptMap asset renders with message-backed alt/caption text; broken asset or graph references fail validation or development builds clearly.",
-    "The glossary index lists Token with summary and a link to /docs/glossary/token.",
-    "Search for token, subword token, or distinctive body phrases returns the token glossary page in relevant results.",
-    "Tag pills on the page link to working tag destinations for tags on concept.token.",
-    "Only the token glossary page is added—no Phase 2 foundational glossary terms.",
+    "/ renders the Model Atlas reference home with search entry and links to architecture, glossary, tags, and docs inside the standard docs shell.",
+    "Global search (dialog and shell trigger) returns the grouped-query attention sample page for queries GQA, attention, and KV cache (or kv-cache as indexed).",
+    "Architecture index lists published architecture-related pages with title, summary, and links; shows a clear empty state when none exist.",
+    "Glossary index lists published glossary pages with title, summary, and links; shows a clear empty state when none exist.",
+    "/tags lists published tag records with category labels and links to tag landing pages.",
+    "/tags/attention lists resources tagged attention grouped by kind, including the sample module page when present.",
+    "Discovery pages use localized message keys and shadcn semantic tokens per site fundamentals.",
     "Typecheck, lint, and tests pass via make ci (or equivalent project CI command)."
   ],
   "userStories": [
     {
-      "id": "basic-token-glossary-page-001",
-      "title": "Publish and render the token glossary page",
-      "description": "As a reader learning ML fundamentals, I want a token glossary page at its docs route so I can understand what a token is before reading module pages like grouped-query attention.",
+      "id": "default-pages-search-tags-001",
+      "title": "Build search documents and Orama index from content layers",
+      "description": "As a maintainer, I need search documents derived from MDX structure, localized messages, asset metadata, and registry records so Orama can retrieve the sample docs page and glossary pages accurately.",
       "acceptanceCriteria": [
-        "src/content/docs/glossary/token/page.mdx exists with kind glossary, registryId concept.token, messageNamespace local, assetNamespace local, and status published.",
-        "MDX follows docs/templates/concept.mdx using T, Section, TagPillList, DerivedRelatedDocs, RelatedDocs, and CitationList with no raw user-visible prose.",
-        "Navigating to /docs/glossary/token returns HTTP 200 with the standard docs shell in a local dev build.",
-        "Title, problemStatement, and coreIdea render from colocated messages below the page heading.",
+        "src/lib/search exposes a builder producing normalized SearchDocument records (title, description, bodyText, headings, aliases, tags, facets, url, kind) per docs/data-model.md.",
+        "The builder indexes the published grouped-query attention sample page including registry aliases (e.g. GQA), tags (e.g. attention, kv-cache), and default-locale message body text.",
+        "The builder indexes published glossary pages (e.g. token) with title, description, resolved body text, aliases, and tags when sibling glossary content exists.",
+        "A static Orama index artifact or build step is produced for Fumadocs static search without scraping raw MDX for core facets.",
+        "Unit tests assert the sample page document contains expected title, alias, and tag values for Phase 1 search checks.",
         "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Tests pass"
       ],
       "priority": 1,
       "passes": true,
       "notes": ""
     },
     {
-      "id": "basic-token-glossary-page-002",
-      "title": "Resolve and render the token concept map asset",
-      "description": "As a reader, I want a visual concept map on the token page so I can see how text becomes token IDs before the transformer stack.",
+      "id": "default-pages-search-tags-002",
+      "title": "Wire Fumadocs Orama search API and client configuration",
+      "description": "As a reader, I want the site to query the Orama index through Fumadocs so search works in the static Phase 1 deployment.",
       "acceptanceCriteria": [
-        "graph.token-concept-map registry record exists and satisfies Phase 1 graph schema requirements referenced by assets.json.",
-        "ConceptMap or equivalent component renders the conceptMap asset ID with alt text and caption resolved from message keys.",
-        "Invalid or missing graph or asset references fail make validate-data or surface a clear development error.",
-        "Automated tests cover asset resolution for the token page conceptMap graph asset.",
+        "src/app/api/search/route.ts is created from the Fumadocs source with staticGET for static export and returns results for indexed docs pages.",
+        "src/features/docs/search/search-client.ts centralizes useDocsSearch with type static (or documented fetch mode if static payload is impractical).",
+        "Querying GQA through the search client returns the grouped-query attention sample page as the top relevant docs result in tests.",
+        "Querying attention returns the grouped-query attention sample page among relevant results in tests.",
+        "Querying KV cache (or normalized kv cache) returns the grouped-query attention sample page among relevant results in tests.",
         "Typecheck passes",
-        "Tests pass",
-        "Verify in browser using dev-browser skill"
+        "Tests pass"
       ],
       "priority": 2,
       "passes": true,
       "notes": ""
     },
     {
-      "id": "basic-token-glossary-page-003",
-      "title": "Register token in the Fumadocs docs tree",
-      "description": "As a reader browsing the docs sidebar, I want the token glossary page registered in navigation so I can reach it without typing the URL.",
+      "id": "default-pages-search-tags-003",
+      "title": "Add global search dialog and shell trigger",
+      "description": "As a reader, I want to open search from anywhere in the site so I can jump to reference pages without browsing the sidebar first.",
       "acceptanceCriteria": [
-        "Fumadocs meta.json or equivalent source config includes the token glossary page under the glossary section.",
-        "Page frontmatter title and description align with resolved message keys for metadata where Fumadocs reads frontmatter.",
-        "Internal links to /docs/glossary/token from navigation resolve without 404 in the test harness.",
+        "SearchDialog and SearchTrigger under src/features/docs/search register through RootProvider in the app layout.",
+        "Keyboard shortcut (e.g. Cmd/Ctrl+K) opens the dialog; Escape closes; arrow keys navigate results; focus uses ring token.",
+        "Dialog shows loading, empty, and success states; each result shows title, page kind, short summary, and matched tags when available.",
+        "A visible search affordance appears in the top navigation on home, architecture index, glossary, tags, and docs routes.",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
@@ -66,50 +69,93 @@
       "notes": ""
     },
     {
-      "id": "basic-token-glossary-page-004",
-      "title": "Expose token for glossary index listing",
-      "description": "As a reader on the glossary index, I want Token listed with its summary so I can browse defined terms in one place.",
+      "id": "default-pages-search-tags-004",
+      "title": "Render Model Atlas home/reference entry page",
+      "description": "As a reader, I want a reference home page that explains what Model Atlas is and gives me immediate search and browse entry points.",
       "acceptanceCriteria": [
-        "src/lib/content exposes a helper such as listPublishedGlossaryPages returning published glossary pages with resolved title, summary, slug, and URL.",
-        "The helper includes the token page when status is published and returns entries sorted alphabetically by title.",
-        "Glossary index route renders Token with summary linking to /docs/glossary/token, or an automated test asserts the helper output includes the token entry with expected title and URL.",
-        "When no glossary pages exist, the helper returns an empty list without throwing.",
+        "/ uses the standard docs shell (top nav, left sidebar, article column) per docs/site-fundamentals.md.",
+        "Home header uses the irregular brush-stroke treatment; search input and sections follow in article flow (not a marketing dashboard).",
+        "User-visible strings resolve from localized message keys, not raw prose in the route component.",
+        "Home links to architecture index, glossary index, tags index, and the docs index or sample module.",
         "Typecheck passes",
-        "Tests pass"
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
-      "id": "basic-token-glossary-page-005",
-      "title": "Index token page for search by title and body text",
-      "description": "As a reader using site search, I want to find the token glossary by typing the term or phrases from its explanation.",
+      "id": "default-pages-search-tags-005",
+      "title": "Render architecture index page",
+      "description": "As a reader, I want an architecture index so I can browse architecture-related reference pages in one place.",
       "acceptanceCriteria": [
-        "Search document builder produces a normalized document for the token glossary page including title, description, resolved body text, headings, aliases, tags, kind glossary, and URL /docs/glossary/token.",
-        "Querying token or subword token against the built index returns the token glossary page among relevant results in automated tests.",
-        "Querying a distinctive body phrase from messages such as 128k context returns the token page in relevant results.",
-        "Search facets use registry fields; body text is not scraped from raw MDX prose.",
+        "Architecture index route (per routing contract, e.g. /docs/architecture) lists published architecture-related pages with title and summary from resolved messages or registry.",
+        "Each entry links to its docs route; entries are sorted alphabetically by title.",
+        "When no architecture pages exist, the page shows an accessible empty state with guidance to return home or open search.",
         "Typecheck passes",
-        "Tests pass"
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
-      "id": "basic-token-glossary-page-006",
-      "title": "Registry-backed tags and minimal related documents on token page",
-      "description": "As a reader exploring related topics, I want tag pills and nearby related docs on the token page so I can jump to attention-tagged resources without hand-maintained link lists.",
+      "id": "default-pages-search-tags-006",
+      "title": "Render glossary index page",
+      "description": "As a reader, I want a glossary index so I can browse defined ML terms in one place.",
       "acceptanceCriteria": [
-        "TagPillList renders tags from concept.token as keyboard-focusable links to /tags/<slug> or equivalent tag-filter URLs.",
-        "Tag pills use restrained monochrome styling per docs/site-fundamentals.md.",
-        "DerivedRelatedDocs renders shared-tags and/or same-concept-type groups when matching registry records exist; empty groups are omitted.",
-        "CitationList renders without broken markup when citationIds is empty.",
+        "Glossary index route (per routing contract, e.g. /docs/glossary) lists published glossary pages with title and summary from resolved messages or registry.",
+        "Each entry links to its glossary route; entries are sorted alphabetically by title.",
+        "When no glossary pages exist, the page shows an accessible empty state with guidance to return home or open search.",
+        "When the token glossary page exists from sibling work, it appears in the index with correct title and link.",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 6,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "default-pages-search-tags-007",
+      "title": "Render tags index page",
+      "description": "As a reader, I want to browse all controlled tags so I can discover topics like attention and kv-cache without knowing exact page slugs.",
+      "acceptanceCriteria": [
+        "/tags lists published tag registry records with localized title or summary, category label, and link to /tags/<slug>.",
+        "Tags are grouped or sorted by category from the tag record schema.",
+        "Tag chips use monochrome styling by default, not rainbow category colors.",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "default-pages-search-tags-008",
+      "title": "Render attention tag landing page",
+      "description": "As a reader interested in attention mechanisms, I want a tag landing page listing every published resource tagged attention grouped by kind.",
+      "acceptanceCriteria": [
+        "/tags/attention resolves the attention tag record and renders TagResourceList grouped by kind, omitting empty groups.",
+        "The grouped-query attention sample module appears under modules when tagged attention.",
+        "Page includes a search handoff (e.g. link or control pre-filtering for attention) and uses localized message keys for headings and empty copy.",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "default-pages-search-tags-009",
+      "title": "Verify Phase 1 search discovery behavior end to end",
+      "description": "As a maintainer, I want automated checks that Phase 1 search discovery works so regressions are caught in CI.",
+      "acceptanceCriteria": [
+        "Integration or search-layer tests assert queries GQA, attention, and KV cache (or kv cache) return the grouped-query attention sample page in top results.",
+        "A smoke or render test confirms /, architecture index, glossary index, /tags, and /tags/attention routes return HTTP 200 in the test harness.",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 9,
       "passes": false,
       "notes": ""
     }

@@ -17,13 +17,13 @@ export class MessageLoadError extends Error {
 }
 
 export const groupedQueryAttentionPageDir = join(
-  import.meta.dir,
-  "../../content/docs/modules/grouped-query-attention",
+  process.cwd(),
+  "src/content/docs/modules/grouped-query-attention",
 );
 
 export const tokenGlossaryPageDir = join(
-  import.meta.dir,
-  "../../content/docs/glossary/token",
+  process.cwd(),
+  "src/content/docs/glossary/token",
 );
 
 function messagesFilePath(pageDirectory: string, locale: string): string {

@@ -1,33 +1,32 @@
-import { RootProvider } from "fumadocs-ui/provider/next";
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
-
-import { fontBody, fontVariables } from "@/lib/fonts";
-
+import { AppProviders } from "@/components/providers/app-providers";
+import { loadUiMessages } from "@/lib/content/ui-messages";
+import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
+import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Model Reference",
-  description:
-    "A documentation-native reference for modern AI models, modules, and concepts.",
+  title: "Model Atlas",
+  description: "Reference for modern AI models and modules",
 };
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-};
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: ReactNode;
-}>) {
+}) {
+  const messages = loadUiMessages();
+  const metaByUrl = searchResultMetaMapToRecord(
+    await loadSearchResultMetaMap(),
+  );
+
   return (
-    <html lang="en" className={`dark ${fontVariables}`}>
-      <body
-        className={`${fontBody.className} min-h-screen bg-background text-foreground antialiased`}
-      >
-        <RootProvider>{children}</RootProvider>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body>
+        <AppProviders metaByUrl={metaByUrl} messages={messages}>
+          {children}
+        </AppProviders>
       </body>
     </html>
   );
