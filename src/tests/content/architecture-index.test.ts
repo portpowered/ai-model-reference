@@ -87,8 +87,8 @@ describe("sortArchitectureEntriesByTitle", () => {
 });
 
 describe("architecture index messages", () => {
-  it("loads localized copy for the architecture index page", () => {
-    const messages = loadUiMessages();
+  it("loads localized copy for the architecture index page", async () => {
+    const messages = await loadUiMessages();
     expect(messages.architectureIndex.title).toBe("Architecture");
     expect(messages.architectureIndex.emptyTitle.length).toBeGreaterThan(0);
     expect(messages.architectureIndex.emptyDescription.length).toBeGreaterThan(

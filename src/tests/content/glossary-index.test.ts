@@ -60,8 +60,8 @@ describe("sortGlossaryEntriesByTitle", () => {
 });
 
 describe("glossary index messages", () => {
-  it("loads localized copy for the glossary index page", () => {
-    const messages = loadUiMessages();
+  it("loads localized copy for the glossary index page", async () => {
+    const messages = await loadUiMessages();
     expect(messages.glossaryIndex.title).toBe("Glossary");
     expect(messages.glossaryIndex.emptyTitle.length).toBeGreaterThan(0);
     expect(messages.glossaryIndex.emptyDescription.length).toBeGreaterThan(0);

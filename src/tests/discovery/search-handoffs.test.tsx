@@ -23,14 +23,14 @@ describe("search page query prefill", () => {
 });
 
 describe("Phase 1 discovery search handoffs", () => {
-  it("home exposes dialog entry and documented /search bookmark link", () => {
-    const html = renderToStaticMarkup(<HomePage />);
+  it("home exposes dialog entry and documented /search bookmark link", async () => {
+    const html = renderToStaticMarkup(await HomePage());
     expect(html).toContain('href="/search"');
     expect(html).toContain("data-search");
   });
 
-  it("primary navigation includes Search link to /search", () => {
-    const messages = loadUiMessages();
+  it("primary navigation includes Search link to /search", async () => {
+    const messages = await loadUiMessages();
     const searchNav = getPrimaryNavItems(messages).find(
       (item) => item.href === "/search",
     );

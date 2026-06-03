@@ -4,8 +4,8 @@ import SearchEntryPage from "@/app/(site)/search/page";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("search entry page messages", () => {
-  it("loads localized title, description, and canonical path copy", () => {
-    const { searchEntry } = loadUiMessages();
+  it("loads localized title, description, and canonical path copy", async () => {
+    const { searchEntry } = await loadUiMessages();
     expect(searchEntry.title).toBe("Search");
     expect(searchEntry.description.length).toBeGreaterThan(0);
     expect(searchEntry.canonicalNote).toContain("/search");

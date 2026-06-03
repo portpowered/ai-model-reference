@@ -1,4 +1,4 @@
-import { type DocsPageSource, loadPublishedDocsPages } from "./pages";
+import type { DocsPageSource } from "./pages";
 
 export type GlossaryEntry = {
   title: string;
@@ -27,6 +27,7 @@ export function sortGlossaryEntriesByTitle(
 export async function loadPublishedGlossaryEntries(
   locale = "en",
 ): Promise<GlossaryEntry[]> {
+  const { loadPublishedDocsPages } = await import("./pages");
   const pages = (await loadPublishedDocsPages(locale)).filter(
     (page) => page.frontmatter.kind === "glossary",
   );

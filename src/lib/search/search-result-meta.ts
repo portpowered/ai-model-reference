@@ -1,5 +1,3 @@
-import { loadPublishedDocsPages } from "@/lib/content/pages";
-import { loadRegistry } from "@/lib/content/registry";
 import { buildSearchDocuments } from "./build-documents";
 import type { SearchDocument } from "./types";
 
@@ -28,6 +26,8 @@ export function buildSearchResultMetaMap(
 export async function loadSearchResultMetaMap(): Promise<
   Map<string, SearchResultMeta>
 > {
+  const { loadRegistry } = await import("@/lib/content/registry");
+  const { loadPublishedDocsPages } = await import("@/lib/content/pages");
   const indexes = await loadRegistry();
   const pages = await loadPublishedDocsPages(DEFAULT_LOCALE);
   const documents = buildSearchDocuments(pages, indexes);

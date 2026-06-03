@@ -14,8 +14,8 @@ const HOME_DISCOVERY_HREFS = [
 ] as const;
 
 describe("home page messages", () => {
-  it("loads localized copy for title, search, and browse sections", () => {
-    const { home } = loadUiMessages();
+  it("loads localized copy for title, search, and browse sections", async () => {
+    const { home } = await loadUiMessages();
     expect(home.title).toBe("Model Atlas");
     expect(home.subtitle.length).toBeGreaterThan(0);
     expect(home.intro.length).toBeGreaterThan(0);
@@ -29,8 +29,8 @@ describe("home page messages", () => {
     expect(home.searchPageLinkTitle.length).toBeGreaterThan(0);
   });
 
-  it("defines browse link titles for every Phase 1 discovery index", () => {
-    const { home } = loadUiMessages();
+  it("defines browse link titles for every Phase 1 discovery index", async () => {
+    const { home } = await loadUiMessages();
     expect(home.architectureLinkDescription.length).toBeGreaterThan(0);
     expect(home.glossaryLinkDescription.length).toBeGreaterThan(0);
     expect(home.tagsLinkDescription.length).toBeGreaterThan(0);
@@ -42,22 +42,22 @@ describe("home page messages", () => {
 });
 
 describe("home page render", () => {
-  it("links to search, indexes, sample module, and token glossary", () => {
-    const html = renderToStaticMarkup(<HomePage />);
+  it("links to search, indexes, sample module, and token glossary", async () => {
+    const html = renderToStaticMarkup(await HomePage());
     expect(html).toContain("Model Atlas");
     for (const href of HOME_DISCOVERY_HREFS) {
       expect(html).toContain(`href="${href}"`);
     }
   });
 
-  it("exposes global search dialog entry and documented /search page link", () => {
-    const html = renderToStaticMarkup(<HomePage />);
+  it("exposes global search dialog entry and documented /search page link", async () => {
+    const html = renderToStaticMarkup(await HomePage());
     expect(html).toContain("data-search");
     expect(html).toContain('href="/search"');
   });
 
-  it("does not render placeholder scaffold copy in the article body", () => {
-    const html = renderToStaticMarkup(<HomePage />);
+  it("does not render placeholder scaffold copy in the article body", async () => {
+    const html = renderToStaticMarkup(await HomePage());
     expect(html).not.toContain("placeholder");
     expect(html).not.toContain("lorem");
   });

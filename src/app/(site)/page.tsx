@@ -4,8 +4,8 @@ import { HomeBrushHeader } from "@/components/home/home-brush-header";
 import { HomeSearchEntry } from "@/features/docs/search/HomeSearchEntry";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
-export default function HomePage() {
-  const messages = loadUiMessages();
+export default async function HomePage() {
+  const messages = await loadUiMessages();
   const { home } = messages;
 
   return (
