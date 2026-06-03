@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
+import { SAMPLE_MODULE_URL, resultsIncludeSampleModule } from "./helpers";
 
-const SAMPLE_URL = "/docs/modules/grouped-query-attention";
+const SAMPLE_URL = SAMPLE_MODULE_URL;
 
 describe("docsSearchApi", () => {
   test("GET returns grouped-query attention for GQA query", async () => {
@@ -21,6 +22,21 @@ describe("docsSearchApi", () => {
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url).toBe(SAMPLE_URL);
   });
+
+  test("search includes grouped-query attention for attention query", async () => {
+    const results = await docsSearchApi.search("attention");
+    expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeSampleModule(results)).toBe(true);
+  });
+
+  test.each(["KV cache", "kv cache", "kv-cache"] as const)(
+    "search includes grouped-query attention for %s query",
+    async (query) => {
+      const results = await docsSearchApi.search(query);
+      expect(results.length).toBeGreaterThan(0);
+      expect(resultsIncludeSampleModule(results)).toBe(true);
+    },
+  );
 
   test("staticGET exports an advanced Orama index", async () => {
     const response = await docsSearchApi.staticGET();
@@ -50,5 +66,33 @@ describe("docs search static client", () => {
 
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url).toBe(SAMPLE_URL);
+  });
+
+  test("orama static client includes grouped-query attention for attention", async () => {
+    const exported = await (await docsSearchApi.staticGET()).json();
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify(exported), {
+        status: 200,
+      })) as unknown as typeof fetch;
+
+    const client = oramaStaticClient({ from: "http://test.local/api/search" });
+    const results = await client.search("attention");
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeSampleModule(results)).toBe(true);
+  });
+
+  test("orama static client includes grouped-query attention for KV cache", async () => {
+    const exported = await (await docsSearchApi.staticGET()).json();
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify(exported), {
+        status: 200,
+      })) as unknown as typeof fetch;
+
+    const client = oramaStaticClient({ from: "http://test.local/api/search" });
+    const results = await client.search("KV cache");
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeSampleModule(results)).toBe(true);
   });
 });
