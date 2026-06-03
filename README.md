@@ -73,22 +73,35 @@ placeholder docs route.
 
 ## Quality Gates
 
-The root Makefile mirrors CI-oriented checks:
+The root Makefile mirrors CI-oriented checks. Run `make ci` from the repository
+root after `bun install`; it runs, in order:
+
+1. `make lint` — Biome check (no auto-fix)
+2. `make typecheck` — generates Fumadocs MDX source, then `tsc --noEmit`
+3. `make test` — generates Fumadocs MDX source (when typecheck was skipped), then `bun test`
+4. `make build` — `next build` plus Phase 1 static route verification
+5. `make validate-data` — registry and content validation
+
+Fumadocs writes generated MDX bindings under `.source/` (gitignored). Fresh
+checkouts do not include that directory; `pretypecheck` and `pretest` in
+`package.json` both run `fumadocs-mdx` so standalone `make typecheck` and
+`make test` succeed without a manual codegen step.
+
+Individual targets:
 
 ```sh
-make ci          # lint, typecheck, test, build (in order)
-make lint        # Biome check (no auto-fix)
-make format      # Biome format --write
-make typecheck   # tsc --noEmit
-make test        # bun test
-make build       # next build
+make ci            # full gate sequence above
+make lint          # Biome check (no auto-fix)
+make format        # Biome format --write
+make typecheck     # fumadocs-mdx (pretypecheck), then tsc --noEmit
+make test          # fumadocs-mdx (pretest), then bun test
+make build         # next build + Phase 1 static route check
+make validate-data # registry and content validation
 ```
 
-Stub targets exist for later Phase 1 work and exit successfully without running
-`make ci`:
+Stub targets exist for later work and are not part of `make ci`:
 
 ```sh
-make validate-data
 make linkcheck
 make validate-pdf
 ```
