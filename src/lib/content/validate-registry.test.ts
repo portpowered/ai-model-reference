@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tokenGlossaryPageDir } from "./page-messages-load";
+import { loadRegistry } from "./registry";
 import {
   validateColocatedPageBundle,
   validateRegistryContent,
@@ -163,6 +164,59 @@ describe("validateRegistryContent", () => {
             error.message.includes(
               'missing message key "assets.conceptMap.missingAlt"',
             ),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports unresolved graph ids when registry indexes are provided", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const pageDirectory = join(tempRoot, "token-glossary");
+    await mkdir(join(pageDirectory, "messages"), { recursive: true });
+
+    await writeFile(
+      join(pageDirectory, "messages", "en.json"),
+      JSON.stringify({
+        title: "Token",
+        description: "A token is a unit of text.",
+        assets: {
+          conceptMap: {
+            alt: "Alt text",
+            caption: "Caption text",
+          },
+        },
+      }),
+    );
+    await writeFile(
+      join(pageDirectory, "assets.json"),
+      JSON.stringify({
+        conceptMap: {
+          type: "graph",
+          graphId: "graph.missing-token-map",
+          altKey: "assets.conceptMap.alt",
+          captionKey: "assets.conceptMap.caption",
+          webRenderer: "react-flow",
+          printRenderer: "mermaid",
+        },
+      }),
+    );
+
+    try {
+      const indexes = await loadRegistry({
+        registryRoot: join(import.meta.dir, "../../content/registry"),
+      });
+      const { errors } = await validateColocatedPageBundle(
+        pageDirectory,
+        indexes,
+      );
+      expect(errors.length).toBeGreaterThan(0);
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "unresolved-graph-id" &&
+            error.message.includes("graph.missing-token-map"),
         ),
       ).toBe(true);
     } finally {

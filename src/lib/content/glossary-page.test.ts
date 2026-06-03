@@ -56,6 +56,14 @@ describe("loadGlossaryPage token", () => {
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain("What It Is");
     expect(html).toContain("128k context");
+    expect(html).toContain('data-page-asset="conceptMap"');
+    expect(html).toContain('data-graph-id="graph.token-concept-map"');
+    expect(html).toContain(
+      "Diagram showing text flowing through a tokenizer into token IDs and embeddings",
+    );
+    expect(html).toContain(
+      "How raw text becomes token IDs before the transformer stack",
+    );
   });
 });
 

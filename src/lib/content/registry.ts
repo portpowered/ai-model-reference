@@ -5,6 +5,8 @@ import {
   type ConceptRecord,
   citationRecordSchema,
   conceptRecordSchema,
+  type GraphRecord,
+  graphRecordSchema,
   type ModuleRecord,
   moduleRecordSchema,
   type TagRecord,
@@ -15,7 +17,8 @@ export type RegistryRecord =
   | ModuleRecord
   | ConceptRecord
   | TagRecord
-  | CitationRecord;
+  | CitationRecord
+  | GraphRecord;
 
 export type RegistryIndexes = {
   byId: Map<string, RegistryRecord>;
@@ -42,12 +45,13 @@ export class RegistryLoadError extends Error {
 const defaultRegistryRoot = join(import.meta.dir, "../../content/registry");
 
 type RegistryDirectory = {
-  name: "modules" | "concepts" | "tags" | "citations";
+  name: "modules" | "concepts" | "tags" | "citations" | "graphs";
   schema:
     | typeof moduleRecordSchema
     | typeof conceptRecordSchema
     | typeof tagRecordSchema
-    | typeof citationRecordSchema;
+    | typeof citationRecordSchema
+    | typeof graphRecordSchema;
 };
 
 const registryDirectories: RegistryDirectory[] = [
@@ -55,6 +59,7 @@ const registryDirectories: RegistryDirectory[] = [
   { name: "concepts", schema: conceptRecordSchema },
   { name: "tags", schema: tagRecordSchema },
   { name: "citations", schema: citationRecordSchema },
+  { name: "graphs", schema: graphRecordSchema },
 ];
 
 type ParsedRegistryFile = {
@@ -71,6 +76,13 @@ async function readRegistryDirectory(
   try {
     entries = await readdir(directoryPath);
   } catch (error) {
+    const code =
+      error && typeof error === "object" && "code" in error
+        ? (error as NodeJS.ErrnoException).code
+        : undefined;
+    if (code === "ENOENT") {
+      return [];
+    }
     const message = error instanceof Error ? error.message : String(error);
     throw new RegistryLoadError(
       `Failed to read registry directory ${directoryPath}`,

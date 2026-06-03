@@ -137,11 +137,95 @@ export const conceptRecordSchema = z.object({
   explainsIds: z.array(z.string()),
 });
 
+export const graphTypeSchema = z.enum([
+  "recursive-module-graph",
+  "model-architecture",
+  "module-compute-flow",
+  "paper-contribution",
+  "concept-map",
+]);
+
+export const graphLayoutSchema = z.literal("vertical-expandable");
+
+export const graphRendererSchema = z.enum([
+  "react-flow",
+  "vertical-svg",
+  "mermaid",
+  "image",
+]);
+
+export const moduleGraphNodeKindSchema = z.enum([
+  "model",
+  "block",
+  "operation",
+  "projection",
+  "attention",
+  "normalization",
+  "feed-forward",
+  "embedding",
+  "tokenizer",
+  "cache",
+  "diffusion-step",
+  "fourier",
+  "optimizer",
+  "loss",
+  "dataset",
+  "hardware",
+  "input",
+  "output",
+  "other",
+]);
+
+export const moduleGraphEdgeKindSchema = z.enum([
+  "data-flow",
+  "control-flow",
+  "residual",
+  "conditioning",
+  "cache-read",
+  "cache-write",
+  "parameter-sharing",
+  "loss-signal",
+  "contains",
+]);
+
+export const moduleGraphNodeSchema = z.object({
+  id: z.string().min(1),
+  labelKey: z.string().min(1),
+  summaryKey: z.string().optional(),
+  registryId: z.string().optional(),
+  moduleKind: moduleGraphNodeKindSchema,
+  childNodeIds: z.array(z.string()),
+  collapsedByDefault: z.boolean().optional(),
+  assetIds: z.array(z.string()).optional(),
+});
+
+export const moduleGraphEdgeSchema = z.object({
+  id: z.string().min(1),
+  source: z.string().min(1),
+  target: z.string().min(1),
+  edgeKind: moduleGraphEdgeKindSchema,
+  labelKey: z.string().optional(),
+});
+
+export const graphRecordSchema = z.object({
+  ...baseRecordShape,
+  kind: z.literal("graph"),
+  subjectId: z.string().min(1),
+  graphType: graphTypeSchema,
+  rootNodeId: z.string().min(1),
+  layout: graphLayoutSchema,
+  defaultExpandedDepth: z.number().int().nonnegative(),
+  supportedRenderers: z.array(graphRendererSchema).min(1),
+  nodes: z.array(moduleGraphNodeSchema).min(1),
+  edges: z.array(moduleGraphEdgeSchema),
+});
+
 export const registryRecordSchema = z.discriminatedUnion("kind", [
   moduleRecordSchema,
   conceptRecordSchema,
   tagRecordSchema,
   citationRecordSchema,
+  graphRecordSchema,
 ]);
 
 export const pageKindSchema = z.enum([
@@ -180,6 +264,15 @@ const pageAssetMessageSchema = z.object({
   caption: z.string().optional(),
 });
 
+const pageGraphNodeMessageSchema = z.object({
+  label: z.string().min(1),
+  summary: z.string().optional(),
+});
+
+export const pageGraphMessagesSchema = z.object({
+  nodes: z.record(z.string(), pageGraphNodeMessageSchema),
+});
+
 export const pageMessagesSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
@@ -188,6 +281,7 @@ export const pageMessagesSchema = z.object({
   sections: z.record(z.string(), pageSectionSchema).optional(),
   callouts: z.record(z.string(), pageCalloutSchema).optional(),
   assets: z.record(z.string(), pageAssetMessageSchema).optional(),
+  graph: pageGraphMessagesSchema.optional(),
 });
 
 export const graphWebRendererSchema = z.literal("react-flow");
@@ -254,6 +348,9 @@ export type ModuleRecord = z.infer<typeof moduleRecordSchema>;
 export type ConceptRecord = z.infer<typeof conceptRecordSchema>;
 export type TagRecord = z.infer<typeof tagRecordSchema>;
 export type CitationRecord = z.infer<typeof citationRecordSchema>;
+export type GraphRecord = z.infer<typeof graphRecordSchema>;
+export type ModuleGraphNode = z.infer<typeof moduleGraphNodeSchema>;
+export type ModuleGraphEdge = z.infer<typeof moduleGraphEdgeSchema>;
 export type PageKind = z.infer<typeof pageKindSchema>;
 export type PageFrontmatter = z.infer<typeof pageFrontmatterSchema>;
 export type PageMessages = z.infer<typeof pageMessagesSchema>;
