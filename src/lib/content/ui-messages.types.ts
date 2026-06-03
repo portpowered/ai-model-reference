@@ -6,6 +6,7 @@ export type UiMessages = {
     noResults: string;
     loading: string;
     shortcut: string;
+    resultPath: string;
   };
   nav: {
     home: string;
