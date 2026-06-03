@@ -5,6 +5,7 @@
 - Static Orama snapshot: run `make build-search-index` (writes gitignored `src/generated/search-index.json`); Fumadocs advanced search uses `toAdvancedSearchIndexes` in `search-server.ts` at runtime without the artifact.
 - Published docs pages need `page.mdx` frontmatter (`kind`, `registryId`, `status: published`) plus colocated messages; registry JSON under `src/content/registry/<kind>/`.
 - Phase 1 sample content: GQA module at `src/content/docs/modules/grouped-query-attention`, token glossary at `src/content/docs/glossary/token`.
+- Global search UI: `SearchDialog`/`SearchTrigger` register via `AppProviders` → `RootProvider` in `src/app/layout.tsx`; `DocsShell` renders `SearchTrigger` in the top nav for every `(site)` route; `HomeSearchEntry` opens the same dialog from `/`.
 
 ## 2026-06-03T08:44:37Z - default-pages-search-tags-001
 - Added token glossary content (MDX, messages, registry) so the search builder indexes a second published page alongside grouped-query attention.
@@ -27,4 +28,27 @@
   - Fumadocs advanced search returns multiple hit types per page (`page`, `text`, `heading`); assert discovery with `results.some(r => r.url.startsWith(sampleUrl))`, not only `results[0]`.
   - The `attention` query ranks glossary token fragments before the GQA page hit; Phase 1 only requires the sample module to appear among results.
   - Story 002 implementation landed in commit `50896f1`; this iteration completed acceptance tests and PRD tracking.
+---
+
+## 2026-06-03T08:52:00Z - default-pages-search-tags-003
+- Verified global search dialog and shell trigger on `/`, `/docs/glossary`, `/tags`, and `/docs/modules/grouped-query-attention` via dev server HTML (`data-search`, `Open search`, `Search Model Atlas…` present on each route).
+- Ensured page-kind badge always renders in `SearchResultListItem` when result meta exists (not gated on description/matched tags).
+- Added `src/tests/features/search-ui.test.ts` for localized search copy and sample module result meta used by the dialog.
+- Files changed: `src/features/docs/search/SearchResults.tsx`, `src/tests/features/search-ui.test.ts`
+- **Learnings for future iterations:**
+  - Fumadocs `RootProvider` supplies Cmd/Ctrl+K hotkey and dialog lifecycle; custom dialog is injected through `search.SearchDialog` in `AppProviders`.
+  - Search API query param is `query`, not `q` (`/api/search?query=GQA`).
+  - Dev server may bind to port 3002 when 3000 is occupied; use the port printed by `next dev`.
+  - Architecture index search affordance will inherit `DocsShell` when story 005 adds that route.
+---
+
+## 2026-06-03T10:30:00Z - default-pages-search-tags-004
+- Completed Model Atlas home at `/` with brush-stroke header, localized search section (`HomeSearchEntry`), and browse links to architecture index, glossary, tags, and the grouped-query attention sample module.
+- Added `home.architectureLinkTitle` / `architectureLinkDescription` message keys and home-page message tests.
+- Verified in browser on dev server port 3002: `data-search`, browse hrefs including `/docs/architecture`, and localized title copy present in rendered HTML.
+- Files changed: `src/app/(site)/page.tsx`, `src/content/messages/en/common.json`, `src/lib/content/ui-messages.types.ts`, `src/tests/content/home-page.test.ts`, `src/tests/content/ui-messages.test.ts`
+- **Learnings for future iterations:**
+  - Home browse links use `HomeBrowseLink` cards; order matches PRD: architecture → glossary → tags → sample docs module.
+  - `/docs/architecture` is linked from home before story 005 implements the index route (expect 404 until 005).
+  - Biome `noExportsInTest` disallows exporting constants from test files—keep route lists file-local.
 ---
