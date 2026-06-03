@@ -29,6 +29,15 @@ describe("TagPillList", () => {
     expect(html).toBe("");
   });
 
+  test("renders attention tag pill for concept.token", () => {
+    const html = renderToStaticMarkup(
+      <TagPillList registryId="concept.token" />,
+    );
+
+    expect(html).toContain('href="/tags/attention"');
+    expect(html).toContain("Attention");
+  });
+
   test("renders nothing for an unknown registry id", () => {
     const html = renderToStaticMarkup(
       <TagPillList registryId="module.unknown-module" />,

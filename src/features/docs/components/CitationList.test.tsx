@@ -28,6 +28,13 @@ describe("CitationList", () => {
     expect(html).toBe("");
   });
 
+  test("renders nothing when concept.token has empty citationIds", () => {
+    const html = renderToStaticMarkup(
+      <CitationList registryId="concept.token" />,
+    );
+    expect(html).toBe("");
+  });
+
   test("renders nothing for an unknown registry id", () => {
     const html = renderToStaticMarkup(
       <CitationList registryId="module.unknown-module" />,
