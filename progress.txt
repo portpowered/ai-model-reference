@@ -1,4 +1,5 @@
 ## Codebase Patterns
+- Architecture index: `loadPublishedArchitectureEntries` in `src/lib/content/architecture.ts` includes pages under `docs/architecture/*` or published concept pages whose registry record has `conceptType: architecture` (requires `conceptRecordSchema` in `schemas.ts`).
 - Phase 1 search assertions: use `resultsIncludeSampleModule` in `src/tests/search/helpers.ts` because Fumadocs advanced search returns multiple fragments per URL and `attention` may rank glossary hits above the GQA page row.
 - Search documents are built from `loadPublishedDocsPages(locale)` + `loadRegistry()` via `buildSearchDocuments` / `buildSearchDocumentsForLocale` in `src/lib/search/build-documents.ts`; body text and headings come from colocated `messages/<locale>.json`, not MDX prose.
 - Registry aliases and tag record aliases merge into `SearchDocument.aliases` through `tagSearchTerms()`; page and registry `tags` populate `SearchDocument.tags` and facets.
@@ -51,4 +52,15 @@
   - Home browse links use `HomeBrowseLink` cards; order matches PRD: architecture → glossary → tags → sample docs module.
   - `/docs/architecture` is linked from home before story 005 implements the index route (expect 404 until 005).
   - Biome `noExportsInTest` disallows exporting constants from test files—keep route lists file-local.
+---
+
+## 2026-06-03T12:52:00Z - default-pages-search-tags-005
+- Added `/docs/architecture` index route with localized title/description, alphabetical entry list, and empty state (home link + search trigger) mirroring the glossary index pattern.
+- Implemented `loadPublishedArchitectureEntries` / `isArchitectureRelatedPage` for `architecture/` content paths and concept registry records with `conceptType: architecture`; added `conceptRecordSchema` to registry parsing.
+- Verified production build includes `/docs/architecture` and rendered HTML on `next start` port 3011 shows Architecture title, empty state copy, `data-search`, and Open search.
+- Files changed: `src/lib/content/architecture.ts`, `src/lib/content/schemas.ts`, `src/app/(site)/docs/architecture/page.tsx`, `src/features/docs/architecture/*`, `src/content/messages/en/common.json`, `src/lib/content/ui-messages.types.ts`, `src/tests/content/architecture-index.test.ts`
+- **Learnings for future iterations:**
+  - Phase 1 has no architecture-tagged pages yet; the index correctly shows the empty state until concept or `architecture/` docs are published.
+  - Glossary index at `/docs/glossary` was already implemented; story 006 may only need verification/tests if acceptance criteria already pass.
+  - Stale `next dev` on port 3002 can hang curl; use `next build` + `next start` on a fresh port for quick HTML verification.
 ---
