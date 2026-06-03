@@ -7,8 +7,11 @@ import {
   buildSearchResultMetaMap,
   loadSearchResultMetaMap,
 } from "@/lib/search/search-result-meta";
+import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
+import { SAMPLE_MODULE_URL, TOKEN_GLOSSARY_URL } from "./helpers";
 
-const SAMPLE_URL = "/docs/modules/grouped-query-attention";
+const SAMPLE_URL = SAMPLE_MODULE_URL;
+const TOKEN_URL = TOKEN_GLOSSARY_URL;
 
 describe("search result meta", () => {
   test("loadSearchResultMetaMap includes grouped-query attention sample", async () => {
@@ -20,17 +23,46 @@ describe("search result meta", () => {
     expect(meta?.tags).toContain("kv-cache");
   });
 
-  test("getMatchedTags finds attention for query", () => {
+  test("getMatchedTags finds attention for slug query", () => {
     expect(getMatchedTags("attention", ["attention", "kv-cache"])).toEqual([
       "attention",
     ]);
   });
 
-  test("resolveSearchResultMeta reads record entries", async () => {
-    const map = await loadSearchResultMetaMap();
-    const record = Object.fromEntries(map.entries());
+  test("getMatchedTags finds attention when query matches a tag alias phrase", () => {
+    expect(getMatchedTags("self-attention", ["attention", "kv-cache"])).toEqual(
+      ["attention"],
+    );
+  });
+
+  test("resolveSearchResultMeta returns kind, description, and tags for grouped-query attention", async () => {
+    const record = searchResultMetaMapToRecord(await loadSearchResultMetaMap());
     const meta = resolveSearchResultMeta(SAMPLE_URL, record);
+    expect(meta).toEqual({
+      kind: "module",
+      description: expect.any(String),
+      tags: expect.arrayContaining(["attention", "kv-cache"]),
+    });
     expect(meta?.description.length).toBeGreaterThan(0);
+  });
+
+  test("resolveSearchResultMeta returns kind, description, and tags for token glossary", async () => {
+    const record = searchResultMetaMapToRecord(await loadSearchResultMetaMap());
+    const meta = resolveSearchResultMeta(TOKEN_URL, record);
+    expect(meta).toEqual({
+      kind: "glossary",
+      description: expect.any(String),
+      tags: expect.arrayContaining(["attention"]),
+    });
+    expect(meta?.description).toContain("smallest unit");
+  });
+
+  test("loadSearchResultMetaMap includes token glossary", async () => {
+    const map = await loadSearchResultMetaMap();
+    const meta = map.get(TOKEN_URL);
+    expect(meta).toBeDefined();
+    expect(meta?.kind).toBe("glossary");
+    expect(meta?.tags).toContain("attention");
   });
 
   test("buildSearchResultMetaMap keys by url", () => {
