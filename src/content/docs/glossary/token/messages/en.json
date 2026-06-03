@@ -45,5 +45,21 @@
       "alt": "Diagram showing text flowing through a tokenizer into token IDs and embeddings",
       "caption": "How raw text becomes token IDs before the transformer stack"
     }
+  },
+  "graph": {
+    "nodes": {
+      "rawText": {
+        "label": "Raw text"
+      },
+      "tokenizer": {
+        "label": "Tokenizer"
+      },
+      "tokenIds": {
+        "label": "Token IDs"
+      },
+      "embeddings": {
+        "label": "Embeddings"
+      }
+    }
   }
 }

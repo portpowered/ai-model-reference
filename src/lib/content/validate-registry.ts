@@ -35,6 +35,7 @@ const registryKindDirectories: Record<string, string> = {
   concept: "concepts",
   tag: "tags",
   citation: "citations",
+  graph: "graphs",
 };
 
 /** Glossary pages reference concept registry records with a distinct page kind. */
@@ -153,6 +154,14 @@ function validateRegistryRecordReferences(
       { field: "prerequisiteIds", ids: record.prerequisiteIds },
       { field: "explainsIds", ids: record.explainsIds },
     );
+  }
+
+  if (record.kind === "graph" && !indexes.byId.has(record.subjectId)) {
+    errors.push({
+      code: "unresolved-reference",
+      message: `${record.id}: subjectId references missing record "${record.subjectId}"`,
+      path: filePath,
+    });
   }
 
   for (const { field, ids } of referenceFields) {
@@ -278,6 +287,29 @@ function validateAssetMessageKeys(
   return errors;
 }
 
+function validateGraphAssetReferences(
+  pageDirectory: string,
+  assets: PageAssetConfig,
+  indexes: RegistryIndexes,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  for (const [assetId, asset] of Object.entries(assets)) {
+    if (asset.type !== "graph") {
+      continue;
+    }
+    if (!indexes.byId.has(asset.graphId)) {
+      errors.push({
+        code: "unresolved-graph-id",
+        message: `${pageDirectory}: asset "${assetId}" references missing graph "${asset.graphId}"`,
+        path: join(pageDirectory, "assets.json"),
+      });
+    }
+  }
+
+  return errors;
+}
+
 async function discoverPageMdxFiles(docsRoot: string): Promise<string[]> {
   const pagePaths: string[] = [];
 
@@ -307,6 +339,7 @@ async function discoverPageMdxFiles(docsRoot: string): Promise<string[]> {
 
 export async function validateColocatedPageBundle(
   pageDirectory: string,
+  indexes?: RegistryIndexes,
 ): Promise<{
   errors: ValidationError[];
   messages?: PageMessages;
@@ -341,6 +374,12 @@ export async function validateColocatedPageBundle(
   }
 
   errors.push(...validateAssetMessageKeys(pageDirectory, assets, messages));
+
+  if (indexes) {
+    errors.push(
+      ...validateGraphAssetReferences(pageDirectory, assets, indexes),
+    );
+  }
 
   return { errors, messages, assets };
 }
@@ -403,7 +442,7 @@ async function validatePageMdx(
     }
   }
 
-  const bundle = await validateColocatedPageBundle(pageDirectory);
+  const bundle = await validateColocatedPageBundle(pageDirectory, indexes);
   errors.push(...bundle.errors);
   if (!bundle.messages || !bundle.assets) {
     return errors;
@@ -513,7 +552,9 @@ export async function validateRegistryContent(
     if (validatedPageDirectories.has(pageDirectory)) {
       continue;
     }
-    errors.push(...(await validateColocatedPageBundle(pageDirectory)).errors);
+    errors.push(
+      ...(await validateColocatedPageBundle(pageDirectory, indexes)).errors,
+    );
   }
 
   return errors;
