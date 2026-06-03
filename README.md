@@ -73,13 +73,28 @@ placeholder docs route.
 
 ## Quality Gates
 
+### Fresh checkout
+
+On a clean clone with no gitignored build artifacts, the minimal setup is:
+
+```sh
+bun install --frozen-lockfile
+make ci
+```
+
+You do not need to run `fumadocs-mdx` manually. The repository does not commit
+`.source/` (Fumadocs MDX bindings) or `.next/`; `pretypecheck` and `pretest`
+generate `.source/` automatically before typecheck and tests.
+
+### CI sequence
+
 GitHub Actions runs the same gate sequence on pull requests and pushes to
 `main`: install dependencies with `bun install --frozen-lockfile`, then
 `make ci` (see `.github/workflows/ci.yml`). No repository secrets are required
 for lint, typecheck, test, build, or validate-data.
 
 The root Makefile mirrors those CI-oriented checks locally. Run `make ci` from
-the repository root after `bun install`; it runs, in order:
+the repository root after `bun install --frozen-lockfile`; it runs, in order:
 
 1. `make lint` — Biome check (no auto-fix)
 2. `make typecheck` — generates Fumadocs MDX source, then `tsc --noEmit`
