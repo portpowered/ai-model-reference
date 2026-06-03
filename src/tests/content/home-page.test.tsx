@@ -50,6 +50,12 @@ describe("home page render", () => {
     }
   });
 
+  it("exposes global search dialog entry and documented /search page link", () => {
+    const html = renderToStaticMarkup(<HomePage />);
+    expect(html).toContain("data-search");
+    expect(html).toContain('href="/search"');
+  });
+
   it("does not render placeholder scaffold copy in the article body", () => {
     const html = renderToStaticMarkup(<HomePage />);
     expect(html).not.toContain("placeholder");
