@@ -63,6 +63,10 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(html).toContain("Ainslie, Joshua, et al.");
     expect(html).toContain('href="https://arxiv.org/abs/2305.13245"');
     expect(html).toContain('rel="noopener noreferrer"');
+    expect(html).toContain('data-testid="derived-related-docs"');
+    expect(html).toContain('href="/docs/modules/multi-query-attention"');
+    expect(html).toContain('href="/docs/modules/multi-head-attention"');
+    expect(html).toContain("Same variant group");
   });
 });
 

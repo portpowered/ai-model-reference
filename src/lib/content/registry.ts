@@ -1,8 +1,12 @@
 import groupedQueryAttention from "@/content/registry/modules/grouped-query-attention.json";
+import multiHeadAttention from "@/content/registry/modules/multi-head-attention.json";
+import multiQueryAttention from "@/content/registry/modules/multi-query-attention.json";
 import { type ModuleRecord, moduleRecordSchema } from "@/lib/content/schemas";
 
 const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(groupedQueryAttention),
+  moduleRecordSchema.parse(multiQueryAttention),
+  moduleRecordSchema.parse(multiHeadAttention),
 ];
 
 const modulesById = new Map(moduleRecords.map((record) => [record.id, record]));

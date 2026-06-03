@@ -3,6 +3,7 @@ import {
   getModuleById,
   getRegistryCitationIds,
   getRegistryTags,
+  listModuleRecords,
 } from "@/lib/content/registry";
 
 describe("registry", () => {
@@ -31,5 +32,11 @@ describe("registry", () => {
 
   test("getRegistryCitationIds returns undefined for unknown records", () => {
     expect(getRegistryCitationIds("module.unknown")).toBeUndefined();
+  });
+
+  test("listModuleRecords includes variant-group peers for GQA", () => {
+    const ids = listModuleRecords().map((record) => record.id);
+    expect(ids).toContain("module.multi-query-attention");
+    expect(ids).toContain("module.multi-head-attention");
   });
 });
