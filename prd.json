@@ -1,0 +1,119 @@
+{
+  "project": "Model Atlas",
+  "branchName": "docs-template-rendering",
+  "description": "Implement canonical module docs rendering for the grouped-query attention page: localized message keys, resolved asset references, registry-backed tag pills, citations, and a minimal same-variant-group derived related-documents section inside the standard docs shell.",
+  "context": {
+    "customerAsk": "Phase 1: implement canonical docs rendering for the grouped-query attention module page using localized message keys, resolved asset references, tag pills, citations, and a minimal derived related-documents section.",
+    "problem": "Model Atlas defines canonical docs as MDX structure plus colocated messages, assets, and registry records, but readers cannot yet open the grouped-query attention module page and see localized text, resolved media, tag pills, citations, and taxonomy-derived related links composed in the docs shell. Phase 1 cannot validate the content model without one end-to-end reference page.",
+    "solution": "Wire Fumadocs MDX to docs feature components, resolve colocated messages and assets at render time using src/lib/content loaders from content-registry-validation, and publish the grouped-query attention page following docs/templates/module.mdx. Render TagPillList, CitationList, and minimal DerivedRelatedDocs (same-variant-group) from registry data so this page becomes the reusable pattern for future module docs."
+  },
+  "acceptanceCriteria": [
+    "A reader can open /docs/modules/grouped-query-attention locally and see a complete module reference inside the standard docs shell.",
+    "Visible title, problem statement, core idea, and section copy render from colocated messages/en.json via message-key components, not raw MDX prose.",
+    "At least one assetId on the GQA page resolves to visible media with alt text from message keys.",
+    "Tag pills and citations on the GQA page render from registry data with working navigation and outbound citation links.",
+    "DerivedRelatedDocs shows same-variant-group with per-link reason labels when peers exist; empty groups are omitted.",
+    "Automated tests cover message resolution, asset resolution, citation MLA rendering, and variant-group related-doc derivation.",
+    "Typecheck passes, lint passes, and tests pass for all changes in this work item."
+  ],
+  "userStories": [
+    {
+      "id": "docs-template-rendering-001",
+      "title": "Message-key rendering in docs MDX",
+      "description": "As a reader, I want page text to resolve from localized message files so MDX stays structural and future locales can ship without rewriting templates.",
+      "acceptanceCriteria": [
+        "Fumadocs MDX component map exposes T and Section with access to the active page colocated messages (default locale en).",
+        "T renders strings by key; Section renders headings from titleKey.",
+        "Missing required keys surface a clear developer-visible error in development, not silent empty production output.",
+        "Automated tests cover message lookup happy path and missing-key behavior.",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "docs-template-rendering-002",
+      "title": "Asset resolution and rendering by asset ID",
+      "description": "As a reader, I want diagrams and images to load from declared asset config so maintainers never scatter media paths through MDX.",
+      "acceptanceCriteria": [
+        "A valid assetId on the GQA page renders a visible asset slot using colocated assets.json.",
+        "Alt text and captions resolve through message keys referenced by asset config.",
+        "Invalid assetId or broken asset config fails build-time validation or shows an explicit development error state.",
+        "Automated tests cover asset resolution for at least one image-type and one graph-type fixture.",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "docs-template-rendering-003",
+      "title": "Publish and render the grouped-query attention module page",
+      "description": "As a reader researching attention variants, I want a grouped-query attention page that follows the canonical module template so I can learn what GQA is and why it matters.",
+      "acceptanceCriteria": [
+        "src/content/docs/modules/grouped-query-attention/page.mdx follows the module template with registryId module.grouped-query-attention and local message and asset namespaces.",
+        "Problem statement and core idea render below the title via message keys only.",
+        "ModuleMetadataCard and ModuleAtAGlance display registry-backed fields for the GQA record.",
+        "Navigating to /docs/modules/grouped-query-attention returns HTTP 200 with the docs shell in a local dev build.",
+        "Typecheck passes",
+        "Verify in browser: title and opening paragraphs match messages/en.json, not hard-coded MDX prose."
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "docs-template-rendering-004",
+      "title": "Clickable tag pills on the module page",
+      "description": "As a reader, I want to click tags on the module page to explore related topics such as attention and kv-cache.",
+      "acceptanceCriteria": [
+        "TagPillList renders one keyboard-focusable pill per tag on the module registry record.",
+        "Each pill links to /tags/<slug> or an equivalent search URL with that tag applied.",
+        "Tag pills use restrained monochrome styling per site fundamentals.",
+        "When the registry record has no tags, TagPillList renders nothing.",
+        "Typecheck passes",
+        "Verify in browser: GQA page shows expected tags and each pill navigates to a working destination."
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "docs-template-rendering-005",
+      "title": "Citations in the References section",
+      "description": "As a reader, I want cited sources with MLA formatting so technical claims on the module page are grounded.",
+      "acceptanceCriteria": [
+        "CitationList renders each citationId on the module record with MLA text from citation registry records.",
+        "Each citation includes an outbound link with rel=noopener noreferrer to the canonical source URL.",
+        "When citationIds is empty, References shows a concise empty state or omits the list without broken markup.",
+        "Automated tests cover MLA rendering for at least one fixture citation record.",
+        "Typecheck passes",
+        "Tests pass",
+        "Verify in browser: GQA References lists expected sources with working links."
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "docs-template-rendering-006",
+      "title": "Minimal derived related documents",
+      "description": "As a reader comparing attention mechanisms, I want nearby variants grouped with clear reasons so authors do not hand-maintain related link lists in MDX.",
+      "acceptanceCriteria": [
+        "DerivedRelatedDocs on the GQA page renders same-variant-group when peer module records exist.",
+        "Each related item shows a title link and a visible reason label such as Same variant group.",
+        "Groups with zero matches are not rendered.",
+        "Automated tests verify variant-group peers are selected for a fixture registry set.",
+        "Typecheck passes",
+        "Tests pass",
+        "Verify in browser: GQA page shows related attention variants with reason labels when peer records exist."
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": ""
+    }
+  ]
+}

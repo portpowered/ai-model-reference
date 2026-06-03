@@ -1,0 +1,74 @@
+## Codebase Patterns
+- Module docs pages use `loadModulePage(slug)` from `src/lib/content/module-page.ts`, which compiles MDX with `moduleMdxComponents` and loads colocated `messages/<locale>.json` plus `assets.json`.
+- GQA reference route: `src/app/(site)/docs/modules/grouped-query-attention/page.tsx` wraps `loadModulePage` output in `ModulePageProviders` inside `(site)/layout.tsx` `DocsShell`.
+- Wrap compiled MDX in `ModulePageProviders` so client components `T`, `Section`, `PageAsset`, and `Callout` receive messages/assets via React context.
+- `PageMessagesProvider` defaults `isDev` from `process.env.NODE_ENV === "development"`; missing keys render `MissingMessageKey` in dev and nothing in production.
+- Message lookup uses dot-path keys via `lookupMessage` / `resolveMessage` in `src/lib/content/messages.ts`.
+- Asset resolution: `parsePageAssetConfig` + `lookupAsset` / `resolveAssetText` in `src/lib/content/assets.ts`; render with `PageAsset` (via `ModuleGraph`, `ModuleComparisonTable`, or directly). Invalid config throws at load; missing `assetId` shows `MissingAssetId` in dev.
+- Run quality checks with `bun run typecheck`, `bun run lint`, and `bun test` after `bun install`.
+- `TagPillList` resolves tags via `getRegistryTags(registryId)` or an explicit `tags` prop; pills link to `tagPageHref(slug)` (`/tags/<slug>`) with monochrome `secondary` + `border` styling.
+- Citation records live in `src/content/registry/citations/*.json`; load via `getCitationById` / `resolveCitations` in `src/lib/content/citations.ts`. `CitationList` accepts `registryId` (module `citationIds`) or explicit `citationIds`; renders MLA in linked `<ol>` with `rel="noopener noreferrer"`.
+- `biome.json` ignores `.next`, `node_modules`, and `storybook-static` so local builds do not fail lint.
+- `DerivedRelatedDocs` derives Phase 1 `same-variant-group` via `deriveRelatedDocGroups` in `src/lib/content/related-docs.ts`; peer modules need registry JSON with matching `variantGroup`. Module links use `modulePageHref(slug)` → `/docs/modules/<slug>`.
+
+## 2026-06-02T20:51:49Z - docs-template-rendering-001
+- Verified story 001 acceptance criteria against existing implementation (commits 7b80d0b and follow-ups): `T` and `Section` in `moduleMdxComponents`, `PageMessagesProvider` context, dev-only `MissingMessageKey`, and unit tests for lookup plus component rendering.
+- Fixed `tsconfig.json` Biome formatting so `bun run lint` passes.
+- Files changed: `tsconfig.json`
+- **Learnings for future iterations:**
+  - Stories 001–003 were already implemented on the branch; PRD `passes` flags were out of sync with git history.
+  - Stub components (`TagPillList`, `CitationList`, `DerivedRelatedDocs`) return null—stories 004–006 still need real implementations.
+  - Use `bun install` before running checks in a fresh worktree.
+---
+
+## 2026-06-02T20:55:10Z - docs-template-rendering-002
+- Verified asset resolution stack (`PageAsset`, `parsePageAssetConfig`, dev `MissingAssetId`) already on branch; wired `ModuleComparisonTable` through `PageAsset` so GQA `comparisonTable` resolves from colocated `assets.json` with caption message keys.
+- Added GQA colocated asset/message validation test in `module-page.test.ts`.
+- Files changed: `src/features/models/components/ModuleComparisonTable.tsx`, `src/lib/content/module-page.test.ts`
+- **Learnings for future iterations:**
+  - `ModuleGraph` and `ModuleComparisonTable` are thin wrappers over `PageAsset`; prefer that pattern for any new module MDX asset slots.
+  - GQA page asset alt/caption keys live under `messages.assets.*` nested object, referenced by `altKey` / `captionKey` in `assets.json`.
+  - No PR exists yet on this branch; create only when all PRD stories pass.
+---
+
+## 2026-06-02T21:00:30Z - docs-template-rendering-003
+- Verified story 003 acceptance: GQA `page.mdx` matches module template, title/problem/core idea from message keys, `ModuleMetadataCard` and `ModuleAtAGlance` from registry, production build includes `/docs/modules/grouped-query-attention`, HTTP 200 on `next start`.
+- Added `loadModulePage` integration test rendering message-driven opening copy and registry-backed cards.
+- Files changed: `src/lib/content/module-page.test.ts`
+- **Learnings for future iterations:**
+  - Story 003 was largely landed in commit `02ebe67`; PRD `passes` flag was out of sync until this iteration.
+  - Use `createElement` with `children` in props when testing client `ModulePageProviders` from `.test.ts` files (no JSX in `.ts`).
+  - Stub components (`TagPillList`, `CitationList`, `DerivedRelatedDocs`) still return null—stories 004–006 remain.
+---
+
+## 2026-06-03T01:11:03Z - docs-template-rendering-004
+- Implemented `TagPillList` with registry-backed tags (`getRegistryTags`), explicit `tags` prop for blog MDX, keyboard-focusable `Link` pills to `/tags/<slug>`, and empty output when no tags.
+- Added `formatTagLabel` / `tagPageHref` in `src/lib/content/tags.ts`, unit tests for component and registry helpers, and GQA module-page integration assertions for tag hrefs.
+- Ignored `.next` in `biome.json` so lint passes after local `next build`.
+- Files changed: `src/features/docs/components/TagPillList.tsx`, `TagPillList.test.tsx`, `src/lib/content/tags.ts`, `tags.test.ts`, `registry.ts`, `registry.test.ts`, `module-page.test.ts`, `biome.json`
+- **Learnings for future iterations:**
+  - Tag landing routes (`/tags/[slug]`) are not implemented yet; pills still use the canonical `/tags/<slug>` href from the architecture contract.
+  - `showDescriptions` is accepted for template compatibility; descriptions need tag registry records in a later story.
+  - `CitationList` and `DerivedRelatedDocs` remain stubs—stories 005–006 next.
+---
+
+## 2026-06-03T12:00:00Z - docs-template-rendering-005
+- Implemented `CitationList` with registry-backed `citationIds` or explicit `citationIds` prop, MLA text from citation records, and outbound links (`target="_blank"`, `rel="noopener noreferrer"`).
+- Added `citationRecordSchema`, `src/content/registry/citations/gqa-paper.json`, `src/lib/content/citations.ts`, and unit/integration tests.
+- Files changed: `CitationList.tsx`, `CitationList.test.tsx`, `citations.ts`, `citations.test.ts`, `schemas.ts`, `registry.ts`, `registry.test.ts`, `gqa-paper.json`, `module-page.test.ts`
+- **Learnings for future iterations:**
+  - Citation records reuse `baseRecordShape` fields; MLA is stored pre-formatted on the record (`mla` field).
+  - Empty `citationIds` omits the list (`null`)—References section heading still comes from `Section` + message keys.
+  - `DerivedRelatedDocs` remains a stub—story 006 next.
+  - `ModulePageProviders` tests in `.ts` files need `children` in props plus `biome-ignore` for `noChildrenProp` under current React 19 typings.
+---
+
+## 2026-06-03T01:35:00Z - docs-template-rendering-006
+- Implemented `DerivedRelatedDocs` with Phase 1 `same-variant-group` derivation (`deriveSameVariantGroupPeers`, `deriveRelatedDocGroups`), per-link reason labels, and omission of empty groups and unsupported group ids.
+- Added registry peers `multi-query-attention` and `multi-head-attention` sharing GQA `variantGroup`, plus unit/component/integration tests.
+- Files changed: `DerivedRelatedDocs.tsx`, `DerivedRelatedDocs.test.tsx`, `related-docs.ts`, `related-docs.test.ts`, `registry.ts`, `registry.test.ts`, `module-page.test.ts`, `multi-query-attention.json`, `multi-head-attention.json`
+- **Learnings for future iterations:**
+  - Unsupported `groups` values in MDX templates are ignored until their derivation logic ships; templates can list future groups without breaking render.
+  - Peer module titles come from `aliases[0]` via `moduleDisplayTitle`; pages without published MDX still link to canonical `/docs/modules/<slug>`.
+  - All six PRD stories are complete; open a PR when ready for review.
+---
