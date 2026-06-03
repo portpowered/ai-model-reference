@@ -188,6 +188,17 @@
   - Pair `TagSearchHandoff` (opens dialog with tag prefill) with a `/search?tag=<slug>` link so bookmarks and checklist handoffs target the documented search entry URL.
 ---
 
+## 2026-06-03T17:34:02Z - phase-1-search-experience-and-coverage-001
+- Added deterministic `buildSearchDocuments` coverage for published-page-only indexing: document count and URL set match `loadPublishedDocsPages("en")`.
+- Verified existing GQA and token glossary assertions (title, description, aliases, tags, body text for GQA/KV-cache and tokenizer/token IDs).
+- Ran `make ci` after `bun install` and `fumadocs-mdx` generation in the worktree.
+- Files changed: `src/tests/search/build-documents.test.ts`
+- **Learnings for future iterations:**
+  - Story 001 acceptance requires an explicit document-count test tied to `pages.length`, not only per-record field assertions.
+  - Fresh worktrees need `bun install` before `make ci`; typecheck also needs `.source/` from `pretest` / `fumadocs-mdx`.
+  - Phase 1 publishes exactly two docs pages (GQA module + token glossary); the count test stays stable until more Phase 1 pages ship.
+---
+
 ## 2026-06-04T02:45:00Z - phase-1-entry-and-index-routes-008
 - Verified `/docs/glossary` index meets Phase 1 acceptance: `(site)` layout `DocsShell`, localized `glossaryIndex` messages, Token entry list, and empty state matching architecture index (home link + `SearchTrigger`).
 - Added glossary index page render test and strengthened discovery smoke to assert Token on the glossary route.
