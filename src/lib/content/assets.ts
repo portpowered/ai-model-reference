@@ -1,6 +1,5 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
-import { getMessageString, loadPageMessages } from "./messages";
+import type { z } from "zod";
+import { lookupMessage } from "./messages";
 import {
   type PageAsset,
   type PageAssetConfig,
@@ -8,149 +7,142 @@ import {
   pageAssetConfigSchema,
 } from "./schemas";
 
-export type AssetLoadErrorDetail =
-  | { type: "missing-file"; path: string }
-  | { type: "parse-error"; path: string; message: string }
-  | { type: "unknown-asset-id"; assetId: string; availableIds: string[] }
-  | {
-      type: "missing-message-key";
-      assetId: string;
-      messageKey: string;
-      pageDirectory: string;
-    };
+export type MissingAssetReason = "missing" | "invalid";
 
-export class AssetLoadError extends Error {
-  readonly details: AssetLoadErrorDetail[];
+export type AssetLookupResult =
+  | { ok: true; assetId: string; asset: PageAsset }
+  | { ok: false; assetId: string; reason: MissingAssetReason };
 
-  constructor(message: string, details: AssetLoadErrorDetail[]) {
+export type ResolvedAssetText = {
+  alt?: string;
+  caption?: string;
+};
+
+export type AssetValidationIssue = {
+  assetId: string;
+  field: string;
+  message: string;
+};
+
+export class MissingAssetIdError extends Error {
+  readonly assetId: string;
+
+  constructor(assetId: string) {
+    super(`Missing asset ID: ${assetId}`);
+    this.name = "MissingAssetIdError";
+    this.assetId = assetId;
+  }
+}
+
+export class InvalidPageAssetConfigError extends Error {
+  constructor(message: string) {
     super(message);
-    this.name = "AssetLoadError";
-    this.details = details;
+    this.name = "InvalidPageAssetConfigError";
   }
 }
 
-function assetsFilePath(pageDirectory: string): string {
-  return join(pageDirectory, "assets.json");
-}
-
-export async function loadPageAssets(
-  pageDirectory: string,
-): Promise<PageAssetConfig> {
-  const path = assetsFilePath(pageDirectory);
-
-  let raw: string;
-  try {
-    raw = await readFile(path, "utf8");
-  } catch (error) {
-    const code =
-      error && typeof error === "object" && "code" in error
-        ? (error as NodeJS.ErrnoException).code
-        : undefined;
-    if (code === "ENOENT") {
-      throw new AssetLoadError(`Missing colocated assets file: ${path}`, [
-        { type: "missing-file", path },
-      ]);
-    }
-    const message = error instanceof Error ? error.message : String(error);
-    throw new AssetLoadError(`Failed to read assets file ${path}`, [
-      { type: "parse-error", path, message },
-    ]);
-  }
-
-  let json: unknown;
-  try {
-    json = JSON.parse(raw);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    throw new AssetLoadError(`Invalid JSON in assets file ${path}`, [
-      { type: "parse-error", path, message },
-    ]);
-  }
-
-  const result = pageAssetConfigSchema.safeParse(json);
+export function parsePageAssetConfig(raw: unknown): PageAssetConfig {
+  const result = pageAssetConfigSchema.safeParse(raw);
   if (!result.success) {
-    const message = result.error.issues
-      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-      .join("; ");
-    throw new AssetLoadError(
-      `Page asset config schema validation failed for ${path}`,
-      [{ type: "parse-error", path, message }],
+    throw new InvalidPageAssetConfigError(
+      formatZodAssetConfigError(result.error),
     );
   }
-
   return result.data;
 }
 
-export async function resolvePageAsset(
-  pageDirectory: string,
+export function lookupAsset(
+  config: PageAssetConfig,
   assetId: string,
-): Promise<PageAsset> {
-  const config = await loadPageAssets(pageDirectory);
+): AssetLookupResult {
   const asset = config[assetId];
-  if (!asset) {
-    throw new AssetLoadError(
-      `Unknown asset id "${assetId}" in ${assetsFilePath(pageDirectory)}`,
-      [
-        {
-          type: "unknown-asset-id",
-          assetId,
-          availableIds: Object.keys(config),
-        },
-      ],
-    );
+  if (asset === undefined) {
+    return { ok: false, assetId, reason: "missing" };
   }
-  return asset;
+  return { ok: true, assetId, asset };
 }
 
-export function assetMessageKeys(asset: PageAsset): string[] {
-  const keys: string[] = [];
-  if ("altKey" in asset && asset.altKey) {
-    keys.push(asset.altKey);
+export function resolveAsset(
+  config: PageAssetConfig,
+  assetId: string,
+): PageAsset {
+  const result = lookupAsset(config, assetId);
+  if (result.ok) {
+    return result.asset;
   }
-  if ("captionKey" in asset && asset.captionKey) {
-    keys.push(asset.captionKey);
-  }
-  return keys;
+  throw new MissingAssetIdError(assetId);
 }
 
-export function validateAssetMessageKeys(
-  asset: PageAsset,
+export function resolveAssetText(
   messages: PageMessages,
-  context: { pageDirectory: string; assetId: string },
-): void {
-  const missingKeys: string[] = [];
+  asset: PageAsset,
+): ResolvedAssetText {
+  const altKey = "altKey" in asset ? asset.altKey : undefined;
+  const captionKey = "captionKey" in asset ? asset.captionKey : undefined;
 
-  for (const messageKey of assetMessageKeys(asset)) {
-    if (!getMessageString(messages, messageKey)) {
-      missingKeys.push(messageKey);
+  const alt = altKey ? resolveOptionalMessage(messages, altKey) : undefined;
+  const caption = captionKey
+    ? resolveOptionalMessage(messages, captionKey)
+    : undefined;
+
+  return { alt, caption };
+}
+
+export function validatePageAssetReferences(
+  config: PageAssetConfig,
+  messages: PageMessages,
+): AssetValidationIssue[] {
+  const issues: AssetValidationIssue[] = [];
+
+  for (const [assetId, asset] of Object.entries(config)) {
+    if ("altKey" in asset && asset.altKey) {
+      const altResult = lookupMessage(messages, asset.altKey);
+      if (!altResult.ok) {
+        issues.push({
+          assetId,
+          field: "altKey",
+          message: `Asset "${assetId}" references missing alt key "${asset.altKey}"`,
+        });
+      }
+    }
+
+    if ("captionKey" in asset && asset.captionKey) {
+      const captionResult = lookupMessage(messages, asset.captionKey);
+      if (!captionResult.ok) {
+        issues.push({
+          assetId,
+          field: "captionKey",
+          message: `Asset "${assetId}" references missing caption key "${asset.captionKey}"`,
+        });
+      }
     }
   }
 
-  if (missingKeys.length === 0) {
-    return;
-  }
-
-  const { pageDirectory, assetId } = context;
-  const details: AssetLoadErrorDetail[] = missingKeys.map((messageKey) => ({
-    type: "missing-message-key",
-    assetId,
-    messageKey,
-    pageDirectory,
-  }));
-
-  throw new AssetLoadError(
-    `Asset "${assetId}" in ${pageDirectory} references missing message key(s): ${missingKeys.join(", ")}`,
-    details,
-  );
+  return issues;
 }
 
-export async function resolvePageAssetWithMessages(
-  pageDirectory: string,
+function resolveOptionalMessage(
+  messages: PageMessages,
+  key: string,
+): string | undefined {
+  const result = lookupMessage(messages, key);
+  return result.ok ? result.value : undefined;
+}
+
+function formatZodAssetConfigError(error: z.ZodError): string {
+  const details = error.issues
+    .map((issue) => {
+      const path = issue.path.length > 0 ? issue.path.join(".") : "root";
+      return `${path}: ${issue.message}`;
+    })
+    .join("; ");
+  return `Invalid page asset config: ${details}`;
+}
+
+export function formatMissingAssetId(
   assetId: string,
-  locale = "en",
-): Promise<PageAsset> {
-  const asset = await resolvePageAsset(pageDirectory, assetId);
-  const messages = await loadPageMessages(pageDirectory, locale);
-  validateAssetMessageKeys(asset, messages, { pageDirectory, assetId });
-  return asset;
+  reason: MissingAssetReason = "missing",
+): string {
+  const detail = reason === "invalid" ? " (invalid config)" : "";
+  return `Missing asset ID: ${assetId}${detail}`;
 }

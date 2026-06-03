@@ -1,10 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import { loadPageAssets, resolvePageAssetWithMessages } from "./assets";
+import {
+  loadPageAssets,
+  resolvePageAssetWithMessages,
+} from "./page-assets-load";
 import {
   groupedQueryAttentionPageDir,
   loadPageMessages,
   tokenGlossaryPageDir,
-} from "./messages";
+} from "./page-messages-load";
 
 const conceptTemplateSectionKeys = [
   "whatItIs",

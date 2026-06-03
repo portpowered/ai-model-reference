@@ -1,8 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { loadPageAssets } from "./assets";
-import { groupedQueryAttentionPageDir, loadPageMessages } from "./messages";
+import { loadPageAssets } from "./page-assets-load";
+import {
+  groupedQueryAttentionPageDir,
+  loadPageMessages,
+} from "./page-messages-load";
 import { pageFrontmatterSchema } from "./schemas";
 
 function parseYamlFrontmatterBlock(block: string): Record<string, unknown> {

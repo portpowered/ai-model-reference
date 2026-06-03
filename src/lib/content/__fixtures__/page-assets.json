@@ -1,0 +1,16 @@
+{
+  "hero": {
+    "type": "image",
+    "src": "./assets/gqa-hero.png",
+    "altKey": "assets.hero.alt",
+    "captionKey": "assets.hero.caption"
+  },
+  "computeFlow": {
+    "type": "graph",
+    "graphId": "graph.grouped-query-attention-compute-flow",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  }
+}

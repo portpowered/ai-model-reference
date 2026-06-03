@@ -1,12 +1,12 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { assetMessageKeys, loadPageAssets } from "./assets";
+import { assetMessageKeys, loadPageAssets } from "./page-assets-load";
 import {
   getMessageString,
   groupedQueryAttentionPageDir,
   loadPageMessages,
   tokenGlossaryPageDir,
-} from "./messages";
+} from "./page-messages-load";
 import {
   loadRegistry,
   type RegistryIndexes,

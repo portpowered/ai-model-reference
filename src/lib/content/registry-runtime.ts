@@ -1,0 +1,41 @@
+import groupedQueryAttention from "@/content/registry/modules/grouped-query-attention.json";
+import multiHeadAttention from "@/content/registry/modules/multi-head-attention.json";
+import multiQueryAttention from "@/content/registry/modules/multi-query-attention.json";
+import { type ModuleRecord, moduleRecordSchema } from "@/lib/content/schemas";
+
+const moduleRecords: ModuleRecord[] = [
+  moduleRecordSchema.parse(groupedQueryAttention),
+  moduleRecordSchema.parse(multiQueryAttention),
+  moduleRecordSchema.parse(multiHeadAttention),
+];
+
+const modulesById = new Map(moduleRecords.map((record) => [record.id, record]));
+
+/** Synchronous module lookup for client MDX components and tests. */
+export function getModuleById(registryId: string): ModuleRecord | undefined {
+  return modulesById.get(registryId);
+}
+
+export function listModuleRecords(): ModuleRecord[] {
+  return [...moduleRecords];
+}
+
+/** Tags declared on a registry record, when the record exists. */
+export function getRegistryTags(registryId: string): string[] | undefined {
+  const module = getModuleById(registryId);
+  if (module) {
+    return module.tags;
+  }
+  return undefined;
+}
+
+/** Citation IDs declared on a module registry record, when the record exists. */
+export function getRegistryCitationIds(
+  registryId: string,
+): string[] | undefined {
+  const module = getModuleById(registryId);
+  if (module) {
+    return module.citationIds;
+  }
+  return undefined;
+}

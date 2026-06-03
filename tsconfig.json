@@ -21,7 +21,8 @@
     "types": ["bun-types"],
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "baseUrl": "."
   },
   "include": [
     "next-env.d.ts",
