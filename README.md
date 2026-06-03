@@ -73,8 +73,13 @@ placeholder docs route.
 
 ## Quality Gates
 
-The root Makefile mirrors CI-oriented checks. Run `make ci` from the repository
-root after `bun install`; it runs, in order:
+GitHub Actions runs the same gate sequence on pull requests and pushes to
+`main`: install dependencies with `bun install --frozen-lockfile`, then
+`make ci` (see `.github/workflows/ci.yml`). No repository secrets are required
+for lint, typecheck, test, build, or validate-data.
+
+The root Makefile mirrors those CI-oriented checks locally. Run `make ci` from
+the repository root after `bun install`; it runs, in order:
 
 1. `make lint` — Biome check (no auto-fix)
 2. `make typecheck` — generates Fumadocs MDX source, then `tsc --noEmit`
