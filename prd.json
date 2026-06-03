@@ -1,118 +1,116 @@
 {
-  "project": "Model Atlas",
-  "branchName": "docs-template-rendering",
-  "description": "Implement canonical module docs rendering for the grouped-query attention page: localized message keys, resolved asset references, registry-backed tag pills, citations, and a minimal same-variant-group derived related-documents section inside the standard docs shell.",
+  "project": "Model Atlas — Basic Token Glossary Page",
+  "branchName": "basic-token-glossary-page",
+  "description": "Publish the Phase 1 token glossary page at /docs/glossary/token using the message-key, registry-backed, colocated asset/message pattern so readers can open the page, find it on the glossary index, and discover it through search by title or body text—without expanding into Phase 2 glossary coverage.",
   "context": {
-    "customerAsk": "Phase 1: implement canonical docs rendering for the grouped-query attention module page using localized message keys, resolved asset references, tag pills, citations, and a minimal derived related-documents section.",
-    "problem": "Model Atlas defines canonical docs as MDX structure plus colocated messages, assets, and registry records, but readers cannot yet open the grouped-query attention module page and see localized text, resolved media, tag pills, citations, and taxonomy-derived related links composed in the docs shell. Phase 1 cannot validate the content model without one end-to-end reference page.",
-    "solution": "Wire Fumadocs MDX to docs feature components, resolve colocated messages and assets at render time using src/lib/content loaders from content-registry-validation, and publish the grouped-query attention page following docs/templates/module.mdx. Render TagPillList, CitationList, and minimal DerivedRelatedDocs (same-variant-group) from registry data so this page becomes the reusable pattern for future module docs."
+    "customerAsk": "Phase 1: implement one basic glossary page for token using the same message-key, registry-backed, colocated asset/message pattern. Ensure it renders at its docs route, appears in the glossary index, and is searchable by title/body text without adding broader Phase 2 glossary coverage.",
+    "problem": "Baseline colocated messages, assets, and a concept.token registry record exist, but readers cannot open /docs/glossary/token, browse to Token on the glossary index, or search for terms like subword token. Phase 1 requires a working glossary route alongside the sample module page.",
+    "solution": "Publish page.mdx following the concept template with kind glossary and registryId concept.token, add the graph.token-concept-map registry record, register the page in Fumadocs, expose glossary discovery and search document builders for the token page, and render registry-backed tags and minimal related documents in the standard docs shell."
   },
   "acceptanceCriteria": [
-    "A reader can open /docs/modules/grouped-query-attention locally and see a complete module reference inside the standard docs shell.",
-    "Visible title, problem statement, core idea, and section copy render from colocated messages/en.json via message-key components, not raw MDX prose.",
-    "At least one assetId on the GQA page resolves to visible media with alt text from message keys.",
-    "Tag pills and citations on the GQA page render from registry data with working navigation and outbound citation links.",
-    "DerivedRelatedDocs shows same-variant-group with per-link reason labels when peers exist; empty groups are omitted.",
-    "Automated tests cover message resolution, asset resolution, citation MLA rendering, and variant-group related-doc derivation.",
-    "Typecheck passes, lint passes, and tests pass for all changes in this work item."
+    "A reader can open /docs/glossary/token and see a complete glossary reference inside the standard docs shell with message-key-driven copy from colocated messages/en.json.",
+    "The conceptMap asset renders with message-backed alt/caption text; broken asset or graph references fail validation or development builds clearly.",
+    "The glossary index lists Token with summary and a link to /docs/glossary/token.",
+    "Search for token, subword token, or distinctive body phrases returns the token glossary page in relevant results.",
+    "Tag pills on the page link to working tag destinations for tags on concept.token.",
+    "Only the token glossary page is added—no Phase 2 foundational glossary terms.",
+    "Typecheck, lint, and tests pass via make ci (or equivalent project CI command)."
   ],
   "userStories": [
     {
-      "id": "docs-template-rendering-001",
-      "title": "Message-key rendering in docs MDX",
-      "description": "As a reader, I want page text to resolve from localized message files so MDX stays structural and future locales can ship without rewriting templates.",
+      "id": "basic-token-glossary-page-001",
+      "title": "Publish and render the token glossary page",
+      "description": "As a reader learning ML fundamentals, I want a token glossary page at its docs route so I can understand what a token is before reading module pages like grouped-query attention.",
       "acceptanceCriteria": [
-        "Fumadocs MDX component map exposes T and Section with access to the active page colocated messages (default locale en).",
-        "T renders strings by key; Section renders headings from titleKey.",
-        "Missing required keys surface a clear developer-visible error in development, not silent empty production output.",
-        "Automated tests cover message lookup happy path and missing-key behavior.",
+        "src/content/docs/glossary/token/page.mdx exists with kind glossary, registryId concept.token, messageNamespace local, assetNamespace local, and status published.",
+        "MDX follows docs/templates/concept.mdx using T, Section, TagPillList, DerivedRelatedDocs, RelatedDocs, and CitationList with no raw user-visible prose.",
+        "Navigating to /docs/glossary/token returns HTTP 200 with the standard docs shell in a local dev build.",
+        "Title, problemStatement, and coreIdea render from colocated messages below the page heading.",
         "Typecheck passes",
-        "Tests pass"
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 1,
       "passes": true,
       "notes": ""
     },
     {
-      "id": "docs-template-rendering-002",
-      "title": "Asset resolution and rendering by asset ID",
-      "description": "As a reader, I want diagrams and images to load from declared asset config so maintainers never scatter media paths through MDX.",
+      "id": "basic-token-glossary-page-002",
+      "title": "Resolve and render the token concept map asset",
+      "description": "As a reader, I want a visual concept map on the token page so I can see how text becomes token IDs before the transformer stack.",
       "acceptanceCriteria": [
-        "A valid assetId on the GQA page renders a visible asset slot using colocated assets.json.",
-        "Alt text and captions resolve through message keys referenced by asset config.",
-        "Invalid assetId or broken asset config fails build-time validation or shows an explicit development error state.",
-        "Automated tests cover asset resolution for at least one image-type and one graph-type fixture.",
+        "graph.token-concept-map registry record exists and satisfies Phase 1 graph schema requirements referenced by assets.json.",
+        "ConceptMap or equivalent component renders the conceptMap asset ID with alt text and caption resolved from message keys.",
+        "Invalid or missing graph or asset references fail make validate-data or surface a clear development error.",
+        "Automated tests cover asset resolution for the token page conceptMap graph asset.",
         "Typecheck passes",
-        "Tests pass"
+        "Tests pass",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 2,
       "passes": true,
       "notes": ""
     },
     {
-      "id": "docs-template-rendering-003",
-      "title": "Publish and render the grouped-query attention module page",
-      "description": "As a reader researching attention variants, I want a grouped-query attention page that follows the canonical module template so I can learn what GQA is and why it matters.",
+      "id": "basic-token-glossary-page-003",
+      "title": "Register token in the Fumadocs docs tree",
+      "description": "As a reader browsing the docs sidebar, I want the token glossary page registered in navigation so I can reach it without typing the URL.",
       "acceptanceCriteria": [
-        "src/content/docs/modules/grouped-query-attention/page.mdx follows the module template with registryId module.grouped-query-attention and local message and asset namespaces.",
-        "Problem statement and core idea render below the title via message keys only.",
-        "ModuleMetadataCard and ModuleAtAGlance display registry-backed fields for the GQA record.",
-        "Navigating to /docs/modules/grouped-query-attention returns HTTP 200 with the docs shell in a local dev build.",
+        "Fumadocs meta.json or equivalent source config includes the token glossary page under the glossary section.",
+        "Page frontmatter title and description align with resolved message keys for metadata where Fumadocs reads frontmatter.",
+        "Internal links to /docs/glossary/token from navigation resolve without 404 in the test harness.",
         "Typecheck passes",
-        "Verify in browser: title and opening paragraphs match messages/en.json, not hard-coded MDX prose."
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 3,
       "passes": true,
       "notes": ""
     },
     {
-      "id": "docs-template-rendering-004",
-      "title": "Clickable tag pills on the module page",
-      "description": "As a reader, I want to click tags on the module page to explore related topics such as attention and kv-cache.",
+      "id": "basic-token-glossary-page-004",
+      "title": "Expose token for glossary index listing",
+      "description": "As a reader on the glossary index, I want Token listed with its summary so I can browse defined terms in one place.",
       "acceptanceCriteria": [
-        "TagPillList renders one keyboard-focusable pill per tag on the module registry record.",
-        "Each pill links to /tags/<slug> or an equivalent search URL with that tag applied.",
-        "Tag pills use restrained monochrome styling per site fundamentals.",
-        "When the registry record has no tags, TagPillList renders nothing.",
+        "src/lib/content exposes a helper such as listPublishedGlossaryPages returning published glossary pages with resolved title, summary, slug, and URL.",
+        "The helper includes the token page when status is published and returns entries sorted alphabetically by title.",
+        "Glossary index route renders Token with summary linking to /docs/glossary/token, or an automated test asserts the helper output includes the token entry with expected title and URL.",
+        "When no glossary pages exist, the helper returns an empty list without throwing.",
         "Typecheck passes",
-        "Verify in browser: GQA page shows expected tags and each pill navigates to a working destination."
+        "Tests pass"
       ],
       "priority": 4,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "docs-template-rendering-005",
-      "title": "Citations in the References section",
-      "description": "As a reader, I want cited sources with MLA formatting so technical claims on the module page are grounded.",
+      "id": "basic-token-glossary-page-005",
+      "title": "Index token page for search by title and body text",
+      "description": "As a reader using site search, I want to find the token glossary by typing the term or phrases from its explanation.",
       "acceptanceCriteria": [
-        "CitationList renders each citationId on the module record with MLA text from citation registry records.",
-        "Each citation includes an outbound link with rel=noopener noreferrer to the canonical source URL.",
-        "When citationIds is empty, References shows a concise empty state or omits the list without broken markup.",
-        "Automated tests cover MLA rendering for at least one fixture citation record.",
+        "Search document builder produces a normalized document for the token glossary page including title, description, resolved body text, headings, aliases, tags, kind glossary, and URL /docs/glossary/token.",
+        "Querying token or subword token against the built index returns the token glossary page among relevant results in automated tests.",
+        "Querying a distinctive body phrase from messages such as 128k context returns the token page in relevant results.",
+        "Search facets use registry fields; body text is not scraped from raw MDX prose.",
         "Typecheck passes",
-        "Tests pass",
-        "Verify in browser: GQA References lists expected sources with working links."
+        "Tests pass"
       ],
       "priority": 5,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "docs-template-rendering-006",
-      "title": "Minimal derived related documents",
-      "description": "As a reader comparing attention mechanisms, I want nearby variants grouped with clear reasons so authors do not hand-maintain related link lists in MDX.",
+      "id": "basic-token-glossary-page-006",
+      "title": "Registry-backed tags and minimal related documents on token page",
+      "description": "As a reader exploring related topics, I want tag pills and nearby related docs on the token page so I can jump to attention-tagged resources without hand-maintained link lists.",
       "acceptanceCriteria": [
-        "DerivedRelatedDocs on the GQA page renders same-variant-group when peer module records exist.",
-        "Each related item shows a title link and a visible reason label such as Same variant group.",
-        "Groups with zero matches are not rendered.",
-        "Automated tests verify variant-group peers are selected for a fixture registry set.",
+        "TagPillList renders tags from concept.token as keyboard-focusable links to /tags/<slug> or equivalent tag-filter URLs.",
+        "Tag pills use restrained monochrome styling per docs/site-fundamentals.md.",
+        "DerivedRelatedDocs renders shared-tags and/or same-concept-type groups when matching registry records exist; empty groups are omitted.",
+        "CitationList renders without broken markup when citationIds is empty.",
         "Typecheck passes",
-        "Tests pass",
-        "Verify in browser: GQA page shows related attention variants with reason labels when peer records exist."
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 6,
-      "passes": true,
+      "passes": false,
       "notes": ""
     }
   ]
