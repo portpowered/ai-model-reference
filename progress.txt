@@ -10,6 +10,7 @@
 - Published docs pages need `page.mdx` frontmatter (`kind`, `registryId`, `status: published`) plus colocated messages; registry JSON under `src/content/registry/<kind>/`.
 - Phase 1 sample content: GQA module at `src/content/docs/modules/grouped-query-attention`, token glossary at `src/content/docs/glossary/token`.
 - Search API tests: `src/tests/search/search-api.test.ts` covers `docsSearchApi.search` ranking for GQA/title/attention/KV-cache variants and Token/tokens/tokenizer; use `resultsIncludeUrl`, `resultsIncludeSampleModule`, and `resultsIncludeTokenGlossary` from `helpers.ts`.
+- UI search client tests: `src/tests/search/search-client.test.ts` mocks `docsSearchApi.staticGET()` via `globalThis.fetch` and asserts `createDocsSearchClient` ranking; mirror token/GQA coverage from API tests in `search-result-meta.test.ts` for `resolveSearchResultMeta` / `getMatchedTags` (token glossary meta uses `attention` tag, not a `token` slug).
 - Global search UI: `SearchDialog`/`SearchTrigger` register via `AppProviders` → `RootProvider` in `src/app/layout.tsx`; `DocsShell` renders `SearchTrigger` in the top nav for every `(site)` route; `HomeSearchEntry` opens the same dialog from `/`.
 
 - Glossary index at `/docs/glossary` uses `loadPublishedGlossaryEntries` (filters `kind: glossary`); empty state mirrors architecture index with home link + `SearchTrigger`.
@@ -232,4 +233,15 @@
   - Story 003 GQA/KV-cache API tests largely existed from prior work; this iteration completed token ranking coverage and title-query inclusion.
   - `docsSearchApi.search("Token")` ranks `/docs/glossary/token` first; `tokens` and `tokenizer` include token among results via the same fragment URL pattern as GQA.
   - Story 004 should add parallel tests on `createDocsSearchClient` and result-meta helpers, not duplicate API tests in the client file.
+---
+
+## 2026-06-04T05:30:00Z - phase-1-search-experience-and-coverage-004
+- Extended `createDocsSearchClient` tests with mocked static export for Token (ranks first), tokens, and tokenizer queries.
+- Strengthened `search-result-meta.test.ts` for `resolveSearchResultMeta` on GQA and token URLs, `getMatchedTags` alias phrase matching (`self-attention`), and token glossary map entry.
+- Ran `make ci` (lint, typecheck, test, build, validate-data).
+- Files changed: `src/tests/search/search-client.test.ts`, `src/tests/search/search-result-meta.test.ts`
+- **Learnings for future iterations:**
+  - Token glossary `SearchResultMeta.tags` is `["attention"]` in Phase 1; assert `attention`, not a `token` tag slug.
+  - `getMatchedTags` matches alias phrases when the normalized query contains the tag slug (e.g. `self-attention` → `attention`).
+  - Story 005 should add shared result component tests with URL/kind/summary fixtures; reuse `searchResultMetaMapToRecord` + helpers from `src/tests/search/`.
 ---
