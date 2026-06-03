@@ -104,6 +104,10 @@ describe("token glossary page bundle", () => {
     expect(parsed.data.assetNamespace).toBe("local");
     expect(parsed.data.tags).toContain("attention");
     expect(parsed.data.status).toBe("published");
+
+    const messages = await loadPageMessages(tokenGlossaryPageDir, "en");
+    expect(frontmatter.title).toBe(messages.title);
+    expect(frontmatter.description).toBe(messages.description);
   });
 
   test("message and asset loaders succeed for the baseline page directory", async () => {

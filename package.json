@@ -10,6 +10,7 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit",
+    "pretest": "fumadocs-mdx",
     "test": "bun test"
   },
   "dependencies": {
