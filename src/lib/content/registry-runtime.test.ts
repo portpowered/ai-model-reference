@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  getConceptById,
   getModuleById,
   getRegistryCitationIds,
   getRegistryTags,
@@ -18,6 +19,16 @@ describe("registry-runtime", () => {
       "attention",
       "kv-cache",
     ]);
+  });
+
+  test("getRegistryTags returns tags for a known concept", () => {
+    expect(getRegistryTags("concept.token")).toEqual(["attention"]);
+  });
+
+  test("getConceptById returns token concept", () => {
+    const record = getConceptById("concept.token");
+    expect(record?.slug).toBe("token");
+    expect(record?.tags).toEqual(["attention"]);
   });
 
   test("getRegistryTags returns undefined for unknown records", () => {

@@ -16,6 +16,7 @@ import {
 import {
   type ModuleRecord,
   type PageAssetConfig,
+  type PageKind,
   type PageMessages,
   pageFrontmatterSchema,
 } from "./schemas";
@@ -35,6 +36,23 @@ const registryKindDirectories: Record<string, string> = {
   tag: "tags",
   citation: "citations",
 };
+
+/** Glossary pages reference concept registry records with a distinct page kind. */
+const pageKindRegistryKindAliases: Partial<
+  Record<PageKind, RegistryRecord["kind"]>
+> = {
+  glossary: "concept",
+};
+
+function pageKindMatchesRegistryRecord(
+  pageKind: PageKind,
+  registryKind: RegistryRecord["kind"],
+): boolean {
+  return (
+    pageKind === registryKind ||
+    pageKindRegistryKindAliases[pageKind] === registryKind
+  );
+}
 
 /** Phase 1 page directories validated even when `page.mdx` is not present yet. */
 export const phase1PageDirectories = [
@@ -365,7 +383,9 @@ async function validatePageMdx(
       message: `${pagePath}: registryId "${frontmatter.data.registryId}" does not resolve`,
       path: pagePath,
     });
-  } else if (registryRecord.kind !== frontmatter.data.kind) {
+  } else if (
+    !pageKindMatchesRegistryRecord(frontmatter.data.kind, registryRecord.kind)
+  ) {
     errors.push({
       code: "kind-mismatch",
       message: `${pagePath}: frontmatter kind "${frontmatter.data.kind}" does not match registry record kind "${registryRecord.kind}"`,
