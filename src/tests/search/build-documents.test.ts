@@ -7,6 +7,17 @@ const SAMPLE_URL = "/docs/modules/grouped-query-attention";
 const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
 
 describe("buildSearchDocuments", () => {
+  test("indexes only published docs pages for the default locale", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+
+    expect(documents.length).toBe(pages.length);
+    expect(documents.map((document) => document.url).sort()).toEqual(
+      pages.map((page) => page.url).sort(),
+    );
+  });
+
   test("indexes grouped-query attention sample page with aliases and tags", async () => {
     const registry = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");

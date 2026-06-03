@@ -1,8 +1,10 @@
 import { Suspense } from "react";
-import { SearchEntryHandoff } from "@/features/docs/search/SearchEntryHandoff";
+import { SearchPagePanel } from "@/features/docs/search/SearchPagePanel";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
+import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
 
-function SearchEntryHandoffFallback() {
+function SearchPagePanelFallback() {
   const messages = loadUiMessages();
   const { searchEntry, search: searchCopy } = messages;
 
@@ -17,8 +19,11 @@ function SearchEntryHandoffFallback() {
   );
 }
 
-export default function SearchEntryPage() {
+export default async function SearchPage() {
   const messages = loadUiMessages();
+  const metaByUrl = searchResultMetaMapToRecord(
+    await loadSearchResultMetaMap(),
+  );
   const { searchEntry } = messages;
 
   return (
@@ -32,8 +37,8 @@ export default function SearchEntryPage() {
       <p className="mt-4 text-sm text-muted-foreground">
         {searchEntry.canonicalNote}
       </p>
-      <Suspense fallback={<SearchEntryHandoffFallback />}>
-        <SearchEntryHandoff messages={messages} />
+      <Suspense fallback={<SearchPagePanelFallback />}>
+        <SearchPagePanel messages={messages} metaByUrl={metaByUrl} />
       </Suspense>
     </article>
   );

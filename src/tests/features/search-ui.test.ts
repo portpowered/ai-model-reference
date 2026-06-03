@@ -5,7 +5,9 @@ import {
 } from "@/features/docs/search/search-result-meta-client";
 import { formatPageKind, loadUiMessages } from "@/lib/content/ui-messages";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
+import { docsSearchApi } from "@/lib/search/search-server";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
+import { SAMPLE_MODULE_URL } from "@/tests/search/helpers";
 
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
 
@@ -15,9 +17,11 @@ describe("search UI messages", () => {
     expect(messages.search.open).toBe("Open search");
     expect(messages.search.placeholder.length).toBeGreaterThan(0);
     expect(messages.search.close.length).toBeGreaterThan(0);
+    expect(messages.search.idle.length).toBeGreaterThan(0);
     expect(messages.search.noResults.length).toBeGreaterThan(0);
     expect(messages.search.loading.length).toBeGreaterThan(0);
     expect(messages.search.shortcut.length).toBeGreaterThan(0);
+    expect(messages.search.resultPath.length).toBeGreaterThan(0);
   });
 
   test("formatPageKind resolves module kind for search results", () => {
@@ -27,6 +31,12 @@ describe("search UI messages", () => {
 });
 
 describe("search result presentation meta", () => {
+  test("GQA query ranks grouped-query attention page hit for dialog rows", async () => {
+    const results = await docsSearchApi.search("GQA");
+    expect(results[0]?.type).toBe("page");
+    expect(results[0]?.url).toBe(SAMPLE_MODULE_URL);
+  });
+
   test("sample module meta includes kind, summary, and tags for dialog rows", async () => {
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
