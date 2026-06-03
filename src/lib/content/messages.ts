@@ -70,3 +70,44 @@ export function formatMissingMessageKey(
   const detail = reason === "empty" ? " (empty string)" : "";
   return `Missing message key: ${key}${detail}`;
 }
+
+/** Collects searchable body text from resolved page messages (not raw MDX). */
+export function collectMessageBodyText(messages: PageMessages): string {
+  const parts: string[] = [
+    messages.title,
+    messages.description,
+    messages.problemStatement ?? "",
+    messages.coreIdea ?? "",
+  ];
+
+  if (messages.sections) {
+    for (const section of Object.values(messages.sections)) {
+      parts.push(section.title, section.body ?? "");
+    }
+  }
+
+  if (messages.callouts) {
+    for (const callout of Object.values(messages.callouts)) {
+      parts.push(callout.title ?? "", callout.body);
+    }
+  }
+
+  if (messages.assets) {
+    for (const asset of Object.values(messages.assets)) {
+      parts.push(asset.alt ?? "", asset.caption ?? "");
+    }
+  }
+
+  return parts.filter(Boolean).join("\n");
+}
+
+/** Collects section headings from resolved page messages. */
+export function collectMessageHeadings(messages: PageMessages): string[] {
+  const headings = [messages.title];
+  if (messages.sections) {
+    for (const section of Object.values(messages.sections)) {
+      headings.push(section.title);
+    }
+  }
+  return headings;
+}
