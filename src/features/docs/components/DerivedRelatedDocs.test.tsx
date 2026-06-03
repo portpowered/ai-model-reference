@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { renderToStaticMarkup } from "react-dom/server";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 
 describe("DerivedRelatedDocs", () => {
   test("renders same-variant-group peers with reason labels for GQA", () => {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { TagPillList } from "@/features/docs/components/TagPillList";
 import { renderToStaticMarkup } from "react-dom/server";
+import { TagPillList } from "@/features/docs/components/TagPillList";
 
 describe("TagPillList", () => {
   test("renders keyboard-focusable pills from registry tags", () => {

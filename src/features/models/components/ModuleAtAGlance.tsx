@@ -1,4 +1,4 @@
-import { getModuleById } from "@/lib/content/registry";
+import { getModuleById } from "@/lib/content/registry-runtime";
 
 function formatToken(value: string): string {
   return value

@@ -1,5 +1,7 @@
 export function RelatedDocs({
   registryId: _registryId,
-}: { registryId: string }) {
+}: {
+  registryId: string;
+}) {
   return null;
 }

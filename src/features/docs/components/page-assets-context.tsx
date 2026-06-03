@@ -1,7 +1,7 @@
 "use client";
 
+import { createContext, type ReactNode, useContext } from "react";
 import type { PageAssetConfig } from "@/lib/content/schemas";
-import { type ReactNode, createContext, useContext } from "react";
 
 export type PageAssetsContextValue = {
   assets: PageAssetConfig;

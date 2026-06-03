@@ -1,6 +1,6 @@
 import {
-  type MissingMessageReason,
   formatMissingMessageKey,
+  type MissingMessageReason,
 } from "@/lib/content/messages";
 
 export function MissingMessageKey({

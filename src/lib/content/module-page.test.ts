@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
   parsePageAssetConfig,
@@ -8,8 +10,6 @@ import {
 } from "@/lib/content/assets";
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 
 const pageDir = join(
   process.cwd(),

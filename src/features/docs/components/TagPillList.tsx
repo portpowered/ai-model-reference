@@ -1,6 +1,6 @@
-import { getRegistryTags } from "@/lib/content/registry";
-import { formatTagLabel, tagPageHref } from "@/lib/content/tags";
 import Link from "next/link";
+import { getRegistryTags } from "@/lib/content/registry-runtime";
+import { formatTagLabel, tagPageHref } from "@/lib/content/tags";
 
 type TagPillListProps = {
   showDescriptions?: boolean;

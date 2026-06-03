@@ -1,5 +1,5 @@
 import { resolveCitations } from "@/lib/content/citations";
-import { getModuleById } from "@/lib/content/registry";
+import { getModuleById } from "@/lib/content/registry-runtime";
 
 type CitationListProps = {} & (
   | { registryId: string; citationIds?: never }

@@ -1,3 +1,4 @@
+import type { MDXComponents } from "mdx/types";
 import { Callout } from "@/features/docs/components/Callout";
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
@@ -10,7 +11,6 @@ import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
 import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
 import { ModuleGraph } from "@/features/models/components/ModuleGraph";
 import { ModuleMetadataCard } from "@/features/models/components/ModuleMetadataCard";
-import type { MDXComponents } from "mdx/types";
 
 export const moduleMdxComponents: MDXComponents = {
   Callout,

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { CitationList } from "@/features/docs/components/CitationList";
 import { renderToStaticMarkup } from "react-dom/server";
+import { CitationList } from "@/features/docs/components/CitationList";
 
 describe("CitationList", () => {
   test("renders MLA text and outbound links from registry citations", () => {

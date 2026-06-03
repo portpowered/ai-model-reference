@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
 import { renderToStaticMarkup } from "react-dom/server";
+import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
 
 describe("ModuleAtAGlance", () => {
   test("renders registry-backed optimizes and practical benefits", () => {
