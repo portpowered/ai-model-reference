@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { DOCS_ROOT } from "@/lib/content/content-paths";
 import { loadPageMessages } from "@/lib/content/page-messages-load";
 import {
   type PageFrontmatter,
@@ -7,8 +8,6 @@ import {
   pageFrontmatterSchema,
 } from "@/lib/content/schemas";
 import { parseYamlFrontmatterBlock } from "@/lib/content/yaml-frontmatter";
-
-const DOCS_ROOT = path.join(process.cwd(), "src/content/docs");
 
 export type DocsPageSource = {
   pageDir: string;

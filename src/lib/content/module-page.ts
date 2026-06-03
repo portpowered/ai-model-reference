@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { compileMDX } from "next-mdx-remote/rsc";
 import type { ReactElement } from "react";
 import { parsePageAssetConfig } from "@/lib/content/assets";
+import { MODULES_DOCS_ROOT } from "@/lib/content/content-paths";
 import { moduleMdxComponents } from "@/lib/content/mdx-components";
 import {
   type PageAssetConfig,
@@ -11,8 +12,6 @@ import {
   pageFrontmatterSchema,
   pageMessagesSchema,
 } from "@/lib/content/schemas";
-
-const CONTENT_ROOT = join(process.cwd(), "src/content/docs/modules");
 
 export type LoadedModulePage = {
   frontmatter: PageFrontmatter;
@@ -29,7 +28,7 @@ export async function loadModulePage(
   slug: string,
   locale = "en",
 ): Promise<LoadedModulePage> {
-  const pageDir = join(CONTENT_ROOT, slug);
+  const pageDir = join(MODULES_DOCS_ROOT, slug);
   const mdxPath = join(pageDir, "page.mdx");
   const messagesPath = join(pageDir, "messages", `${locale}.json`);
   const assetsPath = join(pageDir, "assets.json");

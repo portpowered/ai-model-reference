@@ -1,5 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { REGISTRY_ROOT } from "./content-paths";
 import {
   type CitationRecord,
   type ConceptRecord,
@@ -42,7 +43,7 @@ export class RegistryLoadError extends Error {
   }
 }
 
-const defaultRegistryRoot = join(process.cwd(), "src/content/registry");
+const defaultRegistryRoot = REGISTRY_ROOT;
 
 type RegistryDirectory = {
   name: "modules" | "concepts" | "tags" | "citations" | "graphs";

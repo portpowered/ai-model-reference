@@ -1,6 +1,7 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { glossaryPageHref } from "@/lib/content/content-hrefs";
+import { GLOSSARY_DOCS_ROOT } from "@/lib/content/content-paths";
 import {
   type PageFrontmatter,
   pageFrontmatterSchema,
@@ -21,10 +22,6 @@ export type ListPublishedGlossaryPagesOptions = {
   contentRoot?: string;
   locale?: string;
 };
-
-function getDefaultContentRoot(): string {
-  return join(process.cwd(), "src/content/docs/glossary");
-}
 
 function isEnoent(error: unknown): boolean {
   return (
@@ -72,7 +69,7 @@ async function readGlossaryMessages(pageDir: string, locale: string) {
 export async function listPublishedGlossaryPages(
   options: ListPublishedGlossaryPagesOptions = {},
 ): Promise<GlossaryPageListing[]> {
-  const contentRoot = options.contentRoot ?? getDefaultContentRoot();
+  const contentRoot = options.contentRoot ?? GLOSSARY_DOCS_ROOT;
   const locale = options.locale ?? "en";
 
   let entries: string[];

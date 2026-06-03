@@ -1,5 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { CONTENT_ROOT, DOCS_ROOT } from "./content-paths";
 import { assetMessageKeys, loadPageAssets } from "./page-assets-load";
 import {
   getMessageString,
@@ -30,8 +31,8 @@ export type ValidationError = {
   path?: string;
 };
 
-const defaultContentRoot = join(process.cwd(), "src/content");
-const defaultDocsRoot = join(defaultContentRoot, "docs");
+const defaultContentRoot = CONTENT_ROOT;
+const defaultDocsRoot = DOCS_ROOT;
 
 const registryKindDirectories: Record<string, string> = {
   module: "modules",
