@@ -9,9 +9,16 @@
   },
   "nav": {
     "home": "Home",
+    "search": "Search",
+    "architecture": "Architecture",
     "glossary": "Glossary",
-    "tags": "Tags",
-    "docs": "Docs"
+    "tags": "Tags"
+  },
+  "searchEntry": {
+    "title": "Search",
+    "description": "Search Model Atlas by title, alias, or tag. Use the search control to jump to modules, concepts, and glossary entries.",
+    "canonicalNote": "Canonical search entry URL: /search. Tag handoffs may append ?tag=<slug> (for example /search?tag=attention).",
+    "tagFilterDescription": "Open search to explore resources tagged {tag}."
   },
   "shell": {
     "sidebarTitle": "Reference",
@@ -24,6 +31,8 @@
     "intro": "Model Atlas is a documentation-native reference for transformers, attention variants, training methods, and the systems around them. Search by alias or tag, or browse the glossary and tag index to find canonical pages.",
     "searchSectionTitle": "Search the reference",
     "searchSectionDescription": "Jump to a module, concept, or glossary entry by title, alias, or tag.",
+    "searchPageLinkTitle": "Search entry page",
+    "searchPageLinkDescription": "Open the documented /search route for bookmarks and tag handoffs.",
     "browseSectionTitle": "Browse",
     "browseSectionDescription": "Start from an index when you want to explore topics without a specific query.",
     "architectureLinkTitle": "Architecture",
@@ -32,8 +41,10 @@
     "glossaryLinkDescription": "Defined ML terms with short summaries and links to related modules.",
     "tagsLinkTitle": "Tags",
     "tagsLinkDescription": "Controlled tags such as attention and kv-cache with landing pages for each topic.",
-    "docsLinkTitle": "Documentation",
-    "docsLinkDescription": "Canonical module and concept pages, starting with the grouped-query attention sample.",
+    "tokenLinkTitle": "Token (glossary)",
+    "tokenLinkDescription": "Phase 1 sample glossary entry for the token concept, linked from architecture and attention tags.",
+    "docsLinkTitle": "Grouped-query attention",
+    "docsLinkDescription": "Phase 1 sample module page explaining grouped-query attention.",
     "onThisPageSearch": "Search",
     "onThisPageBrowse": "Browse"
   },
@@ -61,6 +72,7 @@
   "tagLanding": {
     "listLabel": "Resources by kind",
     "searchHandoff": "Search this tag",
+    "searchEntryLink": "Open search entry page",
     "emptyTitle": "No published resources for this tag yet",
     "emptyDescription": "When docs pages or blog posts are tagged with this label, they will appear here grouped by kind. Return home, browse all tags, or open search to explore related topics.",
     "emptyHomeLink": "Return home",

@@ -1,4 +1,6 @@
 import { describe, expect, it } from "bun:test";
+import { renderToStaticMarkup } from "react-dom/server";
+import ArchitectureIndexPage from "@/app/(site)/docs/architecture/page";
 import {
   type ArchitectureEntry,
   isArchitectureRelatedPage,
@@ -10,17 +12,45 @@ import { loadRegistry } from "@/lib/content/registry";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("isArchitectureRelatedPage", () => {
-  it("excludes glossary and module pages without architecture grouping", async () => {
+  it("includes published pages whose registry concept is architecture-related", async () => {
     const indexes = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
     const architecturePages = pages.filter((page) =>
       isArchitectureRelatedPage(page, indexes),
     );
-    expect(architecturePages).toHaveLength(0);
+
+    expect(architecturePages.map((page) => page.url)).toEqual([
+      "/docs/glossary/token",
+    ]);
+  });
+
+  it("excludes module pages that are not architecture concepts", async () => {
+    const indexes = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const modulePage = pages.find(
+      (page) => page.url === "/docs/modules/grouped-query-attention",
+    );
+
+    if (!modulePage) {
+      throw new Error(
+        "Expected grouped-query-attention module page in baseline",
+      );
+    }
+    expect(isArchitectureRelatedPage(modulePage, indexes)).toBe(false);
   });
 });
 
 describe("loadPublishedArchitectureEntries", () => {
+  it("returns the token glossary browse entry with title, summary, and URL", async () => {
+    const entries = await loadPublishedArchitectureEntries("en");
+    const token = entries.find((entry) => entry.url === "/docs/glossary/token");
+
+    expect(token).toBeDefined();
+    expect(token?.title).toBe("Token");
+    expect(token?.summary.length).toBeGreaterThan(0);
+    expect(token?.slug).toBe("glossary/token");
+  });
+
   it("returns published architecture pages sorted alphabetically by title", async () => {
     const entries = await loadPublishedArchitectureEntries("en");
     for (let index = 1; index < entries.length; index += 1) {
@@ -64,5 +94,17 @@ describe("architecture index messages", () => {
     expect(messages.architectureIndex.emptyDescription.length).toBeGreaterThan(
       0,
     );
+  });
+});
+
+describe("architecture index page render", () => {
+  it("lists the Phase 1 token glossary entry with title and link", async () => {
+    const page = await ArchitectureIndexPage();
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Architecture");
+    expect(html).toContain("Token");
+    expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).not.toContain("No architecture entries yet");
   });
 });

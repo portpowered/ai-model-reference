@@ -17,6 +17,7 @@ test:
 
 build:
 	bun run build
+	bun ./scripts/verify-phase-1-static-routes.ts
 
 ci: lint typecheck test build validate-data
 

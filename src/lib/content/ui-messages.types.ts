@@ -9,9 +9,16 @@ export type UiMessages = {
   };
   nav: {
     home: string;
+    search: string;
+    architecture: string;
     glossary: string;
     tags: string;
-    docs: string;
+  };
+  searchEntry: {
+    title: string;
+    description: string;
+    canonicalNote: string;
+    tagFilterDescription: string;
   };
   shell: {
     sidebarTitle: string;
@@ -24,6 +31,8 @@ export type UiMessages = {
     intro: string;
     searchSectionTitle: string;
     searchSectionDescription: string;
+    searchPageLinkTitle: string;
+    searchPageLinkDescription: string;
     browseSectionTitle: string;
     browseSectionDescription: string;
     architectureLinkTitle: string;
@@ -32,6 +41,8 @@ export type UiMessages = {
     glossaryLinkDescription: string;
     tagsLinkTitle: string;
     tagsLinkDescription: string;
+    tokenLinkTitle: string;
+    tokenLinkDescription: string;
     docsLinkTitle: string;
     docsLinkDescription: string;
     onThisPageSearch: string;
@@ -61,6 +72,7 @@ export type UiMessages = {
   tagLanding: {
     listLabel: string;
     searchHandoff: string;
+    searchEntryLink: string;
     emptyTitle: string;
     emptyDescription: string;
     emptyHomeLink: string;
