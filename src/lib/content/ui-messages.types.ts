@@ -58,6 +58,14 @@ export type UiMessages = {
     description: string;
     listLabel: string;
   };
+  tagLanding: {
+    listLabel: string;
+    searchHandoff: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    emptyHomeLink: string;
+    emptyTagsLink: string;
+  };
   tagCategories: Record<string, string>;
   pageKind: Record<string, string>;
 };

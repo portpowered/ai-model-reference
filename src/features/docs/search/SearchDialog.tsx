@@ -1,5 +1,6 @@
 "use client";
 
+import { consumePendingSearchQuery } from "@/features/docs/search/search-prefill";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   SearchDialog as FumaSearchDialog,
@@ -13,6 +14,7 @@ import {
   SearchDialogOverlay,
 } from "fumadocs-ui/components/dialog/search";
 import type { SharedProps } from "fumadocs-ui/contexts/search";
+import { useEffect } from "react";
 import { SearchResultListItem } from "./SearchResults";
 import { useModelAtlasDocsSearch } from "./search-client";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";
@@ -31,6 +33,16 @@ export function ModelAtlasSearchDialog({
   const { search, setSearch, query } = useModelAtlasDocsSearch();
   const items = query.data && query.data !== "empty" ? query.data : null;
   const isEmpty = items !== null && items.length === 0;
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const prefill = consumePendingSearchQuery();
+    if (prefill) {
+      setSearch(prefill);
+    }
+  }, [open, setSearch]);
 
   return (
     <FumaSearchDialog

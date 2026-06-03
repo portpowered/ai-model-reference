@@ -58,6 +58,14 @@
     "description": "Controlled tags for browsing topics across modules, concepts, models, and glossary pages. Each tag links to a landing page listing every published resource with that tag.",
     "listLabel": "Tags by category"
   },
+  "tagLanding": {
+    "listLabel": "Resources by kind",
+    "searchHandoff": "Search this tag",
+    "emptyTitle": "No published resources for this tag yet",
+    "emptyDescription": "When docs pages or blog posts are tagged with this label, they will appear here grouped by kind. Return home, browse all tags, or open search to explore related topics.",
+    "emptyHomeLink": "Return home",
+    "emptyTagsLink": "Browse all tags"
+  },
   "tagCategories": {
     "architecture": "Architecture",
     "module-type": "Module type",
