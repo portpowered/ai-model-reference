@@ -8,6 +8,45 @@
 - Phase 1 sample content: GQA module at `src/content/docs/modules/grouped-query-attention`, token glossary at `src/content/docs/glossary/token`.
 - Global search UI: `SearchDialog`/`SearchTrigger` register via `AppProviders` → `RootProvider` in `src/app/layout.tsx`; `DocsShell` renders `SearchTrigger` in the top nav for every `(site)` route; `HomeSearchEntry` opens the same dialog from `/`.
 
+- Glossary index at `/docs/glossary` uses `loadPublishedGlossaryEntries` (filters `kind: glossary`); empty state mirrors architecture index with home link + `SearchTrigger`.
+- Tags index at `/tags` uses `loadPublishedTagIndexGroups` from published `tag` registry records; localized title/summary live in `src/content/registry/tags/messages/<slug>.<locale>.json`; `loadRegistry` skips `messages` subdirectories.
+- Tag index groups by `category` (schema order via `TAG_CATEGORY_ORDER`); tag slug chips use monochrome `border-border` / `text-muted-foreground` styling.
+- Tag landing at `/tags/[slug]` uses `loadTagResourceGroups` in `src/lib/content/tag-resources.ts` (matches tag on MDX frontmatter and registry record tags); `TagResourceList` groups by page kind and omits empty groups; `TagSearchHandoff` + `search-prefill.ts` prefill the global search dialog query when opened from a tag page.
+
+## 2026-06-03T15:30:00Z - default-pages-search-tags-007
+- Implemented `/tags` index listing published tag registry records grouped by category with localized title, summary, category label, and links to `/tags/<slug>`.
+- Added tag message files, `loadTagMessages`, `loadPublishedTagIndexEntries` / `loadPublishedTagIndexGroups`, and `TagsIndexList` with monochrome tag slug chips.
+- Registry loader skips `messages` directories so colocated tag locale JSON is not parsed as registry records.
+- Verified production HTML on `next start` port 3013: Tags title, Attention/KV Cache entries, category headings, landing links, and search affordance.
+- Files changed: `src/app/(site)/tags/page.tsx`, `src/content/registry/tags/messages/*`, `src/features/docs/tags/TagsIndexList.tsx`, `src/lib/content/tag-messages.ts`, `src/lib/content/tags.ts`, `src/lib/content/registry.ts`, `src/content/messages/en/common.json`, `src/lib/content/ui-messages.types.ts`, `src/tests/content/tags-index.test.ts`
+- **Learnings for future iterations:**
+  - Tag landing page (story 008) can reuse `loadTagMessages` and `/tags/<slug>` URLs already linked from the index.
+  - Add new tag locale files under `registry/tags/messages/`; never place non-registry JSON directly under `registry/tags/` without skipping in `readRegistryFiles`.
+  - Category labels resolve from `messages.tagCategories` in `common.json`.
+---
+
+## 2026-06-03T16:45:00Z - default-pages-search-tags-008
+- Implemented `/tags/[slug]` tag landing pages with `TagResourceList` grouped by page kind, localized `tagLanding` messages, and `TagSearchHandoff` that prefills the global search dialog with the tag slug.
+- Added `loadTagResourceEntries` / `loadTagResourceGroups` matching tags on MDX frontmatter and registry records; static params from published tag index entries.
+- Verified production HTML on `next start` port 3014: Attention title, Module/Glossary groups, GQA module and token glossary links, search handoff affordance.
+- Files changed: `src/app/(site)/tags/[slug]/page.tsx`, `src/lib/content/tag-resources.ts`, `src/features/docs/components/TagResourceList.tsx`, `src/features/docs/tags/TagLandingEmptyState.tsx`, `src/features/docs/tags/TagSearchHandoff.tsx`, `src/features/docs/search/search-prefill.ts`, `src/features/docs/search/SearchDialog.tsx`, `src/content/messages/en/common.json`, `src/lib/content/ui-messages.types.ts`, `src/tests/content/attention-tag-landing.test.ts`
+- **Learnings for future iterations:**
+  - Token glossary is also tagged `attention`; attention landing lists both module and glossary groups in Phase 1.
+  - Use `setPendingSearchQuery` / `consumePendingSearchQuery` in `search-prefill.ts` to prime Fumadocs search from client handoff controls.
+  - `generateStaticParams` on tag landing can reuse `loadPublishedTagIndexEntries` for all published tag slugs.
+---
+
+## 2026-06-03T14:50:00Z - default-pages-search-tags-006
+- Verified existing glossary index at `/docs/glossary` meets Phase 1 acceptance criteria; route was already implemented with localized messages, alphabetical entry list, and empty state.
+- Added test asserting the token glossary page appears with title, summary, and `/docs/glossary/token` link.
+- Verified production HTML on `next start` port 3012: Glossary title, Token entry card, `data-search`, and Open search affordance present.
+- Files changed: `src/tests/content/glossary-index.test.ts`
+- **Learnings for future iterations:**
+  - Story 006 was largely complete before this iteration; only the token entry assertion and browser verification were missing from PRD tracking.
+  - Use `bunx next start` (no `start` npm script in package.json) after `next build` for production HTML checks.
+  - Glossary index lists any published page with `frontmatter.kind === "glossary"`; token from story 001 satisfies the sibling-content criterion.
+---
+
 ## 2026-06-03T08:44:37Z - default-pages-search-tags-001
 - Added token glossary content (MDX, messages, registry) so the search builder indexes a second published page alongside grouped-query attention.
 - Wired `buildSearchDocumentsForLocale` to load pages by locale; build script uses it for index generation.
