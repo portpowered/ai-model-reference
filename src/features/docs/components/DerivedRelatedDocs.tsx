@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
-  getModuleById,
-  listModuleRecords,
+  getRegistryRecordById,
+  listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveRelatedDocGroups } from "@/lib/content/related-docs";
 
@@ -14,14 +14,14 @@ export function DerivedRelatedDocs({
   registryId,
   groups,
 }: DerivedRelatedDocsProps) {
-  const source = getModuleById(registryId);
+  const source = getRegistryRecordById(registryId);
   if (!source) {
     return null;
   }
 
   const derivedGroups = deriveRelatedDocGroups(
     source,
-    listModuleRecords(),
+    listRelatedRegistryRecords(),
     groups,
   );
   if (derivedGroups.length === 0) {

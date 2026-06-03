@@ -1,9 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import {
+  getConceptById,
   getModuleById,
   getRegistryCitationIds,
+  getRegistryRecordById,
   getRegistryTags,
+  listConceptRecords,
   listModuleRecords,
+  listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 
 describe("registry-runtime", () => {
@@ -20,6 +24,16 @@ describe("registry-runtime", () => {
     ]);
   });
 
+  test("getRegistryTags returns tags for a known concept", () => {
+    expect(getRegistryTags("concept.token")).toEqual(["attention"]);
+  });
+
+  test("getConceptById returns token concept", () => {
+    const record = getConceptById("concept.token");
+    expect(record?.slug).toBe("token");
+    expect(record?.tags).toEqual(["attention"]);
+  });
+
   test("getRegistryTags returns undefined for unknown records", () => {
     expect(getRegistryTags("module.unknown")).toBeUndefined();
   });
@@ -30,8 +44,31 @@ describe("registry-runtime", () => {
     ]);
   });
 
+  test("getRegistryCitationIds returns empty array for concept.token", () => {
+    expect(getRegistryCitationIds("concept.token")).toEqual([]);
+  });
+
   test("getRegistryCitationIds returns undefined for unknown records", () => {
     expect(getRegistryCitationIds("module.unknown")).toBeUndefined();
+  });
+
+  test("getRegistryRecordById resolves modules and concepts", () => {
+    expect(getRegistryRecordById("concept.token")?.kind).toBe("concept");
+    expect(getRegistryRecordById("module.grouped-query-attention")?.kind).toBe(
+      "module",
+    );
+  });
+
+  test("listRelatedRegistryRecords includes concepts and modules", () => {
+    const kinds = listRelatedRegistryRecords().map((record) => record.kind);
+    expect(kinds).toContain("concept");
+    expect(kinds).toContain("module");
+  });
+
+  test("listConceptRecords includes token", () => {
+    expect(listConceptRecords().map((record) => record.id)).toContain(
+      "concept.token",
+    );
   });
 
   test("listModuleRecords includes variant-group peers for GQA", () => {

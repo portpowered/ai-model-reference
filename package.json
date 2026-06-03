@@ -10,10 +10,12 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit",
+    "pretest": "fumadocs-mdx",
     "test": "bun test"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
+    "@orama/orama": "^3.1.16",
     "@tailwindcss/postcss": "^4.3.0",
     "@types/mdx": "^2.0.13",
     "class-variance-authority": "^0.7.1",

@@ -109,6 +109,13 @@ describe("loadRegistry", () => {
 
     expect(indexes.tagsBySlug.get("kv-cache")?.id).toBe("tag.kv-cache");
     expect(module?.tags).toContain("kv-cache");
+
+    const conceptMapGraph = indexes.byId.get("graph.token-concept-map");
+    expect(conceptMapGraph?.kind).toBe("graph");
+    if (conceptMapGraph?.kind === "graph") {
+      expect(conceptMapGraph.graphType).toBe("concept-map");
+      expect(conceptMapGraph.subjectId).toBe("concept.token");
+    }
   });
 
   test("loads concept records from the concepts directory", async () => {

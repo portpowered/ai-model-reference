@@ -1,4 +1,6 @@
 ## Codebase Patterns
+- Graph registry records live in `src/content/registry/graphs/*.json` and load via `graphRecordSchema` in `loadRegistry`; `validate-registry` reports `unresolved-graph-id` when colocated `assets.json` references a missing graph.
+- `ConceptMap` is a thin `PageAsset` wrapper (same pattern as `ModuleGraph`) for concept/glossary `conceptMap` slots in MDX.
 - Module docs pages use `loadModulePage(slug)` from `src/lib/content/module-page.ts`, which compiles MDX with `moduleMdxComponents` and loads colocated `messages/<locale>.json` plus `assets.json`.
 - GQA reference route: `src/app/(site)/docs/modules/grouped-query-attention/page.tsx` wraps `loadModulePage` output in `ModulePageProviders` inside `(site)/layout.tsx` `DocsShell`.
 - Wrap compiled MDX in `ModulePageProviders` so client components `T`, `Section`, `PageAsset`, and `Callout` receive messages/assets via React context.
@@ -9,7 +11,11 @@
 - `TagPillList` resolves tags via `getRegistryTags(registryId)` or an explicit `tags` prop; pills link to `tagPageHref(slug)` (`/tags/<slug>`) with monochrome `secondary` + `border` styling.
 - Citation records live in `src/content/registry/citations/*.json`; load via `getCitationById` / `resolveCitations` in `src/lib/content/citations.ts`. `CitationList` accepts `registryId` (module `citationIds`) or explicit `citationIds`; renders MLA in linked `<ol>` with `rel="noopener noreferrer"`.
 - `biome.json` ignores `.next`, `node_modules`, and `storybook-static` so local builds do not fail lint.
-- `DerivedRelatedDocs` derives Phase 1 `same-variant-group` via `deriveRelatedDocGroups` in `src/lib/content/related-docs.ts`; peer modules need registry JSON with matching `variantGroup`. Module links use `modulePageHref(slug)` → `/docs/modules/<slug>`.
+- Glossary pages use `loadGlossaryPage(slug)` from `src/lib/content/glossary-page.ts`, mirroring `loadModulePage` with content root `src/content/docs/glossary`.
+- Glossary route: `src/app/docs/glossary/<slug>/page.tsx` wraps `loadGlossaryPage` output in `ModulePageProviders` inside Fumadocs `DocsLayout` (`src/app/docs/layout.tsx`).
+- Exclude `glossary/**` from Fumadocs MDX compilation in `source.config.ts` (same pattern as `modules/**`); dedicated routes render via next-mdx-remote.
+- Glossary page frontmatter uses `kind: glossary` while `registryId` points at a `concept.*` registry record; validation allows this alias via `pageKindRegistryKindAliases` in `validate-registry.ts`.
+- Register dedicated glossary routes in Fumadocs sidebar via `src/content/docs/glossary/meta.json` using link syntax `[Token](/docs/glossary/token)` and include `glossary` in root `meta.json` pages; run `fumadocs-mdx` before tests (`pretest` script).
 
 ## 2026-06-02T20:51:49Z - docs-template-rendering-001
 - Verified story 001 acceptance criteria against existing implementation (commits 7b80d0b and follow-ups): `T` and `Section` in `moduleMdxComponents`, `PageMessagesProvider` context, dev-only `MissingMessageKey`, and unit tests for lookup plus component rendering.
@@ -71,4 +77,36 @@
   - Unsupported `groups` values in MDX templates are ignored until their derivation logic ships; templates can list future groups without breaking render.
   - Peer module titles come from `aliases[0]` via `moduleDisplayTitle`; pages without published MDX still link to canonical `/docs/modules/<slug>`.
   - All six PRD stories are complete; open a PR when ready for review.
+---
+
+## 2026-06-03T16:30:00Z - basic-token-glossary-page-001
+- Published token glossary page at `/docs/glossary/token`: `page.mdx` following concept template with `kind: glossary` and `registryId: concept.token`, `loadGlossaryPage` loader, dedicated App Router page, and integration tests for message-driven opening copy.
+- Extended `registry-runtime` with `getConceptById` and concept-backed tag/citation lookup for `concept.token`.
+- Allowed glossary→concept kind alias in registry validation; excluded `glossary/**` from Fumadocs MDX compilation; set `turbopack.root` in `next.config.ts` so worktree builds resolve `.source/server`.
+- Files changed: `src/content/docs/glossary/token/page.mdx`, `src/lib/content/glossary-page.ts`, `glossary-page.test.ts`, `src/app/docs/glossary/token/page.tsx`, `page-bundle.test.ts`, `registry-runtime.ts`, `registry-runtime.test.ts`, `validate-registry.ts`, `source.config.ts`, `next.config.ts`
+- **Learnings for future iterations:**
+  - Story 002 adds `ConceptMap` and `graph.token-concept-map`; page.mdx omits ConceptMap until then.
+  - `TagPillList` now resolves tags for `concept.token` via extended registry-runtime; story 006 covers fuller tag/related-docs acceptance.
+  - Worktree CI failed until `turbopack.root` pointed at the worktree (monorepo lockfile caused wrong module resolution).
+---
+
+## 2026-06-03T18:00:00Z - basic-token-glossary-page-002
+- Added `graphRecordSchema`, graph registry loading from `src/content/registry/graphs/`, and `validateGraphAssetReferences` so missing `graphId` values fail `make validate-data`.
+- Published `graph.token-concept-map` (concept-map flow: text → tokenizer → token IDs → embeddings) plus minimal GQA graph stubs so existing module graph assets validate.
+- Implemented `ConceptMap` (`PageAsset` wrapper), wired it into `moduleMdxComponents` and token `page.mdx`, and extended glossary/integration tests for message-backed alt/caption render.
+- Files changed: `schemas.ts`, `registry.ts`, `validate-registry.ts`, `ConceptMap.tsx`, `ConceptMap.test.tsx`, `mdx-components.tsx`, `token/page.mdx`, `token/messages/en.json`, `graphs/*.json`, related tests
+- **Learnings for future iterations:**
+  - Phase 1 graph render is still a `PageAsset` placeholder (`data-graph-id` + `role="img"`); React Flow wiring is deferred.
+  - `loadRegistry` skips missing registry subdirectories (ENOENT) so test fixtures need not create empty `graphs/` folders.
+  - GQA module pages already referenced graph IDs; adding stub graph records keeps graph validation enabled without expanding story scope.
+---
+
+## 2026-06-03T19:45:00Z - basic-token-glossary-page-003
+- Registered Token in the Fumadocs docs sidebar: `glossary/meta.json` with `[Token](/docs/glossary/token)`, root `meta.json` includes `glossary` section, frontmatter title/description aligned with messages, and `generateMetadata` on the glossary route.
+- Added `src/lib/source.test.ts` for page-tree navigation URL coverage plus route file existence; `pretest` runs `fumadocs-mdx` so CI has a fresh `.source` before tests.
+- Files changed: `src/content/docs/meta.json`, `src/content/docs/glossary/meta.json`, `glossary/token/page.mdx`, `src/app/docs/glossary/token/page.tsx`, `src/lib/source.test.ts`, `src/lib/content/page-bundle.test.ts`, `package.json`
+- **Learnings for future iterations:**
+  - Fumadocs meta link entries use markdown link syntax in the `pages` array, e.g. `[Token](/docs/glossary/token)`.
+  - `source.pageTree` is the contract for sidebar links; dedicated App Router pages still need matching route files under `src/app/docs/`.
+  - Story 004 next: `listPublishedGlossaryPages` helper and glossary index route.
 ---
