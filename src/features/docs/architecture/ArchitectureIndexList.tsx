@@ -1,6 +1,6 @@
-import type { ArchitectureEntry } from "@/lib/content/architecture";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import type { ArchitectureEntry } from "@/lib/content/architecture";
 
 type ArchitectureIndexListProps = {
   entries: ArchitectureEntry[];

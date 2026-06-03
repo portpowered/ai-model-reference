@@ -25,9 +25,11 @@ export function buildSearchResultMetaMap(
   return map;
 }
 
-export function loadSearchResultMetaMap(): Map<string, SearchResultMeta> {
-  const registry = loadRegistry();
-  const pages = loadPublishedDocsPages(DEFAULT_LOCALE);
-  const documents = buildSearchDocuments(pages, registry);
+export async function loadSearchResultMetaMap(): Promise<
+  Map<string, SearchResultMeta>
+> {
+  const indexes = await loadRegistry();
+  const pages = await loadPublishedDocsPages(DEFAULT_LOCALE);
+  const documents = buildSearchDocuments(pages, indexes);
   return buildSearchResultMetaMap(documents);
 }

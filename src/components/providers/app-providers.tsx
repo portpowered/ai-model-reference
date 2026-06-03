@@ -1,10 +1,10 @@
 "use client";
 
-import type { SearchResultMetaRecord } from "@/features/docs/search/search-result-meta-client";
-import type { UiMessages } from "@/lib/content/ui-messages.types";
 import type { SharedProps } from "fumadocs-ui/contexts/search";
 import { RootProvider } from "fumadocs-ui/provider/next";
-import { type ComponentType, type ReactNode, lazy, useMemo } from "react";
+import { type ComponentType, lazy, type ReactNode, useMemo } from "react";
+import type { SearchResultMetaRecord } from "@/features/docs/search/search-result-meta-client";
+import type { UiMessages } from "@/lib/content/ui-messages.types";
 
 const ModelAtlasSearchDialog = lazy(() =>
   import("@/features/docs/search/SearchDialog").then((mod) => ({

@@ -1,23 +1,23 @@
 import { describe, expect, it } from "bun:test";
 import {
-  type TagIndexEntry,
   groupTagIndexEntriesByCategory,
   loadPublishedTagIndexEntries,
   loadPublishedTagIndexGroups,
   sortTagIndexEntriesByTitle,
+  type TagIndexEntry,
 } from "@/lib/content/tags";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("loadPublishedTagIndexEntries", () => {
-  it("returns published tag records with localized title, summary, and landing links", () => {
+  it("returns published tag records with localized title, summary, and landing links", async () => {
     const messages = loadUiMessages();
-    const entries = loadPublishedTagIndexEntries(messages, "en");
+    const entries = await loadPublishedTagIndexEntries(messages, "en");
 
     const attention = entries.find((entry) => entry.slug === "attention");
     expect(attention).toBeDefined();
     expect(attention?.title).toBe("Attention");
     expect(attention?.url).toBe("/tags/attention");
-    expect(attention?.categoryLabel).toBe("Architecture");
+    expect(attention?.categoryLabel).toBe("Module type");
     expect(attention?.summary.length).toBeGreaterThan(0);
 
     const kvCache = entries.find((entry) => entry.slug === "kv-cache");
@@ -27,9 +27,9 @@ describe("loadPublishedTagIndexEntries", () => {
     expect(kvCache?.categoryLabel).toBe("Inference");
   });
 
-  it("sorts tags alphabetically by title within a flat list", () => {
+  it("sorts tags alphabetically by title within a flat list", async () => {
     const messages = loadUiMessages();
-    const entries = loadPublishedTagIndexEntries(messages, "en");
+    const entries = await loadPublishedTagIndexEntries(messages, "en");
     for (let index = 1; index < entries.length; index += 1) {
       expect(
         entries[index - 1].title.localeCompare(entries[index].title, "en", {
@@ -41,12 +41,12 @@ describe("loadPublishedTagIndexEntries", () => {
 });
 
 describe("groupTagIndexEntriesByCategory", () => {
-  it("groups tags by category in schema order", () => {
+  it("groups tags by category in schema order", async () => {
     const messages = loadUiMessages();
-    const groups = loadPublishedTagIndexGroups(messages, "en");
+    const groups = await loadPublishedTagIndexGroups(messages, "en");
 
     expect(groups.map((group) => group.category)).toEqual([
-      "architecture",
+      "module-type",
       "inference",
     ]);
     expect(groups[0]?.tags.map((tag) => tag.slug)).toEqual(["attention"]);

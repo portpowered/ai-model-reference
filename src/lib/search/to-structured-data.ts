@@ -1,5 +1,8 @@
-import type { SearchDocument } from "./types";
-import type { FumadocsSearchIndexEntry, FumadocsStructuredData } from "./types";
+import type {
+  FumadocsSearchIndexEntry,
+  FumadocsStructuredData,
+  SearchDocument,
+} from "./types";
 
 export function toStructuredData(
   document: SearchDocument,

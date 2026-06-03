@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
 import { TagLandingEmptyState } from "@/features/docs/tags/TagLandingEmptyState";
 import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
@@ -7,15 +8,15 @@ import {
 } from "@/lib/content/tag-resources";
 import { loadPublishedTagIndexEntries } from "@/lib/content/tags";
 import { loadUiMessages } from "@/lib/content/ui-messages";
-import { notFound } from "next/navigation";
 
 type TagLandingPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   const messages = loadUiMessages();
-  return loadPublishedTagIndexEntries(messages, "en").map((entry) => ({
+  const entries = await loadPublishedTagIndexEntries(messages, "en");
+  return entries.map((entry) => ({
     slug: entry.slug,
   }));
 }
@@ -23,13 +24,13 @@ export function generateStaticParams() {
 export default async function TagLandingPage({ params }: TagLandingPageProps) {
   const { slug } = await params;
   const messages = loadUiMessages();
-  const context = loadTagLandingContext(slug, messages, "en");
+  const context = await loadTagLandingContext(slug, messages, "en");
 
   if (!context) {
     notFound();
   }
 
-  const groups = loadTagResourceGroups(slug, messages, "en");
+  const groups = await loadTagResourceGroups(slug, messages, "en");
   const { tagLanding } = messages;
   const searchQuery = context.slug;
 

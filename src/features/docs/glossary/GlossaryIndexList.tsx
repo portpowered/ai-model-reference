@@ -1,6 +1,6 @@
-import type { GlossaryEntry } from "@/lib/content/glossary";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import type { GlossaryEntry } from "@/lib/content/glossary";
 
 type GlossaryIndexListProps = {
   entries: GlossaryEntry[];

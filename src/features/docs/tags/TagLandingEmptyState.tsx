@@ -1,8 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
-import Link from "next/link";
 
 type TagLandingEmptyStateProps = {
   messages: UiMessages;

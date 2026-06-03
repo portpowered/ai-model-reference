@@ -10,19 +10,19 @@ import { loadRegistry } from "@/lib/content/registry";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("isArchitectureRelatedPage", () => {
-  it("excludes glossary and module pages without architecture grouping", () => {
-    const store = loadRegistry();
-    const pages = loadPublishedDocsPages("en");
+  it("excludes glossary and module pages without architecture grouping", async () => {
+    const indexes = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
     const architecturePages = pages.filter((page) =>
-      isArchitectureRelatedPage(page, store),
+      isArchitectureRelatedPage(page, indexes),
     );
     expect(architecturePages).toHaveLength(0);
   });
 });
 
 describe("loadPublishedArchitectureEntries", () => {
-  it("returns published architecture pages sorted alphabetically by title", () => {
-    const entries = loadPublishedArchitectureEntries("en");
+  it("returns published architecture pages sorted alphabetically by title", async () => {
+    const entries = await loadPublishedArchitectureEntries("en");
     for (let index = 1; index < entries.length; index += 1) {
       expect(
         entries[index - 1].title.localeCompare(entries[index].title, "en", {

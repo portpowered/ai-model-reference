@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import {
-  DOCS_SEARCH_API_PATH,
   createDocsSearchClient,
+  DOCS_SEARCH_API_PATH,
 } from "@/features/docs/search/search-client";
 import { docsSearchApi } from "@/lib/search/search-server";
-import { SAMPLE_MODULE_URL, resultsIncludeSampleModule } from "./helpers";
+import { resultsIncludeSampleModule, SAMPLE_MODULE_URL } from "./helpers";
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 

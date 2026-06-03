@@ -1,11 +1,12 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { loadPageMessages } from "./messages";
+import { loadPageMessages } from "@/lib/content/page-messages-load";
 import {
   type PageFrontmatter,
   type PageMessages,
   pageFrontmatterSchema,
-} from "./schemas";
+} from "@/lib/content/schemas";
+import { parseYamlFrontmatterBlock } from "@/lib/content/yaml-frontmatter";
 
 const DOCS_ROOT = path.join(process.cwd(), "src/content/docs");
 
@@ -20,57 +21,11 @@ export type DocsPageSource = {
 function parseFrontmatter(pageMdxPath: string): PageFrontmatter {
   const source = readFileSync(pageMdxPath, "utf8");
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  if (!match) {
+  if (!match?.[1]) {
     throw new Error(`Missing frontmatter in ${pageMdxPath}`);
   }
 
-  const frontmatter: Record<string, unknown> = {};
-  for (const line of match[1].split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) {
-      continue;
-    }
-    const separator = trimmed.indexOf(":");
-    if (separator === -1) {
-      continue;
-    }
-    const key = trimmed.slice(0, separator).trim();
-    const rawValue = trimmed.slice(separator + 1).trim();
-    if (rawValue.startsWith("-")) {
-      continue;
-    }
-    if (rawValue === "") {
-      continue;
-    }
-    frontmatter[key] = rawValue.replace(/^"|"$/g, "");
-  }
-
-  const listKey = (key: string): string[] => {
-    const values: string[] = [];
-    let inBlock = false;
-    for (const line of match[1].split("\n")) {
-      if (line.trim() === `${key}:`) {
-        inBlock = true;
-        continue;
-      }
-      if (inBlock) {
-        const item = line.match(/^\s+-\s+(.+)$/);
-        if (item) {
-          values.push(item[1].replace(/^"|"$/g, ""));
-          continue;
-        }
-        if (line.trim() && !line.startsWith(" ")) {
-          break;
-        }
-      }
-    }
-    return values;
-  };
-
-  frontmatter.tags = listKey("tags");
-  frontmatter.aliases = listKey("aliases");
-
-  return pageFrontmatterSchema.parse(frontmatter);
+  return pageFrontmatterSchema.parse(parseYamlFrontmatterBlock(match[1]));
 }
 
 function findPageDirectories(
@@ -98,10 +53,10 @@ export function docsUrlFromSlug(docsSlug: string): string {
   return `/docs/${docsSlug}`;
 }
 
-export function loadPublishedDocsPages(
+export async function loadPublishedDocsPages(
   locale: string,
   rootDir = DOCS_ROOT,
-): DocsPageSource[] {
+): Promise<DocsPageSource[]> {
   const pages: DocsPageSource[] = [];
 
   for (const pageDir of findPageDirectories(rootDir)) {
@@ -117,7 +72,7 @@ export function loadPublishedDocsPages(
       docsSlug,
       url: docsUrlFromSlug(docsSlug),
       frontmatter,
-      messages: loadPageMessages(pageDir, locale),
+      messages: await loadPageMessages(pageDir, locale),
     });
   }
 

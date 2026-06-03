@@ -1,9 +1,9 @@
 "use client";
 
-import { setPendingSearchQuery } from "@/features/docs/search/search-prefill";
-import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { useSearchContext } from "fumadocs-ui/contexts/search";
 import { Search } from "lucide-react";
+import { setPendingSearchQuery } from "@/features/docs/search/search-prefill";
+import type { UiMessages } from "@/lib/content/ui-messages.types";
 
 type TagSearchHandoffProps = {
   messages: UiMessages;

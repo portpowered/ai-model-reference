@@ -1,5 +1,9 @@
 import { type DocsPageSource, loadPublishedDocsPages } from "./pages";
-import { getRegistryRecord, loadRegistry } from "./registry";
+import {
+  getRegistryRecord,
+  loadRegistry,
+  type RegistryIndexes,
+} from "./registry";
 import type { TagRecord } from "./schemas";
 import { loadTagMessages } from "./tag-messages";
 import type { UiMessages } from "./ui-messages.types";
@@ -47,12 +51,12 @@ function kindSortIndex(kind: string): number {
 function pageMatchesTag(
   page: DocsPageSource,
   tagSlug: string,
-  store: ReturnType<typeof loadRegistry>,
+  indexes: RegistryIndexes,
 ): boolean {
   if (page.frontmatter.tags.includes(tagSlug)) {
     return true;
   }
-  const record = getRegistryRecord(store, page.frontmatter.registryId);
+  const record = getRegistryRecord(indexes, page.frontmatter.registryId);
   return record?.tags.includes(tagSlug) ?? false;
 }
 
@@ -75,29 +79,28 @@ export function sortTagResourceEntriesByTitle(
   );
 }
 
-function isPublishedTagRecord(
-  record: ReturnType<typeof loadRegistry>["records"][number],
-): record is TagRecord {
-  return record.kind === "tag" && record.status === "published";
+function isPublishedTagRecord(record: TagRecord): boolean {
+  return record.status === "published";
 }
 
-export function loadPublishedTagRecord(slug: string): TagRecord | undefined {
-  const store = loadRegistry();
-  for (const record of store.records) {
-    if (isPublishedTagRecord(record) && record.slug === slug) {
-      return record;
-    }
+export async function loadPublishedTagRecord(
+  slug: string,
+): Promise<TagRecord | undefined> {
+  const indexes = await loadRegistry();
+  const record = indexes.tagsBySlug.get(slug);
+  if (record && isPublishedTagRecord(record)) {
+    return record;
   }
   return undefined;
 }
 
-export function loadTagResourceEntries(
+export async function loadTagResourceEntries(
   tagSlug: string,
   locale = "en",
-): TagResourceEntry[] {
-  const store = loadRegistry();
-  const pages = loadPublishedDocsPages(locale).filter((page) =>
-    pageMatchesTag(page, tagSlug, store),
+): Promise<TagResourceEntry[]> {
+  const indexes = await loadRegistry();
+  const pages = (await loadPublishedDocsPages(locale)).filter((page) =>
+    pageMatchesTag(page, tagSlug, indexes),
   );
   return sortTagResourceEntriesByTitle(pages.map(toTagResourceEntry));
 }
@@ -127,21 +130,21 @@ export function groupTagResourceEntriesByKind(
     }));
 }
 
-export function loadTagResourceGroups(
+export async function loadTagResourceGroups(
   tagSlug: string,
   messages: UiMessages,
   locale = "en",
-): TagResourceKindGroup[] {
-  const entries = loadTagResourceEntries(tagSlug, locale);
+): Promise<TagResourceKindGroup[]> {
+  const entries = await loadTagResourceEntries(tagSlug, locale);
   return groupTagResourceEntriesByKind(entries, messages);
 }
 
-export function loadTagLandingContext(
+export async function loadTagLandingContext(
   slug: string,
   messages: UiMessages,
   locale = "en",
-): TagLandingContext | undefined {
-  const record = loadPublishedTagRecord(slug);
+): Promise<TagLandingContext | undefined> {
+  const record = await loadPublishedTagRecord(slug);
   if (!record) {
     return undefined;
   }

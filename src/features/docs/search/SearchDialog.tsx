@@ -1,7 +1,5 @@
 "use client";
 
-import { consumePendingSearchQuery } from "@/features/docs/search/search-prefill";
-import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   SearchDialog as FumaSearchDialog,
   SearchDialogClose,
@@ -15,6 +13,8 @@ import {
 } from "fumadocs-ui/components/dialog/search";
 import type { SharedProps } from "fumadocs-ui/contexts/search";
 import { useEffect } from "react";
+import { consumePendingSearchQuery } from "@/features/docs/search/search-prefill";
+import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { SearchResultListItem } from "./SearchResults";
 import { useModelAtlasDocsSearch } from "./search-client";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";

@@ -24,8 +24,10 @@ export function sortGlossaryEntriesByTitle(
   );
 }
 
-export function loadPublishedGlossaryEntries(locale = "en"): GlossaryEntry[] {
-  const pages = loadPublishedDocsPages(locale).filter(
+export async function loadPublishedGlossaryEntries(
+  locale = "en",
+): Promise<GlossaryEntry[]> {
+  const pages = (await loadPublishedDocsPages(locale)).filter(
     (page) => page.frontmatter.kind === "glossary",
   );
   return sortGlossaryEntriesByTitle(pages.map(toGlossaryEntry));

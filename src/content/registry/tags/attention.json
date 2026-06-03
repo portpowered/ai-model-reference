@@ -3,14 +3,14 @@
   "slug": "attention",
   "kind": "tag",
   "defaultTitleKey": "title",
-  "defaultSummaryKey": "summary",
-  "aliases": ["self-attention", "attention mechanisms"],
+  "defaultSummaryKey": "description",
+  "aliases": ["self-attention", "attention mechanism"],
   "tags": [],
   "relatedIds": [],
   "citationIds": [],
   "status": "published",
-  "createdAt": "2026-06-02T00:00:00.000Z",
+  "createdAt": "2026-06-01T00:00:00.000Z",
   "updatedAt": "2026-06-02T00:00:00.000Z",
-  "category": "architecture",
+  "category": "module-type",
   "landingPage": "generated-tag-page"
 }

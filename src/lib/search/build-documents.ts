@@ -2,15 +2,11 @@ import {
   collectMessageBodyText,
   collectMessageHeadings,
 } from "@/lib/content/messages";
-import {
-  type DocsPageSource,
-  loadPublishedDocsPages,
-} from "@/lib/content/pages";
-import type { RegistryStore } from "@/lib/content/registry";
-import { getRegistryRecord } from "@/lib/content/registry";
+import type { DocsPageSource } from "@/lib/content/pages";
+import type { RegistryIndexes, RegistryRecord } from "@/lib/content/registry";
 import type {
+  ConceptRecord,
   ModuleRecord,
-  RegistryRecord,
   TagRecord,
 } from "@/lib/content/schemas";
 import type { SearchDocument, SearchDocumentFacets } from "./types";
@@ -23,17 +19,32 @@ function isModuleRecord(record: RegistryRecord): record is ModuleRecord {
   return record.kind === "module";
 }
 
+function isConceptRecord(record: RegistryRecord): record is ConceptRecord {
+  return record.kind === "concept";
+}
+
 function isTagRecord(record: RegistryRecord): record is TagRecord {
   return record.kind === "tag";
 }
 
-function tagSearchTerms(store: RegistryStore, tagSlugs: string[]): string[] {
+function getRegistryRecord(
+  indexes: RegistryIndexes,
+  registryId?: string,
+): RegistryRecord | undefined {
+  if (!registryId) {
+    return undefined;
+  }
+  return indexes.byId.get(registryId);
+}
+
+function tagSearchTerms(
+  indexes: RegistryIndexes,
+  tagSlugs: string[],
+): string[] {
   const terms: string[] = [];
   for (const slug of tagSlugs) {
     terms.push(slug);
-    const record = store.records.find(
-      (candidate) => candidate.kind === "tag" && candidate.slug === slug,
-    );
+    const record = indexes.tagsBySlug.get(slug);
     if (record && isTagRecord(record)) {
       terms.push(record.slug, ...record.aliases);
     }
@@ -56,22 +67,29 @@ function buildFacets(
     facets.optimizes = registryRecord.optimizes;
   }
 
+  if (registryRecord && isConceptRecord(registryRecord)) {
+    facets.conceptType = registryRecord.conceptType;
+  }
+
   return facets;
 }
 
 export function buildSearchDocument(
   page: DocsPageSource,
-  store: RegistryStore,
+  indexes: RegistryIndexes,
 ): SearchDocument {
-  const registryRecord = getRegistryRecord(store, page.frontmatter.registryId);
+  const registryRecord = getRegistryRecord(
+    indexes,
+    page.frontmatter.registryId,
+  );
   const registryAliases = registryRecord?.aliases ?? [];
   const registryTags = registryRecord?.tags ?? [];
   const pageTags = unique([...page.frontmatter.tags, ...registryTags]);
-  const tagTerms = tagSearchTerms(store, pageTags);
+  const tagTerms = tagSearchTerms(indexes, pageTags);
   const headings = collectMessageHeadings(page.messages);
   const bodyText = collectMessageBodyText(page.messages);
   const aliases = unique([
-    ...page.frontmatter.aliases,
+    ...(page.frontmatter.aliases ?? []),
     ...registryAliases,
     ...tagTerms,
   ]);
@@ -94,16 +112,16 @@ export function buildSearchDocument(
 
 export function buildSearchDocuments(
   pages: DocsPageSource[],
-  store: RegistryStore,
+  indexes: RegistryIndexes,
 ): SearchDocument[] {
-  return pages.map((page) => buildSearchDocument(page, store));
+  return pages.map((page) => buildSearchDocument(page, indexes));
 }
 
 export function buildSearchDocumentsForLocale(
   locale: string,
-  store: RegistryStore,
-  pages?: DocsPageSource[],
+  indexes: RegistryIndexes,
+  pages: DocsPageSource[],
 ): SearchDocument[] {
-  const resolvedPages = pages ?? loadPublishedDocsPages(locale);
-  return buildSearchDocuments(resolvedPages, store);
+  void locale;
+  return buildSearchDocuments(pages, indexes);
 }

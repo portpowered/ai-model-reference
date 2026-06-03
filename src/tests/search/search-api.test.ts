@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { docsSearchApi } from "@/lib/search/search-server";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
-import { SAMPLE_MODULE_URL, resultsIncludeSampleModule } from "./helpers";
+import { docsSearchApi } from "@/lib/search/search-server";
+import { resultsIncludeSampleModule, SAMPLE_MODULE_URL } from "./helpers";
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 
@@ -29,14 +29,15 @@ describe("docsSearchApi", () => {
     expect(resultsIncludeSampleModule(results)).toBe(true);
   });
 
-  test.each(["KV cache", "kv cache", "kv-cache"] as const)(
-    "search includes grouped-query attention for %s query",
-    async (query) => {
-      const results = await docsSearchApi.search(query);
-      expect(results.length).toBeGreaterThan(0);
-      expect(resultsIncludeSampleModule(results)).toBe(true);
-    },
-  );
+  test.each([
+    "KV cache",
+    "kv cache",
+    "kv-cache",
+  ] as const)("search includes grouped-query attention for %s query", async (query) => {
+    const results = await docsSearchApi.search(query);
+    expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeSampleModule(results)).toBe(true);
+  });
 
   test("staticGET exports an advanced Orama index", async () => {
     const response = await docsSearchApi.staticGET();

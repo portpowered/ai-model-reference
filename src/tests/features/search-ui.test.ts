@@ -27,8 +27,10 @@ describe("search UI messages", () => {
 });
 
 describe("search result presentation meta", () => {
-  test("sample module meta includes kind, summary, and tags for dialog rows", () => {
-    const metaByUrl = searchResultMetaMapToRecord(loadSearchResultMetaMap());
+  test("sample module meta includes kind, summary, and tags for dialog rows", async () => {
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
     const meta = resolveSearchResultMeta(SAMPLE_URL, metaByUrl);
     expect(meta?.kind).toBe("module");
     expect(meta?.description.length).toBeGreaterThan(0);
