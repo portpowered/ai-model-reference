@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { SearchInlineResultItem } from "./SearchResults";
 import { useModelAtlasDocsSearch } from "./search-client";
+import { resolveInitialSearchPageQuery } from "./search-page-query";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";
 
 const ATTENTION_TAG_PATH = "/tags/attention";
@@ -16,21 +17,6 @@ type SearchPagePanelProps = {
   messages: UiMessages;
   metaByUrl: SearchResultMetaRecord;
 };
-
-function resolveInitialQuery(
-  queryParam: string | null,
-  tagParam: string | null,
-): string {
-  const fromQuery = queryParam?.trim();
-  if (fromQuery) {
-    return fromQuery;
-  }
-  const fromTag = tagParam?.trim();
-  if (fromTag) {
-    return fromTag;
-  }
-  return "";
-}
 
 export function SearchPagePanel({ messages, metaByUrl }: SearchPagePanelProps) {
   const router = useRouter();
@@ -47,7 +33,7 @@ export function SearchPagePanel({ messages, metaByUrl }: SearchPagePanelProps) {
       return;
     }
     initialQueryApplied.current = true;
-    const initial = resolveInitialQuery(queryParam, tagSlug ?? null);
+    const initial = resolveInitialSearchPageQuery(queryParam, tagSlug ?? null);
     if (initial) {
       setSearch(initial);
     }
