@@ -29,6 +29,8 @@ export type UiMessages = {
     intro: string;
     searchSectionTitle: string;
     searchSectionDescription: string;
+    searchPageLinkTitle: string;
+    searchPageLinkDescription: string;
     browseSectionTitle: string;
     browseSectionDescription: string;
     architectureLinkTitle: string;
@@ -37,6 +39,8 @@ export type UiMessages = {
     glossaryLinkDescription: string;
     tagsLinkTitle: string;
     tagsLinkDescription: string;
+    tokenLinkTitle: string;
+    tokenLinkDescription: string;
     docsLinkTitle: string;
     docsLinkDescription: string;
     onThisPageSearch: string;

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { HomeBrowseLink } from "@/components/home/home-browse-link";
 import { HomeBrushHeader } from "@/components/home/home-brush-header";
 import { HomeSearchEntry } from "@/features/docs/search/HomeSearchEntry";
@@ -31,6 +32,16 @@ export default function HomePage() {
         <div className="mt-4">
           <HomeSearchEntry messages={messages} />
         </div>
+        <p className="mt-4 text-sm text-muted-foreground">
+          <Link
+            href="/search"
+            className="font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {home.searchPageLinkTitle}
+          </Link>
+          {" — "}
+          {home.searchPageLinkDescription}
+        </p>
       </section>
 
       <section
@@ -60,6 +71,11 @@ export default function HomePage() {
             href="/docs/glossary"
             title={home.glossaryLinkTitle}
             description={home.glossaryLinkDescription}
+          />
+          <HomeBrowseLink
+            href="/docs/glossary/token"
+            title={home.tokenLinkTitle}
+            description={home.tokenLinkDescription}
           />
           <HomeBrowseLink
             href="/tags"
