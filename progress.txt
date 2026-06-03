@@ -1,155 +1,74 @@
 ## Codebase Patterns
-- Registry Zod schemas live in `src/lib/content/schemas.ts`; shared base fields use a `baseRecordShape` object spread into kind-specific schemas with `z.literal("module"|"concept"|"tag"|"citation")` for `kind`.
-- `registryRecordSchema` is a `z.discriminatedUnion("kind", [moduleRecordSchema, conceptRecordSchema, tagRecordSchema, citationRecordSchema])` for parsing any Phase 1 registry record by `kind`.
-- Page schemas use `pageKindSchema` (docs page kinds) separate from `registryKindSchema`; `pageAssetSchema` is a `z.discriminatedUnion("type", [...])` and `pageAssetConfigSchema` is `z.record(z.string(), pageAssetSchema)`.
-- `loadRegistry()` in `src/lib/content/registry.ts` reads `src/content/registry/{modules,concepts,tags,citations}/*.json`, validates per-directory Zod schemas, and returns `byId`, `bySlug`, `tagsById`, and `tagsBySlug` maps; pass `registryRoot` in tests for temp fixtures (always mkdir `concepts` in temp registry fixtures).
-- `RegistryLoadError` carries structured `details` for duplicate id/slug (`duplicate-id`, `duplicate-slug`) and parse/validation failures (`parse-error`).
-- `baseline-records.test.ts` reads committed JSON under `src/content/registry/` and validates with kind-specific Zod schemas via `readRegistryJson` helper; use for story-level proof that on-disk records match schemas.
-- Phase 1 toolchain: Bun for install/test, `bun run typecheck` (`tsc --noEmit`), Biome for lint/format; colocate unit tests as `*.test.ts` next to the module under test.
-- `loadPageMessages(pageDirectory, locale)` in `src/lib/content/messages.ts` reads `messages/<locale>.json`, validates with `pageMessagesSchema`, and throws `MessageLoadError` with `missing-file` or `parse-error` details; missing `en` uses an explicit default-locale error message.
-- `loadPageAssets(pageDirectory)` and `resolvePageAsset(pageDirectory, assetId)` in `src/lib/content/assets.ts` read colocated `assets.json`, validate with `pageAssetConfigSchema`, and throw `AssetLoadError` with `missing-file`, `parse-error`, or `unknown-asset-id` details.
-- `resolvePageAssetWithMessages(pageDirectory, assetId, locale?)` loads the asset plus default-locale messages and throws `AssetLoadError` with `missing-message-key` when `altKey`/`captionKey` do not resolve; use `getMessageString(messages, keyPath)` from `messages.ts` for dot-path lookups (shared with `validate-registry.ts`).
-- Export `assetMessageKeys(asset)` from `assets.ts` when listing message keys on a `PageAsset` for validation or tests.
-- `prd.json`, `prd.md`, and `progress.txt` are local workflow tracking only — do not commit them to the PR branch.
-- Phase 1 starter registry set: `module.grouped-query-attention`, `concept.token`, `tag.attention`, `tag.kv-cache` (tag resolution for module discovery), `citation.gqa-paper`; module `tags` must include both `attention` and `kv-cache`.
-- Phase 1 page directories: module at `src/content/docs/modules/grouped-query-attention/`, glossary at `src/content/docs/glossary/token/`; export `tokenGlossaryPageDir` alongside `groupedQueryAttentionPageDir` from `messages.ts`.
-- Use `baseline-page-fixtures.test.ts` to assert both Phase 1 page dirs have template-aligned `messages/en.json` and message-backed `assets.json` keys.
-- `validateRegistryContent()` in `validate-registry.ts` loads registry via `loadRegistry()` (unique id/slug), validates references for all registry kinds including `concepts/`, walks `page.mdx` under `docs/`, and always validates Phase 1 colocated bundles for directories in `phase1PageDirectories` that lack `page.mdx` (token glossary today).
-- Export `validateColocatedPageBundle(pageDirectory)` for colocated-only checks; pass `phase1PageDirectories` in `ValidateRegistryContentOptions` to override in tests.
+- Module docs pages use `loadModulePage(slug)` from `src/lib/content/module-page.ts`, which compiles MDX with `moduleMdxComponents` and loads colocated `messages/<locale>.json` plus `assets.json`.
+- GQA reference route: `src/app/(site)/docs/modules/grouped-query-attention/page.tsx` wraps `loadModulePage` output in `ModulePageProviders` inside `(site)/layout.tsx` `DocsShell`.
+- Wrap compiled MDX in `ModulePageProviders` so client components `T`, `Section`, `PageAsset`, and `Callout` receive messages/assets via React context.
+- `PageMessagesProvider` defaults `isDev` from `process.env.NODE_ENV === "development"`; missing keys render `MissingMessageKey` in dev and nothing in production.
+- Message lookup uses dot-path keys via `lookupMessage` / `resolveMessage` in `src/lib/content/messages.ts`.
+- Asset resolution: `parsePageAssetConfig` + `lookupAsset` / `resolveAssetText` in `src/lib/content/assets.ts`; render with `PageAsset` (via `ModuleGraph`, `ModuleComparisonTable`, or directly). Invalid config throws at load; missing `assetId` shows `MissingAssetId` in dev.
+- Run quality checks with `bun run typecheck`, `bun run lint`, and `bun test` after `bun install`.
+- `TagPillList` resolves tags via `getRegistryTags(registryId)` or an explicit `tags` prop; pills link to `tagPageHref(slug)` (`/tags/<slug>`) with monochrome `secondary` + `border` styling.
+- Citation records live in `src/content/registry/citations/*.json`; load via `getCitationById` / `resolveCitations` in `src/lib/content/citations.ts`. `CitationList` accepts `registryId` (module `citationIds`) or explicit `citationIds`; renders MLA in linked `<ol>` with `rel="noopener noreferrer"`.
+- `biome.json` ignores `.next`, `node_modules`, and `storybook-static` so local builds do not fail lint.
+- `DerivedRelatedDocs` derives Phase 1 `same-variant-group` via `deriveRelatedDocGroups` in `src/lib/content/related-docs.ts`; peer modules need registry JSON with matching `variantGroup`. Module links use `modulePageHref(slug)` → `/docs/modules/<slug>`.
 
-## 2026-06-02T13:56:17Z - content-registry-validation-001
-- Implemented Zod schemas and inferred types for `RegistryKind`, `RegistryStatus`, `BaseRecord`, `ModuleRecord`, `TagRecord`, and `CitationRecord` aligned with `docs/data-model.md`.
-- Added minimal Bun/TypeScript/Biome project scaffold (`package.json`, `tsconfig.json`, `biome.json`) so typecheck, lint, and tests can run in this worktree.
-- Added focused unit tests proving valid baseline-shaped payloads pass and invalid payloads fail `safeParse`.
-- Files changed: `package.json`, `bun.lock`, `tsconfig.json`, `biome.json`, `src/lib/content/schemas.ts`, `src/lib/content/schemas.test.ts`
+## 2026-06-02T20:51:49Z - docs-template-rendering-001
+- Verified story 001 acceptance criteria against existing implementation (commits 7b80d0b and follow-ups): `T` and `Section` in `moduleMdxComponents`, `PageMessagesProvider` context, dev-only `MissingMessageKey`, and unit tests for lookup plus component rendering.
+- Fixed `tsconfig.json` Biome formatting so `bun run lint` passes.
+- Files changed: `tsconfig.json`
 - **Learnings for future iterations:**
-  - Patterns discovered: spread `baseRecordShape` into each kind schema; export both Zod schemas and `z.infer` types from one module.
-  - Gotchas encountered: Biome format must run before `biome check` passes on multi-line `z.enum` declarations.
-  - Useful context: no `package.json` existed on `main` yet — this work item introduces the first application toolchain files.
+  - Stories 001–003 were already implemented on the branch; PRD `passes` flags were out of sync with git history.
+  - Stub components (`TagPillList`, `CitationList`, `DerivedRelatedDocs`) return null—stories 004–006 still need real implementations.
+  - Use `bun install` before running checks in a fresh worktree.
 ---
 
-## 2026-06-02T14:32:00Z - content-registry-validation-002
-- Added Zod schemas and inferred types for `PageFrontmatter`, `PageMessages`, and `PageAssetConfig` (via `pageAssetSchema` discriminated union) aligned with `docs/data-model.md`.
-- Frontmatter requires `kind`, `registryId`, `messageNamespace`, `assetNamespace`, `tags`, `status`, and `updatedAt`; messages require `title` and `description` with optional nested `sections`, `callouts`, and `assets` alt/caption keys.
-- Asset config validates image, graph, chart, table, and code-schema variants with required keys per type.
-- Added focused unit tests for valid baseline-shaped payloads and invalid frontmatter/messages/asset config failures.
-- Files changed: `src/lib/content/schemas.ts`, `src/lib/content/schemas.test.ts`
+## 2026-06-02T20:55:10Z - docs-template-rendering-002
+- Verified asset resolution stack (`PageAsset`, `parsePageAssetConfig`, dev `MissingAssetId`) already on branch; wired `ModuleComparisonTable` through `PageAsset` so GQA `comparisonTable` resolves from colocated `assets.json` with caption message keys.
+- Added GQA colocated asset/message validation test in `module-page.test.ts`.
+- Files changed: `src/features/models/components/ModuleComparisonTable.tsx`, `src/lib/content/module-page.test.ts`
 - **Learnings for future iterations:**
-  - Patterns discovered: use `z.discriminatedUnion("type", [...])` for page assets; reuse `registryStatusSchema` in page frontmatter.
-  - Gotchas encountered: `pageKindSchema` is narrower than `registryKindSchema` (docs pages only, no tag/citation/graph).
-  - Useful context: `docs/templates/module.*` files are good reference shapes for baseline page content in later stories.
+  - `ModuleGraph` and `ModuleComparisonTable` are thin wrappers over `PageAsset`; prefer that pattern for any new module MDX asset slots.
+  - GQA page asset alt/caption keys live under `messages.assets.*` nested object, referenced by `altKey` / `captionKey` in `assets.json`.
+  - No PR exists yet on this branch; create only when all PRD stories pass.
 ---
 
-## 2026-06-02T15:10:00Z - content-registry-validation-003
-- Implemented `loadRegistry()` with `byId`, `bySlug`, and `tagsById` indexes, per-directory Zod validation, and `RegistryLoadError` with structured duplicate id/slug details.
-- Seeded Phase 1 baseline registry JSON under `src/content/registry/` so loader tests can resolve `module.grouped-query-attention`, `tag.attention`, and `citation.gqa-paper` (story 004 may refine copy only).
-- Added unit tests for baseline loading and duplicate detection via injectable `registryRoot` temp fixtures.
-- Files changed: `src/lib/content/registry.ts`, `src/lib/content/registry.test.ts`, `src/content/registry/modules/grouped-query-attention.json`, `src/content/registry/tags/attention.json`, `src/content/registry/citations/gqa-paper.json`
+## 2026-06-02T21:00:30Z - docs-template-rendering-003
+- Verified story 003 acceptance: GQA `page.mdx` matches module template, title/problem/core idea from message keys, `ModuleMetadataCard` and `ModuleAtAGlance` from registry, production build includes `/docs/modules/grouped-query-attention`, HTTP 200 on `next start`.
+- Added `loadModulePage` integration test rendering message-driven opening copy and registry-backed cards.
+- Files changed: `src/lib/content/module-page.test.ts`
 - **Learnings for future iterations:**
-  - Patterns discovered: default registry root via `join(import.meta.dir, "../../content/registry")`; duplicate detection runs after all files parse so errors list every conflicting path.
-  - Gotchas encountered: loader tests need real JSON on disk or a temp `registryRoot` — cannot test indexes without filesystem fixtures.
-  - Useful context: baseline JSON shapes match `schemas.test.ts` `validBaseFields`; citation id is `citation.gqa-paper` with file `gqa-paper.json`.
+  - Story 003 was largely landed in commit `02ebe67`; PRD `passes` flag was out of sync until this iteration.
+  - Use `createElement` with `children` in props when testing client `ModulePageProviders` from `.test.ts` files (no JSX in `.ts`).
+  - Stub components (`TagPillList`, `CitationList`, `DerivedRelatedDocs`) still return null—stories 004–006 remain.
 ---
 
-## 2026-06-02T16:05:00Z - content-registry-validation-004
-- Confirmed Phase 1 baseline registry JSON for `module.grouped-query-attention`, `tag.attention`, and `citation.gqa-paper` (seeded in story 003) meets story acceptance: published status, attention module fields, tag category/aliases, and module→citation cross-reference.
-- Added `baseline-records.test.ts` to parse each committed registry file from disk and assert `safeParse` success plus key field expectations.
-- Files changed: `src/lib/content/baseline-records.test.ts`
+## 2026-06-03T01:11:03Z - docs-template-rendering-004
+- Implemented `TagPillList` with registry-backed tags (`getRegistryTags`), explicit `tags` prop for blog MDX, keyboard-focusable `Link` pills to `/tags/<slug>`, and empty output when no tags.
+- Added `formatTagLabel` / `tagPageHref` in `src/lib/content/tags.ts`, unit tests for component and registry helpers, and GQA module-page integration assertions for tag hrefs.
+- Ignored `.next` in `biome.json` so lint passes after local `next build`.
+- Files changed: `src/features/docs/components/TagPillList.tsx`, `TagPillList.test.tsx`, `src/lib/content/tags.ts`, `tags.test.ts`, `registry.ts`, `registry.test.ts`, `module-page.test.ts`, `biome.json`
 - **Learnings for future iterations:**
-  - Patterns discovered: validate on-disk registry JSON in tests separate from loader tests when a story requires “passes Zod when parsed directly.”
-  - Gotchas encountered: baseline JSON was already on the branch from story 003 — story 004 is primarily schema-direct validation and acceptance assertions.
-  - Useful context: registry root for tests is `join(import.meta.dir, "../../content/registry")` from `src/lib/content/`.
+  - Tag landing routes (`/tags/[slug]`) are not implemented yet; pills still use the canonical `/tags/<slug>` href from the architecture contract.
+  - `showDescriptions` is accepted for template compatibility; descriptions need tag registry records in a later story.
+  - `CitationList` and `DerivedRelatedDocs` remain stubs—stories 005–006 next.
 ---
 
-## 2026-06-02T17:25:00Z - content-registry-validation-005
-- Implemented `loadPageMessages(pageDirectory, locale)` with Zod validation, `MessageLoadError` structured details, and explicit error when default locale `en` is missing.
-- Seeded baseline `messages/en.json` for grouped-query-attention (title, description, problemStatement, coreIdea, sections, callouts, assets keys) so loader tests resolve committed page content.
-- Files changed: `src/lib/content/messages.ts`, `src/lib/content/messages.test.ts`, `src/content/docs/modules/grouped-query-attention/messages/en.json`
+## 2026-06-03T12:00:00Z - docs-template-rendering-005
+- Implemented `CitationList` with registry-backed `citationIds` or explicit `citationIds` prop, MLA text from citation records, and outbound links (`target="_blank"`, `rel="noopener noreferrer"`).
+- Added `citationRecordSchema`, `src/content/registry/citations/gqa-paper.json`, `src/lib/content/citations.ts`, and unit/integration tests.
+- Files changed: `CitationList.tsx`, `CitationList.test.tsx`, `citations.ts`, `citations.test.ts`, `schemas.ts`, `registry.ts`, `registry.test.ts`, `gqa-paper.json`, `module-page.test.ts`
 - **Learnings for future iterations:**
-  - Patterns discovered: export `groupedQueryAttentionPageDir` constant for baseline page tests; message path is always `<pageDir>/messages/<locale>.json`.
-  - Gotchas encountered: run `bun run format` before lint when adding multi-line function calls Biome wants on one line.
-  - Useful context: full page bundle (MDX, assets.json) is story 007; story 005 only needs messages for loader proof.
+  - Citation records reuse `baseRecordShape` fields; MLA is stored pre-formatted on the record (`mla` field).
+  - Empty `citationIds` omits the list (`null`)—References section heading still comes from `Section` + message keys.
+  - `DerivedRelatedDocs` remains a stub—story 006 next.
+  - `ModulePageProviders` tests in `.ts` files need `children` in props plus `biome-ignore` for `noChildrenProp` under current React 19 typings.
 ---
 
-## 2026-06-02T18:40:00Z - content-registry-validation-006
-- Implemented `loadPageAssets` and `resolvePageAsset` with Zod validation, `AssetLoadError` structured details, and explicit errors for missing `assets.json` and unknown asset ids.
-- Seeded baseline `assets.json` for grouped-query-attention with `computeFlow` graph asset (`react-flow` / `mermaid`) and message keys aligned with `messages/en.json`.
-- Added unit tests for baseline load, `computeFlow` resolution, and error paths via temp page fixtures.
-- Files changed: `src/lib/content/assets.ts`, `src/lib/content/assets.test.ts`, `src/content/docs/modules/grouped-query-attention/assets.json`
+## 2026-06-03T01:35:00Z - docs-template-rendering-006
+- Implemented `DerivedRelatedDocs` with Phase 1 `same-variant-group` derivation (`deriveSameVariantGroupPeers`, `deriveRelatedDocGroups`), per-link reason labels, and omission of empty groups and unsupported group ids.
+- Added registry peers `multi-query-attention` and `multi-head-attention` sharing GQA `variantGroup`, plus unit/component/integration tests.
+- Files changed: `DerivedRelatedDocs.tsx`, `DerivedRelatedDocs.test.tsx`, `related-docs.ts`, `related-docs.test.ts`, `registry.ts`, `registry.test.ts`, `module-page.test.ts`, `multi-query-attention.json`, `multi-head-attention.json`
 - **Learnings for future iterations:**
-  - Patterns discovered: mirror `messages.ts` IO/validation split; `resolvePageAsset` reuses `loadPageAssets` and lists `availableIds` on unknown id.
-  - Gotchas encountered: graph assets need narrowing (`asset.type === "graph"`) in tests to access renderer fields on the discriminated union.
-  - Useful context: baseline `graphId` is `graph.grouped-query-attention-compute-flow`; full MDX page bundle remains story 007.
----
-
-## 2026-06-02T19:47:50Z - content-registry-validation-001
-- Added `conceptTypeSchema`, `conceptRecordSchema`, and `registryRecordSchema` (`z.discriminatedUnion("kind", ...)`) aligned with `docs/data-model.md` Phase 1 concept fields (`conceptType`, `prerequisiteIds`, `explainsIds`).
-- Extended schema tests for valid concept fixtures, invalid concept payloads, and discriminated-union parsing of tag records.
-- Files changed: `src/lib/content/schemas.ts`, `src/lib/content/schemas.test.ts`
-- **Learnings for future iterations:**
-  - Patterns discovered: export `conceptRecordSchema` alongside module/tag/citation; use `registryRecordSchema` when validating unknown JSON before routing to a kind-specific loader directory.
-  - Gotchas encountered: avoid exporting a second `RegistryRecord` type from `schemas.ts` — `registry.ts` already defines that union for loaded records (story 002 will add concept to the loader).
-  - Useful context: page/message/asset schemas from the prior branch commit already satisfy story 001 page-schema criteria; this iteration closed the missing concept registry schema gap.
----
-
-## 2026-06-02T19:52:23Z - content-registry-validation-002
-- Extended `loadRegistry()` to read and validate `concepts/` with `conceptRecordSchema`, include `ConceptRecord` in `RegistryRecord`, and expose `tagsBySlug` for tag slug resolution alongside existing `byId`, `bySlug`, and `tagsById` maps.
-- Added empty `src/content/registry/concepts/` directory and updated registry/validation test fixtures to always create a `concepts` subdirectory.
-- Files changed: `src/lib/content/registry.ts`, `src/lib/content/registry.test.ts`, `src/lib/content/validate-registry.ts`, `src/lib/content/validate-registry.test.ts`, `src/content/registry/concepts/.gitkeep`
-- **Learnings for future iterations:**
-  - Patterns discovered: `tagsBySlug` is tag-only; `bySlug` still resolves any record kind — use `tagsBySlug` when tag references must not collide with module slugs.
-  - Gotchas encountered: temp registry fixtures without `concepts/` cause `loadRegistry` to fail before relationship validation runs.
-  - Useful context: `concept.token` baseline JSON is story 003; story 002 only requires the loader path and indexes.
----
-
-## 2026-06-02T19:56:15Z - content-registry-validation-003
-- Added committed Phase 1 starter registry records: `concept.token` (`concepts/token.json`), `tag.kv-cache` for module tag resolution, and updated `module.grouped-query-attention` tags to `attention` and `kv-cache`.
-- Extended `baseline-records.test.ts` and `registry.test.ts` to assert schema validity, variantGroup, and cross-reference resolution via `loadRegistry()`.
-- Files changed: `src/content/registry/concepts/token.json`, `src/content/registry/tags/kv-cache.json`, `src/content/registry/modules/grouped-query-attention.json`, `src/lib/content/baseline-records.test.ts`, `src/lib/content/registry.test.ts`
-- **Learnings for future iterations:**
-  - Patterns discovered: any tag slug referenced on a registry record needs a matching `tag.<slug>` JSON file in Phase 1 validation; use `parentTagId` for shallow tag hierarchies (`kv-cache` → `attention`).
-  - Gotchas encountered: `optimizes` strings are not validated as tag records — only the `tags` array requires tag registry resolution.
-  - Useful context: five committed registry JSON files form the Phase 1 baseline; glossary page colocated content is story 004.
----
-
-## 2026-06-02T20:00:46Z - content-registry-validation-004
-- Added Phase 1 colocated fixtures for the token glossary at `src/content/docs/glossary/token/` (`messages/en.json` with concept-template sections, `assets.json` with `conceptMap` graph and message-backed alt/caption keys).
-- Exported `tokenGlossaryPageDir` from `messages.ts`; extended message/asset loader tests and added `baseline-page-fixtures.test.ts` proving both grouped-query-attention and token pages meet module/concept template expectations.
-- Files changed: `src/content/docs/glossary/token/messages/en.json`, `src/content/docs/glossary/token/assets.json`, `src/lib/content/messages.ts`, `src/lib/content/messages.test.ts`, `src/lib/content/assets.test.ts`, `src/lib/content/baseline-page-fixtures.test.ts`
-- **Learnings for future iterations:**
-  - Patterns discovered: glossary pages use `src/content/docs/glossary/<slug>/` per `prd.md`; concept-template sections differ from module-template (`simpleExample`, `whereItAppears`, `commonConfusions` vs `whatItOptimizes`, `howItWorks`).
-  - Gotchas encountered: grouped-query-attention fixtures were already present from earlier stories — story 004 work is primarily the token glossary directory plus cross-page fixture tests.
-  - Useful context: `page.mdx` for token glossary is not required for story 004; validation CLI discovers pages via `page.mdx` only (story 007).
----
-
-## 2026-06-02T20:03:22Z - content-registry-validation-005
-- Verified story 005 already implemented on branch (`fe4ffd5`): `loadPageMessages` with Zod validation, `MessageLoadError` details, baseline loads for grouped-query-attention and token glossary, and error-path tests for missing `en`, invalid JSON, and schema failures.
-- Marked `content-registry-validation-005` as `passes: true` in local `prd.json` (no additional code changes required this iteration).
-- Files changed (prior commits): `src/lib/content/messages.ts`, `src/lib/content/messages.test.ts`, `src/content/docs/modules/grouped-query-attention/messages/en.json`; token glossary messages added in story 004 commit `f28edba`.
-- **Learnings for future iterations:**
-  - Patterns discovered: when loader code lands in an earlier commit than PRD updates, verify acceptance with `bun test` and mark PRD locally without a no-op code commit.
-  - Gotchas encountered: `prd.json` on disk can lag behind branch history — always cross-check `git log` for story-id commits before re-implementing.
-  - Useful context: story 006 still needs runtime altKey resolution against messages (validate-registry may already check keys; asset loader does not yet resolve strings).
----
-
-## 2026-06-02T20:05:56Z - content-registry-validation-006
-- Added `getMessageString` in `messages.ts` for dot-path message key resolution.
-- Added `resolvePageAssetWithMessages`, `validateAssetMessageKeys`, and `assetMessageKeys` in `assets.ts`; `AssetLoadError` now includes `missing-message-key` details when alt/caption keys are absent from default-locale messages.
-- Refactored `validate-registry.ts` to reuse `getMessageString` and `assetMessageKeys` from the asset loader module.
-- Extended asset and baseline fixture tests for graph altKey resolution on both Phase 1 pages, image altKey success, and missing altKey failure.
-- Files changed: `src/lib/content/messages.ts`, `src/lib/content/assets.ts`, `src/lib/content/assets.test.ts`, `src/lib/content/validate-registry.ts`, `src/lib/content/baseline-page-fixtures.test.ts`
-- **Learnings for future iterations:**
-  - Patterns discovered: `resolvePageAsset` returns raw config keys; call `resolvePageAssetWithMessages` when MDX renderers need validated message-backed alt/caption text.
-  - Gotchas encountered: image `altKey` is required by schema — missing-key tests need both `assets.json` and `messages/en.json` in the temp page directory.
-  - Useful context: graph assets already enforce `webRenderer` and `printRenderer` via `pageAssetSchema`; message key validation applies to optional `altKey`/`captionKey` on any asset type.
----
-
-## 2026-06-02T20:23:53Z - content-registry-validation-007
-- Completed registry validation CLI story: `validateRegistryContent()` now validates `concepts/` references, always checks Phase 1 colocated messages/assets for page dirs without `page.mdx` (token glossary), and refactors MDX page validation through `validateColocatedPageBundle`.
-- Extended `validate-registry.test.ts` with duplicate-id, missing message-key (page path in error), and token-glossary Phase 1 validation coverage; documented `make validate-data` in the Makefile.
-- Files changed: `src/lib/content/validate-registry.ts`, `src/lib/content/validate-registry.test.ts`, `Makefile`
-- **Learnings for future iterations:**
-  - Patterns discovered: run `validateColocatedPageBundle` before MDX-specific checks; skip Phase 1 dirs already validated via discovered `page.mdx` to avoid duplicate errors.
-  - Gotchas encountered: token glossary has no `page.mdx` — relationship validation alone does not exercise colocated loaders until `phase1PageDirectories` is enforced.
-  - Useful context: `scripts/validate-registry.ts` is the CI entrypoint; `make validate-data` and README list the command for local/CI use.
+  - Unsupported `groups` values in MDX templates are ignored until their derivation logic ships; templates can list future groups without breaking render.
+  - Peer module titles come from `aliases[0]` via `moduleDisplayTitle`; pages without published MDX still link to canonical `/docs/modules/<slug>`.
+  - All six PRD stories are complete; open a PR when ready for review.
 ---

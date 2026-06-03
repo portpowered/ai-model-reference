@@ -1,12 +1,19 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import fixture from "@/lib/content/__fixtures__/page-messages.json";
+import {
+  lookupMessage,
+  MissingMessageKeyError,
+  resolveMessage,
+} from "./messages";
 import {
   groupedQueryAttentionPageDir,
   loadPageMessages,
   MessageLoadError,
   tokenGlossaryPageDir,
-} from "./messages";
+} from "./page-messages-load";
+import type { PageMessages } from "./schemas";
 
 const validMessages = {
   title: "Grouped-Query Attention",
@@ -20,6 +27,8 @@ const validMessages = {
     },
   },
 };
+
+const lookupFixture = fixture as PageMessages;
 
 describe("loadPageMessages", () => {
   test("loads baseline grouped-query-attention messages for locale en", async () => {
@@ -106,5 +115,62 @@ describe("loadPageMessages errors", () => {
     expect(messages.sections?.whatItIs?.body).toBe(
       validMessages.sections.whatItIs.body,
     );
+  });
+});
+
+describe("lookupMessage", () => {
+  test("resolves top-level keys", () => {
+    expect(lookupMessage(lookupFixture, "title")).toEqual({
+      ok: true,
+      value: "Grouped-Query Attention",
+    });
+  });
+
+  test("resolves nested section keys with dot paths", () => {
+    expect(lookupMessage(lookupFixture, "sections.whatItIs.title")).toEqual({
+      ok: true,
+      value: "What It Is",
+    });
+    expect(lookupMessage(lookupFixture, "sections.whatItIs.body")).toEqual({
+      ok: true,
+      value:
+        "Grouped-query attention is an attention variant derived from multi-head attention.",
+    });
+  });
+
+  test("reports missing keys", () => {
+    expect(
+      lookupMessage(lookupFixture, "sections.missingSection.title"),
+    ).toEqual({
+      ok: false,
+      key: "sections.missingSection.title",
+      reason: "missing",
+    });
+  });
+
+  test("reports empty string values as empty", () => {
+    const sparse: PageMessages = {
+      title: "",
+      description: "Has description",
+    };
+    expect(lookupMessage(sparse, "title")).toEqual({
+      ok: false,
+      key: "title",
+      reason: "empty",
+    });
+  });
+});
+
+describe("resolveMessage", () => {
+  test("returns the resolved string", () => {
+    expect(resolveMessage(lookupFixture, "coreIdea")).toBe(
+      "GQA lets several query heads share fewer key-value heads.",
+    );
+  });
+
+  test("throws MissingMessageKeyError for missing keys", () => {
+    expect(() =>
+      resolveMessage(lookupFixture, "sections.unknown.body"),
+    ).toThrow(MissingMessageKeyError);
   });
 });

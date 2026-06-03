@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { tokenGlossaryPageDir } from "./messages";
+import { tokenGlossaryPageDir } from "./page-messages-load";
 import {
   validateColocatedPageBundle,
   validateRegistryContent,

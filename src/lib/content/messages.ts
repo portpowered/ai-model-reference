@@ -1,103 +1,72 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
-import { type PageMessages, pageMessagesSchema } from "./schemas";
+import type { PageMessages } from "./schemas";
 
-export type MessageLoadErrorDetail =
-  | { type: "missing-file"; path: string; locale: string }
-  | { type: "parse-error"; path: string; message: string };
+export type MissingMessageReason = "missing" | "empty";
 
-export class MessageLoadError extends Error {
-  readonly details: MessageLoadErrorDetail[];
+export type MessageLookupResult =
+  | { ok: true; value: string }
+  | { ok: false; key: string; reason: MissingMessageReason };
 
-  constructor(message: string, details: MessageLoadErrorDetail[]) {
-    super(message);
-    this.name = "MessageLoadError";
-    this.details = details;
+export class MissingMessageKeyError extends Error {
+  readonly key: string;
+
+  constructor(key: string) {
+    super(`Missing message key: ${key}`);
+    this.name = "MissingMessageKeyError";
+    this.key = key;
   }
 }
 
-export const groupedQueryAttentionPageDir = join(
-  import.meta.dir,
-  "../../content/docs/modules/grouped-query-attention",
-);
+function getNestedValue(root: unknown, key: string): unknown {
+  const segments = key.split(".");
+  let current: unknown = root;
 
-export const tokenGlossaryPageDir = join(
-  import.meta.dir,
-  "../../content/docs/glossary/token",
-);
-
-function messagesFilePath(pageDirectory: string, locale: string): string {
-  return join(pageDirectory, "messages", `${locale}.json`);
-}
-
-export async function loadPageMessages(
-  pageDirectory: string,
-  locale: string,
-): Promise<PageMessages> {
-  const path = messagesFilePath(pageDirectory, locale);
-
-  let raw: string;
-  try {
-    raw = await readFile(path, "utf8");
-  } catch (error) {
-    const code =
-      error && typeof error === "object" && "code" in error
-        ? (error as NodeJS.ErrnoException).code
-        : undefined;
-    if (code === "ENOENT") {
-      const message =
-        locale === "en"
-          ? `Missing required default locale messages file: ${path}`
-          : `Missing messages file for locale "${locale}": ${path}`;
-      throw new MessageLoadError(message, [
-        { type: "missing-file", path, locale },
-      ]);
+  for (const segment of segments) {
+    if (
+      current === null ||
+      current === undefined ||
+      typeof current !== "object"
+    ) {
+      return undefined;
     }
-    const message = error instanceof Error ? error.message : String(error);
-    throw new MessageLoadError(`Failed to read messages file ${path}`, [
-      { type: "parse-error", path, message },
-    ]);
+    current = (current as Record<string, unknown>)[segment];
   }
 
-  let json: unknown;
-  try {
-    json = JSON.parse(raw);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    throw new MessageLoadError(`Invalid JSON in messages file ${path}`, [
-      { type: "parse-error", path, message },
-    ]);
-  }
-
-  const result = pageMessagesSchema.safeParse(json);
-  if (!result.success) {
-    const message = result.error.issues
-      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-      .join("; ");
-    throw new MessageLoadError(
-      `Page messages schema validation failed for ${path}`,
-      [{ type: "parse-error", path, message }],
-    );
-  }
-
-  return result.data;
+  return current;
 }
 
-/** Resolves a dot-separated message key (e.g. `assets.hero.alt`) to a string value. */
-export function getMessageString(
+export function lookupMessage(
   messages: PageMessages,
-  keyPath: string,
-): string | undefined {
-  const parts = keyPath.split(".");
-  let current: unknown = messages;
-  for (const part of parts) {
-    if (current === null || typeof current !== "object") {
-      return undefined;
-    }
-    if (!(part in current)) {
-      return undefined;
-    }
-    current = (current as Record<string, unknown>)[part];
+  key: string,
+): MessageLookupResult {
+  const value = getNestedValue(messages, key);
+
+  if (value === undefined || value === null) {
+    return { ok: false, key, reason: "missing" };
   }
-  return typeof current === "string" ? current : undefined;
+
+  if (typeof value !== "string") {
+    return { ok: false, key, reason: "missing" };
+  }
+
+  if (value.length === 0) {
+    return { ok: false, key, reason: "empty" };
+  }
+
+  return { ok: true, value };
+}
+
+export function resolveMessage(messages: PageMessages, key: string): string {
+  const result = lookupMessage(messages, key);
+  if (result.ok) {
+    return result.value;
+  }
+  throw new MissingMessageKeyError(key);
+}
+
+export function formatMissingMessageKey(
+  key: string,
+  reason: MissingMessageReason,
+): string {
+  const detail = reason === "empty" ? " (empty string)" : "";
+  return `Missing message key: ${key}${detail}`;
 }
