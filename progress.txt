@@ -1,4 +1,5 @@
 ## Codebase Patterns
+- Registry validation negative tests: use temp `registryRoot` + empty `docsRoot` fixtures in `validate-registry.test.ts`; assert `unresolved-reference` for broken `relatedIds`/`citationIds` (message includes `${record.id}`, field name, and missing id) and `unresolved-tag` for unknown tag slugs; baseline passes via `validateRegistryContent()` with no options and `make validate-data`.
 - Fumadocs codegen: `pretypecheck` and `pretest` in `package.json` both run `fumadocs-mdx` so `make typecheck` and `make test` work on fresh clones without a gitignored `.source/` directory; `src/lib/source.ts` imports `../../.source/server`.
 - Home discovery links: `/` must link to `/search`, `/docs/architecture`, `/docs/glossary`, `/docs/glossary/token`, `/tags`, and `/docs/modules/grouped-query-attention` via `HomeBrowseLink` or explicit `Link`; search section uses `HomeSearchEntry` plus a `/search` text link from `home.searchPageLinkTitle`.
 - Primary nav: `getPrimaryNavItems` in `src/components/layout/primary-nav.ts` is the single source for DocsShell links (`/`, `/search`, `/docs/architecture`, `/docs/glossary`, `/tags`); use `PRIMARY_NAV_LINK_CLASS` for ring-token focus styles.
@@ -256,4 +257,15 @@
   - Bun/npm lifecycle hooks: `pretypecheck` runs automatically before `bun run typecheck`; same pattern as existing `pretest`.
   - Worktrees need `bun install` before `make ci`; without `node_modules`, `next build` fails with a misleading Turbopack root error.
   - `make ci` already includes `validate-data`; README previously listed it as a stub—keep docs aligned with Makefile targets.
+---
+
+## 2026-06-04T14:30:00Z - phase-1-fresh-ci-and-smoke-tests-002
+- Added Bun tests proving `validateRegistryContent` fails on missing `relatedIds` targets and unknown registry tag slugs, asserting record id and broken reference in error messages.
+- Confirmed existing negative coverage for `citationIds`, asset message keys, and committed Phase 1 baseline (`make validate-data` / `validateRegistryContent()` with no errors).
+- Ran `make ci` (lint, typecheck, test, build, validate-data) — all exit 0.
+- Files changed: `src/lib/content/validate-registry.test.ts`
+- **Learnings for future iterations:**
+  - `relatedIds` and tag validation already live in `validateRegistryRecordReferences`; story 002 was test coverage, not new validator logic.
+  - Error shapes: `unresolved-reference` uses `${record.id}: ${field} references missing record "${id}"`; `unresolved-tag` uses `${record.id}: tags references unknown tag "${tagRef}"`.
+  - Temp fixture tests need `tags/` and `citations/` dirs plus `attention` tag when module records reference `attention` or citations.
 ---
