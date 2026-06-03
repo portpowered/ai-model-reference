@@ -1,4 +1,6 @@
 import { describe, expect, it } from "bun:test";
+import { renderToStaticMarkup } from "react-dom/server";
+import GlossaryIndexPage from "@/app/(site)/docs/glossary/page";
 import {
   type GlossaryEntry,
   loadPublishedGlossaryEntries,
@@ -63,5 +65,17 @@ describe("glossary index messages", () => {
     expect(messages.glossaryIndex.title).toBe("Glossary");
     expect(messages.glossaryIndex.emptyTitle.length).toBeGreaterThan(0);
     expect(messages.glossaryIndex.emptyDescription.length).toBeGreaterThan(0);
+  });
+});
+
+describe("glossary index page render", () => {
+  it("lists the Phase 1 token glossary entry with title and link", async () => {
+    const page = await GlossaryIndexPage();
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Glossary");
+    expect(html).toContain("Token");
+    expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).not.toContain("No glossary entries yet");
   });
 });

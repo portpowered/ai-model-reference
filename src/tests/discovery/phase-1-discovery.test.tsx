@@ -34,6 +34,7 @@ const PHASE_1_DISCOVERY_ROUTES = [
     path: "/docs/glossary",
     render: () => GlossaryIndexPage(),
     expectInHtml: "Glossary",
+    alsoExpectInHtml: "Token",
   },
   {
     path: "/tags",
