@@ -1,144 +1,96 @@
 {
-  "project": "Model Atlas — Phase 1 Search Experience and Coverage",
-  "branchName": "phase-1-search-experience-and-coverage",
-  "description": "Turn the existing Orama search-document baseline into a usable Phase 1 search experience: global dialog and /search page that query static documents for grouped-query attention and token, display title/summary/kind/tags/URL on every hit, satisfy GQA and token discovery checks, and lock behavior with deterministic Bun tests—without adding Phase 2 glossary pages.",
+  "project": "Model Atlas — Phase 1 Fresh CI and Smoke Tests",
+  "branchName": "phase-1-fresh-ci-and-smoke-tests",
+  "description": "Harden Phase 1 quality gates so make ci passes from a fresh checkout, wire baseline GitHub Actions with Bun lockfile install, extend registry validation and route smoke tests with direct behavioral evidence, and resolve or document the Next.js Turbopack filesystem tracing warning.",
   "context": {
-    "customerAsk": "Phase 1 completion: turn the existing Orama/search-document baseline into a usable search experience for the sample site surface. Implement a search page or dialog entry that queries the static search documents for the Phase 1 records and displays result title, summary, kind, tags, and URL. Search must find grouped-query attention by title, alias GQA, tag attention, and body text KV cache, and must find token by title and body/alias text. Add deterministic Bun tests for the search document builder/index and UI-facing search helper behavior. Do not add Phase 2 glossary pages.",
-    "problem": "Search indexes Phase 1 content and partial tests exist for grouped-query attention, but readers lack a bookmarkable /search results experience, token queries are not covered by API/client tests, result rows omit canonical URLs, and the Phase 1 manual search gate remains incomplete.",
-    "solution": "Extend the existing src/lib/search pipeline and src/features/docs/search UI: add ranking tests for GQA and token, shared result rows showing full metadata, upgrade the global dialog, implement /search with inline query and results using the static Orama client, and wire home/tag handoffs—indexing only published Phase 1 docs pages."
+    "customerAsk": "Phase 1 completion and architectural-checklist hardening: make the quality gates reliable from a fresh checkout and wire baseline CI. Ensure Makefile/package scripts generate Fumadocs source before standalone typecheck when needed, keep make ci as lint, typecheck, test, build, and validate-data, and add a GitHub Actions workflow that installs with Bun's committed lockfile and runs make ci. Add or extend smoke tests that assert the Phase 1 route/content surface exists and that registry validation covers messages, assets, related docs, tags, and citations. Address the current Next/Turbopack filesystem tracing warning if it can be fixed by scoping content loaders cleanly; otherwise document the residual warning in progress or a technical note.",
+    "problem": "Fresh clones fail typecheck without manually running fumadocs-mdx because .source/ is gitignored; GitHub Actions CI is missing; registry validation lacks complete negative test coverage for related docs and tags; and next build emits a Turbopack NFT filesystem tracing warning through content loader import chains.",
+    "solution": "Add pretypecheck Fumadocs generation, preserve make ci as lint/typecheck/test/build/validate-data, add a GitHub Actions workflow running make ci with bun install --frozen-lockfile, extend registry validation and Phase 1 smoke tests with behavioral failure cases, and scope content loaders or document the residual Turbopack warning."
   },
   "acceptanceCriteria": [
-    "Global search dialog opens from shell trigger and keyboard shortcut with loading, empty, and success states.",
-    "/search accepts queries (and optional ?q= / ?tag= prefill) and lists results with title, summary, kind, tags, and URL for each hit.",
-    "Queries GQA, attention, and KV cache (normalized variants) discover grouped-query attention; queries Token, tokens, and tokenizer discover the token glossary.",
-    "Search indexes only published Phase 1 docs pages; no new Phase 2 glossary pages are added.",
-    "Deterministic Bun tests cover buildSearchDocuments, Orama snapshot export, docsSearchApi ranking, createDocsSearchClient, and UI result-meta helpers.",
-    "Result presentation is shared between dialog and /search page using localized message keys.",
+    "After bun install on a fresh clone with no .source/, make typecheck and make ci exit 0 without manual codegen.",
+    "make ci runs lint, typecheck, test, build with Phase 1 static route verification, and validate-data in that order.",
+    "GitHub Actions installs with the committed bun.lock using frozen lockfile semantics and runs make ci on pull requests and pushes to main.",
+    "Registry validation tests demonstrate failure for broken messages, assets, relatedIds, tags, and citations, and success on the Phase 1 baseline.",
+    "Smoke tests render Phase 1 discovery routes and sample docs pages; build route verification fails when a required Phase 1 static route is missing.",
+    "next build produces no Turbopack NFT filesystem-tracing warning, or the residual warning is documented in progress.txt with trace and mitigation notes.",
     "Typecheck, lint, and tests pass via make ci."
   ],
   "userStories": [
     {
-      "id": "phase-1-search-experience-and-coverage-001",
-      "title": "Lock Phase 1 search document builder coverage",
-      "description": "As a maintainer, I need deterministic tests proving Phase 1 search documents include the fields Orama uses for GQA and token discovery.",
+      "id": "phase-1-fresh-ci-and-smoke-tests-001",
+      "title": "Generate Fumadocs source before standalone typecheck",
+      "description": "As a maintainer, I need Fumadocs MDX source generated automatically before typecheck so fresh checkouts do not fail on missing .source/server.",
       "acceptanceCriteria": [
-        "buildSearchDocuments produces grouped-query attention with title Grouped-Query Attention, KV cache in description, GQA alias, attention and kv-cache tags, and GQA/KV-cache body text.",
-        "buildSearchDocuments produces token glossary with title Token, glossary kind, token aliases, and tokenizer/token IDs body text.",
-        "Document count for the default locale matches published docs pages only (no Phase 2 glossary expansion).",
-        "Typecheck passes",
-        "Tests pass"
+        "package.json runs fumadocs-mdx before tsc --noEmit via pretypecheck or equivalent so src/lib/source.ts resolves without manual codegen.",
+        "pretest continues to run fumadocs-mdx so tests remain valid when typecheck is skipped.",
+        "Deleting .source/ then running make typecheck exits 0 after bun install.",
+        "README Quality Gates section documents Fumadocs source generation before typecheck and lists full make ci steps including validate-data.",
+        "Typecheck passes"
       ],
       "priority": 1,
       "passes": true,
       "notes": ""
     },
     {
-      "id": "phase-1-search-experience-and-coverage-002",
-      "title": "Verify Orama snapshot export for Phase 1 records",
-      "description": "As a maintainer, I need a static Orama snapshot that includes every Phase 1 indexed page so static search mode works in CI and production builds.",
+      "id": "phase-1-fresh-ci-and-smoke-tests-002",
+      "title": "Extend registry validation negative coverage",
+      "description": "As a CI maintainer, I need deterministic tests proving make validate-data catches broken messages, assets, related-document references, tags, and citations.",
       "acceptanceCriteria": [
-        "exportOramaIndexSnapshot returns version 1 with Orama payload and documents for grouped-query attention and token URLs.",
-        "Snapshot preserves title, description, kind, tags, and url per indexed document.",
-        "build-search-index script writes generated snapshot successfully when only Phase 1 pages exist.",
+        "A Bun test fails validation when a registry record references a missing relatedIds target, naming the record id and missing related id.",
+        "A Bun test fails validation when a registry record references an unknown tag, naming the record and tag reference.",
+        "Tests continue to cover unresolved citationIds, missing colocated message keys, and missing asset message keys; committed Phase 1 baseline still passes.",
+        "Running make validate-data on the committed tree exits 0.",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 2,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "phase-1-search-experience-and-coverage-003",
-      "title": "Add search API ranking tests for GQA and token queries",
-      "description": "As a maintainer, I need API-level tests that prove Orama ranking finds grouped-query attention and token for the Phase 1 manual gate queries.",
+      "id": "phase-1-fresh-ci-and-smoke-tests-003",
+      "title": "Strengthen Phase 1 route and content smoke tests",
+      "description": "As a maintainer, I want automated smoke tests that prove the Phase 1 browsing and sample content surface renders and build output includes required static routes.",
       "acceptanceCriteria": [
-        "docsSearchApi.search(GQA) ranks grouped-query attention first; title and attention queries include it among results.",
-        "docsSearchApi.search(KV cache), kv cache, and kv-cache each include grouped-query attention among results.",
-        "docsSearchApi.search(Token) ranks token glossary first; tokens and tokenizer queries include token among results.",
-        "docsSearchApi.staticGET returns advanced index payload for the static client.",
+        "Discovery smoke tests render /, /search, /docs/architecture, /docs/glossary, /tags, /tags/attention, /docs/glossary/token, and /docs/modules/grouped-query-attention without throw and assert representative copy or canonical hrefs.",
+        "A test exercises scripts/verify-phase-1-static-routes.ts against a fixture manifest and fails when a required Phase 1 route is absent.",
+        "Tag browse helper smoke asserts grouped-query attention appears under the attention tag for Phase 1 baseline content.",
         "Typecheck passes",
         "Tests pass"
       ],
       "priority": 3,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "phase-1-search-experience-and-coverage-004",
-      "title": "Add UI-facing search client and meta helper tests",
-      "description": "As a maintainer, I need tests on the client wrapper and result-meta helpers so UI regressions are caught without browser automation.",
+      "id": "phase-1-fresh-ci-and-smoke-tests-004",
+      "title": "Add baseline GitHub Actions CI workflow",
+      "description": "As a repository maintainer, I want pull requests enforced by automated CI running the same make ci path as local development.",
       "acceptanceCriteria": [
-        "createDocsSearchClient ranks grouped-query attention for GQA and includes it for attention and KV cache using mocked static export.",
-        "createDocsSearchClient includes token glossary for Token, tokens, and tokenizer queries using mocked static export.",
-        "resolveSearchResultMeta returns kind, description, and tags for grouped-query attention and token URLs.",
-        "getMatchedTags highlights attention when the query matches tag slugs or aliases.",
-        "Typecheck passes",
-        "Tests pass"
+        ".github/workflows/ci.yml triggers on pull requests and pushes to main.",
+        "The workflow uses oven-sh/setup-bun and installs with the committed bun.lock using frozen lockfile semantics.",
+        "The workflow runs make ci from the repository root and fails the job when any step exits non-zero.",
+        "The baseline workflow does not require secrets for lint, typecheck, test, build, and validate-data.",
+        "README notes that CI runs make ci via GitHub Actions.",
+        "Typecheck passes"
       ],
       "priority": 4,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
-      "id": "phase-1-search-experience-and-coverage-005",
-      "title": "Shared search result presentation with full metadata",
-      "description": "As a reader, I want every search hit to show title, summary, kind, tags, and URL so I can choose the right page before navigating.",
+      "id": "phase-1-fresh-ci-and-smoke-tests-005",
+      "title": "Resolve or document Turbopack filesystem tracing warning",
+      "description": "As a maintainer, I want the Next.js build free of unintended whole-project filesystem tracing warnings, or a clear record of why a residual warning remains.",
       "acceptanceCriteria": [
-        "Shared component renders page results with title, summary from meta description, localized kind label, matched tag chips, and canonical URL path.",
-        "Non-page hits fall back to default Fumadocs list item without layout breakage.",
-        "Kind labels and empty copy resolve from localized UI messages.",
-        "Unit test asserts rendered output includes URL, kind label, and summary for fixture meta.",
+        "Running bun run build no longer prints the Turbopack NFT whole-project tracing warning from content loader import chains, or progress.txt documents the residual warning with import trace, root cause, attempted fix, and follow-up recommendation.",
+        "If code changes are made, runtime filesystem loaders scope reads to src/content or an equivalent static subfolder rather than open-ended process.cwd() traversal.",
+        "Grouped-query attention and token glossary pages still render successfully after any loader scoping change.",
         "Typecheck passes",
-        "Tests pass"
+        "Tests pass when loader scoping behavior changes."
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
-    },
-    {
-      "id": "phase-1-search-experience-and-coverage-006",
-      "title": "Upgrade global search dialog experience",
-      "description": "As a reader, I want to open search from anywhere via keyboard shortcut and see rich, accessible results immediately.",
-      "acceptanceCriteria": [
-        "ModelAtlasSearchDialog uses shared result component with loading, empty, and success states via localized messages.",
-        "Cmd/Ctrl+K opens dialog; Escape closes; arrow keys navigate; focus rings use ring token.",
-        "Query GQA shows grouped-query attention with kind, summary, tags, and URL visible before navigation.",
-        "SearchTrigger remains in docs-shell header on discovery routes.",
-        "Typecheck passes",
-        "Verify in browser: keyboard shortcut opens search, GQA query shows full metadata for grouped-query attention."
-      ],
-      "priority": 6,
-      "passes": false,
-      "notes": ""
-    },
-    {
-      "id": "phase-1-search-experience-and-coverage-007",
-      "title": "Implement /search page with inline query and results",
-      "description": "As a reader, I want a bookmarkable search page that runs the same static index as the dialog and lists full result metadata.",
-      "acceptanceCriteria": [
-        "/search renders in DocsShell with localized title and description from message keys.",
-        "Page search input uses static Orama client with debounced updates and shared result component showing title, summary, kind, tags, and URL.",
-        "Selecting a result navigates to the docs URL; ?q= prefills input; optional ?tag= seeds attention-style queries.",
-        "Empty state suggests GQA or /tags/attention; loading state avoids layout shift.",
-        "Typecheck passes",
-        "Verify in browser: /search?q=GQA and /search?q=Token show correct top results with visible URL paths."
-      ],
-      "priority": 7,
-      "passes": false,
-      "notes": ""
-    },
-    {
-      "id": "phase-1-search-experience-and-coverage-008",
-      "title": "Wire discovery handoffs to search entry",
-      "description": "As a reader coming from home or tag landings, I want one-click paths into search with a helpful prefilled query.",
-      "acceptanceCriteria": [
-        "Home search entry opens dialog or links to /search consistently with the documented primary entry pattern.",
-        "Tag search handoff on /tags/attention prefills attention in dialog or /search.",
-        "Primary navigation includes Search link to /search when sibling entry-routes nav is present.",
-        "Typecheck passes",
-        "Verify in browser: tag attention handoff prefills attention and surfaces grouped-query attention in results."
-      ],
-      "priority": 8,
       "passes": false,
       "notes": ""
     }
