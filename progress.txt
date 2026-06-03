@@ -21,6 +21,7 @@
 - UI search client tests: `src/tests/search/search-client.test.ts` mocks `docsSearchApi.staticGET()` via `globalThis.fetch` and asserts `createDocsSearchClient` ranking; mirror token/GQA coverage from API tests in `search-result-meta.test.ts` for `resolveSearchResultMeta` / `getMatchedTags` (token glossary meta uses `attention` tag, not a `token` slug).
 - Global search UI: `SearchDialog`/`SearchTrigger` register via `AppProviders` → `RootProvider` in `src/app/layout.tsx`; `DocsShell` renders `SearchTrigger` in the top nav for every `(site)` route; `HomeSearchEntry` opens the same dialog from `/`.
 
+- Turbopack NFT containment: when stories 002–004 eliminate the whole-project tracing warning, keep only `turbopack.root` in `next.config.ts`; do not add `outputFileTracing*` containment or a `progress.txt` residual-warning entry.
 - Glossary listing: `loadPublishedGlossaryEntries` and `listPublishedGlossaryPages` both use `loadPublishedDocsPages` via dynamic import in `glossary.ts`; the duplicate `glossary-pages.ts` scanner was removed.
 - Glossary index at `/docs/glossary` uses `loadPublishedGlossaryEntries` (filters `kind: glossary`); empty state mirrors architecture index with home link + `SearchTrigger`.
 - Tags index at `/tags` uses `loadPublishedTagIndexGroups` from published `tag` registry records; localized title/summary live in `src/content/registry/tags/messages/<slug>.<locale>.json`; `loadRegistry` skips `messages` subdirectories.
@@ -345,4 +346,14 @@
   - `glossary-pages.ts` was test-only before consolidation; production already used `loadPublishedGlossaryEntries` from the glossary index route.
   - `listPublishedGlossaryPages` maps `docsSlug` to short glossary slugs (`glossary/token` → `token`) for backward-compatible test fixtures.
   - Story 005 should confirm warning-free build or add minimal `next.config` containment; story 006 runs full Phase 1 verification.
+---
+
+## 2026-06-03T18:51:01Z - phase-1-turbopack-tracing-warning-cleanup-005
+- Verified stories 002–004 eliminated the Turbopack NFT whole-project filesystem tracing warning: `make ci` (lint, typecheck, test including `next-build-tracing-warning.test.ts`, build, validate-data) exits 0 with no guarded warning patterns in build output.
+- Confirmed `next.config.ts` needs no containment beyond existing `turbopack.root`; no residual-warning entry added to progress per PRD.
+- No code changes required for this story outcome.
+- Files changed: none (verification only); PRD/progress tracking updated locally.
+- **Learnings for future iterations:**
+  - Story 005 completion path when scoping works: verification via `make ci` and the build regression test is sufficient; avoid adding `outputFileTracing*` unless the regression gate still fails after 002–004.
+  - Story 006 should run final `make ci` and confirm discovery routes unchanged after this branch’s loader work.
 ---
