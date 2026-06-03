@@ -37,6 +37,31 @@ describe("SearchResultMetaDetails", () => {
   });
 });
 
+describe("SearchResultListItem GQA dialog row", () => {
+  test("GQA page hit meta panel shows module kind, summary, and URL", async () => {
+    const messages = loadUiMessages();
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+    const meta = metaByUrl[SAMPLE_MODULE_URL];
+    expect(meta).toBeDefined();
+
+    const html = renderToStaticMarkup(
+      <SearchResultMetaDetails
+        url={SAMPLE_MODULE_URL}
+        query="GQA"
+        meta={meta}
+        messages={messages}
+      />,
+    );
+
+    expect(html).toContain("Module");
+    expect(html).toContain(SAMPLE_MODULE_URL);
+    expect(html).toContain(meta.description);
+    expect(meta.tags).toContain("attention");
+  });
+});
+
 describe("isPageSearchItem", () => {
   test("only page hits use the rich metadata panel", () => {
     expect(

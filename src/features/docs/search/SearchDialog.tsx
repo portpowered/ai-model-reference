@@ -31,8 +31,11 @@ export function ModelAtlasSearchDialog({
   messages,
 }: ModelAtlasSearchDialogProps) {
   const { search, setSearch, query } = useModelAtlasDocsSearch();
+  const hasQuery = search.trim().length > 0;
   const items = query.data && query.data !== "empty" ? query.data : null;
-  const isEmpty = items !== null && items.length === 0;
+  const showIdle = !hasQuery && !query.isLoading;
+  const showEmptyResults =
+    hasQuery && !query.isLoading && items !== null && items.length === 0;
 
   useEffect(() => {
     if (!open) {
@@ -59,10 +62,21 @@ export function ModelAtlasSearchDialog({
           <SearchDialogInput placeholder={messages.search.placeholder} />
           <SearchDialogClose>{messages.search.close}</SearchDialogClose>
         </SearchDialogHeader>
+        {showIdle ? (
+          <output
+            className="block py-12 text-center text-sm text-fd-muted-foreground"
+            data-testid="search-dialog-idle"
+          >
+            {messages.search.idle}
+          </output>
+        ) : null}
         <SearchDialogList
           items={items}
           Empty={() => (
-            <output className="block py-12 text-center text-sm text-fd-muted-foreground">
+            <output
+              className="block py-12 text-center text-sm text-fd-muted-foreground"
+              data-testid="search-dialog-empty"
+            >
               {query.isLoading
                 ? messages.search.loading
                 : messages.search.noResults}
@@ -79,8 +93,11 @@ export function ModelAtlasSearchDialog({
             />
           )}
         />
-        {isEmpty ? null : (
-          <SearchDialogFooter className="text-xs text-fd-muted-foreground">
+        {showIdle || showEmptyResults ? null : (
+          <SearchDialogFooter
+            className="text-xs text-fd-muted-foreground"
+            role={query.isLoading ? "status" : undefined}
+          >
             {query.isLoading ? messages.search.loading : null}
           </SearchDialogFooter>
         )}

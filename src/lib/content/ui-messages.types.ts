@@ -3,6 +3,7 @@ export type UiMessages = {
     open: string;
     placeholder: string;
     close: string;
+    idle: string;
     noResults: string;
     loading: string;
     shortcut: string;
