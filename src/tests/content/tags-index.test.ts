@@ -1,4 +1,6 @@
 import { describe, expect, it } from "bun:test";
+import { renderToStaticMarkup } from "react-dom/server";
+import TagsIndexPage from "@/app/(site)/tags/page";
 import {
   groupTagIndexEntriesByCategory,
   loadPublishedTagIndexEntries,
@@ -114,5 +116,20 @@ describe("tags index messages", () => {
     expect(messages.tagsIndex.title).toBe("Tags");
     expect(messages.tagsIndex.description.length).toBeGreaterThan(0);
     expect(messages.tagCategories.architecture).toBe("Architecture");
+  });
+});
+
+describe("tags index page render", () => {
+  it("lists Phase 1 attention and kv-cache tags with category labels and landing links", async () => {
+    const page = await TagsIndexPage();
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Tags");
+    expect(html).toContain("Attention");
+    expect(html).toContain('href="/tags/attention"');
+    expect(html).toContain("Module type");
+    expect(html).toContain("KV Cache");
+    expect(html).toContain('href="/tags/kv-cache"');
+    expect(html).toContain("Inference");
   });
 });
