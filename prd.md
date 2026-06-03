@@ -133,12 +133,12 @@ Ship Phase 1 discovery **routes and navigation**: Model Atlas home at `/`, searc
 
 **Acceptance Criteria:**
 
-- [ ] `/tags/attention` resolves the `attention` tag record and renders resources grouped by kind via `TagResourceList` (or equivalent feature component under `src/features/docs/components`).
-- [ ] Grouped-query attention appears under modules with title, summary, and link to `/docs/modules/grouped-query-attention`.
-- [ ] Token glossary or token concept appears when tagged `attention` in registry/frontmatter.
-- [ ] Page includes a search handoff link to `/search` (optionally `?tag=attention`) and uses message keys for headings and empty copy.
-- [ ] Typecheck passes
-- [ ] Verify in browser: `/tags/attention` lists GQA and related attention-tagged resources.
+- [x] `/tags/attention` resolves the `attention` tag record and renders resources grouped by kind via `TagResourceList` (or equivalent feature component under `src/features/docs/components`).
+- [x] Grouped-query attention appears under modules with title, summary, and link to `/docs/modules/grouped-query-attention`.
+- [x] Token glossary or token concept appears when tagged `attention` in registry/frontmatter.
+- [x] Page includes a search handoff link to `/search` (optionally `?tag=attention`) and uses message keys for headings and empty copy.
+- [x] Typecheck passes
+- [x] Verify in browser: `/tags/attention` lists GQA and related attention-tagged resources.
 
 ### phase-1-entry-and-index-routes-008: Align glossary index with shell and message keys
 
