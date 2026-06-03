@@ -1,9 +1,9 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { MissingMessageKey } from "@/features/docs/components/MissingMessageKey";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
 import { lookupMessage } from "@/lib/content/messages";
-import type { ReactNode } from "react";
 
 export function Section({
   id,

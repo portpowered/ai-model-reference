@@ -1,9 +1,9 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { PageAssetsProvider } from "@/features/docs/components/page-assets-context";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import type { PageAssetConfig, PageMessages } from "@/lib/content/schemas";
-import type { ReactNode } from "react";
 
 export function ModulePageProviders({
   messages,

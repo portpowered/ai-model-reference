@@ -1,4 +1,4 @@
-import type { PageMessages } from "@/lib/content/schemas";
+import type { PageMessages } from "./schemas";
 
 export type MissingMessageReason = "missing" | "empty";
 

@@ -1,4 +1,4 @@
-import { getModuleById } from "@/lib/content/registry";
+import { getModuleById } from "@/lib/content/registry-runtime";
 import type { ModuleRecord } from "@/lib/content/schemas";
 
 function formatLabel(value: string): string {

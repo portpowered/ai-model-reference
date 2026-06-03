@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
+import { renderToStaticMarkup } from "react-dom/server";
 import { PageAsset } from "@/features/docs/components/PageAsset";
 import { PageAssetsProvider } from "@/features/docs/components/page-assets-context";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import assetFixture from "@/lib/content/__fixtures__/page-assets.json";
 import messageFixture from "@/lib/content/__fixtures__/page-messages.json";
 import type { PageAssetConfig, PageMessages } from "@/lib/content/schemas";
-import { renderToStaticMarkup } from "react-dom/server";
 
 const assets = assetFixture as PageAssetConfig;
 const messages = messageFixture as PageMessages;

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { ModuleMetadataCard } from "@/features/models/components/ModuleMetadataCard";
 import { renderToStaticMarkup } from "react-dom/server";
+import { ModuleMetadataCard } from "@/features/models/components/ModuleMetadataCard";
 
 describe("ModuleMetadataCard", () => {
   test("renders registry-backed module metadata", () => {

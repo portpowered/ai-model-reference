@@ -1,6 +1,6 @@
 import {
-  type MissingAssetReason,
   formatMissingAssetId,
+  type MissingAssetReason,
 } from "@/lib/content/assets";
 
 export function MissingAssetId({

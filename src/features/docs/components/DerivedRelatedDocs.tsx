@@ -1,6 +1,9 @@
-import { getModuleById, listModuleRecords } from "@/lib/content/registry";
-import { deriveRelatedDocGroups } from "@/lib/content/related-docs";
 import Link from "next/link";
+import {
+  getModuleById,
+  listModuleRecords,
+} from "@/lib/content/registry-runtime";
+import { deriveRelatedDocGroups } from "@/lib/content/related-docs";
 
 type DerivedRelatedDocsProps = {
   registryId: string;

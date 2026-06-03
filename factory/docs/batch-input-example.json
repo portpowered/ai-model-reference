@@ -37,6 +37,12 @@
     },
     {
       "type": "DEPENDS_ON",
+      "sourceWorkName": "content-registry-validation",
+      "targetWorkName": "site-app-scaffold",
+      "requiredState": "complete"
+    },
+    {
+      "type": "DEPENDS_ON",
       "sourceWorkName": "ideafy-loopback-phase-1-default-site-batch-001",
       "targetWorkName": "content-registry-validation",
       "requiredState": "complete"
@@ -49,8 +55,20 @@
     },
     {
       "type": "DEPENDS_ON",
+      "sourceWorkName": "docs-template-rendering",
+      "targetWorkName": "site-app-scaffold",
+      "requiredState": "complete"
+    },
+    {
+      "type": "DEPENDS_ON",
       "sourceWorkName": "ideafy-loopback-phase-1-default-site-batch-001",
       "targetWorkName": "default-pages-search-tags",
+      "requiredState": "complete"
+    },
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "default-pages-search-tags",
+      "targetWorkName": "site-app-scaffold",
       "requiredState": "complete"
     }
   ]

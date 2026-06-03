@@ -1,11 +1,11 @@
-import { lookupMessage } from "@/lib/content/messages";
-import type { PageMessages } from "@/lib/content/schemas";
+import type { z } from "zod";
+import { lookupMessage } from "./messages";
 import {
   type PageAsset,
   type PageAssetConfig,
+  type PageMessages,
   pageAssetConfigSchema,
-} from "@/lib/content/schemas";
-import type { z } from "zod";
+} from "./schemas";
 
 export type MissingAssetReason = "missing" | "invalid";
 

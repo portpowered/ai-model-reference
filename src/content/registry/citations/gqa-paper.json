@@ -5,7 +5,7 @@
   "defaultTitleKey": "title",
   "defaultSummaryKey": "summary",
   "aliases": ["GQA paper", "grouped-query attention paper"],
-  "tags": ["attention", "transformers"],
+  "tags": ["attention"],
   "relatedIds": [],
   "citationIds": [],
   "status": "published",

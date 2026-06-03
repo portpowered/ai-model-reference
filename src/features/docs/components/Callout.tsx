@@ -1,8 +1,8 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
 import { lookupMessage } from "@/lib/content/messages";
-import type { ReactNode } from "react";
 
 export function Callout({
   type = "note",

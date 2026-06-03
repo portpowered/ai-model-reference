@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { T } from "@/features/docs/components/T";
+import { renderToStaticMarkup } from "react-dom/server";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
+import { T } from "@/features/docs/components/T";
 import fixture from "@/lib/content/__fixtures__/page-messages.json";
 import type { PageMessages } from "@/lib/content/schemas";
-import { renderToStaticMarkup } from "react-dom/server";
 
 const messages = fixture as PageMessages;
 

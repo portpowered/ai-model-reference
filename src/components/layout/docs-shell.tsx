@@ -1,6 +1,6 @@
-import type { UiMessages } from "@/lib/content/ui-messages";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import type { UiMessages } from "@/lib/content/ui-messages";
 
 type DocsShellProps = {
   children: ReactNode;

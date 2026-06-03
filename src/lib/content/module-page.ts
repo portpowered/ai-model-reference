@@ -1,5 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { compileMDX } from "next-mdx-remote/rsc";
+import type { ReactElement } from "react";
 import { parsePageAssetConfig } from "@/lib/content/assets";
 import { moduleMdxComponents } from "@/lib/content/mdx-components";
 import {
@@ -9,8 +11,6 @@ import {
   pageFrontmatterSchema,
   pageMessagesSchema,
 } from "@/lib/content/schemas";
-import { compileMDX } from "next-mdx-remote/rsc";
-import type { ReactElement } from "react";
 
 const CONTENT_ROOT = join(process.cwd(), "src/content/docs/modules");
 

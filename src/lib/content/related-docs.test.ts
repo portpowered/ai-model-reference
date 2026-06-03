@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import {
-  SAME_VARIANT_GROUP,
   deriveRelatedDocGroups,
   deriveSameVariantGroupPeers,
   moduleDisplayTitle,
   modulePageHref,
+  SAME_VARIANT_GROUP,
 } from "@/lib/content/related-docs";
 import type { ModuleRecord } from "@/lib/content/schemas";
 
