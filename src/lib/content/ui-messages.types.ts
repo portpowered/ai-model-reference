@@ -3,9 +3,11 @@ export type UiMessages = {
     open: string;
     placeholder: string;
     close: string;
+    idle: string;
     noResults: string;
     loading: string;
     shortcut: string;
+    resultPath: string;
   };
   nav: {
     home: string;
@@ -19,6 +21,11 @@ export type UiMessages = {
     description: string;
     canonicalNote: string;
     tagFilterDescription: string;
+    emptySuggestionGqa: string;
+    emptySuggestionAttentionLinkLabel: string;
+    emptySuggestionPrefix: string;
+    emptySuggestionMiddle: string;
+    emptySuggestionSuffix: string;
   };
   shell: {
     sidebarTitle: string;

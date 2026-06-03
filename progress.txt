@@ -5,9 +5,12 @@
 - Phase 1 search assertions: use `resultsIncludeSampleModule` in `src/tests/search/helpers.ts` because Fumadocs advanced search returns multiple fragments per URL and `attention` may rank glossary hits above the GQA page row.
 - Search documents are built from `loadPublishedDocsPages(locale)` + `loadRegistry()` via `buildSearchDocuments` / `buildSearchDocumentsForLocale` in `src/lib/search/build-documents.ts`; body text and headings come from colocated `messages/<locale>.json`, not MDX prose.
 - Registry aliases and tag record aliases merge into `SearchDocument.aliases` through `tagSearchTerms()`; page and registry `tags` populate `SearchDocument.tags` and facets.
-- Static Orama snapshot: run `make build-search-index` (writes gitignored `src/generated/search-index.json`); Fumadocs advanced search uses `toAdvancedSearchIndexes` in `search-server.ts` at runtime without the artifact.
+- Static Orama snapshot: run `make build-search-index` (writes gitignored `src/generated/search-index.json`); `exportOramaIndexSnapshot` returns `OramaSnapshotDocument` entries with top-level `kind` and `tags` alongside Fumadocs structured data; Orama DB records mirror those fields via `toOramaRecord`.
+- Fumadocs advanced search uses `toAdvancedSearchIndexes` in `search-server.ts` at runtime without the generated artifact.
 - Published docs pages need `page.mdx` frontmatter (`kind`, `registryId`, `status: published`) plus colocated messages; registry JSON under `src/content/registry/<kind>/`.
 - Phase 1 sample content: GQA module at `src/content/docs/modules/grouped-query-attention`, token glossary at `src/content/docs/glossary/token`.
+- Search API tests: `src/tests/search/search-api.test.ts` covers `docsSearchApi.search` ranking for GQA/title/attention/KV-cache variants and Token/tokens/tokenizer; use `resultsIncludeUrl`, `resultsIncludeSampleModule`, and `resultsIncludeTokenGlossary` from `helpers.ts`.
+- UI search client tests: `src/tests/search/search-client.test.ts` mocks `docsSearchApi.staticGET()` via `globalThis.fetch` and asserts `createDocsSearchClient` ranking; mirror token/GQA coverage from API tests in `search-result-meta.test.ts` for `resolveSearchResultMeta` / `getMatchedTags` (token glossary meta uses `attention` tag, not a `token` slug).
 - Global search UI: `SearchDialog`/`SearchTrigger` register via `AppProviders` → `RootProvider` in `src/app/layout.tsx`; `DocsShell` renders `SearchTrigger` in the top nav for every `(site)` route; `HomeSearchEntry` opens the same dialog from `/`.
 
 - Glossary index at `/docs/glossary` uses `loadPublishedGlossaryEntries` (filters `kind: glossary`); empty state mirrors architecture index with home link + `SearchTrigger`.
@@ -188,6 +191,17 @@
   - Pair `TagSearchHandoff` (opens dialog with tag prefill) with a `/search?tag=<slug>` link so bookmarks and checklist handoffs target the documented search entry URL.
 ---
 
+## 2026-06-03T17:34:02Z - phase-1-search-experience-and-coverage-001
+- Added deterministic `buildSearchDocuments` coverage for published-page-only indexing: document count and URL set match `loadPublishedDocsPages("en")`.
+- Verified existing GQA and token glossary assertions (title, description, aliases, tags, body text for GQA/KV-cache and tokenizer/token IDs).
+- Ran `make ci` after `bun install` and `fumadocs-mdx` generation in the worktree.
+- Files changed: `src/tests/search/build-documents.test.ts`
+- **Learnings for future iterations:**
+  - Story 001 acceptance requires an explicit document-count test tied to `pages.length`, not only per-record field assertions.
+  - Fresh worktrees need `bun install` before `make ci`; typecheck also needs `.source/` from `pretest` / `fumadocs-mdx`.
+  - Phase 1 publishes exactly two docs pages (GQA module + token glossary); the count test stays stable until more Phase 1 pages ship.
+---
+
 ## 2026-06-04T02:45:00Z - phase-1-entry-and-index-routes-008
 - Verified `/docs/glossary` index meets Phase 1 acceptance: `(site)` layout `DocsShell`, localized `glossaryIndex` messages, Token entry list, and empty state matching architecture index (home link + `SearchTrigger`).
 - Added glossary index page render test and strengthened discovery smoke to assert Token on the glossary route.
@@ -197,4 +211,37 @@
   - Story 008 was largely implemented before this iteration; completion was verification, render tests, and PRD tracking.
   - Glossary index shares the same `(site)` + `DocsShell` pattern as architecture and tags; individual glossary doc pages under `app/docs/` still use Fumadocs `DocsLayout`.
   - Story 009 should extend route smoke tests for remaining Phase 1 paths (token page, GQA module) and build output assertions.
+---
+
+## 2026-06-04T03:30:00Z - phase-1-search-experience-and-coverage-002
+- Extended `exportOramaIndexSnapshot` with `OramaSnapshotDocument` (`kind`, `tags` on each snapshot document) via `toOramaSnapshotDocument`.
+- Added Orama snapshot tests for version/payload/URLs, per-document metadata parity with `buildSearchDocuments`, Orama record kind/tags, and `scripts/build-search-index.ts` writing Phase 1 snapshot JSON.
+- Ran `make ci` (lint, typecheck, test, build, validate-data).
+- Files changed: `src/lib/search/orama-index.ts`, `src/lib/search/index.ts`, `src/tests/search/orama-index.test.ts`
+- **Learnings for future iterations:**
+  - Snapshot `documents[]` uses `toOramaSnapshotDocument`; Fumadocs `structuredData` alone does not surface `kind` at the top level—tests should assert explicit snapshot fields, not only structured content blocks.
+  - `build-search-index` test can `spawnSync("bun", ["./scripts/build-search-index.ts"])` and remove `src/generated/search-index.json` afterward; generated file stays gitignored.
+  - Orama `search(db, { term })` is imported from `@orama/orama`, not called as `db.search`.
+---
+
+## 2026-06-04T04:15:00Z - phase-1-search-experience-and-coverage-003
+- Added `docsSearchApi` ranking tests for grouped-query attention title query and Token/tokens/tokenizer glossary discovery.
+- Extended `helpers.ts` with `TOKEN_GLOSSARY_URL`, `resultsIncludeUrl`, and `resultsIncludeTokenGlossary` for URL-fragment-aware assertions.
+- Ran `make ci` (lint, typecheck, test, build, validate-data).
+- Files changed: `src/tests/search/helpers.ts`, `src/tests/search/search-api.test.ts`
+- **Learnings for future iterations:**
+  - Story 003 GQA/KV-cache API tests largely existed from prior work; this iteration completed token ranking coverage and title-query inclusion.
+  - `docsSearchApi.search("Token")` ranks `/docs/glossary/token` first; `tokens` and `tokenizer` include token among results via the same fragment URL pattern as GQA.
+  - Story 004 should add parallel tests on `createDocsSearchClient` and result-meta helpers, not duplicate API tests in the client file.
+---
+
+## 2026-06-04T05:30:00Z - phase-1-search-experience-and-coverage-004
+- Extended `createDocsSearchClient` tests with mocked static export for Token (ranks first), tokens, and tokenizer queries.
+- Strengthened `search-result-meta.test.ts` for `resolveSearchResultMeta` on GQA and token URLs, `getMatchedTags` alias phrase matching (`self-attention`), and token glossary map entry.
+- Ran `make ci` (lint, typecheck, test, build, validate-data).
+- Files changed: `src/tests/search/search-client.test.ts`, `src/tests/search/search-result-meta.test.ts`
+- **Learnings for future iterations:**
+  - Token glossary `SearchResultMeta.tags` is `["attention"]` in Phase 1; assert `attention`, not a `token` tag slug.
+  - `getMatchedTags` matches alias phrases when the normalized query contains the tag slug (e.g. `self-attention` → `attention`).
+  - Story 005 should add shared result component tests with URL/kind/summary fixtures; reuse `searchResultMetaMapToRecord` + helpers from `src/tests/search/`.
 ---

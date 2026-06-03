@@ -1,9 +1,15 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { docsSearchApi } from "@/lib/search/search-server";
-import { resultsIncludeSampleModule, SAMPLE_MODULE_URL } from "./helpers";
+import {
+  resultsIncludeSampleModule,
+  resultsIncludeTokenGlossary,
+  SAMPLE_MODULE_URL,
+  TOKEN_GLOSSARY_URL,
+} from "./helpers";
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
+const TOKEN_URL = TOKEN_GLOSSARY_URL;
 
 describe("docsSearchApi", () => {
   test("GET returns grouped-query attention for GQA query", async () => {
@@ -27,6 +33,27 @@ describe("docsSearchApi", () => {
     const results = await docsSearchApi.search("attention");
     expect(results.length).toBeGreaterThan(0);
     expect(resultsIncludeSampleModule(results)).toBe(true);
+  });
+
+  test("search includes grouped-query attention for title query", async () => {
+    const results = await docsSearchApi.search("Grouped-Query Attention");
+    expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeSampleModule(results)).toBe(true);
+  });
+
+  test("search ranks token glossary first for Token query", async () => {
+    const results = await docsSearchApi.search("Token");
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe(TOKEN_URL);
+  });
+
+  test.each([
+    "tokens",
+    "tokenizer",
+  ] as const)("search includes token glossary for %s query", async (query) => {
+    const results = await docsSearchApi.search(query);
+    expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeTokenGlossary(results)).toBe(true);
   });
 
   test.each([

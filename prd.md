@@ -1,243 +1,230 @@
-# PRD: Phase 1 Entry and Index Routes
+# PRD: Phase 1 Search Experience and Coverage
 
 ## Introduction
 
-Model Atlas Phase 1 has canonical content (grouped-query attention module, token glossary, registry records, and search document builders) but readers still hit placeholder home copy and missing discovery routes. This work item closes the **entry and index route** gap: a docs-native home, a documented search entry route, architecture and tags indexes, and the attention tag landing page—without Phase 2 content expansion or the full Orama search UI (owned by sibling work `phase-1-search-experience-and-coverage`).
+Model Atlas Phase 1 already has a search document builder, Orama advanced index, `/api/search` static export, and a global Fumadocs search dialog wired through `RootProvider`. Readers still cannot complete the Phase 1 manual gate: there is no dedicated `/search` experience that runs queries and lists rich results, token discovery is not covered by search API tests, and result rows do not consistently expose every field the customer asked for (title, summary, kind, tags, and URL).
 
-The concrete change is to replace scaffold placeholder surfaces with registry-backed index pages, wire primary navigation to those routes, link readers to grouped-query attention and token, and add route smoke tests so `next build` and CI can prove the Phase 1 browsing surface exists.
+This work item turns the Orama/search-document baseline into a **usable search experience** for the Phase 1 sample surface (grouped-query attention module and token glossary only). It delivers a search page and/or dialog entry that queries static search documents, satisfies the required GQA and token discovery checks, and adds deterministic Bun tests at the builder, index, API/client, and UI-helper layers.
 
 ## Context
 
 ### Customer ask
 
-Phase 1 completion: implement the missing discovery and index routes without broad Phase 2 content expansion. The app must render a docs-native Model Atlas home/reference entry instead of a placeholder; a search entry route at `/search` or an equivalent documented route; an architecture index route; a tags index route; and an attention tag landing page at `/tags/attention`. The routes should use the existing registry, tag, module, and glossary loaders, link to grouped-query attention and token, avoid raw placeholder copy, and preserve the dark technical atlas visual direction from `docs/site-fundamentals.md`. Acceptance: next build lists the new static routes, navigation exposes them, and route smoke tests cover home, architecture, glossary, tags, attention tag, token, and grouped-query attention.
+Phase 1 completion: turn the existing Orama/search-document baseline into a usable search experience for the sample site surface. Implement a search page or dialog entry that queries the static search documents for the Phase 1 records and displays result title, summary, kind, tags, and URL. Search must find grouped-query attention by title, alias GQA, tag attention, and body text KV cache, and must find token by title and body/alias text. Add deterministic Bun tests for the search document builder/index and UI-facing search helper behavior. Do not add Phase 2 glossary pages.
 
 ### Problem
 
-Readers opening `/` see placeholder copy and a link to a non-canonical docs path. There is no `/search` entry, no architecture index, no `/tags` index, and no `/tags/attention` landing page, so Phase 1 manual review cannot confirm discovery routes or navigation to the sample module and glossary. The factory checklist marks search entry, architecture index, tags index, and attention tag landing as incomplete.
+The search stack indexes Phase 1 content and passes partial automated checks for grouped-query attention (`GQA`, `attention`, `KV cache`), but readers lack a first-class search surface at `/search` with visible results metadata, token queries are not asserted in the search API/client test suite, and the global dialog does not show canonical URLs—blocking checklist items for search entry and “search finds GQA, attention, and KV cache.” Tag landings and home can open search, yet there is no durable page for bookmarking, sharing, or no-JS-friendly discovery.
 
 ### Solution
 
-Add thin App Router pages and feature components that delegate to existing `src/lib/content` loaders (`loadRegistry`, glossary listing helpers, module/glossary page loaders). Extend shared UI messages and `DocsShell` navigation. Implement `TagResourceList` (or equivalent) for tag landings. Keep search **entry** at `/search` as a documented handoff surface; full query UI and Orama wiring stay in the search-experience sibling. Align visuals with the dark atlas token set and docs shell layout from site fundamentals.
+Extend the existing `src/lib/search` pipeline and `src/features/docs/search` UI without new content types: keep indexing limited to published Phase 1 docs pages, add explicit ranking tests for GQA and token queries, introduce a shared result presentation component (title, summary, kind badge, tags, URL), upgrade the global search dialog to use it, and implement `/search` as an inline query + results page that reuses the same static Orama client and result meta map. Wire shell navigation, home search entry, and tag handoffs to open search with optional `?q=` / `?tag=` prefill. Do not author Phase 2 glossary or architecture pages.
 
 ## Description
 
-Ship Phase 1 discovery **routes and navigation**: Model Atlas home at `/`, search entry at `/search`, architecture index, tags index at `/tags`, attention tag landing at `/tags/attention`, shell navigation links, and automated route smoke tests—using existing content loaders and linking to grouped-query attention and token.
+Deliver Phase 1 search **experience and coverage**: query static Orama search documents for grouped-query attention and token, show full result metadata in the dialog and on `/search`, meet GQA/token discovery acceptance checks, and lock behavior with deterministic Bun tests—building on the sibling `phase-1-entry-and-index-routes` work for the documented `/search` route shell and navigation links.
 
 ## Goals
 
-- Replace placeholder home with a docs-native Model Atlas reference entry inside the standard shell.
-- Expose `/search` (or a documented equivalent) as the canonical search entry route.
-- Provide an architecture index that lists published architecture-related reference entries from registry and docs data.
-- Provide `/tags` and `/tags/attention` backed by registry tag records and published resources.
-- Surface home, search, architecture, glossary, and tags in primary navigation.
-- Ensure `next build` emits static routes for all new discovery paths.
-- Add route smoke tests for home, architecture, glossary, tags, attention tag, token, grouped-query attention, and search entry.
+- Provide a usable search entry via global dialog (Cmd/Ctrl+K) and a dedicated `/search` page with inline query and results.
+- Return grouped-query attention for queries against its title, alias `GQA`, tag `attention`, and body text `KV cache` (including normalized variants).
+- Return the token glossary for queries against its title and body/alias text (e.g. `tokenizer`, `tokens`).
+- Display each result’s title, summary (description), kind, tags, and canonical URL in both dialog and page views.
+- Keep the index limited to Phase 1 published docs pages (sample module + token glossary); no Phase 2 glossary expansion.
+- Add deterministic Bun tests for document building, Orama snapshot export, search API/client ranking, and UI-facing search helpers.
 
 ## Project-Level Acceptance Criteria
 
-- [ ] `/` renders a Model Atlas reference home (not placeholder copy) in the docs shell with links to search, architecture, glossary, tags, grouped-query attention, and token.
-- [ ] `/search` (or documented equivalent recorded in routing notes) renders a search entry page with localized copy and a clear handoff to site search (no raw placeholder strings).
-- [ ] Architecture index route lists published architecture-related entries with title, summary, and links; shows an accessible empty state when none match.
-- [ ] `/tags` lists published tag registry records with category labels and links to `/tags/<slug>`.
-- [ ] `/tags/attention` lists resources tagged `attention` grouped by kind, including grouped-query attention when published.
-- [ ] Primary navigation on discovery routes includes Home, Search, Architecture, Glossary, and Tags.
-- [ ] `next build` completes and includes static output for the new routes.
-- [ ] Route smoke tests assert HTTP 200 (or successful render) for `/`, architecture index, `/docs/glossary`, `/tags`, `/tags/attention`, `/docs/glossary/token`, `/docs/modules/grouped-query-attention`, and `/search`.
+- [ ] Global search dialog opens from the shell trigger and keyboard shortcut, with loading, empty, and success states.
+- [ ] `/search` renders inside the docs shell, accepts a query (and optional `?q=` / `?tag=` prefill), and lists results with title, summary, kind, tags, and URL for each hit.
+- [ ] Query `Grouped-Query Attention` or `GQA` returns grouped-query attention as a top result; query `attention` includes it among relevant results; query `KV cache` (and normalized `kv cache` / `kv-cache`) includes it among relevant results.
+- [ ] Query `Token` returns the token glossary as a top result; queries `tokens` or `tokenizer` include the token glossary among relevant results.
+- [ ] Search indexes only published Phase 1 docs pages (at minimum grouped-query attention and token); no new Phase 2 glossary pages are added.
+- [ ] Bun tests cover `buildSearchDocuments`, Orama snapshot export, `docsSearchApi` ranking for GQA and token cases, and UI search helpers (`createDocsSearchClient`, result meta resolution).
 - [ ] Typecheck, lint, and tests pass via `make ci`.
 
 ## User Stories
 
-### phase-1-entry-and-index-routes-001: Add browse helpers for architecture entries and tag resources
+### phase-1-search-experience-and-coverage-001: Lock Phase 1 search document builder coverage
 
-**Description:** As a maintainer, I need shared loaders that list architecture-related registry entries and resolve tag membership so index routes stay thin and testable.
+**Description:** As a maintainer, I need deterministic tests proving Phase 1 search documents include the fields Orama uses for GQA and token discovery.
 
 **Acceptance Criteria:**
 
-- [ ] `src/lib/content` exposes a function to list published architecture-related browse entries (e.g. concept records with `conceptType: "architecture"` and/or published docs whose registry metadata qualifies), each with resolved title, summary, and canonical URL.
-- [ ] `src/lib/content` exposes a function to list published tag records with slug, localized title/summary, and category.
-- [ ] `src/lib/content` exposes a function to list published resources for a tag slug, grouped by record kind (modules, concepts, glossary, etc.), using registry tags and published page frontmatter—omitting empty groups.
-- [ ] For tag `attention`, the grouped-query attention module appears under modules when its registry/frontmatter includes `attention`.
-- [ ] Unit tests cover attention tag membership and at least one architecture browse entry (token concept or linked glossary).
+- [ ] `buildSearchDocuments` produces a document for `/docs/modules/grouped-query-attention` with title `Grouped-Query Attention`, description mentioning `KV cache`, aliases including `GQA`, tags including `attention` and `kv-cache`, and body text containing `GQA` and KV-cache-related prose.
+- [ ] `buildSearchDocuments` produces a document for `/docs/glossary/token` with title `Token`, glossary kind, aliases including `tokens` / `token id`, tags including `attention` when present in registry, and body text containing `tokenizer` and `token IDs`.
+- [ ] Document count for the default locale equals the count of published docs pages (no extra Phase 2 glossary records).
 - [ ] Typecheck passes
 - [ ] Tests pass
 
-### phase-1-entry-and-index-routes-002: Extend UI messages and primary navigation
+### phase-1-search-experience-and-coverage-002: Verify Orama snapshot export for Phase 1 records
 
-**Description:** As a reader, I want consistent navigation labels and links so I can reach discovery routes from any shell-wrapped page.
-
-**Acceptance Criteria:**
-
-- [ ] `src/content/messages/en/common.json` defines message keys for nav labels and discovery page titles (no hard-coded nav strings in route files).
-- [ ] `DocsShell` primary navigation includes links to `/`, `/search`, architecture index, `/docs/glossary`, and `/tags` with visible focus rings using the `ring` token.
-- [ ] Navigation removes placeholder-only targets (e.g. “Open docs placeholder” is not linked from the shell).
-- [ ] Typecheck passes
-- [ ] Verify in browser: header shows Home, Search, Architecture, Glossary, and Tags on the home route.
-
-### phase-1-entry-and-index-routes-003: Render Model Atlas home reference entry
-
-**Description:** As a reader, I want the site root to explain Model Atlas and point me to search, indexes, and the Phase 1 sample pages.
+**Description:** As a maintainer, I need a static Orama snapshot that includes every Phase 1 indexed page so static search mode works in CI and production builds.
 
 **Acceptance Criteria:**
 
-- [ ] `/` uses `DocsShell` (or equivalent docs layout) with dark atlas tokens per `docs/site-fundamentals.md`.
-- [ ] Home content resolves from localized message keys; the route component does not contain raw marketing or placeholder prose.
-- [ ] Home includes the brush-stroke header treatment behind title/subtitle and article-flow sections (not a dashboard grid).
-- [ ] Home links to `/search`, architecture index, `/docs/glossary`, `/tags`, `/docs/modules/grouped-query-attention`, and `/docs/glossary/token`.
-- [ ] No “placeholder” copy appears in the rendered home page body or primary CTA.
-- [ ] Typecheck passes
-- [ ] Verify in browser: `/` shows Model Atlas branding, sample links, and dark documentation styling.
-
-### phase-1-entry-and-index-routes-004: Add documented search entry route
-
-**Description:** As a reader, I want a dedicated search entry URL so bookmarks and tag handoffs can target search consistently.
-
-**Acceptance Criteria:**
-
-- [ ] `/search` renders inside the docs shell with localized title and description from message keys.
-- [ ] The page documents that it is the canonical search entry (recorded in code comment or `docs/architectural-checklist.md` routing notes if path differs).
-- [ ] The page provides a visible search handoff control (e.g. button or link) suitable for wiring to the global search dialog in the sibling search work item; until then it must not 404 and must not show placeholder lorem text.
-- [ ] Tag landing pages can link to `/search` with a tag query parameter per data-model handoff pattern when applicable.
-- [ ] Typecheck passes
-- [ ] Verify in browser: `/search` loads with accessible heading and handoff affordance.
-
-### phase-1-entry-and-index-routes-005: Render architecture index route
-
-**Description:** As a reader, I want one page listing architecture-related reference material so I can browse structural concepts before opening individual docs.
-
-**Acceptance Criteria:**
-
-- [x] Architecture index route exists (e.g. `/docs/architecture` or `/architecture`—choose one, document it, and use it consistently in nav).
-- [x] The page lists browse entries from the architecture helper with title, summary, and link; entries sort alphabetically by title.
-- [x] When the token glossary or token concept qualifies, it appears with a correct link to `/docs/glossary/token` or its canonical docs URL.
-- [x] When no entries qualify, the page shows an accessible empty state with guidance to return home or open search.
-- [x] User-visible strings use message keys; styling uses semantic shadcn tokens.
-- [x] Typecheck passes
-- [x] Verify in browser: architecture index lists at least the Phase 1 token entry when published.
-
-### phase-1-entry-and-index-routes-006: Render tags index route
-
-**Description:** As a reader, I want to browse all controlled tags and open tag landing pages without knowing slugs in advance.
-
-**Acceptance Criteria:**
-
-- [ ] `/tags` lists published tag records with localized title/summary, category label, and link to `/tags/<slug>`.
-- [ ] Tags sort or group by `category` from the tag schema; tag chips remain monochrome by default.
-- [ ] Published tags `attention` and `kv-cache` (when present in registry) appear with working links.
-- [ ] Typecheck passes
-- [ ] Verify in browser: `/tags` shows attention and kv-cache entries linking to their landing pages.
-
-### phase-1-entry-and-index-routes-007: Render attention tag landing page
-
-**Description:** As a reader exploring attention mechanisms, I want a tag page listing every published resource tagged `attention`.
-
-**Acceptance Criteria:**
-
-- [x] `/tags/attention` resolves the `attention` tag record and renders resources grouped by kind via `TagResourceList` (or equivalent feature component under `src/features/docs/components`).
-- [x] Grouped-query attention appears under modules with title, summary, and link to `/docs/modules/grouped-query-attention`.
-- [x] Token glossary or token concept appears when tagged `attention` in registry/frontmatter.
-- [x] Page includes a search handoff link to `/search` (optionally `?tag=attention`) and uses message keys for headings and empty copy.
-- [x] Typecheck passes
-- [x] Verify in browser: `/tags/attention` lists GQA and related attention-tagged resources.
-
-### phase-1-entry-and-index-routes-008: Align glossary index with shell and message keys
-
-**Description:** As a reader, I want the glossary index to match other discovery pages in navigation, localization, and empty-state behavior.
-
-**Acceptance Criteria:**
-
-- [ ] `/docs/glossary` uses the same docs shell and navigation as other discovery routes (not an isolated unlinked page).
-- [ ] Glossary index copy resolves from message keys; token entry remains listed with title, summary, and link to `/docs/glossary/token`.
-- [ ] Empty state matches the accessible pattern used on architecture and tags indexes.
-- [ ] Typecheck passes
-- [ ] Verify in browser: glossary index is reachable from primary nav and lists Token.
-
-### phase-1-entry-and-index-routes-009: Add route smoke tests and build route verification
-
-**Description:** As a maintainer, I want automated checks that Phase 1 discovery routes exist so regressions are caught before manual review.
-
-**Acceptance Criteria:**
-
-- [ ] A Bun test suite smoke-checks that App Router page modules exist and export default components for `/`, `/search`, architecture index, `/docs/glossary`, `/tags`, `/tags/attention`, `/docs/glossary/token`, and `/docs/modules/grouped-query-attention`.
-- [ ] Tests assert browse helpers return non-empty attention tag resources including grouped-query attention in the Phase 1 baseline fixture.
-- [ ] `next build` succeeds locally; implementer verifies build output includes the new static routes (no manual route inventory assertion beyond confirming build success and spot-check paths).
+- [ ] `exportOramaIndexSnapshot` returns version `1` with an Orama payload and documents array containing URLs for grouped-query attention and token glossary.
+- [ ] Snapshot document metadata preserves title, description, kind, tags, and url for each indexed page.
+- [ ] `scripts/build-search-index.ts` (or equivalent build step) writes a generated snapshot without failing when only Phase 1 pages exist.
 - [ ] Typecheck passes
 - [ ] Tests pass
+
+### phase-1-search-experience-and-coverage-003: Add search API ranking tests for GQA and token queries
+
+**Description:** As a maintainer, I need API-level tests that prove Orama ranking finds grouped-query attention and token for the Phase 1 manual gate queries.
+
+**Acceptance Criteria:**
+
+- [ ] `docsSearchApi.search("GQA")` ranks `/docs/modules/grouped-query-attention` first among results.
+- [ ] `docsSearchApi.search("Grouped-Query Attention")` includes grouped-query attention as a top result.
+- [ ] `docsSearchApi.search("attention")` includes grouped-query attention among results (token may also match when tagged).
+- [ ] `docsSearchApi.search("KV cache")`, `kv cache`, and `kv-cache` each include grouped-query attention among results.
+- [ ] `docsSearchApi.search("Token")` ranks `/docs/glossary/token` first among results.
+- [ ] `docsSearchApi.search("tokens")` and `docsSearchApi.search("tokenizer")` include the token glossary among results.
+- [ ] `docsSearchApi.staticGET()` returns an advanced index payload suitable for the static client.
+- [ ] Typecheck passes
+- [ ] Tests pass
+
+### phase-1-search-experience-and-coverage-004: Add UI-facing search client and meta helper tests
+
+**Description:** As a maintainer, I need tests on the client wrapper and result-meta helpers so UI regressions are caught without browser automation.
+
+**Acceptance Criteria:**
+
+- [x] `createDocsSearchClient` fetches from `/api/search` and ranks grouped-query attention first for `GQA`; includes it for `attention` and `KV cache` queries using a mocked static export.
+- [x] `createDocsSearchClient` includes the token glossary for `Token` and for alias/body-style queries `tokens` and `tokenizer` using the same mocked export pattern.
+- [x] `loadSearchResultMetaMap` / `resolveSearchResultMeta` return kind, description, and tags for grouped-query attention and token URLs.
+- [x] `getMatchedTags` highlights `attention` when the query matches tag slugs or aliases.
+- [x] Typecheck passes
+- [x] Tests pass
+
+### phase-1-search-experience-and-coverage-005: Shared search result presentation with full metadata
+
+**Description:** As a reader, I want every search hit to show title, summary, kind, tags, and URL so I can choose the right page before navigating.
+
+**Acceptance Criteria:**
+
+- [ ] A shared component under `src/features/docs/search` renders page results with visible title (from search hit), summary line from result meta description, localized kind label, tag chips for matched tags, and the canonical URL path.
+- [ ] Non-page result types fall back to the default Fumadocs list item without breaking layout.
+- [ ] Strings for kind labels and empty copy resolve from localized UI messages, not hard-coded English in the component.
+- [ ] Typecheck passes
+- [ ] Tests pass (unit test asserting rendered text includes URL, kind label, and summary for a fixture meta map)
+
+### phase-1-search-experience-and-coverage-006: Upgrade global search dialog experience
+
+**Description:** As a reader, I want to open search from anywhere via keyboard shortcut and see rich, accessible results immediately.
+
+**Acceptance Criteria:**
+
+- [ ] `ModelAtlasSearchDialog` uses the shared result component and shows loading, empty (`noResults`), and success states via localized messages.
+- [ ] Cmd/Ctrl+K opens the dialog from `RootProvider`; Escape closes; arrow keys navigate the result list; focus rings use the `ring` token.
+- [ ] Querying `GQA` in the dialog shows grouped-query attention with kind, summary, tags, and URL visible without selecting the row.
+- [ ] `SearchTrigger` remains available in `docs-shell` header on discovery routes.
+- [ ] Typecheck passes
+- [ ] Verify in browser: open search with keyboard shortcut, search `GQA`, and confirm grouped-query attention row shows title, summary, kind, tags, and URL.
+
+### phase-1-search-experience-and-coverage-007: Implement `/search` page with inline query and results
+
+**Description:** As a reader, I want a bookmarkable search page that runs the same static index as the dialog and lists full result metadata.
+
+**Acceptance Criteria:**
+
+- [ ] `/search` renders inside `DocsShell` with localized title and description from message keys (route shell provided by sibling entry-routes work or implemented here if missing).
+- [ ] The page includes a search input bound to the static Orama client (`useModelAtlasDocsSearch` or `createDocsSearchClient` pattern) and debounced query updates.
+- [ ] Results list reuses the shared result component, showing title, summary, kind, tags, and URL for each hit; selecting a row navigates to the docs URL.
+- [ ] Initial query reads `?q=` from the URL when present; optional `?tag=` prefill seeds the input (e.g. `attention`).
+- [ ] Empty state copy suggests trying `GQA` or browsing `/tags/attention`; loading state does not shift layout abruptly.
+- [ ] Typecheck passes
+- [ ] Verify in browser: visit `/search?q=GQA` and `/search?q=Token`, confirm correct top results and visible URL paths.
+
+### phase-1-search-experience-and-coverage-008: Wire discovery handoffs to search entry
+
+**Description:** As a reader coming from home or tag landings, I want one-click paths into search with a helpful prefilled query.
+
+**Acceptance Criteria:**
+
+- [ ] Home search entry opens the dialog or links to `/search` consistently with the chosen primary entry pattern documented in the route.
+- [ ] Tag search handoff on `/tags/attention` opens search or navigates to `/search` with `attention` prefilled.
+- [ ] Primary navigation includes a Search link to `/search` when sibling entry-routes work lands nav updates.
+- [ ] Typecheck passes
+- [ ] Verify in browser: from `/tags/attention`, use the search handoff and confirm the query is prefilled with `attention` and grouped-query attention appears in results.
 
 ## Functional Requirements
 
-- FR-1: `/` is the Model Atlas reference home, not a marketing landing page.
-- FR-2: `/search` is the canonical search entry route unless an equivalent is documented and linked from navigation.
-- FR-3: Architecture index derives entries from registry and published docs loaders, not hand-maintained URL lists.
-- FR-4: `/tags` derives from published tag registry records via `loadRegistry`.
-- FR-5: `/tags/<slug>` derives membership from registry tags and MDX frontmatter via shared browse helpers.
-- FR-6: Discovery routes consume localized UI messages from `src/content/messages` and page message loaders; route files stay thin.
-- FR-7: Visual presentation follows dark semantic tokens and docs shell layout in `docs/site-fundamentals.md`.
-- FR-8: Primary navigation exposes all Phase 1 discovery routes listed in the customer ask.
-- FR-9: Route smoke tests verify the Phase 1 surface without meta-tests that scan unrelated source trees.
+- FR-1: Search documents derive from published docs pages, default-locale messages, and registry records per `docs/data-model.md` and `docs/architecture.md`.
+- FR-2: Orama advanced static mode serves queries through `/api/search` (`GET` and `staticGET`); no alternate search engine in Phase 1.
+- FR-3: Indexed records are limited to Phase 1 published pages (grouped-query attention module, token glossary, and any other already-published Phase 1 docs)—no new Phase 2 glossary MDX.
+- FR-4: Results display title, summary (`description`), localized kind, tags (highlighting query matches when applicable), and canonical `url`.
+- FR-5: Grouped-query attention must be discoverable by title, alias `GQA`, tag `attention`, and body text containing KV-cache concepts.
+- FR-6: Token glossary must be discoverable by title `Token` and body/alias text such as `tokenizer` and `tokens`.
+- FR-7: `/search` and the global dialog share the same client, index, and result presentation components.
+- FR-8: User-visible strings use `src/content/messages` / `loadUiMessages`; route files stay thin.
+- FR-9: Automated tests assert observable query outcomes (ranking and metadata), not source-file inventories or route registration lists.
 
 ## Non-Goals
 
-- Full Orama search dialog, static index API wiring, and search query ranking (sibling: `phase-1-search-experience-and-coverage`).
-- Fresh-checkout CI workflow and registry validation expansion (sibling: `phase-1-fresh-ci-and-smoke-tests`).
-- New Phase 2 glossary, architecture, or module pages beyond listing what Phase 1 already published.
-- Blog index, model pages, PDF export, localization beyond English.
-- Benchmark leaderboards, paper downloads, or React Flow graph interactivity beyond existing module page.
-- Broad refactors of Fumadocs source config, duplicate `(site)` vs root route cleanup beyond what is required to ship a single canonical home.
+- New Phase 2 glossary, architecture, or module pages beyond what Phase 1 already published.
+- Advanced facet filters (model family, module type chips) beyond tag display on results.
+- Fetch-mode search, server-side live indexing, or external search services.
+- Blog index, model pages, PDF export, or localization beyond English.
+- Replacing Fumadocs `RootProvider` search integration or rewriting the Orama schema without a behavioral reason.
+- Broad unrelated refactors of discovery index routes (owned by `phase-1-entry-and-index-routes`).
+- Fresh-checkout CI workflow changes (owned by `phase-1-fresh-ci-and-smoke-tests`).
 
 ## High-Level Technical Design
 
-### Route map (Phase 1 completion target)
+### Dependencies
 
-| Route | Purpose |
-|-------|---------|
-| `/` | Model Atlas reference home |
-| `/search` | Documented search entry / handoff |
-| `/docs/architecture` (or chosen index path) | Architecture browse index |
-| `/docs/glossary` | Glossary index (existing; shell alignment) |
-| `/tags` | Tag index |
-| `/tags/attention` | Attention tag landing |
-| `/docs/modules/grouped-query-attention` | Sample module (existing) |
-| `/docs/glossary/token` | Sample glossary (existing) |
+| Dependency | Provides |
+|------------|----------|
+| Existing `src/lib/search/*` | `buildSearchDocuments`, `exportOramaIndexSnapshot`, `docsSearchApi`, result meta map |
+| `phase-1-entry-and-index-routes` | `/search` route shell, nav Search link, tag/architecture index handoffs |
+| Phase 1 content | `grouped-query-attention` module, `token` glossary, registry aliases/tags |
 
-### Data flow
+### Search pipeline (unchanged core, new presentation + page)
 
 ```txt
-loadRegistry + glossary/module loaders
-        -> browse helpers (architecture list, tag list, tag resources)
-        -> feature components (TagResourceList, index lists)
-        -> src/app/* thin route pages
-        -> DocsShell navigation
+published docs pages + registry + messages
+        -> buildSearchDocuments()
+        -> toAdvancedSearchIndexes()
+        -> docsSearchApi (/api/search staticGET)
+        -> createDocsSearchClient / useModelAtlasDocsSearch
+        -> SearchResultCard (shared)
+        -> ModelAtlasSearchDialog + /search page
 ```
 
 ### Package ownership
 
-- `src/lib/content` — browse helpers and tag/architecture resolution (pure data).
-- `src/features/docs/components` — `TagResourceList`, shared index list presentation.
-- `src/components/layout` — `DocsShell` navigation.
-- `src/app` — route composition only.
-- `src/content/messages/en/common.json` — shared nav and index copy.
+- `src/lib/search` — document builder, Orama snapshot, server API, result meta map (pure data + server).
+- `src/features/docs/search` — dialog, trigger, shared result row, `/search` page components, prefill helpers.
+- `src/app/search/page.tsx` (or `(site)/search/page.tsx`) — thin route composing shell + search page feature.
+- `src/tests/search` — builder, index, API, client tests (deterministic, no network).
+- `src/tests/features` — UI helper and presentation tests.
 
-### Dependencies
+### UX states
 
-Assumes Phase 1 baseline content and loaders already exist: grouped-query attention module page, token glossary, `tag.attention`, registry loaders, and glossary listing (`listPublishedGlossaryPages`).
+| State | Dialog | `/search` page |
+|-------|--------|----------------|
+| Loading | Localized loading copy in list area | Same; stable min-height |
+| Empty | `noResults` message | Suggests `GQA` / tag browse |
+| Success | Rich result rows with URL | Same component, link navigation |
+| Error | Fumadocs client error surface or graceful empty | Show retry-safe empty copy |
 
 ## Supporting Technical and UX Considerations
 
-- Consolidate duplicate home implementations (`src/app/page.tsx` vs `src/app/(site)/page.tsx`) into one canonical `/` route wrapped by `DocsShell`.
-- Reuse `TagPillList` link pattern (`/tags/<slug>`) on index pages where tags are shown inline.
-- Empty states should suggest search or home navigation; avoid dead-end copy.
-- Loading: index pages are static; no client fetch required for Phase 1 lists.
-- Accessibility: index lists use semantic headings, list markup or cards with focusable links, and `aria-label` on primary nav.
-- Search entry page should remain useful before the search dialog ships (clear copy + handoff target).
+- Reuse `search-prefill` helpers for `?q=` and tag handoffs; consume on dialog open and search page mount.
+- Tag chips stay monochrome; kind badge uses muted secondary styling per `docs/site-fundamentals.md`.
+- Keep keyboard navigation: dialog list from Fumadocs; `/search` results as a focusable list or links.
+- No-JS: `/search` should still render static shell copy and a link to browse glossary/tags even if client search requires hydration.
+- Do not index draft or unpublished pages; `loadPublishedDocsPages` remains the page source gate.
 
 ## Success Metrics
 
-- A new reader can reach grouped-query attention from `/` in two clicks or fewer.
-- `/tags/attention` surfaces GQA without manual curation lists.
-- `make ci` passes with new route smoke tests.
-- Phase 1 checklist items for search entry, architecture index, tags index, and attention tag landing can be marked complete after sibling search/CI items land.
+- A reader can open `/search`, type `GQA`, and reach grouped-query attention in one interaction after results load.
+- Searching `tokenizer` surfaces the token glossary without browsing the glossary index first.
+- Phase 1 checklist items for search entry and “search finds GQA, attention, and KV cache” can be marked complete after this work and sibling route work land.
+- `make ci` search test suite completes deterministically with no network calls.
 
 ## Open Questions
 
-None for Phase 1 route scope. Exact architecture index path (`/docs/architecture` vs top-level) is an implementer choice documented once in navigation and tests.
+None for Phase 1 search scope. If both dialog and `/search` remain enabled, treat the dialog as the global quick entry and `/search` as the bookmarkable full-page experience—document the choice in the PR description only if non-obvious.

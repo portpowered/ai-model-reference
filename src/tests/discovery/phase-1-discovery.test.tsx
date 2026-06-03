@@ -25,7 +25,7 @@ const PHASE_1_DISCOVERY_ROUTES = [
   },
   {
     path: "/search",
-    render: () => Promise.resolve(<SearchEntryPage />),
+    render: () => SearchEntryPage(),
     expectInHtml: "Search",
   },
   {
