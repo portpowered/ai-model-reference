@@ -1,6 +1,11 @@
 import { create, insertMultiple, save, search } from "@orama/orama";
 import { toFumadocsIndexEntry } from "./to-structured-data";
-import type { SearchDocument } from "./types";
+import type { FumadocsSearchIndexEntry, SearchDocument } from "./types";
+
+export type OramaSnapshotDocument = FumadocsSearchIndexEntry & {
+  kind: string;
+  tags: string[];
+};
 
 const oramaSchema = {
   id: "string",
@@ -55,13 +60,23 @@ export async function createOramaDatabase(documents: SearchDocument[]) {
   return db;
 }
 
+export function toOramaSnapshotDocument(
+  document: SearchDocument,
+): OramaSnapshotDocument {
+  return {
+    ...toFumadocsIndexEntry(document),
+    kind: document.kind,
+    tags: document.tags,
+  };
+}
+
 export async function exportOramaIndexSnapshot(documents: SearchDocument[]) {
   const db = await createOramaDatabase(documents);
   const snapshot = await save(db);
   return {
     version: 1,
     language: "english",
-    documents: documents.map((document) => toFumadocsIndexEntry(document)),
+    documents: documents.map((document) => toOramaSnapshotDocument(document)),
     orama: snapshot,
   };
 }
