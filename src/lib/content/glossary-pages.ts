@@ -1,11 +1,14 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
+import { glossaryPageHref } from "@/lib/content/content-hrefs";
 import {
   type PageFrontmatter,
   pageFrontmatterSchema,
   pageMessagesSchema,
 } from "@/lib/content/schemas";
 import { parseYamlFrontmatterBlock } from "@/lib/content/yaml-frontmatter";
+
+export { glossaryPageHref } from "@/lib/content/content-hrefs";
 
 export type GlossaryPageListing = {
   slug: string;
@@ -21,11 +24,6 @@ export type ListPublishedGlossaryPagesOptions = {
 
 function getDefaultContentRoot(): string {
   return join(process.cwd(), "src/content/docs/glossary");
-}
-
-/** Canonical docs URL for a glossary entry slug. */
-export function glossaryPageHref(slug: string): string {
-  return `/docs/glossary/${slug}`;
 }
 
 function isEnoent(error: unknown): boolean {

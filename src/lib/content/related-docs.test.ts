@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
+import { modulePageHref } from "@/lib/content/content-hrefs";
 import {
   deriveRelatedDocGroups,
   deriveSameConceptTypePeers,
   deriveSameVariantGroupPeers,
   deriveSharedTagPeers,
   moduleDisplayTitle,
-  modulePageHref,
   SAME_CONCEPT_TYPE,
   SAME_VARIANT_GROUP,
   SHARED_TAGS,
