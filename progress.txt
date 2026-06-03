@@ -1,0 +1,18 @@
+## Codebase Patterns
+- Search documents are built from `loadPublishedDocsPages(locale)` + `loadRegistry()` via `buildSearchDocuments` / `buildSearchDocumentsForLocale` in `src/lib/search/build-documents.ts`; body text and headings come from colocated `messages/<locale>.json`, not MDX prose.
+- Registry aliases and tag record aliases merge into `SearchDocument.aliases` through `tagSearchTerms()`; page and registry `tags` populate `SearchDocument.tags` and facets.
+- Static Orama snapshot: run `make build-search-index` (writes gitignored `src/generated/search-index.json`); Fumadocs advanced search uses `toAdvancedSearchIndexes` in `search-server.ts` at runtime without the artifact.
+- Published docs pages need `page.mdx` frontmatter (`kind`, `registryId`, `status: published`) plus colocated messages; registry JSON under `src/content/registry/<kind>/`.
+- Phase 1 sample content: GQA module at `src/content/docs/modules/grouped-query-attention`, token glossary at `src/content/docs/glossary/token`.
+
+## 2026-06-03T08:44:37Z - default-pages-search-tags-001
+- Added token glossary content (MDX, messages, registry) so the search builder indexes a second published page alongside grouped-query attention.
+- Wired `buildSearchDocumentsForLocale` to load pages by locale; build script uses it for index generation.
+- Extended unit tests for glossary token indexing and multi-document Orama snapshot export.
+- Files changed: `src/content/docs/glossary/token/*`, `src/content/registry/glossary/token.json`, `src/lib/search/build-documents.ts`, `scripts/build-search-index.ts`, `src/tests/search/build-documents.test.ts`, `src/tests/search/orama-index.test.ts`
+- **Learnings for future iterations:**
+  - Glossary pages use `kind: glossary` in frontmatter and `glossary.<slug>` registry ids under `src/content/registry/glossary/`.
+  - `loadPublishedGlossaryEntries` filters by `frontmatter.kind === "glossary"`; adding glossary MDX automatically feeds the glossary index story later.
+  - Orama snapshot tests should assert by URL set, not document order (filesystem walk order varies).
+  - `make ci` does not run `build:search-index`; generated search JSON stays gitignored—runtime search builds from content layers directly.
+---

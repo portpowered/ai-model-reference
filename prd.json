@@ -1,0 +1,163 @@
+{
+  "project": "Model Atlas — Default Pages, Search, and Tags",
+  "branchName": "default-pages-search-tags",
+  "description": "Ship Phase 1 discovery surfaces: Model Atlas home, architecture and glossary indexes, tags index, attention tag landing page, and Fumadocs Orama search for the sample grouped-query attention docs page and glossary pages so readers can search and browse into canonical reference content.",
+  "context": {
+    "customerAsk": "Phase 1: implement the default site pages and discovery surfaces: home/reference entry page, search entry, architecture index, glossary index, tags index, one attention tag landing page, and basic Fumadocs Orama search for the sample docs and glossary pages. Search must find the sample grouped-query attention page by GQA, attention, and KV cache.",
+    "problem": "Readers cannot discover the first canonical docs page or move between topics without a home entry, architecture index, working search, glossary index, tags index, and an attention tag landing page. Phase 1 manual review requires home, search, architecture, glossary, and tag routes plus search hits for GQA, attention, and KV cache.",
+    "solution": "Implement registry-backed discovery routes and Fumadocs Orama search using the documented app structure: search document builder in src/lib/search, Orama static index and API route, search UI in src/features/docs/search, architecture/glossary/tags index routes under src/app, and TagResourceList for /tags/attention—all within the standard docs shell and localized message keys."
+  },
+  "acceptanceCriteria": [
+    "/ renders the Model Atlas reference home with search entry and links to architecture, glossary, tags, and docs inside the standard docs shell.",
+    "Global search (dialog and shell trigger) returns the grouped-query attention sample page for queries GQA, attention, and KV cache (or kv-cache as indexed).",
+    "Architecture index lists published architecture-related pages with title, summary, and links; shows a clear empty state when none exist.",
+    "Glossary index lists published glossary pages with title, summary, and links; shows a clear empty state when none exist.",
+    "/tags lists published tag records with category labels and links to tag landing pages.",
+    "/tags/attention lists resources tagged attention grouped by kind, including the sample module page when present.",
+    "Discovery pages use localized message keys and shadcn semantic tokens per site fundamentals.",
+    "Typecheck, lint, and tests pass via make ci (or equivalent project CI command)."
+  ],
+  "userStories": [
+    {
+      "id": "default-pages-search-tags-001",
+      "title": "Build search documents and Orama index from content layers",
+      "description": "As a maintainer, I need search documents derived from MDX structure, localized messages, asset metadata, and registry records so Orama can retrieve the sample docs page and glossary pages accurately.",
+      "acceptanceCriteria": [
+        "src/lib/search exposes a builder producing normalized SearchDocument records (title, description, bodyText, headings, aliases, tags, facets, url, kind) per docs/data-model.md.",
+        "The builder indexes the published grouped-query attention sample page including registry aliases (e.g. GQA), tags (e.g. attention, kv-cache), and default-locale message body text.",
+        "The builder indexes published glossary pages (e.g. token) with title, description, resolved body text, aliases, and tags when sibling glossary content exists.",
+        "A static Orama index artifact or build step is produced for Fumadocs static search without scraping raw MDX for core facets.",
+        "Unit tests assert the sample page document contains expected title, alias, and tag values for Phase 1 search checks.",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "default-pages-search-tags-002",
+      "title": "Wire Fumadocs Orama search API and client configuration",
+      "description": "As a reader, I want the site to query the Orama index through Fumadocs so search works in the static Phase 1 deployment.",
+      "acceptanceCriteria": [
+        "src/app/api/search/route.ts is created from the Fumadocs source with staticGET for static export and returns results for indexed docs pages.",
+        "src/features/docs/search/search-client.ts centralizes useDocsSearch with type static (or documented fetch mode if static payload is impractical).",
+        "Querying GQA through the search client returns the grouped-query attention sample page as the top relevant docs result in tests.",
+        "Querying attention returns the grouped-query attention sample page among relevant results in tests.",
+        "Querying KV cache (or normalized kv cache) returns the grouped-query attention sample page among relevant results in tests.",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "default-pages-search-tags-003",
+      "title": "Add global search dialog and shell trigger",
+      "description": "As a reader, I want to open search from anywhere in the site so I can jump to reference pages without browsing the sidebar first.",
+      "acceptanceCriteria": [
+        "SearchDialog and SearchTrigger under src/features/docs/search register through RootProvider in the app layout.",
+        "Keyboard shortcut (e.g. Cmd/Ctrl+K) opens the dialog; Escape closes; arrow keys navigate results; focus uses ring token.",
+        "Dialog shows loading, empty, and success states; each result shows title, page kind, short summary, and matched tags when available.",
+        "A visible search affordance appears in the top navigation on home, architecture index, glossary, tags, and docs routes.",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "default-pages-search-tags-004",
+      "title": "Render Model Atlas home/reference entry page",
+      "description": "As a reader, I want a reference home page that explains what Model Atlas is and gives me immediate search and browse entry points.",
+      "acceptanceCriteria": [
+        "/ uses the standard docs shell (top nav, left sidebar, article column) per docs/site-fundamentals.md.",
+        "Home header uses the irregular brush-stroke treatment; search input and sections follow in article flow (not a marketing dashboard).",
+        "User-visible strings resolve from localized message keys, not raw prose in the route component.",
+        "Home links to architecture index, glossary index, tags index, and the docs index or sample module.",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "default-pages-search-tags-005",
+      "title": "Render architecture index page",
+      "description": "As a reader, I want an architecture index so I can browse architecture-related reference pages in one place.",
+      "acceptanceCriteria": [
+        "Architecture index route (per routing contract, e.g. /docs/architecture) lists published architecture-related pages with title and summary from resolved messages or registry.",
+        "Each entry links to its docs route; entries are sorted alphabetically by title.",
+        "When no architecture pages exist, the page shows an accessible empty state with guidance to return home or open search.",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "default-pages-search-tags-006",
+      "title": "Render glossary index page",
+      "description": "As a reader, I want a glossary index so I can browse defined ML terms in one place.",
+      "acceptanceCriteria": [
+        "Glossary index route (per routing contract, e.g. /docs/glossary) lists published glossary pages with title and summary from resolved messages or registry.",
+        "Each entry links to its glossary route; entries are sorted alphabetically by title.",
+        "When no glossary pages exist, the page shows an accessible empty state with guidance to return home or open search.",
+        "When the token glossary page exists from sibling work, it appears in the index with correct title and link.",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "default-pages-search-tags-007",
+      "title": "Render tags index page",
+      "description": "As a reader, I want to browse all controlled tags so I can discover topics like attention and kv-cache without knowing exact page slugs.",
+      "acceptanceCriteria": [
+        "/tags lists published tag registry records with localized title or summary, category label, and link to /tags/<slug>.",
+        "Tags are grouped or sorted by category from the tag record schema.",
+        "Tag chips use monochrome styling by default, not rainbow category colors.",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "default-pages-search-tags-008",
+      "title": "Render attention tag landing page",
+      "description": "As a reader interested in attention mechanisms, I want a tag landing page listing every published resource tagged attention grouped by kind.",
+      "acceptanceCriteria": [
+        "/tags/attention resolves the attention tag record and renders TagResourceList grouped by kind, omitting empty groups.",
+        "The grouped-query attention sample module appears under modules when tagged attention.",
+        "Page includes a search handoff (e.g. link or control pre-filtering for attention) and uses localized message keys for headings and empty copy.",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "default-pages-search-tags-009",
+      "title": "Verify Phase 1 search discovery behavior end to end",
+      "description": "As a maintainer, I want automated checks that Phase 1 search discovery works so regressions are caught in CI.",
+      "acceptanceCriteria": [
+        "Integration or search-layer tests assert queries GQA, attention, and KV cache (or kv cache) return the grouped-query attention sample page in top results.",
+        "A smoke or render test confirms /, architecture index, glossary index, /tags, and /tags/attention routes return HTTP 200 in the test harness.",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
