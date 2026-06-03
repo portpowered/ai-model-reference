@@ -154,6 +154,17 @@
   - `make ci` build output now lists `/search` as a static route alongside other discovery paths.
 ---
 
+## 2026-06-04T00:15:00Z - phase-1-entry-and-index-routes-006
+- Verified `/tags` index route (from prior default-pages work) meets Phase 1 acceptance: localized messages, category-grouped tag list with Attention and KV Cache landing links, and monochrome slug chips.
+- Added tags index page render test and strengthened discovery smoke to assert `/tags/attention` on the tags route.
+- Verified production HTML on `next start` port 3024: Tags title, Attention/KV Cache cards, category headings, landing links, primary nav, and `data-search` affordance.
+- Files changed: `src/tests/content/tags-index.test.ts`, `src/tests/discovery/phase-1-discovery.test.tsx`
+- **Learnings for future iterations:**
+  - Story 006 was largely implemented before this branch iteration; completion was verification, render tests, and PRD tracking.
+  - Tags index groups by `TAG_CATEGORY_ORDER`; Phase 1 shows module-type (attention) then inference (kv-cache).
+  - Tag landing page (story 007) can build on the same `/tags/<slug>` URLs already linked from the index.
+---
+
 ## 2026-06-03T23:30:00Z - phase-1-entry-and-index-routes-005
 - Verified `/docs/architecture` index route (from prior default-pages work) meets Phase 1 acceptance: localized messages, alphabetical entry list with Token glossary link, and accessible empty state when no entries qualify.
 - Added architecture index page render test and strengthened discovery smoke to assert Token on the architecture route.
