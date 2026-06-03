@@ -17,6 +17,15 @@ describe("loadPublishedGlossaryEntries", () => {
       ).toBeLessThanOrEqual(0);
     }
   });
+
+  it("includes the token glossary page with correct title and link", () => {
+    const entries = loadPublishedGlossaryEntries("en");
+    const token = entries.find((entry) => entry.slug === "glossary/token");
+    expect(token).toBeDefined();
+    expect(token?.title).toBe("Token");
+    expect(token?.url).toBe("/docs/glossary/token");
+    expect(token?.summary.length).toBeGreaterThan(0);
+  });
 });
 
 describe("sortGlossaryEntriesByTitle", () => {
