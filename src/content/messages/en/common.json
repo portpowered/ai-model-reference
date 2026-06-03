@@ -16,7 +16,9 @@
   },
   "searchEntry": {
     "title": "Search",
-    "description": "Search Model Atlas by title, alias, or tag. Use the search control to jump to modules, concepts, and glossary entries."
+    "description": "Search Model Atlas by title, alias, or tag. Use the search control to jump to modules, concepts, and glossary entries.",
+    "canonicalNote": "Canonical search entry URL: /search. Tag handoffs may append ?tag=<slug> (for example /search?tag=attention).",
+    "tagFilterDescription": "Open search to explore resources tagged {tag}."
   },
   "shell": {
     "sidebarTitle": "Reference",

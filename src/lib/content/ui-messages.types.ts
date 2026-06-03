@@ -17,6 +17,8 @@ export type UiMessages = {
   searchEntry: {
     title: string;
     description: string;
+    canonicalNote: string;
+    tagFilterDescription: string;
   };
   shell: {
     sidebarTitle: string;

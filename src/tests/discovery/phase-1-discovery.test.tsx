@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import ArchitectureIndexPage from "@/app/(site)/docs/architecture/page";
 import GlossaryIndexPage from "@/app/(site)/docs/glossary/page";
 import HomePage from "@/app/(site)/page";
+import SearchEntryPage from "@/app/(site)/search/page";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import TagsIndexPage from "@/app/(site)/tags/page";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -17,6 +18,11 @@ const PHASE_1_DISCOVERY_ROUTES = [
     path: "/",
     render: () => Promise.resolve(<HomePage />),
     expectInHtml: "Model Atlas",
+  },
+  {
+    path: "/search",
+    render: () => Promise.resolve(<SearchEntryPage />),
+    expectInHtml: "Search",
   },
   {
     path: "/docs/architecture",
