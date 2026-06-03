@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await loadGlossaryPage("token");
+
+  return {
+    title: page.messages.title,
+    description: page.messages.description,
+  };
+}
 
 export default async function TokenGlossaryPage() {
   const page = await loadGlossaryPage("token");
