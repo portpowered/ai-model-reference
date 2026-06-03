@@ -53,6 +53,12 @@ export type UiMessages = {
     emptyDescription: string;
     emptyHomeLink: string;
   };
+  tagsIndex: {
+    title: string;
+    description: string;
+    listLabel: string;
+  };
+  tagCategories: Record<string, string>;
   pageKind: Record<string, string>;
 };
 

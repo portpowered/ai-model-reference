@@ -53,6 +53,22 @@
     "emptyDescription": "Published architecture concept pages and pages under the architecture content grouping will appear here. Return home or open search to explore modules and tags in the meantime.",
     "emptyHomeLink": "Return home"
   },
+  "tagsIndex": {
+    "title": "Tags",
+    "description": "Controlled tags for browsing topics across modules, concepts, models, and glossary pages. Each tag links to a landing page listing every published resource with that tag.",
+    "listLabel": "Tags by category"
+  },
+  "tagCategories": {
+    "architecture": "Architecture",
+    "module-type": "Module type",
+    "training": "Training",
+    "inference": "Inference",
+    "systems": "Systems",
+    "modality": "Modality",
+    "paper-topic": "Paper topic",
+    "model-family": "Model family",
+    "difficulty": "Difficulty"
+  },
   "pageKind": {
     "module": "Module",
     "model": "Model",

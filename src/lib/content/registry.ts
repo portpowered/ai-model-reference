@@ -11,6 +11,9 @@ function readRegistryFiles(dir: string): RegistryRecord[] {
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
+      if (entry.name === "messages") {
+        continue;
+      }
       records.push(...readRegistryFiles(fullPath));
       continue;
     }
