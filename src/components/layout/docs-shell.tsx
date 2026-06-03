@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import {
+  getPrimaryNavItems,
+  PRIMARY_NAV_LINK_CLASS,
+} from "@/components/layout/primary-nav";
 import { SearchTrigger } from "@/features/docs/search/SearchTrigger";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 
@@ -13,6 +17,7 @@ type DocsShellProps = {
 
 export function DocsShell({ children, messages }: DocsShellProps) {
   const pathname = usePathname();
+  const primaryNavItems = getPrimaryNavItems(messages);
   const isHome = pathname === "/";
   const onThisPageItems = isHome
     ? [
@@ -29,30 +34,15 @@ export function DocsShell({ children, messages }: DocsShellProps) {
             className="flex flex-1 flex-wrap items-center gap-4 text-sm"
             aria-label="Primary"
           >
-            <Link
-              href="/"
-              className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {messages.nav.home}
-            </Link>
-            <Link
-              href="/docs/glossary"
-              className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {messages.nav.glossary}
-            </Link>
-            <Link
-              href="/tags"
-              className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {messages.nav.tags}
-            </Link>
-            <Link
-              href="/docs/modules/grouped-query-attention"
-              className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {messages.nav.docs}
-            </Link>
+            {primaryNavItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={PRIMARY_NAV_LINK_CLASS}
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
           <SearchTrigger messages={messages} />
         </div>

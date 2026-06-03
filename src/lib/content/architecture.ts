@@ -19,6 +19,12 @@ function isConceptRecord(
   return record?.kind === "concept";
 }
 
+function isArchitectureConceptRecord(
+  record: ReturnType<typeof getRegistryRecord>,
+): boolean {
+  return isConceptRecord(record) && record.conceptType === "architecture";
+}
+
 export function isArchitectureRelatedPage(
   page: DocsPageSource,
   indexes: RegistryIndexes,
@@ -27,12 +33,8 @@ export function isArchitectureRelatedPage(
     return true;
   }
 
-  if (page.frontmatter.kind !== "concept") {
-    return false;
-  }
-
   const record = getRegistryRecord(indexes, page.frontmatter.registryId);
-  return isConceptRecord(record) && record.conceptType === "architecture";
+  return isArchitectureConceptRecord(record);
 }
 
 export function toArchitectureEntry(page: DocsPageSource): ArchitectureEntry {

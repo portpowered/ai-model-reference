@@ -1,12 +1,16 @@
 import { describe, expect, it } from "bun:test";
+import { renderToStaticMarkup } from "react-dom/server";
+import HomePage from "@/app/(site)/page";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
-/** Browse targets on `/` must stay aligned with Phase 1 discovery routes. */
-const HOME_BROWSE_HREFS = [
+/** Discovery targets on `/` must stay aligned with Phase 1 acceptance criteria. */
+const HOME_DISCOVERY_HREFS = [
+  "/search",
   "/docs/architecture",
   "/docs/glossary",
   "/tags",
   "/docs/modules/grouped-query-attention",
+  "/docs/glossary/token",
 ] as const;
 
 describe("home page messages", () => {
@@ -20,7 +24,9 @@ describe("home page messages", () => {
     expect(home.architectureLinkTitle).toBe("Architecture");
     expect(home.glossaryLinkTitle).toBe("Glossary");
     expect(home.tagsLinkTitle).toBe("Tags");
-    expect(home.docsLinkTitle.length).toBeGreaterThan(0);
+    expect(home.tokenLinkTitle).toBe("Token (glossary)");
+    expect(home.docsLinkTitle).toBe("Grouped-query attention");
+    expect(home.searchPageLinkTitle.length).toBeGreaterThan(0);
   });
 
   it("defines browse link titles for every Phase 1 discovery index", () => {
@@ -28,7 +34,25 @@ describe("home page messages", () => {
     expect(home.architectureLinkDescription.length).toBeGreaterThan(0);
     expect(home.glossaryLinkDescription.length).toBeGreaterThan(0);
     expect(home.tagsLinkDescription.length).toBeGreaterThan(0);
+    expect(home.tokenLinkDescription.length).toBeGreaterThan(0);
     expect(home.docsLinkDescription.length).toBeGreaterThan(0);
-    expect(HOME_BROWSE_HREFS).toHaveLength(4);
+    expect(home.searchPageLinkDescription.length).toBeGreaterThan(0);
+    expect(HOME_DISCOVERY_HREFS).toHaveLength(6);
+  });
+});
+
+describe("home page render", () => {
+  it("links to search, indexes, sample module, and token glossary", () => {
+    const html = renderToStaticMarkup(<HomePage />);
+    expect(html).toContain("Model Atlas");
+    for (const href of HOME_DISCOVERY_HREFS) {
+      expect(html).toContain(`href="${href}"`);
+    }
+  });
+
+  it("does not render placeholder scaffold copy in the article body", () => {
+    const html = renderToStaticMarkup(<HomePage />);
+    expect(html).not.toContain("placeholder");
+    expect(html).not.toContain("lorem");
   });
 });

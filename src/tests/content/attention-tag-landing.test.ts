@@ -1,4 +1,6 @@
 import { describe, expect, it } from "bun:test";
+import { renderToStaticMarkup } from "react-dom/server";
+import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import {
   groupTagResourceEntriesByKind,
   loadTagLandingContext,
@@ -84,6 +86,26 @@ describe("tag landing messages", () => {
     const messages = loadUiMessages();
     expect(messages.tagLanding.listLabel.length).toBeGreaterThan(0);
     expect(messages.tagLanding.searchHandoff.length).toBeGreaterThan(0);
+    expect(messages.tagLanding.searchEntryLink.length).toBeGreaterThan(0);
     expect(messages.tagLanding.emptyTitle.length).toBeGreaterThan(0);
+  });
+});
+
+describe("attention tag landing page render", () => {
+  it("lists GQA and token resources with search handoff to /search", async () => {
+    const page = await TagLandingPage({
+      params: Promise.resolve({ slug: "attention" }),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Attention");
+    expect(html).toContain("Module");
+    expect(html).toContain("Glossary");
+    expect(html).toContain("Grouped-Query Attention");
+    expect(html).toContain('href="/docs/modules/grouped-query-attention"');
+    expect(html).toContain("Token");
+    expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).toContain('href="/search?tag=attention"');
+    expect(html).toContain("data-search");
   });
 });

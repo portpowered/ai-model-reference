@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
 import { TagLandingEmptyState } from "@/features/docs/tags/TagLandingEmptyState";
@@ -47,13 +48,19 @@ export default async function TagLandingPage({ params }: TagLandingPageProps) {
           {context.categoryLabel}
         </span>
       </p>
-      <div className="mt-6">
+      <div className="mt-6 flex flex-wrap items-center gap-3">
         <TagSearchHandoff
           messages={messages}
           tagSlug={slug}
           searchQuery={searchQuery}
           label={tagLanding.searchHandoff}
         />
+        <Link
+          href={`/search?tag=${encodeURIComponent(slug)}`}
+          className="inline-flex items-center rounded-lg border border-border bg-secondary/50 px-3 py-1.5 text-sm text-foreground transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {tagLanding.searchEntryLink}
+        </Link>
       </div>
       {groups.length === 0 ? (
         <TagLandingEmptyState
