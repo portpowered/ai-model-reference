@@ -9,9 +9,14 @@
   },
   "nav": {
     "home": "Home",
+    "search": "Search",
+    "architecture": "Architecture",
     "glossary": "Glossary",
-    "tags": "Tags",
-    "docs": "Docs"
+    "tags": "Tags"
+  },
+  "searchEntry": {
+    "title": "Search",
+    "description": "Search Model Atlas by title, alias, or tag. Use the search control to jump to modules, concepts, and glossary entries."
   },
   "shell": {
     "sidebarTitle": "Reference",
