@@ -9,6 +9,7 @@
 - Fumadocs advanced search uses `toAdvancedSearchIndexes` in `search-server.ts` at runtime without the generated artifact.
 - Published docs pages need `page.mdx` frontmatter (`kind`, `registryId`, `status: published`) plus colocated messages; registry JSON under `src/content/registry/<kind>/`.
 - Phase 1 sample content: GQA module at `src/content/docs/modules/grouped-query-attention`, token glossary at `src/content/docs/glossary/token`.
+- Search API tests: `src/tests/search/search-api.test.ts` covers `docsSearchApi.search` ranking for GQA/title/attention/KV-cache variants and Token/tokens/tokenizer; use `resultsIncludeUrl`, `resultsIncludeSampleModule`, and `resultsIncludeTokenGlossary` from `helpers.ts`.
 - Global search UI: `SearchDialog`/`SearchTrigger` register via `AppProviders` → `RootProvider` in `src/app/layout.tsx`; `DocsShell` renders `SearchTrigger` in the top nav for every `(site)` route; `HomeSearchEntry` opens the same dialog from `/`.
 
 - Glossary index at `/docs/glossary` uses `loadPublishedGlossaryEntries` (filters `kind: glossary`); empty state mirrors architecture index with home link + `SearchTrigger`.
@@ -220,4 +221,15 @@
   - Snapshot `documents[]` uses `toOramaSnapshotDocument`; Fumadocs `structuredData` alone does not surface `kind` at the top level—tests should assert explicit snapshot fields, not only structured content blocks.
   - `build-search-index` test can `spawnSync("bun", ["./scripts/build-search-index.ts"])` and remove `src/generated/search-index.json` afterward; generated file stays gitignored.
   - Orama `search(db, { term })` is imported from `@orama/orama`, not called as `db.search`.
+---
+
+## 2026-06-04T04:15:00Z - phase-1-search-experience-and-coverage-003
+- Added `docsSearchApi` ranking tests for grouped-query attention title query and Token/tokens/tokenizer glossary discovery.
+- Extended `helpers.ts` with `TOKEN_GLOSSARY_URL`, `resultsIncludeUrl`, and `resultsIncludeTokenGlossary` for URL-fragment-aware assertions.
+- Ran `make ci` (lint, typecheck, test, build, validate-data).
+- Files changed: `src/tests/search/helpers.ts`, `src/tests/search/search-api.test.ts`
+- **Learnings for future iterations:**
+  - Story 003 GQA/KV-cache API tests largely existed from prior work; this iteration completed token ranking coverage and title-query inclusion.
+  - `docsSearchApi.search("Token")` ranks `/docs/glossary/token` first; `tokens` and `tokenizer` include token among results via the same fragment URL pattern as GQA.
+  - Story 004 should add parallel tests on `createDocsSearchClient` and result-meta helpers, not duplicate API tests in the client file.
 ---
