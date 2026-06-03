@@ -45,6 +45,14 @@
     "emptyDescription": "Published glossary pages will appear here once they are added to the reference. Return home or open search to explore modules and tags in the meantime.",
     "emptyHomeLink": "Return home"
   },
+  "architectureIndex": {
+    "title": "Architecture",
+    "description": "Architecture-related concepts, model families, and component patterns. Each entry links to a canonical docs page when published.",
+    "listLabel": "Architecture entries",
+    "emptyTitle": "No architecture entries yet",
+    "emptyDescription": "Published architecture concept pages and pages under the architecture content grouping will appear here. Return home or open search to explore modules and tags in the meantime.",
+    "emptyHomeLink": "Return home"
+  },
   "pageKind": {
     "module": "Module",
     "model": "Model",

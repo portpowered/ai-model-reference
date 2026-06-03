@@ -40,9 +40,17 @@ export const moduleRecordSchema = baseRecordSchema.extend({
   mathLevel: z.enum(["none", "light", "detailed"]),
 });
 
+export const conceptRecordSchema = baseRecordSchema.extend({
+  kind: z.literal("concept"),
+  conceptType: z.string(),
+  prerequisiteIds: z.array(z.string()).default([]),
+  explainsIds: z.array(z.string()).default([]),
+});
+
 export const registryRecordSchema = z.union([
   tagRecordSchema,
   moduleRecordSchema,
+  conceptRecordSchema,
   baseRecordSchema,
 ]);
 
@@ -98,6 +106,7 @@ export const pageMessagesSchema = z.object({
 
 export type RegistryRecord = z.infer<typeof registryRecordSchema>;
 export type ModuleRecord = z.infer<typeof moduleRecordSchema>;
+export type ConceptRecord = z.infer<typeof conceptRecordSchema>;
 export type TagRecord = z.infer<typeof tagRecordSchema>;
 export type PageFrontmatter = z.infer<typeof pageFrontmatterSchema>;
 export type PageMessages = z.infer<typeof pageMessagesSchema>;

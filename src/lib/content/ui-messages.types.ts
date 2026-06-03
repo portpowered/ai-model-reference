@@ -45,6 +45,14 @@ export type UiMessages = {
     emptyDescription: string;
     emptyHomeLink: string;
   };
+  architectureIndex: {
+    title: string;
+    description: string;
+    listLabel: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    emptyHomeLink: string;
+  };
   pageKind: Record<string, string>;
 };
 
