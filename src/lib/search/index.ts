@@ -3,11 +3,12 @@ export {
   buildSearchDocuments,
   buildSearchDocumentsForLocale,
 } from "./build-documents";
-export type { OramaSearchRecord } from "./orama-index";
+export type { OramaSearchRecord, OramaSnapshotDocument } from "./orama-index";
 export {
   createOramaDatabase,
   exportOramaIndexSnapshot,
   toOramaRecord,
+  toOramaSnapshotDocument,
 } from "./orama-index";
 export { docsSearchApi } from "./search-server";
 export type { DocsAdvancedSearchIndex } from "./to-advanced-index";
