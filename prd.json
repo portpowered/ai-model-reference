@@ -144,7 +144,7 @@
         "Verify in browser: glossary index is reachable from primary nav and lists Token."
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
