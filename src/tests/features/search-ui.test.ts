@@ -18,6 +18,7 @@ describe("search UI messages", () => {
     expect(messages.search.noResults.length).toBeGreaterThan(0);
     expect(messages.search.loading.length).toBeGreaterThan(0);
     expect(messages.search.shortcut.length).toBeGreaterThan(0);
+    expect(messages.search.resultPath.length).toBeGreaterThan(0);
   });
 
   test("formatPageKind resolves module kind for search results", () => {

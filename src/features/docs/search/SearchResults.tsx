@@ -4,15 +4,16 @@ import {
   SearchDialogListItem,
   type SearchItemType,
 } from "fumadocs-ui/components/dialog/search";
-import {
-  formatPageKind,
-  type UiMessages,
-} from "@/lib/content/ui-messages.types";
+import type { UiMessages } from "@/lib/content/ui-messages.types";
+import { SearchResultMetaDetails } from "./SearchResultMetaDetails";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";
-import {
-  getMatchedTags,
-  resolveSearchResultMeta,
-} from "./search-result-meta-client";
+import { resolveSearchResultMeta } from "./search-result-meta-client";
+
+export function isPageSearchItem(
+  item: SearchItemType,
+): item is SearchItemType & { type: "page" } {
+  return item.type === "page";
+}
 
 type SearchResultListItemProps = {
   item: SearchItemType;
@@ -31,7 +32,7 @@ export function SearchResultListItem({
   onClick,
   className,
 }: SearchResultListItemProps) {
-  if (item.type !== "page") {
+  if (!isPageSearchItem(item)) {
     return (
       <SearchDialogListItem
         item={item}
@@ -42,7 +43,6 @@ export function SearchResultListItem({
   }
 
   const meta = resolveSearchResultMeta(item.url, metaByUrl);
-  const matchedTags = meta ? getMatchedTags(query, meta.tags) : [];
 
   return (
     <div className="flex flex-col border-b border-fd-border last:border-b-0">
@@ -52,30 +52,12 @@ export function SearchResultListItem({
         className={className}
       />
       {meta ? (
-        <div className="space-y-1 px-3 pb-2 ps-10 text-sm">
-          <p className="text-xs text-fd-muted-foreground">
-            <span className="rounded-md border border-fd-border bg-fd-secondary px-1.5 py-0.5">
-              {formatPageKind(messages, meta.kind)}
-            </span>
-          </p>
-          {meta.description ? (
-            <p className="line-clamp-2 text-fd-muted-foreground">
-              {meta.description}
-            </p>
-          ) : null}
-          {matchedTags.length > 0 ? (
-            <div className="flex flex-wrap gap-1">
-              {matchedTags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-md border border-fd-border bg-fd-background px-1.5 py-0.5 text-xs text-fd-muted-foreground"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          ) : null}
-        </div>
+        <SearchResultMetaDetails
+          url={item.url}
+          query={query}
+          meta={meta}
+          messages={messages}
+        />
       ) : null}
     </div>
   );

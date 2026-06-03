@@ -5,7 +5,8 @@
     "close": "Close search",
     "noResults": "No results found.",
     "loading": "Searching…",
-    "shortcut": "Search"
+    "shortcut": "Search",
+    "resultPath": "Path"
   },
   "nav": {
     "home": "Home",
