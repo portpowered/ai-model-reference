@@ -1,4 +1,6 @@
 ## Codebase Patterns
+- App Router tracing boundary: route modules import thin facades (`glossary.ts`, `tags.ts`, `ui-messages.ts`, `module-page.ts`, `glossary-page.ts`) that use `await import("./…-load")` or `await import("./pages")` inside async loaders; filesystem scanners live in `*-load.ts`, `pages.ts`, `registry.ts`, `tag-messages.ts`.
+- Pure registry lookups without fs: `registry-index.ts` exports `RegistryIndexes`, `RegistryRecord`, and `getRegistryRecord`; discovery facades import these instead of `registry.ts`.
 - Content filesystem roots: `src/lib/content/content-paths.ts` exports `CONTENT_ROOT`, `DOCS_ROOT`, `GLOSSARY_DOCS_ROOT`, `MODULES_DOCS_ROOT`, `REGISTRY_ROOT`, `MESSAGES_ROOT`, `TAG_MESSAGES_ROOT`, and Phase 1 fixture dirs; loaders should import these instead of `join(process.cwd(), "src/content/...")`.
 - Turbopack NFT tracing regression: `buildOutputHasTurbopackWholeProjectTracingWarning` in `src/lib/build/turbopack-nft-tracing-warning.ts` guards known diagnostic fragments; `src/tests/build/next-build-tracing-warning.test.ts` runs a clean `bun run build` (`.next` removed first) and fails on combined stdout/stderr matches.
 - Registry validation negative tests: use temp `registryRoot` + empty `docsRoot` fixtures in `validate-registry.test.ts`; assert `unresolved-reference` for broken `relatedIds`/`citationIds` (message includes `${record.id}`, field name, and missing id) and `unresolved-tag` for unknown tag slugs; baseline passes via `validateRegistryContent()` with no options and `make validate-data`.
@@ -19,6 +21,7 @@
 - UI search client tests: `src/tests/search/search-client.test.ts` mocks `docsSearchApi.staticGET()` via `globalThis.fetch` and asserts `createDocsSearchClient` ranking; mirror token/GQA coverage from API tests in `search-result-meta.test.ts` for `resolveSearchResultMeta` / `getMatchedTags` (token glossary meta uses `attention` tag, not a `token` slug).
 - Global search UI: `SearchDialog`/`SearchTrigger` register via `AppProviders` → `RootProvider` in `src/app/layout.tsx`; `DocsShell` renders `SearchTrigger` in the top nav for every `(site)` route; `HomeSearchEntry` opens the same dialog from `/`.
 
+- Glossary listing: `loadPublishedGlossaryEntries` and `listPublishedGlossaryPages` both use `loadPublishedDocsPages` via dynamic import in `glossary.ts`; the duplicate `glossary-pages.ts` scanner was removed.
 - Glossary index at `/docs/glossary` uses `loadPublishedGlossaryEntries` (filters `kind: glossary`); empty state mirrors architecture index with home link + `SearchTrigger`.
 - Tags index at `/tags` uses `loadPublishedTagIndexGroups` from published `tag` registry records; localized title/summary live in `src/content/registry/tags/messages/<slug>.<locale>.json`; `loadRegistry` skips `messages` subdirectories.
 - Tag index groups by `category` (schema order via `TAG_CATEGORY_ORDER`); tag slug chips use monochrome `border-border` / `text-muted-foreground` styling.
@@ -319,4 +322,27 @@
   - Only `content-paths.ts` should call `process.cwd()` for content discovery; story 003+ should move fs scanners behind async/dynamic boundaries.
   - Re-export `groupedQueryAttentionPageDir` / `tokenGlossaryPageDir` from `page-messages-load.ts` via content-paths constants so validators and tests stay aligned.
   - Story 004 should consolidate or remove `glossary-pages.ts` from the production server graph; paths are already centralized on `GLOSSARY_DOCS_ROOT`.
+---
+
+## 2026-06-04T23:45:00Z - phase-1-turbopack-tracing-warning-cleanup-003
+- Moved filesystem scanners behind dynamic import boundaries: `ui-messages-load.ts`, `module-page-load.ts`, `glossary-page-load.ts`, and async `import()` in `glossary.ts`, `architecture.ts`, `tags.ts`, `tag-resources.ts`, and `search-result-meta.ts`.
+- Extracted pure `registry-index.ts` so discovery facades avoid statically importing `registry.ts` (node:fs).
+- Made `loadUiMessages` async; updated App Router pages, `(site)/layout.tsx`, and tests to `await` loaders; search page Suspense fallback receives preloaded messages.
+- Ran `make ci` (lint, typecheck, test, build, validate-data) — all exit 0; production build emits no guarded Turbopack NFT tracing warnings.
+- Files changed: `src/lib/content/ui-messages.ts`, `ui-messages-load.ts`, `module-page.ts`, `module-page-load.ts`, `glossary-page.ts`, `glossary-page-load.ts`, `registry-index.ts`, `registry.ts`, `glossary.ts`, `architecture.ts`, `tags.ts`, `tag-resources.ts`, `src/lib/search/search-result-meta.ts`, `src/app/**/*.tsx`, multiple test files, `src/tests/ci/fresh-checkout-typecheck.test.ts`
+- **Learnings for future iterations:**
+  - `import type` from `pages.ts` is safe in facades; value imports from scanner modules pull `node:fs` into the Turbopack server graph.
+  - Async route components that call `await loadUiMessages()` require tests to `await HomePage()` (etc.) before `renderToStaticMarkup`.
+  - Story 004 should consolidate `glossary-pages.ts` with `loadPublishedGlossaryEntries`; it is still not in the App Router static graph today.
+---
+
+## 2026-06-04T24:30:00Z - phase-1-turbopack-tracing-warning-cleanup-004
+- Removed duplicate `glossary-pages.ts` filesystem scanner; consolidated `listPublishedGlossaryPages` onto `loadPublishedGlossaryEntries` / `loadPublishedDocsPages` in `glossary.ts`.
+- Kept `glossary-pages.test.ts` covering token listing, alphabetical sort, missing-root empty list, and draft exclusion via `contentRoot` fixture override.
+- Ran `make ci` (lint, typecheck, test, build, validate-data) — all exit 0; production build emits no guarded Turbopack NFT tracing warnings.
+- Files changed: `src/lib/content/glossary.ts`, `src/lib/content/glossary-pages.test.ts`; deleted `src/lib/content/glossary-pages.ts`
+- **Learnings for future iterations:**
+  - `glossary-pages.ts` was test-only before consolidation; production already used `loadPublishedGlossaryEntries` from the glossary index route.
+  - `listPublishedGlossaryPages` maps `docsSlug` to short glossary slugs (`glossary/token` → `token`) for backward-compatible test fixtures.
+  - Story 005 should confirm warning-free build or add minimal `next.config` containment; story 006 runs full Phase 1 verification.
 ---
