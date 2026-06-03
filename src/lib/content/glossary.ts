@@ -7,6 +7,42 @@ export type GlossaryEntry = {
   slug: string;
 };
 
+export type GlossaryPageListing = {
+  slug: string;
+  title: string;
+  summary: string;
+  url: string;
+};
+
+export type ListPublishedGlossaryPagesOptions = {
+  /** Glossary docs root override for fixture tests (defaults to published content). */
+  contentRoot?: string;
+  locale?: string;
+};
+
+function isEnoent(error: unknown): boolean {
+  return (
+    error !== null &&
+    typeof error === "object" &&
+    "code" in error &&
+    (error as NodeJS.ErrnoException).code === "ENOENT"
+  );
+}
+
+function glossarySlugFromDocsSlug(docsSlug: string): string {
+  const slash = docsSlug.lastIndexOf("/");
+  return slash === -1 ? docsSlug : docsSlug.slice(slash + 1);
+}
+
+function toGlossaryPageListing(entry: GlossaryEntry): GlossaryPageListing {
+  return {
+    slug: glossarySlugFromDocsSlug(entry.slug),
+    title: entry.title,
+    summary: entry.summary,
+    url: entry.url,
+  };
+}
+
 export function toGlossaryEntry(page: DocsPageSource): GlossaryEntry {
   return {
     title: page.messages.title,
@@ -32,4 +68,34 @@ export async function loadPublishedGlossaryEntries(
     (page) => page.frontmatter.kind === "glossary",
   );
   return sortGlossaryEntriesByTitle(pages.map(toGlossaryEntry));
+}
+
+/**
+ * Lists published glossary pages via the shared `loadPublishedDocsPages` scanner.
+ * Consolidates the former `glossary-pages.ts` filesystem walk with glossary index loading.
+ */
+export async function listPublishedGlossaryPages(
+  options: ListPublishedGlossaryPagesOptions = {},
+): Promise<GlossaryPageListing[]> {
+  const locale = options.locale ?? "en";
+
+  if (options.contentRoot) {
+    const { loadPublishedDocsPages } = await import("./pages");
+    try {
+      const pages = (
+        await loadPublishedDocsPages(locale, options.contentRoot)
+      ).filter((page) => page.frontmatter.kind === "glossary");
+      return sortGlossaryEntriesByTitle(pages.map(toGlossaryEntry)).map(
+        toGlossaryPageListing,
+      );
+    } catch (error) {
+      if (isEnoent(error)) {
+        return [];
+      }
+      throw error;
+    }
+  }
+
+  const entries = await loadPublishedGlossaryEntries(locale);
+  return entries.map(toGlossaryPageListing);
 }

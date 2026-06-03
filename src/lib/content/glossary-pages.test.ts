@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { listPublishedGlossaryPages } from "@/lib/content/glossary-pages";
+import { listPublishedGlossaryPages } from "@/lib/content/glossary";
 
 const TOKEN_TITLE = "Token";
 const TOKEN_SUMMARY =
