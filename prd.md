@@ -91,12 +91,12 @@ Deliver Phase 1 search **experience and coverage**: query static Orama search do
 
 **Acceptance Criteria:**
 
-- [ ] `createDocsSearchClient` fetches from `/api/search` and ranks grouped-query attention first for `GQA`; includes it for `attention` and `KV cache` queries using a mocked static export.
-- [ ] `createDocsSearchClient` includes the token glossary for `Token` and for alias/body-style queries `tokens` and `tokenizer` using the same mocked export pattern.
-- [ ] `loadSearchResultMetaMap` / `resolveSearchResultMeta` return kind, description, and tags for grouped-query attention and token URLs.
-- [ ] `getMatchedTags` highlights `attention` when the query matches tag slugs or aliases.
-- [ ] Typecheck passes
-- [ ] Tests pass
+- [x] `createDocsSearchClient` fetches from `/api/search` and ranks grouped-query attention first for `GQA`; includes it for `attention` and `KV cache` queries using a mocked static export.
+- [x] `createDocsSearchClient` includes the token glossary for `Token` and for alias/body-style queries `tokens` and `tokenizer` using the same mocked export pattern.
+- [x] `loadSearchResultMetaMap` / `resolveSearchResultMeta` return kind, description, and tags for grouped-query attention and token URLs.
+- [x] `getMatchedTags` highlights `attention` when the query matches tag slugs or aliases.
+- [x] Typecheck passes
+- [x] Tests pass
 
 ### phase-1-search-experience-and-coverage-005: Shared search result presentation with full metadata
 
