@@ -1,5 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import {
+  GROUPED_QUERY_ATTENTION_PAGE_DIR,
+  TOKEN_GLOSSARY_PAGE_DIR,
+} from "./content-paths";
 import { type PageMessages, pageMessagesSchema } from "./schemas";
 
 export type MessageLoadErrorDetail =
@@ -16,15 +20,9 @@ export class MessageLoadError extends Error {
   }
 }
 
-export const groupedQueryAttentionPageDir = join(
-  process.cwd(),
-  "src/content/docs/modules/grouped-query-attention",
-);
+export const groupedQueryAttentionPageDir = GROUPED_QUERY_ATTENTION_PAGE_DIR;
 
-export const tokenGlossaryPageDir = join(
-  process.cwd(),
-  "src/content/docs/glossary/token",
-);
+export const tokenGlossaryPageDir = TOKEN_GLOSSARY_PAGE_DIR;
 
 function messagesFilePath(pageDirectory: string, locale: string): string {
   return join(pageDirectory, "messages", `${locale}.json`);

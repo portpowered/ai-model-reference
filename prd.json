@@ -1,46 +1,45 @@
 {
-  "project": "Model Atlas — Phase 1 Fresh CI and Smoke Tests",
-  "branchName": "phase-1-fresh-ci-and-smoke-tests",
-  "description": "Harden Phase 1 quality gates so make ci passes from a fresh checkout, wire baseline GitHub Actions with Bun lockfile install, extend registry validation and route smoke tests with direct behavioral evidence, and resolve or document the Next.js Turbopack filesystem tracing warning.",
+  "project": "Model Atlas — Phase 1 Turbopack Tracing Warning Cleanup",
+  "branchName": "phase-1-turbopack-tracing-warning-cleanup",
+  "description": "Eliminate or narrowly document the Next.js/Turbopack NFT whole-project filesystem tracing warning caused by runtime content loaders (notably glossary-pages.ts) during next build, by scoping filesystem access to src/content, decoupling fs scanners from the server-component import graph, and adding a build regression gate—without changing Phase 1 routes, search, or content scope.",
   "context": {
-    "customerAsk": "Phase 1 completion and architectural-checklist hardening: make the quality gates reliable from a fresh checkout and wire baseline CI. Ensure Makefile/package scripts generate Fumadocs source before standalone typecheck when needed, keep make ci as lint, typecheck, test, build, and validate-data, and add a GitHub Actions workflow that installs with Bun's committed lockfile and runs make ci. Add or extend smoke tests that assert the Phase 1 route/content surface exists and that registry validation covers messages, assets, related docs, tags, and citations. Address the current Next/Turbopack filesystem tracing warning if it can be fixed by scoping content loaders cleanly; otherwise document the residual warning in progress or a technical note.",
-    "problem": "Fresh clones fail typecheck without manually running fumadocs-mdx because .source/ is gitignored; GitHub Actions CI is missing; registry validation lacks complete negative test coverage for related docs and tags; and next build emits a Turbopack NFT filesystem tracing warning through content loader import chains.",
-    "solution": "Add pretypecheck Fumadocs generation, preserve make ci as lint/typecheck/test/build/validate-data, add a GitHub Actions workflow running make ci with bun install --frozen-lockfile, extend registry validation and Phase 1 smoke tests with behavioral failure cases, and scope content loaders or document the residual Turbopack warning."
+    "customerAsk": "Phase 1 repair: address the current Next/Turbopack production-build warning caused by broad filesystem tracing from content loaders, currently surfacing through src/lib/content/glossary-pages.ts during next build. Narrow filesystem access so tracing stays scoped to the content tree, or add the smallest acceptable documented containment if the warning cannot be eliminated cleanly in Phase 1. Do not broaden site scope or add Phase 2 content; the goal is a cleaner and more deterministic Phase 1 build.",
+    "problem": "Runtime content loaders under src/lib/content use node:fs and process.cwd() to discover MDX pages, registry JSON, and locale messages. When imported into App Router pages or MDX server components, Turbopack NFT may trace the whole project filesystem and emit a maintainer-visible warning during next build even though the build succeeds.",
+    "solution": "Add a build regression test for the Turbopack NFT tracing warning, centralize content filesystem roots under src/content, keep filesystem scanners behind async or dynamic server-only boundaries, resolve or consolidate glossary-pages.ts out of the production import graph, and apply minimal next.config tracing containment plus progress.txt documentation only if the warning cannot be eliminated cleanly in Phase 1."
   },
   "acceptanceCriteria": [
-    "After bun install on a fresh clone with no .source/, make typecheck and make ci exit 0 without manual codegen.",
-    "make ci runs lint, typecheck, test, build with Phase 1 static route verification, and validate-data in that order.",
-    "GitHub Actions installs with the committed bun.lock using frozen lockfile semantics and runs make ci on pull requests and pushes to main.",
-    "Registry validation tests demonstrate failure for broken messages, assets, relatedIds, tags, and citations, and success on the Phase 1 baseline.",
-    "Smoke tests render Phase 1 discovery routes and sample docs pages; build route verification fails when a required Phase 1 static route is missing.",
-    "next build produces no Turbopack NFT filesystem-tracing warning, or the residual warning is documented in progress.txt with trace and mitigation notes.",
+    "bun run build exits 0 without printing the Turbopack NFT unintentional whole-project filesystem tracing warning from content loader import chains.",
+    "If the warning persists after scoping, progress.txt documents the residual warning with import trace, root cause, attempted fix, and follow-up recommendation, plus minimal Turbopack containment limited to src/content when applicable.",
+    "Runtime content loaders resolve paths through a shared content-root helper targeting src/content, not scattered process.cwd() joins in the production graph.",
+    "App Router pages and MDX server components do not statically import modules that invoke filesystem APIs at module evaluation time.",
+    "glossary-pages.ts is consolidated with existing glossary loading or removed from the production server import graph.",
+    "Phase 1 route smoke tests, glossary/tag loader tests, and static route verification pass without URL or content changes.",
     "Typecheck, lint, and tests pass via make ci."
   ],
   "userStories": [
     {
-      "id": "phase-1-fresh-ci-and-smoke-tests-001",
-      "title": "Generate Fumadocs source before standalone typecheck",
-      "description": "As a maintainer, I need Fumadocs MDX source generated automatically before typecheck so fresh checkouts do not fail on missing .source/server.",
+      "id": "phase-1-turbopack-tracing-warning-cleanup-001",
+      "title": "Add build regression gate for Turbopack tracing warning",
+      "description": "As a CI maintainer, I want an automated test that fails when next build reintroduces the Turbopack NFT whole-project tracing warning so regressions are caught before merge.",
       "acceptanceCriteria": [
-        "package.json runs fumadocs-mdx before tsc --noEmit via pretypecheck or equivalent so src/lib/source.ts resolves without manual codegen.",
-        "pretest continues to run fumadocs-mdx so tests remain valid when typecheck is skipped.",
-        "Deleting .source/ then running make typecheck exits 0 after bun install.",
-        "README Quality Gates section documents Fumadocs source generation before typecheck and lists full make ci steps including validate-data.",
-        "Typecheck passes"
+        "A Bun test runs bun run build from the repository root with .next removed beforehand and expects exit code 0.",
+        "The test fails if combined build stdout/stderr matches the known Turbopack NFT whole-project filesystem tracing warning pattern associated with content loader import chains.",
+        "The test comment documents the warning substring(s) it guards against for future Next.js message updates.",
+        "Typecheck passes",
+        "Tests pass"
       ],
       "priority": 1,
       "passes": true,
       "notes": ""
     },
     {
-      "id": "phase-1-fresh-ci-and-smoke-tests-002",
-      "title": "Extend registry validation negative coverage",
-      "description": "As a CI maintainer, I need deterministic tests proving make validate-data catches broken messages, assets, related-document references, tags, and citations.",
+      "id": "phase-1-turbopack-tracing-warning-cleanup-002",
+      "title": "Centralize content filesystem roots under src/content",
+      "description": "As a maintainer, I want all runtime content loaders to resolve filesystem paths through one shared content-root helper so Turbopack tracing targets the content tree instead of the whole repository.",
       "acceptanceCriteria": [
-        "A Bun test fails validation when a registry record references a missing relatedIds target, naming the record id and missing related id.",
-        "A Bun test fails validation when a registry record references an unknown tag, naming the record and tag reference.",
-        "Tests continue to cover unresolved citationIds, missing colocated message keys, and missing asset message keys; committed Phase 1 baseline still passes.",
-        "Running make validate-data on the committed tree exits 0.",
+        "A shared content-paths module exports stable roots for src/content, docs, glossary, modules, registry, and messages derived from the project directory.",
+        "glossary-pages.ts, pages.ts, registry.ts, ui-messages.ts, glossary-page.ts, module-page.ts, and related loaders consume the shared roots; tests may still override via options or fixtures.",
+        "Existing glossary, pages, registry, and UI message loader tests pass with unchanged behavioral expectations.",
         "Typecheck passes",
         "Tests pass"
       ],
@@ -49,13 +48,14 @@
       "notes": ""
     },
     {
-      "id": "phase-1-fresh-ci-and-smoke-tests-003",
-      "title": "Strengthen Phase 1 route and content smoke tests",
-      "description": "As a maintainer, I want automated smoke tests that prove the Phase 1 browsing and sample content surface renders and build output includes required static routes.",
+      "id": "phase-1-turbopack-tracing-warning-cleanup-003",
+      "title": "Keep filesystem scanners out of the static server-component import graph",
+      "description": "As a maintainer, I want App Router pages and MDX server components to import only pure helpers or thin async facades so Turbopack does not trace broad filesystem access through the React server graph.",
       "acceptanceCriteria": [
-        "Discovery smoke tests render /, /search, /docs/architecture, /docs/glossary, /tags, /tags/attention, /docs/glossary/token, and /docs/modules/grouped-query-attention without throw and assert representative copy or canonical hrefs.",
-        "A test exercises scripts/verify-phase-1-static-routes.ts against a fixture manifest and fails when a required Phase 1 route is absent.",
-        "Tag browse helper smoke asserts grouped-query attention appears under the attention tag for Phase 1 baseline content.",
+        "Route modules under src/app and server MDX components such as DerivedRelatedDocs do not have static import chains that evaluate node:fs APIs at module load time.",
+        "Filesystem scanning for glossary, tag, architecture, and per-page loaders occurs inside async functions or dynamically imported server-only modules.",
+        "Pure modules content-hrefs.ts, related-docs.ts, and registry-runtime.ts remain free of filesystem imports.",
+        "/docs/glossary, /docs/glossary/token, /docs/modules/grouped-query-attention, /tags, and /tags/attention render the same published Phase 1 content as before.",
         "Typecheck passes",
         "Tests pass"
       ],
@@ -64,34 +64,50 @@
       "notes": ""
     },
     {
-      "id": "phase-1-fresh-ci-and-smoke-tests-004",
-      "title": "Add baseline GitHub Actions CI workflow",
-      "description": "As a repository maintainer, I want pull requests enforced by automated CI running the same make ci path as local development.",
+      "id": "phase-1-turbopack-tracing-warning-cleanup-004",
+      "title": "Resolve glossary-pages.ts tracing surface",
+      "description": "As a maintainer, I want the loader called out in the Turbopack warning removed from the production server graph or consolidated with the existing glossary index path.",
       "acceptanceCriteria": [
-        ".github/workflows/ci.yml triggers on pull requests and pushes to main.",
-        "The workflow uses oven-sh/setup-bun and installs with the committed bun.lock using frozen lockfile semantics.",
-        "The workflow runs make ci from the repository root and fails the job when any step exits non-zero.",
-        "The baseline workflow does not require secrets for lint, typecheck, test, build, and validate-data.",
-        "README notes that CI runs make ci via GitHub Actions.",
-        "Typecheck passes"
+        "Production App Router and MDX import graphs no longer statically depend on glossary-pages.ts, or listPublishedGlossaryPages is consolidated with loadPublishedGlossaryEntries so only one glossary scanner exists in the server graph.",
+        "Glossary index behavior is unchanged: published token entry appears with title, summary, and /docs/glossary/token URL; draft entries remain excluded.",
+        "glossary-pages.test.ts continues to pass after any consolidation.",
+        "The build regression test no longer detects a tracing warning whose import trace includes glossary-pages.ts.",
+        "Typecheck passes",
+        "Tests pass"
       ],
       "priority": 4,
       "passes": true,
       "notes": ""
     },
     {
-      "id": "phase-1-fresh-ci-and-smoke-tests-005",
-      "title": "Resolve or document Turbopack filesystem tracing warning",
-      "description": "As a maintainer, I want the Next.js build free of unintended whole-project filesystem tracing warnings, or a clear record of why a residual warning remains.",
+      "id": "phase-1-turbopack-tracing-warning-cleanup-005",
+      "title": "Apply Turbopack containment fallback or document residual warning",
+      "description": "As a maintainer, I want either a warning-free build or the smallest documented containment when scoping alone cannot eliminate the Turbopack NFT warning in Phase 1.",
       "acceptanceCriteria": [
-        "Running bun run build no longer prints the Turbopack NFT whole-project tracing warning from content loader import chains, or progress.txt documents the residual warning with import trace, root cause, attempted fix, and follow-up recommendation.",
-        "If code changes are made, runtime filesystem loaders scope reads to src/content or an equivalent static subfolder rather than open-ended process.cwd() traversal.",
-        "Grouped-query attention and token glossary pages still render successfully after any loader scoping change.",
+        "If stories 002–004 eliminate the warning, no additional Turbopack tracing config beyond existing turbopack.root is required and progress.txt needs no residual-warning entry.",
+        "If the warning persists after scoping, add the smallest acceptable tracing containment in next.config.ts limited to src/content and record the import trace, root cause, attempted fixes, and follow-up in progress.txt.",
+        "bun run build exits 0 in either outcome.",
+        "The build regression test passes, or—only when documentation is the chosen outcome—the test asserts the documented accepted residual is absent from stdout while containment config is present.",
         "Typecheck passes",
-        "Tests pass when loader scoping behavior changes."
+        "Tests pass"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "phase-1-turbopack-tracing-warning-cleanup-006",
+      "title": "Verify Phase 1 CI and discovery surface unchanged",
+      "description": "As a Phase 1 maintainer, I want full quality gates green and discovery routes unchanged after tracing cleanup.",
+      "acceptanceCriteria": [
+        "make ci exits 0 running lint, typecheck, test, build with Phase 1 static route verification, and validate-data.",
+        "scripts/verify-phase-1-static-routes.ts passes against the production build manifest.",
+        "No new Phase 2 routes, registry records, or content pages are added.",
+        "Typecheck passes",
+        "Tests pass"
+      ],
+      "priority": 6,
+      "passes": true,
       "notes": ""
     }
   ]

@@ -1,0 +1,31 @@
+import type {
+  CitationRecord,
+  ConceptRecord,
+  GraphRecord,
+  ModuleRecord,
+  TagRecord,
+} from "./schemas";
+
+export type RegistryRecord =
+  | ModuleRecord
+  | ConceptRecord
+  | TagRecord
+  | CitationRecord
+  | GraphRecord;
+
+export type RegistryIndexes = {
+  byId: Map<string, RegistryRecord>;
+  bySlug: Map<string, RegistryRecord>;
+  tagsById: Map<string, TagRecord>;
+  tagsBySlug: Map<string, TagRecord>;
+};
+
+export function getRegistryRecord(
+  indexes: RegistryIndexes,
+  registryId?: string,
+): RegistryRecord | undefined {
+  if (!registryId) {
+    return undefined;
+  }
+  return indexes.byId.get(registryId);
+}

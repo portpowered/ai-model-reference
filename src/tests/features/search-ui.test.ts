@@ -12,8 +12,8 @@ import { SAMPLE_MODULE_URL } from "@/tests/search/helpers";
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
 
 describe("search UI messages", () => {
-  test("loads localized copy for dialog, trigger, and result states", () => {
-    const messages = loadUiMessages();
+  test("loads localized copy for dialog, trigger, and result states", async () => {
+    const messages = await loadUiMessages();
     expect(messages.search.open).toBe("Open search");
     expect(messages.search.placeholder.length).toBeGreaterThan(0);
     expect(messages.search.close.length).toBeGreaterThan(0);
@@ -24,8 +24,8 @@ describe("search UI messages", () => {
     expect(messages.search.resultPath.length).toBeGreaterThan(0);
   });
 
-  test("formatPageKind resolves module kind for search results", () => {
-    const messages = loadUiMessages();
+  test("formatPageKind resolves module kind for search results", async () => {
+    const messages = await loadUiMessages();
     expect(formatPageKind(messages, "module")).toBe("Module");
   });
 });
