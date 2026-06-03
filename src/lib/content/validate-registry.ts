@@ -16,9 +16,13 @@ import {
 import {
   type ModuleRecord,
   type PageAssetConfig,
+  type PageKind,
   type PageMessages,
   pageFrontmatterSchema,
 } from "./schemas";
+import { parseYamlFrontmatterBlock } from "./yaml-frontmatter";
+
+export { parseYamlFrontmatterBlock };
 
 export type ValidationError = {
   code: string;
@@ -34,7 +38,25 @@ const registryKindDirectories: Record<string, string> = {
   concept: "concepts",
   tag: "tags",
   citation: "citations",
+  graph: "graphs",
 };
+
+/** Glossary pages reference concept registry records with a distinct page kind. */
+const pageKindRegistryKindAliases: Partial<
+  Record<PageKind, RegistryRecord["kind"]>
+> = {
+  glossary: "concept",
+};
+
+function pageKindMatchesRegistryRecord(
+  pageKind: PageKind,
+  registryKind: RegistryRecord["kind"],
+): boolean {
+  return (
+    pageKind === registryKind ||
+    pageKindRegistryKindAliases[pageKind] === registryKind
+  );
+}
 
 /** Phase 1 page directories validated even when `page.mdx` is not present yet. */
 export const phase1PageDirectories = [
@@ -137,6 +159,14 @@ function validateRegistryRecordReferences(
     );
   }
 
+  if (record.kind === "graph" && !indexes.byId.has(record.subjectId)) {
+    errors.push({
+      code: "unresolved-reference",
+      message: `${record.id}: subjectId references missing record "${record.subjectId}"`,
+      path: filePath,
+    });
+  }
+
   for (const { field, ids } of referenceFields) {
     for (const id of ids) {
       if (!indexes.byId.has(id)) {
@@ -176,36 +206,6 @@ function validateRegistryRecordReferences(
   }
 
   return errors;
-}
-
-export function parseYamlFrontmatterBlock(
-  block: string,
-): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  const lines = block.split("\n");
-  let i = 0;
-  while (i < lines.length) {
-    const line = lines[i];
-    const keyMatch = line.match(/^(\w+):\s*(.*)$/);
-    if (!keyMatch) {
-      i += 1;
-      continue;
-    }
-    const [, key, rest] = keyMatch;
-    if (rest.length === 0) {
-      const items: string[] = [];
-      i += 1;
-      while (i < lines.length && /^\s+-\s+/.test(lines[i])) {
-        items.push(lines[i].replace(/^\s+-\s+/, "").replace(/^"|"$/g, ""));
-        i += 1;
-      }
-      result[key] = items;
-      continue;
-    }
-    result[key] = rest.replace(/^"|"$/g, "");
-    i += 1;
-  }
-  return result;
 }
 
 function extractQuotedAttributeValues(
@@ -260,6 +260,29 @@ function validateAssetMessageKeys(
   return errors;
 }
 
+function validateGraphAssetReferences(
+  pageDirectory: string,
+  assets: PageAssetConfig,
+  indexes: RegistryIndexes,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  for (const [assetId, asset] of Object.entries(assets)) {
+    if (asset.type !== "graph") {
+      continue;
+    }
+    if (!indexes.byId.has(asset.graphId)) {
+      errors.push({
+        code: "unresolved-graph-id",
+        message: `${pageDirectory}: asset "${assetId}" references missing graph "${asset.graphId}"`,
+        path: join(pageDirectory, "assets.json"),
+      });
+    }
+  }
+
+  return errors;
+}
+
 async function discoverPageMdxFiles(docsRoot: string): Promise<string[]> {
   const pagePaths: string[] = [];
 
@@ -289,6 +312,7 @@ async function discoverPageMdxFiles(docsRoot: string): Promise<string[]> {
 
 export async function validateColocatedPageBundle(
   pageDirectory: string,
+  indexes?: RegistryIndexes,
 ): Promise<{
   errors: ValidationError[];
   messages?: PageMessages;
@@ -323,6 +347,12 @@ export async function validateColocatedPageBundle(
   }
 
   errors.push(...validateAssetMessageKeys(pageDirectory, assets, messages));
+
+  if (indexes) {
+    errors.push(
+      ...validateGraphAssetReferences(pageDirectory, assets, indexes),
+    );
+  }
 
   return { errors, messages, assets };
 }
@@ -365,7 +395,9 @@ async function validatePageMdx(
       message: `${pagePath}: registryId "${frontmatter.data.registryId}" does not resolve`,
       path: pagePath,
     });
-  } else if (registryRecord.kind !== frontmatter.data.kind) {
+  } else if (
+    !pageKindMatchesRegistryRecord(frontmatter.data.kind, registryRecord.kind)
+  ) {
     errors.push({
       code: "kind-mismatch",
       message: `${pagePath}: frontmatter kind "${frontmatter.data.kind}" does not match registry record kind "${registryRecord.kind}"`,
@@ -383,7 +415,7 @@ async function validatePageMdx(
     }
   }
 
-  const bundle = await validateColocatedPageBundle(pageDirectory);
+  const bundle = await validateColocatedPageBundle(pageDirectory, indexes);
   errors.push(...bundle.errors);
   if (!bundle.messages || !bundle.assets) {
     return errors;
@@ -493,7 +525,9 @@ export async function validateRegistryContent(
     if (validatedPageDirectories.has(pageDirectory)) {
       continue;
     }
-    errors.push(...(await validateColocatedPageBundle(pageDirectory)).errors);
+    errors.push(
+      ...(await validateColocatedPageBundle(pageDirectory, indexes)).errors,
+    );
   }
 
   return errors;

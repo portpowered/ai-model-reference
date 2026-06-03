@@ -1,0 +1,29 @@
+{
+  "id": "graph.grouped-query-attention-compute-schema",
+  "slug": "grouped-query-attention-compute-schema",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-01T00:00:00.000Z",
+  "updatedAt": "2026-06-02T00:00:00.000Z",
+  "subjectId": "module.grouped-query-attention",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "gqa-schema",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "gqa-schema",
+      "labelKey": "assets.computeSchema.alt",
+      "moduleKind": "attention",
+      "childNodeIds": []
+    }
+  ],
+  "edges": []
+}

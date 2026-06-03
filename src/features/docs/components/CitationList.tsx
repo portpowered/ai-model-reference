@@ -1,5 +1,5 @@
 import { resolveCitations } from "@/lib/content/citations";
-import { getModuleById } from "@/lib/content/registry-runtime";
+import { getRegistryCitationIds } from "@/lib/content/registry-runtime";
 
 type CitationListProps = {} & (
   | { registryId: string; citationIds?: never }
@@ -11,7 +11,7 @@ function resolveCitationIds(props: CitationListProps): string[] {
     return props.citationIds;
   }
   if ("registryId" in props && props.registryId !== undefined) {
-    return getModuleById(props.registryId)?.citationIds ?? [];
+    return getRegistryCitationIds(props.registryId) ?? [];
   }
   return [];
 }
