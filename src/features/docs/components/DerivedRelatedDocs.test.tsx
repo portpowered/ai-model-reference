@@ -20,11 +20,27 @@ describe("DerivedRelatedDocs", () => {
     expect(html).toContain("Same variant group");
   });
 
+  test("renders shared-tags peers for the token concept glossary page", () => {
+    const html = renderToStaticMarkup(
+      <DerivedRelatedDocs
+        registryId="concept.token"
+        groups={["shared-tags", "same-concept-type"]}
+      />,
+    );
+
+    expect(html).toContain('data-testid="derived-related-docs"');
+    expect(html).toContain('data-derived-group="shared-tags"');
+    expect(html).toContain('href="/docs/modules/grouped-query-attention"');
+    expect(html).toContain('href="/docs/modules/multi-head-attention"');
+    expect(html).toContain("Shared tag");
+    expect(html).not.toContain('data-derived-group="same-concept-type"');
+  });
+
   test("renders nothing when only unsupported groups are requested", () => {
     const html = renderToStaticMarkup(
       <DerivedRelatedDocs
         registryId="module.grouped-query-attention"
-        groups={["same-concept-type", "shared-tags"]}
+        groups={["used-by-models", "curated-related"]}
       />,
     );
 
