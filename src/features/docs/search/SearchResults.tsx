@@ -51,16 +51,14 @@ export function SearchResultListItem({
         onClick={onClick}
         className={className}
       />
-      {(meta?.description || matchedTags.length > 0) && (
+      {meta ? (
         <div className="space-y-1 px-3 pb-2 ps-10 text-sm">
-          {meta ? (
-            <p className="text-xs text-fd-muted-foreground">
-              <span className="rounded-md border border-fd-border bg-fd-secondary px-1.5 py-0.5">
-                {formatPageKind(messages, meta.kind)}
-              </span>
-            </p>
-          ) : null}
-          {meta?.description ? (
+          <p className="text-xs text-fd-muted-foreground">
+            <span className="rounded-md border border-fd-border bg-fd-secondary px-1.5 py-0.5">
+              {formatPageKind(messages, meta.kind)}
+            </span>
+          </p>
+          {meta.description ? (
             <p className="line-clamp-2 text-fd-muted-foreground">
               {meta.description}
             </p>
@@ -78,7 +76,7 @@ export function SearchResultListItem({
             </div>
           ) : null}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
