@@ -1,0 +1,29 @@
+{
+  "id": "citation.gqa-paper",
+  "slug": "gqa-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["GQA paper", "grouped-query attention paper"],
+  "tags": ["attention", "transformers"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-01T00:00:00.000Z",
+  "updatedAt": "2026-06-02T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Joshua Ainslie",
+    "James Lee-Thorp",
+    "Seth R. Robertson",
+    "Emily Reif",
+    "Noam Shazeer",
+    "Andy Davis",
+    "Coleman Caulfield",
+    "Jonathan H. Clark"
+  ],
+  "title": "GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints",
+  "year": 2023,
+  "url": "https://arxiv.org/abs/2305.13245",
+  "mla": "Ainslie, Joshua, et al. \"GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints.\" arXiv, 2023, https://arxiv.org/abs/2305.13245."
+}

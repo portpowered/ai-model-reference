@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { getModuleById, getRegistryTags } from "@/lib/content/registry";
+import {
+  getModuleById,
+  getRegistryCitationIds,
+  getRegistryTags,
+} from "@/lib/content/registry";
 
 describe("registry", () => {
   test("getModuleById returns grouped-query attention", () => {
@@ -17,5 +21,15 @@ describe("registry", () => {
 
   test("getRegistryTags returns undefined for unknown records", () => {
     expect(getRegistryTags("module.unknown")).toBeUndefined();
+  });
+
+  test("getRegistryCitationIds returns citations for grouped-query attention", () => {
+    expect(getRegistryCitationIds("module.grouped-query-attention")).toEqual([
+      "citation.gqa-paper",
+    ]);
+  });
+
+  test("getRegistryCitationIds returns undefined for unknown records", () => {
+    expect(getRegistryCitationIds("module.unknown")).toBeUndefined();
   });
 });

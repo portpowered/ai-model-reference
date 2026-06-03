@@ -23,3 +23,14 @@ export function getRegistryTags(registryId: string): string[] | undefined {
   }
   return undefined;
 }
+
+/** Citation IDs declared on a module registry record, when the record exists. */
+export function getRegistryCitationIds(
+  registryId: string,
+): string[] | undefined {
+  const module = getModuleById(registryId);
+  if (module) {
+    return module.citationIds;
+  }
+  return undefined;
+}

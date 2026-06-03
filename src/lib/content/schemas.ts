@@ -53,6 +53,29 @@ export const moduleRecordSchema = z.object({
 
 export type ModuleRecord = z.infer<typeof moduleRecordSchema>;
 
+export const citationTypeSchema = z.enum([
+  "paper",
+  "blog",
+  "documentation",
+  "repository",
+  "dataset",
+  "other",
+]);
+
+export const citationRecordSchema = z.object({
+  ...baseRecordShape,
+  kind: z.literal("citation"),
+  citationType: citationTypeSchema,
+  authors: z.array(z.string()),
+  title: z.string().min(1),
+  year: z.number().int().optional(),
+  url: z.string().url(),
+  accessedAt: z.string().min(1).optional(),
+  mla: z.string().min(1),
+});
+
+export type CitationRecord = z.infer<typeof citationRecordSchema>;
+
 export const pageFrontmatterSchema = z.object({
   kind: z.literal("module"),
   registryId: z.string().min(1),

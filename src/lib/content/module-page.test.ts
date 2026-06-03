@@ -43,14 +43,12 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(page.messages.title).toBe("Grouped-Query Attention");
 
     const html = renderToStaticMarkup(
-      createElement(
-        ModulePageProviders,
-        {
-          messages: page.messages,
-          assets: page.assets,
-        },
-        page.content,
-      ),
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
     );
 
     expect(html).toContain("Grouped-Query Attention");
@@ -61,6 +59,10 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(html).toContain("At a glance");
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/kv-cache"');
+    expect(html).toContain('data-testid="citation-list"');
+    expect(html).toContain("Ainslie, Joshua, et al.");
+    expect(html).toContain('href="https://arxiv.org/abs/2305.13245"');
+    expect(html).toContain('rel="noopener noreferrer"');
   });
 });
 
