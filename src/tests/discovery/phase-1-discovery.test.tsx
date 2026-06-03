@@ -39,6 +39,7 @@ const PHASE_1_DISCOVERY_ROUTES = [
     path: "/tags",
     render: () => TagsIndexPage(),
     expectInHtml: "Tags",
+    alsoExpectInHtml: "/tags/attention",
   },
 ] as const;
 
