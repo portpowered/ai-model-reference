@@ -1,5 +1,7 @@
-import { glossaryPageHref } from "@/lib/content/glossary-pages";
+import { glossaryPageHref, modulePageHref } from "@/lib/content/content-hrefs";
 import type { ConceptRecord, ModuleRecord } from "@/lib/content/schemas";
+
+export { glossaryPageHref, modulePageHref } from "@/lib/content/content-hrefs";
 
 export const SAME_VARIANT_GROUP = "same-variant-group" as const;
 export const SHARED_TAGS = "shared-tags" as const;
@@ -40,11 +42,6 @@ function formatSlugLabel(slug: string): string {
     .split("-")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
-}
-
-/** Canonical module docs URL for a registry slug. */
-export function modulePageHref(slug: string): string {
-  return `/docs/modules/${slug}`;
 }
 
 /** Reader-facing title from registry aliases or slug. */

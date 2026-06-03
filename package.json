@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "biome check .",
     "format": "biome format --write .",
+    "pretypecheck": "fumadocs-mdx",
     "typecheck": "tsc --noEmit",
     "pretest": "fumadocs-mdx",
     "test": "bun test",

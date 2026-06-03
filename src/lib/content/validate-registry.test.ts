@@ -241,6 +241,99 @@ describe("validateRegistryContent", () => {
     }
   });
 
+  test("reports missing relatedIds targets with record id and missing related id", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "concepts"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(join(registryRoot, "citations"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify({
+        ...validModuleRecord,
+        relatedIds: ["module.missing-related"],
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(registryRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(errors.length).toBeGreaterThan(0);
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "unresolved-reference" &&
+            error.message.includes("module.grouped-query-attention") &&
+            error.message.includes("relatedIds") &&
+            error.message.includes('missing record "module.missing-related"'),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports unknown tag references with record id and tag slug", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "concepts"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(join(registryRoot, "citations"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify({
+        ...validModuleRecord,
+        tags: ["attention", "unknown-tag-slug"],
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(registryRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(errors.length).toBeGreaterThan(0);
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "unresolved-tag" &&
+            error.message.includes("module.grouped-query-attention") &&
+            error.message.includes('unknown tag "unknown-tag-slug"'),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   test("reports unresolved citation references", async () => {
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");

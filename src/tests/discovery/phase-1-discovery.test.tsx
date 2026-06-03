@@ -101,21 +101,30 @@ describe("Phase 1 discovery route smoke", () => {
     const page = await TagLandingPage({
       params: Promise.resolve({ slug: "attention" }),
     });
-    expectRouteRendersOk(
-      page,
-      "Attention",
-      "/docs/modules/grouped-query-attention",
-    );
+    const html = renderToStaticMarkup(page);
+    expect(html.length).toBeGreaterThan(0);
+    expect(html).toContain("Attention");
+    expect(html).toContain('href="/docs/modules/grouped-query-attention"');
+    expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).toContain('href="/search?tag=attention"');
+    expect(html).not.toContain("lorem");
   });
 
   test("/docs/glossary/token renders without error", async () => {
     const page = await TokenGlossaryPage();
-    expectRouteRendersOk(page, "Token");
+    const html = renderToStaticMarkup(page);
+    expect(html.length).toBeGreaterThan(0);
+    expect(html).toContain("Token");
+    expect(html).not.toContain("lorem");
   });
 
   test("/docs/modules/grouped-query-attention renders without error", async () => {
     const page = await GroupedQueryAttentionPage();
-    expectRouteRendersOk(page, "Grouped-Query Attention");
+    const html = renderToStaticMarkup(page);
+    expect(html.length).toBeGreaterThan(0);
+    expect(html).toContain("Grouped-Query Attention");
+    expect(html).toContain('href="/tags/attention"');
+    expect(html).not.toContain("lorem");
   });
 });
 

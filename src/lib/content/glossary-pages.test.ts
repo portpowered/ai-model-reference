@@ -2,21 +2,12 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import {
-  glossaryPageHref,
-  listPublishedGlossaryPages,
-} from "@/lib/content/glossary-pages";
+import { listPublishedGlossaryPages } from "@/lib/content/glossary-pages";
 
 const TOKEN_TITLE = "Token";
 const TOKEN_SUMMARY =
   "The smallest unit of text a language model reads and predicts—usually a word piece, not always a whole word.";
 const TOKEN_URL = "/docs/glossary/token";
-
-describe("glossaryPageHref", () => {
-  test("builds canonical glossary docs URL", () => {
-    expect(glossaryPageHref("token")).toBe(TOKEN_URL);
-  });
-});
 
 describe("listPublishedGlossaryPages", () => {
   test("includes published token glossary entry with resolved title, summary, and URL", async () => {
