@@ -37,19 +37,20 @@ describe("loadModulePage grouped-query-attention", () => {
   test("compiles MDX with local namespaces and message-driven opening copy", async () => {
     const page = await loadModulePage("grouped-query-attention");
 
-    expect(page.frontmatter.registryId).toBe(
-      "module.grouped-query-attention",
-    );
+    expect(page.frontmatter.registryId).toBe("module.grouped-query-attention");
     expect(page.frontmatter.messageNamespace).toBe("local");
     expect(page.frontmatter.assetNamespace).toBe("local");
     expect(page.messages.title).toBe("Grouped-Query Attention");
 
     const html = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: page.messages,
-        assets: page.assets,
-        children: page.content,
-      }),
+      createElement(
+        ModulePageProviders,
+        {
+          messages: page.messages,
+          assets: page.assets,
+        },
+        page.content,
+      ),
     );
 
     expect(html).toContain("Grouped-Query Attention");
@@ -58,6 +59,8 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(html).toContain('data-registry-id="module.grouped-query-attention"');
     expect(html).toContain("Module metadata");
     expect(html).toContain("At a glance");
+    expect(html).toContain('href="/tags/attention"');
+    expect(html).toContain('href="/tags/kv-cache"');
   });
 });
 

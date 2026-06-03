@@ -1,12 +1,21 @@
 import { describe, expect, test } from "bun:test";
-import { getModuleById } from "@/lib/content/registry";
+import { getModuleById, getRegistryTags } from "@/lib/content/registry";
 
 describe("registry", () => {
-  test("loads the grouped-query attention module record", () => {
+  test("getModuleById returns grouped-query attention", () => {
     const record = getModuleById("module.grouped-query-attention");
-    expect(record).toBeDefined();
-    expect(record?.moduleType).toBe("attention");
-    expect(record?.variantGroup).toBe("attention-head-sharing");
-    expect(record?.optimizes).toContain("kv-cache");
+    expect(record?.slug).toBe("grouped-query-attention");
+    expect(record?.tags).toEqual(["attention", "kv-cache"]);
+  });
+
+  test("getRegistryTags returns tags for a known module", () => {
+    expect(getRegistryTags("module.grouped-query-attention")).toEqual([
+      "attention",
+      "kv-cache",
+    ]);
+  });
+
+  test("getRegistryTags returns undefined for unknown records", () => {
+    expect(getRegistryTags("module.unknown")).toBeUndefined();
   });
 });

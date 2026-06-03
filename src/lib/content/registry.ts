@@ -14,3 +14,12 @@ export function getModuleById(registryId: string): ModuleRecord | undefined {
 export function listModuleRecords(): ModuleRecord[] {
   return [...moduleRecords];
 }
+
+/** Tags declared on a registry record, when the record exists. */
+export function getRegistryTags(registryId: string): string[] | undefined {
+  const module = getModuleById(registryId);
+  if (module) {
+    return module.tags;
+  }
+  return undefined;
+}
