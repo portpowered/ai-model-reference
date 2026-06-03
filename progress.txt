@@ -1,5 +1,7 @@
 ## Codebase Patterns
-- Architecture index: `loadPublishedArchitectureEntries` in `src/lib/content/architecture.ts` includes pages under `docs/architecture/*` or published concept pages whose registry record has `conceptType: architecture` (requires `conceptRecordSchema` in `schemas.ts`).
+- Home discovery links: `/` must link to `/search`, `/docs/architecture`, `/docs/glossary`, `/docs/glossary/token`, `/tags`, and `/docs/modules/grouped-query-attention` via `HomeBrowseLink` or explicit `Link`; search section uses `HomeSearchEntry` plus a `/search` text link from `home.searchPageLinkTitle`.
+- Primary nav: `getPrimaryNavItems` in `src/components/layout/primary-nav.ts` is the single source for DocsShell links (`/`, `/search`, `/docs/architecture`, `/docs/glossary`, `/tags`); use `PRIMARY_NAV_LINK_CLASS` for ring-token focus styles.
+- Architecture index at `/docs/architecture`: `ArchitectureIndexList` / `ArchitectureEmptyState` mirror glossary index; `loadPublishedArchitectureEntries` includes `docs/architecture/*` paths and pages whose registry concept has `conceptType: architecture` (Phase 1 lists token at `/docs/glossary/token` via `concept.token`).
 - Phase 1 search assertions: use `resultsIncludeSampleModule` in `src/tests/search/helpers.ts` because Fumadocs advanced search returns multiple fragments per URL and `attention` may rank glossary hits above the GQA page row.
 - Search documents are built from `loadPublishedDocsPages(locale)` + `loadRegistry()` via `buildSearchDocuments` / `buildSearchDocumentsForLocale` in `src/lib/search/build-documents.ts`; body text and headings come from colocated `messages/<locale>.json`, not MDX prose.
 - Registry aliases and tag record aliases merge into `SearchDocument.aliases` through `tagSearchTerms()`; page and registry `tags` populate `SearchDocument.tags` and facets.
@@ -12,6 +14,7 @@
 - Tags index at `/tags` uses `loadPublishedTagIndexGroups` from published `tag` registry records; localized title/summary live in `src/content/registry/tags/messages/<slug>.<locale>.json`; `loadRegistry` skips `messages` subdirectories.
 - Tag index groups by `category` (schema order via `TAG_CATEGORY_ORDER`); tag slug chips use monochrome `border-border` / `text-muted-foreground` styling.
 - Tag landing at `/tags/[slug]` uses `loadTagResourceGroups` in `src/lib/content/tag-resources.ts` (matches tag on MDX frontmatter and registry record tags); `TagResourceList` groups by page kind and omits empty groups; `TagSearchHandoff` + `search-prefill.ts` prefill the global search dialog query when opened from a tag page.
+- Search entry at `/search` uses `searchEntry.*` message keys, documents canonical `/search` and optional `?tag=<slug>` handoffs, and `SearchEntryHandoff` (client, Suspense-wrapped) opens the global dialog with optional tag prefill via `setPendingSearchQuery`.
 
 ## 2026-06-03T15:30:00Z - default-pages-search-tags-007
 - Implemented `/tags` index listing published tag registry records grouped by category with localized title, summary, category label, and links to `/tags/<slug>`.
@@ -102,4 +105,62 @@
   - Phase 1 has no architecture-tagged pages yet; the index correctly shows the empty state until concept or `architecture/` docs are published.
   - Glossary index at `/docs/glossary` was already implemented; story 006 may only need verification/tests if acceptance criteria already pass.
   - Stale `next dev` on port 3002 can hang curl; use `next build` + `next start` on a fresh port for quick HTML verification.
+---
+
+## 2026-06-03T18:00:00Z - phase-1-entry-and-index-routes-001
+- Verified browse helpers in `architecture.ts`, `tags.ts`, and `tag-resources.ts`; extended `isArchitectureRelatedPage` to match any published page whose registry concept has `conceptType: architecture` (not only `frontmatter.kind === "concept"`).
+- Added architecture browse tests for token glossary entry and attention tag resource tests already covered GQA under modules.
+- Ran `make ci` (lint, typecheck, test, build, validate-data) after `bun install` and `fumadocs-mdx` generation in the worktree.
+- Files changed: `src/lib/content/architecture.ts`, `src/tests/content/architecture-index.test.ts`
+- **Learnings for future iterations:**
+  - Token glossary qualifies for architecture index via `concept.token` registry record even though page frontmatter uses `kind: glossary`.
+  - Run `bun install` in fresh worktrees before `make ci`; typecheck needs `.source/` from `pretest` / `fumadocs-mdx`.
+  - Tag browse helpers (`loadPublishedTagIndexEntries`, `loadTagResourceGroups`) were already present from prior work; story 001 mainly needed architecture membership alignment and tests.
+---
+
+## 2026-06-03T20:15:00Z - phase-1-entry-and-index-routes-002
+- Extended `common.json` with `nav.search`, `nav.architecture`, and `searchEntry` discovery copy; removed placeholder `nav.docs` target.
+- Centralized Phase 1 primary nav in `getPrimaryNavItems` and wired `DocsShell` to render Home, Search, Architecture, Glossary, and Tags with `focus-visible:ring-ring`.
+- Added unit tests for nav item order and message keys.
+- Verified dev server HTML on port 3020: primary nav shows all five discovery links; grouped-query-attention no longer appears in the header.
+- Files changed: `src/components/layout/primary-nav.ts`, `src/components/layout/primary-nav.test.ts`, `src/components/layout/docs-shell.tsx`, `src/content/messages/en/common.json`, `src/lib/content/ui-messages.types.ts`, `src/tests/content/ui-messages.test.ts`
+- **Learnings for future iterations:**
+  - Story 004 `/search` page can reuse `searchEntry.title` / `searchEntry.description` message keys already added for discovery titles.
+  - Extract nav config to a pure module so client `DocsShell` stays thin and nav order is testable without rendering hooks.
+  - `/search` nav link is intentional before the route exists; expect 404 until story 004.
+---
+
+## 2026-06-03T21:30:00Z - phase-1-entry-and-index-routes-003
+- Completed Model Atlas home at `/` with brush-stroke header, localized search and browse sections, `HomeSearchEntry` dialog handoff, explicit `/search` link, and browse cards for architecture, glossary, token glossary, tags, and grouped-query attention.
+- Renamed sample module browse copy to "Grouped-query attention"; added `home.searchPageLink*` and `home.tokenLink*` message keys.
+- Added `home-page.test.tsx` with static render assertions for all six Phase 1 discovery hrefs and no placeholder copy in the article body.
+- Verified production HTML on `next start` port 3021: Model Atlas title, `data-search`, and all discovery hrefs present.
+- Files changed: `src/app/(site)/page.tsx`, `src/content/messages/en/common.json`, `src/lib/content/ui-messages.types.ts`, `src/tests/content/home-page.test.tsx` (replaced `.test.ts`)
+- **Learnings for future iterations:**
+  - Use `.test.tsx` when asserting rendered markup with JSX; Biome rejects `<Component />` in `.ts` files.
+  - `/search` route is still story 004; home and nav already link to it for bookmarks and handoffs.
+  - `HomeSearchEntry` opens the global dialog; the `/search` link is the documented entry path for tag handoffs.
+---
+
+## 2026-06-03T22:45:00Z - phase-1-entry-and-index-routes-004
+- Added `/search` discovery route with localized `searchEntry` title, description, canonical path note, and `SearchEntryHandoff` that opens the global search dialog (optional `?tag=<slug>` prefill via `setPendingSearchQuery`).
+- Wrapped `SearchEntryHandoff` in `Suspense` for `useSearchParams`; extended message keys for canonical URL and tag filter copy.
+- Added `search-entry.test.tsx` and `/search` smoke in `phase-1-discovery.test.tsx`.
+- Verified production HTML on `next start` port 3022: Search heading, canonical `/search` note, `data-search`, and placeholder copy present.
+- Files changed: `src/app/(site)/search/page.tsx`, `src/features/docs/search/SearchEntryHandoff.tsx`, `src/content/messages/en/common.json`, `src/lib/content/ui-messages.types.ts`, `src/tests/content/search-entry.test.tsx`, `src/tests/discovery/phase-1-discovery.test.tsx`
+- **Learnings for future iterations:**
+  - `useSearchParams` in Next 16 requires a `Suspense` boundary on the page; use a static fallback that mirrors the handoff chrome for SSR.
+  - Tag landing handoffs can link to `/search?tag=<slug>`; the entry page prefills the dialog query on handoff click without auto-opening on load.
+  - `make ci` build output now lists `/search` as a static route alongside other discovery paths.
+---
+
+## 2026-06-03T23:30:00Z - phase-1-entry-and-index-routes-005
+- Verified `/docs/architecture` index route (from prior default-pages work) meets Phase 1 acceptance: localized messages, alphabetical entry list with Token glossary link, and accessible empty state when no entries qualify.
+- Added architecture index page render test and strengthened discovery smoke to assert Token on the architecture route.
+- Verified production HTML on `next start` port 3023: Architecture title, Token entry card, `/docs/glossary/token` link, primary nav, and `data-search` affordance.
+- Files changed: `src/tests/content/architecture-index.test.ts`, `src/tests/discovery/phase-1-discovery.test.tsx`
+- **Learnings for future iterations:**
+  - Story 005 was largely implemented before this branch iteration; completion was verification, render tests, and PRD tracking.
+  - Use `next build` + `next start -p <port>` for production HTML checks when dev servers are stale or occupied.
+  - Architecture index lists token via `concept.token` with `conceptType: architecture`, not via `architecture/` content path alone.
 ---
