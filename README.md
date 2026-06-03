@@ -91,7 +91,9 @@ generate `.source/` automatically before typecheck and tests.
 GitHub Actions runs the same gate sequence on pull requests and pushes to
 `main`: install dependencies with `bun install --frozen-lockfile`, then
 `make ci` (see `.github/workflows/ci.yml`). No repository secrets are required
-for lint, typecheck, test, build, or validate-data.
+for lint, typecheck, test, build, or validate-data. The baseline workflow does
+not run deploy or preview steps, linkcheck, PDF validation, or coverage
+thresholds—those gates are deferred to later phases.
 
 The root Makefile mirrors those CI-oriented checks locally. Run `make ci` from
 the repository root after `bun install --frozen-lockfile`; it runs, in order:
@@ -119,12 +121,16 @@ make build         # next build + Phase 1 static route check
 make validate-data # registry and content validation
 ```
 
-Stub targets exist for later work and are not part of `make ci`:
+Stub targets exist for later work and are not part of `make ci` or GitHub
+Actions:
 
 ```sh
 make linkcheck
 make validate-pdf
 ```
+
+Deploy and coverage gates are likewise out of scope for Phase 1; neither
+`.github/workflows/ci.yml` nor `make ci` invokes them.
 
 Equivalent Bun scripts are in `package.json` (`bun run lint`, `bun run build`,
 and so on).
