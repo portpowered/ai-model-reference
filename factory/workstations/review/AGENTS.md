@@ -86,3 +86,21 @@ To terminate the review loop, please respond exactly with
 "<REJECTED>": if you think the PR was not completed.
 
 If CI is still pending or in progress and you have no concrete independent review findings to report yet, respond `"<REJECTED>"` without posting a new PR comment so the workflow waits silently instead of creating premature review noise.
+
+  When starting local servers for verification:
+  - Never use a shared default port such as 3000 without first checking whether it is already occupied.
+  - Prefer a unique port per work item, for example 3100-3999.
+  - Every `curl` must use `--max-time 10` or shorter.
+  - Every long-running server must be started in a cleanup trap and killed before the command exits.
+  - Do not leave `bun run dev`, `bun run start`, Storybook, Playwright, or HTTP servers running after verification.
+
+  Use command patterns like:
+
+  PORT=3456
+  bun run start -- -p "$PORT" &
+  server_pid=$!
+  trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+
+  sleep 4
+  curl --fail --silent --show-error --max-time 10 \
+    "http://127.0.0.1:$PORT/docs/modules/grouped-query-attention"
