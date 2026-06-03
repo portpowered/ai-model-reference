@@ -11,6 +11,8 @@
 - Fumadocs advanced search uses `toAdvancedSearchIndexes` in `search-server.ts` at runtime without the generated artifact.
 - Published docs pages need `page.mdx` frontmatter (`kind`, `registryId`, `status: published`) plus colocated messages; registry JSON under `src/content/registry/<kind>/`.
 - Phase 1 sample content: GQA module at `src/content/docs/modules/grouped-query-attention`, token glossary at `src/content/docs/glossary/token`.
+- Phase 1 static route verification: `src/lib/build/verify-phase-1-static-routes.ts` exports `PHASE_1_STATIC_ROUTES`, `missingPhase1StaticRoutes`, and `verifyPhase1StaticRoutesFromManifest`; `scripts/verify-phase-1-static-routes.ts` accepts an optional manifest path argv for fixture tests; `make build` runs the script against `.next/app-path-routes-manifest.json`.
+- GitHub Actions CI: `.github/workflows/ci.yml` runs on `pull_request` and pushes to `main`; `oven-sh/setup-bun@v2`, `bun install --frozen-lockfile`, then `make ci` (no secrets).
 - Search API tests: `src/tests/search/search-api.test.ts` covers `docsSearchApi.search` ranking for GQA/title/attention/KV-cache variants and Token/tokens/tokenizer; use `resultsIncludeUrl`, `resultsIncludeSampleModule`, and `resultsIncludeTokenGlossary` from `helpers.ts`.
 - UI search client tests: `src/tests/search/search-client.test.ts` mocks `docsSearchApi.staticGET()` via `globalThis.fetch` and asserts `createDocsSearchClient` ranking; mirror token/GQA coverage from API tests in `search-result-meta.test.ts` for `resolveSearchResultMeta` / `getMatchedTags` (token glossary meta uses `attention` tag, not a `token` slug).
 - Global search UI: `SearchDialog`/`SearchTrigger` register via `AppProviders` → `RootProvider` in `src/app/layout.tsx`; `DocsShell` renders `SearchTrigger` in the top nav for every `(site)` route; `HomeSearchEntry` opens the same dialog from `/`.
@@ -268,4 +270,26 @@
   - `relatedIds` and tag validation already live in `validateRegistryRecordReferences`; story 002 was test coverage, not new validator logic.
   - Error shapes: `unresolved-reference` uses `${record.id}: ${field} references missing record "${id}"`; `unresolved-tag` uses `${record.id}: tags references unknown tag "${tagRef}"`.
   - Temp fixture tests need `tags/` and `citations/` dirs plus `attention` tag when module records reference `attention` or citations.
+---
+
+## 2026-06-04T16:00:00Z - phase-1-fresh-ci-and-smoke-tests-003
+- Extracted Phase 1 static route verification into `src/lib/build/verify-phase-1-static-routes.ts`; script accepts optional manifest path for fixture-based tests.
+- Added `verify-phase-1-static-routes.test.ts` with in-memory manifest assertions and `spawnSync` script checks (missing `/search` fails; complete manifest passes).
+- Strengthened discovery smoke for `/tags/attention` and GQA module with canonical href and no-lorem assertions.
+- Ran `make ci` (lint, typecheck, test, build, validate-data) — all exit 0.
+- Files changed: `src/lib/build/verify-phase-1-static-routes.ts`, `scripts/verify-phase-1-static-routes.ts`, `src/tests/discovery/verify-phase-1-static-routes.test.ts`, `src/tests/discovery/phase-1-discovery.test.tsx`
+- **Learnings for future iterations:**
+  - Next manifest checks use `Object.values(manifest)` as the built route set; fixture tests map each Phase 1 path to a dummy key.
+  - Story 004 adds `.github/workflows/ci.yml`; story 005 documents or fixes the Turbopack NFT warning from `glossary-pages.ts` import chain.
+  - `phase-1-route-modules.test.ts` remains file-existence coverage; behavioral smoke lives in `phase-1-discovery.test.tsx` and verify script tests.
+---
+
+## 2026-06-04T18:30:00Z - phase-1-fresh-ci-and-smoke-tests-004
+- Added `.github/workflows/ci.yml` with `pull_request` and `push` to `main`, `oven-sh/setup-bun@v2`, `bun install --frozen-lockfile`, and `make ci`.
+- Documented GitHub Actions parity with local Quality Gates in README (no secrets for baseline gates).
+- Ran `make ci` locally — all steps exit 0.
+- Files changed: `.github/workflows/ci.yml`, `README.md`
+- **Learnings for future iterations:**
+  - Baseline workflow needs no `bun-version` pin when using default setup-bun; lockfile enforcement is the separate `bun install --frozen-lockfile` step.
+  - Story 005 should document or fix the Turbopack NFT warning (`glossary-pages.ts` import chain); build still succeeds with the warning today.
 ---
