@@ -9,9 +9,14 @@ export type UiMessages = {
   };
   nav: {
     home: string;
+    search: string;
+    architecture: string;
     glossary: string;
     tags: string;
-    docs: string;
+  };
+  searchEntry: {
+    title: string;
+    description: string;
   };
   shell: {
     sidebarTitle: string;
