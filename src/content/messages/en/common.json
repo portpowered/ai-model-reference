@@ -19,8 +19,13 @@
   "searchEntry": {
     "title": "Search",
     "description": "Search Model Atlas by title, alias, or tag. Use the search control to jump to modules, concepts, and glossary entries.",
-    "canonicalNote": "Canonical search entry URL: /search. Tag handoffs may append ?tag=<slug> (for example /search?tag=attention).",
-    "tagFilterDescription": "Open search to explore resources tagged {tag}."
+    "canonicalNote": "Canonical search entry URL: /search. Query handoffs may append ?q=<term>; tag handoffs may append ?tag=<slug> (for example /search?tag=attention).",
+    "tagFilterDescription": "Showing results for resources tagged {tag}.",
+    "emptySuggestionGqa": "GQA",
+    "emptySuggestionAttentionLinkLabel": "attention tag index",
+    "emptySuggestionPrefix": "Try searching for",
+    "emptySuggestionMiddle": "or browse the",
+    "emptySuggestionSuffix": "."
   },
   "shell": {
     "sidebarTitle": "Reference",

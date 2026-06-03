@@ -21,6 +21,11 @@ export type UiMessages = {
     description: string;
     canonicalNote: string;
     tagFilterDescription: string;
+    emptySuggestionGqa: string;
+    emptySuggestionAttentionLinkLabel: string;
+    emptySuggestionPrefix: string;
+    emptySuggestionMiddle: string;
+    emptySuggestionSuffix: string;
   };
   shell: {
     sidebarTitle: string;

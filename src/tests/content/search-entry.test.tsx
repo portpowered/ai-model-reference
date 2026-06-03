@@ -9,13 +9,18 @@ describe("search entry page messages", () => {
     expect(searchEntry.title).toBe("Search");
     expect(searchEntry.description.length).toBeGreaterThan(0);
     expect(searchEntry.canonicalNote).toContain("/search");
+    expect(searchEntry.canonicalNote).toContain("?q=");
     expect(searchEntry.tagFilterDescription).toContain("{tag}");
+    expect(searchEntry.emptySuggestionGqa).toBe("GQA");
+    expect(
+      searchEntry.emptySuggestionAttentionLinkLabel.length,
+    ).toBeGreaterThan(0);
   });
 });
 
 describe("search entry page render", () => {
-  it("renders accessible heading and search handoff affordance", () => {
-    const html = renderToStaticMarkup(<SearchEntryPage />);
+  it("renders accessible heading and inline search input fallback", async () => {
+    const html = renderToStaticMarkup(await SearchEntryPage());
     expect(html).toContain("Search");
     expect(html).toContain("/search");
     expect(html).toContain("Search Model Atlas");

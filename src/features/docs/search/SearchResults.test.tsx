@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SearchResultMetaDetails } from "@/features/docs/search/SearchResultMetaDetails";
-import { isPageSearchItem } from "@/features/docs/search/SearchResults";
+import {
+  isPageSearchItem,
+  SearchInlineResultItem,
+} from "@/features/docs/search/SearchResults";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
@@ -59,6 +62,37 @@ describe("SearchResultListItem GQA dialog row", () => {
     expect(html).toContain(SAMPLE_MODULE_URL);
     expect(html).toContain(meta.description);
     expect(meta.tags).toContain("attention");
+  });
+});
+
+describe("SearchInlineResultItem", () => {
+  test("GQA page hit shows title, module kind, summary, and URL for /search rows", async () => {
+    const messages = loadUiMessages();
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+    const meta = metaByUrl[SAMPLE_MODULE_URL];
+    expect(meta).toBeDefined();
+
+    const html = renderToStaticMarkup(
+      <SearchInlineResultItem
+        item={{
+          id: "page-gqa",
+          type: "page",
+          url: SAMPLE_MODULE_URL,
+          content: "Grouped-Query Attention",
+        }}
+        query="GQA"
+        metaByUrl={metaByUrl}
+        messages={messages}
+        onSelect={() => {}}
+      />,
+    );
+
+    expect(html).toContain("Grouped-Query Attention");
+    expect(html).toContain(SAMPLE_MODULE_URL);
+    expect(html).toContain("Module");
+    expect(html).toContain(meta.description);
   });
 });
 
