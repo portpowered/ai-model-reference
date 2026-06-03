@@ -1,4 +1,5 @@
 ## Codebase Patterns
+- Fumadocs codegen: `pretypecheck` and `pretest` in `package.json` both run `fumadocs-mdx` so `make typecheck` and `make test` work on fresh clones without a gitignored `.source/` directory; `src/lib/source.ts` imports `../../.source/server`.
 - Home discovery links: `/` must link to `/search`, `/docs/architecture`, `/docs/glossary`, `/docs/glossary/token`, `/tags`, and `/docs/modules/grouped-query-attention` via `HomeBrowseLink` or explicit `Link`; search section uses `HomeSearchEntry` plus a `/search` text link from `home.searchPageLinkTitle`.
 - Primary nav: `getPrimaryNavItems` in `src/components/layout/primary-nav.ts` is the single source for DocsShell links (`/`, `/search`, `/docs/architecture`, `/docs/glossary`, `/tags`); use `PRIMARY_NAV_LINK_CLASS` for ring-token focus styles.
 - Architecture index at `/docs/architecture`: `ArchitectureIndexList` / `ArchitectureEmptyState` mirror glossary index; `loadPublishedArchitectureEntries` includes `docs/architecture/*` paths and pages whose registry concept has `conceptType: architecture` (Phase 1 lists token at `/docs/glossary/token` via `concept.token`).
@@ -244,4 +245,15 @@
   - Token glossary `SearchResultMeta.tags` is `["attention"]` in Phase 1; assert `attention`, not a `token` tag slug.
   - `getMatchedTags` matches alias phrases when the normalized query contains the tag slug (e.g. `self-attention` → `attention`).
   - Story 005 should add shared result component tests with URL/kind/summary fixtures; reuse `searchResultMetaMapToRecord` + helpers from `src/tests/search/`.
+---
+
+## 2026-06-04T12:00:00Z - phase-1-fresh-ci-and-smoke-tests-001
+- Added `pretypecheck` script running `fumadocs-mdx` before `tsc --noEmit` so fresh clones pass `make typecheck` without manual codegen; kept `pretest` for test-only runs.
+- Updated README Quality Gates to document Fumadocs generation, full `make ci` order (lint → typecheck → test → build → validate-data), and that `validate-data` is no longer a stub.
+- Verified `rm -rf .source && make typecheck` and `make ci` exit 0 after `bun install --frozen-lockfile`.
+- Files changed: `package.json`, `README.md`
+- **Learnings for future iterations:**
+  - Bun/npm lifecycle hooks: `pretypecheck` runs automatically before `bun run typecheck`; same pattern as existing `pretest`.
+  - Worktrees need `bun install` before `make ci`; without `node_modules`, `next build` fails with a misleading Turbopack root error.
+  - `make ci` already includes `validate-data`; README previously listed it as a stub—keep docs aligned with Makefile targets.
 ---
