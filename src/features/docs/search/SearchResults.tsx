@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  type UiMessages,
-  formatPageKind,
-} from "@/lib/content/ui-messages.types";
-import {
   SearchDialogListItem,
   type SearchItemType,
 } from "fumadocs-ui/components/dialog/search";
+import {
+  formatPageKind,
+  type UiMessages,
+} from "@/lib/content/ui-messages.types";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";
 import {
   getMatchedTags,

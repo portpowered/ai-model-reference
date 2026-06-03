@@ -1,8 +1,8 @@
 import { type DocsPageSource, loadPublishedDocsPages } from "./pages";
 import {
-  type RegistryStore,
   getRegistryRecord,
   loadRegistry,
+  type RegistryIndexes,
 } from "./registry";
 import type { ConceptRecord } from "./schemas";
 
@@ -21,7 +21,7 @@ function isConceptRecord(
 
 export function isArchitectureRelatedPage(
   page: DocsPageSource,
-  store: RegistryStore,
+  indexes: RegistryIndexes,
 ): boolean {
   if (page.docsSlug.startsWith("architecture/")) {
     return true;
@@ -31,7 +31,7 @@ export function isArchitectureRelatedPage(
     return false;
   }
 
-  const record = getRegistryRecord(store, page.frontmatter.registryId);
+  const record = getRegistryRecord(indexes, page.frontmatter.registryId);
   return isConceptRecord(record) && record.conceptType === "architecture";
 }
 
@@ -52,12 +52,12 @@ export function sortArchitectureEntriesByTitle(
   );
 }
 
-export function loadPublishedArchitectureEntries(
+export async function loadPublishedArchitectureEntries(
   locale = "en",
-): ArchitectureEntry[] {
-  const store = loadRegistry();
-  const pages = loadPublishedDocsPages(locale).filter((page) =>
-    isArchitectureRelatedPage(page, store),
+): Promise<ArchitectureEntry[]> {
+  const indexes = await loadRegistry();
+  const pages = (await loadPublishedDocsPages(locale)).filter((page) =>
+    isArchitectureRelatedPage(page, indexes),
   );
   return sortArchitectureEntriesByTitle(pages.map(toArchitectureEntry));
 }

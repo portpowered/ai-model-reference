@@ -4,6 +4,7 @@ bin/
 
 node_modules/
 .next/
+.source/
 src/generated/
 storybook-static/
 *.tsbuildinfo

@@ -1,4 +1,4 @@
-import { create, insertMultiple, save } from "@orama/orama";
+import { create, insertMultiple, save, search } from "@orama/orama";
 import { toFumadocsIndexEntry } from "./to-structured-data";
 import type { SearchDocument } from "./types";
 
@@ -64,4 +64,17 @@ export async function exportOramaIndexSnapshot(documents: SearchDocument[]) {
     documents: documents.map((document) => toFumadocsIndexEntry(document)),
     orama: snapshot,
   };
+}
+
+export async function querySearchDocuments(
+  documents: SearchDocument[],
+  query: string,
+): Promise<SearchDocument[]> {
+  const db = await createOramaDatabase(documents);
+  const { hits } = await search(db, { term: query });
+  const urls = hits.map((hit) => (hit.document as OramaSearchRecord).url);
+  const byUrl = new Map(documents.map((document) => [document.url, document]));
+  return urls
+    .map((url) => byUrl.get(url))
+    .filter((document): document is SearchDocument => document !== undefined);
 }

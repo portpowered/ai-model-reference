@@ -3,9 +3,9 @@ import { ArchitectureIndexList } from "@/features/docs/architecture/Architecture
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
-export default function ArchitectureIndexPage() {
+export default async function ArchitectureIndexPage() {
   const messages = loadUiMessages();
-  const entries = loadPublishedArchitectureEntries();
+  const entries = await loadPublishedArchitectureEntries();
   const { architectureIndex } = messages;
 
   return (

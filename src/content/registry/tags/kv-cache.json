@@ -3,15 +3,15 @@
   "slug": "kv-cache",
   "kind": "tag",
   "defaultTitleKey": "title",
-  "defaultSummaryKey": "summary",
-  "aliases": ["KV cache", "key-value cache", "kv cache"],
+  "defaultSummaryKey": "description",
+  "aliases": ["KV cache", "key-value cache"],
   "tags": [],
   "relatedIds": [],
   "citationIds": [],
   "status": "published",
-  "createdAt": "2026-06-02T00:00:00.000Z",
+  "createdAt": "2026-06-01T00:00:00.000Z",
   "updatedAt": "2026-06-02T00:00:00.000Z",
   "category": "inference",
-  "parentTagId": "tag.attention",
-  "landingPage": "generated-tag-page"
+  "landingPage": "generated-tag-page",
+  "parentTagId": "tag.attention"
 }

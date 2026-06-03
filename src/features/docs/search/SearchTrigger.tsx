@@ -1,9 +1,9 @@
 "use client";
 
-import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { useSearchContext } from "fumadocs-ui/contexts/search";
 import { Search } from "lucide-react";
 import type { ComponentProps } from "react";
+import type { UiMessages } from "@/lib/content/ui-messages.types";
 
 type SearchTriggerProps = Omit<ComponentProps<"button">, "type"> & {
   messages: UiMessages;
@@ -41,9 +41,9 @@ export function SearchTrigger({
       <Search className="size-4 shrink-0" aria-hidden />
       <span>{messages.search.shortcut}</span>
       <span className="ms-1 inline-flex gap-0.5">
-        {hotKey.map((key, index) => (
+        {hotKey.map((key) => (
           <kbd
-            key={`${key.key}-${index}`}
+            key={String(key.display)}
             className="rounded-md border border-border bg-background px-1.5 text-xs"
           >
             {key.display}

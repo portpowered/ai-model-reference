@@ -11,8 +11,8 @@ import {
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
 
 describe("search result meta", () => {
-  test("loadSearchResultMetaMap includes grouped-query attention sample", () => {
-    const map = loadSearchResultMetaMap();
+  test("loadSearchResultMetaMap includes grouped-query attention sample", async () => {
+    const map = await loadSearchResultMetaMap();
     const meta = map.get(SAMPLE_URL);
     expect(meta).toBeDefined();
     expect(meta?.kind).toBe("module");
@@ -26,8 +26,8 @@ describe("search result meta", () => {
     ]);
   });
 
-  test("resolveSearchResultMeta reads record entries", () => {
-    const map = loadSearchResultMetaMap();
+  test("resolveSearchResultMeta reads record entries", async () => {
+    const map = await loadSearchResultMetaMap();
     const record = Object.fromEntries(map.entries());
     const meta = resolveSearchResultMeta(SAMPLE_URL, record);
     expect(meta?.description.length).toBeGreaterThan(0);

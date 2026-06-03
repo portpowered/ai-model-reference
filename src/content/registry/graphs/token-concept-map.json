@@ -1,0 +1,66 @@
+{
+  "id": "graph.token-concept-map",
+  "slug": "token-concept-map",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-01T00:00:00.000Z",
+  "updatedAt": "2026-06-02T00:00:00.000Z",
+  "subjectId": "concept.token",
+  "graphType": "concept-map",
+  "rootNodeId": "raw-text",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "raw-text",
+      "labelKey": "graph.nodes.rawText.label",
+      "moduleKind": "input",
+      "childNodeIds": ["tokenizer"]
+    },
+    {
+      "id": "tokenizer",
+      "labelKey": "graph.nodes.tokenizer.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["token-ids"]
+    },
+    {
+      "id": "token-ids",
+      "labelKey": "graph.nodes.tokenIds.label",
+      "moduleKind": "other",
+      "childNodeIds": ["embeddings"]
+    },
+    {
+      "id": "embeddings",
+      "labelKey": "graph.nodes.embeddings.label",
+      "moduleKind": "embedding",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "raw-text-to-tokenizer",
+      "source": "raw-text",
+      "target": "tokenizer",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "tokenizer-to-token-ids",
+      "source": "tokenizer",
+      "target": "token-ids",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "token-ids-to-embeddings",
+      "source": "token-ids",
+      "target": "embeddings",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

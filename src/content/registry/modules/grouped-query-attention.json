@@ -4,26 +4,21 @@
   "kind": "module",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "GQA",
-    "grouped-query attention",
-    "grouped query attention",
-    "grouped query attn"
-  ],
+  "aliases": ["GQA", "grouped-query attention", "grouped query attention"],
   "tags": ["attention", "kv-cache"],
   "relatedIds": [],
-  "citationIds": [],
+  "citationIds": ["citation.gqa-paper"],
   "status": "published",
-  "createdAt": "2026-06-02T00:00:00.000Z",
+  "createdAt": "2026-06-01T00:00:00.000Z",
   "updatedAt": "2026-06-02T00:00:00.000Z",
   "moduleType": "attention",
   "moduleFamily": "attention",
   "conceptType": "attention-variant",
-  "variantGroup": "attention-kv-sharing",
-  "optimizes": ["kv-cache-memory", "inference-throughput"],
+  "variantGroup": "attention-head-sharing",
+  "optimizes": ["kv-cache", "memory-bandwidth", "long-context-inference"],
   "practicalBenefits": [
-    "Smaller KV cache than multi-head attention",
-    "Lower memory bandwidth during long-context inference"
+    "lower KV-cache memory",
+    "reduced memory bandwidth during inference"
   ],
   "exampleModelIds": [],
   "improvesOnIds": [],

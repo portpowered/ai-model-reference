@@ -7,8 +7,8 @@ import {
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("loadPublishedGlossaryEntries", () => {
-  it("returns only published glossary pages sorted alphabetically by title", () => {
-    const entries = loadPublishedGlossaryEntries("en");
+  it("returns only published glossary pages sorted alphabetically by title", async () => {
+    const entries = await loadPublishedGlossaryEntries("en");
     for (let index = 1; index < entries.length; index += 1) {
       expect(
         entries[index - 1].title.localeCompare(entries[index].title, "en", {
@@ -18,8 +18,8 @@ describe("loadPublishedGlossaryEntries", () => {
     }
   });
 
-  it("includes the token glossary page with correct title and link", () => {
-    const entries = loadPublishedGlossaryEntries("en");
+  it("includes the token glossary page with correct title and link", async () => {
+    const entries = await loadPublishedGlossaryEntries("en");
     const token = entries.find((entry) => entry.slug === "glossary/token");
     expect(token).toBeDefined();
     expect(token?.title).toBe("Token");

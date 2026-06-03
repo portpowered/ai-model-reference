@@ -1,10 +1,10 @@
 "use client";
 
-import { SearchTrigger } from "@/features/docs/search/SearchTrigger";
-import type { UiMessages } from "@/lib/content/ui-messages.types";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { SearchTrigger } from "@/features/docs/search/SearchTrigger";
+import type { UiMessages } from "@/lib/content/ui-messages.types";
 
 type DocsShellProps = {
   children: ReactNode;

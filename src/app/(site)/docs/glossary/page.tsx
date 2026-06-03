@@ -3,9 +3,9 @@ import { GlossaryIndexList } from "@/features/docs/glossary/GlossaryIndexList";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
-export default function GlossaryIndexPage() {
+export default async function GlossaryIndexPage() {
   const messages = loadUiMessages();
-  const entries = loadPublishedGlossaryEntries();
+  const entries = await loadPublishedGlossaryEntries();
   const { glossaryIndex } = messages;
 
   return (

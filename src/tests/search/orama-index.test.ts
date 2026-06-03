@@ -6,8 +6,8 @@ import { exportOramaIndexSnapshot } from "@/lib/search/orama-index";
 
 describe("exportOramaIndexSnapshot", () => {
   test("produces a static Orama snapshot for published docs", async () => {
-    const registry = loadRegistry();
-    const pages = loadPublishedDocsPages("en");
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
     const documents = buildSearchDocuments(pages, registry);
     const snapshot = await exportOramaIndexSnapshot(documents);
 

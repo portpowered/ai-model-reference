@@ -1,0 +1,86 @@
+import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import {
+  parsePageAssetConfig,
+  validatePageAssetReferences,
+} from "@/lib/content/assets";
+import { loadModulePage } from "@/lib/content/module-page";
+import { pageMessagesSchema } from "@/lib/content/schemas";
+
+const pageDir = join(
+  process.cwd(),
+  "src/content/docs/modules/grouped-query-attention",
+);
+const messagesPath = join(pageDir, "messages/en.json");
+const assetsPath = join(pageDir, "assets.json");
+
+describe("grouped-query-attention page messages", () => {
+  test("includes required localized fields for the module template", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+
+    expect(messages.title).toBe("Grouped-Query Attention");
+    expect(messages.problemStatement?.length).toBeGreaterThan(0);
+    expect(messages.coreIdea?.length).toBeGreaterThan(0);
+    expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
+    expect(messages.sections?.whatItOptimizes.body?.length).toBeGreaterThan(0);
+    expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
+  });
+});
+
+describe("loadModulePage grouped-query-attention", () => {
+  test("compiles MDX with local namespaces and message-driven opening copy", async () => {
+    const page = await loadModulePage("grouped-query-attention");
+
+    expect(page.frontmatter.registryId).toBe("module.grouped-query-attention");
+    expect(page.frontmatter.messageNamespace).toBe("local");
+    expect(page.frontmatter.assetNamespace).toBe("local");
+    expect(page.messages.title).toBe("Grouped-Query Attention");
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("Grouped-Query Attention");
+    expect(html).toContain(page.messages.problemStatement ?? "");
+    expect(html).toContain(page.messages.coreIdea ?? "");
+    expect(html).toContain('data-registry-id="module.grouped-query-attention"');
+    expect(html).toContain("Module metadata");
+    expect(html).toContain("At a glance");
+    expect(html).toContain('href="/tags/attention"');
+    expect(html).toContain('href="/tags/kv-cache"');
+    expect(html).toContain('data-testid="citation-list"');
+    expect(html).toContain("Ainslie, Joshua, et al.");
+    expect(html).toContain('href="https://arxiv.org/abs/2305.13245"');
+    expect(html).toContain('rel="noopener noreferrer"');
+    expect(html).toContain('data-testid="derived-related-docs"');
+    expect(html).toContain('href="/docs/modules/multi-query-attention"');
+    expect(html).toContain('href="/docs/modules/multi-head-attention"');
+    expect(html).toContain("Same variant group");
+  });
+});
+
+describe("grouped-query-attention page assets", () => {
+  test("resolves graph and table assets with message-backed alt and captions", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const assets = parsePageAssetConfig(
+      JSON.parse(readFileSync(assetsPath, "utf8")),
+    );
+
+    expect(assets.computeFlow.type).toBe("graph");
+    expect(assets.comparisonTable.type).toBe("table");
+    expect(validatePageAssetReferences(assets, messages)).toEqual([]);
+  });
+});

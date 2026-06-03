@@ -8,19 +8,19 @@ import {
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("attention tag landing resources", () => {
-  it("loads the attention tag record with localized title and summary", () => {
+  it("loads the attention tag record with localized title and summary", async () => {
     const messages = loadUiMessages();
-    const context = loadTagLandingContext("attention", messages, "en");
+    const context = await loadTagLandingContext("attention", messages, "en");
 
     expect(context).toBeDefined();
     expect(context?.title).toBe("Attention");
     expect(context?.summary.length).toBeGreaterThan(0);
-    expect(context?.categoryLabel).toBe("Architecture");
+    expect(context?.categoryLabel).toBe("Module type");
   });
 
-  it("includes the grouped-query attention module under modules", () => {
+  it("includes the grouped-query attention module under modules", async () => {
     const messages = loadUiMessages();
-    const entries = loadTagResourceEntries("attention", "en");
+    const entries = await loadTagResourceEntries("attention", "en");
     const moduleEntry = entries.find(
       (entry) => entry.url === "/docs/modules/grouped-query-attention",
     );
@@ -29,7 +29,7 @@ describe("attention tag landing resources", () => {
     expect(moduleEntry?.kind).toBe("module");
     expect(moduleEntry?.title).toBe("Grouped-Query Attention");
 
-    const groups = loadTagResourceGroups("attention", messages, "en");
+    const groups = await loadTagResourceGroups("attention", messages, "en");
     const moduleGroup = groups.find((group) => group.kind === "module");
 
     expect(moduleGroup).toBeDefined();
@@ -39,9 +39,9 @@ describe("attention tag landing resources", () => {
     ]);
   });
 
-  it("omits empty kind groups and groups module and glossary resources separately", () => {
+  it("omits empty kind groups and groups module and glossary resources separately", async () => {
     const messages = loadUiMessages();
-    const groups = loadTagResourceGroups("attention", messages, "en");
+    const groups = await loadTagResourceGroups("attention", messages, "en");
 
     expect(groups.every((group) => group.resources.length > 0)).toBe(true);
     expect(groups.map((group) => group.kind)).toEqual(["module", "glossary"]);

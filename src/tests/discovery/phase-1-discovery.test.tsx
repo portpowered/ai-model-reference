@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import type { ReactElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import ArchitectureIndexPage from "@/app/(site)/docs/architecture/page";
 import GlossaryIndexPage from "@/app/(site)/docs/glossary/page";
 import HomePage from "@/app/(site)/page";
@@ -6,31 +8,29 @@ import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import TagsIndexPage from "@/app/(site)/tags/page";
 import { docsSearchApi } from "@/lib/search/search-server";
 import {
-  SAMPLE_MODULE_URL,
   resultsIncludeSampleModule,
+  SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
-import type { ReactElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 
 const PHASE_1_DISCOVERY_ROUTES = [
   {
     path: "/",
-    render: () => <HomePage />,
+    render: () => Promise.resolve(<HomePage />),
     expectInHtml: "Model Atlas",
   },
   {
     path: "/docs/architecture",
-    render: () => <ArchitectureIndexPage />,
+    render: () => ArchitectureIndexPage(),
     expectInHtml: "Architecture",
   },
   {
     path: "/docs/glossary",
-    render: () => <GlossaryIndexPage />,
+    render: () => GlossaryIndexPage(),
     expectInHtml: "Glossary",
   },
   {
     path: "/tags",
-    render: () => <TagsIndexPage />,
+    render: () => TagsIndexPage(),
     expectInHtml: "Tags",
   },
 ] as const;
@@ -51,14 +51,15 @@ describe("Phase 1 search discovery", () => {
     expect(results[0]?.url).toBe(SAMPLE_MODULE_URL);
   });
 
-  test.each(["KV cache", "kv cache", "kv-cache"] as const)(
-    "%s query ranks grouped-query attention first",
-    async (query) => {
-      const results = await docsSearchApi.search(query);
-      expect(results.length).toBeGreaterThan(0);
-      expect(results[0]?.url).toBe(SAMPLE_MODULE_URL);
-    },
-  );
+  test.each([
+    "KV cache",
+    "kv cache",
+    "kv-cache",
+  ] as const)("%s query ranks grouped-query attention first", async (query) => {
+    const results = await docsSearchApi.search(query);
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe(SAMPLE_MODULE_URL);
+  });
 
   test("attention query includes grouped-query attention among top results", async () => {
     const results = await docsSearchApi.search("attention");
@@ -69,8 +70,9 @@ describe("Phase 1 search discovery", () => {
 
 describe("Phase 1 discovery route smoke", () => {
   for (const route of PHASE_1_DISCOVERY_ROUTES) {
-    test(`${route.path} renders without error`, () => {
-      expectRouteRendersOk(route.render(), route.expectInHtml);
+    test(`${route.path} renders without error`, async () => {
+      const page = await route.render();
+      expectRouteRendersOk(page, route.expectInHtml);
     });
   }
 

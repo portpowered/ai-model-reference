@@ -2,9 +2,9 @@ import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
 import { loadPublishedTagIndexGroups } from "@/lib/content/tags";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
-export default function TagsIndexPage() {
+export default async function TagsIndexPage() {
   const messages = loadUiMessages();
-  const groups = loadPublishedTagIndexGroups(messages);
+  const groups = await loadPublishedTagIndexGroups(messages);
   const { tagsIndex } = messages;
 
   return (

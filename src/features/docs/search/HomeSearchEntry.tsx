@@ -1,8 +1,8 @@
 "use client";
 
-import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { useSearchContext } from "fumadocs-ui/contexts/search";
 import { Search } from "lucide-react";
+import type { UiMessages } from "@/lib/content/ui-messages.types";
 
 type HomeSearchEntryProps = {
   messages: UiMessages;
@@ -26,9 +26,9 @@ export function HomeSearchEntry({ messages }: HomeSearchEntryProps) {
       <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden />
       <span className="flex-1">{messages.search.placeholder}</span>
       <span className="inline-flex gap-0.5">
-        {hotKey.map((key, index) => (
+        {hotKey.map((key) => (
           <kbd
-            key={`${key.key}-${index}`}
+            key={String(key.display)}
             className="rounded-md border border-border bg-background px-1.5 text-xs text-foreground"
           >
             {key.display}

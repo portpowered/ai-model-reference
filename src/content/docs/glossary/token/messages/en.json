@@ -10,13 +10,56 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Tokenization sets context length in tokens, shapes cost per request, and determines whether two strings look identical to the model."
+      "body": "Tokenization sets context length in tokens, shapes cost per request, and determines whether two strings look identical to the model. Mismatched tokenizers between training and serving are a common integration bug."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "The phrase \"language models\" might become two or three tokens depending on the tokenizer. Each ID is looked up in an embedding table before attention layers run."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Tokens appear at the input embedding layer, in autoregressive next-token prediction, and in KV-cache accounting during decoding. Attention modules operate on token positions, not raw characters."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Tokens are not always words; byte-level BPE can emit single-character tokens. Token count also differs from word count and from Unicode grapheme count."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "When someone says \"128k context,\" they mean 128k tokens—the same units the tokenizer emits and the model scores."
     }
   },
   "assets": {
     "conceptMap": {
       "alt": "Diagram showing text flowing through a tokenizer into token IDs and embeddings",
       "caption": "How raw text becomes token IDs before the transformer stack"
+    }
+  },
+  "graph": {
+    "nodes": {
+      "rawText": {
+        "label": "Raw text"
+      },
+      "tokenizer": {
+        "label": "Tokenizer"
+      },
+      "tokenIds": {
+        "label": "Token IDs"
+      },
+      "embeddings": {
+        "label": "Embeddings"
+      }
     }
   }
 }

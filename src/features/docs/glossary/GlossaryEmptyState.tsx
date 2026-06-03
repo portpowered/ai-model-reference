@@ -1,8 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { SearchTrigger } from "@/features/docs/search/SearchTrigger";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
-import Link from "next/link";
 
 type GlossaryEmptyStateProps = {
   messages: UiMessages;

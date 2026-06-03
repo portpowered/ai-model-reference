@@ -1,5 +1,19 @@
 import { loadRegistry } from "./registry";
 import type { TagRecord } from "./schemas";
+
+/** Human-readable label for a kebab-case tag slug. */
+export function formatTagLabel(slug: string): string {
+  return slug
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+/** Canonical tag landing URL for a registry tag slug. */
+export function tagPageHref(slug: string): string {
+  return `/tags/${slug}`;
+}
+
 import { loadTagMessages } from "./tag-messages";
 import type { UiMessages } from "./ui-messages.types";
 
@@ -30,10 +44,8 @@ export type TagIndexCategoryGroup = {
   tags: TagIndexEntry[];
 };
 
-function isPublishedTagRecord(
-  record: ReturnType<typeof loadRegistry>["records"][number],
-): record is TagRecord {
-  return record.kind === "tag" && record.status === "published";
+function isPublishedTagRecord(record: TagRecord): boolean {
+  return record.status === "published";
 }
 
 function categorySortIndex(category: string): number {
@@ -76,12 +88,12 @@ export function sortTagIndexEntriesByTitle(
   );
 }
 
-export function loadPublishedTagIndexEntries(
+export async function loadPublishedTagIndexEntries(
   messages: UiMessages,
   locale = "en",
-): TagIndexEntry[] {
-  const store = loadRegistry();
-  const entries = store.records
+): Promise<TagIndexEntry[]> {
+  const indexes = await loadRegistry();
+  const entries = [...indexes.tagsBySlug.values()]
     .filter(isPublishedTagRecord)
     .map((record) => toTagIndexEntry(record, messages, locale));
   return sortTagIndexEntriesByTitle(entries);
@@ -111,10 +123,10 @@ export function groupTagIndexEntriesByCategory(
     }));
 }
 
-export function loadPublishedTagIndexGroups(
+export async function loadPublishedTagIndexGroups(
   messages: UiMessages,
   locale = "en",
-): TagIndexCategoryGroup[] {
-  const entries = loadPublishedTagIndexEntries(messages, locale);
+): Promise<TagIndexCategoryGroup[]> {
+  const entries = await loadPublishedTagIndexEntries(messages, locale);
   return groupTagIndexEntriesByCategory(entries);
 }
