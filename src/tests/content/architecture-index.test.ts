@@ -1,4 +1,6 @@
 import { describe, expect, it } from "bun:test";
+import { renderToStaticMarkup } from "react-dom/server";
+import ArchitectureIndexPage from "@/app/(site)/docs/architecture/page";
 import {
   type ArchitectureEntry,
   isArchitectureRelatedPage,
@@ -92,5 +94,17 @@ describe("architecture index messages", () => {
     expect(messages.architectureIndex.emptyDescription.length).toBeGreaterThan(
       0,
     );
+  });
+});
+
+describe("architecture index page render", () => {
+  it("lists the Phase 1 token glossary entry with title and link", async () => {
+    const page = await ArchitectureIndexPage();
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Architecture");
+    expect(html).toContain("Token");
+    expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).not.toContain("No architecture entries yet");
   });
 });
