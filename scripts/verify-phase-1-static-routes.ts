@@ -1,44 +1,39 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  PHASE_1_STATIC_ROUTES,
+  verifyPhase1StaticRoutesFromManifest,
+} from "../src/lib/build/verify-phase-1-static-routes";
 
-const MANIFEST_PATH = join(
+const DEFAULT_MANIFEST_PATH = join(
   process.cwd(),
   ".next/app-path-routes-manifest.json",
 );
 
-const PHASE_1_STATIC_ROUTES = [
-  "/",
-  "/search",
-  "/docs/architecture",
-  "/docs/glossary",
-  "/tags",
-  "/tags/[slug]",
-  "/docs/glossary/token",
-  "/docs/modules/grouped-query-attention",
-] as const;
+const manifestPath = process.argv[2] ?? DEFAULT_MANIFEST_PATH;
 
-if (!existsSync(MANIFEST_PATH)) {
+if (!existsSync(manifestPath)) {
   console.error(
-    "Missing .next/app-path-routes-manifest.json — run `bun run build` first.",
+    `Missing ${manifestPath} — run \`bun run build\` first or pass a fixture manifest path.`,
   );
   process.exit(1);
 }
 
-const manifest = JSON.parse(readFileSync(MANIFEST_PATH, "utf8")) as Record<
+const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as Record<
   string,
   string
 >;
-const builtRoutes = new Set(Object.values(manifest));
-const missing = PHASE_1_STATIC_ROUTES.filter(
-  (route) => !builtRoutes.has(route),
-);
+const result = verifyPhase1StaticRoutesFromManifest(manifest);
 
-if (missing.length > 0) {
+if (!result.ok) {
   console.error("Phase 1 static routes missing from build output:");
-  for (const route of missing) {
+  for (const route of result.missing) {
     console.error(`  - ${route}`);
   }
-  console.error("Built routes:", [...builtRoutes].sort().join(", "));
+  console.error(
+    "Built routes:",
+    [...new Set(Object.values(manifest))].sort().join(", "),
+  );
   process.exit(1);
 }
 
