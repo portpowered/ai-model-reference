@@ -30,7 +30,7 @@ export type ValidationError = {
   path?: string;
 };
 
-const defaultContentRoot = join(import.meta.dir, "../../content");
+const defaultContentRoot = join(process.cwd(), "src/content");
 const defaultDocsRoot = join(defaultContentRoot, "docs");
 
 const registryKindDirectories: Record<string, string> = {

@@ -1,56 +1,29 @@
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "fumadocs-ui/style.css";
-
-@custom-variant dark (&:is(.dark *));
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+@import "fumadocs-ui/css/shadcn.css";
 
 :root {
   --radius: 0.5rem;
-
-  /* Base document shell */
   --background: oklch(0.145 0.018 205);
   --foreground: oklch(0.955 0.018 82);
-
-  /* Cards, panels, popovers, tables, and inline doc figures */
   --card: oklch(0.18 0.018 205);
   --card-foreground: oklch(0.955 0.018 82);
   --popover: oklch(0.17 0.018 205);
   --popover-foreground: oklch(0.955 0.018 82);
-
-  /* Dull blue-teal focus color */
   --primary: oklch(0.59 0.07 205);
   --primary-foreground: oklch(0.98 0.01 82);
-
-  /* Quiet secondary surfaces */
   --secondary: oklch(0.24 0.018 205);
   --secondary-foreground: oklch(0.9 0.014 82);
-
-  /* Muted text and inactive UI */
   --muted: oklch(0.24 0.012 205);
   --muted-foreground: oklch(0.68 0.018 82);
-
-  /* Pastel pink/coral editorial highlight */
   --accent: oklch(0.74 0.105 21);
   --accent-foreground: oklch(0.16 0.02 205);
-
-  /* Destructive state, used sparingly and not as brand color */
   --destructive: oklch(0.56 0.16 24);
   --destructive-foreground: oklch(0.98 0.01 82);
-
-  /* Hairlines and input states */
   --border: oklch(0.32 0.018 205);
   --input: oklch(0.28 0.018 205);
   --ring: oklch(0.59 0.07 205);
-
-  /* Optional chart palette: low saturation, atlas compatible */
-  --chart-1: oklch(0.59 0.07 205);
-  --chart-2: oklch(0.74 0.105 21);
-  --chart-3: oklch(0.78 0.055 92);
-  --chart-4: oklch(0.55 0.035 165);
-  --chart-5: oklch(0.72 0.025 75);
-
-  /* Sidebar shell */
   --sidebar: oklch(0.155 0.018 205);
   --sidebar-foreground: oklch(0.9 0.014 82);
   --sidebar-primary: oklch(0.59 0.07 205);
@@ -81,11 +54,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -94,23 +62,11 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-  --font-heading: var(--font-heading), "Cormorant Garamond", serif;
-  --font-body: var(--font-body), "Inter", sans-serif;
-  --font-display: var(--font-display), "Bebas Neue", sans-serif;
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background font-body text-foreground;
-  }
+body {
+  font-family: Inter, system-ui, sans-serif;
 }

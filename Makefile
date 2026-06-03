@@ -1,4 +1,4 @@
-.PHONY: dev lint format typecheck test build ci validate-data linkcheck validate-pdf
+.PHONY: dev lint format typecheck test build ci validate-data linkcheck validate-pdf build-search-index
 
 dev:
 	bun run dev
@@ -30,3 +30,6 @@ linkcheck:
 validate-pdf:
 	@echo "validate-pdf: skipped (not yet implemented in scaffold)"
 	@exit 0
+
+build-search-index:
+	bun run build:search-index

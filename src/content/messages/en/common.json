@@ -1,8 +1,90 @@
 {
+  "search": {
+    "open": "Open search",
+    "placeholder": "Search Model Atlas…",
+    "close": "Close search",
+    "noResults": "No results found.",
+    "loading": "Searching…",
+    "shortcut": "Search"
+  },
   "nav": {
     "home": "Home",
     "glossary": "Glossary",
     "tags": "Tags",
     "docs": "Docs"
+  },
+  "shell": {
+    "sidebarTitle": "Reference",
+    "sidebarDescription": "Browse modules, concepts, and tags.",
+    "onThisPage": "On this page"
+  },
+  "home": {
+    "title": "Model Atlas",
+    "subtitle": "A field guide to modern AI models and modules",
+    "intro": "Model Atlas is a documentation-native reference for transformers, attention variants, training methods, and the systems around them. Search by alias or tag, or browse the glossary and tag index to find canonical pages.",
+    "searchSectionTitle": "Search the reference",
+    "searchSectionDescription": "Jump to a module, concept, or glossary entry by title, alias, or tag.",
+    "browseSectionTitle": "Browse",
+    "browseSectionDescription": "Start from an index when you want to explore topics without a specific query.",
+    "architectureLinkTitle": "Architecture",
+    "architectureLinkDescription": "Architecture-related concepts, model families, and component patterns collected in one index.",
+    "glossaryLinkTitle": "Glossary",
+    "glossaryLinkDescription": "Defined ML terms with short summaries and links to related modules.",
+    "tagsLinkTitle": "Tags",
+    "tagsLinkDescription": "Controlled tags such as attention and kv-cache with landing pages for each topic.",
+    "docsLinkTitle": "Documentation",
+    "docsLinkDescription": "Canonical module and concept pages, starting with the grouped-query attention sample.",
+    "onThisPageSearch": "Search",
+    "onThisPageBrowse": "Browse"
+  },
+  "glossaryIndex": {
+    "title": "Glossary",
+    "description": "Defined machine-learning terms with short summaries. Each entry links to a canonical glossary page when published.",
+    "listLabel": "Glossary entries",
+    "emptyTitle": "No glossary entries yet",
+    "emptyDescription": "Published glossary pages will appear here once they are added to the reference. Return home or open search to explore modules and tags in the meantime.",
+    "emptyHomeLink": "Return home"
+  },
+  "architectureIndex": {
+    "title": "Architecture",
+    "description": "Architecture-related concepts, model families, and component patterns. Each entry links to a canonical docs page when published.",
+    "listLabel": "Architecture entries",
+    "emptyTitle": "No architecture entries yet",
+    "emptyDescription": "Published architecture concept pages and pages under the architecture content grouping will appear here. Return home or open search to explore modules and tags in the meantime.",
+    "emptyHomeLink": "Return home"
+  },
+  "tagsIndex": {
+    "title": "Tags",
+    "description": "Controlled tags for browsing topics across modules, concepts, models, and glossary pages. Each tag links to a landing page listing every published resource with that tag.",
+    "listLabel": "Tags by category"
+  },
+  "tagLanding": {
+    "listLabel": "Resources by kind",
+    "searchHandoff": "Search this tag",
+    "emptyTitle": "No published resources for this tag yet",
+    "emptyDescription": "When docs pages or blog posts are tagged with this label, they will appear here grouped by kind. Return home, browse all tags, or open search to explore related topics.",
+    "emptyHomeLink": "Return home",
+    "emptyTagsLink": "Browse all tags"
+  },
+  "tagCategories": {
+    "architecture": "Architecture",
+    "module-type": "Module type",
+    "training": "Training",
+    "inference": "Inference",
+    "systems": "Systems",
+    "modality": "Modality",
+    "paper-topic": "Paper topic",
+    "model-family": "Model family",
+    "difficulty": "Difficulty"
+  },
+  "pageKind": {
+    "module": "Module",
+    "model": "Model",
+    "concept": "Concept",
+    "paper": "Paper",
+    "glossary": "Glossary",
+    "training": "Training",
+    "system": "System",
+    "blog": "Blog"
   }
 }

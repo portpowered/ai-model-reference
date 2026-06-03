@@ -1,112 +1,105 @@
 ## Codebase Patterns
-- Graph registry records live in `src/content/registry/graphs/*.json` and load via `graphRecordSchema` in `loadRegistry`; `validate-registry` reports `unresolved-graph-id` when colocated `assets.json` references a missing graph.
-- `ConceptMap` is a thin `PageAsset` wrapper (same pattern as `ModuleGraph`) for concept/glossary `conceptMap` slots in MDX.
-- Module docs pages use `loadModulePage(slug)` from `src/lib/content/module-page.ts`, which compiles MDX with `moduleMdxComponents` and loads colocated `messages/<locale>.json` plus `assets.json`.
-- GQA reference route: `src/app/(site)/docs/modules/grouped-query-attention/page.tsx` wraps `loadModulePage` output in `ModulePageProviders` inside `(site)/layout.tsx` `DocsShell`.
-- Wrap compiled MDX in `ModulePageProviders` so client components `T`, `Section`, `PageAsset`, and `Callout` receive messages/assets via React context.
-- `PageMessagesProvider` defaults `isDev` from `process.env.NODE_ENV === "development"`; missing keys render `MissingMessageKey` in dev and nothing in production.
-- Message lookup uses dot-path keys via `lookupMessage` / `resolveMessage` in `src/lib/content/messages.ts`.
-- Asset resolution: `parsePageAssetConfig` + `lookupAsset` / `resolveAssetText` in `src/lib/content/assets.ts`; render with `PageAsset` (via `ModuleGraph`, `ModuleComparisonTable`, or directly). Invalid config throws at load; missing `assetId` shows `MissingAssetId` in dev.
-- Run quality checks with `bun run typecheck`, `bun run lint`, and `bun test` after `bun install`.
-- `TagPillList` resolves tags via `getRegistryTags(registryId)` or an explicit `tags` prop; pills link to `tagPageHref(slug)` (`/tags/<slug>`) with monochrome `secondary` + `border` styling.
-- Citation records live in `src/content/registry/citations/*.json`; load via `getCitationById` / `resolveCitations` in `src/lib/content/citations.ts`. `CitationList` accepts `registryId` (module `citationIds`) or explicit `citationIds`; renders MLA in linked `<ol>` with `rel="noopener noreferrer"`.
-- `biome.json` ignores `.next`, `node_modules`, and `storybook-static` so local builds do not fail lint.
-- Glossary pages use `loadGlossaryPage(slug)` from `src/lib/content/glossary-page.ts`, mirroring `loadModulePage` with content root `src/content/docs/glossary`.
-- Glossary route: `src/app/docs/glossary/<slug>/page.tsx` wraps `loadGlossaryPage` output in `ModulePageProviders` inside Fumadocs `DocsLayout` (`src/app/docs/layout.tsx`).
-- Exclude `glossary/**` from Fumadocs MDX compilation in `source.config.ts` (same pattern as `modules/**`); dedicated routes render via next-mdx-remote.
-- Glossary page frontmatter uses `kind: glossary` while `registryId` points at a `concept.*` registry record; validation allows this alias via `pageKindRegistryKindAliases` in `validate-registry.ts`.
-- Register dedicated glossary routes in Fumadocs sidebar via `src/content/docs/glossary/meta.json` using link syntax `[Token](/docs/glossary/token)` and include `glossary` in root `meta.json` pages; run `fumadocs-mdx` before tests (`pretest` script).
+- Architecture index: `loadPublishedArchitectureEntries` in `src/lib/content/architecture.ts` includes pages under `docs/architecture/*` or published concept pages whose registry record has `conceptType: architecture` (requires `conceptRecordSchema` in `schemas.ts`).
+- Phase 1 search assertions: use `resultsIncludeSampleModule` in `src/tests/search/helpers.ts` because Fumadocs advanced search returns multiple fragments per URL and `attention` may rank glossary hits above the GQA page row.
+- Search documents are built from `loadPublishedDocsPages(locale)` + `loadRegistry()` via `buildSearchDocuments` / `buildSearchDocumentsForLocale` in `src/lib/search/build-documents.ts`; body text and headings come from colocated `messages/<locale>.json`, not MDX prose.
+- Registry aliases and tag record aliases merge into `SearchDocument.aliases` through `tagSearchTerms()`; page and registry `tags` populate `SearchDocument.tags` and facets.
+- Static Orama snapshot: run `make build-search-index` (writes gitignored `src/generated/search-index.json`); Fumadocs advanced search uses `toAdvancedSearchIndexes` in `search-server.ts` at runtime without the artifact.
+- Published docs pages need `page.mdx` frontmatter (`kind`, `registryId`, `status: published`) plus colocated messages; registry JSON under `src/content/registry/<kind>/`.
+- Phase 1 sample content: GQA module at `src/content/docs/modules/grouped-query-attention`, token glossary at `src/content/docs/glossary/token`.
+- Global search UI: `SearchDialog`/`SearchTrigger` register via `AppProviders` → `RootProvider` in `src/app/layout.tsx`; `DocsShell` renders `SearchTrigger` in the top nav for every `(site)` route; `HomeSearchEntry` opens the same dialog from `/`.
 
-## 2026-06-02T20:51:49Z - docs-template-rendering-001
-- Verified story 001 acceptance criteria against existing implementation (commits 7b80d0b and follow-ups): `T` and `Section` in `moduleMdxComponents`, `PageMessagesProvider` context, dev-only `MissingMessageKey`, and unit tests for lookup plus component rendering.
-- Fixed `tsconfig.json` Biome formatting so `bun run lint` passes.
-- Files changed: `tsconfig.json`
+- Glossary index at `/docs/glossary` uses `loadPublishedGlossaryEntries` (filters `kind: glossary`); empty state mirrors architecture index with home link + `SearchTrigger`.
+- Tags index at `/tags` uses `loadPublishedTagIndexGroups` from published `tag` registry records; localized title/summary live in `src/content/registry/tags/messages/<slug>.<locale>.json`; `loadRegistry` skips `messages` subdirectories.
+- Tag index groups by `category` (schema order via `TAG_CATEGORY_ORDER`); tag slug chips use monochrome `border-border` / `text-muted-foreground` styling.
+- Tag landing at `/tags/[slug]` uses `loadTagResourceGroups` in `src/lib/content/tag-resources.ts` (matches tag on MDX frontmatter and registry record tags); `TagResourceList` groups by page kind and omits empty groups; `TagSearchHandoff` + `search-prefill.ts` prefill the global search dialog query when opened from a tag page.
+
+## 2026-06-03T15:30:00Z - default-pages-search-tags-007
+- Implemented `/tags` index listing published tag registry records grouped by category with localized title, summary, category label, and links to `/tags/<slug>`.
+- Added tag message files, `loadTagMessages`, `loadPublishedTagIndexEntries` / `loadPublishedTagIndexGroups`, and `TagsIndexList` with monochrome tag slug chips.
+- Registry loader skips `messages` directories so colocated tag locale JSON is not parsed as registry records.
+- Verified production HTML on `next start` port 3013: Tags title, Attention/KV Cache entries, category headings, landing links, and search affordance.
+- Files changed: `src/app/(site)/tags/page.tsx`, `src/content/registry/tags/messages/*`, `src/features/docs/tags/TagsIndexList.tsx`, `src/lib/content/tag-messages.ts`, `src/lib/content/tags.ts`, `src/lib/content/registry.ts`, `src/content/messages/en/common.json`, `src/lib/content/ui-messages.types.ts`, `src/tests/content/tags-index.test.ts`
 - **Learnings for future iterations:**
-  - Stories 001–003 were already implemented on the branch; PRD `passes` flags were out of sync with git history.
-  - Stub components (`TagPillList`, `CitationList`, `DerivedRelatedDocs`) return null—stories 004–006 still need real implementations.
-  - Use `bun install` before running checks in a fresh worktree.
+  - Tag landing page (story 008) can reuse `loadTagMessages` and `/tags/<slug>` URLs already linked from the index.
+  - Add new tag locale files under `registry/tags/messages/`; never place non-registry JSON directly under `registry/tags/` without skipping in `readRegistryFiles`.
+  - Category labels resolve from `messages.tagCategories` in `common.json`.
 ---
 
-## 2026-06-02T20:55:10Z - docs-template-rendering-002
-- Verified asset resolution stack (`PageAsset`, `parsePageAssetConfig`, dev `MissingAssetId`) already on branch; wired `ModuleComparisonTable` through `PageAsset` so GQA `comparisonTable` resolves from colocated `assets.json` with caption message keys.
-- Added GQA colocated asset/message validation test in `module-page.test.ts`.
-- Files changed: `src/features/models/components/ModuleComparisonTable.tsx`, `src/lib/content/module-page.test.ts`
+## 2026-06-03T16:45:00Z - default-pages-search-tags-008
+- Implemented `/tags/[slug]` tag landing pages with `TagResourceList` grouped by page kind, localized `tagLanding` messages, and `TagSearchHandoff` that prefills the global search dialog with the tag slug.
+- Added `loadTagResourceEntries` / `loadTagResourceGroups` matching tags on MDX frontmatter and registry records; static params from published tag index entries.
+- Verified production HTML on `next start` port 3014: Attention title, Module/Glossary groups, GQA module and token glossary links, search handoff affordance.
+- Files changed: `src/app/(site)/tags/[slug]/page.tsx`, `src/lib/content/tag-resources.ts`, `src/features/docs/components/TagResourceList.tsx`, `src/features/docs/tags/TagLandingEmptyState.tsx`, `src/features/docs/tags/TagSearchHandoff.tsx`, `src/features/docs/search/search-prefill.ts`, `src/features/docs/search/SearchDialog.tsx`, `src/content/messages/en/common.json`, `src/lib/content/ui-messages.types.ts`, `src/tests/content/attention-tag-landing.test.ts`
 - **Learnings for future iterations:**
-  - `ModuleGraph` and `ModuleComparisonTable` are thin wrappers over `PageAsset`; prefer that pattern for any new module MDX asset slots.
-  - GQA page asset alt/caption keys live under `messages.assets.*` nested object, referenced by `altKey` / `captionKey` in `assets.json`.
-  - No PR exists yet on this branch; create only when all PRD stories pass.
+  - Token glossary is also tagged `attention`; attention landing lists both module and glossary groups in Phase 1.
+  - Use `setPendingSearchQuery` / `consumePendingSearchQuery` in `search-prefill.ts` to prime Fumadocs search from client handoff controls.
+  - `generateStaticParams` on tag landing can reuse `loadPublishedTagIndexEntries` for all published tag slugs.
 ---
 
-## 2026-06-02T21:00:30Z - docs-template-rendering-003
-- Verified story 003 acceptance: GQA `page.mdx` matches module template, title/problem/core idea from message keys, `ModuleMetadataCard` and `ModuleAtAGlance` from registry, production build includes `/docs/modules/grouped-query-attention`, HTTP 200 on `next start`.
-- Added `loadModulePage` integration test rendering message-driven opening copy and registry-backed cards.
-- Files changed: `src/lib/content/module-page.test.ts`
+## 2026-06-03T14:50:00Z - default-pages-search-tags-006
+- Verified existing glossary index at `/docs/glossary` meets Phase 1 acceptance criteria; route was already implemented with localized messages, alphabetical entry list, and empty state.
+- Added test asserting the token glossary page appears with title, summary, and `/docs/glossary/token` link.
+- Verified production HTML on `next start` port 3012: Glossary title, Token entry card, `data-search`, and Open search affordance present.
+- Files changed: `src/tests/content/glossary-index.test.ts`
 - **Learnings for future iterations:**
-  - Story 003 was largely landed in commit `02ebe67`; PRD `passes` flag was out of sync until this iteration.
-  - Use `createElement` with `children` in props when testing client `ModulePageProviders` from `.test.ts` files (no JSX in `.ts`).
-  - Stub components (`TagPillList`, `CitationList`, `DerivedRelatedDocs`) still return null—stories 004–006 remain.
+  - Story 006 was largely complete before this iteration; only the token entry assertion and browser verification were missing from PRD tracking.
+  - Use `bunx next start` (no `start` npm script in package.json) after `next build` for production HTML checks.
+  - Glossary index lists any published page with `frontmatter.kind === "glossary"`; token from story 001 satisfies the sibling-content criterion.
 ---
 
-## 2026-06-03T01:11:03Z - docs-template-rendering-004
-- Implemented `TagPillList` with registry-backed tags (`getRegistryTags`), explicit `tags` prop for blog MDX, keyboard-focusable `Link` pills to `/tags/<slug>`, and empty output when no tags.
-- Added `formatTagLabel` / `tagPageHref` in `src/lib/content/tags.ts`, unit tests for component and registry helpers, and GQA module-page integration assertions for tag hrefs.
-- Ignored `.next` in `biome.json` so lint passes after local `next build`.
-- Files changed: `src/features/docs/components/TagPillList.tsx`, `TagPillList.test.tsx`, `src/lib/content/tags.ts`, `tags.test.ts`, `registry.ts`, `registry.test.ts`, `module-page.test.ts`, `biome.json`
+## 2026-06-03T08:44:37Z - default-pages-search-tags-001
+- Added token glossary content (MDX, messages, registry) so the search builder indexes a second published page alongside grouped-query attention.
+- Wired `buildSearchDocumentsForLocale` to load pages by locale; build script uses it for index generation.
+- Extended unit tests for glossary token indexing and multi-document Orama snapshot export.
+- Files changed: `src/content/docs/glossary/token/*`, `src/content/registry/glossary/token.json`, `src/lib/search/build-documents.ts`, `scripts/build-search-index.ts`, `src/tests/search/build-documents.test.ts`, `src/tests/search/orama-index.test.ts`
 - **Learnings for future iterations:**
-  - Tag landing routes (`/tags/[slug]`) are not implemented yet; pills still use the canonical `/tags/<slug>` href from the architecture contract.
-  - `showDescriptions` is accepted for template compatibility; descriptions need tag registry records in a later story.
-  - `CitationList` and `DerivedRelatedDocs` remain stubs—stories 005–006 next.
+  - Glossary pages use `kind: glossary` in frontmatter and `glossary.<slug>` registry ids under `src/content/registry/glossary/`.
+  - `loadPublishedGlossaryEntries` filters by `frontmatter.kind === "glossary"`; adding glossary MDX automatically feeds the glossary index story later.
+  - Orama snapshot tests should assert by URL set, not document order (filesystem walk order varies).
+  - `make ci` does not run `build:search-index`; generated search JSON stays gitignored—runtime search builds from content layers directly.
 ---
 
-## 2026-06-03T12:00:00Z - docs-template-rendering-005
-- Implemented `CitationList` with registry-backed `citationIds` or explicit `citationIds` prop, MLA text from citation records, and outbound links (`target="_blank"`, `rel="noopener noreferrer"`).
-- Added `citationRecordSchema`, `src/content/registry/citations/gqa-paper.json`, `src/lib/content/citations.ts`, and unit/integration tests.
-- Files changed: `CitationList.tsx`, `CitationList.test.tsx`, `citations.ts`, `citations.test.ts`, `schemas.ts`, `registry.ts`, `registry.test.ts`, `gqa-paper.json`, `module-page.test.ts`
+## 2026-06-03T09:15:00Z - default-pages-search-tags-002
+- Confirmed `src/app/api/search/route.ts` re-exports `docsSearchApi` GET/staticGET from `createSearchAPI("advanced")` in `search-server.ts`.
+- `src/features/docs/search/search-client.ts` centralizes `useDocsSearch` with `type: "static"` and `oramaStaticClient` via `createDocsSearchClient` / `useModelAtlasDocsSearch`.
+- Added Phase 1 search contract tests for `attention`, `KV cache`, `kv cache`, and `kv-cache` queries on API and static client (GQA tests were already present).
+- Files changed: `src/tests/search/helpers.ts`, `src/tests/search/search-api.test.ts`, `src/tests/search/search-client.test.ts`
 - **Learnings for future iterations:**
-  - Citation records reuse `baseRecordShape` fields; MLA is stored pre-formatted on the record (`mla` field).
-  - Empty `citationIds` omits the list (`null`)—References section heading still comes from `Section` + message keys.
-  - `DerivedRelatedDocs` remains a stub—story 006 next.
-  - `ModulePageProviders` tests in `.ts` files need `children` in props plus `biome-ignore` for `noChildrenProp` under current React 19 typings.
+  - Fumadocs advanced search returns multiple hit types per page (`page`, `text`, `heading`); assert discovery with `results.some(r => r.url.startsWith(sampleUrl))`, not only `results[0]`.
+  - The `attention` query ranks glossary token fragments before the GQA page hit; Phase 1 only requires the sample module to appear among results.
+  - Story 002 implementation landed in commit `50896f1`; this iteration completed acceptance tests and PRD tracking.
 ---
 
-## 2026-06-03T01:35:00Z - docs-template-rendering-006
-- Implemented `DerivedRelatedDocs` with Phase 1 `same-variant-group` derivation (`deriveSameVariantGroupPeers`, `deriveRelatedDocGroups`), per-link reason labels, and omission of empty groups and unsupported group ids.
-- Added registry peers `multi-query-attention` and `multi-head-attention` sharing GQA `variantGroup`, plus unit/component/integration tests.
-- Files changed: `DerivedRelatedDocs.tsx`, `DerivedRelatedDocs.test.tsx`, `related-docs.ts`, `related-docs.test.ts`, `registry.ts`, `registry.test.ts`, `module-page.test.ts`, `multi-query-attention.json`, `multi-head-attention.json`
+## 2026-06-03T08:52:00Z - default-pages-search-tags-003
+- Verified global search dialog and shell trigger on `/`, `/docs/glossary`, `/tags`, and `/docs/modules/grouped-query-attention` via dev server HTML (`data-search`, `Open search`, `Search Model Atlas…` present on each route).
+- Ensured page-kind badge always renders in `SearchResultListItem` when result meta exists (not gated on description/matched tags).
+- Added `src/tests/features/search-ui.test.ts` for localized search copy and sample module result meta used by the dialog.
+- Files changed: `src/features/docs/search/SearchResults.tsx`, `src/tests/features/search-ui.test.ts`
 - **Learnings for future iterations:**
-  - Unsupported `groups` values in MDX templates are ignored until their derivation logic ships; templates can list future groups without breaking render.
-  - Peer module titles come from `aliases[0]` via `moduleDisplayTitle`; pages without published MDX still link to canonical `/docs/modules/<slug>`.
-  - All six PRD stories are complete; open a PR when ready for review.
+  - Fumadocs `RootProvider` supplies Cmd/Ctrl+K hotkey and dialog lifecycle; custom dialog is injected through `search.SearchDialog` in `AppProviders`.
+  - Search API query param is `query`, not `q` (`/api/search?query=GQA`).
+  - Dev server may bind to port 3002 when 3000 is occupied; use the port printed by `next dev`.
+  - Architecture index search affordance will inherit `DocsShell` when story 005 adds that route.
 ---
 
-## 2026-06-03T16:30:00Z - basic-token-glossary-page-001
-- Published token glossary page at `/docs/glossary/token`: `page.mdx` following concept template with `kind: glossary` and `registryId: concept.token`, `loadGlossaryPage` loader, dedicated App Router page, and integration tests for message-driven opening copy.
-- Extended `registry-runtime` with `getConceptById` and concept-backed tag/citation lookup for `concept.token`.
-- Allowed glossary→concept kind alias in registry validation; excluded `glossary/**` from Fumadocs MDX compilation; set `turbopack.root` in `next.config.ts` so worktree builds resolve `.source/server`.
-- Files changed: `src/content/docs/glossary/token/page.mdx`, `src/lib/content/glossary-page.ts`, `glossary-page.test.ts`, `src/app/docs/glossary/token/page.tsx`, `page-bundle.test.ts`, `registry-runtime.ts`, `registry-runtime.test.ts`, `validate-registry.ts`, `source.config.ts`, `next.config.ts`
+## 2026-06-03T10:30:00Z - default-pages-search-tags-004
+- Completed Model Atlas home at `/` with brush-stroke header, localized search section (`HomeSearchEntry`), and browse links to architecture index, glossary, tags, and the grouped-query attention sample module.
+- Added `home.architectureLinkTitle` / `architectureLinkDescription` message keys and home-page message tests.
+- Verified in browser on dev server port 3002: `data-search`, browse hrefs including `/docs/architecture`, and localized title copy present in rendered HTML.
+- Files changed: `src/app/(site)/page.tsx`, `src/content/messages/en/common.json`, `src/lib/content/ui-messages.types.ts`, `src/tests/content/home-page.test.ts`, `src/tests/content/ui-messages.test.ts`
 - **Learnings for future iterations:**
-  - Story 002 adds `ConceptMap` and `graph.token-concept-map`; page.mdx omits ConceptMap until then.
-  - `TagPillList` now resolves tags for `concept.token` via extended registry-runtime; story 006 covers fuller tag/related-docs acceptance.
-  - Worktree CI failed until `turbopack.root` pointed at the worktree (monorepo lockfile caused wrong module resolution).
+  - Home browse links use `HomeBrowseLink` cards; order matches PRD: architecture → glossary → tags → sample docs module.
+  - `/docs/architecture` is linked from home before story 005 implements the index route (expect 404 until 005).
+  - Biome `noExportsInTest` disallows exporting constants from test files—keep route lists file-local.
 ---
 
-## 2026-06-03T18:00:00Z - basic-token-glossary-page-002
-- Added `graphRecordSchema`, graph registry loading from `src/content/registry/graphs/`, and `validateGraphAssetReferences` so missing `graphId` values fail `make validate-data`.
-- Published `graph.token-concept-map` (concept-map flow: text → tokenizer → token IDs → embeddings) plus minimal GQA graph stubs so existing module graph assets validate.
-- Implemented `ConceptMap` (`PageAsset` wrapper), wired it into `moduleMdxComponents` and token `page.mdx`, and extended glossary/integration tests for message-backed alt/caption render.
-- Files changed: `schemas.ts`, `registry.ts`, `validate-registry.ts`, `ConceptMap.tsx`, `ConceptMap.test.tsx`, `mdx-components.tsx`, `token/page.mdx`, `token/messages/en.json`, `graphs/*.json`, related tests
+## 2026-06-03T12:52:00Z - default-pages-search-tags-005
+- Added `/docs/architecture` index route with localized title/description, alphabetical entry list, and empty state (home link + search trigger) mirroring the glossary index pattern.
+- Implemented `loadPublishedArchitectureEntries` / `isArchitectureRelatedPage` for `architecture/` content paths and concept registry records with `conceptType: architecture`; added `conceptRecordSchema` to registry parsing.
+- Verified production build includes `/docs/architecture` and rendered HTML on `next start` port 3011 shows Architecture title, empty state copy, `data-search`, and Open search.
+- Files changed: `src/lib/content/architecture.ts`, `src/lib/content/schemas.ts`, `src/app/(site)/docs/architecture/page.tsx`, `src/features/docs/architecture/*`, `src/content/messages/en/common.json`, `src/lib/content/ui-messages.types.ts`, `src/tests/content/architecture-index.test.ts`
 - **Learnings for future iterations:**
-  - Phase 1 graph render is still a `PageAsset` placeholder (`data-graph-id` + `role="img"`); React Flow wiring is deferred.
-  - `loadRegistry` skips missing registry subdirectories (ENOENT) so test fixtures need not create empty `graphs/` folders.
-  - GQA module pages already referenced graph IDs; adding stub graph records keeps graph validation enabled without expanding story scope.
----
-
-## 2026-06-03T19:45:00Z - basic-token-glossary-page-003
-- Registered Token in the Fumadocs docs sidebar: `glossary/meta.json` with `[Token](/docs/glossary/token)`, root `meta.json` includes `glossary` section, frontmatter title/description aligned with messages, and `generateMetadata` on the glossary route.
-- Added `src/lib/source.test.ts` for page-tree navigation URL coverage plus route file existence; `pretest` runs `fumadocs-mdx` so CI has a fresh `.source` before tests.
-- Files changed: `src/content/docs/meta.json`, `src/content/docs/glossary/meta.json`, `glossary/token/page.mdx`, `src/app/docs/glossary/token/page.tsx`, `src/lib/source.test.ts`, `src/lib/content/page-bundle.test.ts`, `package.json`
-- **Learnings for future iterations:**
-  - Fumadocs meta link entries use markdown link syntax in the `pages` array, e.g. `[Token](/docs/glossary/token)`.
-  - `source.pageTree` is the contract for sidebar links; dedicated App Router pages still need matching route files under `src/app/docs/`.
-  - Story 004 next: `listPublishedGlossaryPages` helper and glossary index route.
+  - Phase 1 has no architecture-tagged pages yet; the index correctly shows the empty state until concept or `architecture/` docs are published.
+  - Glossary index at `/docs/glossary` was already implemented; story 006 may only need verification/tests if acceptance criteria already pass.
+  - Stale `next dev` on port 3002 can hang curl; use `next build` + `next start` on a fresh port for quick HTML verification.
 ---
