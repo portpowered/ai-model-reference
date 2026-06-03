@@ -20,7 +20,7 @@ import {
 const PHASE_1_DISCOVERY_ROUTES = [
   {
     path: "/",
-    render: () => Promise.resolve(<HomePage />),
+    render: () => HomePage(),
     expectInHtml: "Model Atlas",
   },
   {
@@ -130,7 +130,7 @@ describe("Phase 1 discovery route smoke", () => {
 
 describe("Phase 1 tag browse helpers", () => {
   test("attention tag includes grouped-query attention under modules", async () => {
-    const messages = loadUiMessages();
+    const messages = await loadUiMessages();
     const groups = await loadTagResourceGroups("attention", messages, "en");
     const moduleGroup = groups.find((group) => group.kind === "module");
 

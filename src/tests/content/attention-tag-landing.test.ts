@@ -11,7 +11,7 @@ import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("attention tag landing resources", () => {
   it("loads the attention tag record with localized title and summary", async () => {
-    const messages = loadUiMessages();
+    const messages = await loadUiMessages();
     const context = await loadTagLandingContext("attention", messages, "en");
 
     expect(context).toBeDefined();
@@ -21,7 +21,7 @@ describe("attention tag landing resources", () => {
   });
 
   it("includes the grouped-query attention module under modules", async () => {
-    const messages = loadUiMessages();
+    const messages = await loadUiMessages();
     const entries = await loadTagResourceEntries("attention", "en");
     const moduleEntry = entries.find(
       (entry) => entry.url === "/docs/modules/grouped-query-attention",
@@ -42,7 +42,7 @@ describe("attention tag landing resources", () => {
   });
 
   it("omits empty kind groups and groups module and glossary resources separately", async () => {
-    const messages = loadUiMessages();
+    const messages = await loadUiMessages();
     const groups = await loadTagResourceGroups("attention", messages, "en");
 
     expect(groups.every((group) => group.resources.length > 0)).toBe(true);
@@ -52,8 +52,8 @@ describe("attention tag landing resources", () => {
     expect(glossaryGroup?.resources[0]?.url).toBe("/docs/glossary/token");
   });
 
-  it("sorts resources alphabetically by title within a kind group", () => {
-    const messages = loadUiMessages();
+  it("sorts resources alphabetically by title within a kind group", async () => {
+    const messages = await loadUiMessages();
     const groups = groupTagResourceEntriesByKind(
       [
         {
@@ -82,8 +82,8 @@ describe("attention tag landing resources", () => {
 });
 
 describe("tag landing messages", () => {
-  it("loads localized copy for tag landing pages", () => {
-    const messages = loadUiMessages();
+  it("loads localized copy for tag landing pages", async () => {
+    const messages = await loadUiMessages();
     expect(messages.tagLanding.listLabel.length).toBeGreaterThan(0);
     expect(messages.tagLanding.searchHandoff.length).toBeGreaterThan(0);
     expect(messages.tagLanding.searchEntryLink.length).toBeGreaterThan(0);

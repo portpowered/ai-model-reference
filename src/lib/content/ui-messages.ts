@@ -1,12 +1,10 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-import { MESSAGES_ROOT } from "./content-paths";
 import type { UiMessages } from "./ui-messages.types";
 
 export type { UiMessages } from "./ui-messages.types";
 export { formatPageKind } from "./ui-messages.types";
 
-export function loadUiMessages(locale = "en"): UiMessages {
-  const path = join(MESSAGES_ROOT, locale, "common.json");
-  return JSON.parse(readFileSync(path, "utf8")) as UiMessages;
+/** Loads shell UI messages via a dynamic import so App Router routes avoid a static `node:fs` graph. */
+export async function loadUiMessages(locale = "en"): Promise<UiMessages> {
+  const { loadUiMessagesFromDisk } = await import("./ui-messages-load");
+  return loadUiMessagesFromDisk(locale);
 }

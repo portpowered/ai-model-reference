@@ -1,4 +1,3 @@
-import { loadRegistry } from "./registry";
 import type { TagRecord } from "./schemas";
 
 /** Human-readable label for a kebab-case tag slug. */
@@ -14,7 +13,6 @@ export function tagPageHref(slug: string): string {
   return `/tags/${slug}`;
 }
 
-import { loadTagMessages } from "./tag-messages";
 import type { UiMessages } from "./ui-messages.types";
 
 const TAG_CATEGORY_ORDER = [
@@ -62,11 +60,12 @@ export function formatTagCategoryLabel(
   return messages.tagCategories[category] ?? category;
 }
 
-export function toTagIndexEntry(
+export async function toTagIndexEntry(
   record: TagRecord,
   messages: UiMessages,
   locale = "en",
-): TagIndexEntry {
+): Promise<TagIndexEntry> {
+  const { loadTagMessages } = await import("./tag-messages");
   const tagMessages = loadTagMessages(record.slug, locale);
   const categoryLabel = formatTagCategoryLabel(messages, record.category);
 
@@ -92,10 +91,13 @@ export async function loadPublishedTagIndexEntries(
   messages: UiMessages,
   locale = "en",
 ): Promise<TagIndexEntry[]> {
+  const { loadRegistry } = await import("./registry");
   const indexes = await loadRegistry();
-  const entries = [...indexes.tagsBySlug.values()]
-    .filter(isPublishedTagRecord)
-    .map((record) => toTagIndexEntry(record, messages, locale));
+  const entries = await Promise.all(
+    [...indexes.tagsBySlug.values()]
+      .filter(isPublishedTagRecord)
+      .map((record) => toTagIndexEntry(record, messages, locale)),
+  );
   return sortTagIndexEntriesByTitle(entries);
 }
 

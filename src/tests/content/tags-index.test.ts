@@ -12,7 +12,7 @@ import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("loadPublishedTagIndexEntries", () => {
   it("returns published tag records with localized title, summary, and landing links", async () => {
-    const messages = loadUiMessages();
+    const messages = await loadUiMessages();
     const entries = await loadPublishedTagIndexEntries(messages, "en");
 
     const attention = entries.find((entry) => entry.slug === "attention");
@@ -30,7 +30,7 @@ describe("loadPublishedTagIndexEntries", () => {
   });
 
   it("sorts tags alphabetically by title within a flat list", async () => {
-    const messages = loadUiMessages();
+    const messages = await loadUiMessages();
     const entries = await loadPublishedTagIndexEntries(messages, "en");
     for (let index = 1; index < entries.length; index += 1) {
       expect(
@@ -44,7 +44,7 @@ describe("loadPublishedTagIndexEntries", () => {
 
 describe("groupTagIndexEntriesByCategory", () => {
   it("groups tags by category in schema order", async () => {
-    const messages = loadUiMessages();
+    const messages = await loadUiMessages();
     const groups = await loadPublishedTagIndexGroups(messages, "en");
 
     expect(groups.map((group) => group.category)).toEqual([
@@ -111,8 +111,8 @@ describe("sortTagIndexEntriesByTitle", () => {
 });
 
 describe("tags index messages", () => {
-  it("loads localized copy for the tags index page", () => {
-    const messages = loadUiMessages();
+  it("loads localized copy for the tags index page", async () => {
+    const messages = await loadUiMessages();
     expect(messages.tagsIndex.title).toBe("Tags");
     expect(messages.tagsIndex.description.length).toBeGreaterThan(0);
     expect(messages.tagCategories.architecture).toBe("Architecture");

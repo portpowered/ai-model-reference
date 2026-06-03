@@ -1,32 +1,18 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { REGISTRY_ROOT } from "./content-paths";
+import type { RegistryIndexes, RegistryRecord } from "./registry-index";
 import {
-  type CitationRecord,
-  type ConceptRecord,
   citationRecordSchema,
   conceptRecordSchema,
-  type GraphRecord,
   graphRecordSchema,
-  type ModuleRecord,
   moduleRecordSchema,
   type TagRecord,
   tagRecordSchema,
 } from "./schemas";
 
-export type RegistryRecord =
-  | ModuleRecord
-  | ConceptRecord
-  | TagRecord
-  | CitationRecord
-  | GraphRecord;
-
-export type RegistryIndexes = {
-  byId: Map<string, RegistryRecord>;
-  bySlug: Map<string, RegistryRecord>;
-  tagsById: Map<string, TagRecord>;
-  tagsBySlug: Map<string, TagRecord>;
-};
+export type { RegistryIndexes, RegistryRecord } from "./registry-index";
+export { getRegistryRecord } from "./registry-index";
 
 export type RegistryLoadErrorDetail =
   | { type: "duplicate-id"; id: string; paths: string[] }
@@ -188,14 +174,4 @@ export async function loadRegistry(
   }
 
   return buildIndexes(files);
-}
-
-export function getRegistryRecord(
-  indexes: RegistryIndexes,
-  registryId?: string,
-): RegistryRecord | undefined {
-  if (!registryId) {
-    return undefined;
-  }
-  return indexes.byId.get(registryId);
 }

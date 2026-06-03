@@ -16,7 +16,7 @@ export default async function RootLayout({
 }: {
   children: ReactNode;
 }) {
-  const messages = loadUiMessages();
+  const messages = await loadUiMessages();
   const metaByUrl = searchResultMetaMapToRecord(
     await loadSearchResultMetaMap(),
   );

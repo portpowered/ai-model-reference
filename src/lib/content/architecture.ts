@@ -1,9 +1,5 @@
-import { type DocsPageSource, loadPublishedDocsPages } from "./pages";
-import {
-  getRegistryRecord,
-  loadRegistry,
-  type RegistryIndexes,
-} from "./registry";
+import type { DocsPageSource } from "./pages";
+import { getRegistryRecord, type RegistryIndexes } from "./registry-index";
 import type { ConceptRecord } from "./schemas";
 
 export type ArchitectureEntry = {
@@ -57,6 +53,8 @@ export function sortArchitectureEntriesByTitle(
 export async function loadPublishedArchitectureEntries(
   locale = "en",
 ): Promise<ArchitectureEntry[]> {
+  const { loadRegistry } = await import("./registry");
+  const { loadPublishedDocsPages } = await import("./pages");
   const indexes = await loadRegistry();
   const pages = (await loadPublishedDocsPages(locale)).filter((page) =>
     isArchitectureRelatedPage(page, indexes),

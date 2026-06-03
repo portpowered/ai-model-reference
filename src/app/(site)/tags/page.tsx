@@ -3,7 +3,7 @@ import { loadPublishedTagIndexGroups } from "@/lib/content/tags";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 export default async function TagsIndexPage() {
-  const messages = loadUiMessages();
+  const messages = await loadUiMessages();
   const groups = await loadPublishedTagIndexGroups(messages);
   const { tagsIndex } = messages;
 
