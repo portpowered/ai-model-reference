@@ -8,10 +8,11 @@ import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
+import { TOKEN_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
-const pageDir = join(process.cwd(), "src/content/docs/glossary/token");
+const pageDir = TOKEN_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 const assetsPath = join(pageDir, "assets.json");
 
