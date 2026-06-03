@@ -1,11 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
-
-const TAG_MESSAGES_ROOT = join(
-  process.cwd(),
-  "src/content/registry/tags/messages",
-);
+import { TAG_MESSAGES_ROOT } from "./content-paths";
 
 const tagMessagesSchema = z.object({
   title: z.string(),

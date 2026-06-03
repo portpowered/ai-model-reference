@@ -6,8 +6,8 @@ import {
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("getPrimaryNavItems", () => {
-  it("lists Phase 1 discovery routes in order", () => {
-    const messages = loadUiMessages();
+  it("lists Phase 1 discovery routes in order", async () => {
+    const messages = await loadUiMessages();
     const items = getPrimaryNavItems(messages);
 
     expect(items.map((item) => item.href)).toEqual([

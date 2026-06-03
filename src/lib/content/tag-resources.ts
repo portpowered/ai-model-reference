@@ -1,11 +1,6 @@
-import { type DocsPageSource, loadPublishedDocsPages } from "./pages";
-import {
-  getRegistryRecord,
-  loadRegistry,
-  type RegistryIndexes,
-} from "./registry";
+import type { DocsPageSource } from "./pages";
+import { getRegistryRecord, type RegistryIndexes } from "./registry-index";
 import type { TagRecord } from "./schemas";
-import { loadTagMessages } from "./tag-messages";
 import type { UiMessages } from "./ui-messages.types";
 import { formatPageKind } from "./ui-messages.types";
 
@@ -86,6 +81,7 @@ function isPublishedTagRecord(record: TagRecord): boolean {
 export async function loadPublishedTagRecord(
   slug: string,
 ): Promise<TagRecord | undefined> {
+  const { loadRegistry } = await import("./registry");
   const indexes = await loadRegistry();
   const record = indexes.tagsBySlug.get(slug);
   if (record && isPublishedTagRecord(record)) {
@@ -98,6 +94,8 @@ export async function loadTagResourceEntries(
   tagSlug: string,
   locale = "en",
 ): Promise<TagResourceEntry[]> {
+  const { loadRegistry } = await import("./registry");
+  const { loadPublishedDocsPages } = await import("./pages");
   const indexes = await loadRegistry();
   const pages = (await loadPublishedDocsPages(locale)).filter((page) =>
     pageMatchesTag(page, tagSlug, indexes),
@@ -149,6 +147,7 @@ export async function loadTagLandingContext(
     return undefined;
   }
 
+  const { loadTagMessages } = await import("./tag-messages");
   const tagMessages = loadTagMessages(record.slug, locale);
   const categoryLabel =
     messages.tagCategories[record.category] ?? record.category;

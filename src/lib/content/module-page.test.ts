@@ -8,13 +8,11 @@ import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
+import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
-const pageDir = join(
-  process.cwd(),
-  "src/content/docs/modules/grouped-query-attention",
-);
+const pageDir = GROUPED_QUERY_ATTENTION_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 const assetsPath = join(pageDir, "assets.json");
 

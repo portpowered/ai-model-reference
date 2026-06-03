@@ -15,7 +15,7 @@ type TagLandingPageProps = {
 };
 
 export async function generateStaticParams() {
-  const messages = loadUiMessages();
+  const messages = await loadUiMessages();
   const entries = await loadPublishedTagIndexEntries(messages, "en");
   return entries.map((entry) => ({
     slug: entry.slug,
@@ -24,7 +24,7 @@ export async function generateStaticParams() {
 
 export default async function TagLandingPage({ params }: TagLandingPageProps) {
   const { slug } = await params;
-  const messages = loadUiMessages();
+  const messages = await loadUiMessages();
   const context = await loadTagLandingContext(slug, messages, "en");
 
   if (!context) {

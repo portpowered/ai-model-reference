@@ -30,5 +30,5 @@ describe("fresh-checkout typecheck", () => {
 
     expect(result.status).toBe(0);
     expect(existsSync(sourceServerModule)).toBe(true);
-  });
+  }, 120_000);
 });

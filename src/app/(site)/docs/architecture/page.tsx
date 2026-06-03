@@ -4,7 +4,7 @@ import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 export default async function ArchitectureIndexPage() {
-  const messages = loadUiMessages();
+  const messages = await loadUiMessages();
   const entries = await loadPublishedArchitectureEntries();
   const { architectureIndex } = messages;
 

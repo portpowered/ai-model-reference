@@ -12,7 +12,7 @@ import { SAMPLE_MODULE_URL } from "@/tests/search/helpers";
 
 describe("SearchResultMetaDetails", () => {
   test("renders URL, localized kind label, summary, and matched tags for fixture meta", async () => {
-    const messages = loadUiMessages();
+    const messages = await loadUiMessages();
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
     );
@@ -42,7 +42,7 @@ describe("SearchResultMetaDetails", () => {
 
 describe("SearchResultListItem GQA dialog row", () => {
   test("GQA page hit meta panel shows module kind, summary, and URL", async () => {
-    const messages = loadUiMessages();
+    const messages = await loadUiMessages();
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
     );
@@ -67,7 +67,7 @@ describe("SearchResultListItem GQA dialog row", () => {
 
 describe("SearchInlineResultItem", () => {
   test("GQA page hit shows title, module kind, summary, and URL for /search rows", async () => {
-    const messages = loadUiMessages();
+    const messages = await loadUiMessages();
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
     );

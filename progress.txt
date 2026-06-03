@@ -1,4 +1,8 @@
 ## Codebase Patterns
+- App Router tracing boundary: route modules import thin facades (`glossary.ts`, `tags.ts`, `ui-messages.ts`, `module-page.ts`, `glossary-page.ts`) that use `await import("./…-load")` or `await import("./pages")` inside async loaders; filesystem scanners live in `*-load.ts`, `pages.ts`, `registry.ts`, `tag-messages.ts`.
+- Pure registry lookups without fs: `registry-index.ts` exports `RegistryIndexes`, `RegistryRecord`, and `getRegistryRecord`; discovery facades import these instead of `registry.ts`.
+- Content filesystem roots: `src/lib/content/content-paths.ts` exports `CONTENT_ROOT`, `DOCS_ROOT`, `GLOSSARY_DOCS_ROOT`, `MODULES_DOCS_ROOT`, `REGISTRY_ROOT`, `MESSAGES_ROOT`, `TAG_MESSAGES_ROOT`, and Phase 1 fixture dirs; loaders should import these instead of `join(process.cwd(), "src/content/...")`.
+- Turbopack NFT tracing regression: `buildOutputHasTurbopackWholeProjectTracingWarning` in `src/lib/build/turbopack-nft-tracing-warning.ts` guards known diagnostic fragments; `src/tests/build/next-build-tracing-warning.test.ts` runs a clean `bun run build` (`.next` removed first) and fails on combined stdout/stderr matches.
 - Registry validation negative tests: use temp `registryRoot` + empty `docsRoot` fixtures in `validate-registry.test.ts`; assert `unresolved-reference` for broken `relatedIds`/`citationIds` (message includes `${record.id}`, field name, and missing id) and `unresolved-tag` for unknown tag slugs; baseline passes via `validateRegistryContent()` with no options and `make validate-data`.
 - Fumadocs codegen: `pretypecheck` and `pretest` in `package.json` both run `fumadocs-mdx` so `make typecheck` and `make test` work on fresh clones without a gitignored `.source/` directory; `src/lib/source.ts` imports `../../.source/server`.
 - Home discovery links: `/` must link to `/search`, `/docs/architecture`, `/docs/glossary`, `/docs/glossary/token`, `/tags`, and `/docs/modules/grouped-query-attention` via `HomeBrowseLink` or explicit `Link`; search section uses `HomeSearchEntry` plus a `/search` text link from `home.searchPageLinkTitle`.
@@ -17,6 +21,8 @@
 - UI search client tests: `src/tests/search/search-client.test.ts` mocks `docsSearchApi.staticGET()` via `globalThis.fetch` and asserts `createDocsSearchClient` ranking; mirror token/GQA coverage from API tests in `search-result-meta.test.ts` for `resolveSearchResultMeta` / `getMatchedTags` (token glossary meta uses `attention` tag, not a `token` slug).
 - Global search UI: `SearchDialog`/`SearchTrigger` register via `AppProviders` → `RootProvider` in `src/app/layout.tsx`; `DocsShell` renders `SearchTrigger` in the top nav for every `(site)` route; `HomeSearchEntry` opens the same dialog from `/`.
 
+- Turbopack NFT containment: when stories 002–004 eliminate the whole-project tracing warning, keep only `turbopack.root` in `next.config.ts`; do not add `outputFileTracing*` containment or a `progress.txt` residual-warning entry.
+- Glossary listing: `loadPublishedGlossaryEntries` and `listPublishedGlossaryPages` both use `loadPublishedDocsPages` via dynamic import in `glossary.ts`; the duplicate `glossary-pages.ts` scanner was removed.
 - Glossary index at `/docs/glossary` uses `loadPublishedGlossaryEntries` (filters `kind: glossary`); empty state mirrors architecture index with home link + `SearchTrigger`.
 - Tags index at `/tags` uses `loadPublishedTagIndexGroups` from published `tag` registry records; localized title/summary live in `src/content/registry/tags/messages/<slug>.<locale>.json`; `loadRegistry` skips `messages` subdirectories.
 - Tag index groups by `category` (schema order via `TAG_CATEGORY_ORDER`); tag slug chips use monochrome `border-border` / `text-muted-foreground` styling.
@@ -292,4 +298,72 @@
 - **Learnings for future iterations:**
   - Baseline workflow needs no `bun-version` pin when using default setup-bun; lockfile enforcement is the separate `bun install --frozen-lockfile` step.
   - Story 005 should document or fix the Turbopack NFT warning (`glossary-pages.ts` import chain); build still succeeds with the warning today.
+---
+
+## 2026-06-04T20:00:00Z - phase-1-turbopack-tracing-warning-cleanup-001
+- Added Turbopack NFT whole-project tracing warning detector (`turbopack-nft-tracing-warning.ts`) with documented diagnostic regexes for Next.js 16+ build output.
+- Added build regression test that removes `.next`, runs `bun run build`, asserts exit 0, and fails when combined stdout/stderr matches guarded warning patterns.
+- Added unit tests for the matcher against sample NFT diagnostics and benign build output.
+- Ran `make ci` (lint, typecheck, test including new build gate, build, validate-data) — all exit 0; current head build emits no guarded tracing warnings.
+- Files changed: `src/lib/build/turbopack-nft-tracing-warning.ts`, `src/lib/build/turbopack-nft-tracing-warning.test.ts`, `src/tests/build/next-build-tracing-warning.test.ts`
+- **Learnings for future iterations:**
+  - Story 001 is a regression gate only; stories 002–004 should eliminate warnings if they reappear when content loaders re-enter the server graph.
+  - `make ci` runs `bun test` before `make build`, so CI executes two production builds per run (acceptable for the gate).
+  - Current Phase 1 head may already be warning-free (`DerivedRelatedDocs` uses `registry-runtime`, not `glossary-pages.ts`); the gate still catches reintroduction.
+  - Without `bun install`, `next build` fails with a misleading Turbopack root error—fresh worktrees need install before the build regression test.
+---
+
+## 2026-06-04T22:00:00Z - phase-1-turbopack-tracing-warning-cleanup-002
+- Added `src/lib/content/content-paths.ts` with shared roots for `src/content`, docs, glossary, modules, registry, messages, tag messages, and Phase 1 fixture page directories.
+- Updated `pages.ts`, `registry.ts`, `ui-messages.ts`, `tag-messages.ts`, `glossary-pages.ts`, `glossary-page.ts`, `module-page.ts`, `page-messages-load.ts`, and `validate-registry.ts` to import shared roots instead of scattered `process.cwd()` joins.
+- Added `content-paths.test.ts` asserting roots resolve under `src/content` from the project directory.
+- Ran `make ci` (lint, typecheck, test, build, validate-data) — all exit 0; production build still emits no guarded Turbopack NFT tracing warnings.
+- Files changed: `src/lib/content/content-paths.ts`, `src/lib/content/content-paths.test.ts`, `src/lib/content/pages.ts`, `src/lib/content/registry.ts`, `src/lib/content/ui-messages.ts`, `src/lib/content/tag-messages.ts`, `src/lib/content/glossary-pages.ts`, `src/lib/content/glossary-page.ts`, `src/lib/content/module-page.ts`, `src/lib/content/page-messages-load.ts`, `src/lib/content/validate-registry.ts`, `src/lib/content/module-page.test.ts`, `src/lib/content/glossary-page.test.ts`
+- **Learnings for future iterations:**
+  - Only `content-paths.ts` should call `process.cwd()` for content discovery; story 003+ should move fs scanners behind async/dynamic boundaries.
+  - Re-export `groupedQueryAttentionPageDir` / `tokenGlossaryPageDir` from `page-messages-load.ts` via content-paths constants so validators and tests stay aligned.
+  - Story 004 should consolidate or remove `glossary-pages.ts` from the production server graph; paths are already centralized on `GLOSSARY_DOCS_ROOT`.
+---
+
+## 2026-06-04T23:45:00Z - phase-1-turbopack-tracing-warning-cleanup-003
+- Moved filesystem scanners behind dynamic import boundaries: `ui-messages-load.ts`, `module-page-load.ts`, `glossary-page-load.ts`, and async `import()` in `glossary.ts`, `architecture.ts`, `tags.ts`, `tag-resources.ts`, and `search-result-meta.ts`.
+- Extracted pure `registry-index.ts` so discovery facades avoid statically importing `registry.ts` (node:fs).
+- Made `loadUiMessages` async; updated App Router pages, `(site)/layout.tsx`, and tests to `await` loaders; search page Suspense fallback receives preloaded messages.
+- Ran `make ci` (lint, typecheck, test, build, validate-data) — all exit 0; production build emits no guarded Turbopack NFT tracing warnings.
+- Files changed: `src/lib/content/ui-messages.ts`, `ui-messages-load.ts`, `module-page.ts`, `module-page-load.ts`, `glossary-page.ts`, `glossary-page-load.ts`, `registry-index.ts`, `registry.ts`, `glossary.ts`, `architecture.ts`, `tags.ts`, `tag-resources.ts`, `src/lib/search/search-result-meta.ts`, `src/app/**/*.tsx`, multiple test files, `src/tests/ci/fresh-checkout-typecheck.test.ts`
+- **Learnings for future iterations:**
+  - `import type` from `pages.ts` is safe in facades; value imports from scanner modules pull `node:fs` into the Turbopack server graph.
+  - Async route components that call `await loadUiMessages()` require tests to `await HomePage()` (etc.) before `renderToStaticMarkup`.
+  - Story 004 should consolidate `glossary-pages.ts` with `loadPublishedGlossaryEntries`; it is still not in the App Router static graph today.
+---
+
+## 2026-06-04T24:30:00Z - phase-1-turbopack-tracing-warning-cleanup-004
+- Removed duplicate `glossary-pages.ts` filesystem scanner; consolidated `listPublishedGlossaryPages` onto `loadPublishedGlossaryEntries` / `loadPublishedDocsPages` in `glossary.ts`.
+- Kept `glossary-pages.test.ts` covering token listing, alphabetical sort, missing-root empty list, and draft exclusion via `contentRoot` fixture override.
+- Ran `make ci` (lint, typecheck, test, build, validate-data) — all exit 0; production build emits no guarded Turbopack NFT tracing warnings.
+- Files changed: `src/lib/content/glossary.ts`, `src/lib/content/glossary-pages.test.ts`; deleted `src/lib/content/glossary-pages.ts`
+- **Learnings for future iterations:**
+  - `glossary-pages.ts` was test-only before consolidation; production already used `loadPublishedGlossaryEntries` from the glossary index route.
+  - `listPublishedGlossaryPages` maps `docsSlug` to short glossary slugs (`glossary/token` → `token`) for backward-compatible test fixtures.
+  - Story 005 should confirm warning-free build or add minimal `next.config` containment; story 006 runs full Phase 1 verification.
+---
+
+## 2026-06-03T18:51:01Z - phase-1-turbopack-tracing-warning-cleanup-005
+- Verified stories 002–004 eliminated the Turbopack NFT whole-project filesystem tracing warning: `make ci` (lint, typecheck, test including `next-build-tracing-warning.test.ts`, build, validate-data) exits 0 with no guarded warning patterns in build output.
+- Confirmed `next.config.ts` needs no containment beyond existing `turbopack.root`; no residual-warning entry added to progress per PRD.
+- No code changes required for this story outcome.
+- Files changed: none (verification only); PRD/progress tracking updated locally.
+- **Learnings for future iterations:**
+  - Story 005 completion path when scoping works: verification via `make ci` and the build regression test is sufficient; avoid adding `outputFileTracing*` unless the regression gate still fails after 002–004.
+  - Story 006 should run final `make ci` and confirm discovery routes unchanged after this branch’s loader work.
+---
+
+## 2026-06-04T19:15:00Z - phase-1-turbopack-tracing-warning-cleanup-006
+- Verified full Phase 1 quality gates after tracing cleanup: `make ci` (lint, typecheck, 264 tests, build including `next-build-tracing-warning.test.ts`, Phase 1 static route verification, validate-data) exits 0.
+- Confirmed production build manifest includes all eight Phase 1 discovery paths (`/`, `/search`, `/docs/architecture`, `/docs/glossary`, `/docs/glossary/token`, `/tags`, `/tags/attention`, `/docs/modules/grouped-query-attention`) with no new Phase 2 routes or content.
+- No code changes required for this story outcome.
+- Files changed: none (verification only); PRD/progress tracking updated locally.
+- **Learnings for future iterations:**
+  - Story 006 is the branch exit gate: run `make ci` once after stories 001–005 land; no additional tracing config needed when the build regression test stays green.
+  - Branch is ready for PR creation when all six stories pass and no blocking PR conversation feedback exists.
 ---

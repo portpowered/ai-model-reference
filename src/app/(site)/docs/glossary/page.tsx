@@ -4,7 +4,7 @@ import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 export default async function GlossaryIndexPage() {
-  const messages = loadUiMessages();
+  const messages = await loadUiMessages();
   const entries = await loadPublishedGlossaryEntries();
   const { glossaryIndex } = messages;
 
