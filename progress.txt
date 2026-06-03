@@ -15,6 +15,7 @@
 - Tag index groups by `category` (schema order via `TAG_CATEGORY_ORDER`); tag slug chips use monochrome `border-border` / `text-muted-foreground` styling.
 - Tag landing at `/tags/[slug]` uses `loadTagResourceGroups` in `src/lib/content/tag-resources.ts` (matches tag on MDX frontmatter and registry record tags); `TagResourceList` groups by page kind and omits empty groups; `TagSearchHandoff` + `search-prefill.ts` prefill the global search dialog query when opened from a tag page; add a `/search?tag=<slug>` link via `tagLanding.searchEntryLink` for documented search entry handoffs per architectural checklist.
 - Search entry at `/search` uses `searchEntry.*` message keys, documents canonical `/search` and optional `?tag=<slug>` handoffs, and `SearchEntryHandoff` (client, Suspense-wrapped) opens the global dialog with optional tag prefill via `setPendingSearchQuery`.
+- Glossary index page render tests mirror architecture index: assert Token card and `href="/docs/glossary/token"` in `glossary-index.test.ts`; discovery smoke uses `alsoExpectInHtml: "Token"` for `/docs/glossary`.
 
 ## 2026-06-03T15:30:00Z - default-pages-search-tags-007
 - Implemented `/tags` index listing published tag registry records grouped by category with localized title, summary, category label, and links to `/tags/<slug>`.
@@ -185,4 +186,15 @@
   - Story 007 was largely implemented before this iteration; completion was `/search?tag=` handoff link, render tests, and PRD tracking.
   - Tag landing uses the shared `[slug]` page—no dedicated `attention` route file; `generateStaticParams` emits `/tags/attention` from published tag registry records.
   - Pair `TagSearchHandoff` (opens dialog with tag prefill) with a `/search?tag=<slug>` link so bookmarks and checklist handoffs target the documented search entry URL.
+---
+
+## 2026-06-04T02:45:00Z - phase-1-entry-and-index-routes-008
+- Verified `/docs/glossary` index meets Phase 1 acceptance: `(site)` layout `DocsShell`, localized `glossaryIndex` messages, Token entry list, and empty state matching architecture index (home link + `SearchTrigger`).
+- Added glossary index page render test and strengthened discovery smoke to assert Token on the glossary route.
+- Verified production HTML on `next start` port 3026: Glossary title, Token card, `/docs/glossary/token` link, primary nav Glossary link, and `data-search` affordance.
+- Files changed: `src/tests/content/glossary-index.test.ts`, `src/tests/discovery/phase-1-discovery.test.tsx`
+- **Learnings for future iterations:**
+  - Story 008 was largely implemented before this iteration; completion was verification, render tests, and PRD tracking.
+  - Glossary index shares the same `(site)` + `DocsShell` pattern as architecture and tags; individual glossary doc pages under `app/docs/` still use Fumadocs `DocsLayout`.
+  - Story 009 should extend route smoke tests for remaining Phase 1 paths (token page, GQA module) and build output assertions.
 ---
