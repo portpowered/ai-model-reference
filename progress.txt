@@ -13,7 +13,7 @@
 - Glossary index at `/docs/glossary` uses `loadPublishedGlossaryEntries` (filters `kind: glossary`); empty state mirrors architecture index with home link + `SearchTrigger`.
 - Tags index at `/tags` uses `loadPublishedTagIndexGroups` from published `tag` registry records; localized title/summary live in `src/content/registry/tags/messages/<slug>.<locale>.json`; `loadRegistry` skips `messages` subdirectories.
 - Tag index groups by `category` (schema order via `TAG_CATEGORY_ORDER`); tag slug chips use monochrome `border-border` / `text-muted-foreground` styling.
-- Tag landing at `/tags/[slug]` uses `loadTagResourceGroups` in `src/lib/content/tag-resources.ts` (matches tag on MDX frontmatter and registry record tags); `TagResourceList` groups by page kind and omits empty groups; `TagSearchHandoff` + `search-prefill.ts` prefill the global search dialog query when opened from a tag page.
+- Tag landing at `/tags/[slug]` uses `loadTagResourceGroups` in `src/lib/content/tag-resources.ts` (matches tag on MDX frontmatter and registry record tags); `TagResourceList` groups by page kind and omits empty groups; `TagSearchHandoff` + `search-prefill.ts` prefill the global search dialog query when opened from a tag page; add a `/search?tag=<slug>` link via `tagLanding.searchEntryLink` for documented search entry handoffs per architectural checklist.
 - Search entry at `/search` uses `searchEntry.*` message keys, documents canonical `/search` and optional `?tag=<slug>` handoffs, and `SearchEntryHandoff` (client, Suspense-wrapped) opens the global dialog with optional tag prefill via `setPendingSearchQuery`.
 
 ## 2026-06-03T15:30:00Z - default-pages-search-tags-007
@@ -174,4 +174,15 @@
   - Story 005 was largely implemented before this branch iteration; completion was verification, render tests, and PRD tracking.
   - Use `next build` + `next start -p <port>` for production HTML checks when dev servers are stale or occupied.
   - Architecture index lists token via `concept.token` with `conceptType: architecture`, not via `architecture/` content path alone.
+---
+
+## 2026-06-04T01:30:00Z - phase-1-entry-and-index-routes-007
+- Verified `/tags/attention` tag landing (dynamic `[slug]` route) meets Phase 1 acceptance: localized title/summary, `TagResourceList` grouped by module and glossary, GQA and token links, dialog handoff via `TagSearchHandoff`, and documented `/search?tag=attention` entry link.
+- Added `tagLanding.searchEntryLink` message key and page render tests; strengthened discovery smoke for GQA href on attention landing.
+- Verified production HTML on `next start` port 3025: Attention title, Module/Glossary groups, GQA and token links, `/search?tag=attention`, and `data-search` affordance.
+- Files changed: `src/app/(site)/tags/[slug]/page.tsx`, `src/content/messages/en/common.json`, `src/lib/content/ui-messages.types.ts`, `src/tests/content/attention-tag-landing.test.ts`, `src/tests/discovery/phase-1-discovery.test.tsx`
+- **Learnings for future iterations:**
+  - Story 007 was largely implemented before this iteration; completion was `/search?tag=` handoff link, render tests, and PRD tracking.
+  - Tag landing uses the shared `[slug]` page—no dedicated `attention` route file; `generateStaticParams` emits `/tags/attention` from published tag registry records.
+  - Pair `TagSearchHandoff` (opens dialog with tag prefill) with a `/search?tag=<slug>` link so bookmarks and checklist handoffs target the documented search entry URL.
 ---
