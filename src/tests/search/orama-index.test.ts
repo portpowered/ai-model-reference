@@ -12,10 +12,10 @@ describe("exportOramaIndexSnapshot", () => {
     const snapshot = await exportOramaIndexSnapshot(documents);
 
     expect(snapshot.version).toBe(1);
-    expect(snapshot.documents.length).toBeGreaterThan(0);
+    expect(snapshot.documents.length).toBeGreaterThanOrEqual(2);
     expect(snapshot.orama).toBeDefined();
-    expect(snapshot.documents[0]?.url).toContain(
-      "/docs/modules/grouped-query-attention",
-    );
+    const urls = snapshot.documents.map((document) => document.url);
+    expect(urls).toContain("/docs/modules/grouped-query-attention");
+    expect(urls).toContain("/docs/glossary/token");
   });
 });

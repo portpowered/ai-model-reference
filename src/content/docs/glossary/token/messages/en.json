@@ -1,0 +1,22 @@
+{
+  "title": "Token",
+  "description": "The smallest unit of text a language model reads and predicts—usually a word piece, not always a whole word.",
+  "problemStatement": "Models do not read raw characters or whole documents directly; they need a fixed vocabulary of units to embed and score.",
+  "coreIdea": "A tokenizer maps text to integer token IDs; the model embeds those IDs and predicts the next token at each step.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A token is one step in the model's discrete text vocabulary. Subword tokenizers often split rare words into pieces so the vocabulary stays finite while still covering open vocabulary text."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Tokenization sets context length in tokens, shapes cost per request, and determines whether two strings look identical to the model."
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Diagram showing text flowing through a tokenizer into token IDs and embeddings",
+      "caption": "How raw text becomes token IDs before the transformer stack"
+    }
+  }
+}

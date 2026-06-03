@@ -4,6 +4,7 @@ import { loadRegistry } from "@/lib/content/registry";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
+const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
 
 describe("buildSearchDocuments", () => {
   test("indexes grouped-query attention sample page with aliases and tags", () => {
@@ -29,5 +30,26 @@ describe("buildSearchDocuments", () => {
     expect(sample?.bodyText).toContain("KV-cache");
     expect(sample?.registryId).toBe("module.grouped-query-attention");
     expect(sample?.facets.moduleType).toBe("attention");
+  });
+
+  test("indexes published token glossary page with title, body text, aliases, and tags", () => {
+    const registry = loadRegistry();
+    const pages = loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const token = documents.find(
+      (document) => document.url === TOKEN_GLOSSARY_URL,
+    );
+
+    expect(token).toBeDefined();
+    expect(token?.title).toBe("Token");
+    expect(token?.description).toContain("smallest unit");
+    expect(token?.kind).toBe("glossary");
+    expect(token?.registryId).toBe("glossary.token");
+    expect(token?.aliases).toEqual(
+      expect.arrayContaining(["tokens", "token id", "subword token"]),
+    );
+    expect(token?.tags).toEqual(expect.arrayContaining(["attention"]));
+    expect(token?.bodyText).toContain("tokenizer");
+    expect(token?.bodyText).toContain("token IDs");
   });
 });

@@ -2,7 +2,10 @@ import {
   collectMessageBodyText,
   collectMessageHeadings,
 } from "@/lib/content/messages";
-import type { DocsPageSource } from "@/lib/content/pages";
+import {
+  type DocsPageSource,
+  loadPublishedDocsPages,
+} from "@/lib/content/pages";
 import type { RegistryStore } from "@/lib/content/registry";
 import { getRegistryRecord } from "@/lib/content/registry";
 import type {
@@ -99,8 +102,8 @@ export function buildSearchDocuments(
 export function buildSearchDocumentsForLocale(
   locale: string,
   store: RegistryStore,
-  pages: DocsPageSource[],
+  pages?: DocsPageSource[],
 ): SearchDocument[] {
-  void locale;
-  return buildSearchDocuments(pages, store);
+  const resolvedPages = pages ?? loadPublishedDocsPages(locale);
+  return buildSearchDocuments(resolvedPages, store);
 }
