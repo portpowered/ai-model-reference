@@ -80,11 +80,11 @@ Harden Phase 1 **quality gates and smoke coverage**: fresh-checkout `make ci`, b
 
 **Acceptance Criteria:**
 
-- [ ] Discovery smoke tests render `/`, `/search`, `/docs/architecture`, `/docs/glossary`, `/tags`, `/tags/attention`, `/docs/glossary/token`, and `/docs/modules/grouped-query-attention` without throw and assert representative localized copy or canonical hrefs (not placeholder lorem).
-- [ ] A test exercises `scripts/verify-phase-1-static-routes.ts` against a fixture manifest and fails when a required Phase 1 route is absent.
-- [ ] Tag browse helper smoke continues to assert grouped-query attention appears under the attention tag for Phase 1 baseline content.
-- [ ] Typecheck passes
-- [ ] Tests pass
+- [x] Discovery smoke tests render `/`, `/search`, `/docs/architecture`, `/docs/glossary`, `/tags`, `/tags/attention`, `/docs/glossary/token`, and `/docs/modules/grouped-query-attention` without throw and assert representative localized copy or canonical hrefs (not placeholder lorem).
+- [x] A test exercises `scripts/verify-phase-1-static-routes.ts` against a fixture manifest and fails when a required Phase 1 route is absent.
+- [x] Tag browse helper smoke continues to assert grouped-query attention appears under the attention tag for Phase 1 baseline content.
+- [x] Typecheck passes
+- [x] Tests pass
 
 ### phase-1-fresh-ci-and-smoke-tests-004: Add baseline GitHub Actions CI workflow
 
@@ -92,12 +92,12 @@ Harden Phase 1 **quality gates and smoke coverage**: fresh-checkout `make ci`, b
 
 **Acceptance Criteria:**
 
-- [ ] `.github/workflows/ci.yml` triggers on pull requests and pushes to `main`.
-- [ ] The workflow uses `oven-sh/setup-bun` (or equivalent) and installs with the committed `bun.lock` using frozen lockfile semantics.
-- [ ] The workflow runs `make ci` from the repository root and fails the job when any step exits non-zero.
-- [ ] Workflow does not require secrets for the baseline lint/typecheck/test/build/validate-data path.
-- [ ] README notes that CI runs `make ci` via GitHub Actions.
-- [ ] Typecheck passes
+- [x] `.github/workflows/ci.yml` triggers on pull requests and pushes to `main`.
+- [x] The workflow uses `oven-sh/setup-bun` (or equivalent) and installs with the committed `bun.lock` using frozen lockfile semantics.
+- [x] The workflow runs `make ci` from the repository root and fails the job when any step exits non-zero.
+- [x] Workflow does not require secrets for the baseline lint/typecheck/test/build/validate-data path.
+- [x] README notes that CI runs `make ci` via GitHub Actions.
+- [x] Typecheck passes
 
 ### phase-1-fresh-ci-and-smoke-tests-005: Resolve or document Turbopack filesystem tracing warning
 
