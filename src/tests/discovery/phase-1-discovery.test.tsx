@@ -28,6 +28,7 @@ const PHASE_1_DISCOVERY_ROUTES = [
     path: "/docs/architecture",
     render: () => ArchitectureIndexPage(),
     expectInHtml: "Architecture",
+    alsoExpectInHtml: "Token",
   },
   {
     path: "/docs/glossary",
@@ -44,10 +45,14 @@ const PHASE_1_DISCOVERY_ROUTES = [
 function expectRouteRendersOk(
   element: ReactElement,
   expectedSubstring: string,
+  alsoExpected?: string,
 ): void {
   const html = renderToStaticMarkup(element);
   expect(html.length).toBeGreaterThan(0);
   expect(html).toContain(expectedSubstring);
+  if (alsoExpected) {
+    expect(html).toContain(alsoExpected);
+  }
 }
 
 describe("Phase 1 search discovery", () => {
@@ -78,7 +83,11 @@ describe("Phase 1 discovery route smoke", () => {
   for (const route of PHASE_1_DISCOVERY_ROUTES) {
     test(`${route.path} renders without error`, async () => {
       const page = await route.render();
-      expectRouteRendersOk(page, route.expectInHtml);
+      expectRouteRendersOk(
+        page,
+        route.expectInHtml,
+        "alsoExpectInHtml" in route ? route.alsoExpectInHtml : undefined,
+      );
     });
   }
 
