@@ -72,6 +72,7 @@ export type UiMessages = {
   tagLanding: {
     listLabel: string;
     searchHandoff: string;
+    searchEntryLink: string;
     emptyTitle: string;
     emptyDescription: string;
     emptyHomeLink: string;

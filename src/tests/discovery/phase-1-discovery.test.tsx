@@ -96,6 +96,10 @@ describe("Phase 1 discovery route smoke", () => {
     const page = await TagLandingPage({
       params: Promise.resolve({ slug: "attention" }),
     });
-    expectRouteRendersOk(page, "Attention");
+    expectRouteRendersOk(
+      page,
+      "Attention",
+      "/docs/modules/grouped-query-attention",
+    );
   });
 });

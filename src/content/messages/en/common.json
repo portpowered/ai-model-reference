@@ -72,6 +72,7 @@
   "tagLanding": {
     "listLabel": "Resources by kind",
     "searchHandoff": "Search this tag",
+    "searchEntryLink": "Open search entry page",
     "emptyTitle": "No published resources for this tag yet",
     "emptyDescription": "When docs pages or blog posts are tagged with this label, they will appear here grouped by kind. Return home, browse all tags, or open search to explore related topics.",
     "emptyHomeLink": "Return home",
