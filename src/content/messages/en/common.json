@@ -3,6 +3,7 @@
     "open": "Open search",
     "placeholder": "Search Model Atlas…",
     "close": "Close search",
+    "idle": "Type a query to search modules, glossary entries, and tags.",
     "noResults": "No results found.",
     "loading": "Searching…",
     "shortcut": "Search",
