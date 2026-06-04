@@ -1,4 +1,4 @@
-.PHONY: dev lint format typecheck test coverage build ci validate-data scaffold linkcheck validate-pdf build-search-index component-examples
+.PHONY: dev lint format typecheck test coverage build ci validate-data scaffold linkcheck validate-pdf build-search-index component-examples verify-phase-1-ux
 
 dev:
 	bun run dev
@@ -42,3 +42,6 @@ build-search-index:
 
 component-examples:
 	bun ./scripts/component-examples.ts
+
+verify-phase-1-ux:
+	bun ./scripts/verify-phase-1-route-search-ux.ts
