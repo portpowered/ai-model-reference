@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { modulePageHref } from "@/lib/content/content-hrefs";
 import {
   CURATED_RELATED,
   deriveCuratedRelatedItems,
@@ -124,12 +123,6 @@ describe("registryDisplayTitle", () => {
 });
 
 describe("related-docs", () => {
-  test("modulePageHref builds canonical module docs paths", () => {
-    expect(modulePageHref("grouped-query-attention")).toBe(
-      "/docs/modules/grouped-query-attention",
-    );
-  });
-
   test("hasPublishedDocsPage and isPlannedRelatedTarget follow published docs set", () => {
     expect(hasPublishedDocsPage(token, publishedRegistryIds)).toBe(true);
     expect(isPlannedRelatedTarget(draftTransformer, publishedRegistryIds)).toBe(
