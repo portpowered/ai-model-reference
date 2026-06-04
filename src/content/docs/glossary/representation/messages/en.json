@@ -1,0 +1,43 @@
+{
+  "title": "Representation",
+  "description": "An internal encoding of input data that downstream layers or tasks use instead of raw features.",
+  "problemStatement": "Engineers say \"embeddings\" and \"representations\" interchangeably, which hides whether they mean a lookup table, a layer output, or a task-specific latent space.",
+  "coreIdea": "A representation is the learned internal form of data after encoding—vectors that capture structure for later layers—whether or not they are exposed as a standalone embedding API.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Representations are tensors produced inside the model: hidden states, latent codes, or pooled vectors used for classification, generation, or retrieval. They sit between raw modality inputs and task heads. Multiple modules may read and write representations across depth."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Clear representation language helps you compare transfer learning, contrastive training, and generative latent spaces without conflating them with tokenizer outputs or public embedding products."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "After a transformer block processes token embeddings, the hidden state at each position is a representation. A sentence classifier might pool those states; a generative model feeds them to the next block and the output head."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Representation appears in papers on self-supervised learning, multimodal alignment, and links from modality to generative model when discussing latents used for sampling."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Representation versus embedding: an embedding often means a lookup from discrete IDs to vectors at the input boundary, while representation is the broader term for internal encodings at any depth. Not every embedding table output is the final representation used for downstream tasks. Representation is also not modality—modality names the data channel; representation names the encoded form inside the network."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Ask where in the stack the vector lives: input lookup (often called embedding) versus hidden state after layers (representation)."
+    }
+  }
+}

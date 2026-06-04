@@ -6,6 +6,11 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.architecture",
   "concept.module",
   "concept.component",
+  "concept.modality",
+  "concept.foundation-model",
+  "concept.generative-model",
+  "concept.discriminative-model",
+  "concept.representation",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;
