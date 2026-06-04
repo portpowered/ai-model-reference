@@ -1,9 +1,14 @@
 import architectureConcept from "@/content/registry/concepts/architecture.json";
 import componentConcept from "@/content/registry/concepts/component.json";
 import diffusionModelConcept from "@/content/registry/concepts/diffusion-model.json";
+import discriminativeModelConcept from "@/content/registry/concepts/discriminative-model.json";
+import foundationModelConcept from "@/content/registry/concepts/foundation-model.json";
+import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
+import modalityConcept from "@/content/registry/concepts/modality.json";
 import modelConcept from "@/content/registry/concepts/model.json";
 import moduleConcept from "@/content/registry/concepts/module.json";
 import multimodalModelConcept from "@/content/registry/concepts/multimodal-model.json";
+import representationConcept from "@/content/registry/concepts/representation.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
@@ -34,6 +39,11 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(architectureConcept),
   conceptRecordSchema.parse(moduleConcept),
   conceptRecordSchema.parse(componentConcept),
+  conceptRecordSchema.parse(modalityConcept),
+  conceptRecordSchema.parse(foundationModelConcept),
+  conceptRecordSchema.parse(generativeModelConcept),
+  conceptRecordSchema.parse(discriminativeModelConcept),
+  conceptRecordSchema.parse(representationConcept),
   conceptRecordSchema.parse(transformerConcept),
   conceptRecordSchema.parse(diffusionModelConcept),
   conceptRecordSchema.parse(multimodalModelConcept),
