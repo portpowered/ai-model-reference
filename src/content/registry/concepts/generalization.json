@@ -1,0 +1,29 @@
+{
+  "id": "concept.generalization",
+  "slug": "generalization",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Generalization",
+    "generalize",
+    "held-out performance",
+    "test set generalization"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.overfitting",
+    "concept.model-capacity",
+    "concept.alignment",
+    "concept.perplexity",
+    "concept.scaling-law",
+    "concept.emergent-behavior"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T11:52:13.229Z",
+  "updatedAt": "2026-06-04T14:00:00.000Z",
+  "conceptType": "evaluation",
+  "prerequisiteIds": ["concept.overfitting", "concept.model-capacity"],
+  "explainsIds": ["concept.overfitting"]
+}

@@ -27,6 +27,32 @@ const ROLE_MODALITY_TAXONOMY_URLS = [
   "/docs/glossary/discriminative-model",
   "/docs/glossary/representation",
 ] as const;
+const REPRESENTATION_LATENT_URLS = [
+  "/docs/glossary/patch",
+  "/docs/glossary/latent",
+  "/docs/glossary/latent-space",
+] as const;
+const ENCODER_DECODER_URLS = [
+  "/docs/glossary/encoder",
+  "/docs/glossary/decoder",
+  "/docs/glossary/encoder-decoder",
+] as const;
+const GENERATION_PARADIGM_URLS = [
+  "/docs/glossary/autoregressive-generation",
+  "/docs/glossary/denoising-generation",
+  "/docs/glossary/conditioning",
+] as const;
+const TRAINING_BEHAVIOR_URLS = [
+  "/docs/glossary/alignment",
+  "/docs/glossary/model-capacity",
+  "/docs/glossary/overfitting",
+  "/docs/glossary/generalization",
+] as const;
+const EVALUATION_SCALING_URLS = [
+  "/docs/glossary/perplexity",
+  "/docs/glossary/scaling-law",
+  "/docs/glossary/emergent-behavior",
+] as const;
 const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/embedding",
   "/docs/glossary/tensor",
@@ -47,6 +73,11 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   TOKEN_GLOSSARY_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
+  ...REPRESENTATION_LATENT_URLS,
+  ...ENCODER_DECODER_URLS,
+  ...GENERATION_PARADIGM_URLS,
+  ...TRAINING_BEHAVIOR_URLS,
+  ...EVALUATION_SCALING_URLS,
   ...CHAIN_GLOSSARY_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(

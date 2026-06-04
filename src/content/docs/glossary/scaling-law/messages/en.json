@@ -1,0 +1,43 @@
+{
+  "title": "Scaling Law",
+  "description": "Empirical power-law relationships between model scale, compute, data, and downstream loss or capability—used to forecast training budgets and benchmark trends.",
+  "problemStatement": "Teams quote smooth benchmark gains from scale without stating which variables—parameters, tokens, or FLOPs—were held constant, which makes capacity planning and generalization claims hard to audit.",
+  "coreIdea": "Scaling laws summarize how loss or error improves predictably when you increase model size, dataset size, or compute along a training frontier, often as a power law on log-log axes until data or architecture limits bend the curve.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A scaling law is an empirical fit relating scale (parameters, training tokens, or compute) to a target such as validation loss or perplexity. Kaplan-style language-model laws showed smooth improvements over many orders of magnitude when training is near-optimal. The relationship is descriptive—not a guarantee that every architecture or objective follows the same exponents."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Scaling laws help forecast whether a larger run is worth the budget and how much data a parameter count needs. They tie evaluation metrics to capacity: model capacity and parameter count set the frontier, generalization and perplexity track whether the run landed on it, and emergent behavior pages describe capabilities that may not appear on the same smooth curve."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "If doubling parameters cuts validation loss by a fixed fraction on a log-log plot across several sizes, you can extrapolate the next checkpoint’s expected perplexity before paying for the full training run—until the data-limited regime flattens the trend."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Scaling papers, compute-optimal training recipes (Chinchilla-style tradeoffs), and roadmap slides comparing parameter counts. Architecture and model-capacity pages explain what is being scaled; perplexity and generalization pages show the measured outcomes."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A scaling law is not the same as emergent behavior—many metrics improve smoothly while specific capabilities appear abruptly. Laws fit historical runs; they do not remove the need for held-out evaluation or alignment checks on new tasks."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Ask which axis was scaled (params, data, compute) and which metric was fit before trusting an extrapolation."
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "title": "Latent Space",
+  "description": "The coordinate system in which latent codes live, where distance and direction correspond to semantic or structural variation in the data.",
+  "problemStatement": "Slides show \"sampling in latent space\" without defining whether that means a VAE prior, a diffusion scheduler state, or an arbitrary hidden layer, so readers cannot tell what moves when models interpolate or edit.",
+  "coreIdea": "Latent space is the structured manifold—or vector space with learned metric—where latents are positioned; encoders map inputs into it and decoders or denoisers map points back to outputs.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Latent space organizes all latent codes for a model family: VAE priors, diffusion noise schedules viewed across timesteps, or shared multimodal alignment spaces. Geometry matters—nearby points should correspond to similar decoded outputs after the decoder or denoising steps."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Understanding latent space separates representation learning from generation mechanics. It explains why interpolation works, why regularization targets KL terms, and why encoders and denoising generators are paired in diffusion and autoencoder stacks."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Two face latents averaged in latent space decode to a blended face after the decoder runs. Moving along one principal direction might change smile intensity if the space disentangles factors—quality depends on training, not on the word latent alone."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Latent space is central to VAEs, latent diffusion, and multimodal encoders that align image and text latents. Forward links in this foundation chain point to encoders that populate the space and denoising generation that walks through it during sampling."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Latent space is not the tokenizer vocabulary or embedding table—that is discrete input indexing. It is also not parameter space (weights); latents are activations or stochastic codes during inference. A single latent vector is a point in latent space, not the space itself."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "When docs say \"move in latent space,\" ask which encoder produced the coordinates and which decoder or denoiser reads them back out."
+    }
+  }
+}
