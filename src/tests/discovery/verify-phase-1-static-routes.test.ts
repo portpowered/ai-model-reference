@@ -5,9 +5,20 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   missingPhase1StaticRoutes,
+  missingRequiredBuildStaticRoutes,
   PHASE_1_STATIC_ROUTES,
+  PHASE_2_TAXONOMY_GLOSSARY_ROUTES,
+  REQUIRED_BUILD_STATIC_ROUTES,
   verifyPhase1StaticRoutesFromManifest,
+  verifyRequiredBuildStaticRoutesFromManifest,
 } from "@/lib/build/verify-phase-1-static-routes";
+
+/** Minimal manifest whose values cover every required static route. */
+function completeRequiredBuildManifest(): Record<string, string> {
+  return Object.fromEntries(
+    REQUIRED_BUILD_STATIC_ROUTES.map((route) => [`/_app${route}`, route]),
+  );
+}
 
 /** Minimal manifest whose values cover every Phase 1 static route. */
 function completePhase1Manifest(): Record<string, string> {
@@ -15,6 +26,40 @@ function completePhase1Manifest(): Record<string, string> {
     PHASE_1_STATIC_ROUTES.map((route) => [`/_app${route}`, route]),
   );
 }
+
+describe("verifyRequiredBuildStaticRoutesFromManifest", () => {
+  test("passes when all required routes are present in manifest values", () => {
+    const result = verifyRequiredBuildStaticRoutesFromManifest(
+      completeRequiredBuildManifest(),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      expect(result.missing).toEqual([]);
+    }
+  });
+
+  test("fails when a Phase 2 taxonomy glossary route is absent", () => {
+    const manifest = completeRequiredBuildManifest();
+    delete manifest["/_app/docs/glossary/model"];
+
+    const missing = missingRequiredBuildStaticRoutes(manifest);
+    expect(missing).toContain("/docs/glossary/model");
+
+    const result = verifyRequiredBuildStaticRoutesFromManifest(manifest);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.missing).toContain("/docs/glossary/model");
+    }
+  });
+
+  test("taxonomy glossary route list covers all nine Phase 2 pages", () => {
+    expect(PHASE_2_TAXONOMY_GLOSSARY_ROUTES).toHaveLength(9);
+    expect(PHASE_2_TAXONOMY_GLOSSARY_ROUTES).toContain("/docs/glossary/model");
+    expect(PHASE_2_TAXONOMY_GLOSSARY_ROUTES).toContain(
+      "/docs/glossary/representation",
+    );
+  });
+});
 
 describe("verifyPhase1StaticRoutesFromManifest", () => {
   test("passes when all Phase 1 routes are present in manifest values", () => {
@@ -46,7 +91,7 @@ describe("verify-phase-1-static-routes script", () => {
   test("exits non-zero against a fixture manifest missing a required route", () => {
     const dir = mkdtempSync(join(tmpdir(), "phase-1-manifest-"));
     const manifestPath = join(dir, "app-path-routes-manifest.json");
-    const manifest = completePhase1Manifest();
+    const manifest = completeRequiredBuildManifest();
     delete manifest["/_app/search"];
 
     writeFileSync(manifestPath, JSON.stringify(manifest));
@@ -59,7 +104,7 @@ describe("verify-phase-1-static-routes script", () => {
 
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain("/search");
-    expect(result.stderr).toContain("Phase 1 static routes missing");
+    expect(result.stderr).toContain("Required static routes missing");
 
     rmSync(dir, { recursive: true, force: true });
   });
@@ -67,7 +112,10 @@ describe("verify-phase-1-static-routes script", () => {
   test("exits zero against a complete fixture manifest", () => {
     const dir = mkdtempSync(join(tmpdir(), "phase-1-manifest-"));
     const manifestPath = join(dir, "app-path-routes-manifest.json");
-    writeFileSync(manifestPath, JSON.stringify(completePhase1Manifest()));
+    writeFileSync(
+      manifestPath,
+      JSON.stringify(completeRequiredBuildManifest()),
+    );
 
     const result = spawnSync(
       "bun",
@@ -76,7 +124,7 @@ describe("verify-phase-1-static-routes script", () => {
     );
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("Phase 1 static routes verified");
+    expect(result.stdout).toContain("Required static routes verified");
 
     rmSync(dir, { recursive: true, force: true });
   });
