@@ -13,6 +13,8 @@
     "typecheck": "tsc --noEmit",
     "pretest": "fumadocs-mdx",
     "test": "bun test",
+    "precoverage": "fumadocs-mdx",
+    "coverage": "bun test --coverage --path-ignore-patterns src/tests/docs/phase-2-component-coverage.test.ts",
     "scaffold:doc-page": "bun ./scripts/scaffold-doc-page.ts",
     "build:search-index": "bun ./scripts/build-search-index.ts",
     "component-examples": "bun ./scripts/component-examples.ts"
