@@ -38,6 +38,10 @@
     "readerShortcut": {
       "title": "Reader Shortcut",
       "body": "Ask \"what repeats in the stack?\" to spot the architecture; ask \"which checkpoint am I running?\" to spot the model."
+    },
+    "upcomingModelFamilies": {
+      "title": "Upcoming model family pages",
+      "body": "Transformers, diffusion models, multimodal models, and world models are listed below as planned reference pages. They are not links yet—each family will get a full atlas page in a later phase so you can explore architecture without broken navigation."
     }
   }
 }
