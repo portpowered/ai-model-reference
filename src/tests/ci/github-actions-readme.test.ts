@@ -5,12 +5,13 @@ import { join } from "node:path";
 const repoRoot = join(import.meta.dir, "../../..");
 const readmePath = join(repoRoot, "README.md");
 
-const phase1CiSteps = [
+const ciSteps = [
   "make lint",
   "make typecheck",
   "make test",
   "make build",
   "make validate-data",
+  "make linkcheck",
 ] as const;
 
 describe("README Quality Gates CI documentation", () => {
@@ -33,11 +34,11 @@ describe("README Quality Gates CI documentation", () => {
     const readme = readFileSync(readmePath, "utf8");
     const qualityGates = readme.slice(readme.indexOf("## Quality Gates"));
 
-    for (const step of phase1CiSteps) {
+    for (const step of ciSteps) {
       expect(qualityGates).toContain(step);
     }
 
-    const stepOrder = phase1CiSteps.map((step) => qualityGates.indexOf(step));
+    const stepOrder = ciSteps.map((step) => qualityGates.indexOf(step));
     expect(stepOrder.every((index) => index > -1)).toBe(true);
     for (let i = 1; i < stepOrder.length; i += 1) {
       expect(stepOrder[i]).toBeGreaterThan(stepOrder[i - 1] ?? -1);
@@ -49,14 +50,17 @@ describe("README Quality Gates CI documentation", () => {
     expect(qualityGates).toMatch(/\.source\//);
   });
 
-  test("states Phase 1 baseline excludes deploy, linkcheck, PDF validation, and coverage", () => {
+  test("states baseline excludes deploy, PDF validation, and coverage but includes linkcheck in make ci", () => {
     const readme = readFileSync(readmePath, "utf8");
     const qualityGates = readme.slice(readme.indexOf("## Quality Gates"));
 
     expect(qualityGates).toMatch(/deploy/i);
-    expect(qualityGates).toMatch(/linkcheck/i);
+    expect(qualityGates).toMatch(/make linkcheck/i);
     expect(qualityGates).toMatch(/PDF validation|validate-pdf/i);
     expect(qualityGates).toMatch(/coverage/i);
     expect(qualityGates).toMatch(/not part of `make ci`/i);
+    expect(qualityGates).not.toMatch(
+      /not run deploy[\s\S]*linkcheck[\s\S]*PDF validation/i,
+    );
   });
 });
