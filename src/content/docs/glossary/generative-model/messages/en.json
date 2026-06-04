@@ -1,0 +1,43 @@
+{
+  "title": "Generative Model",
+  "description": "A model trained to produce new outputs such as text, images, or audio rather than only assign labels to fixed categories.",
+  "problemStatement": "The label \"generative AI\" is applied to chatbots, diffusion apps, and classifiers alike, so readers cannot tell whether a system actually samples new data or only ranks existing options.",
+  "coreIdea": "A generative model learns a distribution over outputs and draws or decodes new examples—tokens, pixels, waveforms—conditioned on inputs or prompts.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Generative models optimize objectives that support sampling or decoding: next-token prediction, denoising score matching, or latent diffusion. They may start from a foundation model base but the generative role describes what the trained artifact does at inference, not its parameter count alone."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Separating generative from discriminative models clarifies evaluation (likelihood, sample quality) and which atlas families—diffusion, autoregressive language models—apply to a product."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "An autoregressive language model that completes prompts token by token is generative. A spam filter that outputs spam versus not-spam without synthesizing new mail is discriminative, even if both use transformers."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Generative model shows up in product categories, safety benchmarks for synthetic media, and links to representation when discussing latent spaces used for sampling."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Generative versus discriminative is about the training objective and inference behavior, not model size. A generative model is not the same as a foundation model: many foundation checkpoints are adapted into discriminative classifiers. Generative models also differ from representation learning alone—representations can support both roles depending on the head."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "If the system creates new content you could not pick from a fixed label list, treat it as generative; if it only chooses among known classes, look at the discriminative model page."
+    }
+  }
+}

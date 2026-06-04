@@ -56,7 +56,7 @@ describe("loadGlossaryPage token", () => {
     expect(html).toContain(page.messages.coreIdea ?? "");
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('data-testid="derived-related-docs"');
-    expect(html).toContain('data-derived-group="shared-tags"');
+    expect(html).toContain('data-related-group="shared-tags"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain("Shared tag");
     expect(html).not.toContain('data-testid="citation-list"');

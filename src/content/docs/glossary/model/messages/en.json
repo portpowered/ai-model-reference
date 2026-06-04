@@ -1,0 +1,43 @@
+{
+  "title": "Model",
+  "description": "A trained machine learning system that maps inputs to outputs using learned parameters.",
+  "problemStatement": "Readers encounter \"model\" everywhere—checkpoints, APIs, papers—without a clear boundary between the artifact, its architecture, and a specific deployment.",
+  "coreIdea": "A model is the trained artifact: weights plus the inference procedure that turns inputs into outputs for a defined task.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "In this reference, a model is the end product you run at inference time. It includes learned parameters and the forward pass that applies them. Checkpoints, Hugging Face repos, and API endpoints all refer to concrete model instances, not abstract design patterns."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Separating model from architecture, module, and component helps you compare releases, trace bugs, and search the atlas without conflating a family name with a specific trained checkpoint."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "GPT-2 124M is a model: a particular set of weights trained with a transformer architecture. The architecture page explains how layers connect; the model page names the artifact you load or call."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Model appears in release notes, evaluation tables, serving configs, and family overviews. Taxonomy pages for architecture, modality, and foundation model sit one level below or beside this term."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A model is not the same as an architecture: many checkpoints can share one architecture. A model is also not a single layer or attention block—those are modules and components inside the architecture."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "When a paper says \"we train a model,\" it usually means they optimized weights for a fixed architecture and dataset—not that they invented a new layer type."
+    }
+  }
+}

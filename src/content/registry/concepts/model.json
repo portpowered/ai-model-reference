@@ -1,0 +1,21 @@
+{
+  "id": "concept.model",
+  "slug": "model",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["ML model", "machine learning model", "neural network model"],
+  "tags": ["taxonomy", "foundations"],
+  "relatedIds": [
+    "concept.architecture",
+    "concept.modality",
+    "concept.foundation-model"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": [],
+  "explainsIds": []
+}

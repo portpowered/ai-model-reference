@@ -28,6 +28,22 @@ describe("loadPublishedGlossaryEntries", () => {
     expect(token?.url).toBe("/docs/glossary/token");
     expect(token?.summary.length).toBeGreaterThan(0);
   });
+
+  it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
+    const entries = await loadPublishedGlossaryEntries("en");
+    expect(entries).toHaveLength(10);
+
+    const architecture = entries.find(
+      (entry) => entry.url === "/docs/glossary/architecture",
+    );
+    expect(architecture?.title).toBe("Architecture");
+
+    const foundationModel = entries.find(
+      (entry) => entry.url === "/docs/glossary/foundation-model",
+    );
+    expect(foundationModel?.title).toBe("Foundation Model");
+    expect(foundationModel?.title).not.toContain("-");
+  });
 });
 
 describe("sortGlossaryEntriesByTitle", () => {
@@ -69,11 +85,15 @@ describe("glossary index messages", () => {
 });
 
 describe("glossary index page render", () => {
-  it("lists the Phase 1 token glossary entry with title and link", async () => {
+  it("lists taxonomy glossary entries and token with localized titles", async () => {
     const page = await GlossaryIndexPage();
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Glossary");
+    expect(html).toContain("Architecture");
+    expect(html).toContain('href="/docs/glossary/architecture"');
+    expect(html).toContain("Generative Model");
+    expect(html).toContain('href="/docs/glossary/generative-model"');
     expect(html).toContain("Token");
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).not.toContain("No glossary entries yet");

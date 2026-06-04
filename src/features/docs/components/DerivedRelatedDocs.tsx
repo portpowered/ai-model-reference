@@ -1,5 +1,6 @@
-import Link from "next/link";
+import { RelatedDocList } from "@/features/docs/components/RelatedDocList";
 import {
+  getPublishedDocsRegistryIds,
   getRegistryRecordById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
@@ -19,10 +20,12 @@ export function DerivedRelatedDocs({
     return null;
   }
 
+  const publishedRegistryIds = getPublishedDocsRegistryIds();
   const derivedGroups = deriveRelatedDocGroups(
     source,
     listRelatedRegistryRecords(),
     groups,
+    publishedRegistryIds,
   );
   if (derivedGroups.length === 0) {
     return null;
@@ -31,29 +34,12 @@ export function DerivedRelatedDocs({
   return (
     <div className="my-4 space-y-6" data-testid="derived-related-docs">
       {derivedGroups.map((group) => (
-        <section
-          key={group.id}
-          aria-label={group.reasonLabel}
-          data-derived-group={group.id}
-        >
-          <ul className="space-y-3">
-            {group.items.map((item) => (
-              <li
-                key={item.registryId}
-                className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
-              >
-                <Link
-                  href={item.href}
-                  className="text-sm text-foreground underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  {item.title}
-                </Link>
-                <span className="text-xs text-muted-foreground">
-                  {item.reasonLabel}
-                </span>
-              </li>
-            ))}
-          </ul>
+        <section key={group.id} aria-label={group.reasonLabel}>
+          <RelatedDocList
+            items={group.items}
+            testId="derived-related-docs"
+            groupId={group.id}
+          />
         </section>
       ))}
     </div>
