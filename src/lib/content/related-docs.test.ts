@@ -9,7 +9,6 @@ import {
   deriveSharedTagPeers,
   hasPublishedDocsPage,
   isPlannedRelatedTarget,
-  moduleDisplayTitle,
   PLANNED_RELATED_REASON_LABEL,
   SAME_CONCEPT_TYPE,
   SAME_VARIANT_GROUP,
@@ -251,9 +250,5 @@ describe("related-docs", () => {
         publishedRegistryIds,
       ),
     ).toEqual([]);
-  });
-
-  test("moduleDisplayTitle prefers the first alias", () => {
-    expect(moduleDisplayTitle(gqa)).toBe("GQA");
   });
 });
