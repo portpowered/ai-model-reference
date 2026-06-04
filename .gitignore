@@ -15,6 +15,7 @@ storybook-static/
 *.tsbuildinfo
 *.exe
 
+tasks/
 tasks/todo
 factory/internal/**
 factory/inputs/**

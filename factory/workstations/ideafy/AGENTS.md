@@ -156,6 +156,59 @@ record:
 `factory/internal/checklist.md` tracks customer asks and high-level project
 work. Only the meta-planner should update it. Subagents should not mutate it.
 
+When creating or refreshing `factory/internal/checklist.md`, do not compress the
+architecture checklist or page roadmap into a small summary. Explicitly carry
+forward every major area from `docs/architectural-checklist.md` and every phase
+from `docs/documentation-site-pages-needed.md`, including each phase's page or
+work inventory, required outcomes, and manual review gate. Fold one-time
+architecture work into the phase where it should become real instead of keeping
+a duplicate global architecture backlog. Keep only a compact recurring control
+function for checks that must be repeated on every new batch, page, component,
+and content/data change. Each future batch should say which roadmap phase it
+advances and which phase-local architecture work it is meant to satisfy.
+
+Durable architecture work should be placed into the earliest practical phase
+where it can become real. For example, CI, deployments, Makefile commands,
+design tokens, the canonical Fumadocs shell, graph viewer baseline, and
+component coverage gates belong in Phase 1; Storybook, accessibility checks, and
+link validation belong in early foundation phases; localization validation
+belongs in the localization phase; PDF validation belongs only in the PDF/export
+phase; freshness, analytics, dependency scans, and long-tail governance belong
+in autonomous maintenance.
+
+If a batch touches reusable UI or feature components, the checklist and work
+item should name the expected tests and coverage target. This project expects at
+least 90% reachable coverage per reusable component under `src/components/**`
+and `src/features/**/components/**`, with thin wrappers documented and covered
+by smoke tests.
+
+After every completed batch, run a convergence review before submitting new
+feature work. The planner owns the synthesis, but should dispatch one normal
+validator/reviewer agent type with different concrete validation briefs instead
+of relying on separate specialized agent types. Useful briefs include:
+
+* checklist convergence: compare finished work against the phase checklist,
+  architecture checklist rows, and stated work-item acceptance criteria
+* UX route convergence: manually exercise relevant routes, search flows,
+  keyboard shortcuts, navigation, layout, loading/empty states, and responsive
+  behavior
+* data-model convergence: inspect registry records, page frontmatter, localized
+  messages, assets, citations, tags, related docs, and dead-end links
+* architecture drift: look for duplicate layouts, duplicate search systems,
+  one-off components, boundary violations, and parallel work that failed to
+  merge into one coherent implementation
+
+CI is responsible for coverage enforcement, linting, type checking, tests, and
+build validation. Validator briefs should not duplicate CI as a coverage engine;
+they should exercise the website and inspect where CI can pass while the product
+still fails to converge. Each validator result should report `pass`, `fail`, or
+`uncertain`, with evidence, affected files/routes, checklist rows, and proposed
+repair work.
+
+The planner then writes a convergence summary and chooses one of three next
+actions: submit a repair batch, submit a cleanup/reconciliation batch, or submit
+the next feature batch. Do not advance merely because factory work completed.
+
 `factory/internal/customer-ask.md` controls the current phase and whether real
 batch submission is authorized. Treat this file as the phase-control source of
 truth. Do not use checklist completion alone to advance phases.
@@ -209,7 +262,7 @@ Prefer batches that move the website forward in vertical slices:
 * docs route rendering
 * search and tag pages
 * graph rendering
-* PDF export
+* PDF export when the active phase calls for PDF work
 * starter content pages
 
 Avoid issuing broad, vague ideas such as "build the website." Each idea should
