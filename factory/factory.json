@@ -443,7 +443,7 @@
     {
       "behavior": "CRON",
       "cron": {
-        "schedule": "*/4 * * * *"
+        "schedule": "0 * * * *"
       },
       "inputs": [],
       "name": "though-retrigger",

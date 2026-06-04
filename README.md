@@ -162,6 +162,6 @@ The loop is documented in:
 Project-level meta state lives in:
 
 ```txt
-factory/internal/progress.txt
-factory/internal/checklist.md
+docs/internal/progress.txt
+docs/internal/checklist.md
 ```

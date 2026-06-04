@@ -11,9 +11,9 @@ Before submitting work, read:
 
 * `factory/factory.json`
 * `factory/workstations/ideafy/AGENTS.md`
-* `factory/internal/customer-ask.md`
-* `factory/internal/checklist.md`
-* `factory/internal/progress.txt`
+* `docs/internal/customer-ask.md`
+* `docs/internal/checklist.md`
+* `docs/internal/progress.txt`
 * `docs/documentation-site-pages-needed.md`
 * `you docs agents`
 * `you docs batch-inputs`
@@ -23,7 +23,7 @@ Before submitting work, read:
 Current phase authorization lives in:
 
 ```txt
-factory/internal/customer-ask.md
+docs/internal/customer-ask.md
 ```
 
 The meta-planner may dry-run batches during planning. It must not submit a real
@@ -111,14 +111,14 @@ you work move
 ```
 
 only for deliberate workflow repair. Record every manual move in
-`factory/internal/progress.txt` with the work item, old state, new state, reason,
+`docs/internal/progress.txt` with the work item, old state, new state, reason,
 and expected next workstation. Do not use work moves to skip implementation,
 review, or validation.
 
 ## Local State Files
 
 ```txt
-factory/internal/customer-ask.md  current phase and submission authorization
-factory/internal/checklist.md     high-level phase and customer ask tracking
-factory/internal/progress.txt     append-only meta-planner progress log
+docs/internal/customer-ask.md  current phase and submission authorization
+docs/internal/checklist.md     high-level phase and customer ask tracking
+docs/internal/progress.txt     append-only meta-planner progress log
 ```
