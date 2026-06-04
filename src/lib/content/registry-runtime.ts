@@ -1,7 +1,10 @@
+import activationConcept from "@/content/registry/concepts/activation.json";
 import alignmentConcept from "@/content/registry/concepts/alignment.json";
 import architectureConcept from "@/content/registry/concepts/architecture.json";
 import autoregressiveGenerationConcept from "@/content/registry/concepts/autoregressive-generation.json";
+import backpropagationConcept from "@/content/registry/concepts/backpropagation.json";
 import componentConcept from "@/content/registry/concepts/component.json";
+import computationalGraphConcept from "@/content/registry/concepts/computational-graph.json";
 import conditioningConcept from "@/content/registry/concepts/conditioning.json";
 import decoderConcept from "@/content/registry/concepts/decoder.json";
 import denoisingGenerationConcept from "@/content/registry/concepts/denoising-generation.json";
@@ -15,6 +18,7 @@ import entropyConcept from "@/content/registry/concepts/entropy.json";
 import foundationModelConcept from "@/content/registry/concepts/foundation-model.json";
 import generalizationConcept from "@/content/registry/concepts/generalization.json";
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
+import gradientConcept from "@/content/registry/concepts/gradient.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
 import logitConcept from "@/content/registry/concepts/logit.json";
@@ -32,6 +36,8 @@ import perplexityConcept from "@/content/registry/concepts/perplexity.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
+import temperatureConcept from "@/content/registry/concepts/temperature.json";
+import tensorConcept from "@/content/registry/concepts/tensor.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
@@ -58,6 +64,19 @@ const moduleRecords: ModuleRecord[] = [
 
 const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(tokenConcept),
+  conceptRecordSchema.parse(embeddingConcept),
+  conceptRecordSchema.parse(tensorConcept),
+  conceptRecordSchema.parse(logitConcept),
+  conceptRecordSchema.parse(softmaxConcept),
+  conceptRecordSchema.parse(entropyConcept),
+  conceptRecordSchema.parse(temperatureConcept),
+  conceptRecordSchema.parse(parameterConcept),
+  conceptRecordSchema.parse(activationConcept),
+  conceptRecordSchema.parse(computationalGraphConcept),
+  conceptRecordSchema.parse(gradientConcept),
+  conceptRecordSchema.parse(backpropagationConcept),
+  conceptRecordSchema.parse(lossFunctionConcept),
+  conceptRecordSchema.parse(optimizerStateConcept),
   conceptRecordSchema.parse(modelConcept),
   conceptRecordSchema.parse(architectureConcept),
   conceptRecordSchema.parse(moduleConcept),
@@ -83,13 +102,6 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(perplexityConcept),
   conceptRecordSchema.parse(scalingLawConcept),
   conceptRecordSchema.parse(emergentBehaviorConcept),
-  conceptRecordSchema.parse(parameterConcept),
-  conceptRecordSchema.parse(lossFunctionConcept),
-  conceptRecordSchema.parse(optimizerStateConcept),
-  conceptRecordSchema.parse(logitConcept),
-  conceptRecordSchema.parse(softmaxConcept),
-  conceptRecordSchema.parse(entropyConcept),
-  conceptRecordSchema.parse(embeddingConcept),
   conceptRecordSchema.parse(transformerConcept),
   conceptRecordSchema.parse(diffusionModelConcept),
   conceptRecordSchema.parse(multimodalModelConcept),

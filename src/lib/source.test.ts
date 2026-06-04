@@ -31,6 +31,19 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/representation",
   "/docs/glossary/scaling-law",
   "/docs/glossary/token",
+  "/docs/glossary/embedding",
+  "/docs/glossary/tensor",
+  "/docs/glossary/logit",
+  "/docs/glossary/softmax",
+  "/docs/glossary/entropy",
+  "/docs/glossary/temperature",
+  "/docs/glossary/parameter",
+  "/docs/glossary/activation",
+  "/docs/glossary/computational-graph",
+  "/docs/glossary/gradient",
+  "/docs/glossary/backpropagation",
+  "/docs/glossary/loss-function",
+  "/docs/glossary/optimizer-state",
 ] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {

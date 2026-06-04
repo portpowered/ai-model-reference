@@ -25,13 +25,21 @@ describe("registry-runtime", () => {
   });
 
   test("getRegistryTags returns tags for a known concept", () => {
-    expect(getRegistryTags("concept.token")).toEqual(["attention"]);
+    expect(getRegistryTags("concept.token")).toEqual([
+      "attention",
+      "token-to-probability-chain",
+      "foundations",
+    ]);
   });
 
   test("getConceptById returns token concept", () => {
     const record = getConceptById("concept.token");
     expect(record?.slug).toBe("token");
-    expect(record?.tags).toEqual(["attention"]);
+    expect(record?.tags).toEqual([
+      "attention",
+      "token-to-probability-chain",
+      "foundations",
+    ]);
   });
 
   test("getRegistryTags returns undefined for unknown records", () => {
@@ -65,10 +73,21 @@ describe("registry-runtime", () => {
     expect(kinds).toContain("module");
   });
 
-  test("listConceptRecords includes token", () => {
-    expect(listConceptRecords().map((record) => record.id)).toContain(
-      "concept.token",
-    );
+  test("listConceptRecords includes token and chain forward targets", () => {
+    const ids = listConceptRecords().map((record) => record.id);
+    expect(ids).toContain("concept.token");
+    expect(ids).toContain("concept.embedding");
+    expect(ids).toContain("concept.softmax");
+  });
+
+  test("getConceptById returns published embedding and logit for chain", () => {
+    const embedding = getConceptById("concept.embedding");
+    expect(embedding?.slug).toBe("embedding");
+    expect(embedding?.status).toBe("published");
+
+    const logit = getConceptById("concept.logit");
+    expect(logit?.status).toBe("published");
+    expect(logit?.relatedIds).toContain("concept.softmax");
   });
 
   test("listModuleRecords includes variant-group peers for GQA", () => {

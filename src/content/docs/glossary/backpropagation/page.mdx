@@ -1,0 +1,85 @@
+---
+title: Backpropagation
+description: The backward pass that applies the chain rule on a computational graph to compute gradients for every differentiable parameter.
+kind: "glossary"
+registryId: "concept.backpropagation"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - token-to-probability-chain
+  - foundations
+aliases:
+  - "backprop"
+  - "backward pass"
+  - "reverse-mode autodiff"
+updatedAt: "2026-06-04"
+---
+
+import { Callout } from "@/features/docs/components/Callout";
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+# <T k="title" />
+
+<T k="problemStatement" />
+
+<T k="coreIdea" />
+
+<TagPillList registryId="concept.backpropagation" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+
+  <Callout type="note" titleKey="callouts.readerShortcut.title">
+    <T k="callouts.readerShortcut.body" />
+  </Callout>
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+  <BlockMath formula="\frac{\partial L}{\partial x} = \frac{\partial L}{\partial y} \cdot \frac{\partial y}{\partial x}" />
+  ```python
+  loss = cross_entropy(softmax(logits), targets)
+  loss.backward()  # fills parameter .grad via the graph
+  optimizer.step()
+  ```
+</Section>
+
+<Section id="where-it-appears" titleKey="sections.whereItAppears.title">
+  <T k="sections.whereItAppears.body" />
+
+  <DerivedRelatedDocs
+    registryId="concept.backpropagation"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "used-by-models",
+      "curated-related"
+    ]}
+  />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="concept.backpropagation" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.backpropagation" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.backpropagation" />
+</Section>

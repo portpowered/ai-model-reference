@@ -1,0 +1,43 @@
+{
+  "title": "Backpropagation",
+  "description": "The backward pass that applies the chain rule on a computational graph to compute gradients for every differentiable parameter.",
+  "problemStatement": "Readers hear that models learn by going backward through the network, but need a concrete picture of how loss signals reach each weight.",
+  "coreIdea": "Backpropagation reuses the forward graph in reverse: each op propagates ∂L/∂(its outputs) into ∂L/∂(its inputs) until every parameter has a gradient.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Backpropagation (often shortened to backprop) is reverse-mode automatic differentiation specialized for neural networks. Starting at the loss node, the framework multiplies local Jacobians along edges of the computational graph so earlier parameters receive credit for how they influenced the final error."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "It makes deep networks trainable without hand-derived derivatives for every layer. The same code that computed logits, softmax, and cross-entropy loss can call backward once and populate gradients on embeddings, attention projections, and output weights consistently."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Consider logits → softmax → cross-entropy. Backpropagation first yields ∂L/∂logits, then continues through earlier matmuls and activations. Each step applies the chain rule so ∂L/∂W for a weight matrix W combines upstream loss sensitivity with the forward input that multiplied W."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Every mainstream training stack exposes backprop via `.backward()`, `grad`, or `value_and_grad`. Checkpointing trades extra forward recomputation for memory by not storing every activation. Distinctive chain phrase: backward pass through the autograd graph after forward logits."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Backpropagation is not the optimizer step—it only computes gradients. It is also not forward inference: no weight updates happen during backward unless you explicitly call an optimizer. Reverse-mode autodiff is efficient for many parameters and one scalar loss, which is the usual language-model training setup."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Forward pass builds the graph; backpropagation walks it backward to fill `.grad`. The loss-function page completes the story from predictions to the scalar you differentiate."
+    }
+  }
+}

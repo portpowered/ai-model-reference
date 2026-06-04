@@ -26,6 +26,19 @@
     "[Module](/docs/glossary/module)",
     "[Representation](/docs/glossary/representation)",
     "[Scaling Law](/docs/glossary/scaling-law)",
-    "[Token](/docs/glossary/token)"
+    "[Token](/docs/glossary/token)",
+    "[Embedding](/docs/glossary/embedding)",
+    "[Tensor](/docs/glossary/tensor)",
+    "[Logit](/docs/glossary/logit)",
+    "[Softmax](/docs/glossary/softmax)",
+    "[Entropy](/docs/glossary/entropy)",
+    "[Temperature](/docs/glossary/temperature)",
+    "[Parameter](/docs/glossary/parameter)",
+    "[Activation](/docs/glossary/activation)",
+    "[Computational Graph](/docs/glossary/computational-graph)",
+    "[Gradient](/docs/glossary/gradient)",
+    "[Backpropagation](/docs/glossary/backpropagation)",
+    "[Loss Function](/docs/glossary/loss-function)",
+    "[Optimizer State](/docs/glossary/optimizer-state)"
   ]
 }

@@ -1,0 +1,43 @@
+{
+  "title": "Logit",
+  "description": "A raw, unnormalized score for each vocabulary item before softmax turns scores into probabilities.",
+  "problemStatement": "The model outputs one number per possible next token; readers need a name for those pre-probability scores and how they relate to tensors and softmax.",
+  "coreIdea": "Logits are the last linear layer's outputs—one score per vocabulary entry—fed into softmax to produce a probability distribution over next tokens.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A logit is a real-valued score assigned to a single vocabulary choice at a position, typically produced by a weight matrix applied to hidden states. The full vector of logits has length equal to vocabulary size; no entry is guaranteed to lie between 0 and 1 until softmax runs."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Sampling, loss functions, and interpretability all refer to logits or to probabilities derived from them. Temperature scaling divides logits before softmax; ranking tokens by logit alone often matches ranking by probability when softmax is monotonic."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose the model emits three logits for candidate next tokens. Softmax will map those three numbers to values that sum to 1; the largest logit usually becomes the largest probability, but the scale of logits only matters relative to each other."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Decoder-only language models apply an output projection (often tied to the input embedding matrix) to hidden states at each position, yielding a logits tensor shaped like batch × sequence × vocabulary. Training code may keep logits in float32 even when activations use lower precision."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Logits are not probabilities: they can be negative, greater than one, and need not sum to 1. Logits are also not the same as log-probabilities unless you explicitly take a log of normalized probabilities. The plural logits refers to the whole score vector."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Think pre-softmax score: logits are the numbers softmax eats. The next page in this chain shows exactly how that normalization works."
+    }
+  }
+}

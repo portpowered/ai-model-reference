@@ -4,18 +4,14 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["Parameter", "parameters", "learnable weights", "model weights"],
-  "tags": ["foundations", "taxonomy"],
-  "relatedIds": [
-    "concept.loss-function",
-    "concept.optimizer-state",
-    "concept.token"
-  ],
+  "aliases": ["model parameters", "weights", "learnable weights"],
+  "tags": ["token-to-probability-chain", "foundations"],
+  "relatedIds": ["concept.activation"],
   "citationIds": [],
-  "status": "draft",
-  "createdAt": "2026-06-04T14:00:00.000Z",
-  "updatedAt": "2026-06-04T14:00:00.000Z",
-  "conceptType": "training",
-  "prerequisiteIds": ["concept.token"],
+  "status": "published",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T23:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.softmax"],
   "explainsIds": []
 }

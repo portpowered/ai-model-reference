@@ -4,19 +4,14 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "Embedding",
-    "token embedding",
-    "embedding lookup",
-    "embedding table"
-  ],
-  "tags": ["attention"],
-  "relatedIds": [],
+  "aliases": ["embeddings", "token embedding", "vector embedding"],
+  "tags": ["token-to-probability-chain", "foundations"],
+  "relatedIds": ["concept.tensor"],
   "citationIds": [],
-  "status": "draft",
-  "createdAt": "2026-06-04T12:00:00.000Z",
+  "status": "published",
+  "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T12:00:00.000Z",
-  "conceptType": "general",
+  "conceptType": "architecture",
   "prerequisiteIds": ["concept.token"],
   "explainsIds": []
 }

@@ -1,0 +1,43 @@
+{
+  "title": "Temperature",
+  "description": "A positive scaling factor applied to logits before softmax to make the next-token distribution sharper or flatter.",
+  "problemStatement": "Readers need a simple knob that controls how random or decisive next-token sampling feels without retraining the model.",
+  "coreIdea": "Temperature divides logits by T before softmax: T below 1 sharpens the distribution (more peaked), T above 1 flattens it (more uniform), and T equal to 1 leaves the model's raw scores unchanged.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Temperature is a positive scalar used at inference (and sometimes in analysis) as softmax(z / T). It does not change model weights—it only rescales logits immediately before normalization."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Creative writing APIs often raise temperature for diverse outputs; factual or code assistants lower it for deterministic answers. Because temperature acts on logits before softmax, it directly controls how sharply probabilities concentrate on top tokens."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "With logits [2, 1, 0], temperature 0.5 divides by a smaller T, exaggerating differences so softmax favors index 0 even more. Temperature 2.0 dampens gaps so the three probabilities move closer together."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Hosted chat APIs expose a temperature parameter on completion calls. Local runtimes apply temperature scaling divides logits before softmax inside sampling kernels. Distinctive chain phrase: temperature scaling divides logits before softmax at sample time."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Temperature is not the same as top-p or top-k filtering—those truncate or renormalize after probabilities exist. Setting temperature to zero is handled as a limit toward argmax in many libraries, not as literal division by zero."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Remember: lower temperature → sharper softmax → more repetitive outputs; higher temperature → flatter softmax → more surprise."
+    }
+  }
+}

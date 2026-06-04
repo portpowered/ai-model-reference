@@ -1,0 +1,17 @@
+{
+  "id": "concept.gradient",
+  "slug": "gradient",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["gradients", "partial derivative", "loss gradient"],
+  "tags": ["token-to-probability-chain", "foundations"],
+  "relatedIds": ["concept.backpropagation"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-05T00:00:00.000Z",
+  "conceptType": "math",
+  "prerequisiteIds": ["concept.computational-graph"],
+  "explainsIds": []
+}

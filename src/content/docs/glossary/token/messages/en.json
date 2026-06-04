@@ -1,8 +1,8 @@
 {
   "title": "Token",
   "description": "The smallest unit of text a language model reads and predicts—usually a word piece, not always a whole word.",
-  "problemStatement": "Models do not read raw characters or whole documents directly; they need a fixed vocabulary of units to embed and score.",
-  "coreIdea": "A tokenizer maps text to integer token IDs; the model embeds those IDs and predicts the next token at each step.",
+  "problemStatement": "Models do not read raw characters or whole documents directly; they need a fixed vocabulary of units to embed and score for next-token prediction.",
+  "coreIdea": "A tokenizer maps text to integer token IDs—the first step on the path from tokens to probabilities. Each ID is embedded into a vector, transformed through the stack, and scored so the model can rank candidates for the next token.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -18,7 +18,7 @@
     },
     "whereItAppears": {
       "title": "Where It Appears",
-      "body": "Tokens appear at the input embedding layer, in autoregressive next-token prediction, and in KV-cache accounting during decoding. Attention modules operate on token positions, not raw characters."
+      "body": "Tokens appear at the input embedding layer, in autoregressive next-token scoring, and in KV-cache accounting during decoding. Attention modules operate on token positions, not raw characters. From here, follow the curated link to embeddings to continue the token-to-probability chain."
     },
     "commonConfusions": {
       "title": "Common Confusions",
@@ -37,7 +37,7 @@
   "callouts": {
     "readerShortcut": {
       "title": "Reader Shortcut",
-      "body": "When someone says \"128k context,\" they mean 128k tokens—the same units the tokenizer emits and the model scores."
+      "body": "When someone says \"128k context,\" they mean 128k tokens—the same units the tokenizer emits before embeddings and next-token scoring. Use the related docs below to step from tokens into embeddings and onward toward logits and softmax."
     }
   },
   "assets": {

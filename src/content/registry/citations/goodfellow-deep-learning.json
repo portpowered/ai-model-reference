@@ -1,0 +1,20 @@
+{
+  "id": "citation.goodfellow-deep-learning",
+  "slug": "goodfellow-deep-learning",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Deep Learning book", "Goodfellow deep learning"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "citationType": "documentation",
+  "authors": ["Ian Goodfellow", "Yoshua Bengio", "Aaron Courville"],
+  "title": "Deep Learning",
+  "year": 2016,
+  "url": "https://www.deeplearningbook.org/",
+  "mla": "Goodfellow, Ian, Yoshua Bengio, and Aaron Courville. Deep Learning. MIT Press, 2016, https://www.deeplearningbook.org/."
+}

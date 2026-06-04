@@ -70,16 +70,16 @@ describe("Phase 2 training behavior glossary pages (US-004)", () => {
     });
   }
 
-  test("alignment links to training peers and token-chain drafts with planned labels", async () => {
+  test("alignment links to training peers and published token-chain glossary pages", async () => {
     const html = await renderGlossaryHtml("alignment");
 
     expect(html).toContain('href="/docs/glossary/model-capacity"');
     expect(html).toContain('href="/docs/glossary/overfitting"');
     expect(html).toContain('href="/docs/glossary/generalization"');
     expect(html).toContain('href="/docs/glossary/conditioning"');
-    expect(html).toContain("Parameter");
-    expect(html).toContain("Loss function");
-    expect(html).toContain("Planned — coming in a later phase");
+    expect(html).toContain('href="/docs/glossary/parameter"');
+    expect(html).toContain('href="/docs/glossary/loss-function"');
+    expect(html).toContain('href="/docs/glossary/optimizer-state"');
   });
 
   test("overfitting and generalization cross-link with reason labels", async () => {

@@ -1,0 +1,43 @@
+{
+  "title": "Gradient",
+  "description": "The direction and size of change each parameter should take to reduce the training loss.",
+  "problemStatement": "After a forward pass produces a loss, readers need a name for the per-parameter signal that tells optimizers how to nudge weights.",
+  "coreIdea": "A gradient is the partial derivative of the loss with respect to a parameter (or activation); it points toward steeper loss and its negative is used for descent steps.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "For each trainable parameter, the gradient records how much the scalar loss would change if that parameter increased slightly. Frameworks store gradients in `.grad` tensors aligned with parameter shapes. Gradients flow backward from the loss through the computational graph, applying the chain rule at each differentiable op."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Without gradients, you cannot run stochastic gradient descent, Adam, or other optimizers. Debugging training often starts by checking whether gradients are zero, exploding, or detached from the graph. The same logits-to-loss path that produced predictions also defines which parameters receive non-zero gradients."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a single weight w in a tiny linear layer. If increasing w by a tiny amount raises the loss, the gradient ∂L/∂w is positive and an optimizer subtracts a small multiple of that value from w on the next step."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "PyTorch and JAX populate parameter gradients after `loss.backward()` or `grad` transforms. Mixed-precision training may keep master weights in float32 while gradients accumulate in wider dtypes for stability. Distinctive chain phrase: reverse-mode loss gradient on every trainable parameter."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Gradients are not the same as parameter values or activations—they are update hints computed from the current batch. A zero gradient on a parameter often means it did not affect the loss (frozen, disconnected, or saturated). Gradients also differ from momentum buffers or optimizer state, which accumulate across steps."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Gradient answers how much each parameter should change to reduce loss. Backpropagation is the algorithm that fills those gradients by walking the graph backward."
+    }
+  }
+}
