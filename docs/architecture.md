@@ -531,6 +531,8 @@ CI should run `make validate-pdf` to catch unresolved print inputs. CI does not 
 
 ## CI And Quality Gates
 
+Production build output is guarded against Turbopack NFT whole-project filesystem tracing warnings; see [turbopack-nft-tracing-warning-closure.md](./turbopack-nft-tracing-warning-closure.md) for detector locations, guarded pattern families, and maintenance notes.
+
 The root `make ci` command should run:
 
 ```txt
