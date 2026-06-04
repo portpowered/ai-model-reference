@@ -20,6 +20,11 @@ export function getGlossaryDocsRoot(docsRoot = getDocsRoot()): string {
   return join(docsRoot, "glossary");
 }
 
+/** Concept docs under `src/content/docs/concepts`. */
+export function getConceptsDocsRoot(docsRoot = getDocsRoot()): string {
+  return join(docsRoot, "concepts");
+}
+
 /** Module docs under `src/content/docs/modules`. */
 export function getModulesDocsRoot(docsRoot = getDocsRoot()): string {
   return join(docsRoot, "modules");
