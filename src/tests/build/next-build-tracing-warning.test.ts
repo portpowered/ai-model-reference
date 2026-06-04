@@ -39,10 +39,14 @@ describe("next build turbopack NFT tracing warning", () => {
 
       const matchedPattern =
         firstMatchingTurbopackTracingWarningPattern(combined);
+      if (matchedPattern !== undefined) {
+        throw new Error(
+          `Turbopack NFT whole-project tracing warning matched guarded pattern: ${matchedPattern}`,
+        );
+      }
       expect(buildOutputHasTurbopackWholeProjectTracingWarning(combined)).toBe(
         false,
       );
-      expect(matchedPattern).toBeUndefined();
     },
     { timeout: 180_000 },
   );
