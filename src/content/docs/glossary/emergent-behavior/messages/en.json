@@ -1,0 +1,43 @@
+{
+  "title": "Emergent Behavior",
+  "description": "Qualitative capability jumps that appear only past certain model scale or training thresholds—distinct from smooth metric improvements tracked by scaling laws.",
+  "problemStatement": "Marketing claims cite sudden new abilities without saying whether the jump is real, task-specific, or an artifact of metric choice and prompting.",
+  "coreIdea": "Emergent behavior names capabilities that were absent or near-random at smaller scale but appear reliably above a threshold—chain-of-thought style reasoning on some benchmarks is a common example—while many other metrics still improve smoothly with scale.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Emergent behavior (often called emergent abilities in papers) describes qualitative jumps: a benchmark accuracy curve is flat, then rises quickly once model size or training crosses a threshold. Researchers debate measurement definitions—some jumps shrink when metrics are rescaled—but the term still marks behaviors that were not predictable from small-model trends alone."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Roadmaps and safety reviews care about thresholds where models gain new skills. Scaling laws explain smooth loss trends; emergent behavior highlights tasks where capability seems discontinuous. Generalization and alignment still determine whether those skills help users safely in production."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A multiple-choice reasoning task may sit near chance for 8B models, then climb sharply at 70B while perplexity on web text improved smoothly across sizes—suggesting some skills are not visible from loss alone."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Scaling and capability papers, benchmark suites with sharp scale thresholds, and product announcements about new model tiers. Link back to scaling law for smooth trends and generalization for whether skills transfer beyond the benchmark."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Not every benchmark improvement is emergent—many tasks scale gradually. Emergence is not magic; it can reflect metric nonlinearities or richer pretraining mixtures. It also does not replace alignment: a newly emergent skill can still be misused without policy controls."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Check whether the capability truly appeared abruptly on a well-defined metric or only after changing the prompt or grading rubric."
+    }
+  }
+}

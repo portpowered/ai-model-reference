@@ -13,6 +13,12 @@ export const TAXONOMY_GLOSSARY_URLS = [
   "/docs/glossary/representation",
 ] as const;
 
+export const REPRESENTATION_LATENT_GLOSSARY_URLS = [
+  "/docs/glossary/patch",
+  "/docs/glossary/latent",
+  "/docs/glossary/latent-space",
+] as const;
+
 export function resultsIncludeUrl(
   results: Array<{ url: string }>,
   pageUrl: string,

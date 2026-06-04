@@ -1,0 +1,43 @@
+{
+  "title": "Decoder",
+  "description": "A network stack that turns internal representations into outputs—tokens, pixels, or structured predictions—often one step at a time with attention to prior context.",
+  "problemStatement": "Papers say \"the decoder generates\" without clarifying whether that means autoregressive text, latent-to-image reconstruction, or a classification head on pooled features, which blurs how information flows out of the model.",
+  "coreIdea": "A decoder reads representations produced by an encoder or earlier blocks and maps them to an output space; in generative setups it typically runs autoregressively or iteratively until a full sample is formed.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Decoders include causal transformer stacks for language modeling, transposed convolutions or U-Net upsampling paths in image models, and cross-attention layers that query encoder memory in seq2seq systems. They consume representations—they do not patchify raw inputs unless the architecture is decoder-only end to end."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Naming decoders separately from encoders shows where generation happens, how KV caches apply during inference, and why encoder–decoder pairs differ from decoder-only GPT-style models. It also sets up autoregressive generation as the paradigm most decoders follow in language settings."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A machine-translation decoder attends to encoder memory while emitting target tokens left to right. A VAE decoder maps a latent vector back to a 64×64 image. A GPT-style stack is decoder-only: the same blocks both represent context and predict the next token."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Decoders appear in T5 and original transformer translation models, latent diffusion decoders, and all causal language models that predict next tokens. Encoder and encoder–decoder pages explain how representations are supplied before decoding begins."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A decoder is not always autoregressive—some decoders reconstruct in one shot—but language-model decoders almost always are. A decoder is also not the softmax head alone: the head sits on top of the decoder stack. Denoising generation is a separate paradigm that may reuse decoder-like U-Nets without autoregressive token steps."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Follow the arrow from hidden states to outputs—that generative or reconstructive stack is the decoder, even when the model is labeled decoder-only."
+    }
+  }
+}

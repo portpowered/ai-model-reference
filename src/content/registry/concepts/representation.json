@@ -10,7 +10,7 @@
     "latent representation"
   ],
   "tags": ["taxonomy", "foundations"],
-  "relatedIds": ["concept.modality"],
+  "relatedIds": ["concept.modality", "concept.patch", "concept.latent"],
   "citationIds": [],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",

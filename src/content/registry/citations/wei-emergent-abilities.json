@@ -1,0 +1,40 @@
+{
+  "id": "citation.wei-emergent-abilities",
+  "slug": "wei-emergent-abilities",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Wei emergent abilities",
+    "emergent abilities of large language models"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T15:00:00.000Z",
+  "updatedAt": "2026-06-04T15:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Jason Wei",
+    "Yi Tay",
+    "Rishi Bommasani",
+    "Colin Raffel",
+    "Barret Zoph",
+    "Sebastian Borgeaud",
+    "Dani Yogatama",
+    "Maarten Bosma",
+    "Denny Zhou",
+    "Donald Metzler",
+    "Ed H. Chi",
+    "Tatsunori Hashimoto",
+    "Oriol Vinyals",
+    "Percy Liang",
+    "Jeff Dean",
+    "William Fedus"
+  ],
+  "title": "Emergent Abilities of Large Language Models",
+  "year": 2022,
+  "url": "https://arxiv.org/abs/2206.07682",
+  "mla": "Wei, Jason, et al. \"Emergent Abilities of Large Language Models.\" arXiv, 2022, https://arxiv.org/abs/2206.07682."
+}

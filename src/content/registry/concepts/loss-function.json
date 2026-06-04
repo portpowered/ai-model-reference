@@ -1,0 +1,17 @@
+{
+  "id": "concept.loss-function",
+  "slug": "loss-function",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Loss function", "training loss", "objective", "loss"],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": ["concept.parameter", "concept.optimizer-state"],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-04T14:00:00.000Z",
+  "updatedAt": "2026-06-04T14:00:00.000Z",
+  "conceptType": "training",
+  "prerequisiteIds": ["concept.parameter"],
+  "explainsIds": []
+}

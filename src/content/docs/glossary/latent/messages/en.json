@@ -1,0 +1,43 @@
+{
+  "title": "Latent",
+  "description": "A compressed internal code that summarizes input structure for reconstruction, generation, or downstream tasks.",
+  "problemStatement": "Teams use \"latent\" for VAE bottlenecks, diffusion noise states, and arbitrary hidden vectors, which blurs whether they mean a trained code, a timestep state, or any intermediate tensor.",
+  "coreIdea": "A latent is a learned or algorithmically defined internal variable that carries information in fewer degrees of freedom than the original input or full hidden state—often before decoding or denoising.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Latents appear after encoders or inside generative objectives: VAE means, diffusion x_t states at a timestep, or bottleneck vectors in autoencoders. They are representations chosen for efficiency or controllability, not raw patches or tokenizer outputs."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Separating latent from patch and from the full latent space helps you compare diffusion, VAE, and autoregressive stacks. It also clarifies which tensors are safe to manipulate at inference—interpolating latents, swapping style codes, or conditioning denoisers."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "An image autoencoder maps a photo to a 512-dimensional latent vector, then a decoder reconstructs pixels from that vector. The latent is the bottleneck code; the decoder readout is not itself the latent."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Latents show up in variational and diffusion training, contrastive encoders, and multimodal alignment when one modality is projected into another's space. Latent space names the geometry those codes inhabit together."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Latent versus representation: every latent is a representation, but not every hidden state is called a latent—authors usually reserve the term for compressed or stochastic codes. Latent versus embedding: embeddings often mean discrete lookup tables at the input; latents are typically continuous codes deeper in the stack. Latent is not the same as a noise sample in diffusion unless the text explicitly refers to the noised state as the working variable."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "If the tensor is the deliberate bottleneck or generative state variable, call it a latent; if it is any hidden activation, use representation."
+    }
+  }
+}

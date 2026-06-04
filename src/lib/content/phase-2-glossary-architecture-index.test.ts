@@ -19,6 +19,9 @@ const TAXONOMY_GLOSSARY_SLUGS = [
   "generative-model",
   "discriminative-model",
   "representation",
+  "patch",
+  "latent",
+  "latent-space",
 ] as const;
 
 const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
@@ -31,8 +34,13 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   "generative-model": "Generative Model",
   "discriminative-model": "Discriminative Model",
   representation: "Representation",
+  patch: "Patch",
+  latent: "Latent",
+  "latent-space": "Latent Space",
   token: "Token",
 };
+
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 26;
 
 function collectPageUrls(nodes: Node[]): string[] {
   const urls: string[] = [];
@@ -56,7 +64,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       pages: string[];
     };
 
-    expect(meta.pages).toHaveLength(10);
+    expect(meta.pages).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
     for (const slug of [...TAXONOMY_GLOSSARY_SLUGS, "token"] as const) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
       expect(
@@ -81,19 +89,21 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     for (const slug of [...TAXONOMY_GLOSSARY_SLUGS, "token"] as const) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
     }
-    expect(glossaryUrls).toHaveLength(10);
+    expect(glossaryUrls).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
   });
 
   test("glossary index lists ten entries with localized titles sorted by title", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(10);
+    expect(entries).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
 
     for (const slug of TAXONOMY_GLOSSARY_SLUGS) {
       const entry = entries.find(
         (item) => item.url === `/docs/glossary/${slug}`,
       );
       expect(entry?.title).toBe(EXPECTED_GLOSSARY_TITLES[slug]);
-      expect(entry?.title).not.toContain("-");
+      if (slug !== "latent-space") {
+        expect(entry?.title).not.toContain("-");
+      }
     }
 
     const token = entries.find((item) => item.url === "/docs/glossary/token");
@@ -102,7 +112,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
 
   test("architecture index includes architecture taxonomy and other taxonomy entries", async () => {
     const entries = await loadPublishedArchitectureEntries("en");
-    expect(entries).toHaveLength(10);
+    expect(entries).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",

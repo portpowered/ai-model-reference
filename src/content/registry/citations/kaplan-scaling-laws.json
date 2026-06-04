@@ -1,0 +1,31 @@
+{
+  "id": "citation.kaplan-scaling-laws",
+  "slug": "kaplan-scaling-laws",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Kaplan scaling laws", "scaling laws for neural language models"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T15:00:00.000Z",
+  "updatedAt": "2026-06-04T15:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Jared Kaplan",
+    "Sam McCandlish",
+    "Tom Henighan",
+    "Tom B. Brown",
+    "Benjamin Chess",
+    "Rewon Child",
+    "Scott Gray",
+    "Alec Radford",
+    "Jeffrey Wu",
+    "Dario Amodei"
+  ],
+  "title": "Scaling Laws for Neural Language Models",
+  "year": 2020,
+  "url": "https://arxiv.org/abs/2001.08361",
+  "mla": "Kaplan, Jared, et al. \"Scaling Laws for Neural Language Models.\" arXiv, 2020, https://arxiv.org/abs/2001.08361."
+}

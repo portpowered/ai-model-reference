@@ -1,0 +1,43 @@
+{
+  "title": "Encoder",
+  "description": "A network stack that maps raw or patched inputs into internal representations—tokens, latents, or context vectors—for downstream decoders or heads.",
+  "problemStatement": "Architecture diagrams label a block \"encoder\" without saying whether it tokenizes text, embeds image patches, or compresses inputs into a latent code, so readers cannot tell what representation format leaves the stack.",
+  "coreIdea": "An encoder ingests modality-specific input units—tokens, patches, or frames—and outputs a sequence or tensor of representations that later blocks consume; it is the compression and structuring stage before decoding or prediction.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Encoders appear as transformer stacks over patch embeddings, convolutional towers before a latent bottleneck, or BERT-style bidirectional encoders that emit contextual vectors per token. The output is always an internal representation: not logits and not final generated pixels or text unless a head is attached directly."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Separating encoders from decoders clarifies seq2seq translation, multimodal fusion, and diffusion pipelines where one network fills latent space and another reads it out. It also explains why representation, patch, and latent-space glossary entries sit upstream of architecture family pages."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A ViT encoder turns 196 image patch embeddings into 196 contextual vectors; a translation encoder turns source-language tokens into memory vectors that a decoder attends to when generating the target sentence."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Encoders headline encoder–decoder translation models, CLIP-style dual towers, VAE and diffusion front ends, and discriminative classifiers that only need a pooled representation. Decoder and encoder–decoder pages describe how those representations are consumed or recombined."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "An encoder is not the same as the full model: decoder-only language models still contain transformer blocks, but the name encoder usually marks the input-side stack in a split architecture. An encoder is also not a tokenizer—tokenization is discrete indexing; the encoder operates on embeddings or patches after that step."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Trace the arrow from raw input to the first representation tensor—that stack is the encoder story, regardless of modality."
+    }
+  }
+}
