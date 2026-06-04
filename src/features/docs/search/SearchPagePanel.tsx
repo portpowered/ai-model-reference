@@ -13,14 +13,18 @@ import type { SearchResultMetaRecord } from "./search-result-meta-client";
 
 const ATTENTION_TAG_PATH = "/tags/attention";
 
-type SearchPagePanelProps = {
+export type SearchPagePanelContentProps = {
   messages: UiMessages;
   metaByUrl: SearchResultMetaRecord;
+  searchParams: Pick<URLSearchParams, "get">;
 };
 
-export function SearchPagePanel({ messages, metaByUrl }: SearchPagePanelProps) {
+export function SearchPagePanelContent({
+  messages,
+  metaByUrl,
+  searchParams,
+}: SearchPagePanelContentProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const initialQueryApplied = useRef(false);
   const { searchEntry, search: searchCopy } = messages;
   const { search, setSearch, query } = useModelAtlasDocsSearch();
@@ -145,5 +149,19 @@ export function SearchPagePanel({ messages, metaByUrl }: SearchPagePanelProps) {
         ) : null}
       </div>
     </div>
+  );
+}
+
+type SearchPagePanelProps = Omit<SearchPagePanelContentProps, "searchParams">;
+
+export function SearchPagePanel({ messages, metaByUrl }: SearchPagePanelProps) {
+  const searchParams = useSearchParams();
+
+  return (
+    <SearchPagePanelContent
+      messages={messages}
+      metaByUrl={metaByUrl}
+      searchParams={searchParams}
+    />
   );
 }
