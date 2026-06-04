@@ -1,0 +1,21 @@
+{
+  "id": "tag.taxonomy",
+  "slug": "taxonomy",
+  "kind": "tag",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "glossary taxonomy",
+    "atlas taxonomy",
+    "taxonomy glossary",
+    "cross-family taxonomy"
+  ],
+  "tags": [],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "category": "architecture",
+  "landingPage": "generated-tag-page"
+}

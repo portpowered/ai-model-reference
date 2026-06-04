@@ -1,0 +1,21 @@
+{
+  "id": "concept.diffusion-model",
+  "slug": "diffusion-model",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "diffusion models",
+    "diffusion architecture",
+    "denoising diffusion"
+  ],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": [],
+  "explainsIds": []
+}
