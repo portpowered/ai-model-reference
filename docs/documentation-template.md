@@ -10,12 +10,15 @@ Use the page-kind template that matches the content:
 
 ```txt
 docs/templates/concept.mdx
+docs/templates/glossary.mdx
 docs/templates/model.mdx
 docs/templates/module.mdx
 docs/templates/paper.mdx
 docs/templates/training-regime.mdx
 docs/templates/blog-post.mdx
 ```
+
+Glossary entries use `glossary.mdx` with colocated content under `src/content/docs/glossary/<slug>/` and render at `/docs/glossary/<slug>`. They share the concept registry record shape (`concept.<slug>`) and the same section structure as concept pages; only frontmatter `kind` and the docs route differ.
 
 Each template has sidecar files:
 
