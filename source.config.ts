@@ -1,10 +1,22 @@
+import { pageSchema } from "fumadocs-core/source/schema";
 import { defineConfig, defineDocs } from "fumadocs-mdx/config";
+import { z } from "zod";
+
+const docsPageSchema = pageSchema.extend({
+  kind: z.string().optional(),
+  registryId: z.string().optional(),
+  messageNamespace: z.union([z.literal("local"), z.string().min(1)]).optional(),
+  assetNamespace: z.union([z.literal("local"), z.string().min(1)]).optional(),
+  status: z.string().optional(),
+});
 
 export const docs = defineDocs({
   dir: "src/content/docs",
   docs: {
-    // Module and glossary pages use next-mdx-remote + ModulePageProviders at dedicated routes.
-    files: ["**/*.{md,mdx}", "!modules/**", "!glossary/**"],
+    // Glossary and module MDX pages route through the catch-all; local message-key
+    // pages render via next-mdx-remote + ModulePageProviders in [[...slug]]/page.tsx.
+    files: ["**/*.{md,mdx}"],
+    schema: docsPageSchema,
   },
 });
 

@@ -80,13 +80,19 @@ describe("docs navigation source", () => {
     expect(glossaryUrls).toEqual([...GLOSSARY_INDEX_URLS].sort());
   });
 
-  test("glossary navigation URLs have matching App Router pages", () => {
+  test("glossary navigation URLs have matching App Router pages or catch-all source entries", () => {
     for (const url of GLOSSARY_INDEX_URLS) {
-      const slug = url.replace("/docs/glossary/", "");
+      const slug = url.replace("/docs/", "").split("/");
       const routePath = join(
         process.cwd(),
-        `src/app/docs/glossary/${slug}/page.tsx`,
+        `src/app/docs/glossary/${slug[1]}/page.tsx`,
       );
+
+      if (slug[1] === "token") {
+        expect(source.getPage(slug)).toBeDefined();
+        continue;
+      }
+
       expect(existsSync(routePath)).toBe(true);
     }
   });

@@ -7,6 +7,11 @@ import {
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import {
+  loadLocalDocsPage,
+  parseLocalDocsPageRef,
+} from "@/lib/content/local-docs-page";
 import { source } from "@/lib/source";
 import { getMDXComponents } from "../../../../mdx-components";
 
@@ -14,8 +19,38 @@ type DocsPageProps = {
   params: Promise<{ slug?: string[] }>;
 };
 
+async function renderLocalDocsPage(slug: string[] | undefined) {
+  const localRef = parseLocalDocsPageRef(slug);
+  if (!localRef) {
+    return null;
+  }
+
+  const page = source.getPage(slug);
+  if (!page) {
+    return null;
+  }
+
+  const loadedPage = await loadLocalDocsPage(localRef);
+
+  return (
+    <ModulePageProviders
+      messages={loadedPage.messages}
+      assets={loadedPage.assets}
+    >
+      <article data-registry-id={loadedPage.frontmatter.registryId}>
+        {loadedPage.content}
+      </article>
+    </ModulePageProviders>
+  );
+}
+
 export default async function DocsSlugPage({ params }: DocsPageProps) {
   const { slug } = await params;
+  const localPage = await renderLocalDocsPage(slug);
+  if (localPage) {
+    return localPage;
+  }
+
   const page = source.getPage(slug);
 
   if (!page) {
@@ -47,6 +82,19 @@ export async function generateMetadata({
   params,
 }: DocsPageProps): Promise<Metadata> {
   const { slug } = await params;
+  const localRef = parseLocalDocsPageRef(slug);
+
+  if (localRef) {
+    const page = source.getPage(slug);
+    if (page) {
+      const loadedPage = await loadLocalDocsPage(localRef);
+      return {
+        title: loadedPage.messages.title,
+        description: loadedPage.messages.description,
+      };
+    }
+  }
+
   const page = source.getPage(slug);
 
   if (!page) {

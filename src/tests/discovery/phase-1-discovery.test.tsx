@@ -7,7 +7,7 @@ import HomePage from "@/app/(site)/page";
 import SearchEntryPage from "@/app/(site)/search/page";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import TagsIndexPage from "@/app/(site)/tags/page";
-import TokenGlossaryPage from "@/app/docs/glossary/token/page";
+import DocsSlugPage from "@/app/docs/[[...slug]]/page";
 import GroupedQueryAttentionPage from "@/app/docs/modules/grouped-query-attention/page";
 import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
@@ -111,7 +111,9 @@ describe("Phase 1 discovery route smoke", () => {
   });
 
   test("/docs/glossary/token renders without error", async () => {
-    const page = await TokenGlossaryPage();
+    const page = await DocsSlugPage({
+      params: Promise.resolve({ slug: ["glossary", "token"] }),
+    });
     const html = renderToStaticMarkup(page);
     expect(html.length).toBeGreaterThan(0);
     expect(html).toContain("Token");

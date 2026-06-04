@@ -38,6 +38,23 @@ describe("verifyRequiredBuildStaticRoutesFromManifest", () => {
     }
   });
 
+  test("passes when a required glossary route is covered by docs catch-all params", () => {
+    const manifest = completeRequiredBuildManifest();
+    delete manifest["/_app/docs/glossary/token"];
+    manifest["/_app/docs/[[...slug]]"] = "/docs/[[...slug]]";
+
+    const catchAllSlugs = new Set(["glossary/token"]);
+    const result = verifyRequiredBuildStaticRoutesFromManifest(
+      manifest,
+      catchAllSlugs,
+    );
+
+    expect(result.ok).toBe(true);
+    expect(missingRequiredBuildStaticRoutes(manifest, catchAllSlugs)).toEqual(
+      [],
+    );
+  });
+
   test("fails when a Phase 2 taxonomy glossary route is absent", () => {
     const manifest = completeRequiredBuildManifest();
     delete manifest["/_app/docs/glossary/model"];

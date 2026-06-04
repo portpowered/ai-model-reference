@@ -17,7 +17,7 @@ const PHASE_1_PAGE_MODULES = [
   { route: "/tags/attention", modulePath: "(site)/tags/[slug]/page.tsx" },
   {
     route: "/docs/glossary/token",
-    modulePath: "docs/glossary/token/page.tsx",
+    modulePath: "docs/[[...slug]]/page.tsx",
   },
   {
     route: "/docs/modules/grouped-query-attention",

@@ -1,7 +1,26 @@
 import { loader } from "fumadocs-core/source";
 import { docs } from "../../.source/server";
 
+/** Maps glossary/<slug>/page.mdx and modules/<slug>/page.mdx to reader URLs. */
+function pageBundleSlug(file: { path: string }): string[] | undefined {
+  if (!file.path.endsWith("/page.mdx")) {
+    return undefined;
+  }
+
+  const sectionSlugs = file.path
+    .slice(0, -"/page.mdx".length)
+    .split("/")
+    .filter(Boolean);
+
+  if (sectionSlugs[0] === "glossary" || sectionSlugs[0] === "modules") {
+    return sectionSlugs;
+  }
+
+  return undefined;
+}
+
 export const source = loader({
   baseUrl: "/docs",
   source: docs.toFumadocsSource(),
+  slugs: pageBundleSlug,
 });
