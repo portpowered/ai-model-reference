@@ -49,6 +49,9 @@ const pageKindRegistryKindAliases: Partial<
   glossary: "concept",
 };
 
+/** Docs sections whose `page.mdx` slugs must match a concept registry record slug. */
+const conceptBackedDocsSections = new Set(["glossary", "concepts"]);
+
 function pageKindMatchesRegistryRecord(
   pageKind: PageKind,
   registryKind: RegistryRecord["kind"],
@@ -57,6 +60,24 @@ function pageKindMatchesRegistryRecord(
     pageKind === registryKind ||
     pageKindRegistryKindAliases[pageKind] === registryKind
   );
+}
+
+function pageDirectorySlugFromPath(pagePath: string): string | undefined {
+  const normalized = pagePath.replace(/\\/g, "/");
+  const match = normalized.match(/\/(glossary|concepts)\/([^/]+)\/page\.mdx$/);
+  return match?.[2];
+}
+
+function conceptBackedDocsSectionFromPath(
+  pagePath: string,
+): string | undefined {
+  const normalized = pagePath.replace(/\\/g, "/");
+  const match = normalized.match(/\/(glossary|concepts)\/([^/]+)\/page\.mdx$/);
+  return match?.[1];
+}
+
+function isPublishedSourceRecord(record: RegistryRecord): boolean {
+  return record.status === "published";
 }
 
 /** Phase 1 page directories validated even when `page.mdx` is not present yet. */
@@ -160,7 +181,11 @@ function validateRegistryRecordReferences(
     );
   }
 
-  if (record.kind === "graph" && !indexes.byId.has(record.subjectId)) {
+  if (
+    record.kind === "graph" &&
+    isPublishedSourceRecord(record) &&
+    !indexes.byId.has(record.subjectId)
+  ) {
     errors.push({
       code: "unresolved-reference",
       message: `${record.id}: subjectId references missing record "${record.subjectId}"`,
@@ -168,14 +193,16 @@ function validateRegistryRecordReferences(
     });
   }
 
-  for (const { field, ids } of referenceFields) {
-    for (const id of ids) {
-      if (!indexes.byId.has(id)) {
-        errors.push({
-          code: "unresolved-reference",
-          message: `${record.id}: ${field} references missing record "${id}"`,
-          path: filePath,
-        });
+  if (isPublishedSourceRecord(record)) {
+    for (const { field, ids } of referenceFields) {
+      for (const id of ids) {
+        if (!indexes.byId.has(id)) {
+          errors.push({
+            code: "unresolved-reference",
+            message: `${record.id}: ${field} references missing record "${id}"`,
+            path: filePath,
+          });
+        }
       }
     }
   }
@@ -396,14 +423,32 @@ async function validatePageMdx(
       message: `${pagePath}: registryId "${frontmatter.data.registryId}" does not resolve`,
       path: pagePath,
     });
-  } else if (
-    !pageKindMatchesRegistryRecord(frontmatter.data.kind, registryRecord.kind)
-  ) {
-    errors.push({
-      code: "kind-mismatch",
-      message: `${pagePath}: frontmatter kind "${frontmatter.data.kind}" does not match registry record kind "${registryRecord.kind}"`,
-      path: pagePath,
-    });
+  } else {
+    if (
+      !pageKindMatchesRegistryRecord(frontmatter.data.kind, registryRecord.kind)
+    ) {
+      errors.push({
+        code: "kind-mismatch",
+        message: `${pagePath}: frontmatter kind "${frontmatter.data.kind}" does not match registry record kind "${registryRecord.kind}"`,
+        path: pagePath,
+      });
+    }
+
+    const docsSection = conceptBackedDocsSectionFromPath(pagePath);
+    if (
+      registryRecord.kind === "concept" &&
+      docsSection &&
+      conceptBackedDocsSections.has(docsSection)
+    ) {
+      const pageSlug = pageDirectorySlugFromPath(pagePath);
+      if (pageSlug && pageSlug !== registryRecord.slug) {
+        errors.push({
+          code: "page-slug-mismatch",
+          message: `${pagePath}: page directory slug "${pageSlug}" does not match registry slug "${registryRecord.slug}" for ${registryRecord.id}`,
+          path: pagePath,
+        });
+      }
+    }
   }
 
   for (const tagRef of frontmatter.data.tags) {

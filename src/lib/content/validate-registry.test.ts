@@ -49,6 +49,24 @@ const validTagRecord = {
   landingPage: "generated-tag-page",
 };
 
+const validConceptRecord = {
+  id: "concept.example",
+  slug: "example",
+  kind: "concept",
+  defaultTitleKey: "title",
+  defaultSummaryKey: "description",
+  aliases: [],
+  tags: ["attention"],
+  relatedIds: [],
+  citationIds: [],
+  status: "published",
+  createdAt: "2026-06-01T00:00:00.000Z",
+  updatedAt: "2026-06-02T00:00:00.000Z",
+  conceptType: "general",
+  prerequisiteIds: [],
+  explainsIds: [],
+};
+
 const validCitationRecord = {
   id: "citation.gqa-paper",
   slug: "gqa-paper",
@@ -327,6 +345,320 @@ describe("validateRegistryContent", () => {
             error.code === "unresolved-tag" &&
             error.message.includes("module.grouped-query-attention") &&
             error.message.includes('unknown tag "unknown-tag-slug"'),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports page directory slug mismatch for concept-backed pages", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    const docsRoot = join(tempRoot, "docs");
+    const pageDir = join(docsRoot, "glossary", "wrong-slug");
+    await mkdir(join(registryRoot, "concepts"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(join(pageDir, "messages"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "concepts", "example.json"),
+      JSON.stringify(validConceptRecord),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(pageDir, "page.mdx"),
+      `---
+kind: glossary
+registryId: concept.example
+messageNamespace: local
+assetNamespace: local
+status: draft
+tags:
+  - attention
+updatedAt: "2026-06-02"
+---
+
+# <T k="title" />
+`,
+    );
+    await writeFile(
+      join(pageDir, "messages", "en.json"),
+      JSON.stringify({ title: "Example", description: "Desc" }),
+    );
+    await writeFile(join(pageDir, "assets.json"), JSON.stringify({}));
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+        phase1PageDirectories: [],
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "page-slug-mismatch" &&
+            error.message.includes("wrong-slug") &&
+            error.message.includes('registry slug "example"'),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports frontmatter kind mismatch including glossary versus concept registry", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    const docsRoot = join(tempRoot, "docs");
+    const pageDir = join(docsRoot, "concepts", "example");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(join(registryRoot, "citations"), { recursive: true });
+    await mkdir(join(pageDir, "messages"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify(validModuleRecord),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(registryRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+    await writeFile(
+      join(pageDir, "page.mdx"),
+      `---
+kind: concept
+registryId: module.grouped-query-attention
+messageNamespace: local
+assetNamespace: local
+status: draft
+tags:
+  - attention
+updatedAt: "2026-06-02"
+---
+
+# <T k="title" />
+`,
+    );
+    await writeFile(
+      join(pageDir, "messages", "en.json"),
+      JSON.stringify({ title: "GQA", description: "Desc" }),
+    );
+    await writeFile(join(pageDir, "assets.json"), JSON.stringify({}));
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+        phase1PageDirectories: [],
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "kind-mismatch" &&
+            error.message.includes('kind "concept"') &&
+            error.message.includes('kind "module"'),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports unresolved page registryId", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const docsRoot = join(tempRoot, "docs");
+    const pageDir = join(docsRoot, "concepts", "orphan");
+    await mkdir(join(pageDir, "messages"), { recursive: true });
+
+    await writeFile(
+      join(pageDir, "page.mdx"),
+      `---
+kind: concept
+registryId: concept.missing
+messageNamespace: local
+assetNamespace: local
+status: draft
+tags:
+  - attention
+updatedAt: "2026-06-02"
+---
+
+# <T k="title" />
+`,
+    );
+    await writeFile(
+      join(pageDir, "messages", "en.json"),
+      JSON.stringify({ title: "Orphan", description: "Desc" }),
+    );
+    await writeFile(join(pageDir, "assets.json"), JSON.stringify({}));
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot: join(import.meta.dir, "../../content/registry"),
+        docsRoot,
+        phase1PageDirectories: [],
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "unresolved-registry-id" &&
+            error.message.includes("concept.missing"),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("allows published records to reference draft targets that exist in the registry", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "concepts"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "concepts", "published-source.json"),
+      JSON.stringify({
+        ...validConceptRecord,
+        id: "concept.published-source",
+        slug: "published-source",
+        relatedIds: ["concept.draft-target"],
+        status: "published",
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "concepts", "draft-target.json"),
+      JSON.stringify({
+        ...validConceptRecord,
+        id: "concept.draft-target",
+        slug: "draft-target",
+        status: "draft",
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({ registryRoot, docsRoot });
+      expect(
+        errors.filter((error) => error.code === "unresolved-reference"),
+      ).toEqual([]);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("does not require published-only reference resolution on draft source records", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "concepts"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "concepts", "draft-source.json"),
+      JSON.stringify({
+        ...validConceptRecord,
+        id: "concept.draft-source",
+        slug: "draft-source",
+        relatedIds: ["concept.missing-target"],
+        status: "draft",
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({ registryRoot, docsRoot });
+      expect(
+        errors.some((error) => error.code === "unresolved-reference"),
+      ).toBe(false);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("discovers nested page.mdx files and validates MDX message and asset references", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    const docsRoot = join(tempRoot, "docs");
+    const pageDir = join(docsRoot, "concepts", "nested-page");
+    await mkdir(join(registryRoot, "concepts"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(join(pageDir, "messages"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "concepts", "nested-page.json"),
+      JSON.stringify({
+        ...validConceptRecord,
+        id: "concept.nested-page",
+        slug: "nested-page",
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(pageDir, "page.mdx"),
+      `---
+kind: concept
+registryId: concept.nested-page
+messageNamespace: local
+assetNamespace: local
+status: draft
+tags:
+  - attention
+updatedAt: "2026-06-02"
+---
+
+# <T k="title" />
+<T k="missing.body" />
+<ConceptMap assetId="missingAsset" />
+`,
+    );
+    await writeFile(
+      join(pageDir, "messages", "en.json"),
+      JSON.stringify({ title: "Nested", description: "Desc" }),
+    );
+    await writeFile(join(pageDir, "assets.json"), JSON.stringify({}));
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+        phase1PageDirectories: [],
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "missing-message-key" &&
+            error.message.includes("missing.body"),
+        ),
+      ).toBe(true);
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "unknown-asset-id" &&
+            error.message.includes("missingAsset"),
         ),
       ).toBe(true);
     } finally {
