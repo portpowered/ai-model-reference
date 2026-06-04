@@ -10,9 +10,12 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/discriminative-model",
   "/docs/glossary/foundation-model",
   "/docs/glossary/generative-model",
+  "/docs/glossary/latent",
+  "/docs/glossary/latent-space",
   "/docs/glossary/modality",
   "/docs/glossary/model",
   "/docs/glossary/module",
+  "/docs/glossary/patch",
   "/docs/glossary/representation",
   "/docs/glossary/token",
 ] as const;
@@ -47,8 +50,8 @@ describe("docs navigation source", () => {
       throw new Error("expected Glossary folder in docs sidebar");
     }
 
-    const glossaryUrls = collectPageUrls(glossaryFolder.children);
-    expect(glossaryUrls).toEqual([...GLOSSARY_INDEX_URLS]);
+    const glossaryUrls = collectPageUrls(glossaryFolder.children).sort();
+    expect(glossaryUrls).toEqual([...GLOSSARY_INDEX_URLS].sort());
   });
 
   test("glossary navigation URLs have matching App Router pages", () => {

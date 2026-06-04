@@ -27,11 +27,17 @@ const ROLE_MODALITY_TAXONOMY_URLS = [
   "/docs/glossary/discriminative-model",
   "/docs/glossary/representation",
 ] as const;
+const REPRESENTATION_LATENT_URLS = [
+  "/docs/glossary/patch",
+  "/docs/glossary/latent",
+  "/docs/glossary/latent-space",
+] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
   SAMPLE_URL,
   TOKEN_GLOSSARY_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
+  ...REPRESENTATION_LATENT_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(
   process.cwd(),
