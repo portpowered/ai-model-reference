@@ -3,6 +3,11 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  COVERAGE_TEST_ARGS,
+  evaluateComponentCoverageGate,
+  parseCoverageTable,
+} from "@/lib/docs/component-coverage-gate";
+import {
   PHASE_2_COVERAGE_COMPONENTS,
   PHASE_2_THIN_WRAPPERS,
 } from "@/lib/docs/phase-2-component-manifest";
@@ -11,45 +16,12 @@ const repoRoot = join(import.meta.dir, "../../..");
 const coverageDocPath = join(repoRoot, "docs/phase-2-component-coverage.md");
 const readmePath = join(repoRoot, "README.md");
 
-type CoverageRow = {
-  file: string;
-  linePercent: number;
-};
-
-function parseCoverageTable(output: string): CoverageRow[] {
-  const rows: CoverageRow[] = [];
-
-  for (const line of output.split("\n")) {
-    const match = line.match(
-      /^\s+(src\/\S+)\s+\|\s+[\d.]+\s+\|\s+([\d.]+)\s+\|/,
-    );
-    if (!match) {
-      continue;
-    }
-    rows.push({
-      file: match[1],
-      linePercent: Number.parseFloat(match[2]),
-    });
-  }
-
-  return rows;
-}
-
-function runCoverage(): CoverageRow[] {
-  const result = spawnSync(
-    "bun",
-    [
-      "test",
-      "--coverage",
-      "--path-ignore-patterns",
-      "src/tests/docs/phase-2-component-coverage.test.ts",
-    ],
-    {
-      cwd: repoRoot,
-      encoding: "utf8",
-      env: { ...process.env, FORCE_COLOR: "0" },
-    },
-  );
+function runCoverage(): ReturnType<typeof parseCoverageTable> {
+  const result = spawnSync("bun", [...COVERAGE_TEST_ARGS], {
+    cwd: repoRoot,
+    encoding: "utf8",
+    env: { ...process.env, FORCE_COLOR: "0" },
+  });
 
   const combined = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
   if (result.status !== 0) {
@@ -99,15 +71,11 @@ describe("Phase 2 component coverage contract", () => {
   test(
     "Phase 2 reusable components meet reachable line coverage minimums",
     () => {
-      const coverage = runCoverage();
-
-      for (const entry of PHASE_2_COVERAGE_COMPONENTS) {
-        const row = coverage.find((item) => item.file === entry.file);
-        expect(row).toBeDefined();
-        expect(row?.linePercent).toBeGreaterThanOrEqual(
-          entry.minReachableLinePercent,
-        );
-      }
+      const gate = evaluateComponentCoverageGate({
+        coverageRows: runCoverage(),
+        repoRoot,
+      });
+      expect(gate.ok).toBe(true);
     },
     { timeout: 120_000 },
   );
