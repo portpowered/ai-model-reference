@@ -1,0 +1,21 @@
+{
+  "id": "tag.foundations",
+  "slug": "foundations",
+  "kind": "tag",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "foundational concepts",
+    "phase 2 foundations",
+    "core vocabulary"
+  ],
+  "tags": [],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "category": "architecture",
+  "landingPage": "generated-tag-page",
+  "parentTagId": "tag.taxonomy"
+}

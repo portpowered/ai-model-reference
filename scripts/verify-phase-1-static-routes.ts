@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  PHASE_1_STATIC_ROUTES,
-  verifyPhase1StaticRoutesFromManifest,
+  REQUIRED_BUILD_STATIC_ROUTES,
+  verifyRequiredBuildStaticRoutesFromManifest,
 } from "../src/lib/build/verify-phase-1-static-routes";
 
 const DEFAULT_MANIFEST_PATH = join(
@@ -23,10 +23,10 @@ const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as Record<
   string,
   string
 >;
-const result = verifyPhase1StaticRoutesFromManifest(manifest);
+const result = verifyRequiredBuildStaticRoutesFromManifest(manifest);
 
 if (!result.ok) {
-  console.error("Phase 1 static routes missing from build output:");
+  console.error("Required static routes missing from build output:");
   for (const route of result.missing) {
     console.error(`  - ${route}`);
   }
@@ -38,5 +38,5 @@ if (!result.ok) {
 }
 
 console.log(
-  `Phase 1 static routes verified (${PHASE_1_STATIC_ROUTES.length} paths).`,
+  `Required static routes verified (${REQUIRED_BUILD_STATIC_ROUTES.length} paths).`,
 );
