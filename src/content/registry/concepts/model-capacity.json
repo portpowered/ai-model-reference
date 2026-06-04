@@ -1,0 +1,28 @@
+{
+  "id": "concept.model-capacity",
+  "slug": "model-capacity",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Model capacity",
+    "capacity",
+    "expressive capacity",
+    "model size"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.overfitting",
+    "concept.generalization",
+    "concept.alignment",
+    "concept.parameter",
+    "concept.architecture"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T11:52:13.229Z",
+  "updatedAt": "2026-06-04T14:00:00.000Z",
+  "conceptType": "training",
+  "prerequisiteIds": ["concept.parameter", "concept.architecture"],
+  "explainsIds": ["concept.overfitting"]
+}

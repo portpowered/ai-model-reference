@@ -20,6 +20,10 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.autoregressive-generation",
   "concept.denoising-generation",
   "concept.conditioning",
+  "concept.alignment",
+  "concept.model-capacity",
+  "concept.overfitting",
+  "concept.generalization",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;

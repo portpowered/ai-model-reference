@@ -1,0 +1,22 @@
+{
+  "id": "concept.optimizer-state",
+  "slug": "optimizer-state",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Optimizer state",
+    "optimizer states",
+    "Adam state",
+    "momentum buffers"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": ["concept.parameter", "concept.loss-function"],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-04T14:00:00.000Z",
+  "updatedAt": "2026-06-04T14:00:00.000Z",
+  "conceptType": "training",
+  "prerequisiteIds": ["concept.parameter", "concept.loss-function"],
+  "explainsIds": []
+}

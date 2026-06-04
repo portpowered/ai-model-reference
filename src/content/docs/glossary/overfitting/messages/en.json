@@ -1,0 +1,43 @@
+{
+  "title": "Overfitting",
+  "description": "When a model fits training noise so closely that held-out or production data perform worse—the classic gap between memorization and useful generalization.",
+  "problemStatement": "Teams see great training loss but poor live metrics and blame \"the model\" without naming overfitting, regularization, or distribution shift, which blocks targeted fixes.",
+  "coreIdea": "Overfitting means the model captured spurious patterns in the training set—IDs, typos, or leakage—that do not transfer; validation loss rising while training loss falls is the standard diagnostic.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Overfitting is poor generalization caused by excessive fit to the training distribution: the model minimizes training loss by memorizing examples instead of learning stable features. High capacity, noisy labels, and too many training steps relative to data size are common drivers."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Overfitting is the mirror of generalization: product quality depends on held-out performance, not training curves alone. Linking overfitting to model capacity, loss design, and alignment data hygiene keeps architecture, training, and evaluation vocabulary consistent."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A classifier reaches 99% training accuracy but 60% on a validation set because it memorized background textures in training photos. Adding augmentation, early stopping, or weight decay widens the train–validation gap in the right direction."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Fine-tuning small datasets on large language models, tabular models with leaky features, and diffusion models that reproduce training captions verbatim. Loss-function and optimizer-state concepts describe the training machinery that must be regularized to reduce overfitting."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Overfitting is not the same as underfitting or pure distribution shift: shift can hurt test performance even without memorization. Low training loss alone is not proof of overfitting—you need a comparison set. Memorizing public benchmarks is a form of overfitting to evaluation, not just training rows."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Compare training and validation curves—divergence with great training metrics is the overfitting smell test."
+    }
+  }
+}

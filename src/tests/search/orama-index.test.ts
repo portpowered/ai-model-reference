@@ -42,6 +42,12 @@ const GENERATION_PARADIGM_URLS = [
   "/docs/glossary/denoising-generation",
   "/docs/glossary/conditioning",
 ] as const;
+const TRAINING_BEHAVIOR_URLS = [
+  "/docs/glossary/alignment",
+  "/docs/glossary/model-capacity",
+  "/docs/glossary/overfitting",
+  "/docs/glossary/generalization",
+] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
   SAMPLE_URL,
   TOKEN_GLOSSARY_URL,
@@ -50,6 +56,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ...REPRESENTATION_LATENT_URLS,
   ...ENCODER_DECODER_URLS,
   ...GENERATION_PARADIGM_URLS,
+  ...TRAINING_BEHAVIOR_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(
   process.cwd(),
