@@ -1,11 +1,15 @@
+import goodfellowDeepLearning from "@/content/registry/citations/goodfellow-deep-learning.json";
 import gqaPaper from "@/content/registry/citations/gqa-paper.json";
+import kingmaAdam from "@/content/registry/citations/kingma-adam.json";
 import {
   type CitationRecord,
   citationRecordSchema,
 } from "@/lib/content/schemas";
 
 const citationRecords: CitationRecord[] = [
+  citationRecordSchema.parse(goodfellowDeepLearning),
   citationRecordSchema.parse(gqaPaper),
+  citationRecordSchema.parse(kingmaAdam),
 ];
 
 const citationsById = new Map(

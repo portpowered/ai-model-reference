@@ -1,0 +1,43 @@
+{
+  "title": "Loss Function",
+  "description": "A scalar score that measures how wrong the model's predictions are so training knows which direction to improve.",
+  "problemStatement": "After logits become probabilities, readers need a single number that tells training how far predictions are from the correct answers.",
+  "coreIdea": "A loss function compares model outputs to targets and returns one scalar; lower loss means better fit, and gradients flow backward from that scalar to update parameters.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "The loss (also called the objective or training loss) aggregates per-example errors into one differentiable scalar. For language models, cross-entropy between predicted next-token probabilities and the true token id is standard. Regression tasks might use mean squared error. The loss sits at the root of the computational graph so backpropagation can reach every parameter that influenced the prediction."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Optimizers do not read raw logits or activations—they minimize the loss. The choice of loss shapes what the model learns to prioritize: cross-entropy penalizes confident wrong tokens heavily, while other objectives emphasize ranking, contrast, or auxiliary tasks. Monitoring loss curves is the first signal that training is converging, diverging, or stuck."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose a three-token vocabulary and the model assigns probabilities [0.7, 0.2, 0.1] while the correct token is index 0. Cross-entropy loss is roughly −log(0.7), a small positive number. If the model instead gave 0.01 probability to the correct token, the loss jumps because −log(0.01) is much larger."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "PyTorch `nn.CrossEntropyLoss`, TensorFlow/Keras `SparseCategoricalCrossentropy`, and JAX `optax.softmax_cross_entropy` all implement the same idea for classification and next-token prediction. Distinctive chain phrase: scalar training objective summed over the batch before backward()."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Loss is not the same as accuracy or perplexity—those are evaluation metrics derived from predictions, while loss is what gradients differentiate during training. A model can have low training loss but poor generalization (overfitting). Loss also differs from regularization terms, which are sometimes added to the objective but serve a different purpose than fit-to-labels error."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Loss turns predictions and targets into one number to minimize. Backpropagation starts from that scalar; the optimizer uses the resulting gradients to update parameters."
+    }
+  }
+}

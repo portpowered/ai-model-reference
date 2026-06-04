@@ -13,6 +13,8 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.computational-graph",
   "concept.gradient",
   "concept.backpropagation",
+  "concept.loss-function",
+  "concept.optimizer-state",
   "concept.model",
   "concept.architecture",
   "concept.module",

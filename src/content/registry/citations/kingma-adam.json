@@ -1,0 +1,20 @@
+{
+  "id": "citation.kingma-adam",
+  "slug": "kingma-adam",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Adam optimizer paper", "Kingma and Ba Adam"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Diederik P. Kingma", "Jimmy Ba"],
+  "title": "Adam: A Method for Stochastic Optimization",
+  "year": 2014,
+  "url": "https://arxiv.org/abs/1412.6980",
+  "mla": "Kingma, Diederik P., and Jimmy Ba. \"Adam: A Method for Stochastic Optimization.\" arXiv, 2014, https://arxiv.org/abs/1412.6980."
+}
