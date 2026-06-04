@@ -245,6 +245,8 @@ describe("scaffoldDocPage", () => {
     );
     expect(pageRaw).toContain('kind: "concept"');
     expect(pageRaw).not.toContain("concept.example-concept");
+    expect(pageRaw).not.toMatch(/^aliases:/m);
+    expect(pageRaw).not.toContain("aliases: []");
 
     const routeRaw = await readFile(
       join(tempRoot, "src", "app", "docs", "concepts", slug, "page.tsx"),
