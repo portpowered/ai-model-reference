@@ -37,6 +37,11 @@ const ENCODER_DECODER_URLS = [
   "/docs/glossary/decoder",
   "/docs/glossary/encoder-decoder",
 ] as const;
+const GENERATION_PARADIGM_URLS = [
+  "/docs/glossary/autoregressive-generation",
+  "/docs/glossary/denoising-generation",
+  "/docs/glossary/conditioning",
+] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
   SAMPLE_URL,
   TOKEN_GLOSSARY_URL,
@@ -44,6 +49,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ...ROLE_MODALITY_TAXONOMY_URLS,
   ...REPRESENTATION_LATENT_URLS,
   ...ENCODER_DECODER_URLS,
+  ...GENERATION_PARADIGM_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(
   process.cwd(),

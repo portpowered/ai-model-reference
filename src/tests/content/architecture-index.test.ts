@@ -23,8 +23,11 @@ describe("isArchitectureRelatedPage", () => {
     expect(urls).toEqual(
       [
         "/docs/glossary/architecture",
+        "/docs/glossary/autoregressive-generation",
         "/docs/glossary/component",
+        "/docs/glossary/conditioning",
         "/docs/glossary/decoder",
+        "/docs/glossary/denoising-generation",
         "/docs/glossary/discriminative-model",
         "/docs/glossary/encoder",
         "/docs/glossary/encoder-decoder",
