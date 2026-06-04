@@ -1,4 +1,4 @@
-.PHONY: dev lint format typecheck test build ci validate-data linkcheck validate-pdf build-search-index
+.PHONY: dev lint format typecheck test build ci validate-data scaffold linkcheck validate-pdf build-search-index
 
 dev:
 	bun run dev
@@ -23,6 +23,9 @@ ci: lint typecheck test build validate-data
 
 validate-data:
 	bun ./scripts/validate-registry.ts
+
+scaffold:
+	bun ./scripts/scaffold-doc-page.ts $(ARGS)
 
 linkcheck:
 	@echo "linkcheck: skipped (not yet implemented in scaffold)"

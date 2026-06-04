@@ -71,6 +71,62 @@ make dev
 `http://localhost:3000` for the home page and `/docs/getting-started` for the
 placeholder docs route.
 
+## Phase 2 docs authoring
+
+Glossary and concept pages share one scaffold path. Templates live in
+`docs/templates/`; see [docs/documentation-template.md](./docs/documentation-template.md)
+for the message-key-driven MDX contract.
+
+### Scaffold a new page
+
+Preview planned paths without writing files:
+
+```sh
+bun run scaffold:doc-page -- --kind glossary --slug my-term --title "My term" \
+  --concept-type general --dry-run
+```
+
+Create the full bundle (registry record, colocated `page.mdx` / `messages/en.json` /
+`assets.json`, and Next.js route stub):
+
+```sh
+bun run scaffold:doc-page -- --kind concept --slug my-concept --title "My concept" \
+  --concept-type architecture --tags attention --related-ids concept.token
+```
+
+Required flags:
+
+| Flag | Values |
+| --- | --- |
+| `--kind` | `glossary` or `concept` |
+| `--slug` | kebab-case slug (directory name and `concept.<slug>` registry id) |
+| `--title` | reader-facing title (written into draft messages) |
+| `--concept-type` | `architecture`, `math`, `training`, `inference`, `systems`, `evaluation`, or `general` |
+
+Optional flags: `--tags`, `--related-ids`, `--citation-ids`, `--aliases` (comma-separated),
+and `--dry-run`. Run `bun run scaffold:doc-page -- --help` for the full usage line.
+
+Equivalent Make entry (pass CLI args after `ARGS=`):
+
+```sh
+make scaffold ARGS='--kind glossary --slug my-term --title "My term" --concept-type general --dry-run'
+```
+
+Glossary pages land under `src/content/docs/glossary/<slug>/` and render at
+`/docs/glossary/<slug>`. Concept pages use `src/content/docs/concepts/<slug>/` and
+`/docs/concepts/<slug>`.
+
+### After scaffolding
+
+1. Replace placeholder copy in `messages/en.json` (scaffold fills schema-valid stubs).
+2. Add or update registry records the page references (for example a `graph.<slug>-concept-map`
+   record when the template references a concept map asset).
+3. Set `status: published` in `page.mdx` frontmatter when the page is ready for published
+   reference checks; keep `draft` while `relatedIds`, tags, or citations still point at
+   unpublished targets.
+4. Run `make validate-data` (also part of `make ci`) to catch missing message keys, unknown
+   assets, unresolved tags, broken references, and page/registry slug mismatches.
+
 ## Quality Gates
 
 ### Fresh checkout
@@ -104,6 +160,9 @@ the repository root after `bun install --frozen-lockfile`; it runs, in order:
 4. `make build` — `next build` plus Phase 1 static route verification
 5. `make validate-data` — registry and content validation
 
+Use `bun run scaffold:doc-page` (or `make scaffold`) when adding Phase 2 glossary or
+concept pages, then run `make validate-data` before opening a pull request.
+
 Fumadocs writes generated MDX bindings under `.source/` (gitignored). Fresh
 checkouts do not include that directory; `pretypecheck` and `pretest` in
 `package.json` both run `fumadocs-mdx` so standalone `make typecheck` and
@@ -119,6 +178,7 @@ make typecheck     # fumadocs-mdx (pretypecheck), then tsc --noEmit
 make test          # fumadocs-mdx (pretest), then bun test
 make build         # next build + Phase 1 static route check
 make validate-data # registry and content validation
+make scaffold       # scaffold glossary/concept page bundles (pass ARGS='...')
 ```
 
 Stub targets exist for later work and are not part of `make ci` or GitHub
@@ -143,7 +203,7 @@ that worktree. This models a fresh clone without mutating your main workspace
 `node_modules`, `.next/`, or generated `.source/`.
 
 Equivalent Bun scripts are in `package.json` (`bun run lint`, `bun run build`,
-and so on).
+`bun run scaffold:doc-page`, and so on).
 
 ## Agent Factory Loop
 
