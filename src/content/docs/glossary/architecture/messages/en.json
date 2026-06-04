@@ -1,0 +1,47 @@
+{
+  "title": "Architecture",
+  "description": "The blueprint that defines how a model's layers, modules, and data flow connect during inference.",
+  "problemStatement": "People swap \"transformer,\" \"architecture,\" and \"model\" freely, which hides whether they mean a design pattern, a checkpoint, or a product family.",
+  "coreIdea": "Architecture is the structural recipe—how tensors move through repeated modules—not any one trained set of weights.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "An architecture specifies layer types, connectivity, and the order of computation. Transformers, U-Net diffusion stacks, and mixture-of-experts layouts are architectures. Many model checkpoints can instantiate the same architecture at different scales."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Knowing the architecture tells you which modules to expect, how memory scales with sequence length, and which family pages in this atlas apply before you open a specific checkpoint."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A decoder-only transformer architecture stacks token embeddings, repeated attention-plus-FFN blocks, and a final language-model head. GPT-2, Llama, and many chat models share that shape even when widths and depths differ."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Architecture shows up in model cards, scaling-law papers, and module pages that explain attention variants. This page links forward to major families—transformer, diffusion, multimodal, and world models—as they join the atlas."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Architecture is broader than a single module: attention is a module inside many architectures. It is also narrower than \"model\": you can train many models on one architecture. A model family name often implies an architecture but may bundle training data and tooling too."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Ask \"what repeats in the stack?\" to spot the architecture; ask \"which checkpoint am I running?\" to spot the model."
+    },
+    "upcomingModelFamilies": {
+      "title": "Upcoming model family pages",
+      "body": "Transformers, diffusion models, multimodal models, and world models are listed below as planned reference pages. They are not links yet—each family will get a full atlas page in a later phase so you can explore architecture without broken navigation."
+    }
+  }
+}

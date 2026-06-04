@@ -21,6 +21,12 @@ function isArchitectureConceptRecord(
   return isConceptRecord(record) && record.conceptType === "architecture";
 }
 
+function isTaxonomyConceptRecord(
+  record: ReturnType<typeof getRegistryRecord>,
+): boolean {
+  return isConceptRecord(record) && record.tags.includes("taxonomy");
+}
+
 export function isArchitectureRelatedPage(
   page: DocsPageSource,
   indexes: RegistryIndexes,
@@ -30,7 +36,13 @@ export function isArchitectureRelatedPage(
   }
 
   const record = getRegistryRecord(indexes, page.frontmatter.registryId);
-  return isArchitectureConceptRecord(record);
+  if (isArchitectureConceptRecord(record)) {
+    return true;
+  }
+
+  return (
+    page.frontmatter.kind === "glossary" && isTaxonomyConceptRecord(record)
+  );
 }
 
 export function toArchitectureEntry(page: DocsPageSource): ArchitectureEntry {

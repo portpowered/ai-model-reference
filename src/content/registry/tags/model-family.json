@@ -1,0 +1,17 @@
+{
+  "id": "tag.model-family",
+  "slug": "model-family",
+  "kind": "tag",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["model families", "architecture families", "model family"],
+  "tags": [],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "category": "model-family",
+  "landingPage": "generated-tag-page",
+  "parentTagId": "tag.taxonomy"
+}
