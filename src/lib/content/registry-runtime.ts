@@ -1,22 +1,26 @@
 import architectureConcept from "@/content/registry/concepts/architecture.json";
 import autoregressiveGenerationConcept from "@/content/registry/concepts/autoregressive-generation.json";
 import componentConcept from "@/content/registry/concepts/component.json";
+import conditioningConcept from "@/content/registry/concepts/conditioning.json";
 import decoderConcept from "@/content/registry/concepts/decoder.json";
 import denoisingGenerationConcept from "@/content/registry/concepts/denoising-generation.json";
 import diffusionModelConcept from "@/content/registry/concepts/diffusion-model.json";
 import discriminativeModelConcept from "@/content/registry/concepts/discriminative-model.json";
+import embeddingConcept from "@/content/registry/concepts/embedding.json";
 import encoderConcept from "@/content/registry/concepts/encoder.json";
 import encoderDecoderConcept from "@/content/registry/concepts/encoder-decoder.json";
 import foundationModelConcept from "@/content/registry/concepts/foundation-model.json";
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
+import logitConcept from "@/content/registry/concepts/logit.json";
 import modalityConcept from "@/content/registry/concepts/modality.json";
 import modelConcept from "@/content/registry/concepts/model.json";
 import moduleConcept from "@/content/registry/concepts/module.json";
 import multimodalModelConcept from "@/content/registry/concepts/multimodal-model.json";
 import patchConcept from "@/content/registry/concepts/patch.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
+import softmaxConcept from "@/content/registry/concepts/softmax.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
@@ -60,6 +64,10 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(encoderDecoderConcept),
   conceptRecordSchema.parse(autoregressiveGenerationConcept),
   conceptRecordSchema.parse(denoisingGenerationConcept),
+  conceptRecordSchema.parse(conditioningConcept),
+  conceptRecordSchema.parse(logitConcept),
+  conceptRecordSchema.parse(softmaxConcept),
+  conceptRecordSchema.parse(embeddingConcept),
   conceptRecordSchema.parse(transformerConcept),
   conceptRecordSchema.parse(diffusionModelConcept),
   conceptRecordSchema.parse(multimodalModelConcept),

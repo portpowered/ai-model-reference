@@ -75,11 +75,11 @@ describe("Phase 2 representation and latent glossary pages (US-001)", () => {
     expect(html).toContain('href="/docs/glossary/modality"');
   });
 
-  test("latent-space links to published encoder and planned denoising generation", async () => {
+  test("latent-space links to published encoder and denoising generation", async () => {
     const html = await renderGlossaryHtml("latent-space");
 
     expect(html).toContain('href="/docs/glossary/encoder"');
-    expect(html).toContain("Planned — coming in a later phase");
+    expect(html).toContain('href="/docs/glossary/denoising-generation"');
     expect(html).toContain("Denoising");
   });
 

@@ -17,6 +17,9 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.encoder",
   "concept.decoder",
   "concept.encoder-decoder",
+  "concept.autoregressive-generation",
+  "concept.denoising-generation",
+  "concept.conditioning",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;
