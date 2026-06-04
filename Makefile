@@ -28,8 +28,7 @@ scaffold:
 	bun ./scripts/scaffold-doc-page.ts $(ARGS)
 
 linkcheck:
-	@echo "linkcheck: skipped (not yet implemented in scaffold)"
-	@exit 0
+	bun ./scripts/validate-links.ts
 
 validate-pdf:
 	@echo "validate-pdf: skipped (not yet implemented in scaffold)"
