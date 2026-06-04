@@ -1,4 +1,8 @@
+import architectureConcept from "@/content/registry/concepts/architecture.json";
+import componentConcept from "@/content/registry/concepts/component.json";
 import diffusionModelConcept from "@/content/registry/concepts/diffusion-model.json";
+import modelConcept from "@/content/registry/concepts/model.json";
+import moduleConcept from "@/content/registry/concepts/module.json";
 import multimodalModelConcept from "@/content/registry/concepts/multimodal-model.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
@@ -26,6 +30,10 @@ const moduleRecords: ModuleRecord[] = [
 
 const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(tokenConcept),
+  conceptRecordSchema.parse(modelConcept),
+  conceptRecordSchema.parse(architectureConcept),
+  conceptRecordSchema.parse(moduleConcept),
+  conceptRecordSchema.parse(componentConcept),
   conceptRecordSchema.parse(transformerConcept),
   conceptRecordSchema.parse(diffusionModelConcept),
   conceptRecordSchema.parse(multimodalModelConcept),

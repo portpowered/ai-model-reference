@@ -1,0 +1,43 @@
+{
+  "title": "Module",
+  "description": "A reusable building block inside a model architecture, such as attention or a feed-forward network.",
+  "problemStatement": "Module pages in this atlas name concrete mechanisms, but readers also need a general term for \"the repeating block inside a stack.\"",
+  "coreIdea": "A module is a named, reusable unit of computation that an architecture stacks or wires together.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Modules are the mid-level parts of a network: multi-head attention, grouped-query attention, convolution blocks, or cross-attention layers. An architecture describes how modules connect; module pages explain one mechanism in depth."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Searching by module helps you compare attention variants across models and spot when a release swaps one module for another without changing the overall architecture family."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A transformer block is often drawn as two modules in sequence: self-attention, then a position-wise feed-forward network. Each can be swapped—for example, GQA instead of MHA—while keeping the block shape."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Module is the label for `/docs/modules/*` entries and for internal registry records tied to those pages. Components sit inside modules when you need finer-grained structure."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A module is larger than a component (heads, projections) but smaller than a full architecture. It is also not a trained model: modules are design patterns; checkpoints combine many module weights."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "If the docs route starts with `/docs/modules/`, you are reading about a specific module implementation—not the abstract taxonomy term on this page."
+    }
+  }
+}
