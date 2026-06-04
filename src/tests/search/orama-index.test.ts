@@ -14,6 +14,17 @@ import {
 
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
 const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
+const STRUCTURAL_TAXONOMY_URLS = [
+  "/docs/glossary/model",
+  "/docs/glossary/architecture",
+  "/docs/glossary/module",
+  "/docs/glossary/component",
+] as const;
+const PUBLISHED_SEARCH_INDEX_URLS = [
+  SAMPLE_URL,
+  TOKEN_GLOSSARY_URL,
+  ...STRUCTURAL_TAXONOMY_URLS,
+] as const;
 const GENERATED_INDEX_PATH = path.join(
   process.cwd(),
   "src/generated/search-index.json",
@@ -90,7 +101,7 @@ describe("exportOramaIndexSnapshot", () => {
 });
 
 describe("build-search-index script", () => {
-  test("writes generated snapshot for Phase 1 published pages only", () => {
+  test("writes generated snapshot for all published docs pages", () => {
     if (existsSync(GENERATED_INDEX_PATH)) {
       rmSync(GENERATED_INDEX_PATH);
     }
@@ -110,9 +121,9 @@ describe("build-search-index script", () => {
 
     expect(snapshot.version).toBe(1);
     expect(snapshot.orama).toBeDefined();
-    expect(snapshot.documents.length).toBe(2);
+    expect(snapshot.documents.length).toBe(PUBLISHED_SEARCH_INDEX_URLS.length);
     const urls = snapshot.documents.map((document) => document.url).sort();
-    expect(urls).toEqual([SAMPLE_URL, TOKEN_GLOSSARY_URL].sort());
+    expect(urls).toEqual([...PUBLISHED_SEARCH_INDEX_URLS].sort());
 
     const gqa = findSnapshotDocument(snapshot.documents, SAMPLE_URL);
     expect(gqa?.title).toBe("Grouped-Query Attention");

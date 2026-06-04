@@ -1,0 +1,43 @@
+{
+  "title": "Component",
+  "description": "A finer-grained part inside a module, such as an attention head or projection layer.",
+  "problemStatement": "Engineers talk about heads, projections, and norms as \"layers,\" but the atlas needs a consistent name for pieces smaller than a full module.",
+  "coreIdea": "A component is a sub-part of a module that still does one identifiable job in the forward pass.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Components include query/key/value projections, individual attention heads, layer-normalization cells, and gating units inside a larger block. They are the smallest units this taxonomy names before dropping to raw tensor ops."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Clear component language helps you read architecture diagrams, follow sharding plans, and understand which part of a module changes when papers propose a new projection or norm placement."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Multi-head attention is a module; each head is a component with its own Q/K/V projections and output merge. Grouped-query attention changes how those components share key/value state."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Component labels appear in detailed module diagrams, efficient-attention write-ups, and hardware partitioning docs. Module pages in this atlas may reference components when explaining internals."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Components are not standalone modules—you rarely swap only a norm and call it a new architecture. They are also not parameters: a component is a structural role, while weights are the learned values filling that role."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Zoom out one level to \"module\" when the block has its own page in `/docs/modules/`; zoom in to \"component\" when you are inside that block."
+    }
+  }
+}
