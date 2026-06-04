@@ -9,8 +9,8 @@ import {
   deriveSharedTagPeers,
   hasPublishedDocsPage,
   isPlannedRelatedTarget,
-  moduleDisplayTitle,
   PLANNED_RELATED_REASON_LABEL,
+  registryDisplayTitle,
   SAME_CONCEPT_TYPE,
   SAME_VARIANT_GROUP,
   SHARED_TAGS,
@@ -97,6 +97,31 @@ const draftTransformer: ConceptRecord = {
   status: "draft",
   relatedIds: [],
 };
+
+describe("registryDisplayTitle", () => {
+  test("returns the first alias when present on a module record", () => {
+    expect(registryDisplayTitle(gqa)).toBe("GQA");
+  });
+
+  test("formats slug as title when module aliases are empty", () => {
+    const noAlias: ModuleRecord = {
+      ...gqa,
+      aliases: [],
+    };
+    expect(registryDisplayTitle(noAlias)).toBe("Grouped Query Attention");
+  });
+
+  test("prefers alias and falls back to formatted slug for concept records", () => {
+    expect(registryDisplayTitle(token)).toBe("Token");
+
+    const noAlias: ConceptRecord = {
+      ...token,
+      slug: "attention-mechanism",
+      aliases: [],
+    };
+    expect(registryDisplayTitle(noAlias)).toBe("Attention Mechanism");
+  });
+});
 
 describe("related-docs", () => {
   test("modulePageHref builds canonical module docs paths", () => {
@@ -251,9 +276,5 @@ describe("related-docs", () => {
         publishedRegistryIds,
       ),
     ).toEqual([]);
-  });
-
-  test("moduleDisplayTitle prefers the first alias", () => {
-    expect(moduleDisplayTitle(gqa)).toBe("GQA");
   });
 });

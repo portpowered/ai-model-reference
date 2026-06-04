@@ -58,11 +58,6 @@ export function registryDisplayTitle(record: RelatedRegistryRecord): string {
   return record.aliases[0] ?? formatSlugLabel(record.slug);
 }
 
-/** @deprecated Use registryDisplayTitle */
-export function moduleDisplayTitle(record: ModuleRecord): string {
-  return registryDisplayTitle(record);
-}
-
 function recordPageHref(record: RelatedRegistryRecord): string {
   if (record.kind === "concept") {
     return glossaryPageHref(record.slug);
