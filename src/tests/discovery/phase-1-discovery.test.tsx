@@ -116,6 +116,7 @@ describe("Phase 1 discovery route smoke", () => {
     const html = renderToStaticMarkup(page);
     expect(html.length).toBeGreaterThan(0);
     expect(html).toContain("Token");
+    expect(html).toContain('data-registry-id="concept.token"');
     expect(html).not.toContain("lorem");
   });
 
@@ -126,6 +127,7 @@ describe("Phase 1 discovery route smoke", () => {
     const html = renderToStaticMarkup(page);
     expect(html.length).toBeGreaterThan(0);
     expect(html).toContain("Grouped-Query Attention");
+    expect(html).toContain('data-registry-id="module.grouped-query-attention"');
     expect(html).toContain('href="/tags/attention"');
     expect(html).not.toContain("lorem");
   });
