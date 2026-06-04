@@ -40,9 +40,7 @@ export type RequiredBuildStaticRoute =
   (typeof REQUIRED_BUILD_STATIC_ROUTES)[number];
 
 function defaultCatchAllDocsSlugs(): Set<string> {
-  return new Set(
-    source.generateParams().map((entry) => entry.slug.join("/")),
-  );
+  return new Set(source.generateParams().map((entry) => entry.slug.join("/")));
 }
 
 /** Converts `/docs/<slug>` reader URLs into catch-all slug paths. */
@@ -117,10 +115,7 @@ export function verifyRequiredBuildStaticRoutesFromManifest(
   manifest: Record<string, string>,
   catchAllDocsSlugs: Set<string> = defaultCatchAllDocsSlugs(),
 ): RequiredBuildStaticRouteVerification {
-  const missing = missingRequiredBuildStaticRoutes(
-    manifest,
-    catchAllDocsSlugs,
-  );
+  const missing = missingRequiredBuildStaticRoutes(manifest, catchAllDocsSlugs);
   if (missing.length > 0) {
     return { ok: false, missing };
   }

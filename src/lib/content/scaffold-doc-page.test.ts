@@ -86,8 +86,12 @@ describe("scaffoldDocPage", () => {
         "en.json",
       ),
       join(projectRoot, "src/content/docs/glossary", slug, "assets.json"),
-      join(projectRoot, "src/app/docs/glossary", slug, "page.tsx"),
     ]);
+    expect(
+      result.plannedFiles.some((file) =>
+        file.path.includes(join("src", "app", "docs")),
+      ),
+    ).toBe(false);
 
     for (const file of result.plannedFiles) {
       expect(await pathExists(file.path)).toBe(false);
@@ -125,7 +129,7 @@ describe("scaffoldDocPage", () => {
     });
 
     expect(result.registryId).toBe(`concept.${slug}`);
-    expect(result.writtenFiles).toHaveLength(5);
+    expect(result.writtenFiles).toHaveLength(4);
 
     const registryRaw = await readFile(
       join(contentRoot, "registry", "concepts", `${slug}.json`),
@@ -179,15 +183,11 @@ describe("scaffoldDocPage", () => {
       "graph.scaffold-glossary-term-concept-map",
     );
 
-    const routeRaw = await readFile(
-      join(tempRoot, "src", "app", "docs", "glossary", slug, "page.tsx"),
-      "utf8",
-    );
-    expect(routeRaw).toContain('loadGlossaryPage("scaffold-glossary-term")');
-    expect(routeRaw).toContain(
-      "export default async function ScaffoldGlossaryTermGlossaryPage",
-    );
-    expect(routeRaw).not.toContain("example-glossary");
+    expect(
+      await pathExists(
+        join(tempRoot, "src", "app", "docs", "glossary", slug, "page.tsx"),
+      ),
+    ).toBe(false);
 
     const glossaryDocsRoot = join(contentRoot, "docs", "glossary");
     const loaded = await loadGlossaryPageFromDisk(slug, "en", glossaryDocsRoot);
@@ -248,15 +248,11 @@ describe("scaffoldDocPage", () => {
     expect(pageRaw).not.toMatch(/^aliases:/m);
     expect(pageRaw).not.toContain("aliases: []");
 
-    const routeRaw = await readFile(
-      join(tempRoot, "src", "app", "docs", "concepts", slug, "page.tsx"),
-      "utf8",
-    );
-    expect(routeRaw).toContain('loadConceptPage("scaffold-concept-term")');
-    expect(routeRaw).toContain(
-      "export default async function ScaffoldConceptTermConceptPage",
-    );
-    expect(routeRaw).not.toContain("example-concept");
+    expect(
+      await pathExists(
+        join(tempRoot, "src", "app", "docs", "concepts", slug, "page.tsx"),
+      ),
+    ).toBe(false);
 
     const conceptsDocsRoot = join(contentRoot, "docs", "concepts");
     const loaded = await loadConceptPageFromDisk(slug, "en", conceptsDocsRoot);

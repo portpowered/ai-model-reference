@@ -59,20 +59,6 @@ const templatePlaceholders: Record<
   },
 };
 
-const routeTemplatePlaceholders: Record<
-  ScaffoldDocPageKind,
-  { exampleSlug: string; componentName: string }
-> = {
-  glossary: {
-    exampleSlug: "example-glossary",
-    componentName: "ExampleGlossaryPage",
-  },
-  concept: {
-    exampleSlug: "example-concept",
-    componentName: "ExampleConceptPage",
-  },
-};
-
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export class ScaffoldDocPageError extends Error {
@@ -209,27 +195,6 @@ function graphIdForSlug(slug: string): string {
   return `graph.${slug}-concept-map`;
 }
 
-function slugToPascalCase(slug: string): string {
-  return slug
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
-
-function routeComponentName(kind: ScaffoldDocPageKind, slug: string): string {
-  const base = slugToPascalCase(slug);
-  return kind === "glossary" ? `${base}GlossaryPage` : `${base}ConceptPage`;
-}
-
-function appRoutePath(
-  projectRoot: string,
-  kind: ScaffoldDocPageKind,
-  slug: string,
-): string {
-  const segment = kind === "glossary" ? "glossary" : "concepts";
-  return join(projectRoot, "src", "app", "docs", segment, slug, "page.tsx");
-}
-
 function isoTimestampUtc(): string {
   return new Date().toISOString();
 }
@@ -250,17 +215,6 @@ function applyTemplateSubstitutions(
   return content
     .replaceAll(placeholders.registryId, registryId)
     .replaceAll(placeholders.graphId, graphId);
-}
-
-function applyRouteTemplateSubstitutions(
-  content: string,
-  kind: ScaffoldDocPageKind,
-  slug: string,
-): string {
-  const placeholders = routeTemplatePlaceholders[kind];
-  return content
-    .replaceAll(placeholders.exampleSlug, slug)
-    .replaceAll(placeholders.componentName, routeComponentName(kind, slug));
 }
 
 function yamlQuote(value: string): string {
@@ -395,22 +349,6 @@ async function readTemplateFile(
   return readFile(templatePath, "utf8");
 }
 
-async function readRouteTemplate(
-  projectRoot: string,
-  kind: ScaffoldDocPageKind,
-): Promise<string> {
-  return readTemplateFile(projectRoot, kind, "<kind>.route.tsx");
-}
-
-function buildRoutePageTsx(
-  templateRoute: string,
-  kind: ScaffoldDocPageKind,
-  slug: string,
-): string {
-  const content = applyRouteTemplateSubstitutions(templateRoute, kind, slug);
-  return content.endsWith("\n") ? content : `${content}\n`;
-}
-
 async function assertPathDoesNotExist(path: string): Promise<void> {
   try {
     await access(path);
@@ -451,14 +389,12 @@ export async function scaffoldDocPage(
   const pagePath = join(pageDir, "page.mdx");
   const messagesPath = join(pageDir, "messages", "en.json");
   const assetsPath = join(pageDir, "assets.json");
-  const routePath = appRoutePath(projectRoot, input.kind, input.slug);
 
   const plannedFiles: ScaffoldPlannedFile[] = [
     { path: registryPath, label: "registry record" },
     { path: pagePath, label: "page.mdx" },
     { path: messagesPath, label: "messages/en.json" },
     { path: assetsPath, label: "assets.json" },
-    { path: routePath, label: "Next.js route stub" },
   ];
 
   if (input.dryRun) {
@@ -473,12 +409,11 @@ export async function scaffoldDocPage(
     await assertPathDoesNotExist(file.path);
   }
 
-  const [templateMdx, templateMessagesRaw, templateAssetsRaw, templateRoute] =
+  const [templateMdx, templateMessagesRaw, templateAssetsRaw] =
     await Promise.all([
       readTemplateFile(projectRoot, input.kind, "<kind>.mdx"),
       readTemplateFile(projectRoot, input.kind, "<kind>.messages.en.json"),
       readTemplateFile(projectRoot, input.kind, "<kind>.assets.json"),
-      readRouteTemplate(projectRoot, input.kind),
     ]);
 
   const pageMdx = buildPageMdx(templateMdx, input);
@@ -492,10 +427,8 @@ export async function scaffoldDocPage(
   );
 
   const registryRecord = buildRegistryRecord(input);
-  const routeTsx = buildRoutePageTsx(templateRoute, input.kind, input.slug);
 
   await mkdir(join(pageDir, "messages"), { recursive: true });
-  await mkdir(join(routePath, ".."), { recursive: true });
   await writeFile(registryPath, `${JSON.stringify(registryRecord, null, 2)}\n`);
   await writeFile(pagePath, pageMdx);
   await writeFile(messagesPath, `${JSON.stringify(messages, null, 2)}\n`);
@@ -503,7 +436,6 @@ export async function scaffoldDocPage(
     assetsPath,
     assetsJson.endsWith("\n") ? assetsJson : `${assetsJson}\n`,
   );
-  await writeFile(routePath, routeTsx);
 
   return {
     registryId: registryIdForSlug(input.slug),
