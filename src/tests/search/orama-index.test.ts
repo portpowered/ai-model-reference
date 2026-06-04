@@ -30,6 +30,8 @@ const ROLE_MODALITY_TAXONOMY_URLS = [
 const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/embedding",
   "/docs/glossary/tensor",
+  "/docs/glossary/logit",
+  "/docs/glossary/softmax",
 ] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
   SAMPLE_URL,
