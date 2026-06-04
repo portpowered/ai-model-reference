@@ -21,7 +21,7 @@ const PHASE_1_PAGE_MODULES = [
   },
   {
     route: "/docs/modules/grouped-query-attention",
-    modulePath: "docs/modules/grouped-query-attention/page.tsx",
+    modulePath: "docs/[[...slug]]/page.tsx",
   },
 ] as const;
 

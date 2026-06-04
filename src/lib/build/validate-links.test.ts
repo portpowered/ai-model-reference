@@ -93,10 +93,13 @@ describe("validateDocumentationLinks", () => {
   test("reports invalid heading anchors on populated docs routes", async () => {
     const scanned = await scanURLs({
       preset: "next",
-      meta: {
-        "docs/modules/grouped-query-attention": {
-          hashes: ["what-it-is"],
-        },
+      populate: {
+        "docs/[[...slug]]": [
+          {
+            value: { slug: ["modules", "grouped-query-attention"] },
+            hashes: ["what-it-is"],
+          },
+        ],
       },
     });
 
