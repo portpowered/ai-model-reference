@@ -18,6 +18,18 @@ const DRAFT_FORWARD_TARGET_IDS = [
   "concept.world-model",
 ] as const;
 
+const TAXONOMY_CONCEPT_IDS = [
+  "concept.model",
+  "concept.architecture",
+  "concept.module",
+  "concept.component",
+  "concept.modality",
+  "concept.foundation-model",
+  "concept.generative-model",
+  "concept.discriminative-model",
+  "concept.representation",
+] as const;
+
 const TAXONOMY_TAG_SLUGS = ["taxonomy", "foundations", "model-family"] as const;
 
 async function readRegistryJson<T>(
@@ -108,6 +120,77 @@ describe("Phase 2 taxonomy registry (US-001)", () => {
   });
 
   test("registry validation passes with taxonomy tags and draft forward targets", async () => {
+    const errors = await validateRegistryContent();
+    expect(errors).toEqual([]);
+  });
+});
+
+describe("Phase 2 taxonomy concept records (US-003)", () => {
+  test("nine published taxonomy concepts pass conceptRecordSchema", async () => {
+    for (const id of TAXONOMY_CONCEPT_IDS) {
+      const slug = id.replace("concept.", "");
+      const concept = await readRegistryJson(
+        `concepts/${slug}.json`,
+        conceptRecordSchema,
+      );
+      expect(concept.id).toBe(id);
+      expect(concept.kind).toBe("concept");
+      expect(concept.status).toBe("published");
+      expect(concept.conceptType).toBe("general");
+      expect(concept.tags).toContain("taxonomy");
+      expect(concept.tags).toContain("foundations");
+    }
+  });
+
+  test("architecture record references draft forward targets via relatedIds", async () => {
+    const architecture = await readRegistryJson(
+      "concepts/architecture.json",
+      conceptRecordSchema,
+    );
+    for (const id of DRAFT_FORWARD_TARGET_IDS) {
+      expect(architecture.relatedIds).toContain(id);
+    }
+    expect(architecture.prerequisiteIds).toContain("concept.model");
+    expect(architecture.explainsIds).toEqual([
+      "concept.module",
+      "concept.component",
+    ]);
+  });
+
+  test("taxonomy concepts resolve tags and relationship fields via loadRegistry", async () => {
+    const indexes = await loadRegistry();
+
+    for (const id of TAXONOMY_CONCEPT_IDS) {
+      const concept = indexes.byId.get(id) as ConceptRecord | undefined;
+      expect(concept?.kind).toBe("concept");
+      for (const tagRef of concept?.tags ?? []) {
+        expect(resolveTag(indexes, tagRef)).toBeDefined();
+      }
+      for (const refId of [
+        ...(concept?.relatedIds ?? []),
+        ...(concept?.prerequisiteIds ?? []),
+        ...(concept?.explainsIds ?? []),
+      ]) {
+        expect(indexes.byId.has(refId)).toBe(true);
+      }
+    }
+
+    const component = indexes.byId.get("concept.component") as
+      | ConceptRecord
+      | undefined;
+    expect(component?.prerequisiteIds).toEqual(["concept.module"]);
+
+    const generative = indexes.byId.get("concept.generative-model") as
+      | ConceptRecord
+      | undefined;
+    expect(generative?.prerequisiteIds).toEqual([
+      "concept.model",
+      "concept.foundation-model",
+    ]);
+    expect(generative?.relatedIds).toContain("concept.discriminative-model");
+  });
+
+  test("registry validation passes with nine taxonomy concept records", async () => {
     const errors = await validateRegistryContent();
     expect(errors).toEqual([]);
   });

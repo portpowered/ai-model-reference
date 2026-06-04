@@ -1,0 +1,28 @@
+{
+  "id": "concept.architecture",
+  "slug": "architecture",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "model architecture",
+    "neural architecture",
+    "network architecture"
+  ],
+  "tags": ["taxonomy", "foundations"],
+  "relatedIds": [
+    "concept.transformer",
+    "concept.diffusion-model",
+    "concept.multimodal-model",
+    "concept.world-model",
+    "concept.model",
+    "concept.module"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.model"],
+  "explainsIds": ["concept.module", "concept.component"]
+}
