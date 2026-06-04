@@ -1,0 +1,43 @@
+{
+  "title": "Perplexity",
+  "description": "A standard language-model evaluation metric: exponentiated average cross-entropy over tokens, lower is better when comparing models on the same corpus.",
+  "problemStatement": "Model cards list perplexity without explaining how it relates to next-token probabilities, which makes it hard to compare scores across tokenizers or corpora.",
+  "coreIdea": "Perplexity summarizes how surprised a model is by held-out text: for a sequence of tokens it is exp(average cross-entropy), so lower perplexity means the model assigns higher probability to the true continuations.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Given a test corpus, perplexity averages the negative log-likelihood the model assigns to each token (via softmax over logits), then exponentiates. It is not a task accuracy score—it measures probabilistic fit. Tokenization, vocabulary, and dataset domain all affect the number, so comparisons require matched setups."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Perplexity is the workhorse metric for pretraining and compression benchmarks because it tracks how well next-token distributions match data. It connects directly to the token chain: logits become probabilities through softmax, and cross-entropy (linked to entropy) aggregates those probabilities into one scalar for monitoring generalization."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "If a model assigns 0.5 probability to each correct next token on average, cross-entropy is about 0.69 nats and perplexity is about 2—roughly as uncertain as choosing uniformly among two tokens. Halving perplexity means the model is substantially more confident on the evaluation text."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Pretraining dashboards, academic LM benchmarks, and model cards reporting validation perplexity. Generalization pages describe whether patterns transfer; perplexity quantifies probabilistic transfer on language corpora when the evaluation set is truly held out."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Lower perplexity does not guarantee better instruction following or safety—that is alignment and task design. Perplexity on training data can look excellent while test perplexity reveals overfitting. Do not compare perplexity across different tokenizers without caution."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Treat perplexity as exponentiated average surprise per token—always check which corpus and tokenizer produced the score."
+    }
+  }
+}

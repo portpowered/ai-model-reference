@@ -1,0 +1,29 @@
+{
+  "id": "concept.alignment",
+  "slug": "alignment",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Alignment", "RLHF", "preference alignment", "safety alignment"],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.model-capacity",
+    "concept.overfitting",
+    "concept.generalization",
+    "concept.parameter",
+    "concept.loss-function",
+    "concept.optimizer-state",
+    "concept.conditioning"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T11:52:13.229Z",
+  "updatedAt": "2026-06-04T14:00:00.000Z",
+  "conceptType": "training",
+  "prerequisiteIds": [
+    "concept.conditioning",
+    "concept.parameter",
+    "concept.loss-function"
+  ],
+  "explainsIds": []
+}

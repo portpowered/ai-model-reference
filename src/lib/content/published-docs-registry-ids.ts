@@ -11,6 +11,22 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.generative-model",
   "concept.discriminative-model",
   "concept.representation",
+  "concept.patch",
+  "concept.latent",
+  "concept.latent-space",
+  "concept.encoder",
+  "concept.decoder",
+  "concept.encoder-decoder",
+  "concept.autoregressive-generation",
+  "concept.denoising-generation",
+  "concept.conditioning",
+  "concept.alignment",
+  "concept.model-capacity",
+  "concept.overfitting",
+  "concept.generalization",
+  "concept.perplexity",
+  "concept.scaling-law",
+  "concept.emergent-behavior",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;

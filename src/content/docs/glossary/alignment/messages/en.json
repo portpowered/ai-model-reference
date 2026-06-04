@@ -1,0 +1,43 @@
+{
+  "title": "Alignment",
+  "description": "Post-training steps that steer a model toward helpful, honest, and policy-compliant behavior—often via preference data, reward models, or safety filters.",
+  "problemStatement": "Teams say a model is \"aligned\" without separating base pretraining, instruction tuning, RLHF, and runtime guardrails, which makes it hard to reason about where failures come from or what to change.",
+  "coreIdea": "Alignment layers human or policy preferences on top of a pretrained generator: reward models score completions, preference optimization updates parameters, and filters block disallowed outputs—each step sits after the core loss-and-optimizer training loop.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Alignment is the family of post-training methods—supervised fine-tuning on demonstrations, reinforcement learning from human feedback (RLHF), direct preference optimization, and constitutional or rule-based critics—that nudge model behavior without replacing the base architecture. Safety classifiers and system prompts are inference-time alignment tools that complement weight updates."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Capacity and generalization describe what a model can learn from data; alignment describes whose preferences win after that learning. Product teams need both stories: a high-capacity model can still violate policy if alignment is weak, and strong filters cannot fix a base model that never learned the task."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A chat model is pretrained on web text, then fine-tuned on helpful assistant transcripts, then updated with a reward model that prefers concise, safe answers over rambling or toxic ones. At serve time, a moderation API blocks categories the reward model never saw."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Instruction-tuned language models, image generators with safety filters, and enterprise deployments that combine RLHF checkpoints with allow-lists. Conditioning explains runtime control signals; model capacity and generalization explain whether the base model had room to absorb preferences."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Alignment is not the same as architecture design or tokenizer choice. It is also not identical to evaluation metrics such as perplexity—those measure prediction quality, not policy fit. RLHF is one alignment method, not the whole field."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Ask which preference signal is applied after pretraining—demonstrations, rewards, rules, or filters—and whether it changes weights or only inference."
+    }
+  }
+}

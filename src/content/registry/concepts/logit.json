@@ -1,0 +1,17 @@
+{
+  "id": "concept.logit",
+  "slug": "logit",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Logit", "logits", "pre-softmax score", "raw model output score"],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-04T12:00:00.000Z",
+  "updatedAt": "2026-06-04T12:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.token"],
+  "explainsIds": []
+}
