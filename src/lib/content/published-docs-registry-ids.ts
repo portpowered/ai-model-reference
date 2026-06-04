@@ -24,6 +24,9 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.model-capacity",
   "concept.overfitting",
   "concept.generalization",
+  "concept.perplexity",
+  "concept.scaling-law",
+  "concept.emergent-behavior",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;

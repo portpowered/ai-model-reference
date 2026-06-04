@@ -13,6 +13,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/decoder",
   "/docs/glossary/denoising-generation",
   "/docs/glossary/discriminative-model",
+  "/docs/glossary/emergent-behavior",
   "/docs/glossary/encoder",
   "/docs/glossary/encoder-decoder",
   "/docs/glossary/foundation-model",
@@ -26,7 +27,9 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/module",
   "/docs/glossary/overfitting",
   "/docs/glossary/patch",
+  "/docs/glossary/perplexity",
   "/docs/glossary/representation",
+  "/docs/glossary/scaling-law",
   "/docs/glossary/token",
 ] as const;
 

@@ -48,6 +48,11 @@ const TRAINING_BEHAVIOR_URLS = [
   "/docs/glossary/overfitting",
   "/docs/glossary/generalization",
 ] as const;
+const EVALUATION_SCALING_URLS = [
+  "/docs/glossary/perplexity",
+  "/docs/glossary/scaling-law",
+  "/docs/glossary/emergent-behavior",
+] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
   SAMPLE_URL,
   TOKEN_GLOSSARY_URL,
@@ -57,6 +62,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ...ENCODER_DECODER_URLS,
   ...GENERATION_PARADIGM_URLS,
   ...TRAINING_BEHAVIOR_URLS,
+  ...EVALUATION_SCALING_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(
   process.cwd(),

@@ -9,6 +9,7 @@
     "[Decoder](/docs/glossary/decoder)",
     "[Denoising Generation](/docs/glossary/denoising-generation)",
     "[Discriminative Model](/docs/glossary/discriminative-model)",
+    "[Emergent Behavior](/docs/glossary/emergent-behavior)",
     "[Encoder](/docs/glossary/encoder)",
     "[Encoder-Decoder](/docs/glossary/encoder-decoder)",
     "[Foundation Model](/docs/glossary/foundation-model)",
@@ -21,8 +22,10 @@
     "[Model Capacity](/docs/glossary/model-capacity)",
     "[Overfitting](/docs/glossary/overfitting)",
     "[Patch](/docs/glossary/patch)",
+    "[Perplexity](/docs/glossary/perplexity)",
     "[Module](/docs/glossary/module)",
     "[Representation](/docs/glossary/representation)",
+    "[Scaling Law](/docs/glossary/scaling-law)",
     "[Token](/docs/glossary/token)"
   ]
 }

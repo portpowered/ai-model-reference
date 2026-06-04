@@ -1,4 +1,6 @@
 import gqaPaper from "@/content/registry/citations/gqa-paper.json";
+import kaplanScalingLaws from "@/content/registry/citations/kaplan-scaling-laws.json";
+import weiEmergentAbilities from "@/content/registry/citations/wei-emergent-abilities.json";
 import {
   type CitationRecord,
   citationRecordSchema,
@@ -6,6 +8,8 @@ import {
 
 const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(gqaPaper),
+  citationRecordSchema.parse(kaplanScalingLaws),
+  citationRecordSchema.parse(weiEmergentAbilities),
 ];
 
 const citationsById = new Map(

@@ -8,8 +8,10 @@ import denoisingGenerationConcept from "@/content/registry/concepts/denoising-ge
 import diffusionModelConcept from "@/content/registry/concepts/diffusion-model.json";
 import discriminativeModelConcept from "@/content/registry/concepts/discriminative-model.json";
 import embeddingConcept from "@/content/registry/concepts/embedding.json";
+import emergentBehaviorConcept from "@/content/registry/concepts/emergent-behavior.json";
 import encoderConcept from "@/content/registry/concepts/encoder.json";
 import encoderDecoderConcept from "@/content/registry/concepts/encoder-decoder.json";
+import entropyConcept from "@/content/registry/concepts/entropy.json";
 import foundationModelConcept from "@/content/registry/concepts/foundation-model.json";
 import generalizationConcept from "@/content/registry/concepts/generalization.json";
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
@@ -26,7 +28,9 @@ import optimizerStateConcept from "@/content/registry/concepts/optimizer-state.j
 import overfittingConcept from "@/content/registry/concepts/overfitting.json";
 import parameterConcept from "@/content/registry/concepts/parameter.json";
 import patchConcept from "@/content/registry/concepts/patch.json";
+import perplexityConcept from "@/content/registry/concepts/perplexity.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
+import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
@@ -76,11 +80,15 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(modelCapacityConcept),
   conceptRecordSchema.parse(overfittingConcept),
   conceptRecordSchema.parse(generalizationConcept),
+  conceptRecordSchema.parse(perplexityConcept),
+  conceptRecordSchema.parse(scalingLawConcept),
+  conceptRecordSchema.parse(emergentBehaviorConcept),
   conceptRecordSchema.parse(parameterConcept),
   conceptRecordSchema.parse(lossFunctionConcept),
   conceptRecordSchema.parse(optimizerStateConcept),
   conceptRecordSchema.parse(logitConcept),
   conceptRecordSchema.parse(softmaxConcept),
+  conceptRecordSchema.parse(entropyConcept),
   conceptRecordSchema.parse(embeddingConcept),
   conceptRecordSchema.parse(transformerConcept),
   conceptRecordSchema.parse(diffusionModelConcept),

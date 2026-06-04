@@ -16,7 +16,10 @@
     "concept.generalization",
     "concept.alignment",
     "concept.parameter",
-    "concept.architecture"
+    "concept.architecture",
+    "concept.perplexity",
+    "concept.scaling-law",
+    "concept.emergent-behavior"
   ],
   "citationIds": [],
   "status": "published",
