@@ -1,0 +1,17 @@
+{
+  "id": "concept.loss-function",
+  "slug": "loss-function",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["loss", "objective function", "training loss"],
+  "tags": ["token-to-probability-chain", "foundations"],
+  "relatedIds": ["concept.optimizer-state"],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "conceptType": "math",
+  "prerequisiteIds": ["concept.backpropagation"],
+  "explainsIds": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "concept.parameter",
+  "slug": "parameter",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["model parameters", "weights", "learnable weights"],
+  "tags": ["token-to-probability-chain", "foundations"],
+  "relatedIds": ["concept.activation"],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.softmax"],
+  "explainsIds": []
+}

@@ -1,0 +1,21 @@
+{
+  "id": "tag.token-to-probability-chain",
+  "slug": "token-to-probability-chain",
+  "kind": "tag",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "token to probability chain",
+    "phase 2 probability chain",
+    "foundations probability path"
+  ],
+  "tags": [],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "category": "architecture",
+  "landingPage": "generated-tag-page",
+  "parentTagId": "tag.foundations"
+}

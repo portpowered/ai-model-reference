@@ -25,13 +25,21 @@ describe("registry-runtime", () => {
   });
 
   test("getRegistryTags returns tags for a known concept", () => {
-    expect(getRegistryTags("concept.token")).toEqual(["attention"]);
+    expect(getRegistryTags("concept.token")).toEqual([
+      "attention",
+      "token-to-probability-chain",
+      "foundations",
+    ]);
   });
 
   test("getConceptById returns token concept", () => {
     const record = getConceptById("concept.token");
     expect(record?.slug).toBe("token");
-    expect(record?.tags).toEqual(["attention"]);
+    expect(record?.tags).toEqual([
+      "attention",
+      "token-to-probability-chain",
+      "foundations",
+    ]);
   });
 
   test("getRegistryTags returns undefined for unknown records", () => {
