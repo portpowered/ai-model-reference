@@ -55,6 +55,8 @@ describe("loadGlossaryPage token", () => {
     expect(html).toContain(page.messages.problemStatement ?? "");
     expect(html).toContain(page.messages.coreIdea ?? "");
     expect(html).toContain('href="/tags/attention"');
+    expect(html).toContain('href="/tags/token-to-probability-chain"');
+    expect(html).toContain('href="/docs/glossary/embedding"');
     expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-related-group="shared-tags"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
