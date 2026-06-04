@@ -4,6 +4,7 @@ import { compileMDX } from "next-mdx-remote/rsc";
 import type { ReactElement } from "react";
 import { parsePageAssetConfig } from "@/lib/content/assets";
 import { CONCEPTS_DOCS_ROOT } from "@/lib/content/content-paths";
+import { moduleMdxCompileOptions } from "@/lib/content/mdx-compile-options";
 import { moduleMdxComponents } from "@/lib/content/mdx-components";
 import {
   type PageAssetConfig,
@@ -41,9 +42,7 @@ export async function loadConceptPageFromDisk(
   const { content, frontmatter } = await compileMDX<PageFrontmatter>({
     source,
     components: moduleMdxComponents,
-    options: {
-      parseFrontmatter: true,
-    },
+    options: moduleMdxCompileOptions,
   });
 
   const parsedFrontmatter = pageFrontmatterSchema.parse(frontmatter);
