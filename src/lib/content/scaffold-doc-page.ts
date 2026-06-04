@@ -269,7 +269,7 @@ function yamlQuote(value: string): string {
 
 function serializeYamlList(key: string, values: string[]): string[] {
   if (values.length === 0) {
-    return [`${key}: []`];
+    return [`${key}:`];
   }
   return [`${key}:`, ...values.map((value) => `  - ${yamlQuote(value)}`)];
 }
@@ -285,7 +285,9 @@ function buildGlossaryFrontmatter(input: ScaffoldDocPageInput): string {
     'assetNamespace: "local"',
     'status: "draft"',
     ...serializeYamlList("tags", input.tags ?? []),
-    ...serializeYamlList("aliases", input.aliases ?? []),
+    ...(input.aliases && input.aliases.length > 0
+      ? serializeYamlList("aliases", input.aliases)
+      : []),
     `updatedAt: ${yamlQuote(isoDateUtc())}`,
   ];
   return lines.join("\n");
@@ -300,7 +302,9 @@ function buildConceptFrontmatter(input: ScaffoldDocPageInput): string {
     'assetNamespace: "local"',
     'status: "draft"',
     ...serializeYamlList("tags", input.tags ?? []),
-    ...serializeYamlList("aliases", input.aliases ?? []),
+    ...(input.aliases && input.aliases.length > 0
+      ? serializeYamlList("aliases", input.aliases)
+      : []),
     `updatedAt: ${yamlQuote(isoDateUtc())}`,
   ];
   return lines.join("\n");
