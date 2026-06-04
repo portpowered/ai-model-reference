@@ -1,8 +1,15 @@
 import "./mock-navigation";
-import { afterEach, beforeAll, describe, expect, test } from "bun:test";
-import { cleanup, screen, waitFor } from "@testing-library/react";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+} from "bun:test";
+import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { SearchPagePanel } from "@/features/docs/search/SearchPagePanel";
+import { SearchPagePanelContent } from "@/features/docs/search/SearchPagePanel";
 import { expectNoSeriousAxeViolations } from "@/tests/a11y/axe";
 import { resetMockNavigation } from "@/tests/a11y/mock-navigation";
 import {
@@ -13,9 +20,39 @@ import {
   restoreFetchMock,
 } from "@/tests/a11y/render";
 
+function renderSearchPagePanelContent(
+  context: Awaited<ReturnType<typeof loadAppTestContext>>,
+  searchParams = new URLSearchParams(),
+) {
+  return renderWithAppProviders(
+    <SearchPagePanelContent
+      messages={context.messages}
+      metaByUrl={context.metaByUrl}
+      searchParams={searchParams}
+    />,
+    { context },
+  );
+}
+
+/** Orama static search suspends on first client render; unmount + brief wait primes the cache. */
+async function primeDocsSearchClient(
+  context: Awaited<ReturnType<typeof loadAppTestContext>>,
+): Promise<void> {
+  const first = await renderSearchPagePanelContent(context);
+  first.unmount();
+  cleanup();
+  await new Promise((resolve) => setTimeout(resolve, 400));
+}
+
 describe("search page panel accessibility smoke", () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     captureOriginalFetch();
+    await installDocsSearchFetchMock();
+    await primeDocsSearchClient(await loadAppTestContext());
+  });
+
+  beforeEach(async () => {
+    await installDocsSearchFetchMock();
   });
 
   afterEach(() => {
@@ -25,15 +62,8 @@ describe("search page panel accessibility smoke", () => {
   });
 
   test("exposes labeled query input, idle state for assistive tech, and no serious axe violations", async () => {
-    await installDocsSearchFetchMock();
     const context = await loadAppTestContext();
-    const { container } = await renderWithAppProviders(
-      <SearchPagePanel
-        messages={context.messages}
-        metaByUrl={context.metaByUrl}
-      />,
-      { context },
-    );
+    const { container } = await renderSearchPagePanelContent(context);
 
     const searchInput = screen.getByLabelText(
       context.messages.search.placeholder,
@@ -50,15 +80,8 @@ describe("search page panel accessibility smoke", () => {
   });
 
   test("exposes empty results to assistive technology with no serious axe violations", async () => {
-    await installDocsSearchFetchMock();
     const context = await loadAppTestContext();
-    const { container } = await renderWithAppProviders(
-      <SearchPagePanel
-        messages={context.messages}
-        metaByUrl={context.metaByUrl}
-      />,
-      { context },
-    );
+    const { container } = await renderSearchPagePanelContent(context);
 
     const user = userEvent.setup();
     const searchInput = screen.getByLabelText(
@@ -66,24 +89,15 @@ describe("search page panel accessibility smoke", () => {
     );
     await user.type(searchInput, "zzzz-no-matches-zzzz");
 
-    await waitFor(() => {
-      expect(screen.getByTestId("search-page-empty")).toBeTruthy();
-    });
+    await screen.findByTestId("search-page-empty");
     expect(screen.getByText(context.messages.search.noResults)).toBeTruthy();
 
     await expectNoSeriousAxeViolations(container);
   });
 
   test("exposes search results to assistive technology with no serious axe violations", async () => {
-    await installDocsSearchFetchMock();
     const context = await loadAppTestContext();
-    const { container } = await renderWithAppProviders(
-      <SearchPagePanel
-        messages={context.messages}
-        metaByUrl={context.metaByUrl}
-      />,
-      { context },
-    );
+    const { container } = await renderSearchPagePanelContent(context);
 
     const user = userEvent.setup();
     const searchInput = screen.getByLabelText(
@@ -91,9 +105,7 @@ describe("search page panel accessibility smoke", () => {
     );
     await user.type(searchInput, "GQA");
 
-    await waitFor(() => {
-      expect(screen.getByTestId("search-page-results")).toBeTruthy();
-    });
+    await screen.findByTestId("search-page-results");
 
     await expectNoSeriousAxeViolations(container);
   });

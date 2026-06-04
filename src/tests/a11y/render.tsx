@@ -8,6 +8,7 @@ import { loadUiMessages } from "@/lib/content/ui-messages";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
+import { NextNavigationTestProvider } from "@/tests/a11y/next-navigation-test-provider";
 
 export type AppTestContext = {
   messages: Awaited<ReturnType<typeof loadUiMessages>>;
@@ -80,15 +81,17 @@ export async function renderWithAppProviders(
       };
 
     return (
-      <RootProvider
-        theme={{ enabled: true, defaultTheme: "dark", forcedTheme: "dark" }}
-        search={{
-          SearchDialog,
-          enabled: true,
-        }}
-      >
-        {children}
-      </RootProvider>
+      <NextNavigationTestProvider>
+        <RootProvider
+          theme={{ enabled: true, defaultTheme: "dark", forcedTheme: "dark" }}
+          search={{
+            SearchDialog,
+            enabled: true,
+          }}
+        >
+          {children}
+        </RootProvider>
+      </NextNavigationTestProvider>
     );
   }
 
