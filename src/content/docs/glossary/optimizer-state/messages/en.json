@@ -1,0 +1,43 @@
+{
+  "title": "Optimizer State",
+  "description": "Extra memory an adaptive optimizer keeps beyond model weights, such as momentum and variance estimates for each parameter.",
+  "problemStatement": "After gradients are computed, readers need a name for the running buffers optimizers maintain across steps—not the parameters themselves.",
+  "coreIdea": "Optimizer state stores per-parameter history (for example first and second moment estimates in Adam) that shapes each update; checkpoints must save this state to resume training faithfully.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Model parameters hold the learned weights, but adaptive optimizers also keep auxiliary tensors aligned with each parameter shape. Adam tracks exponential moving averages of gradients and squared gradients (often called m and v). Momentum methods keep velocity buffers. These tensors are optimizer state: they are updated every step and influence the effective learning rate per parameter."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Saving only model weights and reloading into a fresh optimizer resets training dynamics—you lose accumulated momentum and adaptive scaling. Large-language-model training checkpoints therefore include optimizer state, which can be several times the parameter memory footprint. Inference-only deployments usually discard optimizer state because weights alone are enough to run forward passes."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "With Adam, each weight w might have companion buffers m_w and v_w. On step t the optimizer reads gradient g_w, updates m_w and v_w with decay factors β₁ and β₂, then applies a scaled step to w. Those buffers—not the gradient from the current batch alone—determine how large the update is."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "PyTorch `optimizer.state_dict()`, DeepSpeed ZeRO sharding, and Hugging Face Trainer checkpoints all persist optimizer buffers alongside weights. Distinctive chain phrase: Adam first and second moment buffers per parameter tensor."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Optimizer state is not the same as model parameters or gradients—parameters are what you learn, gradients are ephemeral signals from the current backward pass, and optimizer state is long-lived memory across steps. It also differs from activation checkpoints or KV cache used during inference. Mixing up optimizer state with EMA shadow weights (used in some eval setups) causes confusion when comparing checkpoint sizes."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Parameters are the weights; gradients say how to change them this step; optimizer state remembers past steps so updates stay stable and adaptive."
+    }
+  }
+}

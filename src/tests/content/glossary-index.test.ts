@@ -94,11 +94,23 @@ describe("loadPublishedGlossaryEntries", () => {
     );
     expect(backpropagation?.title).toBe("Backpropagation");
     expect(backpropagation?.summary.length).toBeGreaterThan(0);
+
+    const lossFunction = entries.find(
+      (entry) => entry.url === "/docs/glossary/loss-function",
+    );
+    expect(lossFunction?.title).toBe("Loss Function");
+    expect(lossFunction?.summary.length).toBeGreaterThan(0);
+
+    const optimizerState = entries.find(
+      (entry) => entry.url === "/docs/glossary/optimizer-state",
+    );
+    expect(optimizerState?.title).toBe("Optimizer State");
+    expect(optimizerState?.summary.length).toBeGreaterThan(0);
   });
 
   it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(21);
+    expect(entries).toHaveLength(23);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",

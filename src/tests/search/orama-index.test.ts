@@ -39,6 +39,8 @@ const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/computational-graph",
   "/docs/glossary/gradient",
   "/docs/glossary/backpropagation",
+  "/docs/glossary/loss-function",
+  "/docs/glossary/optimizer-state",
 ] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
   SAMPLE_URL,
