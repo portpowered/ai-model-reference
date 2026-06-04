@@ -7,8 +7,7 @@ import HomePage from "@/app/(site)/page";
 import SearchEntryPage from "@/app/(site)/search/page";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import TagsIndexPage from "@/app/(site)/tags/page";
-import TokenGlossaryPage from "@/app/docs/glossary/token/page";
-import GroupedQueryAttentionPage from "@/app/docs/modules/grouped-query-attention/page";
+import DocsSlugPage from "@/app/docs/[[...slug]]/page";
 import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -111,18 +110,24 @@ describe("Phase 1 discovery route smoke", () => {
   });
 
   test("/docs/glossary/token renders without error", async () => {
-    const page = await TokenGlossaryPage();
+    const page = await DocsSlugPage({
+      params: Promise.resolve({ slug: ["glossary", "token"] }),
+    });
     const html = renderToStaticMarkup(page);
     expect(html.length).toBeGreaterThan(0);
     expect(html).toContain("Token");
+    expect(html).toContain('data-registry-id="concept.token"');
     expect(html).not.toContain("lorem");
   });
 
   test("/docs/modules/grouped-query-attention renders without error", async () => {
-    const page = await GroupedQueryAttentionPage();
+    const page = await DocsSlugPage({
+      params: Promise.resolve({ slug: ["modules", "grouped-query-attention"] }),
+    });
     const html = renderToStaticMarkup(page);
     expect(html.length).toBeGreaterThan(0);
     expect(html).toContain("Grouped-Query Attention");
+    expect(html).toContain('data-registry-id="module.grouped-query-attention"');
     expect(html).toContain('href="/tags/attention"');
     expect(html).not.toContain("lorem");
   });

@@ -55,13 +55,16 @@ describe("validateDocumentationLinks", () => {
     expect(results).toEqual([]);
   });
 
-  test("collectDocumentationLinkFiles includes Fumadocs and dedicated module/glossary MDX", async () => {
+  test("collectDocumentationLinkFiles includes catch-all-served glossary and module MDX once", async () => {
     const files = await collectDocumentationLinkFiles();
     const urls = files.map((file) => file.url).sort();
+    const paths = files.map((file) => file.path);
 
     expect(urls).toContain("/docs/getting-started");
     expect(urls).toContain("/docs/modules/grouped-query-attention");
     expect(urls).toContain("/docs/glossary/token");
+    expect(new Set(paths).size).toBe(paths.length);
+    expect(files.length).toBeLessThan(50);
   });
 
   test("reports a broken internal route with an actionable target URL", async () => {
@@ -93,10 +96,13 @@ describe("validateDocumentationLinks", () => {
   test("reports invalid heading anchors on populated docs routes", async () => {
     const scanned = await scanURLs({
       preset: "next",
-      meta: {
-        "docs/modules/grouped-query-attention": {
-          hashes: ["what-it-is"],
-        },
+      populate: {
+        "docs/[[...slug]]": [
+          {
+            value: { slug: ["modules", "grouped-query-attention"] },
+            hashes: ["what-it-is"],
+          },
+        ],
       },
     });
 

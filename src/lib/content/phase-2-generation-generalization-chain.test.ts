@@ -27,6 +27,7 @@ import {
 import { validateRegistryContent } from "@/lib/content/validate-registry";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { source } from "@/lib/source";
 
 const FOUNDATION_CHAIN_SLUGS = [
   "patch",
@@ -206,15 +207,11 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
       }
     });
 
-    test("each foundation slug has MDX content and an App Router page", () => {
+    test("each foundation slug has MDX content and a Fumadocs source entry", () => {
       for (const slug of FOUNDATION_CHAIN_SLUGS) {
         const pageMdx = join(GLOSSARY_DOCS_ROOT, slug, "page.mdx");
-        const routePath = join(
-          process.cwd(),
-          `src/app/docs/glossary/${slug}/page.tsx`,
-        );
         expect(existsSync(pageMdx)).toBe(true);
-        expect(existsSync(routePath)).toBe(true);
+        expect(source.getPage(["glossary", slug])).toBeDefined();
       }
     });
   });
