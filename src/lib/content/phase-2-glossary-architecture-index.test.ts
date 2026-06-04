@@ -36,6 +36,8 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   tensor: "Tensor",
   logit: "Logit",
   softmax: "Softmax",
+  entropy: "Entropy",
+  temperature: "Temperature",
 };
 
 const CHAIN_GLOSSARY_SLUGS = [
@@ -43,6 +45,8 @@ const CHAIN_GLOSSARY_SLUGS = [
   "tensor",
   "logit",
   "softmax",
+  "entropy",
+  "temperature",
 ] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {
@@ -67,7 +71,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       pages: string[];
     };
 
-    expect(meta.pages).toHaveLength(14);
+    expect(meta.pages).toHaveLength(16);
     for (const slug of [
       ...TAXONOMY_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
@@ -100,12 +104,12 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     ] as const) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
     }
-    expect(glossaryUrls).toHaveLength(14);
+    expect(glossaryUrls).toHaveLength(16);
   });
 
-  test("glossary index lists fourteen entries with localized titles sorted by title", async () => {
+  test("glossary index lists sixteen entries with localized titles sorted by title", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(14);
+    expect(entries).toHaveLength(16);
 
     for (const slug of TAXONOMY_GLOSSARY_SLUGS) {
       const entry = entries.find(
@@ -178,6 +182,10 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(glossaryHtml).toContain('href="/docs/glossary/logit"');
     expect(glossaryHtml).toContain("Softmax");
     expect(glossaryHtml).toContain('href="/docs/glossary/softmax"');
+    expect(glossaryHtml).toContain("Entropy");
+    expect(glossaryHtml).toContain('href="/docs/glossary/entropy"');
+    expect(glossaryHtml).toContain("Temperature");
+    expect(glossaryHtml).toContain('href="/docs/glossary/temperature"');
     expect(architectureHtml).toContain("Embedding");
     expect(architectureHtml).toContain('href="/docs/glossary/embedding"');
     expect(architectureHtml).not.toContain('href="/docs/glossary/tensor"');

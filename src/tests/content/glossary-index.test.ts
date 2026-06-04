@@ -52,11 +52,23 @@ describe("loadPublishedGlossaryEntries", () => {
     );
     expect(softmax?.title).toBe("Softmax");
     expect(softmax?.summary.length).toBeGreaterThan(0);
+
+    const entropy = entries.find(
+      (entry) => entry.url === "/docs/glossary/entropy",
+    );
+    expect(entropy?.title).toBe("Entropy");
+    expect(entropy?.summary.length).toBeGreaterThan(0);
+
+    const temperature = entries.find(
+      (entry) => entry.url === "/docs/glossary/temperature",
+    );
+    expect(temperature?.title).toBe("Temperature");
+    expect(temperature?.summary.length).toBeGreaterThan(0);
   });
 
   it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(14);
+    expect(entries).toHaveLength(16);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -129,6 +141,10 @@ describe("glossary index page render", () => {
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain("Softmax");
     expect(html).toContain('href="/docs/glossary/softmax"');
+    expect(html).toContain("Entropy");
+    expect(html).toContain('href="/docs/glossary/entropy"');
+    expect(html).toContain("Temperature");
+    expect(html).toContain('href="/docs/glossary/temperature"');
     expect(html).not.toContain("No glossary entries yet");
   });
 });

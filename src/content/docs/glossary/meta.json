@@ -14,6 +14,8 @@
     "[Embedding](/docs/glossary/embedding)",
     "[Tensor](/docs/glossary/tensor)",
     "[Logit](/docs/glossary/logit)",
-    "[Softmax](/docs/glossary/softmax)"
+    "[Softmax](/docs/glossary/softmax)",
+    "[Entropy](/docs/glossary/entropy)",
+    "[Temperature](/docs/glossary/temperature)"
   ]
 }

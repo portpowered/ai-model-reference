@@ -1,0 +1,43 @@
+{
+  "title": "Entropy",
+  "description": "A measure of how spread out or uncertain a probability distribution is over next-token choices.",
+  "problemStatement": "After softmax, a model may be very sure or very unsure about the next token; readers need a single number that captures that spread without reading every probability.",
+  "coreIdea": "Entropy summarizes a probability vector: low entropy means mass concentrates on a few tokens, high entropy means the distribution is flat and many tokens look plausible.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "For a discrete distribution p over vocabulary indices, Shannon entropy counts how many nats (or bits, if you use log base 2) of uncertainty remain in the next-token guess. It is zero only when one token has probability 1."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Monitoring entropy during decoding shows when the model is hedging versus committing. Researchers compare entropy across layers, prompts, or safety interventions. It pairs naturally with temperature, which deliberately reshapes the same distribution."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "If softmax yields [0.7, 0.2, 0.1], entropy is lower than for [0.34, 0.33, 0.33] because the first vector is peaked. Plugging those probabilities into the Shannon formula gives a concrete numeric comparison."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Evaluation notebooks plot Shannon entropy of the next-token distribution at each decode step. Some sampling dashboards surface entropy alongside top-k mass. Distinctive chain phrase: Shannon entropy of the next-token distribution at decode time."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Entropy is not the same as cross-entropy loss during training—loss compares predictions to labels, while entropy describes a single distribution on its own. High logit magnitude does not by itself imply low entropy until softmax runs."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "If softmax gives you probabilities, entropy tells you how spread out they are—then temperature explains how to dial that spread up or down on purpose."
+    }
+  }
+}
