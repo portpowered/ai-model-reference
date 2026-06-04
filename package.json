@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "pretest": "fumadocs-mdx",
     "test": "bun test",
+    "scaffold:doc-page": "bun ./scripts/scaffold-doc-page.ts",
     "build:search-index": "bun ./scripts/build-search-index.ts"
   },
   "dependencies": {
