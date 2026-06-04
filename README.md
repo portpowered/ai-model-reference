@@ -116,6 +116,25 @@ Glossary pages land under `src/content/docs/glossary/<slug>/` and render at
 `/docs/glossary/<slug>`. Concept pages use `src/content/docs/concepts/<slug>/` and
 `/docs/concepts/<slug>`.
 
+## Component example harness
+
+Phase 2 shared docs components (Callout, Section, T, TagPillList,
+DerivedRelatedDocs, and search result presentation) ship with a lightweight
+Storybook-style gallery instead of full Storybook. Examples live in
+`src/component-examples/` and render on a dev-only route at
+`/component-examples`.
+
+Start the harness with a single command (picks a free port in `3100-3999`):
+
+```sh
+make component-examples
+```
+
+Equivalent Bun script: `bun run component-examples`. The gallery uses grouped-query-attention
+fixtures and search metadata so reviewers can inspect default and alternate states
+without loading full MDX pages. The route returns 404 in production builds unless
+`ENABLE_COMPONENT_EXAMPLES=1` is set; it is not part of `make ci` or deploy.
+
 ### After scaffolding
 
 1. Replace placeholder copy in `messages/en.json` (scaffold fills schema-valid stubs).

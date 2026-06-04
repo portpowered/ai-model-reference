@@ -1,4 +1,4 @@
-.PHONY: dev lint format typecheck test build ci validate-data scaffold linkcheck validate-pdf build-search-index
+.PHONY: dev lint format typecheck test build ci validate-data scaffold linkcheck validate-pdf build-search-index component-examples
 
 dev:
 	bun run dev
@@ -36,3 +36,6 @@ validate-pdf:
 
 build-search-index:
 	bun run build:search-index
+
+component-examples:
+	bun ./scripts/component-examples.ts

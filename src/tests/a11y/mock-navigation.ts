@@ -16,6 +16,9 @@ mock.module("next/navigation", () => ({
   usePathname: () => mockPathname,
   useRouter: () => router,
   useSearchParams: () => mockSearchParams,
+  notFound: () => {
+    throw new Error("notFound()");
+  },
 }));
 
 export function setMockPathname(pathname: string): void {
