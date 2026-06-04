@@ -19,9 +19,21 @@ describe("isArchitectureRelatedPage", () => {
       isArchitectureRelatedPage(page, indexes),
     );
 
-    expect(architecturePages.map((page) => page.url)).toEqual([
-      "/docs/glossary/token",
-    ]);
+    const urls = architecturePages.map((page) => page.url).sort();
+    expect(urls).toEqual(
+      [
+        "/docs/glossary/architecture",
+        "/docs/glossary/component",
+        "/docs/glossary/discriminative-model",
+        "/docs/glossary/foundation-model",
+        "/docs/glossary/generative-model",
+        "/docs/glossary/modality",
+        "/docs/glossary/model",
+        "/docs/glossary/module",
+        "/docs/glossary/representation",
+        "/docs/glossary/token",
+      ].sort(),
+    );
   });
 
   it("excludes module pages that are not architecture concepts", async () => {
@@ -98,11 +110,14 @@ describe("architecture index messages", () => {
 });
 
 describe("architecture index page render", () => {
-  it("lists the Phase 1 token glossary entry with title and link", async () => {
+  it("lists taxonomy glossary entries and token with localized titles", async () => {
     const page = await ArchitectureIndexPage();
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Architecture");
+    expect(html).toContain('href="/docs/glossary/architecture"');
+    expect(html).toContain("Foundation Model");
+    expect(html).toContain('href="/docs/glossary/foundation-model"');
     expect(html).toContain("Token");
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).not.toContain("No architecture entries yet");

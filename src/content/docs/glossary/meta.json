@@ -1,4 +1,15 @@
 {
   "title": "Glossary",
-  "pages": ["[Token](/docs/glossary/token)"]
+  "pages": [
+    "[Architecture](/docs/glossary/architecture)",
+    "[Component](/docs/glossary/component)",
+    "[Discriminative Model](/docs/glossary/discriminative-model)",
+    "[Foundation Model](/docs/glossary/foundation-model)",
+    "[Generative Model](/docs/glossary/generative-model)",
+    "[Modality](/docs/glossary/modality)",
+    "[Model](/docs/glossary/model)",
+    "[Module](/docs/glossary/module)",
+    "[Representation](/docs/glossary/representation)",
+    "[Token](/docs/glossary/token)"
+  ]
 }
