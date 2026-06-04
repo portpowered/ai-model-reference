@@ -1,0 +1,22 @@
+{
+  "id": "concept.denoising-generation",
+  "slug": "denoising-generation",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Denoising generation",
+    "denoising decoder",
+    "iterative denoising",
+    "noise removal generation"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-04T12:00:00.000Z",
+  "updatedAt": "2026-06-04T12:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.latent-space", "concept.generative-model"],
+  "explainsIds": []
+}

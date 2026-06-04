@@ -11,6 +11,9 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.generative-model",
   "concept.discriminative-model",
   "concept.representation",
+  "concept.patch",
+  "concept.latent",
+  "concept.latent-space",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;
