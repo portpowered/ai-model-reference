@@ -11,6 +11,8 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.parameter",
   "concept.activation",
   "concept.computational-graph",
+  "concept.gradient",
+  "concept.backpropagation",
   "concept.model",
   "concept.architecture",
   "concept.module",

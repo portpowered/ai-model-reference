@@ -19,6 +19,8 @@
     "[Temperature](/docs/glossary/temperature)",
     "[Parameter](/docs/glossary/parameter)",
     "[Activation](/docs/glossary/activation)",
-    "[Computational Graph](/docs/glossary/computational-graph)"
+    "[Computational Graph](/docs/glossary/computational-graph)",
+    "[Gradient](/docs/glossary/gradient)",
+    "[Backpropagation](/docs/glossary/backpropagation)"
   ]
 }
