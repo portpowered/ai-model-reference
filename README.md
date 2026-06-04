@@ -116,6 +116,37 @@ Glossary pages land under `src/content/docs/glossary/<slug>/` and render at
 `/docs/glossary/<slug>`. Concept pages use `src/content/docs/concepts/<slug>/` and
 `/docs/concepts/<slug>`.
 
+## Phase 2 component coverage
+
+Reusable MDX building blocks (Callout, Section, T, TagPillList,
+DerivedRelatedDocs, and search result presentation) must keep **at least 90%
+reachable line coverage** in `bun test --coverage`, or be documented as thin
+wrappers with named smoke tests. The inventory, thin-wrapper exception pattern,
+and update steps live in
+[docs/phase-2-component-coverage.md](./docs/phase-2-component-coverage.md);
+machine-readable entries are in
+`src/lib/docs/phase-2-component-manifest.ts`. Enforcement is scoped to that
+manifest—`make ci` does **not** run global coverage thresholds.
+
+## Component example harness
+
+Phase 2 shared docs components (Callout, Section, T, TagPillList,
+DerivedRelatedDocs, and search result presentation) ship with a lightweight
+Storybook-style gallery instead of full Storybook. Examples live in
+`src/component-examples/` and render on a dev-only route at
+`/component-examples`.
+
+Start the harness with a single command (picks a free port in `3100-3999`):
+
+```sh
+make component-examples
+```
+
+Equivalent Bun script: `bun run component-examples`. The gallery uses grouped-query-attention
+fixtures and search metadata so reviewers can inspect default and alternate states
+without loading full MDX pages. The route returns 404 in production builds unless
+`ENABLE_COMPONENT_EXAMPLES=1` is set; it is not part of `make ci` or deploy.
+
 ### After scaffolding
 
 1. Replace placeholder copy in `messages/en.json` (scaffold fills schema-valid stubs).
@@ -147,8 +178,8 @@ generate `.source/` automatically before typecheck and tests.
 GitHub Actions runs the same gate sequence on pull requests and pushes to
 `main`: install dependencies with `bun install --frozen-lockfile`, then
 `make ci` (see `.github/workflows/ci.yml`). No repository secrets are required
-for lint, typecheck, test, build, or validate-data. The baseline workflow does
-not run deploy or preview steps, linkcheck, PDF validation, or coverage
+for lint, typecheck, test, build, validate-data, and linkcheck. The baseline
+workflow does not run deploy or preview steps, PDF validation, or coverage
 thresholds—those gates are deferred to later phases.
 
 The root Makefile mirrors those CI-oriented checks locally. Run `make ci` from
@@ -159,6 +190,7 @@ the repository root after `bun install --frozen-lockfile`; it runs, in order:
 3. `make test` — generates Fumadocs MDX source (when typecheck was skipped), then `bun test`
 4. `make build` — `next build` plus Phase 1 static route verification
 5. `make validate-data` — registry and content validation
+6. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
 
 Use `bun run scaffold:doc-page` (or `make scaffold`) when adding Phase 2 glossary or
 concept pages, then run `make validate-data` before opening a pull request.
@@ -178,6 +210,7 @@ make typecheck     # fumadocs-mdx (pretypecheck), then tsc --noEmit
 make test          # fumadocs-mdx (pretest), then bun test
 make build         # next build + Phase 1 static route check
 make validate-data # registry and content validation
+make linkcheck     # internal docs link validation (also runs in make ci)
 make scaffold       # scaffold glossary/concept page bundles (pass ARGS='...')
 ```
 
@@ -185,12 +218,11 @@ Stub targets exist for later work and are not part of `make ci` or GitHub
 Actions:
 
 ```sh
-make linkcheck
 make validate-pdf
 ```
 
-Deploy and coverage gates are likewise out of scope for Phase 1; neither
-`.github/workflows/ci.yml` nor `make ci` invokes them.
+Deploy and coverage gates are likewise out of scope for the current baseline;
+neither `.github/workflows/ci.yml` nor `make ci` invokes them.
 
 ### Fresh-checkout CI proof
 

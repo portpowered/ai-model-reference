@@ -35,11 +35,7 @@ export function DerivedRelatedDocs({
     <div className="my-4 space-y-6" data-testid="derived-related-docs">
       {derivedGroups.map((group) => (
         <section key={group.id} aria-label={group.reasonLabel}>
-          <RelatedDocList
-            items={group.items}
-            testId="derived-related-docs"
-            groupId={group.id}
-          />
+          <RelatedDocList items={group.items} groupId={group.id} />
         </section>
       ))}
     </div>

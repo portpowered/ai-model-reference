@@ -18,16 +18,16 @@ const buildTracingRegressionTestPath = join(
   "src/tests/build/next-build-tracing-warning.test.ts",
 );
 
-const phase1CiTargets = [
+const ciTargets = [
   "lint",
   "typecheck",
   "test",
   "build",
   "validate-data",
+  "linkcheck",
 ] as const;
 
 const excludedCiTargets = [
-  "linkcheck",
   "validate-pdf",
   "deploy",
   "coverage",
@@ -74,11 +74,11 @@ describe("GitHub Actions make ci", () => {
     expect(parseMakefileCiPrerequisites(makefile)).toContain("test");
   });
 
-  test("Makefile ci target runs Phase 1 gates only in order", () => {
+  test("Makefile ci target runs CI gates in order including linkcheck", () => {
     const makefile = readFileSync(makefilePath, "utf8");
     const prerequisites = parseMakefileCiPrerequisites(makefile);
 
-    expect(prerequisites).toEqual([...phase1CiTargets]);
+    expect(prerequisites).toEqual([...ciTargets]);
 
     for (const excluded of excludedCiTargets) {
       expect(prerequisites).not.toContain(excluded);
