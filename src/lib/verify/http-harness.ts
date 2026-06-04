@@ -76,10 +76,26 @@ function resolveRequestUrl(input: RequestInfo | URL): string {
 /**
  * Node http GET with a hard deadline. Avoids browser fetch/CORS in test runtimes.
  */
+export type HttpGetTextResult = {
+  status: number;
+  body: string;
+};
+
 export async function httpGetStatus(
   url: string,
   timeoutMs: number = DEFAULT_FETCH_TIMEOUT_MS,
 ): Promise<number> {
+  const { status } = await httpGetText(url, timeoutMs);
+  return status;
+}
+
+/**
+ * Node http GET returning status and response body. Avoids browser fetch/CORS in test runtimes.
+ */
+export async function httpGetText(
+  url: string,
+  timeoutMs: number = DEFAULT_FETCH_TIMEOUT_MS,
+): Promise<HttpGetTextResult> {
   let timer: ReturnType<typeof setTimeout> | undefined;
 
   const deadline = new Promise<never>((_, reject) => {
@@ -89,10 +105,17 @@ export async function httpGetStatus(
     );
   });
 
-  const requestPromise = new Promise<number>((resolve, reject) => {
+  const requestPromise = new Promise<HttpGetTextResult>((resolve, reject) => {
     const req = httpRequest(url, { method: "GET" }, (res) => {
-      res.resume();
-      resolve(res.statusCode ?? 0);
+      const chunks: Buffer[] = [];
+      res.on("data", (chunk: Buffer) => chunks.push(chunk));
+      res.on("end", () => {
+        resolve({
+          status: res.statusCode ?? 0,
+          body: Buffer.concat(chunks).toString("utf8"),
+        });
+      });
+      res.on("error", reject);
     });
     req.once("error", reject);
     req.end();
