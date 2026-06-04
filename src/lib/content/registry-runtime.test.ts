@@ -73,10 +73,17 @@ describe("registry-runtime", () => {
     expect(kinds).toContain("module");
   });
 
-  test("listConceptRecords includes token", () => {
-    expect(listConceptRecords().map((record) => record.id)).toContain(
-      "concept.token",
-    );
+  test("listConceptRecords includes token and chain forward targets", () => {
+    const ids = listConceptRecords().map((record) => record.id);
+    expect(ids).toContain("concept.token");
+    expect(ids).toContain("concept.embedding");
+    expect(ids).toContain("concept.softmax");
+  });
+
+  test("getConceptById returns draft chain concepts for curated relatedIds", () => {
+    const embedding = getConceptById("concept.embedding");
+    expect(embedding?.slug).toBe("embedding");
+    expect(embedding?.status).toBe("draft");
   });
 
   test("listModuleRecords includes variant-group peers for GQA", () => {

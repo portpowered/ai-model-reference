@@ -72,7 +72,10 @@ describe("Phase 2 planned related docs (US-002)", () => {
     const html = renderToStaticMarkup(
       <RelatedDocs registryId="concept.token" />,
     );
-    expect(html).toBe("");
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain("embeddings");
+    expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
+    expect(html).not.toContain("<a ");
   });
 
   test("DerivedRelatedDocs renders draft same-concept-type peer as planned", () => {
