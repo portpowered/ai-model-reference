@@ -37,6 +37,8 @@ const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/parameter",
   "/docs/glossary/activation",
   "/docs/glossary/computational-graph",
+  "/docs/glossary/gradient",
+  "/docs/glossary/backpropagation",
 ] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
   SAMPLE_URL,

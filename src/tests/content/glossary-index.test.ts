@@ -82,11 +82,23 @@ describe("loadPublishedGlossaryEntries", () => {
     );
     expect(computationalGraph?.title).toBe("Computational Graph");
     expect(computationalGraph?.summary.length).toBeGreaterThan(0);
+
+    const gradient = entries.find(
+      (entry) => entry.url === "/docs/glossary/gradient",
+    );
+    expect(gradient?.title).toBe("Gradient");
+    expect(gradient?.summary.length).toBeGreaterThan(0);
+
+    const backpropagation = entries.find(
+      (entry) => entry.url === "/docs/glossary/backpropagation",
+    );
+    expect(backpropagation?.title).toBe("Backpropagation");
+    expect(backpropagation?.summary.length).toBeGreaterThan(0);
   });
 
   it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(19);
+    expect(entries).toHaveLength(21);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",

@@ -24,6 +24,8 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/parameter",
   "/docs/glossary/activation",
   "/docs/glossary/computational-graph",
+  "/docs/glossary/gradient",
+  "/docs/glossary/backpropagation",
 ] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {

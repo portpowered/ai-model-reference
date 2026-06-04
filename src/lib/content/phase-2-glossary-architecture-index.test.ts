@@ -41,6 +41,8 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   parameter: "Parameter",
   activation: "Activation",
   "computational-graph": "Computational Graph",
+  gradient: "Gradient",
+  backpropagation: "Backpropagation",
 };
 
 const CHAIN_GLOSSARY_SLUGS = [
@@ -53,6 +55,8 @@ const CHAIN_GLOSSARY_SLUGS = [
   "parameter",
   "activation",
   "computational-graph",
+  "gradient",
+  "backpropagation",
 ] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {
@@ -77,7 +81,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       pages: string[];
     };
 
-    expect(meta.pages).toHaveLength(19);
+    expect(meta.pages).toHaveLength(21);
     for (const slug of [
       ...TAXONOMY_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
@@ -110,12 +114,12 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     ] as const) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
     }
-    expect(glossaryUrls).toHaveLength(19);
+    expect(glossaryUrls).toHaveLength(21);
   });
 
-  test("glossary index lists nineteen entries with localized titles sorted by title", async () => {
+  test("glossary index lists twenty-one entries with localized titles sorted by title", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(19);
+    expect(entries).toHaveLength(21);
 
     for (const slug of TAXONOMY_GLOSSARY_SLUGS) {
       const entry = entries.find(
