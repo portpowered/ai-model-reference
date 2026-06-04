@@ -42,11 +42,21 @@ describe("loadPublishedGlossaryEntries", () => {
     );
     expect(tensor?.title).toBe("Tensor");
     expect(tensor?.summary.length).toBeGreaterThan(0);
+
+    const logit = entries.find((entry) => entry.url === "/docs/glossary/logit");
+    expect(logit?.title).toBe("Logit");
+    expect(logit?.summary.length).toBeGreaterThan(0);
+
+    const softmax = entries.find(
+      (entry) => entry.url === "/docs/glossary/softmax",
+    );
+    expect(softmax?.title).toBe("Softmax");
+    expect(softmax?.summary.length).toBeGreaterThan(0);
   });
 
   it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(12);
+    expect(entries).toHaveLength(14);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -115,6 +125,10 @@ describe("glossary index page render", () => {
     expect(html).toContain('href="/docs/glossary/embedding"');
     expect(html).toContain("Tensor");
     expect(html).toContain('href="/docs/glossary/tensor"');
+    expect(html).toContain("Logit");
+    expect(html).toContain('href="/docs/glossary/logit"');
+    expect(html).toContain("Softmax");
+    expect(html).toContain('href="/docs/glossary/softmax"');
     expect(html).not.toContain("No glossary entries yet");
   });
 });

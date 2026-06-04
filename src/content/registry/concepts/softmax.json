@@ -8,9 +8,9 @@
   "tags": ["token-to-probability-chain", "foundations"],
   "relatedIds": ["concept.entropy", "concept.temperature", "concept.parameter"],
   "citationIds": [],
-  "status": "draft",
+  "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
-  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T21:00:00.000Z",
   "conceptType": "math",
   "prerequisiteIds": ["concept.logit"],
   "explainsIds": []

@@ -80,13 +80,14 @@ describe("registry-runtime", () => {
     expect(ids).toContain("concept.softmax");
   });
 
-  test("getConceptById returns published embedding and draft logit for chain", () => {
+  test("getConceptById returns published embedding and logit for chain", () => {
     const embedding = getConceptById("concept.embedding");
     expect(embedding?.slug).toBe("embedding");
     expect(embedding?.status).toBe("published");
 
     const logit = getConceptById("concept.logit");
-    expect(logit?.status).toBe("draft");
+    expect(logit?.status).toBe("published");
+    expect(logit?.relatedIds).toContain("concept.softmax");
   });
 
   test("listModuleRecords includes variant-group peers for GQA", () => {

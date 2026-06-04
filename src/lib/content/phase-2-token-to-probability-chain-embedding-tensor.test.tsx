@@ -43,7 +43,7 @@ describe("Phase 2 embedding and tensor glossary pages (US-004)", () => {
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
   });
 
-  test("tensor page renders required sections and planned forward to logit", async () => {
+  test("tensor page renders required sections and forward link to logit", async () => {
     const page = await loadGlossaryPage("tensor");
     expect(page.frontmatter.status).toBe("published");
 
@@ -59,6 +59,6 @@ describe("Phase 2 embedding and tensor glossary pages (US-004)", () => {
     expect(html).toContain("Tensor");
     expect(html).toContain("What It Is");
     expect(html).toContain("logits");
-    expect(html).not.toContain('href="/docs/glossary/logit"');
+    expect(html).toContain('href="/docs/glossary/logit"');
   });
 });

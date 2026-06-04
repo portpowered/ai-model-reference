@@ -17,6 +17,8 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/token",
   "/docs/glossary/embedding",
   "/docs/glossary/tensor",
+  "/docs/glossary/logit",
+  "/docs/glossary/softmax",
 ] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {
