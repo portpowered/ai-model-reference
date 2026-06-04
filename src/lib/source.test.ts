@@ -1,6 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import type { Node } from "fumadocs-core/page-tree";
 import { source } from "@/lib/source";
 
@@ -80,14 +78,10 @@ describe("docs navigation source", () => {
     expect(glossaryUrls).toEqual([...GLOSSARY_INDEX_URLS].sort());
   });
 
-  test("glossary navigation URLs have matching App Router pages", () => {
+  test("glossary navigation URLs resolve through Fumadocs source entries", () => {
     for (const url of GLOSSARY_INDEX_URLS) {
-      const slug = url.replace("/docs/glossary/", "");
-      const routePath = join(
-        process.cwd(),
-        `src/app/docs/glossary/${slug}/page.tsx`,
-      );
-      expect(existsSync(routePath)).toBe(true);
+      const slug = url.replace("/docs/", "").split("/");
+      expect(source.getPage(slug)).toBeDefined();
     }
   });
 });

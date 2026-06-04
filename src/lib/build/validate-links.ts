@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import {
   type FileObject,
   printErrors,
@@ -8,7 +6,6 @@ import {
   type ValidateResult,
   validateFiles,
 } from "next-validate-link";
-import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { source } from "@/lib/source";
 
 /** MDX components whose `href` props are checked by next-validate-link. */
@@ -71,10 +68,6 @@ export function extractPageHeadingHashes(content: string): string[] {
   ];
 }
 
-function routeMetaKeyFromUrl(url: string): string {
-  return url.replace(/^\//, "");
-}
-
 async function readFumadocsLinkFiles(): Promise<FileObject[]> {
   const files: FileObject[] = [];
 
@@ -93,22 +86,12 @@ async function readFumadocsLinkFiles(): Promise<FileObject[]> {
   return files;
 }
 
-async function readDedicatedDocsLinkFiles(): Promise<FileObject[]> {
-  const pages = await loadPublishedDocsPages("en");
-  return pages.map((page) => ({
-    path: join(page.pageDir, "page.mdx"),
-    content: readFileSync(join(page.pageDir, "page.mdx"), "utf8"),
-    url: page.url,
-  }));
-}
-
-/** Collects Fumadocs MDX plus module and glossary MDX served on dedicated routes. */
+/** Collects MDX from the Fumadocs docs source, including glossary and module pages served via catch-all. */
 export async function collectDocumentationLinkFiles(): Promise<FileObject[]> {
-  const fumadocsFiles = await readFumadocsLinkFiles();
-  const dedicatedFiles = await readDedicatedDocsLinkFiles();
+  const files = await readFumadocsLinkFiles();
   const seenPaths = new Set<string>();
 
-  return [...fumadocsFiles, ...dedicatedFiles].filter((file) => {
+  return files.filter((file) => {
     if (seenPaths.has(file.path)) {
       return false;
     }
@@ -117,31 +100,19 @@ export async function collectDocumentationLinkFiles(): Promise<FileObject[]> {
   });
 }
 
-/** Builds the Next.js route scan used to resolve internal docs URLs and anchors. */
+/** Builds the catch-all docs route scan used to resolve internal glossary, module, and root docs URLs. */
 export async function buildDocumentationLinkScan(
   files: FileObject[],
 ): Promise<ScanResult> {
-  const meta: Record<string, { hashes?: string[] }> = {};
-
-  for (const file of files) {
-    if (!file.url) {
-      continue;
-    }
-    meta[routeMetaKeyFromUrl(file.url)] = {
-      hashes: extractPageHeadingHashes(file.content),
-    };
-  }
-
-  const fumadocsPopulate = source.getPages().map((page) => ({
+  const catchAllPopulate = source.getPages().map((page) => ({
     value: { slug: page.slugs },
     hashes: fileHeadingHashes(files, page.url),
   }));
 
   return scanURLs({
     preset: "next",
-    meta,
     populate: {
-      "docs/[[...slug]]": fumadocsPopulate,
+      "docs/[[...slug]]": catchAllPopulate,
     },
   });
 }
@@ -156,7 +127,7 @@ export type ValidateDocumentationLinksOptions = {
   scanned?: ScanResult;
 };
 
-/** Validates internal documentation links across Fumadocs and dedicated docs routes. */
+/** Validates internal documentation links for catch-all-served Fumadocs MDX pages. */
 export async function validateDocumentationLinks(
   options: ValidateDocumentationLinksOptions = {},
 ): Promise<ValidateResult[]> {

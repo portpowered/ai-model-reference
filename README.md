@@ -86,8 +86,8 @@ bun run scaffold:doc-page -- --kind glossary --slug my-term --title "My term" \
   --concept-type general --dry-run
 ```
 
-Create the full bundle (registry record, colocated `page.mdx` / `messages/en.json` /
-`assets.json`, and Next.js route stub):
+Create the four-file bundle (registry record, colocated `page.mdx` / `messages/en.json` /
+`assets.json`):
 
 ```sh
 bun run scaffold:doc-page -- --kind concept --slug my-concept --title "My concept" \
@@ -113,8 +113,9 @@ make scaffold ARGS='--kind glossary --slug my-term --title "My term" --concept-t
 ```
 
 Glossary pages land under `src/content/docs/glossary/<slug>/` and render at
-`/docs/glossary/<slug>`. Concept pages use `src/content/docs/concepts/<slug>/` and
-`/docs/concepts/<slug>`.
+`/docs/glossary/<slug>` through the docs catch-all route (`src/app/docs/[[...slug]]/page.tsx`).
+Concept pages use `src/content/docs/concepts/<slug>/` and `/docs/concepts/<slug>` the same way.
+No per-slug App Router `page.tsx` stub is generated.
 
 ## Phase 2 component coverage
 

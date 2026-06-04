@@ -8,6 +8,7 @@ import { loadRegistry } from "@/lib/content/registry";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { validateRegistryContent } from "@/lib/content/validate-registry";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { source } from "@/lib/source";
 
 const TAXONOMY_GLOSSARY_SLUGS = [
   "model",
@@ -56,15 +57,11 @@ describe("Phase 2 taxonomy discovery (US-009)", () => {
       }
     });
 
-    test("each taxonomy glossary slug has MDX content and an App Router page", () => {
+    test("each taxonomy glossary slug has MDX content and a Fumadocs source entry", () => {
       for (const slug of TAXONOMY_GLOSSARY_SLUGS) {
         const pageMdx = join(GLOSSARY_DOCS_ROOT, slug, "page.mdx");
-        const routePath = join(
-          process.cwd(),
-          `src/app/docs/glossary/${slug}/page.tsx`,
-        );
         expect(existsSync(pageMdx)).toBe(true);
-        expect(existsSync(routePath)).toBe(true);
+        expect(source.getPage(["glossary", slug])).toBeDefined();
       }
     });
   });
