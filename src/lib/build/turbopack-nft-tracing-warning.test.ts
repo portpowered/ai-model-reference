@@ -13,7 +13,21 @@ describe("buildOutputHasTurbopackWholeProjectTracingWarning", () => {
     expect(buildOutputHasTurbopackWholeProjectTracingWarning(output)).toBe(
       true,
     );
-    expect(firstMatchingTurbopackTracingWarningPattern(output)).toBeDefined();
+    expect(firstMatchingTurbopackTracingWarningPattern(output)).toBe(
+      "Encountered unexpected file[\\s\\S]{0,400}?\\bNFT\\b",
+    );
+  });
+
+  test("matches whole project traced unintentionally copy", () => {
+    const output = `
+⚠ The whole project was traced unintentionally during NFT analysis.
+`;
+    expect(buildOutputHasTurbopackWholeProjectTracingWarning(output)).toBe(
+      true,
+    );
+    expect(firstMatchingTurbopackTracingWarningPattern(output)).toContain(
+      "whole project",
+    );
   });
 
   test("matches import trace through next.config with node:fs", () => {
@@ -27,9 +41,12 @@ Import trace:
     expect(buildOutputHasTurbopackWholeProjectTracingWarning(output)).toBe(
       true,
     );
+    expect(firstMatchingTurbopackTracingWarningPattern(output)).toContain(
+      "next\\.config",
+    );
   });
 
-  test("does not match unrelated build warnings", () => {
+  test("firstMatchingTurbopackTracingWarningPattern returns undefined for clean output", () => {
     const output = `
 ▲ Next.js 16.2.7 (Turbopack)
 ✓ Compiled successfully in 4.0s
@@ -37,5 +54,6 @@ Import trace:
     expect(buildOutputHasTurbopackWholeProjectTracingWarning(output)).toBe(
       false,
     );
+    expect(firstMatchingTurbopackTracingWarningPattern(output)).toBeUndefined();
   });
 });

@@ -1,12 +1,22 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const ciWorkflowPath = join(repoRoot, ".github/workflows/ci.yml");
 const makefilePath = join(repoRoot, "Makefile");
+const buildTracingRegressionTestPath = join(
+  repoRoot,
+  "src/tests/build/next-build-tracing-warning.test.ts",
+);
 
 const phase1CiTargets = [
   "lint",
@@ -46,6 +56,22 @@ describe("GitHub Actions make ci", () => {
     expect(frozenInstallIndex).toBeGreaterThan(-1);
     expect(makeCiIndex).toBeGreaterThan(frozenInstallIndex);
     expect(workflow).not.toMatch(/continue-on-error:\s*true/i);
+  });
+
+  test("make ci runs default bun test including Turbopack NFT build tracing regression", () => {
+    expect(existsSync(buildTracingRegressionTestPath)).toBe(true);
+
+    const packageJson = JSON.parse(
+      readFileSync(join(repoRoot, "package.json"), "utf8"),
+    ) as { scripts: { test: string } };
+    expect(packageJson.scripts.test).toBe("bun test");
+
+    const workflow = readFileSync(ciWorkflowPath, "utf8");
+    expect(workflow).not.toMatch(/--exclude/i);
+    expect(workflow).not.toMatch(/next-build-tracing-warning/i);
+
+    const makefile = readFileSync(makefilePath, "utf8");
+    expect(parseMakefileCiPrerequisites(makefile)).toContain("test");
   });
 
   test("Makefile ci target runs Phase 1 gates only in order", () => {
