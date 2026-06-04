@@ -1,7 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { access, mkdir, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import { loadConceptPageFromDisk } from "./concept-page-load";
 import { getProjectRoot } from "./content-paths";
+import { loadGlossaryPageFromDisk } from "./glossary-page-load";
 import {
   formatScaffoldPlan,
   parseScaffoldDocPageArgv,
@@ -81,6 +86,7 @@ describe("scaffoldDocPage", () => {
         "en.json",
       ),
       join(projectRoot, "src/content/docs/glossary", slug, "assets.json"),
+      join(projectRoot, "src/app/docs/glossary", slug, "page.tsx"),
     ]);
 
     for (const file of result.plannedFiles) {
@@ -119,7 +125,7 @@ describe("scaffoldDocPage", () => {
     });
 
     expect(result.registryId).toBe(`concept.${slug}`);
-    expect(result.writtenFiles).toHaveLength(4);
+    expect(result.writtenFiles).toHaveLength(5);
 
     const registryRaw = await readFile(
       join(contentRoot, "registry", "concepts", `${slug}.json`),
@@ -173,6 +179,29 @@ describe("scaffoldDocPage", () => {
       "graph.scaffold-glossary-term-concept-map",
     );
 
+    const routeRaw = await readFile(
+      join(tempRoot, "src", "app", "docs", "glossary", slug, "page.tsx"),
+      "utf8",
+    );
+    expect(routeRaw).toContain('loadGlossaryPage("scaffold-glossary-term")');
+    expect(routeRaw).toContain(
+      "export default async function ScaffoldGlossaryTermGlossaryPage",
+    );
+    expect(routeRaw).not.toContain("example-glossary");
+
+    const glossaryDocsRoot = join(contentRoot, "docs", "glossary");
+    const loaded = await loadGlossaryPageFromDisk(slug, "en", glossaryDocsRoot);
+    expect(loaded.messages.title).toBe("Scaffold Glossary Term");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: loaded.messages,
+        assets: loaded.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: loaded.content,
+      }),
+    );
+    expect(html).toContain("Scaffold Glossary Term");
+
     await rm(tempRoot, { recursive: true, force: true });
   });
 
@@ -216,6 +245,29 @@ describe("scaffoldDocPage", () => {
     );
     expect(pageRaw).toContain('kind: "concept"');
     expect(pageRaw).not.toContain("concept.example-concept");
+
+    const routeRaw = await readFile(
+      join(tempRoot, "src", "app", "docs", "concepts", slug, "page.tsx"),
+      "utf8",
+    );
+    expect(routeRaw).toContain('loadConceptPage("scaffold-concept-term")');
+    expect(routeRaw).toContain(
+      "export default async function ScaffoldConceptTermConceptPage",
+    );
+    expect(routeRaw).not.toContain("example-concept");
+
+    const conceptsDocsRoot = join(contentRoot, "docs", "concepts");
+    const loaded = await loadConceptPageFromDisk(slug, "en", conceptsDocsRoot);
+    expect(loaded.messages.title).toBe("Scaffold Concept Term");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: loaded.messages,
+        assets: loaded.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: loaded.content,
+      }),
+    );
+    expect(html).toContain("Scaffold Concept Term");
 
     await rm(tempRoot, { recursive: true, force: true });
   });

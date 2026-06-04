@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { compileMDX } from "next-mdx-remote/rsc";
 import type { ReactElement } from "react";
 import { parsePageAssetConfig } from "@/lib/content/assets";
-import { GLOSSARY_DOCS_ROOT } from "@/lib/content/content-paths";
+import { CONCEPTS_DOCS_ROOT } from "@/lib/content/content-paths";
 import { moduleMdxComponents } from "@/lib/content/mdx-components";
 import {
   type PageAssetConfig,
@@ -13,7 +13,7 @@ import {
   pageMessagesSchema,
 } from "@/lib/content/schemas";
 
-export type LoadedGlossaryPage = {
+export type LoadedConceptPage = {
   frontmatter: PageFrontmatter;
   messages: PageMessages;
   assets: PageAssetConfig;
@@ -24,12 +24,12 @@ function readJsonFile<T>(path: string): T {
   return JSON.parse(readFileSync(path, "utf8")) as T;
 }
 
-export async function loadGlossaryPageFromDisk(
+export async function loadConceptPageFromDisk(
   slug: string,
   locale = "en",
-  glossaryDocsRoot = GLOSSARY_DOCS_ROOT,
-): Promise<LoadedGlossaryPage> {
-  const pageDir = join(glossaryDocsRoot, slug);
+  conceptsDocsRoot = CONCEPTS_DOCS_ROOT,
+): Promise<LoadedConceptPage> {
+  const pageDir = join(conceptsDocsRoot, slug);
   const mdxPath = join(pageDir, "page.mdx");
   const messagesPath = join(pageDir, "messages", `${locale}.json`);
   const assetsPath = join(pageDir, "assets.json");
