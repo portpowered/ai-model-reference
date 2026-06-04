@@ -1,5 +1,6 @@
 [test]
 root = "."
+preload = ["./happydom.ts"]
 
 [alias]
 "@" = "./src"
