@@ -4,7 +4,18 @@ import { join } from "node:path";
 import type { Node } from "fumadocs-core/page-tree";
 import { source } from "@/lib/source";
 
-const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
+const GLOSSARY_INDEX_URLS = [
+  "/docs/glossary/architecture",
+  "/docs/glossary/component",
+  "/docs/glossary/discriminative-model",
+  "/docs/glossary/foundation-model",
+  "/docs/glossary/generative-model",
+  "/docs/glossary/modality",
+  "/docs/glossary/model",
+  "/docs/glossary/module",
+  "/docs/glossary/representation",
+  "/docs/glossary/token",
+] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {
   const urls: string[] = [];
@@ -22,9 +33,11 @@ function collectPageUrls(nodes: Node[]): string[] {
 }
 
 describe("docs navigation source", () => {
-  test("page tree includes Token glossary link under Glossary", () => {
+  test("page tree includes taxonomy glossary links under Glossary", () => {
     const urls = collectPageUrls(source.pageTree.children);
-    expect(urls).toContain(TOKEN_GLOSSARY_URL);
+    for (const url of GLOSSARY_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
 
     const glossaryFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Glossary",
@@ -35,14 +48,17 @@ describe("docs navigation source", () => {
     }
 
     const glossaryUrls = collectPageUrls(glossaryFolder.children);
-    expect(glossaryUrls).toEqual([TOKEN_GLOSSARY_URL]);
+    expect(glossaryUrls).toEqual([...GLOSSARY_INDEX_URLS]);
   });
 
-  test("token glossary navigation URL has a matching App Router page", () => {
-    const routePath = join(
-      process.cwd(),
-      "src/app/docs/glossary/token/page.tsx",
-    );
-    expect(existsSync(routePath)).toBe(true);
+  test("glossary navigation URLs have matching App Router pages", () => {
+    for (const url of GLOSSARY_INDEX_URLS) {
+      const slug = url.replace("/docs/glossary/", "");
+      const routePath = join(
+        process.cwd(),
+        `src/app/docs/glossary/${slug}/page.tsx`,
+      );
+      expect(existsSync(routePath)).toBe(true);
+    }
   });
 });
