@@ -5,7 +5,7 @@ import {
   isAllowedManifestPath,
   parseCoverageTable,
 } from "@/lib/docs/component-coverage-gate";
-import { PHASE_2_COVERAGE_COMPONENTS } from "@/lib/docs/phase-2-component-manifest";
+import { REUSABLE_COVERAGE_COMPONENTS } from "@/lib/docs/component-manifest";
 
 const SAMPLE_TABLE = `
  src/features/docs/components/Callout.tsx                  |  100.00 |  100.00 |
@@ -36,8 +36,8 @@ describe("component-coverage-gate", () => {
   });
 
   test("evaluateComponentCoverageGate fails below minimum with observed and required", () => {
-    const entry = PHASE_2_COVERAGE_COMPONENTS[0];
-    const coverageRows = PHASE_2_COVERAGE_COMPONENTS.map((component) => ({
+    const entry = REUSABLE_COVERAGE_COMPONENTS[0];
+    const coverageRows = REUSABLE_COVERAGE_COMPONENTS.map((component) => ({
       file: component.file,
       linePercent:
         component.file === entry.file ? 50 : component.minReachableLinePercent,
