@@ -1,0 +1,43 @@
+{
+  "title": "Tensor",
+  "description": "A multi-dimensional array of numbers that carries activations, weights, or gradients through the network.",
+  "problemStatement": "Layers need a consistent way to talk about batches, sequence length, and hidden width without rewriting math for every shape.",
+  "coreIdea": "A tensor is an n-dimensional array of numbers with a shape (for example batch × sequence × hidden); embeddings, activations, and logits are all tensors with different ranks and sizes.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "In deep learning, a tensor generalizes vectors and matrices to any number of dimensions. Frameworks such as PyTorch and JAX store model state and activations as tensors and run operations (matmul, softmax, layer norm) that preserve or reshape those dimensions."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Shape errors are among the most common debugging surprises: a logits tensor might be [batch, vocab] while hidden states are [batch, seq, hidden]. Naming tensors by role (embeddings, keys, values) keeps papers, code, and this reference aligned."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A minibatch of 4 sequences, each 128 tokens wide, with hidden size 768 is often written as a tensor of shape 4×128×768. The language-model head may reduce the last dimension to vocabulary size, yielding 4×128×50257 logits before softmax."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Tensors flow through every layer: embedding lookups, attention scores, feed-forward activations, loss computation, and optimizer updates. GPU kernels and compilation stacks are built around batched tensor programs."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A tensor in ML is a numeric array, not the same as a tensor in general relativity. A single vector is a 1-D tensor; a matrix is 2-D. Scalars are 0-D tensors. Do not confuse tensor with parameter—parameters are tensors that get updated during training."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Once you are comfortable with tensor shapes, the next step in this chain is logits—the raw scores the model emits before softmax turns them into probabilities."
+    }
+  }
+}

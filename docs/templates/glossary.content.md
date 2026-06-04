@@ -27,3 +27,36 @@ Glossary pages use `kind: glossary` in frontmatter and resolve through a `concep
 ## Registry Expectations
 
 The backing concept registry record at `src/content/registry/concepts/<slug>.json` should include `conceptType`, useful `tags`, `prerequisiteIds`, `explainsIds`, `citationIds`, and curated `relatedIds` only when derived relationships are insufficient. Set frontmatter `status` to `published` when the entry is ready for readers.
+
+## Math and Code Examples
+
+Glossary pages compile through the shared `moduleMdxComponents` map and `moduleMdxCompileOptions` (`remark-math` + `rehype-katex`). Keep localized prose in messages; add compact formulas and code inside `page.mdx` where rendering needs structured blocks.
+
+### Inline and block math
+
+Use standard math delimiters in MDX body text:
+
+* inline: `$p_i = \\frac{e^{z_i}}{\\sum_j e^{z_j}}$`
+* block: a `$$ ... $$` fenced display equation on its own lines
+
+Inside JSX sections (for example within `<Section>`), prefer explicit components so math stays valid MDX:
+
+```mdx
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+  <BlockMath formula="\\text{softmax}(z_i) = \\frac{e^{z_i}}{\\sum_j e^{z_j}}" />
+</Section>
+```
+
+For short inline notation inside a section, use `<InlineMath formula="z_i" />`.
+
+### Fenced code blocks
+
+Use fenced code blocks in `page.mdx`. They render through the Fumadocs `pre` / `CodeBlock` mapping bundled in `moduleMdxComponents`:
+
+\`\`\`python
+def softmax(logits):
+    ...
+\`\`\`
+
+Keep examples small (one vector, one formula, one backward-pass sketch). KaTeX styles load globally from `src/app/globals.css`.

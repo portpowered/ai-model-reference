@@ -1,0 +1,43 @@
+{
+  "title": "Activation",
+  "description": "The numeric output of a layer after its linear transform and nonlinearity, passed forward through the network.",
+  "problemStatement": "Papers talk about “activations” in hidden layers while tutorials show softmax over vocabulary; readers need to know which tensors are intermediate signals versus final probabilities.",
+  "coreIdea": "An activation is the value a layer outputs for a given input—hidden states in transformers are activations flowing between blocks until the vocabulary head produces logits.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "After a layer applies its weights to an input tensor, the result (often after GELU, ReLU, or another nonlinearity) is that layer’s activation. In a transformer block, the post-attention and post-MLP tensors are typical activation examples."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Activations determine what information reaches the next layer and what backpropagation will differentiate. Memory planners track activation tensors during training because they are large but temporary, unlike checkpointed parameters."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "For a batch of one sequence, a hidden layer might output a tensor of shape (sequence_length, hidden_size). That tensor is the activation handed to the next sublayer."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Profiling tools chart activation magnitudes per layer. Interpretability work sometimes inspects specific activation directions. In inference, activations are usually recomputed on each forward pass rather than saved in the weight file."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A hidden activation is not the same as softmax: softmax turns vocabulary logits into a probability vector at the output head, while activations are internal layer outputs that may never be normalized across the vocabulary. Saying a “ReLU activation” refers to the nonlinearity applied inside a layer, not to the softmax step at decode time."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Parameters are the stored weights; activations are the live values those weights produce for your prompt as it moves through the stack."
+    }
+  }
+}

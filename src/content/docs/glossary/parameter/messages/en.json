@@ -1,0 +1,43 @@
+{
+  "title": "Parameter",
+  "description": "A learnable numeric value stored in the model weights that training updates to fit data.",
+  "problemStatement": "Readers hear “billions of parameters” but need a concrete picture of what is actually stored and changed during training.",
+  "coreIdea": "Parameters are the persistent numbers in weight matrices and bias vectors; optimization nudges them so forward passes produce better predictions.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A parameter is any scalar or tensor element whose value is learned from data rather than fixed by hand. In transformers, most parameters live in linear projection weights, embedding tables, and layer-normalization scales."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Parameter count drives memory footprint and training cost. When you read about fine-tuning or quantization, you are usually talking about how those stored weights are updated or compressed—not about activations, which are recomputed each forward pass."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A single attention projection might store a weight matrix W with shape (hidden, hidden). Every entry in W is a parameter; a gradient later tells each entry whether to increase or decrease."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Checkpoints list parameter tensors by name. Optimizer state (momentum, Adam moments) mirrors parameter shapes but is separate storage used only during training."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Parameters are not activations: parameters persist in the checkpoint, while activations are temporary values flowing through the network for one input. Parameters are also not logits or softmax outputs—those are computed from parameters plus the current input."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "After softmax shows how predictions are scored, parameters are what training actually rewrites so those scores improve on real examples."
+    }
+  }
+}

@@ -51,6 +51,19 @@ describe("DerivedRelatedDocs", () => {
   test("renders curated-related group when relatedIds are set on the source", () => {
     const html = renderToStaticMarkup(
       <DerivedRelatedDocs
+        registryId="concept.token"
+        groups={["curated-related"]}
+      />,
+    );
+
+    expect(html).toContain('data-related-group="curated-related"');
+    expect(html).toContain("embeddings");
+    expect(html).toContain("Curated related");
+  });
+
+  test("renders nothing for curated-related when the source has no relatedIds", () => {
+    const html = renderToStaticMarkup(
+      <DerivedRelatedDocs
         registryId="module.grouped-query-attention"
         groups={["curated-related"]}
       />,

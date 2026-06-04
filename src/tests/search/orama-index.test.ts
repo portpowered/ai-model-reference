@@ -53,6 +53,21 @@ const EVALUATION_SCALING_URLS = [
   "/docs/glossary/scaling-law",
   "/docs/glossary/emergent-behavior",
 ] as const;
+const CHAIN_GLOSSARY_URLS = [
+  "/docs/glossary/embedding",
+  "/docs/glossary/tensor",
+  "/docs/glossary/logit",
+  "/docs/glossary/softmax",
+  "/docs/glossary/entropy",
+  "/docs/glossary/temperature",
+  "/docs/glossary/parameter",
+  "/docs/glossary/activation",
+  "/docs/glossary/computational-graph",
+  "/docs/glossary/gradient",
+  "/docs/glossary/backpropagation",
+  "/docs/glossary/loss-function",
+  "/docs/glossary/optimizer-state",
+] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
   SAMPLE_URL,
   TOKEN_GLOSSARY_URL,
@@ -63,6 +78,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ...GENERATION_PARADIGM_URLS,
   ...TRAINING_BEHAVIOR_URLS,
   ...EVALUATION_SCALING_URLS,
+  ...CHAIN_GLOSSARY_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(
   process.cwd(),

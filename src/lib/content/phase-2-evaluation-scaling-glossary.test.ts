@@ -69,14 +69,13 @@ describe("Phase 2 evaluation and scaling glossary pages (US-005)", () => {
     });
   }
 
-  test("perplexity links to token chain and generalization with planned labels for drafts", async () => {
+  test("perplexity links to token chain and generalization with published softmax and entropy pages", async () => {
     const html = await renderGlossaryHtml("perplexity");
 
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain('href="/docs/glossary/generalization"');
-    expect(html).toContain("Softmax");
-    expect(html).toContain("Entropy");
-    expect(html).toContain("Planned — coming in a later phase");
+    expect(html).toContain('href="/docs/glossary/softmax"');
+    expect(html).toContain('href="/docs/glossary/entropy"');
     expect(html).toContain("Curated related");
   });
 

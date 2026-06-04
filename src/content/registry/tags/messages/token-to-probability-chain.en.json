@@ -1,0 +1,4 @@
+{
+  "title": "Token-to-probability chain",
+  "summary": "Beginner glossary path from tokens through embeddings, tensors, logits, softmax, and training fundamentals."
+}

@@ -38,9 +38,38 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   latent: "Latent",
   "latent-space": "Latent Space",
   token: "Token",
+  embedding: "Embedding",
+  tensor: "Tensor",
+  logit: "Logit",
+  softmax: "Softmax",
+  entropy: "Entropy",
+  temperature: "Temperature",
+  parameter: "Parameter",
+  activation: "Activation",
+  "computational-graph": "Computational Graph",
+  gradient: "Gradient",
+  backpropagation: "Backpropagation",
+  "loss-function": "Loss Function",
+  "optimizer-state": "Optimizer State",
 };
 
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 26;
+const CHAIN_GLOSSARY_SLUGS = [
+  "embedding",
+  "tensor",
+  "logit",
+  "softmax",
+  "entropy",
+  "temperature",
+  "parameter",
+  "activation",
+  "computational-graph",
+  "gradient",
+  "backpropagation",
+  "loss-function",
+  "optimizer-state",
+] as const;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 39;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 29;
 
 function collectPageUrls(nodes: Node[]): string[] {
   const urls: string[] = [];
@@ -65,7 +94,11 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     };
 
     expect(meta.pages).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
-    for (const slug of [...TAXONOMY_GLOSSARY_SLUGS, "token"] as const) {
+    for (const slug of [
+      ...TAXONOMY_GLOSSARY_SLUGS,
+      ...CHAIN_GLOSSARY_SLUGS,
+      "token",
+    ] as const) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
       expect(
         meta.pages.some((entry) => entry.includes(`/docs/glossary/${slug}`)),
@@ -86,13 +119,17 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     }
 
     const glossaryUrls = collectPageUrls(glossaryFolder.children);
-    for (const slug of [...TAXONOMY_GLOSSARY_SLUGS, "token"] as const) {
+    for (const slug of [
+      ...TAXONOMY_GLOSSARY_SLUGS,
+      ...CHAIN_GLOSSARY_SLUGS,
+      "token",
+    ] as const) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
     }
     expect(glossaryUrls).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
   });
 
-  test("glossary index lists ten entries with localized titles sorted by title", async () => {
+  test("glossary index lists twenty-three entries with localized titles sorted by title", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
     expect(entries).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
 
@@ -108,11 +145,18 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
 
     const token = entries.find((item) => item.url === "/docs/glossary/token");
     expect(token?.title).toBe("Token");
+
+    for (const slug of CHAIN_GLOSSARY_SLUGS) {
+      const entry = entries.find(
+        (item) => item.url === `/docs/glossary/${slug}`,
+      );
+      expect(entry?.title).toBe(EXPECTED_GLOSSARY_TITLES[slug]);
+    }
   });
 
   test("architecture index includes architecture taxonomy and other taxonomy entries", async () => {
     const entries = await loadPublishedArchitectureEntries("en");
-    expect(entries).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
+    expect(entries).toHaveLength(PUBLISHED_ARCHITECTURE_ENTRY_COUNT);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -128,6 +172,14 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
 
     const token = entries.find((entry) => entry.url === "/docs/glossary/token");
     expect(token?.title).toBe("Token");
+
+    const embedding = entries.find(
+      (entry) => entry.url === "/docs/glossary/embedding",
+    );
+    expect(embedding?.title).toBe("Embedding");
+    expect(entries.some((entry) => entry.url === "/docs/glossary/tensor")).toBe(
+      false,
+    );
   });
 
   test("glossary and architecture index pages render taxonomy links with localized titles", async () => {
@@ -145,6 +197,34 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     }
 
     expect(glossaryHtml).toContain("Token");
-    expect(architectureHtml).toContain('href="/docs/glossary/token"');
+    expect(glossaryHtml).toContain('href="/docs/glossary/token"');
+    expect(glossaryHtml).toContain("Embedding");
+    expect(glossaryHtml).toContain('href="/docs/glossary/embedding"');
+    expect(glossaryHtml).toContain("Tensor");
+    expect(glossaryHtml).toContain('href="/docs/glossary/tensor"');
+    expect(glossaryHtml).toContain("Logit");
+    expect(glossaryHtml).toContain('href="/docs/glossary/logit"');
+    expect(glossaryHtml).toContain("Softmax");
+    expect(glossaryHtml).toContain('href="/docs/glossary/softmax"');
+    expect(glossaryHtml).toContain("Entropy");
+    expect(glossaryHtml).toContain('href="/docs/glossary/entropy"');
+    expect(glossaryHtml).toContain("Temperature");
+    expect(glossaryHtml).toContain('href="/docs/glossary/temperature"');
+    expect(glossaryHtml).toContain("Parameter");
+    expect(glossaryHtml).toContain('href="/docs/glossary/parameter"');
+    expect(glossaryHtml).toContain("Activation");
+    expect(glossaryHtml).toContain('href="/docs/glossary/activation"');
+    expect(glossaryHtml).toContain("Computational Graph");
+    expect(glossaryHtml).toContain('href="/docs/glossary/computational-graph"');
+    expect(architectureHtml).toContain("Activation");
+    expect(architectureHtml).toContain('href="/docs/glossary/activation"');
+    expect(architectureHtml).toContain("Computational Graph");
+    expect(architectureHtml).toContain(
+      'href="/docs/glossary/computational-graph"',
+    );
+    expect(architectureHtml).not.toContain('href="/docs/glossary/parameter"');
+    expect(architectureHtml).toContain("Embedding");
+    expect(architectureHtml).toContain('href="/docs/glossary/embedding"');
+    expect(architectureHtml).not.toContain('href="/docs/glossary/tensor"');
   });
 });

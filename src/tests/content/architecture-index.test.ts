@@ -22,14 +22,17 @@ describe("isArchitectureRelatedPage", () => {
     const urls = architecturePages.map((page) => page.url).sort();
     expect(urls).toEqual(
       [
+        "/docs/glossary/activation",
         "/docs/glossary/alignment",
         "/docs/glossary/architecture",
         "/docs/glossary/autoregressive-generation",
         "/docs/glossary/component",
+        "/docs/glossary/computational-graph",
         "/docs/glossary/conditioning",
         "/docs/glossary/decoder",
         "/docs/glossary/denoising-generation",
         "/docs/glossary/discriminative-model",
+        "/docs/glossary/embedding",
         "/docs/glossary/emergent-behavior",
         "/docs/glossary/encoder",
         "/docs/glossary/encoder-decoder",

@@ -56,6 +56,7 @@ describe("groupTagIndexEntriesByCategory", () => {
     expect(groups[0]?.tags.map((tag) => tag.slug)).toEqual([
       "foundations",
       "taxonomy",
+      "token-to-probability-chain",
     ]);
     expect(groups[1]?.tags.map((tag) => tag.slug)).toEqual(["attention"]);
     expect(groups[2]?.tags.map((tag) => tag.slug)).toEqual(["kv-cache"]);
