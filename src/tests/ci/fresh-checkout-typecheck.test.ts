@@ -1,20 +1,23 @@
 import { describe, expect, test } from "bun:test";
 import { type SpawnSyncReturns, spawnSync } from "node:child_process";
-import { existsSync, rmSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
+import {
+  CLEAN_WORKTREE_SOURCE_DIR,
+  provisionCleanWorktree,
+} from "./clean-worktree-fixture";
 
 const repoRoot = join(import.meta.dir, "../../..");
-const sourceDir = join(repoRoot, ".source");
-const sourceServerModule = join(sourceDir, "server.ts");
+const mainSourceDir = join(repoRoot, CLEAN_WORKTREE_SOURCE_DIR);
 
 /**
- * Bun's default per-test timeout is 5s; cold `make typecheck` after deleting
- * `.source/` routinely exceeds that (fumadocs-mdx is fast; `tsc --noEmit` dominates).
- * Measured locally (2026-06-04 UTC): ~7–11s wall time on a warm dev machine;
- * GitHub Actions ubuntu-latest can be slower on cold caches. Use 120s so CI
- * runners have headroom without weakening the subprocess under test.
+ * Bun's default per-test timeout is 5s. This proof provisions an isolated
+ * worktree (git add + bun install --frozen-lockfile) then runs cold
+ * `make typecheck` inside it. Measured locally (2026-06-04 UTC): install alone
+ * can take ~60–120s on a cold worktree; typecheck adds ~7–11s. GitHub Actions
+ * ubuntu-latest can be slower. Use 300s so CI runners have headroom.
  */
-const FRESH_CHECKOUT_TYPECHECK_TEST_TIMEOUT_MS = 120_000;
+const FRESH_CHECKOUT_TYPECHECK_TEST_TIMEOUT_MS = 300_000;
 
 /** TypeScript missing-module errors for the gitignored Fumadocs import path. */
 const missingSourceServerPattern =
@@ -48,35 +51,48 @@ describe("fresh-checkout typecheck", () => {
   test(
     "make typecheck succeeds when .source is absent and regenerates output",
     () => {
-      if (existsSync(sourceDir)) {
-        rmSync(sourceDir, { recursive: true, force: true });
-      }
-      expect(existsSync(sourceDir)).toBe(false);
+      const mainHadSourceBefore = existsSync(mainSourceDir);
 
-      // Full Makefile gate: pretypecheck (fumadocs-mdx) then tsc — not fumadocs-mdx alone.
-      const result = spawnSync("make", ["typecheck"], {
-        cwd: repoRoot,
-        encoding: "utf8",
-        env: process.env,
-      });
+      const fixture = provisionCleanWorktree(repoRoot);
 
-      if (result.status === null) {
-        throw new Error(
-          `make typecheck did not finish within the test budget.\n${formatSubprocessOutput(result)}`,
+      try {
+        const isolatedSourceDir = join(
+          fixture.worktreePath,
+          CLEAN_WORKTREE_SOURCE_DIR,
         );
+        const isolatedSourceServerModule = join(isolatedSourceDir, "server.ts");
+
+        expect(existsSync(isolatedSourceDir)).toBe(false);
+
+        // Full Makefile gate: pretypecheck (fumadocs-mdx) then tsc — not fumadocs-mdx alone.
+        const result = spawnSync("make", ["typecheck"], {
+          cwd: fixture.worktreePath,
+          encoding: "utf8",
+          env: process.env,
+        });
+
+        if (result.status === null) {
+          throw new Error(
+            `make typecheck did not finish within the test budget.\n${formatSubprocessOutput(result)}`,
+          );
+        }
+
+        const stderr = result.stderr ?? "";
+        expect(stderr).not.toMatch(missingSourceServerPattern);
+        expect(stderr).not.toContain(".source/server");
+
+        if (result.status !== 0) {
+          throw new Error(
+            `make typecheck exited non-zero.\n${formatSubprocessOutput(result)}`,
+          );
+        }
+
+        expect(existsSync(isolatedSourceServerModule)).toBe(true);
+      } finally {
+        fixture.cleanup();
       }
 
-      const stderr = result.stderr ?? "";
-      expect(stderr).not.toMatch(missingSourceServerPattern);
-      expect(stderr).not.toContain(".source/server");
-
-      if (result.status !== 0) {
-        throw new Error(
-          `make typecheck exited non-zero.\n${formatSubprocessOutput(result)}`,
-        );
-      }
-
-      expect(existsSync(sourceServerModule)).toBe(true);
+      expect(existsSync(mainSourceDir)).toBe(mainHadSourceBefore);
     },
     FRESH_CHECKOUT_TYPECHECK_TEST_TIMEOUT_MS,
   );
