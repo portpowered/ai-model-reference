@@ -1,0 +1,43 @@
+{
+  "title": "Patch",
+  "description": "A fixed-size chunk of input data—pixels, spectrogram frames, or grouped tokens—that an encoder turns into a representation vector.",
+  "problemStatement": "Vision and multimodal papers talk about \"patch embeddings\" without saying whether a patch is a pixel window, a tokenizer span, or a latent tile, which makes architecture diagrams hard to read.",
+  "coreIdea": "A patch is the smallest spatial or sequential unit the model treats as one input item before stacking layers; encoders map each patch to a vector in representation space.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "In vision transformers, an image is split into a grid of non-overlapping or lightly overlapping patches; each patch becomes a token-like vector after a linear projection. In audio or video, analogous windows play the same role. Patches sit between raw modality data and the internal representation tensors that deeper blocks consume."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Patch granularity controls compute and inductive bias: smaller patches preserve detail but increase sequence length; larger patches compress context. Naming patches separately from latents and from full representations keeps vision, diffusion, and multimodal docs aligned with how encoders are drawn."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A 224×224 image with 16×16 pixel patches yields a 14×14 grid—196 patch tokens before the class token. Each patch embedding is a representation of that local region, not the whole image."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Patch tokenization appears in ViT-style encoders, latent diffusion autoencoders, and multimodal models that align image patches with text tokens. The modality glossary explains which channels use patches; representation explains the vectors they become."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A patch is not a latent: patches are input-side chunks, while a latent is a compressed internal code after encoding. A patch is also not a token in the language-model sense unless the architecture explicitly equates patch embeddings with discrete token IDs. Patch size is not model capacity—it is an input tiling choice."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Ask how the raw input is tiled before the first transformer block—that tiling unit is the patch story."
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "title": "Model Capacity",
+  "description": "How much function a model can represent—driven by parameter count, width, depth, and training data—before optimization and regularization constrain what it actually learns.",
+  "problemStatement": "Marketing compares \"70B vs 7B\" without saying whether capacity means parameters, FLOPs, or data coverage, so readers cannot connect size claims to overfitting or scaling behavior.",
+  "coreIdea": "Capacity is the upper bound on patterns a model could fit if training ran long enough; parameters and depth set that bound, while data volume, loss design, and regularization determine how much of it is used productively.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Model capacity describes expressive power: wider layers, more heads, and more parameters increase the space of functions the network can represent. It is distinct from compute budget (how much training you can afford) and from measured generalization (how well the model works on new inputs)."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Capacity sits between architecture choices and training outcomes. Too little capacity underfits; too much capacity without enough data or regularization invites overfitting. Scaling law and perplexity pages connect capacity trends to measurable evaluation signals."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A tiny two-layer network may memorize a thousand training points but fail on a held-out set, while a wider network with dropout and more diverse data achieves lower validation loss—the second model had enough capacity used well, not just more parameters for its own sake."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Width and depth ablations, scaling studies that plot loss versus parameter count, and capacity planning for fine-tuning adapters versus full-weight updates. Parameter count links this page to the token-and-optimization chain even when a dedicated parameter glossary page is still planned."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Capacity is not the same as context length or inference speed. More parameters do not guarantee better generalization if optimization or data are mismatched. Adapter parameters add some capacity but do not replace the expressiveness of the frozen base weights they modulate."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Ask how many independent degrees of freedom the model has and whether the training setup can fill them without memorizing noise."
+    }
+  }
+}

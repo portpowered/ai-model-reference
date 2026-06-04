@@ -1,0 +1,28 @@
+{
+  "id": "concept.encoder",
+  "slug": "encoder",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Encoder", "encoder block", "encoder stack", "encoding network"],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.decoder",
+    "concept.encoder-decoder",
+    "concept.latent-space",
+    "concept.representation"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T12:00:00.000Z",
+  "updatedAt": "2026-06-04T12:30:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": [
+    "concept.patch",
+    "concept.latent",
+    "concept.latent-space",
+    "concept.architecture",
+    "concept.representation"
+  ],
+  "explainsIds": []
+}

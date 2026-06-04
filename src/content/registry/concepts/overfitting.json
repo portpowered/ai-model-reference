@@ -1,0 +1,26 @@
+{
+  "id": "concept.overfitting",
+  "slug": "overfitting",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Overfitting",
+    "overfit",
+    "memorization",
+    "training set memorization"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.generalization",
+    "concept.model-capacity",
+    "concept.loss-function"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T11:52:13.229Z",
+  "updatedAt": "2026-06-04T14:00:00.000Z",
+  "conceptType": "training",
+  "prerequisiteIds": ["concept.model-capacity", "concept.loss-function"],
+  "explainsIds": []
+}

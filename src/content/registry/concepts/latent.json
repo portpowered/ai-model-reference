@@ -1,0 +1,17 @@
+{
+  "id": "concept.latent",
+  "slug": "latent",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["latent code", "latent variable", "latent vector"],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": ["concept.latent-space", "concept.patch"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T11:31:47.920Z",
+  "updatedAt": "2026-06-04T12:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.patch", "concept.representation"],
+  "explainsIds": []
+}

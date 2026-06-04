@@ -1,0 +1,38 @@
+{
+  "id": "concept.autoregressive-generation",
+  "slug": "autoregressive-generation",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Autoregressive generation",
+    "autoregressive decoding",
+    "next-token generation",
+    "AR generation"
+  ],
+  "tags": ["foundations", "taxonomy", "attention"],
+  "relatedIds": [
+    "concept.token",
+    "concept.logit",
+    "concept.softmax",
+    "concept.embedding",
+    "concept.decoder",
+    "concept.encoder-decoder",
+    "concept.conditioning",
+    "concept.denoising-generation"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T12:30:00.000Z",
+  "updatedAt": "2026-06-04T12:50:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": [
+    "concept.token",
+    "concept.logit",
+    "concept.softmax",
+    "concept.embedding",
+    "concept.decoder",
+    "concept.encoder-decoder"
+  ],
+  "explainsIds": ["concept.conditioning"]
+}

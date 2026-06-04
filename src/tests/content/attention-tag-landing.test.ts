@@ -49,7 +49,13 @@ describe("attention tag landing resources", () => {
     expect(groups.map((group) => group.kind)).toEqual(["module", "glossary"]);
 
     const glossaryGroup = groups.find((group) => group.kind === "glossary");
-    expect(glossaryGroup?.resources[0]?.url).toBe("/docs/glossary/token");
+    expect(glossaryGroup?.resources[0]?.url).toBe(
+      "/docs/glossary/autoregressive-generation",
+    );
+    expect(glossaryGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/glossary/autoregressive-generation",
+      "/docs/glossary/token",
+    ]);
   });
 
   it("sorts resources alphabetically by title within a kind group", async () => {
@@ -103,6 +109,8 @@ describe("attention tag landing page render", () => {
     expect(html).toContain("Glossary");
     expect(html).toContain("Grouped-Query Attention");
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
+    expect(html).toContain("Autoregressive Generation");
+    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain("Token");
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain('href="/search?tag=attention"');

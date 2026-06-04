@@ -1,0 +1,26 @@
+{
+  "id": "concept.emergent-behavior",
+  "slug": "emergent-behavior",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Emergent behavior",
+    "emergent abilities",
+    "capability emergence",
+    "qualitative jumps"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.scaling-law",
+    "concept.generalization",
+    "concept.model-capacity"
+  ],
+  "citationIds": ["citation.wei-emergent-abilities"],
+  "status": "published",
+  "createdAt": "2026-06-04T12:00:40.376Z",
+  "updatedAt": "2026-06-04T15:00:00.000Z",
+  "conceptType": "evaluation",
+  "prerequisiteIds": ["concept.scaling-law", "concept.generalization"],
+  "explainsIds": []
+}

@@ -1,0 +1,28 @@
+{
+  "id": "concept.conditioning",
+  "slug": "conditioning",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Conditioning",
+    "conditional generation",
+    "control signal",
+    "classifier-free guidance"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.autoregressive-generation",
+    "concept.denoising-generation"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T11:46:45.985Z",
+  "updatedAt": "2026-06-04T12:50:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": [
+    "concept.autoregressive-generation",
+    "concept.denoising-generation"
+  ],
+  "explainsIds": []
+}

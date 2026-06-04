@@ -1,0 +1,43 @@
+{
+  "title": "Autoregressive Generation",
+  "description": "A generation paradigm that produces outputs one discrete step at a time, each step conditioned on everything generated so far.",
+  "problemStatement": "Papers say a model \"generates autoregressively\" without clarifying whether that means next-token language modeling, causal image patches, or a diffusion loop mislabeled as decoding, which hides the token-to-probability chain driving each step.",
+  "coreIdea": "Autoregressive generation samples or selects one output unit—usually the next token—then feeds that choice back as context for the next step until a stop condition is met; each step runs through embeddings, logits, and softmax before the decoder stack advances.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "At inference, the model holds a growing prefix of tokens (or other discrete units). The decoder computes logits over the vocabulary, softmax turns them into probabilities, and the chosen unit is appended. KV caches store past keys and values so earlier positions are not recomputed. Encoder–decoder setups still autoregress on the decoder side while reading fixed encoder memory."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Autoregressive generation is the dominant text and code paradigm and the output mode most decoder and encoder–decoder pages reference. It connects the token chain—token IDs, embeddings, logits, softmax—to architecture choices such as causal attention, KV-cache sizing, and grouped-query attention for efficient decoding."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Given the prefix \"The capital of France is\", the model outputs logits for the next token, softmax peaks on \"Paris\", that token is appended, and the process repeats until an end-of-sequence token or length limit."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "GPT-style decoder-only models, translation decoders in encoder–decoder transformers, speech token decoders, and some multimodal models that emit discrete visual tokens all use autoregressive steps. Denoising generation covers the other major family that iterates in continuous latent space instead of discrete token steps."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Autoregressive generation is not the same as any decoder block—decoders are architecture components, while autoregressive describes the step-by-step sampling loop. It is also not identical to teacher-forced training, where ground-truth prefixes are fed during optimization even though inference is autoregressive. Diffusion sampling loops over noise timesteps but is not token-autoregressive unless the model emits discrete tokens each step."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Follow one step: embedding lookup → decoder forward → logits → softmax → append token. Repeat until done."
+    }
+  }
+}
