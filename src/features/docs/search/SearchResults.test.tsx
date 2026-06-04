@@ -96,6 +96,29 @@ describe("SearchInlineResultItem", () => {
   });
 });
 
+describe("SearchInlineResultItem non-page hits", () => {
+  test("renders a simple action row without metadata panel", async () => {
+    const messages = await loadUiMessages();
+    const html = renderToStaticMarkup(
+      <SearchInlineResultItem
+        item={{
+          id: "action-1",
+          type: "action",
+          node: "Open search page",
+          onSelect: () => {},
+        }}
+        query=""
+        metaByUrl={{}}
+        messages={messages}
+        onSelect={() => {}}
+      />,
+    );
+
+    expect(html).toContain("Action");
+    expect(html).not.toContain('data-testid="search-result-meta"');
+  });
+});
+
 describe("isPageSearchItem", () => {
   test("only page hits use the rich metadata panel", () => {
     expect(

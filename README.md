@@ -116,6 +116,18 @@ Glossary pages land under `src/content/docs/glossary/<slug>/` and render at
 `/docs/glossary/<slug>`. Concept pages use `src/content/docs/concepts/<slug>/` and
 `/docs/concepts/<slug>`.
 
+## Phase 2 component coverage
+
+Reusable MDX building blocks (Callout, Section, T, TagPillList,
+DerivedRelatedDocs, and search result presentation) must keep **at least 90%
+reachable line coverage** in `bun test --coverage`, or be documented as thin
+wrappers with named smoke tests. The inventory, thin-wrapper exception pattern,
+and update steps live in
+[docs/phase-2-component-coverage.md](./docs/phase-2-component-coverage.md);
+machine-readable entries are in
+`src/lib/docs/phase-2-component-manifest.ts`. Enforcement is scoped to that
+manifest—`make ci` does **not** run global coverage thresholds.
+
 ## Component example harness
 
 Phase 2 shared docs components (Callout, Section, T, TagPillList,
