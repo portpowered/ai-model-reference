@@ -16,6 +16,9 @@
     "[Logit](/docs/glossary/logit)",
     "[Softmax](/docs/glossary/softmax)",
     "[Entropy](/docs/glossary/entropy)",
-    "[Temperature](/docs/glossary/temperature)"
+    "[Temperature](/docs/glossary/temperature)",
+    "[Parameter](/docs/glossary/parameter)",
+    "[Activation](/docs/glossary/activation)",
+    "[Computational Graph](/docs/glossary/computational-graph)"
   ]
 }

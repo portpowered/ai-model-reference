@@ -1,0 +1,43 @@
+{
+  "title": "Computational Graph",
+  "description": "A record of which operations produced each tensor so automatic differentiation can run backward.",
+  "problemStatement": "Training frameworks mention graphs and autograd, but beginners need a picture of how forward tensors connect before gradients can flow back.",
+  "coreIdea": "The computational graph links inputs, parameters, and activations through differentiable ops; backpropagation walks that graph in reverse to assign credit to each parameter.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "During a forward pass, frameworks build a directed graph whose nodes are operations (matrix multiply, softmax, loss) and whose edges carry tensors. The graph is the bookkeeping structure autograd uses—not something you usually draw by hand for a full transformer."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Without the graph, you would hand-derive a gradient for every layer. With it, the same forward code that produced logits and loss also enables `.backward()` to populate parameter gradients consistently."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Multiply embedding weights by a one-hot input, add bias, apply GELU—each step becomes a node. The loss node at the end connects backward to every parameter node that influenced the prediction."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "PyTorch builds a dynamic graph per forward pass; some compilers fuse or rewrite the graph for speed. Debugging NaN losses often starts by inspecting which graph node first produced non-finite values."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "The computational graph is not the same as the model architecture diagram in a paper—architecture is the human design, while the graph is the runtime trace of differentiable ops for one forward pass. It is also not the optimizer state, which stores update history rather than forward connectivity."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "Once you know activations flow forward, think of the computational graph as the map backpropagation follows to turn a loss signal into parameter updates."
+    }
+  }
+}

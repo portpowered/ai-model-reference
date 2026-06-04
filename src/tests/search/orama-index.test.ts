@@ -34,6 +34,9 @@ const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/softmax",
   "/docs/glossary/entropy",
   "/docs/glossary/temperature",
+  "/docs/glossary/parameter",
+  "/docs/glossary/activation",
+  "/docs/glossary/computational-graph",
 ] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
   SAMPLE_URL,

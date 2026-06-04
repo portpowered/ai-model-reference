@@ -22,8 +22,10 @@ describe("isArchitectureRelatedPage", () => {
     const urls = architecturePages.map((page) => page.url).sort();
     expect(urls).toEqual(
       [
+        "/docs/glossary/activation",
         "/docs/glossary/architecture",
         "/docs/glossary/component",
+        "/docs/glossary/computational-graph",
         "/docs/glossary/discriminative-model",
         "/docs/glossary/embedding",
         "/docs/glossary/foundation-model",
