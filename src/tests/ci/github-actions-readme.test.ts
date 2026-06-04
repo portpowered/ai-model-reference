@@ -9,6 +9,7 @@ const ciSteps = [
   "make lint",
   "make typecheck",
   "make test",
+  "make coverage",
   "make build",
   "make validate-data",
   "make linkcheck",
@@ -50,15 +51,18 @@ describe("README Quality Gates CI documentation", () => {
     expect(qualityGates).toMatch(/\.source\//);
   });
 
-  test("states baseline excludes deploy, PDF validation, and coverage but includes linkcheck in make ci", () => {
+  test("states baseline excludes deploy and PDF validation but includes linkcheck and coverage in make ci", () => {
     const readme = readFileSync(readmePath, "utf8");
     const qualityGates = readme.slice(readme.indexOf("## Quality Gates"));
 
     expect(qualityGates).toMatch(/deploy/i);
     expect(qualityGates).toMatch(/make linkcheck/i);
+    expect(qualityGates).toMatch(/make coverage/i);
     expect(qualityGates).toMatch(/PDF validation|validate-pdf/i);
-    expect(qualityGates).toMatch(/coverage/i);
     expect(qualityGates).toMatch(/not part of `make ci`/i);
+    expect(qualityGates).not.toMatch(
+      /neither `\.github\/workflows\/ci\.yml` nor `make ci` invokes.*coverage/i,
+    );
     expect(qualityGates).not.toMatch(
       /not run deploy[\s\S]*linkcheck[\s\S]*PDF validation/i,
     );
