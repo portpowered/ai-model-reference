@@ -64,11 +64,29 @@ describe("loadPublishedGlossaryEntries", () => {
     );
     expect(temperature?.title).toBe("Temperature");
     expect(temperature?.summary.length).toBeGreaterThan(0);
+
+    const parameter = entries.find(
+      (entry) => entry.url === "/docs/glossary/parameter",
+    );
+    expect(parameter?.title).toBe("Parameter");
+    expect(parameter?.summary.length).toBeGreaterThan(0);
+
+    const activation = entries.find(
+      (entry) => entry.url === "/docs/glossary/activation",
+    );
+    expect(activation?.title).toBe("Activation");
+    expect(activation?.summary.length).toBeGreaterThan(0);
+
+    const computationalGraph = entries.find(
+      (entry) => entry.url === "/docs/glossary/computational-graph",
+    );
+    expect(computationalGraph?.title).toBe("Computational Graph");
+    expect(computationalGraph?.summary.length).toBeGreaterThan(0);
   });
 
   it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(16);
+    expect(entries).toHaveLength(19);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -145,6 +163,12 @@ describe("glossary index page render", () => {
     expect(html).toContain('href="/docs/glossary/entropy"');
     expect(html).toContain("Temperature");
     expect(html).toContain('href="/docs/glossary/temperature"');
+    expect(html).toContain("Parameter");
+    expect(html).toContain('href="/docs/glossary/parameter"');
+    expect(html).toContain("Activation");
+    expect(html).toContain('href="/docs/glossary/activation"');
+    expect(html).toContain("Computational Graph");
+    expect(html).toContain('href="/docs/glossary/computational-graph"');
     expect(html).not.toContain("No glossary entries yet");
   });
 });
