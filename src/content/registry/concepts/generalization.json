@@ -14,7 +14,10 @@
   "relatedIds": [
     "concept.overfitting",
     "concept.model-capacity",
-    "concept.alignment"
+    "concept.alignment",
+    "concept.perplexity",
+    "concept.scaling-law",
+    "concept.emergent-behavior"
   ],
   "citationIds": [],
   "status": "published",

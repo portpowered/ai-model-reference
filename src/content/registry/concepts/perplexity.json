@@ -1,0 +1,27 @@
+{
+  "id": "concept.perplexity",
+  "slug": "perplexity",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Perplexity",
+    "PPL",
+    "cross-entropy perplexity",
+    "language model perplexity"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.token",
+    "concept.softmax",
+    "concept.entropy",
+    "concept.generalization"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T12:00:40.319Z",
+  "updatedAt": "2026-06-04T15:00:00.000Z",
+  "conceptType": "evaluation",
+  "prerequisiteIds": ["concept.token", "concept.softmax", "concept.entropy"],
+  "explainsIds": ["concept.generalization"]
+}

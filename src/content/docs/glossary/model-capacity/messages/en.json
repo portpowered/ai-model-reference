@@ -10,7 +10,7 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Capacity sits between architecture choices and training outcomes. Too little capacity underfits; too much capacity without enough data or regularization invites overfitting. Scaling-law and perplexity pages later connect capacity trends to measurable evaluation signals."
+      "body": "Capacity sits between architecture choices and training outcomes. Too little capacity underfits; too much capacity without enough data or regularization invites overfitting. Scaling law and perplexity pages connect capacity trends to measurable evaluation signals."
     },
     "simpleExample": {
       "title": "Simple Example",
