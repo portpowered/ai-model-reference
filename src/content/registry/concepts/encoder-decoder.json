@@ -1,28 +1,29 @@
 {
-  "id": "concept.encoder",
-  "slug": "encoder",
+  "id": "concept.encoder-decoder",
+  "slug": "encoder-decoder",
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["Encoder", "encoder block", "encoder stack", "encoding network"],
+  "aliases": ["seq2seq", "encoder decoder", "encoder-decoder architecture"],
   "tags": ["foundations", "taxonomy"],
   "relatedIds": [
+    "concept.encoder",
     "concept.decoder",
-    "concept.encoder-decoder",
-    "concept.latent-space",
-    "concept.representation"
+    "concept.autoregressive-generation",
+    "concept.transformer"
   ],
   "citationIds": [],
   "status": "published",
-  "createdAt": "2026-06-04T12:00:00.000Z",
+  "createdAt": "2026-06-04T11:39:45.806Z",
   "updatedAt": "2026-06-04T12:30:00.000Z",
   "conceptType": "architecture",
   "prerequisiteIds": [
+    "concept.encoder",
+    "concept.decoder",
     "concept.patch",
-    "concept.latent",
     "concept.latent-space",
     "concept.architecture",
     "concept.representation"
   ],
-  "explainsIds": []
+  "explainsIds": ["concept.autoregressive-generation", "concept.transformer"]
 }

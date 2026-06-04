@@ -24,7 +24,10 @@ describe("isArchitectureRelatedPage", () => {
       [
         "/docs/glossary/architecture",
         "/docs/glossary/component",
+        "/docs/glossary/decoder",
         "/docs/glossary/discriminative-model",
+        "/docs/glossary/encoder",
+        "/docs/glossary/encoder-decoder",
         "/docs/glossary/foundation-model",
         "/docs/glossary/generative-model",
         "/docs/glossary/latent",

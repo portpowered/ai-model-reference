@@ -1,0 +1,22 @@
+{
+  "id": "concept.autoregressive-generation",
+  "slug": "autoregressive-generation",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Autoregressive generation",
+    "autoregressive decoding",
+    "next-token generation",
+    "AR generation"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-04T12:30:00.000Z",
+  "updatedAt": "2026-06-04T12:30:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.decoder", "concept.encoder-decoder"],
+  "explainsIds": []
+}

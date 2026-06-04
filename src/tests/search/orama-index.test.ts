@@ -32,12 +32,18 @@ const REPRESENTATION_LATENT_URLS = [
   "/docs/glossary/latent",
   "/docs/glossary/latent-space",
 ] as const;
+const ENCODER_DECODER_URLS = [
+  "/docs/glossary/encoder",
+  "/docs/glossary/decoder",
+  "/docs/glossary/encoder-decoder",
+] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
   SAMPLE_URL,
   TOKEN_GLOSSARY_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
   ...REPRESENTATION_LATENT_URLS,
+  ...ENCODER_DECODER_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(
   process.cwd(),
