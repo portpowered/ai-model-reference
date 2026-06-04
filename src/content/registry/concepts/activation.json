@@ -1,0 +1,17 @@
+{
+  "id": "concept.activation",
+  "slug": "activation",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["activations", "hidden activation", "layer output"],
+  "tags": ["token-to-probability-chain", "foundations"],
+  "relatedIds": ["concept.computational-graph"],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": ["concept.parameter"],
+  "explainsIds": []
+}

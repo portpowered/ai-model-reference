@@ -1,0 +1,17 @@
+{
+  "id": "concept.embedding",
+  "slug": "embedding",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["embeddings", "token embedding", "vector embedding"],
+  "tags": ["token-to-probability-chain", "foundations"],
+  "relatedIds": ["concept.tensor"],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": ["concept.token"],
+  "explainsIds": []
+}

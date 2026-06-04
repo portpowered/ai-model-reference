@@ -1,0 +1,17 @@
+{
+  "id": "concept.softmax",
+  "slug": "softmax",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["softmax function", "softmax layer"],
+  "tags": ["token-to-probability-chain", "foundations"],
+  "relatedIds": ["concept.entropy", "concept.temperature", "concept.parameter"],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "conceptType": "math",
+  "prerequisiteIds": ["concept.logit"],
+  "explainsIds": []
+}

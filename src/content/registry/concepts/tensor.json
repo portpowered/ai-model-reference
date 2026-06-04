@@ -1,0 +1,17 @@
+{
+  "id": "concept.tensor",
+  "slug": "tensor",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["tensors", "multi-dimensional array"],
+  "tags": ["token-to-probability-chain", "foundations"],
+  "relatedIds": ["concept.logit"],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "conceptType": "math",
+  "prerequisiteIds": ["concept.embedding"],
+  "explainsIds": []
+}
