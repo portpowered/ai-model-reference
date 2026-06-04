@@ -1,14 +1,27 @@
+import activationConcept from "@/content/registry/concepts/activation.json";
 import architectureConcept from "@/content/registry/concepts/architecture.json";
+import backpropagationConcept from "@/content/registry/concepts/backpropagation.json";
 import componentConcept from "@/content/registry/concepts/component.json";
+import computationalGraphConcept from "@/content/registry/concepts/computational-graph.json";
 import diffusionModelConcept from "@/content/registry/concepts/diffusion-model.json";
 import discriminativeModelConcept from "@/content/registry/concepts/discriminative-model.json";
+import embeddingConcept from "@/content/registry/concepts/embedding.json";
+import entropyConcept from "@/content/registry/concepts/entropy.json";
 import foundationModelConcept from "@/content/registry/concepts/foundation-model.json";
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
+import gradientConcept from "@/content/registry/concepts/gradient.json";
+import logitConcept from "@/content/registry/concepts/logit.json";
+import lossFunctionConcept from "@/content/registry/concepts/loss-function.json";
 import modalityConcept from "@/content/registry/concepts/modality.json";
 import modelConcept from "@/content/registry/concepts/model.json";
 import moduleConcept from "@/content/registry/concepts/module.json";
 import multimodalModelConcept from "@/content/registry/concepts/multimodal-model.json";
+import optimizerStateConcept from "@/content/registry/concepts/optimizer-state.json";
+import parameterConcept from "@/content/registry/concepts/parameter.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
+import softmaxConcept from "@/content/registry/concepts/softmax.json";
+import temperatureConcept from "@/content/registry/concepts/temperature.json";
+import tensorConcept from "@/content/registry/concepts/tensor.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
@@ -35,6 +48,19 @@ const moduleRecords: ModuleRecord[] = [
 
 const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(tokenConcept),
+  conceptRecordSchema.parse(embeddingConcept),
+  conceptRecordSchema.parse(tensorConcept),
+  conceptRecordSchema.parse(logitConcept),
+  conceptRecordSchema.parse(softmaxConcept),
+  conceptRecordSchema.parse(entropyConcept),
+  conceptRecordSchema.parse(temperatureConcept),
+  conceptRecordSchema.parse(parameterConcept),
+  conceptRecordSchema.parse(activationConcept),
+  conceptRecordSchema.parse(computationalGraphConcept),
+  conceptRecordSchema.parse(gradientConcept),
+  conceptRecordSchema.parse(backpropagationConcept),
+  conceptRecordSchema.parse(lossFunctionConcept),
+  conceptRecordSchema.parse(optimizerStateConcept),
   conceptRecordSchema.parse(modelConcept),
   conceptRecordSchema.parse(architectureConcept),
   conceptRecordSchema.parse(moduleConcept),
