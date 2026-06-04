@@ -1,0 +1,17 @@
+{
+  "id": "concept.world-model",
+  "slug": "world-model",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["world models", "world modeling", "environment model"],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": [],
+  "explainsIds": []
+}

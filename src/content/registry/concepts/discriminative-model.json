@@ -1,0 +1,21 @@
+{
+  "id": "concept.discriminative-model",
+  "slug": "discriminative-model",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "discriminative models",
+    "classifier",
+    "discriminative classifier"
+  ],
+  "tags": ["taxonomy", "foundations"],
+  "relatedIds": ["concept.generative-model"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.model", "concept.foundation-model"],
+  "explainsIds": []
+}

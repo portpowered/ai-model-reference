@@ -1,4 +1,5 @@
 import { glossaryPageHref, modulePageHref } from "@/lib/content/content-hrefs";
+import type { PublishedDocsRegistryIds } from "@/lib/content/published-docs-registry-ids";
 import type { ConceptRecord, ModuleRecord } from "@/lib/content/schemas";
 
 export { glossaryPageHref, modulePageHref } from "@/lib/content/content-hrefs";
@@ -6,11 +7,13 @@ export { glossaryPageHref, modulePageHref } from "@/lib/content/content-hrefs";
 export const SAME_VARIANT_GROUP = "same-variant-group" as const;
 export const SHARED_TAGS = "shared-tags" as const;
 export const SAME_CONCEPT_TYPE = "same-concept-type" as const;
+export const CURATED_RELATED = "curated-related" as const;
 
 export type DerivedRelatedDocGroupId =
   | typeof SAME_VARIANT_GROUP
   | typeof SHARED_TAGS
-  | typeof SAME_CONCEPT_TYPE;
+  | typeof SAME_CONCEPT_TYPE
+  | typeof CURATED_RELATED;
 
 export const DERIVED_RELATED_DOC_GROUP_LABELS: Record<
   DerivedRelatedDocGroupId,
@@ -19,7 +22,11 @@ export const DERIVED_RELATED_DOC_GROUP_LABELS: Record<
   [SAME_VARIANT_GROUP]: "Same variant group",
   [SHARED_TAGS]: "Shared tag",
   [SAME_CONCEPT_TYPE]: "Same concept type",
+  [CURATED_RELATED]: "Curated related",
 };
+
+export const PLANNED_RELATED_REASON_LABEL =
+  "Planned — coming in a later phase" as const;
 
 export type RelatedRegistryRecord = ModuleRecord | ConceptRecord;
 
@@ -27,8 +34,10 @@ export type RelatedDocItem = {
   registryId: string;
   slug: string;
   title: string;
-  href: string;
+  /** Omitted when the target is planned (draft without a published docs page). */
+  href?: string;
   reasonLabel: string;
+  isPlanned: boolean;
 };
 
 export type RelatedDocGroup = {
@@ -72,16 +81,38 @@ function sharesTag(sourceTags: string[], candidateTags: string[]): boolean {
   return sourceTags.some((tag) => candidateTags.includes(tag));
 }
 
+/** True when the registry record has a published docs page readers can open. */
+export function hasPublishedDocsPage(
+  record: RelatedRegistryRecord,
+  publishedRegistryIds: PublishedDocsRegistryIds,
+): boolean {
+  return publishedRegistryIds.has(record.id);
+}
+
+/** Draft (or otherwise unpublished-page) targets surface as planned rows without href. */
+export function isPlannedRelatedTarget(
+  record: RelatedRegistryRecord,
+  publishedRegistryIds: PublishedDocsRegistryIds,
+): boolean {
+  return (
+    record.status === "draft" &&
+    !hasPublishedDocsPage(record, publishedRegistryIds)
+  );
+}
+
 function toRelatedItem(
   record: RelatedRegistryRecord,
   reasonLabel: string,
+  publishedRegistryIds: PublishedDocsRegistryIds,
 ): RelatedDocItem {
+  const isPlanned = isPlannedRelatedTarget(record, publishedRegistryIds);
   return {
     registryId: record.id,
     slug: record.slug,
     title: registryDisplayTitle(record),
-    href: recordPageHref(record),
-    reasonLabel,
+    href: isPlanned ? undefined : recordPageHref(record),
+    reasonLabel: isPlanned ? PLANNED_RELATED_REASON_LABEL : reasonLabel,
+    isPlanned,
   };
 }
 
@@ -89,6 +120,7 @@ function toRelatedItem(
 export function deriveSameVariantGroupPeers(
   source: ModuleRecord,
   modules: ModuleRecord[],
+  publishedRegistryIds: PublishedDocsRegistryIds,
 ): RelatedDocItem[] {
   if (!source.variantGroup) {
     return [];
@@ -101,7 +133,7 @@ export function deriveSameVariantGroupPeers(
         candidate.id !== source.id &&
         candidate.variantGroup === source.variantGroup,
     )
-    .map((record) => toRelatedItem(record, reasonLabel))
+    .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds))
     .sort((a, b) => a.title.localeCompare(b.title));
 }
 
@@ -109,6 +141,7 @@ export function deriveSameVariantGroupPeers(
 export function deriveSharedTagPeers(
   source: RelatedRegistryRecord,
   candidates: RelatedRegistryRecord[],
+  publishedRegistryIds: PublishedDocsRegistryIds,
 ): RelatedDocItem[] {
   if (source.tags.length === 0) {
     return [];
@@ -120,7 +153,7 @@ export function deriveSharedTagPeers(
       (candidate) =>
         candidate.id !== source.id && sharesTag(source.tags, candidate.tags),
     )
-    .map((record) => toRelatedItem(record, reasonLabel))
+    .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds))
     .sort((a, b) => a.title.localeCompare(b.title));
 }
 
@@ -128,6 +161,7 @@ export function deriveSharedTagPeers(
 export function deriveSameConceptTypePeers(
   source: RelatedRegistryRecord,
   candidates: RelatedRegistryRecord[],
+  publishedRegistryIds: PublishedDocsRegistryIds,
 ): RelatedDocItem[] {
   const sourceConceptType = getConceptType(source);
   if (!sourceConceptType) {
@@ -141,14 +175,39 @@ export function deriveSameConceptTypePeers(
         candidate.id !== source.id &&
         getConceptType(candidate) === sourceConceptType,
     )
-    .map((record) => toRelatedItem(record, reasonLabel))
+    .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds))
     .sort((a, b) => a.title.localeCompare(b.title));
+}
+
+/** Curated `relatedIds` on the source record, preserving registry order. */
+export function deriveCuratedRelatedItems(
+  source: RelatedRegistryRecord,
+  candidates: RelatedRegistryRecord[],
+  publishedRegistryIds: PublishedDocsRegistryIds,
+): RelatedDocItem[] {
+  if (source.relatedIds.length === 0) {
+    return [];
+  }
+
+  const candidatesById = new Map(
+    candidates.map((candidate) => [candidate.id, candidate]),
+  );
+  const reasonLabel = DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED];
+
+  return source.relatedIds
+    .map((id) => candidatesById.get(id))
+    .filter(
+      (record): record is RelatedRegistryRecord =>
+        record !== undefined && record.id !== source.id,
+    )
+    .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds));
 }
 
 export function deriveRelatedDocGroups(
   source: RelatedRegistryRecord,
   candidates: RelatedRegistryRecord[],
   requestedGroups: string[],
+  publishedRegistryIds: PublishedDocsRegistryIds,
 ): RelatedDocGroup[] {
   const groups: RelatedDocGroup[] = [];
 
@@ -159,7 +218,11 @@ export function deriveRelatedDocGroups(
     const moduleCandidates = candidates.filter(
       (candidate): candidate is ModuleRecord => candidate.kind === "module",
     );
-    const items = deriveSameVariantGroupPeers(source, moduleCandidates);
+    const items = deriveSameVariantGroupPeers(
+      source,
+      moduleCandidates,
+      publishedRegistryIds,
+    );
     if (items.length > 0) {
       groups.push({
         id: SAME_VARIANT_GROUP,
@@ -170,7 +233,11 @@ export function deriveRelatedDocGroups(
   }
 
   if (requestedGroups.includes(SHARED_TAGS)) {
-    const items = deriveSharedTagPeers(source, candidates);
+    const items = deriveSharedTagPeers(
+      source,
+      candidates,
+      publishedRegistryIds,
+    );
     if (items.length > 0) {
       groups.push({
         id: SHARED_TAGS,
@@ -181,11 +248,30 @@ export function deriveRelatedDocGroups(
   }
 
   if (requestedGroups.includes(SAME_CONCEPT_TYPE)) {
-    const items = deriveSameConceptTypePeers(source, candidates);
+    const items = deriveSameConceptTypePeers(
+      source,
+      candidates,
+      publishedRegistryIds,
+    );
     if (items.length > 0) {
       groups.push({
         id: SAME_CONCEPT_TYPE,
         reasonLabel: DERIVED_RELATED_DOC_GROUP_LABELS[SAME_CONCEPT_TYPE],
+        items,
+      });
+    }
+  }
+
+  if (requestedGroups.includes(CURATED_RELATED)) {
+    const items = deriveCuratedRelatedItems(
+      source,
+      candidates,
+      publishedRegistryIds,
+    );
+    if (items.length > 0) {
+      groups.push({
+        id: CURATED_RELATED,
+        reasonLabel: DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED],
         items,
       });
     }

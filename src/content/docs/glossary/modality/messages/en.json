@@ -1,0 +1,43 @@
+{
+  "title": "Modality",
+  "description": "The kind of input or output data a model is built to handle, such as text, images, audio, or video.",
+  "problemStatement": "Teams describe models as \"multimodal\" or \"vision-language\" without stating which data types actually enter the network, which makes comparisons and module choices unclear.",
+  "coreIdea": "Modality names the data channel—text tokens, pixels, spectrograms—not the architecture or the trained checkpoint.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A modality is a data type the model consumes or produces. Unimodal models specialize in one channel; multimodal models align two or more, such as image patches with text tokens. Modality sits above representation: it names what is encoded, not the internal vector format."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Modality tells you which encoders, tokenizers, and fusion modules to expect before you open a family page. It also separates \"handles images\" from \"is a diffusion architecture\" or \"is a foundation model.\""
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A speech-to-text system pairs an audio waveform modality with a text output modality. A text-only LLM has a single text modality end to end even when users paste images in a chat UI—the product may be multimodal while the core model is not."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Modality appears in model cards, dataset documentation, and multimodal family overviews. The model glossary page links here when describing what a checkpoint accepts."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Modality is not architecture: a transformer can be text-only or multimodal depending on inputs. Modality is also not representation—a modality is the raw channel, while representation is the learned internal form after encoding."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "List the input and output data types first; that list is the modality story before you compare parameters or benchmarks."
+    }
+  }
+}

@@ -48,11 +48,18 @@ describe("groupTagIndexEntriesByCategory", () => {
     const groups = await loadPublishedTagIndexGroups(messages, "en");
 
     expect(groups.map((group) => group.category)).toEqual([
+      "architecture",
       "module-type",
       "inference",
+      "model-family",
     ]);
-    expect(groups[0]?.tags.map((tag) => tag.slug)).toEqual(["attention"]);
-    expect(groups[1]?.tags.map((tag) => tag.slug)).toEqual(["kv-cache"]);
+    expect(groups[0]?.tags.map((tag) => tag.slug)).toEqual([
+      "foundations",
+      "taxonomy",
+    ]);
+    expect(groups[1]?.tags.map((tag) => tag.slug)).toEqual(["attention"]);
+    expect(groups[2]?.tags.map((tag) => tag.slug)).toEqual(["kv-cache"]);
+    expect(groups[3]?.tags.map((tag) => tag.slug)).toEqual(["model-family"]);
   });
 
   it("sorts tags alphabetically by title inside each category group", () => {

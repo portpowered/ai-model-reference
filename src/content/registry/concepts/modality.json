@@ -1,0 +1,17 @@
+{
+  "id": "concept.modality",
+  "slug": "modality",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["data modality", "input modality", "multimodal input"],
+  "tags": ["taxonomy", "foundations"],
+  "relatedIds": ["concept.representation"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-04T00:00:00.000Z",
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.model"],
+  "explainsIds": []
+}
