@@ -1,3 +1,11 @@
+/**
+ * Fresh-checkout typecheck proof.
+ *
+ * Simulates a clean clone without mutating the developer workspace: provisions a
+ * detached git worktree at HEAD, runs `bun install --frozen-lockfile`, asserts
+ * `.source/` is absent, then runs `make typecheck` inside the isolated tree.
+ * See README.md § Quality Gates — Fresh-checkout CI proof.
+ */
 import { describe, expect, test } from "bun:test";
 import { type SpawnSyncReturns, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";

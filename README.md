@@ -132,6 +132,16 @@ make validate-pdf
 Deploy and coverage gates are likewise out of scope for Phase 1; neither
 `.github/workflows/ci.yml` nor `make ci` invokes them.
 
+### Fresh-checkout CI proof
+
+During `make test` (and therefore `make ci`), `src/tests/ci/fresh-checkout-typecheck.test.ts`
+proves the typecheck gate succeeds when `.source/` is absent. Instead of
+deleting gitignored artifacts in your working tree, the test provisions an
+isolated detached git worktree at HEAD, runs `bun install --frozen-lockfile`
+inside it, confirms `.source/` is missing, and runs the typecheck gate only in
+that worktree. This models a fresh clone without mutating your main workspace
+`node_modules`, `.next/`, or generated `.source/`.
+
 Equivalent Bun scripts are in `package.json` (`bun run lint`, `bun run build`,
 and so on).
 
