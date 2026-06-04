@@ -1,3 +1,4 @@
+import { request as httpRequest } from "node:http";
 import { createServer } from "node:net";
 
 /** Preferred local verify listen range (avoids default dev port 3000). */
@@ -72,6 +73,40 @@ function resolveRequestUrl(input: RequestInfo | URL): string {
  * fetch with a hard Promise.race deadline (default 10s).
  * The underlying request may continue after the deadline; callers should exit the process.
  */
+/**
+ * Node http GET with a hard deadline. Avoids browser fetch/CORS in test runtimes.
+ */
+export async function httpGetStatus(
+  url: string,
+  timeoutMs: number = DEFAULT_FETCH_TIMEOUT_MS,
+): Promise<number> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new FetchTimeoutError(url, timeoutMs)),
+      timeoutMs,
+    );
+  });
+
+  const requestPromise = new Promise<number>((resolve, reject) => {
+    const req = httpRequest(url, { method: "GET" }, (res) => {
+      res.resume();
+      resolve(res.statusCode ?? 0);
+    });
+    req.once("error", reject);
+    req.end();
+  });
+
+  try {
+    return await Promise.race([requestPromise, deadline]);
+  } finally {
+    if (timer !== undefined) {
+      clearTimeout(timer);
+    }
+  }
+}
+
 export async function fetchWithTimeout(
   input: RequestInfo | URL,
   init?: FetchWithTimeoutInit,
