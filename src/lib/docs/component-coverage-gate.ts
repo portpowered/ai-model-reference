@@ -1,11 +1,11 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import {
-  PHASE_2_COVERAGE_COMPONENTS,
-  PHASE_2_THIN_WRAPPERS,
-  type Phase2ComponentCoverageEntry,
-  type Phase2ThinWrapperEntry,
-} from "@/lib/docs/phase-2-component-manifest";
+  type ComponentCoverageEntry,
+  REUSABLE_COVERAGE_COMPONENTS,
+  REUSABLE_THIN_WRAPPERS,
+  type ThinWrapperEntry,
+} from "@/lib/docs/component-manifest";
 
 /** Bun `bun test --coverage` args shared by make coverage and the gate script. */
 export const COVERAGE_TEST_ARGS = [
@@ -77,8 +77,8 @@ export function normalizeSmokeTestPath(testPath: string): string {
 
 function validateManifestPaths(errors: string[]): void {
   for (const entry of [
-    ...PHASE_2_COVERAGE_COMPONENTS,
-    ...PHASE_2_THIN_WRAPPERS,
+    ...REUSABLE_COVERAGE_COMPONENTS,
+    ...REUSABLE_THIN_WRAPPERS,
   ]) {
     if (!isAllowedManifestPath(entry.file)) {
       errors.push(
@@ -89,7 +89,7 @@ function validateManifestPaths(errors: string[]): void {
 }
 
 function checkThinWrapper(
-  wrapper: Phase2ThinWrapperEntry,
+  wrapper: ThinWrapperEntry,
   repoRoot: string,
   errors: string[],
 ): ComponentCoverageSummaryLine {
@@ -115,7 +115,7 @@ function checkThinWrapper(
 }
 
 function checkCoverageEntry(
-  entry: Phase2ComponentCoverageEntry,
+  entry: ComponentCoverageEntry,
   coverageByFile: Map<string, number>,
   errors: string[],
 ): ComponentCoverageSummaryLine {
@@ -165,11 +165,11 @@ export function evaluateComponentCoverageGate(options: {
     options.coverageRows.map((row) => [row.file, row.linePercent]),
   );
 
-  for (const entry of PHASE_2_COVERAGE_COMPONENTS) {
+  for (const entry of REUSABLE_COVERAGE_COMPONENTS) {
     summaryLines.push(checkCoverageEntry(entry, coverageByFile, errors));
   }
 
-  for (const wrapper of PHASE_2_THIN_WRAPPERS) {
+  for (const wrapper of REUSABLE_THIN_WRAPPERS) {
     const line = checkThinWrapper(wrapper, repoRoot, errors);
     summaryLines.push(line);
   }
