@@ -1,0 +1,43 @@
+{
+  "title": "Encoder-Decoder",
+  "description": "An architecture that compresses input into representations with an encoder, then generates outputs with a decoder—often via cross-attention between the two stacks.",
+  "problemStatement": "Seq2seq diagrams collapse into a single box labeled \"transformer,\" hiding whether information is bidirectional in the encoder, causal in the decoder, or shared across both, which makes it hard to compare translation models with GPT-style decoders.",
+  "coreIdea": "Encoder–decoder models pair an input-side encoder with an output-side decoder; the decoder conditions on encoder representations (memory) while generating tokens or other outputs step by step or in blocks.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Classic transformer translation uses a bidirectional encoder over the source and a causal decoder over the target with cross-attention into encoder states. Variants appear in speech (encoder over audio, decoder over text), multimodal captioning, and T5-style text-to-text frameworks where both sides are token sequences."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "The split explains capacity allocation: encoders can see the full input while decoders remain causal for generation. It also motivates autoregressive generation as the decoder output paradigm and contrasts with decoder-only models that fold encoding and decoding into one causal stack."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "English→French translation encodes the English sentence into memory vectors, then the decoder generates French tokens while attending to those vectors at each step. The encoder never emits French tokens; the decoder never re-reads raw English after encoding finishes."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Encoder–decoder transformers underpin machine translation, summarization, and many speech and vision-language systems. Forward links in this chain point to autoregressive generation for how decoders emit outputs and to transformer as the dominant block architecture inside both stacks."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Encoder–decoder is an architecture pattern, not a training objective—you still need a loss and data pipeline. It is also distinct from encoder-only BERT models (no decoder) and decoder-only GPT models (no separate encoder). T5 is encoder–decoder even when input and output are both text."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Reader Shortcut",
+      "body": "If one stack reads the full input and another generates outputs with cross-attention between them, you are looking at encoder–decoder—not decoder-only."
+    }
+  }
+}

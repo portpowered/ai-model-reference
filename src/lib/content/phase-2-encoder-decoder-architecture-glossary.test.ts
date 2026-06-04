@@ -6,18 +6,19 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { GLOSSARY_DOCS_ROOT } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
+import { loadRegistry } from "@/lib/content/registry";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const REPRESENTATION_LATENT_SLUGS = [
-  "patch",
-  "latent",
-  "latent-space",
+const ENCODER_DECODER_SLUGS = [
+  "encoder",
+  "decoder",
+  "encoder-decoder",
 ] as const;
 
-function renderGlossaryHtml(
-  slug: (typeof REPRESENTATION_LATENT_SLUGS)[number],
-) {
+function renderGlossaryHtml(slug: (typeof ENCODER_DECODER_SLUGS)[number]) {
   return loadGlossaryPage(slug).then((page) =>
     renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -30,8 +31,8 @@ function renderGlossaryHtml(
   );
 }
 
-describe("Phase 2 representation and latent glossary pages (US-001)", () => {
-  for (const slug of REPRESENTATION_LATENT_SLUGS) {
+describe("Phase 2 encoder-decoder architecture glossary pages (US-002)", () => {
+  for (const slug of ENCODER_DECODER_SLUGS) {
     test(`${slug} messages include required concept template keys`, () => {
       const messagesPath = join(GLOSSARY_DOCS_ROOT, slug, "messages/en.json");
       const messages = pageMessagesSchema.parse(
@@ -68,42 +69,62 @@ describe("Phase 2 representation and latent glossary pages (US-001)", () => {
     });
   }
 
-  test("patch page links to representation and latent peers", async () => {
-    const html = await renderGlossaryHtml("patch");
+  test("encoder links backward to patch, latent space, and representation", async () => {
+    const html = await renderGlossaryHtml("encoder");
 
-    expect(html).toContain('href="/docs/glossary/latent"');
-    expect(html).toContain('href="/docs/glossary/modality"');
+    expect(html).toContain('href="/docs/glossary/patch"');
+    expect(html).toContain('href="/docs/glossary/latent-space"');
+    expect(html).toContain('href="/docs/glossary/representation"');
   });
 
-  test("latent-space links to published encoder and planned denoising generation", async () => {
-    const html = await renderGlossaryHtml("latent-space");
+  test("encoder-decoder surfaces planned autoregressive generation and transformer with reason labels", async () => {
+    const html = await renderGlossaryHtml("encoder-decoder");
+
+    expect(html).toContain("Planned — coming in a later phase");
+    expect(html).toContain("Autoregressive");
+    expect(html).toContain("Transformers");
+  });
+
+  test("encoder-decoder links to encoder and decoder peers", async () => {
+    const html = await renderGlossaryHtml("encoder-decoder");
 
     expect(html).toContain('href="/docs/glossary/encoder"');
-    expect(html).toContain("Planned — coming in a later phase");
-    expect(html).toContain("Denoising");
+    expect(html).toContain('href="/docs/glossary/decoder"');
   });
 
-  test("latent-space links backward to latent and generative model", async () => {
-    const html = await renderGlossaryHtml("latent-space");
+  test("search index records encoder cluster with glossary kind not module", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
 
-    expect(html).toContain('href="/docs/glossary/latent"');
-    expect(html).toContain('href="/docs/glossary/generative-model"');
+    for (const slug of ENCODER_DECODER_SLUGS) {
+      const document = documents.find(
+        (entry) => entry.url === `/docs/glossary/${slug}`,
+      );
+      expect(document?.kind).toBe("glossary");
+      expect(document?.facets.kind).toBe("glossary");
+    }
+
+    const gqa = documents.find(
+      (entry) => entry.url === "/docs/modules/grouped-query-attention",
+    );
+    expect(gqa?.kind).toBe("module");
   });
 
-  test("search finds patch, latent, and latent space by title and alias", async () => {
-    const patchResults = await docsSearchApi.search("Patch");
-    expect(patchResults.some((r) => r.url === "/docs/glossary/patch")).toBe(
+  test("search finds encoder, decoder, and encoder-decoder by title or alias", async () => {
+    const encoderResults = await docsSearchApi.search("encoding network");
+    expect(encoderResults.some((r) => r.url === "/docs/glossary/encoder")).toBe(
       true,
     );
 
-    const latentCodeResults = await docsSearchApi.search("latent code");
-    expect(
-      latentCodeResults.some((r) => r.url === "/docs/glossary/latent"),
-    ).toBe(true);
+    const decoderResults = await docsSearchApi.search("decoding network");
+    expect(decoderResults.some((r) => r.url === "/docs/glossary/decoder")).toBe(
+      true,
+    );
 
-    const manifoldResults = await docsSearchApi.search("latent manifold");
+    const seq2seqResults = await docsSearchApi.search("seq2seq");
     expect(
-      manifoldResults.some((r) => r.url === "/docs/glossary/latent-space"),
+      seq2seqResults.some((r) => r.url === "/docs/glossary/encoder-decoder"),
     ).toBe(true);
   });
 });

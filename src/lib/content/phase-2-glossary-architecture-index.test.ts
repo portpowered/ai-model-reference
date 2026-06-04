@@ -40,7 +40,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   token: "Token",
 };
 
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 13;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 16;
 
 function collectPageUrls(nodes: Node[]): string[] {
   const urls: string[] = [];

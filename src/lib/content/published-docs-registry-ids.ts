@@ -14,6 +14,9 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.patch",
   "concept.latent",
   "concept.latent-space",
+  "concept.encoder",
+  "concept.decoder",
+  "concept.encoder-decoder",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;

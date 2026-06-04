@@ -1,9 +1,12 @@
 import architectureConcept from "@/content/registry/concepts/architecture.json";
+import autoregressiveGenerationConcept from "@/content/registry/concepts/autoregressive-generation.json";
 import componentConcept from "@/content/registry/concepts/component.json";
+import decoderConcept from "@/content/registry/concepts/decoder.json";
 import denoisingGenerationConcept from "@/content/registry/concepts/denoising-generation.json";
 import diffusionModelConcept from "@/content/registry/concepts/diffusion-model.json";
 import discriminativeModelConcept from "@/content/registry/concepts/discriminative-model.json";
 import encoderConcept from "@/content/registry/concepts/encoder.json";
+import encoderDecoderConcept from "@/content/registry/concepts/encoder-decoder.json";
 import foundationModelConcept from "@/content/registry/concepts/foundation-model.json";
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
@@ -53,6 +56,9 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(latentConcept),
   conceptRecordSchema.parse(latentSpaceConcept),
   conceptRecordSchema.parse(encoderConcept),
+  conceptRecordSchema.parse(decoderConcept),
+  conceptRecordSchema.parse(encoderDecoderConcept),
+  conceptRecordSchema.parse(autoregressiveGenerationConcept),
   conceptRecordSchema.parse(denoisingGenerationConcept),
   conceptRecordSchema.parse(transformerConcept),
   conceptRecordSchema.parse(diffusionModelConcept),
