@@ -75,19 +75,6 @@ export function normalizeSmokeTestPath(testPath: string): string {
   return testPath.replace(/\s+\(.*\)$/, "").trim();
 }
 
-function validateManifestPaths(errors: string[]): void {
-  for (const entry of [
-    ...REUSABLE_COVERAGE_COMPONENTS,
-    ...REUSABLE_THIN_WRAPPERS,
-  ]) {
-    if (!isAllowedManifestPath(entry.file)) {
-      errors.push(
-        `Manifest path not allowed (use src/components/**, src/features/**/components/**, or ${SEARCH_UI_MANIFEST_PREFIX}): ${entry.file}`,
-      );
-    }
-  }
-}
-
 function checkThinWrapper(
   wrapper: ThinWrapperEntry,
   repoRoot: string,
@@ -154,22 +141,33 @@ function checkCoverageEntry(
 export function evaluateComponentCoverageGate(options: {
   coverageRows: CoverageRow[];
   repoRoot?: string;
+  /** Override manifest entries in unit tests without mutating production data. */
+  components?: ComponentCoverageEntry[];
+  thinWrappers?: ThinWrapperEntry[];
 }): ComponentCoverageGateResult {
   const repoRoot = options.repoRoot ?? process.cwd();
+  const components = options.components ?? REUSABLE_COVERAGE_COMPONENTS;
+  const thinWrappers = options.thinWrappers ?? REUSABLE_THIN_WRAPPERS;
   const errors: string[] = [];
   const summaryLines: ComponentCoverageSummaryLine[] = [];
 
-  validateManifestPaths(errors);
+  for (const entry of [...components, ...thinWrappers]) {
+    if (!isAllowedManifestPath(entry.file)) {
+      errors.push(
+        `Manifest path not allowed (use src/components/**, src/features/**/components/**, or ${SEARCH_UI_MANIFEST_PREFIX}): ${entry.file}`,
+      );
+    }
+  }
 
   const coverageByFile = new Map(
     options.coverageRows.map((row) => [row.file, row.linePercent]),
   );
 
-  for (const entry of REUSABLE_COVERAGE_COMPONENTS) {
+  for (const entry of components) {
     summaryLines.push(checkCoverageEntry(entry, coverageByFile, errors));
   }
 
-  for (const wrapper of REUSABLE_THIN_WRAPPERS) {
+  for (const wrapper of thinWrappers) {
     const line = checkThinWrapper(wrapper, repoRoot, errors);
     summaryLines.push(line);
   }
