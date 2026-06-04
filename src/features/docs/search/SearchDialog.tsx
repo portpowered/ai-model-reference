@@ -75,7 +75,11 @@ export function ModelAtlasSearchDialog({
           Empty={() => (
             <output
               className="block py-12 text-center text-sm text-fd-muted-foreground"
-              data-testid="search-dialog-empty"
+              data-testid={
+                query.isLoading
+                  ? "search-dialog-loading"
+                  : "search-dialog-empty"
+              }
             >
               {query.isLoading
                 ? messages.search.loading
@@ -96,6 +100,7 @@ export function ModelAtlasSearchDialog({
         {showIdle || showEmptyResults ? null : (
           <SearchDialogFooter
             className="text-xs text-fd-muted-foreground"
+            data-testid={query.isLoading ? "search-dialog-loading" : undefined}
             role={query.isLoading ? "status" : undefined}
           >
             {query.isLoading ? messages.search.loading : null}

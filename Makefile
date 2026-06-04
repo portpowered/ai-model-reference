@@ -1,4 +1,4 @@
-.PHONY: dev lint format typecheck test build ci validate-data scaffold linkcheck validate-pdf build-search-index
+.PHONY: dev lint format typecheck test build ci validate-data scaffold linkcheck validate-pdf build-search-index component-examples
 
 dev:
 	bun run dev
@@ -19,7 +19,7 @@ build:
 	bun run build
 	bun ./scripts/verify-phase-1-static-routes.ts
 
-ci: lint typecheck test build validate-data
+ci: lint typecheck test build validate-data linkcheck
 
 validate-data:
 	bun ./scripts/validate-registry.ts
@@ -28,8 +28,7 @@ scaffold:
 	bun ./scripts/scaffold-doc-page.ts $(ARGS)
 
 linkcheck:
-	@echo "linkcheck: skipped (not yet implemented in scaffold)"
-	@exit 0
+	bun ./scripts/validate-links.ts
 
 validate-pdf:
 	@echo "validate-pdf: skipped (not yet implemented in scaffold)"
@@ -37,3 +36,6 @@ validate-pdf:
 
 build-search-index:
 	bun run build:search-index
+
+component-examples:
+	bun ./scripts/component-examples.ts
