@@ -22,6 +22,7 @@ const ciTargets = [
   "lint",
   "typecheck",
   "test",
+  "coverage",
   "build",
   "validate-data",
   "linkcheck",
@@ -30,7 +31,6 @@ const ciTargets = [
 const excludedCiTargets = [
   "validate-pdf",
   "deploy",
-  "coverage",
   "build-search-index",
 ] as const;
 
