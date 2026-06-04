@@ -22,6 +22,7 @@ describe("isArchitectureRelatedPage", () => {
     const urls = architecturePages.map((page) => page.url).sort();
     expect(urls).toEqual(
       [
+        "/docs/glossary/alignment",
         "/docs/glossary/architecture",
         "/docs/glossary/autoregressive-generation",
         "/docs/glossary/component",
@@ -32,12 +33,15 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/encoder",
         "/docs/glossary/encoder-decoder",
         "/docs/glossary/foundation-model",
+        "/docs/glossary/generalization",
         "/docs/glossary/generative-model",
         "/docs/glossary/latent",
         "/docs/glossary/latent-space",
         "/docs/glossary/modality",
         "/docs/glossary/model",
+        "/docs/glossary/model-capacity",
         "/docs/glossary/module",
+        "/docs/glossary/overfitting",
         "/docs/glossary/patch",
         "/docs/glossary/representation",
         "/docs/glossary/token",

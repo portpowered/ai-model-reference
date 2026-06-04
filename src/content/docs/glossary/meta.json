@@ -1,6 +1,7 @@
 {
   "title": "Glossary",
   "pages": [
+    "[Alignment](/docs/glossary/alignment)",
     "[Architecture](/docs/glossary/architecture)",
     "[Autoregressive Generation](/docs/glossary/autoregressive-generation)",
     "[Component](/docs/glossary/component)",
@@ -11,11 +12,14 @@
     "[Encoder](/docs/glossary/encoder)",
     "[Encoder-Decoder](/docs/glossary/encoder-decoder)",
     "[Foundation Model](/docs/glossary/foundation-model)",
+    "[Generalization](/docs/glossary/generalization)",
     "[Generative Model](/docs/glossary/generative-model)",
     "[Latent](/docs/glossary/latent)",
     "[Latent Space](/docs/glossary/latent-space)",
     "[Modality](/docs/glossary/modality)",
     "[Model](/docs/glossary/model)",
+    "[Model Capacity](/docs/glossary/model-capacity)",
+    "[Overfitting](/docs/glossary/overfitting)",
     "[Patch](/docs/glossary/patch)",
     "[Module](/docs/glossary/module)",
     "[Representation](/docs/glossary/representation)",

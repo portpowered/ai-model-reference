@@ -1,3 +1,4 @@
+import alignmentConcept from "@/content/registry/concepts/alignment.json";
 import architectureConcept from "@/content/registry/concepts/architecture.json";
 import autoregressiveGenerationConcept from "@/content/registry/concepts/autoregressive-generation.json";
 import componentConcept from "@/content/registry/concepts/component.json";
@@ -10,14 +11,20 @@ import embeddingConcept from "@/content/registry/concepts/embedding.json";
 import encoderConcept from "@/content/registry/concepts/encoder.json";
 import encoderDecoderConcept from "@/content/registry/concepts/encoder-decoder.json";
 import foundationModelConcept from "@/content/registry/concepts/foundation-model.json";
+import generalizationConcept from "@/content/registry/concepts/generalization.json";
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
 import logitConcept from "@/content/registry/concepts/logit.json";
+import lossFunctionConcept from "@/content/registry/concepts/loss-function.json";
 import modalityConcept from "@/content/registry/concepts/modality.json";
 import modelConcept from "@/content/registry/concepts/model.json";
+import modelCapacityConcept from "@/content/registry/concepts/model-capacity.json";
 import moduleConcept from "@/content/registry/concepts/module.json";
 import multimodalModelConcept from "@/content/registry/concepts/multimodal-model.json";
+import optimizerStateConcept from "@/content/registry/concepts/optimizer-state.json";
+import overfittingConcept from "@/content/registry/concepts/overfitting.json";
+import parameterConcept from "@/content/registry/concepts/parameter.json";
 import patchConcept from "@/content/registry/concepts/patch.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
@@ -65,6 +72,13 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(autoregressiveGenerationConcept),
   conceptRecordSchema.parse(denoisingGenerationConcept),
   conceptRecordSchema.parse(conditioningConcept),
+  conceptRecordSchema.parse(alignmentConcept),
+  conceptRecordSchema.parse(modelCapacityConcept),
+  conceptRecordSchema.parse(overfittingConcept),
+  conceptRecordSchema.parse(generalizationConcept),
+  conceptRecordSchema.parse(parameterConcept),
+  conceptRecordSchema.parse(lossFunctionConcept),
+  conceptRecordSchema.parse(optimizerStateConcept),
   conceptRecordSchema.parse(logitConcept),
   conceptRecordSchema.parse(softmaxConcept),
   conceptRecordSchema.parse(embeddingConcept),

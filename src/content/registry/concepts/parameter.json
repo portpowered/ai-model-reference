@@ -1,0 +1,21 @@
+{
+  "id": "concept.parameter",
+  "slug": "parameter",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Parameter", "parameters", "learnable weights", "model weights"],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.loss-function",
+    "concept.optimizer-state",
+    "concept.token"
+  ],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-04T14:00:00.000Z",
+  "updatedAt": "2026-06-04T14:00:00.000Z",
+  "conceptType": "training",
+  "prerequisiteIds": ["concept.token"],
+  "explainsIds": []
+}
