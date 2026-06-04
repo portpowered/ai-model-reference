@@ -29,9 +29,24 @@ describe("loadPublishedGlossaryEntries", () => {
     expect(token?.summary.length).toBeGreaterThan(0);
   });
 
+  it("includes embedding and tensor chain glossary pages with title and summary", async () => {
+    const entries = await loadPublishedGlossaryEntries("en");
+    const embedding = entries.find(
+      (entry) => entry.url === "/docs/glossary/embedding",
+    );
+    expect(embedding?.title).toBe("Embedding");
+    expect(embedding?.summary.length).toBeGreaterThan(0);
+
+    const tensor = entries.find(
+      (entry) => entry.url === "/docs/glossary/tensor",
+    );
+    expect(tensor?.title).toBe("Tensor");
+    expect(tensor?.summary.length).toBeGreaterThan(0);
+  });
+
   it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(10);
+    expect(entries).toHaveLength(12);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -96,6 +111,10 @@ describe("glossary index page render", () => {
     expect(html).toContain('href="/docs/glossary/generative-model"');
     expect(html).toContain("Token");
     expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).toContain("Embedding");
+    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain("Tensor");
+    expect(html).toContain('href="/docs/glossary/tensor"');
     expect(html).not.toContain("No glossary entries yet");
   });
 });

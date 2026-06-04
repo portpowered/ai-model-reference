@@ -25,6 +25,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/architecture",
         "/docs/glossary/component",
         "/docs/glossary/discriminative-model",
+        "/docs/glossary/embedding",
         "/docs/glossary/foundation-model",
         "/docs/glossary/generative-model",
         "/docs/glossary/modality",

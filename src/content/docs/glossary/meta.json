@@ -10,6 +10,8 @@
     "[Model](/docs/glossary/model)",
     "[Module](/docs/glossary/module)",
     "[Representation](/docs/glossary/representation)",
-    "[Token](/docs/glossary/token)"
+    "[Token](/docs/glossary/token)",
+    "[Embedding](/docs/glossary/embedding)",
+    "[Tensor](/docs/glossary/tensor)"
   ]
 }

@@ -27,11 +27,16 @@ const ROLE_MODALITY_TAXONOMY_URLS = [
   "/docs/glossary/discriminative-model",
   "/docs/glossary/representation",
 ] as const;
+const CHAIN_GLOSSARY_URLS = [
+  "/docs/glossary/embedding",
+  "/docs/glossary/tensor",
+] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
   SAMPLE_URL,
   TOKEN_GLOSSARY_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
+  ...CHAIN_GLOSSARY_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(
   process.cwd(),
