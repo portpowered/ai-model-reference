@@ -48,7 +48,7 @@ turbopack: {
 
 1. `bun install --frozen-lockfile` when `node_modules` is absent (fresh clones and worktrees).
 2. `rm -rf .next && bun run build` — expect exit 0 and no guarded patterns in combined output.
-3. `make ci` — includes the integration test and the rest of the quality gates.
+3. `make ci` — includes the integration test and the rest of the quality gates (verified green 2026-06-04 UTC after `bun install --frozen-lockfile` on this branch; GitHub Actions runs the same `make ci` from `.github/workflows/ci.yml`).
 
 ## If a guarded warning returns
 
