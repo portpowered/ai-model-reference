@@ -50,7 +50,17 @@ describe("Phase 2 planned related docs (US-002)", () => {
     }
   });
 
-  test("RelatedDocs renders planned rows without anchor hrefs", () => {
+  test("RelatedDocs renders published token forward link to embedding", () => {
+    const html = renderToStaticMarkup(
+      <RelatedDocs registryId="concept.token" />,
+    );
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain("embeddings");
+    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).not.toContain(PLANNED_RELATED_REASON_LABEL);
+  });
+
+  test("RelatedDocs renders planned rows without anchor hrefs for draft-only forwards", () => {
     const source = getConceptById("concept.token");
     if (!source) {
       throw new Error("expected concept.token in registry runtime");
@@ -68,14 +78,7 @@ describe("Phase 2 planned related docs (US-002)", () => {
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
     expect(items.every((item) => !item.href)).toBe(true);
-
-    const html = renderToStaticMarkup(
-      <RelatedDocs registryId="concept.token" />,
-    );
-    expect(html).toContain('data-testid="curated-related-docs"');
-    expect(html).toContain("embeddings");
-    expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
-    expect(html).not.toContain("<a ");
+    expect(items.every((item) => item.isPlanned)).toBe(true);
   });
 
   test("DerivedRelatedDocs renders draft same-concept-type peer as planned", () => {

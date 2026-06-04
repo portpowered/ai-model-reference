@@ -13,11 +13,10 @@ import {
   CURATED_RELATED,
   DERIVED_RELATED_DOC_GROUP_LABELS,
   deriveCuratedRelatedItems,
-  PLANNED_RELATED_REASON_LABEL,
 } from "@/lib/content/related-docs";
 
 describe("Phase 2 token-to-probability chain curated related docs (US-002)", () => {
-  test("token registry curated related resolves embedding as a planned forward step", () => {
+  test("token registry curated related resolves embedding as a published forward step", () => {
     const source = getRegistryRecordById("concept.token");
     if (!source) {
       throw new Error("expected concept.token in registry runtime");
@@ -33,9 +32,11 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(items[0]?.registryId).toBe("concept.embedding");
     expect(items[0]?.slug).toBe("embedding");
     expect(items[0]?.title).toBe("embeddings");
-    expect(items[0]?.isPlanned).toBe(true);
-    expect(items[0]?.href).toBeUndefined();
-    expect(items[0]?.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
+    expect(items[0]?.isPlanned).toBe(false);
+    expect(items[0]?.href).toBe("/docs/glossary/embedding");
+    expect(items[0]?.reasonLabel).toBe(
+      DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED],
+    );
   });
 
   test("DerivedRelatedDocs renders curated-related group with reason labels for token", () => {
@@ -50,8 +51,7 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain('data-related-group="curated-related"');
     expect(html).toContain("embeddings");
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
-    expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
-    expect(html).not.toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/glossary/embedding"');
   });
 
   test("token glossary page related section surfaces embedding from registry relatedIds", async () => {
@@ -67,8 +67,8 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
 
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain("embeddings");
-    expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
-    expect(html).not.toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
   });
 
   test("published glossary curated links use /docs/glossary/<slug> hrefs", async () => {
