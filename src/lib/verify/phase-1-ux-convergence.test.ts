@@ -5,6 +5,7 @@ import { DOCS_SHELL_CONVERGENCE_REASONS } from "./docs-shell-convergence";
 import { REMOVED_HOME_INLINE_SEARCH_SECTION_TITLE } from "./home-search-entry-convergence";
 import { assertPhase1UxConvergence } from "./phase-1-ux-convergence";
 import { PHASE_1_UX_PASSING_STUB_HTML } from "./phase-1-ux-stub-fixtures";
+import { READER_ROUTE_CONTENT_CONVERGENCE_REASONS } from "./reader-route-content-convergence";
 
 const SPLIT_SHELL_HTML = `
   <header><nav aria-label="Primary">Model Atlas</nav></header>
@@ -143,6 +144,47 @@ describe("assertPhase1UxConvergence", () => {
       const stderr = stderrLines.join("\n");
       expect(stderr).toContain(`${baseUrl}/`);
       expect(stderr).toContain(REMOVED_HOME_INLINE_SEARCH_SECTION_TITLE);
+      expect(stderr).not.toContain(`${baseUrl}/tags`);
+    } finally {
+      console.error = originalStderr;
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
+  test("fails reader convergence after docs shell and home search entry pass", async () => {
+    const httpServer = createConvergenceStubServer({
+      ...PHASE_1_UX_PASSING_STUB_HTML,
+      "/search": "<html><h1>Wrong title</h1></html>",
+    });
+    const port = await listenOnEphemeralPort(httpServer);
+    const baseUrl = `http://127.0.0.1:${port}`;
+    const stderrLines: string[] = [];
+    const originalStderr = console.error;
+
+    console.error = (...args: unknown[]) => {
+      stderrLines.push(args.map(String).join(" "));
+    };
+
+    try {
+      await expect(
+        assertPhase1UxConvergence(baseUrl, {
+          docsShellOptions: { timeoutMs: 2_000 },
+          homeSearchEntryOptions: { timeoutMs: 2_000 },
+          readerConvergenceOptions: {
+            readerRouteOptions: { timeoutMs: 2_000 },
+            tagsNavigationOptions: { timeoutMs: 2_000 },
+          },
+        }),
+      ).rejects.toThrow(
+        "Phase 1 reader route content convergence verification failed",
+      );
+
+      const stderr = stderrLines.join("\n");
+      expect(stderr).toContain(`${baseUrl}/search`);
+      expect(stderr).toContain(
+        READER_ROUTE_CONTENT_CONVERGENCE_REASONS.missingSearchTitle,
+      );
       expect(stderr).not.toContain(`${baseUrl}/tags`);
     } finally {
       console.error = originalStderr;
