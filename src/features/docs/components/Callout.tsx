@@ -18,15 +18,15 @@ export function Callout({
 
   return (
     <aside
-      className="my-4 rounded-md border border-border bg-muted/40 p-4"
+      className="my-4 flex flex-col gap-2 rounded-md border border-border bg-muted/40 px-4 py-3.5"
       data-callout-type={type}
     >
       {titleResult.ok ? (
-        <p className="mb-2 text-sm font-medium text-foreground">
+        <p className="text-sm font-medium text-foreground">
           {titleResult.value}
         </p>
       ) : isDev ? (
-        <p className="mb-2 text-sm text-destructive">
+        <p className="text-sm text-destructive">
           Missing message key: {titleKey}
         </p>
       ) : null}

@@ -19,7 +19,7 @@ function BulletList({
   }
 
   return (
-    <ul className="list-disc space-y-1 pl-5 text-sm text-foreground">
+    <ul className="flex list-none flex-col gap-1 text-sm text-foreground">
       {items.map((item) => (
         <li key={item}>{formatItem(item)}</li>
       ))}
