@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { httpGetStatus, pickListenPort } from "./http-harness";
+import { httpGetStatus, isListenPortFree, pickListenPort } from "./http-harness";
 import {
   acquireVerifyServerSession,
   assertNextProductionBuild,
@@ -74,7 +74,7 @@ createServer((_req, res) => {
 `;
 
 function spawnStubProductionServer(port: number, cwd: string): ChildProcess {
-  return spawn("bun", ["-e", STUB_SERVER_SCRIPT], {
+  const child = spawn("bun", ["-e", STUB_SERVER_SCRIPT], {
     cwd,
     stdio: "ignore",
     detached: true,
@@ -83,6 +83,8 @@ function spawnStubProductionServer(port: number, cwd: string): ChildProcess {
       VERIFY_STUB_PORT: String(port),
     },
   });
+  child.unref();
+  return child;
 }
 
 describe("resolveVerifyBaseUrlFromEnv", () => {
@@ -171,14 +173,31 @@ describe("acquireVerifyServerSession", () => {
   });
 
   test("uses VERIFY_BASE_URL without spawning a child", async () => {
-    const session = await acquireVerifyServerSession({
-      verifyBaseUrl: "http://127.0.0.1:3999",
-      registerProcessSignals: false,
+    const httpServer = createHttpServer((_req, res) => {
+      res.writeHead(200);
+      res.end("external");
     });
+    const externalPort = await listenOnEphemeralPort(httpServer);
 
-    expect(session.baseUrl).toBe("http://127.0.0.1:3999");
-    expect(session.port).toBeNull();
-    await session.cleanup();
+    try {
+      const session = await acquireVerifyServerSession({
+        verifyBaseUrl: `http://127.0.0.1:${externalPort}`,
+        registerProcessSignals: false,
+      });
+
+      expect(session.baseUrl).toBe(`http://127.0.0.1:${externalPort}`);
+      expect(session.port).toBeNull();
+      expect(await httpGetStatus(`${session.baseUrl}/`, 2_000)).toBe(200);
+
+      await session.cleanup();
+
+      expect(await httpGetStatus(`http://127.0.0.1:${externalPort}/`, 2_000)).toBe(
+        200,
+      );
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
   });
 
   test("spawns a stub server, waits for readiness, and kills the child on cleanup", async () => {
@@ -207,11 +226,14 @@ describe("acquireVerifyServerSession", () => {
       expect(spawnedChild).toBeDefined();
       expect(spawnedChild?.exitCode).toBeNull();
 
+      const assignedPort = session.port as number;
+      await session.cleanup();
       await session.cleanup();
 
       await expect(
         httpGetStatus(`${session.baseUrl}/`, 500),
       ).rejects.toBeDefined();
+      expect(await isListenPortFree(assignedPort)).toBe(true);
 
       if (spawnedChild) {
         await waitForChildExit(spawnedChild, 1_000);
@@ -325,15 +347,47 @@ createServer((_req, res) => {
       );
 
       expect(spawnedChild).toBeDefined();
+      expect(assignedPort).toBeDefined();
       if (spawnedChild) {
         await waitForChildExit(spawnedChild, 2_000);
         expect(
           spawnedChild.exitCode !== null || spawnedChild.killed === true,
         ).toBe(true);
       }
+      if (assignedPort !== undefined) {
+        expect(await isListenPortFree(assignedPort)).toBe(true);
+      }
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
+  });
+});
+
+describe("killManagedChild", () => {
+  const spawnedChildren: ChildProcess[] = [];
+
+  afterEach(async () => {
+    await Promise.all(
+      spawnedChildren.splice(0).map((child) => killManagedChild(child)),
+    );
+  });
+
+  test("terminates a detached stub server and frees the assigned port", async () => {
+    const port = await pickListenPort();
+    const child = spawnStubProductionServer(port, process.cwd());
+    spawnedChildren.push(child);
+
+    await waitForServerReady(`http://127.0.0.1:${port}`, {
+      timeoutMs: 5_000,
+      pollIntervalMs: 100,
+    });
+    expect(await isListenPortFree(port)).toBe(false);
+
+    await killManagedChild(child);
+    await waitForChildExit(child, 2_000);
+
+    expect(child.exitCode !== null || child.killed === true).toBe(true);
+    expect(await isListenPortFree(port)).toBe(true);
   });
 });
 
