@@ -65,6 +65,12 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain("Same variant group");
+    expect(html).toContain('data-graph-node-id="hidden-states"');
+    expect(html).toContain('data-graph-node-id="query-groups"');
+    expect(html).toContain('data-graph-node-id="query-heads"');
+    expect(html).toContain('data-graph-node-id="kv-cache"');
+    expect(html).toContain('data-graph-node-count="6"');
+    expect(html).toContain('data-graph-node-count="5"');
   });
 });
 

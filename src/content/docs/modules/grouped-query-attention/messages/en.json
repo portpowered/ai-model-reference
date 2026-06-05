@@ -72,5 +72,42 @@
     "comparisonTable": {
       "caption": "How GQA compares with nearby attention variants"
     }
+  },
+  "graph": {
+    "nodes": {
+      "hiddenStates": {
+        "label": "Hidden states"
+      },
+      "queryProjection": {
+        "label": "H query heads (Q projection)"
+      },
+      "queryGroups": {
+        "label": "G query groups"
+      },
+      "sharedKv": {
+        "label": "Shared KV heads per group"
+      },
+      "attentionScores": {
+        "label": "Attention scores per query head"
+      },
+      "outputProjection": {
+        "label": "Output projection"
+      },
+      "queryHeads": {
+        "label": "H query heads"
+      },
+      "queryGroupsSchema": {
+        "label": "G groups (H/G query heads each)"
+      },
+      "sharedKeyHeads": {
+        "label": "G shared key heads"
+      },
+      "sharedValueHeads": {
+        "label": "G shared value heads"
+      },
+      "kvCache": {
+        "label": "KV cache (G keys + G values per token)"
+      }
+    }
   }
 }
