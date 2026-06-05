@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  assertDocsFooterSublabelHoverFocusCssConvergence,
   assertFooterChromeContract,
   bundledCssHasFooterSublabelInheritRule,
   extractFooterCardAnchorHtml,
@@ -78,6 +79,14 @@ describe("docs page footer contract", () => {
     `;
 
     expect(bundledCssHasFooterSublabelInheritRule(bundledCss)).toBe(true);
+  });
+
+  test("assertDocsFooterSublabelHoverFocusCssConvergence returns reason when inherit rule is missing", () => {
+    expect(
+      assertDocsFooterSublabelHoverFocusCssConvergence(
+        "#nd-page a:hover>p.text-fd-muted-foreground{color:var(--color-fd-muted-foreground)}",
+      ),
+    ).toContain("missing footer sublabel hover/focus inherit");
   });
 
   test("bundledCssHasFooterSublabelInheritRule rejects missing inherit rule", () => {

@@ -16,6 +16,11 @@ const PRIMARY_NAV = '<nav aria-label="Primary">Model Atlas</nav>';
 const CHROME_LINK_CLASS =
   'class="no-underline transition-colors hover:no-underline focus-visible:ring-2"';
 
+/** Bundled CSS matching the docs footer sublabel hover/focus inherit contract. */
+export const CUSTOMER_ASK_PASSING_BUNDLED_FOOTER_CSS = `
+  #nd-page a[class*=hover\\:bg-fd-accent][class*=hover\\:text-fd-accent-foreground]:is(:hover,:focus-visible)>p.text-fd-muted-foreground{color:inherit}
+`;
+
 const HEADER_SEARCH_TRIGGER = `
   <button data-search="" aria-label="Open search" class="group">
     <span>Search</span>

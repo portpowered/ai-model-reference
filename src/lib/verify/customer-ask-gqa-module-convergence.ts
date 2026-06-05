@@ -1,6 +1,7 @@
 import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
 import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-result";
 import { assertNonProseGroupedListDisc } from "./customer-ask-tag-list-convergence";
+import { assertGroupedQueryAttentionGraphBuildMarkersConvergence } from "./grouped-query-attention-module-convergence";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 
 /** Checklist row for batch-008 GQA module page customer-ask inventory. */
@@ -17,6 +18,10 @@ export const GQA_MODULE_CUSTOMER_ASK_CHECKS = {
     checkId: "module.presentation",
     title:
       "GQA module page uses React Flow renderer and converged section content",
+  },
+  graphBuildMarkers: {
+    checkId: "module.graph-build-markers",
+    title: "GQA module page exposes required graph accessibility/build markers",
   },
   listDisc: {
     checkId: "module.list-disc",
@@ -88,6 +93,18 @@ export function assertGqaModulePresentationConvergence(
   }
 
   return null;
+}
+
+/**
+ * Returns a failure reason when built GQA module HTML lacks required graph node
+ * accessibility/build markers from the shared module convergence assertion.
+ */
+export function assertGqaModuleGraphBuildMarkersConvergence(
+  html: string,
+): string | null {
+  return assertGroupedQueryAttentionGraphBuildMarkersConvergence(
+    stripHtmlScripts(html),
+  );
 }
 
 /**
@@ -164,6 +181,10 @@ export function buildCustomerAskGqaModuleRows(
     toPassFailRow(
       GQA_MODULE_CUSTOMER_ASK_CHECKS.presentation,
       assertGqaModulePresentationConvergence(html),
+    ),
+    toPassFailRow(
+      GQA_MODULE_CUSTOMER_ASK_CHECKS.graphBuildMarkers,
+      assertGqaModuleGraphBuildMarkersConvergence(html),
     ),
     toPassFailRow(
       GQA_MODULE_CUSTOMER_ASK_CHECKS.listDisc,
