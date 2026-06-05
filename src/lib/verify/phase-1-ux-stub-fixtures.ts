@@ -1,5 +1,6 @@
 import { TOKEN_GLOSSARY_URL } from "@/lib/navigation/docs-sidebar-contract";
 import { DOCS_SHELL_CONVERGENCE_ROUTES } from "./docs-shell-convergence-http";
+import { buildGroupedQueryAttentionStubBody } from "./grouped-query-attention-module-convergence";
 import {
   ATTENTION_TAG_LANDING_PATH,
   ATTENTION_TAG_SCOPED_SEARCH_URL,
@@ -52,7 +53,7 @@ export const PHASE_1_UX_PASSING_STUB_HTML: Record<string, string> = {
     '<h1>Token</h1><div data-registry-id="concept.token"></div>',
   ),
   "/docs/modules/grouped-query-attention": docsRouteHtml(
-    '<h1>Grouped-Query Attention</h1><div data-registry-id="module.grouped-query-attention"></div>',
+    buildGroupedQueryAttentionStubBody(),
   ),
   "/tags": `<html><header>${PRIMARY_NAV}</header><h1>Tags</h1><a href="/tags/attention">Attention</a></html>`,
   [ATTENTION_TAG_LANDING_PATH]: `<html><header>${PRIMARY_NAV}</header><h1>Attention</h1><a href="/docs/modules/grouped-query-attention">GQA</a><a href="${TOKEN_GLOSSARY_URL}">Token</a><a href="${ATTENTION_TAG_SCOPED_SEARCH_URL}">Search</a></html>`,

@@ -61,4 +61,20 @@ describe("RegistryComparisonTable", () => {
     expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain("How GQA compares with nearby attention variants");
   });
+
+  test("renders a missing table record marker when tableId is unknown", () => {
+    const html = renderToStaticMarkup(
+      <PageMessagesProvider messages={messages} isDev={false}>
+        <PageAssetsProvider assets={assets} isDev={false}>
+          <RegistryComparisonTable
+            assetId="comparisonTable"
+            tableId="table.missing-fixture"
+          />
+        </PageAssetsProvider>
+      </PageMessagesProvider>,
+    );
+
+    expect(html).toContain('data-missing-table-record="table.missing-fixture"');
+    expect(html).toContain("Missing table record: table.missing-fixture");
+  });
 });

@@ -23,6 +23,18 @@
     "computeFlow": {
       "alt": "Compute flow diagram for grouped-query attention.",
       "caption": "GQA compute flow from queries through shared KV heads."
+    },
+    "comparisonTable": {
+      "caption": "How GQA compares with nearby attention variants."
+    },
+    "trainingChart": {
+      "caption": "Training cost trend for grouped-query attention."
+    },
+    "codeSchema": {
+      "caption": "Forward-pass pseudocode for grouped-query attention."
+    },
+    "legacyGraph": {
+      "alt": "Legacy graph placeholder alt text."
     }
   }
 }

@@ -11,6 +11,7 @@ import {
 import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+import { assertGroupedQueryAttentionModuleConvergence } from "@/lib/verify/grouped-query-attention-module-convergence";
 
 const pageDir = GROUPED_QUERY_ATTENTION_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
@@ -54,7 +55,6 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(html).toContain(
       "lets several query heads share fewer key-value heads",
     );
-    expect(html).toContain('data-registry-id="module.grouped-query-attention"');
     expect(html).toContain("Module metadata");
     expect(html).toContain("At a glance");
     expect(html).toContain('href="/tags/attention"');
@@ -63,32 +63,8 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(html).toContain("Ainslie, Joshua, et al.");
     expect(html).toContain('href="https://arxiv.org/abs/2305.13245"');
     expect(html).toContain('rel="noopener noreferrer"');
-    expect(html).not.toContain("Variants And Nearby Modules");
-    expect(html).not.toContain('data-testid="derived-related-docs"');
-    expect(html).toContain("Compared To Nearby Modules");
-    expect(html).toContain("Related");
-    expect(html).toContain('data-graph-node-id="hidden-states"');
-    expect(html).toContain('data-graph-node-id="query-groups"');
-    expect(html).toContain('data-graph-node-id="query-heads"');
-    expect(html).toContain('data-graph-node-id="kv-cache"');
-    expect(html).toContain('data-graph-node-count="6"');
-    expect(html).toContain('data-graph-node-count="5"');
-    expect(html).toContain('href="/docs/modules/multi-head-attention"');
-    expect(html).toContain('data-prose-auto-link="true"');
-    expect(html).toContain('data-registry-comparison-table="true"');
-    expect(html).toContain(
-      'data-table-id="table.grouped-query-attention-comparison"',
-    );
-    expect(html).not.toContain(">table.grouped-query-attention-comparison<");
-    expect(html).toContain("KV head count");
-    expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain("single shared");
-    expect(html).toContain('data-comparison-dimension="cacheFootprint"');
-    expect(html).toContain('data-attention-schema-comparison="true"');
-    expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
-    expect(html).toContain('data-message-block-math="math.gqaSchema.formula"');
-    expect(html).toContain('class="katex"');
-    expect(html).toContain("katex-display");
+    expect(assertGroupedQueryAttentionModuleConvergence(html)).toBeNull();
   });
 });
 

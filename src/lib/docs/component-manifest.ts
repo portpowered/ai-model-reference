@@ -177,6 +177,44 @@ const PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
     ],
   },
   {
+    file: "src/features/models/components/RegistryGraphFlow.tsx",
+    label: "RegistryGraphFlow",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/models/components/RegistryGraphFlow.test.tsx"],
+  },
+  {
+    file: "src/features/models/components/ModuleMetadataCard.tsx",
+    label: "ModuleMetadataCard",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/models/components/ModuleMetadataCard.test.tsx"],
+  },
+  {
+    file: "src/features/models/components/ModuleAtAGlance.tsx",
+    label: "ModuleAtAGlance",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/models/components/ModuleAtAGlance.test.tsx"],
+  },
+  {
+    file: "src/features/docs/components/PageAsset.tsx",
+    label: "PageAsset",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/docs/components/PageAsset.test.tsx"],
+  },
+  {
+    file: "src/features/docs/components/MissingGraphRecord.tsx",
+    label: "MissingGraphRecord",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/models/components/RegistryGraphFlow.test.tsx"],
+  },
+  {
+    file: "src/features/models/components/MissingTableRecord.tsx",
+    label: "MissingTableRecord",
+    minReachableLinePercent: 90,
+    unitTests: [
+      "src/features/models/components/RegistryComparisonTable.test.tsx",
+    ],
+  },
+  {
     file: "src/features/docs/search/SearchResultRow.tsx",
     label: "SearchResultRow",
     minReachableLinePercent: 90,
@@ -201,5 +239,18 @@ export const REUSABLE_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
   ...PHASE_1_SHELL_COVERAGE_COMPONENTS,
 ];
 
-/** Documented thin wrappers — none among current reusable docs components. */
-export const REUSABLE_THIN_WRAPPERS: ThinWrapperEntry[] = [];
+/** Documented thin wrappers that forward to PageAsset without extra branching. */
+export const REUSABLE_THIN_WRAPPERS: ThinWrapperEntry[] = [
+  {
+    file: "src/features/models/components/ModuleGraph.tsx",
+    label: "ModuleGraph",
+    forwardsTo: "PageAsset",
+    smokeTests: ["src/lib/content/module-page.test.ts"],
+  },
+  {
+    file: "src/features/models/components/ModuleComparisonTable.tsx",
+    label: "ModuleComparisonTable",
+    forwardsTo: "PageAsset",
+    smokeTests: ["src/lib/content/module-page.test.ts"],
+  },
+];
