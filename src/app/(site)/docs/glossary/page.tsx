@@ -4,8 +4,8 @@ import {
   DocsPage,
   DocsTitle,
 } from "fumadocs-ui/layouts/docs/page";
-import { GlossaryEmptyState } from "@/features/docs/glossary/GlossaryEmptyState";
-import { GlossaryIndexList } from "@/features/docs/glossary/GlossaryIndexList";
+import { DocsIndexEmptyState } from "@/features/docs/components/DocsIndexEmptyState";
+import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
@@ -20,9 +20,14 @@ export default async function GlossaryIndexPage() {
       <DocsDescription>{glossaryIndex.description}</DocsDescription>
       <DocsBody>
         {entries.length === 0 ? (
-          <GlossaryEmptyState messages={messages} />
+          <DocsIndexEmptyState
+            title={glossaryIndex.emptyTitle}
+            description={glossaryIndex.emptyDescription}
+            homeLinkLabel={glossaryIndex.emptyHomeLink}
+            messages={messages}
+          />
         ) : (
-          <GlossaryIndexList
+          <DocsIndexEntryList
             entries={entries}
             listLabel={glossaryIndex.listLabel}
           />
