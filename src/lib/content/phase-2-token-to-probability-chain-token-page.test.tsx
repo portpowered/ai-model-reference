@@ -48,7 +48,7 @@ describe("Phase 2 token page learning chain entry (US-010)", () => {
     expect(html).toContain("embeddings");
     expect(html).toContain('href="/docs/glossary/embedding"');
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
-    expect(html).toContain("token-to-probability chain");
     expect(html).toContain('href="/tags/token-to-probability-chain"');
+    expect(html).toContain("Token To Probability Chain");
   });
 });

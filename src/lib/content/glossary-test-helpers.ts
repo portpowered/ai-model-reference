@@ -4,6 +4,19 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/** Extracts a glossary article region from shell or built-route HTML. */
+export function extractGlossaryArticleHtml(
+  html: string,
+  registryId: string,
+): string {
+  const match = html.match(
+    new RegExp(
+      `<article[^>]*data-registry-id="${escapeRegExp(registryId)}"[^>]*>[\\s\\S]*?</article>`,
+    ),
+  );
+  return match?.[0] ?? "";
+}
+
 /** Glossary MDX bodies must not repeat the shell DocsTitle as an in-body h1. */
 export function expectGlossaryBodyOmitsTitleHeading(
   html: string,
@@ -41,6 +54,28 @@ export function expectGlossarySingleTagPillList(html: string): void {
   expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
   expect(html).toContain('aria-label="Tags"');
   expect(html).toContain('id="tags"');
+}
+
+/** Asserts pre-repair duplicate-title, tag, and where-it-appears markers stay absent. */
+export function expectGlossaryOmitsPreRepairPresentation(html: string): void {
+  expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
+  expect((html.match(/data-testid="glossary-opening"/g) ?? []).length).toBe(1);
+  expect(html).not.toContain('id="where-it-appears"');
+  expect(html).not.toContain("Where It Appears");
+  expect(html).not.toContain('data-testid="derived-related-docs"');
+}
+
+/** Full Phase 1 glossary presentation contract for a rendered token-style page. */
+export function expectGlossaryPresentationConvergence(
+  html: string,
+  options: { title: string; openingSummary: string },
+): void {
+  expectGlossaryBodyOmitsTitleHeading(html, options.title);
+  expectGlossaryOpeningSummary(html, options.openingSummary);
+  expectGlossaryOmitsWhereItAppears(html);
+  expectGlossarySingleTagPillList(html);
+  expectGlossaryChromeLinksOmitUnderline(html);
+  expectGlossaryOmitsPreRepairPresentation(html);
 }
 
 /** Non-prose glossary chrome links must not use underline utilities. */
