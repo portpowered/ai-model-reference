@@ -11,7 +11,7 @@ import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
-import { expectHomeArticleSingleSearchEntry } from "@/tests/discovery/home-search-entry-contract";
+import { expectHomeArticleHeaderOnlySearchEntry } from "@/tests/discovery/home-search-entry-contract";
 import {
   resultsIncludeSampleModule,
   SAMPLE_MODULE_URL,
@@ -99,7 +99,7 @@ describe("Phase 1 discovery route smoke", () => {
       );
 
       if (route.path === "/") {
-        expectHomeArticleSingleSearchEntry(renderToStaticMarkup(page));
+        expectHomeArticleHeaderOnlySearchEntry(renderToStaticMarkup(page));
       }
     });
   }

@@ -6,7 +6,7 @@ import { getPrimaryNavItems } from "@/components/layout/primary-nav";
 import { resolveInitialSearchPageQuery } from "@/features/docs/search/search-page-query";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
-import { expectHomeArticleSingleSearchEntry } from "@/tests/discovery/home-search-entry-contract";
+import { expectHomeArticleHeaderOnlySearchEntry } from "@/tests/discovery/home-search-entry-contract";
 import { resultsIncludeSampleModule } from "@/tests/search/helpers";
 
 describe("search page query prefill", () => {
@@ -24,10 +24,10 @@ describe("search page query prefill", () => {
 });
 
 describe("Phase 1 discovery search handoffs", () => {
-  it("home article provides /search bookmark handoff without inline search UI", async () => {
+  it("home article uses header-only search entry without inline /search handoff", async () => {
     const messages = await loadUiMessages();
     const html = renderToStaticMarkup(<HomeArticle messages={messages} />);
-    expectHomeArticleSingleSearchEntry(html);
+    expectHomeArticleHeaderOnlySearchEntry(html);
   });
 
   it("primary navigation omits duplicate Search link while header search remains", async () => {

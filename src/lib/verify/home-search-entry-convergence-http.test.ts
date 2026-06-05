@@ -22,9 +22,10 @@ const POST_DEDUP_HOME_HTML = `
   <main>
     <article>
       <h1>Model Atlas</h1>
-      <p>Use the header search.
-        <a href="/search">Search entry page</a>
-      </p>
+      <p>Model Atlas intro without inline search handoff.</p>
+      <section id="browse" aria-labelledby="home-browse-heading">
+        <h2 id="home-browse-heading">Browse</h2>
+      </section>
     </article>
   </main>
 `;
@@ -41,7 +42,6 @@ const PRE_REPAIR_HOME_HTML = `
         <h2 id="home-search-heading">${REMOVED_HOME_INLINE_SEARCH_SECTION_TITLE}</h2>
         <input data-search="" aria-label="Search Model Atlas" />
       </section>
-      <a href="/search">Search entry page</a>
     </article>
   </main>
 `;

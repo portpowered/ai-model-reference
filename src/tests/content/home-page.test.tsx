@@ -4,7 +4,7 @@ import { HomeArticle } from "@/components/home/home-article";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { PLACEHOLDER_SIDEBAR_DESCRIPTION } from "@/lib/navigation/docs-sidebar-contract";
 import { buildHomeTableOfContents } from "@/lib/navigation/home-page-toc";
-import { expectHomeArticleSingleSearchEntry } from "@/tests/discovery/home-search-entry-contract";
+import { expectHomeArticleHeaderOnlySearchEntry } from "@/tests/discovery/home-search-entry-contract";
 
 /** Discovery targets on `/` must stay aligned with Phase 1 acceptance criteria. */
 const HOME_DISCOVERY_HREFS = [
@@ -21,15 +21,12 @@ describe("home page messages", () => {
     expect(home.title).toBe("Model Atlas");
     expect(home.subtitle.length).toBeGreaterThan(0);
     expect(home.intro.length).toBeGreaterThan(0);
-    expect(home.searchHandoff.length).toBeGreaterThan(0);
-    expect(home.searchHandoff.toLowerCase()).toContain("header");
     expect(home.browseSectionTitle.length).toBeGreaterThan(0);
     expect(home.architectureLinkTitle).toBe("Architecture");
     expect(home.glossaryLinkTitle).toBe("Glossary");
     expect(home.tagsLinkTitle).toBe("Tags");
     expect(home.tokenLinkTitle).toBe("Token (glossary)");
     expect(home.docsLinkTitle).toBe("Grouped-query attention");
-    expect(home.searchPageLinkTitle.length).toBeGreaterThan(0);
     expect(home.onThisPageBrowse).toBe("Browse");
   });
 
@@ -40,7 +37,6 @@ describe("home page messages", () => {
     expect(home.tagsLinkDescription.length).toBeGreaterThan(0);
     expect(home.tokenLinkDescription.length).toBeGreaterThan(0);
     expect(home.docsLinkDescription.length).toBeGreaterThan(0);
-    expect(home.searchHandoffLinkSuffix.length).toBeGreaterThan(0);
     expect(HOME_DISCOVERY_HREFS).toHaveLength(5);
   });
 });
@@ -59,9 +55,13 @@ describe("home page render", () => {
     }
   });
 
-  it("links to /search for bookmark and handoff entry without inline search UI", async () => {
+  it("omits verbose search handoff prose and inline /search link", async () => {
     const html = await renderHomeArticleHtml();
-    expectHomeArticleSingleSearchEntry(html);
+    expect(html).not.toContain("Search entry page");
+    expect(html).not.toContain(
+      "Use the Search control in the header to jump to modules",
+    );
+    expectHomeArticleHeaderOnlySearchEntry(html);
   });
 
   it("does not render placeholder scaffold copy in the article body", async () => {
