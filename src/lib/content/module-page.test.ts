@@ -75,6 +75,15 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(html).toContain('data-graph-node-count="5"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain('data-prose-auto-link="true"');
+    expect(html).toContain('data-registry-comparison-table="true"');
+    expect(html).toContain(
+      'data-table-id="table.grouped-query-attention-comparison"',
+    );
+    expect(html).not.toContain(">table.grouped-query-attention-comparison<");
+    expect(html).toContain("KV head count");
+    expect(html).toContain('href="/docs/modules/multi-query-attention"');
+    expect(html).toContain("single shared");
+    expect(html).toContain('data-comparison-dimension="cacheFootprint"');
   });
 });
 

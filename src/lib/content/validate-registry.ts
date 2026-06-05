@@ -1,6 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { CONTENT_ROOT, DOCS_ROOT } from "./content-paths";
+import { collectTableMessageKeys } from "./module-comparison-table";
 import { assetMessageKeys, loadPageAssets } from "./page-assets-load";
 import {
   getMessageString,
@@ -21,6 +22,7 @@ import {
   type PageMessages,
   pageFrontmatterSchema,
 } from "./schemas";
+import { getTableById } from "./table-registry-runtime";
 import { parseYamlFrontmatterBlock } from "./yaml-frontmatter";
 
 export { parseYamlFrontmatterBlock };
@@ -311,6 +313,53 @@ function validateGraphAssetReferences(
   return errors;
 }
 
+function validateTableAssetReferences(
+  pageDirectory: string,
+  assets: PageAssetConfig,
+  messages: PageMessages,
+  indexes: RegistryIndexes,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  for (const [assetId, asset] of Object.entries(assets)) {
+    if (asset.type !== "table") {
+      continue;
+    }
+
+    const tableRecord = getTableById(asset.tableId);
+    if (!tableRecord) {
+      errors.push({
+        code: "unresolved-table-id",
+        message: `${pageDirectory}: asset "${assetId}" references missing table "${asset.tableId}"`,
+        path: join(pageDirectory, "assets.json"),
+      });
+      continue;
+    }
+
+    for (const column of tableRecord.columns) {
+      if (!indexes.byId.has(column.moduleId)) {
+        errors.push({
+          code: "unresolved-table-module-id",
+          message: `${pageDirectory}: table "${asset.tableId}" references missing module "${column.moduleId}"`,
+          path: join(pageDirectory, "assets.json"),
+        });
+      }
+    }
+
+    for (const key of collectTableMessageKeys(tableRecord)) {
+      if (!getMessageString(messages, key)) {
+        errors.push({
+          code: "missing-table-message-key",
+          message: `${pageDirectory}: table "${asset.tableId}" references missing message key "${key}"`,
+          path: join(pageDirectory, "messages", "en.json"),
+        });
+      }
+    }
+  }
+
+  return errors;
+}
+
 async function discoverPageMdxFiles(docsRoot: string): Promise<string[]> {
   const pagePaths: string[] = [];
 
@@ -379,6 +428,7 @@ export async function validateColocatedPageBundle(
   if (indexes) {
     errors.push(
       ...validateGraphAssetReferences(pageDirectory, assets, indexes),
+      ...validateTableAssetReferences(pageDirectory, assets, messages, indexes),
     );
   }
 

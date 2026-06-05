@@ -273,6 +273,14 @@ export const pageGraphMessagesSchema = z.object({
   nodes: z.record(z.string(), pageGraphNodeMessageSchema),
 });
 
+export const pageTableMessagesSchema = z.object({
+  dimensions: z.record(z.string(), z.string()).optional(),
+  columns: z
+    .record(z.string(), z.object({ title: z.string().min(1) }))
+    .optional(),
+  values: z.record(z.string(), z.record(z.string(), z.string())).optional(),
+});
+
 export const pageMessagesSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
@@ -283,6 +291,27 @@ export const pageMessagesSchema = z.object({
   callouts: z.record(z.string(), pageCalloutSchema).optional(),
   assets: z.record(z.string(), pageAssetMessageSchema).optional(),
   graph: pageGraphMessagesSchema.optional(),
+  tables: z.record(z.string(), pageTableMessagesSchema).optional(),
+});
+
+export const tableColumnSchema = z.object({
+  moduleId: z.string().min(1),
+  titleKey: z.string().optional(),
+});
+
+export const tableDimensionSchema = z.object({
+  id: z.string().min(1),
+  labelKey: z.string().min(1),
+});
+
+export const tableCellValueKeysSchema = z.record(z.string(), z.string());
+
+export const tableRecordSchema = z.object({
+  id: z.string().min(1),
+  subjectId: z.string().min(1),
+  columns: z.array(tableColumnSchema).min(1),
+  dimensions: z.array(tableDimensionSchema).min(1),
+  valueKeysByModuleId: z.record(z.string(), tableCellValueKeysSchema),
 });
 
 export const graphWebRendererSchema = z.literal("react-flow");
@@ -355,5 +384,9 @@ export type ModuleGraphEdge = z.infer<typeof moduleGraphEdgeSchema>;
 export type PageKind = z.infer<typeof pageKindSchema>;
 export type PageFrontmatter = z.infer<typeof pageFrontmatterSchema>;
 export type PageMessages = z.infer<typeof pageMessagesSchema>;
+export type PageTableMessages = z.infer<typeof pageTableMessagesSchema>;
+export type TableColumn = z.infer<typeof tableColumnSchema>;
+export type TableDimension = z.infer<typeof tableDimensionSchema>;
+export type TableRecord = z.infer<typeof tableRecordSchema>;
 export type PageAsset = z.infer<typeof pageAssetSchema>;
 export type PageAssetConfig = z.infer<typeof pageAssetConfigSchema>;

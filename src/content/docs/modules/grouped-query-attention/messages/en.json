@@ -69,6 +69,43 @@
       "caption": "How GQA compares with nearby attention variants"
     }
   },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "gqa": {
+          "title": "Grouped-Query Attention"
+        },
+        "mha": {
+          "title": "Multi-Head Attention"
+        },
+        "mqa": {
+          "title": "Multi-Query Attention"
+        }
+      },
+      "dimensions": {
+        "kvHeadCount": "KV head count",
+        "queryHeadFlexibility": "Query-head flexibility",
+        "cacheFootprint": "Cache footprint per token"
+      },
+      "values": {
+        "gqa": {
+          "kvHeadCount": "G key heads and G value heads",
+          "queryHeadFlexibility": "H distinct query heads grouped into G shared KV pairs",
+          "cacheFootprint": "2G tensors (G keys + G values)"
+        },
+        "mha": {
+          "kvHeadCount": "H key heads and H value heads",
+          "queryHeadFlexibility": "H independent query/KV head pairs",
+          "cacheFootprint": "2H tensors (full multi-head attention cache)"
+        },
+        "mqa": {
+          "kvHeadCount": "1 key head and 1 value head",
+          "queryHeadFlexibility": "H query heads share one KV pair",
+          "cacheFootprint": "2 tensors (single shared KV cache)"
+        }
+      }
+    }
+  },
   "graph": {
     "nodes": {
       "hiddenStates": {
