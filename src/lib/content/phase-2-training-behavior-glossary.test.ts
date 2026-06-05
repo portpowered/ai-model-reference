@@ -9,6 +9,7 @@ import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryBodyOmitsTitleHeading,
   expectGlossaryOmitsWhereItAppears,
+  expectHtmlToContainProse,
 } from "@/lib/content/glossary-test-helpers";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
@@ -65,7 +66,10 @@ describe("Phase 2 training behavior glossary pages (US-004)", () => {
       const html = await renderGlossaryHtml(slug);
 
       expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-      expect(html).toContain(page.messages.openingSummary?.slice(0, 24) ?? "");
+      expectHtmlToContainProse(
+        html,
+        page.messages.openingSummary?.slice(0, 24) ?? "",
+      );
       expect(html).toContain('href="/tags/foundations"');
       expect(html).toContain('href="/tags/taxonomy"');
       expectGlossaryOmitsWhereItAppears(html);

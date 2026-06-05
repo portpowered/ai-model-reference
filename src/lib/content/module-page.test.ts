@@ -11,6 +11,7 @@ import {
 import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+import { assertGroupedQueryAttentionModuleConvergence } from "@/lib/verify/grouped-query-attention-module-convergence";
 
 const pageDir = GROUPED_QUERY_ATTENTION_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
@@ -50,9 +51,10 @@ describe("loadModulePage grouped-query-attention", () => {
     );
 
     expect(html).toContain("Grouped-Query Attention");
-    expect(html).toContain(page.messages.problemStatement ?? "");
-    expect(html).toContain(page.messages.coreIdea ?? "");
-    expect(html).toContain('data-registry-id="module.grouped-query-attention"');
+    expect(html).toContain("KV caches grow with context length and head count");
+    expect(html).toContain(
+      "lets several query heads share fewer key-value heads",
+    );
     expect(html).toContain("Module metadata");
     expect(html).toContain("At a glance");
     expect(html).toContain('href="/tags/attention"');
@@ -61,10 +63,8 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(html).toContain("Ainslie, Joshua, et al.");
     expect(html).toContain('href="https://arxiv.org/abs/2305.13245"');
     expect(html).toContain('rel="noopener noreferrer"');
-    expect(html).toContain('data-testid="derived-related-docs"');
-    expect(html).toContain('href="/docs/modules/multi-query-attention"');
-    expect(html).toContain('href="/docs/modules/multi-head-attention"');
-    expect(html).toContain("Same variant group");
+    expect(html).toContain("single shared");
+    expect(assertGroupedQueryAttentionModuleConvergence(html)).toBeNull();
   });
 });
 

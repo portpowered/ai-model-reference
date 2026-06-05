@@ -10,7 +10,7 @@ function formatLabel(value: string): string {
 
 function MetadataRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-4">
+    <div className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4">
       <dt className="w-40 shrink-0 text-sm text-muted-foreground">{label}</dt>
       <dd className="text-sm text-foreground">{value}</dd>
     </div>
@@ -60,7 +60,7 @@ export function ModuleMetadataCard({ registryId }: { registryId: string }) {
       data-registry-id={registryId}
       aria-label="Module metadata"
     >
-      <dl className="space-y-3">
+      <dl className="space-y-2">
         {rows.map((row) => (
           <MetadataRow key={row.label} label={row.label} value={row.value} />
         ))}

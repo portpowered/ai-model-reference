@@ -48,4 +48,13 @@ describe("Callout", () => {
     );
     expect(html).toContain('data-callout-type="warning"');
   });
+
+  test("uses balanced vertical padding and flex gap between title and body", () => {
+    const html = renderCallout("callouts.readerShortcut.title", false);
+
+    expect(html).toContain("px-4 py-3.5");
+    expect(html).toContain("flex flex-col gap-2");
+    expect(html).not.toContain("p-4");
+    expect(html).not.toContain("mb-2");
+  });
 });

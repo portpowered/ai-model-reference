@@ -4,6 +4,8 @@ import { MissingAssetId } from "@/features/docs/components/MissingAssetId";
 import { MissingMessageKey } from "@/features/docs/components/MissingMessageKey";
 import { usePageAssets } from "@/features/docs/components/page-assets-context";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
+import { RegistryComparisonTable } from "@/features/models/components/RegistryComparisonTable";
+import { RegistryGraphFlow } from "@/features/models/components/RegistryGraphFlow";
 import { lookupAsset, resolveAssetText } from "@/lib/content/assets";
 import { lookupMessage } from "@/lib/content/messages";
 import type { PageAsset as PageAssetRecord } from "@/lib/content/schemas";
@@ -47,6 +49,17 @@ function GraphAssetSlot({
   alt?: string;
   caption?: string;
 }) {
+  if (asset.webRenderer === "react-flow") {
+    return (
+      <RegistryGraphFlow
+        assetId={assetId}
+        graphId={asset.graphId}
+        alt={alt}
+        caption={caption}
+      />
+    );
+  }
+
   return (
     <figure data-page-asset={assetId} data-asset-type="graph">
       <div
@@ -62,21 +75,37 @@ function GraphAssetSlot({
   );
 }
 
+function TableAssetSlot({
+  assetId,
+  asset,
+  caption,
+  isDev,
+}: {
+  assetId: string;
+  asset: Extract<PageAssetRecord, { type: "table" }>;
+  caption?: string;
+  isDev: boolean;
+}) {
+  return (
+    <RegistryComparisonTable
+      assetId={assetId}
+      tableId={asset.tableId}
+      caption={caption}
+      isDev={isDev}
+    />
+  );
+}
+
 function StructuredAssetSlot({
   assetId,
   asset,
   caption,
 }: {
   assetId: string;
-  asset: Extract<PageAssetRecord, { type: "chart" | "table" | "code-schema" }>;
+  asset: Extract<PageAssetRecord, { type: "chart" | "code-schema" }>;
   caption?: string;
 }) {
-  const referenceId =
-    asset.type === "chart"
-      ? asset.chartId
-      : asset.type === "table"
-        ? asset.tableId
-        : asset.schemaId;
+  const referenceId = asset.type === "chart" ? asset.chartId : asset.schemaId;
 
   return (
     <figure data-page-asset={assetId} data-asset-type={asset.type}>
@@ -132,6 +161,17 @@ export function PageAsset({ assetId }: { assetId: string }) {
         asset={asset}
         alt={text.alt}
         caption={text.caption}
+      />
+    );
+  }
+
+  if (asset.type === "table") {
+    return (
+      <TableAssetSlot
+        assetId={assetId}
+        asset={asset}
+        caption={text.caption}
+        isDev={isDev}
       />
     );
   }
