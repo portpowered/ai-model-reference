@@ -8,6 +8,10 @@ import {
   SearchResultRow,
 } from "@/features/docs/search/SearchResultRow";
 import { SearchInlineResultItem } from "@/features/docs/search/SearchResults";
+import {
+  searchDialogResultRowClassName,
+  searchPageResultRowClassName,
+} from "@/features/docs/search/search-result-row-classes";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
@@ -49,6 +53,35 @@ describe("SearchResultRow", () => {
     cleanup();
   });
 
+  test("dialog surface keeps metadata inside the interactive row for full-row highlight", async () => {
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+
+    const { container } = await renderSearchResultListItem({
+      item: {
+        id: "page-gqa",
+        type: "page",
+        url: SAMPLE_MODULE_URL,
+        content: "Grouped-Query Attention",
+      },
+      query: "GQA",
+      metaByUrl,
+    });
+
+    const view = within(container);
+    const row = view.getByTestId("search-result-row");
+    const meta = view.getByTestId("search-result-meta");
+    expect(row.contains(meta)).toBe(true);
+    expect(row.className).toContain("overflow-visible");
+    expect(row.className).toContain("group");
+    for (const token of searchDialogResultRowClassName.split(/\s+/)) {
+      if (token.length > 0) {
+        expect(row.className).toContain(token);
+      }
+    }
+  });
+
   test("dialog surface shows GQA page hit with module kind, summary, and URL", async () => {
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
@@ -68,10 +101,11 @@ describe("SearchResultRow", () => {
     });
 
     const view = within(container);
-    expect(
-      view.getByRole("button", { name: "Grouped-Query Attention" }),
-    ).toBeTruthy();
-    expect(view.getByTestId("search-result-meta")).toBeTruthy();
+    const row = view.getByTestId("search-result-row");
+    expect(view.getByRole("button", { name: "Grouped-Query Attention" })).toBe(
+      row,
+    );
+    expect(row.contains(view.getByTestId("search-result-meta"))).toBe(true);
     expect(container.textContent).toContain(SAMPLE_MODULE_URL);
     expect(container.textContent).toContain("Module");
     expect(container.textContent).toContain(meta.description);
@@ -93,6 +127,45 @@ describe("SearchResultRow", () => {
     const view = within(container);
     expect(view.getByRole("button", { name: "Overview" })).toBeTruthy();
     expect(view.queryByTestId("search-result-meta")).toBeNull();
+  });
+
+  test("page surface keeps metadata inside the interactive row for full-row hover", async () => {
+    const messages = await loadUiMessages();
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+
+    const html = renderToStaticMarkup(
+      <SearchResultRow
+        item={{
+          id: "page-gqa",
+          type: "page",
+          url: SAMPLE_MODULE_URL,
+          content: "Grouped-Query Attention",
+        }}
+        metaByUrl={metaByUrl}
+        messages={messages}
+        surface="page"
+        onActivate={() => {}}
+        className="px-3 py-2"
+      />,
+    );
+
+    expect(html).toContain('data-testid="search-result-row"');
+    expect(html).toContain('data-testid="search-result-meta"');
+    expect(html).toContain("hover:bg-accent");
+    expect(html).toContain("group-hover:text-accent-foreground/90");
+    for (const token of searchPageResultRowClassName.split(/\s+/)) {
+      if (token.length > 0) {
+        expect(html).toContain(token);
+      }
+    }
+    const rowOpen = html.indexOf('data-testid="search-result-row"');
+    const metaOpen = html.indexOf('data-testid="search-result-meta"');
+    const rowClose = html.indexOf("</button>", rowOpen);
+    expect(rowOpen).toBeGreaterThanOrEqual(0);
+    expect(metaOpen).toBeGreaterThan(rowOpen);
+    expect(metaOpen).toBeLessThan(rowClose);
   });
 
   test("page surface shows title, module kind, summary, and URL for /search rows", async () => {
@@ -118,11 +191,17 @@ describe("SearchResultRow", () => {
       />,
     );
 
+    expect(html).toContain('data-testid="search-result-row"');
     expect(html).toContain("Grouped-Query Attention");
     expect(html).toContain(SAMPLE_MODULE_URL);
     expect(html).toContain("Module");
     expect(html).toContain(meta.description);
     expect(html).not.toContain('data-testid="search-result-matched-tags"');
+    const rowOpen = html.indexOf('data-testid="search-result-row"');
+    const metaOpen = html.indexOf('data-testid="search-result-meta"');
+    const rowClose = html.indexOf("</button>", rowOpen);
+    expect(metaOpen).toBeGreaterThan(rowOpen);
+    expect(metaOpen).toBeLessThan(rowClose);
   });
 
   test("page surface renders a simple action row without metadata panel", async () => {
