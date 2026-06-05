@@ -1,13 +1,8 @@
 import {
-  DEFAULT_FETCH_TIMEOUT_MS,
-  FetchTimeoutError,
-  httpGetText,
-} from "./http-harness";
-import {
   assertHomeRouteContentConvergence,
   assertSearchRouteContentConvergence,
 } from "./reader-route-content-convergence";
-import { normalizeVerifyBaseUrl } from "./server-lifecycle";
+import { runRouteFamilyHttpConvergenceChecks } from "./route-family-http-convergence-runner";
 
 export type ReaderRouteContentConvergenceRoute = {
   path: "/" | "/search";
@@ -58,55 +53,12 @@ export async function runReaderRouteContentConvergenceChecks(
   baseUrl: string,
   options: RunReaderRouteContentConvergenceChecksOptions = {},
 ): Promise<ReaderRouteContentConvergenceCheckFailure[]> {
-  const normalizedBase = normalizeVerifyBaseUrl(baseUrl);
-  const timeoutMs = options.timeoutMs ?? DEFAULT_FETCH_TIMEOUT_MS;
   const routes = options.routes ?? READER_ROUTE_CONTENT_CONVERGENCE_ROUTES;
-  const failures: ReaderRouteContentConvergenceCheckFailure[] = [];
 
-  for (const route of routes) {
-    const url = `${normalizedBase}${route.path}`;
-
-    try {
-      const { status, body } = await httpGetText(url, timeoutMs);
-
-      if (status !== 200) {
-        failures.push({
-          url,
-          route: route.label,
-          status,
-          reason: "expected HTTP 200",
-        });
-        return failures;
-      }
-
-      const contentReason = route.assertBody(body);
-      if (contentReason) {
-        failures.push({
-          url,
-          route: route.label,
-          status,
-          reason: contentReason,
-        });
-        return failures;
-      }
-    } catch (error) {
-      const reason =
-        error instanceof FetchTimeoutError
-          ? `request timed out after ${error.timeoutMs}ms`
-          : error instanceof Error
-            ? error.message
-            : String(error);
-      failures.push({
-        url,
-        route: route.label,
-        status: null,
-        reason,
-      });
-      return failures;
-    }
-  }
-
-  return failures;
+  return runRouteFamilyHttpConvergenceChecks(baseUrl, {
+    timeoutMs: options.timeoutMs,
+    routes,
+  });
 }
 
 /**
