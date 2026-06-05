@@ -13,6 +13,7 @@ import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryOmitsWhereItAppears,
   expectGlossaryOpeningSummary,
+  expectGlossarySingleTagPillList,
 } from "@/lib/content/glossary-test-helpers";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
@@ -56,6 +57,7 @@ describe("loadGlossaryPage token", () => {
 
     expectGlossaryOpeningSummary(html, page.messages.openingSummary ?? "");
     expectGlossaryOmitsWhereItAppears(html);
+    expectGlossarySingleTagPillList(html);
     expect(html).not.toMatch(/<h1\b[^>]*>\s*Token\s*<\/h1>/i);
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/token-to-probability-chain"');

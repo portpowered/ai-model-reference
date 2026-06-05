@@ -35,3 +35,10 @@ export function expectGlossaryOmitsWhereItAppears(html: string): void {
   expect(html).not.toContain("Where It Appears");
   expect(html).not.toContain('data-testid="derived-related-docs"');
 }
+
+/** Glossary pages render TagPillList once in the dedicated tags section. */
+export function expectGlossarySingleTagPillList(html: string): void {
+  expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
+  expect(html).toContain('aria-label="Tags"');
+  expect(html).toContain('id="tags"');
+}
