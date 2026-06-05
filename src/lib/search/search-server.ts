@@ -47,7 +47,7 @@ export const docsSearchApi = {
     const url = new URL(request.url);
     const query = url.searchParams.get("query");
     if (!query) {
-      return Response.json([]);
+      return Response.json(await searchServer.export());
     }
 
     return Response.json(await search(query, readSearchOptions(url)));
