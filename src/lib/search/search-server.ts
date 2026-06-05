@@ -2,6 +2,7 @@ import { initAdvancedSearch } from "fumadocs-core/search/server";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
 import { buildSearchDocuments } from "./build-documents";
+import { collapseSearchResultsToPageHits } from "./collapse-search-results-to-page-hits";
 import { rerankSearchResults } from "./rerank-search-results";
 import { toAdvancedSearchIndexes } from "./to-advanced-index";
 
@@ -36,7 +37,8 @@ async function search(
   searchOptions?: Parameters<typeof searchServer.search>[1],
 ) {
   const results = await searchServer.search(query, searchOptions);
-  return rerankSearchResults(query, results, documentsByUrl);
+  const reranked = rerankSearchResults(query, results, documentsByUrl);
+  return collapseSearchResultsToPageHits(reranked, documentsByUrl);
 }
 
 export const docsSearchApi = {

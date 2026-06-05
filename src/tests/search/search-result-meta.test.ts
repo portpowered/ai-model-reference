@@ -39,6 +39,7 @@ describe("search result meta", () => {
     const record = searchResultMetaMapToRecord(await loadSearchResultMetaMap());
     const meta = resolveSearchResultMeta(SAMPLE_URL, record);
     expect(meta).toEqual({
+      title: "Grouped-Query Attention",
       kind: "module",
       description: expect.any(String),
       tags: expect.arrayContaining(["attention", "kv-cache"]),
@@ -50,6 +51,7 @@ describe("search result meta", () => {
     const record = searchResultMetaMapToRecord(await loadSearchResultMetaMap());
     const meta = resolveSearchResultMeta(TOKEN_URL, record);
     expect(meta).toEqual({
+      title: "Token",
       kind: "glossary",
       description: expect.any(String),
       tags: expect.arrayContaining(["attention"]),

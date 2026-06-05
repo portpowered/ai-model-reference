@@ -2,6 +2,7 @@ import { buildSearchDocuments } from "./build-documents";
 import type { SearchDocument } from "./types";
 
 export type SearchResultMeta = {
+  title: string;
   kind: string;
   description: string;
   tags: string[];
@@ -15,6 +16,7 @@ export function buildSearchResultMetaMap(
   const map = new Map<string, SearchResultMeta>();
   for (const document of documents) {
     map.set(document.url, {
+      title: document.title,
       kind: document.kind,
       description: document.description,
       tags: document.tags,

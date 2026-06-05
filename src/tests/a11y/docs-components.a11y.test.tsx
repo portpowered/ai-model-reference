@@ -229,7 +229,6 @@ describe("SearchResults accessibility smoke", () => {
     const { container } = render(
       <SearchResultMetaDetails
         url={SAMPLE_MODULE_URL}
-        query="GQA"
         meta={meta}
         messages={context.messages}
       />,
@@ -248,7 +247,6 @@ describe("SearchResults accessibility smoke", () => {
       <main>
         <SearchResultMetaDetails
           url={SAMPLE_MODULE_URL}
-          query="GQA"
           meta={meta}
           messages={context.messages}
         />

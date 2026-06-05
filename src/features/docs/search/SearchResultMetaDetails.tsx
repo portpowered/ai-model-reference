@@ -5,35 +5,38 @@ import {
   type UiMessages,
 } from "@/lib/content/ui-messages.types";
 import type { SearchResultMeta } from "@/lib/search/search-result-meta";
-import { getMatchedTags } from "./search-result-meta-client";
+import { cn } from "@/lib/utils";
 
 export type SearchResultMetaDetailsProps = {
   url: string;
-  query: string;
   meta: SearchResultMeta;
   messages: UiMessages;
+  /** When true, metadata sits inside the interactive result row (dialog or `/search`). */
+  embedded?: boolean;
+  className?: string;
 };
 
-/** Rich metadata panel shared by the global search dialog and `/search` results. */
+/** Thin metadata panel shared by the global search dialog and `/search` results. */
 export function SearchResultMetaDetails({
   url,
-  query,
   meta,
   messages,
+  embedded = false,
+  className,
 }: SearchResultMetaDetailsProps) {
-  const matchedTags = getMatchedTags(query, meta.tags);
   const kindLabel = formatPageKind(messages, meta.kind);
 
   return (
     <div
-      className="space-y-1 px-3 pb-2 ps-10 text-sm"
+      className={cn(
+        "space-y-0.5 text-sm",
+        embedded
+          ? "pt-1 text-fd-muted-foreground group-hover:text-accent-foreground/90 group-aria-selected:text-fd-accent-foreground/90"
+          : "px-3 pb-2 ps-10 text-fd-muted-foreground",
+        className,
+      )}
       data-testid="search-result-meta"
     >
-      <p className="text-xs text-fd-muted-foreground">
-        <span className="rounded-md border border-fd-border bg-fd-secondary px-1.5 py-0.5">
-          {kindLabel}
-        </span>
-      </p>
       {meta.description ? (
         <p
           className="line-clamp-2 text-fd-muted-foreground"
@@ -49,21 +52,12 @@ export function SearchResultMetaDetails({
         <span className="sr-only">{messages.search.resultPath}: </span>
         <span aria-hidden="true">{url}</span>
       </p>
-      {matchedTags.length > 0 ? (
-        <div
-          className="flex flex-wrap gap-1"
-          data-testid="search-result-matched-tags"
-        >
-          {matchedTags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-md border border-fd-border bg-fd-background px-1.5 py-0.5 text-xs text-fd-muted-foreground"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      ) : null}
+      <p
+        className="text-xs text-fd-muted-foreground"
+        data-testid="search-result-kind"
+      >
+        {kindLabel}
+      </p>
     </div>
   );
 }
