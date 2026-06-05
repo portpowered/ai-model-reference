@@ -27,6 +27,14 @@ describe("live /api/search HTTP contract", () => {
     expect(payload.type).toBe("advanced");
   });
 
+  test("bootstrap fetch resolves relative /api/search paths like the browser client", async () => {
+    const response = await routeFetch("/api/search");
+    expect(response.ok).toBe(true);
+
+    const payload = (await response.json()) as { type: string };
+    expect(payload.type).toBe("advanced");
+  });
+
   test("GET without query returns advanced Orama export", async () => {
     const response = await GET(new Request("http://localhost/api/search"));
     expect(response.ok).toBe(true);
