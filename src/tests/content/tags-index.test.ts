@@ -139,5 +139,8 @@ describe("tags index page render", () => {
     expect(html).toContain("KV Cache");
     expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain("Inference");
+    expect(html).not.toContain("mt-8");
+    expect(html).toContain("list-none");
+    expect(html).not.toContain("list-disc");
   });
 });

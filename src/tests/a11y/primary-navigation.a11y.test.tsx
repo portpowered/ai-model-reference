@@ -41,6 +41,9 @@ describe("primary navigation accessibility smoke", () => {
     const nav = screen.getByRole("navigation", { name: "Primary" });
     expect(nav).toBeTruthy();
 
+    const searchTrigger = header?.querySelector("[data-search]");
+    expect(searchTrigger).toBeTruthy();
+
     const expectedItems = getPrimaryNavItems(context.messages);
     for (const item of expectedItems) {
       const link = within(nav).getByRole("link", { name: item.label });

@@ -41,6 +41,8 @@ Add components only when their source file matches one of:
 - `src/features/**/components/**`
 - Search UI exceptions already listed under `src/features/docs/search/` (see
   `SEARCH_UI_MANIFEST_PREFIX` in `src/lib/docs/component-coverage-gate.ts`)
+- Tag list UI exceptions under `src/features/docs/tags/` (see
+  `DOCS_TAG_LIST_MANIFEST_PREFIX` in `src/lib/docs/component-coverage-gate.ts`)
 
 ## Thin-wrapper exception
 
@@ -72,6 +74,21 @@ line target.
 | DerivedRelatedDocs | `src/features/docs/components/DerivedRelatedDocs.tsx` | ≥ 90% | `DerivedRelatedDocs.test.tsx` | `docs-components.a11y.test.tsx` |
 | SearchResults | `src/features/docs/search/SearchResults.tsx` | ≥ 90% | `SearchResults.test.tsx` | `docs-components.a11y.test.tsx` |
 | SearchResultMetaDetails | `src/features/docs/search/SearchResultMetaDetails.tsx` | ≥ 90% | `SearchResults.test.tsx` | `docs-components.a11y.test.tsx` |
+
+### Phase 1 shell surfaces (home, header, tags)
+
+| Component | Source | Line coverage target | Unit tests | A11y smoke |
+| --- | --- | --- | --- | --- |
+| HomeBrushHeader | `src/components/home/home-brush-header.tsx` | ≥ 90% | `home-brush-header.test.tsx` | — |
+| HomeArticle | `src/components/home/home-article.tsx` | ≥ 90% | `home-page.test.tsx` | — |
+| HomeBrowseLink | `src/components/home/home-browse-link.tsx` | ≥ 90% | `home-browse-link.test.tsx` | — |
+| Primary navigation | `src/components/layout/primary-nav.ts` | ≥ 90% | `primary-nav.test.ts` | `primary-navigation.a11y.test.tsx` |
+| CanonicalDocsLayout | `src/components/layout/canonical-docs-layout.tsx` | ≥ 90% | `docs-sidebar-navigation.a11y.test.tsx` | `docs-sidebar-navigation.a11y.test.tsx` |
+| SearchTrigger | `src/features/docs/search/SearchTrigger.tsx` | ≥ 90% | `SearchTrigger.test.tsx` | `primary-navigation.a11y.test.tsx` |
+| TagResourceList | `src/features/docs/components/TagResourceList.tsx` | ≥ 90% | `TagResourceList.test.tsx` | — |
+| TagsIndexList | `src/features/docs/tags/TagsIndexList.tsx` | ≥ 90% | `TagsIndexList.test.tsx` | — |
+
+Consolidated styling contracts: `src/tests/layout/phase-1-home-shell-styling-contract.test.tsx`.
 
 Thin wrappers: **none** (see `REUSABLE_THIN_WRAPPERS` in the manifest).
 

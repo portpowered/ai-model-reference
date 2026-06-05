@@ -18,6 +18,9 @@ export const COVERAGE_TEST_ARGS = [
 /** Documented search UI paths allowed outside `components/` directories. */
 export const SEARCH_UI_MANIFEST_PREFIX = "src/features/docs/search/";
 
+/** Documented tag list UI paths allowed outside `components/` directories. */
+export const DOCS_TAG_LIST_MANIFEST_PREFIX = "src/features/docs/tags/";
+
 export type CoverageRow = {
   file: string;
   linePercent: number;
@@ -66,6 +69,9 @@ export function isAllowedManifestPath(file: string): boolean {
     return true;
   }
   if (file.startsWith(SEARCH_UI_MANIFEST_PREFIX)) {
+    return true;
+  }
+  if (file.startsWith(DOCS_TAG_LIST_MANIFEST_PREFIX)) {
     return true;
   }
   return false;
@@ -154,7 +160,7 @@ export function evaluateComponentCoverageGate(options: {
   for (const entry of [...components, ...thinWrappers]) {
     if (!isAllowedManifestPath(entry.file)) {
       errors.push(
-        `Manifest path not allowed (use src/components/**, src/features/**/components/**, or ${SEARCH_UI_MANIFEST_PREFIX}): ${entry.file}`,
+        `Manifest path not allowed (use src/components/**, src/features/**/components/**, ${SEARCH_UI_MANIFEST_PREFIX}, or ${DOCS_TAG_LIST_MANIFEST_PREFIX}): ${entry.file}`,
       );
     }
   }

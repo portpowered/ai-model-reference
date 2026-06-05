@@ -1,7 +1,8 @@
 /**
  * Reusable shared components subject to the manifest-driven coverage gate.
  * Allowed manifest paths: src/components (any depth), src/features/.../components,
- * and documented search UI under src/features/docs/search/.
+ * documented search UI under src/features/docs/search/, and tag list UI under
+ * src/features/docs/tags/.
  *
  * Update this manifest and docs/phase-2-component-coverage.md when adding components.
  */
@@ -27,7 +28,62 @@ export type ThinWrapperEntry = {
   smokeTests: string[];
 };
 
-export const REUSABLE_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
+/** Phase 1 home/header/tag shell components touched by surface-polish work. */
+export const PHASE_1_SHELL_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
+  {
+    file: "src/components/home/home-brush-header.tsx",
+    label: "HomeBrushHeader",
+    minReachableLinePercent: 90,
+    unitTests: ["src/components/home/home-brush-header.test.tsx"],
+  },
+  {
+    file: "src/components/home/home-article.tsx",
+    label: "HomeArticle",
+    minReachableLinePercent: 90,
+    unitTests: ["src/tests/content/home-page.test.tsx"],
+  },
+  {
+    file: "src/components/home/home-browse-link.tsx",
+    label: "HomeBrowseLink",
+    minReachableLinePercent: 90,
+    unitTests: ["src/components/home/home-browse-link.test.tsx"],
+  },
+  {
+    file: "src/components/layout/primary-nav.ts",
+    label: "Primary navigation",
+    minReachableLinePercent: 90,
+    unitTests: ["src/components/layout/primary-nav.test.ts"],
+    a11ySmokeTests: ["src/tests/a11y/primary-navigation.a11y.test.tsx"],
+  },
+  {
+    file: "src/components/layout/canonical-docs-layout.tsx",
+    label: "CanonicalDocsLayout",
+    minReachableLinePercent: 90,
+    unitTests: ["src/tests/a11y/docs-sidebar-navigation.a11y.test.tsx"],
+    a11ySmokeTests: ["src/tests/a11y/docs-sidebar-navigation.a11y.test.tsx"],
+  },
+  {
+    file: "src/features/docs/search/SearchTrigger.tsx",
+    label: "SearchTrigger",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/docs/search/SearchTrigger.test.tsx"],
+    a11ySmokeTests: ["src/tests/a11y/primary-navigation.a11y.test.tsx"],
+  },
+  {
+    file: "src/features/docs/components/TagResourceList.tsx",
+    label: "TagResourceList",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/docs/components/TagResourceList.test.tsx"],
+  },
+  {
+    file: "src/features/docs/tags/TagsIndexList.tsx",
+    label: "TagsIndexList",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/docs/tags/TagsIndexList.test.tsx"],
+  },
+];
+
+const PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
   {
     file: "src/features/docs/components/Callout.tsx",
     label: "Callout",
@@ -91,6 +147,11 @@ export const REUSABLE_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
       "src/tests/a11y/docs-components.a11y.test.tsx (SearchResultMetaDetails accessibility smoke)",
     ],
   },
+];
+
+export const REUSABLE_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
+  ...PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS,
+  ...PHASE_1_SHELL_COVERAGE_COMPONENTS,
 ];
 
 /** Documented thin wrappers — none among current reusable docs components. */

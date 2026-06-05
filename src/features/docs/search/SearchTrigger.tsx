@@ -29,7 +29,7 @@ export function SearchTrigger({
       aria-label={messages.search.open}
       onClick={() => setOpenSearch(true)}
       className={[
-        "inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-2 py-1.5 text-sm text-muted-foreground transition-colors",
+        "group inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-2 py-1.5 text-sm text-muted-foreground transition-colors",
         "hover:bg-accent hover:text-accent-foreground",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
@@ -44,7 +44,11 @@ export function SearchTrigger({
         {hotKey.map((key) => (
           <kbd
             key={String(key.display)}
-            className="rounded-md border border-border bg-background px-1.5 text-xs"
+            className={[
+              "rounded-md border border-border bg-background px-1.5 text-xs text-foreground",
+              "group-hover:border-accent-foreground/25 group-hover:bg-accent-foreground/10 group-hover:text-accent-foreground",
+              "group-focus-visible:border-accent-foreground/25 group-focus-visible:bg-accent-foreground/10 group-focus-visible:text-accent-foreground",
+            ].join(" ")}
           >
             {key.display}
           </kbd>
