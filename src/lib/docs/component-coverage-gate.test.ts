@@ -138,7 +138,10 @@ describe("component-coverage-gate", () => {
     });
     const failureLine = gate.summaryLines[0];
     expect(failureLine?.status).toBe("FAIL");
-    const formatted = formatComponentCoverageSummaryLine(failureLine!);
+    if (!failureLine) {
+      throw new Error("expected a failing coverage summary line");
+    }
+    const formatted = formatComponentCoverageSummaryLine(failureLine);
     expect(formatted).toContain(TEST_COMPONENT.label);
     expect(formatted).toContain(TEST_COMPONENT.file);
     expect(formatted).toContain("88.50%");

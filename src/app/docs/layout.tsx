@@ -1,17 +1,15 @@
-import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import type { ReactNode } from "react";
 
-import { baseOptions } from "@/lib/layout.shared";
-import { source } from "@/lib/source";
+import { CanonicalDocsLayout } from "@/components/layout/canonical-docs-layout";
+import { loadUiMessages } from "@/lib/content/ui-messages";
 
-export default function DocsRouteLayout({
+export default async function DocsRouteLayout({
   children,
 }: Readonly<{
   children: ReactNode;
 }>) {
+  const messages = await loadUiMessages();
   return (
-    <DocsLayout tree={source.pageTree} {...baseOptions}>
-      {children}
-    </DocsLayout>
+    <CanonicalDocsLayout messages={messages}>{children}</CanonicalDocsLayout>
   );
 }
