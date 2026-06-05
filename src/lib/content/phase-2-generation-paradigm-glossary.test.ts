@@ -41,8 +41,7 @@ describe("Phase 2 generation paradigm glossary pages (US-003)", () => {
       );
 
       expect(messages.title.length).toBeGreaterThan(0);
-      expect(messages.problemStatement?.length).toBeGreaterThan(0);
-      expect(messages.coreIdea?.length).toBeGreaterThan(0);
+      expect(messages.openingSummary?.length).toBeGreaterThan(0);
       expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
       expect(messages.sections?.whyItMatters.body?.length).toBeGreaterThan(0);
       expect(messages.sections?.simpleExample.body?.length).toBeGreaterThan(0);
@@ -62,7 +61,7 @@ describe("Phase 2 generation paradigm glossary pages (US-003)", () => {
       const html = await renderGlossaryHtml(slug);
 
       expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-      expect(html).toContain(page.messages.coreIdea?.slice(0, 24) ?? "");
+      expect(html).toContain(page.messages.openingSummary?.slice(0, 24) ?? "");
       expect(html).toContain('href="/tags/foundations"');
       expect(html).toContain('href="/tags/taxonomy"');
       expect(html).toContain('data-testid="derived-related-docs"');

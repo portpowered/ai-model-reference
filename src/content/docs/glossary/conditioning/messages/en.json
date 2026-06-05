@@ -1,8 +1,6 @@
 {
   "title": "Conditioning",
   "description": "Extra inputs—text prompts, class labels, images, or guidance weights—that steer a generative model without retraining the full parameter stack each time.",
-  "problemStatement": "Product docs say a model is \"promptable\" or \"conditional\" without explaining where the control signal enters—cross-attention, adaptive normalization, or prefix tokens—which makes it hard to compare autoregressive chat steering with diffusion guidance.",
-  "coreIdea": "Conditioning injects side information into the generation loop so each step—or each denoising update—depends on both the current state and the control signal; the same mechanism family spans text prompts in diffusion, system messages in chat models, and class embeddings in labeled generators.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Ask what extra signal is fused into each generation step and where in the network that fusion happens."
     }
-  }
+  },
+  "openingSummary": "Conditioning injects side information—prompts, class labels, or cross-attention context—so each generation step depends on both the current state and the control signal."
 }

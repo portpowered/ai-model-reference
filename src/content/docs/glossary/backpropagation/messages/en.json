@@ -1,8 +1,6 @@
 {
   "title": "Backpropagation",
   "description": "The backward pass that applies the chain rule on a computational graph to compute gradients for every differentiable parameter.",
-  "problemStatement": "Readers hear that models learn by going backward through the network, but need a concrete picture of how loss signals reach each weight.",
-  "coreIdea": "Backpropagation reuses the forward graph in reverse: each op propagates ∂L/∂(its outputs) into ∂L/∂(its inputs) until every parameter has a gradient.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Forward pass builds the graph; backpropagation walks it backward to fill `.grad`. The loss-function page completes the story from predictions to the scalar you differentiate."
     }
-  }
+  },
+  "openingSummary": "Backpropagation reuses the forward graph in reverse so each op propagates loss derivatives into its inputs until every parameter receives a gradient for the optimizer."
 }

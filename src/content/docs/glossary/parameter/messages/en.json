@@ -1,8 +1,6 @@
 {
   "title": "Parameter",
   "description": "A learnable numeric value stored in the model weights that training updates to fit data.",
-  "problemStatement": "Readers hear “billions of parameters” but need a concrete picture of what is actually stored and changed during training.",
-  "coreIdea": "Parameters are the persistent numbers in weight matrices and bias vectors; optimization nudges them so forward passes produce better predictions.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "After softmax shows how predictions are scored, parameters are what training actually rewrites so those scores improve on real examples."
     }
-  }
+  },
+  "openingSummary": "Parameters are the persistent numbers in weight matrices and bias vectors that optimization nudges so forward passes produce better predictions."
 }

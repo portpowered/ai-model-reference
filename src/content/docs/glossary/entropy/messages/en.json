@@ -1,8 +1,6 @@
 {
   "title": "Entropy",
   "description": "A measure of how spread out or uncertain a probability distribution is over next-token choices.",
-  "problemStatement": "After softmax, a model may be very sure or very unsure about the next token; readers need a single number that captures that spread without reading every probability.",
-  "coreIdea": "Entropy summarizes a probability vector: low entropy means mass concentrates on a few tokens, high entropy means the distribution is flat and many tokens look plausible.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "If softmax gives you probabilities, entropy tells you how spread out they are—then temperature explains how to dial that spread up or down on purpose."
     }
-  }
+  },
+  "openingSummary": "Entropy summarizes a softmax probability vector in one number: low entropy means the model is confident, high entropy means many tokens look equally plausible."
 }

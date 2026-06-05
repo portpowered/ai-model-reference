@@ -1,8 +1,6 @@
 {
   "title": "Model",
   "description": "A trained machine learning system that maps inputs to outputs using learned parameters.",
-  "problemStatement": "Readers encounter \"model\" everywhere—checkpoints, APIs, papers—without a clear boundary between the artifact, its architecture, and a specific deployment.",
-  "coreIdea": "A model is the trained artifact: weights plus the inference procedure that turns inputs into outputs for a defined task.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "When a paper says \"we train a model,\" it usually means they optimized weights for a fixed architecture and dataset—not that they invented a new layer type."
     }
-  }
+  },
+  "openingSummary": "A model is the trained artifact—weights plus the inference procedure that maps inputs to outputs for a defined task."
 }

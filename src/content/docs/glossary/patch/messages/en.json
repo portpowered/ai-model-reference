@@ -1,8 +1,6 @@
 {
   "title": "Patch",
   "description": "A fixed-size chunk of input data—pixels, spectrogram frames, or grouped tokens—that an encoder turns into a representation vector.",
-  "problemStatement": "Vision and multimodal papers talk about \"patch embeddings\" without saying whether a patch is a pixel window, a tokenizer span, or a latent tile, which makes architecture diagrams hard to read.",
-  "coreIdea": "A patch is the smallest spatial or sequential unit the model treats as one input item before stacking layers; encoders map each patch to a vector in representation space.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Ask how the raw input is tiled before the first transformer block—that tiling unit is the patch story."
     }
-  }
+  },
+  "openingSummary": "A patch is the smallest spatial or sequential unit the model treats as one input item before stacking layers, mapped by encoders into representation vectors."
 }

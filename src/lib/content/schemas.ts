@@ -278,6 +278,7 @@ export const pageMessagesSchema = z.object({
   description: z.string().min(1),
   problemStatement: z.string().optional(),
   coreIdea: z.string().optional(),
+  openingSummary: z.string().optional(),
   sections: z.record(z.string(), pageSectionSchema).optional(),
   callouts: z.record(z.string(), pageCalloutSchema).optional(),
   assets: z.record(z.string(), pageAssetMessageSchema).optional(),

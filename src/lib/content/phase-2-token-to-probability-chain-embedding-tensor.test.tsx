@@ -25,8 +25,7 @@ describe("Phase 2 embedding and tensor glossary pages (US-004)", () => {
   test("embedding page renders required sections and forward link to tensor", async () => {
     const page = await loadGlossaryPage("embedding");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.messages.problemStatement?.length).toBeGreaterThan(0);
-    expect(page.messages.coreIdea?.length).toBeGreaterThan(0);
+    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {

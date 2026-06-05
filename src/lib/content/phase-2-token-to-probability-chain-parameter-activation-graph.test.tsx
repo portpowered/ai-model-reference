@@ -38,8 +38,7 @@ describe("Phase 2 parameter, activation, and computational graph glossary pages 
   test("parameter page renders required sections and forward link to activation", async () => {
     const page = await loadGlossaryPage("parameter");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.messages.problemStatement?.length).toBeGreaterThan(0);
-    expect(page.messages.coreIdea?.length).toBeGreaterThan(0);
+    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {

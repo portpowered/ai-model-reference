@@ -1,8 +1,6 @@
 {
   "title": "Generalization",
   "description": "How well a model performs on data it was not explicitly trained to memorize—validation sets, new domains, and live traffic are the practical tests.",
-  "problemStatement": "Benchmarks report a single score without saying whether it reflects in-distribution generalization, few-shot transfer, or memorization, which makes it hard to trust deployment claims.",
-  "coreIdea": "Generalization is useful performance on held-out or shifted data: good models extract stable structure from training that still helps when inputs change modestly or domains differ.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Ask what distribution the score was measured on and whether the model saw those examples during training."
     }
-  }
+  },
+  "openingSummary": "Generalization is useful performance on held-out or shifted data—the ability to apply stable structure learned in training when inputs change modestly or domains differ."
 }

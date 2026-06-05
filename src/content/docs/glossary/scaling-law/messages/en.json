@@ -1,8 +1,6 @@
 {
   "title": "Scaling Law",
   "description": "Empirical power-law relationships between model scale, compute, data, and downstream loss or capability—used to forecast training budgets and benchmark trends.",
-  "problemStatement": "Teams quote smooth benchmark gains from scale without stating which variables—parameters, tokens, or FLOPs—were held constant, which makes capacity planning and generalization claims hard to audit.",
-  "coreIdea": "Scaling laws summarize how loss or error improves predictably when you increase model size, dataset size, or compute along a training frontier, often as a power law on log-log axes until data or architecture limits bend the curve.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Ask which axis was scaled (params, data, compute) and which metric was fit before trusting an extrapolation."
     }
-  }
+  },
+  "openingSummary": "Scaling laws describe predictable loss improvements when model size, dataset size, or compute increase along a training frontier, often as power laws until limits bend the curve."
 }

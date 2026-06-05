@@ -1,8 +1,6 @@
 {
   "title": "Token",
   "description": "The smallest unit of text a language model reads and predicts—usually a word piece, not always a whole word.",
-  "problemStatement": "Models do not read raw characters or whole documents directly; they need a fixed vocabulary of units to embed and score for next-token prediction.",
-  "coreIdea": "A tokenizer maps text to integer token IDs—the first step on the path from tokens to probabilities. Each ID is embedded into a vector, transformed through the stack, and scored so the model can rank candidates for the next token.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -61,5 +59,6 @@
         "label": "Embeddings"
       }
     }
-  }
+  },
+  "openingSummary": "Models use a fixed tokenizer vocabulary—mapping text to integer IDs that are embedded and scored—to drive next-token prediction rather than reading raw characters directly."
 }

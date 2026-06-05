@@ -1,8 +1,6 @@
 {
   "title": "Tensor",
   "description": "A multi-dimensional array of numbers that carries activations, weights, or gradients through the network.",
-  "problemStatement": "Layers need a consistent way to talk about batches, sequence length, and hidden width without rewriting math for every shape.",
-  "coreIdea": "A tensor is an n-dimensional array of numbers with a shape (for example batch × sequence × hidden); embeddings, activations, and logits are all tensors with different ranks and sizes.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Once you are comfortable with tensor shapes, the next step in this chain is logits—the raw scores the model emits before softmax turns them into probabilities."
     }
-  }
+  },
+  "openingSummary": "A tensor is an n-dimensional array with a shape like batch × sequence × hidden; embeddings, activations, and logits are all tensors at different ranks."
 }

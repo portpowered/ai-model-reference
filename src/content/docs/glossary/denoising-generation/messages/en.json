@@ -1,8 +1,6 @@
 {
   "title": "Denoising Generation",
   "description": "A generation paradigm that starts from noisy latents and iteratively removes noise—or adds structure—until a clean sample emerges.",
-  "problemStatement": "Diffusion and score-based papers describe \"denoising steps\" without stating whether generation happens in pixel space, latent space, or token space, which makes it hard to connect denoising loops to the representation and latent glossary entries upstream.",
-  "coreIdea": "Denoising generation maintains a continuous state—often a noised latent—and repeatedly applies a network trained to predict noise, score, or velocity so the state moves toward a plausible sample; control signals can steer each iteration without changing the overall iterative structure.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Track the working tensor: noise in → repeated denoiser updates → clean latent or pixels out."
     }
-  }
+  },
+  "openingSummary": "Denoising generation maintains a continuous noised state and repeatedly applies a network trained to predict noise or score so the state moves toward a plausible sample."
 }
