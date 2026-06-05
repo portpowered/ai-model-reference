@@ -76,6 +76,7 @@ describe("runPhase1UxVerification", () => {
         runPhase1UxVerification(`http://127.0.0.1:${port}`, {
           routeOptions: { timeoutMs: 2_000 },
           searchOptions: { timeoutMs: 2_000 },
+          searchPageOptions: { runQueryCheck: async () => null },
         }),
       ).resolves.toBeUndefined();
     } finally {
@@ -102,8 +103,30 @@ describe("runPhase1UxVerification", () => {
             ],
           },
           searchOptions: { timeoutMs: 2_000 },
+          searchPageOptions: { runQueryCheck: async () => null },
         }),
       ).rejects.toThrow("Phase 1 route verification failed");
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
+  test("fails on /search page check after routes and API search pass", async () => {
+    const httpServer = createPhase1UxStubServer();
+    const port = await listenOnEphemeralPort(httpServer);
+
+    try {
+      await expect(
+        runPhase1UxVerification(`http://127.0.0.1:${port}`, {
+          routeOptions: { timeoutMs: 2_000 },
+          searchOptions: { timeoutMs: 2_000 },
+          searchPageOptions: {
+            runQueryCheck: async (_baseUrl, query) =>
+              `forced /search failure for ${query}`,
+          },
+        }),
+      ).rejects.toThrow("Phase 1 /search page verification failed");
     } finally {
       httpServer.closeAllConnections();
       httpServer.close();
@@ -128,6 +151,7 @@ describe("runPhase1UxVerification", () => {
               },
             ],
           },
+          searchPageOptions: { runQueryCheck: async () => null },
         }),
       ).rejects.toThrow("Phase 1 search verification failed");
     } finally {
@@ -175,6 +199,7 @@ describe("verify-phase-1-route-search-ux script", () => {
     try {
       const result = await runVerifyScriptWithEnv({
         VERIFY_BASE_URL: `http://127.0.0.1:${port}`,
+        VERIFY_SEARCH_PAGE_STUB: "pass",
       });
 
       expect(result.exitCode).toBe(0);
