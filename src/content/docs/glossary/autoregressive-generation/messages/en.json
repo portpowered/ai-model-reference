@@ -1,8 +1,6 @@
 {
   "title": "Autoregressive Generation",
   "description": "A generation paradigm that produces outputs one discrete step at a time, each step conditioned on everything generated so far.",
-  "problemStatement": "Papers say a model \"generates autoregressively\" without clarifying whether that means next-token language modeling, causal image patches, or a diffusion loop mislabeled as decoding, which hides the token-to-probability chain driving each step.",
-  "coreIdea": "Autoregressive generation samples or selects one output unit—usually the next token—then feeds that choice back as context for the next step until a stop condition is met; each step runs through embeddings, logits, and softmax before the decoder stack advances.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Follow one step: embedding lookup → decoder forward → logits → softmax → append token. Repeat until done."
     }
-  }
+  },
+  "openingSummary": "Autoregressive generation samples or selects one output unit—usually the next token—then feeds that choice back as context, with each step running through embeddings, logits, and softmax before the decoder advances."
 }

@@ -1,8 +1,6 @@
 {
   "title": "Decoder",
   "description": "A network stack that turns internal representations into outputs—tokens, pixels, or structured predictions—often one step at a time with attention to prior context.",
-  "problemStatement": "Papers say \"the decoder generates\" without clarifying whether that means autoregressive text, latent-to-image reconstruction, or a classification head on pooled features, which blurs how information flows out of the model.",
-  "coreIdea": "A decoder reads representations produced by an encoder or earlier blocks and maps them to an output space; in generative setups it typically runs autoregressively or iteratively until a full sample is formed.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Follow the arrow from hidden states to outputs—that generative or reconstructive stack is the decoder, even when the model is labeled decoder-only."
     }
-  }
+  },
+  "openingSummary": "A decoder reads representations from an encoder or earlier blocks and maps them to an output space, often autoregressively or iteratively until a full sample is formed."
 }

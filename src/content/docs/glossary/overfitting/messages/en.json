@@ -1,8 +1,6 @@
 {
   "title": "Overfitting",
   "description": "When a model fits training noise so closely that held-out or production data perform worse—the classic gap between memorization and useful generalization.",
-  "problemStatement": "Teams see great training loss but poor live metrics and blame \"the model\" without naming overfitting, regularization, or distribution shift, which blocks targeted fixes.",
-  "coreIdea": "Overfitting means the model captured spurious patterns in the training set—IDs, typos, or leakage—that do not transfer; validation loss rising while training loss falls is the standard diagnostic.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Compare training and validation curves—divergence with great training metrics is the overfitting smell test."
     }
-  }
+  },
+  "openingSummary": "Overfitting means the model memorized spurious training patterns that fail on validation or live data, often visible when validation loss rises while training loss keeps falling."
 }

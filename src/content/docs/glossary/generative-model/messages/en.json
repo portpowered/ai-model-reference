@@ -1,8 +1,6 @@
 {
   "title": "Generative Model",
   "description": "A model trained to produce new outputs such as text, images, or audio rather than only assign labels to fixed categories.",
-  "problemStatement": "The label \"generative AI\" is applied to chatbots, diffusion apps, and classifiers alike, so readers cannot tell whether a system actually samples new data or only ranks existing options.",
-  "coreIdea": "A generative model learns a distribution over outputs and draws or decodes new examples—tokens, pixels, waveforms—conditioned on inputs or prompts.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "If the system creates new content you could not pick from a fixed label list, treat it as generative; if it only chooses among known classes, look at the discriminative model page."
     }
-  }
+  },
+  "openingSummary": "A generative model learns a distribution over outputs and samples or decodes new examples—tokens, pixels, or waveforms—conditioned on inputs or prompts."
 }

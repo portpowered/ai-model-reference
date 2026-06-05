@@ -1,8 +1,6 @@
 {
   "title": "Modality",
   "description": "The kind of input or output data a model is built to handle, such as text, images, audio, or video.",
-  "problemStatement": "Teams describe models as \"multimodal\" or \"vision-language\" without stating which data types actually enter the network, which makes comparisons and module choices unclear.",
-  "coreIdea": "Modality names the data channel—text tokens, pixels, spectrograms—not the architecture or the trained checkpoint.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "List the input and output data types first; that list is the modality story before you compare parameters or benchmarks."
     }
-  }
+  },
+  "openingSummary": "Modality names the data channel—text tokens, pixels, or spectrograms—not the architecture or trained checkpoint powering a model."
 }

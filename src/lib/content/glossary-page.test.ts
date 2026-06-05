@@ -10,6 +10,7 @@ import {
 } from "@/lib/content/assets";
 import { TOKEN_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { expectGlossaryOpeningSummary } from "@/lib/content/glossary-test-helpers";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
 const pageDir = TOKEN_GLOSSARY_PAGE_DIR;
@@ -23,8 +24,7 @@ describe("token glossary page messages", () => {
     );
 
     expect(messages.title).toBe("Token");
-    expect(messages.problemStatement?.length).toBeGreaterThan(0);
-    expect(messages.coreIdea?.length).toBeGreaterThan(0);
+    expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.whyItMatters.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.simpleExample.body?.length).toBeGreaterThan(0);
@@ -51,9 +51,8 @@ describe("loadGlossaryPage token", () => {
       }),
     );
 
-    expect(html).toContain(page.messages.problemStatement ?? "");
+    expectGlossaryOpeningSummary(html, page.messages.openingSummary ?? "");
     expect(html).not.toMatch(/<h1\b[^>]*>\s*Token\s*<\/h1>/i);
-    expect(html).toContain(page.messages.coreIdea ?? "");
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/token-to-probability-chain"');
     expect(html).toContain('href="/docs/glossary/embedding"');

@@ -1,8 +1,6 @@
 {
   "title": "Encoder-Decoder",
   "description": "An architecture that compresses input into representations with an encoder, then generates outputs with a decoder—often via cross-attention between the two stacks.",
-  "problemStatement": "Seq2seq diagrams collapse into a single box labeled \"transformer,\" hiding whether information is bidirectional in the encoder, causal in the decoder, or shared across both, which makes it hard to compare translation models with GPT-style decoders.",
-  "coreIdea": "Encoder–decoder models pair an input-side encoder with an output-side decoder; the decoder conditions on encoder representations (memory) while generating tokens or other outputs step by step or in blocks.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "If one stack reads the full input and another generates outputs with cross-attention between them, you are looking at encoder–decoder—not decoder-only."
     }
-  }
+  },
+  "openingSummary": "Encoder–decoder models pair an input-side encoder with an output-side decoder that conditions on encoder memory while generating outputs step by step."
 }

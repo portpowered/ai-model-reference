@@ -1,8 +1,6 @@
 {
   "title": "Encoder",
   "description": "A network stack that maps raw or patched inputs into internal representations—tokens, latents, or context vectors—for downstream decoders or heads.",
-  "problemStatement": "Architecture diagrams label a block \"encoder\" without saying whether it tokenizes text, embeds image patches, or compresses inputs into a latent code, so readers cannot tell what representation format leaves the stack.",
-  "coreIdea": "An encoder ingests modality-specific input units—tokens, patches, or frames—and outputs a sequence or tensor of representations that later blocks consume; it is the compression and structuring stage before decoding or prediction.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Trace the arrow from raw input to the first representation tensor—that stack is the encoder story, regardless of modality."
     }
-  }
+  },
+  "openingSummary": "An encoder ingests modality-specific input units—tokens, patches, or frames—and outputs structured representations that later blocks consume for decoding or prediction."
 }

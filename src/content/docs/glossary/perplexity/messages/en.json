@@ -1,8 +1,6 @@
 {
   "title": "Perplexity",
   "description": "A standard language-model evaluation metric: exponentiated average cross-entropy over tokens, lower is better when comparing models on the same corpus.",
-  "problemStatement": "Model cards list perplexity without explaining how it relates to next-token probabilities, which makes it hard to compare scores across tokenizers or corpora.",
-  "coreIdea": "Perplexity summarizes how surprised a model is by held-out text: for a sequence of tokens it is exp(average cross-entropy), so lower perplexity means the model assigns higher probability to the true continuations.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Treat perplexity as exponentiated average surprise per token—always check which corpus and tokenizer produced the score."
     }
-  }
+  },
+  "openingSummary": "Perplexity summarizes how surprised a model is by held-out text as exp(average cross-entropy), so lower scores mean higher probability on true continuations."
 }

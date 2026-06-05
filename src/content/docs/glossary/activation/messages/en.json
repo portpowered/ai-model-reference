@@ -1,8 +1,6 @@
 {
   "title": "Activation",
   "description": "The numeric output of a layer after its linear transform and nonlinearity, passed forward through the network.",
-  "problemStatement": "Papers talk about “activations” in hidden layers while tutorials show softmax over vocabulary; readers need to know which tensors are intermediate signals versus final probabilities.",
-  "coreIdea": "An activation is the value a layer outputs for a given input—hidden states in transformers are activations flowing between blocks until the vocabulary head produces logits.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Parameters are the stored weights; activations are the live values those weights produce for your prompt as it moves through the stack."
     }
-  }
+  },
+  "openingSummary": "An activation is the tensor a layer outputs for a given input—hidden states in transformers are intermediate signals flowing between blocks until the vocabulary head produces logits, distinct from final softmax probabilities."
 }

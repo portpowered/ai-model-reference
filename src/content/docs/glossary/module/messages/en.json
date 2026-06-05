@@ -1,8 +1,6 @@
 {
   "title": "Module",
   "description": "A reusable building block inside a model architecture, such as attention or a feed-forward network.",
-  "problemStatement": "Module pages in this atlas name concrete mechanisms, but readers also need a general term for \"the repeating block inside a stack.\"",
-  "coreIdea": "A module is a named, reusable unit of computation that an architecture stacks or wires together.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "If the docs route starts with `/docs/modules/`, you are reading about a specific module implementation—not the abstract taxonomy term on this page."
     }
-  }
+  },
+  "openingSummary": "A module is a named, reusable unit of computation that an architecture stacks or wires together into a full model."
 }

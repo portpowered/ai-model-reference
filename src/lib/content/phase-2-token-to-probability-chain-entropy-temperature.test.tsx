@@ -38,8 +38,7 @@ describe("Phase 2 entropy and temperature glossary pages (US-006)", () => {
   test("entropy page renders math example and required sections", async () => {
     const page = await loadGlossaryPage("entropy");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.messages.problemStatement?.length).toBeGreaterThan(0);
-    expect(page.messages.coreIdea?.length).toBeGreaterThan(0);
+    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {

@@ -172,8 +172,7 @@ function assertConceptTemplateMessages(
   messages: ReturnType<typeof pageMessagesSchema.parse>,
 ): void {
   expect(messages.title.length).toBeGreaterThan(0);
-  expect(messages.problemStatement?.length).toBeGreaterThan(0);
-  expect(messages.coreIdea?.length).toBeGreaterThan(0);
+  expect(messages.openingSummary?.length).toBeGreaterThan(0);
   expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
   expect(messages.sections?.whyItMatters.body?.length).toBeGreaterThan(0);
   expect(messages.sections?.simpleExample.body?.length).toBeGreaterThan(0);

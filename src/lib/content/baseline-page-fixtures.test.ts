@@ -63,8 +63,7 @@ describe("Phase 1 colocated page fixtures", () => {
 
     expect(messages.title).toBe("Token");
     expect(messages.description.length).toBeGreaterThan(0);
-    expect(messages.problemStatement?.length).toBeGreaterThan(0);
-    expect(messages.coreIdea?.length).toBeGreaterThan(0);
+    expect(messages.openingSummary?.length).toBeGreaterThan(0);
 
     for (const key of conceptTemplateSectionKeys) {
       expect(messages.sections?.[key]?.title?.length).toBeGreaterThan(0);

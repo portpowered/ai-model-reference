@@ -1,8 +1,6 @@
 {
   "title": "Component",
   "description": "A finer-grained part inside a module, such as an attention head or projection layer.",
-  "problemStatement": "Engineers talk about heads, projections, and norms as \"layers,\" but the atlas needs a consistent name for pieces smaller than a full module.",
-  "coreIdea": "A component is a sub-part of a module that still does one identifiable job in the forward pass.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Zoom out one level to \"module\" when the block has its own page in `/docs/modules/`; zoom in to \"component\" when you are inside that block."
     }
-  }
+  },
+  "openingSummary": "A component is a sub-part of a module that performs one identifiable job in the forward pass, smaller than a full repeating block in the stack."
 }
