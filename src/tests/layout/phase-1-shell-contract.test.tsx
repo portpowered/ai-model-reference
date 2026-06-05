@@ -6,12 +6,12 @@ import {
   tocHtmlIncludesAnchor,
 } from "@/lib/navigation/docs-page-toc-contract";
 import {
-  extractNdSidebarHtml,
   hasLegacyPlaceholderSidebar,
   PLACEHOLDER_SIDEBAR_DESCRIPTION,
   stripHtmlScripts,
   TOKEN_GLOSSARY_URL,
 } from "@/lib/navigation/docs-sidebar-contract";
+import { assertDocsShellConvergence } from "@/lib/verify/docs-shell-convergence";
 
 const PHASE_1_SHELL_ROUTES = [
   {
@@ -43,17 +43,7 @@ function readBuiltRouteHtml(relativePath: string): string | null {
 }
 
 function assertSharedShellMarkers(visibleHtml: string): void {
-  const sidebar = extractNdSidebarHtml(visibleHtml);
-
-  expect(visibleHtml).toContain('aria-label="Primary"');
-  expect(visibleHtml).toContain('id="nd-sidebar"');
-  expect(visibleHtml).toContain('id="nd-page"');
-  expect(sidebar.length).toBeGreaterThan(0);
-  expect(sidebar).toContain(">Modules<");
-  expect(sidebar).toContain(">Glossary<");
-  expect(visibleHtml).toContain(TOKEN_GLOSSARY_URL);
-  expect(visibleHtml).not.toContain(PLACEHOLDER_SIDEBAR_DESCRIPTION);
-  expect(hasLegacyPlaceholderSidebar(visibleHtml)).toBe(false);
+  expect(assertDocsShellConvergence(visibleHtml)).toBeNull();
 }
 
 describe("Phase 1 docs shell contract (built HTML)", () => {
