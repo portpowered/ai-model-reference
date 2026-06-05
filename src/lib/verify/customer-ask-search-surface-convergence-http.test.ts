@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
 import { join } from "node:path";
+import { GROUPED_QUERY_ATTENTION_BUILT_HTML_PATH } from "@/lib/build/verify-grouped-query-attention-built-route";
 import {
   SEARCH_SURFACE_CUSTOMER_ASK_CHECKS,
   SEARCH_SURFACE_CUSTOMER_ASK_REASONS,
@@ -140,7 +141,7 @@ describe("runCustomerAskSearchSurfaceChecks", () => {
   });
 
   test("default Playwright probes finish before browser teardown when production build exists", async () => {
-    if (!existsSync(join(repoRoot, ".next"))) {
+    if (!existsSync(join(repoRoot, GROUPED_QUERY_ATTENTION_BUILT_HTML_PATH))) {
       return;
     }
 
