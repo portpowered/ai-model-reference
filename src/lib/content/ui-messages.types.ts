@@ -36,9 +36,6 @@ export type UiMessages = {
     title: string;
     subtitle: string;
     intro: string;
-    searchHandoff: string;
-    searchPageLinkTitle: string;
-    searchHandoffLinkSuffix: string;
     browseSectionTitle: string;
     browseSectionDescription: string;
     architectureLinkTitle: string;

@@ -1,6 +1,7 @@
-import Link from "next/link";
-
-import { HomeBrowseLink } from "@/components/home/home-browse-link";
+import {
+  HomeBrowseLink,
+  HomeBrowseList,
+} from "@/components/home/home-browse-link";
 import { HomeBrushHeader } from "@/components/home/home-brush-header";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 
@@ -17,16 +18,6 @@ export function HomeArticle({ messages }: HomeArticleProps) {
       <p className="text-base leading-relaxed text-muted-foreground">
         {home.intro}
       </p>
-      <p className="mt-6 text-base leading-relaxed text-muted-foreground">
-        {home.searchHandoff}{" "}
-        <Link
-          href="/search"
-          className="font-medium text-foreground underline underline-offset-4 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {home.searchPageLinkTitle}
-        </Link>{" "}
-        {home.searchHandoffLinkSuffix}
-      </p>
 
       <section
         id="browse"
@@ -42,10 +33,7 @@ export function HomeArticle({ messages }: HomeArticleProps) {
         <p className="mt-2 text-sm text-muted-foreground">
           {home.browseSectionDescription}
         </p>
-        <ul
-          className="mt-4 flex flex-col gap-3"
-          aria-label={home.browseSectionTitle}
-        >
+        <HomeBrowseList ariaLabel={home.browseSectionTitle}>
           <HomeBrowseLink
             href="/docs/architecture"
             title={home.architectureLinkTitle}
@@ -71,7 +59,7 @@ export function HomeArticle({ messages }: HomeArticleProps) {
             title={home.docsLinkTitle}
             description={home.docsLinkDescription}
           />
-        </ul>
+        </HomeBrowseList>
       </section>
     </article>
   );

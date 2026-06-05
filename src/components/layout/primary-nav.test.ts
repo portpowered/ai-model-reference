@@ -12,14 +12,12 @@ describe("getPrimaryNavItems", () => {
 
     expect(items.map((item) => item.href)).toEqual([
       "/",
-      "/search",
       "/docs/architecture",
       "/docs/glossary",
       "/tags",
     ]);
     expect(items.map((item) => item.label)).toEqual([
       messages.nav.home,
-      messages.nav.search,
       messages.nav.architecture,
       messages.nav.glossary,
       messages.nav.tags,

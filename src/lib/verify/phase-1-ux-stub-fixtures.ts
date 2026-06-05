@@ -29,7 +29,10 @@ export const PHASE_1_UX_PASSING_HOME_HTML = `
     <main>
       <article>
         <h1>Model Atlas</h1>
-        <p>Use the header search. <a href="/search">Search entry page</a></p>
+        <p>Model Atlas intro without inline search handoff.</p>
+        <section id="browse" aria-labelledby="home-browse-heading">
+          <h2 id="home-browse-heading">Browse</h2>
+        </section>
       </article>
     </main>
   </html>

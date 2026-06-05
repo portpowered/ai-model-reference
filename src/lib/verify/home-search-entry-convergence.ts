@@ -11,7 +11,8 @@ export const HOME_SEARCH_ENTRY_CONVERGENCE_REASONS = {
   missingModelAtlas: 'missing home title marker ("Model Atlas")',
   missingGlobalSearchEntry:
     "missing global header search entry (data-search trigger)",
-  missingSearchPageLink: "missing bookmark link to /search",
+  redundantArticleSearchPageLink:
+    "redundant inline home search handoff link to /search in article",
   redundantInlineSearchHeading: `redundant inline home search section heading (${REMOVED_HOME_INLINE_SEARCH_SECTION_TITLE})`,
   redundantInlineSearchSection:
     'redundant inline home search section anchor (id="search")',
@@ -28,6 +29,10 @@ function extractArticleHtml(html: string): string {
 }
 
 function assertRedundantInlineHomeSearch(articleHtml: string): string | null {
+  if (articleHtml.includes('href="/search"')) {
+    return HOME_SEARCH_ENTRY_CONVERGENCE_REASONS.redundantArticleSearchPageLink;
+  }
+
   if (articleHtml.includes(REMOVED_HOME_INLINE_SEARCH_SECTION_TITLE)) {
     return HOME_SEARCH_ENTRY_CONVERGENCE_REASONS.redundantInlineSearchHeading;
   }
@@ -45,8 +50,8 @@ function assertRedundantInlineHomeSearch(articleHtml: string): string | null {
 
 /**
  * Returns the first home search-entry convergence failure reason, or null when
- * HTML satisfies the single-entry contract: Model Atlas, global header search,
- * bookmark `/search` link, and no redundant inline home search section.
+ * HTML satisfies the header-only contract: Model Atlas, global header search,
+ * and no redundant inline home search handoff or section in the article.
  */
 export function assertHomeSearchEntryConvergence(html: string): string | null {
   const visibleHtml = stripHtmlScripts(html);
@@ -57,10 +62,6 @@ export function assertHomeSearchEntryConvergence(html: string): string | null {
 
   if (!visibleHtml.includes("data-search")) {
     return HOME_SEARCH_ENTRY_CONVERGENCE_REASONS.missingGlobalSearchEntry;
-  }
-
-  if (!visibleHtml.includes('href="/search"')) {
-    return HOME_SEARCH_ENTRY_CONVERGENCE_REASONS.missingSearchPageLink;
   }
 
   const articleHtml = extractArticleHtml(visibleHtml);
