@@ -4,18 +4,29 @@ import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { httpGetStatus, pickListenPort } from "./http-harness";
+import {
+  httpGetStatus,
+  isListenPortFree,
+  pickListenPort,
+} from "./http-harness";
 import {
   acquireVerifyServerSession,
   assertNextProductionBuild,
   DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
+  defaultSpawnProductionServer,
+  hasCompleteNextProductionBuild,
   hasNextProductionBuild,
   killManagedChild,
   NEXT_BUILD_REQUIRED_MESSAGE,
   normalizeVerifyBaseUrl,
+  resolveNextProductionServerBin,
   resolveVerifyBaseUrlFromEnv,
+  shouldRunVerifyProductionIntegrationTests,
+  VERIFY_COVERAGE_SUBPROCESS_ENV,
   waitForServerReady,
 } from "./server-lifecycle";
+
+const repoRoot = join(import.meta.dir, "../../..");
 
 function waitForChildExit(
   child: ChildProcess,
@@ -70,7 +81,7 @@ createServer((_req, res) => {
 `;
 
 function spawnStubProductionServer(port: number, cwd: string): ChildProcess {
-  return spawn("bun", ["-e", STUB_SERVER_SCRIPT], {
+  const child = spawn("bun", ["-e", STUB_SERVER_SCRIPT], {
     cwd,
     stdio: "ignore",
     detached: true,
@@ -79,6 +90,8 @@ function spawnStubProductionServer(port: number, cwd: string): ChildProcess {
       VERIFY_STUB_PORT: String(port),
     },
   });
+  child.unref();
+  return child;
 }
 
 describe("resolveVerifyBaseUrlFromEnv", () => {
@@ -100,12 +113,35 @@ describe("assertNextProductionBuild", () => {
     const emptyDir = mkdtempSync(join(tmpdir(), "verify-no-next-"));
     try {
       expect(hasNextProductionBuild(emptyDir)).toBe(false);
+      expect(hasCompleteNextProductionBuild(emptyDir)).toBe(false);
       expect(() => assertNextProductionBuild(emptyDir)).toThrow(
         NEXT_BUILD_REQUIRED_MESSAGE,
       );
     } finally {
       rmSync(emptyDir, { recursive: true, force: true });
     }
+  });
+
+  test("treats an empty .next directory as incomplete for integration gating", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-empty-next-"));
+    mkdirSync(join(projectRoot, ".next"));
+    try {
+      expect(hasNextProductionBuild(projectRoot)).toBe(true);
+      expect(hasCompleteNextProductionBuild(projectRoot)).toBe(false);
+      expect(shouldRunVerifyProductionIntegrationTests(projectRoot)).toBe(
+        false,
+      );
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("skips production integration tests during the coverage subprocess rerun", () => {
+    expect(
+      shouldRunVerifyProductionIntegrationTests(repoRoot, {
+        [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
+      }),
+    ).toBe(false);
   });
 });
 
@@ -143,8 +179,13 @@ describe("waitForServerReady", () => {
           timeoutMs: 800,
           pollIntervalMs: 100,
           perRequestTimeoutMs: 300,
+          port,
         }),
-      ).rejects.toThrow(/did not become ready/i);
+      ).rejects.toThrow(
+        new RegExp(
+          `did not become ready.*port ${port}.*health URL http://127\\.0\\.0\\.1:${port}/`,
+        ),
+      );
     } finally {
       httpServer.closeAllConnections();
       httpServer.close();
@@ -162,14 +203,31 @@ describe("acquireVerifyServerSession", () => {
   });
 
   test("uses VERIFY_BASE_URL without spawning a child", async () => {
-    const session = await acquireVerifyServerSession({
-      verifyBaseUrl: "http://127.0.0.1:3999",
-      registerProcessSignals: false,
+    const httpServer = createHttpServer((_req, res) => {
+      res.writeHead(200);
+      res.end("external");
     });
+    const externalPort = await listenOnEphemeralPort(httpServer);
 
-    expect(session.baseUrl).toBe("http://127.0.0.1:3999");
-    expect(session.port).toBeNull();
-    await session.cleanup();
+    try {
+      const session = await acquireVerifyServerSession({
+        verifyBaseUrl: `http://127.0.0.1:${externalPort}`,
+        registerProcessSignals: false,
+      });
+
+      expect(session.baseUrl).toBe(`http://127.0.0.1:${externalPort}`);
+      expect(session.port).toBeNull();
+      expect(await httpGetStatus(`${session.baseUrl}/`, 2_000)).toBe(200);
+
+      await session.cleanup();
+
+      expect(
+        await httpGetStatus(`http://127.0.0.1:${externalPort}/`, 2_000),
+      ).toBe(200);
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
   });
 
   test("spawns a stub server, waits for readiness, and kills the child on cleanup", async () => {
@@ -198,11 +256,14 @@ describe("acquireVerifyServerSession", () => {
       expect(spawnedChild).toBeDefined();
       expect(spawnedChild?.exitCode).toBeNull();
 
+      const assignedPort = session.port as number;
+      await session.cleanup();
       await session.cleanup();
 
       await expect(
         httpGetStatus(`${session.baseUrl}/`, 500),
       ).rejects.toBeDefined();
+      expect(await isListenPortFree(assignedPort)).toBe(true);
 
       if (spawnedChild) {
         await waitForChildExit(spawnedChild, 1_000);
@@ -217,6 +278,55 @@ describe("acquireVerifyServerSession", () => {
 
   test("startup timeout is at most 30 seconds by default", () => {
     expect(DEFAULT_SERVER_STARTUP_TIMEOUT_MS).toBeLessThanOrEqual(30_000);
+  });
+
+  test("fails fast with exit code and child output when the spawned server exits early", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-early-exit-"));
+    mkdirSync(join(projectRoot, ".next"));
+
+    const STUB_EXIT_SCRIPT = `
+console.error("fatal production boot error");
+process.exit(42);
+`;
+
+    function spawnExitingServer(_port: number, cwd: string): ChildProcess {
+      return spawn("bun", ["-e", STUB_EXIT_SCRIPT], {
+        cwd,
+        stdio: ["ignore", "pipe", "pipe"],
+        detached: true,
+      });
+    }
+
+    let spawnedChild: ChildProcess | undefined;
+    let startupError: Error | undefined;
+
+    try {
+      try {
+        await acquireVerifyServerSession({
+          projectRoot,
+          registerProcessSignals: false,
+          spawnProductionServer: (port, cwd) => {
+            spawnedChild = spawnExitingServer(port, cwd);
+            spawnedChildren.push(spawnedChild);
+            return spawnedChild;
+          },
+        });
+      } catch (error) {
+        startupError = error as Error;
+      }
+
+      expect(startupError?.message).toMatch(/exited before becoming ready/);
+      expect(startupError?.message).toContain("exit code 42");
+      expect(startupError?.message).toContain("fatal production boot error");
+
+      expect(spawnedChild).toBeDefined();
+      if (spawnedChild) {
+        await waitForChildExit(spawnedChild, 2_000);
+        expect(spawnedChild.exitCode).toBe(42);
+      }
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 
   test("fails with a clear message and cleans up when startup times out", async () => {
@@ -245,6 +355,7 @@ createServer((_req, res) => {
     }
 
     let spawnedChild: ChildProcess | undefined;
+    let assignedPort: number | undefined;
 
     try {
       await expect(
@@ -253,23 +364,60 @@ createServer((_req, res) => {
           registerProcessSignals: false,
           startupTimeoutMs: 800,
           spawnProductionServer: (port, cwd) => {
+            assignedPort = port;
             spawnedChild = spawnNeverReadyServer(port, cwd);
             spawnedChildren.push(spawnedChild);
             return spawnedChild;
           },
         }),
-      ).rejects.toThrow(/did not become ready/i);
+      ).rejects.toThrow(
+        new RegExp(
+          `did not become ready.*port ${assignedPort ?? "\\d+"}.*health URL http://127\\.0\\.0\\.1:${assignedPort ?? "\\d+"}/`,
+        ),
+      );
 
       expect(spawnedChild).toBeDefined();
+      expect(assignedPort).toBeDefined();
       if (spawnedChild) {
         await waitForChildExit(spawnedChild, 2_000);
         expect(
           spawnedChild.exitCode !== null || spawnedChild.killed === true,
         ).toBe(true);
       }
+      if (assignedPort !== undefined) {
+        expect(await isListenPortFree(assignedPort)).toBe(true);
+      }
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
+  });
+});
+
+describe("killManagedChild", () => {
+  const spawnedChildren: ChildProcess[] = [];
+
+  afterEach(async () => {
+    await Promise.all(
+      spawnedChildren.splice(0).map((child) => killManagedChild(child)),
+    );
+  });
+
+  test("terminates a detached stub server and frees the assigned port", async () => {
+    const port = await pickListenPort();
+    const child = spawnStubProductionServer(port, process.cwd());
+    spawnedChildren.push(child);
+
+    await waitForServerReady(`http://127.0.0.1:${port}`, {
+      timeoutMs: 5_000,
+      pollIntervalMs: 100,
+    });
+    expect(await isListenPortFree(port)).toBe(false);
+
+    await killManagedChild(child);
+    await waitForChildExit(child, 2_000);
+
+    expect(child.exitCode !== null || child.killed === true).toBe(true);
+    expect(await isListenPortFree(port)).toBe(true);
   });
 });
 
@@ -304,4 +452,69 @@ describe("pickListenPort integration", () => {
     expect(port).toBeGreaterThanOrEqual(3100);
     expect(port).toBeLessThanOrEqual(3999);
   });
+});
+
+describe("defaultSpawnProductionServer integration", () => {
+  const spawnedChildren: ChildProcess[] = [];
+
+  afterEach(async () => {
+    await Promise.all(
+      spawnedChildren.splice(0).map((child) => killManagedChild(child)),
+    );
+  });
+
+  test("resolveNextProductionServerBin points at the local next CLI", () => {
+    expect(resolveNextProductionServerBin(repoRoot)).toBe(
+      join(repoRoot, "node_modules", "next", "dist", "bin", "next"),
+    );
+  });
+
+  test(
+    "default spawn reaches HTTP 200 on loopback when production build exists",
+    async () => {
+      if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
+        return;
+      }
+
+      const port = await pickListenPort();
+      const child = defaultSpawnProductionServer(port, repoRoot);
+      spawnedChildren.push(child);
+
+      await waitForServerReady(`http://127.0.0.1:${port}`, {
+        timeoutMs: DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
+      });
+
+      expect(child.exitCode).toBeNull();
+      expect(await httpGetStatus(`http://127.0.0.1:${port}/`, 5_000)).toBe(200);
+    },
+    DEFAULT_SERVER_STARTUP_TIMEOUT_MS + 10_000,
+  );
+
+  test(
+    "acquireVerifyServerSession default path uses normalized loopback baseUrl",
+    async () => {
+      if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
+        return;
+      }
+
+      const session = await acquireVerifyServerSession({
+        projectRoot: repoRoot,
+        registerProcessSignals: false,
+      });
+
+      try {
+        expect(session.port).not.toBeNull();
+        expect(session.port).toBeGreaterThanOrEqual(3100);
+        expect(session.port).toBeLessThanOrEqual(3999);
+        expect(session.baseUrl).toBe(`http://127.0.0.1:${session.port}`);
+        expect(normalizeVerifyBaseUrl(`${session.baseUrl}/`)).toBe(
+          session.baseUrl,
+        );
+        expect(await httpGetStatus(`${session.baseUrl}/`, 5_000)).toBe(200);
+      } finally {
+        await session.cleanup();
+      }
+    },
+    DEFAULT_SERVER_STARTUP_TIMEOUT_MS + 10_000,
+  );
 });

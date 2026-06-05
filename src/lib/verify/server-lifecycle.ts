@@ -9,6 +9,9 @@ import {
 
 export const VERIFY_BASE_URL_ENV = "VERIFY_BASE_URL";
 
+/** Set by `runCoverageSubprocess` so opt-in E2E tests skip the coverage rerun. */
+export const VERIFY_COVERAGE_SUBPROCESS_ENV = "VERIFY_COVERAGE_SUBPROCESS";
+
 /** Maximum time to wait for the production server to return HTTP 200. */
 export const DEFAULT_SERVER_STARTUP_TIMEOUT_MS = 30_000;
 
@@ -17,6 +20,59 @@ export const NEXT_BUILD_REQUIRED_MESSAGE =
 
 const DEFAULT_POLL_INTERVAL_MS = 500;
 const CHILD_KILL_TIMEOUT_MS = 5_000;
+const CHILD_OUTPUT_TAIL_MAX_BYTES = 4_096;
+
+const childOutputChunks = new WeakMap<ChildProcess, Buffer[]>();
+
+function appendChildOutput(child: ChildProcess, chunk: Buffer): void {
+  const chunks = childOutputChunks.get(child) ?? [];
+  chunks.push(chunk);
+  childOutputChunks.set(child, chunks);
+
+  let totalBytes = chunks.reduce((sum, part) => sum + part.length, 0);
+  while (totalBytes > CHILD_OUTPUT_TAIL_MAX_BYTES && chunks.length > 1) {
+    const removed = chunks.shift();
+    if (!removed) {
+      break;
+    }
+    totalBytes -= removed.length;
+  }
+}
+
+export function getChildOutputTail(
+  child: ChildProcess,
+  maxBytes: number = CHILD_OUTPUT_TAIL_MAX_BYTES,
+): string {
+  const chunks = childOutputChunks.get(child);
+  if (!chunks || chunks.length === 0) {
+    return "";
+  }
+
+  const combined = Buffer.concat(chunks);
+  const tail =
+    combined.length > maxBytes
+      ? combined.subarray(combined.length - maxBytes)
+      : combined;
+  return tail.toString("utf8").trim();
+}
+
+export function attachChildOutputCapture(child: ChildProcess): void {
+  if (childOutputChunks.has(child)) {
+    return;
+  }
+
+  childOutputChunks.set(child, []);
+
+  const onData = (chunk: Buffer | string) => {
+    appendChildOutput(
+      child,
+      Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk),
+    );
+  };
+
+  child.stdout?.on("data", onData);
+  child.stderr?.on("data", onData);
+}
 
 export function normalizeVerifyBaseUrl(url: string): string {
   return url.replace(/\/+$/, "");
@@ -38,6 +94,27 @@ export function hasNextProductionBuild(
   return existsSync(join(projectRoot, ".next"));
 }
 
+/** True when a completed `next build` artifact is present (not an empty `.next` dir). */
+export function hasCompleteNextProductionBuild(
+  projectRoot: string = process.cwd(),
+): boolean {
+  return existsSync(join(projectRoot, ".next", "BUILD_ID"));
+}
+
+/**
+ * Gates opt-in production-server integration tests: skip the coverage subprocess
+ * rerun (make ci) and require a completed build artifact.
+ */
+export function shouldRunVerifyProductionIntegrationTests(
+  projectRoot: string = process.cwd(),
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  if (env[VERIFY_COVERAGE_SUBPROCESS_ENV] === "1") {
+    return false;
+  }
+  return hasCompleteNextProductionBuild(projectRoot);
+}
+
 export function assertNextProductionBuild(
   projectRoot: string = process.cwd(),
 ): void {
@@ -46,20 +123,27 @@ export function assertNextProductionBuild(
   }
 }
 
+export function resolveNextProductionServerBin(projectRoot: string): string {
+  return join(projectRoot, "node_modules", "next", "dist", "bin", "next");
+}
+
 export function defaultSpawnProductionServer(
   port: number,
   projectRoot: string,
 ): ChildProcess {
-  return spawn(
-    "bun",
-    ["run", "start", "--", "-p", String(port), "-H", "127.0.0.1"],
+  const child = spawn(
+    resolveNextProductionServerBin(projectRoot),
+    ["start", "-p", String(port), "-H", "127.0.0.1"],
     {
       cwd: projectRoot,
-      stdio: "ignore",
-      env: process.env,
+      stdio: ["ignore", "pipe", "pipe"],
+      env: { ...process.env, NODE_ENV: "production" },
       detached: true,
     },
   );
+  attachChildOutputCapture(child);
+  child.unref();
+  return child;
 }
 
 function signalProcessTree(child: ChildProcess, signal: NodeJS.Signals): void {
@@ -117,7 +201,87 @@ export type WaitForServerReadyOptions = {
   pollPath?: string;
   pollIntervalMs?: number;
   perRequestTimeoutMs?: number;
+  port?: number;
 };
+
+function formatReadinessTimeoutError(
+  timeoutMs: number,
+  healthUrl: string,
+  port: number | undefined,
+  lastError: unknown,
+): Error {
+  const detail =
+    lastError instanceof Error ? lastError.message : String(lastError);
+  const portDetail = port === undefined ? "" : `port ${port}, `;
+  return new Error(
+    `Server did not become ready within ${timeoutMs}ms (${portDetail}health URL ${healthUrl}): ${detail}`,
+  );
+}
+
+function formatChildEarlyExitError(
+  child: ChildProcess,
+  port: number,
+  healthUrl: string,
+  exitCode: number | null,
+  signal: NodeJS.Signals | null,
+): Error {
+  const exitParts: string[] = [];
+  if (exitCode !== null) {
+    exitParts.push(`exit code ${exitCode}`);
+  }
+  if (signal) {
+    exitParts.push(`signal ${signal}`);
+  }
+
+  const exitDetail = exitParts.length > 0 ? ` (${exitParts.join(", ")})` : "";
+  const outputTail = getChildOutputTail(child);
+  const outputDetail = outputTail ? `\nChild output tail:\n${outputTail}` : "";
+
+  return new Error(
+    `Production server exited before becoming ready (port ${port}, health URL ${healthUrl})${exitDetail}${outputDetail}`,
+  );
+}
+
+function waitForChildEarlyExit(
+  child: ChildProcess,
+  port: number,
+  healthUrl: string,
+): { promise: Promise<never>; cancel: () => void } {
+  if (child.exitCode !== null) {
+    return {
+      promise: Promise.reject(
+        formatChildEarlyExitError(
+          child,
+          port,
+          healthUrl,
+          child.exitCode,
+          child.signalCode,
+        ),
+      ),
+      cancel: () => {},
+    };
+  }
+
+  let onExit:
+    | ((code: number | null, signal: NodeJS.Signals | null) => void)
+    | null = null;
+
+  const promise = new Promise<never>((_, reject) => {
+    onExit = (code, signal) => {
+      reject(formatChildEarlyExitError(child, port, healthUrl, code, signal));
+    };
+    child.once("exit", onExit);
+  });
+
+  return {
+    promise,
+    cancel: () => {
+      if (onExit) {
+        child.removeListener("exit", onExit);
+      }
+    },
+  };
+}
 
 /**
  * Polls baseUrl + pollPath until HTTP 200 or startup timeout.
@@ -156,10 +320,11 @@ export async function waitForServerReady(
     );
   }
 
-  const detail =
-    lastError instanceof Error ? lastError.message : String(lastError);
-  throw new Error(
-    `Server did not become ready within ${timeoutMs}ms (${healthUrl}): ${detail}`,
+  throw formatReadinessTimeoutError(
+    timeoutMs,
+    healthUrl,
+    options.port,
+    lastError,
   );
 }
 
@@ -226,6 +391,10 @@ export async function acquireVerifyServerSession(
   const spawnProductionServer =
     options.spawnProductionServer ?? defaultSpawnProductionServer;
   const child = spawnProductionServer(port, projectRoot);
+  attachChildOutputCapture(child);
+
+  const healthPath = options.healthPath ?? "/";
+  const healthUrl = `${baseUrl}${healthPath.startsWith("/") ? healthPath : `/${healthPath}`}`;
 
   let cleanedUp = false;
   const cleanup = async () => {
@@ -244,14 +413,21 @@ export async function acquireVerifyServerSession(
     registerProcessSignalHandlers(cleanup);
   }
 
+  const earlyExit = waitForChildEarlyExit(child, port, healthUrl);
   try {
-    await waitForServerReady(baseUrl, {
-      timeoutMs: options.startupTimeoutMs,
-      pollPath: options.healthPath,
-    });
+    await Promise.race([
+      waitForServerReady(baseUrl, {
+        timeoutMs: options.startupTimeoutMs,
+        pollPath: options.healthPath,
+        port,
+      }),
+      earlyExit.promise,
+    ]);
   } catch (error) {
     await cleanup();
     throw error;
+  } finally {
+    earlyExit.cancel();
   }
 
   return { baseUrl, port, cleanup };
