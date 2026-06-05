@@ -11,16 +11,27 @@ const footerChromeCss = readFileSync(
   "utf8",
 );
 
-describe("docs page footer chrome CSS contract", () => {
-  test("footer card selector mirrors hover and focus-visible foreground on sublabel", () => {
-    const normalizedCss = footerChromeCss.replaceAll(/\s+/g, " ");
+function normalizeSelectorContract(value: string): string {
+  return value.replaceAll(/\s+/g, "");
+}
 
-    expect(footerChromeCss).toContain(docsPageFooterCardSelector);
+describe("docs page footer chrome CSS contract", () => {
+  test("footer card selector targets accent-hover footer anchors with muted sublabels", () => {
+    const normalizedCss = normalizeSelectorContract(footerChromeCss);
+
     expect(normalizedCss).toContain(
-      docsPageFooterSublabelInheritSelector.replaceAll(/\s+/g, " "),
+      normalizeSelectorContract(docsPageFooterCardSelector),
+    );
+    expect(normalizedCss).toContain(
+      normalizeSelectorContract(docsPageFooterSublabelInheritSelector),
+    );
+    expect(footerChromeCss).toContain('class*="hover:bg-fd-accent"');
+    expect(footerChromeCss).toContain(
+      'class*="hover:text-fd-accent-foreground"',
     );
     expect(footerChromeCss).toContain("color: inherit");
     expect(footerChromeCss).toContain(":focus-visible");
     expect(footerChromeCss).toContain("var(--color-fd-accent-foreground)");
+    expect(footerChromeCss).toContain("outline: 2px solid var(--ring)");
   });
 });
