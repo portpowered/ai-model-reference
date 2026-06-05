@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import HomePage from "@/app/(site)/page";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
+import { HomeArticle } from "@/components/home/home-article";
 import { getPrimaryNavItems } from "@/components/layout/primary-nav";
 import { resolveInitialSearchPageQuery } from "@/features/docs/search/search-page-query";
 import { loadUiMessages } from "@/lib/content/ui-messages";
@@ -24,7 +24,8 @@ describe("search page query prefill", () => {
 
 describe("Phase 1 discovery search handoffs", () => {
   it("home article does not duplicate the shell header search dialog trigger", async () => {
-    const html = renderToStaticMarkup(await HomePage());
+    const messages = await loadUiMessages();
+    const html = renderToStaticMarkup(<HomeArticle messages={messages} />);
     expect(html).not.toContain("data-search");
   });
 
