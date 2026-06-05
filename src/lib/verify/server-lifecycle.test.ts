@@ -147,8 +147,13 @@ describe("waitForServerReady", () => {
           timeoutMs: 800,
           pollIntervalMs: 100,
           perRequestTimeoutMs: 300,
+          port,
         }),
-      ).rejects.toThrow(/did not become ready/i);
+      ).rejects.toThrow(
+        new RegExp(
+          `did not become ready.*port ${port}.*health URL http://127\\.0\\.0\\.1:${port}/`,
+        ),
+      );
     } finally {
       httpServer.closeAllConnections();
       httpServer.close();
@@ -223,6 +228,55 @@ describe("acquireVerifyServerSession", () => {
     expect(DEFAULT_SERVER_STARTUP_TIMEOUT_MS).toBeLessThanOrEqual(30_000);
   });
 
+  test("fails fast with exit code and child output when the spawned server exits early", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-early-exit-"));
+    mkdirSync(join(projectRoot, ".next"));
+
+    const STUB_EXIT_SCRIPT = `
+console.error("fatal production boot error");
+process.exit(42);
+`;
+
+    function spawnExitingServer(_port: number, cwd: string): ChildProcess {
+      return spawn("bun", ["-e", STUB_EXIT_SCRIPT], {
+        cwd,
+        stdio: ["ignore", "pipe", "pipe"],
+        detached: true,
+      });
+    }
+
+    let spawnedChild: ChildProcess | undefined;
+    let startupError: Error | undefined;
+
+    try {
+      try {
+        await acquireVerifyServerSession({
+          projectRoot,
+          registerProcessSignals: false,
+          spawnProductionServer: (port, cwd) => {
+            spawnedChild = spawnExitingServer(port, cwd);
+            spawnedChildren.push(spawnedChild);
+            return spawnedChild;
+          },
+        });
+      } catch (error) {
+        startupError = error as Error;
+      }
+
+      expect(startupError?.message).toMatch(/exited before becoming ready/);
+      expect(startupError?.message).toContain("exit code 42");
+      expect(startupError?.message).toContain("fatal production boot error");
+
+      expect(spawnedChild).toBeDefined();
+      if (spawnedChild) {
+        await waitForChildExit(spawnedChild, 2_000);
+        expect(spawnedChild.exitCode).toBe(42);
+      }
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
   test("fails with a clear message and cleans up when startup times out", async () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-start-timeout-"));
     mkdirSync(join(projectRoot, ".next"));
@@ -249,6 +303,7 @@ createServer((_req, res) => {
     }
 
     let spawnedChild: ChildProcess | undefined;
+    let assignedPort: number | undefined;
 
     try {
       await expect(
@@ -257,12 +312,17 @@ createServer((_req, res) => {
           registerProcessSignals: false,
           startupTimeoutMs: 800,
           spawnProductionServer: (port, cwd) => {
+            assignedPort = port;
             spawnedChild = spawnNeverReadyServer(port, cwd);
             spawnedChildren.push(spawnedChild);
             return spawnedChild;
           },
         }),
-      ).rejects.toThrow(/did not become ready/i);
+      ).rejects.toThrow(
+        new RegExp(
+          `did not become ready.*port ${assignedPort ?? "\\d+"}.*health URL http://127\\.0\\.0\\.1:${assignedPort ?? "\\d+"}/`,
+        ),
+      );
 
       expect(spawnedChild).toBeDefined();
       if (spawnedChild) {
