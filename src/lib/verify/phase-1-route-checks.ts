@@ -1,3 +1,4 @@
+import { assertGroupedQueryAttentionModuleConvergence } from "./grouped-query-attention-module-convergence";
 import {
   DEFAULT_FETCH_TIMEOUT_MS,
   FetchTimeoutError,
@@ -99,16 +100,7 @@ export const PHASE_1_ROUTE_ASSERTIONS: readonly Phase1RouteAssertion[] = [
   {
     path: "/docs/modules/grouped-query-attention",
     label: "/docs/modules/grouped-query-attention",
-    assertBody: (html) => {
-      const missing = requireSubstrings(html, [
-        "Grouped-Query Attention",
-        'data-registry-id="module.grouped-query-attention"',
-      ]);
-      if (missing) {
-        return missing;
-      }
-      return forbidSubstring(html, "lorem");
-    },
+    assertBody: (html) => assertGroupedQueryAttentionModuleConvergence(html),
   },
 ] as const;
 

@@ -74,6 +74,23 @@ line target.
 | DerivedRelatedDocs | `src/features/docs/components/DerivedRelatedDocs.tsx` | ≥ 90% | `DerivedRelatedDocs.test.tsx` | `docs-components.a11y.test.tsx` |
 | SearchResults | `src/features/docs/search/SearchResults.tsx` | ≥ 90% | `SearchResults.test.tsx` | `docs-components.a11y.test.tsx` |
 | SearchResultMetaDetails | `src/features/docs/search/SearchResultMetaDetails.tsx` | ≥ 90% | `SearchResults.test.tsx` | `docs-components.a11y.test.tsx` |
+| ProseAutoLinkText | `src/features/docs/components/ProseAutoLinkText.tsx` | ≥ 90% | `ProseAutoLinkText.test.tsx` | — |
+| TBlockMath | `src/features/docs/components/TBlockMath.tsx` | ≥ 90% | `TBlockMath.test.tsx` | — |
+| ModuleAttentionSchemaComparison | `src/features/models/components/ModuleAttentionSchemaComparison.tsx` | ≥ 90% | `ModuleAttentionSchemaComparison.test.tsx` | — |
+| RegistryComparisonTable | `src/features/models/components/RegistryComparisonTable.tsx` | ≥ 90% | `RegistryComparisonTable.test.tsx` | — |
+| RegistryGraphFlow | `src/features/models/components/RegistryGraphFlow.tsx` | ≥ 90% | `RegistryGraphFlow.test.tsx` | — |
+| PageAsset | `src/features/docs/components/PageAsset.tsx` | ≥ 90% | `PageAsset.test.tsx` | — |
+| ModuleMetadataCard | `src/features/models/components/ModuleMetadataCard.tsx` | ≥ 90% | `ModuleMetadataCard.test.tsx` | — |
+| ModuleAtAGlance | `src/features/models/components/ModuleAtAGlance.tsx` | ≥ 90% | `ModuleAtAGlance.test.tsx` | — |
+| MissingGraphRecord | `src/features/docs/components/MissingGraphRecord.tsx` | ≥ 90% | `RegistryGraphFlow.test.tsx` | — |
+| MissingTableRecord | `src/features/models/components/MissingTableRecord.tsx` | ≥ 90% | `RegistryComparisonTable.test.tsx` | — |
+
+### Phase 1 module page thin wrappers
+
+| Component | Source | Forwards to | Smoke tests |
+| --- | --- | --- | --- |
+| ModuleGraph | `src/features/models/components/ModuleGraph.tsx` | `PageAsset` | `module-page.test.ts` |
+| ModuleComparisonTable | `src/features/models/components/ModuleComparisonTable.tsx` | `PageAsset` | `module-page.test.ts` |
 
 ### Phase 1 shell surfaces (home, header, tags)
 
@@ -90,7 +107,7 @@ line target.
 
 Consolidated styling contracts: `src/tests/layout/phase-1-home-shell-styling-contract.test.tsx`.
 
-Thin wrappers: **none** (see `REUSABLE_THIN_WRAPPERS` in the manifest).
+Thin wrappers: `ModuleGraph` and `ModuleComparisonTable` forward to `PageAsset` (see `REUSABLE_THIN_WRAPPERS` in the manifest).
 
 ## Adding a reusable component
 

@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { createServer as createHttpServer } from "node:http";
 import {
+  buildGroupedQueryAttentionStubBody,
+  GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS,
+} from "./grouped-query-attention-module-convergence";
+import {
   assertPhase1Routes,
   formatPhase1RouteCheckFailure,
   PHASE_1_ROUTE_ASSERTIONS,
@@ -17,8 +21,7 @@ const PASSING_STUB_HTML: Record<string, string> = {
     '<html><h1>Attention</h1><a href="/docs/modules/grouped-query-attention">GQA</a><a href="/docs/glossary/token">Token</a><a href="/search?tag=attention">Search</a></html>',
   "/docs/glossary/token":
     '<html><h1>Token</h1><div data-registry-id="concept.token"></div></html>',
-  "/docs/modules/grouped-query-attention":
-    '<html><h1>Grouped-Query Attention</h1><div data-registry-id="module.grouped-query-attention"></div></html>',
+  "/docs/modules/grouped-query-attention": `<html>${buildGroupedQueryAttentionStubBody()}</html>`,
 };
 
 function listenOnEphemeralPort(
@@ -62,6 +65,14 @@ describe("PHASE_1_ROUTE_ASSERTIONS", () => {
       "/docs/glossary/token",
       "/docs/modules/grouped-query-attention",
     ]);
+  });
+
+  test("grouped-query-attention stub excludes forbidden placeholder markers", () => {
+    const gqaHtml = PASSING_STUB_HTML["/docs/modules/grouped-query-attention"];
+    expect(gqaHtml).toBeDefined();
+    for (const forbidden of GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS) {
+      expect(gqaHtml).not.toContain(forbidden);
+    }
   });
 
   test("assertBody passes on expected markers and rejects placeholders", () => {

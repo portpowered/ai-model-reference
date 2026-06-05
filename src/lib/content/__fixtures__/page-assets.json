@@ -12,5 +12,27 @@
     "printRenderer": "mermaid",
     "altKey": "assets.computeFlow.alt",
     "captionKey": "assets.computeFlow.caption"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.grouped-query-attention-comparison",
+    "captionKey": "assets.comparisonTable.caption"
+  },
+  "trainingChart": {
+    "type": "chart",
+    "chartId": "chart.gqa-training-cost",
+    "captionKey": "assets.trainingChart.caption"
+  },
+  "codeSchema": {
+    "type": "code-schema",
+    "schemaId": "schema.gqa-forward-pass",
+    "captionKey": "assets.codeSchema.caption"
+  },
+  "legacyGraph": {
+    "type": "graph",
+    "graphId": "graph.legacy-stub",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.legacyGraph.alt"
   }
 }

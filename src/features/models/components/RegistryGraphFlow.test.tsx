@@ -70,4 +70,21 @@ describe("RegistryGraphFlow", () => {
     );
     expect(html).not.toContain(">graph.grouped-query-attention-compute-flow<");
   });
+
+  test("renders a missing graph record marker when graphId is unknown", () => {
+    const html = renderToStaticMarkup(
+      <PageMessagesProvider messages={messages} isDev={false}>
+        <PageAssetsProvider assets={assets} isDev={false}>
+          <RegistryGraphFlow
+            assetId="computeFlow"
+            graphId="graph.missing-fixture"
+            alt="Missing graph"
+          />
+        </PageAssetsProvider>
+      </PageMessagesProvider>,
+    );
+
+    expect(html).toContain('data-missing-graph-id="graph.missing-fixture"');
+    expect(html).toContain("Missing graph record: graph.missing-fixture");
+  });
 });
