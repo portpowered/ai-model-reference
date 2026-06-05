@@ -1,7 +1,7 @@
 import "./mock-navigation";
 import { afterEach, describe, expect, test } from "bun:test";
-import { act } from "react";
 import { cleanup, within } from "@testing-library/react";
+import { act } from "react";
 import { CanonicalDocsLayout } from "@/components/layout/canonical-docs-layout";
 import {
   GROUPED_QUERY_ATTENTION_URL,

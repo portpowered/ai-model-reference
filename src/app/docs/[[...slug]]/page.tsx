@@ -33,14 +33,20 @@ async function renderLocalDocsPage(slug: string[] | undefined) {
   const loadedPage = await loadLocalDocsPage(localRef);
 
   return (
-    <ModulePageProviders
-      messages={loadedPage.messages}
-      assets={loadedPage.assets}
-    >
-      <article data-registry-id={loadedPage.frontmatter.registryId}>
-        {loadedPage.content}
-      </article>
-    </ModulePageProviders>
+    <DocsPage toc={loadedPage.toc}>
+      <DocsTitle>{loadedPage.messages.title}</DocsTitle>
+      <DocsDescription>{loadedPage.messages.description}</DocsDescription>
+      <DocsBody>
+        <ModulePageProviders
+          messages={loadedPage.messages}
+          assets={loadedPage.assets}
+        >
+          <article data-registry-id={loadedPage.frontmatter.registryId}>
+            {loadedPage.content}
+          </article>
+        </ModulePageProviders>
+      </DocsBody>
+    </DocsPage>
   );
 }
 

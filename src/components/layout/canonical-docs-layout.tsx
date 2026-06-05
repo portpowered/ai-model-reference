@@ -2,8 +2,8 @@ import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import type { ReactNode } from "react";
 
 import { ModelAtlasDocsHeader } from "@/components/layout/model-atlas-docs-header";
-import { baseOptions } from "@/lib/layout.shared";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import { baseOptions } from "@/lib/layout.shared";
 import { source } from "@/lib/source";
 
 type CanonicalDocsLayoutProps = {
