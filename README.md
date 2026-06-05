@@ -309,6 +309,32 @@ Convergence checks run first (docs shell → home search entry → reader/tags
 navigation), then legacy route content markers, then `/api/search`, built
 `/search` Playwright checks, header search dialog, and keyboard shortcuts.
 
+**Customer-ask convergence reporting:** After the Phase 1 UX checks finish,
+the same command prints a structured **Customer-ask convergence report** with
+one line per batch-008 customer-ask check. Each row includes a stable `checkId`,
+human title, optional `route` or `query`, `pass` / `fail` / `uncertain` status,
+failure reason when applicable, and a `checklistRow` mapping to
+`docs/internal/checklist.md`. The report covers home/header polish on `/`,
+tag list styling on `/tags` and `/tags/attention`, search surface behavior on
+`/search`, the header search dialog, and `/api/search`, glossary presentation on
+`/docs/glossary/token`, and the canonical GQA module page on
+`/docs/modules/grouped-query-attention`.
+
+**Pass / fail / uncertain interpretation for loopback review:**
+
+| Outcome | Meaning | Exit code impact |
+| --- | --- | --- |
+| `pass` | Built app satisfies the customer-ask assertion | Non-blocking |
+| `fail` | Regression or missing batch-008 repair evidence | Command exits `1` |
+| `uncertain` | Check ran but needs manual follow-up (for example Command-K hover contrast or glossary footer hover pairing) | Non-blocking; record in convergence notes |
+
+The process exit code is `1` when **either** legacy Phase 1 UX verification fails
+**or** any customer-ask row is `fail`. Rows marked `uncertain` alone do not fail
+the command. Copy per-row statuses into loopback convergence notes so the
+ideafy planner can choose a narrow repair batch or Phase 1 stop-and-wait. See
+`factory/docs/phase-1-customer-ask-convergence-validator.md` for the full check
+id, route, and checklist-row inventory.
+
 The verifier also exercises the built `/search` page, the header search dialog
 (via the search trigger button), and keyboard shortcuts on the home page:
 **Meta+K** (Cmd+K on macOS) and **Control+K** (Windows/Linux). Each shortcut
