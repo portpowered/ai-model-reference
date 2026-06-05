@@ -1,6 +1,6 @@
 import "@/tests/a11y/mock-navigation";
-import { describe, expect, test } from "bun:test";
-import { screen } from "@testing-library/react";
+import { afterEach, describe, expect, test } from "bun:test";
+import { cleanup, screen, within } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SearchResultMetaDetails } from "@/features/docs/search/SearchResultMetaDetails";
 import {
@@ -44,6 +44,10 @@ describe("SearchResultMetaDetails", () => {
 });
 
 describe("SearchResultListItem", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   test("GQA page hit shows dialog row with module kind, summary, and URL", async () => {
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
@@ -62,17 +66,18 @@ describe("SearchResultListItem", () => {
       metaByUrl,
     });
 
+    const view = within(container);
     expect(
-      screen.getByRole("button", { name: "Grouped-Query Attention" }),
+      view.getByRole("button", { name: "Grouped-Query Attention" }),
     ).toBeTruthy();
-    expect(screen.getByTestId("search-result-meta")).toBeTruthy();
+    expect(view.getByTestId("search-result-meta")).toBeTruthy();
     expect(container.textContent).toContain(SAMPLE_MODULE_URL);
     expect(container.textContent).toContain("Module");
     expect(container.textContent).toContain(meta.description);
   });
 
   test("non-page hits delegate to SearchDialogListItem without metadata panel", async () => {
-    await renderSearchResultListItem({
+    const { container } = await renderSearchResultListItem({
       item: {
         id: "heading-1",
         type: "heading",
@@ -83,8 +88,9 @@ describe("SearchResultListItem", () => {
       metaByUrl: {},
     });
 
-    expect(screen.getByRole("button", { name: "Overview" })).toBeTruthy();
-    expect(screen.queryByTestId("search-result-meta")).toBeNull();
+    const view = within(container);
+    expect(view.getByRole("button", { name: "Overview" })).toBeTruthy();
+    expect(view.queryByTestId("search-result-meta")).toBeNull();
   });
 });
 
