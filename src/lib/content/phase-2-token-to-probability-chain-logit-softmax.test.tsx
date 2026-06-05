@@ -12,7 +12,9 @@ import {
   CURATED_RELATED,
   DERIVED_RELATED_DOC_GROUP_LABELS,
 } from "@/lib/content/related-docs";
+import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
 
 const LOGIT_GLOSSARY_URL = "/docs/glossary/logit";
 const SOFTMAX_GLOSSARY_URL = "/docs/glossary/softmax";
@@ -85,7 +87,13 @@ describe("Phase 2 logit and softmax search discoverability (US-005)", () => {
         status: 200,
       })) as unknown as typeof fetch;
 
-    const client = createDocsSearchClient({ from: DOCS_SEARCH_API_PATH });
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+    const client = createDocsSearchClient({
+      metaByUrl,
+      client: { from: DOCS_SEARCH_API_PATH },
+    });
     const results = await client.search("logits");
 
     expect(results.some((result) => result.url === LOGIT_GLOSSARY_URL)).toBe(
@@ -100,7 +108,13 @@ describe("Phase 2 logit and softmax search discoverability (US-005)", () => {
         status: 200,
       })) as unknown as typeof fetch;
 
-    const client = createDocsSearchClient({ from: DOCS_SEARCH_API_PATH });
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+    const client = createDocsSearchClient({
+      metaByUrl,
+      client: { from: DOCS_SEARCH_API_PATH },
+    });
     const results = await client.search("Softmax");
 
     expect(results.length).toBeGreaterThan(0);

@@ -30,7 +30,7 @@ export function ModelAtlasSearchDialog({
   metaByUrl,
   messages,
 }: ModelAtlasSearchDialogProps) {
-  const { search, setSearch, query } = useModelAtlasDocsSearch();
+  const { search, setSearch, query } = useModelAtlasDocsSearch({ metaByUrl });
   const hasQuery = search.trim().length > 0;
   const items = query.data && query.data !== "empty" ? query.data : null;
   const showIdle = !hasQuery && !query.isLoading;

@@ -1,12 +1,9 @@
 import type { SortedResult } from "fumadocs-core/search";
+import { pageBaseUrl } from "./collapse-search-results-to-page-hits";
 import type { SearchDocument } from "./types";
 
 function normalizeSearchTerm(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
-}
-
-function pageBaseUrl(url: string): string {
-  return url.split("#")[0] ?? url;
 }
 
 function slugFromUrl(url: string): string {
