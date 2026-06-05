@@ -8,9 +8,9 @@ import { getPrimaryNavItems } from "@/components/layout/primary-nav";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
 import { SearchTrigger } from "@/features/docs/search/SearchTrigger";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
-import { loadUiMessages } from "@/lib/content/ui-messages";
 import type { TagResourceKindGroup } from "@/lib/content/tag-resources";
 import type { TagIndexCategoryGroup } from "@/lib/content/tags";
+import { loadUiMessages } from "@/lib/content/ui-messages";
 
 const sampleTagGroups: TagIndexCategoryGroup[] = [
   {
@@ -55,8 +55,9 @@ describe("Phase 1 home shell styling contracts", () => {
       "/docs/glossary",
       "/tags",
     ]);
-    expect(getPrimaryNavItems(messages).some((item) => item.href === "/search"))
-      .toBe(false);
+    expect(
+      getPrimaryNavItems(messages).some((item) => item.href === "/search"),
+    ).toBe(false);
 
     const brushHtml = renderToStaticMarkup(
       <HomeBrushHeader title="Model Atlas" subtitle="Reference" />,
@@ -81,7 +82,10 @@ describe("Phase 1 home shell styling contracts", () => {
     expect(tagsIndexHtml).not.toContain("list-disc");
 
     const tagResourceHtml = renderToStaticMarkup(
-      <TagResourceList groups={sampleTagResourceGroups} listLabel="Resources" />,
+      <TagResourceList
+        groups={sampleTagResourceGroups}
+        listLabel="Resources"
+      />,
     );
     expect(tagResourceHtml).not.toContain("mt-8");
     expect(tagResourceHtml).toContain("list-none");
