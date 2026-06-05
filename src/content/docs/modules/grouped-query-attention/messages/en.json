@@ -22,7 +22,7 @@
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
-      "body": "With H query heads and G KV groups, each group size is H/G. The cache stores G key heads and G value heads per token instead of H of each."
+      "body": "With H query heads and G KV groups, each group size is H/G. The formulas below contrast how multi-head attention pairs every query head with its own KV heads versus grouped-query attention, which routes query heads through shared KV pairs per group."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
@@ -104,6 +104,16 @@
           "cacheFootprint": "2 tensors (single shared KV cache)"
         }
       }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i \\quad (H \\text{ independent KV head pairs per token})"
+    },
+    "gqaSchema": {
+      "label": "Grouped-query attention (GQA)",
+      "formula": "\\text{Attention}(Q_i, K_{g(i)}, V_{g(i)}) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_{g(i)}^{\\top}}{\\sqrt{d_k}}\\right) V_{g(i)} \\quad (G \\text{ shared KV pairs for } H \\text{ query heads})"
     }
   },
   "graph": {

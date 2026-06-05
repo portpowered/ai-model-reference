@@ -84,6 +84,11 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain("single shared");
     expect(html).toContain('data-comparison-dimension="cacheFootprint"');
+    expect(html).toContain('data-attention-schema-comparison="true"');
+    expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
+    expect(html).toContain('data-message-block-math="math.gqaSchema.formula"');
+    expect(html).toContain('class="katex"');
+    expect(html).toContain("katex-display");
   });
 });
 

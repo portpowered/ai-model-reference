@@ -281,6 +281,16 @@ export const pageTableMessagesSchema = z.object({
   values: z.record(z.string(), z.record(z.string(), z.string())).optional(),
 });
 
+const pageMathFormulaSchema = z.object({
+  label: z.string().min(1),
+  formula: z.string().min(1),
+});
+
+export const pageMathMessagesSchema = z.record(
+  z.string(),
+  pageMathFormulaSchema,
+);
+
 export const pageMessagesSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
@@ -292,6 +302,7 @@ export const pageMessagesSchema = z.object({
   assets: z.record(z.string(), pageAssetMessageSchema).optional(),
   graph: pageGraphMessagesSchema.optional(),
   tables: z.record(z.string(), pageTableMessagesSchema).optional(),
+  math: pageMathMessagesSchema.optional(),
 });
 
 export const tableColumnSchema = z.object({
