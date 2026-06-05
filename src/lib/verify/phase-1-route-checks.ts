@@ -13,6 +13,8 @@ export type Phase1RouteAssertion = {
 };
 
 export type Phase1RouteCheckFailure = {
+  /** Full request URL (base + path) for stderr output. */
+  url: string;
   route: string;
   status: number | null;
   reason: string;
@@ -50,6 +52,11 @@ export const PHASE_1_ROUTE_ASSERTIONS: readonly Phase1RouteAssertion[] = [
     assertBody: (html) => requireSubstrings(html, ["Search"]),
   },
   {
+    path: "/docs/architecture",
+    label: "/docs/architecture",
+    assertBody: (html) => requireSubstrings(html, ["Architecture", "Token"]),
+  },
+  {
     path: "/docs/glossary",
     label: "/docs/glossary",
     assertBody: (html) => requireSubstrings(html, ["Glossary", "Token"]),
@@ -67,6 +74,7 @@ export const PHASE_1_ROUTE_ASSERTIONS: readonly Phase1RouteAssertion[] = [
         "Attention",
         'href="/docs/modules/grouped-query-attention"',
         'href="/docs/glossary/token"',
+        'href="/search?tag=attention"',
       ]);
       if (missing) {
         return missing;
@@ -114,7 +122,7 @@ export function formatPhase1RouteCheckFailure(
 ): string {
   const statusLabel =
     failure.status === null ? "no response" : `HTTP ${failure.status}`;
-  return `${failure.route}: ${statusLabel} — ${failure.reason}`;
+  return `${failure.url}: ${statusLabel} — ${failure.reason}`;
 }
 
 /**
@@ -137,20 +145,23 @@ export async function runPhase1RouteChecks(
 
       if (status !== 200) {
         failures.push({
+          url,
           route: route.label,
           status,
           reason: `expected HTTP 200`,
         });
-        continue;
+        return failures;
       }
 
       const contentReason = route.assertBody(body);
       if (contentReason) {
         failures.push({
+          url,
           route: route.label,
           status,
           reason: contentReason,
         });
+        return failures;
       }
     } catch (error) {
       const reason =
@@ -160,10 +171,12 @@ export async function runPhase1RouteChecks(
             ? error.message
             : String(error);
       failures.push({
+        url,
         route: route.label,
         status: null,
         reason,
       });
+      return failures;
     }
   }
 
@@ -183,11 +196,10 @@ export async function assertPhase1Routes(
     return;
   }
 
-  for (const failure of failures) {
-    console.error(formatPhase1RouteCheckFailure(failure));
+  const firstFailure = failures[0];
+  if (firstFailure) {
+    console.error(formatPhase1RouteCheckFailure(firstFailure));
   }
 
-  throw new Error(
-    `Phase 1 route verification failed (${failures.length} route(s))`,
-  );
+  throw new Error("Phase 1 route verification failed");
 }

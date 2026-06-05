@@ -11,10 +11,11 @@ import {
 const PASSING_STUB_HTML: Record<string, string> = {
   "/": "<html><title>Model Atlas</title></html>",
   "/search": "<html><h1>Search</h1></html>",
+  "/docs/architecture": "<html><h1>Architecture</h1><p>Token</p></html>",
   "/docs/glossary": "<html><h1>Glossary</h1><p>Token</p></html>",
   "/tags": '<html><h1>Tags</h1><a href="/tags/attention">Attention</a></html>',
   "/tags/attention":
-    '<html><h1>Attention</h1><a href="/docs/modules/grouped-query-attention">GQA</a><a href="/docs/glossary/token">Token</a></html>',
+    '<html><h1>Attention</h1><a href="/docs/modules/grouped-query-attention">GQA</a><a href="/docs/glossary/token">Token</a><a href="/search?tag=attention">Search</a></html>',
   "/docs/glossary/token":
     '<html><h1>Token</h1><div data-registry-id="concept.token"></div></html>',
   "/docs/modules/grouped-query-attention":
