@@ -1,5 +1,7 @@
 # Learn Language Models
 
+[![CI](https://github.com/portpowered/ai-model-reference/actions/workflows/ci.yml/badge.svg)](https://github.com/portpowered/ai-model-reference/actions/workflows/ci.yml)
+
 A static AI model reference site for large language model components, concepts,
 papers, training regimes, systems ideas, and architecture variants.
 
@@ -160,6 +162,20 @@ without loading full MDX pages. The route returns 404 in production builds unles
    unpublished targets.
 4. Run `make validate-data` (also part of `make ci`) to catch missing message keys, unknown
    assets, unresolved tags, broken references, and page/registry slug mismatches.
+
+## Operations and release
+
+Maintainer procedures for deployment posture, branch protection, CI merge policy,
+release, rollback, and commit-SHA traceability live in
+[docs/operations.md](./docs/operations.md).
+
+Phase 1 defers production deployment; there is no deploy workflow in
+`.github/workflows/`. Neither `make ci` nor `.github/workflows/ci.yml` runs
+deploy or preview steps. When a deploy workflow is added later, it will be named
+separately from the baseline **CI** workflow and will remain outside `make ci`.
+
+See the [Actions tab](https://github.com/portpowered/ai-model-reference/actions)
+for CI run history on pull requests and `main`.
 
 ## Quality Gates
 
