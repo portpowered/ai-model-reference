@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  bundledCssHasFooterSublabelInheritRule,
   extractFooterCardAnchorHtml,
   extractNdPageHtml,
   FOOTER_DIRECTIONAL_SUBLABELS,
@@ -68,5 +69,21 @@ describe("docs page footer contract", () => {
         FOOTER_DIRECTIONAL_SUBLABELS.previous,
       ),
     ).toBe(true);
+  });
+
+  test("bundledCssHasFooterSublabelInheritRule matches production minified selector chain", () => {
+    const bundledCss = `
+      #nd-page a[class*=hover\\:bg-fd-accent][class*=hover\\:text-fd-accent-foreground]:is(:hover,:focus-visible)>p.text-fd-muted-foreground{color:inherit}
+    `;
+
+    expect(bundledCssHasFooterSublabelInheritRule(bundledCss)).toBe(true);
+  });
+
+  test("bundledCssHasFooterSublabelInheritRule rejects missing inherit rule", () => {
+    const bundledCss = `
+      #nd-page a[class*=hover\\:text-fd-accent-foreground]:hover>p.text-fd-muted-foreground{color:var(--color-fd-muted-foreground)}
+    `;
+
+    expect(bundledCssHasFooterSublabelInheritRule(bundledCss)).toBe(false);
   });
 });

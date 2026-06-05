@@ -54,3 +54,24 @@ export function footerCardHasMutedDirectionalSublabel(
     anchorHtml.includes(sublabel)
   );
 }
+
+/** Minified bundled CSS drops whitespace and attribute-selector quotes. */
+export function normalizeBundledCss(css: string): string {
+  return css.replaceAll(/\s+/g, "");
+}
+
+/**
+ * Production Tailwind bundles the footer sublabel inherit rule as a single
+ * #nd-page selector chain with escaped hover utility class names.
+ */
+export function bundledCssHasFooterSublabelInheritRule(css: string): boolean {
+  const normalized = normalizeBundledCss(css);
+
+  return (
+    normalized.includes("#nd-page") &&
+    normalized.includes("a[class*=hover\\:bg-fd-accent]") &&
+    normalized.includes("[class*=hover\\:text-fd-accent-foreground]") &&
+    normalized.includes(":is(:hover,:focus-visible)") &&
+    normalized.includes(">p.text-fd-muted-foreground{color:inherit}")
+  );
+}
