@@ -1,8 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import HomePage from "@/app/(site)/page";
+import { HomeArticle } from "@/components/home/home-article";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { PLACEHOLDER_SIDEBAR_DESCRIPTION } from "@/lib/navigation/docs-sidebar-contract";
+import { buildHomeTableOfContents } from "@/lib/navigation/home-page-toc";
 
 /** Discovery targets on `/` must stay aligned with Phase 1 acceptance criteria. */
 const HOME_DISCOVERY_HREFS = [
@@ -28,6 +29,7 @@ describe("home page messages", () => {
     expect(home.tokenLinkTitle).toBe("Token (glossary)");
     expect(home.docsLinkTitle).toBe("Grouped-query attention");
     expect(home.searchPageLinkTitle.length).toBeGreaterThan(0);
+    expect(home.onThisPageBrowse).toBe("Browse");
   });
 
   it("defines browse link titles for every Phase 1 discovery index", async () => {
@@ -43,8 +45,13 @@ describe("home page messages", () => {
 });
 
 describe("home page render", () => {
+  async function renderHomeArticleHtml(): Promise<string> {
+    const messages = await loadUiMessages();
+    return renderToStaticMarkup(<HomeArticle messages={messages} />);
+  }
+
   it("links to indexes, sample module, and token glossary", async () => {
-    const html = renderToStaticMarkup(await HomePage());
+    const html = await renderHomeArticleHtml();
     expect(html).toContain("Model Atlas");
     for (const href of HOME_DISCOVERY_HREFS) {
       expect(html).toContain(`href="${href}"`);
@@ -52,15 +59,26 @@ describe("home page render", () => {
   });
 
   it("links to /search for bookmark and handoff entry without inline search UI", async () => {
-    const html = renderToStaticMarkup(await HomePage());
+    const html = await renderHomeArticleHtml();
     expect(html).toContain('href="/search"');
     expect(html).not.toContain("data-search");
     expect(html).not.toContain("Search the reference");
   });
 
   it("does not render placeholder scaffold copy in the article body", async () => {
-    const html = renderToStaticMarkup(await HomePage());
+    const html = await renderHomeArticleHtml();
     expect(html).not.toContain(PLACEHOLDER_SIDEBAR_DESCRIPTION);
     expect(html).not.toContain("lorem");
+  });
+
+  it("defines On this page Browse anchor without a removed #search target", async () => {
+    const { home } = await loadUiMessages();
+    const toc = buildHomeTableOfContents(home);
+    const html = await renderHomeArticleHtml();
+
+    expect(toc.some((item) => item.url === "#browse")).toBe(true);
+    expect(toc.some((item) => item.url === "#search")).toBe(false);
+    expect(html).toContain('id="browse"');
+    expect(html).not.toContain('id="search"');
   });
 });

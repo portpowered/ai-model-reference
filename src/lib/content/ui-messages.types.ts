@@ -51,7 +51,6 @@ export type UiMessages = {
     tokenLinkDescription: string;
     docsLinkTitle: string;
     docsLinkDescription: string;
-    onThisPageSearch: string;
     onThisPageBrowse: string;
   };
   glossaryIndex: {
