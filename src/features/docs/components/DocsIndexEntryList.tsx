@@ -1,16 +1,22 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import type { ArchitectureEntry } from "@/lib/content/architecture";
 
-type ArchitectureIndexListProps = {
-  entries: ArchitectureEntry[];
+export type DocsIndexEntry = {
+  slug: string;
+  title: string;
+  summary: string;
+  url: string;
+};
+
+type DocsIndexEntryListProps = {
+  entries: DocsIndexEntry[];
   listLabel: string;
 };
 
-export function ArchitectureIndexList({
+export function DocsIndexEntryList({
   entries,
   listLabel,
-}: ArchitectureIndexListProps) {
+}: DocsIndexEntryListProps) {
   return (
     <ul className="mt-8 flex flex-col gap-3" aria-label={listLabel}>
       {entries.map((entry) => (
