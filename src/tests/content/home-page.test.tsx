@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import HomePage from "@/app/(site)/page";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import { PLACEHOLDER_SIDEBAR_DESCRIPTION } from "@/lib/navigation/docs-sidebar-contract";
 
 /** Discovery targets on `/` must stay aligned with Phase 1 acceptance criteria. */
 const HOME_DISCOVERY_HREFS = [
@@ -58,7 +59,7 @@ describe("home page render", () => {
 
   it("does not render placeholder scaffold copy in the article body", async () => {
     const html = renderToStaticMarkup(await HomePage());
-    expect(html).not.toContain("placeholder");
+    expect(html).not.toContain(PLACEHOLDER_SIDEBAR_DESCRIPTION);
     expect(html).not.toContain("lorem");
   });
 });

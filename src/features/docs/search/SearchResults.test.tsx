@@ -1,6 +1,6 @@
 import "@/tests/a11y/mock-navigation";
 import { afterEach, describe, expect, test } from "bun:test";
-import { cleanup, screen, within } from "@testing-library/react";
+import { cleanup, within } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SearchResultMetaDetails } from "@/features/docs/search/SearchResultMetaDetails";
 import {
