@@ -10,20 +10,75 @@
   "citationIds": [],
   "status": "published",
   "createdAt": "2026-06-01T00:00:00.000Z",
-  "updatedAt": "2026-06-02T00:00:00.000Z",
+  "updatedAt": "2026-06-05T00:00:00.000Z",
   "subjectId": "module.grouped-query-attention",
   "graphType": "module-compute-flow",
-  "rootNodeId": "gqa-schema",
+  "rootNodeId": "query-heads",
   "layout": "vertical-expandable",
   "defaultExpandedDepth": 1,
   "supportedRenderers": ["react-flow", "mermaid"],
   "nodes": [
     {
-      "id": "gqa-schema",
-      "labelKey": "assets.computeSchema.alt",
+      "id": "query-heads",
+      "labelKey": "graph.nodes.queryHeads.label",
+      "moduleKind": "projection",
+      "childNodeIds": ["query-groups-schema"]
+    },
+    {
+      "id": "query-groups-schema",
+      "labelKey": "graph.nodes.queryGroupsSchema.label",
+      "moduleKind": "operation",
+      "childNodeIds": ["shared-key-heads", "shared-value-heads"]
+    },
+    {
+      "id": "shared-key-heads",
+      "labelKey": "graph.nodes.sharedKeyHeads.label",
       "moduleKind": "attention",
+      "childNodeIds": ["kv-cache"]
+    },
+    {
+      "id": "shared-value-heads",
+      "labelKey": "graph.nodes.sharedValueHeads.label",
+      "moduleKind": "attention",
+      "childNodeIds": ["kv-cache"]
+    },
+    {
+      "id": "kv-cache",
+      "labelKey": "graph.nodes.kvCache.label",
+      "moduleKind": "cache",
       "childNodeIds": []
     }
   ],
-  "edges": []
+  "edges": [
+    {
+      "id": "heads-to-groups",
+      "source": "query-heads",
+      "target": "query-groups-schema",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "groups-to-keys",
+      "source": "query-groups-schema",
+      "target": "shared-key-heads",
+      "edgeKind": "parameter-sharing"
+    },
+    {
+      "id": "groups-to-values",
+      "source": "query-groups-schema",
+      "target": "shared-value-heads",
+      "edgeKind": "parameter-sharing"
+    },
+    {
+      "id": "keys-to-cache",
+      "source": "shared-key-heads",
+      "target": "kv-cache",
+      "edgeKind": "cache-write"
+    },
+    {
+      "id": "values-to-cache",
+      "source": "shared-value-heads",
+      "target": "kv-cache",
+      "edgeKind": "cache-write"
+    }
+  ]
 }

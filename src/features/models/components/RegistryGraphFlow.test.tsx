@@ -14,6 +14,16 @@ const messages = {
       caption: "Query groups route to shared KV heads during attention",
     },
   },
+  graph: {
+    nodes: {
+      hiddenStates: { label: "Hidden states" },
+      queryProjection: { label: "H query heads (Q projection)" },
+      queryGroups: { label: "G query groups" },
+      sharedKv: { label: "Shared KV heads per group" },
+      attentionScores: { label: "Attention scores per query head" },
+      outputProjection: { label: "Output projection" },
+    },
+  },
 } satisfies PageMessages;
 
 const assets = {
@@ -49,8 +59,12 @@ describe("RegistryGraphFlow", () => {
     expect(html).toContain('data-react-flow-graph="true"');
     expect(html).toContain('data-web-renderer="react-flow"');
     expect(html).toContain('aria-label="Grouped-query attention compute flow"');
-    expect(html).toContain('data-graph-node-id="gqa-flow"');
-    expect(html).toContain("Grouped-query attention compute flow");
+    expect(html).toContain('data-graph-node-id="hidden-states"');
+    expect(html).toContain('data-graph-node-id="query-groups"');
+    expect(html).toContain('data-graph-node-id="shared-kv"');
+    expect(html).toContain('data-graph-node-count="6"');
+    expect(html).toContain("Hidden states");
+    expect(html).toContain("G query groups");
     expect(html).toContain(
       "Query groups route to shared KV heads during attention",
     );
