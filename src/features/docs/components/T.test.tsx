@@ -23,6 +23,12 @@ describe("T", () => {
     );
   });
 
+  test("auto-links recognizable registry aliases in localized prose", () => {
+    const html = renderT("sections.whatItIs.body", false);
+    expect(html).toContain('href="/docs/modules/multi-head-attention"');
+    expect(html).toContain('data-prose-auto-link="true"');
+  });
+
   test("shows a developer-visible error in development when the key is missing", () => {
     const html = renderT("sections.missing.body", true);
     expect(html).toContain('data-missing-message-key="sections.missing.body"');

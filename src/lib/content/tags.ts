@@ -8,10 +8,9 @@ export function formatTagLabel(slug: string): string {
     .join(" ");
 }
 
-/** Canonical tag landing URL for a registry tag slug. */
-export function tagPageHref(slug: string): string {
-  return `/tags/${slug}`;
-}
+import { tagPageHref } from "./content-hrefs";
+
+export { tagPageHref };
 
 import type { UiMessages } from "./ui-messages.types";
 

@@ -9,6 +9,7 @@ import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryBodyOmitsTitleHeading,
   expectGlossaryOmitsWhereItAppears,
+  expectHtmlToContainProse,
 } from "@/lib/content/glossary-test-helpers";
 import { PLANNED_RELATED_REASON_LABEL } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
@@ -53,7 +54,10 @@ describe("Phase 2 structural taxonomy glossary pages (US-004)", () => {
       );
 
       expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-      expect(html).toContain(page.messages.openingSummary?.slice(0, 24) ?? "");
+      expectHtmlToContainProse(
+        html,
+        page.messages.openingSummary?.slice(0, 24) ?? "",
+      );
       expect(html).toContain('href="/tags/taxonomy"');
       expect(html).toContain('href="/tags/foundations"');
       expectGlossaryOmitsWhereItAppears(html);

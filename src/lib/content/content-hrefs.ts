@@ -7,3 +7,8 @@ export function glossaryPageHref(slug: string): string {
 export function modulePageHref(slug: string): string {
   return `/docs/modules/${slug}`;
 }
+
+/** Canonical tag landing URL for a registry tag slug. */
+export function tagPageHref(slug: string): string {
+  return `/tags/${slug}`;
+}
