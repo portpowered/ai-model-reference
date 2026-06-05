@@ -61,10 +61,10 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(html).toContain("Ainslie, Joshua, et al.");
     expect(html).toContain('href="https://arxiv.org/abs/2305.13245"');
     expect(html).toContain('rel="noopener noreferrer"');
-    expect(html).toContain('data-testid="derived-related-docs"');
-    expect(html).toContain('href="/docs/modules/multi-query-attention"');
-    expect(html).toContain('href="/docs/modules/multi-head-attention"');
-    expect(html).toContain("Same variant group");
+    expect(html).not.toContain("Variants And Nearby Modules");
+    expect(html).not.toContain('data-testid="derived-related-docs"');
+    expect(html).toContain("Compared To Nearby Modules");
+    expect(html).toContain("Related");
     expect(html).toContain('data-graph-node-id="hidden-states"');
     expect(html).toContain('data-graph-node-id="query-groups"');
     expect(html).toContain('data-graph-node-id="query-heads"');

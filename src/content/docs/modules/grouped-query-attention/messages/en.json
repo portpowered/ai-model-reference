@@ -28,10 +28,6 @@
       "title": "Compared To Nearby Modules",
       "body": "Compared with multi-head attention, GQA reduces KV tensors. Compared with multi-query attention, GQA keeps more distinct query heads while still sharing KV heads within each group."
     },
-    "variantsAndNearbyModules": {
-      "title": "Variants And Nearby Modules",
-      "body": "Nearby attention variants in the same head-sharing family include multi-head attention, multi-query attention, and multi-head latent attention."
-    },
     "exampleArchitectures": {
       "title": "Example Architectures",
       "body": "GQA appears in large decoder-only language models that prioritize efficient long-context inference while retaining multi-head training dynamics."
