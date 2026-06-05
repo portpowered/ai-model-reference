@@ -117,7 +117,6 @@ describe("phase 2 taxonomy search UI labels", () => {
     const html = renderToStaticMarkup(
       <SearchResultMetaDetails
         url={architectureUrl}
-        query="architecture"
         meta={meta}
         messages={messages}
       />,
@@ -139,7 +138,6 @@ describe("phase 2 taxonomy search UI labels", () => {
     const html = renderToStaticMarkup(
       <SearchResultMetaDetails
         url={SAMPLE_MODULE_URL}
-        query="GQA"
         meta={meta}
         messages={messages}
       />,
