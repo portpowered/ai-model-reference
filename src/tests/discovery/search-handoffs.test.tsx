@@ -30,13 +30,16 @@ describe("Phase 1 discovery search handoffs", () => {
     expectHomeArticleSingleSearchEntry(html);
   });
 
-  it("primary navigation includes Search link to /search", async () => {
+  it("primary navigation omits duplicate Search link while header search remains", async () => {
     const messages = await loadUiMessages();
-    const searchNav = getPrimaryNavItems(messages).find(
-      (item) => item.href === "/search",
-    );
-    expect(searchNav).toBeDefined();
-    expect(searchNav?.label).toBe(messages.nav.search);
+    const items = getPrimaryNavItems(messages);
+    expect(items.map((item) => item.href)).toEqual([
+      "/",
+      "/docs/architecture",
+      "/docs/glossary",
+      "/tags",
+    ]);
+    expect(items.some((item) => item.href === "/search")).toBe(false);
   });
 
   it("attention tag landing links to /search?tag=attention and exposes dialog handoff", async () => {
