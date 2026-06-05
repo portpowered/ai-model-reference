@@ -19,7 +19,8 @@ describe("home page messages", () => {
     expect(home.title).toBe("Model Atlas");
     expect(home.subtitle.length).toBeGreaterThan(0);
     expect(home.intro.length).toBeGreaterThan(0);
-    expect(home.searchSectionTitle.length).toBeGreaterThan(0);
+    expect(home.searchHandoff.length).toBeGreaterThan(0);
+    expect(home.searchHandoff.toLowerCase()).toContain("header");
     expect(home.browseSectionTitle.length).toBeGreaterThan(0);
     expect(home.architectureLinkTitle).toBe("Architecture");
     expect(home.glossaryLinkTitle).toBe("Glossary");
@@ -36,7 +37,7 @@ describe("home page messages", () => {
     expect(home.tagsLinkDescription.length).toBeGreaterThan(0);
     expect(home.tokenLinkDescription.length).toBeGreaterThan(0);
     expect(home.docsLinkDescription.length).toBeGreaterThan(0);
-    expect(home.searchPageLinkDescription.length).toBeGreaterThan(0);
+    expect(home.searchHandoffLinkSuffix.length).toBeGreaterThan(0);
     expect(HOME_DISCOVERY_HREFS).toHaveLength(5);
   });
 });
@@ -50,8 +51,9 @@ describe("home page render", () => {
     }
   });
 
-  it("does not render a redundant inline search trigger in the article body", async () => {
+  it("links to /search for bookmark and handoff entry without inline search UI", async () => {
     const html = renderToStaticMarkup(await HomePage());
+    expect(html).toContain('href="/search"');
     expect(html).not.toContain("data-search");
     expect(html).not.toContain("Search the reference");
   });
