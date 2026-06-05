@@ -19,6 +19,13 @@ describe("Phase 1 built-app verifier entrypoint documentation", () => {
     expect(readme).toMatch(/docs\/internal\/customer-ask\.md/);
     expect(readme).toMatch(/empty-results/i);
     expect(readme).toMatch(/3100.*3999|3100–3999/);
+    expect(readme).toMatch(/UX convergence scope/i);
+    expect(readme).toMatch(/eight Phase 1 reader routes/i);
+    expect(readme).toMatch(/shell convergence|unified Fumadocs shell/i);
+    expect(readme).toMatch(/Modules and Glossary sidebar/i);
+    expect(readme).toMatch(/home search entry|single search entry/i);
+    expect(readme).toMatch(/\/docs\/modules\/grouped-query-attention/);
+    expect(readme).toMatch(/\/tags\/attention/);
   });
 
   test("Makefile and package.json expose the built-app verifier command", () => {
@@ -38,5 +45,9 @@ describe("Phase 1 built-app verifier entrypoint documentation", () => {
     const ideafyAgents = readFileSync(ideafyAgentsPath, "utf8");
     expect(ideafyAgents).toMatch(/make verify-phase-1-ux/);
     expect(ideafyAgents).toMatch(/built-app manual gate/i);
+    expect(ideafyAgents).toMatch(/eight reader routes/i);
+    expect(ideafyAgents).toMatch(/shell convergence|unified docs shell/i);
+    expect(ideafyAgents).toMatch(/home single search entry/i);
+    expect(ideafyAgents).toMatch(/\/docs\/modules\/grouped-query-attention/);
   });
 });
