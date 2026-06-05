@@ -168,31 +168,63 @@ describe("waitForServerReady", () => {
     }
   });
 
-  test("rejects when the server never returns HTTP 200", async () => {
+  test("rejects with timeout, health URL, and last HTTP status when never ready", async () => {
     const httpServer = createHttpServer((_req, res) => {
       res.writeHead(503);
       res.end("not ready");
     });
 
     const port = await listenOnEphemeralPort(httpServer);
+    const healthUrl = `http://127.0.0.1:${port}/`;
+    const timeoutMs = 800;
 
     try {
-      await expect(
-        waitForServerReady(`http://127.0.0.1:${port}`, {
-          timeoutMs: 800,
+      let readinessError: Error | undefined;
+      try {
+        await waitForServerReady(`http://127.0.0.1:${port}`, {
+          timeoutMs,
           pollIntervalMs: 100,
           perRequestTimeoutMs: 300,
           port,
-        }),
-      ).rejects.toThrow(
-        new RegExp(
-          `did not become ready.*port ${port}.*health URL http://127\\.0\\.0\\.1:${port}/`,
-        ),
-      );
+        });
+      } catch (error) {
+        readinessError = error as Error;
+      }
+
+      expect(readinessError?.message).toMatch(/did not become ready/i);
+      expect(readinessError?.message).toContain(`within ${timeoutMs}ms`);
+      expect(readinessError?.message).toContain(`health URL ${healthUrl}`);
+      expect(readinessError?.message).toContain("Expected HTTP 200, got 503");
     } finally {
       httpServer.closeAllConnections();
       httpServer.close();
     }
+  });
+
+  test("rejects with timeout, health URL, and last network error when nothing is listening", async () => {
+    const port = await pickListenPort();
+    const healthUrl = `http://127.0.0.1:${port}/`;
+    const timeoutMs = 600;
+
+    let readinessError: Error | undefined;
+    try {
+      await waitForServerReady(`http://127.0.0.1:${port}`, {
+        timeoutMs,
+        pollIntervalMs: 100,
+        perRequestTimeoutMs: 300,
+        port,
+      });
+    } catch (error) {
+      readinessError = error as Error;
+    }
+
+    expect(readinessError?.message).toMatch(/did not become ready/i);
+    expect(readinessError?.message).toContain(`within ${timeoutMs}ms`);
+    expect(readinessError?.message).toContain(`health URL ${healthUrl}`);
+    expect(readinessError?.message?.length).toBeGreaterThan(
+      `Server did not become ready within ${timeoutMs}ms (port ${port}, health URL ${healthUrl}): `
+        .length,
+    );
   });
 });
 
@@ -389,24 +421,33 @@ createServer((_req, res) => {
     let spawnedChild: ChildProcess | undefined;
     let assignedPort: number | undefined;
 
+    const startupTimeoutMs = 800;
+    let startupError: Error | undefined;
+
     try {
-      await expect(
-        acquireVerifyServerSession({
+      try {
+        await acquireVerifyServerSession({
           projectRoot,
           registerProcessSignals: false,
-          startupTimeoutMs: 800,
+          startupTimeoutMs,
           spawnProductionServer: (port, cwd) => {
             assignedPort = port;
             spawnedChild = spawnNeverReadyServer(port, cwd);
             spawnedChildren.push(spawnedChild);
             return spawnedChild;
           },
-        }),
-      ).rejects.toThrow(
-        new RegExp(
-          `did not become ready.*port ${assignedPort ?? "\\d+"}.*health URL http://127\\.0\\.0\\.1:${assignedPort ?? "\\d+"}/`,
-        ),
+        });
+      } catch (error) {
+        startupError = error as Error;
+      }
+
+      expect(startupError?.message).toMatch(/did not become ready/i);
+      expect(startupError?.message).toContain(`within ${startupTimeoutMs}ms`);
+      expect(assignedPort).toBeDefined();
+      expect(startupError?.message).toContain(
+        `health URL http://127.0.0.1:${assignedPort}/`,
       );
+      expect(startupError?.message).toContain("Expected HTTP 200, got 503");
 
       expect(spawnedChild).toBeDefined();
       expect(assignedPort).toBeDefined();
@@ -495,7 +536,13 @@ describe("defaultSpawnProductionServer spawn contract", () => {
       const spec = buildDefaultProductionServerSpawnSpec(port, projectRoot);
 
       expect(spec.command).toBe(resolveNextProductionServerBin(projectRoot));
-      expect(spec.args).toEqual(["start", "-p", String(port), "-H", "127.0.0.1"]);
+      expect(spec.args).toEqual([
+        "start",
+        "-p",
+        String(port),
+        "-H",
+        "127.0.0.1",
+      ]);
       expect(spec.options.cwd).toBe(projectRoot);
       expect(spec.options.detached).toBe(true);
       expect(spec.options.stdio).toEqual(["ignore", "pipe", "pipe"]);
