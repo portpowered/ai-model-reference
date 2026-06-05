@@ -16,6 +16,12 @@ import {
   renderWithAppProviders,
   restoreFetchMock,
 } from "@/tests/a11y/render";
+import {
+  collectResultUrlsFromNodes,
+  expectUniqueCanonicalPageUrls,
+  resultsIncludeSampleModule,
+  SAMPLE_MODULE_URL,
+} from "@/tests/search/helpers";
 import { createDocsSearchRouteFetch } from "@/tests/search/route-fetch";
 
 function renderSearchDialog(
@@ -94,6 +100,51 @@ describe("SearchDialog Phase 1 queries", () => {
   ] as const)("shows Grouped-Query Attention for %s query", async (query) => {
     const context = await loadAppTestContext();
     await typeQueryAndExpectGqaResult(context, query);
+  });
+
+  test.each([
+    "GQA",
+    "attention",
+    "KV cache",
+  ] as const)("returns at most one row per canonical page URL for %s query", async (query) => {
+    const context = await loadAppTestContext();
+    await renderSearchDialog(context);
+
+    const dialog = await screen.findByRole("dialog", { name: "Search" });
+    const user = userEvent.setup();
+    const searchInput = within(dialog).getByRole("textbox");
+    await user.type(searchInput, query);
+
+    let resultUrls: HTMLElement[] = [];
+    await waitFor(
+      () => {
+        resultUrls = within(dialog).queryAllByTestId("search-result-url");
+        expect(resultUrls.length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 },
+    );
+    const urls = collectResultUrlsFromNodes(resultUrls);
+    expectUniqueCanonicalPageUrls(urls);
+    expect(resultsIncludeSampleModule(urls.map((url) => ({ url })))).toBe(true);
+  });
+
+  test("GQA query ranks grouped-query attention first in dialog results", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchDialog(context);
+
+    const dialog = await screen.findByRole("dialog", { name: "Search" });
+    const user = userEvent.setup();
+    await user.type(within(dialog).getByRole("textbox"), "GQA");
+
+    let resultUrls: HTMLElement[] = [];
+    await waitFor(
+      () => {
+        resultUrls = within(dialog).queryAllByTestId("search-result-url");
+        expect(resultUrls.length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 },
+    );
+    expect(resultUrls[0]?.textContent).toContain(SAMPLE_MODULE_URL);
   });
 
   test("exposes idle state before query entry", async () => {

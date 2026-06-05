@@ -1,3 +1,6 @@
+import { expect } from "bun:test";
+import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
+
 export const SAMPLE_MODULE_URL = "/docs/modules/grouped-query-attention";
 export const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
 
@@ -32,6 +35,32 @@ export function resultsIncludeSampleModule(
   results: Array<{ url: string }>,
 ): boolean {
   return resultsIncludeUrl(results, SAMPLE_MODULE_URL);
+}
+
+/** Asserts UI/API search rows list each page once without fragment hash URLs. */
+export function expectUniqueCanonicalPageUrls(urls: readonly string[]): void {
+  const bases = urls.map(pageBaseUrl);
+  expect(new Set(bases).size).toBe(bases.length);
+  expect(urls.every((url) => !url.includes("#"))).toBe(true);
+}
+
+export function collectResultUrlsFromNodes(
+  nodes: Array<{
+    textContent: string | null;
+    querySelector: (selector: string) => Element | null;
+  }>,
+): string[] {
+  return nodes
+    .map((node) => {
+      const path = node
+        .querySelector('[aria-hidden="true"]')
+        ?.textContent?.trim();
+      if (path) {
+        return path;
+      }
+      return node.textContent?.trim() ?? "";
+    })
+    .filter((text) => text.length > 0);
 }
 
 export function resultsIncludeTokenGlossary(

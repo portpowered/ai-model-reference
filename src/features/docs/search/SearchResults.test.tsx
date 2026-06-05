@@ -113,6 +113,29 @@ describe("SearchResultRow", () => {
     expect(view.queryByTestId("search-result-matched-tags")).toBeNull();
   });
 
+  test("page surface omits metadata when meta is unavailable", async () => {
+    const messages = await loadUiMessages();
+
+    const html = renderToStaticMarkup(
+      <SearchResultRow
+        item={{
+          id: "page-unknown",
+          type: "page",
+          url: "/docs/modules/unknown-module",
+          content: "Unknown module",
+        }}
+        query=""
+        metaByUrl={{}}
+        messages={messages}
+        surface="page"
+        onActivate={() => {}}
+      />,
+    );
+
+    expect(html).toContain("Unknown module");
+    expect(html).not.toContain('data-testid="search-result-meta"');
+  });
+
   test("dialog surface delegates non-page hits without metadata panel", async () => {
     const { container } = await renderSearchResultListItem({
       item: {
