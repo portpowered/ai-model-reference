@@ -70,6 +70,16 @@ describe("home page render", () => {
     expect(html).not.toContain("lorem");
   });
 
+  it("renders browse cards as bulletless links without persistent underlines", async () => {
+    const html = await renderHomeArticleHtml();
+
+    expect(html).toContain("list-none");
+    expect(html).not.toContain("list-disc");
+    expect(html).toContain("no-underline");
+    const withoutNoUnderline = html.replaceAll("no-underline", "");
+    expect(withoutNoUnderline).not.toMatch(/\bunderline\b/);
+  });
+
   it("defines On this page Browse anchor without a removed #search target", async () => {
     const { home } = await loadUiMessages();
     const toc = buildHomeTableOfContents(home);

@@ -1,11 +1,25 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
+
+type HomeBrowseListProps = {
+  ariaLabel: string;
+  children: ReactNode;
+};
 
 type HomeBrowseLinkProps = {
   href: string;
   title: string;
   description: string;
 };
+
+export function HomeBrowseList({ ariaLabel, children }: HomeBrowseListProps) {
+  return (
+    <ul className="mt-4 flex list-none flex-col gap-3" aria-label={ariaLabel}>
+      {children}
+    </ul>
+  );
+}
 
 export function HomeBrowseLink({
   href,
@@ -16,7 +30,7 @@ export function HomeBrowseLink({
     <li>
       <Link
         href={href}
-        className="group block rounded-lg border border-border bg-card/40 p-4 transition-colors hover:border-ring hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="group block rounded-lg border border-border bg-card/40 p-4 no-underline transition-colors hover:border-ring hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <span className="flex items-center gap-2 font-medium text-foreground">
           {title}
