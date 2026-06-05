@@ -9,6 +9,9 @@ import {
 
 export const VERIFY_BASE_URL_ENV = "VERIFY_BASE_URL";
 
+/** Set by `runCoverageSubprocess` so opt-in E2E tests skip the coverage rerun. */
+export const VERIFY_COVERAGE_SUBPROCESS_ENV = "VERIFY_COVERAGE_SUBPROCESS";
+
 /** Maximum time to wait for the production server to return HTTP 200. */
 export const DEFAULT_SERVER_STARTUP_TIMEOUT_MS = 30_000;
 
@@ -104,8 +107,9 @@ export function hasCompleteNextProductionBuild(
  */
 export function shouldRunVerifyProductionIntegrationTests(
   projectRoot: string = process.cwd(),
+  env: Record<string, string | undefined> = process.env,
 ): boolean {
-  if (process.argv.includes("--coverage")) {
+  if (env[VERIFY_COVERAGE_SUBPROCESS_ENV] === "1") {
     return false;
   }
   return hasCompleteNextProductionBuild(projectRoot);

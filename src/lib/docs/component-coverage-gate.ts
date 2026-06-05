@@ -68,7 +68,11 @@ export function runCoverageSubprocess(cwd: string): {
   const result = spawnSync("bun", [...COVERAGE_TEST_ARGS], {
     cwd,
     encoding: "utf8",
-    env: { ...process.env, FORCE_COLOR: "0" },
+    env: {
+      ...process.env,
+      FORCE_COLOR: "0",
+      VERIFY_COVERAGE_SUBPROCESS: "1",
+    },
     maxBuffer: 50 * 1024 * 1024,
   });
 
