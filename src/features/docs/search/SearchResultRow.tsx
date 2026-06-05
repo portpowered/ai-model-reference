@@ -5,9 +5,14 @@ import {
   type SearchItemType,
 } from "fumadocs-ui/components/dialog/search";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import { cn } from "@/lib/utils";
 import { SearchResultMetaDetails } from "./SearchResultMetaDetails";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";
 import { resolveSearchResultMeta } from "./search-result-meta-client";
+import {
+  searchDialogResultRowClassName,
+  searchPageResultRowClassName,
+} from "./search-result-row-classes";
 
 function searchItemTitle(item: SearchItemType): string {
   if (item.type === "action") {
@@ -65,34 +70,46 @@ export function SearchResultRow({
 
   const meta = resolveSearchResultMeta(item.url, metaByUrl);
   const title = searchItemTitle(item);
-  const containerClassName =
-    surface === "dialog"
-      ? "flex flex-col border-b border-fd-border last:border-b-0"
-      : "flex flex-col";
+  const metaPanel = meta ? (
+    <SearchResultMetaDetails
+      url={item.url}
+      meta={meta}
+      messages={messages}
+      embedded
+    />
+  ) : null;
 
-  const titleNode =
-    surface === "dialog" ? (
+  if (surface === "dialog") {
+    return (
       <SearchDialogListItem
         item={item}
         onClick={onActivate}
-        className={className}
-      />
-    ) : (
-      <button type="button" onClick={onActivate} className={className}>
-        <span className="font-medium text-foreground">{title}</span>
-      </button>
+        aria-label={title}
+        data-testid="search-result-row"
+        className={cn(
+          searchDialogResultRowClassName,
+          "border-b border-fd-border last:border-b-0",
+          className,
+        )}
+      >
+        <span className="min-w-0 font-medium">{title}</span>
+        {metaPanel}
+      </SearchDialogListItem>
     );
+  }
 
   return (
-    <div className={containerClassName}>
-      {titleNode}
-      {meta ? (
-        <SearchResultMetaDetails
-          url={item.url}
-          meta={meta}
-          messages={messages}
-        />
-      ) : null}
-    </div>
+    <button
+      type="button"
+      onClick={onActivate}
+      aria-label={title}
+      data-testid="search-result-row"
+      className={cn(searchPageResultRowClassName, className)}
+    >
+      <span className="font-medium text-foreground group-hover:text-inherit">
+        {title}
+      </span>
+      {metaPanel}
+    </button>
   );
 }
