@@ -18,6 +18,7 @@ export type RunCustomerAskGqaModuleChecksOptions = {
 
 const GQA_MODULE_CHECKS = [
   GQA_MODULE_CUSTOMER_ASK_CHECKS.presentation,
+  GQA_MODULE_CUSTOMER_ASK_CHECKS.graphBuildMarkers,
   GQA_MODULE_CUSTOMER_ASK_CHECKS.listDisc,
   GQA_MODULE_CUSTOMER_ASK_CHECKS.mhaGqaComparison,
 ] as const;

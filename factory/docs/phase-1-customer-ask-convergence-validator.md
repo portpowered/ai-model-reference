@@ -64,7 +64,9 @@ Customer-ask convergence report
 | `glossary.presentation` | `/docs/glossary/token` | — | `phase-1-glossary-page` |
 | `glossary.chrome-links` | `/docs/glossary/token` | — | `phase-1-glossary-page` |
 | `glossary.footer-hover` | `/docs/glossary/token` | — | `phase-1-glossary-page` |
+| `docs.footer-hover-focus-parity` | `/docs/glossary/token` | — | `phase-1-docs-footer` |
 | `module.presentation` | `/docs/modules/grouped-query-attention` | — | `phase-1-module-page` |
+| `module.graph-build-markers` | `/docs/modules/grouped-query-attention` | — | `phase-1-module-page` |
 | `module.list-disc` | `/docs/modules/grouped-query-attention` | — | `phase-1-module-page` |
 | `module.mha-gqa-comparison` | `/docs/modules/grouped-query-attention` | — | `phase-1-module-page` |
 
@@ -78,6 +80,7 @@ Implementation lives under `src/lib/verify/`:
 | Tag lists | `customer-ask-tag-list-convergence.ts` | `customer-ask-tag-list-convergence-http.ts` |
 | Search | `customer-ask-search-surface-convergence.ts` | `customer-ask-search-surface-convergence-http.ts` |
 | Glossary | `customer-ask-glossary-convergence.ts` | `customer-ask-glossary-convergence-http.ts` |
+| Docs footer CSS | `customer-ask-docs-footer-convergence.ts` | `customer-ask-docs-footer-convergence-http.ts` |
 | GQA module | `customer-ask-gqa-module-convergence.ts` | `customer-ask-gqa-module-convergence-http.ts` |
 
 The orchestrator (`customer-ask-convergence-orchestrator.ts`) aggregates rows and
@@ -94,3 +97,8 @@ During batch-008 loopback, ideafy planners should:
    convergence notes with the `checkId` and `checklistRow`.
 4. Choose narrow repair (any `fail`), manual follow-up (any `uncertain`), or
    Phase 1 stop-and-wait when all automatable rows pass.
+
+For batch-009 full convergence (CI plus built-app verifier), use
+`make verify-phase-1-convergence` instead. See
+`factory/docs/phase-1-convergence-pass.md` for workflow order, CI blocker
+domain report format, and combined exit semantics.

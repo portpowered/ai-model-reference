@@ -10,6 +10,7 @@ import {
   buildPhase1AndCustomerAskPassingStubHtml,
   CUSTOMER_ASK_CONVERGENCE_PASSING_STUB_HTML,
   CUSTOMER_ASK_PASSING_API_RESULTS,
+  CUSTOMER_ASK_PASSING_BUNDLED_FOOTER_CSS,
   CUSTOMER_ASK_PRE_REPAIR_GLOSSARY_HTML,
   CUSTOMER_ASK_PRE_REPAIR_GQA_MODULE_HTML,
   CUSTOMER_ASK_PRE_REPAIR_HOME_HTML,
@@ -68,6 +69,12 @@ function createConvergenceStubServer(
   });
 }
 
+function passingDocsFooterOptions() {
+  return {
+    readBundledAppCss: () => CUSTOMER_ASK_PASSING_BUNDLED_FOOTER_CSS,
+  };
+}
+
 function passingSearchSurfaceOptions() {
   return {
     queries: ["GQA"] as const,
@@ -105,6 +112,7 @@ describe("runCustomerAskConvergenceChecks", () => {
             runCommandKAffordanceProbe: async () => null,
           },
           searchSurfaceOptions: passingSearchSurfaceOptions(),
+          docsFooterOptions: passingDocsFooterOptions(),
         },
       );
 
@@ -130,6 +138,7 @@ describe("runCustomerAskConvergenceChecks", () => {
         {
           timeoutMs: 2_000,
           searchSurfaceOptions: passingSearchSurfaceOptions(),
+          docsFooterOptions: passingDocsFooterOptions(),
         },
       );
 
@@ -161,6 +170,7 @@ describe("runCustomerAskConvergenceChecks", () => {
         {
           timeoutMs: 2_000,
           searchSurfaceOptions: passingSearchSurfaceOptions(),
+          docsFooterOptions: passingDocsFooterOptions(),
         },
       );
 
@@ -210,6 +220,7 @@ describe("runCustomerAskConvergenceChecks", () => {
               results: [{ url: `${GQA_URL}#section` }],
             }),
           },
+          docsFooterOptions: passingDocsFooterOptions(),
         },
       );
 
@@ -256,6 +267,7 @@ describe("runCustomerAskConvergenceChecks", () => {
         {
           timeoutMs: 2_000,
           searchSurfaceOptions: passingSearchSurfaceOptions(),
+          docsFooterOptions: passingDocsFooterOptions(),
         },
       );
 
@@ -285,6 +297,7 @@ describe("runCustomerAskConvergenceChecks", () => {
         {
           timeoutMs: 2_000,
           searchSurfaceOptions: passingSearchSurfaceOptions(),
+          docsFooterOptions: passingDocsFooterOptions(),
         },
       );
 
@@ -336,6 +349,7 @@ describe("runPhase1CustomerAskConvergenceVerification", () => {
               runCommandKAffordanceProbe: async () => null,
             },
             searchSurfaceOptions: passingSearchSurfaceOptions(),
+            docsFooterOptions: passingDocsFooterOptions(),
           },
           printReport: { writeLine: (line) => lines.push(line) },
         },
@@ -347,6 +361,54 @@ describe("runPhase1CustomerAskConvergenceVerification", () => {
       expect(result.customerAskRows.every((row) => row.status === "pass")).toBe(
         true,
       );
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
+  test("prints customer-ask report when Phase 1 UX fails", async () => {
+    const httpServer = createConvergenceStubServer({
+      ...buildPhase1AndCustomerAskPassingStubHtml(),
+      "/docs/architecture": `<html><header><nav aria-label="Primary">Model Atlas</nav></header><article>split shell</article></html>`,
+    });
+    const port = await listenOnEphemeralPort(httpServer);
+    const lines: string[] = [];
+
+    try {
+      const result = await runPhase1CustomerAskConvergenceVerification(
+        `http://127.0.0.1:${port}`,
+        {
+          phase1UxOptions: {
+            convergenceOptions: {
+              docsShellOptions: { timeoutMs: 2_000 },
+              homeSearchEntryOptions: { timeoutMs: 2_000 },
+              readerConvergenceOptions: {
+                readerRouteOptions: { timeoutMs: 2_000 },
+                tagsNavigationOptions: { timeoutMs: 2_000 },
+              },
+            },
+            routeOptions: { timeoutMs: 2_000 },
+            searchOptions: { timeoutMs: 2_000 },
+            searchPageOptions: { runQueryCheck: async () => null },
+            searchDialogOptions: { runQueryCheck: async () => null },
+            searchShortcutOptions: { runShortcutCheck: async () => null },
+          },
+          customerAskOptions: {
+            timeoutMs: 2_000,
+            homeHeaderOptions: {
+              runCommandKAffordanceProbe: async () => null,
+            },
+            searchSurfaceOptions: passingSearchSurfaceOptions(),
+            docsFooterOptions: passingDocsFooterOptions(),
+          },
+          printReport: { writeLine: (line) => lines.push(line) },
+        },
+      );
+
+      expect(result.phase1UxPassed).toBe(false);
+      expect(lines[0]).toBe(CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER);
+      expect(lines.length).toBeGreaterThan(1);
     } finally {
       httpServer.closeAllConnections();
       httpServer.close();

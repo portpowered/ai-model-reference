@@ -77,6 +77,20 @@ export function bundledCssHasFooterSublabelInheritRule(css: string): boolean {
 }
 
 /**
+ * Returns a failure reason when bundled app CSS lacks the footer sublabel
+ * hover/focus inherit rule enforced by built HTML/CSS convergence checks.
+ */
+export function assertDocsFooterSublabelHoverFocusCssConvergence(
+  css: string,
+): string | null {
+  if (bundledCssHasFooterSublabelInheritRule(css)) {
+    return null;
+  }
+
+  return "bundled app CSS missing footer sublabel hover/focus inherit rule pairing";
+}
+
+/**
  * Returns a failure reason when built HTML footer cards inside #nd-page do not
  * match the accent-hover anchor and muted directional sublabel contract.
  */
