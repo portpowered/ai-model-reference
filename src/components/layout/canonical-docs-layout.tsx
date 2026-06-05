@@ -25,6 +25,9 @@ export function CanonicalDocsLayout({
           nav={{ enabled: false }}
           searchToggle={{ enabled: false }}
           slots={{ searchTrigger: false }}
+          sidebar={{
+            "aria-label": messages.shell.sidebarTitle,
+          }}
         >
           {children}
         </DocsLayout>
