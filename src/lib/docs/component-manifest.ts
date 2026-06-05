@@ -118,6 +118,20 @@ const PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
     unitTests: ["src/features/docs/components/ProseAutoLinkText.test.tsx"],
   },
   {
+    file: "src/features/docs/components/TBlockMath.tsx",
+    label: "TBlockMath",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/docs/components/TBlockMath.test.tsx"],
+  },
+  {
+    file: "src/features/models/components/ModuleAttentionSchemaComparison.tsx",
+    label: "ModuleAttentionSchemaComparison",
+    minReachableLinePercent: 90,
+    unitTests: [
+      "src/features/models/components/ModuleAttentionSchemaComparison.test.tsx",
+    ],
+  },
+  {
     file: "src/features/docs/components/GlossaryOpening.tsx",
     label: "GlossaryOpening",
     minReachableLinePercent: 90,
