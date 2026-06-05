@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { type ChildProcess, spawn } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -14,19 +14,23 @@ import {
 import {
   acquireVerifyServerSession,
   assertNextProductionBuild,
+  attachChildOutputCapture,
   buildDefaultProductionServerSpawnSpec,
   CHILD_KILL_TIMEOUT_MS,
   DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
   defaultSpawnProductionServer,
+  getChildOutputTail,
   hasCompleteNextProductionBuild,
   hasNextProductionBuild,
   killManagedChild,
   NEXT_BUILD_REQUIRED_MESSAGE,
   normalizeVerifyBaseUrl,
   resolveNextProductionServerBin,
+  resolveServerStartupTimeoutMsFromEnv,
   resolveVerifyBaseUrlFromEnv,
   shouldRunVerifyProductionIntegrationTests,
   VERIFY_COVERAGE_SUBPROCESS_ENV,
+  VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV,
   waitForServerReady,
 } from "./server-lifecycle";
 
@@ -112,6 +116,38 @@ describe("resolveVerifyBaseUrlFromEnv", () => {
   });
 });
 
+describe("resolveServerStartupTimeoutMsFromEnv", () => {
+  test("returns undefined when VERIFY_SERVER_STARTUP_TIMEOUT_MS is unset", () => {
+    expect(resolveServerStartupTimeoutMsFromEnv({})).toBeUndefined();
+  });
+
+  test("parses a positive integer timeout override", () => {
+    expect(
+      resolveServerStartupTimeoutMsFromEnv({
+        [VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV]: "1500",
+      }),
+    ).toBe(1500);
+  });
+
+  test("rejects non-numeric, zero, and negative timeout overrides", () => {
+    expect(
+      resolveServerStartupTimeoutMsFromEnv({
+        [VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV]: "not-a-number",
+      }),
+    ).toBeUndefined();
+    expect(
+      resolveServerStartupTimeoutMsFromEnv({
+        [VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV]: "0",
+      }),
+    ).toBeUndefined();
+    expect(
+      resolveServerStartupTimeoutMsFromEnv({
+        [VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV]: "-1",
+      }),
+    ).toBeUndefined();
+  });
+});
+
 describe("assertNextProductionBuild", () => {
   test("throws a clear message when .next is missing", () => {
     const emptyDir = mkdtempSync(join(tmpdir(), "verify-no-next-"));
@@ -146,6 +182,21 @@ describe("assertNextProductionBuild", () => {
         [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
       }),
     ).toBe(false);
+  });
+
+  test("allows production integration tests when BUILD_ID is present", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-complete-next-"));
+    mkdirSync(join(projectRoot, ".next"), { recursive: true });
+    writeFileSync(join(projectRoot, ".next", "BUILD_ID"), "test-build");
+
+    try {
+      expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
+      expect(shouldRunVerifyProductionIntegrationTests(projectRoot, {})).toBe(
+        true,
+      );
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 });
 
@@ -532,6 +583,21 @@ describe("normalizeVerifyBaseUrl", () => {
     expect(normalizeVerifyBaseUrl("http://127.0.0.1:3100/")).toBe(
       "http://127.0.0.1:3100",
     );
+  });
+});
+
+describe("child output capture", () => {
+  test("getChildOutputTail keeps only the most recent bytes across chunks", async () => {
+    const child = spawn("bun", ["-e", 'console.log("x".repeat(5000))'], {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    attachChildOutputCapture(child);
+    await waitForChildExit(child, 5_000);
+
+    const tail = getChildOutputTail(child, 100);
+    expect(tail.length).toBeLessThanOrEqual(100);
+    expect(tail.endsWith("x")).toBe(true);
   });
 });
 
