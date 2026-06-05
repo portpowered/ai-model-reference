@@ -7,12 +7,14 @@ import {
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { cn } from "@/lib/utils";
 import { SearchResultMetaDetails } from "./SearchResultMetaDetails";
+import { SearchResultTitle } from "./SearchResultTitle";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";
 import { resolveSearchResultMeta } from "./search-result-meta-client";
 import {
   searchDialogResultRowClassName,
   searchPageResultRowClassName,
 } from "./search-result-row-classes";
+import { stripSearchResultTitleMarks } from "./search-result-title-content";
 
 function searchItemTitle(item: SearchItemType): string {
   if (item.type === "action") {
@@ -32,6 +34,7 @@ export function isPageSearchItem(
 
 export type SearchResultRowProps = {
   item: SearchItemType;
+  query: string;
   metaByUrl: SearchResultMetaRecord;
   messages: UiMessages;
   surface: "dialog" | "page";
@@ -42,6 +45,7 @@ export type SearchResultRowProps = {
 /** Shared page-level search result row for the global dialog and `/search`. */
 export function SearchResultRow({
   item,
+  query,
   metaByUrl,
   messages,
   surface,
@@ -70,6 +74,18 @@ export function SearchResultRow({
 
   const meta = resolveSearchResultMeta(item.url, metaByUrl);
   const title = searchItemTitle(item);
+  const accessibleTitle = stripSearchResultTitleMarks(title);
+  const titleNode = (
+    <SearchResultTitle
+      content={title}
+      query={query}
+      className={
+        surface === "page"
+          ? "text-foreground group-hover:text-inherit group-focus-visible:text-inherit"
+          : undefined
+      }
+    />
+  );
   const metaPanel = meta ? (
     <SearchResultMetaDetails
       url={item.url}
@@ -84,7 +100,7 @@ export function SearchResultRow({
       <SearchDialogListItem
         item={item}
         onClick={onActivate}
-        aria-label={title}
+        aria-label={accessibleTitle}
         data-testid="search-result-row"
         className={cn(
           searchDialogResultRowClassName,
@@ -92,7 +108,7 @@ export function SearchResultRow({
           className,
         )}
       >
-        <span className="min-w-0 font-medium">{title}</span>
+        {titleNode}
         {metaPanel}
       </SearchDialogListItem>
     );
@@ -102,13 +118,11 @@ export function SearchResultRow({
     <button
       type="button"
       onClick={onActivate}
-      aria-label={title}
+      aria-label={accessibleTitle}
       data-testid="search-result-row"
       className={cn(searchPageResultRowClassName, className)}
     >
-      <span className="font-medium text-foreground group-hover:text-inherit">
-        {title}
-      </span>
+      {titleNode}
       {metaPanel}
     </button>
   );

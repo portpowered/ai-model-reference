@@ -27,6 +27,7 @@ type SearchInlineResultItemProps = {
 
 export function SearchResultListItem({
   item,
+  query,
   metaByUrl,
   messages,
   onClick,
@@ -35,6 +36,7 @@ export function SearchResultListItem({
   return (
     <SearchResultRow
       item={item}
+      query={query}
       metaByUrl={metaByUrl}
       messages={messages}
       surface="dialog"
@@ -46,6 +48,7 @@ export function SearchResultListItem({
 
 export function SearchInlineResultItem({
   item,
+  query,
   metaByUrl,
   messages,
   onSelect,
@@ -54,6 +57,7 @@ export function SearchInlineResultItem({
   return (
     <SearchResultRow
       item={item}
+      query={query}
       metaByUrl={metaByUrl}
       messages={messages}
       surface="page"

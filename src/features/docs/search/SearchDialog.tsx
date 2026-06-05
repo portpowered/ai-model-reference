@@ -89,6 +89,7 @@ export function ModelAtlasSearchDialog({
           Item={({ item, onClick }) => (
             <SearchResultRow
               item={item}
+              query={search}
               metaByUrl={metaByUrl}
               messages={messages}
               surface="dialog"

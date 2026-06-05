@@ -11,6 +11,7 @@ import { SearchInlineResultItem } from "@/features/docs/search/SearchResults";
 import {
   searchDialogResultRowClassName,
   searchPageResultRowClassName,
+  searchResultTitleMarkClassName,
 } from "@/features/docs/search/search-result-row-classes";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
@@ -143,6 +144,7 @@ describe("SearchResultRow", () => {
           url: SAMPLE_MODULE_URL,
           content: "Grouped-Query Attention",
         }}
+        query="Grouped"
         metaByUrl={metaByUrl}
         messages={messages}
         surface="page"
@@ -184,6 +186,7 @@ describe("SearchResultRow", () => {
           url: SAMPLE_MODULE_URL,
           content: "Grouped-Query Attention",
         }}
+        query="Grouped"
         metaByUrl={metaByUrl}
         messages={messages}
         surface="page"
@@ -204,6 +207,64 @@ describe("SearchResultRow", () => {
     expect(metaOpen).toBeLessThan(rowClose);
   });
 
+  test("page surface renders query-match marks with accent-safe classes", async () => {
+    const messages = await loadUiMessages();
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+
+    const html = renderToStaticMarkup(
+      <SearchResultRow
+        item={{
+          id: "page-gqa",
+          type: "page",
+          url: SAMPLE_MODULE_URL,
+          content: "<mark>Grouped</mark>-Query Attention",
+        }}
+        query="Grouped"
+        metaByUrl={metaByUrl}
+        messages={messages}
+        surface="page"
+        onActivate={() => {}}
+      />,
+    );
+
+    expect(html).toContain('data-testid="search-result-title-mark"');
+    expect(html).toContain("Grouped</mark>-Query Attention");
+    expect(html).not.toContain("&lt;mark&gt;");
+    for (const token of searchResultTitleMarkClassName.split(/\s+/)) {
+      if (token.length > 0) {
+        expect(html).toContain(token);
+      }
+    }
+  });
+
+  test("dialog surface renders query-match marks inside the interactive row", async () => {
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+
+    const { container } = await renderSearchResultListItem({
+      item: {
+        id: "page-gqa",
+        type: "page",
+        url: SAMPLE_MODULE_URL,
+        content: "<mark>Grouped</mark>-Query Attention",
+      },
+      query: "Grouped",
+      metaByUrl,
+    });
+
+    const view = within(container);
+    const row = view.getByTestId("search-result-row");
+    const mark = view.getByTestId("search-result-title-mark");
+    expect(row.contains(mark)).toBe(true);
+    expect(mark.className).toContain(
+      "group-aria-selected:text-fd-accent-foreground",
+    );
+    expect(mark.textContent).toBe("Grouped");
+  });
+
   test("page surface renders a simple action row without metadata panel", async () => {
     const messages = await loadUiMessages();
     const html = renderToStaticMarkup(
@@ -214,6 +275,7 @@ describe("SearchResultRow", () => {
           node: "Open search page",
           onSelect: () => {},
         }}
+        query=""
         metaByUrl={{}}
         messages={messages}
         surface="page"
@@ -282,6 +344,7 @@ describe("SearchResultListItem and SearchInlineResultItem wrappers", () => {
           url: SAMPLE_MODULE_URL,
           content: "Grouped-Query Attention",
         }}
+        query="GQA"
         metaByUrl={metaByUrl}
         messages={messages}
         surface="page"
