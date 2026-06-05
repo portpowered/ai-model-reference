@@ -1,4 +1,6 @@
+import "@/tests/a11y/mock-navigation";
 import { describe, expect, test } from "bun:test";
+import { screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SearchResultMetaDetails } from "@/features/docs/search/SearchResultMetaDetails";
 import {
@@ -8,6 +10,7 @@ import {
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
+import { renderSearchResultListItem } from "@/tests/a11y/docs-components-fixture";
 import { SAMPLE_MODULE_URL } from "@/tests/search/helpers";
 
 describe("SearchResultMetaDetails", () => {
@@ -40,28 +43,48 @@ describe("SearchResultMetaDetails", () => {
   });
 });
 
-describe("SearchResultListItem GQA dialog row", () => {
-  test("GQA page hit meta panel shows module kind, summary, and URL", async () => {
-    const messages = await loadUiMessages();
+describe("SearchResultListItem", () => {
+  test("GQA page hit shows dialog row with module kind, summary, and URL", async () => {
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
     );
     const meta = metaByUrl[SAMPLE_MODULE_URL];
     expect(meta).toBeDefined();
 
-    const html = renderToStaticMarkup(
-      <SearchResultMetaDetails
-        url={SAMPLE_MODULE_URL}
-        query="GQA"
-        meta={meta}
-        messages={messages}
-      />,
-    );
+    const { container } = await renderSearchResultListItem({
+      item: {
+        id: "page-gqa",
+        type: "page",
+        url: SAMPLE_MODULE_URL,
+        content: "Grouped-Query Attention",
+      },
+      query: "GQA",
+      metaByUrl,
+    });
 
-    expect(html).toContain("Module");
-    expect(html).toContain(SAMPLE_MODULE_URL);
-    expect(html).toContain(meta.description);
-    expect(meta.tags).toContain("attention");
+    expect(
+      screen.getByRole("button", { name: "Grouped-Query Attention" }),
+    ).toBeTruthy();
+    expect(screen.getByTestId("search-result-meta")).toBeTruthy();
+    expect(container.textContent).toContain(SAMPLE_MODULE_URL);
+    expect(container.textContent).toContain("Module");
+    expect(container.textContent).toContain(meta.description);
+  });
+
+  test("non-page hits delegate to SearchDialogListItem without metadata panel", async () => {
+    await renderSearchResultListItem({
+      item: {
+        id: "heading-1",
+        type: "heading",
+        url: SAMPLE_MODULE_URL,
+        content: "Overview",
+      },
+      query: "",
+      metaByUrl: {},
+    });
+
+    expect(screen.getByRole("button", { name: "Overview" })).toBeTruthy();
+    expect(screen.queryByTestId("search-result-meta")).toBeNull();
   });
 });
 
