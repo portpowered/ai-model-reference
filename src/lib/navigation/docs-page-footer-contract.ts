@@ -75,3 +75,32 @@ export function bundledCssHasFooterSublabelInheritRule(css: string): boolean {
     normalized.includes(">p.text-fd-muted-foreground{color:inherit}")
   );
 }
+
+/**
+ * Returns a failure reason when built HTML footer cards inside #nd-page do not
+ * match the accent-hover anchor and muted directional sublabel contract.
+ */
+export function assertFooterChromeContract(html: string): string | null {
+  const ndPageHtml = extractNdPageHtml(html);
+  if (ndPageHtml.length === 0) {
+    return "footer #nd-page region missing from built HTML";
+  }
+
+  for (const sublabel of Object.values(FOOTER_DIRECTIONAL_SUBLABELS)) {
+    const footerCard = extractFooterCardAnchorHtml(ndPageHtml, sublabel);
+
+    if (footerCard.length === 0) {
+      return `footer ${sublabel} card missing from #nd-page`;
+    }
+
+    if (!footerCardHasAccentHoverClasses(footerCard)) {
+      return `footer ${sublabel} card missing accent-hover utility classes`;
+    }
+
+    if (!footerCardHasMutedDirectionalSublabel(footerCard, sublabel)) {
+      return `footer ${sublabel} card missing muted directional sublabel`;
+    }
+  }
+
+  return null;
+}

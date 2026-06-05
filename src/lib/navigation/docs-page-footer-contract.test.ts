@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  assertFooterChromeContract,
   bundledCssHasFooterSublabelInheritRule,
   extractFooterCardAnchorHtml,
   extractNdPageHtml,
@@ -85,5 +86,26 @@ describe("docs page footer contract", () => {
     `;
 
     expect(bundledCssHasFooterSublabelInheritRule(bundledCss)).toBe(false);
+  });
+
+  test("assertFooterChromeContract passes on accent-hover footer cards with muted sublabels", () => {
+    expect(assertFooterChromeContract(SAMPLE_ND_PAGE_HTML)).toBeNull();
+  });
+
+  test("assertFooterChromeContract fails when accent-hover classes are missing", () => {
+    const html = `
+      <div id="nd-page">
+        <a href="/docs/glossary/scaling-law">
+          <p class="text-fd-muted-foreground truncate">Previous Page</p>
+        </a>
+        <a class="hover:bg-fd-accent/80 hover:text-fd-accent-foreground" href="/docs/glossary/embedding">
+          <p class="text-fd-muted-foreground truncate">Next Page</p>
+        </a>
+      </div>
+    `;
+
+    expect(assertFooterChromeContract(html)).toContain(
+      "Previous Page card missing accent-hover utility classes",
+    );
   });
 });
