@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  bundledCssHasFooterSublabelInheritRule,
   extractFooterCardAnchorHtml,
   extractNdPageHtml,
   FOOTER_DIRECTIONAL_SUBLABELS,
@@ -76,9 +77,6 @@ describe("docs page footer hover convergence (built HTML)", () => {
       return;
     }
 
-    expect(bundledCss).toContain("color:inherit");
-    expect(bundledCss).toMatch(
-      /#nd-page[\s\S]*hover\\:text-fd-accent-foreground[\s\S]*:focus-visible[\s\S]*text-fd-muted-foreground[\s\S]*color:inherit/,
-    );
+    expect(bundledCssHasFooterSublabelInheritRule(bundledCss)).toBe(true);
   });
 });
