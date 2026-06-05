@@ -27,7 +27,7 @@ export function SearchPagePanelContent({
   const router = useRouter();
   const initialQueryApplied = useRef(false);
   const { searchEntry, search: searchCopy } = messages;
-  const { search, setSearch, query } = useModelAtlasDocsSearch();
+  const { search, setSearch, query } = useModelAtlasDocsSearch({ metaByUrl });
 
   const tagSlug = searchParams.get("tag")?.trim() || undefined;
   const queryParam = searchParams.get("q");

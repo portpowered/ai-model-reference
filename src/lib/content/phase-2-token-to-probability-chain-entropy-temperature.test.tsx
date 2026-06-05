@@ -12,7 +12,9 @@ import {
   CURATED_RELATED,
   DERIVED_RELATED_DOC_GROUP_LABELS,
 } from "@/lib/content/related-docs";
+import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
 
 const ENTROPY_GLOSSARY_URL = "/docs/glossary/entropy";
 const TEMPERATURE_GLOSSARY_URL = "/docs/glossary/temperature";
@@ -94,7 +96,13 @@ describe("Phase 2 entropy and temperature search discoverability (US-006)", () =
         status: 200,
       })) as unknown as typeof fetch;
 
-    const client = createDocsSearchClient({ from: DOCS_SEARCH_API_PATH });
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+    const client = createDocsSearchClient({
+      metaByUrl,
+      client: { from: DOCS_SEARCH_API_PATH },
+    });
     const results = await client.search("Entropy");
 
     expect(results.length).toBeGreaterThan(0);
@@ -108,7 +116,13 @@ describe("Phase 2 entropy and temperature search discoverability (US-006)", () =
         status: 200,
       })) as unknown as typeof fetch;
 
-    const client = createDocsSearchClient({ from: DOCS_SEARCH_API_PATH });
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+    const client = createDocsSearchClient({
+      metaByUrl,
+      client: { from: DOCS_SEARCH_API_PATH },
+    });
     const results = await client.search("Temperature");
 
     expect(results.length).toBeGreaterThan(0);
@@ -122,7 +136,13 @@ describe("Phase 2 entropy and temperature search discoverability (US-006)", () =
         status: 200,
       })) as unknown as typeof fetch;
 
-    const client = createDocsSearchClient({ from: DOCS_SEARCH_API_PATH });
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+    const client = createDocsSearchClient({
+      metaByUrl,
+      client: { from: DOCS_SEARCH_API_PATH },
+    });
     const results = await client.search(ENTROPY_BODY_PHRASE);
 
     expect(results.some((result) => result.url === ENTROPY_GLOSSARY_URL)).toBe(
@@ -137,7 +157,13 @@ describe("Phase 2 entropy and temperature search discoverability (US-006)", () =
         status: 200,
       })) as unknown as typeof fetch;
 
-    const client = createDocsSearchClient({ from: DOCS_SEARCH_API_PATH });
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+    const client = createDocsSearchClient({
+      metaByUrl,
+      client: { from: DOCS_SEARCH_API_PATH },
+    });
     const results = await client.search(TEMPERATURE_BODY_PHRASE);
 
     expect(
