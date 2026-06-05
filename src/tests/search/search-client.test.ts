@@ -3,13 +3,16 @@ import {
   createDocsSearchClient,
   DOCS_SEARCH_API_PATH,
 } from "@/features/docs/search/search-client";
-import { docsSearchApi } from "@/lib/search/search-server";
 import {
   resultsIncludeSampleModule,
   resultsIncludeTokenGlossary,
   SAMPLE_MODULE_URL,
   TOKEN_GLOSSARY_URL,
 } from "./helpers";
+import {
+  createDocsSearchRouteFetch,
+  TEST_DOCS_SEARCH_URL,
+} from "./route-fetch";
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 
@@ -21,7 +24,6 @@ describe("createDocsSearchClient", () => {
   });
 
   test("uses the docs search API path and ranks GQA sample page first", async () => {
-    const exported = await (await docsSearchApi.staticGET()).json();
     globalThis.fetch = (async (input: RequestInfo | URL) => {
       const url =
         typeof input === "string"
@@ -30,11 +32,11 @@ describe("createDocsSearchClient", () => {
             ? input.href
             : input.url;
       expect(url).toContain(DOCS_SEARCH_API_PATH);
-      return new Response(JSON.stringify(exported), { status: 200 });
+      return createDocsSearchRouteFetch()(input);
     }) as unknown as typeof fetch;
 
     const client = createDocsSearchClient({
-      from: DOCS_SEARCH_API_PATH,
+      from: TEST_DOCS_SEARCH_URL,
     });
     const results = await client.search("GQA");
 
@@ -43,13 +45,9 @@ describe("createDocsSearchClient", () => {
   });
 
   test("includes grouped-query attention for attention query", async () => {
-    const exported = await (await docsSearchApi.staticGET()).json();
-    globalThis.fetch = (async () =>
-      new Response(JSON.stringify(exported), {
-        status: 200,
-      })) as unknown as typeof fetch;
+    globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = createDocsSearchClient({ from: DOCS_SEARCH_API_PATH });
+    const client = createDocsSearchClient({ from: TEST_DOCS_SEARCH_URL });
     const results = await client.search("attention");
 
     expect(results.length).toBeGreaterThan(0);
@@ -57,13 +55,9 @@ describe("createDocsSearchClient", () => {
   });
 
   test("includes grouped-query attention for KV cache query", async () => {
-    const exported = await (await docsSearchApi.staticGET()).json();
-    globalThis.fetch = (async () =>
-      new Response(JSON.stringify(exported), {
-        status: 200,
-      })) as unknown as typeof fetch;
+    globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = createDocsSearchClient({ from: DOCS_SEARCH_API_PATH });
+    const client = createDocsSearchClient({ from: TEST_DOCS_SEARCH_URL });
     const results = await client.search("KV cache");
 
     expect(results.length).toBeGreaterThan(0);
@@ -71,13 +65,9 @@ describe("createDocsSearchClient", () => {
   });
 
   test("ranks token glossary first for Token query", async () => {
-    const exported = await (await docsSearchApi.staticGET()).json();
-    globalThis.fetch = (async () =>
-      new Response(JSON.stringify(exported), {
-        status: 200,
-      })) as unknown as typeof fetch;
+    globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = createDocsSearchClient({ from: DOCS_SEARCH_API_PATH });
+    const client = createDocsSearchClient({ from: TEST_DOCS_SEARCH_URL });
     const results = await client.search("Token");
 
     expect(results.length).toBeGreaterThan(0);
@@ -88,13 +78,9 @@ describe("createDocsSearchClient", () => {
     "tokens",
     "tokenizer",
   ] as const)("includes token glossary for %s query", async (query) => {
-    const exported = await (await docsSearchApi.staticGET()).json();
-    globalThis.fetch = (async () =>
-      new Response(JSON.stringify(exported), {
-        status: 200,
-      })) as unknown as typeof fetch;
+    globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = createDocsSearchClient({ from: DOCS_SEARCH_API_PATH });
+    const client = createDocsSearchClient({ from: TEST_DOCS_SEARCH_URL });
     const results = await client.search(query);
 
     expect(results.length).toBeGreaterThan(0);
