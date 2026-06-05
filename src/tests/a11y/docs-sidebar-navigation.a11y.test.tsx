@@ -48,6 +48,8 @@ describe("docs sidebar navigation accessibility", () => {
     expect(within(sidebar).queryByText(PLACEHOLDER_SIDEBAR_DESCRIPTION)).toBe(
       null,
     );
+    expect(within(sidebar).queryByLabelText("Toggle Theme")).toBe(null);
+    expect(sidebar.querySelector("[data-theme-toggle]")).toBe(null);
 
     const glossaryFolder = within(sidebar).getByRole("button", {
       name: "Glossary",

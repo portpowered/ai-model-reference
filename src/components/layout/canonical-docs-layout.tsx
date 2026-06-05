@@ -24,7 +24,8 @@ export function CanonicalDocsLayout({
           {...baseOptions}
           nav={{ enabled: false }}
           searchToggle={{ enabled: false }}
-          slots={{ searchTrigger: false }}
+          themeSwitch={{ enabled: false }}
+          slots={{ searchTrigger: false, themeSwitch: false }}
           sidebar={{
             "aria-label": messages.shell.sidebarTitle,
           }}
