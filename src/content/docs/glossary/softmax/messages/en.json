@@ -1,8 +1,6 @@
 {
   "title": "Softmax",
   "description": "A function that turns a vector of logits into a probability distribution that sums to one.",
-  "problemStatement": "Raw logits are hard to interpret as chances; readers need a standard way models convert scores into percentages over the vocabulary.",
-  "coreIdea": "Softmax exponentiates each logit, normalizes by the sum of those exponentials, and outputs nonnegative probabilities that add up to 1 across the vocabulary.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "If you can read one softmax formula, you can follow temperature and entropy pages next—they all manipulate the same probability vector."
     }
-  }
+  },
+  "openingSummary": "Softmax converts logits into nonnegative probabilities that sum to 1 across the vocabulary—the standard step from raw scores to interpretable chances."
 }

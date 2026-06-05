@@ -1,8 +1,6 @@
 {
   "title": "Embedding",
   "description": "A dense vector that represents a token or other discrete item so the model can run continuous math on it.",
-  "problemStatement": "Token IDs are integers with no built-in notion of similarity; the model needs a continuous representation before layers can mix information.",
-  "coreIdea": "An embedding table maps each token ID to a learned vector; the model reads those vectors as the first numeric input to the stack.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Follow the chain forward: after embeddings become tensors, the model eventually produces logits and softmax probabilities for the next token."
     }
-  }
+  },
+  "openingSummary": "An embedding table maps each discrete token ID to a learned vector so the model can mix information in continuous space before deeper layers run."
 }

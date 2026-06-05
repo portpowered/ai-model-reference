@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { getConceptById } from "@/lib/content/registry-runtime";
 import {
   CURATED_RELATED,
@@ -70,7 +71,7 @@ describe("Phase 2 loss function and optimizer state glossary pages (US-009)", ()
       }),
     );
 
-    expect(html).toContain("Loss Function");
+    expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
     expect(html).toContain("What It Is");
     expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain("Goodfellow, Ian");
@@ -90,7 +91,7 @@ describe("Phase 2 loss function and optimizer state glossary pages (US-009)", ()
       }),
     );
 
-    expect(html).toContain("Optimizer State");
+    expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
     expect(html).toContain("What It Is");
     expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain("Kingma, Diederik P.");

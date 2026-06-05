@@ -1,8 +1,6 @@
 {
   "title": "Loss Function",
   "description": "A scalar score that measures how wrong the model's predictions are so training knows which direction to improve.",
-  "problemStatement": "After logits become probabilities, readers need a single number that tells training how far predictions are from the correct answers.",
-  "coreIdea": "A loss function compares model outputs to targets and returns one scalar; lower loss means better fit, and gradients flow backward from that scalar to update parameters.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Loss turns predictions and targets into one number to minimize. Backpropagation starts from that scalar; the optimizer uses the resulting gradients to update parameters."
     }
-  }
+  },
+  "openingSummary": "A loss function compares model outputs to targets and returns one scalar whose gradients drive parameter updates during training."
 }

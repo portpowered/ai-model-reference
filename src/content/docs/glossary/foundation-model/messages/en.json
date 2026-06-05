@@ -1,8 +1,6 @@
 {
   "title": "Foundation Model",
   "description": "A large pretrained model intended as a shared starting point for many downstream tasks via fine-tuning or prompting.",
-  "problemStatement": "Marketing copy calls every large checkpoint a \"foundation model,\" which blurs whether a release is a reusable base or a task-specific product.",
-  "coreIdea": "A foundation model is pretrained at scale on broad data so teams can adapt it—fine-tune, prompt, or distill—instead of training from scratch for each task.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Ask whether the checkpoint is marketed and licensed for broad reuse; if yes, treat it as a foundation model before you classify generative versus discriminative behavior."
     }
-  }
+  },
+  "openingSummary": "A foundation model is pretrained at scale on broad data so teams can adapt it through fine-tuning, prompting, or distillation instead of training from scratch per task."
 }

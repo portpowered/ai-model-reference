@@ -112,12 +112,31 @@ const PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
     ],
   },
   {
+    file: "src/features/docs/components/GlossaryOpening.tsx",
+    label: "GlossaryOpening",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/docs/components/GlossaryOpening.test.tsx"],
+    a11ySmokeTests: [
+      "src/tests/a11y/glossary-token.a11y.test.tsx (token glossary route accessibility smoke)",
+    ],
+  },
+  {
+    file: "src/features/docs/components/RelatedDocList.tsx",
+    label: "RelatedDocList",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/docs/components/RelatedDocList.test.tsx"],
+    a11ySmokeTests: [
+      "src/tests/a11y/glossary-token.a11y.test.tsx (token glossary route accessibility smoke)",
+    ],
+  },
+  {
     file: "src/features/docs/components/TagPillList.tsx",
     label: "TagPillList",
     minReachableLinePercent: 90,
     unitTests: ["src/features/docs/components/TagPillList.test.tsx"],
     a11ySmokeTests: [
       "src/tests/a11y/docs-components.a11y.test.tsx (TagPillList accessibility smoke)",
+      "src/tests/a11y/glossary-token.a11y.test.tsx (token glossary route accessibility smoke)",
     ],
   },
   {

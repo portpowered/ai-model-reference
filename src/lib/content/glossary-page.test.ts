@@ -10,6 +10,7 @@ import {
 } from "@/lib/content/assets";
 import { TOKEN_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { expectGlossaryPresentationConvergence } from "@/lib/content/glossary-test-helpers";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
 const pageDir = TOKEN_GLOSSARY_PAGE_DIR;
@@ -23,8 +24,7 @@ describe("token glossary page messages", () => {
     );
 
     expect(messages.title).toBe("Token");
-    expect(messages.problemStatement?.length).toBeGreaterThan(0);
-    expect(messages.coreIdea?.length).toBeGreaterThan(0);
+    expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.whyItMatters.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.simpleExample.body?.length).toBeGreaterThan(0);
@@ -51,16 +51,14 @@ describe("loadGlossaryPage token", () => {
       }),
     );
 
-    expect(html).toContain("Token");
-    expect(html).toContain(page.messages.problemStatement ?? "");
-    expect(html).toContain(page.messages.coreIdea ?? "");
+    expectGlossaryPresentationConvergence(html, {
+      title: page.messages.title,
+      openingSummary: page.messages.openingSummary ?? "",
+    });
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/token-to-probability-chain"');
     expect(html).toContain('href="/docs/glossary/embedding"');
-    expect(html).toContain('data-testid="derived-related-docs"');
-    expect(html).toContain('data-related-group="shared-tags"');
-    expect(html).toContain('href="/docs/modules/grouped-query-attention"');
-    expect(html).toContain("Shared tag");
+    expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain('data-testid="citation-list"');
     expect(html).toContain("What It Is");
     expect(html).toContain("128k context");

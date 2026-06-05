@@ -13,6 +13,10 @@ describe("TagPillList", () => {
     expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain("Attention");
     expect(html).toContain("Kv Cache");
+    expect(html).toContain("no-underline");
+    const withoutNoUnderline = html.replaceAll("no-underline", "");
+    expect(withoutNoUnderline).not.toMatch(/\bunderline\b/);
+    expect(html).toContain("focus-visible:ring-2");
   });
 
   test("renders pills from an explicit tags prop", () => {

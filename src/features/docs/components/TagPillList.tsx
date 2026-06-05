@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { docsChromePillLinkClassName } from "@/features/docs/components/docs-chrome-link";
 import { getRegistryTags } from "@/lib/content/registry-runtime";
 import { formatTagLabel, tagPageHref } from "@/lib/content/tags";
 
@@ -35,7 +36,7 @@ export function TagPillList(props: TagPillListProps) {
         <li key={slug}>
           <Link
             href={tagPageHref(slug)}
-            className="inline-flex items-center rounded-md border border-border bg-secondary px-2.5 py-1 text-sm text-secondary-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className={docsChromePillLinkClassName}
           >
             {formatTagLabel(slug)}
           </Link>

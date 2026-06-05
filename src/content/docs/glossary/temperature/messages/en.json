@@ -1,8 +1,6 @@
 {
   "title": "Temperature",
   "description": "A positive scaling factor applied to logits before softmax to make the next-token distribution sharper or flatter.",
-  "problemStatement": "Readers need a simple knob that controls how random or decisive next-token sampling feels without retraining the model.",
-  "coreIdea": "Temperature divides logits by T before softmax: T below 1 sharpens the distribution (more peaked), T above 1 flattens it (more uniform), and T equal to 1 leaves the model's raw scores unchanged.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Remember: lower temperature → sharper softmax → more repetitive outputs; higher temperature → flatter softmax → more surprise."
     }
-  }
+  },
+  "openingSummary": "Temperature divides logits by T before softmax: T below 1 sharpens the distribution, T above 1 flattens it, and T equal to 1 leaves the model's raw scores unchanged."
 }

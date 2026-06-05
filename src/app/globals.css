@@ -3,6 +3,7 @@
 @import "fumadocs-ui/css/preset.css";
 @import "fumadocs-ui/css/shadcn.css";
 @import "katex/dist/katex.min.css";
+@import "../features/docs/styles/docs-page-footer-chrome.css";
 
 :root {
   --radius: 0.5rem;

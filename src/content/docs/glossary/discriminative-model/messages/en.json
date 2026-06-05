@@ -1,8 +1,6 @@
 {
   "title": "Discriminative Model",
   "description": "A model trained to score, rank, or classify inputs into labels or preferences rather than synthesize new content.",
-  "problemStatement": "Safety stacks mix reward models, classifiers, and generators without naming which parts only judge inputs, which makes debugging feedback loops harder.",
-  "coreIdea": "A discriminative model learns boundaries between classes or scores examples—it estimates p(label | input) or a preference score, not a full generative distribution over outputs.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "If the output is a label, score, or ranking over existing options, use discriminative; if the system fabricates new tokens or media, use generative."
     }
-  }
+  },
+  "openingSummary": "A discriminative model estimates p(label | input) or preference scores from inputs rather than learning a full generative distribution over outputs."
 }
