@@ -65,6 +65,7 @@ Customer-ask convergence report
 | `glossary.chrome-links` | `/docs/glossary/token` | — | `phase-1-glossary-page` |
 | `glossary.footer-hover` | `/docs/glossary/token` | — | `phase-1-glossary-page` |
 | `module.presentation` | `/docs/modules/grouped-query-attention` | — | `phase-1-module-page` |
+| `module.graph-build-markers` | `/docs/modules/grouped-query-attention` | — | `phase-1-module-page` |
 | `module.list-disc` | `/docs/modules/grouped-query-attention` | — | `phase-1-module-page` |
 | `module.mha-gqa-comparison` | `/docs/modules/grouped-query-attention` | — | `phase-1-module-page` |
 

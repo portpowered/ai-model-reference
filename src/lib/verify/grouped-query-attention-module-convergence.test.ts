@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import {
+  assertGroupedQueryAttentionGraphBuildMarkersConvergence,
   assertGroupedQueryAttentionModuleConvergence,
   GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS,
+  GROUPED_QUERY_ATTENTION_GRAPH_BUILD_MARKERS,
+  GROUPED_QUERY_ATTENTION_GRAPH_FORBIDDEN_MARKERS,
   GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS,
 } from "./grouped-query-attention-module-convergence";
 
@@ -29,6 +32,39 @@ const PASSING_HTML = `
   <div data-message-block-math="math.gqaSchema.formula" class="katex-display"></div>
 </html>
 `;
+
+describe("assertGroupedQueryAttentionGraphBuildMarkersConvergence", () => {
+  test("passes when required graph build markers are present", () => {
+    expect(
+      assertGroupedQueryAttentionGraphBuildMarkersConvergence(PASSING_HTML),
+    ).toBeNull();
+  });
+
+  test("reports the first missing graph node marker", () => {
+    const html = PASSING_HTML.replace('data-graph-node-id="hidden-states"', "");
+    expect(assertGroupedQueryAttentionGraphBuildMarkersConvergence(html)).toBe(
+      'missing expected content: data-graph-node-id="hidden-states"',
+    );
+  });
+
+  test("reports graph placeholder stubs", () => {
+    for (const forbidden of GROUPED_QUERY_ATTENTION_GRAPH_FORBIDDEN_MARKERS) {
+      const html = `${PASSING_HTML}${forbidden}`;
+      expect(
+        assertGroupedQueryAttentionGraphBuildMarkersConvergence(html),
+      ).toBe(`unexpected content: ${forbidden}`);
+    }
+  });
+
+  test("derives graph build markers from the shared required marker list", () => {
+    expect(GROUPED_QUERY_ATTENTION_GRAPH_BUILD_MARKERS.length).toBeGreaterThan(
+      3,
+    );
+    for (const marker of GROUPED_QUERY_ATTENTION_GRAPH_BUILD_MARKERS) {
+      expect(GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS).toContain(marker);
+    }
+  });
+});
 
 describe("assertGroupedQueryAttentionModuleConvergence", () => {
   test("passes when required markers are present and forbidden markers absent", () => {
