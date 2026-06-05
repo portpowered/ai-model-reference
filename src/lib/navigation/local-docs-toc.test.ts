@@ -28,5 +28,8 @@ describe("local docs page TOC", () => {
     expect(
       page.toc.some((item) => item.title === "Compared To Nearby Modules"),
     ).toBe(true);
+    expect(
+      page.toc.some((item) => item.title === "Variants And Nearby Modules"),
+    ).toBe(false);
   });
 });
