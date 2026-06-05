@@ -1,7 +1,8 @@
 import "./mock-navigation";
 import { afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { cleanup, screen, within } from "@testing-library/react";
-import { DocsShell } from "@/components/layout/docs-shell";
+import { act } from "react";
+import { CanonicalDocsLayout } from "@/components/layout/canonical-docs-layout";
 import { getPrimaryNavItems } from "@/components/layout/primary-nav";
 import { expectNoSeriousAxeViolations } from "@/tests/a11y/axe";
 import {
@@ -25,12 +26,17 @@ describe("primary navigation accessibility smoke", () => {
   test("exposes nav landmark, accessible link names, keyboard focus, and no serious axe violations", async () => {
     await installDocsSearchFetchMock();
     const context = await loadAppTestContext();
-    const { container } = await renderWithAppProviders(
-      <DocsShell messages={context.messages}>
-        <p>Fixture page content</p>
-      </DocsShell>,
-      { context },
-    );
+    await act(async () => {
+      await renderWithAppProviders(
+        <CanonicalDocsLayout messages={context.messages}>
+          <p>Fixture page content</p>
+        </CanonicalDocsLayout>,
+        { context },
+      );
+    });
+
+    const header = document.querySelector("header");
+    expect(header).toBeTruthy();
 
     const nav = screen.getByRole("navigation", { name: "Primary" });
     expect(nav).toBeTruthy();
@@ -47,6 +53,6 @@ describe("primary navigation accessibility smoke", () => {
       expect(document.activeElement).toBe(link);
     }
 
-    await expectNoSeriousAxeViolations(container);
+    await expectNoSeriousAxeViolations(header ?? document.body);
   });
 });

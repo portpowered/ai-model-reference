@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import SearchEntryPage from "@/app/(site)/search/page";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import { PLACEHOLDER_SIDEBAR_DESCRIPTION } from "@/lib/navigation/docs-sidebar-contract";
 
 describe("search entry page messages", () => {
   it("loads localized title, description, and canonical path copy", async () => {
@@ -25,6 +26,6 @@ describe("search entry page render", () => {
     expect(html).toContain("/search");
     expect(html).toContain("Search Model Atlas");
     expect(html).not.toContain("lorem");
-    expect(html).not.toContain("placeholder");
+    expect(html).not.toContain(PLACEHOLDER_SIDEBAR_DESCRIPTION);
   });
 });

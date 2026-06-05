@@ -1,3 +1,9 @@
+import {
+  DocsBody,
+  DocsDescription,
+  DocsPage,
+  DocsTitle,
+} from "fumadocs-ui/layouts/docs/page";
 import { Suspense } from "react";
 import { SearchPagePanel } from "@/features/docs/search/SearchPagePanel";
 import { loadUiMessages, type UiMessages } from "@/lib/content/ui-messages";
@@ -26,19 +32,17 @@ export default async function SearchPage() {
   const { searchEntry } = messages;
 
   return (
-    <article className="max-w-3xl">
-      <h1 className="font-serif text-3xl font-semibold text-foreground">
-        {searchEntry.title}
-      </h1>
-      <p className="mt-2 text-base leading-relaxed text-muted-foreground">
-        {searchEntry.description}
-      </p>
-      <p className="mt-4 text-sm text-muted-foreground">
-        {searchEntry.canonicalNote}
-      </p>
-      <Suspense fallback={<SearchPagePanelFallback messages={messages} />}>
-        <SearchPagePanel messages={messages} metaByUrl={metaByUrl} />
-      </Suspense>
-    </article>
+    <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
+      <DocsTitle>{searchEntry.title}</DocsTitle>
+      <DocsDescription>{searchEntry.description}</DocsDescription>
+      <DocsBody>
+        <p className="text-sm text-muted-foreground">
+          {searchEntry.canonicalNote}
+        </p>
+        <Suspense fallback={<SearchPagePanelFallback messages={messages} />}>
+          <SearchPagePanel messages={messages} metaByUrl={metaByUrl} />
+        </Suspense>
+      </DocsBody>
+    </DocsPage>
   );
 }

@@ -127,9 +127,7 @@ describe("Phase 1 discovery route smoke", () => {
     });
 
     expect(page.messages.title).toBe("Grouped-Query Attention");
-    expect(page.frontmatter.registryId).toBe(
-      "module.grouped-query-attention",
-    );
+    expect(page.frontmatter.registryId).toBe("module.grouped-query-attention");
     expect(page.toc.some((item) => item.url === "#how-it-works")).toBe(true);
   });
 });
