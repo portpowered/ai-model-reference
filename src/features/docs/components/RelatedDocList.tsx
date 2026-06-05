@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { docsChromeLinkClassName } from "@/features/docs/components/docs-chrome-link";
 import type { RelatedDocItem } from "@/lib/content/related-docs";
 
 type RelatedDocListProps = {
@@ -31,7 +32,7 @@ export function RelatedDocList({
           {item.href ? (
             <Link
               href={item.href}
-              className="text-sm text-foreground underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className={`text-sm text-foreground ${docsChromeLinkClassName}`}
             >
               {item.title}
             </Link>
