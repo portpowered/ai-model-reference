@@ -39,8 +39,12 @@ export const PHASE_1_UX_PASSING_HOME_HTML = `
   </html>
 `;
 
-function docsRouteHtml(body: string): string {
+export function buildPhase1DocsRouteStubHtml(body: string): string {
   return `<html>${UNIFIED_DOCS_SHELL.replace("__BODY__", body)}</html>`;
+}
+
+function docsRouteHtml(body: string): string {
+  return buildPhase1DocsRouteStubHtml(body);
 }
 
 /** Stub HTML that satisfies Phase 1 UX convergence and route content checks. */

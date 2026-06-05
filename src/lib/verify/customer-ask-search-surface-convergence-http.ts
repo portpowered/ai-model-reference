@@ -27,6 +27,7 @@ import {
 import {
   checkSearchPageQuery,
   DEFAULT_SEARCH_PAGE_TIMEOUT_MS,
+  VERIFY_SEARCH_PAGE_STUB_ENV,
 } from "./phase-1-search-page-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
@@ -370,6 +371,46 @@ export async function runCustomerAskSearchSurfaceChecks(
   }
 
   return rows;
+}
+
+export const VERIFY_CUSTOMER_ASK_SEARCH_STUB_ENV =
+  "VERIFY_CUSTOMER_ASK_SEARCH_STUB";
+
+const PASSING_CUSTOMER_ASK_SEARCH_SNAPSHOT: SearchSurfaceResultSnapshot = {
+  resultUrls: [PHASE_1_GROUPED_QUERY_ATTENTION_URL, "/docs/glossary/token"],
+  matchedTagsVisible: false,
+  hasResults: true,
+  hasEmpty: false,
+};
+
+/**
+ * Test-only stub hook: when VERIFY_CUSTOMER_ASK_SEARCH_STUB=pass or
+ * VERIFY_SEARCH_PAGE_STUB=pass, skips Playwright for customer-ask search rows.
+ */
+export function resolveCustomerAskSearchSurfaceCheckOptionsFromEnv(
+  env: Record<string, string | undefined> = process.env,
+): RunCustomerAskSearchSurfaceChecksOptions {
+  const customerAskStub = env[VERIFY_CUSTOMER_ASK_SEARCH_STUB_ENV]?.trim();
+  const pageStub = env[VERIFY_SEARCH_PAGE_STUB_ENV]?.trim();
+  if (customerAskStub !== "pass" && pageStub !== "pass") {
+    return {};
+  }
+
+  return {
+    runSearchPageQueryCheck: async () => PASSING_CUSTOMER_ASK_SEARCH_SNAPSHOT,
+    runSearchDialogQueryCheck: async () => ({
+      resultUrls: [PHASE_1_GROUPED_QUERY_ATTENTION_URL],
+      matchedTagsVisible: false,
+      hasResults: true,
+      hasEmpty: false,
+    }),
+    fetchApiGqaResults: async () => ({
+      results: [
+        { url: PHASE_1_GROUPED_QUERY_ATTENTION_URL },
+        { url: "/docs/glossary/token" },
+      ],
+    }),
+  };
 }
 
 export { PHASE_1_GROUPED_QUERY_ATTENTION_URL };
