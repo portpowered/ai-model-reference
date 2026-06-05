@@ -21,6 +21,7 @@ coverage:
 build:
 	bun run build
 	bun ./scripts/verify-phase-1-static-routes.ts
+	bun ./scripts/verify-grouped-query-attention-built-route.ts
 
 ci: lint typecheck test coverage build validate-data linkcheck
 
