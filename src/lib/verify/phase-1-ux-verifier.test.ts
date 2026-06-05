@@ -17,8 +17,8 @@ import {
 import {
   DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
   defaultSpawnProductionServer,
-  hasNextProductionBuild,
   killManagedChild,
+  shouldRunVerifyProductionIntegrationTests,
   waitForServerReady,
 } from "./server-lifecycle";
 
@@ -386,7 +386,7 @@ describe("verify-phase-1-route-search-ux script integration", () => {
   test(
     "exits 0 with default spawn when production build exists",
     async () => {
-      if (!hasNextProductionBuild(repoRoot)) {
+      if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
         return;
       }
 
@@ -404,7 +404,7 @@ describe("verify-phase-1-route-search-ux script integration", () => {
   test(
     "exits 0 with VERIFY_BASE_URL against manually started production server",
     async () => {
-      if (!hasNextProductionBuild(repoRoot)) {
+      if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
         return;
       }
 
