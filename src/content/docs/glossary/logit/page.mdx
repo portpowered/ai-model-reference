@@ -18,7 +18,6 @@ updatedAt: "2026-06-04"
 
 import { Callout } from "@/features/docs/components/Callout";
 import { CitationList } from "@/features/docs/components/CitationList";
-import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { GlossaryOpening } from "@/features/docs/components/GlossaryOpening";
@@ -46,19 +45,6 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
   <BlockMath formula="z_i \in \mathbb{R} \quad \text{(logit for vocabulary index } i\text{)}" />
 </Section>
 
-<Section id="where-it-appears" titleKey="sections.whereItAppears.title">
-  <T k="sections.whereItAppears.body" />
-
-  <DerivedRelatedDocs
-    registryId="concept.logit"
-    groups={[
-      "same-concept-type",
-      "shared-tags",
-      "used-by-models",
-      "curated-related"
-    ]}
-  />
-</Section>
 
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">
   <T k="sections.commonConfusions.body" />

@@ -10,7 +10,10 @@ import {
 } from "@/lib/content/assets";
 import { TOKEN_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
-import { expectGlossaryOpeningSummary } from "@/lib/content/glossary-test-helpers";
+import {
+  expectGlossaryOmitsWhereItAppears,
+  expectGlossaryOpeningSummary,
+} from "@/lib/content/glossary-test-helpers";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
 const pageDir = TOKEN_GLOSSARY_PAGE_DIR;
@@ -52,14 +55,12 @@ describe("loadGlossaryPage token", () => {
     );
 
     expectGlossaryOpeningSummary(html, page.messages.openingSummary ?? "");
+    expectGlossaryOmitsWhereItAppears(html);
     expect(html).not.toMatch(/<h1\b[^>]*>\s*Token\s*<\/h1>/i);
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/token-to-probability-chain"');
     expect(html).toContain('href="/docs/glossary/embedding"');
-    expect(html).toContain('data-testid="derived-related-docs"');
-    expect(html).toContain('data-related-group="shared-tags"');
-    expect(html).toContain('href="/docs/modules/grouped-query-attention"');
-    expect(html).toContain("Shared tag");
+    expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain('data-testid="citation-list"');
     expect(html).toContain("What It Is");
     expect(html).toContain("128k context");

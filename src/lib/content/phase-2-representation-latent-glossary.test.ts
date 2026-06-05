@@ -6,7 +6,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { GLOSSARY_DOCS_ROOT } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
-import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
+import {
+  expectGlossaryBodyOmitsTitleHeading,
+  expectGlossaryOmitsWhereItAppears,
+} from "@/lib/content/glossary-test-helpers";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { docsSearchApi } from "@/lib/search/search-server";
 
@@ -63,7 +66,7 @@ describe("Phase 2 representation and latent glossary pages (US-001)", () => {
       expect(html).toContain(page.messages.openingSummary?.slice(0, 24) ?? "");
       expect(html).toContain('href="/tags/foundations"');
       expect(html).toContain('href="/tags/taxonomy"');
-      expect(html).toContain('data-testid="derived-related-docs"');
+      expectGlossaryOmitsWhereItAppears(html);
       expect(html).not.toContain("Draft placeholder");
     });
   }
