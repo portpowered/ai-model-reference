@@ -115,5 +115,8 @@ describe("attention tag landing page render", () => {
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain('href="/search?tag=attention"');
     expect(html).toContain("data-search");
+    expect(html).not.toContain("mt-8");
+    expect(html).toContain("list-none");
+    expect(html).not.toContain("list-disc");
   });
 });
