@@ -22,6 +22,7 @@ import {
   resolveNextProductionServerBin,
   resolveVerifyBaseUrlFromEnv,
   shouldRunVerifyProductionIntegrationTests,
+  VERIFY_COVERAGE_SUBPROCESS_ENV,
   waitForServerReady,
 } from "./server-lifecycle";
 
@@ -133,6 +134,14 @@ describe("assertNextProductionBuild", () => {
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
+  });
+
+  test("skips production integration tests during the coverage subprocess rerun", () => {
+    expect(
+      shouldRunVerifyProductionIntegrationTests(repoRoot, {
+        [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
+      }),
+    ).toBe(false);
   });
 });
 
