@@ -28,3 +28,10 @@ export function expectGlossaryOpeningSummaryMessage(messages: {
 }): void {
   expect(messages.openingSummary?.length).toBeGreaterThan(0);
 }
+
+/** Glossary pages must not render the removed where-it-appears section. */
+export function expectGlossaryOmitsWhereItAppears(html: string): void {
+  expect(html).not.toContain('id="where-it-appears"');
+  expect(html).not.toContain("Where It Appears");
+  expect(html).not.toContain('data-testid="derived-related-docs"');
+}

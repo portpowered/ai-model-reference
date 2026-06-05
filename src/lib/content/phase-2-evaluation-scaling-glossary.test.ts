@@ -6,7 +6,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { GLOSSARY_DOCS_ROOT } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
-import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
+import {
+  expectGlossaryBodyOmitsTitleHeading,
+  expectGlossaryOmitsWhereItAppears,
+} from "@/lib/content/glossary-test-helpers";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
 import { type ConceptRecord, pageMessagesSchema } from "@/lib/content/schemas";
@@ -64,7 +67,7 @@ describe("Phase 2 evaluation and scaling glossary pages (US-005)", () => {
       expect(html).toContain(page.messages.openingSummary?.slice(0, 24) ?? "");
       expect(html).toContain('href="/tags/foundations"');
       expect(html).toContain('href="/tags/taxonomy"');
-      expect(html).toContain('data-testid="derived-related-docs"');
+      expectGlossaryOmitsWhereItAppears(html);
       expect(html).not.toContain("Draft placeholder");
     });
   }
@@ -88,7 +91,6 @@ describe("Phase 2 evaluation and scaling glossary pages (US-005)", () => {
     expect(html).toContain('href="/docs/glossary/emergent-behavior"');
     expect(html).toContain("Kaplan");
     expect(html).toContain("https://arxiv.org/abs/2001.08361");
-    expect(html).toContain("Shared tag");
   });
 
   test("emergent behavior links to scaling law and generalization with citation", async () => {
