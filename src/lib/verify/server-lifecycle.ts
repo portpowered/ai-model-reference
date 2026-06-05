@@ -13,6 +13,10 @@ import {
 
 export const VERIFY_BASE_URL_ENV = "VERIFY_BASE_URL";
 
+/** Optional override for production-server readiness polling (milliseconds). */
+export const VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV =
+  "VERIFY_SERVER_STARTUP_TIMEOUT_MS";
+
 /** Set by `runCoverageSubprocess` so opt-in E2E tests skip the coverage rerun. */
 export const VERIFY_COVERAGE_SUBPROCESS_ENV = "VERIFY_COVERAGE_SUBPROCESS";
 
@@ -91,6 +95,20 @@ export function resolveVerifyBaseUrlFromEnv(
     return undefined;
   }
   return normalizeVerifyBaseUrl(raw);
+}
+
+export function resolveServerStartupTimeoutMsFromEnv(
+  env: Record<string, string | undefined> = process.env,
+): number | undefined {
+  const raw = env[VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV]?.trim();
+  if (!raw) {
+    return undefined;
+  }
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return undefined;
+  }
+  return parsed;
 }
 
 export function hasNextProductionBuild(
@@ -436,11 +454,16 @@ export async function acquireVerifyServerSession(
     registerProcessSignalHandlers(cleanup);
   }
 
+  const startupTimeoutMs =
+    options.startupTimeoutMs ??
+    resolveServerStartupTimeoutMsFromEnv(env) ??
+    DEFAULT_SERVER_STARTUP_TIMEOUT_MS;
+
   const earlyExit = waitForChildEarlyExit(child, port, healthUrl);
   try {
     await Promise.race([
       waitForServerReady(baseUrl, {
-        timeoutMs: options.startupTimeoutMs,
+        timeoutMs: startupTimeoutMs,
         pollPath: options.healthPath,
         port,
       }),
