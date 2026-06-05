@@ -10,6 +10,19 @@ import { runCustomerAskGlossaryChecks } from "./customer-ask-glossary-convergenc
 const CHROME_LINK_CLASS =
   'class="no-underline transition-colors hover:no-underline focus-visible:ring-2"';
 
+const FOOTER_CONTRACT_HTML = `
+  <div class="@container grid gap-4 grid-cols-2">
+    <a class="flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-fd-accent/80 hover:text-fd-accent-foreground" href="/docs/glossary/scaling-law">
+      <div class="inline-flex items-center gap-1.5 font-medium"><p>Scaling Law</p></div>
+      <p class="text-fd-muted-foreground truncate">Previous Page</p>
+    </a>
+    <a class="flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-fd-accent/80 hover:text-fd-accent-foreground text-end" href="/docs/glossary/embedding">
+      <div class="inline-flex items-center gap-1.5 font-medium flex-row-reverse"><p>Embedding</p></div>
+      <p class="text-fd-muted-foreground truncate">Next Page</p>
+    </a>
+  </div>
+`;
+
 const POST_REPAIR_GLOSSARY_HTML = `
   <html>
     <div id="nd-page">
@@ -23,11 +36,7 @@ const POST_REPAIR_GLOSSARY_HTML = `
           <li><a href="/docs/glossary/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
         </ul>
       </article>
-      <a class="hover:text-fd-accent-foreground" href="/docs/glossary/embedding">
-        <span>Previous</span>
-        <p class="text-fd-muted-foreground">Embedding</p>
-      </a>
-      <link rel="stylesheet" href="/_next/static/css/docs-page-footer-chrome.css" />
+      ${FOOTER_CONTRACT_HTML}
     </div>
   </html>
 `;
@@ -92,19 +101,51 @@ describe("runCustomerAskGlossaryChecks", () => {
         { timeoutMs: 2_000 },
       );
       expect(rows).toHaveLength(3);
-      expect(
-        rows
-          .filter(
-            (row) =>
-              row.checkId !== GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.checkId,
-          )
-          .every((row) => row.status === "pass"),
-      ).toBe(true);
+      expect(rows.every((row) => row.status === "pass")).toBe(true);
       expect(rows.map((row) => row.checkId)).toEqual([
         GLOSSARY_CUSTOMER_ASK_CHECKS.presentation.checkId,
         GLOSSARY_CUSTOMER_ASK_CHECKS.chromeLinks.checkId,
         GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.checkId,
       ]);
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
+  test("reports fail evidence for footer hover contract violations", async () => {
+    const html = `
+      <html>
+        <div id="nd-page">
+          <article data-registry-id="concept.token">
+            <p data-testid="glossary-opening">Summary</p>
+            <ul data-testid="tag-pill-list" aria-label="Tags">
+              <li><a href="/tags/attention" ${CHROME_LINK_CLASS}>Attention</a></li>
+            </ul>
+            <ul data-testid="curated-related-docs">
+              <li><a href="/docs/glossary/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
+            </ul>
+          </article>
+          <a href="/docs/glossary/embedding"><span>Previous</span><p>Embedding</p></a>
+          <p class="text-fd-muted-foreground truncate">Next Page</p>
+        </div>
+      </html>
+    `;
+    const httpServer = createGlossaryStubServer(html);
+    const port = await listenOnEphemeralPort(httpServer);
+
+    try {
+      const rows = await runCustomerAskGlossaryChecks(
+        `http://127.0.0.1:${port}`,
+        { timeoutMs: 2_000 },
+      );
+      const footerRow = rows.find(
+        (row) =>
+          row.checkId === GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.checkId,
+      );
+
+      expect(footerRow?.status).toBe("fail");
+      expect(footerRow?.reason).toContain("Previous Page");
     } finally {
       httpServer.closeAllConnections();
       httpServer.close();

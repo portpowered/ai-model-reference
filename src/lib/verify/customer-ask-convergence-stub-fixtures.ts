@@ -112,11 +112,16 @@ const CUSTOMER_ASK_PASSING_GLOSSARY_BODY = `
       <li><a href="/docs/glossary/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
     </ul>
   </article>
-  <a class="hover:text-fd-accent-foreground" href="/docs/glossary/embedding">
-    <span>Previous</span>
-    <p class="text-fd-muted-foreground">Embedding</p>
-  </a>
-  <link rel="stylesheet" href="/_next/static/css/docs-page-footer-chrome.css" />
+  <div class="@container grid gap-4 grid-cols-2">
+    <a class="flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-fd-accent/80 hover:text-fd-accent-foreground" href="/docs/glossary/scaling-law">
+      <div class="inline-flex items-center gap-1.5 font-medium"><p>Scaling Law</p></div>
+      <p class="text-fd-muted-foreground truncate">Previous Page</p>
+    </a>
+    <a class="flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-fd-accent/80 hover:text-fd-accent-foreground text-end" href="/docs/glossary/embedding">
+      <div class="inline-flex items-center gap-1.5 font-medium flex-row-reverse"><p>Embedding</p></div>
+      <p class="text-fd-muted-foreground truncate">Next Page</p>
+    </a>
+  </div>
 `;
 
 export const CUSTOMER_ASK_PASSING_GLOSSARY_HTML = buildPhase1DocsRouteStubHtml(
