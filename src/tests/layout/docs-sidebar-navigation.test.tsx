@@ -22,7 +22,7 @@ const BUILT_HTML_DOC_ROUTES = [
   {
     path: "/docs/modules/grouped-query-attention",
     file: ".next/server/app/docs/modules/grouped-query-attention.html",
-    requiredSidebarUrls: [TOKEN_GLOSSARY_URL, GROUPED_QUERY_ATTENTION_URL],
+    requiredSidebarUrls: [GROUPED_QUERY_ATTENTION_URL],
   },
 ] as const;
 

@@ -22,15 +22,11 @@
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
-      "body": "With H query heads and G KV groups, each group size is H/G. The cache stores G key heads and G value heads per token instead of H of each."
+      "body": "With H query heads and G KV groups, each group size is H/G. The formulas below contrast how multi-head attention pairs every query head with its own KV heads versus grouped-query attention, which routes query heads through shared KV pairs per group."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
       "body": "Compared with multi-head attention, GQA reduces KV tensors. Compared with multi-query attention, GQA keeps more distinct query heads while still sharing KV heads within each group."
-    },
-    "variantsAndNearbyModules": {
-      "title": "Variants And Nearby Modules",
-      "body": "Nearby attention variants in the same head-sharing family include multi-head attention, multi-query attention, and multi-head latent attention."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
@@ -71,6 +67,90 @@
     },
     "comparisonTable": {
       "caption": "How GQA compares with nearby attention variants"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "gqa": {
+          "title": "Grouped-Query Attention"
+        },
+        "mha": {
+          "title": "Multi-Head Attention"
+        },
+        "mqa": {
+          "title": "Multi-Query Attention"
+        }
+      },
+      "dimensions": {
+        "kvHeadCount": "KV head count",
+        "queryHeadFlexibility": "Query-head flexibility",
+        "cacheFootprint": "Cache footprint per token"
+      },
+      "values": {
+        "gqa": {
+          "kvHeadCount": "G key heads and G value heads",
+          "queryHeadFlexibility": "H distinct query heads grouped into G shared KV pairs",
+          "cacheFootprint": "2G tensors (G keys + G values)"
+        },
+        "mha": {
+          "kvHeadCount": "H key heads and H value heads",
+          "queryHeadFlexibility": "H independent query/KV head pairs",
+          "cacheFootprint": "2H tensors (full multi-head attention cache)"
+        },
+        "mqa": {
+          "kvHeadCount": "1 key head and 1 value head",
+          "queryHeadFlexibility": "H query heads share one KV pair",
+          "cacheFootprint": "2 tensors (single shared KV cache)"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i \\quad (H \\text{ independent KV head pairs per token})"
+    },
+    "gqaSchema": {
+      "label": "Grouped-query attention (GQA)",
+      "formula": "\\text{Attention}(Q_i, K_{g(i)}, V_{g(i)}) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_{g(i)}^{\\top}}{\\sqrt{d_k}}\\right) V_{g(i)} \\quad (G \\text{ shared KV pairs for } H \\text{ query heads})"
+    }
+  },
+  "graph": {
+    "nodes": {
+      "hiddenStates": {
+        "label": "Hidden states"
+      },
+      "queryProjection": {
+        "label": "H query heads (Q projection)"
+      },
+      "queryGroups": {
+        "label": "G query groups"
+      },
+      "sharedKv": {
+        "label": "Shared KV heads per group"
+      },
+      "attentionScores": {
+        "label": "Attention scores per query head"
+      },
+      "outputProjection": {
+        "label": "Output projection"
+      },
+      "queryHeads": {
+        "label": "H query heads"
+      },
+      "queryGroupsSchema": {
+        "label": "G groups (H/G query heads each)"
+      },
+      "sharedKeyHeads": {
+        "label": "G shared key heads"
+      },
+      "sharedValueHeads": {
+        "label": "G shared value heads"
+      },
+      "kvCache": {
+        "label": "KV cache (G keys + G values per token)"
+      }
     }
   }
 }

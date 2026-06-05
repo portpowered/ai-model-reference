@@ -17,7 +17,6 @@ updatedAt: "2026-06-02"
 
 import { Callout } from "@/features/docs/components/Callout";
 import { CitationList } from "@/features/docs/components/CitationList";
-import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -26,6 +25,7 @@ import { ModuleComparisonTable } from "@/features/models/components/ModuleCompar
 import { ModuleGraph } from "@/features/models/components/ModuleGraph";
 import { ModuleMetadataCard } from "@/features/models/components/ModuleMetadataCard";
 import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
+import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
 import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
 
 # <T k="title" />
@@ -64,6 +64,7 @@ import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModul
 
 <Section id="math-or-compute-schema" titleKey="sections.mathOrComputeSchema.title">
   <T k="sections.mathOrComputeSchema.body" />
+  <ModuleAttentionSchemaComparison />
   <ModuleGraph registryId="module.grouped-query-attention" assetId="computeSchema" />
 </Section>
 
@@ -73,21 +74,6 @@ import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModul
   <ModuleComparisonTable
     registryId="module.grouped-query-attention"
     assetId="comparisonTable"
-  />
-</Section>
-
-<Section id="variants-and-nearby-modules" titleKey="sections.variantsAndNearbyModules.title">
-  <T k="sections.variantsAndNearbyModules.body" />
-
-  <DerivedRelatedDocs
-    registryId="module.grouped-query-attention"
-    groups={[
-      "same-variant-group",
-      "same-concept-type",
-      "same-module-family",
-      "shared-tags",
-      "curated-related"
-    ]}
   />
 </Section>
 
