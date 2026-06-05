@@ -4,6 +4,7 @@ import { HomeArticle } from "@/components/home/home-article";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { PLACEHOLDER_SIDEBAR_DESCRIPTION } from "@/lib/navigation/docs-sidebar-contract";
 import { buildHomeTableOfContents } from "@/lib/navigation/home-page-toc";
+import { expectHomeArticleSingleSearchEntry } from "@/tests/discovery/home-search-entry-contract";
 
 /** Discovery targets on `/` must stay aligned with Phase 1 acceptance criteria. */
 const HOME_DISCOVERY_HREFS = [
@@ -60,9 +61,7 @@ describe("home page render", () => {
 
   it("links to /search for bookmark and handoff entry without inline search UI", async () => {
     const html = await renderHomeArticleHtml();
-    expect(html).toContain('href="/search"');
-    expect(html).not.toContain("data-search");
-    expect(html).not.toContain("Search the reference");
+    expectHomeArticleSingleSearchEntry(html);
   });
 
   it("does not render placeholder scaffold copy in the article body", async () => {
