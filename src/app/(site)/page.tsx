@@ -1,4 +1,5 @@
 import { DocsBody, DocsPage } from "fumadocs-ui/layouts/docs/page";
+import Link from "next/link";
 import { HomeBrowseLink } from "@/components/home/home-browse-link";
 import { HomeBrushHeader } from "@/components/home/home-brush-header";
 import { loadUiMessages } from "@/lib/content/ui-messages";
@@ -14,6 +15,16 @@ export default async function HomePage() {
           <HomeBrushHeader title={home.title} subtitle={home.subtitle} />
           <p className="text-base leading-relaxed text-muted-foreground">
             {home.intro}
+          </p>
+          <p className="mt-6 text-base leading-relaxed text-muted-foreground">
+            {home.searchHandoff}{" "}
+            <Link
+              href="/search"
+              className="font-medium text-foreground underline underline-offset-4 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {home.searchPageLinkTitle}
+            </Link>{" "}
+            {home.searchHandoffLinkSuffix}
           </p>
 
           <section
