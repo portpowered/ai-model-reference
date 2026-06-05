@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { spawn } from "node:child_process";
+import { mkdtempSync, rmSync } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { assertBatch008CustomerAskReportAllPass } from "./batch-008-customer-ask-check-inventory";
 import { CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER } from "./customer-ask-convergence-reporter";
@@ -18,6 +20,7 @@ import {
   DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
   defaultSpawnProductionServer,
   killManagedChild,
+  NEXT_BUILD_REQUIRED_MESSAGE,
   shouldRunVerifyProductionIntegrationTests,
   waitForServerReady,
 } from "./server-lifecycle";
@@ -295,6 +298,7 @@ describe("runPhase1UxVerification", () => {
 
 function runVerifyScriptWithEnv(
   env: Record<string, string | undefined>,
+  options: { cwd?: string } = {},
 ): Promise<{ exitCode: number; output: string }> {
   const mergedEnv = { ...process.env };
   for (const [key, value] of Object.entries(env)) {
@@ -308,8 +312,9 @@ function runVerifyScriptWithEnv(
   return new Promise((resolve, reject) => {
     const child = spawn(
       "bun",
-      [join(process.cwd(), "scripts/verify-phase-1-route-search-ux.ts")],
+      [join(repoRoot, "scripts/verify-phase-1-route-search-ux.ts")],
       {
+        cwd: options.cwd ?? process.cwd(),
         env: mergedEnv,
         stdio: ["ignore", "pipe", "pipe"],
       },
@@ -330,6 +335,22 @@ function runVerifyScriptWithEnv(
 }
 
 describe("verify-phase-1-route-search-ux script", () => {
+  test("exits 1 with NEXT_BUILD_REQUIRED_MESSAGE when .next is missing on default path", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-cli-no-next-"));
+
+    try {
+      const result = await runVerifyScriptWithEnv(
+        { VERIFY_BASE_URL: undefined },
+        { cwd: projectRoot },
+      );
+
+      expect(result.exitCode).toBe(1);
+      expect(result.output).toContain(NEXT_BUILD_REQUIRED_MESSAGE);
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
   test("exits 0 with success summary when VERIFY_BASE_URL points at a passing stub", async () => {
     const httpServer = createPhase1UxStubServer(
       buildPhase1AndCustomerAskPassingStubHtml(),
