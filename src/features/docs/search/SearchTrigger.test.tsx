@@ -39,4 +39,18 @@ describe("SearchTrigger", () => {
     expect(html).toContain("group-focus-visible:text-accent-foreground");
     expect(html).toContain("group-focus-visible:bg-accent-foreground/10");
   });
+
+  test("omits the trigger when search is disabled and hideIfDisabled is set", async () => {
+    const messages = await loadUiMessages();
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+
+    const html = renderToStaticMarkup(
+      <RootProvider search={{ SearchDialog, enabled: false }}>
+        <SearchTrigger messages={messages} hideIfDisabled />
+      </RootProvider>,
+    );
+
+    expect(html).not.toContain('data-search=""');
+    expect(html).not.toContain('type="button"');
+  });
 });

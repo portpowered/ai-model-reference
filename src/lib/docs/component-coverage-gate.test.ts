@@ -52,6 +52,9 @@ describe("component-coverage-gate", () => {
     expect(
       isAllowedManifestPath("src/features/docs/search/SearchResults.tsx"),
     ).toBe(true);
+    expect(
+      isAllowedManifestPath("src/features/docs/tags/TagsIndexList.tsx"),
+    ).toBe(true);
     expect(isAllowedManifestPath("src/components/ui/button.tsx")).toBe(true);
     expect(isAllowedManifestPath("src/lib/utils.ts")).toBe(false);
   });
