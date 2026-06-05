@@ -278,6 +278,25 @@ route or query, HTTP status, and reason before exiting `1`. A healthy build
 completes the verifier in well under two minutes on a typical laptop, bounded
 by the configured timeouts.
 
+The verifier also exercises the built `/search` page, the header search dialog
+(via the search trigger button), and keyboard shortcuts on the home page:
+**Meta+K** (Cmd+K on macOS) and **Control+K** (Windows/Linux). Each shortcut
+must open the header search dialog with a visible search textbox. Real runs
+need Playwright Chromium once per machine (`npx playwright install chromium`).
+
+If your environment cannot reliably automate OS keyboard shortcuts in CI, set
+`VERIFY_SEARCH_SHORTCUT_SKIP=1` to skip automated shortcut checks. When
+skipping, reviewers must run this two-step manual check after
+`make verify-phase-1-ux`:
+
+1. Open the built app home page (`/`).
+2. Press **Cmd+K** (macOS) or **Ctrl+K** (Windows/Linux) and confirm the
+   header search dialog opens with a visible search textbox; repeat for the
+   other modifier if your platform supports both.
+
+For static HTTP fixture tests, set `VERIFY_SEARCH_SHORTCUT_STUB=pass` alongside
+the other `VERIFY_*_STUB=pass` env vars documented in the verifier tests.
+
 Deploy gates are out of scope for the current baseline; neither
 `.github/workflows/ci.yml` nor `make ci` invokes deploy or preview steps.
 Manifest-scoped component coverage runs in `make ci` after `make test` (see
