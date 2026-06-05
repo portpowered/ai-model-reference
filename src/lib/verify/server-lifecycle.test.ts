@@ -14,12 +14,14 @@ import {
   assertNextProductionBuild,
   DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
   defaultSpawnProductionServer,
+  hasCompleteNextProductionBuild,
   hasNextProductionBuild,
   killManagedChild,
   NEXT_BUILD_REQUIRED_MESSAGE,
   normalizeVerifyBaseUrl,
   resolveNextProductionServerBin,
   resolveVerifyBaseUrlFromEnv,
+  shouldRunVerifyProductionIntegrationTests,
   waitForServerReady,
 } from "./server-lifecycle";
 
@@ -110,11 +112,26 @@ describe("assertNextProductionBuild", () => {
     const emptyDir = mkdtempSync(join(tmpdir(), "verify-no-next-"));
     try {
       expect(hasNextProductionBuild(emptyDir)).toBe(false);
+      expect(hasCompleteNextProductionBuild(emptyDir)).toBe(false);
       expect(() => assertNextProductionBuild(emptyDir)).toThrow(
         NEXT_BUILD_REQUIRED_MESSAGE,
       );
     } finally {
       rmSync(emptyDir, { recursive: true, force: true });
+    }
+  });
+
+  test("treats an empty .next directory as incomplete for integration gating", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-empty-next-"));
+    mkdirSync(join(projectRoot, ".next"));
+    try {
+      expect(hasNextProductionBuild(projectRoot)).toBe(true);
+      expect(hasCompleteNextProductionBuild(projectRoot)).toBe(false);
+      expect(shouldRunVerifyProductionIntegrationTests(projectRoot)).toBe(
+        false,
+      );
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
     }
   });
 });
@@ -446,7 +463,7 @@ describe("defaultSpawnProductionServer integration", () => {
   test(
     "default spawn reaches HTTP 200 on loopback when production build exists",
     async () => {
-      if (!hasNextProductionBuild(repoRoot)) {
+      if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
         return;
       }
 
@@ -467,7 +484,7 @@ describe("defaultSpawnProductionServer integration", () => {
   test(
     "acquireVerifyServerSession default path uses normalized loopback baseUrl",
     async () => {
-      if (!hasNextProductionBuild(repoRoot)) {
+      if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
         return;
       }
 

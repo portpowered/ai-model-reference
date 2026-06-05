@@ -91,6 +91,26 @@ export function hasNextProductionBuild(
   return existsSync(join(projectRoot, ".next"));
 }
 
+/** True when a completed `next build` artifact is present (not an empty `.next` dir). */
+export function hasCompleteNextProductionBuild(
+  projectRoot: string = process.cwd(),
+): boolean {
+  return existsSync(join(projectRoot, ".next", "BUILD_ID"));
+}
+
+/**
+ * Gates opt-in production-server integration tests: skip the coverage subprocess
+ * rerun (make ci) and require a completed build artifact.
+ */
+export function shouldRunVerifyProductionIntegrationTests(
+  projectRoot: string = process.cwd(),
+): boolean {
+  if (process.argv.includes("--coverage")) {
+    return false;
+  }
+  return hasCompleteNextProductionBuild(projectRoot);
+}
+
 export function assertNextProductionBuild(
   projectRoot: string = process.cwd(),
 ): void {
