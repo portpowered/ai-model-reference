@@ -5,8 +5,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { SearchResultMetaDetails } from "@/features/docs/search/SearchResultMetaDetails";
 import {
   isPageSearchItem,
-  SearchInlineResultItem,
-} from "@/features/docs/search/SearchResults";
+  SearchResultRow,
+} from "@/features/docs/search/SearchResultRow";
+import { SearchInlineResultItem } from "@/features/docs/search/SearchResults";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
@@ -14,7 +15,7 @@ import { renderSearchResultListItem } from "@/tests/a11y/docs-components-fixture
 import { SAMPLE_MODULE_URL } from "@/tests/search/helpers";
 
 describe("SearchResultMetaDetails", () => {
-  test("renders URL, localized kind label, summary, and matched tags for fixture meta", async () => {
+  test("renders URL, compact localized kind, and summary without matched-tag chips", async () => {
     const messages = await loadUiMessages();
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
@@ -25,7 +26,6 @@ describe("SearchResultMetaDetails", () => {
     const html = renderToStaticMarkup(
       <SearchResultMetaDetails
         url={SAMPLE_MODULE_URL}
-        query="attention"
         meta={meta}
         messages={messages}
       />,
@@ -37,18 +37,19 @@ describe("SearchResultMetaDetails", () => {
     expect(html).toContain('data-testid="search-result-summary"');
     expect(meta.description.length).toBeGreaterThan(0);
     expect(html).toContain(meta.description);
+    expect(html).toContain('data-testid="search-result-kind"');
     expect(html).toContain("Module");
-    expect(html).toContain("attention");
     expect(html).toContain(messages.search.resultPath);
+    expect(html).not.toContain('data-testid="search-result-matched-tags"');
   });
 });
 
-describe("SearchResultListItem", () => {
+describe("SearchResultRow", () => {
   afterEach(() => {
     cleanup();
   });
 
-  test("GQA page hit shows dialog row with module kind, summary, and URL", async () => {
+  test("dialog surface shows GQA page hit with module kind, summary, and URL", async () => {
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
     );
@@ -74,9 +75,10 @@ describe("SearchResultListItem", () => {
     expect(container.textContent).toContain(SAMPLE_MODULE_URL);
     expect(container.textContent).toContain("Module");
     expect(container.textContent).toContain(meta.description);
+    expect(view.queryByTestId("search-result-matched-tags")).toBeNull();
   });
 
-  test("non-page hits delegate to SearchDialogListItem without metadata panel", async () => {
+  test("dialog surface delegates non-page hits without metadata panel", async () => {
     const { container } = await renderSearchResultListItem({
       item: {
         id: "heading-1",
@@ -92,10 +94,8 @@ describe("SearchResultListItem", () => {
     expect(view.getByRole("button", { name: "Overview" })).toBeTruthy();
     expect(view.queryByTestId("search-result-meta")).toBeNull();
   });
-});
 
-describe("SearchInlineResultItem", () => {
-  test("GQA page hit shows title, module kind, summary, and URL for /search rows", async () => {
+  test("page surface shows title, module kind, summary, and URL for /search rows", async () => {
     const messages = await loadUiMessages();
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
@@ -104,6 +104,83 @@ describe("SearchInlineResultItem", () => {
     expect(meta).toBeDefined();
 
     const html = renderToStaticMarkup(
+      <SearchResultRow
+        item={{
+          id: "page-gqa",
+          type: "page",
+          url: SAMPLE_MODULE_URL,
+          content: "Grouped-Query Attention",
+        }}
+        metaByUrl={metaByUrl}
+        messages={messages}
+        surface="page"
+        onActivate={() => {}}
+      />,
+    );
+
+    expect(html).toContain("Grouped-Query Attention");
+    expect(html).toContain(SAMPLE_MODULE_URL);
+    expect(html).toContain("Module");
+    expect(html).toContain(meta.description);
+    expect(html).not.toContain('data-testid="search-result-matched-tags"');
+  });
+
+  test("page surface renders a simple action row without metadata panel", async () => {
+    const messages = await loadUiMessages();
+    const html = renderToStaticMarkup(
+      <SearchResultRow
+        item={{
+          id: "action-1",
+          type: "action",
+          node: "Open search page",
+          onSelect: () => {},
+        }}
+        metaByUrl={{}}
+        messages={messages}
+        surface="page"
+        onActivate={() => {}}
+      />,
+    );
+
+    expect(html).toContain("Action");
+    expect(html).not.toContain('data-testid="search-result-meta"');
+  });
+});
+
+describe("SearchResultListItem and SearchInlineResultItem wrappers", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  test("dialog wrapper renders shared metadata through SearchResultRow", async () => {
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+
+    const { container } = await renderSearchResultListItem({
+      item: {
+        id: "page-gqa",
+        type: "page",
+        url: SAMPLE_MODULE_URL,
+        content: "Grouped-Query Attention",
+      },
+      query: "GQA",
+      metaByUrl,
+    });
+
+    const view = within(container);
+    expect(view.getByTestId("search-result-meta")).toBeTruthy();
+    expect(view.getByTestId("search-result-kind").textContent).toBe("Module");
+    expect(view.queryByTestId("search-result-matched-tags")).toBeNull();
+  });
+
+  test("page wrapper delegates to shared SearchResultRow", async () => {
+    const messages = await loadUiMessages();
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+
+    const inlineHtml = renderToStaticMarkup(
       <SearchInlineResultItem
         item={{
           id: "page-gqa",
@@ -118,33 +195,22 @@ describe("SearchInlineResultItem", () => {
       />,
     );
 
-    expect(html).toContain("Grouped-Query Attention");
-    expect(html).toContain(SAMPLE_MODULE_URL);
-    expect(html).toContain("Module");
-    expect(html).toContain(meta.description);
-  });
-});
-
-describe("SearchInlineResultItem non-page hits", () => {
-  test("renders a simple action row without metadata panel", async () => {
-    const messages = await loadUiMessages();
-    const html = renderToStaticMarkup(
-      <SearchInlineResultItem
+    const rowHtml = renderToStaticMarkup(
+      <SearchResultRow
         item={{
-          id: "action-1",
-          type: "action",
-          node: "Open search page",
-          onSelect: () => {},
+          id: "page-gqa",
+          type: "page",
+          url: SAMPLE_MODULE_URL,
+          content: "Grouped-Query Attention",
         }}
-        query=""
-        metaByUrl={{}}
+        metaByUrl={metaByUrl}
         messages={messages}
-        onSelect={() => {}}
+        surface="page"
+        onActivate={() => {}}
       />,
     );
 
-    expect(html).toContain("Action");
-    expect(html).not.toContain('data-testid="search-result-meta"');
+    expect(inlineHtml).toBe(rowHtml);
   });
 });
 
