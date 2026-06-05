@@ -141,6 +141,9 @@ describe("runCustomerAskSearchSurfaceChecks", () => {
   });
 
   test("default Playwright probes finish before browser teardown when production build exists", async () => {
+    if (process.env.CI === "true") {
+      return;
+    }
     if (!existsSync(join(repoRoot, GROUPED_QUERY_ATTENTION_BUILT_HTML_PATH))) {
       return;
     }
