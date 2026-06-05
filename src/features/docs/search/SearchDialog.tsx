@@ -15,7 +15,7 @@ import type { SharedProps } from "fumadocs-ui/contexts/search";
 import { useEffect } from "react";
 import { consumePendingSearchQuery } from "@/features/docs/search/search-prefill";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
-import { SearchResultListItem } from "./SearchResults";
+import { SearchResultRow } from "./SearchResultRow";
 import { useModelAtlasDocsSearch } from "./search-client";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";
 
@@ -30,7 +30,7 @@ export function ModelAtlasSearchDialog({
   metaByUrl,
   messages,
 }: ModelAtlasSearchDialogProps) {
-  const { search, setSearch, query } = useModelAtlasDocsSearch();
+  const { search, setSearch, query } = useModelAtlasDocsSearch({ metaByUrl });
   const hasQuery = search.trim().length > 0;
   const items = query.data && query.data !== "empty" ? query.data : null;
   const showIdle = !hasQuery && !query.isLoading;
@@ -87,12 +87,13 @@ export function ModelAtlasSearchDialog({
             </output>
           )}
           Item={({ item, onClick }) => (
-            <SearchResultListItem
+            <SearchResultRow
               item={item}
               query={search}
               metaByUrl={metaByUrl}
               messages={messages}
-              onClick={onClick}
+              surface="dialog"
+              onActivate={onClick}
               className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           )}

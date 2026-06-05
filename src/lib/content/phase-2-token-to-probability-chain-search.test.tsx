@@ -11,6 +11,7 @@ import {
   loadSearchResultMetaMap,
 } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
 
 const CHAIN_TAG = "token-to-probability-chain";
 
@@ -117,7 +118,13 @@ describe("Phase 2 full chain search aliases and body text (US-011)", () => {
         status: 200,
       })) as unknown as typeof fetch;
 
-    const client = createDocsSearchClient({ from: DOCS_SEARCH_API_PATH });
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+    const client = createDocsSearchClient({
+      metaByUrl,
+      client: { from: DOCS_SEARCH_API_PATH },
+    });
     return client.search(query);
   }
 

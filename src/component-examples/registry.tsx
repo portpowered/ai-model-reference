@@ -224,7 +224,6 @@ export const componentExamples: ComponentExampleDefinition[] = [
       return (
         <SearchResultMetaDetails
           url={context.sampleModuleUrl}
-          query="GQA"
           meta={meta}
           messages={context.uiMessages}
         />
@@ -243,7 +242,6 @@ export const componentExamples: ComponentExampleDefinition[] = [
       return (
         <SearchResultMetaDetails
           url={context.sampleModuleUrl}
-          query="GQA"
           meta={{ ...meta, tags: [] }}
           messages={context.uiMessages}
         />

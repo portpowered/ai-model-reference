@@ -130,8 +130,8 @@ const PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
     ],
   },
   {
-    file: "src/features/docs/search/SearchResults.tsx",
-    label: "SearchResults (inline + dialog rows)",
+    file: "src/features/docs/search/SearchResultRow.tsx",
+    label: "SearchResultRow",
     minReachableLinePercent: 90,
     unitTests: ["src/features/docs/search/SearchResults.test.tsx"],
     a11ySmokeTests: [

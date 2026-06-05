@@ -7,7 +7,7 @@ import {
   expect,
   test,
 } from "bun:test";
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SearchPagePanelContent } from "@/features/docs/search/SearchPagePanel";
 import {
@@ -16,6 +16,12 @@ import {
   renderWithAppProviders,
   restoreFetchMock,
 } from "@/tests/a11y/render";
+import {
+  collectResultUrlsFromNodes,
+  expectUniqueCanonicalPageUrls,
+  resultsIncludeSampleModule,
+  SAMPLE_MODULE_URL,
+} from "@/tests/search/helpers";
 import { createDocsSearchRouteFetch } from "@/tests/search/route-fetch";
 
 function renderSearchPagePanelContent(
@@ -85,6 +91,43 @@ describe("SearchPagePanel Phase 1 queries", () => {
   ] as const)("shows Grouped-Query Attention for %s query", async (query) => {
     const context = await loadAppTestContext();
     await typeQueryAndExpectGqaResult(context, query);
+  });
+
+  test.each([
+    "GQA",
+    "attention",
+    "KV cache",
+  ] as const)("returns at most one row per canonical page URL for %s query", async (query) => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    );
+    await user.type(searchInput, query);
+
+    const results = await screen.findByTestId("search-page-results");
+    const resultUrls = within(results).getAllByTestId("search-result-url");
+    expect(resultUrls.length).toBeGreaterThan(0);
+    const urls = collectResultUrlsFromNodes(resultUrls);
+    expectUniqueCanonicalPageUrls(urls);
+    expect(resultsIncludeSampleModule(urls.map((url) => ({ url })))).toBe(true);
+  });
+
+  test("GQA query ranks grouped-query attention first on /search", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      "GQA",
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    const firstUrl = within(results).getAllByTestId("search-result-url")[0];
+    expect(firstUrl?.textContent).toContain(SAMPLE_MODULE_URL);
   });
 
   test("exposes idle state with aria-live region before query entry", async () => {

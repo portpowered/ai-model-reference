@@ -1,6 +1,7 @@
 import { type StaticOptions, useDocsSearch } from "fumadocs-core/search/client";
-import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import type { DependencyList } from "react";
+import { modelAtlasOramaSearchClient } from "./model-atlas-search-client";
+import type { SearchResultMetaRecord } from "./search-result-meta-client";
 
 export const DOCS_SEARCH_API_PATH = "/api/search";
 
@@ -9,20 +10,28 @@ export const docsSearchStaticOptions = {
   from: DOCS_SEARCH_API_PATH,
 } as const satisfies { type: "static" } & StaticOptions;
 
-export function createDocsSearchClient(
-  options: StaticOptions = docsSearchStaticOptions,
-) {
-  return oramaStaticClient(options);
+export type ModelAtlasDocsSearchOptions = {
+  metaByUrl: SearchResultMetaRecord;
+  client?: StaticOptions;
+};
+
+export function createModelAtlasSearchClient({
+  metaByUrl,
+  client = docsSearchStaticOptions,
+}: ModelAtlasDocsSearchOptions) {
+  return modelAtlasOramaSearchClient(client, metaByUrl);
 }
 
+/** @deprecated Use createModelAtlasSearchClient */
+export const createDocsSearchClient = createModelAtlasSearchClient;
+
 export function useModelAtlasDocsSearch(
-  overrides: Partial<StaticOptions> = {},
+  { metaByUrl, client = docsSearchStaticOptions }: ModelAtlasDocsSearchOptions,
   deps?: DependencyList,
 ) {
   return useDocsSearch(
     {
-      ...docsSearchStaticOptions,
-      ...overrides,
+      client: createModelAtlasSearchClient({ metaByUrl, client }),
     },
     deps,
   );
