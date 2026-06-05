@@ -293,6 +293,22 @@ convergence review does not rely on ad hoc browser sessions alone. Neither
 `make ci` nor GitHub Actions runs this verifier by default; run it locally or in
 convergence review after `make build`.
 
+**UX convergence scope:** One command exercises all eight Phase 1 reader routes
+over live HTTP against the production build. Failures print the request URL and a
+human-readable reason before exiting `1`.
+
+| Route | Pass | Fail (examples) |
+| --- | --- | --- |
+| `/docs/architecture`, `/docs/glossary`, `/docs/glossary/token`, `/docs/modules/grouped-query-attention` | Unified Fumadocs shell: primary nav, `nd-sidebar`, `nd-page`, populated Modules and Glossary sidebar, token glossary link | Split shell (missing `nd-sidebar`/`nd-page`), empty sidebar, legacy placeholder sidebar copy |
+| `/` | Model Atlas title, global header search trigger (`data-search`), bookmark link to `/search`, **no** redundant inline home search section | Duplicate "Search the reference" heading, `id="search"` section anchor, or inline `data-search` in the home article alongside header search |
+| `/search` | Manual-gate search page content markers | Missing expected search page copy or links |
+| `/tags`, `/tags/attention` | Primary site navigation plus real tag links to sample module, token glossary, and tag-scoped search (no placeholder copy) | Missing primary nav, placeholder/lorem copy, or required tag navigation links |
+| `/api/search`, built `/search`, header dialog | Live search returns GQA, attention, and KV cache results | Empty-only search UI or missing result links |
+
+Convergence checks run first (docs shell → home search entry → reader/tags
+navigation), then legacy route content markers, then `/api/search`, built
+`/search` Playwright checks, header search dialog, and keyboard shortcuts.
+
 The verifier also exercises the built `/search` page, the header search dialog
 (via the search trigger button), and keyboard shortcuts on the home page:
 **Meta+K** (Cmd+K on macOS) and **Control+K** (Windows/Linux). Each shortcut
