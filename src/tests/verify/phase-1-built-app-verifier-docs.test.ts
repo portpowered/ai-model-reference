@@ -103,5 +103,13 @@ describe("Phase 1 built-app verifier entrypoint documentation", () => {
     expect(convergencePassDoc).toMatch(
       /Phase 1 batch-009 CI blocker domain report/,
     );
+    expect(convergencePassDoc).toMatch(
+      /Phase 1 batch-009 convergence evidence summary/,
+    );
+    expect(convergencePassDoc).toMatch(
+      /queue-one-narrow-repair-batch|stop-and-wait-for-phase-advancement/,
+    );
+    expect(convergencePassDoc).toMatch(/Recommendation:/);
+    expect(convergencePassDoc).toMatch(/phase-1-convergence-evidence\.ts/);
   });
 });
