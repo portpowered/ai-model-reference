@@ -137,6 +137,7 @@ export function SearchPagePanelContent({
               <li key={item.id}>
                 <SearchResultRow
                   item={item}
+                  query={search}
                   metaByUrl={metaByUrl}
                   messages={messages}
                   surface="page"
