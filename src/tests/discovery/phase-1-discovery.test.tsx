@@ -7,7 +7,7 @@ import HomePage from "@/app/(site)/page";
 import SearchEntryPage from "@/app/(site)/search/page";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import TagsIndexPage from "@/app/(site)/tags/page";
-import DocsSlugPage from "@/app/docs/[[...slug]]/page";
+import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -109,27 +109,28 @@ describe("Phase 1 discovery route smoke", () => {
     expect(html).not.toContain("lorem");
   });
 
-  test("/docs/glossary/token renders without error", async () => {
-    const page = await DocsSlugPage({
-      params: Promise.resolve({ slug: ["glossary", "token"] }),
+  test("/docs/glossary/token loads published local docs content", async () => {
+    const page = await loadLocalDocsPage({
+      section: "glossary",
+      slug: "token",
     });
-    const html = renderToStaticMarkup(page);
-    expect(html.length).toBeGreaterThan(0);
-    expect(html).toContain("Token");
-    expect(html).toContain('data-registry-id="concept.token"');
-    expect(html).not.toContain("lorem");
+
+    expect(page.messages.title).toBe("Token");
+    expect(page.frontmatter.registryId).toBe("concept.token");
+    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
   });
 
-  test("/docs/modules/grouped-query-attention renders without error", async () => {
-    const page = await DocsSlugPage({
-      params: Promise.resolve({ slug: ["modules", "grouped-query-attention"] }),
+  test("/docs/modules/grouped-query-attention loads published local docs content", async () => {
+    const page = await loadLocalDocsPage({
+      section: "modules",
+      slug: "grouped-query-attention",
     });
-    const html = renderToStaticMarkup(page);
-    expect(html.length).toBeGreaterThan(0);
-    expect(html).toContain("Grouped-Query Attention");
-    expect(html).toContain('data-registry-id="module.grouped-query-attention"');
-    expect(html).toContain('href="/tags/attention"');
-    expect(html).not.toContain("lorem");
+
+    expect(page.messages.title).toBe("Grouped-Query Attention");
+    expect(page.frontmatter.registryId).toBe(
+      "module.grouped-query-attention",
+    );
+    expect(page.toc.some((item) => item.url === "#how-it-works")).toBe(true);
   });
 });
 

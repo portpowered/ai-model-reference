@@ -5,6 +5,7 @@ import { scanURLs } from "next-validate-link";
 import {
   collectDocumentationLinkFiles,
   extractPageHeadingHashes,
+  extractSectionAnchorsFromMdx,
   extractSectionIdsFromMdx,
   slugifyHeading,
   validateDocumentationLinks,
@@ -31,6 +32,18 @@ describe("validate-links helpers", () => {
     expect(extractSectionIdsFromMdx(content)).toEqual([
       "what-it-is",
       "related",
+    ]);
+  });
+
+  test("extractSectionAnchorsFromMdx preserves id and titleKey pairs", () => {
+    const content = `
+<Section titleKey="sections.whatItIs.title" id="what-it-is">
+  Body
+</Section>
+`;
+
+    expect(extractSectionAnchorsFromMdx(content)).toEqual([
+      { id: "what-it-is", titleKey: "sections.whatItIs.title" },
     ]);
   });
 
