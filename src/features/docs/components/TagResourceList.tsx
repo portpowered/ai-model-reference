@@ -9,7 +9,7 @@ type TagResourceListProps = {
 
 export function TagResourceList({ groups, listLabel }: TagResourceListProps) {
   return (
-    <section className="mt-8 flex flex-col gap-8" aria-label={listLabel}>
+    <section className="flex flex-col gap-8" aria-label={listLabel}>
       {groups.map((group) => (
         <section
           key={group.kind}
@@ -21,7 +21,7 @@ export function TagResourceList({ groups, listLabel }: TagResourceListProps) {
           >
             {group.kindLabel}
           </h2>
-          <ul className="mt-3 flex flex-col gap-3">
+          <ul className="mt-3 flex list-none flex-col gap-3">
             {group.resources.map((resource) => (
               <li key={resource.url}>
                 <Link

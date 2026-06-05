@@ -9,7 +9,7 @@ type TagsIndexListProps = {
 
 export function TagsIndexList({ groups, listLabel }: TagsIndexListProps) {
   return (
-    <section className="mt-8 flex flex-col gap-8" aria-label={listLabel}>
+    <section className="flex flex-col gap-8" aria-label={listLabel}>
       {groups.map((group) => (
         <section
           key={group.category}
@@ -21,7 +21,7 @@ export function TagsIndexList({ groups, listLabel }: TagsIndexListProps) {
           >
             {group.categoryLabel}
           </h2>
-          <ul className="mt-3 flex flex-col gap-3">
+          <ul className="mt-3 flex list-none flex-col gap-3">
             {group.tags.map((tag) => (
               <li key={tag.slug}>
                 <Link
