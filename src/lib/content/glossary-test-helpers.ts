@@ -42,3 +42,32 @@ export function expectGlossarySingleTagPillList(html: string): void {
   expect(html).toContain('aria-label="Tags"');
   expect(html).toContain('id="tags"');
 }
+
+/** Non-prose glossary chrome links must not use underline utilities. */
+export function expectGlossaryChromeLinksOmitUnderline(html: string): void {
+  const tagPillList = extractElementHtml(html, 'data-testid="tag-pill-list"');
+  const relatedDocs = extractElementHtml(
+    html,
+    'data-testid="curated-related-docs"',
+  );
+
+  for (const fragment of [tagPillList, relatedDocs]) {
+    expect(fragment).toContain("no-underline");
+    const withoutNoUnderline = fragment.replaceAll("no-underline", "");
+    expect(withoutNoUnderline).not.toMatch(/\bunderline\b/);
+    expect(fragment).toContain("focus-visible:ring-2");
+  }
+}
+
+function extractElementHtml(html: string, marker: string): string {
+  const markerIndex = html.indexOf(marker);
+  expect(markerIndex).toBeGreaterThanOrEqual(0);
+  let openUl = html.lastIndexOf("<ul", markerIndex);
+  if (openUl < 0) {
+    openUl = html.indexOf("<ul", markerIndex);
+  }
+  expect(openUl).toBeGreaterThanOrEqual(0);
+  const closeUl = html.indexOf("</ul>", openUl);
+  expect(closeUl).toBeGreaterThanOrEqual(0);
+  return html.slice(openUl, closeUl + "</ul>".length);
+}
