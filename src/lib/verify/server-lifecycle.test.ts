@@ -8,10 +8,13 @@ import {
   httpGetStatus,
   isListenPortFree,
   pickListenPort,
+  VERIFY_PORT_RANGE_END,
+  VERIFY_PORT_RANGE_START,
 } from "./http-harness";
 import {
   acquireVerifyServerSession,
   assertNextProductionBuild,
+  buildDefaultProductionServerSpawnSpec,
   DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
   defaultSpawnProductionServer,
   hasCompleteNextProductionBuild,
@@ -227,6 +230,35 @@ describe("acquireVerifyServerSession", () => {
     } finally {
       httpServer.closeAllConnections();
       httpServer.close();
+    }
+  });
+
+  test("default path picks a verify port and returns loopback baseUrl without VERIFY_BASE_URL", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-default-baseurl-"));
+    mkdirSync(join(projectRoot, ".next"));
+
+    try {
+      const session = await acquireVerifyServerSession({
+        projectRoot,
+        env: {},
+        registerProcessSignals: false,
+        spawnProductionServer: (port, cwd) => {
+          const child = spawnStubProductionServer(port, cwd);
+          spawnedChildren.push(child);
+          return child;
+        },
+      });
+
+      try {
+        expect(session.port).not.toBeNull();
+        expect(session.port).toBeGreaterThanOrEqual(VERIFY_PORT_RANGE_START);
+        expect(session.port).toBeLessThanOrEqual(VERIFY_PORT_RANGE_END);
+        expect(session.baseUrl).toBe(`http://127.0.0.1:${session.port}`);
+      } finally {
+        await session.cleanup();
+      }
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
     }
   });
 
@@ -451,6 +483,26 @@ describe("pickListenPort integration", () => {
     const port = await pickListenPort();
     expect(port).toBeGreaterThanOrEqual(3100);
     expect(port).toBeLessThanOrEqual(3999);
+  });
+});
+
+describe("defaultSpawnProductionServer spawn contract", () => {
+  test("buildDefaultProductionServerSpawnSpec matches bun run start loopback contract", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-spawn-contract-"));
+    const port = 3456;
+
+    try {
+      const spec = buildDefaultProductionServerSpawnSpec(port, projectRoot);
+
+      expect(spec.command).toBe(resolveNextProductionServerBin(projectRoot));
+      expect(spec.args).toEqual(["start", "-p", String(port), "-H", "127.0.0.1"]);
+      expect(spec.options.cwd).toBe(projectRoot);
+      expect(spec.options.detached).toBe(true);
+      expect(spec.options.stdio).toEqual(["ignore", "pipe", "pipe"]);
+      expect(spec.options.env).toMatchObject({ NODE_ENV: "production" });
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 });
 
