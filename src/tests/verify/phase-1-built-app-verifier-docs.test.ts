@@ -10,6 +10,10 @@ const ideafyAgentsPath = join(
   repoRoot,
   "factory/workstations/ideafy/AGENTS.md",
 );
+const customerAskConvergenceDocPath = join(
+  repoRoot,
+  "factory/docs/phase-1-customer-ask-convergence-validator.md",
+);
 
 describe("Phase 1 built-app verifier entrypoint documentation", () => {
   test("README documents make verify-phase-1-ux as the built-app manual gate command", () => {
@@ -26,6 +30,11 @@ describe("Phase 1 built-app verifier entrypoint documentation", () => {
     expect(readme).toMatch(/home search entry|single search entry/i);
     expect(readme).toMatch(/\/docs\/modules\/grouped-query-attention/);
     expect(readme).toMatch(/\/tags\/attention/);
+    expect(readme).toMatch(/Customer-ask convergence report/i);
+    expect(readme).toMatch(/pass.*fail.*uncertain|pass \/ fail \/ uncertain/i);
+    expect(readme).toMatch(
+      /factory\/docs\/phase-1-customer-ask-convergence-validator\.md/,
+    );
   });
 
   test("Makefile and package.json expose the built-app verifier command", () => {
@@ -49,5 +58,25 @@ describe("Phase 1 built-app verifier entrypoint documentation", () => {
     expect(ideafyAgents).toMatch(/shell convergence|unified docs shell/i);
     expect(ideafyAgents).toMatch(/home single search entry/i);
     expect(ideafyAgents).toMatch(/\/docs\/modules\/grouped-query-attention/);
+    expect(ideafyAgents).toMatch(/batch-008 loopback/i);
+    expect(ideafyAgents).toMatch(/Customer-ask convergence report/i);
+    expect(ideafyAgents).toMatch(
+      /pass.*fail.*uncertain|pass`, `fail`, or `uncertain/i,
+    );
+    expect(ideafyAgents).toMatch(
+      /factory\/docs\/phase-1-customer-ask-convergence-validator\.md/,
+    );
+  });
+
+  test("factory doc lists customer-ask convergence check ids and checklist rows", () => {
+    const customerAskDoc = readFileSync(customerAskConvergenceDocPath, "utf8");
+    expect(customerAskDoc).toMatch(/home\.header-search-entry/);
+    expect(customerAskDoc).toMatch(/search\.page\.page-level-hits/);
+    expect(customerAskDoc).toMatch(/glossary\.presentation/);
+    expect(customerAskDoc).toMatch(/module\.mha-gqa-comparison/);
+    expect(customerAskDoc).toMatch(/phase-1-home-header-polish/);
+    expect(customerAskDoc).toMatch(/phase-1-search-surface/);
+    expect(customerAskDoc).toMatch(/\/docs\/glossary\/token/);
+    expect(customerAskDoc).toMatch(/\/docs\/modules\/grouped-query-attention/);
   });
 });

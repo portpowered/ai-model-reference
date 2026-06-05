@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { spawn } from "node:child_process";
 import { createServer as createHttpServer } from "node:http";
 import { join } from "node:path";
+import { CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER } from "./customer-ask-convergence-reporter";
+import { buildPhase1AndCustomerAskPassingStubHtml } from "./customer-ask-convergence-stub-fixtures";
 import { DOCS_SHELL_CONVERGENCE_REASONS } from "./docs-shell-convergence";
 import { REMOVED_HOME_INLINE_SEARCH_SECTION_TITLE } from "./home-search-entry-convergence";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
@@ -311,7 +313,9 @@ function runVerifyScriptWithEnv(
 
 describe("verify-phase-1-route-search-ux script", () => {
   test("exits 0 with success summary when VERIFY_BASE_URL points at a passing stub", async () => {
-    const httpServer = createPhase1UxStubServer();
+    const httpServer = createPhase1UxStubServer(
+      buildPhase1AndCustomerAskPassingStubHtml(),
+    );
     const port = await listenOnEphemeralPort(httpServer);
 
     try {
@@ -323,6 +327,7 @@ describe("verify-phase-1-route-search-ux script", () => {
       });
 
       expect(result.exitCode).toBe(0);
+      expect(result.output).toContain(CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER);
       expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
     } finally {
       httpServer.closeAllConnections();

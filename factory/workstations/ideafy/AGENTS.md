@@ -189,20 +189,28 @@ of relying on separate specialized agent types. Useful briefs include:
 
 * checklist convergence: compare finished work against the phase checklist,
   architecture checklist rows, and stated work-item acceptance criteria
-* UX route convergence: run `make build && make verify-phase-1-ux` to exercise
-  the Phase 1 built-app manual gate over all eight reader routes (`/`, `/search`,
-  `/docs/architecture`, `/docs/glossary`, `/docs/glossary/token`,
-  `/docs/modules/grouped-query-attention`, `/tags`, `/tags/attention`). The
-  verifier asserts unified docs shell and populated Modules/Glossary sidebar on
-  docs routes, home single search entry (no redundant inline search section),
-  tags navigation, live `/api/search` and `/search` results for GQA, attention,
-  and KV cache, header search dialog, and keyboard shortcuts. Record the
-  verifier exit code in convergence notes. When `VERIFY_SEARCH_SHORTCUT_SKIP=1`,
-  follow the manual keyboard check in
+* UX route convergence: during **batch-008 loopback** (and after any Phase 1
+  customer-ask repair batch), run `make build && make verify-phase-1-ux` to
+  exercise the Phase 1 built-app manual gate over all eight reader routes
+  (`/`, `/search`, `/docs/architecture`, `/docs/glossary`,
+  `/docs/glossary/token`, `/docs/modules/grouped-query-attention`, `/tags`,
+  `/tags/attention`) plus the customer-ask convergence layer. The verifier
+  asserts unified docs shell and populated Modules/Glossary sidebar on docs
+  routes, home single search entry (no redundant inline search section), tags
+  navigation, live `/api/search` and `/search` results for GQA, attention, and
+  KV cache, header search dialog, and keyboard shortcuts. It then prints a
+  structured **Customer-ask convergence report** with per-row `pass`, `fail`, or
+  `uncertain` status, stable `checkId`, route or query, reason, and
+  `checklistRow` mapping. Record the verifier exit code **and** each
+  customer-ask row status in convergence notes so loopback can choose narrow
+  repair or Phase 1 stop-and-wait. When `VERIFY_SEARCH_SHORTCUT_SKIP=1`, follow
+  the manual keyboard check in
   `factory/docs/phase-1-built-app-verifier-keyboard-fallback.md`. See README
-  "Phase 1 route and search UX verification" for pass/fail interpretation.
-  Supplement with spot checks for navigation, layout, loading/empty states, and
-  responsive behavior where the automated gate does not cover them.
+  "Phase 1 route and search UX verification" for pass/fail/uncertain
+  interpretation and `factory/docs/phase-1-customer-ask-convergence-validator.md`
+  for the check inventory. Supplement with spot checks for navigation, layout,
+  loading/empty states, and responsive behavior where the automated gate does
+  not cover them.
 * data-model convergence: inspect registry records, page frontmatter, localized
   messages, assets, citations, tags, related docs, and dead-end links
 * architecture drift: look for duplicate layouts, duplicate search systems,
