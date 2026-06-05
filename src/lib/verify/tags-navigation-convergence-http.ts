@@ -1,9 +1,4 @@
-import {
-  DEFAULT_FETCH_TIMEOUT_MS,
-  FetchTimeoutError,
-  httpGetText,
-} from "./http-harness";
-import { normalizeVerifyBaseUrl } from "./server-lifecycle";
+import { runRouteFamilyHttpConvergenceChecks } from "./route-family-http-convergence-runner";
 import {
   ATTENTION_TAG_LANDING_PATH,
   assertTagsAttentionNavigationConvergence,
@@ -59,55 +54,12 @@ export async function runTagsNavigationConvergenceChecks(
   baseUrl: string,
   options: RunTagsNavigationConvergenceChecksOptions = {},
 ): Promise<TagsNavigationConvergenceCheckFailure[]> {
-  const normalizedBase = normalizeVerifyBaseUrl(baseUrl);
-  const timeoutMs = options.timeoutMs ?? DEFAULT_FETCH_TIMEOUT_MS;
   const routes = options.routes ?? TAGS_NAVIGATION_CONVERGENCE_ROUTES;
-  const failures: TagsNavigationConvergenceCheckFailure[] = [];
 
-  for (const route of routes) {
-    const url = `${normalizedBase}${route.path}`;
-
-    try {
-      const { status, body } = await httpGetText(url, timeoutMs);
-
-      if (status !== 200) {
-        failures.push({
-          url,
-          route: route.label,
-          status,
-          reason: "expected HTTP 200",
-        });
-        return failures;
-      }
-
-      const navigationReason = route.assertBody(body);
-      if (navigationReason) {
-        failures.push({
-          url,
-          route: route.label,
-          status,
-          reason: navigationReason,
-        });
-        return failures;
-      }
-    } catch (error) {
-      const reason =
-        error instanceof FetchTimeoutError
-          ? `request timed out after ${error.timeoutMs}ms`
-          : error instanceof Error
-            ? error.message
-            : String(error);
-      failures.push({
-        url,
-        route: route.label,
-        status: null,
-        reason,
-      });
-      return failures;
-    }
-  }
-
-  return failures;
+  return runRouteFamilyHttpConvergenceChecks(baseUrl, {
+    timeoutMs: options.timeoutMs,
+    routes,
+  });
 }
 
 /**

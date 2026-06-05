@@ -9,6 +9,7 @@ import { READER_ROUTE_CONTENT_CONVERGENCE_REASONS } from "./reader-route-content
 import {
   ATTENTION_TAG_LANDING_PATH,
   ATTENTION_TAG_SCOPED_SEARCH_URL,
+  TAGS_NAVIGATION_CONVERGENCE_REASONS,
 } from "./tags-navigation-convergence";
 
 const PRIMARY_NAV = '<nav aria-label="Primary">Model Atlas</nav>';
@@ -96,6 +97,45 @@ describe("assertPhase1ReaderConvergenceRoutes", () => {
         READER_ROUTE_CONTENT_CONVERGENCE_REASONS.missingModelAtlas,
       );
       expect(stderr).not.toContain(`${baseUrl}/tags`);
+    } finally {
+      console.error = originalStderr;
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
+  test("fails tags navigation after reader route content passes", async () => {
+    const httpServer = createReaderConvergenceStubServer({
+      ...PASSING_STUB_HTML,
+      "/tags": "<html><h1>Tags without nav</h1></html>",
+      [ATTENTION_TAG_LANDING_PATH]:
+        "<html><h1>Attention without nav</h1></html>",
+    });
+    const port = await listenOnEphemeralPort(httpServer);
+    const baseUrl = `http://127.0.0.1:${port}`;
+    const stderrLines: string[] = [];
+    const originalStderr = console.error;
+
+    console.error = (...args: unknown[]) => {
+      stderrLines.push(args.map(String).join(" "));
+    };
+
+    try {
+      await expect(
+        assertPhase1ReaderConvergenceRoutes(baseUrl, {
+          readerRouteOptions: { timeoutMs: 2_000 },
+          tagsNavigationOptions: { timeoutMs: 2_000 },
+        }),
+      ).rejects.toThrow(
+        "Phase 1 tags navigation convergence verification failed",
+      );
+
+      const stderr = stderrLines.join("\n");
+      expect(stderr).toContain(`${baseUrl}/tags`);
+      expect(stderr).toContain(
+        TAGS_NAVIGATION_CONVERGENCE_REASONS.missingPrimaryNav,
+      );
+      expect(stderr).not.toContain(`${baseUrl}${ATTENTION_TAG_LANDING_PATH}`);
     } finally {
       console.error = originalStderr;
       httpServer.closeAllConnections();
