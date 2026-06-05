@@ -46,6 +46,20 @@ export const GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS = [
   ">graph.grouped-query-attention-compute-schema<",
 ] as const;
 
+/** Graph accessibility/build markers derived from {@link GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS}. */
+export const GROUPED_QUERY_ATTENTION_GRAPH_BUILD_MARKERS =
+  GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS.filter(
+    (marker) =>
+      marker.startsWith("data-graph-node-") ||
+      marker === 'data-react-flow-graph="true"',
+  );
+
+/** Graph placeholder stubs derived from {@link GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS}. */
+export const GROUPED_QUERY_ATTENTION_GRAPH_FORBIDDEN_MARKERS =
+  GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS.filter((marker) =>
+    marker.includes("graph."),
+  );
+
 function requireSubstrings(
   html: string,
   substrings: readonly string[],
@@ -67,6 +81,32 @@ function forbidSubstrings(
       return `unexpected content: ${substring}`;
     }
   }
+  return null;
+}
+
+/**
+ * Returns the first GQA module graph build-marker failure reason, or null when
+ * built HTML includes required graph node markers and excludes graph stubs.
+ */
+export function assertGroupedQueryAttentionGraphBuildMarkersConvergence(
+  html: string,
+): string | null {
+  const missing = requireSubstrings(
+    html,
+    GROUPED_QUERY_ATTENTION_GRAPH_BUILD_MARKERS,
+  );
+  if (missing) {
+    return missing;
+  }
+
+  const forbidden = forbidSubstrings(
+    html,
+    GROUPED_QUERY_ATTENTION_GRAPH_FORBIDDEN_MARKERS,
+  );
+  if (forbidden) {
+    return forbidden;
+  }
+
   return null;
 }
 

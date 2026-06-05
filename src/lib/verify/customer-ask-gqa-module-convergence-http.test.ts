@@ -81,10 +81,11 @@ describe("runCustomerAskGqaModuleChecks", () => {
         `http://127.0.0.1:${port}`,
         { timeoutMs: 2_000 },
       );
-      expect(rows).toHaveLength(3);
+      expect(rows).toHaveLength(4);
       expect(rows.every((row) => row.status === "pass")).toBe(true);
       expect(rows.map((row) => row.checkId)).toEqual([
         GQA_MODULE_CUSTOMER_ASK_CHECKS.presentation.checkId,
+        GQA_MODULE_CUSTOMER_ASK_CHECKS.graphBuildMarkers.checkId,
         GQA_MODULE_CUSTOMER_ASK_CHECKS.listDisc.checkId,
         GQA_MODULE_CUSTOMER_ASK_CHECKS.mhaGqaComparison.checkId,
       ]);
@@ -144,7 +145,7 @@ describe("runCustomerAskGqaModuleChecks", () => {
         `http://127.0.0.1:${port}`,
         { timeoutMs: 2_000 },
       );
-      expect(rows).toHaveLength(3);
+      expect(rows).toHaveLength(4);
       expect(rows.every((row) => row.status === "fail")).toBe(true);
       expect(rows[0]?.reason).toContain("HTTP 500");
     } finally {

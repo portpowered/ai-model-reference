@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  assertGqaModuleGraphBuildMarkersConvergence,
   assertGqaModuleListDiscConvergence,
   assertGqaModuleMhaGqaComparisonConvergence,
   assertGqaModulePresentationConvergence,
@@ -22,6 +23,8 @@ const POST_REPAIR_MODULE_HTML = `
     <span data-graph-node-id="query-groups"></span>
     <span data-graph-node-id="query-heads"></span>
     <span data-graph-node-id="kv-cache"></span>
+    <span data-graph-node-count="6"></span>
+    <span data-graph-node-count="5"></span>
     <div data-registry-comparison-table="true" data-table-id="table.grouped-query-attention-comparison"></div>
     <a href="/docs/modules/multi-head-attention">Multi-Head Attention</a>
     <div data-attention-schema-comparison="true"></div>
@@ -55,6 +58,17 @@ const PRE_REPAIR_DANGLING_TABLE_HTML = `
     <div data-registry-id="${GQA_MODULE_REGISTRY_ID}"></div>
     <p>>table.grouped-query-attention-comparison<</p>
     <div data-react-flow-graph="true"></div>
+    <div data-message-block-math="math.mhaSchema.formula" class="katex"></div>
+    <div data-message-block-math="math.gqaSchema.formula" class="katex-display"></div>
+  </html>
+`;
+
+const PRE_REPAIR_MISSING_GRAPH_MARKERS_HTML = `
+  <html>
+    <h1>Grouped-Query Attention</h1>
+    <div data-registry-id="${GQA_MODULE_REGISTRY_ID}"></div>
+    <h2>Compared To Nearby Modules</h2>
+    <div data-react-flow-graph="true" data-web-renderer="react-flow"></div>
     <div data-message-block-math="math.mhaSchema.formula" class="katex"></div>
     <div data-message-block-math="math.gqaSchema.formula" class="katex-display"></div>
   </html>
@@ -140,6 +154,22 @@ describe("assertGqaModulePresentationConvergence", () => {
   });
 });
 
+describe("assertGqaModuleGraphBuildMarkersConvergence", () => {
+  test("passes on post-repair GQA module HTML", () => {
+    expect(
+      assertGqaModuleGraphBuildMarkersConvergence(POST_REPAIR_MODULE_HTML),
+    ).toBeNull();
+  });
+
+  test("fails with missing graph node marker reason", () => {
+    expect(
+      assertGqaModuleGraphBuildMarkersConvergence(
+        PRE_REPAIR_MISSING_GRAPH_MARKERS_HTML,
+      ),
+    ).toBe('missing expected content: data-graph-node-id="hidden-states"');
+  });
+});
+
 describe("assertGqaModuleListDiscConvergence", () => {
   test("passes when architecture and tag lists omit list-disc outside prose", () => {
     expect(
@@ -179,9 +209,10 @@ describe("assertGqaModuleMhaGqaComparisonConvergence", () => {
 describe("buildCustomerAskGqaModuleRows", () => {
   test("returns pass rows for post-repair GQA module HTML", () => {
     const rows = buildCustomerAskGqaModuleRows(POST_REPAIR_MODULE_HTML);
-    expect(rows).toHaveLength(3);
+    expect(rows).toHaveLength(4);
     expect(rows.map((row) => row.checkId)).toEqual([
       GQA_MODULE_CUSTOMER_ASK_CHECKS.presentation.checkId,
+      GQA_MODULE_CUSTOMER_ASK_CHECKS.graphBuildMarkers.checkId,
       GQA_MODULE_CUSTOMER_ASK_CHECKS.listDisc.checkId,
       GQA_MODULE_CUSTOMER_ASK_CHECKS.mhaGqaComparison.checkId,
     ]);
@@ -225,5 +256,16 @@ describe("buildCustomerAskGqaModuleRows", () => {
           GQA_MODULE_CUSTOMER_ASK_CHECKS.mhaGqaComparison.checkId,
       )?.reason,
     ).toBe(GQA_MODULE_CUSTOMER_ASK_REASONS.implicitProseComparison);
+
+    const graphRows = buildCustomerAskGqaModuleRows(
+      PRE_REPAIR_MISSING_GRAPH_MARKERS_HTML,
+    );
+    expect(
+      graphRows.find(
+        (row) =>
+          row.checkId ===
+          GQA_MODULE_CUSTOMER_ASK_CHECKS.graphBuildMarkers.checkId,
+      )?.reason,
+    ).toBe('missing expected content: data-graph-node-id="hidden-states"');
   });
 });
