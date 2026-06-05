@@ -31,4 +31,26 @@ describe("batch-008 customer-ask check inventory", () => {
       /Expected \[PASS\] row/,
     );
   });
+
+  test("assertBatch008CustomerAskReportAllPass rejects missing report header", () => {
+    const report = `[PASS] ${BATCH_008_CUSTOMER_ASK_CHECK_IDS[0]} — stub`;
+
+    expect(() => assertBatch008CustomerAskReportAllPass(report)).toThrow(
+      /convergence report header/,
+    );
+  });
+
+  test("assertBatch008CustomerAskReportAllPass rejects [FAIL] rows", () => {
+    const lines = BATCH_008_CUSTOMER_ASK_CHECK_IDS.map(
+      (checkId) => `[PASS] ${checkId} — stub title — checklistRow=phase-1-stub`,
+    );
+    lines[0] = `[FAIL] ${BATCH_008_CUSTOMER_ASK_CHECK_IDS[0]} — stub title — checklistRow=phase-1-stub`;
+    const report = [CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER, ...lines].join(
+      "\n",
+    );
+
+    expect(() => assertBatch008CustomerAskReportAllPass(report)).toThrow(
+      /no \[FAIL\] rows/,
+    );
+  });
 });
