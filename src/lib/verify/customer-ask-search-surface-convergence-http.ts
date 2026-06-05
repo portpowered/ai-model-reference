@@ -292,7 +292,7 @@ export async function runCustomerAskSearchSurfaceChecks(
       try {
         const page = await browser.newPage();
         page.setDefaultTimeout(probeTimeoutMs);
-        return defaultSearchPageQueryCheck(
+        return await defaultSearchPageQueryCheck(
           page,
           probeBaseUrl,
           query,
@@ -311,7 +311,7 @@ export async function runCustomerAskSearchSurfaceChecks(
       try {
         const page = await browser.newPage();
         page.setDefaultTimeout(probeTimeoutMs);
-        return defaultSearchDialogQueryCheck(
+        return await defaultSearchDialogQueryCheck(
           page,
           probeBaseUrl,
           query,

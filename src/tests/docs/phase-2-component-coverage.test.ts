@@ -1,12 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import {
-  COVERAGE_TEST_ARGS,
-  evaluateComponentCoverageGate,
-  parseCoverageTable,
-} from "@/lib/docs/component-coverage-gate";
+import { COVERAGE_TEST_ARGS } from "@/lib/docs/component-coverage-gate";
 import {
   REUSABLE_COVERAGE_COMPONENTS,
   REUSABLE_THIN_WRAPPERS,
@@ -15,21 +10,10 @@ import {
 const repoRoot = join(import.meta.dir, "../../..");
 const coverageDocPath = join(repoRoot, "docs/phase-2-component-coverage.md");
 const readmePath = join(repoRoot, "README.md");
-
-function runCoverage(): ReturnType<typeof parseCoverageTable> {
-  const result = spawnSync("bun", [...COVERAGE_TEST_ARGS], {
-    cwd: repoRoot,
-    encoding: "utf8",
-    env: { ...process.env, FORCE_COLOR: "0" },
-  });
-
-  const combined = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
-  if (result.status !== 0) {
-    throw new Error(`bun test --coverage failed:\n${combined.slice(-4000)}`);
-  }
-
-  return parseCoverageTable(combined);
-}
+const coverageGateScriptPath = join(
+  repoRoot,
+  "scripts/component-coverage-gate.ts",
+);
 
 describe("Phase 2 component coverage contract", () => {
   test("documents make coverage, thin-wrapper exceptions, and links the manifest", () => {
@@ -70,15 +54,11 @@ describe("Phase 2 component coverage contract", () => {
     }
   });
 
-  test(
-    "Phase 2 reusable components meet reachable line coverage minimums",
-    () => {
-      const gate = evaluateComponentCoverageGate({
-        coverageRows: runCoverage(),
-        repoRoot,
-      });
-      expect(gate.ok).toBe(true);
-    },
-    { timeout: 120_000 },
-  );
+  test("reachable line coverage minimums are enforced by make coverage, not nested bun test", () => {
+    expect(existsSync(coverageGateScriptPath)).toBe(true);
+    expect(COVERAGE_TEST_ARGS).toContain("--path-ignore-patterns");
+    expect(COVERAGE_TEST_ARGS.join(" ")).toContain(
+      "src/tests/docs/phase-2-component-coverage.test.ts",
+    );
+  });
 });

@@ -3,6 +3,7 @@ import { join } from "node:path";
 import {
   evaluateComponentCoverageGate,
   formatComponentCoverageSummaryLine,
+  formatCoverageSubprocessFailure,
   isAllowedManifestPath,
   parseCoverageTable,
 } from "@/lib/docs/component-coverage-gate";
@@ -34,6 +35,19 @@ const TEST_THIN_WRAPPER: ThinWrapperEntry = {
 };
 
 describe("component-coverage-gate", () => {
+  test("formatCoverageSubprocessFailure includes failing test lines before output tail", () => {
+    const combined = [
+      "(pass) example > ok [1ms]",
+      "(fail) flaky probe > times out [5000ms]",
+      "1 tests failed:",
+      "coverage table tail",
+    ].join("\n");
+    const formatted = formatCoverageSubprocessFailure(combined, 20);
+    expect(formatted).toContain("(fail) flaky probe > times out");
+    expect(formatted).toContain("1 tests failed:");
+    expect(formatted).toContain("coverage table tail");
+  });
+
   test("parseCoverageTable maps Bun table rows to file and line percent", () => {
     const rows = parseCoverageTable(SAMPLE_TABLE);
     expect(rows).toEqual([

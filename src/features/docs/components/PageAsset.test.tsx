@@ -72,6 +72,44 @@ describe("PageAsset", () => {
     expect(html).not.toContain(">graph.grouped-query-attention-compute-flow<");
   });
 
+  test("renders GQA computeFlow via RegistryGraphFlow with real assets and messages", () => {
+    const html = renderPageAsset("computeFlow", false, gqaAssets, gqaMessages);
+    expect(html).toContain('data-page-asset="computeFlow"');
+    expect(html).toContain(
+      'data-graph-id="graph.grouped-query-attention-compute-flow"',
+    );
+    expect(html).toContain('data-react-flow-graph="true"');
+    expect(html).toContain('data-web-renderer="react-flow"');
+    expect(html).toContain('data-graph-node-id="hidden-states"');
+    expect(html).toContain('data-graph-node-count="6"');
+    expect(html).toContain(
+      "Query groups route to shared KV heads during attention",
+    );
+    expect(html).not.toContain(">graph.grouped-query-attention-compute-flow<");
+  });
+
+  test("renders GQA computeSchema via RegistryGraphFlow with real assets and messages", () => {
+    const html = renderPageAsset(
+      "computeSchema",
+      false,
+      gqaAssets,
+      gqaMessages,
+    );
+    expect(html).toContain('data-page-asset="computeSchema"');
+    expect(html).toContain(
+      'data-graph-id="graph.grouped-query-attention-compute-schema"',
+    );
+    expect(html).toContain('data-react-flow-graph="true"');
+    expect(html).toContain('data-web-renderer="react-flow"');
+    expect(html).toContain('data-graph-node-id="query-heads"');
+    expect(html).toContain('data-graph-node-id="kv-cache"');
+    expect(html).toContain('data-graph-node-count="5"');
+    expect(html).toContain("H query heads map to G shared KV groups");
+    expect(html).not.toContain(
+      ">graph.grouped-query-attention-compute-schema<",
+    );
+  });
+
   test("renders a registry-backed comparison table asset", () => {
     const html = renderPageAsset(
       "comparisonTable",
