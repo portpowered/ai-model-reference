@@ -118,3 +118,49 @@ describe("SearchPagePanel Phase 1 queries", () => {
     expect(liveRegion).toBeTruthy();
   });
 });
+
+describe("SearchPagePanel tag handoff", () => {
+  beforeAll(async () => {
+    captureOriginalFetch();
+    installDocsSearchRouteFetch();
+    await primeDocsSearchClient(await loadAppTestContext());
+  });
+
+  beforeEach(() => {
+    installDocsSearchRouteFetch();
+  });
+
+  afterEach(() => {
+    cleanup();
+    restoreFetchMock();
+  });
+
+  test("/search?tag=attention prefills attention and surfaces grouped-query attention", async () => {
+    const context = await loadAppTestContext();
+    const searchParams = new URLSearchParams("tag=attention");
+    await renderSearchPagePanelContent(context, searchParams);
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("attention");
+
+    const results = await screen.findByTestId("search-page-results");
+    expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+  });
+
+  test("shows tag filter description when tag param is present without q", async () => {
+    const context = await loadAppTestContext();
+    const searchParams = new URLSearchParams("tag=attention");
+    await renderSearchPagePanelContent(context, searchParams);
+
+    expect(
+      screen.getByText(
+        context.messages.searchEntry.tagFilterDescription.replace(
+          "{tag}",
+          "attention",
+        ),
+      ),
+    ).toBeTruthy();
+  });
+});
