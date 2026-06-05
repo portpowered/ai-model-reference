@@ -7,6 +7,10 @@ import {
   type RunPhase1SearchChecksOptions,
 } from "./phase-1-search-checks";
 import {
+  assertPhase1SearchDialog,
+  type RunPhase1SearchDialogChecksOptions,
+} from "./phase-1-search-dialog-checks";
+import {
   assertPhase1SearchPage,
   type RunPhase1SearchPageChecksOptions,
 } from "./phase-1-search-page-checks";
@@ -18,11 +22,12 @@ export type RunPhase1UxVerificationOptions = {
   routeOptions?: RunPhase1RouteChecksOptions;
   searchOptions?: RunPhase1SearchChecksOptions;
   searchPageOptions?: RunPhase1SearchPageChecksOptions;
+  searchDialogOptions?: RunPhase1SearchDialogChecksOptions;
 };
 
 /**
- * Runs Phase 1 reader route checks, /api/search checks, then built `/search` UI
- * checks against a live base URL.
+ * Runs Phase 1 reader route checks, /api/search checks, built `/search` UI
+ * checks, then header search dialog checks against a live base URL.
  */
 export async function runPhase1UxVerification(
   baseUrl: string,
@@ -31,4 +36,5 @@ export async function runPhase1UxVerification(
   await assertPhase1Routes(baseUrl, options.routeOptions);
   await assertPhase1Search(baseUrl, options.searchOptions);
   await assertPhase1SearchPage(baseUrl, options.searchPageOptions);
+  await assertPhase1SearchDialog(baseUrl, options.searchDialogOptions);
 }
