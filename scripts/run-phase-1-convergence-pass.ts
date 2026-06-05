@@ -1,6 +1,11 @@
 import { spawn } from "node:child_process";
 import { join } from "node:path";
 import {
+  buildPhase1ConvergenceEvidenceSummary,
+  parseCustomerAskConvergenceReport,
+  printPhase1ConvergenceEvidenceSummary,
+} from "../src/lib/verify/phase-1-convergence-evidence";
+import {
   derivePhase1CiBlockerDomainEvidence,
   getPhase1ConvergencePassExitCode,
   printPhase1CiBlockerDomainReport,
@@ -55,6 +60,15 @@ async function main(): Promise<number> {
   const verifyResult = await runShellCommand(
     "make build && make verify-phase-1-ux",
   );
+
+  const customerAskRows = parseCustomerAskConvergenceReport(verifyResult.output);
+  const evidenceSummary = buildPhase1ConvergenceEvidenceSummary({
+    ciEvidence,
+    customerAskRows,
+    verifyOutput: verifyResult.output,
+  });
+  console.log("");
+  printPhase1ConvergenceEvidenceSummary(evidenceSummary);
 
   return getPhase1ConvergencePassExitCode({
     ciExitCode: ciResult.exitCode,
