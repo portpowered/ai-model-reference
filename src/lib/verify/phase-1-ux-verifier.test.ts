@@ -2,16 +2,28 @@ import { describe, expect, test } from "bun:test";
 import { spawn } from "node:child_process";
 import { createServer as createHttpServer } from "node:http";
 import { join } from "node:path";
+import { assertBatch008CustomerAskReportAllPass } from "./batch-008-customer-ask-check-inventory";
 import { CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER } from "./customer-ask-convergence-reporter";
 import { buildPhase1AndCustomerAskPassingStubHtml } from "./customer-ask-convergence-stub-fixtures";
 import { DOCS_SHELL_CONVERGENCE_REASONS } from "./docs-shell-convergence";
 import { REMOVED_HOME_INLINE_SEARCH_SECTION_TITLE } from "./home-search-entry-convergence";
+import { pickListenPort } from "./http-harness";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { PHASE_1_UX_PASSING_STUB_HTML } from "./phase-1-ux-stub-fixtures";
 import {
   PHASE_1_UX_SUCCESS_MESSAGE,
   runPhase1UxVerification,
 } from "./phase-1-ux-verifier";
+import {
+  DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
+  defaultSpawnProductionServer,
+  hasNextProductionBuild,
+  killManagedChild,
+  waitForServerReady,
+} from "./server-lifecycle";
+
+const repoRoot = join(import.meta.dir, "../../..");
+const VERIFY_SCRIPT_E2E_TIMEOUT_MS = DEFAULT_SERVER_STARTUP_TIMEOUT_MS + 90_000;
 
 const GQA_HIT = { url: PHASE_1_GROUPED_QUERY_ATTENTION_URL };
 const OTHER_HIT = { url: "/docs/glossary/token" };
@@ -284,15 +296,21 @@ describe("runPhase1UxVerification", () => {
 function runVerifyScriptWithEnv(
   env: Record<string, string | undefined>,
 ): Promise<{ exitCode: number; output: string }> {
+  const mergedEnv = { ...process.env };
+  for (const [key, value] of Object.entries(env)) {
+    if (value === undefined) {
+      delete mergedEnv[key];
+    } else {
+      mergedEnv[key] = value;
+    }
+  }
+
   return new Promise((resolve, reject) => {
     const child = spawn(
       "bun",
       [join(process.cwd(), "scripts/verify-phase-1-route-search-ux.ts")],
       {
-        env: {
-          ...process.env,
-          ...env,
-        },
+        env: mergedEnv,
         stdio: ["ignore", "pipe", "pipe"],
       },
     );
@@ -328,6 +346,7 @@ describe("verify-phase-1-route-search-ux script", () => {
 
       expect(result.exitCode).toBe(0);
       expect(result.output).toContain(CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER);
+      assertBatch008CustomerAskReportAllPass(result.output);
       expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
     } finally {
       httpServer.closeAllConnections();
@@ -360,4 +379,53 @@ describe("verify-phase-1-route-search-ux script", () => {
       httpServer.close();
     }
   });
+});
+
+describe("verify-phase-1-route-search-ux script integration", () => {
+  test(
+    "exits 0 with default spawn when production build exists",
+    async () => {
+      if (!hasNextProductionBuild(repoRoot)) {
+        return;
+      }
+
+      const result = await runVerifyScriptWithEnv({
+        VERIFY_BASE_URL: undefined,
+      });
+
+      expect(result.exitCode).toBe(0);
+      assertBatch008CustomerAskReportAllPass(result.output);
+      expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
+    },
+    VERIFY_SCRIPT_E2E_TIMEOUT_MS,
+  );
+
+  test(
+    "exits 0 with VERIFY_BASE_URL against manually started production server",
+    async () => {
+      if (!hasNextProductionBuild(repoRoot)) {
+        return;
+      }
+
+      const port = await pickListenPort();
+      const child = defaultSpawnProductionServer(port, repoRoot);
+
+      try {
+        await waitForServerReady(`http://127.0.0.1:${port}`, {
+          timeoutMs: DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
+        });
+
+        const result = await runVerifyScriptWithEnv({
+          VERIFY_BASE_URL: `http://127.0.0.1:${port}`,
+        });
+
+        expect(result.exitCode).toBe(0);
+        assertBatch008CustomerAskReportAllPass(result.output);
+        expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
+      } finally {
+        await killManagedChild(child);
+      }
+    },
+    VERIFY_SCRIPT_E2E_TIMEOUT_MS,
+  );
 });
