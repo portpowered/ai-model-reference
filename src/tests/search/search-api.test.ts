@@ -12,6 +12,16 @@ const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
 
 describe("docsSearchApi", () => {
+  test("GET without query returns advanced Orama export", async () => {
+    const response = await docsSearchApi.GET(
+      new Request("http://localhost/api/search"),
+    );
+    expect(response.ok).toBe(true);
+
+    const payload = (await response.json()) as { type: string };
+    expect(payload.type).toBe("advanced");
+  });
+
   test("GET returns grouped-query attention for GQA query", async () => {
     const response = await docsSearchApi.GET(
       new Request("http://localhost/api/search?query=GQA"),
@@ -21,6 +31,22 @@ describe("docsSearchApi", () => {
     const results = (await response.json()) as Array<{ url: string }>;
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url).toBe(SAMPLE_URL);
+  });
+
+  test.each([
+    "attention",
+    "KV cache",
+  ] as const)("GET returns grouped-query attention for %s query", async (query) => {
+    const response = await docsSearchApi.GET(
+      new Request(
+        `http://localhost/api/search?query=${encodeURIComponent(query)}`,
+      ),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeSampleModule(results)).toBe(true);
   });
 
   test("search ranks grouped-query attention first for GQA", async () => {
