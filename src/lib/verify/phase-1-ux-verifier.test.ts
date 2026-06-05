@@ -11,10 +11,11 @@ import {
 const PASSING_STUB_HTML: Record<string, string> = {
   "/": "<html><title>Model Atlas</title></html>",
   "/search": "<html><h1>Search</h1></html>",
+  "/docs/architecture": "<html><h1>Architecture</h1><p>Token</p></html>",
   "/docs/glossary": "<html><h1>Glossary</h1><p>Token</p></html>",
   "/tags": '<html><h1>Tags</h1><a href="/tags/attention">Attention</a></html>',
   "/tags/attention":
-    '<html><h1>Attention</h1><a href="/docs/modules/grouped-query-attention">GQA</a><a href="/docs/glossary/token">Token</a></html>',
+    '<html><h1>Attention</h1><a href="/docs/modules/grouped-query-attention">GQA</a><a href="/docs/glossary/token">Token</a><a href="/search?tag=attention">Search</a></html>',
   "/docs/glossary/token":
     '<html><h1>Token</h1><div data-registry-id="concept.token"></div></html>',
   "/docs/modules/grouped-query-attention":
@@ -75,6 +76,9 @@ describe("runPhase1UxVerification", () => {
         runPhase1UxVerification(`http://127.0.0.1:${port}`, {
           routeOptions: { timeoutMs: 2_000 },
           searchOptions: { timeoutMs: 2_000 },
+          searchPageOptions: { runQueryCheck: async () => null },
+          searchDialogOptions: { runQueryCheck: async () => null },
+          searchShortcutOptions: { runShortcutCheck: async () => null },
         }),
       ).resolves.toBeUndefined();
     } finally {
@@ -101,8 +105,80 @@ describe("runPhase1UxVerification", () => {
             ],
           },
           searchOptions: { timeoutMs: 2_000 },
+          searchPageOptions: { runQueryCheck: async () => null },
+          searchDialogOptions: { runQueryCheck: async () => null },
+          searchShortcutOptions: { runShortcutCheck: async () => null },
         }),
       ).rejects.toThrow("Phase 1 route verification failed");
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
+  test("fails on header search dialog check after routes, API, and /search pass", async () => {
+    const httpServer = createPhase1UxStubServer();
+    const port = await listenOnEphemeralPort(httpServer);
+
+    try {
+      await expect(
+        runPhase1UxVerification(`http://127.0.0.1:${port}`, {
+          routeOptions: { timeoutMs: 2_000 },
+          searchOptions: { timeoutMs: 2_000 },
+          searchPageOptions: { runQueryCheck: async () => null },
+          searchDialogOptions: {
+            runQueryCheck: async (_baseUrl, query) =>
+              `forced header dialog failure for ${query}`,
+          },
+          searchShortcutOptions: { runShortcutCheck: async () => null },
+        }),
+      ).rejects.toThrow("Phase 1 header search dialog verification failed");
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
+  test("fails on /search page check after routes and API search pass", async () => {
+    const httpServer = createPhase1UxStubServer();
+    const port = await listenOnEphemeralPort(httpServer);
+
+    try {
+      await expect(
+        runPhase1UxVerification(`http://127.0.0.1:${port}`, {
+          routeOptions: { timeoutMs: 2_000 },
+          searchOptions: { timeoutMs: 2_000 },
+          searchPageOptions: {
+            runQueryCheck: async (_baseUrl, query) =>
+              `forced /search failure for ${query}`,
+          },
+          searchDialogOptions: { runQueryCheck: async () => null },
+          searchShortcutOptions: { runShortcutCheck: async () => null },
+        }),
+      ).rejects.toThrow("Phase 1 /search page verification failed");
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
+  test("fails on keyboard shortcut check after routes, API, /search, and dialog pass", async () => {
+    const httpServer = createPhase1UxStubServer();
+    const port = await listenOnEphemeralPort(httpServer);
+
+    try {
+      await expect(
+        runPhase1UxVerification(`http://127.0.0.1:${port}`, {
+          routeOptions: { timeoutMs: 2_000 },
+          searchOptions: { timeoutMs: 2_000 },
+          searchPageOptions: { runQueryCheck: async () => null },
+          searchDialogOptions: { runQueryCheck: async () => null },
+          searchShortcutOptions: {
+            runShortcutCheck: async (_baseUrl, shortcut) =>
+              `forced shortcut failure for ${shortcut.label}`,
+          },
+        }),
+      ).rejects.toThrow("Phase 1 search keyboard shortcut verification failed");
     } finally {
       httpServer.closeAllConnections();
       httpServer.close();
@@ -127,6 +203,9 @@ describe("runPhase1UxVerification", () => {
               },
             ],
           },
+          searchPageOptions: { runQueryCheck: async () => null },
+          searchDialogOptions: { runQueryCheck: async () => null },
+          searchShortcutOptions: { runShortcutCheck: async () => null },
         }),
       ).rejects.toThrow("Phase 1 search verification failed");
     } finally {
@@ -174,6 +253,9 @@ describe("verify-phase-1-route-search-ux script", () => {
     try {
       const result = await runVerifyScriptWithEnv({
         VERIFY_BASE_URL: `http://127.0.0.1:${port}`,
+        VERIFY_SEARCH_PAGE_STUB: "pass",
+        VERIFY_SEARCH_DIALOG_STUB: "pass",
+        VERIFY_SEARCH_SHORTCUT_STUB: "pass",
       });
 
       expect(result.exitCode).toBe(0);
