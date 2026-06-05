@@ -1,10 +1,5 @@
 import { assertHomeSearchEntryConvergence } from "./home-search-entry-convergence";
-import {
-  DEFAULT_FETCH_TIMEOUT_MS,
-  FetchTimeoutError,
-  httpGetText,
-} from "./http-harness";
-import { normalizeVerifyBaseUrl } from "./server-lifecycle";
+import { runRouteFamilyHttpConvergenceChecks } from "./route-family-http-convergence-runner";
 
 export const HOME_SEARCH_ENTRY_CONVERGENCE_PATH = "/" as const;
 
@@ -35,53 +30,16 @@ export async function runHomeSearchEntryConvergenceChecks(
   baseUrl: string,
   options: RunHomeSearchEntryConvergenceChecksOptions = {},
 ): Promise<HomeSearchEntryConvergenceCheckFailure[]> {
-  const normalizedBase = normalizeVerifyBaseUrl(baseUrl);
-  const timeoutMs = options.timeoutMs ?? DEFAULT_FETCH_TIMEOUT_MS;
-  const url = `${normalizedBase}${HOME_SEARCH_ENTRY_CONVERGENCE_PATH}`;
-
-  try {
-    const { status, body } = await httpGetText(url, timeoutMs);
-
-    if (status !== 200) {
-      return [
-        {
-          url,
-          route: HOME_SEARCH_ENTRY_CONVERGENCE_PATH,
-          status,
-          reason: "expected HTTP 200",
-        },
-      ];
-    }
-
-    const entryReason = assertHomeSearchEntryConvergence(body);
-    if (entryReason) {
-      return [
-        {
-          url,
-          route: HOME_SEARCH_ENTRY_CONVERGENCE_PATH,
-          status,
-          reason: entryReason,
-        },
-      ];
-    }
-
-    return [];
-  } catch (error) {
-    const reason =
-      error instanceof FetchTimeoutError
-        ? `request timed out after ${error.timeoutMs}ms`
-        : error instanceof Error
-          ? error.message
-          : String(error);
-    return [
+  return runRouteFamilyHttpConvergenceChecks(baseUrl, {
+    timeoutMs: options.timeoutMs,
+    routes: [
       {
-        url,
-        route: HOME_SEARCH_ENTRY_CONVERGENCE_PATH,
-        status: null,
-        reason,
+        path: HOME_SEARCH_ENTRY_CONVERGENCE_PATH,
+        label: HOME_SEARCH_ENTRY_CONVERGENCE_PATH,
+        assertBody: assertHomeSearchEntryConvergence,
       },
-    ];
-  }
+    ],
+  });
 }
 
 /**
