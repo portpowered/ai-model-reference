@@ -21,7 +21,12 @@ export const LINK_VALIDATION_MARKDOWN_COMPONENTS: Record<
 };
 
 const MARKDOWN_HEADING_PATTERN = /^#{1,6}\s+(.+)$/gm;
-const SECTION_ID_PATTERN = /<Section[^>]*\sid=["']([^"']+)["']/g;
+const SECTION_TAG_PATTERN = /<Section\b([^>]*)\/?>/g;
+
+export type SectionAnchor = {
+  id: string;
+  titleKey: string;
+};
 
 /** Slugifies a markdown heading for same-page anchor validation. */
 export function slugifyHeading(title: string): string {
@@ -46,16 +51,32 @@ export function extractMarkdownHeadingHashes(content: string): string[] {
   return hashes;
 }
 
-/** Extracts `<Section id="...">` anchors from module and glossary MDX templates. */
-export function extractSectionIdsFromMdx(content: string): string[] {
-  const ids: string[] = [];
-  for (const match of content.matchAll(SECTION_ID_PATTERN)) {
-    const id = match[1]?.trim();
-    if (id) {
-      ids.push(id);
+function parseSectionTagAttributes(attributes: string): {
+  id?: string;
+  titleKey?: string;
+} {
+  const id = attributes.match(/\sid=["']([^"']+)["']/)?.[1]?.trim();
+  const titleKey = attributes.match(/\stitleKey=["']([^"']+)["']/)?.[1]?.trim();
+  return { id, titleKey };
+}
+
+/** Extracts `<Section id="..." titleKey="...">` anchors in document order. */
+export function extractSectionAnchorsFromMdx(content: string): SectionAnchor[] {
+  const anchors: SectionAnchor[] = [];
+
+  for (const match of content.matchAll(SECTION_TAG_PATTERN)) {
+    const { id, titleKey } = parseSectionTagAttributes(match[1] ?? "");
+    if (id && titleKey) {
+      anchors.push({ id, titleKey });
     }
   }
-  return ids;
+
+  return anchors;
+}
+
+/** Extracts `<Section id="...">` anchors from module and glossary MDX templates. */
+export function extractSectionIdsFromMdx(content: string): string[] {
+  return extractSectionAnchorsFromMdx(content).map((anchor) => anchor.id);
 }
 
 /** Combines markdown headings and explicit section ids for a docs page. */

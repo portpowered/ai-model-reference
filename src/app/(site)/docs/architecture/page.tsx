@@ -1,3 +1,9 @@
+import {
+  DocsBody,
+  DocsDescription,
+  DocsPage,
+  DocsTitle,
+} from "fumadocs-ui/layouts/docs/page";
 import { ArchitectureEmptyState } from "@/features/docs/architecture/ArchitectureEmptyState";
 import { ArchitectureIndexList } from "@/features/docs/architecture/ArchitectureIndexList";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
@@ -9,21 +15,19 @@ export default async function ArchitectureIndexPage() {
   const { architectureIndex } = messages;
 
   return (
-    <article className="max-w-3xl">
-      <h1 className="font-serif text-3xl font-semibold text-foreground">
-        {architectureIndex.title}
-      </h1>
-      <p className="mt-2 text-base leading-relaxed text-muted-foreground">
-        {architectureIndex.description}
-      </p>
-      {entries.length === 0 ? (
-        <ArchitectureEmptyState messages={messages} />
-      ) : (
-        <ArchitectureIndexList
-          entries={entries}
-          listLabel={architectureIndex.listLabel}
-        />
-      )}
-    </article>
+    <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
+      <DocsTitle>{architectureIndex.title}</DocsTitle>
+      <DocsDescription>{architectureIndex.description}</DocsDescription>
+      <DocsBody>
+        {entries.length === 0 ? (
+          <ArchitectureEmptyState messages={messages} />
+        ) : (
+          <ArchitectureIndexList
+            entries={entries}
+            listLabel={architectureIndex.listLabel}
+          />
+        )}
+      </DocsBody>
+    </DocsPage>
   );
 }

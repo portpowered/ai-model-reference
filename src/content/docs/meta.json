@@ -1,4 +1,4 @@
 {
   "title": "Documentation",
-  "pages": ["getting-started", "glossary"]
+  "pages": ["getting-started", "glossary", "modules"]
 }

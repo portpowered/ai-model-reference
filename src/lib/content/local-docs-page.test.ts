@@ -63,5 +63,6 @@ describe("docs source local pages", () => {
     expect(page.messages.title).toBe("Token");
     expect(page.messages.description?.length).toBeGreaterThan(0);
     expect(page.frontmatter.registryId).toBe("concept.token");
+    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
   });
 });

@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import type { TOCItemType } from "fumadocs-core/toc";
 import { compileMDX } from "next-mdx-remote/rsc";
 import type { ReactElement } from "react";
 import { parsePageAssetConfig } from "@/lib/content/assets";
@@ -13,12 +14,14 @@ import {
   pageFrontmatterSchema,
   pageMessagesSchema,
 } from "@/lib/content/schemas";
+import { buildLocalDocsTableOfContents } from "@/lib/navigation/local-docs-toc";
 
 export type LoadedGlossaryPage = {
   frontmatter: PageFrontmatter;
   messages: PageMessages;
   assets: PageAssetConfig;
   content: ReactElement;
+  toc: TOCItemType[];
 };
 
 function readJsonFile<T>(path: string): T {
@@ -52,5 +55,6 @@ export async function loadGlossaryPageFromDisk(
     messages,
     assets,
     content,
+    toc: buildLocalDocsTableOfContents(source, messages),
   };
 }
