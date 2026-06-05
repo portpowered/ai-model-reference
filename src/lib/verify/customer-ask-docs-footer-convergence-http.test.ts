@@ -1,10 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { createServer as createHttpServer } from "node:http";
+import { CUSTOMER_ASK_PASSING_BUNDLED_FOOTER_CSS } from "./customer-ask-convergence-stub-fixtures";
 import {
   DOCS_FOOTER_CUSTOMER_ASK_CHECKS,
   DOCS_FOOTER_CUSTOMER_ASK_ROUTE,
 } from "./customer-ask-docs-footer-convergence";
-import { runCustomerAskDocsFooterChecks } from "./customer-ask-docs-footer-convergence-http";
+import {
+  resolveCustomerAskDocsFooterCheckOptionsFromEnv,
+  runCustomerAskDocsFooterChecks,
+} from "./customer-ask-docs-footer-convergence-http";
 
 const PASSING_BUNDLED_FOOTER_CSS = `
   #nd-page a[class*=hover\\:bg-fd-accent][class*=hover\\:text-fd-accent-foreground]:is(:hover,:focus-visible)>p.text-fd-muted-foreground{color:inherit}
@@ -64,6 +68,22 @@ function createDocsFooterStubServer(
     res.end(html);
   });
 }
+
+describe("resolveCustomerAskDocsFooterCheckOptionsFromEnv", () => {
+  test("returns pass stub when VERIFY_DOCS_FOOTER_STUB=pass", () => {
+    const options = resolveCustomerAskDocsFooterCheckOptionsFromEnv({
+      VERIFY_DOCS_FOOTER_STUB: "pass",
+    });
+
+    expect(options.readBundledAppCss?.(process.cwd())).toBe(
+      CUSTOMER_ASK_PASSING_BUNDLED_FOOTER_CSS,
+    );
+  });
+
+  test("returns empty options when stub env is unset", () => {
+    expect(resolveCustomerAskDocsFooterCheckOptionsFromEnv({})).toEqual({});
+  });
+});
 
 describe("runCustomerAskDocsFooterChecks", () => {
   test("returns pass row when stub server serves footer HTML and bundled CSS passes", async () => {
