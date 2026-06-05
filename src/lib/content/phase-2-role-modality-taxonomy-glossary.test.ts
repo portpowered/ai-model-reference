@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { GLOSSARY_DOCS_ROOT } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
 const ROLE_MODALITY_TAXONOMY_SLUGS = [
@@ -61,7 +62,7 @@ describe("Phase 2 role and modality taxonomy glossary pages (US-005)", () => {
 
       const html = await renderGlossaryHtml(slug);
 
-      expect(html).toContain(page.messages.title);
+      expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
       expect(html).toContain(page.messages.coreIdea?.slice(0, 24) ?? "");
       expect(html).toContain('href="/tags/taxonomy"');
       expect(html).toContain('href="/tags/foundations"');

@@ -51,8 +51,8 @@ describe("loadGlossaryPage token", () => {
       }),
     );
 
-    expect(html).toContain("Token");
     expect(html).toContain(page.messages.problemStatement ?? "");
+    expect(html).not.toMatch(/<h1\b[^>]*>\s*Token\s*<\/h1>/i);
     expect(html).toContain(page.messages.coreIdea ?? "");
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/token-to-probability-chain"');
