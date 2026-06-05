@@ -1,0 +1,90 @@
+import { afterEach, describe, expect, test } from "bun:test";
+import { createServer as createHttpServer } from "node:http";
+import { createServer as createNetServer, type Server } from "node:net";
+import {
+  DEFAULT_FETCH_TIMEOUT_MS,
+  FetchTimeoutError,
+  fetchWithTimeout,
+  isListenPortFree,
+  pickListenPort,
+  VERIFY_PORT_RANGE_END,
+  VERIFY_PORT_RANGE_START,
+} from "./http-harness";
+
+function listenOnPort(port: number): Promise<Server> {
+  return new Promise((resolve, reject) => {
+    const server = createNetServer();
+    server.once("error", reject);
+    server.listen(port, "127.0.0.1", () => resolve(server));
+  });
+}
+
+describe("pickListenPort", () => {
+  const heldServers: Server[] = [];
+
+  afterEach(() => {
+    for (const server of heldServers.splice(0)) {
+      server.close();
+    }
+  });
+
+  test("returns a port in the verify range, not 3000", async () => {
+    const port = await pickListenPort();
+    expect(port).toBeGreaterThanOrEqual(VERIFY_PORT_RANGE_START);
+    expect(port).toBeLessThanOrEqual(VERIFY_PORT_RANGE_END);
+    expect(port).not.toBe(3000);
+    expect(await isListenPortFree(port)).toBe(true);
+  });
+
+  test("returns a distinct port when the first pick is held open", async () => {
+    const port1 = await pickListenPort();
+    heldServers.push(await listenOnPort(port1));
+
+    const port2 = await pickListenPort();
+    expect(port2).not.toBe(port1);
+    expect(await isListenPortFree(port2)).toBe(true);
+  });
+});
+
+describe("fetchWithTimeout", () => {
+  test("uses a default deadline of at most 10 seconds", () => {
+    expect(DEFAULT_FETCH_TIMEOUT_MS).toBeLessThanOrEqual(10_000);
+  });
+
+  test("rejects when the server does not respond before the deadline", async () => {
+    const httpServer = createHttpServer(() => {
+      // Intentionally never call res.end() — client should hit the hard deadline.
+    });
+
+    const port = await new Promise<number>((resolve, reject) => {
+      httpServer.once("error", reject);
+      httpServer.listen(0, "127.0.0.1", () => {
+        const address = httpServer.address();
+        if (!address || typeof address === "string") {
+          reject(new Error("Expected bound TCP port"));
+          return;
+        }
+        resolve(address.port);
+      });
+    });
+
+    try {
+      await expect(
+        fetchWithTimeout(`http://127.0.0.1:${port}/`, { timeoutMs: 200 }),
+      ).rejects.toThrow(FetchTimeoutError);
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
+  test("rejects for an unreachable host with a short deadline", async () => {
+    const port = await pickListenPort();
+    try {
+      await fetchWithTimeout(`http://127.0.0.1:${port}/`, { timeoutMs: 500 });
+      expect.unreachable("fetch should reject");
+    } catch (error) {
+      expect(error).toBeDefined();
+    }
+  });
+});

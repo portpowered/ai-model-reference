@@ -236,6 +236,7 @@ make typecheck     # fumadocs-mdx (pretypecheck), then tsc --noEmit
 make test          # fumadocs-mdx (pretest), then bun test
 make coverage      # fumadocs-mdx (precoverage), manifest coverage gate
 make build         # next build + Phase 1 static route check
+make verify-phase-1-ux # HTTP verification for Phase 1 reader routes and search (requires build)
 make validate-data # registry and content validation
 make linkcheck     # internal docs link validation (also runs in make ci)
 make scaffold       # scaffold glossary/concept page bundles (pass ARGS='...')
@@ -247,6 +248,35 @@ Actions:
 ```sh
 make validate-pdf
 ```
+
+### Phase 1 route and search UX verification
+
+After `make build`, run the HTTP verifier to codify the Phase 1 manual gate
+from `docs/internal/customer-ask.md` (home, search, glossary, tags, sample
+docs, and `/api/search` for GQA, attention, and KV cache):
+
+```sh
+make verify-phase-1-ux
+# or
+bun run verify:phase-1-ux
+```
+
+The verifier requires a production build (`.next/`). If the build is missing,
+it exits with a clear message to run `make build` first—it does not start
+`next dev` by default.
+
+When `VERIFY_BASE_URL` is unset, the harness picks a free port on
+`127.0.0.1` in the 3100–3999 range (never port 3000), spawns
+`bun run start` on that port, and always tears down the child server on exit.
+Each HTTP check uses a per-request timeout of at most 10 seconds; server startup
+waits at most 30 seconds. Set `VERIFY_BASE_URL` to an already-running base URL
+(for example `http://127.0.0.1:3456`) to skip spawn and run checks against that
+server instead.
+
+On success the command prints a one-line summary and exits `0`; failures print
+route or query, HTTP status, and reason before exiting `1`. A healthy build
+completes the verifier in well under two minutes on a typical laptop, bounded
+by the configured timeouts.
 
 Deploy gates are out of scope for the current baseline; neither
 `.github/workflows/ci.yml` nor `make ci` invokes deploy or preview steps.
