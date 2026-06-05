@@ -9,13 +9,17 @@ import {
   acquireVerifyServerSession,
   assertNextProductionBuild,
   DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
+  defaultSpawnProductionServer,
   hasNextProductionBuild,
   killManagedChild,
   NEXT_BUILD_REQUIRED_MESSAGE,
   normalizeVerifyBaseUrl,
+  resolveNextProductionServerBin,
   resolveVerifyBaseUrlFromEnv,
   waitForServerReady,
 } from "./server-lifecycle";
+
+const repoRoot = join(import.meta.dir, "../../..");
 
 function waitForChildExit(
   child: ChildProcess,
@@ -304,4 +308,69 @@ describe("pickListenPort integration", () => {
     expect(port).toBeGreaterThanOrEqual(3100);
     expect(port).toBeLessThanOrEqual(3999);
   });
+});
+
+describe("defaultSpawnProductionServer integration", () => {
+  const spawnedChildren: ChildProcess[] = [];
+
+  afterEach(async () => {
+    await Promise.all(
+      spawnedChildren.splice(0).map((child) => killManagedChild(child)),
+    );
+  });
+
+  test("resolveNextProductionServerBin points at the local next CLI", () => {
+    expect(resolveNextProductionServerBin(repoRoot)).toBe(
+      join(repoRoot, "node_modules", "next", "dist", "bin", "next"),
+    );
+  });
+
+  test(
+    "default spawn reaches HTTP 200 on loopback when production build exists",
+    async () => {
+      if (!hasNextProductionBuild(repoRoot)) {
+        return;
+      }
+
+      const port = await pickListenPort();
+      const child = defaultSpawnProductionServer(port, repoRoot);
+      spawnedChildren.push(child);
+
+      await waitForServerReady(`http://127.0.0.1:${port}`, {
+        timeoutMs: DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
+      });
+
+      expect(child.exitCode).toBeNull();
+      expect(await httpGetStatus(`http://127.0.0.1:${port}/`, 5_000)).toBe(200);
+    },
+    DEFAULT_SERVER_STARTUP_TIMEOUT_MS + 10_000,
+  );
+
+  test(
+    "acquireVerifyServerSession default path uses normalized loopback baseUrl",
+    async () => {
+      if (!hasNextProductionBuild(repoRoot)) {
+        return;
+      }
+
+      const session = await acquireVerifyServerSession({
+        projectRoot: repoRoot,
+        registerProcessSignals: false,
+      });
+
+      try {
+        expect(session.port).not.toBeNull();
+        expect(session.port).toBeGreaterThanOrEqual(3100);
+        expect(session.port).toBeLessThanOrEqual(3999);
+        expect(session.baseUrl).toBe(`http://127.0.0.1:${session.port}`);
+        expect(normalizeVerifyBaseUrl(`${session.baseUrl}/`)).toBe(
+          session.baseUrl,
+        );
+        expect(await httpGetStatus(`${session.baseUrl}/`, 5_000)).toBe(200);
+      } finally {
+        await session.cleanup();
+      }
+    },
+    DEFAULT_SERVER_STARTUP_TIMEOUT_MS + 10_000,
+  );
 });

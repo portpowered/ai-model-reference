@@ -46,20 +46,26 @@ export function assertNextProductionBuild(
   }
 }
 
+export function resolveNextProductionServerBin(projectRoot: string): string {
+  return join(projectRoot, "node_modules", "next", "dist", "bin", "next");
+}
+
 export function defaultSpawnProductionServer(
   port: number,
   projectRoot: string,
 ): ChildProcess {
-  return spawn(
-    "bun",
-    ["run", "start", "--", "-p", String(port), "-H", "127.0.0.1"],
+  const child = spawn(
+    resolveNextProductionServerBin(projectRoot),
+    ["start", "-p", String(port), "-H", "127.0.0.1"],
     {
       cwd: projectRoot,
       stdio: "ignore",
-      env: process.env,
+      env: { ...process.env, NODE_ENV: "production" },
       detached: true,
     },
   );
+  child.unref();
+  return child;
 }
 
 function signalProcessTree(child: ChildProcess, signal: NodeJS.Signals): void {
