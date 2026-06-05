@@ -155,6 +155,14 @@ const PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
     ],
   },
   {
+    file: "src/features/models/components/RegistryComparisonTable.tsx",
+    label: "RegistryComparisonTable",
+    minReachableLinePercent: 90,
+    unitTests: [
+      "src/features/models/components/RegistryComparisonTable.test.tsx",
+    ],
+  },
+  {
     file: "src/features/docs/search/SearchResultRow.tsx",
     label: "SearchResultRow",
     minReachableLinePercent: 90,
