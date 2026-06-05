@@ -163,6 +163,12 @@ without loading full MDX pages. The route returns 404 in production builds unles
 
 ## Quality Gates
 
+Merge policy, branch protection assumptions, and what contributors see on pull
+requests versus `main` pushes are documented in
+[docs/operations.md](./docs/operations.md) (Branch protection and CI status
+expectations). GitHub enforces required **ci** status on `main` through
+repository settings, not from files in this repo.
+
 ### Fresh checkout
 
 On a clean clone with no gitignored build artifacts, the minimal setup is:
