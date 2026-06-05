@@ -1,10 +1,5 @@
 import { assertDocsShellConvergence } from "./docs-shell-convergence";
-import {
-  DEFAULT_FETCH_TIMEOUT_MS,
-  FetchTimeoutError,
-  httpGetText,
-} from "./http-harness";
-import { normalizeVerifyBaseUrl } from "./server-lifecycle";
+import { runRouteFamilyHttpConvergenceChecks } from "./route-family-http-convergence-runner";
 
 export type DocsShellConvergenceRoute = {
   path: string;
@@ -52,55 +47,16 @@ export async function runDocsShellConvergenceChecks(
   baseUrl: string,
   options: RunDocsShellConvergenceChecksOptions = {},
 ): Promise<DocsShellConvergenceCheckFailure[]> {
-  const normalizedBase = normalizeVerifyBaseUrl(baseUrl);
-  const timeoutMs = options.timeoutMs ?? DEFAULT_FETCH_TIMEOUT_MS;
   const routes = options.routes ?? DOCS_SHELL_CONVERGENCE_ROUTES;
-  const failures: DocsShellConvergenceCheckFailure[] = [];
 
-  for (const route of routes) {
-    const url = `${normalizedBase}${route.path}`;
-
-    try {
-      const { status, body } = await httpGetText(url, timeoutMs);
-
-      if (status !== 200) {
-        failures.push({
-          url,
-          route: route.label,
-          status,
-          reason: "expected HTTP 200",
-        });
-        return failures;
-      }
-
-      const shellReason = assertDocsShellConvergence(body);
-      if (shellReason) {
-        failures.push({
-          url,
-          route: route.label,
-          status,
-          reason: shellReason,
-        });
-        return failures;
-      }
-    } catch (error) {
-      const reason =
-        error instanceof FetchTimeoutError
-          ? `request timed out after ${error.timeoutMs}ms`
-          : error instanceof Error
-            ? error.message
-            : String(error);
-      failures.push({
-        url,
-        route: route.label,
-        status: null,
-        reason,
-      });
-      return failures;
-    }
-  }
-
-  return failures;
+  return runRouteFamilyHttpConvergenceChecks(baseUrl, {
+    timeoutMs: options.timeoutMs,
+    routes: routes.map((route) => ({
+      path: route.path,
+      label: route.label,
+      assertBody: assertDocsShellConvergence,
+    })),
+  });
 }
 
 /**
