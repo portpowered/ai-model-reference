@@ -6,6 +6,10 @@ import {
 } from "./customer-ask-convergence-reporter";
 import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-result";
 import {
+  type RunCustomerAskDocsFooterChecksOptions,
+  runCustomerAskDocsFooterChecks,
+} from "./customer-ask-docs-footer-convergence-http";
+import {
   type RunCustomerAskGlossaryChecksOptions,
   runCustomerAskGlossaryChecks,
 } from "./customer-ask-glossary-convergence-http";
@@ -37,6 +41,7 @@ export type RunCustomerAskConvergenceChecksOptions = {
   tagListOptions?: RunCustomerAskTagListChecksOptions;
   searchSurfaceOptions?: RunCustomerAskSearchSurfaceChecksOptions;
   glossaryOptions?: RunCustomerAskGlossaryChecksOptions;
+  docsFooterOptions?: RunCustomerAskDocsFooterChecksOptions;
   gqaModuleOptions?: RunCustomerAskGqaModuleChecksOptions;
 };
 
@@ -56,6 +61,7 @@ export async function runCustomerAskConvergenceChecks(
     tagListRows,
     searchSurfaceRows,
     glossaryRows,
+    docsFooterRows,
     gqaModuleRows,
   ] = await Promise.all([
     runCustomerAskHomeHeaderChecks(baseUrl, {
@@ -74,6 +80,10 @@ export async function runCustomerAskConvergenceChecks(
       ...sharedTimeout,
       ...options.glossaryOptions,
     }),
+    runCustomerAskDocsFooterChecks(baseUrl, {
+      ...sharedTimeout,
+      ...options.docsFooterOptions,
+    }),
     runCustomerAskGqaModuleChecks(baseUrl, {
       ...sharedTimeout,
       ...options.gqaModuleOptions,
@@ -85,6 +95,7 @@ export async function runCustomerAskConvergenceChecks(
     ...tagListRows,
     ...searchSurfaceRows,
     ...glossaryRows,
+    ...docsFooterRows,
     ...gqaModuleRows,
   ];
 }

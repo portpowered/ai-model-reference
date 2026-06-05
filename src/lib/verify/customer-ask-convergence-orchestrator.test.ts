@@ -10,6 +10,7 @@ import {
   buildPhase1AndCustomerAskPassingStubHtml,
   CUSTOMER_ASK_CONVERGENCE_PASSING_STUB_HTML,
   CUSTOMER_ASK_PASSING_API_RESULTS,
+  CUSTOMER_ASK_PASSING_BUNDLED_FOOTER_CSS,
   CUSTOMER_ASK_PRE_REPAIR_GLOSSARY_HTML,
   CUSTOMER_ASK_PRE_REPAIR_GQA_MODULE_HTML,
   CUSTOMER_ASK_PRE_REPAIR_HOME_HTML,
@@ -68,6 +69,12 @@ function createConvergenceStubServer(
   });
 }
 
+function passingDocsFooterOptions() {
+  return {
+    readBundledAppCss: () => CUSTOMER_ASK_PASSING_BUNDLED_FOOTER_CSS,
+  };
+}
+
 function passingSearchSurfaceOptions() {
   return {
     queries: ["GQA"] as const,
@@ -105,6 +112,7 @@ describe("runCustomerAskConvergenceChecks", () => {
             runCommandKAffordanceProbe: async () => null,
           },
           searchSurfaceOptions: passingSearchSurfaceOptions(),
+          docsFooterOptions: passingDocsFooterOptions(),
         },
       );
 
@@ -130,6 +138,7 @@ describe("runCustomerAskConvergenceChecks", () => {
         {
           timeoutMs: 2_000,
           searchSurfaceOptions: passingSearchSurfaceOptions(),
+          docsFooterOptions: passingDocsFooterOptions(),
         },
       );
 
@@ -161,6 +170,7 @@ describe("runCustomerAskConvergenceChecks", () => {
         {
           timeoutMs: 2_000,
           searchSurfaceOptions: passingSearchSurfaceOptions(),
+          docsFooterOptions: passingDocsFooterOptions(),
         },
       );
 
@@ -210,6 +220,7 @@ describe("runCustomerAskConvergenceChecks", () => {
               results: [{ url: `${GQA_URL}#section` }],
             }),
           },
+          docsFooterOptions: passingDocsFooterOptions(),
         },
       );
 
@@ -256,6 +267,7 @@ describe("runCustomerAskConvergenceChecks", () => {
         {
           timeoutMs: 2_000,
           searchSurfaceOptions: passingSearchSurfaceOptions(),
+          docsFooterOptions: passingDocsFooterOptions(),
         },
       );
 
@@ -285,6 +297,7 @@ describe("runCustomerAskConvergenceChecks", () => {
         {
           timeoutMs: 2_000,
           searchSurfaceOptions: passingSearchSurfaceOptions(),
+          docsFooterOptions: passingDocsFooterOptions(),
         },
       );
 
@@ -336,6 +349,7 @@ describe("runPhase1CustomerAskConvergenceVerification", () => {
               runCommandKAffordanceProbe: async () => null,
             },
             searchSurfaceOptions: passingSearchSurfaceOptions(),
+            docsFooterOptions: passingDocsFooterOptions(),
           },
           printReport: { writeLine: (line) => lines.push(line) },
         },

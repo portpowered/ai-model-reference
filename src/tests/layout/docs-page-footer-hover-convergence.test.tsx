@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   bundledCssHasFooterSublabelInheritRule,
@@ -10,6 +10,7 @@ import {
   footerCardHasMutedDirectionalSublabel,
 } from "@/lib/navigation/docs-page-footer-contract";
 import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
+import { readBundledAppCss } from "@/lib/verify/bundled-app-css";
 import { runPhase1DocsFooterHoverChecks } from "@/lib/verify/phase-1-docs-footer-hover-checks";
 import { acquireVerifyServerSession } from "@/lib/verify/server-lifecycle";
 
@@ -26,29 +27,6 @@ function readBuiltRouteHtml(relativePath: string): string | null {
     return null;
   }
   return readFileSync(absolutePath, "utf8");
-}
-
-function readBundledAppCss(): string | null {
-  const cssRoots = [
-    join(process.cwd(), ".next/static/css"),
-    join(process.cwd(), ".next/static/chunks"),
-  ];
-
-  const cssFiles = cssRoots.flatMap((root) => {
-    if (!existsSync(root)) {
-      return [];
-    }
-
-    return readdirSync(root)
-      .filter((name) => name.endsWith(".css"))
-      .map((name) => join(root, name));
-  });
-
-  if (cssFiles.length === 0) {
-    return null;
-  }
-
-  return cssFiles.map((file) => readFileSync(file, "utf8")).join("\n");
 }
 
 describe("docs page footer hover convergence (built HTML)", () => {
@@ -76,7 +54,7 @@ describe("docs page footer hover convergence (built HTML)", () => {
   });
 
   test("bundled app CSS includes footer sublabel hover/focus inherit rule", () => {
-    const bundledCss = readBundledAppCss();
+    const bundledCss = readBundledAppCss(process.cwd());
     if (!bundledCss) {
       return;
     }
