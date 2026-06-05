@@ -10,11 +10,7 @@ import {
 } from "@/lib/content/assets";
 import { TOKEN_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
-import {
-  expectGlossaryOmitsWhereItAppears,
-  expectGlossaryOpeningSummary,
-  expectGlossarySingleTagPillList,
-} from "@/lib/content/glossary-test-helpers";
+import { expectGlossaryPresentationConvergence } from "@/lib/content/glossary-test-helpers";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
 const pageDir = TOKEN_GLOSSARY_PAGE_DIR;
@@ -55,10 +51,10 @@ describe("loadGlossaryPage token", () => {
       }),
     );
 
-    expectGlossaryOpeningSummary(html, page.messages.openingSummary ?? "");
-    expectGlossaryOmitsWhereItAppears(html);
-    expectGlossarySingleTagPillList(html);
-    expect(html).not.toMatch(/<h1\b[^>]*>\s*Token\s*<\/h1>/i);
+    expectGlossaryPresentationConvergence(html, {
+      title: page.messages.title,
+      openingSummary: page.messages.openingSummary ?? "",
+    });
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/token-to-probability-chain"');
     expect(html).toContain('href="/docs/glossary/embedding"');

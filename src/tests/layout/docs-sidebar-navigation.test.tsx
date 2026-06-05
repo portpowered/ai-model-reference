@@ -17,10 +17,12 @@ const BUILT_HTML_DOC_ROUTES = [
   {
     path: "/docs/glossary/token",
     file: ".next/server/app/docs/glossary/token.html",
+    requiredSidebarUrls: [TOKEN_GLOSSARY_URL],
   },
   {
     path: "/docs/modules/grouped-query-attention",
     file: ".next/server/app/docs/modules/grouped-query-attention.html",
+    requiredSidebarUrls: [TOKEN_GLOSSARY_URL, GROUPED_QUERY_ATTENTION_URL],
   },
 ] as const;
 
@@ -66,8 +68,9 @@ describe("docs sidebar navigation (built HTML)", () => {
       const sidebar = extractNdSidebarHtml(visibleHtml);
 
       expect(sidebar.length).toBeGreaterThan(0);
-      expect(visibleHtml).toContain(TOKEN_GLOSSARY_URL);
-      expect(visibleHtml).toContain(GROUPED_QUERY_ATTENTION_URL);
+      for (const url of route.requiredSidebarUrls) {
+        expect(visibleHtml).toContain(url);
+      }
       expect(sidebar).not.toContain(PLACEHOLDER_SIDEBAR_DESCRIPTION);
       expect(hasLegacyPlaceholderSidebar(visibleHtml)).toBe(false);
     });
