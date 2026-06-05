@@ -11,7 +11,6 @@ export type PrimaryNavItem = {
 export function getPrimaryNavItems(messages: UiMessages): PrimaryNavItem[] {
   return [
     { href: "/", label: messages.nav.home },
-    { href: "/search", label: messages.nav.search },
     { href: "/docs/architecture", label: messages.nav.architecture },
     { href: "/docs/glossary", label: messages.nav.glossary },
     { href: "/tags", label: messages.nav.tags },
