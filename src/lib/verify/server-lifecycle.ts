@@ -1,4 +1,8 @@
-import { type ChildProcess, spawn } from "node:child_process";
+import {
+  type ChildProcess,
+  type SpawnOptions,
+  spawn,
+} from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import {
@@ -127,20 +131,38 @@ export function resolveNextProductionServerBin(projectRoot: string): string {
   return join(projectRoot, "node_modules", "next", "dist", "bin", "next");
 }
 
-export function defaultSpawnProductionServer(
+export type ProductionServerSpawnSpec = {
+  command: string;
+  args: string[];
+  options: SpawnOptions;
+};
+
+/** Observable default spawn contract for production `next start` on loopback. */
+export function buildDefaultProductionServerSpawnSpec(
   port: number,
   projectRoot: string,
-): ChildProcess {
-  const child = spawn(
-    resolveNextProductionServerBin(projectRoot),
-    ["start", "-p", String(port), "-H", "127.0.0.1"],
-    {
+): ProductionServerSpawnSpec {
+  return {
+    command: resolveNextProductionServerBin(projectRoot),
+    args: ["start", "-p", String(port), "-H", "127.0.0.1"],
+    options: {
       cwd: projectRoot,
       stdio: ["ignore", "pipe", "pipe"],
       env: { ...process.env, NODE_ENV: "production" },
       detached: true,
     },
+  };
+}
+
+export function defaultSpawnProductionServer(
+  port: number,
+  projectRoot: string,
+): ChildProcess {
+  const { command, args, options } = buildDefaultProductionServerSpawnSpec(
+    port,
+    projectRoot,
   );
+  const child = spawn(command, args, options);
   attachChildOutputCapture(child);
   child.unref();
   return child;
