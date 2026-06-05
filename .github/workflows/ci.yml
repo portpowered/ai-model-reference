@@ -1,3 +1,5 @@
+# Maintainer deploy and release policy: docs/operations.md
+# This workflow runs make ci only; it does not deploy or run preview steps.
 name: CI
 
 on:
