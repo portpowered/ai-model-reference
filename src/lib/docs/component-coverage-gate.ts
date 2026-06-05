@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import {
@@ -39,6 +40,47 @@ export type ComponentCoverageGateResult = {
   summaryLines: ComponentCoverageSummaryLine[];
   errors: string[];
 };
+
+/** Surfaces failing test lines plus a tail slice when a coverage subprocess fails. */
+export function formatCoverageSubprocessFailure(
+  combined: string,
+  maxTailChars = 4000,
+): string {
+  const lines = combined.split("\n");
+  const failureMarkers = lines.filter(
+    (line) =>
+      /\(fail\)/.test(line) ||
+      /^error:/.test(line.trim()) ||
+      /tests failed:/.test(line),
+  );
+  const summaryBlock =
+    failureMarkers.length > 0
+      ? `Failing subprocess output:\n${failureMarkers.slice(-30).join("\n")}\n\n`
+      : "";
+  return `${summaryBlock}--- subprocess output (last ${maxTailChars} chars) ---\n${combined.slice(-maxTailChars)}`;
+}
+
+/** Runs `bun test --coverage` with shared gate args and parses the coverage table. */
+export function runCoverageSubprocess(cwd: string): {
+  rows: CoverageRow[];
+  rawOutput: string;
+} {
+  const result = spawnSync("bun", [...COVERAGE_TEST_ARGS], {
+    cwd,
+    encoding: "utf8",
+    env: { ...process.env, FORCE_COLOR: "0" },
+    maxBuffer: 50 * 1024 * 1024,
+  });
+
+  const combined = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
+  if (result.status !== 0) {
+    throw new Error(
+      `bun test --coverage failed (exit ${result.status ?? "unknown"}):\n${formatCoverageSubprocessFailure(combined)}`,
+    );
+  }
+
+  return { rows: parseCoverageTable(combined), rawOutput: combined };
+}
 
 /** Parses Bun coverage table rows for repo-relative `src/` paths. */
 export function parseCoverageTable(output: string): CoverageRow[] {

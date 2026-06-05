@@ -1,27 +1,13 @@
-import { spawnSync } from "node:child_process";
 import {
-  COVERAGE_TEST_ARGS,
   evaluateComponentCoverageGate,
   formatComponentCoverageSummaryLine,
-  parseCoverageTable,
+  runCoverageSubprocess,
 } from "../src/lib/docs/component-coverage-gate";
 
-const result = spawnSync("bun", [...COVERAGE_TEST_ARGS], {
-  cwd: process.cwd(),
-  encoding: "utf8",
-  env: { ...process.env, FORCE_COLOR: "0" },
-});
-
-const combined = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
-process.stdout.write(result.stdout ?? "");
-process.stderr.write(result.stderr ?? "");
-
-if (result.status !== 0) {
-  process.exit(result.status ?? 1);
-}
+const { rows: coverageRows } = runCoverageSubprocess(process.cwd());
 
 const gate = evaluateComponentCoverageGate({
-  coverageRows: parseCoverageTable(combined),
+  coverageRows,
 });
 
 console.log("\nComponent coverage gate:");
