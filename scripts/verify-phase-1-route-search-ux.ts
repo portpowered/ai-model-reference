@@ -1,10 +1,11 @@
+import {
+  PHASE_1_UX_SUCCESS_MESSAGE,
+  runPhase1CustomerAskConvergenceVerification,
+} from "../src/lib/verify/customer-ask-convergence-orchestrator";
+import { resolveCustomerAskSearchSurfaceCheckOptionsFromEnv } from "../src/lib/verify/customer-ask-search-surface-convergence-http";
 import { resolveSearchDialogCheckOptionsFromEnv } from "../src/lib/verify/phase-1-search-dialog-checks";
 import { resolveSearchPageCheckOptionsFromEnv } from "../src/lib/verify/phase-1-search-page-checks";
 import { resolveSearchShortcutCheckOptionsFromEnv } from "../src/lib/verify/phase-1-search-shortcut-checks";
-import {
-  PHASE_1_UX_SUCCESS_MESSAGE,
-  runPhase1UxVerification,
-} from "../src/lib/verify/phase-1-ux-verifier";
 import {
   acquireVerifyServerSession,
   NEXT_BUILD_REQUIRED_MESSAGE,
@@ -17,13 +18,27 @@ async function main(): Promise<number> {
 
   try {
     session = await acquireVerifyServerSession();
-    await runPhase1UxVerification(session.baseUrl, {
-      searchPageOptions: resolveSearchPageCheckOptionsFromEnv(),
-      searchDialogOptions: resolveSearchDialogCheckOptionsFromEnv(),
-      searchShortcutOptions: resolveSearchShortcutCheckOptionsFromEnv(),
-    });
-    console.log(PHASE_1_UX_SUCCESS_MESSAGE);
-    return 0;
+    const result = await runPhase1CustomerAskConvergenceVerification(
+      session.baseUrl,
+      {
+        phase1UxOptions: {
+          searchPageOptions: resolveSearchPageCheckOptionsFromEnv(),
+          searchDialogOptions: resolveSearchDialogCheckOptionsFromEnv(),
+          searchShortcutOptions: resolveSearchShortcutCheckOptionsFromEnv(),
+        },
+        customerAskOptions: {
+          searchSurfaceOptions:
+            resolveCustomerAskSearchSurfaceCheckOptionsFromEnv(),
+        },
+      },
+    );
+
+    if (result.phase1UxPassed && result.customerAskExitCode === 0) {
+      console.log(PHASE_1_UX_SUCCESS_MESSAGE);
+      return 0;
+    }
+
+    return 1;
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === NEXT_BUILD_REQUIRED_MESSAGE) {
