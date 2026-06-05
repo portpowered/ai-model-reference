@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { GET } from "@/app/api/search/route";
-import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { PHASE_1_SEARCH_ASSERTIONS } from "@/lib/verify/phase-1-search-checks";
 import {
+  expectUniqueCanonicalPageUrls,
   resultsIncludeSampleModule,
   resultsIncludeTokenGlossary,
   SAMPLE_MODULE_URL,
@@ -16,6 +17,15 @@ import {
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
+
+describe("Phase 1 /api/search regression", () => {
+  for (const assertion of PHASE_1_SEARCH_ASSERTIONS) {
+    test(assertion.label, async () => {
+      const results = await docsSearchApi.search(assertion.query);
+      expect(assertion.assertResults(results)).toBeNull();
+    });
+  }
+});
 
 describe("live /api/search HTTP contract", () => {
   const routeFetch = createDocsSearchRouteFetch();
@@ -72,17 +82,11 @@ describe("live /api/search HTTP contract", () => {
   });
 });
 
-function expectUniqueCanonicalPageUrls(results: Array<{ url: string }>): void {
-  const bases = results.map((result) => pageBaseUrl(result.url));
-  expect(new Set(bases).size).toBe(bases.length);
-  expect(results.every((result) => !result.url.includes("#"))).toBe(true);
-}
-
 describe("docsSearchApi", () => {
   test("search returns at most one hit per canonical page URL for GQA", async () => {
     const results = await docsSearchApi.search("GQA");
     expect(results.length).toBeGreaterThan(0);
-    expectUniqueCanonicalPageUrls(results);
+    expectUniqueCanonicalPageUrls(results.map((result) => result.url));
   });
 
   test.each([
@@ -91,7 +95,7 @@ describe("docsSearchApi", () => {
   ] as const)("search returns at most one hit per page for %s", async (query) => {
     const results = await docsSearchApi.search(query);
     expect(results.length).toBeGreaterThan(0);
-    expectUniqueCanonicalPageUrls(results);
+    expectUniqueCanonicalPageUrls(results.map((result) => result.url));
   });
 
   test("search ranks grouped-query attention first for GQA", async () => {
