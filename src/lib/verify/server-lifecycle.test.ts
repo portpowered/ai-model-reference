@@ -4,7 +4,11 @@ import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { httpGetStatus, isListenPortFree, pickListenPort } from "./http-harness";
+import {
+  httpGetStatus,
+  isListenPortFree,
+  pickListenPort,
+} from "./http-harness";
 import {
   acquireVerifyServerSession,
   assertNextProductionBuild,
@@ -191,9 +195,9 @@ describe("acquireVerifyServerSession", () => {
 
       await session.cleanup();
 
-      expect(await httpGetStatus(`http://127.0.0.1:${externalPort}/`, 2_000)).toBe(
-        200,
-      );
+      expect(
+        await httpGetStatus(`http://127.0.0.1:${externalPort}/`, 2_000),
+      ).toBe(200);
     } finally {
       httpServer.closeAllConnections();
       httpServer.close();
