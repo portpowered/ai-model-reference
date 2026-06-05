@@ -2,28 +2,26 @@ import { describe, expect, test } from "bun:test";
 import { spawn } from "node:child_process";
 import { createServer as createHttpServer } from "node:http";
 import { join } from "node:path";
+import { DOCS_SHELL_CONVERGENCE_REASONS } from "./docs-shell-convergence";
+import { REMOVED_HOME_INLINE_SEARCH_SECTION_TITLE } from "./home-search-entry-convergence";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
+import { PHASE_1_UX_PASSING_STUB_HTML } from "./phase-1-ux-stub-fixtures";
 import {
   PHASE_1_UX_SUCCESS_MESSAGE,
   runPhase1UxVerification,
 } from "./phase-1-ux-verifier";
 
-const PASSING_STUB_HTML: Record<string, string> = {
-  "/": "<html><title>Model Atlas</title></html>",
-  "/search": "<html><h1>Search</h1></html>",
-  "/docs/architecture": "<html><h1>Architecture</h1><p>Token</p></html>",
-  "/docs/glossary": "<html><h1>Glossary</h1><p>Token</p></html>",
-  "/tags": '<html><h1>Tags</h1><a href="/tags/attention">Attention</a></html>',
-  "/tags/attention":
-    '<html><h1>Attention</h1><a href="/docs/modules/grouped-query-attention">GQA</a><a href="/docs/glossary/token">Token</a><a href="/search?tag=attention">Search</a></html>',
-  "/docs/glossary/token":
-    '<html><h1>Token</h1><div data-registry-id="concept.token"></div></html>',
-  "/docs/modules/grouped-query-attention":
-    '<html><h1>Grouped-Query Attention</h1><div data-registry-id="module.grouped-query-attention"></div></html>',
-};
-
 const GQA_HIT = { url: PHASE_1_GROUPED_QUERY_ATTENTION_URL };
 const OTHER_HIT = { url: "/docs/glossary/token" };
+
+const DEFAULT_CONVERGENCE_OPTIONS = {
+  docsShellOptions: { timeoutMs: 2_000 },
+  homeSearchEntryOptions: { timeoutMs: 2_000 },
+  readerConvergenceOptions: {
+    readerRouteOptions: { timeoutMs: 2_000 },
+    tagsNavigationOptions: { timeoutMs: 2_000 },
+  },
+} as const;
 
 function listenOnEphemeralPort(
   httpServer: ReturnType<typeof createHttpServer>,
@@ -41,7 +39,9 @@ function listenOnEphemeralPort(
   });
 }
 
-function createPhase1UxStubServer(): ReturnType<typeof createHttpServer> {
+function createPhase1UxStubServer(
+  htmlByPath: Record<string, string> = PHASE_1_UX_PASSING_STUB_HTML,
+): ReturnType<typeof createHttpServer> {
   return createHttpServer((req, res) => {
     const requestUrl = new URL(req.url ?? "/", "http://127.0.0.1");
     const path = requestUrl.pathname;
@@ -60,7 +60,7 @@ function createPhase1UxStubServer(): ReturnType<typeof createHttpServer> {
       return;
     }
 
-    const body = PASSING_STUB_HTML[path] ?? "<html>not found</html>";
+    const body = htmlByPath[path] ?? "<html>not found</html>";
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
     res.end(body);
   });
@@ -74,6 +74,7 @@ describe("runPhase1UxVerification", () => {
     try {
       await expect(
         runPhase1UxVerification(`http://127.0.0.1:${port}`, {
+          convergenceOptions: DEFAULT_CONVERGENCE_OPTIONS,
           routeOptions: { timeoutMs: 2_000 },
           searchOptions: { timeoutMs: 2_000 },
           searchPageOptions: { runQueryCheck: async () => null },
@@ -87,6 +88,64 @@ describe("runPhase1UxVerification", () => {
     }
   });
 
+  test("fails on docs shell convergence before route and search checks", async () => {
+    const httpServer = createPhase1UxStubServer({
+      ...PHASE_1_UX_PASSING_STUB_HTML,
+      "/docs/architecture": `<html><header><nav aria-label="Primary">Model Atlas</nav></header><article>split shell</article></html>`,
+    });
+    const port = await listenOnEphemeralPort(httpServer);
+
+    try {
+      await expect(
+        runPhase1UxVerification(`http://127.0.0.1:${port}`, {
+          convergenceOptions: DEFAULT_CONVERGENCE_OPTIONS,
+          routeOptions: { timeoutMs: 2_000 },
+          searchOptions: { timeoutMs: 2_000 },
+          searchPageOptions: { runQueryCheck: async () => null },
+          searchDialogOptions: { runQueryCheck: async () => null },
+          searchShortcutOptions: { runShortcutCheck: async () => null },
+        }),
+      ).rejects.toThrow("Phase 1 docs shell convergence verification failed");
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
+  test("fails on redundant home search before route and search checks", async () => {
+    const preRepairHome = PHASE_1_UX_PASSING_STUB_HTML["/"]?.replace(
+      "<article>",
+      `<article><section id="search"><h2>${REMOVED_HOME_INLINE_SEARCH_SECTION_TITLE}</h2><input data-search="" /></section>`,
+    );
+    if (!preRepairHome) {
+      throw new Error("expected home fixture");
+    }
+
+    const httpServer = createPhase1UxStubServer({
+      ...PHASE_1_UX_PASSING_STUB_HTML,
+      "/": preRepairHome,
+    });
+    const port = await listenOnEphemeralPort(httpServer);
+
+    try {
+      await expect(
+        runPhase1UxVerification(`http://127.0.0.1:${port}`, {
+          convergenceOptions: DEFAULT_CONVERGENCE_OPTIONS,
+          routeOptions: { timeoutMs: 2_000 },
+          searchOptions: { timeoutMs: 2_000 },
+          searchPageOptions: { runQueryCheck: async () => null },
+          searchDialogOptions: { runQueryCheck: async () => null },
+          searchShortcutOptions: { runShortcutCheck: async () => null },
+        }),
+      ).rejects.toThrow(
+        "Phase 1 home search entry convergence verification failed",
+      );
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
   test("fails on route check before search when a reader route is wrong", async () => {
     const httpServer = createPhase1UxStubServer();
     const port = await listenOnEphemeralPort(httpServer);
@@ -94,6 +153,7 @@ describe("runPhase1UxVerification", () => {
     try {
       await expect(
         runPhase1UxVerification(`http://127.0.0.1:${port}`, {
+          convergenceOptions: DEFAULT_CONVERGENCE_OPTIONS,
           routeOptions: {
             timeoutMs: 2_000,
             routes: [
@@ -123,6 +183,7 @@ describe("runPhase1UxVerification", () => {
     try {
       await expect(
         runPhase1UxVerification(`http://127.0.0.1:${port}`, {
+          convergenceOptions: DEFAULT_CONVERGENCE_OPTIONS,
           routeOptions: { timeoutMs: 2_000 },
           searchOptions: { timeoutMs: 2_000 },
           searchPageOptions: { runQueryCheck: async () => null },
@@ -146,6 +207,7 @@ describe("runPhase1UxVerification", () => {
     try {
       await expect(
         runPhase1UxVerification(`http://127.0.0.1:${port}`, {
+          convergenceOptions: DEFAULT_CONVERGENCE_OPTIONS,
           routeOptions: { timeoutMs: 2_000 },
           searchOptions: { timeoutMs: 2_000 },
           searchPageOptions: {
@@ -169,6 +231,7 @@ describe("runPhase1UxVerification", () => {
     try {
       await expect(
         runPhase1UxVerification(`http://127.0.0.1:${port}`, {
+          convergenceOptions: DEFAULT_CONVERGENCE_OPTIONS,
           routeOptions: { timeoutMs: 2_000 },
           searchOptions: { timeoutMs: 2_000 },
           searchPageOptions: { runQueryCheck: async () => null },
@@ -192,6 +255,7 @@ describe("runPhase1UxVerification", () => {
     try {
       await expect(
         runPhase1UxVerification(`http://127.0.0.1:${port}`, {
+          convergenceOptions: DEFAULT_CONVERGENCE_OPTIONS,
           routeOptions: { timeoutMs: 2_000 },
           searchOptions: {
             timeoutMs: 2_000,
@@ -260,6 +324,32 @@ describe("verify-phase-1-route-search-ux script", () => {
 
       expect(result.exitCode).toBe(0);
       expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
+  test("exits 1 with docs shell convergence failure on split-shell stub", async () => {
+    const httpServer = createPhase1UxStubServer({
+      ...PHASE_1_UX_PASSING_STUB_HTML,
+      "/docs/architecture": `<html><header><nav aria-label="Primary">Model Atlas</nav></header><article>split shell</article></html>`,
+    });
+    const port = await listenOnEphemeralPort(httpServer);
+
+    try {
+      const result = await runVerifyScriptWithEnv({
+        VERIFY_BASE_URL: `http://127.0.0.1:${port}`,
+        VERIFY_SEARCH_PAGE_STUB: "pass",
+        VERIFY_SEARCH_DIALOG_STUB: "pass",
+        VERIFY_SEARCH_SHORTCUT_STUB: "pass",
+      });
+
+      expect(result.exitCode).toBe(1);
+      expect(result.output).toContain("/docs/architecture");
+      expect(result.output).toContain(
+        DOCS_SHELL_CONVERGENCE_REASONS.missingNdSidebar,
+      );
     } finally {
       httpServer.closeAllConnections();
       httpServer.close();
