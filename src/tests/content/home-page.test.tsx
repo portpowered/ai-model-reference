@@ -6,7 +6,6 @@ import { PLACEHOLDER_SIDEBAR_DESCRIPTION } from "@/lib/navigation/docs-sidebar-c
 
 /** Discovery targets on `/` must stay aligned with Phase 1 acceptance criteria. */
 const HOME_DISCOVERY_HREFS = [
-  "/search",
   "/docs/architecture",
   "/docs/glossary",
   "/tags",
@@ -38,12 +37,12 @@ describe("home page messages", () => {
     expect(home.tokenLinkDescription.length).toBeGreaterThan(0);
     expect(home.docsLinkDescription.length).toBeGreaterThan(0);
     expect(home.searchPageLinkDescription.length).toBeGreaterThan(0);
-    expect(HOME_DISCOVERY_HREFS).toHaveLength(6);
+    expect(HOME_DISCOVERY_HREFS).toHaveLength(5);
   });
 });
 
 describe("home page render", () => {
-  it("links to search, indexes, sample module, and token glossary", async () => {
+  it("links to indexes, sample module, and token glossary", async () => {
     const html = renderToStaticMarkup(await HomePage());
     expect(html).toContain("Model Atlas");
     for (const href of HOME_DISCOVERY_HREFS) {
@@ -51,10 +50,10 @@ describe("home page render", () => {
     }
   });
 
-  it("exposes global search dialog entry and documented /search page link", async () => {
+  it("does not render a redundant inline search trigger in the article body", async () => {
     const html = renderToStaticMarkup(await HomePage());
-    expect(html).toContain("data-search");
-    expect(html).toContain('href="/search"');
+    expect(html).not.toContain("data-search");
+    expect(html).not.toContain("Search the reference");
   });
 
   it("does not render placeholder scaffold copy in the article body", async () => {

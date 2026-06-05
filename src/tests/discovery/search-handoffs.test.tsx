@@ -23,10 +23,9 @@ describe("search page query prefill", () => {
 });
 
 describe("Phase 1 discovery search handoffs", () => {
-  it("home exposes dialog entry and documented /search bookmark link", async () => {
+  it("home article does not duplicate the shell header search dialog trigger", async () => {
     const html = renderToStaticMarkup(await HomePage());
-    expect(html).toContain('href="/search"');
-    expect(html).toContain("data-search");
+    expect(html).not.toContain("data-search");
   });
 
   it("primary navigation includes Search link to /search", async () => {
