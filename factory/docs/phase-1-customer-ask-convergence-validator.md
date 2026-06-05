@@ -97,3 +97,8 @@ During batch-008 loopback, ideafy planners should:
    convergence notes with the `checkId` and `checklistRow`.
 4. Choose narrow repair (any `fail`), manual follow-up (any `uncertain`), or
    Phase 1 stop-and-wait when all automatable rows pass.
+
+For batch-009 full convergence (CI plus built-app verifier), use
+`make verify-phase-1-convergence` instead. See
+`factory/docs/phase-1-convergence-pass.md` for workflow order, CI blocker
+domain report format, and combined exit semantics.
