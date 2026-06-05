@@ -4,6 +4,7 @@ import { MissingAssetId } from "@/features/docs/components/MissingAssetId";
 import { MissingMessageKey } from "@/features/docs/components/MissingMessageKey";
 import { usePageAssets } from "@/features/docs/components/page-assets-context";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
+import { RegistryGraphFlow } from "@/features/models/components/RegistryGraphFlow";
 import { lookupAsset, resolveAssetText } from "@/lib/content/assets";
 import { lookupMessage } from "@/lib/content/messages";
 import type { PageAsset as PageAssetRecord } from "@/lib/content/schemas";
@@ -47,6 +48,17 @@ function GraphAssetSlot({
   alt?: string;
   caption?: string;
 }) {
+  if (asset.webRenderer === "react-flow") {
+    return (
+      <RegistryGraphFlow
+        assetId={assetId}
+        graphId={asset.graphId}
+        alt={alt}
+        caption={caption}
+      />
+    );
+  }
+
   return (
     <figure data-page-asset={assetId} data-asset-type="graph">
       <div
