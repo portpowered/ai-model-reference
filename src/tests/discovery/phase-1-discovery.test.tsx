@@ -3,14 +3,15 @@ import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ArchitectureIndexPage from "@/app/(site)/docs/architecture/page";
 import GlossaryIndexPage from "@/app/(site)/docs/glossary/page";
-import HomePage from "@/app/(site)/page";
 import SearchEntryPage from "@/app/(site)/search/page";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import TagsIndexPage from "@/app/(site)/tags/page";
+import { HomeArticle } from "@/components/home/home-article";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { expectHomeArticleSingleSearchEntry } from "@/tests/discovery/home-search-entry-contract";
 import {
   resultsIncludeSampleModule,
   SAMPLE_MODULE_URL,
@@ -19,7 +20,10 @@ import {
 const PHASE_1_DISCOVERY_ROUTES = [
   {
     path: "/",
-    render: () => HomePage(),
+    render: async () => {
+      const messages = await loadUiMessages();
+      return <HomeArticle messages={messages} />;
+    },
     expectInHtml: "Model Atlas",
   },
   {
@@ -93,6 +97,10 @@ describe("Phase 1 discovery route smoke", () => {
         route.expectInHtml,
         "alsoExpectInHtml" in route ? route.alsoExpectInHtml : undefined,
       );
+
+      if (route.path === "/") {
+        expectHomeArticleSingleSearchEntry(renderToStaticMarkup(page));
+      }
     });
   }
 

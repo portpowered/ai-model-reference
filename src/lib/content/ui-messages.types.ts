@@ -36,10 +36,9 @@ export type UiMessages = {
     title: string;
     subtitle: string;
     intro: string;
-    searchSectionTitle: string;
-    searchSectionDescription: string;
+    searchHandoff: string;
     searchPageLinkTitle: string;
-    searchPageLinkDescription: string;
+    searchHandoffLinkSuffix: string;
     browseSectionTitle: string;
     browseSectionDescription: string;
     architectureLinkTitle: string;
@@ -52,7 +51,6 @@ export type UiMessages = {
     tokenLinkDescription: string;
     docsLinkTitle: string;
     docsLinkDescription: string;
-    onThisPageSearch: string;
     onThisPageBrowse: string;
   };
   glossaryIndex: {

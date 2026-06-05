@@ -2,6 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  extractNdTocHtml,
+  tocHtmlIncludesAnchor,
+} from "@/lib/navigation/docs-page-toc-contract";
+import {
   extractNdSidebarHtml,
   hasLegacyPlaceholderSidebar,
   PLACEHOLDER_SIDEBAR_DESCRIPTION,
@@ -15,6 +19,8 @@ const BUILT_HTML_SITE_ROUTES = [
     file: ".next/server/app/index.html",
     contentMarker: "Model Atlas",
     alsoExpectInHtml: TOKEN_GLOSSARY_URL,
+    tocAnchor: { anchorId: "browse", label: "Browse" },
+    tocMustNotIncludeAnchor: "search",
   },
   {
     path: "/search",
@@ -65,6 +71,19 @@ describe("Phase 1 site routes unified shell (built HTML)", () => {
       expect(visibleHtml).not.toContain(PLACEHOLDER_SIDEBAR_DESCRIPTION);
       expect(hasLegacyPlaceholderSidebar(visibleHtml)).toBe(false);
       expect(visibleHtml).toContain(route.contentMarker);
+
+      if ("tocAnchor" in route) {
+        const toc = extractNdTocHtml(visibleHtml);
+        expect(toc.length).toBeGreaterThan(0);
+        expect(tocHtmlIncludesAnchor(toc, route.tocAnchor.anchorId)).toBe(true);
+        expect(toc).toContain(route.tocAnchor.label);
+      }
+      if ("tocMustNotIncludeAnchor" in route) {
+        const toc = extractNdTocHtml(visibleHtml);
+        expect(tocHtmlIncludesAnchor(toc, route.tocMustNotIncludeAnchor)).toBe(
+          false,
+        );
+      }
     });
   }
 });

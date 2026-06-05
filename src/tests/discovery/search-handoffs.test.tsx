@@ -1,11 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import HomePage from "@/app/(site)/page";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
+import { HomeArticle } from "@/components/home/home-article";
 import { getPrimaryNavItems } from "@/components/layout/primary-nav";
 import { resolveInitialSearchPageQuery } from "@/features/docs/search/search-page-query";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { expectHomeArticleSingleSearchEntry } from "@/tests/discovery/home-search-entry-contract";
 import { resultsIncludeSampleModule } from "@/tests/search/helpers";
 
 describe("search page query prefill", () => {
@@ -23,10 +24,10 @@ describe("search page query prefill", () => {
 });
 
 describe("Phase 1 discovery search handoffs", () => {
-  it("home exposes dialog entry and documented /search bookmark link", async () => {
-    const html = renderToStaticMarkup(await HomePage());
-    expect(html).toContain('href="/search"');
-    expect(html).toContain("data-search");
+  it("home article provides /search bookmark handoff without inline search UI", async () => {
+    const messages = await loadUiMessages();
+    const html = renderToStaticMarkup(<HomeArticle messages={messages} />);
+    expectHomeArticleSingleSearchEntry(html);
   });
 
   it("primary navigation includes Search link to /search", async () => {
