@@ -3,6 +3,9 @@
  * hover:text-fd-accent-foreground on the anchor while the Previous/Next
  * sublabel keeps text-fd-muted-foreground. Mirror hover and focus-visible on
  * the card and inherit foreground on the sublabel.
+ *
+ * Sublabel color:inherit lives in @layer utilities so it wins over the
+ * Tailwind .text-fd-muted-foreground utility at runtime.
  */
 @layer components {
   #nd-page
@@ -15,17 +18,19 @@
   }
 
   #nd-page
+    a[class*="hover:bg-fd-accent"][class*="hover:text-fd-accent-foreground"]:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  #nd-page
     a[class*="hover:bg-fd-accent"][class*="hover:text-fd-accent-foreground"]:is(
       :hover,
       :focus-visible
     )
     > p.text-fd-muted-foreground {
     color: inherit;
-  }
-
-  #nd-page
-    a[class*="hover:bg-fd-accent"][class*="hover:text-fd-accent-foreground"]:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
   }
 }
