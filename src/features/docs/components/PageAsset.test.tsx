@@ -33,15 +33,18 @@ describe("PageAsset", () => {
     );
   });
 
-  test("renders a visible graph asset slot with graph id and caption", () => {
+  test("renders a react-flow graph asset with graph id, markers, and caption", () => {
     const html = renderPageAsset("computeFlow", false);
     expect(html).toContain('data-page-asset="computeFlow"');
     expect(html).toContain(
       'data-graph-id="graph.grouped-query-attention-compute-flow"',
     );
+    expect(html).toContain('data-react-flow-graph="true"');
+    expect(html).toContain('data-web-renderer="react-flow"');
     expect(html).toContain(
       "GQA compute flow from queries through shared KV heads.",
     );
+    expect(html).not.toContain(">graph.grouped-query-attention-compute-flow<");
   });
 
   test("shows a developer-visible error for a missing asset ID", () => {
