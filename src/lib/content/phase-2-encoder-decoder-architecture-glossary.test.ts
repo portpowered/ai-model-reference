@@ -6,6 +6,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { GLOSSARY_DOCS_ROOT } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import {
+  expectGlossaryBodyOmitsTitleHeading,
+  expectGlossaryOmitsWhereItAppears,
+} from "@/lib/content/glossary-test-helpers";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
 import { pageMessagesSchema } from "@/lib/content/schemas";
@@ -40,8 +44,7 @@ describe("Phase 2 encoder-decoder architecture glossary pages (US-002)", () => {
       );
 
       expect(messages.title.length).toBeGreaterThan(0);
-      expect(messages.problemStatement?.length).toBeGreaterThan(0);
-      expect(messages.coreIdea?.length).toBeGreaterThan(0);
+      expect(messages.openingSummary?.length).toBeGreaterThan(0);
       expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
       expect(messages.sections?.whyItMatters.body?.length).toBeGreaterThan(0);
       expect(messages.sections?.simpleExample.body?.length).toBeGreaterThan(0);
@@ -60,21 +63,21 @@ describe("Phase 2 encoder-decoder architecture glossary pages (US-002)", () => {
 
       const html = await renderGlossaryHtml(slug);
 
-      expect(html).toContain(page.messages.title);
-      expect(html).toContain(page.messages.coreIdea?.slice(0, 24) ?? "");
+      expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
+      expect(html).toContain(page.messages.openingSummary?.slice(0, 24) ?? "");
       expect(html).toContain('href="/tags/foundations"');
       expect(html).toContain('href="/tags/taxonomy"');
-      expect(html).toContain('data-testid="derived-related-docs"');
+      expectGlossaryOmitsWhereItAppears(html);
       expect(html).not.toContain("Draft placeholder");
     });
   }
 
-  test("encoder links backward to patch, latent space, and representation", async () => {
+  test("encoder links to latent space and representation via curated related docs", async () => {
     const html = await renderGlossaryHtml("encoder");
 
-    expect(html).toContain('href="/docs/glossary/patch"');
     expect(html).toContain('href="/docs/glossary/latent-space"');
     expect(html).toContain('href="/docs/glossary/representation"');
+    expect(html).toContain('data-testid="curated-related-docs"');
   });
 
   test("encoder-decoder surfaces published autoregressive generation and planned transformer with reason labels", async () => {

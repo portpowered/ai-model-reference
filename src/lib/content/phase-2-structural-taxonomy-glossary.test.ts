@@ -6,6 +6,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { GLOSSARY_DOCS_ROOT } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import {
+  expectGlossaryBodyOmitsTitleHeading,
+  expectGlossaryOmitsWhereItAppears,
+} from "@/lib/content/glossary-test-helpers";
 import { PLANNED_RELATED_REASON_LABEL } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
@@ -25,8 +29,7 @@ describe("Phase 2 structural taxonomy glossary pages (US-004)", () => {
       );
 
       expect(messages.title.length).toBeGreaterThan(0);
-      expect(messages.problemStatement?.length).toBeGreaterThan(0);
-      expect(messages.coreIdea?.length).toBeGreaterThan(0);
+      expect(messages.openingSummary?.length).toBeGreaterThan(0);
       expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
       expect(messages.sections?.whyItMatters.body?.length).toBeGreaterThan(0);
       expect(messages.sections?.simpleExample.body?.length).toBeGreaterThan(0);
@@ -49,11 +52,11 @@ describe("Phase 2 structural taxonomy glossary pages (US-004)", () => {
         }),
       );
 
-      expect(html).toContain(page.messages.title);
-      expect(html).toContain(page.messages.coreIdea?.slice(0, 24) ?? "");
+      expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
+      expect(html).toContain(page.messages.openingSummary?.slice(0, 24) ?? "");
       expect(html).toContain('href="/tags/taxonomy"');
       expect(html).toContain('href="/tags/foundations"');
-      expect(html).toContain('data-testid="derived-related-docs"');
+      expectGlossaryOmitsWhereItAppears(html);
       expect(html).toContain("What It Is");
       expect(html).toContain("Related Concepts And Modules");
     });

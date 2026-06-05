@@ -34,8 +34,7 @@ describe("Phase 2 logit and softmax glossary pages (US-005)", () => {
   test("logit page renders math and forward link to softmax", async () => {
     const page = await loadGlossaryPage("logit");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.messages.problemStatement?.length).toBeGreaterThan(0);
-    expect(page.messages.coreIdea?.length).toBeGreaterThan(0);
+    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {

@@ -1,8 +1,6 @@
 {
   "title": "Alignment",
   "description": "Post-training steps that steer a model toward helpful, honest, and policy-compliant behavior—often via preference data, reward models, or safety filters.",
-  "problemStatement": "Teams say a model is \"aligned\" without separating base pretraining, instruction tuning, RLHF, and runtime guardrails, which makes it hard to reason about where failures come from or what to change.",
-  "coreIdea": "Alignment layers human or policy preferences on top of a pretrained generator: reward models score completions, preference optimization updates parameters, and filters block disallowed outputs—each step sits after the core loss-and-optimizer training loop.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Ask which preference signal is applied after pretraining—demonstrations, rewards, rules, or filters—and whether it changes weights or only inference."
     }
-  }
+  },
+  "openingSummary": "Alignment layers human or policy preferences on top of a pretrained generator through reward models, preference optimization, and runtime guardrails that sit after the core loss-and-optimizer training loop."
 }

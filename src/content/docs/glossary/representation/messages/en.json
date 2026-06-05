@@ -1,8 +1,6 @@
 {
   "title": "Representation",
   "description": "An internal encoding of input data that downstream layers or tasks use instead of raw features.",
-  "problemStatement": "Engineers say \"embeddings\" and \"representations\" interchangeably, which hides whether they mean a lookup table, a layer output, or a task-specific latent space.",
-  "coreIdea": "A representation is the learned internal form of data after encoding—vectors that capture structure for later layers—whether or not they are exposed as a standalone embedding API.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Ask where in the stack the vector lives: input lookup (often called embedding) versus hidden state after layers (representation)."
     }
-  }
+  },
+  "openingSummary": "A representation is the learned internal form of data after encoding—vectors that capture structure for later layers, whether or not exposed as a standalone embedding API."
 }

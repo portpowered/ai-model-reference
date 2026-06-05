@@ -1,8 +1,6 @@
 {
   "title": "Architecture",
   "description": "The blueprint that defines how a model's layers, modules, and data flow connect during inference.",
-  "problemStatement": "People swap \"transformer,\" \"architecture,\" and \"model\" freely, which hides whether they mean a design pattern, a checkpoint, or a product family.",
-  "coreIdea": "Architecture is the structural recipe—how tensors move through repeated modules—not any one trained set of weights.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -43,5 +41,6 @@
       "title": "Upcoming model family pages",
       "body": "Transformers, diffusion models, multimodal models, and world models are listed below as planned reference pages. They are not links yet—each family will get a full atlas page in a later phase so you can explore architecture without broken navigation."
     }
-  }
+  },
+  "openingSummary": "Architecture is the structural recipe—how tensors move through repeated modules—not any one trained set of weights, which people often conflate with specific checkpoints or product families."
 }

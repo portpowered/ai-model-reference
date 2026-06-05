@@ -25,8 +25,7 @@ describe("Phase 2 embedding and tensor glossary pages (US-004)", () => {
   test("embedding page renders required sections and forward link to tensor", async () => {
     const page = await loadGlossaryPage("embedding");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.messages.problemStatement?.length).toBeGreaterThan(0);
-    expect(page.messages.coreIdea?.length).toBeGreaterThan(0);
+    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -56,7 +55,8 @@ describe("Phase 2 embedding and tensor glossary pages (US-004)", () => {
       }),
     );
 
-    expect(html).toContain("Tensor");
+    expect(html).toContain('data-testid="glossary-opening"');
+    expect(page.messages.openingSummary?.toLowerCase()).toContain("tensor");
     expect(html).toContain("What It Is");
     expect(html).toContain("logits");
     expect(html).toContain('href="/docs/glossary/logit"');

@@ -1,8 +1,6 @@
 {
   "title": "Emergent Behavior",
   "description": "Qualitative capability jumps that appear only past certain model scale or training thresholds—distinct from smooth metric improvements tracked by scaling laws.",
-  "problemStatement": "Marketing claims cite sudden new abilities without saying whether the jump is real, task-specific, or an artifact of metric choice and prompting.",
-  "coreIdea": "Emergent behavior names capabilities that were absent or near-random at smaller scale but appear reliably above a threshold—chain-of-thought style reasoning on some benchmarks is a common example—while many other metrics still improve smoothly with scale.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Check whether the capability truly appeared abruptly on a well-defined metric or only after changing the prompt or grading rubric."
     }
-  }
+  },
+  "openingSummary": "Emergent behavior names capabilities absent at smaller scale that appear reliably above a threshold—often debated against smooth metric improvements with scale."
 }

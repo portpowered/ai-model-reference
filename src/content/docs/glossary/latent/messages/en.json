@@ -1,8 +1,6 @@
 {
   "title": "Latent",
   "description": "A compressed internal code that summarizes input structure for reconstruction, generation, or downstream tasks.",
-  "problemStatement": "Teams use \"latent\" for VAE bottlenecks, diffusion noise states, and arbitrary hidden vectors, which blurs whether they mean a trained code, a timestep state, or any intermediate tensor.",
-  "coreIdea": "A latent is a learned or algorithmically defined internal variable that carries information in fewer degrees of freedom than the original input or full hidden state—often before decoding or denoising.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "If the tensor is the deliberate bottleneck or generative state variable, call it a latent; if it is any hidden activation, use representation."
     }
-  }
+  },
+  "openingSummary": "A latent is an internal variable—trained code, diffusion state, or compressed hidden vector—that carries information in fewer degrees of freedom than the raw input."
 }

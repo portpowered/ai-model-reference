@@ -1,8 +1,6 @@
 {
   "title": "Logit",
   "description": "A raw, unnormalized score for each vocabulary item before softmax turns scores into probabilities.",
-  "problemStatement": "The model outputs one number per possible next token; readers need a name for those pre-probability scores and how they relate to tensors and softmax.",
-  "coreIdea": "Logits are the last linear layer's outputs—one score per vocabulary entry—fed into softmax to produce a probability distribution over next tokens.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -39,5 +37,6 @@
       "title": "Reader Shortcut",
       "body": "Think pre-softmax score: logits are the numbers softmax eats. The next page in this chain shows exactly how that normalization works."
     }
-  }
+  },
+  "openingSummary": "Logits are the pre-softmax scores the vocabulary head assigns—one per token—that softmax converts into next-token probabilities."
 }
