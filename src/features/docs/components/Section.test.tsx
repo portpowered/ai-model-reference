@@ -23,9 +23,8 @@ describe("Section", () => {
     const html = renderSection(false);
     expect(html).toContain('id="what-it-is"');
     expect(html).toContain("<h2>What It Is</h2>");
-    expect(html).toContain(
-      "Grouped-query attention is an attention variant derived from multi-head attention.",
-    );
+    expect(html).toContain("is an attention variant derived from");
+    expect(html).toContain('href="/docs/modules/multi-head-attention"');
   });
 
   test("shows a developer-visible heading error in development when titleKey is missing", () => {

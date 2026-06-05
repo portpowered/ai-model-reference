@@ -50,8 +50,10 @@ describe("loadModulePage grouped-query-attention", () => {
     );
 
     expect(html).toContain("Grouped-Query Attention");
-    expect(html).toContain(page.messages.problemStatement ?? "");
-    expect(html).toContain(page.messages.coreIdea ?? "");
+    expect(html).toContain("KV caches grow with context length and head count");
+    expect(html).toContain(
+      "lets several query heads share fewer key-value heads",
+    );
     expect(html).toContain('data-registry-id="module.grouped-query-attention"');
     expect(html).toContain("Module metadata");
     expect(html).toContain("At a glance");
@@ -71,6 +73,8 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(html).toContain('data-graph-node-id="kv-cache"');
     expect(html).toContain('data-graph-node-count="6"');
     expect(html).toContain('data-graph-node-count="5"');
+    expect(html).toContain('href="/docs/modules/multi-head-attention"');
+    expect(html).toContain('data-prose-auto-link="true"');
   });
 });
 

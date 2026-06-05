@@ -112,6 +112,12 @@ const PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
     ],
   },
   {
+    file: "src/features/docs/components/ProseAutoLinkText.tsx",
+    label: "ProseAutoLinkText",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/docs/components/ProseAutoLinkText.test.tsx"],
+  },
+  {
     file: "src/features/docs/components/GlossaryOpening.tsx",
     label: "GlossaryOpening",
     minReachableLinePercent: 90,

@@ -1,5 +1,15 @@
 import { expect } from "bun:test";
 
+/** Strips HTML tags so prose assertions survive auto-linked message rendering. */
+export function stripHtmlTags(html: string): string {
+  return html.replace(/<[^>]+>/g, "");
+}
+
+/** Asserts visible copy is present regardless of internal doc link markup. */
+export function expectHtmlToContainProse(html: string, text: string): void {
+  expect(stripHtmlTags(html)).toContain(text);
+}
+
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -33,7 +43,7 @@ export function expectGlossaryOpeningSummary(
   openingSummary: string,
 ): void {
   expect(html).toContain('data-testid="glossary-opening"');
-  expect(html).toContain(openingSummary);
+  expectHtmlToContainProse(html, openingSummary);
 }
 
 export function expectGlossaryOpeningSummaryMessage(messages: {
