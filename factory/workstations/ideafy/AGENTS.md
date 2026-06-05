@@ -189,9 +189,13 @@ of relying on separate specialized agent types. Useful briefs include:
 
 * checklist convergence: compare finished work against the phase checklist,
   architecture checklist rows, and stated work-item acceptance criteria
-* UX route convergence: manually exercise relevant routes, search flows,
-  keyboard shortcuts, navigation, layout, loading/empty states, and responsive
-  behavior
+* UX route convergence: run `make build && make verify-phase-1-ux` to exercise
+  the Phase 1 built-app manual gate (routes, live `/search`, header search
+  dialog, and keyboard shortcuts). Record the verifier exit code in convergence
+  notes. When `VERIFY_SEARCH_SHORTCUT_SKIP=1`, follow the manual keyboard check
+  in `factory/docs/phase-1-built-app-verifier-keyboard-fallback.md`. Supplement
+  with spot checks for navigation, layout, loading/empty states, and responsive
+  behavior where the automated gate does not cover them.
 * data-model convergence: inspect registry records, page frontmatter, localized
   messages, assets, citations, tags, related docs, and dead-end links
 * architecture drift: look for duplicate layouts, duplicate search systems,
