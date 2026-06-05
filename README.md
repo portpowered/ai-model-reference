@@ -251,9 +251,14 @@ make validate-pdf
 
 ### Phase 1 route and search UX verification
 
-After `make build`, run the HTTP verifier to codify the Phase 1 manual gate
+**Prerequisites:** `make build` (production `.next/`), Bun dependencies
+installed, and Playwright Chromium for real browser checks (`npx playwright
+install chromium` once per machine).
+
+After `make build`, run the built-app verifier to codify the Phase 1 manual gate
 from `docs/internal/customer-ask.md` (home, search, glossary, tags, sample
-docs, and `/api/search` for GQA, attention, and KV cache):
+docs, live `/search` and header search for GQA, attention, and KV cache, plus
+`/api/search` for the same queries):
 
 ```sh
 make verify-phase-1-ux
@@ -277,6 +282,16 @@ On success the command prints a one-line summary and exits `0`; failures print
 route or query, HTTP status, and reason before exiting `1`. A healthy build
 completes the verifier in well under two minutes on a typical laptop, bounded
 by the configured timeouts.
+
+**Pass/fail interpretation:** Exit `0` means the production-built app satisfies
+the Phase 1 manual gate in `docs/internal/customer-ask.md`, including visible
+links to Grouped-Query Attention for GQA, attention, and KV cache on `/search`
+and in the header search dialog. Exit `1` catches the known **empty-results
+regression**: `make ci` and in-process search tests can pass while `next start`
+still shows an empty-only `/search` UI—this verifier fails in that case so
+convergence review does not rely on ad hoc browser sessions alone. Neither
+`make ci` nor GitHub Actions runs this verifier by default; run it locally or in
+convergence review after `make build`.
 
 The verifier also exercises the built `/search` page, the header search dialog
 (via the search trigger button), and keyboard shortcuts on the home page:
