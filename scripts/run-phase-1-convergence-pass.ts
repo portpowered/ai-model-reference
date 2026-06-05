@@ -61,7 +61,9 @@ async function main(): Promise<number> {
     "make build && make verify-phase-1-ux",
   );
 
-  const customerAskRows = parseCustomerAskConvergenceReport(verifyResult.output);
+  const customerAskRows = parseCustomerAskConvergenceReport(
+    verifyResult.output,
+  );
   const evidenceSummary = buildPhase1ConvergenceEvidenceSummary({
     ciEvidence,
     customerAskRows,
