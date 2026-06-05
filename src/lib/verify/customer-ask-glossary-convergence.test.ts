@@ -31,16 +31,25 @@ const POST_REPAIR_ARTICLE_HTML = `
   </article>
 `;
 
+const FOOTER_CONTRACT_HTML = `
+  <div class="@container grid gap-4 grid-cols-2">
+    <a class="flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-fd-accent/80 hover:text-fd-accent-foreground" href="/docs/glossary/scaling-law">
+      <div class="inline-flex items-center gap-1.5 font-medium"><p>Scaling Law</p></div>
+      <p class="text-fd-muted-foreground truncate">Previous Page</p>
+    </a>
+    <a class="flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-fd-accent/80 hover:text-fd-accent-foreground text-end" href="/docs/glossary/embedding">
+      <div class="inline-flex items-center gap-1.5 font-medium flex-row-reverse"><p>Embedding</p></div>
+      <p class="text-fd-muted-foreground truncate">Next Page</p>
+    </a>
+  </div>
+`;
+
 const POST_REPAIR_SHELL_HTML = `
   <html>
     <div id="nd-page">
       <h1>Token</h1>
       ${POST_REPAIR_ARTICLE_HTML}
-      <a class="hover:text-fd-accent-foreground" href="/docs/glossary/embedding">
-        <span>Previous</span>
-        <p class="text-fd-muted-foreground">Embedding</p>
-      </a>
-      <link rel="stylesheet" href="/_next/static/css/docs-page-footer-chrome.css" />
+      ${FOOTER_CONTRACT_HTML}
     </div>
   </html>
 `;
@@ -180,27 +189,41 @@ describe("assertGlossaryChromeLinksConvergence", () => {
 });
 
 describe("evaluateGlossaryFooterHoverRow", () => {
-  test("passes when footer hover chrome markers are present", () => {
+  test("passes when footer cards match the shared footer chrome contract", () => {
     const row = evaluateGlossaryFooterHoverRow(POST_REPAIR_SHELL_HTML);
     expect(row.status).toBe("pass");
     expect(row.checkId).toBe(GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.checkId);
     expect(row.route).toBe(GLOSSARY_CUSTOMER_ASK_ROUTE);
   });
 
-  test("reports uncertain when footer hover pairing is not detectable", () => {
+  test("reports fail when footer navigation exists but contract markers are missing", () => {
     const html = `
       <div id="nd-page">
         <a href="/docs/glossary/embedding"><span>Previous</span><p>Embedding</p></a>
+        <p class="text-fd-muted-foreground truncate">Next Page</p>
       </div>
     `;
     const row = evaluateGlossaryFooterHoverRow(html);
+    expect(row.status).toBe("fail");
+    expect(row.reason).toContain("Previous Page");
+  });
+
+  test("reports uncertain when footer navigation is absent", () => {
+    const html = `
+      <html>
+        <article data-registry-id="${GLOSSARY_TOKEN_REGISTRY_ID}">
+          <p data-testid="glossary-opening">Summary</p>
+        </article>
+      </html>
+    `;
+    const row = evaluateGlossaryFooterHoverRow(html);
     expect(row.status).toBe("uncertain");
-    expect(row.reason).toContain("not observable");
+    expect(row.reason).toContain("footer previous/next navigation not found");
   });
 });
 
 describe("buildCustomerAskGlossaryRows", () => {
-  test("returns pass and uncertain rows for post-repair glossary HTML", () => {
+  test("returns all pass rows for post-repair glossary HTML", () => {
     const rows = buildCustomerAskGlossaryRows(POST_REPAIR_SHELL_HTML);
     expect(rows).toHaveLength(3);
     expect(rows.map((row) => row.checkId)).toEqual([
@@ -208,14 +231,7 @@ describe("buildCustomerAskGlossaryRows", () => {
       GLOSSARY_CUSTOMER_ASK_CHECKS.chromeLinks.checkId,
       GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.checkId,
     ]);
-    expect(
-      rows
-        .filter(
-          (row) =>
-            row.checkId !== GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.checkId,
-        )
-        .every((row) => row.status === "pass"),
-    ).toBe(true);
+    expect(rows.every((row) => row.status === "pass")).toBe(true);
     expect(
       rows.every((row) => row.checklistRow === "phase-1-glossary-page"),
     ).toBe(true);

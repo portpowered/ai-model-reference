@@ -1,3 +1,4 @@
+import { assertFooterChromeContract } from "@/lib/navigation/docs-page-footer-contract";
 import {
   stripHtmlScripts,
   TOKEN_GLOSSARY_URL,
@@ -52,11 +53,6 @@ const PROBLEM_CORE_MARKERS = [
   '<T k="coreIdea"',
   "Problem Statement",
   "Core Idea",
-] as const;
-
-const FOOTER_HOVER_MARKERS = [
-  "docs-page-footer-chrome",
-  "hover:text-fd-accent-foreground",
 ] as const;
 
 function escapeRegExp(value: string): string {
@@ -247,31 +243,19 @@ export function assertGlossaryChromeLinksConvergence(
 function hasFooterNavigation(html: string): boolean {
   return (
     html.includes('id="nd-page"') &&
-    (html.includes("Previous") || html.includes("Next"))
+    (html.includes("Previous Page") || html.includes("Next Page"))
   );
 }
 
 /**
- * Footer hover is pass when footer chrome markers are present in built HTML;
- * uncertain when footer navigation exists but pairing cannot be detected.
+ * Footer hover passes when built HTML footer cards match the shared footer
+ * chrome contract; fails with a concrete reason when navigation exists but
+ * contract markers are missing; uncertain only when footer nav is absent.
  */
 export function evaluateGlossaryFooterHoverRow(
   html: string,
 ): CustomerAskConvergenceRow {
   const visibleHtml = stripHtmlScripts(html);
-  const hasHoverPairing = FOOTER_HOVER_MARKERS.every((marker) =>
-    visibleHtml.includes(marker),
-  );
-
-  if (hasHoverPairing) {
-    return {
-      checkId: GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.checkId,
-      title: GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.title,
-      status: "pass",
-      route: GLOSSARY_CUSTOMER_ASK_ROUTE,
-      checklistRow: GLOSSARY_CUSTOMER_ASK_CHECKLIST_ROW,
-    };
-  }
 
   if (!hasFooterNavigation(visibleHtml)) {
     return {
@@ -284,13 +268,24 @@ export function evaluateGlossaryFooterHoverRow(
     };
   }
 
+  const failureReason = assertFooterChromeContract(visibleHtml);
+
+  if (failureReason) {
+    return {
+      checkId: GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.checkId,
+      title: GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.title,
+      status: "fail",
+      route: GLOSSARY_CUSTOMER_ASK_ROUTE,
+      reason: failureReason,
+      checklistRow: GLOSSARY_CUSTOMER_ASK_CHECKLIST_ROW,
+    };
+  }
+
   return {
     checkId: GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.checkId,
     title: GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.title,
-    status: "uncertain",
+    status: "pass",
     route: GLOSSARY_CUSTOMER_ASK_ROUTE,
-    reason:
-      "footer label and sublabel hover pairing not observable from static HTML",
     checklistRow: GLOSSARY_CUSTOMER_ASK_CHECKLIST_ROW,
   };
 }
