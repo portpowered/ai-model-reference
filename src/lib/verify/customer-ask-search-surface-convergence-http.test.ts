@@ -1,14 +1,19 @@
 import { describe, expect, test } from "bun:test";
+import { existsSync } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
+import { join } from "node:path";
+import { GROUPED_QUERY_ATTENTION_BUILT_HTML_PATH } from "@/lib/build/verify-grouped-query-attention-built-route";
 import {
   SEARCH_SURFACE_CUSTOMER_ASK_CHECKS,
   SEARCH_SURFACE_CUSTOMER_ASK_REASONS,
 } from "./customer-ask-search-surface-convergence";
 import { runCustomerAskSearchSurfaceChecks } from "./customer-ask-search-surface-convergence-http";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
+import { acquireVerifyServerSession } from "./server-lifecycle";
 
 const GQA_URL = PHASE_1_GROUPED_QUERY_ATTENTION_URL;
 const TOKEN_URL = "/docs/glossary/token";
+const repoRoot = join(import.meta.dir, "../../..");
 
 function listenOnEphemeralPort(
   httpServer: ReturnType<typeof createHttpServer>,
@@ -134,6 +139,32 @@ describe("runCustomerAskSearchSurfaceChecks", () => {
       SEARCH_SURFACE_CUSTOMER_ASK_REASONS.apiGqaFragmentSpam,
     );
   });
+
+  test("default Playwright probes finish before browser teardown when production build exists", async () => {
+    if (process.env.CI === "true") {
+      return;
+    }
+    if (!existsSync(join(repoRoot, GROUPED_QUERY_ATTENTION_BUILT_HTML_PATH))) {
+      return;
+    }
+
+    const session = await acquireVerifyServerSession({ projectRoot: repoRoot });
+    try {
+      const rows = await runCustomerAskSearchSurfaceChecks(session.baseUrl, {
+        queries: ["GQA"],
+      });
+      expect(
+        rows.some(
+          (row) =>
+            row.checkId ===
+              SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.pagePageLevelHits.checkId &&
+            row.status === "pass",
+        ),
+      ).toBe(true);
+    } finally {
+      await session.cleanup();
+    }
+  }, 60_000);
 
   test("reports API HTTP failures on the GQA row", async () => {
     const httpServer = createApiStubServer(
