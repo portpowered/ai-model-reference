@@ -29,6 +29,18 @@ async function main(): Promise<number> {
       if (error.message === NEXT_BUILD_REQUIRED_MESSAGE) {
         console.error(error.message);
       } else if (
+        !error.message.includes(
+          "Phase 1 docs shell convergence verification failed",
+        ) &&
+        !error.message.includes(
+          "Phase 1 home search entry convergence verification failed",
+        ) &&
+        !error.message.includes(
+          "Phase 1 reader route content convergence verification failed",
+        ) &&
+        !error.message.includes(
+          "Phase 1 tags navigation convergence verification failed",
+        ) &&
         !error.message.includes("Phase 1 route verification failed") &&
         !error.message.includes("Phase 1 search verification failed") &&
         !error.message.includes("Phase 1 /search page verification failed") &&
