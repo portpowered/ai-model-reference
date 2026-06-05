@@ -1,3 +1,6 @@
+import { resolveSearchDialogCheckOptionsFromEnv } from "../src/lib/verify/phase-1-search-dialog-checks";
+import { resolveSearchPageCheckOptionsFromEnv } from "../src/lib/verify/phase-1-search-page-checks";
+import { resolveSearchShortcutCheckOptionsFromEnv } from "../src/lib/verify/phase-1-search-shortcut-checks";
 import {
   PHASE_1_UX_SUCCESS_MESSAGE,
   runPhase1UxVerification,
@@ -14,7 +17,11 @@ async function main(): Promise<number> {
 
   try {
     session = await acquireVerifyServerSession();
-    await runPhase1UxVerification(session.baseUrl);
+    await runPhase1UxVerification(session.baseUrl, {
+      searchPageOptions: resolveSearchPageCheckOptionsFromEnv(),
+      searchDialogOptions: resolveSearchDialogCheckOptionsFromEnv(),
+      searchShortcutOptions: resolveSearchShortcutCheckOptionsFromEnv(),
+    });
     console.log(PHASE_1_UX_SUCCESS_MESSAGE);
     return 0;
   } catch (error) {
@@ -23,7 +30,14 @@ async function main(): Promise<number> {
         console.error(error.message);
       } else if (
         !error.message.includes("Phase 1 route verification failed") &&
-        !error.message.includes("Phase 1 search verification failed")
+        !error.message.includes("Phase 1 search verification failed") &&
+        !error.message.includes("Phase 1 /search page verification failed") &&
+        !error.message.includes(
+          "Phase 1 header search dialog verification failed",
+        ) &&
+        !error.message.includes(
+          "Phase 1 search keyboard shortcut verification failed",
+        )
       ) {
         console.error(error.message);
       }

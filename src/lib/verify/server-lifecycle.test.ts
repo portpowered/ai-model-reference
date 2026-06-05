@@ -218,6 +218,59 @@ describe("acquireVerifyServerSession", () => {
   test("startup timeout is at most 30 seconds by default", () => {
     expect(DEFAULT_SERVER_STARTUP_TIMEOUT_MS).toBeLessThanOrEqual(30_000);
   });
+
+  test("fails with a clear message and cleans up when startup times out", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-start-timeout-"));
+    mkdirSync(join(projectRoot, ".next"));
+
+    const STUB_NEVER_READY_SCRIPT = `
+import { createServer } from "node:http";
+const port = Number(process.env.VERIFY_STUB_PORT);
+createServer((_req, res) => {
+  res.writeHead(503);
+  res.end("not ready");
+}).listen(port, "127.0.0.1");
+`;
+
+    function spawnNeverReadyServer(port: number, cwd: string): ChildProcess {
+      return spawn("bun", ["-e", STUB_NEVER_READY_SCRIPT], {
+        cwd,
+        stdio: "ignore",
+        detached: true,
+        env: {
+          ...process.env,
+          VERIFY_STUB_PORT: String(port),
+        },
+      });
+    }
+
+    let spawnedChild: ChildProcess | undefined;
+
+    try {
+      await expect(
+        acquireVerifyServerSession({
+          projectRoot,
+          registerProcessSignals: false,
+          startupTimeoutMs: 800,
+          spawnProductionServer: (port, cwd) => {
+            spawnedChild = spawnNeverReadyServer(port, cwd);
+            spawnedChildren.push(spawnedChild);
+            return spawnedChild;
+          },
+        }),
+      ).rejects.toThrow(/did not become ready/i);
+
+      expect(spawnedChild).toBeDefined();
+      if (spawnedChild) {
+        await waitForChildExit(spawnedChild, 2_000);
+        expect(
+          spawnedChild.exitCode !== null || spawnedChild.killed === true,
+        ).toBe(true);
+      }
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("normalizeVerifyBaseUrl", () => {
