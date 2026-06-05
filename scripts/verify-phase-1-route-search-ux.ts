@@ -2,6 +2,7 @@ import {
   PHASE_1_UX_SUCCESS_MESSAGE,
   runPhase1CustomerAskConvergenceVerification,
 } from "../src/lib/verify/customer-ask-convergence-orchestrator";
+import { resolveCustomerAskDocsFooterCheckOptionsFromEnv } from "../src/lib/verify/customer-ask-docs-footer-convergence-http";
 import { resolveCustomerAskSearchSurfaceCheckOptionsFromEnv } from "../src/lib/verify/customer-ask-search-surface-convergence-http";
 import { resolveSearchDialogCheckOptionsFromEnv } from "../src/lib/verify/phase-1-search-dialog-checks";
 import { resolveSearchPageCheckOptionsFromEnv } from "../src/lib/verify/phase-1-search-page-checks";
@@ -29,6 +30,7 @@ async function main(): Promise<number> {
         customerAskOptions: {
           searchSurfaceOptions:
             resolveCustomerAskSearchSurfaceCheckOptionsFromEnv(),
+          docsFooterOptions: resolveCustomerAskDocsFooterCheckOptionsFromEnv(),
         },
       },
     );

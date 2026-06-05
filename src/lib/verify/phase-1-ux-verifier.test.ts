@@ -342,6 +342,7 @@ describe("verify-phase-1-route-search-ux script", () => {
         VERIFY_SEARCH_PAGE_STUB: "pass",
         VERIFY_SEARCH_DIALOG_STUB: "pass",
         VERIFY_SEARCH_SHORTCUT_STUB: "pass",
+        VERIFY_DOCS_FOOTER_STUB: "pass",
       });
 
       expect(result.exitCode).toBe(0);

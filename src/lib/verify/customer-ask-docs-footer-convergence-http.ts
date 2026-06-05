@@ -1,5 +1,6 @@
 import { readBundledAppCss } from "./bundled-app-css";
 import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-result";
+import { CUSTOMER_ASK_PASSING_BUNDLED_FOOTER_CSS } from "./customer-ask-convergence-stub-fixtures";
 import {
   buildCustomerAskDocsFooterRows,
   DOCS_FOOTER_CUSTOMER_ASK_CHECKLIST_ROW,
@@ -18,6 +19,24 @@ export type RunCustomerAskDocsFooterChecksOptions = {
   projectRoot?: string;
   readBundledAppCss?: (projectRoot: string) => string | null;
 };
+
+export const VERIFY_DOCS_FOOTER_STUB_ENV = "VERIFY_DOCS_FOOTER_STUB";
+
+/**
+ * Test-only stub hook: VERIFY_DOCS_FOOTER_STUB=pass supplies bundled CSS when the
+ * base URL is a static HTTP fixture and `.next` artifacts are absent (CI test runs).
+ */
+export function resolveCustomerAskDocsFooterCheckOptionsFromEnv(
+  env: Record<string, string | undefined> = process.env,
+): RunCustomerAskDocsFooterChecksOptions {
+  const stub = env[VERIFY_DOCS_FOOTER_STUB_ENV]?.trim();
+  if (stub === "pass") {
+    return {
+      readBundledAppCss: () => CUSTOMER_ASK_PASSING_BUNDLED_FOOTER_CSS,
+    };
+  }
+  return {};
+}
 
 const DOCS_FOOTER_CHECKS = [
   DOCS_FOOTER_CUSTOMER_ASK_CHECKS.hoverFocusParity,
