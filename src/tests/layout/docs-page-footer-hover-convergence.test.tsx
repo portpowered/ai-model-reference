@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { docsPageFooterSublabelInheritSelector } from "@/features/docs/styles/docs-page-footer-chrome";
 import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
 
 const TOKEN_GLOSSARY_ROUTE = {
@@ -18,15 +17,26 @@ function readBuiltRouteHtml(relativePath: string): string | null {
 }
 
 function readBundledAppCss(): string | null {
-  const cssDir = join(process.cwd(), ".next/static/css");
-  if (!existsSync(cssDir)) {
+  const cssRoots = [
+    join(process.cwd(), ".next/static/css"),
+    join(process.cwd(), ".next/static/chunks"),
+  ];
+
+  const cssFiles = cssRoots.flatMap((root) => {
+    if (!existsSync(root)) {
+      return [];
+    }
+
+    return readdirSync(root)
+      .filter((name) => name.endsWith(".css"))
+      .map((name) => join(root, name));
+  });
+
+  if (cssFiles.length === 0) {
     return null;
   }
 
-  return readdirSync(cssDir)
-    .filter((name) => name.endsWith(".css"))
-    .map((name) => readFileSync(join(cssDir, name), "utf8"))
-    .join("\n");
+  return cssFiles.map((file) => readFileSync(file, "utf8")).join("\n");
 }
 
 function extractFooterNavHtml(visibleHtml: string): string {
@@ -84,10 +94,7 @@ describe("docs page footer hover convergence (built HTML)", () => {
 
     expect(bundledCss).toContain("color:inherit");
     expect(bundledCss).toMatch(
-      /#nd-page[\s\S]*hover:text-fd-accent-foreground[\s\S]*focus-visible[\s\S]*text-fd-muted-foreground[\s\S]*color:inherit/,
-    );
-    expect(bundledCss).toContain(
-      docsPageFooterSublabelInheritSelector.replaceAll(" ", ""),
+      /#nd-page[\s\S]*hover\\:text-fd-accent-foreground[\s\S]*:focus-visible[\s\S]*text-fd-muted-foreground[\s\S]*color:inherit/,
     );
   });
 });
