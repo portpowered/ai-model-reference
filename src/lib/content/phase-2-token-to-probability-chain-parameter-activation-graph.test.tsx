@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { getConceptById } from "@/lib/content/registry-runtime";
 import {
   CURATED_RELATED,
@@ -88,7 +89,7 @@ describe("Phase 2 parameter, activation, and computational graph glossary pages 
       }),
     );
 
-    expect(html).toContain("Computational Graph");
+    expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
     expect(html).toContain("What It Is");
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
   });
