@@ -15,6 +15,7 @@ import {
   acquireVerifyServerSession,
   assertNextProductionBuild,
   buildDefaultProductionServerSpawnSpec,
+  CHILD_KILL_TIMEOUT_MS,
   DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
   defaultSpawnProductionServer,
   hasCompleteNextProductionBuild,
@@ -294,7 +295,7 @@ describe("acquireVerifyServerSession", () => {
     }
   });
 
-  test("spawns a stub server, waits for readiness, and kills the child on cleanup", async () => {
+  test("default-path success: cleanup terminates the spawned child and stops serving HTTP", async () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-stub-root-"));
     mkdirSync(join(projectRoot, ".next"));
 
@@ -475,7 +476,7 @@ describe("killManagedChild", () => {
     );
   });
 
-  test("terminates a detached stub server and frees the assigned port", async () => {
+  test("terminates a detached stub child within the configured kill timeout", async () => {
     const port = await pickListenPort();
     const child = spawnStubProductionServer(port, process.cwd());
     spawnedChildren.push(child);
@@ -486,11 +487,43 @@ describe("killManagedChild", () => {
     });
     expect(await isListenPortFree(port)).toBe(false);
 
+    const killStartedAt = Date.now();
     await killManagedChild(child);
-    await waitForChildExit(child, 2_000);
+    const killElapsedMs = Date.now() - killStartedAt;
 
+    await waitForChildExit(child, 1_000);
+
+    expect(killElapsedMs).toBeLessThanOrEqual(CHILD_KILL_TIMEOUT_MS);
     expect(child.exitCode !== null || child.killed === true).toBe(true);
     expect(await isListenPortFree(port)).toBe(true);
+    await expect(
+      httpGetStatus(`http://127.0.0.1:${port}/`, 500),
+    ).rejects.toBeDefined();
+  });
+
+  test("cleanup is idempotent and does not throw on a second call", async () => {
+    const projectRoot = mkdtempSync(
+      join(tmpdir(), "verify-cleanup-idempotent-"),
+    );
+    mkdirSync(join(projectRoot, ".next"));
+
+    try {
+      const session = await acquireVerifyServerSession({
+        projectRoot,
+        env: {},
+        registerProcessSignals: false,
+        spawnProductionServer: (port, cwd) => {
+          const child = spawnStubProductionServer(port, cwd);
+          spawnedChildren.push(child);
+          return child;
+        },
+      });
+
+      await session.cleanup();
+      await expect(session.cleanup()).resolves.toBeUndefined();
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 });
 

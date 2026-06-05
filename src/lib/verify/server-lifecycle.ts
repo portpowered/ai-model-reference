@@ -23,7 +23,8 @@ export const NEXT_BUILD_REQUIRED_MESSAGE =
   "Production build not found (.next missing). Run `make build` first.";
 
 const DEFAULT_POLL_INTERVAL_MS = 500;
-const CHILD_KILL_TIMEOUT_MS = 5_000;
+/** Max wait after SIGTERM before escalating to SIGKILL when stopping a spawned verify server. */
+export const CHILD_KILL_TIMEOUT_MS = 5_000;
 const CHILD_OUTPUT_TAIL_MAX_BYTES = 4_096;
 
 const childOutputChunks = new WeakMap<ChildProcess, Buffer[]>();
