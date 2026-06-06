@@ -98,6 +98,7 @@ describe("loadRegistry", () => {
     expect(indexes.tagsById.get("tag.attention")?.slug).toBe("attention");
     expect(indexes.tagsBySlug.get("attention")?.id).toBe("tag.attention");
     expect(indexes.bySlug.get("attention")?.id).toBe("tag.attention");
+    expect(indexes.byId.get("module.attention")?.slug).toBe("attention");
 
     const citation = indexes.byId.get("citation.gqa-paper");
     expect(citation?.kind).toBe("citation");

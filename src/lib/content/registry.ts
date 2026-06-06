@@ -116,16 +116,17 @@ function buildIndexes(files: ParsedRegistryFile[]): RegistryIndexes {
   const tagsById = new Map<string, TagRecord>();
   const tagsBySlug = new Map<string, TagRecord>();
   const idPaths = new Map<string, string[]>();
-  const slugPaths = new Map<string, string[]>();
+  const slugPathsByKind = new Map<string, string[]>();
 
   for (const { path, record } of files) {
     const existingIdPaths = idPaths.get(record.id) ?? [];
     existingIdPaths.push(path);
     idPaths.set(record.id, existingIdPaths);
 
-    const existingSlugPaths = slugPaths.get(record.slug) ?? [];
+    const slugKindKey = `${record.kind}:${record.slug}`;
+    const existingSlugPaths = slugPathsByKind.get(slugKindKey) ?? [];
     existingSlugPaths.push(path);
-    slugPaths.set(record.slug, existingSlugPaths);
+    slugPathsByKind.set(slugKindKey, existingSlugPaths);
 
     byId.set(record.id, record);
     bySlug.set(record.slug, record);
@@ -142,8 +143,9 @@ function buildIndexes(files: ParsedRegistryFile[]): RegistryIndexes {
       details.push({ type: "duplicate-id", id, paths });
     }
   }
-  for (const [slug, paths] of slugPaths) {
+  for (const [slugKindKey, paths] of slugPathsByKind) {
     if (paths.length > 1) {
+      const slug = slugKindKey.slice(slugKindKey.indexOf(":") + 1);
       details.push({ type: "duplicate-slug", slug, paths });
     }
   }

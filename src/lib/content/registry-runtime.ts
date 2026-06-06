@@ -19,6 +19,7 @@ import foundationModelConcept from "@/content/registry/concepts/foundation-model
 import generalizationConcept from "@/content/registry/concepts/generalization.json";
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
 import gradientConcept from "@/content/registry/concepts/gradient.json";
+import hiddenSizeConcept from "@/content/registry/concepts/hidden-size.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
 import logitConcept from "@/content/registry/concepts/logit.json";
@@ -40,7 +41,9 @@ import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
+import vectorConcept from "@/content/registry/concepts/vector.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
+import attention from "@/content/registry/modules/attention.json";
 import groupedQueryAttention from "@/content/registry/modules/grouped-query-attention.json";
 import multiHeadAttention from "@/content/registry/modules/multi-head-attention.json";
 import multiQueryAttention from "@/content/registry/modules/multi-query-attention.json";
@@ -57,6 +60,7 @@ import {
 } from "@/lib/content/schemas";
 
 const moduleRecords: ModuleRecord[] = [
+  moduleRecordSchema.parse(attention),
   moduleRecordSchema.parse(groupedQueryAttention),
   moduleRecordSchema.parse(multiQueryAttention),
   moduleRecordSchema.parse(multiHeadAttention),
@@ -66,6 +70,8 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(tokenConcept),
   conceptRecordSchema.parse(embeddingConcept),
   conceptRecordSchema.parse(tensorConcept),
+  conceptRecordSchema.parse(vectorConcept),
+  conceptRecordSchema.parse(hiddenSizeConcept),
   conceptRecordSchema.parse(logitConcept),
   conceptRecordSchema.parse(softmaxConcept),
   conceptRecordSchema.parse(entropyConcept),

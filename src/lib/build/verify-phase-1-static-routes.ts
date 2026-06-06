@@ -9,6 +9,9 @@ export const PHASE_1_STATIC_ROUTES = [
   "/tags",
   "/tags/[slug]",
   "/docs/glossary/token",
+  "/docs/glossary/vector",
+  "/docs/glossary/hidden-size",
+  "/docs/modules/attention",
   "/docs/modules/grouped-query-attention",
 ] as const;
 

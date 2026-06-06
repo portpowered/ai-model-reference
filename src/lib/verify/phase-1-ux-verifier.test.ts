@@ -23,7 +23,12 @@ import {
   isListenPortFree,
   pickListenPort,
 } from "./http-harness";
-import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
+import {
+  PHASE_1_ATTENTION_MODULE_URL,
+  PHASE_1_GROUPED_QUERY_ATTENTION_URL,
+  PHASE_1_HIDDEN_SIZE_GLOSSARY_URL,
+  PHASE_1_VECTOR_GLOSSARY_URL,
+} from "./phase-1-search-checks";
 import { PHASE_1_UX_PASSING_STUB_HTML } from "./phase-1-ux-stub-fixtures";
 import {
   PHASE_1_UX_SUCCESS_MESSAGE,
@@ -44,6 +49,9 @@ const repoRoot = join(import.meta.dir, "../../..");
 const VERIFY_SCRIPT_E2E_TIMEOUT_MS = DEFAULT_SERVER_STARTUP_TIMEOUT_MS + 90_000;
 
 const GQA_HIT = { url: PHASE_1_GROUPED_QUERY_ATTENTION_URL };
+const ATTENTION_HIT = { url: PHASE_1_ATTENTION_MODULE_URL };
+const VECTOR_HIT = { url: PHASE_1_VECTOR_GLOSSARY_URL };
+const HIDDEN_SIZE_HIT = { url: PHASE_1_HIDDEN_SIZE_GLOSSARY_URL };
 const OTHER_HIT = { url: "/docs/glossary/token" };
 
 const DEFAULT_CONVERGENCE_OPTIONS = {
@@ -82,7 +90,9 @@ function createPhase1UxStubServer(
       const query = requestUrl.searchParams.get("query") ?? "";
       const hitsByQuery: Record<string, (typeof GQA_HIT)[]> = {
         GQA: [GQA_HIT, OTHER_HIT],
-        attention: [OTHER_HIT, GQA_HIT],
+        attention: [ATTENTION_HIT, OTHER_HIT, GQA_HIT],
+        vector: [VECTOR_HIT, OTHER_HIT],
+        "hidden size": [HIDDEN_SIZE_HIT, OTHER_HIT],
         "KV cache": [OTHER_HIT, GQA_HIT],
       };
       res.writeHead(200, {

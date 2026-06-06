@@ -21,6 +21,12 @@ const PASSING_STUB_HTML: Record<string, string> = {
     '<html><h1>Attention</h1><a href="/docs/modules/grouped-query-attention">GQA</a><a href="/docs/glossary/token">Token</a><a href="/search?tag=attention">Search</a></html>',
   "/docs/glossary/token":
     '<html><h1>Token</h1><div data-registry-id="concept.token"></div></html>',
+  "/docs/glossary/vector":
+    '<html><h1>Vector</h1><article data-registry-id="concept.vector"></article></html>',
+  "/docs/glossary/hidden-size":
+    '<html><h1>Hidden Size</h1><article data-registry-id="concept.hidden-size"></article></html>',
+  "/docs/modules/attention":
+    '<html><h1>Attention</h1><div data-registry-id="module.attention"></div><p>Phase 1 bridge page</p></html>',
   "/docs/modules/grouped-query-attention": `<html>${buildGroupedQueryAttentionStubBody()}</html>`,
 };
 
@@ -63,6 +69,9 @@ describe("PHASE_1_ROUTE_ASSERTIONS", () => {
       "/tags",
       "/tags/attention",
       "/docs/glossary/token",
+      "/docs/glossary/vector",
+      "/docs/glossary/hidden-size",
+      "/docs/modules/attention",
       "/docs/modules/grouped-query-attention",
     ]);
   });

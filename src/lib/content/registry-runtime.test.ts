@@ -11,10 +11,20 @@ import {
 } from "@/lib/content/registry-runtime";
 
 describe("registry-runtime", () => {
+  test("getModuleById returns attention bridge module", () => {
+    const record = getModuleById("module.attention");
+    expect(record?.slug).toBe("attention");
+    expect(record?.tags).toEqual(["attention"]);
+    expect(record?.aliases).toContain("self-attention");
+    expect(record?.relatedIds).toContain("module.grouped-query-attention");
+    expect(record?.relatedIds).toContain("concept.token");
+  });
+
   test("getModuleById returns grouped-query attention", () => {
     const record = getModuleById("module.grouped-query-attention");
     expect(record?.slug).toBe("grouped-query-attention");
     expect(record?.tags).toEqual(["attention", "kv-cache"]);
+    expect(record?.relatedIds).toEqual(["module.attention"]);
   });
 
   test("getRegistryTags returns tags for a known module", () => {
@@ -90,8 +100,39 @@ describe("registry-runtime", () => {
     expect(logit?.relatedIds).toContain("concept.softmax");
   });
 
-  test("listModuleRecords includes variant-group peers for GQA", () => {
+  test("getConceptById returns vector glossary bridge concept", () => {
+    const record = getConceptById("concept.vector");
+    expect(record?.slug).toBe("vector");
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining(["vector", "vectors", "dense vector"]),
+    );
+    expect(record?.tags).toEqual(
+      expect.arrayContaining(["token-to-probability-chain", "foundations"]),
+    );
+    expect(record?.relatedIds).toContain("concept.embedding");
+    expect(record?.relatedIds).toContain("concept.tensor");
+  });
+
+  test("getConceptById returns hidden size glossary bridge concept", () => {
+    const record = getConceptById("concept.hidden-size");
+    expect(record?.slug).toBe("hidden-size");
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "hidden size",
+        "model width",
+        "hidden dimension",
+      ]),
+    );
+    expect(record?.tags).toEqual(
+      expect.arrayContaining(["token-to-probability-chain", "foundations"]),
+    );
+    expect(record?.relatedIds).toContain("concept.embedding");
+    expect(record?.relatedIds).toContain("concept.tensor");
+  });
+
+  test("listModuleRecords includes attention overview and variant-group peers", () => {
     const ids = listModuleRecords().map((record) => record.id);
+    expect(ids).toContain("module.attention");
     expect(ids).toContain("module.multi-query-attention");
     expect(ids).toContain("module.multi-head-attention");
   });

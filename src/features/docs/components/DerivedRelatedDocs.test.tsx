@@ -64,7 +64,7 @@ describe("DerivedRelatedDocs", () => {
   test("renders nothing for curated-related when the source has no relatedIds", () => {
     const html = renderToStaticMarkup(
       <DerivedRelatedDocs
-        registryId="module.grouped-query-attention"
+        registryId="module.multi-head-attention"
         groups={["curated-related"]}
       />,
     );
