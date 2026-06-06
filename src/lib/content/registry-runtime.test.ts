@@ -99,6 +99,19 @@ describe("registry-runtime", () => {
     expect(logit?.relatedIds).toContain("concept.softmax");
   });
 
+  test("getConceptById returns vector glossary bridge concept", () => {
+    const record = getConceptById("concept.vector");
+    expect(record?.slug).toBe("vector");
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining(["vector", "vectors", "dense vector"]),
+    );
+    expect(record?.tags).toEqual(
+      expect.arrayContaining(["token-to-probability-chain", "foundations"]),
+    );
+    expect(record?.relatedIds).toContain("concept.embedding");
+    expect(record?.relatedIds).toContain("concept.tensor");
+  });
+
   test("listModuleRecords includes attention overview and variant-group peers", () => {
     const ids = listModuleRecords().map((record) => record.id);
     expect(ids).toContain("module.attention");

@@ -82,3 +82,6 @@ export const GROUPED_QUERY_ATTENTION_PAGE_DIR = join(
 
 /** Phase 1 token glossary sample page directory. */
 export const TOKEN_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "token");
+
+/** Phase 1 vector glossary bridge page directory. */
+export const VECTOR_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "vector");

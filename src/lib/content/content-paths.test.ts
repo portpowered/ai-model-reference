@@ -45,7 +45,9 @@ describe("content-paths", () => {
     expect(MESSAGES_ROOT).toBe(getMessagesRoot());
     expect(TAG_MESSAGES_ROOT).toBe(getTagMessagesRoot());
     expect(CONTENT_ROOT.endsWith("src/content")).toBe(true);
-    expect(ATTENTION_MODULE_PAGE_DIR).toBe(join(MODULES_DOCS_ROOT, "attention"));
+    expect(ATTENTION_MODULE_PAGE_DIR).toBe(
+      join(MODULES_DOCS_ROOT, "attention"),
+    );
     expect(GROUPED_QUERY_ATTENTION_PAGE_DIR).toBe(
       join(MODULES_DOCS_ROOT, "grouped-query-attention"),
     );

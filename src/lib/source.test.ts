@@ -31,6 +31,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/token",
   "/docs/glossary/embedding",
   "/docs/glossary/tensor",
+  "/docs/glossary/vector",
   "/docs/glossary/logit",
   "/docs/glossary/softmax",
   "/docs/glossary/entropy",
