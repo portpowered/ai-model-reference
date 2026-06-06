@@ -57,6 +57,7 @@ const EVALUATION_SCALING_URLS = [
 const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/embedding",
   "/docs/glossary/vector",
+  "/docs/glossary/hidden-size",
   "/docs/glossary/tensor",
   "/docs/glossary/logit",
   "/docs/glossary/softmax",

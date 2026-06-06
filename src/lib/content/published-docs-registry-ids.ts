@@ -6,6 +6,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.embedding",
   "concept.tensor",
   "concept.vector",
+  "concept.hidden-size",
   "concept.logit",
   "concept.softmax",
   "concept.entropy",

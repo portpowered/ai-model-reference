@@ -112,6 +112,23 @@ describe("registry-runtime", () => {
     expect(record?.relatedIds).toContain("concept.tensor");
   });
 
+  test("getConceptById returns hidden size glossary bridge concept", () => {
+    const record = getConceptById("concept.hidden-size");
+    expect(record?.slug).toBe("hidden-size");
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "hidden size",
+        "model width",
+        "hidden dimension",
+      ]),
+    );
+    expect(record?.tags).toEqual(
+      expect.arrayContaining(["token-to-probability-chain", "foundations"]),
+    );
+    expect(record?.relatedIds).toContain("concept.embedding");
+    expect(record?.relatedIds).toContain("concept.tensor");
+  });
+
   test("listModuleRecords includes attention overview and variant-group peers", () => {
     const ids = listModuleRecords().map((record) => record.id);
     expect(ids).toContain("module.attention");
