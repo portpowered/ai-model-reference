@@ -172,33 +172,19 @@ export const CUSTOMER_ASK_PRE_REPAIR_GLOSSARY_HTML =
 
 const CUSTOMER_ASK_PASSING_GQA_MODULE_BODY = `
   <h1>Grouped-Query Attention</h1>
-  <div data-registry-id="${GQA_MODULE_REGISTRY_ID}"></div>
-  <h2>Compared To Nearby Modules</h2>
-  <h2>Related</h2>
-  <div data-react-flow-graph="true" data-web-renderer="react-flow"></div>
-  <span data-graph-node-id="hidden-states"></span>
-  <span data-graph-node-id="query-groups"></span>
-  <span data-graph-node-id="query-heads"></span>
-  <span data-graph-node-id="kv-cache"></span>
-  <div data-registry-comparison-table="true" data-table-id="table.grouped-query-attention-comparison"></div>
-  <a href="/docs/modules/multi-head-attention">Multi-Head Attention</a>
-  <div data-attention-schema-comparison="true"></div>
-  <div data-message-block-math="math.mhaSchema.formula" class="katex"></div>
-  <div data-message-block-math="math.gqaSchema.formula" class="katex-display"></div>
-  <section aria-label="Architecture">
-    <ul class="list-none">
-      <li><a href="/docs/modules/multi-query-attention">MQA</a></li>
-    </ul>
-  </section>
-  <ul data-testid="tag-pill-list" aria-label="Tags">
-    <li><a href="/tags/attention">Attention</a></li>
-  </ul>
+  <article data-registry-id="${GQA_MODULE_REGISTRY_ID}">
+    ${buildGroupedQueryAttentionStubBody()}
+    <section aria-label="Architecture">
+      <ul class="list-none">
+        <li><a href="/tags/attention">Attention</a></li>
+        <li><a href="/docs/modules/multi-query-attention">MQA</a></li>
+      </ul>
+    </section>
+  </article>
 `;
 
 export const CUSTOMER_ASK_PASSING_GQA_MODULE_HTML =
-  buildPhase1DocsRouteStubHtml(
-    `${CUSTOMER_ASK_PASSING_GQA_MODULE_BODY}${buildGroupedQueryAttentionStubBody()}`,
-  );
+  buildPhase1DocsRouteStubHtml(CUSTOMER_ASK_PASSING_GQA_MODULE_BODY);
 
 export const CUSTOMER_ASK_PRE_REPAIR_GQA_MODULE_HTML =
   buildPhase1DocsRouteStubHtml(`

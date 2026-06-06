@@ -18,30 +18,14 @@ import { buildGroupedQueryAttentionStubBody } from "./grouped-query-attention-mo
 const POST_REPAIR_MODULE_HTML = `
   <html>
     <h1>Grouped-Query Attention</h1>
-    <div data-registry-id="${GQA_MODULE_REGISTRY_ID}"></div>
-    <h2>Compared To Nearby Modules</h2>
-    <h2>Related</h2>
-    <div
-      data-react-flow-graph="true"
-      data-web-renderer="react-flow"
-      data-graph-id="graph.grouped-query-attention-compute-flow"
-    ></div>
-    <span data-graph-node-id="hidden-states"></span>
-    <span data-graph-node-id="query-groups"></span>
-    <span data-graph-node-count="6"></span>
-    <div data-registry-comparison-table="true" data-table-id="table.grouped-query-attention-comparison"></div>
-    <a href="/docs/modules/multi-head-attention">Multi-Head Attention</a>
-    <div data-attention-schema-comparison="true"></div>
-    <div data-message-block-math="math.mhaSchema.formula" class="katex"></div>
-    <div data-message-block-math="math.gqaSchema.formula" class="katex-display"></div>
-    <section aria-label="Architecture">
-      <ul class="list-none">
-        <li><a href="/docs/modules/multi-query-attention">MQA</a></li>
-      </ul>
-    </section>
-    <ul data-testid="tag-pill-list" aria-label="Tags">
-      <li><a href="/tags/attention">Attention</a></li>
-    </ul>
+    <article data-registry-id="${GQA_MODULE_REGISTRY_ID}">
+      ${buildGroupedQueryAttentionStubBody()}
+      <section aria-label="Architecture">
+        <ul class="list-none">
+          <li><a href="/docs/modules/multi-query-attention">MQA</a></li>
+        </ul>
+      </section>
+    </article>
   </html>
 `;
 
