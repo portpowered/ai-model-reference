@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
-import { SearchResultRow } from "./SearchResultRow";
+import { SearchInlineResultItem } from "./SearchResults";
 import { useModelAtlasDocsSearch } from "./search-client";
 import { resolveInitialSearchPageQuery } from "./search-page-query";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";
@@ -135,13 +135,12 @@ export function SearchPagePanelContent({
           >
             {items.map((item) => (
               <li key={item.id}>
-                <SearchResultRow
+                <SearchInlineResultItem
                   item={item}
                   query={search}
                   metaByUrl={metaByUrl}
                   messages={messages}
-                  surface="page"
-                  onActivate={() => onSelect(item)}
+                  onSelect={onSelect}
                   className="w-full px-3 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
               </li>

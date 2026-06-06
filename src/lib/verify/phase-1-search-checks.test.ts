@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { createServer as createHttpServer } from "node:http";
 import {
+  assertCanonicalPageLevelApiResults,
   formatPhase1SearchCheckFailure,
   PHASE_1_GROUPED_QUERY_ATTENTION_URL,
   PHASE_1_SEARCH_ASSERTIONS,
@@ -65,6 +66,23 @@ describe("PHASE_1_SEARCH_ASSERTIONS", () => {
     expect(gqa?.assertResults([GQA_HIT, OTHER_HIT])).toBeNull();
     expect(attention?.assertResults([OTHER_HIT, GQA_HIT])).toBeNull();
     expect(kvCache?.assertResults([OTHER_HIT, GQA_HIT])).toBeNull();
+  });
+
+  test("assertResults rejects fragment URLs and duplicate canonical pages", () => {
+    const gqa = PHASE_1_SEARCH_ASSERTIONS[0];
+    const fragmentHit = {
+      url: `${PHASE_1_GROUPED_QUERY_ATTENTION_URL}#fragment`,
+    };
+    const duplicateHits = [GQA_HIT, GQA_HIT];
+
+    expect(gqa?.assertResults([fragmentHit, OTHER_HIT])).toContain("fragment");
+    expect(gqa?.assertResults(duplicateHits)).toContain("duplicate");
+    expect(assertCanonicalPageLevelApiResults([fragmentHit])).toContain(
+      "fragment",
+    );
+    expect(assertCanonicalPageLevelApiResults(duplicateHits)).toContain(
+      "duplicate",
+    );
   });
 });
 

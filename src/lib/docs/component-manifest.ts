@@ -228,6 +228,15 @@ const PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
     ],
   },
   {
+    file: "src/features/docs/search/SearchResults.tsx",
+    label: "SearchResults",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/docs/search/SearchResults.test.tsx"],
+    a11ySmokeTests: [
+      "src/tests/a11y/docs-components.a11y.test.tsx (SearchResults accessibility smoke)",
+    ],
+  },
+  {
     file: "src/features/docs/search/SearchResultRow.tsx",
     label: "SearchResultRow",
     minReachableLinePercent: 90,
@@ -235,6 +244,49 @@ const PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
     a11ySmokeTests: [
       "src/tests/a11y/docs-components.a11y.test.tsx (SearchResults accessibility smoke)",
     ],
+  },
+  {
+    file: "src/features/docs/search/SearchResultTitle.tsx",
+    label: "SearchResultTitle",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/docs/search/SearchResults.test.tsx"],
+  },
+  {
+    file: "src/features/docs/search/SearchResultMetaDetails.tsx",
+    label: "SearchResultMetaDetails",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/docs/search/SearchResults.test.tsx"],
+    a11ySmokeTests: [
+      "src/tests/a11y/docs-components.a11y.test.tsx (SearchResultMetaDetails accessibility smoke)",
+    ],
+  },
+];
+
+/** Phase 1 search presentation components touched by page-level result convergence. */
+export const PHASE_1_SEARCH_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
+  {
+    file: "src/features/docs/search/SearchResults.tsx",
+    label: "SearchResults",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/docs/search/SearchResults.test.tsx"],
+    a11ySmokeTests: [
+      "src/tests/a11y/docs-components.a11y.test.tsx (SearchResults accessibility smoke)",
+    ],
+  },
+  {
+    file: "src/features/docs/search/SearchResultRow.tsx",
+    label: "SearchResultRow",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/docs/search/SearchResults.test.tsx"],
+    a11ySmokeTests: [
+      "src/tests/a11y/docs-components.a11y.test.tsx (SearchResults accessibility smoke)",
+    ],
+  },
+  {
+    file: "src/features/docs/search/SearchResultTitle.tsx",
+    label: "SearchResultTitle",
+    minReachableLinePercent: 90,
+    unitTests: ["src/features/docs/search/SearchResults.test.tsx"],
   },
   {
     file: "src/features/docs/search/SearchResultMetaDetails.tsx",

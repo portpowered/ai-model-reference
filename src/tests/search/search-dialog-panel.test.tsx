@@ -18,6 +18,11 @@ import {
 } from "@/tests/a11y/render";
 import {
   collectResultUrlsFromNodes,
+  expectCustomerAskSearchDialogPanel,
+  expectFullRowSearchResultHighlightPanel,
+  expectReadableQueryMatchHighlightPanel,
+  expectSharedSearchResultRowPanel,
+  expectThinSearchMetadataPanel,
   expectUniqueCanonicalPageUrls,
   resultsIncludeSampleModule,
   SAMPLE_MODULE_URL,
@@ -106,6 +111,26 @@ describe("SearchDialog Phase 1 queries", () => {
     "GQA",
     "attention",
     "KV cache",
+  ] as const)("passes customer-ask dialog matched-tag checks for %s query", async (query) => {
+    const context = await loadAppTestContext();
+    await renderSearchDialog(context);
+
+    const dialog = await screen.findByRole("dialog", { name: "Search" });
+    const user = userEvent.setup();
+    await user.type(within(dialog).getByRole("textbox"), query);
+
+    await waitFor(
+      () => {
+        expectCustomerAskSearchDialogPanel(within(dialog));
+      },
+      { timeout: 3000 },
+    );
+  });
+
+  test.each([
+    "GQA",
+    "attention",
+    "KV cache",
   ] as const)("returns at most one row per canonical page URL for %s query", async (query) => {
     const context = await loadAppTestContext();
     await renderSearchDialog(context);
@@ -126,6 +151,70 @@ describe("SearchDialog Phase 1 queries", () => {
     const urls = collectResultUrlsFromNodes(resultUrls);
     expectUniqueCanonicalPageUrls(urls);
     expect(resultsIncludeSampleModule(urls.map((url) => ({ url })))).toBe(true);
+  });
+
+  test("GQA query renders page hits through shared SearchResultRow", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchDialog(context);
+
+    const dialog = await screen.findByRole("dialog", { name: "Search" });
+    const user = userEvent.setup();
+    await user.type(within(dialog).getByRole("textbox"), "GQA");
+
+    await waitFor(
+      () => {
+        expectSharedSearchResultRowPanel(within(dialog));
+      },
+      { timeout: 3000 },
+    );
+  });
+
+  test("GQA query shows thin metadata without matched-tag chips", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchDialog(context);
+
+    const dialog = await screen.findByRole("dialog", { name: "Search" });
+    const user = userEvent.setup();
+    await user.type(within(dialog).getByRole("textbox"), "GQA");
+
+    await waitFor(
+      () => {
+        expectThinSearchMetadataPanel(within(dialog), { expectSummary: true });
+      },
+      { timeout: 3000 },
+    );
+  });
+
+  test("GQA query highlights full result rows including metadata on hover and selection", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchDialog(context);
+
+    const dialog = await screen.findByRole("dialog", { name: "Search" });
+    const user = userEvent.setup();
+    await user.type(within(dialog).getByRole("textbox"), "GQA");
+
+    await waitFor(
+      () => {
+        expectFullRowSearchResultHighlightPanel(within(dialog));
+      },
+      { timeout: 3000 },
+    );
+  });
+
+  test("Grouped query keeps query-match marks readable on accent rows in dialog", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchDialog(context);
+
+    const dialog = await screen.findByRole("dialog", { name: "Search" });
+    const user = userEvent.setup();
+    await user.type(within(dialog).getByRole("textbox"), "Grouped");
+
+    await waitFor(
+      () => {
+        expectReadableQueryMatchHighlightPanel(within(dialog));
+      },
+      { timeout: 3000 },
+    );
   });
 
   test("GQA query ranks grouped-query attention first in dialog results", async () => {

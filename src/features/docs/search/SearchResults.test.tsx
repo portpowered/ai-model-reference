@@ -8,9 +8,13 @@ import {
   SearchResultRow,
 } from "@/features/docs/search/SearchResultRow";
 import { SearchInlineResultItem } from "@/features/docs/search/SearchResults";
+import { SearchResultTitle } from "@/features/docs/search/SearchResultTitle";
 import {
   searchDialogResultRowClassName,
   searchPageResultRowClassName,
+  searchResultMetaEmbeddedFieldClassName,
+  searchResultMetaEmbeddedPanelClassName,
+  searchResultTitleInteractiveClassName,
   searchResultTitleMarkClassName,
 } from "@/features/docs/search/search-result-row-classes";
 import { loadUiMessages } from "@/lib/content/ui-messages";
@@ -45,6 +49,58 @@ describe("SearchResultMetaDetails", () => {
     expect(html).toContain('data-testid="search-result-kind"');
     expect(html).toContain("Module");
     expect(html).toContain(messages.search.resultPath);
+    expect(html).not.toContain('data-testid="search-result-matched-tags"');
+  });
+
+  test("embedded panel inherits row accent foreground on hover, focus, and selection", async () => {
+    const messages = await loadUiMessages();
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+    const meta = metaByUrl[SAMPLE_MODULE_URL];
+    expect(meta).toBeDefined();
+
+    const html = renderToStaticMarkup(
+      <SearchResultMetaDetails
+        url={SAMPLE_MODULE_URL}
+        meta={meta}
+        messages={messages}
+        embedded
+      />,
+    );
+
+    for (const token of searchResultMetaEmbeddedPanelClassName.split(/\s+/)) {
+      if (token.length > 0) {
+        expect(html).toContain(token);
+      }
+    }
+    expect(html).toContain(searchResultMetaEmbeddedFieldClassName);
+    expect(html).toContain("text-fd-muted-foreground");
+    expect(html).not.toMatch(
+      /data-testid="search-result-url"[^>]*class="[^"]*text-fd-muted-foreground/,
+    );
+  });
+
+  test("non-embedded panel keeps muted foreground on metadata fields", async () => {
+    const messages = await loadUiMessages();
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+    const meta = metaByUrl[SAMPLE_MODULE_URL];
+    expect(meta).toBeDefined();
+
+    const html = renderToStaticMarkup(
+      <SearchResultMetaDetails
+        url={SAMPLE_MODULE_URL}
+        meta={{ ...meta, description: "" }}
+        messages={messages}
+      />,
+    );
+
+    expect(html).not.toContain('data-testid="search-result-summary"');
+    expect(html).toContain('data-testid="search-result-url"');
+    expect(html).toContain('data-testid="search-result-kind"');
+    expect(html).toContain("text-fd-muted-foreground");
     expect(html).not.toContain('data-testid="search-result-matched-tags"');
   });
 });
@@ -179,7 +235,16 @@ describe("SearchResultRow", () => {
     expect(html).toContain('data-testid="search-result-row"');
     expect(html).toContain('data-testid="search-result-meta"');
     expect(html).toContain("hover:bg-accent");
-    expect(html).toContain("group-hover:text-accent-foreground/90");
+    for (const token of searchResultMetaEmbeddedPanelClassName.split(/\s+/)) {
+      if (token.length > 0) {
+        expect(html).toContain(token);
+      }
+    }
+    for (const token of searchResultTitleInteractiveClassName.split(/\s+/)) {
+      if (token.length > 0) {
+        expect(html).toContain(token);
+      }
+    }
     for (const token of searchPageResultRowClassName.split(/\s+/)) {
       if (token.length > 0) {
         expect(html).toContain(token);
@@ -262,6 +327,36 @@ describe("SearchResultRow", () => {
     }
   });
 
+  test("dialog surface applies interactive title classes for full-row selection", async () => {
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+
+    const { container } = await renderSearchResultListItem({
+      item: {
+        id: "page-gqa",
+        type: "page",
+        url: SAMPLE_MODULE_URL,
+        content: "Grouped-Query Attention",
+      },
+      query: "GQA",
+      metaByUrl,
+    });
+
+    const view = within(container);
+    const row = view.getByTestId("search-result-row");
+    const title = row.querySelector('[class*="font-medium"]');
+    expect(title).toBeTruthy();
+    if (!title) {
+      return;
+    }
+    for (const token of searchResultTitleInteractiveClassName.split(/\s+/)) {
+      if (token.length > 0) {
+        expect(title.className).toContain(token);
+      }
+    }
+  });
+
   test("dialog surface renders query-match marks inside the interactive row", async () => {
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
@@ -308,6 +403,61 @@ describe("SearchResultRow", () => {
 
     expect(html).toContain("Action");
     expect(html).not.toContain('data-testid="search-result-meta"');
+  });
+
+  test("page surface renders non-page heading hits without metadata panel", async () => {
+    const messages = await loadUiMessages();
+    const html = renderToStaticMarkup(
+      <SearchResultRow
+        item={{
+          id: "heading-1",
+          type: "heading",
+          url: SAMPLE_MODULE_URL,
+          content: "Overview",
+        }}
+        query=""
+        metaByUrl={{}}
+        messages={messages}
+        surface="page"
+        onActivate={() => {}}
+      />,
+    );
+
+    expect(html).toContain("Overview");
+    expect(html).not.toContain('data-testid="search-result-meta"');
+  });
+});
+
+describe("SearchResultTitle", () => {
+  test("renders plain titles without query-match marks", () => {
+    const html = renderToStaticMarkup(
+      <SearchResultTitle
+        content="Grouped-Query Attention"
+        query=""
+        className="text-foreground"
+      />,
+    );
+
+    expect(html).toContain("Grouped-Query Attention");
+    expect(html).not.toContain('data-testid="search-result-title-mark"');
+  });
+
+  test("renders query-match marks with accent-safe classes", () => {
+    const html = renderToStaticMarkup(
+      <SearchResultTitle
+        content="Grouped-Query Attention"
+        query="Grouped"
+        className="text-foreground"
+      />,
+    );
+
+    expect(html).toContain('data-testid="search-result-title-mark"');
+    expect(html).toContain("Grouped</mark>-Query Attention");
+    for (const token of searchResultTitleMarkClassName.split(/\s+/)) {
+      if (token.length > 0) {
+        expect(html).toContain(token);
+      }
+    }
   });
 });
 
