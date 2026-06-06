@@ -1,5 +1,9 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import {
+  bulletlessListClassName,
+  docsResourceCardLinkClassName,
+} from "@/features/docs/components/list-decoration";
 import type { TagResourceKindGroup } from "@/lib/content/tag-resources";
 
 type TagResourceListProps = {
@@ -21,12 +25,12 @@ export function TagResourceList({ groups, listLabel }: TagResourceListProps) {
           >
             {group.kindLabel}
           </h2>
-          <ul className="mt-3 flex list-none flex-col gap-3">
+          <ul className={bulletlessListClassName("mt-3")}>
             {group.resources.map((resource) => (
               <li key={resource.url}>
                 <Link
                   href={resource.url}
-                  className="group block rounded-lg border border-border bg-card/40 p-4 transition-colors hover:border-ring hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className={docsResourceCardLinkClassName}
                 >
                   <span className="flex items-center gap-2 font-medium text-foreground">
                     {resource.title}
