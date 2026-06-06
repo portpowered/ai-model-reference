@@ -206,3 +206,31 @@ export function printPhase1BuiltAppConvergenceEvidenceSummary(
     writeLine(line);
   }
 }
+
+/**
+ * Built-app convergence exit semantics: fail when verifier command-path or any
+ * customer-ask row fails. Uncertain evidence is non-blocking (exit 0).
+ */
+export function getPhase1BuiltAppConvergenceExitCode(
+  summary: Phase1BuiltAppConvergenceEvidenceSummary,
+): 0 | 1 {
+  if (summary.commandPath.status === "fail") {
+    return 1;
+  }
+  if (summary.customerAsk.rows.some((row) => row.status === "fail")) {
+    return 1;
+  }
+  return 0;
+}
+
+export const PHASE_1_BUILT_APP_CONVERGENCE_WORKFLOW_STEPS = [
+  "make build",
+  "make verify-phase-1-ux",
+] as const;
+
+export const PHASE_1_BUILT_APP_CONVERGENCE_PREREQUISITES = [
+  "Bun dependencies installed (`bun install`)",
+  "Playwright Chromium for live browser checks (`npx playwright install chromium`)",
+  "Production build output (`.next/`) produced by `make build` inside the workflow",
+  "VERIFY_BASE_URL unset for canonical default spawn path",
+] as const;

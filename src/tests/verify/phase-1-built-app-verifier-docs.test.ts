@@ -51,12 +51,17 @@ describe("Phase 1 built-app verifier entrypoint documentation", () => {
     expect(makefile).toMatch(/verify-phase-1-route-search-ux\.ts/);
     expect(makefile).toMatch(/^verify-phase-1-convergence:/m);
     expect(makefile).toMatch(/run-phase-1-convergence-pass\.ts/);
+    expect(makefile).toMatch(/^verify-phase-1-built-app-convergence:/m);
+    expect(makefile).toMatch(/run-phase-1-built-app-convergence-validator\.ts/);
     expect(packageJson.scripts["verify:phase-1-ux"]).toContain(
       "verify-phase-1-route-search-ux.ts",
     );
     expect(packageJson.scripts["verify:phase-1-convergence"]).toContain(
       "run-phase-1-convergence-pass.ts",
     );
+    expect(
+      packageJson.scripts["verify:phase-1-built-app-convergence"],
+    ).toContain("run-phase-1-built-app-convergence-validator.ts");
   });
 
   test("planner-facing ideafy docs reference the built-app verifier for Phase 1 loopback convergence", () => {

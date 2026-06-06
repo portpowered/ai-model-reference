@@ -5,6 +5,7 @@ import {
   buildPhase1BuiltAppConvergenceEvidenceSummary,
   derivePhase1BuiltAppConvergenceRecommendation,
   formatPhase1BuiltAppConvergenceEvidenceSummary,
+  getPhase1BuiltAppConvergenceExitCode,
   PHASE_1_BATCH_010_BUILT_APP_CONVERGENCE_EVIDENCE_SUMMARY_HEADER,
 } from "./phase-1-built-app-convergence-evidence";
 import {
@@ -128,6 +129,46 @@ describe("derivePhase1BuiltAppConvergenceRecommendation", () => {
     });
 
     expect(recommendation.recommendation).toBe("queue-one-narrow-repair-batch");
+  });
+});
+
+describe("getPhase1BuiltAppConvergenceExitCode", () => {
+  test("returns 1 when command-path fails", () => {
+    const summary = buildPhase1BuiltAppConvergenceEvidenceSummary({
+      verifyOutput: `${NEXT_BUILD_REQUIRED_MESSAGE}\n`,
+      customerAskRows: [],
+    });
+
+    expect(getPhase1BuiltAppConvergenceExitCode(summary)).toBe(1);
+  });
+
+  test("returns 1 when any customer-ask row fails", () => {
+    const summary = buildPhase1BuiltAppConvergenceEvidenceSummary({
+      verifyOutput: outputWithReport([PASS_ROW, FAIL_ROW]),
+    });
+
+    expect(getPhase1BuiltAppConvergenceExitCode(summary)).toBe(1);
+  });
+
+  test("returns 0 when command-path passes and customer-ask rows are pass or uncertain only", () => {
+    const passSummary = buildPhase1BuiltAppConvergenceEvidenceSummary({
+      verifyOutput: outputWithReport([PASS_ROW]),
+    });
+    const uncertainSummary = buildPhase1BuiltAppConvergenceEvidenceSummary({
+      verifyOutput: outputWithReport([PASS_ROW, UNCERTAIN_ROW]),
+    });
+
+    expect(getPhase1BuiltAppConvergenceExitCode(passSummary)).toBe(0);
+    expect(getPhase1BuiltAppConvergenceExitCode(uncertainSummary)).toBe(0);
+  });
+
+  test("returns 0 when command-path is uncertain and no customer-ask row fails", () => {
+    const summary = buildPhase1BuiltAppConvergenceEvidenceSummary({
+      verifyOutput: outputWithReport([PASS_ROW]),
+      verifyBaseUrl: "http://127.0.0.1:3456",
+    });
+
+    expect(getPhase1BuiltAppConvergenceExitCode(summary)).toBe(0);
   });
 });
 
