@@ -1,5 +1,10 @@
 import { expect } from "bun:test";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
+import {
+  assertSearchNoMatchedTags,
+  assertSearchPageLevelHits,
+  type SearchSurfaceResultSnapshot,
+} from "@/lib/verify/customer-ask-search-surface-convergence";
 
 export const SAMPLE_MODULE_URL = "/docs/modules/grouped-query-attention";
 export const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
@@ -44,6 +49,39 @@ export function expectUniqueCanonicalPageUrls(urls: readonly string[]): void {
   expect(urls.every((url) => !url.includes("#"))).toBe(true);
 }
 
+export function countFragmentSpamSignals(urls: readonly string[]): {
+  fragmentCount: number;
+  duplicateBaseCount: number;
+} {
+  const bases = urls.map(pageBaseUrl);
+  return {
+    fragmentCount: urls.filter((url) => url.includes("#")).length,
+    duplicateBaseCount: bases.length - new Set(bases).size,
+  };
+}
+
+/**
+ * Asserts collapsed search results are page-level while raw Orama hits still
+ * carry fragment or duplicate-page spam that collapse removes.
+ */
+export function expectCollapsedResultsDominateFragmentSpam(
+  rawUrls: readonly string[],
+  collapsedUrls: readonly string[],
+): void {
+  expect(collapsedUrls.length).toBeGreaterThan(0);
+  expectUniqueCanonicalPageUrls(collapsedUrls);
+
+  const rawSpam = countFragmentSpamSignals(rawUrls);
+  const collapsedUniquePages = new Set(collapsedUrls.map(pageBaseUrl)).size;
+  const rawWouldSpam =
+    rawSpam.fragmentCount > 0 ||
+    rawSpam.duplicateBaseCount > 0 ||
+    rawUrls.length > collapsedUniquePages;
+
+  expect(rawWouldSpam).toBe(true);
+  expect(collapsedUrls.length).toBeLessThanOrEqual(collapsedUniquePages);
+}
+
 export function collectResultUrlsFromNodes(
   nodes: Array<{
     textContent: string | null;
@@ -73,6 +111,45 @@ type ThinMetadataQueries = {
   queryAllByTestId: (id: string) => HTMLElement[];
   queryByTestId: (id: string) => HTMLElement | null;
 };
+
+/** Builds a customer-ask search-surface snapshot from rendered panel results. */
+export function buildSearchSurfaceSnapshotFromPanel(
+  queries: ThinMetadataQueries,
+): SearchSurfaceResultSnapshot {
+  const resultUrls = collectResultUrlsFromNodes(
+    queries.queryAllByTestId("search-result-url"),
+  );
+  const matchedTagsVisible =
+    queries.queryByTestId("search-result-matched-tags") !== null;
+  const hasEmpty =
+    queries.queryByTestId("search-dialog-empty") !== null ||
+    queries.queryByTestId("search-page-empty") !== null;
+
+  return {
+    resultUrls,
+    matchedTagsVisible,
+    hasResults: resultUrls.length > 0,
+    hasEmpty,
+  };
+}
+
+/** Asserts `/search` panel snapshots satisfy customer-ask page-level hit checks. */
+export function expectCustomerAskSearchPagePanel(
+  queries: ThinMetadataQueries,
+  query: string,
+): void {
+  const snapshot = buildSearchSurfaceSnapshotFromPanel(queries);
+  expect(assertSearchPageLevelHits(snapshot, query)).toBeNull();
+  expect(assertSearchNoMatchedTags(snapshot)).toBeNull();
+}
+
+/** Asserts header dialog snapshots satisfy customer-ask matched-tag checks. */
+export function expectCustomerAskSearchDialogPanel(
+  queries: ThinMetadataQueries,
+): void {
+  const snapshot = buildSearchSurfaceSnapshotFromPanel(queries);
+  expect(assertSearchNoMatchedTags(snapshot)).toBeNull();
+}
 
 /** Asserts page hits render through the shared SearchResultRow with embedded metadata. */
 export function expectSharedSearchResultRowPanel(

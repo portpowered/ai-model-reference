@@ -18,6 +18,7 @@ import {
 } from "@/tests/a11y/render";
 import {
   collectResultUrlsFromNodes,
+  expectCustomerAskSearchPagePanel,
   expectFullRowSearchResultHighlightPanel,
   expectReadableQueryMatchHighlightPanel,
   expectSharedSearchResultRowPanel,
@@ -95,6 +96,24 @@ describe("SearchPagePanel Phase 1 queries", () => {
   ] as const)("shows Grouped-Query Attention for %s query", async (query) => {
     const context = await loadAppTestContext();
     await typeQueryAndExpectGqaResult(context, query);
+  });
+
+  test.each([
+    "GQA",
+    "attention",
+    "KV cache",
+  ] as const)("passes customer-ask page-level hit checks for %s query", async (query) => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      query,
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    expectCustomerAskSearchPagePanel(within(results), query);
   });
 
   test.each([

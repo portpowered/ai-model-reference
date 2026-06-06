@@ -18,6 +18,7 @@ import {
 } from "@/tests/a11y/render";
 import {
   collectResultUrlsFromNodes,
+  expectCustomerAskSearchDialogPanel,
   expectFullRowSearchResultHighlightPanel,
   expectReadableQueryMatchHighlightPanel,
   expectSharedSearchResultRowPanel,
@@ -104,6 +105,26 @@ describe("SearchDialog Phase 1 queries", () => {
   ] as const)("shows Grouped-Query Attention for %s query", async (query) => {
     const context = await loadAppTestContext();
     await typeQueryAndExpectGqaResult(context, query);
+  });
+
+  test.each([
+    "GQA",
+    "attention",
+    "KV cache",
+  ] as const)("passes customer-ask dialog matched-tag checks for %s query", async (query) => {
+    const context = await loadAppTestContext();
+    await renderSearchDialog(context);
+
+    const dialog = await screen.findByRole("dialog", { name: "Search" });
+    const user = userEvent.setup();
+    await user.type(within(dialog).getByRole("textbox"), query);
+
+    await waitFor(
+      () => {
+        expectCustomerAskSearchDialogPanel(within(dialog));
+      },
+      { timeout: 3000 },
+    );
   });
 
   test.each([
