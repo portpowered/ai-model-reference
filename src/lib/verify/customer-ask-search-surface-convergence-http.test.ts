@@ -9,7 +9,10 @@ import {
 } from "./customer-ask-search-surface-convergence";
 import { runCustomerAskSearchSurfaceChecks } from "./customer-ask-search-surface-convergence-http";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
-import { acquireVerifyServerSession } from "./server-lifecycle";
+import {
+  acquireVerifyServerSession,
+  shouldRunVerifyProductionIntegrationTests,
+} from "./server-lifecycle";
 
 const GQA_URL = PHASE_1_GROUPED_QUERY_ATTENTION_URL;
 const TOKEN_URL = "/docs/glossary/token";
@@ -142,6 +145,9 @@ describe("runCustomerAskSearchSurfaceChecks", () => {
 
   test("default Playwright probes finish before browser teardown when production build exists", async () => {
     if (process.env.CI === "true") {
+      return;
+    }
+    if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
       return;
     }
     if (!existsSync(join(repoRoot, GROUPED_QUERY_ATTENTION_BUILT_HTML_PATH))) {
