@@ -7,6 +7,7 @@ import {
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { DocsAutoLinkedDescription } from "@/features/docs/components/DocsAutoLinkedDescription";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
   loadLocalDocsPage,
@@ -31,11 +32,17 @@ async function renderLocalDocsPage(slug: string[] | undefined) {
   }
 
   const loadedPage = await loadLocalDocsPage(localRef);
+  const description =
+    localRef.section === "glossary" ? (
+      <DocsAutoLinkedDescription text={loadedPage.messages.description} />
+    ) : (
+      loadedPage.messages.description
+    );
 
   return (
     <DocsPage toc={loadedPage.toc}>
       <DocsTitle>{loadedPage.messages.title}</DocsTitle>
-      <DocsDescription>{loadedPage.messages.description}</DocsDescription>
+      <DocsDescription>{description}</DocsDescription>
       <DocsBody>
         <ModulePageProviders
           messages={loadedPage.messages}

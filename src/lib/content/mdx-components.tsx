@@ -3,7 +3,6 @@ import type { MDXComponents } from "mdx/types";
 import { Callout } from "@/features/docs/components/Callout";
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
-import { GlossaryOpening } from "@/features/docs/components/GlossaryOpening";
 import { BlockMath, InlineMath } from "@/features/docs/components/Math";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
@@ -24,7 +23,6 @@ export const moduleMdxComponents: MDXComponents = {
   Callout,
   CitationList,
   DerivedRelatedDocs,
-  GlossaryOpening,
   RelatedDocs,
   Section,
   T,

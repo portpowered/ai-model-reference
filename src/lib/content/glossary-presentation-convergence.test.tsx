@@ -1,14 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { DocsDescription, DocsTitle } from "fumadocs-ui/layouts/docs/page";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import { renderGlossaryDocsShell } from "@/lib/content/glossary-shell-render";
 import {
   expectGlossaryBodyOmitsTitleHeading,
+  expectGlossaryOmitsOpeningSummary,
   expectGlossaryOmitsWhereItAppears,
   expectGlossaryPresentationConvergence,
+  expectGlossaryShellPresentationConvergence,
+  expectHtmlToContainProse,
   extractGlossaryArticleHtml,
 } from "@/lib/content/glossary-test-helpers";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
@@ -23,53 +23,52 @@ function countH1BlocksContaining(html: string, text: string): number {
 async function renderTokenGlossaryPresentationShell(): Promise<{
   html: string;
   title: string;
-  openingSummary: string;
 }> {
   const loadedPage = await loadLocalDocsPage({
     section: "glossary",
     slug: "token",
   });
 
-  const html = renderToStaticMarkup(
-    createElement(
-      "div",
-      null,
-      createElement(DocsTitle, null, loadedPage.messages.title),
-      createElement(DocsDescription, null, loadedPage.messages.description),
-      createElement(
-        "article",
-        { "data-registry-id": loadedPage.frontmatter.registryId },
-        createElement(ModulePageProviders, {
-          messages: loadedPage.messages,
-          assets: loadedPage.assets,
-          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-          children: loadedPage.content,
-        }),
-      ),
-    ),
-  );
+  const html = renderGlossaryDocsShell(loadedPage);
 
   return {
     html,
     title: loadedPage.messages.title,
-    openingSummary: loadedPage.messages.openingSummary ?? "",
   };
 }
 
 describe("glossary presentation convergence", () => {
   test("/docs/glossary/token satisfies the full Phase 1 presentation contract", async () => {
-    const { html, title, openingSummary } =
-      await renderTokenGlossaryPresentationShell();
+    const { html, title } = await renderTokenGlossaryPresentationShell();
     const articleHtml = extractGlossaryArticleHtml(html, "concept.token");
 
     expect(articleHtml.length).toBeGreaterThan(0);
+    expectGlossaryShellPresentationConvergence(html);
     expectGlossaryPresentationConvergence(articleHtml, {
       title,
-      openingSummary,
     });
     expect(countH1BlocksContaining(html, title)).toBe(1);
     expect(articleHtml).toContain('data-testid="curated-related-docs"');
     expect(articleHtml).toContain('data-page-asset="conceptMap"');
+  });
+
+  test("/docs/glossary/embedding shell omits opening summary and auto-links description phrases", async () => {
+    const loadedPage = await loadLocalDocsPage({
+      section: "glossary",
+      slug: "embedding",
+    });
+    const html = renderGlossaryDocsShell(loadedPage);
+
+    expectHtmlToContainProse(
+      html,
+      "A dense vector that represents a token or other discrete item",
+    );
+    expectGlossaryShellPresentationConvergence(html, {
+      shellDescriptionAutoLinks: [
+        { href: "/docs/glossary/vector", phrase: "dense vector" },
+        { href: "/docs/glossary/token", phrase: "token" },
+      ],
+    });
   });
 
   test("token article body omits pre-repair duplicate title and crowded sections", async () => {
@@ -97,7 +96,7 @@ describe("glossary presentation route convergence (built HTML)", () => {
     const articleHtml = extractGlossaryArticleHtml(html, "concept.token");
 
     expect(assertDocsShellConvergence(html)).toBeNull();
-    expect(articleHtml).toContain('data-testid="glossary-opening"');
+    expectGlossaryOmitsOpeningSummary(articleHtml);
     expect(
       (articleHtml.match(/data-testid="tag-pill-list"/g) ?? []).length,
     ).toBe(1);
