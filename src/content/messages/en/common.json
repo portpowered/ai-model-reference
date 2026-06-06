@@ -35,7 +35,7 @@
   "home": {
     "title": "Model Atlas",
     "subtitle": "A field guide to modern AI models and modules",
-    "intro": "Model Atlas is a documentation-native reference for transformers, attention variants, training methods, and the systems around them. Search by alias or tag, or browse the glossary and tag index to find canonical pages.",
+    "intro": "Model Atlas is a documentation-native reference for transformers, attention variants, training methods, and the systems around them.",
     "browseSectionTitle": "Browse",
     "browseSectionDescription": "Start from an index when you want to explore topics without a specific query.",
     "architectureLinkTitle": "Architecture",

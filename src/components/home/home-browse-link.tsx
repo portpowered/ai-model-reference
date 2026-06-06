@@ -30,7 +30,7 @@ export function HomeBrowseLink({
     <li>
       <Link
         href={href}
-        className="group block rounded-lg border border-border bg-card/40 p-4 no-underline transition-colors hover:border-ring hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="group block rounded-lg border border-border bg-card/40 p-4 no-underline transition-colors hover:border-ring hover:bg-card hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <span className="flex items-center gap-2 font-medium text-foreground">
           {title}
