@@ -1,13 +1,28 @@
 import { describe, expect, test } from "bun:test";
 import { spawn } from "node:child_process";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { createServer as createHttpServer } from "node:http";
-import { join } from "node:path";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 import { assertBatch008CustomerAskReportAllPass } from "./batch-008-customer-ask-check-inventory";
 import { CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER } from "./customer-ask-convergence-reporter";
-import { buildPhase1AndCustomerAskPassingStubHtml } from "./customer-ask-convergence-stub-fixtures";
+import {
+  buildPhase1AndCustomerAskPassingStubHtml,
+  CUSTOMER_ASK_PASSING_API_RESULTS,
+} from "./customer-ask-convergence-stub-fixtures";
 import { DOCS_SHELL_CONVERGENCE_REASONS } from "./docs-shell-convergence";
 import { REMOVED_HOME_INLINE_SEARCH_SECTION_TITLE } from "./home-search-entry-convergence";
-import { pickListenPort } from "./http-harness";
+import {
+  httpGetStatus,
+  isListenPortFree,
+  pickListenPort,
+} from "./http-harness";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { PHASE_1_UX_PASSING_STUB_HTML } from "./phase-1-ux-stub-fixtures";
 import {
@@ -18,7 +33,10 @@ import {
   DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
   defaultSpawnProductionServer,
   killManagedChild,
+  NEXT_BUILD_REQUIRED_MESSAGE,
+  resolveNextProductionServerBin,
   shouldRunVerifyProductionIntegrationTests,
+  VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV,
   waitForServerReady,
 } from "./server-lifecycle";
 
@@ -293,8 +311,77 @@ describe("runPhase1UxVerification", () => {
   });
 });
 
+function buildFakeReadyNextBinBody(
+  htmlByPath: Record<string, string>,
+  apiResults: Record<string, Array<{ url: string }>>,
+): string {
+  const htmlJson = JSON.stringify(htmlByPath);
+  const apiJson = JSON.stringify(apiResults);
+
+  return `
+const args = process.argv.slice(2);
+const portFlagIndex = args.indexOf("-p");
+const port = portFlagIndex >= 0 ? Number(args[portFlagIndex + 1]) : Number.NaN;
+if (!Number.isFinite(port)) {
+  console.error("fake next start: -p port required");
+  process.exit(1);
+}
+import { createServer } from "node:http";
+import { writeFileSync } from "node:fs";
+const htmlByPath = ${htmlJson};
+const apiResults = ${apiJson};
+const server = createServer((req, res) => {
+  const requestUrl = new URL(req.url ?? "/", "http://127.0.0.1");
+  const path = requestUrl.pathname;
+  if (path === "/api/search") {
+    const query = requestUrl.searchParams.get("query") ?? "";
+    res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+    res.end(JSON.stringify(apiResults[query] ?? []));
+    return;
+  }
+  const body = htmlByPath[path] ?? "<html>not found</html>";
+  res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+  res.end(body);
+});
+server.listen(port, "127.0.0.1", () => {
+  writeFileSync(".verify-stub-port", String(port));
+});
+`;
+}
+
+const FAKE_NEVER_READY_NEXT_BIN_BODY = `
+const args = process.argv.slice(2);
+const portFlagIndex = args.indexOf("-p");
+const port = portFlagIndex >= 0 ? Number(args[portFlagIndex + 1]) : Number.NaN;
+if (!Number.isFinite(port)) {
+  console.error("fake next start: -p port required");
+  process.exit(1);
+}
+import { createServer } from "node:http";
+createServer((_req, res) => {
+  res.writeHead(503, { "Content-Type": "text/plain" });
+  res.end("not ready");
+}).listen(port, "127.0.0.1");
+`;
+
+function writeFakeNextBin(projectRoot: string, scriptBody: string): void {
+  const nextBinPath = resolveNextProductionServerBin(projectRoot);
+  mkdirSync(dirname(nextBinPath), { recursive: true });
+  writeFileSync(nextBinPath, `#!/usr/bin/env bun\n${scriptBody}`, {
+    mode: 0o755,
+  });
+}
+
+function createVerifyCliFixtureRoot(options: { nextBinBody: string }): string {
+  const projectRoot = mkdtempSync(join(tmpdir(), "verify-cli-fixture-"));
+  mkdirSync(join(projectRoot, ".next"));
+  writeFakeNextBin(projectRoot, options.nextBinBody);
+  return projectRoot;
+}
+
 function runVerifyScriptWithEnv(
   env: Record<string, string | undefined>,
+  options: { cwd?: string } = {},
 ): Promise<{ exitCode: number; output: string }> {
   const mergedEnv = { ...process.env };
   for (const [key, value] of Object.entries(env)) {
@@ -308,8 +395,9 @@ function runVerifyScriptWithEnv(
   return new Promise((resolve, reject) => {
     const child = spawn(
       "bun",
-      [join(process.cwd(), "scripts/verify-phase-1-route-search-ux.ts")],
+      [join(repoRoot, "scripts/verify-phase-1-route-search-ux.ts")],
       {
+        cwd: options.cwd ?? process.cwd(),
         env: mergedEnv,
         stdio: ["ignore", "pipe", "pipe"],
       },
@@ -330,6 +418,84 @@ function runVerifyScriptWithEnv(
 }
 
 describe("verify-phase-1-route-search-ux script", () => {
+  test("exits 1 with readiness failure when default spawn never becomes ready", async () => {
+    const projectRoot = createVerifyCliFixtureRoot({
+      nextBinBody: FAKE_NEVER_READY_NEXT_BIN_BODY,
+    });
+    const startupTimeoutMs = 800;
+
+    try {
+      const result = await runVerifyScriptWithEnv(
+        {
+          VERIFY_BASE_URL: undefined,
+          [VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV]: String(startupTimeoutMs),
+        },
+        { cwd: projectRoot },
+      );
+
+      expect(result.exitCode).toBe(1);
+      expect(result.output).toMatch(/did not become ready/i);
+      expect(result.output).toContain("health URL http://127.0.0.1:");
+      expect(result.output).toContain(`within ${startupTimeoutMs}ms`);
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("exits 0 with success summary on default path when fake next serves passing stub", async () => {
+    const projectRoot = createVerifyCliFixtureRoot({
+      nextBinBody: buildFakeReadyNextBinBody(
+        buildPhase1AndCustomerAskPassingStubHtml(),
+        CUSTOMER_ASK_PASSING_API_RESULTS,
+      ),
+    });
+
+    try {
+      const result = await runVerifyScriptWithEnv(
+        {
+          VERIFY_BASE_URL: undefined,
+          VERIFY_SEARCH_PAGE_STUB: "pass",
+          VERIFY_SEARCH_DIALOG_STUB: "pass",
+          VERIFY_SEARCH_SHORTCUT_STUB: "pass",
+          VERIFY_DOCS_FOOTER_STUB: "pass",
+        },
+        { cwd: projectRoot },
+      );
+
+      expect(result.exitCode).toBe(0);
+      expect(result.output).toContain(CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER);
+      assertBatch008CustomerAskReportAllPass(result.output);
+      expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
+
+      const stubPort = Number(
+        readFileSync(join(projectRoot, ".verify-stub-port"), "utf8").trim(),
+      );
+      expect(Number.isFinite(stubPort)).toBe(true);
+      expect(await isListenPortFree(stubPort)).toBe(true);
+      await expect(
+        httpGetStatus(`http://127.0.0.1:${stubPort}/`, 500),
+      ).rejects.toBeDefined();
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("exits 1 with NEXT_BUILD_REQUIRED_MESSAGE when .next is missing on default path", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-cli-no-next-"));
+
+    try {
+      const result = await runVerifyScriptWithEnv(
+        { VERIFY_BASE_URL: undefined },
+        { cwd: projectRoot },
+      );
+
+      expect(result.exitCode).toBe(1);
+      expect(result.output).toContain(NEXT_BUILD_REQUIRED_MESSAGE);
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
   test("exits 0 with success summary when VERIFY_BASE_URL points at a passing stub", async () => {
     const httpServer = createPhase1UxStubServer(
       buildPhase1AndCustomerAskPassingStubHtml(),
