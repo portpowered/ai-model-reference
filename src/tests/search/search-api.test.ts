@@ -2,11 +2,17 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { GET } from "@/app/api/search/route";
 import { docsSearchApi } from "@/lib/search/search-server";
-import { PHASE_1_SEARCH_ASSERTIONS } from "@/lib/verify/phase-1-search-checks";
+import {
+  PHASE_1_ATTENTION_MODULE_URL,
+  PHASE_1_HIDDEN_SIZE_GLOSSARY_URL,
+  PHASE_1_SEARCH_ASSERTIONS,
+  PHASE_1_VECTOR_GLOSSARY_URL,
+} from "@/lib/verify/phase-1-search-checks";
 import {
   expectUniqueCanonicalPageUrls,
   resultsIncludeSampleModule,
   resultsIncludeTokenGlossary,
+  resultsIncludeUrl,
   SAMPLE_MODULE_URL,
   TOKEN_GLOSSARY_URL,
 } from "./helpers";
@@ -104,10 +110,27 @@ describe("docsSearchApi", () => {
     expect(results[0]?.url).toBe(SAMPLE_URL);
   });
 
-  test("search includes grouped-query attention for attention query", async () => {
+  test("search includes attention bridge and grouped-query attention for attention query", async () => {
     const results = await docsSearchApi.search("attention");
     expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL)).toBe(true);
     expect(resultsIncludeSampleModule(results)).toBe(true);
+  });
+
+  test("search includes vector glossary for vector query", async () => {
+    const results = await docsSearchApi.search("vector");
+    expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeUrl(results, PHASE_1_VECTOR_GLOSSARY_URL)).toBe(true);
+    expectUniqueCanonicalPageUrls(results.map((result) => result.url));
+  });
+
+  test("search includes hidden size glossary for hidden size query", async () => {
+    const results = await docsSearchApi.search("hidden size");
+    expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeUrl(results, PHASE_1_HIDDEN_SIZE_GLOSSARY_URL)).toBe(
+      true,
+    );
+    expectUniqueCanonicalPageUrls(results.map((result) => result.url));
   });
 
   test("search includes grouped-query attention for title query", async () => {

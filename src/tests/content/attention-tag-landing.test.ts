@@ -108,6 +108,7 @@ describe("attention tag landing page render", () => {
     expect(html).toContain("Attention");
     expect(html).toContain("Module");
     expect(html).toContain("Glossary");
+    expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain("Grouped-Query Attention");
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain("Autoregressive Generation");

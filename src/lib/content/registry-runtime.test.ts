@@ -24,6 +24,7 @@ describe("registry-runtime", () => {
     const record = getModuleById("module.grouped-query-attention");
     expect(record?.slug).toBe("grouped-query-attention");
     expect(record?.tags).toEqual(["attention", "kv-cache"]);
+    expect(record?.relatedIds).toEqual(["module.attention"]);
   });
 
   test("getRegistryTags returns tags for a known module", () => {

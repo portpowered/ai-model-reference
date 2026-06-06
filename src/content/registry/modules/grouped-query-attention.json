@@ -6,7 +6,7 @@
   "defaultSummaryKey": "description",
   "aliases": ["GQA", "grouped-query attention", "grouped query attention"],
   "tags": ["attention", "kv-cache"],
-  "relatedIds": [],
+  "relatedIds": ["module.attention"],
   "citationIds": ["citation.gqa-paper"],
   "status": "published",
   "createdAt": "2026-06-01T00:00:00.000Z",
