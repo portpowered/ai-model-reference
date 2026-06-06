@@ -6,11 +6,9 @@ export const GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS = [
   "Related",
   'data-graph-node-id="hidden-states"',
   'data-graph-node-id="query-groups"',
-  'data-graph-node-id="query-heads"',
-  'data-graph-node-id="kv-cache"',
   'data-graph-node-count="6"',
-  'data-graph-node-count="5"',
   'data-react-flow-graph="true"',
+  'data-graph-id="graph.grouped-query-attention-compute-flow"',
   'href="/docs/modules/multi-head-attention"',
   'data-prose-auto-link="true"',
   'data-registry-comparison-table="true"',
@@ -44,6 +42,7 @@ export const GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS = [
   ">table.grouped-query-attention-comparison<",
   ">graph.grouped-query-attention-compute-flow<",
   ">graph.grouped-query-attention-compute-schema<",
+  'data-graph-id="graph.grouped-query-attention-compute-schema"',
 ] as const;
 
 /** Graph accessibility/build markers derived from {@link GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS}. */

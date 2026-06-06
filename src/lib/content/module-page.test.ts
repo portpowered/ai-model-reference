@@ -88,7 +88,13 @@ describe("grouped-query-attention converged Phase 1 module page", () => {
       }),
     );
 
-    expect(html).toContain('data-react-flow-graph="true"');
+    expect((html.match(/data-react-flow-graph="true"/g) ?? []).length).toBe(1);
+    expect(html).toContain(
+      'data-graph-id="graph.grouped-query-attention-compute-flow"',
+    );
+    expect(html).not.toContain(
+      'data-graph-id="graph.grouped-query-attention-compute-schema"',
+    );
     expect(html).toContain('data-graph-node-id="hidden-states"');
     expect(html).toContain('data-registry-comparison-table="true"');
     expect(html).toContain(

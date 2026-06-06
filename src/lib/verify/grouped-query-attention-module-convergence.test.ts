@@ -16,11 +16,8 @@ const PASSING_HTML = `
   <h2>Related</h2>
   <span data-graph-node-id="hidden-states"></span>
   <span data-graph-node-id="query-groups"></span>
-  <span data-graph-node-id="query-heads"></span>
-  <span data-graph-node-id="kv-cache"></span>
   <div data-graph-node-count="6"></div>
-  <div data-graph-node-count="5"></div>
-  <div data-react-flow-graph="true"></div>
+  <div data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-compute-flow"></div>
   <a href="/docs/modules/multi-head-attention">MHA</a>
   <span data-prose-auto-link="true"></span>
   <div data-registry-comparison-table="true" data-table-id="table.grouped-query-attention-comparison"></div>

@@ -21,13 +21,14 @@ const POST_REPAIR_MODULE_HTML = `
     <div data-registry-id="${GQA_MODULE_REGISTRY_ID}"></div>
     <h2>Compared To Nearby Modules</h2>
     <h2>Related</h2>
-    <div data-react-flow-graph="true" data-web-renderer="react-flow"></div>
+    <div
+      data-react-flow-graph="true"
+      data-web-renderer="react-flow"
+      data-graph-id="graph.grouped-query-attention-compute-flow"
+    ></div>
     <span data-graph-node-id="hidden-states"></span>
     <span data-graph-node-id="query-groups"></span>
-    <span data-graph-node-id="query-heads"></span>
-    <span data-graph-node-id="kv-cache"></span>
     <span data-graph-node-count="6"></span>
-    <span data-graph-node-count="5"></span>
     <div data-registry-comparison-table="true" data-table-id="table.grouped-query-attention-comparison"></div>
     <a href="/docs/modules/multi-head-attention">Multi-Head Attention</a>
     <div data-attention-schema-comparison="true"></div>
