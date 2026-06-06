@@ -1,6 +1,7 @@
 "use client";
 
 import { Background, ReactFlow, ReactFlowProvider } from "@xyflow/react";
+import type { CSSProperties } from "react";
 import { MissingGraphRecord } from "@/features/docs/components/MissingGraphRecord";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
 import { buildRegistryFlowGraph } from "@/lib/content/graph-flow";
@@ -34,6 +35,12 @@ function RegistryGraphFlowCanvas({
       data-react-flow-graph="true"
       data-graph-node-count={String(nodes.length)}
       className="registry-graph-flow w-full min-w-0"
+      style={
+        {
+          "--xy-node-color": "var(--card-foreground)",
+          "--xy-node-background-color": "var(--card)",
+        } as CSSProperties
+      }
       role="img"
       aria-label={accessibleLabel}
     >
