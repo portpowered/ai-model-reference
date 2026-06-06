@@ -3,13 +3,19 @@ import { createServer as createHttpServer } from "node:http";
 import {
   assertCanonicalPageLevelApiResults,
   formatPhase1SearchCheckFailure,
+  PHASE_1_ATTENTION_MODULE_URL,
   PHASE_1_GROUPED_QUERY_ATTENTION_URL,
+  PHASE_1_HIDDEN_SIZE_GLOSSARY_URL,
   PHASE_1_SEARCH_ASSERTIONS,
+  PHASE_1_VECTOR_GLOSSARY_URL,
   runPhase1SearchChecks,
   type SearchResultHit,
 } from "./phase-1-search-checks";
 
 const GQA_HIT = { url: PHASE_1_GROUPED_QUERY_ATTENTION_URL };
+const ATTENTION_HIT = { url: PHASE_1_ATTENTION_MODULE_URL };
+const VECTOR_HIT = { url: PHASE_1_VECTOR_GLOSSARY_URL };
+const HIDDEN_SIZE_HIT = { url: PHASE_1_HIDDEN_SIZE_GLOSSARY_URL };
 const OTHER_HIT = { url: "/docs/glossary/token" };
 
 function listenOnEphemeralPort(
@@ -45,15 +51,19 @@ function createSearchStubServer(
 }
 
 describe("PHASE_1_SEARCH_ASSERTIONS", () => {
-  test("covers GQA, attention, and KV cache manual-gate queries", () => {
+  test("covers GQA, attention, vector, hidden size, and KV cache manual-gate queries", () => {
     expect(PHASE_1_SEARCH_ASSERTIONS.map((search) => search.query)).toEqual([
       "GQA",
       "attention",
+      "vector",
+      "hidden size",
       "KV cache",
     ]);
     expect(PHASE_1_SEARCH_ASSERTIONS.map((search) => search.label)).toEqual([
       "/api/search?query=GQA",
       "/api/search?query=attention",
+      "/api/search?query=vector",
+      "/api/search?query=hidden%20size",
       "/api/search?query=KV%20cache",
     ]);
   });
@@ -61,10 +71,16 @@ describe("PHASE_1_SEARCH_ASSERTIONS", () => {
   test("assertResults passes on expected ranking and inclusion", () => {
     const gqa = PHASE_1_SEARCH_ASSERTIONS[0];
     const attention = PHASE_1_SEARCH_ASSERTIONS[1];
-    const kvCache = PHASE_1_SEARCH_ASSERTIONS[2];
+    const vector = PHASE_1_SEARCH_ASSERTIONS[2];
+    const hiddenSize = PHASE_1_SEARCH_ASSERTIONS[3];
+    const kvCache = PHASE_1_SEARCH_ASSERTIONS[4];
 
     expect(gqa?.assertResults([GQA_HIT, OTHER_HIT])).toBeNull();
-    expect(attention?.assertResults([OTHER_HIT, GQA_HIT])).toBeNull();
+    expect(
+      attention?.assertResults([ATTENTION_HIT, OTHER_HIT, GQA_HIT]),
+    ).toBeNull();
+    expect(vector?.assertResults([VECTOR_HIT, OTHER_HIT])).toBeNull();
+    expect(hiddenSize?.assertResults([HIDDEN_SIZE_HIT, OTHER_HIT])).toBeNull();
     expect(kvCache?.assertResults([OTHER_HIT, GQA_HIT])).toBeNull();
   });
 
@@ -90,7 +106,9 @@ describe("runPhase1SearchChecks", () => {
   test("returns no failures when stub server serves Phase 1 search rankings", async () => {
     const httpServer = createSearchStubServer({
       GQA: [GQA_HIT, OTHER_HIT],
-      attention: [OTHER_HIT, GQA_HIT],
+      attention: [ATTENTION_HIT, OTHER_HIT, GQA_HIT],
+      vector: [VECTOR_HIT, OTHER_HIT],
+      "hidden size": [HIDDEN_SIZE_HIT, OTHER_HIT],
       "KV cache": [OTHER_HIT, GQA_HIT],
     });
     const port = await listenOnEphemeralPort(httpServer);
@@ -110,7 +128,9 @@ describe("runPhase1SearchChecks", () => {
     const httpServer = createSearchStubServer(
       {
         GQA: [GQA_HIT],
-        attention: [GQA_HIT],
+        attention: [ATTENTION_HIT, GQA_HIT],
+        vector: [VECTOR_HIT],
+        "hidden size": [HIDDEN_SIZE_HIT],
         "KV cache": [GQA_HIT],
       },
       { attention: 503 },
@@ -149,7 +169,9 @@ describe("runPhase1SearchChecks", () => {
   test("reports wrong first-hit URL for GQA with HTTP 200 status", async () => {
     const httpServer = createSearchStubServer({
       GQA: [OTHER_HIT],
-      attention: [GQA_HIT],
+      attention: [ATTENTION_HIT, GQA_HIT],
+      vector: [VECTOR_HIT],
+      "hidden size": [HIDDEN_SIZE_HIT],
       "KV cache": [GQA_HIT],
     });
     const port = await listenOnEphemeralPort(httpServer);
@@ -177,7 +199,9 @@ describe("runPhase1SearchChecks", () => {
   test("reports missing grouped-query attention for attention query", async () => {
     const httpServer = createSearchStubServer({
       GQA: [GQA_HIT],
-      attention: [OTHER_HIT],
+      attention: [ATTENTION_HIT, OTHER_HIT],
+      vector: [VECTOR_HIT],
+      "hidden size": [HIDDEN_SIZE_HIT],
       "KV cache": [GQA_HIT],
     });
     const port = await listenOnEphemeralPort(httpServer);

@@ -4,7 +4,12 @@ import { GQA_MODULE_REGISTRY_ID } from "./customer-ask-gqa-module-convergence";
 import { TAG_LIST_CUSTOMER_ASK_ROUTES } from "./customer-ask-tag-list-convergence";
 import { buildGroupedQueryAttentionStubBody } from "./grouped-query-attention-module-convergence";
 import { REMOVED_HOME_INLINE_SEARCH_SECTION_TITLE } from "./home-search-entry-convergence";
-import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
+import {
+  PHASE_1_ATTENTION_MODULE_URL,
+  PHASE_1_GROUPED_QUERY_ATTENTION_URL,
+  PHASE_1_HIDDEN_SIZE_GLOSSARY_URL,
+  PHASE_1_VECTOR_GLOSSARY_URL,
+} from "./phase-1-search-checks";
 import {
   buildPhase1DocsRouteStubHtml,
   PHASE_1_UX_PASSING_STUB_HTML,
@@ -237,8 +242,14 @@ export const CUSTOMER_ASK_PASSING_API_RESULTS: Record<
     { url: TOKEN_GLOSSARY_URL },
   ],
   attention: [
+    { url: PHASE_1_ATTENTION_MODULE_URL },
     { url: TOKEN_GLOSSARY_URL },
     { url: PHASE_1_GROUPED_QUERY_ATTENTION_URL },
+  ],
+  vector: [{ url: PHASE_1_VECTOR_GLOSSARY_URL }, { url: TOKEN_GLOSSARY_URL }],
+  "hidden size": [
+    { url: PHASE_1_HIDDEN_SIZE_GLOSSARY_URL },
+    { url: TOKEN_GLOSSARY_URL },
   ],
   "KV cache": [
     { url: TOKEN_GLOSSARY_URL },

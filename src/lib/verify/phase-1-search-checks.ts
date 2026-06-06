@@ -1,4 +1,4 @@
-import { modulePageHref } from "@/lib/content/content-hrefs";
+import { glossaryPageHref, modulePageHref } from "@/lib/content/content-hrefs";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import {
   DEFAULT_FETCH_TIMEOUT_MS,
@@ -10,6 +10,9 @@ import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 export const PHASE_1_GROUPED_QUERY_ATTENTION_URL = modulePageHref(
   "grouped-query-attention",
 );
+export const PHASE_1_ATTENTION_MODULE_URL = modulePageHref("attention");
+export const PHASE_1_VECTOR_GLOSSARY_URL = glossaryPageHref("vector");
+export const PHASE_1_HIDDEN_SIZE_GLOSSARY_URL = glossaryPageHref("hidden-size");
 
 export type SearchResultHit = {
   url: string;
@@ -42,6 +45,24 @@ function resultsIncludeGroupedQueryAttention(
   results: readonly SearchResultHit[],
 ): boolean {
   return resultsIncludeUrl(results, PHASE_1_GROUPED_QUERY_ATTENTION_URL);
+}
+
+function resultsIncludeAttentionModule(
+  results: readonly SearchResultHit[],
+): boolean {
+  return resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL);
+}
+
+function resultsIncludeVectorGlossary(
+  results: readonly SearchResultHit[],
+): boolean {
+  return resultsIncludeUrl(results, PHASE_1_VECTOR_GLOSSARY_URL);
+}
+
+function resultsIncludeHiddenSizeGlossary(
+  results: readonly SearchResultHit[],
+): boolean {
+  return resultsIncludeUrl(results, PHASE_1_HIDDEN_SIZE_GLOSSARY_URL);
 }
 
 /** Returns a failure reason when API hits include fragment URLs or duplicate pages. */
@@ -121,8 +142,45 @@ export const PHASE_1_SEARCH_ASSERTIONS: readonly Phase1SearchAssertion[] = [
       if (canonicalReason) {
         return canonicalReason;
       }
+      if (!resultsIncludeAttentionModule(results)) {
+        return `expected hit for ${PHASE_1_ATTENTION_MODULE_URL}`;
+      }
       if (!resultsIncludeGroupedQueryAttention(results)) {
         return `expected hit for ${PHASE_1_GROUPED_QUERY_ATTENTION_URL}`;
+      }
+      return null;
+    },
+  },
+  {
+    query: "vector",
+    label: "/api/search?query=vector",
+    assertResults: (results) => {
+      if (results.length === 0) {
+        return "expected at least one search hit";
+      }
+      const canonicalReason = assertCanonicalPageLevelApiResults(results);
+      if (canonicalReason) {
+        return canonicalReason;
+      }
+      if (!resultsIncludeVectorGlossary(results)) {
+        return `expected hit for ${PHASE_1_VECTOR_GLOSSARY_URL}`;
+      }
+      return null;
+    },
+  },
+  {
+    query: "hidden size",
+    label: "/api/search?query=hidden%20size",
+    assertResults: (results) => {
+      if (results.length === 0) {
+        return "expected at least one search hit";
+      }
+      const canonicalReason = assertCanonicalPageLevelApiResults(results);
+      if (canonicalReason) {
+        return canonicalReason;
+      }
+      if (!resultsIncludeHiddenSizeGlossary(results)) {
+        return `expected hit for ${PHASE_1_HIDDEN_SIZE_GLOSSARY_URL}`;
       }
       return null;
     },
