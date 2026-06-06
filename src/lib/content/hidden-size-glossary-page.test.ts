@@ -46,7 +46,6 @@ describe("loadGlossaryPage hidden-size", () => {
 
     expectGlossaryPresentationConvergence(html, {
       title: page.messages.title,
-      openingSummary: page.messages.openingSummary ?? "",
     });
     expect(html).toContain("Phase 1 bridge page");
     expect(html).toContain("width coverage");

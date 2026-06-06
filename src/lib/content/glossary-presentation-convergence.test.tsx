@@ -23,7 +23,6 @@ function countH1BlocksContaining(html: string, text: string): number {
 async function renderTokenGlossaryPresentationShell(): Promise<{
   html: string;
   title: string;
-  openingSummary: string;
 }> {
   const loadedPage = await loadLocalDocsPage({
     section: "glossary",
@@ -52,20 +51,17 @@ async function renderTokenGlossaryPresentationShell(): Promise<{
   return {
     html,
     title: loadedPage.messages.title,
-    openingSummary: loadedPage.messages.openingSummary ?? "",
   };
 }
 
 describe("glossary presentation convergence", () => {
   test("/docs/glossary/token satisfies the full Phase 1 presentation contract", async () => {
-    const { html, title, openingSummary } =
-      await renderTokenGlossaryPresentationShell();
+    const { html, title } = await renderTokenGlossaryPresentationShell();
     const articleHtml = extractGlossaryArticleHtml(html, "concept.token");
 
     expect(articleHtml.length).toBeGreaterThan(0);
     expectGlossaryPresentationConvergence(articleHtml, {
       title,
-      openingSummary,
     });
     expect(countH1BlocksContaining(html, title)).toBe(1);
     expect(articleHtml).toContain('data-testid="curated-related-docs"');
@@ -97,7 +93,7 @@ describe("glossary presentation route convergence (built HTML)", () => {
     const articleHtml = extractGlossaryArticleHtml(html, "concept.token");
 
     expect(assertDocsShellConvergence(html)).toBeNull();
-    expect(articleHtml).toContain('data-testid="glossary-opening"');
+    expect(articleHtml).not.toContain('data-testid="glossary-opening"');
     expect(
       (articleHtml.match(/data-testid="tag-pill-list"/g) ?? []).length,
     ).toBe(1);
