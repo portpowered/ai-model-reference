@@ -237,6 +237,7 @@ make test          # fumadocs-mdx (pretest), then bun test
 make coverage      # fumadocs-mdx (precoverage), manifest coverage gate
 make build         # next build + Phase 1 static route check
 make verify-phase-1-ux # HTTP verification for Phase 1 reader routes and search (requires build)
+make verify-phase-1-built-app-convergence # batch-010 built-app gate with planner-facing evidence summary
 make validate-data # registry and content validation
 make linkcheck     # internal docs link validation (also runs in make ci)
 make scaffold       # scaffold glossary/concept page bundles (pass ARGS='...')
@@ -334,6 +335,25 @@ the command. Copy per-row statuses into loopback convergence notes so the
 ideafy planner can choose a narrow repair batch or Phase 1 stop-and-wait. See
 `factory/docs/phase-1-customer-ask-convergence-validator.md` for the full check
 id, route, and checklist-row inventory.
+
+**Batch-010 built-app convergence validator:** During batch-010 loopback, run
+the canonical built-app gate with planner-facing evidence that separates
+verifier command-path health from customer-ask row outcomes:
+
+```sh
+make verify-phase-1-built-app-convergence
+# or
+bun run verify:phase-1-built-app-convergence
+```
+
+This runs `make build` then `make verify-phase-1-ux` with `VERIFY_BASE_URL`
+explicitly unset, streams subprocess output to the terminal while capturing it
+for parsing, and prints a **Phase 1 batch-010 built-app convergence evidence
+summary** with `Recommendation` and `Rationale` lines. The process exits `1`
+when verifier command-path or any customer-ask row is `fail`; `uncertain`
+evidence is non-blocking. Canonical validation must not set `VERIFY_BASE_URL`.
+See `factory/docs/phase-1-built-app-convergence-validator.md` for
+prerequisites, report fields, exit semantics, and recommendation interpretation.
 
 The verifier also exercises the built `/search` page, the header search dialog
 (via the search trigger button), and keyboard shortcuts on the home page:

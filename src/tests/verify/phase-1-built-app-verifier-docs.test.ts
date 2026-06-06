@@ -18,6 +18,10 @@ const convergencePassDocPath = join(
   repoRoot,
   "factory/docs/phase-1-convergence-pass.md",
 );
+const builtAppConvergenceDocPath = join(
+  repoRoot,
+  "factory/docs/phase-1-built-app-convergence-validator.md",
+);
 
 describe("Phase 1 built-app verifier entrypoint documentation", () => {
   test("README documents make verify-phase-1-ux as the built-app manual gate command", () => {
@@ -39,6 +43,15 @@ describe("Phase 1 built-app verifier entrypoint documentation", () => {
     expect(readme).toMatch(
       /factory\/docs\/phase-1-customer-ask-convergence-validator\.md/,
     );
+    expect(readme).toMatch(/make verify-phase-1-built-app-convergence/);
+    expect(readme).toMatch(/bun run verify:phase-1-built-app-convergence/);
+    expect(readme).toMatch(
+      /factory\/docs\/phase-1-built-app-convergence-validator\.md/,
+    );
+    expect(readme).toMatch(
+      /Phase 1 batch-010 built-app convergence evidence[\s\S]*summary/i,
+    );
+    expect(readme).toMatch(/VERIFY_BASE_URL.*unset|unset.*VERIFY_BASE_URL/i);
   });
 
   test("Makefile and package.json expose the built-app verifier command", () => {
@@ -116,5 +129,40 @@ describe("Phase 1 built-app verifier entrypoint documentation", () => {
     );
     expect(convergencePassDoc).toMatch(/Recommendation:/);
     expect(convergencePassDoc).toMatch(/phase-1-convergence-evidence\.ts/);
+  });
+
+  test("factory doc documents the batch-010 built-app convergence validator workflow", () => {
+    const builtAppConvergenceDoc = readFileSync(
+      builtAppConvergenceDocPath,
+      "utf8",
+    );
+    expect(builtAppConvergenceDoc).toMatch(
+      /make verify-phase-1-built-app-convergence/,
+    );
+    expect(builtAppConvergenceDoc).toMatch(/make build/);
+    expect(builtAppConvergenceDoc).toMatch(/make verify-phase-1-ux/);
+    expect(builtAppConvergenceDoc).toMatch(
+      /VERIFY_BASE_URL.*unset|unset.*VERIFY_BASE_URL/i,
+    );
+    expect(builtAppConvergenceDoc).toMatch(
+      /factory\/docs\/phase-1-customer-ask-convergence-validator\.md/,
+    );
+    expect(builtAppConvergenceDoc).toMatch(/verifier-command-path/);
+    expect(builtAppConvergenceDoc).toMatch(/customer-ask-convergence/);
+    expect(builtAppConvergenceDoc).toMatch(/Playwright Chromium/);
+    expect(builtAppConvergenceDoc).toMatch(
+      /Phase 1 batch-010 built-app convergence evidence summary/,
+    );
+    expect(builtAppConvergenceDoc).toMatch(
+      /queue-one-narrow-repair-batch|close-verifier-harness-regression|stop-and-wait-for-phase-advancement/,
+    );
+    expect(builtAppConvergenceDoc).toMatch(/Recommendation:/);
+    expect(builtAppConvergenceDoc).toMatch(/Rationale:/);
+    expect(builtAppConvergenceDoc).toMatch(
+      /phase-1-built-app-convergence-evidence\.ts/,
+    );
+    expect(builtAppConvergenceDoc).toMatch(
+      /phase-1-built-app-verifier-command-path\.ts/,
+    );
   });
 });
