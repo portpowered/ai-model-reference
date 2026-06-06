@@ -18,6 +18,7 @@ import {
 } from "@/tests/a11y/render";
 import {
   collectResultUrlsFromNodes,
+  expectFullRowSearchResultHighlightPanel,
   expectSharedSearchResultRowPanel,
   expectThinSearchMetadataPanel,
   expectUniqueCanonicalPageUrls,
@@ -143,6 +144,23 @@ describe("SearchPagePanel Phase 1 queries", () => {
 
     const results = await screen.findByTestId("search-page-results");
     expectThinSearchMetadataPanel(within(results), { expectSummary: true });
+  });
+
+  test("GQA query highlights full result rows including metadata on hover and focus", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      "GQA",
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    expectFullRowSearchResultHighlightPanel(within(results));
+    const row = within(results).getAllByTestId("search-result-row")[0];
+    expect(row?.className).toContain("hover:bg-accent");
+    expect(row?.className).toContain("focus-visible:ring-2");
   });
 
   test("GQA query ranks grouped-query attention first on /search", async () => {

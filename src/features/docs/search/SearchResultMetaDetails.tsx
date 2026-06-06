@@ -6,6 +6,10 @@ import {
 } from "@/lib/content/ui-messages.types";
 import type { SearchResultMeta } from "@/lib/search/search-result-meta";
 import { cn } from "@/lib/utils";
+import {
+  searchResultMetaEmbeddedFieldClassName,
+  searchResultMetaEmbeddedPanelClassName,
+} from "./search-result-row-classes";
 
 export type SearchResultMetaDetailsProps = {
   url: string;
@@ -25,13 +29,16 @@ export function SearchResultMetaDetails({
   className,
 }: SearchResultMetaDetailsProps) {
   const kindLabel = formatPageKind(messages, meta.kind);
+  const embeddedFieldClassName = embedded
+    ? searchResultMetaEmbeddedFieldClassName
+    : "text-fd-muted-foreground";
 
   return (
     <div
       className={cn(
         "space-y-0.5 text-sm",
         embedded
-          ? "pt-1 text-fd-muted-foreground group-hover:text-accent-foreground/90 group-aria-selected:text-fd-accent-foreground/90"
+          ? searchResultMetaEmbeddedPanelClassName
           : "px-3 pb-2 ps-10 text-fd-muted-foreground",
         className,
       )}
@@ -39,21 +46,21 @@ export function SearchResultMetaDetails({
     >
       {meta.description ? (
         <p
-          className="line-clamp-2 text-fd-muted-foreground"
+          className={cn("line-clamp-2", embeddedFieldClassName)}
           data-testid="search-result-summary"
         >
           {meta.description}
         </p>
       ) : null}
       <p
-        className="truncate font-mono text-xs text-fd-muted-foreground"
+        className={cn("truncate font-mono text-xs", embeddedFieldClassName)}
         data-testid="search-result-url"
       >
         <span className="sr-only">{messages.search.resultPath}: </span>
         <span aria-hidden="true">{url}</span>
       </p>
       <p
-        className="text-xs text-fd-muted-foreground"
+        className={cn("text-xs", embeddedFieldClassName)}
         data-testid="search-result-kind"
       >
         {kindLabel}
