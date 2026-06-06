@@ -60,6 +60,15 @@ export const CUSTOMER_ASK_PASSING_HOME_HTML = `
   </html>
 `;
 
+/** Pre-repair home HTML with excess brush header margin for follow-up brevity checks. */
+export const CUSTOMER_ASK_PRE_REPAIR_HOME_BREVITY_HTML =
+  CUSTOMER_ASK_PASSING_HOME_HTML.replace(
+    '<header class="relative overflow-hidden rounded-lg px-6 py-10">',
+    '<header class="relative mb-8 overflow-hidden rounded-lg px-6 py-10">',
+  );
+
+export { PRE_REPAIR_SEARCH_RESULT_ROW_HTML } from "./customer-ask-search-follow-up-convergence";
+
 export const CUSTOMER_ASK_PRE_REPAIR_HOME_HTML = `
   <html>
     <header>
