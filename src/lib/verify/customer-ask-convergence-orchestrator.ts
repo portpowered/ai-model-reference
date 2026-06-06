@@ -22,6 +22,10 @@ import {
   runCustomerAskHomeHeaderChecks,
 } from "./customer-ask-home-header-convergence-http";
 import {
+  type RunCustomerAskHomeNavFollowUpChecksOptions,
+  runCustomerAskHomeNavFollowUpChecks,
+} from "./customer-ask-home-nav-follow-up-convergence-http";
+import {
   type RunCustomerAskSearchSurfaceChecksOptions,
   runCustomerAskSearchSurfaceChecks,
 } from "./customer-ask-search-surface-convergence-http";
@@ -38,6 +42,7 @@ import {
 export type RunCustomerAskConvergenceChecksOptions = {
   timeoutMs?: number;
   homeHeaderOptions?: RunCustomerAskHomeHeaderChecksOptions;
+  homeNavFollowUpOptions?: RunCustomerAskHomeNavFollowUpChecksOptions;
   tagListOptions?: RunCustomerAskTagListChecksOptions;
   searchSurfaceOptions?: RunCustomerAskSearchSurfaceChecksOptions;
   glossaryOptions?: RunCustomerAskGlossaryChecksOptions;
@@ -58,6 +63,7 @@ export async function runCustomerAskConvergenceChecks(
 
   const [
     homeHeaderRows,
+    homeNavFollowUpRows,
     tagListRows,
     searchSurfaceRows,
     glossaryRows,
@@ -67,6 +73,10 @@ export async function runCustomerAskConvergenceChecks(
     runCustomerAskHomeHeaderChecks(baseUrl, {
       ...sharedTimeout,
       ...options.homeHeaderOptions,
+    }),
+    runCustomerAskHomeNavFollowUpChecks(baseUrl, {
+      ...sharedTimeout,
+      ...options.homeNavFollowUpOptions,
     }),
     runCustomerAskTagListChecks(baseUrl, {
       ...sharedTimeout,
@@ -92,6 +102,7 @@ export async function runCustomerAskConvergenceChecks(
 
   return [
     ...homeHeaderRows,
+    ...homeNavFollowUpRows,
     ...tagListRows,
     ...searchSurfaceRows,
     ...glossaryRows,
