@@ -8,6 +8,7 @@ import {
   SearchResultRow,
 } from "@/features/docs/search/SearchResultRow";
 import { SearchInlineResultItem } from "@/features/docs/search/SearchResults";
+import { SearchResultTitle } from "@/features/docs/search/SearchResultTitle";
 import {
   searchDialogResultRowClassName,
   searchPageResultRowClassName,
@@ -402,6 +403,61 @@ describe("SearchResultRow", () => {
 
     expect(html).toContain("Action");
     expect(html).not.toContain('data-testid="search-result-meta"');
+  });
+
+  test("page surface renders non-page heading hits without metadata panel", async () => {
+    const messages = await loadUiMessages();
+    const html = renderToStaticMarkup(
+      <SearchResultRow
+        item={{
+          id: "heading-1",
+          type: "heading",
+          url: SAMPLE_MODULE_URL,
+          content: "Overview",
+        }}
+        query=""
+        metaByUrl={{}}
+        messages={messages}
+        surface="page"
+        onActivate={() => {}}
+      />,
+    );
+
+    expect(html).toContain("Overview");
+    expect(html).not.toContain('data-testid="search-result-meta"');
+  });
+});
+
+describe("SearchResultTitle", () => {
+  test("renders plain titles without query-match marks", () => {
+    const html = renderToStaticMarkup(
+      <SearchResultTitle
+        content="Grouped-Query Attention"
+        query=""
+        className="text-foreground"
+      />,
+    );
+
+    expect(html).toContain("Grouped-Query Attention");
+    expect(html).not.toContain('data-testid="search-result-title-mark"');
+  });
+
+  test("renders query-match marks with accent-safe classes", () => {
+    const html = renderToStaticMarkup(
+      <SearchResultTitle
+        content="Grouped-Query Attention"
+        query="Grouped"
+        className="text-foreground"
+      />,
+    );
+
+    expect(html).toContain('data-testid="search-result-title-mark"');
+    expect(html).toContain("Grouped</mark>-Query Attention");
+    for (const token of searchResultTitleMarkClassName.split(/\s+/)) {
+      if (token.length > 0) {
+        expect(html).toContain(token);
+      }
+    }
   });
 });
 
