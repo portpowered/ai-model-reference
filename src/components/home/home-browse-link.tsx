@@ -1,6 +1,10 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import {
+  bulletlessListClassName,
+  docsResourceCardLinkClassName,
+} from "@/features/docs/components/list-decoration";
 
 type HomeBrowseListProps = {
   ariaLabel: string;
@@ -15,7 +19,7 @@ type HomeBrowseLinkProps = {
 
 export function HomeBrowseList({ ariaLabel, children }: HomeBrowseListProps) {
   return (
-    <ul className="mt-4 flex list-none flex-col gap-3" aria-label={ariaLabel}>
+    <ul className={bulletlessListClassName("mt-4")} aria-label={ariaLabel}>
       {children}
     </ul>
   );
@@ -28,10 +32,7 @@ export function HomeBrowseLink({
 }: HomeBrowseLinkProps) {
   return (
     <li>
-      <Link
-        href={href}
-        className="group block rounded-lg border border-border bg-card/40 p-4 no-underline transition-colors hover:border-ring hover:bg-card hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
+      <Link href={href} className={docsResourceCardLinkClassName}>
         <span className="flex items-center gap-2 font-medium text-foreground">
           {title}
           <ArrowRight

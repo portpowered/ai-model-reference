@@ -1,5 +1,9 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import {
+  bulletlessListClassName,
+  docsResourceCardLinkClassName,
+} from "@/features/docs/components/list-decoration";
 import type { TagIndexCategoryGroup } from "@/lib/content/tags";
 
 type TagsIndexListProps = {
@@ -21,13 +25,10 @@ export function TagsIndexList({ groups, listLabel }: TagsIndexListProps) {
           >
             {group.categoryLabel}
           </h2>
-          <ul className="mt-3 flex list-none flex-col gap-3">
+          <ul className={bulletlessListClassName("mt-3")}>
             {group.tags.map((tag) => (
               <li key={tag.slug}>
-                <Link
-                  href={tag.url}
-                  className="group block rounded-lg border border-border bg-card/40 p-4 transition-colors hover:border-ring hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
+                <Link href={tag.url} className={docsResourceCardLinkClassName}>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-medium text-foreground">
                       {tag.title}

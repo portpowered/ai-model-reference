@@ -3,6 +3,14 @@ import type { UiMessages } from "@/lib/content/ui-messages.types";
 export const PRIMARY_NAV_LINK_CLASS =
   "text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
+export const PRIMARY_NAV_DESKTOP_CLASS =
+  "hidden flex-1 flex-wrap items-center gap-4 md:flex";
+
+export const PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS = "md:hidden";
+
+export const PRIMARY_NAV_MOBILE_PANEL_CLASS =
+  "order-last w-full basis-full border-t border-border py-3 md:hidden";
+
 export type PrimaryNavItem = {
   href: string;
   label: string;

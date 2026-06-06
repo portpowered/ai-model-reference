@@ -12,6 +12,7 @@ export type UiMessages = {
   nav: {
     home: string;
     search: string;
+    menu: string;
     architecture: string;
     glossary: string;
     tags: string;

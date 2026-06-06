@@ -10,6 +10,7 @@ import {
 import { HomeBrushHeader } from "@/components/home/home-brush-header";
 import { getPrimaryNavItems } from "@/components/layout/primary-nav";
 import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
+import { searchInlineResultsListClassName } from "@/features/docs/components/list-decoration";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
 import { SearchTrigger } from "@/features/docs/search/SearchTrigger";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
@@ -116,6 +117,17 @@ describe("Phase 1 home shell styling contracts", () => {
     expect(tagResourceHtml).not.toContain("mt-8");
     expect(tagResourceHtml).toContain("list-none");
     expect(tagResourceHtml).not.toContain("list-disc");
+    expect(tagResourceHtml).toContain("no-underline");
+    expect(tagResourceHtml).toContain("hover:no-underline");
+    const tagResourceWithoutNoUnderline = tagResourceHtml.replaceAll(
+      "no-underline",
+      "",
+    );
+    expect(tagResourceWithoutNoUnderline).not.toMatch(/\bunderline\b/);
+    expect(tagResourceHtml).toContain("focus-visible:ring-2");
+
+    expect(searchInlineResultsListClassName).toContain("list-none");
+    expect(searchInlineResultsListClassName).not.toContain("list-disc");
 
     const docsIndexHtml = renderToStaticMarkup(
       <DocsIndexEntryList
