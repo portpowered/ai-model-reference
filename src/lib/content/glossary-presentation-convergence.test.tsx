@@ -1,10 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { DocsDescription, DocsTitle } from "fumadocs-ui/layouts/docs/page";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import { renderGlossaryDocsShell } from "@/lib/content/glossary-shell-render";
 import {
   expectGlossaryBodyOmitsTitleHeading,
   expectGlossaryOmitsWhereItAppears,
@@ -29,24 +26,7 @@ async function renderTokenGlossaryPresentationShell(): Promise<{
     slug: "token",
   });
 
-  const html = renderToStaticMarkup(
-    createElement(
-      "div",
-      null,
-      createElement(DocsTitle, null, loadedPage.messages.title),
-      createElement(DocsDescription, null, loadedPage.messages.description),
-      createElement(
-        "article",
-        { "data-registry-id": loadedPage.frontmatter.registryId },
-        createElement(ModulePageProviders, {
-          messages: loadedPage.messages,
-          assets: loadedPage.assets,
-          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-          children: loadedPage.content,
-        }),
-      ),
-    ),
-  );
+  const html = renderGlossaryDocsShell(loadedPage);
 
   return {
     html,

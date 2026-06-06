@@ -1,40 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { DocsDescription, DocsTitle } from "fumadocs-ui/layouts/docs/page";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { getGlossaryDocsRoot } from "@/lib/content/content-paths";
 import { listPublishedGlossaryPages } from "@/lib/content/glossary";
+import { renderGlossaryDocsShell } from "@/lib/content/glossary-shell-render";
 import { expectGlossarySingleTagPillList } from "@/lib/content/glossary-test-helpers";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
-
-async function renderTokenGlossaryTagShell(): Promise<string> {
-  const loadedPage = await loadLocalDocsPage({
-    section: "glossary",
-    slug: "token",
-  });
-
-  return renderToStaticMarkup(
-    createElement(
-      "div",
-      null,
-      createElement(DocsTitle, null, loadedPage.messages.title),
-      createElement(DocsDescription, null, loadedPage.messages.description),
-      createElement(
-        "article",
-        { "data-registry-id": loadedPage.frontmatter.registryId },
-        createElement(ModulePageProviders, {
-          messages: loadedPage.messages,
-          assets: loadedPage.assets,
-          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-          children: loadedPage.content,
-        }),
-      ),
-    ),
-  );
-}
 
 describe("glossary tag deduplication convergence", () => {
   test("canonical glossary template renders TagPillList only in the tags section", () => {
@@ -68,7 +39,7 @@ describe("glossary tag deduplication convergence", () => {
       slug: "token",
     });
 
-    const html = await renderTokenGlossaryTagShell();
+    const html = renderGlossaryDocsShell(loadedPage);
     expectGlossarySingleTagPillList(html);
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/token-to-probability-chain"');
