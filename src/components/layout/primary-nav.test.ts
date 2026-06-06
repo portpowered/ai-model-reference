@@ -42,6 +42,8 @@ describe("getPrimaryNavItems", () => {
     expect(PRIMARY_NAV_DESKTOP_CLASS).toContain("hidden");
     expect(PRIMARY_NAV_DESKTOP_CLASS).toContain("md:flex");
     expect(PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS).toBe("md:hidden");
+    expect(PRIMARY_NAV_MOBILE_PANEL_CLASS).toContain("order-last");
+    expect(PRIMARY_NAV_MOBILE_PANEL_CLASS).toContain("w-full");
     expect(PRIMARY_NAV_MOBILE_PANEL_CLASS).toContain("md:hidden");
   });
 });

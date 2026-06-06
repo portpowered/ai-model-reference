@@ -9,7 +9,7 @@ export const PRIMARY_NAV_DESKTOP_CLASS =
 export const PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS = "md:hidden";
 
 export const PRIMARY_NAV_MOBILE_PANEL_CLASS =
-  "border-t border-border px-4 py-3 md:hidden";
+  "order-last w-full basis-full border-t border-border py-3 md:hidden";
 
 export type PrimaryNavItem = {
   href: string;
