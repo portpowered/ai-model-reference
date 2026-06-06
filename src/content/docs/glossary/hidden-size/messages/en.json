@@ -1,0 +1,38 @@
+{
+  "title": "Hidden Size",
+  "description": "The width of a model's internal vectors—the number of dimensions in each token embedding and per-position hidden state before the vocabulary projection.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Hidden size (also called model width or hidden dimension) is the length of the vectors flowing through a transformer's residual stream. Every token position carries a vector of that width after embedding lookup and through each block until the language-model head."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Shape notation such as batch×sequence×768 uses hidden size as the last axis for activations inside the stack. Parameter counts, memory use, and FLOPs scale with width, so papers and configs often list hidden size alongside layer count and head count when comparing model sizes."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "GPT-2 small uses hidden size 768: each token embedding is a 768-dimensional vector, attention projects queries and keys within that space, and the MLP expands and contracts around the same width unless a config explicitly sets a different intermediate size."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Hidden size is not vocabulary size—the embedding table has vocab_size rows but each row has hidden_size columns. It is also not the same as parameter count: two models can share width but differ in depth, head layout, or MLP expansion ratio."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "phase1Bridge": {
+      "title": "Phase 1 bridge page",
+      "body": "This entry is intentionally concise. Fuller capacity and width coverage—including MLP expansion ratios, head-dimension splits, and scaling trade-offs—continues in Phase 2 of the roadmap."
+    }
+  },
+  "openingSummary": "Hidden size is the width of internal vectors in a transformer—every embedding and per-position hidden state uses that many dimensions until the output head."
+}

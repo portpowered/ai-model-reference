@@ -32,6 +32,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/embedding",
   "/docs/glossary/tensor",
   "/docs/glossary/vector",
+  "/docs/glossary/hidden-size",
   "/docs/glossary/logit",
   "/docs/glossary/softmax",
   "/docs/glossary/entropy",

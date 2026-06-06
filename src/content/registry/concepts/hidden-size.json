@@ -1,0 +1,17 @@
+{
+  "id": "concept.hidden-size",
+  "slug": "hidden-size",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["hidden size", "model width", "hidden dimension"],
+  "tags": ["token-to-probability-chain", "foundations"],
+  "relatedIds": ["concept.embedding", "concept.tensor"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-07T00:00:00.000Z",
+  "updatedAt": "2026-06-07T00:00:00.000Z",
+  "conceptType": "math",
+  "prerequisiteIds": ["concept.embedding"],
+  "explainsIds": []
+}

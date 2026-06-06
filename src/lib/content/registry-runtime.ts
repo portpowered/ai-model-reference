@@ -19,6 +19,7 @@ import foundationModelConcept from "@/content/registry/concepts/foundation-model
 import generalizationConcept from "@/content/registry/concepts/generalization.json";
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
 import gradientConcept from "@/content/registry/concepts/gradient.json";
+import hiddenSizeConcept from "@/content/registry/concepts/hidden-size.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
 import logitConcept from "@/content/registry/concepts/logit.json";
@@ -70,6 +71,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(embeddingConcept),
   conceptRecordSchema.parse(tensorConcept),
   conceptRecordSchema.parse(vectorConcept),
+  conceptRecordSchema.parse(hiddenSizeConcept),
   conceptRecordSchema.parse(logitConcept),
   conceptRecordSchema.parse(softmaxConcept),
   conceptRecordSchema.parse(entropyConcept),

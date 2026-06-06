@@ -85,3 +85,9 @@ export const TOKEN_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "token");
 
 /** Phase 1 vector glossary bridge page directory. */
 export const VECTOR_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "vector");
+
+/** Phase 1 hidden size glossary bridge page directory. */
+export const HIDDEN_SIZE_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "hidden-size",
+);
