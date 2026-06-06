@@ -13,6 +13,9 @@ export const DOCS_SHELL_CONVERGENCE_ROUTES: readonly DocsShellConvergenceRoute[]
     { path: "/docs/architecture", label: "/docs/architecture" },
     { path: "/docs/glossary", label: "/docs/glossary" },
     { path: "/docs/glossary/token", label: "/docs/glossary/token" },
+    { path: "/docs/glossary/vector", label: "/docs/glossary/vector" },
+    { path: "/docs/glossary/hidden-size", label: "/docs/glossary/hidden-size" },
+    { path: "/docs/modules/attention", label: "/docs/modules/attention" },
     {
       path: "/docs/modules/grouped-query-attention",
       label: "/docs/modules/grouped-query-attention",

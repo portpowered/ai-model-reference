@@ -26,6 +26,9 @@ const EXPLICIT_SITE_PAGE_MODULES = [
 
 const CATCH_ALL_DOCS_ROUTES = [
   "/docs/glossary/token",
+  "/docs/glossary/vector",
+  "/docs/glossary/hidden-size",
+  "/docs/modules/attention",
   "/docs/modules/grouped-query-attention",
 ] as const;
 
@@ -56,6 +59,9 @@ describe("Phase 1 catch-all glossary and module URL reachability", () => {
 
   test("Fumadocs source resolves Phase 1 glossary and module pages", () => {
     expect(source.getPage(["glossary", "token"])).toBeDefined();
+    expect(source.getPage(["glossary", "vector"])).toBeDefined();
+    expect(source.getPage(["glossary", "hidden-size"])).toBeDefined();
+    expect(source.getPage(["modules", "attention"])).toBeDefined();
     expect(
       source.getPage(["modules", "grouped-query-attention"]),
     ).toBeDefined();
@@ -66,6 +72,9 @@ describe("Phase 1 catch-all glossary and module URL reachability", () => {
       PHASE_1_STATIC_ROUTES.map((route) => [`/_app${route}`, route]),
     );
     delete manifest["/_app/docs/glossary/token"];
+    delete manifest["/_app/docs/glossary/vector"];
+    delete manifest["/_app/docs/glossary/hidden-size"];
+    delete manifest["/_app/docs/modules/attention"];
     delete manifest["/_app/docs/modules/grouped-query-attention"];
     manifest[`/_app${DOCS_CATCH_ALL_MANIFEST_ROUTE}`] =
       DOCS_CATCH_ALL_MANIFEST_ROUTE;

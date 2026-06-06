@@ -74,6 +74,9 @@ describe("DOCS_SHELL_CONVERGENCE_ROUTES", () => {
       "/docs/architecture",
       "/docs/glossary",
       "/docs/glossary/token",
+      "/docs/glossary/vector",
+      "/docs/glossary/hidden-size",
+      "/docs/modules/attention",
       "/docs/modules/grouped-query-attention",
     ]);
   });
