@@ -54,7 +54,7 @@ describe("ModelAtlasDocsHeader", () => {
     expect(html).toContain(messages.search.shortcut);
   });
 
-  test("exposes responsive primary navigation markup for mobile and desktop widths", async () => {
+  test("mobile width markup hides desktop inline nav links and exposes the menu control", async () => {
     const messages = await loadUiMessages();
     const SearchDialog: ComponentType<SharedProps> = () => null;
     const html = renderToStaticMarkup(
@@ -64,9 +64,51 @@ describe("ModelAtlasDocsHeader", () => {
     );
 
     expect(html).toContain(PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS);
+    expect(PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS).toBe("md:hidden");
     expect(html).toContain(`aria-label="${messages.nav.menu}"`);
     expect(html).toContain('aria-expanded="false"');
+    expect(html).toContain('aria-controls="');
+    expect(html).not.toContain(PRIMARY_NAV_MOBILE_PANEL_CLASS);
+
     expect(html).toContain(PRIMARY_NAV_DESKTOP_CLASS);
+    expect(PRIMARY_NAV_DESKTOP_CLASS).toContain("hidden");
+    expect(PRIMARY_NAV_DESKTOP_CLASS).toContain("md:flex");
+
+    const desktopNavMatch = html.match(
+      new RegExp(
+        `<nav class="${PRIMARY_NAV_DESKTOP_CLASS.replace(/ /g, "\\s+")}" aria-label="Primary">([\\s\\S]*?)</nav>`,
+      ),
+    );
+    expect(desktopNavMatch).toBeTruthy();
+    for (const item of getPrimaryNavItems(messages)) {
+      expect(desktopNavMatch?.[1]).toContain(`href="${item.href}"`);
+      expect(desktopNavMatch?.[1]).toContain(`>${item.label}<`);
+    }
+
+    expect(html).toContain('data-search=""');
+  });
+
+  test("desktop width markup renders inline nav links and hides the menu control", async () => {
+    const messages = await loadUiMessages();
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    const html = renderToStaticMarkup(
+      <RootProvider search={{ SearchDialog, enabled: true }}>
+        <ModelAtlasDocsHeader messages={messages} />
+      </RootProvider>,
+    );
+
+    expect(html).toContain(PRIMARY_NAV_DESKTOP_CLASS);
+    expect(PRIMARY_NAV_DESKTOP_CLASS).toContain("md:flex");
+
+    const expectedItems = getPrimaryNavItems(messages);
+    for (const item of expectedItems) {
+      expect(html).toContain(`href="${item.href}"`);
+      expect(html).toContain(`>${item.label}<`);
+      expect(html).toContain(PRIMARY_NAV_LINK_CLASS);
+    }
+
+    expect(html).toContain(PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS);
+    expect(PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS).toBe("md:hidden");
     expect(html).not.toContain(PRIMARY_NAV_MOBILE_PANEL_CLASS);
     expect(html).toContain('data-search=""');
   });

@@ -23,3 +23,6 @@ export function bulletlessListClassName(
  */
 export const docsResourceCardLinkClassName =
   "group block rounded-lg border border-border bg-card/40 p-4 no-underline transition-colors hover:border-ring hover:bg-card hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+/** Bulletless /search inline results list with bordered row dividers. */
+export const searchInlineResultsListClassName = `${bulletlessListMarkersClassName} divide-y divide-border rounded-lg border border-border`;
