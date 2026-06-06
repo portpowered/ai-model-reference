@@ -42,10 +42,18 @@ export const CUSTOMER_ASK_PASSING_HOME_HTML = `
     </header>
     <main>
       <article>
-        <h1>Model Atlas</h1>
+        <header class="relative overflow-hidden rounded-lg px-6 py-10">
+          <h1>Model Atlas</h1>
+          <p>Reference</p>
+        </header>
         <p>Model Atlas intro without inline search handoff.</p>
         <section id="browse" aria-labelledby="home-browse-heading">
           <h2 id="home-browse-heading">Browse</h2>
+          <ul class="mt-4 flex list-none flex-col gap-3" aria-label="Browse">
+            <li>
+              <a href="/tags" class="no-underline hover:no-underline">Tags</a>
+            </li>
+          </ul>
         </section>
       </article>
     </main>
