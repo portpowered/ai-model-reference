@@ -9,6 +9,7 @@ import {
 } from "@/components/home/home-browse-link";
 import { HomeBrushHeader } from "@/components/home/home-brush-header";
 import { getPrimaryNavItems } from "@/components/layout/primary-nav";
+import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
 import { SearchTrigger } from "@/features/docs/search/SearchTrigger";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
@@ -115,5 +116,21 @@ describe("Phase 1 home shell styling contracts", () => {
     expect(tagResourceHtml).not.toContain("mt-8");
     expect(tagResourceHtml).toContain("list-none");
     expect(tagResourceHtml).not.toContain("list-disc");
+
+    const docsIndexHtml = renderToStaticMarkup(
+      <DocsIndexEntryList
+        entries={[
+          {
+            slug: "glossary/token",
+            title: "Token",
+            summary: "The smallest unit a model reads or writes.",
+            url: "/docs/glossary/token",
+          },
+        ]}
+        listLabel="Architecture entries"
+      />,
+    );
+    expect(docsIndexHtml).toContain("list-none");
+    expect(docsIndexHtml).not.toContain("list-disc");
   });
 });

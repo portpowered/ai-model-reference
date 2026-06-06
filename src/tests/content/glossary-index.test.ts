@@ -199,5 +199,7 @@ describe("glossary index page render", () => {
     expect(html).toContain("Computational Graph");
     expect(html).toContain('href="/docs/glossary/computational-graph"');
     expect(html).not.toContain("No glossary entries yet");
+    expect(html).toContain("list-none");
+    expect(html).not.toContain("list-disc");
   });
 });
