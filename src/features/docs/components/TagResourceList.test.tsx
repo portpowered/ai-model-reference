@@ -37,4 +37,16 @@ describe("TagResourceList", () => {
     expect(html).toContain("list-none");
     expect(html).not.toContain("list-disc");
   });
+
+  test("renders card links without persistent underline utilities", () => {
+    const html = renderToStaticMarkup(
+      <TagResourceList groups={sampleGroups} listLabel="Resources" />,
+    );
+
+    expect(html).toContain("no-underline");
+    expect(html).toContain("hover:no-underline");
+    const withoutNoUnderline = html.replaceAll("no-underline", "");
+    expect(withoutNoUnderline).not.toMatch(/\bunderline\b/);
+    expect(html).toContain("focus-visible:ring-2");
+  });
 });
