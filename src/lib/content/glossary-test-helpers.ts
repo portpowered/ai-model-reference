@@ -63,6 +63,19 @@ export function expectGlossaryOmitsOpeningSummary(html: string): void {
   expect(html).not.toContain('data-testid="glossary-opening"');
 }
 
+/** Shell-level contract: no rendered opening summary and optional auto-linked description anchors. */
+export function expectGlossaryShellPresentationConvergence(
+  html: string,
+  options?: {
+    shellDescriptionAutoLinks?: Array<{ href: string; phrase?: string }>;
+  },
+): void {
+  expectGlossaryOmitsOpeningSummary(html);
+  for (const link of options?.shellDescriptionAutoLinks ?? []) {
+    expectGlossaryShellDescriptionAutoLink(html, link);
+  }
+}
+
 export function expectGlossaryOpeningSummaryMessage(messages: {
   openingSummary?: string;
 }): void {

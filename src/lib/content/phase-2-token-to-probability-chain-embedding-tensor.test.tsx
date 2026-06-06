@@ -38,6 +38,7 @@ describe("Phase 2 embedding and tensor glossary pages (US-004)", () => {
 
     expect(html).toContain("Embedding");
     expect(html).toContain("What It Is");
+    expect(html).not.toContain('data-testid="glossary-opening"');
     expect(html).toContain('href="/docs/glossary/tensor"');
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
   });

@@ -4,8 +4,11 @@ import { join } from "node:path";
 import { renderGlossaryDocsShell } from "@/lib/content/glossary-shell-render";
 import {
   expectGlossaryBodyOmitsTitleHeading,
+  expectGlossaryOmitsOpeningSummary,
   expectGlossaryOmitsWhereItAppears,
   expectGlossaryPresentationConvergence,
+  expectGlossaryShellPresentationConvergence,
+  expectHtmlToContainProse,
   extractGlossaryArticleHtml,
 } from "@/lib/content/glossary-test-helpers";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
@@ -40,12 +43,32 @@ describe("glossary presentation convergence", () => {
     const articleHtml = extractGlossaryArticleHtml(html, "concept.token");
 
     expect(articleHtml.length).toBeGreaterThan(0);
+    expectGlossaryShellPresentationConvergence(html);
     expectGlossaryPresentationConvergence(articleHtml, {
       title,
     });
     expect(countH1BlocksContaining(html, title)).toBe(1);
     expect(articleHtml).toContain('data-testid="curated-related-docs"');
     expect(articleHtml).toContain('data-page-asset="conceptMap"');
+  });
+
+  test("/docs/glossary/embedding shell omits opening summary and auto-links description phrases", async () => {
+    const loadedPage = await loadLocalDocsPage({
+      section: "glossary",
+      slug: "embedding",
+    });
+    const html = renderGlossaryDocsShell(loadedPage);
+
+    expectHtmlToContainProse(
+      html,
+      "A dense vector that represents a token or other discrete item",
+    );
+    expectGlossaryShellPresentationConvergence(html, {
+      shellDescriptionAutoLinks: [
+        { href: "/docs/glossary/vector", phrase: "dense vector" },
+        { href: "/docs/glossary/token", phrase: "token" },
+      ],
+    });
   });
 
   test("token article body omits pre-repair duplicate title and crowded sections", async () => {
@@ -73,7 +96,7 @@ describe("glossary presentation route convergence (built HTML)", () => {
     const articleHtml = extractGlossaryArticleHtml(html, "concept.token");
 
     expect(assertDocsShellConvergence(html)).toBeNull();
-    expect(articleHtml).not.toContain('data-testid="glossary-opening"');
+    expectGlossaryOmitsOpeningSummary(articleHtml);
     expect(
       (articleHtml.match(/data-testid="tag-pill-list"/g) ?? []).length,
     ).toBe(1);
