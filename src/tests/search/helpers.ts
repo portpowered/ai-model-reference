@@ -124,6 +124,43 @@ export function expectFullRowSearchResultHighlightPanel(
   }
 }
 
+/** Asserts query-match marks stay inside rows with accent-safe hover/focus/selection classes. */
+export function expectReadableQueryMatchHighlightPanel(
+  queries: ThinMetadataQueries,
+): void {
+  const rows = queries.queryAllByTestId("search-result-row");
+  expect(rows.length).toBeGreaterThan(0);
+
+  let markCount = 0;
+  for (const row of rows) {
+    const marks = row.querySelectorAll(
+      '[data-testid="search-result-title-mark"]',
+    );
+    for (const mark of marks) {
+      markCount += 1;
+      expect(row.contains(mark)).toBe(true);
+      expect(mark.className).toContain("group-hover:text-accent-foreground");
+      expect(mark.className).toContain(
+        "group-focus-visible:text-accent-foreground",
+      );
+      expect(mark.className).toContain(
+        "group-aria-selected:text-fd-accent-foreground",
+      );
+
+      const title = mark.closest('[class*="font-medium"]');
+      expect(title).toBeTruthy();
+      if (!title) {
+        continue;
+      }
+      expect(title.className).toContain("group-hover:text-inherit");
+      expect(title.className).toContain("group-focus-visible:text-inherit");
+      expect(title.className).toContain("group-aria-selected:text-inherit");
+    }
+  }
+
+  expect(markCount).toBeGreaterThan(0);
+}
+
 /** Asserts dialog or `/search` panels render thin metadata without matched-tag chips. */
 export function expectThinSearchMetadataPanel(
   queries: ThinMetadataQueries,

@@ -19,6 +19,7 @@ import {
 import {
   collectResultUrlsFromNodes,
   expectFullRowSearchResultHighlightPanel,
+  expectReadableQueryMatchHighlightPanel,
   expectSharedSearchResultRowPanel,
   expectThinSearchMetadataPanel,
   expectUniqueCanonicalPageUrls,
@@ -161,6 +162,20 @@ describe("SearchPagePanel Phase 1 queries", () => {
     const row = within(results).getAllByTestId("search-result-row")[0];
     expect(row?.className).toContain("hover:bg-accent");
     expect(row?.className).toContain("focus-visible:ring-2");
+  });
+
+  test("Grouped query keeps query-match marks readable on accent rows on /search", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      "Grouped",
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    expectReadableQueryMatchHighlightPanel(within(results));
   });
 
   test("GQA query ranks grouped-query attention first on /search", async () => {
