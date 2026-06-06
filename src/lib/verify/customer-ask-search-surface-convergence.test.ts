@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { BATCH_011_FOLLOW_UP_SEARCH_CHECKS } from "./batch-011-follow-up-search-checks";
+import { POST_REPAIR_SEARCH_RESULT_ROW_HTML } from "./customer-ask-search-follow-up-convergence";
 import {
   assertApiGqaCanonicalPageHit,
   assertSearchNoMatchedTags,
@@ -25,6 +27,7 @@ function passingSnapshot(
     matchedTagsVisible: false,
     hasResults: true,
     hasEmpty: false,
+    firstResultRowHtml: POST_REPAIR_SEARCH_RESULT_ROW_HTML,
     ...overrides,
   };
 }
@@ -132,7 +135,7 @@ describe("buildCustomerAskSearchPageRowsForQuery", () => {
       "GQA",
     );
 
-    expect(rows).toHaveLength(2);
+    expect(rows).toHaveLength(4);
     expect(rows.every((row) => row.status === "pass")).toBe(true);
     expect(rows.every((row) => row.query === "GQA")).toBe(true);
     expect(
@@ -146,6 +149,9 @@ describe("buildCustomerAskSearchPageRowsForQuery", () => {
     expect(rows.map((row) => row.checkId)).toEqual([
       SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.pagePageLevelHits.checkId,
       SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.pageNoMatchedTags.checkId,
+      BATCH_011_FOLLOW_UP_SEARCH_CHECKS.pageRowHoverCoherence.checkId,
+      BATCH_011_FOLLOW_UP_SEARCH_CHECKS.pageMatchedTextSelectionContrast
+        .checkId,
     ]);
   });
 });
@@ -157,7 +163,7 @@ describe("buildCustomerAskSearchDialogRowsForQuery", () => {
       "attention",
     );
 
-    expect(rows).toHaveLength(1);
+    expect(rows).toHaveLength(3);
     expect(rows[0]?.status).toBe("fail");
     expect(rows[0]?.route).toBe(
       SEARCH_SURFACE_CUSTOMER_ASK_ROUTES.headerDialog,
@@ -165,6 +171,12 @@ describe("buildCustomerAskSearchDialogRowsForQuery", () => {
     expect(rows[0]?.checkId).toBe(
       SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.dialogNoMatchedTags.checkId,
     );
+    expect(rows.slice(1).every((row) => row.status === "pass")).toBe(true);
+    expect(rows.slice(1).map((row) => row.checkId)).toEqual([
+      BATCH_011_FOLLOW_UP_SEARCH_CHECKS.dialogRowHoverCoherence.checkId,
+      BATCH_011_FOLLOW_UP_SEARCH_CHECKS.dialogMatchedTextSelectionContrast
+        .checkId,
+    ]);
   });
 });
 

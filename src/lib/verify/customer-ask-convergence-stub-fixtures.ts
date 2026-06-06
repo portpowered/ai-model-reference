@@ -42,15 +42,32 @@ export const CUSTOMER_ASK_PASSING_HOME_HTML = `
     </header>
     <main>
       <article>
-        <h1>Model Atlas</h1>
+        <header class="relative overflow-hidden rounded-lg px-6 py-10">
+          <h1>Model Atlas</h1>
+          <p>Reference</p>
+        </header>
         <p>Model Atlas intro without inline search handoff.</p>
         <section id="browse" aria-labelledby="home-browse-heading">
           <h2 id="home-browse-heading">Browse</h2>
+          <ul class="mt-4 flex list-none flex-col gap-3" aria-label="Browse">
+            <li>
+              <a href="/tags" class="no-underline hover:no-underline">Tags</a>
+            </li>
+          </ul>
         </section>
       </article>
     </main>
   </html>
 `;
+
+/** Pre-repair home HTML with excess brush header margin for follow-up brevity checks. */
+export const CUSTOMER_ASK_PRE_REPAIR_HOME_BREVITY_HTML =
+  CUSTOMER_ASK_PASSING_HOME_HTML.replace(
+    '<header class="relative overflow-hidden rounded-lg px-6 py-10">',
+    '<header class="relative mb-8 overflow-hidden rounded-lg px-6 py-10">',
+  );
+
+export { PRE_REPAIR_SEARCH_RESULT_ROW_HTML } from "./customer-ask-search-follow-up-convergence";
 
 export const CUSTOMER_ASK_PRE_REPAIR_HOME_HTML = `
   <html>

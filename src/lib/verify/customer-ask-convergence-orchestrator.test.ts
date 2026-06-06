@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { createServer as createHttpServer } from "node:http";
+import { BATCH_011_FOLLOW_UP_CUSTOMER_ASK_CHECK_IDS } from "./batch-011-follow-up-customer-ask-check-inventory";
 import {
   CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER,
   getCustomerAskConvergenceExitCode,
@@ -19,7 +20,11 @@ import {
 import { GLOSSARY_CUSTOMER_ASK_CHECKS } from "./customer-ask-glossary-convergence";
 import { GQA_MODULE_CUSTOMER_ASK_CHECKS } from "./customer-ask-gqa-module-convergence";
 import { HOME_HEADER_CUSTOMER_ASK_CHECKS } from "./customer-ask-home-header-convergence";
-import { SEARCH_SURFACE_CUSTOMER_ASK_CHECKS } from "./customer-ask-search-surface-convergence";
+import { POST_REPAIR_SEARCH_RESULT_ROW_HTML } from "./customer-ask-search-follow-up-convergence";
+import {
+  SEARCH_SURFACE_CUSTOMER_ASK_CHECKS,
+  SEARCH_SURFACE_CUSTOMER_ASK_QUERIES,
+} from "./customer-ask-search-surface-convergence";
 import { TAG_LIST_CUSTOMER_ASK_CHECKS } from "./customer-ask-tag-list-convergence";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 
@@ -77,18 +82,20 @@ function passingDocsFooterOptions() {
 
 function passingSearchSurfaceOptions() {
   return {
-    queries: ["GQA"] as const,
+    queries: SEARCH_SURFACE_CUSTOMER_ASK_QUERIES,
     runSearchPageQueryCheck: async () => ({
       resultUrls: [GQA_URL, TOKEN_URL],
       matchedTagsVisible: false,
       hasResults: true,
       hasEmpty: false,
+      firstResultRowHtml: POST_REPAIR_SEARCH_RESULT_ROW_HTML,
     }),
     runSearchDialogQueryCheck: async () => ({
       resultUrls: [GQA_URL],
       matchedTagsVisible: false,
       hasResults: true,
       hasEmpty: false,
+      firstResultRowHtml: POST_REPAIR_SEARCH_RESULT_ROW_HTML,
     }),
     fetchApiGqaResults: async () => ({
       results: [{ url: GQA_URL }, { url: TOKEN_URL }],
@@ -97,6 +104,37 @@ function passingSearchSurfaceOptions() {
 }
 
 describe("runCustomerAskConvergenceChecks", () => {
+  test("emits every batch-011 inventory checkId in deterministic order", async () => {
+    const httpServer = createConvergenceStubServer(
+      CUSTOMER_ASK_CONVERGENCE_PASSING_STUB_HTML,
+    );
+    const port = await listenOnEphemeralPort(httpServer);
+
+    try {
+      const rows = await runCustomerAskConvergenceChecks(
+        `http://127.0.0.1:${port}`,
+        {
+          timeoutMs: 2_000,
+          homeHeaderOptions: {
+            runCommandKAffordanceProbe: async () => null,
+          },
+          searchSurfaceOptions: passingSearchSurfaceOptions(),
+          docsFooterOptions: passingDocsFooterOptions(),
+        },
+      );
+
+      expect(rows.map((row) => row.checkId)).toEqual([
+        ...BATCH_011_FOLLOW_UP_CUSTOMER_ASK_CHECK_IDS,
+      ]);
+      expect(rows).toHaveLength(
+        BATCH_011_FOLLOW_UP_CUSTOMER_ASK_CHECK_IDS.length,
+      );
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
   test("returns all pass rows on the post-repair customer-ask stub bundle", async () => {
     const httpServer = createConvergenceStubServer(
       CUSTOMER_ASK_CONVERGENCE_PASSING_STUB_HTML,
@@ -157,6 +195,45 @@ describe("runCustomerAskConvergenceChecks", () => {
     }
   });
 
+  test("keeps uncertain rows non-blocking for process exit code", async () => {
+    const homeWithoutCommandKHoverMarkers =
+      CUSTOMER_ASK_CONVERGENCE_PASSING_STUB_HTML["/"]
+        ?.replaceAll("group-hover:text-accent-foreground", "")
+        .replaceAll("group-hover:bg-accent-foreground/10", "") ?? "";
+    const httpServer = createConvergenceStubServer({
+      ...CUSTOMER_ASK_CONVERGENCE_PASSING_STUB_HTML,
+      "/": homeWithoutCommandKHoverMarkers,
+    });
+    const port = await listenOnEphemeralPort(httpServer);
+
+    try {
+      const rows = await runCustomerAskConvergenceChecks(
+        `http://127.0.0.1:${port}`,
+        {
+          timeoutMs: 2_000,
+          homeHeaderOptions: {
+            runCommandKAffordanceProbe: async () => null,
+          },
+          searchSurfaceOptions: passingSearchSurfaceOptions(),
+          docsFooterOptions: passingDocsFooterOptions(),
+        },
+      );
+
+      expect(
+        rows.some((row) => row.checkId === "home.command-k-hover-contrast"),
+      ).toBe(true);
+      expect(
+        rows.find((row) => row.checkId === "home.command-k-hover-contrast")
+          ?.status,
+      ).toBe("uncertain");
+      expect(rows.some((row) => row.status === "fail")).toBe(false);
+      expect(getCustomerAskConvergenceExitCode(rows)).toBe(0);
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
   test("reports tag list fail evidence on pre-repair /tags HTML", async () => {
     const httpServer = createConvergenceStubServer({
       ...CUSTOMER_ASK_CONVERGENCE_PASSING_STUB_HTML,
@@ -203,18 +280,28 @@ describe("runCustomerAskConvergenceChecks", () => {
             runCommandKAffordanceProbe: async () => null,
           },
           searchSurfaceOptions: {
-            queries: ["attention"],
-            runSearchPageQueryCheck: async () => ({
-              resultUrls: [`${GQA_URL}#compute-flow`],
-              matchedTagsVisible: true,
-              hasResults: true,
-              hasEmpty: false,
-            }),
+            queries: SEARCH_SURFACE_CUSTOMER_ASK_QUERIES,
+            runSearchPageQueryCheck: async (_baseUrl, query) =>
+              query === "attention"
+                ? {
+                    resultUrls: [`${GQA_URL}#compute-flow`],
+                    matchedTagsVisible: true,
+                    hasResults: true,
+                    hasEmpty: false,
+                  }
+                : {
+                    resultUrls: [GQA_URL, TOKEN_URL],
+                    matchedTagsVisible: false,
+                    hasResults: true,
+                    hasEmpty: false,
+                    firstResultRowHtml: POST_REPAIR_SEARCH_RESULT_ROW_HTML,
+                  },
             runSearchDialogQueryCheck: async () => ({
               resultUrls: [GQA_URL],
               matchedTagsVisible: false,
               hasResults: true,
               hasEmpty: false,
+              firstResultRowHtml: POST_REPAIR_SEARCH_RESULT_ROW_HTML,
             }),
             fetchApiGqaResults: async () => ({
               results: [{ url: `${GQA_URL}#section` }],

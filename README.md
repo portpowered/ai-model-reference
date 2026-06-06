@@ -238,6 +238,7 @@ make coverage      # fumadocs-mdx (precoverage), manifest coverage gate
 make build         # next build + Phase 1 static route check
 make verify-phase-1-ux # HTTP verification for Phase 1 reader routes and search (requires build)
 make verify-phase-1-built-app-convergence # batch-010 built-app gate with planner-facing evidence summary
+make verify-phase-1-follow-up-convergence # batch-011 follow-up gate with planner-facing evidence summary
 make validate-data # registry and content validation
 make linkcheck     # internal docs link validation (also runs in make ci)
 make scaffold       # scaffold glossary/concept page bundles (pass ARGS='...')
@@ -354,6 +355,26 @@ when verifier command-path or any customer-ask row is `fail`; `uncertain`
 evidence is non-blocking. Canonical validation must not set `VERIFY_BASE_URL`.
 See `factory/docs/phase-1-built-app-convergence-validator.md` for
 prerequisites, report fields, exit semantics, and recommendation interpretation.
+
+**Batch-011 follow-up convergence validator:** After batch-011 follow-up repairs
+land, run the canonical follow-up gate with planner-facing evidence for the
+expanded customer-ask inventory:
+
+```sh
+make verify-phase-1-follow-up-convergence
+# or
+bun run verify:phase-1-follow-up-convergence
+```
+
+This runs `make build` then `make verify-phase-1-ux` with `VERIFY_BASE_URL`
+explicitly unset, streams subprocess output to the terminal while capturing it
+for parsing, and prints a **Phase 1 batch-011 follow-up convergence evidence
+summary** with `Recommendation` and `Rationale` lines. The process exits `1`
+when verifier command-path or any customer-ask row is `fail`; `uncertain`
+evidence is non-blocking. Prior batch-008/010 all-pass evidence is stale for
+this inventory and must be refreshed through this pass. See
+`factory/docs/phase-1-follow-up-customer-ask-convergence-validator.md` for
+prerequisites, check inventory, exit semantics, and loopback usage.
 
 The verifier also exercises the built `/search` page, the header search dialog
 (via the search trigger button), and keyboard shortcuts on the home page:
