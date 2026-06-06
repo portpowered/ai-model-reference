@@ -7,6 +7,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { getGlossaryDocsRoot } from "@/lib/content/content-paths";
 import { listPublishedGlossaryPages } from "@/lib/content/glossary";
+import {
+  expectGlossaryBodyOmitsShellDescription,
+  expectGlossaryBodyOmitsTitleHeading,
+  extractGlossaryArticleHtml,
+} from "@/lib/content/glossary-test-helpers";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 
 const TOKEN_DESCRIPTION_SNIPPET =
@@ -18,20 +23,17 @@ function countH1BlocksContaining(html: string, text: string): number {
   return blocks.filter((block) => block.includes(text)).length;
 }
 
-function extractTokenArticleHtml(html: string): string {
-  const match = html.match(
-    /<article[^>]*data-registry-id="concept\.token"[^>]*>[\s\S]*?<\/article>/,
-  );
-  return match?.[0] ?? "";
-}
-
-async function renderTokenGlossaryTitleShell(): Promise<string> {
+async function renderTokenGlossaryTitleShell(): Promise<{
+  html: string;
+  title: string;
+  description: string;
+}> {
   const loadedPage = await loadLocalDocsPage({
     section: "glossary",
     slug: "token",
   });
 
-  return renderToStaticMarkup(
+  const html = renderToStaticMarkup(
     createElement(
       "div",
       null,
@@ -49,6 +51,12 @@ async function renderTokenGlossaryTitleShell(): Promise<string> {
       ),
     ),
   );
+
+  return {
+    html,
+    title: loadedPage.messages.title,
+    description: loadedPage.messages.description,
+  };
 }
 
 describe("glossary shell title convergence", () => {
@@ -72,12 +80,12 @@ describe("glossary shell title convergence", () => {
   });
 
   test("/docs/glossary/token renders one DocsTitle and no duplicate body h1", async () => {
-    const html = await renderTokenGlossaryTitleShell();
+    const { html, title, description } = await renderTokenGlossaryTitleShell();
+    const articleHtml = extractGlossaryArticleHtml(html, "concept.token");
 
-    expect(countH1BlocksContaining(html, "Token")).toBe(1);
+    expect(countH1BlocksContaining(html, title)).toBe(1);
     expect(html).toContain(TOKEN_DESCRIPTION_SNIPPET);
-    expect(extractTokenArticleHtml(html)).not.toMatch(
-      /<h1\b[^>]*>\s*Token\s*<\/h1>/i,
-    );
+    expectGlossaryBodyOmitsTitleHeading(articleHtml, title);
+    expectGlossaryBodyOmitsShellDescription(articleHtml, description);
   });
 });

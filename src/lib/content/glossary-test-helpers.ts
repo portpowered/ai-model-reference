@@ -37,6 +37,14 @@ export function expectGlossaryBodyOmitsTitleHeading(
   );
 }
 
+/** Glossary article bodies must not repeat shell DocsDescription copy. */
+export function expectGlossaryBodyOmitsShellDescription(
+  html: string,
+  description: string,
+): void {
+  expect(stripHtmlTags(html)).not.toContain(description);
+}
+
 /** Glossary pages render one message-key-driven opening summary paragraph. */
 export function expectGlossaryOpeningSummary(
   html: string,
