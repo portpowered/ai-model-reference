@@ -1,18 +1,16 @@
-import {
-  SEARCH_SURFACE_CUSTOMER_ASK_CHECKLIST_ROW,
-  SEARCH_SURFACE_CUSTOMER_ASK_QUERIES,
-  SEARCH_SURFACE_CUSTOMER_ASK_ROUTES,
-} from "./customer-ask-search-surface-convergence";
+import { PHASE_1_SEARCH_PAGE_QUERIES } from "./phase-1-search-page-checks";
 
 /** Checklist row for batch-011 search row hover and selection follow-up checks. */
 export const BATCH_011_FOLLOW_UP_SEARCH_CHECKLIST_ROW =
-  SEARCH_SURFACE_CUSTOMER_ASK_CHECKLIST_ROW;
+  "phase-1-search-surface" as const;
 
-export const BATCH_011_FOLLOW_UP_SEARCH_ROUTES =
-  SEARCH_SURFACE_CUSTOMER_ASK_ROUTES;
+export const BATCH_011_FOLLOW_UP_SEARCH_ROUTES = {
+  searchPage: "/search",
+  searchApi: "/api/search",
+  headerDialog: "header-dialog",
+} as const;
 
-export const BATCH_011_FOLLOW_UP_SEARCH_QUERIES =
-  SEARCH_SURFACE_CUSTOMER_ASK_QUERIES;
+export const BATCH_011_FOLLOW_UP_SEARCH_QUERIES = PHASE_1_SEARCH_PAGE_QUERIES;
 
 export const BATCH_011_FOLLOW_UP_SEARCH_CHECKS = {
   pageRowHoverCoherence: {

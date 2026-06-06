@@ -165,4 +165,27 @@ describe("Phase 1 built-app verifier entrypoint documentation", () => {
       /phase-1-built-app-verifier-command-path\.ts/,
     );
   });
+
+  test("README and Makefile expose the batch-011 follow-up convergence validator command", () => {
+    const readme = readFileSync(readmePath, "utf8");
+    const makefile = readFileSync(makefilePath, "utf8");
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8")) as {
+      scripts: Record<string, string>;
+    };
+
+    expect(readme).toMatch(/make verify-phase-1-follow-up-convergence/);
+    expect(readme).toMatch(/bun run verify:phase-1-follow-up-convergence/);
+    expect(readme).toMatch(
+      /factory\/docs\/phase-1-follow-up-customer-ask-convergence-validator\.md/,
+    );
+    expect(readme).toMatch(
+      /Phase 1 batch-011 follow-up convergence evidence[\s\S]*summary/i,
+    );
+    expect(readme).toMatch(/VERIFY_BASE_URL.*unset|unset.*VERIFY_BASE_URL/i);
+    expect(makefile).toMatch(/^verify-phase-1-follow-up-convergence:/m);
+    expect(makefile).toMatch(/run-phase-1-follow-up-convergence-pass\.ts/);
+    expect(
+      packageJson.scripts["verify:phase-1-follow-up-convergence"],
+    ).toContain("run-phase-1-follow-up-convergence-pass.ts");
+  });
 });
