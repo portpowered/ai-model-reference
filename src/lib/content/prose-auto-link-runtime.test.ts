@@ -14,6 +14,7 @@ function resolvePhraseHref(phrase: string): string | undefined {
 }
 
 const BRIDGE_PHRASE_HREFS = [
+  { phrase: "token", href: "/docs/glossary/token" },
   { phrase: "vector", href: "/docs/glossary/vector" },
   { phrase: "dense vector", href: "/docs/glossary/vector" },
   { phrase: "hidden size", href: "/docs/glossary/hidden-size" },
