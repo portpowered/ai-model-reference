@@ -28,7 +28,6 @@ const POST_REPAIR_GLOSSARY_HTML = `
     <div id="nd-page">
       <h1>Token</h1>
       <article data-registry-id="concept.token">
-        <p data-testid="glossary-opening">Models use a fixed tokenizer vocabulary.</p>
         <ul data-testid="tag-pill-list" aria-label="Tags">
           <li><a href="/tags/attention" ${CHROME_LINK_CLASS}>Attention</a></li>
         </ul>

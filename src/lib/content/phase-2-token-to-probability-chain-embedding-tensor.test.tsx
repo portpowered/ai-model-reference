@@ -55,7 +55,7 @@ describe("Phase 2 embedding and tensor glossary pages (US-004)", () => {
       }),
     );
 
-    expect(html).toContain('data-testid="glossary-opening"');
+    expect(html).not.toContain('data-testid="glossary-opening"');
     expect(page.messages.openingSummary?.toLowerCase()).toContain("tensor");
     expect(html).toContain("What It Is");
     expect(html).toContain("logits");

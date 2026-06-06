@@ -131,7 +131,6 @@ export const CUSTOMER_ASK_PRE_REPAIR_TAGS_INDEX_HTML = `<html>
 const CUSTOMER_ASK_PASSING_GLOSSARY_BODY = `
   <h1>Token</h1>
   <article data-registry-id="${GLOSSARY_TOKEN_REGISTRY_ID}">
-    <p data-testid="glossary-opening">Models use a fixed tokenizer vocabulary.</p>
     <ul data-testid="tag-pill-list" aria-label="Tags">
       <li><a href="/tags/attention" ${CHROME_LINK_CLASS}>Attention</a></li>
     </ul>

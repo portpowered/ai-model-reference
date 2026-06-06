@@ -45,13 +45,9 @@ export function expectGlossaryBodyOmitsShellDescription(
   expect(stripHtmlTags(html)).not.toContain(description);
 }
 
-/** Glossary pages render one message-key-driven opening summary paragraph. */
-export function expectGlossaryOpeningSummary(
-  html: string,
-  openingSummary: string,
-): void {
-  expect(html).toContain('data-testid="glossary-opening"');
-  expectHtmlToContainProse(html, openingSummary);
+/** Glossary pages must not render the retired opening-summary block. */
+export function expectGlossaryOmitsOpeningSummary(html: string): void {
+  expect(html).not.toContain('data-testid="glossary-opening"');
 }
 
 export function expectGlossaryOpeningSummaryMessage(messages: {
@@ -77,7 +73,7 @@ export function expectGlossarySingleTagPillList(html: string): void {
 /** Asserts pre-repair duplicate-title, tag, and where-it-appears markers stay absent. */
 export function expectGlossaryOmitsPreRepairPresentation(html: string): void {
   expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
-  expect((html.match(/data-testid="glossary-opening"/g) ?? []).length).toBe(1);
+  expectGlossaryOmitsOpeningSummary(html);
   expect(html).not.toContain('id="where-it-appears"');
   expect(html).not.toContain("Where It Appears");
   expect(html).not.toContain('data-testid="derived-related-docs"');
@@ -86,10 +82,10 @@ export function expectGlossaryOmitsPreRepairPresentation(html: string): void {
 /** Full Phase 1 glossary presentation contract for a rendered token-style page. */
 export function expectGlossaryPresentationConvergence(
   html: string,
-  options: { title: string; openingSummary: string },
+  options: { title: string },
 ): void {
   expectGlossaryBodyOmitsTitleHeading(html, options.title);
-  expectGlossaryOpeningSummary(html, options.openingSummary);
+  expectGlossaryOmitsOpeningSummary(html);
   expectGlossaryOmitsWhereItAppears(html);
   expectGlossarySingleTagPillList(html);
   expectGlossaryChromeLinksOmitUnderline(html);

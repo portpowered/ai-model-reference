@@ -53,7 +53,6 @@ describe("loadGlossaryPage token", () => {
 
     expectGlossaryPresentationConvergence(html, {
       title: page.messages.title,
-      openingSummary: page.messages.openingSummary ?? "",
     });
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/token-to-probability-chain"');

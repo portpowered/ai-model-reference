@@ -8,8 +8,8 @@ import { GLOSSARY_DOCS_ROOT } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryBodyOmitsTitleHeading,
+  expectGlossaryOmitsOpeningSummary,
   expectGlossaryOmitsWhereItAppears,
-  expectHtmlToContainProse,
 } from "@/lib/content/glossary-test-helpers";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
@@ -65,10 +65,7 @@ describe("Phase 2 encoder-decoder architecture glossary pages (US-002)", () => {
       const html = await renderGlossaryHtml(slug);
 
       expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-      expectHtmlToContainProse(
-        html,
-        page.messages.openingSummary?.slice(0, 24) ?? "",
-      );
+      expectGlossaryOmitsOpeningSummary(html);
       expect(html).toContain('href="/tags/foundations"');
       expect(html).toContain('href="/tags/taxonomy"');
       expectGlossaryOmitsWhereItAppears(html);

@@ -32,7 +32,8 @@ describe("token glossary route accessibility smoke", () => {
       </main>,
     );
 
-    expect(screen.getByTestId("glossary-opening")).toBeTruthy();
+    expect(screen.queryByTestId("glossary-opening")).toBeNull();
+    expect(screen.getByRole("heading", { name: "What It Is" })).toBeTruthy();
     expect(screen.getByRole("list", { name: "Tags" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Attention" })).toBeTruthy();
     expect(
