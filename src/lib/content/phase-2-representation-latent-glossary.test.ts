@@ -8,8 +8,8 @@ import { GLOSSARY_DOCS_ROOT } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryBodyOmitsTitleHeading,
+  expectGlossaryOmitsOpeningSummary,
   expectGlossaryOmitsWhereItAppears,
-  expectHtmlToContainProse,
 } from "@/lib/content/glossary-test-helpers";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -64,10 +64,7 @@ describe("Phase 2 representation and latent glossary pages (US-001)", () => {
       const html = await renderGlossaryHtml(slug);
 
       expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-      expectHtmlToContainProse(
-        html,
-        page.messages.openingSummary?.slice(0, 24) ?? "",
-      );
+      expectGlossaryOmitsOpeningSummary(html);
       expect(html).toContain('href="/tags/foundations"');
       expect(html).toContain('href="/tags/taxonomy"');
       expectGlossaryOmitsWhereItAppears(html);

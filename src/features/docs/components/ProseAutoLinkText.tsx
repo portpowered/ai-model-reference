@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { proseAutoLinkClassName } from "@/features/docs/components/prose-auto-link-class";
 import { segmentProseWithAutoLinks } from "@/lib/content/prose-auto-link";
 import { PROSE_AUTO_LINK_PHRASES } from "@/lib/content/prose-auto-link-runtime";
 
@@ -26,7 +27,7 @@ export function ProseAutoLinkText({ text }: { text: string }) {
       <a
         key={key}
         href={segment.href}
-        className="text-primary underline-offset-4 hover:underline"
+        className={proseAutoLinkClassName}
         data-prose-auto-link="true"
       >
         {segment.value}

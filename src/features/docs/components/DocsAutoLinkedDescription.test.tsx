@@ -1,22 +1,21 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { ProseAutoLinkText } from "@/features/docs/components/ProseAutoLinkText";
+import { DocsAutoLinkedDescription } from "@/features/docs/components/DocsAutoLinkedDescription";
 
-describe("ProseAutoLinkText", () => {
-  test("renders internal links for recognizable module aliases", () => {
+describe("DocsAutoLinkedDescription", () => {
+  test("renders recognizable glossary phrases as internal prose links", () => {
     const html = renderToStaticMarkup(
-      <ProseAutoLinkText text="Compared with multi-head attention and multi-query attention." />,
+      <DocsAutoLinkedDescription text="A dense vector that represents a token or other discrete item." />,
     );
 
-    expect(html).toContain('href="/docs/modules/multi-head-attention"');
-    expect(html).toContain('href="/docs/modules/multi-query-attention"');
+    expect(html).toContain('href="/docs/glossary/vector"');
     expect(html).toContain('data-prose-auto-link="true"');
     expect(html).toContain("focus-visible:ring-2");
   });
 
   test("leaves ambiguous or unknown phrases as plain text", () => {
     const html = renderToStaticMarkup(
-      <ProseAutoLinkText text="Unknown phraseology without registry matches." />,
+      <DocsAutoLinkedDescription text="Unknown phraseology without registry matches." />,
     );
 
     expect(html).not.toContain("data-prose-auto-link");

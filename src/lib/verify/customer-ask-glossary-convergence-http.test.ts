@@ -28,7 +28,6 @@ const POST_REPAIR_GLOSSARY_HTML = `
     <div id="nd-page">
       <h1>Token</h1>
       <article data-registry-id="concept.token">
-        <p data-testid="glossary-opening">Models use a fixed tokenizer vocabulary.</p>
         <ul data-testid="tag-pill-list" aria-label="Tags">
           <li><a href="/tags/attention" ${CHROME_LINK_CLASS}>Attention</a></li>
         </ul>
@@ -146,6 +145,44 @@ describe("runCustomerAskGlossaryChecks", () => {
 
       expect(footerRow?.status).toBe("fail");
       expect(footerRow?.reason).toContain("Previous Page");
+    } finally {
+      httpServer.closeAllConnections();
+      httpServer.close();
+    }
+  });
+
+  test("reports fail evidence for pre-repair rendered opening summary", async () => {
+    const html = `
+      <html>
+        <h1>Token</h1>
+        <article data-registry-id="concept.token">
+          <p data-testid="glossary-opening">Summary</p>
+          <ul data-testid="tag-pill-list" aria-label="Tags">
+            <li><a href="/tags/attention" ${CHROME_LINK_CLASS}>Attention</a></li>
+          </ul>
+          <ul data-testid="curated-related-docs">
+            <li><a href="/docs/glossary/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
+          </ul>
+        </article>
+      </html>
+    `;
+    const httpServer = createGlossaryStubServer(html);
+    const port = await listenOnEphemeralPort(httpServer);
+
+    try {
+      const rows = await runCustomerAskGlossaryChecks(
+        `http://127.0.0.1:${port}`,
+        { timeoutMs: 2_000 },
+      );
+      const presentationRow = rows.find(
+        (row) =>
+          row.checkId === GLOSSARY_CUSTOMER_ASK_CHECKS.presentation.checkId,
+      );
+
+      expect(presentationRow?.status).toBe("fail");
+      expect(presentationRow?.reason).toBe(
+        GLOSSARY_CUSTOMER_ASK_REASONS.renderedOpeningSummary,
+      );
     } finally {
       httpServer.closeAllConnections();
       httpServer.close();

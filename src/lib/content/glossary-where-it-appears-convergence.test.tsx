@@ -1,40 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { DocsDescription, DocsTitle } from "fumadocs-ui/layouts/docs/page";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { getGlossaryDocsRoot } from "@/lib/content/content-paths";
 import { listPublishedGlossaryPages } from "@/lib/content/glossary";
+import { renderGlossaryDocsShell } from "@/lib/content/glossary-shell-render";
 import { expectGlossaryOmitsWhereItAppears } from "@/lib/content/glossary-test-helpers";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
-
-async function renderTokenGlossaryShell(): Promise<string> {
-  const loadedPage = await loadLocalDocsPage({
-    section: "glossary",
-    slug: "token",
-  });
-
-  return renderToStaticMarkup(
-    createElement(
-      "div",
-      null,
-      createElement(DocsTitle, null, loadedPage.messages.title),
-      createElement(DocsDescription, null, loadedPage.messages.description),
-      createElement(
-        "article",
-        { "data-registry-id": loadedPage.frontmatter.registryId },
-        createElement(ModulePageProviders, {
-          messages: loadedPage.messages,
-          assets: loadedPage.assets,
-          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-          children: loadedPage.content,
-        }),
-      ),
-    ),
-  );
-}
 
 describe("glossary where-it-appears convergence", () => {
   test("canonical glossary template omits where-it-appears section", () => {
@@ -59,7 +30,11 @@ describe("glossary where-it-appears convergence", () => {
   });
 
   test("/docs/glossary/token omits where-it-appears while keeping related and concept map", async () => {
-    const html = await renderTokenGlossaryShell();
+    const loadedPage = await loadLocalDocsPage({
+      section: "glossary",
+      slug: "token",
+    });
+    const html = renderGlossaryDocsShell(loadedPage);
 
     expectGlossaryOmitsWhereItAppears(html);
     expect(html).toContain("Related Concepts And Modules");

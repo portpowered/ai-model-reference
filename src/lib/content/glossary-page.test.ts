@@ -32,7 +32,7 @@ describe("token glossary page messages", () => {
 });
 
 describe("loadGlossaryPage token", () => {
-  test("compiles MDX with local namespaces and message-driven opening copy", async () => {
+  test("compiles MDX with local namespaces and Phase 1 presentation contract", async () => {
     const page = await loadGlossaryPage("token");
 
     expect(page.frontmatter.registryId).toBe("concept.token");
@@ -53,7 +53,6 @@ describe("loadGlossaryPage token", () => {
 
     expectGlossaryPresentationConvergence(html, {
       title: page.messages.title,
-      openingSummary: page.messages.openingSummary ?? "",
     });
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/token-to-probability-chain"');

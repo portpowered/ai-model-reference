@@ -18,7 +18,6 @@ const CHROME_LINK_CLASS =
 
 const POST_REPAIR_ARTICLE_HTML = `
   <article data-registry-id="${GLOSSARY_TOKEN_REGISTRY_ID}">
-    <p data-testid="glossary-opening">Models use a fixed tokenizer vocabulary.</p>
     <section id="what-it-is"><h2>What It Is</h2></section>
     <section id="related">
       <ul data-testid="curated-related-docs">
@@ -140,7 +139,7 @@ describe("extractGlossaryTokenArticleHtml", () => {
     expect(article).toContain(
       `data-registry-id="${GLOSSARY_TOKEN_REGISTRY_ID}"`,
     );
-    expect(article).toContain('data-testid="glossary-opening"');
+    expect(article).not.toContain('data-testid="glossary-opening"');
   });
 });
 
@@ -173,6 +172,25 @@ describe("assertGlossaryPresentationConvergence", () => {
     expect(
       assertGlossaryPresentationConvergence(PRE_REPAIR_PROBLEM_CORE_HTML),
     ).toBe(GLOSSARY_CUSTOMER_ASK_REASONS.problemCoreBlocks);
+  });
+
+  test("fails when rendered glossary opening summary remains", () => {
+    expect(
+      assertGlossaryPresentationConvergence(`
+        <html>
+          <h1>Token</h1>
+          <article data-registry-id="${GLOSSARY_TOKEN_REGISTRY_ID}">
+            <p data-testid="glossary-opening">Summary</p>
+            <ul data-testid="tag-pill-list" aria-label="Tags">
+              <li><a href="/tags/attention" ${CHROME_LINK_CLASS}>Attention</a></li>
+            </ul>
+            <ul data-testid="curated-related-docs">
+              <li><a href="/docs/glossary/embedding" ${CHROME_LINK_CLASS}>Embedding</a></li>
+            </ul>
+          </article>
+        </html>
+      `),
+    ).toBe(GLOSSARY_CUSTOMER_ASK_REASONS.renderedOpeningSummary);
   });
 });
 

@@ -18,7 +18,7 @@ export const GLOSSARY_TOKEN_TITLE = "Token" as const;
 export const GLOSSARY_CUSTOMER_ASK_CHECKS = {
   presentation: {
     checkId: "glossary.presentation",
-    title: "Glossary token page has one title and concise opening",
+    title: "Glossary token page has one title and no rendered opening summary",
   },
   chromeLinks: {
     checkId: "glossary.chrome-links",
@@ -37,7 +37,7 @@ export const GLOSSARY_CUSTOMER_ASK_REASONS = {
   whereItAppears: "Where It Appears section still present",
   problemCoreBlocks:
     "separate problem-statement and core-idea blocks still present",
-  missingOpening: "glossary opening summary missing",
+  renderedOpeningSummary: "rendered glossary opening summary still present",
   chromeUnderline:
     "glossary tag or related-doc chrome links use underline outside prose",
   missingTagPillList: "tag pill list marker missing from glossary page",
@@ -144,14 +144,14 @@ function assertProblemCoreBlocksAbsent(html: string): string | null {
   return null;
 }
 
-function assertGlossaryOpeningPresent(html: string): string | null {
+function assertGlossaryOpeningAbsent(html: string): string | null {
   const visibleHtml = stripHtmlScripts(html);
   const openingCount = (
     visibleHtml.match(/data-testid="glossary-opening"/g) ?? []
   ).length;
 
-  if (openingCount !== 1) {
-    return GLOSSARY_CUSTOMER_ASK_REASONS.missingOpening;
+  if (openingCount > 0) {
+    return GLOSSARY_CUSTOMER_ASK_REASONS.renderedOpeningSummary;
   }
 
   return null;
@@ -169,7 +169,7 @@ export function assertGlossaryPresentationConvergence(
     assertDuplicateTagSurfaces,
     assertWhereItAppearsAbsent,
     assertProblemCoreBlocksAbsent,
-    assertGlossaryOpeningPresent,
+    assertGlossaryOpeningAbsent,
   ] as const;
 
   for (const check of checks) {
