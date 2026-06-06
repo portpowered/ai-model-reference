@@ -252,6 +252,25 @@ describe("assertNextProductionBuild", () => {
       rmSync(projectRoot, { recursive: true, force: true });
     }
   });
+
+  test("allows production integration tests when Next.js 16 Turbopack build markers are present", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-turbopack-next-"));
+    mkdirSync(join(projectRoot, ".next", "server"), { recursive: true });
+    writeFileSync(
+      join(projectRoot, ".next", "server", "app-paths-manifest.json"),
+      "{}",
+    );
+    writeFileSync(join(projectRoot, ".next", "build-manifest.json"), "{}");
+
+    try {
+      expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
+      expect(shouldRunVerifyProductionIntegrationTests(projectRoot, {})).toBe(
+        true,
+      );
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("waitForServerReady", () => {
