@@ -100,8 +100,10 @@ line target.
 | HomeArticle | `src/components/home/home-article.tsx` | ≥ 90% | `home-page.test.tsx` | — |
 | HomeBrowseLink | `src/components/home/home-browse-link.tsx` | ≥ 90% | `home-browse-link.test.tsx` | — |
 | Primary navigation | `src/components/layout/primary-nav.ts` | ≥ 90% | `primary-nav.test.ts` | `primary-navigation.a11y.test.tsx` |
+| ModelAtlasDocsHeader | `src/components/layout/model-atlas-docs-header.tsx` | ≥ 90% | `model-atlas-docs-header.test.tsx` | `primary-navigation.a11y.test.tsx` |
 | CanonicalDocsLayout | `src/components/layout/canonical-docs-layout.tsx` | ≥ 90% | `docs-sidebar-navigation.a11y.test.tsx` | `docs-sidebar-navigation.a11y.test.tsx` |
 | SearchTrigger | `src/features/docs/search/SearchTrigger.tsx` | ≥ 90% | `SearchTrigger.test.tsx` | `primary-navigation.a11y.test.tsx` |
+| DocsIndexEntryList | `src/features/docs/components/DocsIndexEntryList.tsx` | ≥ 90% | `DocsIndexEntryList.test.tsx` | — |
 | TagResourceList | `src/features/docs/components/TagResourceList.tsx` | ≥ 90% | `TagResourceList.test.tsx` | — |
 | TagsIndexList | `src/features/docs/tags/TagsIndexList.tsx` | ≥ 90% | `TagsIndexList.test.tsx` | — |
 
