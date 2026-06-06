@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   assertGlossaryChromeLinksConvergence,
   assertGlossaryPresentationConvergence,
@@ -258,5 +260,26 @@ describe("buildCustomerAskGlossaryRows", () => {
     expect(chromeRow?.reason).toBe(
       GLOSSARY_CUSTOMER_ASK_REASONS.chromeUnderline,
     );
+  });
+});
+
+describe("buildCustomerAskGlossaryRows (built HTML)", () => {
+  test("/docs/glossary/token built HTML reports pass for all customer-ask glossary checks", () => {
+    const builtPath = join(
+      process.cwd(),
+      ".next/server/app/docs/glossary/token.html",
+    );
+    if (!existsSync(builtPath)) {
+      return;
+    }
+
+    const rows = buildCustomerAskGlossaryRows(readFileSync(builtPath, "utf8"));
+    expect(rows).toHaveLength(3);
+    expect(rows.map((row) => row.checkId)).toEqual([
+      GLOSSARY_CUSTOMER_ASK_CHECKS.presentation.checkId,
+      GLOSSARY_CUSTOMER_ASK_CHECKS.chromeLinks.checkId,
+      GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.checkId,
+    ]);
+    expect(rows.every((row) => row.status === "pass")).toBe(true);
   });
 });
