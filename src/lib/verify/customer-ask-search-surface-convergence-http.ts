@@ -1,5 +1,7 @@
 import { type Browser, chromium, type Locator, type Page } from "playwright";
+import { BATCH_011_FOLLOW_UP_SEARCH_CHECKS } from "./batch-011-follow-up-search-checks";
 import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-result";
+import { POST_REPAIR_SEARCH_RESULT_ROW_HTML } from "./customer-ask-search-follow-up-convergence";
 import {
   buildCustomerAskSearchApiGqaRow,
   buildCustomerAskSearchDialogRowsForQuery,
@@ -60,6 +62,17 @@ const SEARCH_RESULT_MATCHED_TAGS_SELECTOR =
 const SEARCH_PAGE_RESULTS_SELECTOR = '[data-testid="search-page-results"]';
 const SEARCH_PAGE_EMPTY_SELECTOR = '[data-testid="search-page-empty"]';
 const SEARCH_DIALOG_EMPTY_SELECTOR = '[data-testid="search-dialog-empty"]';
+const SEARCH_RESULT_ROW_SELECTOR = '[data-testid="search-result-row"]';
+
+async function readFirstResultRowHtml(scope: Locator): Promise<string | null> {
+  const firstRow = scope.locator(SEARCH_RESULT_ROW_SELECTOR).first();
+  const count = await firstRow.count();
+  if (count === 0) {
+    return null;
+  }
+
+  return firstRow.evaluate((element) => element.outerHTML);
+}
 
 function normalizeResultUrlText(text: string | null): string {
   return text?.replace(/\s+/g, " ").trim() ?? "";
@@ -103,12 +116,16 @@ export async function readSearchPageSurfaceSnapshot(
         .locator(SEARCH_RESULT_MATCHED_TAGS_SELECTOR)
         .count()
     : 0;
+  const firstResultRowHtml = hasResults
+    ? await readFirstResultRowHtml(page.locator(SEARCH_PAGE_RESULTS_SELECTOR))
+    : null;
 
   return {
     resultUrls,
     matchedTagsVisible: matchedTagsCount > 0,
     hasResults: resultUrls.length > 0 || hasResults,
     hasEmpty,
+    firstResultRowHtml,
   };
 }
 
@@ -123,12 +140,16 @@ export async function readSearchDialogSurfaceSnapshot(
   const matchedTagsCount = await dialog
     .locator(SEARCH_RESULT_MATCHED_TAGS_SELECTOR)
     .count();
+  const firstResultRowHtml = hasResults
+    ? await readFirstResultRowHtml(dialog)
+    : null;
 
   return {
     resultUrls,
     matchedTagsVisible: matchedTagsCount > 0,
     hasResults,
     hasEmpty,
+    firstResultRowHtml,
   };
 }
 
@@ -158,11 +179,18 @@ function pageCheckIdsForQuery(): string[] {
   return [
     SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.pagePageLevelHits.checkId,
     SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.pageNoMatchedTags.checkId,
+    BATCH_011_FOLLOW_UP_SEARCH_CHECKS.pageRowHoverCoherence.checkId,
+    BATCH_011_FOLLOW_UP_SEARCH_CHECKS.pageMatchedTextSelectionContrast.checkId,
   ];
 }
 
 function dialogCheckIdsForQuery(): string[] {
-  return [SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.dialogNoMatchedTags.checkId];
+  return [
+    SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.dialogNoMatchedTags.checkId,
+    BATCH_011_FOLLOW_UP_SEARCH_CHECKS.dialogRowHoverCoherence.checkId,
+    BATCH_011_FOLLOW_UP_SEARCH_CHECKS.dialogMatchedTextSelectionContrast
+      .checkId,
+  ];
 }
 
 async function defaultLaunchBrowser(): Promise<Browser> {
@@ -381,6 +409,7 @@ const PASSING_CUSTOMER_ASK_SEARCH_SNAPSHOT: SearchSurfaceResultSnapshot = {
   matchedTagsVisible: false,
   hasResults: true,
   hasEmpty: false,
+  firstResultRowHtml: POST_REPAIR_SEARCH_RESULT_ROW_HTML,
 };
 
 /**
@@ -403,6 +432,7 @@ export function resolveCustomerAskSearchSurfaceCheckOptionsFromEnv(
       matchedTagsVisible: false,
       hasResults: true,
       hasEmpty: false,
+      firstResultRowHtml: POST_REPAIR_SEARCH_RESULT_ROW_HTML,
     }),
     fetchApiGqaResults: async () => ({
       results: [
