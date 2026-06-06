@@ -9,6 +9,7 @@ import {
   validatePageAssetReferences,
 } from "@/lib/content/assets";
 import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import {
@@ -53,13 +54,14 @@ describe("loadModulePage grouped-query-attention", () => {
       }),
     );
 
-    expect(html).toContain("Grouped-Query Attention");
+    expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
     expect(html).toContain("KV caches grow with context length and head count");
     expect(html).toContain(
       "lets several query heads share fewer key-value heads",
     );
-    expect(html).toContain("Module metadata");
+    expect(html).not.toContain('aria-label="Module metadata"');
     expect(html).toContain("At a glance");
+    expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain('data-testid="curated-related-docs"');
