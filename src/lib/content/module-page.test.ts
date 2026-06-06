@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import { MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS } from "@/features/models/components/module-attention-math-variable-definitions";
 import {
   parsePageAssetConfig,
   validatePageAssetReferences,
@@ -33,6 +34,13 @@ describe("grouped-query-attention page messages", () => {
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItOptimizes.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
+    expect(messages.mathVariableDefinitions?.title).toBe(
+      "What the symbols mean",
+    );
+    expect(messages.mathVariableDefinitions?.q.term).toBe("Q");
+    expect(messages.mathVariableDefinitions?.grouping.term).toBe(
+      "Query-to-KV grouping",
+    );
   });
 });
 
@@ -100,9 +108,21 @@ describe("grouped-query-attention converged Phase 1 module page", () => {
     expect(html).toContain(
       'data-table-id="table.grouped-query-attention-comparison"',
     );
+    expect(html).toContain('data-attention-schema-comparison="true"');
+    expect(html).toContain('data-attention-schema-variable-definitions="true"');
     expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
     expect(html).toContain('data-message-block-math="math.gqaSchema.formula"');
     expect(html).toContain('class="katex"');
+    expect(html).toContain("What the symbols mean");
+    expect(html).toContain("Query projection");
+    expect(html).toContain("Key projection");
+    expect(html).toContain("Value projection");
+    expect(html).toContain("Query heads");
+    expect(html).toContain("Key-value heads");
+    expect(html).toContain("Query-to-KV grouping");
+    for (const id of MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS) {
+      expect(html).toContain(`data-math-variable-definition="${id}"`);
+    }
     expect(html).toContain('data-prose-auto-link="true"');
     for (const forbidden of GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS) {
       expect(html).not.toContain(forbidden);
