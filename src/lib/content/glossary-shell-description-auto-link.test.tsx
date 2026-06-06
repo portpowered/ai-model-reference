@@ -27,6 +27,10 @@ describe("glossary shell description auto-link convergence", () => {
       href: "/docs/glossary/vector",
       phrase: "dense vector",
     });
+    expectGlossaryShellDescriptionAutoLink(html, {
+      href: "/docs/glossary/token",
+      phrase: "token",
+    });
     expectGlossaryBodyOmitsShellDescription(
       articleHtml,
       loadedPage.messages.description,
