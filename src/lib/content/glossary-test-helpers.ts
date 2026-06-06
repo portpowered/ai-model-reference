@@ -45,6 +45,19 @@ export function expectGlossaryBodyOmitsShellDescription(
   expect(stripHtmlTags(html)).not.toContain(description);
 }
 
+/** Shell description prose auto-links use internal hrefs, marker, and focus ring utilities. */
+export function expectGlossaryShellDescriptionAutoLink(
+  html: string,
+  options: { href: string; phrase?: string },
+): void {
+  expect(html).toContain(`href="${options.href}"`);
+  expect(html).toContain('data-prose-auto-link="true"');
+  expect(html).toContain("focus-visible:ring-2");
+  if (options.phrase) {
+    expectHtmlToContainProse(html, options.phrase);
+  }
+}
+
 /** Glossary pages must not render the retired opening-summary block. */
 export function expectGlossaryOmitsOpeningSummary(html: string): void {
   expect(html).not.toContain('data-testid="glossary-opening"');
