@@ -6,6 +6,7 @@ import {
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
 import {
+  expectUniqueCanonicalPageUrls,
   resultsIncludeSampleModule,
   resultsIncludeTokenGlossary,
   SAMPLE_MODULE_URL,
@@ -53,29 +54,20 @@ describe("createModelAtlasSearchClient", () => {
     expect(results.every((result) => !result.url.includes("#"))).toBe(true);
   });
 
-  test("includes grouped-query attention for attention query", async () => {
+  test.each([
+    "attention",
+    "KV cache",
+  ] as const)("returns at most one hit per canonical page URL for %s query", async (query) => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
     const client = createModelAtlasSearchClient({
       metaByUrl,
       client: { from: TEST_DOCS_SEARCH_URL },
     });
-    const results = await client.search("attention");
+    const results = await client.search(query);
 
     expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeSampleModule(results)).toBe(true);
-  });
-
-  test("includes grouped-query attention for KV cache query", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
-
-    const client = createModelAtlasSearchClient({
-      metaByUrl,
-      client: { from: TEST_DOCS_SEARCH_URL },
-    });
-    const results = await client.search("KV cache");
-
-    expect(results.length).toBeGreaterThan(0);
+    expectUniqueCanonicalPageUrls(results.map((result) => result.url));
     expect(resultsIncludeSampleModule(results)).toBe(true);
   });
 

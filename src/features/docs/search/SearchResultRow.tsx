@@ -13,6 +13,7 @@ import { resolveSearchResultMeta } from "./search-result-meta-client";
 import {
   searchDialogResultRowClassName,
   searchPageResultRowClassName,
+  searchResultTitleInteractiveClassName,
 } from "./search-result-row-classes";
 import { stripSearchResultTitleMarks } from "./search-result-title-content";
 
@@ -79,11 +80,10 @@ export function SearchResultRow({
     <SearchResultTitle
       content={title}
       query={query}
-      className={
-        surface === "page"
-          ? "text-foreground group-hover:text-inherit group-focus-visible:text-inherit"
-          : undefined
-      }
+      className={cn(
+        searchResultTitleInteractiveClassName,
+        surface === "page" ? "text-foreground" : undefined,
+      )}
     />
   );
   const metaPanel = meta ? (

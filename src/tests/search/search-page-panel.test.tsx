@@ -18,6 +18,11 @@ import {
 } from "@/tests/a11y/render";
 import {
   collectResultUrlsFromNodes,
+  expectCustomerAskSearchPagePanel,
+  expectFullRowSearchResultHighlightPanel,
+  expectReadableQueryMatchHighlightPanel,
+  expectSharedSearchResultRowPanel,
+  expectThinSearchMetadataPanel,
   expectUniqueCanonicalPageUrls,
   resultsIncludeSampleModule,
   SAMPLE_MODULE_URL,
@@ -97,6 +102,24 @@ describe("SearchPagePanel Phase 1 queries", () => {
     "GQA",
     "attention",
     "KV cache",
+  ] as const)("passes customer-ask page-level hit checks for %s query", async (query) => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      query,
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    expectCustomerAskSearchPagePanel(within(results), query);
+  });
+
+  test.each([
+    "GQA",
+    "attention",
+    "KV cache",
   ] as const)("returns at most one row per canonical page URL for %s query", async (query) => {
     const context = await loadAppTestContext();
     await renderSearchPagePanelContent(context);
@@ -113,6 +136,65 @@ describe("SearchPagePanel Phase 1 queries", () => {
     const urls = collectResultUrlsFromNodes(resultUrls);
     expectUniqueCanonicalPageUrls(urls);
     expect(resultsIncludeSampleModule(urls.map((url) => ({ url })))).toBe(true);
+  });
+
+  test("GQA query renders page hits through shared SearchResultRow", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      "GQA",
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    expectSharedSearchResultRowPanel(within(results));
+  });
+
+  test("GQA query shows thin metadata without matched-tag chips", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      "GQA",
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    expectThinSearchMetadataPanel(within(results), { expectSummary: true });
+  });
+
+  test("GQA query highlights full result rows including metadata on hover and focus", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      "GQA",
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    expectFullRowSearchResultHighlightPanel(within(results));
+    const row = within(results).getAllByTestId("search-result-row")[0];
+    expect(row?.className).toContain("hover:bg-accent");
+    expect(row?.className).toContain("focus-visible:ring-2");
+  });
+
+  test("Grouped query keeps query-match marks readable on accent rows on /search", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      "Grouped",
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    expectReadableQueryMatchHighlightPanel(within(results));
   });
 
   test("GQA query ranks grouped-query attention first on /search", async () => {
