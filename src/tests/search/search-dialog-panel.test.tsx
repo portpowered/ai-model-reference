@@ -18,6 +18,7 @@ import {
 } from "@/tests/a11y/render";
 import {
   collectResultUrlsFromNodes,
+  expectFullRowSearchResultHighlightPanel,
   expectSharedSearchResultRowPanel,
   expectThinSearchMetadataPanel,
   expectUniqueCanonicalPageUrls,
@@ -157,6 +158,22 @@ describe("SearchDialog Phase 1 queries", () => {
     await waitFor(
       () => {
         expectThinSearchMetadataPanel(within(dialog), { expectSummary: true });
+      },
+      { timeout: 3000 },
+    );
+  });
+
+  test("GQA query highlights full result rows including metadata on hover and selection", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchDialog(context);
+
+    const dialog = await screen.findByRole("dialog", { name: "Search" });
+    const user = userEvent.setup();
+    await user.type(within(dialog).getByRole("textbox"), "GQA");
+
+    await waitFor(
+      () => {
+        expectFullRowSearchResultHighlightPanel(within(dialog));
       },
       { timeout: 3000 },
     );

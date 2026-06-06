@@ -82,11 +82,45 @@ export function expectSharedSearchResultRowPanel(
   expect(rows.length).toBeGreaterThan(0);
   for (const row of rows) {
     const meta = row.querySelector('[data-testid="search-result-meta"]');
-    expect(meta).toBeTruthy();
-    expect(row.contains(meta!)).toBe(true);
+    if (!meta) {
+      expect(meta).toBeTruthy();
+      continue;
+    }
+    expect(row.contains(meta)).toBe(true);
     expect(
       row.querySelector('[data-testid="search-result-matched-tags"]'),
     ).toBeNull();
+  }
+}
+
+/** Asserts page hits use full-row hover/focus/selection classes with embedded metadata. */
+export function expectFullRowSearchResultHighlightPanel(
+  queries: ThinMetadataQueries,
+): void {
+  const rows = queries.queryAllByTestId("search-result-row");
+  expect(rows.length).toBeGreaterThan(0);
+  for (const row of rows) {
+    expect(row.className).toContain("group");
+    const meta = row.querySelector('[data-testid="search-result-meta"]');
+    if (!meta) {
+      expect(meta).toBeTruthy();
+      continue;
+    }
+    expect(row.contains(meta)).toBe(true);
+    expect(meta.className).toContain("group-hover:text-accent-foreground");
+    expect(meta.className).toContain(
+      "group-focus-visible:text-accent-foreground",
+    );
+    expect(meta.className).toContain(
+      "group-aria-selected:text-fd-accent-foreground",
+    );
+    const fields = meta.querySelectorAll(
+      '[data-testid="search-result-summary"], [data-testid="search-result-url"], [data-testid="search-result-kind"]',
+    );
+    expect(fields.length).toBeGreaterThan(0);
+    for (const field of fields) {
+      expect(field.className).toContain("text-inherit");
+    }
   }
 }
 
