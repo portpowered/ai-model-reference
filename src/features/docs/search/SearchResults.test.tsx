@@ -47,6 +47,28 @@ describe("SearchResultMetaDetails", () => {
     expect(html).toContain(messages.search.resultPath);
     expect(html).not.toContain('data-testid="search-result-matched-tags"');
   });
+
+  test("omits summary when description is absent but keeps path and kind", async () => {
+    const messages = await loadUiMessages();
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap(),
+    );
+    const meta = metaByUrl[SAMPLE_MODULE_URL];
+    expect(meta).toBeDefined();
+
+    const html = renderToStaticMarkup(
+      <SearchResultMetaDetails
+        url={SAMPLE_MODULE_URL}
+        meta={{ ...meta, description: "" }}
+        messages={messages}
+      />,
+    );
+
+    expect(html).not.toContain('data-testid="search-result-summary"');
+    expect(html).toContain('data-testid="search-result-url"');
+    expect(html).toContain('data-testid="search-result-kind"');
+    expect(html).not.toContain('data-testid="search-result-matched-tags"');
+  });
 });
 
 describe("SearchResultRow", () => {

@@ -68,3 +68,34 @@ export function resultsIncludeTokenGlossary(
 ): boolean {
   return resultsIncludeUrl(results, TOKEN_GLOSSARY_URL);
 }
+
+type ThinMetadataQueries = {
+  queryAllByTestId: (id: string) => HTMLElement[];
+  queryByTestId: (id: string) => HTMLElement | null;
+};
+
+/** Asserts dialog or `/search` panels render thin metadata without matched-tag chips. */
+export function expectThinSearchMetadataPanel(
+  queries: ThinMetadataQueries,
+  options?: { expectSummary?: boolean },
+): void {
+  expect(queries.queryByTestId("search-result-matched-tags")).toBeNull();
+  const metaPanels = queries.queryAllByTestId("search-result-meta");
+  expect(metaPanels.length).toBeGreaterThan(0);
+  for (const panel of metaPanels) {
+    expect(
+      panel.querySelector('[data-testid="search-result-url"]'),
+    ).toBeTruthy();
+    expect(
+      panel.querySelector('[data-testid="search-result-kind"]'),
+    ).toBeTruthy();
+    expect(
+      panel.querySelector('[data-testid="search-result-matched-tags"]'),
+    ).toBeNull();
+    if (options?.expectSummary) {
+      expect(
+        panel.querySelector('[data-testid="search-result-summary"]'),
+      ).toBeTruthy();
+    }
+  }
+}
