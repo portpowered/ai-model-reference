@@ -37,6 +37,7 @@ describe("attention tag landing resources", () => {
     expect(moduleGroup).toBeDefined();
     expect(moduleGroup?.kindLabel).toBe("Module");
     expect(moduleGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/modules/attention",
       "/docs/modules/grouped-query-attention",
     ]);
   });
