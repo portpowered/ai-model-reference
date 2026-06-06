@@ -37,4 +37,16 @@ describe("DocsIndexEntryList", () => {
     expect(html).toContain("A dense vector representation of a token or item.");
     expect(html).toContain('href="/docs/glossary/embedding"');
   });
+
+  test("uses bulletless list styling without list-disc", () => {
+    const html = renderToStaticMarkup(
+      <DocsIndexEntryList
+        entries={sampleEntries}
+        listLabel="Glossary entries"
+      />,
+    );
+
+    expect(html).toContain("list-none");
+    expect(html).not.toContain("list-disc");
+  });
 });

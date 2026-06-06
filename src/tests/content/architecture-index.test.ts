@@ -140,5 +140,7 @@ describe("architecture index page render", () => {
     expect(html).toContain("Token");
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).not.toContain("No architecture entries yet");
+    expect(html).toContain("list-none");
+    expect(html).not.toContain("list-disc");
   });
 });

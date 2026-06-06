@@ -24,6 +24,13 @@ describe("getPrimaryNavItems", () => {
     ]);
   });
 
+  it("omits duplicate /search link from primary navigation", async () => {
+    const messages = await loadUiMessages();
+    const items = getPrimaryNavItems(messages);
+
+    expect(items.some((item) => item.href === "/search")).toBe(false);
+  });
+
   it("uses ring token focus styles on nav links", () => {
     expect(PRIMARY_NAV_LINK_CLASS).toContain("focus-visible:ring-ring");
   });

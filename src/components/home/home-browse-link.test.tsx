@@ -28,7 +28,9 @@ describe("HomeBrowseLink", () => {
       />,
     );
 
+    expect(html).toContain('href="/docs/architecture"');
     expect(html).toContain("no-underline");
+    expect(html).toContain("hover:no-underline");
     const withoutNoUnderline = html.replaceAll("no-underline", "");
     expect(withoutNoUnderline).not.toMatch(/\bunderline\b/);
     expect(html).toContain("focus-visible:ring-2");
