@@ -4,7 +4,6 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS } from "@/features/models/components/module-attention-math-variable-definitions";
 import {
   parsePageAssetConfig,
   validatePageAssetReferences,
@@ -14,8 +13,11 @@ import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import {
+  assertGroupedQueryAttentionChromeConvergence,
+  assertGroupedQueryAttentionGraphThemeConvergence,
+  assertGroupedQueryAttentionMathDefinitionsConvergence,
   assertGroupedQueryAttentionModuleConvergence,
-  GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS,
+  assertGroupedQueryAttentionSingleGraphConvergence,
 } from "@/lib/verify/grouped-query-attention-module-convergence";
 
 const pageDir = GROUPED_QUERY_ATTENTION_PAGE_DIR;
@@ -85,7 +87,7 @@ describe("loadModulePage grouped-query-attention", () => {
 });
 
 describe("grouped-query-attention converged Phase 1 module page", () => {
-  test("static render includes React Flow graphs, comparison table, KaTeX, auto-linked prose, and excludes variants section", async () => {
+  test("static render satisfies shared GQA presentation convergence helpers", async () => {
     const page = await loadModulePage("grouped-query-attention");
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -96,37 +98,12 @@ describe("grouped-query-attention converged Phase 1 module page", () => {
       }),
     );
 
-    expect((html.match(/data-react-flow-graph="true"/g) ?? []).length).toBe(1);
-    expect(html).toContain(
-      'data-graph-id="graph.grouped-query-attention-compute-flow"',
-    );
-    expect(html).not.toContain(
-      'data-graph-id="graph.grouped-query-attention-compute-schema"',
-    );
-    expect(html).toContain('data-graph-node-id="hidden-states"');
-    expect(html).toContain('data-registry-comparison-table="true"');
-    expect(html).toContain(
-      'data-table-id="table.grouped-query-attention-comparison"',
-    );
-    expect(html).toContain('data-attention-schema-comparison="true"');
-    expect(html).toContain('data-attention-schema-variable-definitions="true"');
-    expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
-    expect(html).toContain('data-message-block-math="math.gqaSchema.formula"');
-    expect(html).toContain('class="katex"');
-    expect(html).toContain("What the symbols mean");
-    expect(html).toContain("Query projection");
-    expect(html).toContain("Key projection");
-    expect(html).toContain("Value projection");
-    expect(html).toContain("Query heads");
-    expect(html).toContain("Key-value heads");
-    expect(html).toContain("Query-to-KV grouping");
-    for (const id of MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS) {
-      expect(html).toContain(`data-math-variable-definition="${id}"`);
-    }
-    expect(html).toContain('data-prose-auto-link="true"');
-    for (const forbidden of GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS) {
-      expect(html).not.toContain(forbidden);
-    }
+    expect(assertGroupedQueryAttentionChromeConvergence(html)).toBeNull();
+    expect(assertGroupedQueryAttentionSingleGraphConvergence(html)).toBeNull();
+    expect(assertGroupedQueryAttentionGraphThemeConvergence(html)).toBeNull();
+    expect(
+      assertGroupedQueryAttentionMathDefinitionsConvergence(html),
+    ).toBeNull();
     expect(assertGroupedQueryAttentionModuleConvergence(html)).toBeNull();
   });
 });
