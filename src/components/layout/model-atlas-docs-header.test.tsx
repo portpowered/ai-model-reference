@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import type { SharedProps } from "fumadocs-ui/contexts/search";
-import { RootProvider } from "fumadocs-ui/provider/next";
 import { cleanup, fireEvent, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { SharedProps } from "fumadocs-ui/contexts/search";
+import { RootProvider } from "fumadocs-ui/provider/next";
 import type { ComponentType } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModelAtlasDocsHeader } from "@/components/layout/model-atlas-docs-header";
@@ -115,9 +115,7 @@ describe("ModelAtlasDocsHeader", () => {
 
   test("reveals mobile primary nav links in a disclosure panel when the menu opens", async () => {
     const messages = await loadUiMessages();
-    await renderWithAppProviders(
-      <ModelAtlasDocsHeader messages={messages} />,
-    );
+    await renderWithAppProviders(<ModelAtlasDocsHeader messages={messages} />);
     const menuButton = screen.getByRole("button", { name: messages.nav.menu });
 
     expect(menuButton.getAttribute("aria-expanded")).toBe("false");
@@ -145,18 +143,20 @@ describe("ModelAtlasDocsHeader", () => {
 
   test("closes the mobile menu and hides the disclosure panel when toggled off", async () => {
     const messages = await loadUiMessages();
-    await renderWithAppProviders(
-      <ModelAtlasDocsHeader messages={messages} />,
-    );
+    await renderWithAppProviders(<ModelAtlasDocsHeader messages={messages} />);
     const menuButton = screen.getByRole("button", { name: messages.nav.menu });
 
     fireEvent.click(menuButton);
     expect(menuButton.getAttribute("aria-expanded")).toBe("true");
-    expect(document.getElementById(menuButton.getAttribute("aria-controls") ?? "")).toBeTruthy();
+    expect(
+      document.getElementById(menuButton.getAttribute("aria-controls") ?? ""),
+    ).toBeTruthy();
 
     fireEvent.click(menuButton);
     expect(menuButton.getAttribute("aria-expanded")).toBe("false");
-    expect(document.getElementById(menuButton.getAttribute("aria-controls") ?? "")).toBeNull();
+    expect(
+      document.getElementById(menuButton.getAttribute("aria-controls") ?? ""),
+    ).toBeNull();
   });
 
   test("exposes focus-visible ring classes on menu control, nav links, and search trigger", async () => {
@@ -177,9 +177,7 @@ describe("ModelAtlasDocsHeader", () => {
 
   test("moves keyboard focus through menu control, disclosed links, and search trigger when open", async () => {
     const messages = await loadUiMessages();
-    await renderWithAppProviders(
-      <ModelAtlasDocsHeader messages={messages} />,
-    );
+    await renderWithAppProviders(<ModelAtlasDocsHeader messages={messages} />);
     const user = userEvent.setup();
     const menuButton = screen.getByRole("button", { name: messages.nav.menu });
     const searchTrigger = screen.getByRole("button", {

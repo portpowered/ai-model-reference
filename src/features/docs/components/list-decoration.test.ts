@@ -21,7 +21,9 @@ describe("list decoration classes", () => {
   });
 
   test("bulletlessListBaseClassName omits list markers", () => {
-    expect(bulletlessListBaseClassName).toContain(bulletlessListMarkersClassName);
+    expect(bulletlessListBaseClassName).toContain(
+      bulletlessListMarkersClassName,
+    );
     expect(bulletlessListBaseClassName).not.toContain("list-disc");
   });
 
