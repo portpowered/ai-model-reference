@@ -4,6 +4,7 @@ import {
   bulletlessListClassName,
   bulletlessListMarkersClassName,
   docsResourceCardLinkClassName,
+  searchInlineResultsListClassName,
 } from "@/features/docs/components/list-decoration";
 
 function expectNoUnderlineUtilities(className: string): void {
@@ -37,5 +38,13 @@ describe("list decoration classes", () => {
     expectNoUnderlineUtilities(docsResourceCardLinkClassName);
     expect(docsResourceCardLinkClassName).toContain("focus-visible:ring-2");
     expect(docsResourceCardLinkClassName).toContain("hover:border-ring");
+  });
+
+  test("searchInlineResultsListClassName omits list markers", () => {
+    expect(searchInlineResultsListClassName).toContain(
+      bulletlessListMarkersClassName,
+    );
+    expect(searchInlineResultsListClassName).not.toContain("list-disc");
+    expect(searchInlineResultsListClassName).toContain("divide-y");
   });
 });
