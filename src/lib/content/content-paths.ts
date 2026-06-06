@@ -71,6 +71,9 @@ export const MESSAGES_ROOT = getMessagesRoot(contentRoot);
 /** Default `src/content/registry/tags/messages` root. */
 export const TAG_MESSAGES_ROOT = getTagMessagesRoot(REGISTRY_ROOT);
 
+/** Phase 1 attention module bridge page directory. */
+export const ATTENTION_MODULE_PAGE_DIR = join(MODULES_DOCS_ROOT, "attention");
+
 /** Phase 1 grouped-query attention sample module page directory. */
 export const GROUPED_QUERY_ATTENTION_PAGE_DIR = join(
   MODULES_DOCS_ROOT,
