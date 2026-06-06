@@ -3,6 +3,10 @@ import type { SharedProps } from "fumadocs-ui/contexts/search";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import type { ComponentType } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import {
+  HomeBrowseLink,
+  HomeBrowseList,
+} from "@/components/home/home-browse-link";
 import { HomeBrushHeader } from "@/components/home/home-brush-header";
 import { getPrimaryNavItems } from "@/components/layout/primary-nav";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
@@ -63,6 +67,27 @@ describe("Phase 1 home shell styling contracts", () => {
       <HomeBrushHeader title="Model Atlas" subtitle="Reference" />,
     );
     expect(brushHtml).not.toContain("mb-8");
+
+    const browseListHtml = renderToStaticMarkup(
+      <HomeBrowseList ariaLabel="Browse">
+        <HomeBrowseLink href="/tags" title="Tags" description="Browse by tag" />
+      </HomeBrowseList>,
+    );
+    expect(browseListHtml).toContain("list-none");
+    expect(browseListHtml).not.toContain("list-disc");
+
+    const browseLinkHtml = renderToStaticMarkup(
+      <HomeBrowseLink
+        href="/docs/architecture"
+        title="Architecture"
+        description="System overview"
+      />,
+    );
+    expect(browseLinkHtml).toContain("no-underline");
+    expect(browseLinkHtml).toContain("hover:no-underline");
+    expect(browseLinkHtml).toContain("focus-visible:ring-2");
+    const withoutNoUnderline = browseLinkHtml.replaceAll("no-underline", "");
+    expect(withoutNoUnderline).not.toMatch(/\bunderline\b/);
 
     const SearchDialog: ComponentType<SharedProps> = () => null;
     const searchHtml = renderToStaticMarkup(
