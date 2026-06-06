@@ -18,6 +18,7 @@ import {
 } from "@/tests/a11y/render";
 import {
   collectResultUrlsFromNodes,
+  expectThinSearchMetadataPanel,
   expectUniqueCanonicalPageUrls,
   resultsIncludeSampleModule,
   SAMPLE_MODULE_URL,
@@ -126,6 +127,22 @@ describe("SearchDialog Phase 1 queries", () => {
     const urls = collectResultUrlsFromNodes(resultUrls);
     expectUniqueCanonicalPageUrls(urls);
     expect(resultsIncludeSampleModule(urls.map((url) => ({ url })))).toBe(true);
+  });
+
+  test("GQA query shows thin metadata without matched-tag chips", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchDialog(context);
+
+    const dialog = await screen.findByRole("dialog", { name: "Search" });
+    const user = userEvent.setup();
+    await user.type(within(dialog).getByRole("textbox"), "GQA");
+
+    await waitFor(
+      () => {
+        expectThinSearchMetadataPanel(within(dialog), { expectSummary: true });
+      },
+      { timeout: 3000 },
+    );
   });
 
   test("GQA query ranks grouped-query attention first in dialog results", async () => {
