@@ -1,4 +1,5 @@
 import { modulePageHref } from "@/lib/content/content-hrefs";
+import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import {
   DEFAULT_FETCH_TIMEOUT_MS,
   FetchTimeoutError,
@@ -43,6 +44,22 @@ function resultsIncludeGroupedQueryAttention(
   return resultsIncludeUrl(results, PHASE_1_GROUPED_QUERY_ATTENTION_URL);
 }
 
+/** Returns a failure reason when API hits include fragment URLs or duplicate pages. */
+export function assertCanonicalPageLevelApiResults(
+  results: readonly SearchResultHit[],
+): string | null {
+  if (results.some((result) => result.url.includes("#"))) {
+    return "search hit URL includes a hash fragment";
+  }
+
+  const bases = results.map((result) => pageBaseUrl(result.url));
+  if (new Set(bases).size !== bases.length) {
+    return "multiple search hits duplicate one canonical page URL";
+  }
+
+  return null;
+}
+
 function parseSearchResultsJson(body: string): {
   results: SearchResultHit[] | null;
   reason: string | null;
@@ -83,6 +100,10 @@ export const PHASE_1_SEARCH_ASSERTIONS: readonly Phase1SearchAssertion[] = [
       if (results.length === 0) {
         return "expected at least one search hit";
       }
+      const canonicalReason = assertCanonicalPageLevelApiResults(results);
+      if (canonicalReason) {
+        return canonicalReason;
+      }
       if (results[0]?.url !== PHASE_1_GROUPED_QUERY_ATTENTION_URL) {
         return `first hit URL must be ${PHASE_1_GROUPED_QUERY_ATTENTION_URL}, got ${results[0]?.url ?? "none"}`;
       }
@@ -96,6 +117,10 @@ export const PHASE_1_SEARCH_ASSERTIONS: readonly Phase1SearchAssertion[] = [
       if (results.length === 0) {
         return "expected at least one search hit";
       }
+      const canonicalReason = assertCanonicalPageLevelApiResults(results);
+      if (canonicalReason) {
+        return canonicalReason;
+      }
       if (!resultsIncludeGroupedQueryAttention(results)) {
         return `expected hit for ${PHASE_1_GROUPED_QUERY_ATTENTION_URL}`;
       }
@@ -108,6 +133,10 @@ export const PHASE_1_SEARCH_ASSERTIONS: readonly Phase1SearchAssertion[] = [
     assertResults: (results) => {
       if (results.length === 0) {
         return "expected at least one search hit";
+      }
+      const canonicalReason = assertCanonicalPageLevelApiResults(results);
+      if (canonicalReason) {
+        return canonicalReason;
       }
       if (!resultsIncludeGroupedQueryAttention(results)) {
         return `expected hit for ${PHASE_1_GROUPED_QUERY_ATTENTION_URL}`;
