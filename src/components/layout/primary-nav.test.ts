@@ -1,7 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import {
   getPrimaryNavItems,
+  PRIMARY_NAV_DESKTOP_CLASS,
   PRIMARY_NAV_LINK_CLASS,
+  PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS,
+  PRIMARY_NAV_MOBILE_PANEL_CLASS,
 } from "@/components/layout/primary-nav";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
@@ -33,5 +36,14 @@ describe("getPrimaryNavItems", () => {
 
   it("uses ring token focus styles on nav links", () => {
     expect(PRIMARY_NAV_LINK_CLASS).toContain("focus-visible:ring-ring");
+  });
+
+  it("exports responsive header class contracts", () => {
+    expect(PRIMARY_NAV_DESKTOP_CLASS).toContain("hidden");
+    expect(PRIMARY_NAV_DESKTOP_CLASS).toContain("md:flex");
+    expect(PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS).toBe("md:hidden");
+    expect(PRIMARY_NAV_MOBILE_PANEL_CLASS).toContain("order-last");
+    expect(PRIMARY_NAV_MOBILE_PANEL_CLASS).toContain("w-full");
+    expect(PRIMARY_NAV_MOBILE_PANEL_CLASS).toContain("md:hidden");
   });
 });

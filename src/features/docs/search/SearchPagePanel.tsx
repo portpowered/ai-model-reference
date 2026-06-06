@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { searchInlineResultsListClassName } from "@/features/docs/components/list-decoration";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { SearchInlineResultItem } from "./SearchResults";
 import { useModelAtlasDocsSearch } from "./search-client";
@@ -130,7 +131,7 @@ export function SearchPagePanelContent({
         ) : null}
         {showResults ? (
           <ul
-            className="divide-y divide-border rounded-lg border border-border"
+            className={searchInlineResultsListClassName}
             data-testid="search-page-results"
           >
             {items.map((item) => (

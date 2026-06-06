@@ -138,6 +138,22 @@ describe("SearchPagePanel Phase 1 queries", () => {
     expect(resultsIncludeSampleModule(urls.map((url) => ({ url })))).toBe(true);
   });
 
+  test("GQA query renders bulletless search results list without list-disc", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      "GQA",
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    expect(results.className).toContain("list-none");
+    expect(results.className).not.toContain("list-disc");
+    expect(results.querySelectorAll("li").length).toBeGreaterThan(0);
+  });
+
   test("GQA query renders page hits through shared SearchResultRow", async () => {
     const context = await loadAppTestContext();
     await renderSearchPagePanelContent(context);

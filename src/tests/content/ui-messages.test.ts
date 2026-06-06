@@ -7,6 +7,7 @@ describe("loadUiMessages shell keys", () => {
     expect(messages.shell.sidebarTitle.length).toBeGreaterThan(0);
     expect(messages.nav.home).toBe("Home");
     expect(messages.nav.search).toBe("Search");
+    expect(messages.nav.menu).toBe("Open menu");
     expect(messages.nav.architecture).toBe("Architecture");
     expect(messages.searchEntry.title).toBe("Search");
     expect(messages.architectureIndex.title).toBe("Architecture");
