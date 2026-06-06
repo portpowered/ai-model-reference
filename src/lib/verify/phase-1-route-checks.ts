@@ -98,6 +98,49 @@ export const PHASE_1_ROUTE_ASSERTIONS: readonly Phase1RouteAssertion[] = [
     },
   },
   {
+    path: "/docs/glossary/vector",
+    label: "/docs/glossary/vector",
+    assertBody: (html) => {
+      const missing = requireSubstrings(html, [
+        "Vector",
+        'data-registry-id="concept.vector"',
+      ]);
+      if (missing) {
+        return missing;
+      }
+      return forbidSubstring(html, "lorem");
+    },
+  },
+  {
+    path: "/docs/glossary/hidden-size",
+    label: "/docs/glossary/hidden-size",
+    assertBody: (html) => {
+      const missing = requireSubstrings(html, [
+        "Hidden Size",
+        'data-registry-id="concept.hidden-size"',
+      ]);
+      if (missing) {
+        return missing;
+      }
+      return forbidSubstring(html, "lorem");
+    },
+  },
+  {
+    path: "/docs/modules/attention",
+    label: "/docs/modules/attention",
+    assertBody: (html) => {
+      const missing = requireSubstrings(html, [
+        "Attention",
+        'data-registry-id="module.attention"',
+        "Phase 1 bridge page",
+      ]);
+      if (missing) {
+        return missing;
+      }
+      return forbidSubstring(html, "lorem");
+    },
+  },
+  {
     path: "/docs/modules/grouped-query-attention",
     label: "/docs/modules/grouped-query-attention",
     assertBody: (html) => assertGroupedQueryAttentionModuleConvergence(html),

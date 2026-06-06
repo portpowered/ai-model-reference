@@ -11,9 +11,16 @@ import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
+import {
+  assertCanonicalPageLevelApiResults,
+  PHASE_1_ATTENTION_MODULE_URL,
+  PHASE_1_HIDDEN_SIZE_GLOSSARY_URL,
+  PHASE_1_VECTOR_GLOSSARY_URL,
+} from "@/lib/verify/phase-1-search-checks";
 import { expectHomeArticleHeaderOnlySearchEntry } from "@/tests/discovery/home-search-entry-contract";
 import {
   resultsIncludeSampleModule,
+  resultsIncludeUrl,
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
 
@@ -81,10 +88,28 @@ describe("Phase 1 search discovery", () => {
     expect(results[0]?.url).toBe(SAMPLE_MODULE_URL);
   });
 
-  test("attention query includes grouped-query attention among top results", async () => {
+  test("attention query returns canonical attention module and grouped-query attention hits without duplicate pages", async () => {
     const results = await docsSearchApi.search("attention");
     expect(results.length).toBeGreaterThan(0);
+    expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
+    expect(resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL)).toBe(true);
     expect(resultsIncludeSampleModule(results)).toBe(true);
+  });
+
+  test("vector query returns canonical vector glossary hit without duplicate pages", async () => {
+    const results = await docsSearchApi.search("vector");
+    expect(results.length).toBeGreaterThan(0);
+    expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
+    expect(resultsIncludeUrl(results, PHASE_1_VECTOR_GLOSSARY_URL)).toBe(true);
+  });
+
+  test("hidden size query returns canonical hidden-size glossary hit without duplicate pages", async () => {
+    const results = await docsSearchApi.search("hidden size");
+    expect(results.length).toBeGreaterThan(0);
+    expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
+    expect(resultsIncludeUrl(results, PHASE_1_HIDDEN_SIZE_GLOSSARY_URL)).toBe(
+      true,
+    );
   });
 });
 
@@ -128,6 +153,42 @@ describe("Phase 1 discovery route smoke", () => {
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
   });
 
+  test("/docs/modules/attention loads published local docs content", async () => {
+    const page = await loadLocalDocsPage({
+      section: "modules",
+      slug: "attention",
+    });
+
+    expect(page.messages.title).toBe("Attention");
+    expect(page.frontmatter.registryId).toBe("module.attention");
+    expect(page.messages.callouts?.phase1Bridge?.body).toContain("Phase 3");
+    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+  });
+
+  test("/docs/glossary/vector loads published local docs content", async () => {
+    const page = await loadLocalDocsPage({
+      section: "glossary",
+      slug: "vector",
+    });
+
+    expect(page.messages.title).toBe("Vector");
+    expect(page.frontmatter.registryId).toBe("concept.vector");
+    expect(page.messages.callouts?.phase1Bridge?.body).toContain("Phase 2");
+    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+  });
+
+  test("/docs/glossary/hidden-size loads published local docs content", async () => {
+    const page = await loadLocalDocsPage({
+      section: "glossary",
+      slug: "hidden-size",
+    });
+
+    expect(page.messages.title).toBe("Hidden Size");
+    expect(page.frontmatter.registryId).toBe("concept.hidden-size");
+    expect(page.messages.callouts?.phase1Bridge?.body).toContain("Phase 2");
+    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+  });
+
   test("/docs/modules/grouped-query-attention loads published local docs content", async () => {
     const page = await loadLocalDocsPage({
       section: "modules",
@@ -141,12 +202,17 @@ describe("Phase 1 discovery route smoke", () => {
 });
 
 describe("Phase 1 tag browse helpers", () => {
-  test("attention tag includes grouped-query attention under modules", async () => {
+  test("attention tag includes attention bridge and grouped-query attention under modules", async () => {
     const messages = await loadUiMessages();
     const groups = await loadTagResourceGroups("attention", messages, "en");
     const moduleGroup = groups.find((group) => group.kind === "module");
 
     expect(moduleGroup).toBeDefined();
+    expect(
+      moduleGroup?.resources.some(
+        (resource) => resource.url === PHASE_1_ATTENTION_MODULE_URL,
+      ),
+    ).toBe(true);
     expect(
       moduleGroup?.resources.some(
         (resource) => resource.url === "/docs/modules/grouped-query-attention",

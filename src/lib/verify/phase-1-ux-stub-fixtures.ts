@@ -64,6 +64,15 @@ export const PHASE_1_UX_PASSING_STUB_HTML: Record<string, string> = {
   "/docs/glossary/token": docsRouteHtml(
     '<h1>Token</h1><div data-registry-id="concept.token"></div>',
   ),
+  "/docs/glossary/vector": docsRouteHtml(
+    '<h1>Vector</h1><article data-registry-id="concept.vector"></article>',
+  ),
+  "/docs/glossary/hidden-size": docsRouteHtml(
+    '<h1>Hidden Size</h1><article data-registry-id="concept.hidden-size"></article>',
+  ),
+  "/docs/modules/attention": docsRouteHtml(
+    '<h1>Attention</h1><div data-registry-id="module.attention"></div><p>Phase 1 bridge page</p>',
+  ),
   "/docs/modules/grouped-query-attention": docsRouteHtml(
     buildGroupedQueryAttentionStubBody(),
   ),
