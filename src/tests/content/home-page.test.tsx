@@ -21,6 +21,8 @@ describe("home page messages", () => {
     expect(home.title).toBe("Model Atlas");
     expect(home.subtitle.length).toBeGreaterThan(0);
     expect(home.intro.length).toBeGreaterThan(0);
+    expect(home.intro).not.toMatch(/Search by alias/i);
+    expect(home.intro).not.toMatch(/search by tag/i);
     expect(home.browseSectionTitle.length).toBeGreaterThan(0);
     expect(home.architectureLinkTitle).toBe("Architecture");
     expect(home.glossaryLinkTitle).toBe("Glossary");
@@ -61,6 +63,7 @@ describe("home page render", () => {
     expect(html).not.toContain(
       "Use the Search control in the header to jump to modules",
     );
+    expect(html).not.toContain("Search by alias or tag");
     expectHomeArticleHeaderOnlySearchEntry(html);
   });
 
