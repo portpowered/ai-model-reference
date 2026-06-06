@@ -18,6 +18,7 @@ import {
 } from "@/tests/a11y/render";
 import {
   collectResultUrlsFromNodes,
+  expectSharedSearchResultRowPanel,
   expectThinSearchMetadataPanel,
   expectUniqueCanonicalPageUrls,
   resultsIncludeSampleModule,
@@ -114,6 +115,20 @@ describe("SearchPagePanel Phase 1 queries", () => {
     const urls = collectResultUrlsFromNodes(resultUrls);
     expectUniqueCanonicalPageUrls(urls);
     expect(resultsIncludeSampleModule(urls.map((url) => ({ url })))).toBe(true);
+  });
+
+  test("GQA query renders page hits through shared SearchResultRow", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      "GQA",
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    expectSharedSearchResultRowPanel(within(results));
   });
 
   test("GQA query shows thin metadata without matched-tag chips", async () => {

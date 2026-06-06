@@ -74,6 +74,22 @@ type ThinMetadataQueries = {
   queryByTestId: (id: string) => HTMLElement | null;
 };
 
+/** Asserts page hits render through the shared SearchResultRow with embedded metadata. */
+export function expectSharedSearchResultRowPanel(
+  queries: ThinMetadataQueries,
+): void {
+  const rows = queries.queryAllByTestId("search-result-row");
+  expect(rows.length).toBeGreaterThan(0);
+  for (const row of rows) {
+    const meta = row.querySelector('[data-testid="search-result-meta"]');
+    expect(meta).toBeTruthy();
+    expect(row.contains(meta!)).toBe(true);
+    expect(
+      row.querySelector('[data-testid="search-result-matched-tags"]'),
+    ).toBeNull();
+  }
+}
+
 /** Asserts dialog or `/search` panels render thin metadata without matched-tag chips. */
 export function expectThinSearchMetadataPanel(
   queries: ThinMetadataQueries,
