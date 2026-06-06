@@ -5,7 +5,9 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { bulletlessListMarkersClassName } from "@/features/docs/components/list-decoration";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import { cn } from "@/lib/utils";
 import { SearchInlineResultItem } from "./SearchResults";
 import { useModelAtlasDocsSearch } from "./search-client";
 import { resolveInitialSearchPageQuery } from "./search-page-query";
@@ -130,7 +132,10 @@ export function SearchPagePanelContent({
         ) : null}
         {showResults ? (
           <ul
-            className="divide-y divide-border rounded-lg border border-border"
+            className={cn(
+              bulletlessListMarkersClassName,
+              "divide-y divide-border rounded-lg border border-border",
+            )}
             data-testid="search-page-results"
           >
             {items.map((item) => (

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   bulletlessListBaseClassName,
   bulletlessListClassName,
+  bulletlessListMarkersClassName,
   docsResourceCardLinkClassName,
 } from "@/features/docs/components/list-decoration";
 
@@ -13,8 +14,13 @@ function expectNoUnderlineUtilities(className: string): void {
 }
 
 describe("list decoration classes", () => {
+  test("bulletlessListMarkersClassName omits list markers", () => {
+    expect(bulletlessListMarkersClassName).toBe("list-none");
+    expect(bulletlessListMarkersClassName).not.toContain("list-disc");
+  });
+
   test("bulletlessListBaseClassName omits list markers", () => {
-    expect(bulletlessListBaseClassName).toContain("list-none");
+    expect(bulletlessListBaseClassName).toContain(bulletlessListMarkersClassName);
     expect(bulletlessListBaseClassName).not.toContain("list-disc");
   });
 

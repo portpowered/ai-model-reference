@@ -3,8 +3,11 @@
  * resource links used across home browse, docs index, tags index, and tag resources.
  */
 
+/** Removes list markers without imposing flex column layout (e.g. divide-y stacks). */
+export const bulletlessListMarkersClassName = "list-none";
+
 /** Base flex column list without markers. Pair with a margin-top utility. */
-export const bulletlessListBaseClassName = "flex list-none flex-col gap-3";
+export const bulletlessListBaseClassName = `flex ${bulletlessListMarkersClassName} flex-col gap-3`;
 
 export type BulletlessListMargin = "mt-3" | "mt-4" | "mt-8";
 
