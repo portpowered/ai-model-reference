@@ -32,7 +32,7 @@ describe("token glossary page messages", () => {
 });
 
 describe("loadGlossaryPage token", () => {
-  test("compiles MDX with local namespaces and message-driven opening copy", async () => {
+  test("compiles MDX with local namespaces and Phase 1 presentation contract", async () => {
     const page = await loadGlossaryPage("token");
 
     expect(page.frontmatter.registryId).toBe("concept.token");

@@ -5,8 +5,8 @@ import { getGlossaryDocsRoot } from "@/lib/content/content-paths";
 import { listPublishedGlossaryPages } from "@/lib/content/glossary";
 import { renderGlossaryDocsShell } from "@/lib/content/glossary-shell-render";
 import {
-  expectGlossaryOmitsOpeningSummary,
   expectGlossaryOpeningSummaryMessage,
+  expectGlossaryShellPresentationConvergence,
 } from "@/lib/content/glossary-test-helpers";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 
@@ -42,9 +42,6 @@ describe("glossary opening convergence", () => {
     expectGlossaryOpeningSummaryMessage(loadedPage.messages);
 
     const html = renderGlossaryDocsShell(loadedPage);
-    expectGlossaryOmitsOpeningSummary(html);
-    expect((html.match(/data-testid="glossary-opening"/g) ?? []).length).toBe(
-      0,
-    );
+    expectGlossaryShellPresentationConvergence(html);
   });
 });
