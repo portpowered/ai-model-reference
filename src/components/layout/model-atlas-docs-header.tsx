@@ -2,7 +2,7 @@
 
 import { Menu } from "lucide-react";
 import Link from "next/link";
-import { useId, useState, type ReactNode } from "react";
+import { type ReactNode, useId, useState } from "react";
 import {
   getPrimaryNavItems,
   PRIMARY_NAV_DESKTOP_CLASS,

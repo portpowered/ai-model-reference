@@ -10,9 +10,7 @@ import {
 import { HomeBrushHeader } from "@/components/home/home-brush-header";
 import { getPrimaryNavItems } from "@/components/layout/primary-nav";
 import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
-import {
-  searchInlineResultsListClassName,
-} from "@/features/docs/components/list-decoration";
+import { searchInlineResultsListClassName } from "@/features/docs/components/list-decoration";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
 import { SearchTrigger } from "@/features/docs/search/SearchTrigger";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
