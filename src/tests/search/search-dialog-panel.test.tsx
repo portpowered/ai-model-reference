@@ -19,6 +19,7 @@ import {
 import {
   collectResultUrlsFromNodes,
   expectFullRowSearchResultHighlightPanel,
+  expectReadableQueryMatchHighlightPanel,
   expectSharedSearchResultRowPanel,
   expectThinSearchMetadataPanel,
   expectUniqueCanonicalPageUrls,
@@ -174,6 +175,22 @@ describe("SearchDialog Phase 1 queries", () => {
     await waitFor(
       () => {
         expectFullRowSearchResultHighlightPanel(within(dialog));
+      },
+      { timeout: 3000 },
+    );
+  });
+
+  test("Grouped query keeps query-match marks readable on accent rows in dialog", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchDialog(context);
+
+    const dialog = await screen.findByRole("dialog", { name: "Search" });
+    const user = userEvent.setup();
+    await user.type(within(dialog).getByRole("textbox"), "Grouped");
+
+    await waitFor(
+      () => {
+        expectReadableQueryMatchHighlightPanel(within(dialog));
       },
       { timeout: 3000 },
     );
