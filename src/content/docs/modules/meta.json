@@ -1,4 +1,7 @@
 {
   "title": "Modules",
-  "pages": ["[Grouped-Query Attention](/docs/modules/grouped-query-attention)"]
+  "pages": [
+    "[Attention](/docs/modules/attention)",
+    "[Grouped-Query Attention](/docs/modules/grouped-query-attention)"
+  ]
 }

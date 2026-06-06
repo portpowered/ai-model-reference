@@ -71,6 +71,9 @@ export const MESSAGES_ROOT = getMessagesRoot(contentRoot);
 /** Default `src/content/registry/tags/messages` root. */
 export const TAG_MESSAGES_ROOT = getTagMessagesRoot(REGISTRY_ROOT);
 
+/** Phase 1 attention module bridge page directory. */
+export const ATTENTION_MODULE_PAGE_DIR = join(MODULES_DOCS_ROOT, "attention");
+
 /** Phase 1 grouped-query attention sample module page directory. */
 export const GROUPED_QUERY_ATTENTION_PAGE_DIR = join(
   MODULES_DOCS_ROOT,
@@ -79,3 +82,12 @@ export const GROUPED_QUERY_ATTENTION_PAGE_DIR = join(
 
 /** Phase 1 token glossary sample page directory. */
 export const TOKEN_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "token");
+
+/** Phase 1 vector glossary bridge page directory. */
+export const VECTOR_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "vector");
+
+/** Phase 1 hidden size glossary bridge page directory. */
+export const HIDDEN_SIZE_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "hidden-size",
+);

@@ -40,6 +40,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   token: "Token",
   embedding: "Embedding",
   tensor: "Tensor",
+  vector: "Vector",
   logit: "Logit",
   softmax: "Softmax",
   entropy: "Entropy",
@@ -55,6 +56,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
 
 const CHAIN_GLOSSARY_SLUGS = [
   "embedding",
+  "vector",
   "tensor",
   "logit",
   "softmax",
@@ -68,7 +70,7 @@ const CHAIN_GLOSSARY_SLUGS = [
   "loss-function",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 39;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 41;
 const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 29;
 
 function collectPageUrls(nodes: Node[]): string[] {
@@ -129,7 +131,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(glossaryUrls).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
   });
 
-  test("glossary index lists twenty-three entries with localized titles sorted by title", async () => {
+  test("glossary index lists forty entries with localized titles sorted by title", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
     expect(entries).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
 

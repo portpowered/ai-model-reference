@@ -12,6 +12,7 @@ import {
   type OramaSnapshotDocument,
 } from "@/lib/search/orama-index";
 
+const ATTENTION_MODULE_URL = "/docs/modules/attention";
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
 const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
 const STRUCTURAL_TAXONOMY_URLS = [
@@ -55,6 +56,8 @@ const EVALUATION_SCALING_URLS = [
 ] as const;
 const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/embedding",
+  "/docs/glossary/vector",
+  "/docs/glossary/hidden-size",
   "/docs/glossary/tensor",
   "/docs/glossary/logit",
   "/docs/glossary/softmax",
@@ -69,6 +72,7 @@ const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/optimizer-state",
 ] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
+  ATTENTION_MODULE_URL,
   SAMPLE_URL,
   TOKEN_GLOSSARY_URL,
   ...STRUCTURAL_TAXONOMY_URLS,

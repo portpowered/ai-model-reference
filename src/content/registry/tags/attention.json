@@ -4,7 +4,7 @@
   "kind": "tag",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["self-attention", "attention mechanism"],
+  "aliases": ["attention mechanism"],
   "tags": [],
   "relatedIds": [],
   "citationIds": [],

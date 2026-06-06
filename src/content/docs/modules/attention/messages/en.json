@@ -1,0 +1,31 @@
+{
+  "title": "Attention",
+  "description": "How transformer blocks mix information across token positions using query, key, and value projections.",
+  "problemStatement": "A sequence model must decide which earlier tokens matter for each position without hard-coding fixed windows or hand-built alignment rules.",
+  "coreIdea": "Attention scores how much each position should read from every other position, then blends value vectors according to those scores so context flows dynamically along the sequence.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Attention is the core mixing mechanism in transformer blocks. Each position projects hidden states into queries, keys, and values, compares queries to keys to form weights, and sums value vectors to produce an updated representation."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Without attention, deep stacks of feed-forward layers could not route information across arbitrary distances in one step. Variant designs such as grouped-query attention trade memory and bandwidth against how many distinct query heads you keep at inference time."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "phase1Bridge": {
+      "title": "Phase 1 bridge page",
+      "body": "This overview is intentionally concise. Full attention-variant coverage—including multi-head, multi-query, grouped-query, and related mechanisms—arrives in Phase 3 of the roadmap."
+    }
+  }
+}

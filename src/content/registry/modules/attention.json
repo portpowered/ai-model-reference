@@ -1,0 +1,27 @@
+{
+  "id": "module.attention",
+  "slug": "attention",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["attention", "self-attention"],
+  "tags": ["attention"],
+  "relatedIds": ["module.grouped-query-attention", "concept.token"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-06T00:00:00.000Z",
+  "updatedAt": "2026-06-06T00:00:00.000Z",
+  "moduleType": "attention",
+  "moduleFamily": "attention",
+  "optimizes": ["context-mixing", "sequence-modeling"],
+  "practicalBenefits": [
+    "routes information between positions in a sequence",
+    "enables long-range dependencies without fixed receptive fields"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}

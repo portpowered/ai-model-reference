@@ -23,7 +23,8 @@ describe("Section", () => {
     const html = renderSection(false);
     expect(html).toContain('id="what-it-is"');
     expect(html).toContain("<h2>What It Is</h2>");
-    expect(html).toContain("is an attention variant derived from");
+    expect(html).toContain("variant derived from");
+    expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
   });
 

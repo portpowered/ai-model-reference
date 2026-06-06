@@ -1,0 +1,38 @@
+{
+  "title": "Vector",
+  "description": "An ordered list of numbers that represents a point or direction in continuous space—embeddings and activations are vectors at different stages of the model.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A vector is a fixed-length sequence of real numbers. In language models, token embeddings are vectors of model width, and attention layers read and write vectors at every position along the sequence."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Papers and code often say \"vector\" when they mean a 1-D tensor: one row from an embedding table, a query vector, or a hidden state. Knowing that vectors are the building blocks inside tensors helps you follow shape notation from embeddings through attention."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A 768-dimensional embedding for one token is a vector of length 768. Stacking many positions produces a matrix or higher-rank tensor, but each row is still a vector in hidden space."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A vector is not the same as a sparse one-hot encoding: learned embeddings are dense vectors with values in every dimension. \"Dense vector\" usually contrasts with sparse bag-of-words features, not with tensors in general."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "phase1Bridge": {
+      "title": "Phase 1 bridge page",
+      "body": "This entry is intentionally concise. Deeper tensor and embedding coverage—including shape conventions, broadcasting, and framework dtypes—continues in Phase 2 of the roadmap."
+    }
+  },
+  "openingSummary": "A vector is an ordered list of numbers; token embeddings and per-position hidden states are vectors that later stack into tensors as they move through the model."
+}
