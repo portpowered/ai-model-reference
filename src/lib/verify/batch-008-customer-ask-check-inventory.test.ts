@@ -2,12 +2,21 @@ import { describe, expect, test } from "bun:test";
 import {
   assertBatch008CustomerAskReportAllPass,
   BATCH_008_CUSTOMER_ASK_CHECK_IDS,
+  BATCH_008_CUSTOMER_ASK_INVENTORY,
 } from "./batch-008-customer-ask-check-inventory";
 import { CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER } from "./customer-ask-convergence-reporter";
 
 describe("batch-008 customer-ask check inventory", () => {
   test("inventory matches the converged batch-008 report row count", () => {
     expect(BATCH_008_CUSTOMER_ASK_CHECK_IDS.length).toBe(26);
+  });
+
+  test("unique inventory entries match factory doc check table", () => {
+    expect(BATCH_008_CUSTOMER_ASK_INVENTORY.length).toBe(20);
+    expect(
+      new Set(BATCH_008_CUSTOMER_ASK_INVENTORY.map((entry) => entry.checkId))
+        .size,
+    ).toBe(20);
   });
 
   test("assertBatch008CustomerAskReportAllPass accepts a full PASS report", () => {

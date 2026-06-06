@@ -121,7 +121,15 @@ export function hasNextProductionBuild(
 export function hasCompleteNextProductionBuild(
   projectRoot: string = process.cwd(),
 ): boolean {
-  return existsSync(join(projectRoot, ".next", "BUILD_ID"));
+  const nextDir = join(projectRoot, ".next");
+  if (existsSync(join(nextDir, "BUILD_ID"))) {
+    return true;
+  }
+  // Next.js 16+ Turbopack production builds omit root BUILD_ID.
+  return (
+    existsSync(join(nextDir, "server", "app-paths-manifest.json")) &&
+    existsSync(join(nextDir, "build-manifest.json"))
+  );
 }
 
 /**
