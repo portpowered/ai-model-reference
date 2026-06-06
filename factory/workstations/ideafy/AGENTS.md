@@ -211,6 +211,23 @@ of relying on separate specialized agent types. Useful briefs include:
   for the check inventory. Supplement with spot checks for navigation, layout,
   loading/empty states, and responsive behavior where the automated gate does
   not cover them.
+* batch-011 follow-up convergence: after batch-011 follow-up repairs (home
+  brevity, nav theme toggle removal, search row hover/selection contrast, and
+  related reader-visible polish), run
+  `make verify-phase-1-follow-up-convergence` instead of relying on prior
+  batch-008 or batch-010 all-pass evidence. The command runs `make build` then
+  `make verify-phase-1-ux` with `VERIFY_BASE_URL` unset and prints a **Phase 1
+  batch-011 follow-up convergence evidence summary** with verifier command-path
+  status, aggregated customer-ask domain status, per-`checkId` source lines,
+  `Recommendation`, and `Rationale`. Prior batch-008/010 convergence passes are
+  stale for the expanded follow-up inventory and must be refreshed through this
+  pass. Record the process exit code and copy the evidence summary into
+  convergence notes. Follow the printed recommendation:
+  `queue-one-narrow-repair-batch` when command-path or any customer-ask row
+  failed; `stop-and-wait-for-phase-advancement` when command-path passed and no
+  customer-ask row failed (copy `uncertain` reasons for manual follow-up). See
+  `factory/docs/phase-1-follow-up-customer-ask-convergence-validator.md` for
+  prerequisites, full check inventory, exit semantics, and loopback steps.
 * data-model convergence: inspect registry records, page frontmatter, localized
   messages, assets, citations, tags, related docs, and dead-end links
 * architecture drift: look for duplicate layouts, duplicate search systems,

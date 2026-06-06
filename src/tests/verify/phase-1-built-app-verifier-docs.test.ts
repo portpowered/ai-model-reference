@@ -22,6 +22,10 @@ const builtAppConvergenceDocPath = join(
   repoRoot,
   "factory/docs/phase-1-built-app-convergence-validator.md",
 );
+const followUpConvergenceDocPath = join(
+  repoRoot,
+  "factory/docs/phase-1-follow-up-customer-ask-convergence-validator.md",
+);
 
 describe("Phase 1 built-app verifier entrypoint documentation", () => {
   test("README documents make verify-phase-1-ux as the built-app manual gate command", () => {
@@ -163,6 +167,70 @@ describe("Phase 1 built-app verifier entrypoint documentation", () => {
     );
     expect(builtAppConvergenceDoc).toMatch(
       /phase-1-built-app-verifier-command-path\.ts/,
+    );
+  });
+
+  test("factory doc documents the batch-011 follow-up convergence validator workflow", () => {
+    const followUpConvergenceDoc = readFileSync(
+      followUpConvergenceDocPath,
+      "utf8",
+    );
+    expect(followUpConvergenceDoc).toMatch(
+      /make verify-phase-1-follow-up-convergence/,
+    );
+    expect(followUpConvergenceDoc).toMatch(/make build/);
+    expect(followUpConvergenceDoc).toMatch(/make verify-phase-1-ux/);
+    expect(followUpConvergenceDoc).toMatch(
+      /VERIFY_BASE_URL.*unset|unset.*VERIFY_BASE_URL/i,
+    );
+    expect(followUpConvergenceDoc).toMatch(/home\.brevity/);
+    expect(followUpConvergenceDoc).toMatch(/nav\.no-broken-theme-toggle/);
+    expect(followUpConvergenceDoc).toMatch(/search\.page\.row-hover-coherence/);
+    expect(followUpConvergenceDoc).toMatch(
+      /search\.dialog\.matched-text-selection-contrast/,
+    );
+    expect(followUpConvergenceDoc).toMatch(/docs\.footer-hover-focus-parity/);
+    expect(followUpConvergenceDoc).toMatch(/module\.mha-gqa-comparison/);
+    expect(followUpConvergenceDoc).toMatch(
+      /phase-1-follow-up-customer-ask-convergence/,
+    );
+    expect(followUpConvergenceDoc).toMatch(/verifier-command-path/);
+    expect(followUpConvergenceDoc).toMatch(/customer-ask-convergence/);
+    expect(followUpConvergenceDoc).toMatch(/Playwright Chromium/);
+    expect(followUpConvergenceDoc).toMatch(
+      /Phase 1 batch-011 follow-up convergence evidence summary/,
+    );
+    expect(followUpConvergenceDoc).toMatch(
+      /queue-one-narrow-repair-batch|stop-and-wait-for-phase-advancement/,
+    );
+    expect(followUpConvergenceDoc).toMatch(/Recommendation:/);
+    expect(followUpConvergenceDoc).toMatch(/Rationale:/);
+    expect(followUpConvergenceDoc).toMatch(
+      /batch-008.*batch-010.*stale|stale.*batch-008|Prior batch-008 and batch-010 all-pass evidence is stale/i,
+    );
+    expect(followUpConvergenceDoc).toMatch(
+      /phase-1-follow-up-convergence-evidence\.ts/,
+    );
+    expect(followUpConvergenceDoc).toMatch(
+      /batch-011-follow-up-customer-ask-check-inventory\.ts/,
+    );
+  });
+
+  test("planner-facing ideafy docs reference the batch-011 follow-up validator for post-batch-011 loopback", () => {
+    const ideafyAgents = readFileSync(ideafyAgentsPath, "utf8");
+    expect(ideafyAgents).toMatch(/make verify-phase-1-follow-up-convergence/);
+    expect(ideafyAgents).toMatch(/batch-011 follow-up convergence/i);
+    expect(ideafyAgents).toMatch(
+      /batch-011 follow-up convergence evidence summary/i,
+    );
+    expect(ideafyAgents).toMatch(
+      /factory\/docs\/phase-1-follow-up-customer-ask-convergence-validator\.md/,
+    );
+    expect(ideafyAgents).toMatch(
+      /batch-008.*batch-010.*stale|stale.*batch-008|Prior batch-008\/010/i,
+    );
+    expect(ideafyAgents).toMatch(
+      /queue-one-narrow-repair-batch|stop-and-wait-for-phase-advancement/,
     );
   });
 
