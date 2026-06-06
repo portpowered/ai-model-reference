@@ -116,6 +116,45 @@
       "formula": "\\text{Attention}(Q_i, K_{g(i)}, V_{g(i)}) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_{g(i)}^{\\top}}{\\sqrt{d_k}}\\right) V_{g(i)} \\quad (G \\text{ shared KV pairs for } H \\text{ query heads})"
     }
   },
+  "mathVariableDefinitions": {
+    "title": "What the symbols mean",
+    "q": {
+      "term": "Q",
+      "definition": "Query vectors for each attention head—the questions each head asks about prior tokens."
+    },
+    "k": {
+      "term": "K",
+      "definition": "Key vectors for each position—the signatures other queries match against when scoring attention."
+    },
+    "v": {
+      "term": "V",
+      "definition": "Value vectors for each position—the information blended into the output when a query aligns with a key."
+    },
+    "queryProjection": {
+      "term": "Query projection",
+      "definition": "The linear map from hidden states to query heads, producing the Q tensors used in attention."
+    },
+    "keyProjection": {
+      "term": "Key projection",
+      "definition": "The linear map from hidden states to key heads, producing the K tensors stored in the KV cache."
+    },
+    "valueProjection": {
+      "term": "Value projection",
+      "definition": "The linear map from hidden states to value heads, producing the V tensors stored alongside keys."
+    },
+    "queryHeads": {
+      "term": "Query heads",
+      "definition": "H separate query streams (Q_i). GQA keeps all H heads so each position can ask distinct questions."
+    },
+    "keyValueHeads": {
+      "term": "Key-value heads",
+      "definition": "The paired key and value heads (K and V). In GQA there are G such pairs rather than H independent ones."
+    },
+    "grouping": {
+      "term": "Query-to-KV grouping",
+      "definition": "The mapping g(i) that routes query head i to shared key-value pair K_{g(i)} and V_{g(i)}, so H query heads share G KV groups."
+    }
+  },
   "graph": {
     "nodes": {
       "hiddenStates": {
