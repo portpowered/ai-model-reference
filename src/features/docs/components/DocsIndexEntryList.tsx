@@ -18,7 +18,7 @@ export function DocsIndexEntryList({
   listLabel,
 }: DocsIndexEntryListProps) {
   return (
-    <ul className="mt-8 flex flex-col gap-3" aria-label={listLabel}>
+    <ul className="mt-8 flex list-none flex-col gap-3" aria-label={listLabel}>
       {entries.map((entry) => (
         <li key={entry.slug}>
           <Link
