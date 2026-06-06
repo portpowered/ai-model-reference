@@ -1,0 +1,17 @@
+{
+  "id": "concept.vector",
+  "slug": "vector",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["vector", "vectors", "dense vector"],
+  "tags": ["token-to-probability-chain", "foundations"],
+  "relatedIds": ["concept.embedding", "concept.tensor"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-06T00:00:00.000Z",
+  "updatedAt": "2026-06-06T00:00:00.000Z",
+  "conceptType": "math",
+  "prerequisiteIds": ["concept.embedding"],
+  "explainsIds": []
+}
