@@ -3,6 +3,8 @@ import { existsSync } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
 import { join } from "node:path";
 import { GROUPED_QUERY_ATTENTION_BUILT_HTML_PATH } from "@/lib/build/verify-grouped-query-attention-built-route";
+import { BATCH_011_FOLLOW_UP_SEARCH_CHECKS } from "./batch-011-follow-up-search-checks";
+import { POST_REPAIR_SEARCH_RESULT_ROW_HTML } from "./customer-ask-search-follow-up-convergence";
 import {
   SEARCH_SURFACE_CUSTOMER_ASK_CHECKS,
   SEARCH_SURFACE_CUSTOMER_ASK_REASONS,
@@ -61,12 +63,14 @@ describe("runCustomerAskSearchSurfaceChecks", () => {
           matchedTagsVisible: false,
           hasResults: true,
           hasEmpty: false,
+          firstResultRowHtml: POST_REPAIR_SEARCH_RESULT_ROW_HTML,
         }),
         runSearchDialogQueryCheck: async () => ({
           resultUrls: [GQA_URL],
           matchedTagsVisible: false,
           hasResults: true,
           hasEmpty: false,
+          firstResultRowHtml: POST_REPAIR_SEARCH_RESULT_ROW_HTML,
         }),
         fetchApiGqaResults: async () => ({
           results: [{ url: GQA_URL }, { url: TOKEN_URL }],
@@ -74,12 +78,18 @@ describe("runCustomerAskSearchSurfaceChecks", () => {
       },
     );
 
-    expect(rows).toHaveLength(4);
+    expect(rows).toHaveLength(8);
     expect(rows.every((row) => row.status === "pass")).toBe(true);
     expect(rows.map((row) => row.checkId)).toEqual([
       SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.pagePageLevelHits.checkId,
       SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.pageNoMatchedTags.checkId,
+      BATCH_011_FOLLOW_UP_SEARCH_CHECKS.pageRowHoverCoherence.checkId,
+      BATCH_011_FOLLOW_UP_SEARCH_CHECKS.pageMatchedTextSelectionContrast
+        .checkId,
       SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.dialogNoMatchedTags.checkId,
+      BATCH_011_FOLLOW_UP_SEARCH_CHECKS.dialogRowHoverCoherence.checkId,
+      BATCH_011_FOLLOW_UP_SEARCH_CHECKS.dialogMatchedTextSelectionContrast
+        .checkId,
       SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.apiGqaCanonicalFirstHit.checkId,
     ]);
   });
@@ -94,12 +104,14 @@ describe("runCustomerAskSearchSurfaceChecks", () => {
           matchedTagsVisible: true,
           hasResults: true,
           hasEmpty: false,
+          firstResultRowHtml: POST_REPAIR_SEARCH_RESULT_ROW_HTML,
         }),
         runSearchDialogQueryCheck: async () => ({
           resultUrls: [GQA_URL],
           matchedTagsVisible: true,
           hasResults: true,
           hasEmpty: false,
+          firstResultRowHtml: POST_REPAIR_SEARCH_RESULT_ROW_HTML,
         }),
         fetchApiGqaResults: async () => ({
           results: [{ url: `${GQA_URL}#overview` }],

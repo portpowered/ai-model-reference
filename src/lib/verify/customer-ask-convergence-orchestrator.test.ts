@@ -19,6 +19,7 @@ import {
 import { GLOSSARY_CUSTOMER_ASK_CHECKS } from "./customer-ask-glossary-convergence";
 import { GQA_MODULE_CUSTOMER_ASK_CHECKS } from "./customer-ask-gqa-module-convergence";
 import { HOME_HEADER_CUSTOMER_ASK_CHECKS } from "./customer-ask-home-header-convergence";
+import { POST_REPAIR_SEARCH_RESULT_ROW_HTML } from "./customer-ask-search-follow-up-convergence";
 import { SEARCH_SURFACE_CUSTOMER_ASK_CHECKS } from "./customer-ask-search-surface-convergence";
 import { TAG_LIST_CUSTOMER_ASK_CHECKS } from "./customer-ask-tag-list-convergence";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
@@ -83,12 +84,14 @@ function passingSearchSurfaceOptions() {
       matchedTagsVisible: false,
       hasResults: true,
       hasEmpty: false,
+      firstResultRowHtml: POST_REPAIR_SEARCH_RESULT_ROW_HTML,
     }),
     runSearchDialogQueryCheck: async () => ({
       resultUrls: [GQA_URL],
       matchedTagsVisible: false,
       hasResults: true,
       hasEmpty: false,
+      firstResultRowHtml: POST_REPAIR_SEARCH_RESULT_ROW_HTML,
     }),
     fetchApiGqaResults: async () => ({
       results: [{ url: GQA_URL }, { url: TOKEN_URL }],

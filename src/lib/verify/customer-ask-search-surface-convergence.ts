@@ -1,6 +1,10 @@
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-result";
 import {
+  buildCustomerAskSearchDialogFollowUpRowsForQuery,
+  buildCustomerAskSearchPageFollowUpRowsForQuery,
+} from "./customer-ask-search-follow-up-convergence";
+import {
   PHASE_1_GROUPED_QUERY_ATTENTION_URL,
   type SearchResultHit,
 } from "./phase-1-search-checks";
@@ -54,6 +58,8 @@ export type SearchSurfaceResultSnapshot = {
   matchedTagsVisible: boolean;
   hasResults: boolean;
   hasEmpty: boolean;
+  /** Outer HTML of the first visible search-result-row when captured by probes. */
+  firstResultRowHtml?: string | null;
 };
 
 export const SEARCH_SURFACE_CUSTOMER_ASK_QUERIES = PHASE_1_SEARCH_PAGE_QUERIES;
@@ -171,6 +177,7 @@ export function buildCustomerAskSearchPageRowsForQuery(
       query,
       assertSearchNoMatchedTags(snapshot),
     ),
+    ...buildCustomerAskSearchPageFollowUpRowsForQuery(snapshot, query),
   ];
 }
 
@@ -188,6 +195,7 @@ export function buildCustomerAskSearchDialogRowsForQuery(
       query,
       assertSearchNoMatchedTags(snapshot),
     ),
+    ...buildCustomerAskSearchDialogFollowUpRowsForQuery(snapshot, query),
   ];
 }
 
