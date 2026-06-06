@@ -1,3 +1,4 @@
+import { orderCustomerAskRowsByBatch011Inventory } from "./batch-011-follow-up-customer-ask-check-inventory";
 import {
   CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER,
   getCustomerAskConvergenceExitCode,
@@ -100,7 +101,7 @@ export async function runCustomerAskConvergenceChecks(
     }),
   ]);
 
-  return [
+  return orderCustomerAskRowsByBatch011Inventory([
     ...homeHeaderRows,
     ...homeNavFollowUpRows,
     ...tagListRows,
@@ -108,7 +109,7 @@ export async function runCustomerAskConvergenceChecks(
     ...glossaryRows,
     ...docsFooterRows,
     ...gqaModuleRows,
-  ];
+  ]);
 }
 
 export type RunPhase1CustomerAskConvergenceVerificationOptions = {

@@ -10,7 +10,7 @@ import {
 import { createServer as createHttpServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { assertBatch008CustomerAskReportAllPass } from "./batch-008-customer-ask-check-inventory";
+import { assertBatch011FollowUpCustomerAskReportAllPass } from "./batch-011-follow-up-customer-ask-check-inventory";
 import { CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER } from "./customer-ask-convergence-reporter";
 import {
   buildPhase1AndCustomerAskPassingStubHtml,
@@ -464,7 +464,7 @@ describe("verify-phase-1-route-search-ux script", () => {
 
       expect(result.exitCode).toBe(0);
       expect(result.output).toContain(CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER);
-      assertBatch008CustomerAskReportAllPass(result.output);
+      assertBatch011FollowUpCustomerAskReportAllPass(result.output);
       expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
 
       const stubPort = Number(
@@ -513,7 +513,7 @@ describe("verify-phase-1-route-search-ux script", () => {
 
       expect(result.exitCode).toBe(0);
       expect(result.output).toContain(CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER);
-      assertBatch008CustomerAskReportAllPass(result.output);
+      assertBatch011FollowUpCustomerAskReportAllPass(result.output);
       expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
     } finally {
       httpServer.closeAllConnections();
@@ -561,7 +561,7 @@ describe("verify-phase-1-route-search-ux script integration", () => {
       });
 
       expect(result.exitCode).toBe(0);
-      assertBatch008CustomerAskReportAllPass(result.output);
+      assertBatch011FollowUpCustomerAskReportAllPass(result.output);
       expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
     },
     VERIFY_SCRIPT_E2E_TIMEOUT_MS,
@@ -587,7 +587,7 @@ describe("verify-phase-1-route-search-ux script integration", () => {
         });
 
         expect(result.exitCode).toBe(0);
-        assertBatch008CustomerAskReportAllPass(result.output);
+        assertBatch011FollowUpCustomerAskReportAllPass(result.output);
         expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
       } finally {
         await killManagedChild(child);

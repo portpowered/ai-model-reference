@@ -3,16 +3,63 @@ import {
   assertBatch011FollowUpCustomerAskReportAllPass,
   BATCH_011_FOLLOW_UP_CUSTOMER_ASK_CHECK_IDS,
   BATCH_011_FOLLOW_UP_CUSTOMER_ASK_INVENTORY,
+  buildBatch011FollowUpCustomerAskReportSlots,
+  orderCustomerAskRowsByBatch011Inventory,
 } from "./batch-011-follow-up-customer-ask-check-inventory";
 import { BATCH_011_FOLLOW_UP_HOME_NAV_CHECKS } from "./batch-011-follow-up-home-nav-checks";
 import { BATCH_011_FOLLOW_UP_SEARCH_CHECKS } from "./batch-011-follow-up-search-checks";
 import { CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER } from "./customer-ask-convergence-reporter";
+import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-result";
 import { HOME_HEADER_CUSTOMER_ASK_CHECKS } from "./customer-ask-home-header-convergence";
 import { SEARCH_SURFACE_CUSTOMER_ASK_CHECKS } from "./customer-ask-search-surface-convergence";
 
 describe("batch-011 follow-up customer-ask check inventory", () => {
   test("inventory matches the converged batch-011 follow-up report row count", () => {
     expect(BATCH_011_FOLLOW_UP_CUSTOMER_ASK_CHECK_IDS.length).toBe(41);
+    expect(buildBatch011FollowUpCustomerAskReportSlots().length).toBe(41);
+  });
+
+  test("report slots align check ids with per-query search expansions", () => {
+    const slots = buildBatch011FollowUpCustomerAskReportSlots();
+    expect(slots.map((slot) => slot.checkId)).toEqual([
+      ...BATCH_011_FOLLOW_UP_CUSTOMER_ASK_CHECK_IDS,
+    ]);
+  });
+
+  test("orderCustomerAskRowsByBatch011Inventory restores deterministic inventory order", () => {
+    const slots = buildBatch011FollowUpCustomerAskReportSlots();
+    const rows: CustomerAskConvergenceRow[] = slots.map((slot, index) => ({
+      checkId: slot.checkId,
+      title: `stub-${index}`,
+      status: "pass",
+      query: slot.query,
+      checklistRow: "phase-1-stub",
+    }));
+    const shuffled = [...rows].reverse();
+
+    const ordered = orderCustomerAskRowsByBatch011Inventory(shuffled);
+
+    expect(ordered.map((row) => row.checkId)).toEqual([
+      ...BATCH_011_FOLLOW_UP_CUSTOMER_ASK_CHECK_IDS,
+    ]);
+    expect(ordered.map((row) => row.query)).toEqual(
+      slots.map((slot) => slot.query),
+    );
+  });
+
+  test("orderCustomerAskRowsByBatch011Inventory rejects missing inventory slots", () => {
+    const slots = buildBatch011FollowUpCustomerAskReportSlots();
+    const rows: CustomerAskConvergenceRow[] = slots.slice(1).map((slot) => ({
+      checkId: slot.checkId,
+      title: "stub",
+      status: "pass",
+      query: slot.query,
+      checklistRow: "phase-1-stub",
+    }));
+
+    expect(() => orderCustomerAskRowsByBatch011Inventory(rows)).toThrow(
+      /Missing customer-ask row for batch-011 inventory slot/,
+    );
   });
 
   test("unique inventory entries cover reused batch-008 and new follow-up checks", () => {

@@ -11,6 +11,7 @@ import {
   BATCH_011_FOLLOW_UP_SEARCH_ROUTES,
 } from "./batch-011-follow-up-search-checks";
 import { CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER } from "./customer-ask-convergence-reporter";
+import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-result";
 import {
   DOCS_FOOTER_CUSTOMER_ASK_CHECKLIST_ROW,
   DOCS_FOOTER_CUSTOMER_ASK_CHECKS,
@@ -191,6 +192,136 @@ export const BATCH_011_FOLLOW_UP_CUSTOMER_ASK_CHECK_IDS = [
     (check) => check.checkId,
   ),
 ] as const;
+
+export type Batch011FollowUpCustomerAskReportSlot = {
+  checkId: string;
+  query?: string;
+};
+
+/**
+ * Ordered report slots for batch-011 follow-up customer-ask rows, including
+ * per-query search surface expansions.
+ */
+export function buildBatch011FollowUpCustomerAskReportSlots(): readonly Batch011FollowUpCustomerAskReportSlot[] {
+  return [
+    ...Object.values(HOME_HEADER_CUSTOMER_ASK_CHECKS).map((check) => ({
+      checkId: check.checkId,
+    })),
+    { checkId: BATCH_011_FOLLOW_UP_HOME_NAV_CHECKS.homeBrevity.checkId },
+    { checkId: BATCH_011_FOLLOW_UP_HOME_NAV_CHECKS.homeBrowseLinks.checkId },
+    {
+      checkId:
+        BATCH_011_FOLLOW_UP_HOME_NAV_CHECKS.navNoBrokenThemeToggle.checkId,
+    },
+    { checkId: TAG_LIST_CUSTOMER_ASK_CHECKS.groupedListSpacing.checkId },
+    { checkId: TAG_LIST_CUSTOMER_ASK_CHECKS.listDiscNonProse.checkId },
+    {
+      checkId: TAG_LIST_CUSTOMER_ASK_CHECKS.attentionGroupedListSpacing.checkId,
+    },
+    { checkId: TAG_LIST_CUSTOMER_ASK_CHECKS.attentionListDiscNonProse.checkId },
+    ...BATCH_011_FOLLOW_UP_SEARCH_QUERIES.flatMap((query) => [
+      {
+        checkId: SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.pagePageLevelHits.checkId,
+        query,
+      },
+      {
+        checkId: SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.pageNoMatchedTags.checkId,
+        query,
+      },
+      {
+        checkId:
+          BATCH_011_FOLLOW_UP_SEARCH_CHECKS.pageRowHoverCoherence.checkId,
+        query,
+      },
+      {
+        checkId:
+          BATCH_011_FOLLOW_UP_SEARCH_CHECKS.pageMatchedTextSelectionContrast
+            .checkId,
+        query,
+      },
+    ]),
+    ...BATCH_011_FOLLOW_UP_SEARCH_QUERIES.flatMap((query) => [
+      {
+        checkId: SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.dialogNoMatchedTags.checkId,
+        query,
+      },
+      {
+        checkId:
+          BATCH_011_FOLLOW_UP_SEARCH_CHECKS.dialogRowHoverCoherence.checkId,
+        query,
+      },
+      {
+        checkId:
+          BATCH_011_FOLLOW_UP_SEARCH_CHECKS.dialogMatchedTextSelectionContrast
+            .checkId,
+        query,
+      },
+    ]),
+    {
+      checkId:
+        SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.apiGqaCanonicalFirstHit.checkId,
+      query: "GQA",
+    },
+    ...Object.values(GLOSSARY_CUSTOMER_ASK_CHECKS).map((check) => ({
+      checkId: check.checkId,
+    })),
+    { checkId: DOCS_FOOTER_CUSTOMER_ASK_CHECKS.hoverFocusParity.checkId },
+    ...Object.values(GQA_MODULE_CUSTOMER_ASK_CHECKS).map((check) => ({
+      checkId: check.checkId,
+    })),
+  ];
+}
+
+function rowMatchesReportSlot(
+  row: CustomerAskConvergenceRow,
+  slot: Batch011FollowUpCustomerAskReportSlot,
+): boolean {
+  if (row.checkId !== slot.checkId) {
+    return false;
+  }
+
+  if (slot.query === undefined) {
+    return row.query === undefined;
+  }
+
+  return row.query === slot.query;
+}
+
+function formatReportSlot(slot: Batch011FollowUpCustomerAskReportSlot): string {
+  return slot.query === undefined
+    ? slot.checkId
+    : `${slot.checkId} (query=${slot.query})`;
+}
+
+/**
+ * Orders customer-ask rows to match the batch-011 follow-up inventory and
+ * throws when any required slot is missing or extra rows remain.
+ */
+export function orderCustomerAskRowsByBatch011Inventory(
+  rows: readonly CustomerAskConvergenceRow[],
+): CustomerAskConvergenceRow[] {
+  const slots = buildBatch011FollowUpCustomerAskReportSlots();
+  const pool = [...rows];
+  const ordered: CustomerAskConvergenceRow[] = [];
+
+  for (const slot of slots) {
+    const index = pool.findIndex((row) => rowMatchesReportSlot(row, slot));
+    if (index === -1) {
+      throw new Error(
+        `Missing customer-ask row for batch-011 inventory slot ${formatReportSlot(slot)}`,
+      );
+    }
+    ordered.push(pool.splice(index, 1)[0]);
+  }
+
+  if (pool.length > 0) {
+    throw new Error(
+      `Unexpected extra customer-ask rows outside batch-011 inventory: ${pool.map((row) => formatReportSlot({ checkId: row.checkId, query: row.query })).join(", ")}`,
+    );
+  }
+
+  return ordered;
+}
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
