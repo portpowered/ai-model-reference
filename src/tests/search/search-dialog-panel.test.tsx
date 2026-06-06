@@ -18,6 +18,7 @@ import {
 } from "@/tests/a11y/render";
 import {
   collectResultUrlsFromNodes,
+  expectSharedSearchResultRowPanel,
   expectThinSearchMetadataPanel,
   expectUniqueCanonicalPageUrls,
   resultsIncludeSampleModule,
@@ -127,6 +128,22 @@ describe("SearchDialog Phase 1 queries", () => {
     const urls = collectResultUrlsFromNodes(resultUrls);
     expectUniqueCanonicalPageUrls(urls);
     expect(resultsIncludeSampleModule(urls.map((url) => ({ url })))).toBe(true);
+  });
+
+  test("GQA query renders page hits through shared SearchResultRow", async () => {
+    const context = await loadAppTestContext();
+    await renderSearchDialog(context);
+
+    const dialog = await screen.findByRole("dialog", { name: "Search" });
+    const user = userEvent.setup();
+    await user.type(within(dialog).getByRole("textbox"), "GQA");
+
+    await waitFor(
+      () => {
+        expectSharedSearchResultRowPanel(within(dialog));
+      },
+      { timeout: 3000 },
+    );
   });
 
   test("GQA query shows thin metadata without matched-tag chips", async () => {
