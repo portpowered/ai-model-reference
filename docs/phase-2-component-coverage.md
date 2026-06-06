@@ -122,6 +122,8 @@ Consolidated styling contracts: `src/tests/layout/phase-1-home-shell-styling-con
 
 Coverage contract: `src/tests/search/phase-1-search-coverage-contract.test.ts`.
 
+Module page coverage contract: `src/tests/layout/phase-1-module-page-coverage-contract.test.ts` (see `PHASE_1_MODULE_PAGE_COVERAGE_COMPONENTS` in the manifest).
+
 Thin wrappers: `ModuleGraph` and `ModuleComparisonTable` forward to `PageAsset` (see `REUSABLE_THIN_WRAPPERS` in the manifest).
 
 ## Adding a reusable component

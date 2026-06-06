@@ -96,16 +96,96 @@ export const PHASE_1_SHELL_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
   },
 ];
 
+/** Phase 1 GQA module page reusable components touched by renderer/linking refresh. */
+export const PHASE_1_MODULE_PAGE_COVERAGE_COMPONENTS: ComponentCoverageEntry[] =
+  [
+    {
+      file: "src/features/docs/components/Callout.tsx",
+      label: "Callout",
+      minReachableLinePercent: 90,
+      unitTests: ["src/features/docs/components/Callout.test.tsx"],
+      a11ySmokeTests: [
+        "src/tests/a11y/docs-components.a11y.test.tsx (Callout accessibility smoke)",
+      ],
+    },
+    {
+      file: "src/features/docs/components/T.tsx",
+      label: "T",
+      minReachableLinePercent: 90,
+      unitTests: ["src/features/docs/components/T.test.tsx"],
+      a11ySmokeTests: [
+        "src/tests/component-examples/registry.test.tsx (T example render smoke)",
+      ],
+    },
+    {
+      file: "src/features/docs/components/ProseAutoLinkText.tsx",
+      label: "ProseAutoLinkText",
+      minReachableLinePercent: 90,
+      unitTests: ["src/features/docs/components/ProseAutoLinkText.test.tsx"],
+    },
+    {
+      file: "src/features/docs/components/TBlockMath.tsx",
+      label: "TBlockMath",
+      minReachableLinePercent: 90,
+      unitTests: ["src/features/docs/components/TBlockMath.test.tsx"],
+    },
+    {
+      file: "src/features/models/components/ModuleAttentionSchemaComparison.tsx",
+      label: "ModuleAttentionSchemaComparison",
+      minReachableLinePercent: 90,
+      unitTests: [
+        "src/features/models/components/ModuleAttentionSchemaComparison.test.tsx",
+      ],
+    },
+    {
+      file: "src/features/models/components/RegistryComparisonTable.tsx",
+      label: "RegistryComparisonTable",
+      minReachableLinePercent: 90,
+      unitTests: [
+        "src/features/models/components/RegistryComparisonTable.test.tsx",
+      ],
+    },
+    {
+      file: "src/features/models/components/RegistryGraphFlow.tsx",
+      label: "RegistryGraphFlow",
+      minReachableLinePercent: 90,
+      unitTests: ["src/features/models/components/RegistryGraphFlow.test.tsx"],
+    },
+    {
+      file: "src/features/models/components/ModuleMetadataCard.tsx",
+      label: "ModuleMetadataCard",
+      minReachableLinePercent: 90,
+      unitTests: ["src/features/models/components/ModuleMetadataCard.test.tsx"],
+    },
+    {
+      file: "src/features/models/components/ModuleAtAGlance.tsx",
+      label: "ModuleAtAGlance",
+      minReachableLinePercent: 90,
+      unitTests: ["src/features/models/components/ModuleAtAGlance.test.tsx"],
+    },
+    {
+      file: "src/features/docs/components/PageAsset.tsx",
+      label: "PageAsset",
+      minReachableLinePercent: 90,
+      unitTests: ["src/features/docs/components/PageAsset.test.tsx"],
+    },
+    {
+      file: "src/features/docs/components/MissingGraphRecord.tsx",
+      label: "MissingGraphRecord",
+      minReachableLinePercent: 90,
+      unitTests: ["src/features/models/components/RegistryGraphFlow.test.tsx"],
+    },
+    {
+      file: "src/features/models/components/MissingTableRecord.tsx",
+      label: "MissingTableRecord",
+      minReachableLinePercent: 90,
+      unitTests: [
+        "src/features/models/components/RegistryComparisonTable.test.tsx",
+      ],
+    },
+  ];
+
 const PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
-  {
-    file: "src/features/docs/components/Callout.tsx",
-    label: "Callout",
-    minReachableLinePercent: 90,
-    unitTests: ["src/features/docs/components/Callout.test.tsx"],
-    a11ySmokeTests: [
-      "src/tests/a11y/docs-components.a11y.test.tsx (Callout accessibility smoke)",
-    ],
-  },
   {
     file: "src/features/docs/components/Section.tsx",
     label: "Section",
@@ -113,35 +193,6 @@ const PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
     unitTests: ["src/features/docs/components/Section.test.tsx"],
     a11ySmokeTests: [
       "src/tests/a11y/docs-components.a11y.test.tsx (Section accessibility smoke)",
-    ],
-  },
-  {
-    file: "src/features/docs/components/T.tsx",
-    label: "T",
-    minReachableLinePercent: 90,
-    unitTests: ["src/features/docs/components/T.test.tsx"],
-    a11ySmokeTests: [
-      "src/tests/component-examples/registry.test.tsx (T example render smoke)",
-    ],
-  },
-  {
-    file: "src/features/docs/components/ProseAutoLinkText.tsx",
-    label: "ProseAutoLinkText",
-    minReachableLinePercent: 90,
-    unitTests: ["src/features/docs/components/ProseAutoLinkText.test.tsx"],
-  },
-  {
-    file: "src/features/docs/components/TBlockMath.tsx",
-    label: "TBlockMath",
-    minReachableLinePercent: 90,
-    unitTests: ["src/features/docs/components/TBlockMath.test.tsx"],
-  },
-  {
-    file: "src/features/models/components/ModuleAttentionSchemaComparison.tsx",
-    label: "ModuleAttentionSchemaComparison",
-    minReachableLinePercent: 90,
-    unitTests: [
-      "src/features/models/components/ModuleAttentionSchemaComparison.test.tsx",
     ],
   },
   {
@@ -179,85 +230,6 @@ const PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
     unitTests: ["src/features/docs/components/DerivedRelatedDocs.test.tsx"],
     a11ySmokeTests: [
       "src/tests/a11y/docs-components.a11y.test.tsx (DerivedRelatedDocs accessibility smoke)",
-    ],
-  },
-  {
-    file: "src/features/models/components/RegistryComparisonTable.tsx",
-    label: "RegistryComparisonTable",
-    minReachableLinePercent: 90,
-    unitTests: [
-      "src/features/models/components/RegistryComparisonTable.test.tsx",
-    ],
-  },
-  {
-    file: "src/features/models/components/RegistryGraphFlow.tsx",
-    label: "RegistryGraphFlow",
-    minReachableLinePercent: 90,
-    unitTests: ["src/features/models/components/RegistryGraphFlow.test.tsx"],
-  },
-  {
-    file: "src/features/models/components/ModuleMetadataCard.tsx",
-    label: "ModuleMetadataCard",
-    minReachableLinePercent: 90,
-    unitTests: ["src/features/models/components/ModuleMetadataCard.test.tsx"],
-  },
-  {
-    file: "src/features/models/components/ModuleAtAGlance.tsx",
-    label: "ModuleAtAGlance",
-    minReachableLinePercent: 90,
-    unitTests: ["src/features/models/components/ModuleAtAGlance.test.tsx"],
-  },
-  {
-    file: "src/features/docs/components/PageAsset.tsx",
-    label: "PageAsset",
-    minReachableLinePercent: 90,
-    unitTests: ["src/features/docs/components/PageAsset.test.tsx"],
-  },
-  {
-    file: "src/features/docs/components/MissingGraphRecord.tsx",
-    label: "MissingGraphRecord",
-    minReachableLinePercent: 90,
-    unitTests: ["src/features/models/components/RegistryGraphFlow.test.tsx"],
-  },
-  {
-    file: "src/features/models/components/MissingTableRecord.tsx",
-    label: "MissingTableRecord",
-    minReachableLinePercent: 90,
-    unitTests: [
-      "src/features/models/components/RegistryComparisonTable.test.tsx",
-    ],
-  },
-  {
-    file: "src/features/docs/search/SearchResults.tsx",
-    label: "SearchResults",
-    minReachableLinePercent: 90,
-    unitTests: ["src/features/docs/search/SearchResults.test.tsx"],
-    a11ySmokeTests: [
-      "src/tests/a11y/docs-components.a11y.test.tsx (SearchResults accessibility smoke)",
-    ],
-  },
-  {
-    file: "src/features/docs/search/SearchResultRow.tsx",
-    label: "SearchResultRow",
-    minReachableLinePercent: 90,
-    unitTests: ["src/features/docs/search/SearchResults.test.tsx"],
-    a11ySmokeTests: [
-      "src/tests/a11y/docs-components.a11y.test.tsx (SearchResults accessibility smoke)",
-    ],
-  },
-  {
-    file: "src/features/docs/search/SearchResultTitle.tsx",
-    label: "SearchResultTitle",
-    minReachableLinePercent: 90,
-    unitTests: ["src/features/docs/search/SearchResults.test.tsx"],
-  },
-  {
-    file: "src/features/docs/search/SearchResultMetaDetails.tsx",
-    label: "SearchResultMetaDetails",
-    minReachableLinePercent: 90,
-    unitTests: ["src/features/docs/search/SearchResults.test.tsx"],
-    a11ySmokeTests: [
-      "src/tests/a11y/docs-components.a11y.test.tsx (SearchResultMetaDetails accessibility smoke)",
     ],
   },
 ];
@@ -300,8 +272,10 @@ export const PHASE_1_SEARCH_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
 ];
 
 export const REUSABLE_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
+  ...PHASE_1_MODULE_PAGE_COVERAGE_COMPONENTS,
   ...PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS,
   ...PHASE_1_SHELL_COVERAGE_COMPONENTS,
+  ...PHASE_1_SEARCH_COVERAGE_COMPONENTS,
 ];
 
 /** Documented thin wrappers that forward to PageAsset without extra branching. */

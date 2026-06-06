@@ -11,7 +11,10 @@ import {
 import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
-import { assertGroupedQueryAttentionModuleConvergence } from "@/lib/verify/grouped-query-attention-module-convergence";
+import {
+  assertGroupedQueryAttentionModuleConvergence,
+  GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS,
+} from "@/lib/verify/grouped-query-attention-module-convergence";
 
 const pageDir = GROUPED_QUERY_ATTENTION_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
@@ -64,6 +67,35 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(html).toContain('href="https://arxiv.org/abs/2305.13245"');
     expect(html).toContain('rel="noopener noreferrer"');
     expect(html).toContain("single shared");
+    expect(assertGroupedQueryAttentionModuleConvergence(html)).toBeNull();
+  });
+});
+
+describe("grouped-query-attention converged Phase 1 module page", () => {
+  test("static render includes React Flow graphs, comparison table, KaTeX, auto-linked prose, and excludes variants section", async () => {
+    const page = await loadModulePage("grouped-query-attention");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('data-react-flow-graph="true"');
+    expect(html).toContain('data-graph-node-id="hidden-states"');
+    expect(html).toContain('data-registry-comparison-table="true"');
+    expect(html).toContain(
+      'data-table-id="table.grouped-query-attention-comparison"',
+    );
+    expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
+    expect(html).toContain('data-message-block-math="math.gqaSchema.formula"');
+    expect(html).toContain('class="katex"');
+    expect(html).toContain('data-prose-auto-link="true"');
+    for (const forbidden of GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS) {
+      expect(html).not.toContain(forbidden);
+    }
     expect(assertGroupedQueryAttentionModuleConvergence(html)).toBeNull();
   });
 });
