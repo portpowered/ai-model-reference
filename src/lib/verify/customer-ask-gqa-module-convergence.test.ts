@@ -1,4 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { GROUPED_QUERY_ATTENTION_BUILT_HTML_PATH } from "@/lib/build/verify-grouped-query-attention-built-route";
 import {
   assertGqaModuleGraphBuildMarkersConvergence,
   assertGqaModuleListDiscConvergence,
@@ -267,5 +270,30 @@ describe("buildCustomerAskGqaModuleRows", () => {
           GQA_MODULE_CUSTOMER_ASK_CHECKS.graphBuildMarkers.checkId,
       )?.reason,
     ).toBe('missing expected content: data-graph-node-id="hidden-states"');
+  });
+});
+
+describe("buildCustomerAskGqaModuleRows (built HTML)", () => {
+  test("/docs/modules/grouped-query-attention built HTML reports pass for all customer-ask GQA module checks", () => {
+    const builtPath = join(
+      process.cwd(),
+      GROUPED_QUERY_ATTENTION_BUILT_HTML_PATH,
+    );
+    if (!existsSync(builtPath)) {
+      return;
+    }
+
+    const rows = buildCustomerAskGqaModuleRows(readFileSync(builtPath, "utf8"));
+    expect(rows).toHaveLength(4);
+    expect(rows.map((row) => row.checkId)).toEqual([
+      GQA_MODULE_CUSTOMER_ASK_CHECKS.presentation.checkId,
+      GQA_MODULE_CUSTOMER_ASK_CHECKS.graphBuildMarkers.checkId,
+      GQA_MODULE_CUSTOMER_ASK_CHECKS.listDisc.checkId,
+      GQA_MODULE_CUSTOMER_ASK_CHECKS.mhaGqaComparison.checkId,
+    ]);
+    expect(rows.every((row) => row.status === "pass")).toBe(true);
+    expect(
+      rows.every((row) => row.checklistRow === "phase-1-module-page"),
+    ).toBe(true);
   });
 });
