@@ -3,7 +3,7 @@ import { type ChildProcess, spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import {
   httpGetStatus,
   isListenPortFree,
@@ -99,6 +99,60 @@ function spawnStubProductionServer(port: number, cwd: string): ChildProcess {
     },
   });
   child.unref();
+  return child;
+}
+
+const FAKE_READY_NEXT_BIN_BODY = `
+const args = process.argv.slice(2);
+const portFlagIndex = args.indexOf("-p");
+const port = portFlagIndex >= 0 ? Number(args[portFlagIndex + 1]) : Number.NaN;
+if (!Number.isFinite(port)) {
+  console.error("fake next start: -p port required");
+  process.exit(1);
+}
+import { createServer } from "node:http";
+createServer((_req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("ok");
+}).listen(port, "127.0.0.1");
+`;
+
+function writeFakeNextBin(projectRoot: string, scriptBody: string): void {
+  const nextBinPath = resolveNextProductionServerBin(projectRoot);
+  mkdirSync(dirname(nextBinPath), { recursive: true });
+  writeFileSync(nextBinPath, `#!/usr/bin/env bun\n${scriptBody}`, {
+    mode: 0o755,
+  });
+}
+
+function createFakeNextFixtureRoot(scriptBody: string): string {
+  const projectRoot = mkdtempSync(join(tmpdir(), "verify-fake-next-"));
+  mkdirSync(join(projectRoot, ".next"));
+  writeFakeNextBin(projectRoot, scriptBody);
+  return projectRoot;
+}
+
+function waitForChildExitCode(child: ChildProcess, timeoutMs: number): void {
+  const deadline = Date.now() + timeoutMs;
+  while (child.exitCode === null && Date.now() < deadline) {
+    // Busy-wait so injected spawn functions can return an already-exited child.
+  }
+}
+
+function spawnAlreadyExitedProductionServer(
+  _port: number,
+  cwd: string,
+): ChildProcess {
+  const child = spawn(
+    "bun",
+    ["-e", 'console.error("instant exit"); process.exit(99);'],
+    {
+      cwd,
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
+  attachChildOutputCapture(child);
+  waitForChildExitCode(child, 2_000);
   return child;
 }
 
@@ -396,6 +450,64 @@ describe("acquireVerifyServerSession", () => {
     expect(DEFAULT_SERVER_STARTUP_TIMEOUT_MS).toBeLessThanOrEqual(30_000);
   });
 
+  test("rejects immediately when spawn returns an already-exited child", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-sync-early-exit-"));
+    mkdirSync(join(projectRoot, ".next"));
+
+    let startupError: Error | undefined;
+
+    try {
+      try {
+        await acquireVerifyServerSession({
+          projectRoot,
+          registerProcessSignals: false,
+          spawnProductionServer: spawnAlreadyExitedProductionServer,
+        });
+      } catch (error) {
+        startupError = error as Error;
+      }
+
+      expect(startupError?.message).toMatch(/exited before becoming ready/);
+      expect(startupError?.message).toContain("exit code 99");
+      expect(startupError?.message).toContain("instant exit");
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("registers process signal handlers on the default-path session", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-signal-handlers-"));
+    mkdirSync(join(projectRoot, ".next"));
+
+    try {
+      const session = await acquireVerifyServerSession({
+        projectRoot,
+        env: {},
+        spawnProductionServer: (port, cwd) => {
+          const child = spawnStubProductionServer(port, cwd);
+          spawnedChildren.push(child);
+          return child;
+        },
+      });
+
+      await session.cleanup();
+
+      const secondSession = await acquireVerifyServerSession({
+        projectRoot,
+        env: {},
+        spawnProductionServer: (port, cwd) => {
+          const child = spawnStubProductionServer(port, cwd);
+          spawnedChildren.push(child);
+          return child;
+        },
+      });
+
+      await secondSession.cleanup();
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  }, 15_000);
+
   test("fails fast with exit code and child output when the spawned server exits early", async () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-early-exit-"));
     mkdirSync(join(projectRoot, ".next"));
@@ -527,6 +639,39 @@ describe("killManagedChild", () => {
     );
   });
 
+  test("uses child.kill when the managed child has no pid", async () => {
+    let killedWith: NodeJS.Signals | undefined;
+    let recordedExitCode: number | null = null;
+    const fakeChild = {
+      pid: undefined,
+      get exitCode() {
+        return recordedExitCode;
+      },
+      killed: false,
+      kill(signal?: NodeJS.Signals) {
+        killedWith = signal;
+        recordedExitCode = 0;
+      },
+      once: () => fakeChild,
+      removeListener: () => fakeChild,
+    } as unknown as ChildProcess;
+
+    await killManagedChild(fakeChild);
+
+    expect(killedWith).toBe("SIGTERM");
+    expect(recordedExitCode === 0).toBe(true);
+  });
+
+  test("returns immediately when the child already exited", async () => {
+    const child = spawn("bun", ["-e", "process.exit(0)"], {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    await waitForChildExit(child, 5_000);
+
+    await expect(killManagedChild(child)).resolves.toBeUndefined();
+    expect(child.exitCode).toBe(0);
+  });
+
   test("terminates a detached stub child within the configured kill timeout", async () => {
     const port = await pickListenPort();
     const child = spawnStubProductionServer(port, process.cwd());
@@ -599,6 +744,38 @@ describe("child output capture", () => {
     expect(tail.length).toBeLessThanOrEqual(100);
     expect(tail.endsWith("x")).toBe(true);
   });
+
+  test("attachChildOutputCapture is idempotent for the same child", async () => {
+    const child = spawn("bun", ["-e", 'console.log("captured")'], {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    attachChildOutputCapture(child);
+    attachChildOutputCapture(child);
+    await waitForChildExit(child, 5_000);
+
+    expect(getChildOutputTail(child)).toContain("captured");
+  });
+
+  test("getChildOutputTail trims older chunks when output exceeds the tail budget", async () => {
+    const child = spawn(
+      "bun",
+      [
+        "-e",
+        'for (let i = 0; i < 120; i++) console.log("line-" + String(i).padStart(3, "0") + "-" + "y".repeat(40));',
+      ],
+      {
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
+
+    attachChildOutputCapture(child);
+    await waitForChildExit(child, 10_000);
+
+    const tail = getChildOutputTail(child);
+    expect(tail).toContain("line-119");
+    expect(tail).not.toContain("line-000");
+  });
 });
 
 describe("acquireVerifyServerSession build guard", () => {
@@ -665,6 +842,26 @@ describe("defaultSpawnProductionServer integration", () => {
     expect(resolveNextProductionServerBin(repoRoot)).toBe(
       join(repoRoot, "node_modules", "next", "dist", "bin", "next"),
     );
+  });
+
+  test("defaultSpawnProductionServer reaches HTTP 200 using a fixture next bin", async () => {
+    const projectRoot = createFakeNextFixtureRoot(FAKE_READY_NEXT_BIN_BODY);
+    const port = await pickListenPort();
+
+    const child = defaultSpawnProductionServer(port, projectRoot);
+    spawnedChildren.push(child);
+
+    try {
+      await waitForServerReady(`http://127.0.0.1:${port}`, {
+        timeoutMs: 5_000,
+        pollIntervalMs: 100,
+      });
+      expect(child.exitCode).toBeNull();
+      expect(await httpGetStatus(`http://127.0.0.1:${port}/`, 2_000)).toBe(200);
+    } finally {
+      await killManagedChild(child);
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 
   test(
