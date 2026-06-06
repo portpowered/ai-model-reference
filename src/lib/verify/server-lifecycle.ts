@@ -1,4 +1,8 @@
-import { type ChildProcess, spawn } from "node:child_process";
+import {
+  type ChildProcess,
+  type SpawnOptions,
+  spawn,
+} from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import {
@@ -8,6 +12,10 @@ import {
 } from "./http-harness";
 
 export const VERIFY_BASE_URL_ENV = "VERIFY_BASE_URL";
+
+/** Optional override for production-server readiness polling (milliseconds). */
+export const VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV =
+  "VERIFY_SERVER_STARTUP_TIMEOUT_MS";
 
 /** Set by `runCoverageSubprocess` so opt-in E2E tests skip the coverage rerun. */
 export const VERIFY_COVERAGE_SUBPROCESS_ENV = "VERIFY_COVERAGE_SUBPROCESS";
@@ -19,7 +27,8 @@ export const NEXT_BUILD_REQUIRED_MESSAGE =
   "Production build not found (.next missing). Run `make build` first.";
 
 const DEFAULT_POLL_INTERVAL_MS = 500;
-const CHILD_KILL_TIMEOUT_MS = 5_000;
+/** Max wait after SIGTERM before escalating to SIGKILL when stopping a spawned verify server. */
+export const CHILD_KILL_TIMEOUT_MS = 5_000;
 const CHILD_OUTPUT_TAIL_MAX_BYTES = 4_096;
 
 const childOutputChunks = new WeakMap<ChildProcess, Buffer[]>();
@@ -88,6 +97,20 @@ export function resolveVerifyBaseUrlFromEnv(
   return normalizeVerifyBaseUrl(raw);
 }
 
+export function resolveServerStartupTimeoutMsFromEnv(
+  env: Record<string, string | undefined> = process.env,
+): number | undefined {
+  const raw = env[VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV]?.trim();
+  if (!raw) {
+    return undefined;
+  }
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return undefined;
+  }
+  return parsed;
+}
+
 export function hasNextProductionBuild(
   projectRoot: string = process.cwd(),
 ): boolean {
@@ -127,20 +150,38 @@ export function resolveNextProductionServerBin(projectRoot: string): string {
   return join(projectRoot, "node_modules", "next", "dist", "bin", "next");
 }
 
-export function defaultSpawnProductionServer(
+export type ProductionServerSpawnSpec = {
+  command: string;
+  args: string[];
+  options: SpawnOptions;
+};
+
+/** Observable default spawn contract for production `next start` on loopback. */
+export function buildDefaultProductionServerSpawnSpec(
   port: number,
   projectRoot: string,
-): ChildProcess {
-  const child = spawn(
-    resolveNextProductionServerBin(projectRoot),
-    ["start", "-p", String(port), "-H", "127.0.0.1"],
-    {
+): ProductionServerSpawnSpec {
+  return {
+    command: resolveNextProductionServerBin(projectRoot),
+    args: ["start", "-p", String(port), "-H", "127.0.0.1"],
+    options: {
       cwd: projectRoot,
       stdio: ["ignore", "pipe", "pipe"],
       env: { ...process.env, NODE_ENV: "production" },
       detached: true,
     },
+  };
+}
+
+export function defaultSpawnProductionServer(
+  port: number,
+  projectRoot: string,
+): ChildProcess {
+  const { command, args, options } = buildDefaultProductionServerSpawnSpec(
+    port,
+    projectRoot,
   );
+  const child = spawn(command, args, options);
   attachChildOutputCapture(child);
   child.unref();
   return child;
@@ -413,11 +454,16 @@ export async function acquireVerifyServerSession(
     registerProcessSignalHandlers(cleanup);
   }
 
+  const startupTimeoutMs =
+    options.startupTimeoutMs ??
+    resolveServerStartupTimeoutMsFromEnv(env) ??
+    DEFAULT_SERVER_STARTUP_TIMEOUT_MS;
+
   const earlyExit = waitForChildEarlyExit(child, port, healthUrl);
   try {
     await Promise.race([
       waitForServerReady(baseUrl, {
-        timeoutMs: options.startupTimeoutMs,
+        timeoutMs: startupTimeoutMs,
         pollPath: options.healthPath,
         port,
       }),

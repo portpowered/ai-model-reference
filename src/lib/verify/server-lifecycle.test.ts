@@ -1,28 +1,36 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { type ChildProcess, spawn } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import {
   httpGetStatus,
   isListenPortFree,
   pickListenPort,
+  VERIFY_PORT_RANGE_END,
+  VERIFY_PORT_RANGE_START,
 } from "./http-harness";
 import {
   acquireVerifyServerSession,
   assertNextProductionBuild,
+  attachChildOutputCapture,
+  buildDefaultProductionServerSpawnSpec,
+  CHILD_KILL_TIMEOUT_MS,
   DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
   defaultSpawnProductionServer,
+  getChildOutputTail,
   hasCompleteNextProductionBuild,
   hasNextProductionBuild,
   killManagedChild,
   NEXT_BUILD_REQUIRED_MESSAGE,
   normalizeVerifyBaseUrl,
   resolveNextProductionServerBin,
+  resolveServerStartupTimeoutMsFromEnv,
   resolveVerifyBaseUrlFromEnv,
   shouldRunVerifyProductionIntegrationTests,
   VERIFY_COVERAGE_SUBPROCESS_ENV,
+  VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV,
   waitForServerReady,
 } from "./server-lifecycle";
 
@@ -94,6 +102,60 @@ function spawnStubProductionServer(port: number, cwd: string): ChildProcess {
   return child;
 }
 
+const FAKE_READY_NEXT_BIN_BODY = `
+const args = process.argv.slice(2);
+const portFlagIndex = args.indexOf("-p");
+const port = portFlagIndex >= 0 ? Number(args[portFlagIndex + 1]) : Number.NaN;
+if (!Number.isFinite(port)) {
+  console.error("fake next start: -p port required");
+  process.exit(1);
+}
+import { createServer } from "node:http";
+createServer((_req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("ok");
+}).listen(port, "127.0.0.1");
+`;
+
+function writeFakeNextBin(projectRoot: string, scriptBody: string): void {
+  const nextBinPath = resolveNextProductionServerBin(projectRoot);
+  mkdirSync(dirname(nextBinPath), { recursive: true });
+  writeFileSync(nextBinPath, `#!/usr/bin/env bun\n${scriptBody}`, {
+    mode: 0o755,
+  });
+}
+
+function createFakeNextFixtureRoot(scriptBody: string): string {
+  const projectRoot = mkdtempSync(join(tmpdir(), "verify-fake-next-"));
+  mkdirSync(join(projectRoot, ".next"));
+  writeFakeNextBin(projectRoot, scriptBody);
+  return projectRoot;
+}
+
+function waitForChildExitCode(child: ChildProcess, timeoutMs: number): void {
+  const deadline = Date.now() + timeoutMs;
+  while (child.exitCode === null && Date.now() < deadline) {
+    // Busy-wait so injected spawn functions can return an already-exited child.
+  }
+}
+
+function spawnAlreadyExitedProductionServer(
+  _port: number,
+  cwd: string,
+): ChildProcess {
+  const child = spawn(
+    "bun",
+    ["-e", 'console.error("instant exit"); process.exit(99);'],
+    {
+      cwd,
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
+  attachChildOutputCapture(child);
+  waitForChildExitCode(child, 2_000);
+  return child;
+}
+
 describe("resolveVerifyBaseUrlFromEnv", () => {
   test("returns undefined when VERIFY_BASE_URL is unset", () => {
     expect(resolveVerifyBaseUrlFromEnv({})).toBeUndefined();
@@ -105,6 +167,38 @@ describe("resolveVerifyBaseUrlFromEnv", () => {
         VERIFY_BASE_URL: "http://127.0.0.1:3456///",
       }),
     ).toBe("http://127.0.0.1:3456");
+  });
+});
+
+describe("resolveServerStartupTimeoutMsFromEnv", () => {
+  test("returns undefined when VERIFY_SERVER_STARTUP_TIMEOUT_MS is unset", () => {
+    expect(resolveServerStartupTimeoutMsFromEnv({})).toBeUndefined();
+  });
+
+  test("parses a positive integer timeout override", () => {
+    expect(
+      resolveServerStartupTimeoutMsFromEnv({
+        [VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV]: "1500",
+      }),
+    ).toBe(1500);
+  });
+
+  test("rejects non-numeric, zero, and negative timeout overrides", () => {
+    expect(
+      resolveServerStartupTimeoutMsFromEnv({
+        [VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV]: "not-a-number",
+      }),
+    ).toBeUndefined();
+    expect(
+      resolveServerStartupTimeoutMsFromEnv({
+        [VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV]: "0",
+      }),
+    ).toBeUndefined();
+    expect(
+      resolveServerStartupTimeoutMsFromEnv({
+        [VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV]: "-1",
+      }),
+    ).toBeUndefined();
   });
 });
 
@@ -143,6 +237,21 @@ describe("assertNextProductionBuild", () => {
       }),
     ).toBe(false);
   });
+
+  test("allows production integration tests when BUILD_ID is present", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-complete-next-"));
+    mkdirSync(join(projectRoot, ".next"), { recursive: true });
+    writeFileSync(join(projectRoot, ".next", "BUILD_ID"), "test-build");
+
+    try {
+      expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
+      expect(shouldRunVerifyProductionIntegrationTests(projectRoot, {})).toBe(
+        true,
+      );
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("waitForServerReady", () => {
@@ -165,31 +274,63 @@ describe("waitForServerReady", () => {
     }
   });
 
-  test("rejects when the server never returns HTTP 200", async () => {
+  test("rejects with timeout, health URL, and last HTTP status when never ready", async () => {
     const httpServer = createHttpServer((_req, res) => {
       res.writeHead(503);
       res.end("not ready");
     });
 
     const port = await listenOnEphemeralPort(httpServer);
+    const healthUrl = `http://127.0.0.1:${port}/`;
+    const timeoutMs = 800;
 
     try {
-      await expect(
-        waitForServerReady(`http://127.0.0.1:${port}`, {
-          timeoutMs: 800,
+      let readinessError: Error | undefined;
+      try {
+        await waitForServerReady(`http://127.0.0.1:${port}`, {
+          timeoutMs,
           pollIntervalMs: 100,
           perRequestTimeoutMs: 300,
           port,
-        }),
-      ).rejects.toThrow(
-        new RegExp(
-          `did not become ready.*port ${port}.*health URL http://127\\.0\\.0\\.1:${port}/`,
-        ),
-      );
+        });
+      } catch (error) {
+        readinessError = error as Error;
+      }
+
+      expect(readinessError?.message).toMatch(/did not become ready/i);
+      expect(readinessError?.message).toContain(`within ${timeoutMs}ms`);
+      expect(readinessError?.message).toContain(`health URL ${healthUrl}`);
+      expect(readinessError?.message).toContain("Expected HTTP 200, got 503");
     } finally {
       httpServer.closeAllConnections();
       httpServer.close();
     }
+  });
+
+  test("rejects with timeout, health URL, and last network error when nothing is listening", async () => {
+    const port = await pickListenPort();
+    const healthUrl = `http://127.0.0.1:${port}/`;
+    const timeoutMs = 600;
+
+    let readinessError: Error | undefined;
+    try {
+      await waitForServerReady(`http://127.0.0.1:${port}`, {
+        timeoutMs,
+        pollIntervalMs: 100,
+        perRequestTimeoutMs: 300,
+        port,
+      });
+    } catch (error) {
+      readinessError = error as Error;
+    }
+
+    expect(readinessError?.message).toMatch(/did not become ready/i);
+    expect(readinessError?.message).toContain(`within ${timeoutMs}ms`);
+    expect(readinessError?.message).toContain(`health URL ${healthUrl}`);
+    expect(readinessError?.message?.length).toBeGreaterThan(
+      `Server did not become ready within ${timeoutMs}ms (port ${port}, health URL ${healthUrl}): `
+        .length,
+    );
   });
 });
 
@@ -230,7 +371,36 @@ describe("acquireVerifyServerSession", () => {
     }
   });
 
-  test("spawns a stub server, waits for readiness, and kills the child on cleanup", async () => {
+  test("default path picks a verify port and returns loopback baseUrl without VERIFY_BASE_URL", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-default-baseurl-"));
+    mkdirSync(join(projectRoot, ".next"));
+
+    try {
+      const session = await acquireVerifyServerSession({
+        projectRoot,
+        env: {},
+        registerProcessSignals: false,
+        spawnProductionServer: (port, cwd) => {
+          const child = spawnStubProductionServer(port, cwd);
+          spawnedChildren.push(child);
+          return child;
+        },
+      });
+
+      try {
+        expect(session.port).not.toBeNull();
+        expect(session.port).toBeGreaterThanOrEqual(VERIFY_PORT_RANGE_START);
+        expect(session.port).toBeLessThanOrEqual(VERIFY_PORT_RANGE_END);
+        expect(session.baseUrl).toBe(`http://127.0.0.1:${session.port}`);
+      } finally {
+        await session.cleanup();
+      }
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("default-path success: cleanup terminates the spawned child and stops serving HTTP", async () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-stub-root-"));
     mkdirSync(join(projectRoot, ".next"));
 
@@ -279,6 +449,64 @@ describe("acquireVerifyServerSession", () => {
   test("startup timeout is at most 30 seconds by default", () => {
     expect(DEFAULT_SERVER_STARTUP_TIMEOUT_MS).toBeLessThanOrEqual(30_000);
   });
+
+  test("rejects immediately when spawn returns an already-exited child", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-sync-early-exit-"));
+    mkdirSync(join(projectRoot, ".next"));
+
+    let startupError: Error | undefined;
+
+    try {
+      try {
+        await acquireVerifyServerSession({
+          projectRoot,
+          registerProcessSignals: false,
+          spawnProductionServer: spawnAlreadyExitedProductionServer,
+        });
+      } catch (error) {
+        startupError = error as Error;
+      }
+
+      expect(startupError?.message).toMatch(/exited before becoming ready/);
+      expect(startupError?.message).toContain("exit code 99");
+      expect(startupError?.message).toContain("instant exit");
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("registers process signal handlers on the default-path session", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-signal-handlers-"));
+    mkdirSync(join(projectRoot, ".next"));
+
+    try {
+      const session = await acquireVerifyServerSession({
+        projectRoot,
+        env: {},
+        spawnProductionServer: (port, cwd) => {
+          const child = spawnStubProductionServer(port, cwd);
+          spawnedChildren.push(child);
+          return child;
+        },
+      });
+
+      await session.cleanup();
+
+      const secondSession = await acquireVerifyServerSession({
+        projectRoot,
+        env: {},
+        spawnProductionServer: (port, cwd) => {
+          const child = spawnStubProductionServer(port, cwd);
+          spawnedChildren.push(child);
+          return child;
+        },
+      });
+
+      await secondSession.cleanup();
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  }, 15_000);
 
   test("fails fast with exit code and child output when the spawned server exits early", async () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-early-exit-"));
@@ -357,24 +585,33 @@ createServer((_req, res) => {
     let spawnedChild: ChildProcess | undefined;
     let assignedPort: number | undefined;
 
+    const startupTimeoutMs = 800;
+    let startupError: Error | undefined;
+
     try {
-      await expect(
-        acquireVerifyServerSession({
+      try {
+        await acquireVerifyServerSession({
           projectRoot,
           registerProcessSignals: false,
-          startupTimeoutMs: 800,
+          startupTimeoutMs,
           spawnProductionServer: (port, cwd) => {
             assignedPort = port;
             spawnedChild = spawnNeverReadyServer(port, cwd);
             spawnedChildren.push(spawnedChild);
             return spawnedChild;
           },
-        }),
-      ).rejects.toThrow(
-        new RegExp(
-          `did not become ready.*port ${assignedPort ?? "\\d+"}.*health URL http://127\\.0\\.0\\.1:${assignedPort ?? "\\d+"}/`,
-        ),
+        });
+      } catch (error) {
+        startupError = error as Error;
+      }
+
+      expect(startupError?.message).toMatch(/did not become ready/i);
+      expect(startupError?.message).toContain(`within ${startupTimeoutMs}ms`);
+      expect(assignedPort).toBeDefined();
+      expect(startupError?.message).toContain(
+        `health URL http://127.0.0.1:${assignedPort}/`,
       );
+      expect(startupError?.message).toContain("Expected HTTP 200, got 503");
 
       expect(spawnedChild).toBeDefined();
       expect(assignedPort).toBeDefined();
@@ -402,7 +639,40 @@ describe("killManagedChild", () => {
     );
   });
 
-  test("terminates a detached stub server and frees the assigned port", async () => {
+  test("uses child.kill when the managed child has no pid", async () => {
+    let killedWith: NodeJS.Signals | undefined;
+    let recordedExitCode: number | null = null;
+    const fakeChild = {
+      pid: undefined,
+      get exitCode() {
+        return recordedExitCode;
+      },
+      killed: false,
+      kill(signal?: NodeJS.Signals) {
+        killedWith = signal;
+        recordedExitCode = 0;
+      },
+      once: () => fakeChild,
+      removeListener: () => fakeChild,
+    } as unknown as ChildProcess;
+
+    await killManagedChild(fakeChild);
+
+    expect(killedWith).toBe("SIGTERM");
+    expect(recordedExitCode === 0).toBe(true);
+  });
+
+  test("returns immediately when the child already exited", async () => {
+    const child = spawn("bun", ["-e", "process.exit(0)"], {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    await waitForChildExit(child, 5_000);
+
+    await expect(killManagedChild(child)).resolves.toBeUndefined();
+    expect(child.exitCode).toBe(0);
+  });
+
+  test("terminates a detached stub child within the configured kill timeout", async () => {
     const port = await pickListenPort();
     const child = spawnStubProductionServer(port, process.cwd());
     spawnedChildren.push(child);
@@ -413,11 +683,43 @@ describe("killManagedChild", () => {
     });
     expect(await isListenPortFree(port)).toBe(false);
 
+    const killStartedAt = Date.now();
     await killManagedChild(child);
-    await waitForChildExit(child, 2_000);
+    const killElapsedMs = Date.now() - killStartedAt;
 
+    await waitForChildExit(child, 1_000);
+
+    expect(killElapsedMs).toBeLessThanOrEqual(CHILD_KILL_TIMEOUT_MS);
     expect(child.exitCode !== null || child.killed === true).toBe(true);
     expect(await isListenPortFree(port)).toBe(true);
+    await expect(
+      httpGetStatus(`http://127.0.0.1:${port}/`, 500),
+    ).rejects.toBeDefined();
+  });
+
+  test("cleanup is idempotent and does not throw on a second call", async () => {
+    const projectRoot = mkdtempSync(
+      join(tmpdir(), "verify-cleanup-idempotent-"),
+    );
+    mkdirSync(join(projectRoot, ".next"));
+
+    try {
+      const session = await acquireVerifyServerSession({
+        projectRoot,
+        env: {},
+        registerProcessSignals: false,
+        spawnProductionServer: (port, cwd) => {
+          const child = spawnStubProductionServer(port, cwd);
+          spawnedChildren.push(child);
+          return child;
+        },
+      });
+
+      await session.cleanup();
+      await expect(session.cleanup()).resolves.toBeUndefined();
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 });
 
@@ -426,6 +728,53 @@ describe("normalizeVerifyBaseUrl", () => {
     expect(normalizeVerifyBaseUrl("http://127.0.0.1:3100/")).toBe(
       "http://127.0.0.1:3100",
     );
+  });
+});
+
+describe("child output capture", () => {
+  test("getChildOutputTail keeps only the most recent bytes across chunks", async () => {
+    const child = spawn("bun", ["-e", 'console.log("x".repeat(5000))'], {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    attachChildOutputCapture(child);
+    await waitForChildExit(child, 5_000);
+
+    const tail = getChildOutputTail(child, 100);
+    expect(tail.length).toBeLessThanOrEqual(100);
+    expect(tail.endsWith("x")).toBe(true);
+  });
+
+  test("attachChildOutputCapture is idempotent for the same child", async () => {
+    const child = spawn("bun", ["-e", 'console.log("captured")'], {
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    attachChildOutputCapture(child);
+    attachChildOutputCapture(child);
+    await waitForChildExit(child, 5_000);
+
+    expect(getChildOutputTail(child)).toContain("captured");
+  });
+
+  test("getChildOutputTail trims older chunks when output exceeds the tail budget", async () => {
+    const child = spawn(
+      "bun",
+      [
+        "-e",
+        'for (let i = 0; i < 120; i++) console.log("line-" + String(i).padStart(3, "0") + "-" + "y".repeat(40));',
+      ],
+      {
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
+
+    attachChildOutputCapture(child);
+    await waitForChildExit(child, 10_000);
+
+    const tail = getChildOutputTail(child);
+    expect(tail).toContain("line-119");
+    expect(tail).not.toContain("line-000");
   });
 });
 
@@ -454,6 +803,32 @@ describe("pickListenPort integration", () => {
   });
 });
 
+describe("defaultSpawnProductionServer spawn contract", () => {
+  test("buildDefaultProductionServerSpawnSpec matches bun run start loopback contract", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-spawn-contract-"));
+    const port = 3456;
+
+    try {
+      const spec = buildDefaultProductionServerSpawnSpec(port, projectRoot);
+
+      expect(spec.command).toBe(resolveNextProductionServerBin(projectRoot));
+      expect(spec.args).toEqual([
+        "start",
+        "-p",
+        String(port),
+        "-H",
+        "127.0.0.1",
+      ]);
+      expect(spec.options.cwd).toBe(projectRoot);
+      expect(spec.options.detached).toBe(true);
+      expect(spec.options.stdio).toEqual(["ignore", "pipe", "pipe"]);
+      expect(spec.options.env).toMatchObject({ NODE_ENV: "production" });
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("defaultSpawnProductionServer integration", () => {
   const spawnedChildren: ChildProcess[] = [];
 
@@ -467,6 +842,26 @@ describe("defaultSpawnProductionServer integration", () => {
     expect(resolveNextProductionServerBin(repoRoot)).toBe(
       join(repoRoot, "node_modules", "next", "dist", "bin", "next"),
     );
+  });
+
+  test("defaultSpawnProductionServer reaches HTTP 200 using a fixture next bin", async () => {
+    const projectRoot = createFakeNextFixtureRoot(FAKE_READY_NEXT_BIN_BODY);
+    const port = await pickListenPort();
+
+    const child = defaultSpawnProductionServer(port, projectRoot);
+    spawnedChildren.push(child);
+
+    try {
+      await waitForServerReady(`http://127.0.0.1:${port}`, {
+        timeoutMs: 5_000,
+        pollIntervalMs: 100,
+      });
+      expect(child.exitCode).toBeNull();
+      expect(await httpGetStatus(`http://127.0.0.1:${port}/`, 2_000)).toBe(200);
+    } finally {
+      await killManagedChild(child);
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 
   test(
