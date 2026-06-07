@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import {
+  deriveAgentStandardsGuidanceEvidence,
+  formatAgentStandardsGuidanceEvidenceLine,
+} from "@/lib/content/agent-standards-guidance-evidence";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const rootAgentsPath = join(repoRoot, "AGENTS.md");
@@ -11,54 +15,54 @@ const ideafyAgentsPath = join(
 const writingStandardsPath = join(repoRoot, "docs/writing-standards.md");
 const graphingStandardsPath = join(repoRoot, "docs/graphing-standards.md");
 
+function loadAgentStandardsInputs() {
+  return {
+    rootAgentsMarkdown: readFileSync(rootAgentsPath, "utf8"),
+    ideafyAgentsMarkdown: readFileSync(ideafyAgentsPath, "utf8"),
+    writingStandardsMarkdown: readFileSync(writingStandardsPath, "utf8"),
+    graphingStandardsMarkdown: readFileSync(graphingStandardsPath, "utf8"),
+  };
+}
+
 describe("agent and planner standards guidance", () => {
-  test("root AGENTS.md mandates writing and graphing standards for docs authoring", () => {
-    const agents = readFileSync(rootAgentsPath, "utf8");
-    expect(agents).toMatch(/# writing docs/);
-    expect(agents).toMatch(/docs\/writing-standards\.md/);
-    expect(agents).toMatch(/docs\/graphing-standards\.md/);
-    expect(agents).toMatch(/Mandatory references/i);
-    expect(agents).toMatch(/symbol-only math definitions/i);
-    expect(agents).toMatch(/attention-variant comparison/i);
-  });
+  test("deriveAgentStandardsGuidanceEvidence passes for repository guidance files", () => {
+    const evidence = deriveAgentStandardsGuidanceEvidence(
+      loadAgentStandardsInputs(),
+    );
 
-  test("ideafy planner docs reference standards and GQA graph/math manual gate checks", () => {
-    const ideafyAgents = readFileSync(ideafyAgentsPath, "utf8");
-    expect(ideafyAgents).toMatch(/docs\/writing-standards\.md/);
-    expect(ideafyAgents).toMatch(/docs\/graphing-standards\.md/);
-    expect(ideafyAgents).toMatch(/graph and math baseline convergence/i);
-    expect(ideafyAgents).toMatch(/docs\/internal\/customer-ask\.md/);
-    expect(ideafyAgents).toMatch(/module\.graph-build-markers/);
-    expect(ideafyAgents).toMatch(/module\.mha-gqa-comparison/);
-    expect(ideafyAgents).toMatch(/module\.graph-theme-readability/);
-    expect(ideafyAgents).toMatch(/module\.no-duplicate-math-graph/);
-    expect(ideafyAgents).toMatch(/module\.math-qkv-definitions/);
-    expect(ideafyAgents).toMatch(
-      /factory\/docs\/phase-1-batch-012-gqa-graph-visibility-manual-check\.md/,
-    );
-    expect(ideafyAgents).toMatch(
-      /make verify-phase-1-github-pages-convergence/,
-    );
-    expect(ideafyAgents).toMatch(
-      /static-regression\.route\.gqa-module-presentation/,
+    expect(evidence.status).toBe("pass");
+    expect(formatAgentStandardsGuidanceEvidenceLine(evidence)).toContain(
+      "[PASS] agent-standards-guidance",
     );
   });
 
-  test("standards docs summarize reusable lessons from prior GQA repair", () => {
-    const writingStandards = readFileSync(writingStandardsPath, "utf8");
-    const graphingStandards = readFileSync(graphingStandardsPath, "utf8");
+  test("deriveAgentStandardsGuidanceEvidence fails when mandatory standards links are removed", () => {
+    const inputs = loadAgentStandardsInputs();
+    const evidence = deriveAgentStandardsGuidanceEvidence({
+      ...inputs,
+      rootAgentsMarkdown: inputs.rootAgentsMarkdown.replace(
+        /docs\/graphing-standards\.md/g,
+        "",
+      ),
+    });
 
-    expect(writingStandards).toMatch(/Lessons from prior GQA repair/);
-    expect(writingStandards).toMatch(/openingSummary/);
-    expect(writingStandards).toMatch(/callouts\.readerShortcut/);
-    expect(writingStandards).toMatch(/projection, grouping/);
+    expect(evidence.status).toBe("fail");
+    expect(evidence.reason).toContain("root AGENTS.md missing required marker");
+  });
 
-    expect(graphingStandards).toMatch(/Lessons from prior GQA repair/);
-    expect(graphingStandards).toMatch(/comparison switcher/i);
-    expect(graphingStandards).toMatch(/zoom\/pan/i);
-    expect(graphingStandards).toMatch(/computeSchema/);
-    expect(graphingStandards).toMatch(
-      /verify-phase-1-github-pages-convergence/,
+  test("deriveAgentStandardsGuidanceEvidence fails when ideafy convergence brief is stripped", () => {
+    const inputs = loadAgentStandardsInputs();
+    const evidence = deriveAgentStandardsGuidanceEvidence({
+      ...inputs,
+      ideafyAgentsMarkdown: inputs.ideafyAgentsMarkdown.replace(
+        /module\.mha-gqa-comparison/g,
+        "",
+      ),
+    });
+
+    expect(evidence.status).toBe("fail");
+    expect(evidence.reason).toContain(
+      "ideafy AGENTS.md missing required marker",
     );
   });
 });

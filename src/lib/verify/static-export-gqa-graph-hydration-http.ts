@@ -1,4 +1,6 @@
 import { type Browser, chromium, type Page } from "playwright";
+import { exportHtmlIncludesGqaAttentionVariantGraphShellMarkers } from "@/lib/build/verify-export-base-path";
+import { httpGetText } from "./http-harness";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
@@ -93,13 +95,26 @@ export async function verifyStaticExportGqaGraphHydration(
   const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
   const pageUrl = `${normalizeVerifyBaseUrl(baseUrl)}${GQA_GRAPH_ROUTE}`;
 
+  const htmlResponse = await httpGetText(pageUrl, timeoutMs);
+  if (htmlResponse.status < 200 || htmlResponse.status >= 300) {
+    return `GQA module export route returned HTTP ${htmlResponse.status}.`;
+  }
+  const exportedHtml = htmlResponse.body;
+  if (!exportHtmlIncludesGqaAttentionVariantGraphShellMarkers(exportedHtml)) {
+    return "GQA export HTML lacks attention-variant comparison graph shell markers.";
+  }
+  if (!/\bclass=["'][^"']*react-flow/.test(exportedHtml)) {
+    return "React Flow canvas did not hydrate on the GQA module page.";
+  }
+
   const browser = await launchBrowser();
   try {
     const page = await browser.newPage();
     page.setDefaultTimeout(timeoutMs);
+    page.setDefaultNavigationTimeout(timeoutMs);
     await page.goto(pageUrl, {
       timeout: timeoutMs,
-      waitUntil: "networkidle",
+      waitUntil: "domcontentloaded",
     });
     return await verifyGqaGraphHydrationOnPage(page, timeoutMs);
   } catch (error) {

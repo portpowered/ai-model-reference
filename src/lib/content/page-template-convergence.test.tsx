@@ -44,7 +44,6 @@ const nonModuleTemplates: Array<{
   {
     kind: "glossary",
     graphAssetId: "conceptMap",
-    graphSectionId: "where-it-appears",
     openingSummaryInMdx: false,
   },
 ];
@@ -61,7 +60,13 @@ function readStarterMessages(kind: TemplateKind): Record<string, unknown> {
 
 describe("non-module page template convergence", () => {
   for (const config of nonModuleTemplates) {
-    const { kind, graphAssetId, graphSectionId, openingSummaryInMdx } = config;
+    const { kind, graphAssetId, graphSectionId, openingSummaryInMdx } =
+      config as {
+        kind: TemplateKind;
+        graphAssetId?: string;
+        graphSectionId?: string;
+        openingSummaryInMdx: boolean;
+      };
 
     test(`${kind}.mdx follows writing and graphing standards`, () => {
       const template = readTemplate(kind);
@@ -78,12 +83,16 @@ describe("non-module page template convergence", () => {
         expect(template).not.toContain("<GlossaryOpening />");
       }
 
-      if (graphAssetId && graphSectionId) {
+      if (graphAssetId) {
         expect(template).toContain(`assetId="${graphAssetId}"`);
-        const sectionStart = template.indexOf(`id="${graphSectionId}"`);
-        const graphIndex = template.indexOf(`assetId="${graphAssetId}"`);
-        expect(sectionStart).toBeGreaterThanOrEqual(0);
-        expect(graphIndex).toBeGreaterThan(sectionStart);
+        if (graphSectionId) {
+          const sectionStart = template.indexOf(`id="${graphSectionId}"`);
+          const graphIndex = template.indexOf(`assetId="${graphAssetId}"`);
+          expect(sectionStart).toBeGreaterThanOrEqual(0);
+          expect(graphIndex).toBeGreaterThan(sectionStart);
+        } else {
+          expect(template).not.toContain('id="where-it-appears"');
+        }
       }
     });
 
