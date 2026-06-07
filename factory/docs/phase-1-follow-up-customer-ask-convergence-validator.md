@@ -143,6 +143,9 @@ attention, KV cache).
 | `glossary.presentation` | `/docs/glossary/token` | — | `phase-1-glossary-page` | batch-008 reused |
 | `glossary.chrome-links` | `/docs/glossary/token` | — | `phase-1-glossary-page` | batch-008 reused |
 | `glossary.footer-hover` | `/docs/glossary/token` | — | `phase-1-glossary-page` | batch-008 reused |
+| `glossary.embedding-description-links` | `/docs/glossary/embedding` | — | `phase-1-glossary-page` | glossary bridge repair |
+| `glossary.vector-description-links` | `/docs/glossary/vector` | — | `phase-1-glossary-page` | glossary bridge repair |
+| `glossary.hidden-size-description-links` | `/docs/glossary/hidden-size` | — | `phase-1-glossary-page` | glossary bridge repair |
 | `docs.footer-hover-focus-parity` | `/docs/glossary/token` | — | `phase-1-docs-footer` | batch-008 reused |
 | `module.presentation` | `/docs/modules/grouped-query-attention` | — | `phase-1-module-page` | batch-008 reused |
 | `module.graph-build-markers` | `/docs/modules/grouped-query-attention` | — | `phase-1-module-page` | batch-008 reused |

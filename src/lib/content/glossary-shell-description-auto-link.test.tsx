@@ -131,6 +131,10 @@ describe("glossary shell description auto-link convergence", () => {
       "The width of a model's internal vectors—the number of dimensions in each token embedding and each token's per-position hidden state before the vocabulary projection.",
     );
     expectGlossaryShellDescriptionAutoLink(html, {
+      href: "/docs/glossary/vector",
+      phrase: "vectors",
+    });
+    expectGlossaryShellDescriptionAutoLink(html, {
       href: "/docs/glossary/embedding",
       phrase: "token embedding",
     });
