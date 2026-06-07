@@ -7,6 +7,10 @@ import { assertGroupedQueryAttentionModuleConvergence } from "@/lib/verify/group
 export const GROUPED_QUERY_ATTENTION_BUILT_HTML_PATH =
   ".next/server/app/docs/modules/grouped-query-attention.html";
 
+/** Relative path to the static-export grouped-query-attention module page. */
+export const GROUPED_QUERY_ATTENTION_EXPORT_HTML_PATH =
+  "out/docs/modules/grouped-query-attention.html";
+
 export type VerifyGroupedQueryAttentionBuiltRouteResult =
   | { ok: true }
   | { ok: false; reason: string };
