@@ -45,7 +45,8 @@ describe("batch-014 planner deployment guidance", () => {
   test("loopback planner note references wired deploy automation and remaining validator closure", () => {
     const batch = readBatch014();
     const loopback = batch.works.find(
-      (work) => work.name === "ideafy-loopback-phase-1-github-pages-repair-batch-014",
+      (work) =>
+        work.name === "ideafy-loopback-phase-1-github-pages-repair-batch-014",
     );
     expect(loopback).toBeDefined();
 
