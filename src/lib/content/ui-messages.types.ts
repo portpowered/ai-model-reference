@@ -6,6 +6,8 @@ export type UiMessages = {
     idle: string;
     noResults: string;
     loading: string;
+    error: string;
+    retry: string;
     shortcut: string;
     resultPath: string;
   };

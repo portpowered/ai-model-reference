@@ -1,5 +1,6 @@
 "use client";
 
+import type { StaticOptions } from "fumadocs-core/search/client";
 import {
   SearchDialog as FumaSearchDialog,
   SearchDialogClose,
@@ -22,20 +23,35 @@ import type { SearchResultMetaRecord } from "./search-result-meta-client";
 type ModelAtlasSearchDialogProps = SharedProps & {
   metaByUrl: SearchResultMetaRecord;
   messages: UiMessages;
+  /** Test hook: override static bootstrap client options. */
+  searchClient?: StaticOptions;
 };
+
+function reloadSearchPage(): void {
+  window.location.reload();
+}
 
 export function ModelAtlasSearchDialog({
   open,
   onOpenChange,
   metaByUrl,
   messages,
+  searchClient,
 }: ModelAtlasSearchDialogProps) {
-  const { search, setSearch, query } = useModelAtlasDocsSearch({ metaByUrl });
+  const { search, setSearch, query } = useModelAtlasDocsSearch({
+    metaByUrl,
+    client: searchClient,
+  });
   const hasQuery = search.trim().length > 0;
   const items = query.data && query.data !== "empty" ? query.data : null;
-  const showIdle = !hasQuery && !query.isLoading;
+  const showIdle = !hasQuery && !query.isLoading && !query.error;
+  const showError = hasQuery && !query.isLoading && Boolean(query.error);
   const showEmptyResults =
-    hasQuery && !query.isLoading && items !== null && items.length === 0;
+    hasQuery &&
+    !query.isLoading &&
+    !query.error &&
+    items !== null &&
+    items.length === 0;
 
   useEffect(() => {
     if (!open) {
@@ -70,8 +86,24 @@ export function ModelAtlasSearchDialog({
             {messages.search.idle}
           </output>
         ) : null}
+        {showError ? (
+          <output
+            className="block space-y-3 py-12 text-center text-sm text-fd-muted-foreground"
+            data-testid="search-dialog-error"
+            role="alert"
+          >
+            <p>{messages.search.error}</p>
+            <button
+              type="button"
+              className="font-medium text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              onClick={reloadSearchPage}
+            >
+              {messages.search.retry}
+            </button>
+          </output>
+        ) : null}
         <SearchDialogList
-          items={items}
+          items={showError ? null : items}
           Empty={() => (
             <output
               className="block py-12 text-center text-sm text-fd-muted-foreground"

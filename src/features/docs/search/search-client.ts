@@ -1,13 +1,14 @@
 import { type StaticOptions, useDocsSearch } from "fumadocs-core/search/client";
 import type { DependencyList } from "react";
+import { readDocsSearchStaticBootstrapFrom } from "@/lib/search/docs-search-bootstrap-path";
 import { modelAtlasOramaSearchClient } from "./model-atlas-search-client";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";
 
-export const DOCS_SEARCH_API_PATH = "/api/search";
+export { DOCS_SEARCH_API_PATH } from "@/lib/search/docs-search-bootstrap-path";
 
 export const docsSearchStaticOptions = {
   type: "static",
-  from: DOCS_SEARCH_API_PATH,
+  from: readDocsSearchStaticBootstrapFrom(),
 } as const satisfies { type: "static" } & StaticOptions;
 
 export type ModelAtlasDocsSearchOptions = {
