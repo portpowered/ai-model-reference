@@ -2,8 +2,6 @@ import { notFound } from "next/navigation";
 import { ComponentExampleGallery } from "@/component-examples/ComponentExampleGallery";
 import { loadComponentExampleContext } from "@/component-examples/load-context";
 
-export const dynamic = "force-dynamic";
-
 export default async function ComponentExamplesPage() {
   if (
     process.env.NODE_ENV === "production" &&

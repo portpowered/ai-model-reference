@@ -73,6 +73,20 @@ make dev
 `http://localhost:3000` for the home page and `/docs/getting-started` for the
 placeholder docs route.
 
+## Static export (GitHub Pages)
+
+The default `bun run build` / `make build` path keeps the standard Next.js
+production build under `.next/` for `next start` and existing Phase 1 route
+verifiers. To emit a static `out/` directory for GitHub Pages hosting, run:
+
+```sh
+bun run build:export
+```
+
+That sets `NEXT_STATIC_EXPORT=1`, which toggles `output: "export"` and
+`images.unoptimized` in `next.config.ts`. A successful export leaves a non-empty
+`out/` directory with `out/index.html` plus prerendered docs and tags routes.
+
 ## Phase 2 docs authoring
 
 Glossary and concept pages share one scaffold path. Templates live in
