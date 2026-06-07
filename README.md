@@ -73,6 +73,53 @@ make dev
 `http://localhost:3000` for the home page and `/docs/getting-started` for the
 placeholder docs route.
 
+## Static export (GitHub Pages)
+
+The default `bun run build` / `make build` path keeps the standard Next.js
+production build under `.next/` for `next start` and existing Phase 1 route
+verifiers. Use the static export path when you need a GitHub Pages–compatible
+`out/` artifact instead of `next start`—for example before wiring a deploy
+workflow or when validating project-site base paths locally.
+
+**Single command:** `make build-export` runs the export build and verifies the
+`out/` artifact in one step. It runs in `make ci` after `make build` so both the
+`.next/` production contract and the GitHub Pages `out/` artifact stay verified.
+
+```sh
+make build-export
+```
+
+That runs `bun run build:export` (sets `NEXT_STATIC_EXPORT=1`, which toggles
+`output: "export"` and `images.unoptimized` in `next.config.ts`), then
+`verify-phase-1-export-routes`, which exits non-zero when `out/` is missing,
+empty, or lacks expected Phase 1 reader routes and content markers (`/`,
+`/docs/architecture`, `/docs/glossary`, `/docs/modules/grouped-query-attention`,
+`/tags`, and `/tags/attention`).
+
+To verify an existing export without rebuilding:
+
+```sh
+make verify-export-routes
+# or: bun run verify:export-routes
+```
+
+For GitHub Pages **project sites** served from `https://<org>.github.io/<repo>/`,
+set `GITHUB_PAGES_BASE_PATH` to the repository name (with or without a leading
+slash) when running the export build. The value configures matching
+`basePath` and `assetPrefix` so bundled assets and internal links resolve under
+the project path:
+
+```sh
+GITHUB_PAGES_BASE_PATH=/ai-model-reference make build-export
+```
+
+When `GITHUB_PAGES_BASE_PATH` is unset, export builds keep `/` as the base for
+local preview and user/org root GitHub Pages sites.
+
+See [docs/operations.md](./docs/operations.md) for deployment posture: static
+export is verified in CI via `make build-export`, but the baseline workflow does
+not deploy `out/` yet.
+
 ## Phase 2 docs authoring
 
 Glossary and concept pages share one scaffold path. Templates live in
@@ -204,8 +251,9 @@ GitHub Actions runs the same gate sequence on pull requests and pushes to
 `main`: install dependencies with `bun install --frozen-lockfile`, then
 `make ci` (see `.github/workflows/ci.yml`). No repository secrets are required
 for lint, typecheck, test, manifest-scoped component coverage, build,
-validate-data, and linkcheck. The baseline workflow does not run deploy or
-preview steps or PDF validation—those gates are deferred to later phases.
+build-export, validate-data, and linkcheck. The baseline workflow does not run
+deploy or preview steps or PDF validation—those gates are deferred to later
+phases.
 
 The root Makefile mirrors those CI-oriented checks locally. Run `make ci` from
 the repository root after `bun install --frozen-lockfile`; it runs, in order:
@@ -215,8 +263,9 @@ the repository root after `bun install --frozen-lockfile`; it runs, in order:
 3. `make test` — generates Fumadocs MDX source (when typecheck was skipped), then `bun test`
 4. `make coverage` — manifest-scoped reusable component coverage gate (same as `bun run coverage`)
 5. `make build` — `next build` plus Phase 1 static route verification
-6. `make validate-data` — registry and content validation
-7. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
+6. `make build-export` — static export to `out/` plus Phase 1 export route verification
+7. `make validate-data` — registry and content validation
+8. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
 
 Use `bun run scaffold:doc-page` (or `make scaffold`) when adding Phase 2 glossary or
 concept pages, then run `make validate-data` before opening a pull request.
@@ -236,6 +285,8 @@ make typecheck     # fumadocs-mdx (pretypecheck), then tsc --noEmit
 make test          # fumadocs-mdx (pretest), then bun test
 make coverage      # fumadocs-mdx (precoverage), manifest coverage gate
 make build         # next build + Phase 1 static route check
+make build-export  # static export to out/ + Phase 1 export route verification
+make verify-export-routes # verify existing out/ artifact (requires build-export first)
 make verify-phase-1-ux # HTTP verification for Phase 1 reader routes and search (requires build)
 make verify-phase-1-built-app-convergence # batch-010 built-app gate with planner-facing evidence summary
 make verify-phase-1-follow-up-convergence # batch-011 follow-up gate with planner-facing evidence summary
