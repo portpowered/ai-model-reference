@@ -37,6 +37,8 @@ architecture concepts. The site should align with:
 * `docs/documentation-site-pages-needed.md`
 * `docs/site-fundamentals.md`
 * `docs/quality-documents-standards.md`
+* `docs/writing-standards.md`
+* `docs/graphing-standards.md`
 * `factory/docs/overview.md`
 * `docs/internal/customer-ask.md`
 
@@ -233,6 +235,21 @@ of relying on separate specialized agent types. Useful briefs include:
 * architecture drift: look for duplicate layouts, duplicate search systems,
   one-off components, boundary violations, and parallel work that failed to
   merge into one coherent implementation
+* graph and math baseline convergence: after module graph, math, template, or
+  standards changes, read `docs/writing-standards.md` and
+  `docs/graphing-standards.md`, then verify the grouped-query-attention manual
+  gate in `docs/internal/customer-ask.md`. Run `make build &&
+  make verify-phase-1-ux` and record GQA module customer-ask rows:
+  `module.graph-build-markers`, `module.mha-gqa-comparison`,
+  `module.graph-theme-readability` (when `uncertain`, follow the manual visual
+  check in
+  `factory/docs/phase-1-batch-012-gqa-graph-visibility-manual-check.md`),
+  `module.no-duplicate-math-graph`, and `module.math-qkv-definitions`. For
+  GitHub Pages static export graph hydration, run `make build-export` with
+  `GITHUB_PAGES_BASE_PATH=ai-model-reference` and
+  `make verify-phase-1-github-pages-convergence` (including
+  `static-regression.route.gqa-module-presentation`). Treat `fail` rows as
+  blocking; copy `uncertain` reasons into convergence notes.
 
 CI is responsible for coverage enforcement, linting, type checking, tests, and
 build validation. Validator briefs should not duplicate CI as a coverage engine;

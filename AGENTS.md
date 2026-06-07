@@ -45,8 +45,10 @@ when writing code, we generally look to standardize and minimize complexity.
 # writing docs
 As a general rule, we want docs to be fresh and relevant, meaning that all pages should have references to appropriate other pages for relevant information. i.e. a page on attention variants should link to the other pages around attention and explain why this one is better when its written. 
 
-please follow the appropriate documents when writing docs. 
+please follow the appropriate documents when writing docs. Mandatory references for canonical page authoring and review:
 [documentation template](./docs/documentation-template.md)
+[writing standards](./docs/writing-standards.md) — folded summary, layperson tone, symbol-only math definitions, no reader-shortcut callouts
+[graphing standards](./docs/graphing-standards.md) — single primary graph, readable node theme, zoom/pan, attention-variant comparison
 [quality-documents-standards](./docs/quality-documents-standards.md)
 
 # generally relevant files
