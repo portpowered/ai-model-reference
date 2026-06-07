@@ -16,8 +16,8 @@ import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-resul
 
 describe("batch-012 customer-ask check inventory", () => {
   test("inventory matches the converged batch-012 report row count", () => {
-    expect(BATCH_012_CUSTOMER_ASK_CHECK_IDS.length).toBe(19);
-    expect(buildBatch012CustomerAskReportSlots().length).toBe(19);
+    expect(BATCH_012_CUSTOMER_ASK_CHECK_IDS.length).toBe(22);
+    expect(buildBatch012CustomerAskReportSlots().length).toBe(22);
   });
 
   test("report slots align check ids with per-route and per-query expansions", () => {
@@ -69,7 +69,7 @@ describe("batch-012 customer-ask check inventory", () => {
   });
 
   test("unique inventory entries cover every batch-012 check id once", () => {
-    expect(BATCH_012_CUSTOMER_ASK_INVENTORY.length).toBe(15);
+    expect(BATCH_012_CUSTOMER_ASK_INVENTORY.length).toBe(18);
     expect(
       new Set(BATCH_012_CUSTOMER_ASK_INVENTORY.map((entry) => entry.checkId))
         .size,
@@ -120,8 +120,8 @@ describe("batch-012 customer-ask check inventory", () => {
     ];
 
     expect(
-      BATCH_012_CUSTOMER_ASK_INVENTORY.map((entry) => entry.checkId).sort(),
-    ).toEqual([...expectedCheckIds].sort());
+      new Set(BATCH_012_CUSTOMER_ASK_INVENTORY.map((entry) => entry.checkId)),
+    ).toEqual(new Set(expectedCheckIds));
   });
 
   test("report slots expand attention discoverability across search routes", () => {

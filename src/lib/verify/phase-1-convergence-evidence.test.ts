@@ -95,6 +95,24 @@ describe("parseCustomerAskConvergenceReport", () => {
   test("returns empty rows when report header is absent", () => {
     expect(parseCustomerAskConvergenceReport("no report here")).toEqual([]);
   });
+
+  test("preserves route and multi-segment reasons on uncertain rows", () => {
+    const uncertainRow: CustomerAskConvergenceRow = {
+      checkId: "module.graph-theme-readability",
+      title:
+        "GQA module React Flow graph exposes readable theme markers for node colors",
+      status: "uncertain",
+      route: "/docs/modules/grouped-query-attention",
+      reason:
+        "React Flow node theme markers present but node color contrast is not provable from static HTML — see factory/docs/phase-1-batch-012-gqa-graph-visibility-manual-check.md",
+      checklistRow: "phase-1-module-page",
+    };
+    const report = formatCustomerAskConvergenceReport([uncertainRow]);
+    const parsed = parseCustomerAskConvergenceReport(report);
+
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0]).toEqual(uncertainRow);
+  });
 });
 
 describe("derivePhase1UxFailureFromVerifyOutput", () => {

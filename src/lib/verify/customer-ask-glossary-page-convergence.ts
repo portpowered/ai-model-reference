@@ -3,13 +3,31 @@ import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
 import {
   BATCH_012_GLOSSARY_CHECKLIST_ROW,
   BATCH_012_GLOSSARY_CHECKS,
+  type BATCH_012_GLOSSARY_OPENING_SUMMARY_ROUTES,
   BATCH_012_GLOSSARY_ROUTES,
 } from "./batch-012-glossary-checks";
 import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-result";
-import { extractGlossaryShellHtml } from "./customer-ask-glossary-convergence";
+import {
+  extractGlossaryShellHtml,
+  GLOSSARY_EMBEDDING_REGISTRY_ID,
+  GLOSSARY_HIDDEN_SIZE_REGISTRY_ID,
+  GLOSSARY_TOKEN_REGISTRY_ID,
+  GLOSSARY_VECTOR_REGISTRY_ID,
+} from "./customer-ask-glossary-convergence";
 
-export const GLOSSARY_PAGE_TOKEN_REGISTRY_ID = "concept.token" as const;
-export const GLOSSARY_PAGE_EMBEDDING_REGISTRY_ID = "concept.embedding" as const;
+export const GLOSSARY_PAGE_TOKEN_REGISTRY_ID = GLOSSARY_TOKEN_REGISTRY_ID;
+export const GLOSSARY_PAGE_EMBEDDING_REGISTRY_ID =
+  GLOSSARY_EMBEDDING_REGISTRY_ID;
+
+export const GLOSSARY_OPENING_SUMMARY_REGISTRY_BY_ROUTE = {
+  [BATCH_012_GLOSSARY_ROUTES.token]: GLOSSARY_TOKEN_REGISTRY_ID,
+  [BATCH_012_GLOSSARY_ROUTES.embedding]: GLOSSARY_EMBEDDING_REGISTRY_ID,
+  [BATCH_012_GLOSSARY_ROUTES.vector]: GLOSSARY_VECTOR_REGISTRY_ID,
+  [BATCH_012_GLOSSARY_ROUTES.hiddenSize]: GLOSSARY_HIDDEN_SIZE_REGISTRY_ID,
+} as const;
+
+export type GlossaryOpeningSummaryRoute =
+  (typeof BATCH_012_GLOSSARY_OPENING_SUMMARY_ROUTES)[number];
 
 export const GLOSSARY_PAGE_EMBEDDING_VECTOR_HREF = glossaryPageHref("vector");
 export const GLOSSARY_PAGE_EMBEDDING_TOKEN_HREF = glossaryPageHref("token");
@@ -65,8 +83,9 @@ function articleHasDistinctOpeningSummaryBlock(articleHtml: string): boolean {
  * Returns a failure reason when built glossary HTML still renders a distinct
  * openingSummary block or GlossaryOpening output outside the shell description.
  */
-export function assertGlossaryNoRenderedOpeningSummary(
+export function assertGlossaryNoRenderedOpeningSummaryForRegistry(
   html: string,
+  articleRegistryId: string,
 ): string | null {
   const visibleHtml = stripHtmlScripts(html);
 
@@ -80,7 +99,7 @@ export function assertGlossaryNoRenderedOpeningSummary(
 
   const articleHtml = extractGlossaryArticleHtml(
     visibleHtml,
-    GLOSSARY_PAGE_TOKEN_REGISTRY_ID,
+    articleRegistryId,
   );
   if (
     articleHtml.length > 0 &&
@@ -90,6 +109,20 @@ export function assertGlossaryNoRenderedOpeningSummary(
   }
 
   return null;
+}
+
+/**
+ * Returns a failure reason when built token glossary HTML still renders a
+ * distinct openingSummary block or GlossaryOpening output outside the shell
+ * description.
+ */
+export function assertGlossaryNoRenderedOpeningSummary(
+  html: string,
+): string | null {
+  return assertGlossaryNoRenderedOpeningSummaryForRegistry(
+    html,
+    GLOSSARY_PAGE_TOKEN_REGISTRY_ID,
+  );
 }
 
 function shellDescriptionHasAutoLinkedHref(
@@ -153,15 +186,31 @@ function toPassFailRow(
 }
 
 /**
+ * Builds a batch-012 glossary opening-summary customer-ask row for a route.
+ */
+export function buildCustomerAskGlossaryNoOpeningSummaryRowForRoute(
+  html: string,
+  route: GlossaryOpeningSummaryRoute,
+): CustomerAskConvergenceRow {
+  return toPassFailRow(
+    BATCH_012_GLOSSARY_CHECKS.noRenderedOpeningSummary,
+    route,
+    assertGlossaryNoRenderedOpeningSummaryForRegistry(
+      html,
+      GLOSSARY_OPENING_SUMMARY_REGISTRY_BY_ROUTE[route],
+    ),
+  );
+}
+
+/**
  * Builds the batch-012 glossary opening-summary customer-ask row from built token HTML.
  */
 export function buildCustomerAskGlossaryNoOpeningSummaryRow(
   html: string,
 ): CustomerAskConvergenceRow {
-  return toPassFailRow(
-    BATCH_012_GLOSSARY_CHECKS.noRenderedOpeningSummary,
+  return buildCustomerAskGlossaryNoOpeningSummaryRowForRoute(
+    html,
     BATCH_012_GLOSSARY_ROUTES.token,
-    assertGlossaryNoRenderedOpeningSummary(html),
   );
 }
 
