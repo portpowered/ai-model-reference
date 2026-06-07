@@ -83,7 +83,9 @@ describe("assertGroupedQueryAttentionTitleConvergence", () => {
   });
 
   test("passes when static render omits duplicate body h1", () => {
-    expect(assertGroupedQueryAttentionTitleConvergence(PASSING_HTML)).toBeNull();
+    expect(
+      assertGroupedQueryAttentionTitleConvergence(PASSING_HTML),
+    ).toBeNull();
   });
 
   test("fails when module body repeats the shell title as h1", () => {
@@ -101,7 +103,9 @@ describe("assertGroupedQueryAttentionTitleConvergence", () => {
 
 describe("assertGroupedQueryAttentionChromeConvergence", () => {
   test("passes on post-repair chrome markers", () => {
-    expect(assertGroupedQueryAttentionChromeConvergence(PASSING_HTML)).toBeNull();
+    expect(
+      assertGroupedQueryAttentionChromeConvergence(PASSING_HTML),
+    ).toBeNull();
   });
 
   test("fails when module metadata card remains", () => {
@@ -150,7 +154,9 @@ describe("assertGroupedQueryAttentionSingleGraphConvergence", () => {
 
 describe("assertGroupedQueryAttentionGraphThemeConvergence", () => {
   test("passes when themed node CSS variables are present", () => {
-    expect(assertGroupedQueryAttentionGraphThemeConvergence(PASSING_HTML)).toBeNull();
+    expect(
+      assertGroupedQueryAttentionGraphThemeConvergence(PASSING_HTML),
+    ).toBeNull();
   });
 
   test("fails when themed node background color variable is missing", () => {
