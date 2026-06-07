@@ -1,4 +1,3 @@
-import { orderCustomerAskRowsByBatch011Inventory } from "./batch-011-follow-up-customer-ask-check-inventory";
 import {
   CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER,
   getCustomerAskConvergenceExitCode,
@@ -15,9 +14,21 @@ import {
   runCustomerAskGlossaryChecks,
 } from "./customer-ask-glossary-convergence-http";
 import {
+  type RunCustomerAskGlossaryPageChecksOptions,
+  runCustomerAskGlossaryPageChecks,
+} from "./customer-ask-glossary-page-convergence-http";
+import {
   type RunCustomerAskGqaModuleChecksOptions,
   runCustomerAskGqaModuleChecks,
 } from "./customer-ask-gqa-module-convergence-http";
+import {
+  type RunCustomerAskGqaModuleDeduplicationChecksOptions,
+  runCustomerAskGqaModuleDeduplicationChecks,
+} from "./customer-ask-gqa-module-deduplication-convergence-http";
+import {
+  type RunCustomerAskGqaModuleGraphMathChecksOptions,
+  runCustomerAskGqaModuleGraphMathChecks,
+} from "./customer-ask-gqa-module-graph-math-convergence-http";
 import {
   type RunCustomerAskHomeHeaderChecksOptions,
   runCustomerAskHomeHeaderChecks,
@@ -27,6 +38,14 @@ import {
   runCustomerAskHomeNavFollowUpChecks,
 } from "./customer-ask-home-nav-follow-up-convergence-http";
 import {
+  type RunCustomerAskMissingPagesChecksOptions,
+  runCustomerAskMissingPagesChecks,
+} from "./customer-ask-missing-pages-convergence-http";
+import {
+  type RunCustomerAskMobileHeaderChecksOptions,
+  runCustomerAskMobileHeaderChecks,
+} from "./customer-ask-mobile-header-convergence-http";
+import {
   type RunCustomerAskSearchSurfaceChecksOptions,
   runCustomerAskSearchSurfaceChecks,
 } from "./customer-ask-search-surface-convergence-http";
@@ -34,6 +53,11 @@ import {
   type RunCustomerAskTagListChecksOptions,
   runCustomerAskTagListChecks,
 } from "./customer-ask-tag-list-convergence-http";
+import {
+  type RunCustomerAskTagSearchDecorationChecksOptions,
+  runCustomerAskTagSearchDecorationChecks,
+} from "./customer-ask-tag-search-decoration-convergence-http";
+import { orderCustomerAskRowsByPhase1CustomerAskInventory } from "./phase-1-customer-ask-check-inventory";
 import {
   PHASE_1_UX_SUCCESS_MESSAGE,
   type RunPhase1UxVerificationOptions,
@@ -44,16 +68,22 @@ export type RunCustomerAskConvergenceChecksOptions = {
   timeoutMs?: number;
   homeHeaderOptions?: RunCustomerAskHomeHeaderChecksOptions;
   homeNavFollowUpOptions?: RunCustomerAskHomeNavFollowUpChecksOptions;
+  mobileHeaderOptions?: RunCustomerAskMobileHeaderChecksOptions;
   tagListOptions?: RunCustomerAskTagListChecksOptions;
+  tagSearchDecorationOptions?: RunCustomerAskTagSearchDecorationChecksOptions;
   searchSurfaceOptions?: RunCustomerAskSearchSurfaceChecksOptions;
   glossaryOptions?: RunCustomerAskGlossaryChecksOptions;
+  glossaryPageOptions?: RunCustomerAskGlossaryPageChecksOptions;
+  missingPagesOptions?: RunCustomerAskMissingPagesChecksOptions;
   docsFooterOptions?: RunCustomerAskDocsFooterChecksOptions;
   gqaModuleOptions?: RunCustomerAskGqaModuleChecksOptions;
+  gqaModuleDeduplicationOptions?: RunCustomerAskGqaModuleDeduplicationChecksOptions;
+  gqaModuleGraphMathOptions?: RunCustomerAskGqaModuleGraphMathChecksOptions;
 };
 
 /**
  * Runs all customer-ask convergence modules against a built-app base URL and
- * returns aggregated planner rows (home/header, tags, search, glossary, GQA).
+ * returns aggregated planner rows (batch-008, batch-011 follow-up, and batch-012).
  */
 export async function runCustomerAskConvergenceChecks(
   baseUrl: string,
@@ -65,11 +95,17 @@ export async function runCustomerAskConvergenceChecks(
   const [
     homeHeaderRows,
     homeNavFollowUpRows,
+    mobileHeaderRows,
     tagListRows,
+    tagSearchDecorationRows,
     searchSurfaceRows,
     glossaryRows,
+    glossaryPageRows,
+    missingPagesRows,
     docsFooterRows,
     gqaModuleRows,
+    gqaModuleDeduplicationRows,
+    gqaModuleGraphMathRows,
   ] = await Promise.all([
     runCustomerAskHomeHeaderChecks(baseUrl, {
       ...sharedTimeout,
@@ -79,9 +115,17 @@ export async function runCustomerAskConvergenceChecks(
       ...sharedTimeout,
       ...options.homeNavFollowUpOptions,
     }),
+    runCustomerAskMobileHeaderChecks(baseUrl, {
+      ...sharedTimeout,
+      ...options.mobileHeaderOptions,
+    }),
     runCustomerAskTagListChecks(baseUrl, {
       ...sharedTimeout,
       ...options.tagListOptions,
+    }),
+    runCustomerAskTagSearchDecorationChecks(baseUrl, {
+      ...sharedTimeout,
+      ...options.tagSearchDecorationOptions,
     }),
     runCustomerAskSearchSurfaceChecks(baseUrl, {
       ...sharedTimeout,
@@ -91,6 +135,14 @@ export async function runCustomerAskConvergenceChecks(
       ...sharedTimeout,
       ...options.glossaryOptions,
     }),
+    runCustomerAskGlossaryPageChecks(baseUrl, {
+      ...sharedTimeout,
+      ...options.glossaryPageOptions,
+    }),
+    runCustomerAskMissingPagesChecks(baseUrl, {
+      ...sharedTimeout,
+      ...options.missingPagesOptions,
+    }),
     runCustomerAskDocsFooterChecks(baseUrl, {
       ...sharedTimeout,
       ...options.docsFooterOptions,
@@ -99,16 +151,30 @@ export async function runCustomerAskConvergenceChecks(
       ...sharedTimeout,
       ...options.gqaModuleOptions,
     }),
+    runCustomerAskGqaModuleDeduplicationChecks(baseUrl, {
+      ...sharedTimeout,
+      ...options.gqaModuleDeduplicationOptions,
+    }),
+    runCustomerAskGqaModuleGraphMathChecks(baseUrl, {
+      ...sharedTimeout,
+      ...options.gqaModuleGraphMathOptions,
+    }),
   ]);
 
-  return orderCustomerAskRowsByBatch011Inventory([
+  return orderCustomerAskRowsByPhase1CustomerAskInventory([
     ...homeHeaderRows,
     ...homeNavFollowUpRows,
+    ...mobileHeaderRows,
     ...tagListRows,
+    ...tagSearchDecorationRows,
     ...searchSurfaceRows,
     ...glossaryRows,
+    ...glossaryPageRows,
+    ...missingPagesRows,
     ...docsFooterRows,
     ...gqaModuleRows,
+    ...gqaModuleDeduplicationRows,
+    ...gqaModuleGraphMathRows,
   ]);
 }
 

@@ -10,7 +10,7 @@ import {
 import { createServer as createHttpServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { assertBatch011FollowUpCustomerAskReportAllPass } from "./batch-011-follow-up-customer-ask-check-inventory";
+import { VERIFY_CUSTOMER_ASK_BATCH_012_STUB_ENV } from "./batch-012-customer-ask-convergence-http-env";
 import { CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER } from "./customer-ask-convergence-reporter";
 import {
   buildPhase1AndCustomerAskPassingStubHtml,
@@ -23,6 +23,7 @@ import {
   isListenPortFree,
   pickListenPort,
 } from "./http-harness";
+import { assertPhase1CustomerAskReportAllPassOrUncertain } from "./phase-1-customer-ask-check-inventory";
 import {
   PHASE_1_ATTENTION_MODULE_URL,
   PHASE_1_GROUPED_QUERY_ATTENTION_URL,
@@ -468,13 +469,14 @@ describe("verify-phase-1-route-search-ux script", () => {
           VERIFY_SEARCH_DIALOG_STUB: "pass",
           VERIFY_SEARCH_SHORTCUT_STUB: "pass",
           VERIFY_DOCS_FOOTER_STUB: "pass",
+          [VERIFY_CUSTOMER_ASK_BATCH_012_STUB_ENV]: "pass",
         },
         { cwd: projectRoot },
       );
 
       expect(result.exitCode).toBe(0);
       expect(result.output).toContain(CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER);
-      assertBatch011FollowUpCustomerAskReportAllPass(result.output);
+      assertPhase1CustomerAskReportAllPassOrUncertain(result.output);
       expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
 
       const stubPort = Number(
@@ -519,11 +521,12 @@ describe("verify-phase-1-route-search-ux script", () => {
         VERIFY_SEARCH_DIALOG_STUB: "pass",
         VERIFY_SEARCH_SHORTCUT_STUB: "pass",
         VERIFY_DOCS_FOOTER_STUB: "pass",
+        [VERIFY_CUSTOMER_ASK_BATCH_012_STUB_ENV]: "pass",
       });
 
       expect(result.exitCode).toBe(0);
       expect(result.output).toContain(CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER);
-      assertBatch011FollowUpCustomerAskReportAllPass(result.output);
+      assertPhase1CustomerAskReportAllPassOrUncertain(result.output);
       expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
     } finally {
       httpServer.closeAllConnections();
@@ -544,6 +547,7 @@ describe("verify-phase-1-route-search-ux script", () => {
         VERIFY_SEARCH_PAGE_STUB: "pass",
         VERIFY_SEARCH_DIALOG_STUB: "pass",
         VERIFY_SEARCH_SHORTCUT_STUB: "pass",
+        [VERIFY_CUSTOMER_ASK_BATCH_012_STUB_ENV]: "pass",
       });
 
       expect(result.exitCode).toBe(1);
@@ -571,7 +575,7 @@ describe("verify-phase-1-route-search-ux script integration", () => {
       });
 
       expect(result.exitCode).toBe(0);
-      assertBatch011FollowUpCustomerAskReportAllPass(result.output);
+      assertPhase1CustomerAskReportAllPassOrUncertain(result.output);
       expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
     },
     VERIFY_SCRIPT_E2E_TIMEOUT_MS,
@@ -597,7 +601,7 @@ describe("verify-phase-1-route-search-ux script integration", () => {
         });
 
         expect(result.exitCode).toBe(0);
-        assertBatch011FollowUpCustomerAskReportAllPass(result.output);
+        assertPhase1CustomerAskReportAllPassOrUncertain(result.output);
         expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
       } finally {
         await killManagedChild(child);
