@@ -2,6 +2,8 @@
 
 Docs pages are shared MDX structures that combine registry-backed React components, message-key references, and asset references. Localized prose lives in colocated `messages/<locale>.json` files next to each page.
 
+Authoring agents and reviewers must follow [writing-standards](./writing-standards.md) and [graphing-standards](./graphing-standards.md) for summary tone, math placement, graph placement, and baseline exclusions (no reader-shortcut callouts, no phase/meta language).
+
 For canonical docs pages, templates should be production-shaped. They should not contain authoring instructions, placeholder body prose, hard-coded section headings, raw callout titles, manually written comparison lists, inline schema examples, or concrete media paths. Those values belong in colocated messages, registry records, or asset config. The template itself defines order and component shape only.
 
 Blog templates are the exception. Blog posts may contain raw MDX prose because they are narrative, time-specific writing rather than reusable reference structure. Blog posts should still use messages and assets when they need localization or reusable media.
@@ -36,8 +38,8 @@ Canonical docs pages should include:
 
 * frontmatter with `kind`, `registryId`, `messageNamespace`, `assetNamespace`, `status`, `tags`, `aliases`, and `updatedAt`
 * `messageNamespace` and `assetNamespace` references, usually `local`
-* a localized one-sentence problem statement rendered from messages
-* a localized one-sentence core idea rendered from messages
+* a localized folded `openingSummary` rendered from messages (merge legacy `problemStatement` + `coreIdea` into one key; glossary pages keep `openingSummary` in messages but omit it from MDX—see [writing-standards](./writing-standards.md))
+* no in-body `# <T k="title" />` heading; the docs shell renders the page title once
 * registry-backed metadata or at-a-glance component where relevant
 * clickable tags through `TagPillList`
 * page-kind-specific sections
@@ -58,6 +60,18 @@ When a section needs a graph, chart, diagram, code schema, image, or table, refe
 <ModuleGraph registryId="module.grouped-query-attention" assetId="computeFlow" />
 <ModuleComparisonTable registryId="module.grouped-query-attention" assetId="comparisonTable" />
 ```
+
+### Module math and graph placement
+
+* Place the **single primary React Flow graph** in **How it works** via `ModuleGraph` or an attention-variant comparison wrapper (see [graphing-standards](./graphing-standards.md)).
+* The **math or compute schema** section holds equations and **symbol-only** definitions under each formula via `ModuleAttentionSchemaComparison`—no second React Flow canvas (`computeSchema` graphs belong out of baseline templates).
+* Symbol definitions are notation only (`Q`, `K`, `V`, `H`, `G`, indices); projection, grouping, and head-count concept rows belong in narrative sections (see [writing-standards](./writing-standards.md)).
+
+### Non-module graph placement
+
+* **Model** pages: architecture graph in the architecture section when it teaches structure.
+* **Paper** pages: contribution graph in method/architecture when it teaches introduced records or dependencies.
+* **Concept**, **glossary**, and **training-regime** pages: optional flow or concept-map graphs only inside the section that teaches relationships or the training loop—not as decoration.
 
 Blog posts should include:
 
@@ -83,7 +97,9 @@ Use MDX components for structured information that comes from the registry:
 
 Use message components for localized user-facing text. Use asset components or resolved asset props for page-specific media. Do not hard-code localized body prose, section headings, callout titles, alt text, captions, inline schemas, comparison table values, or concrete asset paths directly in shared MDX unless there is a documented exception.
 
-For graph-heavy pages, reference graph assets by `assetId`. Graph node labels, edge labels, summaries, captions, and alt text should resolve from colocated messages. A model page should treat the model as a root module and let the recursive graph viewer expand submodules vertically.
+For graph-heavy pages, reference graph assets by `assetId`. Graph node labels, edge labels, summaries, captions, and alt text should resolve from colocated messages. A model page should treat the model as a root module and let the recursive graph viewer expand submodules vertically. Graphs must use the readable node theme and zoom/pan interaction rules in [graphing-standards](./graphing-standards.md).
+
+Baseline templates must not include `callouts.readerShortcut` unless [writing-standards](./writing-standards.md) documents a justified exception.
 
 Do not hand-maintain lists of related pages when the same result can be derived from registry data, tags, taxonomy fields, model usage, paper usage, or `relatedIds` overrides.
 
