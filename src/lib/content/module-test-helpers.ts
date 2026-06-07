@@ -128,11 +128,16 @@ export function expectModuleMathSchemaDefinitionsInMathSection(
 /** Companion sections: attention bridge, comparison table, and curated related docs. */
 export function expectModuleCompanionSections(html: string): void {
   expect(html).toContain('href="/docs/modules/attention"');
+  expect(html).toContain('href="/docs/modules/multi-head-attention"');
+  expect(html).toContain('href="/docs/modules/multi-query-attention"');
   expect(html).toContain('data-testid="curated-related-docs"');
+  expect(html).toContain('data-testid="citation-list"');
   expect(html).toContain('data-registry-comparison-table="true"');
   expect(html).toContain(
     'data-table-id="table.grouped-query-attention-comparison"',
   );
+  expect(html).toContain('data-comparison-dimension="cacheFootprint"');
+  expect(html).toContain("KV head count");
   expect(html).toContain('id="compared-to-nearby-modules"');
   expect(html).toContain('id="related"');
 }
@@ -156,4 +161,5 @@ export function expectModuleComputeFlowGraphTheme(
   expect(howItWorksSection).toContain('class="registry-graph-flow');
   expect(howItWorksSection).toContain('data-graph-node-id="hidden-states"');
   expect(howItWorksSection).toContain('data-graph-node-id="query-groups"');
+  expect(howItWorksSection).toContain('data-graph-node-count="6"');
 }
