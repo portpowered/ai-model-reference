@@ -24,7 +24,7 @@ const gqaAssets = parsePageAssetConfig(
   ),
 );
 
-function renderModuleGraph(assetId: "computeFlow" | "computeSchema") {
+function renderModuleGraph(assetId: "computeFlow") {
   return render(
     <PageMessagesProvider messages={gqaMessages} isDev={false}>
       <PageAssetsProvider assets={gqaAssets} isDev={false}>
@@ -87,27 +87,6 @@ describe("ModuleGraph live GQA graphs", () => {
     ).toBeTruthy();
     expect(container.textContent).not.toContain(
       "graph.grouped-query-attention-gqa-comparison",
-    );
-  });
-
-  test("computeSchema renders an interactive React Flow canvas with message-driven copy", () => {
-    const { container } = renderModuleGraph("computeSchema");
-
-    expect(container.querySelector(".react-flow")).toBeTruthy();
-    expect(
-      container.querySelector(".registry-graph-flow__viewport"),
-    ).toBeTruthy();
-    expect(
-      screen.getByRole("img", {
-        name: "Grouped-query attention tensor grouping",
-      }),
-    ).toBeTruthy();
-    expect(
-      screen.getByText("H query heads map to G shared KV groups"),
-    ).toBeTruthy();
-    expect(container.querySelectorAll("[data-graph-node-id]")).toHaveLength(5);
-    expect(container.textContent).not.toContain(
-      "graph.grouped-query-attention-compute-schema",
     );
   });
 });

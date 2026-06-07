@@ -91,12 +91,41 @@ describe("PageAsset", () => {
     );
   });
 
-  test("renders GQA computeSchema via RegistryGraphFlow with real assets and messages", () => {
+  test("renders computeSchema graph asset via RegistryGraphFlow with inline fixtures", () => {
+    const schemaAssets = parsePageAssetConfig({
+      computeSchema: {
+        type: "graph",
+        graphId: "graph.grouped-query-attention-compute-schema",
+        webRenderer: "react-flow",
+        printRenderer: "mermaid",
+        altKey: "assets.computeSchema.alt",
+        captionKey: "assets.computeSchema.caption",
+      },
+    });
+    const schemaMessages = pageMessagesSchema.parse({
+      ...gqaMessages,
+      assets: {
+        ...gqaMessages.assets,
+        computeSchema: {
+          alt: "Grouped-query attention tensor grouping",
+          caption: "H query heads map to G shared KV groups",
+        },
+      },
+      graph: {
+        nodes: {
+          queryHeads: { label: "H query heads" },
+          queryGroupsSchema: { label: "G groups (H/G query heads each)" },
+          sharedKeyHeads: { label: "G shared key heads" },
+          sharedValueHeads: { label: "G shared value heads" },
+          kvCache: { label: "KV cache (G keys + G values per token)" },
+        },
+      },
+    });
     const html = renderPageAsset(
       "computeSchema",
       false,
-      gqaAssets,
-      gqaMessages,
+      schemaAssets,
+      schemaMessages,
     );
     expect(html).toContain('data-page-asset="computeSchema"');
     expect(html).toContain(
