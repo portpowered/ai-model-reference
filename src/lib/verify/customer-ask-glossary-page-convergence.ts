@@ -1,4 +1,5 @@
 import { glossaryPageHref } from "@/lib/content/content-hrefs";
+import { proseAutoLinkAnchorOpenTagPattern } from "@/lib/content/prose-auto-link";
 import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
 import {
   BATCH_012_GLOSSARY_CHECKLIST_ROW,
@@ -129,10 +130,7 @@ function shellDescriptionHasAutoLinkedHref(
   shellDescriptionHtml: string,
   href: string,
 ): boolean {
-  const linkPattern = new RegExp(
-    `<a\\b[^>]*\\bhref="${escapeRegExp(href)}"[^>]*\\bdata-prose-auto-link="true"[^>]*>`,
-    "i",
-  );
+  const linkPattern = proseAutoLinkAnchorOpenTagPattern(href);
   return linkPattern.test(shellDescriptionHtml);
 }
 
