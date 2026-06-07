@@ -46,3 +46,4 @@ factory/logs/meta/*
 !factory/logs/meta/view.md
 
 **/__pycache__/*
+.playwright-mcp/
