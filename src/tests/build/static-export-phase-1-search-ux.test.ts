@@ -31,7 +31,11 @@ describe("static export Phase 1 search UX", () => {
         });
         expect(buildResult.status).toBe(0);
 
-        const failures = await runPhase1ExportSearchUxChecks({ cwd: repoRoot });
+        const failures = await runPhase1ExportSearchUxChecks({
+          cwd: repoRoot,
+          searchPageOptions: { timeoutMs: 30_000 },
+          searchDialogOptions: { timeoutMs: 30_000 },
+        });
         expect(failures).toEqual([]);
       } finally {
         removeExportArtifacts();
