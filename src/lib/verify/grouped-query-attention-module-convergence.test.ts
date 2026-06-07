@@ -1,35 +1,30 @@
 import { describe, expect, test } from "bun:test";
+import { MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS } from "@/features/models/components/module-attention-math-variable-definitions";
 import {
+  assertGroupedQueryAttentionChromeConvergence,
   assertGroupedQueryAttentionGraphBuildMarkersConvergence,
+  assertGroupedQueryAttentionGraphThemeConvergence,
+  assertGroupedQueryAttentionMathDefinitionsConvergence,
   assertGroupedQueryAttentionModuleConvergence,
+  assertGroupedQueryAttentionSingleGraphConvergence,
+  assertGroupedQueryAttentionTitleConvergence,
+  buildGroupedQueryAttentionStubBody,
+  GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS,
   GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS,
   GROUPED_QUERY_ATTENTION_GRAPH_BUILD_MARKERS,
   GROUPED_QUERY_ATTENTION_GRAPH_FORBIDDEN_MARKERS,
+  GROUPED_QUERY_ATTENTION_MODULE_TITLE,
   GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS,
 } from "./grouped-query-attention-module-convergence";
 
-const PASSING_HTML = `
+const PASSING_HTML = buildGroupedQueryAttentionStubBody();
+
+const PASSING_SHELL_HTML = `
 <html>
-  <h1>Grouped-Query Attention</h1>
-  <div data-registry-id="module.grouped-query-attention"></div>
-  <h2>Compared To Nearby Modules</h2>
-  <h2>Related</h2>
-  <span data-graph-node-id="hidden-states"></span>
-  <span data-graph-node-id="query-groups"></span>
-  <span data-graph-node-id="query-heads"></span>
-  <span data-graph-node-id="kv-cache"></span>
-  <div data-graph-node-count="6"></div>
-  <div data-graph-node-count="5"></div>
-  <div data-react-flow-graph="true"></div>
-  <a href="/docs/modules/multi-head-attention">MHA</a>
-  <span data-prose-auto-link="true"></span>
-  <div data-registry-comparison-table="true" data-table-id="table.grouped-query-attention-comparison"></div>
-  <th>KV head count</th>
-  <a href="/docs/modules/multi-query-attention">MQA</a>
-  <tr data-comparison-dimension="cacheFootprint"></tr>
-  <div data-attention-schema-comparison="true"></div>
-  <div data-message-block-math="math.mhaSchema.formula" class="katex"></div>
-  <div data-message-block-math="math.gqaSchema.formula" class="katex-display"></div>
+  <h1>${GROUPED_QUERY_ATTENTION_MODULE_TITLE}</h1>
+  <article data-registry-id="module.grouped-query-attention">
+    ${PASSING_HTML}
+  </article>
 </html>
 `;
 
@@ -56,12 +51,142 @@ describe("assertGroupedQueryAttentionGraphBuildMarkersConvergence", () => {
     }
   });
 
+  test("reports duplicate React Flow graph canvases", () => {
+    const html = `${PASSING_HTML}<div data-react-flow-graph="true"></div>`;
+    expect(assertGroupedQueryAttentionGraphBuildMarkersConvergence(html)).toBe(
+      GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.duplicateReactFlowGraph,
+    );
+  });
+
+  test("reports missing themed node CSS variables", () => {
+    const html = PASSING_HTML.replaceAll("--xy-node-color", "");
+    expect(assertGroupedQueryAttentionGraphBuildMarkersConvergence(html)).toBe(
+      GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.missingThemedNodeColors,
+    );
+  });
+
   test("derives graph build markers from the shared required marker list", () => {
     expect(GROUPED_QUERY_ATTENTION_GRAPH_BUILD_MARKERS.length).toBeGreaterThan(
       3,
     );
     for (const marker of GROUPED_QUERY_ATTENTION_GRAPH_BUILD_MARKERS) {
       expect(GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS).toContain(marker);
+    }
+  });
+});
+
+describe("assertGroupedQueryAttentionTitleConvergence", () => {
+  test("passes when shell title precedes registry article without body h1", () => {
+    expect(
+      assertGroupedQueryAttentionTitleConvergence(PASSING_SHELL_HTML),
+    ).toBeNull();
+  });
+
+  test("passes when static render omits duplicate body h1", () => {
+    expect(
+      assertGroupedQueryAttentionTitleConvergence(PASSING_HTML),
+    ).toBeNull();
+  });
+
+  test("fails when module body repeats the shell title as h1", () => {
+    const html = `
+      <h1>${GROUPED_QUERY_ATTENTION_MODULE_TITLE}</h1>
+      <article data-registry-id="module.grouped-query-attention">
+        <h1>${GROUPED_QUERY_ATTENTION_MODULE_TITLE}</h1>
+      </article>
+    `;
+    expect(assertGroupedQueryAttentionTitleConvergence(html)).toBe(
+      GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.duplicateBodyTitle,
+    );
+  });
+});
+
+describe("assertGroupedQueryAttentionChromeConvergence", () => {
+  test("passes on post-repair chrome markers", () => {
+    expect(
+      assertGroupedQueryAttentionChromeConvergence(PASSING_HTML),
+    ).toBeNull();
+  });
+
+  test("fails when module metadata card remains", () => {
+    const html = `${PASSING_HTML}<section aria-label="Module metadata"></section>`;
+    expect(assertGroupedQueryAttentionChromeConvergence(html)).toBe(
+      GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.moduleMetadataCard,
+    );
+  });
+
+  test("fails on duplicate tag pill list surfaces", () => {
+    const html = `${PASSING_HTML}<ul data-testid="tag-pill-list"></ul>`;
+    expect(assertGroupedQueryAttentionChromeConvergence(html)).toBe(
+      GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.duplicateTagPillList,
+    );
+  });
+
+  test("fails when tag pill list marker is missing", () => {
+    const html = PASSING_HTML.replace('data-testid="tag-pill-list"', "");
+    expect(assertGroupedQueryAttentionChromeConvergence(html)).toBe(
+      GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.missingTagPillList,
+    );
+  });
+});
+
+describe("assertGroupedQueryAttentionSingleGraphConvergence", () => {
+  test("passes with exactly one React Flow canvas", () => {
+    expect(
+      assertGroupedQueryAttentionSingleGraphConvergence(PASSING_HTML),
+    ).toBeNull();
+  });
+
+  test("fails when a second React Flow canvas is present", () => {
+    const html = `${PASSING_HTML}<div data-react-flow-graph="true"></div>`;
+    expect(assertGroupedQueryAttentionSingleGraphConvergence(html)).toBe(
+      GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.duplicateReactFlowGraph,
+    );
+  });
+
+  test("fails when React Flow canvas is missing", () => {
+    const html = PASSING_HTML.replaceAll('data-react-flow-graph="true"', "");
+    expect(assertGroupedQueryAttentionSingleGraphConvergence(html)).toBe(
+      GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.missingReactFlowGraph,
+    );
+  });
+});
+
+describe("assertGroupedQueryAttentionGraphThemeConvergence", () => {
+  test("passes when themed node CSS variables are present", () => {
+    expect(
+      assertGroupedQueryAttentionGraphThemeConvergence(PASSING_HTML),
+    ).toBeNull();
+  });
+
+  test("fails when themed node background color variable is missing", () => {
+    const html = PASSING_HTML.replaceAll("--xy-node-background-color", "");
+    expect(assertGroupedQueryAttentionGraphThemeConvergence(html)).toBe(
+      GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.missingThemedNodeColors,
+    );
+  });
+});
+
+describe("assertGroupedQueryAttentionMathDefinitionsConvergence", () => {
+  test("passes when all math variable definition markers are present", () => {
+    expect(
+      assertGroupedQueryAttentionMathDefinitionsConvergence(PASSING_HTML),
+    ).toBeNull();
+  });
+
+  test("fails when a math variable definition marker is missing", () => {
+    const html = PASSING_HTML.replace(
+      'data-math-variable-definition="grouping"',
+      "",
+    );
+    expect(assertGroupedQueryAttentionMathDefinitionsConvergence(html)).toBe(
+      GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.missingMathDefinitions,
+    );
+  });
+
+  test("documents every required math variable definition id", () => {
+    for (const id of MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS) {
+      expect(PASSING_HTML).toContain(`data-math-variable-definition="${id}"`);
     }
   });
 });
@@ -73,10 +198,16 @@ describe("assertGroupedQueryAttentionModuleConvergence", () => {
     ).toBeNull();
   });
 
+  test("passes on shell-wrapped post-repair module HTML", () => {
+    expect(
+      assertGroupedQueryAttentionModuleConvergence(PASSING_SHELL_HTML),
+    ).toBeNull();
+  });
+
   test("reports the first missing required marker", () => {
-    const html = PASSING_HTML.replace("Grouped-Query Attention", "");
+    const html = PASSING_HTML.replace(GROUPED_QUERY_ATTENTION_MODULE_TITLE, "");
     expect(assertGroupedQueryAttentionModuleConvergence(html)).toBe(
-      "missing expected content: Grouped-Query Attention",
+      `missing expected content: ${GROUPED_QUERY_ATTENTION_MODULE_TITLE}`,
     );
   });
 
@@ -98,7 +229,7 @@ describe("assertGroupedQueryAttentionModuleConvergence", () => {
   });
 
   test("documents the required marker contract", () => {
-    expect(GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS.length).toBeGreaterThan(10);
-    expect(GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS.length).toBeGreaterThan(3);
+    expect(GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS.length).toBeGreaterThan(20);
+    expect(GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS.length).toBeGreaterThan(4);
   });
 });

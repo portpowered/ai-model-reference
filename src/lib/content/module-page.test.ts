@@ -9,11 +9,15 @@ import {
   validatePageAssetReferences,
 } from "@/lib/content/assets";
 import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import {
+  assertGroupedQueryAttentionChromeConvergence,
+  assertGroupedQueryAttentionGraphThemeConvergence,
+  assertGroupedQueryAttentionMathDefinitionsConvergence,
   assertGroupedQueryAttentionModuleConvergence,
-  GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS,
+  assertGroupedQueryAttentionSingleGraphConvergence,
 } from "@/lib/verify/grouped-query-attention-module-convergence";
 
 const pageDir = GROUPED_QUERY_ATTENTION_PAGE_DIR;
@@ -32,6 +36,13 @@ describe("grouped-query-attention page messages", () => {
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItOptimizes.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
+    expect(messages.mathVariableDefinitions?.title).toBe(
+      "What the symbols mean",
+    );
+    expect(messages.mathVariableDefinitions?.q.term).toBe("Q");
+    expect(messages.mathVariableDefinitions?.grouping.term).toBe(
+      "Query-to-KV grouping",
+    );
   });
 });
 
@@ -53,13 +64,14 @@ describe("loadModulePage grouped-query-attention", () => {
       }),
     );
 
-    expect(html).toContain("Grouped-Query Attention");
+    expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
     expect(html).toContain("KV caches grow with context length and head count");
     expect(html).toContain(
       "lets several query heads share fewer key-value heads",
     );
-    expect(html).toContain("Module metadata");
+    expect(html).not.toContain('aria-label="Module metadata"');
     expect(html).toContain("At a glance");
+    expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain('data-testid="curated-related-docs"');
@@ -75,7 +87,7 @@ describe("loadModulePage grouped-query-attention", () => {
 });
 
 describe("grouped-query-attention converged Phase 1 module page", () => {
-  test("static render includes React Flow graphs, comparison table, KaTeX, auto-linked prose, and excludes variants section", async () => {
+  test("static render satisfies shared GQA presentation convergence helpers", async () => {
     const page = await loadModulePage("grouped-query-attention");
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -86,19 +98,12 @@ describe("grouped-query-attention converged Phase 1 module page", () => {
       }),
     );
 
-    expect(html).toContain('data-react-flow-graph="true"');
-    expect(html).toContain('data-graph-node-id="hidden-states"');
-    expect(html).toContain('data-registry-comparison-table="true"');
-    expect(html).toContain(
-      'data-table-id="table.grouped-query-attention-comparison"',
-    );
-    expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
-    expect(html).toContain('data-message-block-math="math.gqaSchema.formula"');
-    expect(html).toContain('class="katex"');
-    expect(html).toContain('data-prose-auto-link="true"');
-    for (const forbidden of GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS) {
-      expect(html).not.toContain(forbidden);
-    }
+    expect(assertGroupedQueryAttentionChromeConvergence(html)).toBeNull();
+    expect(assertGroupedQueryAttentionSingleGraphConvergence(html)).toBeNull();
+    expect(assertGroupedQueryAttentionGraphThemeConvergence(html)).toBeNull();
+    expect(
+      assertGroupedQueryAttentionMathDefinitionsConvergence(html),
+    ).toBeNull();
     expect(assertGroupedQueryAttentionModuleConvergence(html)).toBeNull();
   });
 });
