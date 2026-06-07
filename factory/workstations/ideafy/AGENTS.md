@@ -321,3 +321,7 @@ You can be reinstated in two ways:
 
 Use the second path for normal batches so the meta-planner reviews completed
 work and submits the next coherent batch.
+
+## additional customer ask
+
+{{(index .Inputs 0).Payload}}

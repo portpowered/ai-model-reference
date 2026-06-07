@@ -1,5 +1,5 @@
 {
-  "name": "UNDEFINED",
+  "name": "factory",
   "resources": [
     {
       "capacity": 8,
@@ -45,6 +45,41 @@
         "content": {
           "encoding": "utf-8"
         },
+        "targetPath": "factory/docs/phase-1-batch-012-customer-ask-convergence-validator.md",
+        "type": "DOC"
+      },
+      {
+        "content": {
+          "encoding": "utf-8"
+        },
+        "targetPath": "factory/docs/phase-1-batch-012-gqa-graph-visibility-manual-check.md",
+        "type": "DOC"
+      },
+      {
+        "content": {
+          "encoding": "utf-8"
+        },
+        "targetPath": "factory/docs/phase-1-batch-013-customer-ask-convergence-validator.md",
+        "type": "DOC"
+      },
+      {
+        "content": {
+          "encoding": "utf-8"
+        },
+        "targetPath": "factory/docs/phase-1-built-app-convergence-validator.md",
+        "type": "DOC"
+      },
+      {
+        "content": {
+          "encoding": "utf-8"
+        },
+        "targetPath": "factory/docs/phase-1-built-app-verifier-keyboard-fallback.md",
+        "type": "DOC"
+      },
+      {
+        "content": {
+          "encoding": "utf-8"
+        },
         "targetPath": "factory/docs/phase-1-ci-hardening-batch-003.json",
         "type": "DOC"
       },
@@ -59,8 +94,50 @@
         "content": {
           "encoding": "utf-8"
         },
+        "targetPath": "factory/docs/phase-1-convergence-pass.md",
+        "type": "DOC"
+      },
+      {
+        "content": {
+          "encoding": "utf-8"
+        },
+        "targetPath": "factory/docs/phase-1-customer-ask-convergence-validator.md",
+        "type": "DOC"
+      },
+      {
+        "content": {
+          "encoding": "utf-8"
+        },
         "targetPath": "factory/docs/phase-1-final-repair-batch-004.json",
         "type": "DOC"
+      },
+      {
+        "content": {
+          "encoding": "utf-8"
+        },
+        "targetPath": "factory/docs/phase-1-follow-up-customer-ask-convergence-validator.md",
+        "type": "DOC"
+      },
+      {
+        "content": {
+          "encoding": "utf-8"
+        },
+        "targetPath": "factory/docs/phase-1-github-pages-convergence-validator.md",
+        "type": "DOC"
+      },
+      {
+        "content": {
+          "encoding": "utf-8"
+        },
+        "targetPath": "factory/docs/phase-1-github-pages-repair-batch-014.json",
+        "type": "DOC"
+      },
+      {
+        "content": {
+          "encoding": "utf-8"
+        },
+        "targetPath": "factory/scripts/__pycache__/setup-workspace.cpython-314.pyc",
+        "type": "SCRIPT"
       },
       {
         "content": {
@@ -73,7 +150,7 @@
   },
   "version": {
     "logical": 1780285923114720801,
-    "physical": "2026-06-04T08:01:02.980969Z"
+    "physical": "2026-06-07T20:14:14.207017Z"
   },
   "workTypes": [
     {
@@ -182,8 +259,8 @@
     {
       "modelProvider": "CODEX",
       "name": "planner",
-      "stopToken": "\u003cCOMPLETE\u003e",
       "skipPermissions": true,
+      "stopToken": "\u003cCOMPLETE\u003e",
       "type": "MODEL_WORKER"
     }
   ],
