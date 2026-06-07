@@ -56,6 +56,30 @@ describe("batch-013 customer-ask check inventory", () => {
     );
   });
 
+  test("extractBatch013CustomerAskRowsFromReport extracts per-route opening-summary rows from canonical verifier output", () => {
+    const slots = buildBatch013CustomerAskReportSlots();
+    const rows: CustomerAskConvergenceRow[] = slots.map((slot) => ({
+      checkId: slot.checkId,
+      title: "canonical verifier row",
+      status: "pass",
+      route: slot.route,
+      query: slot.query,
+      checklistRow: "phase-1-stub",
+    }));
+
+    const extracted = extractBatch013CustomerAskRowsFromReport(rows);
+
+    expect(extracted).toHaveLength(13);
+    expect(extracted.every((row) => row.status === "pass")).toBe(true);
+    expect(
+      extracted.filter(
+        (row) =>
+          row.checkId ===
+          BATCH_013_GLOSSARY_CHECKS.noRenderedOpeningSummary.checkId,
+      ),
+    ).toHaveLength(4);
+  });
+
   test("extractBatch013CustomerAskRowsFromReport keeps batch-013 rows and marks missing slots fail", () => {
     const slots = buildBatch013CustomerAskReportSlots();
     const present = slots[0];
