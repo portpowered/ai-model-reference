@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { createModelAtlasSearchClient } from "@/features/docs/search/search-client";
 import type { SearchResultMetaRecord } from "@/features/docs/search/search-result-meta-client";
+import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
+import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
 import {
   PHASE_1_SEARCH_ASSERTIONS,
   type Phase1SearchAssertion,
@@ -10,6 +12,7 @@ import {
   type AdvancedOramaExportPayload,
   resolveExportSearchBootstrapFilePath,
 } from "./export-search-bootstrap";
+import { DEFAULT_EXPORT_OUT_DIR } from "./verify-phase-1-export-routes";
 import { verifyPhase1ExportSearchFromOutDir } from "./verify-phase-1-export-search";
 
 /** Synthetic bootstrap URL used when exercising the static handoff in tests. */
@@ -163,4 +166,50 @@ export async function runPhase1StaticHandoffSearchChecksFromOutDir(
   }
 
   return { ok: true, failures: [] };
+}
+
+export { DEFAULT_EXPORT_OUT_DIR };
+
+export function formatPhase1StaticHandoffSearchChecksFromOutDirFailure(
+  result: Extract<
+    RunPhase1StaticHandoffSearchChecksFromOutDirResult,
+    { ok: false }
+  >,
+): string {
+  if (result.reason) {
+    return result.reason;
+  }
+
+  if (result.failures && result.failures.length > 0) {
+    return result.failures
+      .map((failure) => formatPhase1StaticHandoffSearchCheckFailure(failure))
+      .join("; ");
+  }
+
+  return "Phase 1 static export search handoff verification failed.";
+}
+
+/**
+ * Loads `out/api/search` and throws when artifact or Phase 1 handoff queries fail.
+ */
+export async function assertPhase1ExportSearchHandoffFromOutDir(
+  outDir: string = DEFAULT_EXPORT_OUT_DIR,
+  options: RunPhase1StaticHandoffSearchChecksFromOutDirOptions = {},
+): Promise<void> {
+  const metaByUrl = searchResultMetaMapToRecord(
+    await loadSearchResultMetaMap(),
+  );
+  const result = await runPhase1StaticHandoffSearchChecksFromOutDir(
+    outDir,
+    metaByUrl,
+    options,
+  );
+
+  if (result.ok) {
+    return;
+  }
+
+  throw new Error(
+    formatPhase1StaticHandoffSearchChecksFromOutDirFailure(result),
+  );
 }

@@ -107,4 +107,38 @@ describe("static export Phase 1 search bootstrap", () => {
     },
     { timeout: 180_000 },
   );
+
+  test(
+    "verify-phase-1-export-search-handoff script passes after build:export",
+    async () => {
+      removeExportArtifacts();
+
+      try {
+        const buildResult = spawnSync("bun", ["run", "build:export"], {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: process.env,
+        });
+        expect(buildResult.status).toBe(0);
+
+        const verifyResult = spawnSync(
+          "bun",
+          ["./scripts/verify-phase-1-export-search-handoff.ts"],
+          {
+            cwd: repoRoot,
+            encoding: "utf8",
+            env: process.env,
+          },
+        );
+
+        expect(verifyResult.status).toBe(0);
+        expect(verifyResult.stdout ?? "").toContain(
+          "Phase 1 static export search handoff verified",
+        );
+      } finally {
+        removeExportArtifacts();
+      }
+    },
+    { timeout: 180_000 },
+  );
 });

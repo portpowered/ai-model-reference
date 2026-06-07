@@ -20,6 +20,7 @@
     "build:search-index": "bun ./scripts/build-search-index.ts",
     "component-examples": "bun ./scripts/component-examples.ts",
     "verify:export-routes": "bun ./scripts/verify-phase-1-export-routes.ts",
+    "verify:export-search-handoff": "bun ./scripts/verify-phase-1-export-search-handoff.ts",
     "verify:phase-1-ux": "bun ./scripts/verify-phase-1-route-search-ux.ts",
     "verify:phase-1-convergence": "bun ./scripts/run-phase-1-convergence-pass.ts",
     "verify:phase-1-built-app-convergence": "bun ./scripts/run-phase-1-built-app-convergence-validator.ts",
