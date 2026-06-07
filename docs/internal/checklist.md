@@ -22,10 +22,9 @@ control state and repair inventory only.
 
 ## Current Direction
 
-Close batch-015 documentation alignment so planner state, maintainer docs, and the
-checked-in deploy workflow agree. Remaining work is documentation drift tests and
-convergence evidence refresh; deploy workflow activation is already closed in the
-repository.
+Batch-015 documentation alignment is closed: planner state, maintainer docs, deploy
+workflow contract, and `deployment-posture-drift.test.ts` agree. Refresh convergence
+evidence after material export, search, or deploy contract changes.
 
 Do not advance to Phase 2 unless `docs/internal/customer-ask.md` explicitly authorizes
 it. Phase 1 may remain open for customer-ask repairs even after deploy/docs alignment.
@@ -71,6 +70,6 @@ export, search, or deploy contract changes.
 | --- | --- | --- |
 | `phase-1-github-pages-deploy-workflow-activation` | `deploy.yml` publishes `out/` on `main` with Pages permissions | **Complete** — merged; workflow present in repository. |
 | `phase-1-github-pages-workflow-and-ops-alignment` | Maintainer README/operations describe active deploy | **Complete** — `docs/operations.md` and `README.md` aligned. |
-| `phase-1-github-pages-docs-and-planner-alignment` | Planner checklist and maintainer docs agree; no deferral drift | **In progress** — planner control state updated here; documentation drift tests land in story 004. |
+| `phase-1-github-pages-docs-and-planner-alignment` | Planner checklist and maintainer docs agree; no deferral drift | **Complete** — maintainer docs, planner control state, and `deployment-posture-drift.test.ts` guard. |
 | `phase-1-github-pages-convergence-validator` | Static export convergence command and inventory | **Complete** — validator and docs in repository; rerun after material changes. |
-| Documentation drift guards | CI fails when deferral language returns while `deploy.yml` exists | **Pending** — `phase-1-github-pages-docs-and-planner-alignment` story 004. |
+| Documentation drift guards | CI fails when deferral language returns while `deploy.yml` exists | **Complete** — `src/tests/ci/deployment-posture-drift.test.ts`. |
