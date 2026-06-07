@@ -1,8 +1,18 @@
 import { expect } from "bun:test";
 
+function decodeCommonHtmlEntities(text: string): string {
+  return text
+    .replace(/&#x27;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
 /** Strips HTML tags so prose assertions survive auto-linked message rendering. */
 export function stripHtmlTags(html: string): string {
-  return html.replace(/<[^>]+>/g, "");
+  return decodeCommonHtmlEntities(html.replace(/<[^>]+>/g, ""));
 }
 
 /** Asserts visible copy is present regardless of internal doc link markup. */
@@ -55,6 +65,26 @@ export function expectGlossaryShellDescriptionAutoLink(
   expect(html).toContain("focus-visible:ring-2");
   if (options.phrase) {
     expectHtmlToContainProse(html, options.phrase);
+  }
+}
+
+/** Shell region auto-links must use the shared prose contract (marker, focus ring, internal href). */
+export function expectGlossaryShellAutoLinksUseProseContract(
+  html: string,
+): void {
+  const articleStart = html.indexOf("<article");
+  const shellHtml = articleStart >= 0 ? html.slice(0, articleStart) : html;
+  const autoLinkTags = [
+    ...shellHtml.matchAll(/<a\b[^>]*data-prose-auto-link="true"[^>]*>/g),
+  ];
+
+  for (const match of autoLinkTags) {
+    const tag = match[0];
+    expect(tag).toContain("focus-visible:ring-2");
+    const hrefMatch = tag.match(/href="([^"]+)"/);
+    expect(hrefMatch).not.toBeNull();
+    const href = hrefMatch?.[1] ?? "";
+    expect(href.startsWith("/docs/") || href.startsWith("/tags/")).toBe(true);
   }
 }
 
