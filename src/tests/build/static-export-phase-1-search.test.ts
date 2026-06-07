@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
@@ -7,7 +7,10 @@ import {
   type AdvancedOramaExportPayload,
   EXPORT_SEARCH_BOOTSTRAP_RELATIVE_PATH,
 } from "@/lib/build/export-search-bootstrap";
+import { runPhase1StaticHandoffSearchChecksFromOutDir } from "@/lib/build/run-phase-1-static-handoff-search-checks";
 import { verifyPhase1ExportSearchFromOutDir } from "@/lib/build/verify-phase-1-export-search";
+import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
+import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "@/lib/verify/phase-1-search-checks";
 import { SAMPLE_MODULE_URL } from "../search/helpers";
 
@@ -27,6 +30,11 @@ function removeExportArtifacts(): void {
 
 describe("static export Phase 1 search bootstrap", () => {
   const originalFetch = globalThis.fetch;
+  let metaByUrl: ReturnType<typeof searchResultMetaMapToRecord>;
+
+  beforeAll(async () => {
+    metaByUrl = searchResultMetaMapToRecord(await loadSearchResultMetaMap());
+  });
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
@@ -65,6 +73,12 @@ describe("static export Phase 1 search bootstrap", () => {
           cwd: repoRoot,
         });
         expect(verification.ok).toBe(true);
+
+        const handoffChecks =
+          await runPhase1StaticHandoffSearchChecksFromOutDir("out", metaByUrl, {
+            cwd: repoRoot,
+          });
+        expect(handoffChecks.ok).toBe(true);
 
         globalThis.fetch = (async (input: RequestInfo | URL) => {
           const url =
