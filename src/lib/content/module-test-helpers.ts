@@ -49,3 +49,28 @@ export function expectModuleTagPillListOnlyInTagsSection(html: string): void {
     expect(tagPillIndex).toBeGreaterThan(atAGlanceIndex);
   }
 }
+
+/** Module pages render exactly one React Flow graph canvas. */
+export function expectModuleSingleReactFlowGraph(html: string): void {
+  expect((html.match(/data-react-flow-graph="true"/g) ?? []).length).toBe(1);
+}
+
+/** Compute-flow graph must live in How It Works, not in the math/schema section. */
+export function expectModuleComputeFlowGraphOnlyInHowItWorks(
+  html: string,
+  graphId: string,
+): void {
+  expectModuleSingleReactFlowGraph(html);
+  expect(html).toContain(`data-graph-id="${graphId}"`);
+
+  const howItWorksSection = extractSectionHtml(html, "how-it-works");
+  expect(howItWorksSection).toContain('data-react-flow-graph="true"');
+  expect(howItWorksSection).toContain(`data-graph-id="${graphId}"`);
+
+  const mathSection = extractSectionHtml(html, "math-or-compute-schema");
+  expect(mathSection).not.toContain('data-react-flow-graph="true"');
+  expect(mathSection).not.toContain(`data-graph-id="${graphId}"`);
+  expect(mathSection).not.toContain(
+    `data-graph-id="${graphId.replace("-flow", "-schema")}"`,
+  );
+}
