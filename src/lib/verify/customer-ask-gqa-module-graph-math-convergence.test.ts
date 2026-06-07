@@ -13,6 +13,7 @@ import {
   GQA_MODULE_GRAPH_THEME_READABILITY_UNCERTAIN_REASON,
 } from "./customer-ask-gqa-module-graph-math-convergence";
 import {
+  buildGroupedQueryAttentionMathComparisonStub,
   buildGroupedQueryAttentionStubBody,
   GROUPED_QUERY_ATTENTION_MODULE_TITLE,
 } from "./grouped-query-attention-module-convergence";
@@ -33,11 +34,7 @@ const POST_REPAIR_MODULE_HTML = `
         ${POST_REPAIR_STUB_BODY}
       </section>
       <section id="math-or-compute-schema">
-        <div data-attention-schema-comparison="true">
-          <section data-attention-schema-variable-definitions="true">
-            <h3>What the symbols mean</h3>
-          </section>
-        </div>
+        ${buildGroupedQueryAttentionMathComparisonStub()}
       </section>
     </article>
   </html>
@@ -87,9 +84,7 @@ const PRE_REPAIR_MISSING_MATH_DEFINITIONS_HTML = `
         <div data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-compute-flow" style="--xy-node-color:var(--card-foreground);--xy-node-background-color:var(--card)"></div>
       </section>
       <section id="math-or-compute-schema">
-        <div data-attention-schema-comparison="true">
-          <p>What the symbols mean</p>
-        </div>
+        <div data-attention-schema-comparison="true"></div>
       </section>
     </article>
   </html>

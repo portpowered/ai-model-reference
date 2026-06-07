@@ -103,18 +103,23 @@ export function expectModuleComputeFlowGraphOnlyInHowItWorks(
   );
 }
 
-/** Plain-language math variable definitions must live in the math/schema section. */
+/** Symbol-level math variable definitions must live under each formula in the math section. */
 export function expectModuleMathSchemaDefinitionsInMathSection(
   html: string,
-  definitionIds: readonly string[],
+  mhaDefinitionIds: readonly string[],
+  gqaDefinitionIds: readonly string[],
 ): void {
   const mathSection = extractSectionHtml(html, "math-or-compute-schema");
   expect(mathSection).toContain('data-attention-schema-comparison="true"');
   expect(mathSection).toContain(
     'data-attention-schema-variable-definitions="true"',
   );
-  expect(mathSection).toContain("What the symbols mean");
-  for (const id of definitionIds) {
+  expect(mathSection).toContain('data-math-schema="mha"');
+  expect(mathSection).toContain('data-math-schema="gqa"');
+  for (const id of mhaDefinitionIds) {
+    expect(mathSection).toContain(`data-math-variable-definition="${id}"`);
+  }
+  for (const id of gqaDefinitionIds) {
     expect(mathSection).toContain(`data-math-variable-definition="${id}"`);
   }
   expect(mathSection).toContain(
@@ -123,6 +128,10 @@ export function expectModuleMathSchemaDefinitionsInMathSection(
   expect(mathSection).toContain(
     'data-message-block-math="math.gqaSchema.formula"',
   );
+  expect(mathSection).not.toContain("Query projection");
+  expect(mathSection).not.toContain("Key projection");
+  expect(mathSection).not.toContain("Value projection");
+  expect(mathSection).not.toContain("Query-to-KV grouping");
 }
 
 /** Companion sections: attention bridge, comparison table, and curated related docs. */

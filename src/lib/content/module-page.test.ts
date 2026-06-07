@@ -36,13 +36,13 @@ describe("grouped-query-attention page messages", () => {
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItOptimizes.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
-    expect(messages.mathVariableDefinitions?.title).toBe(
-      "What the symbols mean",
+    expect(messages.math?.mhaSchema?.variableDefinitions?.q?.term).toBe("Q");
+    expect(messages.math?.gqaSchema?.variableDefinitions?.gi?.term).toBe(
+      "g(i)",
     );
-    expect(messages.mathVariableDefinitions?.q.term).toBe("Q");
-    expect(messages.mathVariableDefinitions?.grouping.term).toBe(
-      "Query-to-KV grouping",
-    );
+    expect(
+      messages.math?.mhaSchema?.variableDefinitions?.queryProjection,
+    ).toBeUndefined();
   });
 });
 

@@ -8,6 +8,7 @@ import {
 } from "./customer-ask-gqa-module-graph-math-convergence";
 import { runCustomerAskGqaModuleGraphMathChecks } from "./customer-ask-gqa-module-graph-math-convergence-http";
 import {
+  buildGroupedQueryAttentionMathComparisonStub,
   buildGroupedQueryAttentionStubBody,
   GROUPED_QUERY_ATTENTION_MODULE_TITLE,
 } from "./grouped-query-attention-module-convergence";
@@ -25,11 +26,7 @@ const POST_REPAIR_MODULE_HTML = `
         ${POST_REPAIR_STUB_BODY}
       </section>
       <section id="math-or-compute-schema">
-        <div data-attention-schema-comparison="true">
-          <section data-attention-schema-variable-definitions="true">
-            <h3>What the symbols mean</h3>
-          </section>
-        </div>
+        ${buildGroupedQueryAttentionMathComparisonStub()}
       </section>
     </article>
   </html>
