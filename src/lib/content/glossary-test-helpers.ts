@@ -37,6 +37,27 @@ export function extractGlossaryArticleHtml(
   return match?.[0] ?? "";
 }
 
+/** Extracts glossary shell HTML before the registry article (robust for built RSC payloads). */
+export function extractGlossaryShellHtml(
+  html: string,
+  registryId?: string,
+): string {
+  if (registryId) {
+    const match = html.match(
+      new RegExp(
+        `<article[^>]*data-registry-id="${escapeRegExp(registryId)}"`,
+        "i",
+      ),
+    );
+    if (match?.index !== undefined && match.index >= 0) {
+      return html.slice(0, match.index);
+    }
+  }
+
+  const articleStart = html.indexOf("<article");
+  return articleStart >= 0 ? html.slice(0, articleStart) : html;
+}
+
 /** Glossary MDX bodies must not repeat the shell DocsTitle as an in-body h1. */
 export function expectGlossaryBodyOmitsTitleHeading(
   html: string,
@@ -58,16 +79,18 @@ export function expectGlossaryBodyOmitsShellDescription(
 /** Shell description prose auto-links use internal hrefs, marker, and focus ring utilities. */
 export function expectGlossaryShellDescriptionAutoLink(
   html: string,
-  options: { href: string; phrase?: string },
+  options: { href: string; phrase?: string; registryId?: string },
 ): void {
-  expect(html).toContain(`href="${options.href}"`);
-  expect(html).toContain('data-prose-auto-link="true"');
-  expect(html).toContain("focus-visible:ring-2");
+  const shellHtml = extractGlossaryShellHtml(html, options.registryId);
+  expect(shellHtml).toContain(`href="${options.href}"`);
+  expect(shellHtml).toContain('data-prose-auto-link="true"');
+  expect(shellHtml).toContain("focus-visible:ring-2");
   if (options.phrase) {
-    expectHtmlToContainProse(html, options.phrase);
+    expectHtmlToContainProse(shellHtml, options.phrase);
     expectGlossaryShellDescriptionAutoLinkPreservesPhrase(html, {
       href: options.href,
       phrase: options.phrase,
+      registryId: options.registryId,
     });
   }
 }
@@ -75,10 +98,9 @@ export function expectGlossaryShellDescriptionAutoLink(
 /** Shell description anchors keep the matched phrase as visible link text. */
 export function expectGlossaryShellDescriptionAutoLinkPreservesPhrase(
   html: string,
-  options: { href: string; phrase: string },
+  options: { href: string; phrase: string; registryId?: string },
 ): void {
-  const articleStart = html.indexOf("<article");
-  const shellHtml = articleStart >= 0 ? html.slice(0, articleStart) : html;
+  const shellHtml = extractGlossaryShellHtml(html, options.registryId);
   const anchorPattern = new RegExp(
     `<a\\b[^>]*href="${escapeRegExp(options.href)}"[^>]*data-prose-auto-link="true"[^>]*>[\\s\\S]*?</a>`,
     "i",
@@ -91,9 +113,9 @@ export function expectGlossaryShellDescriptionAutoLinkPreservesPhrase(
 /** Shell region auto-links must use the shared prose contract (marker, focus ring, internal href). */
 export function expectGlossaryShellAutoLinksUseProseContract(
   html: string,
+  registryId?: string,
 ): void {
-  const articleStart = html.indexOf("<article");
-  const shellHtml = articleStart >= 0 ? html.slice(0, articleStart) : html;
+  const shellHtml = extractGlossaryShellHtml(html, registryId);
   const autoLinkTags = [
     ...shellHtml.matchAll(/<a\b[^>]*data-prose-auto-link="true"[^>]*>/g),
   ];
@@ -117,12 +139,43 @@ export function expectGlossaryOmitsOpeningSummary(html: string): void {
 export function expectGlossaryShellPresentationConvergence(
   html: string,
   options?: {
+    registryId?: string;
     shellDescriptionAutoLinks?: Array<{ href: string; phrase?: string }>;
   },
 ): void {
   expectGlossaryOmitsOpeningSummary(html);
   for (const link of options?.shellDescriptionAutoLinks ?? []) {
-    expectGlossaryShellDescriptionAutoLink(html, link);
+    expectGlossaryShellDescriptionAutoLink(html, {
+      ...link,
+      registryId: options?.registryId,
+    });
+  }
+}
+
+/** Built glossary route HTML must omit pre-repair chrome and optional shell description auto-links. */
+export function expectGlossaryBuiltRoutePresentationConvergence(
+  html: string,
+  options: {
+    registryId: string;
+    title: string;
+    shellDescriptionAutoLinks?: Array<{ href: string; phrase?: string }>;
+  },
+): void {
+  const articleHtml = extractGlossaryArticleHtml(html, options.registryId);
+
+  expect(articleHtml.length).toBeGreaterThan(0);
+  expectGlossaryOmitsOpeningSummary(html);
+  expectGlossaryBodyOmitsTitleHeading(articleHtml, options.title);
+  expect((articleHtml.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(
+    1,
+  );
+  expectGlossaryOmitsWhereItAppears(articleHtml);
+
+  if (options.shellDescriptionAutoLinks) {
+    expectGlossaryShellPresentationConvergence(html, {
+      registryId: options.registryId,
+      shellDescriptionAutoLinks: options.shellDescriptionAutoLinks,
+    });
   }
 }
 
