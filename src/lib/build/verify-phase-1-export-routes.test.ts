@@ -129,6 +129,45 @@ describe("verifyPhase1ExportRouteFromFile", () => {
 
     rmSync(dir, { recursive: true, force: true });
   });
+
+  test("fails GQA export HTML when base-path assets are missing", () => {
+    const dir = mkdtempSync(join(tmpdir(), "export-route-gqa-basepath-"));
+    mkdirSync(join(dir, "out", "docs", "modules"), { recursive: true });
+    writeFileSync(join(dir, "out", "index.html"), "<html>Model Atlas</html>");
+    writeFileSync(
+      join(dir, "out", "docs", "modules", "grouped-query-attention.html"),
+      `<html><body>${buildGroupedQueryAttentionStubBody()}</body></html>`,
+    );
+
+    const result = verifyPhase1ExportRouteFromFile(
+      "/docs/modules/grouped-query-attention",
+      { cwd: dir, basePath: "/ai-model-reference" },
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.reason).toContain("/_next/");
+    }
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("passes grouped-query-attention export HTML with base-path graph shell markers", () => {
+    const dir = mkdtempSync(join(tmpdir(), "export-route-gqa-basepath-pass-"));
+    mkdirSync(join(dir, "out", "docs", "modules"), { recursive: true });
+    writeFileSync(join(dir, "out", "index.html"), "<html>Model Atlas</html>");
+    writeFileSync(
+      join(dir, "out", "docs", "modules", "grouped-query-attention.html"),
+      `<html><body><script src="/ai-model-reference/_next/static/chunks/main.js"></script>${buildGroupedQueryAttentionStubBody()}</body></html>`,
+    );
+
+    const result = verifyPhase1ExportRouteFromFile(
+      "/docs/modules/grouped-query-attention",
+      { cwd: dir, basePath: "/ai-model-reference" },
+    );
+    expect(result.ok).toBe(true);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
 });
 
 describe("verifyPhase1ExportRoutesFromOutDir", () => {

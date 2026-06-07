@@ -1,6 +1,10 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { normalizeGitHubPagesBasePath } from "@/lib/build/static-export";
+import {
+  exportHtmlIncludesGqaAttentionVariantGraphShellMarkers,
+  exportHtmlReferencesBasePathAssets,
+} from "@/lib/build/verify-export-base-path";
 import { verifyGroupedQueryAttentionBuiltRouteFromHtml } from "@/lib/build/verify-grouped-query-attention-built-route";
 import {
   PHASE_1_ROUTE_ASSERTIONS,
@@ -138,6 +142,26 @@ function assertExportRouteContent(
   return assertion.assertBody(html);
 }
 
+function assertGqaExportGraphShellForBasePath(
+  route: Phase1ExportRoute,
+  rawHtml: string,
+  basePath: string,
+): string | null {
+  if (route !== "/docs/modules/grouped-query-attention" || basePath === "") {
+    return null;
+  }
+
+  if (!exportHtmlReferencesBasePathAssets(rawHtml, basePath)) {
+    return `GQA export HTML lacks ${basePath}/_next/ asset references required for graph hydration.`;
+  }
+
+  if (!exportHtmlIncludesGqaAttentionVariantGraphShellMarkers(rawHtml)) {
+    return "GQA export HTML lacks attention-variant comparison graph shell markers.";
+  }
+
+  return null;
+}
+
 /** Verifies one exported Phase 1 route file exists and includes reader markers. */
 export function verifyPhase1ExportRouteFromFile(
   route: Phase1ExportRoute,
@@ -165,6 +189,19 @@ export function verifyPhase1ExportRouteFromFile(
       ok: false,
       route,
       reason: contentReason,
+    };
+  }
+
+  const graphShellReason = assertGqaExportGraphShellForBasePath(
+    route,
+    rawHtml,
+    basePath,
+  );
+  if (graphShellReason) {
+    return {
+      ok: false,
+      route,
+      reason: graphShellReason,
     };
   }
 
