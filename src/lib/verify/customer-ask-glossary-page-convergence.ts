@@ -65,8 +65,9 @@ function articleHasDistinctOpeningSummaryBlock(articleHtml: string): boolean {
  * Returns a failure reason when built glossary HTML still renders a distinct
  * openingSummary block or GlossaryOpening output outside the shell description.
  */
-export function assertGlossaryNoRenderedOpeningSummary(
+export function assertGlossaryNoRenderedOpeningSummaryForRegistry(
   html: string,
+  articleRegistryId: string,
 ): string | null {
   const visibleHtml = stripHtmlScripts(html);
 
@@ -80,7 +81,7 @@ export function assertGlossaryNoRenderedOpeningSummary(
 
   const articleHtml = extractGlossaryArticleHtml(
     visibleHtml,
-    GLOSSARY_PAGE_TOKEN_REGISTRY_ID,
+    articleRegistryId,
   );
   if (
     articleHtml.length > 0 &&
@@ -90,6 +91,20 @@ export function assertGlossaryNoRenderedOpeningSummary(
   }
 
   return null;
+}
+
+/**
+ * Returns a failure reason when built token glossary HTML still renders a
+ * distinct openingSummary block or GlossaryOpening output outside the shell
+ * description.
+ */
+export function assertGlossaryNoRenderedOpeningSummary(
+  html: string,
+): string | null {
+  return assertGlossaryNoRenderedOpeningSummaryForRegistry(
+    html,
+    GLOSSARY_PAGE_TOKEN_REGISTRY_ID,
+  );
 }
 
 function shellDescriptionHasAutoLinkedHref(
