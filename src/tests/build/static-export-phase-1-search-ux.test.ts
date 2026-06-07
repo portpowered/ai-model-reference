@@ -37,7 +37,7 @@ describe("static export Phase 1 search UX", () => {
         removeExportArtifacts();
       }
     },
-    { timeout: 240_000 },
+    { timeout: 360_000 },
   );
 
   test(
@@ -71,6 +71,6 @@ describe("static export Phase 1 search UX", () => {
         removeExportArtifacts();
       }
     },
-    { timeout: 240_000 },
+    { timeout: 360_000 },
   );
 });

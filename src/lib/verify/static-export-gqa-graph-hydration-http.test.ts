@@ -51,7 +51,7 @@ describe("verifyStaticExportGqaGraphHydration", () => {
             timeoutMs: 5_000,
           },
         );
-        expect(reason).toContain("comparison graph shell");
+        expect(reason).toContain("comparison graph shell markers");
       } finally {
         await server.cleanup();
         rmSync(root, { recursive: true, force: true });

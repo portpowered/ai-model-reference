@@ -17,13 +17,12 @@ Follow [writing-standards](../writing-standards.md) and [graphing-standards](../
 * `whatItIs`: define the term without assuming the reader already knows the surrounding architecture.
 * `whyItMatters`: explain what the term helps readers understand, compare, debug, or search for.
 * `simpleExample`: provide a compact concrete example, shape, flow, or analogy.
-* `whereItAppears`: describe which models, modules, papers, training regimes, or systems use the term. Place an optional **concept map** graph here when visual relationships teach more than prose.
 * `commonConfusions`: distinguish nearby terms readers often mix up.
 * `related`, `tags`, `references`: localized section titles only; rendered content is registry-backed.
 
 ## Assets
 
-* `conceptMap`: optional graph asset. Use it when visual relationships help more than prose. Configure `graphId` in `assets.json` and supply node labels under `graph.nodes` in messages when the graph is enabled.
+* `conceptMap`: optional graph asset rendered as a standalone `<ConceptMap />` between `simple-example` and `common-confusions` (not inside a `where-it-appears` section). Use it when visual relationships help more than prose. Configure `graphId` in `assets.json` and supply node labels under `graph.nodes` in messages when the graph is enabled.
 
 ## Baseline exclusions
 
