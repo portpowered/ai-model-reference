@@ -10,6 +10,12 @@ import {
   formatExportCommandPathEvidenceLine,
 } from "./phase-1-github-pages-export-command-path";
 import {
+  deriveStaticRegressionEvidence,
+  formatStaticRegressionCheckRowLine,
+  formatStaticRegressionDomainLine,
+  type StaticRegressionEvidence,
+} from "./phase-1-github-pages-static-regression";
+import {
   deriveStaticServerCommandPathEvidence,
   formatStaticServerCommandPathEvidenceLine,
   type StaticServerCommandPathEvidence,
@@ -26,6 +32,7 @@ export type Phase1GitHubPagesConvergenceEvidenceSummary = {
   exportCommandPath: ExportCommandPathEvidence;
   exportArtifact: ExportArtifactEvidence;
   staticServerCommandPath: StaticServerCommandPathEvidence;
+  staticRegression: StaticRegressionEvidence;
   recommendation: Phase1GitHubPagesConvergenceRecommendation;
   recommendationRationale: string;
 };
@@ -40,9 +47,21 @@ export type BuildPhase1GitHubPagesConvergenceEvidenceSummaryInput = {
   staticServerSkipReason?: string;
   staticServerLifecycleStatus?: "pass" | "fail";
   staticServerLifecycleReason?: string;
+  staticRegressionSkipped?: boolean;
+  staticRegressionSkipReason?: string;
+  staticRegressionRows?: StaticRegressionEvidence["rows"];
 };
 
 function formatFailingCheckIds(
+  rows: readonly { checkId: string; status: string }[],
+): string {
+  return rows
+    .filter((row) => row.status === "fail")
+    .map((row) => row.checkId)
+    .join(", ");
+}
+
+function formatFailingStaticRegressionCheckIds(
   rows: readonly { checkId: string; status: string }[],
 ): string {
   return rows
@@ -55,6 +74,7 @@ export function derivePhase1GitHubPagesConvergenceRecommendation(input: {
   exportCommandPath: ExportCommandPathEvidence;
   exportArtifact: ExportArtifactEvidence;
   staticServerCommandPath: StaticServerCommandPathEvidence;
+  staticRegression: StaticRegressionEvidence;
 }): {
   recommendation: Phase1GitHubPagesConvergenceRecommendation;
   rationale: string;
@@ -63,10 +83,15 @@ export function derivePhase1GitHubPagesConvergenceRecommendation(input: {
     input.exportArtifact.rows,
   );
 
+  const failingStaticRegressionCheckIds = formatFailingStaticRegressionCheckIds(
+    input.staticRegression.rows,
+  );
+
   if (
     input.exportCommandPath.status === "fail" ||
     input.exportArtifact.status === "fail" ||
-    input.staticServerCommandPath.status === "fail"
+    input.staticServerCommandPath.status === "fail" ||
+    input.staticRegression.status === "fail"
   ) {
     const failureParts: string[] = [];
     if (input.exportCommandPath.status === "fail") {
@@ -84,6 +109,13 @@ export function derivePhase1GitHubPagesConvergenceRecommendation(input: {
     if (input.staticServerCommandPath.status === "fail") {
       failureParts.push(
         `static-server-command-path (${input.staticServerCommandPath.reason ?? "static export server lifecycle failure"})`,
+      );
+    }
+    if (input.staticRegression.status === "fail") {
+      failureParts.push(
+        failingStaticRegressionCheckIds.length > 0
+          ? `phase-1-static-regression checkId(s): ${failingStaticRegressionCheckIds}`
+          : "phase-1-static-regression (static export search/route probes failed)",
       );
     }
     return {
@@ -112,6 +144,17 @@ export function derivePhase1GitHubPagesConvergenceRecommendation(input: {
       `static-server-command-path (${input.staticServerCommandPath.reason ?? "static server verification skipped or incomplete"})`,
     );
   }
+  const uncertainStaticRegressionCheckIds = input.staticRegression.rows
+    .filter((row) => row.status === "uncertain")
+    .map((row) => row.checkId)
+    .join(", ");
+  if (input.staticRegression.status === "uncertain") {
+    uncertainParts.push(
+      uncertainStaticRegressionCheckIds.length > 0
+        ? `phase-1-static-regression checkId(s): ${uncertainStaticRegressionCheckIds}`
+        : `phase-1-static-regression (${input.staticRegression.reason ?? "static regression probes skipped or incomplete"})`,
+    );
+  }
 
   if (uncertainParts.length > 0) {
     return {
@@ -123,7 +166,7 @@ export function derivePhase1GitHubPagesConvergenceRecommendation(input: {
   return {
     recommendation: "stop-and-wait-for-phase-advancement",
     rationale:
-      "make build-export passed, export-artifact checks passed, and the static export server became ready. Phase 1 static regression probes will be added in a subsequent workflow stage.",
+      "make build-export passed, export-artifact checks passed, the static export server became ready, and Phase 1 static search/route regression probes passed against the exported site.",
   };
 }
 
@@ -150,16 +193,23 @@ export function buildPhase1GitHubPagesConvergenceEvidenceSummary(
     lifecycleStatus: input.staticServerLifecycleStatus,
     lifecycleReason: input.staticServerLifecycleReason,
   });
+  const staticRegression = deriveStaticRegressionEvidence({
+    skipped: input.staticRegressionSkipped,
+    skipReason: input.staticRegressionSkipReason,
+    rows: input.staticRegressionRows,
+  });
   const recommendation = derivePhase1GitHubPagesConvergenceRecommendation({
     exportCommandPath,
     exportArtifact,
     staticServerCommandPath,
+    staticRegression,
   });
 
   return {
     exportCommandPath,
     exportArtifact,
     staticServerCommandPath,
+    staticRegression,
     recommendation: recommendation.recommendation,
     recommendationRationale: recommendation.rationale,
   };
@@ -179,6 +229,10 @@ export function formatPhase1GitHubPagesConvergenceEvidenceSummary(
   lines.push(
     formatStaticServerCommandPathEvidenceLine(summary.staticServerCommandPath),
   );
+  lines.push(formatStaticRegressionDomainLine(summary.staticRegression));
+  for (const row of summary.staticRegression.rows) {
+    lines.push(formatStaticRegressionCheckRowLine(row));
+  }
   lines.push(`Recommendation: ${summary.recommendation}`);
   lines.push(`Rationale: ${summary.recommendationRationale}`);
   return lines.join("\n");
@@ -202,8 +256,8 @@ export function printPhase1GitHubPagesConvergenceEvidenceSummary(
 
 /**
  * GitHub Pages convergence exit semantics: fail when export-command-path,
- * export-artifact, or static-server-command-path rows fail. Uncertain evidence
- * is non-blocking.
+ * export-artifact, static-server-command-path, or phase-1-static-regression
+ * rows fail. Uncertain evidence is non-blocking.
  */
 export function getPhase1GitHubPagesConvergenceExitCode(
   summary: Phase1GitHubPagesConvergenceEvidenceSummary,
@@ -217,12 +271,16 @@ export function getPhase1GitHubPagesConvergenceExitCode(
   if (summary.staticServerCommandPath.status === "fail") {
     return 1;
   }
+  if (summary.staticRegression.status === "fail") {
+    return 1;
+  }
   return 0;
 }
 
 export const PHASE_1_GITHUB_PAGES_CONVERGENCE_WORKFLOW_STEPS = [
   "make build-export",
   "serve out/ on loopback static file server",
+  "run Phase 1 static search and route regression probes",
 ] as const;
 
 export const PHASE_1_GITHUB_PAGES_CONVERGENCE_PREREQUISITES = [
