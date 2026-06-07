@@ -239,24 +239,32 @@ export function parseCustomerAskConvergenceLine(
   const status = match[1].toLowerCase() as CustomerAskConvergenceRow["status"];
   const checkId = match[2];
   const checklistRow = match[4];
-  let remainder = match[3];
-
-  let reason: string | undefined;
-  if (status !== "pass" && remainder.includes(" — ")) {
-    const lastSeparator = remainder.lastIndexOf(" — ");
-    reason = remainder.slice(lastSeparator + 3);
-    remainder = remainder.slice(0, lastSeparator);
-  }
+  const remainder = match[3];
 
   let route: string | undefined;
   let query: string | undefined;
   let title = remainder;
-  const locationMatch = remainder.match(/^(.+?) \((route=[^)]+)\)$/);
-  if (locationMatch) {
-    title = locationMatch[1];
-    const location = locationMatch[2];
-    route = location.match(/route=([^,)]+)/)?.[1];
-    query = location.match(/query=([^,)]+)/)?.[1];
+  let reason: string | undefined;
+
+  const locationStart = remainder.search(/ \((route=)/);
+  if (locationStart !== -1) {
+    title = remainder.slice(0, locationStart);
+    const locationAndReason = remainder.slice(locationStart);
+    const locationMatch = locationAndReason.match(
+      /^ \((route=[^)]+)\)(?: — (.+))?$/,
+    );
+    if (locationMatch) {
+      const location = locationMatch[1];
+      route = location.match(/route=([^,)]+)/)?.[1];
+      query = location.match(/query=([^,)]+)/)?.[1];
+      if (status !== "pass" && locationMatch[2]) {
+        reason = locationMatch[2];
+      }
+    }
+  } else if (status !== "pass" && remainder.includes(" — ")) {
+    const lastSeparator = remainder.lastIndexOf(" — ");
+    reason = remainder.slice(lastSeparator + 3);
+    title = remainder.slice(0, lastSeparator);
   }
 
   return {
