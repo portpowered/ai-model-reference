@@ -17,7 +17,7 @@ Observable constraints in the current repository:
 | Constraint | Evidence |
 | --- | --- |
 | Static export is opt-in for local builds, verified in CI | `NEXT_STATIC_EXPORT=1` (`bun run build:export` / `make build-export`) emits `out/` with `output: "export"`. `make ci` runs `make build` (`.next/` + Phase 1 static route verifiers) then `make build-export` (export artifact verification). |
-| Export artifact is verified but not deployed | `make build-export` runs the export build then `verify-phase-1-export-routes`, which fails when `out/` is missing, empty, or lacks Phase 1 reader markers. CI includes this gate; no deploy workflow publishes `out/` yet. |
+| Export artifact is verified but not deployed | `make build-export` runs the export build then `verify-phase-1-export-routes` (reader routes) and `verify-phase-1-export-search-handoff` (static Orama bootstrap plus Phase 1 `GQA` / `attention` / `KV cache` ranking). Either verifier exits non-zero with a concrete failure when `out/` or `out/api/search` is missing or assertions fail. CI includes this gate; no deploy workflow publishes `out/` yet. |
 | Live search depends on a Next.js API route | `src/app/api/search/route.ts` exports Fumadocs Orama `GET` and `staticGET` handlers backed by `src/lib/search/search-server.ts`. Client search (`src/features/docs/search/search-client.ts`) loads the index from `/api/search`. |
 | GitHub Pages is static-only | GitHub Pages cannot run Node.js API routes or server-side Next.js rendering without a static export and pre-generated assets. |
 | CI does not run deploy | `.github/workflows/ci.yml` runs `make ci` only; deploy is intentionally out of scope for the baseline gate. |
@@ -103,7 +103,9 @@ the rule is active.
 
 The baseline quality gate is workflow file `.github/workflows/ci.yml`, which
 defines a single job named **`ci`**. That job checks out the branch, installs
-with `bun install --frozen-lockfile`, and runs `make ci` (lint, typecheck, test,
+with `bun install --frozen-lockfile`, installs Playwright Chromium
+(`bunx playwright install chromium --with-deps`) for browser-backed export
+search UX tests, and runs `make ci` (lint, typecheck, test,
 manifest-scoped coverage, build, validate-data, linkcheck). Deploy and preview
 steps are intentionally excluded.
 

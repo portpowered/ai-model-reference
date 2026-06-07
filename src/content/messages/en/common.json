@@ -6,6 +6,8 @@
     "idle": "Type a query to search modules, glossary entries, and tags.",
     "noResults": "No results found.",
     "loading": "Searching…",
+    "error": "Search is temporarily unavailable. The index could not be loaded.",
+    "retry": "Try again",
     "shortcut": "Search",
     "resultPath": "Path"
   },
