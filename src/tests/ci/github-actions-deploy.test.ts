@@ -57,4 +57,34 @@ describe("GitHub Actions deploy workflow", () => {
     expect(workflow).toMatch(/actions\/deploy-pages@v4/);
     expect(workflow).toMatch(/path:\s*out\//);
   });
+
+  test("deploy workflow uses separate build and deploy jobs with github-pages environment", () => {
+    const workflow = readFileSync(deployWorkflowPath, "utf8");
+
+    expect(workflow).toMatch(/^\s*build:\s*$/m);
+    expect(workflow).toMatch(/^\s*deploy:\s*$/m);
+    expect(workflow).toMatch(/needs:\s*build/);
+    expect(workflow).toMatch(/environment:[\s\S]*name:\s*github-pages/);
+    expect(workflow).toMatch(
+      /build:[\s\S]*actions\/upload-pages-artifact@v3[\s\S]*deploy:[\s\S]*actions\/deploy-pages@v4/,
+    );
+  });
+
+  test("deploy workflow serializes Pages deployments with concurrency controls", () => {
+    const workflow = readFileSync(deployWorkflowPath, "utf8");
+
+    expect(workflow).toMatch(/concurrency:[\s\S]*group:\s*pages/);
+    expect(workflow).toMatch(/cancel-in-progress:\s*false/);
+  });
+
+  test("ci workflow does not upload Pages artifacts or run deploy actions", () => {
+    const ciWorkflow = readFileSync(ciWorkflowPath, "utf8");
+
+    expect(ciWorkflow).not.toMatch(/actions\/upload-pages-artifact/);
+    expect(ciWorkflow).not.toMatch(/actions\/deploy-pages/);
+    expect(ciWorkflow).not.toMatch(/actions\/configure-pages/);
+    expect(ciWorkflow).not.toMatch(/pages:\s*write/);
+    expect(ciWorkflow).not.toMatch(/id-token:\s*write/);
+    expect(ciWorkflow).not.toMatch(/path:\s*out\//);
+  });
 });
