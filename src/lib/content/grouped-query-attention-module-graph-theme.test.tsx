@@ -4,6 +4,7 @@ import { PageAssetsProvider } from "@/features/docs/components/page-assets-conte
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import { RegistryGraphFlow } from "@/features/models/components/RegistryGraphFlow";
 import {
+  REGISTRY_GRAPH_FLOW_INTERACTION,
   REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE,
   REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS,
   REGISTRY_GRAPH_FLOW_NODE_THEME,
@@ -72,6 +73,10 @@ describe("grouped-query-attention module graph theme", () => {
     expect(
       REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS.nodeLabels,
     ).toContain("registry-graph-flow");
+    expect(REGISTRY_GRAPH_FLOW_INTERACTION.panOnDrag).toBe(true);
+    expect(REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnScroll).toBe(true);
+    expect(REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnPinch).toBe(true);
+    expect(REGISTRY_GRAPH_FLOW_INTERACTION.nodesDraggable).toBe(false);
   });
 
   test("RegistryGraphFlow renders themed compute-flow wrapper with manual visibility hook", () => {
@@ -94,6 +99,9 @@ describe("grouped-query-attention module graph theme", () => {
     expect(html).toContain(
       'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
     );
+    expect(html).toContain('data-graph-interaction-pan="true"');
+    expect(html).toContain('data-graph-interaction-zoom="true"');
+    expect(html).toContain('data-graph-interaction-editing="false"');
     expect(html).toContain('class="registry-graph-flow');
     expect(html).toContain("Hidden states");
     expect(html).toContain("G query groups");

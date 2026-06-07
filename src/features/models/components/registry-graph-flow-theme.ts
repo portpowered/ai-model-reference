@@ -23,6 +23,18 @@ export const REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS = {
   srOnlyNodeLabels: ".registry-graph-flow [data-graph-node-id]",
 } as const;
 
+/** React Flow interaction flags: pan/zoom enabled, editing disabled. */
+export const REGISTRY_GRAPH_FLOW_INTERACTION = {
+  panOnDrag: true,
+  zoomOnScroll: true,
+  zoomOnPinch: true,
+  zoomOnDoubleClick: true,
+  nodesDraggable: false,
+  nodesConnectable: false,
+  elementsSelectable: false,
+  preventScrolling: true,
+} as const;
+
 export function buildRegistryGraphFlowNodeThemeStyle(): Record<string, string> {
   return {
     "--xy-node-color": REGISTRY_GRAPH_FLOW_NODE_THEME.nodeColor,

@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { PageAssetsProvider } from "@/features/docs/components/page-assets-context";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import { RegistryGraphFlow } from "@/features/models/components/RegistryGraphFlow";
+import { REGISTRY_GRAPH_FLOW_INTERACTION } from "@/features/models/components/registry-graph-flow-theme";
 import type { PageAssetConfig, PageMessages } from "@/lib/content/schemas";
 
 const messages = {
@@ -72,6 +73,15 @@ describe("RegistryGraphFlow", () => {
     expect(html).toContain(
       'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
     );
+    expect(html).toContain('data-graph-interaction-pan="true"');
+    expect(html).toContain('data-graph-interaction-zoom="true"');
+    expect(html).toContain('data-graph-interaction-editing="false"');
+    expect(REGISTRY_GRAPH_FLOW_INTERACTION.panOnDrag).toBe(true);
+    expect(REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnScroll).toBe(true);
+    expect(REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnPinch).toBe(true);
+    expect(REGISTRY_GRAPH_FLOW_INTERACTION.nodesDraggable).toBe(false);
+    expect(REGISTRY_GRAPH_FLOW_INTERACTION.nodesConnectable).toBe(false);
+    expect(REGISTRY_GRAPH_FLOW_INTERACTION.elementsSelectable).toBe(false);
     expect(html).toContain('aria-label="Grouped-query attention compute flow"');
     expect(html).toContain('data-graph-node-id="hidden-states"');
     expect(html).toContain('data-graph-node-id="query-groups"');

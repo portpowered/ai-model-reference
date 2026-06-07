@@ -59,6 +59,15 @@ describe("ModuleGraph live GQA graphs", () => {
     expect(graphWrapper?.getAttribute("style")).toContain(
       "--xy-node-background-color: var(--card)",
     );
+    expect(graphWrapper?.getAttribute("data-graph-interaction-pan")).toBe(
+      "true",
+    );
+    expect(graphWrapper?.getAttribute("data-graph-interaction-zoom")).toBe(
+      "true",
+    );
+    expect(graphWrapper?.getAttribute("data-graph-interaction-editing")).toBe(
+      "false",
+    );
     expect(
       screen.getByRole("img", {
         name: "Grouped-query attention compute flow",
