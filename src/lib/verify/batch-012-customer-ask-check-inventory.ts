@@ -1,6 +1,7 @@
 import {
   BATCH_012_GLOSSARY_CHECKLIST_ROW,
   BATCH_012_GLOSSARY_CHECKS,
+  BATCH_012_GLOSSARY_OPENING_SUMMARY_ROUTES,
   BATCH_012_GLOSSARY_ROUTES,
 } from "./batch-012-glossary-checks";
 import {
@@ -63,11 +64,11 @@ export const BATCH_012_CUSTOMER_ASK_INVENTORY: readonly Batch012CustomerAskInven
       checklistRow: BATCH_012_SEARCH_PAGE_CHECKLIST_ROW,
       route: BATCH_012_TAG_SEARCH_DECORATION_ROUTES.searchPage,
     },
-    {
+    ...BATCH_012_GLOSSARY_OPENING_SUMMARY_ROUTES.map((route) => ({
       checkId: BATCH_012_GLOSSARY_CHECKS.noRenderedOpeningSummary.checkId,
       checklistRow: BATCH_012_GLOSSARY_CHECKLIST_ROW,
-      route: BATCH_012_GLOSSARY_ROUTES.token,
-    },
+      route,
+    })),
     {
       checkId: BATCH_012_GLOSSARY_CHECKS.embeddingDescriptionLinks.checkId,
       checklistRow: BATCH_012_GLOSSARY_CHECKLIST_ROW,
@@ -158,7 +159,10 @@ export function buildBatch012CustomerAskReportSlots(): readonly Batch012Customer
       route: BATCH_012_TAG_SEARCH_DECORATION_ROUTES.searchPage,
       query,
     })),
-    { checkId: BATCH_012_GLOSSARY_CHECKS.noRenderedOpeningSummary.checkId },
+    ...BATCH_012_GLOSSARY_OPENING_SUMMARY_ROUTES.map((route) => ({
+      checkId: BATCH_012_GLOSSARY_CHECKS.noRenderedOpeningSummary.checkId,
+      route,
+    })),
     { checkId: BATCH_012_GLOSSARY_CHECKS.embeddingDescriptionLinks.checkId },
     { checkId: BATCH_012_MISSING_PAGES_CHECKS.attentionRoute.checkId },
     { checkId: BATCH_012_MISSING_PAGES_CHECKS.vectorRoute.checkId },

@@ -8,7 +8,17 @@ export const BATCH_012_GLOSSARY_CHECKLIST_ROW =
 export const BATCH_012_GLOSSARY_ROUTES = {
   token: glossaryPageHref("token"),
   embedding: glossaryPageHref("embedding"),
+  vector: glossaryPageHref("vector"),
+  hiddenSize: glossaryPageHref("hidden-size"),
 } as const;
+
+/** Glossary routes covered by per-route opening-summary convergence checks. */
+export const BATCH_012_GLOSSARY_OPENING_SUMMARY_ROUTES = [
+  BATCH_012_GLOSSARY_ROUTES.token,
+  BATCH_012_GLOSSARY_ROUTES.embedding,
+  BATCH_012_GLOSSARY_ROUTES.vector,
+  BATCH_012_GLOSSARY_ROUTES.hiddenSize,
+] as const;
 
 export const BATCH_012_GLOSSARY_CHECKS = {
   noRenderedOpeningSummary: {
