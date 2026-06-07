@@ -52,6 +52,19 @@ function writePassingExportFixture(
       </html>
     `;
     writeFileSync(join(outDir, "index.html"), prefixedIndex);
+
+    const gqaRoute = "/docs/modules/grouped-query-attention";
+    const gqaHtml = PASSING_ROUTE_HTML[gqaRoute];
+    const prefixedGqaHtml = `
+      <html><body>
+        <script src="${basePath}/_next/static/chunks/main.js"></script>
+        ${gqaHtml.replace(/^<html><body>/, "").replace(/<\/body><\/html>$/, "")}
+      </body></html>
+    `;
+    writeFileSync(
+      join(outDir, routeToRelativeHtmlPath(gqaRoute)),
+      prefixedGqaHtml,
+    );
   }
 }
 

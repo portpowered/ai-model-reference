@@ -11,7 +11,6 @@ aliases:
 updatedAt: "2026-06-02"
 ---
 
-import { Callout } from "@/features/docs/components/Callout";
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
@@ -21,15 +20,9 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeFlow";
 import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
 
-# <T k="title" />
-
-<T k="problemStatement" />
-
-<T k="coreIdea" />
+<T k="openingSummary" />
 
 <TrainingRegimeAtAGlance registryId="training-regime.example-training-regime" />
-
-<TagPillList registryId="training-regime.example-training-regime" />
 
 <Section id="what-it-is" titleKey="sections.whatItIs.title">
   <T k="sections.whatItIs.body" />
@@ -49,10 +42,6 @@ import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRe
 </Section>
 
 <Section id="practical-benefit" titleKey="sections.practicalBenefit.title">
-  <Callout type="note" titleKey="callouts.readerShortcut.title">
-    <T k="callouts.readerShortcut.body" />
-  </Callout>
-
   <T k="sections.practicalBenefit.body" />
 </Section>
 

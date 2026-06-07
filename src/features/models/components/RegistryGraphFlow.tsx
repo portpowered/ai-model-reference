@@ -6,12 +6,13 @@ import { MissingGraphRecord } from "@/features/docs/components/MissingGraphRecor
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
 import {
   buildRegistryGraphFlowNodeThemeStyle,
+  REGISTRY_GRAPH_FLOW_INTERACTION,
   REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE,
 } from "@/features/models/components/registry-graph-flow-theme";
 import { buildRegistryFlowGraph } from "@/lib/content/graph-flow";
 import { getGraphById } from "@/lib/content/graph-registry-runtime";
 
-function RegistryGraphFlowCanvas({
+export function RegistryGraphFlowCanvas({
   assetId,
   graphId,
   alt,
@@ -41,6 +42,22 @@ function RegistryGraphFlowCanvas({
         REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE
       }
       data-graph-node-count={String(nodes.length)}
+      data-graph-interaction-pan={
+        REGISTRY_GRAPH_FLOW_INTERACTION.panOnDrag ? "true" : "false"
+      }
+      data-graph-interaction-zoom={
+        REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnScroll &&
+        REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnPinch
+          ? "true"
+          : "false"
+      }
+      data-graph-interaction-editing={
+        REGISTRY_GRAPH_FLOW_INTERACTION.nodesDraggable ||
+        REGISTRY_GRAPH_FLOW_INTERACTION.nodesConnectable ||
+        REGISTRY_GRAPH_FLOW_INTERACTION.elementsSelectable
+          ? "true"
+          : "false"
+      }
       className="registry-graph-flow w-full min-w-0"
       style={buildRegistryGraphFlowNodeThemeStyle() as CSSProperties}
       role="img"
@@ -48,25 +65,33 @@ function RegistryGraphFlowCanvas({
     >
       <div className="sr-only" aria-hidden="false">
         {nodes.map((node) => (
-          <span key={node.id} data-graph-node-id={node.id}>
+          <span
+            key={node.id}
+            data-graph-node-id={node.id}
+            {...(node.data.headCountRole
+              ? { "data-head-count-role": node.data.headCountRole }
+              : {})}
+          >
             {node.data.label}
           </span>
         ))}
       </div>
-      <div className="registry-graph-flow__viewport h-[min(420px,70vh)] min-h-[220px] w-full max-w-full overflow-x-auto">
+      <div className="registry-graph-flow__viewport h-[min(420px,70vh)] min-h-[220px] w-full max-w-full overflow-hidden">
         <ReactFlow
           nodes={nodes}
           edges={edges}
           fitView
           fitViewOptions={{ padding: 0.2 }}
-          nodesDraggable={false}
-          nodesConnectable={false}
-          elementsSelectable={false}
-          panOnDrag={false}
-          zoomOnScroll={false}
-          zoomOnPinch={false}
-          zoomOnDoubleClick={false}
-          preventScrolling={false}
+          nodesDraggable={REGISTRY_GRAPH_FLOW_INTERACTION.nodesDraggable}
+          nodesConnectable={REGISTRY_GRAPH_FLOW_INTERACTION.nodesConnectable}
+          elementsSelectable={
+            REGISTRY_GRAPH_FLOW_INTERACTION.elementsSelectable
+          }
+          panOnDrag={REGISTRY_GRAPH_FLOW_INTERACTION.panOnDrag}
+          zoomOnScroll={REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnScroll}
+          zoomOnPinch={REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnPinch}
+          zoomOnDoubleClick={REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnDoubleClick}
+          preventScrolling={REGISTRY_GRAPH_FLOW_INTERACTION.preventScrolling}
           proOptions={{ hideAttribution: true }}
         >
           <Background gap={16} size={1} />

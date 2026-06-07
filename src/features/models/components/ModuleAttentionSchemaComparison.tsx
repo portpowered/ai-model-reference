@@ -4,28 +4,30 @@ import { MissingMessageKey } from "@/features/docs/components/MissingMessageKey"
 import { ProseAutoLinkText } from "@/features/docs/components/ProseAutoLinkText";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
 import { TBlockMath } from "@/features/docs/components/TBlockMath";
-import { MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS } from "@/features/models/components/module-attention-math-variable-definitions";
+import {
+  type ModuleAttentionMathSchemaId,
+  moduleAttentionMathVariableDefinitionIdsForSchema,
+} from "@/features/models/components/module-attention-math-variable-definitions";
 import { lookupMessage } from "@/lib/content/messages";
 
-function ModuleAttentionVariableDefinitions() {
+type SchemaFormulaBlockProps = {
+  schemaId: ModuleAttentionMathSchemaId;
+  labelKey: string;
+  formulaKey: string;
+};
+
+function ModuleAttentionSchemaVariableDefinitions({
+  schemaId,
+}: {
+  schemaId: ModuleAttentionMathSchemaId;
+}) {
   const { messages, isDev } = usePageMessages();
-  const titleResult = lookupMessage(messages, "mathVariableDefinitions.title");
+  const definitionIds =
+    moduleAttentionMathVariableDefinitionIdsForSchema(schemaId);
 
-  if (!titleResult.ok) {
-    if (isDev) {
-      return (
-        <MissingMessageKey
-          messageKey="mathVariableDefinitions.title"
-          reason={titleResult.reason}
-        />
-      );
-    }
-    return null;
-  }
-
-  const rows = MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS.map((id) => {
-    const termKey = `mathVariableDefinitions.${id}.term`;
-    const definitionKey = `mathVariableDefinitions.${id}.definition`;
+  const rows = definitionIds.map((id) => {
+    const termKey = `math.${schemaId}Schema.variableDefinitions.${id}.term`;
+    const definitionKey = `math.${schemaId}Schema.variableDefinitions.${id}.definition`;
     const termResult = lookupMessage(messages, termKey);
     const definitionResult = lookupMessage(messages, definitionKey);
 
@@ -52,13 +54,10 @@ function ModuleAttentionVariableDefinitions() {
     }
 
     return (
-      <section
+      <div
         className="rounded-lg border border-border bg-card p-4"
         data-attention-schema-variable-definitions="true"
       >
-        <h3 className="mb-3 text-sm font-medium text-foreground">
-          {titleResult.value}
-        </h3>
         <dl className="space-y-2">
           {completeRows.map((row) => (
             <div
@@ -75,18 +74,15 @@ function ModuleAttentionVariableDefinitions() {
             </div>
           ))}
         </dl>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section
+    <div
       className="rounded-lg border border-border bg-card p-4"
       data-attention-schema-variable-definitions="true"
     >
-      <h3 className="mb-3 text-sm font-medium text-foreground">
-        {titleResult.value}
-      </h3>
       <dl className="space-y-2">
         {rows.map((row) => {
           if (!row.termResult.ok) {
@@ -125,7 +121,24 @@ function ModuleAttentionVariableDefinitions() {
           );
         })}
       </dl>
-    </section>
+    </div>
+  );
+}
+
+function SchemaFormulaBlock({
+  schemaId,
+  labelKey,
+  formulaKey,
+}: SchemaFormulaBlockProps) {
+  return (
+    <div
+      className="flex flex-col gap-3"
+      data-math-schema={schemaId}
+      data-attention-schema-formula="true"
+    >
+      <TBlockMath labelKey={labelKey} formulaKey={formulaKey} />
+      <ModuleAttentionSchemaVariableDefinitions schemaId={schemaId} />
+    </div>
   );
 }
 
@@ -135,13 +148,14 @@ export function ModuleAttentionSchemaComparison() {
       className="not-prose my-4 flex flex-col gap-6"
       data-attention-schema-comparison="true"
     >
-      <ModuleAttentionVariableDefinitions />
       <div className="flex flex-col gap-6 sm:grid sm:grid-cols-2 sm:gap-4">
-        <TBlockMath
+        <SchemaFormulaBlock
+          schemaId="mha"
           labelKey="math.mhaSchema.label"
           formulaKey="math.mhaSchema.formula"
         />
-        <TBlockMath
+        <SchemaFormulaBlock
+          schemaId="gqa"
           labelKey="math.gqaSchema.label"
           formulaKey="math.gqaSchema.formula"
         />

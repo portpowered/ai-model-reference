@@ -1,4 +1,9 @@
-import { MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS } from "@/features/models/components/module-attention-math-variable-definitions";
+import {
+  MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS,
+  MODULE_ATTENTION_GQA_ONLY_MATH_VARIABLE_DEFINITION_IDS,
+  MODULE_ATTENTION_MATH_FORBIDDEN_DEFINITION_TERMS,
+  MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS,
+} from "@/features/models/components/module-attention-math-variable-definitions";
 
 export const GROUPED_QUERY_ATTENTION_MODULE_TITLE =
   "Grouped-Query Attention" as const;
@@ -14,11 +19,17 @@ export const GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS = [
   "Related",
   'id="related"',
   'data-testid="curated-related-docs"',
-  'data-graph-node-id="hidden-states"',
-  'data-graph-node-id="query-groups"',
-  'data-graph-node-count="6"',
+  'data-attention-variant-comparison="true"',
+  'data-attention-variant-active="gqa"',
+  'data-attention-variant-option="mha"',
+  'data-attention-variant-option="gqa"',
+  'data-graph-node-id="gqa-query-heads"',
+  'data-graph-node-id="gqa-kv-groups"',
+  'data-head-count-role="query"',
+  'data-head-count-role="kv"',
+  'data-graph-node-count="3"',
   'data-react-flow-graph="true"',
-  'data-graph-id="graph.grouped-query-attention-compute-flow"',
+  'data-graph-id="graph.grouped-query-attention-gqa-comparison"',
   "--xy-node-color",
   "--xy-node-background-color",
   'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
@@ -31,27 +42,35 @@ export const GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS = [
   'href="/docs/modules/multi-query-attention"',
   'data-comparison-dimension="cacheFootprint"',
   'data-attention-schema-comparison="true"',
-  'data-attention-schema-variable-definitions="true"',
-  "What the symbols mean",
+  'data-math-schema="mha"',
+  'data-math-schema="gqa"',
   'data-message-block-math="math.mhaSchema.formula"',
   'data-message-block-math="math.gqaSchema.formula"',
   'class="katex"',
   "katex-display",
-  ...MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS.map(
+  'data-attention-schema-variable-definitions="true"',
+  ...MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS.map(
     (id) => `data-math-variable-definition="${id}"`,
   ),
-  "Query projection",
-  "Key projection",
-  "Value projection",
-  "Query heads",
-  "Key-value heads",
-  "Query-to-KV grouping",
+  ...MODULE_ATTENTION_GQA_ONLY_MATH_VARIABLE_DEFINITION_IDS.map(
+    (id) => `data-math-variable-definition="${id}"`,
+  ),
 ] as const;
 
-export const GROUPED_QUERY_ATTENTION_MATH_DEFINITION_MARKERS =
-  MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS.map(
+export const GROUPED_QUERY_ATTENTION_MATH_DEFINITION_MARKERS = [
+  'data-attention-schema-variable-definitions="true"',
+  'data-math-schema="mha"',
+  'data-math-schema="gqa"',
+  ...MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS.map(
     (id) => `data-math-variable-definition="${id}"`,
-  );
+  ),
+  ...MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS.map(
+    (id) => `data-math-variable-definition="${id}"`,
+  ),
+] as const;
+
+export const GROUPED_QUERY_ATTENTION_MATH_FORBIDDEN_DEFINITION_TERMS =
+  MODULE_ATTENTION_MATH_FORBIDDEN_DEFINITION_TERMS;
 
 export const GROUPED_QUERY_ATTENTION_GRAPH_THEME_MARKERS = [
   "--xy-node-color",
@@ -59,40 +78,55 @@ export const GROUPED_QUERY_ATTENTION_GRAPH_THEME_MARKERS = [
   'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
 ] as const;
 
+function buildMathSchemaStub(
+  schemaId: "mha" | "gqa",
+  definitionIds: readonly string[],
+): string {
+  const definitions = definitionIds
+    .map((id) => `<div data-math-variable-definition="${id}"></div>`)
+    .join("");
+  return `<div data-math-schema="${schemaId}" data-attention-schema-variable-definitions="true">${definitions}</div>`;
+}
+
+/** Stub HTML for the attention schema comparison block in math/schema sections. */
+export function buildGroupedQueryAttentionMathComparisonStub(): string {
+  return `<div data-attention-schema-comparison="true">
+    ${buildMathSchemaStub("mha", MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS)}
+    ${buildMathSchemaStub("gqa", MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS)}
+    <span data-message-block-math="math.mhaSchema.formula"></span>
+    <span data-message-block-math="math.gqaSchema.formula"></span>
+    <span class="katex"></span>
+  </div>`;
+}
+
 /** Minimal inner HTML that satisfies {@link assertGroupedQueryAttentionModuleConvergence}. */
 export function buildGroupedQueryAttentionStubBody(): string {
-  const graphWrapper = `<div data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-compute-flow" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-node-color:var(--card-foreground);--xy-node-background-color:var(--card)"></div>`;
+  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="gqa" data-attention-variant-option="mha" data-attention-variant-option="gqa" data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-gqa-comparison" data-graph-node-id="gqa-query-heads" data-graph-node-id="gqa-kv-groups" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="3" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-node-color:var(--card-foreground);--xy-node-background-color:var(--card)"></div>`;
   const tagPillList = `<ul data-testid="tag-pill-list" aria-label="Tags"></ul>`;
-  const mathDefinitions = MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS.map(
-    (id) => `<span data-math-variable-definition="${id}"></span>`,
-  ).join("");
-  const mathDefinitionTerms = [
-    "Query projection",
-    "Key projection",
-    "Value projection",
-    "Query heads",
-    "Key-value heads",
-    "Query-to-KV grouping",
-  ]
-    .map((term) => `<span>${term}</span>`)
-    .join("");
+  const mathDefinitions = buildGroupedQueryAttentionMathComparisonStub();
 
   const staticMarkers = GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS.filter(
     (marker) =>
+      !marker.startsWith("data-math-schema=") &&
       !marker.startsWith("data-math-variable-definition=") &&
+      marker !== 'data-attention-schema-variable-definitions="true"' &&
       marker !== 'data-react-flow-graph="true"' &&
-      marker !== 'data-graph-id="graph.grouped-query-attention-compute-flow"' &&
+      marker !==
+        'data-graph-id="graph.grouped-query-attention-gqa-comparison"' &&
+      marker !== 'data-attention-variant-comparison="true"' &&
+      marker !== 'data-attention-variant-active="gqa"' &&
+      marker !== 'data-attention-variant-option="mha"' &&
+      marker !== 'data-attention-variant-option="gqa"' &&
+      marker !== 'data-graph-node-id="gqa-query-heads"' &&
+      marker !== 'data-graph-node-id="gqa-kv-groups"' &&
+      marker !== 'data-head-count-role="query"' &&
+      marker !== 'data-head-count-role="kv"' &&
+      marker !== 'data-graph-node-count="3"' &&
       marker !== 'data-testid="tag-pill-list"' &&
       marker !== "--xy-node-color" &&
       marker !== "--xy-node-background-color" &&
       marker !==
-        'data-manual-visibility-evidence="registry-graph-flow-node-contrast"' &&
-      marker !== "Query projection" &&
-      marker !== "Key projection" &&
-      marker !== "Value projection" &&
-      marker !== "Query heads" &&
-      marker !== "Key-value heads" &&
-      marker !== "Query-to-KV grouping",
+        'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
   );
 
   const renderedMarkers = staticMarkers.map((marker) => {
@@ -105,13 +139,9 @@ export function buildGroupedQueryAttentionStubBody(): string {
     return `<span>${marker}</span>`;
   });
 
-  return [
-    graphWrapper,
-    tagPillList,
-    mathDefinitions,
-    mathDefinitionTerms,
-    ...renderedMarkers,
-  ].join("");
+  return [graphWrapper, tagPillList, mathDefinitions, ...renderedMarkers].join(
+    "",
+  );
 }
 
 export const GROUPED_QUERY_ATTENTION_FORBIDDEN_MARKERS = [
@@ -135,7 +165,9 @@ export const GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS = {
   missingThemedNodeColors:
     "React Flow node theme CSS variables missing from graph wrapper",
   missingMathDefinitions:
-    "plain-language math variable definitions missing from schema section",
+    "symbol-level math variable definitions missing from schema section",
+  forbiddenMathDefinitionTerms:
+    "forbidden projection or grouping definition rows in math section",
 } as const;
 
 /** Graph accessibility/build markers derived from {@link GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS}. */
@@ -165,6 +197,42 @@ function countMarkerOccurrences(html: string, marker: string): number {
 function countH1BlocksContaining(html: string, text: string): number {
   const blocks = html.match(H1_PATTERN) ?? [];
   return blocks.filter((block) => block.includes(text)).length;
+}
+
+function extractMathOrComputeSchemaSection(html: string): string {
+  const match = /<section[^>]*\bid="math-or-compute-schema"[^>]*>/i.exec(html);
+  if (!match || match.index === undefined) {
+    const comparisonStart = html.indexOf(
+      'data-attention-schema-comparison="true"',
+    );
+    return comparisonStart >= 0 ? html.slice(comparisonStart) : html;
+  }
+
+  const startIndex = match.index;
+  let depth = 1;
+  let pos = match.index + match[0].length;
+
+  while (pos < html.length && depth > 0) {
+    const nextOpen = html.indexOf("<section", pos);
+    const nextClose = html.indexOf("</section>", pos);
+
+    if (nextClose === -1) {
+      break;
+    }
+
+    if (nextOpen !== -1 && nextOpen < nextClose) {
+      depth++;
+      pos = nextOpen + "<section".length;
+    } else {
+      depth--;
+      pos = nextClose + "</section>".length;
+      if (depth === 0) {
+        return html.slice(startIndex, pos);
+      }
+    }
+  }
+
+  return html.slice(startIndex);
 }
 
 function requireSubstrings(
@@ -291,25 +359,39 @@ export function assertGroupedQueryAttentionGraphThemeConvergence(
 }
 
 /**
- * Returns a failure reason when plain-language math variable definitions are
- * missing from the attention schema comparison region.
+ * Returns a failure reason when symbol-level math variable definitions are
+ * missing from the attention schema comparison region or when forbidden concept
+ * rows appear under the math block.
  */
 export function assertGroupedQueryAttentionMathDefinitionsConvergence(
   html: string,
 ): string | null {
-  const missing = requireSubstrings(html, [
+  const mathRegion = extractMathOrComputeSchemaSection(html);
+
+  const missing = requireSubstrings(mathRegion, [
+    'data-attention-schema-comparison="true"',
     'data-attention-schema-variable-definitions="true"',
-    "What the symbols mean",
-    ...GROUPED_QUERY_ATTENTION_MATH_DEFINITION_MARKERS,
-    "Query projection",
-    "Key projection",
-    "Value projection",
-    "Query heads",
-    "Key-value heads",
-    "Query-to-KV grouping",
+    'data-math-schema="mha"',
+    'data-math-schema="gqa"',
+    'data-message-block-math="math.mhaSchema.formula"',
+    'data-message-block-math="math.gqaSchema.formula"',
+    ...MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS.map(
+      (id) => `data-math-variable-definition="${id}"`,
+    ),
+    ...MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS.map(
+      (id) => `data-math-variable-definition="${id}"`,
+    ),
   ]);
   if (missing) {
     return GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.missingMathDefinitions;
+  }
+
+  const forbidden = forbidSubstrings(
+    mathRegion,
+    GROUPED_QUERY_ATTENTION_MATH_FORBIDDEN_DEFINITION_TERMS,
+  );
+  if (forbidden) {
+    return GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.forbiddenMathDefinitionTerms;
   }
 
   return null;

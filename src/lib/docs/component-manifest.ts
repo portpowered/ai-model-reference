@@ -146,6 +146,14 @@ export const PHASE_1_MODULE_PAGE_COVERAGE_COMPONENTS: ComponentCoverageEntry[] =
       ],
     },
     {
+      file: "src/features/models/components/AttentionVariantComparisonGraph.tsx",
+      label: "AttentionVariantComparisonGraph",
+      minReachableLinePercent: 90,
+      unitTests: [
+        "src/features/models/components/AttentionVariantComparisonGraph.test.tsx",
+      ],
+    },
+    {
       file: "src/features/models/components/RegistryGraphFlow.tsx",
       label: "RegistryGraphFlow",
       minReachableLinePercent: 90,

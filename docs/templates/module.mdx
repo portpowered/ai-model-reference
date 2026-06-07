@@ -11,7 +11,6 @@ aliases:
 updatedAt: "2026-06-02"
 ---
 
-import { Callout } from "@/features/docs/components/Callout";
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
@@ -21,11 +20,10 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
 import { ModuleGraph } from "@/features/models/components/ModuleGraph";
 import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
+import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
 import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
 
-<T k="problemStatement" />
-
-<T k="coreIdea" />
+<T k="openingSummary" />
 
 <ModuleAtAGlance registryId="module.example-module" />
 
@@ -39,10 +37,6 @@ import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModul
 
 <Section id="practical-benefit" titleKey="sections.practicalBenefit.title">
   <T k="sections.practicalBenefit.body" />
-
-  <Callout type="note" titleKey="callouts.readerShortcut.title">
-    <T k="callouts.readerShortcut.body" />
-  </Callout>
 </Section>
 
 <Section id="how-it-works" titleKey="sections.howItWorks.title">
@@ -53,7 +47,7 @@ import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModul
 
 <Section id="math-or-compute-schema" titleKey="sections.mathOrComputeSchema.title">
   <T k="sections.mathOrComputeSchema.body" />
-  <ModuleGraph registryId="module.example-module" assetId="computeSchema" />
+  <ModuleAttentionSchemaComparison />
 </Section>
 
 <Section id="compared-to-nearby-modules" titleKey="sections.comparedToNearbyModules.title">

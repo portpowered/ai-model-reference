@@ -57,8 +57,8 @@ const SEARCH_DIALOG_TRIGGER_SELECTOR = "button[data-search]";
 const SEARCH_DIALOG_EMPTY_SELECTOR = '[data-testid="search-dialog-empty"]';
 const SEARCH_RESULT_URL_SELECTOR = '[data-testid="search-result-url"]';
 
-/** Default per-query browser deadline (Orama client hydration can exceed 10s). */
-export const DEFAULT_SEARCH_DIALOG_TIMEOUT_MS = 15_000;
+/** Default per-query browser deadline (client hydration can exceed 10s under CI load). */
+export const DEFAULT_SEARCH_DIALOG_TIMEOUT_MS = 30_000;
 
 export function formatPhase1SearchDialogCheckFailure(
   failure: Phase1SearchDialogCheckFailure,

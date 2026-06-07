@@ -2,63 +2,47 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
-import { MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS } from "@/features/models/components/module-attention-math-variable-definitions";
+import {
+  MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS,
+  MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS,
+} from "@/features/models/components/module-attention-math-variable-definitions";
 import type { PageMessages } from "@/lib/content/schemas";
 
-const mathVariableDefinitions = {
-  title: "What the symbols mean",
-  q: {
-    term: "Q",
-    definition: "Query vectors for each attention head.",
-  },
-  k: {
-    term: "K",
-    definition: "Key vectors for each position.",
-  },
-  v: {
-    term: "V",
-    definition: "Value vectors for each position.",
-  },
-  queryProjection: {
-    term: "Query projection",
-    definition: "Linear map from hidden states to query heads.",
-  },
-  keyProjection: {
-    term: "Key projection",
-    definition: "Linear map from hidden states to key heads.",
-  },
-  valueProjection: {
-    term: "Value projection",
-    definition: "Linear map from hidden states to value heads.",
-  },
-  queryHeads: {
-    term: "Query heads",
-    definition: "H separate query streams.",
-  },
-  keyValueHeads: {
-    term: "Key-value heads",
-    definition: "Paired key and value heads.",
-  },
-  grouping: {
-    term: "Query-to-KV grouping",
-    definition: "Mapping that routes query heads to shared KV pairs.",
-  },
-} satisfies PageMessages["mathVariableDefinitions"];
+const mhaVariableDefinitions = {
+  q: { term: "Q", definition: "Query vectors for head i." },
+  k: { term: "K", definition: "Key vectors for head i." },
+  v: { term: "V", definition: "Value vectors for head i." },
+  h: { term: "H", definition: "Number of query heads." },
+  dk: { term: "d_k", definition: "Key dimension per head." },
+  i: { term: "i", definition: "Query head index." },
+};
+
+const gqaVariableDefinitions = {
+  ...mhaVariableDefinitions,
+  g: { term: "G", definition: "Number of shared KV groups." },
+  gi: { term: "g(i)", definition: "KV group index for query head i." },
+};
+
+const mhaSchema = {
+  label: "Multi-head attention (MHA)",
+  formula:
+    "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+  variableDefinitions: mhaVariableDefinitions,
+};
+
+const gqaSchema = {
+  label: "Grouped-query attention (GQA)",
+  formula:
+    "\\text{Attention}(Q_i, K_{g(i)}, V_{g(i)}) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_{g(i)}^{\\top}}{\\sqrt{d_k}}\\right) V_{g(i)}",
+  variableDefinitions: gqaVariableDefinitions,
+};
 
 const messages = {
   title: "Grouped-Query Attention",
   description: "Test page",
   math: {
-    mhaSchema: {
-      label: "Multi-head attention (MHA)",
-      formula:
-        "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
-    },
-    gqaSchema: {
-      label: "Grouped-query attention (GQA)",
-      formula:
-        "\\text{Attention}(Q_i, K_{g(i)}, V_{g(i)}) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_{g(i)}^{\\top}}{\\sqrt{d_k}}\\right) V_{g(i)}",
-    },
+    mhaSchema,
+    gqaSchema,
   },
 } satisfies PageMessages;
 
@@ -79,7 +63,22 @@ function renderComparison(
 describe("ModuleAttentionSchemaComparison", () => {
   test("renders MHA and GQA KaTeX formulas from message keys", () => {
     const html = renderToStaticMarkup(
-      <PageMessagesProvider messages={messages} isDev={false}>
+      <PageMessagesProvider
+        messages={{
+          ...messages,
+          math: {
+            mhaSchema: {
+              label: mhaSchema.label,
+              formula: mhaSchema.formula,
+            },
+            gqaSchema: {
+              label: gqaSchema.label,
+              formula: gqaSchema.formula,
+            },
+          },
+        }}
+        isDev={false}
+      >
         <ModuleAttentionSchemaComparison />
       </PageMessagesProvider>,
     );
@@ -95,108 +94,124 @@ describe("ModuleAttentionSchemaComparison", () => {
     );
   });
 
-  test("renders plain-language math variable definitions from message keys", () => {
-    const html = renderToStaticMarkup(
-      <PageMessagesProvider
-        messages={{ ...messages, mathVariableDefinitions }}
-        isDev={false}
-      >
-        <ModuleAttentionSchemaComparison />
-      </PageMessagesProvider>,
-    );
+  test("renders symbol definitions directly under each equation", () => {
+    const html = renderComparison();
 
     expect(html).toContain('data-attention-schema-comparison="true"');
     expect(html).toContain('data-attention-schema-variable-definitions="true"');
-    expect(html).toContain("What the symbols mean");
+    expect(html).toContain('data-math-schema="mha"');
+    expect(html).toContain('data-math-schema="gqa"');
 
-    for (const id of MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS) {
-      expect(html).toContain(`data-math-variable-definition="${id}"`);
+    const mhaSchemaIndex = html.indexOf('data-math-schema="mha"');
+    const gqaSchemaIndex = html.indexOf('data-math-schema="gqa"');
+    expect(mhaSchemaIndex).toBeGreaterThanOrEqual(0);
+    expect(gqaSchemaIndex).toBeGreaterThan(mhaSchemaIndex);
+
+    const mhaChunk = html.slice(mhaSchemaIndex, gqaSchemaIndex);
+    const gqaChunk = html.slice(gqaSchemaIndex);
+
+    for (const id of MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS) {
+      expect(mhaChunk).toContain(`data-math-variable-definition="${id}"`);
     }
 
-    expect(html).toContain("Query projection");
-    expect(html).toContain("Key projection");
-    expect(html).toContain("Value projection");
-    expect(html).toContain("Query heads");
-    expect(html).toContain("Key-value heads");
-    expect(html).toContain("Query-to-KV grouping");
+    for (const id of MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS) {
+      expect(gqaChunk).toContain(`data-math-variable-definition="${id}"`);
+    }
+
+    const mhaFormulaIndex = mhaChunk.indexOf(
+      'data-message-block-math="math.mhaSchema.formula"',
+    );
+    const mhaFirstDefinitionIndex = mhaChunk.indexOf(
+      'data-math-variable-definition="',
+    );
+    expect(mhaFirstDefinitionIndex).toBeGreaterThan(mhaFormulaIndex);
+
+    const gqaFormulaIndex = gqaChunk.indexOf(
+      'data-message-block-math="math.gqaSchema.formula"',
+    );
+    const gqaFirstDefinitionIndex = gqaChunk.indexOf(
+      'data-math-variable-definition="',
+    );
+    expect(gqaFirstDefinitionIndex).toBeGreaterThan(gqaFormulaIndex);
+
+    expect(html).not.toContain("Query projection");
+    expect(html).not.toContain("Key projection");
+    expect(html).not.toContain("Value projection");
     expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
     expect(html).toContain('data-message-block-math="math.gqaSchema.formula"');
   });
 
   test("renders math variable definitions in development mode", () => {
-    const html = renderComparison({ mathVariableDefinitions }, true);
+    const html = renderComparison({}, true);
 
     expect(html).toContain('data-attention-schema-variable-definitions="true"');
-    expect(html).toContain("What the symbols mean");
     expect(html).toContain('data-math-variable-definition="q"');
     expect(html).toContain(">Q</dt>");
-    expect(html).toContain("for each");
-  });
-
-  test("shows a developer-visible error when mathVariableDefinitions.title is missing", () => {
-    const html = renderComparison(
-      {
-        mathVariableDefinitions: {
-          ...mathVariableDefinitions,
-          title: undefined as unknown as string,
-        },
-      },
-      true,
-    );
-
-    expect(html).toContain(
-      'data-missing-message-key="mathVariableDefinitions.title"',
-    );
-    expect(html).toContain(
-      "Missing message key: mathVariableDefinitions.title",
-    );
+    expect(html).toContain("head i");
   });
 
   test("shows a developer-visible error when a math variable term key is missing", () => {
     const html = renderComparison(
       {
-        mathVariableDefinitions: {
-          ...mathVariableDefinitions,
-          q: undefined as unknown as (typeof mathVariableDefinitions)["q"],
+        math: {
+          mhaSchema: {
+            ...mhaSchema,
+            variableDefinitions: {
+              ...mhaVariableDefinitions,
+              q: undefined as unknown as (typeof mhaVariableDefinitions)["q"],
+            },
+          },
+          gqaSchema,
         },
       },
       true,
     );
 
     expect(html).toContain(
-      'data-missing-message-key="mathVariableDefinitions.q.term"',
+      'data-missing-message-key="math.mhaSchema.variableDefinitions.q.term"',
     );
     expect(html).toContain(
-      "Missing message key: mathVariableDefinitions.q.term",
+      "Missing message key: math.mhaSchema.variableDefinitions.q.term",
     );
   });
 
   test("shows a developer-visible error when a math variable definition key is missing", () => {
     const html = renderComparison(
       {
-        mathVariableDefinitions: {
-          ...mathVariableDefinitions,
-          q: { term: "Q" } as (typeof mathVariableDefinitions)["q"],
+        math: {
+          mhaSchema: {
+            ...mhaSchema,
+            variableDefinitions: {
+              q: { term: "Q" } as (typeof mhaVariableDefinitions)["q"],
+            },
+          },
+          gqaSchema,
         },
       },
       true,
     );
 
     expect(html).toContain(
-      'data-missing-message-key="mathVariableDefinitions.q.definition"',
+      'data-missing-message-key="math.mhaSchema.variableDefinitions.q.definition"',
     );
     expect(html).toContain(
-      "Missing message key: mathVariableDefinitions.q.definition",
+      "Missing message key: math.mhaSchema.variableDefinitions.q.definition",
     );
   });
 
   test("omits variable definitions in production when no complete rows resolve", () => {
     const html = renderComparison(
       {
-        mathVariableDefinitions: {
-          title: "What the symbols mean",
-          q: { term: "Q" } as (typeof mathVariableDefinitions)["q"],
-        } as PageMessages["mathVariableDefinitions"],
+        math: {
+          mhaSchema: {
+            label: mhaSchema.label,
+            formula: mhaSchema.formula,
+          },
+          gqaSchema: {
+            label: gqaSchema.label,
+            formula: gqaSchema.formula,
+          },
+        },
       },
       false,
     );

@@ -30,8 +30,9 @@ describe("Phase 1 colocated page fixtures", () => {
 
     expect(messages.title.length).toBeGreaterThan(0);
     expect(messages.description.length).toBeGreaterThan(0);
-    expect(messages.problemStatement?.length).toBeGreaterThan(0);
-    expect(messages.coreIdea?.length).toBeGreaterThan(0);
+    expect(messages.openingSummary?.length).toBeGreaterThan(0);
+    expect(messages.problemStatement).toBeUndefined();
+    expect(messages.coreIdea).toBeUndefined();
 
     for (const key of moduleTemplateSectionKeys) {
       expect(messages.sections?.[key]?.title?.length).toBeGreaterThan(0);
@@ -49,10 +50,10 @@ describe("Phase 1 colocated page fixtures", () => {
       "computeFlow",
     );
 
-    expect(assets.computeFlow?.type).toBe("graph");
-    expect(computeFlow.type).toBe("graph");
-    if (computeFlow.type !== "graph") {
-      throw new Error("expected graph asset");
+    expect(assets.computeFlow?.type).toBe("attention-variant-graph");
+    expect(computeFlow.type).toBe("attention-variant-graph");
+    if (computeFlow.type !== "attention-variant-graph") {
+      throw new Error("expected attention-variant-graph asset");
     }
     expect(computeFlow.altKey).toBe("assets.computeFlow.alt");
     expect(computeFlow.captionKey).toBe("assets.computeFlow.caption");

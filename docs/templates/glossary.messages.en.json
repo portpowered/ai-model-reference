@@ -15,10 +15,6 @@
       "title": "Simple Example",
       "body": ""
     },
-    "whereItAppears": {
-      "title": "Where It Appears",
-      "body": ""
-    },
     "commonConfusions": {
       "title": "Common Confusions",
       "body": ""
@@ -31,12 +27,6 @@
     },
     "references": {
       "title": "References"
-    }
-  },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": ""
     }
   },
   "assets": {

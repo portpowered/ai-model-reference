@@ -22,7 +22,7 @@ describe("derivePhase1CiBlockerDomainEvidence", () => {
   test("marks GQA domain fail when grouped-query-attention built route script fails", () => {
     const output = [
       "Grouped-query-attention built route convergence verification failed:",
-      '  missing data-graph-node-id="hidden-states"',
+      '  missing data-graph-node-id="gqa-query-heads"',
     ].join("\n");
     const evidence = derivePhase1CiBlockerDomainEvidence(output, false);
     const gqa = evidence.find(

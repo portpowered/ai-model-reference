@@ -7,14 +7,6 @@
     "altKey": "assets.computeFlow.alt",
     "captionKey": "assets.computeFlow.caption"
   },
-  "computeSchema": {
-    "type": "graph",
-    "graphId": "graph.example-module-compute-schema",
-    "webRenderer": "react-flow",
-    "printRenderer": "mermaid",
-    "altKey": "assets.computeSchema.alt",
-    "captionKey": "assets.computeSchema.caption"
-  },
   "comparisonTable": {
     "type": "table",
     "tableId": "table.example-module-comparison",

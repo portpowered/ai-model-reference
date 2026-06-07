@@ -72,28 +72,60 @@ describe("PageAsset", () => {
     expect(html).not.toContain(">graph.grouped-query-attention-compute-flow<");
   });
 
-  test("renders GQA computeFlow via RegistryGraphFlow with real assets and messages", () => {
+  test("renders GQA computeFlow via AttentionVariantComparisonGraph with real assets and messages", () => {
     const html = renderPageAsset("computeFlow", false, gqaAssets, gqaMessages);
     expect(html).toContain('data-page-asset="computeFlow"');
+    expect(html).toContain('data-attention-variant-comparison="true"');
     expect(html).toContain(
-      'data-graph-id="graph.grouped-query-attention-compute-flow"',
+      'data-graph-id="graph.grouped-query-attention-gqa-comparison"',
     );
     expect(html).toContain('data-react-flow-graph="true"');
     expect(html).toContain('data-web-renderer="react-flow"');
-    expect(html).toContain('data-graph-node-id="hidden-states"');
-    expect(html).toContain('data-graph-node-count="6"');
+    expect(html).toContain('data-graph-node-id="gqa-query-heads"');
+    expect(html).toContain('data-graph-node-count="3"');
     expect(html).toContain(
-      "Query groups route to shared KV heads during attention",
+      "Toggle MHA and GQA to compare query-head count against KV-head count on one canvas",
     );
-    expect(html).not.toContain(">graph.grouped-query-attention-compute-flow<");
+    expect(html).not.toContain(
+      ">graph.grouped-query-attention-gqa-comparison<",
+    );
   });
 
-  test("renders GQA computeSchema via RegistryGraphFlow with real assets and messages", () => {
+  test("renders computeSchema graph asset via RegistryGraphFlow with inline fixtures", () => {
+    const schemaAssets = parsePageAssetConfig({
+      computeSchema: {
+        type: "graph",
+        graphId: "graph.grouped-query-attention-compute-schema",
+        webRenderer: "react-flow",
+        printRenderer: "mermaid",
+        altKey: "assets.computeSchema.alt",
+        captionKey: "assets.computeSchema.caption",
+      },
+    });
+    const schemaMessages = pageMessagesSchema.parse({
+      ...gqaMessages,
+      assets: {
+        ...gqaMessages.assets,
+        computeSchema: {
+          alt: "Grouped-query attention tensor grouping",
+          caption: "H query heads map to G shared KV groups",
+        },
+      },
+      graph: {
+        nodes: {
+          queryHeads: { label: "H query heads" },
+          queryGroupsSchema: { label: "G groups (H/G query heads each)" },
+          sharedKeyHeads: { label: "G shared key heads" },
+          sharedValueHeads: { label: "G shared value heads" },
+          kvCache: { label: "KV cache (G keys + G values per token)" },
+        },
+      },
+    });
     const html = renderPageAsset(
       "computeSchema",
       false,
-      gqaAssets,
-      gqaMessages,
+      schemaAssets,
+      schemaMessages,
     );
     expect(html).toContain('data-page-asset="computeSchema"');
     expect(html).toContain(

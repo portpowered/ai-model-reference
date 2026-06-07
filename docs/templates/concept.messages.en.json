@@ -1,8 +1,7 @@
 {
   "title": "",
   "description": "",
-  "problemStatement": "",
-  "coreIdea": "",
+  "openingSummary": "",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -32,12 +31,6 @@
     },
     "references": {
       "title": "References"
-    }
-  },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": ""
     }
   },
   "assets": {

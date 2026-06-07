@@ -103,18 +103,23 @@ export function expectModuleComputeFlowGraphOnlyInHowItWorks(
   );
 }
 
-/** Plain-language math variable definitions must live in the math/schema section. */
+/** Symbol-level math variable definitions must live under each formula in the math section. */
 export function expectModuleMathSchemaDefinitionsInMathSection(
   html: string,
-  definitionIds: readonly string[],
+  mhaDefinitionIds: readonly string[],
+  gqaDefinitionIds: readonly string[],
 ): void {
   const mathSection = extractSectionHtml(html, "math-or-compute-schema");
   expect(mathSection).toContain('data-attention-schema-comparison="true"');
   expect(mathSection).toContain(
     'data-attention-schema-variable-definitions="true"',
   );
-  expect(mathSection).toContain("What the symbols mean");
-  for (const id of definitionIds) {
+  expect(mathSection).toContain('data-math-schema="mha"');
+  expect(mathSection).toContain('data-math-schema="gqa"');
+  for (const id of mhaDefinitionIds) {
+    expect(mathSection).toContain(`data-math-variable-definition="${id}"`);
+  }
+  for (const id of gqaDefinitionIds) {
     expect(mathSection).toContain(`data-math-variable-definition="${id}"`);
   }
   expect(mathSection).toContain(
@@ -123,6 +128,10 @@ export function expectModuleMathSchemaDefinitionsInMathSection(
   expect(mathSection).toContain(
     'data-message-block-math="math.gqaSchema.formula"',
   );
+  expect(mathSection).not.toContain("Query projection");
+  expect(mathSection).not.toContain("Key projection");
+  expect(mathSection).not.toContain("Value projection");
+  expect(mathSection).not.toContain("Query-to-KV grouping");
 }
 
 /** Companion sections: attention bridge, comparison table, and curated related docs. */
@@ -142,11 +151,15 @@ export function expectModuleCompanionSections(html: string): void {
   expect(html).toContain('id="related"');
 }
 
-/** Compute-flow graph wrapper must expose themed React Flow node CSS variables. */
-export function expectModuleComputeFlowGraphTheme(
+/** Attention-variant comparison graph must expose themed React Flow markers. */
+export function expectModuleAttentionVariantGraphTheme(
   html: string,
   graphId: string,
 ): void {
+  expect(html).toContain('data-attention-variant-comparison="true"');
+  expect(html).toContain('data-attention-variant-active="gqa"');
+  expect(html).toContain('data-attention-variant-option="mha"');
+  expect(html).toContain('data-attention-variant-option="gqa"');
   expect(html).toContain(`data-graph-id="${graphId}"`);
   expect(html).toContain("--xy-node-color:var(--card-foreground)");
   expect(html).toContain("--xy-node-background-color:var(--card)");
@@ -155,11 +168,24 @@ export function expectModuleComputeFlowGraphTheme(
   );
 
   const howItWorksSection = extractSectionHtml(html, "how-it-works");
+  expect(howItWorksSection).toContain(
+    'data-attention-variant-comparison="true"',
+  );
   expect(howItWorksSection).toContain(`data-graph-id="${graphId}"`);
   expect(howItWorksSection).toContain("--xy-node-color:var(--card-foreground)");
   expect(howItWorksSection).toContain("--xy-node-background-color:var(--card)");
   expect(howItWorksSection).toContain('class="registry-graph-flow');
-  expect(howItWorksSection).toContain('data-graph-node-id="hidden-states"');
-  expect(howItWorksSection).toContain('data-graph-node-id="query-groups"');
-  expect(howItWorksSection).toContain('data-graph-node-count="6"');
+  expect(howItWorksSection).toContain('data-graph-node-id="gqa-query-heads"');
+  expect(howItWorksSection).toContain('data-graph-node-id="gqa-kv-groups"');
+  expect(howItWorksSection).toContain('data-head-count-role="query"');
+  expect(howItWorksSection).toContain('data-head-count-role="kv"');
+  expect(howItWorksSection).toContain('data-graph-node-count="3"');
+}
+
+/** @deprecated Use expectModuleAttentionVariantGraphTheme */
+export function expectModuleComputeFlowGraphTheme(
+  html: string,
+  graphId: string,
+): void {
+  expectModuleAttentionVariantGraphTheme(html, graphId);
 }
