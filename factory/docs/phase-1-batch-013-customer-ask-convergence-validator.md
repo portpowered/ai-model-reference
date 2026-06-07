@@ -166,6 +166,7 @@ Rationale: Batch-013 evidence failed: customer-ask checkId(s): glossary.embeddin
 | --- | --- |
 | `src/lib/verify/batch-013-customer-ask-check-inventory.ts` | Batch-013 reopened-row inventory, report slot ordering, report extraction |
 | `src/lib/verify/phase-1-batch-013-convergence-evidence.ts` | Evidence summary, recommendation rules, exit semantics |
+| `src/lib/verify/phase-1-batch-013-convergence-closure.ts` | Fail-before / pass-after closure helpers for tests |
 | `scripts/run-phase-1-batch-013-convergence-pass.ts` | CLI entrypoint invoked by `make verify-phase-1-batch-013-convergence` |
 | `scripts/verify-phase-1-route-search-ux.ts` | Built-app verifier printing the full customer-ask report |
 
