@@ -6,6 +6,8 @@ import {
   getPhase1GitHubPagesConvergenceExitCode,
   printPhase1GitHubPagesConvergenceEvidenceSummary,
 } from "../src/lib/verify/phase-1-github-pages-convergence-evidence";
+import type { StaticRegressionCheckRow } from "../src/lib/verify/phase-1-github-pages-static-regression";
+import { runPhase1GitHubPagesStaticRegressionChecks } from "../src/lib/verify/phase-1-github-pages-static-regression-http";
 import { runStaticExportServerLifecycle } from "../src/lib/verify/static-export-server-lifecycle";
 
 const projectRoot = join(import.meta.dir, "..");
@@ -20,6 +22,9 @@ type StaticServerLifecycleInput = {
   staticServerSkipReason?: string;
   staticServerLifecycleStatus?: "pass" | "fail";
   staticServerLifecycleReason?: string;
+  staticRegressionSkipped?: boolean;
+  staticRegressionSkipReason?: string;
+  staticRegressionRows?: StaticRegressionCheckRow[];
 };
 
 async function runShellCommand(
@@ -78,8 +83,14 @@ async function runStaticServerLifecycleStage(
     console.log(
       `\nPhase 1 batch-014 GitHub Pages convergence: static export server ready at ${lifecycle.baseUrl}`,
     );
+    console.log(
+      "Phase 1 batch-014 GitHub Pages convergence: running static search and route regression probes",
+    );
+    const staticRegressionRows =
+      await runPhase1GitHubPagesStaticRegressionChecks(lifecycle.baseUrl);
     return {
       staticServerLifecycleStatus: "pass",
+      staticRegressionRows,
     };
   } finally {
     await lifecycle.session.cleanup();
@@ -93,10 +104,14 @@ async function main(): Promise<number> {
   const buildExportResult = await runShellCommand("make build-export");
   const basePath = resolveBasePathForExportVerification(process.env);
 
+  const upstreamStaticSkipReason =
+    "Static export server verification skipped because make build-export did not succeed.";
   let staticServerInput: StaticServerLifecycleInput = {
     staticServerSkipped: true,
-    staticServerSkipReason:
-      "Static export server verification skipped because make build-export did not succeed.",
+    staticServerSkipReason: upstreamStaticSkipReason,
+    staticRegressionSkipped: true,
+    staticRegressionSkipReason:
+      "Static regression probes skipped because make build-export did not succeed.",
   };
 
   if (buildExportResult.exitCode !== 0) {
@@ -105,6 +120,11 @@ async function main(): Promise<number> {
     );
   } else {
     staticServerInput = await runStaticServerLifecycleStage(basePath);
+    if (staticServerInput.staticServerLifecycleStatus === "fail") {
+      staticServerInput.staticRegressionSkipped = true;
+      staticServerInput.staticRegressionSkipReason =
+        "Static regression probes skipped because the static export server lifecycle failed.";
+    }
   }
 
   const evidenceSummary = buildPhase1GitHubPagesConvergenceEvidenceSummary({

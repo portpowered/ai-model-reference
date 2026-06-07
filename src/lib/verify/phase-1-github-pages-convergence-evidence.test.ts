@@ -15,6 +15,7 @@ import {
   EXPORT_BUILD_SUCCESS_SEARCH_HANDOFF_MARKER,
   EXPORT_COMMAND_PATH_DOMAIN_ID,
 } from "./phase-1-github-pages-export-command-path";
+import { STATIC_REGRESSION_DOMAIN_ID } from "./phase-1-github-pages-static-regression";
 import { STATIC_SERVER_COMMAND_PATH_DOMAIN_ID } from "./phase-1-github-pages-static-server-command-path";
 
 function successfulBuildExportOutput(): string {
@@ -22,6 +23,27 @@ function successfulBuildExportOutput(): string {
     `${EXPORT_BUILD_SUCCESS_ROUTE_MARKER} (6 paths in out).`,
     `${EXPORT_BUILD_SUCCESS_SEARCH_HANDOFF_MARKER} (3 queries in out).`,
   ].join("\n");
+}
+
+function passingStaticRegressionRows() {
+  return [
+    {
+      checkId: "static-regression.search.page.page-level-hits",
+      title:
+        "Search page lists canonical page-level hits without fragment URLs",
+      status: "pass" as const,
+      route: "/search" as const,
+      query: "GQA",
+      checklistRow: "phase-1-github-pages-static-regression",
+    },
+    {
+      checkId: "static-regression.route.home-header-search-entry",
+      title: "Home exposes header-only search entry",
+      status: "pass" as const,
+      route: "/" as const,
+      checklistRow: "phase-1-github-pages-static-regression",
+    },
+  ];
 }
 
 function writeMinimalPassingOutFixture(rootDir: string): void {
@@ -62,6 +84,7 @@ describe("buildPhase1GitHubPagesConvergenceEvidenceSummary", () => {
       cwd: dir,
       basePath: "",
       staticServerLifecycleStatus: "pass",
+      staticRegressionRows: passingStaticRegressionRows(),
     });
 
     expect(summary.exportCommandPath.domainId).toBe(
@@ -74,6 +97,8 @@ describe("buildPhase1GitHubPagesConvergenceEvidenceSummary", () => {
       STATIC_SERVER_COMMAND_PATH_DOMAIN_ID,
     );
     expect(summary.staticServerCommandPath.status).toBe("pass");
+    expect(summary.staticRegression.domainId).toBe(STATIC_REGRESSION_DOMAIN_ID);
+    expect(summary.staticRegression.status).toBe("pass");
     expect(summary.recommendation).toBe("stop-and-wait-for-phase-advancement");
 
     rmSync(dir, { recursive: true, force: true });
@@ -128,6 +153,41 @@ describe("buildPhase1GitHubPagesConvergenceEvidenceSummary", () => {
     expect(summary.recommendationRationale).toContain("export-artifact");
   });
 
+  test("marks static-regression fail and recommends repair when probe rows fail", () => {
+    const dir = mkdtempSync(
+      join(tmpdir(), "gh-pages-summary-regression-fail-"),
+    );
+    writeMinimalPassingOutFixture(dir);
+
+    const summary = buildPhase1GitHubPagesConvergenceEvidenceSummary({
+      buildExportOutput: successfulBuildExportOutput(),
+      buildExportExitCode: 0,
+      cwd: dir,
+      basePath: "",
+      staticServerLifecycleStatus: "pass",
+      staticRegressionRows: [
+        {
+          checkId: "static-regression.search.page.page-level-hits",
+          title:
+            "Search page lists canonical page-level hits without fragment URLs",
+          status: "fail",
+          route: "/search",
+          query: "GQA",
+          reason: "first visible result URL includes a hash fragment",
+          checklistRow: "phase-1-github-pages-static-regression",
+        },
+      ],
+    });
+
+    expect(summary.staticRegression.status).toBe("fail");
+    expect(summary.recommendation).toBe("queue-one-narrow-repair-batch");
+    expect(summary.recommendationRationale).toContain(
+      "phase-1-static-regression",
+    );
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   test("marks static-server-command-path fail and recommends repair when readiness fails", () => {
     const dir = mkdtempSync(join(tmpdir(), "gh-pages-summary-server-fail-"));
     writeMinimalPassingOutFixture(dir);
@@ -172,9 +232,37 @@ describe("getPhase1GitHubPagesConvergenceExitCode", () => {
       cwd: dir,
       basePath: "",
       staticServerLifecycleStatus: "pass",
+      staticRegressionRows: passingStaticRegressionRows(),
     });
 
     expect(getPhase1GitHubPagesConvergenceExitCode(summary)).toBe(0);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("returns 1 when static-regression fails", () => {
+    const dir = mkdtempSync(join(tmpdir(), "gh-pages-exit-regression-fail-"));
+    writeMinimalPassingOutFixture(dir);
+
+    const summary = buildPhase1GitHubPagesConvergenceEvidenceSummary({
+      buildExportOutput: successfulBuildExportOutput(),
+      buildExportExitCode: 0,
+      cwd: dir,
+      basePath: "",
+      staticServerLifecycleStatus: "pass",
+      staticRegressionRows: [
+        {
+          checkId: "static-regression.route.gqa-module-presentation",
+          title: "GQA module page includes converged presentation markers",
+          status: "fail",
+          route: "/docs/modules/grouped-query-attention",
+          reason: "missing expected content",
+          checklistRow: "phase-1-github-pages-static-regression",
+        },
+      ],
+    });
+
+    expect(getPhase1GitHubPagesConvergenceExitCode(summary)).toBe(1);
 
     rmSync(dir, { recursive: true, force: true });
   });
@@ -220,6 +308,7 @@ describe("formatPhase1GitHubPagesConvergenceEvidenceSummary", () => {
       cwd: dir,
       basePath: "",
       staticServerLifecycleStatus: "pass",
+      staticRegressionRows: passingStaticRegressionRows(),
     });
     const report = formatPhase1GitHubPagesConvergenceEvidenceSummary(summary);
 
@@ -228,6 +317,7 @@ describe("formatPhase1GitHubPagesConvergenceEvidenceSummary", () => {
     );
     expect(report).toContain("[PASS] export-command-path");
     expect(report).toContain("[PASS] static-server-command-path");
+    expect(report).toContain("[PASS] phase-1-static-regression");
     expect(report).toContain("[UNCERTAIN] export-artifact");
     expect(report).toContain(
       "checklistRow=phase-1-github-pages-export-command-path",
@@ -238,7 +328,13 @@ describe("formatPhase1GitHubPagesConvergenceEvidenceSummary", () => {
     expect(report).toContain(
       "checklistRow=phase-1-github-pages-static-server-command-path",
     );
+    expect(report).toContain(
+      "checklistRow=phase-1-github-pages-static-regression",
+    );
     expect(report).toContain("  [PASS] export-artifact.out-index-html");
+    expect(report).toContain(
+      "  [PASS] static-regression.search.page.page-level-hits",
+    );
     expect(report).toContain(
       "Recommendation: stop-and-wait-for-phase-advancement",
     );
