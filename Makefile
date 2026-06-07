@@ -1,4 +1,4 @@
-.PHONY: dev lint format typecheck test coverage build build-export ci validate-data scaffold linkcheck validate-pdf build-search-index component-examples verify-export-routes verify-export-search-handoff verify-phase-1-ux verify-phase-1-convergence verify-phase-1-built-app-convergence verify-phase-1-follow-up-convergence verify-phase-1-batch-012-convergence verify-phase-1-batch-013-convergence
+.PHONY: dev lint format typecheck test coverage build build-export ci validate-data scaffold linkcheck validate-pdf build-search-index component-examples verify-export-routes verify-export-search-handoff verify-phase-1-ux verify-phase-1-convergence verify-phase-1-built-app-convergence verify-phase-1-follow-up-convergence verify-phase-1-batch-012-convergence verify-phase-1-batch-013-convergence verify-phase-1-github-pages-convergence
 
 dev:
 	bun run dev
@@ -72,3 +72,6 @@ verify-phase-1-batch-012-convergence:
 
 verify-phase-1-batch-013-convergence:
 	bun ./scripts/run-phase-1-batch-013-convergence-pass.ts
+
+verify-phase-1-github-pages-convergence:
+	bun ./scripts/run-phase-1-github-pages-convergence-pass.ts
