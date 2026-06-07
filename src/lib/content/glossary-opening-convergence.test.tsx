@@ -5,8 +5,8 @@ import { getGlossaryDocsRoot } from "@/lib/content/content-paths";
 import { listPublishedGlossaryPages } from "@/lib/content/glossary";
 import { renderGlossaryDocsShell } from "@/lib/content/glossary-shell-render";
 import {
+  expectGlossaryOmitsOpeningSummary,
   expectGlossaryOpeningSummaryMessage,
-  expectGlossaryShellPresentationConvergence,
 } from "@/lib/content/glossary-test-helpers";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 
@@ -34,14 +34,18 @@ describe("glossary opening convergence", () => {
     }
   });
 
-  test("/docs/glossary/token keeps openingSummary in messages but does not render it", async () => {
-    const loadedPage = await loadLocalDocsPage({
-      section: "glossary",
-      slug: "token",
-    });
-    expectGlossaryOpeningSummaryMessage(loadedPage.messages);
+  test("published glossary pages keep openingSummary in messages but omit it in shell render", async () => {
+    const pages = await listPublishedGlossaryPages();
 
-    const html = renderGlossaryDocsShell(loadedPage);
-    expectGlossaryShellPresentationConvergence(html);
+    for (const page of pages) {
+      const loadedPage = await loadLocalDocsPage({
+        section: "glossary",
+        slug: page.slug,
+      });
+      expectGlossaryOpeningSummaryMessage(loadedPage.messages);
+
+      const html = renderGlossaryDocsShell(loadedPage);
+      expectGlossaryOmitsOpeningSummary(html);
+    }
   });
 });

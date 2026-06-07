@@ -6,7 +6,7 @@ import { listPublishedGlossaryPages } from "@/lib/content/glossary";
 
 const TOKEN_TITLE = "Token";
 const TOKEN_SUMMARY =
-  "The smallest unit of text a language model reads and predicts—usually a word piece, not always a whole word.";
+  "The smallest unit of text a language model reads and predicts—usually a word piece, not always a whole word. Each token ID maps to a dense vector through vector embedding of model hidden size before attention runs.";
 const TOKEN_URL = "/docs/glossary/token";
 
 describe("listPublishedGlossaryPages", () => {

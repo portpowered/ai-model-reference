@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { renderGlossaryDocsShell } from "@/lib/content/glossary-shell-render";
 import {
   expectGlossaryBodyOmitsTitleHeading,
+  expectGlossaryBuiltRoutePresentationConvergence,
   expectGlossaryOmitsOpeningSummary,
   expectGlossaryOmitsWhereItAppears,
   expectGlossaryPresentationConvergence,
@@ -82,24 +83,79 @@ describe("glossary presentation convergence", () => {
 });
 
 describe("glossary presentation route convergence (built HTML)", () => {
-  test("/docs/glossary/token built HTML passes docs shell convergence", () => {
+  const bridgeBuiltRoutes: Array<{
+    slug: string;
+    registryId: string;
+    title: string;
+    shellDescriptionAutoLinks?: Array<{ href: string; phrase?: string }>;
+  }> = [
+    {
+      slug: "embedding",
+      registryId: "concept.embedding",
+      title: "Embedding",
+      shellDescriptionAutoLinks: [
+        { href: "/docs/glossary/vector", phrase: "dense vector" },
+        { href: "/docs/glossary/token", phrase: "token" },
+      ],
+    },
+    {
+      slug: "vector",
+      registryId: "concept.vector",
+      title: "Vector",
+    },
+    {
+      slug: "hidden-size",
+      registryId: "concept.hidden-size",
+      title: "Hidden Size",
+    },
+  ];
+
+  function readBuiltGlossaryHtml(slug: string): string | null {
     const builtPath = join(
       process.cwd(),
-      ".next/server/app/docs/glossary/token.html",
+      `.next/server/app/docs/glossary/${slug}.html`,
     );
 
     if (!existsSync(builtPath)) {
+      return null;
+    }
+
+    return readFileSync(builtPath, "utf8");
+  }
+
+  test("/docs/glossary/token built HTML passes docs shell convergence", () => {
+    const html = readBuiltGlossaryHtml("token");
+    if (!html) {
       return;
     }
 
-    const html = readFileSync(builtPath, "utf8");
     const articleHtml = extractGlossaryArticleHtml(html, "concept.token");
 
     expect(assertDocsShellConvergence(html)).toBeNull();
+    expectGlossaryBuiltRoutePresentationConvergence(html, {
+      registryId: "concept.token",
+      title: "Token",
+    });
     expectGlossaryOmitsOpeningSummary(articleHtml);
     expect(
       (articleHtml.match(/data-testid="tag-pill-list"/g) ?? []).length,
     ).toBe(1);
     expectGlossaryOmitsWhereItAppears(articleHtml);
   });
+
+  for (const route of bridgeBuiltRoutes) {
+    test(`/docs/glossary/${route.slug} built HTML passes bridge presentation convergence`, () => {
+      const html = readBuiltGlossaryHtml(route.slug);
+      if (!html) {
+        return;
+      }
+
+      expect(assertDocsShellConvergence(html)).toBeNull();
+      expectGlossaryBuiltRoutePresentationConvergence(html, {
+        registryId: route.registryId,
+        title: route.title,
+        shellDescriptionAutoLinks: route.shellDescriptionAutoLinks,
+      });
+    });
+  }
 });
