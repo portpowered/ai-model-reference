@@ -67,6 +67,8 @@ describe("RegistryGraphFlow", () => {
     );
     expect(html).toContain('data-react-flow-graph="true"');
     expect(html).toContain('data-web-renderer="react-flow"');
+    expect(html).toContain("--xy-node-color:var(--card-foreground)");
+    expect(html).toContain("--xy-node-background-color:var(--card)");
     expect(html).toContain('aria-label="Grouped-query attention compute flow"');
     expect(html).toContain('data-graph-node-id="hidden-states"');
     expect(html).toContain('data-graph-node-id="query-groups"');
