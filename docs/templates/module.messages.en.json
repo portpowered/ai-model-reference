@@ -1,8 +1,7 @@
 {
   "title": "",
   "description": "",
-  "problemStatement": "",
-  "coreIdea": "",
+  "openingSummary": "",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -54,23 +53,83 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": ""
-    }
-  },
   "assets": {
     "computeFlow": {
       "alt": "",
       "caption": ""
     },
-    "computeSchema": {
-      "alt": "",
-      "caption": ""
-    },
     "comparisonTable": {
       "caption": ""
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "",
+      "formula": "",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": ""
+        },
+        "k": {
+          "term": "K",
+          "definition": ""
+        },
+        "v": {
+          "term": "V",
+          "definition": ""
+        },
+        "h": {
+          "term": "H",
+          "definition": ""
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": ""
+        },
+        "i": {
+          "term": "i",
+          "definition": ""
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "",
+      "formula": "",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": ""
+        },
+        "k": {
+          "term": "K",
+          "definition": ""
+        },
+        "v": {
+          "term": "V",
+          "definition": ""
+        },
+        "h": {
+          "term": "H",
+          "definition": ""
+        },
+        "g": {
+          "term": "G",
+          "definition": ""
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": ""
+        },
+        "i": {
+          "term": "i",
+          "definition": ""
+        },
+        "gi": {
+          "term": "g(i)",
+          "definition": ""
+        }
+      }
     }
   }
 }
