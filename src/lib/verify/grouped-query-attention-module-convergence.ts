@@ -10,7 +10,10 @@ export const GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS = [
   "At a glance",
   'data-testid="tag-pill-list"',
   "Compared To Nearby Modules",
+  'id="compared-to-nearby-modules"',
   "Related",
+  'id="related"',
+  'data-testid="curated-related-docs"',
   'data-graph-node-id="hidden-states"',
   'data-graph-node-id="query-groups"',
   'data-graph-node-count="6"',
@@ -19,6 +22,7 @@ export const GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS = [
   "--xy-node-color",
   "--xy-node-background-color",
   'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
+  'href="/docs/modules/attention"',
   'href="/docs/modules/multi-head-attention"',
   'data-prose-auto-link="true"',
   'data-registry-comparison-table="true"',
@@ -345,6 +349,25 @@ export function assertGroupedQueryAttentionGraphBuildMarkersConvergence(
   }
 
   return null;
+}
+
+const GROUPED_QUERY_ATTENTION_COMPANION_MARKERS = [
+  'href="/docs/modules/attention"',
+  'data-testid="curated-related-docs"',
+  'data-registry-comparison-table="true"',
+  'data-table-id="table.grouped-query-attention-comparison"',
+  'id="compared-to-nearby-modules"',
+  'id="related"',
+] as const;
+
+/**
+ * Returns a failure reason when attention bridge, comparison table, or curated
+ * related docs are missing from the GQA module page.
+ */
+export function assertGroupedQueryAttentionCompanionSectionsConvergence(
+  html: string,
+): string | null {
+  return requireSubstrings(html, GROUPED_QUERY_ATTENTION_COMPANION_MARKERS);
 }
 
 /**

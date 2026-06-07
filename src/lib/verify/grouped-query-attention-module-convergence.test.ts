@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS } from "@/features/models/components/module-attention-math-variable-definitions";
 import {
   assertGroupedQueryAttentionChromeConvergence,
+  assertGroupedQueryAttentionCompanionSectionsConvergence,
   assertGroupedQueryAttentionGraphBuildMarkersConvergence,
   assertGroupedQueryAttentionGraphThemeConvergence,
   assertGroupedQueryAttentionMathDefinitionsConvergence,
@@ -188,6 +189,21 @@ describe("assertGroupedQueryAttentionMathDefinitionsConvergence", () => {
     for (const id of MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS) {
       expect(PASSING_HTML).toContain(`data-math-variable-definition="${id}"`);
     }
+  });
+});
+
+describe("assertGroupedQueryAttentionCompanionSectionsConvergence", () => {
+  test("passes when attention bridge, comparison table, and related docs are present", () => {
+    expect(
+      assertGroupedQueryAttentionCompanionSectionsConvergence(PASSING_HTML),
+    ).toBeNull();
+  });
+
+  test("reports missing attention bridge link", () => {
+    const html = PASSING_HTML.replace('href="/docs/modules/attention"', "");
+    expect(assertGroupedQueryAttentionCompanionSectionsConvergence(html)).toBe(
+      'missing expected content: href="/docs/modules/attention"',
+    );
   });
 });
 

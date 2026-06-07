@@ -125,6 +125,18 @@ export function expectModuleMathSchemaDefinitionsInMathSection(
   );
 }
 
+/** Companion sections: attention bridge, comparison table, and curated related docs. */
+export function expectModuleCompanionSections(html: string): void {
+  expect(html).toContain('href="/docs/modules/attention"');
+  expect(html).toContain('data-testid="curated-related-docs"');
+  expect(html).toContain('data-registry-comparison-table="true"');
+  expect(html).toContain(
+    'data-table-id="table.grouped-query-attention-comparison"',
+  );
+  expect(html).toContain('id="compared-to-nearby-modules"');
+  expect(html).toContain('id="related"');
+}
+
 /** Compute-flow graph wrapper must expose themed React Flow node CSS variables. */
 export function expectModuleComputeFlowGraphTheme(
   html: string,
