@@ -75,6 +75,17 @@ function listenOnEphemeralPort(
   });
 }
 
+async function reserveClosedEphemeralPort(): Promise<number> {
+  const httpServer = createHttpServer();
+  const port = await listenOnEphemeralPort(httpServer);
+
+  await new Promise<void>((resolve, reject) => {
+    httpServer.close((error) => (error ? reject(error) : resolve()));
+  });
+
+  return port;
+}
+
 const STUB_SERVER_SCRIPT = `
 import { createServer } from "node:http";
 const port = Number(process.env.VERIFY_STUB_PORT);
@@ -327,7 +338,7 @@ describe("waitForServerReady", () => {
   });
 
   test("rejects with timeout, health URL, and last network error when nothing is listening", async () => {
-    const port = await pickListenPort();
+    const port = await reserveClosedEphemeralPort();
     const healthUrl = `http://127.0.0.1:${port}/`;
     const timeoutMs = 600;
 
@@ -343,6 +354,7 @@ describe("waitForServerReady", () => {
       readinessError = error as Error;
     }
 
+    expect(readinessError).toBeDefined();
     expect(readinessError?.message).toMatch(/did not become ready/i);
     expect(readinessError?.message).toContain(`within ${timeoutMs}ms`);
     expect(readinessError?.message).toContain(`health URL ${healthUrl}`);
