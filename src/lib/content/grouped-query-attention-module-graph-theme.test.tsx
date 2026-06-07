@@ -12,7 +12,10 @@ import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import { expectModuleComputeFlowGraphTheme } from "@/lib/content/module-test-helpers";
 import type { PageAssetConfig, PageMessages } from "@/lib/content/schemas";
-import { assertGroupedQueryAttentionGraphThemeConvergence } from "@/lib/verify/grouped-query-attention-module-convergence";
+import {
+  assertGroupedQueryAttentionGraphBuildMarkersConvergence,
+  assertGroupedQueryAttentionGraphThemeConvergence,
+} from "@/lib/verify/grouped-query-attention-module-convergence";
 
 const GQA_COMPUTE_FLOW_GRAPH_ID =
   "graph.grouped-query-attention-compute-flow" as const;
@@ -106,5 +109,8 @@ describe("grouped-query-attention module graph theme", () => {
 
     expectModuleComputeFlowGraphTheme(html, GQA_COMPUTE_FLOW_GRAPH_ID);
     expect(assertGroupedQueryAttentionGraphThemeConvergence(html)).toBeNull();
+    expect(
+      assertGroupedQueryAttentionGraphBuildMarkersConvergence(html),
+    ).toBeNull();
   });
 });
