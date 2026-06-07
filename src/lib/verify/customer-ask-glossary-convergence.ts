@@ -1,3 +1,4 @@
+import { glossaryPageHref } from "@/lib/content/content-hrefs";
 import { assertFooterChromeContract } from "@/lib/navigation/docs-page-footer-contract";
 import {
   stripHtmlScripts,
@@ -11,7 +12,14 @@ export const GLOSSARY_CUSTOMER_ASK_CHECKLIST_ROW =
 
 export const GLOSSARY_CUSTOMER_ASK_ROUTE = TOKEN_GLOSSARY_URL;
 
+export const GLOSSARY_EMBEDDING_ROUTE = glossaryPageHref("embedding");
+export const GLOSSARY_VECTOR_ROUTE = glossaryPageHref("vector");
+export const GLOSSARY_HIDDEN_SIZE_ROUTE = glossaryPageHref("hidden-size");
+
 export const GLOSSARY_TOKEN_REGISTRY_ID = "concept.token" as const;
+export const GLOSSARY_EMBEDDING_REGISTRY_ID = "concept.embedding" as const;
+export const GLOSSARY_VECTOR_REGISTRY_ID = "concept.vector" as const;
+export const GLOSSARY_HIDDEN_SIZE_REGISTRY_ID = "concept.hidden-size" as const;
 
 export const GLOSSARY_TOKEN_TITLE = "Token" as const;
 
@@ -28,6 +36,21 @@ export const GLOSSARY_CUSTOMER_ASK_CHECKS = {
     checkId: "glossary.footer-hover",
     title: "Glossary footer previous/next label and sublabel hover styles pair",
   },
+  embeddingDescriptionLinks: {
+    checkId: "glossary.embedding-description-links",
+    title:
+      "Embedding glossary shell description links vector and token peers",
+  },
+  vectorDescriptionLinks: {
+    checkId: "glossary.vector-description-links",
+    title:
+      "Vector glossary shell description links embedding and omits opening summary",
+  },
+  hiddenSizeDescriptionLinks: {
+    checkId: "glossary.hidden-size-description-links",
+    title:
+      "Hidden-size glossary shell description links embedding and vector peers",
+  },
 } as const;
 
 export const GLOSSARY_CUSTOMER_ASK_REASONS = {
@@ -42,7 +65,15 @@ export const GLOSSARY_CUSTOMER_ASK_REASONS = {
     "glossary tag or related-doc chrome links use underline outside prose",
   missingTagPillList: "tag pill list marker missing from glossary page",
   missingRelatedDocs: "curated related docs marker missing from glossary page",
+  missingShellDescriptionLink:
+    "shell description missing expected glossary peer auto-link",
+  missingShellDescriptionProseAutoLinkMarker:
+    "shell description auto-links missing data-prose-auto-link marker",
 } as const;
+
+const VECTOR_GLOSSARY_HREF = glossaryPageHref("vector");
+const TOKEN_GLOSSARY_HREF = glossaryPageHref("token");
+const EMBEDDING_GLOSSARY_HREF = glossaryPageHref("embedding");
 
 const H1_PATTERN = /<h1\b[^>]*>[\s\S]*?<\/h1>/gi;
 
@@ -155,6 +186,125 @@ function assertGlossaryOpeningAbsent(html: string): string | null {
   }
 
   return null;
+}
+
+/**
+ * Extracts glossary shell HTML before the registry article marker.
+ */
+export function extractGlossaryShellHtml(
+  html: string,
+  registryId: string,
+): string {
+  const visibleHtml = stripHtmlScripts(html);
+  const match = visibleHtml.match(
+    new RegExp(
+      `<article[^>]*data-registry-id="${escapeRegExp(registryId)}"`,
+      "i",
+    ),
+  );
+
+  if (match?.index !== undefined && match.index >= 0) {
+    return visibleHtml.slice(0, match.index);
+  }
+
+  const articleStart = visibleHtml.indexOf("<article");
+  return articleStart >= 0 ? visibleHtml.slice(0, articleStart) : visibleHtml;
+}
+
+function assertShellDescriptionAutoLink(
+  html: string,
+  options: { registryId: string; href: string },
+): string | null {
+  const shellHtml = extractGlossaryShellHtml(html, options.registryId);
+  const anchorPattern = new RegExp(
+    `<a\\b[^>]*href="${escapeRegExp(options.href)}"[^>]*data-prose-auto-link="true"[^>]*>`,
+    "i",
+  );
+
+  if (!anchorPattern.test(shellHtml)) {
+    const hrefOnlyPattern = new RegExp(
+      `<a\\b[^>]*href="${escapeRegExp(options.href)}"`,
+      "i",
+    );
+    if (hrefOnlyPattern.test(shellHtml)) {
+      return GLOSSARY_CUSTOMER_ASK_REASONS.missingShellDescriptionProseAutoLinkMarker;
+    }
+
+    return `${GLOSSARY_CUSTOMER_ASK_REASONS.missingShellDescriptionLink} (${options.href})`;
+  }
+
+  return null;
+}
+
+function assertShellDescriptionAutoLinks(
+  html: string,
+  options: { registryId: string; hrefs: readonly string[] },
+): string | null {
+  for (const href of options.hrefs) {
+    const reason = assertShellDescriptionAutoLink(html, {
+      registryId: options.registryId,
+      href,
+    });
+    if (reason) {
+      return reason;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Returns a failure reason when embedding shell description lacks vector/token
+ * auto-links or the route still renders an opening summary.
+ */
+export function assertGlossaryEmbeddingDescriptionLinks(
+  html: string,
+): string | null {
+  const openingReason = assertGlossaryOpeningAbsent(html);
+  if (openingReason) {
+    return openingReason;
+  }
+
+  return assertShellDescriptionAutoLinks(html, {
+    registryId: GLOSSARY_EMBEDDING_REGISTRY_ID,
+    hrefs: [VECTOR_GLOSSARY_HREF, TOKEN_GLOSSARY_HREF],
+  });
+}
+
+/**
+ * Returns a failure reason when vector shell description lacks an embedding
+ * auto-link or the route still renders an opening summary.
+ */
+export function assertGlossaryVectorDescriptionLinks(
+  html: string,
+): string | null {
+  const openingReason = assertGlossaryOpeningAbsent(html);
+  if (openingReason) {
+    return openingReason;
+  }
+
+  return assertShellDescriptionAutoLink(html, {
+    registryId: GLOSSARY_VECTOR_REGISTRY_ID,
+    href: EMBEDDING_GLOSSARY_HREF,
+  });
+}
+
+/**
+ * Returns a failure reason when hidden-size shell description lacks embedding
+ * and vector auto-links or the route still renders an opening summary.
+ */
+export function assertGlossaryHiddenSizeDescriptionLinks(
+  html: string,
+): string | null {
+  const openingReason = assertGlossaryOpeningAbsent(html);
+  if (openingReason) {
+    return openingReason;
+  }
+
+  return assertShellDescriptionAutoLinks(html, {
+    registryId: GLOSSARY_HIDDEN_SIZE_REGISTRY_ID,
+    hrefs: [EMBEDDING_GLOSSARY_HREF, VECTOR_GLOSSARY_HREF],
+  });
 }
 
 /**
@@ -304,6 +454,21 @@ function toPassFailRow(
   };
 }
 
+function toBridgePassFailRow(
+  check: (typeof GLOSSARY_CUSTOMER_ASK_CHECKS)[keyof typeof GLOSSARY_CUSTOMER_ASK_CHECKS],
+  route: string,
+  reason: string | null,
+): CustomerAskConvergenceRow {
+  return {
+    checkId: check.checkId,
+    title: check.title,
+    status: reason ? "fail" : "pass",
+    route,
+    reason: reason ?? undefined,
+    checklistRow: GLOSSARY_CUSTOMER_ASK_CHECKLIST_ROW,
+  };
+}
+
 /**
  * Builds customer-ask convergence rows for glossary token page polish from built HTML.
  */
@@ -320,5 +485,33 @@ export function buildCustomerAskGlossaryRows(
       assertGlossaryChromeLinksConvergence(html),
     ),
     evaluateGlossaryFooterHoverRow(html),
+  ];
+}
+
+/**
+ * Builds customer-ask convergence rows for bridge glossary shell description
+ * inline links on embedding, vector, and hidden-size routes.
+ */
+export function buildCustomerAskGlossaryBridgeDescriptionRows(input: {
+  embeddingHtml: string;
+  vectorHtml: string;
+  hiddenSizeHtml: string;
+}): CustomerAskConvergenceRow[] {
+  return [
+    toBridgePassFailRow(
+      GLOSSARY_CUSTOMER_ASK_CHECKS.embeddingDescriptionLinks,
+      GLOSSARY_EMBEDDING_ROUTE,
+      assertGlossaryEmbeddingDescriptionLinks(input.embeddingHtml),
+    ),
+    toBridgePassFailRow(
+      GLOSSARY_CUSTOMER_ASK_CHECKS.vectorDescriptionLinks,
+      GLOSSARY_VECTOR_ROUTE,
+      assertGlossaryVectorDescriptionLinks(input.vectorHtml),
+    ),
+    toBridgePassFailRow(
+      GLOSSARY_CUSTOMER_ASK_CHECKS.hiddenSizeDescriptionLinks,
+      GLOSSARY_HIDDEN_SIZE_ROUTE,
+      assertGlossaryHiddenSizeDescriptionLinks(input.hiddenSizeHtml),
+    ),
   ];
 }
