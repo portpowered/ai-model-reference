@@ -62,6 +62,20 @@ const messages = {
   },
 } satisfies PageMessages;
 
+function renderComparison(
+  messageOverrides: Partial<PageMessages> = {},
+  isDev = false,
+) {
+  return renderToStaticMarkup(
+    <PageMessagesProvider
+      messages={{ ...messages, ...messageOverrides }}
+      isDev={isDev}
+    >
+      <ModuleAttentionSchemaComparison />
+    </PageMessagesProvider>,
+  );
+}
+
 describe("ModuleAttentionSchemaComparison", () => {
   test("renders MHA and GQA KaTeX formulas from message keys", () => {
     const html = renderToStaticMarkup(
@@ -107,5 +121,89 @@ describe("ModuleAttentionSchemaComparison", () => {
     expect(html).toContain("Query-to-KV grouping");
     expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
     expect(html).toContain('data-message-block-math="math.gqaSchema.formula"');
+  });
+
+  test("renders math variable definitions in development mode", () => {
+    const html = renderComparison({ mathVariableDefinitions }, true);
+
+    expect(html).toContain('data-attention-schema-variable-definitions="true"');
+    expect(html).toContain("What the symbols mean");
+    expect(html).toContain('data-math-variable-definition="q"');
+    expect(html).toContain(">Q</dt>");
+    expect(html).toContain("for each");
+  });
+
+  test("shows a developer-visible error when mathVariableDefinitions.title is missing", () => {
+    const html = renderComparison(
+      {
+        mathVariableDefinitions: {
+          ...mathVariableDefinitions,
+          title: undefined as unknown as string,
+        },
+      },
+      true,
+    );
+
+    expect(html).toContain(
+      'data-missing-message-key="mathVariableDefinitions.title"',
+    );
+    expect(html).toContain(
+      "Missing message key: mathVariableDefinitions.title",
+    );
+  });
+
+  test("shows a developer-visible error when a math variable term key is missing", () => {
+    const html = renderComparison(
+      {
+        mathVariableDefinitions: {
+          ...mathVariableDefinitions,
+          q: undefined as unknown as (typeof mathVariableDefinitions)["q"],
+        },
+      },
+      true,
+    );
+
+    expect(html).toContain(
+      'data-missing-message-key="mathVariableDefinitions.q.term"',
+    );
+    expect(html).toContain(
+      "Missing message key: mathVariableDefinitions.q.term",
+    );
+  });
+
+  test("shows a developer-visible error when a math variable definition key is missing", () => {
+    const html = renderComparison(
+      {
+        mathVariableDefinitions: {
+          ...mathVariableDefinitions,
+          q: { term: "Q" } as (typeof mathVariableDefinitions)["q"],
+        },
+      },
+      true,
+    );
+
+    expect(html).toContain(
+      'data-missing-message-key="mathVariableDefinitions.q.definition"',
+    );
+    expect(html).toContain(
+      "Missing message key: mathVariableDefinitions.q.definition",
+    );
+  });
+
+  test("omits variable definitions in production when no complete rows resolve", () => {
+    const html = renderComparison(
+      {
+        mathVariableDefinitions: {
+          title: "What the symbols mean",
+          q: { term: "Q" } as (typeof mathVariableDefinitions)["q"],
+        } as PageMessages["mathVariableDefinitions"],
+      },
+      false,
+    );
+
+    expect(html).not.toContain(
+      'data-attention-schema-variable-definitions="true"',
+    );
+    expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
   });
 });

@@ -75,8 +75,7 @@ export function buildGroupedQueryAttentionStubBody(): string {
     (marker) =>
       !marker.startsWith("data-math-variable-definition=") &&
       marker !== 'data-react-flow-graph="true"' &&
-      marker !==
-        'data-graph-id="graph.grouped-query-attention-compute-flow"' &&
+      marker !== 'data-graph-id="graph.grouped-query-attention-compute-flow"' &&
       marker !== 'data-testid="tag-pill-list"' &&
       marker !== "--xy-node-color" &&
       marker !== "--xy-node-background-color" &&
@@ -191,9 +190,7 @@ function forbidSubstrings(
 export function assertGroupedQueryAttentionTitleConvergence(
   html: string,
 ): string | null {
-  if (
-    countH1BlocksContaining(html, GROUPED_QUERY_ATTENTION_MODULE_TITLE) > 1
-  ) {
+  if (countH1BlocksContaining(html, GROUPED_QUERY_ATTENTION_MODULE_TITLE) > 1) {
     return GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.duplicateBodyTitle;
   }
 
@@ -232,7 +229,10 @@ export function assertGroupedQueryAttentionChromeConvergence(
     return GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.moduleMetadataCard;
   }
 
-  const tagPillCount = countMarkerOccurrences(html, 'data-testid="tag-pill-list"');
+  const tagPillCount = countMarkerOccurrences(
+    html,
+    'data-testid="tag-pill-list"',
+  );
   if (tagPillCount === 0) {
     return GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.missingTagPillList;
   }
@@ -250,7 +250,10 @@ export function assertGroupedQueryAttentionChromeConvergence(
 export function assertGroupedQueryAttentionSingleGraphConvergence(
   html: string,
 ): string | null {
-  const graphCount = countMarkerOccurrences(html, 'data-react-flow-graph="true"');
+  const graphCount = countMarkerOccurrences(
+    html,
+    'data-react-flow-graph="true"',
+  );
   if (graphCount === 0) {
     return GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.missingReactFlowGraph;
   }
