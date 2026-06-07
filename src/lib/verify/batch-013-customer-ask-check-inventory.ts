@@ -189,6 +189,58 @@ function formatReportSlot(slot: Batch013CustomerAskReportSlot): string {
   return parts.join(" ");
 }
 
+function findInventoryEntryForSlot(
+  slot: Batch013CustomerAskReportSlot,
+): Batch013CustomerAskInventoryEntry {
+  const entry = BATCH_013_CUSTOMER_ASK_INVENTORY.find(
+    (candidate) =>
+      candidate.checkId === slot.checkId &&
+      (slot.route === undefined || candidate.route === slot.route) &&
+      (slot.query === undefined
+        ? candidate.query === undefined
+        : candidate.query === slot.query),
+  );
+  if (!entry) {
+    throw new Error(
+      `Missing batch-013 inventory metadata for slot ${formatReportSlot(slot)}`,
+    );
+  }
+  return entry;
+}
+
+/**
+ * Extracts batch-013 reopened-row evidence from a full customer-ask convergence
+ * report. Missing inventory slots become fail rows so planners still see gaps.
+ */
+export function extractBatch013CustomerAskRowsFromReport(
+  rows: readonly CustomerAskConvergenceRow[],
+): CustomerAskConvergenceRow[] {
+  const slots = buildBatch013CustomerAskReportSlots();
+  const pool = [...rows];
+  const extracted: CustomerAskConvergenceRow[] = [];
+
+  for (const slot of slots) {
+    const index = pool.findIndex((row) => rowMatchesReportSlot(row, slot));
+    if (index !== -1) {
+      extracted.push(pool.splice(index, 1)[0]);
+      continue;
+    }
+
+    const entry = findInventoryEntryForSlot(slot);
+    extracted.push({
+      checkId: entry.checkId,
+      title: entry.title,
+      status: "fail",
+      route: entry.route,
+      query: entry.query,
+      reason: "missing from customer-ask convergence report",
+      checklistRow: entry.checklistRow,
+    });
+  }
+
+  return extracted;
+}
+
 /**
  * Orders customer-ask rows to match the batch-013 inventory and throws when any
  * required slot is missing or extra rows remain.
