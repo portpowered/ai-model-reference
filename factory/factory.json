@@ -182,6 +182,8 @@
     {
       "modelProvider": "CODEX",
       "name": "planner",
+      "stopToken": "\u003cCOMPLETE\u003e",
+
       "skipPermissions": true,
       "type": "MODEL_WORKER"
     }
