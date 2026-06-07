@@ -18,6 +18,7 @@ storybook-static/
 tasks/
 tasks/todo
 docs/internal/**
+!docs/internal/checklist.md
 factory/internal/**
 factory/inputs/**
 !factory/inputs/BATCH/
