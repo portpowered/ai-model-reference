@@ -89,6 +89,13 @@ Related operational rows not closed in this section alone:
 - **The public site** is `https://portpowered.github.io/ai-model-reference/`
   after a successful deploy on `main`. Confirm the **deploy** check on the
   merge commit before claiming the site was updated.
+- **Batch-014 GitHub Pages closure** uses `make verify-phase-1-github-pages-convergence`
+  (or `bun run verify:phase-1-github-pages-convergence`) to prove the static
+  export path end to end. Unlike `make verify-phase-1-follow-up-convergence`,
+  this gate exercises the built `out/` artifact served as static files rather
+  than only a spawned `next start` server on `.next/`. See
+  `factory/docs/phase-1-github-pages-convergence-validator.md` for workflow
+  order, domain inventory, and recommendation rules.
 
 ## Branch protection
 

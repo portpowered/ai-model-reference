@@ -12,6 +12,12 @@ import { STATIC_REGRESSION_DOMAIN_ID } from "./phase-1-github-pages-static-regre
 import { STATIC_SERVER_COMMAND_PATH_DOMAIN_ID } from "./phase-1-github-pages-static-server-command-path";
 
 const repoRoot = join(import.meta.dir, "../../..");
+const readmePath = join(repoRoot, "README.md");
+const operationsPath = join(repoRoot, "docs/operations.md");
+const githubPagesConvergenceDocPath = join(
+  repoRoot,
+  "factory/docs/phase-1-github-pages-convergence-validator.md",
+);
 
 describe("phase-1-github-pages-convergence CLI wiring", () => {
   test("Makefile and package.json expose verify-phase-1-github-pages-convergence", () => {
@@ -116,5 +122,66 @@ describe("derivePhase1GitHubPagesConvergenceRecommendation", () => {
     expect(result.recommendation).toBe("stop-and-wait-for-phase-advancement");
     expect(result.rationale).toContain("export-artifact.base-path.assets");
     expect(result.rationale).toContain("non-blocking");
+  });
+});
+
+describe("phase-1-github-pages-convergence planner documentation", () => {
+  test("factory doc documents the batch-014 GitHub Pages convergence workflow", () => {
+    const doc = readFileSync(githubPagesConvergenceDocPath, "utf8");
+
+    expect(doc).toMatch(/make verify-phase-1-github-pages-convergence/);
+    expect(doc).toMatch(/bun run verify:phase-1-github-pages-convergence/);
+    expect(doc).toMatch(/make build-export/);
+    expect(doc).toMatch(/out\//);
+    expect(doc).toMatch(/GITHUB_PAGES_BASE_PATH/);
+    expect(doc).toMatch(/export-command-path/);
+    expect(doc).toMatch(/export-artifact/);
+    expect(doc).toMatch(/static-server-command-path/);
+    expect(doc).toMatch(/phase-1-static-regression/);
+    expect(doc).toMatch(/export-artifact\.out-index-html/);
+    expect(doc).toMatch(/static-regression\.search\.page\.page-level-hits/);
+    expect(doc).toMatch(/static-regression\.route\.home-header-search-entry/);
+    expect(doc).toMatch(/static-regression\.route\.gqa-module-presentation/);
+    expect(doc).toMatch(/Playwright Chromium/);
+    expect(doc).toMatch(
+      /Phase 1 batch-014 GitHub Pages convergence evidence summary/,
+    );
+    expect(doc).toMatch(
+      /queue-one-narrow-repair-batch|stop-and-wait-for-phase-advancement/,
+    );
+    expect(doc).toMatch(/Recommendation:/);
+    expect(doc).toMatch(/Rationale:/);
+    expect(doc).toMatch(/phase-1-github-pages-convergence-evidence\.ts/);
+    expect(doc).toMatch(/run-phase-1-github-pages-convergence-pass\.ts/);
+    expect(doc).toMatch(/next start/);
+    expect(doc).toMatch(
+      /make verify-phase-1-follow-up-convergence|follow-up convergence/i,
+    );
+  });
+
+  test("README and operations.md reference the batch-014 GitHub Pages closure gate", () => {
+    const readme = readFileSync(readmePath, "utf8");
+    const operations = readFileSync(operationsPath, "utf8");
+
+    expect(readme).toMatch(/make verify-phase-1-github-pages-convergence/);
+    expect(readme).toMatch(/bun run verify:phase-1-github-pages-convergence/);
+    expect(readme).toMatch(
+      /factory\/docs\/phase-1-github-pages-convergence-validator\.md/,
+    );
+    expect(readme).toMatch(
+      /Phase 1 batch-014 GitHub Pages convergence[\s\S]*evidence[\s\S]*summary/i,
+    );
+    expect(readme).toMatch(/out\//);
+    expect(readme).toMatch(/next start/);
+
+    expect(operations).toMatch(/make verify-phase-1-github-pages-convergence/);
+    expect(operations).toMatch(
+      /bun run verify:phase-1-github-pages-convergence/,
+    );
+    expect(operations).toMatch(
+      /factory\/docs\/phase-1-github-pages-convergence-validator\.md/,
+    );
+    expect(operations).toMatch(/out\//);
+    expect(operations).toMatch(/next start/);
   });
 });
