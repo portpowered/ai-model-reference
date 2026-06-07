@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DOCS_SEARCH_API_PATH } from "@/features/docs/search/search-client";
+import { DOCS_SEARCH_API_PATH } from "@/lib/search/docs-search-bootstrap-path";
 import {
   EXPORT_SEARCH_BOOTSTRAP_RELATIVE_PATH,
   EXPORT_SEARCH_BOOTSTRAP_ROUTE,
