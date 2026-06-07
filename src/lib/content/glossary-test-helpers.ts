@@ -65,7 +65,27 @@ export function expectGlossaryShellDescriptionAutoLink(
   expect(html).toContain("focus-visible:ring-2");
   if (options.phrase) {
     expectHtmlToContainProse(html, options.phrase);
+    expectGlossaryShellDescriptionAutoLinkPreservesPhrase(html, {
+      href: options.href,
+      phrase: options.phrase,
+    });
   }
+}
+
+/** Shell description anchors keep the matched phrase as visible link text. */
+export function expectGlossaryShellDescriptionAutoLinkPreservesPhrase(
+  html: string,
+  options: { href: string; phrase: string },
+): void {
+  const articleStart = html.indexOf("<article");
+  const shellHtml = articleStart >= 0 ? html.slice(0, articleStart) : html;
+  const anchorPattern = new RegExp(
+    `<a\\b[^>]*href="${escapeRegExp(options.href)}"[^>]*data-prose-auto-link="true"[^>]*>[\\s\\S]*?</a>`,
+    "i",
+  );
+  const match = shellHtml.match(anchorPattern);
+  expect(match).not.toBeNull();
+  expect(stripHtmlTags(match?.[0] ?? "")).toContain(options.phrase);
 }
 
 /** Shell region auto-links must use the shared prose contract (marker, focus ring, internal href). */

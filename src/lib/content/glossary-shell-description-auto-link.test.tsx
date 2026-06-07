@@ -64,7 +64,7 @@ describe("glossary shell description auto-link convergence", () => {
     }
   });
 
-  test("/docs/glossary/embedding shell description links recognizable registry phrases", async () => {
+  test("/docs/glossary/embedding shell description links dense vector and token with preserved link text", async () => {
     const loadedPage = await loadLocalDocsPage({
       section: "glossary",
       slug: "embedding",
@@ -74,7 +74,7 @@ describe("glossary shell description auto-link convergence", () => {
 
     expectHtmlToContainProse(
       html,
-      "A dense vector that represents a token or other discrete item",
+      "A dense vector that represents a token or other discrete item so the model can run continuous math on it.",
     );
     expectGlossaryShellDescriptionAutoLink(html, {
       href: "/docs/glossary/vector",
