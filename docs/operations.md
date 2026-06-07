@@ -16,16 +16,16 @@ Observable constraints in the current repository:
 
 | Constraint | Evidence |
 | --- | --- |
-| No static export | `next.config.ts` sets only `turbopack.root`; it does **not** set `output: "export"`. |
+| Static export is opt-in, not the CI build | `NEXT_STATIC_EXPORT=1` (`bun run build:export` / `make build-export`) emits `out/` with `output: "export"`. `make ci` still runs `make build` (`.next/` + Phase 1 static route verifiers). |
+| Export artifact is verified but not deployed | `make build-export` runs the export build then `verify-phase-1-export-routes`, which fails when `out/` is missing, empty, or lacks Phase 1 reader markers. No deploy workflow publishes `out/` yet. |
 | Live search depends on a Next.js API route | `src/app/api/search/route.ts` exports Fumadocs Orama `GET` and `staticGET` handlers backed by `src/lib/search/search-server.ts`. Client search (`src/features/docs/search/search-client.ts`) loads the index from `/api/search`. |
 | GitHub Pages is static-only | GitHub Pages cannot run Node.js API routes or server-side Next.js rendering without a static export and pre-generated assets. |
 | CI does not run deploy | `.github/workflows/ci.yml` runs `make ci` only; deploy is intentionally out of scope for the baseline gate. |
 
-A minimal GitHub Pages workflow would break live search unless the project first
-adds static export, pre-builds the Orama index as static JSON, and validates that
-search still works without runtime `GET` handlers. That hosting migration is
-larger than this Phase 1 closure item and is owned separately (see follow-up
-below).
+A GitHub Pages deploy workflow would still need a pre-built Orama search index and
+validation that search works without runtime `GET` handlers. Static export and
+`GITHUB_PAGES_BASE_PATH` support are available via `make build-export`; wiring
+deploy and static search handoff is owned separately (see follow-up below).
 
 ### Future owner
 

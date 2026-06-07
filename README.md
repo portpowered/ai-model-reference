@@ -77,15 +77,31 @@ placeholder docs route.
 
 The default `bun run build` / `make build` path keeps the standard Next.js
 production build under `.next/` for `next start` and existing Phase 1 route
-verifiers. To emit a static `out/` directory for GitHub Pages hosting, run:
+verifiers. Use the static export path when you need a GitHub Pages–compatible
+`out/` artifact instead of `next start`—for example before wiring a deploy
+workflow or when validating project-site base paths locally.
+
+**Single command:** `make build-export` runs the export build and verifies the
+`out/` artifact in one step. It is **not** part of `make ci`; CI still uses
+`make build` until export gates are wired in a later work item.
 
 ```sh
-bun run build:export
+make build-export
 ```
 
-That sets `NEXT_STATIC_EXPORT=1`, which toggles `output: "export"` and
-`images.unoptimized` in `next.config.ts`. A successful export leaves a non-empty
-`out/` directory with `out/index.html` plus prerendered docs and tags routes.
+That runs `bun run build:export` (sets `NEXT_STATIC_EXPORT=1`, which toggles
+`output: "export"` and `images.unoptimized` in `next.config.ts`), then
+`verify-phase-1-export-routes`, which exits non-zero when `out/` is missing,
+empty, or lacks expected Phase 1 reader routes and content markers (`/`,
+`/docs/architecture`, `/docs/glossary`, `/docs/modules/grouped-query-attention`,
+`/tags`, and `/tags/attention`).
+
+To verify an existing export without rebuilding:
+
+```sh
+make verify-export-routes
+# or: bun run verify:export-routes
+```
 
 For GitHub Pages **project sites** served from `https://<org>.github.io/<repo>/`,
 set `GITHUB_PAGES_BASE_PATH` to the repository name (with or without a leading
@@ -94,11 +110,15 @@ slash) when running the export build. The value configures matching
 the project path:
 
 ```sh
-GITHUB_PAGES_BASE_PATH=/ai-model-reference bun run build:export
+GITHUB_PAGES_BASE_PATH=/ai-model-reference make build-export
 ```
 
 When `GITHUB_PAGES_BASE_PATH` is unset, export builds keep `/` as the base for
 local preview and user/org root GitHub Pages sites.
+
+See [docs/operations.md](./docs/operations.md) for deployment posture: static
+export is available for maintainers, but the baseline CI workflow does not deploy
+`out/` yet.
 
 ## Phase 2 docs authoring
 
@@ -263,6 +283,8 @@ make typecheck     # fumadocs-mdx (pretypecheck), then tsc --noEmit
 make test          # fumadocs-mdx (pretest), then bun test
 make coverage      # fumadocs-mdx (precoverage), manifest coverage gate
 make build         # next build + Phase 1 static route check
+make build-export  # static export to out/ + Phase 1 export route verification
+make verify-export-routes # verify existing out/ artifact (requires build-export first)
 make verify-phase-1-ux # HTTP verification for Phase 1 reader routes and search (requires build)
 make verify-phase-1-built-app-convergence # batch-010 built-app gate with planner-facing evidence summary
 make verify-phase-1-follow-up-convergence # batch-011 follow-up gate with planner-facing evidence summary
