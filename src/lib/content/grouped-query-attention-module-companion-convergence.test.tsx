@@ -26,6 +26,7 @@ describe("grouped-query-attention module companion sections", () => {
     expect(raw).toContain('assetId="comparisonTable"');
     expect(raw).toContain('<Section id="related"');
     expect(raw).toContain("<RelatedDocs");
+    expect(raw).toContain("<CitationList");
   });
 
   test("/docs/modules/grouped-query-attention shell render preserves companion sections and full convergence", async () => {
