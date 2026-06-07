@@ -103,7 +103,9 @@ the rule is active.
 
 The baseline quality gate is workflow file `.github/workflows/ci.yml`, which
 defines a single job named **`ci`**. That job checks out the branch, installs
-with `bun install --frozen-lockfile`, and runs `make ci` (lint, typecheck, test,
+with `bun install --frozen-lockfile`, installs Playwright Chromium
+(`bunx playwright install chromium --with-deps`) for browser-backed export
+search UX tests, and runs `make ci` (lint, typecheck, test,
 manifest-scoped coverage, build, validate-data, linkcheck). Deploy and preview
 steps are intentionally excluded.
 
