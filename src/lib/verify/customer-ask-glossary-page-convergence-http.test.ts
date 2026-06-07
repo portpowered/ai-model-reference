@@ -2,8 +2,13 @@ import { describe, expect, test } from "bun:test";
 import { createServer as createHttpServer } from "node:http";
 import {
   BATCH_012_GLOSSARY_CHECKS,
+  BATCH_012_GLOSSARY_OPENING_SUMMARY_ROUTES,
   BATCH_012_GLOSSARY_ROUTES,
 } from "./batch-012-glossary-checks";
+import {
+  POST_REPAIR_HIDDEN_SIZE_GLOSSARY_OPENING_HTML,
+  POST_REPAIR_VECTOR_GLOSSARY_OPENING_HTML,
+} from "./batch-013-glossary-page-convergence.test";
 import { GLOSSARY_PAGE_CUSTOMER_ASK_REASONS } from "./customer-ask-glossary-page-convergence";
 import {
   POST_REPAIR_EMBEDDING_GLOSSARY_HTML,
@@ -42,12 +47,18 @@ function createGlossaryPageStubServer(
   });
 }
 
+const POST_REPAIR_GLOSSARY_HTML_BY_ROUTE = {
+  [BATCH_012_GLOSSARY_ROUTES.token]: POST_REPAIR_TOKEN_GLOSSARY_HTML,
+  [BATCH_012_GLOSSARY_ROUTES.embedding]: POST_REPAIR_EMBEDDING_GLOSSARY_HTML,
+  [BATCH_012_GLOSSARY_ROUTES.vector]: POST_REPAIR_VECTOR_GLOSSARY_OPENING_HTML,
+  [BATCH_012_GLOSSARY_ROUTES.hiddenSize]:
+    POST_REPAIR_HIDDEN_SIZE_GLOSSARY_OPENING_HTML,
+} as const;
+
 describe("runCustomerAskGlossaryPageChecks", () => {
   test("returns pass rows when stub server serves post-repair glossary HTML", async () => {
     const httpServer = createGlossaryPageStubServer({
-      [BATCH_012_GLOSSARY_ROUTES.token]: POST_REPAIR_TOKEN_GLOSSARY_HTML,
-      [BATCH_012_GLOSSARY_ROUTES.embedding]:
-        POST_REPAIR_EMBEDDING_GLOSSARY_HTML,
+      ...POST_REPAIR_GLOSSARY_HTML_BY_ROUTE,
     });
     const port = await listenOnEphemeralPort(httpServer);
 
@@ -57,11 +68,17 @@ describe("runCustomerAskGlossaryPageChecks", () => {
         { timeoutMs: 2_000 },
       );
 
-      expect(rows).toHaveLength(2);
+      expect(rows).toHaveLength(5);
       expect(rows.every((row) => row.status === "pass")).toBe(true);
       expect(rows.map((row) => row.checkId)).toEqual([
-        BATCH_012_GLOSSARY_CHECKS.noRenderedOpeningSummary.checkId,
+        ...BATCH_012_GLOSSARY_OPENING_SUMMARY_ROUTES.map(
+          () => BATCH_012_GLOSSARY_CHECKS.noRenderedOpeningSummary.checkId,
+        ),
         BATCH_012_GLOSSARY_CHECKS.embeddingDescriptionLinks.checkId,
+      ]);
+      expect(rows.map((row) => row.route)).toEqual([
+        ...BATCH_012_GLOSSARY_OPENING_SUMMARY_ROUTES,
+        BATCH_012_GLOSSARY_ROUTES.embedding,
       ]);
       expect(
         rows.every((row) => row.checklistRow === "phase-1-glossary-page"),
@@ -77,6 +94,10 @@ describe("runCustomerAskGlossaryPageChecks", () => {
       [BATCH_012_GLOSSARY_ROUTES.token]: PRE_REPAIR_TOKEN_GLOSSARY_OPENING_HTML,
       [BATCH_012_GLOSSARY_ROUTES.embedding]:
         PRE_REPAIR_EMBEDDING_GLOSSARY_PLAIN_DESCRIPTION_HTML,
+      [BATCH_012_GLOSSARY_ROUTES.vector]:
+        POST_REPAIR_VECTOR_GLOSSARY_OPENING_HTML,
+      [BATCH_012_GLOSSARY_ROUTES.hiddenSize]:
+        POST_REPAIR_HIDDEN_SIZE_GLOSSARY_OPENING_HTML,
     });
     const port = await listenOnEphemeralPort(httpServer);
 
@@ -89,7 +110,8 @@ describe("runCustomerAskGlossaryPageChecks", () => {
       const openingRow = rows.find(
         (row) =>
           row.checkId ===
-          BATCH_012_GLOSSARY_CHECKS.noRenderedOpeningSummary.checkId,
+            BATCH_012_GLOSSARY_CHECKS.noRenderedOpeningSummary.checkId &&
+          row.route === BATCH_012_GLOSSARY_ROUTES.token,
       );
       const embeddingRow = rows.find(
         (row) =>
@@ -113,11 +135,7 @@ describe("runCustomerAskGlossaryPageChecks", () => {
 
   test("returns HTTP failure rows when glossary routes are non-200", async () => {
     const httpServer = createGlossaryPageStubServer(
-      {
-        [BATCH_012_GLOSSARY_ROUTES.token]: POST_REPAIR_TOKEN_GLOSSARY_HTML,
-        [BATCH_012_GLOSSARY_ROUTES.embedding]:
-          POST_REPAIR_EMBEDDING_GLOSSARY_HTML,
-      },
+      POST_REPAIR_GLOSSARY_HTML_BY_ROUTE,
       {
         [BATCH_012_GLOSSARY_ROUTES.token]: 500,
         [BATCH_012_GLOSSARY_ROUTES.embedding]: 404,
@@ -131,10 +149,26 @@ describe("runCustomerAskGlossaryPageChecks", () => {
         { timeoutMs: 2_000 },
       );
 
-      expect(rows).toHaveLength(2);
-      expect(rows.every((row) => row.status === "fail")).toBe(true);
-      expect(rows[0]?.reason).toContain("HTTP 500");
-      expect(rows[1]?.reason).toContain("HTTP 404");
+      expect(rows).toHaveLength(5);
+      expect(rows.every((row) => row.status === "fail")).toBe(false);
+      const tokenRow = rows.find(
+        (row) => row.route === BATCH_012_GLOSSARY_ROUTES.token,
+      );
+      const embeddingOpeningRow = rows.find(
+        (row) =>
+          row.route === BATCH_012_GLOSSARY_ROUTES.embedding &&
+          row.checkId ===
+            BATCH_012_GLOSSARY_CHECKS.noRenderedOpeningSummary.checkId,
+      );
+      const embeddingLinksRow = rows.find(
+        (row) =>
+          row.checkId ===
+          BATCH_012_GLOSSARY_CHECKS.embeddingDescriptionLinks.checkId,
+      );
+
+      expect(tokenRow?.reason).toContain("HTTP 500");
+      expect(embeddingOpeningRow?.reason).toContain("HTTP 404");
+      expect(embeddingLinksRow?.reason).toContain("HTTP 404");
     } finally {
       httpServer.closeAllConnections();
       httpServer.close();
