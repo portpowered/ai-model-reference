@@ -104,6 +104,10 @@ describe("Phase 1 built-app verifier entrypoint documentation", () => {
     expect(customerAskDoc).toMatch(/home\.header-search-entry/);
     expect(customerAskDoc).toMatch(/search\.page\.page-level-hits/);
     expect(customerAskDoc).toMatch(/glossary\.presentation/);
+    expect(customerAskDoc).toMatch(/glossary\.embedding-description-links/);
+    expect(customerAskDoc).toMatch(/glossary\.vector-description-links/);
+    expect(customerAskDoc).toMatch(/glossary\.hidden-size-description-links/);
+    expect(customerAskDoc).toMatch(/\/docs\/glossary\/embedding/);
     expect(customerAskDoc).toMatch(/docs\.footer-hover-focus-parity/);
     expect(customerAskDoc).toMatch(/module\.graph-build-markers/);
     expect(customerAskDoc).toMatch(/module\.mha-gqa-comparison/);
