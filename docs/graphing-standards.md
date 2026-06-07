@@ -95,3 +95,14 @@ Before approving a module graph change:
 5. Static export route hydrates the graph (including switcher markers when applicable).
 
 Cross-check open GQA graph manual gate rows in [customer-ask](./internal/customer-ask.md) before treating the graph baseline as complete.
+
+## Lessons from prior GQA repair
+
+These graph failures recurred across GQA repair PRs before this baseline; do not reintroduce them:
+
+* **Pipeline-only diagrams** — vertical projection chains did not teach the MHA→GQA head-sharing change; use the comparison switcher on one canvas.
+* **Disabled zoom/pan** — readers could not inspect node labels on desktop or GitHub Pages; enable pan/zoom and keep editing disabled.
+* **Unreadable node theme** — dark nodes with light text on a light page background; apply `--xy-node-background-color` and `--xy-node-color` on the graph wrapper.
+* **Duplicate math graph** — `computeSchema` React Flow in math/schema duplicated the teaching graph; one canvas in How it works only.
+* **No MHA comparison** — static GQA-only diagrams forced long prose to explain the delta; toggle MHA/GQA with obvious query vs KV head counts.
+* **Static export shells** — graph markers in HTML without client hydration on GitHub Pages; verify with `make verify-phase-1-github-pages-convergence` and browser MHA/GQA toggle checks.

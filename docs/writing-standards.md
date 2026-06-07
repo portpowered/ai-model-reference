@@ -114,3 +114,13 @@ Before approving a module or glossary page:
 5. Narrative sections stay concise and layperson-readable per [quality-documents-standards](./quality-documents-standards.md).
 
 Cross-check open manual gate rows in [customer-ask](./internal/customer-ask.md) for grouped-query-attention before treating the writing baseline as complete.
+
+## Lessons from prior GQA repair
+
+These writing failures recurred across GQA repair PRs before this baseline; do not reintroduce them:
+
+* **Split summary lines** — separate `problemStatement` and `coreIdea` repeated the thesis; fold into one `openingSummary`.
+* **Concept rows under equations** — projection, grouping, and head-count labels in the math block crowded symbol glossaries; keep only `Q`, `K`, `V`, `H`, `G`, and indices under formulas.
+* **Reader-shortcut callouts** — baseline templates shipped `callouts.readerShortcut` instead of letting the folded summary carry the thesis.
+* **Phase/meta copy** — customer messages mentioned phases, verifiers, or convergence batches; keep process language in factory docs only.
+* **Verbose math definitions** — multi-sentence glossaries under equations; one short symbol line each, with mechanism prose in narrative sections.
