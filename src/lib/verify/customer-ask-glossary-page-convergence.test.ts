@@ -14,7 +14,9 @@ import {
   GLOSSARY_PAGE_EMBEDDING_VECTOR_HREF,
   GLOSSARY_PAGE_TOKEN_REGISTRY_ID,
 } from "./customer-ask-glossary-page-convergence";
+import { shouldRunVerifyProductionIntegrationTests } from "./server-lifecycle";
 
+const repoRoot = join(import.meta.dir, "../../..");
 const PROSE_AUTO_LINK_CLASS = `class="${proseAutoLinkClassName}"`;
 
 export const POST_REPAIR_TOKEN_GLOSSARY_HTML = `
@@ -182,6 +184,10 @@ describe("buildCustomerAskGlossaryPageRows", () => {
 
 describe("buildCustomerAskGlossaryPageRows (built HTML)", () => {
   test("token and embedding built HTML pass batch-012 glossary page checks when present", () => {
+    if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
+      return;
+    }
+
     const tokenPath = join(
       process.cwd(),
       ".next/server/app/docs/glossary/token.html",

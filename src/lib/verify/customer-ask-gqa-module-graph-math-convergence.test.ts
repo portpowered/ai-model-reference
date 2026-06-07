@@ -16,6 +16,9 @@ import {
   buildGroupedQueryAttentionStubBody,
   GROUPED_QUERY_ATTENTION_MODULE_TITLE,
 } from "./grouped-query-attention-module-convergence";
+import { shouldRunVerifyProductionIntegrationTests } from "./server-lifecycle";
+
+const repoRoot = join(import.meta.dir, "../../..");
 
 const POST_REPAIR_STUB_BODY = buildGroupedQueryAttentionStubBody().replace(
   /<ul data-testid="tag-pill-list"[^>]*><\/ul>/,
@@ -213,6 +216,10 @@ describe("buildCustomerAskGqaModuleGraphMathRows", () => {
 
 describe("buildCustomerAskGqaModuleGraphMathRows (built HTML)", () => {
   test("/docs/modules/grouped-query-attention built HTML reports graph/math convergence rows", () => {
+    if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
+      return;
+    }
+
     const builtPath = join(
       process.cwd(),
       GROUPED_QUERY_ATTENTION_BUILT_HTML_PATH,

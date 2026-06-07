@@ -24,6 +24,9 @@ import {
 } from "./customer-ask-missing-pages-convergence";
 import type { SearchSurfaceResultSnapshot } from "./customer-ask-search-surface-convergence";
 import { PHASE_1_ATTENTION_MODULE_URL } from "./phase-1-search-checks";
+import { shouldRunVerifyProductionIntegrationTests } from "./server-lifecycle";
+
+const repoRoot = join(import.meta.dir, "../../..");
 
 export const POST_REPAIR_ATTENTION_MODULE_HTML = `
   <html>
@@ -244,6 +247,10 @@ describe("buildCustomerAskMissingPagesRows", () => {
 
 describe("buildCustomerAskMissingPagesRows (built HTML)", () => {
   test("attention, vector, and hidden-size built HTML pass when present", () => {
+    if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
+      return;
+    }
+
     const attentionPath = join(
       process.cwd(),
       ".next/server/app/docs/modules/attention.html",
