@@ -117,7 +117,7 @@ export function assertGqaModuleNoDuplicateMathGraph(
 
 /**
  * Returns a failure reason when built GQA module math/schema HTML lacks
- * plain-language Q, K, V, and grouping definitions.
+ * symbol-level Q, K, V, H, G, and index definitions under each equation.
  */
 export function assertGqaModuleMathQkvDefinitions(html: string): string | null {
   return assertGroupedQueryAttentionMathDefinitionsConvergence(

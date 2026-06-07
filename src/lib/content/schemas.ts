@@ -289,33 +289,23 @@ export const pageTableMessagesSchema = z.object({
   values: z.record(z.string(), z.record(z.string(), z.string())).optional(),
 });
 
+const pageMathVariableTermSchema = z.object({
+  term: z.string().min(1),
+  definition: z.string().min(1),
+});
+
 const pageMathFormulaSchema = z.object({
   label: z.string().min(1),
   formula: z.string().min(1),
+  variableDefinitions: z
+    .record(z.string(), pageMathVariableTermSchema)
+    .optional(),
 });
 
 export const pageMathMessagesSchema = z.record(
   z.string(),
   pageMathFormulaSchema,
 );
-
-const pageMathVariableTermSchema = z.object({
-  term: z.string().min(1),
-  definition: z.string().min(1),
-});
-
-export const pageMathVariableDefinitionsSchema = z.object({
-  title: z.string().min(1),
-  q: pageMathVariableTermSchema,
-  k: pageMathVariableTermSchema,
-  v: pageMathVariableTermSchema,
-  queryProjection: pageMathVariableTermSchema,
-  keyProjection: pageMathVariableTermSchema,
-  valueProjection: pageMathVariableTermSchema,
-  queryHeads: pageMathVariableTermSchema,
-  keyValueHeads: pageMathVariableTermSchema,
-  grouping: pageMathVariableTermSchema,
-});
 
 export const pageMessagesSchema = z.object({
   title: z.string().min(1),
@@ -329,7 +319,6 @@ export const pageMessagesSchema = z.object({
   graph: pageGraphMessagesSchema.optional(),
   tables: z.record(z.string(), pageTableMessagesSchema).optional(),
   math: pageMathMessagesSchema.optional(),
-  mathVariableDefinitions: pageMathVariableDefinitionsSchema.optional(),
 });
 
 export const tableColumnSchema = z.object({
@@ -439,9 +428,6 @@ export type ModuleGraphEdge = z.infer<typeof moduleGraphEdgeSchema>;
 export type PageKind = z.infer<typeof pageKindSchema>;
 export type PageFrontmatter = z.infer<typeof pageFrontmatterSchema>;
 export type PageMessages = z.infer<typeof pageMessagesSchema>;
-export type PageMathVariableDefinitions = z.infer<
-  typeof pageMathVariableDefinitionsSchema
->;
 export type PageTableMessages = z.infer<typeof pageTableMessagesSchema>;
 export type TableColumn = z.infer<typeof tableColumnSchema>;
 export type TableDimension = z.infer<typeof tableDimensionSchema>;
