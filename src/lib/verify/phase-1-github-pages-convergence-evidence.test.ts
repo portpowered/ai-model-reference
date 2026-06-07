@@ -15,6 +15,7 @@ import {
   EXPORT_BUILD_SUCCESS_SEARCH_HANDOFF_MARKER,
   EXPORT_COMMAND_PATH_DOMAIN_ID,
 } from "./phase-1-github-pages-export-command-path";
+import { STATIC_SERVER_COMMAND_PATH_DOMAIN_ID } from "./phase-1-github-pages-static-server-command-path";
 
 function successfulBuildExportOutput(): string {
   return [
@@ -60,6 +61,7 @@ describe("buildPhase1GitHubPagesConvergenceEvidenceSummary", () => {
       buildExportExitCode: 0,
       cwd: dir,
       basePath: "",
+      staticServerLifecycleStatus: "pass",
     });
 
     expect(summary.exportCommandPath.domainId).toBe(
@@ -68,6 +70,10 @@ describe("buildPhase1GitHubPagesConvergenceEvidenceSummary", () => {
     expect(summary.exportCommandPath.status).toBe("pass");
     expect(summary.exportArtifact.domainId).toBe(EXPORT_ARTIFACT_DOMAIN_ID);
     expect(summary.exportArtifact.status).toBe("uncertain");
+    expect(summary.staticServerCommandPath.domainId).toBe(
+      STATIC_SERVER_COMMAND_PATH_DOMAIN_ID,
+    );
+    expect(summary.staticServerCommandPath.status).toBe("pass");
     expect(summary.recommendation).toBe("stop-and-wait-for-phase-advancement");
 
     rmSync(dir, { recursive: true, force: true });
@@ -77,9 +83,13 @@ describe("buildPhase1GitHubPagesConvergenceEvidenceSummary", () => {
     const summary = buildPhase1GitHubPagesConvergenceEvidenceSummary({
       buildExportOutput: "Phase 1 export route verification failed:\n",
       buildExportExitCode: 1,
+      staticServerSkipped: true,
+      staticServerSkipReason:
+        "Static export server verification skipped because make build-export did not succeed.",
     });
 
     expect(summary.exportCommandPath.status).toBe("fail");
+    expect(summary.staticServerCommandPath.status).toBe("uncertain");
     expect(summary.recommendation).toBe("queue-one-narrow-repair-batch");
     expect(summary.recommendationRationale).toContain("export-command-path");
   });
@@ -93,6 +103,8 @@ describe("buildPhase1GitHubPagesConvergenceEvidenceSummary", () => {
       buildExportExitCode: 0,
       cwd: dir,
       basePath: "",
+      staticServerSkipped: true,
+      staticServerSkipReason: "Static server not run in this fixture.",
     });
 
     expect(summary.exportCommandPath.status).toBe("uncertain");
@@ -108,11 +120,35 @@ describe("buildPhase1GitHubPagesConvergenceEvidenceSummary", () => {
       buildExportExitCode: 0,
       cwd: mkdtempSync(join(tmpdir(), "gh-pages-summary-artifact-fail-")),
       basePath: "",
+      staticServerLifecycleStatus: "pass",
     });
 
     expect(summary.exportArtifact.status).toBe("fail");
     expect(summary.recommendation).toBe("queue-one-narrow-repair-batch");
     expect(summary.recommendationRationale).toContain("export-artifact");
+  });
+
+  test("marks static-server-command-path fail and recommends repair when readiness fails", () => {
+    const dir = mkdtempSync(join(tmpdir(), "gh-pages-summary-server-fail-"));
+    writeMinimalPassingOutFixture(dir);
+
+    const summary = buildPhase1GitHubPagesConvergenceEvidenceSummary({
+      buildExportOutput: successfulBuildExportOutput(),
+      buildExportExitCode: 0,
+      cwd: dir,
+      basePath: "",
+      staticServerLifecycleStatus: "fail",
+      staticServerLifecycleReason:
+        "Static export file server did not become ready within 30000ms",
+    });
+
+    expect(summary.staticServerCommandPath.status).toBe("fail");
+    expect(summary.recommendation).toBe("queue-one-narrow-repair-batch");
+    expect(summary.recommendationRationale).toContain(
+      "static-server-command-path",
+    );
+
+    rmSync(dir, { recursive: true, force: true });
   });
 });
 
@@ -135,9 +171,28 @@ describe("getPhase1GitHubPagesConvergenceExitCode", () => {
       buildExportExitCode: 0,
       cwd: dir,
       basePath: "",
+      staticServerLifecycleStatus: "pass",
     });
 
     expect(getPhase1GitHubPagesConvergenceExitCode(summary)).toBe(0);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("returns 1 when static-server-command-path fails", () => {
+    const dir = mkdtempSync(join(tmpdir(), "gh-pages-exit-server-fail-"));
+    writeMinimalPassingOutFixture(dir);
+
+    const summary = buildPhase1GitHubPagesConvergenceEvidenceSummary({
+      buildExportOutput: successfulBuildExportOutput(),
+      buildExportExitCode: 0,
+      cwd: dir,
+      basePath: "",
+      staticServerLifecycleStatus: "fail",
+      staticServerLifecycleReason: "Missing export directory at out",
+    });
+
+    expect(getPhase1GitHubPagesConvergenceExitCode(summary)).toBe(1);
 
     rmSync(dir, { recursive: true, force: true });
   });
@@ -164,6 +219,7 @@ describe("formatPhase1GitHubPagesConvergenceEvidenceSummary", () => {
       buildExportExitCode: 0,
       cwd: dir,
       basePath: "",
+      staticServerLifecycleStatus: "pass",
     });
     const report = formatPhase1GitHubPagesConvergenceEvidenceSummary(summary);
 
@@ -171,12 +227,16 @@ describe("formatPhase1GitHubPagesConvergenceEvidenceSummary", () => {
       PHASE_1_BATCH_014_GITHUB_PAGES_CONVERGENCE_EVIDENCE_SUMMARY_HEADER,
     );
     expect(report).toContain("[PASS] export-command-path");
+    expect(report).toContain("[PASS] static-server-command-path");
     expect(report).toContain("[UNCERTAIN] export-artifact");
     expect(report).toContain(
       "checklistRow=phase-1-github-pages-export-command-path",
     );
     expect(report).toContain(
       "checklistRow=phase-1-github-pages-export-artifact",
+    );
+    expect(report).toContain(
+      "checklistRow=phase-1-github-pages-static-server-command-path",
     );
     expect(report).toContain("  [PASS] export-artifact.out-index-html");
     expect(report).toContain(

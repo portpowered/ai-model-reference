@@ -9,6 +9,11 @@ import {
   type ExportCommandPathEvidence,
   formatExportCommandPathEvidenceLine,
 } from "./phase-1-github-pages-export-command-path";
+import {
+  deriveStaticServerCommandPathEvidence,
+  formatStaticServerCommandPathEvidenceLine,
+  type StaticServerCommandPathEvidence,
+} from "./phase-1-github-pages-static-server-command-path";
 
 export const PHASE_1_BATCH_014_GITHUB_PAGES_CONVERGENCE_EVIDENCE_SUMMARY_HEADER =
   "Phase 1 batch-014 GitHub Pages convergence evidence summary";
@@ -20,6 +25,7 @@ export type Phase1GitHubPagesConvergenceRecommendation =
 export type Phase1GitHubPagesConvergenceEvidenceSummary = {
   exportCommandPath: ExportCommandPathEvidence;
   exportArtifact: ExportArtifactEvidence;
+  staticServerCommandPath: StaticServerCommandPathEvidence;
   recommendation: Phase1GitHubPagesConvergenceRecommendation;
   recommendationRationale: string;
 };
@@ -30,6 +36,10 @@ export type BuildPhase1GitHubPagesConvergenceEvidenceSummaryInput = {
   outDir?: string;
   cwd?: string;
   basePath?: string;
+  staticServerSkipped?: boolean;
+  staticServerSkipReason?: string;
+  staticServerLifecycleStatus?: "pass" | "fail";
+  staticServerLifecycleReason?: string;
 };
 
 function formatFailingCheckIds(
@@ -44,6 +54,7 @@ function formatFailingCheckIds(
 export function derivePhase1GitHubPagesConvergenceRecommendation(input: {
   exportCommandPath: ExportCommandPathEvidence;
   exportArtifact: ExportArtifactEvidence;
+  staticServerCommandPath: StaticServerCommandPathEvidence;
 }): {
   recommendation: Phase1GitHubPagesConvergenceRecommendation;
   rationale: string;
@@ -54,7 +65,8 @@ export function derivePhase1GitHubPagesConvergenceRecommendation(input: {
 
   if (
     input.exportCommandPath.status === "fail" ||
-    input.exportArtifact.status === "fail"
+    input.exportArtifact.status === "fail" ||
+    input.staticServerCommandPath.status === "fail"
   ) {
     const failureParts: string[] = [];
     if (input.exportCommandPath.status === "fail") {
@@ -67,6 +79,11 @@ export function derivePhase1GitHubPagesConvergenceRecommendation(input: {
         failingArtifactCheckIds.length > 0
           ? `export-artifact checkId(s): ${failingArtifactCheckIds}`
           : "export-artifact (out/ artifact incomplete)",
+      );
+    }
+    if (input.staticServerCommandPath.status === "fail") {
+      failureParts.push(
+        `static-server-command-path (${input.staticServerCommandPath.reason ?? "static export server lifecycle failure"})`,
       );
     }
     return {
@@ -90,6 +107,11 @@ export function derivePhase1GitHubPagesConvergenceRecommendation(input: {
       `export-artifact checkId(s): ${uncertainArtifactCheckIds}`,
     );
   }
+  if (input.staticServerCommandPath.status === "uncertain") {
+    uncertainParts.push(
+      `static-server-command-path (${input.staticServerCommandPath.reason ?? "static server verification skipped or incomplete"})`,
+    );
+  }
 
   if (uncertainParts.length > 0) {
     return {
@@ -101,7 +123,7 @@ export function derivePhase1GitHubPagesConvergenceRecommendation(input: {
   return {
     recommendation: "stop-and-wait-for-phase-advancement",
     rationale:
-      "make build-export passed and export-artifact checks passed. Later GitHub Pages convergence domains (static server and regression probes) will be added in subsequent workflow stages.",
+      "make build-export passed, export-artifact checks passed, and the static export server became ready. Phase 1 static regression probes will be added in a subsequent workflow stage.",
   };
 }
 
@@ -122,14 +144,22 @@ export function buildPhase1GitHubPagesConvergenceEvidenceSummary(
     cwd: input.cwd,
     basePath: input.basePath,
   });
+  const staticServerCommandPath = deriveStaticServerCommandPathEvidence({
+    skipped: input.staticServerSkipped,
+    skipReason: input.staticServerSkipReason,
+    lifecycleStatus: input.staticServerLifecycleStatus,
+    lifecycleReason: input.staticServerLifecycleReason,
+  });
   const recommendation = derivePhase1GitHubPagesConvergenceRecommendation({
     exportCommandPath,
     exportArtifact,
+    staticServerCommandPath,
   });
 
   return {
     exportCommandPath,
     exportArtifact,
+    staticServerCommandPath,
     recommendation: recommendation.recommendation,
     recommendationRationale: recommendation.rationale,
   };
@@ -146,6 +176,9 @@ export function formatPhase1GitHubPagesConvergenceEvidenceSummary(
   for (const row of summary.exportArtifact.rows) {
     lines.push(formatExportArtifactCheckRowLine(row));
   }
+  lines.push(
+    formatStaticServerCommandPathEvidenceLine(summary.staticServerCommandPath),
+  );
   lines.push(`Recommendation: ${summary.recommendation}`);
   lines.push(`Rationale: ${summary.recommendationRationale}`);
   return lines.join("\n");
@@ -168,8 +201,9 @@ export function printPhase1GitHubPagesConvergenceEvidenceSummary(
 }
 
 /**
- * GitHub Pages convergence exit semantics: fail when export-command-path or
- * export-artifact rows fail. Uncertain evidence is non-blocking.
+ * GitHub Pages convergence exit semantics: fail when export-command-path,
+ * export-artifact, or static-server-command-path rows fail. Uncertain evidence
+ * is non-blocking.
  */
 export function getPhase1GitHubPagesConvergenceExitCode(
   summary: Phase1GitHubPagesConvergenceEvidenceSummary,
@@ -180,11 +214,15 @@ export function getPhase1GitHubPagesConvergenceExitCode(
   if (summary.exportArtifact.status === "fail") {
     return 1;
   }
+  if (summary.staticServerCommandPath.status === "fail") {
+    return 1;
+  }
   return 0;
 }
 
 export const PHASE_1_GITHUB_PAGES_CONVERGENCE_WORKFLOW_STEPS = [
   "make build-export",
+  "serve out/ on loopback static file server",
 ] as const;
 
 export const PHASE_1_GITHUB_PAGES_CONVERGENCE_PREREQUISITES = [
