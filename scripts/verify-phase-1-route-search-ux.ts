@@ -1,3 +1,4 @@
+import { resolveCustomerAskBatch012CheckOptionsFromEnv } from "../src/lib/verify/batch-012-customer-ask-convergence-http-env";
 import {
   PHASE_1_UX_SUCCESS_MESSAGE,
   runPhase1CustomerAskConvergenceVerification,
@@ -28,6 +29,7 @@ async function main(): Promise<number> {
           searchShortcutOptions: resolveSearchShortcutCheckOptionsFromEnv(),
         },
         customerAskOptions: {
+          ...resolveCustomerAskBatch012CheckOptionsFromEnv(),
           searchSurfaceOptions:
             resolveCustomerAskSearchSurfaceCheckOptionsFromEnv(),
           docsFooterOptions: resolveCustomerAskDocsFooterCheckOptionsFromEnv(),
