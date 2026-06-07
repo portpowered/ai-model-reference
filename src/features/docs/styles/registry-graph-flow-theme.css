@@ -1,0 +1,7 @@
+.registry-graph-flow .react-flow__node-default,
+.registry-graph-flow .react-flow__node-input,
+.registry-graph-flow .react-flow__node-output,
+.registry-graph-flow .react-flow__node-group {
+  color: var(--xy-node-color, var(--card-foreground));
+  background-color: var(--xy-node-background-color, var(--card));
+}

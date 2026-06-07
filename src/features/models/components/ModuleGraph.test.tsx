@@ -49,6 +49,16 @@ describe("ModuleGraph live GQA graphs", () => {
     expect(
       container.querySelector(".registry-graph-flow__viewport"),
     ).toBeTruthy();
+    const graphWrapper = container.querySelector(
+      '[data-manual-visibility-evidence="registry-graph-flow-node-contrast"]',
+    );
+    expect(graphWrapper).toBeTruthy();
+    expect(graphWrapper?.getAttribute("style")).toContain(
+      "--xy-node-color: var(--card-foreground)",
+    );
+    expect(graphWrapper?.getAttribute("style")).toContain(
+      "--xy-node-background-color: var(--card)",
+    );
     expect(
       screen.getByRole("img", {
         name: "Grouped-query attention compute flow",
