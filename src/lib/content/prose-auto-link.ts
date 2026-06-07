@@ -151,3 +151,23 @@ export function segmentProseWithAutoLinks(
 
   return segments;
 }
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Matches prose auto-link anchors regardless of `href` vs marker attribute order. */
+export function proseAutoLinkAnchorOpenTagPattern(href: string): RegExp {
+  return new RegExp(
+    `<a\\b(?=[^>]*\\bhref="${escapeRegExp(href)}")(?=[^>]*\\bdata-prose-auto-link="true")[^>]*>`,
+    "i",
+  );
+}
+
+/** Matches a full prose auto-link anchor through its closing tag. */
+export function proseAutoLinkAnchorPattern(href: string): RegExp {
+  return new RegExp(
+    `${proseAutoLinkAnchorOpenTagPattern(href).source}[\\s\\S]*?</a>`,
+    "i",
+  );
+}

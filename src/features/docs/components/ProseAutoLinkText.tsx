@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { proseAutoLinkClassName } from "@/features/docs/components/prose-auto-link-class";
 import { segmentProseWithAutoLinks } from "@/lib/content/prose-auto-link";
@@ -24,14 +25,14 @@ export function ProseAutoLinkText({ text }: { text: string }) {
     textOffset += segment.value.length;
 
     return (
-      <a
+      <Link
         key={key}
         href={segment.href}
         className={proseAutoLinkClassName}
         data-prose-auto-link="true"
       >
         {segment.value}
-      </a>
+      </Link>
     );
   });
 

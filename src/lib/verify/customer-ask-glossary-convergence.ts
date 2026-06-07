@@ -1,4 +1,5 @@
 import { glossaryPageHref } from "@/lib/content/content-hrefs";
+import { proseAutoLinkAnchorOpenTagPattern } from "@/lib/content/prose-auto-link";
 import { assertFooterChromeContract } from "@/lib/navigation/docs-page-footer-contract";
 import {
   stripHtmlScripts,
@@ -215,10 +216,7 @@ function assertShellDescriptionAutoLink(
   options: { registryId: string; href: string },
 ): string | null {
   const shellHtml = extractGlossaryShellHtml(html, options.registryId);
-  const anchorPattern = new RegExp(
-    `<a\\b[^>]*href="${escapeRegExp(options.href)}"[^>]*data-prose-auto-link="true"[^>]*>`,
-    "i",
-  );
+  const anchorPattern = proseAutoLinkAnchorOpenTagPattern(options.href);
 
   if (!anchorPattern.test(shellHtml)) {
     const hrefOnlyPattern = new RegExp(
