@@ -20,6 +20,8 @@ describe("search UI messages", () => {
     expect(messages.search.idle.length).toBeGreaterThan(0);
     expect(messages.search.noResults.length).toBeGreaterThan(0);
     expect(messages.search.loading.length).toBeGreaterThan(0);
+    expect(messages.search.error.length).toBeGreaterThan(0);
+    expect(messages.search.retry.length).toBeGreaterThan(0);
     expect(messages.search.shortcut.length).toBeGreaterThan(0);
     expect(messages.search.resultPath.length).toBeGreaterThan(0);
   });

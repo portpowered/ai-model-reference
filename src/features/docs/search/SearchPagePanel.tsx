@@ -1,5 +1,6 @@
 "use client";
 
+import type { StaticOptions } from "fumadocs-core/search/client";
 import type { SearchItemType } from "fumadocs-ui/components/dialog/search";
 import { Search } from "lucide-react";
 import Link from "next/link";
@@ -18,17 +19,27 @@ export type SearchPagePanelContentProps = {
   messages: UiMessages;
   metaByUrl: SearchResultMetaRecord;
   searchParams: Pick<URLSearchParams, "get">;
+  /** Test hook: override static bootstrap client options. */
+  searchClient?: StaticOptions;
 };
+
+function reloadSearchPage(): void {
+  window.location.reload();
+}
 
 export function SearchPagePanelContent({
   messages,
   metaByUrl,
   searchParams,
+  searchClient,
 }: SearchPagePanelContentProps) {
   const router = useRouter();
   const initialQueryApplied = useRef(false);
   const { searchEntry, search: searchCopy } = messages;
-  const { search, setSearch, query } = useModelAtlasDocsSearch({ metaByUrl });
+  const { search, setSearch, query } = useModelAtlasDocsSearch({
+    metaByUrl,
+    client: searchClient,
+  });
 
   const tagSlug = searchParams.get("tag")?.trim() || undefined;
   const queryParam = searchParams.get("q");
@@ -46,10 +57,16 @@ export function SearchPagePanelContent({
 
   const hasQuery = search.trim().length > 0;
   const items = query.data && query.data !== "empty" ? query.data : null;
-  const showIdle = !hasQuery && !query.isLoading;
+  const showIdle = !hasQuery && !query.isLoading && !query.error;
+  const showError = hasQuery && !query.isLoading && Boolean(query.error);
   const showEmpty =
-    hasQuery && !query.isLoading && items !== null && items.length === 0;
-  const showResults = hasQuery && items !== null && items.length > 0;
+    hasQuery &&
+    !query.isLoading &&
+    !query.error &&
+    items !== null &&
+    items.length === 0;
+  const showResults =
+    hasQuery && !query.error && items !== null && items.length > 0;
 
   const onSelect = (item: SearchItemType) => {
     if (item.type === "action") {
@@ -101,6 +118,22 @@ export function SearchPagePanelContent({
             data-testid="search-page-loading"
           >
             {searchCopy.loading}
+          </output>
+        ) : null}
+        {showError ? (
+          <output
+            className="block space-y-3 py-4 text-sm text-muted-foreground"
+            data-testid="search-page-error"
+            role="alert"
+          >
+            <p>{searchCopy.error}</p>
+            <button
+              type="button"
+              className="font-medium text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              onClick={reloadSearchPage}
+            >
+              {searchCopy.retry}
+            </button>
           </output>
         ) : null}
         {showEmpty ? (
