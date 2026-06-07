@@ -26,7 +26,8 @@
     "verify:phase-1-built-app-convergence": "bun ./scripts/run-phase-1-built-app-convergence-validator.ts",
     "verify:phase-1-follow-up-convergence": "bun ./scripts/run-phase-1-follow-up-convergence-pass.ts",
     "verify:phase-1-batch-012-convergence": "bun ./scripts/run-phase-1-batch-012-convergence-pass.ts",
-    "verify:phase-1-batch-013-convergence": "bun ./scripts/run-phase-1-batch-013-convergence-pass.ts"
+    "verify:phase-1-batch-013-convergence": "bun ./scripts/run-phase-1-batch-013-convergence-pass.ts",
+    "verify:phase-1-github-pages-convergence": "bun ./scripts/run-phase-1-github-pages-convergence-pass.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

@@ -305,6 +305,7 @@ make verify-export-routes # verify existing out/ artifact (requires build-export
 make verify-phase-1-ux # HTTP verification for Phase 1 reader routes and search (requires build)
 make verify-phase-1-built-app-convergence # batch-010 built-app gate with planner-facing evidence summary
 make verify-phase-1-follow-up-convergence # batch-011 follow-up gate with planner-facing evidence summary
+make verify-phase-1-github-pages-convergence # batch-014 GitHub Pages closure gate (validates out/ static export)
 make validate-data # registry and content validation
 make linkcheck     # internal docs link validation (also runs in make ci)
 make scaffold       # scaffold glossary/concept page bundles (pass ARGS='...')
@@ -441,6 +442,28 @@ evidence is non-blocking. Prior batch-008/010 all-pass evidence is stale for
 this inventory and must be refreshed through this pass. See
 `factory/docs/phase-1-follow-up-customer-ask-convergence-validator.md` for
 prerequisites, check inventory, exit semantics, and loopback usage.
+
+**Batch-014 GitHub Pages convergence validator:** After batch-014 GitHub Pages
+repairs land, run the canonical static-export closure gate that validates the
+built `out/` artifact rather than only the `next start` spawned-server path:
+
+```sh
+make verify-phase-1-github-pages-convergence
+# or
+bun run verify:phase-1-github-pages-convergence
+```
+
+This runs `make build-export`, inspects the `out/` artifact, serves it from a
+loopback static file server, and re-runs Phase 1 search probes for GQA,
+attention, and KV cache plus representative reader-route markers against that
+static export. It prints a **Phase 1 batch-014 GitHub Pages convergence
+evidence summary** with `Recommendation` and `Rationale` lines. The process
+exits `1` when export-command-path, export-artifact, static-server-command-path,
+or phase-1-static-regression rows are `fail`; `uncertain` evidence is
+non-blocking. Prior built-app follow-up convergence evidence does not prove the
+GitHub Pages export path and must be refreshed through this pass. See
+`factory/docs/phase-1-github-pages-convergence-validator.md` for prerequisites,
+domain inventory, exit semantics, and loopback usage.
 
 The verifier also exercises the built `/search` page, the header search dialog
 (via the search trigger button), and keyboard shortcuts on the home page:
