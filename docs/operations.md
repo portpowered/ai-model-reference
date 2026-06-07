@@ -23,10 +23,10 @@ Actions.** Merges to `main` trigger an automatic deploy workflow that builds
 | Public URL | `https://portpowered.github.io/ai-model-reference/` (GitHub Pages project site for `portpowered/ai-model-reference`) |
 | Quality gates | `.github/workflows/ci.yml` runs `make ci` only; deploy does not replace or invoke CI |
 
-The deploy job checks out the pushed commit, builds the export, uploads `out/`
-with `actions/upload-pages-artifact@v3`, and publishes via
-`actions/deploy-pages@v4`. Failed export builds or deploy steps fail the
-workflow run on the `main` commit.
+The workflow **`build`** job checks out the pushed commit, runs
+`make build-export`, and uploads `out/` with `actions/upload-pages-artifact@v3`.
+The **`deploy`** job publishes that artifact via `actions/deploy-pages@v4`.
+Failed export builds or deploy steps fail the workflow run on the `main` commit.
 
 ### Why GitHub Pages works for this repository
 
