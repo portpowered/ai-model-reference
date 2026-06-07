@@ -23,6 +23,46 @@ function removeExportArtifacts(): void {
 
 describe("static export GitHub Pages base path", () => {
   test(
+    "build-export workflow verifies prefixed out/ HTML when GITHUB_PAGES_BASE_PATH is set",
+    () => {
+      removeExportArtifacts();
+
+      try {
+        const buildResult = spawnSync("bun", ["run", "build:export"], {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: {
+            ...process.env,
+            GITHUB_PAGES_BASE_PATH: exportBasePath,
+          },
+        });
+        expect(buildResult.status).toBe(0);
+
+        const verifyResult = spawnSync(
+          "bun",
+          ["./scripts/verify-phase-1-export-routes.ts"],
+          {
+            cwd: repoRoot,
+            encoding: "utf8",
+            env: {
+              ...process.env,
+              GITHUB_PAGES_BASE_PATH: exportBasePath,
+            },
+          },
+        );
+
+        expect(verifyResult.status).toBe(0);
+        expect(verifyResult.stdout ?? "").toContain(
+          "Phase 1 export routes verified",
+        );
+      } finally {
+        removeExportArtifacts();
+      }
+    },
+    { timeout: 180_000 },
+  );
+
+  test(
     "build:export prefixes bundled assets and internal links in out/index.html",
     () => {
       removeExportArtifacts();

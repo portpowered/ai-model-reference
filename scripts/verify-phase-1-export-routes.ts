@@ -1,4 +1,4 @@
-import { resolveGitHubPagesBasePath } from "../src/lib/build/static-export";
+import { resolveBasePathForExportVerification } from "../src/lib/build/static-export";
 import {
   DEFAULT_EXPORT_OUT_DIR,
   formatPhase1ExportRouteFailure,
@@ -7,7 +7,7 @@ import {
 } from "../src/lib/build/verify-phase-1-export-routes";
 
 const outDir = process.argv[2] ?? DEFAULT_EXPORT_OUT_DIR;
-const basePath = resolveGitHubPagesBasePath(process.env);
+const basePath = resolveBasePathForExportVerification(process.env);
 
 const result = verifyPhase1ExportRoutesFromOutDir(outDir, { basePath });
 
