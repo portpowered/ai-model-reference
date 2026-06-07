@@ -11,10 +11,15 @@ const packageJsonPath = join(repoRoot, "package.json");
 describe("static export build documentation", () => {
   test("README documents make build-export as the single export build and verify command", () => {
     const readme = readFileSync(readmePath, "utf8");
+    const staticExportSection = readme.slice(
+      readme.indexOf("## Static export (GitHub Pages)"),
+      readme.indexOf("## Phase 2 docs authoring"),
+    );
 
-    expect(readme).toMatch(/make build-export/);
-    expect(readme).toMatch(/bun run build:export/);
-    expect(readme).toMatch(/GITHUB_PAGES_BASE_PATH/);
+    expect(staticExportSection).toMatch(/make build-export/);
+    expect(staticExportSection).toMatch(/bun run build:export/);
+    expect(staticExportSection).toMatch(/GITHUB_PAGES_BASE_PATH/);
+    expect(staticExportSection).toMatch(/\.github\/workflows\/deploy\.yml/);
     expect(readme).toMatch(/make verify-export-routes/);
     expect(readme).toMatch(/bun run verify:export-routes/);
     expect(readme).toMatch(/verify-phase-1-export-search-handoff/);
