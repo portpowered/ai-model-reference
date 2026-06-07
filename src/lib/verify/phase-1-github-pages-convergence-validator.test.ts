@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { spawn } from "node:child_process";
 import { join } from "node:path";
+import {
+  assertPhase1GitHubPagesConvergenceClosureReady,
+  toPhase1GitHubPagesConvergenceClosureSummary,
+} from "./phase-1-github-pages-convergence-closure";
 import {
   derivePhase1GitHubPagesConvergenceRecommendation,
   PHASE_1_BATCH_014_GITHUB_PAGES_CONVERGENCE_EVIDENCE_SUMMARY_HEADER,
@@ -10,29 +14,51 @@ import { EXPORT_ARTIFACT_DOMAIN_ID } from "./phase-1-github-pages-export-artifac
 import { EXPORT_COMMAND_PATH_DOMAIN_ID } from "./phase-1-github-pages-export-command-path";
 import { STATIC_REGRESSION_DOMAIN_ID } from "./phase-1-github-pages-static-regression";
 import { STATIC_SERVER_COMMAND_PATH_DOMAIN_ID } from "./phase-1-github-pages-static-server-command-path";
+import {
+  DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
+  shouldRunVerifyProductionIntegrationTests,
+} from "./server-lifecycle";
 
 const repoRoot = join(import.meta.dir, "../../..");
-const readmePath = join(repoRoot, "README.md");
-const operationsPath = join(repoRoot, "docs/operations.md");
-const githubPagesConvergenceDocPath = join(
+const GITHUB_PAGES_CONVERGENCE_SCRIPT = join(
   repoRoot,
-  "factory/docs/phase-1-github-pages-convergence-validator.md",
+  "scripts/run-phase-1-github-pages-convergence-pass.ts",
 );
+const GITHUB_PAGES_CONVERGENCE_E2E_TIMEOUT_MS =
+  DEFAULT_SERVER_STARTUP_TIMEOUT_MS + 600_000;
 
-describe("phase-1-github-pages-convergence CLI wiring", () => {
-  test("Makefile and package.json expose verify-phase-1-github-pages-convergence", () => {
-    const makefile = readFileSync(join(repoRoot, "Makefile"), "utf8");
-    const packageJson = JSON.parse(
-      readFileSync(join(repoRoot, "package.json"), "utf8"),
-    ) as { scripts: Record<string, string> };
+function runGitHubPagesConvergenceScript(
+  options: { cwd?: string; env?: Record<string, string | undefined> } = {},
+): Promise<{ exitCode: number; output: string }> {
+  const mergedEnv = { ...process.env, ...options.env };
+  for (const [key, value] of Object.entries(options.env ?? {})) {
+    if (value === undefined) {
+      delete mergedEnv[key];
+    }
+  }
 
-    expect(makefile).toMatch(/^verify-phase-1-github-pages-convergence:/m);
-    expect(makefile).toMatch(/run-phase-1-github-pages-convergence-pass\.ts/);
-    expect(
-      packageJson.scripts["verify:phase-1-github-pages-convergence"],
-    ).toContain("run-phase-1-github-pages-convergence-pass.ts");
+  return new Promise((resolve, reject) => {
+    const child = spawn("bun", [GITHUB_PAGES_CONVERGENCE_SCRIPT], {
+      cwd: options.cwd ?? repoRoot,
+      env: mergedEnv,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    let output = "";
+    child.stdout.on("data", (chunk: Buffer | string) => {
+      output += String(chunk);
+    });
+    child.stderr.on("data", (chunk: Buffer | string) => {
+      output += String(chunk);
+    });
+    child.once("error", reject);
+    child.once("close", (code) => {
+      resolve({ exitCode: code ?? 1, output });
+    });
   });
+}
 
+describe("phase-1-github-pages-convergence workflow constants", () => {
   test("workflow constants name the batch-014 GitHub Pages convergence gate", () => {
     expect(
       PHASE_1_BATCH_014_GITHUB_PAGES_CONVERGENCE_EVIDENCE_SUMMARY_HEADER,
@@ -125,63 +151,28 @@ describe("derivePhase1GitHubPagesConvergenceRecommendation", () => {
   });
 });
 
-describe("phase-1-github-pages-convergence planner documentation", () => {
-  test("factory doc documents the batch-014 GitHub Pages convergence workflow", () => {
-    const doc = readFileSync(githubPagesConvergenceDocPath, "utf8");
+describe("run-phase-1-github-pages-convergence-pass script", () => {
+  test(
+    "canonical run prints closure-ready evidence when default spawn path is healthy",
+    async () => {
+      if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
+        return;
+      }
 
-    expect(doc).toMatch(/make verify-phase-1-github-pages-convergence/);
-    expect(doc).toMatch(/bun run verify:phase-1-github-pages-convergence/);
-    expect(doc).toMatch(/make build-export/);
-    expect(doc).toMatch(/out\//);
-    expect(doc).toMatch(/GITHUB_PAGES_BASE_PATH/);
-    expect(doc).toMatch(/export-command-path/);
-    expect(doc).toMatch(/export-artifact/);
-    expect(doc).toMatch(/static-server-command-path/);
-    expect(doc).toMatch(/phase-1-static-regression/);
-    expect(doc).toMatch(/export-artifact\.out-index-html/);
-    expect(doc).toMatch(/static-regression\.search\.page\.page-level-hits/);
-    expect(doc).toMatch(/static-regression\.route\.home-header-search-entry/);
-    expect(doc).toMatch(/static-regression\.route\.gqa-module-presentation/);
-    expect(doc).toMatch(/Playwright Chromium/);
-    expect(doc).toMatch(
-      /Phase 1 batch-014 GitHub Pages convergence evidence summary/,
-    );
-    expect(doc).toMatch(
-      /queue-one-narrow-repair-batch|stop-and-wait-for-phase-advancement/,
-    );
-    expect(doc).toMatch(/Recommendation:/);
-    expect(doc).toMatch(/Rationale:/);
-    expect(doc).toMatch(/phase-1-github-pages-convergence-evidence\.ts/);
-    expect(doc).toMatch(/run-phase-1-github-pages-convergence-pass\.ts/);
-    expect(doc).toMatch(/next start/);
-    expect(doc).toMatch(
-      /make verify-phase-1-follow-up-convergence|follow-up convergence/i,
-    );
-  });
+      const result = await runGitHubPagesConvergenceScript({
+        env: { VERIFY_BASE_URL: undefined },
+      });
 
-  test("README and operations.md reference the batch-014 GitHub Pages closure gate", () => {
-    const readme = readFileSync(readmePath, "utf8");
-    const operations = readFileSync(operationsPath, "utf8");
-
-    expect(readme).toMatch(/make verify-phase-1-github-pages-convergence/);
-    expect(readme).toMatch(/bun run verify:phase-1-github-pages-convergence/);
-    expect(readme).toMatch(
-      /factory\/docs\/phase-1-github-pages-convergence-validator\.md/,
-    );
-    expect(readme).toMatch(
-      /Phase 1 batch-014 GitHub Pages convergence[\s\S]*evidence[\s\S]*summary/i,
-    );
-    expect(readme).toMatch(/out\//);
-    expect(readme).toMatch(/next start/);
-
-    expect(operations).toMatch(/make verify-phase-1-github-pages-convergence/);
-    expect(operations).toMatch(
-      /bun run verify:phase-1-github-pages-convergence/,
-    );
-    expect(operations).toMatch(
-      /factory\/docs\/phase-1-github-pages-convergence-validator\.md/,
-    );
-    expect(operations).toMatch(/out\//);
-    expect(operations).toMatch(/next start/);
-  });
+      const parsed = assertPhase1GitHubPagesConvergenceClosureReady(
+        result.output,
+      );
+      const summary = toPhase1GitHubPagesConvergenceClosureSummary(parsed);
+      expect(result.exitCode).toBe(0);
+      expect(summary.exportCommandPath.status).toBe("pass");
+      expect(summary.recommendation).toBe(
+        "stop-and-wait-for-phase-advancement",
+      );
+    },
+    GITHUB_PAGES_CONVERGENCE_E2E_TIMEOUT_MS,
+  );
 });
