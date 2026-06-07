@@ -18,12 +18,40 @@ export function extractModuleArticleHtml(
 }
 
 function extractSectionHtml(html: string, sectionId: string): string {
-  const match = html.match(
-    new RegExp(
-      `<section[^>]*\\bid="${escapeRegExp(sectionId)}"[^>]*>[\\s\\S]*?</section>`,
-    ),
+  const openTag = new RegExp(
+    `<section[^>]*\\bid="${escapeRegExp(sectionId)}"[^>]*>`,
+    "i",
   );
-  return match?.[0] ?? "";
+  const match = openTag.exec(html);
+  if (!match || match.index === undefined) {
+    return "";
+  }
+
+  const startIndex = match.index;
+  let depth = 1;
+  let pos = match.index + match[0].length;
+
+  while (pos < html.length && depth > 0) {
+    const nextOpen = html.indexOf("<section", pos);
+    const nextClose = html.indexOf("</section>", pos);
+
+    if (nextClose === -1) {
+      break;
+    }
+
+    if (nextOpen !== -1 && nextOpen < nextClose) {
+      depth++;
+      pos = nextOpen + "<section".length;
+    } else {
+      depth--;
+      pos = nextClose + "</section>".length;
+      if (depth === 0) {
+        return html.slice(startIndex, pos);
+      }
+    }
+  }
+
+  return "";
 }
 
 /** Module pages render TagPillList once in the dedicated tags section. */
@@ -72,5 +100,27 @@ export function expectModuleComputeFlowGraphOnlyInHowItWorks(
   expect(mathSection).not.toContain(`data-graph-id="${graphId}"`);
   expect(mathSection).not.toContain(
     `data-graph-id="${graphId.replace("-flow", "-schema")}"`,
+  );
+}
+
+/** Plain-language math variable definitions must live in the math/schema section. */
+export function expectModuleMathSchemaDefinitionsInMathSection(
+  html: string,
+  definitionIds: readonly string[],
+): void {
+  const mathSection = extractSectionHtml(html, "math-or-compute-schema");
+  expect(mathSection).toContain('data-attention-schema-comparison="true"');
+  expect(mathSection).toContain(
+    'data-attention-schema-variable-definitions="true"',
+  );
+  expect(mathSection).toContain("What the symbols mean");
+  for (const id of definitionIds) {
+    expect(mathSection).toContain(`data-math-variable-definition="${id}"`);
+  }
+  expect(mathSection).toContain(
+    'data-message-block-math="math.mhaSchema.formula"',
+  );
+  expect(mathSection).toContain(
+    'data-message-block-math="math.gqaSchema.formula"',
   );
 }
