@@ -269,8 +269,17 @@ export const REUSABLE_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
   ...PHASE_1_SEARCH_COVERAGE_COMPONENTS,
 ];
 
-/** Documented thin wrappers that forward to PageAsset without extra branching. */
+/** Documented thin wrappers that forward without extra branching. */
 export const REUSABLE_THIN_WRAPPERS: ThinWrapperEntry[] = [
+  {
+    file: "src/features/docs/components/DocsAutoLinkedDescription.tsx",
+    label: "DocsAutoLinkedDescription",
+    forwardsTo: "ProseAutoLinkText",
+    smokeTests: [
+      "src/features/docs/components/DocsAutoLinkedDescription.test.tsx",
+      "src/lib/content/glossary-shell-description-auto-link.test.tsx",
+    ],
+  },
   {
     file: "src/features/models/components/ModuleGraph.tsx",
     label: "ModuleGraph",
