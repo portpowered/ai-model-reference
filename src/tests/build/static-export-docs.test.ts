@@ -17,7 +17,7 @@ describe("static export build documentation", () => {
     expect(readme).toMatch(/GITHUB_PAGES_BASE_PATH/);
     expect(readme).toMatch(/make verify-export-routes/);
     expect(readme).toMatch(/bun run verify:export-routes/);
-    expect(readme).toMatch(/not.*part of.*make ci|not\*\* part of `make ci`/i);
+    expect(readme).toMatch(/part of `make ci`|runs in `make ci`/i);
     expect(readme).toMatch(/exits non-zero|exit.*non-zero/i);
     expect(readme).toMatch(/out\/.*missing|missing.*out\//i);
     expect(readme).toMatch(/\/docs\/modules\/grouped-query-attention/);
@@ -28,6 +28,7 @@ describe("static export build documentation", () => {
     const operations = readFileSync(operationsPath, "utf8");
 
     expect(operations).toMatch(/make build-export/);
+    expect(operations).toMatch(/make ci.*build-export|build-export.*make ci/i);
     expect(operations).toMatch(/GITHUB_PAGES_BASE_PATH/);
     expect(operations).toMatch(/verify-phase-1-export-routes/);
   });
@@ -39,6 +40,7 @@ describe("static export build documentation", () => {
     };
 
     expect(makefile).toMatch(/^build-export:/m);
+    expect(makefile).toMatch(/^ci:.*build-export/m);
     expect(makefile).toMatch(/bun run build:export/);
     expect(makefile).toMatch(/verify-phase-1-export-routes\.ts/);
     expect(makefile).toMatch(/^verify-export-routes:/m);

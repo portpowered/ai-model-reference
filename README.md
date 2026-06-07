@@ -82,8 +82,8 @@ verifiers. Use the static export path when you need a GitHub Pages–compatible
 workflow or when validating project-site base paths locally.
 
 **Single command:** `make build-export` runs the export build and verifies the
-`out/` artifact in one step. It is **not** part of `make ci`; CI still uses
-`make build` until export gates are wired in a later work item.
+`out/` artifact in one step. It runs in `make ci` after `make build` so both the
+`.next/` production contract and the GitHub Pages `out/` artifact stay verified.
 
 ```sh
 make build-export
@@ -117,8 +117,8 @@ When `GITHUB_PAGES_BASE_PATH` is unset, export builds keep `/` as the base for
 local preview and user/org root GitHub Pages sites.
 
 See [docs/operations.md](./docs/operations.md) for deployment posture: static
-export is available for maintainers, but the baseline CI workflow does not deploy
-`out/` yet.
+export is verified in CI via `make build-export`, but the baseline workflow does
+not deploy `out/` yet.
 
 ## Phase 2 docs authoring
 
@@ -251,8 +251,9 @@ GitHub Actions runs the same gate sequence on pull requests and pushes to
 `main`: install dependencies with `bun install --frozen-lockfile`, then
 `make ci` (see `.github/workflows/ci.yml`). No repository secrets are required
 for lint, typecheck, test, manifest-scoped component coverage, build,
-validate-data, and linkcheck. The baseline workflow does not run deploy or
-preview steps or PDF validation—those gates are deferred to later phases.
+build-export, validate-data, and linkcheck. The baseline workflow does not run
+deploy or preview steps or PDF validation—those gates are deferred to later
+phases.
 
 The root Makefile mirrors those CI-oriented checks locally. Run `make ci` from
 the repository root after `bun install --frozen-lockfile`; it runs, in order:
@@ -262,8 +263,9 @@ the repository root after `bun install --frozen-lockfile`; it runs, in order:
 3. `make test` — generates Fumadocs MDX source (when typecheck was skipped), then `bun test`
 4. `make coverage` — manifest-scoped reusable component coverage gate (same as `bun run coverage`)
 5. `make build` — `next build` plus Phase 1 static route verification
-6. `make validate-data` — registry and content validation
-7. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
+6. `make build-export` — static export to `out/` plus Phase 1 export route verification
+7. `make validate-data` — registry and content validation
+8. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
 
 Use `bun run scaffold:doc-page` (or `make scaffold`) when adding Phase 2 glossary or
 concept pages, then run `make validate-data` before opening a pull request.

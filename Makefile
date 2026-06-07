@@ -30,7 +30,7 @@ build-export:
 verify-export-routes:
 	bun ./scripts/verify-phase-1-export-routes.ts
 
-ci: lint typecheck test coverage build validate-data linkcheck
+ci: lint typecheck test coverage build build-export validate-data linkcheck
 
 validate-data:
 	bun ./scripts/validate-registry.ts
