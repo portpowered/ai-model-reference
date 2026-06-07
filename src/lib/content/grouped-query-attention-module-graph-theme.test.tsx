@@ -11,13 +11,15 @@ import {
 } from "@/features/models/components/registry-graph-flow-theme";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
-import { expectModuleComputeFlowGraphTheme } from "@/lib/content/module-test-helpers";
+import { expectModuleAttentionVariantGraphTheme } from "@/lib/content/module-test-helpers";
 import type { PageAssetConfig, PageMessages } from "@/lib/content/schemas";
 import {
   assertGroupedQueryAttentionGraphBuildMarkersConvergence,
   assertGroupedQueryAttentionGraphThemeConvergence,
 } from "@/lib/verify/grouped-query-attention-module-convergence";
 
+const GQA_COMPARISON_GRAPH_ID =
+  "graph.grouped-query-attention-gqa-comparison" as const;
 const GQA_COMPUTE_FLOW_GRAPH_ID =
   "graph.grouped-query-attention-compute-flow" as const;
 
@@ -66,7 +68,7 @@ describe("grouped-query-attention module graph theme", () => {
     );
     expect(
       REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS.graphWrapper,
-    ).toContain(GQA_COMPUTE_FLOW_GRAPH_ID);
+    ).toContain("data-attention-variant-comparison");
     expect(
       REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS.themedWrapper,
     ).toContain(REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE);
@@ -107,7 +109,7 @@ describe("grouped-query-attention module graph theme", () => {
     expect(html).toContain("G query groups");
   });
 
-  test("/docs/modules/grouped-query-attention renders themed compute-flow graph under How It Works", async () => {
+  test("/docs/modules/grouped-query-attention renders themed comparison graph under How It Works", async () => {
     const loadedPage = await loadLocalDocsPage({
       section: "modules",
       slug: "grouped-query-attention",
@@ -115,7 +117,7 @@ describe("grouped-query-attention module graph theme", () => {
 
     const html = renderModuleDocsShell(loadedPage);
 
-    expectModuleComputeFlowGraphTheme(html, GQA_COMPUTE_FLOW_GRAPH_ID);
+    expectModuleAttentionVariantGraphTheme(html, GQA_COMPARISON_GRAPH_ID);
     expect(assertGroupedQueryAttentionGraphThemeConvergence(html)).toBeNull();
     expect(
       assertGroupedQueryAttentionGraphBuildMarkersConvergence(html),

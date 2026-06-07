@@ -42,9 +42,12 @@ describe("ModuleGraph live GQA graphs", () => {
     cleanup();
   });
 
-  test("computeFlow renders an interactive React Flow canvas with message-driven copy", () => {
+  test("computeFlow renders an MHA/GQA comparison switcher with interactive React Flow canvas", () => {
     const { container } = renderModuleGraph("computeFlow");
 
+    expect(
+      container.querySelector('[data-attention-variant-comparison="true"]'),
+    ).toBeTruthy();
     expect(container.querySelector(".react-flow")).toBeTruthy();
     expect(
       container.querySelector(".registry-graph-flow__viewport"),
@@ -70,17 +73,20 @@ describe("ModuleGraph live GQA graphs", () => {
     );
     expect(
       screen.getByRole("img", {
-        name: "Grouped-query attention compute flow",
+        name: "Multi-head attention versus grouped-query attention head-count comparison",
       }),
     ).toBeTruthy();
     expect(
       screen.getByText(
-        "Query groups route to shared KV heads during attention",
+        "Toggle MHA and GQA to compare query-head count against KV-head count on one canvas",
       ),
     ).toBeTruthy();
-    expect(container.querySelectorAll("[data-graph-node-id]")).toHaveLength(6);
+    expect(container.querySelectorAll("[data-graph-node-id]")).toHaveLength(3);
+    expect(
+      container.querySelector('[data-graph-node-id="gqa-query-heads"]'),
+    ).toBeTruthy();
     expect(container.textContent).not.toContain(
-      "graph.grouped-query-attention-compute-flow",
+      "graph.grouped-query-attention-gqa-comparison",
     );
   });
 

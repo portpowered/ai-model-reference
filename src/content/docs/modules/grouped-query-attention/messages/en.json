@@ -58,8 +58,16 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Grouped-query attention compute flow",
-      "caption": "Query groups route to shared KV heads during attention"
+      "alt": "Multi-head attention versus grouped-query attention head-count comparison",
+      "caption": "Toggle MHA and GQA to compare query-head count against KV-head count on one canvas",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "gqa": {
+          "label": "GQA"
+        }
+      }
     },
     "computeSchema": {
       "alt": "Grouped-query attention tensor grouping",
@@ -189,6 +197,24 @@
       },
       "kvCache": {
         "label": "KV cache (G keys + G values per token)"
+      },
+      "mhaQueryHeads": {
+        "label": "H query heads"
+      },
+      "mhaKvHeads": {
+        "label": "H KV head pairs (1:1 with queries)"
+      },
+      "mhaOneToOne": {
+        "label": "Each query head has its own K and V"
+      },
+      "gqaQueryHeads": {
+        "label": "H query heads"
+      },
+      "gqaKvGroups": {
+        "label": "G shared KV pairs"
+      },
+      "gqaGroupedMapping": {
+        "label": "H/G query heads share each KV pair"
       }
     }
   }

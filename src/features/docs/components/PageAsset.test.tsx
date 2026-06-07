@@ -72,20 +72,23 @@ describe("PageAsset", () => {
     expect(html).not.toContain(">graph.grouped-query-attention-compute-flow<");
   });
 
-  test("renders GQA computeFlow via RegistryGraphFlow with real assets and messages", () => {
+  test("renders GQA computeFlow via AttentionVariantComparisonGraph with real assets and messages", () => {
     const html = renderPageAsset("computeFlow", false, gqaAssets, gqaMessages);
     expect(html).toContain('data-page-asset="computeFlow"');
+    expect(html).toContain('data-attention-variant-comparison="true"');
     expect(html).toContain(
-      'data-graph-id="graph.grouped-query-attention-compute-flow"',
+      'data-graph-id="graph.grouped-query-attention-gqa-comparison"',
     );
     expect(html).toContain('data-react-flow-graph="true"');
     expect(html).toContain('data-web-renderer="react-flow"');
-    expect(html).toContain('data-graph-node-id="hidden-states"');
-    expect(html).toContain('data-graph-node-count="6"');
+    expect(html).toContain('data-graph-node-id="gqa-query-heads"');
+    expect(html).toContain('data-graph-node-count="3"');
     expect(html).toContain(
-      "Query groups route to shared KV heads during attention",
+      "Toggle MHA and GQA to compare query-head count against KV-head count on one canvas",
     );
-    expect(html).not.toContain(">graph.grouped-query-attention-compute-flow<");
+    expect(html).not.toContain(
+      ">graph.grouped-query-attention-gqa-comparison<",
+    );
   });
 
   test("renders GQA computeSchema via RegistryGraphFlow with real assets and messages", () => {

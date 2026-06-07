@@ -188,6 +188,8 @@ export const moduleGraphEdgeKindSchema = z.enum([
   "contains",
 ]);
 
+export const graphHeadCountRoleSchema = z.enum(["query", "kv"]);
+
 export const moduleGraphNodeSchema = z.object({
   id: z.string().min(1),
   labelKey: z.string().min(1),
@@ -197,6 +199,7 @@ export const moduleGraphNodeSchema = z.object({
   childNodeIds: z.array(z.string()),
   collapsedByDefault: z.boolean().optional(),
   assetIds: z.array(z.string()).optional(),
+  headCountRole: graphHeadCountRoleSchema.optional(),
 });
 
 export const moduleGraphEdgeSchema = z.object({
@@ -259,9 +262,14 @@ const pageCalloutSchema = z.object({
   body: z.string().min(1),
 });
 
+const pageAssetVariantLabelSchema = z.object({
+  label: z.string().min(1),
+});
+
 const pageAssetMessageSchema = z.object({
   alt: z.string().optional(),
   caption: z.string().optional(),
+  variants: z.record(z.string(), pageAssetVariantLabelSchema).optional(),
 });
 
 const pageGraphNodeMessageSchema = z.object({
@@ -371,6 +379,22 @@ const pageGraphAssetSchema = z.object({
   captionKey: z.string().optional(),
 });
 
+export const attentionVariantGraphVariantSchema = z.object({
+  variantId: z.string().min(1),
+  graphId: z.string().min(1),
+  labelKey: z.string().min(1),
+});
+
+const pageAttentionVariantGraphAssetSchema = z.object({
+  type: z.literal("attention-variant-graph"),
+  defaultVariantId: z.string().min(1),
+  variants: z.array(attentionVariantGraphVariantSchema).min(2),
+  webRenderer: graphWebRendererSchema,
+  printRenderer: graphPrintRendererSchema,
+  altKey: z.string().optional(),
+  captionKey: z.string().optional(),
+});
+
 const pageChartAssetSchema = z.object({
   type: z.literal("chart"),
   chartId: z.string().min(1),
@@ -394,6 +418,7 @@ const pageCodeSchemaAssetSchema = z.object({
 export const pageAssetSchema = z.discriminatedUnion("type", [
   pageImageAssetSchema,
   pageGraphAssetSchema,
+  pageAttentionVariantGraphAssetSchema,
   pageChartAssetSchema,
   pageTableAssetSchema,
   pageCodeSchemaAssetSchema,

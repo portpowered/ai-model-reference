@@ -37,9 +37,12 @@ describe("assertGroupedQueryAttentionGraphBuildMarkersConvergence", () => {
   });
 
   test("reports the first missing graph node marker", () => {
-    const html = PASSING_HTML.replace('data-graph-node-id="hidden-states"', "");
+    const html = PASSING_HTML.replace(
+      'data-graph-node-id="gqa-query-heads"',
+      "",
+    );
     expect(assertGroupedQueryAttentionGraphBuildMarkersConvergence(html)).toBe(
-      'missing expected content: data-graph-node-id="hidden-states"',
+      'missing expected content: data-graph-node-id="gqa-query-heads"',
     );
   });
 

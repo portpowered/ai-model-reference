@@ -12,6 +12,7 @@ const NODE_Y_GAP = 80;
 export type RegistryFlowNodeData = {
   label: string;
   moduleKind: string;
+  headCountRole?: "query" | "kv";
 };
 
 export function resolveGraphNodeLabel(
@@ -88,6 +89,7 @@ export function buildRegistryFlowGraph(
     data: {
       label: resolveGraphNodeLabel(messages, node.labelKey),
       moduleKind: node.moduleKind,
+      ...(node.headCountRole ? { headCountRole: node.headCountRole } : {}),
     },
   }));
 

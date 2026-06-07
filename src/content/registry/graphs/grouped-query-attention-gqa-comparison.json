@@ -1,0 +1,56 @@
+{
+  "id": "graph.grouped-query-attention-gqa-comparison",
+  "slug": "grouped-query-attention-gqa-comparison",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-06-08T00:00:00.000Z",
+  "subjectId": "module.grouped-query-attention",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "gqa-query-heads",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "gqa-query-heads",
+      "labelKey": "graph.nodes.gqaQueryHeads.label",
+      "moduleKind": "projection",
+      "headCountRole": "query",
+      "childNodeIds": ["gqa-kv-groups"]
+    },
+    {
+      "id": "gqa-kv-groups",
+      "labelKey": "graph.nodes.gqaKvGroups.label",
+      "moduleKind": "attention",
+      "headCountRole": "kv",
+      "childNodeIds": ["gqa-grouped-mapping"]
+    },
+    {
+      "id": "gqa-grouped-mapping",
+      "labelKey": "graph.nodes.gqaGroupedMapping.label",
+      "moduleKind": "operation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "gqa-query-to-kv",
+      "source": "gqa-query-heads",
+      "target": "gqa-kv-groups",
+      "edgeKind": "parameter-sharing"
+    },
+    {
+      "id": "gqa-kv-to-mapping",
+      "source": "gqa-kv-groups",
+      "target": "gqa-grouped-mapping",
+      "edgeKind": "parameter-sharing"
+    }
+  ]
+}
