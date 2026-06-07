@@ -87,6 +87,19 @@ That sets `NEXT_STATIC_EXPORT=1`, which toggles `output: "export"` and
 `images.unoptimized` in `next.config.ts`. A successful export leaves a non-empty
 `out/` directory with `out/index.html` plus prerendered docs and tags routes.
 
+For GitHub Pages **project sites** served from `https://<org>.github.io/<repo>/`,
+set `GITHUB_PAGES_BASE_PATH` to the repository name (with or without a leading
+slash) when running the export build. The value configures matching
+`basePath` and `assetPrefix` so bundled assets and internal links resolve under
+the project path:
+
+```sh
+GITHUB_PAGES_BASE_PATH=/ai-model-reference bun run build:export
+```
+
+When `GITHUB_PAGES_BASE_PATH` is unset, export builds keep `/` as the base for
+local preview and user/org root GitHub Pages sites.
+
 ## Phase 2 docs authoring
 
 Glossary and concept pages share one scaffold path. Templates live in

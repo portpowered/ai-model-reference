@@ -1,4 +1,5 @@
 import { expect } from "bun:test";
+import { proseAutoLinkAnchorPattern } from "@/lib/content/prose-auto-link";
 
 function decodeCommonHtmlEntities(text: string): string {
   return text
@@ -101,10 +102,7 @@ export function expectGlossaryShellDescriptionAutoLinkPreservesPhrase(
   options: { href: string; phrase: string; registryId?: string },
 ): void {
   const shellHtml = extractGlossaryShellHtml(html, options.registryId);
-  const anchorPattern = new RegExp(
-    `<a\\b[^>]*href="${escapeRegExp(options.href)}"[^>]*data-prose-auto-link="true"[^>]*>[\\s\\S]*?</a>`,
-    "i",
-  );
+  const anchorPattern = proseAutoLinkAnchorPattern(options.href);
   const match = shellHtml.match(anchorPattern);
   expect(match).not.toBeNull();
   expect(stripHtmlTags(match?.[0] ?? "")).toContain(options.phrase);
