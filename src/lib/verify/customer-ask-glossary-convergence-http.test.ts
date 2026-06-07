@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { createServer as createHttpServer } from "node:http";
 import {
+  CUSTOMER_ASK_PASSING_EMBEDDING_GLOSSARY_HTML,
+  CUSTOMER_ASK_PASSING_HIDDEN_SIZE_GLOSSARY_HTML,
+  CUSTOMER_ASK_PASSING_VECTOR_GLOSSARY_HTML,
+} from "./customer-ask-convergence-stub-fixtures";
+import {
   GLOSSARY_CUSTOMER_ASK_CHECKS,
   GLOSSARY_CUSTOMER_ASK_REASONS,
   GLOSSARY_CUSTOMER_ASK_ROUTE,
@@ -9,11 +14,6 @@ import {
   GLOSSARY_VECTOR_ROUTE,
 } from "./customer-ask-glossary-convergence";
 import { runCustomerAskGlossaryChecks } from "./customer-ask-glossary-convergence-http";
-import {
-  CUSTOMER_ASK_PASSING_EMBEDDING_GLOSSARY_HTML,
-  CUSTOMER_ASK_PASSING_HIDDEN_SIZE_GLOSSARY_HTML,
-  CUSTOMER_ASK_PASSING_VECTOR_GLOSSARY_HTML,
-} from "./customer-ask-convergence-stub-fixtures";
 
 const CHROME_LINK_CLASS =
   'class="no-underline transition-colors hover:no-underline focus-visible:ring-2"';

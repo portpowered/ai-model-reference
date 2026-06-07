@@ -6,6 +6,7 @@ import {
   BATCH_012_GLOSSARY_ROUTES,
 } from "./batch-012-glossary-checks";
 import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-result";
+import { extractGlossaryShellHtml } from "./customer-ask-glossary-convergence";
 
 export const GLOSSARY_PAGE_TOKEN_REGISTRY_ID = "concept.token" as const;
 export const GLOSSARY_PAGE_EMBEDDING_REGISTRY_ID = "concept.embedding" as const;
@@ -46,15 +47,6 @@ function extractGlossaryArticleHtml(html: string, registryId: string): string {
     ),
   );
   return match?.[0] ?? "";
-}
-
-function extractGlossaryShellDescriptionHtml(html: string): string {
-  const visibleHtml = stripHtmlScripts(html);
-  const articleIndex = visibleHtml.search(/<article\b/i);
-  if (articleIndex < 0) {
-    return visibleHtml;
-  }
-  return visibleHtml.slice(0, articleIndex);
 }
 
 function articleHasDistinctOpeningSummaryBlock(articleHtml: string): boolean {
@@ -116,7 +108,10 @@ function shellDescriptionHasAutoLinkedHref(
  * vector and token links in the shell description region.
  */
 export function assertEmbeddingDescriptionLinks(html: string): string | null {
-  const shellDescriptionHtml = extractGlossaryShellDescriptionHtml(html);
+  const shellDescriptionHtml = extractGlossaryShellHtml(
+    html,
+    GLOSSARY_PAGE_EMBEDDING_REGISTRY_ID,
+  );
   if (shellDescriptionHtml.trim().length === 0) {
     return GLOSSARY_PAGE_CUSTOMER_ASK_REASONS.missingShellDescription;
   }

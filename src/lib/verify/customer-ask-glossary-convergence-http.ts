@@ -2,8 +2,8 @@ import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-resul
 import {
   buildCustomerAskGlossaryBridgeDescriptionRows,
   buildCustomerAskGlossaryRows,
-  GLOSSARY_CUSTOMER_ASK_CHECKS,
   GLOSSARY_CUSTOMER_ASK_CHECKLIST_ROW,
+  GLOSSARY_CUSTOMER_ASK_CHECKS,
   GLOSSARY_CUSTOMER_ASK_ROUTE,
   GLOSSARY_EMBEDDING_ROUTE,
   GLOSSARY_HIDDEN_SIZE_ROUTE,
@@ -38,7 +38,9 @@ const BRIDGE_DESCRIPTION_ROUTES = [
   GLOSSARY_HIDDEN_SIZE_ROUTE,
 ] as const;
 
-function buildTokenHttpFailureRows(reason: string): CustomerAskConvergenceRow[] {
+function buildTokenHttpFailureRows(
+  reason: string,
+): CustomerAskConvergenceRow[] {
   return TOKEN_CHECKS.map((check) => ({
     checkId: check.checkId,
     title: check.title,
