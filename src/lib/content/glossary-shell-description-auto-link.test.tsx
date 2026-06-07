@@ -8,6 +8,7 @@ import { listPublishedGlossaryPages } from "@/lib/content/glossary";
 import { renderGlossaryDocsShell } from "@/lib/content/glossary-shell-render";
 import {
   expectGlossaryBodyOmitsShellDescription,
+  expectGlossaryPresentationConvergence,
   expectGlossaryShellAutoLinksUseProseContract,
   expectGlossaryShellDescriptionAutoLink,
   expectHtmlToContainProse,
@@ -83,6 +84,98 @@ describe("glossary shell description auto-link convergence", () => {
     expectGlossaryShellDescriptionAutoLink(html, {
       href: "/docs/glossary/token",
       phrase: "token",
+    });
+    expectGlossaryBodyOmitsShellDescription(
+      articleHtml,
+      loadedPage.messages.description,
+    );
+  });
+
+  test("/docs/glossary/vector shell description links embeddings to the embedding glossary page", async () => {
+    const loadedPage = await loadLocalDocsPage({
+      section: "glossary",
+      slug: "vector",
+    });
+    const html = renderGlossaryDocsShell(loadedPage);
+    const articleHtml = extractGlossaryArticleHtml(
+      html,
+      loadedPage.frontmatter.registryId,
+    );
+
+    expectHtmlToContainProse(
+      html,
+      "An ordered list of numbers that represents a point or direction in continuous space—embeddings and activations are vectors at different stages of the model.",
+    );
+    expectGlossaryShellDescriptionAutoLink(html, {
+      href: "/docs/glossary/embedding",
+      phrase: "embeddings",
+    });
+    expectGlossaryPresentationConvergence(articleHtml, {
+      title: loadedPage.messages.title,
+    });
+  });
+
+  test("/docs/glossary/hidden-size shell description links token embedding and token with preserved link text", async () => {
+    const loadedPage = await loadLocalDocsPage({
+      section: "glossary",
+      slug: "hidden-size",
+    });
+    const html = renderGlossaryDocsShell(loadedPage);
+    const articleHtml = extractGlossaryArticleHtml(
+      html,
+      loadedPage.frontmatter.registryId,
+    );
+
+    expectHtmlToContainProse(
+      html,
+      "The width of a model's internal vectors—the number of dimensions in each token embedding and each token's per-position hidden state before the vocabulary projection.",
+    );
+    expectGlossaryShellDescriptionAutoLink(html, {
+      href: "/docs/glossary/embedding",
+      phrase: "token embedding",
+    });
+    expectGlossaryShellDescriptionAutoLink(html, {
+      href: "/docs/glossary/token",
+      phrase: "token",
+    });
+    expectGlossaryPresentationConvergence(articleHtml, {
+      title: loadedPage.messages.title,
+    });
+  });
+
+  test("/docs/glossary/token shell description links bridge concepts without duplicating shell chrome", async () => {
+    const loadedPage = await loadLocalDocsPage({
+      section: "glossary",
+      slug: "token",
+    });
+    const html = renderGlossaryDocsShell(loadedPage);
+    const articleHtml = extractGlossaryArticleHtml(
+      html,
+      loadedPage.frontmatter.registryId,
+    );
+
+    expectHtmlToContainProse(
+      html,
+      "Each token ID maps to a dense vector through vector embedding of model hidden size before attention runs.",
+    );
+    expectGlossaryShellDescriptionAutoLink(html, {
+      href: "/docs/glossary/token",
+      phrase: "token ID",
+    });
+    expectGlossaryShellDescriptionAutoLink(html, {
+      href: "/docs/glossary/vector",
+      phrase: "dense vector",
+    });
+    expectGlossaryShellDescriptionAutoLink(html, {
+      href: "/docs/glossary/embedding",
+      phrase: "vector embedding",
+    });
+    expectGlossaryShellDescriptionAutoLink(html, {
+      href: "/docs/glossary/hidden-size",
+      phrase: "hidden size",
+    });
+    expectGlossaryPresentationConvergence(articleHtml, {
+      title: loadedPage.messages.title,
     });
     expectGlossaryBodyOmitsShellDescription(
       articleHtml,
