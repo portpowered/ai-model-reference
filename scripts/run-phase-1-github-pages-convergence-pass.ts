@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import { join } from "node:path";
+import { resolveBasePathForExportVerification } from "../src/lib/build/static-export";
 import {
   buildPhase1GitHubPagesConvergenceEvidenceSummary,
   getPhase1GitHubPagesConvergenceExitCode,
@@ -58,13 +59,15 @@ async function main(): Promise<number> {
   const evidenceSummary = buildPhase1GitHubPagesConvergenceEvidenceSummary({
     buildExportOutput: buildExportResult.output,
     buildExportExitCode: buildExportResult.exitCode,
+    cwd: projectRoot,
+    basePath: resolveBasePathForExportVerification(process.env),
   });
   console.log("");
   printPhase1GitHubPagesConvergenceEvidenceSummary(evidenceSummary);
 
   if (buildExportResult.exitCode === 0) {
     console.log(
-      "\nPhase 1 batch-014 GitHub Pages convergence: export build succeeded; static artifact and regression probes will run in later workflow stages.",
+      "\nPhase 1 batch-014 GitHub Pages convergence: export build succeeded; static server and regression probes will run in later workflow stages.",
     );
   }
 
