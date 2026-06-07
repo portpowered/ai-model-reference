@@ -5,7 +5,7 @@ deployment detail lives in [docs/operations.md](../operations.md); this file rec
 control state and repair inventory only.
 
 ## Current Control State
-
+asdasd
 - **Phase:** Phase 1 (customer authorization in `docs/internal/customer-ask.md`).
 - **Production deploy:** Active via `.github/workflows/deploy.yml` on `main` pushes.
   The workflow builds `out/` with `make build-export` and
