@@ -7,6 +7,7 @@ import {
 } from "./batch-011-follow-up-customer-ask-check-inventory";
 import { BATCH_011_FOLLOW_UP_HOME_NAV_CHECKS } from "./batch-011-follow-up-home-nav-checks";
 import { BATCH_011_FOLLOW_UP_SEARCH_CHECKS } from "./batch-011-follow-up-search-checks";
+import { resolveCustomerAskBatch012CheckOptionsFromEnv } from "./batch-012-customer-ask-convergence-http-env";
 import { runCustomerAskConvergenceChecks } from "./customer-ask-convergence-orchestrator";
 import { formatCustomerAskConvergenceReport } from "./customer-ask-convergence-reporter";
 import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-result";
@@ -199,6 +200,9 @@ describe("batch-011 follow-up post-repair inventory coverage", () => {
       const rows = await runCustomerAskConvergenceChecks(
         `http://127.0.0.1:${port}`,
         {
+          ...resolveCustomerAskBatch012CheckOptionsFromEnv({
+            VERIFY_CUSTOMER_ASK_BATCH_012_STUB: "pass",
+          }),
           timeoutMs: 2_000,
           homeHeaderOptions: {
             runCommandKAffordanceProbe: async () => null,
@@ -232,8 +236,12 @@ describe("batch-011 follow-up post-repair inventory coverage", () => {
         },
       );
 
+      const batch011Rows = rows.slice(
+        0,
+        BATCH_011_FOLLOW_UP_CUSTOMER_ASK_CHECK_IDS.length,
+      );
       const ordered =
-        assertBatch011FollowUpCustomerAskRowsPassOrUncertain(rows);
+        assertBatch011FollowUpCustomerAskRowsPassOrUncertain(batch011Rows);
       expect(ordered).toHaveLength(
         BATCH_011_FOLLOW_UP_CUSTOMER_ASK_CHECK_IDS.length,
       );
