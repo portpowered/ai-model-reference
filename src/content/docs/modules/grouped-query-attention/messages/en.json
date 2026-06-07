@@ -1,8 +1,7 @@
 {
   "title": "Grouped-Query Attention",
   "description": "An attention variant that reduces KV cache memory by sharing key-value heads across query groups.",
-  "problemStatement": "KV caches grow with context length and head count, which raises memory use and bandwidth during long-context inference.",
-  "coreIdea": "Grouped-query attention (GQA) lets several query heads share fewer key-value heads so the cache stores fewer KV tensors without collapsing to a single shared head.",
+  "openingSummary": "KV caches grow with context length and head count, raising memory use during long-context inference; grouped-query attention (GQA) lets several query heads share fewer key-value heads so the cache stores fewer KV tensors without collapsing to one shared head.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -14,7 +13,7 @@
     },
     "practicalBenefit": {
       "title": "Practical Benefit",
-      "body": "Teams adopt GQA when they need multi-head expressiveness at training time but want leaner inference caches and less KV traffic at deployment time."
+      "body": "Teams adopt GQA when they need multi-head expressiveness at training time but want leaner inference caches and less KV traffic at deployment time. GQA keeps more query diversity than multi-query attention while using a smaller cache than full multi-head attention."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -50,12 +49,6 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Think of GQA as MHA with query heads bucketed to share KV heads—more query diversity than MQA, smaller cache than full MHA."
-    }
-  },
   "assets": {
     "computeFlow": {
       "alt": "Multi-head attention versus grouped-query attention head-count comparison",
@@ -68,10 +61,6 @@
           "label": "GQA"
         }
       }
-    },
-    "computeSchema": {
-      "alt": "Grouped-query attention tensor grouping",
-      "caption": "H query heads map to G shared KV groups"
     },
     "comparisonTable": {
       "caption": "How GQA compares with nearby attention variants"
@@ -186,39 +175,6 @@
   },
   "graph": {
     "nodes": {
-      "hiddenStates": {
-        "label": "Hidden states"
-      },
-      "queryProjection": {
-        "label": "H query heads (Q projection)"
-      },
-      "queryGroups": {
-        "label": "G query groups"
-      },
-      "sharedKv": {
-        "label": "Shared KV heads per group"
-      },
-      "attentionScores": {
-        "label": "Attention scores per query head"
-      },
-      "outputProjection": {
-        "label": "Output projection"
-      },
-      "queryHeads": {
-        "label": "H query heads"
-      },
-      "queryGroupsSchema": {
-        "label": "G groups (H/G query heads each)"
-      },
-      "sharedKeyHeads": {
-        "label": "G shared key heads"
-      },
-      "sharedValueHeads": {
-        "label": "G shared value heads"
-      },
-      "kvCache": {
-        "label": "KV cache (G keys + G values per token)"
-      },
       "mhaQueryHeads": {
         "label": "H query heads"
       },
