@@ -72,6 +72,44 @@ describe("glossary presentation convergence", () => {
     });
   });
 
+  test("/docs/glossary/vector shell omits opening summary and auto-links description phrases", async () => {
+    const loadedPage = await loadLocalDocsPage({
+      section: "glossary",
+      slug: "vector",
+    });
+    const html = renderGlossaryDocsShell(loadedPage);
+
+    expectHtmlToContainProse(
+      html,
+      "An ordered list of numbers that represents a point or direction in continuous space",
+    );
+    expectGlossaryShellPresentationConvergence(html, {
+      shellDescriptionAutoLinks: [
+        { href: "/docs/glossary/embedding", phrase: "embeddings" },
+      ],
+    });
+  });
+
+  test("/docs/glossary/hidden-size shell omits opening summary and auto-links description phrases", async () => {
+    const loadedPage = await loadLocalDocsPage({
+      section: "glossary",
+      slug: "hidden-size",
+    });
+    const html = renderGlossaryDocsShell(loadedPage);
+
+    expectHtmlToContainProse(
+      html,
+      "The width of a model's internal vectors—the number of dimensions in each token embedding",
+    );
+    expectGlossaryShellPresentationConvergence(html, {
+      shellDescriptionAutoLinks: [
+        { href: "/docs/glossary/vector", phrase: "vectors" },
+        { href: "/docs/glossary/embedding", phrase: "token embedding" },
+        { href: "/docs/glossary/token", phrase: "token" },
+      ],
+    });
+  });
+
   test("token article body omits pre-repair duplicate title and crowded sections", async () => {
     const { html, title } = await renderTokenGlossaryPresentationShell();
     const articleHtml = extractGlossaryArticleHtml(html, "concept.token");
@@ -102,11 +140,19 @@ describe("glossary presentation route convergence (built HTML)", () => {
       slug: "vector",
       registryId: "concept.vector",
       title: "Vector",
+      shellDescriptionAutoLinks: [
+        { href: "/docs/glossary/embedding", phrase: "embeddings" },
+      ],
     },
     {
       slug: "hidden-size",
       registryId: "concept.hidden-size",
       title: "Hidden Size",
+      shellDescriptionAutoLinks: [
+        { href: "/docs/glossary/vector", phrase: "vectors" },
+        { href: "/docs/glossary/embedding", phrase: "token embedding" },
+        { href: "/docs/glossary/token", phrase: "token" },
+      ],
     },
   ];
 
