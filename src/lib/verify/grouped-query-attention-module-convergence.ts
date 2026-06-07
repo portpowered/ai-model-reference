@@ -14,11 +14,17 @@ export const GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS = [
   "Related",
   'id="related"',
   'data-testid="curated-related-docs"',
-  'data-graph-node-id="hidden-states"',
-  'data-graph-node-id="query-groups"',
-  'data-graph-node-count="6"',
+  'data-attention-variant-comparison="true"',
+  'data-attention-variant-active="gqa"',
+  'data-attention-variant-option="mha"',
+  'data-attention-variant-option="gqa"',
+  'data-graph-node-id="gqa-query-heads"',
+  'data-graph-node-id="gqa-kv-groups"',
+  'data-head-count-role="query"',
+  'data-head-count-role="kv"',
+  'data-graph-node-count="3"',
   'data-react-flow-graph="true"',
-  'data-graph-id="graph.grouped-query-attention-compute-flow"',
+  'data-graph-id="graph.grouped-query-attention-gqa-comparison"',
   "--xy-node-color",
   "--xy-node-background-color",
   'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
@@ -61,7 +67,7 @@ export const GROUPED_QUERY_ATTENTION_GRAPH_THEME_MARKERS = [
 
 /** Minimal inner HTML that satisfies {@link assertGroupedQueryAttentionModuleConvergence}. */
 export function buildGroupedQueryAttentionStubBody(): string {
-  const graphWrapper = `<div data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-compute-flow" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-node-color:var(--card-foreground);--xy-node-background-color:var(--card)"></div>`;
+  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="gqa" data-attention-variant-option="mha" data-attention-variant-option="gqa" data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-gqa-comparison" data-graph-node-id="gqa-query-heads" data-graph-node-id="gqa-kv-groups" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="3" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-node-color:var(--card-foreground);--xy-node-background-color:var(--card)"></div>`;
   const tagPillList = `<ul data-testid="tag-pill-list" aria-label="Tags"></ul>`;
   const mathDefinitions = MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS.map(
     (id) => `<span data-math-variable-definition="${id}"></span>`,
@@ -81,7 +87,17 @@ export function buildGroupedQueryAttentionStubBody(): string {
     (marker) =>
       !marker.startsWith("data-math-variable-definition=") &&
       marker !== 'data-react-flow-graph="true"' &&
-      marker !== 'data-graph-id="graph.grouped-query-attention-compute-flow"' &&
+      marker !==
+        'data-graph-id="graph.grouped-query-attention-gqa-comparison"' &&
+      marker !== 'data-attention-variant-comparison="true"' &&
+      marker !== 'data-attention-variant-active="gqa"' &&
+      marker !== 'data-attention-variant-option="mha"' &&
+      marker !== 'data-attention-variant-option="gqa"' &&
+      marker !== 'data-graph-node-id="gqa-query-heads"' &&
+      marker !== 'data-graph-node-id="gqa-kv-groups"' &&
+      marker !== 'data-head-count-role="query"' &&
+      marker !== 'data-head-count-role="kv"' &&
+      marker !== 'data-graph-node-count="3"' &&
       marker !== 'data-testid="tag-pill-list"' &&
       marker !== "--xy-node-color" &&
       marker !== "--xy-node-background-color" &&

@@ -154,7 +154,7 @@ describe("assertGqaModuleGraphBuildMarkersConvergence", () => {
       assertGqaModuleGraphBuildMarkersConvergence(
         PRE_REPAIR_MISSING_GRAPH_MARKERS_HTML,
       ),
-    ).toBe('missing expected content: data-graph-node-id="hidden-states"');
+    ).toBe('missing expected content: data-graph-node-id="gqa-query-heads"');
   });
 });
 
@@ -254,7 +254,7 @@ describe("buildCustomerAskGqaModuleRows", () => {
           row.checkId ===
           GQA_MODULE_CUSTOMER_ASK_CHECKS.graphBuildMarkers.checkId,
       )?.reason,
-    ).toBe('missing expected content: data-graph-node-id="hidden-states"');
+    ).toBe('missing expected content: data-graph-node-id="gqa-query-heads"');
   });
 });
 

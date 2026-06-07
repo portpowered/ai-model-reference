@@ -17,7 +17,7 @@ export const REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE =
  */
 export const REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS = {
   graphWrapper:
-    '[data-react-flow-graph="true"][data-graph-id="graph.grouped-query-attention-compute-flow"]',
+    '[data-attention-variant-comparison="true"] [data-react-flow-graph="true"]',
   themedWrapper: `[data-manual-visibility-evidence="${REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE}"]`,
   nodeLabels: ".registry-graph-flow .react-flow__node-default",
   srOnlyNodeLabels: ".registry-graph-flow [data-graph-node-id]",

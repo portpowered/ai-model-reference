@@ -12,7 +12,7 @@ import {
 import { buildRegistryFlowGraph } from "@/lib/content/graph-flow";
 import { getGraphById } from "@/lib/content/graph-registry-runtime";
 
-function RegistryGraphFlowCanvas({
+export function RegistryGraphFlowCanvas({
   assetId,
   graphId,
   alt,
@@ -65,7 +65,13 @@ function RegistryGraphFlowCanvas({
     >
       <div className="sr-only" aria-hidden="false">
         {nodes.map((node) => (
-          <span key={node.id} data-graph-node-id={node.id}>
+          <span
+            key={node.id}
+            data-graph-node-id={node.id}
+            {...(node.data.headCountRole
+              ? { "data-head-count-role": node.data.headCountRole }
+              : {})}
+          >
             {node.data.label}
           </span>
         ))}

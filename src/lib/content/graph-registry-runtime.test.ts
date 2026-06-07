@@ -22,12 +22,28 @@ describe("graph-registry-runtime", () => {
     expect(computeSchema?.nodes.length).toBeGreaterThanOrEqual(4);
     expect(computeSchema?.edges.length).toBeGreaterThanOrEqual(3);
 
+    const mhaComparison = getGraphById(
+      "graph.grouped-query-attention-mha-comparison",
+    );
+    expect(mhaComparison?.id).toBe(
+      "graph.grouped-query-attention-mha-comparison",
+    );
+    expect(mhaComparison?.nodes.length).toBe(3);
+
+    const gqaComparison = getGraphById(
+      "graph.grouped-query-attention-gqa-comparison",
+    );
+    expect(gqaComparison?.id).toBe(
+      "graph.grouped-query-attention-gqa-comparison",
+    );
+    expect(gqaComparison?.nodes.length).toBe(3);
+
     expect(getGraphById("graph.token-concept-map")?.id).toBe(
       "graph.token-concept-map",
     );
   });
 
   test("lists all bundled graph records", () => {
-    expect(listGraphRecords().length).toBe(3);
+    expect(listGraphRecords().length).toBe(5);
   });
 });

@@ -74,7 +74,7 @@ describe("grouped-query-attention page bundle", () => {
     expect(messages.sections?.whatItIs?.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks?.body?.length).toBeGreaterThan(0);
 
-    expect(assets.computeFlow?.type).toBe("graph");
+    expect(assets.computeFlow?.type).toBe("attention-variant-graph");
     expect(assets.computeSchema?.type).toBe("graph");
     expect(assets.comparisonTable?.type).toBe("table");
   });

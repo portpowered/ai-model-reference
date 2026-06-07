@@ -4,6 +4,7 @@ import { MissingAssetId } from "@/features/docs/components/MissingAssetId";
 import { MissingMessageKey } from "@/features/docs/components/MissingMessageKey";
 import { usePageAssets } from "@/features/docs/components/page-assets-context";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
+import { AttentionVariantComparisonGraph } from "@/features/models/components/AttentionVariantComparisonGraph";
 import { RegistryComparisonTable } from "@/features/models/components/RegistryComparisonTable";
 import { RegistryGraphFlow } from "@/features/models/components/RegistryGraphFlow";
 import { lookupAsset, resolveAssetText } from "@/lib/content/assets";
@@ -161,6 +162,19 @@ export function PageAsset({ assetId }: { assetId: string }) {
         asset={asset}
         alt={text.alt}
         caption={text.caption}
+      />
+    );
+  }
+
+  if (asset.type === "attention-variant-graph") {
+    return (
+      <AttentionVariantComparisonGraph
+        assetId={assetId}
+        variants={asset.variants}
+        defaultVariantId={asset.defaultVariantId}
+        alt={text.alt}
+        caption={text.caption}
+        isDev={isDev}
       />
     );
   }

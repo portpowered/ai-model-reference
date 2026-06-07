@@ -117,7 +117,7 @@ describe("grouped-query-attention page assets", () => {
       JSON.parse(readFileSync(assetsPath, "utf8")),
     );
 
-    expect(assets.computeFlow.type).toBe("graph");
+    expect(assets.computeFlow.type).toBe("attention-variant-graph");
     expect(assets.comparisonTable.type).toBe("table");
     expect(validatePageAssetReferences(assets, messages)).toEqual([]);
   });
