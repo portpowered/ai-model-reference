@@ -78,12 +78,16 @@ placeholder docs route.
 The default `bun run build` / `make build` path keeps the standard Next.js
 production build under `.next/` for `next start` and existing Phase 1 route
 verifiers. Use the static export path when you need a GitHub Pages–compatible
-`out/` artifact instead of `next start`—for example before wiring a deploy
-workflow or when validating project-site base paths locally.
+`out/` artifact instead of `next start`—for example when validating
+project-site base paths locally or confirming the same artifact the deploy
+workflow publishes.
 
 **Single command:** `make build-export` runs the export build and verifies the
-`out/` artifact in one step. It runs in `make ci` after `make build` so both the
-`.next/` production contract and the GitHub Pages `out/` artifact stay verified.
+`out/` artifact in one step. It is the local verification command and the deploy
+workflow build entrypoint (`.github/workflows/deploy.yml` runs the same target on
+`main` pushes with `GITHUB_PAGES_BASE_PATH=ai-model-reference`). It also runs in
+`make ci` after `make build` so both the `.next/` production contract and the
+GitHub Pages `out/` artifact stay verified.
 
 ```sh
 make build-export
@@ -122,9 +126,9 @@ GITHUB_PAGES_BASE_PATH=/ai-model-reference make build-export
 When `GITHUB_PAGES_BASE_PATH` is unset, export builds keep `/` as the base for
 local preview and user/org root GitHub Pages sites.
 
-See [docs/operations.md](./docs/operations.md) for deployment posture: static
-export is verified in CI via `make build-export`, but the baseline workflow does
-not deploy `out/` yet.
+See [docs/operations.md](./docs/operations.md) for deployment posture, required
+Pages settings, deploy check visibility, and commit-SHA traceability after merges
+to `main`.
 
 ## Phase 2 docs authoring
 
@@ -222,13 +226,18 @@ Maintainer procedures for deployment posture, branch protection, CI merge policy
 release, rollback, and commit-SHA traceability live in
 [docs/operations.md](./docs/operations.md).
 
-Phase 1 defers production deployment; there is no deploy workflow in
-`.github/workflows/`. Neither `make ci` nor `.github/workflows/ci.yml` runs
-deploy or preview steps. When a deploy workflow is added later, it will be named
-separately from the baseline **CI** workflow and will remain outside `make ci`.
+Merges to `main` trigger GitHub Pages deployment via
+`.github/workflows/deploy.yml`, which builds `out/` with `make build-export` and
+publishes to the project site. See [docs/operations.md](./docs/operations.md) for
+required Pages settings, deploy check visibility on `main`, and commit-SHA
+traceability.
+
+`.github/workflows/ci.yml` remains the quality gate on pull requests and `main`
+pushes; it runs `make ci` only and does not replace or invoke the deploy
+workflow. Preview deployments for pull requests remain out of scope for Phase 1.
 
 See the [Actions tab](https://github.com/portpowered/ai-model-reference/actions)
-for CI run history on pull requests and `main`.
+for CI and deploy run history on pull requests and `main`.
 
 ## Quality Gates
 
@@ -452,8 +461,9 @@ skipping, reviewers must run this two-step manual check after
 For static HTTP fixture tests, set `VERIFY_SEARCH_SHORTCUT_STUB=pass` alongside
 the other `VERIFY_*_STUB=pass` env vars documented in the verifier tests.
 
-Deploy gates are out of scope for the current baseline; neither
-`.github/workflows/ci.yml` nor `make ci` invokes deploy or preview steps.
+GitHub Pages deployment runs in `.github/workflows/deploy.yml` on `main` pushes
+only; neither `.github/workflows/ci.yml` nor `make ci` invokes deploy or preview
+steps.
 Manifest-scoped component coverage runs in `make ci` after `make test` (see
 [Reusable component coverage](#reusable-component-coverage)).
 
