@@ -4,6 +4,10 @@ import { Background, ReactFlow, ReactFlowProvider } from "@xyflow/react";
 import type { CSSProperties } from "react";
 import { MissingGraphRecord } from "@/features/docs/components/MissingGraphRecord";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
+import {
+  buildRegistryGraphFlowNodeThemeStyle,
+  REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE,
+} from "@/features/models/components/registry-graph-flow-theme";
 import { buildRegistryFlowGraph } from "@/lib/content/graph-flow";
 import { getGraphById } from "@/lib/content/graph-registry-runtime";
 
@@ -33,14 +37,12 @@ function RegistryGraphFlowCanvas({
       data-graph-id={graphId}
       data-web-renderer="react-flow"
       data-react-flow-graph="true"
+      data-manual-visibility-evidence={
+        REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE
+      }
       data-graph-node-count={String(nodes.length)}
       className="registry-graph-flow w-full min-w-0"
-      style={
-        {
-          "--xy-node-color": "var(--card-foreground)",
-          "--xy-node-background-color": "var(--card)",
-        } as CSSProperties
-      }
+      style={buildRegistryGraphFlowNodeThemeStyle() as CSSProperties}
       role="img"
       aria-label={accessibleLabel}
     >

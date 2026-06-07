@@ -124,3 +124,24 @@ export function expectModuleMathSchemaDefinitionsInMathSection(
     'data-message-block-math="math.gqaSchema.formula"',
   );
 }
+
+/** Compute-flow graph wrapper must expose themed React Flow node CSS variables. */
+export function expectModuleComputeFlowGraphTheme(
+  html: string,
+  graphId: string,
+): void {
+  expect(html).toContain(`data-graph-id="${graphId}"`);
+  expect(html).toContain("--xy-node-color:var(--card-foreground)");
+  expect(html).toContain("--xy-node-background-color:var(--card)");
+  expect(html).toContain(
+    'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
+  );
+
+  const howItWorksSection = extractSectionHtml(html, "how-it-works");
+  expect(howItWorksSection).toContain(`data-graph-id="${graphId}"`);
+  expect(howItWorksSection).toContain("--xy-node-color:var(--card-foreground)");
+  expect(howItWorksSection).toContain("--xy-node-background-color:var(--card)");
+  expect(howItWorksSection).toContain('class="registry-graph-flow');
+  expect(howItWorksSection).toContain('data-graph-node-id="hidden-states"');
+  expect(howItWorksSection).toContain('data-graph-node-id="query-groups"');
+}
