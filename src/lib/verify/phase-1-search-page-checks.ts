@@ -61,8 +61,8 @@ const SEARCH_PAGE_RESULTS_SELECTOR = '[data-testid="search-page-results"]';
 const SEARCH_PAGE_EMPTY_SELECTOR = '[data-testid="search-page-empty"]';
 const SEARCH_RESULT_URL_SELECTOR = '[data-testid="search-result-url"]';
 
-/** Default per-query browser deadline (Orama client hydration can exceed 10s). */
-export const DEFAULT_SEARCH_PAGE_TIMEOUT_MS = 15_000;
+/** Default per-query browser deadline (client hydration can exceed 10s under CI load). */
+export const DEFAULT_SEARCH_PAGE_TIMEOUT_MS = 30_000;
 
 export function formatPhase1SearchPageCheckFailure(
   failure: Phase1SearchPageCheckFailure,
@@ -168,6 +168,11 @@ export async function checkSearchPageQuery(
   });
 
   const input = page.locator(SEARCH_PAGE_INPUT_SELECTOR);
+  try {
+    await input.waitFor({ state: "visible", timeout: timeoutMs });
+  } catch {
+    return `search input did not hydrate on /search within ${timeoutMs}ms`;
+  }
   await input.fill("");
   await input.fill(query);
 

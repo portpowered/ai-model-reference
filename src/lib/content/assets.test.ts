@@ -45,11 +45,17 @@ describe("loadPageAssets", () => {
     const config = await loadPageAssets(groupedQueryAttentionPageDir);
 
     expect(config.computeFlow).toMatchObject({
-      type: "graph",
-      graphId: "graph.grouped-query-attention-compute-flow",
+      type: "attention-variant-graph",
+      defaultVariantId: "gqa",
       webRenderer: "react-flow",
       printRenderer: "mermaid",
     });
+    if (config.computeFlow?.type !== "attention-variant-graph") {
+      throw new Error("expected attention-variant-graph asset");
+    }
+    expect(
+      config.computeFlow.variants.map((variant) => variant.variantId),
+    ).toEqual(["mha", "gqa"]);
   });
 
   test("loads baseline token glossary assets.json", async () => {
@@ -71,11 +77,12 @@ describe("resolvePageAsset", () => {
       "computeFlow",
     );
 
-    expect(asset.type).toBe("graph");
-    if (asset.type !== "graph") {
-      throw new Error("expected graph asset");
+    expect(asset.type).toBe("attention-variant-graph");
+    if (asset.type !== "attention-variant-graph") {
+      throw new Error("expected attention-variant-graph asset");
     }
-    expect(asset.graphId).toBe("graph.grouped-query-attention-compute-flow");
+    expect(asset.defaultVariantId).toBe("gqa");
+    expect(asset.variants).toHaveLength(2);
     expect(asset.webRenderer).toBe("react-flow");
     expect(asset.printRenderer).toBe("mermaid");
     expect(asset.altKey).toBe("assets.computeFlow.alt");
@@ -94,9 +101,9 @@ describe("resolvePageAssetWithMessages", () => {
       "en",
     );
 
-    expect(moduleAsset.type).toBe("graph");
-    if (moduleAsset.type !== "graph" || !moduleAsset.altKey) {
-      throw new Error("expected graph asset with altKey");
+    expect(moduleAsset.type).toBe("attention-variant-graph");
+    if (moduleAsset.type !== "attention-variant-graph" || !moduleAsset.altKey) {
+      throw new Error("expected attention-variant-graph asset with altKey");
     }
     expect(getMessageString(moduleMessages, moduleAsset.altKey)).toBe(
       moduleMessages.assets?.computeFlow?.alt,

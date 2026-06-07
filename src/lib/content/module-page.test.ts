@@ -31,18 +31,19 @@ describe("grouped-query-attention page messages", () => {
     );
 
     expect(messages.title).toBe("Grouped-Query Attention");
-    expect(messages.problemStatement?.length).toBeGreaterThan(0);
-    expect(messages.coreIdea?.length).toBeGreaterThan(0);
+    expect(messages.openingSummary?.length).toBeGreaterThan(0);
+    expect(messages.problemStatement).toBeUndefined();
+    expect(messages.coreIdea).toBeUndefined();
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItOptimizes.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
-    expect(messages.mathVariableDefinitions?.title).toBe(
-      "What the symbols mean",
+    expect(messages.math?.mhaSchema?.variableDefinitions?.q?.term).toBe("Q");
+    expect(messages.math?.gqaSchema?.variableDefinitions?.gi?.term).toBe(
+      "g(i)",
     );
-    expect(messages.mathVariableDefinitions?.q.term).toBe("Q");
-    expect(messages.mathVariableDefinitions?.grouping.term).toBe(
-      "Query-to-KV grouping",
-    );
+    expect(
+      messages.math?.mhaSchema?.variableDefinitions?.queryProjection,
+    ).toBeUndefined();
   });
 });
 
@@ -69,6 +70,7 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(html).toContain(
       "lets several query heads share fewer key-value heads",
     );
+    expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain('aria-label="Module metadata"');
     expect(html).toContain("At a glance");
     expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
@@ -117,7 +119,7 @@ describe("grouped-query-attention page assets", () => {
       JSON.parse(readFileSync(assetsPath, "utf8")),
     );
 
-    expect(assets.computeFlow.type).toBe("graph");
+    expect(assets.computeFlow.type).toBe("attention-variant-graph");
     expect(assets.comparisonTable.type).toBe("table");
     expect(validatePageAssetReferences(assets, messages)).toEqual([]);
   });

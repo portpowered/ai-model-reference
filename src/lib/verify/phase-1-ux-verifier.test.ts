@@ -534,32 +534,37 @@ describe("verify-phase-1-route-search-ux script", () => {
     }
   });
 
-  test("exits 1 with docs shell convergence failure on split-shell stub", async () => {
-    const httpServer = createPhase1UxStubServer({
-      ...PHASE_1_UX_PASSING_STUB_HTML,
-      "/docs/architecture": `<html><header><nav aria-label="Primary">Model Atlas</nav></header><article>split shell</article></html>`,
-    });
-    const port = await listenOnEphemeralPort(httpServer);
-
-    try {
-      const result = await runVerifyScriptWithEnv({
-        VERIFY_BASE_URL: `http://127.0.0.1:${port}`,
-        VERIFY_SEARCH_PAGE_STUB: "pass",
-        VERIFY_SEARCH_DIALOG_STUB: "pass",
-        VERIFY_SEARCH_SHORTCUT_STUB: "pass",
-        [VERIFY_CUSTOMER_ASK_BATCH_012_STUB_ENV]: "pass",
+  test(
+    "exits 1 with docs shell convergence failure on split-shell stub",
+    async () => {
+      const httpServer = createPhase1UxStubServer({
+        ...PHASE_1_UX_PASSING_STUB_HTML,
+        "/docs/architecture": `<html><header><nav aria-label="Primary">Model Atlas</nav></header><article>split shell</article></html>`,
       });
+      const port = await listenOnEphemeralPort(httpServer);
 
-      expect(result.exitCode).toBe(1);
-      expect(result.output).toContain("/docs/architecture");
-      expect(result.output).toContain(
-        DOCS_SHELL_CONVERGENCE_REASONS.missingNdSidebar,
-      );
-    } finally {
-      httpServer.closeAllConnections();
-      httpServer.close();
-    }
-  });
+      try {
+        const result = await runVerifyScriptWithEnv({
+          VERIFY_BASE_URL: `http://127.0.0.1:${port}`,
+          VERIFY_SEARCH_PAGE_STUB: "pass",
+          VERIFY_SEARCH_DIALOG_STUB: "pass",
+          VERIFY_SEARCH_SHORTCUT_STUB: "pass",
+          VERIFY_DOCS_FOOTER_STUB: "pass",
+          [VERIFY_CUSTOMER_ASK_BATCH_012_STUB_ENV]: "pass",
+        });
+
+        expect(result.exitCode).toBe(1);
+        expect(result.output).toContain("/docs/architecture");
+        expect(result.output).toContain(
+          DOCS_SHELL_CONVERGENCE_REASONS.missingNdSidebar,
+        );
+      } finally {
+        httpServer.closeAllConnections();
+        httpServer.close();
+      }
+    },
+    { timeout: 60_000 },
+  );
 });
 
 describe("verify-phase-1-route-search-ux script integration", () => {

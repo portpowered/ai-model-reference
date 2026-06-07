@@ -9,11 +9,12 @@ import type { ReactElement, ReactNode } from "react";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import { SearchResultListItem } from "@/features/docs/search/SearchResults";
 import type { SearchResultMetaRecord } from "@/features/docs/search/search-result-meta-client";
+import messageFixture from "@/lib/content/__fixtures__/page-messages.json";
 import {
   groupedQueryAttentionPageDir,
   loadPageMessages,
 } from "@/lib/content/page-messages-load";
-import type { PageMessages } from "@/lib/content/schemas";
+import { type PageMessages, pageMessagesSchema } from "@/lib/content/schemas";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   type AppTestContext,
@@ -22,6 +23,15 @@ import {
 } from "@/tests/a11y/render";
 
 let cachedGqaMessages: PageMessages | null = null;
+let cachedCalloutExampleMessages: PageMessages | null = null;
+
+export function loadCalloutExamplePageMessages(): PageMessages {
+  if (cachedCalloutExampleMessages) {
+    return cachedCalloutExampleMessages;
+  }
+  cachedCalloutExampleMessages = pageMessagesSchema.parse(messageFixture);
+  return cachedCalloutExampleMessages;
+}
 
 export async function loadGqaPageMessages(): Promise<PageMessages> {
   if (cachedGqaMessages) {

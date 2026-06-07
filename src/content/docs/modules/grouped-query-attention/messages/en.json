@@ -1,8 +1,7 @@
 {
   "title": "Grouped-Query Attention",
   "description": "An attention variant that reduces KV cache memory by sharing key-value heads across query groups.",
-  "problemStatement": "KV caches grow with context length and head count, which raises memory use and bandwidth during long-context inference.",
-  "coreIdea": "Grouped-query attention (GQA) lets several query heads share fewer key-value heads so the cache stores fewer KV tensors without collapsing to a single shared head.",
+  "openingSummary": "KV caches grow with context length and head count, raising memory use during long-context inference; grouped-query attention (GQA) lets several query heads share fewer key-value heads so the cache stores fewer KV tensors without collapsing to one shared head.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -14,7 +13,7 @@
     },
     "practicalBenefit": {
       "title": "Practical Benefit",
-      "body": "Teams adopt GQA when they need multi-head expressiveness at training time but want leaner inference caches and less KV traffic at deployment time."
+      "body": "Teams adopt GQA when they need multi-head expressiveness at training time but want leaner inference caches and less KV traffic at deployment time. GQA keeps more query diversity than multi-query attention while using a smaller cache than full multi-head attention."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -50,20 +49,18 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Think of GQA as MHA with query heads bucketed to share KV heads—more query diversity than MQA, smaller cache than full MHA."
-    }
-  },
   "assets": {
     "computeFlow": {
-      "alt": "Grouped-query attention compute flow",
-      "caption": "Query groups route to shared KV heads during attention"
-    },
-    "computeSchema": {
-      "alt": "Grouped-query attention tensor grouping",
-      "caption": "H query heads map to G shared KV groups"
+      "alt": "Multi-head attention versus grouped-query attention head-count comparison",
+      "caption": "Toggle MHA and GQA to compare query-head count against KV-head count on one canvas",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "gqa": {
+          "label": "GQA"
+        }
+      }
     },
     "comparisonTable": {
       "caption": "How GQA compares with nearby attention variants"
@@ -109,86 +106,92 @@
   "math": {
     "mhaSchema": {
       "label": "Multi-head attention (MHA)",
-      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i \\quad (H \\text{ independent KV head pairs per token})"
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        }
+      }
     },
     "gqaSchema": {
       "label": "Grouped-query attention (GQA)",
-      "formula": "\\text{Attention}(Q_i, K_{g(i)}, V_{g(i)}) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_{g(i)}^{\\top}}{\\sqrt{d_k}}\\right) V_{g(i)} \\quad (G \\text{ shared KV pairs for } H \\text{ query heads})"
-    }
-  },
-  "mathVariableDefinitions": {
-    "title": "What the symbols mean",
-    "q": {
-      "term": "Q",
-      "definition": "Query vectors for each attention head—the questions each head asks about prior tokens."
-    },
-    "k": {
-      "term": "K",
-      "definition": "Key vectors for each position—the signatures other queries match against when scoring attention."
-    },
-    "v": {
-      "term": "V",
-      "definition": "Value vectors for each position—the information blended into the output when a query aligns with a key."
-    },
-    "queryProjection": {
-      "term": "Query projection",
-      "definition": "The linear map from hidden states to query heads, producing the Q tensors used in attention."
-    },
-    "keyProjection": {
-      "term": "Key projection",
-      "definition": "The linear map from hidden states to key heads, producing the K tensors stored in the KV cache."
-    },
-    "valueProjection": {
-      "term": "Value projection",
-      "definition": "The linear map from hidden states to value heads, producing the V tensors stored alongside keys."
-    },
-    "queryHeads": {
-      "term": "Query heads",
-      "definition": "H separate query streams (Q_i). GQA keeps all H heads so each position can ask distinct questions."
-    },
-    "keyValueHeads": {
-      "term": "Key-value heads",
-      "definition": "The paired key and value heads (K and V). In GQA there are G such pairs rather than H independent ones."
-    },
-    "grouping": {
-      "term": "Query-to-KV grouping",
-      "definition": "The mapping g(i) that routes query head i to shared key-value pair K_{g(i)} and V_{g(i)}, so H query heads share G KV groups."
+      "formula": "\\text{Attention}(Q_i, K_{g(i)}, V_{g(i)}) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_{g(i)}^{\\top}}{\\sqrt{d_k}}\\right) V_{g(i)}",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for group g(i)."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for group g(i)."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "g": {
+          "term": "G",
+          "definition": "Number of shared KV groups."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        },
+        "gi": {
+          "term": "g(i)",
+          "definition": "KV group index for query head i."
+        }
+      }
     }
   },
   "graph": {
     "nodes": {
-      "hiddenStates": {
-        "label": "Hidden states"
-      },
-      "queryProjection": {
-        "label": "H query heads (Q projection)"
-      },
-      "queryGroups": {
-        "label": "G query groups"
-      },
-      "sharedKv": {
-        "label": "Shared KV heads per group"
-      },
-      "attentionScores": {
-        "label": "Attention scores per query head"
-      },
-      "outputProjection": {
-        "label": "Output projection"
-      },
-      "queryHeads": {
+      "mhaQueryHeads": {
         "label": "H query heads"
       },
-      "queryGroupsSchema": {
-        "label": "G groups (H/G query heads each)"
+      "mhaKvHeads": {
+        "label": "H KV head pairs (1:1 with queries)"
       },
-      "sharedKeyHeads": {
-        "label": "G shared key heads"
+      "mhaOneToOne": {
+        "label": "Each query head has its own K and V"
       },
-      "sharedValueHeads": {
-        "label": "G shared value heads"
+      "gqaQueryHeads": {
+        "label": "H query heads"
       },
-      "kvCache": {
-        "label": "KV cache (G keys + G values per token)"
+      "gqaKvGroups": {
+        "label": "G shared KV pairs"
+      },
+      "gqaGroupedMapping": {
+        "label": "H/G query heads share each KV pair"
       }
     }
   }

@@ -21,6 +21,7 @@ import {
 import { TAG_LIST_CUSTOMER_ASK_ROUTES } from "./customer-ask-tag-list-convergence";
 import { POST_REPAIR_TAG_RESOURCE_LINK_CLASS } from "./customer-ask-tag-search-decoration-convergence";
 import {
+  buildGroupedQueryAttentionMathComparisonStub,
   buildGroupedQueryAttentionStubBody,
   GROUPED_QUERY_ATTENTION_MODULE_TITLE,
 } from "./grouped-query-attention-module-convergence";
@@ -284,11 +285,7 @@ const CUSTOMER_ASK_PASSING_GQA_MODULE_BODY = `
       ${GQA_STUB_BODY_WITHOUT_TAG_PILL}
     </section>
     <section id="math-or-compute-schema">
-      <div data-attention-schema-comparison="true">
-        <section data-attention-schema-variable-definitions="true">
-          <h3>What the symbols mean</h3>
-        </section>
-      </div>
+      ${buildGroupedQueryAttentionMathComparisonStub()}
     </section>
     <section aria-label="Architecture">
       <ul class="list-none">

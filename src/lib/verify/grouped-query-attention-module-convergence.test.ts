@@ -1,5 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS } from "@/features/models/components/module-attention-math-variable-definitions";
+import {
+  MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS,
+  MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS,
+} from "@/features/models/components/module-attention-math-variable-definitions";
 import {
   assertGroupedQueryAttentionChromeConvergence,
   assertGroupedQueryAttentionCompanionSectionsConvergence,
@@ -37,9 +40,12 @@ describe("assertGroupedQueryAttentionGraphBuildMarkersConvergence", () => {
   });
 
   test("reports the first missing graph node marker", () => {
-    const html = PASSING_HTML.replace('data-graph-node-id="hidden-states"', "");
+    const html = PASSING_HTML.replace(
+      'data-graph-node-id="gqa-query-heads"',
+      "",
+    );
     expect(assertGroupedQueryAttentionGraphBuildMarkersConvergence(html)).toBe(
-      'missing expected content: data-graph-node-id="hidden-states"',
+      'missing expected content: data-graph-node-id="gqa-query-heads"',
     );
   });
 
@@ -176,17 +182,24 @@ describe("assertGroupedQueryAttentionMathDefinitionsConvergence", () => {
   });
 
   test("fails when a math variable definition marker is missing", () => {
-    const html = PASSING_HTML.replace(
-      'data-math-variable-definition="grouping"',
-      "",
-    );
+    const html = PASSING_HTML.replace('data-math-variable-definition="gi"', "");
     expect(assertGroupedQueryAttentionMathDefinitionsConvergence(html)).toBe(
       GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.missingMathDefinitions,
     );
   });
 
+  test("fails when forbidden concept definition terms appear in math section", () => {
+    const html = `<section id="math-or-compute-schema">${PASSING_HTML}<p>Query projection</p></section>`;
+    expect(assertGroupedQueryAttentionMathDefinitionsConvergence(html)).toBe(
+      GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.forbiddenMathDefinitionTerms,
+    );
+  });
+
   test("documents every required math variable definition id", () => {
-    for (const id of MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS) {
+    for (const id of MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS) {
+      expect(PASSING_HTML).toContain(`data-math-variable-definition="${id}"`);
+    }
+    for (const id of MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS) {
       expect(PASSING_HTML).toContain(`data-math-variable-definition="${id}"`);
     }
   });

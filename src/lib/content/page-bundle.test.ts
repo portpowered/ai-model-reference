@@ -69,13 +69,14 @@ describe("grouped-query-attention page bundle", () => {
 
     expect(messages.title.length).toBeGreaterThan(0);
     expect(messages.description.length).toBeGreaterThan(0);
-    expect(messages.problemStatement?.length).toBeGreaterThan(0);
-    expect(messages.coreIdea?.length).toBeGreaterThan(0);
+    expect(messages.openingSummary?.length).toBeGreaterThan(0);
+    expect(messages.problemStatement).toBeUndefined();
+    expect(messages.coreIdea).toBeUndefined();
     expect(messages.sections?.whatItIs?.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks?.body?.length).toBeGreaterThan(0);
 
-    expect(assets.computeFlow?.type).toBe("graph");
-    expect(assets.computeSchema?.type).toBe("graph");
+    expect(assets.computeFlow?.type).toBe("attention-variant-graph");
+    expect(assets.computeSchema).toBeUndefined();
     expect(assets.comparisonTable?.type).toBe("table");
   });
 });

@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS } from "@/features/models/components/module-attention-math-variable-definitions";
+import {
+  MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS,
+  MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS,
+} from "@/features/models/components/module-attention-math-variable-definitions";
 import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
@@ -9,17 +12,8 @@ import { expectModuleMathSchemaDefinitionsInMathSection } from "@/lib/content/mo
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { assertGroupedQueryAttentionMathDefinitionsConvergence } from "@/lib/verify/grouped-query-attention-module-convergence";
 
-const MATH_DEFINITION_TERMS = [
-  "Query projection",
-  "Key projection",
-  "Value projection",
-  "Query heads",
-  "Key-value heads",
-  "Query-to-KV grouping",
-] as const;
-
 describe("grouped-query-attention module math schema definitions", () => {
-  test("published GQA messages include plain-language math variable definitions", () => {
+  test("published GQA messages include symbol-level math variable definitions per formula", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(
         readFileSync(
@@ -29,16 +23,24 @@ describe("grouped-query-attention module math schema definitions", () => {
       ),
     );
 
-    expect(messages.mathVariableDefinitions?.title).toBe(
-      "What the symbols mean",
-    );
-    for (const id of MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS) {
-      const row = messages.mathVariableDefinitions?.[id];
+    for (const id of MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS) {
+      const row = messages.math?.mhaSchema?.variableDefinitions?.[id];
+      expect(row?.term?.length).toBeGreaterThan(0);
+      expect(row?.definition?.length).toBeGreaterThan(0);
+    }
+    for (const id of MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS) {
+      const row = messages.math?.gqaSchema?.variableDefinitions?.[id];
       expect(row?.term?.length).toBeGreaterThan(0);
       expect(row?.definition?.length).toBeGreaterThan(0);
     }
     expect(messages.math?.mhaSchema?.formula?.length).toBeGreaterThan(0);
     expect(messages.math?.gqaSchema?.formula?.length).toBeGreaterThan(0);
+    expect(
+      messages.math?.mhaSchema?.variableDefinitions?.queryProjection,
+    ).toBeUndefined();
+    expect(
+      messages.math?.gqaSchema?.variableDefinitions?.grouping,
+    ).toBeUndefined();
   });
 
   test("published GQA page uses ModuleAttentionSchemaComparison in math section", () => {
@@ -54,7 +56,7 @@ describe("grouped-query-attention module math schema definitions", () => {
     );
   });
 
-  test("/docs/modules/grouped-query-attention renders visible math definitions beside MHA and GQA formulas", async () => {
+  test("/docs/modules/grouped-query-attention renders symbol definitions under MHA and GQA formulas", async () => {
     const loadedPage = await loadLocalDocsPage({
       section: "modules",
       slug: "grouped-query-attention",
@@ -64,11 +66,9 @@ describe("grouped-query-attention module math schema definitions", () => {
 
     expectModuleMathSchemaDefinitionsInMathSection(
       html,
-      MODULE_ATTENTION_MATH_VARIABLE_DEFINITION_IDS,
+      MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS,
+      MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS,
     );
-    for (const term of MATH_DEFINITION_TERMS) {
-      expect(html).toContain(term);
-    }
     expect(html).toContain('class="katex"');
     expect(html).toContain("katex-display");
     expect(

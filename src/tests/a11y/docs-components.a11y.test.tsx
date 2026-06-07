@@ -14,6 +14,7 @@ import {
   expectSeriousAxeViolations,
 } from "@/tests/a11y/axe";
 import {
+  loadCalloutExamplePageMessages,
   loadGqaPageMessages,
   renderSearchResultListItem,
   renderWithPageMessages,
@@ -28,8 +29,8 @@ import { SAMPLE_MODULE_URL } from "@/tests/search/helpers";
 describe("Callout accessibility smoke", () => {
   let messages: PageMessages;
 
-  beforeAll(async () => {
-    messages = await loadGqaPageMessages();
+  beforeAll(() => {
+    messages = loadCalloutExamplePageMessages();
   });
 
   afterEach(() => {
