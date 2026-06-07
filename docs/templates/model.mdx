@@ -11,7 +11,6 @@ aliases:
 updatedAt: "2026-06-02"
 ---
 
-import { Callout } from "@/features/docs/components/Callout";
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
@@ -23,15 +22,9 @@ import { ModelAtAGlance } from "@/features/models/components/ModelAtAGlance";
 import { ModelModuleList } from "@/features/models/components/ModelModuleList";
 import { ModelTrainingSummary } from "@/features/models/components/ModelTrainingSummary";
 
-# <T k="title" />
-
-<T k="problemStatement" />
-
-<T k="coreIdea" />
+<T k="openingSummary" />
 
 <ModelAtAGlance registryId="model.example-model" />
-
-<TagPillList registryId="model.example-model" />
 
 <Section id="what-it-is" titleKey="sections.whatItIs.title">
   <T k="sections.whatItIs.body" />
@@ -61,10 +54,6 @@ import { ModelTrainingSummary } from "@/features/models/components/ModelTraining
 </Section>
 
 <Section id="practical-notes" titleKey="sections.practicalNotes.title">
-  <Callout type="note" titleKey="callouts.readerShortcut.title">
-    <T k="callouts.readerShortcut.body" />
-  </Callout>
-
   <T k="sections.practicalNotes.body" />
 </Section>
 

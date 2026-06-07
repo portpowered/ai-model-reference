@@ -13,7 +13,6 @@ aliases:
 updatedAt: "2026-06-02"
 ---
 
-import { Callout } from "@/features/docs/components/Callout";
 import { CitationList } from "@/features/docs/components/CitationList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
@@ -28,20 +27,20 @@ import { ConceptMap } from "@/features/models/components/ConceptMap";
 
 <Section id="why-it-matters" titleKey="sections.whyItMatters.title">
   <T k="sections.whyItMatters.body" />
-
-  <Callout type="note" titleKey="callouts.readerShortcut.title">
-    <T k="callouts.readerShortcut.body" />
-  </Callout>
 </Section>
 
 <Section id="simple-example" titleKey="sections.simpleExample.title">
   <T k="sections.simpleExample.body" />
 </Section>
 
-<ConceptMap
-  registryId="concept.example-glossary"
-  assetId="conceptMap"
-/>
+<Section id="where-it-appears" titleKey="sections.whereItAppears.title">
+  <T k="sections.whereItAppears.body" />
+
+  <ConceptMap
+    registryId="concept.example-glossary"
+    assetId="conceptMap"
+  />
+</Section>
 
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">
   <T k="sections.commonConfusions.body" />
