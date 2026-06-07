@@ -4,6 +4,7 @@ import {
   BATCH_013_CUSTOMER_ASK_CHECK_IDS,
   BATCH_013_CUSTOMER_ASK_INVENTORY,
   buildBatch013CustomerAskReportSlots,
+  extractBatch013CustomerAskRowsFromReport,
   orderCustomerAskRowsByBatch013Inventory,
 } from "./batch-013-customer-ask-check-inventory";
 import {
@@ -53,6 +54,41 @@ describe("batch-013 customer-ask check inventory", () => {
     expect(ordered.map((row) => row.query)).toEqual(
       slots.map((slot) => slot.query),
     );
+  });
+
+  test("extractBatch013CustomerAskRowsFromReport keeps batch-013 rows and marks missing slots fail", () => {
+    const slots = buildBatch013CustomerAskReportSlots();
+    const present = slots[0];
+    const rows: CustomerAskConvergenceRow[] = [
+      {
+        checkId: present.checkId,
+        title: "present row",
+        status: "pass",
+        route: present.route,
+        query: present.query,
+        checklistRow: "phase-1-glossary-page",
+      },
+      {
+        checkId: "home.mobile-hamburger-menu",
+        title: "extra retained row",
+        status: "pass",
+        route: "/",
+        checklistRow: "phase-1-header-bar",
+      },
+    ];
+
+    const extracted = extractBatch013CustomerAskRowsFromReport(rows);
+    expect(extracted).toHaveLength(13);
+    expect(extracted[0].status).toBe("pass");
+    expect(extracted.filter((row) => row.status === "fail")).toHaveLength(12);
+    expect(
+      extracted
+        .filter((row) => row.status === "fail")
+        .every(
+          (row) =>
+            row.reason === "missing from customer-ask convergence report",
+        ),
+    ).toBe(true);
   });
 
   test("orderCustomerAskRowsByBatch013Inventory rejects missing inventory slots", () => {
