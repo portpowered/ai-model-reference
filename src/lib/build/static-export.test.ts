@@ -3,6 +3,7 @@ import {
   GITHUB_PAGES_BASE_PATH_ENV,
   isStaticExportBuild,
   normalizeGitHubPagesBasePath,
+  resolveBasePathForExportVerification,
   resolveGitHubPagesBasePath,
   resolveNextConfigForBuildMode,
   STATIC_EXPORT_ENV,
@@ -52,6 +53,15 @@ describe("static export build mode", () => {
         [GITHUB_PAGES_BASE_PATH_ENV]: "ai-model-reference",
       }),
     ).toBe("/ai-model-reference");
+  });
+
+  test("reads base path for export verification without NEXT_STATIC_EXPORT", () => {
+    expect(
+      resolveBasePathForExportVerification({
+        [GITHUB_PAGES_BASE_PATH_ENV]: "ai-model-reference",
+      }),
+    ).toBe("/ai-model-reference");
+    expect(resolveBasePathForExportVerification({})).toBe("");
   });
 
   test("applies basePath and assetPrefix during export when configured", () => {
