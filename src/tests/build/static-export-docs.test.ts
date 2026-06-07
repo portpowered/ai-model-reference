@@ -17,6 +17,8 @@ describe("static export build documentation", () => {
     expect(readme).toMatch(/GITHUB_PAGES_BASE_PATH/);
     expect(readme).toMatch(/make verify-export-routes/);
     expect(readme).toMatch(/bun run verify:export-routes/);
+    expect(readme).toMatch(/verify-phase-1-export-search-handoff/);
+    expect(readme).toMatch(/GQA|attention|KV cache/i);
     expect(readme).toMatch(/part of `make ci`|runs in `make ci`/i);
     expect(readme).toMatch(/exits non-zero|exit.*non-zero/i);
     expect(readme).toMatch(/out\/.*missing|missing.*out\//i);
@@ -31,6 +33,7 @@ describe("static export build documentation", () => {
     expect(operations).toMatch(/make ci.*build-export|build-export.*make ci/i);
     expect(operations).toMatch(/GITHUB_PAGES_BASE_PATH/);
     expect(operations).toMatch(/verify-phase-1-export-routes/);
+    expect(operations).toMatch(/verify-phase-1-export-search-handoff/);
   });
 
   test("Makefile and package.json expose export build and verification commands", () => {
@@ -43,12 +46,17 @@ describe("static export build documentation", () => {
     expect(makefile).toMatch(/^ci:.*build-export/m);
     expect(makefile).toMatch(/bun run build:export/);
     expect(makefile).toMatch(/verify-phase-1-export-routes\.ts/);
+    expect(makefile).toMatch(/verify-phase-1-export-search-handoff\.ts/);
     expect(makefile).toMatch(/^verify-export-routes:/m);
+    expect(makefile).toMatch(/^verify-export-search-handoff:/m);
     expect(packageJson.scripts["build:export"]).toContain(
       "NEXT_STATIC_EXPORT=1",
     );
     expect(packageJson.scripts["verify:export-routes"]).toContain(
       "verify-phase-1-export-routes.ts",
+    );
+    expect(packageJson.scripts["verify:export-search-handoff"]).toContain(
+      "verify-phase-1-export-search-handoff.ts",
     );
   });
 });

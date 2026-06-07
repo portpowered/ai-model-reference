@@ -94,13 +94,19 @@ That runs `bun run build:export` (sets `NEXT_STATIC_EXPORT=1`, which toggles
 `verify-phase-1-export-routes`, which exits non-zero when `out/` is missing,
 empty, or lacks expected Phase 1 reader routes and content markers (`/`,
 `/docs/architecture`, `/docs/glossary`, `/docs/modules/grouped-query-attention`,
-`/tags`, and `/tags/attention`).
+`/tags`, and `/tags/attention`), then `verify-phase-1-export-search-handoff`,
+which exits non-zero when `out/api/search` is missing or when Phase 1 static
+search queries (`GQA`, `attention`, `KV cache`) fail against the export bootstrap
+payload.
 
 To verify an existing export without rebuilding:
 
 ```sh
 make verify-export-routes
 # or: bun run verify:export-routes
+
+make verify-export-search-handoff
+# or: bun run verify:export-search-handoff
 ```
 
 For GitHub Pages **project sites** served from `https://<org>.github.io/<repo>/`,
