@@ -246,6 +246,9 @@ export const CUSTOMER_ASK_PASSING_ATTENTION_MODULE_HTML =
 export const CUSTOMER_ASK_PASSING_VECTOR_GLOSSARY_HTML =
   buildPhase1DocsRouteStubHtml(`
   <h1>Vector</h1>
+  <p class="mb-8 text-lg text-fd-muted-foreground">
+    An ordered list of numbers that represents a point or direction in continuous space—<a href="/docs/glossary/embedding" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>embeddings</a> and activations are vectors at different stages of the model.
+  </p>
   <article data-registry-id="${MISSING_PAGES_VECTOR_REGISTRY_ID}">
     <section id="what-it-is"><h2>What It Is</h2></section>
   </article>
@@ -254,6 +257,9 @@ export const CUSTOMER_ASK_PASSING_VECTOR_GLOSSARY_HTML =
 export const CUSTOMER_ASK_PASSING_HIDDEN_SIZE_GLOSSARY_HTML =
   buildPhase1DocsRouteStubHtml(`
   <h1>Hidden Size</h1>
+  <p class="mb-8 text-lg text-fd-muted-foreground">
+    The width of a model's internal <a href="${PHASE_1_VECTOR_GLOSSARY_URL}" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>vectors</a>—the number of dimensions in each <a href="/docs/glossary/embedding" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>token embedding</a> and each <a href="${TOKEN_GLOSSARY_URL}" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>token</a>'s per-position hidden state before the vocabulary projection.
+  </p>
   <article data-registry-id="${MISSING_PAGES_HIDDEN_SIZE_REGISTRY_ID}">
     <section id="what-it-is"><h2>What It Is</h2></section>
   </article>

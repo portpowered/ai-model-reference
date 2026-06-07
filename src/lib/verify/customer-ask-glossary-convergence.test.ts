@@ -3,18 +3,27 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   assertGlossaryChromeLinksConvergence,
+  assertGlossaryEmbeddingDescriptionLinks,
+  assertGlossaryHiddenSizeDescriptionLinks,
   assertGlossaryPresentationConvergence,
+  assertGlossaryVectorDescriptionLinks,
+  buildCustomerAskGlossaryBridgeDescriptionRows,
   buildCustomerAskGlossaryRows,
   evaluateGlossaryFooterHoverRow,
   extractGlossaryTokenArticleHtml,
   GLOSSARY_CUSTOMER_ASK_CHECKS,
   GLOSSARY_CUSTOMER_ASK_REASONS,
   GLOSSARY_CUSTOMER_ASK_ROUTE,
+  GLOSSARY_EMBEDDING_REGISTRY_ID,
+  GLOSSARY_HIDDEN_SIZE_REGISTRY_ID,
   GLOSSARY_TOKEN_REGISTRY_ID,
+  GLOSSARY_VECTOR_REGISTRY_ID,
 } from "./customer-ask-glossary-convergence";
 
 const CHROME_LINK_CLASS =
   'class="no-underline transition-colors hover:no-underline focus-visible:ring-2"';
+
+const PROSE_AUTO_LINK_CLASS = CHROME_LINK_CLASS;
 
 const POST_REPAIR_ARTICLE_HTML = `
   <article data-registry-id="${GLOSSARY_TOKEN_REGISTRY_ID}">
@@ -278,6 +287,159 @@ describe("buildCustomerAskGlossaryRows", () => {
     expect(chromeRow?.reason).toBe(
       GLOSSARY_CUSTOMER_ASK_REASONS.chromeUnderline,
     );
+  });
+});
+
+const POST_REPAIR_EMBEDDING_SHELL_HTML = `
+  <html>
+    <h1>Embedding</h1>
+    <p class="mb-8 text-lg text-fd-muted-foreground">
+      A <a href="/docs/glossary/vector" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>dense vector</a> that represents a <a href="/docs/glossary/token" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>token</a> or other discrete item so the model can run continuous math on it.
+    </p>
+    <article data-registry-id="${GLOSSARY_EMBEDDING_REGISTRY_ID}">
+      <section id="what-it-is"><h2>What It Is</h2></section>
+    </article>
+  </html>
+`;
+
+const POST_REPAIR_VECTOR_SHELL_HTML = `
+  <html>
+    <h1>Vector</h1>
+    <p class="mb-8 text-lg text-fd-muted-foreground">
+      An ordered list of numbers that represents a point or direction in continuous space—<a href="/docs/glossary/embedding" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>embeddings</a> and activations are vectors at different stages of the model.
+    </p>
+    <article data-registry-id="${GLOSSARY_VECTOR_REGISTRY_ID}">
+      <section id="what-it-is"><h2>What It Is</h2></section>
+    </article>
+  </html>
+`;
+
+const POST_REPAIR_HIDDEN_SIZE_SHELL_HTML = `
+  <html>
+    <h1>Hidden Size</h1>
+    <p class="mb-8 text-lg text-fd-muted-foreground">
+      The width of a model's internal <a href="/docs/glossary/vector" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>vectors</a>—the number of dimensions in each <a href="/docs/glossary/embedding" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>token embedding</a> and each <a href="/docs/glossary/token" data-prose-auto-link="true" ${PROSE_AUTO_LINK_CLASS}>token</a>'s per-position hidden state before the vocabulary projection.
+    </p>
+    <article data-registry-id="${GLOSSARY_HIDDEN_SIZE_REGISTRY_ID}">
+      <section id="what-it-is"><h2>What It Is</h2></section>
+    </article>
+  </html>
+`;
+
+describe("assertGlossaryEmbeddingDescriptionLinks", () => {
+  test("passes when embedding shell description links vector and token", () => {
+    expect(
+      assertGlossaryEmbeddingDescriptionLinks(POST_REPAIR_EMBEDDING_SHELL_HTML),
+    ).toBeNull();
+  });
+
+  test("fails when embedding shell description is missing vector link", () => {
+    const html = POST_REPAIR_EMBEDDING_SHELL_HTML.replace(
+      'href="/docs/glossary/vector"',
+      'href="/docs/glossary/missing"',
+    );
+    expect(assertGlossaryEmbeddingDescriptionLinks(html)).toContain(
+      "/docs/glossary/vector",
+    );
+  });
+
+  test("fails when rendered opening summary remains on embedding route", () => {
+    const html = POST_REPAIR_EMBEDDING_SHELL_HTML.replace(
+      "<h1>Embedding</h1>",
+      '<h1>Embedding</h1><p data-testid="glossary-opening">Summary</p>',
+    );
+    expect(assertGlossaryEmbeddingDescriptionLinks(html)).toBe(
+      GLOSSARY_CUSTOMER_ASK_REASONS.renderedOpeningSummary,
+    );
+  });
+});
+
+describe("assertGlossaryVectorDescriptionLinks", () => {
+  test("passes when vector shell description links embedding", () => {
+    expect(
+      assertGlossaryVectorDescriptionLinks(POST_REPAIR_VECTOR_SHELL_HTML),
+    ).toBeNull();
+  });
+
+  test("fails when vector shell description is missing embedding link", () => {
+    const html = POST_REPAIR_VECTOR_SHELL_HTML.replace(
+      'href="/docs/glossary/embedding"',
+      "",
+    );
+    expect(assertGlossaryVectorDescriptionLinks(html)).toContain(
+      "/docs/glossary/embedding",
+    );
+  });
+});
+
+describe("assertGlossaryHiddenSizeDescriptionLinks", () => {
+  test("passes when hidden-size shell description links embedding and vector", () => {
+    expect(
+      assertGlossaryHiddenSizeDescriptionLinks(
+        POST_REPAIR_HIDDEN_SIZE_SHELL_HTML,
+      ),
+    ).toBeNull();
+  });
+
+  test("fails when hidden-size shell description is missing vector link", () => {
+    const html = POST_REPAIR_HIDDEN_SIZE_SHELL_HTML.replace(
+      'href="/docs/glossary/vector"',
+      "",
+    );
+    expect(assertGlossaryHiddenSizeDescriptionLinks(html)).toContain(
+      "/docs/glossary/vector",
+    );
+  });
+});
+
+describe("buildCustomerAskGlossaryBridgeDescriptionRows", () => {
+  test("returns pass rows for bridge glossary shell description links", () => {
+    const rows = buildCustomerAskGlossaryBridgeDescriptionRows({
+      embeddingHtml: POST_REPAIR_EMBEDDING_SHELL_HTML,
+      vectorHtml: POST_REPAIR_VECTOR_SHELL_HTML,
+      hiddenSizeHtml: POST_REPAIR_HIDDEN_SIZE_SHELL_HTML,
+    });
+
+    expect(rows).toHaveLength(3);
+    expect(rows.map((row) => row.checkId)).toEqual([
+      GLOSSARY_CUSTOMER_ASK_CHECKS.embeddingDescriptionLinks.checkId,
+      GLOSSARY_CUSTOMER_ASK_CHECKS.vectorDescriptionLinks.checkId,
+      GLOSSARY_CUSTOMER_ASK_CHECKS.hiddenSizeDescriptionLinks.checkId,
+    ]);
+    expect(rows.every((row) => row.status === "pass")).toBe(true);
+  });
+});
+
+describe("buildCustomerAskGlossaryBridgeDescriptionRows (built HTML)", () => {
+  test("bridge glossary built HTML reports pass for description link checks", () => {
+    const builtPaths = {
+      embedding: join(
+        process.cwd(),
+        ".next/server/app/docs/glossary/embedding.html",
+      ),
+      vector: join(process.cwd(), ".next/server/app/docs/glossary/vector.html"),
+      hiddenSize: join(
+        process.cwd(),
+        ".next/server/app/docs/glossary/hidden-size.html",
+      ),
+    };
+
+    if (
+      !existsSync(builtPaths.embedding) ||
+      !existsSync(builtPaths.vector) ||
+      !existsSync(builtPaths.hiddenSize)
+    ) {
+      return;
+    }
+
+    const rows = buildCustomerAskGlossaryBridgeDescriptionRows({
+      embeddingHtml: readFileSync(builtPaths.embedding, "utf8"),
+      vectorHtml: readFileSync(builtPaths.vector, "utf8"),
+      hiddenSizeHtml: readFileSync(builtPaths.hiddenSize, "utf8"),
+    });
+
+    expect(rows).toHaveLength(3);
+    expect(rows.every((row) => row.status === "pass")).toBe(true);
   });
 });
 
