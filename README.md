@@ -266,9 +266,11 @@ GitHub Actions runs the same gate sequence on pull requests and pushes to
 `main`: install dependencies with `bun install --frozen-lockfile`, then
 `make ci` (see `.github/workflows/ci.yml`). No repository secrets are required
 for lint, typecheck, test, manifest-scoped component coverage, build,
-build-export, validate-data, and linkcheck. The baseline workflow does not run
-deploy or preview steps or PDF validation—those gates are deferred to later
-phases.
+build-export, validate-data, and linkcheck. The baseline CI workflow
+(`.github/workflows/ci.yml`) does not invoke deploy or preview steps. GitHub
+Pages deployment runs separately via `.github/workflows/deploy.yml` on pushes to
+`main` (see [Operations and release](#operations-and-release)). PDF validation
+remains deferred to later phases.
 
 The root Makefile mirrors those CI-oriented checks locally. Run `make ci` from
 the repository root after `bun install --frozen-lockfile`; it runs, in order:
