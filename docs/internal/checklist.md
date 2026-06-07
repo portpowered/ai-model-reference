@@ -26,8 +26,20 @@ Batch-015 documentation alignment is closed: planner state, maintainer docs, dep
 workflow contract, and `deployment-posture-drift.test.ts` agree. Refresh convergence
 evidence after material export, search, or deploy contract changes.
 
+Phase 1 convergence was refreshed on 2026-06-08 with:
+
+* `make verify-phase-1-github-pages-convergence`
+* `make build && make verify-phase-1-ux`
+
+Both convergence paths passed. The GitHub Pages pass recommended
+`stop-and-wait-for-phase-advancement`; its only `uncertain` rows were the non-blocking
+base-path checks that do not apply when `GITHUB_PAGES_BASE_PATH` is unset. The built-app
+Phase 1 verifier also passed, with one retained manual follow-up note for GQA graph node
+theme readability because static HTML cannot prove rendered contrast.
+
 Do not advance to Phase 2 unless `docs/internal/customer-ask.md` explicitly authorizes
-it. Phase 1 may remain open for customer-ask repairs even after deploy/docs alignment.
+it. Phase 1 is currently in stop-and-wait status pending customer phase advancement or a
+new Phase 1 repair ask.
 
 ## Recurring control function
 
