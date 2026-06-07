@@ -30,8 +30,10 @@ async function verifyGqaGraphHydrationOnPage(
     return "React Flow canvas did not hydrate on the GQA module page.";
   }
 
-  const nodeCount = await page.locator(".react-flow__node").count();
-  if (nodeCount === 0) {
+  const nodes = page.locator(".react-flow__node");
+  try {
+    await nodes.first().waitFor({ state: "visible", timeout: timeoutMs });
+  } catch {
     return "React Flow canvas hydrated without visible nodes on the GQA module page.";
   }
 
