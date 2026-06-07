@@ -38,8 +38,7 @@ export const GLOSSARY_CUSTOMER_ASK_CHECKS = {
   },
   embeddingDescriptionLinks: {
     checkId: "glossary.embedding-description-links",
-    title:
-      "Embedding glossary shell description links vector and token peers",
+    title: "Embedding glossary shell description links vector and token peers",
   },
   vectorDescriptionLinks: {
     checkId: "glossary.vector-description-links",

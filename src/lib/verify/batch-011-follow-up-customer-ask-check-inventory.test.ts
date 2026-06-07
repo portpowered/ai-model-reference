@@ -15,8 +15,8 @@ import { SEARCH_SURFACE_CUSTOMER_ASK_CHECKS } from "./customer-ask-search-surfac
 
 describe("batch-011 follow-up customer-ask check inventory", () => {
   test("inventory matches the converged batch-011 follow-up report row count", () => {
-    expect(BATCH_011_FOLLOW_UP_CUSTOMER_ASK_CHECK_IDS.length).toBe(41);
-    expect(buildBatch011FollowUpCustomerAskReportSlots().length).toBe(41);
+    expect(BATCH_011_FOLLOW_UP_CUSTOMER_ASK_CHECK_IDS.length).toBe(44);
+    expect(buildBatch011FollowUpCustomerAskReportSlots().length).toBe(44);
   });
 
   test("report slots align check ids with per-query search expansions", () => {
@@ -63,14 +63,14 @@ describe("batch-011 follow-up customer-ask check inventory", () => {
   });
 
   test("unique inventory entries cover reused batch-008 and new follow-up checks", () => {
-    expect(BATCH_011_FOLLOW_UP_CUSTOMER_ASK_INVENTORY.length).toBe(27);
+    expect(BATCH_011_FOLLOW_UP_CUSTOMER_ASK_INVENTORY.length).toBe(30);
     expect(
       new Set(
         BATCH_011_FOLLOW_UP_CUSTOMER_ASK_INVENTORY.map(
           (entry) => entry.checkId,
         ),
       ).size,
-    ).toBe(27);
+    ).toBe(30);
   });
 
   test("inventory includes route or query scope for every entry", () => {
