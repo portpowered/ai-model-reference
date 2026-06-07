@@ -1,5 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { buildGroupedQueryAttentionStubBody } from "@/lib/verify/grouped-query-attention-module-convergence";
 import {
+  exportHtmlIncludesGqaAttentionVariantGraphShellMarkers,
   exportHtmlReferencesBasePathAssets,
   exportHtmlReferencesBasePathInternalLinks,
 } from "./verify-export-base-path";
@@ -25,5 +27,17 @@ describe("verify export base path markers", () => {
 
     expect(exportHtmlReferencesBasePathAssets(html, "")).toBe(false);
     expect(exportHtmlReferencesBasePathInternalLinks(html, "")).toBe(false);
+  });
+
+  test("detects GQA attention-variant graph shell markers", () => {
+    const html = `<html><body>${buildGroupedQueryAttentionStubBody()}</body></html>`;
+    expect(exportHtmlIncludesGqaAttentionVariantGraphShellMarkers(html)).toBe(
+      true,
+    );
+    expect(
+      exportHtmlIncludesGqaAttentionVariantGraphShellMarkers(
+        "<html><body>Grouped-Query Attention</body></html>",
+      ),
+    ).toBe(false);
   });
 });
