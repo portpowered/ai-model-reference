@@ -300,24 +300,33 @@ export async function runPhase1SearchPageChecks(
   const browser = await launchBrowser();
 
   try {
-    for (const query of queries) {
-      const context = await browser.newContext();
-      try {
-        const page = await context.newPage();
-        page.setDefaultTimeout(timeoutMs);
-        page.setDefaultNavigationTimeout(timeoutMs);
+    const queryFailures = await Promise.all(
+      queries.map(async (query) => {
+        const context = await browser.newContext();
+        try {
+          const page = await context.newPage();
+          page.setDefaultTimeout(timeoutMs);
+          page.setDefaultNavigationTimeout(timeoutMs);
 
-        const reason = await checkSearchPageQuery(
-          page,
-          baseUrl,
-          query,
-          timeoutMs,
-        );
-        if (reason) {
-          failures.push({ query, surface: "/search", reason });
+          const reason = await checkSearchPageQuery(
+            page,
+            baseUrl,
+            query,
+            timeoutMs,
+          );
+          if (reason) {
+            return { query, surface: "/search" as const, reason };
+          }
+          return null;
+        } finally {
+          await context.close();
         }
-      } finally {
-        await context.close();
+      }),
+    );
+
+    for (const failure of queryFailures) {
+      if (failure) {
+        failures.push(failure);
       }
     }
   } finally {
