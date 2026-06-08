@@ -27,11 +27,11 @@ export function shouldRunExportIntegrationProbeTests(
 
 /**
  * Bun test ceiling for integration tests that queue on `withExportIntegrationProbeLock`.
- * Under CI, `make coverage` runs a second full suite where six export Playwright probes
+ * Under CI, `make coverage` runs a second full suite where export Playwright probes
  * serialize; 300s per test is insufficient once lock wait time is included.
  */
 export function getExportIntegrationBunTestTimeoutMs(): number {
-  return shouldSerializeExportIntegrationProbes() ? 900_000 : 300_000;
+  return shouldSerializeExportIntegrationProbes() ? 1_200_000 : 300_000;
 }
 
 /** @deprecated Prefer `getExportIntegrationBunTestTimeoutMs()` at test registration time. */
