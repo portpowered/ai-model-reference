@@ -1,3 +1,4 @@
+import "@/tests/a11y/mock-navigation";
 import { describe, expect, test } from "bun:test";
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
