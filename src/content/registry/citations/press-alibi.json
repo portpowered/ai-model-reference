@@ -1,0 +1,24 @@
+{
+  "id": "citation.press-alibi",
+  "slug": "press-alibi",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "ALiBi paper",
+    "attention with linear biases paper",
+    "train short test long paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-09T00:00:00.000Z",
+  "updatedAt": "2026-06-09T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Ofir Press", "Noah A. Smith", "Mike Lewis"],
+  "title": "Train Short, Test Long: Attention with Linear Biases Enables Input Length Extrapolation",
+  "year": 2021,
+  "url": "https://arxiv.org/abs/2108.12409",
+  "mla": "Press, Ofir, et al. \"Train Short, Test Long: Attention with Linear Biases Enables Input Length Extrapolation.\" arXiv, 2021, https://arxiv.org/abs/2108.12409."
+}

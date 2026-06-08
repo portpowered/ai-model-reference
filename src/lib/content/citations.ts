@@ -2,6 +2,7 @@ import goodfellowDeepLearning from "@/content/registry/citations/goodfellow-deep
 import gqaPaper from "@/content/registry/citations/gqa-paper.json";
 import kaplanScalingLaws from "@/content/registry/citations/kaplan-scaling-laws.json";
 import kingmaAdam from "@/content/registry/citations/kingma-adam.json";
+import pressAlibi from "@/content/registry/citations/press-alibi.json";
 import suRoformerRope from "@/content/registry/citations/su-roformer-rope.json";
 import weiEmergentAbilities from "@/content/registry/citations/wei-emergent-abilities.json";
 import {
@@ -14,6 +15,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(gqaPaper),
   citationRecordSchema.parse(kaplanScalingLaws),
   citationRecordSchema.parse(kingmaAdam),
+  citationRecordSchema.parse(pressAlibi),
   citationRecordSchema.parse(suRoformerRope),
   citationRecordSchema.parse(weiEmergentAbilities),
 ];

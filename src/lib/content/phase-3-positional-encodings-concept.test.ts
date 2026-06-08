@@ -8,12 +8,7 @@ import {
   getConceptById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
-import {
-  deriveCuratedRelatedItems,
-  PLANNED_RELATED_REASON_LABEL,
-} from "@/lib/content/related-docs";
-
-const PLANNED_POSITION_VARIANT_IDS = ["concept.alibi"] as const;
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 
 describe("Phase 3 positional encodings concept page (US-008)", () => {
   test("registry record is published with explainsIds and curated related ids", () => {
@@ -32,7 +27,7 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     ).toBe(true);
   });
 
-  test("curated related links transformer architecture and attention with navigable RoPE and planned ALiBi", () => {
+  test("curated related links transformer architecture and attention with navigable RoPE and ALiBi", () => {
     const source = getConceptById("concept.positional-encodings");
     if (!source) {
       throw new Error("expected concept.positional-encodings in registry");
@@ -61,21 +56,9 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     expect(rope?.isPlanned).toBe(false);
     expect(rope?.title).toBe("RoPE");
 
-    const plannedVariants = items.filter((item) =>
-      PLANNED_POSITION_VARIANT_IDS.includes(
-        item.registryId as (typeof PLANNED_POSITION_VARIANT_IDS)[number],
-      ),
-    );
-    expect(plannedVariants).toHaveLength(1);
-    for (const item of plannedVariants) {
-      expect(item.isPlanned).toBe(true);
-      expect(item.href).toBeUndefined();
-      expect(item.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
-    }
-
-    const alibi = plannedVariants.find(
-      (item) => item.registryId === "concept.alibi",
-    );
+    const alibi = items.find((item) => item.registryId === "concept.alibi");
+    expect(alibi?.href).toBe("/docs/glossary/alibi");
+    expect(alibi?.isPlanned).toBe(false);
     expect(alibi?.title).toBe("ALiBi");
   });
 
@@ -101,8 +84,7 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/glossary/rope"');
-    expect(html).toContain("ALiBi");
-    expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
+    expect(html).toContain('href="/docs/glossary/alibi"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");

@@ -133,3 +133,6 @@ export const POSITIONAL_ENCODINGS_CONCEPT_PAGE_DIR = join(
 
 /** Phase 3 RoPE glossary page directory. */
 export const ROPE_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "rope");
+
+/** Phase 3 ALiBi glossary page directory. */
+export const ALIBI_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "alibi");
