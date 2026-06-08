@@ -54,6 +54,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/scaling-law",
         "/docs/glossary/token",
         "/docs/glossary/transformer",
+        "/docs/glossary/world-model",
       ].sort(),
     );
   });

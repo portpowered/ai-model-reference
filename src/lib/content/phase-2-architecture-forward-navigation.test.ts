@@ -11,17 +11,8 @@ import {
   getRegistryRecordById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
-import {
-  deriveCuratedRelatedItems,
-  PLANNED_RELATED_REASON_LABEL,
-} from "@/lib/content/related-docs";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
-
-const REMAINING_DRAFT_FORWARD_TARGET_IDS = ["concept.world-model"] as const;
-
-const REMAINING_DRAFT_FORWARD_DISPLAY_TITLES = ["world models"] as const;
-
-const REMAINING_DRAFT_FORWARD_SLUGS = ["world-model"] as const;
 
 const UPCOMING_FAMILIES_CALLOUT_SNIPPET =
   "planned reference pages. They are not links yet";
@@ -45,7 +36,7 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
     );
   });
 
-  test("architecture curated related lists transformer, diffusion-model, and multimodal-model links and one planned forward target", () => {
+  test("architecture curated related lists live links for all four model families", () => {
     const source = getRegistryRecordById("concept.architecture");
     if (!source) {
       throw new Error("expected concept.architecture in registry runtime");
@@ -57,34 +48,17 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
 
-    const transformer = items.find(
-      (item) => item.registryId === "concept.transformer",
-    );
-    expect(transformer?.href).toBe("/docs/glossary/transformer");
-    expect(transformer?.isPlanned).toBe(false);
+    const familyIds = [
+      "concept.transformer",
+      "concept.diffusion-model",
+      "concept.multimodal-model",
+      "concept.world-model",
+    ] as const;
 
-    const diffusionModel = items.find(
-      (item) => item.registryId === "concept.diffusion-model",
-    );
-    expect(diffusionModel?.href).toBe("/docs/glossary/diffusion-model");
-    expect(diffusionModel?.isPlanned).toBe(false);
-
-    const multimodalModel = items.find(
-      (item) => item.registryId === "concept.multimodal-model",
-    );
-    expect(multimodalModel?.href).toBe("/docs/glossary/multimodal-model");
-    expect(multimodalModel?.isPlanned).toBe(false);
-
-    const plannedForward = items.filter((item) =>
-      REMAINING_DRAFT_FORWARD_TARGET_IDS.includes(
-        item.registryId as (typeof REMAINING_DRAFT_FORWARD_TARGET_IDS)[number],
-      ),
-    );
-    expect(plannedForward).toHaveLength(1);
-    for (const item of plannedForward) {
-      expect(item.isPlanned).toBe(true);
-      expect(item.href).toBeUndefined();
-      expect(item.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
+    for (const id of familyIds) {
+      const item = items.find((entry) => entry.registryId === id);
+      expect(item?.isPlanned).toBe(false);
+      expect(item?.href).toBe(`/docs/glossary/${id.replace("concept.", "")}`);
     }
 
     const publishedPeers = items.filter((item) => item.href);
@@ -94,10 +68,11 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
       "module",
       "multimodal-model",
       "transformer",
+      "world-model",
     ]);
   });
 
-  test("architecture page renders planned family rows, localized callout, and safe links", async () => {
+  test("architecture page renders all four family links, localized callout, and safe links", async () => {
     const page = await loadGlossaryPage("architecture");
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -114,23 +89,15 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
     expect(html).toContain("Transformers");
     expect(html).toContain("diffusion models");
     expect(html).toContain("multimodal models");
-    for (const title of REMAINING_DRAFT_FORWARD_DISPLAY_TITLES) {
-      expect(html).toContain(title);
-    }
-
-    const plannedCount = (html.match(/data-planned="true"/g) ?? []).length;
-    expect(plannedCount).toBeGreaterThanOrEqual(1);
+    expect(html).toContain("world models");
 
     expect(html).toContain('href="/docs/glossary/transformer"');
     expect(html).toContain('href="/docs/glossary/diffusion-model"');
     expect(html).toContain('href="/docs/glossary/multimodal-model"');
-    for (const slug of REMAINING_DRAFT_FORWARD_SLUGS) {
-      expect(html).not.toContain(`href="/docs/glossary/${slug}"`);
-    }
+    expect(html).toContain('href="/docs/glossary/world-model"');
 
     expect(html).toContain('href="/docs/glossary/model"');
     expect(html).toContain('href="/docs/glossary/module"');
-    expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
     expect(html).toContain('data-testid="curated-related-docs"');
   });
 });

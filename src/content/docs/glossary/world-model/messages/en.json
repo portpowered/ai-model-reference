@@ -1,0 +1,32 @@
+{
+  "title": "World Model",
+  "description": "A model family that learns environment dynamics or state transitions so it can predict or simulate what happens next.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A world model learns how an environment evolves: given the current state and an action or input, it predicts the next state, observation, or reward. Implementations range from compact latent dynamics models in model-based reinforcement learning to large video predictors that roll forward imagined frames. The family name covers any network trained primarily to model transitions rather than to answer open-ended text prompts."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "World models sit beside language-only transformers and image generators as a distinct architecture family because success depends on whether weights capture actionable dynamics, not just static patterns. Knowing the family separates simulation stacks used for planning from chat models that describe environments in words. The architecture page groups world models with other families; this page is the dedicated reference for learned environment dynamics and state transitions."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A robot policy trainer encodes camera frames and proprioception into a latent state, trains a recurrent or transformer dynamics head to predict the next latent state given the current state and motor command, then uses those rollouts to evaluate candidate actions before executing them on hardware."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "World model names a family focused on transition prediction, not any product marketed as understanding the world. Representation names the internal vectors after encoding; generative model names the broader class that can synthesize outputs; conditioning names controls that steer generation. A language model that narrates physics in text is not automatically a world model unless its weights are trained to predict environment state transitions."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "World models learn how states change over time—predicting the next observation, latent state, or reward from the current situation—so agents can plan, simulate, or roll out imagined trajectories before acting."
+}

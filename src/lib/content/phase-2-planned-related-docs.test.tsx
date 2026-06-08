@@ -8,45 +8,40 @@ import {
   getRegistryRecordById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
-import {
-  deriveCuratedRelatedItems,
-  PLANNED_RELATED_REASON_LABEL,
-} from "@/lib/content/related-docs";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 
-const REMAINING_DRAFT_FORWARD_TARGET_IDS = ["concept.world-model"] as const;
+const FORWARD_TARGET_IDS = [
+  "concept.transformer",
+  "concept.diffusion-model",
+  "concept.multimodal-model",
+  "concept.world-model",
+] as const;
 
 describe("Phase 2 planned related docs (US-002)", () => {
-  test("forward-target concepts are registered with transformer, diffusion-model, and multimodal-model published and others draft", () => {
-    expect(getConceptById("concept.transformer")?.status).toBe("published");
-    expect(getConceptById("concept.diffusion-model")?.status).toBe("published");
-    expect(getConceptById("concept.multimodal-model")?.status).toBe(
-      "published",
-    );
-    for (const id of REMAINING_DRAFT_FORWARD_TARGET_IDS) {
-      const record = getConceptById(id);
-      expect(record?.status).toBe("draft");
+  test("all four forward-target model families are published", () => {
+    for (const id of FORWARD_TARGET_IDS) {
+      expect(getConceptById(id)?.status).toBe("published");
     }
   });
 
-  test("remaining draft forward targets render as planned curated rows without href", () => {
+  test("published forward targets render curated rows with href", () => {
     const source = getRegistryRecordById("concept.token");
     if (!source) {
       throw new Error("expected concept.token in registry runtime");
     }
     const withRelated = {
       ...source,
-      relatedIds: [...REMAINING_DRAFT_FORWARD_TARGET_IDS],
+      relatedIds: [...FORWARD_TARGET_IDS],
     };
     const items = deriveCuratedRelatedItems(
       withRelated,
       listRelatedRegistryRecords(),
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
-    expect(items).toHaveLength(1);
+    expect(items).toHaveLength(4);
     for (const item of items) {
-      expect(item.isPlanned).toBe(true);
-      expect(item.href).toBeUndefined();
-      expect(item.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
+      expect(item.isPlanned).toBe(false);
+      expect(item.href).toBeDefined();
     }
   });
 
@@ -57,7 +52,6 @@ describe("Phase 2 planned related docs (US-002)", () => {
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain("embeddings");
     expect(html).toContain('href="/docs/glossary/embedding"');
-    expect(html).not.toContain(PLANNED_RELATED_REASON_LABEL);
   });
 
   test("RelatedDocs renders published transformer and diffusion-model forwards", () => {
