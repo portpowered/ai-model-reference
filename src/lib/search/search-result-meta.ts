@@ -6,6 +6,7 @@ export type SearchResultMeta = {
   kind: string;
   description: string;
   tags: string[];
+  aliases: string[];
 };
 
 const DEFAULT_LOCALE = "en";
@@ -20,6 +21,7 @@ export function buildSearchResultMetaMap(
       kind: document.kind,
       description: document.description,
       tags: document.tags,
+      aliases: document.aliases,
     });
   }
   return map;

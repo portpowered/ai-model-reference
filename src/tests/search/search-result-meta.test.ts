@@ -64,6 +64,7 @@ describe("search result meta", () => {
       kind: "module",
       description: expect.any(String),
       tags: expect.arrayContaining(["attention", "kv-cache"]),
+      aliases: expect.any(Array),
     });
     expect(meta?.description.length).toBeGreaterThan(0);
   });
@@ -76,6 +77,7 @@ describe("search result meta", () => {
       kind: "glossary",
       description: expect.any(String),
       tags: expect.arrayContaining(["attention"]),
+      aliases: expect.any(Array),
     });
     expect(meta?.description).toContain("smallest unit");
   });
@@ -86,6 +88,7 @@ describe("search result meta", () => {
     expect(meta).toBeDefined();
     expect(meta?.kind).toBe("glossary");
     expect(meta?.tags).toContain("attention");
+    expect(meta?.aliases.length).toBeGreaterThan(0);
   });
 
   test("buildSearchResultMetaMap keys by url", () => {

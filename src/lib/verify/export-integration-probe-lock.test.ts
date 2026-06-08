@@ -26,7 +26,7 @@ describe("export integration probe lock", () => {
 
   test("resolves export integration Bun ceilings from current env", () => {
     process.env.CI = "true";
-    expect(getExportIntegrationBunTestTimeoutMs()).toBe(1_200_000);
+    expect(getExportIntegrationBunTestTimeoutMs()).toBe(2_400_000);
 
     delete process.env.CI;
     delete process.env.GITHUB_ACTIONS;

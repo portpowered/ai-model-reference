@@ -25,13 +25,18 @@ export function shouldRunExportIntegrationProbeTests(
   return env[VERIFY_COVERAGE_SUBPROCESS_ENV] !== "1";
 }
 
+/** Serialized export probes in CI; allow queue wait plus one probe run per test file. */
+const CI_EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS = 2_400_000;
+
 /**
  * Bun test ceiling for integration tests that queue on `withExportIntegrationProbeLock`.
  * Under CI, `make coverage` runs a second full suite where export Playwright probes
  * serialize; 300s per test is insufficient once lock wait time is included.
  */
 export function getExportIntegrationBunTestTimeoutMs(): number {
-  return shouldSerializeExportIntegrationProbes() ? 1_200_000 : 300_000;
+  return shouldSerializeExportIntegrationProbes()
+    ? CI_EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS
+    : 300_000;
 }
 
 /** @deprecated Prefer `getExportIntegrationBunTestTimeoutMs()` at test registration time. */
