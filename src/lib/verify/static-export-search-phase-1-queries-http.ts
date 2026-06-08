@@ -18,6 +18,7 @@ async function defaultLaunchBrowser(): Promise<Browser> {
 export type VerifyStaticExportSearchPhase1QueriesOptions = {
   timeoutMs?: number;
   launchBrowser?: () => Promise<Browser>;
+  queries?: readonly string[];
 };
 
 /**
@@ -47,7 +48,7 @@ export async function verifyStaticExportSearchPhase1Queries(
     const failures = await runPhase1SearchPageChecks(baseUrl, {
       timeoutMs,
       launchBrowser,
-      queries: PHASE_1_SEARCH_PAGE_QUERIES,
+      queries: options.queries ?? PHASE_1_SEARCH_PAGE_QUERIES,
     });
 
     const firstFailure = failures[0];

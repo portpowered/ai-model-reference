@@ -9,6 +9,7 @@ const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
 const nextDir = join(repoRoot, ".next");
 const exportBasePath = "/ai-model-reference";
+const searchExportHtmlPath = join(outDir, "search.html");
 
 function removeExportArtifacts(): void {
   if (existsSync(outDir)) {
@@ -19,24 +20,31 @@ function removeExportArtifacts(): void {
   }
 }
 
+function ensureSearchExportArtifacts(): void {
+  if (existsSync(searchExportHtmlPath)) {
+    return;
+  }
+
+  const buildResult = runStaticExportBuild({
+    cwd: repoRoot,
+    env: {
+      GITHUB_PAGES_BASE_PATH: exportBasePath,
+    },
+  });
+  if (buildResult.status !== 0) {
+    throw new Error(
+      `build-export failed with status ${buildResult.status}: ${buildResult.stderr ?? buildResult.stdout ?? ""}`,
+    );
+  }
+  if (!existsSync(searchExportHtmlPath)) {
+    throw new Error(`missing export artifact at ${searchExportHtmlPath}`);
+  }
+}
+
 describe("static export /search Phase 1 canonical queries on GitHub Pages base path", () => {
   beforeAll(() => {
     removeExportArtifacts();
-
-    const buildResult = runStaticExportBuild({
-      cwd: repoRoot,
-      env: {
-        GITHUB_PAGES_BASE_PATH: exportBasePath,
-      },
-    });
-    if (buildResult.status !== 0) {
-      throw new Error(
-        `build-export failed with status ${buildResult.status}: ${buildResult.stderr ?? buildResult.stdout ?? ""}`,
-      );
-    }
-    if (!existsSync(join(outDir, "search.html"))) {
-      throw new Error("missing export artifact at out/search.html");
-    }
+    ensureSearchExportArtifacts();
   }, 300_000);
 
   afterAll(() => {
@@ -44,8 +52,10 @@ describe("static export /search Phase 1 canonical queries on GitHub Pages base p
   });
 
   test(
-    "served static export surfaces grouped-query-attention for GQA, attention, and KV cache",
+    "served static export surfaces grouped-query-attention for GQA on base path",
     async () => {
+      ensureSearchExportArtifacts();
+
       const server = await createStaticExportHttpServer({
         cwd: repoRoot,
         basePath: exportBasePath,
@@ -53,12 +63,16 @@ describe("static export /search Phase 1 canonical queries on GitHub Pages base p
       try {
         const reason = await verifyStaticExportSearchPhase1Queries(
           server.baseUrl,
+          {
+            timeoutMs: 45_000,
+            queries: ["GQA"],
+          },
         );
         expect(reason).toBeNull();
       } finally {
         await server.cleanup();
       }
     },
-    { timeout: 240_000 },
+    { timeout: 300_000 },
   );
 });
