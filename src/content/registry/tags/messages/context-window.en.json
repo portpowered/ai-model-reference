@@ -1,0 +1,4 @@
+{
+  "title": "Context Window",
+  "summary": "How far a model can attend within a sequence—local windows, sparse reach, or full dense attention over prior tokens."
+}

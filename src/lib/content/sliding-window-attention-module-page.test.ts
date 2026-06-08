@@ -71,6 +71,7 @@ describe("loadModulePage sliding-window-attention", () => {
     expect(html).toContain("At a glance");
     expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
     expect(html).toContain('href="/tags/attention"');
+    expect(html).toContain('href="/tags/context-window"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
