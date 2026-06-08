@@ -236,6 +236,30 @@ const PHASE_2_DOCS_MDX_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
 /** Phase 1 search presentation components touched by page-level result convergence. */
 export const PHASE_1_SEARCH_COVERAGE_COMPONENTS: ComponentCoverageEntry[] = [
   {
+    file: "src/features/docs/search/SearchPagePanel.tsx",
+    label: "SearchPagePanel",
+    minReachableLinePercent: 90,
+    unitTests: [
+      "src/tests/search/search-page-panel.test.tsx",
+      "src/tests/search/static-export-search-surfaces.test.tsx",
+    ],
+    a11ySmokeTests: [
+      "src/tests/a11y/search-page-panel.a11y.test.tsx (SearchPagePanel accessibility smoke)",
+    ],
+  },
+  {
+    file: "src/features/docs/search/SearchDialog.tsx",
+    label: "SearchDialog",
+    minReachableLinePercent: 90,
+    unitTests: [
+      "src/tests/search/search-dialog-panel.test.tsx",
+      "src/tests/search/static-export-search-surfaces.test.tsx",
+    ],
+    a11ySmokeTests: [
+      "src/tests/a11y/search-dialog.a11y.test.tsx (SearchDialog accessibility smoke)",
+    ],
+  },
+  {
     file: "src/features/docs/search/SearchResults.tsx",
     label: "SearchResults",
     minReachableLinePercent: 90,

@@ -6,14 +6,15 @@ import {
   shouldSerializeExportIntegrationProbes,
   withExportIntegrationProbeLock,
 } from "./export-integration-probe-lock";
+import { EXPORT_SEARCH_HYDRATION_SURFACE } from "./phase-1-export-search-convergence-evidence";
 import {
-  assertPhase1SearchDialog,
   type RunPhase1SearchDialogChecksOptions,
+  runPhase1SearchDialogChecks,
 } from "./phase-1-search-dialog-checks";
 import {
-  assertPhase1SearchPage,
   PHASE_1_SEARCH_PAGE_QUERIES,
   type RunPhase1SearchPageChecksOptions,
+  runPhase1SearchPageChecks,
 } from "./phase-1-search-page-checks";
 import { createStaticExportHttpServer } from "./static-export-http-server";
 
@@ -57,14 +58,26 @@ export type RunPhase1ExportSearchUxChecksOptions = {
 export type Phase1ExportSearchUxCheckFailure = {
   surface: "export-artifact" | "/search" | "header-dialog";
   reason: string;
+  query?: string;
 };
 
 export function resolveExportSearchUxCheckOptionsFromEnv(
   env: Record<string, string | undefined> = process.env,
 ): RunPhase1ExportSearchUxChecksOptions {
-  if (env[EXPORT_SEARCH_UX_STUB_ENV]?.trim() === "pass") {
+  const stub = env[EXPORT_SEARCH_UX_STUB_ENV]?.trim();
+  if (stub === "pass") {
     return {
       searchPageOptions: { runQueryCheck: async () => null },
+      searchDialogOptions: { runQueryCheck: async () => null },
+    };
+  }
+  if (stub === "fail-search") {
+    return {
+      searchPageOptions: {
+        queries: ["attention"],
+        runQueryCheck: async (_baseUrl, query) =>
+          `no search results rendered on /search for query "${query}"`,
+      },
       searchDialogOptions: { runQueryCheck: async () => null },
     };
   }
@@ -123,21 +136,27 @@ export async function runPhase1ExportSearchUxChecks(
         options.searchDialogOptions,
       );
 
-      try {
-        await assertPhase1SearchPage(session.baseUrl, searchPageOptions);
-      } catch (error) {
+      const searchPageFailures = await runPhase1SearchPageChecks(
+        session.baseUrl,
+        searchPageOptions,
+      );
+      for (const failure of searchPageFailures) {
         failures.push({
           surface: "/search",
-          reason: error instanceof Error ? error.message : String(error),
+          query: failure.query,
+          reason: formatPhase1ExportSearchHydrationUxReason(failure.reason),
         });
       }
 
-      try {
-        await assertPhase1SearchDialog(session.baseUrl, searchDialogOptions);
-      } catch (error) {
+      const searchDialogFailures = await runPhase1SearchDialogChecks(
+        session.baseUrl,
+        searchDialogOptions,
+      );
+      for (const failure of searchDialogFailures) {
         failures.push({
           surface: "header-dialog",
-          reason: error instanceof Error ? error.message : String(error),
+          query: failure.query,
+          reason: failure.reason,
         });
       }
 
@@ -148,9 +167,19 @@ export async function runPhase1ExportSearchUxChecks(
   });
 }
 
+/** Prefixes a `/search` hydration DOM outcome for standalone verifier stderr. */
+export function formatPhase1ExportSearchHydrationUxReason(
+  domOutcome: string,
+): string {
+  return `${EXPORT_SEARCH_HYDRATION_SURFACE} — ${domOutcome}`;
+}
+
 export function formatPhase1ExportSearchUxCheckFailure(
   failure: Phase1ExportSearchUxCheckFailure,
 ): string {
+  if (failure.query !== undefined) {
+    return `${failure.surface}?query=${encodeURIComponent(failure.query)}: ${failure.reason}`;
+  }
   return `${failure.surface}: ${failure.reason}`;
 }
 
