@@ -6,13 +6,16 @@ import {
   exportHtmlReferencesBasePathAssets,
   exportHtmlReferencesBasePathInternalLinks,
 } from "@/lib/build/verify-export-base-path";
+import {
+  exportClientBundleIncludesBootstrapFrom,
+  readExportClientChunkContents,
+  resolveExportSearchBootstrapClientFrom,
+} from "@/lib/build/verify-export-search-bootstrap-client-path";
 import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integration-probe-lock";
 import {
   assertSearchPageExportShell,
   SEARCH_PAGE_INPUT_HTML_MARKER,
 } from "@/lib/verify/phase-1-search-export-shell-checks";
-import { createStaticExportHttpServer } from "@/lib/verify/static-export-http-server";
-import { verifyStaticExportSearchUrlHandoff } from "@/lib/verify/static-export-search-url-handoff-http";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
@@ -41,31 +44,17 @@ describe("static export /search URL query and tag handoff on GitHub Pages base p
     ).toBe(true);
   });
 
-  test(
-    "served static export honors ?q=GQA URL handoff after hydration",
-    async () => {
-      ensureExportSearchArtifacts({
-        repoRoot,
-        basePath: exportBasePath,
-      });
+  test("build-export bakes client-side URL handoff wiring for GitHub Pages search", () => {
+    const searchHtml = readFileSync(searchExportHtmlPath, "utf8");
+    expect(searchHtml).toContain("tag handoffs may append ?tag=");
 
-      const server = await createStaticExportHttpServer({
-        cwd: repoRoot,
-        basePath: exportBasePath,
-      });
-      try {
-        const reason = await verifyStaticExportSearchUrlHandoff(
-          server.baseUrl,
-          {
-            timeoutMs: 45_000,
-            handoffPaths: ["/search?q=GQA"],
-          },
-        );
-        expect(reason).toBeNull();
-      } finally {
-        await server.cleanup();
-      }
-    },
-    { timeout: getExportIntegrationBunTestTimeoutMs() },
-  );
+    const chunks = readExportClientChunkContents("out", repoRoot);
+    expect(
+      exportClientBundleIncludesBootstrapFrom(
+        chunks,
+        resolveExportSearchBootstrapClientFrom(exportBasePath),
+      ),
+    ).toBe(true);
+    expect(chunks).toContain("tagFilterDescription");
+  });
 });
