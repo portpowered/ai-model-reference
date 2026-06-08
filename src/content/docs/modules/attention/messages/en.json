@@ -1,8 +1,7 @@
 {
   "title": "Attention",
   "description": "How transformer blocks mix information across token positions using query, key, and value projections.",
-  "problemStatement": "A sequence model must decide which earlier tokens matter for each position without hard-coding fixed windows or hand-built alignment rules.",
-  "coreIdea": "Attention scores how much each position should read from every other position, then blends value vectors according to those scores so context flows dynamically along the sequence.",
+  "openingSummary": "A sequence model must decide which earlier tokens matter for each position without hard-coding fixed windows or hand-built alignment rules; attention scores how much each position should read from every other position and blends value vectors according to those scores so context flows dynamically along the sequence.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -10,7 +9,11 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Without attention, deep stacks of feed-forward layers could not route information across arbitrary distances in one step. Variant designs such as grouped-query attention trade memory and bandwidth against how many distinct query heads you keep at inference time."
+      "body": "Without attention, deep stacks of feed-forward layers could not route information across arbitrary distances in one step. Head-sharing variants trade memory and bandwidth against how many distinct query and key-value heads you keep at inference time."
+    },
+    "variantsAndNearbyModules": {
+      "title": "Attention Variants",
+      "body": "Transformer blocks implement attention through parallel heads. Multi-head attention keeps independent key-value heads per query head; multi-query attention shares one KV head across all queries; grouped-query attention shares KV heads within groups while keeping more query diversity than multi-query attention."
     },
     "related": {
       "title": "Related"
@@ -20,12 +23,6 @@
     },
     "references": {
       "title": "References"
-    }
-  },
-  "callouts": {
-    "phase1Bridge": {
-      "title": "Phase 1 bridge page",
-      "body": "This overview is intentionally concise. Full attention-variant coverage—including multi-head, multi-query, grouped-query, and related mechanisms—arrives in Phase 3 of the roadmap."
     }
   }
 }

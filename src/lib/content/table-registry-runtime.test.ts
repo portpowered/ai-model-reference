@@ -8,6 +8,14 @@ describe("table-registry-runtime", () => {
   test("loads the GQA nearby-module comparison table by id", () => {
     const table = getTableById("table.grouped-query-attention-comparison");
     expect(table?.id).toBe("table.grouped-query-attention-comparison");
+
+    const mhaTable = getTableById("table.multi-head-attention-comparison");
+    expect(mhaTable?.id).toBe("table.multi-head-attention-comparison");
+    expect(mhaTable?.subjectId).toBe("module.multi-head-attention");
+
+    const mqaTable = getTableById("table.multi-query-attention-comparison");
+    expect(mqaTable?.id).toBe("table.multi-query-attention-comparison");
+    expect(mqaTable?.subjectId).toBe("module.multi-query-attention");
     expect(table?.columns.length).toBe(3);
     expect(table?.dimensions.length).toBe(3);
     expect(
@@ -59,6 +67,6 @@ describe("table-registry-runtime", () => {
   });
 
   test("lists bundled table records", () => {
-    expect(listTableRecords().length).toBe(5);
+    expect(listTableRecords().length).toBe(7);
   });
 });

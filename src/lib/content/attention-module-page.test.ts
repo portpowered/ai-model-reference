@@ -10,29 +10,57 @@ import { pageMessagesSchema } from "@/lib/content/schemas";
 
 const pageDir = ATTENTION_MODULE_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
+const pageMdxPath = join(pageDir, "page.mdx");
 
-describe("attention module bridge page messages", () => {
-  test("includes required localized fields and Phase 1 bridge callout", () => {
+const FORBIDDEN_META_TERMS = [
+  "Phase 1",
+  "Phase 2",
+  "Phase 3",
+  "bridge page",
+  "batch",
+  "factory",
+  "convergence",
+  "roadmap",
+];
+
+describe("attention module variant hub messages", () => {
+  test("uses folded openingSummary without legacy bridge or split lead keys", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
     expect(messages.title).toBe("Attention");
-    expect(messages.problemStatement?.length).toBeGreaterThan(0);
-    expect(messages.coreIdea?.length).toBeGreaterThan(0);
-    expect(messages.callouts?.phase1Bridge?.title).toBe("Phase 1 bridge page");
-    expect(messages.callouts?.phase1Bridge?.body).toContain("Phase 3");
+    expect(messages.openingSummary?.length).toBeGreaterThan(0);
+    expect(messages.problemStatement).toBeUndefined();
+    expect(messages.coreIdea).toBeUndefined();
+    expect(messages.callouts).toBeUndefined();
+
+    const serialized = JSON.stringify(messages);
+    for (const term of FORBIDDEN_META_TERMS) {
+      expect(serialized).not.toContain(term);
+    }
   });
 });
 
-describe("loadModulePage attention", () => {
-  test("compiles MDX with localized title, bridge callout, and tag pills", async () => {
+describe("attention module variant hub page", () => {
+  test("page.mdx omits duplicate body title and phase bridge callout", () => {
+    const template = readFileSync(pageMdxPath, "utf8");
+
+    expect(template).toContain('<T k="openingSummary" />');
+    expect(template).not.toContain('<T k="title" />');
+    expect(template).not.toContain('<T k="problemStatement" />');
+    expect(template).not.toContain('<T k="coreIdea" />');
+    expect(template).not.toContain("phase1Bridge");
+    expect(template).not.toContain("<Callout");
+  });
+
+  test("compiles MDX with opening summary, variant links, and registry chrome", async () => {
     const page = await loadModulePage("attention");
 
     expect(page.frontmatter.registryId).toBe("module.attention");
     expect(page.frontmatter.messageNamespace).toBe("local");
     expect(page.frontmatter.assetNamespace).toBe("local");
-    expect(page.messages.title).toBe("Attention");
+    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -43,11 +71,14 @@ describe("loadModulePage attention", () => {
       }),
     );
 
-    expect(html).toContain("Attention");
-    expect(html).toContain("Phase 1 bridge page");
-    expect(html).toContain("Full attention-variant coverage");
-    expect(html).toContain("Phase 3");
+    expect(html).toContain("scores how much each position should read");
+    expect(html).not.toContain("Phase 1 bridge page");
+    expect(html).not.toContain("roadmap");
     expect(html).toContain('data-registry-id="module.attention"');
+    expect(html).toContain('href="/docs/modules/multi-head-attention"');
+    expect(html).toContain('href="/docs/modules/multi-query-attention"');
+    expect(html).toContain('href="/docs/modules/grouped-query-attention"');
+    expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('data-testid="tag-pill-list"');
   });

@@ -10,6 +10,10 @@ import {
 } from "@/lib/verify/phase-1-search-checks";
 import {
   expectUniqueCanonicalPageUrls,
+  MULTI_HEAD_ATTENTION_URL,
+  MULTI_QUERY_ATTENTION_URL,
+  resultsIncludeMultiHeadAttention,
+  resultsIncludeMultiQueryAttention,
   resultsIncludeSampleModule,
   resultsIncludeTokenGlossary,
   resultsIncludeUrl,
@@ -71,6 +75,33 @@ describe("live /api/search HTTP contract", () => {
     expect(results[0]?.url).toBe(SAMPLE_URL);
   });
 
+  test("GET returns multi-head attention for MHA query", async () => {
+    const response = await GET(
+      new Request("http://localhost/api/search?query=MHA"),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe(MULTI_HEAD_ATTENTION_URL);
+  });
+
+  test.each([
+    "MQA",
+    "multi-query attention",
+  ] as const)("GET returns multi-query attention for %s query", async (query) => {
+    const response = await GET(
+      new Request(
+        `http://localhost/api/search?query=${encodeURIComponent(query)}`,
+      ),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe(MULTI_QUERY_ATTENTION_URL);
+  });
+
   test.each([
     "attention",
     "KV cache",
@@ -108,6 +139,29 @@ describe("docsSearchApi", () => {
     const results = await docsSearchApi.search("GQA");
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url).toBe(SAMPLE_URL);
+  });
+
+  test("search ranks multi-head attention first for MHA", async () => {
+    const results = await docsSearchApi.search("MHA");
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe(MULTI_HEAD_ATTENTION_URL);
+    expect(resultsIncludeMultiHeadAttention(results)).toBe(true);
+  });
+
+  test("search ranks multi-head attention first for multi-head attention", async () => {
+    const results = await docsSearchApi.search("multi-head attention");
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe(MULTI_HEAD_ATTENTION_URL);
+  });
+
+  test.each([
+    "MQA",
+    "multi-query attention",
+  ] as const)("search ranks multi-query attention first for %s", async (query) => {
+    const results = await docsSearchApi.search(query);
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe(MULTI_QUERY_ATTENTION_URL);
+    expect(resultsIncludeMultiQueryAttention(results)).toBe(true);
   });
 
   test("search includes attention bridge and grouped-query attention for attention query", async () => {

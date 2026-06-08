@@ -1,0 +1,190 @@
+{
+  "title": "Multi-Query Attention",
+  "description": "An attention variant that shares one key-value head across all query heads to minimize KV-cache memory.",
+  "openingSummary": "Autoregressive inference must store keys and values for every past token, and that KV cache grows with context length and head count; multi-query attention (MQA) keeps H query heads but projects them through a single shared key-value pair so the cache stores only one K tensor and one V tensor per layer.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Multi-query attention is an attention variant derived from multi-head attention. Every query head still computes its own attention scores, but all heads read from the same key head and value head."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "MQA targets KV-cache footprint and memory bandwidth during autoregressive decoding. Sharing one KV pair across all query heads minimizes the number of tensors stored per token."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "Serving stacks adopt MQA when long-context inference would otherwise multiply cache size by head count. MQA delivers the smallest KV footprint in the head-sharing family while keeping distinct query projections."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Linear projections still produce H query heads, but key and value projections collapse to a single head each. Every query head i attends against the shared K and V tensors, then outputs are concatenated and projected as usual."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formulas below contrast how multi-head attention pairs every query head with its own KV heads versus multi-query attention, which routes all query heads through one shared KV pair."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with multi-head attention, MQA stores one KV pair instead of H. Compared with grouped-query attention, MQA compresses further by sharing a single KV head across all query heads rather than G groups."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "MQA appears in decoder-only language models that prioritize inference throughput and lean KV caches, including some large-scale serving configurations that accept the representational tradeoff."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Sharing one KV head across all queries can reduce representational flexibility versus full multi-head attention or grouped-query attention. Quality-sensitive workloads may prefer GQA or MHA."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "MQA established the head-sharing design space: it shows how far KV compression can go before grouped-query attention offers a middle ground between cache size and query diversity."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Multi-head attention versus multi-query attention head-count comparison",
+      "caption": "Toggle MHA and MQA to compare query-head count against KV-head count on one canvas",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "mqa": {
+          "label": "MQA"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "How MQA compares with nearby attention variants"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "mqa": {
+          "title": "Multi-Query Attention"
+        },
+        "mha": {
+          "title": "Multi-Head Attention"
+        },
+        "gqa": {
+          "title": "Grouped-Query Attention"
+        }
+      },
+      "dimensions": {
+        "kvHeadCount": "KV head count",
+        "queryHeadFlexibility": "Query-head flexibility",
+        "cacheFootprint": "Cache footprint per token"
+      },
+      "values": {
+        "mqa": {
+          "kvHeadCount": "1 key head and 1 value head",
+          "queryHeadFlexibility": "H query heads share one KV pair",
+          "cacheFootprint": "2 tensors (single shared KV cache)"
+        },
+        "mha": {
+          "kvHeadCount": "H key heads and H value heads",
+          "queryHeadFlexibility": "H independent query/KV head pairs",
+          "cacheFootprint": "2H tensors (full multi-head attention cache)"
+        },
+        "gqa": {
+          "kvHeadCount": "G key heads and G value heads",
+          "queryHeadFlexibility": "H distinct query heads grouped into G shared KV pairs",
+          "cacheFootprint": "2G tensors (G keys + G values)"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        }
+      }
+    },
+    "mqaSchema": {
+      "label": "Multi-query attention (MQA)",
+      "formula": "\\text{Attention}(Q_i, K, V) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K^{\\top}}{\\sqrt{d_k}}\\right) V",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Shared key vectors (single KV head)."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Shared value vectors (single KV head)."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "mhaQueryHeads": {
+        "label": "H query heads"
+      },
+      "mhaKvHeads": {
+        "label": "H KV head pairs (1:1 with queries)"
+      },
+      "mhaOneToOne": {
+        "label": "Each query head has its own K and V"
+      },
+      "mqaQueryHeads": {
+        "label": "H query heads"
+      },
+      "mqaKvShared": {
+        "label": "1 shared KV pair"
+      },
+      "mqaSharedMapping": {
+        "label": "All H query heads read from one K and V"
+      }
+    }
+  }
+}

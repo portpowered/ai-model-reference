@@ -1,10 +1,15 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
-import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
+import {
+  ModuleAttentionMhaMqaSchemaComparison,
+  ModuleAttentionSchema,
+  ModuleAttentionSchemaComparison,
+} from "@/features/models/components/ModuleAttentionSchemaComparison";
 import {
   MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS,
   MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS,
+  MODULE_ATTENTION_MQA_MATH_VARIABLE_DEFINITION_IDS,
 } from "@/features/models/components/module-attention-math-variable-definitions";
 import type { PageMessages } from "@/lib/content/schemas";
 
@@ -30,11 +35,27 @@ const mhaSchema = {
   variableDefinitions: mhaVariableDefinitions,
 };
 
+const mqaVariableDefinitions = {
+  q: { term: "Q", definition: "Query vectors for head i." },
+  k: { term: "K", definition: "Shared key vectors (single KV head)." },
+  v: { term: "V", definition: "Shared value vectors (single KV head)." },
+  h: { term: "H", definition: "Number of query heads." },
+  dk: { term: "d_k", definition: "Key dimension per head." },
+  i: { term: "i", definition: "Query head index." },
+};
+
 const gqaSchema = {
   label: "Grouped-query attention (GQA)",
   formula:
     "\\text{Attention}(Q_i, K_{g(i)}, V_{g(i)}) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_{g(i)}^{\\top}}{\\sqrt{d_k}}\\right) V_{g(i)}",
   variableDefinitions: gqaVariableDefinitions,
+};
+
+const mqaSchema = {
+  label: "Multi-query attention (MQA)",
+  formula:
+    "\\text{Attention}(Q_i, K, V) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K^{\\top}}{\\sqrt{d_k}}\\right) V",
+  variableDefinitions: mqaVariableDefinitions,
 };
 
 const messages = {
@@ -220,5 +241,63 @@ describe("ModuleAttentionSchemaComparison", () => {
       'data-attention-schema-variable-definitions="true"',
     );
     expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
+  });
+});
+
+describe("ModuleAttentionMhaMqaSchemaComparison", () => {
+  test("renders MHA and MQA formulas with symbol definitions", () => {
+    const html = renderToStaticMarkup(
+      <PageMessagesProvider
+        messages={{
+          title: "Multi-Query Attention",
+          description: "Test page",
+          math: { mhaSchema, mqaSchema },
+        }}
+        isDev={false}
+      >
+        <ModuleAttentionMhaMqaSchemaComparison />
+      </PageMessagesProvider>,
+    );
+
+    expect(html).toContain('data-attention-schema-comparison="true"');
+    expect(html).toContain('data-math-schema="mha"');
+    expect(html).toContain('data-math-schema="mqa"');
+    expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
+    expect(html).toContain('data-message-block-math="math.mqaSchema.formula"');
+    expect(html).not.toContain(
+      'data-message-block-math="math.gqaSchema.formula"',
+    );
+
+    const mhaSchemaIndex = html.indexOf('data-math-schema="mha"');
+    const mqaSchemaIndex = html.indexOf('data-math-schema="mqa"');
+    const mhaChunk = html.slice(mhaSchemaIndex, mqaSchemaIndex);
+    const mqaChunk = html.slice(mqaSchemaIndex);
+
+    for (const id of MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS) {
+      expect(mhaChunk).toContain(`data-math-variable-definition="${id}"`);
+    }
+    for (const id of MODULE_ATTENTION_MQA_MATH_VARIABLE_DEFINITION_IDS) {
+      expect(mqaChunk).toContain(`data-math-variable-definition="${id}"`);
+    }
+  });
+});
+
+describe("ModuleAttentionSchema", () => {
+  test("renders a single MHA schema block with symbol definitions", () => {
+    const html = renderToStaticMarkup(
+      <PageMessagesProvider messages={messages} isDev={false}>
+        <ModuleAttentionSchema schemaId="mha" />
+      </PageMessagesProvider>,
+    );
+
+    expect(html).toContain('data-math-schema="mha"');
+    expect(html).not.toContain('data-math-schema="gqa"');
+    expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
+    expect(html).not.toContain(
+      'data-message-block-math="math.gqaSchema.formula"',
+    );
+    for (const id of MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS) {
+      expect(html).toContain(`data-math-variable-definition="${id}"`);
+    }
   });
 });

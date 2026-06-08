@@ -13,6 +13,8 @@ import {
 } from "@/lib/search/orama-index";
 
 const ATTENTION_MODULE_URL = "/docs/modules/attention";
+const MULTI_HEAD_ATTENTION_URL = "/docs/modules/multi-head-attention";
+const MULTI_QUERY_ATTENTION_URL = "/docs/modules/multi-query-attention";
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
 const MLA_MODULE_URL = "/docs/modules/multi-head-latent-attention";
 const LINEAR_ATTENTION_MODULE_URL = "/docs/modules/linear-attention";
@@ -84,6 +86,8 @@ const CHAIN_GLOSSARY_URLS = [
 ] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
   ATTENTION_MODULE_URL,
+  MULTI_HEAD_ATTENTION_URL,
+  MULTI_QUERY_ATTENTION_URL,
   SAMPLE_URL,
   MLA_MODULE_URL,
   LINEAR_ATTENTION_MODULE_URL,
@@ -172,6 +176,25 @@ describe("exportOramaIndexSnapshot", () => {
     expect(gqaHit).toBeDefined();
     expect((gqaHit?.document as { kind: string }).kind).toBe("module");
     expect((gqaHit?.document as { tags: string }).tags).toContain("attention");
+  });
+
+  test.each([
+    { query: "MHA", url: MULTI_HEAD_ATTENTION_URL },
+    { query: "multi-head attention", url: MULTI_HEAD_ATTENTION_URL },
+    { query: "MQA", url: MULTI_QUERY_ATTENTION_URL },
+    { query: "multi-query attention", url: MULTI_QUERY_ATTENTION_URL },
+  ] as const)("Orama database records rank %s for the %s alias query", async ({
+    query,
+    url,
+  }) => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const db = await createOramaDatabase(documents);
+    const { hits } = await search(db, { term: query });
+
+    expect(hits.length).toBeGreaterThan(0);
+    expect((hits[0]?.document as { url: string }).url).toBe(url);
   });
 });
 
