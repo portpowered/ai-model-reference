@@ -25,6 +25,7 @@ import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
 import logitConcept from "@/content/registry/concepts/logit.json";
 import lossFunctionConcept from "@/content/registry/concepts/loss-function.json";
+import mixtureOfExpertsConcept from "@/content/registry/concepts/mixture-of-experts.json";
 import modalityConcept from "@/content/registry/concepts/modality.json";
 import modelConcept from "@/content/registry/concepts/model.json";
 import modelCapacityConcept from "@/content/registry/concepts/model-capacity.json";
@@ -114,6 +115,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(scalingLawConcept),
   conceptRecordSchema.parse(emergentBehaviorConcept),
   conceptRecordSchema.parse(feedForwardNetworkConcept),
+  conceptRecordSchema.parse(mixtureOfExpertsConcept),
   conceptRecordSchema.parse(normalizationConcept),
   conceptRecordSchema.parse(positionalEncodingsConcept),
   conceptRecordSchema.parse(residualConnectionConcept),

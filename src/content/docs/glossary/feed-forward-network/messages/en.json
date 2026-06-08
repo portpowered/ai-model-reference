@@ -1,0 +1,32 @@
+{
+  "title": "Feed-forward network",
+  "description": "The position-wise dense transform that refines each token's hidden vector after attention in a transformer block.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A feed-forward network (FFN), also called an MLP block, is a small two-layer perceptron applied independently to every token position. After attention mixes information across positions, the FFN takes each position's hidden vector, expands it through an intermediate width, applies a nonlinearity, and projects back to the model width. The same weights run at every position—only the input vector changes."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Attention decides what each position can read from the sequence; the FFN decides how to transform what was read into richer features. Most transformer blocks alternate these two steps, so recognizing the FFN slot helps you read architecture diagrams and spot when a model swaps a dense MLP for a mixture-of-experts layer while keeping the block shape."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a decoder block after self-attention has updated every word vector. The FFN runs the same recipe on each vector: multiply by a wide weight matrix, apply a gated or ReLU-style activation, then multiply by a second matrix back to hidden size. Position three's vector never mixes with position seven inside the FFN—that mixing already happened in attention."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "The FFN is not attention: it does not look at other tokens. It is also not the language-model head at the stack top—that head maps final hidden states to vocabulary logits. A mixture-of-experts layer replaces the dense FFN with routed expert MLPs but still sits in the same block slot after attention."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "A feed-forward network is the per-token MLP that follows attention in each transformer block, refining each position's hidden state without mixing across the sequence."
+}
