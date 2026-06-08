@@ -59,6 +59,30 @@ function waitForChildExit(
   });
 }
 
+/** Waits for stdio to close so captured output tails are fully flushed. */
+function waitForChildClose(
+  child: ChildProcess,
+  timeoutMs: number,
+): Promise<void> {
+  if (child.exitCode !== null && child.stdout?.readable === false) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      child.removeListener("close", onClose);
+      resolve();
+    }, timeoutMs);
+
+    function onClose() {
+      clearTimeout(timer);
+      resolve();
+    }
+
+    child.once("close", onClose);
+  });
+}
+
 function listenOnEphemeralPort(
   httpServer: ReturnType<typeof createHttpServer>,
 ): Promise<number> {
@@ -769,7 +793,7 @@ describe("child output capture", () => {
     });
 
     attachChildOutputCapture(child);
-    await waitForChildExit(child, 5_000);
+    await waitForChildClose(child, 5_000);
 
     const tail = getChildOutputTail(child, 100);
     expect(tail.length).toBeLessThanOrEqual(100);
@@ -783,7 +807,7 @@ describe("child output capture", () => {
 
     attachChildOutputCapture(child);
     attachChildOutputCapture(child);
-    await waitForChildExit(child, 5_000);
+    await waitForChildClose(child, 5_000);
 
     expect(getChildOutputTail(child)).toContain("captured");
   });
@@ -801,7 +825,7 @@ describe("child output capture", () => {
     );
 
     attachChildOutputCapture(child);
-    await waitForChildExit(child, 10_000);
+    await waitForChildClose(child, 10_000);
 
     const tail = getChildOutputTail(child);
     expect(tail).toContain("line-119");

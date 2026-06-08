@@ -1,4 +1,4 @@
-import { type Browser, chromium, type Page } from "playwright";
+import type { Browser, Page } from "playwright";
 import {
   BATCH_012_HEADER_BAR_CHECKLIST_ROW,
   BATCH_012_MOBILE_HEADER_CHECKS,
@@ -14,6 +14,7 @@ import {
   FetchTimeoutError,
   httpGetText,
 } from "./http-harness";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
 export const MOBILE_HEADER_VIEWPORT = {
@@ -47,7 +48,7 @@ function buildHttpFailureRow(reason: string): CustomerAskConvergenceRow {
 }
 
 async function defaultLaunchBrowser(): Promise<Browser> {
-  return chromium.launch({ headless: true });
+  return launchPlaywrightBrowser();
 }
 
 /**

@@ -7,6 +7,11 @@ import {
   exportHtmlReferencesBasePathAssets,
   exportHtmlReferencesBasePathInternalLinks,
 } from "@/lib/build/verify-export-base-path";
+import {
+  exportClientBundleIncludesBootstrapFrom,
+  readExportClientChunkContents,
+  resolveExportSearchBootstrapClientFrom,
+} from "@/lib/build/verify-export-search-bootstrap-client-path";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
@@ -54,6 +59,37 @@ describe("static export GitHub Pages base path", () => {
         expect(verifyResult.stdout ?? "").toContain(
           "Phase 1 export routes verified",
         );
+      } finally {
+        removeExportArtifacts();
+      }
+    },
+    { timeout: 180_000 },
+  );
+
+  test(
+    "build:export bakes basePath-prefixed search bootstrap path into client chunks",
+    () => {
+      removeExportArtifacts();
+
+      try {
+        const result = runStaticExportBuild({
+          cwd: repoRoot,
+          env: {
+            GITHUB_PAGES_BASE_PATH: exportBasePath,
+          },
+        });
+
+        expect(result.status).toBe(0);
+
+        const chunks = readExportClientChunkContents("out", repoRoot);
+        const expectedBootstrapFrom =
+          resolveExportSearchBootstrapClientFrom(exportBasePath);
+        expect(
+          exportClientBundleIncludesBootstrapFrom(
+            chunks,
+            expectedBootstrapFrom,
+          ),
+        ).toBe(true);
       } finally {
         removeExportArtifacts();
       }

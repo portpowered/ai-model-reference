@@ -1,4 +1,4 @@
-import { type Browser, chromium, type Page } from "playwright";
+import type { Browser, Page } from "playwright";
 import {
   BATCH_012_SEARCH_PAGE_CHECKLIST_ROW,
   BATCH_012_TAG_SEARCH_DECORATION_CHECKS,
@@ -17,6 +17,7 @@ import {
   FetchTimeoutError,
   httpGetText,
 } from "./http-harness";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import {
   checkSearchPageQuery,
   DEFAULT_SEARCH_PAGE_TIMEOUT_MS,
@@ -80,7 +81,7 @@ function buildSearchDecorationHttpFailureRow(
 }
 
 async function defaultLaunchBrowser(): Promise<Browser> {
-  return chromium.launch({ headless: true });
+  return launchPlaywrightBrowser();
 }
 
 async function readSearchPageResultsListHtml(

@@ -1,4 +1,4 @@
-import { type Browser, chromium, type Page } from "playwright";
+import type { Browser, Page } from "playwright";
 import type { SearchSurfaceResultSnapshot } from "./customer-ask-search-surface-convergence";
 import {
   readSearchDialogSurfaceSnapshot,
@@ -9,6 +9,7 @@ import {
   FetchTimeoutError,
   httpGetText,
 } from "./http-harness";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import {
   buildStaticRegressionGqaModuleRouteRow,
   buildStaticRegressionHomeRouteRow,
@@ -99,7 +100,7 @@ function routeCheckIdsForGqaModule(): string[] {
 }
 
 async function defaultLaunchBrowser(): Promise<Browser> {
-  return chromium.launch({ headless: true });
+  return launchPlaywrightBrowser();
 }
 
 async function defaultSearchPageQueryCheck(

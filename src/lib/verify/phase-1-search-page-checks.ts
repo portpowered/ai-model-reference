@@ -1,6 +1,18 @@
-import { type Browser, chromium, type Page } from "playwright";
+import type { Browser, Locator, Page } from "playwright";
+import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
+import {
+  evaluateSearchPageInputHydrationAfterTyping,
+  evaluateSearchPageInputHydrationBeforeQuery,
+  evaluateSearchPageInputHydrationOutcome,
+  readSearchPageInputHydrationSnapshot,
+  SEARCH_PAGE_EMPTY_SELECTOR,
+  SEARCH_PAGE_INPUT_SELECTOR,
+  SEARCH_PAGE_LOADING_SELECTOR,
+  SEARCH_PAGE_RESULTS_SELECTOR,
+} from "./static-export-search-input-hydration-http";
 
 /** Phase 1 manual-gate queries exercised on the built `/search` page. */
 export const PHASE_1_SEARCH_PAGE_QUERIES = [
@@ -24,6 +36,8 @@ export type SearchPageDomSnapshot = {
   hasGroupedQueryAttentionLink: boolean;
   hasGroupedQueryAttentionResultUrl: boolean;
   hasGroupedQueryAttentionButton: boolean;
+  /** Visible search-result-url text values from the results region. */
+  resultUrls: readonly string[];
 };
 
 export const VERIFY_SEARCH_PAGE_STUB_ENV = "VERIFY_SEARCH_PAGE_STUB";
@@ -56,18 +70,63 @@ export function resolveSearchPageCheckOptionsFromEnv(
   return {};
 }
 
-const SEARCH_PAGE_INPUT_SELECTOR = "#search-page-input";
-const SEARCH_PAGE_RESULTS_SELECTOR = '[data-testid="search-page-results"]';
-const SEARCH_PAGE_EMPTY_SELECTOR = '[data-testid="search-page-empty"]';
 const SEARCH_RESULT_URL_SELECTOR = '[data-testid="search-result-url"]';
 
-/** Default per-query browser deadline (client hydration can exceed 10s under CI load). */
-export const DEFAULT_SEARCH_PAGE_TIMEOUT_MS = 30_000;
+/** Default per-query browser deadline (client hydration can exceed 30s under CI load). */
+export const DEFAULT_SEARCH_PAGE_TIMEOUT_MS = 45_000;
 
 export function formatPhase1SearchPageCheckFailure(
   failure: Phase1SearchPageCheckFailure,
 ): string {
   return `${failure.surface}?query=${encodeURIComponent(failure.query)}: ${failure.reason}`;
+}
+
+function normalizeSearchResultUrlText(text: string | null): string {
+  return text?.replace(/\s+/g, " ").trim() ?? "";
+}
+
+async function readSearchPageResultUrls(scope: Locator): Promise<string[]> {
+  const urlNodes = scope.locator(SEARCH_RESULT_URL_SELECTOR);
+  const count = await urlNodes.count();
+  const urls: string[] = [];
+
+  for (let index = 0; index < count; index += 1) {
+    const node = urlNodes.nth(index);
+    const ariaHidden = node.locator('[aria-hidden="true"]').first();
+    const ariaHiddenCount = await ariaHidden.count();
+    const text =
+      ariaHiddenCount > 0
+        ? await ariaHidden.textContent()
+        : await node.textContent();
+    const normalized = normalizeSearchResultUrlText(text);
+    if (normalized.length > 0) {
+      urls.push(normalized);
+    }
+  }
+
+  return urls;
+}
+
+/**
+ * Pure collapsed page-hit outcome for `/search` result URLs.
+ */
+export function evaluateSearchPageCanonicalResultUrls(
+  snapshot: SearchPageDomSnapshot,
+): string | null {
+  if (!snapshot.hasResults || snapshot.resultUrls.length === 0) {
+    return null;
+  }
+
+  if (snapshot.resultUrls.some((url) => url.includes("#"))) {
+    return "search result URL includes a hash fragment";
+  }
+
+  const bases = snapshot.resultUrls.map(pageBaseUrl);
+  if (new Set(bases).size !== bases.length) {
+    return "multiple search hits duplicate one canonical page URL";
+  }
+
+  return null;
 }
 
 /**
@@ -83,6 +142,11 @@ export function evaluateSearchPageDomSnapshot(
 
   if (!snapshot.hasResults) {
     return `no search results rendered on /search for query "${query}"`;
+  }
+
+  const canonicalFailure = evaluateSearchPageCanonicalResultUrls(snapshot);
+  if (canonicalFailure) {
+    return canonicalFailure;
   }
 
   if (
@@ -101,20 +165,19 @@ export async function readSearchPageDomSnapshot(
 ): Promise<SearchPageDomSnapshot> {
   const moduleUrl = PHASE_1_GROUPED_QUERY_ATTENTION_URL;
 
-  const hasResults = await page
-    .locator(SEARCH_PAGE_RESULTS_SELECTOR)
-    .isVisible();
+  const resultsRegion = page.locator(SEARCH_PAGE_RESULTS_SELECTOR);
+  const hasResults = await resultsRegion.isVisible();
   const hasEmpty = await page.locator(SEARCH_PAGE_EMPTY_SELECTOR).isVisible();
+  const resultUrls = hasResults
+    ? await readSearchPageResultUrls(resultsRegion)
+    : [];
 
   const linkCount = await page.locator(`a[href="${moduleUrl}"]`).count();
   const hasGroupedQueryAttentionLink = linkCount > 0;
 
-  const urlNodes = page.locator(SEARCH_RESULT_URL_SELECTOR);
-  const urlNodeCount = await urlNodes.count();
   let hasGroupedQueryAttentionResultUrl = false;
-  for (let index = 0; index < urlNodeCount; index += 1) {
-    const text = await urlNodes.nth(index).textContent();
-    if (text?.includes(moduleUrl)) {
+  for (const url of resultUrls) {
+    if (url.includes(moduleUrl)) {
       hasGroupedQueryAttentionResultUrl = true;
       break;
     }
@@ -131,21 +194,24 @@ export async function readSearchPageDomSnapshot(
     hasGroupedQueryAttentionLink,
     hasGroupedQueryAttentionResultUrl,
     hasGroupedQueryAttentionButton,
+    resultUrls,
   };
 }
 
 async function defaultLaunchBrowser(): Promise<Browser> {
-  return chromium.launch({ headless: true });
+  return launchPlaywrightBrowser();
 }
 
 async function waitForSearchPageOutcome(
   page: Page,
   timeoutMs: number,
 ): Promise<void> {
+  const loading = page.locator(SEARCH_PAGE_LOADING_SELECTOR);
   const results = page.locator(SEARCH_PAGE_RESULTS_SELECTOR);
   const empty = page.locator(SEARCH_PAGE_EMPTY_SELECTOR);
 
   await Promise.race([
+    loading.waitFor({ state: "visible", timeout: timeoutMs }),
     results.waitFor({ state: "visible", timeout: timeoutMs }),
     empty.waitFor({ state: "visible", timeout: timeoutMs }),
   ]);
@@ -164,7 +230,7 @@ export async function checkSearchPageQuery(
   const searchUrl = `${normalizeVerifyBaseUrl(baseUrl)}/search`;
   await page.goto(searchUrl, {
     timeout: timeoutMs,
-    waitUntil: "domcontentloaded",
+    waitUntil: "load",
   });
 
   const input = page.locator(SEARCH_PAGE_INPUT_SELECTOR);
@@ -173,13 +239,36 @@ export async function checkSearchPageQuery(
   } catch {
     return `search input did not hydrate on /search within ${timeoutMs}ms`;
   }
-  await input.fill("");
-  await input.fill(query);
+
+  const beforeQuery = evaluateSearchPageInputHydrationBeforeQuery(
+    await readSearchPageInputHydrationSnapshot(page),
+  );
+  if (beforeQuery) {
+    return beforeQuery;
+  }
+
+  await input.focus();
+  await input.pressSequentially(query, { delay: 30 });
+
+  const afterTyping = evaluateSearchPageInputHydrationAfterTyping(
+    await readSearchPageInputHydrationSnapshot(page),
+    query,
+  );
+  if (afterTyping) {
+    return afterTyping;
+  }
 
   try {
     await waitForSearchPageOutcome(page, timeoutMs);
   } catch {
     return `timed out waiting for search results on /search for query "${query}" after ${timeoutMs}ms`;
+  }
+
+  const hydrationOutcome = evaluateSearchPageInputHydrationOutcome(
+    await readSearchPageInputHydrationSnapshot(page),
+  );
+  if (hydrationOutcome) {
+    return hydrationOutcome;
   }
 
   const snapshot = await readSearchPageDomSnapshot(page);
@@ -211,18 +300,33 @@ export async function runPhase1SearchPageChecks(
   const browser = await launchBrowser();
 
   try {
-    const page = await browser.newPage();
-    page.setDefaultTimeout(timeoutMs);
+    const queryFailures = await Promise.all(
+      queries.map(async (query) => {
+        const context = await browser.newContext();
+        try {
+          const page = await context.newPage();
+          page.setDefaultTimeout(timeoutMs);
+          page.setDefaultNavigationTimeout(timeoutMs);
 
-    for (const query of queries) {
-      const reason = await checkSearchPageQuery(
-        page,
-        baseUrl,
-        query,
-        timeoutMs,
-      );
-      if (reason) {
-        failures.push({ query, surface: "/search", reason });
+          const reason = await checkSearchPageQuery(
+            page,
+            baseUrl,
+            query,
+            timeoutMs,
+          );
+          if (reason) {
+            return { query, surface: "/search" as const, reason };
+          }
+          return null;
+        } finally {
+          await context.close();
+        }
+      }),
+    );
+
+    for (const failure of queryFailures) {
+      if (failure) {
+        failures.push(failure);
       }
     }
   } finally {
