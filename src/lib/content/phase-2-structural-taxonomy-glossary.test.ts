@@ -94,6 +94,6 @@ describe("Phase 2 structural taxonomy glossary pages (US-004)", () => {
     expect(html).toContain('href="/docs/glossary/model"');
     expect(html).toContain('href="/docs/glossary/module"');
     expect(html).toContain('href="/docs/glossary/transformer"');
-    expect(html).not.toContain('href="/docs/glossary/diffusion-model"');
+    expect(html).toContain('href="/docs/glossary/diffusion-model"');
   });
 });

@@ -10,6 +10,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/conditioning",
   "/docs/glossary/decoder",
   "/docs/glossary/denoising-generation",
+  "/docs/glossary/diffusion-model",
   "/docs/glossary/discriminative-model",
   "/docs/glossary/emergent-behavior",
   "/docs/glossary/encoder",
