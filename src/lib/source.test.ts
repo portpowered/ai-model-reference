@@ -25,6 +25,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/model-capacity",
   "/docs/glossary/module",
   "/docs/glossary/layer-norm",
+  "/docs/glossary/rmsnorm",
   "/docs/glossary/normalization",
   "/docs/glossary/mixture-of-experts",
   "/docs/glossary/overfitting",

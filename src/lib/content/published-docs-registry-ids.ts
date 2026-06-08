@@ -53,6 +53,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.mixture-of-experts",
   "concept.normalization",
   "concept.layer-norm",
+  "concept.rmsnorm",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;

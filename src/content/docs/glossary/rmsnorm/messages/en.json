@@ -1,0 +1,60 @@
+{
+  "title": "RMSNorm",
+  "description": "Per-token root-mean-square scaling that rescales each hidden vector without mean centering, as used in many modern decoder transformers.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Root mean square normalization (RMSNorm) rescales one token's hidden vector by dividing each feature by the root mean square of those features, then applying a learned per-feature scale. Unlike layer norm, it skips subtracting the mean across features. Statistics are still computed per position, which fits decoder transformers that process one token vector at a time inside each block."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Many recent large language models—including Llama-class stacks—use RMSNorm instead of layer norm because dropping mean centering saves compute while keeping activations in a stable range. The choice matters when you read model cards or compare training recipes: RMSNorm is not a different placement strategy, it is a lighter rescaling rule inside the same pre-norm block pattern."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "After self-attention, one token vector might have features with different magnitudes. RMSNorm measures the root mean square spread across those features, divides each feature by that stabilized scale, then multiplies by learned gain. The feed-forward network receives a vector whose overall magnitude sits in a predictable band without shifting every feature toward zero mean first."
+    },
+    "math": {
+      "title": "Formula And Symbols",
+      "body": "The rescale below applies to one token position. Each symbol names a quantity in that vector, not a batch-wide statistic."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "RMSNorm is not layer norm with a different name: layer norm subtracts the feature mean and uses both learned scale and shift, while RMSNorm only divides by root mean square and typically applies learned scale alone. RMSNorm is also not batch norm—it never pools statistics across examples. When a model card says RMSNorm, expect the lighter no-centering rescale rather than full mean-and-variance normalization."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "math": {
+    "rmsNorm": {
+      "label": "RMS normalization",
+      "formula": "\\text{RMSNorm}(x) = \\gamma \\odot \\frac{x}{\\sqrt{\\frac{1}{d}\\sum_{i=1}^{d} x_i^2 + \\epsilon}}",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "Hidden feature vector at one token position."
+        },
+        "d": {
+          "term": "d",
+          "definition": "Number of features in x."
+        },
+        "epsilon": {
+          "term": "ε",
+          "definition": "Small positive constant for numerical stability."
+        },
+        "gamma": {
+          "term": "γ",
+          "definition": "Learned per-feature scale vector."
+        }
+      }
+    }
+  },
+  "openingSummary": "RMSNorm rescales each token's hidden vector by its root mean square spread without subtracting the mean, then applies learned per-feature gain before the next sublayer runs."
+}
