@@ -44,6 +44,26 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
+  test("sparse-attention module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/sparse-attention.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.sparse-attention");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("published");
+    expect(module.moduleType).toBe("attention");
+    expect(module.tags).toContain("attention");
+    expect(module.variantGroup).toBe("sparse-patterns");
+    expect(module.conceptType).toBe("attention-variant");
+    expect(module.relatedIds).toContain("module.multi-head-attention");
+    expect(module.relatedIds).toContain("module.multi-query-attention");
+    expect(module.relatedIds).toContain("module.grouped-query-attention");
+    expect(module.optimizes.length).toBeGreaterThan(0);
+    expect(module.practicalBenefits.length).toBeGreaterThan(0);
+  });
+
   test("grouped-query-attention module JSON passes moduleRecordSchema", async () => {
     const module = await readRegistryJson(
       "modules/grouped-query-attention.json",

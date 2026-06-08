@@ -1,0 +1,27 @@
+{
+  "computeFlow": {
+    "type": "attention-variant-graph",
+    "defaultVariantId": "sparse",
+    "variants": [
+      {
+        "variantId": "mha",
+        "graphId": "graph.sparse-attention-mha-comparison",
+        "labelKey": "assets.computeFlow.variants.mha.label"
+      },
+      {
+        "variantId": "sparse",
+        "graphId": "graph.sparse-attention-sparse-comparison",
+        "labelKey": "assets.computeFlow.variants.sparse.label"
+      }
+    ],
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.sparse-attention-comparison",
+    "captionKey": "assets.comparisonTable.caption"
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "title": "Sparse Attention",
+  "description": "An attention variant that computes scores only for a subset of token pairs instead of every query-key combination.",
+  "openingSummary": "Dense attention scores every query against every key, so compute and memory grow with the square of sequence length; sparse attention applies a mask or pattern that skips most token pairs and computes attention only where the pattern allows, trading full connectivity for lower cost on long contexts.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Sparse attention is an attention variant that restricts which query-key pairs participate in the softmax. Instead of a full n-by-n attention matrix, only entries allowed by a sparsity pattern receive non-zero weight."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "Sparse attention targets attention compute, memory bandwidth for score materialization, and the cost of serving long sequences when dense all-pairs attention would dominate runtime."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "Teams adopt sparse attention when they need long-context modeling but cannot afford dense quadratic attention. Skipping disallowed pairs reduces multiply-accumulate work and the memory traffic needed to form and store full attention maps."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Each query position attends only to keys permitted by a sparsity mask or fixed pattern. Disallowed pairs are zeroed before softmax normalization, so the model spends compute on selected connections rather than the full token grid."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "With sequence length n and sparsity mask M, sparse attention applies M to the score matrix before softmax. The formulas below contrast dense multi-head attention against masked sparse attention that limits which pairs receive weight."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with multi-head attention, sparse attention skips most token pairs rather than scoring all of them. Multi-query and grouped-query attention remain dense over allowed positions but reduce KV head count; sparse attention changes which positions connect at all."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Sparse attention appears in long-context decoder models that combine local windows, block patterns, or learned sparsity with standard projection layers."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Restricting connectivity can miss long-range dependencies that dense attention would capture. Pattern choice and mask quality strongly affect what information flows across the sequence."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "As sequence lengths grow, quadratic attention cost motivates sparsity patterns that preserve useful signal while avoiding a full n-by-n score matrix on every layer."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Dense multi-head attention versus sparse attention pair selection",
+      "caption": "Toggle MHA and sparse attention to compare all-pairs scoring against mask-limited pair selection on one canvas",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "sparse": {
+          "label": "Sparse"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "How sparse attention compares with nearby attention variants"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "sparse": {
+          "title": "Sparse Attention"
+        },
+        "mha": {
+          "title": "Multi-Head Attention"
+        },
+        "mqa": {
+          "title": "Multi-Query Attention"
+        },
+        "gqa": {
+          "title": "Grouped-Query Attention"
+        }
+      },
+      "dimensions": {
+        "attentionConnectivity": "Attention connectivity",
+        "computeScaling": "Compute scaling with sequence length",
+        "globalReach": "Global token reach"
+      },
+      "values": {
+        "sparse": {
+          "attentionConnectivity": "Mask-limited subset of query-key pairs",
+          "computeScaling": "Subquadratic when sparsity fraction is fixed",
+          "globalReach": "Depends on sparsity pattern; often local or block-structured"
+        },
+        "mha": {
+          "attentionConnectivity": "All n-by-n query-key pairs per head",
+          "computeScaling": "Quadratic O(n²) per head",
+          "globalReach": "Any position can attend to any other position"
+        },
+        "mqa": {
+          "attentionConnectivity": "All n-by-n pairs with shared KV heads",
+          "computeScaling": "Quadratic O(n²) with fewer KV projections",
+          "globalReach": "Any position can attend to any other position"
+        },
+        "gqa": {
+          "attentionConnectivity": "All n-by-n pairs with grouped KV heads",
+          "computeScaling": "Quadratic O(n²) with reduced KV head count",
+          "globalReach": "Any position can attend to any other position"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Sparse attention",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(M \\odot \\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "g": {
+          "term": "s",
+          "definition": "Fraction of allowed query-key pairs in the sparsity pattern."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        },
+        "gi": {
+          "term": "M",
+          "definition": "Binary or weighted mask that zeroes disallowed attention pairs."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "mhaQueryHeads": {
+        "label": "H query heads"
+      },
+      "mhaKvHeads": {
+        "label": "H KV head pairs (1:1 with queries)"
+      },
+      "mhaOneToOne": {
+        "label": "Each query attends to every key position"
+      },
+      "sparseQueryHeads": {
+        "label": "H query heads"
+      },
+      "sparseAttentionMask": {
+        "label": "Sparsity mask (allowed pairs only)"
+      },
+      "sparseSelectedPairs": {
+        "label": "Compute attention on selected query-key pairs"
+      }
+    }
+  }
+}

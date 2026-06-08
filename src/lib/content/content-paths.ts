@@ -86,6 +86,12 @@ export const MULTI_HEAD_LATENT_ATTENTION_PAGE_DIR = join(
   "multi-head-latent-attention",
 );
 
+/** Phase 3 sparse attention module page directory. */
+export const SPARSE_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "sparse-attention",
+);
+
 /** Phase 1 token glossary sample page directory. */
 export const TOKEN_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "token");
 
