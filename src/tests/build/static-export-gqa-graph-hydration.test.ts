@@ -7,6 +7,7 @@ import {
   exportHtmlReferencesBasePathAssets,
 } from "@/lib/build/verify-export-base-path";
 import { verifyPhase1ExportRoutesFromOutDir } from "@/lib/build/verify-phase-1-export-routes";
+import { EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS } from "@/lib/verify/export-integration-probe-lock";
 import { verifyStaticExportGqaGraphHydration } from "@/lib/verify/static-export-gqa-graph-hydration-http";
 import { createStaticExportHttpServer } from "@/lib/verify/static-export-http-server";
 
@@ -66,6 +67,6 @@ describe("static export GQA graph hydration on GitHub Pages base path", () => {
         await server.cleanup();
       }
     },
-    { timeout: 300_000 },
+    { timeout: EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS },
   );
 });

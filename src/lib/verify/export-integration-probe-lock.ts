@@ -1,4 +1,4 @@
-import { closeSync, constants, openSync, unlinkSync } from "node:fs";
+import { closeSync, constants, openSync, statSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -7,13 +7,42 @@ const EXPORT_INTEGRATION_PROBE_LOCK_PATH = join(
   "model-atlas-export-integration-probe.lock",
 );
 const LOCK_POLL_MS = 200;
+/** Drop probe locks left behind by crashed workers so queued tests do not stall until Bun timeout. */
+const STALE_PROBE_LOCK_MAX_AGE_MS = 20 * 60 * 1000;
 
-function shouldSerializeExportIntegrationProbes(): boolean {
+export function shouldSerializeExportIntegrationProbes(): boolean {
   return process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
 }
 
+/**
+ * Bun test ceiling for integration tests that queue on `withExportIntegrationProbeLock`.
+ * Under CI, `make coverage` runs a second full suite where six export Playwright probes
+ * serialize; 300s per test is insufficient once lock wait time is included.
+ */
+export const EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS =
+  shouldSerializeExportIntegrationProbes() ? 900_000 : 300_000;
+
 async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function removeStaleProbeLockIfNeeded(): void {
+  try {
+    const { mtimeMs } = statSync(EXPORT_INTEGRATION_PROBE_LOCK_PATH);
+    if (Date.now() - mtimeMs > STALE_PROBE_LOCK_MAX_AGE_MS) {
+      unlinkSync(EXPORT_INTEGRATION_PROBE_LOCK_PATH);
+    }
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "ENOENT"
+    ) {
+      return;
+    }
+    throw error;
+  }
 }
 
 function tryAcquireProbeLock(): (() => void) | null {
@@ -38,6 +67,7 @@ function tryAcquireProbeLock(): (() => void) | null {
       "code" in error &&
       error.code === "EEXIST"
     ) {
+      removeStaleProbeLockIfNeeded();
       return null;
     }
     throw error;
