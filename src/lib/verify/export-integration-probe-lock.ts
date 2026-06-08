@@ -19,8 +19,13 @@ export function shouldSerializeExportIntegrationProbes(): boolean {
  * Under CI, `make coverage` runs a second full suite where six export Playwright probes
  * serialize; 300s per test is insufficient once lock wait time is included.
  */
+export function getExportIntegrationBunTestTimeoutMs(): number {
+  return shouldSerializeExportIntegrationProbes() ? 900_000 : 300_000;
+}
+
+/** @deprecated Prefer `getExportIntegrationBunTestTimeoutMs()` at test registration time. */
 export const EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS =
-  shouldSerializeExportIntegrationProbes() ? 900_000 : 300_000;
+  getExportIntegrationBunTestTimeoutMs();
 
 async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));

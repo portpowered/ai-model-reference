@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { ensureExportSearchArtifacts } from "@/lib/build/ensure-export-search-artifacts";
-import { EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS } from "@/lib/verify/export-integration-probe-lock";
+import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integration-probe-lock";
 import { runPhase1ExportSearchUxChecks } from "@/lib/verify/phase-1-export-search-ux-checks";
 
 const repoRoot = join(import.meta.dir, "../../..");
@@ -10,7 +10,7 @@ const repoRoot = join(import.meta.dir, "../../..");
 describe("static export Phase 1 search UX", () => {
   beforeAll(() => {
     ensureExportSearchArtifacts({ repoRoot });
-  }, 300_000);
+  }, getExportIntegrationBunTestTimeoutMs());
 
   test(
     "build:export serves GQA, attention, and KV cache on /search and header dialog",
@@ -24,7 +24,7 @@ describe("static export Phase 1 search UX", () => {
       });
       expect(failures).toEqual([]);
     },
-    { timeout: EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS },
+    { timeout: getExportIntegrationBunTestTimeoutMs() },
   );
 
   test(
@@ -47,6 +47,6 @@ describe("static export Phase 1 search UX", () => {
         "Phase 1 static export search UX verified",
       );
     },
-    { timeout: 300_000 },
+    { timeout: getExportIntegrationBunTestTimeoutMs() },
   );
 });

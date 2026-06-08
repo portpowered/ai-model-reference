@@ -6,7 +6,7 @@ import {
   exportHtmlReferencesBasePathAssets,
   exportHtmlReferencesBasePathInternalLinks,
 } from "@/lib/build/verify-export-base-path";
-import { EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS } from "@/lib/verify/export-integration-probe-lock";
+import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integration-probe-lock";
 import {
   assertSearchPageExportShell,
   SEARCH_PAGE_INPUT_HTML_MARKER,
@@ -25,7 +25,7 @@ describe("static export /search input hydration on GitHub Pages base path", () =
       repoRoot,
       basePath: exportBasePath,
     });
-  }, 300_000);
+  }, getExportIntegrationBunTestTimeoutMs());
 
   test("build-export emits /search HTML with the real input shell and prefixed assets", () => {
     const searchHtml = readFileSync(searchExportHtmlPath, "utf8");
@@ -61,6 +61,6 @@ describe("static export /search input hydration on GitHub Pages base path", () =
         await server.cleanup();
       }
     },
-    { timeout: EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS },
+    { timeout: getExportIntegrationBunTestTimeoutMs() },
   );
 });
