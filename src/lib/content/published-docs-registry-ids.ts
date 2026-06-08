@@ -51,6 +51,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.transformer-architecture",
   "concept.feed-forward-network",
   "concept.mixture-of-experts",
+  "concept.normalization",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;
