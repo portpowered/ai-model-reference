@@ -4,6 +4,8 @@ import groupedQueryAttentionGqaComparison from "@/content/registry/graphs/groupe
 import groupedQueryAttentionMhaComparison from "@/content/registry/graphs/grouped-query-attention-mha-comparison.json";
 import linearAttentionLinearComparison from "@/content/registry/graphs/linear-attention-linear-comparison.json";
 import linearAttentionMhaComparison from "@/content/registry/graphs/linear-attention-mha-comparison.json";
+import multiHeadAttentionMhaComparison from "@/content/registry/graphs/multi-head-attention-mha-comparison.json";
+import multiHeadAttentionMqaComparison from "@/content/registry/graphs/multi-head-attention-mqa-comparison.json";
 import multiHeadLatentAttentionMhaComparison from "@/content/registry/graphs/multi-head-latent-attention-mha-comparison.json";
 import multiHeadLatentAttentionMlaComparison from "@/content/registry/graphs/multi-head-latent-attention-mla-comparison.json";
 import slidingWindowAttentionMhaComparison from "@/content/registry/graphs/sliding-window-attention-mha-comparison.json";
@@ -18,6 +20,8 @@ const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(groupedQueryAttentionComputeSchema),
   graphRecordSchema.parse(groupedQueryAttentionMhaComparison),
   graphRecordSchema.parse(groupedQueryAttentionGqaComparison),
+  graphRecordSchema.parse(multiHeadAttentionMhaComparison),
+  graphRecordSchema.parse(multiHeadAttentionMqaComparison),
   graphRecordSchema.parse(linearAttentionMhaComparison),
   graphRecordSchema.parse(linearAttentionLinearComparison),
   graphRecordSchema.parse(multiHeadLatentAttentionMhaComparison),

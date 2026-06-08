@@ -13,6 +13,7 @@ import {
 } from "@/lib/search/orama-index";
 
 const ATTENTION_MODULE_URL = "/docs/modules/attention";
+const MULTI_HEAD_ATTENTION_URL = "/docs/modules/multi-head-attention";
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
 const MLA_MODULE_URL = "/docs/modules/multi-head-latent-attention";
 const LINEAR_ATTENTION_MODULE_URL = "/docs/modules/linear-attention";
@@ -84,6 +85,7 @@ const CHAIN_GLOSSARY_URLS = [
 ] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
   ATTENTION_MODULE_URL,
+  MULTI_HEAD_ATTENTION_URL,
   SAMPLE_URL,
   MLA_MODULE_URL,
   LINEAR_ATTENTION_MODULE_URL,

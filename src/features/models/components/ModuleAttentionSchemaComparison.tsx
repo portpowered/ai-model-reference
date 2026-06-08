@@ -142,6 +142,25 @@ function SchemaFormulaBlock({
   );
 }
 
+export function ModuleAttentionSchema({
+  schemaId = "mha",
+}: {
+  schemaId?: ModuleAttentionMathSchemaId;
+}) {
+  return (
+    <div
+      className="not-prose my-4 flex flex-col gap-6"
+      data-attention-schema-comparison="true"
+    >
+      <SchemaFormulaBlock
+        schemaId={schemaId}
+        labelKey={`math.${schemaId}Schema.label`}
+        formulaKey={`math.${schemaId}Schema.formula`}
+      />
+    </div>
+  );
+}
+
 export function ModuleAttentionSchemaComparison() {
   return (
     <div
