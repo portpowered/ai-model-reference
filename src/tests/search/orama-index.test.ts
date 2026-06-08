@@ -177,6 +177,25 @@ describe("exportOramaIndexSnapshot", () => {
     expect((gqaHit?.document as { kind: string }).kind).toBe("module");
     expect((gqaHit?.document as { tags: string }).tags).toContain("attention");
   });
+
+  test.each([
+    { query: "MHA", url: MULTI_HEAD_ATTENTION_URL },
+    { query: "multi-head attention", url: MULTI_HEAD_ATTENTION_URL },
+    { query: "MQA", url: MULTI_QUERY_ATTENTION_URL },
+    { query: "multi-query attention", url: MULTI_QUERY_ATTENTION_URL },
+  ] as const)("Orama database records rank %s for the %s alias query", async ({
+    query,
+    url,
+  }) => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const db = await createOramaDatabase(documents);
+    const { hits } = await search(db, { term: query });
+
+    expect(hits.length).toBeGreaterThan(0);
+    expect((hits[0]?.document as { url: string }).url).toBe(url);
+  });
 });
 
 describe("build-search-index script", () => {

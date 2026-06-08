@@ -24,6 +24,8 @@ import {
   expectSharedSearchResultRowPanel,
   expectThinSearchMetadataPanel,
   expectUniqueCanonicalPageUrls,
+  MULTI_HEAD_ATTENTION_URL,
+  MULTI_QUERY_ATTENTION_URL,
   resultsIncludeSampleModule,
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
@@ -233,6 +235,37 @@ describe("SearchPagePanel Phase 1 queries", () => {
     const results = await screen.findByTestId("search-page-results");
     const firstUrl = within(results).getAllByTestId("search-result-url")[0];
     expect(firstUrl?.textContent).toContain(SAMPLE_MODULE_URL);
+  });
+
+  test.each([
+    {
+      query: "MHA",
+      url: MULTI_HEAD_ATTENTION_URL,
+      title: /Multi-Head.*Attention/i,
+    },
+    {
+      query: "MQA",
+      url: MULTI_QUERY_ATTENTION_URL,
+      title: /Multi-Query.*Attention/i,
+    },
+  ] as const)("%s query ranks the matching attention variant first on /search", async ({
+    query,
+    url,
+    title,
+  }) => {
+    const context = await loadAppTestContext();
+    await renderSearchPagePanelContent(context);
+
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText(context.messages.search.placeholder),
+      query,
+    );
+
+    const results = await screen.findByTestId("search-page-results");
+    const firstUrl = within(results).getAllByTestId("search-result-url")[0];
+    expect(firstUrl?.textContent).toContain(url);
+    expect(results.textContent).toMatch(title);
   });
 
   test("exposes idle state with aria-live region before query entry", async () => {
