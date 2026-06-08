@@ -18,8 +18,6 @@ const DRAFT_FORWARD_TARGET_IDS = [
   "concept.world-model",
 ] as const;
 
-const REMAINING_DRAFT_FORWARD_TARGET_IDS = ["concept.world-model"] as const;
-
 const TAXONOMY_CONCEPT_IDS = [
   "concept.model",
   "concept.architecture",
@@ -89,7 +87,7 @@ describe("Phase 2 taxonomy registry (US-001)", () => {
     expect(modelFamily.parentTagId).toBe("tag.taxonomy");
   });
 
-  test("transformer, diffusion-model, and multimodal-model forward targets are published and remaining forward targets stay draft", async () => {
+  test("all four model-family forward targets are published architecture concepts", async () => {
     const transformer = await readRegistryJson(
       "concepts/transformer.json",
       conceptRecordSchema,
@@ -120,19 +118,15 @@ describe("Phase 2 taxonomy registry (US-001)", () => {
     expect(multimodalModel.aliases).toContain("multimodal models");
     expect(multimodalModel.tags).toContain("model-family");
 
-    for (const id of REMAINING_DRAFT_FORWARD_TARGET_IDS) {
-      const slug = id.replace("concept.", "");
-      const concept = await readRegistryJson(
-        `concepts/${slug}.json`,
-        conceptRecordSchema,
-      );
-      expect(concept.id).toBe(id);
-      expect(concept.kind).toBe("concept");
-      expect(concept.status).toBe("draft");
-      expect(concept.conceptType).toBe("architecture");
-      expect(concept.tags).toContain("taxonomy");
-      expect(concept.tags).toContain("model-family");
-    }
+    const worldModel = await readRegistryJson(
+      "concepts/world-model.json",
+      conceptRecordSchema,
+    );
+    expect(worldModel.id).toBe("concept.world-model");
+    expect(worldModel.status).toBe("published");
+    expect(worldModel.conceptType).toBe("architecture");
+    expect(worldModel.aliases).toContain("world models");
+    expect(worldModel.tags).toContain("model-family");
   });
 
   test("draft forward targets resolve taxonomy tags via loadRegistry", async () => {

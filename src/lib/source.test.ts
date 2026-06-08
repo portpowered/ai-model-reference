@@ -32,6 +32,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/scaling-law",
   "/docs/glossary/token",
   "/docs/glossary/transformer",
+  "/docs/glossary/world-model",
   "/docs/glossary/embedding",
   "/docs/glossary/tensor",
   "/docs/glossary/vector",
