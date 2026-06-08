@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
-import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
+import {
+  ModuleAttentionSchema,
+  ModuleAttentionSchemaComparison,
+} from "@/features/models/components/ModuleAttentionSchemaComparison";
 import {
   MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS,
   MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS,
@@ -220,5 +223,25 @@ describe("ModuleAttentionSchemaComparison", () => {
       'data-attention-schema-variable-definitions="true"',
     );
     expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
+  });
+});
+
+describe("ModuleAttentionSchema", () => {
+  test("renders a single MHA schema block with symbol definitions", () => {
+    const html = renderToStaticMarkup(
+      <PageMessagesProvider messages={messages} isDev={false}>
+        <ModuleAttentionSchema schemaId="mha" />
+      </PageMessagesProvider>,
+    );
+
+    expect(html).toContain('data-math-schema="mha"');
+    expect(html).not.toContain('data-math-schema="gqa"');
+    expect(html).toContain('data-message-block-math="math.mhaSchema.formula"');
+    expect(html).not.toContain(
+      'data-message-block-math="math.gqaSchema.formula"',
+    );
+    for (const id of MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS) {
+      expect(html).toContain(`data-math-variable-definition="${id}"`);
+    }
   });
 });
