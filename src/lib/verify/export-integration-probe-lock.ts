@@ -1,6 +1,7 @@
 import { closeSync, constants, openSync, statSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { VERIFY_COVERAGE_SUBPROCESS_ENV } from "./server-lifecycle";
 
 const EXPORT_INTEGRATION_PROBE_LOCK_PATH = join(
   tmpdir(),
@@ -15,12 +16,22 @@ export function shouldSerializeExportIntegrationProbes(): boolean {
 }
 
 /**
+ * Gates served-export Playwright probes: skip the coverage subprocess rerun
+ * (`make ci` runs the full suite twice; probes already passed in `make test`).
+ */
+export function shouldRunExportIntegrationProbeTests(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  return env[VERIFY_COVERAGE_SUBPROCESS_ENV] !== "1";
+}
+
+/**
  * Bun test ceiling for integration tests that queue on `withExportIntegrationProbeLock`.
- * Under CI, `make coverage` runs a second full suite where six export Playwright probes
+ * Under CI, `make coverage` runs a second full suite where export Playwright probes
  * serialize; 300s per test is insufficient once lock wait time is included.
  */
 export function getExportIntegrationBunTestTimeoutMs(): number {
-  return shouldSerializeExportIntegrationProbes() ? 900_000 : 300_000;
+  return shouldSerializeExportIntegrationProbes() ? 1_200_000 : 300_000;
 }
 
 /** @deprecated Prefer `getExportIntegrationBunTestTimeoutMs()` at test registration time. */

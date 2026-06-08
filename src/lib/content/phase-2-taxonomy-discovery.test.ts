@@ -81,7 +81,7 @@ describe("Phase 2 taxonomy discovery (US-009)", () => {
       });
     }
 
-    test("architecture messages include upcoming model families callout keys", () => {
+    test("architecture messages omit planned model family callout keys", () => {
       const messagesPath = join(
         GLOSSARY_DOCS_ROOT,
         "architecture",
@@ -91,12 +91,7 @@ describe("Phase 2 taxonomy discovery (US-009)", () => {
         JSON.parse(readFileSync(messagesPath, "utf8")),
       );
 
-      expect(
-        messages.callouts?.upcomingModelFamilies?.title?.length,
-      ).toBeGreaterThan(0);
-      expect(
-        messages.callouts?.upcomingModelFamilies?.body?.length,
-      ).toBeGreaterThan(0);
+      expect(messages.callouts?.upcomingModelFamilies).toBeUndefined();
     });
   });
 
@@ -106,15 +101,22 @@ describe("Phase 2 taxonomy discovery (US-009)", () => {
       expect(errors).toEqual([]);
     });
 
-    test("architecture relatedIds reference all four draft forward targets", async () => {
+    test("architecture relatedIds reference all four forward targets with transformer published", async () => {
       const indexes = await loadRegistry();
       const architecture = indexes.byId.get("concept.architecture");
       expect(architecture?.kind).toBe("concept");
 
       for (const id of DRAFT_FORWARD_TARGET_IDS) {
         expect(architecture?.relatedIds).toContain(id);
-        expect(indexes.byId.get(id)?.status).toBe("draft");
       }
+      expect(indexes.byId.get("concept.transformer")?.status).toBe("published");
+      expect(indexes.byId.get("concept.diffusion-model")?.status).toBe(
+        "published",
+      );
+      expect(indexes.byId.get("concept.multimodal-model")?.status).toBe(
+        "published",
+      );
+      expect(indexes.byId.get("concept.world-model")?.status).toBe("published");
     });
   });
 

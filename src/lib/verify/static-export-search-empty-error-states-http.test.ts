@@ -11,6 +11,7 @@ import {
   evaluateSearchPageEmptyState,
   evaluateSearchPageErrorState,
   evaluateSearchPageResultsAccessibility,
+  isRetryableStaticExportSearchProbeFailure,
   SEARCH_RETRY_LABEL,
   verifyStaticExportSearchEmptyErrorStates,
 } from "./static-export-search-empty-error-states-http";
@@ -185,4 +186,18 @@ describe("verifyStaticExportSearchEmptyErrorStates", () => {
     },
     { timeout: 30_000 },
   );
+});
+
+describe("isRetryableStaticExportSearchProbeFailure", () => {
+  test("detects transient Playwright spawn failures", () => {
+    expect(isRetryableStaticExportSearchProbeFailure(null)).toBe(false);
+    expect(isRetryableStaticExportSearchProbeFailure("Failed to connect")).toBe(
+      true,
+    );
+    expect(
+      isRetryableStaticExportSearchProbeFailure(
+        "empty state is not visible on /search for a no-match query",
+      ),
+    ).toBe(false);
+  });
 });

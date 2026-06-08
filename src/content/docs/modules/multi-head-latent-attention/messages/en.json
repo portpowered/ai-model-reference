@@ -1,0 +1,206 @@
+{
+  "title": "Multi-Head Latent Attention",
+  "description": "An attention variant that compresses key-value cache storage into a low-rank latent space while keeping distinct query heads.",
+  "openingSummary": "KV caches grow with context length and head dimension, raising memory use during long-context inference; multi-head latent attention (MLA) stores a compact latent KV representation and reconstructs per-head keys and values on demand so the cache holds fewer bytes without collapsing to a single shared head.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Multi-head latent attention is an attention variant derived from multi-head attention. It keeps multiple query heads but projects keys and values into a shared low-rank latent space that is cached during autoregressive decoding."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "MLA targets KV-cache footprint, memory bandwidth during autoregressive decoding, and the cost of serving long contexts when full per-head KV tensors would otherwise dominate memory."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "Teams adopt MLA when they need multi-head query expressiveness but want a smaller inference cache than full multi-head attention. MLA compresses stored KV state more aggressively than grouped-query or multi-query sharing alone by caching a latent representation instead of full head tensors."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Keys and values are down-projected into a latent KV cache with rank r. During attention, latent vectors are up-projected back to per-head key and value spaces. Queries remain head-specific, so each head attends against reconstructed KV pairs derived from the shared latent cache."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "With H query heads and latent rank r, MLA caches compact latent KV vectors and reconstructs per-head keys and values through low-rank projections. The formulas below contrast full multi-head attention against MLA, which routes queries through a shared latent cache."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with multi-head attention, MLA stores a compressed latent cache instead of full per-head KV tensors. Compared with multi-query and grouped-query attention, MLA keeps distinct query heads while compressing KV state through low-rank projection rather than only sharing heads."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "MLA appears in large decoder-only language models that prioritize efficient long-context inference while retaining multi-head query pathways."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Low-rank KV compression can limit representational flexibility versus storing full per-head tensors. The optimal latent rank depends on model scale and quality targets."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "As context windows grow, KV-cache efficiency remains a first-order serving constraint, so MLA offers a path between MHA fidelity and aggressive cache compression through latent storage."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Multi-head attention versus multi-head latent attention KV-cache comparison",
+      "caption": "Toggle MHA and MLA to compare full per-head KV storage against compressed latent KV caching on one canvas",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "mla": {
+          "label": "MLA"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "How MLA compares with nearby attention variants"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "mla": {
+          "title": "Multi-Head Latent Attention"
+        },
+        "mha": {
+          "title": "Multi-Head Attention"
+        },
+        "mqa": {
+          "title": "Multi-Query Attention"
+        },
+        "gqa": {
+          "title": "Grouped-Query Attention"
+        }
+      },
+      "dimensions": {
+        "kvRepresentation": "KV representation",
+        "queryHeadFlexibility": "Query-head flexibility",
+        "cacheFootprint": "Cache footprint per token"
+      },
+      "values": {
+        "mla": {
+          "kvRepresentation": "Low-rank latent KV vectors (rank r)",
+          "queryHeadFlexibility": "H distinct query heads with latent KV reconstruction",
+          "cacheFootprint": "r-dimensional latent tensors (compressed KV cache)"
+        },
+        "mha": {
+          "kvRepresentation": "H key heads and H value heads",
+          "queryHeadFlexibility": "H independent query/KV head pairs",
+          "cacheFootprint": "2H tensors (full multi-head attention cache)"
+        },
+        "mqa": {
+          "kvRepresentation": "1 key head and 1 value head",
+          "queryHeadFlexibility": "H query heads share one KV pair",
+          "cacheFootprint": "2 tensors (single shared KV cache)"
+        },
+        "gqa": {
+          "kvRepresentation": "G key heads and G value heads",
+          "queryHeadFlexibility": "H distinct query heads grouped into G shared KV pairs",
+          "cacheFootprint": "2G tensors (G keys + G values)"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Multi-head latent attention (MLA)",
+      "formula": "\\text{Attention}(Q_i, \\hat{K}_i, \\hat{V}_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i \\hat{K}_i^{\\top}}{\\sqrt{d_k}}\\right) \\hat{V}_i,\\quad \\hat{K}_i = W^K_i c,\\; \\hat{V}_i = W^V_i c",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "\\hat{K}",
+          "definition": "Reconstructed key vectors from latent cache c."
+        },
+        "v": {
+          "term": "\\hat{V}",
+          "definition": "Reconstructed value vectors from latent cache c."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "g": {
+          "term": "r",
+          "definition": "Latent rank of the compressed KV cache."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head after up-projection."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        },
+        "gi": {
+          "term": "c",
+          "definition": "Shared latent KV cache vector stored per token."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "mhaQueryHeads": {
+        "label": "H query heads"
+      },
+      "mhaKvHeads": {
+        "label": "H KV head pairs (1:1 with queries)"
+      },
+      "mhaOneToOne": {
+        "label": "Each query head has its own K and V"
+      },
+      "mlaQueryHeads": {
+        "label": "H query heads"
+      },
+      "mlaLatentKvCache": {
+        "label": "Latent KV cache (rank r)"
+      },
+      "mlaLowRankProjection": {
+        "label": "Up-project latent cache to per-head K and V"
+      }
+    }
+  }
+}

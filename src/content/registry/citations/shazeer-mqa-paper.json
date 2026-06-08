@@ -1,0 +1,25 @@
+{
+  "id": "citation.shazeer-mqa-paper",
+  "slug": "shazeer-mqa-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "MQA paper",
+    "Fast Transformer Decoding",
+    "one write-head paper",
+    "Shazeer MQA paper"
+  ],
+  "tags": ["attention", "kv-cache"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-06-08T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Noam Shazeer"],
+  "title": "Fast Transformer Decoding: One Write-Head is All You Need",
+  "year": 2019,
+  "url": "https://arxiv.org/abs/1911.02150",
+  "mla": "Shazeer, Noam. \"Fast Transformer Decoding: One Write-Head is All You Need.\" arXiv, 2019, https://arxiv.org/abs/1911.02150."
+}

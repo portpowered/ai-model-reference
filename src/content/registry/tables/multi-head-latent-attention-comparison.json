@@ -1,0 +1,58 @@
+{
+  "id": "table.multi-head-latent-attention-comparison",
+  "subjectId": "module.multi-head-latent-attention",
+  "columns": [
+    {
+      "moduleId": "module.multi-head-latent-attention",
+      "titleKey": "tables.comparison.columns.mla.title"
+    },
+    {
+      "moduleId": "module.multi-head-attention",
+      "titleKey": "tables.comparison.columns.mha.title"
+    },
+    {
+      "moduleId": "module.multi-query-attention",
+      "titleKey": "tables.comparison.columns.mqa.title"
+    },
+    {
+      "moduleId": "module.grouped-query-attention",
+      "titleKey": "tables.comparison.columns.gqa.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "kvRepresentation",
+      "labelKey": "tables.comparison.dimensions.kvRepresentation"
+    },
+    {
+      "id": "queryHeadFlexibility",
+      "labelKey": "tables.comparison.dimensions.queryHeadFlexibility"
+    },
+    {
+      "id": "cacheFootprint",
+      "labelKey": "tables.comparison.dimensions.cacheFootprint"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.multi-head-latent-attention": {
+      "kvRepresentation": "tables.comparison.values.mla.kvRepresentation",
+      "queryHeadFlexibility": "tables.comparison.values.mla.queryHeadFlexibility",
+      "cacheFootprint": "tables.comparison.values.mla.cacheFootprint"
+    },
+    "module.multi-head-attention": {
+      "kvRepresentation": "tables.comparison.values.mha.kvRepresentation",
+      "queryHeadFlexibility": "tables.comparison.values.mha.queryHeadFlexibility",
+      "cacheFootprint": "tables.comparison.values.mha.cacheFootprint"
+    },
+    "module.multi-query-attention": {
+      "kvRepresentation": "tables.comparison.values.mqa.kvRepresentation",
+      "queryHeadFlexibility": "tables.comparison.values.mqa.queryHeadFlexibility",
+      "cacheFootprint": "tables.comparison.values.mqa.cacheFootprint"
+    },
+    "module.grouped-query-attention": {
+      "kvRepresentation": "tables.comparison.values.gqa.kvRepresentation",
+      "queryHeadFlexibility": "tables.comparison.values.gqa.queryHeadFlexibility",
+      "cacheFootprint": "tables.comparison.values.gqa.cacheFootprint"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "tag.context-window",
+  "slug": "context-window",
+  "kind": "tag",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["context window", "local context window"],
+  "tags": [],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-06-08T00:00:00.000Z",
+  "category": "inference",
+  "landingPage": "generated-tag-page",
+  "parentTagId": "tag.attention"
+}

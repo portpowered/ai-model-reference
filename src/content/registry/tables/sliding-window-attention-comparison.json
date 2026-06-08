@@ -1,0 +1,58 @@
+{
+  "id": "table.sliding-window-attention-comparison",
+  "subjectId": "module.sliding-window-attention",
+  "columns": [
+    {
+      "moduleId": "module.sliding-window-attention",
+      "titleKey": "tables.comparison.columns.window.title"
+    },
+    {
+      "moduleId": "module.multi-head-attention",
+      "titleKey": "tables.comparison.columns.mha.title"
+    },
+    {
+      "moduleId": "module.multi-query-attention",
+      "titleKey": "tables.comparison.columns.mqa.title"
+    },
+    {
+      "moduleId": "module.grouped-query-attention",
+      "titleKey": "tables.comparison.columns.gqa.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "attentionLocality",
+      "labelKey": "tables.comparison.dimensions.attentionLocality"
+    },
+    {
+      "id": "computeScaling",
+      "labelKey": "tables.comparison.dimensions.computeScaling"
+    },
+    {
+      "id": "globalReach",
+      "labelKey": "tables.comparison.dimensions.globalReach"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.sliding-window-attention": {
+      "attentionLocality": "tables.comparison.values.window.attentionLocality",
+      "computeScaling": "tables.comparison.values.window.computeScaling",
+      "globalReach": "tables.comparison.values.window.globalReach"
+    },
+    "module.multi-head-attention": {
+      "attentionLocality": "tables.comparison.values.mha.attentionLocality",
+      "computeScaling": "tables.comparison.values.mha.computeScaling",
+      "globalReach": "tables.comparison.values.mha.globalReach"
+    },
+    "module.multi-query-attention": {
+      "attentionLocality": "tables.comparison.values.mqa.attentionLocality",
+      "computeScaling": "tables.comparison.values.mqa.computeScaling",
+      "globalReach": "tables.comparison.values.mqa.globalReach"
+    },
+    "module.grouped-query-attention": {
+      "attentionLocality": "tables.comparison.values.gqa.attentionLocality",
+      "computeScaling": "tables.comparison.values.gqa.computeScaling",
+      "globalReach": "tables.comparison.values.gqa.globalReach"
+    }
+  }
+}

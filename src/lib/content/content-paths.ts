@@ -80,6 +80,42 @@ export const GROUPED_QUERY_ATTENTION_PAGE_DIR = join(
   "grouped-query-attention",
 );
 
+/** Phase 3 multi-head attention module page directory. */
+export const MULTI_HEAD_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "multi-head-attention",
+);
+
+/** Phase 3 multi-query attention module page directory. */
+export const MULTI_QUERY_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "multi-query-attention",
+);
+
+/** Phase 3 multi-head latent attention module page directory. */
+export const MULTI_HEAD_LATENT_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "multi-head-latent-attention",
+);
+
+/** Phase 3 linear attention module page directory. */
+export const LINEAR_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "linear-attention",
+);
+
+/** Phase 3 sliding-window attention module page directory. */
+export const SLIDING_WINDOW_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "sliding-window-attention",
+);
+
+/** Phase 3 sparse attention module page directory. */
+export const SPARSE_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "sparse-attention",
+);
+
 /** Phase 1 token glossary sample page directory. */
 export const TOKEN_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "token");
 

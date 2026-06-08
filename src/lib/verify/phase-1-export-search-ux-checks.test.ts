@@ -3,9 +3,11 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { EXPORT_SEARCH_HYDRATION_SURFACE } from "./phase-1-export-search-convergence-evidence";
 import {
   CI_EXPORT_SEARCH_UX_PROBE_QUERIES,
   EXPORT_SEARCH_UX_STUB_ENV,
+  formatPhase1ExportSearchHydrationUxReason,
   formatPhase1ExportSearchUxCheckFailure,
   resolveCiExportSearchUxProbeQueries,
   resolveExportSearchUxCheckOptionsFromEnv,
@@ -109,13 +111,86 @@ describe("runPhase1ExportSearchUxChecks", () => {
   );
 });
 
+describe("formatPhase1ExportSearchHydrationUxReason", () => {
+  test("prefixes hydration surface for /search DOM outcomes", () => {
+    expect(
+      formatPhase1ExportSearchHydrationUxReason(
+        'no search results rendered on /search for query "attention"',
+      ),
+    ).toBe(
+      `${EXPORT_SEARCH_HYDRATION_SURFACE} — no search results rendered on /search for query "attention"`,
+    );
+  });
+});
+
 describe("formatPhase1ExportSearchUxCheckFailure", () => {
-  test("includes surface and reason", () => {
+  test("tags export-artifact failures by surface", () => {
+    expect(
+      formatPhase1ExportSearchUxCheckFailure({
+        surface: "export-artifact",
+        reason: "Missing export directory at out",
+      }),
+    ).toBe("export-artifact: Missing export directory at out");
+  });
+
+  test("includes query and hydration label for /search failures", () => {
     expect(
       formatPhase1ExportSearchUxCheckFailure({
         surface: "/search",
-        reason: "timed out",
+        query: "attention",
+        reason: formatPhase1ExportSearchHydrationUxReason(
+          'no search results rendered on /search for query "attention"',
+        ),
       }),
-    ).toBe("/search: timed out");
+    ).toBe(
+      `/search?query=attention: ${EXPORT_SEARCH_HYDRATION_SURFACE} — no search results rendered on /search for query "attention"`,
+    );
+  });
+
+  test("includes query for header-dialog failures", () => {
+    expect(
+      formatPhase1ExportSearchUxCheckFailure({
+        surface: "header-dialog",
+        query: "GQA",
+        reason: "empty results state",
+      }),
+    ).toBe("header-dialog?query=GQA: empty results state");
+  });
+});
+
+describe("runPhase1ExportSearchUxChecks hydration failures", () => {
+  test("returns per-query /search failures with hydration reasons", async () => {
+    const root = mkdtempSync(join(tmpdir(), "export-ux-hydration-fail-"));
+    mkdirSync(join(root, "api"), { recursive: true });
+    const exported = await (await docsSearchApi.staticGET()).json();
+    writeFileSync(join(root, "api", "search"), JSON.stringify(exported));
+    writeFileSync(join(root, "index.html"), "<html></html>");
+
+    try {
+      const failures = await runPhase1ExportSearchUxChecks({
+        outDir: root,
+        cwd: root,
+        searchPageOptions: {
+          queries: ["attention"],
+          runQueryCheck: async (_baseUrl, query) =>
+            `no search results rendered on /search for query "${query}"`,
+        },
+        searchDialogOptions: { runQueryCheck: async () => null },
+      });
+
+      expect(failures).toHaveLength(1);
+      const failure = failures[0];
+      expect(failure?.surface).toBe("/search");
+      expect(failure?.query).toBe("attention");
+      expect(failure?.reason).toContain(EXPORT_SEARCH_HYDRATION_SURFACE);
+      if (!failure) {
+        throw new Error("expected one /search hydration failure");
+      }
+      expect(formatPhase1ExportSearchUxCheckFailure(failure)).toMatch(
+        /\/search\?query=attention:/,
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });

@@ -11,9 +11,10 @@ import { join } from "node:path";
 import { type Browser, chromium, type LaunchOptions } from "playwright";
 
 const CI_PLAYWRIGHT_LAUNCH_TIMEOUT_MS = 120_000;
-const CI_PLAYWRIGHT_LAUNCH_ATTEMPTS = 2;
-const CI_PLAYWRIGHT_LAUNCH_RETRY_DELAY_MS = 2_000;
-const MAX_CONCURRENT_CI_LAUNCHES = 2;
+const CI_PLAYWRIGHT_LAUNCH_ATTEMPTS = 5;
+const CI_PLAYWRIGHT_LAUNCH_RETRY_DELAY_MS = 5_000;
+const CI_PLAYWRIGHT_LAUNCH_INITIAL_DELAY_MS = 3_000;
+const MAX_CONCURRENT_CI_LAUNCHES = 1;
 const LAUNCH_SLOT_DIR = join(tmpdir(), "model-atlas-playwright-launch-slots");
 const LOCK_POLL_MS = 200;
 /** Drop launch slots left behind by crashed workers so waiters do not poll until Bun timeout. */
@@ -72,6 +73,28 @@ export function isPlaywrightLaunchTimeoutError(error: unknown): boolean {
   return (
     error.name === "TimeoutError" &&
     /launch: Timeout \d+ms exceeded/.test(error.message)
+  );
+}
+
+export function isPlaywrightLaunchRetryableError(error: unknown): boolean {
+  if (isPlaywrightLaunchTimeoutError(error)) {
+    return true;
+  }
+
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const errno =
+    "errno" in error && typeof error.errno === "number" ? error.errno : null;
+  const code =
+    "code" in error && typeof error.code === "string" ? error.code : null;
+
+  return (
+    error.message.includes("Failed to connect") ||
+    code === "ENOENT" ||
+    code === "ECONNREFUSED" ||
+    errno === -2
   );
 }
 
@@ -149,6 +172,9 @@ async function launchChromiumWithCiRetries(
   launchOptions: LaunchOptions,
 ): Promise<Browser> {
   let lastError: unknown;
+  if (shouldSerializePlaywrightLaunch()) {
+    await sleep(CI_PLAYWRIGHT_LAUNCH_INITIAL_DELAY_MS);
+  }
   for (
     let attempt = 1;
     attempt <= CI_PLAYWRIGHT_LAUNCH_ATTEMPTS;
@@ -162,7 +188,7 @@ async function launchChromiumWithCiRetries(
       lastError = error;
       const canRetry =
         attempt < CI_PLAYWRIGHT_LAUNCH_ATTEMPTS &&
-        isPlaywrightLaunchTimeoutError(error);
+        isPlaywrightLaunchRetryableError(error);
       if (!canRetry) {
         throw error;
       }

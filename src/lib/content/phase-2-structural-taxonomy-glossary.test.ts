@@ -11,7 +11,6 @@ import {
   expectGlossaryOmitsOpeningSummary,
   expectGlossaryOmitsWhereItAppears,
 } from "@/lib/content/glossary-test-helpers";
-import { PLANNED_RELATED_REASON_LABEL } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
 const STRUCTURAL_TAXONOMY_SLUGS = [
@@ -78,7 +77,7 @@ describe("Phase 2 structural taxonomy glossary pages (US-004)", () => {
     expect(html).toContain('data-testid="curated-related-docs"');
   });
 
-  test("architecture page shows planned forward targets without broken hrefs", async () => {
+  test("architecture page links to all four published model families", async () => {
     const page = await loadGlossaryPage("architecture");
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -89,11 +88,12 @@ describe("Phase 2 structural taxonomy glossary pages (US-004)", () => {
       }),
     );
 
-    expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
-    expect(html).toContain('data-planned="true"');
     expect(html).toContain('href="/docs/glossary/model"');
     expect(html).toContain('href="/docs/glossary/module"');
-    expect(html).not.toContain('href="/docs/glossary/transformer"');
-    expect(html).not.toContain('href="/docs/glossary/diffusion-model"');
+    expect(html).toContain('href="/docs/glossary/transformer"');
+    expect(html).toContain('href="/docs/glossary/diffusion-model"');
+    expect(html).toContain('href="/docs/glossary/multimodal-model"');
+    expect(html).toContain('href="/docs/glossary/world-model"');
+    expect(html).not.toContain('data-planned="true"');
   });
 });

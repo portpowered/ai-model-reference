@@ -6,7 +6,12 @@
   "defaultSummaryKey": "description",
   "aliases": ["attention", "self-attention"],
   "tags": ["attention"],
-  "relatedIds": ["module.grouped-query-attention", "concept.token"],
+  "relatedIds": [
+    "module.multi-head-attention",
+    "module.multi-query-attention",
+    "module.grouped-query-attention",
+    "concept.token"
+  ],
   "citationIds": [],
   "status": "published",
   "createdAt": "2026-06-06T00:00:00.000Z",

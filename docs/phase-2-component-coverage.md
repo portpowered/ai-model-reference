@@ -115,6 +115,8 @@ Consolidated styling contracts: `src/tests/layout/phase-1-home-shell-styling-con
 
 | Component | Source | Line coverage target | Unit tests | A11y smoke |
 | --- | --- | --- | --- | --- |
+| SearchPagePanel | `src/features/docs/search/SearchPagePanel.tsx` | ≥ 90% | `search-page-panel.test.tsx`, `static-export-search-surfaces.test.tsx` | `search-page-panel.a11y.test.tsx` |
+| SearchDialog | `src/features/docs/search/SearchDialog.tsx` | ≥ 90% | `search-dialog-panel.test.tsx`, `static-export-search-surfaces.test.tsx` | `search-dialog.a11y.test.tsx` |
 | SearchResults | `src/features/docs/search/SearchResults.tsx` | ≥ 90% | `SearchResults.test.tsx` | `docs-components.a11y.test.tsx` |
 | SearchResultRow | `src/features/docs/search/SearchResultRow.tsx` | ≥ 90% | `SearchResults.test.tsx` | `docs-components.a11y.test.tsx` |
 | SearchResultTitle | `src/features/docs/search/SearchResultTitle.tsx` | ≥ 90% | `SearchResults.test.tsx` | — |

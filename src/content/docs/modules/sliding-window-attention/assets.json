@@ -1,0 +1,27 @@
+{
+  "computeFlow": {
+    "type": "attention-variant-graph",
+    "defaultVariantId": "window",
+    "variants": [
+      {
+        "variantId": "mha",
+        "graphId": "graph.sliding-window-attention-mha-comparison",
+        "labelKey": "assets.computeFlow.variants.mha.label"
+      },
+      {
+        "variantId": "window",
+        "graphId": "graph.sliding-window-attention-window-comparison",
+        "labelKey": "assets.computeFlow.variants.window.label"
+      }
+    ],
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.sliding-window-attention-comparison",
+    "captionKey": "assets.comparisonTable.caption"
+  }
+}
