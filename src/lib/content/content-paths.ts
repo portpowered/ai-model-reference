@@ -148,3 +148,9 @@ export const CONTEXT_EXTENSION_CONCEPT_PAGE_DIR = join(
   CONCEPTS_DOCS_ROOT,
   "context-extension",
 );
+
+/** Phase 3 why long context is hard concept page directory. */
+export const WHY_LONG_CONTEXT_IS_HARD_CONCEPT_PAGE_DIR = join(
+  CONCEPTS_DOCS_ROOT,
+  "why-long-context-is-hard",
+);

@@ -19,10 +19,7 @@ import {
   getConceptById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
-import {
-  deriveCuratedRelatedItems,
-  PLANNED_RELATED_REASON_LABEL,
-} from "@/lib/content/related-docs";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 
@@ -48,7 +45,7 @@ describe("Phase 3 context window glossary page (US-011)", () => {
     );
   });
 
-  test("curated related links context extension with navigable href and hardness page as planned", () => {
+  test("curated related links context extension and why long context is hard with navigable hrefs", () => {
     const source = getConceptById("concept.context-window");
     if (!source) {
       throw new Error("expected concept.context-window in registry");
@@ -69,9 +66,8 @@ describe("Phase 3 context window glossary page (US-011)", () => {
     const whyHard = items.find(
       (item) => item.registryId === "concept.why-long-context-is-hard",
     );
-    expect(whyHard?.isPlanned).toBe(true);
-    expect(whyHard?.href).toBeUndefined();
-    expect(whyHard?.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
+    expect(whyHard?.href).toBe("/docs/concepts/why-long-context-is-hard");
+    expect(whyHard?.isPlanned).toBe(false);
   });
 
   test("messages distinguish context window, training length, and generation budget", () => {
@@ -118,8 +114,7 @@ describe("Phase 3 context window glossary page (US-011)", () => {
     expect(html).toContain("What It Is");
     expectHtmlToContainProse(html, "context window");
     expect(html).toContain('href="/docs/concepts/context-extension"');
-    expect(html).toContain("why long context is hard");
-    expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
+    expect(html).toContain('href="/docs/concepts/why-long-context-is-hard"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="curated-related-docs"');

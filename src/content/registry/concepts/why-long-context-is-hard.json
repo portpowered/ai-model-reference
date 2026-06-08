@@ -10,11 +10,15 @@
     "long-context challenges"
   ],
   "tags": ["foundations"],
-  "relatedIds": [],
+  "relatedIds": [
+    "concept.context-extension",
+    "concept.rope",
+    "module.attention"
+  ],
   "citationIds": [],
-  "status": "draft",
+  "status": "published",
   "createdAt": "2026-06-09T00:00:00.000Z",
-  "updatedAt": "2026-06-09T00:00:00.000Z",
+  "updatedAt": "2026-06-09T22:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": ["concept.context-window"],
   "explainsIds": []
