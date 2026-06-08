@@ -1,0 +1,24 @@
+{
+  "id": "citation.deepseek-v2-mla-paper",
+  "slug": "deepseek-v2-mla-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "DeepSeek-V2 paper",
+    "MLA paper",
+    "multi-head latent attention paper"
+  ],
+  "tags": ["attention", "kv-cache"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-06-08T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["DeepSeek-AI"],
+  "title": "DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model",
+  "year": 2024,
+  "url": "https://arxiv.org/abs/2405.04434",
+  "mla": "DeepSeek-AI. \"DeepSeek-V2: A Strong, Economical, and Efficient Mixture-of-Experts Language Model.\" arXiv, 2024, https://arxiv.org/abs/2405.04434."
+}

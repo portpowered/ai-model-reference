@@ -1,7 +1,10 @@
 import type { Browser, Page } from "playwright";
 import { withExportIntegrationProbeLock } from "./export-integration-probe-lock";
 import { httpGetText } from "./http-harness";
-import { launchPlaywrightBrowser } from "./launch-playwright-browser";
+import {
+  isPlaywrightLaunchRetryableError,
+  launchPlaywrightBrowser,
+} from "./launch-playwright-browser";
 import { assertSearchPageExportShell } from "./phase-1-search-export-shell-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 import {
@@ -400,87 +403,112 @@ export async function verifyStaticExportSearchEmptyErrorStates(
   options: VerifyStaticExportSearchEmptyErrorStatesOptions = {},
 ): Promise<string | null> {
   return withExportIntegrationProbeLock(async () => {
-    const timeoutMs =
-      options.timeoutMs ?? DEFAULT_STATIC_EXPORT_EMPTY_ERROR_STATES_TIMEOUT_MS;
-    const emptyQuery = options.emptyQuery ?? DEFAULT_EMPTY_STATE_QUERY;
-    const errorQuery = options.errorQuery ?? DEFAULT_ERROR_STATE_QUERY;
-    const accessibilityQuery =
-      options.accessibilityQuery ?? DEFAULT_ACCESSIBILITY_QUERY;
-    const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
-    const searchUrl = `${normalizeVerifyBaseUrl(baseUrl)}/search`;
-
-    const htmlResponse = await httpGetText(searchUrl, timeoutMs);
-    if (htmlResponse.status < 200 || htmlResponse.status >= 300) {
-      return `/search export route returned HTTP ${htmlResponse.status}.`;
-    }
-
-    const shellFailure = assertSearchPageExportShell(htmlResponse.body);
-    if (shellFailure) {
-      return shellFailure;
-    }
-
-    const browser = await launchBrowser();
     try {
-      const emptyContext = await browser.newContext();
-      try {
-        const emptyPage = await emptyContext.newPage();
-        emptyPage.setDefaultTimeout(timeoutMs);
-        emptyPage.setDefaultNavigationTimeout(timeoutMs);
-        const emptyFailure = await verifySearchPageEmptyStateOnPage(
-          emptyPage,
-          baseUrl,
-          emptyQuery,
-          timeoutMs,
-        );
-        if (emptyFailure) {
-          return emptyFailure;
-        }
-      } finally {
-        await emptyContext.close();
+      const timeoutMs =
+        options.timeoutMs ??
+        DEFAULT_STATIC_EXPORT_EMPTY_ERROR_STATES_TIMEOUT_MS;
+      const emptyQuery = options.emptyQuery ?? DEFAULT_EMPTY_STATE_QUERY;
+      const errorQuery = options.errorQuery ?? DEFAULT_ERROR_STATE_QUERY;
+      const accessibilityQuery =
+        options.accessibilityQuery ?? DEFAULT_ACCESSIBILITY_QUERY;
+      const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
+      const searchUrl = `${normalizeVerifyBaseUrl(baseUrl)}/search`;
+
+      const htmlResponse = await httpGetText(searchUrl, timeoutMs);
+      if (htmlResponse.status < 200 || htmlResponse.status >= 300) {
+        return `/search export route returned HTTP ${htmlResponse.status}.`;
       }
 
-      const errorContext = await browser.newContext();
-      try {
-        const errorPage = await errorContext.newPage();
-        errorPage.setDefaultTimeout(timeoutMs);
-        errorPage.setDefaultNavigationTimeout(timeoutMs);
-        const errorFailure = await verifySearchPageErrorStateOnPage(
-          errorPage,
-          baseUrl,
-          errorQuery,
-          timeoutMs,
-        );
-        if (errorFailure) {
-          return errorFailure;
-        }
-      } finally {
-        await errorContext.close();
+      const shellFailure = assertSearchPageExportShell(htmlResponse.body);
+      if (shellFailure) {
+        return shellFailure;
       }
 
-      const accessibilityContext = await browser.newContext();
+      let browser: Browser | undefined;
       try {
-        const accessibilityPage = await accessibilityContext.newPage();
-        accessibilityPage.setDefaultTimeout(timeoutMs);
-        accessibilityPage.setDefaultNavigationTimeout(timeoutMs);
-        const accessibilityFailure =
-          await verifySearchPageResultsAccessibilityOnPage(
-            accessibilityPage,
+        browser = await launchBrowser();
+        const emptyContext = await browser.newContext();
+        try {
+          const emptyPage = await emptyContext.newPage();
+          emptyPage.setDefaultTimeout(timeoutMs);
+          emptyPage.setDefaultNavigationTimeout(timeoutMs);
+          const emptyFailure = await verifySearchPageEmptyStateOnPage(
+            emptyPage,
             baseUrl,
-            accessibilityQuery,
+            emptyQuery,
             timeoutMs,
           );
-        if (accessibilityFailure) {
-          return accessibilityFailure;
+          if (emptyFailure) {
+            return emptyFailure;
+          }
+        } finally {
+          await emptyContext.close();
         }
-      } finally {
-        await accessibilityContext.close();
-      }
 
-      return null;
+        const errorContext = await browser.newContext();
+        try {
+          const errorPage = await errorContext.newPage();
+          errorPage.setDefaultTimeout(timeoutMs);
+          errorPage.setDefaultNavigationTimeout(timeoutMs);
+          const errorFailure = await verifySearchPageErrorStateOnPage(
+            errorPage,
+            baseUrl,
+            errorQuery,
+            timeoutMs,
+          );
+          if (errorFailure) {
+            return errorFailure;
+          }
+        } finally {
+          await errorContext.close();
+        }
+
+        const accessibilityContext = await browser.newContext();
+        try {
+          const accessibilityPage = await accessibilityContext.newPage();
+          accessibilityPage.setDefaultTimeout(timeoutMs);
+          accessibilityPage.setDefaultNavigationTimeout(timeoutMs);
+          const accessibilityFailure =
+            await verifySearchPageResultsAccessibilityOnPage(
+              accessibilityPage,
+              baseUrl,
+              accessibilityQuery,
+              timeoutMs,
+            );
+          if (accessibilityFailure) {
+            return accessibilityFailure;
+          }
+        } finally {
+          await accessibilityContext.close();
+        }
+
+        return null;
+      } catch (error) {
+        return error instanceof Error ? error.message : String(error);
+      } finally {
+        if (browser) {
+          try {
+            await browser.close();
+          } catch {
+            // ignore cleanup races after transient spawn failures
+          }
+        }
+      }
     } catch (error) {
       return error instanceof Error ? error.message : String(error);
-    } finally {
-      await browser.close();
     }
   });
+}
+
+export function isRetryableStaticExportSearchProbeFailure(
+  reason: string | null,
+): reason is string {
+  if (!reason) {
+    return false;
+  }
+
+  return (
+    reason.includes("Failed to connect") ||
+    isPlaywrightLaunchRetryableError(new Error(reason))
+  );
 }

@@ -59,7 +59,10 @@ describe("groupTagIndexEntriesByCategory", () => {
       "token-to-probability-chain",
     ]);
     expect(groups[1]?.tags.map((tag) => tag.slug)).toEqual(["attention"]);
-    expect(groups[2]?.tags.map((tag) => tag.slug)).toEqual(["kv-cache"]);
+    expect(groups[2]?.tags.map((tag) => tag.slug)).toEqual([
+      "context-window",
+      "kv-cache",
+    ]);
     expect(groups[3]?.tags.map((tag) => tag.slug)).toEqual(["model-family"]);
   });
 
