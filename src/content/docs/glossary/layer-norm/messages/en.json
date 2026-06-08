@@ -1,0 +1,68 @@
+{
+  "title": "Layer norm",
+  "description": "Per-token mean-and-variance normalization that rescales each hidden vector before the next sublayer in a transformer block.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Layer normalization (LayerNorm) rescales one token's hidden vector by subtracting the mean across its features, dividing by a stabilized standard deviation, then applying learned scale and shift parameters. Statistics are computed per position, not across the batch or sequence, which matches how decoder transformers process variable-length text."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Original transformer stacks used layer norm around attention and feed-forward sublayers to keep activations stable as depth grows. Many encoder-decoder and early decoder models still rely on it. Understanding the mean-centering step helps when you compare layer norm with RMSNorm, which drops the mean subtraction but keeps per-feature scaling."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "After self-attention, one token vector might have features ranging from -3 to 12. Layer norm measures the mean and spread across those features, divides by the stabilized scale, then multiplies by learned gain γ and adds learned bias β. The feed-forward network receives a vector whose feature magnitudes sit in a predictable band."
+    },
+    "math": {
+      "title": "Formula And Symbols",
+      "body": "The rescale below applies to one token position. Each symbol names a quantity in that vector, not a batch-wide statistic."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Layer norm is not batch norm: it never pools statistics across examples in a minibatch. It is also not the residual add—that path preserves the skip stream while norm actively rescales it. RMSNorm is a close cousin that omits mean centering; both are layer-style norms used inside transformer blocks rather than across tokens."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "math": {
+    "layerNorm": {
+      "label": "Layer normalization",
+      "formula": "\\text{LN}(x) = \\gamma \\odot \\frac{x - \\mu}{\\sqrt{\\sigma^2 + \\epsilon}} + \\beta",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "Hidden feature vector at one token position."
+        },
+        "mu": {
+          "term": "μ",
+          "definition": "Mean of the features in x."
+        },
+        "sigma2": {
+          "term": "σ²",
+          "definition": "Variance of the features in x."
+        },
+        "epsilon": {
+          "term": "ε",
+          "definition": "Small positive constant for numerical stability."
+        },
+        "gamma": {
+          "term": "γ",
+          "definition": "Learned per-feature scale vector."
+        },
+        "beta": {
+          "term": "β",
+          "definition": "Learned per-feature shift vector."
+        }
+      }
+    }
+  },
+  "openingSummary": "Layer norm recenters and rescales each token's hidden vector using mean and variance across its features, then applies learned scale and shift before the next sublayer runs."
+}
