@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
 import {
   assertSearchPageExportShell,
   assertSearchPageExportShellStateRegion,
@@ -30,10 +31,8 @@ describe("static export Phase 1 /search shell regression", () => {
       removeExportArtifacts();
 
       try {
-        const result = spawnSync("bun", ["run", "build:export"], {
+        const result = runStaticExportBuild({
           cwd: repoRoot,
-          encoding: "utf8",
-          env: process.env,
         });
 
         const combined = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
@@ -66,10 +65,8 @@ describe("static export Phase 1 /search shell regression", () => {
       removeExportArtifacts();
 
       try {
-        const buildResult = spawnSync("bun", ["run", "build:export"], {
+        const buildResult = runStaticExportBuild({
           cwd: repoRoot,
-          encoding: "utf8",
-          env: process.env,
         });
         expect(buildResult.status).toBe(0);
 
