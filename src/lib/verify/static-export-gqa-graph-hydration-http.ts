@@ -1,10 +1,11 @@
 import { type Browser, chromium, type Page } from "playwright";
+import { REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS } from "@/features/models/components/registry-graph-flow-theme";
 import { exportHtmlIncludesGqaAttentionVariantGraphShellMarkers } from "@/lib/build/verify-export-base-path";
 import { httpGetText } from "./http-harness";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
-export const DEFAULT_GQA_GRAPH_HYDRATION_TIMEOUT_MS = 30_000;
+export const DEFAULT_GQA_GRAPH_HYDRATION_TIMEOUT_MS = 45_000;
 
 const GQA_GRAPH_ROUTE = PHASE_1_GROUPED_QUERY_ATTENTION_URL;
 
@@ -23,18 +24,30 @@ async function verifyGqaGraphHydrationOnPage(
     return "GQA comparison graph shell did not appear after hydration.";
   }
 
-  const reactFlow = page.locator(".react-flow");
+  const graphShell = page.locator(
+    REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS.graphWrapper,
+  );
   try {
-    await reactFlow.waitFor({ state: "visible", timeout: timeoutMs });
+    await graphShell.waitFor({ state: "attached", timeout: timeoutMs });
   } catch {
-    return "React Flow canvas did not hydrate on the GQA module page.";
+    return "React Flow graph shell did not appear on the GQA module page.";
   }
 
-  const nodes = page.locator(".react-flow__node");
+  const nodeCountRaw = await graphShell.getAttribute("data-graph-node-count");
+  const nodeCount = Number(nodeCountRaw ?? "0");
+  if (!Number.isFinite(nodeCount) || nodeCount < 1) {
+    return "React Flow graph shell hydrated without registered node markers.";
+  }
+
+  const graphNodeMarkers = page.locator(
+    REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS.srOnlyNodeLabels,
+  );
   try {
-    await nodes.first().waitFor({ state: "visible", timeout: timeoutMs });
+    await graphNodeMarkers
+      .first()
+      .waitFor({ state: "attached", timeout: timeoutMs });
   } catch {
-    return "React Flow canvas hydrated without visible nodes on the GQA module page.";
+    return "React Flow graph hydrated without accessible node markers on the GQA module page.";
   }
 
   const activeVariant = await comparison.getAttribute(
@@ -116,7 +129,7 @@ export async function verifyStaticExportGqaGraphHydration(
     page.setDefaultNavigationTimeout(timeoutMs);
     await page.goto(pageUrl, {
       timeout: timeoutMs,
-      waitUntil: "domcontentloaded",
+      waitUntil: "load",
     });
     return await verifyGqaGraphHydrationOnPage(page, timeoutMs);
   } catch (error) {

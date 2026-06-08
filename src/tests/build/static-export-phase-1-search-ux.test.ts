@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
 import { runPhase1ExportSearchUxChecks } from "@/lib/verify/phase-1-export-search-ux-checks";
 
 const repoRoot = join(import.meta.dir, "../../..");
@@ -24,10 +25,8 @@ describe("static export Phase 1 search UX", () => {
       removeExportArtifacts();
 
       try {
-        const buildResult = spawnSync("bun", ["run", "build:export"], {
+        const buildResult = runStaticExportBuild({
           cwd: repoRoot,
-          encoding: "utf8",
-          env: process.env,
         });
         expect(buildResult.status).toBe(0);
 
@@ -50,10 +49,8 @@ describe("static export Phase 1 search UX", () => {
       removeExportArtifacts();
 
       try {
-        const buildResult = spawnSync("bun", ["run", "build:export"], {
+        const buildResult = runStaticExportBuild({
           cwd: repoRoot,
-          encoding: "utf8",
-          env: process.env,
         });
         expect(buildResult.status).toBe(0);
 
