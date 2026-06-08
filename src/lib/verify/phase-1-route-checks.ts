@@ -4,6 +4,7 @@ import {
   FetchTimeoutError,
   httpGetText,
 } from "./http-harness";
+import { assertSearchPageExportShell } from "./phase-1-search-export-shell-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
 export type Phase1RouteAssertion = {
@@ -50,7 +51,7 @@ export const PHASE_1_ROUTE_ASSERTIONS: readonly Phase1RouteAssertion[] = [
   {
     path: "/search",
     label: "/search",
-    assertBody: (html) => requireSubstrings(html, ["Search"]),
+    assertBody: assertSearchPageExportShell,
   },
   {
     path: "/docs/architecture",

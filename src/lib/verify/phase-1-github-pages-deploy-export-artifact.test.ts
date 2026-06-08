@@ -17,9 +17,11 @@ import {
   EXPORT_BUILD_SUCCESS_ROUTE_MARKER,
   EXPORT_BUILD_SUCCESS_SEARCH_HANDOFF_MARKER,
 } from "./phase-1-github-pages-export-command-path";
+import { buildSearchPageExportShellStubBody } from "./phase-1-search-export-shell-checks";
 
 const PASSING_ROUTE_HTML: Record<string, string> = {
   "/": "<html><title>Model Atlas</title></html>",
+  "/search": `<html><body>${buildSearchPageExportShellStubBody()}</body></html>`,
   "/docs/architecture": "<html><h1>Architecture</h1><p>Token</p></html>",
   "/docs/glossary": "<html><h1>Glossary</h1><p>Token</p></html>",
   "/tags": '<html><h1>Tags</h1><a href="/tags/attention">Attention</a></html>',
@@ -51,7 +53,7 @@ function writePassingExportFixture(rootDir: string): void {
 function successfulBuildExportOutput(): string {
   return [
     "Static export build complete.",
-    `${EXPORT_BUILD_SUCCESS_ROUTE_MARKER} (6 paths in out).`,
+    `${EXPORT_BUILD_SUCCESS_ROUTE_MARKER} (7 paths in out).`,
     `${EXPORT_BUILD_SUCCESS_SEARCH_HANDOFF_MARKER} (3 queries in out).`,
   ].join("\n");
 }
