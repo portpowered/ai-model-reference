@@ -1,4 +1,5 @@
 import activationConcept from "@/content/registry/concepts/activation.json";
+import alibiConcept from "@/content/registry/concepts/alibi.json";
 import alignmentConcept from "@/content/registry/concepts/alignment.json";
 import architectureConcept from "@/content/registry/concepts/architecture.json";
 import autoregressiveGenerationConcept from "@/content/registry/concepts/autoregressive-generation.json";
@@ -42,6 +43,7 @@ import positionalEncodingsConcept from "@/content/registry/concepts/positional-e
 import representationConcept from "@/content/registry/concepts/representation.json";
 import residualConnectionConcept from "@/content/registry/concepts/residual-connection.json";
 import rmsnormConcept from "@/content/registry/concepts/rmsnorm.json";
+import ropeConcept from "@/content/registry/concepts/rope.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
@@ -121,8 +123,10 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(layerNormConcept),
   conceptRecordSchema.parse(normalizationConcept),
   conceptRecordSchema.parse(rmsnormConcept),
+  conceptRecordSchema.parse(alibiConcept),
   conceptRecordSchema.parse(positionalEncodingsConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
+  conceptRecordSchema.parse(ropeConcept),
   conceptRecordSchema.parse(transformerArchitectureConcept),
   conceptRecordSchema.parse(transformerConcept),
   conceptRecordSchema.parse(diffusionModelConcept),
