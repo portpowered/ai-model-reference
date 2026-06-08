@@ -54,6 +54,24 @@ describe("graph-registry-runtime", () => {
     );
     expect(mqaPageComparison?.nodes.length).toBe(3);
 
+    const mqaModuleMhaComparison = getGraphById(
+      "graph.multi-query-attention-mha-comparison",
+    );
+    expect(mqaModuleMhaComparison?.id).toBe(
+      "graph.multi-query-attention-mha-comparison",
+    );
+    expect(mqaModuleMhaComparison?.subjectId).toBe(
+      "module.multi-query-attention",
+    );
+
+    const mqaModuleMqaComparison = getGraphById(
+      "graph.multi-query-attention-mqa-comparison",
+    );
+    expect(mqaModuleMqaComparison?.id).toBe(
+      "graph.multi-query-attention-mqa-comparison",
+    );
+    expect(mqaModuleMqaComparison?.nodes.length).toBe(3);
+
     const mlaMhaComparison = getGraphById(
       "graph.multi-head-latent-attention-mha-comparison",
     );
@@ -124,6 +142,6 @@ describe("graph-registry-runtime", () => {
   });
 
   test("lists all bundled graph records", () => {
-    expect(listGraphRecords().length).toBe(15);
+    expect(listGraphRecords().length).toBe(17);
   });
 });

@@ -20,6 +20,16 @@ export const MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS = [
   "gi",
 ] as const;
 
+/** Symbol definition ids rendered under the MQA attention-schema equation. */
+export const MODULE_ATTENTION_MQA_MATH_VARIABLE_DEFINITION_IDS = [
+  "q",
+  "k",
+  "v",
+  "h",
+  "dk",
+  "i",
+] as const;
+
 /** GQA-only symbol ids beyond the shared MHA set. */
 export const MODULE_ATTENTION_GQA_ONLY_MATH_VARIABLE_DEFINITION_IDS = [
   "g",
@@ -42,12 +52,16 @@ export const MODULE_ATTENTION_MATH_FORBIDDEN_DEFINITION_TERMS = [
   "Query-to-KV grouping",
 ] as const;
 
-export type ModuleAttentionMathSchemaId = "mha" | "gqa";
+export type ModuleAttentionMathSchemaId = "mha" | "mqa" | "gqa";
 
 export function moduleAttentionMathVariableDefinitionIdsForSchema(
   schemaId: ModuleAttentionMathSchemaId,
 ): readonly string[] {
-  return schemaId === "mha"
-    ? MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS
-    : MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS;
+  if (schemaId === "mha") {
+    return MODULE_ATTENTION_MHA_MATH_VARIABLE_DEFINITION_IDS;
+  }
+  if (schemaId === "mqa") {
+    return MODULE_ATTENTION_MQA_MATH_VARIABLE_DEFINITION_IDS;
+  }
+  return MODULE_ATTENTION_GQA_MATH_VARIABLE_DEFINITION_IDS;
 }
