@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import { ensureExportSearchArtifacts } from "@/lib/build/ensure-export-search-artifacts";
+import { EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS } from "@/lib/verify/export-integration-probe-lock";
 import { createStaticExportHttpServer } from "@/lib/verify/static-export-http-server";
 import { verifyStaticExportSearchEmptyErrorStates } from "@/lib/verify/static-export-search-empty-error-states-http";
 
@@ -36,6 +37,6 @@ describe("static export /search empty and error states on GitHub Pages base path
         await server.cleanup();
       }
     },
-    { timeout: 300_000 },
+    { timeout: EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS },
   );
 });

@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { ensureExportSearchArtifacts } from "@/lib/build/ensure-export-search-artifacts";
+import { EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS } from "@/lib/verify/export-integration-probe-lock";
 import { runPhase1ExportSearchUxChecks } from "@/lib/verify/phase-1-export-search-ux-checks";
 
 const repoRoot = join(import.meta.dir, "../../..");
@@ -23,7 +24,7 @@ describe("static export Phase 1 search UX", () => {
       });
       expect(failures).toEqual([]);
     },
-    { timeout: 300_000 },
+    { timeout: EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS },
   );
 
   test(

@@ -6,6 +6,7 @@ import {
   exportHtmlReferencesBasePathAssets,
   exportHtmlReferencesBasePathInternalLinks,
 } from "@/lib/build/verify-export-base-path";
+import { EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS } from "@/lib/verify/export-integration-probe-lock";
 import {
   assertSearchPageExportShell,
   SEARCH_PAGE_INPUT_HTML_MARKER,
@@ -65,6 +66,6 @@ describe("static export /search URL query and tag handoff on GitHub Pages base p
         await server.cleanup();
       }
     },
-    { timeout: 300_000 },
+    { timeout: EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS },
   );
 });
