@@ -8,7 +8,12 @@ import {
   loadSearchResultMetaMap,
 } from "@/lib/search/search-result-meta";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
-import { SAMPLE_MODULE_URL, TOKEN_GLOSSARY_URL } from "./helpers";
+import {
+  MULTI_HEAD_ATTENTION_URL,
+  MULTI_QUERY_ATTENTION_URL,
+  SAMPLE_MODULE_URL,
+  TOKEN_GLOSSARY_URL,
+} from "./helpers";
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
@@ -21,6 +26,22 @@ describe("search result meta", () => {
     expect(meta?.kind).toBe("module");
     expect(meta?.tags).toContain("attention");
     expect(meta?.tags).toContain("kv-cache");
+  });
+
+  test("loadSearchResultMetaMap includes multi-head and multi-query attention modules", async () => {
+    const map = await loadSearchResultMetaMap();
+
+    const mha = map.get(MULTI_HEAD_ATTENTION_URL);
+    expect(mha).toBeDefined();
+    expect(mha?.kind).toBe("module");
+    expect(mha?.tags).toEqual(["attention"]);
+
+    const mqa = map.get(MULTI_QUERY_ATTENTION_URL);
+    expect(mqa).toBeDefined();
+    expect(mqa?.kind).toBe("module");
+    expect(mqa?.tags).toEqual(
+      expect.arrayContaining(["attention", "kv-cache"]),
+    );
   });
 
   test("getMatchedTags finds attention for slug query", () => {
