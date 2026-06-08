@@ -79,7 +79,7 @@ describe("DerivedRelatedDocs", () => {
   test("renders nothing for curated-related when the source has no relatedIds", () => {
     const html = renderToStaticMarkup(
       <DerivedRelatedDocs
-        registryId="concept.world-model"
+        registryId="concept.module"
         groups={["curated-related"]}
       />,
     );
