@@ -10,31 +10,26 @@ import {
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 
-describe("Phase 3 context extension concept page (US-012)", () => {
+describe("Phase 3 why long context is hard concept page (US-013)", () => {
   test("registry record is published with prerequisite ids and curated related ids", () => {
-    const record = getConceptById("concept.context-extension");
+    const record = getConceptById("concept.why-long-context-is-hard");
     expect(record?.status).toBe("published");
     expect(record?.kind).toBe("concept");
-    expect(record?.prerequisiteIds).toEqual([
-      "concept.context-window",
-      "concept.rope",
-    ]);
+    expect(record?.prerequisiteIds).toEqual(["concept.context-window"]);
     expect(record?.relatedIds).toEqual([
-      "concept.context-window",
+      "concept.context-extension",
       "concept.rope",
-      "concept.why-long-context-is-hard",
-      "module.grouped-query-attention",
       "module.attention",
     ]);
-    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.context-extension")).toBe(
-      true,
-    );
+    expect(
+      PUBLISHED_DOCS_REGISTRY_IDS.has("concept.why-long-context-is-hard"),
+    ).toBe(true);
   });
 
-  test("curated related links context window, RoPE, attention modules, and planned hardness page", () => {
-    const source = getConceptById("concept.context-extension");
+  test("curated related links context extension, RoPE, and attention as navigable", () => {
+    const source = getConceptById("concept.why-long-context-is-hard");
     if (!source) {
-      throw new Error("expected concept.context-extension in registry");
+      throw new Error("expected concept.why-long-context-is-hard in registry");
     }
 
     const items = deriveCuratedRelatedItems(
@@ -43,27 +38,15 @@ describe("Phase 3 context extension concept page (US-012)", () => {
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
 
-    const contextWindow = items.find(
-      (item) => item.registryId === "concept.context-window",
+    const contextExtension = items.find(
+      (item) => item.registryId === "concept.context-extension",
     );
-    expect(contextWindow?.href).toBe("/docs/glossary/context-window");
-    expect(contextWindow?.isPlanned).toBe(false);
+    expect(contextExtension?.href).toBe("/docs/concepts/context-extension");
+    expect(contextExtension?.isPlanned).toBe(false);
 
     const rope = items.find((item) => item.registryId === "concept.rope");
     expect(rope?.href).toBe("/docs/glossary/rope");
     expect(rope?.isPlanned).toBe(false);
-
-    const whyHard = items.find(
-      (item) => item.registryId === "concept.why-long-context-is-hard",
-    );
-    expect(whyHard?.href).toBe("/docs/concepts/why-long-context-is-hard");
-    expect(whyHard?.isPlanned).toBe(false);
-
-    const gqa = items.find(
-      (item) => item.registryId === "module.grouped-query-attention",
-    );
-    expect(gqa?.href).toBe("/docs/modules/grouped-query-attention");
-    expect(gqa?.isPlanned).toBe(false);
 
     const attention = items.find(
       (item) => item.registryId === "module.attention",
@@ -72,13 +55,15 @@ describe("Phase 3 context extension concept page (US-012)", () => {
     expect(attention?.isPlanned).toBe(false);
   });
 
-  test("page renders title, sections, opening summary, and forward links to context window and RoPE", async () => {
-    const page = await loadConceptPage("context-extension");
+  test("page renders title, sections, opening summary, and related-doc links", async () => {
+    const page = await loadConceptPage("why-long-context-is-hard");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.registryId).toBe("concept.context-extension");
+    expect(page.frontmatter.registryId).toBe(
+      "concept.why-long-context-is-hard",
+    );
     expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
     expect(page.messages.openingSummary?.toLowerCase()).toContain(
-      "finite sequence",
+      "attention work",
     );
 
     const html = renderToStaticMarkup(
@@ -92,14 +77,15 @@ describe("Phase 3 context extension concept page (US-012)", () => {
 
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
-    expect(html).toContain("position scaling");
-    expect(html).toContain('href="/docs/glossary/context-window"');
+    expect(html).toContain("quadratic");
+    expect(html).toContain("KV-cache");
+    expect(html).toContain("extrapolat");
+    expect(html).toContain('href="/docs/concepts/context-extension"');
     expect(html).toContain('href="/docs/glossary/rope"');
-    expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/docs/modules/attention"');
-    expect(html).toContain('href="/docs/concepts/why-long-context-is-hard"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");
+    expect(html).not.toContain("benchmark");
   });
 });

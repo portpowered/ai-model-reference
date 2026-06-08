@@ -1,0 +1,36 @@
+{
+  "title": "Why long context is hard",
+  "description": "Why stretching sequence length strains attention compute, KV-cache memory, position schemes, and retrieval quality even when a model advertises a large context window.",
+  "openingSummary": "A larger context window sounds like more room for documents, but every extra token multiplies attention work, grows the key-value cache, and pushes position schemes into ranges they may never have seen during training—so length limits are as much about cost and stability as about headline numbers.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Long-context difficulty is the set of bottlenecks that appear when a model must attend over many tokens at once. Standard self-attention compares every position to every other position, so compute and memory grow roughly with the square of sequence length when full attention is used. During generation, each new token also stores key and value vectors for every layer, so KV-cache footprint grows linearly with context length and can dominate GPU memory before compute does. Position schemes such as RoPE or ALiBi must extrapolate to indices beyond pretraining, which can weaken distance cues on the farthest tokens. Finally, even when math and memory allow a long window, useful retrieval can drown in noise: distant tokens compete for limited attention mass, and models may not reliably surface the one fact buried thousands of tokens back."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Product limits and model cards quote large windows, but feasibility on your hardware and quality on your prompt length depend on these mechanisms. Quadratic attention cost explains why very long prompts slow down or require specialized kernels and windowed variants. KV-cache growth explains why grouped-query attention and other memory-saving head layouts matter for deployment. Position extrapolation risk explains why context extension recipes exist separately from simply raising a limit. Retrieval and noise effects explain why a model can legally read 128k tokens yet still miss a needle in the haystack. Understanding the constraints helps you choose extension techniques, attention modules, and serving configurations without treating context length as a single dial."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a 32k-token prompt on a decoder model with full self-attention. Attention must score on the order of 32k by 32k token pairs per layer, which is vastly more work than a 4k prompt. As tokens stream out, the cache stores 32k keys and values per layer, so memory climbs with every prefilled position. RoPE angles at index 30k may sit far outside the range seen in pretraining, so relative-distance behavior can soften. If the prompt hides one critical sentence near the middle, attention must spread probability mass across tens of thousands of competing positions, and the model may overweight recent or repeated phrases instead. Each issue has a different remedy—windowed attention, KV sharing, position scaling, or retrieval augmentation—which is why long context is a bundle of problems, not one switch."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Long-document QA, repo-scale coding assistants, and multi-hour chat sessions all hit the same structural limits. Serving stacks report out-of-memory errors when KV caches exceed device RAM; research models adopt sliding windows or sparse patterns to tame quadratic cost; release notes pair RoPE scaling with continued training when windows jump from 8k to 128k. Teams evaluating context extension should read how position and attention modules interact rather than assuming a larger advertised window guarantees uniform quality across every token index."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A large context window is not the same as cheap long-context inference: the window states how many tokens may be attended over, while compute and memory still scale with how many you actually use. Context extension techniques can improve extrapolation but do not erase quadratic attention unless the architecture switches to a sparser pattern. KV-cache optimizations save memory without teaching new long-range dependencies. Finally, passing a synthetic needle-in-a-haystack probe does not prove reliable reasoning over messy real documents—noise, repetition, and attention dilution still matter on production prompts."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
