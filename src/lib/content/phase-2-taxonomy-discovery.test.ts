@@ -81,7 +81,7 @@ describe("Phase 2 taxonomy discovery (US-009)", () => {
       });
     }
 
-    test("architecture messages include upcoming model families callout keys", () => {
+    test("architecture messages omit planned model family callout keys", () => {
       const messagesPath = join(
         GLOSSARY_DOCS_ROOT,
         "architecture",
@@ -91,12 +91,7 @@ describe("Phase 2 taxonomy discovery (US-009)", () => {
         JSON.parse(readFileSync(messagesPath, "utf8")),
       );
 
-      expect(
-        messages.callouts?.upcomingModelFamilies?.title?.length,
-      ).toBeGreaterThan(0);
-      expect(
-        messages.callouts?.upcomingModelFamilies?.body?.length,
-      ).toBeGreaterThan(0);
+      expect(messages.callouts?.upcomingModelFamilies).toBeUndefined();
     });
   });
 
