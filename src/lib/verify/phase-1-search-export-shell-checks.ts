@@ -30,6 +30,79 @@ export const SEARCH_PAGE_EXPORT_STATE_REGION_MARKERS = [
 export const SEARCH_PAGE_ARIA_HIDDEN_PLACEHOLDER_MARKER =
   'aria-hidden="true"><span>';
 
+/** Stable surface label for export `/search` HTML shell failures (not hydration). */
+export const EXPORT_SEARCH_SHELL_SURFACE = "route-shell" as const;
+
+/** Stable check identifier for export search shell gate evidence rows. */
+export const EXPORT_SEARCH_SHELL_CHECK_ID = "export-search-shell" as const;
+
+export type Phase1ExportSearchShellFailureCategory =
+  | "missing-input-shell"
+  | "missing-state-region"
+  | "shell-marker-mismatch"
+  | "missing-artifact";
+
+const HYDRATION_FAILURE_PATTERN =
+  /hydrat|timed out|timeout|did not hydrate|within \d+ms/i;
+
+/**
+ * Classifies a raw shell assertion reason into a route-shell category that
+ * planners can distinguish from hydration probe timeouts.
+ */
+export function classifyPhase1ExportSearchShellFailure(
+  reason: string,
+): Phase1ExportSearchShellFailureCategory {
+  if (
+    reason.includes("Missing export directory") ||
+    reason.includes("Missing exported HTML")
+  ) {
+    return "missing-artifact";
+  }
+
+  if (
+    reason.includes(SEARCH_PAGE_INPUT_HTML_MARKER) ||
+    reason.includes("search-page-input")
+  ) {
+    return "missing-input-shell";
+  }
+
+  if (reason.includes("search state region")) {
+    return "missing-state-region";
+  }
+
+  return "shell-marker-mismatch";
+}
+
+function formatPhase1ExportSearchShellCategoryLabel(
+  category: Phase1ExportSearchShellFailureCategory,
+): string {
+  switch (category) {
+    case "missing-input-shell":
+      return "missing input shell";
+    case "missing-state-region":
+      return "missing state region";
+    case "missing-artifact":
+      return "missing export artifact";
+    default:
+      return "shell marker mismatch";
+  }
+}
+
+/** Formats a single `/search` route-shell failure line for stderr output. */
+export function formatPhase1ExportSearchShellFailure(reason: string): string {
+  const category = classifyPhase1ExportSearchShellFailure(reason);
+  const label = formatPhase1ExportSearchShellCategoryLabel(category);
+  return `/search: ${EXPORT_SEARCH_SHELL_SURFACE} — ${label} — ${reason}`;
+}
+
+/** Returns true when a failure line names route-shell rather than hydration. */
+export function isRouteShellExportSearchFailureLine(line: string): boolean {
+  return (
+    line.includes(EXPORT_SEARCH_SHELL_SURFACE) &&
+    !HYDRATION_FAILURE_PATTERN.test(line)
+  );
+}
+
 /** Minimal stub body for tests that exercise `/search` route assertions. */
 export function buildSearchPageExportShellStubBody(): string {
   return `<h1>Search</h1>
