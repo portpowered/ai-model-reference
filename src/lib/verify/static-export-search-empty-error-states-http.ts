@@ -485,7 +485,11 @@ export async function verifyStaticExportSearchEmptyErrorStates(
       return error instanceof Error ? error.message : String(error);
     } finally {
       if (browser) {
-        await browser.close();
+        try {
+          await browser.close();
+        } catch {
+          // ignore cleanup races after transient spawn failures
+        }
       }
     }
   });
