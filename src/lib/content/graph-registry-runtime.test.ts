@@ -38,12 +38,28 @@ describe("graph-registry-runtime", () => {
     );
     expect(gqaComparison?.nodes.length).toBe(3);
 
+    const mlaMhaComparison = getGraphById(
+      "graph.multi-head-latent-attention-mha-comparison",
+    );
+    expect(mlaMhaComparison?.id).toBe(
+      "graph.multi-head-latent-attention-mha-comparison",
+    );
+    expect(mlaMhaComparison?.nodes.length).toBe(3);
+
+    const mlaComparison = getGraphById(
+      "graph.multi-head-latent-attention-mla-comparison",
+    );
+    expect(mlaComparison?.id).toBe(
+      "graph.multi-head-latent-attention-mla-comparison",
+    );
+    expect(mlaComparison?.nodes.length).toBe(3);
+
     expect(getGraphById("graph.token-concept-map")?.id).toBe(
       "graph.token-concept-map",
     );
   });
 
   test("lists all bundled graph records", () => {
-    expect(listGraphRecords().length).toBe(5);
+    expect(listGraphRecords().length).toBe(7);
   });
 });

@@ -22,6 +22,28 @@ async function readRegistryJson<T>(
 }
 
 describe("Phase 1 baseline registry records", () => {
+  test("multi-head-latent-attention module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/multi-head-latent-attention.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.multi-head-latent-attention");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("published");
+    expect(module.moduleType).toBe("attention");
+    expect(module.tags).toContain("attention");
+    expect(module.tags).toContain("kv-cache");
+    expect(module.variantGroup).toBe("attention-head-sharing");
+    expect(module.conceptType).toBe("attention-variant");
+    expect(module.citationIds).toContain("citation.deepseek-v2-mla-paper");
+    expect(module.relatedIds).toContain("module.multi-head-attention");
+    expect(module.relatedIds).toContain("module.multi-query-attention");
+    expect(module.relatedIds).toContain("module.grouped-query-attention");
+    expect(module.optimizes.length).toBeGreaterThan(0);
+    expect(module.practicalBenefits.length).toBeGreaterThan(0);
+  });
+
   test("grouped-query-attention module JSON passes moduleRecordSchema", async () => {
     const module = await readRegistryJson(
       "modules/grouped-query-attention.json",
