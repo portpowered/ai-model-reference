@@ -7,7 +7,10 @@ import {
   exportHtmlReferencesBasePathAssets,
 } from "@/lib/build/verify-export-base-path";
 import { verifyPhase1ExportRoutesFromOutDir } from "@/lib/build/verify-phase-1-export-routes";
-import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integration-probe-lock";
+import {
+  getExportIntegrationBunTestTimeoutMs,
+  shouldRunExportIntegrationProbeTests,
+} from "@/lib/verify/export-integration-probe-lock";
 import { verifyStaticExportGqaGraphHydration } from "@/lib/verify/static-export-gqa-graph-hydration-http";
 import { createStaticExportHttpServer } from "@/lib/verify/static-export-http-server";
 
@@ -49,6 +52,9 @@ describe("static export GQA graph hydration on GitHub Pages base path", () => {
   test(
     "served static export hydrates the GQA comparison graph and toggles MHA/GQA",
     async () => {
+      if (!shouldRunExportIntegrationProbeTests()) {
+        return;
+      }
       ensureExportSearchArtifacts({
         repoRoot,
         basePath: exportBasePath,

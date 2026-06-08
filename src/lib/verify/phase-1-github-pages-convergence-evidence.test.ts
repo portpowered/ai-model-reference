@@ -4,6 +4,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { buildGroupedQueryAttentionStubBody } from "./grouped-query-attention-module-convergence";
 import {
+  EXPORT_SEARCH_HYDRATION_CHECK_ID,
+  EXPORT_SEARCH_SHELL_CHECK_ID,
+  mergeExportSearchConvergenceRows,
+} from "./phase-1-export-search-convergence-evidence";
+import {
   buildPhase1GitHubPagesConvergenceEvidenceSummary,
   formatPhase1GitHubPagesConvergenceEvidenceSummary,
   getPhase1GitHubPagesConvergenceExitCode,
@@ -17,7 +22,10 @@ import {
 } from "./phase-1-github-pages-export-command-path";
 import { STATIC_REGRESSION_DOMAIN_ID } from "./phase-1-github-pages-static-regression";
 import { STATIC_SERVER_COMMAND_PATH_DOMAIN_ID } from "./phase-1-github-pages-static-server-command-path";
-import { buildSearchPageExportShellStubBody } from "./phase-1-search-export-shell-checks";
+import {
+  buildSearchPageExportShellStubBody,
+  SEARCH_PAGE_INPUT_HTML_MARKER,
+} from "./phase-1-search-export-shell-checks";
 
 function successfulBuildExportOutput(): string {
   return [
@@ -299,6 +307,64 @@ describe("getPhase1GitHubPagesConvergenceExitCode", () => {
     });
 
     expect(getPhase1GitHubPagesConvergenceExitCode(summary)).toBe(1);
+  });
+});
+
+describe("export search shell vs hydration classification rows", () => {
+  test("summary includes failing export-search-shell row when shell gate fails", () => {
+    const shellReason = `missing expected content: ${SEARCH_PAGE_INPUT_HTML_MARKER}`;
+    const staticRegressionRows = mergeExportSearchConvergenceRows([], {
+      shellGate: { ok: false, reason: shellReason },
+    });
+    const summary = buildPhase1GitHubPagesConvergenceEvidenceSummary({
+      buildExportOutput: successfulBuildExportOutput(),
+      buildExportExitCode: 0,
+      staticServerLifecycleStatus: "pass",
+      staticRegressionRows,
+    });
+    const report = formatPhase1GitHubPagesConvergenceEvidenceSummary(summary);
+
+    expect(report).toContain(`[FAIL] ${EXPORT_SEARCH_SHELL_CHECK_ID}`);
+    expect(report).toContain("route-shell");
+    expect(report).toContain(SEARCH_PAGE_INPUT_HTML_MARKER);
+    expect(report).toContain(`[UNCERTAIN] ${EXPORT_SEARCH_HYDRATION_CHECK_ID}`);
+    expect(report).toContain("skipped");
+  });
+
+  test("summary includes failing export-search-hydration row with query when shell passes", () => {
+    const domOutcome = "search input did not hydrate on /search within 45000ms";
+    const staticRegressionRows = mergeExportSearchConvergenceRows(
+      [
+        {
+          checkId: "static-regression.search.page.page-level-hits",
+          title:
+            "Search page lists canonical page-level hits without fragment URLs",
+          status: "fail",
+          route: "/search",
+          query: "GQA",
+          reason: domOutcome,
+          checklistRow: "phase-1-github-pages-static-regression",
+        },
+      ],
+      {
+        shellGate: { ok: true },
+        hydrationProbes: [{ query: "GQA", reason: domOutcome }],
+        queries: ["GQA"],
+      },
+    );
+    const summary = buildPhase1GitHubPagesConvergenceEvidenceSummary({
+      buildExportOutput: successfulBuildExportOutput(),
+      buildExportExitCode: 0,
+      staticServerLifecycleStatus: "pass",
+      staticRegressionRows,
+    });
+    const report = formatPhase1GitHubPagesConvergenceEvidenceSummary(summary);
+
+    expect(report).toContain(`[PASS] ${EXPORT_SEARCH_SHELL_CHECK_ID}`);
+    expect(report).toContain(`[FAIL] ${EXPORT_SEARCH_HYDRATION_CHECK_ID}`);
+    expect(report).toContain("hydration");
+    expect(report).toContain("query=GQA");
+    expect(report).toContain(domOutcome);
   });
 });
 
