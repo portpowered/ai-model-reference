@@ -18,6 +18,7 @@ const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
 const TRANSFORMER_ARCHITECTURE_URL = "/docs/concepts/transformer-architecture";
 const FEED_FORWARD_NETWORK_URL = "/docs/glossary/feed-forward-network";
 const MIXTURE_OF_EXPERTS_URL = "/docs/glossary/mixture-of-experts";
+const LAYER_NORM_URL = "/docs/glossary/layer-norm";
 const NORMALIZATION_URL = "/docs/glossary/normalization";
 const STRUCTURAL_TAXONOMY_URLS = [
   "/docs/glossary/model",
@@ -82,6 +83,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   TRANSFORMER_ARCHITECTURE_URL,
   FEED_FORWARD_NETWORK_URL,
   MIXTURE_OF_EXPERTS_URL,
+  LAYER_NORM_URL,
   NORMALIZATION_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,

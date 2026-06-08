@@ -109,3 +109,9 @@ export const NORMALIZATION_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,
   "normalization",
 );
+
+/** Phase 3 layer norm glossary page directory. */
+export const LAYER_NORM_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "layer-norm",
+);
