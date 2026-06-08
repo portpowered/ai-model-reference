@@ -1,5 +1,6 @@
-import { type Browser, chromium } from "playwright";
+import type { Browser } from "playwright";
 import { httpGetText } from "./http-harness";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import { assertSearchPageExportShell } from "./phase-1-search-export-shell-checks";
 import {
   formatPhase1SearchPageCheckFailure,
@@ -11,7 +12,7 @@ import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 export const DEFAULT_STATIC_EXPORT_PHASE_1_QUERIES_TIMEOUT_MS = 45_000;
 
 async function defaultLaunchBrowser(): Promise<Browser> {
-  return chromium.launch({ headless: true });
+  return launchPlaywrightBrowser();
 }
 
 export type VerifyStaticExportSearchPhase1QueriesOptions = {
