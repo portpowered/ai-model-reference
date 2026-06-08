@@ -194,6 +194,22 @@ describe("static export search surfaces", () => {
     });
   });
 
+  test("/search?q=attention prefills from window.location and surfaces grouped-query attention", async () => {
+    const context = await loadAppTestContext();
+
+    await withWindowLocationSearch("?q=attention", async () => {
+      await renderSearchPage(context);
+
+      const searchInput = screen.getByLabelText(
+        context.messages.search.placeholder,
+      ) as HTMLInputElement;
+      expect(searchInput.value).toBe("attention");
+
+      const results = await screen.findByTestId("search-page-results");
+      expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+    });
+  });
+
   test("/search?tag=attention prefills from window.location and shows tag filter copy", async () => {
     const context = await loadAppTestContext();
 

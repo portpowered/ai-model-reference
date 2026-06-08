@@ -2,12 +2,21 @@ import { spawn } from "node:child_process";
 import { join } from "node:path";
 import { resolveBasePathForExportVerification } from "../src/lib/build/static-export";
 import {
+  type ExportSearchShellGateOutcome,
+  mergeExportSearchConvergenceRows,
+} from "../src/lib/verify/phase-1-export-search-convergence-evidence";
+import {
   buildPhase1GitHubPagesConvergenceEvidenceSummary,
   getPhase1GitHubPagesConvergenceExitCode,
   printPhase1GitHubPagesConvergenceEvidenceSummary,
 } from "../src/lib/verify/phase-1-github-pages-convergence-evidence";
-import type { StaticRegressionCheckRow } from "../src/lib/verify/phase-1-github-pages-static-regression";
+import {
+  STATIC_REGRESSION_QUERIES,
+  STATIC_REGRESSION_ROUTES,
+  type StaticRegressionCheckRow,
+} from "../src/lib/verify/phase-1-github-pages-static-regression";
 import { runPhase1GitHubPagesStaticRegressionChecks } from "../src/lib/verify/phase-1-github-pages-static-regression-http";
+import { verifyPhase1ExportSearchShellFromOutDir } from "../src/lib/verify/phase-1-search-export-shell-checks";
 import { runStaticExportServerLifecycle } from "../src/lib/verify/static-export-server-lifecycle";
 
 const projectRoot = join(import.meta.dir, "..");
@@ -25,7 +34,34 @@ type StaticServerLifecycleInput = {
   staticRegressionSkipped?: boolean;
   staticRegressionSkipReason?: string;
   staticRegressionRows?: StaticRegressionCheckRow[];
+  exportSearchShellGate?: ExportSearchShellGateOutcome;
 };
+
+function extractHydrationProbeOutcomesFromRows(
+  rows: readonly StaticRegressionCheckRow[],
+): { query: (typeof STATIC_REGRESSION_QUERIES)[number]; reason?: string }[] {
+  return STATIC_REGRESSION_QUERIES.map((query) => {
+    const failure = rows.find(
+      (row) =>
+        row.route === STATIC_REGRESSION_ROUTES.searchPage &&
+        row.query === query &&
+        row.status === "fail",
+    );
+    return { query, reason: failure?.reason };
+  });
+}
+
+function buildStaticRegressionRowsWithExportSearchClassification(
+  probeRows: readonly StaticRegressionCheckRow[],
+  shellGate: ExportSearchShellGateOutcome,
+): StaticRegressionCheckRow[] {
+  return mergeExportSearchConvergenceRows(probeRows, {
+    shellGate,
+    hydrationProbes: shellGate.ok
+      ? extractHydrationProbeOutcomesFromRows(probeRows)
+      : undefined,
+  });
+}
 
 async function runShellCommand(
   command: string,
@@ -59,6 +95,7 @@ async function runShellCommand(
 
 async function runStaticServerLifecycleStage(
   basePath: string,
+  exportSearchShellGate: ExportSearchShellGateOutcome,
 ): Promise<StaticServerLifecycleInput> {
   console.log(
     "Phase 1 batch-014 GitHub Pages convergence: serving out/ from loopback static file server",
@@ -86,11 +123,19 @@ async function runStaticServerLifecycleStage(
     console.log(
       "Phase 1 batch-014 GitHub Pages convergence: running static search and route regression probes",
     );
+    const probeRows = await runPhase1GitHubPagesStaticRegressionChecks(
+      lifecycle.baseUrl,
+      { exportSearchShellGate },
+    );
     const staticRegressionRows =
-      await runPhase1GitHubPagesStaticRegressionChecks(lifecycle.baseUrl);
+      buildStaticRegressionRowsWithExportSearchClassification(
+        probeRows,
+        exportSearchShellGate,
+      );
     return {
       staticServerLifecycleStatus: "pass",
       staticRegressionRows,
+      exportSearchShellGate,
     };
   } finally {
     await lifecycle.session.cleanup();
@@ -114,12 +159,28 @@ async function main(): Promise<number> {
       "Static regression probes skipped because make build-export did not succeed.",
   };
 
+  let exportSearchShellGate: ExportSearchShellGateOutcome = { ok: true };
+
   if (buildExportResult.exitCode !== 0) {
     console.error(
       "\nPhase 1 batch-014 GitHub Pages convergence: make build-export failed; skipping static verification.",
     );
   } else {
-    staticServerInput = await runStaticServerLifecycleStage(basePath);
+    exportSearchShellGate = verifyPhase1ExportSearchShellFromOutDir("out", {
+      cwd: projectRoot,
+    });
+    if (!exportSearchShellGate.ok) {
+      console.error(
+        `\nPhase 1 batch-014 GitHub Pages convergence: export search route shell gate failed — ${exportSearchShellGate.reason}`,
+      );
+    }
+
+    staticServerInput = await runStaticServerLifecycleStage(
+      basePath,
+      exportSearchShellGate,
+    );
+    staticServerInput.exportSearchShellGate = exportSearchShellGate;
+
     if (staticServerInput.staticServerLifecycleStatus === "fail") {
       staticServerInput.staticRegressionSkipped = true;
       staticServerInput.staticRegressionSkipReason =

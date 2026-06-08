@@ -6,6 +6,8 @@ import { PHASE_1_SEARCH_COVERAGE_COMPONENTS } from "@/lib/docs/component-manifes
 const repoRoot = join(import.meta.dir, "../../..");
 
 const PHASE_1_SEARCH_SOURCE_FILES = [
+  "src/features/docs/search/SearchPagePanel.tsx",
+  "src/features/docs/search/SearchDialog.tsx",
   "src/features/docs/search/SearchResults.tsx",
   "src/features/docs/search/SearchResultRow.tsx",
   "src/features/docs/search/SearchResultTitle.tsx",

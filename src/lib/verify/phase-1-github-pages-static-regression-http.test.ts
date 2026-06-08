@@ -110,6 +110,36 @@ describe("runPhase1GitHubPagesStaticRegressionChecks", () => {
     expect(pageMatchedTags?.status).toBe("fail");
   });
 
+  test("skips search hydration probes when export search shell gate failed", async () => {
+    const rows = await runPhase1GitHubPagesStaticRegressionChecks(
+      "http://127.0.0.1:3200",
+      {
+        queries: ["GQA"],
+        exportSearchShellGate: {
+          ok: false,
+          reason: 'missing expected content: id="search-page-input"',
+        },
+        runSearchPageQueryCheck: async () => {
+          throw new Error("search page probe should not run when shell failed");
+        },
+        runSearchDialogQueryCheck: async () => {
+          throw new Error(
+            "search dialog probe should not run when shell failed",
+          );
+        },
+        fetchHomeHtml: async () => POST_REPAIR_HOME_BODY,
+        fetchGqaModuleHtml: async () =>
+          `<html><body>${buildGroupedQueryAttentionStubBody()}</body></html>`,
+      },
+    );
+
+    expect(
+      rows.some((row) => row.checkId.startsWith("static-regression.search.")),
+    ).toBe(false);
+    expect(rows).toHaveLength(2);
+    expect(rows.every((row) => row.status === "pass")).toBe(true);
+  });
+
   test("fetches home and GQA module HTML from a static HTTP fixture server", async () => {
     const httpServer = createHttpServer((req, res) => {
       const requestUrl = new URL(req.url ?? "/", "http://127.0.0.1");
