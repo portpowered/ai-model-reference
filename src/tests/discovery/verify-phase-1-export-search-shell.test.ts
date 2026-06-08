@@ -29,7 +29,12 @@ describe("verify-phase-1-export-search-shell script", () => {
 
     expect(result.status).toBe(1);
     const stderr = result.stderr ?? "";
-    expect(stderr).toContain("route-shell");
+    const stderrLines = stderr
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+    expect(stderrLines).toHaveLength(1);
+    expect(stderrLines[0]).toMatch(/^\/search: route-shell —/);
     expect(stderr).toContain("missing input shell");
     expect(stderr).toMatch(/search-page-input/);
     expect(stderr).not.toMatch(/hydrat|timed out/i);
