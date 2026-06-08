@@ -115,3 +115,6 @@ export const LAYER_NORM_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,
   "layer-norm",
 );
+
+/** Phase 3 RMSNorm glossary page directory. */
+export const RMSNORM_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "rmsnorm");

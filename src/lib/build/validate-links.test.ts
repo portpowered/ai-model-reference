@@ -77,7 +77,7 @@ describe("validateDocumentationLinks", () => {
     expect(urls).toContain("/docs/modules/grouped-query-attention");
     expect(urls).toContain("/docs/glossary/token");
     expect(new Set(paths).size).toBe(paths.length);
-    expect(files.length).toBeLessThan(50);
+    expect(files.length).toBeLessThan(55);
   });
 
   test("reports a broken internal route with an actionable target URL", async () => {

@@ -8,10 +8,10 @@
   "tags": ["foundations"],
   "relatedIds": ["concept.layer-norm", "concept.normalization"],
   "citationIds": [],
-  "status": "draft",
+  "status": "published",
   "createdAt": "2026-06-08T00:00:00.000Z",
   "updatedAt": "2026-06-08T00:00:00.000Z",
   "conceptType": "general",
-  "prerequisiteIds": [],
+  "prerequisiteIds": ["concept.normalization"],
   "explainsIds": []
 }
