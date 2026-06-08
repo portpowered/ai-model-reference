@@ -2,13 +2,17 @@ import { existsSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { resolveBasePathForExportVerification } from "@/lib/build/static-export";
 import { verifyPhase1ExportSearchFromOutDir } from "@/lib/build/verify-phase-1-export-search";
-import { withExportIntegrationProbeLock } from "./export-integration-probe-lock";
+import {
+  shouldSerializeExportIntegrationProbes,
+  withExportIntegrationProbeLock,
+} from "./export-integration-probe-lock";
 import {
   assertPhase1SearchDialog,
   type RunPhase1SearchDialogChecksOptions,
 } from "./phase-1-search-dialog-checks";
 import {
   assertPhase1SearchPage,
+  PHASE_1_SEARCH_PAGE_QUERIES,
   type RunPhase1SearchPageChecksOptions,
 } from "./phase-1-search-page-checks";
 import { createStaticExportHttpServer } from "./static-export-http-server";
@@ -16,6 +20,31 @@ import { createStaticExportHttpServer } from "./static-export-http-server";
 export const DEFAULT_EXPORT_OUT_DIR = "out";
 
 export const EXPORT_SEARCH_UX_STUB_ENV = "VERIFY_EXPORT_SEARCH_UX_STUB";
+
+/** Under CI full-suite load, export Playwright probes only GQA to avoid lock-queue timeouts. */
+export const CI_EXPORT_SEARCH_UX_PROBE_QUERIES = ["GQA"] as const;
+
+export function resolveCiExportSearchUxProbeQueries(
+  queries?: readonly string[],
+): readonly string[] | undefined {
+  if (queries !== undefined) {
+    return queries;
+  }
+  if (shouldSerializeExportIntegrationProbes()) {
+    return CI_EXPORT_SEARCH_UX_PROBE_QUERIES;
+  }
+  return PHASE_1_SEARCH_PAGE_QUERIES;
+}
+
+function withCiScopedSearchUxQueryOptions<
+  T extends { queries?: readonly string[] },
+>(options: T | undefined): T {
+  const queries = resolveCiExportSearchUxProbeQueries(options?.queries);
+  if (options === undefined) {
+    return { queries } as T;
+  }
+  return { ...options, queries };
+}
 
 export type RunPhase1ExportSearchUxChecksOptions = {
   outDir?: string;
@@ -87,11 +116,15 @@ export async function runPhase1ExportSearchUxChecks(
     try {
       const failures: Phase1ExportSearchUxCheckFailure[] = [];
 
+      const searchPageOptions = withCiScopedSearchUxQueryOptions(
+        options.searchPageOptions,
+      );
+      const searchDialogOptions = withCiScopedSearchUxQueryOptions(
+        options.searchDialogOptions,
+      );
+
       try {
-        await assertPhase1SearchPage(
-          session.baseUrl,
-          options.searchPageOptions,
-        );
+        await assertPhase1SearchPage(session.baseUrl, searchPageOptions);
       } catch (error) {
         failures.push({
           surface: "/search",
@@ -100,10 +133,7 @@ export async function runPhase1ExportSearchUxChecks(
       }
 
       try {
-        await assertPhase1SearchDialog(
-          session.baseUrl,
-          options.searchDialogOptions,
-        );
+        await assertPhase1SearchDialog(session.baseUrl, searchDialogOptions);
       } catch (error) {
         failures.push({
           surface: "header-dialog",
