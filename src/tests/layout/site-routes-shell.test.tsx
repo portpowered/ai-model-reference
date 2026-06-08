@@ -12,6 +12,7 @@ import {
   stripHtmlScripts,
   TOKEN_GLOSSARY_URL,
 } from "@/lib/navigation/docs-sidebar-contract";
+import { assertSearchPageBuiltAppShell } from "@/lib/verify/phase-1-search-built-app-shell-checks";
 
 const BUILT_HTML_SITE_ROUTES = [
   {
@@ -71,6 +72,10 @@ describe("Phase 1 site routes unified shell (built HTML)", () => {
       expect(visibleHtml).not.toContain(PLACEHOLDER_SIDEBAR_DESCRIPTION);
       expect(hasLegacyPlaceholderSidebar(visibleHtml)).toBe(false);
       expect(visibleHtml).toContain(route.contentMarker);
+
+      if (route.path === "/search") {
+        expect(assertSearchPageBuiltAppShell(visibleHtml)).toBeNull();
+      }
 
       if ("tocAnchor" in route) {
         const toc = extractNdTocHtml(visibleHtml);
