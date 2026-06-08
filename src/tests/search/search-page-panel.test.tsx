@@ -267,6 +267,57 @@ describe("SearchPagePanel Phase 1 queries", () => {
   });
 });
 
+describe("SearchPagePanel query handoff", () => {
+  beforeAll(async () => {
+    captureOriginalFetch();
+    installDocsSearchRouteFetch();
+    await primeDocsSearchClient(await loadAppTestContext());
+  });
+
+  beforeEach(() => {
+    installDocsSearchRouteFetch();
+  });
+
+  afterEach(() => {
+    cleanup();
+    restoreFetchMock();
+  });
+
+  test("/search?q=GQA prefills GQA and surfaces grouped-query attention", async () => {
+    const context = await loadAppTestContext();
+    const searchParams = new URLSearchParams("q=GQA");
+    await renderSearchPagePanelContent(context, searchParams);
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("GQA");
+
+    const results = await screen.findByTestId("search-page-results");
+    expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+  });
+
+  test("prefers q over tag when both params are present", async () => {
+    const context = await loadAppTestContext();
+    const searchParams = new URLSearchParams("q=GQA&tag=attention");
+    await renderSearchPagePanelContent(context, searchParams);
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("GQA");
+
+    expect(
+      screen.queryByText(
+        context.messages.searchEntry.tagFilterDescription.replace(
+          "{tag}",
+          "attention",
+        ),
+      ),
+    ).toBeNull();
+  });
+});
+
 describe("SearchPagePanel tag handoff", () => {
   beforeAll(async () => {
     captureOriginalFetch();

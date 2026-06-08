@@ -4,11 +4,8 @@ import {
   DOCS_SEARCH_API_PATH,
   docsSearchStaticOptions,
 } from "@/features/docs/search/search-client";
-import {
-  DOCS_SEARCH_BOOTSTRAP_FROM_ENV,
-  readDocsSearchStaticBootstrapFrom,
-} from "@/lib/search/docs-search-bootstrap-path";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
+import { docsSearchApi } from "@/lib/search/search-server";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
 import {
   expectUniqueCanonicalPageUrls,
@@ -37,14 +34,33 @@ describe("createModelAtlasSearchClient", () => {
   });
 
   test("docsSearchStaticOptions.from resolves to the static bootstrap path", () => {
-    expect(docsSearchStaticOptions.from).toBe(
-      readDocsSearchStaticBootstrapFrom(),
-    );
-    expect(
-      readDocsSearchStaticBootstrapFrom({
-        [DOCS_SEARCH_BOOTSTRAP_FROM_ENV]: "/ai-model-reference/api/search",
-      }),
-    ).toBe("/ai-model-reference/api/search");
+    expect(docsSearchStaticOptions.from).toBe(DOCS_SEARCH_API_PATH);
+  });
+
+  test("fetches GQA results from a basePath-prefixed static bootstrap URL", async () => {
+    const bootstrapFrom = "/ai-model-reference/api/search";
+    const payload = await docsSearchApi.export();
+    let fetchedUrl: string | undefined;
+
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      fetchedUrl =
+        typeof input === "string"
+          ? input
+          : input instanceof URL
+            ? input.href
+            : input.url;
+      return new Response(JSON.stringify(payload), { status: 200 });
+    }) as typeof fetch;
+
+    const client = createModelAtlasSearchClient({
+      metaByUrl,
+      client: { from: bootstrapFrom },
+    });
+    const results = await client.search("GQA");
+
+    expect(fetchedUrl).toBe(bootstrapFrom);
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe(SAMPLE_URL);
   });
 
   test("uses the docs search API path and ranks GQA sample page first", async () => {

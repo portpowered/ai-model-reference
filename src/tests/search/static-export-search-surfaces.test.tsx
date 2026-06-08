@@ -28,6 +28,30 @@ import { SAMPLE_MODULE_URL } from "@/tests/search/helpers";
 const STATIC_HANDOFF_CLIENT = { from: STATIC_HANDOFF_BOOTSTRAP_FETCH_URL };
 const FAILING_BOOTSTRAP_URL = "http://static-handoff-fail.test/api/search";
 const FAILING_BOOTSTRAP_CLIENT = { from: FAILING_BOOTSTRAP_URL };
+const STATIC_EXPORT_EMPTY_HANDOFF = { q: null, tag: null } as const;
+
+function withWindowLocationSearch(
+  search: string,
+  run: () => Promise<void>,
+): Promise<void> {
+  const originalLocation = window.location;
+  Object.defineProperty(window, "location", {
+    configurable: true,
+    value: {
+      ...originalLocation,
+      search,
+      href: `http://localhost/search${search}`,
+      reload: () => {},
+    },
+  });
+
+  return run().finally(() => {
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: originalLocation,
+    });
+  });
+}
 
 function installFailingBootstrapFetchMock(): void {
   globalThis.fetch = (async (input: RequestInfo | URL) => {
@@ -56,7 +80,7 @@ function renderSearchPage(
     <SearchPagePanelContent
       messages={context.messages}
       metaByUrl={context.metaByUrl}
-      handoff={{ q: null, tag: null }}
+      handoff={STATIC_EXPORT_EMPTY_HANDOFF}
       searchClient={STATIC_HANDOFF_CLIENT}
     />,
     { context },
@@ -152,6 +176,72 @@ describe("static export search surfaces", () => {
       },
       { timeout: 3000 },
     );
+  });
+
+  test("/search?q=GQA prefills from window.location and surfaces grouped-query attention", async () => {
+    const context = await loadAppTestContext();
+
+    await withWindowLocationSearch("?q=GQA", async () => {
+      await renderSearchPage(context);
+
+      const searchInput = screen.getByLabelText(
+        context.messages.search.placeholder,
+      ) as HTMLInputElement;
+      expect(searchInput.value).toBe("GQA");
+
+      const results = await screen.findByTestId("search-page-results");
+      expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+    });
+  });
+
+  test("/search?tag=attention prefills from window.location and shows tag filter copy", async () => {
+    const context = await loadAppTestContext();
+
+    await withWindowLocationSearch("?tag=attention", async () => {
+      await renderSearchPage(context);
+
+      expect(
+        screen.getByText(
+          context.messages.searchEntry.tagFilterDescription.replace(
+            "{tag}",
+            "attention",
+          ),
+        ),
+      ).toBeTruthy();
+
+      const searchInput = screen.getByLabelText(
+        context.messages.search.placeholder,
+      ) as HTMLInputElement;
+      expect(searchInput.value).toBe("attention");
+
+      const results = await screen.findByTestId("search-page-results");
+      expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+    });
+  });
+
+  test("/search?q=GQA&tag=attention prefers q over tag on static export handoff", async () => {
+    const context = await loadAppTestContext();
+
+    await withWindowLocationSearch("?q=GQA&tag=attention", async () => {
+      await renderSearchPage(context);
+
+      const searchInput = screen.getByLabelText(
+        context.messages.search.placeholder,
+      ) as HTMLInputElement;
+      expect(searchInput.value).toBe("GQA");
+
+      expect(
+        screen.queryByText(
+          context.messages.searchEntry.tagFilterDescription.replace(
+            "{tag}",
+            "attention",
+          ),
+        ),
+      ).toBeNull();
+
+      const results = await screen.findByTestId("search-page-results");
+      expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+    });
   });
 
   test("/search result rows are keyboard focusable after static bootstrap search", async () => {

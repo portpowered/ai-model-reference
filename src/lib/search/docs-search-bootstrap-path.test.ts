@@ -40,7 +40,8 @@ describe("static search bootstrap fetch path", () => {
   const originalFetch = globalThis.fetch;
 
   test("oramaStaticClient bootstraps from basePath-prefixed static asset without API route", async () => {
-    const bootstrapFrom = "/ai-model-reference/api/search";
+    const bootstrapFrom =
+      "http://bootstrap-path-unit.test/ai-model-reference/api/search";
     const payload = await docsSearchApi.export();
 
     let fetchedUrl: string | undefined;

@@ -1,4 +1,4 @@
-import { type Browser, chromium, type Locator, type Page } from "playwright";
+import type { Browser, Locator, Page } from "playwright";
 import { BATCH_011_FOLLOW_UP_SEARCH_CHECKS } from "./batch-011-follow-up-search-checks";
 import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-result";
 import { POST_REPAIR_SEARCH_RESULT_ROW_HTML } from "./customer-ask-search-follow-up-convergence";
@@ -18,6 +18,7 @@ import {
   FetchTimeoutError,
   httpGetText,
 } from "./http-harness";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import {
   PHASE_1_GROUPED_QUERY_ATTENTION_URL,
   type SearchResultHit,
@@ -194,7 +195,7 @@ function dialogCheckIdsForQuery(): string[] {
 }
 
 async function defaultLaunchBrowser(): Promise<Browser> {
-  return chromium.launch({ headless: true });
+  return launchPlaywrightBrowser();
 }
 
 async function defaultSearchPageQueryCheck(
