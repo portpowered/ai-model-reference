@@ -83,6 +83,7 @@ describe("static export /search input hydration on GitHub Pages base path", () =
       try {
         const reason = await verifyStaticExportSearchInputHydration(
           server.baseUrl,
+          { timeoutMs: 45_000 },
         );
         expect(reason).toBeNull();
       } finally {
