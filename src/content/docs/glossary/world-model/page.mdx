@@ -1,22 +1,21 @@
 ---
-title: Architecture
-description: The blueprint that defines how a model's layers, modules, and data flow connect during inference.
+title: World Model
+description: A model family that learns environment dynamics or state transitions so it can predict or simulate what happens next.
 kind: "glossary"
-registryId: "concept.architecture"
+registryId: "concept.world-model"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
 tags:
   - taxonomy
-  - foundations
+  - model-family
 aliases:
-  - "model architecture"
-  - "neural architecture"
-  - "network architecture"
-updatedAt: "2026-06-04"
+  - world models
+  - world modeling
+  - environment model
+updatedAt: "2026-06-08"
 ---
 
-import { Callout } from "@/features/docs/components/Callout";
 import { CitationList } from "@/features/docs/components/CitationList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
@@ -30,29 +29,24 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="why-it-matters" titleKey="sections.whyItMatters.title">
   <T k="sections.whyItMatters.body" />
-
-  <Callout type="note" titleKey="callouts.readerShortcut.title">
-    <T k="callouts.readerShortcut.body" />
-  </Callout>
 </Section>
 
 <Section id="simple-example" titleKey="sections.simpleExample.title">
   <T k="sections.simpleExample.body" />
 </Section>
 
-
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">
   <T k="sections.commonConfusions.body" />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
-  <RelatedDocs registryId="concept.architecture" />
+  <RelatedDocs registryId="concept.world-model" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
-  <TagPillList registryId="concept.architecture" showDescriptions />
+  <TagPillList registryId="concept.world-model" showDescriptions />
 </Section>
 
 <Section id="references" titleKey="sections.references.title">
-  <CitationList registryId="concept.architecture" />
+  <CitationList registryId="concept.world-model" />
 </Section>

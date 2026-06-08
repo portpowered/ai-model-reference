@@ -81,12 +81,13 @@ describe("Phase 2 encoder-decoder architecture glossary pages (US-002)", () => {
     expect(html).toContain('data-testid="curated-related-docs"');
   });
 
-  test("encoder-decoder surfaces published autoregressive generation and planned transformer with reason labels", async () => {
+  test("encoder-decoder surfaces published autoregressive generation and transformer links", async () => {
     const html = await renderGlossaryHtml("encoder-decoder");
 
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
-    expect(html).toContain("Planned — coming in a later phase");
+    expect(html).toContain('href="/docs/glossary/transformer"');
     expect(html).toContain("Transformers");
+    expect(html).not.toContain("Planned — coming in a later phase");
   });
 
   test("encoder-decoder links to encoder and decoder peers", async () => {

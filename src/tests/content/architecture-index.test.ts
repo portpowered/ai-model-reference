@@ -31,6 +31,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/conditioning",
         "/docs/glossary/decoder",
         "/docs/glossary/denoising-generation",
+        "/docs/glossary/diffusion-model",
         "/docs/glossary/discriminative-model",
         "/docs/glossary/embedding",
         "/docs/glossary/emergent-behavior",
@@ -45,12 +46,15 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/model",
         "/docs/glossary/model-capacity",
         "/docs/glossary/module",
+        "/docs/glossary/multimodal-model",
         "/docs/glossary/overfitting",
         "/docs/glossary/patch",
         "/docs/glossary/perplexity",
         "/docs/glossary/representation",
         "/docs/glossary/scaling-law",
         "/docs/glossary/token",
+        "/docs/glossary/transformer",
+        "/docs/glossary/world-model",
       ].sort(),
     );
   });
