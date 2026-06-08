@@ -19,7 +19,6 @@ const DRAFT_FORWARD_TARGET_IDS = [
 ] as const;
 
 const REMAINING_DRAFT_FORWARD_TARGET_IDS = [
-  "concept.diffusion-model",
   "concept.multimodal-model",
   "concept.world-model",
 ] as const;
@@ -93,7 +92,7 @@ describe("Phase 2 taxonomy registry (US-001)", () => {
     expect(modelFamily.parentTagId).toBe("tag.taxonomy");
   });
 
-  test("transformer forward target is published and remaining forward targets stay draft", async () => {
+  test("transformer and diffusion-model forward targets are published and remaining forward targets stay draft", async () => {
     const transformer = await readRegistryJson(
       "concepts/transformer.json",
       conceptRecordSchema,
@@ -103,6 +102,16 @@ describe("Phase 2 taxonomy registry (US-001)", () => {
     expect(transformer.conceptType).toBe("architecture");
     expect(transformer.tags).toContain("taxonomy");
     expect(transformer.tags).toContain("model-family");
+
+    const diffusionModel = await readRegistryJson(
+      "concepts/diffusion-model.json",
+      conceptRecordSchema,
+    );
+    expect(diffusionModel.id).toBe("concept.diffusion-model");
+    expect(diffusionModel.status).toBe("published");
+    expect(diffusionModel.conceptType).toBe("architecture");
+    expect(diffusionModel.aliases).toContain("diffusion models");
+    expect(diffusionModel.tags).toContain("model-family");
 
     for (const id of REMAINING_DRAFT_FORWARD_TARGET_IDS) {
       const slug = id.replace("concept.", "");

@@ -115,11 +115,10 @@ describe("Phase 2 taxonomy discovery (US-009)", () => {
         expect(architecture?.relatedIds).toContain(id);
       }
       expect(indexes.byId.get("concept.transformer")?.status).toBe("published");
-      for (const id of [
-        "concept.diffusion-model",
-        "concept.multimodal-model",
-        "concept.world-model",
-      ]) {
+      expect(indexes.byId.get("concept.diffusion-model")?.status).toBe(
+        "published",
+      );
+      for (const id of ["concept.multimodal-model", "concept.world-model"]) {
         expect(indexes.byId.get(id)?.status).toBe("draft");
       }
     });

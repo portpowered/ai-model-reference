@@ -14,14 +14,14 @@ import {
 } from "@/lib/content/related-docs";
 
 const REMAINING_DRAFT_FORWARD_TARGET_IDS = [
-  "concept.diffusion-model",
   "concept.multimodal-model",
   "concept.world-model",
 ] as const;
 
 describe("Phase 2 planned related docs (US-002)", () => {
-  test("forward-target concepts are registered with transformer published and others draft", () => {
+  test("forward-target concepts are registered with transformer and diffusion-model published and others draft", () => {
     expect(getConceptById("concept.transformer")?.status).toBe("published");
+    expect(getConceptById("concept.diffusion-model")?.status).toBe("published");
     for (const id of REMAINING_DRAFT_FORWARD_TARGET_IDS) {
       const record = getConceptById(id);
       expect(record?.status).toBe("draft");
@@ -42,7 +42,7 @@ describe("Phase 2 planned related docs (US-002)", () => {
       listRelatedRegistryRecords(),
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
-    expect(items).toHaveLength(3);
+    expect(items).toHaveLength(2);
     for (const item of items) {
       expect(item.isPlanned).toBe(true);
       expect(item.href).toBeUndefined();
@@ -60,7 +60,7 @@ describe("Phase 2 planned related docs (US-002)", () => {
     expect(html).not.toContain(PLANNED_RELATED_REASON_LABEL);
   });
 
-  test("RelatedDocs renders published transformer and planned diffusion-model forwards", () => {
+  test("RelatedDocs renders published transformer and diffusion-model forwards", () => {
     const source = getConceptById("concept.token");
     if (!source) {
       throw new Error("expected concept.token in registry runtime");
@@ -82,8 +82,8 @@ describe("Phase 2 planned related docs (US-002)", () => {
     expect(items[0]?.href).toBe("/docs/glossary/transformer");
     expect(items[0]?.isPlanned).toBe(false);
     expect(items[1]?.registryId).toBe("concept.diffusion-model");
-    expect(items[1]?.href).toBeUndefined();
-    expect(items[1]?.isPlanned).toBe(true);
+    expect(items[1]?.href).toBe("/docs/glossary/diffusion-model");
+    expect(items[1]?.isPlanned).toBe(false);
   });
 
   test("DerivedRelatedDocs renders published transformer same-concept-type peer with href", () => {

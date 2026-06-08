@@ -54,7 +54,10 @@ const EVALUATION_SCALING_URLS = [
   "/docs/glossary/scaling-law",
   "/docs/glossary/emergent-behavior",
 ] as const;
-const MODEL_FAMILY_URLS = ["/docs/glossary/transformer"] as const;
+const MODEL_FAMILY_URLS = [
+  "/docs/glossary/transformer",
+  "/docs/glossary/diffusion-model",
+] as const;
 const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/embedding",
   "/docs/glossary/vector",

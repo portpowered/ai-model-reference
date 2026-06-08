@@ -261,7 +261,7 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
       }
     });
 
-    test("transformer is published while other forward targets remain draft", async () => {
+    test("transformer and diffusion-model are published while other forward targets remain draft", async () => {
       const indexes = await loadRegistry();
       const encoderDecoder = indexes.byId.get("concept.encoder-decoder") as
         | ConceptRecord
@@ -272,11 +272,13 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
       expect(transformer?.status).toBe("published");
       expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.transformer")).toBe(true);
 
-      for (const id of [
-        "concept.diffusion-model",
-        "concept.multimodal-model",
-        "concept.world-model",
-      ]) {
+      const diffusionModel = indexes.byId.get("concept.diffusion-model");
+      expect(diffusionModel?.status).toBe("published");
+      expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.diffusion-model")).toBe(
+        true,
+      );
+
+      for (const id of ["concept.multimodal-model", "concept.world-model"]) {
         expect(indexes.byId.get(id)?.status).toBe("draft");
         expect(PUBLISHED_DOCS_REGISTRY_IDS.has(id)).toBe(false);
       }

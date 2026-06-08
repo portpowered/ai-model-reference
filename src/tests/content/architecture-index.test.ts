@@ -31,6 +31,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/conditioning",
         "/docs/glossary/decoder",
         "/docs/glossary/denoising-generation",
+        "/docs/glossary/diffusion-model",
         "/docs/glossary/discriminative-model",
         "/docs/glossary/embedding",
         "/docs/glossary/emergent-behavior",
