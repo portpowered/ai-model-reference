@@ -1,0 +1,58 @@
+{
+  "id": "table.linear-attention-comparison",
+  "subjectId": "module.linear-attention",
+  "columns": [
+    {
+      "moduleId": "module.linear-attention",
+      "titleKey": "tables.comparison.columns.linear.title"
+    },
+    {
+      "moduleId": "module.multi-head-attention",
+      "titleKey": "tables.comparison.columns.mha.title"
+    },
+    {
+      "moduleId": "module.multi-query-attention",
+      "titleKey": "tables.comparison.columns.mqa.title"
+    },
+    {
+      "moduleId": "module.grouped-query-attention",
+      "titleKey": "tables.comparison.columns.gqa.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "sequenceScaling",
+      "labelKey": "tables.comparison.dimensions.sequenceScaling"
+    },
+    {
+      "id": "computeMechanism",
+      "labelKey": "tables.comparison.dimensions.computeMechanism"
+    },
+    {
+      "id": "expressiveness",
+      "labelKey": "tables.comparison.dimensions.expressiveness"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.linear-attention": {
+      "sequenceScaling": "tables.comparison.values.linear.sequenceScaling",
+      "computeMechanism": "tables.comparison.values.linear.computeMechanism",
+      "expressiveness": "tables.comparison.values.linear.expressiveness"
+    },
+    "module.multi-head-attention": {
+      "sequenceScaling": "tables.comparison.values.mha.sequenceScaling",
+      "computeMechanism": "tables.comparison.values.mha.computeMechanism",
+      "expressiveness": "tables.comparison.values.mha.expressiveness"
+    },
+    "module.multi-query-attention": {
+      "sequenceScaling": "tables.comparison.values.mqa.sequenceScaling",
+      "computeMechanism": "tables.comparison.values.mqa.computeMechanism",
+      "expressiveness": "tables.comparison.values.mqa.expressiveness"
+    },
+    "module.grouped-query-attention": {
+      "sequenceScaling": "tables.comparison.values.gqa.sequenceScaling",
+      "computeMechanism": "tables.comparison.values.gqa.computeMechanism",
+      "expressiveness": "tables.comparison.values.gqa.expressiveness"
+    }
+  }
+}

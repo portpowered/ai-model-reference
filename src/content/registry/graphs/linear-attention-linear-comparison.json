@@ -1,0 +1,56 @@
+{
+  "id": "graph.linear-attention-linear-comparison",
+  "slug": "linear-attention-linear-comparison",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-06-08T00:00:00.000Z",
+  "subjectId": "module.linear-attention",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "linear-query-heads",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "linear-query-heads",
+      "labelKey": "graph.nodes.linearQueryHeads.label",
+      "moduleKind": "projection",
+      "headCountRole": "query",
+      "childNodeIds": ["linear-feature-map"]
+    },
+    {
+      "id": "linear-feature-map",
+      "labelKey": "graph.nodes.linearFeatureMap.label",
+      "moduleKind": "attention",
+      "headCountRole": "kv",
+      "childNodeIds": ["linear-associative-update"]
+    },
+    {
+      "id": "linear-associative-update",
+      "labelKey": "graph.nodes.linearAssociativeUpdate.label",
+      "moduleKind": "operation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "linear-query-to-feature-map",
+      "source": "linear-query-heads",
+      "target": "linear-feature-map",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "linear-feature-map-to-update",
+      "source": "linear-feature-map",
+      "target": "linear-associative-update",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "title": "Sliding-Window Attention",
+  "description": "An attention variant that restricts each query to a fixed local window of key positions instead of the full sequence.",
+  "openingSummary": "Dense attention lets every query attend to every key across the sequence, so cost grows with the square of length; sliding-window attention applies a fixed local window so each position attends only to nearby keys, trading global reach for bounded compute and memory on long contexts.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Sliding-window attention is an attention variant that limits each query position to keys within a fixed neighborhood. Instead of a full n-by-n attention matrix, only entries inside the window receive non-zero weight."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "Sliding-window attention targets attention compute, memory bandwidth for score materialization, and the cost of serving long sequences when dense all-pairs attention would dominate runtime."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "Teams adopt sliding-window attention when they need long-context modeling but cannot afford dense quadratic attention. Bounding the attended neighborhood reduces multiply-accumulate work and keeps attention maps within a predictable local footprint."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Each query position attends only to keys within W tokens to its left (and optionally right, depending on the pattern). Keys outside the window are zeroed before softmax normalization, so the model spends compute on local context rather than the full token grid."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "With sequence length n and window size W, sliding-window attention applies a band mask before softmax. The formulas below contrast dense multi-head attention against window-limited attention that restricts which keys each query can reach."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with multi-head attention, sliding-window attention limits reach to a local neighborhood rather than scoring all positions. Multi-query and grouped-query attention remain dense over allowed positions but reduce KV head count; sliding-window attention changes how far each query can look."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Sliding-window attention appears in long-context decoder models that combine local windows with periodic global layers or other patterns to recover distant dependencies."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "A fixed window cannot directly connect distant tokens in a single layer. Models that rely only on local windows may need stacked layers or companion patterns to move information across the full sequence."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "As sequence lengths grow, quadratic attention cost motivates locality patterns that preserve useful nearby signal while avoiding a full n-by-n score matrix on every layer."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Dense multi-head attention versus sliding-window local reach",
+      "caption": "Toggle MHA and sliding-window attention to compare full-sequence reach against fixed local windows on one canvas",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "window": {
+          "label": "Window"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "How sliding-window attention compares with nearby attention variants"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "window": {
+          "title": "Sliding-Window Attention"
+        },
+        "mha": {
+          "title": "Multi-Head Attention"
+        },
+        "mqa": {
+          "title": "Multi-Query Attention"
+        },
+        "gqa": {
+          "title": "Grouped-Query Attention"
+        }
+      },
+      "dimensions": {
+        "attentionLocality": "Attention locality",
+        "computeScaling": "Compute scaling with sequence length",
+        "globalReach": "Global token reach"
+      },
+      "values": {
+        "window": {
+          "attentionLocality": "Fixed local window of W tokens per query",
+          "computeScaling": "Linear O(n·W) per head when W is fixed",
+          "globalReach": "Distant tokens require stacked layers or companion patterns"
+        },
+        "mha": {
+          "attentionLocality": "Full sequence; every query sees every key",
+          "computeScaling": "Quadratic O(n²) per head",
+          "globalReach": "Any position can attend to any other position"
+        },
+        "mqa": {
+          "attentionLocality": "Full sequence with shared KV heads",
+          "computeScaling": "Quadratic O(n²) with fewer KV projections",
+          "globalReach": "Any position can attend to any other position"
+        },
+        "gqa": {
+          "attentionLocality": "Full sequence with grouped KV heads",
+          "computeScaling": "Quadratic O(n²) with reduced KV head count",
+          "globalReach": "Any position can attend to any other position"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Sliding-window attention",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(B_W \\odot \\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "g": {
+          "term": "W",
+          "definition": "Window size: maximum token distance each query may attend to."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        },
+        "gi": {
+          "term": "B_W",
+          "definition": "Band mask that zeroes key positions outside the sliding window."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "mhaQueryHeads": {
+        "label": "H query heads"
+      },
+      "mhaKvHeads": {
+        "label": "H KV head pairs (1:1 with queries)"
+      },
+      "mhaOneToOne": {
+        "label": "Each query attends to every key position"
+      },
+      "windowQueryHeads": {
+        "label": "H query heads"
+      },
+      "windowLocalBoundary": {
+        "label": "Local window of W tokens"
+      },
+      "windowLimitedReach": {
+        "label": "Attend only to keys inside the window"
+      }
+    }
+  }
+}

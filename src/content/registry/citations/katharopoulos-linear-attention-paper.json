@@ -1,0 +1,29 @@
+{
+  "id": "citation.katharopoulos-linear-attention-paper",
+  "slug": "katharopoulos-linear-attention-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "linear attention paper",
+    "Transformers are RNNs paper",
+    "Katharopoulos linear attention"
+  ],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-06-08T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Katharopoulos, Angelos",
+    "Vyas, Apoorv",
+    "Pappas, Nikolaos",
+    "Fleuret, François"
+  ],
+  "title": "Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention",
+  "year": 2020,
+  "url": "https://arxiv.org/abs/2006.16236",
+  "mla": "Katharopoulos, Angelos, et al. \"Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention.\" arXiv, 2020, https://arxiv.org/abs/2006.16236."
+}
