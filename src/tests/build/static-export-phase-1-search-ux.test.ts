@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
@@ -19,59 +19,50 @@ function removeExportArtifacts(): void {
 }
 
 describe("static export Phase 1 search UX", () => {
+  beforeAll(() => {
+    removeExportArtifacts();
+
+    const buildResult = runStaticExportBuild({
+      cwd: repoRoot,
+    });
+    if (buildResult.status !== 0) {
+      throw new Error(
+        `build-export failed with status ${buildResult.status}: ${buildResult.stderr ?? buildResult.stdout ?? ""}`,
+      );
+    }
+  }, 300_000);
+
+  afterAll(() => {
+    removeExportArtifacts();
+  });
+
   test(
     "build:export serves GQA, attention, and KV cache on /search and header dialog",
     async () => {
-      removeExportArtifacts();
-
-      try {
-        const buildResult = runStaticExportBuild({
-          cwd: repoRoot,
-        });
-        expect(buildResult.status).toBe(0);
-
-        const failures = await runPhase1ExportSearchUxChecks({
-          cwd: repoRoot,
-          searchPageOptions: { timeoutMs: 30_000 },
-          searchDialogOptions: { timeoutMs: 30_000 },
-        });
-        expect(failures).toEqual([]);
-      } finally {
-        removeExportArtifacts();
-      }
+      const failures = await runPhase1ExportSearchUxChecks({
+        cwd: repoRoot,
+        searchPageOptions: { timeoutMs: 30_000 },
+        searchDialogOptions: { timeoutMs: 30_000 },
+      });
+      expect(failures).toEqual([]);
     },
-    { timeout: 360_000 },
+    { timeout: 240_000 },
   );
 
-  test(
-    "verify-phase-1-export-search-ux script passes after build:export",
-    () => {
-      removeExportArtifacts();
+  test("verify-phase-1-export-search-ux script passes after build:export", () => {
+    const verifyResult = spawnSync(
+      "bun",
+      ["./scripts/verify-phase-1-export-search-ux.ts"],
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+        env: process.env,
+      },
+    );
 
-      try {
-        const buildResult = runStaticExportBuild({
-          cwd: repoRoot,
-        });
-        expect(buildResult.status).toBe(0);
-
-        const verifyResult = spawnSync(
-          "bun",
-          ["./scripts/verify-phase-1-export-search-ux.ts"],
-          {
-            cwd: repoRoot,
-            encoding: "utf8",
-            env: process.env,
-          },
-        );
-
-        expect(verifyResult.status).toBe(0);
-        expect(verifyResult.stdout ?? "").toContain(
-          "Phase 1 static export search UX verified",
-        );
-      } finally {
-        removeExportArtifacts();
-      }
-    },
-    { timeout: 360_000 },
-  );
+    expect(verifyResult.status).toBe(0);
+    expect(verifyResult.stdout ?? "").toContain(
+      "Phase 1 static export search UX verified",
+    );
+  });
 });

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
@@ -20,36 +20,42 @@ function removeExportArtifacts(): void {
 }
 
 describe("static export /search empty and error states on GitHub Pages base path", () => {
+  beforeAll(() => {
+    removeExportArtifacts();
+
+    const buildResult = runStaticExportBuild({
+      cwd: repoRoot,
+      env: {
+        GITHUB_PAGES_BASE_PATH: exportBasePath,
+      },
+    });
+    if (buildResult.status !== 0) {
+      throw new Error(
+        `build-export failed with status ${buildResult.status}: ${buildResult.stderr ?? buildResult.stdout ?? ""}`,
+      );
+    }
+  }, 300_000);
+
+  afterAll(() => {
+    removeExportArtifacts();
+  });
+
   test(
     "served static export exposes recoverable empty and error states with accessible outcomes",
     async () => {
-      removeExportArtifacts();
-
+      const server = await createStaticExportHttpServer({
+        cwd: repoRoot,
+        basePath: exportBasePath,
+      });
       try {
-        const buildResult = runStaticExportBuild({
-          cwd: repoRoot,
-          env: {
-            GITHUB_PAGES_BASE_PATH: exportBasePath,
-          },
-        });
-        expect(buildResult.status).toBe(0);
-
-        const server = await createStaticExportHttpServer({
-          cwd: repoRoot,
-          basePath: exportBasePath,
-        });
-        try {
-          const reason = await verifyStaticExportSearchEmptyErrorStates(
-            server.baseUrl,
-          );
-          expect(reason).toBeNull();
-        } finally {
-          await server.cleanup();
-        }
+        const reason = await verifyStaticExportSearchEmptyErrorStates(
+          server.baseUrl,
+        );
+        expect(reason).toBeNull();
       } finally {
-        removeExportArtifacts();
+        await server.cleanup();
       }
     },
-    { timeout: 300_000 },
+    { timeout: 240_000 },
   );
 });
