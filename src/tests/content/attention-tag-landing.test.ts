@@ -41,8 +41,8 @@ describe("attention tag landing resources", () => {
       "/docs/modules/grouped-query-attention",
       "/docs/modules/linear-attention",
       "/docs/modules/multi-head-attention",
-      "/docs/modules/multi-query-attention",
       "/docs/modules/multi-head-latent-attention",
+      "/docs/modules/multi-query-attention",
       "/docs/modules/sliding-window-attention",
       "/docs/modules/sparse-attention",
     ]);
