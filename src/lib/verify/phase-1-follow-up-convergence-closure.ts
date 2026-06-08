@@ -1,5 +1,6 @@
 import {
   BATCH_011_FOLLOW_UP_CUSTOMER_ASK_INVENTORY,
+  buildBatch011FollowUpCustomerAskReportSlots,
   orderCustomerAskRowsByBatch011Inventory,
 } from "./batch-011-follow-up-customer-ask-check-inventory";
 import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-result";
@@ -23,12 +24,41 @@ const NON_CUSTOMER_ASK_REPORT_CHECK_IDS = new Set([
   "customer-ask-convergence",
 ]);
 
+function rowMatchesBatch011FollowUpSlot(
+  row: CustomerAskConvergenceRow,
+  slot: ReturnType<typeof buildBatch011FollowUpCustomerAskReportSlots>[number],
+): boolean {
+  if (row.checkId !== slot.checkId) {
+    return false;
+  }
+
+  if (slot.query === undefined) {
+    return row.query === undefined;
+  }
+
+  return row.query === slot.query;
+}
+
 function parseBatch011FollowUpCustomerAskRows(
   output: string,
 ): CustomerAskConvergenceRow[] {
-  return parseCustomerAskConvergenceReport(output).filter(
+  const batch011Slots = buildBatch011FollowUpCustomerAskReportSlots();
+  const pool = parseCustomerAskConvergenceReport(output).filter(
     (row) => !NON_CUSTOMER_ASK_REPORT_CHECK_IDS.has(row.checkId),
   );
+  const ordered: CustomerAskConvergenceRow[] = [];
+
+  for (const slot of batch011Slots) {
+    const index = pool.findIndex((row) =>
+      rowMatchesBatch011FollowUpSlot(row, slot),
+    );
+    if (index === -1) {
+      continue;
+    }
+    ordered.push(pool.splice(index, 1)[0]);
+  }
+
+  return ordered;
 }
 
 /**
@@ -86,7 +116,10 @@ export function assertBatch011FollowUpConvergenceClosureReady(
   }
 
   const parsedRows = parseBatch011FollowUpCustomerAskRows(output);
-  orderCustomerAskRowsByBatch011Inventory(parsedRows);
+  const expectedBatch011Slots = buildBatch011FollowUpCustomerAskReportSlots();
+  if (parsedRows.length !== expectedBatch011Slots.length) {
+    orderCustomerAskRowsByBatch011Inventory(parsedRows);
+  }
 
   for (const {
     checkId,
