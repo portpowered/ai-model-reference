@@ -75,13 +75,15 @@ describe("validateDocumentationLinks", () => {
 
     expect(urls).toContain("/docs/getting-started");
     expect(urls).toContain("/docs/modules/grouped-query-attention");
-    expect(urls).toContain("/docs/modules/multi-head-latent-attention");
-    expect(urls).toContain("/docs/modules/sparse-attention");
-    expect(urls).toContain("/docs/modules/sliding-window-attention");
     expect(urls).toContain("/docs/modules/linear-attention");
+    expect(urls).toContain("/docs/modules/multi-head-attention");
+    expect(urls).toContain("/docs/modules/multi-head-latent-attention");
+    expect(urls).toContain("/docs/modules/multi-query-attention");
+    expect(urls).toContain("/docs/modules/sliding-window-attention");
+    expect(urls).toContain("/docs/modules/sparse-attention");
     expect(urls).toContain("/docs/glossary/token");
     expect(new Set(paths).size).toBe(paths.length);
-    expect(files.length).toBeLessThan(55);
+    expect(files.length).toBeLessThan(57);
   });
 
   test("reports a broken internal route with an actionable target URL", async () => {

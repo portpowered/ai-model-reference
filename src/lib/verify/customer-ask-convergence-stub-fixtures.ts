@@ -241,7 +241,9 @@ export const CUSTOMER_ASK_PASSING_ATTENTION_MODULE_HTML =
   buildPhase1DocsRouteStubHtml(`
   <h1>Attention</h1>
   <div data-registry-id="${MISSING_PAGES_ATTENTION_REGISTRY_ID}"></div>
-  <p>Phase 1 bridge page</p>
+  <a href="/docs/modules/multi-head-attention">MHA</a>
+  <a href="/docs/modules/multi-query-attention">MQA</a>
+  <a href="/docs/modules/grouped-query-attention">GQA</a>
 `);
 
 export const CUSTOMER_ASK_PASSING_VECTOR_GLOSSARY_HTML =

@@ -54,6 +54,17 @@ describe("Phase 2 planned related docs (US-002)", () => {
     expect(html).toContain('href="/docs/glossary/embedding"');
   });
 
+  test("RelatedDocs renders GQA curated links to attention overview and sibling variants", () => {
+    const html = renderToStaticMarkup(
+      <RelatedDocs registryId="module.grouped-query-attention" />,
+    );
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/modules/attention"');
+    expect(html).toContain('href="/docs/modules/multi-head-attention"');
+    expect(html).toContain('href="/docs/modules/multi-query-attention"');
+    expect(html).toContain("Curated related");
+  });
+
   test("RelatedDocs renders published transformer and diffusion-model forwards", () => {
     const source = getConceptById("concept.token");
     if (!source) {

@@ -1,0 +1,49 @@
+{
+  "id": "table.multi-query-attention-comparison",
+  "subjectId": "module.multi-query-attention",
+  "columns": [
+    {
+      "moduleId": "module.multi-query-attention",
+      "titleKey": "tables.comparison.columns.mqa.title"
+    },
+    {
+      "moduleId": "module.multi-head-attention",
+      "titleKey": "tables.comparison.columns.mha.title"
+    },
+    {
+      "moduleId": "module.grouped-query-attention",
+      "titleKey": "tables.comparison.columns.gqa.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "kvHeadCount",
+      "labelKey": "tables.comparison.dimensions.kvHeadCount"
+    },
+    {
+      "id": "queryHeadFlexibility",
+      "labelKey": "tables.comparison.dimensions.queryHeadFlexibility"
+    },
+    {
+      "id": "cacheFootprint",
+      "labelKey": "tables.comparison.dimensions.cacheFootprint"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.multi-query-attention": {
+      "kvHeadCount": "tables.comparison.values.mqa.kvHeadCount",
+      "queryHeadFlexibility": "tables.comparison.values.mqa.queryHeadFlexibility",
+      "cacheFootprint": "tables.comparison.values.mqa.cacheFootprint"
+    },
+    "module.multi-head-attention": {
+      "kvHeadCount": "tables.comparison.values.mha.kvHeadCount",
+      "queryHeadFlexibility": "tables.comparison.values.mha.queryHeadFlexibility",
+      "cacheFootprint": "tables.comparison.values.mha.cacheFootprint"
+    },
+    "module.grouped-query-attention": {
+      "kvHeadCount": "tables.comparison.values.gqa.kvHeadCount",
+      "queryHeadFlexibility": "tables.comparison.values.gqa.queryHeadFlexibility",
+      "cacheFootprint": "tables.comparison.values.gqa.cacheFootprint"
+    }
+  }
+}

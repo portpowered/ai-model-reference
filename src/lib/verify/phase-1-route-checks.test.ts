@@ -27,7 +27,7 @@ const PASSING_STUB_HTML: Record<string, string> = {
   "/docs/glossary/hidden-size":
     '<html><h1>Hidden Size</h1><article data-registry-id="concept.hidden-size"></article></html>',
   "/docs/modules/attention":
-    '<html><h1>Attention</h1><div data-registry-id="module.attention"></div><p>Phase 1 bridge page</p></html>',
+    '<html><h1>Attention</h1><div data-registry-id="module.attention"></div><a href="/docs/modules/multi-head-attention">MHA</a><a href="/docs/modules/multi-query-attention">MQA</a><a href="/docs/modules/grouped-query-attention">GQA</a></html>',
   "/docs/modules/grouped-query-attention": `<html>${buildGroupedQueryAttentionStubBody()}</html>`,
 };
 

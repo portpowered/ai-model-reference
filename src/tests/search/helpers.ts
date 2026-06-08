@@ -7,6 +7,8 @@ import {
 } from "@/lib/verify/customer-ask-search-surface-convergence";
 
 export const SAMPLE_MODULE_URL = "/docs/modules/grouped-query-attention";
+export const MULTI_HEAD_ATTENTION_URL = "/docs/modules/multi-head-attention";
+export const MULTI_QUERY_ATTENTION_URL = "/docs/modules/multi-query-attention";
 export const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
 
 export const TAXONOMY_GLOSSARY_URLS = [
@@ -40,6 +42,18 @@ export function resultsIncludeSampleModule(
   results: Array<{ url: string }>,
 ): boolean {
   return resultsIncludeUrl(results, SAMPLE_MODULE_URL);
+}
+
+export function resultsIncludeMultiHeadAttention(
+  results: Array<{ url: string }>,
+): boolean {
+  return resultsIncludeUrl(results, MULTI_HEAD_ATTENTION_URL);
+}
+
+export function resultsIncludeMultiQueryAttention(
+  results: Array<{ url: string }>,
+): boolean {
+  return resultsIncludeUrl(results, MULTI_QUERY_ATTENTION_URL);
 }
 
 /** Asserts UI/API search rows list each page once without fragment hash URLs. */

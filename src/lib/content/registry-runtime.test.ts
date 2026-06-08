@@ -16,6 +16,8 @@ describe("registry-runtime", () => {
     expect(record?.slug).toBe("attention");
     expect(record?.tags).toEqual(["attention"]);
     expect(record?.aliases).toContain("self-attention");
+    expect(record?.relatedIds).toContain("module.multi-head-attention");
+    expect(record?.relatedIds).toContain("module.multi-query-attention");
     expect(record?.relatedIds).toContain("module.grouped-query-attention");
     expect(record?.relatedIds).toContain("concept.token");
   });
@@ -24,7 +26,11 @@ describe("registry-runtime", () => {
     const record = getModuleById("module.grouped-query-attention");
     expect(record?.slug).toBe("grouped-query-attention");
     expect(record?.tags).toEqual(["attention", "kv-cache"]);
-    expect(record?.relatedIds).toEqual(["module.attention"]);
+    expect(record?.relatedIds).toEqual([
+      "module.attention",
+      "module.multi-head-attention",
+      "module.multi-query-attention",
+    ]);
   });
 
   test("getRegistryTags returns tags for a known module", () => {
@@ -59,6 +65,28 @@ describe("registry-runtime", () => {
   test("getRegistryCitationIds returns citations for grouped-query attention", () => {
     expect(getRegistryCitationIds("module.grouped-query-attention")).toEqual([
       "citation.gqa-paper",
+    ]);
+  });
+
+  test("getRegistryCitationIds returns citations for MHA and MQA modules", () => {
+    expect(getRegistryCitationIds("module.multi-head-attention")).toEqual([
+      "citation.attention-is-all-you-need",
+    ]);
+    expect(getRegistryCitationIds("module.multi-query-attention")).toEqual([
+      "citation.shazeer-mqa-paper",
+    ]);
+  });
+
+  test("MHA and MQA modules link attention overview and sibling variants", () => {
+    expect(getModuleById("module.multi-head-attention")?.relatedIds).toEqual([
+      "module.attention",
+      "module.multi-query-attention",
+      "module.grouped-query-attention",
+    ]);
+    expect(getModuleById("module.multi-query-attention")?.relatedIds).toEqual([
+      "module.attention",
+      "module.multi-head-attention",
+      "module.grouped-query-attention",
     ]);
   });
 

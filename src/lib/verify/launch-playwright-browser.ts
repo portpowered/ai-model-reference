@@ -91,8 +91,10 @@ export function isPlaywrightLaunchRetryableError(error: unknown): boolean {
     "code" in error && typeof error.code === "string" ? error.code : null;
 
   return (
-    error.message.includes("Failed to connect") &&
-    (code === "ENOENT" || errno === -2)
+    error.message.includes("Failed to connect") ||
+    code === "ENOENT" ||
+    code === "ECONNREFUSED" ||
+    errno === -2
   );
 }
 

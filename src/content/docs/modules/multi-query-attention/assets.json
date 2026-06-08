@@ -1,0 +1,27 @@
+{
+  "computeFlow": {
+    "type": "attention-variant-graph",
+    "defaultVariantId": "mqa",
+    "variants": [
+      {
+        "variantId": "mha",
+        "graphId": "graph.multi-query-attention-mha-comparison",
+        "labelKey": "assets.computeFlow.variants.mha.label"
+      },
+      {
+        "variantId": "mqa",
+        "graphId": "graph.multi-query-attention-mqa-comparison",
+        "labelKey": "assets.computeFlow.variants.mqa.label"
+      }
+    ],
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.multi-query-attention-comparison",
+    "captionKey": "assets.comparisonTable.caption"
+  }
+}
