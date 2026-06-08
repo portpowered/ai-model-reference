@@ -1,3 +1,8 @@
+/** Concept registry ids whose published docs page lives under `/docs/concepts`. */
+export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
+  "concept.transformer-architecture",
+]);
+
 /** Registry ids for docs pages with `status: published` in frontmatter. */
 export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "module.attention",
@@ -43,6 +48,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.perplexity",
   "concept.scaling-law",
   "concept.emergent-behavior",
+  "concept.transformer-architecture",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;

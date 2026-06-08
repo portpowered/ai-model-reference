@@ -1,13 +1,19 @@
+import { loadConceptPage } from "@/lib/content/concept-page";
+import type { LoadedConceptPage } from "@/lib/content/concept-page-load";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import type { LoadedGlossaryPage } from "@/lib/content/glossary-page-load";
 import { loadModulePage } from "@/lib/content/module-page";
 import type { LoadedModulePage } from "@/lib/content/module-page-load";
 
 export type LocalDocsPageRef =
+  | { section: "concepts"; slug: string }
   | { section: "glossary"; slug: string }
   | { section: "modules"; slug: string };
 
-export type LoadedLocalDocsPage = LoadedGlossaryPage | LoadedModulePage;
+export type LoadedLocalDocsPage =
+  | LoadedConceptPage
+  | LoadedGlossaryPage
+  | LoadedModulePage;
 
 /** Parses catch-all slug segments for glossary or module local-message pages. */
 export function parseLocalDocsPageRef(
@@ -17,7 +23,11 @@ export function parseLocalDocsPageRef(
     return null;
   }
 
-  if (slug[0] === "glossary" || slug[0] === "modules") {
+  if (
+    slug[0] === "concepts" ||
+    slug[0] === "glossary" ||
+    slug[0] === "modules"
+  ) {
     return { section: slug[0], slug: slug[1] };
   }
 
@@ -41,6 +51,10 @@ export async function loadLocalDocsPage(
   ref: LocalDocsPageRef,
   locale = "en",
 ): Promise<LoadedLocalDocsPage> {
+  if (ref.section === "concepts") {
+    return loadConceptPage(ref.slug, locale);
+  }
+
   if (ref.section === "glossary") {
     return loadGlossaryPage(ref.slug, locale);
   }
