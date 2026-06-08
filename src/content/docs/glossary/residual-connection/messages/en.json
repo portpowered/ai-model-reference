@@ -1,0 +1,32 @@
+{
+  "title": "Residual connection",
+  "description": "Skip paths that add each sublayer's output back onto the running hidden stream so deep transformer stacks stay trainable.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A residual connection—also called a skip connection or residual add—carries the input of a sublayer forward and adds it to that sublayer's output. In transformers, the same hidden vector stream passes through attention, feed-forward layers, and normalization while residuals preserve a direct path from earlier layers. Each block typically applies two residual adds: one around attention and one around the feed-forward network."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Deep stacks would be hard to train if every layer had to learn the full transformation from scratch. Residuals let each sublayer learn a small update on top of what already flows through the stream, which keeps gradients from vanishing on the skip highway during backpropagation. Placement relative to normalization also shapes training: pre-norm applies layer norm before each sublayer and adds the result back onto the stream afterward, while post-norm normalizes after the add. Most modern decoder language models use pre-norm because it tends to stabilize optimization at large depth."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine one token vector entering a block. Pre-norm attention reads a normalized copy of the stream, mixes context from other positions, and writes its output back with a residual add so the original stream is never fully replaced. The feed-forward sublayer repeats the pattern: normalize, apply the dense MLP, then add onto the same residual stream before the next block receives the vector."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A residual add is not the same as normalization: residuals preserve and sum streams, while norm layers rescale activations. The residual stream is also not a second hidden size—it is the main width that every sublayer reads and writes. Finally, skip connections here are inside one model stack, not shortcuts between separate ensemble members."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "Residual connections add each sublayer's output back onto the running hidden stream, giving gradients a skip highway through depth and pairing with pre-norm or post-norm placement around attention and feed-forward blocks."
+}

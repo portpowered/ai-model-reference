@@ -54,6 +54,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.normalization",
   "concept.layer-norm",
   "concept.rmsnorm",
+  "concept.residual-connection",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;
