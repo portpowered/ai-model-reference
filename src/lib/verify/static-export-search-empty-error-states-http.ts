@@ -1,7 +1,10 @@
 import type { Browser, Page } from "playwright";
 import { withExportIntegrationProbeLock } from "./export-integration-probe-lock";
 import { httpGetText } from "./http-harness";
-import { launchPlaywrightBrowser } from "./launch-playwright-browser";
+import {
+  isPlaywrightLaunchRetryableError,
+  launchPlaywrightBrowser,
+} from "./launch-playwright-browser";
 import { assertSearchPageExportShell } from "./phase-1-search-export-shell-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 import {
@@ -419,8 +422,9 @@ export async function verifyStaticExportSearchEmptyErrorStates(
       return shellFailure;
     }
 
-    const browser = await launchBrowser();
+    let browser: Browser | undefined;
     try {
+      browser = await launchBrowser();
       const emptyContext = await browser.newContext();
       try {
         const emptyPage = await emptyContext.newPage();
@@ -480,7 +484,22 @@ export async function verifyStaticExportSearchEmptyErrorStates(
     } catch (error) {
       return error instanceof Error ? error.message : String(error);
     } finally {
-      await browser.close();
+      if (browser) {
+        await browser.close();
+      }
     }
   });
+}
+
+export function isRetryableStaticExportSearchProbeFailure(
+  reason: string | null,
+): reason is string {
+  if (!reason) {
+    return false;
+  }
+
+  return (
+    reason.includes("Failed to connect") ||
+    isPlaywrightLaunchRetryableError(new Error(reason))
+  );
 }
