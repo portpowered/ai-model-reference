@@ -207,6 +207,6 @@ describe("verifyStaticExportSearchUrlHandoff", () => {
         rmSync(root, { recursive: true, force: true });
       }
     },
-    { timeout: 90_000 },
+    { timeout: 60_000 },
   );
 });
