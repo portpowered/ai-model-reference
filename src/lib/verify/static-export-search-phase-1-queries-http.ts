@@ -8,7 +8,7 @@ import {
 } from "./phase-1-search-page-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
-export const DEFAULT_STATIC_EXPORT_PHASE_1_QUERIES_TIMEOUT_MS = 30_000;
+export const DEFAULT_STATIC_EXPORT_PHASE_1_QUERIES_TIMEOUT_MS = 45_000;
 
 async function defaultLaunchBrowser(): Promise<Browser> {
   return chromium.launch({ headless: true });

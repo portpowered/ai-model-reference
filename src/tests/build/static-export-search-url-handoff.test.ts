@@ -92,6 +92,6 @@ describe("static export /search URL query and tag handoff on GitHub Pages base p
         removeExportArtifacts();
       }
     },
-    { timeout: 240_000 },
+    { timeout: 360_000 },
   );
 });

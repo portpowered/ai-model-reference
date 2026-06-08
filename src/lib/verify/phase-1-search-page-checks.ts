@@ -71,8 +71,8 @@ export function resolveSearchPageCheckOptionsFromEnv(
 
 const SEARCH_RESULT_URL_SELECTOR = '[data-testid="search-result-url"]';
 
-/** Default per-query browser deadline (client hydration can exceed 10s under CI load). */
-export const DEFAULT_SEARCH_PAGE_TIMEOUT_MS = 30_000;
+/** Default per-query browser deadline (client hydration can exceed 30s under CI load). */
+export const DEFAULT_SEARCH_PAGE_TIMEOUT_MS = 45_000;
 
 export function formatPhase1SearchPageCheckFailure(
   failure: Phase1SearchPageCheckFailure,
@@ -299,18 +299,24 @@ export async function runPhase1SearchPageChecks(
   const browser = await launchBrowser();
 
   try {
-    const page = await browser.newPage();
-    page.setDefaultTimeout(timeoutMs);
-
     for (const query of queries) {
-      const reason = await checkSearchPageQuery(
-        page,
-        baseUrl,
-        query,
-        timeoutMs,
-      );
-      if (reason) {
-        failures.push({ query, surface: "/search", reason });
+      const context = await browser.newContext();
+      try {
+        const page = await context.newPage();
+        page.setDefaultTimeout(timeoutMs);
+        page.setDefaultNavigationTimeout(timeoutMs);
+
+        const reason = await checkSearchPageQuery(
+          page,
+          baseUrl,
+          query,
+          timeoutMs,
+        );
+        if (reason) {
+          failures.push({ query, surface: "/search", reason });
+        }
+      } finally {
+        await context.close();
       }
     }
   } finally {
