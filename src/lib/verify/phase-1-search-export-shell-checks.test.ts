@@ -6,6 +6,10 @@ import {
   assertSearchPageExportShell,
   assertSearchPageExportShellStateRegion,
   buildSearchPageExportShellStubBody,
+  classifyPhase1ExportSearchShellFailure,
+  EXPORT_SEARCH_SHELL_SURFACE,
+  formatPhase1ExportSearchShellFailure,
+  isRouteShellExportSearchFailureLine,
   SEARCH_PAGE_ARIA_HIDDEN_PLACEHOLDER_MARKER,
   SEARCH_PAGE_EMPTY_HTML_MARKER,
   SEARCH_PAGE_IDLE_HTML_MARKER,
@@ -66,6 +70,30 @@ describe("assertSearchPageExportShellStateRegion", () => {
     expect(assertSearchPageExportShellStateRegion("<html></html>")).toContain(
       "search state region",
     );
+  });
+});
+
+describe("formatPhase1ExportSearchShellFailure", () => {
+  test("labels missing input shell as route-shell without hydration wording", () => {
+    const line = formatPhase1ExportSearchShellFailure(
+      `missing expected content: ${SEARCH_PAGE_INPUT_HTML_MARKER}`,
+    );
+    expect(line).toContain(EXPORT_SEARCH_SHELL_SURFACE);
+    expect(line).toContain("missing input shell");
+    expect(line).toContain(SEARCH_PAGE_INPUT_HTML_MARKER);
+    expect(isRouteShellExportSearchFailureLine(line)).toBe(true);
+    expect(line).not.toMatch(/hydrat|timeout/i);
+  });
+
+  test("labels missing state region as route-shell", () => {
+    const reason =
+      "missing search state region: expected one of data-testid markers";
+    const line = formatPhase1ExportSearchShellFailure(reason);
+    expect(line).toContain("missing state region");
+    expect(classifyPhase1ExportSearchShellFailure(reason)).toBe(
+      "missing-state-region",
+    );
+    expect(isRouteShellExportSearchFailureLine(line)).toBe(true);
   });
 });
 
