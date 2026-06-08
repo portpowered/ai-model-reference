@@ -11,7 +11,7 @@ import { join } from "node:path";
 import { type Browser, chromium, type LaunchOptions } from "playwright";
 
 const CI_PLAYWRIGHT_LAUNCH_TIMEOUT_MS = 120_000;
-const CI_PLAYWRIGHT_LAUNCH_ATTEMPTS = 2;
+const CI_PLAYWRIGHT_LAUNCH_ATTEMPTS = 3;
 const CI_PLAYWRIGHT_LAUNCH_RETRY_DELAY_MS = 2_000;
 const MAX_CONCURRENT_CI_LAUNCHES = 2;
 const LAUNCH_SLOT_DIR = join(tmpdir(), "model-atlas-playwright-launch-slots");
@@ -72,6 +72,26 @@ export function isPlaywrightLaunchTimeoutError(error: unknown): boolean {
   return (
     error.name === "TimeoutError" &&
     /launch: Timeout \d+ms exceeded/.test(error.message)
+  );
+}
+
+export function isPlaywrightLaunchRetryableError(error: unknown): boolean {
+  if (isPlaywrightLaunchTimeoutError(error)) {
+    return true;
+  }
+
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const errno =
+    "errno" in error && typeof error.errno === "number" ? error.errno : null;
+  const code =
+    "code" in error && typeof error.code === "string" ? error.code : null;
+
+  return (
+    error.message.includes("Failed to connect") &&
+    (code === "ENOENT" || errno === -2)
   );
 }
 
@@ -162,7 +182,7 @@ async function launchChromiumWithCiRetries(
       lastError = error;
       const canRetry =
         attempt < CI_PLAYWRIGHT_LAUNCH_ATTEMPTS &&
-        isPlaywrightLaunchTimeoutError(error);
+        isPlaywrightLaunchRetryableError(error);
       if (!canRetry) {
         throw error;
       }
