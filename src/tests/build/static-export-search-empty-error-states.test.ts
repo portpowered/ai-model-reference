@@ -5,6 +5,7 @@ import {
   getExportIntegrationBunTestTimeoutMs,
   shouldRunExportIntegrationProbeTests,
 } from "@/lib/verify/export-integration-probe-lock";
+import { runExportProbeWithSpawnGuard } from "@/lib/verify/export-probe-spawn-guard";
 import { createStaticExportHttpServer } from "@/lib/verify/static-export-http-server";
 import {
   isRetryableStaticExportSearchProbeFailure,
@@ -13,6 +14,7 @@ import {
 
 const repoRoot = join(import.meta.dir, "../../..");
 const exportBasePath = "/ai-model-reference";
+const CI_PROBE_RETRY_DELAY_MS = 5_000;
 
 describe("static export /search empty and error states on GitHub Pages base path", () => {
   beforeAll(() => {
@@ -48,13 +50,9 @@ describe("static export /search empty and error states on GitHub Pages base path
         let reason: string | null = null;
 
         for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-          try {
-            reason = await verifyStaticExportSearchEmptyErrorStates(
-              server.baseUrl,
-            );
-          } catch (error) {
-            reason = error instanceof Error ? error.message : String(error);
-          }
+          reason = await runExportProbeWithSpawnGuard(async () =>
+            verifyStaticExportSearchEmptyErrorStates(server.baseUrl),
+          );
           if (
             reason === null ||
             !isRetryableStaticExportSearchProbeFailure(reason) ||
@@ -62,7 +60,9 @@ describe("static export /search empty and error states on GitHub Pages base path
           ) {
             break;
           }
-          await new Promise((resolve) => setTimeout(resolve, 3_000));
+          await new Promise((resolve) =>
+            setTimeout(resolve, CI_PROBE_RETRY_DELAY_MS),
+          );
         }
 
         expect(reason).toBeNull();

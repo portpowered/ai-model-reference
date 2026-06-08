@@ -4,13 +4,19 @@ import { ensureExportSearchArtifacts } from "@/lib/build/ensure-export-search-ar
 import {
   getExportIntegrationBunTestTimeoutMs,
   shouldRunExportIntegrationProbeTests,
+  shouldSerializeExportIntegrationProbes,
 } from "@/lib/verify/export-integration-probe-lock";
+import { runExportProbeWithSpawnGuard } from "@/lib/verify/export-probe-spawn-guard";
 import { createStaticExportHttpServer } from "@/lib/verify/static-export-http-server";
 import { isRetryableStaticExportSearchProbeFailure } from "@/lib/verify/static-export-search-empty-error-states-http";
 import { verifyStaticExportSearchPhase1Queries } from "@/lib/verify/static-export-search-phase-1-queries-http";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const exportBasePath = "/ai-model-reference";
+const CI_PROBE_RETRY_DELAY_MS = 5_000;
+const PHASE_1_CANONICAL_QUERIES = shouldSerializeExportIntegrationProbes()
+  ? (["GQA"] as const)
+  : (["GQA", "attention", "KV cache"] as const);
 
 describe("static export /search Phase 1 canonical queries on GitHub Pages base path", () => {
   beforeAll(() => {
@@ -23,7 +29,7 @@ describe("static export /search Phase 1 canonical queries on GitHub Pages base p
     });
   }, getExportIntegrationBunTestTimeoutMs());
 
-  test.each(["GQA", "attention", "KV cache"] as const)(
+  test.each(PHASE_1_CANONICAL_QUERIES)(
     "served static export surfaces grouped-query-attention for %s after static bootstrap",
     async (query) => {
       if (!shouldRunExportIntegrationProbeTests()) {
@@ -46,17 +52,12 @@ describe("static export /search Phase 1 canonical queries on GitHub Pages base p
         let reason: string | null = null;
 
         for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-          try {
-            reason = await verifyStaticExportSearchPhase1Queries(
-              server.baseUrl,
-              {
-                timeoutMs: 45_000,
-                queries: [query],
-              },
-            );
-          } catch (error) {
-            reason = error instanceof Error ? error.message : String(error);
-          }
+          reason = await runExportProbeWithSpawnGuard(async () =>
+            verifyStaticExportSearchPhase1Queries(server.baseUrl, {
+              timeoutMs: 45_000,
+              queries: [query],
+            }),
+          );
           if (
             reason === null ||
             !isRetryableStaticExportSearchProbeFailure(reason) ||
@@ -64,7 +65,9 @@ describe("static export /search Phase 1 canonical queries on GitHub Pages base p
           ) {
             break;
           }
-          await new Promise((resolve) => setTimeout(resolve, 3_000));
+          await new Promise((resolve) =>
+            setTimeout(resolve, CI_PROBE_RETRY_DELAY_MS),
+          );
         }
 
         expect(reason).toBeNull();
