@@ -1,9 +1,23 @@
 import { type Browser, chromium, type LaunchOptions } from "playwright";
 
+const CI_PLAYWRIGHT_LAUNCH_TIMEOUT_MS = 300_000;
+
 let inProcessLaunchGate: Promise<void> = Promise.resolve();
 
 function shouldSerializePlaywrightLaunch(): boolean {
   return process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+}
+
+function resolveLaunchOptions(options: LaunchOptions): LaunchOptions {
+  if (!shouldSerializePlaywrightLaunch()) {
+    return { headless: true, ...options };
+  }
+
+  return {
+    headless: true,
+    timeout: options.timeout ?? CI_PLAYWRIGHT_LAUNCH_TIMEOUT_MS,
+    ...options,
+  };
 }
 
 /**
@@ -14,8 +28,9 @@ function shouldSerializePlaywrightLaunch(): boolean {
 export async function launchPlaywrightBrowser(
   options: LaunchOptions = {},
 ): Promise<Browser> {
+  const launchOptions = resolveLaunchOptions(options);
   if (!shouldSerializePlaywrightLaunch()) {
-    return chromium.launch({ headless: true, ...options });
+    return chromium.launch(launchOptions);
   }
 
   const waitForPriorLaunch = inProcessLaunchGate;
@@ -26,7 +41,7 @@ export async function launchPlaywrightBrowser(
 
   await waitForPriorLaunch;
   try {
-    return await chromium.launch({ headless: true, ...options });
+    return await chromium.launch(launchOptions);
   } finally {
     releaseInProcessGate();
   }

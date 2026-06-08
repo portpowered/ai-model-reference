@@ -13,11 +13,7 @@ typecheck:
 	bun run typecheck
 
 test:
-	@if [ "$${CI:-}" = "true" ] || [ -n "$${GITHUB_ACTIONS:-}" ]; then \
-		bun test --parallel=2 --parallel-delay=2000; \
-	else \
-		bun run test; \
-	fi
+	bun run test
 
 coverage:
 	bun run coverage
