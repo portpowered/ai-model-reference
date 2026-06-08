@@ -133,10 +133,16 @@ export const PHASE_1_ROUTE_ASSERTIONS: readonly Phase1RouteAssertion[] = [
       const missing = requireSubstrings(html, [
         "Attention",
         'data-registry-id="module.attention"',
-        "Phase 1 bridge page",
+        'href="/docs/modules/multi-head-attention"',
+        'href="/docs/modules/multi-query-attention"',
+        'href="/docs/modules/grouped-query-attention"',
       ]);
       if (missing) {
         return missing;
+      }
+      const forbidden = forbidSubstring(html, "Phase 1 bridge page");
+      if (forbidden) {
+        return forbidden;
       }
       return forbidSubstring(html, "lorem");
     },

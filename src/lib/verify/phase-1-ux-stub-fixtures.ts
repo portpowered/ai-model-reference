@@ -72,7 +72,7 @@ export const PHASE_1_UX_PASSING_STUB_HTML: Record<string, string> = {
     '<h1>Hidden Size</h1><article data-registry-id="concept.hidden-size"></article>',
   ),
   "/docs/modules/attention": docsRouteHtml(
-    '<h1>Attention</h1><div data-registry-id="module.attention"></div><p>Phase 1 bridge page</p>',
+    '<h1>Attention</h1><div data-registry-id="module.attention"></div><a href="/docs/modules/multi-head-attention">MHA</a><a href="/docs/modules/multi-query-attention">MQA</a><a href="/docs/modules/grouped-query-attention">GQA</a>',
   ),
   "/docs/modules/grouped-query-attention": docsRouteHtml(
     buildGroupedQueryAttentionStubBody(),
