@@ -2,6 +2,7 @@
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
   "concept.transformer-architecture",
   "concept.positional-encodings",
+  "concept.context-extension",
 ]);
 
 /** Registry ids for docs pages with `status: published` in frontmatter. */
@@ -60,6 +61,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.rope",
   "concept.alibi",
   "concept.context-window",
+  "concept.context-extension",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;

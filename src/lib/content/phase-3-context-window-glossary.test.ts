@@ -48,7 +48,7 @@ describe("Phase 3 context window glossary page (US-011)", () => {
     );
   });
 
-  test("curated related links context extension and hardness pages as planned", () => {
+  test("curated related links context extension with navigable href and hardness page as planned", () => {
     const source = getConceptById("concept.context-window");
     if (!source) {
       throw new Error("expected concept.context-window in registry");
@@ -63,9 +63,8 @@ describe("Phase 3 context window glossary page (US-011)", () => {
     const contextExtension = items.find(
       (item) => item.registryId === "concept.context-extension",
     );
-    expect(contextExtension?.isPlanned).toBe(true);
-    expect(contextExtension?.href).toBeUndefined();
-    expect(contextExtension?.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
+    expect(contextExtension?.href).toBe("/docs/concepts/context-extension");
+    expect(contextExtension?.isPlanned).toBe(false);
 
     const whyHard = items.find(
       (item) => item.registryId === "concept.why-long-context-is-hard",
@@ -118,7 +117,7 @@ describe("Phase 3 context window glossary page (US-011)", () => {
     expectGlossarySingleTagPillList(html);
     expect(html).toContain("What It Is");
     expectHtmlToContainProse(html, "context window");
-    expect(html).toContain("context extension");
+    expect(html).toContain('href="/docs/concepts/context-extension"');
     expect(html).toContain("why long context is hard");
     expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
     expect(html).toContain('href="/tags/foundations"');

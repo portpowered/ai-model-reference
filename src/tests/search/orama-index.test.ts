@@ -26,6 +26,7 @@ const POSITIONAL_ENCODINGS_URL = "/docs/concepts/positional-encodings";
 const ROPE_URL = "/docs/glossary/rope";
 const ALIBI_URL = "/docs/glossary/alibi";
 const CONTEXT_WINDOW_URL = "/docs/glossary/context-window";
+const CONTEXT_EXTENSION_URL = "/docs/concepts/context-extension";
 const STRUCTURAL_TAXONOMY_URLS = [
   "/docs/glossary/model",
   "/docs/glossary/architecture",
@@ -97,6 +98,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ROPE_URL,
   ALIBI_URL,
   CONTEXT_WINDOW_URL,
+  CONTEXT_EXTENSION_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
   ...REPRESENTATION_LATENT_URLS,

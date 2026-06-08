@@ -9,8 +9,10 @@ import {
   validatePageAssetReferences,
 } from "@/lib/content/assets";
 import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
-import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
-import { expectHtmlToContainProse } from "@/lib/content/glossary-test-helpers";
+import {
+  expectGlossaryBodyOmitsTitleHeading,
+  expectHtmlToContainProse,
+} from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import {
