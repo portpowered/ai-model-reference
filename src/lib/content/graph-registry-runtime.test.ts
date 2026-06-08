@@ -54,12 +54,28 @@ describe("graph-registry-runtime", () => {
     );
     expect(mlaComparison?.nodes.length).toBe(3);
 
+    const sparseMhaComparison = getGraphById(
+      "graph.sparse-attention-mha-comparison",
+    );
+    expect(sparseMhaComparison?.id).toBe(
+      "graph.sparse-attention-mha-comparison",
+    );
+    expect(sparseMhaComparison?.nodes.length).toBe(3);
+
+    const sparseComparison = getGraphById(
+      "graph.sparse-attention-sparse-comparison",
+    );
+    expect(sparseComparison?.id).toBe(
+      "graph.sparse-attention-sparse-comparison",
+    );
+    expect(sparseComparison?.nodes.length).toBe(3);
+
     expect(getGraphById("graph.token-concept-map")?.id).toBe(
       "graph.token-concept-map",
     );
   });
 
   test("lists all bundled graph records", () => {
-    expect(listGraphRecords().length).toBe(7);
+    expect(listGraphRecords().length).toBe(9);
   });
 });

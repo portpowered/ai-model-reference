@@ -26,7 +26,18 @@ describe("table-registry-runtime", () => {
     ).toBe("tables.comparison.values.gqa.cacheFootprint");
   });
 
+  test("loads the sparse-attention nearby-module comparison table by id", () => {
+    const table = getTableById("table.sparse-attention-comparison");
+    expect(table?.id).toBe("table.sparse-attention-comparison");
+    expect(table?.columns.length).toBe(4);
+    expect(table?.dimensions.length).toBe(3);
+    expect(
+      table?.valueKeysByModuleId["module.sparse-attention"]
+        ?.attentionConnectivity,
+    ).toBe("tables.comparison.values.sparse.attentionConnectivity");
+  });
+
   test("lists bundled table records", () => {
-    expect(listTableRecords().length).toBe(2);
+    expect(listTableRecords().length).toBe(3);
   });
 });

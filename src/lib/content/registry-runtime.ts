@@ -48,6 +48,7 @@ import groupedQueryAttention from "@/content/registry/modules/grouped-query-atte
 import multiHeadAttention from "@/content/registry/modules/multi-head-attention.json";
 import multiHeadLatentAttention from "@/content/registry/modules/multi-head-latent-attention.json";
 import multiQueryAttention from "@/content/registry/modules/multi-query-attention.json";
+import sparseAttention from "@/content/registry/modules/sparse-attention.json";
 import {
   PUBLISHED_DOCS_REGISTRY_IDS,
   type PublishedDocsRegistryIds,
@@ -66,6 +67,7 @@ const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(multiHeadLatentAttention),
   moduleRecordSchema.parse(multiQueryAttention),
   moduleRecordSchema.parse(multiHeadAttention),
+  moduleRecordSchema.parse(sparseAttention),
 ];
 
 const conceptRecords: ConceptRecord[] = [
