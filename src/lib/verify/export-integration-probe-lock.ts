@@ -1,6 +1,7 @@
 import { closeSync, constants, openSync, statSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { VERIFY_COVERAGE_SUBPROCESS_ENV } from "./server-lifecycle";
 
 const EXPORT_INTEGRATION_PROBE_LOCK_PATH = join(
   tmpdir(),
@@ -12,6 +13,16 @@ const STALE_PROBE_LOCK_MAX_AGE_MS = 20 * 60 * 1000;
 
 export function shouldSerializeExportIntegrationProbes(): boolean {
   return process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+}
+
+/**
+ * Gates served-export Playwright probes: skip the coverage subprocess rerun
+ * (`make ci` runs the full suite twice; probes already passed in `make test`).
+ */
+export function shouldRunExportIntegrationProbeTests(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  return env[VERIFY_COVERAGE_SUBPROCESS_ENV] !== "1";
 }
 
 /**
