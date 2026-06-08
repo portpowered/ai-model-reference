@@ -97,3 +97,9 @@ export const FEED_FORWARD_NETWORK_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,
   "feed-forward-network",
 );
+
+/** Phase 3 mixture of experts glossary page directory. */
+export const MIXTURE_OF_EXPERTS_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "mixture-of-experts",
+);
