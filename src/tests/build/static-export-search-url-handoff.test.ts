@@ -1,7 +1,7 @@
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { existsSync, readFileSync, rmSync } from "node:fs";
+import { beforeAll, describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
+import { ensureExportSearchArtifacts } from "@/lib/build/ensure-export-search-artifacts";
 import {
   exportHtmlReferencesBasePathAssets,
   exportHtmlReferencesBasePathInternalLinks,
@@ -15,49 +15,16 @@ import { verifyStaticExportSearchUrlHandoff } from "@/lib/verify/static-export-s
 
 const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
-const nextDir = join(repoRoot, ".next");
 const exportBasePath = "/ai-model-reference";
 const searchExportHtmlPath = join(outDir, "search.html");
 
-function removeExportArtifacts(): void {
-  if (existsSync(outDir)) {
-    rmSync(outDir, { recursive: true, force: true });
-  }
-  if (existsSync(nextDir)) {
-    rmSync(nextDir, { recursive: true, force: true });
-  }
-}
-
-function ensureSearchExportArtifacts(): void {
-  if (existsSync(searchExportHtmlPath)) {
-    return;
-  }
-
-  const buildResult = runStaticExportBuild({
-    cwd: repoRoot,
-    env: {
-      GITHUB_PAGES_BASE_PATH: exportBasePath,
-    },
-  });
-  if (buildResult.status !== 0) {
-    throw new Error(
-      `build-export failed with status ${buildResult.status}: ${buildResult.stderr ?? buildResult.stdout ?? ""}`,
-    );
-  }
-  if (!existsSync(searchExportHtmlPath)) {
-    throw new Error(`missing export artifact at ${searchExportHtmlPath}`);
-  }
-}
-
 describe("static export /search URL query and tag handoff on GitHub Pages base path", () => {
   beforeAll(() => {
-    removeExportArtifacts();
-    ensureSearchExportArtifacts();
+    ensureExportSearchArtifacts({
+      repoRoot,
+      basePath: exportBasePath,
+    });
   }, 300_000);
-
-  afterAll(() => {
-    removeExportArtifacts();
-  });
 
   test("build-export emits /search HTML with handoff contract copy and prefixed assets", () => {
     const searchHtml = readFileSync(searchExportHtmlPath, "utf8");
@@ -76,7 +43,10 @@ describe("static export /search URL query and tag handoff on GitHub Pages base p
   test(
     "served static export honors ?q=GQA URL handoff after hydration",
     async () => {
-      ensureSearchExportArtifacts();
+      ensureExportSearchArtifacts({
+        repoRoot,
+        basePath: exportBasePath,
+      });
 
       const server = await createStaticExportHttpServer({
         cwd: repoRoot,
