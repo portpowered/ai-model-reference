@@ -13,15 +13,15 @@ import {
   PLANNED_RELATED_REASON_LABEL,
 } from "@/lib/content/related-docs";
 
-const REMAINING_DRAFT_FORWARD_TARGET_IDS = [
-  "concept.multimodal-model",
-  "concept.world-model",
-] as const;
+const REMAINING_DRAFT_FORWARD_TARGET_IDS = ["concept.world-model"] as const;
 
 describe("Phase 2 planned related docs (US-002)", () => {
-  test("forward-target concepts are registered with transformer and diffusion-model published and others draft", () => {
+  test("forward-target concepts are registered with transformer, diffusion-model, and multimodal-model published and others draft", () => {
     expect(getConceptById("concept.transformer")?.status).toBe("published");
     expect(getConceptById("concept.diffusion-model")?.status).toBe("published");
+    expect(getConceptById("concept.multimodal-model")?.status).toBe(
+      "published",
+    );
     for (const id of REMAINING_DRAFT_FORWARD_TARGET_IDS) {
       const record = getConceptById(id);
       expect(record?.status).toBe("draft");
@@ -42,7 +42,7 @@ describe("Phase 2 planned related docs (US-002)", () => {
       listRelatedRegistryRecords(),
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
-    expect(items).toHaveLength(2);
+    expect(items).toHaveLength(1);
     for (const item of items) {
       expect(item.isPlanned).toBe(true);
       expect(item.href).toBeUndefined();

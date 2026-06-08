@@ -46,6 +46,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/model",
         "/docs/glossary/model-capacity",
         "/docs/glossary/module",
+        "/docs/glossary/multimodal-model",
         "/docs/glossary/overfitting",
         "/docs/glossary/patch",
         "/docs/glossary/perplexity",

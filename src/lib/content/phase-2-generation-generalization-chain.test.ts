@@ -278,10 +278,16 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
         true,
       );
 
-      for (const id of ["concept.multimodal-model", "concept.world-model"]) {
-        expect(indexes.byId.get(id)?.status).toBe("draft");
-        expect(PUBLISHED_DOCS_REGISTRY_IDS.has(id)).toBe(false);
-      }
+      const multimodalModel = indexes.byId.get("concept.multimodal-model");
+      expect(multimodalModel?.status).toBe("published");
+      expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.multimodal-model")).toBe(
+        true,
+      );
+
+      expect(indexes.byId.get("concept.world-model")?.status).toBe("draft");
+      expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.world-model")).toBe(
+        false,
+      );
     });
   });
 

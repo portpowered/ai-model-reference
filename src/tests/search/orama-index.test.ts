@@ -57,6 +57,7 @@ const EVALUATION_SCALING_URLS = [
 const MODEL_FAMILY_URLS = [
   "/docs/glossary/transformer",
   "/docs/glossary/diffusion-model",
+  "/docs/glossary/multimodal-model",
 ] as const;
 const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/embedding",

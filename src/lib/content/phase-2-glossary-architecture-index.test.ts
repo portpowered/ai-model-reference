@@ -70,8 +70,8 @@ const CHAIN_GLOSSARY_SLUGS = [
   "loss-function",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 43;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 31;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 44;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 32;
 
 function collectPageUrls(nodes: Node[]): string[] {
   const urls: string[] = [];
