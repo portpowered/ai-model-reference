@@ -44,6 +44,27 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
+  test("sliding-window-attention module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/sliding-window-attention.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.sliding-window-attention");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("published");
+    expect(module.moduleType).toBe("attention");
+    expect(module.tags).toContain("attention");
+    expect(module.tags).toContain("context-window");
+    expect(module.variantGroup).toBe("attention-locality");
+    expect(module.conceptType).toBe("attention-variant");
+    expect(module.relatedIds).toContain("module.multi-head-attention");
+    expect(module.relatedIds).toContain("module.multi-query-attention");
+    expect(module.relatedIds).toContain("module.grouped-query-attention");
+    expect(module.optimizes.length).toBeGreaterThan(0);
+    expect(module.practicalBenefits.length).toBeGreaterThan(0);
+  });
+
   test("sparse-attention module JSON passes moduleRecordSchema", async () => {
     const module = await readRegistryJson(
       "modules/sparse-attention.json",

@@ -4,6 +4,8 @@ import groupedQueryAttentionGqaComparison from "@/content/registry/graphs/groupe
 import groupedQueryAttentionMhaComparison from "@/content/registry/graphs/grouped-query-attention-mha-comparison.json";
 import multiHeadLatentAttentionMhaComparison from "@/content/registry/graphs/multi-head-latent-attention-mha-comparison.json";
 import multiHeadLatentAttentionMlaComparison from "@/content/registry/graphs/multi-head-latent-attention-mla-comparison.json";
+import slidingWindowAttentionMhaComparison from "@/content/registry/graphs/sliding-window-attention-mha-comparison.json";
+import slidingWindowAttentionWindowComparison from "@/content/registry/graphs/sliding-window-attention-window-comparison.json";
 import sparseAttentionMhaComparison from "@/content/registry/graphs/sparse-attention-mha-comparison.json";
 import sparseAttentionSparseComparison from "@/content/registry/graphs/sparse-attention-sparse-comparison.json";
 import tokenConceptMap from "@/content/registry/graphs/token-concept-map.json";
@@ -16,6 +18,8 @@ const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(groupedQueryAttentionGqaComparison),
   graphRecordSchema.parse(multiHeadLatentAttentionMhaComparison),
   graphRecordSchema.parse(multiHeadLatentAttentionMlaComparison),
+  graphRecordSchema.parse(slidingWindowAttentionMhaComparison),
+  graphRecordSchema.parse(slidingWindowAttentionWindowComparison),
   graphRecordSchema.parse(sparseAttentionMhaComparison),
   graphRecordSchema.parse(sparseAttentionSparseComparison),
   graphRecordSchema.parse(tokenConceptMap),
