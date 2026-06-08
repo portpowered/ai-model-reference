@@ -27,6 +27,7 @@
     "[Module](/docs/glossary/module)",
     "[Layer norm](/docs/glossary/layer-norm)",
     "[RMSNorm](/docs/glossary/rmsnorm)",
+    "[RoPE](/docs/glossary/rope)",
     "[Normalization](/docs/glossary/normalization)",
     "[Residual connection](/docs/glossary/residual-connection)",
     "[Mixture of experts](/docs/glossary/mixture-of-experts)",

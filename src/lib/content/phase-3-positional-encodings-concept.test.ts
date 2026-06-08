@@ -13,7 +13,7 @@ import {
   PLANNED_RELATED_REASON_LABEL,
 } from "@/lib/content/related-docs";
 
-const PLANNED_POSITION_VARIANT_IDS = ["concept.rope", "concept.alibi"] as const;
+const PLANNED_POSITION_VARIANT_IDS = ["concept.alibi"] as const;
 
 describe("Phase 3 positional encodings concept page (US-008)", () => {
   test("registry record is published with explainsIds and curated related ids", () => {
@@ -32,7 +32,7 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     ).toBe(true);
   });
 
-  test("curated related links transformer architecture and attention with RoPE and ALiBi planned", () => {
+  test("curated related links transformer architecture and attention with navigable RoPE and planned ALiBi", () => {
     const source = getConceptById("concept.positional-encodings");
     if (!source) {
       throw new Error("expected concept.positional-encodings in registry");
@@ -56,22 +56,22 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     expect(attention?.href).toBe("/docs/modules/attention");
     expect(attention?.isPlanned).toBe(false);
 
+    const rope = items.find((item) => item.registryId === "concept.rope");
+    expect(rope?.href).toBe("/docs/glossary/rope");
+    expect(rope?.isPlanned).toBe(false);
+    expect(rope?.title).toBe("RoPE");
+
     const plannedVariants = items.filter((item) =>
       PLANNED_POSITION_VARIANT_IDS.includes(
         item.registryId as (typeof PLANNED_POSITION_VARIANT_IDS)[number],
       ),
     );
-    expect(plannedVariants).toHaveLength(2);
+    expect(plannedVariants).toHaveLength(1);
     for (const item of plannedVariants) {
       expect(item.isPlanned).toBe(true);
       expect(item.href).toBeUndefined();
       expect(item.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
     }
-
-    const rope = plannedVariants.find(
-      (item) => item.registryId === "concept.rope",
-    );
-    expect(rope?.title).toBe("RoPE");
 
     const alibi = plannedVariants.find(
       (item) => item.registryId === "concept.alibi",
@@ -100,7 +100,7 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     expect(html).toContain("built-in order");
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/modules/attention"');
-    expect(html).toContain("RoPE");
+    expect(html).toContain('href="/docs/glossary/rope"');
     expect(html).toContain("ALiBi");
     expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
     expect(html).toContain('data-testid="curated-related-docs"');
