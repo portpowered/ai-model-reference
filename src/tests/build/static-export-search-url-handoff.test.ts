@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
@@ -29,69 +29,57 @@ function removeExportArtifacts(): void {
 }
 
 describe("static export /search URL query and tag handoff on GitHub Pages base path", () => {
-  test(
-    "build-export emits /search HTML with handoff contract copy and prefixed assets",
-    () => {
-      removeExportArtifacts();
+  beforeAll(() => {
+    removeExportArtifacts();
 
-      try {
-        const buildResult = runStaticExportBuild({
-          cwd: repoRoot,
-          env: {
-            GITHUB_PAGES_BASE_PATH: exportBasePath,
-          },
-        });
-        expect(buildResult.status).toBe(0);
-        expect(existsSync(searchExportHtmlPath)).toBe(true);
+    const buildResult = runStaticExportBuild({
+      cwd: repoRoot,
+      env: {
+        GITHUB_PAGES_BASE_PATH: exportBasePath,
+      },
+    });
+    if (buildResult.status !== 0) {
+      throw new Error(
+        `build-export failed with status ${buildResult.status}: ${buildResult.stderr ?? buildResult.stdout ?? ""}`,
+      );
+    }
+    if (!existsSync(searchExportHtmlPath)) {
+      throw new Error(`missing export artifact at ${searchExportHtmlPath}`);
+    }
+  }, 300_000);
 
-        const searchHtml = readFileSync(searchExportHtmlPath, "utf8");
-        expect(searchHtml).toContain(SEARCH_PAGE_INPUT_HTML_MARKER);
-        expect(searchHtml).toContain("?q=");
-        expect(searchHtml).toContain("?tag=");
-        expect(assertSearchPageExportShell(searchHtml)).toBeNull();
-        expect(
-          exportHtmlReferencesBasePathAssets(searchHtml, exportBasePath),
-        ).toBe(true);
-        expect(
-          exportHtmlReferencesBasePathInternalLinks(searchHtml, exportBasePath),
-        ).toBe(true);
-      } finally {
-        removeExportArtifacts();
-      }
-    },
-    { timeout: 180_000 },
-  );
+  afterAll(() => {
+    removeExportArtifacts();
+  });
+
+  test("build-export emits /search HTML with handoff contract copy and prefixed assets", () => {
+    const searchHtml = readFileSync(searchExportHtmlPath, "utf8");
+    expect(searchHtml).toContain(SEARCH_PAGE_INPUT_HTML_MARKER);
+    expect(searchHtml).toContain("?q=");
+    expect(searchHtml).toContain("?tag=");
+    expect(assertSearchPageExportShell(searchHtml)).toBeNull();
+    expect(exportHtmlReferencesBasePathAssets(searchHtml, exportBasePath)).toBe(
+      true,
+    );
+    expect(
+      exportHtmlReferencesBasePathInternalLinks(searchHtml, exportBasePath),
+    ).toBe(true);
+  });
 
   test(
     "served static export honors ?q=, ?tag=, and q-over-tag handoffs after hydration",
     async () => {
-      removeExportArtifacts();
-
+      const server = await createStaticExportHttpServer({
+        cwd: repoRoot,
+        basePath: exportBasePath,
+      });
       try {
-        const buildResult = runStaticExportBuild({
-          cwd: repoRoot,
-          env: {
-            GITHUB_PAGES_BASE_PATH: exportBasePath,
-          },
-        });
-        expect(buildResult.status).toBe(0);
-
-        const server = await createStaticExportHttpServer({
-          cwd: repoRoot,
-          basePath: exportBasePath,
-        });
-        try {
-          const reason = await verifyStaticExportSearchUrlHandoff(
-            server.baseUrl,
-          );
-          expect(reason).toBeNull();
-        } finally {
-          await server.cleanup();
-        }
+        const reason = await verifyStaticExportSearchUrlHandoff(server.baseUrl);
+        expect(reason).toBeNull();
       } finally {
-        removeExportArtifacts();
+        await server.cleanup();
       }
     },
-    { timeout: 360_000 },
+    { timeout: 240_000 },
   );
 });
