@@ -86,6 +86,12 @@ export const MULTI_HEAD_LATENT_ATTENTION_PAGE_DIR = join(
   "multi-head-latent-attention",
 );
 
+/** Phase 3 linear attention module page directory. */
+export const LINEAR_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "linear-attention",
+);
+
 /** Phase 3 sliding-window attention module page directory. */
 export const SLIDING_WINDOW_ATTENTION_PAGE_DIR = join(
   MODULES_DOCS_ROOT,

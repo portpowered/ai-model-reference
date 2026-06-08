@@ -44,6 +44,29 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
+  test("linear-attention module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/linear-attention.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.linear-attention");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("published");
+    expect(module.moduleType).toBe("attention");
+    expect(module.tags).toContain("attention");
+    expect(module.variantGroup).toBe("subquadratic-attention");
+    expect(module.conceptType).toBe("attention-variant");
+    expect(module.citationIds).toContain(
+      "citation.katharopoulos-linear-attention-paper",
+    );
+    expect(module.relatedIds).toContain("module.multi-head-attention");
+    expect(module.relatedIds).toContain("module.multi-query-attention");
+    expect(module.relatedIds).toContain("module.grouped-query-attention");
+    expect(module.optimizes.length).toBeGreaterThan(0);
+    expect(module.practicalBenefits.length).toBeGreaterThan(0);
+  });
+
   test("sliding-window-attention module JSON passes moduleRecordSchema", async () => {
     const module = await readRegistryJson(
       "modules/sliding-window-attention.json",
