@@ -13,8 +13,7 @@ import {
   PLANNED_RELATED_REASON_LABEL,
 } from "@/lib/content/related-docs";
 
-const SIBLING_COMPONENT_IDS = [
-  "concept.feed-forward-network",
+const PLANNED_SIBLING_COMPONENT_IDS = [
   "concept.normalization",
   "concept.residual-connection",
   "concept.positional-encodings",
@@ -31,14 +30,15 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
     ]);
     expect(record?.relatedIds).toEqual([
       "module.attention",
-      ...SIBLING_COMPONENT_IDS,
+      "concept.feed-forward-network",
+      ...PLANNED_SIBLING_COMPONENT_IDS,
     ]);
     expect(
       PUBLISHED_DOCS_REGISTRY_IDS.has("concept.transformer-architecture"),
     ).toBe(true);
   });
 
-  test("curated related lists attention as navigable and siblings as planned", () => {
+  test("curated related lists attention and feed-forward as navigable and remaining siblings as planned", () => {
     const source = getConceptById("concept.transformer-architecture");
     if (!source) {
       throw new Error("expected concept.transformer-architecture in registry");
@@ -56,12 +56,18 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
     expect(attention?.href).toBe("/docs/modules/attention");
     expect(attention?.isPlanned).toBe(false);
 
+    const feedForward = items.find(
+      (item) => item.registryId === "concept.feed-forward-network",
+    );
+    expect(feedForward?.href).toBe("/docs/glossary/feed-forward-network");
+    expect(feedForward?.isPlanned).toBe(false);
+
     const plannedSiblings = items.filter((item) =>
-      SIBLING_COMPONENT_IDS.includes(
-        item.registryId as (typeof SIBLING_COMPONENT_IDS)[number],
+      PLANNED_SIBLING_COMPONENT_IDS.includes(
+        item.registryId as (typeof PLANNED_SIBLING_COMPONENT_IDS)[number],
       ),
     );
-    expect(plannedSiblings).toHaveLength(4);
+    expect(plannedSiblings).toHaveLength(3);
     for (const item of plannedSiblings) {
       expect(item.isPlanned).toBe(true);
       expect(item.href).toBeUndefined();
@@ -91,6 +97,7 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
     expect(html).toContain("Why It Matters");
     expect(html).toContain("repeating loop");
     expect(html).toContain('href="/docs/modules/attention"');
+    expect(html).toContain('href="/docs/glossary/feed-forward-network"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
     expect(html).not.toContain("Phase");

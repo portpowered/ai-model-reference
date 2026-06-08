@@ -91,3 +91,9 @@ export const HIDDEN_SIZE_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,
   "hidden-size",
 );
+
+/** Phase 3 feed-forward network glossary page directory. */
+export const FEED_FORWARD_NETWORK_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "feed-forward-network",
+);
