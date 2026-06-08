@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { buildGroupedQueryAttentionStubBody } from "@/lib/verify/grouped-query-attention-module-convergence";
+import { buildSearchPageExportShellStubBody } from "@/lib/verify/phase-1-search-export-shell-checks";
 import {
   exportHtmlRelativePath,
   resolveExportHtmlFilePath,
@@ -107,6 +108,40 @@ describe("verifyPhase1ExportRouteFromFile", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.reason).toContain("missing expected content");
+    }
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("passes search export HTML with inline search shell markers", () => {
+    const dir = mkdtempSync(join(tmpdir(), "export-route-search-"));
+    mkdirSync(join(dir, "out"), { recursive: true });
+    writeFileSync(join(dir, "out", "index.html"), "<html>Model Atlas</html>");
+    writeFileSync(
+      join(dir, "out", "search.html"),
+      `<html><body>${buildSearchPageExportShellStubBody()}</body></html>`,
+    );
+
+    const result = verifyPhase1ExportRouteFromFile("/search", { cwd: dir });
+    expect(result.ok).toBe(true);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("fails search export HTML when the input shell marker is missing", () => {
+    const dir = mkdtempSync(join(tmpdir(), "export-route-search-missing-"));
+    mkdirSync(join(dir, "out"), { recursive: true });
+    writeFileSync(join(dir, "out", "index.html"), "<html>Model Atlas</html>");
+    writeFileSync(
+      join(dir, "out", "search.html"),
+      "<html><h1>Search</h1></html>",
+    );
+
+    const result = verifyPhase1ExportRouteFromFile("/search", { cwd: dir });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.route).toBe("/search");
+      expect(result.reason).toMatch(/search-page-input|Search Model Atlas/);
     }
 
     rmSync(dir, { recursive: true, force: true });

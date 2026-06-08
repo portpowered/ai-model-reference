@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
 import {
   exportHtmlIncludesGqaAttentionVariantGraphShellMarkers,
   exportHtmlReferencesBasePathAssets,
@@ -35,11 +35,9 @@ describe("static export GQA graph hydration on GitHub Pages base path", () => {
       removeExportArtifacts();
 
       try {
-        const buildResult = spawnSync("bun", ["run", "build:export"], {
+        const buildResult = runStaticExportBuild({
           cwd: repoRoot,
-          encoding: "utf8",
           env: {
-            ...process.env,
             GITHUB_PAGES_BASE_PATH: exportBasePath,
           },
         });
@@ -72,11 +70,9 @@ describe("static export GQA graph hydration on GitHub Pages base path", () => {
       removeExportArtifacts();
 
       try {
-        const buildResult = spawnSync("bun", ["run", "build:export"], {
+        const buildResult = runStaticExportBuild({
           cwd: repoRoot,
-          encoding: "utf8",
           env: {
-            ...process.env,
             GITHUB_PAGES_BASE_PATH: exportBasePath,
           },
         });
@@ -98,6 +94,6 @@ describe("static export GQA graph hydration on GitHub Pages base path", () => {
         removeExportArtifacts();
       }
     },
-    { timeout: 180_000 },
+    { timeout: 240_000 },
   );
 });

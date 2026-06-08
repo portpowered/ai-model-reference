@@ -17,10 +17,11 @@ import {
 } from "./phase-1-github-pages-export-command-path";
 import { STATIC_REGRESSION_DOMAIN_ID } from "./phase-1-github-pages-static-regression";
 import { STATIC_SERVER_COMMAND_PATH_DOMAIN_ID } from "./phase-1-github-pages-static-server-command-path";
+import { buildSearchPageExportShellStubBody } from "./phase-1-search-export-shell-checks";
 
 function successfulBuildExportOutput(): string {
   return [
-    `${EXPORT_BUILD_SUCCESS_ROUTE_MARKER} (6 paths in out).`,
+    `${EXPORT_BUILD_SUCCESS_ROUTE_MARKER} (7 paths in out).`,
     `${EXPORT_BUILD_SUCCESS_SEARCH_HANDOFF_MARKER} (3 queries in out).`,
   ].join("\n");
 }
@@ -51,6 +52,10 @@ function writeMinimalPassingOutFixture(rootDir: string): void {
   mkdirSync(join(outDir, "docs", "modules"), { recursive: true });
   mkdirSync(join(outDir, "tags"), { recursive: true });
   writeFileSync(join(outDir, "index.html"), "<html>Model Atlas</html>");
+  writeFileSync(
+    join(outDir, "search.html"),
+    `<html><body>${buildSearchPageExportShellStubBody()}</body></html>`,
+  );
   writeFileSync(
     join(outDir, "docs", "architecture.html"),
     "<html>Architecture Token</html>",

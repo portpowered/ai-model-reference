@@ -20,6 +20,13 @@ import {
   restoreFetchMock,
 } from "@/tests/a11y/render";
 
+function toSearchPageHandoff(searchParams: URLSearchParams) {
+  return {
+    q: searchParams.get("q"),
+    tag: searchParams.get("tag"),
+  };
+}
+
 function renderSearchPagePanelContent(
   context: Awaited<ReturnType<typeof loadAppTestContext>>,
   searchParams = new URLSearchParams(),
@@ -28,7 +35,7 @@ function renderSearchPagePanelContent(
     <SearchPagePanelContent
       messages={context.messages}
       metaByUrl={context.metaByUrl}
-      searchParams={searchParams}
+      handoff={toSearchPageHandoff(searchParams)}
     />,
     { context },
   );

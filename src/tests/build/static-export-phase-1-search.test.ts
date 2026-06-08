@@ -8,6 +8,7 @@ import {
   EXPORT_SEARCH_BOOTSTRAP_RELATIVE_PATH,
 } from "@/lib/build/export-search-bootstrap";
 import { runPhase1StaticHandoffSearchChecksFromOutDir } from "@/lib/build/run-phase-1-static-handoff-search-checks";
+import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
 import { verifyPhase1ExportSearchFromOutDir } from "@/lib/build/verify-phase-1-export-search";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
@@ -46,10 +47,8 @@ describe("static export Phase 1 search bootstrap", () => {
       removeExportArtifacts();
 
       try {
-        const result = spawnSync("bun", ["run", "build:export"], {
+        const result = runStaticExportBuild({
           cwd: repoRoot,
-          encoding: "utf8",
-          env: process.env,
         });
 
         const combined = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
@@ -114,10 +113,8 @@ describe("static export Phase 1 search bootstrap", () => {
       removeExportArtifacts();
 
       try {
-        const buildResult = spawnSync("bun", ["run", "build:export"], {
+        const buildResult = runStaticExportBuild({
           cwd: repoRoot,
-          encoding: "utf8",
-          env: process.env,
         });
         expect(buildResult.status).toBe(0);
 

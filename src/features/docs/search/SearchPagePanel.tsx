@@ -5,12 +5,18 @@ import type { SearchItemType } from "fumadocs-ui/components/dialog/search";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { searchInlineResultsListClassName } from "@/features/docs/components/list-decoration";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { SearchInlineResultItem } from "./SearchResults";
 import { useModelAtlasDocsSearch } from "./search-client";
-import { resolveInitialSearchPageQuery } from "./search-page-query";
+import {
+  EMPTY_SEARCH_PAGE_HANDOFF,
+  hasSearchPageHandoff,
+  readSearchPageHandoffFromLocationSearch,
+  resolveInitialSearchPageQuery,
+  type SearchPageHandoff,
+} from "./search-page-query";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";
 
 const ATTENTION_TAG_PATH = "/tags/attention";
@@ -18,7 +24,7 @@ const ATTENTION_TAG_PATH = "/tags/attention";
 export type SearchPagePanelContentProps = {
   messages: UiMessages;
   metaByUrl: SearchResultMetaRecord;
-  searchParams: Pick<URLSearchParams, "get">;
+  handoff: SearchPageHandoff;
   /** Test hook: override static bootstrap client options. */
   searchClient?: StaticOptions;
 };
@@ -27,33 +33,61 @@ function reloadSearchPage(): void {
   window.location.reload();
 }
 
+function resolveEffectiveSearchPageHandoff(
+  serverHandoff: SearchPageHandoff,
+  clientHandoff: SearchPageHandoff | null,
+): SearchPageHandoff {
+  if (hasSearchPageHandoff(serverHandoff)) {
+    return serverHandoff;
+  }
+  return clientHandoff ?? EMPTY_SEARCH_PAGE_HANDOFF;
+}
+
 export function SearchPagePanelContent({
   messages,
   metaByUrl,
-  searchParams,
+  handoff,
   searchClient,
 }: SearchPagePanelContentProps) {
   const router = useRouter();
   const initialQueryApplied = useRef(false);
+  const [clientHandoff, setClientHandoff] = useState<SearchPageHandoff | null>(
+    null,
+  );
   const { searchEntry, search: searchCopy } = messages;
   const { search, setSearch, query } = useModelAtlasDocsSearch({
     metaByUrl,
     client: searchClient,
   });
-
-  const tagSlug = searchParams.get("tag")?.trim() || undefined;
-  const queryParam = searchParams.get("q");
+  const effectiveHandoff = resolveEffectiveSearchPageHandoff(
+    handoff,
+    clientHandoff,
+  );
+  const tagSlug = effectiveHandoff.tag?.trim() || undefined;
+  const queryParam = effectiveHandoff.q;
 
   useEffect(() => {
+    const resolvedHandoff = hasSearchPageHandoff(handoff)
+      ? handoff
+      : readSearchPageHandoffFromLocationSearch();
+
+    if (!hasSearchPageHandoff(handoff)) {
+      setClientHandoff(resolvedHandoff);
+    }
+
     if (initialQueryApplied.current) {
       return;
     }
     initialQueryApplied.current = true;
-    const initial = resolveInitialSearchPageQuery(queryParam, tagSlug ?? null);
+
+    const initial = resolveInitialSearchPageQuery(
+      resolvedHandoff.q,
+      resolvedHandoff.tag,
+    );
     if (initial) {
       setSearch(initial);
     }
-  }, [queryParam, setSearch, tagSlug]);
+  }, [handoff, setSearch]);
 
   const hasQuery = search.trim().length > 0;
   const items = query.data && query.data !== "empty" ? query.data : null;
@@ -186,7 +220,7 @@ export function SearchPagePanelContent({
   );
 }
 
-type SearchPagePanelProps = Omit<SearchPagePanelContentProps, "searchParams">;
+type SearchPagePanelProps = Omit<SearchPagePanelContentProps, "handoff">;
 
 export function SearchPagePanel({ messages, metaByUrl }: SearchPagePanelProps) {
   const searchParams = useSearchParams();
@@ -195,7 +229,10 @@ export function SearchPagePanel({ messages, metaByUrl }: SearchPagePanelProps) {
     <SearchPagePanelContent
       messages={messages}
       metaByUrl={metaByUrl}
-      searchParams={searchParams}
+      handoff={{
+        q: searchParams.get("q"),
+        tag: searchParams.get("tag"),
+      }}
     />
   );
 }
