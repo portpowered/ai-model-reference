@@ -19,10 +19,7 @@ import {
   getConceptById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
-import {
-  deriveCuratedRelatedItems,
-  PLANNED_RELATED_REASON_LABEL,
-} from "@/lib/content/related-docs";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 
@@ -48,7 +45,7 @@ describe("Phase 3 RoPE glossary page (US-009)", () => {
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.rope")).toBe(true);
   });
 
-  test("curated related links context extension as planned and ALiBi as navigable", () => {
+  test("curated related links context extension and ALiBi with navigable hrefs", () => {
     const source = getConceptById("concept.rope");
     if (!source) {
       throw new Error("expected concept.rope in registry");
@@ -63,9 +60,8 @@ describe("Phase 3 RoPE glossary page (US-009)", () => {
     const contextExtension = items.find(
       (item) => item.registryId === "concept.context-extension",
     );
-    expect(contextExtension?.isPlanned).toBe(true);
-    expect(contextExtension?.href).toBeUndefined();
-    expect(contextExtension?.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
+    expect(contextExtension?.href).toBe("/docs/concepts/context-extension");
+    expect(contextExtension?.isPlanned).toBe(false);
 
     const alibi = items.find((item) => item.registryId === "concept.alibi");
     expect(alibi?.href).toBe("/docs/glossary/alibi");
@@ -116,7 +112,7 @@ describe("Phase 3 RoPE glossary page (US-009)", () => {
     expect(html).toContain("Su, Jianlin, et al.");
     expect(html).toContain("https://arxiv.org/abs/2104.09864");
     expect(html).toContain('href="/docs/glossary/alibi"');
-    expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
+    expect(html).toContain('href="/docs/concepts/context-extension"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="curated-related-docs"');

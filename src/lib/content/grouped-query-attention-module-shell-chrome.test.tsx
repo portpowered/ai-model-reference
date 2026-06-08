@@ -75,7 +75,9 @@ describe("grouped-query-attention module shell chrome", () => {
     expect(assertGroupedQueryAttentionTitleConvergence(html)).toBeNull();
 
     const plainHtml = stripHtmlTags(html);
-    const problemIndex = plainHtml.indexOf("KV caches grow with context length");
+    const problemIndex = plainHtml.indexOf(
+      "KV caches grow with context length",
+    );
     const coreIdeaIndex = plainHtml.indexOf("lets several query heads share");
     const atAGlanceIndex = html.indexOf('aria-label="At a glance"');
     const whatItIsIndex = html.indexOf('id="what-it-is"');
