@@ -1,4 +1,4 @@
-import { type Browser, chromium, type Page } from "playwright";
+import type { Browser, Page } from "playwright";
 import {
   BATCH_012_ATTENTION_SEARCH_QUERY,
   BATCH_012_MISSING_PAGES_CHECKS,
@@ -22,6 +22,7 @@ import {
   FetchTimeoutError,
   httpGetText,
 } from "./http-harness";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import {
   PHASE_1_ATTENTION_MODULE_URL,
   type SearchResultHit,
@@ -105,7 +106,7 @@ function buildSearchAttentionHttpFailureRow(
 }
 
 async function defaultLaunchBrowser(): Promise<Browser> {
-  return chromium.launch({ headless: true });
+  return launchPlaywrightBrowser();
 }
 
 async function defaultSearchAttentionSnapshotProbe(

@@ -1,6 +1,7 @@
-import { type Browser, chromium, type Locator, type Page } from "playwright";
+import type { Browser, Locator, Page } from "playwright";
 import { docsPageFooterCardSelector } from "@/features/docs/styles/docs-page-footer-chrome";
 import { FOOTER_DIRECTIONAL_SUBLABELS } from "@/lib/navigation/docs-page-footer-contract";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
 export const PHASE_1_DOCS_FOOTER_HOVER_ROUTE = "/docs/glossary/token";
@@ -128,7 +129,7 @@ async function probeNextFooterFocusVisible(
 }
 
 async function defaultLaunchBrowser(): Promise<Browser> {
-  return chromium.launch({ headless: true });
+  return launchPlaywrightBrowser();
 }
 
 /**

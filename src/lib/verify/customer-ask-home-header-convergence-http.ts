@@ -1,4 +1,4 @@
-import { type Browser, chromium, type Page } from "playwright";
+import type { Browser, Page } from "playwright";
 import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-result";
 import {
   buildCustomerAskHomeHeaderRows,
@@ -10,6 +10,7 @@ import {
   FetchTimeoutError,
   httpGetText,
 } from "./http-harness";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
 export type RunCustomerAskHomeHeaderChecksOptions = {
@@ -53,7 +54,7 @@ function buildHttpFailureRows(reason: string): CustomerAskConvergenceRow[] {
 }
 
 async function defaultLaunchBrowser(): Promise<Browser> {
-  return chromium.launch({ headless: true });
+  return launchPlaywrightBrowser();
 }
 
 /**
