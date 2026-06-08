@@ -1,9 +1,11 @@
+import attentionIsAllYouNeed from "@/content/registry/citations/attention-is-all-you-need.json";
 import deepseekV2MlaPaper from "@/content/registry/citations/deepseek-v2-mla-paper.json";
 import goodfellowDeepLearning from "@/content/registry/citations/goodfellow-deep-learning.json";
 import gqaPaper from "@/content/registry/citations/gqa-paper.json";
 import kaplanScalingLaws from "@/content/registry/citations/kaplan-scaling-laws.json";
 import katharopoulosLinearAttentionPaper from "@/content/registry/citations/katharopoulos-linear-attention-paper.json";
 import kingmaAdam from "@/content/registry/citations/kingma-adam.json";
+import shazeerMqaPaper from "@/content/registry/citations/shazeer-mqa-paper.json";
 import weiEmergentAbilities from "@/content/registry/citations/wei-emergent-abilities.json";
 import {
   type CitationRecord,
@@ -11,12 +13,14 @@ import {
 } from "@/lib/content/schemas";
 
 const citationRecords: CitationRecord[] = [
+  citationRecordSchema.parse(attentionIsAllYouNeed),
   citationRecordSchema.parse(deepseekV2MlaPaper),
-  citationRecordSchema.parse(katharopoulosLinearAttentionPaper),
   citationRecordSchema.parse(goodfellowDeepLearning),
   citationRecordSchema.parse(gqaPaper),
   citationRecordSchema.parse(kaplanScalingLaws),
+  citationRecordSchema.parse(katharopoulosLinearAttentionPaper),
   citationRecordSchema.parse(kingmaAdam),
+  citationRecordSchema.parse(shazeerMqaPaper),
   citationRecordSchema.parse(weiEmergentAbilities),
 ];
 
