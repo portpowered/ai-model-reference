@@ -9,6 +9,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { type Browser, chromium, type LaunchOptions } from "playwright";
+import { isInsideExportIntegrationProbeLock } from "./export-integration-probe-lock";
 
 const CI_PLAYWRIGHT_LAUNCH_TIMEOUT_MS = 120_000;
 const CI_PLAYWRIGHT_LAUNCH_ATTEMPTS = 5;
@@ -18,12 +19,18 @@ const MAX_CONCURRENT_CI_LAUNCHES = 1;
 const LAUNCH_SLOT_DIR = join(tmpdir(), "model-atlas-playwright-launch-slots");
 const LOCK_POLL_MS = 200;
 /** Drop launch slots left behind by crashed workers so waiters do not poll until Bun timeout. */
-const STALE_LAUNCH_SLOT_MAX_AGE_MS = 20 * 60 * 1000;
+const STALE_LAUNCH_SLOT_MAX_AGE_MS = 5 * 60 * 1000;
 
 let inProcessLaunchGate: Promise<void> = Promise.resolve();
 
 function shouldSerializePlaywrightLaunch(): boolean {
   return process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+}
+
+function shouldAcquireCrossProcessLaunchSlot(): boolean {
+  return (
+    shouldSerializePlaywrightLaunch() && !isInsideExportIntegrationProbeLock()
+  );
 }
 
 function resolveLaunchOptions(options: LaunchOptions): LaunchOptions {
@@ -154,11 +161,13 @@ async function withCiLaunchSerialization<T>(
   });
 
   await waitForPriorLaunch;
-  const releaseLaunchSlot = await acquireLaunchSlot();
+  const releaseLaunchSlot = shouldAcquireCrossProcessLaunchSlot()
+    ? await acquireLaunchSlot()
+    : null;
   try {
     return await launch();
   } finally {
-    releaseLaunchSlot();
+    releaseLaunchSlot?.();
     releaseInProcessGate();
   }
 }

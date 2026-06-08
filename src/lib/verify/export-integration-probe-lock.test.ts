@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import {
   getExportIntegrationBunTestTimeoutMs,
+  isInsideExportIntegrationProbeLock,
   shouldRunExportIntegrationProbeTests,
   shouldSerializeExportIntegrationProbes,
   withExportIntegrationProbeLock,
@@ -26,7 +27,7 @@ describe("export integration probe lock", () => {
 
   test("resolves export integration Bun ceilings from current env", () => {
     process.env.CI = "true";
-    expect(getExportIntegrationBunTestTimeoutMs()).toBe(2_400_000);
+    expect(getExportIntegrationBunTestTimeoutMs()).toBe(3_600_000);
 
     delete process.env.CI;
     delete process.env.GITHUB_ACTIONS;
@@ -61,5 +62,14 @@ describe("export integration probe lock", () => {
 
     const value = await withExportIntegrationProbeLock(async () => "ok");
     expect(value).toBe("ok");
+    expect(isInsideExportIntegrationProbeLock()).toBe(false);
+  });
+
+  test("tracks export probe lock depth for nested launch serialization", async () => {
+    expect(isInsideExportIntegrationProbeLock()).toBe(false);
+    await withExportIntegrationProbeLock(async () => {
+      expect(isInsideExportIntegrationProbeLock()).toBe(true);
+    });
+    expect(isInsideExportIntegrationProbeLock()).toBe(false);
   });
 });
