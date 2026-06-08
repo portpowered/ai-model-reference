@@ -1,56 +1,20 @@
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { beforeAll, describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
+import { ensureExportSearchArtifacts } from "@/lib/build/ensure-export-search-artifacts";
 import { runPhase1ExportSearchUxChecks } from "@/lib/verify/phase-1-export-search-ux-checks";
 
 const repoRoot = join(import.meta.dir, "../../..");
-const outDir = join(repoRoot, "out");
-const nextDir = join(repoRoot, ".next");
-const searchExportHtmlPath = join(outDir, "search.html");
-
-function removeExportArtifacts(): void {
-  if (existsSync(outDir)) {
-    rmSync(outDir, { recursive: true, force: true });
-  }
-  if (existsSync(nextDir)) {
-    rmSync(nextDir, { recursive: true, force: true });
-  }
-}
-
-function ensureSearchExportArtifacts(): void {
-  if (existsSync(searchExportHtmlPath)) {
-    return;
-  }
-
-  const buildResult = runStaticExportBuild({
-    cwd: repoRoot,
-  });
-  if (buildResult.status !== 0) {
-    throw new Error(
-      `build-export failed with status ${buildResult.status}: ${buildResult.stderr ?? buildResult.stdout ?? ""}`,
-    );
-  }
-  if (!existsSync(searchExportHtmlPath)) {
-    throw new Error(`missing export artifact at ${searchExportHtmlPath}`);
-  }
-}
 
 describe("static export Phase 1 search UX", () => {
   beforeAll(() => {
-    removeExportArtifacts();
-    ensureSearchExportArtifacts();
+    ensureExportSearchArtifacts({ repoRoot });
   }, 300_000);
-
-  afterAll(() => {
-    removeExportArtifacts();
-  });
 
   test(
     "build:export serves GQA, attention, and KV cache on /search and header dialog",
     async () => {
-      ensureSearchExportArtifacts();
+      ensureExportSearchArtifacts({ repoRoot });
 
       const failures = await runPhase1ExportSearchUxChecks({
         cwd: repoRoot,
@@ -63,7 +27,7 @@ describe("static export Phase 1 search UX", () => {
   );
 
   test("verify-phase-1-export-search-ux script passes after build:export", () => {
-    ensureSearchExportArtifacts();
+    ensureExportSearchArtifacts({ repoRoot });
 
     const verifyResult = spawnSync(
       "bun",
