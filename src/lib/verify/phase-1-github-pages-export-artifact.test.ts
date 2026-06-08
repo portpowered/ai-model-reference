@@ -10,9 +10,11 @@ import {
   formatExportArtifactCheckRowLine,
   formatExportArtifactDomainLine,
 } from "./phase-1-github-pages-export-artifact";
+import { buildSearchPageExportShellStubBody } from "./phase-1-search-export-shell-checks";
 
 const PASSING_ROUTE_HTML: Record<string, string> = {
   "/": "<html><title>Model Atlas</title></html>",
+  "/search": `<html><body>${buildSearchPageExportShellStubBody()}</body></html>`,
   "/docs/architecture": "<html><h1>Architecture</h1><p>Token</p></html>",
   "/docs/glossary": "<html><h1>Glossary</h1><p>Token</p></html>",
   "/tags": '<html><h1>Tags</h1><a href="/tags/attention">Attention</a></html>',

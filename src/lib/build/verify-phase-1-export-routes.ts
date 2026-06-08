@@ -17,6 +17,7 @@ export const DEFAULT_EXPORT_OUT_DIR = "out";
 /** Phase 1 reader routes verified in the exported `out/` artifact. */
 export const PHASE_1_EXPORT_ROUTES = [
   "/",
+  "/search",
   "/docs/architecture",
   "/docs/glossary",
   "/docs/modules/grouped-query-attention",

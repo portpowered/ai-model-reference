@@ -10,7 +10,7 @@ import {
 function successfulBuildExportOutput(): string {
   return [
     "Static export build complete.",
-    `${EXPORT_BUILD_SUCCESS_ROUTE_MARKER} (6 paths in out).`,
+    `${EXPORT_BUILD_SUCCESS_ROUTE_MARKER} (7 paths in out).`,
     `${EXPORT_BUILD_SUCCESS_SEARCH_HANDOFF_MARKER} (3 queries in out).`,
   ].join("\n");
 }
@@ -46,7 +46,7 @@ describe("deriveExportCommandPathEvidence", () => {
   test("returns fail when export search handoff verification fails", () => {
     const evidence = deriveExportCommandPathEvidence({
       output: [
-        `${EXPORT_BUILD_SUCCESS_ROUTE_MARKER} (6 paths in out).`,
+        `${EXPORT_BUILD_SUCCESS_ROUTE_MARKER} (7 paths in out).`,
         "Phase 1 static export search handoff verification failed:",
         "  GQA query missing from static search index",
       ].join("\n"),
