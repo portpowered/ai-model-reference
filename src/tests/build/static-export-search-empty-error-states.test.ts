@@ -45,7 +45,7 @@ describe("static export /search empty and error states on GitHub Pages base path
       try {
         const maxAttempts =
           process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true"
-            ? 5
+            ? 3
             : 1;
         let reason: string | null = null;
 
