@@ -191,9 +191,9 @@ describe("verifyStaticExportSearchEmptyErrorStates", () => {
 describe("isRetryableStaticExportSearchProbeFailure", () => {
   test("detects transient Playwright spawn failures", () => {
     expect(isRetryableStaticExportSearchProbeFailure(null)).toBe(false);
-    expect(
-      isRetryableStaticExportSearchProbeFailure("Failed to connect"),
-    ).toBe(true);
+    expect(isRetryableStaticExportSearchProbeFailure("Failed to connect")).toBe(
+      true,
+    );
     expect(
       isRetryableStaticExportSearchProbeFailure(
         "empty state is not visible on /search for a no-match query",
