@@ -12,6 +12,7 @@ import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { assertSearchPageBuiltAppShell } from "@/lib/verify/phase-1-search-built-app-shell-checks";
 import {
   assertCanonicalPageLevelApiResults,
   PHASE_1_ATTENTION_MODULE_URL,
@@ -126,6 +127,12 @@ describe("Phase 1 discovery route smoke", () => {
 
       if (route.path === "/") {
         expectHomeArticleHeaderOnlySearchEntry(renderToStaticMarkup(page));
+      }
+
+      if (route.path === "/search") {
+        expect(
+          assertSearchPageBuiltAppShell(renderToStaticMarkup(page)),
+        ).toBeNull();
       }
     });
   }
