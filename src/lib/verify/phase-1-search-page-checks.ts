@@ -1,5 +1,6 @@
-import { type Browser, chromium, type Locator, type Page } from "playwright";
+import type { Browser, Locator, Page } from "playwright";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 import {
@@ -198,7 +199,7 @@ export async function readSearchPageDomSnapshot(
 }
 
 async function defaultLaunchBrowser(): Promise<Browser> {
-  return chromium.launch({ headless: true });
+  return launchPlaywrightBrowser();
 }
 
 async function waitForSearchPageOutcome(

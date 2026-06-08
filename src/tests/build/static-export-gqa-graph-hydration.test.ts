@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
@@ -29,69 +29,59 @@ function removeExportArtifacts(): void {
 }
 
 describe("static export GQA graph hydration on GitHub Pages base path", () => {
-  test(
-    "build-export produces GQA HTML with graph shell markers and prefixed assets",
-    () => {
-      removeExportArtifacts();
+  beforeAll(() => {
+    removeExportArtifacts();
 
-      try {
-        const buildResult = runStaticExportBuild({
-          cwd: repoRoot,
-          env: {
-            GITHUB_PAGES_BASE_PATH: exportBasePath,
-          },
-        });
-        expect(buildResult.status).toBe(0);
-        expect(existsSync(gqaExportHtmlPath)).toBe(true);
+    const buildResult = runStaticExportBuild({
+      cwd: repoRoot,
+      env: {
+        GITHUB_PAGES_BASE_PATH: exportBasePath,
+      },
+    });
+    if (buildResult.status !== 0) {
+      throw new Error(
+        `build-export failed with status ${buildResult.status}: ${buildResult.stderr ?? buildResult.stdout ?? ""}`,
+      );
+    }
+    if (!existsSync(gqaExportHtmlPath)) {
+      throw new Error(`missing export artifact at ${gqaExportHtmlPath}`);
+    }
+  }, 300_000);
 
-        const gqaHtml = readFileSync(gqaExportHtmlPath, "utf8");
-        expect(
-          exportHtmlIncludesGqaAttentionVariantGraphShellMarkers(gqaHtml),
-        ).toBe(true);
-        expect(
-          exportHtmlReferencesBasePathAssets(gqaHtml, exportBasePath),
-        ).toBe(true);
+  afterAll(() => {
+    removeExportArtifacts();
+  });
 
-        const routeResult = verifyPhase1ExportRoutesFromOutDir("out", {
-          cwd: repoRoot,
-          basePath: exportBasePath,
-        });
-        expect(routeResult.ok).toBe(true);
-      } finally {
-        removeExportArtifacts();
-      }
-    },
-    { timeout: 180_000 },
-  );
+  test("build-export produces GQA HTML with graph shell markers and prefixed assets", () => {
+    const gqaHtml = readFileSync(gqaExportHtmlPath, "utf8");
+    expect(
+      exportHtmlIncludesGqaAttentionVariantGraphShellMarkers(gqaHtml),
+    ).toBe(true);
+    expect(exportHtmlReferencesBasePathAssets(gqaHtml, exportBasePath)).toBe(
+      true,
+    );
+
+    const routeResult = verifyPhase1ExportRoutesFromOutDir("out", {
+      cwd: repoRoot,
+      basePath: exportBasePath,
+    });
+    expect(routeResult.ok).toBe(true);
+  });
 
   test(
     "served static export hydrates the GQA comparison graph and toggles MHA/GQA",
     async () => {
-      removeExportArtifacts();
-
+      const server = await createStaticExportHttpServer({
+        cwd: repoRoot,
+        basePath: exportBasePath,
+      });
       try {
-        const buildResult = runStaticExportBuild({
-          cwd: repoRoot,
-          env: {
-            GITHUB_PAGES_BASE_PATH: exportBasePath,
-          },
-        });
-        expect(buildResult.status).toBe(0);
-
-        const server = await createStaticExportHttpServer({
-          cwd: repoRoot,
-          basePath: exportBasePath,
-        });
-        try {
-          const reason = await verifyStaticExportGqaGraphHydration(
-            server.baseUrl,
-          );
-          expect(reason).toBeNull();
-        } finally {
-          await server.cleanup();
-        }
+        const reason = await verifyStaticExportGqaGraphHydration(
+          server.baseUrl,
+        );
+        expect(reason).toBeNull();
       } finally {
-        removeExportArtifacts();
+        await server.cleanup();
       }
     },
     { timeout: 240_000 },

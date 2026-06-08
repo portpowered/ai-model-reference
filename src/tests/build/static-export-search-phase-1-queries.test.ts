@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
@@ -20,36 +20,45 @@ function removeExportArtifacts(): void {
 }
 
 describe("static export /search Phase 1 canonical queries on GitHub Pages base path", () => {
+  beforeAll(() => {
+    removeExportArtifacts();
+
+    const buildResult = runStaticExportBuild({
+      cwd: repoRoot,
+      env: {
+        GITHUB_PAGES_BASE_PATH: exportBasePath,
+      },
+    });
+    if (buildResult.status !== 0) {
+      throw new Error(
+        `build-export failed with status ${buildResult.status}: ${buildResult.stderr ?? buildResult.stdout ?? ""}`,
+      );
+    }
+    if (!existsSync(join(outDir, "search.html"))) {
+      throw new Error("missing export artifact at out/search.html");
+    }
+  }, 300_000);
+
+  afterAll(() => {
+    removeExportArtifacts();
+  });
+
   test(
     "served static export surfaces grouped-query-attention for GQA, attention, and KV cache",
     async () => {
-      removeExportArtifacts();
-
+      const server = await createStaticExportHttpServer({
+        cwd: repoRoot,
+        basePath: exportBasePath,
+      });
       try {
-        const buildResult = runStaticExportBuild({
-          cwd: repoRoot,
-          env: {
-            GITHUB_PAGES_BASE_PATH: exportBasePath,
-          },
-        });
-        expect(buildResult.status).toBe(0);
-
-        const server = await createStaticExportHttpServer({
-          cwd: repoRoot,
-          basePath: exportBasePath,
-        });
-        try {
-          const reason = await verifyStaticExportSearchPhase1Queries(
-            server.baseUrl,
-          );
-          expect(reason).toBeNull();
-        } finally {
-          await server.cleanup();
-        }
+        const reason = await verifyStaticExportSearchPhase1Queries(
+          server.baseUrl,
+        );
+        expect(reason).toBeNull();
       } finally {
-        removeExportArtifacts();
+        await server.cleanup();
       }
     },
-    { timeout: 300_000 },
+    { timeout: 240_000 },
   );
 });

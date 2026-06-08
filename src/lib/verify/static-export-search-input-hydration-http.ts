@@ -1,5 +1,6 @@
-import { type Browser, chromium, type Page } from "playwright";
+import type { Browser, Page } from "playwright";
 import { httpGetText } from "./http-harness";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import { assertSearchPageExportShell } from "./phase-1-search-export-shell-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
@@ -26,7 +27,7 @@ export type SearchPageInputHydrationSnapshot = {
 };
 
 async function defaultLaunchBrowser(): Promise<Browser> {
-  return chromium.launch({ headless: true });
+  return launchPlaywrightBrowser();
 }
 
 export async function readSearchPageInputHydrationSnapshot(

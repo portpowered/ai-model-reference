@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import { buildSearchPageExportShellStubBody } from "./phase-1-search-export-shell-checks";
 import { createStaticExportHttpServer } from "./static-export-http-server";
 import {
@@ -9,6 +10,7 @@ import {
   evaluateSearchPageQueryPrecedenceOverTag,
   evaluateSearchPageTagHandoff,
   SEARCH_PAGE_TAG_FILTER_DESCRIPTION_PREFIX,
+  verifySearchPageUrlHandoffOnPage,
   verifyStaticExportSearchUrlHandoff,
 } from "./static-export-search-url-handoff-http";
 
@@ -180,21 +182,31 @@ describe("verifyStaticExportSearchUrlHandoff", () => {
         outDir: "out",
         cwd: root,
       });
+      const browser = await launchPlaywrightBrowser();
       try {
-        const reason = await verifyStaticExportSearchUrlHandoff(
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        page.setDefaultTimeout(5_000);
+        page.setDefaultNavigationTimeout(5_000);
+
+        const reason = await verifySearchPageUrlHandoffOnPage(
+          page,
           server.baseUrl,
-          {
-            timeoutMs: 5_000,
-          },
+          "/search?q=GQA",
+          (snapshot) => evaluateSearchPageQueryHandoff(snapshot, "GQA"),
+          "GQA",
+          5_000,
         );
         expect(reason).toMatch(
           /did not prefill|tag filter description|timed out waiting|no loading, results, or empty outcome/,
         );
+        await context.close();
       } finally {
+        await browser.close();
         await server.cleanup();
         rmSync(root, { recursive: true, force: true });
       }
     },
-    { timeout: 60_000 },
+    { timeout: 30_000 },
   );
 });

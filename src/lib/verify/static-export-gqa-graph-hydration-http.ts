@@ -1,7 +1,8 @@
-import { type Browser, chromium, type Page } from "playwright";
+import type { Browser, Page } from "playwright";
 import { REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS } from "@/features/models/components/registry-graph-flow-theme";
 import { exportHtmlIncludesGqaAttentionVariantGraphShellMarkers } from "@/lib/build/verify-export-base-path";
 import { httpGetText } from "./http-harness";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
@@ -10,7 +11,7 @@ export const DEFAULT_GQA_GRAPH_HYDRATION_TIMEOUT_MS = 45_000;
 const GQA_GRAPH_ROUTE = PHASE_1_GROUPED_QUERY_ATTENTION_URL;
 
 async function defaultLaunchBrowser(): Promise<Browser> {
-  return chromium.launch({ headless: true });
+  return launchPlaywrightBrowser();
 }
 
 async function verifyGqaGraphHydrationOnPage(
