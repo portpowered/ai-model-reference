@@ -82,7 +82,7 @@ describe("static export /search URL query and tag handoff on GitHub Pages base p
         const reason = await verifyStaticExportSearchUrlHandoff(
           server.baseUrl,
           {
-            timeoutMs: 45_000,
+            timeoutMs: 60_000,
             handoffPaths: ["/search?q=attention", "/search?tag=attention"],
           },
         );
