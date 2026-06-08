@@ -8,12 +8,7 @@ import {
   getConceptById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
-import {
-  deriveCuratedRelatedItems,
-  PLANNED_RELATED_REASON_LABEL,
-} from "@/lib/content/related-docs";
-
-const PLANNED_SIBLING_COMPONENT_IDS = ["concept.positional-encodings"] as const;
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 
 describe("Phase 3 transformer architecture concept page (US-001)", () => {
   test("registry record is published with prerequisites and curated related ids", () => {
@@ -29,14 +24,14 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
       "concept.feed-forward-network",
       "concept.normalization",
       "concept.residual-connection",
-      ...PLANNED_SIBLING_COMPONENT_IDS,
+      "concept.positional-encodings",
     ]);
     expect(
       PUBLISHED_DOCS_REGISTRY_IDS.has("concept.transformer-architecture"),
     ).toBe(true);
   });
 
-  test("curated related lists attention, feed-forward, normalization, and residual as navigable with remaining siblings planned", () => {
+  test("curated related lists attention, feed-forward, normalization, residual, and positional encodings as navigable", () => {
     const source = getConceptById("concept.transformer-architecture");
     if (!source) {
       throw new Error("expected concept.transformer-architecture in registry");
@@ -66,17 +61,13 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
     expect(residual?.href).toBe("/docs/glossary/residual-connection");
     expect(residual?.isPlanned).toBe(false);
 
-    const plannedSiblings = items.filter((item) =>
-      PLANNED_SIBLING_COMPONENT_IDS.includes(
-        item.registryId as (typeof PLANNED_SIBLING_COMPONENT_IDS)[number],
-      ),
+    const positionalEncodings = items.find(
+      (item) => item.registryId === "concept.positional-encodings",
     );
-    expect(plannedSiblings).toHaveLength(1);
-    for (const item of plannedSiblings) {
-      expect(item.isPlanned).toBe(true);
-      expect(item.href).toBeUndefined();
-      expect(item.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
-    }
+    expect(positionalEncodings?.href).toBe(
+      "/docs/concepts/positional-encodings",
+    );
+    expect(positionalEncodings?.isPlanned).toBe(false);
 
     const normalization = items.find(
       (item) => item.registryId === "concept.normalization",
@@ -110,8 +101,8 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
     expect(html).toContain('href="/docs/glossary/feed-forward-network"');
     expect(html).toContain('href="/docs/glossary/normalization"');
     expect(html).toContain('href="/docs/glossary/residual-connection"');
+    expect(html).toContain('href="/docs/concepts/positional-encodings"');
     expect(html).toContain('data-testid="curated-related-docs"');
-    expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");
   });

@@ -1,6 +1,7 @@
 /** Concept registry ids whose published docs page lives under `/docs/concepts`. */
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
   "concept.transformer-architecture",
+  "concept.positional-encodings",
 ]);
 
 /** Registry ids for docs pages with `status: published` in frontmatter. */
@@ -55,6 +56,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.layer-norm",
   "concept.rmsnorm",
   "concept.residual-connection",
+  "concept.positional-encodings",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;
