@@ -23,6 +23,7 @@ const RMSNORM_URL = "/docs/glossary/rmsnorm";
 const NORMALIZATION_URL = "/docs/glossary/normalization";
 const RESIDUAL_CONNECTION_URL = "/docs/glossary/residual-connection";
 const POSITIONAL_ENCODINGS_URL = "/docs/concepts/positional-encodings";
+const ROPE_URL = "/docs/glossary/rope";
 const STRUCTURAL_TAXONOMY_URLS = [
   "/docs/glossary/model",
   "/docs/glossary/architecture",
@@ -91,6 +92,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   NORMALIZATION_URL,
   RESIDUAL_CONNECTION_URL,
   POSITIONAL_ENCODINGS_URL,
+  ROPE_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
   ...REPRESENTATION_LATENT_URLS,

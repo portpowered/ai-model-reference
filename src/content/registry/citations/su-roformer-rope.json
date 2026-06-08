@@ -1,0 +1,31 @@
+{
+  "id": "citation.su-roformer-rope",
+  "slug": "su-roformer-rope",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "RoFormer paper",
+    "rotary position embedding paper",
+    "RoPE paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-09T00:00:00.000Z",
+  "updatedAt": "2026-06-09T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Jianlin Su",
+    "Yu Lu",
+    "Shengfeng Pan",
+    "Wenbo Liu",
+    "Bo Wen",
+    "Yunfeng Liu"
+  ],
+  "title": "RoFormer: Enhanced Transformer with Rotary Position Embedding",
+  "year": 2021,
+  "url": "https://arxiv.org/abs/2104.09864",
+  "mla": "Su, Jianlin, et al. \"RoFormer: Enhanced Transformer with Rotary Position Embedding.\" arXiv, 2021, https://arxiv.org/abs/2104.09864."
+}

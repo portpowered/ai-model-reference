@@ -26,6 +26,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/module",
   "/docs/glossary/layer-norm",
   "/docs/glossary/rmsnorm",
+  "/docs/glossary/rope",
   "/docs/glossary/normalization",
   "/docs/glossary/residual-connection",
   "/docs/glossary/mixture-of-experts",

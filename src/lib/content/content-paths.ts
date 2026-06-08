@@ -130,3 +130,6 @@ export const POSITIONAL_ENCODINGS_CONCEPT_PAGE_DIR = join(
   CONCEPTS_DOCS_ROOT,
   "positional-encodings",
 );
+
+/** Phase 3 RoPE glossary page directory. */
+export const ROPE_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "rope");

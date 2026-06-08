@@ -7,6 +7,8 @@ import backpropagationConcept from "@/content/registry/concepts/backpropagation.
 import componentConcept from "@/content/registry/concepts/component.json";
 import computationalGraphConcept from "@/content/registry/concepts/computational-graph.json";
 import conditioningConcept from "@/content/registry/concepts/conditioning.json";
+import contextExtensionConcept from "@/content/registry/concepts/context-extension.json";
+import contextWindowConcept from "@/content/registry/concepts/context-window.json";
 import decoderConcept from "@/content/registry/concepts/decoder.json";
 import denoisingGenerationConcept from "@/content/registry/concepts/denoising-generation.json";
 import diffusionModelConcept from "@/content/registry/concepts/diffusion-model.json";
@@ -111,6 +113,8 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(autoregressiveGenerationConcept),
   conceptRecordSchema.parse(denoisingGenerationConcept),
   conceptRecordSchema.parse(conditioningConcept),
+  conceptRecordSchema.parse(contextExtensionConcept),
+  conceptRecordSchema.parse(contextWindowConcept),
   conceptRecordSchema.parse(alignmentConcept),
   conceptRecordSchema.parse(modelCapacityConcept),
   conceptRecordSchema.parse(overfittingConcept),
