@@ -28,4 +28,20 @@ describe("citations", () => {
       listCitationRecords().some((r) => r.id === "citation.gqa-paper"),
     ).toBe(true);
   });
+
+  test("getCitationById returns Vaswani attention paper with MLA text", () => {
+    const citation = getCitationById("citation.attention-is-all-you-need");
+    expect(citation?.title).toBe("Attention Is All You Need");
+    expect(citation?.mla).toContain("Vaswani, Ashish, et al.");
+    expect(citation?.url).toBe("https://arxiv.org/abs/1706.03762");
+  });
+
+  test("getCitationById returns Shazeer MQA paper with MLA text", () => {
+    const citation = getCitationById("citation.shazeer-mqa-paper");
+    expect(citation?.title).toBe(
+      "Fast Transformer Decoding: One Write-Head is All You Need",
+    );
+    expect(citation?.mla).toContain("Shazeer, Noam.");
+    expect(citation?.url).toBe("https://arxiv.org/abs/1911.02150");
+  });
 });
