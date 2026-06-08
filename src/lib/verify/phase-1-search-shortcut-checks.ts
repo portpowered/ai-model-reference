@@ -1,4 +1,5 @@
-import { type Browser, chromium, type Page } from "playwright";
+import type { Browser, Page } from "playwright";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
 /** Keyboard shortcuts exercised on the built app home page. */
@@ -88,7 +89,7 @@ export function resolveSearchShortcutCheckOptionsFromEnv(
 }
 
 async function defaultLaunchBrowser(): Promise<Browser> {
-  return chromium.launch({ headless: true });
+  return launchPlaywrightBrowser();
 }
 
 async function readSearchShortcutDomSnapshot(

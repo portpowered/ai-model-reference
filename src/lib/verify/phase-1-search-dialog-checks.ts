@@ -1,4 +1,5 @@
-import { type Browser, chromium, type Locator, type Page } from "playwright";
+import type { Browser, Locator, Page } from "playwright";
+import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { PHASE_1_SEARCH_PAGE_QUERIES } from "./phase-1-search-page-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
@@ -134,7 +135,7 @@ export async function readSearchDialogDomSnapshot(
 }
 
 async function defaultLaunchBrowser(): Promise<Browser> {
-  return chromium.launch({ headless: true });
+  return launchPlaywrightBrowser();
 }
 
 async function openHeaderSearchDialog(
