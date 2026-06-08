@@ -1,4 +1,5 @@
-import { type Browser, chromium, type Page } from "playwright";
+import { type Browser, chromium, type Locator, type Page } from "playwright";
+import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 import {
@@ -34,6 +35,8 @@ export type SearchPageDomSnapshot = {
   hasGroupedQueryAttentionLink: boolean;
   hasGroupedQueryAttentionResultUrl: boolean;
   hasGroupedQueryAttentionButton: boolean;
+  /** Visible search-result-url text values from the results region. */
+  resultUrls: readonly string[];
 };
 
 export const VERIFY_SEARCH_PAGE_STUB_ENV = "VERIFY_SEARCH_PAGE_STUB";
@@ -77,6 +80,54 @@ export function formatPhase1SearchPageCheckFailure(
   return `${failure.surface}?query=${encodeURIComponent(failure.query)}: ${failure.reason}`;
 }
 
+function normalizeSearchResultUrlText(text: string | null): string {
+  return text?.replace(/\s+/g, " ").trim() ?? "";
+}
+
+async function readSearchPageResultUrls(scope: Locator): Promise<string[]> {
+  const urlNodes = scope.locator(SEARCH_RESULT_URL_SELECTOR);
+  const count = await urlNodes.count();
+  const urls: string[] = [];
+
+  for (let index = 0; index < count; index += 1) {
+    const node = urlNodes.nth(index);
+    const ariaHidden = node.locator('[aria-hidden="true"]').first();
+    const ariaHiddenCount = await ariaHidden.count();
+    const text =
+      ariaHiddenCount > 0
+        ? await ariaHidden.textContent()
+        : await node.textContent();
+    const normalized = normalizeSearchResultUrlText(text);
+    if (normalized.length > 0) {
+      urls.push(normalized);
+    }
+  }
+
+  return urls;
+}
+
+/**
+ * Pure collapsed page-hit outcome for `/search` result URLs.
+ */
+export function evaluateSearchPageCanonicalResultUrls(
+  snapshot: SearchPageDomSnapshot,
+): string | null {
+  if (!snapshot.hasResults || snapshot.resultUrls.length === 0) {
+    return null;
+  }
+
+  if (snapshot.resultUrls.some((url) => url.includes("#"))) {
+    return "search result URL includes a hash fragment";
+  }
+
+  const bases = snapshot.resultUrls.map(pageBaseUrl);
+  if (new Set(bases).size !== bases.length) {
+    return "multiple search hits duplicate one canonical page URL";
+  }
+
+  return null;
+}
+
 /**
  * Pure DOM outcome for `/search` results — used by Playwright and unit tests.
  */
@@ -90,6 +141,11 @@ export function evaluateSearchPageDomSnapshot(
 
   if (!snapshot.hasResults) {
     return `no search results rendered on /search for query "${query}"`;
+  }
+
+  const canonicalFailure = evaluateSearchPageCanonicalResultUrls(snapshot);
+  if (canonicalFailure) {
+    return canonicalFailure;
   }
 
   if (
@@ -108,20 +164,19 @@ export async function readSearchPageDomSnapshot(
 ): Promise<SearchPageDomSnapshot> {
   const moduleUrl = PHASE_1_GROUPED_QUERY_ATTENTION_URL;
 
-  const hasResults = await page
-    .locator(SEARCH_PAGE_RESULTS_SELECTOR)
-    .isVisible();
+  const resultsRegion = page.locator(SEARCH_PAGE_RESULTS_SELECTOR);
+  const hasResults = await resultsRegion.isVisible();
   const hasEmpty = await page.locator(SEARCH_PAGE_EMPTY_SELECTOR).isVisible();
+  const resultUrls = hasResults
+    ? await readSearchPageResultUrls(resultsRegion)
+    : [];
 
   const linkCount = await page.locator(`a[href="${moduleUrl}"]`).count();
   const hasGroupedQueryAttentionLink = linkCount > 0;
 
-  const urlNodes = page.locator(SEARCH_RESULT_URL_SELECTOR);
-  const urlNodeCount = await urlNodes.count();
   let hasGroupedQueryAttentionResultUrl = false;
-  for (let index = 0; index < urlNodeCount; index += 1) {
-    const text = await urlNodes.nth(index).textContent();
-    if (text?.includes(moduleUrl)) {
+  for (const url of resultUrls) {
+    if (url.includes(moduleUrl)) {
       hasGroupedQueryAttentionResultUrl = true;
       break;
     }
@@ -138,6 +193,7 @@ export async function readSearchPageDomSnapshot(
     hasGroupedQueryAttentionLink,
     hasGroupedQueryAttentionResultUrl,
     hasGroupedQueryAttentionButton,
+    resultUrls,
   };
 }
 

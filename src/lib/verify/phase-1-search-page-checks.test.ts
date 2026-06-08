@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import {
+  evaluateSearchPageCanonicalResultUrls,
   evaluateSearchPageDomSnapshot,
   formatPhase1SearchPageCheckFailure,
   PHASE_1_SEARCH_PAGE_QUERIES,
@@ -18,6 +19,10 @@ function passingSnapshot(
     hasGroupedQueryAttentionLink: false,
     hasGroupedQueryAttentionResultUrl: true,
     hasGroupedQueryAttentionButton: false,
+    resultUrls: [
+      PHASE_1_GROUPED_QUERY_ATTENTION_URL,
+      "/docs/modules/attention",
+    ],
     ...overrides,
   };
 }
@@ -29,6 +34,46 @@ describe("PHASE_1_SEARCH_PAGE_QUERIES", () => {
       "attention",
       "KV cache",
     ]);
+  });
+});
+
+describe("evaluateSearchPageCanonicalResultUrls", () => {
+  test("passes when each canonical page URL appears once without fragments", () => {
+    expect(
+      evaluateSearchPageCanonicalResultUrls(
+        passingSnapshot({
+          resultUrls: [
+            PHASE_1_GROUPED_QUERY_ATTENTION_URL,
+            "/docs/modules/attention",
+          ],
+        }),
+      ),
+    ).toBeNull();
+  });
+
+  test("fails when result URLs include hash fragments", () => {
+    expect(
+      evaluateSearchPageCanonicalResultUrls(
+        passingSnapshot({
+          resultUrls: [
+            `${PHASE_1_GROUPED_QUERY_ATTENTION_URL}#Grouped-Query Attention`,
+          ],
+        }),
+      ),
+    ).toContain("hash fragment");
+  });
+
+  test("fails when multiple rows duplicate one canonical page URL", () => {
+    expect(
+      evaluateSearchPageCanonicalResultUrls(
+        passingSnapshot({
+          resultUrls: [
+            PHASE_1_GROUPED_QUERY_ATTENTION_URL,
+            PHASE_1_GROUPED_QUERY_ATTENTION_URL,
+          ],
+        }),
+      ),
+    ).toContain("duplicate one canonical page URL");
   });
 });
 
@@ -69,6 +114,7 @@ describe("evaluateSearchPageDomSnapshot", () => {
         hasGroupedQueryAttentionLink: false,
         hasGroupedQueryAttentionResultUrl: false,
         hasGroupedQueryAttentionButton: false,
+        resultUrls: [],
       },
       "GQA",
     );
@@ -79,12 +125,29 @@ describe("evaluateSearchPageDomSnapshot", () => {
 
   test("fails when results render but omit grouped-query-attention", () => {
     const reason = evaluateSearchPageDomSnapshot(
-      passingSnapshot({ hasGroupedQueryAttentionResultUrl: false }),
+      passingSnapshot({
+        hasGroupedQueryAttentionResultUrl: false,
+        resultUrls: ["/docs/modules/attention"],
+      }),
       "attention",
     );
 
     expect(reason).toContain("no visible link");
     expect(reason).toContain(PHASE_1_GROUPED_QUERY_ATTENTION_URL);
+  });
+
+  test("fails when results duplicate one canonical page URL", () => {
+    const reason = evaluateSearchPageDomSnapshot(
+      passingSnapshot({
+        resultUrls: [
+          PHASE_1_GROUPED_QUERY_ATTENTION_URL,
+          PHASE_1_GROUPED_QUERY_ATTENTION_URL,
+        ],
+      }),
+      "GQA",
+    );
+
+    expect(reason).toContain("duplicate one canonical page URL");
   });
 
   test("fails when neither results nor empty state is visible", () => {
@@ -95,6 +158,7 @@ describe("evaluateSearchPageDomSnapshot", () => {
         hasGroupedQueryAttentionLink: false,
         hasGroupedQueryAttentionResultUrl: false,
         hasGroupedQueryAttentionButton: false,
+        resultUrls: [],
       },
       "KV cache",
     );
