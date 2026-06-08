@@ -14,11 +14,15 @@ import {
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
-const UPCOMING_FAMILIES_CALLOUT_SNIPPET =
-  "planned reference pages. They are not links yet";
+const PLANNED_ROW_META_SNIPPETS = [
+  "not links yet",
+  "later phase",
+  "planned reference",
+  "Upcoming model family",
+] as const;
 
 describe("Phase 2 architecture forward navigation (US-006)", () => {
-  test("architecture messages explain upcoming model family pages", () => {
+  test("architecture messages omit planned model family callout keys", () => {
     const messagesPath = join(
       GLOSSARY_DOCS_ROOT,
       "architecture",
@@ -28,12 +32,7 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
-    expect(messages.callouts?.upcomingModelFamilies?.title).toContain(
-      "Upcoming",
-    );
-    expect(messages.callouts?.upcomingModelFamilies?.body).toContain(
-      UPCOMING_FAMILIES_CALLOUT_SNIPPET,
-    );
+    expect(messages.callouts?.upcomingModelFamilies).toBeUndefined();
   });
 
   test("architecture curated related lists live links for all four model families", () => {
@@ -72,7 +71,7 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
     ]);
   });
 
-  test("architecture page renders all four family links, localized callout, and safe links", async () => {
+  test("architecture page renders all four family links without planned-row meta copy", async () => {
     const page = await loadGlossaryPage("architecture");
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -83,8 +82,9 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
       }),
     );
 
-    expect(html).toContain("Upcoming model family pages");
-    expect(html).toContain(UPCOMING_FAMILIES_CALLOUT_SNIPPET);
+    for (const snippet of PLANNED_ROW_META_SNIPPETS) {
+      expect(html).not.toContain(snippet);
+    }
 
     expect(html).toContain("Transformers");
     expect(html).toContain("diffusion models");
