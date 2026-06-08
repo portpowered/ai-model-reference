@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { ALIBI_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
+import { CONTEXT_WINDOW_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryBodyOmitsTitleHeading,
@@ -19,37 +19,39 @@ import {
   getConceptById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
-import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import {
+  deriveCuratedRelatedItems,
+  PLANNED_RELATED_REASON_LABEL,
+} from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 
-const pageDir = ALIBI_GLOSSARY_PAGE_DIR;
+const pageDir = CONTEXT_WINDOW_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 
-describe("Phase 3 ALiBi glossary page (US-010)", () => {
-  test("registry record is published with aliases, prerequisite ids, and citation", () => {
-    const record = getConceptById("concept.alibi");
+describe("Phase 3 context window glossary page (US-011)", () => {
+  test("registry record is published with aliases and related ids", () => {
+    const record = getConceptById("concept.context-window");
     expect(record?.status).toBe("published");
     expect(record?.aliases).toEqual([
-      "ALiBi",
-      "attention with linear biases",
-      "attention linear bias",
+      "context length",
+      "sequence length limit",
+      "max context",
     ]);
     expect(record?.tags).toEqual(["foundations"]);
-    expect(record?.prerequisiteIds).toEqual(["concept.positional-encodings"]);
     expect(record?.relatedIds).toEqual([
-      "concept.positional-encodings",
-      "concept.rope",
-      "concept.context-window",
+      "concept.context-extension",
+      "concept.why-long-context-is-hard",
     ]);
-    expect(record?.citationIds).toEqual(["citation.press-alibi"]);
-    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.alibi")).toBe(true);
+    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.context-window")).toBe(
+      true,
+    );
   });
 
-  test("curated related links positional encodings, RoPE, and context window with navigable hrefs", () => {
-    const source = getConceptById("concept.alibi");
+  test("curated related links context extension and hardness pages as planned", () => {
+    const source = getConceptById("concept.context-window");
     if (!source) {
-      throw new Error("expected concept.alibi in registry");
+      throw new Error("expected concept.context-window in registry");
     }
 
     const items = deriveCuratedRelatedItems(
@@ -58,49 +60,49 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
 
-    const positionalEncodings = items.find(
-      (item) => item.registryId === "concept.positional-encodings",
+    const contextExtension = items.find(
+      (item) => item.registryId === "concept.context-extension",
     );
-    expect(positionalEncodings?.href).toBe(
-      "/docs/concepts/positional-encodings",
-    );
-    expect(positionalEncodings?.isPlanned).toBe(false);
+    expect(contextExtension?.isPlanned).toBe(true);
+    expect(contextExtension?.href).toBeUndefined();
+    expect(contextExtension?.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
 
-    const rope = items.find((item) => item.registryId === "concept.rope");
-    expect(rope?.href).toBe("/docs/glossary/rope");
-    expect(rope?.isPlanned).toBe(false);
-
-    const contextWindow = items.find(
-      (item) => item.registryId === "concept.context-window",
+    const whyHard = items.find(
+      (item) => item.registryId === "concept.why-long-context-is-hard",
     );
-    expect(contextWindow?.href).toBe("/docs/glossary/context-window");
-    expect(contextWindow?.isPlanned).toBe(false);
+    expect(whyHard?.isPlanned).toBe(true);
+    expect(whyHard?.href).toBeUndefined();
+    expect(whyHard?.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
   });
 
-  test("messages explain distance-based attention biases and contrast with RoPE", () => {
+  test("messages distinguish context window, training length, and generation budget", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
-    expect(messages.title).toBe("ALiBi");
+    expect(messages.title).toBe("Context window");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
-    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain("bias");
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
-      "distance",
+      "context window",
     );
-    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain("logit");
-    expect(messages.sections?.commonConfusions.body).toContain("RoPE");
+    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain("token");
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
-      "extrapol",
+      "training length",
+    );
+    expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
+      "generation budget",
+    );
+    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
+      "output token",
     );
   });
 
-  test("page renders summary, references section, and related links", async () => {
-    const page = await loadGlossaryPage("alibi");
+  test("page renders definition, forward related rows, and tag pills", async () => {
+    const page = await loadGlossaryPage("context-window");
 
     expect(page.frontmatter.kind).toBe("glossary");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.registryId).toBe("concept.alibi");
+    expect(page.frontmatter.registryId).toBe("concept.context-window");
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -115,14 +117,10 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
     expectGlossaryOmitsOpeningSummary(html);
     expectGlossarySingleTagPillList(html);
     expect(html).toContain("What It Is");
-    expectHtmlToContainProse(html, "Attention with linear biases");
-    expect(html).toContain("References");
-    expect(html).toContain('data-testid="citation-list"');
-    expect(html).toContain("Press, Ofir, et al.");
-    expect(html).toContain("https://arxiv.org/abs/2108.12409");
-    expect(html).toContain('href="/docs/concepts/positional-encodings"');
-    expect(html).toContain('href="/docs/glossary/rope"');
-    expect(html).toContain('href="/docs/glossary/context-window"');
+    expectHtmlToContainProse(html, "context window");
+    expect(html).toContain("context extension");
+    expect(html).toContain("why long context is hard");
+    expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="curated-related-docs"');
@@ -130,13 +128,13 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
     expect(html).not.toContain("Reader Shortcut");
   });
 
-  test("search index records ALiBi with glossary kind", async () => {
+  test("search index records context window with glossary kind", async () => {
     const registry = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
     const documents = buildSearchDocuments(pages, registry);
 
     const document = documents.find(
-      (entry) => entry.url === "/docs/glossary/alibi",
+      (entry) => entry.url === "/docs/glossary/context-window",
     );
     expect(document?.kind).toBe("glossary");
     expect(document?.facets.kind).toBe("glossary");

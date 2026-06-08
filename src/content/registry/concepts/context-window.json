@@ -6,11 +6,14 @@
   "defaultSummaryKey": "description",
   "aliases": ["context length", "sequence length limit", "max context"],
   "tags": ["foundations"],
-  "relatedIds": [],
+  "relatedIds": [
+    "concept.context-extension",
+    "concept.why-long-context-is-hard"
+  ],
   "citationIds": [],
-  "status": "draft",
+  "status": "published",
   "createdAt": "2026-06-09T00:00:00.000Z",
-  "updatedAt": "2026-06-09T00:00:00.000Z",
+  "updatedAt": "2026-06-09T20:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": [],
   "explainsIds": []

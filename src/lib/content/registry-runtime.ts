@@ -54,6 +54,7 @@ import tokenConcept from "@/content/registry/concepts/token.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
 import transformerArchitectureConcept from "@/content/registry/concepts/transformer-architecture.json";
 import vectorConcept from "@/content/registry/concepts/vector.json";
+import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-context-is-hard.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
 import attention from "@/content/registry/modules/attention.json";
 import groupedQueryAttention from "@/content/registry/modules/grouped-query-attention.json";
@@ -135,6 +136,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(transformerConcept),
   conceptRecordSchema.parse(diffusionModelConcept),
   conceptRecordSchema.parse(multimodalModelConcept),
+  conceptRecordSchema.parse(whyLongContextIsHardConcept),
   conceptRecordSchema.parse(worldModelConcept),
 ];
 

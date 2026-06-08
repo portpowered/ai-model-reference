@@ -136,3 +136,9 @@ export const ROPE_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "rope");
 
 /** Phase 3 ALiBi glossary page directory. */
 export const ALIBI_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "alibi");
+
+/** Phase 3 context window glossary page directory. */
+export const CONTEXT_WINDOW_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "context-window",
+);
