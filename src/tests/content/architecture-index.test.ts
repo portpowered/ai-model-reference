@@ -51,6 +51,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/representation",
         "/docs/glossary/scaling-law",
         "/docs/glossary/token",
+        "/docs/glossary/transformer",
       ].sort(),
     );
   });
