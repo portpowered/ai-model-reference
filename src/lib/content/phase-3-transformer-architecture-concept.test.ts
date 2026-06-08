@@ -14,7 +14,6 @@ import {
 } from "@/lib/content/related-docs";
 
 const PLANNED_SIBLING_COMPONENT_IDS = [
-  "concept.normalization",
   "concept.residual-connection",
   "concept.positional-encodings",
 ] as const;
@@ -31,6 +30,7 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
     expect(record?.relatedIds).toEqual([
       "module.attention",
       "concept.feed-forward-network",
+      "concept.normalization",
       ...PLANNED_SIBLING_COMPONENT_IDS,
     ]);
     expect(
@@ -67,12 +67,18 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
         item.registryId as (typeof PLANNED_SIBLING_COMPONENT_IDS)[number],
       ),
     );
-    expect(plannedSiblings).toHaveLength(3);
+    expect(plannedSiblings).toHaveLength(2);
     for (const item of plannedSiblings) {
       expect(item.isPlanned).toBe(true);
       expect(item.href).toBeUndefined();
       expect(item.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
     }
+
+    const normalization = items.find(
+      (item) => item.registryId === "concept.normalization",
+    );
+    expect(normalization?.href).toBe("/docs/glossary/normalization");
+    expect(normalization?.isPlanned).toBe(false);
   });
 
   test("page renders title, sections, opening summary, and attention related link", async () => {
@@ -98,6 +104,7 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
     expect(html).toContain("repeating loop");
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/glossary/feed-forward-network"');
+    expect(html).toContain('href="/docs/glossary/normalization"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
     expect(html).not.toContain("Phase");

@@ -23,6 +23,7 @@ import gradientConcept from "@/content/registry/concepts/gradient.json";
 import hiddenSizeConcept from "@/content/registry/concepts/hidden-size.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
+import layerNormConcept from "@/content/registry/concepts/layer-norm.json";
 import logitConcept from "@/content/registry/concepts/logit.json";
 import lossFunctionConcept from "@/content/registry/concepts/loss-function.json";
 import mixtureOfExpertsConcept from "@/content/registry/concepts/mixture-of-experts.json";
@@ -40,6 +41,7 @@ import perplexityConcept from "@/content/registry/concepts/perplexity.json";
 import positionalEncodingsConcept from "@/content/registry/concepts/positional-encodings.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
 import residualConnectionConcept from "@/content/registry/concepts/residual-connection.json";
+import rmsnormConcept from "@/content/registry/concepts/rmsnorm.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
@@ -116,7 +118,9 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(emergentBehaviorConcept),
   conceptRecordSchema.parse(feedForwardNetworkConcept),
   conceptRecordSchema.parse(mixtureOfExpertsConcept),
+  conceptRecordSchema.parse(layerNormConcept),
   conceptRecordSchema.parse(normalizationConcept),
+  conceptRecordSchema.parse(rmsnormConcept),
   conceptRecordSchema.parse(positionalEncodingsConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
   conceptRecordSchema.parse(transformerArchitectureConcept),

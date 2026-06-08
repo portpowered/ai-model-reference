@@ -103,3 +103,9 @@ export const MIXTURE_OF_EXPERTS_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,
   "mixture-of-experts",
 );
+
+/** Phase 3 normalization glossary page directory. */
+export const NORMALIZATION_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "normalization",
+);
