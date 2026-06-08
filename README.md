@@ -111,6 +111,12 @@ make verify-export-routes
 
 make verify-export-search-handoff
 # or: bun run verify:export-search-handoff
+
+make verify-export-search-shell
+# or: bun run verify:export-search-shell
+
+make verify-export-search-ux
+# or: bun run verify:export-search-ux
 ```
 
 For GitHub Pages **project sites** served from `https://<org>.github.io/<repo>/`,
