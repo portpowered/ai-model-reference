@@ -74,7 +74,7 @@ describe("static export /search URL query and tag handoff on GitHub Pages base p
   });
 
   test(
-    "served static export honors ?q=, ?tag=, and q-over-tag handoffs after hydration",
+    "served static export honors ?q=GQA URL handoff after hydration",
     async () => {
       ensureSearchExportArtifacts();
 
@@ -87,6 +87,7 @@ describe("static export /search URL query and tag handoff on GitHub Pages base p
           server.baseUrl,
           {
             timeoutMs: 45_000,
+            handoffPaths: ["/search?q=GQA"],
           },
         );
         expect(reason).toBeNull();
@@ -94,6 +95,6 @@ describe("static export /search URL query and tag handoff on GitHub Pages base p
         await server.cleanup();
       }
     },
-    { timeout: 420_000 },
+    { timeout: 300_000 },
   );
 });

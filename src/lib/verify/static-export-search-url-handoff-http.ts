@@ -221,9 +221,42 @@ export async function verifySearchPageUrlHandoffOnPage(
   return domFailure;
 }
 
+export type SearchPageUrlHandoffCheck = {
+  searchPath: string;
+  evaluateHandoff: (snapshot: SearchPageUrlHandoffSnapshot) => string | null;
+  expectedQueryForResults: string;
+  failurePrefix: string;
+};
+
+export const SEARCH_PAGE_URL_HANDOFF_CHECKS: SearchPageUrlHandoffCheck[] = [
+  {
+    searchPath: "/search?q=GQA",
+    evaluateHandoff: (snapshot) =>
+      evaluateSearchPageQueryHandoff(snapshot, "GQA"),
+    expectedQueryForResults: "GQA",
+    failurePrefix: "/search?q=GQA",
+  },
+  {
+    searchPath: "/search?tag=attention",
+    evaluateHandoff: (snapshot) =>
+      evaluateSearchPageTagHandoff(snapshot, "attention"),
+    expectedQueryForResults: "attention",
+    failurePrefix: "/search?tag=attention",
+  },
+  {
+    searchPath: "/search?q=GQA&tag=attention",
+    evaluateHandoff: (snapshot) =>
+      evaluateSearchPageQueryPrecedenceOverTag(snapshot, "GQA", "attention"),
+    expectedQueryForResults: "GQA",
+    failurePrefix: "/search?q=GQA&tag=attention",
+  },
+];
+
 export type VerifyStaticExportSearchUrlHandoffOptions = {
   timeoutMs?: number;
   launchBrowser?: () => Promise<Browser>;
+  /** When set, only run matching handoff paths (defaults to all). */
+  handoffPaths?: string[];
 };
 
 /**
@@ -248,67 +281,46 @@ export async function verifyStaticExportSearchUrlHandoff(
     return shellFailure;
   }
 
+  const handoffPaths = options.handoffPaths;
+  const handoffChecks =
+    handoffPaths === undefined
+      ? SEARCH_PAGE_URL_HANDOFF_CHECKS
+      : SEARCH_PAGE_URL_HANDOFF_CHECKS.filter((handoff) =>
+          handoffPaths.includes(handoff.searchPath),
+        );
+  if (handoffChecks.length === 0) {
+    return "no URL handoff checks selected";
+  }
+
   const browser = await launchBrowser();
   try {
-    const handoffChecks: Array<{
-      searchPath: string;
-      evaluateHandoff: (
-        snapshot: SearchPageUrlHandoffSnapshot,
-      ) => string | null;
-      expectedQueryForResults: string;
-      failurePrefix: string;
-    }> = [
-      {
-        searchPath: "/search?q=GQA",
-        evaluateHandoff: (snapshot) =>
-          evaluateSearchPageQueryHandoff(snapshot, "GQA"),
-        expectedQueryForResults: "GQA",
-        failurePrefix: "/search?q=GQA",
-      },
-      {
-        searchPath: "/search?tag=attention",
-        evaluateHandoff: (snapshot) =>
-          evaluateSearchPageTagHandoff(snapshot, "attention"),
-        expectedQueryForResults: "attention",
-        failurePrefix: "/search?tag=attention",
-      },
-      {
-        searchPath: "/search?q=GQA&tag=attention",
-        evaluateHandoff: (snapshot) =>
-          evaluateSearchPageQueryPrecedenceOverTag(
-            snapshot,
-            "GQA",
-            "attention",
-          ),
-        expectedQueryForResults: "GQA",
-        failurePrefix: "/search?q=GQA&tag=attention",
-      },
-    ];
+    const handoffFailures = await Promise.all(
+      handoffChecks.map(async (handoff) => {
+        const context = await browser.newContext();
+        try {
+          const page = await context.newPage();
+          page.setDefaultTimeout(timeoutMs);
+          page.setDefaultNavigationTimeout(timeoutMs);
 
-    for (const handoff of handoffChecks) {
-      const context = await browser.newContext();
-      try {
-        const page = await context.newPage();
-        page.setDefaultTimeout(timeoutMs);
-        page.setDefaultNavigationTimeout(timeoutMs);
-
-        const handoffFailure = await verifySearchPageUrlHandoffOnPage(
-          page,
-          baseUrl,
-          handoff.searchPath,
-          handoff.evaluateHandoff,
-          handoff.expectedQueryForResults,
-          timeoutMs,
-        );
-        if (handoffFailure) {
-          return `${handoff.failurePrefix}: ${handoffFailure}`;
+          const handoffFailure = await verifySearchPageUrlHandoffOnPage(
+            page,
+            baseUrl,
+            handoff.searchPath,
+            handoff.evaluateHandoff,
+            handoff.expectedQueryForResults,
+            timeoutMs,
+          );
+          if (handoffFailure) {
+            return `${handoff.failurePrefix}: ${handoffFailure}`;
+          }
+          return null;
+        } finally {
+          await context.close();
         }
-      } finally {
-        await context.close();
-      }
-    }
+      }),
+    );
 
-    return null;
+    return handoffFailures.find((failure) => failure !== null) ?? null;
   } catch (error) {
     return error instanceof Error ? error.message : String(error);
   } finally {
