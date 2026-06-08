@@ -12,7 +12,11 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 import { ConceptMap } from "@/features/models/components/ConceptMap";
 import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
 import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
-import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
+import {
+  ModuleAttentionMhaMqaSchemaComparison,
+  ModuleAttentionSchema,
+  ModuleAttentionSchemaComparison,
+} from "@/features/models/components/ModuleAttentionSchemaComparison";
 import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
 import { ModuleGraph } from "@/features/models/components/ModuleGraph";
 import { ModuleMetadataCard } from "@/features/models/components/ModuleMetadataCard";
@@ -29,6 +33,8 @@ export const moduleMdxComponents: MDXComponents = {
   T,
   TagPillList,
   ModuleComparisonTable,
+  ModuleAttentionMhaMqaSchemaComparison,
+  ModuleAttentionSchema,
   ModuleAttentionSchemaComparison,
   ConceptMap,
   ModuleGraph,

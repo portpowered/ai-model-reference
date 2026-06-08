@@ -34,7 +34,7 @@ describe("DerivedRelatedDocs", () => {
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain("Shared tag");
     expect(html).toContain('data-related-group="same-concept-type"');
-    expect(html).toContain('data-planned="true"');
+    expect(html).toContain('href="/docs/glossary/transformer"');
   });
 
   test("renders nothing when only unsupported groups are requested", () => {
@@ -61,10 +61,25 @@ describe("DerivedRelatedDocs", () => {
     expect(html).toContain("Curated related");
   });
 
-  test("renders nothing for curated-related when the source has no relatedIds", () => {
+  test("renders curated-related links for MHA with attention overview and siblings", () => {
     const html = renderToStaticMarkup(
       <DerivedRelatedDocs
         registryId="module.multi-head-attention"
+        groups={["curated-related"]}
+      />,
+    );
+
+    expect(html).toContain('data-related-group="curated-related"');
+    expect(html).toContain('href="/docs/modules/attention"');
+    expect(html).toContain('href="/docs/modules/multi-query-attention"');
+    expect(html).toContain('href="/docs/modules/grouped-query-attention"');
+    expect(html).toContain("Curated related");
+  });
+
+  test("renders nothing for curated-related when the source has no relatedIds", () => {
+    const html = renderToStaticMarkup(
+      <DerivedRelatedDocs
+        registryId="concept.module"
         groups={["curated-related"]}
       />,
     );

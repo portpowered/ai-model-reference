@@ -11,38 +11,18 @@ import {
   getRegistryRecordById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
-import {
-  deriveCuratedRelatedItems,
-  PLANNED_RELATED_REASON_LABEL,
-} from "@/lib/content/related-docs";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
-const DRAFT_FORWARD_TARGET_IDS = [
-  "concept.transformer",
-  "concept.diffusion-model",
-  "concept.multimodal-model",
-  "concept.world-model",
+const PLANNED_ROW_META_SNIPPETS = [
+  "not links yet",
+  "later phase",
+  "planned reference",
+  "Upcoming model family",
 ] as const;
-
-const DRAFT_FORWARD_DISPLAY_TITLES = [
-  "Transformers",
-  "diffusion models",
-  "multimodal models",
-  "world models",
-] as const;
-
-const DRAFT_FORWARD_SLUGS = [
-  "transformer",
-  "diffusion-model",
-  "multimodal-model",
-  "world-model",
-] as const;
-
-const UPCOMING_FAMILIES_CALLOUT_SNIPPET =
-  "planned reference pages. They are not links yet";
 
 describe("Phase 2 architecture forward navigation (US-006)", () => {
-  test("architecture messages explain upcoming model family pages", () => {
+  test("architecture messages omit planned model family callout keys", () => {
     const messagesPath = join(
       GLOSSARY_DOCS_ROOT,
       "architecture",
@@ -52,15 +32,10 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
-    expect(messages.callouts?.upcomingModelFamilies?.title).toContain(
-      "Upcoming",
-    );
-    expect(messages.callouts?.upcomingModelFamilies?.body).toContain(
-      UPCOMING_FAMILIES_CALLOUT_SNIPPET,
-    );
+    expect(messages.callouts?.upcomingModelFamilies).toBeUndefined();
   });
 
-  test("architecture curated related lists four planned forward targets", () => {
+  test("architecture curated related lists live links for all four model families", () => {
     const source = getRegistryRecordById("concept.architecture");
     if (!source) {
       throw new Error("expected concept.architecture in registry runtime");
@@ -72,26 +47,31 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
 
-    const plannedForward = items.filter((item) =>
-      DRAFT_FORWARD_TARGET_IDS.includes(
-        item.registryId as (typeof DRAFT_FORWARD_TARGET_IDS)[number],
-      ),
-    );
-    expect(plannedForward).toHaveLength(4);
-    for (const item of plannedForward) {
-      expect(item.isPlanned).toBe(true);
-      expect(item.href).toBeUndefined();
-      expect(item.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
+    const familyIds = [
+      "concept.transformer",
+      "concept.diffusion-model",
+      "concept.multimodal-model",
+      "concept.world-model",
+    ] as const;
+
+    for (const id of familyIds) {
+      const item = items.find((entry) => entry.registryId === id);
+      expect(item?.isPlanned).toBe(false);
+      expect(item?.href).toBe(`/docs/glossary/${id.replace("concept.", "")}`);
     }
 
     const publishedPeers = items.filter((item) => item.href);
     expect(publishedPeers.map((item) => item.slug).sort()).toEqual([
+      "diffusion-model",
       "model",
       "module",
+      "multimodal-model",
+      "transformer",
+      "world-model",
     ]);
   });
 
-  test("architecture page renders planned family rows, localized callout, and safe links", async () => {
+  test("architecture page renders all four family links without planned-row meta copy", async () => {
     const page = await loadGlossaryPage("architecture");
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -102,23 +82,22 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
       }),
     );
 
-    expect(html).toContain("Upcoming model family pages");
-    expect(html).toContain(UPCOMING_FAMILIES_CALLOUT_SNIPPET);
-
-    for (const title of DRAFT_FORWARD_DISPLAY_TITLES) {
-      expect(html).toContain(title);
+    for (const snippet of PLANNED_ROW_META_SNIPPETS) {
+      expect(html).not.toContain(snippet);
     }
 
-    const plannedCount = (html.match(/data-planned="true"/g) ?? []).length;
-    expect(plannedCount).toBeGreaterThanOrEqual(4);
+    expect(html).toContain("Transformers");
+    expect(html).toContain("diffusion models");
+    expect(html).toContain("multimodal models");
+    expect(html).toContain("world models");
 
-    for (const slug of DRAFT_FORWARD_SLUGS) {
-      expect(html).not.toContain(`href="/docs/glossary/${slug}"`);
-    }
+    expect(html).toContain('href="/docs/glossary/transformer"');
+    expect(html).toContain('href="/docs/glossary/diffusion-model"');
+    expect(html).toContain('href="/docs/glossary/multimodal-model"');
+    expect(html).toContain('href="/docs/glossary/world-model"');
 
     expect(html).toContain('href="/docs/glossary/model"');
     expect(html).toContain('href="/docs/glossary/module"');
-    expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
     expect(html).toContain('data-testid="curated-related-docs"');
   });
 });

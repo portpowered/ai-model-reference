@@ -261,7 +261,7 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
       }
     });
 
-    test("draft forward targets in foundation relatedIds stay draft without published docs pages", async () => {
+    test("transformer and diffusion-model are published while other forward targets remain draft", async () => {
       const indexes = await loadRegistry();
       const encoderDecoder = indexes.byId.get("concept.encoder-decoder") as
         | ConceptRecord
@@ -269,10 +269,24 @@ describe("Phase 2 generation and generalization foundation chain (US-006)", () =
       expect(encoderDecoder?.relatedIds).toContain("concept.transformer");
 
       const transformer = indexes.byId.get("concept.transformer");
-      expect(transformer?.status).toBe("draft");
-      expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.transformer")).toBe(
-        false,
+      expect(transformer?.status).toBe("published");
+      expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.transformer")).toBe(true);
+
+      const diffusionModel = indexes.byId.get("concept.diffusion-model");
+      expect(diffusionModel?.status).toBe("published");
+      expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.diffusion-model")).toBe(
+        true,
       );
+
+      const multimodalModel = indexes.byId.get("concept.multimodal-model");
+      expect(multimodalModel?.status).toBe("published");
+      expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.multimodal-model")).toBe(
+        true,
+      );
+
+      const worldModel = indexes.byId.get("concept.world-model");
+      expect(worldModel?.status).toBe("published");
+      expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.world-model")).toBe(true);
     });
   });
 

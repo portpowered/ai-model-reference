@@ -10,6 +10,7 @@ import {
   httpGetText,
 } from "./http-harness";
 import { launchPlaywrightBrowser } from "./launch-playwright-browser";
+import type { ExportSearchShellGateOutcome } from "./phase-1-export-search-convergence-evidence";
 import {
   buildStaticRegressionGqaModuleRouteRow,
   buildStaticRegressionHomeRouteRow,
@@ -32,6 +33,7 @@ import {
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
 export type RunPhase1GitHubPagesStaticRegressionChecksOptions = {
+  exportSearchShellGate?: ExportSearchShellGateOutcome;
   timeoutMs?: number;
   queries?: readonly StaticRegressionQuery[];
   launchBrowser?: () => Promise<Browser>;
@@ -201,6 +203,7 @@ export async function runPhase1GitHubPagesStaticRegressionChecks(
   const pageTimeoutMs = Math.max(timeoutMs, DEFAULT_SEARCH_PAGE_TIMEOUT_MS);
   const dialogTimeoutMs = Math.max(timeoutMs, DEFAULT_SEARCH_DIALOG_TIMEOUT_MS);
   const rows: StaticRegressionCheckRow[] = [];
+  const shellGateFailed = options.exportSearchShellGate?.ok === false;
 
   const runPageCheck =
     options.runSearchPageQueryCheck ??
@@ -240,42 +243,48 @@ export async function runPhase1GitHubPagesStaticRegressionChecks(
       }
     });
 
-  for (const query of queries) {
-    const pageResult = await runPageCheck(baseUrl, query, pageTimeoutMs);
-    if ("reason" in pageResult) {
+  if (!shellGateFailed) {
+    for (const query of queries) {
+      const pageResult = await runPageCheck(baseUrl, query, pageTimeoutMs);
+      if ("reason" in pageResult) {
+        rows.push(
+          ...buildProbeFailureRows(
+            pageCheckIdsForQuery(),
+            STATIC_REGRESSION_ROUTES.searchPage,
+            query,
+            pageResult.reason,
+          ),
+        );
+        continue;
+      }
+
       rows.push(
-        ...buildProbeFailureRows(
-          pageCheckIdsForQuery(),
-          STATIC_REGRESSION_ROUTES.searchPage,
-          query,
-          pageResult.reason,
-        ),
+        ...buildStaticRegressionSearchPageRowsForQuery(pageResult, query),
       );
-      continue;
     }
 
-    rows.push(
-      ...buildStaticRegressionSearchPageRowsForQuery(pageResult, query),
-    );
-  }
-
-  for (const query of queries) {
-    const dialogResult = await runDialogCheck(baseUrl, query, dialogTimeoutMs);
-    if ("reason" in dialogResult) {
-      rows.push(
-        ...buildProbeFailureRows(
-          dialogCheckIdsForQuery(),
-          STATIC_REGRESSION_ROUTES.headerDialog,
-          query,
-          dialogResult.reason,
-        ),
+    for (const query of queries) {
+      const dialogResult = await runDialogCheck(
+        baseUrl,
+        query,
+        dialogTimeoutMs,
       );
-      continue;
-    }
+      if ("reason" in dialogResult) {
+        rows.push(
+          ...buildProbeFailureRows(
+            dialogCheckIdsForQuery(),
+            STATIC_REGRESSION_ROUTES.headerDialog,
+            query,
+            dialogResult.reason,
+          ),
+        );
+        continue;
+      }
 
-    rows.push(
-      ...buildStaticRegressionSearchDialogRowsForQuery(dialogResult, query),
-    );
+      rows.push(
+        ...buildStaticRegressionSearchDialogRowsForQuery(dialogResult, query),
+      );
+    }
   }
 
   const fetchHomeHtml = options.fetchHomeHtml ?? defaultFetchHomeHtml;

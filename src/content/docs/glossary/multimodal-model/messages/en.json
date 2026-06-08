@@ -1,0 +1,32 @@
+{
+  "title": "Multimodal Model",
+  "description": "A model family that accepts or produces more than one data modality, such as text paired with images or audio.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A multimodal model ingests or emits two or more modalities—text tokens, image patches, audio frames, video clips, or other channels—and learns shared representations that let those signals interact. Fusion can happen early through a joint encoder, late through cross-attention between modality-specific towers, or through adapters that project one modality into another's embedding space. The family name covers vision-language chat models, speech-to-text stacks, and image captioning systems that share the same high-level pattern: multiple input or output channels coordinated by one trained network."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Multimodal models sit beside unimodal language or vision checkpoints as a distinct architecture family because product behavior depends on which channels the weights actually see. Knowing the family separates true cross-modal fusion from chat UIs that route images through a separate tool. The architecture page groups multimodal models with other families; this page is the dedicated reference for models that align more than one modality through shared representations."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A vision-language assistant tokenizes a user question as text, encodes an uploaded photo into patch embeddings, runs both through a transformer with cross-attention so text queries attend to image patches, then autoregressively decodes an answer in text tokens."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Multimodal model names a family defined by multiple modalities, not any single product or checkpoint size. Modality names the raw channel type; representation names the internal vectors after encoding; patch names a common image tokenization unit. A text-only transformer is not multimodal even when wrapped in a product that calls external APIs for images."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "Multimodal models coordinate two or more data channels—often text with images or audio—through shared encoders, cross-attention, or alignment projections so one network can reason across modalities."
+}

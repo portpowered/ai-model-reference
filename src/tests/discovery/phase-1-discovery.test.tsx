@@ -21,6 +21,7 @@ import {
 } from "@/lib/verify/phase-1-search-checks";
 import { expectHomeArticleHeaderOnlySearchEntry } from "@/tests/discovery/home-search-entry-contract";
 import {
+  resultsIncludeMultiQueryAttention,
   resultsIncludeSampleModule,
   resultsIncludeUrl,
   SAMPLE_MODULE_URL,
@@ -84,10 +85,12 @@ describe("Phase 1 search discovery", () => {
     "KV cache",
     "kv cache",
     "kv-cache",
-  ] as const)("%s query ranks grouped-query attention first", async (query) => {
+  ] as const)("%s query includes grouped-query attention and multi-query attention without duplicate pages", async (query) => {
     const results = await docsSearchApi.search(query);
     expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.url).toBe(SAMPLE_MODULE_URL);
+    expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
+    expect(resultsIncludeSampleModule(results)).toBe(true);
+    expect(resultsIncludeMultiQueryAttention(results)).toBe(true);
   });
 
   test("attention query returns canonical attention module and grouped-query attention hits without duplicate pages", async () => {
@@ -169,8 +172,12 @@ describe("Phase 1 discovery route smoke", () => {
 
     expect(page.messages.title).toBe("Attention");
     expect(page.frontmatter.registryId).toBe("module.attention");
-    expect(page.messages.callouts?.phase1Bridge?.body).toContain("Phase 3");
+    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
+    expect(page.messages.callouts?.phase1Bridge).toBeUndefined();
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+    expect(
+      page.toc.some((item) => item.url === "#variants-and-nearby-modules"),
+    ).toBe(true);
   });
 
   test("/docs/glossary/vector loads published local docs content", async () => {

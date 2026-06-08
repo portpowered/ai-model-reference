@@ -1,0 +1,27 @@
+{
+  "computeFlow": {
+    "type": "attention-variant-graph",
+    "defaultVariantId": "linear",
+    "variants": [
+      {
+        "variantId": "mha",
+        "graphId": "graph.linear-attention-mha-comparison",
+        "labelKey": "assets.computeFlow.variants.mha.label"
+      },
+      {
+        "variantId": "linear",
+        "graphId": "graph.linear-attention-linear-comparison",
+        "labelKey": "assets.computeFlow.variants.linear.label"
+      }
+    ],
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.linear-attention-comparison",
+    "captionKey": "assets.comparisonTable.caption"
+  }
+}

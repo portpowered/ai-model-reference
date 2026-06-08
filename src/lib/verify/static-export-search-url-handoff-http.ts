@@ -238,6 +238,13 @@ export const SEARCH_PAGE_URL_HANDOFF_CHECKS: SearchPageUrlHandoffCheck[] = [
     failurePrefix: "/search?q=GQA",
   },
   {
+    searchPath: "/search?q=attention",
+    evaluateHandoff: (snapshot) =>
+      evaluateSearchPageQueryHandoff(snapshot, "attention"),
+    expectedQueryForResults: "attention",
+    failurePrefix: "/search?q=attention",
+  },
+  {
     searchPath: "/search?tag=attention",
     evaluateHandoff: (snapshot) =>
       evaluateSearchPageTagHandoff(snapshot, "attention"),
@@ -297,33 +304,30 @@ export async function verifyStaticExportSearchUrlHandoff(
 
     const browser = await launchBrowser();
     try {
-      const handoffFailures = await Promise.all(
-        handoffChecks.map(async (handoff) => {
-          const context = await browser.newContext();
-          try {
-            const page = await context.newPage();
-            page.setDefaultTimeout(timeoutMs);
-            page.setDefaultNavigationTimeout(timeoutMs);
+      for (const handoff of handoffChecks) {
+        const context = await browser.newContext();
+        try {
+          const page = await context.newPage();
+          page.setDefaultTimeout(timeoutMs);
+          page.setDefaultNavigationTimeout(timeoutMs);
 
-            const handoffFailure = await verifySearchPageUrlHandoffOnPage(
-              page,
-              baseUrl,
-              handoff.searchPath,
-              handoff.evaluateHandoff,
-              handoff.expectedQueryForResults,
-              timeoutMs,
-            );
-            if (handoffFailure) {
-              return `${handoff.failurePrefix}: ${handoffFailure}`;
-            }
-            return null;
-          } finally {
-            await context.close();
+          const handoffFailure = await verifySearchPageUrlHandoffOnPage(
+            page,
+            baseUrl,
+            handoff.searchPath,
+            handoff.evaluateHandoff,
+            handoff.expectedQueryForResults,
+            timeoutMs,
+          );
+          if (handoffFailure) {
+            return `${handoff.failurePrefix}: ${handoffFailure}`;
           }
-        }),
-      );
+        } finally {
+          await context.close();
+        }
+      }
 
-      return handoffFailures.find((failure) => failure !== null) ?? null;
+      return null;
     } catch (error) {
       return error instanceof Error ? error.message : String(error);
     } finally {

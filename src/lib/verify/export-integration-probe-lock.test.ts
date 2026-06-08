@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import {
   getExportIntegrationBunTestTimeoutMs,
+  shouldRunExportIntegrationProbeTests,
   shouldSerializeExportIntegrationProbes,
   withExportIntegrationProbeLock,
 } from "./export-integration-probe-lock";
+import { VERIFY_COVERAGE_SUBPROCESS_ENV } from "./server-lifecycle";
 
 describe("export integration probe lock", () => {
   const originalCi = process.env.CI;
@@ -24,11 +26,20 @@ describe("export integration probe lock", () => {
 
   test("resolves export integration Bun ceilings from current env", () => {
     process.env.CI = "true";
-    expect(getExportIntegrationBunTestTimeoutMs()).toBe(900_000);
+    expect(getExportIntegrationBunTestTimeoutMs()).toBe(1_200_000);
 
     delete process.env.CI;
     delete process.env.GITHUB_ACTIONS;
     expect(getExportIntegrationBunTestTimeoutMs()).toBe(300_000);
+  });
+
+  test("skips export integration probes during the coverage subprocess rerun", () => {
+    expect(
+      shouldRunExportIntegrationProbeTests({
+        [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
+      }),
+    ).toBe(false);
+    expect(shouldRunExportIntegrationProbeTests({})).toBe(true);
   });
 
   test("detects CI serialization flags", () => {

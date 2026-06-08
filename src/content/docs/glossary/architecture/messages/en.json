@@ -16,7 +16,7 @@
     },
     "whereItAppears": {
       "title": "Where It Appears",
-      "body": "Architecture shows up in model cards, scaling-law papers, and module pages that explain attention variants. This page links forward to major families—transformer, diffusion, multimodal, and world models—as they join the atlas."
+      "body": "Architecture shows up in model cards, scaling-law papers, and module pages that explain attention variants. Related links below connect to major model families and structural concepts in this atlas."
     },
     "commonConfusions": {
       "title": "Common Confusions",
@@ -36,10 +36,6 @@
     "readerShortcut": {
       "title": "Reader Shortcut",
       "body": "Ask \"what repeats in the stack?\" to spot the architecture; ask \"which checkpoint am I running?\" to spot the model."
-    },
-    "upcomingModelFamilies": {
-      "title": "Upcoming model family pages",
-      "body": "Transformers, diffusion models, multimodal models, and world models are listed below as planned reference pages. They are not links yet—each family will get a full atlas page in a later phase so you can explore architecture without broken navigation."
     }
   },
   "openingSummary": "Architecture is the structural recipe—how tensors move through repeated modules—not any one trained set of weights, which people often conflate with specific checkpoints or product families."

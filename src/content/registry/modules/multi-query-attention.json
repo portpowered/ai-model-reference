@@ -6,8 +6,12 @@
   "defaultSummaryKey": "description",
   "aliases": ["MQA", "multi-query attention"],
   "tags": ["attention", "kv-cache"],
-  "relatedIds": [],
-  "citationIds": [],
+  "relatedIds": [
+    "module.attention",
+    "module.multi-head-attention",
+    "module.grouped-query-attention"
+  ],
+  "citationIds": ["citation.shazeer-mqa-paper"],
   "status": "published",
   "createdAt": "2026-06-01T00:00:00.000Z",
   "updatedAt": "2026-06-02T00:00:00.000Z",

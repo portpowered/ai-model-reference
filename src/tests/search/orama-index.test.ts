@@ -13,7 +13,14 @@ import {
 } from "@/lib/search/orama-index";
 
 const ATTENTION_MODULE_URL = "/docs/modules/attention";
+const MULTI_HEAD_ATTENTION_URL = "/docs/modules/multi-head-attention";
+const MULTI_QUERY_ATTENTION_URL = "/docs/modules/multi-query-attention";
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
+const MLA_MODULE_URL = "/docs/modules/multi-head-latent-attention";
+const LINEAR_ATTENTION_MODULE_URL = "/docs/modules/linear-attention";
+const SLIDING_WINDOW_ATTENTION_MODULE_URL =
+  "/docs/modules/sliding-window-attention";
+const SPARSE_ATTENTION_MODULE_URL = "/docs/modules/sparse-attention";
 const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
 const TRANSFORMER_ARCHITECTURE_URL = "/docs/concepts/transformer-architecture";
 const FEED_FORWARD_NETWORK_URL = "/docs/glossary/feed-forward-network";
@@ -67,6 +74,12 @@ const EVALUATION_SCALING_URLS = [
   "/docs/glossary/scaling-law",
   "/docs/glossary/emergent-behavior",
 ] as const;
+const MODEL_FAMILY_URLS = [
+  "/docs/glossary/transformer",
+  "/docs/glossary/diffusion-model",
+  "/docs/glossary/multimodal-model",
+  "/docs/glossary/world-model",
+] as const;
 const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/embedding",
   "/docs/glossary/vector",
@@ -86,7 +99,13 @@ const CHAIN_GLOSSARY_URLS = [
 ] as const;
 const PUBLISHED_SEARCH_INDEX_URLS = [
   ATTENTION_MODULE_URL,
+  MULTI_HEAD_ATTENTION_URL,
+  MULTI_QUERY_ATTENTION_URL,
   SAMPLE_URL,
+  MLA_MODULE_URL,
+  LINEAR_ATTENTION_MODULE_URL,
+  SLIDING_WINDOW_ATTENTION_MODULE_URL,
+  SPARSE_ATTENTION_MODULE_URL,
   TOKEN_GLOSSARY_URL,
   TRANSFORMER_ARCHITECTURE_URL,
   FEED_FORWARD_NETWORK_URL,
@@ -108,6 +127,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ...GENERATION_PARADIGM_URLS,
   ...TRAINING_BEHAVIOR_URLS,
   ...EVALUATION_SCALING_URLS,
+  ...MODEL_FAMILY_URLS,
   ...CHAIN_GLOSSARY_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(
@@ -182,6 +202,25 @@ describe("exportOramaIndexSnapshot", () => {
     expect(gqaHit).toBeDefined();
     expect((gqaHit?.document as { kind: string }).kind).toBe("module");
     expect((gqaHit?.document as { tags: string }).tags).toContain("attention");
+  });
+
+  test.each([
+    { query: "MHA", url: MULTI_HEAD_ATTENTION_URL },
+    { query: "multi-head attention", url: MULTI_HEAD_ATTENTION_URL },
+    { query: "MQA", url: MULTI_QUERY_ATTENTION_URL },
+    { query: "multi-query attention", url: MULTI_QUERY_ATTENTION_URL },
+  ] as const)("Orama database records rank %s for the %s alias query", async ({
+    query,
+    url,
+  }) => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const db = await createOramaDatabase(documents);
+    const { hits } = await search(db, { term: query });
+
+    expect(hits.length).toBeGreaterThan(0);
+    expect((hits[0]?.document as { url: string }).url).toBe(url);
   });
 });
 
