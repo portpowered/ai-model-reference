@@ -9,7 +9,13 @@ const EXPORT_INTEGRATION_PROBE_LOCK_PATH = join(
 );
 const LOCK_POLL_MS = 200;
 /** Drop probe locks left behind by crashed workers so queued tests do not stall until Bun timeout. */
-const STALE_PROBE_LOCK_MAX_AGE_MS = 20 * 60 * 1000;
+const STALE_PROBE_LOCK_MAX_AGE_MS = 5 * 60 * 1000;
+
+let exportIntegrationProbeLockDepth = 0;
+
+export function isInsideExportIntegrationProbeLock(): boolean {
+  return exportIntegrationProbeLockDepth > 0;
+}
 
 export function shouldSerializeExportIntegrationProbes(): boolean {
   return process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
@@ -25,8 +31,11 @@ export function shouldRunExportIntegrationProbeTests(
   return env[VERIFY_COVERAGE_SUBPROCESS_ENV] !== "1";
 }
 
-/** Serialized export probes in CI; allow queue wait plus one probe run per test file. */
-const CI_EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS = 2_400_000;
+/**
+ * Serialized export probes in CI; allow queue wait, stale lock/slot recovery, and one probe run.
+ * Must exceed cumulative probe-lock queue plus Playwright launch-slot stale recovery (see launch-playwright-browser).
+ */
+const CI_EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS = 3_600_000;
 
 /**
  * Bun test ceiling for integration tests that queue on `withExportIntegrationProbeLock`.
@@ -113,13 +122,20 @@ export async function withExportIntegrationProbeLock<T>(
   probe: () => Promise<T>,
 ): Promise<T> {
   if (!shouldSerializeExportIntegrationProbes()) {
-    return probe();
+    exportIntegrationProbeLockDepth += 1;
+    try {
+      return await probe();
+    } finally {
+      exportIntegrationProbeLockDepth -= 1;
+    }
   }
 
   const release = await acquireProbeLock();
+  exportIntegrationProbeLockDepth += 1;
   try {
     return await probe();
   } finally {
+    exportIntegrationProbeLockDepth -= 1;
     release();
   }
 }
