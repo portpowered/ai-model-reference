@@ -1,3 +1,4 @@
+import deepseekV2MlaPaper from "@/content/registry/citations/deepseek-v2-mla-paper.json";
 import goodfellowDeepLearning from "@/content/registry/citations/goodfellow-deep-learning.json";
 import gqaPaper from "@/content/registry/citations/gqa-paper.json";
 import kaplanScalingLaws from "@/content/registry/citations/kaplan-scaling-laws.json";
@@ -9,6 +10,7 @@ import {
 } from "@/lib/content/schemas";
 
 const citationRecords: CitationRecord[] = [
+  citationRecordSchema.parse(deepseekV2MlaPaper),
   citationRecordSchema.parse(goodfellowDeepLearning),
   citationRecordSchema.parse(gqaPaper),
   citationRecordSchema.parse(kaplanScalingLaws),

@@ -1,0 +1,37 @@
+{
+  "id": "module.multi-head-latent-attention",
+  "slug": "multi-head-latent-attention",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "MLA",
+    "multi-head latent attention",
+    "multi head latent attention"
+  ],
+  "tags": ["attention", "kv-cache"],
+  "relatedIds": [
+    "module.multi-head-attention",
+    "module.multi-query-attention",
+    "module.grouped-query-attention"
+  ],
+  "citationIds": ["citation.deepseek-v2-mla-paper"],
+  "status": "published",
+  "createdAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-06-08T00:00:00.000Z",
+  "moduleType": "attention",
+  "moduleFamily": "attention",
+  "conceptType": "attention-variant",
+  "variantGroup": "attention-head-sharing",
+  "optimizes": ["kv-cache", "memory-bandwidth", "long-context-inference"],
+  "practicalBenefits": [
+    "lower KV-cache memory",
+    "compressed latent KV representation"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}

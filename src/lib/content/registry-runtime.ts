@@ -46,6 +46,7 @@ import worldModelConcept from "@/content/registry/concepts/world-model.json";
 import attention from "@/content/registry/modules/attention.json";
 import groupedQueryAttention from "@/content/registry/modules/grouped-query-attention.json";
 import multiHeadAttention from "@/content/registry/modules/multi-head-attention.json";
+import multiHeadLatentAttention from "@/content/registry/modules/multi-head-latent-attention.json";
 import multiQueryAttention from "@/content/registry/modules/multi-query-attention.json";
 import {
   PUBLISHED_DOCS_REGISTRY_IDS,
@@ -62,6 +63,7 @@ import {
 const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(attention),
   moduleRecordSchema.parse(groupedQueryAttention),
+  moduleRecordSchema.parse(multiHeadLatentAttention),
   moduleRecordSchema.parse(multiQueryAttention),
   moduleRecordSchema.parse(multiHeadAttention),
 ];

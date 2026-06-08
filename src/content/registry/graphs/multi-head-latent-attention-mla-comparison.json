@@ -1,0 +1,56 @@
+{
+  "id": "graph.multi-head-latent-attention-mla-comparison",
+  "slug": "multi-head-latent-attention-mla-comparison",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-06-08T00:00:00.000Z",
+  "subjectId": "module.multi-head-latent-attention",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "mla-query-heads",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "mla-query-heads",
+      "labelKey": "graph.nodes.mlaQueryHeads.label",
+      "moduleKind": "projection",
+      "headCountRole": "query",
+      "childNodeIds": ["mla-latent-kv-cache"]
+    },
+    {
+      "id": "mla-latent-kv-cache",
+      "labelKey": "graph.nodes.mlaLatentKvCache.label",
+      "moduleKind": "attention",
+      "headCountRole": "kv",
+      "childNodeIds": ["mla-low-rank-projection"]
+    },
+    {
+      "id": "mla-low-rank-projection",
+      "labelKey": "graph.nodes.mlaLowRankProjection.label",
+      "moduleKind": "operation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "mla-query-to-latent",
+      "source": "mla-query-heads",
+      "target": "mla-latent-kv-cache",
+      "edgeKind": "parameter-sharing"
+    },
+    {
+      "id": "mla-latent-to-projection",
+      "source": "mla-latent-kv-cache",
+      "target": "mla-low-rank-projection",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

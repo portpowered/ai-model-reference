@@ -2,6 +2,7 @@
 export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "module.attention",
   "module.grouped-query-attention",
+  "module.multi-head-latent-attention",
   "concept.token",
   "concept.embedding",
   "concept.tensor",

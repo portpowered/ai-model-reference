@@ -15,7 +15,18 @@ describe("table-registry-runtime", () => {
     ).toBe("tables.comparison.values.mha.kvHeadCount");
   });
 
+  test("loads the MLA nearby-module comparison table by id", () => {
+    const table = getTableById("table.multi-head-latent-attention-comparison");
+    expect(table?.id).toBe("table.multi-head-latent-attention-comparison");
+    expect(table?.columns.length).toBe(4);
+    expect(table?.dimensions.length).toBe(3);
+    expect(
+      table?.valueKeysByModuleId["module.grouped-query-attention"]
+        ?.cacheFootprint,
+    ).toBe("tables.comparison.values.gqa.cacheFootprint");
+  });
+
   test("lists bundled table records", () => {
-    expect(listTableRecords().length).toBe(1);
+    expect(listTableRecords().length).toBe(2);
   });
 });

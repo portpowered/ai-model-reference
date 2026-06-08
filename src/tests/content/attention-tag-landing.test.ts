@@ -39,6 +39,7 @@ describe("attention tag landing resources", () => {
     expect(moduleGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/modules/attention",
       "/docs/modules/grouped-query-attention",
+      "/docs/modules/multi-head-latent-attention",
     ]);
   });
 
@@ -111,6 +112,8 @@ describe("attention tag landing page render", () => {
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain("Grouped-Query Attention");
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
+    expect(html).toContain("Multi-Head Latent Attention");
+    expect(html).toContain('href="/docs/modules/multi-head-latent-attention"');
     expect(html).toContain("Autoregressive Generation");
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain("Token");
