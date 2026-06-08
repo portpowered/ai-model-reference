@@ -238,6 +238,13 @@ export const SEARCH_PAGE_URL_HANDOFF_CHECKS: SearchPageUrlHandoffCheck[] = [
     failurePrefix: "/search?q=GQA",
   },
   {
+    searchPath: "/search?q=attention",
+    evaluateHandoff: (snapshot) =>
+      evaluateSearchPageQueryHandoff(snapshot, "attention"),
+    expectedQueryForResults: "attention",
+    failurePrefix: "/search?q=attention",
+  },
+  {
     searchPath: "/search?tag=attention",
     evaluateHandoff: (snapshot) =>
       evaluateSearchPageTagHandoff(snapshot, "attention"),

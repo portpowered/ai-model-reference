@@ -51,17 +51,27 @@ describe("static export build documentation", () => {
     expect(makefile).toMatch(/^ci:.*build-export/m);
     expect(makefile).toMatch(/bun run build:export/);
     expect(makefile).toMatch(/verify-phase-1-export-routes\.ts/);
+    expect(makefile).toMatch(/verify-phase-1-export-search-shell\.ts/);
     expect(makefile).toMatch(/verify-phase-1-export-search-handoff\.ts/);
+    expect(makefile).toMatch(/verify-phase-1-export-search-ux\.ts/);
     expect(makefile).toMatch(/^verify-export-routes:/m);
+    expect(makefile).toMatch(/^verify-export-search-shell:/m);
     expect(makefile).toMatch(/^verify-export-search-handoff:/m);
+    expect(makefile).toMatch(/^verify-export-search-ux:/m);
     expect(packageJson.scripts["build:export"]).toContain(
       "NEXT_STATIC_EXPORT=1",
     );
     expect(packageJson.scripts["verify:export-routes"]).toContain(
       "verify-phase-1-export-routes.ts",
     );
+    expect(packageJson.scripts["verify:export-search-shell"]).toContain(
+      "verify-phase-1-export-search-shell.ts",
+    );
     expect(packageJson.scripts["verify:export-search-handoff"]).toContain(
       "verify-phase-1-export-search-handoff.ts",
+    );
+    expect(packageJson.scripts["verify:export-search-ux"]).toContain(
+      "verify-phase-1-export-search-ux.ts",
     );
   });
 });
