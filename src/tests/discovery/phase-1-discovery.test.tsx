@@ -169,8 +169,12 @@ describe("Phase 1 discovery route smoke", () => {
 
     expect(page.messages.title).toBe("Attention");
     expect(page.frontmatter.registryId).toBe("module.attention");
-    expect(page.messages.callouts?.phase1Bridge?.body).toContain("Phase 3");
+    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
+    expect(page.messages.callouts?.phase1Bridge).toBeUndefined();
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+    expect(
+      page.toc.some((item) => item.url === "#variants-and-nearby-modules"),
+    ).toBe(true);
   });
 
   test("/docs/glossary/vector loads published local docs content", async () => {
