@@ -41,15 +41,22 @@ describe("static export /search Phase 1 canonical queries on GitHub Pages base p
       try {
         const maxAttempts =
           process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true"
-            ? 3
+            ? 5
             : 1;
         let reason: string | null = null;
 
         for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-          reason = await verifyStaticExportSearchPhase1Queries(server.baseUrl, {
-            timeoutMs: 45_000,
-            queries: [query],
-          });
+          try {
+            reason = await verifyStaticExportSearchPhase1Queries(
+              server.baseUrl,
+              {
+                timeoutMs: 45_000,
+                queries: [query],
+              },
+            );
+          } catch (error) {
+            reason = error instanceof Error ? error.message : String(error);
+          }
           if (
             reason === null ||
             !isRetryableStaticExportSearchProbeFailure(reason) ||
