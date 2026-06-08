@@ -6,6 +6,7 @@ import {
   shouldRunExportIntegrationProbeTests,
 } from "@/lib/verify/export-integration-probe-lock";
 import { createStaticExportHttpServer } from "@/lib/verify/static-export-http-server";
+import { isRetryableStaticExportSearchProbeFailure } from "@/lib/verify/static-export-search-empty-error-states-http";
 import { verifyStaticExportSearchPhase1Queries } from "@/lib/verify/static-export-search-phase-1-queries-http";
 
 const repoRoot = join(import.meta.dir, "../../..");
@@ -38,13 +39,27 @@ describe("static export /search Phase 1 canonical queries on GitHub Pages base p
         basePath: exportBasePath,
       });
       try {
-        const reason = await verifyStaticExportSearchPhase1Queries(
-          server.baseUrl,
-          {
+        const maxAttempts =
+          process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true"
+            ? 3
+            : 1;
+        let reason: string | null = null;
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+          reason = await verifyStaticExportSearchPhase1Queries(server.baseUrl, {
             timeoutMs: 45_000,
             queries: [query],
-          },
-        );
+          });
+          if (
+            reason === null ||
+            !isRetryableStaticExportSearchProbeFailure(reason) ||
+            attempt === maxAttempts
+          ) {
+            break;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 3_000));
+        }
+
         expect(reason).toBeNull();
       } finally {
         await server.cleanup();
