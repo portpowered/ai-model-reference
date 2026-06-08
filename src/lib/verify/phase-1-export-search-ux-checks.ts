@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { resolveBasePathForExportVerification } from "@/lib/build/static-export";
 import { verifyPhase1ExportSearchFromOutDir } from "@/lib/build/verify-phase-1-export-search";
+import { withExportIntegrationProbeLock } from "./export-integration-probe-lock";
 import {
   assertPhase1SearchDialog,
   type RunPhase1SearchDialogChecksOptions,
@@ -76,40 +77,45 @@ export async function runPhase1ExportSearchUxChecks(
     ];
   }
 
-  const session = await createStaticExportHttpServer({
-    outDir,
-    cwd,
-    basePath,
+  return withExportIntegrationProbeLock(async () => {
+    const session = await createStaticExportHttpServer({
+      outDir,
+      cwd,
+      basePath,
+    });
+
+    try {
+      const failures: Phase1ExportSearchUxCheckFailure[] = [];
+
+      try {
+        await assertPhase1SearchPage(
+          session.baseUrl,
+          options.searchPageOptions,
+        );
+      } catch (error) {
+        failures.push({
+          surface: "/search",
+          reason: error instanceof Error ? error.message : String(error),
+        });
+      }
+
+      try {
+        await assertPhase1SearchDialog(
+          session.baseUrl,
+          options.searchDialogOptions,
+        );
+      } catch (error) {
+        failures.push({
+          surface: "header-dialog",
+          reason: error instanceof Error ? error.message : String(error),
+        });
+      }
+
+      return failures;
+    } finally {
+      await session.cleanup();
+    }
   });
-
-  try {
-    const failures: Phase1ExportSearchUxCheckFailure[] = [];
-
-    try {
-      await assertPhase1SearchPage(session.baseUrl, options.searchPageOptions);
-    } catch (error) {
-      failures.push({
-        surface: "/search",
-        reason: error instanceof Error ? error.message : String(error),
-      });
-    }
-
-    try {
-      await assertPhase1SearchDialog(
-        session.baseUrl,
-        options.searchDialogOptions,
-      );
-    } catch (error) {
-      failures.push({
-        surface: "header-dialog",
-        reason: error instanceof Error ? error.message : String(error),
-      });
-    }
-
-    return failures;
-  } finally {
-    await session.cleanup();
-  }
 }
 
 export function formatPhase1ExportSearchUxCheckFailure(

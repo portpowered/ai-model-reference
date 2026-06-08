@@ -1,4 +1,5 @@
 import type { Browser, Page } from "playwright";
+import { withExportIntegrationProbeLock } from "./export-integration-probe-lock";
 import { httpGetText } from "./http-harness";
 import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import { assertSearchPageExportShell } from "./phase-1-search-export-shell-checks";
@@ -183,36 +184,38 @@ export async function verifyStaticExportSearchInputHydration(
     launchBrowser?: () => Promise<Browser>;
   } = {},
 ): Promise<string | null> {
-  const timeoutMs =
-    options.timeoutMs ?? DEFAULT_SEARCH_INPUT_HYDRATION_TIMEOUT_MS;
-  const query = options.query ?? DEFAULT_SEARCH_INPUT_HYDRATION_QUERY;
-  const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
-  const searchUrl = `${normalizeVerifyBaseUrl(baseUrl)}/search`;
+  return withExportIntegrationProbeLock(async () => {
+    const timeoutMs =
+      options.timeoutMs ?? DEFAULT_SEARCH_INPUT_HYDRATION_TIMEOUT_MS;
+    const query = options.query ?? DEFAULT_SEARCH_INPUT_HYDRATION_QUERY;
+    const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
+    const searchUrl = `${normalizeVerifyBaseUrl(baseUrl)}/search`;
 
-  const htmlResponse = await httpGetText(searchUrl, timeoutMs);
-  if (htmlResponse.status < 200 || htmlResponse.status >= 300) {
-    return `/search export route returned HTTP ${htmlResponse.status}.`;
-  }
+    const htmlResponse = await httpGetText(searchUrl, timeoutMs);
+    if (htmlResponse.status < 200 || htmlResponse.status >= 300) {
+      return `/search export route returned HTTP ${htmlResponse.status}.`;
+    }
 
-  const shellFailure = assertSearchPageExportShell(htmlResponse.body);
-  if (shellFailure) {
-    return shellFailure;
-  }
+    const shellFailure = assertSearchPageExportShell(htmlResponse.body);
+    if (shellFailure) {
+      return shellFailure;
+    }
 
-  const browser = await launchBrowser();
-  try {
-    const page = await browser.newPage();
-    page.setDefaultTimeout(timeoutMs);
-    page.setDefaultNavigationTimeout(timeoutMs);
-    return await verifySearchPageInputHydrationOnPage(
-      page,
-      baseUrl,
-      query,
-      timeoutMs,
-    );
-  } catch (error) {
-    return error instanceof Error ? error.message : String(error);
-  } finally {
-    await browser.close();
-  }
+    const browser = await launchBrowser();
+    try {
+      const page = await browser.newPage();
+      page.setDefaultTimeout(timeoutMs);
+      page.setDefaultNavigationTimeout(timeoutMs);
+      return await verifySearchPageInputHydrationOnPage(
+        page,
+        baseUrl,
+        query,
+        timeoutMs,
+      );
+    } catch (error) {
+      return error instanceof Error ? error.message : String(error);
+    } finally {
+      await browser.close();
+    }
+  });
 }

@@ -1,4 +1,5 @@
 import type { Browser, Page } from "playwright";
+import { withExportIntegrationProbeLock } from "./export-integration-probe-lock";
 import { httpGetText } from "./http-harness";
 import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import { assertSearchPageExportShell } from "./phase-1-search-export-shell-checks";
@@ -267,63 +268,66 @@ export async function verifyStaticExportSearchUrlHandoff(
   baseUrl: string,
   options: VerifyStaticExportSearchUrlHandoffOptions = {},
 ): Promise<string | null> {
-  const timeoutMs = options.timeoutMs ?? DEFAULT_SEARCH_URL_HANDOFF_TIMEOUT_MS;
-  const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
-  const searchUrl = `${normalizeVerifyBaseUrl(baseUrl)}/search`;
+  return withExportIntegrationProbeLock(async () => {
+    const timeoutMs =
+      options.timeoutMs ?? DEFAULT_SEARCH_URL_HANDOFF_TIMEOUT_MS;
+    const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
+    const searchUrl = `${normalizeVerifyBaseUrl(baseUrl)}/search`;
 
-  const htmlResponse = await httpGetText(searchUrl, timeoutMs);
-  if (htmlResponse.status < 200 || htmlResponse.status >= 300) {
-    return `/search export route returned HTTP ${htmlResponse.status}.`;
-  }
+    const htmlResponse = await httpGetText(searchUrl, timeoutMs);
+    if (htmlResponse.status < 200 || htmlResponse.status >= 300) {
+      return `/search export route returned HTTP ${htmlResponse.status}.`;
+    }
 
-  const shellFailure = assertSearchPageExportShell(htmlResponse.body);
-  if (shellFailure) {
-    return shellFailure;
-  }
+    const shellFailure = assertSearchPageExportShell(htmlResponse.body);
+    if (shellFailure) {
+      return shellFailure;
+    }
 
-  const handoffPaths = options.handoffPaths;
-  const handoffChecks =
-    handoffPaths === undefined
-      ? SEARCH_PAGE_URL_HANDOFF_CHECKS
-      : SEARCH_PAGE_URL_HANDOFF_CHECKS.filter((handoff) =>
-          handoffPaths.includes(handoff.searchPath),
-        );
-  if (handoffChecks.length === 0) {
-    return "no URL handoff checks selected";
-  }
-
-  const browser = await launchBrowser();
-  try {
-    const handoffFailures = await Promise.all(
-      handoffChecks.map(async (handoff) => {
-        const context = await browser.newContext();
-        try {
-          const page = await context.newPage();
-          page.setDefaultTimeout(timeoutMs);
-          page.setDefaultNavigationTimeout(timeoutMs);
-
-          const handoffFailure = await verifySearchPageUrlHandoffOnPage(
-            page,
-            baseUrl,
-            handoff.searchPath,
-            handoff.evaluateHandoff,
-            handoff.expectedQueryForResults,
-            timeoutMs,
+    const handoffPaths = options.handoffPaths;
+    const handoffChecks =
+      handoffPaths === undefined
+        ? SEARCH_PAGE_URL_HANDOFF_CHECKS
+        : SEARCH_PAGE_URL_HANDOFF_CHECKS.filter((handoff) =>
+            handoffPaths.includes(handoff.searchPath),
           );
-          if (handoffFailure) {
-            return `${handoff.failurePrefix}: ${handoffFailure}`;
-          }
-          return null;
-        } finally {
-          await context.close();
-        }
-      }),
-    );
+    if (handoffChecks.length === 0) {
+      return "no URL handoff checks selected";
+    }
 
-    return handoffFailures.find((failure) => failure !== null) ?? null;
-  } catch (error) {
-    return error instanceof Error ? error.message : String(error);
-  } finally {
-    await browser.close();
-  }
+    const browser = await launchBrowser();
+    try {
+      const handoffFailures = await Promise.all(
+        handoffChecks.map(async (handoff) => {
+          const context = await browser.newContext();
+          try {
+            const page = await context.newPage();
+            page.setDefaultTimeout(timeoutMs);
+            page.setDefaultNavigationTimeout(timeoutMs);
+
+            const handoffFailure = await verifySearchPageUrlHandoffOnPage(
+              page,
+              baseUrl,
+              handoff.searchPath,
+              handoff.evaluateHandoff,
+              handoff.expectedQueryForResults,
+              timeoutMs,
+            );
+            if (handoffFailure) {
+              return `${handoff.failurePrefix}: ${handoffFailure}`;
+            }
+            return null;
+          } finally {
+            await context.close();
+          }
+        }),
+      );
+
+      return handoffFailures.find((failure) => failure !== null) ?? null;
+    } catch (error) {
+      return error instanceof Error ? error.message : String(error);
+    } finally {
+      await browser.close();
+    }
+  });
 }

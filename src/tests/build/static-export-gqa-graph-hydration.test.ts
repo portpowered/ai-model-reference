@@ -1,7 +1,7 @@
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { existsSync, readFileSync, rmSync } from "node:fs";
+import { beforeAll, describe, expect, test } from "bun:test";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
+import { ensureExportSearchArtifacts } from "@/lib/build/ensure-export-search-artifacts";
 import {
   exportHtmlIncludesGqaAttentionVariantGraphShellMarkers,
   exportHtmlReferencesBasePathAssets,
@@ -12,45 +12,22 @@ import { createStaticExportHttpServer } from "@/lib/verify/static-export-http-se
 
 const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
-const nextDir = join(repoRoot, ".next");
 const exportBasePath = "/ai-model-reference";
 const gqaExportHtmlPath = join(
   outDir,
   "docs/modules/grouped-query-attention.html",
 );
 
-function removeExportArtifacts(): void {
-  if (existsSync(outDir)) {
-    rmSync(outDir, { recursive: true, force: true });
-  }
-  if (existsSync(nextDir)) {
-    rmSync(nextDir, { recursive: true, force: true });
-  }
-}
-
 describe("static export GQA graph hydration on GitHub Pages base path", () => {
   beforeAll(() => {
-    removeExportArtifacts();
-
-    const buildResult = runStaticExportBuild({
-      cwd: repoRoot,
-      env: {
-        GITHUB_PAGES_BASE_PATH: exportBasePath,
-      },
+    ensureExportSearchArtifacts({
+      repoRoot,
+      basePath: exportBasePath,
     });
-    if (buildResult.status !== 0) {
-      throw new Error(
-        `build-export failed with status ${buildResult.status}: ${buildResult.stderr ?? buildResult.stdout ?? ""}`,
-      );
-    }
     if (!existsSync(gqaExportHtmlPath)) {
       throw new Error(`missing export artifact at ${gqaExportHtmlPath}`);
     }
   }, 300_000);
-
-  afterAll(() => {
-    removeExportArtifacts();
-  });
 
   test("build-export produces GQA HTML with graph shell markers and prefixed assets", () => {
     const gqaHtml = readFileSync(gqaExportHtmlPath, "utf8");
@@ -71,6 +48,11 @@ describe("static export GQA graph hydration on GitHub Pages base path", () => {
   test(
     "served static export hydrates the GQA comparison graph and toggles MHA/GQA",
     async () => {
+      ensureExportSearchArtifacts({
+        repoRoot,
+        basePath: exportBasePath,
+      });
+
       const server = await createStaticExportHttpServer({
         cwd: repoRoot,
         basePath: exportBasePath,
@@ -84,6 +66,6 @@ describe("static export GQA graph hydration on GitHub Pages base path", () => {
         await server.cleanup();
       }
     },
-    { timeout: 240_000 },
+    { timeout: 300_000 },
   );
 });

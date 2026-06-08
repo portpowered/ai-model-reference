@@ -1,6 +1,7 @@
 import type { Browser, Page } from "playwright";
 import { REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS } from "@/features/models/components/registry-graph-flow-theme";
 import { exportHtmlIncludesGqaAttentionVariantGraphShellMarkers } from "@/lib/build/verify-export-base-path";
+import { withExportIntegrationProbeLock } from "./export-integration-probe-lock";
 import { httpGetText } from "./http-harness";
 import { launchPlaywrightBrowser } from "./launch-playwright-browser";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
@@ -107,35 +108,38 @@ export async function verifyStaticExportGqaGraphHydration(
     launchBrowser?: () => Promise<Browser>;
   } = {},
 ): Promise<string | null> {
-  const timeoutMs = options.timeoutMs ?? DEFAULT_GQA_GRAPH_HYDRATION_TIMEOUT_MS;
-  const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
-  const pageUrl = `${normalizeVerifyBaseUrl(baseUrl)}${GQA_GRAPH_ROUTE}`;
+  return withExportIntegrationProbeLock(async () => {
+    const timeoutMs =
+      options.timeoutMs ?? DEFAULT_GQA_GRAPH_HYDRATION_TIMEOUT_MS;
+    const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
+    const pageUrl = `${normalizeVerifyBaseUrl(baseUrl)}${GQA_GRAPH_ROUTE}`;
 
-  const htmlResponse = await httpGetText(pageUrl, timeoutMs);
-  if (htmlResponse.status < 200 || htmlResponse.status >= 300) {
-    return `GQA module export route returned HTTP ${htmlResponse.status}.`;
-  }
-  const exportedHtml = htmlResponse.body;
-  if (!exportHtmlIncludesGqaAttentionVariantGraphShellMarkers(exportedHtml)) {
-    return "GQA export HTML lacks attention-variant comparison graph shell markers.";
-  }
-  if (!/\bclass=["'][^"']*react-flow/.test(exportedHtml)) {
-    return "React Flow canvas did not hydrate on the GQA module page.";
-  }
+    const htmlResponse = await httpGetText(pageUrl, timeoutMs);
+    if (htmlResponse.status < 200 || htmlResponse.status >= 300) {
+      return `GQA module export route returned HTTP ${htmlResponse.status}.`;
+    }
+    const exportedHtml = htmlResponse.body;
+    if (!exportHtmlIncludesGqaAttentionVariantGraphShellMarkers(exportedHtml)) {
+      return "GQA export HTML lacks attention-variant comparison graph shell markers.";
+    }
+    if (!/\bclass=["'][^"']*react-flow/.test(exportedHtml)) {
+      return "React Flow canvas did not hydrate on the GQA module page.";
+    }
 
-  const browser = await launchBrowser();
-  try {
-    const page = await browser.newPage();
-    page.setDefaultTimeout(timeoutMs);
-    page.setDefaultNavigationTimeout(timeoutMs);
-    await page.goto(pageUrl, {
-      timeout: timeoutMs,
-      waitUntil: "load",
-    });
-    return await verifyGqaGraphHydrationOnPage(page, timeoutMs);
-  } catch (error) {
-    return error instanceof Error ? error.message : String(error);
-  } finally {
-    await browser.close();
-  }
+    const browser = await launchBrowser();
+    try {
+      const page = await browser.newPage();
+      page.setDefaultTimeout(timeoutMs);
+      page.setDefaultNavigationTimeout(timeoutMs);
+      await page.goto(pageUrl, {
+        timeout: timeoutMs,
+        waitUntil: "load",
+      });
+      return await verifyGqaGraphHydrationOnPage(page, timeoutMs);
+    } catch (error) {
+      return error instanceof Error ? error.message : String(error);
+    } finally {
+      await browser.close();
+    }
+  });
 }
