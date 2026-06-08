@@ -9,6 +9,7 @@ const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
 const nextDir = join(repoRoot, ".next");
 const exportBasePath = "/ai-model-reference";
+const searchExportHtmlPath = join(outDir, "search.html");
 
 function removeExportArtifacts(): void {
   if (existsSync(outDir)) {
@@ -19,21 +20,31 @@ function removeExportArtifacts(): void {
   }
 }
 
+function ensureSearchExportArtifacts(): void {
+  if (existsSync(searchExportHtmlPath)) {
+    return;
+  }
+
+  const buildResult = runStaticExportBuild({
+    cwd: repoRoot,
+    env: {
+      GITHUB_PAGES_BASE_PATH: exportBasePath,
+    },
+  });
+  if (buildResult.status !== 0) {
+    throw new Error(
+      `build-export failed with status ${buildResult.status}: ${buildResult.stderr ?? buildResult.stdout ?? ""}`,
+    );
+  }
+  if (!existsSync(searchExportHtmlPath)) {
+    throw new Error(`missing export artifact at ${searchExportHtmlPath}`);
+  }
+}
+
 describe("static export /search empty and error states on GitHub Pages base path", () => {
   beforeAll(() => {
     removeExportArtifacts();
-
-    const buildResult = runStaticExportBuild({
-      cwd: repoRoot,
-      env: {
-        GITHUB_PAGES_BASE_PATH: exportBasePath,
-      },
-    });
-    if (buildResult.status !== 0) {
-      throw new Error(
-        `build-export failed with status ${buildResult.status}: ${buildResult.stderr ?? buildResult.stdout ?? ""}`,
-      );
-    }
+    ensureSearchExportArtifacts();
   }, 300_000);
 
   afterAll(() => {
@@ -43,6 +54,8 @@ describe("static export /search empty and error states on GitHub Pages base path
   test(
     "served static export exposes recoverable empty and error states with accessible outcomes",
     async () => {
+      ensureSearchExportArtifacts();
+
       const server = await createStaticExportHttpServer({
         cwd: repoRoot,
         basePath: exportBasePath,
