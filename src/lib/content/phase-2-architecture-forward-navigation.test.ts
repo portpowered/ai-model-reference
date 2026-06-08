@@ -17,20 +17,11 @@ import {
 } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
-const REMAINING_DRAFT_FORWARD_TARGET_IDS = [
-  "concept.multimodal-model",
-  "concept.world-model",
-] as const;
+const REMAINING_DRAFT_FORWARD_TARGET_IDS = ["concept.world-model"] as const;
 
-const REMAINING_DRAFT_FORWARD_DISPLAY_TITLES = [
-  "multimodal models",
-  "world models",
-] as const;
+const REMAINING_DRAFT_FORWARD_DISPLAY_TITLES = ["world models"] as const;
 
-const REMAINING_DRAFT_FORWARD_SLUGS = [
-  "multimodal-model",
-  "world-model",
-] as const;
+const REMAINING_DRAFT_FORWARD_SLUGS = ["world-model"] as const;
 
 const UPCOMING_FAMILIES_CALLOUT_SNIPPET =
   "planned reference pages. They are not links yet";
@@ -54,7 +45,7 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
     );
   });
 
-  test("architecture curated related lists transformer and diffusion-model links and two planned forward targets", () => {
+  test("architecture curated related lists transformer, diffusion-model, and multimodal-model links and one planned forward target", () => {
     const source = getRegistryRecordById("concept.architecture");
     if (!source) {
       throw new Error("expected concept.architecture in registry runtime");
@@ -78,12 +69,18 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
     expect(diffusionModel?.href).toBe("/docs/glossary/diffusion-model");
     expect(diffusionModel?.isPlanned).toBe(false);
 
+    const multimodalModel = items.find(
+      (item) => item.registryId === "concept.multimodal-model",
+    );
+    expect(multimodalModel?.href).toBe("/docs/glossary/multimodal-model");
+    expect(multimodalModel?.isPlanned).toBe(false);
+
     const plannedForward = items.filter((item) =>
       REMAINING_DRAFT_FORWARD_TARGET_IDS.includes(
         item.registryId as (typeof REMAINING_DRAFT_FORWARD_TARGET_IDS)[number],
       ),
     );
-    expect(plannedForward).toHaveLength(2);
+    expect(plannedForward).toHaveLength(1);
     for (const item of plannedForward) {
       expect(item.isPlanned).toBe(true);
       expect(item.href).toBeUndefined();
@@ -95,6 +92,7 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
       "diffusion-model",
       "model",
       "module",
+      "multimodal-model",
       "transformer",
     ]);
   });
@@ -115,15 +113,17 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
 
     expect(html).toContain("Transformers");
     expect(html).toContain("diffusion models");
+    expect(html).toContain("multimodal models");
     for (const title of REMAINING_DRAFT_FORWARD_DISPLAY_TITLES) {
       expect(html).toContain(title);
     }
 
     const plannedCount = (html.match(/data-planned="true"/g) ?? []).length;
-    expect(plannedCount).toBeGreaterThanOrEqual(2);
+    expect(plannedCount).toBeGreaterThanOrEqual(1);
 
     expect(html).toContain('href="/docs/glossary/transformer"');
     expect(html).toContain('href="/docs/glossary/diffusion-model"');
+    expect(html).toContain('href="/docs/glossary/multimodal-model"');
     for (const slug of REMAINING_DRAFT_FORWARD_SLUGS) {
       expect(html).not.toContain(`href="/docs/glossary/${slug}"`);
     }
