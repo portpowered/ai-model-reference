@@ -17,22 +17,19 @@ import {
 } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
-const DRAFT_FORWARD_TARGET_IDS = [
-  "concept.transformer",
+const REMAINING_DRAFT_FORWARD_TARGET_IDS = [
   "concept.diffusion-model",
   "concept.multimodal-model",
   "concept.world-model",
 ] as const;
 
-const DRAFT_FORWARD_DISPLAY_TITLES = [
-  "Transformers",
+const REMAINING_DRAFT_FORWARD_DISPLAY_TITLES = [
   "diffusion models",
   "multimodal models",
   "world models",
 ] as const;
 
-const DRAFT_FORWARD_SLUGS = [
-  "transformer",
+const REMAINING_DRAFT_FORWARD_SLUGS = [
   "diffusion-model",
   "multimodal-model",
   "world-model",
@@ -60,7 +57,7 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
     );
   });
 
-  test("architecture curated related lists four planned forward targets", () => {
+  test("architecture curated related lists transformer link and three planned forward targets", () => {
     const source = getRegistryRecordById("concept.architecture");
     if (!source) {
       throw new Error("expected concept.architecture in registry runtime");
@@ -72,12 +69,18 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
 
+    const transformer = items.find(
+      (item) => item.registryId === "concept.transformer",
+    );
+    expect(transformer?.href).toBe("/docs/glossary/transformer");
+    expect(transformer?.isPlanned).toBe(false);
+
     const plannedForward = items.filter((item) =>
-      DRAFT_FORWARD_TARGET_IDS.includes(
-        item.registryId as (typeof DRAFT_FORWARD_TARGET_IDS)[number],
+      REMAINING_DRAFT_FORWARD_TARGET_IDS.includes(
+        item.registryId as (typeof REMAINING_DRAFT_FORWARD_TARGET_IDS)[number],
       ),
     );
-    expect(plannedForward).toHaveLength(4);
+    expect(plannedForward).toHaveLength(3);
     for (const item of plannedForward) {
       expect(item.isPlanned).toBe(true);
       expect(item.href).toBeUndefined();
@@ -88,6 +91,7 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
     expect(publishedPeers.map((item) => item.slug).sort()).toEqual([
       "model",
       "module",
+      "transformer",
     ]);
   });
 
@@ -105,14 +109,16 @@ describe("Phase 2 architecture forward navigation (US-006)", () => {
     expect(html).toContain("Upcoming model family pages");
     expect(html).toContain(UPCOMING_FAMILIES_CALLOUT_SNIPPET);
 
-    for (const title of DRAFT_FORWARD_DISPLAY_TITLES) {
+    expect(html).toContain("Transformers");
+    for (const title of REMAINING_DRAFT_FORWARD_DISPLAY_TITLES) {
       expect(html).toContain(title);
     }
 
     const plannedCount = (html.match(/data-planned="true"/g) ?? []).length;
-    expect(plannedCount).toBeGreaterThanOrEqual(4);
+    expect(plannedCount).toBeGreaterThanOrEqual(3);
 
-    for (const slug of DRAFT_FORWARD_SLUGS) {
+    expect(html).toContain('href="/docs/glossary/transformer"');
+    for (const slug of REMAINING_DRAFT_FORWARD_SLUGS) {
       expect(html).not.toContain(`href="/docs/glossary/${slug}"`);
     }
 

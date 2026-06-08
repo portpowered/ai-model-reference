@@ -54,6 +54,7 @@ const EVALUATION_SCALING_URLS = [
   "/docs/glossary/scaling-law",
   "/docs/glossary/emergent-behavior",
 ] as const;
+const MODEL_FAMILY_URLS = ["/docs/glossary/transformer"] as const;
 const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/embedding",
   "/docs/glossary/vector",
@@ -82,6 +83,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ...GENERATION_PARADIGM_URLS,
   ...TRAINING_BEHAVIOR_URLS,
   ...EVALUATION_SCALING_URLS,
+  ...MODEL_FAMILY_URLS,
   ...CHAIN_GLOSSARY_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(

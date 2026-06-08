@@ -1,0 +1,32 @@
+{
+  "title": "Transformer",
+  "description": "A model family built from stacked attention and feed-forward blocks that mix information across token positions in parallel.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A transformer repeats blocks of self-attention (or cross-attention in encoder–decoder setups) followed by position-wise feed-forward networks. Token embeddings enter the stack; each block updates hidden representations for every position. Decoder-only stacks use causal attention masks; encoder stacks can attend bidirectionally. The family name describes this block recipe, not any single checkpoint."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Transformers dominate language, code, and many multimodal systems because attention scales flexibly with sequence length and parallelizes well on accelerators. Knowing the family separates architecture choices—decoder-only versus encoder–decoder, grouped-query attention for decoding—from training data or product packaging. The architecture page situates transformers among other families; this page is the dedicated reference for the block stack itself."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A decoder-only transformer for chat embeds each prompt token, runs twelve identical blocks of causal self-attention plus MLP, then projects the final hidden state to vocabulary logits for the next token. GPT-2, Llama, and many instruction-tuned models share that loop even when layer counts and widths differ."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Transformer is a model family and architecture pattern, not a synonym for large language model: many LLMs use transformers, but so do smaller classifiers and speech models. Attention is a module inside transformer blocks, not the whole family. Transformer also differs from autoregressive generation: the family describes the network; autoregressive generation describes the step-by-step decoding loop often run on decoder stacks."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "Transformers stack attention and feed-forward blocks so each token position can gather context from others in one parallel pass—causal in decoders, bidirectional in many encoders—before a head emits logits or cross-attends into another stack."
+}

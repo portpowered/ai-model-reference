@@ -13,36 +13,36 @@ import {
   PLANNED_RELATED_REASON_LABEL,
 } from "@/lib/content/related-docs";
 
-const DRAFT_FORWARD_TARGET_IDS = [
-  "concept.transformer",
+const REMAINING_DRAFT_FORWARD_TARGET_IDS = [
   "concept.diffusion-model",
   "concept.multimodal-model",
   "concept.world-model",
 ] as const;
 
 describe("Phase 2 planned related docs (US-002)", () => {
-  test("draft forward-target concepts are registered in runtime", () => {
-    for (const id of DRAFT_FORWARD_TARGET_IDS) {
+  test("forward-target concepts are registered with transformer published and others draft", () => {
+    expect(getConceptById("concept.transformer")?.status).toBe("published");
+    for (const id of REMAINING_DRAFT_FORWARD_TARGET_IDS) {
       const record = getConceptById(id);
       expect(record?.status).toBe("draft");
     }
   });
 
-  test("draft forward targets render as planned curated rows without href", () => {
+  test("remaining draft forward targets render as planned curated rows without href", () => {
     const source = getRegistryRecordById("concept.token");
     if (!source) {
       throw new Error("expected concept.token in registry runtime");
     }
     const withRelated = {
       ...source,
-      relatedIds: [...DRAFT_FORWARD_TARGET_IDS],
+      relatedIds: [...REMAINING_DRAFT_FORWARD_TARGET_IDS],
     };
     const items = deriveCuratedRelatedItems(
       withRelated,
       listRelatedRegistryRecords(),
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
-    expect(items).toHaveLength(4);
+    expect(items).toHaveLength(3);
     for (const item of items) {
       expect(item.isPlanned).toBe(true);
       expect(item.href).toBeUndefined();
@@ -60,7 +60,7 @@ describe("Phase 2 planned related docs (US-002)", () => {
     expect(html).not.toContain(PLANNED_RELATED_REASON_LABEL);
   });
 
-  test("RelatedDocs renders planned rows without anchor hrefs for draft-only forwards", () => {
+  test("RelatedDocs renders published transformer and planned diffusion-model forwards", () => {
     const source = getConceptById("concept.token");
     if (!source) {
       throw new Error("expected concept.token in registry runtime");
@@ -77,11 +77,16 @@ describe("Phase 2 planned related docs (US-002)", () => {
       candidates,
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
-    expect(items.every((item) => !item.href)).toBe(true);
-    expect(items.every((item) => item.isPlanned)).toBe(true);
+    expect(items).toHaveLength(2);
+    expect(items[0]?.registryId).toBe("concept.transformer");
+    expect(items[0]?.href).toBe("/docs/glossary/transformer");
+    expect(items[0]?.isPlanned).toBe(false);
+    expect(items[1]?.registryId).toBe("concept.diffusion-model");
+    expect(items[1]?.href).toBeUndefined();
+    expect(items[1]?.isPlanned).toBe(true);
   });
 
-  test("DerivedRelatedDocs renders draft same-concept-type peer as planned", () => {
+  test("DerivedRelatedDocs renders published transformer same-concept-type peer with href", () => {
     const html = renderToStaticMarkup(
       <DerivedRelatedDocs
         registryId="concept.token"
@@ -91,10 +96,9 @@ describe("Phase 2 planned related docs (US-002)", () => {
 
     expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-related-group="same-concept-type"');
-    expect(html).toContain('data-planned="true"');
-    expect(html).toContain("Transformer");
-    expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
-    expect(html).not.toContain('href="/docs/glossary/transformer"');
+    expect(html).toContain("Transformers");
+    expect(html).toContain('href="/docs/glossary/transformer"');
+    expect(html).toContain("Same concept type");
   });
 
   test("DerivedRelatedDocs still renders navigable links for published module peers", () => {

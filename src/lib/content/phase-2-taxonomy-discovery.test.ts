@@ -106,13 +106,20 @@ describe("Phase 2 taxonomy discovery (US-009)", () => {
       expect(errors).toEqual([]);
     });
 
-    test("architecture relatedIds reference all four draft forward targets", async () => {
+    test("architecture relatedIds reference all four forward targets with transformer published", async () => {
       const indexes = await loadRegistry();
       const architecture = indexes.byId.get("concept.architecture");
       expect(architecture?.kind).toBe("concept");
 
       for (const id of DRAFT_FORWARD_TARGET_IDS) {
         expect(architecture?.relatedIds).toContain(id);
+      }
+      expect(indexes.byId.get("concept.transformer")?.status).toBe("published");
+      for (const id of [
+        "concept.diffusion-model",
+        "concept.multimodal-model",
+        "concept.world-model",
+      ]) {
         expect(indexes.byId.get(id)?.status).toBe("draft");
       }
     });
