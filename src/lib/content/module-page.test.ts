@@ -10,6 +10,7 @@ import {
 } from "@/lib/content/assets";
 import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
 import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
+import { expectHtmlToContainProse } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import {
@@ -66,7 +67,10 @@ describe("loadModulePage grouped-query-attention", () => {
     );
 
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-    expect(html).toContain("KV caches grow with context length and head count");
+    expectHtmlToContainProse(
+      html,
+      "KV caches grow with context length and head count",
+    );
     expect(html).toContain(
       "lets several query heads share fewer key-value heads",
     );

@@ -9,6 +9,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/autoregressive-generation",
   "/docs/glossary/component",
   "/docs/glossary/conditioning",
+  "/docs/glossary/context-window",
   "/docs/glossary/decoder",
   "/docs/glossary/denoising-generation",
   "/docs/glossary/discriminative-model",
