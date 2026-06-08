@@ -16,6 +16,8 @@ import {
   assertSearchPageExportShell,
   SEARCH_PAGE_INPUT_HTML_MARKER,
 } from "@/lib/verify/phase-1-search-export-shell-checks";
+import { createStaticExportHttpServer } from "@/lib/verify/static-export-http-server";
+import { verifyStaticExportSearchUrlHandoff } from "@/lib/verify/static-export-search-url-handoff-http";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
@@ -57,4 +59,60 @@ describe("static export /search URL query and tag handoff on GitHub Pages base p
     ).toBe(true);
     expect(chunks).toContain("tagFilterDescription");
   });
+
+  test(
+    "served static export surfaces grouped-query-attention for ?q=attention handoff",
+    async () => {
+      ensureExportSearchArtifacts({
+        repoRoot,
+        basePath: exportBasePath,
+      });
+
+      const server = await createStaticExportHttpServer({
+        cwd: repoRoot,
+        basePath: exportBasePath,
+      });
+      try {
+        const reason = await verifyStaticExportSearchUrlHandoff(
+          server.baseUrl,
+          {
+            timeoutMs: 45_000,
+            handoffPaths: ["/search?q=attention"],
+          },
+        );
+        expect(reason).toBeNull();
+      } finally {
+        await server.cleanup();
+      }
+    },
+    { timeout: getExportIntegrationBunTestTimeoutMs() },
+  );
+
+  test(
+    "served static export surfaces grouped-query-attention for ?tag=attention handoff",
+    async () => {
+      ensureExportSearchArtifacts({
+        repoRoot,
+        basePath: exportBasePath,
+      });
+
+      const server = await createStaticExportHttpServer({
+        cwd: repoRoot,
+        basePath: exportBasePath,
+      });
+      try {
+        const reason = await verifyStaticExportSearchUrlHandoff(
+          server.baseUrl,
+          {
+            timeoutMs: 45_000,
+            handoffPaths: ["/search?tag=attention"],
+          },
+        );
+        expect(reason).toBeNull();
+      } finally {
+        await server.cleanup();
+      }
+    },
+    { timeout: getExportIntegrationBunTestTimeoutMs() },
+  );
 });
