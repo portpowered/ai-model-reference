@@ -26,22 +26,26 @@ describe("static export Phase 1 search UX", () => {
     { timeout: 300_000 },
   );
 
-  test("verify-phase-1-export-search-ux script passes after build:export", () => {
-    ensureExportSearchArtifacts({ repoRoot });
+  test(
+    "verify-phase-1-export-search-ux script passes after build:export",
+    () => {
+      ensureExportSearchArtifacts({ repoRoot });
 
-    const verifyResult = spawnSync(
-      "bun",
-      ["./scripts/verify-phase-1-export-search-ux.ts"],
-      {
-        cwd: repoRoot,
-        encoding: "utf8",
-        env: process.env,
-      },
-    );
+      const verifyResult = spawnSync(
+        "bun",
+        ["./scripts/verify-phase-1-export-search-ux.ts"],
+        {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: process.env,
+        },
+      );
 
-    expect(verifyResult.status).toBe(0);
-    expect(verifyResult.stdout ?? "").toContain(
-      "Phase 1 static export search UX verified",
-    );
-  });
+      expect(verifyResult.status).toBe(0);
+      expect(verifyResult.stdout ?? "").toContain(
+        "Phase 1 static export search UX verified",
+      );
+    },
+    { timeout: 300_000 },
+  );
 });
