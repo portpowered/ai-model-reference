@@ -3,6 +3,7 @@ import type { Node } from "fumadocs-core/page-tree";
 import { source } from "@/lib/source";
 
 const GLOSSARY_INDEX_URLS = [
+  "/docs/glossary/alibi",
   "/docs/glossary/alignment",
   "/docs/glossary/architecture",
   "/docs/glossary/autoregressive-generation",

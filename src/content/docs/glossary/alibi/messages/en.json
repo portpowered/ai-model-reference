@@ -1,0 +1,32 @@
+{
+  "title": "ALiBi",
+  "description": "Attention with linear biases adds distance-based penalties to attention logits so models can extrapolate to longer sequences without explicit position embeddings.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Attention with linear biases (ALiBi) encodes token order by subtracting a slope-scaled penalty from each attention logit based on how far apart the query and key positions are. Nearby pairs keep stronger scores and distant pairs are pushed down, so the model learns relative distance without storing a separate position vector per index. ALiBi is applied directly on attention logits after the usual query-key dot products, not by rotating vectors or adding absolute position tables to embeddings."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "ALiBi was introduced to help transformers trained on shorter sequences generalize when inference spans grow longer, because the bias pattern can extend smoothly beyond the training length. Teams sometimes choose ALiBi when they want length extrapolation without maintaining rotary angle tables or learned absolute embeddings. It also keeps the embedding layer free of position-specific parameters, which can simplify certain training setups compared with sinusoidal or learned absolute schemes."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine attention comparing a query at position ten to keys at positions eight, nine, and eleven. ALiBi subtracts a small bias for the two-step gap to position eight, a smaller bias for the one-step gap to position nine, and again a small bias for the one-step gap to position eleven. The raw content match still matters, but distance steadily damps far-away keys. Each attention head can use its own slope, so some heads emphasize local context while others tolerate wider spans."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "ALiBi is not RoPE: RoPE rotates query and key vectors so their dot product encodes relative distance, while ALiBi leaves those vectors unchanged and adds explicit distance penalties to logits afterward. ALiBi is also not the same as a causal mask, which only blocks future tokens rather than grading how far apart allowed pairs are. Finally, ALiBi does not remove context-window limits by itself—memory and attention cost still grow with sequence length even when biases extrapolate cleanly."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "ALiBi adds distance-based linear biases to attention logits so relative position shapes scores without explicit position embeddings, which helps some models extrapolate beyond their training length."
+}

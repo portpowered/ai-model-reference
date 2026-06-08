@@ -58,6 +58,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.residual-connection",
   "concept.positional-encodings",
   "concept.rope",
+  "concept.alibi",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;

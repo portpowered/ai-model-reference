@@ -1,6 +1,7 @@
 {
   "title": "Glossary",
   "pages": [
+    "[ALiBi](/docs/glossary/alibi)",
     "[Alignment](/docs/glossary/alignment)",
     "[Architecture](/docs/glossary/architecture)",
     "[Autoregressive Generation](/docs/glossary/autoregressive-generation)",
