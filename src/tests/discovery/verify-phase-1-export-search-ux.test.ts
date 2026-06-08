@@ -42,7 +42,7 @@ describe("verify-phase-1-export-search-ux script", () => {
 
       rmSync(dir, { recursive: true, force: true });
     },
-    { timeout: 60_000 },
+    { timeout: 180_000 },
   );
 
   test(
@@ -75,6 +75,6 @@ describe("verify-phase-1-export-search-ux script", () => {
 
       rmSync(dir, { recursive: true, force: true });
     },
-    { timeout: 60_000 },
+    { timeout: 180_000 },
   );
 });

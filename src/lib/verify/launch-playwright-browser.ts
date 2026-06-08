@@ -11,7 +11,7 @@ import { join } from "node:path";
 import { type Browser, chromium, type LaunchOptions } from "playwright";
 
 const CI_PLAYWRIGHT_LAUNCH_TIMEOUT_MS = 120_000;
-const CI_PLAYWRIGHT_LAUNCH_ATTEMPTS = 8;
+const CI_PLAYWRIGHT_LAUNCH_ATTEMPTS = 5;
 const CI_PLAYWRIGHT_LAUNCH_RETRY_DELAY_MS = 5_000;
 const CI_PLAYWRIGHT_LAUNCH_INITIAL_DELAY_MS = 3_000;
 const MAX_CONCURRENT_CI_LAUNCHES = 1;
