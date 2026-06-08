@@ -21,6 +21,7 @@ import {
 } from "@/lib/verify/phase-1-search-checks";
 import { expectHomeArticleHeaderOnlySearchEntry } from "@/tests/discovery/home-search-entry-contract";
 import {
+  resultsIncludeMultiQueryAttention,
   resultsIncludeSampleModule,
   resultsIncludeUrl,
   SAMPLE_MODULE_URL,
@@ -84,11 +85,16 @@ describe("Phase 1 search discovery", () => {
     "KV cache",
     "kv cache",
     "kv-cache",
-  ] as const)("%s query includes grouped-query attention among kv-cache modules", async (query) => {
-    const results = await docsSearchApi.search(query);
-    expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeSampleModule(results)).toBe(true);
-  });
+  ] as const)(
+    "%s query includes grouped-query attention and multi-query attention without duplicate pages",
+    async (query) => {
+      const results = await docsSearchApi.search(query);
+      expect(results.length).toBeGreaterThan(0);
+      expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
+      expect(resultsIncludeSampleModule(results)).toBe(true);
+      expect(resultsIncludeMultiQueryAttention(results)).toBe(true);
+    },
+  );
 
   test("attention query returns canonical attention module and grouped-query attention hits without duplicate pages", async () => {
     const results = await docsSearchApi.search("attention");
