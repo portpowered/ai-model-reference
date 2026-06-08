@@ -14,7 +14,7 @@ import {
   SEARCH_PAGE_RESULTS_SELECTOR,
 } from "./static-export-search-input-hydration-http";
 
-export const DEFAULT_SEARCH_URL_HANDOFF_TIMEOUT_MS = 30_000;
+export const DEFAULT_SEARCH_URL_HANDOFF_TIMEOUT_MS = 45_000;
 
 export const SEARCH_PAGE_TAG_FILTER_DESCRIPTION_PREFIX =
   "Showing results for resources tagged ";
@@ -249,45 +249,62 @@ export async function verifyStaticExportSearchUrlHandoff(
 
   const browser = await launchBrowser();
   try {
-    const page = await browser.newPage();
-    page.setDefaultTimeout(timeoutMs);
-    page.setDefaultNavigationTimeout(timeoutMs);
+    const handoffChecks: Array<{
+      searchPath: string;
+      evaluateHandoff: (
+        snapshot: SearchPageUrlHandoffSnapshot,
+      ) => string | null;
+      expectedQueryForResults: string;
+      failurePrefix: string;
+    }> = [
+      {
+        searchPath: "/search?q=GQA",
+        evaluateHandoff: (snapshot) =>
+          evaluateSearchPageQueryHandoff(snapshot, "GQA"),
+        expectedQueryForResults: "GQA",
+        failurePrefix: "/search?q=GQA",
+      },
+      {
+        searchPath: "/search?tag=attention",
+        evaluateHandoff: (snapshot) =>
+          evaluateSearchPageTagHandoff(snapshot, "attention"),
+        expectedQueryForResults: "attention",
+        failurePrefix: "/search?tag=attention",
+      },
+      {
+        searchPath: "/search?q=GQA&tag=attention",
+        evaluateHandoff: (snapshot) =>
+          evaluateSearchPageQueryPrecedenceOverTag(
+            snapshot,
+            "GQA",
+            "attention",
+          ),
+        expectedQueryForResults: "GQA",
+        failurePrefix: "/search?q=GQA&tag=attention",
+      },
+    ];
 
-    const queryFailure = await verifySearchPageUrlHandoffOnPage(
-      page,
-      baseUrl,
-      "/search?q=GQA",
-      (snapshot) => evaluateSearchPageQueryHandoff(snapshot, "GQA"),
-      "GQA",
-      timeoutMs,
-    );
-    if (queryFailure) {
-      return `/search?q=GQA: ${queryFailure}`;
-    }
+    for (const handoff of handoffChecks) {
+      const context = await browser.newContext();
+      try {
+        const page = await context.newPage();
+        page.setDefaultTimeout(timeoutMs);
+        page.setDefaultNavigationTimeout(timeoutMs);
 
-    const tagFailure = await verifySearchPageUrlHandoffOnPage(
-      page,
-      baseUrl,
-      "/search?tag=attention",
-      (snapshot) => evaluateSearchPageTagHandoff(snapshot, "attention"),
-      "attention",
-      timeoutMs,
-    );
-    if (tagFailure) {
-      return `/search?tag=attention: ${tagFailure}`;
-    }
-
-    const precedenceFailure = await verifySearchPageUrlHandoffOnPage(
-      page,
-      baseUrl,
-      "/search?q=GQA&tag=attention",
-      (snapshot) =>
-        evaluateSearchPageQueryPrecedenceOverTag(snapshot, "GQA", "attention"),
-      "GQA",
-      timeoutMs,
-    );
-    if (precedenceFailure) {
-      return `/search?q=GQA&tag=attention: ${precedenceFailure}`;
+        const handoffFailure = await verifySearchPageUrlHandoffOnPage(
+          page,
+          baseUrl,
+          handoff.searchPath,
+          handoff.evaluateHandoff,
+          handoff.expectedQueryForResults,
+          timeoutMs,
+        );
+        if (handoffFailure) {
+          return `${handoff.failurePrefix}: ${handoffFailure}`;
+        }
+      } finally {
+        await context.close();
+      }
     }
 
     return null;

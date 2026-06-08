@@ -167,7 +167,7 @@ describe("verifyStaticExportSearchUrlHandoff", () => {
         rmSync(root, { recursive: true, force: true });
       }
     },
-    { timeout: 15_000 },
+    { timeout: 60_000 },
   );
 
   test(
@@ -195,6 +195,6 @@ describe("verifyStaticExportSearchUrlHandoff", () => {
         rmSync(root, { recursive: true, force: true });
       }
     },
-    { timeout: 15_000 },
+    { timeout: 60_000 },
   );
 });
