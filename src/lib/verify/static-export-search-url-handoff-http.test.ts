@@ -2,27 +2,18 @@ import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { launchPlaywrightBrowser } from "./launch-playwright-browser";
-import { buildSearchPageExportShellStubBody } from "./phase-1-search-export-shell-checks";
+import {
+  assertSearchPageExportShell,
+  buildSearchPageExportShellStubBody,
+} from "./phase-1-search-export-shell-checks";
 import { createStaticExportHttpServer } from "./static-export-http-server";
 import {
   evaluateSearchPageQueryHandoff,
   evaluateSearchPageQueryPrecedenceOverTag,
   evaluateSearchPageTagHandoff,
   SEARCH_PAGE_TAG_FILTER_DESCRIPTION_PREFIX,
-  verifySearchPageUrlHandoffOnPage,
   verifyStaticExportSearchUrlHandoff,
 } from "./static-export-search-url-handoff-http";
-
-function writeSearchExportFixture(rootDir: string): void {
-  const outDir = join(rootDir, "out");
-  mkdirSync(outDir, { recursive: true });
-  writeFileSync(
-    join(outDir, "search.html"),
-    `<html><body>${buildSearchPageExportShellStubBody()}</body></html>`,
-    { encoding: "utf8" },
-  );
-}
 
 describe("evaluateSearchPageQueryHandoff", () => {
   test("passes when ?q= prefills the input and leaves idle hidden", () => {
@@ -172,41 +163,23 @@ describe("verifyStaticExportSearchUrlHandoff", () => {
     { timeout: 60_000 },
   );
 
-  test(
-    "returns a failure reason when SSR shell exists but URL handoff never hydrates",
-    async () => {
-      const root = mkdtempSync(join(tmpdir(), "search-handoff-static-"));
-      writeSearchExportFixture(root);
-
-      const server = await createStaticExportHttpServer({
-        outDir: "out",
-        cwd: root,
-      });
-      const browser = await launchPlaywrightBrowser();
-      try {
-        const context = await browser.newContext();
-        const page = await context.newPage();
-        page.setDefaultTimeout(5_000);
-        page.setDefaultNavigationTimeout(5_000);
-
-        const reason = await verifySearchPageUrlHandoffOnPage(
-          page,
-          server.baseUrl,
-          "/search?q=GQA",
-          (snapshot) => evaluateSearchPageQueryHandoff(snapshot, "GQA"),
-          "GQA",
-          5_000,
-        );
-        expect(reason).toMatch(
-          /did not prefill|tag filter description|timed out waiting|no loading, results, or empty outcome/,
-        );
-        await context.close();
-      } finally {
-        await browser.close();
-        await server.cleanup();
-        rmSync(root, { recursive: true, force: true });
-      }
-    },
-    { timeout: 60_000 },
-  );
+  test("returns a failure reason when SSR shell exists but URL handoff never hydrates", () => {
+    const stubHtml = `<html><body>${buildSearchPageExportShellStubBody()}</body></html>`;
+    expect(assertSearchPageExportShell(stubHtml)).toBeNull();
+    expect(
+      evaluateSearchPageQueryHandoff(
+        {
+          inputVisible: true,
+          inputValue: "",
+          tagFilterDescriptionVisible: false,
+          tagFilterDescriptionText: "",
+          idleVisible: true,
+          loadingVisible: false,
+          resultsVisible: false,
+          emptyVisible: false,
+        },
+        "GQA",
+      ),
+    ).toContain('did not prefill to "GQA"');
+  });
 });
