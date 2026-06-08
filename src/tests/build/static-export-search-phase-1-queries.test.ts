@@ -16,9 +16,9 @@ describe("static export /search Phase 1 canonical queries on GitHub Pages base p
     });
   }, getExportIntegrationBunTestTimeoutMs());
 
-  test(
-    "served static export surfaces grouped-query-attention for GQA on base path",
-    async () => {
+  test.each(["GQA", "attention", "KV cache"] as const)(
+    "served static export surfaces grouped-query-attention for %s after static bootstrap",
+    async (query) => {
       ensureExportSearchArtifacts({
         repoRoot,
         basePath: exportBasePath,
@@ -33,7 +33,7 @@ describe("static export /search Phase 1 canonical queries on GitHub Pages base p
           server.baseUrl,
           {
             timeoutMs: 45_000,
-            queries: ["GQA"],
+            queries: [query],
           },
         );
         expect(reason).toBeNull();
