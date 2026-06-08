@@ -21,6 +21,7 @@ const MIXTURE_OF_EXPERTS_URL = "/docs/glossary/mixture-of-experts";
 const LAYER_NORM_URL = "/docs/glossary/layer-norm";
 const RMSNORM_URL = "/docs/glossary/rmsnorm";
 const NORMALIZATION_URL = "/docs/glossary/normalization";
+const RESIDUAL_CONNECTION_URL = "/docs/glossary/residual-connection";
 const STRUCTURAL_TAXONOMY_URLS = [
   "/docs/glossary/model",
   "/docs/glossary/architecture",
@@ -87,6 +88,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   LAYER_NORM_URL,
   RMSNORM_URL,
   NORMALIZATION_URL,
+  RESIDUAL_CONNECTION_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
   ...REPRESENTATION_LATENT_URLS,

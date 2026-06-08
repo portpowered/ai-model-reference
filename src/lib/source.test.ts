@@ -27,6 +27,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/layer-norm",
   "/docs/glossary/rmsnorm",
   "/docs/glossary/normalization",
+  "/docs/glossary/residual-connection",
   "/docs/glossary/mixture-of-experts",
   "/docs/glossary/overfitting",
   "/docs/glossary/patch",

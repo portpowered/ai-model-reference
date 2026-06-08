@@ -118,3 +118,9 @@ export const LAYER_NORM_GLOSSARY_PAGE_DIR = join(
 
 /** Phase 3 RMSNorm glossary page directory. */
 export const RMSNORM_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "rmsnorm");
+
+/** Phase 3 residual connection glossary page directory. */
+export const RESIDUAL_CONNECTION_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "residual-connection",
+);
