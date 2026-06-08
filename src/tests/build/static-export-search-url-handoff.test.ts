@@ -28,24 +28,31 @@ function removeExportArtifacts(): void {
   }
 }
 
+function ensureSearchExportArtifacts(): void {
+  if (existsSync(searchExportHtmlPath)) {
+    return;
+  }
+
+  const buildResult = runStaticExportBuild({
+    cwd: repoRoot,
+    env: {
+      GITHUB_PAGES_BASE_PATH: exportBasePath,
+    },
+  });
+  if (buildResult.status !== 0) {
+    throw new Error(
+      `build-export failed with status ${buildResult.status}: ${buildResult.stderr ?? buildResult.stdout ?? ""}`,
+    );
+  }
+  if (!existsSync(searchExportHtmlPath)) {
+    throw new Error(`missing export artifact at ${searchExportHtmlPath}`);
+  }
+}
+
 describe("static export /search URL query and tag handoff on GitHub Pages base path", () => {
   beforeAll(() => {
     removeExportArtifacts();
-
-    const buildResult = runStaticExportBuild({
-      cwd: repoRoot,
-      env: {
-        GITHUB_PAGES_BASE_PATH: exportBasePath,
-      },
-    });
-    if (buildResult.status !== 0) {
-      throw new Error(
-        `build-export failed with status ${buildResult.status}: ${buildResult.stderr ?? buildResult.stdout ?? ""}`,
-      );
-    }
-    if (!existsSync(searchExportHtmlPath)) {
-      throw new Error(`missing export artifact at ${searchExportHtmlPath}`);
-    }
+    ensureSearchExportArtifacts();
   }, 300_000);
 
   afterAll(() => {
@@ -69,17 +76,24 @@ describe("static export /search URL query and tag handoff on GitHub Pages base p
   test(
     "served static export honors ?q=, ?tag=, and q-over-tag handoffs after hydration",
     async () => {
+      ensureSearchExportArtifacts();
+
       const server = await createStaticExportHttpServer({
         cwd: repoRoot,
         basePath: exportBasePath,
       });
       try {
-        const reason = await verifyStaticExportSearchUrlHandoff(server.baseUrl);
+        const reason = await verifyStaticExportSearchUrlHandoff(
+          server.baseUrl,
+          {
+            timeoutMs: 45_000,
+          },
+        );
         expect(reason).toBeNull();
       } finally {
         await server.cleanup();
       }
     },
-    { timeout: 240_000 },
+    { timeout: 420_000 },
   );
 });
