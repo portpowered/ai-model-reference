@@ -54,6 +54,22 @@ describe("graph-registry-runtime", () => {
     );
     expect(mlaComparison?.nodes.length).toBe(3);
 
+    const linearMhaComparison = getGraphById(
+      "graph.linear-attention-mha-comparison",
+    );
+    expect(linearMhaComparison?.id).toBe(
+      "graph.linear-attention-mha-comparison",
+    );
+    expect(linearMhaComparison?.nodes.length).toBe(3);
+
+    const linearComparison = getGraphById(
+      "graph.linear-attention-linear-comparison",
+    );
+    expect(linearComparison?.id).toBe(
+      "graph.linear-attention-linear-comparison",
+    );
+    expect(linearComparison?.nodes.length).toBe(3);
+
     const slidingWindowMhaComparison = getGraphById(
       "graph.sliding-window-attention-mha-comparison",
     );
@@ -92,6 +108,6 @@ describe("graph-registry-runtime", () => {
   });
 
   test("lists all bundled graph records", () => {
-    expect(listGraphRecords().length).toBe(11);
+    expect(listGraphRecords().length).toBe(13);
   });
 });

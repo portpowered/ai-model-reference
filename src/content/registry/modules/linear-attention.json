@@ -1,0 +1,33 @@
+{
+  "id": "module.linear-attention",
+  "slug": "linear-attention",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["linear attention", "subquadratic attention"],
+  "tags": ["attention"],
+  "relatedIds": [
+    "module.multi-head-attention",
+    "module.multi-query-attention",
+    "module.grouped-query-attention"
+  ],
+  "citationIds": ["citation.katharopoulos-linear-attention-paper"],
+  "status": "published",
+  "createdAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-06-08T00:00:00.000Z",
+  "moduleType": "attention",
+  "moduleFamily": "attention",
+  "conceptType": "attention-variant",
+  "variantGroup": "subquadratic-attention",
+  "optimizes": ["sequence-scaling", "attention-compute", "memory-bandwidth"],
+  "practicalBenefits": [
+    "near-linear sequence scaling for long contexts",
+    "lower quadratic attention cost via kernel or recurrence formulations"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}

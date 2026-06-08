@@ -39,6 +39,7 @@ describe("attention tag landing resources", () => {
     expect(moduleGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/modules/attention",
       "/docs/modules/grouped-query-attention",
+      "/docs/modules/linear-attention",
       "/docs/modules/multi-head-latent-attention",
       "/docs/modules/sliding-window-attention",
       "/docs/modules/sparse-attention",
