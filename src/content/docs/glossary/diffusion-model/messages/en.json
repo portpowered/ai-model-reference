@@ -1,0 +1,32 @@
+{
+  "title": "Diffusion Model",
+  "description": "A generative model family that learns to reverse a noise corruption process through many iterative denoising steps.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A diffusion model trains on a forward process that gradually adds noise to data, then learns a network that predicts and removes that noise step by step at inference. Each denoising update refines a latent or pixel tensor until a coherent sample appears. The family name covers score-based, variance-preserving, and flow-matching variants that share the iterative denoising loop rather than a single architecture block recipe."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Diffusion models power many image, audio, and video generators and sit beside autoregressive decoders as a major generative paradigm. Knowing the family separates denoising-based sampling from token-by-token decoding and connects to latent representations and conditioning signals used at each step. The architecture page places diffusion among other model families; this page is the dedicated reference for iterative denoising generators."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A latent diffusion image model starts from Gaussian noise in a compressed latent grid, runs forty denoising steps with a U-Net or transformer denoiser conditioned on a text embedding, then decodes the final latent through a VAE to pixels."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Diffusion model is a model family and sampling paradigm, not a synonym for any single checkpoint or U-Net shape. Denoising generation describes the iterative output loop; diffusion models are the most common implementation of that loop but not the only one. Diffusion also differs from autoregressive generation: denoising updates the full spatial or channel tensor each step rather than appending one discrete token."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "Diffusion models corrupt data with noise during training, then learn to walk backward through that noise schedule at inference—often in latent space with conditioning—until a clean generative sample emerges."
+}

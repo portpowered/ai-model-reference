@@ -8,12 +8,9 @@ import {
   getRegistryRecordById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
-import {
-  deriveCuratedRelatedItems,
-  PLANNED_RELATED_REASON_LABEL,
-} from "@/lib/content/related-docs";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 
-const DRAFT_FORWARD_TARGET_IDS = [
+const FORWARD_TARGET_IDS = [
   "concept.transformer",
   "concept.diffusion-model",
   "concept.multimodal-model",
@@ -21,21 +18,20 @@ const DRAFT_FORWARD_TARGET_IDS = [
 ] as const;
 
 describe("Phase 2 planned related docs (US-002)", () => {
-  test("draft forward-target concepts are registered in runtime", () => {
-    for (const id of DRAFT_FORWARD_TARGET_IDS) {
-      const record = getConceptById(id);
-      expect(record?.status).toBe("draft");
+  test("all four forward-target model families are published", () => {
+    for (const id of FORWARD_TARGET_IDS) {
+      expect(getConceptById(id)?.status).toBe("published");
     }
   });
 
-  test("draft forward targets render as planned curated rows without href", () => {
+  test("published forward targets render curated rows with href", () => {
     const source = getRegistryRecordById("concept.token");
     if (!source) {
       throw new Error("expected concept.token in registry runtime");
     }
     const withRelated = {
       ...source,
-      relatedIds: [...DRAFT_FORWARD_TARGET_IDS],
+      relatedIds: [...FORWARD_TARGET_IDS],
     };
     const items = deriveCuratedRelatedItems(
       withRelated,
@@ -44,9 +40,8 @@ describe("Phase 2 planned related docs (US-002)", () => {
     );
     expect(items).toHaveLength(4);
     for (const item of items) {
-      expect(item.isPlanned).toBe(true);
-      expect(item.href).toBeUndefined();
-      expect(item.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
+      expect(item.isPlanned).toBe(false);
+      expect(item.href).toBeDefined();
     }
   });
 
@@ -57,10 +52,9 @@ describe("Phase 2 planned related docs (US-002)", () => {
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain("embeddings");
     expect(html).toContain('href="/docs/glossary/embedding"');
-    expect(html).not.toContain(PLANNED_RELATED_REASON_LABEL);
   });
 
-  test("RelatedDocs renders planned rows without anchor hrefs for draft-only forwards", () => {
+  test("RelatedDocs renders published transformer and diffusion-model forwards", () => {
     const source = getConceptById("concept.token");
     if (!source) {
       throw new Error("expected concept.token in registry runtime");
@@ -77,11 +71,16 @@ describe("Phase 2 planned related docs (US-002)", () => {
       candidates,
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
-    expect(items.every((item) => !item.href)).toBe(true);
-    expect(items.every((item) => item.isPlanned)).toBe(true);
+    expect(items).toHaveLength(2);
+    expect(items[0]?.registryId).toBe("concept.transformer");
+    expect(items[0]?.href).toBe("/docs/glossary/transformer");
+    expect(items[0]?.isPlanned).toBe(false);
+    expect(items[1]?.registryId).toBe("concept.diffusion-model");
+    expect(items[1]?.href).toBe("/docs/glossary/diffusion-model");
+    expect(items[1]?.isPlanned).toBe(false);
   });
 
-  test("DerivedRelatedDocs renders draft same-concept-type peer as planned", () => {
+  test("DerivedRelatedDocs renders published transformer same-concept-type peer with href", () => {
     const html = renderToStaticMarkup(
       <DerivedRelatedDocs
         registryId="concept.token"
@@ -91,10 +90,9 @@ describe("Phase 2 planned related docs (US-002)", () => {
 
     expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-related-group="same-concept-type"');
-    expect(html).toContain('data-planned="true"');
-    expect(html).toContain("Transformer");
-    expect(html).toContain(PLANNED_RELATED_REASON_LABEL);
-    expect(html).not.toContain('href="/docs/glossary/transformer"');
+    expect(html).toContain("Transformers");
+    expect(html).toContain('href="/docs/glossary/transformer"');
+    expect(html).toContain("Same concept type");
   });
 
   test("DerivedRelatedDocs still renders navigable links for published module peers", () => {

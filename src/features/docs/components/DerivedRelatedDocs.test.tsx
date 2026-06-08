@@ -34,7 +34,7 @@ describe("DerivedRelatedDocs", () => {
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain("Shared tag");
     expect(html).toContain('data-related-group="same-concept-type"');
-    expect(html).toContain('data-planned="true"');
+    expect(html).toContain('href="/docs/glossary/transformer"');
   });
 
   test("renders nothing when only unsupported groups are requested", () => {

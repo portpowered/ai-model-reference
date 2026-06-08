@@ -87,20 +87,46 @@ describe("Phase 2 taxonomy registry (US-001)", () => {
     expect(modelFamily.parentTagId).toBe("tag.taxonomy");
   });
 
-  test("draft forward-target concepts pass conceptRecordSchema", async () => {
-    for (const id of DRAFT_FORWARD_TARGET_IDS) {
-      const slug = id.replace("concept.", "");
-      const concept = await readRegistryJson(
-        `concepts/${slug}.json`,
-        conceptRecordSchema,
-      );
-      expect(concept.id).toBe(id);
-      expect(concept.kind).toBe("concept");
-      expect(concept.status).toBe("draft");
-      expect(concept.conceptType).toBe("architecture");
-      expect(concept.tags).toContain("taxonomy");
-      expect(concept.tags).toContain("model-family");
-    }
+  test("all four model-family forward targets are published architecture concepts", async () => {
+    const transformer = await readRegistryJson(
+      "concepts/transformer.json",
+      conceptRecordSchema,
+    );
+    expect(transformer.id).toBe("concept.transformer");
+    expect(transformer.status).toBe("published");
+    expect(transformer.conceptType).toBe("architecture");
+    expect(transformer.tags).toContain("taxonomy");
+    expect(transformer.tags).toContain("model-family");
+
+    const diffusionModel = await readRegistryJson(
+      "concepts/diffusion-model.json",
+      conceptRecordSchema,
+    );
+    expect(diffusionModel.id).toBe("concept.diffusion-model");
+    expect(diffusionModel.status).toBe("published");
+    expect(diffusionModel.conceptType).toBe("architecture");
+    expect(diffusionModel.aliases).toContain("diffusion models");
+    expect(diffusionModel.tags).toContain("model-family");
+
+    const multimodalModel = await readRegistryJson(
+      "concepts/multimodal-model.json",
+      conceptRecordSchema,
+    );
+    expect(multimodalModel.id).toBe("concept.multimodal-model");
+    expect(multimodalModel.status).toBe("published");
+    expect(multimodalModel.conceptType).toBe("architecture");
+    expect(multimodalModel.aliases).toContain("multimodal models");
+    expect(multimodalModel.tags).toContain("model-family");
+
+    const worldModel = await readRegistryJson(
+      "concepts/world-model.json",
+      conceptRecordSchema,
+    );
+    expect(worldModel.id).toBe("concept.world-model");
+    expect(worldModel.status).toBe("published");
+    expect(worldModel.conceptType).toBe("architecture");
+    expect(worldModel.aliases).toContain("world models");
+    expect(worldModel.tags).toContain("model-family");
   });
 
   test("draft forward targets resolve taxonomy tags via loadRegistry", async () => {
