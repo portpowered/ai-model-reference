@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
 import {
   exportHtmlReferencesBasePathAssets,
   exportHtmlReferencesBasePathInternalLinks,
@@ -28,11 +29,9 @@ describe("static export GitHub Pages base path", () => {
       removeExportArtifacts();
 
       try {
-        const buildResult = spawnSync("bun", ["run", "build:export"], {
+        const buildResult = runStaticExportBuild({
           cwd: repoRoot,
-          encoding: "utf8",
           env: {
-            ...process.env,
             GITHUB_PAGES_BASE_PATH: exportBasePath,
           },
         });
@@ -68,11 +67,9 @@ describe("static export GitHub Pages base path", () => {
       removeExportArtifacts();
 
       try {
-        const result = spawnSync("bun", ["run", "build:export"], {
+        const result = runStaticExportBuild({
           cwd: repoRoot,
-          encoding: "utf8",
           env: {
-            ...process.env,
             GITHUB_PAGES_BASE_PATH: exportBasePath,
           },
         });

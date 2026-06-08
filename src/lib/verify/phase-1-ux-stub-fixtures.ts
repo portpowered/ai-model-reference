@@ -1,6 +1,7 @@
 import { TOKEN_GLOSSARY_URL } from "@/lib/navigation/docs-sidebar-contract";
 import { DOCS_SHELL_CONVERGENCE_ROUTES } from "./docs-shell-convergence-http";
 import { buildGroupedQueryAttentionStubBody } from "./grouped-query-attention-module-convergence";
+import { buildSearchPageExportShellStubBody } from "./phase-1-search-export-shell-checks";
 import {
   ATTENTION_TAG_LANDING_PATH,
   ATTENTION_TAG_SCOPED_SEARCH_URL,
@@ -58,7 +59,7 @@ function docsRouteHtml(body: string): string {
 /** Stub HTML that satisfies Phase 1 UX convergence and route content checks. */
 export const PHASE_1_UX_PASSING_STUB_HTML: Record<string, string> = {
   "/": PHASE_1_UX_PASSING_HOME_HTML,
-  "/search": "<html><h1>Search</h1><p>Search Model Atlas</p></html>",
+  "/search": `<html>${buildSearchPageExportShellStubBody()}</html>`,
   "/docs/architecture": docsRouteHtml("<h1>Architecture</h1><p>Token</p>"),
   "/docs/glossary": docsRouteHtml("<h1>Glossary</h1><p>Token</p>"),
   "/docs/glossary/token": docsRouteHtml(

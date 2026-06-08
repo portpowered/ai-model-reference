@@ -3,7 +3,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import { HomeArticle } from "@/components/home/home-article";
 import { getPrimaryNavItems } from "@/components/layout/primary-nav";
-import { resolveInitialSearchPageQuery } from "@/features/docs/search/search-page-query";
+import {
+  resolveInitialSearchPageQuery,
+  resolveSearchPageHandoff,
+} from "@/features/docs/search/search-page-query";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { expectHomeArticleHeaderOnlySearchEntry } from "@/tests/discovery/home-search-entry-contract";
@@ -20,6 +23,29 @@ describe("search page query prefill", () => {
 
   it("returns empty when neither param is set", () => {
     expect(resolveInitialSearchPageQuery(null, null)).toBe("");
+  });
+});
+
+describe("search page server handoff", () => {
+  it("resolves q and tag from request search params", () => {
+    expect(resolveSearchPageHandoff({ q: "GQA", tag: "attention" })).toEqual({
+      q: "GQA",
+      tag: "attention",
+    });
+  });
+
+  it("trims whitespace and ignores empty values", () => {
+    expect(resolveSearchPageHandoff({ q: "  ", tag: " attention " })).toEqual({
+      q: null,
+      tag: "attention",
+    });
+  });
+
+  it("reads the first value when Next passes repeated params", () => {
+    expect(resolveSearchPageHandoff({ tag: ["attention", "gqa"] })).toEqual({
+      q: null,
+      tag: "attention",
+    });
   });
 });
 

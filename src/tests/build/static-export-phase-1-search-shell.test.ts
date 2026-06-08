@@ -1,17 +1,19 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
 import {
-  GROUPED_QUERY_ATTENTION_EXPORT_HTML_PATH,
-  verifyGroupedQueryAttentionBuiltRouteFromFile,
-} from "@/lib/build/verify-grouped-query-attention-built-route";
-import { verifyPhase1ExportRoutesFromOutDir } from "@/lib/build/verify-phase-1-export-routes";
+  assertSearchPageExportShell,
+  assertSearchPageExportShellStateRegion,
+  SEARCH_PAGE_INPUT_HTML_MARKER,
+  verifyPhase1ExportSearchShellFromOutDir,
+} from "@/lib/verify/phase-1-search-export-shell-checks";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
 const nextDir = join(repoRoot, ".next");
+const searchExportHtmlPath = join(outDir, "search.html");
 
 function removeExportArtifacts(): void {
   if (existsSync(outDir)) {
@@ -22,9 +24,9 @@ function removeExportArtifacts(): void {
   }
 }
 
-describe("static export Phase 1 reader routes", () => {
+describe("static export Phase 1 /search shell regression", () => {
   test(
-    "build:export emits out/ HTML with Phase 1 shell and content markers",
+    "build:export emits out/search.html with the real search input shell markers",
     () => {
       removeExportArtifacts();
 
@@ -35,21 +37,17 @@ describe("static export Phase 1 reader routes", () => {
 
         const combined = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
         expect(result.status).toBe(0);
+        expect(existsSync(searchExportHtmlPath)).toBe(true);
 
-        const verification = verifyPhase1ExportRoutesFromOutDir("out", {
+        const searchHtml = readFileSync(searchExportHtmlPath, "utf8");
+        expect(searchHtml).toContain(SEARCH_PAGE_INPUT_HTML_MARKER);
+        expect(assertSearchPageExportShellStateRegion(searchHtml)).toBeNull();
+        expect(assertSearchPageExportShell(searchHtml)).toBeNull();
+
+        const verification = verifyPhase1ExportSearchShellFromOutDir("out", {
           cwd: repoRoot,
         });
-        if (!verification.ok) {
-          throw new Error(
-            `Export route verification failed for ${verification.route ?? "out/"}: ${verification.reason}`,
-          );
-        }
-
-        const gqaResult = verifyGroupedQueryAttentionBuiltRouteFromFile(
-          GROUPED_QUERY_ATTENTION_EXPORT_HTML_PATH,
-          repoRoot,
-        );
-        expect(gqaResult.ok).toBe(true);
+        expect(verification.ok).toBe(true);
 
         if (combined.includes("Error")) {
           throw new Error(`Unexpected export build output: ${combined}`);
@@ -62,7 +60,7 @@ describe("static export Phase 1 reader routes", () => {
   );
 
   test(
-    "verify-phase-1-export-routes script passes after build:export",
+    "verify-phase-1-export-search-shell script passes after build:export",
     () => {
       removeExportArtifacts();
 
@@ -74,7 +72,7 @@ describe("static export Phase 1 reader routes", () => {
 
         const verifyResult = spawnSync(
           "bun",
-          ["./scripts/verify-phase-1-export-routes.ts"],
+          ["./scripts/verify-phase-1-export-search-shell.ts"],
           {
             cwd: repoRoot,
             encoding: "utf8",
@@ -84,7 +82,7 @@ describe("static export Phase 1 reader routes", () => {
 
         expect(verifyResult.status).toBe(0);
         expect(verifyResult.stdout ?? "").toContain(
-          "Phase 1 export routes verified",
+          "Phase 1 export search shell verified",
         );
       } finally {
         removeExportArtifacts();
