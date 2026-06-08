@@ -64,7 +64,7 @@ describe("static export /search URL query and tag handoff on GitHub Pages base p
   });
 
   test(
-    "served static export surfaces grouped-query-attention for ?q=attention handoff",
+    "served static export surfaces grouped-query-attention for query and tag handoffs",
     async () => {
       if (!shouldRunExportIntegrationProbeTests()) {
         return;
@@ -83,38 +83,7 @@ describe("static export /search URL query and tag handoff on GitHub Pages base p
           server.baseUrl,
           {
             timeoutMs: 45_000,
-            handoffPaths: ["/search?q=attention"],
-          },
-        );
-        expect(reason).toBeNull();
-      } finally {
-        await server.cleanup();
-      }
-    },
-    { timeout: getExportIntegrationBunTestTimeoutMs() },
-  );
-
-  test(
-    "served static export surfaces grouped-query-attention for ?tag=attention handoff",
-    async () => {
-      if (!shouldRunExportIntegrationProbeTests()) {
-        return;
-      }
-      ensureExportSearchArtifacts({
-        repoRoot,
-        basePath: exportBasePath,
-      });
-
-      const server = await createStaticExportHttpServer({
-        cwd: repoRoot,
-        basePath: exportBasePath,
-      });
-      try {
-        const reason = await verifyStaticExportSearchUrlHandoff(
-          server.baseUrl,
-          {
-            timeoutMs: 45_000,
-            handoffPaths: ["/search?tag=attention"],
+            handoffPaths: ["/search?q=attention", "/search?tag=attention"],
           },
         );
         expect(reason).toBeNull();
