@@ -26,6 +26,17 @@ describe("table-registry-runtime", () => {
     ).toBe("tables.comparison.values.gqa.cacheFootprint");
   });
 
+  test("loads the sliding-window-attention nearby-module comparison table by id", () => {
+    const table = getTableById("table.sliding-window-attention-comparison");
+    expect(table?.id).toBe("table.sliding-window-attention-comparison");
+    expect(table?.columns.length).toBe(4);
+    expect(table?.dimensions.length).toBe(3);
+    expect(
+      table?.valueKeysByModuleId["module.sliding-window-attention"]
+        ?.attentionLocality,
+    ).toBe("tables.comparison.values.window.attentionLocality");
+  });
+
   test("loads the sparse-attention nearby-module comparison table by id", () => {
     const table = getTableById("table.sparse-attention-comparison");
     expect(table?.id).toBe("table.sparse-attention-comparison");
@@ -38,6 +49,6 @@ describe("table-registry-runtime", () => {
   });
 
   test("lists bundled table records", () => {
-    expect(listTableRecords().length).toBe(3);
+    expect(listTableRecords().length).toBe(4);
   });
 });

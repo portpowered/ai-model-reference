@@ -15,6 +15,8 @@ import {
 const ATTENTION_MODULE_URL = "/docs/modules/attention";
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
 const MLA_MODULE_URL = "/docs/modules/multi-head-latent-attention";
+const SLIDING_WINDOW_ATTENTION_MODULE_URL =
+  "/docs/modules/sliding-window-attention";
 const SPARSE_ATTENTION_MODULE_URL = "/docs/modules/sparse-attention";
 const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
 const STRUCTURAL_TAXONOMY_URLS = [
@@ -77,6 +79,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ATTENTION_MODULE_URL,
   SAMPLE_URL,
   MLA_MODULE_URL,
+  SLIDING_WINDOW_ATTENTION_MODULE_URL,
   SPARSE_ATTENTION_MODULE_URL,
   TOKEN_GLOSSARY_URL,
   ...STRUCTURAL_TAXONOMY_URLS,

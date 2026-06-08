@@ -54,6 +54,22 @@ describe("graph-registry-runtime", () => {
     );
     expect(mlaComparison?.nodes.length).toBe(3);
 
+    const slidingWindowMhaComparison = getGraphById(
+      "graph.sliding-window-attention-mha-comparison",
+    );
+    expect(slidingWindowMhaComparison?.id).toBe(
+      "graph.sliding-window-attention-mha-comparison",
+    );
+    expect(slidingWindowMhaComparison?.nodes.length).toBe(3);
+
+    const slidingWindowComparison = getGraphById(
+      "graph.sliding-window-attention-window-comparison",
+    );
+    expect(slidingWindowComparison?.id).toBe(
+      "graph.sliding-window-attention-window-comparison",
+    );
+    expect(slidingWindowComparison?.nodes.length).toBe(3);
+
     const sparseMhaComparison = getGraphById(
       "graph.sparse-attention-mha-comparison",
     );
@@ -76,6 +92,6 @@ describe("graph-registry-runtime", () => {
   });
 
   test("lists all bundled graph records", () => {
-    expect(listGraphRecords().length).toBe(9);
+    expect(listGraphRecords().length).toBe(11);
   });
 });
