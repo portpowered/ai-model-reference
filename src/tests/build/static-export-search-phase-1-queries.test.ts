@@ -14,9 +14,12 @@ import { verifyStaticExportSearchPhase1Queries } from "@/lib/verify/static-expor
 const repoRoot = join(import.meta.dir, "../../..");
 const exportBasePath = "/ai-model-reference";
 const CI_PROBE_RETRY_DELAY_MS = 5_000;
-const PHASE_1_CANONICAL_QUERIES = shouldSerializeExportIntegrationProbes()
-  ? (["GQA"] as const)
-  : (["GQA", "attention", "KV cache"] as const);
+
+function resolvePhase1CanonicalProbeQueries(): string[] {
+  return shouldSerializeExportIntegrationProbes()
+    ? ["GQA"]
+    : ["GQA", "attention", "KV cache"];
+}
 
 describe("static export /search Phase 1 canonical queries on GitHub Pages base path", () => {
   beforeAll(() => {
@@ -29,9 +32,9 @@ describe("static export /search Phase 1 canonical queries on GitHub Pages base p
     });
   }, getExportIntegrationBunTestTimeoutMs());
 
-  test.each(PHASE_1_CANONICAL_QUERIES)(
+  test.each(resolvePhase1CanonicalProbeQueries().map((query) => [query]))(
     "served static export surfaces grouped-query-attention for %s after static bootstrap",
-    async (query) => {
+    async (query: string) => {
       if (!shouldRunExportIntegrationProbeTests()) {
         return;
       }

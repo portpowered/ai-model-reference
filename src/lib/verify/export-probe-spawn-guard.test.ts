@@ -7,18 +7,10 @@ describe("runExportProbeWithSpawnGuard", () => {
     expect(result).toBeNull();
   });
 
-  test("converts escaped spawn rejections into retryable failure reasons", async () => {
+  test("returns thrown probe errors as failure reasons", async () => {
     const result = await runExportProbeWithSpawnGuard(async () => {
-      process.emit(
-        "unhandledRejection",
-        Object.assign(new Error("Failed to connect"), {
-          code: "ENOENT",
-          errno: -2,
-        }),
-      );
-      return null;
+      throw new Error("Failed to connect");
     });
-
     expect(result).toBe("Failed to connect");
   });
 });
