@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import { ensureExportSearchArtifacts } from "@/lib/build/ensure-export-search-artifacts";
-import { EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS } from "@/lib/verify/export-integration-probe-lock";
+import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integration-probe-lock";
 import { createStaticExportHttpServer } from "@/lib/verify/static-export-http-server";
 import { verifyStaticExportSearchPhase1Queries } from "@/lib/verify/static-export-search-phase-1-queries-http";
 
@@ -14,7 +14,7 @@ describe("static export /search Phase 1 canonical queries on GitHub Pages base p
       repoRoot,
       basePath: exportBasePath,
     });
-  }, 300_000);
+  }, getExportIntegrationBunTestTimeoutMs());
 
   test(
     "served static export surfaces grouped-query-attention for GQA on base path",
@@ -41,6 +41,6 @@ describe("static export /search Phase 1 canonical queries on GitHub Pages base p
         await server.cleanup();
       }
     },
-    { timeout: EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS },
+    { timeout: getExportIntegrationBunTestTimeoutMs() },
   );
 });

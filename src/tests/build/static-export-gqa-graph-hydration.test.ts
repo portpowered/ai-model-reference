@@ -7,7 +7,7 @@ import {
   exportHtmlReferencesBasePathAssets,
 } from "@/lib/build/verify-export-base-path";
 import { verifyPhase1ExportRoutesFromOutDir } from "@/lib/build/verify-phase-1-export-routes";
-import { EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS } from "@/lib/verify/export-integration-probe-lock";
+import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integration-probe-lock";
 import { verifyStaticExportGqaGraphHydration } from "@/lib/verify/static-export-gqa-graph-hydration-http";
 import { createStaticExportHttpServer } from "@/lib/verify/static-export-http-server";
 
@@ -28,7 +28,7 @@ describe("static export GQA graph hydration on GitHub Pages base path", () => {
     if (!existsSync(gqaExportHtmlPath)) {
       throw new Error(`missing export artifact at ${gqaExportHtmlPath}`);
     }
-  }, 300_000);
+  }, getExportIntegrationBunTestTimeoutMs());
 
   test("build-export produces GQA HTML with graph shell markers and prefixed assets", () => {
     const gqaHtml = readFileSync(gqaExportHtmlPath, "utf8");
@@ -67,6 +67,6 @@ describe("static export GQA graph hydration on GitHub Pages base path", () => {
         await server.cleanup();
       }
     },
-    { timeout: EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS },
+    { timeout: getExportIntegrationBunTestTimeoutMs() },
   );
 });

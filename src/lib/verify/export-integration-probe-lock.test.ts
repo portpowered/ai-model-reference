@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import {
+  getExportIntegrationBunTestTimeoutMs,
   shouldSerializeExportIntegrationProbes,
   withExportIntegrationProbeLock,
 } from "./export-integration-probe-lock";
@@ -19,6 +20,15 @@ describe("export integration probe lock", () => {
     } else {
       process.env.GITHUB_ACTIONS = originalGithubActions;
     }
+  });
+
+  test("resolves export integration Bun ceilings from current env", () => {
+    process.env.CI = "true";
+    expect(getExportIntegrationBunTestTimeoutMs()).toBe(900_000);
+
+    delete process.env.CI;
+    delete process.env.GITHUB_ACTIONS;
+    expect(getExportIntegrationBunTestTimeoutMs()).toBe(300_000);
   });
 
   test("detects CI serialization flags", () => {
