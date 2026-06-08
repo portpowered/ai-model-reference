@@ -1,0 +1,88 @@
+---
+title: Multi-Query Attention
+description: How multi-query attention shares one key-value head across all query heads to shrink the KV cache.
+kind: "module"
+registryId: "module.multi-query-attention"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - attention
+  - kv-cache
+aliases:
+  - "MQA"
+  - "multi-query attention"
+updatedAt: "2026-06-08"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
+import { ModuleGraph } from "@/features/models/components/ModuleGraph";
+import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
+import { ModuleAttentionMhaMqaSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
+import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
+
+<T k="openingSummary" />
+
+<ModuleAtAGlance registryId="module.multi-query-attention" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="what-it-optimizes" titleKey="sections.whatItOptimizes.title">
+  <T k="sections.whatItOptimizes.body" />
+</Section>
+
+<Section id="practical-benefit" titleKey="sections.practicalBenefit.title">
+  <T k="sections.practicalBenefit.body" />
+</Section>
+
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+
+  <ModuleGraph registryId="module.multi-query-attention" assetId="computeFlow" />
+</Section>
+
+<Section id="math-or-compute-schema" titleKey="sections.mathOrComputeSchema.title">
+  <T k="sections.mathOrComputeSchema.body" />
+  <ModuleAttentionMhaMqaSchemaComparison />
+</Section>
+
+<Section id="compared-to-nearby-modules" titleKey="sections.comparedToNearbyModules.title">
+  <T k="sections.comparedToNearbyModules.body" />
+
+  <ModuleComparisonTable
+    registryId="module.multi-query-attention"
+    assetId="comparisonTable"
+  />
+</Section>
+
+<Section id="example-architectures" titleKey="sections.exampleArchitectures.title">
+  <T k="sections.exampleArchitectures.body" />
+  <ModelsUsingModule registryId="module.multi-query-attention" />
+</Section>
+
+<Section id="limitations-and-tradeoffs" titleKey="sections.limitationsAndTradeoffs.title">
+  <T k="sections.limitationsAndTradeoffs.body" />
+</Section>
+
+<Section id="why-it-still-matters" titleKey="sections.whyItStillMatters.title">
+  <T k="sections.whyItStillMatters.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="module.multi-query-attention" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="module.multi-query-attention" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="module.multi-query-attention" />
+</Section>

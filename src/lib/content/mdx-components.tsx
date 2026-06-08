@@ -12,6 +12,7 @@ import { ConceptMap } from "@/features/models/components/ConceptMap";
 import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
 import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
 import {
+  ModuleAttentionMhaMqaSchemaComparison,
   ModuleAttentionSchema,
   ModuleAttentionSchemaComparison,
 } from "@/features/models/components/ModuleAttentionSchemaComparison";
@@ -31,6 +32,7 @@ export const moduleMdxComponents: MDXComponents = {
   T,
   TagPillList,
   ModuleComparisonTable,
+  ModuleAttentionMhaMqaSchemaComparison,
   ModuleAttentionSchema,
   ModuleAttentionSchemaComparison,
   ConceptMap,
