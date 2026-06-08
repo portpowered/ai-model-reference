@@ -56,7 +56,7 @@ function renderSearchPage(
     <SearchPagePanelContent
       messages={context.messages}
       metaByUrl={context.metaByUrl}
-      searchParams={new URLSearchParams()}
+      handoff={{ q: null, tag: null }}
       searchClient={STATIC_HANDOFF_CLIENT}
     />,
     { context },
@@ -190,7 +190,7 @@ describe("static export search bootstrap failures", () => {
       <SearchPagePanelContent
         messages={context.messages}
         metaByUrl={context.metaByUrl}
-        searchParams={new URLSearchParams()}
+        handoff={{ q: null, tag: null }}
         searchClient={FAILING_BOOTSTRAP_CLIENT}
       />,
       { context },
