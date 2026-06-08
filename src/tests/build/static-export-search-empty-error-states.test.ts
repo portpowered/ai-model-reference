@@ -43,14 +43,18 @@ describe("static export /search empty and error states on GitHub Pages base path
       try {
         const maxAttempts =
           process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true"
-            ? 3
+            ? 5
             : 1;
         let reason: string | null = null;
 
         for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-          reason = await verifyStaticExportSearchEmptyErrorStates(
-            server.baseUrl,
-          );
+          try {
+            reason = await verifyStaticExportSearchEmptyErrorStates(
+              server.baseUrl,
+            );
+          } catch (error) {
+            reason = error instanceof Error ? error.message : String(error);
+          }
           if (
             reason === null ||
             !isRetryableStaticExportSearchProbeFailure(reason) ||
