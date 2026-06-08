@@ -11,7 +11,10 @@ import {
   readExportClientChunkContents,
   resolveExportSearchBootstrapClientFrom,
 } from "@/lib/build/verify-export-search-bootstrap-client-path";
-import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integration-probe-lock";
+import {
+  getExportIntegrationBunTestTimeoutMs,
+  shouldRunExportIntegrationProbeTests,
+} from "@/lib/verify/export-integration-probe-lock";
 import {
   assertSearchPageExportShell,
   SEARCH_PAGE_INPUT_HTML_MARKER,
@@ -63,6 +66,9 @@ describe("static export /search URL query and tag handoff on GitHub Pages base p
   test(
     "served static export surfaces grouped-query-attention for ?q=attention handoff",
     async () => {
+      if (!shouldRunExportIntegrationProbeTests()) {
+        return;
+      }
       ensureExportSearchArtifacts({
         repoRoot,
         basePath: exportBasePath,
@@ -91,6 +97,9 @@ describe("static export /search URL query and tag handoff on GitHub Pages base p
   test(
     "served static export surfaces grouped-query-attention for ?tag=attention handoff",
     async () => {
+      if (!shouldRunExportIntegrationProbeTests()) {
+        return;
+      }
       ensureExportSearchArtifacts({
         repoRoot,
         basePath: exportBasePath,

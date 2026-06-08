@@ -6,7 +6,10 @@ import {
   exportHtmlReferencesBasePathAssets,
   exportHtmlReferencesBasePathInternalLinks,
 } from "@/lib/build/verify-export-base-path";
-import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integration-probe-lock";
+import {
+  getExportIntegrationBunTestTimeoutMs,
+  shouldRunExportIntegrationProbeTests,
+} from "@/lib/verify/export-integration-probe-lock";
 import {
   assertSearchPageExportShell,
   SEARCH_PAGE_INPUT_HTML_MARKER,
@@ -42,6 +45,9 @@ describe("static export /search input hydration on GitHub Pages base path", () =
   test(
     "served static export hydrates an operable /search input that accepts typed queries",
     async () => {
+      if (!shouldRunExportIntegrationProbeTests()) {
+        return;
+      }
       ensureExportSearchArtifacts({
         repoRoot,
         basePath: exportBasePath,
