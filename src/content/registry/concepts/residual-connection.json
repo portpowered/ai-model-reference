@@ -1,0 +1,21 @@
+{
+  "id": "concept.residual-connection",
+  "slug": "residual-connection",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["skip connection", "residual stream", "residual add"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.transformer-architecture",
+    "concept.normalization",
+    "module.attention"
+  ],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-06-08T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": [],
+  "explainsIds": []
+}

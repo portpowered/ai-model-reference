@@ -71,7 +71,7 @@ const CHAIN_GLOSSARY_SLUGS = [
   "optimizer-state",
 ] as const;
 const PUBLISHED_GLOSSARY_ENTRY_COUNT = 41;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 29;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 30;
 
 function collectPageUrls(nodes: Node[]): string[] {
   const urls: string[] = [];

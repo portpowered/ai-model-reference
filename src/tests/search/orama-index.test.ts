@@ -15,6 +15,7 @@ import {
 const ATTENTION_MODULE_URL = "/docs/modules/attention";
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
 const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
+const TRANSFORMER_ARCHITECTURE_URL = "/docs/concepts/transformer-architecture";
 const STRUCTURAL_TAXONOMY_URLS = [
   "/docs/glossary/model",
   "/docs/glossary/architecture",
@@ -75,6 +76,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ATTENTION_MODULE_URL,
   SAMPLE_URL,
   TOKEN_GLOSSARY_URL,
+  TRANSFORMER_ARCHITECTURE_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
   ...REPRESENTATION_LATENT_URLS,

@@ -14,6 +14,15 @@ describe("parseLocalDocsPageRef", () => {
     });
   });
 
+  test("returns concept ref for concept slugs", () => {
+    expect(
+      parseLocalDocsPageRef(["concepts", "transformer-architecture"]),
+    ).toEqual({
+      section: "concepts",
+      slug: "transformer-architecture",
+    });
+  });
+
   test("returns module ref for module slugs", () => {
     expect(
       parseLocalDocsPageRef(["modules", "grouped-query-attention"]),
@@ -37,20 +46,27 @@ describe("isLocalMessageDocsPage", () => {
 });
 
 describe("docs source local pages", () => {
-  test("exposes representative glossary and module slugs for static export", () => {
+  test("exposes representative glossary, concept, and module slugs for static export", () => {
     const tokenPage = source.getPage(["glossary", "token"]);
+    const conceptPage = source.getPage([
+      "concepts",
+      "transformer-architecture",
+    ]);
     const modulePage = source.getPage(["modules", "grouped-query-attention"]);
 
     expect(tokenPage).toBeDefined();
+    expect(conceptPage).toBeDefined();
     expect(modulePage).toBeDefined();
     expect(tokenPage?.url).toBe("/docs/glossary/token");
+    expect(conceptPage?.url).toBe("/docs/concepts/transformer-architecture");
     expect(modulePage?.url).toBe("/docs/modules/grouped-query-attention");
   });
 
-  test("generateParams includes representative published glossary and module slugs", () => {
+  test("generateParams includes representative published glossary, concept, and module slugs", () => {
     const params = source.generateParams();
     const slugParams = params.map((entry) => entry.slug);
     expect(slugParams).toContainEqual(["glossary", "token"]);
+    expect(slugParams).toContainEqual(["concepts", "transformer-architecture"]);
     expect(slugParams).toContainEqual(["modules", "grouped-query-attention"]);
   });
 

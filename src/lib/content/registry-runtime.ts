@@ -15,6 +15,7 @@ import emergentBehaviorConcept from "@/content/registry/concepts/emergent-behavi
 import encoderConcept from "@/content/registry/concepts/encoder.json";
 import encoderDecoderConcept from "@/content/registry/concepts/encoder-decoder.json";
 import entropyConcept from "@/content/registry/concepts/entropy.json";
+import feedForwardNetworkConcept from "@/content/registry/concepts/feed-forward-network.json";
 import foundationModelConcept from "@/content/registry/concepts/foundation-model.json";
 import generalizationConcept from "@/content/registry/concepts/generalization.json";
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
@@ -29,18 +30,22 @@ import modelConcept from "@/content/registry/concepts/model.json";
 import modelCapacityConcept from "@/content/registry/concepts/model-capacity.json";
 import moduleConcept from "@/content/registry/concepts/module.json";
 import multimodalModelConcept from "@/content/registry/concepts/multimodal-model.json";
+import normalizationConcept from "@/content/registry/concepts/normalization.json";
 import optimizerStateConcept from "@/content/registry/concepts/optimizer-state.json";
 import overfittingConcept from "@/content/registry/concepts/overfitting.json";
 import parameterConcept from "@/content/registry/concepts/parameter.json";
 import patchConcept from "@/content/registry/concepts/patch.json";
 import perplexityConcept from "@/content/registry/concepts/perplexity.json";
+import positionalEncodingsConcept from "@/content/registry/concepts/positional-encodings.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
+import residualConnectionConcept from "@/content/registry/concepts/residual-connection.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
+import transformerArchitectureConcept from "@/content/registry/concepts/transformer-architecture.json";
 import vectorConcept from "@/content/registry/concepts/vector.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
 import attention from "@/content/registry/modules/attention.json";
@@ -108,6 +113,11 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(perplexityConcept),
   conceptRecordSchema.parse(scalingLawConcept),
   conceptRecordSchema.parse(emergentBehaviorConcept),
+  conceptRecordSchema.parse(feedForwardNetworkConcept),
+  conceptRecordSchema.parse(normalizationConcept),
+  conceptRecordSchema.parse(positionalEncodingsConcept),
+  conceptRecordSchema.parse(residualConnectionConcept),
+  conceptRecordSchema.parse(transformerArchitectureConcept),
   conceptRecordSchema.parse(transformerConcept),
   conceptRecordSchema.parse(diffusionModelConcept),
   conceptRecordSchema.parse(multimodalModelConcept),
