@@ -50,7 +50,7 @@ describe("static export /search Phase 1 canonical queries on GitHub Pages base p
       try {
         const maxAttempts =
           process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true"
-            ? 5
+            ? 3
             : 1;
         let reason: string | null = null;
 
