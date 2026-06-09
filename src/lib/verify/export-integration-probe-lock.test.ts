@@ -45,12 +45,15 @@ describe("export integration probe lock", () => {
   });
 
   test("skips served Phase 1 canonical query probe under CI serialization", () => {
-    process.env.CI = "true";
-    expect(shouldRunServedPhase1CanonicalQueriesProbe()).toBe(false);
-
-    delete process.env.CI;
-    delete process.env.GITHUB_ACTIONS;
-    expect(shouldRunServedPhase1CanonicalQueriesProbe()).toBe(true);
+    expect(
+      shouldRunServedPhase1CanonicalQueriesProbe({ CI: "true" }),
+    ).toBe(false);
+    expect(
+      shouldRunServedPhase1CanonicalQueriesProbe({
+        [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
+      }),
+    ).toBe(false);
+    expect(shouldRunServedPhase1CanonicalQueriesProbe({})).toBe(true);
   });
 
   test("detects CI serialization flags", () => {
