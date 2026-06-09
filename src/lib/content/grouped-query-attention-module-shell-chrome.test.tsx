@@ -2,7 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
-import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
+import {
+  expectGlossaryBodyOmitsTitleHeading,
+  stripHtmlTags,
+} from "@/lib/content/glossary-test-helpers";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import {
@@ -71,8 +74,11 @@ describe("grouped-query-attention module shell chrome", () => {
     expect(html).toContain('aria-label="At a glance"');
     expect(assertGroupedQueryAttentionTitleConvergence(html)).toBeNull();
 
-    const problemIndex = html.indexOf("KV caches grow with context length");
-    const coreIdeaIndex = html.indexOf("lets several query heads share");
+    const plainHtml = stripHtmlTags(html);
+    const problemIndex = plainHtml.indexOf(
+      "KV caches grow with context length",
+    );
+    const coreIdeaIndex = plainHtml.indexOf("lets several query heads share");
     const atAGlanceIndex = html.indexOf('aria-label="At a glance"');
     const whatItIsIndex = html.indexOf('id="what-it-is"');
 

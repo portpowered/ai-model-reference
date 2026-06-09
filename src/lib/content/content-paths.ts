@@ -127,3 +127,66 @@ export const HIDDEN_SIZE_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,
   "hidden-size",
 );
+
+/** Phase 3 feed-forward network glossary page directory. */
+export const FEED_FORWARD_NETWORK_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "feed-forward-network",
+);
+
+/** Phase 3 mixture of experts glossary page directory. */
+export const MIXTURE_OF_EXPERTS_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "mixture-of-experts",
+);
+
+/** Phase 3 normalization glossary page directory. */
+export const NORMALIZATION_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "normalization",
+);
+
+/** Phase 3 layer norm glossary page directory. */
+export const LAYER_NORM_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "layer-norm",
+);
+
+/** Phase 3 RMSNorm glossary page directory. */
+export const RMSNORM_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "rmsnorm");
+
+/** Phase 3 residual connection glossary page directory. */
+export const RESIDUAL_CONNECTION_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "residual-connection",
+);
+
+/** Phase 3 positional encodings concept page directory. */
+export const POSITIONAL_ENCODINGS_CONCEPT_PAGE_DIR = join(
+  CONCEPTS_DOCS_ROOT,
+  "positional-encodings",
+);
+
+/** Phase 3 RoPE glossary page directory. */
+export const ROPE_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "rope");
+
+/** Phase 3 ALiBi glossary page directory. */
+export const ALIBI_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "alibi");
+
+/** Phase 3 context window glossary page directory. */
+export const CONTEXT_WINDOW_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "context-window",
+);
+
+/** Phase 3 context extension concept page directory. */
+export const CONTEXT_EXTENSION_CONCEPT_PAGE_DIR = join(
+  CONCEPTS_DOCS_ROOT,
+  "context-extension",
+);
+
+/** Phase 3 why long context is hard concept page directory. */
+export const WHY_LONG_CONTEXT_IS_HARD_CONCEPT_PAGE_DIR = join(
+  CONCEPTS_DOCS_ROOT,
+  "why-long-context-is-hard",
+);

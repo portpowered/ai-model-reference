@@ -27,8 +27,16 @@ export const PHASE_1_EXPORT_ROUTES = [
 
 export type Phase1ExportRoute = (typeof PHASE_1_EXPORT_ROUTES)[number];
 
-const PHASE_1_EXPORT_ROUTE_ASSERTIONS: readonly Phase1RouteAssertion[] =
-  PHASE_1_EXPORT_ROUTES.map((route) => {
+let cachedPhase1ExportRouteAssertions:
+  | readonly Phase1RouteAssertion[]
+  | undefined;
+
+function getPhase1ExportRouteAssertions(): readonly Phase1RouteAssertion[] {
+  if (cachedPhase1ExportRouteAssertions) {
+    return cachedPhase1ExportRouteAssertions;
+  }
+
+  cachedPhase1ExportRouteAssertions = PHASE_1_EXPORT_ROUTES.map((route) => {
     const assertion = PHASE_1_ROUTE_ASSERTIONS.find(
       (entry) => entry.path === route,
     );
@@ -39,6 +47,8 @@ const PHASE_1_EXPORT_ROUTE_ASSERTIONS: readonly Phase1RouteAssertion[] =
     }
     return assertion;
   });
+  return cachedPhase1ExportRouteAssertions;
+}
 
 /** Maps a reader route to its relative HTML path under `out/`. */
 export function exportHtmlRelativePath(route: string): string {
@@ -133,7 +143,7 @@ function assertExportRouteContent(
     return result.ok ? null : result.reason;
   }
 
-  const assertion = PHASE_1_EXPORT_ROUTE_ASSERTIONS.find(
+  const assertion = getPhase1ExportRouteAssertions().find(
     (entry) => entry.path === route,
   );
   if (!assertion) {

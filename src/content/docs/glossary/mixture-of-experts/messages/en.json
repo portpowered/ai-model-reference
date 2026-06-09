@@ -1,0 +1,32 @@
+{
+  "title": "Mixture of experts",
+  "description": "A sparse feed-forward layer that routes each token to a small subset of expert MLPs instead of one dense block.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A mixture-of-experts (MoE) layer replaces the single dense feed-forward network in a transformer block with many parallel expert MLPs plus a router. For each token position, a gating network scores every expert and sends the hidden vector to only the top-k experts—often one or two. Each chosen expert runs the usual expand–activate–project recipe; their outputs are weighted and summed back into one updated vector."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "MoE increases total parameter count while keeping compute per token roughly flat, because only a few experts activate per step. That tradeoff matters when scaling language models: you can add capacity without multiplying FLOPs for every position. Capacity limits, load balancing, and routing noise also shape training stability, so recognizing MoE helps you read model cards that list expert counts and top-k routing."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose a block has sixty-four expert MLPs but top-2 routing. A token vector enters the router, which picks the two highest-scoring experts—say experts 7 and 41. Each expert applies its own two-layer MLP; the router weights blend their outputs into one vector that continues through normalization and the residual add. The next token in the batch may activate a completely different pair."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "MoE is not a model ensemble: ensembles combine separate full models at inference, while MoE keeps one shared stack and only sparsely activates internal experts. MoE is also not the same as a dense FFN—both sit after attention in the block, but dense FFN runs one MLP for every token whereas MoE selects a small subset. Finally, total expert parameters are not all used on every forward pass; active compute tracks top-k, not the full expert pool."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "A mixture-of-experts layer routes each token through a few specialist MLPs instead of one dense feed-forward block, trading sparse activation for extra capacity."
+}

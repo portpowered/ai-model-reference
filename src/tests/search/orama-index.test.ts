@@ -22,6 +22,19 @@ const SLIDING_WINDOW_ATTENTION_MODULE_URL =
   "/docs/modules/sliding-window-attention";
 const SPARSE_ATTENTION_MODULE_URL = "/docs/modules/sparse-attention";
 const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
+const TRANSFORMER_ARCHITECTURE_URL = "/docs/concepts/transformer-architecture";
+const FEED_FORWARD_NETWORK_URL = "/docs/glossary/feed-forward-network";
+const MIXTURE_OF_EXPERTS_URL = "/docs/glossary/mixture-of-experts";
+const LAYER_NORM_URL = "/docs/glossary/layer-norm";
+const RMSNORM_URL = "/docs/glossary/rmsnorm";
+const NORMALIZATION_URL = "/docs/glossary/normalization";
+const RESIDUAL_CONNECTION_URL = "/docs/glossary/residual-connection";
+const POSITIONAL_ENCODINGS_URL = "/docs/concepts/positional-encodings";
+const ROPE_URL = "/docs/glossary/rope";
+const ALIBI_URL = "/docs/glossary/alibi";
+const CONTEXT_WINDOW_URL = "/docs/glossary/context-window";
+const CONTEXT_EXTENSION_URL = "/docs/concepts/context-extension";
+const WHY_LONG_CONTEXT_IS_HARD_URL = "/docs/concepts/why-long-context-is-hard";
 const STRUCTURAL_TAXONOMY_URLS = [
   "/docs/glossary/model",
   "/docs/glossary/architecture",
@@ -94,6 +107,19 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   SLIDING_WINDOW_ATTENTION_MODULE_URL,
   SPARSE_ATTENTION_MODULE_URL,
   TOKEN_GLOSSARY_URL,
+  TRANSFORMER_ARCHITECTURE_URL,
+  FEED_FORWARD_NETWORK_URL,
+  MIXTURE_OF_EXPERTS_URL,
+  LAYER_NORM_URL,
+  RMSNORM_URL,
+  NORMALIZATION_URL,
+  RESIDUAL_CONNECTION_URL,
+  POSITIONAL_ENCODINGS_URL,
+  ROPE_URL,
+  ALIBI_URL,
+  CONTEXT_WINDOW_URL,
+  CONTEXT_EXTENSION_URL,
+  WHY_LONG_CONTEXT_IS_HARD_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
   ...REPRESENTATION_LATENT_URLS,

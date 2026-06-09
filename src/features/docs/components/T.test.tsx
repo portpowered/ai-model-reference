@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import { T } from "@/features/docs/components/T";
 import fixture from "@/lib/content/__fixtures__/page-messages.json";
+import { expectHtmlToContainProse } from "@/lib/content/glossary-test-helpers";
 import type { PageMessages } from "@/lib/content/schemas";
 
 const messages = fixture as PageMessages;
@@ -18,7 +19,8 @@ function renderT(key: string, isDev: boolean) {
 describe("T", () => {
   test("renders localized copy for a valid key", () => {
     const html = renderT("problemStatement", false);
-    expect(html).toContain(
+    expectHtmlToContainProse(
+      html,
       "KV caches grow with context length and head count.",
     );
   });

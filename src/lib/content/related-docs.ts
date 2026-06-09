@@ -1,5 +1,12 @@
-import { glossaryPageHref, modulePageHref } from "@/lib/content/content-hrefs";
-import type { PublishedDocsRegistryIds } from "@/lib/content/published-docs-registry-ids";
+import {
+  conceptPageHref,
+  glossaryPageHref,
+  modulePageHref,
+} from "@/lib/content/content-hrefs";
+import {
+  PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
+  type PublishedDocsRegistryIds,
+} from "@/lib/content/published-docs-registry-ids";
 import type { ConceptRecord, ModuleRecord } from "@/lib/content/schemas";
 
 export const SAME_VARIANT_GROUP = "same-variant-group" as const;
@@ -56,9 +63,16 @@ export function registryDisplayTitle(record: RelatedRegistryRecord): string {
   return record.aliases[0] ?? formatSlugLabel(record.slug);
 }
 
+function conceptRecordPageHref(record: ConceptRecord): string {
+  if (PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has(record.id)) {
+    return conceptPageHref(record.slug);
+  }
+  return glossaryPageHref(record.slug);
+}
+
 function recordPageHref(record: RelatedRegistryRecord): string {
   if (record.kind === "concept") {
-    return glossaryPageHref(record.slug);
+    return conceptRecordPageHref(record);
   }
   return modulePageHref(record.slug);
 }

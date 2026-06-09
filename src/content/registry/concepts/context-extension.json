@@ -1,0 +1,27 @@
+{
+  "id": "concept.context-extension",
+  "slug": "context-extension",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "context extension",
+    "long-context extension",
+    "context length extension"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.context-window",
+    "concept.rope",
+    "concept.why-long-context-is-hard",
+    "module.grouped-query-attention",
+    "module.attention"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-09T00:00:00.000Z",
+  "updatedAt": "2026-06-09T21:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.context-window", "concept.rope"],
+  "explainsIds": []
+}

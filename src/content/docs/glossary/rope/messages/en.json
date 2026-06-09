@@ -1,0 +1,32 @@
+{
+  "title": "RoPE",
+  "description": "Rotary position embedding rotates query and key vectors by token index so attention scores depend on relative distance, as used in Llama-class decoder models.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Rotary position embedding (RoPE) encodes where a token sits in the sequence by rotating its query and key vectors in paired feature dimensions. Earlier positions use smaller rotation angles and later positions use larger ones, so the dot product between a query at one index and a key at another depends on their separation along the sequence. RoPE is applied inside the attention sublayer rather than as a separate additive position table on embeddings."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Many modern decoder language models—including Llama, Mistral, and Qwen families—use RoPE because it gives attention a built-in sense of relative distance without storing a fixed absolute position vector per index. That relative behavior also shapes how models behave when sequences grow longer than they saw during training: extrapolation and context-extension techniques often start from how RoPE angles are scaled or interpolated at new positions."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine two tokens five positions apart. RoPE rotates each token's query and key vectors by an amount tied to its index. When attention scores the pair, the rotation difference encodes a five-step gap, so the model can treat nearby tokens differently from far-away ones even though the raw hidden features alone carry no order. The same mechanism applies at every layer that uses standard multi-head attention with RoPE-enabled projections."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "RoPE is not an attention variant like grouped-query or multi-query attention—it only changes how position enters the query and key spaces before the usual attention math runs. It is also not the same as ALiBi, which adds distance-based bias terms to attention logits instead of rotating vectors. Finally, RoPE does not by itself guarantee unlimited context: a model may still degrade on very long spans when rotation angles extrapolate beyond training."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "RoPE rotates query and key vectors by token position so attention scores reflect relative distance along the sequence, which is why many Llama-class decoders adopt it instead of absolute position tables."
+}

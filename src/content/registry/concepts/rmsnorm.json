@@ -1,0 +1,17 @@
+{
+  "id": "concept.rmsnorm",
+  "slug": "rmsnorm",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["RMS Norm", "root mean square normalization", "RMSNorm"],
+  "tags": ["foundations"],
+  "relatedIds": ["concept.layer-norm", "concept.normalization"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-06-08T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.normalization"],
+  "explainsIds": []
+}

@@ -1,0 +1,36 @@
+{
+  "title": "Transformer architecture",
+  "description": "How attention, feed-forward layers, normalization, residuals, and position information repeat inside each decoder-style transformer block.",
+  "openingSummary": "A transformer block is a repeating loop: each token vector passes through attention, a dense feed-forward transform, normalization, and residual adds so the model can mix context and refine features layer by layer.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A transformer architecture stacks many identical blocks on top of token embeddings. Each block usually runs attention first so every position can read other positions, then a position-wise feed-forward network that applies the same small MLP to every token. Normalization and residual connections wrap those sublayers so activations stay stable and gradients can flow through depth. Position information is added before or inside attention so order matters even though attention itself is permutation invariant."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Most modern language models share this block pattern even when widths, depths, and attention variants differ. Knowing the loop helps you map unfamiliar model cards to the right module pages—attention for context mixing, feed-forward for per-token refinement, normalization for training stability, residuals for depth, and positional schemes for how far order is remembered."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Picture a decoder-only stack for text generation. Token embeddings enter block one: self-attention lets each word attend to earlier words, the feed-forward layer stretches and filters each vector, layer normalization keeps scales steady, and a residual add writes the update back onto the running stream. Block two repeats the same recipe on the updated vectors, and the stack continues until a final norm and language-model head predict the next token."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Decoder-only transformers in chat and completion models, encoder stacks in embedding models, and encoder–decoder stacks in translation systems all use variations of this loop. Width, depth, attention variant, feed-forward size, and normalization choice change between families, but the repeating block layout is the shared skeleton."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A transformer block is not the same as an attention module: attention is one sublayer inside the block. The architecture is also not a single trained checkpoint—many models can share the layout at different parameter counts. Finally, positional encoding is part of how the block represents order; it is not a replacement for attention or feed-forward work."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

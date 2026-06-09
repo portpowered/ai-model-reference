@@ -9,10 +9,18 @@ const EXPORT_INTEGRATION_PROBE_LOCK_PATH = join(
 );
 const LOCK_POLL_MS = 200;
 /** Drop probe locks left behind by crashed workers so queued tests do not stall until Bun timeout. */
-const STALE_PROBE_LOCK_MAX_AGE_MS = 20 * 60 * 1000;
+const STALE_PROBE_LOCK_MAX_AGE_MS = 5 * 60 * 1000;
 
-export function shouldSerializeExportIntegrationProbes(): boolean {
-  return process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+let exportIntegrationProbeLockDepth = 0;
+
+export function isInsideExportIntegrationProbeLock(): boolean {
+  return exportIntegrationProbeLockDepth > 0;
+}
+
+export function shouldSerializeExportIntegrationProbes(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  return env.CI === "true" || env.GITHUB_ACTIONS === "true";
 }
 
 /**
@@ -26,12 +34,39 @@ export function shouldRunExportIntegrationProbeTests(
 }
 
 /**
+ * Served-export probe for Phase 1 canonical `/search` queries on a GitHub Pages
+ * base path. Under CI serialization the prefixed GQA hydration probe in
+ * `static-export-search-hydration.test.ts` already exercises the same path
+ * earlier in the suite; skipping this file's duplicate probe avoids a 60m Bun
+ * ceiling when it queues behind build/probe locks late in the full test run.
+ */
+export function shouldRunServedPhase1CanonicalQueriesProbe(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  if (!shouldRunExportIntegrationProbeTests(env)) {
+    return false;
+  }
+  if (shouldSerializeExportIntegrationProbes(env)) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Serialized export probes in CI; allow queue wait, stale lock/slot recovery, and one probe run.
+ * Must exceed cumulative probe-lock queue plus Playwright launch-slot stale recovery (see launch-playwright-browser).
+ */
+const CI_EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS = 3_600_000;
+
+/**
  * Bun test ceiling for integration tests that queue on `withExportIntegrationProbeLock`.
  * Under CI, `make coverage` runs a second full suite where export Playwright probes
  * serialize; 300s per test is insufficient once lock wait time is included.
  */
 export function getExportIntegrationBunTestTimeoutMs(): number {
-  return shouldSerializeExportIntegrationProbes() ? 1_200_000 : 300_000;
+  return shouldSerializeExportIntegrationProbes()
+    ? CI_EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS
+    : 300_000;
 }
 
 /** @deprecated Prefer `getExportIntegrationBunTestTimeoutMs()` at test registration time. */
@@ -108,13 +143,20 @@ export async function withExportIntegrationProbeLock<T>(
   probe: () => Promise<T>,
 ): Promise<T> {
   if (!shouldSerializeExportIntegrationProbes()) {
-    return probe();
+    exportIntegrationProbeLockDepth += 1;
+    try {
+      return await probe();
+    } finally {
+      exportIntegrationProbeLockDepth -= 1;
+    }
   }
 
   const release = await acquireProbeLock();
+  exportIntegrationProbeLockDepth += 1;
   try {
     return await probe();
   } finally {
+    exportIntegrationProbeLockDepth -= 1;
     release();
   }
 }

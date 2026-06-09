@@ -1,19 +1,25 @@
 import type { StaticOptions } from "fumadocs-core/search/client";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import type { SearchResultMetaForCollapse } from "@/lib/search/collapse-search-results-from-meta";
-import { collapseSearchResultsWithMeta } from "@/lib/search/collapse-search-results-from-meta";
+import {
+  collapseSearchResultsWithMeta,
+  documentsByUrlFromMeta,
+} from "@/lib/search/collapse-search-results-from-meta";
+import { rerankSearchResults } from "@/lib/search/rerank-search-results";
 
 export function modelAtlasOramaSearchClient(
   options: StaticOptions,
   metaByUrl: Record<string, SearchResultMetaForCollapse>,
 ) {
   const base = oramaStaticClient(options);
+  const documentsByUrl = documentsByUrlFromMeta(metaByUrl);
 
   return {
     deps: base.deps,
     async search(query: string) {
       const results = await base.search(query);
-      return collapseSearchResultsWithMeta(results, metaByUrl);
+      const reranked = rerankSearchResults(query, results, documentsByUrl);
+      return collapseSearchResultsWithMeta(reranked, metaByUrl);
     },
   };
 }

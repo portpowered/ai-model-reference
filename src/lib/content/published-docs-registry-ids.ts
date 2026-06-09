@@ -1,3 +1,11 @@
+/** Concept registry ids whose published docs page lives under `/docs/concepts`. */
+export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
+  "concept.transformer-architecture",
+  "concept.positional-encodings",
+  "concept.context-extension",
+  "concept.why-long-context-is-hard",
+]);
+
 /** Registry ids for docs pages with `status: published` in frontmatter. */
 export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "module.attention",
@@ -51,6 +59,19 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.diffusion-model",
   "concept.multimodal-model",
   "concept.world-model",
+  "concept.transformer-architecture",
+  "concept.feed-forward-network",
+  "concept.mixture-of-experts",
+  "concept.normalization",
+  "concept.layer-norm",
+  "concept.rmsnorm",
+  "concept.residual-connection",
+  "concept.positional-encodings",
+  "concept.rope",
+  "concept.alibi",
+  "concept.context-window",
+  "concept.context-extension",
+  "concept.why-long-context-is-hard",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;

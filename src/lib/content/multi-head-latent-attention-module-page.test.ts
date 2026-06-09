@@ -9,7 +9,10 @@ import {
   validatePageAssetReferences,
 } from "@/lib/content/assets";
 import { MULTI_HEAD_LATENT_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
-import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
+import {
+  expectGlossaryBodyOmitsTitleHeading,
+  expectHtmlToContainProse,
+} from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import {
@@ -66,7 +69,8 @@ describe("loadModulePage multi-head-latent-attention", () => {
     );
 
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-    expect(html).toContain(
+    expectHtmlToContainProse(
+      html,
       "KV caches grow with context length and head dimension",
     );
     expect(html).toContain("compact latent KV representation");

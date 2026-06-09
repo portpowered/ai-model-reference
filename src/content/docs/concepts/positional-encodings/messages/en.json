@@ -1,0 +1,36 @@
+{
+  "title": "Positional encodings",
+  "description": "How transformers inject order into otherwise permutation-invariant attention through absolute, relative, and rotary position schemes.",
+  "openingSummary": "Attention treats tokens as an unordered set unless you add position information—absolute embeddings, relative offsets, rotary angles, or attention biases each answer where a token sits in the sequence.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Positional encodings tell a transformer where each token sits in the sequence. Self-attention scores pairs of positions without built-in order: swapping token order would leave the same pairwise relationships unless position is injected. Early transformers added fixed or learned absolute position vectors to token embeddings. Later families use relative schemes that encode distance between positions, rotary position embedding (RoPE) that rotates query and key features by index, or attention linear biases (ALiBi) that penalize far-apart keys without explicit embedding tables."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "The position scheme shapes how far order is remembered, how well models extrapolate past their training length, and how attention cost scales with context. Absolute embeddings are simple but can struggle when sequences grow longer than training. Relative and rotary methods bake distance into attention math, which many modern decoder models prefer. Knowing the family helps you read model cards and follow links to RoPE or ALiBi variant pages without re-deriving attention mechanics."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine three word embeddings with no position added: attention could not tell whether \"cat sat mat\" or \"mat sat cat\" was the input. Add absolute position vectors and each token carries both meaning and index. Rotary position embedding instead rotates query and key vectors so dot products depend on relative distance. ALiBi skips extra embeddings and adds a distance penalty directly to attention logits. Each approach restores order sensitivity the base attention operation lacks."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Original transformer encoder stacks used sinusoidal absolute positions; many BERT-style models learned absolute tables. GPT-style decoders historically used learned absolute embeddings at the input. Llama-class and many recent open-weight models adopt RoPE inside attention. Some long-context research models ship with ALiBi biases instead of rotary angles. The choice is declared per architecture and pairs with how that model handles context extension."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Positional encoding is not the same as token embeddings: embeddings carry vocabulary identity while position schemes carry index or distance. RoPE and ALiBi are not attention variants themselves—they modify how position enters the attention sublayer. Absolute position tables also differ from context-window limits: a model may advertise a large window while its position scheme still degrades on very long spans."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
