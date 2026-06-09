@@ -3,6 +3,7 @@ import {
   getExportIntegrationBunTestTimeoutMs,
   isInsideExportIntegrationProbeLock,
   shouldRunExportIntegrationProbeTests,
+  shouldRunServedPhase1CanonicalQueriesProbe,
   shouldSerializeExportIntegrationProbes,
   withExportIntegrationProbeLock,
 } from "./export-integration-probe-lock";
@@ -41,6 +42,14 @@ describe("export integration probe lock", () => {
       }),
     ).toBe(false);
     expect(shouldRunExportIntegrationProbeTests({})).toBe(true);
+  });
+
+  test("skips served Phase 1 canonical query probe under CI serialization", () => {
+    process.env.CI = "true";
+    expect(shouldRunServedPhase1CanonicalQueriesProbe()).toBe(false);
+
+    delete process.env.CI;
+    expect(shouldRunServedPhase1CanonicalQueriesProbe()).toBe(true);
   });
 
   test("detects CI serialization flags", () => {

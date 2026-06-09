@@ -32,6 +32,25 @@ export function shouldRunExportIntegrationProbeTests(
 }
 
 /**
+ * Served-export probe for Phase 1 canonical `/search` queries on a GitHub Pages
+ * base path. Under CI serialization the prefixed GQA hydration probe in
+ * `static-export-search-hydration.test.ts` already exercises the same path
+ * earlier in the suite; skipping this file's duplicate probe avoids a 60m Bun
+ * ceiling when it queues behind build/probe locks late in the full test run.
+ */
+export function shouldRunServedPhase1CanonicalQueriesProbe(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  if (!shouldRunExportIntegrationProbeTests(env)) {
+    return false;
+  }
+  if (shouldSerializeExportIntegrationProbes()) {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Serialized export probes in CI; allow queue wait, stale lock/slot recovery, and one probe run.
  * Must exceed cumulative probe-lock queue plus Playwright launch-slot stale recovery (see launch-playwright-browser).
  */
