@@ -12,6 +12,8 @@ import { type Browser, chromium, type LaunchOptions } from "playwright";
 import { isInsideExportIntegrationProbeLock } from "./export-integration-probe-lock";
 
 const CI_PLAYWRIGHT_LAUNCH_TIMEOUT_MS = 120_000;
+/** Avoid hanging the full Bun probe timeout when browser teardown stalls under CI load. */
+export const PLAYWRIGHT_BROWSER_CLOSE_TIMEOUT_MS = 15_000;
 const CI_PLAYWRIGHT_LAUNCH_ATTEMPTS = 5;
 const CI_PLAYWRIGHT_LAUNCH_RETRY_DELAY_MS = 5_000;
 const CI_PLAYWRIGHT_LAUNCH_INITIAL_DELAY_MS = 3_000;
@@ -217,4 +219,15 @@ export async function launchPlaywrightBrowser(
   }
 
   return launchChromiumWithCiRetries(launchOptions);
+}
+
+/**
+ * Closes a Playwright browser without letting teardown stall until the Bun
+ * integration probe timeout when Chromium is slow to exit under CI load.
+ */
+export async function closePlaywrightBrowserWithTimeout(
+  browser: Browser,
+  timeoutMs: number = PLAYWRIGHT_BROWSER_CLOSE_TIMEOUT_MS,
+): Promise<void> {
+  await Promise.race([browser.close(), sleep(timeoutMs)]);
 }

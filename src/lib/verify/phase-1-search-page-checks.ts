@@ -1,6 +1,9 @@
 import type { Browser, Locator, Page } from "playwright";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
-import { launchPlaywrightBrowser } from "./launch-playwright-browser";
+import {
+  closePlaywrightBrowserWithTimeout,
+  launchPlaywrightBrowser,
+} from "./launch-playwright-browser";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 import {
@@ -202,6 +205,10 @@ async function defaultLaunchBrowser(): Promise<Browser> {
   return launchPlaywrightBrowser();
 }
 
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function waitForSearchPageOutcome(
   page: Page,
   timeoutMs: number,
@@ -319,7 +326,7 @@ export async function runPhase1SearchPageChecks(
           }
           return null;
         } finally {
-          await context.close();
+          await Promise.race([context.close(), sleep(timeoutMs)]);
         }
       }),
     );
@@ -330,7 +337,7 @@ export async function runPhase1SearchPageChecks(
       }
     }
   } finally {
-    await browser.close();
+    await closePlaywrightBrowserWithTimeout(browser, timeoutMs);
   }
 
   return failures;
