@@ -1,0 +1,36 @@
+{
+  "title": "Context extension",
+  "description": "Common techniques that stretch usable context beyond a model's original training window without rebuilding the entire architecture from scratch.",
+  "openingSummary": "Models are trained on finite sequence lengths; context extension covers the post-training tricks—position scaling, windowed attention, memory-saving heads, and continued training—that let them run on longer prompts without rebuilding from scratch.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Context extension is the family of techniques that push a model's usable context window past the length it saw during pretraining. The starting point is the context window limit: how many tokens attention can cover at once. Extension methods then adjust how position is represented, how attention is computed, or how the model is further trained so longer inputs remain stable. Major families include rotary position scaling and interpolation for RoPE models, bias or embedding extrapolation for schemes like ALiBi, sliding or chunked attention patterns that trade full pairwise access for local windows, and continued fine-tuning on longer documents. Inference optimizations such as grouped-query attention shrink KV-cache memory so very long runs remain practical even when the math still allows a large window."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "A model card may advertise 128k or 1M tokens, but that headline often reflects extension work layered on a shorter training recipe. Knowing the technique family helps you judge whether quality will hold on your actual prompt length, whether memory will fit on your hardware, and which module pages to read next. RoPE scaling changes how angles behave at unseen indices; windowed attention changes which tokens can see each other; KV-cache sharing changes cost more than correctness. Extension is also separate from simply raising a API limit—without the underlying position or attention support, longer inputs can degrade silently."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose a decoder model trained on 4k tokens uses RoPE inside attention. To serve 32k prompts, engineers might interpolate RoPE frequencies so rotation angles grow more slowly at new positions, then lightly fine-tune on long documents. At inference, grouped-query attention reduces how many key-value heads are stored per layer, making the longer cache affordable. If quality still drifts on the farthest tokens, a sliding-window attention variant might limit each position to a local neighborhood while preserving a large nominal window. Each lever addresses a different bottleneck: position extrapolation, memory, or attention reach."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Long-context releases for Llama-class, Mistral, and Qwen families typically combine RoPE scaling rules with memory-saving attention heads. Research models marketed for million-token contexts often pair ALiBi or modified biases with hardware-aware kernels. Product teams publish extension recipes in model cards—YaRN, NTK-aware scaling, yarn-style factors, or progressive fine-tuning schedules—rather than re-deriving attention variants on this page. When a technique changes how attention mixes tokens across distance, the detailed module pages remain the right place for head layouts and compute patterns."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Context extension is not the same as the context window definition: the window states how many tokens can be attended over; extension explains how that limit is stretched beyond training. It is also not a guarantee of perfect recall on very long inputs—position schemes can extrapolate poorly, and distant tokens may receive less effective attention. Finally, inference memory optimizations like grouped-query attention improve feasibility at long lengths but do not by themselves teach the model new long-range dependencies; they complement rather than replace position and training extensions."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

@@ -9,8 +9,11 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { type Browser, chromium, type LaunchOptions } from "playwright";
+import { isInsideExportIntegrationProbeLock } from "./export-integration-probe-lock";
 
 const CI_PLAYWRIGHT_LAUNCH_TIMEOUT_MS = 120_000;
+/** Avoid hanging the full Bun probe timeout when browser teardown stalls under CI load. */
+export const PLAYWRIGHT_BROWSER_CLOSE_TIMEOUT_MS = 15_000;
 const CI_PLAYWRIGHT_LAUNCH_ATTEMPTS = 5;
 const CI_PLAYWRIGHT_LAUNCH_RETRY_DELAY_MS = 5_000;
 const CI_PLAYWRIGHT_LAUNCH_INITIAL_DELAY_MS = 3_000;
@@ -18,12 +21,18 @@ const MAX_CONCURRENT_CI_LAUNCHES = 1;
 const LAUNCH_SLOT_DIR = join(tmpdir(), "model-atlas-playwright-launch-slots");
 const LOCK_POLL_MS = 200;
 /** Drop launch slots left behind by crashed workers so waiters do not poll until Bun timeout. */
-const STALE_LAUNCH_SLOT_MAX_AGE_MS = 20 * 60 * 1000;
+const STALE_LAUNCH_SLOT_MAX_AGE_MS = 5 * 60 * 1000;
 
 let inProcessLaunchGate: Promise<void> = Promise.resolve();
 
 function shouldSerializePlaywrightLaunch(): boolean {
   return process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+}
+
+function shouldAcquireCrossProcessLaunchSlot(): boolean {
+  return (
+    shouldSerializePlaywrightLaunch() && !isInsideExportIntegrationProbeLock()
+  );
 }
 
 function resolveLaunchOptions(options: LaunchOptions): LaunchOptions {
@@ -154,11 +163,13 @@ async function withCiLaunchSerialization<T>(
   });
 
   await waitForPriorLaunch;
-  const releaseLaunchSlot = await acquireLaunchSlot();
+  const releaseLaunchSlot = shouldAcquireCrossProcessLaunchSlot()
+    ? await acquireLaunchSlot()
+    : null;
   try {
     return await launch();
   } finally {
-    releaseLaunchSlot();
+    releaseLaunchSlot?.();
     releaseInProcessGate();
   }
 }
@@ -208,4 +219,15 @@ export async function launchPlaywrightBrowser(
   }
 
   return launchChromiumWithCiRetries(launchOptions);
+}
+
+/**
+ * Closes a Playwright browser without letting teardown stall until the Bun
+ * integration probe timeout when Chromium is slow to exit under CI load.
+ */
+export async function closePlaywrightBrowserWithTimeout(
+  browser: Browser,
+  timeoutMs: number = PLAYWRIGHT_BROWSER_CLOSE_TIMEOUT_MS,
+): Promise<void> {
+  await Promise.race([browser.close(), sleep(timeoutMs)]);
 }

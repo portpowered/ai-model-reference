@@ -1,4 +1,5 @@
 import {
+  conceptPageHref,
   glossaryPageHref,
   modulePageHref,
   tagPageHref,
@@ -8,6 +9,7 @@ import {
   type ProseAutoLinkCandidate,
   type ProseAutoLinkPhrase,
 } from "@/lib/content/prose-auto-link";
+import { PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
   listConceptRecords,
   listModuleRecords,
@@ -41,7 +43,10 @@ function conceptCandidates(record: ConceptRecord): ProseAutoLinkCandidate[] {
   if (record.status !== "published") {
     return [];
   }
-  return aliasCandidates(record.aliases, glossaryPageHref(record.slug));
+  const href = PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has(record.id)
+    ? conceptPageHref(record.slug)
+    : glossaryPageHref(record.slug);
+  return aliasCandidates(record.aliases, href);
 }
 
 function tagCandidates(record: TagRecord): ProseAutoLinkCandidate[] {

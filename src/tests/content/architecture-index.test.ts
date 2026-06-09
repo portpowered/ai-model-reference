@@ -22,6 +22,7 @@ describe("isArchitectureRelatedPage", () => {
     const urls = architecturePages.map((page) => page.url).sort();
     expect(urls).toEqual(
       [
+        "/docs/concepts/transformer-architecture",
         "/docs/glossary/activation",
         "/docs/glossary/alignment",
         "/docs/glossary/architecture",

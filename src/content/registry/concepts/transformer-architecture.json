@@ -1,0 +1,23 @@
+{
+  "id": "concept.transformer-architecture",
+  "slug": "transformer-architecture",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["transformer block", "decoder block", "transformer stack"],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "module.attention",
+    "concept.feed-forward-network",
+    "concept.normalization",
+    "concept.residual-connection",
+    "concept.positional-encodings"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-08T11:08:01.058Z",
+  "updatedAt": "2026-06-08T12:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": ["concept.architecture", "concept.module"],
+  "explainsIds": []
+}

@@ -4,6 +4,7 @@ import { Callout } from "@/features/docs/components/Callout";
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { BlockMath, InlineMath } from "@/features/docs/components/Math";
+import { PageMathFormula } from "@/features/docs/components/PageMathFormula";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -40,4 +41,5 @@ export const moduleMdxComponents: MDXComponents = {
   ModuleMetadataCard,
   ModuleAtAGlance,
   ModelsUsingModule,
+  PageMathFormula,
 };

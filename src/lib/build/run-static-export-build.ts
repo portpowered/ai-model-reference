@@ -1,29 +1,66 @@
 import { type SpawnSyncReturns, spawnSync } from "node:child_process";
-import { closeSync, openSync, unlinkSync } from "node:fs";
+import { closeSync, constants, openSync, statSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { sleepSync } from "bun";
 
-const STATIC_EXPORT_BUILD_LOCK_PATH = join(
+export const STATIC_EXPORT_BUILD_LOCK_PATH = join(
   tmpdir(),
   "model-atlas-static-export-build.lock",
 );
 
-function acquireStaticExportBuildLockSync(): void {
-  const retryDelayMs = 250;
+const LOCK_POLL_MS = 250;
+/** Drop build locks left behind by crashed workers so queued tests do not stall until Bun timeout. */
+export const STALE_STATIC_EXPORT_BUILD_LOCK_MAX_AGE_MS = 5 * 60 * 1000;
 
-  while (true) {
-    try {
-      const fileDescriptor = openSync(STATIC_EXPORT_BUILD_LOCK_PATH, "wx");
-      closeSync(fileDescriptor);
-      return;
-    } catch (error) {
-      const errno = (error as NodeJS.ErrnoException).code;
-      if (errno !== "EEXIST") {
-        throw error;
-      }
-      sleepSync(retryDelayMs);
+function removeStaleBuildLockIfNeeded(): void {
+  try {
+    const { mtimeMs } = statSync(STATIC_EXPORT_BUILD_LOCK_PATH);
+    if (Date.now() - mtimeMs > STALE_STATIC_EXPORT_BUILD_LOCK_MAX_AGE_MS) {
+      unlinkSync(STATIC_EXPORT_BUILD_LOCK_PATH);
     }
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "ENOENT"
+    ) {
+      return;
+    }
+    throw error;
+  }
+}
+
+function tryAcquireStaticExportBuildLockSync(): boolean {
+  removeStaleBuildLockIfNeeded();
+  try {
+    const fileDescriptor = openSync(
+      STATIC_EXPORT_BUILD_LOCK_PATH,
+      constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY,
+      0o600,
+    );
+    closeSync(fileDescriptor);
+    return true;
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "EEXIST"
+    ) {
+      return false;
+    }
+    throw error;
+  }
+}
+
+function acquireStaticExportBuildLockSync(): void {
+  while (true) {
+    if (tryAcquireStaticExportBuildLockSync()) {
+      return;
+    }
+    sleepSync(LOCK_POLL_MS);
   }
 }
 

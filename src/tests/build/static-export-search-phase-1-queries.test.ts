@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { ensureExportSearchArtifacts } from "@/lib/build/ensure-export-search-artifacts";
 import {
   getExportIntegrationBunTestTimeoutMs,
-  shouldRunExportIntegrationProbeTests,
+  shouldRunServedPhase1CanonicalQueriesProbe,
   shouldSerializeExportIntegrationProbes,
 } from "@/lib/verify/export-integration-probe-lock";
 import { runExportProbeWithSpawnGuard } from "@/lib/verify/export-probe-spawn-guard";
@@ -23,7 +23,7 @@ function resolvePhase1CanonicalProbeQueries(): string[] {
 
 describe("static export /search Phase 1 canonical queries on GitHub Pages base path", () => {
   beforeAll(() => {
-    if (!shouldRunExportIntegrationProbeTests()) {
+    if (!shouldRunServedPhase1CanonicalQueriesProbe()) {
       return;
     }
     ensureExportSearchArtifacts({
@@ -35,7 +35,7 @@ describe("static export /search Phase 1 canonical queries on GitHub Pages base p
   test.each(resolvePhase1CanonicalProbeQueries().map((query) => [query]))(
     "served static export surfaces grouped-query-attention for %s after static bootstrap",
     async (query: string) => {
-      if (!shouldRunExportIntegrationProbeTests()) {
+      if (!shouldRunServedPhase1CanonicalQueriesProbe()) {
         return;
       }
       ensureExportSearchArtifacts({

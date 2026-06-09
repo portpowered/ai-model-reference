@@ -1,0 +1,32 @@
+{
+  "title": "Context window",
+  "description": "The maximum number of tokens a model can attend over in one forward pass, distinct from training sequence length and how many tokens it may emit in a session.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A context window—also called context length or max context—is the cap on how many tokens the model can read and attend over in a single forward pass. Every prompt token, document chunk, and previously generated token that stays inside attention counts toward that limit. When the window fills, older tokens fall out of the active attention range unless the serving stack summarizes or truncates them. The window is a hard structural bound on simultaneous visibility, not a rough preference about how much text is convenient to paste in."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Context window is easy to confuse with two nearby limits. Training length is the longest sequence the model saw during pretraining or fine-tuning; a model may train on eight-thousand-token examples yet ship with a larger inference window after extension techniques. Generation budget is how many new tokens the system allows the model to write in one reply or session, which can be smaller than the window if product policy caps output. Memory and attention cost also grow with window size, so the advertised limit reflects what the stack can run reliably, not unlimited recall."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose a model advertises a 128k context window. You can place on the order of 128,000 tokens—system instructions, retrieved notes, and prior chat turns—into one prompt block that attention can see at once. If you keep chatting until active history exceeds that count, the earliest tokens stop participating in attention unless the client drops or compresses them. You might still ask the model to write only five hundred new tokens, which is a generation budget choice separate from the 128k visibility cap."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A larger context window does not automatically mean the model was trained on equally long sequences; extension methods can stretch inference beyond original training spans. Context window is also not the same as total session storage in a chat product, which may keep transcripts on disk while only the latest slice fits inside model attention. Finally, max context differs from output token limits: you can have room to read a long document yet still be capped on how many tokens the assistant may generate in one response."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "Context window is the maximum number of tokens attention can see in one forward pass, separate from training sequence length and from how many tokens a session may generate."
+}

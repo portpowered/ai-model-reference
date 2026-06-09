@@ -1,0 +1,32 @@
+{
+  "title": "Normalization",
+  "description": "Layers that rescale hidden vectors inside each transformer block so activations stay stable as depth and batch composition change.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Normalization layers rescale each hidden vector so its numeric spread stays in a predictable range before the next sublayer runs. In transformers, that usually means applying a layer-style norm across the features inside one token vector—computing statistics per position rather than across the whole minibatch. A learned scale and shift then let the model recover useful signal after the rescale."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Deep stacks multiply many matrix operations; without normalization, activations can drift or explode and training becomes fragile. Transformers favor layer norm or RMSNorm because sequence length and batch size change at inference time, while batch norm depends on batch-wide statistics that are unstable for variable-length text. Recognizing the normalization slot in each block helps you read whether a model uses pre-norm or post-norm placement around attention and the feed-forward network."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Picture one token vector leaving self-attention with uneven feature magnitudes. A layer norm step measures spread across that vector's dimensions, divides by a stabilized scale, and applies learned gain and bias. The feed-forward network then sees a well-scaled input. The same recipe repeats after the FFN before the residual add hands the vector to the next block."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Normalization is not the residual add: residuals preserve a skip path, while norm layers actively rescale activations. Layer norm and RMSNorm are the common transformer choices; batch norm is rare in decoder stacks because per-batch mean and variance are a poor fit for variable sequence batches. Finally, normalization does not mix tokens—each position is normalized on its own feature vector."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "Normalization layers keep each token's hidden vector on a stable scale inside transformer blocks, most often with per-position layer norm or RMSNorm instead of batch norm."
+}

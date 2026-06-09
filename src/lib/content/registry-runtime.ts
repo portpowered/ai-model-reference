@@ -1,4 +1,5 @@
 import activationConcept from "@/content/registry/concepts/activation.json";
+import alibiConcept from "@/content/registry/concepts/alibi.json";
 import alignmentConcept from "@/content/registry/concepts/alignment.json";
 import architectureConcept from "@/content/registry/concepts/architecture.json";
 import autoregressiveGenerationConcept from "@/content/registry/concepts/autoregressive-generation.json";
@@ -6,6 +7,8 @@ import backpropagationConcept from "@/content/registry/concepts/backpropagation.
 import componentConcept from "@/content/registry/concepts/component.json";
 import computationalGraphConcept from "@/content/registry/concepts/computational-graph.json";
 import conditioningConcept from "@/content/registry/concepts/conditioning.json";
+import contextExtensionConcept from "@/content/registry/concepts/context-extension.json";
+import contextWindowConcept from "@/content/registry/concepts/context-window.json";
 import decoderConcept from "@/content/registry/concepts/decoder.json";
 import denoisingGenerationConcept from "@/content/registry/concepts/denoising-generation.json";
 import diffusionModelConcept from "@/content/registry/concepts/diffusion-model.json";
@@ -15,6 +18,7 @@ import emergentBehaviorConcept from "@/content/registry/concepts/emergent-behavi
 import encoderConcept from "@/content/registry/concepts/encoder.json";
 import encoderDecoderConcept from "@/content/registry/concepts/encoder-decoder.json";
 import entropyConcept from "@/content/registry/concepts/entropy.json";
+import feedForwardNetworkConcept from "@/content/registry/concepts/feed-forward-network.json";
 import foundationModelConcept from "@/content/registry/concepts/foundation-model.json";
 import generalizationConcept from "@/content/registry/concepts/generalization.json";
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
@@ -22,26 +26,35 @@ import gradientConcept from "@/content/registry/concepts/gradient.json";
 import hiddenSizeConcept from "@/content/registry/concepts/hidden-size.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
+import layerNormConcept from "@/content/registry/concepts/layer-norm.json";
 import logitConcept from "@/content/registry/concepts/logit.json";
 import lossFunctionConcept from "@/content/registry/concepts/loss-function.json";
+import mixtureOfExpertsConcept from "@/content/registry/concepts/mixture-of-experts.json";
 import modalityConcept from "@/content/registry/concepts/modality.json";
 import modelConcept from "@/content/registry/concepts/model.json";
 import modelCapacityConcept from "@/content/registry/concepts/model-capacity.json";
 import moduleConcept from "@/content/registry/concepts/module.json";
 import multimodalModelConcept from "@/content/registry/concepts/multimodal-model.json";
+import normalizationConcept from "@/content/registry/concepts/normalization.json";
 import optimizerStateConcept from "@/content/registry/concepts/optimizer-state.json";
 import overfittingConcept from "@/content/registry/concepts/overfitting.json";
 import parameterConcept from "@/content/registry/concepts/parameter.json";
 import patchConcept from "@/content/registry/concepts/patch.json";
 import perplexityConcept from "@/content/registry/concepts/perplexity.json";
+import positionalEncodingsConcept from "@/content/registry/concepts/positional-encodings.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
+import residualConnectionConcept from "@/content/registry/concepts/residual-connection.json";
+import rmsnormConcept from "@/content/registry/concepts/rmsnorm.json";
+import ropeConcept from "@/content/registry/concepts/rope.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
+import transformerArchitectureConcept from "@/content/registry/concepts/transformer-architecture.json";
 import vectorConcept from "@/content/registry/concepts/vector.json";
+import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-context-is-hard.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
 import attention from "@/content/registry/modules/attention.json";
 import groupedQueryAttention from "@/content/registry/modules/grouped-query-attention.json";
@@ -109,6 +122,8 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(autoregressiveGenerationConcept),
   conceptRecordSchema.parse(denoisingGenerationConcept),
   conceptRecordSchema.parse(conditioningConcept),
+  conceptRecordSchema.parse(contextExtensionConcept),
+  conceptRecordSchema.parse(contextWindowConcept),
   conceptRecordSchema.parse(alignmentConcept),
   conceptRecordSchema.parse(modelCapacityConcept),
   conceptRecordSchema.parse(overfittingConcept),
@@ -116,9 +131,20 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(perplexityConcept),
   conceptRecordSchema.parse(scalingLawConcept),
   conceptRecordSchema.parse(emergentBehaviorConcept),
+  conceptRecordSchema.parse(feedForwardNetworkConcept),
+  conceptRecordSchema.parse(mixtureOfExpertsConcept),
+  conceptRecordSchema.parse(layerNormConcept),
+  conceptRecordSchema.parse(normalizationConcept),
+  conceptRecordSchema.parse(rmsnormConcept),
+  conceptRecordSchema.parse(alibiConcept),
+  conceptRecordSchema.parse(positionalEncodingsConcept),
+  conceptRecordSchema.parse(residualConnectionConcept),
+  conceptRecordSchema.parse(ropeConcept),
+  conceptRecordSchema.parse(transformerArchitectureConcept),
   conceptRecordSchema.parse(transformerConcept),
   conceptRecordSchema.parse(diffusionModelConcept),
   conceptRecordSchema.parse(multimodalModelConcept),
+  conceptRecordSchema.parse(whyLongContextIsHardConcept),
   conceptRecordSchema.parse(worldModelConcept),
 ];
 
