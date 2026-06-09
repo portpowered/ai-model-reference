@@ -17,8 +17,10 @@ export function isInsideExportIntegrationProbeLock(): boolean {
   return exportIntegrationProbeLockDepth > 0;
 }
 
-export function shouldSerializeExportIntegrationProbes(): boolean {
-  return process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+export function shouldSerializeExportIntegrationProbes(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  return env.CI === "true" || env.GITHUB_ACTIONS === "true";
 }
 
 /**
@@ -44,7 +46,7 @@ export function shouldRunServedPhase1CanonicalQueriesProbe(
   if (!shouldRunExportIntegrationProbeTests(env)) {
     return false;
   }
-  if (shouldSerializeExportIntegrationProbes()) {
+  if (shouldSerializeExportIntegrationProbes(env)) {
     return false;
   }
   return true;
