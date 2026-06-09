@@ -49,6 +49,7 @@ describe("export integration probe lock", () => {
     expect(shouldRunServedPhase1CanonicalQueriesProbe()).toBe(false);
 
     delete process.env.CI;
+    delete process.env.GITHUB_ACTIONS;
     expect(shouldRunServedPhase1CanonicalQueriesProbe()).toBe(true);
   });
 
