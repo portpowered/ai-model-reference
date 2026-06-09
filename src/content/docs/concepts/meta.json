@@ -1,0 +1,9 @@
+{
+  "title": "Concepts",
+  "pages": [
+    "[Context extension](/docs/concepts/context-extension)",
+    "[Positional encodings](/docs/concepts/positional-encodings)",
+    "[Transformer architecture](/docs/concepts/transformer-architecture)",
+    "[Why long context is hard](/docs/concepts/why-long-context-is-hard)"
+  ]
+}
