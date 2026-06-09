@@ -64,9 +64,9 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     expect(moduleGroup?.resources.map((resource) => resource.url)).toEqual([
       ...EXPECTED_ATTENTION_MODULE_URLS,
     ]);
-    expect(moduleGroup?.resources.every((resource) => resource.kind === "module")).toBe(
-      true,
-    );
+    expect(
+      moduleGroup?.resources.every((resource) => resource.kind === "module"),
+    ).toBe(true);
   });
 
   test("attention tag landing omits empty kind groups and sorts resources by title", async () => {
