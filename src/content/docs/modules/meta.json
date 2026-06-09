@@ -2,6 +2,12 @@
   "title": "Modules",
   "pages": [
     "[Attention](/docs/modules/attention)",
-    "[Grouped-Query Attention](/docs/modules/grouped-query-attention)"
+    "[Grouped-Query Attention](/docs/modules/grouped-query-attention)",
+    "[Linear Attention](/docs/modules/linear-attention)",
+    "[Multi-Head Attention](/docs/modules/multi-head-attention)",
+    "[Multi-Head Latent Attention](/docs/modules/multi-head-latent-attention)",
+    "[Multi-Query Attention](/docs/modules/multi-query-attention)",
+    "[Sliding-Window Attention](/docs/modules/sliding-window-attention)",
+    "[Sparse Attention](/docs/modules/sparse-attention)"
   ]
 }

@@ -127,6 +127,8 @@ describe("attention tag landing page render", () => {
     expect(html).toContain('href="/docs/modules/sliding-window-attention"');
     expect(html).toContain("Sparse Attention");
     expect(html).toContain('href="/docs/modules/sparse-attention"');
+    expect(html).toContain("Linear Attention");
+    expect(html).toContain('href="/docs/modules/linear-attention"');
     expect(html).toContain("Autoregressive Generation");
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain("Token");

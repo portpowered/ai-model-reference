@@ -131,11 +131,19 @@ describe("tags index messages", () => {
 });
 
 describe("tags index page render", () => {
-  it("lists Phase 1 attention and kv-cache tags with category labels and landing links", async () => {
+  it("lists foundational, attention, and kv-cache tags with category labels and landing links", async () => {
     const page = await TagsIndexPage();
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Tags");
+    expect(html).toContain("Foundations");
+    expect(html).toContain('href="/tags/foundations"');
+    expect(html).toContain("Taxonomy");
+    expect(html).toContain('href="/tags/taxonomy"');
+    expect(html).toContain("Model family");
+    expect(html).toContain('href="/tags/model-family"');
+    expect(html).toContain("Token-to-probability chain");
+    expect(html).toContain('href="/tags/token-to-probability-chain"');
     expect(html).toContain("Attention");
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain("Module type");
