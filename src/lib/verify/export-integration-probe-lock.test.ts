@@ -45,9 +45,9 @@ describe("export integration probe lock", () => {
   });
 
   test("skips served Phase 1 canonical query probe under CI serialization", () => {
-    expect(
-      shouldRunServedPhase1CanonicalQueriesProbe({ CI: "true" }),
-    ).toBe(false);
+    expect(shouldRunServedPhase1CanonicalQueriesProbe({ CI: "true" })).toBe(
+      false,
+    );
     expect(
       shouldRunServedPhase1CanonicalQueriesProbe({
         [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
