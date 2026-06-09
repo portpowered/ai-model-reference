@@ -58,10 +58,13 @@ describe("Phase 2 planned related docs (US-002)", () => {
     const html = renderToStaticMarkup(
       <RelatedDocs registryId="module.grouped-query-attention" />,
     );
+    expect(html).toContain('data-related-group="same-variant-group"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
+    expect(html).toContain('href="/docs/modules/multi-head-latent-attention"');
+    expect(html).toContain("Same variant group");
     expect(html).toContain("Curated related");
   });
 

@@ -27,6 +27,16 @@ function isTaxonomyConceptRecord(
   return isConceptRecord(record) && record.tags.includes("taxonomy");
 }
 
+function isFoundationsArchitectureConceptRecord(
+  record: ReturnType<typeof getRegistryRecord>,
+): boolean {
+  return (
+    isConceptRecord(record) &&
+    record.tags.includes("foundations") &&
+    !record.tags.includes("token-to-probability-chain")
+  );
+}
+
 export function isArchitectureRelatedPage(
   page: DocsPageSource,
   indexes: RegistryIndexes,
@@ -37,6 +47,14 @@ export function isArchitectureRelatedPage(
 
   const record = getRegistryRecord(indexes, page.frontmatter.registryId);
   if (isArchitectureConceptRecord(record)) {
+    return true;
+  }
+
+  if (
+    (page.frontmatter.kind === "glossary" ||
+      page.frontmatter.kind === "concept") &&
+    isFoundationsArchitectureConceptRecord(record)
+  ) {
     return true;
   }
 
