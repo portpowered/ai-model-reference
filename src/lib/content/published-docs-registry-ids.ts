@@ -9,6 +9,8 @@ export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
 /** Registry ids for docs pages with `status: published` in frontmatter. */
 export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "module.attention",
+  "module.multi-head-attention",
+  "module.multi-query-attention",
   "module.grouped-query-attention",
   "module.linear-attention",
   "module.multi-head-latent-attention",
