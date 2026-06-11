@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "build:export": "NEXT_STATIC_EXPORT=1 next build && bun ./scripts/emit-export-search-index.ts",
+    "build": "next build && bun ./scripts/write-build-source-fingerprint.ts",
+    "build:export": "NEXT_STATIC_EXPORT=1 next build && bun ./scripts/emit-export-search-index.ts && bun ./scripts/write-build-source-fingerprint.ts",
     "start": "next start",
     "lint": "biome check .",
     "format": "biome format --write .",
