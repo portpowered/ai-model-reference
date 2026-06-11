@@ -7,7 +7,7 @@ Reviewer-checkable rules for React Flow graphs on canonical docs pages. These st
 * [documentation-template](./documentation-template.md) — where graphs belong in page structure and how to reference `assetId`
 * [quality-documents-standards](./quality-documents-standards.md) — concise teaching tone for captions and alt text
 * [writing-standards](./writing-standards.md) — math vs narrative placement (no duplicate graph in math section)
-* [docs/internal/customer-ask.md](./internal/customer-ask.md) — GQA graph manual gate items (MHA vs GQA comparison, head counts, zoom/pan, readability)
+* [docs/temp/customer-ask.md](./internal/customer-ask.md) — GQA graph manual gate items (MHA vs GQA comparison, head counts, zoom/pan, readability)
 
 When this document conflicts with older graph assets or pipeline-style diagrams, follow this document and the customer ask.
 

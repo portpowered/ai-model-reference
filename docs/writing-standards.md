@@ -6,7 +6,7 @@ Reviewer-checkable rules for canonical docs pages (modules, models, papers, conc
 
 * [quality-documents-standards](./quality-documents-standards.md) — compact, persuasive, layperson-readable tone
 * [documentation-template](./documentation-template.md) — page structure, component contracts, and asset placement
-* [docs/internal/customer-ask.md](./internal/customer-ask.md) — current Phase 1 customer ask and manual gate checklist (GQA graph, math, and template items)
+* [docs/temp/customer-ask.md](./internal/customer-ask.md) — current Phase 1 customer ask and manual gate checklist (GQA graph, math, and template items)
 
 When this document conflicts with older template prose or legacy page examples, follow this document and the customer ask.
 

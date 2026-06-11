@@ -55,4 +55,4 @@ turbopack: {
 1. Capture the **exact** warning excerpt and import trace from build output.
 2. Identify which guarded pattern matched (`firstMatchingTurbopackTracingWarningPattern`).
 3. Prefer fixing import graph / loader scoping over silencing diagnostics.
-4. Document excerpt, trace, root cause, mitigations tried, and follow-up in this file and `progress.txt` before accepting residual warnings.
+4. Document excerpt, trace, root cause, mitigations tried, and follow-up in this file and `progress.md` before accepting residual warnings.
