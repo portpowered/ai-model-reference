@@ -2,8 +2,6 @@
 
 Docs pages are shared MDX structures that combine registry-backed React components, message-key references, and asset references. Localized prose lives in colocated `messages/<locale>.json` files next to each page.
 
-Authoring agents and reviewers must follow [writing-standards](./writing-standards.md) and [graphing-standards](./graphing-standards.md) for summary tone, math placement, graph placement, and baseline exclusions (no reader-shortcut callouts, no phase/meta language).
-
 For canonical docs pages, templates should be production-shaped. They should not contain authoring instructions, placeholder body prose, hard-coded section headings, raw callout titles, manually written comparison lists, inline schema examples, or concrete media paths. Those values belong in colocated messages, registry records, or asset config. The template itself defines order and component shape only.
 
 Blog templates are the exception. Blog posts may contain raw MDX prose because they are narrative, time-specific writing rather than reusable reference structure. Blog posts should still use messages and assets when they need localization or reusable media.

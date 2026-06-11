@@ -1,14 +1,25 @@
 # Writing Standards
 
-Reviewer-checkable rules for canonical docs pages (modules, models, papers, concepts, training regimes, and glossary entries). These standards fold Phase 1 customer feedback and prior GQA repair lessons into durable authoring guidance.
+Reviewer-checkable rules for canonical docs pages (modules, models, papers, concepts, training regimes, and glossary entries).
 
 ## Related references
-
-* [quality-documents-standards](./quality-documents-standards.md) — compact, persuasive, layperson-readable tone
 * [documentation-template](./documentation-template.md) — page structure, component contracts, and asset placement
-* [docs/temp/customer-ask.md](./internal/customer-ask.md) — current Phase 1 customer ask and manual gate checklist (GQA graph, math, and template items)
 
-When this document conflicts with older template prose or legacy page examples, follow this document and the customer ask.
+## How to use, please review each document per this checklist and submit this as part of the PR.
+
+[] Does the document follow the principles and standards of https://en.wikipedia.org/wiki/The_Elements_of_Style
+[] Does the document conform the principles and standards of https://www.amazon.com/BUGS-Writing-Revised-Guide-Debugging/dp/020137921X
+[] Does the document clearly describe what it is intended in the fewest words possible
+[] Does the document read as if some layman could understand it (a college educated person - not necessarily an engineer)
+[] Does the document not go of on random tangents and focuses primarily on the topic. 
+[] Does the document not presume any pre-requisite documented knowledge. 
+[] Does it properly reference claims it makes?
+[] Does it practice the standard of progressive presentation? 1 line problem statmeent, X solution/overview, Y letter content. 
+[] Does the document have no signs of AI tone. i.e. per https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing.
+- [] "em dashes", "oxford commas", etc.
+- [] this isn't X. It's Y.  or variants of that structure. 
+- [] "curious if"
+- [] "and honestly?" .... or variants of that structure. 
 
 ## Summary pattern
 
@@ -102,6 +113,15 @@ Baseline templates must **not** include reader-shortcut callouts.
 * **Math or compute schema** — equations and symbol definitions only; no second React Flow canvas.
 * **Compared to nearby modules** — tables and short contrast prose; not a substitute for the comparison graph.
 * **Related / tags / references** — derived or registry-backed; avoid hand-maintained duplicate lists.
+
+a high quality document is defined by these checklisted attributes
+
+1. it aligns with the feedback of strunk and white. 
+2. it aligns with the feedback of bugs in writing
+3. it follows standards of chicago school of writing (persuasive, compacted, minimalist)
+4. it has a short 1 line problem statement for each doc. it follows immediately with a 1 line statement on what the overall concept of the paper is. 
+5. it writes in a very clear, human readable, technical tone, meant for lay individuals.
+
 
 ## Reviewer checklist (writing)
 

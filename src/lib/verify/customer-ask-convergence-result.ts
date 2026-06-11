@@ -17,6 +17,6 @@ export type CustomerAskConvergenceRow = {
   query?: string;
   /** Failure or uncertain explanation; omitted on pass. */
   reason?: string;
-  /** Reference into docs/internal/checklist.md or customer-ask inventory rows. */
+  /** Reference into docs/temp/checklist.md or customer-ask inventory rows. */
   checklistRow: string;
 };
