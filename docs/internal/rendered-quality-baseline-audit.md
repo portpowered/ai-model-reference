@@ -1,8 +1,8 @@
 # Rendered quality baseline audit
 
-Audited at (UTC): 2026-06-11T12:25:46.054Z
+Audited at (UTC): 2026-06-11T12:58:44.074Z
 Routes visited: 14
-Viewport checks: 28
+Viewport checks: 30
 
 ## Standards baseline
 
@@ -16,5 +16,5 @@ No high-impact rendered failures were recorded in this audit pass.
 ## Manual follow-up
 
 - Re-run `bun run verify:rendered-quality-baseline` after `make build` when validating fixes from stories 002–007.
-- Pair this report with direct browser checks on desktop and mobile for focus, keyboard navigation, and graph pan/zoom when those lanes are in scope.
+- Graph pan/zoom and MHA/GQA toggle probes run automatically for grouped-query-attention during this audit; pair remaining manual checks with desktop and mobile focus and keyboard navigation when those lanes are in scope.
 
