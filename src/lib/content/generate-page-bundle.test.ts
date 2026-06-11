@@ -26,7 +26,11 @@ async function pathExists(path: string): Promise<boolean> {
 }
 
 async function createTemplateFixtureRoot(): Promise<string> {
-  const tempRoot = join(import.meta.dir, "__generate-fixtures__", crypto.randomUUID());
+  const tempRoot = join(
+    import.meta.dir,
+    "__generate-fixtures__",
+    crypto.randomUUID(),
+  );
   const { cp } = await import("node:fs/promises");
   await mkdir(join(tempRoot, "docs", "templates"), { recursive: true });
   await cp(

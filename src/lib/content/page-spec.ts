@@ -3,12 +3,15 @@ import { z } from "zod";
 import {
   conceptTypeSchema,
   mathLevelSchema,
+  modelModalitySchema,
+  modelSourceTypeSchema,
   moduleTypeSchema,
   type PageFrontmatter,
   type PageKind,
   pageAssetConfigSchema,
   pageGraphMessagesSchema,
   registryStatusSchema,
+  trainingRegimeTypeSchema,
 } from "./schemas";
 
 export const PAGE_SPEC_KINDS = [
@@ -22,30 +25,11 @@ export const PAGE_SPEC_KINDS = [
 
 export type PageSpecKind = (typeof PAGE_SPEC_KINDS)[number];
 
-export const modelSourceTypeSchema = z.enum([
-  "open-weights",
-  "closed",
-  "research",
-  "unknown",
-]);
-
-export const modelModalitySchema = z.enum([
-  "text",
-  "image",
-  "audio",
-  "video",
-  "multimodal",
-]);
-
-export const trainingRegimeTypeSchema = z.enum([
-  "pretraining",
-  "post-training",
-  "rl",
-  "distillation",
-  "optimization",
-  "alignment",
-  "other",
-]);
+export {
+  modelModalitySchema,
+  modelSourceTypeSchema,
+  trainingRegimeTypeSchema,
+} from "./schemas";
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
