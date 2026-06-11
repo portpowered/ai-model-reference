@@ -77,7 +77,7 @@ describe("non-module page template convergence", () => {
       expect(template).not.toContain("callouts.readerShortcut");
 
       if (openingSummaryInMdx) {
-        expect(template).toContain('<T k="openingSummary" />');
+        expect(template).toContain("<FoldedSummary />");
       } else {
         expect(template).not.toContain('<T k="openingSummary" />');
         expect(template).not.toContain("<GlossaryOpening />");
