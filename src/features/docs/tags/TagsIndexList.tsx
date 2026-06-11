@@ -34,7 +34,7 @@ export function TagsIndexList({ groups, listLabel }: TagsIndexListProps) {
                       {tag.title}
                     </span>
                     <ArrowRight
-                      className="size-4 text-primary opacity-0 transition-opacity group-hover:opacity-100"
+                      className="size-4 text-primary opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
                       aria-hidden
                     />
                     <span className="max-w-full break-all rounded-md border border-border bg-background px-1.5 py-0.5 text-xs text-muted-foreground">

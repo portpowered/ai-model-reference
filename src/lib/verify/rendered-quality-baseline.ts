@@ -13,6 +13,16 @@ import {
   assertGroupedQueryAttentionSingleGraphConvergence,
 } from "./grouped-query-attention-module-convergence";
 import {
+  ATTENTION_TAG_ACCESSIBILITY_ROUTE,
+  assertAttentionTagAccessibilityConvergence,
+  assertGroupedQueryAttentionAccessibilityConvergence,
+  assertSearchPageAccessibilityConvergence,
+  assertTagsIndexAccessibilityConvergence,
+  GQA_ACCESSIBILITY_ROUTE,
+  SEARCH_ACCESSIBILITY_ROUTE,
+  TAGS_INDEX_ACCESSIBILITY_ROUTE,
+} from "./rendered-quality-accessibility-convergence";
+import {
   assertBackpropagationRichContentConvergence,
   assertGroupedQueryAttentionRichContentConvergence,
   BACKPROPAGATION_RICH_CONTENT_ROUTE,
@@ -448,6 +458,39 @@ export function auditRenderedQualityHtml(
         lane: "overflow",
         behavior: "rich content overflow guards",
         detail: richContentFailure,
+      });
+    }
+  }
+
+  const accessibilityChecks: Array<
+    readonly [string, (html: string) => string | null]
+  > = [
+    [SEARCH_ACCESSIBILITY_ROUTE, assertSearchPageAccessibilityConvergence],
+    [TAGS_INDEX_ACCESSIBILITY_ROUTE, assertTagsIndexAccessibilityConvergence],
+    [
+      ATTENTION_TAG_ACCESSIBILITY_ROUTE,
+      assertAttentionTagAccessibilityConvergence,
+    ],
+    [
+      GQA_ACCESSIBILITY_ROUTE,
+      assertGroupedQueryAttentionAccessibilityConvergence,
+    ],
+  ];
+
+  for (const [path, assertAccessibility] of accessibilityChecks) {
+    if (route.path !== path) {
+      continue;
+    }
+
+    const accessibilityFailure = assertAccessibility(visibleHtml);
+    if (accessibilityFailure) {
+      issues.push({
+        route: route.path,
+        routeLabel: route.label,
+        viewport,
+        lane: "accessibility",
+        behavior: "keyboard and focus contract",
+        detail: accessibilityFailure,
       });
     }
   }

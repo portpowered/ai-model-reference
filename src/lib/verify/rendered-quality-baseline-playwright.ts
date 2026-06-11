@@ -5,6 +5,12 @@ import {
   launchPlaywrightBrowser,
 } from "./launch-playwright-browser";
 import {
+  ATTENTION_TAG_ACCESSIBILITY_ROUTE,
+  GQA_ACCESSIBILITY_ROUTE,
+  SEARCH_ACCESSIBILITY_ROUTE,
+  TAGS_INDEX_ACCESSIBILITY_ROUTE,
+} from "./rendered-quality-accessibility-convergence";
+import {
   auditRenderedQualityHtml,
   auditRenderedQualityOverflow,
   buildRenderedQualityAuditResult,
@@ -16,6 +22,11 @@ import {
   type RenderedQualityIssue,
   type RenderedQualityViewport,
 } from "./rendered-quality-baseline";
+import {
+  collectGqaKeyboardAccessibilityIssues,
+  collectSearchKeyboardAccessibilityIssues,
+  collectTagLinkKeyboardAccessibilityIssues,
+} from "./rendered-quality-baseline-accessibility";
 import {
   auditRenderedQualityGraphInteraction,
   GQA_GRAPH_INTERACTION_ROUTE,
@@ -298,6 +309,7 @@ export async function runRenderedQualityBaselineAudit(
   const overflowIssueGroups: RenderedQualityIssue[][] = [];
   const graphInteractionIssueGroups: RenderedQualityIssue[][] = [];
   const richContentIssueGroups: RenderedQualityIssue[][] = [];
+  const accessibilityIssueGroups: RenderedQualityIssue[][] = [];
   const gqaRoute = routes.find(
     (route) => route.path === GQA_GRAPH_INTERACTION_ROUTE,
   );
@@ -352,6 +364,86 @@ export async function runRenderedQualityBaselineAudit(
         );
         richContentIssueGroups.push(richContentIssues);
       }
+
+      if (shouldAuditSupplementaryRichContent) {
+        const searchRoute = routes.find(
+          (route) => route.path === SEARCH_ACCESSIBILITY_ROUTE,
+        );
+        if (searchRoute) {
+          await page.setViewportSize({
+            width: viewport.width,
+            height: viewport.height,
+          });
+          accessibilityIssueGroups.push(
+            await collectSearchKeyboardAccessibilityIssues(
+              page,
+              searchRoute,
+              viewport.id,
+              normalizeVerifyBaseUrl(baseUrl),
+              timeoutMs,
+            ),
+          );
+        }
+
+        const tagsRoute = routes.find(
+          (route) => route.path === TAGS_INDEX_ACCESSIBILITY_ROUTE,
+        );
+        if (tagsRoute) {
+          await page.setViewportSize({
+            width: viewport.width,
+            height: viewport.height,
+          });
+          accessibilityIssueGroups.push(
+            await collectTagLinkKeyboardAccessibilityIssues(
+              page,
+              tagsRoute,
+              viewport.id,
+              normalizeVerifyBaseUrl(baseUrl),
+              timeoutMs,
+              'a[href^="/tags/"]',
+            ),
+          );
+        }
+
+        const attentionTagRoute = routes.find(
+          (route) => route.path === ATTENTION_TAG_ACCESSIBILITY_ROUTE,
+        );
+        if (attentionTagRoute) {
+          await page.setViewportSize({
+            width: viewport.width,
+            height: viewport.height,
+          });
+          accessibilityIssueGroups.push(
+            await collectTagLinkKeyboardAccessibilityIssues(
+              page,
+              attentionTagRoute,
+              viewport.id,
+              normalizeVerifyBaseUrl(baseUrl),
+              timeoutMs,
+              'a[href^="/docs/"]',
+            ),
+          );
+        }
+
+        const gqaAccessibilityRoute = routes.find(
+          (route) => route.path === GQA_ACCESSIBILITY_ROUTE,
+        );
+        if (gqaAccessibilityRoute) {
+          await page.setViewportSize({
+            width: viewport.width,
+            height: viewport.height,
+          });
+          accessibilityIssueGroups.push(
+            await collectGqaKeyboardAccessibilityIssues(
+              page,
+              gqaAccessibilityRoute,
+              viewport.id,
+              normalizeVerifyBaseUrl(baseUrl),
+              timeoutMs,
+            ),
+          );
+        }
+      }
     }
   } finally {
     await closePlaywrightBrowserWithTimeout(browser);
@@ -362,10 +454,14 @@ export async function runRenderedQualityBaselineAudit(
     ...overflowIssueGroups,
     ...graphInteractionIssueGroups,
     ...richContentIssueGroups,
+    ...accessibilityIssueGroups,
   ]);
 
   const graphInteractionChecks = gqaRoute ? viewports.length : 0;
   const richContentChecks = richContentRoutes.length * viewports.length;
+  const accessibilityChecks = shouldAuditSupplementaryRichContent
+    ? viewports.length * 4
+    : 0;
 
   return buildRenderedQualityAuditResult({
     issues,
@@ -373,6 +469,7 @@ export async function runRenderedQualityBaselineAudit(
     viewportChecks:
       routes.length * viewports.length +
       graphInteractionChecks +
-      richContentChecks,
+      richContentChecks +
+      accessibilityChecks,
   });
 }
