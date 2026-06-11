@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { writeBuildSourceFingerprint } from "./build-source-fingerprint";
 import {
   readBuiltHtmlForConvergenceTests,
   shouldRunBuiltHtmlFileConvergenceTests,
@@ -53,6 +54,13 @@ describe("built-html convergence test helpers", () => {
       join(projectRoot, ".next", "server", "app", "index.html"),
       "<html>ready</html>",
     );
+    writeBuildSourceFingerprint(projectRoot, "fresh-build-stamp");
+
+    expect(shouldRunBuiltHtmlFileConvergenceTests(projectRoot, {})).toBe(false);
+
+    writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}');
+    writeFileSync(join(projectRoot, "bun.lock"), "lock");
+    writeBuildSourceFingerprint(projectRoot);
 
     expect(shouldRunBuiltHtmlFileConvergenceTests(projectRoot, {})).toBe(true);
     expect(

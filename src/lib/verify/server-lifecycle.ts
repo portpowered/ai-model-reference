@@ -5,6 +5,7 @@ import {
 } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { isNextProductionBuildFresh } from "./build-source-fingerprint";
 import {
   DEFAULT_FETCH_TIMEOUT_MS,
   httpGetStatus,
@@ -143,7 +144,10 @@ export function shouldRunVerifyProductionIntegrationTests(
   if (env[VERIFY_COVERAGE_SUBPROCESS_ENV] === "1") {
     return false;
   }
-  return hasCompleteNextProductionBuild(projectRoot);
+  return (
+    hasCompleteNextProductionBuild(projectRoot) &&
+    isNextProductionBuildFresh(projectRoot)
+  );
 }
 
 export function assertNextProductionBuild(

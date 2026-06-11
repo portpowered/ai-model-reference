@@ -4,6 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { writeBuildSourceFingerprint } from "./build-source-fingerprint";
 import {
   httpGetStatus,
   isListenPortFree,
@@ -273,10 +274,13 @@ describe("assertNextProductionBuild", () => {
     ).toBe(false);
   });
 
-  test("allows production integration tests when BUILD_ID is present", () => {
+  test("allows production integration tests when BUILD_ID is present and fingerprint matches", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-complete-next-"));
     mkdirSync(join(projectRoot, ".next"), { recursive: true });
     writeFileSync(join(projectRoot, ".next", "BUILD_ID"), "test-build");
+    writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}');
+    writeFileSync(join(projectRoot, "bun.lock"), "lock");
+    writeBuildSourceFingerprint(projectRoot);
 
     try {
       expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
@@ -288,7 +292,23 @@ describe("assertNextProductionBuild", () => {
     }
   });
 
-  test("allows production integration tests when Next.js 16 Turbopack build markers are present", () => {
+  test("skips production integration tests when build markers exist but fingerprint is stale", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-stale-next-"));
+    mkdirSync(join(projectRoot, ".next"), { recursive: true });
+    writeFileSync(join(projectRoot, ".next", "BUILD_ID"), "test-build");
+    writeBuildSourceFingerprint(projectRoot, "stale:fingerprint:stamp:values");
+
+    try {
+      expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
+      expect(shouldRunVerifyProductionIntegrationTests(projectRoot, {})).toBe(
+        false,
+      );
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("allows production integration tests when Next.js 16 Turbopack build markers and fingerprint match", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-turbopack-next-"));
     mkdirSync(join(projectRoot, ".next", "server"), { recursive: true });
     writeFileSync(
@@ -296,6 +316,9 @@ describe("assertNextProductionBuild", () => {
       "{}",
     );
     writeFileSync(join(projectRoot, ".next", "build-manifest.json"), "{}");
+    writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}');
+    writeFileSync(join(projectRoot, "bun.lock"), "lock");
+    writeBuildSourceFingerprint(projectRoot);
 
     try {
       expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
