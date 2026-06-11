@@ -35,8 +35,8 @@
   },
   "assets": {
     "conceptMap": {
-      "alt": "Draft placeholder for Page Spec Workflow Sample. Replace before publishing.",
-      "caption": "Draft placeholder for Page Spec Workflow Sample. Replace before publishing."
+      "alt": "Diagram mapping a page spec input to the generated page bundle files.",
+      "caption": "How one page spec drives page.mdx, messages, assets, and registry output."
     }
   },
   "graph": {

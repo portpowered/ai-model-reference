@@ -29,11 +29,22 @@ describe("validatePageSpec", () => {
           body: "Concept body copy.",
         },
       },
+      assetMessages: {
+        conceptMap: {
+          alt: "Diagram alt from page spec.",
+          caption: "Caption from page spec.",
+        },
+      },
     });
 
     expect(spec.kind).toBe("concept");
     expect(registryIdForPageSpec(spec)).toBe("concept.example-page");
     expect(registryKindForPageSpec(spec)).toBe("concept");
+    if (spec.kind === "concept") {
+      expect(spec.assetMessages?.conceptMap.alt).toBe(
+        "Diagram alt from page spec.",
+      );
+    }
   });
 
   test("accepts a valid glossary page spec with concept registry kind", () => {

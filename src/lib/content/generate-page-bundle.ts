@@ -311,6 +311,16 @@ function buildPageMessages(
     };
   }
 
+  if (spec.assetMessages) {
+    const mergedAssets = mergeRecordSection(
+      messages.assets as Record<string, Record<string, unknown>> | undefined,
+      spec.assetMessages as Record<string, Record<string, unknown>>,
+    );
+    if (mergedAssets) {
+      messages.assets = mergedAssets;
+    }
+  }
+
   const draftNote = `Draft placeholder for ${spec.title}. Replace before publishing.`;
   const filled = fillEmptyDraftStrings(messages, draftNote) as Record<
     string,

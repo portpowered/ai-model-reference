@@ -32,6 +32,12 @@
       "body": "Generated MDX should reference message keys; reader-facing prose belongs in messages/en.json."
     }
   },
+  "assetMessages": {
+    "conceptMap": {
+      "alt": "Diagram mapping a page spec input to the generated page bundle files.",
+      "caption": "How one page spec drives page.mdx, messages, assets, and registry output."
+    }
+  },
   "graph": {
     "nodes": {
       "pageSpec": {
