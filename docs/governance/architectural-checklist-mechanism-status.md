@@ -12,7 +12,7 @@ planner-owned checklists from observable facts rather than assumptions.
 
 | Field | Value |
 | --- | --- |
-| **Last reviewed (UTC)** | 2026-06-11 |
+| **Last reviewed (UTC)** | 2026-06-11 (category audit pass, story 002) |
 | **Review scope** | Phase 1 governance pass: map checklist category sections to repository mechanisms, separate operator-owned controls from source-controlled gates, and prepare focused local enforcement for feasible gaps. |
 | **Source checklist** | [docs/architectural-checklist.md](../architectural-checklist.md) |
 | **Artifact path** | `docs/governance/architectural-checklist-mechanism-status.md` |
@@ -139,8 +139,335 @@ comments. Do not commit secrets or credentials to satisfy this artifact.
 
 ## Category entries
 
-Category audits are populated in subsequent governance iterations. Each index row
-above must gain a filled entry before the pass is complete.
+### Website fundamentals > Operational
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | CI runs on pull requests and `main` pushes; static export deploys to GitHub Pages on `main` via a separate workflow. Lockfile-backed installs, release/rollback guidance, and SHA traceability are documented. PR preview deploys and GitHub branch protection are not enforced from repository source. |
+| **Repository evidence** | `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`, `docs/operations.md`, `bun.lock`, `Makefile` (`ci`, `build-export`), `src/tests/ci/github-actions-*.test.ts`, `src/tests/ci/operations-documentation.test.ts` |
+| **Verification commands** | `make ci`, `make build-export`, `bun test src/tests/ci` |
+| **Gaps** | No PR preview deployment workflow; branch protection rules live in GitHub settings only; `make validate-pdf` is stubbed; environment secrets and Pages UI settings are operator-owned. |
+| **Follow-up or operator requirement** | Configure GitHub branch protection per `docs/operations.md`; treat preview deploys as deferred Phase 1 scope. |
+
+### Testing
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | The repository has broad unit, integration, build-export, search, layout, and axe-based accessibility tests. `make ci` runs typecheck, lint, tests, manifest-scoped coverage, build, registry validation, and linkcheck. Storybook, Lighthouse CI, visual regression, and accessibility-in-CI are not present. |
+| **Repository evidence** | `src/tests/**`, `Makefile` (`ci`, `test`, `coverage`), `package.json` (`test`, `coverage`), `scripts/component-coverage-gate.ts`, `src/lib/docs/component-coverage-gate.ts`, `src/tests/a11y/*.a11y.test.tsx`, `.github/workflows/ci.yml` |
+| **Verification commands** | `bun test`, `make ci`, `make coverage` |
+| **Gaps** | No Storybook; no Lighthouse or performance regression suite in CI; accessibility tests exist but are not part of `make ci`; no visual regression harness; math/MDX rendering lacks dedicated CI contract beyond page-level tests. |
+| **Follow-up or operator requirement** | Add focused a11y gate to CI or document explicit deferral; evaluate Storybook vs existing `component-examples` harness for visual review. |
+
+### System structure
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | The codebase follows feature-oriented boundaries (`src/features/docs`, `src/features/models`), shared layout/UI components, and framework-agnostic `src/lib` utilities. ML graph rendering is isolated under `src/features/models`. Design tokens are inlined in CSS rather than a dedicated `src/tokens` package, and no Zustand state layer is present. |
+| **Repository evidence** | `src/features/`, `src/components/`, `src/lib/`, `src/app/`, `src/app/globals.css`, `docs/architecture.md`, `docs/code-standards.md` |
+| **Verification commands** | `bun run typecheck` |
+| **Gaps** | Checklist expects `src/tokens/` and optional Zustand feature state; blog feature directory absent; some checklist package-boundary exports not modeled via `package.json` exports. |
+| **Follow-up or operator requirement** | Extract shared tokens module or document CSS-variable approach as the Phase 1 token source of truth. |
+
+### Component quality
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | Reusable docs and model components include tests, variant styling via Tailwind/shadcn patterns, and explicit empty/missing fallbacks (`MissingMessageKey`, `DocsIndexEmptyState`). A dev `component-examples` gallery supplements Storybook-style review. Not every interactive component has full state-matrix or keyboard-navigation tests. |
+| **Repository evidence** | `src/features/docs/components/*.test.tsx`, `src/features/models/components/*.test.tsx`, `src/components/ui/button.tsx`, `src/app/(dev)/component-examples/`, `scripts/component-examples.ts`, `src/lib/docs/component-manifest.ts` |
+| **Verification commands** | `bun test src/features`, `bun run component-examples` |
+| **Gaps** | No Storybook catalog; loading/error/success coverage is uneven across components; keyboard and responsive variant matrices are not uniformly tested. |
+| **Follow-up or operator requirement** | Extend component coverage manifest for remaining reusable surfaces. |
+
+### Viewports
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | Layout and docs chrome use Tailwind responsive utilities; React Flow graph viewers support pan/zoom interactions tested in build and module convergence suites. There is no dedicated viewport regression matrix across mobile/tablet/desktop breakpoints. |
+| **Repository evidence** | `src/app/globals.css`, `src/features/models/components/RegistryGraphFlow.tsx`, `src/components/layout/canonical-docs-layout.tsx`, `src/tests/layout/phase-1-shell-contract.test.tsx`, `src/lib/verify/phase-1-ux-verifier.ts` |
+| **Verification commands** | `bun test src/tests/layout`, `bun run verify:export-search-ux` |
+| **Gaps** | No systematic small-screen navigation/table/graph usability gate; touch and hover-alternative coverage is implicit only. |
+| **Follow-up or operator requirement** | Add viewport-focused Playwright or CSS contract checks for primary docs routes. |
+
+### Package structure
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | Core App Router, feature, content, lib, and scripts layout matches the checklist intent. Deviations include absent `src/content/blog`, `src/app/blog`, `src/app/print`, `src/tokens`, and `src/features/blog` paths that the checklist still describes as required. |
+| **Repository evidence** | `src/app/`, `src/features/`, `src/content/`, `src/lib/`, `scripts/validate-links.ts`, `scripts/validate-registry.ts`, `source.config.ts`, `biome.json`, `docs/architectural-checklist.md` (Package structure section) |
+| **Verification commands** | `bun run typecheck`, `make validate-data` |
+| **Gaps** | Blog, print/PDF, and dedicated tokens directories from the checklist contract are not present; `package.json` does not define subpath exports. |
+| **Follow-up or operator requirement** | Track blog/PDF scaffold work separately; update checklist or add missing directories when those features land. |
+
+### Pages
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | Docs pages are statically generated from colocated MDX and messages under `src/content/docs`. Home, docs index, tag landing, search, and glossary routes compose feature components with metadata helpers. Blog and print-safe page routes are not implemented. |
+| **Repository evidence** | `src/app/docs/[[...slug]]/page.tsx`, `src/app/(site)/page.tsx`, `src/app/(site)/tags/[slug]/page.tsx`, `src/app/(site)/search/page.tsx`, `source.config.ts`, `src/lib/content/`, Fumadocs layout in `src/app/docs/layout.tsx` |
+| **Verification commands** | `make build`, `bun test src/tests/content`, `bun test src/tests/discovery` |
+| **Gaps** | No blog post routes; no print/PDF page routes; versioned docs and changelog pages not present. |
+| **Follow-up or operator requirement** | Implement blog and print routes or mark checklist rows deferred with explicit status updates. |
+
+### Accessibility
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | axe-core accessibility tests cover primary navigation, docs sidebar, search dialog, glossary token rendering, and representative docs components. Semantic HTML and focusable controls appear in layout and search components. WCAG contrast and CI enforcement are not automated in `make ci`. |
+| **Repository evidence** | `src/tests/a11y/`, `axe-core` in `package.json`, `src/components/layout/primary-nav.ts`, `src/features/docs/search/SearchDialog.tsx`, `src/features/docs/search/SearchTrigger.tsx` |
+| **Verification commands** | `bun test src/tests/a11y` |
+| **Gaps** | Accessibility suite is not part of `make ci`; no automated color-contrast gate; graph textual summaries exist on some pages but are not uniformly enforced. |
+| **Follow-up or operator requirement** | Wire `src/tests/a11y` into CI or a dedicated `make a11y` target referenced from `make ci`. |
+
+### Localization
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | Page and registry text use colocated `messages/en.json` files and UI message loaders. The information architecture supports additional locales, but only English content ships today and locale routing/translation-missing detection is not enforced in CI. |
+| **Repository evidence** | `src/content/**/messages/en.json`, `src/lib/content/ui-messages.ts`, `src/lib/content/ui-messages-load.ts`, `src/lib/content/tag-messages.ts`, `docs/templates/*.messages.en.json` |
+| **Verification commands** | `bun test src/tests/content/ui-messages.test.ts` |
+| **Gaps** | No non-English locales in content; no locale-prefixed routes; no CI check for missing translation keys; date/number localization not implemented. |
+| **Follow-up or operator requirement** | Add translation completeness validator when a second locale is introduced. |
+
+### Quality
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | Biome lint/format, TypeScript strict mode, Bun tests, manifest-scoped coverage, build/export validation, registry validation, and internal linkcheck run through `make ci`. Dependency security scans, bundle-size tracking, performance budgets, and global dead-code detection are not automated. |
+| **Repository evidence** | `biome.json`, `tsconfig.json` (`strict: true`), `Makefile` (`ci`), `package.json`, `scripts/validate-registry.ts`, `scripts/validate-links.ts`, `scripts/component-coverage-gate.ts`, `.github/workflows/ci.yml` |
+| **Verification commands** | `make ci`, `bun run lint`, `bun run typecheck` |
+| **Gaps** | No Dependabot/npm-audit gate; no bundle analyzer or Lighthouse budget in CI; MDX prose lint is manual via `docs/writing-standards.md`. |
+| **Follow-up or operator requirement** | Add dependency scan workflow or document operator-owned security review cadence. |
+
+### Build systems
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | Bun drives install, scripts, and tests; the root `Makefile` exposes `ci`, `test`, `coverage`, `build`, `build-export`, `validate-data`, and `linkcheck` aligned with CI. PDF validation and generation targets are stubbed or absent; checklist-listed accessibility and PDF steps are not in `make ci`. |
+| **Repository evidence** | `Makefile`, `package.json`, `bun.lock`, `.github/workflows/ci.yml`, `scripts/validate-registry.ts`, `scripts/validate-links.ts` |
+| **Verification commands** | `make ci`, `make build`, `make build-export`, `make linkcheck`, `make validate-data` |
+| **Gaps** | `make validate-pdf` exits successfully without validating; no `make pdf` targets; `make ci` omits a11y checks the checklist associates with CI. |
+| **Follow-up or operator requirement** | Implement PDF scripts or keep explicit `missing` status in PDF Export Contract entry until implemented. |
+
+### Website-specific decisions > Technology decisions
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | The site is a TypeScript Next.js App Router project using Bun, Fumadocs MDX, Tailwind CSS variables, shadcn/ui primitives, React Flow graphs, Recharts (where used), KaTeX math, and Orama-backed search with static export support. PDF export and full blog stack described in the checklist are not yet in the tree. |
+| **Repository evidence** | `package.json`, `next.config.ts`, `source.config.ts`, `src/app/api/search/route.ts`, `src/features/models/components/RegistryGraphFlow.tsx`, `src/features/docs/components/Math.tsx`, `scripts/emit-export-search-index.ts` |
+| **Verification commands** | `make build-export`, `bun test src/tests/build` |
+| **Gaps** | PDF pipeline and blog authoring paths missing; Magic UI usage is minimal/optional and not centrally cataloged. |
+| **Follow-up or operator requirement** | Land print/PDF routes before claiming PDF support as implemented. |
+
+### Website-specific decisions > App Structure Contract
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | Root layout, docs catch-all route, tag/search surfaces, registry-backed content loaders, and feature-owned docs/models rendering match the documented contract. Blog routes, print routes, and some checklist-listed feature paths are absent. |
+| **Repository evidence** | `src/app/layout.tsx`, `src/app/docs/[[...slug]]/page.tsx`, `src/app/(site)/tags/`, `src/app/(site)/search/page.tsx`, `src/features/docs/`, `src/features/models/`, `src/lib/content/`, `src/lib/search/`, `docs/architecture.md` |
+| **Verification commands** | `bun run typecheck`, `bun test src/tests/layout` |
+| **Gaps** | `src/features/blog`, `src/content/blog`, and `src/app/print/**` not present; `src/lib/seo` helpers may be partial vs checklist enumeration. |
+| **Follow-up or operator requirement** | Add blog/print app structure or revise checklist contract after explicit deferral. |
+
+### Website-specific decisions > Routing Contract
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | `/`, `/docs/**`, `/tags/**`, `/search`, and glossary/architecture index routes are implemented and covered by static-route and convergence tests. Blog and print URL families from the checklist are not routable. |
+| **Repository evidence** | `src/app/(site)/page.tsx`, `src/app/docs/[[...slug]]/page.tsx`, `src/app/(site)/tags/[slug]/page.tsx`, `src/app/(site)/search/page.tsx`, `scripts/verify-phase-1-static-routes.ts`, `scripts/verify-phase-1-export-routes.ts`, `src/tests/discovery/phase-1-route-modules.test.ts` |
+| **Verification commands** | `make build`, `bun ./scripts/verify-phase-1-static-routes.ts`, `bun ./scripts/verify-phase-1-export-routes.ts` |
+| **Gaps** | `/blog`, `/blog/<slug>`, and `/print/<locale>/...` routes missing; dedicated `/search?tag=` page behavior partially covered via tag landing handoffs. |
+| **Follow-up or operator requirement** | Extend route verifiers when blog/print routes are added. |
+
+### Website-specific decisions > Search Components Contract
+
+| Field | Value |
+| --- | --- |
+| **Status** | implemented |
+| **Summary** | Custom search dialog, trigger, results, filters, and client wrapper integrate Fumadocs Orama search with registry-backed metadata, keyboard opening, empty/loading states, and static-export bootstrap. API route and static index emission are present. |
+| **Repository evidence** | `src/features/docs/search/SearchDialog.tsx`, `SearchTrigger.tsx`, `SearchResults.tsx`, `SearchPagePanel.tsx`, `search-client.ts`, `model-atlas-search-client.ts`, `src/app/api/search/route.ts`, `scripts/emit-export-search-index.ts`, `src/tests/search/` |
+| **Verification commands** | `bun test src/tests/search`, `bun run verify:export-search-handoff` |
+| **Gaps** | Structured filter UI (`SearchFilters.tsx`) is not a separate module name in tree; tag filter handoff relies on tag landing/search page rather than a standalone `/search?tag=` contract in all cases. |
+| **Follow-up or operator requirement** | none |
+
+### Website-specific decisions > Derived Related Documents And Tags Contract
+
+| Field | Value |
+| --- | --- |
+| **Status** | implemented |
+| **Summary** | Registry-derived related docs, tag pills, and tag landing lists are implemented and tested. Module pages surface variant relationships through `DerivedRelatedDocs` and registry taxonomy. |
+| **Repository evidence** | `src/features/docs/components/DerivedRelatedDocs.tsx`, `TagPillList.tsx`, `TagResourceList.tsx`, `src/features/docs/tags/TagsIndexList.tsx`, `src/lib/content/related-docs.ts`, `src/lib/content/tag-resources.ts`, `src/features/models/components/ModuleAtAGlance.tsx` |
+| **Verification commands** | `bun test src/features/docs/components/DerivedRelatedDocs.test.tsx`, `bun test src/tests/content/attention-tag-landing.test.ts` |
+| **Gaps** | Paper and model related-group coverage is thinner than module variant coverage. |
+| **Follow-up or operator requirement** | Extend registry relationships for model/paper pages as content grows. |
+
+### Website-specific decisions > Link Validation Contract
+
+| Field | Value |
+| --- | --- |
+| **Status** | implemented |
+| **Summary** | Internal docs link validation uses Fumadocs `next-validate-link` integration via `scripts/validate-links.ts`, included in `make ci`. Blog links are not validated because blog content routes are absent. |
+| **Repository evidence** | `scripts/validate-links.ts`, `src/lib/build/validate-links.ts`, `Makefile` (`linkcheck`), `src/tests/ci/github-actions-make-ci.test.ts` |
+| **Verification commands** | `make linkcheck` |
+| **Gaps** | Blog MDX links not in scope until blog ships; external URL validation not in CI by design. |
+| **Follow-up or operator requirement** | Include blog pages in validator when blog content exists. |
+
+### Website-specific decisions > Blog Components Contract
+
+| Field | Value |
+| --- | --- |
+| **Status** | missing |
+| **Summary** | Blog templates exist under `docs/templates/blog-post.*`, but there is no `src/content/blog`, `src/features/blog`, or App Router blog route implementation. |
+| **Repository evidence** | `docs/templates/blog-post.mdx`, `docs/templates/blog-post.messages.en.json` (templates only) |
+| **Verification commands** | n/a |
+| **Gaps** | Entire blog index/post layout, MDX mapping, link validation, and metadata stack described in the checklist. |
+| **Follow-up or operator requirement** | Scaffold blog routes and components per checklist contract or mark blog as Phase 2 scope in planner checklist. |
+
+### Website-specific decisions > Documentation features
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | Search, in-page/cross-file navigation, previous/next via Fumadocs, math, code blocks, callouts, tables, glossary pages, citations, model/module graphs, and tag-based discovery are present. PDF export, versioned docs, changelog/blog pages, and API reference pages are not implemented. |
+| **Repository evidence** | `src/features/docs/components/`, `src/features/models/components/`, `src/content/docs/`, `src/content/registry/`, Fumadocs TOC/footer in docs layout, `src/lib/search/` |
+| **Verification commands** | `make build`, `bun test src/tests/docs`, `make linkcheck` |
+| **Gaps** | PDF export, doc versioning, and blog/release-note surfaces missing. |
+| **Follow-up or operator requirement** | Implement PDF export contract or keep status `missing` in PDF entry. |
+
+### Website-specific decisions > Template Contract
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | Canonical templates with MDX, `.content.md`, `.messages.en.json`, and `.assets.json` sidecars exist under `docs/templates/`. Scaffolding and template-convergence tests enforce message-key and registry patterns on module pages. Raw-prose validation outside approved wrappers is partially enforced through tests, not a standalone CI script named in the checklist. |
+| **Repository evidence** | `docs/templates/`, `scripts/scaffold-doc-page.ts`, `src/lib/content/scaffold-doc-page.ts`, `src/lib/content/scaffold-validation.test.ts`, `src/lib/content/*-module-template-convergence.test.tsx` |
+| **Verification commands** | `bun run scaffold:doc-page`, `bun test src/lib/content/scaffold-validation.test.ts` |
+| **Gaps** | Not all page kinds have live converged examples; automated “no raw prose” gate is test-scoped rather than global. |
+| **Follow-up or operator requirement** | Add global template prose validator when story 004 enforcement lands. |
+
+### Website-specific decisions > PDF Export Contract
+
+| Field | Value |
+| --- | --- |
+| **Status** | missing |
+| **Summary** | The checklist requires print routes, Playwright PDF generation, and validation scripts. `Makefile` `validate-pdf` is a no-op stub and no `src/app/print/**`, `scripts/build-pdf.ts`, or `scripts/validate-pdf.ts` implementation exists. |
+| **Repository evidence** | `Makefile` (`validate-pdf` stub only), `docs/architectural-checklist.md` (PDF Export Contract) |
+| **Verification commands** | n/a |
+| **Gaps** | Print routes, PDF build pipeline, curated PDF sets, and CI validation are absent. |
+| **Follow-up or operator requirement** | Implement PDF scripts and print routes per checklist or defer with explicit planner sign-off. |
+
+### Website-specific decisions > ML-specific documentation quality
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | Attention-variant module pages, glossary entries, comparison tables/graphs, and writing standards provide structured ML explainers with accessibility-oriented summaries on key module routes. Full model-card coverage, benchmark caveats, and safety/limitations sections are not uniform across all records. |
+| **Repository evidence** | `src/content/docs/modules/`, `src/content/registry/modules/`, `docs/writing-standards.md`, `docs/documentation-template.md`, `src/features/models/components/ModuleAtAGlance.tsx`, `ModuleAttentionSchemaComparison.tsx` |
+| **Verification commands** | `bun test src/lib/content/*-module-page.test.ts`, `make validate-data` |
+| **Gaps** | Few live model/paper pages vs checklist breadth; performance claims and hardware assumptions not consistently documented. |
+| **Follow-up or operator requirement** | Expand model/paper content with registry-backed sections as planner batches land. |
+
+### Website-specific decisions > Graph and model rendering
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | React Flow powers interactive registry graphs; module graphs route through `PageAsset` with registry graph schemas and themed CSS. Tests cover layout, interaction, and static-export hydration for key module graphs. Print/static SVG fallback pipeline is not fully implemented. |
+| **Repository evidence** | `src/features/models/components/RegistryGraphFlow.tsx`, `ConceptMap.tsx`, `AttentionVariantComparisonGraph.tsx`, `src/content/registry/graphs/`, `src/features/docs/styles/registry-graph-flow-theme.css`, `src/tests/build/static-export-gqa-graph-hydration.test.ts` |
+| **Verification commands** | `bun test src/features/models/components`, `bun test src/tests/build/static-export-gqa-graph-hydration.test.ts` |
+| **Gaps** | Recursive module graph expand/collapse contract is partial; Mermaid print renderer validation absent; deep-linking to selected nodes not universal. |
+| **Follow-up or operator requirement** | Add print renderer validation when PDF/export graph path exists. |
+
+### Website-specific decisions > README
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | `README.md` states project purpose, live site URL, feature list, AI-factory build provenance, and licenses. It lacks the full badge set, explicit local build instructions, and detailed repository structure map described in the checklist. |
+| **Repository evidence** | `README.md`, `src/tests/ci/readme-deployment-documentation.test.ts`, `src/tests/ci/github-actions-readme.test.ts` |
+| **Verification commands** | `bun test src/tests/ci/readme-deployment-documentation.test.ts` |
+| **Gaps** | Missing page-count/license/locale badges; build/run commands not spelled out in README body. |
+| **Follow-up or operator requirement** | Align README with `docs/operations.md` and Makefile command list. |
+
+### Website-specific decisions > Components
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | shadcn/ui primitives, docs chrome, search UI, callouts, math, tables, graph viewers, and loading/missing fallbacks exist with tests and a component-examples harness. Magic UI, analytics helpers, and some checklist-listed standard components are absent or minimal. |
+| **Repository evidence** | `src/components/ui/`, `src/features/docs/components/`, `src/features/models/components/`, `src/component-examples/`, `components.json`, `src/lib/docs/component-manifest.ts` |
+| **Verification commands** | `bun test src/features/docs/components`, `make coverage` |
+| **Gaps** | No analytics/event helpers; not all standard SEO helpers centralized under `src/lib/seo`. |
+| **Follow-up or operator requirement** | Track optional analytics components as observability work, not blocking docs reference scope. |
+
+### Website-specific decisions > Content governance
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | Authoring standards, documentation templates, graphing standards, and AGENTS.md define tone, structure, and review expectations. Automated doc owners, freshness dates, deprecation markers, and CI-detectable stale content are not implemented. |
+| **Repository evidence** | `docs/writing-standards.md`, `docs/documentation-template.md`, `docs/graphing-standards.md`, `AGENTS.md`, `docs/templates/` |
+| **Verification commands** | n/a |
+| **Gaps** | No per-page owner or last-reviewed metadata enforcement; no deprecated-doc flag in content model. |
+| **Follow-up or operator requirement** | Add registry or frontmatter fields for freshness/ownership when governance automation is prioritized. |
+
+### Website-specific decisions > Observability and analytics
+
+| Field | Value |
+| --- | --- |
+| **Status** | missing |
+| **Summary** | No client error tracking, Core Web Vitals monitoring, search analytics, or 404 telemetry is implemented in application source. Build/deploy failure visibility relies on GitHub Actions checks only. |
+| **Repository evidence** | `.github/workflows/ci.yml`, `.github/workflows/deploy.yml` (CI/deploy status only) |
+| **Verification commands** | n/a |
+| **Gaps** | Entire observability/analytics checklist category. |
+| **Follow-up or operator requirement** | Operator-owned: configure hosting/analytics provider outside repo or add privacy-conscious instrumentation in a future phase. |
+
+### Website-specific decisions > Security and privacy
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | Workflows use least-privilege permissions where defined; dependencies install from lockfile without committing secrets. No automated dependency vulnerability scan, CSP configuration, or form-input validation layer is present (few user-submitted forms exist). |
+| **Repository evidence** | `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`, `bun.lock`, `.gitignore` |
+| **Verification commands** | `bun install --frozen-lockfile` (deterministic install) |
+| **Gaps** | No Dependabot/npm audit gate; no documented CSP for production; PDF draft-exclusion not applicable until PDF exists. |
+| **Follow-up or operator requirement** | Enable GitHub Dependabot or equivalent operator process; document CSP expectations in deployment guide. |
+
+### Website-specific decisions > Performance
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | Static export pre-renders docs pages; heavy graph clients hydrate on module routes with targeted performance tests for export/search paths. Bundle-size tracking, Lighthouse budgets, and CI performance regression gates are not configured. |
+| **Repository evidence** | `next.config.ts`, `make build-export`, `src/tests/build/static-export-*.test.ts`, `scripts/verify-phase-1-export-search-handoff.ts` |
+| **Verification commands** | `make build-export`, `bun test src/tests/build` |
+| **Gaps** | No bundle analyzer or performance budget enforcement; image/font optimization policies are implicit via Next/static export. |
+| **Follow-up or operator requirement** | Add Lighthouse or bundle-size gate when performance enforcement is prioritized. |
+
+### Website-specific decisions > Definition of done
+
+| Field | Value |
+| --- | --- |
+| **Status** | partially implemented |
+| **Summary** | `make ci` encodes much of the engineering definition of done (typecheck, lint, tests, coverage thresholds for manifest components, build, data validation, linkcheck). Human review for accuracy, mobile UX, accessibility in CI, and performance budgets still relies on process rather than full mechanical gates. |
+| **Repository evidence** | `Makefile` (`ci`), `docs/architectural-checklist.md` (Definition of done), `scripts/component-coverage-gate.ts`, `.github/workflows/ci.yml` |
+| **Verification commands** | `make ci` |
+| **Gaps** | Not all DoD bullets (mobile/tablet/desktop sign-off, a11y in CI, performance budgets, editorial review) are automatically enforced. |
+| **Follow-up or operator requirement** | Extend CI with a11y and performance gates as feasible local mechanisms in stories 004–005. |
 
 ## Reviewer commands
 
