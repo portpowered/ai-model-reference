@@ -28,7 +28,7 @@ describe("rendered quality baseline audit integration", () => {
     expect(report).toContain("## Implementation-facing issue list");
   });
 
-  test("runRenderedQualityBaselineAudit records issues against built app", async () => {
+  test("runRenderedQualityBaselineAudit passes home content standards on built app", async () => {
     if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
       return;
     }
@@ -56,9 +56,13 @@ describe("rendered quality baseline audit integration", () => {
       expect(result.routesVisited).toBe(1);
       expect(result.viewportChecks).toBe(1);
       expect(result.standards.qualityDocumentsStandardsPresent).toBe(false);
-      expect(result.issues.length).toBeGreaterThan(0);
+      expect(
+        result.issues.filter(
+          (issue) => issue.behavior === "customer-visible process language",
+        ),
+      ).toHaveLength(0);
     } finally {
       await session.cleanup();
     }
-  });
+  }, 60_000);
 });

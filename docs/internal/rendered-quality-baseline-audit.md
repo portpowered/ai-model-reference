@@ -1,6 +1,6 @@
 # Rendered quality baseline audit
 
-Audited at (UTC): 2026-06-11T11:58:30.222Z
+Audited at (UTC): 2026-06-11T12:25:46.054Z
 Routes visited: 14
 Viewport checks: 28
 
@@ -12,12 +12,7 @@ Viewport checks: 28
 
 ## Implementation-facing issue list
 
-### content-standards
-
-- [content-standards] / (all) — customer-visible process language: matched: Phase 1, Phase 1 sample
-- [content-standards] /docs/glossary/vector (all) — customer-visible process language: matched: Phase 1, Phase 2, Phase 1 bridge page
-- [content-standards] /docs/glossary/hidden-size (all) — customer-visible process language: matched: Phase 1, Phase 2, Phase 1 bridge page
-
+No high-impact rendered failures were recorded in this audit pass.
 ## Manual follow-up
 
 - Re-run `bun run verify:rendered-quality-baseline` after `make build` when validating fixes from stories 002–007.

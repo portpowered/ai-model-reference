@@ -188,7 +188,10 @@ describe("Phase 1 discovery route smoke", () => {
 
     expect(page.messages.title).toBe("Vector");
     expect(page.frontmatter.registryId).toBe("concept.vector");
-    expect(page.messages.callouts?.phase1Bridge?.body).toContain("Phase 2");
+    expect(page.messages.callouts).toBeUndefined();
+    expect(page.messages.sections?.whyItMatters.body).toContain(
+      "tensor and embedding glossary entries",
+    );
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
   });
 
@@ -200,7 +203,10 @@ describe("Phase 1 discovery route smoke", () => {
 
     expect(page.messages.title).toBe("Hidden Size");
     expect(page.frontmatter.registryId).toBe("concept.hidden-size");
-    expect(page.messages.callouts?.phase1Bridge?.body).toContain("Phase 2");
+    expect(page.messages.callouts).toBeUndefined();
+    expect(page.messages.sections?.whyItMatters.body).toContain(
+      "model capacity glossary entry",
+    );
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
   });
 
