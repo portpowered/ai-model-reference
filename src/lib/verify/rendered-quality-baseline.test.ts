@@ -83,13 +83,17 @@ describe("rendered quality baseline", () => {
     ).toBe(true);
   });
 
-  test("passes grouped-query-attention stub HTML for chrome and graph count checks", () => {
+  test("passes grouped-query-attention stub HTML for chrome and graph lane checks", () => {
     const html = `<html><body>${buildGroupedQueryAttentionStubBody()}</body></html>`;
     const issues = auditRenderedQualityHtml({ route: gqaRoute, html });
     const blocking = issues.filter(
       (issue) =>
         issue.behavior === "module chrome" ||
-        issue.behavior === "primary graph count",
+        issue.behavior === "primary graph count" ||
+        issue.behavior === "graph node theme" ||
+        issue.behavior === "graph interaction markers" ||
+        issue.behavior === "graph accessibility" ||
+        issue.behavior === "attention variant comparison",
     );
     expect(blocking).toEqual([]);
   });

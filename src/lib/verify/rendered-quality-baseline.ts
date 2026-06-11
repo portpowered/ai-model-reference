@@ -5,6 +5,10 @@ import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
 import { assertDocsShellConvergence } from "./docs-shell-convergence";
 import {
   assertGroupedQueryAttentionChromeConvergence,
+  assertGroupedQueryAttentionGraphAccessibilityConvergence,
+  assertGroupedQueryAttentionGraphComparisonConvergence,
+  assertGroupedQueryAttentionGraphInteractionConvergence,
+  assertGroupedQueryAttentionGraphThemeConvergence,
   assertGroupedQueryAttentionMathDefinitionsConvergence,
   assertGroupedQueryAttentionSingleGraphConvergence,
 } from "./grouped-query-attention-module-convergence";
@@ -340,14 +344,40 @@ export function auditRenderedQualityHtml(
   }
 
   if (route.path === "/docs/modules/grouped-query-attention") {
-    for (const [behavior, assert] of [
-      ["module chrome", assertGroupedQueryAttentionChromeConvergence],
+    for (const [behavior, lane, assert] of [
+      [
+        "module chrome",
+        "page-shell",
+        assertGroupedQueryAttentionChromeConvergence,
+      ],
       [
         "primary graph count",
+        "graph",
         assertGroupedQueryAttentionSingleGraphConvergence,
       ],
       [
+        "graph node theme",
+        "graph",
+        assertGroupedQueryAttentionGraphThemeConvergence,
+      ],
+      [
+        "graph interaction markers",
+        "graph",
+        assertGroupedQueryAttentionGraphInteractionConvergence,
+      ],
+      [
+        "graph accessibility",
+        "graph",
+        assertGroupedQueryAttentionGraphAccessibilityConvergence,
+      ],
+      [
+        "attention variant comparison",
+        "graph",
+        assertGroupedQueryAttentionGraphComparisonConvergence,
+      ],
+      [
         "math symbol definitions",
+        "content-standards",
         assertGroupedQueryAttentionMathDefinitionsConvergence,
       ],
     ] as const) {
@@ -357,7 +387,7 @@ export function auditRenderedQualityHtml(
           route: route.path,
           routeLabel: route.label,
           viewport,
-          lane: behavior.includes("graph") ? "graph" : "content-standards",
+          lane,
           behavior,
           detail: reason,
         });

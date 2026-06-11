@@ -16,6 +16,10 @@ import {
   type RenderedQualityIssue,
   type RenderedQualityViewport,
 } from "./rendered-quality-baseline";
+import {
+  auditRenderedQualityGraphInteraction,
+  GQA_GRAPH_INTERACTION_ROUTE,
+} from "./rendered-quality-baseline-graph-interaction";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
 export const DEFAULT_RENDERED_QUALITY_AUDIT_TIMEOUT_MS = 45_000;
@@ -78,6 +82,92 @@ async function collectRouteHtmlIssues(
   }
 }
 
+async function readReactFlowViewportTransform(
+  page: Page,
+): Promise<string | null> {
+  return page.locator(".react-flow__viewport").getAttribute("style");
+}
+
+async function collectGqaGraphInteractionIssues(
+  page: Page,
+  route: RenderedQualityAuditRoute,
+  viewport: RenderedQualityViewport,
+  timeoutMs: number,
+): Promise<RenderedQualityIssue[]> {
+  const graph = page.locator('[data-react-flow-graph="true"]');
+  try {
+    await graph.waitFor({ state: "attached", timeout: timeoutMs });
+    await graph.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
+  } catch (error) {
+    const detail =
+      error instanceof Error ? error.message : "GQA graph did not hydrate";
+    return auditRenderedQualityGraphInteraction({
+      route,
+      viewport: viewport.id,
+      panChanged: false,
+      zoomChanged: false,
+      mhaToggleWorked: false,
+      errorDetail: detail,
+    });
+  }
+
+  const before = await readReactFlowViewportTransform(page);
+  const paneBox = await page.locator(".react-flow__pane").boundingBox();
+
+  if (!paneBox || !before) {
+    return auditRenderedQualityGraphInteraction({
+      route,
+      viewport: viewport.id,
+      panChanged: false,
+      zoomChanged: false,
+      mhaToggleWorked: false,
+      errorDetail: "React Flow pane or viewport transform was unavailable",
+    });
+  }
+
+  const panStartX = paneBox.x + 15;
+  const panStartY = paneBox.y + 15;
+  await page.mouse.move(panStartX, panStartY);
+  await page.mouse.down();
+  await page.mouse.move(panStartX + 100, panStartY + 60, { steps: 8 });
+  await page.mouse.up();
+  await page.waitForTimeout(250);
+
+  const afterPan = await readReactFlowViewportTransform(page);
+
+  await page.mouse.move(paneBox.x + 50, paneBox.y + 50);
+  await page.mouse.wheel(0, -400);
+  await page.waitForTimeout(250);
+
+  const afterZoom = await readReactFlowViewportTransform(page);
+
+  let mhaToggleWorked = false;
+  try {
+    const mhaButton = page.locator('[data-attention-variant-option="mha"]');
+    await mhaButton.click({ timeout: timeoutMs });
+    const activeVariant = await page
+      .locator('[data-attention-variant-comparison="true"]')
+      .getAttribute("data-attention-variant-active");
+    const graphId = await page
+      .locator('[data-react-flow-graph="true"]')
+      .getAttribute("data-graph-id");
+    mhaToggleWorked =
+      activeVariant === "mha" &&
+      graphId === "graph.grouped-query-attention-mha-comparison";
+  } catch {
+    mhaToggleWorked = false;
+  }
+
+  return auditRenderedQualityGraphInteraction({
+    route,
+    viewport: viewport.id,
+    panChanged: before !== afterPan,
+    zoomChanged: afterPan !== afterZoom,
+    mhaToggleWorked,
+  });
+}
+
 async function collectViewportOverflowIssues(
   page: Page,
   baseUrl: string,
@@ -134,6 +224,10 @@ export async function runRenderedQualityBaselineAudit(
 
   const browser = await launchBrowser();
   const overflowIssueGroups: RenderedQualityIssue[][] = [];
+  const graphInteractionIssueGroups: RenderedQualityIssue[][] = [];
+  const gqaRoute = routes.find(
+    (route) => route.path === GQA_GRAPH_INTERACTION_ROUTE,
+  );
 
   try {
     const page = await browser.newPage();
@@ -151,6 +245,24 @@ export async function runRenderedQualityBaselineAudit(
         );
         overflowIssueGroups.push(issues);
       }
+
+      if (gqaRoute) {
+        await page.setViewportSize({
+          width: viewport.width,
+          height: viewport.height,
+        });
+        await page.goto(`${normalizeVerifyBaseUrl(baseUrl)}${gqaRoute.path}`, {
+          timeout: timeoutMs,
+          waitUntil: "domcontentloaded",
+        });
+        const graphIssues = await collectGqaGraphInteractionIssues(
+          page,
+          gqaRoute,
+          viewport,
+          timeoutMs,
+        );
+        graphInteractionIssueGroups.push(graphIssues);
+      }
     }
   } finally {
     await closePlaywrightBrowserWithTimeout(browser);
@@ -159,11 +271,14 @@ export async function runRenderedQualityBaselineAudit(
   const issues = mergeRenderedQualityIssues([
     ...htmlIssueGroups,
     ...overflowIssueGroups,
+    ...graphInteractionIssueGroups,
   ]);
+
+  const graphInteractionChecks = gqaRoute ? viewports.length : 0;
 
   return buildRenderedQualityAuditResult({
     issues,
     routesVisited,
-    viewportChecks: routes.length * viewports.length,
+    viewportChecks: routes.length * viewports.length + graphInteractionChecks,
   });
 }

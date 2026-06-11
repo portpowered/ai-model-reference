@@ -78,6 +78,27 @@ export const GROUPED_QUERY_ATTENTION_GRAPH_THEME_MARKERS = [
   'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
 ] as const;
 
+export const GROUPED_QUERY_ATTENTION_GRAPH_INTERACTION_MARKERS = [
+  'data-graph-interaction-pan="true"',
+  'data-graph-interaction-zoom="true"',
+  'data-graph-interaction-editing="false"',
+] as const;
+
+export const GROUPED_QUERY_ATTENTION_GRAPH_ACCESSIBILITY_MARKERS = [
+  'role="img"',
+  'data-graph-node-id="gqa-query-heads"',
+  'data-graph-node-id="gqa-kv-groups"',
+  'data-head-count-role="query"',
+  'data-head-count-role="kv"',
+] as const;
+
+export const GROUPED_QUERY_ATTENTION_GRAPH_COMPARISON_MARKERS = [
+  'data-attention-variant-comparison="true"',
+  'data-attention-variant-active="gqa"',
+  'data-attention-variant-option="mha"',
+  'data-attention-variant-option="gqa"',
+] as const;
+
 function buildMathSchemaStub(
   schemaId: "mha" | "gqa",
   definitionIds: readonly string[],
@@ -101,7 +122,7 @@ export function buildGroupedQueryAttentionMathComparisonStub(): string {
 
 /** Minimal inner HTML that satisfies {@link assertGroupedQueryAttentionModuleConvergence}. */
 export function buildGroupedQueryAttentionStubBody(): string {
-  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="gqa" data-attention-variant-option="mha" data-attention-variant-option="gqa" data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-gqa-comparison" data-graph-node-id="gqa-query-heads" data-graph-node-id="gqa-kv-groups" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="3" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-node-color:var(--card-foreground);--xy-node-background-color:var(--card)"></div>`;
+  const graphWrapper = `<section id="how-it-works"><div data-attention-variant-comparison="true" data-attention-variant-active="gqa" data-attention-variant-option="mha" data-attention-variant-option="gqa" data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-gqa-comparison" data-graph-node-id="gqa-query-heads" data-graph-node-id="gqa-kv-groups" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="3" data-graph-interaction-pan="true" data-graph-interaction-zoom="true" data-graph-interaction-editing="false" role="img" aria-label="Multi-head attention versus grouped-query attention head-count comparison" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-node-color:var(--card-foreground);--xy-node-background-color:var(--card)"></div></section>`;
   const tagPillList = `<ul data-testid="tag-pill-list" aria-label="Tags"></ul>`;
   const mathDefinitions = buildGroupedQueryAttentionMathComparisonStub();
 
@@ -168,6 +189,14 @@ export const GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS = {
     "symbol-level math variable definitions missing from schema section",
   forbiddenMathDefinitionTerms:
     "forbidden projection or grouping definition rows in math section",
+  missingGraphInteractionMarkers:
+    "React Flow graph wrapper missing pan, zoom, or editing interaction markers",
+  missingGraphAccessibilityMarkers:
+    "React Flow graph wrapper missing accessible labeling or head-count fallbacks",
+  missingGraphComparisonMarkers:
+    "attention variant comparison switcher or head-count markers missing from teaching graph",
+  missingGraphAriaLabel:
+    "React Flow graph wrapper missing non-empty aria-label",
 } as const;
 
 /** Graph accessibility/build markers derived from {@link GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS}. */
@@ -356,6 +385,107 @@ export function assertGroupedQueryAttentionGraphThemeConvergence(
   }
 
   return null;
+}
+
+/**
+ * Returns a failure reason when pan/zoom interaction markers are absent from
+ * the graph wrapper or editing remains enabled.
+ */
+export function assertGroupedQueryAttentionGraphInteractionConvergence(
+  html: string,
+): string | null {
+  const missing = requireSubstrings(
+    html,
+    GROUPED_QUERY_ATTENTION_GRAPH_INTERACTION_MARKERS,
+  );
+  if (missing) {
+    return GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.missingGraphInteractionMarkers;
+  }
+
+  return null;
+}
+
+/**
+ * Returns a failure reason when accessible graph labeling or sr-only node
+ * fallbacks are missing from the teaching graph.
+ */
+export function assertGroupedQueryAttentionGraphAccessibilityConvergence(
+  html: string,
+): string | null {
+  const missing = requireSubstrings(
+    html,
+    GROUPED_QUERY_ATTENTION_GRAPH_ACCESSIBILITY_MARKERS,
+  );
+  if (missing) {
+    return GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.missingGraphAccessibilityMarkers;
+  }
+
+  if (
+    !/\bdata-react-flow-graph="true"[^>]*\baria-label="[^"]+"/.test(html) &&
+    !/\baria-label="[^"]+"[^>]*\bdata-react-flow-graph="true"/.test(html)
+  ) {
+    return GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.missingGraphAriaLabel;
+  }
+
+  return null;
+}
+
+/**
+ * Returns a failure reason when the MHA/GQA comparison switcher or head-count
+ * teaching markers are absent from the How It Works graph region.
+ */
+export function assertGroupedQueryAttentionGraphComparisonConvergence(
+  html: string,
+): string | null {
+  const howItWorksSection = extractSectionHtml(html, "how-it-works");
+  const region = howItWorksSection.length > 0 ? howItWorksSection : html;
+
+  const missing = requireSubstrings(
+    region,
+    GROUPED_QUERY_ATTENTION_GRAPH_COMPARISON_MARKERS,
+  );
+  if (missing) {
+    return GROUPED_QUERY_ATTENTION_CONVERGENCE_REASONS.missingGraphComparisonMarkers;
+  }
+
+  return null;
+}
+
+function extractSectionHtml(html: string, sectionId: string): string {
+  const openTag = new RegExp(
+    `<section[^>]*\\bid="${escapeRegExp(sectionId)}"[^>]*>`,
+    "i",
+  );
+  const match = openTag.exec(html);
+  if (!match || match.index === undefined) {
+    return "";
+  }
+
+  const startIndex = match.index;
+  let depth = 1;
+  let pos = match.index + match[0].length;
+
+  while (pos < html.length && depth > 0) {
+    const nextOpen = html.indexOf("<section", pos);
+    const nextClose = html.indexOf("</section>", pos);
+
+    if (nextClose === -1) {
+      break;
+    }
+
+    if (nextOpen !== -1 && nextOpen < nextClose) {
+      depth++;
+      pos = nextOpen + "<section".length;
+    } else {
+      depth--;
+      pos = nextClose + "</section>".length;
+      if (depth === 0) {
+        return html.slice(startIndex, pos);
+      }
+    }
+  }
+
+  return "";
 }
 
 /**
