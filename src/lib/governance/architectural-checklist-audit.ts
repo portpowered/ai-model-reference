@@ -32,6 +32,24 @@ const REQUIRED_ARTIFACT_SECTIONS = [
   "## Reviewer commands",
 ] as const;
 
+const REQUIRED_CONTRACT_SECTIONS = [
+  "## Status values",
+  "## Evidence rule",
+  "## Required fields per category",
+] as const;
+
+const REQUIRED_OPERATOR_CONTROL_MARKERS = [
+  "GitHub branch protection",
+  "Environment secrets",
+  "Preview deployment infrastructure",
+  "Production hosting configuration",
+] as const;
+
+const REQUIRED_WORKFLOW_EVIDENCE_MARKERS = [
+  "#### `.github/workflows/ci.yml`",
+  "#### `.github/workflows/deploy.yml`",
+] as const;
+
 const CATEGORY_ENTRY_HEADING = /^### (.+)$/;
 const TABLE_ROW_PATTERN = /^\|\s\*\*(.+?)\*\*\s\|\s(.+?)\s\|$/;
 
@@ -193,6 +211,56 @@ export function verifyMechanismStatusArtifact(
       issues.push({
         message: `Mechanism-status artifact is missing required section: ${sectionHeading}`,
       });
+    }
+  }
+
+  for (const sectionHeading of REQUIRED_CONTRACT_SECTIONS) {
+    if (!artifactContent.includes(sectionHeading)) {
+      issues.push({
+        message: `Mechanism-status artifact is missing contract section: ${sectionHeading}`,
+      });
+    }
+  }
+
+  for (const status of ALLOWED_MECHANISM_STATUSES) {
+    if (!artifactContent.includes(`**${status}**`)) {
+      issues.push({
+        message: `Mechanism-status artifact contract must document status value: ${status}`,
+      });
+    }
+  }
+
+  const operatorSectionIndex = artifactContent.indexOf(
+    "## Operator and manual requirements",
+  );
+  if (operatorSectionIndex >= 0) {
+    const afterOperatorHeading = artifactContent.slice(
+      operatorSectionIndex + "## Operator and manual requirements".length,
+    );
+    const nextSectionOffset = afterOperatorHeading.search(/\n## [^#]/);
+    const operatorSection =
+      nextSectionOffset === -1
+        ? artifactContent.slice(operatorSectionIndex)
+        : artifactContent.slice(
+            operatorSectionIndex,
+            operatorSectionIndex +
+              "## Operator and manual requirements".length +
+              nextSectionOffset,
+          );
+    for (const marker of REQUIRED_OPERATOR_CONTROL_MARKERS) {
+      if (!operatorSection.includes(marker)) {
+        issues.push({
+          message: `Operator/manual requirements must document control: ${marker}`,
+        });
+      }
+    }
+
+    for (const marker of REQUIRED_WORKFLOW_EVIDENCE_MARKERS) {
+      if (!operatorSection.includes(marker)) {
+        issues.push({
+          message: `Operator/manual requirements must describe workflow evidence: ${marker}`,
+        });
+      }
     }
   }
 
