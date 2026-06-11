@@ -1,0 +1,53 @@
+{
+  "kind": "concept",
+  "slug": "page-spec-workflow-sample",
+  "title": "Page Spec Workflow Sample",
+  "summary": "A small generated concept page that demonstrates the page-spec bundle workflow end to end.",
+  "openingSummary": "This sample was generated from one page-spec file to show how title, sections, tags, and assets stay message-key driven.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": ["page spec sample"],
+  "tags": ["attention"],
+  "relatedIds": ["concept.token", "concept.context-extension"],
+  "citationIds": ["citation.wei-emergent-abilities"],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A reviewable concept page bundle produced by the page-spec generator instead of hand-written MDX boilerplate."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Maintainers can validate one input shape and trust matching page, message, asset, and registry files."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Run `bun run generate:page-bundle --spec page-specs/page-spec-workflow-sample.json --dry-run` to preview paths before writing files."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "The sample lives under docs/concepts and loads through the same routing and loaders as hand-authored concept pages."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Generated MDX should reference message keys; reader-facing prose belongs in messages/en.json."
+    }
+  },
+  "assetMessages": {
+    "conceptMap": {
+      "alt": "Diagram mapping a page spec input to the generated page bundle files.",
+      "caption": "How one page spec drives page.mdx, messages, assets, and registry output."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "pageSpec": {
+        "label": "Page spec input",
+        "summary": "One JSON file describing the page."
+      },
+      "bundle": {
+        "label": "Generated bundle",
+        "summary": "page.mdx, messages, assets, and registry record."
+      }
+    }
+  }
+}

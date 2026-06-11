@@ -1,0 +1,180 @@
+{
+  "requestId": "phase-1-github-pages-repair-batch-014",
+  "type": "FACTORY_REQUEST_BATCH",
+  "works": [
+    {
+      "name": "phase-1-static-export-foundation-for-github-pages",
+      "workTypeName": "idea",
+      "payload": {
+        "phase": 1,
+        "batch": "014",
+        "summary": "Make the Next.js/Fumadocs site build as a GitHub Pages-compatible static export without regressing the existing docs shell, routes, or customer-visible Phase 1 behavior.",
+        "acceptanceCriteria": [
+          "next.config.ts and any required app/router config support GitHub Pages static export.",
+          "The exported site resolves assets and routes correctly for GitHub Pages hosting, including docs and tags routes.",
+          "Build-time commands document and verify the export artifact shape instead of assuming only next start.",
+          "Phase 1 route/search/static validations stay green or are updated in a targeted way with deterministic tests."
+        ],
+        "validation": [
+          "make ci",
+          "export-specific build verification for the generated static artifact"
+        ],
+        "architectureChecklistAreas": [
+          "Operational",
+          "Routing Contract",
+          "Build validation"
+        ],
+        "phaseLocalArchitectureWork": [
+          "Phase 1 deployment machinery",
+          "Static-first hosting compatibility"
+        ]
+      }
+    },
+    {
+      "name": "phase-1-static-search-handoff-for-github-pages",
+      "workTypeName": "idea",
+      "payload": {
+        "phase": 1,
+        "batch": "014",
+        "summary": "Finish the static search path so GitHub Pages can serve the current Phase 1 search experience without relying on a live Node runtime.",
+        "acceptanceCriteria": [
+          "Search uses a GitHub Pages-compatible static data source in production/export mode.",
+          "Existing GQA, attention, and KV cache Phase 1 search expectations still pass against the static site path.",
+          "The implementation reuses the current search/export machinery where possible instead of introducing a second search system.",
+          "Tests cover the static handoff contract."
+        ],
+        "validation": [
+          "make test",
+          "make build",
+          "Phase 1 search verification against the static/exported site"
+        ],
+        "architectureChecklistAreas": [
+          "Search Components Contract",
+          "System structure",
+          "Testing"
+        ],
+        "phaseLocalArchitectureWork": [
+          "Static search delivery",
+          "No-runtime-search compatibility"
+        ],
+        "coverageExpectation": "Maintain at least 90% reachable coverage for any touched reusable search component, or document thin-wrapper smoke coverage if applicable."
+      }
+    },
+    {
+      "name": "phase-1-github-pages-workflow-and-ops-alignment",
+      "workTypeName": "idea",
+      "payload": {
+        "phase": 1,
+        "batch": "014",
+        "summary": "Wire GitHub Actions deployment for GitHub Pages and align README/operations/planner docs so Phase 1 describes the live publish path instead of deferment language.",
+        "implementationStatus": "Complete in repository: `.github/workflows/deploy.yml` publishes `out/` on `main` pushes using `make build-export` with `GITHUB_PAGES_BASE_PATH: ai-model-reference`; `docs/operations.md` and `README.md` document active deployment, permissions, deploy-check visibility, and commit-SHA traceability.",
+        "acceptanceCriteria": [
+          "A GitHub Pages deploy workflow exists and is consistent with the repository's static export path.",
+          "Operations/readme/planner docs describe the real deploy behavior instead of deferment language.",
+          "Deployment status and required permissions are documented concretely enough for maintainers to use.",
+          "Planner guidance documents `.github/workflows/deploy.yml` as the active publish workflow."
+        ],
+        "validation": [
+          "workflow file lint by repository tests/build where available",
+          "documentation/tests updated for deployment guidance drift"
+        ],
+        "architectureChecklistAreas": [
+          "Operational",
+          "Quality",
+          "README/maintainer guidance"
+        ],
+        "phaseLocalArchitectureWork": [
+          "GitHub Pages automation",
+          "Deployment and release documentation closure"
+        ]
+      }
+    },
+    {
+      "name": "phase-1-github-pages-convergence-validator",
+      "workTypeName": "idea",
+      "payload": {
+        "phase": 1,
+        "batch": "014",
+        "summary": "Add a narrow validator pass that proves the GitHub Pages/export path works and that the active Phase 1 customer ask can actually stop after this repair.",
+        "acceptanceCriteria": [
+          "The validator exercises the built/exported artifact rather than only next start.",
+          "It reports pass/fail/uncertain evidence for GitHub Pages-specific rows plus the existing core Phase 1 routes/search expectations that could regress.",
+          "Planner-facing output is concrete enough to choose between one more narrow repair and true Phase 1 stop-and-wait."
+        ],
+        "validation": [
+          "deterministic validator test coverage",
+          "documented command path for planner use"
+        ],
+        "architectureChecklistAreas": [
+          "Testing",
+          "Operational",
+          "Convergence review"
+        ],
+        "phaseLocalArchitectureWork": [
+          "Phase 1 GitHub Pages convergence evidence"
+        ]
+      }
+    },
+    {
+      "name": "ideafy-loopback-phase-1-github-pages-repair-batch-014",
+      "workTypeName": "thoughts",
+      "payload": {
+        "phase": 1,
+        "batch": "014",
+        "summary": "Re-enter ideafy after the GitHub Pages repair batch completes so the planner can run convergence synthesis on the exported artifact and decide whether Phase 1 can stop. Deploy automation under `.github/workflows/deploy.yml` is already wired; remaining closure is validator evidence plus customer phase update."
+      }
+    }
+  ],
+  "relations": [
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "phase-1-static-search-handoff-for-github-pages",
+      "targetWorkName": "phase-1-static-export-foundation-for-github-pages"
+    },
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "phase-1-github-pages-workflow-and-ops-alignment",
+      "targetWorkName": "phase-1-static-export-foundation-for-github-pages"
+    },
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "phase-1-github-pages-workflow-and-ops-alignment",
+      "targetWorkName": "phase-1-static-search-handoff-for-github-pages"
+    },
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "phase-1-github-pages-convergence-validator",
+      "targetWorkName": "phase-1-static-export-foundation-for-github-pages"
+    },
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "phase-1-github-pages-convergence-validator",
+      "targetWorkName": "phase-1-static-search-handoff-for-github-pages"
+    },
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "phase-1-github-pages-convergence-validator",
+      "targetWorkName": "phase-1-github-pages-workflow-and-ops-alignment"
+    },
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "ideafy-loopback-phase-1-github-pages-repair-batch-014",
+      "targetWorkName": "phase-1-static-export-foundation-for-github-pages"
+    },
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "ideafy-loopback-phase-1-github-pages-repair-batch-014",
+      "targetWorkName": "phase-1-static-search-handoff-for-github-pages"
+    },
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "ideafy-loopback-phase-1-github-pages-repair-batch-014",
+      "targetWorkName": "phase-1-github-pages-workflow-and-ops-alignment"
+    },
+    {
+      "type": "DEPENDS_ON",
+      "sourceWorkName": "ideafy-loopback-phase-1-github-pages-repair-batch-014",
+      "targetWorkName": "phase-1-github-pages-convergence-validator"
+    }
+  ]
+}

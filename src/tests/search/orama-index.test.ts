@@ -35,6 +35,8 @@ const ALIBI_URL = "/docs/glossary/alibi";
 const CONTEXT_WINDOW_URL = "/docs/glossary/context-window";
 const CONTEXT_EXTENSION_URL = "/docs/concepts/context-extension";
 const WHY_LONG_CONTEXT_IS_HARD_URL = "/docs/concepts/why-long-context-is-hard";
+const PAGE_SPEC_WORKFLOW_SAMPLE_URL =
+  "/docs/concepts/page-spec-workflow-sample";
 const STRUCTURAL_TAXONOMY_URLS = [
   "/docs/glossary/model",
   "/docs/glossary/architecture",
@@ -120,6 +122,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   CONTEXT_WINDOW_URL,
   CONTEXT_EXTENSION_URL,
   WHY_LONG_CONTEXT_IS_HARD_URL,
+  PAGE_SPEC_WORKFLOW_SAMPLE_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
   ...REPRESENTATION_LATENT_URLS,

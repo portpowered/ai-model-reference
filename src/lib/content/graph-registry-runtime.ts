@@ -10,6 +10,7 @@ import multiHeadLatentAttentionMhaComparison from "@/content/registry/graphs/mul
 import multiHeadLatentAttentionMlaComparison from "@/content/registry/graphs/multi-head-latent-attention-mla-comparison.json";
 import multiQueryAttentionMhaComparison from "@/content/registry/graphs/multi-query-attention-mha-comparison.json";
 import multiQueryAttentionMqaComparison from "@/content/registry/graphs/multi-query-attention-mqa-comparison.json";
+import pageSpecWorkflowSampleConceptMap from "@/content/registry/graphs/page-spec-workflow-sample-concept-map.json";
 import slidingWindowAttentionMhaComparison from "@/content/registry/graphs/sliding-window-attention-mha-comparison.json";
 import slidingWindowAttentionWindowComparison from "@/content/registry/graphs/sliding-window-attention-window-comparison.json";
 import sparseAttentionMhaComparison from "@/content/registry/graphs/sparse-attention-mha-comparison.json";
@@ -34,6 +35,7 @@ const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(slidingWindowAttentionWindowComparison),
   graphRecordSchema.parse(sparseAttentionMhaComparison),
   graphRecordSchema.parse(sparseAttentionSparseComparison),
+  graphRecordSchema.parse(pageSpecWorkflowSampleConceptMap),
   graphRecordSchema.parse(tokenConceptMap),
 ];
 

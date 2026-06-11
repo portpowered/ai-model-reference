@@ -3,7 +3,10 @@ import { REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS } from "@/features/mode
 import { exportHtmlIncludesGqaAttentionVariantGraphShellMarkers } from "@/lib/build/verify-export-base-path";
 import { withExportIntegrationProbeLock } from "./export-integration-probe-lock";
 import { httpGetText } from "./http-harness";
-import { launchPlaywrightBrowser } from "./launch-playwright-browser";
+import {
+  closePlaywrightBrowserWithTimeout,
+  launchPlaywrightBrowser,
+} from "./launch-playwright-browser";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
@@ -13,6 +16,17 @@ const GQA_GRAPH_ROUTE = PHASE_1_GROUPED_QUERY_ATTENTION_URL;
 
 async function defaultLaunchBrowser(): Promise<Browser> {
   return launchPlaywrightBrowser();
+}
+
+function isTransientGqaGraphProbeError(reason: string): boolean {
+  return (
+    reason.includes("Target page, context or browser has been closed") ||
+    reason.includes("browser has been closed")
+  );
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function verifyGqaGraphHydrationOnPage(
@@ -126,20 +140,44 @@ export async function verifyStaticExportGqaGraphHydration(
       return "React Flow canvas did not hydrate on the GQA module page.";
     }
 
-    const browser = await launchBrowser();
-    try {
-      const page = await browser.newPage();
-      page.setDefaultTimeout(timeoutMs);
-      page.setDefaultNavigationTimeout(timeoutMs);
-      await page.goto(pageUrl, {
-        timeout: timeoutMs,
-        waitUntil: "load",
-      });
-      return await verifyGqaGraphHydrationOnPage(page, timeoutMs);
-    } catch (error) {
-      return error instanceof Error ? error.message : String(error);
-    } finally {
-      await browser.close();
+    const maxAttempts =
+      process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true"
+        ? 3
+        : 1;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      const browser = await launchBrowser();
+      try {
+        const page = await browser.newPage();
+        page.setDefaultTimeout(timeoutMs);
+        page.setDefaultNavigationTimeout(timeoutMs);
+        await page.goto(pageUrl, {
+          timeout: timeoutMs,
+          waitUntil: "load",
+        });
+        const reason = await verifyGqaGraphHydrationOnPage(page, timeoutMs);
+        if (
+          reason === null ||
+          !isTransientGqaGraphProbeError(reason) ||
+          attempt === maxAttempts
+        ) {
+          return reason;
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (
+          !isTransientGqaGraphProbeError(message) ||
+          attempt === maxAttempts
+        ) {
+          return message;
+        }
+      } finally {
+        await closePlaywrightBrowserWithTimeout(browser);
+      }
+
+      await sleep(2_000);
     }
+
+    return "GQA graph hydration probe exhausted retry attempts.";
   });
 }
