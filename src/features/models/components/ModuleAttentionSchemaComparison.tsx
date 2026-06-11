@@ -132,7 +132,7 @@ function SchemaFormulaBlock({
 }: SchemaFormulaBlockProps) {
   return (
     <div
-      className="flex flex-col gap-3"
+      className="flex min-w-0 max-w-full flex-col gap-3"
       data-math-schema={schemaId}
       data-attention-schema-formula="true"
     >

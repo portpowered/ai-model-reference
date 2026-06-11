@@ -8,7 +8,7 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Separating model from architecture, module, and component helps you compare releases, trace bugs, and search the atlas without conflating a family name with a specific trained checkpoint."
+      "body": "Separating model from architecture, module, and component helps you compare releases, trace bugs, and search the atlas without conflating a family name with a specific trained checkpoint. When a paper says \"we train a model,\" it usually means they optimized weights for a fixed architecture and dataset—not that they invented a new layer type."
     },
     "simpleExample": {
       "title": "Simple Example",
@@ -30,12 +30,6 @@
     },
     "references": {
       "title": "References"
-    }
-  },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "When a paper says \"we train a model,\" it usually means they optimized weights for a fixed architecture and dataset—not that they invented a new layer type."
     }
   },
   "openingSummary": "A model is the trained artifact—weights plus the inference procedure that maps inputs to outputs for a defined task."

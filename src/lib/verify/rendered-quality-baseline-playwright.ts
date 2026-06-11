@@ -1,0 +1,475 @@
+import type { Browser, Page } from "playwright";
+import { httpGetText } from "./http-harness";
+import {
+  closePlaywrightBrowserWithTimeout,
+  launchPlaywrightBrowser,
+} from "./launch-playwright-browser";
+import {
+  ATTENTION_TAG_ACCESSIBILITY_ROUTE,
+  GQA_ACCESSIBILITY_ROUTE,
+  SEARCH_ACCESSIBILITY_ROUTE,
+  TAGS_INDEX_ACCESSIBILITY_ROUTE,
+} from "./rendered-quality-accessibility-convergence";
+import {
+  auditRenderedQualityHtml,
+  auditRenderedQualityOverflow,
+  buildRenderedQualityAuditResult,
+  mergeRenderedQualityIssues,
+  RENDERED_QUALITY_AUDIT_ROUTES,
+  RENDERED_QUALITY_VIEWPORTS,
+  type RenderedQualityAuditResult,
+  type RenderedQualityAuditRoute,
+  type RenderedQualityIssue,
+  type RenderedQualityViewport,
+} from "./rendered-quality-baseline";
+import {
+  collectGqaKeyboardAccessibilityIssues,
+  collectSearchKeyboardAccessibilityIssues,
+  collectTagLinkKeyboardAccessibilityIssues,
+} from "./rendered-quality-baseline-accessibility";
+import {
+  auditRenderedQualityGraphInteraction,
+  GQA_GRAPH_INTERACTION_ROUTE,
+} from "./rendered-quality-baseline-graph-interaction";
+import {
+  auditRenderedQualityRichContent,
+  collectRichContentDomMetrics,
+  RICH_CONTENT_AUDIT_ROUTES,
+} from "./rendered-quality-baseline-rich-content";
+import { normalizeVerifyBaseUrl } from "./server-lifecycle";
+
+export const DEFAULT_RENDERED_QUALITY_AUDIT_TIMEOUT_MS = 45_000;
+
+export type RunRenderedQualityBaselineAuditOptions = {
+  timeoutMs?: number;
+  launchBrowser?: () => Promise<Browser>;
+  routes?: readonly RenderedQualityAuditRoute[];
+  viewports?: readonly RenderedQualityViewport[];
+};
+
+async function defaultLaunchBrowser(): Promise<Browser> {
+  return launchPlaywrightBrowser();
+}
+
+async function collectRouteHtmlIssues(
+  baseUrl: string,
+  route: RenderedQualityAuditRoute,
+  timeoutMs: number,
+): Promise<{ issues: RenderedQualityIssue[]; status: number | null }> {
+  const url = `${normalizeVerifyBaseUrl(baseUrl)}${route.path}`;
+  try {
+    const { status, body } = await httpGetText(url, timeoutMs);
+    if (status !== 200) {
+      return {
+        status,
+        issues: [
+          {
+            route: route.path,
+            routeLabel: route.label,
+            viewport: "all",
+            lane: "route-renders",
+            behavior: "route HTTP status",
+            detail: `expected HTTP 200, received ${status}`,
+          },
+        ],
+      };
+    }
+
+    return {
+      status,
+      issues: auditRenderedQualityHtml({ route, html: body, viewport: "all" }),
+    };
+  } catch (error) {
+    const detail =
+      error instanceof Error ? error.message : "route fetch failed";
+    return {
+      status: null,
+      issues: [
+        {
+          route: route.path,
+          routeLabel: route.label,
+          viewport: "all",
+          lane: "route-renders",
+          behavior: "route fetch",
+          detail,
+        },
+      ],
+    };
+  }
+}
+
+async function readReactFlowViewportTransform(
+  page: Page,
+): Promise<string | null> {
+  return page.locator(".react-flow__viewport").getAttribute("style");
+}
+
+async function collectGqaGraphInteractionIssues(
+  page: Page,
+  route: RenderedQualityAuditRoute,
+  viewport: RenderedQualityViewport,
+  timeoutMs: number,
+): Promise<RenderedQualityIssue[]> {
+  const graph = page.locator('[data-react-flow-graph="true"]');
+  try {
+    await graph.waitFor({ state: "attached", timeout: timeoutMs });
+    await graph.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
+  } catch (error) {
+    const detail =
+      error instanceof Error ? error.message : "GQA graph did not hydrate";
+    return auditRenderedQualityGraphInteraction({
+      route,
+      viewport: viewport.id,
+      panChanged: false,
+      zoomChanged: false,
+      mhaToggleWorked: false,
+      errorDetail: detail,
+    });
+  }
+
+  const before = await readReactFlowViewportTransform(page);
+  const paneBox = await page.locator(".react-flow__pane").boundingBox();
+
+  if (!paneBox || !before) {
+    return auditRenderedQualityGraphInteraction({
+      route,
+      viewport: viewport.id,
+      panChanged: false,
+      zoomChanged: false,
+      mhaToggleWorked: false,
+      errorDetail: "React Flow pane or viewport transform was unavailable",
+    });
+  }
+
+  const panStartX = paneBox.x + 15;
+  const panStartY = paneBox.y + 15;
+  await page.mouse.move(panStartX, panStartY);
+  await page.mouse.down();
+  await page.mouse.move(panStartX + 100, panStartY + 60, { steps: 8 });
+  await page.mouse.up();
+  await page.waitForTimeout(250);
+
+  const afterPan = await readReactFlowViewportTransform(page);
+
+  await page.mouse.move(paneBox.x + 50, paneBox.y + 50);
+  await page.mouse.wheel(0, -400);
+  await page.waitForTimeout(250);
+
+  const afterZoom = await readReactFlowViewportTransform(page);
+
+  let mhaToggleWorked = false;
+  try {
+    const mhaButton = page.locator('[data-attention-variant-option="mha"]');
+    await mhaButton.click({ timeout: timeoutMs });
+    const activeVariant = await page
+      .locator('[data-attention-variant-comparison="true"]')
+      .getAttribute("data-attention-variant-active");
+    const graphId = await page
+      .locator('[data-react-flow-graph="true"]')
+      .getAttribute("data-graph-id");
+    mhaToggleWorked =
+      activeVariant === "mha" &&
+      graphId === "graph.grouped-query-attention-mha-comparison";
+  } catch {
+    mhaToggleWorked = false;
+  }
+
+  return auditRenderedQualityGraphInteraction({
+    route,
+    viewport: viewport.id,
+    panChanged: before !== afterPan,
+    zoomChanged: afterPan !== afterZoom,
+    mhaToggleWorked,
+  });
+}
+
+async function collectRichContentIssues(
+  page: Page,
+  baseUrl: string,
+  route: RenderedQualityAuditRoute,
+  viewport: RenderedQualityViewport,
+  timeoutMs: number,
+): Promise<RenderedQualityIssue[]> {
+  await page.setViewportSize({
+    width: viewport.width,
+    height: viewport.height,
+  });
+  await page.goto(`${normalizeVerifyBaseUrl(baseUrl)}${route.path}`, {
+    timeout: timeoutMs,
+    waitUntil: "domcontentloaded",
+  });
+
+  const selectors = [
+    '[data-rich-content-scroll="table"]',
+    '[data-rich-content-scroll="code"]',
+    '[data-rich-content-scroll="math"]',
+  ];
+
+  for (const selector of selectors) {
+    const target = page.locator(selector).first();
+    if ((await target.count()) > 0) {
+      await target.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(200);
+    }
+  }
+
+  try {
+    const metrics = await page.evaluate(collectRichContentDomMetrics);
+    return auditRenderedQualityRichContent({
+      route,
+      viewport: viewport.id,
+      innerWidth: metrics.innerWidth,
+      table: metrics.table,
+      code: metrics.code,
+      math: metrics.math,
+    });
+  } catch (error) {
+    const detail =
+      error instanceof Error ? error.message : "rich content probe failed";
+    return auditRenderedQualityRichContent({
+      route,
+      viewport: viewport.id,
+      innerWidth: viewport.width,
+      table: null,
+      code: null,
+      math: null,
+      errorDetail: detail,
+    });
+  }
+}
+
+async function collectViewportOverflowIssues(
+  page: Page,
+  baseUrl: string,
+  route: RenderedQualityAuditRoute,
+  viewport: RenderedQualityViewport,
+  timeoutMs: number,
+): Promise<RenderedQualityIssue[]> {
+  await page.setViewportSize({
+    width: viewport.width,
+    height: viewport.height,
+  });
+  await page.goto(`${normalizeVerifyBaseUrl(baseUrl)}${route.path}`, {
+    timeout: timeoutMs,
+    waitUntil: "domcontentloaded",
+  });
+
+  const metrics = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    innerWidth: window.innerWidth,
+  }));
+
+  const overflowIssue = auditRenderedQualityOverflow({
+    route,
+    viewport: viewport.id,
+    scrollWidth: metrics.scrollWidth,
+    innerWidth: metrics.innerWidth,
+  });
+
+  return overflowIssue ? [overflowIssue] : [];
+}
+
+/**
+ * Visits representative routes over HTTP and Playwright viewports, returning a
+ * rendered-quality baseline audit result without mutating production pages.
+ */
+export async function runRenderedQualityBaselineAudit(
+  baseUrl: string,
+  options: RunRenderedQualityBaselineAuditOptions = {},
+): Promise<RenderedQualityAuditResult> {
+  const timeoutMs =
+    options.timeoutMs ?? DEFAULT_RENDERED_QUALITY_AUDIT_TIMEOUT_MS;
+  const routes = options.routes ?? RENDERED_QUALITY_AUDIT_ROUTES;
+  const viewports = options.viewports ?? RENDERED_QUALITY_VIEWPORTS;
+  const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
+
+  const htmlIssueGroups: RenderedQualityIssue[][] = [];
+  let routesVisited = 0;
+
+  const shouldAuditSupplementaryRichContent = routes.some(
+    (route) => route.path === GQA_GRAPH_INTERACTION_ROUTE,
+  );
+  const htmlAuditRoutes = shouldAuditSupplementaryRichContent
+    ? [
+        ...routes,
+        ...RICH_CONTENT_AUDIT_ROUTES.filter(
+          (route) => !routes.some((entry) => entry.path === route.path),
+        ),
+      ]
+    : routes;
+
+  for (const route of htmlAuditRoutes) {
+    const { issues } = await collectRouteHtmlIssues(baseUrl, route, timeoutMs);
+    htmlIssueGroups.push(issues);
+    routesVisited += 1;
+  }
+
+  const browser = await launchBrowser();
+  const overflowIssueGroups: RenderedQualityIssue[][] = [];
+  const graphInteractionIssueGroups: RenderedQualityIssue[][] = [];
+  const richContentIssueGroups: RenderedQualityIssue[][] = [];
+  const accessibilityIssueGroups: RenderedQualityIssue[][] = [];
+  const gqaRoute = routes.find(
+    (route) => route.path === GQA_GRAPH_INTERACTION_ROUTE,
+  );
+  const richContentRoutes = shouldAuditSupplementaryRichContent
+    ? [...RICH_CONTENT_AUDIT_ROUTES]
+    : RICH_CONTENT_AUDIT_ROUTES.filter((route) =>
+        routes.some((entry) => entry.path === route.path),
+      );
+
+  try {
+    const page = await browser.newPage();
+    page.setDefaultTimeout(timeoutMs);
+    page.setDefaultNavigationTimeout(timeoutMs);
+
+    for (const viewport of viewports) {
+      for (const route of routes) {
+        const issues = await collectViewportOverflowIssues(
+          page,
+          baseUrl,
+          route,
+          viewport,
+          timeoutMs,
+        );
+        overflowIssueGroups.push(issues);
+      }
+
+      if (gqaRoute) {
+        await page.setViewportSize({
+          width: viewport.width,
+          height: viewport.height,
+        });
+        await page.goto(`${normalizeVerifyBaseUrl(baseUrl)}${gqaRoute.path}`, {
+          timeout: timeoutMs,
+          waitUntil: "domcontentloaded",
+        });
+        const graphIssues = await collectGqaGraphInteractionIssues(
+          page,
+          gqaRoute,
+          viewport,
+          timeoutMs,
+        );
+        graphInteractionIssueGroups.push(graphIssues);
+      }
+
+      for (const richContentRoute of richContentRoutes) {
+        const richContentIssues = await collectRichContentIssues(
+          page,
+          baseUrl,
+          richContentRoute,
+          viewport,
+          timeoutMs,
+        );
+        richContentIssueGroups.push(richContentIssues);
+      }
+
+      if (shouldAuditSupplementaryRichContent) {
+        const searchRoute = routes.find(
+          (route) => route.path === SEARCH_ACCESSIBILITY_ROUTE,
+        );
+        if (searchRoute) {
+          await page.setViewportSize({
+            width: viewport.width,
+            height: viewport.height,
+          });
+          accessibilityIssueGroups.push(
+            await collectSearchKeyboardAccessibilityIssues(
+              page,
+              searchRoute,
+              viewport.id,
+              normalizeVerifyBaseUrl(baseUrl),
+              timeoutMs,
+            ),
+          );
+        }
+
+        const tagsRoute = routes.find(
+          (route) => route.path === TAGS_INDEX_ACCESSIBILITY_ROUTE,
+        );
+        if (tagsRoute) {
+          await page.setViewportSize({
+            width: viewport.width,
+            height: viewport.height,
+          });
+          accessibilityIssueGroups.push(
+            await collectTagLinkKeyboardAccessibilityIssues(
+              page,
+              tagsRoute,
+              viewport.id,
+              normalizeVerifyBaseUrl(baseUrl),
+              timeoutMs,
+              'a[href^="/tags/"]',
+            ),
+          );
+        }
+
+        const attentionTagRoute = routes.find(
+          (route) => route.path === ATTENTION_TAG_ACCESSIBILITY_ROUTE,
+        );
+        if (attentionTagRoute) {
+          await page.setViewportSize({
+            width: viewport.width,
+            height: viewport.height,
+          });
+          accessibilityIssueGroups.push(
+            await collectTagLinkKeyboardAccessibilityIssues(
+              page,
+              attentionTagRoute,
+              viewport.id,
+              normalizeVerifyBaseUrl(baseUrl),
+              timeoutMs,
+              'a[href^="/docs/"]',
+            ),
+          );
+        }
+
+        const gqaAccessibilityRoute = routes.find(
+          (route) => route.path === GQA_ACCESSIBILITY_ROUTE,
+        );
+        if (gqaAccessibilityRoute) {
+          await page.setViewportSize({
+            width: viewport.width,
+            height: viewport.height,
+          });
+          accessibilityIssueGroups.push(
+            await collectGqaKeyboardAccessibilityIssues(
+              page,
+              gqaAccessibilityRoute,
+              viewport.id,
+              normalizeVerifyBaseUrl(baseUrl),
+              timeoutMs,
+            ),
+          );
+        }
+      }
+    }
+  } finally {
+    await closePlaywrightBrowserWithTimeout(browser);
+  }
+
+  const issues = mergeRenderedQualityIssues([
+    ...htmlIssueGroups,
+    ...overflowIssueGroups,
+    ...graphInteractionIssueGroups,
+    ...richContentIssueGroups,
+    ...accessibilityIssueGroups,
+  ]);
+
+  const graphInteractionChecks = gqaRoute ? viewports.length : 0;
+  const richContentChecks = richContentRoutes.length * viewports.length;
+  const accessibilityChecks = shouldAuditSupplementaryRichContent
+    ? viewports.length * 4
+    : 0;
+
+  return buildRenderedQualityAuditResult({
+    issues,
+    routesVisited,
+    viewportChecks:
+      routes.length * viewports.length +
+      graphInteractionChecks +
+      richContentChecks +
+      accessibilityChecks,
+  });
+}

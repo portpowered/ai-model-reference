@@ -12,8 +12,8 @@ import { pageMessagesSchema } from "@/lib/content/schemas";
 const pageDir = VECTOR_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 
-describe("vector glossary bridge page messages", () => {
-  test("includes required localized fields and Phase 1 bridge callout", () => {
+describe("vector glossary page messages", () => {
+  test("includes required localized fields without process-language callouts", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
@@ -21,13 +21,15 @@ describe("vector glossary bridge page messages", () => {
     expect(messages.title).toBe("Vector");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
-    expect(messages.callouts?.phase1Bridge?.title).toBe("Phase 1 bridge page");
-    expect(messages.callouts?.phase1Bridge?.body).toContain("Phase 2");
+    expect(messages.sections?.whyItMatters.body).toContain(
+      "tensor and embedding glossary entries",
+    );
+    expect(messages.callouts).toBeUndefined();
   });
 });
 
 describe("loadGlossaryPage vector", () => {
-  test("compiles MDX with localized title, bridge callout, and tag pills", async () => {
+  test("compiles MDX with localized title, related docs, and tag pills", async () => {
     const page = await loadGlossaryPage("vector");
 
     expect(page.frontmatter.registryId).toBe("concept.vector");
@@ -47,9 +49,11 @@ describe("loadGlossaryPage vector", () => {
     expectGlossaryPresentationConvergence(html, {
       title: page.messages.title,
     });
-    expect(html).toContain("Phase 1 bridge page");
-    expect(html).toContain("Deeper tensor and embedding coverage");
-    expect(html).toContain("Phase 2");
+    expect(html).toContain(
+      "shape conventions, broadcasting, and framework dtypes",
+    );
+    expect(html).not.toContain("Phase 1 bridge page");
+    expect(html).not.toContain("Phase 2");
     expect(html).toContain('href="/tags/token-to-probability-chain"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 /** Shared interactive row styles for page hits on `/search`. */
 export const searchPageResultRowClassName = cn(
-  "group flex w-full flex-col text-left transition-colors",
+  "group flex w-full min-w-0 flex-col text-left transition-colors",
   "hover:bg-accent hover:text-accent-foreground",
   "focus-visible:bg-accent focus-visible:text-accent-foreground",
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",

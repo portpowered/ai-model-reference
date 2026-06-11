@@ -8,7 +8,7 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Knowing the architecture tells you which modules to expect, how memory scales with sequence length, and which family pages in this atlas apply before you open a specific checkpoint."
+      "body": "Knowing the architecture tells you which modules to expect, how memory scales with sequence length, and which family pages in this atlas apply before you open a specific checkpoint. Ask \"what repeats in the stack?\" to spot the architecture; ask \"which checkpoint am I running?\" to spot the model."
     },
     "simpleExample": {
       "title": "Simple Example",
@@ -30,12 +30,6 @@
     },
     "references": {
       "title": "References"
-    }
-  },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Ask \"what repeats in the stack?\" to spot the architecture; ask \"which checkpoint am I running?\" to spot the model."
     }
   },
   "openingSummary": "Architecture is the structural recipe—how tensors move through repeated modules—not any one trained set of weights, which people often conflate with specific checkpoints or product families."

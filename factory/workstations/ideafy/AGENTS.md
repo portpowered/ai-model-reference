@@ -199,6 +199,46 @@ Optimize for maximal throughput. we want to move forward as fast as possible, wi
 
 After each batch, review the outcomes of the submitted batch that was submitted, and confirm the resullts yourself to determine teh overall system trajectory and optimal next steps.
 
+After every completed batch, run a convergence review before submitting new
+feature work. Useful briefs include:
+
+* UX route convergence: during **batch-008 loopback** (and after any Phase 1
+  customer-ask repair batch), run `make build && make verify-phase-1-ux` to
+  exercise the Phase 1 built-app manual gate over all eight reader routes
+  (`/`, `/search`, `/docs/architecture`, `/docs/glossary`,
+  `/docs/glossary/token`, `/docs/modules/grouped-query-attention`, `/tags`,
+  `/tags/attention`) plus the customer-ask convergence layer. The verifier
+  asserts unified docs shell and populated Modules/Glossary sidebar on docs
+  routes, home single search entry (no redundant inline search section), tags
+  navigation, live `/api/search` and `/search` results for GQA, attention, and
+  KV cache, header search dialog, and keyboard shortcuts. It then prints a
+  structured **Customer-ask convergence report** with per-row pass, fail, or
+  uncertain status (`pass`, `fail`, or `uncertain`). See README "Phase 1 route
+  and search UX verification" for
+  shell convergence interpretation and
+  `factory/docs/phase-1-customer-ask-convergence-validator.md` for the check
+  inventory.
+* batch-011 follow-up convergence: after batch-011 follow-up repairs, run
+  `make verify-phase-1-follow-up-convergence` instead of relying on prior
+  batch-008 or batch-010 all-pass evidence. The command runs `make build` then
+  `make verify-phase-1-ux` with `VERIFY_BASE_URL` unset and prints a **Phase 1
+  batch-011 follow-up convergence evidence summary** with `Recommendation` and
+  `Rationale`. Prior batch-008/010 convergence passes are stale for the expanded
+  follow-up inventory. Follow the printed recommendation:
+  `queue-one-narrow-repair-batch` when command-path or any customer-ask row
+  failed; `stop-and-wait-for-phase-advancement` when command-path passed and no
+  customer-ask row failed. See
+  `factory/docs/phase-1-follow-up-customer-ask-convergence-validator.md`.
+* graph and math baseline convergence: after module graph, math, template, or
+  standards changes, read `docs/writing-standards.md` and
+  `docs/graphing-standards.md`, then verify the grouped-query-attention manual
+  gate in `docs/temp/customer-ask.md`. Run `make build &&
+  make verify-phase-1-ux` and record GQA module customer-ask rows:
+  `module.graph-build-markers`, `module.mha-gqa-comparison`,
+  `module.math-qkv-definitions`. For GitHub Pages static export graph hydration,
+  run `make build-export` with `GITHUB_PAGES_BASE_PATH=ai-model-reference` and
+  `make verify-phase-1-github-pages-convergence`.
+
 # Customer ask 
 
 There is additional customer ask as follows: 

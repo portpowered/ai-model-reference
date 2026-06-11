@@ -30,6 +30,8 @@ def softmax(logits):
     expect(html).toContain("softmax");
     expect(html).toMatch(/<figure|<pre/);
     expect(html).toMatch(/role="region"/);
+    expect(html).toContain('data-rich-content-scroll="code"');
+    expect(html).toContain('data-rich-content-scroll="math"');
   });
 
   test("renders explicit InlineMath and BlockMath components from the MDX map", async () => {
