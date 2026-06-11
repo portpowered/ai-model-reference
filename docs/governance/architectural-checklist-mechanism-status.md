@@ -12,8 +12,8 @@ planner-owned checklists from observable facts rather than assumptions.
 
 | Field | Value |
 | --- | --- |
-| **Last reviewed (UTC)** | 2026-06-11 (focused enforcement pass, story 004) |
-| **Review scope** | Phase 1 governance pass: map checklist category sections to repository mechanisms, document operator-owned controls separately from source-controlled gates, and enforce mechanism-status artifact completeness locally. |
+| **Last reviewed (UTC)** | 2026-06-11 (reviewer commands pass, story 005) |
+| **Review scope** | Phase 1 governance pass: map checklist category sections to repository mechanisms, document operator-owned controls separately from source-controlled gates, enforce mechanism-status artifact completeness locally, and expose reviewer commands for the audit and existing quality gates. |
 | **Source checklist** | [docs/architectural-checklist.md](../architectural-checklist.md) |
 | **Artifact path** | `docs/governance/architectural-checklist-mechanism-status.md` |
 
@@ -70,7 +70,7 @@ evidence.
 | --- | --- |
 | **Mechanism** | Compare auditable checklist sections to category entries in this artifact; require allowed status values; require repository evidence for **implemented** and **partially implemented** rows; require operator/manual and reviewer command sections. |
 | **Repository evidence** | `src/lib/governance/architectural-checklist-audit.ts`, `src/lib/governance/architectural-checklist-audit.test.ts`, `scripts/verify-architectural-checklist-mechanism-status.ts` |
-| **Verification command** | `bun ./scripts/verify-architectural-checklist-mechanism-status.ts` |
+| **Verification command** | `bun run verify:architectural-checklist-mechanism-status` |
 | **Failure behavior** | Exits non-zero with a list of missing categories, duplicate entries, disallowed statuses, or evidence gaps. |
 
 ## Required fields per category
@@ -320,7 +320,7 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | Biome lint/format, TypeScript strict mode, Bun tests, manifest-scoped coverage, build/export validation, registry validation, and internal linkcheck run through `make ci`. Dependency security scans, bundle-size tracking, performance budgets, and global dead-code detection are not automated. |
 | **Repository evidence** | `biome.json`, `tsconfig.json` (`strict: true`), `Makefile` (`ci`), `package.json`, `scripts/validate-registry.ts`, `scripts/validate-links.ts`, `scripts/component-coverage-gate.ts`, `scripts/verify-architectural-checklist-mechanism-status.ts`, `src/lib/governance/architectural-checklist-audit.ts`, `.github/workflows/ci.yml` |
-| **Verification commands** | `make ci`, `bun run lint`, `bun run typecheck`, `bun ./scripts/verify-architectural-checklist-mechanism-status.ts` |
+| **Verification commands** | `make ci`, `bun run lint`, `bun run typecheck`, `bun run verify:architectural-checklist-mechanism-status` |
 | **Gaps** | No Dependabot/npm-audit gate; no bundle analyzer or Lighthouse budget in CI; MDX prose lint is manual via `docs/writing-standards.md`. |
 | **Follow-up or operator requirement** | Add dependency scan workflow or document operator-owned security review cadence. |
 
@@ -542,10 +542,32 @@ secrets to satisfy this artifact.
 | **Repository evidence** | `Makefile` (`ci`), `docs/architectural-checklist.md` (Definition of done), `scripts/component-coverage-gate.ts`, `.github/workflows/ci.yml` |
 | **Verification commands** | `make ci` |
 | **Gaps** | Not all DoD bullets (mobile/tablet/desktop sign-off, a11y in CI, performance budgets, editorial review) are automatically enforced. |
-| **Follow-up or operator requirement** | Wire `src/tests/a11y` into CI; expose consolidated reviewer commands for the mechanism-status verifier in story 005. |
+| **Follow-up or operator requirement** | Wire `src/tests/a11y` into CI; add performance and editorial sign-off gates when prioritized. |
 
 ## Reviewer commands
 
-Commands that validate this artifact and general quality gates are added when
-focused enforcement and review scripts land in later stories of this governance
-pass.
+Use the commands below to validate this governance pass. **Governance audit**
+commands prove this artifact stays complete and aligned with
+`docs/architectural-checklist.md`. **General quality gates** enforce site
+health but are not specific to the mechanism-status audit.
+
+### Governance audit (this artifact)
+
+| Command | Purpose |
+| --- | --- |
+| `bun run verify:architectural-checklist-mechanism-status` | Verifies every auditable checklist category appears once with allowed status values, required artifact sections, and repository evidence for implemented or partially implemented rows. |
+| `bun test src/lib/governance/architectural-checklist-audit.test.ts` | Regression tests for the mechanism-status verifier (category extraction, parsing, failure modes). |
+
+### General quality gates
+
+| Command | Purpose |
+| --- | --- |
+| `make ci` | Default maintainer gate: lint, typecheck, tests, component coverage, production build, static export build, registry validation, and internal linkcheck. |
+| `bun run lint` | Biome lint and format checks across the repository. |
+| `bun run typecheck` | TypeScript strict check (`tsc --noEmit`) after Fumadocs MDX generation. |
+| `bun test` | Full Bun test suite (includes governance verifier tests and CI contract tests). |
+
+Run `bun run verify:architectural-checklist-mechanism-status` first when reviewing
+changes to this artifact or `docs/architectural-checklist.md`. Run `make ci` (or
+the individual gates above) to confirm existing site quality checks still pass
+after governance edits.
