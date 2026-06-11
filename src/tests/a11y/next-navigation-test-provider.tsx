@@ -1,3 +1,4 @@
+import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import {
   createDevToolsInstrumentedPromise,
   NavigationPromisesContext,
@@ -7,6 +8,16 @@ import {
   SearchParamsContext,
 } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 import { type ReactNode, useMemo } from "react";
+
+const mockAppRouter = {
+  back: () => {},
+  forward: () => {},
+  prefetch: async () => {},
+  push: () => {},
+  refresh: () => {},
+  replace: () => {},
+  href: "/",
+};
 
 /** Fulfilled Next.js navigation contexts so `useSearchParams` does not suspend in RTL. */
 export function NextNavigationTestProvider({
@@ -32,14 +43,16 @@ export function NextNavigationTestProvider({
   }, [pathname, searchParams]);
 
   return (
-    <NavigationPromisesContext.Provider value={navigationPromises}>
-      <SearchParamsContext.Provider value={searchParams}>
-        <PathnameContext.Provider value={pathname}>
-          <PathParamsContext.Provider value={{}}>
-            {children}
-          </PathParamsContext.Provider>
-        </PathnameContext.Provider>
-      </SearchParamsContext.Provider>
-    </NavigationPromisesContext.Provider>
+    <AppRouterContext.Provider value={mockAppRouter}>
+      <NavigationPromisesContext.Provider value={navigationPromises}>
+        <SearchParamsContext.Provider value={searchParams}>
+          <PathnameContext.Provider value={pathname}>
+            <PathParamsContext.Provider value={{}}>
+              {children}
+            </PathParamsContext.Provider>
+          </PathnameContext.Provider>
+        </SearchParamsContext.Provider>
+      </NavigationPromisesContext.Provider>
+    </AppRouterContext.Provider>
   );
 }
