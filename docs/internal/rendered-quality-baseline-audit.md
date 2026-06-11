@@ -1,6 +1,6 @@
 # Rendered quality baseline audit
 
-Audited at (UTC): 2026-06-11T11:23:18.068Z
+Audited at (UTC): 2026-06-11T11:58:30.222Z
 Routes visited: 14
 Viewport checks: 28
 
@@ -15,8 +15,6 @@ Viewport checks: 28
 ### content-standards
 
 - [content-standards] / (all) — customer-visible process language: matched: Phase 1, Phase 1 sample
-- [content-standards] /docs/modules/grouped-query-attention (all) — folded summary missing: openingSummary renders as visible prose without folded-summary marker
-- [content-standards] /docs/modules/attention (all) — folded summary missing: openingSummary renders as visible prose without folded-summary marker
 - [content-standards] /docs/glossary/vector (all) — customer-visible process language: matched: Phase 1, Phase 2, Phase 1 bridge page
 - [content-standards] /docs/glossary/hidden-size (all) — customer-visible process language: matched: Phase 1, Phase 2, Phase 1 bridge page
 

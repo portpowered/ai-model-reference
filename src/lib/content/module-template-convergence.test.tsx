@@ -8,7 +8,7 @@ describe("module template convergence", () => {
   test("canonical module.mdx follows writing and graphing standards", () => {
     const template = readFileSync(join(templateRoot, "module.mdx"), "utf8");
 
-    expect(template).toContain('<T k="openingSummary" />');
+    expect(template).toContain("<FoldedSummary />");
     expect(template).not.toContain('<T k="problemStatement" />');
     expect(template).not.toContain('<T k="coreIdea" />');
     expect(template).not.toContain("callouts.readerShortcut");

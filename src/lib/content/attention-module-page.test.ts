@@ -46,7 +46,7 @@ describe("attention module variant hub page", () => {
   test("page.mdx omits duplicate body title and phase bridge callout", () => {
     const template = readFileSync(pageMdxPath, "utf8");
 
-    expect(template).toContain('<T k="openingSummary" />');
+    expect(template).toContain("<FoldedSummary />");
     expect(template).not.toContain('<T k="title" />');
     expect(template).not.toContain('<T k="problemStatement" />');
     expect(template).not.toContain('<T k="coreIdea" />');
@@ -71,6 +71,8 @@ describe("attention module variant hub page", () => {
       }),
     );
 
+    expect(html).toContain('data-testid="folded-summary"');
+    expect(html).toContain('data-folded-summary="true"');
     expect(html).toContain("scores how much each position should read");
     expect(html).not.toContain("Phase 1 bridge page");
     expect(html).not.toContain("roadmap");
