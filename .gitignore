@@ -3,7 +3,7 @@ bin/
 # Ralph workstation iteration state (worktree-local only; see factory/workstations/process/AGENTS.md)
 /prd.json
 /prd.md
-/progress.txt
+/progress.md
 
 .DS_Store
 
@@ -17,7 +17,8 @@ storybook-static/
 
 tasks/
 tasks/todo
-docs/internal/**
+docs/temp/**
+docs/temp/**
 factory/internal/**
 factory/inputs/**
 !factory/inputs/BATCH/
@@ -42,7 +43,7 @@ ui/coverage/*
 factory/logs/complete
 factory/logs/meta/*
 !factory/logs/meta/asks.md
-!factory/logs/meta/progress.txt
+!factory/logs/meta/progress.md
 !factory/logs/meta/view.md
 
 **/__pycache__/*

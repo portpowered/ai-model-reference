@@ -15,7 +15,7 @@ asset config, search coverage, related-document behavior, citations where
 needed, and validation coverage appropriate for that phase.
 
 A phase is complete only when all required outcomes are implemented, validation
-passes, the manual review gate is satisfied, and `docs/internal/customer-ask.md`
+passes, the manual review gate is satisfied, and `docs/temp/customer-ask.md`
 is updated by the customer or an authorized operator. Checklist completion alone
 does not authorize phase advancement.
 
@@ -51,7 +51,7 @@ Required outcomes:
 * ideafy meta-planner instructions are explicit about current phase, state checks,
   session checks, batch submission, loopback work, and repair moves
 * batch input example matches the canonical `FACTORY_REQUEST_BATCH` shape
-* `docs/internal/progress.txt` and `docs/internal/checklist.md` exist
+* `docs/temp/progress.md` and `docs/temp/checklist.md` exist
 * `docs/architecture.md`, `docs/data-model.md`, and
   `docs/architectural-checklist.md` describe the implementation target
 * this document has a clean phased roadmap with no unmapped raw backlog

@@ -3,7 +3,7 @@ You are an autonomous coding agent working on a software project.
 ## Your Task
 
 1. Read the PRD at `prd.json` (in the current working directory)
-2. Read the progress log at `progress.txt` 
+2. Read the progress log at `progress.md` 
 3. Check you're on the branch named by PRD `branchName`. For this factory,
    `branchName` should match the PRD/work item name because
    `setup-workspace.py` creates worktrees from the PRD name.
@@ -35,7 +35,7 @@ You are an autonomous coding agent working on a software project.
 5.2.4. Keep this mergeability work disciplined:
   - stay focused on making the reviewed PR head pass and merge cleanly,
   - avoid opportunistic cleanup or unrelated redesign that does not materially help mergeability,
-  - document clearly in `progress.txt` and the PR conversation which follow-up changes were made only to make the PR mergeable.
+  - document clearly in `progress.md` and the PR conversation which follow-up changes were made only to make the PR mergeable.
 5.2.5. Only leave the branch on `<CONTINUE>` without making a mergeability fix when you have a concrete reason you cannot safely complete that work in the current iteration, such as a truly large unrelated project, missing external access, or a blocker that cannot be reproduced or verified locally.
 5.2.6. When required CI or other required GitHub checks are still non-terminal, treat waiting as the default action before intervening:
   - if the checks are still actively progressing or have been running for less than 15 minutes, wait for them to complete rather than canceling, rerunning, or treating them as stale,
@@ -43,7 +43,7 @@ You are an autonomous coding agent working on a software project.
   - if the only remaining blocker is still-running required CI within that 15-minute window, responding `<CONTINUE>` is correct.
 5.2.7. Standardize timestamp handling in this workflow to UTC by default:
   - interpret GitHub timestamps, workflow timestamps, and progress comparisons in UTC,
-  - when recording times in `progress.txt` or PR conversation comments, prefer explicit UTC timestamps or clearly labeled UTC-normalized comparisons,
+  - when recording times in `progress.md` or PR conversation comments, prefer explicit UTC timestamps or clearly labeled UTC-normalized comparisons,
   - do not compare local wall-clock timestamps against GitHub `Z` timestamps without converting both sides to the same timezone first.
 5.3. Preserve architecture and dependency direction. Keep pure logic separated from IO, transport, filesystem, environment, time, and process boundaries when practical.
 5.4. Keep state explicit, local, and easy to trace. Avoid hidden side effects, unexplained mutable shared state, and unexplained magic values.
@@ -55,13 +55,13 @@ You are an autonomous coding agent working on a software project.
 5.10. Treat AI-authored code with extra scrutiny and verify real APIs, real behavior, and existing project patterns.
 6. Perform the changes requested by said user story. 
 7. Run quality checks (e.g., typecheck, lint, test - use whatever your project requires)
-8. Update the relevant docs/internal/processes/{*-relevant-files}.md files if you discover reusable patterns.
-9. If checks pass, commit ALL code/doc changes except `prd.json`, `prd.md` and `progress.txt` with message: `feat: [Story ID] - [Story Title]`
+8. Update the relevant docs/temp/processes/{*-relevant-files}.md files if you discover reusable patterns.
+9. If checks pass, commit ALL code/doc changes except `prd.json`, `prd.md` and `progress.md` with message: `feat: [Story ID] - [Story Title]`
 10. Update the PRD to set `passes: true` for the completed story
-11. Append your progress to `progress.txt`.
+11. Append your progress to `progress.md`.
 12. create new tasks if they meet the task-creation rules below.
 13. If you think that there's too much to do, currently, break down the current task into smaller tasks, complete the smaller tasks, and leave the new tasks for future iterations. 
-14. Stage and commit the updated `prd.json`, `prd.md` and `progress.txt` locally only if your workflow requires preserving them in the worktree, but DO NOT include them in the code review commit or PR branch history. NEVER bypass hooks with `git commit --no-verify` just to include them.
+14. Stage and commit the updated `prd.json`, `prd.md` and `progress.md` locally only if your workflow requires preserving them in the worktree, but DO NOT include them in the code review commit or PR branch history. NEVER bypass hooks with `git commit --no-verify` just to include them.
 15. Push the branch after each successful code/doc commit that is intended for review.
 16. After pushing, reconcile the PR state:
 16.1. If there is no existing PR and all tasks in the current PRD are complete, create the PR for the branch, named {{ (index .Inputs 0).Name }}. Set the description as the prd.json file that we used.
@@ -93,7 +93,7 @@ we should not create new tasks for:
 - Work on ONE story per iteration
 - Commit frequently
 - Keep CI green
-- Read the Codebase Patterns section in progress.txt before starting
+- Read the Codebase Patterns section in progress.md before starting
 - When adding or revising tests, prefer observable runtime, API, CLI, UI, or
   emitted-event assertions. Do not add meta tests that scan source files,
   validate docs link topology, inspect asset bundle internals, or enforce
@@ -102,7 +102,7 @@ we should not create new tasks for:
 
 ## Progress Report Format
 
-APPEND to progress.txt (never replace, always append):
+APPEND to progress.md (never replace, always append):
 ```
 ## [Date/Time] - [Story ID]
 - What was implemented
@@ -120,7 +120,7 @@ The learnings section is critical - it helps future iterations avoid repeating m
 
 ## Consolidate Patterns
 
-If you discover a **reusable pattern** that future iterations should know, add it to the `## Codebase Patterns` section at the TOP of progress.txt (create it if it doesn't exist). This section should consolidate the most important learnings:
+If you discover a **reusable pattern** that future iterations should know, add it to the `## Codebase Patterns` section at the TOP of progress.md (create it if it doesn't exist). This section should consolidate the most important learnings:
 
 ```
 ## Codebase Patterns
