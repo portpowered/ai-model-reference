@@ -38,6 +38,7 @@ describe("built-html convergence test helpers", () => {
       readBuiltHtmlForConvergenceTests(
         ".next/server/app/index.html",
         projectRoot,
+        { [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1" },
       ),
     ).toBeNull();
   });

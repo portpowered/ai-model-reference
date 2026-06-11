@@ -17,8 +17,9 @@ export function shouldRunBuiltHtmlFileConvergenceTests(
 export function readBuiltHtmlForConvergenceTests(
   relativePath: string,
   projectRoot: string = process.cwd(),
+  env: Record<string, string | undefined> = process.env,
 ): string | null {
-  if (!shouldRunBuiltHtmlFileConvergenceTests(projectRoot)) {
+  if (!shouldRunBuiltHtmlFileConvergenceTests(projectRoot, env)) {
     return null;
   }
 
