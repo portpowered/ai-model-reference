@@ -1,0 +1,17 @@
+{
+  "id": "concept.page-spec-workflow-sample",
+  "slug": "page-spec-workflow-sample",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["page spec sample"],
+  "tags": ["attention"],
+  "relatedIds": ["concept.token", "concept.context-extension"],
+  "citationIds": ["citation.wei-emergent-abilities"],
+  "status": "draft",
+  "createdAt": "2026-06-11T12:11:36.725Z",
+  "updatedAt": "2026-06-11T12:11:36.725Z",
+  "conceptType": "general",
+  "prerequisiteIds": [],
+  "explainsIds": []
+}
