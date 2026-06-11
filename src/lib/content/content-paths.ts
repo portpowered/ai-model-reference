@@ -30,6 +30,21 @@ export function getModulesDocsRoot(docsRoot = getDocsRoot()): string {
   return join(docsRoot, "modules");
 }
 
+/** Model docs under `src/content/docs/models`. */
+export function getModelsDocsRoot(docsRoot = getDocsRoot()): string {
+  return join(docsRoot, "models");
+}
+
+/** Paper docs under `src/content/docs/papers`. */
+export function getPapersDocsRoot(docsRoot = getDocsRoot()): string {
+  return join(docsRoot, "papers");
+}
+
+/** Training-regime docs under `src/content/docs/training`. */
+export function getTrainingDocsRoot(docsRoot = getDocsRoot()): string {
+  return join(docsRoot, "training");
+}
+
 /** Registry JSON under `src/content/registry`. */
 export function getRegistryRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "registry");
