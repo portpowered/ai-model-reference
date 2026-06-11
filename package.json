@@ -31,7 +31,8 @@
     "verify:phase-1-batch-013-convergence": "bun ./scripts/run-phase-1-batch-013-convergence-pass.ts",
     "verify:phase-1-github-pages-convergence": "bun ./scripts/run-phase-1-github-pages-convergence-pass.ts",
     "verify:phase-1-github-pages-deploy-convergence": "bun ./scripts/run-phase-1-github-pages-deploy-convergence-pass.ts",
-    "verify:phase-2-3-reconciliation-convergence": "bun ./scripts/run-phase-2-3-reconciliation-convergence-pass.ts"
+    "verify:phase-2-3-reconciliation-convergence": "bun ./scripts/run-phase-2-3-reconciliation-convergence-pass.ts",
+    "verify:rendered-quality-baseline": "bun ./scripts/run-rendered-quality-baseline-audit.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
