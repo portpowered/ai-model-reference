@@ -1,6 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { renderGlossaryDocsShell } from "@/lib/content/glossary-shell-render";
 import {
   expectGlossaryBodyOmitsTitleHeading,
@@ -13,6 +11,7 @@ import {
   extractGlossaryArticleHtml,
 } from "@/lib/content/glossary-test-helpers";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
+import { readBuiltHtmlForConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
 import { assertDocsShellConvergence } from "@/lib/verify/docs-shell-convergence";
 
 function countH1BlocksContaining(html: string, text: string): number {
@@ -157,16 +156,9 @@ describe("glossary presentation route convergence (built HTML)", () => {
   ];
 
   function readBuiltGlossaryHtml(slug: string): string | null {
-    const builtPath = join(
-      process.cwd(),
+    return readBuiltHtmlForConvergenceTests(
       `.next/server/app/docs/glossary/${slug}.html`,
     );
-
-    if (!existsSync(builtPath)) {
-      return null;
-    }
-
-    return readFileSync(builtPath, "utf8");
   }
 
   test("/docs/glossary/token built HTML passes docs shell convergence", () => {
