@@ -198,11 +198,8 @@ function buildYamlFrontmatter(spec: PageSpec, updatedAt: string): string {
   const frontmatter = derivePageFrontmatter(spec, updatedAt);
   const lines: string[] = [];
 
-  if (spec.kind === "glossary") {
-    lines.push(`title: ${yamlQuote(spec.title)}`);
-    lines.push(`description: ${yamlQuote(spec.summary)}`);
-  }
-
+  lines.push(`title: ${yamlQuote(spec.title)}`);
+  lines.push(`description: ${yamlQuote(spec.summary)}`);
   lines.push(`kind: ${yamlQuote(frontmatter.kind)}`);
   lines.push(`registryId: ${yamlQuote(frontmatter.registryId)}`);
   lines.push(`messageNamespace: ${yamlQuote(frontmatter.messageNamespace)}`);

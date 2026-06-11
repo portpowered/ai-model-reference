@@ -253,7 +253,10 @@ describe("generatePageBundle", () => {
     );
     expect(pageRaw).toContain('kind: "concept"');
     expect(pageRaw).not.toContain("concept.example-concept");
-    expect(pageRaw).not.toMatch(/^title:/m);
+    expect(pageRaw).toContain('title: "Generated Page"');
+    expect(pageRaw).toContain(
+      'description: "Reader-facing summary for cards and search."',
+    );
 
     const pageRegistryId = await readScaffoldedPageRegistryId(
       join(contentRoot, "docs", "concepts", slug, "page.mdx"),
