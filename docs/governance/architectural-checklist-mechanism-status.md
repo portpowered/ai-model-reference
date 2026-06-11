@@ -12,8 +12,8 @@ planner-owned checklists from observable facts rather than assumptions.
 
 | Field | Value |
 | --- | --- |
-| **Last reviewed (UTC)** | 2026-06-11 (category audit pass, story 002) |
-| **Review scope** | Phase 1 governance pass: map checklist category sections to repository mechanisms, separate operator-owned controls from source-controlled gates, and prepare focused local enforcement for feasible gaps. |
+| **Last reviewed (UTC)** | 2026-06-11 (operator separation pass, story 003) |
+| **Review scope** | Phase 1 governance pass: map checklist category sections to repository mechanisms, document operator-owned controls separately from source-controlled gates, and prepare focused local enforcement for feasible gaps. |
 | **Source checklist** | [docs/architectural-checklist.md](../architectural-checklist.md) |
 | **Artifact path** | `docs/governance/architectural-checklist-mechanism-status.md` |
 
@@ -123,19 +123,71 @@ later governance pass splits them intentionally.
 
 ## Operator and manual requirements
 
-Repository source alone cannot prove some controls. Those belong here (or in
-per-category **Follow-up or operator requirement** fields) as manual
-operator actions:
+Repository source alone cannot prove some controls. Those belong in this
+section (or in per-category **Follow-up or operator requirement** fields) as
+**operator/manual** actions. Do not mark them **implemented** in category
+entries unless direct repository evidence exists.
 
-* GitHub branch protection and required status checks
-* GitHub Pages or other hosting provider settings
-* Environment secrets and production environment configuration
-* Preview deployment infrastructure when not defined in workflow files
-* External monitoring, analytics, or security dashboards
+### Controls that require operator configuration
 
-Operators may record future evidence by linking workflow run URLs, settings
-screenshots stored outside the repo, or maintainer sign-off in PR conversation
-comments. Do not commit secrets or credentials to satisfy this artifact.
+| Control | Why it is operator/manual | Phase 1 expectation |
+| --- | --- | --- |
+| **GitHub branch protection** | Rules live under **Settings → Branches**; no `.github/branch-protection.yml` or equivalent in this repository. | Protect `main`; require status check **`ci`** (job name in `.github/workflows/ci.yml`); disallow force-push and branch deletion. See [docs/operations.md](../operations.md#branch-protection). |
+| **GitHub Pages source and permissions** | Pages **Build and deployment → Source** and **Actions → Workflow permissions** are repository settings, not workflow file contents. | Source must be **GitHub Actions**; workflow permissions must allow `pages: write` and `id-token: write` for deploy. See [docs/operations.md](../operations.md#required-github-repository-settings). |
+| **Production hosting configuration** | Custom domains, TLS, CDN, and Pages environment protection rules are configured in GitHub (or another host) outside git. | Phase 1 publishes `out/` to the GitHub Pages project site documented in `docs/operations.md`. |
+| **Environment secrets** | No production API keys, analytics tokens, or deployment secrets are committed; `.gitignore` excludes local env files. | CI and deploy use lockfile installs only; no secret-backed deploy steps in workflow files today. |
+| **Preview deployment infrastructure** | No PR preview workflow exists in `.github/workflows/`. | Deferred for Phase 1; production deploy runs on `main` pushes only. |
+| **External monitoring and analytics** | Client error tracking, Core Web Vitals, search analytics, and 404 telemetry are absent from application source. | Operator-owned if added later via a hosting or analytics provider. |
+| **Dependency and security dashboards** | No Dependabot config or automated vulnerability gate in repository source. | Operator-owned security review cadence until a repo-local gate lands. |
+
+### What repository workflows actually enforce
+
+Describe CI and deploy only according to committed workflow files. They do **not**
+replace operator settings above.
+
+#### `.github/workflows/ci.yml` (job `ci`)
+
+| Aspect | Repository behavior |
+| --- | --- |
+| **Triggers** | `pull_request` (all branches) and `push` to `main`. |
+| **Permissions** | `contents: read` at job scope. |
+| **Steps** | Checkout → setup Bun → `bun install --frozen-lockfile` → install Playwright Chromium → `make ci`. |
+| **What `make ci` runs** | lint, typecheck, test, manifest-scoped coverage, build, build-export, validate-data, linkcheck (see `Makefile`). |
+| **What it does not do** | Deploy, publish previews, configure branch protection, or prove GitHub Pages UI settings. |
+
+Verification: `make ci`, `bun test src/tests/ci/github-actions-make-ci.test.ts`
+
+#### `.github/workflows/deploy.yml` (jobs `build`, `deploy`)
+
+| Aspect | Repository behavior |
+| --- | --- |
+| **Triggers** | `push` to `main` only (no `pull_request`, no `workflow_dispatch` in Phase 1). |
+| **Permissions** | Workflow scope: `contents: read`, `pages: write`, `id-token: write`. |
+| **Build job** | Checkout → setup Bun → frozen lockfile install → `make build-export` with `GITHUB_PAGES_BASE_PATH: ai-model-reference` → configure Pages → upload `out/` artifact. |
+| **Deploy job** | Publishes artifact via `actions/deploy-pages@v4` to environment `github-pages`. |
+| **What it does not do** | Run `make ci` (quality gates stay in `ci.yml`); deploy PR heads; validate branch protection. |
+
+Verification: `make build-export`, `bun test src/tests/ci/github-actions-deploy.test.ts` (if present), `docs/operations.md`
+
+Maintainer narrative for release, rollback, and SHA traceability lives in
+[docs/operations.md](../operations.md). That doc explains operational
+expectations but does not version-control GitHub settings.
+
+### Providing future evidence without secrets in the repo
+
+Operators can close manual-control gaps in governance passes **without**
+committing credentials, screenshots of secret values, or live dashboard exports:
+
+| Evidence type | Acceptable use |
+| --- | --- |
+| **Workflow run URL** | Link a green `ci` or `deploy` run for a specific commit SHA in a PR conversation comment or planner checklist update. |
+| **Settings confirmation (non-secret)** | Maintainer states in PR conversation that branch protection is active, required check is `ci`, and Pages source is GitHub Actions—no need to store UI screenshots in git. |
+| **Documentation update** | Add or revise `docs/operations.md` when workflow job names, required checks, or deploy paths change so the artifact stays aligned with files. |
+| **Repository config (when applicable)** | Commit Dependabot, CODEOWNERS, or new workflow files when the control becomes source-controlled; then reclassify the category from operator/manual to implemented or partially implemented with evidence paths. |
+| **External artifact (out of band)** | Store redacted settings screenshots or org policy links in maintainer-run storage; reference them by URL in conversation, not in the public repo. |
+
+Do **not** commit `.env` files, API tokens, analytics keys, or production
+secrets to satisfy this artifact.
 
 ## Category entries
 
