@@ -14,6 +14,7 @@ import {
   type PageMessages,
   pageFrontmatterSchema,
 } from "./schemas";
+import { validateCanonicalMdxProse } from "./validate-canonical-mdx-prose";
 import {
   type ValidationError,
   validateColocatedPageBundle,
@@ -179,37 +180,9 @@ export function validateRegistryFrontmatterAlignment(
   return errors;
 }
 
-function collectDistinctMessageProse(messages: PageMessages): string[] {
-  const prose: string[] = [messages.title, messages.description];
-  if (messages.openingSummary) {
-    prose.push(messages.openingSummary);
-  }
-
-  for (const section of Object.values(messages.sections ?? {})) {
-    if (section.title) {
-      prose.push(section.title);
-    }
-    if (section.body) {
-      prose.push(section.body);
-    }
-  }
-
-  for (const callout of Object.values(messages.callouts ?? {})) {
-    if (callout.title) {
-      prose.push(callout.title);
-    }
-    if (callout.body) {
-      prose.push(callout.body);
-    }
-  }
-
-  return [...new Set(prose.filter((value) => value.trim().length > 0))];
-}
-
 export function validateGeneratedSearchText(
   messages: PageMessages,
   frontmatter: PageFrontmatter,
-  mdxSource: string,
   pageUrl: string,
   indexes: RegistryIndexes,
 ): ValidationError[] {
@@ -245,16 +218,6 @@ export function validateGeneratedSearchText(
       code: "search-body-not-from-messages",
       message: `${pagePath}: search bodyText must come from resolved messages, not MDX`,
     });
-  }
-
-  const mdxBody = mdxSource.replace(/^---[\s\S]*?---\s*/m, "");
-  for (const prose of collectDistinctMessageProse(messages)) {
-    if (prose.length >= 24 && mdxBody.includes(prose)) {
-      errors.push({
-        code: "mdx-hard-coded-prose",
-        message: `${pagePath}: MDX body contains reader-facing prose that should live in messages: "${prose.slice(0, 48)}..."`,
-      });
-    }
   }
 
   return errors;
@@ -351,11 +314,23 @@ export async function validateGeneratedPageBundle(
     ...validateGeneratedSearchText(
       messages,
       frontmatterResult.data,
-      mdxSource,
       pageUrl,
       indexes,
     ),
   );
+
+  const assets = bundle.assets;
+  if (assets) {
+    errors.push(
+      ...validateCanonicalMdxProse({
+        pagePath,
+        kind: frontmatterResult.data.kind,
+        mdxSource,
+        messages,
+        assets,
+      }),
+    );
+  }
 
   return errors;
 }
