@@ -1,5 +1,6 @@
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { parsePageAssetConfig, validatePageAssetReferences } from "./assets";
 import {
   getConceptsDocsRoot,
   getContentRoot,
@@ -21,6 +22,12 @@ import {
   registryKindForPageSpec,
   validatePageSpec,
 } from "./page-spec";
+import {
+  type PageAssetConfig,
+  type PageMessages,
+  pageMessagesSchema,
+} from "./schemas";
+import { validateCanonicalMdxProse } from "./validate-canonical-mdx-prose";
 
 export type GeneratePageBundleInput = {
   spec: PageSpec | unknown;
@@ -40,6 +47,20 @@ export type GeneratePageBundleResult = {
   route: string;
   plannedFiles: PlannedBundleFile[];
   writtenFiles: string[];
+};
+
+export type PageBundleArtifacts = {
+  spec: PageSpec;
+  registryId: string;
+  route: string;
+  paths: ReturnType<typeof resolvePageBundlePaths>;
+  pageMdx: string;
+  messages: PageMessages;
+  messagesJson: string;
+  assets: PageAssetConfig;
+  assetsJson: string;
+  registryRecord: Record<string, unknown>;
+  registryJson: string;
 };
 
 const TEMPLATE_ROOT_SEGMENTS = ["docs", "templates"] as const;
@@ -446,6 +467,38 @@ async function assertPathDoesNotExist(path: string): Promise<void> {
   }
 }
 
+function formatUnresolvedReferenceMessage(
+  issues: Array<{ message: string }>,
+): string {
+  const details = issues.map((issue) => issue.message).join("; ");
+  return `Unresolved reference: ${details}`;
+}
+
+function assertGeneratedBundleReferences(artifacts: PageBundleArtifacts): void {
+  const assetIssues = validatePageAssetReferences(
+    artifacts.assets,
+    artifacts.messages,
+  );
+  if (assetIssues.length > 0) {
+    throw new GeneratePageBundleError(
+      formatUnresolvedReferenceMessage(assetIssues),
+    );
+  }
+
+  const mdxIssues = validateCanonicalMdxProse({
+    pagePath: artifacts.paths.pagePath,
+    kind: artifacts.spec.kind,
+    mdxSource: artifacts.pageMdx,
+    messages: artifacts.messages,
+    assets: artifacts.assets,
+  });
+  if (mdxIssues.length > 0) {
+    throw new GeneratePageBundleError(
+      mdxIssues.map((issue) => issue.message).join("; "),
+    );
+  }
+}
+
 export function resolvePageBundlePaths(
   spec: PageSpec,
   projectRoot = getProjectRoot(),
@@ -474,6 +527,50 @@ export function resolvePageBundlePaths(
   };
 }
 
+export async function buildPageBundleArtifacts(input: {
+  spec: PageSpec;
+  projectRoot?: string;
+  updatedAt?: string;
+}): Promise<PageBundleArtifacts> {
+  const projectRoot = input.projectRoot ?? getProjectRoot();
+  const updatedAt = input.updatedAt ?? isoDateUtc();
+  const spec = input.spec;
+  const registryId = registryIdForPageSpec(spec);
+  const paths = resolvePageBundlePaths(spec, projectRoot);
+
+  const [templateMdx, templateMessagesRaw, templateAssetsRaw] =
+    await Promise.all([
+      readTemplateFile(projectRoot, spec.kind, "<kind>.mdx"),
+      readTemplateFile(projectRoot, spec.kind, "<kind>.messages.en.json"),
+      readTemplateFile(projectRoot, spec.kind, "<kind>.assets.json"),
+    ]);
+
+  const pageMdx = buildPageMdx(templateMdx, spec, updatedAt);
+  const templateMessages = JSON.parse(templateMessagesRaw) as Record<
+    string,
+    unknown
+  >;
+  const messagesRecord = buildPageMessages(templateMessages, spec);
+  const messages = pageMessagesSchema.parse(messagesRecord);
+  const assetsJson = buildPageAssetsJson(templateAssetsRaw, spec);
+  const assets = parsePageAssetConfig(JSON.parse(assetsJson));
+  const registryRecord = buildRegistryRecord(spec, isoTimestampUtc());
+
+  return {
+    spec,
+    registryId,
+    route: routeForSpec(spec),
+    paths,
+    pageMdx,
+    messages,
+    messagesJson: `${JSON.stringify(messagesRecord, null, 2)}\n`,
+    assets,
+    assetsJson,
+    registryRecord,
+    registryJson: `${JSON.stringify(registryRecord, null, 2)}\n`,
+  };
+}
+
 export async function generatePageBundle(
   input: GeneratePageBundleInput,
 ): Promise<GeneratePageBundleResult> {
@@ -485,9 +582,8 @@ export async function generatePageBundle(
       : validatePageSpec(input.spec);
 
   const projectRoot = input.projectRoot ?? getProjectRoot();
-  const updatedAt = input.updatedAt ?? isoDateUtc();
-  const registryId = registryIdForPageSpec(spec);
   const paths = resolvePageBundlePaths(spec, projectRoot);
+  const registryId = registryIdForPageSpec(spec);
 
   const plannedFiles: PlannedBundleFile[] = [
     { path: paths.registryPath, label: "registry record" },
@@ -509,30 +605,18 @@ export async function generatePageBundle(
     await assertPathDoesNotExist(file.path);
   }
 
-  const [templateMdx, templateMessagesRaw, templateAssetsRaw] =
-    await Promise.all([
-      readTemplateFile(projectRoot, spec.kind, "<kind>.mdx"),
-      readTemplateFile(projectRoot, spec.kind, "<kind>.messages.en.json"),
-      readTemplateFile(projectRoot, spec.kind, "<kind>.assets.json"),
-    ]);
-
-  const pageMdx = buildPageMdx(templateMdx, spec, updatedAt);
-  const templateMessages = JSON.parse(templateMessagesRaw) as Record<
-    string,
-    unknown
-  >;
-  const messages = buildPageMessages(templateMessages, spec);
-  const assetsJson = buildPageAssetsJson(templateAssetsRaw, spec);
-  const registryRecord = buildRegistryRecord(spec, isoTimestampUtc());
+  const artifacts = await buildPageBundleArtifacts({
+    spec,
+    projectRoot,
+    updatedAt: input.updatedAt,
+  });
+  assertGeneratedBundleReferences(artifacts);
 
   await mkdir(join(paths.pageDir, "messages"), { recursive: true });
-  await writeFile(
-    paths.registryPath,
-    `${JSON.stringify(registryRecord, null, 2)}\n`,
-  );
-  await writeFile(paths.pagePath, pageMdx);
-  await writeFile(paths.messagesPath, `${JSON.stringify(messages, null, 2)}\n`);
-  await writeFile(paths.assetsPath, assetsJson);
+  await writeFile(paths.registryPath, artifacts.registryJson);
+  await writeFile(paths.pagePath, artifacts.pageMdx);
+  await writeFile(paths.messagesPath, artifacts.messagesJson);
+  await writeFile(paths.assetsPath, artifacts.assetsJson);
 
   return {
     registryId,

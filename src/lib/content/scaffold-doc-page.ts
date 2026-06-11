@@ -164,6 +164,9 @@ export function formatScaffoldUsage(): string {
   return [
     "Usage: bun ./scripts/scaffold-doc-page.ts [options]",
     "",
+    "Prefer bun ./scripts/generate-page-bundle.ts --spec <page-spec.json> for new",
+    "concept and glossary pages so title, summary, sections, and assets stay aligned.",
+    "",
     "Required:",
     "  --kind glossary|concept",
     "  --slug <kebab-case-slug>",
