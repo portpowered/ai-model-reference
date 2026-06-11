@@ -1,0 +1,72 @@
+import { describe, expect, test } from "bun:test";
+import { join } from "node:path";
+import {
+  buildRenderedQualityRegressionCatalogRows,
+  deriveRenderedQualityRegressionEvidence,
+  formatRenderedQualityRegressionReport,
+  getRenderedQualityRegressionExitCode,
+  RENDERED_QUALITY_REGRESSION_CHECKS,
+  RENDERED_QUALITY_REGRESSION_DOMAIN_ID,
+  RENDERED_QUALITY_REGRESSION_TEST_FILES,
+} from "./rendered-quality-regression";
+
+const repoRoot = join(import.meta.dir, "../../..");
+
+describe("rendered quality regression catalog", () => {
+  test("lists automated coverage for every fixed rendered-quality behavior lane", () => {
+    const lanes = new Set(
+      RENDERED_QUALITY_REGRESSION_CHECKS.map((check) => check.lane),
+    );
+
+    expect(lanes.has("page-shell")).toBe(true);
+    expect(lanes.has("content-standards")).toBe(true);
+    expect(lanes.has("graph")).toBe(true);
+    expect(lanes.has("overflow")).toBe(true);
+    expect(lanes.has("accessibility")).toBe(true);
+    expect(RENDERED_QUALITY_REGRESSION_CHECKS.length).toBeGreaterThanOrEqual(
+      10,
+    );
+  });
+
+  test("maps each catalog row to existing test files in the repository", () => {
+    const rows = buildRenderedQualityRegressionCatalogRows(repoRoot);
+    const evidence = deriveRenderedQualityRegressionEvidence(rows);
+
+    expect(evidence.domainId).toBe(RENDERED_QUALITY_REGRESSION_DOMAIN_ID);
+    expect(evidence.status).toBe("pass");
+    expect(rows.every((row) => row.status === "pass")).toBe(true);
+  });
+
+  test("formats a maintainer-facing regression report with repeatable commands", () => {
+    const evidence = deriveRenderedQualityRegressionEvidence(
+      buildRenderedQualityRegressionCatalogRows(repoRoot),
+    );
+    const report = formatRenderedQualityRegressionReport(evidence);
+
+    expect(report).toContain(
+      "Rendered documentation quality regression coverage",
+    );
+    expect(report).toContain("rendered-regression.page-shell.folded-summary");
+    expect(report).toContain("bun test");
+    expect(report).toContain("make verify-rendered-quality-baseline");
+    expect(report).toContain("make verify-rendered-quality-regression");
+  });
+
+  test("aggregates exit codes from catalog, unit tests, and baseline audit", () => {
+    const passingEvidence = deriveRenderedQualityRegressionEvidence(
+      buildRenderedQualityRegressionCatalogRows(repoRoot),
+    );
+
+    expect(getRenderedQualityRegressionExitCode(passingEvidence, 0, 0)).toBe(0);
+    expect(getRenderedQualityRegressionExitCode(passingEvidence, 1, 0)).toBe(1);
+    expect(getRenderedQualityRegressionExitCode(passingEvidence, 0, 1)).toBe(1);
+  });
+
+  test("deduplicates regression test file paths for the unit suite command", () => {
+    const uniquePaths = new Set(RENDERED_QUALITY_REGRESSION_TEST_FILES);
+    expect(uniquePaths.size).toBe(
+      RENDERED_QUALITY_REGRESSION_TEST_FILES.length,
+    );
+    expect(RENDERED_QUALITY_REGRESSION_TEST_FILES.length).toBeGreaterThan(0);
+  });
+});
