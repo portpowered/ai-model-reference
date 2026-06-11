@@ -160,4 +160,100 @@ describe("verifyMechanismStatusArtifact", () => {
     expect(formatted).toContain("[Testing]");
     expect(formatted).toContain("verification failed");
   });
+
+  test("fails when contract sections are removed from the artifact", () => {
+    const checklistContent = readFileSync(checklistPath, "utf8");
+    const artifactContent = readFileSync(artifactPath, "utf8").replace(
+      "## Evidence rule",
+      "## Evidence removed",
+    );
+
+    const result = verifyMechanismStatusArtifact(
+      checklistContent,
+      artifactContent,
+    );
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.some((issue) =>
+        issue.message.includes("missing contract section: ## Evidence rule"),
+      ),
+    ).toBe(true);
+  });
+
+  test("fails when operator controls are stripped from the artifact", () => {
+    const checklistContent = readFileSync(checklistPath, "utf8");
+    const artifactContent = readFileSync(artifactPath, "utf8").replace(
+      /### Controls that require operator configuration[\s\S]*?### What repository workflows actually enforce/,
+      "### What repository workflows actually enforce",
+    );
+
+    const result = verifyMechanismStatusArtifact(
+      checklistContent,
+      artifactContent,
+    );
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.some((issue) =>
+        issue.message.includes(
+          "Operator/manual requirements must document control: GitHub branch protection",
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  test("fails when an unexpected category entry is added to the artifact", () => {
+    const checklist = `
+## Testing
+
+* item
+`;
+    const artifact = `
+## Operator and manual requirements
+
+GitHub branch protection
+Environment secrets
+Preview deployment infrastructure
+Production hosting configuration
+#### \`.github/workflows/ci.yml\`
+#### \`.github/workflows/deploy.yml\`
+
+## Status values
+**implemented**
+**partially implemented**
+**missing**
+
+## Evidence rule
+
+## Required fields per category
+
+## Category entries
+
+### Testing
+
+| Field | Value |
+| --- | --- |
+| **Status** | implemented |
+| **Repository evidence** | \`src/tests/**\` |
+
+### Phantom category
+
+| Field | Value |
+| --- | --- |
+| **Status** | missing |
+| **Repository evidence** | none |
+
+## Reviewer commands
+`;
+
+    const result = verifyMechanismStatusArtifact(checklist, artifact);
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.some((issue) =>
+        issue.message.includes("unexpected category entry: Phantom category"),
+      ),
+    ).toBe(true);
+  });
 });
