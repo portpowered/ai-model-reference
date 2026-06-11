@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "build:export": "NEXT_STATIC_EXPORT=1 next build && bun ./scripts/emit-export-search-index.ts",
+    "build": "next build && bun ./scripts/write-build-source-fingerprint.ts",
+    "build:export": "NEXT_STATIC_EXPORT=1 next build && bun ./scripts/emit-export-search-index.ts && bun ./scripts/write-build-source-fingerprint.ts",
     "start": "next start",
     "lint": "biome check .",
     "format": "biome format --write .",
@@ -31,7 +31,8 @@
     "verify:phase-1-batch-013-convergence": "bun ./scripts/run-phase-1-batch-013-convergence-pass.ts",
     "verify:phase-1-github-pages-convergence": "bun ./scripts/run-phase-1-github-pages-convergence-pass.ts",
     "verify:phase-1-github-pages-deploy-convergence": "bun ./scripts/run-phase-1-github-pages-deploy-convergence-pass.ts",
-    "verify:phase-2-3-reconciliation-convergence": "bun ./scripts/run-phase-2-3-reconciliation-convergence-pass.ts"
+    "verify:phase-2-3-reconciliation-convergence": "bun ./scripts/run-phase-2-3-reconciliation-convergence-pass.ts",
+    "verify:architectural-checklist-mechanism-status": "bun ./scripts/verify-architectural-checklist-mechanism-status.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

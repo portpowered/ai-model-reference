@@ -1,6 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import {
   extractNdTocHtml,
   tocHtmlIncludesAnchor,
@@ -12,6 +10,7 @@ import {
   stripHtmlScripts,
   TOKEN_GLOSSARY_URL,
 } from "@/lib/navigation/docs-sidebar-contract";
+import { readBuiltHtmlForConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
 import { assertSearchPageBuiltAppShell } from "@/lib/verify/phase-1-search-built-app-shell-checks";
 
 const BUILT_HTML_SITE_ROUTES = [
@@ -42,11 +41,7 @@ const BUILT_HTML_SITE_ROUTES = [
 ] as const;
 
 function readBuiltRouteHtml(relativePath: string): string | null {
-  const absolutePath = join(process.cwd(), relativePath);
-  if (!existsSync(absolutePath)) {
-    return null;
-  }
-  return readFileSync(absolutePath, "utf8");
+  return readBuiltHtmlForConvergenceTests(relativePath);
 }
 
 describe("Phase 1 site routes unified shell (built HTML)", () => {

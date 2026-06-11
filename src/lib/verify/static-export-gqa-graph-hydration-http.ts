@@ -3,7 +3,10 @@ import { REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS } from "@/features/mode
 import { exportHtmlIncludesGqaAttentionVariantGraphShellMarkers } from "@/lib/build/verify-export-base-path";
 import { withExportIntegrationProbeLock } from "./export-integration-probe-lock";
 import { httpGetText } from "./http-harness";
-import { launchPlaywrightBrowser } from "./launch-playwright-browser";
+import {
+  closePlaywrightBrowserWithTimeout,
+  launchPlaywrightBrowser,
+} from "./launch-playwright-browser";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
@@ -139,7 +142,7 @@ export async function verifyStaticExportGqaGraphHydration(
     } catch (error) {
       return error instanceof Error ? error.message : String(error);
     } finally {
-      await browser.close();
+      await closePlaywrightBrowserWithTimeout(browser);
     }
   });
 }

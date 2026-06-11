@@ -17,7 +17,7 @@ this is not a website for evaluating performance on benchmarks (use artifical an
 this website is not a way to dowlnoad the relevant technical papers, though it does provide links to them. 
 
 # conceptually. 
-The project enables customers to search across components. 
+It enables customers to search across components. 
 for example, if you're looking to see the various attention mechanisms, the document supports you to look at all the types of attention. 
 
 to enable this type of search, the internal architecture persists data model for various models to rapidly index/search different models. 
@@ -38,20 +38,27 @@ The only one who should touch it is the PLANNER. You MUST NOT use you unless you
 You figure out how you works by running `you -h` and `you docs agents`. don't run you directly, since it'll start the workflow runtime. 
 
 # writing code
-we MUST read these when writing code.
-
+when writing code, we generally look to standardize and minimize complexity. 
 [design-skills](./docs/design-skills.md)
 [code-standards](./docs/code-standards.md)
 
 # writing docs
+As a general rule, we want docs to be fresh and relevant, meaning that all pages should have references to appropriate other pages for relevant information. i.e. a page on attention variants should link to the other pages around attention and explain why this one is better when its written. 
 
-we MUST read these generally when writing documents.
+please follow the appropriate documents when writing docs. Mandatory references for canonical page authoring and review:
 [documentation template](./docs/documentation-template.md)
 [writing standards](./docs/writing-standards.md) — folded summary, layperson tone, symbol-only math definitions, no reader-shortcut callouts
 [graphing standards](./docs/graphing-standards.md) — single primary graph, readable node theme, zoom/pan, attention-variant comparison
+[quality-documents-standards](./docs/quality-documents-standards.md)
 
 # generally relevant files
-we MUST read these generally when writing code or documents.
+we MUST read these generally when writing anything.
 [site fundamentals](./docs/site-fundamentals.md)
 [data model](./docs/data-model.md)
 [architecture](./docs/architecture.md)
+
+# customer asks
+These files are the files that are being used as the fundamental customer asks that we use to create the entire website.
+use these when necessary. The planners MUST always read this page. 
+[documentation site pages](./docs/documentation-site-pages-needed.md)
+[architecture-checklist](./docs/architectural-checklist.md)
