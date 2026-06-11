@@ -54,11 +54,12 @@ describe("built-html convergence test helpers", () => {
       "<html>ready</html>",
     );
 
-    expect(shouldRunBuiltHtmlFileConvergenceTests(projectRoot)).toBe(true);
+    expect(shouldRunBuiltHtmlFileConvergenceTests(projectRoot, {})).toBe(true);
     expect(
       readBuiltHtmlForConvergenceTests(
         ".next/server/app/index.html",
         projectRoot,
+        {},
       ),
     ).toBe("<html>ready</html>");
   });
