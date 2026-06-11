@@ -3,6 +3,7 @@ import type { MDXComponents } from "mdx/types";
 import { Callout } from "@/features/docs/components/Callout";
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { DocsPre } from "@/features/docs/components/DocsCodeBlock";
 import { FoldedSummary } from "@/features/docs/components/FoldedSummary";
 import { BlockMath, InlineMath } from "@/features/docs/components/Math";
 import { PageMathFormula } from "@/features/docs/components/PageMathFormula";
@@ -24,6 +25,7 @@ import { ModuleMetadataCard } from "@/features/models/components/ModuleMetadataC
 
 export const moduleMdxComponents: MDXComponents = {
   ...defaultMdxComponents,
+  pre: DocsPre,
   BlockMath,
   InlineMath,
   Callout,

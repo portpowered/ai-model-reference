@@ -29,15 +29,15 @@ export function TagsIndexList({ groups, listLabel }: TagsIndexListProps) {
             {group.tags.map((tag) => (
               <li key={tag.slug}>
                 <Link href={tag.url} className={docsResourceCardLinkClassName}>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-medium text-foreground">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <span className="break-words font-medium text-foreground">
                       {tag.title}
                     </span>
                     <ArrowRight
                       className="size-4 text-primary opacity-0 transition-opacity group-hover:opacity-100"
                       aria-hidden
                     />
-                    <span className="rounded-md border border-border bg-background px-1.5 py-0.5 text-xs text-muted-foreground">
+                    <span className="max-w-full break-all rounded-md border border-border bg-background px-1.5 py-0.5 text-xs text-muted-foreground">
                       {tag.slug}
                     </span>
                   </div>

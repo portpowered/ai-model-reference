@@ -50,6 +50,7 @@ describe("RegistryComparisonTable", () => {
       'data-table-id="table.grouped-query-attention-comparison"',
     );
     expect(html).toContain('data-registry-comparison-table="true"');
+    expect(html).toContain('data-rich-content-scroll="table"');
     expect(html).not.toContain(">table.grouped-query-attention-comparison<");
     expect(html).toContain("KV head count");
     expect(html).toContain("Query-head flexibility");

@@ -30,7 +30,10 @@ export function TBlockMath({ formulaKey, labelKey }: TBlockMathProps) {
   const label = labelResult?.ok ? labelResult.value : undefined;
 
   return (
-    <figure className="not-prose my-0" data-message-block-math={formulaKey}>
+    <figure
+      className="not-prose my-0 max-w-full"
+      data-message-block-math={formulaKey}
+    >
       {label ? (
         <figcaption className="mb-2 text-sm font-medium text-muted-foreground">
           {label}

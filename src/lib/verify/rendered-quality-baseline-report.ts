@@ -67,7 +67,9 @@ export function formatRenderedQualityAuditReport(
     "## Manual follow-up",
     "",
     "- Re-run `bun run verify:rendered-quality-baseline` after `make build` when validating fixes from stories 002–007.",
-    "- Graph pan/zoom and MHA/GQA toggle probes run automatically for grouped-query-attention during this audit; pair remaining manual checks with desktop and mobile focus and keyboard navigation when those lanes are in scope.",
+    "- Graph pan/zoom and MHA/GQA toggle probes run automatically for grouped-query-attention during this audit.",
+    "- Rich-content table, code, and math scroll probes run for grouped-query-attention and backpropagation at desktop and mobile viewports.",
+    "- Pair remaining manual checks with desktop and mobile focus and keyboard navigation when those lanes are in scope.",
     "",
   );
 

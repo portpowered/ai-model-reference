@@ -20,6 +20,11 @@ import {
   auditRenderedQualityGraphInteraction,
   GQA_GRAPH_INTERACTION_ROUTE,
 } from "./rendered-quality-baseline-graph-interaction";
+import {
+  auditRenderedQualityRichContent,
+  collectRichContentDomMetrics,
+  RICH_CONTENT_AUDIT_ROUTES,
+} from "./rendered-quality-baseline-rich-content";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
 export const DEFAULT_RENDERED_QUALITY_AUDIT_TIMEOUT_MS = 45_000;
@@ -168,6 +173,61 @@ async function collectGqaGraphInteractionIssues(
   });
 }
 
+async function collectRichContentIssues(
+  page: Page,
+  baseUrl: string,
+  route: RenderedQualityAuditRoute,
+  viewport: RenderedQualityViewport,
+  timeoutMs: number,
+): Promise<RenderedQualityIssue[]> {
+  await page.setViewportSize({
+    width: viewport.width,
+    height: viewport.height,
+  });
+  await page.goto(`${normalizeVerifyBaseUrl(baseUrl)}${route.path}`, {
+    timeout: timeoutMs,
+    waitUntil: "domcontentloaded",
+  });
+
+  const selectors = [
+    '[data-rich-content-scroll="table"]',
+    '[data-rich-content-scroll="code"]',
+    '[data-rich-content-scroll="math"]',
+  ];
+
+  for (const selector of selectors) {
+    const target = page.locator(selector).first();
+    if ((await target.count()) > 0) {
+      await target.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(200);
+    }
+  }
+
+  try {
+    const metrics = await page.evaluate(collectRichContentDomMetrics);
+    return auditRenderedQualityRichContent({
+      route,
+      viewport: viewport.id,
+      innerWidth: metrics.innerWidth,
+      table: metrics.table,
+      code: metrics.code,
+      math: metrics.math,
+    });
+  } catch (error) {
+    const detail =
+      error instanceof Error ? error.message : "rich content probe failed";
+    return auditRenderedQualityRichContent({
+      route,
+      viewport: viewport.id,
+      innerWidth: viewport.width,
+      table: null,
+      code: null,
+      math: null,
+      errorDetail: detail,
+    });
+  }
+}
+
 async function collectViewportOverflowIssues(
   page: Page,
   baseUrl: string,
@@ -216,7 +276,19 @@ export async function runRenderedQualityBaselineAudit(
   const htmlIssueGroups: RenderedQualityIssue[][] = [];
   let routesVisited = 0;
 
-  for (const route of routes) {
+  const shouldAuditSupplementaryRichContent = routes.some(
+    (route) => route.path === GQA_GRAPH_INTERACTION_ROUTE,
+  );
+  const htmlAuditRoutes = shouldAuditSupplementaryRichContent
+    ? [
+        ...routes,
+        ...RICH_CONTENT_AUDIT_ROUTES.filter(
+          (route) => !routes.some((entry) => entry.path === route.path),
+        ),
+      ]
+    : routes;
+
+  for (const route of htmlAuditRoutes) {
     const { issues } = await collectRouteHtmlIssues(baseUrl, route, timeoutMs);
     htmlIssueGroups.push(issues);
     routesVisited += 1;
@@ -225,9 +297,15 @@ export async function runRenderedQualityBaselineAudit(
   const browser = await launchBrowser();
   const overflowIssueGroups: RenderedQualityIssue[][] = [];
   const graphInteractionIssueGroups: RenderedQualityIssue[][] = [];
+  const richContentIssueGroups: RenderedQualityIssue[][] = [];
   const gqaRoute = routes.find(
     (route) => route.path === GQA_GRAPH_INTERACTION_ROUTE,
   );
+  const richContentRoutes = shouldAuditSupplementaryRichContent
+    ? [...RICH_CONTENT_AUDIT_ROUTES]
+    : RICH_CONTENT_AUDIT_ROUTES.filter((route) =>
+        routes.some((entry) => entry.path === route.path),
+      );
 
   try {
     const page = await browser.newPage();
@@ -263,6 +341,17 @@ export async function runRenderedQualityBaselineAudit(
         );
         graphInteractionIssueGroups.push(graphIssues);
       }
+
+      for (const richContentRoute of richContentRoutes) {
+        const richContentIssues = await collectRichContentIssues(
+          page,
+          baseUrl,
+          richContentRoute,
+          viewport,
+          timeoutMs,
+        );
+        richContentIssueGroups.push(richContentIssues);
+      }
     }
   } finally {
     await closePlaywrightBrowserWithTimeout(browser);
@@ -272,13 +361,18 @@ export async function runRenderedQualityBaselineAudit(
     ...htmlIssueGroups,
     ...overflowIssueGroups,
     ...graphInteractionIssueGroups,
+    ...richContentIssueGroups,
   ]);
 
   const graphInteractionChecks = gqaRoute ? viewports.length : 0;
+  const richContentChecks = richContentRoutes.length * viewports.length;
 
   return buildRenderedQualityAuditResult({
     issues,
     routesVisited,
-    viewportChecks: routes.length * viewports.length + graphInteractionChecks,
+    viewportChecks:
+      routes.length * viewports.length +
+      graphInteractionChecks +
+      richContentChecks,
   });
 }

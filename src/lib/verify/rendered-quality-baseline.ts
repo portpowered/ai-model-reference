@@ -12,6 +12,11 @@ import {
   assertGroupedQueryAttentionMathDefinitionsConvergence,
   assertGroupedQueryAttentionSingleGraphConvergence,
 } from "./grouped-query-attention-module-convergence";
+import {
+  assertBackpropagationRichContentConvergence,
+  assertGroupedQueryAttentionRichContentConvergence,
+  BACKPROPAGATION_RICH_CONTENT_ROUTE,
+} from "./rendered-quality-rich-content-convergence";
 
 export const RENDERED_QUALITY_BASELINE_REPORT_HEADER =
   "Rendered quality baseline audit";
@@ -415,6 +420,34 @@ export function auditRenderedQualityHtml(
         lane: "graph",
         behavior: "multiple React Flow canvases",
         detail: `found ${graphCount} data-react-flow-graph surfaces`,
+      });
+    }
+
+    const richContentFailure =
+      assertGroupedQueryAttentionRichContentConvergence(visibleHtml);
+    if (richContentFailure) {
+      issues.push({
+        route: route.path,
+        routeLabel: route.label,
+        viewport,
+        lane: "overflow",
+        behavior: "rich content overflow guards",
+        detail: richContentFailure,
+      });
+    }
+  }
+
+  if (route.path === BACKPROPAGATION_RICH_CONTENT_ROUTE) {
+    const richContentFailure =
+      assertBackpropagationRichContentConvergence(visibleHtml);
+    if (richContentFailure) {
+      issues.push({
+        route: route.path,
+        routeLabel: route.label,
+        viewport,
+        lane: "overflow",
+        behavior: "rich content overflow guards",
+        detail: richContentFailure,
       });
     }
   }
