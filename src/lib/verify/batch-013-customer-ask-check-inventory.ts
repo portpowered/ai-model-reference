@@ -29,7 +29,7 @@ export type Batch013CustomerAskInventoryEntry = {
 
 /**
  * Unique batch-013 customer-ask inventory rows mapped to reopened glossary and
- * grouped-query-attention Phase 1 outcomes in docs/internal/customer-ask.md.
+ * grouped-query-attention Phase 1 outcomes in docs/temp/customer-ask.md.
  */
 export const BATCH_013_CUSTOMER_ASK_INVENTORY: readonly Batch013CustomerAskInventoryEntry[] =
   [

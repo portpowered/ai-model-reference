@@ -41,7 +41,7 @@ export type Batch012CustomerAskInventoryEntry = {
 
 /**
  * Unique batch-012 customer-ask inventory rows mapped to
- * docs/internal/customer-ask.md sections.
+ * docs/temp/customer-ask.md sections.
  */
 export const BATCH_012_CUSTOMER_ASK_INVENTORY: readonly Batch012CustomerAskInventoryEntry[] =
   [
