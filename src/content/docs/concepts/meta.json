@@ -1,7 +1,7 @@
 {
   "title": "Concepts",
   "pages": [
-    "[Page spec workflow sample](/docs/concepts/page-spec-workflow-sample)",
+    "[Page Spec Workflow Sample](/docs/concepts/page-spec-workflow-sample)",
     "[Context extension](/docs/concepts/context-extension)",
     "[Positional encodings](/docs/concepts/positional-encodings)",
     "[Transformer architecture](/docs/concepts/transformer-architecture)",

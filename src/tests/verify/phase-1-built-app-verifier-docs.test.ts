@@ -32,7 +32,7 @@ describe("Phase 1 built-app verifier entrypoint documentation", () => {
     const readme = readFileSync(readmePath, "utf8");
     expect(readme).toMatch(/make verify-phase-1-ux/);
     expect(readme).toMatch(/bun run verify:phase-1-ux/);
-    expect(readme).toMatch(/docs\/internal\/customer-ask\.md/);
+    expect(readme).toMatch(/docs\/temp\/customer-ask\.md/);
     expect(readme).toMatch(/empty-results/i);
     expect(readme).toMatch(/3100.*3999|3100–3999/);
     expect(readme).toMatch(/UX convergence scope/i);
