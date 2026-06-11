@@ -252,7 +252,6 @@ describe("validateGeneratedPageBundle", () => {
       const searchErrors = validateGeneratedSearchText(
         messages,
         frontmatter,
-        mdxSource,
         `/docs/concepts/${slug}`,
         indexes,
       );
