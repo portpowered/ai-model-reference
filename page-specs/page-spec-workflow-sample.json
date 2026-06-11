@@ -4,7 +4,7 @@
   "title": "Page Spec Workflow Sample",
   "summary": "A small generated concept page that demonstrates the page-spec bundle workflow end to end.",
   "openingSummary": "This sample was generated from one page-spec file to show how title, sections, tags, and assets stay message-key driven.",
-  "status": "draft",
+  "status": "published",
   "conceptType": "general",
   "aliases": ["page spec sample"],
   "tags": ["attention"],

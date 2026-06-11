@@ -45,7 +45,7 @@ we MUST read these when writing code.
 
 # writing docs
 
-we MUST read these generally when writing documents.
+we MUST read these generally when writing documents. Mandatory references for canonical page authoring and review:
 [documentation template](./docs/documentation-template.md)
 [writing standards](./docs/writing-standards.md) — folded summary, layperson tone, symbol-only math definitions, no reader-shortcut callouts
 [graphing standards](./docs/graphing-standards.md) — single primary graph, readable node theme, zoom/pan, attention-variant comparison
