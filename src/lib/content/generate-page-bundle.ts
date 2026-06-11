@@ -228,6 +228,24 @@ function mergeRecordSection<T extends Record<string, unknown>>(
   return merged;
 }
 
+function fillEmptyDraftStrings(value: unknown, draftNote: string): unknown {
+  if (typeof value === "string") {
+    return value.length === 0 ? draftNote : value;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => fillEmptyDraftStrings(item, draftNote));
+  }
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nested]) => [
+        key,
+        fillEmptyDraftStrings(nested, draftNote),
+      ]),
+    );
+  }
+  return value;
+}
+
 function buildPageMessages(
   templateMessages: Record<string, unknown>,
   spec: PageSpec,
@@ -275,7 +293,18 @@ function buildPageMessages(
     };
   }
 
-  return messages;
+  const draftNote = `Draft placeholder for ${spec.title}. Replace before publishing.`;
+  const filled = fillEmptyDraftStrings(messages, draftNote) as Record<
+    string,
+    unknown
+  >;
+  filled.title = spec.title;
+  filled.description = spec.summary;
+  if (spec.openingSummary !== undefined) {
+    filled.openingSummary = spec.openingSummary;
+  }
+
+  return filled;
 }
 
 function buildPageAssetsJson(
