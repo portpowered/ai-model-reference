@@ -1,11 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import {
   extractNdTocHtml,
   tocHtmlIncludesAnchor,
 } from "@/lib/navigation/docs-page-toc-contract";
 import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
+import { readBuiltHtmlForConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
 
 const BUILT_HTML_DOC_ROUTES = [
   {
@@ -23,11 +22,7 @@ const BUILT_HTML_DOC_ROUTES = [
 ] as const;
 
 function readBuiltRouteHtml(relativePath: string): string | null {
-  const absolutePath = join(process.cwd(), relativePath);
-  if (!existsSync(absolutePath)) {
-    return null;
-  }
-  return readFileSync(absolutePath, "utf8");
+  return readBuiltHtmlForConvergenceTests(relativePath);
 }
 
 describe("docs page heading TOC (built HTML)", () => {
