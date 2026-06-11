@@ -43,6 +43,14 @@ const pageSpecCalloutSchema = z.object({
   body: z.string().min(1),
 });
 
+const pageSpecAssetMessagesSchema = z.record(
+  z.string(),
+  z.object({
+    alt: z.string().optional(),
+    caption: z.string().optional(),
+  }),
+);
+
 const pageSpecBaseSchema = z.object({
   slug: z
     .string()
@@ -59,6 +67,7 @@ const pageSpecBaseSchema = z.object({
   sections: z.record(z.string(), pageSpecSectionSchema).optional(),
   callouts: z.record(z.string(), pageSpecCalloutSchema).optional(),
   assets: pageAssetConfigSchema.optional(),
+  assetMessages: pageSpecAssetMessagesSchema.optional(),
   graph: pageGraphMessagesSchema.optional(),
 });
 

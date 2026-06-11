@@ -52,10 +52,16 @@ describe("page-spec workflow sample", () => {
       }),
     );
 
-    expect(html).toContain("Page Spec Workflow Sample");
     expect(html).toContain("page-spec file");
     expect(html).toContain("Page spec input");
     expect(html).toContain("Generated bundle");
+    expect(html).toContain(
+      "Diagram mapping a page spec input to the generated page bundle files.",
+    );
+    expect(html).toContain(
+      "How one page spec drives page.mdx, messages, assets, and registry output.",
+    );
+    expect(html).not.toContain("Draft placeholder");
     expect(html).not.toContain("data-missing-graph-id");
     expect(html).not.toContain("missing message");
     expect(html).not.toContain("missing asset");

@@ -270,6 +270,55 @@ describe("generatePageBundle", () => {
     await rm(tempRoot, { recursive: true, force: true });
   });
 
+  test("writes page-spec assetMessages into messages without draft placeholders", async () => {
+    const tempRoot = await createTemplateFixtureRoot();
+    await prepareContentRoots(tempRoot);
+
+    const slug = "generated-concept-asset-messages";
+    await generatePageBundle({
+      spec: {
+        ...baseSpecFields,
+        slug,
+        kind: "concept",
+        conceptType: "general",
+        assetMessages: {
+          conceptMap: {
+            alt: "Diagram alt text supplied by the page spec.",
+            caption: "Caption text supplied by the page spec.",
+          },
+        },
+      },
+      projectRoot: tempRoot,
+    });
+
+    const messages = JSON.parse(
+      await readFile(
+        join(
+          tempRoot,
+          "src",
+          "content",
+          "docs",
+          "concepts",
+          slug,
+          "messages",
+          "en.json",
+        ),
+        "utf8",
+      ),
+    ) as {
+      assets: { conceptMap: { alt: string; caption: string } };
+    };
+    expect(messages.assets.conceptMap.alt).toBe(
+      "Diagram alt text supplied by the page spec.",
+    );
+    expect(messages.assets.conceptMap.caption).toBe(
+      "Caption text supplied by the page spec.",
+    );
+    expect(messages.assets.conceptMap.alt).not.toContain("Draft placeholder");
+
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
   test("writes module bundle with page-spec assets and registry fields", async () => {
     const tempRoot = await createTemplateFixtureRoot();
     await prepareContentRoots(tempRoot);
