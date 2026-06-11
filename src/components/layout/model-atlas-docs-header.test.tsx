@@ -115,7 +115,10 @@ describe("ModelAtlasDocsHeader", () => {
 
   test("reveals mobile primary nav links in a disclosure panel when the menu opens", async () => {
     const messages = await loadUiMessages();
-    await renderWithAppProviders(<ModelAtlasDocsHeader messages={messages} />);
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    await renderWithAppProviders(<ModelAtlasDocsHeader messages={messages} />, {
+      SearchDialog,
+    });
     const menuButton = screen.getByRole("button", { name: messages.nav.menu });
 
     expect(menuButton.getAttribute("aria-expanded")).toBe("false");
@@ -143,7 +146,10 @@ describe("ModelAtlasDocsHeader", () => {
 
   test("closes the mobile menu and hides the disclosure panel when toggled off", async () => {
     const messages = await loadUiMessages();
-    await renderWithAppProviders(<ModelAtlasDocsHeader messages={messages} />);
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    await renderWithAppProviders(<ModelAtlasDocsHeader messages={messages} />, {
+      SearchDialog,
+    });
     const menuButton = screen.getByRole("button", { name: messages.nav.menu });
 
     fireEvent.click(menuButton);
@@ -177,7 +183,10 @@ describe("ModelAtlasDocsHeader", () => {
 
   test("moves keyboard focus through menu control, disclosed links, and search trigger when open", async () => {
     const messages = await loadUiMessages();
-    await renderWithAppProviders(<ModelAtlasDocsHeader messages={messages} />);
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    await renderWithAppProviders(<ModelAtlasDocsHeader messages={messages} />, {
+      SearchDialog,
+    });
     const user = userEvent.setup();
     const menuButton = screen.getByRole("button", { name: messages.nav.menu });
     const searchTrigger = screen.getByRole("button", {
