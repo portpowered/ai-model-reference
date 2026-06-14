@@ -182,8 +182,16 @@ export async function checkSearchShortcut(
   await ensureSearchDialogClosed(page, timeoutMs);
 
   let lastReason: string | null = null;
-  for (let attempt = 0; attempt < SEARCH_SHORTCUT_RETRY_ATTEMPTS; attempt += 1) {
-    lastReason = await tryOpenSearchDialogWithShortcut(page, shortcut, timeoutMs);
+  for (
+    let attempt = 0;
+    attempt < SEARCH_SHORTCUT_RETRY_ATTEMPTS;
+    attempt += 1
+  ) {
+    lastReason = await tryOpenSearchDialogWithShortcut(
+      page,
+      shortcut,
+      timeoutMs,
+    );
     if (!lastReason) {
       return null;
     }
