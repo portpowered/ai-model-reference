@@ -12,8 +12,8 @@ planner-owned checklists from observable facts rather than assumptions.
 
 | Field | Value |
 | --- | --- |
-| **Last reviewed (UTC)** | 2026-06-11 (reviewer commands pass, story 005) |
-| **Review scope** | Phase 1 governance pass: map checklist category sections to repository mechanisms, document operator-owned controls separately from source-controlled gates, enforce mechanism-status artifact completeness locally, and expose reviewer commands for the audit and existing quality gates. |
+| **Last reviewed (UTC)** | 2026-06-14 (Phase 1 boundaries and deferred mechanisms, story 005) |
+| **Review scope** | Phase 1 governance pass: map checklist category sections to repository mechanisms, document operator-owned controls separately from source-controlled gates, enforce mechanism-status artifact completeness locally, document localization posture and intentionally deferred mechanisms, and expose reviewer commands for the audit and existing quality gates. |
 | **Source checklist** | [docs/architectural-checklist.md](../architectural-checklist.md) |
 | **Artifact path** | `docs/governance/architectural-checklist-mechanism-status.md` |
 
@@ -307,11 +307,11 @@ secrets to satisfy this artifact.
 | Field | Value |
 | --- | --- |
 | **Status** | partially implemented |
-| **Summary** | Page and registry text use colocated `messages/en.json` files and UI message loaders. The information architecture supports additional locales, but only English content ships today and locale routing/translation-missing detection is not enforced in CI. |
-| **Repository evidence** | `src/content/**/messages/en.json`, `src/lib/content/ui-messages.ts`, `src/lib/content/ui-messages-load.ts`, `src/lib/content/tag-messages.ts`, `docs/templates/*.messages.en.json` |
+| **Summary** | English-only shipping posture: colocated `messages/en.json` sidecars, `ui-messages` loaders defaulting to `en`, and no locale-prefixed App Router segments. Message-key tests cover English UI copy only. See [Phase 1 boundaries and deferred mechanisms](#phase-1-boundaries-and-deferred-mechanisms) for what this pass intentionally does not require. |
+| **Repository evidence** | `src/content/**/messages/en.json`, `src/content/messages/en/common.json`, `src/lib/content/ui-messages.ts`, `src/lib/content/ui-messages-load.ts`, `src/lib/content/tag-messages.ts`, `docs/templates/*.messages.en.json` |
 | **Verification commands** | `bun test src/tests/content/ui-messages.test.ts` |
 | **Gaps** | No non-English locales in content; no locale-prefixed routes; no CI check for missing translation keys; date/number localization not implemented. |
-| **Follow-up or operator requirement** | Add translation completeness validator when a second locale is introduced. |
+| **Follow-up or operator requirement** | Add translation completeness validator when a second locale is introduced; do not add locale routing or translated search for this governance pass. |
 
 ### Quality
 
@@ -544,6 +544,50 @@ secrets to satisfy this artifact.
 | **Gaps** | Not all DoD bullets (mobile/tablet/desktop sign-off, a11y in CI, performance budgets, editorial review) are automatically enforced. |
 | **Follow-up or operator requirement** | Wire `src/tests/a11y` into CI; add performance and editorial sign-off gates when prioritized. |
 
+## Phase 1 boundaries and deferred mechanisms
+
+This governance pass records mechanism status from repository evidence. It does
+**not** authorize new locale routing, preview deployments, Storybook, Lighthouse
+budgets, PDF pipelines, or blog routes in Phase 1. Reviewers should treat
+entries marked **missing** or operator-owned in the tables below as intentional
+deferrals unless a later governance pass explicitly rescopes them.
+
+### Current localization posture
+
+| Aspect | Repository behavior today | Phase 1 boundary |
+| --- | --- | --- |
+| **Shipped locales** | English only — message sidecars use `en` (for example `messages/en.json`, `src/content/messages/en/common.json`, and `*.en.json` tag registry files). | Do not mark **Localization** **implemented** until a second locale ships. |
+| **Message loading** | `src/lib/content/ui-messages.ts` and `ui-messages-load.ts` default to `locale = "en"`; page MDX uses colocated `messages/en.json` sidecars. | No new global i18n layer is required in Phase 1. |
+| **Routing** | No `src/app/[locale]/` or `src/app/print/[locale]/` segments; docs routes use locale-agnostic paths such as `/docs/**`. | Locale-prefixed routes and print URLs are deferred. |
+| **Search** | Orama search indexes English content; there is no translated-index or locale-switch UI. | Translated search and alternate-language metadata are deferred. |
+| **CI enforcement** | `bun test src/tests/content/ui-messages.test.ts` covers English message keys only. | No translation-completeness validator until a second locale is introduced. |
+
+The checklist describes future locale-aware PDF paths and `messages/<locale>.json`
+patterns; those are aspirational contract text, not Phase 1 requirements for
+this pass.
+
+### Intentionally deferred mechanisms
+
+| Mechanism | Status in this artifact | Why deferred | Reviewer expectation |
+| --- | --- | --- | --- |
+| **PR preview deployments** | Operator/manual; Operational gaps | No preview workflow in `.github/workflows/` | Confirm in GitHub UI; do not expect repository proof. |
+| **Storybook / visual regression** | Testing and Component quality gaps | `src/component-examples/` substitutes for interactive catalog review | Do not fail this pass for absent Storybook. |
+| **Lighthouse / bundle budgets** | Performance and Quality gaps | No CI performance regression gate | Manual spot-check is acceptable for Phase 1. |
+| **Print routes and PDF validation** | PDF Export Contract **missing**; `make validate-pdf` stub | No `src/app/print/**`, `scripts/build-pdf.ts`, or real `scripts/validate-pdf.ts` | Treat PDF checklist rows as a future phase unless routes land. |
+| **Blog routes and components** | Blog Components Contract **missing** | Templates exist under `docs/templates/`; no live blog app routes | Do not backfill blog implementation from checklist text alone. |
+| **Observability / analytics** | Observability **missing** | No client telemetry in application source | Operator-owned or a future instrumentation pass. |
+| **Accessibility in `make ci`** | Accessibility **partially implemented** | axe tests exist but are outside the default CI recipe | Documented deferral; wire into CI in a follow-up pass. |
+| **Full locale / translation CI** | Localization **partially implemented** | English-only shipping posture | Do not add locale routing or translation CI for this governance pass. |
+
+### Reviewer guidance for deferred scope
+
+When approving this governance pass:
+
+1. Confirm **Localization** and the deferred rows above match repository behavior — English-only messages, no locale routes, no translation CI.
+2. Do **not** treat checklist aspirational text (locale PDF paths, blog URLs, Storybook catalog) as Phase 1 blockers.
+3. Missing mechanisms listed here remain **missing** or **partially implemented** until a scoped follow-up pass adds source-controlled enforcement.
+4. Re-run `bun run verify:architectural-checklist-mechanism-status` after edits to this section.
+
 ## Reviewer commands
 
 Use the commands below to validate this governance pass. **Governance audit**
@@ -555,7 +599,7 @@ health but are not specific to the mechanism-status audit.
 
 | Command | Purpose |
 | --- | --- |
-| `bun run verify:architectural-checklist-mechanism-status` | Verifies every auditable checklist category appears once with allowed status values, required artifact sections, and repository evidence for implemented or partially implemented rows. |
+| `bun run verify:architectural-checklist-mechanism-status` | Verifies every auditable checklist category appears once with allowed status values, required artifact sections (including Phase 1 boundaries), and repository evidence for implemented or partially implemented rows. |
 | `bun test src/lib/governance/architectural-checklist-audit.test.ts` | Regression tests for the mechanism-status verifier (category extraction, parsing, failure modes). |
 
 ### General quality gates

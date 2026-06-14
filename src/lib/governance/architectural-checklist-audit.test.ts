@@ -203,6 +203,28 @@ describe("verifyMechanismStatusArtifact", () => {
     ).toBe(true);
   });
 
+  test("fails when phase boundary markers are stripped from the artifact", () => {
+    const checklistContent = readFileSync(checklistPath, "utf8");
+    const artifactContent = readFileSync(artifactPath, "utf8").replace(
+      "### Intentionally deferred mechanisms",
+      "### Deferred mechanisms removed",
+    );
+
+    const result = verifyMechanismStatusArtifact(
+      checklistContent,
+      artifactContent,
+    );
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.some((issue) =>
+        issue.message.includes(
+          "Phase 1 boundaries must document deferred scope marker: ### Intentionally deferred mechanisms",
+        ),
+      ),
+    ).toBe(true);
+  });
+
   test("fails when an unexpected category entry is added to the artifact", () => {
     const checklist = `
 ## Testing
@@ -227,6 +249,19 @@ Production hosting configuration
 ## Evidence rule
 
 ## Required fields per category
+
+## Phase 1 boundaries and deferred mechanisms
+
+### Current localization posture
+English only
+Locale-prefixed routes
+preview deployments
+Storybook
+Lighthouse
+PDF Export Contract
+Blog Components Contract
+
+### Intentionally deferred mechanisms
 
 ## Category entries
 
