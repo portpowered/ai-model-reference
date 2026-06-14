@@ -29,6 +29,7 @@ const OPERATIONAL_SUBSECTION = "Operational";
 
 const REQUIRED_ARTIFACT_SECTIONS = [
   "## Operator and manual requirements",
+  "## Phase 1 boundaries and deferred mechanisms",
   "## Reviewer commands",
 ] as const;
 
@@ -48,6 +49,18 @@ const REQUIRED_OPERATOR_CONTROL_MARKERS = [
 const REQUIRED_WORKFLOW_EVIDENCE_MARKERS = [
   "#### `.github/workflows/ci.yml`",
   "#### `.github/workflows/deploy.yml`",
+] as const;
+
+const REQUIRED_PHASE_BOUNDARY_MARKERS = [
+  "### Current localization posture",
+  "### Intentionally deferred mechanisms",
+  "English only",
+  "Locale-prefixed routes",
+  "preview deployments",
+  "Storybook",
+  "Lighthouse",
+  "PDF Export Contract",
+  "Blog Components Contract",
 ] as const;
 
 const CATEGORY_ENTRY_HEADING = /^### (.+)$/;
@@ -259,6 +272,33 @@ export function verifyMechanismStatusArtifact(
       if (!operatorSection.includes(marker)) {
         issues.push({
           message: `Operator/manual requirements must describe workflow evidence: ${marker}`,
+        });
+      }
+    }
+  }
+
+  const phaseBoundariesIndex = artifactContent.indexOf(
+    "## Phase 1 boundaries and deferred mechanisms",
+  );
+  if (phaseBoundariesIndex >= 0) {
+    const afterPhaseBoundariesHeading = artifactContent.slice(
+      phaseBoundariesIndex +
+        "## Phase 1 boundaries and deferred mechanisms".length,
+    );
+    const nextSectionOffset = afterPhaseBoundariesHeading.search(/\n## [^#]/);
+    const phaseBoundariesSection =
+      nextSectionOffset === -1
+        ? artifactContent.slice(phaseBoundariesIndex)
+        : artifactContent.slice(
+            phaseBoundariesIndex,
+            phaseBoundariesIndex +
+              "## Phase 1 boundaries and deferred mechanisms".length +
+              nextSectionOffset,
+          );
+    for (const marker of REQUIRED_PHASE_BOUNDARY_MARKERS) {
+      if (!phaseBoundariesSection.includes(marker)) {
+        issues.push({
+          message: `Phase 1 boundaries must document deferred scope marker: ${marker}`,
         });
       }
     }
