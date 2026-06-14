@@ -81,6 +81,39 @@ Glossary pages use page kind `glossary` but registry kind `concept` with ids `co
 
 `derivePageFrontmatter(spec, updatedAt)` emits `kind`, `registryId`, `messageNamespace: local`, `assetNamespace: local`, `status`, `tags`, optional `aliases`, and `updatedAt`. Registry ids come from `registryIdForPageSpec`.
 
+## Page bundle generation
+
+`generatePageBundle` in `src/lib/content/generate-page-bundle.ts` is the single write path for page-spec-driven bundles.
+
+### Inputs and outputs
+
+Given a validated page spec, generation emits four files:
+
+| Output | Path pattern |
+| --- | --- |
+| Registry record | `src/content/registry/<kind-dir>/<slug>.json` |
+| Canonical page | `src/content/docs/<parent>/<slug>/page.mdx` |
+| Colocated messages | `src/content/docs/<parent>/<slug>/messages/en.json` |
+| Colocated assets | `src/content/docs/<parent>/<slug>/assets.json` |
+
+`buildPageBundleArtifacts` assembles content in memory; `generatePageBundle` validates asset message keys and canonical MDX prose before writing. Use `dryRun: true` or `--dry-run` on the CLI to print `registryId`, route, and planned paths without touching disk.
+
+### Template substitution
+
+For each kind, the generator reads only `docs/templates/<kind>.mdx`, `<kind>.messages.en.json`, and `<kind>.assets.json`. Maintainer guidance in `<kind>.content.md` is never copied into generated output.
+
+Substitution rules:
+
+- Template registry ids (`concept.example-concept`, `module.example-module`, etc.) → `registryIdForPageSpec(spec)`.
+- Template graph/table ids (`graph.example-concept-map`, etc.) → slug-specific ids (glossary maps use `graph.<slug>-concept-map`, not `glossary-map`).
+- Frontmatter is rebuilt via `derivePageFrontmatter` plus Fumadocs-required `title` and `description` from the page spec.
+- Page-spec `sections`, `callouts`, `graph`, and `assetMessages` merge into template message keys; empty template strings receive draft placeholders so loaders accept generated bundles.
+- Page-spec `assets` merge into template `assets.json` entries.
+
+### Overwrite guard
+
+Before any write, `assertPathDoesNotExist` refuses generation when a registry record, `page.mdx`, `messages/en.json`, or `assets.json` already exists. Delete or relocate existing targets before re-running `generate:page-bundle`.
+
 ## Supported page kinds (page-spec workflow)
 
 `PAGE_SPEC_KINDS` in `src/lib/content/page-spec.ts` defines the supported workflow kinds, reusing the existing template inventory:
