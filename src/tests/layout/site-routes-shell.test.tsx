@@ -13,6 +13,7 @@ import {
   TOKEN_GLOSSARY_URL,
 } from "@/lib/navigation/docs-sidebar-contract";
 import { assertSearchPageBuiltAppShell } from "@/lib/verify/phase-1-search-built-app-shell-checks";
+import { shouldRunBuiltHtmlConvergenceTests } from "@/lib/verify/server-lifecycle";
 
 const BUILT_HTML_SITE_ROUTES = [
   {
@@ -50,6 +51,11 @@ function readBuiltRouteHtml(relativePath: string): string | null {
 }
 
 describe("Phase 1 site routes unified shell (built HTML)", () => {
+  if (!shouldRunBuiltHtmlConvergenceTests()) {
+    test("skips built HTML probes during coverage subprocess rerun", () => {});
+    return;
+  }
+
   for (const route of BUILT_HTML_SITE_ROUTES) {
     test(`${route.path} shares canonical shell chrome and route content`, () => {
       const html = readBuiltRouteHtml(route.file);

@@ -13,6 +13,7 @@ import {
   assertGroupedQueryAttentionCompanionSectionsConvergence,
   assertGroupedQueryAttentionModuleConvergence,
 } from "@/lib/verify/grouped-query-attention-module-convergence";
+import { shouldRunBuiltHtmlConvergenceTests } from "@/lib/verify/server-lifecycle";
 
 describe("grouped-query-attention module companion sections", () => {
   test("published GQA page keeps comparison table, related docs, and attention bridge wiring", () => {
@@ -45,6 +46,10 @@ describe("grouped-query-attention module companion sections", () => {
   });
 
   test("built HTML for /docs/modules/grouped-query-attention passes shared GQA convergence", () => {
+    if (!shouldRunBuiltHtmlConvergenceTests()) {
+      return;
+    }
+
     const result = verifyGroupedQueryAttentionBuiltRouteFromFile(
       GROUPED_QUERY_ATTENTION_BUILT_HTML_PATH,
     );

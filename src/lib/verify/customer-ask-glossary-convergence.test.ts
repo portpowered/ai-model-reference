@@ -19,6 +19,7 @@ import {
   GLOSSARY_TOKEN_REGISTRY_ID,
   GLOSSARY_VECTOR_REGISTRY_ID,
 } from "./customer-ask-glossary-convergence";
+import { shouldRunBuiltHtmlConvergenceTests } from "./server-lifecycle";
 
 const CHROME_LINK_CLASS =
   'class="no-underline transition-colors hover:no-underline focus-visible:ring-2"';
@@ -412,6 +413,10 @@ describe("buildCustomerAskGlossaryBridgeDescriptionRows", () => {
 
 describe("buildCustomerAskGlossaryBridgeDescriptionRows (built HTML)", () => {
   test("bridge glossary built HTML reports pass for description link checks", () => {
+    if (!shouldRunBuiltHtmlConvergenceTests()) {
+      return;
+    }
+
     const builtPaths = {
       embedding: join(
         process.cwd(),
@@ -445,6 +450,10 @@ describe("buildCustomerAskGlossaryBridgeDescriptionRows (built HTML)", () => {
 
 describe("buildCustomerAskGlossaryRows (built HTML)", () => {
   test("/docs/glossary/token built HTML reports pass for all customer-ask glossary checks", () => {
+    if (!shouldRunBuiltHtmlConvergenceTests()) {
+      return;
+    }
+
     const builtPath = join(
       process.cwd(),
       ".next/server/app/docs/glossary/token.html",
