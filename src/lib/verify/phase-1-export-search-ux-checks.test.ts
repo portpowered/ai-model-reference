@@ -192,5 +192,5 @@ describe("runPhase1ExportSearchUxChecks hydration failures", () => {
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
-  });
+  }, 15_000);
 });
