@@ -31,6 +31,7 @@ import {
   resolveVerifyBaseUrlFromEnv,
   shouldRunVerifyProductionIntegrationTests,
   VERIFY_COVERAGE_SUBPROCESS_ENV,
+  VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV,
   VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV,
   waitForServerReady,
 } from "./server-lifecycle";
@@ -270,8 +271,31 @@ describe("assertNextProductionBuild", () => {
     expect(
       shouldRunVerifyProductionIntegrationTests(repoRoot, {
         [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
+        [VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV]: "1",
       }),
     ).toBe(false);
+  });
+
+  test("skips production integration tests unless VERIFY_PRODUCTION_INTEGRATION_TESTS=1", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-opt-in-gate-"));
+    mkdirSync(join(projectRoot, ".next"), { recursive: true });
+    writeFileSync(join(projectRoot, ".next", "BUILD_ID"), "test-build");
+    writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}');
+    writeFileSync(join(projectRoot, "bun.lock"), "lock");
+    writeBuildSourceFingerprint(projectRoot);
+
+    try {
+      expect(shouldRunVerifyProductionIntegrationTests(projectRoot, {})).toBe(
+        false,
+      );
+      expect(
+        shouldRunVerifyProductionIntegrationTests(projectRoot, {
+          [VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV]: "1",
+        }),
+      ).toBe(true);
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 
   test("allows production integration tests when BUILD_ID is present and fingerprint matches", () => {
@@ -284,9 +308,11 @@ describe("assertNextProductionBuild", () => {
 
     try {
       expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
-      expect(shouldRunVerifyProductionIntegrationTests(projectRoot, {})).toBe(
-        true,
-      );
+      expect(
+        shouldRunVerifyProductionIntegrationTests(projectRoot, {
+          [VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV]: "1",
+        }),
+      ).toBe(true);
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
@@ -322,9 +348,11 @@ describe("assertNextProductionBuild", () => {
 
     try {
       expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
-      expect(shouldRunVerifyProductionIntegrationTests(projectRoot, {})).toBe(
-        true,
-      );
+      expect(
+        shouldRunVerifyProductionIntegrationTests(projectRoot, {
+          [VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV]: "1",
+        }),
+      ).toBe(true);
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }

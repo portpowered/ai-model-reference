@@ -7,7 +7,10 @@ import {
   readBuiltHtmlForConvergenceTests,
   shouldRunBuiltHtmlFileConvergenceTests,
 } from "./built-html-convergence-test-helpers";
-import { VERIFY_COVERAGE_SUBPROCESS_ENV } from "./server-lifecycle";
+import {
+  VERIFY_COVERAGE_SUBPROCESS_ENV,
+  VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV,
+} from "./server-lifecycle";
 
 describe("built-html convergence test helpers", () => {
   let projectRoot = "";
@@ -62,12 +65,18 @@ describe("built-html convergence test helpers", () => {
     writeFileSync(join(projectRoot, "bun.lock"), "lock");
     writeBuildSourceFingerprint(projectRoot);
 
-    expect(shouldRunBuiltHtmlFileConvergenceTests(projectRoot, {})).toBe(true);
+    expect(
+      shouldRunBuiltHtmlFileConvergenceTests(projectRoot, {
+        [VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV]: "1",
+      }),
+    ).toBe(true);
     expect(
       readBuiltHtmlForConvergenceTests(
         ".next/server/app/index.html",
         projectRoot,
-        {},
+        {
+          [VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV]: "1",
+        },
       ),
     ).toBe("<html>ready</html>");
   });

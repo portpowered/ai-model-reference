@@ -21,6 +21,14 @@ export const VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV =
 /** Set by `runCoverageSubprocess` so opt-in E2E tests skip the coverage rerun. */
 export const VERIFY_COVERAGE_SUBPROCESS_ENV = "VERIFY_COVERAGE_SUBPROCESS";
 
+/**
+ * Opt-in flag for built HTML and production-server integration tests inside
+ * `bun test`. Default `make test` leaves this unset so parallel build tests
+ * cannot enable convergence assertions against mid-suite `.next` artifacts.
+ */
+export const VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV =
+  "VERIFY_PRODUCTION_INTEGRATION_TESTS";
+
 /** Maximum time to wait for the production server to return HTTP 200. */
 export const DEFAULT_SERVER_STARTUP_TIMEOUT_MS = 30_000;
 
@@ -142,6 +150,9 @@ export function shouldRunVerifyProductionIntegrationTests(
   env: Record<string, string | undefined> = process.env,
 ): boolean {
   if (env[VERIFY_COVERAGE_SUBPROCESS_ENV] === "1") {
+    return false;
+  }
+  if (env[VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV] !== "1") {
     return false;
   }
   return (
