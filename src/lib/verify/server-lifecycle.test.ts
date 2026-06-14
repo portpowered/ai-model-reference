@@ -11,6 +11,7 @@ import {
   VERIFY_PORT_RANGE_END,
   VERIFY_PORT_RANGE_START,
 } from "./http-harness";
+import { writeProductionIntegrationBuildDigest } from "./production-integration-build-trust";
 import {
   acquireVerifyServerSession,
   assertNextProductionBuild,
@@ -265,6 +266,21 @@ describe("assertNextProductionBuild", () => {
     }
   });
 
+  test("skips production integration tests when build digest is missing", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-no-digest-"));
+    mkdirSync(join(projectRoot, ".next"), { recursive: true });
+    writeFileSync(join(projectRoot, ".next", "BUILD_ID"), "test-build");
+
+    try {
+      expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
+      expect(shouldRunVerifyProductionIntegrationTests(projectRoot)).toBe(
+        false,
+      );
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
   test("skips production integration tests during the coverage subprocess rerun", () => {
     expect(
       shouldRunVerifyProductionIntegrationTests(repoRoot, {
@@ -273,12 +289,16 @@ describe("assertNextProductionBuild", () => {
     ).toBe(false);
   });
 
-  test("allows production integration tests when BUILD_ID is present", () => {
+  test("allows production integration tests when trusted build digest matches", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-complete-next-"));
+    mkdirSync(join(projectRoot, "src"), { recursive: true });
+    writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}\n');
+    writeFileSync(join(projectRoot, "src", "app.ts"), "export {};\n");
     mkdirSync(join(projectRoot, ".next"), { recursive: true });
     writeFileSync(join(projectRoot, ".next", "BUILD_ID"), "test-build");
 
     try {
+      writeProductionIntegrationBuildDigest(projectRoot);
       expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
       expect(shouldRunVerifyProductionIntegrationTests(projectRoot, {})).toBe(
         true,
@@ -290,6 +310,9 @@ describe("assertNextProductionBuild", () => {
 
   test("allows production integration tests when Next.js 16 Turbopack build markers are present", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-turbopack-next-"));
+    mkdirSync(join(projectRoot, "src"), { recursive: true });
+    writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}\n');
+    writeFileSync(join(projectRoot, "src", "app.ts"), "export {};\n");
     mkdirSync(join(projectRoot, ".next", "server"), { recursive: true });
     writeFileSync(
       join(projectRoot, ".next", "server", "app-paths-manifest.json"),
@@ -298,6 +321,7 @@ describe("assertNextProductionBuild", () => {
     writeFileSync(join(projectRoot, ".next", "build-manifest.json"), "{}");
 
     try {
+      writeProductionIntegrationBuildDigest(projectRoot);
       expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
       expect(shouldRunVerifyProductionIntegrationTests(projectRoot, {})).toBe(
         true,
