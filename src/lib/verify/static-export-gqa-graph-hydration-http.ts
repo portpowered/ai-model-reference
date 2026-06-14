@@ -15,6 +15,51 @@ async function defaultLaunchBrowser(): Promise<Browser> {
   return launchPlaywrightBrowser();
 }
 
+async function activateAttentionVariantTab(
+  page: Page,
+  variant: "mha" | "gqa",
+  timeoutMs: number,
+): Promise<string | null> {
+  const comparison = page.locator('[data-attention-variant-comparison="true"]');
+  const graphShell = page.locator(
+    REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS.graphWrapper,
+  );
+  await graphShell
+    .scrollIntoViewIfNeeded({ timeout: timeoutMs })
+    .catch(() => {});
+  await comparison
+    .scrollIntoViewIfNeeded({ timeout: timeoutMs })
+    .catch(() => {});
+
+  const tab = page.locator(`[data-attention-variant-option="${variant}"]`);
+  try {
+    await tab.waitFor({ state: "visible", timeout: timeoutMs });
+  } catch {
+    return `Could not find the ${variant.toUpperCase()} comparison tab on the GQA module page.`;
+  }
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      await tab.click({ timeout: timeoutMs });
+      await page.waitForTimeout(150);
+      const activeVariant = await comparison.getAttribute(
+        "data-attention-variant-active",
+      );
+      if (activeVariant === variant) {
+        return null;
+      }
+    } catch {
+      // Retry once after re-scrolling when hydration races tab interactivity.
+    }
+    await tab.scrollIntoViewIfNeeded({ timeout: timeoutMs }).catch(() => {});
+  }
+
+  const activeVariant = await comparison.getAttribute(
+    "data-attention-variant-active",
+  );
+  return `Could not activate the ${variant.toUpperCase()} comparison tab on the GQA module page (active="${activeVariant ?? "null"}").`;
+}
+
 async function verifyGqaGraphHydrationOnPage(
   page: Page,
   timeoutMs: number,
@@ -59,18 +104,13 @@ async function verifyGqaGraphHydrationOnPage(
     return `Expected default GQA variant "gqa", received "${activeVariant ?? "null"}".`;
   }
 
-  const mhaButton = page.locator('[data-attention-variant-option="mha"]');
-  try {
-    await mhaButton.click({ timeout: timeoutMs });
-  } catch {
-    return "Could not activate the MHA comparison tab on the GQA module page.";
-  }
-
-  const activeAfterMha = await comparison.getAttribute(
-    "data-attention-variant-active",
+  const mhaActivationReason = await activateAttentionVariantTab(
+    page,
+    "mha",
+    timeoutMs,
   );
-  if (activeAfterMha !== "mha") {
-    return `Expected active variant "mha" after toggle, received "${activeAfterMha ?? "null"}".`;
+  if (mhaActivationReason) {
+    return mhaActivationReason;
   }
 
   const graphIdAfterMha = await page
@@ -80,18 +120,13 @@ async function verifyGqaGraphHydrationOnPage(
     return `Expected MHA graph id after toggle, received "${graphIdAfterMha ?? "null"}".`;
   }
 
-  const gqaButton = page.locator('[data-attention-variant-option="gqa"]');
-  try {
-    await gqaButton.click({ timeout: timeoutMs });
-  } catch {
-    return "Could not re-activate the GQA comparison tab on the GQA module page.";
-  }
-
-  const activeAfterGqa = await comparison.getAttribute(
-    "data-attention-variant-active",
+  const gqaActivationReason = await activateAttentionVariantTab(
+    page,
+    "gqa",
+    timeoutMs,
   );
-  if (activeAfterGqa !== "gqa") {
-    return `Expected active variant "gqa" after toggle, received "${activeAfterGqa ?? "null"}".`;
+  if (gqaActivationReason) {
+    return gqaActivationReason;
   }
 
   return null;
@@ -135,6 +170,7 @@ export async function verifyStaticExportGqaGraphHydration(
         timeout: timeoutMs,
         waitUntil: "load",
       });
+      await page.waitForTimeout(300);
       return await verifyGqaGraphHydrationOnPage(page, timeoutMs);
     } catch (error) {
       return error instanceof Error ? error.message : String(error);
