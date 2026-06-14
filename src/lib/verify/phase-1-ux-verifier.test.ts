@@ -358,6 +358,11 @@ const server = createServer((req, res) => {
 server.listen(port, "127.0.0.1", () => {
   writeFileSync(".verify-stub-port", String(port));
 });
+for (const signal of ["SIGTERM", "SIGINT"]) {
+  process.on(signal, () => {
+    server.close(() => process.exit(0));
+  });
+}
 `;
 }
 
