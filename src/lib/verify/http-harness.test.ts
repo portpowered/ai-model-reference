@@ -40,35 +40,56 @@ describe("pickListenPort", () => {
 });
 
 describe("waitForListenPortFree", () => {
-  test("resolves when a held port is released", async () => {
-    const reservation = await reserveListenPort();
-    const port = reservation.port;
+  function listenOnEphemeralPort(
+    httpServer: ReturnType<typeof createHttpServer>,
+  ): Promise<number> {
+    return new Promise((resolve, reject) => {
+      httpServer.once("error", reject);
+      httpServer.listen(0, "127.0.0.1", () => {
+        const address = httpServer.address();
+        if (!address || typeof address === "string") {
+          reject(new Error("Expected bound TCP port"));
+          return;
+        }
+        resolve(address.port);
+      });
+    });
+  }
+
+  test.serial("resolves when a held port is released", async () => {
+    const httpServer = createHttpServer();
+    const port = await listenOnEphemeralPort(httpServer);
 
     const waitPromise = waitForListenPortFree(port, {
       timeoutMs: 2_000,
       pollIntervalMs: 25,
     });
 
-    await reservation.release();
+    httpServer.closeAllConnections();
+    httpServer.close();
     await expect(waitPromise).resolves.toBeUndefined();
     expect(await isListenPortFree(port)).toBe(true);
   });
 
-  test("rejects when the port stays bound past the deadline", async () => {
-    const reservation = await reserveListenPort();
-    const port = reservation.port;
+  test.serial(
+    "rejects when the port stays bound past the deadline",
+    async () => {
+      const httpServer = createHttpServer();
+      const port = await listenOnEphemeralPort(httpServer);
 
-    try {
-      await expect(
-        waitForListenPortFree(port, {
-          timeoutMs: 150,
-          pollIntervalMs: 25,
-        }),
-      ).rejects.toThrow(/did not become free/i);
-    } finally {
-      await reservation.release();
-    }
-  });
+      try {
+        await expect(
+          waitForListenPortFree(port, {
+            timeoutMs: 150,
+            pollIntervalMs: 25,
+          }),
+        ).rejects.toThrow(/did not become free/i);
+      } finally {
+        httpServer.closeAllConnections();
+        httpServer.close();
+      }
+    },
+  );
 });
 
 describe("fetchWithTimeout", () => {
