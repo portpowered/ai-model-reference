@@ -14,6 +14,7 @@ export type FooterHoverPaintSnapshot = {
   anchorColor: string;
   sublabelColor: string;
   focusOutlineWidth: string;
+  focusBoxShadow: string;
 };
 
 export type Phase1DocsFooterHoverCheckFailure = {
@@ -43,6 +44,31 @@ export function colorsMatch(left: string, right: string): boolean {
   return left.trim() === right.trim();
 }
 
+/** Parses the widest ring width from outline and box-shadow focus indicators. */
+export function readFooterFocusRingWidthPx(
+  snapshot: FooterHoverPaintSnapshot,
+): number {
+  const outlineWidth = Number.parseFloat(snapshot.focusOutlineWidth);
+  let maxWidth = Number.isFinite(outlineWidth) ? outlineWidth : 0;
+
+  if (snapshot.focusBoxShadow.trim() === "none") {
+    return maxWidth;
+  }
+
+  for (const segment of snapshot.focusBoxShadow.split(",")) {
+    const spreadMatch = segment.match(/\s(-?\d+(?:\.\d+)?)px\s*$/);
+    if (!spreadMatch) {
+      continue;
+    }
+    const spread = Number.parseFloat(spreadMatch[1] ?? "");
+    if (Number.isFinite(spread)) {
+      maxWidth = Math.max(maxWidth, Math.abs(spread));
+    }
+  }
+
+  return maxWidth;
+}
+
 /**
  * Pure paint outcome for a footer card interaction — used by Playwright and unit tests.
  */
@@ -56,9 +82,9 @@ export function evaluateFooterHoverPaintSnapshot(
   }
 
   if (interaction === "focus-visible") {
-    const outlineWidth = Number.parseFloat(snapshot.focusOutlineWidth);
-    if (!Number.isFinite(outlineWidth) || outlineWidth < 2) {
-      return `${card} footer card focus-visible: expected outline width >= 2px, received ${snapshot.focusOutlineWidth}`;
+    const focusRingWidthPx = readFooterFocusRingWidthPx(snapshot);
+    if (focusRingWidthPx < 2) {
+      return `${card} footer card focus-visible: expected focus ring width >= 2px, received outline=${snapshot.focusOutlineWidth} box-shadow=${snapshot.focusBoxShadow}`;
     }
   }
 
@@ -92,6 +118,7 @@ async function readFooterHoverPaintSnapshot(
       anchorColor: anchorStyle.color,
       sublabelColor: sublabelStyle.color,
       focusOutlineWidth: anchorStyle.outlineWidth,
+      focusBoxShadow: anchorStyle.boxShadow,
     };
   });
 }
@@ -124,6 +151,14 @@ async function probeNextFooterFocusVisible(
   }
 
   await anchor.focus({ timeout: timeoutMs });
+  await anchor.evaluate((element) => {
+    if (!element.matches(":focus-visible")) {
+      element.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Tab", bubbles: true }),
+      );
+    }
+  });
+  await page.waitForTimeout(50);
   const snapshot = await readFooterHoverPaintSnapshot(anchor);
   return evaluateFooterHoverPaintSnapshot(snapshot, "next", "focus-visible");
 }
@@ -144,7 +179,7 @@ export async function probeDocsFooterHoverPaint(
     `${normalizeVerifyBaseUrl(baseUrl)}${PHASE_1_DOCS_FOOTER_HOVER_ROUTE}`,
     {
       timeout: timeoutMs,
-      waitUntil: "domcontentloaded",
+      waitUntil: "load",
     },
   );
 
@@ -171,7 +206,7 @@ async function runDefaultFooterHoverCheck(
       `${normalizeVerifyBaseUrl(baseUrl)}${PHASE_1_DOCS_FOOTER_HOVER_ROUTE}`,
       {
         timeout: timeoutMs,
-        waitUntil: "domcontentloaded",
+        waitUntil: "load",
       },
     );
 

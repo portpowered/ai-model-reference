@@ -17,11 +17,6 @@
     color: var(--color-fd-accent-foreground);
   }
 
-  #nd-page
-    a[class*="hover:bg-fd-accent"][class*="hover:text-fd-accent-foreground"]:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-  }
 }
 
 @layer utilities {
@@ -32,5 +27,14 @@
     )
     > p.text-fd-muted-foreground {
     color: inherit;
+  }
+
+  #nd-page
+    a[class*="hover:bg-fd-accent"][class*="hover:text-fd-accent-foreground"]:focus-visible {
+    outline-style: solid;
+    outline-width: 2px;
+    outline-color: var(--ring);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--ring);
   }
 }

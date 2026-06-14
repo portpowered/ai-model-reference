@@ -3,6 +3,7 @@ import {
   colorsMatch,
   evaluateFooterHoverPaintSnapshot,
   formatPhase1DocsFooterHoverCheckFailure,
+  readFooterFocusRingWidthPx,
   runPhase1DocsFooterHoverChecks,
 } from "./phase-1-docs-footer-hover-checks";
 
@@ -10,6 +11,19 @@ describe("colorsMatch", () => {
   test("compares trimmed CSS color strings", () => {
     expect(colorsMatch(" rgb(1, 2, 3) ", "rgb(1, 2, 3)")).toBe(true);
     expect(colorsMatch("rgb(1, 2, 3)", "rgb(4, 5, 6)")).toBe(false);
+  });
+});
+
+describe("readFooterFocusRingWidthPx", () => {
+  test("uses the widest outline or box-shadow spread", () => {
+    expect(
+      readFooterFocusRingWidthPx({
+        anchorColor: "rgb(0, 0, 0)",
+        sublabelColor: "rgb(0, 0, 0)",
+        focusOutlineWidth: "1px",
+        focusBoxShadow: "rgb(0, 0, 0) 0px 0px 0px 2px",
+      }),
+    ).toBe(2);
   });
 });
 
@@ -21,6 +35,7 @@ describe("evaluateFooterHoverPaintSnapshot", () => {
           anchorColor: "rgb(10, 20, 30)",
           sublabelColor: "rgb(10, 20, 30)",
           focusOutlineWidth: "0px",
+          focusBoxShadow: "none",
         },
         "previous",
         "hover",
@@ -34,6 +49,7 @@ describe("evaluateFooterHoverPaintSnapshot", () => {
         anchorColor: "rgb(10, 20, 30)",
         sublabelColor: "rgb(100, 110, 120)",
         focusOutlineWidth: "0px",
+        focusBoxShadow: "none",
       },
       "previous",
       "hover",
@@ -49,22 +65,24 @@ describe("evaluateFooterHoverPaintSnapshot", () => {
         anchorColor: "rgb(10, 20, 30)",
         sublabelColor: "rgb(10, 20, 30)",
         focusOutlineWidth: "0px",
+        focusBoxShadow: "none",
       },
       "next",
       "focus-visible",
     );
 
     expect(reason).toContain("next footer card focus-visible");
-    expect(reason).toContain("outline width");
+    expect(reason).toContain("focus ring width");
   });
 
-  test("passes focus-visible when colors match and outline is present", () => {
+  test("passes focus-visible when colors match and box-shadow ring is present", () => {
     expect(
       evaluateFooterHoverPaintSnapshot(
         {
           anchorColor: "rgb(10, 20, 30)",
           sublabelColor: "rgb(10, 20, 30)",
-          focusOutlineWidth: "2px",
+          focusOutlineWidth: "1px",
+          focusBoxShadow: "rgb(0, 0, 0) 0px 0px 0px 2px",
         },
         "next",
         "focus-visible",
