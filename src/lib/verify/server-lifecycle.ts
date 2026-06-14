@@ -146,6 +146,14 @@ export function shouldRunVerifyProductionIntegrationTests(
   return hasCompleteNextProductionBuild(projectRoot);
 }
 
+/** Skips built `.next/server` HTML convergence probes during the coverage subprocess rerun. */
+export function shouldRunBuiltHtmlConvergenceTests(
+  projectRoot: string = process.cwd(),
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  return shouldRunVerifyProductionIntegrationTests(projectRoot, env);
+}
+
 export function assertNextProductionBuild(
   projectRoot: string = process.cwd(),
 ): void {
