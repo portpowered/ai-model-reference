@@ -117,10 +117,6 @@ export class GeneratePageBundleError extends Error {
   }
 }
 
-function isoTimestampUtc(): string {
-  return new Date().toISOString();
-}
-
 function isoDateUtc(): string {
   return new Date().toISOString().slice(0, 10);
 }

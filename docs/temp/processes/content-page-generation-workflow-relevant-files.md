@@ -181,6 +181,49 @@ Generated registry records carry `relatedIds` and `citationIds` from the page sp
 
 The generator does not add special runtime loaders or bypass registry validation. Proving alignment is the responsibility of `validateGeneratedPageBundle` and integration tests such as `page-spec-workflow-sample.test.ts`.
 
+## CLI review flow and sample proof
+
+Use dry-run before writing files, then review one small committed sample to prove the workflow end to end.
+
+### Safe review flow
+
+1. Author or edit a page spec under `page-specs/<slug>.json`.
+2. Preview planned output without writes:
+   `bun run generate:page-bundle --spec page-specs/<slug>.json --dry-run`
+   The plan prints `registryId`, docs route, and each output path (registry record, `page.mdx`, `messages/en.json`, `assets.json`).
+3. Fix validation errors reported by `classifyGeneratePageBundleFailure` categories:
+   `invalid-input`, `unresolved-reference`, `missing-template`, or `existing-target`.
+4. Generate when dry-run looks correct:
+   `bun run generate:page-bundle --spec page-specs/<slug>.json`
+5. For published concept/glossary samples, also update `meta.json`, `published-docs-registry-ids.ts`, graph-registry runtime imports, and inventory tests when the page enters published inventories.
+
+`formatScaffoldUsage()` and `formatGeneratePageBundleUsage()` document the migration from legacy `scaffold:doc-page` flags to one page-spec file.
+
+### Committed sample bundle
+
+| Artifact | Path |
+| --- | --- |
+| Page spec input | `page-specs/page-spec-workflow-sample.json` |
+| Page bundle | `src/content/docs/concepts/page-spec-workflow-sample/` |
+| Registry record | `src/content/registry/concepts/page-spec-workflow-sample.json` |
+| Graph registry | `src/content/registry/graphs/page-spec-workflow-sample-concept-map.json` |
+
+The sample is `status: published` with the `attention` tag so it loads through published-docs inventories, sidebar `meta.json`, search index fixtures, and `/tags/attention`.
+
+`page-spec-workflow-sample.test.ts` validates the committed bundle with `validateGeneratedPageBundle`, renders message-driven sections and the concept map through `ModulePageProviders`, and asserts no `Draft placeholder`, `data-missing-graph-id`, or missing message/asset markers.
+
+Verify routing in a local browser or dev server:
+
+```bash
+PORT=3456
+bun run dev -- -p "$PORT" &
+server_pid=$!
+trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+sleep 4
+curl --fail --silent --show-error --max-time 10 \
+  "http://127.0.0.1:$PORT/docs/concepts/page-spec-workflow-sample"
+```
+
 ## Maintainer entrypoints
 
 ```bash

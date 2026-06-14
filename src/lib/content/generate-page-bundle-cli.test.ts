@@ -238,3 +238,27 @@ describe("formatGeneratePageBundleUsage", () => {
     expect(usage).toContain("scaffold-doc-page");
   });
 });
+
+describe("committed page-spec workflow sample", () => {
+  test("dry-run previews the sample route and paths without writing files", async () => {
+    const specPath = join(
+      getProjectRoot(),
+      "page-specs",
+      "page-spec-workflow-sample.json",
+    );
+    const result = await runGeneratePageBundleCli({
+      specPath,
+      dryRun: true,
+    });
+
+    expect(result.dryRun).toBe(true);
+    expect(result.plan).toContain(
+      "Registry id: concept.page-spec-workflow-sample",
+    );
+    expect(result.plan).toContain(
+      "Route: /docs/concepts/page-spec-workflow-sample",
+    );
+    expect(result.plan).toContain("page-spec-workflow-sample/page.mdx");
+    expect(result.plan).toContain("Planned files:");
+  });
+});
