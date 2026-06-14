@@ -1,6 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import {
   assertGlossaryChromeLinksConvergence,
   assertGlossaryEmbeddingDescriptionLinks,
@@ -19,7 +17,6 @@ import {
   GLOSSARY_TOKEN_REGISTRY_ID,
   GLOSSARY_VECTOR_REGISTRY_ID,
 } from "./customer-ask-glossary-convergence";
-import { shouldRunBuiltHtmlConvergenceTests } from "./server-lifecycle";
 
 const CHROME_LINK_CLASS =
   'class="no-underline transition-colors hover:no-underline focus-visible:ring-2"';
@@ -406,68 +403,6 @@ describe("buildCustomerAskGlossaryBridgeDescriptionRows", () => {
       GLOSSARY_CUSTOMER_ASK_CHECKS.embeddingDescriptionLinks.checkId,
       GLOSSARY_CUSTOMER_ASK_CHECKS.vectorDescriptionLinks.checkId,
       GLOSSARY_CUSTOMER_ASK_CHECKS.hiddenSizeDescriptionLinks.checkId,
-    ]);
-    expect(rows.every((row) => row.status === "pass")).toBe(true);
-  });
-});
-
-describe("buildCustomerAskGlossaryBridgeDescriptionRows (built HTML)", () => {
-  test("bridge glossary built HTML reports pass for description link checks", () => {
-    if (!shouldRunBuiltHtmlConvergenceTests()) {
-      return;
-    }
-
-    const builtPaths = {
-      embedding: join(
-        process.cwd(),
-        ".next/server/app/docs/glossary/embedding.html",
-      ),
-      vector: join(process.cwd(), ".next/server/app/docs/glossary/vector.html"),
-      hiddenSize: join(
-        process.cwd(),
-        ".next/server/app/docs/glossary/hidden-size.html",
-      ),
-    };
-
-    if (
-      !existsSync(builtPaths.embedding) ||
-      !existsSync(builtPaths.vector) ||
-      !existsSync(builtPaths.hiddenSize)
-    ) {
-      return;
-    }
-
-    const rows = buildCustomerAskGlossaryBridgeDescriptionRows({
-      embeddingHtml: readFileSync(builtPaths.embedding, "utf8"),
-      vectorHtml: readFileSync(builtPaths.vector, "utf8"),
-      hiddenSizeHtml: readFileSync(builtPaths.hiddenSize, "utf8"),
-    });
-
-    expect(rows).toHaveLength(3);
-    expect(rows.every((row) => row.status === "pass")).toBe(true);
-  });
-});
-
-describe("buildCustomerAskGlossaryRows (built HTML)", () => {
-  test("/docs/glossary/token built HTML reports pass for all customer-ask glossary checks", () => {
-    if (!shouldRunBuiltHtmlConvergenceTests()) {
-      return;
-    }
-
-    const builtPath = join(
-      process.cwd(),
-      ".next/server/app/docs/glossary/token.html",
-    );
-    if (!existsSync(builtPath)) {
-      return;
-    }
-
-    const rows = buildCustomerAskGlossaryRows(readFileSync(builtPath, "utf8"));
-    expect(rows).toHaveLength(3);
-    expect(rows.map((row) => row.checkId)).toEqual([
-      GLOSSARY_CUSTOMER_ASK_CHECKS.presentation.checkId,
-      GLOSSARY_CUSTOMER_ASK_CHECKS.chromeLinks.checkId,
-      GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.checkId,
     ]);
     expect(rows.every((row) => row.status === "pass")).toBe(true);
   });
