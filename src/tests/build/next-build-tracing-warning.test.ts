@@ -30,7 +30,11 @@ describe("next build turbopack NFT tracing warning", () => {
       const result = spawnSync("bun", ["run", "build"], {
         cwd: repoRoot,
         encoding: "utf8",
-        env: process.env,
+        env: {
+          ...process.env,
+          GITHUB_PAGES_BASE_PATH: undefined,
+          NEXT_STATIC_EXPORT: undefined,
+        },
       });
 
       const combined = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;

@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { readBuiltAppServerHtml } from "@/lib/build/built-app-html-test-utils";
 import {
   extractNdTocHtml,
   tocHtmlIncludesAnchor,
@@ -42,11 +41,11 @@ const BUILT_HTML_SITE_ROUTES = [
 ] as const;
 
 function readBuiltRouteHtml(relativePath: string): string | null {
-  const absolutePath = join(process.cwd(), relativePath);
-  if (!existsSync(absolutePath)) {
+  const prefix = ".next/server/app/";
+  if (!relativePath.startsWith(prefix)) {
     return null;
   }
-  return readFileSync(absolutePath, "utf8");
+  return readBuiltAppServerHtml(relativePath.slice(prefix.length));
 }
 
 describe("Phase 1 site routes unified shell (built HTML)", () => {

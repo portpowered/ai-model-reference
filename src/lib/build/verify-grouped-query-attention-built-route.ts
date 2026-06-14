@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
+import { normalizeBuiltAppHtmlInternalPaths } from "@/lib/build/built-app-html-test-utils";
 import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
 import { assertGroupedQueryAttentionModuleConvergence } from "@/lib/verify/grouped-query-attention-module-convergence";
 
@@ -18,7 +19,9 @@ export type VerifyGroupedQueryAttentionBuiltRouteResult =
 export function verifyGroupedQueryAttentionBuiltRouteFromHtml(
   html: string,
 ): VerifyGroupedQueryAttentionBuiltRouteResult {
-  const visibleHtml = stripHtmlScripts(html);
+  const visibleHtml = stripHtmlScripts(
+    normalizeBuiltAppHtmlInternalPaths(html),
+  );
   const failure = assertGroupedQueryAttentionModuleConvergence(visibleHtml);
   if (failure) {
     return { ok: false, reason: failure };
