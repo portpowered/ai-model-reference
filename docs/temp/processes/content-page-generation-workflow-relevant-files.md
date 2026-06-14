@@ -114,6 +114,27 @@ Substitution rules:
 
 Before any write, `assertPathDoesNotExist` refuses generation when a registry record, `page.mdx`, `messages/en.json`, or `assets.json` already exists. Delete or relocate existing targets before re-running `generate:page-bundle`.
 
+## Generated bundle loader alignment
+
+`validateGeneratedPageBundle` in `src/lib/content/validate-generated-page-bundle.ts` proves a generated bundle behaves like a hand-authored canonical page through the existing loaders and registry validation path—no special runtime loaders.
+
+### Validation layers
+
+| Layer | Function | What it proves |
+| --- | --- | --- |
+| Colocated bundle | `validateColocatedPageBundle` (`validate-registry.ts`) | `loadPageMessages` and `loadPageAssets` accept the generated sidecars; MDX message keys and asset ids resolve. |
+| Registry ↔ frontmatter | `validateRegistryFrontmatterAlignment` | `registryId`, kind (including glossary→concept), slug, `defaultTitleKey`, `defaultSummaryKey`, tags, aliases, status, and `updatedAt` agree between registry JSON and `page.mdx` frontmatter; default keys resolve to `messages.title` / `messages.description`. |
+| Search text | `validateGeneratedSearchText` | `buildSearchDocument` title, description, and `bodyText` come from resolved messages via `collectMessageBodyText`, not MDX prose. |
+| Registry graph | `validateGeneratedPageBundleRegistryContent` | `validateRegistryContent` accepts generated records when referenced tags, citations, relationships, graphs, and tables exist. |
+
+Generated registry records carry `relatedIds` and `citationIds` from the page spec. Full registry validation runs when fixture records for those references exist on disk.
+
+### When to run
+
+- Integration tests call `validateGeneratedPageBundle` after `generatePageBundle` for each supported kind (`validate-generated-page-bundle.test.ts`).
+- The committed sample page uses the same validator in `page-spec-workflow-sample.test.ts` before React render checks.
+- `make validate-data` (`scripts/validate-registry.ts`) still validates the full committed registry and page inventory; generated bundles must pass both bundle-level and site-wide gates.
+
 ## Supported page kinds (page-spec workflow)
 
 `PAGE_SPEC_KINDS` in `src/lib/content/page-spec.ts` defines the supported workflow kinds, reusing the existing template inventory:

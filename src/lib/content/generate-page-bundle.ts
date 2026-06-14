@@ -125,6 +125,13 @@ function isoDateUtc(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+function registryTimestampForUpdatedAt(updatedAt: string): string {
+  if (updatedAt.includes("T")) {
+    return updatedAt;
+  }
+  return `${updatedAt}T00:00:00.000Z`;
+}
+
 function yamlQuote(value: string): string {
   return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
@@ -561,7 +568,10 @@ export async function buildPageBundleArtifacts(input: {
   const messages = pageMessagesSchema.parse(messagesRecord);
   const assetsJson = buildPageAssetsJson(templateAssetsRaw, spec);
   const assets = parsePageAssetConfig(JSON.parse(assetsJson));
-  const registryRecord = buildRegistryRecord(spec, isoTimestampUtc());
+  const registryRecord = buildRegistryRecord(
+    spec,
+    registryTimestampForUpdatedAt(updatedAt),
+  );
 
   return {
     spec,

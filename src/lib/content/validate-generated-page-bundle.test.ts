@@ -191,6 +191,119 @@ describe("validateGeneratedPageBundle", () => {
     }
   });
 
+  test("concept bundle preserves relatedIds and citationIds when registry references resolve", async () => {
+    const tempRoot = await createTemplateFixtureRoot();
+    const contentRoot = await prepareContentRoots(tempRoot);
+    const slug = "generated-concept-relationships";
+    const registryId = `concept.${slug}`;
+    const graphId = `graph.${slug}-concept-map`;
+    const relatedConceptId = "concept.related-peer";
+    const citationId = "citation.generated-paper";
+
+    try {
+      await writeTagFixture(contentRoot);
+      await writeFile(
+        join(contentRoot, "registry", "concepts", "related-peer.json"),
+        JSON.stringify({
+          id: relatedConceptId,
+          slug: "related-peer",
+          kind: "concept",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: [],
+          tags: ["attention"],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-02T00:00:00.000Z",
+          conceptType: "general",
+          prerequisiteIds: [],
+          explainsIds: [],
+        }),
+      );
+      await mkdir(join(contentRoot, "registry", "citations"), {
+        recursive: true,
+      });
+      await writeFile(
+        join(contentRoot, "registry", "citations", "generated-paper.json"),
+        JSON.stringify({
+          id: citationId,
+          slug: "generated-paper",
+          kind: "citation",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: [],
+          tags: ["attention"],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-02T00:00:00.000Z",
+          citationType: "paper",
+          authors: ["A. Author"],
+          title: "Generated Paper",
+          url: "https://example.com/paper",
+          mla: 'Author, A. "Generated Paper." Example, 2024.',
+          year: 2024,
+        }),
+      );
+      await writeFile(
+        join(contentRoot, "registry", "graphs", `${slug}-concept-map.json`),
+        JSON.stringify(minimalGraphRecord(graphId, registryId)),
+      );
+
+      await generatePageBundle({
+        spec: {
+          ...baseSpecFields,
+          slug,
+          kind: "concept",
+          conceptType: "math",
+          tags: ["attention"],
+          relatedIds: [relatedConceptId],
+          citationIds: [citationId],
+        },
+        projectRoot: tempRoot,
+        updatedAt: "2026-06-11",
+      });
+
+      const pageDir = join(contentRoot, "docs", "concepts", slug);
+      const registryPath = join(
+        contentRoot,
+        "registry",
+        "concepts",
+        `${slug}.json`,
+      );
+      const indexes = await loadRegistry({
+        registryRoot: join(contentRoot, "registry"),
+      });
+      const registryRecord = parseGeneratedRegistryRecord(
+        JSON.parse(await readFile(registryPath, "utf8")),
+      );
+
+      expect(registryRecord.relatedIds).toEqual([relatedConceptId]);
+      expect(registryRecord.citationIds).toEqual([citationId]);
+
+      const errors = await validateGeneratedPageBundle({
+        registryRoot: join(contentRoot, "registry"),
+        docsRoot: join(contentRoot, "docs"),
+        pageDirectory: pageDir,
+        registryPath,
+        pageUrl: `/docs/concepts/${slug}`,
+        indexes,
+      });
+      expect(errors).toEqual([]);
+
+      const registryErrors = await validateGeneratedPageBundleRegistryContent({
+        registryRoot: join(contentRoot, "registry"),
+        docsRoot: join(contentRoot, "docs"),
+      });
+      expect(registryErrors).toEqual([]);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   test("concept bundle aligns registry record with frontmatter and message keys", async () => {
     const tempRoot = await createTemplateFixtureRoot();
     const contentRoot = await prepareContentRoots(tempRoot);

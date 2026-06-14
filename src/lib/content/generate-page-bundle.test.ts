@@ -165,11 +165,13 @@ describe("generatePageBundle", () => {
       kind: string;
       conceptType: string;
       relatedIds: string[];
+      updatedAt: string;
     };
     expect(registry.id).toBe(`concept.${slug}`);
     expect(registry.kind).toBe("concept");
     expect(registry.conceptType).toBe("architecture");
     expect(registry.relatedIds).toEqual(["concept.token"]);
+    expect(registry.updatedAt).toBe("2026-06-11T00:00:00.000Z");
 
     const pageRaw = await readFile(
       join(contentRoot, "docs", "glossary", slug, "page.mdx"),
@@ -177,6 +179,7 @@ describe("generatePageBundle", () => {
     );
     expect(pageRaw).toContain('kind: "glossary"');
     expect(pageRaw).toContain(`registryId: "concept.${slug}"`);
+    expect(pageRaw).toContain('updatedAt: "2026-06-11"');
     expect(pageRaw).toContain('title: "Generated Page"');
     expect(pageRaw).not.toContain("concept.example-glossary");
     expect(pageRaw).toContain('<T k="sections.whatItIs.body" />');
