@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 import { spawn } from "node:child_process";
 import {
   mkdirSync,
@@ -45,6 +45,7 @@ import {
   VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV,
   waitForServerReady,
 } from "./server-lifecycle";
+import { removeVerifyListenPortLockForTests } from "./verify-listen-port-lock";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const VERIFY_SCRIPT_E2E_TIMEOUT_MS = DEFAULT_SERVER_STARTUP_TIMEOUT_MS + 90_000;
@@ -395,6 +396,15 @@ function runVerifyScriptWithEnv(
   options: { cwd?: string } = {},
 ): Promise<{ exitCode: number; output: string }> {
   const mergedEnv = { ...process.env };
+  for (const key of [
+    "VERIFY_BASE_URL",
+    "VERIFY_PRODUCTION_INTEGRATION_TESTS",
+    "VERIFY_COVERAGE_SUBPROCESS",
+    "CI",
+    "GITHUB_ACTIONS",
+  ] as const) {
+    delete mergedEnv[key];
+  }
   for (const [key, value] of Object.entries(env)) {
     if (value === undefined) {
       delete mergedEnv[key];
@@ -429,68 +439,80 @@ function runVerifyScriptWithEnv(
 }
 
 describe("verify-phase-1-route-search-ux script", () => {
-  test("exits 1 with readiness failure when default spawn never becomes ready", async () => {
-    const projectRoot = createVerifyCliFixtureRoot({
-      nextBinBody: FAKE_NEVER_READY_NEXT_BIN_BODY,
-    });
-    const startupTimeoutMs = 800;
-
-    try {
-      const result = await runVerifyScriptWithEnv(
-        {
-          VERIFY_BASE_URL: undefined,
-          [VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV]: String(startupTimeoutMs),
-        },
-        { cwd: projectRoot },
-      );
-
-      expect(result.exitCode).toBe(1);
-      expect(result.output).toMatch(/did not become ready/i);
-      expect(result.output).toContain("health URL http://127.0.0.1:");
-      expect(result.output).toContain(`within ${startupTimeoutMs}ms`);
-    } finally {
-      rmSync(projectRoot, { recursive: true, force: true });
-    }
+  afterEach(() => {
+    removeVerifyListenPortLockForTests();
   });
 
-  test("exits 0 with success summary on default path when fake next serves passing stub", async () => {
-    const projectRoot = createVerifyCliFixtureRoot({
-      nextBinBody: buildFakeReadyNextBinBody(
-        buildPhase1AndCustomerAskPassingStubHtml(),
-        CUSTOMER_ASK_PASSING_API_RESULTS,
-      ),
-    });
+  test.serial(
+    "exits 1 with readiness failure when default spawn never becomes ready",
+    async () => {
+      const projectRoot = createVerifyCliFixtureRoot({
+        nextBinBody: FAKE_NEVER_READY_NEXT_BIN_BODY,
+      });
+      const startupTimeoutMs = 800;
 
-    try {
-      const result = await runVerifyScriptWithEnv(
-        {
-          VERIFY_BASE_URL: undefined,
-          VERIFY_SEARCH_PAGE_STUB: "pass",
-          VERIFY_SEARCH_DIALOG_STUB: "pass",
-          VERIFY_SEARCH_SHORTCUT_STUB: "pass",
-          VERIFY_DOCS_FOOTER_STUB: "pass",
-          [VERIFY_CUSTOMER_ASK_BATCH_012_STUB_ENV]: "pass",
-        },
-        { cwd: projectRoot },
-      );
+      try {
+        const result = await runVerifyScriptWithEnv(
+          {
+            VERIFY_BASE_URL: undefined,
+            [VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV]: String(startupTimeoutMs),
+          },
+          { cwd: projectRoot },
+        );
 
-      expect(result.exitCode).toBe(0);
-      expect(result.output).toContain(CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER);
-      assertPhase1CustomerAskReportAllPassOrUncertain(result.output);
-      expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
+        expect(result.exitCode).toBe(1);
+        expect(result.output).toMatch(/did not become ready/i);
+        expect(result.output).toContain("health URL http://127.0.0.1:");
+        expect(result.output).toContain(`within ${startupTimeoutMs}ms`);
+      } finally {
+        rmSync(projectRoot, { recursive: true, force: true });
+      }
+    },
+    DEFAULT_SERVER_STARTUP_TIMEOUT_MS + 5_000,
+  );
 
-      const stubPort = Number(
-        readFileSync(join(projectRoot, ".verify-stub-port"), "utf8").trim(),
-      );
-      expect(Number.isFinite(stubPort)).toBe(true);
-      expect(await isListenPortFree(stubPort)).toBe(true);
-      await expect(
-        httpGetStatus(`http://127.0.0.1:${stubPort}/`, 500),
-      ).rejects.toBeDefined();
-    } finally {
-      rmSync(projectRoot, { recursive: true, force: true });
-    }
-  });
+  test.serial(
+    "exits 0 with success summary on default path when fake next serves passing stub",
+    async () => {
+      const projectRoot = createVerifyCliFixtureRoot({
+        nextBinBody: buildFakeReadyNextBinBody(
+          buildPhase1AndCustomerAskPassingStubHtml(),
+          CUSTOMER_ASK_PASSING_API_RESULTS,
+        ),
+      });
+
+      try {
+        const result = await runVerifyScriptWithEnv(
+          {
+            VERIFY_BASE_URL: undefined,
+            VERIFY_SEARCH_PAGE_STUB: "pass",
+            VERIFY_SEARCH_DIALOG_STUB: "pass",
+            VERIFY_SEARCH_SHORTCUT_STUB: "pass",
+            VERIFY_DOCS_FOOTER_STUB: "pass",
+            [VERIFY_CUSTOMER_ASK_BATCH_012_STUB_ENV]: "pass",
+          },
+          { cwd: projectRoot },
+        );
+
+        expect(result.exitCode).toBe(0);
+        expect(result.output).toContain(CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER);
+        assertPhase1CustomerAskReportAllPassOrUncertain(result.output);
+        expect(result.output).toContain(PHASE_1_UX_SUCCESS_MESSAGE);
+
+        const stubPort = Number(
+          readFileSync(join(projectRoot, ".verify-stub-port"), "utf8").trim(),
+        );
+        expect(Number.isFinite(stubPort)).toBe(true);
+        expect(await isListenPortFree(stubPort)).toBe(true);
+        await expect(
+          httpGetStatus(`http://127.0.0.1:${stubPort}/`, 500),
+        ).rejects.toBeDefined();
+      } finally {
+        rmSync(projectRoot, { recursive: true, force: true });
+      }
+    },
+    DEFAULT_SERVER_STARTUP_TIMEOUT_MS + 15_000,
+  );
 
   test("exits 1 with NEXT_BUILD_REQUIRED_MESSAGE when .next is missing on default path", async () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-cli-no-next-"));

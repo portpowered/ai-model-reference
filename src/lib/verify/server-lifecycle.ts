@@ -9,8 +9,9 @@ import { isNextProductionBuildFresh } from "./build-source-fingerprint";
 import {
   DEFAULT_FETCH_TIMEOUT_MS,
   httpGetStatus,
-  pickListenPort,
+  reserveListenPort,
 } from "./http-harness";
+import { withVerifyListenPortLock } from "./verify-listen-port-lock";
 
 export const VERIFY_BASE_URL_ENV = "VERIFY_BASE_URL";
 
@@ -34,6 +35,8 @@ export const DEFAULT_SERVER_STARTUP_TIMEOUT_MS = 30_000;
 
 export const NEXT_BUILD_REQUIRED_MESSAGE =
   "Production build not found (.next missing). Run `make build` first.";
+
+const VERIFY_SERVER_SESSION_MAX_SPAWN_ATTEMPTS = 3;
 
 const DEFAULT_POLL_INTERVAL_MS = 500;
 /** Max wait after SIGTERM before escalating to SIGKILL when stopping a spawned verify server. */
@@ -406,6 +409,8 @@ export type AcquireVerifyServerSessionOptions = {
   healthPath?: string;
   spawnProductionServer?: (port: number, projectRoot: string) => ChildProcess;
   registerProcessSignals?: boolean;
+  /** Serialize listen-port allocation across parallel verify workers. */
+  serializeVerifyListenPort?: boolean;
 };
 
 let activeSessionCleanup: (() => Promise<void>) | null = null;
@@ -426,6 +431,111 @@ function registerProcessSignalHandlers(cleanup: () => Promise<void>): void {
 
   process.once("SIGINT", () => onSignal("SIGINT"));
   process.once("SIGTERM", () => onSignal("SIGTERM"));
+}
+
+function isRetryableVerifyServerStartupError(
+  error: unknown,
+  child?: ChildProcess,
+): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  if (!error.message.includes("exited before becoming ready")) {
+    return false;
+  }
+
+  if (!child) {
+    return false;
+  }
+
+  const outputTail = getChildOutputTail(child).toLowerCase();
+  return (
+    outputTail.includes("eaddrinuse") ||
+    outputTail.includes("address already in use")
+  );
+}
+
+async function acquireSpawnedVerifyServerSession(options: {
+  projectRoot: string;
+  env: Record<string, string | undefined>;
+  startupTimeoutMs: number;
+  healthPath: string;
+  spawnProductionServer: (port: number, projectRoot: string) => ChildProcess;
+  registerProcessSignals: boolean;
+}): Promise<VerifyServerSession> {
+  let lastError: unknown;
+
+  for (
+    let attempt = 0;
+    attempt < VERIFY_SERVER_SESSION_MAX_SPAWN_ATTEMPTS;
+    attempt += 1
+  ) {
+    const reservation = await reserveListenPort();
+    const port = reservation.port;
+    const baseUrl = `http://127.0.0.1:${port}`;
+    let child: ChildProcess | undefined;
+
+    try {
+      await reservation.release();
+      child = options.spawnProductionServer(port, options.projectRoot);
+      attachChildOutputCapture(child);
+
+      const healthPath = options.healthPath;
+      const healthUrl = `${baseUrl}${healthPath.startsWith("/") ? healthPath : `/${healthPath}`}`;
+
+      let cleanedUp = false;
+      const cleanup = async () => {
+        if (cleanedUp || !child) {
+          return;
+        }
+        cleanedUp = true;
+        if (activeSessionCleanup === cleanup) {
+          activeSessionCleanup = null;
+        }
+        await killManagedChild(child);
+      };
+
+      activeSessionCleanup = cleanup;
+      if (options.registerProcessSignals) {
+        registerProcessSignalHandlers(cleanup);
+      }
+
+      const earlyExit = waitForChildEarlyExit(child, port, healthUrl);
+      try {
+        await Promise.race([
+          waitForServerReady(baseUrl, {
+            timeoutMs: options.startupTimeoutMs,
+            pollPath: healthPath,
+            port,
+          }),
+          earlyExit.promise,
+        ]);
+      } catch (error) {
+        await cleanup();
+        throw error;
+      } finally {
+        earlyExit.cancel();
+      }
+
+      return { baseUrl, port, cleanup };
+    } catch (error) {
+      lastError = error;
+      if (
+        child &&
+        attempt < VERIFY_SERVER_SESSION_MAX_SPAWN_ATTEMPTS - 1 &&
+        isRetryableVerifyServerStartupError(error, child)
+      ) {
+        await killManagedChild(child);
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error(String(lastError ?? "verify server startup failed"));
 }
 
 /**
@@ -450,54 +560,30 @@ export async function acquireVerifyServerSession(
 
   assertNextProductionBuild(projectRoot);
 
-  const port = await pickListenPort();
-  const baseUrl = `http://127.0.0.1:${port}`;
-  const spawnProductionServer =
-    options.spawnProductionServer ?? defaultSpawnProductionServer;
-  const child = spawnProductionServer(port, projectRoot);
-  attachChildOutputCapture(child);
-
-  const healthPath = options.healthPath ?? "/";
-  const healthUrl = `${baseUrl}${healthPath.startsWith("/") ? healthPath : `/${healthPath}`}`;
-
-  let cleanedUp = false;
-  const cleanup = async () => {
-    if (cleanedUp) {
-      return;
-    }
-    cleanedUp = true;
-    if (activeSessionCleanup === cleanup) {
-      activeSessionCleanup = null;
-    }
-    await killManagedChild(child);
-  };
-
-  activeSessionCleanup = cleanup;
-  if (options.registerProcessSignals !== false) {
-    registerProcessSignalHandlers(cleanup);
-  }
-
   const startupTimeoutMs =
     options.startupTimeoutMs ??
     resolveServerStartupTimeoutMsFromEnv(env) ??
     DEFAULT_SERVER_STARTUP_TIMEOUT_MS;
 
-  const earlyExit = waitForChildEarlyExit(child, port, healthUrl);
-  try {
-    await Promise.race([
-      waitForServerReady(baseUrl, {
-        timeoutMs: startupTimeoutMs,
-        pollPath: options.healthPath,
-        port,
-      }),
-      earlyExit.promise,
-    ]);
-  } catch (error) {
-    await cleanup();
-    throw error;
-  } finally {
-    earlyExit.cancel();
-  }
-
-  return { baseUrl, port, cleanup };
+  return options.serializeVerifyListenPort
+    ? withVerifyListenPortLock(() =>
+        acquireSpawnedVerifyServerSession({
+          projectRoot,
+          env,
+          startupTimeoutMs,
+          healthPath: options.healthPath ?? "/",
+          spawnProductionServer:
+            options.spawnProductionServer ?? defaultSpawnProductionServer,
+          registerProcessSignals: options.registerProcessSignals !== false,
+        }),
+      )
+    : acquireSpawnedVerifyServerSession({
+        projectRoot,
+        env,
+        startupTimeoutMs,
+        healthPath: options.healthPath ?? "/",
+        spawnProductionServer:
+          options.spawnProductionServer ?? defaultSpawnProductionServer,
+        registerProcessSignals: options.registerProcessSignals !== false,
+      });
 }

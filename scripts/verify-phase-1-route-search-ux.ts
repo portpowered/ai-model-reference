@@ -19,7 +19,9 @@ async function main(): Promise<number> {
     | undefined;
 
   try {
-    session = await acquireVerifyServerSession();
+    session = await acquireVerifyServerSession({
+      serializeVerifyListenPort: true,
+    });
     const result = await runPhase1CustomerAskConvergenceVerification(
       session.baseUrl,
       {
