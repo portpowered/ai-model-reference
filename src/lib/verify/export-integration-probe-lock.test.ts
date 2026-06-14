@@ -3,6 +3,7 @@ import {
   getExportIntegrationBunTestTimeoutMs,
   isInsideExportIntegrationProbeLock,
   shouldRunExportIntegrationProbeTests,
+  shouldRunPhase1ExportSearchUxServedProbe,
   shouldRunServedPhase1CanonicalQueriesProbe,
   shouldSerializeExportIntegrationProbes,
   withExportIntegrationProbeLock,
@@ -54,6 +55,16 @@ describe("export integration probe lock", () => {
       }),
     ).toBe(false);
     expect(shouldRunServedPhase1CanonicalQueriesProbe({})).toBe(true);
+  });
+
+  test("skips served Phase 1 export search UX probe under CI serialization", () => {
+    expect(shouldRunPhase1ExportSearchUxServedProbe({ CI: "true" })).toBe(false);
+    expect(
+      shouldRunPhase1ExportSearchUxServedProbe({
+        [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
+      }),
+    ).toBe(false);
+    expect(shouldRunPhase1ExportSearchUxServedProbe({})).toBe(true);
   });
 
   test("detects CI serialization flags", () => {
