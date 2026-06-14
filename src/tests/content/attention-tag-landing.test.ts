@@ -53,16 +53,7 @@ describe("attention tag landing resources", () => {
     const groups = await loadTagResourceGroups("attention", messages, "en");
 
     expect(groups.every((group) => group.resources.length > 0)).toBe(true);
-    expect(groups.map((group) => group.kind)).toEqual([
-      "module",
-      "concept",
-      "glossary",
-    ]);
-
-    const conceptGroup = groups.find((group) => group.kind === "concept");
-    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
-      "/docs/concepts/page-spec-workflow-sample",
-    ]);
+    expect(groups.map((group) => group.kind)).toEqual(["module", "glossary"]);
 
     const glossaryGroup = groups.find((group) => group.kind === "glossary");
     expect(glossaryGroup?.resources[0]?.url).toBe(

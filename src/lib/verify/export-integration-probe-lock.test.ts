@@ -58,7 +58,9 @@ describe("export integration probe lock", () => {
   });
 
   test("skips served Phase 1 export search UX probe under CI serialization", () => {
-    expect(shouldRunPhase1ExportSearchUxServedProbe({ CI: "true" })).toBe(false);
+    expect(shouldRunPhase1ExportSearchUxServedProbe({ CI: "true" })).toBe(
+      false,
+    );
     expect(
       shouldRunPhase1ExportSearchUxServedProbe({
         [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
