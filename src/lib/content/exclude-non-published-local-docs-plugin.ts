@@ -10,7 +10,19 @@ function readPageFrontmatter(
     return null;
   }
 
-  const source = readFileSync(absolutePath, "utf8");
+  let source: string;
+  try {
+    source = readFileSync(absolutePath, "utf8");
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      (error as NodeJS.ErrnoException).code === "ENOENT"
+    ) {
+      return null;
+    }
+    throw error;
+  }
   const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match?.[1]) {
     return null;
