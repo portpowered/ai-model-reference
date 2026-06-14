@@ -1,9 +1,14 @@
 import { request as httpRequest } from "node:http";
-import { createServer } from "node:net";
+import { createServer, type Server } from "node:net";
 
 /** Preferred local verify listen range (avoids default dev port 3000). */
 export const VERIFY_PORT_RANGE_START = 3100;
 export const VERIFY_PORT_RANGE_END = 3999;
+
+export type ListenPortReservation = {
+  port: number;
+  release: () => Promise<void>;
+};
 
 /** Default per-request HTTP deadline for Phase 1 UX verification. */
 export const DEFAULT_FETCH_TIMEOUT_MS = 10_000;
@@ -24,23 +29,76 @@ export function isListenPortFree(
   });
 }
 
+function closeServer(server: Server): Promise<void> {
+  return new Promise((resolve, reject) => {
+    server.close((error) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
+function tryReserveListenPort(
+  port: number,
+): Promise<ListenPortReservation | null> {
+  const server = createServer();
+
+  return new Promise((resolve, reject) => {
+    server.once("error", (error: NodeJS.ErrnoException) => {
+      if (error.code === "EADDRINUSE" || error.code === "EACCES") {
+        resolve(null);
+        return;
+      }
+      reject(error);
+    });
+
+    server.listen(port, VERIFY_LISTEN_HOST, () => {
+      const address = server.address();
+      if (!address || typeof address === "string") {
+        void closeServer(server).finally(() => resolve(null));
+        return;
+      }
+
+      resolve({
+        port: address.port,
+        release: () => closeServer(server),
+      });
+    });
+  });
+}
+
 /**
- * Returns an available TCP port on 127.0.0.1, scanning 3100–3999.
- * Never assumes port 3000 is free.
+ * Atomically reserves a TCP port on 127.0.0.1 in 3100–3999 by binding it.
+ * Callers must release the reservation before another process can reuse the port.
  */
-export async function pickListenPort(): Promise<number> {
+export async function reserveListenPort(): Promise<ListenPortReservation> {
   for (
     let port = VERIFY_PORT_RANGE_START;
     port <= VERIFY_PORT_RANGE_END;
     port += 1
   ) {
-    if (await isListenPortFree(port)) {
-      return port;
+    const reservation = await tryReserveListenPort(port);
+    if (reservation) {
+      return reservation;
     }
   }
   throw new Error(
     `No free port on ${VERIFY_LISTEN_HOST} in ${VERIFY_PORT_RANGE_START}-${VERIFY_PORT_RANGE_END}`,
   );
+}
+
+/**
+ * Returns an available TCP port on 127.0.0.1, scanning 3100–3999.
+ * Never assumes port 3000 is free.
+ */
+export async function pickListenPort(): Promise<number> {
+  const reservation = await reserveListenPort();
+  const port = reservation.port;
+  await reservation.release();
+  return port;
 }
 
 export class FetchTimeoutError extends Error {
