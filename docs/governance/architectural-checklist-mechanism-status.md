@@ -472,11 +472,11 @@ secrets to satisfy this artifact.
 | Field | Value |
 | --- | --- |
 | **Status** | partially implemented |
-| **Summary** | `README.md` states project purpose, live site URL, feature list, AI-factory build provenance, and licenses. It lacks the full badge set, explicit local build instructions, and detailed repository structure map described in the checklist. |
-| **Repository evidence** | `README.md`, `src/tests/ci/readme-deployment-documentation.test.ts`, `src/tests/ci/github-actions-readme.test.ts` |
-| **Verification commands** | `bun test src/tests/ci/readme-deployment-documentation.test.ts` |
-| **Gaps** | Missing page-count/license/locale badges; build/run commands not spelled out in README body. |
-| **Follow-up or operator requirement** | Align README with `docs/operations.md` and Makefile command list. |
+| **Summary** | `README.md` documents problem/solution, content-layer shape (`Website Shape`), important governance docs, **Local Development** (`bun install`, `make dev`), **Static export (GitHub Pages)** with `make build-export`, **Quality Gates** with ordered `make ci` steps and full Makefile target listings, operations/release posture, Phase 1 UX verifiers, and the agent factory loop. It carries a CI badge and links to `docs/operations.md`. |
+| **Repository evidence** | `README.md` (`## Local Development`, `## Quality Gates`, `## Static export (GitHub Pages)`), `src/tests/ci/readme-deployment-documentation.test.ts`, `src/tests/ci/github-actions-readme.test.ts` |
+| **Verification commands** | `bun test src/tests/ci/readme-deployment-documentation.test.ts`, `bun test src/tests/ci/github-actions-readme.test.ts` |
+| **Gaps** | Missing page-count/license/locale badges (only CI badge present); no explicit one-line published-site URL; no detailed top-level repository tree map beyond content-layer layout in **Website Shape**. |
+| **Follow-up or operator requirement** | Add remaining checklist rows (badges, live URL line, repo structure map) without duplicating `docs/operations.md`. |
 
 ### Website-specific decisions > Components
 
