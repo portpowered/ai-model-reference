@@ -175,7 +175,7 @@ replace operator settings above.
 | **Triggers** | `pull_request` (all branches) and `push` to `main`. |
 | **Permissions** | `contents: read` at job scope. |
 | **Steps** | Checkout → setup Bun → `bun install --frozen-lockfile` → install Playwright Chromium → `make ci`. |
-| **What `make ci` runs** | lint, typecheck, test, manifest-scoped coverage, build, build-export, validate-data, linkcheck (see `Makefile`). |
+| **What `make ci` runs** | lint, typecheck, test, manifest-scoped coverage, build, build-export, post-build integration tests (`make test-integration`), validate-data, linkcheck (see `Makefile`). |
 | **What it does not do** | Deploy, publish previews, configure branch protection, or prove GitHub Pages UI settings. |
 
 Verification: `make ci`, `bun test src/tests/ci/github-actions-make-ci.test.ts`
@@ -329,7 +329,7 @@ secrets to satisfy this artifact.
 | Field | Value |
 | --- | --- |
 | **Status** | partially implemented |
-| **Summary** | Bun drives install, scripts, and tests; the root `Makefile` exposes `ci`, `test`, `coverage`, `build`, `build-export`, `validate-data`, and `linkcheck` aligned with CI. PDF validation and generation targets are stubbed or absent; checklist-listed accessibility and PDF steps are not in `make ci`. |
+| **Summary** | Bun drives install, scripts, and tests; the root `Makefile` exposes `ci`, `test`, `test-integration`, `coverage`, `build`, `build-export`, `validate-data`, and `linkcheck` aligned with CI. PDF validation and generation targets are stubbed or absent; checklist-listed accessibility and PDF steps are not in `make ci`. |
 | **Repository evidence** | `Makefile`, `package.json`, `bun.lock`, `.github/workflows/ci.yml`, `scripts/validate-registry.ts`, `scripts/validate-links.ts` |
 | **Verification commands** | `make ci`, `make build`, `make build-export`, `make linkcheck`, `make validate-data` |
 | **Gaps** | `make validate-pdf` exits successfully without validating; no `make pdf` targets; `make ci` omits a11y checks the checklist associates with CI. |
@@ -605,10 +605,12 @@ Run these steps in order when approving this governance pass:
    evidence rows stay aligned with `docs/architectural-checklist.md`.
 2. **General quality gates** — `make ci` matches the default GitHub Actions **ci**
    job: lint, typecheck, tests, component coverage, production build, static
-   export build, registry validation, and internal linkcheck.
-3. **Optional post-build convergence** — After `make build` or `make build-export`,
-   `bun run test:integration` reruns built HTML and production-server integration
-   tests that default `make test` skips unless
+   export build, post-build integration tests, registry validation, and internal
+   linkcheck.
+3. **Post-build integration coverage** — `make test-integration` (alias:
+   `bun run test:integration`) reruns built HTML and production-server integration
+   tests after `make build` and `make build-export` so the default CI path still
+   exercises convergence assertions that default `make test` skips unless
    `VERIFY_PRODUCTION_INTEGRATION_TESTS=1` is set.
 
 ### Governance audit (this artifact)
@@ -623,11 +625,12 @@ Run these steps in order when approving this governance pass:
 
 | Command | Purpose |
 | --- | --- |
-| `make ci` | Default maintainer gate: lint, typecheck, tests, component coverage, production build, static export build, registry validation, and internal linkcheck. |
+| `make ci` | Default maintainer gate: lint, typecheck, tests, component coverage, production build, static export build, post-build integration tests, registry validation, and internal linkcheck. |
 | `bun run lint` | Biome lint and format checks across the repository. |
 | `bun run typecheck` | TypeScript strict check (`tsc --noEmit`) after Fumadocs MDX generation. |
 | `bun test` | Full Bun test suite (includes governance verifier tests and CI contract tests; skips opt-in built HTML / production-server integration unless `VERIFY_PRODUCTION_INTEGRATION_TESTS=1`). |
-| `bun run test:integration` | Opt-in rerun of built HTML and production-server integration tests after a fresh build. |
+| `make test-integration` | Post-build rerun of built HTML and production-server integration tests; included in `make ci` after build steps. |
+| `bun run test:integration` | Package-script alias for `make test-integration`. |
 
 Run `make verify-architectural-checklist-mechanism-status` first when reviewing
 changes to this artifact or `docs/architectural-checklist.md`. Run `make ci` (or

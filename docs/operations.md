@@ -197,11 +197,7 @@ Reviewers validating that artifact should run, in order:
    audit artifact stays complete and aligned with
    [architectural-checklist.md](./architectural-checklist.md).
 2. `make ci` — confirms general site quality gates still pass after governance
-   edits.
-
-Optional post-build convergence: after `make build` or `make build-export`, run
-`bun run test:integration` to exercise built HTML and production-server
-integration tests that default `make test` skips.
+   edits (including post-build integration tests after the build steps).
 
 ## Release process
 
