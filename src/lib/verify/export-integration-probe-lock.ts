@@ -34,6 +34,16 @@ export function shouldRunExportIntegrationProbeTests(
 }
 
 /**
+ * Gates Playwright HTTP verifier unit tests colocated under `src/lib/verify/`.
+ * Skip during the coverage subprocess rerun (`make ci` runs the full suite twice).
+ */
+export function shouldRunPlaywrightHttpVerifierUnitTests(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  return shouldRunExportIntegrationProbeTests(env);
+}
+
+/**
  * Served-export probe for Phase 1 canonical `/search` queries on a GitHub Pages
  * base path. Under CI serialization the prefixed GQA hydration probe in
  * `static-export-search-hydration.test.ts` already exercises the same path
