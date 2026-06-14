@@ -14,7 +14,7 @@ import {
   type PageMessages,
   pageFrontmatterSchema,
 } from "./schemas";
-import { validateCanonicalMdxProse } from "./validate-canonical-mdx-prose";
+import { validateGeneratedCanonicalDocs } from "./validate-generated-canonical-docs";
 import {
   type ValidationError,
   validateColocatedPageBundle,
@@ -330,7 +330,7 @@ export async function validateGeneratedPageBundle(
   const assets = bundle.assets;
   if (assets) {
     errors.push(
-      ...validateCanonicalMdxProse({
+      ...validateGeneratedCanonicalDocs({
         pagePath,
         kind: frontmatterResult.data.kind,
         mdxSource,
