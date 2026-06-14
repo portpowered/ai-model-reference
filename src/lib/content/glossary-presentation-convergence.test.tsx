@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { readBuiltAppServerHtml } from "@/lib/build/built-app-html-test-utils";
 import { renderGlossaryDocsShell } from "@/lib/content/glossary-shell-render";
 import {
   expectGlossaryBodyOmitsTitleHeading,
@@ -157,16 +156,7 @@ describe("glossary presentation route convergence (built HTML)", () => {
   ];
 
   function readBuiltGlossaryHtml(slug: string): string | null {
-    const builtPath = join(
-      process.cwd(),
-      `.next/server/app/docs/glossary/${slug}.html`,
-    );
-
-    if (!existsSync(builtPath)) {
-      return null;
-    }
-
-    return readFileSync(builtPath, "utf8");
+    return readBuiltAppServerHtml(`docs/glossary/${slug}.html`);
   }
 
   test("/docs/glossary/token built HTML passes docs shell convergence", () => {

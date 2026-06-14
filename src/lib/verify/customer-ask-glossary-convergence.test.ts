@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { readBuiltAppServerHtml } from "@/lib/build/built-app-html-test-utils";
 import {
   assertGlossaryChromeLinksConvergence,
   assertGlossaryEmbeddingDescriptionLinks,
@@ -412,30 +413,22 @@ describe("buildCustomerAskGlossaryBridgeDescriptionRows", () => {
 
 describe("buildCustomerAskGlossaryBridgeDescriptionRows (built HTML)", () => {
   test("bridge glossary built HTML reports pass for description link checks", () => {
-    const builtPaths = {
-      embedding: join(
-        process.cwd(),
-        ".next/server/app/docs/glossary/embedding.html",
-      ),
-      vector: join(process.cwd(), ".next/server/app/docs/glossary/vector.html"),
-      hiddenSize: join(
-        process.cwd(),
-        ".next/server/app/docs/glossary/hidden-size.html",
-      ),
-    };
+    const embeddingHtml = readBuiltAppServerHtml(
+      "docs/glossary/embedding.html",
+    );
+    const vectorHtml = readBuiltAppServerHtml("docs/glossary/vector.html");
+    const hiddenSizeHtml = readBuiltAppServerHtml(
+      "docs/glossary/hidden-size.html",
+    );
 
-    if (
-      !existsSync(builtPaths.embedding) ||
-      !existsSync(builtPaths.vector) ||
-      !existsSync(builtPaths.hiddenSize)
-    ) {
+    if (!embeddingHtml || !vectorHtml || !hiddenSizeHtml) {
       return;
     }
 
     const rows = buildCustomerAskGlossaryBridgeDescriptionRows({
-      embeddingHtml: readFileSync(builtPaths.embedding, "utf8"),
-      vectorHtml: readFileSync(builtPaths.vector, "utf8"),
-      hiddenSizeHtml: readFileSync(builtPaths.hiddenSize, "utf8"),
+      embeddingHtml,
+      vectorHtml,
+      hiddenSizeHtml,
     });
 
     expect(rows).toHaveLength(3);

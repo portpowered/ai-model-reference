@@ -1,4 +1,5 @@
 import { expect } from "bun:test";
+import { normalizeBuiltAppHtmlInternalPaths } from "@/lib/build/built-app-html-test-utils";
 import { proseAutoLinkAnchorPattern } from "@/lib/content/prose-auto-link";
 
 function decodeCommonHtmlEntities(text: string): string {
@@ -82,7 +83,9 @@ export function expectGlossaryShellDescriptionAutoLink(
   html: string,
   options: { href: string; phrase?: string; registryId?: string },
 ): void {
-  const shellHtml = extractGlossaryShellHtml(html, options.registryId);
+  const shellHtml = normalizeBuiltAppHtmlInternalPaths(
+    extractGlossaryShellHtml(html, options.registryId),
+  );
   expect(shellHtml).toContain(`href="${options.href}"`);
   expect(shellHtml).toContain('data-prose-auto-link="true"');
   expect(shellHtml).toContain("focus-visible:ring-2");
@@ -101,7 +104,9 @@ export function expectGlossaryShellDescriptionAutoLinkPreservesPhrase(
   html: string,
   options: { href: string; phrase: string; registryId?: string },
 ): void {
-  const shellHtml = extractGlossaryShellHtml(html, options.registryId);
+  const shellHtml = normalizeBuiltAppHtmlInternalPaths(
+    extractGlossaryShellHtml(html, options.registryId),
+  );
   const anchorPattern = proseAutoLinkAnchorPattern(options.href);
   const match = shellHtml.match(anchorPattern);
   expect(match).not.toBeNull();
