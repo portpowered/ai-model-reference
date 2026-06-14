@@ -272,7 +272,7 @@ GitHub Actions runs the same gate sequence on pull requests and pushes to
 `main`: install dependencies with `bun install --frozen-lockfile`, then
 `make ci` (see `.github/workflows/ci.yml`). No repository secrets are required
 for lint, typecheck, test, manifest-scoped component coverage, build,
-build-export, validate-data, and linkcheck. The baseline CI workflow
+build-export, post-build integration tests, validate-data, and linkcheck. The baseline CI workflow
 (`.github/workflows/ci.yml`) does not invoke deploy or preview steps. GitHub
 Pages deployment runs separately via `.github/workflows/deploy.yml` on pushes to
 `main` (see [Operations and release](#operations-and-release)). PDF validation
@@ -287,8 +287,9 @@ the repository root after `bun install --frozen-lockfile`; it runs, in order:
 4. `make coverage` — manifest-scoped reusable component coverage gate (same as `bun run coverage`)
 5. `make build` — `next build` plus Phase 1 static route verification
 6. `make build-export` — static export to `out/` plus Phase 1 export route verification
-7. `make validate-data` — registry and content validation
-8. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
+7. `make test-integration` — post-build rerun of built HTML and production-server integration tests (`bun run test:integration`)
+8. `make validate-data` — registry and content validation
+9. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
 
 Use `bun run scaffold:doc-page` (or `make scaffold`) when adding Phase 2 glossary or
 concept pages, then run `make validate-data` before opening a pull request.
