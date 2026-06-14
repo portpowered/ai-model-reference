@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { hasCompleteNextProductionBuild } from "@/lib/verify/server-lifecycle";
+import { hasTrustedProductionBuildArtifact } from "@/lib/verify/production-integration-build-trust";
 
 export const BUILT_APP_GITHUB_PAGES_BASE_PATH = "/ai-model-reference";
 
@@ -18,7 +18,7 @@ export function readBuiltAppServerHtml(
   relativePathFromServerApp: string,
   cwd: string = process.cwd(),
 ): string | null {
-  if (!hasCompleteNextProductionBuild(cwd)) {
+  if (!hasTrustedProductionBuildArtifact(cwd)) {
     return null;
   }
 

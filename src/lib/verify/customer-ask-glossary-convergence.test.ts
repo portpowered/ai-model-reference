@@ -20,6 +20,9 @@ import {
   GLOSSARY_TOKEN_REGISTRY_ID,
   GLOSSARY_VECTOR_REGISTRY_ID,
 } from "./customer-ask-glossary-convergence";
+import { shouldRunVerifyProductionIntegrationTests } from "./server-lifecycle";
+
+const repoRoot = join(import.meta.dir, "../../..");
 
 const CHROME_LINK_CLASS =
   'class="no-underline transition-colors hover:no-underline focus-visible:ring-2"';
@@ -438,6 +441,10 @@ describe("buildCustomerAskGlossaryBridgeDescriptionRows (built HTML)", () => {
 
 describe("buildCustomerAskGlossaryRows (built HTML)", () => {
   test("/docs/glossary/token built HTML reports pass for all customer-ask glossary checks", () => {
+    if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
+      return;
+    }
+
     const builtPath = join(
       process.cwd(),
       ".next/server/app/docs/glossary/token.html",

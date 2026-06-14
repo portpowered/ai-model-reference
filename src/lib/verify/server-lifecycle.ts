@@ -10,6 +10,7 @@ import {
   httpGetStatus,
   pickListenPort,
 } from "./http-harness";
+import { hasTrustedProductionBuildArtifact } from "./production-integration-build-trust";
 
 export const VERIFY_BASE_URL_ENV = "VERIFY_BASE_URL";
 
@@ -134,7 +135,8 @@ export function hasCompleteNextProductionBuild(
 
 /**
  * Gates opt-in production-server integration tests: skip the coverage subprocess
- * rerun (make ci) and require a completed build artifact.
+ * rerun (make ci), ignore ambient stale `.next` artifacts, and require a
+ * trusted production build digest written by `make build`.
  */
 export function shouldRunVerifyProductionIntegrationTests(
   projectRoot: string = process.cwd(),
@@ -143,7 +145,7 @@ export function shouldRunVerifyProductionIntegrationTests(
   if (env[VERIFY_COVERAGE_SUBPROCESS_ENV] === "1") {
     return false;
   }
-  return hasCompleteNextProductionBuild(projectRoot);
+  return hasTrustedProductionBuildArtifact(projectRoot, env);
 }
 
 export function assertNextProductionBuild(

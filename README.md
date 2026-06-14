@@ -298,6 +298,14 @@ checkouts do not include that directory; `pretypecheck` and `pretest` in
 `package.json` both run `fumadocs-mdx` so standalone `make typecheck` and
 `make test` succeed without a manual codegen step.
 
+Built-app integration rows inside `bun test` only run when a trusted production
+build digest is present: `make build` writes
+`.next/verify-production-integration-build-digest` for the current source tree.
+Ambient or stale `.next` directories are ignored so `make test` stays hermetic.
+Use `make build` before local built-app verification, or set
+`VERIFY_FORCE_PRODUCTION_INTEGRATION=1` when intentionally probing an untrusted
+ambient build.
+
 Individual targets:
 
 ```sh

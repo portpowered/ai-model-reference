@@ -22,6 +22,7 @@ build:
 	bun run build
 	bun ./scripts/verify-phase-1-static-routes.ts
 	bun ./scripts/verify-grouped-query-attention-built-route.ts
+	bun ./scripts/write-production-integration-build-digest.ts
 
 build-export:
 	bun run build:export
