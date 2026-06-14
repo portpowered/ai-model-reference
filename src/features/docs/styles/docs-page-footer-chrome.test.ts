@@ -33,6 +33,7 @@ describe("docs page footer chrome CSS contract", () => {
     expect(footerChromeCss).toContain("color: inherit");
     expect(footerChromeCss).toContain(":focus-visible");
     expect(footerChromeCss).toContain("var(--color-fd-accent-foreground)");
-    expect(footerChromeCss).toContain("outline: 2px solid var(--ring)");
+    expect(footerChromeCss).toContain("outline-width: 2px");
+    expect(footerChromeCss).toContain("box-shadow: 0 0 0 2px var(--ring)");
   });
 });

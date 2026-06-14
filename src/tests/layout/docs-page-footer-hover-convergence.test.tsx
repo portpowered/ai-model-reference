@@ -12,7 +12,10 @@ import {
 import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
 import { readBundledAppCss } from "@/lib/verify/bundled-app-css";
 import { runPhase1DocsFooterHoverChecks } from "@/lib/verify/phase-1-docs-footer-hover-checks";
-import { acquireVerifyServerSession } from "@/lib/verify/server-lifecycle";
+import {
+  acquireVerifyServerSession,
+  shouldRunVerifyProductionIntegrationTests,
+} from "@/lib/verify/server-lifecycle";
 
 const repoRoot = join(import.meta.dir, "../../..");
 
@@ -63,10 +66,7 @@ describe("docs page footer hover convergence (built HTML)", () => {
   });
 
   test("production build footer cards invert sublabel foreground on hover and focus-visible", async () => {
-    if (process.env.CI === "true") {
-      return;
-    }
-    if (!readBuiltRouteHtml(TOKEN_GLOSSARY_ROUTE.file)) {
+    if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
       return;
     }
 
