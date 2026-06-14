@@ -146,6 +146,14 @@ export function validateRegistryFrontmatterAlignment(
     });
   }
 
+  if (!registryRecord.updatedAt.startsWith(frontmatter.updatedAt)) {
+    errors.push({
+      code: "updated-at-mismatch",
+      message: `${pagePath}: frontmatter updatedAt "${frontmatter.updatedAt}" does not match registry updatedAt "${registryRecord.updatedAt}"`,
+      path: pagePath,
+    });
+  }
+
   const frontmatterAliases = frontmatter.aliases ?? [];
   if (!arraysEqual(frontmatterAliases, registryRecord.aliases)) {
     errors.push({
