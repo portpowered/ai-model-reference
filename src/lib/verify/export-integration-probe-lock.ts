@@ -53,6 +53,25 @@ export function shouldRunServedPhase1CanonicalQueriesProbe(
 }
 
 /**
+ * Served-export probe for combined `/search` page and header dialog UX. Under CI
+ * serialization, hydration, handoff, and GQA graph probes already exercise the
+ * same static export earlier in the suite; skipping this duplicate probe avoids
+ * a 60m Bun ceiling when it queues behind `withExportIntegrationProbeLock`
+ * late in the full test run. `make build-export` runs the standalone verifier.
+ */
+export function shouldRunPhase1ExportSearchUxServedProbe(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  if (!shouldRunExportIntegrationProbeTests(env)) {
+    return false;
+  }
+  if (shouldSerializeExportIntegrationProbes(env)) {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Serialized export probes in CI; allow queue wait, stale lock/slot recovery, and one probe run.
  * Must exceed cumulative probe-lock queue plus Playwright launch-slot stale recovery (see launch-playwright-browser).
  */
