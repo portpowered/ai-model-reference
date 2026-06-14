@@ -251,12 +251,19 @@ describe("generatePageBundle", () => {
       join(contentRoot, "docs", "concepts", slug, "page.mdx"),
       "utf8",
     );
+    const authoringGuide = await readFile(
+      join(tempRoot, "docs", "templates", "concept.content.md"),
+      "utf8",
+    );
     expect(pageRaw).toContain('kind: "concept"');
     expect(pageRaw).not.toContain("concept.example-concept");
     expect(pageRaw).toContain('title: "Generated Page"');
     expect(pageRaw).toContain(
       'description: "Reader-facing summary for cards and search."',
     );
+    expect(pageRaw).not.toContain("Concept Template Authoring Guide");
+    expect(pageRaw).not.toContain("Baseline exclusions");
+    expect(pageRaw).not.toContain(authoringGuide.slice(0, 80));
 
     const pageRegistryId = await readScaffoldedPageRegistryId(
       join(contentRoot, "docs", "concepts", slug, "page.mdx"),
