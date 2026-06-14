@@ -10,6 +10,7 @@ import {
   DEFAULT_FETCH_TIMEOUT_MS,
   httpGetStatus,
   reserveListenPort,
+  waitForListenPortFree,
 } from "./http-harness";
 import { withVerifyListenPortLock } from "./verify-listen-port-lock";
 
@@ -494,6 +495,7 @@ async function acquireSpawnedVerifyServerSession(options: {
           activeSessionCleanup = null;
         }
         await killManagedChild(child);
+        await waitForListenPortFree(port);
       };
 
       activeSessionCleanup = cleanup;

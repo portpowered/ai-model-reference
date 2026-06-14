@@ -119,10 +119,16 @@ if (!Number.isFinite(port)) {
   console.error("VERIFY_STUB_PORT required");
   process.exit(1);
 }
-createServer((_req, res) => {
+const server = createServer((_req, res) => {
   res.writeHead(200, { "Content-Type": "text/plain" });
   res.end("ok");
-}).listen(port, "127.0.0.1");
+});
+server.listen(port, "127.0.0.1");
+for (const signal of ["SIGTERM", "SIGINT"]) {
+  process.on(signal, () => {
+    server.close(() => process.exit(0));
+  });
+}
 `;
 
 function spawnStubProductionServer(port: number, cwd: string): ChildProcess {
@@ -670,10 +676,16 @@ process.exit(42);
     const STUB_NEVER_READY_SCRIPT = `
 import { createServer } from "node:http";
 const port = Number(process.env.VERIFY_STUB_PORT);
-createServer((_req, res) => {
+const server = createServer((_req, res) => {
   res.writeHead(503);
   res.end("not ready");
-}).listen(port, "127.0.0.1");
+});
+server.listen(port, "127.0.0.1");
+for (const signal of ["SIGTERM", "SIGINT"]) {
+  process.on(signal, () => {
+    server.close(() => process.exit(0));
+  });
+}
 `;
 
     function spawnNeverReadyServer(port: number, cwd: string): ChildProcess {

@@ -9,6 +9,7 @@ import {
   reserveListenPort,
   VERIFY_PORT_RANGE_END,
   VERIFY_PORT_RANGE_START,
+  waitForListenPortFree,
 } from "./http-harness";
 
 describe("pickListenPort", () => {
@@ -35,6 +36,38 @@ describe("pickListenPort", () => {
     const port2 = await pickListenPort();
     expect(port2).not.toBe(reservation.port);
     expect(await isListenPortFree(port2)).toBe(true);
+  });
+});
+
+describe("waitForListenPortFree", () => {
+  test("resolves when a held port is released", async () => {
+    const reservation = await reserveListenPort();
+    const port = reservation.port;
+
+    const waitPromise = waitForListenPortFree(port, {
+      timeoutMs: 2_000,
+      pollIntervalMs: 25,
+    });
+
+    await reservation.release();
+    await expect(waitPromise).resolves.toBeUndefined();
+    expect(await isListenPortFree(port)).toBe(true);
+  });
+
+  test("rejects when the port stays bound past the deadline", async () => {
+    const reservation = await reserveListenPort();
+    const port = reservation.port;
+
+    try {
+      await expect(
+        waitForListenPortFree(port, {
+          timeoutMs: 150,
+          pollIntervalMs: 25,
+        }),
+      ).rejects.toThrow(/did not become free/i);
+    } finally {
+      await reservation.release();
+    }
   });
 });
 

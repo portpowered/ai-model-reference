@@ -29,6 +29,43 @@ export function isListenPortFree(
   });
 }
 
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export type WaitForListenPortFreeOptions = {
+  timeoutMs?: number;
+  pollIntervalMs?: number;
+  host?: string;
+};
+
+/**
+ * Polls until a TCP port on loopback can be bound again after child teardown.
+ */
+export async function waitForListenPortFree(
+  port: number,
+  options: WaitForListenPortFreeOptions = {},
+): Promise<void> {
+  const timeoutMs = options.timeoutMs ?? CHILD_LISTEN_PORT_RELEASE_TIMEOUT_MS;
+  const pollIntervalMs = options.pollIntervalMs ?? 50;
+  const host = options.host ?? VERIFY_LISTEN_HOST;
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    if (await isListenPortFree(port, host)) {
+      return;
+    }
+    await sleep(pollIntervalMs);
+  }
+
+  throw new Error(
+    `Port ${port} on ${host} did not become free within ${timeoutMs}ms`,
+  );
+}
+
+/** Max wait for verify child servers to release a loopback port after SIGTERM/SIGKILL. */
+export const CHILD_LISTEN_PORT_RELEASE_TIMEOUT_MS = 5_000;
+
 function closeServer(server: Server): Promise<void> {
   return new Promise((resolve, reject) => {
     server.close((error) => {
