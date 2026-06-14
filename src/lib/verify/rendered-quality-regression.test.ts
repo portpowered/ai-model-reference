@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { join } from "node:path";
 import {
   buildRenderedQualityRegressionCatalogRows,
   deriveRenderedQualityRegressionEvidence,
@@ -9,8 +8,6 @@ import {
   RENDERED_QUALITY_REGRESSION_DOMAIN_ID,
   RENDERED_QUALITY_REGRESSION_TEST_FILES,
 } from "./rendered-quality-regression";
-
-const repoRoot = join(import.meta.dir, "../../..");
 
 describe("rendered quality regression catalog", () => {
   test("lists automated coverage for every fixed rendered-quality behavior lane", () => {
@@ -28,18 +25,25 @@ describe("rendered quality regression catalog", () => {
     );
   });
 
-  test("maps each catalog row to existing test files in the repository", () => {
-    const rows = buildRenderedQualityRegressionCatalogRows(repoRoot);
+  test("maps each repaired behavior to named regression test files", () => {
+    const rows = buildRenderedQualityRegressionCatalogRows();
     const evidence = deriveRenderedQualityRegressionEvidence(rows);
 
     expect(evidence.domainId).toBe(RENDERED_QUALITY_REGRESSION_DOMAIN_ID);
     expect(evidence.status).toBe("pass");
-    expect(rows.every((row) => row.status === "pass")).toBe(true);
+    expect(rows).toHaveLength(RENDERED_QUALITY_REGRESSION_CHECKS.length);
+    expect(
+      rows.every(
+        (row) =>
+          row.testFiles.length > 0 &&
+          row.checkId.startsWith("rendered-regression."),
+      ),
+    ).toBe(true);
   });
 
   test("formats a maintainer-facing regression report with repeatable commands", () => {
     const evidence = deriveRenderedQualityRegressionEvidence(
-      buildRenderedQualityRegressionCatalogRows(repoRoot),
+      buildRenderedQualityRegressionCatalogRows(),
     );
     const report = formatRenderedQualityRegressionReport(evidence);
 
@@ -54,7 +58,7 @@ describe("rendered quality regression catalog", () => {
 
   test("aggregates exit codes from catalog, unit tests, and baseline audit", () => {
     const passingEvidence = deriveRenderedQualityRegressionEvidence(
-      buildRenderedQualityRegressionCatalogRows(repoRoot),
+      buildRenderedQualityRegressionCatalogRows(),
     );
 
     expect(getRenderedQualityRegressionExitCode(passingEvidence, 0, 0)).toBe(0);

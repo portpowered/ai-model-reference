@@ -210,7 +210,7 @@ async function defaultSearchPageQueryCheck(
     query,
     timeoutMs,
   );
-  if (probeReason?.includes("timed out")) {
+  if (probeReason) {
     return { reason: probeReason };
   }
 

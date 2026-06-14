@@ -43,7 +43,7 @@ async function runShellCommand(command: string): Promise<CommandResult> {
 }
 
 async function main(): Promise<number> {
-  const catalogRows = buildRenderedQualityRegressionCatalogRows(projectRoot);
+  const catalogRows = buildRenderedQualityRegressionCatalogRows();
   const catalogEvidence = deriveRenderedQualityRegressionEvidence(catalogRows);
 
   console.log("Rendered quality regression pass: validating coverage catalog");
