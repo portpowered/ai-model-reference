@@ -40,6 +40,47 @@ The legacy `scaffold:doc-page` path (`SCAFFOLD_DOC_PAGE_KINDS` in `scaffold-doc-
 
 `formatScaffoldUsage()` now points maintainers at `generate:page-bundle` for new concept and glossary pages. The legacy scaffold remains for backward compatibility.
 
+## Compact page-spec contract
+
+`src/lib/content/page-spec.ts` defines the smallest maintainable input shape for one canonical bundle. Validate with `validatePageSpec` or `parsePageSpecJson` before any file writes; failures surface dotted field paths via `PageSpecValidationError.issues` and never touch the filesystem.
+
+### Shared fields (all kinds)
+
+| Field | Required | Maps to |
+| --- | --- | --- |
+| `kind` | yes | Page and registry kind (see below) |
+| `slug` | yes | URL segment and registry id suffix |
+| `title` | yes | `messages/en.json` `title` (via `deriveDefaultTitleKey`) |
+| `summary` | yes | `messages/en.json` `description` (via `deriveDefaultSummaryKey`) |
+| `openingSummary` | no | Folded summary block in messages |
+| `status` | no (default `draft`) | Frontmatter and registry `status` |
+| `aliases` | no | Frontmatter and registry `aliases` |
+| `tags` | no | Frontmatter and registry `tags` |
+| `relatedIds` | no | Registry relationships |
+| `citationIds` | no | Registry citations |
+| `sections` | no | Section title/body message keys |
+| `callouts` | no | Callout title/body message keys |
+| `assets` | no | Colocated `assets.json` graph/table/chart overrides |
+| `assetMessages` | no | Reader-facing alt/caption text for asset ids |
+| `graph` | no | Graph node label/summary message keys |
+
+Glossary pages use page kind `glossary` but registry kind `concept` with ids `concept.<slug>`.
+
+### Kind-specific required fields
+
+| Kind | Additional required fields |
+| --- | --- |
+| `concept` | `conceptType` |
+| `glossary` | `conceptType` |
+| `module` | `moduleType` |
+| `model` | `family`, `sourceType`, `modalities` (min 1) |
+| `paper` | `authors` (min 1), `publishedAt`, `url` |
+| `training-regime` | `regimeType` |
+
+### Canonical frontmatter derivation
+
+`derivePageFrontmatter(spec, updatedAt)` emits `kind`, `registryId`, `messageNamespace: local`, `assetNamespace: local`, `status`, `tags`, optional `aliases`, and `updatedAt`. Registry ids come from `registryIdForPageSpec`.
+
 ## Supported page kinds (page-spec workflow)
 
 `PAGE_SPEC_KINDS` in `src/lib/content/page-spec.ts` defines the supported workflow kinds, reusing the existing template inventory:

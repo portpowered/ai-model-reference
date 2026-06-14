@@ -17,6 +17,37 @@ const baseFields = {
 };
 
 describe("validatePageSpec", () => {
+  test("accepts shared optional content fields for canonical bundle generation", () => {
+    const spec = validatePageSpec({
+      ...baseFields,
+      kind: "concept",
+      conceptType: "architecture",
+      openingSummary: "Folded opening summary for the page.",
+      relatedIds: ["concept.token"],
+      citationIds: ["citation.example"],
+      callouts: {
+        keyIdea: {
+          title: "Key idea",
+          body: "One compact page spec drives the whole bundle.",
+        },
+      },
+      graph: {
+        nodes: {
+          input: {
+            label: "Page spec",
+            summary: "Declarative input.",
+          },
+        },
+      },
+    });
+
+    expect(spec.openingSummary).toBe("Folded opening summary for the page.");
+    expect(spec.relatedIds).toEqual(["concept.token"]);
+    expect(spec.citationIds).toEqual(["citation.example"]);
+    expect(spec.callouts?.keyIdea.body).toContain("compact page spec");
+    expect(spec.graph?.nodes.input.label).toBe("Page spec");
+  });
+
   test("accepts a valid concept page spec", () => {
     const spec = validatePageSpec({
       ...baseFields,
