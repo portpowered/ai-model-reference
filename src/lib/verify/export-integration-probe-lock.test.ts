@@ -3,6 +3,7 @@ import {
   getExportIntegrationBunTestTimeoutMs,
   isInsideExportIntegrationProbeLock,
   shouldRunExportIntegrationProbeTests,
+  shouldRunPlaywrightHttpVerifierUnitTests,
   shouldRunServedPhase1CanonicalQueriesProbe,
   shouldSerializeExportIntegrationProbes,
   withExportIntegrationProbeLock,
@@ -42,6 +43,15 @@ describe("export integration probe lock", () => {
       }),
     ).toBe(false);
     expect(shouldRunExportIntegrationProbeTests({})).toBe(true);
+  });
+
+  test("skips Playwright HTTP verifier unit tests during the coverage subprocess rerun", () => {
+    expect(
+      shouldRunPlaywrightHttpVerifierUnitTests({
+        [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
+      }),
+    ).toBe(false);
+    expect(shouldRunPlaywrightHttpVerifierUnitTests({})).toBe(true);
   });
 
   test("skips served Phase 1 canonical query probe under CI serialization", () => {

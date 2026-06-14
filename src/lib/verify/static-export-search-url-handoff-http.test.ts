@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { shouldRunPlaywrightHttpVerifierUnitTests } from "./export-integration-probe-lock";
 import {
   assertSearchPageExportShell,
   buildSearchPageExportShellStubBody,
@@ -135,6 +136,9 @@ describe("verifyStaticExportSearchUrlHandoff", () => {
   test(
     "returns a failure reason when export HTML lacks the search input shell",
     async () => {
+      if (!shouldRunPlaywrightHttpVerifierUnitTests()) {
+        return;
+      }
       const root = mkdtempSync(join(tmpdir(), "search-handoff-missing-"));
       const outDir = join(root, "out");
       mkdirSync(outDir, { recursive: true });

@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { shouldRunPlaywrightHttpVerifierUnitTests } from "./export-integration-probe-lock";
 import { buildSearchPageExportShellStubBody } from "./phase-1-search-export-shell-checks";
 import { createStaticExportHttpServer } from "./static-export-http-server";
 import {
@@ -126,6 +127,9 @@ describe("verifyStaticExportSearchEmptyErrorStates", () => {
   test(
     "returns a failure reason when export HTML lacks the search input shell",
     async () => {
+      if (!shouldRunPlaywrightHttpVerifierUnitTests()) {
+        return;
+      }
       const root = mkdtempSync(join(tmpdir(), "search-empty-error-missing-"));
       const outDir = join(root, "out");
       mkdirSync(outDir, { recursive: true });
@@ -157,6 +161,9 @@ describe("verifyStaticExportSearchEmptyErrorStates", () => {
   test(
     "returns a failure reason when SSR shell exists but empty state never hydrates",
     async () => {
+      if (!shouldRunPlaywrightHttpVerifierUnitTests()) {
+        return;
+      }
       const root = mkdtempSync(join(tmpdir(), "search-empty-error-static-"));
       const outDir = join(root, "out");
       mkdirSync(outDir, { recursive: true });
