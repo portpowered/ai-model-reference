@@ -199,6 +199,10 @@ Use dry-run before writing files, then review one small committed sample to prov
 
 `formatScaffoldUsage()` and `formatGeneratePageBundleUsage()` document the migration from legacy `scaffold:doc-page` flags to one page-spec file.
 
+### Draft maintainer bundles and routing
+
+Non-published local docs bundles (`messageNamespace: local` with `status` other than `published`) are excluded from Fumadocs `source.getPage()` / `generateParams()` via `excludeNonPublishedLocalDocsPlugin` in `src/lib/source.ts`. Draft proof artifacts can stay committed under `src/content/docs/**` for generator replay and `loadConceptPageFromDisk` tests without becoming customer-facing routes.
+
 ### Committed sample bundle
 
 | Artifact | Path |
@@ -208,21 +212,11 @@ Use dry-run before writing files, then review one small committed sample to prov
 | Registry record | `src/content/registry/concepts/page-spec-workflow-sample.json` |
 | Graph registry | `src/content/registry/graphs/page-spec-workflow-sample-concept-map.json` |
 
-The sample is `status: draft` with maintainer/process copy so it stays out of customer-facing inventories (`meta.json`, `PUBLISHED_*_REGISTRY_IDS`, tag landing pages, and search-index URL fixtures). Reviewers replay generation with `--dry-run` and validate the committed bundle through tests.
+The sample is `status: draft` with maintainer/process copy so it stays out of customer-facing inventories (`meta.json`, `PUBLISHED_*_REGISTRY_IDS`, tag landing pages, search-index URL fixtures) and Fumadocs docs routing. Reviewers replay generation with `--dry-run` and validate the committed bundle through tests.
 
 `page-spec-workflow-sample.test.ts` validates the committed bundle with `validateGeneratedPageBundle`, renders message-driven sections and the concept map through `ModulePageProviders`, and asserts no `Draft placeholder`, `data-missing-graph-id`, or missing message/asset markers.
 
-Verify routing in a local browser or dev server:
-
-```bash
-PORT=3456
-bun run dev -- -p "$PORT" &
-server_pid=$!
-trap 'kill "$server_pid" 2>/dev/null || true' EXIT
-sleep 4
-curl --fail --silent --show-error --max-time 10 \
-  "http://127.0.0.1:$PORT/docs/concepts/page-spec-workflow-sample"
-```
+Draft bundles are not served at `/docs/**`; use `page-spec-workflow-sample.test.ts` for render proof instead of browser routing.
 
 ## Maintainer entrypoints
 
