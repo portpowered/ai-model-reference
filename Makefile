@@ -1,4 +1,4 @@
-.PHONY: dev lint format typecheck test coverage build build-export ci validate-data scaffold linkcheck validate-pdf build-search-index component-examples verify-export-routes verify-export-search-shell verify-export-search-handoff verify-export-search-ux verify-phase-1-ux verify-phase-1-convergence verify-phase-1-built-app-convergence verify-phase-1-follow-up-convergence verify-phase-1-batch-012-convergence verify-phase-1-batch-013-convergence verify-phase-1-github-pages-convergence verify-phase-1-github-pages-deploy-convergence verify-phase-2-3-reconciliation-convergence
+.PHONY: dev lint format typecheck test coverage build build-export ci validate-data scaffold linkcheck validate-pdf build-search-index component-examples verify-architectural-checklist-mechanism-status verify-export-routes verify-export-search-shell verify-export-search-handoff verify-export-search-ux verify-phase-1-ux verify-phase-1-convergence verify-phase-1-built-app-convergence verify-phase-1-follow-up-convergence verify-phase-1-batch-012-convergence verify-phase-1-batch-013-convergence verify-phase-1-github-pages-convergence verify-phase-1-github-pages-deploy-convergence verify-phase-2-3-reconciliation-convergence
 
 dev:
 	bun run dev
@@ -28,6 +28,9 @@ build-export:
 	bun ./scripts/verify-phase-1-export-routes.ts
 	bun ./scripts/verify-phase-1-export-search-shell.ts
 	bun ./scripts/verify-phase-1-export-search-handoff.ts
+
+verify-architectural-checklist-mechanism-status:
+	bun run verify:architectural-checklist-mechanism-status
 
 verify-export-routes:
 	bun ./scripts/verify-phase-1-export-routes.ts

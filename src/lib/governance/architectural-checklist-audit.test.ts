@@ -203,6 +203,28 @@ describe("verifyMechanismStatusArtifact", () => {
     ).toBe(true);
   });
 
+  test("fails when reviewer command markers are stripped from the artifact", () => {
+    const checklistContent = readFileSync(checklistPath, "utf8");
+    const artifactContent = readFileSync(artifactPath, "utf8").replace(
+      "### Repeatable reviewer path",
+      "### Reviewer path removed",
+    );
+
+    const result = verifyMechanismStatusArtifact(
+      checklistContent,
+      artifactContent,
+    );
+
+    expect(result.ok).toBe(false);
+    expect(
+      result.issues.some((issue) =>
+        issue.message.includes(
+          "Reviewer commands must document verification path marker: ### Repeatable reviewer path",
+        ),
+      ),
+    ).toBe(true);
+  });
+
   test("fails when phase boundary markers are stripped from the artifact", () => {
     const checklistContent = readFileSync(checklistPath, "utf8");
     const artifactContent = readFileSync(artifactPath, "utf8").replace(

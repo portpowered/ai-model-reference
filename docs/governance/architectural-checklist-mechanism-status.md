@@ -12,7 +12,7 @@ planner-owned checklists from observable facts rather than assumptions.
 
 | Field | Value |
 | --- | --- |
-| **Last reviewed (UTC)** | 2026-06-14 (Phase 1 boundaries and deferred mechanisms, story 005) |
+| **Last reviewed (UTC)** | 2026-06-14 (repeatable reviewer verification path, story 006) |
 | **Review scope** | Phase 1 governance pass: map checklist category sections to repository mechanisms, document operator-owned controls separately from source-controlled gates, enforce mechanism-status artifact completeness locally, document localization posture and intentionally deferred mechanisms, and expose reviewer commands for the audit and existing quality gates. |
 | **Source checklist** | [docs/architectural-checklist.md](../architectural-checklist.md) |
 | **Artifact path** | `docs/governance/architectural-checklist-mechanism-status.md` |
@@ -70,7 +70,7 @@ evidence.
 | --- | --- |
 | **Mechanism** | Compare auditable checklist sections to category entries in this artifact; require allowed status values; require repository evidence for **implemented** and **partially implemented** rows; require operator/manual and reviewer command sections. |
 | **Repository evidence** | `src/lib/governance/architectural-checklist-audit.ts`, `src/lib/governance/architectural-checklist-audit.test.ts`, `scripts/verify-architectural-checklist-mechanism-status.ts` |
-| **Verification command** | `bun run verify:architectural-checklist-mechanism-status` |
+| **Verification command** | `make verify-architectural-checklist-mechanism-status` (alias: `bun run verify:architectural-checklist-mechanism-status`) |
 | **Failure behavior** | Exits non-zero with a list of missing categories, duplicate entries, disallowed statuses, or evidence gaps. |
 
 ## Required fields per category
@@ -320,7 +320,7 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | Biome lint/format, TypeScript strict mode, Bun tests, manifest-scoped coverage, build/export validation, registry validation, and internal linkcheck run through `make ci`. Dependency security scans, bundle-size tracking, performance budgets, and global dead-code detection are not automated. |
 | **Repository evidence** | `biome.json`, `tsconfig.json` (`strict: true`), `Makefile` (`ci`), `package.json`, `scripts/validate-registry.ts`, `scripts/validate-links.ts`, `scripts/component-coverage-gate.ts`, `scripts/verify-architectural-checklist-mechanism-status.ts`, `src/lib/governance/architectural-checklist-audit.ts`, `.github/workflows/ci.yml` |
-| **Verification commands** | `make ci`, `bun run lint`, `bun run typecheck`, `bun run verify:architectural-checklist-mechanism-status` |
+| **Verification commands** | `make ci`, `make verify-architectural-checklist-mechanism-status`, `bun run lint`, `bun run typecheck` |
 | **Gaps** | No Dependabot/npm-audit gate; no bundle analyzer or Lighthouse budget in CI; MDX prose lint is manual via `docs/writing-standards.md`. |
 | **Follow-up or operator requirement** | Add dependency scan workflow or document operator-owned security review cadence. |
 
@@ -595,11 +595,28 @@ commands prove this artifact stays complete and aligned with
 `docs/architectural-checklist.md`. **General quality gates** enforce site
 health but are not specific to the mechanism-status audit.
 
+### Repeatable reviewer path
+
+Run these steps in order when approving this governance pass:
+
+1. **Governance audit** — `make verify-architectural-checklist-mechanism-status`
+   (alias: `bun run verify:architectural-checklist-mechanism-status`) proves every
+   auditable checklist category, required artifact sections, and repository
+   evidence rows stay aligned with `docs/architectural-checklist.md`.
+2. **General quality gates** — `make ci` matches the default GitHub Actions **ci**
+   job: lint, typecheck, tests, component coverage, production build, static
+   export build, registry validation, and internal linkcheck.
+3. **Optional post-build convergence** — After `make build` or `make build-export`,
+   `bun run test:integration` reruns built HTML and production-server integration
+   tests that default `make test` skips unless
+   `VERIFY_PRODUCTION_INTEGRATION_TESTS=1` is set.
+
 ### Governance audit (this artifact)
 
 | Command | Purpose |
 | --- | --- |
-| `bun run verify:architectural-checklist-mechanism-status` | Verifies every auditable checklist category appears once with allowed status values, required artifact sections (including Phase 1 boundaries), and repository evidence for implemented or partially implemented rows. |
+| `make verify-architectural-checklist-mechanism-status` | Primary reviewer entrypoint; runs the mechanism-status completeness verifier. |
+| `bun run verify:architectural-checklist-mechanism-status` | Package-script alias for the same verifier. |
 | `bun test src/lib/governance/architectural-checklist-audit.test.ts` | Regression tests for the mechanism-status verifier (category extraction, parsing, failure modes). |
 
 ### General quality gates
@@ -609,9 +626,10 @@ health but are not specific to the mechanism-status audit.
 | `make ci` | Default maintainer gate: lint, typecheck, tests, component coverage, production build, static export build, registry validation, and internal linkcheck. |
 | `bun run lint` | Biome lint and format checks across the repository. |
 | `bun run typecheck` | TypeScript strict check (`tsc --noEmit`) after Fumadocs MDX generation. |
-| `bun test` | Full Bun test suite (includes governance verifier tests and CI contract tests). |
+| `bun test` | Full Bun test suite (includes governance verifier tests and CI contract tests; skips opt-in built HTML / production-server integration unless `VERIFY_PRODUCTION_INTEGRATION_TESTS=1`). |
+| `bun run test:integration` | Opt-in rerun of built HTML and production-server integration tests after a fresh build. |
 
-Run `bun run verify:architectural-checklist-mechanism-status` first when reviewing
+Run `make verify-architectural-checklist-mechanism-status` first when reviewing
 changes to this artifact or `docs/architectural-checklist.md`. Run `make ci` (or
 the individual gates above) to confirm existing site quality checks still pass
 after governance edits.

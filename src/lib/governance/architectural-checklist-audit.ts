@@ -63,6 +63,16 @@ const REQUIRED_PHASE_BOUNDARY_MARKERS = [
   "Blog Components Contract",
 ] as const;
 
+const REQUIRED_REVIEWER_COMMAND_MARKERS = [
+  "### Repeatable reviewer path",
+  "### Governance audit (this artifact)",
+  "### General quality gates",
+  "make verify-architectural-checklist-mechanism-status",
+  "bun run verify:architectural-checklist-mechanism-status",
+  "make ci",
+  "bun run test:integration",
+] as const;
+
 const CATEGORY_ENTRY_HEADING = /^### (.+)$/;
 const TABLE_ROW_PATTERN = /^\|\s\*\*(.+?)\*\*\s\|\s(.+?)\s\|$/;
 
@@ -272,6 +282,30 @@ export function verifyMechanismStatusArtifact(
       if (!operatorSection.includes(marker)) {
         issues.push({
           message: `Operator/manual requirements must describe workflow evidence: ${marker}`,
+        });
+      }
+    }
+  }
+
+  const reviewerCommandsIndex = artifactContent.indexOf("## Reviewer commands");
+  if (reviewerCommandsIndex >= 0) {
+    const afterReviewerCommandsHeading = artifactContent.slice(
+      reviewerCommandsIndex + "## Reviewer commands".length,
+    );
+    const nextSectionOffset = afterReviewerCommandsHeading.search(/\n## [^#]/);
+    const reviewerCommandsSection =
+      nextSectionOffset === -1
+        ? artifactContent.slice(reviewerCommandsIndex)
+        : artifactContent.slice(
+            reviewerCommandsIndex,
+            reviewerCommandsIndex +
+              "## Reviewer commands".length +
+              nextSectionOffset,
+          );
+    for (const marker of REQUIRED_REVIEWER_COMMAND_MARKERS) {
+      if (!reviewerCommandsSection.includes(marker)) {
+        issues.push({
+          message: `Reviewer commands must document verification path marker: ${marker}`,
         });
       }
     }
