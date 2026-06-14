@@ -20,6 +20,7 @@ This document inventories the existing content-generation surfaces the page-spec
 | Page-spec contract | `src/lib/content/page-spec.ts` | Zod schemas, `PAGE_SPEC_KINDS`, registry/frontmatter derivation, and pre-write validation. |
 | Generated bundle validation | `src/lib/content/validate-generated-page-bundle.ts` | Proves generated output loads through standard message/asset loaders and registry validation. |
 | Canonical MDX prose validation | `src/lib/content/validate-canonical-mdx-prose.ts` | Rejects hard-coded reader-facing prose in canonical docs MDX (blog posts excluded). |
+| Generated canonical docs validation | `src/lib/content/validate-generated-canonical-docs.ts` | Enforces folded `openingSummary`, rejects legacy split summary keys, validates graph `assetId` placement, and composes MDX prose checks for generated bundles. |
 
 Docs parents by page kind:
 
@@ -135,6 +136,26 @@ Generated registry records carry `relatedIds` and `citationIds` from the page sp
 - The committed sample page uses the same validator in `page-spec-workflow-sample.test.ts` before React render checks.
 - `make validate-data` (`scripts/validate-registry.ts`) still validates the full committed registry and page inventory; generated bundles must pass both bundle-level and site-wide gates.
 
+## Generated canonical docs validation
+
+`validateGeneratedCanonicalDocs` in `src/lib/content/validate-generated-canonical-docs.ts` is the generator-path gate for writing standards and graphing rules on generated bundles. It runs inside `generatePageBundle` (before writes) and `validateGeneratedPageBundle` (after generation).
+
+### Folded openingSummary
+
+- Concept, module, model, paper, and training-regime bundles must render `<T k="openingSummary" />` in MDX and include non-empty `messages.openingSummary`.
+- Glossary bundles must not render openingSummary in MDX.
+- Legacy split summary keys (`problemStatement`, `coreIdea`, `callouts.readerShortcut`) and matching MDX markers are rejected.
+
+### Graph placement
+
+- Graph components (`ModuleGraph`, `ConceptMap`, `ModelArchitectureGraph`, `PaperContributionGraph`, `TrainingRegimeFlow`) must reference graph assets through `assetId`.
+- Module pages allow exactly one primary `ModuleGraph` in the `how-it-works` section and forbid graphs under `math-or-compute-schema`.
+- Other page kinds enforce template section placement (for example concept graphs under `where-it-appears`, model graphs under `architecture`).
+
+### MDX prose
+
+- Composes `validateCanonicalMdxProse` for headings, hard-coded attributes, residual body prose, and message/asset text copied into MDX (blog posts excluded).
+
 ## Supported page kinds (page-spec workflow)
 
 `PAGE_SPEC_KINDS` in `src/lib/content/page-spec.ts` defines the supported workflow kinds, reusing the existing template inventory:
@@ -150,7 +171,7 @@ Generated registry records carry `relatedIds` and `citationIds` from the page sp
 
 ## Workflow boundary
 
-**Content tooling (generation and validation)** — Owns page-spec parsing, template substitution, file writes, dry-run planning, canonical MDX prose checks, and generated-bundle alignment tests. Modules: `page-spec.ts`, `generate-page-bundle.ts`, `generate-page-bundle-cli.ts`, `validate-generated-page-bundle.ts`, `validate-canonical-mdx-prose.ts`, plus the `scripts/generate-page-bundle.ts` and `scripts/validate-registry.ts` entrypoints.
+**Content tooling (generation and validation)** — Owns page-spec parsing, template substitution, file writes, dry-run planning, canonical MDX prose checks, generated canonical docs validation, and generated-bundle alignment tests. Modules: `page-spec.ts`, `generate-page-bundle.ts`, `generate-page-bundle-cli.ts`, `validate-generated-page-bundle.ts`, `validate-canonical-mdx-prose.ts`, `validate-generated-canonical-docs.ts`, plus the `scripts/generate-page-bundle.ts` and `scripts/validate-registry.ts` entrypoints.
 
 **Existing runtime (loading, rendering, search)** — Unchanged. Generated bundles must load through:
 

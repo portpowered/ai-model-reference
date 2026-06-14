@@ -18,6 +18,7 @@ const GENERATION_SURFACES = [
   ["src", "lib", "content", "page-spec.ts"],
   ["src", "lib", "content", "validate-generated-page-bundle.ts"],
   ["src", "lib", "content", "validate-canonical-mdx-prose.ts"],
+  ["src", "lib", "content", "validate-generated-canonical-docs.ts"],
 ] as const;
 
 const TEMPLATE_SUFFIXES = [

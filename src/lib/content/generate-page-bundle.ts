@@ -27,7 +27,7 @@ import {
   type PageMessages,
   pageMessagesSchema,
 } from "./schemas";
-import { validateCanonicalMdxProse } from "./validate-canonical-mdx-prose";
+import { validateGeneratedCanonicalDocs } from "./validate-generated-canonical-docs";
 
 export type GeneratePageBundleInput = {
   spec: PageSpec | unknown;
@@ -499,7 +499,7 @@ function assertGeneratedBundleReferences(artifacts: PageBundleArtifacts): void {
     );
   }
 
-  const mdxIssues = validateCanonicalMdxProse({
+  const mdxIssues = validateGeneratedCanonicalDocs({
     pagePath: artifacts.paths.pagePath,
     kind: artifacts.spec.kind,
     mdxSource: artifacts.pageMdx,
