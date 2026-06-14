@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit",
     "pretest": "fumadocs-mdx",
     "test": "bun test",
+    "test:integration": "VERIFY_PRODUCTION_INTEGRATION_TESTS=1 bun test",
     "precoverage": "fumadocs-mdx",
     "coverage": "bun ./scripts/component-coverage-gate.ts",
     "scaffold:doc-page": "bun ./scripts/scaffold-doc-page.ts",
