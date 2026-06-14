@@ -195,7 +195,7 @@ Use dry-run before writing files, then review one small committed sample to prov
    `invalid-input`, `unresolved-reference`, `missing-template`, or `existing-target`.
 4. Generate when dry-run looks correct:
    `bun run generate:page-bundle --spec page-specs/<slug>.json`
-5. For published concept/glossary samples, also update `meta.json`, `published-docs-registry-ids.ts`, graph-registry runtime imports, and inventory tests when the page enters published inventories.
+5. For published concept/glossary samples, also update `meta.json`, `published-docs-registry-ids.ts`, graph-registry runtime imports, and inventory tests when the page enters published inventories. Maintainer proof bundles should stay `status: draft` and validate through generator/bundle tests only.
 
 `formatScaffoldUsage()` and `formatGeneratePageBundleUsage()` document the migration from legacy `scaffold:doc-page` flags to one page-spec file.
 
@@ -208,7 +208,7 @@ Use dry-run before writing files, then review one small committed sample to prov
 | Registry record | `src/content/registry/concepts/page-spec-workflow-sample.json` |
 | Graph registry | `src/content/registry/graphs/page-spec-workflow-sample-concept-map.json` |
 
-The sample is `status: published` with the `attention` tag so it loads through published-docs inventories, sidebar `meta.json`, search index fixtures, and `/tags/attention`.
+The sample is `status: draft` with maintainer/process copy so it stays out of customer-facing inventories (`meta.json`, `PUBLISHED_*_REGISTRY_IDS`, tag landing pages, and search-index URL fixtures). Reviewers replay generation with `--dry-run` and validate the committed bundle through tests.
 
 `page-spec-workflow-sample.test.ts` validates the committed bundle with `validateGeneratedPageBundle`, renders message-driven sections and the concept map through `ModulePageProviders`, and asserts no `Draft placeholder`, `data-missing-graph-id`, or missing message/asset markers.
 

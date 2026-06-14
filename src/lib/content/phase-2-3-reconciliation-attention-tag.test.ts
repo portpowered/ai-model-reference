@@ -96,17 +96,7 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
       "en",
     );
 
-    expect(groups.map((group) => group.kind)).toEqual([
-      "module",
-      "concept",
-      "glossary",
-    ]);
-
-    const conceptGroup = groups.find((group) => group.kind === "concept");
-    expect(conceptGroup?.kindLabel).toBe("Concept");
-    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
-      "/docs/concepts/page-spec-workflow-sample",
-    ]);
+    expect(groups.map((group) => group.kind)).toEqual(["module", "glossary"]);
 
     const glossaryGroup = groups.find((group) => group.kind === "glossary");
     expect(glossaryGroup?.kindLabel).toBe("Glossary");

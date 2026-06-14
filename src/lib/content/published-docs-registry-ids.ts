@@ -1,6 +1,5 @@
 /** Concept registry ids whose published docs page lives under `/docs/concepts`. */
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
-  "concept.page-spec-workflow-sample",
   "concept.transformer-architecture",
   "concept.positional-encodings",
   "concept.context-extension",
@@ -75,7 +74,6 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.context-window",
   "concept.context-extension",
   "concept.why-long-context-is-hard",
-  "concept.page-spec-workflow-sample",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;
