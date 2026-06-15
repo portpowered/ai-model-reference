@@ -2,6 +2,11 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
+import {
+  loadPhase1AttentionModuleUrls,
+  PHASE_1_ATTENTION_TAG_SLUG,
+  publishedResourceMatchesTag,
+} from "@/lib/content/phase-1-published-resources";
 import { loadRegistry } from "@/lib/content/registry";
 import {
   loadTagLandingContext,
@@ -10,31 +15,7 @@ import {
 } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
-const ATTENTION_TAG_SLUG = "attention" as const;
-
-/** Published attention modules expected on /tags/attention after batch 017 reconciliation. */
-const EXPECTED_ATTENTION_MODULE_URLS = [
-  "/docs/modules/attention",
-  "/docs/modules/grouped-query-attention",
-  "/docs/modules/linear-attention",
-  "/docs/modules/multi-head-attention",
-  "/docs/modules/multi-head-latent-attention",
-  "/docs/modules/multi-query-attention",
-  "/docs/modules/sliding-window-attention",
-  "/docs/modules/sparse-attention",
-] as const;
-
-function pageMatchesTag(
-  page: Awaited<ReturnType<typeof loadPublishedDocsPages>>[number],
-  tagSlug: string,
-  indexes: Awaited<ReturnType<typeof loadRegistry>>,
-): boolean {
-  if (page.frontmatter.tags.includes(tagSlug)) {
-    return true;
-  }
-  const record = indexes.byId.get(page.frontmatter.registryId);
-  return record?.tags.includes(tagSlug) ?? false;
-}
+const ATTENTION_TAG_SLUG = PHASE_1_ATTENTION_TAG_SLUG;
 
 describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
   test("attention tag record exposes localized title, summary, and module-type category", async () => {
@@ -58,12 +39,13 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
       "en",
     );
     const moduleGroup = groups.find((group) => group.kind === "module");
+    const expectedModuleUrls = await loadPhase1AttentionModuleUrls("en");
 
     expect(moduleGroup).toBeDefined();
     expect(moduleGroup?.kindLabel).toBe("Module");
-    expect(moduleGroup?.resources.map((resource) => resource.url)).toEqual([
-      ...EXPECTED_ATTENTION_MODULE_URLS,
-    ]);
+    expect(moduleGroup?.resources.map((resource) => resource.url)).toEqual(
+      expectedModuleUrls,
+    );
     expect(
       moduleGroup?.resources.every((resource) => resource.kind === "module"),
     ).toBe(true);
@@ -110,19 +92,20 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     const pages = await loadPublishedDocsPages("en");
     const indexes = await loadRegistry();
     const taggedPages = pages.filter((page) =>
-      pageMatchesTag(page, ATTENTION_TAG_SLUG, indexes),
+      publishedResourceMatchesTag(page, ATTENTION_TAG_SLUG, indexes),
     );
     const entryUrls = new Set(
       (await loadTagResourceEntries(ATTENTION_TAG_SLUG, "en")).map(
         (entry) => entry.url,
       ),
     );
+    const expectedModuleUrls = await loadPhase1AttentionModuleUrls("en");
 
     for (const page of taggedPages) {
       expect(entryUrls).toContain(page.url);
     }
 
-    for (const url of EXPECTED_ATTENTION_MODULE_URLS) {
+    for (const url of expectedModuleUrls) {
       expect(entryUrls).toContain(url);
     }
   });
@@ -134,6 +117,7 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
       params: Promise.resolve({ slug: ATTENTION_TAG_SLUG }),
     });
     const html = renderToStaticMarkup(page);
+    const expectedModuleUrls = await loadPhase1AttentionModuleUrls("en");
 
     expect(html).toContain("Attention");
     expect(html).toContain("Module");
@@ -143,7 +127,7 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
     expect(html).toContain("list-none");
     expect(html).not.toContain("list-disc");
 
-    for (const url of EXPECTED_ATTENTION_MODULE_URLS) {
+    for (const url of expectedModuleUrls) {
       expect(html).toContain(`href="${url}"`);
     }
 
