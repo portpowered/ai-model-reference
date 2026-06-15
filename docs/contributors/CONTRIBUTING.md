@@ -31,9 +31,138 @@ Read these references before authoring or reviewing docs:
 | [data model](../data-model.md) | Registry IDs, tags, aliases, citations, and storage layout |
 | [site fundamentals](../site-fundamentals.md) | Product frame, visual direction, and docs shell expectations |
 
-Production templates and starter sidecars live in `docs/templates/`. Each kind
-has a `.mdx` structure file, a `.content.md` authoring guide, and starter
-`messages.en.json` and `assets.json` files.
+Production templates and starter sidecars live in `docs/templates/`. See
+[Page kinds and starter artifacts](#page-kinds-and-starter-artifacts) for how to
+choose a kind and which files to copy.
+
+## Page kinds and starter artifacts
+
+### Canonical docs pages vs blog posts
+
+The repository has two published page families. They use different templates,
+storage paths, and metadata rules.
+
+**Canonical docs pages** live under `src/content/docs/` and render through the
+shared docs shell. They are reusable reference structure:
+
+- MDX defines component order and references only; reader-facing prose belongs
+  in colocated `messages/<locale>.json` files.
+- Frontmatter includes `kind`, `registryId`, `tags`, and usually `aliases`.
+- Search, related links, and cards resolve through registry records under
+  `src/content/registry/`.
+
+**Blog posts** live under `src/content/blog/` and are narrative, time-specific
+writing:
+
+- MDX may contain raw prose when localization is not required.
+- Frontmatter uses `authors`, `publishedAt`, and `relatedDocIds` instead of
+  `registryId`.
+- Posts link back to canonical docs pages rather than duplicating stable
+  definitions.
+
+See [documentation template](../documentation-template.md) for the full
+component and frontmatter contract.
+
+### Template inventory in `docs/templates/`
+
+Each page kind has a production template and three starter sidecars. Copy the
+sidecars into the published page folder; do not copy `.content.md` into
+`src/content/`.
+
+| Page kind | Production template | Starter sidecars | Published route parent |
+| --- | --- | --- | --- |
+| Concept | `concept.mdx` | `concept.content.md`, `concept.messages.en.json`, `concept.assets.json` | `src/content/docs/concepts/<slug>/` |
+| Glossary | `glossary.mdx` | `glossary.content.md`, `glossary.messages.en.json`, `glossary.assets.json` | `src/content/docs/glossary/<slug>/` |
+| Model | `model.mdx` | `model.content.md`, `model.messages.en.json`, `model.assets.json` | `src/content/docs/models/<slug>/` |
+| Module | `module.mdx` | `module.content.md`, `module.messages.en.json`, `module.assets.json` | `src/content/docs/modules/<slug>/` |
+| Paper | `paper.mdx` | `paper.content.md`, `paper.messages.en.json`, `paper.assets.json` | `src/content/docs/papers/<slug>/` |
+| Training regime | `training-regime.mdx` | `training-regime.content.md`, `training-regime.messages.en.json`, `training-regime.assets.json` | `src/content/docs/training/<slug>/` |
+| Blog post | `blog-post.mdx` | `blog-post.content.md`, `blog-post.messages.en.json`, `blog-post.assets.json` | `src/content/blog/<slug>/` |
+
+Starter artifact roles:
+
+| Artifact | Role |
+| --- | --- |
+| `<kind>.mdx` | Production page structure. Becomes `page.mdx` in the published folder. |
+| `<kind>.content.md` | Authoring guide for that kind. Read while writing; never copied into `src/content/`. |
+| `<kind>.messages.en.json` | Starter shape for `messages/en.json` beside the page. |
+| `<kind>.assets.json` | Starter shape for colocated `assets.json` (graphs, tables, images, code schemas). |
+
+Some kinds also ship optional `*.graph.json` examples next to the template
+bundle. Use them as references when filling `assets.json`, not as files to copy
+verbatim into published pages.
+
+Glossary entries share the concept registry record shape and section structure.
+They differ in frontmatter `kind: glossary`, route prefix
+(`/docs/glossary/<slug>`), and glossary-specific message rules described in
+`glossary.content.md`.
+
+### Scaffold support boundary
+
+`scaffold:doc-page` generates a full page bundle for **glossary** and **concept**
+kinds only. It copies the matching template, creates the registry record, graph
+record when needed, and writes colocated messages and assets.
+
+```sh
+bun run scaffold:doc-page -- --help
+```
+
+All other canonical kinds (**model**, **module**, **paper**, **training-regime**)
+still start from the template bundle in `docs/templates/`. Copy
+`<kind>.mdx` to `page.mdx`, rename the starter JSON files into the published
+folder, create the matching registry record under `src/content/registry/`, and
+follow `<kind>.content.md` until scaffold support expands.
+
+For concept and glossary work, contributors may also use
+`scripts/generate-page-bundle.ts` with a page spec when they need generator
+alignment across structure, messages, and assets. That path is optional; the
+scaffold command is the default direct-authoring entry point.
+
+### Choosing slug, title, aliases, tags, and registryId
+
+These fields must stay aligned across the page folder, MDX frontmatter, message
+files, and registry records. See [data model](../data-model.md) for the full
+schema.
+
+**Slug** — Kebab-case route segment and folder name (`grouped-query-attention`).
+Use lowercase letters, digits, and single hyphens only. The slug does not include
+the route prefix (`modules/`, `concepts/`, and so on).
+
+**Title** — Reader-facing display name. Put the canonical title in
+`messages/en.json` under `title`. Registry records point to it through
+`defaultTitleKey` (usually `"title"`).
+
+**registryId** — Stable namespaced ID that links the page to search and related
+docs:
+
+| Page kind | registryId pattern | Registry file location |
+| --- | --- | --- |
+| Concept | `concept.<slug>` | `src/content/registry/concepts/<slug>.json` |
+| Glossary | `concept.<slug>` | `src/content/registry/concepts/<slug>.json` |
+| Model | `model.<slug>` | `src/content/registry/models/<slug>.json` |
+| Module | `module.<slug>` | `src/content/registry/modules/<slug>.json` |
+| Paper | `paper.<slug>` | `src/content/registry/papers/<slug>.json` |
+| Training regime | `training-regime.<slug>` | `src/content/registry/training-regimes/<slug>.json` |
+
+Set the same `registryId` in `page.mdx` frontmatter and in the registry record
+`id` field. Frontmatter `kind` must match the registry record `kind` (glossary
+pages use `kind: glossary` in frontmatter while the registry record remains
+`kind: concept`).
+
+**Aliases** — Abbreviations, spelling variants, and common names readers might
+search for (`GQA`, `grouped-query attention`). Keep frontmatter `aliases` and
+the registry record `aliases` array in sync.
+
+**Tags** — Controlled search metadata, not casual labels. Use tag **slugs** that
+resolve to published records in `src/content/registry/tags/` (for example
+`attention` maps to `tag.attention`). Repeat the same slugs in frontmatter and in
+the registry record `tags` array.
+
+When using `scaffold:doc-page`, pass `--concept-type` for concept and glossary
+pages. Valid values are `architecture`, `math`, `training`, `inference`,
+`systems`, `evaluation`, and `general`. Optional scaffold flags
+(`--tags`, `--aliases`, `--related-ids`, `--citation-ids`) seed registry and
+frontmatter fields in one step.
 
 ## Choose your path
 
@@ -48,7 +177,8 @@ Use direct authoring when you can implement the page yourself in a pull request:
   citations without generator assistance.
 - The work fits an existing template and the current scaffold support boundary.
 
-For **glossary** and **concept** pages, start with the checked-in scaffold:
+For **glossary** and **concept** pages, start with the checked-in scaffold
+(see [Scaffold support boundary](#scaffold-support-boundary)):
 
 ```sh
 bun run scaffold:doc-page -- --help
@@ -67,13 +197,15 @@ Equivalent Make entry:
 make scaffold ARGS='--kind glossary --slug my-term --title "My term" --concept-type general --dry-run'
 ```
 
-`scaffold:doc-page` currently supports `--kind glossary` and `--kind concept`
-only. Other canonical kinds (model, module, paper, training-regime) still start
-from the templates in `docs/templates/` until scaffold support expands.
+For **model**, **module**, **paper**, and **training-regime** pages, copy the
+matching template bundle from `docs/templates/` and create the registry record
+manually until scaffold support expands.
 
 After scaffolding or copying a template bundle, replace placeholder copy in
 `messages/en.json`, add or update registry records the page references, and set
 `status` in `page.mdx` frontmatter when the page is ready for published checks.
+Use [Choosing slug, title, aliases, tags, and registryId](#choosing-slug-title-aliases-tags-and-registryid)
+to keep metadata aligned.
 
 Open a pull request with your page changes. Run local validation before review;
 see [README.md](../../README.md#quality-gates) for the `make ci` sequence and
