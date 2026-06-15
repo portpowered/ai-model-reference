@@ -23,7 +23,11 @@ export function isInsideExportIntegrationProbeLock(): boolean {
 export function shouldSerializeExportIntegrationProbes(
   env: Record<string, string | undefined> = process.env,
 ): boolean {
-  return env.CI === "true" || env.GITHUB_ACTIONS === "true";
+  // Serialize export Playwright probes in every full-suite run so parallel test
+  // files do not stampede browser startup or contend on shared `out/` artifacts.
+  // The coverage subprocess rerun skips probes entirely via
+  // `shouldRunExportIntegrationProbeTests`.
+  return shouldRunExportIntegrationProbeTests(env);
 }
 
 /**
@@ -48,7 +52,7 @@ export function shouldRunPlaywrightHttpVerifierUnitTests(
 
 /**
  * Served-export probe for Phase 1 canonical `/search` queries on a GitHub Pages
- * base path. Under CI serialization the prefixed GQA hydration probe in
+ * base path. Under probe serialization the prefixed GQA hydration probe in
  * `static-export-search-hydration.test.ts` already exercises the same path
  * earlier in the suite; skipping this file's duplicate probe avoids a 60m Bun
  * ceiling when it queues behind build/probe locks late in the full test run.
@@ -66,10 +70,10 @@ export function shouldRunServedPhase1CanonicalQueriesProbe(
 }
 
 /**
- * Served-export probe for combined `/search` page and header dialog UX. Under CI
- * serialization, hydration, handoff, and GQA graph probes already exercise the
- * same static export earlier in the suite; skipping this duplicate probe avoids
- * a 60m Bun ceiling when it queues behind `withExportIntegrationProbeLock`
+ * Served-export probe for combined `/search` page and header dialog UX. Under
+ * probe serialization, hydration, handoff, and GQA graph probes already exercise
+ * the same static export earlier in the suite; skipping this duplicate probe
+ * avoids a 60m Bun ceiling when it queues behind `withExportIntegrationProbeLock`
  * late in the full test run. `make build-export` runs the standalone verifier.
  */
 export function shouldRunPhase1ExportSearchUxServedProbe(
@@ -85,15 +89,15 @@ export function shouldRunPhase1ExportSearchUxServedProbe(
 }
 
 /**
- * Serialized export probes in CI; allow queue wait, stale lock/slot recovery, and one probe run.
+ * Serialized export probes; allow queue wait, stale lock/slot recovery, and one probe run.
  * Must exceed cumulative probe-lock queue plus Playwright launch-slot stale recovery (see launch-playwright-browser).
  */
 const CI_EXPORT_INTEGRATION_BUN_TEST_TIMEOUT_MS = 3_600_000;
 
 /**
  * Bun test ceiling for integration tests that queue on `withExportIntegrationProbeLock`.
- * Under CI, `make coverage` runs a second full suite where export Playwright probes
- * serialize; 300s per test is insufficient once lock wait time is included.
+ * Full-suite runs serialize export Playwright probes; 300s per test is
+ * insufficient once lock wait time is included.
  */
 export function getExportIntegrationBunTestTimeoutMs(): number {
   return shouldSerializeExportIntegrationProbes()
@@ -193,8 +197,8 @@ export function removeExportIntegrationProbeLockForTests(): void {
 }
 
 /**
- * Serializes export Playwright integration probes under CI so parallel test
- * files do not stampede browser startup or contend on shared `out/` artifacts.
+ * Serializes export Playwright integration probes so parallel test files do not
+ * stampede browser startup or contend on shared `out/` artifacts.
  */
 export async function withExportIntegrationProbeLock<T>(
   probe: () => Promise<T>,

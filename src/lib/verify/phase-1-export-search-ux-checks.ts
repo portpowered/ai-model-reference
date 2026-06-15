@@ -22,7 +22,7 @@ export const DEFAULT_EXPORT_OUT_DIR = "out";
 
 export const EXPORT_SEARCH_UX_STUB_ENV = "VERIFY_EXPORT_SEARCH_UX_STUB";
 
-/** Under CI full-suite load, export Playwright probes only GQA to avoid lock-queue timeouts. */
+/** Under full-suite probe serialization, export Playwright probes only GQA to avoid lock-queue timeouts. */
 export const CI_EXPORT_SEARCH_UX_PROBE_QUERIES = ["GQA"] as const;
 
 export function resolveCiExportSearchUxProbeQueries(

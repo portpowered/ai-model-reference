@@ -14,6 +14,7 @@ import {
 } from "./phase-1-export-search-ux-checks";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { PHASE_1_SEARCH_PAGE_QUERIES } from "./phase-1-search-page-checks";
+import { VERIFY_COVERAGE_SUBPROCESS_ENV } from "./server-lifecycle";
 
 describe("resolveCiExportSearchUxProbeQueries", () => {
   test("keeps explicit query lists", () => {
@@ -22,41 +23,24 @@ describe("resolveCiExportSearchUxProbeQueries", () => {
     ]);
   });
 
-  test("defaults to all Phase 1 queries outside CI", () => {
-    const previousCi = process.env.CI;
-    const previousActions = process.env.GITHUB_ACTIONS;
-    delete process.env.CI;
-    delete process.env.GITHUB_ACTIONS;
+  test("defaults to GQA-only probes under probe serialization", () => {
+    expect(resolveCiExportSearchUxProbeQueries()).toEqual(
+      CI_EXPORT_SEARCH_UX_PROBE_QUERIES,
+    );
+  });
+
+  test("defaults to all Phase 1 queries when probe serialization is off", () => {
+    const previousCoverage = process.env[VERIFY_COVERAGE_SUBPROCESS_ENV];
+    process.env[VERIFY_COVERAGE_SUBPROCESS_ENV] = "1";
     try {
       expect(resolveCiExportSearchUxProbeQueries()).toEqual(
         PHASE_1_SEARCH_PAGE_QUERIES,
       );
     } finally {
-      if (previousCi === undefined) {
-        delete process.env.CI;
+      if (previousCoverage === undefined) {
+        delete process.env[VERIFY_COVERAGE_SUBPROCESS_ENV];
       } else {
-        process.env.CI = previousCi;
-      }
-      if (previousActions === undefined) {
-        delete process.env.GITHUB_ACTIONS;
-      } else {
-        process.env.GITHUB_ACTIONS = previousActions;
-      }
-    }
-  });
-
-  test("defaults to GQA-only probes under CI", () => {
-    const previousCi = process.env.CI;
-    process.env.CI = "true";
-    try {
-      expect(resolveCiExportSearchUxProbeQueries()).toEqual(
-        CI_EXPORT_SEARCH_UX_PROBE_QUERIES,
-      );
-    } finally {
-      if (previousCi === undefined) {
-        delete process.env.CI;
-      } else {
-        process.env.CI = previousCi;
+        process.env[VERIFY_COVERAGE_SUBPROCESS_ENV] = previousCoverage;
       }
     }
   });

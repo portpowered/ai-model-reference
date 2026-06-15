@@ -37,12 +37,14 @@ describe("export integration probe lock", () => {
   });
 
   test("resolves export integration Bun ceilings from current env", () => {
-    process.env.CI = "true";
     expect(getExportIntegrationBunTestTimeoutMs()).toBe(3_600_000);
 
-    delete process.env.CI;
-    delete process.env.GITHUB_ACTIONS;
-    expect(getExportIntegrationBunTestTimeoutMs()).toBe(300_000);
+    process.env[VERIFY_COVERAGE_SUBPROCESS_ENV] = "1";
+    try {
+      expect(getExportIntegrationBunTestTimeoutMs()).toBe(300_000);
+    } finally {
+      delete process.env[VERIFY_COVERAGE_SUBPROCESS_ENV];
+    }
   });
 
   test("skips export integration probes during the coverage subprocess rerun", () => {
@@ -63,7 +65,8 @@ describe("export integration probe lock", () => {
     expect(shouldRunPlaywrightHttpVerifierUnitTests({})).toBe(true);
   });
 
-  test("skips served Phase 1 canonical query probe under CI serialization", () => {
+  test("skips served Phase 1 canonical query probe under probe serialization", () => {
+    expect(shouldRunServedPhase1CanonicalQueriesProbe({})).toBe(false);
     expect(shouldRunServedPhase1CanonicalQueriesProbe({ CI: "true" })).toBe(
       false,
     );
@@ -72,10 +75,10 @@ describe("export integration probe lock", () => {
         [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
       }),
     ).toBe(false);
-    expect(shouldRunServedPhase1CanonicalQueriesProbe({})).toBe(true);
   });
 
-  test("skips served Phase 1 export search UX probe under CI serialization", () => {
+  test("skips served Phase 1 export search UX probe under probe serialization", () => {
+    expect(shouldRunPhase1ExportSearchUxServedProbe({})).toBe(false);
     expect(shouldRunPhase1ExportSearchUxServedProbe({ CI: "true" })).toBe(
       false,
     );
@@ -84,23 +87,23 @@ describe("export integration probe lock", () => {
         [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
       }),
     ).toBe(false);
-    expect(shouldRunPhase1ExportSearchUxServedProbe({})).toBe(true);
   });
 
-  test("detects CI serialization flags", () => {
-    process.env.CI = "true";
-    expect(shouldSerializeExportIntegrationProbes()).toBe(true);
-
-    delete process.env.CI;
-    process.env.GITHUB_ACTIONS = "true";
-    expect(shouldSerializeExportIntegrationProbes()).toBe(true);
-
-    delete process.env.GITHUB_ACTIONS;
-    expect(shouldSerializeExportIntegrationProbes()).toBe(false);
+  test("detects probe serialization flags", () => {
+    expect(shouldSerializeExportIntegrationProbes({})).toBe(true);
+    expect(shouldSerializeExportIntegrationProbes({ CI: "true" })).toBe(true);
+    expect(
+      shouldSerializeExportIntegrationProbes({ GITHUB_ACTIONS: "true" }),
+    ).toBe(true);
+    expect(
+      shouldSerializeExportIntegrationProbes({
+        [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
+      }),
+    ).toBe(false);
   });
 
-  test("runs probes without serialization outside CI", async () => {
-    expect(shouldSerializeExportIntegrationProbes({})).toBe(false);
+  test("serializes probes outside the coverage subprocess rerun", async () => {
+    expect(shouldSerializeExportIntegrationProbes({})).toBe(true);
 
     const value = await withExportIntegrationProbeLock(async () => "ok");
     expect(value).toBe("ok");
