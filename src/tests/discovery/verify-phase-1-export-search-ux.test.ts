@@ -4,10 +4,12 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integration-probe-lock";
 import { EXPORT_SEARCH_HYDRATION_SURFACE } from "@/lib/verify/phase-1-export-search-convergence-evidence";
 import { EXPORT_SEARCH_UX_STUB_ENV } from "@/lib/verify/phase-1-export-search-ux-checks";
 
 const repoRoot = process.cwd();
+const exportIntegrationTestTimeout = getExportIntegrationBunTestTimeoutMs();
 
 describe("verify-phase-1-export-search-ux script", () => {
   test(
@@ -42,7 +44,7 @@ describe("verify-phase-1-export-search-ux script", () => {
 
       rmSync(dir, { recursive: true, force: true });
     },
-    { timeout: 180_000 },
+    { timeout: exportIntegrationTestTimeout },
   );
 
   test(
@@ -75,6 +77,6 @@ describe("verify-phase-1-export-search-ux script", () => {
 
       rmSync(dir, { recursive: true, force: true });
     },
-    { timeout: 180_000 },
+    { timeout: exportIntegrationTestTimeout },
   );
 });

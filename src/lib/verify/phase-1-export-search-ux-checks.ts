@@ -47,6 +47,13 @@ function withCiScopedSearchUxQueryOptions<
   return { ...options, queries };
 }
 
+function shouldSerializePhase1ExportSearchUxProbe(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  const stub = env[EXPORT_SEARCH_UX_STUB_ENV]?.trim();
+  return stub !== "pass" && stub !== "fail-search";
+}
+
 export type RunPhase1ExportSearchUxChecksOptions = {
   outDir?: string;
   cwd?: string;
@@ -119,7 +126,7 @@ export async function runPhase1ExportSearchUxChecks(
     ];
   }
 
-  return withExportIntegrationProbeLock(async () => {
+  const runChecks = async (): Promise<Phase1ExportSearchUxCheckFailure[]> => {
     const session = await createStaticExportHttpServer({
       outDir,
       cwd,
@@ -164,7 +171,13 @@ export async function runPhase1ExportSearchUxChecks(
     } finally {
       await session.cleanup();
     }
-  });
+  };
+
+  if (!shouldSerializePhase1ExportSearchUxProbe()) {
+    return runChecks();
+  }
+
+  return withExportIntegrationProbeLock(runChecks);
 }
 
 /** Prefixes a `/search` hydration DOM outcome for standalone verifier stderr. */

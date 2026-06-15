@@ -509,6 +509,8 @@ export function isRetryableStaticExportSearchProbeFailure(
 
   return (
     reason.includes("Failed to connect") ||
+    reason.includes("ECONNREFUSED") ||
+    reason.includes("socket connection was closed") ||
     isPlaywrightLaunchRetryableError(new Error(reason))
   );
 }
