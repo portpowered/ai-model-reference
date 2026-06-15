@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integration-probe-lock";
 import { buildSearchPageExportShellStubBody } from "./phase-1-search-export-shell-checks";
 import { createStaticExportHttpServer } from "./static-export-http-server";
 import {
@@ -15,6 +16,8 @@ import {
   SEARCH_RETRY_LABEL,
   verifyStaticExportSearchEmptyErrorStates,
 } from "./static-export-search-empty-error-states-http";
+
+const exportIntegrationTestTimeout = getExportIntegrationBunTestTimeoutMs();
 
 describe("evaluateSearchPageEmptyState", () => {
   test("passes when empty state shows customer-facing copy and suggestions", () => {
@@ -151,7 +154,7 @@ describe("verifyStaticExportSearchEmptyErrorStates", () => {
         rmSync(root, { recursive: true, force: true });
       }
     },
-    { timeout: 15_000 },
+    { timeout: exportIntegrationTestTimeout },
   );
 
   test(
@@ -184,7 +187,7 @@ describe("verifyStaticExportSearchEmptyErrorStates", () => {
         rmSync(root, { recursive: true, force: true });
       }
     },
-    { timeout: 30_000 },
+    { timeout: exportIntegrationTestTimeout },
   );
 });
 
