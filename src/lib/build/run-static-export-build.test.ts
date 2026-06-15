@@ -3,12 +3,20 @@ import { closeSync, openSync, unlinkSync, utimesSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  getStaticExportBuildBunTestTimeoutMs,
   runStaticExportBuild,
   STALE_STATIC_EXPORT_BUILD_LOCK_MAX_AGE_MS,
   STATIC_EXPORT_BUILD_LOCK_PATH,
 } from "./run-static-export-build";
 
 describe("runStaticExportBuild", () => {
+  test("uses a longer Bun timeout ceiling under CI than locally", () => {
+    expect(getStaticExportBuildBunTestTimeoutMs({ CI: "true" })).toBe(
+      3_600_000,
+    );
+    expect(getStaticExportBuildBunTestTimeoutMs({})).toBe(600_000);
+  });
+
   test("returns a non-zero status when build:export is invoked from an invalid cwd", () => {
     try {
       unlinkSync(STATIC_EXPORT_BUILD_LOCK_PATH);
