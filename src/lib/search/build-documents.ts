@@ -3,6 +3,7 @@ import {
   collectMessageHeadings,
 } from "@/lib/content/messages";
 import type { DocsPageSource } from "@/lib/content/pages";
+import { resolvePublishedResourceTags } from "@/lib/content/phase-1-published-resources";
 import type { RegistryIndexes, RegistryRecord } from "@/lib/content/registry";
 import type {
   ConceptRecord,
@@ -107,8 +108,7 @@ export function buildSearchDocument(
     page.frontmatter.registryId,
   );
   const registryAliases = registryRecord?.aliases ?? [];
-  const registryTags = registryRecord?.tags ?? [];
-  const pageTags = unique([...page.frontmatter.tags, ...registryTags]);
+  const pageTags = resolvePublishedResourceTags(page, indexes);
   const tagTerms = tagSearchTerms(indexes, pageTags);
   const headings = collectMessageHeadings(page.messages);
   const bodyText = collectMessageBodyText(page.messages);
