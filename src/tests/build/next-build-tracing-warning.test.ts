@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import {
@@ -18,14 +18,55 @@ import {
   buildCustomerAskEmbeddingDescriptionLinksRow,
   buildCustomerAskGlossaryNoOpeningSummaryRow,
 } from "@/lib/verify/customer-ask-glossary-page-convergence";
+import { SEARCH_SURFACE_CUSTOMER_ASK_CHECKS } from "@/lib/verify/customer-ask-search-surface-convergence";
+import { runCustomerAskSearchSurfaceChecks } from "@/lib/verify/customer-ask-search-surface-convergence-http";
+import { assertBatch010BuiltAppConvergenceClosureReady } from "@/lib/verify/phase-1-built-app-convergence-closure";
 import { runPhase1DocsFooterHoverChecks } from "@/lib/verify/phase-1-docs-footer-hover-checks";
 import {
   acquireVerifyServerSession,
+  DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
   shouldRunBuiltHtmlConvergenceTests,
 } from "@/lib/verify/server-lifecycle";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const nextDir = join(repoRoot, ".next");
+const BUILT_APP_CONVERGENCE_SCRIPT = join(
+  repoRoot,
+  "scripts/run-phase-1-built-app-convergence-validator.ts",
+);
+const BUILT_APP_CONVERGENCE_E2E_TIMEOUT_MS =
+  DEFAULT_SERVER_STARTUP_TIMEOUT_MS + 600_000;
+
+function runBuiltAppConvergenceScript(
+  options: { cwd?: string; env?: Record<string, string | undefined> } = {},
+): Promise<{ exitCode: number; output: string }> {
+  const mergedEnv = { ...process.env, ...options.env };
+  for (const [key, value] of Object.entries(options.env ?? {})) {
+    if (value === undefined) {
+      delete mergedEnv[key];
+    }
+  }
+
+  return new Promise((resolve, reject) => {
+    const child = spawn("bun", [BUILT_APP_CONVERGENCE_SCRIPT], {
+      cwd: options.cwd ?? repoRoot,
+      env: mergedEnv,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    let output = "";
+    child.stdout.on("data", (chunk: Buffer | string) => {
+      output += String(chunk);
+    });
+    child.stderr.on("data", (chunk: Buffer | string) => {
+      output += String(chunk);
+    });
+    child.once("error", reject);
+    child.once("close", (code) => {
+      resolve({ exitCode: code ?? 1, output });
+    });
+  });
+}
 
 /**
  * Regression gate for Turbopack NFT whole-project filesystem tracing warnings.
@@ -220,6 +261,82 @@ describe("docs page footer hover convergence (production Playwright)", () => {
     try {
       const failures = await runPhase1DocsFooterHoverChecks(session.baseUrl);
       expect(failures).toEqual([]);
+    } finally {
+      await session.cleanup();
+    }
+  }, 120_000);
+});
+
+/**
+ * Built-app convergence and customer-ask search Playwright probes run in this
+ * file immediately after the in-suite production build so they do not read
+ * stale `.next` artifacts or fail on unpopulated search results mid-hydration.
+ */
+describe("post-next-build built-app convergence (production Playwright)", () => {
+  test(
+    "canonical run prints closure-ready evidence when default spawn path is healthy",
+    async () => {
+      if (process.env.CI === "true") {
+        return;
+      }
+      if (!shouldRunBuiltHtmlConvergenceTests(repoRoot)) {
+        return;
+      }
+
+      const tokenPath = join(
+        repoRoot,
+        ".next/server/app/docs/glossary/token.html",
+      );
+      if (!existsSync(tokenPath)) {
+        return;
+      }
+
+      const result = await runBuiltAppConvergenceScript({
+        env: { VERIFY_BASE_URL: undefined },
+      });
+
+      const summary = assertBatch010BuiltAppConvergenceClosureReady(
+        result.output,
+      );
+      expect(result.exitCode).toBe(0);
+      expect(summary.commandPath.status).toBe("pass");
+      expect([
+        "close-verifier-harness-regression",
+        "stop-and-wait-for-phase-advancement",
+      ]).toContain(summary.recommendation);
+    },
+    BUILT_APP_CONVERGENCE_E2E_TIMEOUT_MS,
+  );
+
+  test("customer-ask search surface probes finish before browser teardown", async () => {
+    if (process.env.CI === "true") {
+      return;
+    }
+    if (!shouldRunBuiltHtmlConvergenceTests(repoRoot)) {
+      return;
+    }
+
+    const tokenPath = join(
+      repoRoot,
+      ".next/server/app/docs/glossary/token.html",
+    );
+    if (!existsSync(tokenPath)) {
+      return;
+    }
+
+    const session = await acquireVerifyServerSession({ projectRoot: repoRoot });
+    try {
+      const rows = await runCustomerAskSearchSurfaceChecks(session.baseUrl, {
+        queries: ["GQA"],
+      });
+      expect(
+        rows.some(
+          (row) =>
+            row.checkId ===
+              SEARCH_SURFACE_CUSTOMER_ASK_CHECKS.pagePageLevelHits.checkId &&
+            row.status === "pass",
+        ),
+      ).toBe(true);
     } finally {
       await session.cleanup();
     }

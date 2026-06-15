@@ -209,6 +209,47 @@ async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Returns true when `/search` has a terminal outcome: empty state, populated
+ * result URLs, or a visible grouped-query-attention hit marker.
+ */
+export function isSearchPageDomSnapshotPopulated(
+  snapshot: SearchPageDomSnapshot,
+): boolean {
+  if (snapshot.hasEmpty && !snapshot.hasResults) {
+    return true;
+  }
+
+  if (snapshot.resultUrls.length > 0) {
+    return true;
+  }
+
+  if (
+    snapshot.hasGroupedQueryAttentionLink ||
+    snapshot.hasGroupedQueryAttentionResultUrl ||
+    snapshot.hasGroupedQueryAttentionButton
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+async function waitForPopulatedSearchPageDomSnapshot(
+  page: Page,
+  timeoutMs: number,
+): Promise<SearchPageDomSnapshot> {
+  const deadline = Date.now() + timeoutMs;
+  let snapshot = await readSearchPageDomSnapshot(page);
+
+  while (!isSearchPageDomSnapshotPopulated(snapshot) && Date.now() < deadline) {
+    await sleep(250);
+    snapshot = await readSearchPageDomSnapshot(page);
+  }
+
+  return snapshot;
+}
+
 async function waitForSearchPageOutcome(
   page: Page,
   timeoutMs: number,
@@ -278,7 +319,7 @@ export async function checkSearchPageQuery(
     return hydrationOutcome;
   }
 
-  const snapshot = await readSearchPageDomSnapshot(page);
+  const snapshot = await waitForPopulatedSearchPageDomSnapshot(page, timeoutMs);
   return evaluateSearchPageDomSnapshot(snapshot, query);
 }
 
