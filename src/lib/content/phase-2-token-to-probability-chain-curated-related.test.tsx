@@ -79,7 +79,15 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain('href="/docs/glossary/embedding"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');
-    expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
+    expect(html).toContain(
+      "Each token ID becomes a learned numerical representation before the model mixes context.",
+    );
+    expect(html).toContain(
+      "Next-token prediction starts as a candidate score for each vocabulary token.",
+    );
+    expect(html).toContain(
+      "Those candidate scores convert into probabilities across the vocabulary.",
+    );
   });
 
   test("published glossary curated links use /docs/glossary/<slug> hrefs", async () => {

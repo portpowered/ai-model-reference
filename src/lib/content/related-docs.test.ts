@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  applyRelatedDocMessageOverrides,
   CURATED_RELATED,
   deriveCuratedRelatedItems,
   deriveRelatedDocGroups,
@@ -206,6 +207,35 @@ describe("related-docs", () => {
     expect(peers[0]?.href).toBe("/docs/glossary/architecture");
     expect(peers[0]?.reasonLabel).toBe("Same concept type");
     expect(peers[0]?.isPlanned).toBe(false);
+  });
+
+  test("applyRelatedDocMessageOverrides replaces curated reason labels from page messages", () => {
+    const source: ConceptRecord = {
+      ...token,
+      relatedIds: ["module.grouped-query-attention"],
+    };
+    const items = deriveCuratedRelatedItems(
+      source,
+      [source, gqa],
+      publishedRegistryIds,
+    );
+    const overridden = applyRelatedDocMessageOverrides(items, {
+      relatedDocs: {
+        "module.grouped-query-attention": {
+          reason:
+            "Grouped-query attention shares KV heads across query groups.",
+        },
+      },
+    });
+
+    expect(overridden[0]?.reasonLabel).toBe(
+      "Grouped-query attention shares KV heads across query groups.",
+    );
+    expect(
+      applyRelatedDocMessageOverrides(items, undefined).map(
+        (item) => item.reasonLabel,
+      ),
+    ).toEqual(items.map((item) => item.reasonLabel));
   });
 
   test("deriveCuratedRelatedItems preserves relatedIds order and planned draft rows", () => {

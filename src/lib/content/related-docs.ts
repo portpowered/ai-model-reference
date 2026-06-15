@@ -7,7 +7,11 @@ import {
   PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
   type PublishedDocsRegistryIds,
 } from "@/lib/content/published-docs-registry-ids";
-import type { ConceptRecord, ModuleRecord } from "@/lib/content/schemas";
+import type {
+  ConceptRecord,
+  ModuleRecord,
+  PageMessages,
+} from "@/lib/content/schemas";
 
 export const SAME_VARIANT_GROUP = "same-variant-group" as const;
 export const SHARED_TAGS = "shared-tags" as const;
@@ -184,6 +188,29 @@ export function deriveSameConceptTypePeers(
     )
     .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds))
     .sort((a, b) => a.title.localeCompare(b.title));
+}
+
+/** Applies page-message overrides for curated related-doc relationship labels. */
+export function applyRelatedDocMessageOverrides(
+  items: RelatedDocItem[],
+  messages?: Pick<PageMessages, "relatedDocs">,
+): RelatedDocItem[] {
+  const overrides = messages?.relatedDocs;
+  if (!overrides) {
+    return items;
+  }
+
+  return items.map((item) => {
+    const override = overrides[item.registryId];
+    if (!override || item.isPlanned) {
+      return item;
+    }
+
+    return {
+      ...item,
+      reasonLabel: override.reason,
+    };
+  });
 }
 
 /** Curated `relatedIds` on the source record, preserving registry order. */
