@@ -9,8 +9,6 @@ export const RENDERED_QUALITY_REGRESSION_DOMAIN_LABEL =
 export const RENDERED_QUALITY_REGRESSION_CHECKLIST_ROW =
   "rendered-quality-regression";
 
-export type RenderedQualityRegressionStatus = "pass" | "fail";
-
 export type RenderedQualityRegressionCheck = {
   checkId: string;
   title: string;
@@ -19,14 +17,12 @@ export type RenderedQualityRegressionCheck = {
   testFiles: readonly string[];
 };
 
-export type RenderedQualityRegressionCheckRow = {
+export type RenderedQualityRegressionCatalogEntry = {
   checkId: string;
   title: string;
   lane: RenderedQualityBehaviorLane;
   behavior: string;
-  status: RenderedQualityRegressionStatus;
   testFiles: readonly string[];
-  reason?: string;
   checklistRow: string;
 };
 
@@ -34,9 +30,7 @@ export type RenderedQualityRegressionEvidence = {
   domainId: typeof RENDERED_QUALITY_REGRESSION_DOMAIN_ID;
   label: string;
   checklistRow: string;
-  status: RenderedQualityRegressionStatus;
-  reason?: string;
-  rows: readonly RenderedQualityRegressionCheckRow[];
+  catalog: readonly RenderedQualityRegressionCatalogEntry[];
 };
 
 /**
@@ -171,43 +165,55 @@ export const RENDERED_QUALITY_REGRESSION_BASELINE_COMMAND =
 export const RENDERED_QUALITY_REGRESSION_PASS_COMMAND =
   "make verify-rendered-quality-regression";
 
-export function buildRenderedQualityRegressionCatalogRows(): RenderedQualityRegressionCheckRow[] {
+export function buildRenderedQualityRegressionCatalog(): RenderedQualityRegressionCatalogEntry[] {
   return RENDERED_QUALITY_REGRESSION_CHECKS.map((check) => ({
     checkId: check.checkId,
     title: check.title,
     lane: check.lane,
     behavior: check.behavior,
-    status: "pass" as const,
     testFiles: check.testFiles,
     checklistRow: RENDERED_QUALITY_REGRESSION_CHECKLIST_ROW,
   }));
 }
 
-export function deriveRenderedQualityRegressionEvidence(
-  rows: readonly RenderedQualityRegressionCheckRow[],
-): RenderedQualityRegressionEvidence {
-  const incomplete = rows.filter((row) => row.testFiles.length === 0);
+/** @deprecated Use buildRenderedQualityRegressionCatalog — catalog rows are documentation only. */
+export function buildRenderedQualityRegressionCatalogRows(): RenderedQualityRegressionCatalogEntry[] {
+  return buildRenderedQualityRegressionCatalog();
+}
 
+export function buildRenderedQualityRegressionEvidence(): RenderedQualityRegressionEvidence {
   return {
     domainId: RENDERED_QUALITY_REGRESSION_DOMAIN_ID,
     label: RENDERED_QUALITY_REGRESSION_DOMAIN_LABEL,
     checklistRow: RENDERED_QUALITY_REGRESSION_CHECKLIST_ROW,
-    status: incomplete.length === 0 ? "pass" : "fail",
-    reason:
-      incomplete.length > 0
-        ? `${incomplete.length} regression catalog row(s) are missing test file paths`
-        : undefined,
-    rows,
+    catalog: buildRenderedQualityRegressionCatalog(),
   };
 }
 
-export function formatRenderedQualityRegressionCheckRowLine(
-  row: RenderedQualityRegressionCheckRow,
+/** @deprecated Use buildRenderedQualityRegressionEvidence — catalog completeness is not acceptance evidence. */
+export function deriveRenderedQualityRegressionEvidence(
+  catalog: readonly RenderedQualityRegressionCatalogEntry[] = buildRenderedQualityRegressionCatalog(),
+): RenderedQualityRegressionEvidence {
+  return {
+    domainId: RENDERED_QUALITY_REGRESSION_DOMAIN_ID,
+    label: RENDERED_QUALITY_REGRESSION_DOMAIN_LABEL,
+    checklistRow: RENDERED_QUALITY_REGRESSION_CHECKLIST_ROW,
+    catalog,
+  };
+}
+
+export function formatRenderedQualityRegressionCatalogEntryLine(
+  entry: RenderedQualityRegressionCatalogEntry,
 ): string {
-  const status = row.status === "pass" ? "CATALOG" : "FAIL";
-  const files = row.testFiles.join(", ");
-  const reason = row.reason ? ` — ${row.reason}` : "";
-  return `[${status}] ${row.checkId} (${row.lane}/${row.behavior}) — ${row.title} — tests: ${files}${reason}`;
+  const files = entry.testFiles.join(", ");
+  return `[CATALOG] ${entry.checkId} (${entry.lane}/${entry.behavior}) — ${entry.title} — tests: ${files}`;
+}
+
+/** @deprecated Use formatRenderedQualityRegressionCatalogEntryLine */
+export function formatRenderedQualityRegressionCheckRowLine(
+  entry: RenderedQualityRegressionCatalogEntry,
+): string {
+  return formatRenderedQualityRegressionCatalogEntryLine(entry);
 }
 
 export function formatRenderedQualityRegressionReport(
@@ -216,13 +222,12 @@ export function formatRenderedQualityRegressionReport(
   const lines = [
     `# ${RENDERED_QUALITY_REGRESSION_DOMAIN_LABEL}`,
     "",
-    `Status: ${evidence.status}`,
-    evidence.reason ? `Reason: ${evidence.reason}` : null,
+    "Maintainer catalog only — acceptance is driven by the unit regression suite and built-app baseline audit below.",
     "",
     "## Regression catalog",
     "",
-    ...evidence.rows.map((row) =>
-      formatRenderedQualityRegressionCheckRowLine(row),
+    ...evidence.catalog.map((entry) =>
+      formatRenderedQualityRegressionCatalogEntryLine(entry),
     ),
     "",
     "## Repeatable commands",
@@ -231,19 +236,15 @@ export function formatRenderedQualityRegressionReport(
     `- Built-app baseline audit: \`${RENDERED_QUALITY_REGRESSION_BASELINE_COMMAND}\``,
     `- Full convergence pass: \`${RENDERED_QUALITY_REGRESSION_PASS_COMMAND}\``,
     "",
-  ].filter((line): line is string => line !== null);
+  ];
 
   return lines.join("\n");
 }
 
 export function getRenderedQualityRegressionExitCode(
-  evidence: RenderedQualityRegressionEvidence,
   unitTestExitCode = 0,
   baselineAuditExitCode = 0,
 ): number {
-  if (evidence.status === "fail") {
-    return 1;
-  }
   if (unitTestExitCode !== 0) {
     return unitTestExitCode;
   }
