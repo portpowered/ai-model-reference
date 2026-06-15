@@ -6,9 +6,12 @@ import {
   citationRecordSchema,
   conceptRecordSchema,
   graphRecordSchema,
+  modelRecordSchema,
   moduleRecordSchema,
+  paperRecordSchema,
   type TagRecord,
   tagRecordSchema,
+  trainingRegimeRecordSchema,
 } from "./schemas";
 
 export type { RegistryIndexes, RegistryRecord } from "./registry-index";
@@ -32,10 +35,21 @@ export class RegistryLoadError extends Error {
 const defaultRegistryRoot = REGISTRY_ROOT;
 
 type RegistryDirectory = {
-  name: "modules" | "concepts" | "tags" | "citations" | "graphs";
+  name:
+    | "modules"
+    | "concepts"
+    | "models"
+    | "papers"
+    | "training-regimes"
+    | "tags"
+    | "citations"
+    | "graphs";
   schema:
     | typeof moduleRecordSchema
     | typeof conceptRecordSchema
+    | typeof modelRecordSchema
+    | typeof paperRecordSchema
+    | typeof trainingRegimeRecordSchema
     | typeof tagRecordSchema
     | typeof citationRecordSchema
     | typeof graphRecordSchema;
@@ -44,6 +58,9 @@ type RegistryDirectory = {
 const registryDirectories: RegistryDirectory[] = [
   { name: "modules", schema: moduleRecordSchema },
   { name: "concepts", schema: conceptRecordSchema },
+  { name: "models", schema: modelRecordSchema },
+  { name: "papers", schema: paperRecordSchema },
+  { name: "training-regimes", schema: trainingRegimeRecordSchema },
   { name: "tags", schema: tagRecordSchema },
   { name: "citations", schema: citationRecordSchema },
   { name: "graphs", schema: graphRecordSchema },

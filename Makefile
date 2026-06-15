@@ -32,6 +32,7 @@ build-export:
 	bun ./scripts/verify-phase-1-export-routes.ts
 	bun ./scripts/verify-phase-1-export-search-shell.ts
 	bun ./scripts/verify-phase-1-export-search-handoff.ts
+	bun ./scripts/verify-phase-1-export-search-ux.ts
 
 verify-architectural-checklist-mechanism-status:
 	bun run verify:architectural-checklist-mechanism-status

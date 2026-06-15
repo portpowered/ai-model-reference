@@ -18,6 +18,17 @@ async function defaultLaunchBrowser(): Promise<Browser> {
   return launchPlaywrightBrowser();
 }
 
+function isTransientGqaGraphProbeError(reason: string): boolean {
+  return (
+    reason.includes("Target page, context or browser has been closed") ||
+    reason.includes("browser has been closed")
+  );
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function waitForAttentionVariantActive(
   page: Page,
   variant: "mha" | "gqa",
@@ -236,7 +247,12 @@ export async function verifyStaticExportGqaGraphHydration(
       return "React Flow canvas did not hydrate on the GQA module page.";
     }
 
-    for (let attempt = 0; attempt < 2; attempt += 1) {
+    const maxAttempts =
+      process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true"
+        ? 3
+        : 1;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
       const browser = await launchBrowser();
       try {
         const page = await browser.newPage();
@@ -247,18 +263,29 @@ export async function verifyStaticExportGqaGraphHydration(
           waitUntil: "load",
         });
         await page.waitForTimeout(500);
-        return await verifyGqaGraphHydrationOnPage(page, timeoutMs);
+        const reason = await verifyGqaGraphHydrationOnPage(page, timeoutMs);
+        if (
+          reason === null ||
+          !isTransientGqaGraphProbeError(reason) ||
+          attempt === maxAttempts
+        ) {
+          return reason;
+        }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        if (attempt === 0 && /browser has been closed/i.test(message)) {
-          continue;
+        if (
+          !isTransientGqaGraphProbeError(message) ||
+          attempt === maxAttempts
+        ) {
+          return message;
         }
-        return message;
       } finally {
         await closePlaywrightBrowserWithTimeout(browser);
       }
+
+      await sleep(2_000);
     }
 
-    return "GQA export graph hydration probe failed after retrying a closed browser session.";
+    return "GQA graph hydration probe exhausted retry attempts.";
   });
 }

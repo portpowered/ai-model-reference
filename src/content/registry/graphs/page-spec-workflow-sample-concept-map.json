@@ -1,0 +1,42 @@
+{
+  "id": "graph.page-spec-workflow-sample-concept-map",
+  "slug": "page-spec-workflow-sample-concept-map",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-11T00:00:00.000Z",
+  "updatedAt": "2026-06-11T00:00:00.000Z",
+  "subjectId": "concept.page-spec-workflow-sample",
+  "graphType": "concept-map",
+  "rootNodeId": "pageSpec",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "pageSpec",
+      "labelKey": "graph.nodes.pageSpec.label",
+      "moduleKind": "input",
+      "childNodeIds": ["bundle"]
+    },
+    {
+      "id": "bundle",
+      "labelKey": "graph.nodes.bundle.label",
+      "moduleKind": "other",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "page-spec-to-bundle",
+      "source": "pageSpec",
+      "target": "bundle",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

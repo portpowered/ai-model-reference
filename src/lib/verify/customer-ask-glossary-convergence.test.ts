@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { readBuiltHtmlForConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
 import {
   assertGlossaryChromeLinksConvergence,
   assertGlossaryEmbeddingDescriptionLinks,
@@ -404,53 +403,6 @@ describe("buildCustomerAskGlossaryBridgeDescriptionRows", () => {
       GLOSSARY_CUSTOMER_ASK_CHECKS.embeddingDescriptionLinks.checkId,
       GLOSSARY_CUSTOMER_ASK_CHECKS.vectorDescriptionLinks.checkId,
       GLOSSARY_CUSTOMER_ASK_CHECKS.hiddenSizeDescriptionLinks.checkId,
-    ]);
-    expect(rows.every((row) => row.status === "pass")).toBe(true);
-  });
-});
-
-describe("buildCustomerAskGlossaryBridgeDescriptionRows (built HTML)", () => {
-  test("bridge glossary built HTML reports pass for description link checks", () => {
-    const embeddingHtml = readBuiltHtmlForConvergenceTests(
-      ".next/server/app/docs/glossary/embedding.html",
-    );
-    const vectorHtml = readBuiltHtmlForConvergenceTests(
-      ".next/server/app/docs/glossary/vector.html",
-    );
-    const hiddenSizeHtml = readBuiltHtmlForConvergenceTests(
-      ".next/server/app/docs/glossary/hidden-size.html",
-    );
-
-    if (!embeddingHtml || !vectorHtml || !hiddenSizeHtml) {
-      return;
-    }
-
-    const rows = buildCustomerAskGlossaryBridgeDescriptionRows({
-      embeddingHtml,
-      vectorHtml,
-      hiddenSizeHtml,
-    });
-
-    expect(rows).toHaveLength(3);
-    expect(rows.every((row) => row.status === "pass")).toBe(true);
-  });
-});
-
-describe("buildCustomerAskGlossaryRows (built HTML)", () => {
-  test("/docs/glossary/token built HTML reports pass for all customer-ask glossary checks", () => {
-    const tokenHtml = readBuiltHtmlForConvergenceTests(
-      ".next/server/app/docs/glossary/token.html",
-    );
-    if (!tokenHtml) {
-      return;
-    }
-
-    const rows = buildCustomerAskGlossaryRows(tokenHtml);
-    expect(rows).toHaveLength(3);
-    expect(rows.map((row) => row.checkId)).toEqual([
-      GLOSSARY_CUSTOMER_ASK_CHECKS.presentation.checkId,
-      GLOSSARY_CUSTOMER_ASK_CHECKS.chromeLinks.checkId,
-      GLOSSARY_CUSTOMER_ASK_CHECKS.footerHover.checkId,
     ]);
     expect(rows.every((row) => row.status === "pass")).toBe(true);
   });

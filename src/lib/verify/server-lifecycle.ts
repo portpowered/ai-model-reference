@@ -166,6 +166,27 @@ export function shouldRunVerifyProductionIntegrationTests(
   );
 }
 
+/** Skips built `.next/server` HTML convergence probes during the coverage subprocess rerun. */
+export function shouldRunBuiltHtmlConvergenceTests(
+  projectRoot: string = process.cwd(),
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  return shouldRunVerifyProductionIntegrationTests(projectRoot, env);
+}
+
+/**
+ * Gates the fresh-checkout typecheck proof: skip the coverage subprocess rerun
+ * (`make ci` already runs `make typecheck` before `make test`).
+ */
+export function shouldRunFreshCheckoutTypecheckProof(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  return env[VERIFY_COVERAGE_SUBPROCESS_ENV] !== "1";
+}
+
+/** Bun test ceiling for isolated worktree install + `make typecheck` under full-suite load. */
+export const FRESH_CHECKOUT_TYPECHECK_TEST_TIMEOUT_MS = 600_000;
+
 export function assertNextProductionBuild(
   projectRoot: string = process.cwd(),
 ): void {

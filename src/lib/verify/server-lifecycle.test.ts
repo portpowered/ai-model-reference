@@ -29,6 +29,7 @@ import {
   resolveNextProductionServerBin,
   resolveServerStartupTimeoutMsFromEnv,
   resolveVerifyBaseUrlFromEnv,
+  shouldRunFreshCheckoutTypecheckProof,
   shouldRunVerifyProductionIntegrationTests,
   VERIFY_COVERAGE_SUBPROCESS_ENV,
   VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV,
@@ -280,6 +281,15 @@ describe("assertNextProductionBuild", () => {
         [VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV]: "1",
       }),
     ).toBe(false);
+  });
+
+  test("skips fresh-checkout typecheck proof during the coverage subprocess rerun", () => {
+    expect(
+      shouldRunFreshCheckoutTypecheckProof({
+        [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
+      }),
+    ).toBe(false);
+    expect(shouldRunFreshCheckoutTypecheckProof({})).toBe(true);
   });
 
   test("skips production integration tests unless VERIFY_PRODUCTION_INTEGRATION_TESTS=1", () => {
