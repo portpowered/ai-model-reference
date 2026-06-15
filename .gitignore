@@ -9,6 +9,7 @@ bin/
 
 node_modules/
 .next/
+out/
 .source/
 src/generated/
 storybook-static/
