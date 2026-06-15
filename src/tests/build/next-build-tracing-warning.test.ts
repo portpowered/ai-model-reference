@@ -18,7 +18,11 @@ import {
   buildCustomerAskEmbeddingDescriptionLinksRow,
   buildCustomerAskGlossaryNoOpeningSummaryRow,
 } from "@/lib/verify/customer-ask-glossary-page-convergence";
-import { shouldRunBuiltHtmlConvergenceTests } from "@/lib/verify/server-lifecycle";
+import { runPhase1DocsFooterHoverChecks } from "@/lib/verify/phase-1-docs-footer-hover-checks";
+import {
+  acquireVerifyServerSession,
+  shouldRunBuiltHtmlConvergenceTests,
+} from "@/lib/verify/server-lifecycle";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const nextDir = join(repoRoot, ".next");
@@ -188,4 +192,36 @@ describe("post-next-build glossary convergence (built HTML)", () => {
     ]);
     expect(rows.every((row) => row.status === "pass")).toBe(true);
   });
+});
+
+/**
+ * Footer hover Playwright probe runs in this file immediately after the
+ * in-suite production build so it does not contend with parallel test files
+ * or read stale `.next` artifacts during `make test`.
+ */
+describe("docs page footer hover convergence (production Playwright)", () => {
+  test("production build footer cards invert sublabel foreground on hover and focus-visible", async () => {
+    if (process.env.CI === "true") {
+      return;
+    }
+    if (!shouldRunBuiltHtmlConvergenceTests(repoRoot)) {
+      return;
+    }
+
+    const tokenPath = join(
+      repoRoot,
+      ".next/server/app/docs/glossary/token.html",
+    );
+    if (!existsSync(tokenPath)) {
+      return;
+    }
+
+    const session = await acquireVerifyServerSession({ projectRoot: repoRoot });
+    try {
+      const failures = await runPhase1DocsFooterHoverChecks(session.baseUrl);
+      expect(failures).toEqual([]);
+    } finally {
+      await session.cleanup();
+    }
+  }, 120_000);
 });
