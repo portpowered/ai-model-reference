@@ -1,0 +1,50 @@
+{
+  "kind": "concept",
+  "slug": "causal-attention",
+  "title": "Causal attention",
+  "summary": "Self-attention with a mask that hides future positions so each token may only attend to itself and earlier tokens in the sequence.",
+  "openingSummary": "Causal attention keeps generation honest: when predicting the next token, a position may look backward along the sequence but never peek at tokens that have not been produced yet. The mask turns full self-attention into an autoregressive-friendly mix that matches how decoder-only models are trained and served.",
+  "status": "published",
+  "conceptType": "architecture",
+  "aliases": [
+    "masked self-attention",
+    "autoregressive attention",
+    "left-to-right attention"
+  ],
+  "tags": ["foundations", "attention"],
+  "prerequisiteIds": [
+    "concept.self-attention",
+    "concept.autoregressive-generation"
+  ],
+  "relatedIds": [
+    "concept.self-attention",
+    "concept.bidirectional-attention",
+    "concept.decoder-only-architecture",
+    "concept.autoregressive-generation",
+    "module.attention",
+    "module.multi-head-attention",
+    "concept.transformer-architecture"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Causal attention is self-attention plus a triangular mask applied to attention scores. Positions may attend to themselves and to earlier indices; later positions receive negative infinity scores so their weights become zero after softmax. Training and inference therefore agree: the representation at index t never depends on tokens after t. KV caching during serving reuses earlier keys and values because later queries never need to revisit forbidden future states."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Most chat and completion models are decoder-only stacks built from causal attention blocks. The mask is what makes next-token training self-consistent and what enables incremental decoding with a growing prefix. Confusing causal attention with bidirectional self-attention leads to applying the wrong training recipe or expecting encoder-style context inside a generative decoder."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "For the prompt tokens [The, cat, sat], the representation for sat may attend to The, cat, and sat, but not to any later token because none exist yet during that forward pass. When the model predicts the next word, the new token appends to the sequence and only then becomes visible to future positions."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "GPT-style language models, many code assistants, and most open chat checkpoints stack causal self-attention with feed-forward sublayers. Decoder halves of encoder–decoder models also use causal masks on the target side even when cross-attention reads a fully visible encoder."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Causal attention is a masking choice on self-attention, not a separate module family. It does not mean the model lacks memory of the past—only that the future is hidden. It is also not the same as cross-attention, which mixes two sequences rather than restricting visibility within one. Sliding-window or sparse module pages change which past tokens are reachable, but causal masking still forbids looking ahead."
+    }
+  }
+}

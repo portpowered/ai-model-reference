@@ -1,0 +1,32 @@
+{
+  "id": "concept.causal-attention",
+  "slug": "causal-attention",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "masked self-attention",
+    "autoregressive attention",
+    "left-to-right attention"
+  ],
+  "tags": ["foundations", "attention"],
+  "relatedIds": [
+    "concept.self-attention",
+    "concept.bidirectional-attention",
+    "concept.decoder-only-architecture",
+    "concept.autoregressive-generation",
+    "module.attention",
+    "module.multi-head-attention",
+    "concept.transformer-architecture"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": [
+    "concept.self-attention",
+    "concept.autoregressive-generation"
+  ],
+  "explainsIds": []
+}

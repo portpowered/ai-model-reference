@@ -23,12 +23,16 @@ describe("isArchitectureRelatedPage", () => {
     expect(urls).toEqual(
       [
         "/docs/concepts/architectures-overview",
+        "/docs/concepts/bidirectional-attention",
+        "/docs/concepts/causal-attention",
         "/docs/concepts/context-extension",
+        "/docs/concepts/cross-attention",
         "/docs/concepts/decoder-only-architecture",
         "/docs/concepts/encoder-decoder-architecture",
         "/docs/concepts/encoder-only-architecture",
         "/docs/concepts/page-spec-workflow-sample",
         "/docs/concepts/positional-encodings",
+        "/docs/concepts/self-attention",
         "/docs/concepts/transformer-architecture",
         "/docs/concepts/why-long-context-is-hard",
         "/docs/glossary/activation",

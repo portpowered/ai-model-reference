@@ -1,0 +1,32 @@
+{
+  "id": "concept.cross-attention",
+  "slug": "cross-attention",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "encoder-decoder attention",
+    "memory attention",
+    "source-target attention"
+  ],
+  "tags": ["foundations", "attention"],
+  "relatedIds": [
+    "concept.encoder-decoder-architecture",
+    "concept.encoder-only-architecture",
+    "concept.decoder-only-architecture",
+    "concept.self-attention",
+    "module.multi-head-attention",
+    "module.attention",
+    "concept.transformer-architecture"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": [
+    "concept.self-attention",
+    "concept.encoder-decoder-architecture"
+  ],
+  "explainsIds": []
+}

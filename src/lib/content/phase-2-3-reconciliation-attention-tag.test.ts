@@ -12,6 +12,13 @@ import { loadUiMessages } from "@/lib/content/ui-messages";
 
 const ATTENTION_TAG_SLUG = "attention" as const;
 
+const EXPECTED_ATTENTION_CONCEPT_URLS = [
+  "/docs/concepts/bidirectional-attention",
+  "/docs/concepts/causal-attention",
+  "/docs/concepts/cross-attention",
+  "/docs/concepts/self-attention",
+] as const;
+
 /** Published attention modules expected on /tags/attention after batch 017 reconciliation. */
 const EXPECTED_ATTENTION_MODULE_URLS = [
   "/docs/modules/attention",
@@ -96,7 +103,17 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
       "en",
     );
 
-    expect(groups.map((group) => group.kind)).toEqual(["module", "glossary"]);
+    expect(groups.map((group) => group.kind)).toEqual([
+      "module",
+      "concept",
+      "glossary",
+    ]);
+
+    const conceptGroup = groups.find((group) => group.kind === "concept");
+    expect(conceptGroup?.kindLabel).toBe("Concept");
+    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
+      ...EXPECTED_ATTENTION_CONCEPT_URLS,
+    ]);
 
     const glossaryGroup = groups.find((group) => group.kind === "glossary");
     expect(glossaryGroup?.kindLabel).toBe("Glossary");
@@ -137,6 +154,7 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
 
     expect(html).toContain("Attention");
     expect(html).toContain("Module");
+    expect(html).toContain("Concept");
     expect(html).toContain("Glossary");
     expect(html).toContain('href="/search?tag=attention"');
     expect(html).toContain("data-search");
@@ -144,6 +162,10 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
     expect(html).not.toContain("list-disc");
 
     for (const url of EXPECTED_ATTENTION_MODULE_URLS) {
+      expect(html).toContain(`href="${url}"`);
+    }
+
+    for (const url of EXPECTED_ATTENTION_CONCEPT_URLS) {
       expect(html).toContain(`href="${url}"`);
     }
 

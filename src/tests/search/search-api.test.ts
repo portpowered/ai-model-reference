@@ -1,7 +1,10 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
+import { createModelAtlasSearchClient } from "@/features/docs/search/search-client";
 import { GET } from "@/app/api/search/route";
+import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
 import {
   PHASE_1_ATTENTION_MODULE_URL,
   PHASE_1_HIDDEN_SIZE_GLOSSARY_URL,
@@ -229,6 +232,11 @@ describe("docsSearchApi", () => {
 
 describe("docs search static client", () => {
   const originalFetch = globalThis.fetch;
+  let metaByUrl: ReturnType<typeof searchResultMetaMapToRecord>;
+
+  beforeAll(async () => {
+    metaByUrl = searchResultMetaMapToRecord(await loadSearchResultMetaMap());
+  });
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
@@ -244,10 +252,13 @@ describe("docs search static client", () => {
     expect(results[0]?.url).toBe(SAMPLE_URL);
   });
 
-  test("orama static client includes grouped-query attention for attention", async () => {
+  test("model atlas static client includes grouped-query attention for attention", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+    const client = createModelAtlasSearchClient({
+      metaByUrl,
+      client: { from: TEST_DOCS_SEARCH_URL },
+    });
     const results = await client.search("attention");
 
     expect(results.length).toBeGreaterThan(0);

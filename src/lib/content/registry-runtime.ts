@@ -5,12 +5,15 @@ import architectureConcept from "@/content/registry/concepts/architecture.json";
 import architecturesOverviewConcept from "@/content/registry/concepts/architectures-overview.json";
 import autoregressiveGenerationConcept from "@/content/registry/concepts/autoregressive-generation.json";
 import backpropagationConcept from "@/content/registry/concepts/backpropagation.json";
+import bidirectionalAttentionConcept from "@/content/registry/concepts/bidirectional-attention.json";
+import causalAttentionConcept from "@/content/registry/concepts/causal-attention.json";
 import componentConcept from "@/content/registry/concepts/component.json";
 import computationalGraphConcept from "@/content/registry/concepts/computational-graph.json";
 import conditioningConcept from "@/content/registry/concepts/conditioning.json";
 import contextExtensionConcept from "@/content/registry/concepts/context-extension.json";
 import contextWindowConcept from "@/content/registry/concepts/context-window.json";
 import convolutionalNeuralNetworkConcept from "@/content/registry/concepts/convolutional-neural-network.json";
+import crossAttentionConcept from "@/content/registry/concepts/cross-attention.json";
 import decoderConcept from "@/content/registry/concepts/decoder.json";
 import decoderOnlyArchitectureConcept from "@/content/registry/concepts/decoder-only-architecture.json";
 import denoisingGenerationConcept from "@/content/registry/concepts/denoising-generation.json";
@@ -54,6 +57,7 @@ import residualConnectionConcept from "@/content/registry/concepts/residual-conn
 import rmsnormConcept from "@/content/registry/concepts/rmsnorm.json";
 import ropeConcept from "@/content/registry/concepts/rope.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
+import selfAttentionConcept from "@/content/registry/concepts/self-attention.json";
 import sequenceModelConcept from "@/content/registry/concepts/sequence-model.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
 import stateSpaceModelConcept from "@/content/registry/concepts/state-space-model.json";
@@ -112,6 +116,8 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(gradientConcept),
   conceptRecordSchema.parse(graphNeuralNetworkConcept),
   conceptRecordSchema.parse(backpropagationConcept),
+  conceptRecordSchema.parse(bidirectionalAttentionConcept),
+  conceptRecordSchema.parse(causalAttentionConcept),
   conceptRecordSchema.parse(lossFunctionConcept),
   conceptRecordSchema.parse(optimizerStateConcept),
   conceptRecordSchema.parse(modelConcept),
@@ -140,12 +146,14 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(contextExtensionConcept),
   conceptRecordSchema.parse(contextWindowConcept),
   conceptRecordSchema.parse(convolutionalNeuralNetworkConcept),
+  conceptRecordSchema.parse(crossAttentionConcept),
   conceptRecordSchema.parse(alignmentConcept),
   conceptRecordSchema.parse(modelCapacityConcept),
   conceptRecordSchema.parse(overfittingConcept),
   conceptRecordSchema.parse(generalizationConcept),
   conceptRecordSchema.parse(perplexityConcept),
   conceptRecordSchema.parse(scalingLawConcept),
+  conceptRecordSchema.parse(selfAttentionConcept),
   conceptRecordSchema.parse(sequenceModelConcept),
   conceptRecordSchema.parse(stateSpaceModelConcept),
   conceptRecordSchema.parse(emergentBehaviorConcept),

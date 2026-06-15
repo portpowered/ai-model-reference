@@ -1,0 +1,29 @@
+{
+  "id": "concept.self-attention",
+  "slug": "self-attention",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "intra-sequence attention",
+    "same-sequence attention",
+    "scaled dot-product self-attention"
+  ],
+  "tags": ["foundations", "attention"],
+  "relatedIds": [
+    "module.attention",
+    "module.multi-head-attention",
+    "module.grouped-query-attention",
+    "concept.transformer-architecture",
+    "concept.causal-attention",
+    "concept.bidirectional-attention",
+    "concept.cross-attention"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": ["concept.module", "concept.transformer-architecture"],
+  "explainsIds": []
+}

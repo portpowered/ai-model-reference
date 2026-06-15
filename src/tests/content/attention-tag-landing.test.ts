@@ -53,7 +53,20 @@ describe("attention tag landing resources", () => {
     const groups = await loadTagResourceGroups("attention", messages, "en");
 
     expect(groups.every((group) => group.resources.length > 0)).toBe(true);
-    expect(groups.map((group) => group.kind)).toEqual(["module", "glossary"]);
+    expect(groups.map((group) => group.kind)).toEqual([
+      "module",
+      "concept",
+      "glossary",
+    ]);
+
+    const conceptGroup = groups.find((group) => group.kind === "concept");
+    expect(conceptGroup?.kindLabel).toBe("Concept");
+    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/concepts/bidirectional-attention",
+      "/docs/concepts/causal-attention",
+      "/docs/concepts/cross-attention",
+      "/docs/concepts/self-attention",
+    ]);
 
     const glossaryGroup = groups.find((group) => group.kind === "glossary");
     expect(glossaryGroup?.resources[0]?.url).toBe(
@@ -113,6 +126,7 @@ describe("attention tag landing page render", () => {
 
     expect(html).toContain("Attention");
     expect(html).toContain("Module");
+    expect(html).toContain("Concept");
     expect(html).toContain("Glossary");
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain("Grouped-Query Attention");
@@ -129,6 +143,7 @@ describe("attention tag landing page render", () => {
     expect(html).toContain('href="/docs/modules/sparse-attention"');
     expect(html).toContain("Linear Attention");
     expect(html).toContain('href="/docs/modules/linear-attention"');
+    expect(html).toContain('href="/docs/concepts/self-attention"');
     expect(html).toContain("Autoregressive Generation");
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain("Token");

@@ -1,0 +1,68 @@
+---
+title: "Cross-attention"
+description: "An interaction pattern where positions in one sequence attend to keys and values drawn from a different sequence, usually encoder memory feeding a decoder."
+kind: "concept"
+registryId: "concept.cross-attention"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - "foundations"
+  - "attention"
+aliases:
+  - "encoder-decoder attention"
+  - "memory attention"
+  - "source-target attention"
+updatedAt: "2026-06-15"
+---
+
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<T k="openingSummary" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="where-it-appears" titleKey="sections.whereItAppears.title">
+  <T k="sections.whereItAppears.body" />
+
+  <DerivedRelatedDocs
+    registryId="concept.cross-attention"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="concept.cross-attention" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.cross-attention" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.cross-attention" />
+</Section>

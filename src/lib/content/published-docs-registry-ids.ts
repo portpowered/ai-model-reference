@@ -1,7 +1,11 @@
 /** Concept registry ids whose published docs page lives under `/docs/concepts`. */
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
   "concept.architectures-overview",
+  "concept.bidirectional-attention",
+  "concept.causal-attention",
+  "concept.cross-attention",
   "concept.page-spec-workflow-sample",
+  "concept.self-attention",
   "concept.transformer-architecture",
   "concept.positional-encodings",
   "concept.context-extension",
@@ -81,6 +85,10 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.context-extension",
   "concept.why-long-context-is-hard",
   "concept.architectures-overview",
+  "concept.bidirectional-attention",
+  "concept.causal-attention",
+  "concept.cross-attention",
+  "concept.self-attention",
   "concept.sequence-model",
   "concept.state-space-model",
   "concept.recurrent-neural-network",

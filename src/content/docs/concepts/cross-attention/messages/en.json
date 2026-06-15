@@ -1,0 +1,50 @@
+{
+  "title": "Cross-attention",
+  "description": "An interaction pattern where positions in one sequence attend to keys and values drawn from a different sequence, usually encoder memory feeding a decoder.",
+  "openingSummary": "Cross-attention separates who asks from who answers: queries come from the decoding sequence while keys and values come from another sequence, often encoder outputs. Each decoder position can therefore read the full encoded source even though generation itself stays step by step.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Cross-attention reuses the same scoring-and-blending mechanics as self-attention but wires queries from one tensor and keys plus values from another. In translation-style stacks, decoder hidden states supply queries while encoder outputs supply keys and values. The decoder never writes back into encoder memory during that step; it only reads. Module pages such as multi-head attention describe shared machinery that can run in either self or cross mode depending on which tensors are connected."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Cross-attention is the hallmark of encoder–decoder layouts: it is how a model conditions generation on a full source it cannot rewrite token by token. Without this concept, readers conflate any attention layer with self-attention inside one stream. The distinction also clarifies memory use during inference—encoder states are computed once and reused while the decoder extends its output."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "An encoder processes a ten-token source into ten memory vectors. The decoder begins generating a target; at step three its hidden state forms a query that scores all ten encoder keys, picks the strongest matches, and blends encoder values into the next decoder representation. Later target tokens repeat the read against the same frozen encoder memory."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Classic sequence-to-sequence transformers, many speech models, and numerous vision-language adapters pair self-attention inside each stack with cross-attention between stacks. Some modern systems fold source and target into one causal stream, but cross-attention remains the standard pattern whenever two representations stay structurally separate."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Cross-attention is not bidirectional self-attention over one sequence; the two sequences play different roles. It is also not the same as encoder–decoder architecture, which names the whole two-stack layout. Decoder-only chat models usually omit cross-attention because prompt and completion share one causal stack, so readers should not expect cross-attention layers in every transformer checkpoint."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for Cross-attention. Replace before publishing.",
+      "caption": "Draft placeholder for Cross-attention. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for Cross-attention. Replace before publishing.",
+        "summary": "Draft placeholder for Cross-attention. Replace before publishing."
+      }
+    }
+  }
+}

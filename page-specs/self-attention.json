@@ -1,0 +1,47 @@
+{
+  "kind": "concept",
+  "slug": "self-attention",
+  "title": "Self-attention",
+  "summary": "An interaction pattern where each position in one sequence builds a weighted mix of every other position in that same sequence.",
+  "openingSummary": "Self-attention lets every token in a sequence look at every other token in that sequence at once: each position forms queries, keys, and values, scores compatibility, and blends the values into a new representation. The pattern is the core mixing step inside transformer blocks and the parent idea behind most attention module variants.",
+  "status": "published",
+  "conceptType": "architecture",
+  "aliases": [
+    "intra-sequence attention",
+    "same-sequence attention",
+    "scaled dot-product self-attention"
+  ],
+  "tags": ["foundations", "attention"],
+  "prerequisiteIds": ["concept.module", "concept.transformer-architecture"],
+  "relatedIds": [
+    "module.attention",
+    "module.multi-head-attention",
+    "module.grouped-query-attention",
+    "concept.transformer-architecture",
+    "concept.causal-attention",
+    "concept.bidirectional-attention",
+    "concept.cross-attention"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Self-attention is an interaction pattern, not a single module implementation. For one sequence, each position computes a query vector and compares it against key vectors from every position—including itself. Softmax turns those scores into weights, and the output is a weighted sum of value vectors. Multi-head attention runs several of these mixes in parallel; grouped-query and other module pages change how keys and values are shared, but the interaction pattern stays self-attention when source and target sequences are the same."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Self-attention is how transformer blocks route information along a sequence without fixed receptive fields. Understanding the pattern separates layout questions—causal versus bidirectional masking—from efficiency questions such as how many heads run or whether keys are shared across heads. Readers comparing module pages need this concept layer so they know what stays the same when implementations change."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "In a sentence of five tokens, the third token's query might score highest against keys from the first and fifth positions. Its updated hidden state becomes mostly a blend of those two value vectors plus smaller contributions from neighbors. Every other position performs the same lookup in parallel, which is why attention is powerful but also why full self-attention grows costly as sequences get longer."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Decoder-only language models apply causal self-attention inside each block. Encoder stacks often use bidirectional self-attention so every token sees the full input. Even encoder–decoder models use self-attention within each stack before cross-attention mixes encoder memory into the decoder."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Self-attention is not the same as the generic attention module page, which documents one reusable block implementation. It is also not identical to multi-head attention: multi-head is one way to implement several parallel self-attention mixes. Finally, self-attention does not by itself mean causal—masking chooses whether future tokens are visible, which is why causal and bidirectional attention are separate concept pages."
+    }
+  }
+}

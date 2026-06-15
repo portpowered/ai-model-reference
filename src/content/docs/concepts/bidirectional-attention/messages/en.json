@@ -1,0 +1,50 @@
+{
+  "title": "Bidirectional attention",
+  "description": "Self-attention without a causal mask, so each position may attend to both earlier and later tokens in the same sequence.",
+  "openingSummary": "Bidirectional attention lets every position see the whole sequence at once: no future mask blocks later tokens, so representations can fuse left and right context symmetrically. Encoder stacks and understanding tasks rely on this full view, which is incompatible with naive next-token generation in the same pass.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Bidirectional attention is standard self-attention where every query may score every key in the sequence. There is no causal triangle mask, so token five can directly attend to token nine even when token nine appears later in the input. Encoder-only transformers use this pattern to build rich contextual embeddings before any decoding happens. The same dot-product and softmax machinery as causal self-attention applies; only the allowed connections change."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Understanding tasks—classification, tagging, retrieval encoders—often need representations that depend on both sides of a span. Bidirectional attention supplies that global context inside encoder blocks. Contrasting it with causal attention clarifies why encoder checkpoints cannot be dropped into autoregressive generation without architectural changes, and why decoder-only models trade away full future visibility for simpler training on next-token objectives."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "In the sentence fragment bank sat down, the representation for sat can attend to bank on the left and down on the right in the same layer. Disambiguating whether sat refers to furniture or an action uses both directions of context simultaneously."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Encoder-only language models, many embedding APIs, and the encoder half of encoder–decoder systems apply bidirectional self-attention over inputs. Decoder stacks in those models switch to causal masks on generated targets, so bidirectional and causal attention often coexist in one architecture on different sequences."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Bidirectional attention is not cross-attention between two sequences; it still mixes one sequence with itself. It is also not automatically more accurate for every task—generative models deliberately use causal masks instead. Finally, module pages that mention local or sliding windows still sit on top of either bidirectional or causal policies; the window limits reach but does not by itself define directionality."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for Bidirectional attention. Replace before publishing.",
+      "caption": "Draft placeholder for Bidirectional attention. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for Bidirectional attention. Replace before publishing.",
+        "summary": "Draft placeholder for Bidirectional attention. Replace before publishing."
+      }
+    }
+  }
+}

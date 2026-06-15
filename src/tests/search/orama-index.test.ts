@@ -93,6 +93,12 @@ const ARCHITECTURE_LAYOUT_CONCEPT_URLS = [
   "/docs/concepts/decoder-only-architecture",
   "/docs/concepts/encoder-decoder-architecture",
 ] as const;
+const ATTENTION_INTERACTION_CONCEPT_URLS = [
+  "/docs/concepts/bidirectional-attention",
+  "/docs/concepts/causal-attention",
+  "/docs/concepts/cross-attention",
+  "/docs/concepts/self-attention",
+] as const;
 const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/embedding",
   "/docs/glossary/vector",
@@ -143,6 +149,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ...EVALUATION_SCALING_URLS,
   ...MODEL_FAMILY_URLS,
   ...ARCHITECTURE_LAYOUT_CONCEPT_URLS,
+  ...ATTENTION_INTERACTION_CONCEPT_URLS,
   ...CHAIN_GLOSSARY_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(
