@@ -6,7 +6,7 @@ This document inventories the existing content-generation surfaces the page-spec
 
 | Surface | Path | Role |
 | --- | --- | --- |
-| Production templates | `docs/templates/<kind>.mdx`, `<kind>.messages.en.json`, `<kind>.assets.json`, `<kind>.content.md` | Canonical page structure, default message keys, and asset IDs for each supported docs kind. `.content.md` is maintainer guidance only; generators read `.mdx` and sidecars. |
+| Production templates | `docs/templates/<kind>.mdx`, `<kind>.messages.en.json`, `<kind>.assets.json`, `<kind>.graph.json`, `<kind>.content.md` | Canonical page structure, default message keys, asset IDs, and graph registry templates for each supported docs kind. `.content.md` is maintainer guidance only; generators read `.mdx` and sidecars. |
 | Published page bundles | `src/content/docs/**/<slug>/page.mdx` | Structural MDX with frontmatter, message keys, and asset component references. |
 | Colocated messages | `src/content/docs/**/<slug>/messages/en.json` | Reader-facing title, description, folded `openingSummary`, section copy, callouts, and asset alt/caption text. |
 | Colocated assets | `src/content/docs/**/<slug>/assets.json` | Page-local graph, table, chart, image, and code-schema references keyed by asset id. |
@@ -88,11 +88,12 @@ Glossary pages use page kind `glossary` but registry kind `concept` with ids `co
 
 ### Inputs and outputs
 
-Given a validated page spec, generation emits four files:
+Given a validated page spec, generation emits the page bundle plus matching graph registry records for graph-backed templates:
 
 | Output | Path pattern |
 | --- | --- |
 | Registry record | `src/content/registry/<kind-dir>/<slug>.json` |
+| Graph registry record(s) | `src/content/registry/graphs/<slug>-<graph-suffix>.json` for each graph asset in the template |
 | Canonical page | `src/content/docs/<parent>/<slug>/page.mdx` |
 | Colocated messages | `src/content/docs/<parent>/<slug>/messages/en.json` |
 | Colocated assets | `src/content/docs/<parent>/<slug>/assets.json` |
@@ -101,19 +102,20 @@ Given a validated page spec, generation emits four files:
 
 ### Template substitution
 
-For each kind, the generator reads only `docs/templates/<kind>.mdx`, `<kind>.messages.en.json`, and `<kind>.assets.json`. Maintainer guidance in `<kind>.content.md` is never copied into generated output.
+For each kind, the generator reads `docs/templates/<kind>.mdx`, `<kind>.messages.en.json`, `<kind>.assets.json`, and `<kind>.graph.json`. Maintainer guidance in `<kind>.content.md` is never copied into generated output.
 
 Substitution rules:
 
 - Template registry ids (`concept.example-concept`, `module.example-module`, etc.) → `registryIdForPageSpec(spec)`.
 - Template graph/table ids (`graph.example-concept-map`, etc.) → slug-specific ids (glossary maps use `graph.<slug>-concept-map`, not `glossary-map`).
+- Graph registry records derive from `<kind>.graph.json` with `subjectId` set to the page registry id; optional page-spec `graph.nodes` overrides template nodes and edges.
 - Frontmatter is rebuilt via `derivePageFrontmatter` plus Fumadocs-required `title` and `description` from the page spec.
 - Page-spec `sections`, `callouts`, `graph`, and `assetMessages` merge into template message keys; empty template strings receive draft placeholders so loaders accept generated bundles.
 - Page-spec `assets` merge into template `assets.json` entries.
 
 ### Overwrite guard
 
-Before any write, `assertPathDoesNotExist` refuses generation when a registry record, `page.mdx`, `messages/en.json`, or `assets.json` already exists. Delete or relocate existing targets before re-running `generate:page-bundle`.
+Before any write, `assertPathDoesNotExist` refuses generation when a registry record, graph registry record, `page.mdx`, `messages/en.json`, or `assets.json` already exists. Delete or relocate existing targets before re-running `generate:page-bundle`.
 
 ## Generated bundle loader alignment
 

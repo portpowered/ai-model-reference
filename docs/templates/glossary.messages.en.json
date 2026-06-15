@@ -34,5 +34,13 @@
       "alt": "",
       "caption": ""
     }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "",
+        "summary": ""
+      }
+    }
   }
 }
