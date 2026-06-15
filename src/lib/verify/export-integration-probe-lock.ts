@@ -10,6 +10,9 @@ const EXPORT_INTEGRATION_PROBE_LOCK_PATH = join(
 const LOCK_POLL_MS = 200;
 /** Drop probe locks left behind by crashed workers so queued tests do not stall until Bun timeout. */
 const STALE_PROBE_LOCK_MAX_AGE_MS = 5 * 60 * 1000;
+/** Recover faster when parallel tests abandon a probe lock after Bun timeouts. */
+const AGGRESSIVE_STALE_PROBE_LOCK_MAX_AGE_MS = 30_000;
+const AGGRESSIVE_STALE_PROBE_LOCK_POLL_THRESHOLD = 25;
 
 let exportIntegrationProbeLockDepth = 0;
 
@@ -31,6 +34,16 @@ export function shouldRunExportIntegrationProbeTests(
   env: Record<string, string | undefined> = process.env,
 ): boolean {
   return env[VERIFY_COVERAGE_SUBPROCESS_ENV] !== "1";
+}
+
+/**
+ * Gates Playwright HTTP verifier unit tests colocated under `src/lib/verify/`.
+ * Skip during the coverage subprocess rerun (`make ci` runs the full suite twice).
+ */
+export function shouldRunPlaywrightHttpVerifierUnitTests(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  return shouldRunExportIntegrationProbeTests(env);
 }
 
 /**
@@ -77,10 +90,12 @@ async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function removeStaleProbeLockIfNeeded(): void {
+function removeStaleProbeLockIfNeeded(
+  maxAgeMs: number = STALE_PROBE_LOCK_MAX_AGE_MS,
+): void {
   try {
     const { mtimeMs } = statSync(EXPORT_INTEGRATION_PROBE_LOCK_PATH);
-    if (Date.now() - mtimeMs > STALE_PROBE_LOCK_MAX_AGE_MS) {
+    if (Date.now() - mtimeMs > maxAgeMs) {
       unlinkSync(EXPORT_INTEGRATION_PROBE_LOCK_PATH);
     }
   } catch (error) {
@@ -126,12 +141,35 @@ function tryAcquireProbeLock(): (() => void) | null {
 }
 
 async function acquireProbeLock(): Promise<() => void> {
+  let polls = 0;
   while (true) {
     const release = tryAcquireProbeLock();
     if (release) {
       return release;
     }
+    polls += 1;
+    if (polls % AGGRESSIVE_STALE_PROBE_LOCK_POLL_THRESHOLD === 0) {
+      removeStaleProbeLockIfNeeded(AGGRESSIVE_STALE_PROBE_LOCK_MAX_AGE_MS);
+    }
     await sleep(LOCK_POLL_MS);
+  }
+}
+
+/** Test-only helper to clear abandoned probe locks and leaked depth counters. */
+export function removeExportIntegrationProbeLockForTests(): void {
+  exportIntegrationProbeLockDepth = 0;
+  try {
+    unlinkSync(EXPORT_INTEGRATION_PROBE_LOCK_PATH);
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "ENOENT"
+    ) {
+      return;
+    }
+    throw error;
   }
 }
 

@@ -187,6 +187,18 @@ before opening a PR. The same sequence runs in GitHub Actions, so local green
 `make ci` is the practical preflight for the **ci** check contributors see on
 GitHub.
 
+### Governance audit reviewer path
+
+Checklist mechanism coverage for Phase 1 governance passes is recorded in
+[architectural-checklist-mechanism-status.md](./governance/architectural-checklist-mechanism-status.md).
+Reviewers validating that artifact should run, in order:
+
+1. `make verify-architectural-checklist-mechanism-status` — proves the durable
+   audit artifact stays complete and aligned with
+   [architectural-checklist.md](./architectural-checklist.md).
+2. `make ci` — confirms general site quality gates still pass after governance
+   edits (including post-build integration tests after the build steps).
+
 ## Release process
 
 Phase 1 release means integrating changes onto `main` with a green **ci** check,

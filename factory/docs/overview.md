@@ -1,7 +1,9 @@
 # Factory Overview
 
-This factory coordinates autonomous work for the current project. 
-This is an agnostic configuration that denotes how the factory system works.
+This factory coordinates autonomous work for the AI model reference website.
+The ideafy workstation is the meta-planner. It chooses phase-scoped batches,
+submits ideas, and records progress. Executors implement PRD stories in
+worktrees. Review gates the resulting PRs.
 
 ## Read First
 
@@ -9,30 +11,28 @@ Before submitting work, read:
 
 * `factory/factory.json`
 * `factory/workstations/ideafy/AGENTS.md`
-* `docs/temp/customer-ask.md`
-* `docs/temp/checklist.md`
-* `docs/temp/progress.md`
-* `factory/docs/batch-inputs.md`
-* `factory/docs/batch-input-example.json`
+* `docs/internal/customer-ask.md`
+* `docs/internal/checklist.md`
+* `docs/internal/progress.txt`
+* `docs/documentation-site-pages-needed.md`
 * `you docs agents`
 * `you docs batch-inputs`
 
 ## Phase Control
-current customer asks are in:" 
+
+Current phase authorization lives in:
 
 ```txt
-docs/temp/customer-ask.md
+docs/internal/customer-ask.md
 ```
 
-`docs/temp/checklist.md` tracks phase progress against that ask.
-`docs/temp/progress.md` is the meta-planner append-only run log.
+The meta-planner may dry-run batches during planning. It must not submit a real
+batch unless `customer-ask.md` sets `realSubmissionAuthorized: true` or the
+customer explicitly authorizes submission in the current conversation.
 
-```sh
-you submit batch --dry-run <path>
-```
-
-Do not submit a real batch until the active phase in `customer-ask.md` and the
-current customer conversation agree the next slice of work is ready.
+Phase work is review-gated through Phase 10. After Phase 10, long-tail backfill
+may run mostly autonomously in small batches, still with batch summaries and
+review.
 
 ## Work Types
 
@@ -61,13 +61,9 @@ task:in-review -> review -> task:to-complete
 idea:to-complete + task:to-complete with the same name -> consume
 ```
 
-Executor and review workstations run in worktrees under
-`.claude/worktrees/<work-item-name>/`, created by `factory/scripts/setup-workspace.py`.
-
 ## Batch Submission
 
 Use the canonical `FACTORY_REQUEST_BATCH` shape from `you docs batch-inputs`.
-Human-readable notes live in `factory/docs/batch-inputs.md`.
 
 For a running factory, prefer:
 
@@ -81,6 +77,12 @@ Always dry-run first:
 you submit batch --dry-run <path>
 ```
 
+For watched-folder operator ingress, use:
+
+```txt
+factory/inputs/BATCH/default/<request_id>.json
+```
+
 The checked-in example is:
 
 ```txt
@@ -92,7 +94,7 @@ factory/docs/batch-input-example.json
 Use:
 
 ```sh
-you work list --session {{current-session-id}}
+you work list
 you session list
 ```
 
@@ -109,35 +111,14 @@ you work move
 ```
 
 only for deliberate workflow repair. Record every manual move in
-`docs/temp/progress.md` with the work item, old state, new state, reason,
+`docs/internal/progress.txt` with the work item, old state, new state, reason,
 and expected next workstation. Do not use work moves to skip implementation,
 review, or validation.
 
 ## Local State Files
 
-Planner-owned state under `docs/temp/`:
-
 ```txt
-docs/temp/customer-ask.md  current phase authorization and goal
-docs/temp/checklist.md     high-level phase and customer-ask tracking (meta-planner)
-docs/temp/progress.md     append-only meta-planner progress log (meta-planner)
+docs/internal/customer-ask.md  current phase and submission authorization
+docs/internal/checklist.md     high-level phase and customer ask tracking
+docs/internal/progress.txt     append-only meta-planner progress log
 ```
-
-The meta-planner creates and maintains `checklist.md` and `progress.md` when
-they are not already present. Task executors append to the worktree `progress.md`
-at the repository root during implementation batches.
-
-## Quality Gates
-
-Before opening or merging reconciliation PRs, run from the repository root:
-
-```sh
-make check   # or make all — same README validation
-make test
-git diff --check
-```
-
-Optional pre-submit targets (`make lint`, `make links`) and GitHub workflow
-gates are documented in `CONTRIBUTING.md` **Local checks** and **GitHub Actions**.
-These commands mirror the Go README checks in `internal/checks`, `go test ./...`,
-and whitespace hygiene enforced in CI.

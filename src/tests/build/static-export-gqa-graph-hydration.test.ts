@@ -11,12 +11,17 @@ import {
   getExportIntegrationBunTestTimeoutMs,
   shouldRunExportIntegrationProbeTests,
 } from "@/lib/verify/export-integration-probe-lock";
+import {
+  isRetryableExportProbeFailure,
+  runExportProbeWithSpawnGuard,
+} from "@/lib/verify/export-probe-spawn-guard";
 import { verifyStaticExportGqaGraphHydration } from "@/lib/verify/static-export-gqa-graph-hydration-http";
 import { createStaticExportHttpServer } from "@/lib/verify/static-export-http-server";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
 const exportBasePath = "/ai-model-reference";
+const CI_PROBE_RETRY_DELAY_MS = 5_000;
 const gqaExportHtmlPath = join(
   outDir,
   "docs/modules/grouped-query-attention.html",
@@ -65,9 +70,28 @@ describe("static export GQA graph hydration on GitHub Pages base path", () => {
         basePath: exportBasePath,
       });
       try {
-        const reason = await verifyStaticExportGqaGraphHydration(
-          server.baseUrl,
-        );
+        const maxAttempts =
+          process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true"
+            ? 3
+            : 1;
+        let reason: string | null = null;
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+          reason = await runExportProbeWithSpawnGuard(async () =>
+            verifyStaticExportGqaGraphHydration(server.baseUrl),
+          );
+          if (
+            reason === null ||
+            !isRetryableExportProbeFailure(reason) ||
+            attempt === maxAttempts
+          ) {
+            break;
+          }
+          await new Promise((resolve) =>
+            setTimeout(resolve, CI_PROBE_RETRY_DELAY_MS),
+          );
+        }
+
         expect(reason).toBeNull();
       } finally {
         await server.cleanup();

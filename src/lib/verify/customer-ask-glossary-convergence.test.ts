@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { readBuiltHtmlForConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
 import {
   assertGlossaryChromeLinksConvergence,
   assertGlossaryEmbeddingDescriptionLinks,
@@ -412,30 +411,24 @@ describe("buildCustomerAskGlossaryBridgeDescriptionRows", () => {
 
 describe("buildCustomerAskGlossaryBridgeDescriptionRows (built HTML)", () => {
   test("bridge glossary built HTML reports pass for description link checks", () => {
-    const builtPaths = {
-      embedding: join(
-        process.cwd(),
-        ".next/server/app/docs/glossary/embedding.html",
-      ),
-      vector: join(process.cwd(), ".next/server/app/docs/glossary/vector.html"),
-      hiddenSize: join(
-        process.cwd(),
-        ".next/server/app/docs/glossary/hidden-size.html",
-      ),
-    };
+    const embeddingHtml = readBuiltHtmlForConvergenceTests(
+      ".next/server/app/docs/glossary/embedding.html",
+    );
+    const vectorHtml = readBuiltHtmlForConvergenceTests(
+      ".next/server/app/docs/glossary/vector.html",
+    );
+    const hiddenSizeHtml = readBuiltHtmlForConvergenceTests(
+      ".next/server/app/docs/glossary/hidden-size.html",
+    );
 
-    if (
-      !existsSync(builtPaths.embedding) ||
-      !existsSync(builtPaths.vector) ||
-      !existsSync(builtPaths.hiddenSize)
-    ) {
+    if (!embeddingHtml || !vectorHtml || !hiddenSizeHtml) {
       return;
     }
 
     const rows = buildCustomerAskGlossaryBridgeDescriptionRows({
-      embeddingHtml: readFileSync(builtPaths.embedding, "utf8"),
-      vectorHtml: readFileSync(builtPaths.vector, "utf8"),
-      hiddenSizeHtml: readFileSync(builtPaths.hiddenSize, "utf8"),
+      embeddingHtml,
+      vectorHtml,
+      hiddenSizeHtml,
     });
 
     expect(rows).toHaveLength(3);
@@ -445,15 +438,14 @@ describe("buildCustomerAskGlossaryBridgeDescriptionRows (built HTML)", () => {
 
 describe("buildCustomerAskGlossaryRows (built HTML)", () => {
   test("/docs/glossary/token built HTML reports pass for all customer-ask glossary checks", () => {
-    const builtPath = join(
-      process.cwd(),
+    const tokenHtml = readBuiltHtmlForConvergenceTests(
       ".next/server/app/docs/glossary/token.html",
     );
-    if (!existsSync(builtPath)) {
+    if (!tokenHtml) {
       return;
     }
 
-    const rows = buildCustomerAskGlossaryRows(readFileSync(builtPath, "utf8"));
+    const rows = buildCustomerAskGlossaryRows(tokenHtml);
     expect(rows).toHaveLength(3);
     expect(rows.map((row) => row.checkId)).toEqual([
       GLOSSARY_CUSTOMER_ASK_CHECKS.presentation.checkId,

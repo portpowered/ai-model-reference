@@ -9,6 +9,7 @@ import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import { expectModuleCompanionSections } from "@/lib/content/module-test-helpers";
+import { shouldRunBuiltHtmlFileConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
 import {
   assertGroupedQueryAttentionCompanionSectionsConvergence,
   assertGroupedQueryAttentionModuleConvergence,
@@ -45,6 +46,10 @@ describe("grouped-query-attention module companion sections", () => {
   });
 
   test("built HTML for /docs/modules/grouped-query-attention passes shared GQA convergence", () => {
+    if (!shouldRunBuiltHtmlFileConvergenceTests()) {
+      return;
+    }
+
     const result = verifyGroupedQueryAttentionBuiltRouteFromFile(
       GROUPED_QUERY_ATTENTION_BUILT_HTML_PATH,
     );
