@@ -7,7 +7,7 @@ import {
   expect,
   test,
 } from "bun:test";
-import { cleanup, screen, within } from "@testing-library/react";
+import { cleanup, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SearchPagePanelContent } from "@/features/docs/search/SearchPagePanel";
 import {
@@ -348,6 +348,41 @@ describe("SearchPagePanel query handoff", () => {
         ),
       ),
     ).toBeNull();
+  });
+
+  test("applies q handoff when params arrive after an empty initial render", async () => {
+    const context = await loadAppTestContext();
+    const view = await renderSearchPagePanelContent(
+      context,
+      new URLSearchParams(),
+    );
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("");
+    expect(screen.getByTestId("search-page-idle")).toBeTruthy();
+
+    view.rerender(
+      <SearchPagePanelContent
+        messages={context.messages}
+        metaByUrl={context.metaByUrl}
+        handoff={{ q: "GQA", tag: null }}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(searchInput.value).toBe("GQA");
+    });
+    expect(screen.queryByTestId("search-page-idle")).toBeNull();
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      {
+        timeout: 5000,
+      },
+    );
+    expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
   });
 });
 

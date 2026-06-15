@@ -4,6 +4,7 @@ import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import { HomeArticle } from "@/components/home/home-article";
 import { getPrimaryNavItems } from "@/components/layout/primary-nav";
 import {
+  encodeSearchPageHandoffKey,
   resolveInitialSearchPageQuery,
   resolveSearchPageHandoff,
 } from "@/features/docs/search/search-page-query";
@@ -23,6 +24,13 @@ describe("search page query prefill", () => {
 
   it("returns empty when neither param is set", () => {
     expect(resolveInitialSearchPageQuery(null, null)).toBe("");
+  });
+
+  it("encodes handoff keys for client dedupe", () => {
+    expect(encodeSearchPageHandoffKey({ q: "GQA", tag: "attention" })).toBe(
+      "GQA\0attention",
+    );
+    expect(encodeSearchPageHandoffKey({ q: null, tag: null })).toBe("\0");
   });
 });
 

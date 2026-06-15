@@ -41,6 +41,11 @@ export function hasSearchPageHandoff(handoff: SearchPageHandoff): boolean {
   return handoff.q !== null || handoff.tag !== null;
 }
 
+/** Stable key for deduping URL handoff application in client effects. */
+export function encodeSearchPageHandoffKey(handoff: SearchPageHandoff): string {
+  return `${handoff.q ?? ""}\0${handoff.tag ?? ""}`;
+}
+
 /** Reads `/search` handoff values from a browser location search string. */
 export function readSearchPageHandoffFromLocationSearch(
   search = typeof window === "undefined" ? "" : window.location.search,
