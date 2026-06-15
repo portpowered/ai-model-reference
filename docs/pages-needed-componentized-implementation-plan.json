@@ -1,0 +1,183 @@
+{
+  "version": 1,
+  "generatedAtUtc": "2026-06-15T14:00:00Z",
+  "sourceRoadmap": "docs/documentation-site-pages-needed.md",
+  "branchName": "pages-needed-componentized-implementation-plan",
+  "prerequisite": {
+    "id": "generator-parity",
+    "title": "Complete generator parity for canonical docs kinds",
+    "description": "The page-spec workflow must support concept, glossary, module, model, paper, and training-regime generation before new canonical families expand beyond mixed manual scaffolding.",
+    "status": "landed",
+    "storyId": "pages-needed-componentized-implementation-plan-001",
+    "verification": [
+      "src/lib/content/page-spec-workflow-generation.test.ts",
+      "docs/temp/processes/content-page-generation-workflow-relevant-files.md"
+    ]
+  },
+  "smallestSafePostGeneratorSlice": {
+    "id": "phase-2-3-discovery-reconciliation",
+    "title": "Reconcile published Phase 2 and Phase 3 discovery surfaces",
+    "description": "Shared navigation, browse indexes, tag surfaces, and search documents must reflect already-published pages before more content families land.",
+    "status": "landed",
+    "storyId": "pages-needed-componentized-implementation-plan-002",
+    "verification": [
+      "make verify-phase-2-3-reconciliation-convergence",
+      "docs/temp/processes/phase-2-3-reconciliation-relevant-files.md"
+    ]
+  },
+  "phases": {
+    "phase1": {
+      "status": "present",
+      "summary": "Docs shell, search route, glossary index, architecture index, tags index, dynamic docs route, and the Phase 1 canonical module/glossary exemplars are implemented.",
+      "queuePosture": "do-not-reopen"
+    },
+    "phase2": {
+      "status": "present",
+      "summary": "Broad foundations glossary, token-to-probability chain, and forward-navigation model-family pages (transformer, diffusion-model, multimodal-model, world-model) are published and reconciled into discovery surfaces.",
+      "queuePosture": "treat-as-present"
+    },
+    "phase3": {
+      "status": "partial",
+      "summary": "Core transformer shared-component families from this bridge are landed; extended attention-module variants and skip-connection remain on the authorized Phase 3 backlog.",
+      "publishedCounts": {
+        "glossaryPages": 87,
+        "conceptSectionPages": 14,
+        "modulePages": 8
+      },
+      "queuePosture": "remaining-gaps-only"
+    },
+    "phase4Plus": {
+      "status": "deferred",
+      "summary": "Localization, model/paper/training-regime/system docs bundles, and Phase 5+ runtime, safety, hardware, and long-tail expansion families are out of scope for this bridge.",
+      "queuePosture": "explicitly-excluded"
+    }
+  },
+  "contentFamilies": [
+    {
+      "id": "architecture-sequence-family",
+      "title": "Publish Phase 3 architecture and sequence-family concepts",
+      "status": "landed",
+      "storyId": "pages-needed-componentized-implementation-plan-003",
+      "slugs": [
+        "architectures-overview",
+        "sequence-model",
+        "state-space-model",
+        "recurrent-neural-network",
+        "convolutional-neural-network",
+        "graph-neural-network",
+        "encoder-only-architecture",
+        "decoder-only-architecture",
+        "encoder-decoder-architecture"
+      ],
+      "verification": "src/lib/content/phase-3-architecture-sequence-family.test.ts"
+    },
+    {
+      "id": "attention-interaction",
+      "title": "Publish Phase 3 attention-interaction concepts",
+      "status": "landed",
+      "storyId": "pages-needed-componentized-implementation-plan-004",
+      "slugs": [
+        "self-attention",
+        "cross-attention",
+        "causal-attention",
+        "bidirectional-attention"
+      ],
+      "verification": "src/lib/content/phase-3-attention-interaction.test.ts"
+    },
+    {
+      "id": "normalization-activation-variants",
+      "title": "Publish Phase 3 normalization and activation variants",
+      "status": "landed",
+      "storyId": "pages-needed-componentized-implementation-plan-005",
+      "slugs": [
+        "standard-ffn",
+        "batch-norm",
+        "group-norm",
+        "qk-norm",
+        "relu",
+        "leaky-relu",
+        "silu",
+        "swiglu"
+      ],
+      "verification": "src/lib/content/phase-3-normalization-activation.test.ts"
+    },
+    {
+      "id": "positional-context-extension",
+      "title": "Publish Phase 3 positional-context extension variants",
+      "status": "landed",
+      "storyId": "pages-needed-componentized-implementation-plan-006",
+      "slugs": [
+        "absolute-positional-embeddings",
+        "learned-positional-embeddings",
+        "sinusoidal-positional-embeddings",
+        "relative-position-bias",
+        "t5-relative-position-bias",
+        "nope",
+        "superhot-rope",
+        "ntk-aware-rope-scaling",
+        "yarn",
+        "longrope",
+        "positional-interpolation"
+      ],
+      "verification": "src/lib/content/phase-3-positional-context-extension.test.ts"
+    },
+    {
+      "id": "tokenizer-foundations",
+      "title": "Publish Phase 3 tokenizer foundations",
+      "status": "landed",
+      "storyId": "pages-needed-componentized-implementation-plan-007",
+      "slugs": [
+        "tokenizers-overview",
+        "bpe",
+        "wordpiece",
+        "unigram-tokenizer",
+        "sentencepiece",
+        "byte-level-tokenization",
+        "vocabulary-size",
+        "special-tokens",
+        "chat-templates",
+        "tokenizer-mismatch"
+      ],
+      "verification": "src/lib/content/phase-3-tokenizer-foundations.test.ts"
+    }
+  ],
+  "remainingAuthorizedPhase3Gaps": [
+    {
+      "family": "attention-modules",
+      "slugs": [
+        "deltanet-attention",
+        "local-attention",
+        "global-attention",
+        "dilated-attention",
+        "block-sparse-attention",
+        "ring-attention",
+        "attention-sinks"
+      ],
+      "notes": "Listed in docs/documentation-site-pages-needed.md Phase 3 but not yet published as module bundles."
+    },
+    {
+      "family": "shared-components",
+      "slugs": ["skip-connection"],
+      "notes": "residual-connection is published; skip-connection synonym page remains optional backlog."
+    }
+  ],
+  "excludedFromImmediateQueue": [
+    "phase-4-localization",
+    "phase-5-inference-serving-sampling-quantization",
+    "phase-6-model-family-pages",
+    "phase-7-paper-family-pages",
+    "phase-8-training-regime-pages",
+    "phase-9-systems-and-deployment",
+    "phase-10-multimodal-omni-expansion",
+    "phase-11-safety-evaluation-hardware"
+  ],
+  "dependencyOrder": [
+    "generator-parity",
+    "phase-2-3-discovery-reconciliation",
+    "architecture-sequence-family",
+    "attention-interaction",
+    "normalization-activation-variants",
+    "positional-context-extension",
+    "tokenizer-foundations"
+  ]
+}
