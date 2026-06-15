@@ -1,0 +1,22 @@
+{
+  "id": "concept.recurrent-neural-network",
+  "slug": "recurrent-neural-network",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["RNN", "recurrent network", "recurrent model"],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [
+    "concept.sequence-model",
+    "concept.state-space-model",
+    "concept.transformer",
+    "concept.transformer-architecture"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": ["concept.architecture", "concept.sequence-model"],
+  "explainsIds": []
+}

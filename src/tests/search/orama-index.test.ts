@@ -81,6 +81,17 @@ const MODEL_FAMILY_URLS = [
   "/docs/glossary/diffusion-model",
   "/docs/glossary/multimodal-model",
   "/docs/glossary/world-model",
+  "/docs/glossary/sequence-model",
+  "/docs/glossary/state-space-model",
+  "/docs/glossary/recurrent-neural-network",
+  "/docs/glossary/convolutional-neural-network",
+  "/docs/glossary/graph-neural-network",
+] as const;
+const ARCHITECTURE_LAYOUT_CONCEPT_URLS = [
+  "/docs/concepts/architectures-overview",
+  "/docs/concepts/encoder-only-architecture",
+  "/docs/concepts/decoder-only-architecture",
+  "/docs/concepts/encoder-decoder-architecture",
 ] as const;
 const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/embedding",
@@ -131,6 +142,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ...TRAINING_BEHAVIOR_URLS,
   ...EVALUATION_SCALING_URLS,
   ...MODEL_FAMILY_URLS,
+  ...ARCHITECTURE_LAYOUT_CONCEPT_URLS,
   ...CHAIN_GLOSSARY_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(

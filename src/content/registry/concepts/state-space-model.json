@@ -1,0 +1,22 @@
+{
+  "id": "concept.state-space-model",
+  "slug": "state-space-model",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["SSM", "state-space model", "structured state space"],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [
+    "concept.sequence-model",
+    "concept.recurrent-neural-network",
+    "concept.transformer",
+    "concept.transformer-architecture"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": ["concept.architecture", "concept.sequence-model"],
+  "explainsIds": []
+}

@@ -1,0 +1,32 @@
+{
+  "title": "Graph neural network",
+  "description": "A model family that learns by passing messages along edges between nodes instead of assuming data lives on a fixed grid or token line.",
+  "openingSummary": "Graph neural networks update each node by aggregating messages from its neighbors—chemistry atoms, social links, or knowledge-graph entities—so relational structure drives representation learning rather than row-major sequence order alone.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A graph neural network represents data as nodes and edges. Each layer lets nodes gather information from neighbors—often by summing or averaging transformed neighbor vectors—then apply a learned update. After several rounds of message passing, node embeddings capture local and multi-hop structure. Some models also learn edge or graph-level readouts."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Many domains are naturally relational: molecules, recommender graphs, and tool-use dependencies do not fit a simple token sequence. GNNs provide the architecture vocabulary for those settings and complement sequence families when readers move between language models and structured data."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A molecule property predictor treats atoms as nodes and bonds as edges. Each layer updates an atom embedding using its bonded neighbors; after a few layers, the carbon atom embedding reflects nearby functional groups even if they are several bonds away."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "GNN is a family of message-passing designs, not one canonical layer type—GCN, GAT, and GraphSAGE differ in aggregation rules. GNN is not the same as a transformer on a fully connected graph: sparsity and edge features matter. It also does not replace sequence models for plain text; it targets explicit graph structure."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

@@ -1,7 +1,11 @@
 {
   "title": "Concepts",
   "pages": [
+    "[Architectures overview](/docs/concepts/architectures-overview)",
     "[Context extension](/docs/concepts/context-extension)",
+    "[Decoder-only architecture](/docs/concepts/decoder-only-architecture)",
+    "[Encoder-decoder architecture](/docs/concepts/encoder-decoder-architecture)",
+    "[Encoder-only architecture](/docs/concepts/encoder-only-architecture)",
     "[Positional encodings](/docs/concepts/positional-encodings)",
     "[Page Spec Workflow Sample](/docs/concepts/page-spec-workflow-sample)",
     "[Transformer architecture](/docs/concepts/transformer-architecture)",

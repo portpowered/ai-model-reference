@@ -1,0 +1,43 @@
+{
+  "kind": "concept",
+  "slug": "architectures-overview",
+  "title": "Architectures overview",
+  "summary": "How major model families differ in how they read inputs, mix information, and produce outputs.",
+  "openingSummary": "Architecture is the blueprint: it names which stacks read data, which blocks mix context, and whether one network or two handles encoding and generation.",
+  "status": "published",
+  "conceptType": "architecture",
+  "aliases": ["architecture families", "model architectures overview"],
+  "tags": ["foundations", "taxonomy"],
+  "prerequisiteIds": ["concept.architecture"],
+  "relatedIds": [
+    "concept.architecture",
+    "concept.transformer",
+    "concept.sequence-model",
+    "concept.transformer-architecture",
+    "concept.encoder-only-architecture",
+    "concept.decoder-only-architecture",
+    "concept.encoder-decoder-architecture"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "An architectures overview groups model families by how they turn raw inputs into predictions. Sequence models consume ordered tokens or time steps; convolutional networks scan local patches; graph networks pass messages along edges. Within sequence modeling, layout choices split further: encoder-only stacks for rich input representations, decoder-only stacks for autoregressive generation, and encoder–decoder pairs for translation-style tasks. The overview is a map of those families, not a single trained checkpoint."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Model cards and papers name families before they name weights. Knowing whether a system is decoder-only, encoder–decoder, or state-space helps you pick the right module pages and spot when a product bundles training data with layout choices. The overview also separates taxonomy terms—transformer as a block recipe—from layout terms such as encoder-only versus decoder-only."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A reader comparing chat, embedding, and translation products can start here: chat models are usually decoder-only transformers; embedding APIs often use encoder-only transformers; machine translation historically favored encoder–decoder transformers. State-space and RNN families remain relevant when linear-time recurrence matters more than full attention."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Architecture overviews appear in onboarding docs, course syllabi, and internal playbooks before engineers open a specific module page. Search and the architecture index use this page as the hub that links outward to family and layout pages already published in the atlas."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Architecture overview is not a benchmark leaderboard—it explains structure, not scores. It is also not the same as the glossary architecture term, which defines the word in isolation. Finally, transformer names a block family; encoder-only and decoder-only name how those blocks are wired for a task."
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "glossary",
+  "slug": "convolutional-neural-network",
+  "title": "Convolutional neural network",
+  "summary": "A model family that learns local filters scanned across spatial or temporal grids to detect patterns before pooling or deeper mixing.",
+  "openingSummary": "Convolutional networks slide the same small filter across a grid—pixels, spectrogram bins, or embedded patches—so local patterns are detected translationally before deeper layers combine them into global structure.",
+  "status": "published",
+  "conceptType": "architecture",
+  "aliases": ["CNN", "convnet", "convolutional network"],
+  "tags": ["taxonomy", "model-family"],
+  "prerequisiteIds": ["concept.architecture", "concept.model"],
+  "relatedIds": [
+    "concept.architecture",
+    "concept.patch",
+    "concept.representation",
+    "concept.transformer"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A convolutional neural network applies learned filters locally across a grid. Each filter responds to patterns such as edges, textures, or short audio motifs, then activations pass through nonlinearities and often pooling to build hierarchy. Stacking layers grows the receptive field so later units see larger context without connecting every position to every other position at once."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "CNNs remain the reference for grid-structured data—vision, spectrograms, and some video pipelines—and they inform how patch embeddings work inside vision transformers. Knowing the family helps readers map classical inductive biases—locality and weight sharing—to modern hybrid models."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "An image classifier might use a 3×3 filter that slides across an RGB photo. Early layers detect edges; middle layers combine them into parts; late layers map pooled features to class logits. The same filter weights are reused at every spatial location."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "CNN describes the convolution pattern, not every vision model—vision transformers use patches and attention instead. CNN is not limited to images: one-dimensional convolutions appear in audio and text models. It also differs from full attention, which can relate distant positions in one layer whereas CNNs grow context layer by layer."
+    }
+  }
+}

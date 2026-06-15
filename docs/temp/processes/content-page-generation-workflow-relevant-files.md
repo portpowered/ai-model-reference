@@ -222,6 +222,10 @@ The committed sample is `status: published` so story 006 can prove docs routing 
 
 `page-spec-workflow-generation.test.ts` is the generator-parity gate: it generates one bundle per `PAGE_SPEC_KINDS` entry, asserts the five-file output shape (registry, graph registry, `page.mdx`, `messages/en.json`, `assets.json`), reloads `loadRegistry` before `validateGeneratedPageBundle`, and proves invalid kind-specific specs and path collisions never leave partial writes on disk.
 
+### Publishing without ConceptMap graphs
+
+Hand-authored pages such as `transformer` and `transformer-architecture` omit `ConceptMap` even though templates include it. For published families that do not customize `assetMessages` / `graph` nodes, remove the `ConceptMap` import and JSX from generated `page.mdx`, delete the unused `*-concept-map.json` graph registry record, and set `assets.json` to `{}` after generation. Otherwise readers see draft graph placeholders and `graph-registry-runtime` needs extra imports. Still register the concept JSON in `registry-runtime.ts`, extend `PUBLISHED_*_REGISTRY_IDS`, parent `meta.json`, and navigation/search inventory tests.
+
 Browser verification after `bun run build`:
 
 ```bash

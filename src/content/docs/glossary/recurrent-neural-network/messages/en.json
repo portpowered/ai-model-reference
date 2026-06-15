@@ -1,0 +1,32 @@
+{
+  "title": "Recurrent neural network",
+  "description": "A sequence family that reuses the same cell at each time step while passing a hidden state that carries memory of earlier inputs.",
+  "openingSummary": "Recurrent networks loop a shared cell across time: each step reads a new input plus the previous hidden state, writes an updated state, and optionally emits an output—classic memory for ordered data before widespread attention stacks.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A recurrent neural network applies the same parameterized cell at every time step. Each step consumes the current input and the previous hidden state, then produces a new hidden state (and sometimes an output). Stacking multiple layers or using gated variants such as LSTM and GRU changes how memory is stored, but the core pattern is shared weights across time."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "RNNs were the default sequence family before transformers became dominant. They still appear in lightweight streaming models, hybrid systems, and teaching materials that explain memory without attention matrices. Understanding recurrence clarifies what transformers replaced—and what state-space models refine."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A character-level language model might feed one letter at a time into an RNN cell. After each letter, the hidden state encodes the prefix so far; the cell predicts the next letter from that state. Training unrolls the loop across the sentence length."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "RNN names the recurrence pattern, not a specific gate design—LSTM and GRU are RNN variants. RNN is not identical to state-space models, though both maintain compact memory. It also differs from causal transformers: RNNs update a fixed-size state, while transformers revisit prior positions through attention."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

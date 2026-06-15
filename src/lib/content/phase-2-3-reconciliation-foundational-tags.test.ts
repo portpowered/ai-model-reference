@@ -124,8 +124,13 @@ describe("Phase 2/3 reconciliation foundational tags (US-006)", () => {
     expect(
       modelFamilyGroups[0]?.resources.map((resource) => resource.url),
     ).toEqual([
+      "/docs/glossary/convolutional-neural-network",
       "/docs/glossary/diffusion-model",
+      "/docs/glossary/graph-neural-network",
       "/docs/glossary/multimodal-model",
+      "/docs/glossary/recurrent-neural-network",
+      "/docs/glossary/sequence-model",
+      "/docs/glossary/state-space-model",
       "/docs/glossary/transformer",
       "/docs/glossary/world-model",
     ]);

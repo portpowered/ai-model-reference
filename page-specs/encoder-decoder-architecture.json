@@ -1,0 +1,52 @@
+{
+  "kind": "concept",
+  "slug": "encoder-decoder-architecture",
+  "title": "Encoder-decoder architecture",
+  "summary": "A layout with a bidirectional encoder that reads the full input and a causal decoder that generates outputs while cross-attending to encoder memory.",
+  "openingSummary": "Encoder–decoder layouts split reading and writing: the encoder ingests the whole source with bidirectional context, the decoder generates targets step by step, and cross-attention lets each decoder position query encoder states.",
+  "status": "published",
+  "conceptType": "architecture",
+  "aliases": [
+    "encoder-decoder model",
+    "seq2seq transformer",
+    "two-stack architecture"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "prerequisiteIds": [
+    "concept.architecture",
+    "concept.encoder",
+    "concept.decoder"
+  ],
+  "relatedIds": [
+    "concept.architecture",
+    "concept.encoder",
+    "concept.decoder",
+    "concept.encoder-decoder",
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.encoder-only-architecture",
+    "concept.decoder-only-architecture"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "An encoder–decoder architecture pairs two stacks. The encoder processes the entire input sequence—often with bidirectional self-attention—and produces a memory tensor per source position. The decoder runs causally on partial outputs while cross-attention layers let each decoder position read the encoder memory. Training usually aligns source and target sequences; inference generates targets one token at a time."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Translation, summarization, and many speech-to-text systems historically used this split to separate input understanding from output generation. Knowing the layout clarifies why cross-attention module pages matter, how memory bandwidth differs from decoder-only chat models, and when T5-style stacks still appear in production."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Machine translation encodes a French sentence into memory vectors, then an English decoder starts with a start token and repeatedly attends to those memories while emitting the next English word until an end token. The encoder sees the full French sentence; the decoder only sees English prefix tokens causally."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Classic transformer translation models, T5-style text-to-text systems, and many multimodal captioning pipelines use encoder–decoder wiring. Some modern products fold similar behavior into decoder-only prompts, but the two-stack pattern remains the reference for explicit input/output splits."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Encoder–decoder architecture describes the two-stack layout, while the glossary encoder–decoder entry explains the pattern in the abstract—both are related but serve different navigation depths. It is not the same as decoder-only models that pack everything into one causal stack. Cross-attention is the hallmark module; self-attention alone does not make a model encoder–decoder."
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "concept.encoder-decoder-architecture",
+  "slug": "encoder-decoder-architecture",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "encoder-decoder model",
+    "seq2seq transformer",
+    "two-stack architecture"
+  ],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.architecture",
+    "concept.encoder",
+    "concept.decoder",
+    "concept.encoder-decoder",
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.encoder-only-architecture",
+    "concept.decoder-only-architecture"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": [
+    "concept.architecture",
+    "concept.encoder",
+    "concept.decoder"
+  ],
+  "explainsIds": []
+}

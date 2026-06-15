@@ -1,0 +1,36 @@
+{
+  "kind": "glossary",
+  "slug": "state-space-model",
+  "title": "State space model",
+  "summary": "A sequence family that propagates a compact latent state forward in linear time instead of materializing full pairwise attention.",
+  "openingSummary": "State space models summarize past context in a fixed-size state that evolves step by step—often with linear-time recurrences—so long sequences stay tractable without an explicit attention matrix over every pair of positions.",
+  "status": "published",
+  "conceptType": "architecture",
+  "aliases": ["SSM", "state-space model", "structured state space"],
+  "tags": ["taxonomy", "model-family"],
+  "prerequisiteIds": ["concept.architecture", "concept.sequence-model"],
+  "relatedIds": [
+    "concept.sequence-model",
+    "concept.recurrent-neural-network",
+    "concept.transformer",
+    "concept.transformer-architecture"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A state space model maintains a latent state vector that updates as each new token or time step arrives. Modern variants learn the transition dynamics so the state compresses history efficiently—sometimes with selective gates that let the model forget or retain information. Unlike full self-attention, the computation often scales linearly with sequence length because the state size stays fixed."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "When context grows, attention cost dominates memory and latency. State space families offer an alternative inductive bias: summarize the past in a recurrent state instead of revisiting every earlier position explicitly. That tradeoff matters for long documents, audio streams, and on-device models with tight budgets."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine reading a book one sentence at a time while keeping a running notebook of key facts. Each new sentence updates the notebook instead of re-reading every prior sentence. A selective state space layer does the same in vector form: the hidden state absorbs new token information and passes forward to the next step."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "State space model is a family, not a single architecture paper—implementations differ in how states are parameterized and initialized. SSM is not the same as a vanilla RNN: modern SSM layers use structured transitions with stable training recipes. It also does not automatically beat transformers on every task; it changes how context is summarized, not whether quality is guaranteed."
+    }
+  }
+}

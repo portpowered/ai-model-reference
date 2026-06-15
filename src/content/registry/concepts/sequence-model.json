@@ -1,0 +1,23 @@
+{
+  "id": "concept.sequence-model",
+  "slug": "sequence-model",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["sequential model", "sequence modeling"],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [
+    "concept.architecture",
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.recurrent-neural-network",
+    "concept.state-space-model"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": ["concept.architecture", "concept.model"],
+  "explainsIds": []
+}

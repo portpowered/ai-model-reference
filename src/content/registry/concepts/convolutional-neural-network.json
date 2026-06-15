@@ -1,0 +1,22 @@
+{
+  "id": "concept.convolutional-neural-network",
+  "slug": "convolutional-neural-network",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["CNN", "convnet", "convolutional network"],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [
+    "concept.architecture",
+    "concept.patch",
+    "concept.representation",
+    "concept.transformer"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": ["concept.architecture", "concept.model"],
+  "explainsIds": []
+}

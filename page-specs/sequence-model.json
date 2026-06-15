@@ -1,0 +1,37 @@
+{
+  "kind": "glossary",
+  "slug": "sequence-model",
+  "title": "Sequence model",
+  "summary": "A model family that reads ordered inputs—tokens, audio frames, or time steps—and updates a hidden state along the sequence axis.",
+  "openingSummary": "Sequence models treat order as first-class: each step sees earlier context through recurrence, convolution, state-space dynamics, or attention rather than assuming inputs are an unordered bag.",
+  "status": "published",
+  "conceptType": "architecture",
+  "aliases": ["sequential model", "sequence modeling"],
+  "tags": ["taxonomy", "model-family"],
+  "prerequisiteIds": ["concept.architecture", "concept.model"],
+  "relatedIds": [
+    "concept.architecture",
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.recurrent-neural-network",
+    "concept.state-space-model"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A sequence model consumes data with a meaningful order—text tokens left to right, audio frames in time, or sensor readings along a trajectory. It produces per-step outputs or a final summary while respecting that order through masked attention, recurrent state, convolution over time, or structured state updates. The family name describes the input geometry, not any one parameter count."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Most language, speech, and time-series systems are sequence models under the hood. Separating the family from specific layouts—decoder-only transformers versus RNNs—helps readers choose module pages for context mixing and spot when a product label hides a simpler recurrent core."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A speech recognizer ingests 10 ms frames sequentially; each frame updates hidden vectors that later emit phoneme logits. A chat model is also a sequence model: it embeds prompt tokens in order and predicts the next token from prior context, usually with causal attention in a decoder stack."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Sequence model names the input setting, not a training objective—you still need a loss and data. It is broader than transformer: transformers are one popular sequence family, not the definition of sequencing. It also differs from autoregressive generation, which describes a decoding loop that many—but not all—sequence models use."
+    }
+  }
+}

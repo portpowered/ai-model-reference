@@ -1,0 +1,36 @@
+{
+  "title": "Encoder-only architecture",
+  "description": "A layout where one bidirectional stack reads the full input and emits contextual representations without a separate autoregressive decoder.",
+  "openingSummary": "Encoder-only layouts run a single stack that can see the entire input at once—usually with bidirectional attention—and output per-token or pooled embeddings for classification, retrieval, or reranking rather than open-ended generation.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "An encoder-only architecture uses one transformer or RNN stack to encode the entire input context. Attention masks are typically bidirectional so each position can read both sides of the sequence. The stack outputs hidden vectors per token or a pooled sentence embedding consumed by classification heads, contrastive losses, or retrieval indexes—not by an autoregressive decoder in the same model."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Embedding APIs, rerankers, and encoder classifiers rely on this layout. Separating encoder-only from decoder-only clarifies why chat models need causal masks while similarity models often use full context. It also explains why encoder checkpoints are poor drop-in replacements for generative decoders."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A sentence embedding service feeds an entire paragraph through twelve bidirectional transformer blocks, mean-pools the token vectors, and returns one vector for semantic search. No token is generated autoregressively; the model only encodes."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Encoder-only transformers power semantic search, reranking, and many fine-tuned classifiers. They also appear as the input tower in some multimodal systems before a separate generative head consumes fused representations."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Encoder-only is a layout choice, not a synonym for BERT—other bidirectional encoders exist. It is not the same as the glossary encoder term alone, which names the input-side stack in split models. Decoder-only transformers still contain transformer blocks; encoder-only names how masks and heads are wired for representation tasks."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

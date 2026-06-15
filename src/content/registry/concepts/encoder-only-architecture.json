@@ -1,0 +1,24 @@
+{
+  "id": "concept.encoder-only-architecture",
+  "slug": "encoder-only-architecture",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["encoder-only model", "bidirectional encoder stack"],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": [
+    "concept.architecture",
+    "concept.encoder",
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.decoder-only-architecture",
+    "concept.encoder-decoder-architecture"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": ["concept.architecture", "concept.encoder"],
+  "explainsIds": []
+}

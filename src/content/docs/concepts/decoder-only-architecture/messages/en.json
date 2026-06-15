@@ -1,0 +1,36 @@
+{
+  "title": "Decoder-only architecture",
+  "description": "A layout where one causal stack both represents context and predicts next tokens without a separate encoder.",
+  "openingSummary": "Decoder-only layouts fold encoding and generation into one causal stack: each position attends only to earlier tokens, hidden states feed a language-model head, and inference appends one token at a time from the growing prefix.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A decoder-only architecture stacks causal self-attention blocks—often plus feed-forward sublayers—on token embeddings. Every position may attend only to itself and earlier tokens. The final hidden state at the last position (or each position during training) projects to vocabulary logits for next-token prediction. There is no separate encoder stack; the same weights represent context and drive generation."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Most chat and completion models use decoder-only transformers. The layout determines masking, KV-cache behavior during inference, and which module pages matter for throughput. Contrasting it with encoder-only and encoder–decoder layouts prevents mixing training recipes across incompatible stacks."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A prompt of ten tokens embeds once, passes through causal transformer blocks, and the model predicts token eleven from the final hidden state. During chat serving, each new user or assistant token extends the cache so later steps reuse prior key and value vectors instead of recomputing the full prefix."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Decoder-only transformers underpin GPT-style language models, many code assistants, and numerous open-weight chat checkpoints. Variants swap attention modules—grouped-query attention for faster decoding—but keep the single causal stack pattern."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Decoder-only names a wiring pattern, not every generative model—diffusion and encoder–decoder systems generate differently. It is not identical to autoregressive generation: the layout is the network; autoregressive generation is the step-by-step decoding loop often run on top. Finally, decoder-only still uses an encoder-like representation internally; the label means there is no separate encoder module."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
