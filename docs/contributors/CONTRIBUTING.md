@@ -114,9 +114,10 @@ folder, create the matching registry record under `src/content/registry/`, and
 follow `<kind>.content.md` until scaffold support expands.
 
 For concept and glossary work, contributors may also use
-`scripts/generate-page-bundle.ts` with a page spec when they need generator
-alignment across structure, messages, and assets. That path is optional; the
-scaffold command is the default direct-authoring entry point.
+`bun run generate:page-bundle` (`scripts/generate-page-bundle.ts`) with a page
+spec when they need generator alignment across structure, messages, and assets.
+That path is optional; the scaffold command is the default direct-authoring entry
+point.
 
 ### Choosing slug, title, aliases, tags, and registryId
 
@@ -627,6 +628,29 @@ implementation path is phase-gated; this guide documents the request shape only.
 repository are valid. Do not rely on undocumented CLI flags, external scaffolds,
 or localization flows that are not backed by `package.json`, the Makefile, or
 checked-in scripts.
+
+## Keeping this guide aligned
+
+This guide is checked against the repository so documented commands, template
+inventory, scaffold support, and factory references do not drift into fiction.
+
+| Verification surface | Path |
+| --- | --- |
+| Contributor guide alignment test | `src/tests/ci/contributor-guide-alignment.test.ts` |
+| Scaffold supported kinds | `src/lib/content/scaffold-doc-page.ts` (`SCAFFOLD_DOC_PAGE_KINDS`) |
+| Production templates | `docs/templates/*.mdx` and starter sidecars |
+| Factory batch docs | `factory/docs/overview.md`, `factory/docs/batch-inputs.md`, `factory/docs/batch-input-example.json` |
+
+Run the alignment test while editing this guide:
+
+```sh
+bun test src/tests/ci/contributor-guide-alignment.test.ts
+```
+
+The test verifies scaffold boundaries, template inventory, documented `make`
+targets and `package.json` scripts, factory doc paths, and relative links in this
+file. Run `make validate-data` and `make linkcheck` for published page bundles;
+`linkcheck` does not scan arbitrary markdown under `docs/`.
 
 ## Maintainer references
 
