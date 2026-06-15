@@ -248,6 +248,18 @@ export async function checkSearchPageQuery(
   const input = page.locator(SEARCH_PAGE_INPUT_SELECTOR);
   try {
     await input.waitFor({ state: "visible", timeout: timeoutMs });
+    await page.waitForFunction(
+      (selector) => {
+        const element = document.querySelector(selector);
+        return (
+          element instanceof HTMLInputElement &&
+          !element.disabled &&
+          element.offsetParent !== null
+        );
+      },
+      SEARCH_PAGE_INPUT_SELECTOR,
+      { timeout: timeoutMs },
+    );
   } catch {
     return `search input did not hydrate on /search within ${timeoutMs}ms`;
   }
