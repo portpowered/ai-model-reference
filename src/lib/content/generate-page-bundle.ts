@@ -12,6 +12,8 @@ import {
   getRegistryRoot,
   getTrainingDocsRoot,
 } from "./content-paths";
+import type { GraphRegistryArtifact } from "./generate-page-bundle-graphs";
+import { buildGraphRegistryArtifacts } from "./generate-page-bundle-graphs";
 import {
   deriveDefaultSummaryKey,
   deriveDefaultTitleKey,
@@ -61,6 +63,7 @@ export type PageBundleArtifacts = {
   assetsJson: string;
   registryRecord: Record<string, unknown>;
   registryJson: string;
+  graphRegistryArtifacts: GraphRegistryArtifact[];
 };
 
 const TEMPLATE_ROOT_SEGMENTS = ["docs", "templates"] as const;
@@ -495,6 +498,22 @@ function assertGeneratedBundleReferences(artifacts: PageBundleArtifacts): void {
     );
   }
 
+  const graphIdsFromAssets = new Set(
+    Object.values(artifacts.assets)
+      .filter((asset) => asset.type === "graph")
+      .map((asset) => asset.graphId),
+  );
+  const graphIdsFromArtifacts = new Set(
+    artifacts.graphRegistryArtifacts.map((artifact) => artifact.graphId),
+  );
+  for (const graphId of graphIdsFromAssets) {
+    if (!graphIdsFromArtifacts.has(graphId)) {
+      throw new GeneratePageBundleError(
+        `Unresolved reference: missing graph registry record for ${graphId}`,
+      );
+    }
+  }
+
   const mdxIssues = validateGeneratedCanonicalDocs({
     pagePath: artifacts.paths.pagePath,
     kind: artifacts.spec.kind,
@@ -568,6 +587,14 @@ export async function buildPageBundleArtifacts(input: {
     spec,
     registryTimestampForUpdatedAt(updatedAt),
   );
+  const timestamp = registryTimestampForUpdatedAt(updatedAt);
+  const graphRegistryArtifacts = await buildGraphRegistryArtifacts({
+    spec,
+    assets,
+    timestamp,
+    projectRoot,
+    applyTemplateSubstitutions,
+  });
 
   return {
     spec,
@@ -581,6 +608,7 @@ export async function buildPageBundleArtifacts(input: {
     assetsJson,
     registryRecord,
     registryJson: `${JSON.stringify(registryRecord, null, 2)}\n`,
+    graphRegistryArtifacts,
   };
 }
 
@@ -598,8 +626,17 @@ export async function generatePageBundle(
   const paths = resolvePageBundlePaths(spec, projectRoot);
   const registryId = registryIdForPageSpec(spec);
 
+  const artifactsForPlan = await buildPageBundleArtifacts({
+    spec,
+    projectRoot,
+    updatedAt: input.updatedAt,
+  });
   const plannedFiles: PlannedBundleFile[] = [
     { path: paths.registryPath, label: "registry record" },
+    ...artifactsForPlan.graphRegistryArtifacts.map((artifact) => ({
+      path: artifact.path,
+      label: `graph registry record (${artifact.graphId})`,
+    })),
     { path: paths.pagePath, label: "page.mdx" },
     { path: paths.messagesPath, label: "messages/en.json" },
     { path: paths.assetsPath, label: "assets.json" },
@@ -618,15 +655,17 @@ export async function generatePageBundle(
     await assertPathDoesNotExist(file.path);
   }
 
-  const artifacts = await buildPageBundleArtifacts({
-    spec,
-    projectRoot,
-    updatedAt: input.updatedAt,
-  });
+  const artifacts = artifactsForPlan;
   assertGeneratedBundleReferences(artifacts);
 
   await mkdir(join(paths.pageDir, "messages"), { recursive: true });
+  await mkdir(join(getRegistryRoot(getContentRoot(projectRoot)), "graphs"), {
+    recursive: true,
+  });
   await writeFile(paths.registryPath, artifacts.registryJson);
+  for (const graphArtifact of artifacts.graphRegistryArtifacts) {
+    await writeFile(graphArtifact.path, graphArtifact.json);
+  }
   await writeFile(paths.pagePath, artifacts.pageMdx);
   await writeFile(paths.messagesPath, artifacts.messagesJson);
   await writeFile(paths.assetsPath, artifacts.assetsJson);

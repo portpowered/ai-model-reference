@@ -117,7 +117,10 @@ describe("generatePageBundle", () => {
     expect(result.registryId).toBe(`concept.${slug}`);
     expect(result.route).toBe(`/docs/concepts/${slug}`);
     expect(result.writtenFiles).toEqual([]);
-    expect(result.plannedFiles).toHaveLength(4);
+    expect(result.plannedFiles).toHaveLength(5);
+    expect(
+      result.plannedFiles.some((file) => file.label.includes("graph registry")),
+    ).toBe(true);
 
     for (const file of result.plannedFiles) {
       expect(await pathExists(file.path)).toBe(false);
@@ -153,7 +156,7 @@ describe("generatePageBundle", () => {
 
     const contentRoot = join(tempRoot, "src", "content");
     expect(result.registryId).toBe(`concept.${slug}`);
-    expect(result.writtenFiles).toHaveLength(4);
+    expect(result.writtenFiles).toHaveLength(5);
 
     const registry = JSON.parse(
       await readFile(
@@ -216,6 +219,20 @@ describe("generatePageBundle", () => {
     expect(assets.conceptMap.graphId).toBe(
       "graph.generated-glossary-term-concept-map",
     );
+
+    const graphRecord = JSON.parse(
+      await readFile(
+        join(
+          contentRoot,
+          "registry",
+          "graphs",
+          "generated-glossary-term-concept-map.json",
+        ),
+        "utf8",
+      ),
+    ) as { id: string; subjectId: string };
+    expect(graphRecord.id).toBe("graph.generated-glossary-term-concept-map");
+    expect(graphRecord.subjectId).toBe(`concept.${slug}`);
 
     const glossaryDocsRoot = join(contentRoot, "docs", "glossary");
     const loaded = await loadGlossaryPageFromDisk(slug, "en", glossaryDocsRoot);
@@ -437,7 +454,7 @@ describe("generatePageBundle", () => {
         spec,
         projectRoot: tempRoot,
       });
-      expect(result.writtenFiles).toHaveLength(4);
+      expect(result.writtenFiles).toHaveLength(5);
     }
 
     expect(
@@ -494,6 +511,60 @@ describe("generatePageBundle", () => {
     ) as { regimeType: string; relatedModuleIds: string[] };
     expect(regimeRegistry.regimeType).toBe("pretraining");
     expect(regimeRegistry.relatedModuleIds).toEqual(["module.attention"]);
+
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  test("writes graph registry records from page-spec graph nodes without hand-authored graph fixtures", async () => {
+    const tempRoot = await createTemplateFixtureRoot();
+    const contentRoot = await prepareContentRoots(tempRoot);
+    const slug = "generated-graph-from-spec";
+
+    await generatePageBundle({
+      spec: {
+        ...baseSpecFields,
+        slug,
+        kind: "concept",
+        conceptType: "general",
+        tags: ["attention"],
+        graph: {
+          nodes: {
+            input: {
+              label: "Spec input node",
+              summary: "First node from the page spec.",
+            },
+            output: {
+              label: "Spec output node",
+              summary: "Second node from the page spec.",
+            },
+          },
+        },
+      },
+      projectRoot: tempRoot,
+    });
+
+    const graphRecord = JSON.parse(
+      await readFile(
+        join(contentRoot, "registry", "graphs", `${slug}-concept-map.json`),
+        "utf8",
+      ),
+    ) as {
+      id: string;
+      rootNodeId: string;
+      nodes: Array<{ id: string; labelKey: string; childNodeIds: string[] }>;
+      edges: Array<{ source: string; target: string }>;
+    };
+    expect(graphRecord.id).toBe(`graph.${slug}-concept-map`);
+    expect(graphRecord.rootNodeId).toBe("input");
+    expect(graphRecord.nodes.map((node) => node.id)).toEqual([
+      "input",
+      "output",
+    ]);
+    expect(graphRecord.nodes[0]?.childNodeIds).toEqual(["output"]);
+    expect(graphRecord.edges[0]).toMatchObject({
+      source: "input",
+      target: "output",
+    });
 
     await rm(tempRoot, { recursive: true, force: true });
   });

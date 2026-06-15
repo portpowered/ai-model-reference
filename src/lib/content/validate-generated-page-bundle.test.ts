@@ -39,36 +39,20 @@ const baseSpecFields = {
   openingSummary: "Folded opening summary for the page hero.",
 };
 
-function minimalGraphRecord(graphId: string, subjectId: string) {
-  return {
-    id: graphId,
-    slug: graphId.replace(/^graph\./, ""),
-    kind: "graph",
-    defaultTitleKey: "title",
-    defaultSummaryKey: "description",
-    aliases: [],
-    tags: ["attention"],
-    relatedIds: [],
-    citationIds: [],
-    status: "draft",
-    createdAt: "2026-06-01T00:00:00.000Z",
-    updatedAt: "2026-06-02T00:00:00.000Z",
-    subjectId,
-    graphType: "concept-map",
-    rootNodeId: "root",
-    layout: "vertical-expandable",
-    defaultExpandedDepth: 1,
-    supportedRenderers: ["react-flow"],
-    nodes: [
-      {
-        id: "root",
-        labelKey: "graph.nodes.root.label",
-        moduleKind: "other",
-        childNodeIds: [],
-      },
-    ],
-    edges: [],
-  };
+async function expectGeneratedGraphRecord(input: {
+  contentRoot: string;
+  graphId: string;
+  subjectId: string;
+  slugSuffix: string;
+}): Promise<void> {
+  const graphRecord = JSON.parse(
+    await readFile(
+      join(input.contentRoot, "registry", "graphs", `${input.slugSuffix}.json`),
+      "utf8",
+    ),
+  ) as { id: string; subjectId: string };
+  expect(graphRecord.id).toBe(input.graphId);
+  expect(graphRecord.subjectId).toBe(input.subjectId);
 }
 
 async function createTemplateFixtureRoot(): Promise<string> {
@@ -123,10 +107,6 @@ describe("validateGeneratedPageBundle", () => {
 
     try {
       await writeTagFixture(contentRoot);
-      await writeFile(
-        join(contentRoot, "registry", "graphs", `${slug}-concept-map.json`),
-        JSON.stringify(minimalGraphRecord(graphId, registryId)),
-      );
 
       await generatePageBundle({
         spec: {
@@ -163,6 +143,12 @@ describe("validateGeneratedPageBundle", () => {
       const assets = await loadPageAssets(pageDir);
       expect(messages.title).toBe("Generated Page");
       expect(assets.conceptMap?.type).toBe("graph");
+      await expectGeneratedGraphRecord({
+        contentRoot,
+        graphId,
+        subjectId: registryId,
+        slugSuffix: `${slug}-concept-map`,
+      });
 
       const registryRecord = parseGeneratedRegistryRecord(
         JSON.parse(await readFile(registryPath, "utf8")),
@@ -195,8 +181,6 @@ describe("validateGeneratedPageBundle", () => {
     const tempRoot = await createTemplateFixtureRoot();
     const contentRoot = await prepareContentRoots(tempRoot);
     const slug = "generated-concept-relationships";
-    const registryId = `concept.${slug}`;
-    const graphId = `graph.${slug}-concept-map`;
     const relatedConceptId = "concept.related-peer";
     const citationId = "citation.generated-paper";
 
@@ -247,10 +231,6 @@ describe("validateGeneratedPageBundle", () => {
           mla: 'Author, A. "Generated Paper." Example, 2024.',
           year: 2024,
         }),
-      );
-      await writeFile(
-        join(contentRoot, "registry", "graphs", `${slug}-concept-map.json`),
-        JSON.stringify(minimalGraphRecord(graphId, registryId)),
       );
 
       await generatePageBundle({
@@ -308,15 +288,9 @@ describe("validateGeneratedPageBundle", () => {
     const tempRoot = await createTemplateFixtureRoot();
     const contentRoot = await prepareContentRoots(tempRoot);
     const slug = "generated-concept-alignment";
-    const registryId = `concept.${slug}`;
-    const graphId = `graph.${slug}-concept-map`;
 
     try {
       await writeTagFixture(contentRoot);
-      await writeFile(
-        join(contentRoot, "registry", "graphs", `${slug}-concept-map.json`),
-        JSON.stringify(minimalGraphRecord(graphId, registryId)),
-      );
 
       await generatePageBundle({
         spec: {
@@ -395,15 +369,9 @@ describe("validateGeneratedPageBundle", () => {
     const tempRoot = await createTemplateFixtureRoot();
     const contentRoot = await prepareContentRoots(tempRoot);
     const slug = "generated-module-alignment";
-    const registryId = `module.${slug}`;
-    const graphId = `graph.${slug}-compute-flow`;
 
     try {
       await writeTagFixture(contentRoot);
-      await writeFile(
-        join(contentRoot, "registry", "graphs", `${slug}-compute-flow.json`),
-        JSON.stringify(minimalGraphRecord(graphId, registryId)),
-      );
 
       await generatePageBundle({
         spec: {
@@ -513,18 +481,6 @@ describe("validateGeneratedPageBundle", () => {
       await writeTagFixture(contentRoot);
 
       for (const testCase of cases) {
-        const registryId = `${testCase.kind}.${testCase.slug}`;
-        const graphId = `graph.${testCase.slug}-${testCase.graphSuffix}`;
-        await writeFile(
-          join(
-            contentRoot,
-            "registry",
-            "graphs",
-            `${testCase.slug}-${testCase.graphSuffix}.json`,
-          ),
-          JSON.stringify(minimalGraphRecord(graphId, registryId)),
-        );
-
         await generatePageBundle({
           spec: testCase.spec,
           projectRoot: tempRoot,
