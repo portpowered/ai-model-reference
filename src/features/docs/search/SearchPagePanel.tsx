@@ -12,6 +12,7 @@ import { SearchInlineResultItem } from "./SearchResults";
 import { useModelAtlasDocsSearch } from "./search-client";
 import {
   EMPTY_SEARCH_PAGE_HANDOFF,
+  encodeSearchPageHandoffKey,
   hasSearchPageHandoff,
   readSearchPageHandoffFromLocationSearch,
   resolveInitialSearchPageQuery,
@@ -50,7 +51,7 @@ export function SearchPagePanelContent({
   searchClient,
 }: SearchPagePanelContentProps) {
   const router = useRouter();
-  const initialQueryApplied = useRef(false);
+  const appliedHandoffKeyRef = useRef<string | null>(null);
   const [clientHandoff, setClientHandoff] = useState<SearchPageHandoff | null>(
     null,
   );
@@ -75,18 +76,21 @@ export function SearchPagePanelContent({
       setClientHandoff(resolvedHandoff);
     }
 
-    if (initialQueryApplied.current) {
-      return;
-    }
-    initialQueryApplied.current = true;
-
     const initial = resolveInitialSearchPageQuery(
       resolvedHandoff.q,
       resolvedHandoff.tag,
     );
-    if (initial) {
-      setSearch(initial);
+    if (!initial) {
+      return;
     }
+
+    const handoffKey = encodeSearchPageHandoffKey(resolvedHandoff);
+    if (appliedHandoffKeyRef.current === handoffKey) {
+      return;
+    }
+
+    appliedHandoffKeyRef.current = handoffKey;
+    setSearch(initial);
   }, [handoff, setSearch]);
 
   const hasQuery = search.trim().length > 0;
