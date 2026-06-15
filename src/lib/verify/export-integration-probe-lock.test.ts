@@ -15,7 +15,8 @@ import { VERIFY_COVERAGE_SUBPROCESS_ENV } from "./server-lifecycle";
 describe("export integration probe lock", () => {
   const originalCi = process.env.CI;
   const originalGithubActions = process.env.GITHUB_ACTIONS;
-  const originalCoverageSubprocess = process.env[VERIFY_COVERAGE_SUBPROCESS_ENV];
+  const originalCoverageSubprocess =
+    process.env[VERIFY_COVERAGE_SUBPROCESS_ENV];
 
   beforeEach(() => {
     removeExportIntegrationProbeLockForTests();

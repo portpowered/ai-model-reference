@@ -17,7 +17,8 @@ import { PHASE_1_SEARCH_PAGE_QUERIES } from "./phase-1-search-page-checks";
 import { VERIFY_COVERAGE_SUBPROCESS_ENV } from "./server-lifecycle";
 
 describe("resolveCiExportSearchUxProbeQueries", () => {
-  const originalCoverageSubprocess = process.env[VERIFY_COVERAGE_SUBPROCESS_ENV];
+  const originalCoverageSubprocess =
+    process.env[VERIFY_COVERAGE_SUBPROCESS_ENV];
 
   beforeEach(() => {
     delete process.env[VERIFY_COVERAGE_SUBPROCESS_ENV];
