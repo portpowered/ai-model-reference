@@ -514,6 +514,32 @@ describe("validateGeneratedPageBundle", () => {
         expect(registryRecord.kind).toBe(testCase.kind);
         expect(registryRecord.defaultTitleKey).toBe("title");
         expect(registryRecord.defaultSummaryKey).toBe("description");
+        expect(indexes.byId.get(registryRecord.id)?.kind).toBe(testCase.kind);
+
+        const messages = await loadPageMessages(pageDir, "en");
+        const mdxSource = await readFile(join(pageDir, "page.mdx"), "utf8");
+        const frontmatterMatch = mdxSource.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+        expect(frontmatterMatch?.[1]).toBeDefined();
+        const { parseYamlFrontmatterBlock } = await import(
+          "./yaml-frontmatter"
+        );
+        const { pageFrontmatterSchema } = await import("./schemas");
+        const frontmatter = pageFrontmatterSchema.parse(
+          parseYamlFrontmatterBlock(frontmatterMatch?.[1] ?? ""),
+        );
+
+        const searchDocument = buildSearchDocument(
+          {
+            pageDir,
+            docsSlug: `${docsParent}/${testCase.slug}`,
+            url: testCase.pageUrl,
+            frontmatter,
+            messages,
+          },
+          indexes,
+        );
+        expect(searchDocument.relatedIds).toEqual(registryRecord.relatedIds);
+        expect(searchDocument.facets.kind).toBe(testCase.kind);
 
         const errors = await validateGeneratedPageBundle({
           registryRoot: join(contentRoot, "registry"),
