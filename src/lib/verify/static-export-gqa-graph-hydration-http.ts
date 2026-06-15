@@ -3,7 +3,10 @@ import { REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS } from "@/features/mode
 import { exportHtmlIncludesGqaAttentionVariantGraphShellMarkers } from "@/lib/build/verify-export-base-path";
 import { withExportIntegrationProbeLock } from "./export-integration-probe-lock";
 import { httpGetText } from "./http-harness";
-import { launchPlaywrightBrowser } from "./launch-playwright-browser";
+import {
+  closePlaywrightBrowserWithTimeout,
+  launchPlaywrightBrowser,
+} from "./launch-playwright-browser";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
@@ -233,21 +236,29 @@ export async function verifyStaticExportGqaGraphHydration(
       return "React Flow canvas did not hydrate on the GQA module page.";
     }
 
-    const browser = await launchBrowser();
-    try {
-      const page = await browser.newPage();
-      page.setDefaultTimeout(timeoutMs);
-      page.setDefaultNavigationTimeout(timeoutMs);
-      await page.goto(pageUrl, {
-        timeout: timeoutMs,
-        waitUntil: "load",
-      });
-      await page.waitForTimeout(500);
-      return await verifyGqaGraphHydrationOnPage(page, timeoutMs);
-    } catch (error) {
-      return error instanceof Error ? error.message : String(error);
-    } finally {
-      await browser.close();
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const browser = await launchBrowser();
+      try {
+        const page = await browser.newPage();
+        page.setDefaultTimeout(timeoutMs);
+        page.setDefaultNavigationTimeout(timeoutMs);
+        await page.goto(pageUrl, {
+          timeout: timeoutMs,
+          waitUntil: "load",
+        });
+        await page.waitForTimeout(500);
+        return await verifyGqaGraphHydrationOnPage(page, timeoutMs);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (attempt === 0 && /browser has been closed/i.test(message)) {
+          continue;
+        }
+        return message;
+      } finally {
+        await closePlaywrightBrowserWithTimeout(browser);
+      }
     }
+
+    return "GQA export graph hydration probe failed after retrying a closed browser session.";
   });
 }
