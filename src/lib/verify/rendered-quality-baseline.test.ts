@@ -27,17 +27,29 @@ const gqaRoute = findAuditRoute("/docs/modules/grouped-query-attention");
 const homeRoute = findAuditRoute("/");
 
 describe("rendered quality baseline", () => {
-  test("records quality-documents-standards.md gap when file is absent", () => {
+  test("marks quality-documents-standards.md present in repository root", () => {
     const baseline = buildRenderedQualityStandardsBaseline(process.cwd());
+    expect(baseline.qualityDocumentsStandardsPresent).toBe(true);
+    expect(baseline.qualityDocumentsStandardsGap).toBeNull();
+    expect(baseline.activeStandards).toContain("docs/writing-standards.md");
+    expect(baseline.activeStandards).toContain(
+      "docs/quality-documents-standards.md",
+    );
+  });
+
+  test("records quality-documents-standards.md gap when file is absent", () => {
+    const tempRoot = mkdtempSync(join(tmpdir(), "rendered-quality-absent-"));
+    mkdirSync(join(tempRoot, "docs"), { recursive: true });
+
+    const baseline = buildRenderedQualityStandardsBaseline(tempRoot);
     expect(baseline.qualityDocumentsStandardsPresent).toBe(false);
     expect(baseline.qualityDocumentsStandardsGap).toContain(
       "docs/quality-documents-standards.md is absent",
     );
-    expect(baseline.activeStandards).toContain("docs/writing-standards.md");
   });
 
   test("marks quality-documents-standards.md present in temporary project root", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "rendered-quality-"));
+    const tempRoot = mkdtempSync(join(tmpdir(), "rendered-quality-present-"));
     mkdirSync(join(tempRoot, "docs"), { recursive: true });
     writeFileSync(
       join(tempRoot, "docs/quality-documents-standards.md"),
@@ -155,7 +167,9 @@ describe("rendered quality baseline", () => {
 
     const report = formatRenderedQualityAuditReport(result);
     expect(report).toContain("Rendered quality baseline audit");
-    expect(report).toContain("docs/quality-documents-standards.md present: no");
+    expect(report).toContain(
+      "docs/quality-documents-standards.md present: yes",
+    );
     expect(report).toContain("Phase 1 bridge page");
     expect(report).toContain("Routes visited: 14");
   });

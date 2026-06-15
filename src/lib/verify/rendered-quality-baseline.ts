@@ -40,6 +40,7 @@ export const RENDERED_QUALITY_ACTIVE_STANDARDS = [
   "docs/writing-standards.md",
   "docs/documentation-template.md",
   "docs/graphing-standards.md",
+  "docs/quality-documents-standards.md",
 ] as const;
 
 export type RenderedQualityViewportId = "desktop" | "mobile";

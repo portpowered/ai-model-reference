@@ -169,8 +169,8 @@ describe("validateGeneratedCanonicalDocs", () => {
 
   test("reports page path evidence for MDX prose violations", () => {
     const conceptMdx = readTemplateMdx("concept").replace(
-      '<T k="openingSummary" />',
-      '## Hard-coded heading\n\n<T k="openingSummary" />',
+      "<FoldedSummary />",
+      "## Hard-coded heading\n\n<FoldedSummary />",
     );
 
     const errors = validateGeneratedCanonicalDocs({
