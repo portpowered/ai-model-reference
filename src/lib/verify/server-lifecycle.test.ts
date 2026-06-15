@@ -28,6 +28,7 @@ import {
   resolveNextProductionServerBin,
   resolveServerStartupTimeoutMsFromEnv,
   resolveVerifyBaseUrlFromEnv,
+  shouldRunFreshCheckoutTypecheckProof,
   shouldRunVerifyProductionIntegrationTests,
   VERIFY_COVERAGE_SUBPROCESS_ENV,
   VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV,
@@ -271,6 +272,15 @@ describe("assertNextProductionBuild", () => {
         [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
       }),
     ).toBe(false);
+  });
+
+  test("skips fresh-checkout typecheck proof during the coverage subprocess rerun", () => {
+    expect(
+      shouldRunFreshCheckoutTypecheckProof({
+        [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
+      }),
+    ).toBe(false);
+    expect(shouldRunFreshCheckoutTypecheckProof({})).toBe(true);
   });
 
   test("allows production integration tests when BUILD_ID is present", () => {
