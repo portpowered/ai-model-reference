@@ -608,9 +608,11 @@ Run these steps in order when approving this governance pass:
    export build, post-build integration tests, registry validation, and internal
    linkcheck.
 3. **Post-build integration coverage** — `make test-integration` (alias:
-   `bun run test:integration`) reruns built HTML and production-server integration
-   tests after `make build` and `make build-export` so the default CI path still
-   exercises convergence assertions that default `make test` skips unless
+   `bun run test:integration`) runs the manifest in
+   `src/lib/verify/production-integration-test-paths.ts` via
+   `scripts/run-production-integration-tests.ts` after `make build` and
+   `make build-export` so the default CI path exercises built HTML and
+   production-server convergence assertions that default `make test` skips unless
    `VERIFY_PRODUCTION_INTEGRATION_TESTS=1` is set.
 
 ### Governance audit (this artifact)
@@ -629,8 +631,8 @@ Run these steps in order when approving this governance pass:
 | `bun run lint` | Biome lint and format checks across the repository. |
 | `bun run typecheck` | TypeScript strict check (`tsc --noEmit`) after Fumadocs MDX generation. |
 | `bun test` | Full Bun test suite (includes governance verifier tests and CI contract tests; skips opt-in built HTML / production-server integration unless `VERIFY_PRODUCTION_INTEGRATION_TESTS=1`). |
-| `make test-integration` | Post-build rerun of built HTML and production-server integration tests; included in `make ci` after build steps. |
-| `bun run test:integration` | Package-script alias for `make test-integration`. |
+| `make test-integration` | Post-build built HTML and production-server integration manifest (`production-integration-test-paths.ts`); included in `make ci` after build steps. Script-level E2E validator suites remain opt-in via full `VERIFY_PRODUCTION_INTEGRATION_TESTS=1 bun test`. |
+| `bun run test:integration` | Package-script alias for `make test-integration` (`scripts/run-production-integration-tests.ts`). |
 
 Run `make verify-architectural-checklist-mechanism-status` first when reviewing
 changes to this artifact or `docs/architectural-checklist.md`. Run `make ci` (or

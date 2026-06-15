@@ -287,7 +287,7 @@ the repository root after `bun install --frozen-lockfile`; it runs, in order:
 4. `make coverage` — manifest-scoped reusable component coverage gate (same as `bun run coverage`)
 5. `make build` — `next build` plus Phase 1 static route verification
 6. `make build-export` — static export to `out/` plus Phase 1 export route verification
-7. `make test-integration` — post-build rerun of built HTML and production-server integration tests (`bun run test:integration`)
+7. `make test-integration` — post-build built HTML and production-server integration manifest (`bun run test:integration` / `scripts/run-production-integration-tests.ts`)
 8. `make validate-data` — registry and content validation
 9. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
 
