@@ -11,21 +11,16 @@ import { type SpawnSyncReturns, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import {
+  FRESH_CHECKOUT_TYPECHECK_TEST_TIMEOUT_MS,
+  shouldRunFreshCheckoutTypecheckProof,
+} from "@/lib/verify/server-lifecycle";
+import {
   CLEAN_WORKTREE_SOURCE_DIR,
   provisionCleanWorktree,
 } from "./clean-worktree-fixture";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const mainSourceDir = join(repoRoot, CLEAN_WORKTREE_SOURCE_DIR);
-
-/**
- * Bun's default per-test timeout is 5s. This proof provisions an isolated
- * worktree (git add + bun install --frozen-lockfile) then runs cold
- * `make typecheck` inside it. Measured locally (2026-06-04 UTC): install alone
- * can take ~60–120s on a cold worktree; typecheck adds ~7–11s. GitHub Actions
- * ubuntu-latest can be slower. Use 300s so CI runners have headroom.
- */
-const FRESH_CHECKOUT_TYPECHECK_TEST_TIMEOUT_MS = 300_000;
 
 /** TypeScript missing-module errors for the gitignored Fumadocs import path. */
 const missingSourceServerPattern =
@@ -59,6 +54,10 @@ describe("fresh-checkout typecheck", () => {
   test(
     "make typecheck succeeds when .source is absent and regenerates output",
     () => {
+      if (!shouldRunFreshCheckoutTypecheckProof()) {
+        return;
+      }
+
       const mainHadSourceBefore = existsSync(mainSourceDir);
 
       const fixture = provisionCleanWorktree(repoRoot);

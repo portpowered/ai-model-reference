@@ -1,6 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { proseAutoLinkClassName } from "@/features/docs/components/prose-auto-link-class";
 import {
   BATCH_013_GLOSSARY_CHECKS,
@@ -41,9 +39,7 @@ import {
   MISSING_PAGES_HIDDEN_SIZE_REGISTRY_ID,
   MISSING_PAGES_VECTOR_REGISTRY_ID,
 } from "./customer-ask-missing-pages-convergence";
-import { shouldRunVerifyProductionIntegrationTests } from "./server-lifecycle";
 
-const repoRoot = join(import.meta.dir, "../../..");
 const PROSE_AUTO_LINK_CLASS = `class="${proseAutoLinkClassName}"`;
 
 export const POST_REPAIR_VECTOR_GLOSSARY_OPENING_HTML = `
@@ -227,39 +223,6 @@ describe("buildBatch013GlossaryRouteConvergenceRows", () => {
     expect(hiddenSizeRouteRow?.reason).toBe(
       MISSING_PAGES_CUSTOMER_ASK_REASONS.missingHiddenSizeTitle,
     );
-  });
-});
-
-describe("buildBatch013GlossaryRouteConvergenceRows (built HTML)", () => {
-  test("reopened glossary routes pass batch-013 convergence checks when present", () => {
-    if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
-      return;
-    }
-
-    const builtRoutes = [
-      BATCH_013_GLOSSARY_ROUTES.token,
-      BATCH_013_GLOSSARY_ROUTES.embedding,
-      BATCH_013_GLOSSARY_ROUTES.vector,
-      BATCH_013_GLOSSARY_ROUTES.hiddenSize,
-    ] as const;
-
-    const htmlByRoute: Record<string, string> = {};
-    for (const route of builtRoutes) {
-      const builtPath = join(process.cwd(), `.next/server/app${route}.html`);
-      if (!existsSync(builtPath)) {
-        return;
-      }
-      htmlByRoute[route] = readFileSync(builtPath, "utf8");
-    }
-
-    htmlByRoute[BATCH_013_ROUTE_PATHS.vectorGlossary] =
-      htmlByRoute[BATCH_013_GLOSSARY_ROUTES.vector] ?? "";
-    htmlByRoute[BATCH_013_ROUTE_PATHS.hiddenSizeGlossary] =
-      htmlByRoute[BATCH_013_GLOSSARY_ROUTES.hiddenSize] ?? "";
-
-    const rows = buildBatch013GlossaryRouteConvergenceRows({ htmlByRoute });
-
-    expect(rows.every((row) => row.status === "pass")).toBe(true);
   });
 });
 

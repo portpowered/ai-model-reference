@@ -137,6 +137,88 @@ export const conceptRecordSchema = z.object({
   explainsIds: z.array(z.string()),
 });
 
+export const modelSourceTypeSchema = z.enum([
+  "open-weights",
+  "closed",
+  "research",
+  "unknown",
+]);
+
+export const modelModalitySchema = z.enum([
+  "text",
+  "image",
+  "audio",
+  "video",
+  "multimodal",
+]);
+
+export const modelRecordSchema = z.object({
+  ...baseRecordShape,
+  kind: z.literal("model"),
+  family: z.string().min(1),
+  sourceType: modelSourceTypeSchema,
+  modalities: z.array(modelModalitySchema).min(1),
+  architectureIds: z.array(z.string()),
+  moduleIds: z.array(z.string()),
+  trainingRegimeIds: z.array(z.string()),
+  datasetIds: z.array(z.string()),
+  paperIds: z.array(z.string()),
+  organizationId: z.string().optional(),
+  releaseDate: z.string().optional(),
+  parameterCount: z.string().optional(),
+  activeParameterCount: z.string().optional(),
+  contextLength: z.number().int().positive().optional(),
+  precision: z.array(z.string()).optional(),
+});
+
+export const paperRecordSchema = z.object({
+  ...baseRecordShape,
+  kind: z.literal("paper"),
+  authors: z.array(z.string().min(1)).min(1),
+  publishedAt: z.string().min(1),
+  url: z.string().url(),
+  introducesIds: z.array(z.string()),
+  supportsIds: z.array(z.string()),
+  arguesAgainstIds: z.array(z.string()),
+  modelIds: z.array(z.string()),
+  moduleIds: z.array(z.string()),
+  conceptIds: z.array(z.string()),
+  venue: z.string().optional(),
+  arxivId: z.string().optional(),
+});
+
+export const trainingRegimeTypeSchema = z.enum([
+  "pretraining",
+  "post-training",
+  "rl",
+  "distillation",
+  "optimization",
+  "alignment",
+  "other",
+]);
+
+export const trainingRegimeRecordSchema = z.object({
+  ...baseRecordShape,
+  kind: z.literal("training-regime"),
+  regimeType: trainingRegimeTypeSchema,
+  usedByModelIds: z.array(z.string()),
+  relatedModuleIds: z.array(z.string()),
+  paperIds: z.array(z.string()),
+  conceptType: conceptTypeSchema.optional(),
+  variantGroup: z.string().optional(),
+});
+
+export const generatedPageBundleRegistryRecordSchema = z.discriminatedUnion(
+  "kind",
+  [
+    conceptRecordSchema,
+    moduleRecordSchema,
+    modelRecordSchema,
+    paperRecordSchema,
+    trainingRegimeRecordSchema,
+  ],
+);
+
 export const graphTypeSchema = z.enum([
   "recursive-module-graph",
   "model-architecture",
@@ -420,6 +502,12 @@ export type RegistryStatus = z.infer<typeof registryStatusSchema>;
 export type BaseRecord = z.infer<typeof baseRecordSchema>;
 export type ModuleRecord = z.infer<typeof moduleRecordSchema>;
 export type ConceptRecord = z.infer<typeof conceptRecordSchema>;
+export type ModelRecord = z.infer<typeof modelRecordSchema>;
+export type PaperRecord = z.infer<typeof paperRecordSchema>;
+export type TrainingRegimeRecord = z.infer<typeof trainingRegimeRecordSchema>;
+export type GeneratedPageBundleRegistryRecord = z.infer<
+  typeof generatedPageBundleRegistryRecordSchema
+>;
 export type TagRecord = z.infer<typeof tagRecordSchema>;
 export type CitationRecord = z.infer<typeof citationRecordSchema>;
 export type GraphRecord = z.infer<typeof graphRecordSchema>;

@@ -8,13 +8,13 @@ import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 import {
   evaluateSearchPageInputHydrationAfterTyping,
-  evaluateSearchPageInputHydrationBeforeQuery,
   evaluateSearchPageInputHydrationOutcome,
   readSearchPageInputHydrationSnapshot,
   SEARCH_PAGE_EMPTY_SELECTOR,
   SEARCH_PAGE_INPUT_SELECTOR,
   SEARCH_PAGE_LOADING_SELECTOR,
   SEARCH_PAGE_RESULTS_SELECTOR,
+  waitForSearchPageInputHydrationBeforeQuery,
 } from "./static-export-search-input-hydration-http";
 
 /** Phase 1 manual-gate queries exercised on the built `/search` page. */
@@ -209,6 +209,47 @@ async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Returns true when `/search` has a terminal outcome: empty state, populated
+ * result URLs, or a visible grouped-query-attention hit marker.
+ */
+export function isSearchPageDomSnapshotPopulated(
+  snapshot: SearchPageDomSnapshot,
+): boolean {
+  if (snapshot.hasEmpty && !snapshot.hasResults) {
+    return true;
+  }
+
+  if (snapshot.resultUrls.length > 0) {
+    return true;
+  }
+
+  if (
+    snapshot.hasGroupedQueryAttentionLink ||
+    snapshot.hasGroupedQueryAttentionResultUrl ||
+    snapshot.hasGroupedQueryAttentionButton
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+async function waitForPopulatedSearchPageDomSnapshot(
+  page: Page,
+  timeoutMs: number,
+): Promise<SearchPageDomSnapshot> {
+  const deadline = Date.now() + timeoutMs;
+  let snapshot = await readSearchPageDomSnapshot(page);
+
+  while (!isSearchPageDomSnapshotPopulated(snapshot) && Date.now() < deadline) {
+    await sleep(250);
+    snapshot = await readSearchPageDomSnapshot(page);
+  }
+
+  return snapshot;
+}
+
 async function waitForSearchPageOutcome(
   page: Page,
   timeoutMs: number,
@@ -240,20 +281,15 @@ export async function checkSearchPageQuery(
     waitUntil: "load",
   });
 
-  const input = page.locator(SEARCH_PAGE_INPUT_SELECTOR);
-  try {
-    await input.waitFor({ state: "visible", timeout: timeoutMs });
-  } catch {
-    return `search input did not hydrate on /search within ${timeoutMs}ms`;
-  }
-
-  const beforeQuery = evaluateSearchPageInputHydrationBeforeQuery(
-    await readSearchPageInputHydrationSnapshot(page),
+  const beforeQuery = await waitForSearchPageInputHydrationBeforeQuery(
+    page,
+    timeoutMs,
   );
   if (beforeQuery) {
     return beforeQuery;
   }
 
+  const input = page.locator(SEARCH_PAGE_INPUT_SELECTOR);
   await input.focus();
   await input.pressSequentially(query, { delay: 30 });
 
@@ -278,7 +314,7 @@ export async function checkSearchPageQuery(
     return hydrationOutcome;
   }
 
-  const snapshot = await readSearchPageDomSnapshot(page);
+  const snapshot = await waitForPopulatedSearchPageDomSnapshot(page, timeoutMs);
   return evaluateSearchPageDomSnapshot(snapshot, query);
 }
 

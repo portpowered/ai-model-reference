@@ -18,6 +18,7 @@ export const PRODUCTION_INTEGRATION_TEST_PATHS = [
   "src/lib/verify/customer-ask-missing-pages-convergence.test.ts",
   "src/lib/verify/customer-ask-search-surface-convergence-http.test.ts",
   "src/lib/verify/server-lifecycle.test.ts",
+  "src/tests/build/static-export-phase-1-search-ux-integration.test.ts",
   "src/tests/layout/docs-index-shell.test.tsx",
   "src/tests/layout/docs-page-footer-hover-convergence.test.tsx",
   "src/tests/layout/docs-page-toc.test.tsx",
