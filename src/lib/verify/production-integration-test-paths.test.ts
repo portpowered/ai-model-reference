@@ -5,6 +5,14 @@ import { PRODUCTION_INTEGRATION_TEST_PATHS } from "./production-integration-test
 
 const repoRoot = join(import.meta.dir, "../../..");
 
+const builtRouteConvergencePaths = [
+  "src/tests/layout/grouped-query-attention-built-route-convergence.test.tsx",
+  "src/tests/layout/linear-attention-built-route-convergence.test.tsx",
+  "src/tests/layout/multi-head-latent-attention-built-route-convergence.test.tsx",
+  "src/tests/layout/sliding-window-attention-built-route-convergence.test.tsx",
+  "src/tests/layout/sparse-attention-built-route-convergence.test.tsx",
+] as const;
+
 const excludedScriptE2ePaths = [
   "src/lib/verify/phase-1-batch-013-convergence-validator.test.ts",
   "src/lib/verify/phase-1-built-app-convergence-validator.test.ts",
@@ -28,10 +36,13 @@ describe("PRODUCTION_INTEGRATION_TEST_PATHS", () => {
     }
   });
 
+  test("includes all built-route convergence suites in the required CI path", () => {
+    for (const relativePath of builtRouteConvergencePaths) {
+      expect(PRODUCTION_INTEGRATION_TEST_PATHS).toContain(relativePath);
+    }
+  });
+
   test("includes built HTML and production-server convergence suites cited in governance", () => {
-    expect(PRODUCTION_INTEGRATION_TEST_PATHS).toContain(
-      "src/tests/layout/grouped-query-attention-built-route-convergence.test.tsx",
-    );
     expect(PRODUCTION_INTEGRATION_TEST_PATHS).toContain(
       "src/tests/layout/site-routes-shell.test.tsx",
     );

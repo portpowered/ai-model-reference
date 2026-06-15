@@ -23,6 +23,10 @@ export const PRODUCTION_INTEGRATION_TEST_PATHS = [
   "src/tests/layout/docs-page-toc.test.tsx",
   "src/tests/layout/docs-sidebar-navigation.test.tsx",
   "src/tests/layout/grouped-query-attention-built-route-convergence.test.tsx",
+  "src/tests/layout/linear-attention-built-route-convergence.test.tsx",
+  "src/tests/layout/multi-head-latent-attention-built-route-convergence.test.tsx",
   "src/tests/layout/phase-1-shell-contract.test.tsx",
+  "src/tests/layout/sliding-window-attention-built-route-convergence.test.tsx",
+  "src/tests/layout/sparse-attention-built-route-convergence.test.tsx",
   "src/tests/layout/site-routes-shell.test.tsx",
 ] as const;
