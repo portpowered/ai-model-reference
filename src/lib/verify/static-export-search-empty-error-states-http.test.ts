@@ -2,7 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { shouldRunPlaywrightHttpVerifierUnitTests } from "./export-integration-probe-lock";
+import {
+  shouldRunExportIntegrationProbeTests,
+  shouldRunPlaywrightHttpVerifierUnitTests,
+} from "./export-integration-probe-lock";
 import { buildSearchPageExportShellStubBody } from "./phase-1-search-export-shell-checks";
 import { createStaticExportHttpServer } from "./static-export-http-server";
 import {
@@ -124,6 +127,11 @@ describe("evaluateSearchPageResultsAccessibility", () => {
 });
 
 describe("verifyStaticExportSearchEmptyErrorStates", () => {
+  if (!shouldRunExportIntegrationProbeTests()) {
+    test("skips Playwright probes during coverage subprocess rerun", () => {});
+    return;
+  }
+
   test(
     "returns a failure reason when export HTML lacks the search input shell",
     async () => {

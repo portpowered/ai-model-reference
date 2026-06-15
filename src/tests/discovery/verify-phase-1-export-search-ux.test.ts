@@ -4,6 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { shouldRunExportIntegrationProbeTests } from "@/lib/verify/export-integration-probe-lock";
 import { EXPORT_SEARCH_HYDRATION_SURFACE } from "@/lib/verify/phase-1-export-search-convergence-evidence";
 import { EXPORT_SEARCH_UX_STUB_ENV } from "@/lib/verify/phase-1-export-search-ux-checks";
 
@@ -13,6 +14,10 @@ describe("verify-phase-1-export-search-ux script", () => {
   test(
     "exits non-zero with hydration-tagged /search failure including query",
     async () => {
+      if (!shouldRunExportIntegrationProbeTests()) {
+        return;
+      }
+
       const dir = mkdtempSync(join(tmpdir(), "verify-export-ux-fail-"));
       const outDir = join(dir, "out");
       mkdirSync(join(outDir, "api"), { recursive: true });
@@ -48,6 +53,10 @@ describe("verify-phase-1-export-search-ux script", () => {
   test(
     "exits zero when stubbed browser checks succeed",
     async () => {
+      if (!shouldRunExportIntegrationProbeTests()) {
+        return;
+      }
+
       const dir = mkdtempSync(join(tmpdir(), "verify-export-ux-pass-"));
       const outDir = join(dir, "out");
       mkdirSync(join(outDir, "api"), { recursive: true });

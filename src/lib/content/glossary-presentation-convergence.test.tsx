@@ -13,6 +13,7 @@ import {
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { readBuiltHtmlForConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
 import { assertDocsShellConvergence } from "@/lib/verify/docs-shell-convergence";
+import { shouldRunBuiltHtmlConvergenceTests } from "@/lib/verify/server-lifecycle";
 
 function countH1BlocksContaining(html: string, text: string): number {
   const h1Pattern = /<h1\b[^>]*>[\s\S]*?<\/h1>/gi;
@@ -120,6 +121,11 @@ describe("glossary presentation convergence", () => {
 });
 
 describe("glossary presentation route convergence (built HTML)", () => {
+  if (!shouldRunBuiltHtmlConvergenceTests()) {
+    test("skips built HTML probes during coverage subprocess rerun", () => {});
+    return;
+  }
+
   const bridgeBuiltRoutes: Array<{
     slug: string;
     registryId: string;

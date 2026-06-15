@@ -6,8 +6,10 @@ import type { DocsPageSource } from "@/lib/content/pages";
 import type { RegistryIndexes, RegistryRecord } from "@/lib/content/registry";
 import type {
   ConceptRecord,
+  ModelRecord,
   ModuleRecord,
   TagRecord,
+  TrainingRegimeRecord,
 } from "@/lib/content/schemas";
 import type { SearchDocument, SearchDocumentFacets } from "./types";
 
@@ -25,6 +27,16 @@ function isConceptRecord(record: RegistryRecord): record is ConceptRecord {
 
 function isTagRecord(record: RegistryRecord): record is TagRecord {
   return record.kind === "tag";
+}
+
+function isModelRecord(record: RegistryRecord): record is ModelRecord {
+  return record.kind === "model";
+}
+
+function isTrainingRegimeRecord(
+  record: RegistryRecord,
+): record is TrainingRegimeRecord {
+  return record.kind === "training-regime";
 }
 
 function getRegistryRecord(
@@ -69,6 +81,18 @@ function buildFacets(
 
   if (registryRecord && isConceptRecord(registryRecord)) {
     facets.conceptType = registryRecord.conceptType;
+  }
+
+  if (registryRecord && isModelRecord(registryRecord)) {
+    facets.modelFamily = registryRecord.family;
+    facets.sourceType = registryRecord.sourceType;
+    facets.modalities = registryRecord.modalities;
+    facets.trainingRegimeIds = registryRecord.trainingRegimeIds;
+  }
+
+  if (registryRecord && isTrainingRegimeRecord(registryRecord)) {
+    facets.conceptType = registryRecord.conceptType;
+    facets.variantGroup = registryRecord.variantGroup;
   }
 
   return facets;

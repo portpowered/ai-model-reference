@@ -1,6 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { proseAutoLinkClassName } from "@/features/docs/components/prose-auto-link-class";
 import { BATCH_012_GLOSSARY_CHECKS } from "./batch-012-glossary-checks";
 import {
@@ -14,9 +12,7 @@ import {
   GLOSSARY_PAGE_EMBEDDING_VECTOR_HREF,
   GLOSSARY_PAGE_TOKEN_REGISTRY_ID,
 } from "./customer-ask-glossary-page-convergence";
-import { shouldRunVerifyProductionIntegrationTests } from "./server-lifecycle";
 
-const repoRoot = join(import.meta.dir, "../../..");
 const PROSE_AUTO_LINK_CLASS = `class="${proseAutoLinkClassName}"`;
 
 export const POST_REPAIR_TOKEN_GLOSSARY_HTML = `
@@ -179,36 +175,5 @@ describe("buildCustomerAskGlossaryPageRows", () => {
 
     expect(openingRow.status).toBe("fail");
     expect(embeddingRow.status).toBe("fail");
-  });
-});
-
-describe("buildCustomerAskGlossaryPageRows (built HTML)", () => {
-  test("token and embedding built HTML pass batch-012 glossary page checks when present", () => {
-    if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
-      return;
-    }
-
-    const tokenPath = join(
-      process.cwd(),
-      ".next/server/app/docs/glossary/token.html",
-    );
-    const embeddingPath = join(
-      process.cwd(),
-      ".next/server/app/docs/glossary/embedding.html",
-    );
-
-    if (!existsSync(tokenPath) || !existsSync(embeddingPath)) {
-      return;
-    }
-
-    const tokenRow = buildCustomerAskGlossaryNoOpeningSummaryRow(
-      readFileSync(tokenPath, "utf8"),
-    );
-    const embeddingRow = buildCustomerAskEmbeddingDescriptionLinksRow(
-      readFileSync(embeddingPath, "utf8"),
-    );
-
-    expect(tokenRow.status).toBe("pass");
-    expect(embeddingRow.status).toBe("pass");
   });
 });

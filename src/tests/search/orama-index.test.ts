@@ -23,6 +23,8 @@ const SLIDING_WINDOW_ATTENTION_MODULE_URL =
 const SPARSE_ATTENTION_MODULE_URL = "/docs/modules/sparse-attention";
 const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
 const TRANSFORMER_ARCHITECTURE_URL = "/docs/concepts/transformer-architecture";
+const PAGE_SPEC_WORKFLOW_SAMPLE_URL =
+  "/docs/concepts/page-spec-workflow-sample";
 const FEED_FORWARD_NETWORK_URL = "/docs/glossary/feed-forward-network";
 const MIXTURE_OF_EXPERTS_URL = "/docs/glossary/mixture-of-experts";
 const LAYER_NORM_URL = "/docs/glossary/layer-norm";
@@ -108,6 +110,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   SPARSE_ATTENTION_MODULE_URL,
   TOKEN_GLOSSARY_URL,
   TRANSFORMER_ARCHITECTURE_URL,
+  PAGE_SPEC_WORKFLOW_SAMPLE_URL,
   FEED_FORWARD_NETWORK_URL,
   MIXTURE_OF_EXPERTS_URL,
   LAYER_NORM_URL,

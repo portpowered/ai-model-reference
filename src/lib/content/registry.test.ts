@@ -83,6 +83,72 @@ const validCitationRecord = {
   year: 2023,
 };
 
+const validModelRecord = {
+  id: "model.demo",
+  slug: "demo",
+  kind: "model",
+  defaultTitleKey: "title",
+  defaultSummaryKey: "description",
+  aliases: ["demo-model"],
+  tags: [],
+  relatedIds: [],
+  citationIds: [],
+  status: "published",
+  createdAt: "2026-06-01T00:00:00.000Z",
+  updatedAt: "2026-06-02T00:00:00.000Z",
+  family: "demo",
+  sourceType: "open-weights",
+  modalities: ["text"],
+  architectureIds: [],
+  moduleIds: [],
+  trainingRegimeIds: [],
+  datasetIds: [],
+  paperIds: [],
+};
+
+const validPaperRecord = {
+  id: "paper.demo",
+  slug: "demo-paper",
+  kind: "paper",
+  defaultTitleKey: "title",
+  defaultSummaryKey: "description",
+  aliases: [],
+  tags: [],
+  relatedIds: [],
+  citationIds: [],
+  status: "published",
+  createdAt: "2026-06-01T00:00:00.000Z",
+  updatedAt: "2026-06-02T00:00:00.000Z",
+  authors: ["A. Author"],
+  publishedAt: "2024-01-01",
+  url: "https://example.com/paper",
+  introducesIds: [],
+  supportsIds: [],
+  arguesAgainstIds: [],
+  modelIds: [],
+  moduleIds: [],
+  conceptIds: [],
+};
+
+const validTrainingRegimeRecord = {
+  id: "training-regime.demo",
+  slug: "demo-training",
+  kind: "training-regime",
+  defaultTitleKey: "title",
+  defaultSummaryKey: "description",
+  aliases: [],
+  tags: [],
+  relatedIds: [],
+  citationIds: [],
+  status: "published",
+  createdAt: "2026-06-01T00:00:00.000Z",
+  updatedAt: "2026-06-02T00:00:00.000Z",
+  regimeType: "pretraining",
+  usedByModelIds: [],
+  relatedModuleIds: [],
+  paperIds: [],
+};
+
 describe("loadRegistry", () => {
   test("loads Phase 1 baseline records and indexes them by id and slug", async () => {
     const indexes = await loadRegistry();
@@ -148,6 +214,38 @@ describe("loadRegistry", () => {
     const concept = indexes.byId.get("concept.token");
     expect(concept?.kind).toBe("concept");
     expect(indexes.bySlug.get("token")?.id).toBe("concept.token");
+
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  test("loads model, paper, and training-regime records from their registry directories", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", "extended-registry");
+    await rm(tempRoot, { recursive: true, force: true });
+    await mkdir(join(tempRoot, "models"), { recursive: true });
+    await mkdir(join(tempRoot, "papers"), { recursive: true });
+    await mkdir(join(tempRoot, "training-regimes"), { recursive: true });
+
+    await writeFile(
+      join(tempRoot, "models", "demo.json"),
+      JSON.stringify(validModelRecord),
+    );
+    await writeFile(
+      join(tempRoot, "papers", "demo-paper.json"),
+      JSON.stringify(validPaperRecord),
+    );
+    await writeFile(
+      join(tempRoot, "training-regimes", "demo-training.json"),
+      JSON.stringify(validTrainingRegimeRecord),
+    );
+
+    const indexes = await loadRegistry({ registryRoot: tempRoot });
+
+    expect(indexes.byId.get("model.demo")?.kind).toBe("model");
+    expect(indexes.bySlug.get("demo")?.id).toBe("model.demo");
+    expect(indexes.byId.get("paper.demo")?.kind).toBe("paper");
+    expect(indexes.byId.get("training-regime.demo")?.kind).toBe(
+      "training-regime",
+    );
 
     await rm(tempRoot, { recursive: true, force: true });
   });
