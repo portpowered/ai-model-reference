@@ -32,6 +32,17 @@
       "title": "References"
     }
   },
+  "relatedDocs": {
+    "concept.embedding": {
+      "reason": "Each token ID becomes a learned numerical representation before the model mixes context."
+    },
+    "concept.logit": {
+      "reason": "Next-token prediction starts as a candidate score for each vocabulary token."
+    },
+    "concept.softmax": {
+      "reason": "Those candidate scores convert into probabilities across the vocabulary."
+    }
+  },
   "assets": {
     "conceptMap": {
       "alt": "Diagram showing text flowing through a tokenizer into token IDs and embeddings",

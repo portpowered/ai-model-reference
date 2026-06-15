@@ -339,6 +339,10 @@ const pageSectionSchema = z.object({
   body: z.string().optional(),
 });
 
+const pageRelatedDocMessageSchema = z.object({
+  reason: z.string().min(1),
+});
+
 const pageCalloutSchema = z.object({
   title: z.string().optional(),
   body: z.string().min(1),
@@ -396,6 +400,7 @@ export const pageMessagesSchema = z.object({
   coreIdea: z.string().optional(),
   openingSummary: z.string().optional(),
   sections: z.record(z.string(), pageSectionSchema).optional(),
+  relatedDocs: z.record(z.string(), pageRelatedDocMessageSchema).optional(),
   callouts: z.record(z.string(), pageCalloutSchema).optional(),
   assets: z.record(z.string(), pageAssetMessageSchema).optional(),
   graph: pageGraphMessagesSchema.optional(),

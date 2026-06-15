@@ -1,3 +1,6 @@
+"use client";
+
+import { useOptionalPageMessages } from "@/features/docs/components/page-messages-context";
 import { RelatedDocList } from "@/features/docs/components/RelatedDocList";
 import {
   getPublishedDocsRegistryIds,
@@ -5,6 +8,7 @@ import {
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import {
+  applyRelatedDocMessageOverrides,
   deriveCuratedRelatedItems,
   deriveSameVariantGroupPeers,
   SAME_VARIANT_GROUP,
@@ -12,6 +16,7 @@ import {
 import type { ModuleRecord } from "@/lib/content/schemas";
 
 export function RelatedDocs({ registryId }: { registryId: string }) {
+  const messages = useOptionalPageMessages();
   const source = getRegistryRecordById(registryId);
   if (!source) {
     return null;
@@ -19,10 +24,9 @@ export function RelatedDocs({ registryId }: { registryId: string }) {
 
   const candidates = listRelatedRegistryRecords();
   const publishedRegistryIds = getPublishedDocsRegistryIds();
-  const curatedItems = deriveCuratedRelatedItems(
-    source,
-    candidates,
-    publishedRegistryIds,
+  const curatedItems = applyRelatedDocMessageOverrides(
+    deriveCuratedRelatedItems(source, candidates, publishedRegistryIds),
+    messages,
   );
   const variantGroupItems =
     source.kind === "module"

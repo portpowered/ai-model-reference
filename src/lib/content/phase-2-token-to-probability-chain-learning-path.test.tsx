@@ -25,7 +25,9 @@ describe("Phase 2 token-to-probability learning-path navigation (US-012)", () =>
     const html = await renderGlossaryPageHtml("token");
 
     expect(html).toContain('data-testid="curated-related-docs"');
-    expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
+    expect(html).toContain(
+      "Each token ID becomes a learned numerical representation before the model mixes context.",
+    );
     expect(html).toContain('href="/docs/glossary/embedding"');
   });
 

@@ -67,22 +67,53 @@ function waitForChildClose(
   child: ChildProcess,
   timeoutMs: number,
 ): Promise<void> {
-  if (child.exitCode !== null && child.stdout?.readable === false) {
-    return Promise.resolve();
-  }
-
   return new Promise((resolve) => {
-    const timer = setTimeout(() => {
-      child.removeListener("close", onClose);
-      resolve();
-    }, timeoutMs);
+    const timer = setTimeout(() => finish(), timeoutMs);
+    const streams = [child.stdout, child.stderr].filter(
+      (stream): stream is NonNullable<typeof stream> => stream != null,
+    );
 
-    function onClose() {
+    let childClosed = child.exitCode !== null;
+    const pendingStreams = new Set(
+      streams.filter((stream) => !stream.readableEnded),
+    );
+
+    function finish() {
       clearTimeout(timer);
-      resolve();
+      // Let pending stdout/stderr data handlers run before tail inspection.
+      setImmediate(resolve);
     }
 
-    child.once("close", onClose);
+    function maybeFinish() {
+      if (childClosed && pendingStreams.size === 0) {
+        finish();
+      }
+    }
+
+    for (const stream of streams) {
+      if (stream.readableEnded) {
+        continue;
+      }
+
+      const onStreamDone = () => {
+        stream.removeListener("end", onStreamDone);
+        stream.removeListener("close", onStreamDone);
+        pendingStreams.delete(stream);
+        maybeFinish();
+      };
+
+      stream.once("end", onStreamDone);
+      stream.once("close", onStreamDone);
+    }
+
+    if (!childClosed) {
+      child.once("close", () => {
+        childClosed = true;
+        maybeFinish();
+      });
+    }
+
+    maybeFinish();
   });
 }
 
@@ -869,16 +900,21 @@ describe("normalizeVerifyBaseUrl", () => {
 
 describe("child output capture", () => {
   test("getChildOutputTail keeps only the most recent bytes across chunks", async () => {
-    const child = spawn("bun", ["-e", 'console.log("x".repeat(5000))'], {
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    const child = spawn(
+      process.execPath,
+      ["-e", 'process.stdout.write("x".repeat(5000) + "\\n")'],
+      {
+        stdio: ["ignore", "pipe", "ignore"],
+      },
+    );
 
     attachChildOutputCapture(child);
     await waitForChildClose(child, 5_000);
 
     const tail = getChildOutputTail(child, 100);
+    expect(tail.length).toBeGreaterThan(0);
     expect(tail.length).toBeLessThanOrEqual(100);
-    expect(tail.endsWith("x")).toBe(true);
+    expect(tail).toMatch(/^x+$/);
   });
 
   test("attachChildOutputCapture is idempotent for the same child", async () => {

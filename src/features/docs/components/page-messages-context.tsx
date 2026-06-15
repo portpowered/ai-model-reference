@@ -38,3 +38,7 @@ export function usePageMessages(): PageMessagesContextValue {
   }
   return context;
 }
+
+export function useOptionalPageMessages(): PageMessages | undefined {
+  return useContext(PageMessagesContext)?.messages;
+}

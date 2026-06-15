@@ -4,17 +4,17 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import { getConceptById } from "@/lib/content/registry-runtime";
-import {
-  CURATED_RELATED,
-  DERIVED_RELATED_DOC_GROUP_LABELS,
-} from "@/lib/content/related-docs";
 
 describe("Phase 2 token page learning chain entry (US-010)", () => {
-  test("token registry includes chain tag and forward relatedIds to embedding", () => {
+  test("token registry includes chain tag and forward relatedIds to embedding, logit, and softmax", () => {
     const token = getConceptById("concept.token");
     expect(token?.tags).toContain("token-to-probability-chain");
     expect(token?.tags).toContain("foundations");
-    expect(token?.relatedIds).toContain("concept.embedding");
+    expect(token?.relatedIds).toEqual([
+      "concept.embedding",
+      "concept.logit",
+      "concept.softmax",
+    ]);
   });
 
   test("token message copy mentions embeddings and next-token scoring", async () => {
@@ -47,7 +47,11 @@ describe("Phase 2 token page learning chain entry (US-010)", () => {
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain("embeddings");
     expect(html).toContain('href="/docs/glossary/embedding"');
-    expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
+    expect(html).toContain('href="/docs/glossary/logit"');
+    expect(html).toContain('href="/docs/glossary/softmax"');
+    expect(html).toContain(
+      "Each token ID becomes a learned numerical representation before the model mixes context.",
+    );
     expect(html).toContain('href="/tags/token-to-probability-chain"');
     expect(html).toContain("Token To Probability Chain");
   });
