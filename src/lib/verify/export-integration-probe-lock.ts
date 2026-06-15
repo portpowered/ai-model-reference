@@ -66,6 +66,26 @@ export function shouldRunServedPhase1CanonicalQueriesProbe(
 }
 
 /**
+ * Served-export probe for Phase 1 `/search` plus header-dialog UX on static
+ * export. Under CI serialization, `static-export-search-hydration.test.ts`
+ * covers operable `/search` hydration earlier, and
+ * `customer-ask-search-surface-convergence-http.test.ts` runs post-build in
+ * `make test-integration`; skipping this duplicate late-suite probe avoids a 60m
+ * Bun ceiling when it queues behind `withExportIntegrationProbeLock`.
+ */
+export function shouldRunServedPhase1ExportSearchUxProbe(
+  env: Record<string, string | undefined> = process.env,
+): boolean {
+  if (!shouldRunExportIntegrationProbeTests(env)) {
+    return false;
+  }
+  if (shouldSerializeExportIntegrationProbes(env)) {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Serialized export probes in CI; allow queue wait, stale lock/slot recovery, and one probe run.
  * Must exceed cumulative probe-lock queue plus Playwright launch-slot stale recovery (see launch-playwright-browser).
  */

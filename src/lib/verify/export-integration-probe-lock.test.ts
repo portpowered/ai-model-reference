@@ -6,6 +6,7 @@ import {
   shouldRunExportIntegrationProbeTests,
   shouldRunPlaywrightHttpVerifierUnitTests,
   shouldRunServedPhase1CanonicalQueriesProbe,
+  shouldRunServedPhase1ExportSearchUxProbe,
   shouldSerializeExportIntegrationProbes,
   withExportIntegrationProbeLock,
 } from "./export-integration-probe-lock";
@@ -72,6 +73,18 @@ describe("export integration probe lock", () => {
       }),
     ).toBe(false);
     expect(shouldRunServedPhase1CanonicalQueriesProbe({})).toBe(true);
+  });
+
+  test("skips served Phase 1 export search UX probe under CI serialization", () => {
+    expect(shouldRunServedPhase1ExportSearchUxProbe({ CI: "true" })).toBe(
+      false,
+    );
+    expect(
+      shouldRunServedPhase1ExportSearchUxProbe({
+        [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
+      }),
+    ).toBe(false);
+    expect(shouldRunServedPhase1ExportSearchUxProbe({})).toBe(true);
   });
 
   test("detects CI serialization flags", () => {

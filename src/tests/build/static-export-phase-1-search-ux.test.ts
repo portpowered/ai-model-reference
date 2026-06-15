@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { ensureExportSearchArtifacts } from "@/lib/build/ensure-export-search-artifacts";
 import {
   getExportIntegrationBunTestTimeoutMs,
-  shouldRunExportIntegrationProbeTests,
+  shouldRunServedPhase1ExportSearchUxProbe,
 } from "@/lib/verify/export-integration-probe-lock";
 import { runPhase1ExportSearchUxChecks } from "@/lib/verify/phase-1-export-search-ux-checks";
 
@@ -12,7 +12,7 @@ const repoRoot = join(import.meta.dir, "../../..");
 
 describe("static export Phase 1 search UX", () => {
   beforeAll(() => {
-    if (!shouldRunExportIntegrationProbeTests()) {
+    if (!shouldRunServedPhase1ExportSearchUxProbe()) {
       return;
     }
     ensureExportSearchArtifacts({ repoRoot });
@@ -21,7 +21,7 @@ describe("static export Phase 1 search UX", () => {
   test(
     "build:export serves GQA, attention, and KV cache on /search and header dialog",
     async () => {
-      if (!shouldRunExportIntegrationProbeTests()) {
+      if (!shouldRunServedPhase1ExportSearchUxProbe()) {
         return;
       }
       ensureExportSearchArtifacts({ repoRoot });
@@ -39,7 +39,7 @@ describe("static export Phase 1 search UX", () => {
   test(
     "verify-phase-1-export-search-ux script passes after build:export",
     () => {
-      if (!shouldRunExportIntegrationProbeTests()) {
+      if (!shouldRunServedPhase1ExportSearchUxProbe()) {
         return;
       }
       ensureExportSearchArtifacts({ repoRoot });
