@@ -1,7 +1,7 @@
 import { afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
-import { createModelAtlasSearchClient } from "@/features/docs/search/search-client";
 import { GET } from "@/app/api/search/route";
+import { createModelAtlasSearchClient } from "@/features/docs/search/search-client";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
