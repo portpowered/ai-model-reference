@@ -1,6 +1,8 @@
 import { describe, expect, it } from "bun:test";
+import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
+import { TagLandingEmptyState } from "@/features/docs/tags/TagLandingEmptyState";
 import {
   groupTagResourceEntriesByKind,
   loadTagLandingContext,
@@ -101,6 +103,27 @@ describe("tag landing messages", () => {
     expect(messages.tagLanding.searchHandoff.length).toBeGreaterThan(0);
     expect(messages.tagLanding.searchEntryLink.length).toBeGreaterThan(0);
     expect(messages.tagLanding.emptyTitle.length).toBeGreaterThan(0);
+  });
+});
+
+describe("tag landing empty state", () => {
+  it("exposes accessible output, navigation links, and search handoff", async () => {
+    const messages = await loadUiMessages();
+    const html = renderToStaticMarkup(
+      createElement(TagLandingEmptyState, {
+        messages,
+        tagSlug: "attention",
+        searchQuery: "attention",
+      }),
+    );
+
+    expect(html).toContain("<output");
+    expect(html).toContain(messages.tagLanding.emptyTitle);
+    expect(html).toContain(messages.tagLanding.emptyDescription);
+    expect(html).toContain('href="/"');
+    expect(html).toContain('href="/tags"');
+    expect(html).toContain("data-search");
+    expect(html).toContain(messages.tagLanding.searchHandoff);
   });
 });
 
