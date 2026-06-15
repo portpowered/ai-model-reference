@@ -1,0 +1,22 @@
+{
+  "id": "concept.ntk-aware-rope-scaling",
+  "slug": "ntk-aware-rope-scaling",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["NTK scaling", "NTK-aware scaling", "dynamic NTK RoPE"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.rope",
+    "concept.context-extension",
+    "concept.positional-interpolation",
+    "concept.yarn"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.rope", "concept.context-extension"],
+  "explainsIds": []
+}

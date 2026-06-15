@@ -1,0 +1,25 @@
+{
+  "id": "concept.t5-relative-position-bias",
+  "slug": "t5-relative-position-bias",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["T5 RPE", "T5 position bias", "bucketed relative bias"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.relative-position-bias",
+    "concept.encoder-decoder-architecture",
+    "concept.positional-encodings",
+    "concept.transformer-architecture"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": [
+    "concept.relative-position-bias",
+    "concept.positional-encodings"
+  ],
+  "explainsIds": []
+}

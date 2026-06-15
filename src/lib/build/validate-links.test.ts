@@ -83,7 +83,7 @@ describe("validateDocumentationLinks", () => {
     expect(urls).toContain("/docs/modules/sparse-attention");
     expect(urls).toContain("/docs/glossary/token");
     expect(new Set(paths).size).toBe(paths.length);
-    expect(files.length).toBeLessThan(90);
+    expect(files.length).toBeLessThan(110);
   });
 
   test("reports a broken internal route with an actionable target URL", async () => {

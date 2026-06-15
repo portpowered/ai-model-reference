@@ -1,0 +1,46 @@
+{
+  "title": "Relative position bias",
+  "description": "Attention logits adjusted by a learned or fixed bias that depends on distance between query and key positions instead of absolute index vectors.",
+  "openingSummary": "Relative position bias adds a distance-dependent term to attention scores so the model encodes how far apart two tokens are without storing a separate absolute position vector per index.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Relative position bias keeps token embeddings mostly position-agnostic and instead modifies attention logits using the offset between query index i and key index j. The bias may come from a learned bucket table, a handcrafted slope, or another distance function. Self-attention still uses standard Q/K/V projections; only the score matrix gains position-aware shifts."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Encoder stacks, speech models, and some efficient attention variants prefer relative bias because the same distance bucket applies regardless of absolute location in a long stream. Reading ALiBi, T5, or sliding-window papers is easier once you separate relative bias schemes from absolute embedding tables or rotary transforms."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "When token 10 attends to token 7, the model looks up the bias for relative distance −3 (or bucketed equivalent) and adds it to the dot product before softmax. Token 100 attending to token 97 reuses the same bias for the same separation."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Relative bias is not ALiBi specifically—ALiBi is one linear slope recipe under this family. It is also not RoPE, which encodes distance by rotating Q/K rather than adding scalar bias. T5's bucketed table is a relative bias variant with its own bucketing rules, not interchangeable with every other RPE paper."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for Relative position bias. Replace before publishing.",
+      "caption": "Draft placeholder for Relative position bias. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for Relative position bias. Replace before publishing.",
+        "summary": "Draft placeholder for Relative position bias. Replace before publishing."
+      }
+    }
+  }
+}

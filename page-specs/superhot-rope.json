@@ -1,0 +1,36 @@
+{
+  "kind": "glossary",
+  "slug": "superhot-rope",
+  "title": "SuperHOT RoPE",
+  "summary": "RoPE extension that rescales frequency bases so a model trained on shorter context can attend across longer sequences with limited fine-tuning.",
+  "openingSummary": "SuperHOT RoPE stretches rotary frequency bases—often with a small amount of continued training—so attention still respects relative distance when sequence length exceeds the original pretraining window.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": ["SuperHOT", "super hot rope", "SuperHOT scaling"],
+  "tags": ["foundations"],
+  "prerequisiteIds": ["concept.rope", "concept.context-extension"],
+  "relatedIds": [
+    "concept.rope",
+    "concept.context-extension",
+    "concept.yarn",
+    "concept.context-window"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "SuperHOT RoPE is a context-extension tweak for rotary-equipped decoders. It adjusts the effective wavelengths in RoPE—conceptually heating or spreading frequency bases—so positions beyond the original training horizon still produce distinguishable rotations. Implementations usually pair the rescaling with brief fine-tuning rather than relying on math alone."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Community long-context forks often list SuperHOT alongside YaRN and interpolation as a low-cost way to widen Llama-class models. Knowing it targets RoPE bases specifically helps you compare against bias-only stacks and judge whether a release changed rotary parameters or only runtime limits."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A 4k-trained Llama-style model might apply SuperHOT scaling factors to rotary inv_freq tensors, then fine-tune on longer documents so attention at token 6,000 still receives meaningful relative-angle separation between keys and queries."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "SuperHOT is not YaRN or NTK scaling—each recipe uses different frequency mixing and training assumptions. It also does not replace sliding-window or sparse attention; it only changes how rotary position is encoded. Finally, raising max_position_embeddings in config without applying the matching base rescaling is not SuperHOT."
+    }
+  }
+}

@@ -109,6 +109,19 @@ const NORMALIZATION_ACTIVATION_VARIANT_URLS = [
   "/docs/glossary/silu",
   "/docs/glossary/swiglu",
 ] as const;
+const POSITIONAL_CONTEXT_VARIANT_URLS = [
+  "/docs/glossary/absolute-positional-embeddings",
+  "/docs/glossary/learned-positional-embeddings",
+  "/docs/glossary/sinusoidal-positional-embeddings",
+  "/docs/glossary/relative-position-bias",
+  "/docs/glossary/t5-relative-position-bias",
+  "/docs/glossary/nope",
+  "/docs/glossary/superhot-rope",
+  "/docs/glossary/ntk-aware-rope-scaling",
+  "/docs/glossary/yarn",
+  "/docs/glossary/longrope",
+  "/docs/glossary/positional-interpolation",
+] as const;
 const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/embedding",
   "/docs/glossary/vector",
@@ -161,6 +174,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ...ARCHITECTURE_LAYOUT_CONCEPT_URLS,
   ...ATTENTION_INTERACTION_CONCEPT_URLS,
   ...NORMALIZATION_ACTIVATION_VARIANT_URLS,
+  ...POSITIONAL_CONTEXT_VARIANT_URLS,
   ...CHAIN_GLOSSARY_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(

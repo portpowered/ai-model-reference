@@ -1,0 +1,29 @@
+{
+  "id": "graph.relative-position-bias-concept-map",
+  "slug": "relative-position-bias-concept-map",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "kind": "graph",
+  "subjectId": "concept.relative-position-bias",
+  "graphType": "concept-map",
+  "rootNodeId": "root",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "root",
+      "labelKey": "graph.nodes.root.label",
+      "moduleKind": "other",
+      "childNodeIds": []
+    }
+  ],
+  "edges": []
+}

@@ -1,0 +1,46 @@
+{
+  "title": "Learned positional embeddings",
+  "description": "Trainable position vectors indexed by token position—flexible but bounded by the maximum length seen during training.",
+  "openingSummary": "Learned positional embeddings store one trainable vector per position index up to a configured maximum, add it to the token embedding, and let pretraining discover whatever position code the task needs.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Learned positional embeddings are an absolute scheme where each integer position up to max length has its own trainable vector in an embedding table. At runtime the model looks up position i and adds that vector to token i's embedding. Capacity is limited to the table size baked into the checkpoint unless a separate extension method is applied."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "BERT-style encoders and many early seq2seq models rely on learned tables, so config fields like max_position_embeddings directly cap context. When a newer model switches to RoPE or ALiBi, the tradeoff shifts from table size to scaling rules—knowing which recipe a stack uses prevents mistaken assumptions about zero-shot length growth."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A 512-slot position table means positions 0–511 each have a dedicated vector learned during pretraining. A 600-token prompt at inference without extension either truncates, errors, or needs interpolated or padded handling depending on implementation."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Learned absolute embeddings are not the same as learned rotary bases: RoPE still rotates Q/K and generalizes differently. They are also not sentence-level type embeddings—position tables index token order within the sequence. Finally, a longer context window in marketing copy does not automatically mean the position table was retrained for that length."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for Learned positional embeddings. Replace before publishing.",
+      "caption": "Draft placeholder for Learned positional embeddings. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for Learned positional embeddings. Replace before publishing.",
+        "summary": "Draft placeholder for Learned positional embeddings. Replace before publishing."
+      }
+    }
+  }
+}

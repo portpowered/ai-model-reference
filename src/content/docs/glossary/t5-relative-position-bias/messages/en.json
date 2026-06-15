@@ -1,0 +1,46 @@
+{
+  "title": "T5 relative position bias",
+  "description": "Bucketed relative bias table used in T5-style encoder-decoder stacks—learned offsets grouped by log-scaled distance between query and key.",
+  "openingSummary": "T5 relative position bias stores learned scalars in distance buckets and adds the matching bucket value to each attention logit based on how far apart the query and key indices are.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "T5 relative position bias is Google's bucketed relative scheme for transformer attention. Instead of an absolute embedding per index, each head adds a bias from a small learned table keyed by binned relative distance between query and key positions. Nearby offsets get fine buckets; far separations share coarser buckets following a logarithmic spacing rule."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "T5, UL2, and many encoder-decoder fine-tunes still expose bias tables in configs. Recognizing T5-style RPE helps you interpret attention implementations that omit classic position embeddings entirely and explains why relative bias parameters show up per layer or per head in checkpoint maps."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "If query position 20 attends to key 15, the model computes relative distance 5, maps it to a bucket id, and adds that bucket's learned scalar to the attention score before softmax. The same bucket is reused whenever the offset matches, regardless of where the pair sits in the document."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "T5 bias is not ALiBi's fixed linear slope—T5 learns bucket values during training. It is also not rotary embedding: Q/K vectors are not rotated. Finally, encoder-only BERT absolute tables and T5 relative bias solve position differently; mixing recipes across stacks without retraining usually fails."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for T5 relative position bias. Replace before publishing.",
+      "caption": "Draft placeholder for T5 relative position bias. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for T5 relative position bias. Replace before publishing.",
+        "summary": "Draft placeholder for T5 relative position bias. Replace before publishing."
+      }
+    }
+  }
+}

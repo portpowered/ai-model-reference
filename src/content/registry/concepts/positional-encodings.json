@@ -18,5 +18,14 @@
   "updatedAt": "2026-06-08T20:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": [],
-  "explainsIds": ["concept.rope", "concept.alibi"]
+  "explainsIds": [
+    "concept.rope",
+    "concept.alibi",
+    "concept.absolute-positional-embeddings",
+    "concept.learned-positional-embeddings",
+    "concept.sinusoidal-positional-embeddings",
+    "concept.relative-position-bias",
+    "concept.t5-relative-position-bias",
+    "concept.nope"
+  ]
 }

@@ -1,0 +1,51 @@
+---
+title: "Positional interpolation"
+description: "Context extension that shrinks effective position indices so a model trained on length L can run at multiples of L by treating farther tokens as if they were closer in position space."
+kind: "glossary"
+registryId: "concept.positional-interpolation"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - "foundations"
+aliases:
+  - "PI"
+  - "position interpolation"
+  - "linear positional interpolation"
+updatedAt: "2026-06-15"
+---
+
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="concept.positional-interpolation" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.positional-interpolation" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.positional-interpolation" />
+</Section>

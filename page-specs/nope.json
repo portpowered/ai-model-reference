@@ -1,0 +1,40 @@
+{
+  "kind": "glossary",
+  "slug": "nope",
+  "title": "NoPE",
+  "summary": "Decoder stacks that omit explicit positional embeddings and rely on causal attention structure and training signal to infer order.",
+  "openingSummary": "NoPE (no positional embeddings) removes added position vectors, rotary transforms, and attention position biases—letting causal masking and learned layer dynamics carry order information instead.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": [
+    "no positional embeddings",
+    "No Positional Embeddings",
+    "position-free decoder"
+  ],
+  "tags": ["foundations"],
+  "prerequisiteIds": ["concept.positional-encodings", "concept.rope"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "concept.rope",
+    "concept.causal-attention",
+    "concept.transformer-architecture"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "NoPE refers to transformer decoders trained without conventional positional injection—no absolute tables, rotary Q/K rotation, or ALiBi-style bias. Causal attention still prevents tokens from seeing the future, and depth-wise mixing can weakly encode order. The design tests how much explicit position machinery modern language modeling actually requires."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Position ablation papers and some efficient-architecture experiments highlight NoPE as a baseline contrast to RoPE-first stacks. When a config omits position parameters entirely, throughput and memory change slightly, but length generalization behavior can diverge sharply—worth noting before assuming a missing position table is a bug."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A causal decoder might feed raw token embeddings directly into attention with only a lower-triangular mask. Without rotary bases or bias terms, the model must recover word order from activation patterns across layers rather than a dedicated position channel."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "NoPE is not the same as removing causality—causal masking still enforces autoregressive order. It is also not automatically better than RoPE; results depend on scale and training recipe. Finally, checkpoint inspection showing zero position weights does not prove NoPE unless rotary or bias paths are also absent."
+    }
+  }
+}

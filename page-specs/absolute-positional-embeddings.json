@@ -1,0 +1,40 @@
+{
+  "kind": "glossary",
+  "slug": "absolute-positional-embeddings",
+  "title": "Absolute positional embeddings",
+  "summary": "Position vectors added directly to token embeddings at fixed indices— the original transformer recipe before rotary or bias-only schemes.",
+  "openingSummary": "Absolute positional embeddings add a learned or fixed vector for each position index to the token embedding before attention runs, so the model can tell token order without changing the attention math itself.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": [
+    "absolute position embedding",
+    "APE",
+    "index-based position embedding"
+  ],
+  "tags": ["foundations"],
+  "prerequisiteIds": ["concept.positional-encodings"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "concept.learned-positional-embeddings",
+    "concept.sinusoidal-positional-embeddings",
+    "concept.transformer-architecture"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Absolute positional embeddings attach a position-specific vector to each token embedding based on its index in the sequence. The combined vector feeds attention unchanged: position information rides along in the embedding space rather than in a separate bias term or rotary transform. Original encoder-decoder transformers used this pattern with either fixed sinusoidal tables or learned tables up to a maximum length."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Many papers and courses still describe transformers with absolute position vectors first. Recognizing absolute embeddings helps you read older checkpoints, compare them with RoPE-first decoders, and understand why length extrapolation often requires retraining or extension tricks when positions beyond the training table appear at inference."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "For a four-token prompt, the model adds position vector p₀ to token 0, p₁ to token 1, and so on before the first attention layer. Self-attention still computes query-key scores from the summed vectors; the position signal is whatever those added vectors encode about index."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Absolute embeddings are not RoPE: rotary schemes rotate query and key subspaces instead of adding a table to embeddings. They are also not ALiBi or relative bias, which inject distance into attention logits. Learned and sinusoidal tables are both absolute recipes—the difference is whether position vectors are trained or fixed by a formula."
+    }
+  }
+}

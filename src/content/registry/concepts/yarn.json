@@ -1,0 +1,23 @@
+{
+  "id": "concept.yarn",
+  "slug": "yarn",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Yet another RoPE extension", "YaRN extension", "YaRN RoPE"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.rope",
+    "concept.context-extension",
+    "concept.longrope",
+    "concept.positional-interpolation",
+    "concept.context-window"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.rope", "concept.context-extension"],
+  "explainsIds": []
+}

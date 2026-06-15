@@ -1,0 +1,46 @@
+{
+  "title": "YaRN",
+  "description": "Yet another RoPE extension method that blends high- and low-frequency rotary components to stretch context with targeted fine-tuning.",
+  "openingSummary": "YaRN (Yet another RoPE extensioN) mixes rescaling strategies across RoPE frequency bands so long sequences keep local precision while distant tokens remain separable after modest continued training.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "YaRN is a published RoPE extension recipe that applies different scaling factors to slow versus fast rotary frequencies and introduces an attention temperature tweak on extended spans. The goal is smoother length generalization than uniform interpolation while staying compatible with Llama-class decoders. Teams typically combine YaRN config flags with short long-context fine-tuning."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "YaRN shows up in Hugging Face config fields, vLLM flags, and community 128k forks of popular base models. Treating it as its own variant—not generic NTK scaling—helps you reproduce context behavior and explain why two long-context builds with different yarn parameters diverge in perplexity on far tokens."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Extending a 4k RoPE model toward 32k might leave high-frequency components nearly unchanged for nearby tokens while stretching low-frequency rotations for large indices, plus slightly damp extreme attention logits on the newly reachable tail positions."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "YaRN is not LongRoPE or SuperHOT even though all three target RoPE—the blending rules differ. It is also not ALiBi or windowed attention; it assumes rotary stacks. Setting yarn factors without the matching fine-tune often underperforms published recipes."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for YaRN. Replace before publishing.",
+      "caption": "Draft placeholder for YaRN. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for YaRN. Replace before publishing.",
+        "summary": "Draft placeholder for YaRN. Replace before publishing."
+      }
+    }
+  }
+}

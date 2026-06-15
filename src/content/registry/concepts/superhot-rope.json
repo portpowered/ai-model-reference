@@ -1,0 +1,22 @@
+{
+  "id": "concept.superhot-rope",
+  "slug": "superhot-rope",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["SuperHOT", "super hot rope", "SuperHOT scaling"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.rope",
+    "concept.context-extension",
+    "concept.yarn",
+    "concept.context-window"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.rope", "concept.context-extension"],
+  "explainsIds": []
+}

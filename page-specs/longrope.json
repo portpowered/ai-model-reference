@@ -1,0 +1,37 @@
+{
+  "kind": "glossary",
+  "slug": "longrope",
+  "title": "LongRoPE",
+  "summary": "RoPE extension that searches for per-frequency scaling factors so decoders reach very long context with limited fine-tuning cost.",
+  "openingSummary": "LongRoPE optimizes rotary frequency rescales—often per dimension band—so models trained on short windows can still attend coherently at 100k+ tokens after efficient continued training.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": ["Long RoPE", "LongRoPE scaling", "long-context RoPE"],
+  "tags": ["foundations"],
+  "prerequisiteIds": ["concept.rope", "concept.context-extension"],
+  "relatedIds": [
+    "concept.rope",
+    "concept.context-extension",
+    "concept.yarn",
+    "concept.positional-interpolation",
+    "concept.why-long-context-is-hard"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "LongRoPE is a research-driven RoPE extension that learns or searches frequency-specific scaling factors instead of one global stretch. The method targets extreme context goals—well beyond modest 2× interpolation—while keeping fine-tuning compute small relative to full pretraining. It assumes standard rotary attention and modifies how angles evolve at large indices."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "When vendors advertise six-figure context on open models, LongRoPE-style tuning is often part of the stack. Separating it from YaRN or naive PI helps readers judge whether a checkpoint includes optimized per-frequency tables or a simpler community hack, and why memory—not just position math—still caps usable length."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A team might take a 4k Llama derivative, apply LongRoPE-optimized rescale vectors to rotary modules, fine-tune on 64k sequences, and ship a config where each frequency group carries its own stretch factor discovered during search."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "LongRoPE is not infinite context: KV memory and attention cost still grow. It is also not positional interpolation of absolute embeddings—only rotary models benefit. Finally, marketing context windows may round up relative to the length where LongRoPE factors were actually validated."
+    }
+  }
+}

@@ -110,7 +110,7 @@ describe("loadPublishedGlossaryEntries", () => {
 
   it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(67);
+    expect(entries).toHaveLength(78);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",

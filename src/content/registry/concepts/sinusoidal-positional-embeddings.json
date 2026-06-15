@@ -1,0 +1,29 @@
+{
+  "id": "concept.sinusoidal-positional-embeddings",
+  "slug": "sinusoidal-positional-embeddings",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "sinusoidal position embedding",
+    "fixed sinusoidal encoding",
+    "Vaswani sinusoidal PE"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "concept.absolute-positional-embeddings",
+    "concept.learned-positional-embeddings",
+    "concept.rope"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": [
+    "concept.positional-encodings",
+    "concept.absolute-positional-embeddings"
+  ],
+  "explainsIds": []
+}

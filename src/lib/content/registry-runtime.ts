@@ -1,3 +1,4 @@
+import absolutePositionalEmbeddingsConcept from "@/content/registry/concepts/absolute-positional-embeddings.json";
 import activationConcept from "@/content/registry/concepts/activation.json";
 import alibiConcept from "@/content/registry/concepts/alibi.json";
 import alignmentConcept from "@/content/registry/concepts/alignment.json";
@@ -39,7 +40,9 @@ import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
 import layerNormConcept from "@/content/registry/concepts/layer-norm.json";
 import leakyReluConcept from "@/content/registry/concepts/leaky-relu.json";
+import learnedPositionalEmbeddingsConcept from "@/content/registry/concepts/learned-positional-embeddings.json";
 import logitConcept from "@/content/registry/concepts/logit.json";
+import longropeConcept from "@/content/registry/concepts/longrope.json";
 import lossFunctionConcept from "@/content/registry/concepts/loss-function.json";
 import mixtureOfExpertsConcept from "@/content/registry/concepts/mixture-of-experts.json";
 import modalityConcept from "@/content/registry/concepts/modality.json";
@@ -47,15 +50,19 @@ import modelConcept from "@/content/registry/concepts/model.json";
 import modelCapacityConcept from "@/content/registry/concepts/model-capacity.json";
 import moduleConcept from "@/content/registry/concepts/module.json";
 import multimodalModelConcept from "@/content/registry/concepts/multimodal-model.json";
+import nopeConcept from "@/content/registry/concepts/nope.json";
 import normalizationConcept from "@/content/registry/concepts/normalization.json";
+import ntkAwareRopeScalingConcept from "@/content/registry/concepts/ntk-aware-rope-scaling.json";
 import optimizerStateConcept from "@/content/registry/concepts/optimizer-state.json";
 import overfittingConcept from "@/content/registry/concepts/overfitting.json";
 import parameterConcept from "@/content/registry/concepts/parameter.json";
 import patchConcept from "@/content/registry/concepts/patch.json";
 import perplexityConcept from "@/content/registry/concepts/perplexity.json";
 import positionalEncodingsConcept from "@/content/registry/concepts/positional-encodings.json";
+import positionalInterpolationConcept from "@/content/registry/concepts/positional-interpolation.json";
 import qkNormConcept from "@/content/registry/concepts/qk-norm.json";
 import recurrentNeuralNetworkConcept from "@/content/registry/concepts/recurrent-neural-network.json";
+import relativePositionBiasConcept from "@/content/registry/concepts/relative-position-bias.json";
 import reluConcept from "@/content/registry/concepts/relu.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
 import residualConnectionConcept from "@/content/registry/concepts/residual-connection.json";
@@ -65,10 +72,13 @@ import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import selfAttentionConcept from "@/content/registry/concepts/self-attention.json";
 import sequenceModelConcept from "@/content/registry/concepts/sequence-model.json";
 import siluConcept from "@/content/registry/concepts/silu.json";
+import sinusoidalPositionalEmbeddingsConcept from "@/content/registry/concepts/sinusoidal-positional-embeddings.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
 import standardFfnConcept from "@/content/registry/concepts/standard-ffn.json";
 import stateSpaceModelConcept from "@/content/registry/concepts/state-space-model.json";
+import superhotRopeConcept from "@/content/registry/concepts/superhot-rope.json";
 import swigluConcept from "@/content/registry/concepts/swiglu.json";
+import t5RelativePositionBiasConcept from "@/content/registry/concepts/t5-relative-position-bias.json";
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
@@ -77,6 +87,7 @@ import transformerArchitectureConcept from "@/content/registry/concepts/transfor
 import vectorConcept from "@/content/registry/concepts/vector.json";
 import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-context-is-hard.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
+import yarnConcept from "@/content/registry/concepts/yarn.json";
 import attention from "@/content/registry/modules/attention.json";
 import groupedQueryAttention from "@/content/registry/modules/grouped-query-attention.json";
 import linearAttention from "@/content/registry/modules/linear-attention.json";
@@ -115,11 +126,13 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(vectorConcept),
   conceptRecordSchema.parse(hiddenSizeConcept),
   conceptRecordSchema.parse(logitConcept),
+  conceptRecordSchema.parse(longropeConcept),
   conceptRecordSchema.parse(softmaxConcept),
   conceptRecordSchema.parse(entropyConcept),
   conceptRecordSchema.parse(temperatureConcept),
   conceptRecordSchema.parse(parameterConcept),
   conceptRecordSchema.parse(activationConcept),
+  conceptRecordSchema.parse(absolutePositionalEmbeddingsConcept),
   conceptRecordSchema.parse(computationalGraphConcept),
   conceptRecordSchema.parse(gradientConcept),
   conceptRecordSchema.parse(backpropagationConcept),
@@ -167,20 +180,28 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(selfAttentionConcept),
   conceptRecordSchema.parse(sequenceModelConcept),
   conceptRecordSchema.parse(siluConcept),
+  conceptRecordSchema.parse(sinusoidalPositionalEmbeddingsConcept),
   conceptRecordSchema.parse(stateSpaceModelConcept),
+  conceptRecordSchema.parse(superhotRopeConcept),
   conceptRecordSchema.parse(emergentBehaviorConcept),
   conceptRecordSchema.parse(feedForwardNetworkConcept),
   conceptRecordSchema.parse(standardFfnConcept),
   conceptRecordSchema.parse(swigluConcept),
+  conceptRecordSchema.parse(t5RelativePositionBiasConcept),
   conceptRecordSchema.parse(mixtureOfExpertsConcept),
   conceptRecordSchema.parse(layerNormConcept),
+  conceptRecordSchema.parse(learnedPositionalEmbeddingsConcept),
   conceptRecordSchema.parse(leakyReluConcept),
   conceptRecordSchema.parse(normalizationConcept),
+  conceptRecordSchema.parse(nopeConcept),
+  conceptRecordSchema.parse(ntkAwareRopeScalingConcept),
   conceptRecordSchema.parse(rmsnormConcept),
   conceptRecordSchema.parse(alibiConcept),
   conceptRecordSchema.parse(positionalEncodingsConcept),
+  conceptRecordSchema.parse(positionalInterpolationConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
   conceptRecordSchema.parse(reluConcept),
+  conceptRecordSchema.parse(relativePositionBiasConcept),
   conceptRecordSchema.parse(ropeConcept),
   conceptRecordSchema.parse(transformerArchitectureConcept),
   conceptRecordSchema.parse(transformerConcept),
@@ -188,6 +209,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(multimodalModelConcept),
   conceptRecordSchema.parse(whyLongContextIsHardConcept),
   conceptRecordSchema.parse(worldModelConcept),
+  conceptRecordSchema.parse(yarnConcept),
 ];
 
 const modulesById = new Map(moduleRecords.map((record) => [record.id, record]));

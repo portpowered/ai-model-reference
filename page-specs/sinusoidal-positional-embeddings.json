@@ -1,0 +1,43 @@
+{
+  "kind": "glossary",
+  "slug": "sinusoidal-positional-embeddings",
+  "title": "Sinusoidal positional embeddings",
+  "summary": "Fixed absolute position vectors built from sine and cosine waves at multiple frequencies— the original transformer baseline that needs no learned position table.",
+  "openingSummary": "Sinusoidal positional embeddings assign each position a deterministic vector of sines and cosines at different wavelengths so nearby indices stay similar while distant indices diverge, without training extra position parameters.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": [
+    "sinusoidal position embedding",
+    "fixed sinusoidal encoding",
+    "Vaswani sinusoidal PE"
+  ],
+  "tags": ["foundations"],
+  "prerequisiteIds": [
+    "concept.positional-encodings",
+    "concept.absolute-positional-embeddings"
+  ],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "concept.absolute-positional-embeddings",
+    "concept.learned-positional-embeddings",
+    "concept.rope"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Sinusoidal positional embeddings are a closed-form absolute scheme: even dimensions carry sine waves and odd dimensions carry cosines of position index scaled by geometrically spaced frequencies. The vectors are added to token embeddings before attention. Because the mapping is fixed, the model does not learn position table weights, though downstream layers still learn how to use the signal."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "The original Attention Is All You Need recipe popularized sinusoidal encodings as a parameter-free way to inject order. They remain a teaching reference and appear in reproductions even when production decoders moved to RoPE. Understanding the sine-cosine pattern clarifies why relative-distance structure can emerge from absolute sums in theory, and why modern stacks rarely ship this exact recipe unchanged."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Position 3 might use sin(3/10000^(0/d)) on one dimension and cos(3/10000^(0/d)) on the next, with slower waves on higher dimensions. Token 3's embedding plus that vector enters attention as a single combined representation."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Sinusoidal embeddings are not RoPE even though both use trigonometric functions: RoPE rotates Q/K pairs per position rather than adding a table to embeddings. They are also not the same as learned absolute tables—here the vectors are predetermined. Extrapolating far beyond trained lengths still breaks in practice despite smooth formulas."
+    }
+  }
+}

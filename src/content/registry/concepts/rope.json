@@ -17,5 +17,5 @@
   "updatedAt": "2026-06-09T00:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": ["concept.positional-encodings"],
-  "explainsIds": []
+  "explainsIds": ["concept.superhot-rope", "concept.ntk-aware-rope-scaling"]
 }

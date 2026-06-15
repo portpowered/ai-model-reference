@@ -1,0 +1,41 @@
+{
+  "kind": "glossary",
+  "slug": "positional-interpolation",
+  "title": "Positional interpolation",
+  "summary": "Context extension that shrinks effective position indices so a model trained on length L can run at multiples of L by treating farther tokens as if they were closer in position space.",
+  "openingSummary": "Positional interpolation (PI) rescales position indices—most famously on RoPE models—so angles or embeddings trained on a short horizon still land in a familiar range when sequences grow longer.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": [
+    "PI",
+    "position interpolation",
+    "linear positional interpolation"
+  ],
+  "tags": ["foundations"],
+  "prerequisiteIds": ["concept.rope", "concept.context-extension"],
+  "relatedIds": [
+    "concept.rope",
+    "concept.context-extension",
+    "concept.yarn",
+    "concept.longrope",
+    "concept.context-window"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Positional interpolation compresses the index axis used by a position scheme so a model trained on N tokens can accept k·N tokens by mapping real position t to t/k inside the embedding or rotary function. For RoPE, that means slower phase progression across the longer stream. A short fine-tune usually follows so attention adapts to the stretched schedule."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "PI was an early widely reproduced trick for extending LLaMA-class models and remains a baseline against YaRN, NTK, and LongRoPE. Recognizing interpolation helps you interpret simple scale_factor arguments in inference code and explain why doubling context without any position rescale often fails immediately on rotary checkpoints."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "To run an 8k-trained rotary model at 16k, PI might feed position 16,000 as 8,000 into the rotary function (scale 0.5), keeping angles inside the range the network saw during most of training until fine-tuning adapts."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Positional interpolation is not the same as YaRN or NTK-aware scaling—those modify frequency structure rather than only compressing indices. PI on learned absolute tables differs from PI on RoPE math. Finally, interpolation extends usable length but does not remove quadratic attention cost."
+    }
+  }
+}

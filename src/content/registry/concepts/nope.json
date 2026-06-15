@@ -1,0 +1,26 @@
+{
+  "id": "concept.nope",
+  "slug": "nope",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "no positional embeddings",
+    "No Positional Embeddings",
+    "position-free decoder"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "concept.rope",
+    "concept.causal-attention",
+    "concept.transformer-architecture"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.positional-encodings", "concept.rope"],
+  "explainsIds": []
+}

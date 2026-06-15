@@ -15,7 +15,16 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     const record = getConceptById("concept.positional-encodings");
     expect(record?.status).toBe("published");
     expect(record?.kind).toBe("concept");
-    expect(record?.explainsIds).toEqual(["concept.rope", "concept.alibi"]);
+    expect(record?.explainsIds).toEqual([
+      "concept.rope",
+      "concept.alibi",
+      "concept.absolute-positional-embeddings",
+      "concept.learned-positional-embeddings",
+      "concept.sinusoidal-positional-embeddings",
+      "concept.relative-position-bias",
+      "concept.t5-relative-position-bias",
+      "concept.nope",
+    ]);
     expect(record?.relatedIds).toEqual([
       "concept.transformer-architecture",
       "module.attention",

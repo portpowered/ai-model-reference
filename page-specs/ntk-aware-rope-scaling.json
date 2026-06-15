@@ -1,0 +1,36 @@
+{
+  "kind": "glossary",
+  "slug": "ntk-aware-rope-scaling",
+  "title": "NTK-aware RoPE scaling",
+  "summary": "RoPE base adjustment inspired by neural tangent kernel theory—rescales frequencies so rotary angles stay usable when context length grows past pretraining.",
+  "openingSummary": "NTK-aware RoPE scaling changes rotary inverse frequencies using NTK-inspired formulas so longer sequences keep stable attention patterns without relearning an entirely new position table.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": ["NTK scaling", "NTK-aware scaling", "dynamic NTK RoPE"],
+  "tags": ["foundations"],
+  "prerequisiteIds": ["concept.rope", "concept.context-extension"],
+  "relatedIds": [
+    "concept.rope",
+    "concept.context-extension",
+    "concept.positional-interpolation",
+    "concept.yarn"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "NTK-aware RoPE scaling rescales rotary embedding bases when inference context exceeds the length seen in pretraining. The adjustment draws on neural tangent kernel arguments about how wavelength and dimension interact, producing a smooth stretch of low and high frequencies rather than a naive uniform squeeze. Some runtimes apply it dynamically per forward pass as sequence length changes."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Many open-weight inference servers expose NTK scaling knobs next to YaRN and linear interpolation. Understanding NTK-aware RoPE clarifies why simply increasing context limits can work partially without full retraining—and why quality still degrades when scaling factors push angles into a collapsed regime."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "At 8k tokens when the model trained on 4k, an NTK-aware rule might multiply selected inverse frequencies by a factor derived from the length ratio, then run standard rotary attention with the updated angles for that forward pass."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "NTK-aware scaling is not positional interpolation of embedding indices—it retunes RoPE frequencies, not absolute tables. It is also not guaranteed lossless: NTK motivation is heuristic for finite models. Dynamic NTK per sequence differs from baking one static rescale into the checkpoint."
+    }
+  }
+}
