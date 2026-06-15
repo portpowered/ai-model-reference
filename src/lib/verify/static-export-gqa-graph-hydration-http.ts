@@ -15,6 +15,50 @@ async function defaultLaunchBrowser(): Promise<Browser> {
   return launchPlaywrightBrowser();
 }
 
+async function waitForAttentionVariantActive(
+  page: Page,
+  variant: "mha" | "gqa",
+  timeoutMs: number,
+): Promise<boolean> {
+  try {
+    await page.waitForFunction(
+      (expected) => {
+        const comparison = document.querySelector(
+          '[data-attention-variant-comparison="true"]',
+        );
+        return (
+          comparison?.getAttribute("data-attention-variant-active") === expected
+        );
+      },
+      variant,
+      { timeout: timeoutMs },
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function waitForGraphId(
+  page: Page,
+  graphId: string,
+  timeoutMs: number,
+): Promise<boolean> {
+  try {
+    await page.waitForFunction(
+      (expected) => {
+        const graph = document.querySelector('[data-react-flow-graph="true"]');
+        return graph?.getAttribute("data-graph-id") === expected;
+      },
+      graphId,
+      { timeout: timeoutMs },
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function activateAttentionVariantTab(
   page: Page,
   variant: "mha" | "gqa",
@@ -31,6 +75,11 @@ async function activateAttentionVariantTab(
     .scrollIntoViewIfNeeded({ timeout: timeoutMs })
     .catch(() => {});
 
+  await page
+    .locator(".react-flow__pane")
+    .waitFor({ state: "visible", timeout: timeoutMs })
+    .catch(() => {});
+
   const tab = page.locator(`[data-attention-variant-option="${variant}"]`);
   try {
     await tab.waitFor({ state: "visible", timeout: timeoutMs });
@@ -38,20 +87,37 @@ async function activateAttentionVariantTab(
     return `Could not find the ${variant.toUpperCase()} comparison tab on the GQA module page.`;
   }
 
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    try {
-      await tab.click({ timeout: timeoutMs });
-      await page.waitForTimeout(150);
-      const activeVariant = await comparison.getAttribute(
-        "data-attention-variant-active",
-      );
-      if (activeVariant === variant) {
-        return null;
-      }
-    } catch {
-      // Retry once after re-scrolling when hydration races tab interactivity.
-    }
+  const perAttemptTimeoutMs = Math.min(5_000, Math.max(1_500, timeoutMs / 6));
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
     await tab.scrollIntoViewIfNeeded({ timeout: timeoutMs }).catch(() => {});
+
+    try {
+      await tab.click({ timeout: perAttemptTimeoutMs });
+    } catch {
+      // Fall through to keyboard activation when click races hydration.
+    }
+
+    if (
+      await waitForAttentionVariantActive(page, variant, perAttemptTimeoutMs)
+    ) {
+      return null;
+    }
+
+    try {
+      await tab.focus();
+      await page.keyboard.press("Enter");
+    } catch {
+      // Retry after re-scroll when focus is not yet available.
+    }
+
+    if (
+      await waitForAttentionVariantActive(page, variant, perAttemptTimeoutMs)
+    ) {
+      return null;
+    }
+
+    await page.waitForTimeout(200);
   }
 
   const activeVariant = await comparison.getAttribute(
@@ -97,10 +163,10 @@ async function verifyGqaGraphHydrationOnPage(
     return "React Flow graph hydrated without accessible node markers on the GQA module page.";
   }
 
-  const activeVariant = await comparison.getAttribute(
-    "data-attention-variant-active",
-  );
-  if (activeVariant !== "gqa") {
+  if (!(await waitForAttentionVariantActive(page, "gqa", timeoutMs))) {
+    const activeVariant = await comparison.getAttribute(
+      "data-attention-variant-active",
+    );
     return `Expected default GQA variant "gqa", received "${activeVariant ?? "null"}".`;
   }
 
@@ -113,10 +179,16 @@ async function verifyGqaGraphHydrationOnPage(
     return mhaActivationReason;
   }
 
-  const graphIdAfterMha = await page
-    .locator('[data-react-flow-graph="true"]')
-    .getAttribute("data-graph-id");
-  if (graphIdAfterMha !== "graph.grouped-query-attention-mha-comparison") {
+  if (
+    !(await waitForGraphId(
+      page,
+      "graph.grouped-query-attention-mha-comparison",
+      timeoutMs,
+    ))
+  ) {
+    const graphIdAfterMha = await page
+      .locator('[data-react-flow-graph="true"]')
+      .getAttribute("data-graph-id");
     return `Expected MHA graph id after toggle, received "${graphIdAfterMha ?? "null"}".`;
   }
 
@@ -170,7 +242,7 @@ export async function verifyStaticExportGqaGraphHydration(
         timeout: timeoutMs,
         waitUntil: "load",
       });
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(500);
       return await verifyGqaGraphHydrationOnPage(page, timeoutMs);
     } catch (error) {
       return error instanceof Error ? error.message : String(error);
