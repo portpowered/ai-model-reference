@@ -12,7 +12,7 @@ export const STATIC_EXPORT_BUILD_LOCK_PATH = join(
 const LOCK_POLL_MS = 250;
 /** Drop build locks left behind by crashed workers so queued tests do not stall until Bun timeout. */
 export const STALE_STATIC_EXPORT_BUILD_LOCK_MAX_AGE_MS = 5 * 60 * 1000;
-const CI_STATIC_EXPORT_BUILD_BUN_TEST_TIMEOUT_MS = 3_600_000;
+const CI_STATIC_EXPORT_BUILD_BUN_TEST_TIMEOUT_MS = 600_000;
 const LOCAL_STATIC_EXPORT_BUILD_BUN_TEST_TIMEOUT_MS = 600_000;
 const STATIC_EXPORT_BUILD_LOCK_WAIT_HEADROOM_MS = 30_000;
 

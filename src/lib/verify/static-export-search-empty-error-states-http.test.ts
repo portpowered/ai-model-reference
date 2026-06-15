@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integration-probe-lock";
 import { buildSearchPageExportShellStubBody } from "./phase-1-search-export-shell-checks";
 import { createStaticExportHttpServer } from "./static-export-http-server";
 import {
@@ -16,8 +15,6 @@ import {
   SEARCH_RETRY_LABEL,
   verifyStaticExportSearchEmptyErrorStates,
 } from "./static-export-search-empty-error-states-http";
-
-const exportIntegrationTestTimeout = getExportIntegrationBunTestTimeoutMs();
 
 describe("evaluateSearchPageEmptyState", () => {
   test("passes when empty state shows customer-facing copy and suggestions", () => {
@@ -146,6 +143,7 @@ describe("verifyStaticExportSearchEmptyErrorStates", () => {
           server.baseUrl,
           {
             timeoutMs: 5_000,
+            serializeProbe: false,
           },
         );
         expect(reason).toMatch(/search-page-input|Search Model Atlas/);
@@ -154,7 +152,7 @@ describe("verifyStaticExportSearchEmptyErrorStates", () => {
         rmSync(root, { recursive: true, force: true });
       }
     },
-    { timeout: exportIntegrationTestTimeout },
+    { timeout: 15_000 },
   );
 
   test(
@@ -177,6 +175,7 @@ describe("verifyStaticExportSearchEmptyErrorStates", () => {
           server.baseUrl,
           {
             timeoutMs: 5_000,
+            serializeProbe: false,
           },
         );
         expect(reason).toMatch(
@@ -187,7 +186,7 @@ describe("verifyStaticExportSearchEmptyErrorStates", () => {
         rmSync(root, { recursive: true, force: true });
       }
     },
-    { timeout: exportIntegrationTestTimeout },
+    { timeout: 30_000 },
   );
 });
 
