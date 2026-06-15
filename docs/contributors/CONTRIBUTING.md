@@ -164,6 +164,157 @@ pages. Valid values are `architecture`, `math`, `training`, `inference`,
 (`--tags`, `--aliases`, `--related-ids`, `--citation-ids`) seed registry and
 frontmatter fields in one step.
 
+## Canonical content requirements
+
+This section covers what contributors must put in MDX, message files, registry
+records, and `assets.json` so a page is structurally valid and reviewer-ready.
+Blog posts follow a different contract; see [Canonical docs pages vs blog
+posts](#canonical-docs-pages-vs-blog-posts).
+
+### MDX structure and localized messages
+
+Canonical docs pages keep **structure in MDX** and **reader-facing prose in
+colocated message files**:
+
+| Layer | Location | What belongs there |
+| --- | --- | --- |
+| Page structure | `page.mdx` | Frontmatter, section order, component references, `assetId` references, message key references (`<T k="..." />`) |
+| Reader-facing copy | `messages/<locale>.json` | Titles, descriptions, section bodies, graph labels, captions, alt text |
+| Structured metadata | `src/content/registry/` | Search facets, relationships, citations, typed fields |
+| Visual and tabular data | `assets.json` | Graph, table, image, and code-schema asset definitions |
+
+Do not paste `.content.md` authoring guidance into `page.mdx`. Do not hard-code
+section headings, callout titles, comparison table values, graph node labels,
+captions, or body prose in shared MDX unless the page kind explicitly allows it
+(blog posts only).
+
+Use section components with localized titles:
+
+```mdx
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+```
+
+The docs shell renders the page title once. Do not add an in-body
+`# <T k="title" />` heading on canonical pages.
+
+Set `messageNamespace: local` and `assetNamespace: local` in frontmatter so the
+page resolves colocated `messages/<locale>.json` and `assets.json` files.
+
+### Folded opening summary and writing expectations
+
+Every canonical page opens with **one folded summary**, not separate problem and
+solution lead lines. Put it in `messages/en.json` under `openingSummary` and
+render it from the template (glossary pages keep the key in messages but omit
+the MDX render block per [writing standards](../writing-standards.md)).
+
+The summary should answer, in plain language:
+
+- What confuses or blocks the reader on this topic.
+- What this page teaches as the fix, mechanism, or idea.
+
+Merge legacy `problemStatement` and `coreIdea` keys into `openingSummary` for
+new or updated pages. Do not add `callouts.readerShortcut` to baseline
+templates.
+
+Additional writing rules contributors must follow before opening a PR:
+
+- Write for a technical layperson: short sentences, concrete nouns, active voice.
+- Keep section bodies scannable; each paragraph should advance one idea.
+- Put symbol-only definitions under equations in the math/schema section; move
+  projection, grouping, and head-count explanations into narrative sections.
+- Do not put factory phases, batch numbers, or other internal process language
+  in customer-facing message files.
+
+See [writing standards](../writing-standards.md) and
+[quality documents standards](../quality-documents-standards.md) for the full
+review checklist.
+
+### Citations, tags, related links, and aliases
+
+These fields power search, related-doc cards, tag browsing, and reference
+sections. Keep frontmatter, registry records, and message keys aligned.
+
+**Aliases** — Abbreviations and alternate names readers might search for (`GQA`,
+`grouped-query attention`). Mirror the same values in frontmatter `aliases` and
+the registry record `aliases` array.
+
+**Tags** — Controlled topic labels, not free-form keywords. Use tag **slugs**
+that resolve to published records under `src/content/registry/tags/` (for example
+`attention` → `tag.attention`). Repeat the same slugs in frontmatter and in the
+registry record `tags` array. Tags drive `/tags/<slug>` browsing and search
+filters.
+
+**Related IDs** — Prefer relationships the registry can derive from taxonomy,
+shared tags, model usage, or paper links. Add curated `relatedIds` on the
+registry record only when a high-value link cannot be derived automatically
+(for example a prerequisite concept that shares no tags with the page).
+
+**Citations** — Technical claims should point to citation registry records, not
+hand-formatted source lists. Create or reuse records under
+`src/content/registry/citations/` with stable IDs such as
+`citation.gqa-paper`. List supporting sources in the page registry record
+`citationIds` array and render them through `<CitationList />` in MDX.
+
+Citation records should include authors, title, year, a stable canonical `url`,
+and MLA text for the references section. When scaffolding, pass
+`--citation-ids citation.example-paper,citation.other-source` to seed
+`citationIds` on the new registry record.
+
+Do not hand-maintain related-page lists when `DerivedRelatedDocs` or registry
+relationships already produce the same result.
+
+### Messages, assets, graphs, and tables
+
+Put captions, alt text, graph node labels, and table values in message files.
+Reference concrete media through `assets.json`, not inline MDX paths or JSON
+blobs.
+
+Example asset entry shape (from `docs/templates/concept.assets.json`):
+
+```json
+{
+  "conceptMap": {
+    "type": "graph",
+    "graphId": "graph.example-concept-map",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.conceptMap.alt",
+    "captionKey": "assets.conceptMap.caption"
+  }
+}
+```
+
+Reference assets from MDX by `assetId`:
+
+```mdx
+<ModuleGraph registryId="module.grouped-query-attention" assetId="computeFlow" />
+<ModuleComparisonTable registryId="module.grouped-query-attention" assetId="comparisonTable" />
+```
+
+Placement rules by page kind:
+
+| Visual type | Where it belongs |
+| --- | --- |
+| Primary React Flow graph (module pages) | **How it works** section only — one canvas per page |
+| Math / compute schema | Equations and symbol definitions only — no second React Flow canvas |
+| Comparison tables | **Compared to nearby modules** or the page-kind equivalent section |
+| Optional concept-map graphs | The section that teaches relationships (concept, glossary, training-regime) |
+| Model architecture graphs | Architecture section when structure is the teaching goal |
+| Paper contribution graphs | Method or architecture section when dependencies are the teaching goal |
+
+Module pages render **exactly one** primary React Flow graph on the published
+page. Do not place a second graph under the math/schema section. Graph node
+labels, edge labels, captions, and alt text resolve from colocated messages.
+
+See [graphing standards](../graphing-standards.md) for the readable node theme,
+zoom/pan interaction rules, and attention-variant comparison pattern.
+
+Images, charts, and code schemas follow the same split: define the asset in
+`assets.json`, put display text in messages, and reference the `assetId` from
+MDX or registry-backed components.
+
 ## Choose your path
 
 Contributors can land docs work in two ways.
