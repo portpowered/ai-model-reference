@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Install Playwright Chromium
+        run: bunx playwright install chromium --with-deps
+
       - name: Build static export
         run: make build-export
         env:
