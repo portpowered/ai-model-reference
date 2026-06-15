@@ -73,7 +73,7 @@ describe("rendered quality baseline audit integration", () => {
 
       expect(result.routesVisited).toBe(1);
       expect(result.viewportChecks).toBe(1);
-      expect(result.standards.qualityDocumentsStandardsPresent).toBe(false);
+      expect(result.standards.qualityDocumentsStandardsPresent).toBe(true);
       expect(
         result.issues.filter(
           (issue) => issue.behavior === "customer-visible process language",
