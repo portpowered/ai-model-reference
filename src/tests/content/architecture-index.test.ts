@@ -23,6 +23,7 @@ describe("isArchitectureRelatedPage", () => {
     expect(urls).toEqual(
       [
         "/docs/concepts/context-extension",
+        "/docs/concepts/page-spec-workflow-sample",
         "/docs/concepts/positional-encodings",
         "/docs/concepts/transformer-architecture",
         "/docs/concepts/why-long-context-is-hard",
