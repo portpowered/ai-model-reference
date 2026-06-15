@@ -1,0 +1,46 @@
+{
+  "title": "WordPiece",
+  "description": "A subword tokenizer that scores candidate merges by likelihood, famously used in BERT-family encoders.",
+  "openingSummary": "WordPiece builds subword tokens by greedily choosing splits that maximize language-model likelihood, which is why BERT checkpoints expose ##-prefixed continuation pieces in their vocabularies.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "WordPiece selects subword units by maximizing the probability of a training corpus under a unigram language model, then applies greedy longest-match tokenization at inference. BERT and many encoder-only transformers ship WordPiece vocabularies with continuation markers on non-initial pieces."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Encoder APIs and embedding products still run WordPiece tokenizers daily. Mis-identifying a checkpoint as BPE leads to wrong vocab files and broken special-token handling. WordPiece also influences how punctuation attaches to words, which changes effective context length for the same character count."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "\"playing\" might tokenize as [\"play\", \"##ing\"] in a BERT vocabulary, where ## marks a continuation subword rather than a standalone token."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "WordPiece is not identical to BPE even though both emit subwords—merge criteria differ. It is also not the Unigram algorithm, though both use probabilistic scoring; SentencePiece can implement Unigram but uses different surface conventions than classic WordPiece files."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for WordPiece. Replace before publishing.",
+      "caption": "Draft placeholder for WordPiece. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for WordPiece. Replace before publishing.",
+        "summary": "Draft placeholder for WordPiece. Replace before publishing."
+      }
+    }
+  }
+}

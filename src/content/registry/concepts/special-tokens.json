@@ -1,0 +1,23 @@
+{
+  "id": "concept.special-tokens",
+  "slug": "special-tokens",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["special token", "control tokens", "reserved tokens"],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "concept.token",
+    "concept.chat-templates",
+    "concept.sentencepiece",
+    "concept.tokenizer-mismatch"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.token", "concept.vocabulary-size"],
+  "explainsIds": []
+}

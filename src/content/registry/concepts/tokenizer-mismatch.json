@@ -1,0 +1,28 @@
+{
+  "id": "concept.tokenizer-mismatch",
+  "slug": "tokenizer-mismatch",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "tokenizer mismatch bug",
+    "vocabulary mismatch",
+    "wrong tokenizer"
+  ],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "concept.token",
+    "concept.embedding",
+    "concept.special-tokens",
+    "concept.chat-templates",
+    "concept.autoregressive-generation"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.token", "concept.chat-templates"],
+  "explainsIds": []
+}

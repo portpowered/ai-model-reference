@@ -1,0 +1,37 @@
+{
+  "kind": "glossary",
+  "slug": "byte-level-tokenization",
+  "title": "Byte-level tokenization",
+  "summary": "Tokenization that operates on raw bytes so any Unicode string maps to a small, fixed base alphabet.",
+  "openingSummary": "Byte-level tokenization feeds bytes or byte-derived symbols into subword merges, which prevents out-of-vocabulary Unicode surprises at the cost of longer sequences for some languages.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": ["byte level tokenization", "byte-level BPE", "bytes tokenizer"],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "prerequisiteIds": ["concept.token", "concept.bpe"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "concept.token",
+    "concept.bpe",
+    "concept.sentencepiece",
+    "concept.vocabulary-size"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Byte-level schemes map text to a compact byte alphabet—often 256 symbols—before applying BPE-style merges. GPT-2 popularized byte-level BPE for English and multilingual robustness. Any valid UTF-8 string tokenizes without unknown-token failures at the character level."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Byte-level tokenization reduces brittle preprocessing and helps models handle typos, rare emoji, and mixed scripts. It can increase token count versus word-piece vocabularies tuned to a single language, which affects context windows and billing."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "An uncommon Unicode character might become a short byte sequence merged into one or two tokens instead of triggering an unknown-token fallback."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Byte-level tokenization is not the same as character-level models that attend over graphemes without subword merges. It is also not identical to SentencePiece—SPM can be byte-aware but the terms are not interchangeable."
+    }
+  }
+}

@@ -19,7 +19,9 @@
     "concept.decoder",
     "concept.encoder-decoder",
     "concept.conditioning",
-    "concept.denoising-generation"
+    "concept.denoising-generation",
+    "concept.tokenizers-overview",
+    "concept.chat-templates"
   ],
   "citationIds": [],
   "status": "published",

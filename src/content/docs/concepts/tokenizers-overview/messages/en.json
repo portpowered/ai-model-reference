@@ -1,0 +1,50 @@
+{
+  "title": "Tokenizers overview",
+  "description": "How text becomes discrete token IDs before embeddings and attention, and why tokenizer choice shapes every downstream behavior.",
+  "openingSummary": "Tokenizers turn raw text into a fixed vocabulary of integer IDs—the first step in the token-to-probability chain—so models can embed, attend, and score next tokens consistently from training through serving.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A tokenizer overview maps how strings become token ID sequences. Subword algorithms such as BPE, WordPiece, Unigram, and SentencePiece trade vocabulary size against rare-word coverage. Byte-level schemes add robustness to typos and multilingual text. Vocabulary size, special tokens, and chat templates sit on top of the core merge or score rules—they define what the model can read and how prompts are framed before logits are computed."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Every token ID feeds the embedding table and sets context length in tokens, not characters. Two checkpoints with different tokenizers will disagree on prompt length, cost, and even whether two strings are identical. Product teams debug tokenizer mismatch when a fine-tune works in notebooks but fails behind an API with the wrong vocabulary file."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "The phrase \"language models\" might become two BPE tokens in one vocabulary and three WordPiece tokens in another. Each ID is embedded, passed through transformer blocks, and scored for the next token—so tokenizer choice is baked into every forward pass."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Tokenizer configs ship with Hugging Face checkpoints, vLLM deployments, and mobile on-device bundles. Training pipelines count tokens for data mixing; inference stacks apply chat templates before autoregressive decoding. Search in this atlas groups algorithm pages, vocabulary settings, and mismatch debugging under this overview."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Tokenizer overview is not a benchmark of compression efficiency—it explains mechanisms. It is also not the same as the glossary token page, which defines the unit itself. Finally, SentencePiece is a library that can implement BPE or Unigram; the algorithm and the runtime are related but not identical names."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for Tokenizers overview. Replace before publishing.",
+      "caption": "Draft placeholder for Tokenizers overview. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for Tokenizers overview. Replace before publishing.",
+        "summary": "Draft placeholder for Tokenizers overview. Replace before publishing."
+      }
+    }
+  }
+}

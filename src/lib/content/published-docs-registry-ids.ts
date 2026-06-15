@@ -13,6 +13,7 @@ export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
   "concept.encoder-only-architecture",
   "concept.decoder-only-architecture",
   "concept.encoder-decoder-architecture",
+  "concept.tokenizers-overview",
 ]);
 
 /** Registry ids for docs pages with `status: published` in frontmatter. */
@@ -26,6 +27,8 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "module.sliding-window-attention",
   "module.sparse-attention",
   "concept.token",
+  "concept.tokenizer-mismatch",
+  "concept.tokenizers-overview",
   "concept.embedding",
   "concept.tensor",
   "concept.vector",
@@ -95,6 +98,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.causal-attention",
   "concept.cross-attention",
   "concept.self-attention",
+  "concept.sentencepiece",
   "concept.sequence-model",
   "concept.state-space-model",
   "concept.recurrent-neural-network",
@@ -105,6 +109,9 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.encoder-decoder-architecture",
   "concept.standard-ffn",
   "concept.batch-norm",
+  "concept.bpe",
+  "concept.byte-level-tokenization",
+  "concept.chat-templates",
   "concept.group-norm",
   "concept.qk-norm",
   "concept.relu",
@@ -113,8 +120,12 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.silu",
   "concept.sinusoidal-positional-embeddings",
   "concept.swiglu",
+  "concept.special-tokens",
   "concept.superhot-rope",
   "concept.t5-relative-position-bias",
+  "concept.unigram-tokenizer",
+  "concept.vocabulary-size",
+  "concept.wordpiece",
   "concept.yarn",
 ]);
 

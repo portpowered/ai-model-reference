@@ -1,0 +1,23 @@
+{
+  "id": "concept.vocabulary-size",
+  "slug": "vocabulary-size",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["vocab size", "tokenizer vocabulary size", "token vocabulary"],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "concept.token",
+    "concept.embedding",
+    "concept.bpe",
+    "concept.special-tokens"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.token", "concept.tokenizers-overview"],
+  "explainsIds": []
+}

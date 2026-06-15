@@ -1,0 +1,28 @@
+{
+  "id": "concept.unigram-tokenizer",
+  "slug": "unigram-tokenizer",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Unigram",
+    "Unigram LM tokenizer",
+    "unigram language model tokenizer"
+  ],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "concept.token",
+    "concept.sentencepiece",
+    "concept.wordpiece",
+    "concept.bpe",
+    "concept.vocabulary-size"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.token", "concept.tokenizers-overview"],
+  "explainsIds": []
+}

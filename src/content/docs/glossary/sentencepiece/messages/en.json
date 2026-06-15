@@ -1,0 +1,46 @@
+{
+  "title": "SentencePiece",
+  "description": "A tokenizer library and model format that trains BPE or Unigram vocabularies with whitespace handled inside the learned pieces.",
+  "openingSummary": "SentencePiece trains and ships self-contained tokenizer models—often .model files—that implement BPE or Unigram without relying on language-specific pre-tokenization rules.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "SentencePiece is both a training toolkit and a runtime that serializes merge or Unigram tables into a single model file. It treats whitespace as a normal symbol, which simplifies multilingual tokenization. Llama, T5, and many multilingual checkpoints distribute SentencePiece models alongside weights."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Serving stacks must load the matching .model file, not just copy vocabulary size from a model card. SentencePiece also defines how special tokens and byte fallback interact—errors here surface as shifted logits or truncated prompts even when GPU kernels are correct."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A deployment might call spm.SentencePieceProcessor().load(\"tokenizer.model\") before encoding chat messages; the same file must accompany the checkpoint in CI and production."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "SentencePiece is not an algorithm by itself—it is a container for BPE or Unigram. It is also not Hugging Face tokenizers, though Transformers can wrap SentencePiece models. Confusing the library with byte-level BPE misses that SPM can implement either algorithm."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for SentencePiece. Replace before publishing.",
+      "caption": "Draft placeholder for SentencePiece. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for SentencePiece. Replace before publishing.",
+        "summary": "Draft placeholder for SentencePiece. Replace before publishing."
+      }
+    }
+  }
+}

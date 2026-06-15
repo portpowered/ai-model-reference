@@ -11,6 +11,7 @@
     "[Encoder-only architecture](/docs/concepts/encoder-only-architecture)",
     "[Positional encodings](/docs/concepts/positional-encodings)",
     "[Self-attention](/docs/concepts/self-attention)",
+    "[Tokenizers overview](/docs/concepts/tokenizers-overview)",
     "[Page Spec Workflow Sample](/docs/concepts/page-spec-workflow-sample)",
     "[Transformer architecture](/docs/concepts/transformer-architecture)",
     "[Why long context is hard](/docs/concepts/why-long-context-is-hard)"

@@ -1,0 +1,46 @@
+{
+  "title": "Chat templates",
+  "description": "Formatting rules that turn role-tagged messages into the exact token sequence a chat-tuned model expects.",
+  "openingSummary": "Chat templates wrap system, user, and assistant turns with model-specific markers so instruction-tuned decoders see the same token pattern at inference as during alignment.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A chat template is a small program—often Jinja embedded in tokenizer config—that serializes message lists into one prompt string before tokenization. It chooses role headers, turn separators, and whether tool outputs are inlined. Hugging Face tokenizer.chat_template fields and llama.cpp prompt builders are common carriers."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "The same weights behave differently when templates omit system prompts or swap user/assistant markers. API gateways that concatenate raw strings without the template see degraded instruction following even with identical logits kernels. Templates also determine where generation should start and stop."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Two user turns might render as <|system|>...<|user|>question<|assistant|> before the model continues autoregressively from the assistant slot."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Chat templates are not the tokenizer algorithm—they sit after message structuring and before encode(). They are also not the same as system prompts stored in product UI; the template defines syntax, not business content."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for Chat templates. Replace before publishing.",
+      "caption": "Draft placeholder for Chat templates. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for Chat templates. Replace before publishing.",
+        "summary": "Draft placeholder for Chat templates. Replace before publishing."
+      }
+    }
+  }
+}

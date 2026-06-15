@@ -1,0 +1,29 @@
+{
+  "id": "graph.sentencepiece-concept-map",
+  "slug": "sentencepiece-concept-map",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "kind": "graph",
+  "subjectId": "concept.sentencepiece",
+  "graphType": "concept-map",
+  "rootNodeId": "root",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "root",
+      "labelKey": "graph.nodes.root.label",
+      "moduleKind": "other",
+      "childNodeIds": []
+    }
+  ],
+  "edges": []
+}

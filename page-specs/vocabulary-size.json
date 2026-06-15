@@ -1,0 +1,37 @@
+{
+  "kind": "glossary",
+  "slug": "vocabulary-size",
+  "title": "Vocabulary size",
+  "summary": "The number of distinct token IDs a tokenizer and embedding table support, trading memory against text compression.",
+  "openingSummary": "Vocabulary size fixes how many rows sit in the input embedding matrix and how aggressively text is split into subword pieces.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": ["vocab size", "tokenizer vocabulary size", "token vocabulary"],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "prerequisiteIds": ["concept.token", "concept.tokenizers-overview"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "concept.token",
+    "concept.embedding",
+    "concept.bpe",
+    "concept.special-tokens"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Vocabulary size is the count of token IDs the tokenizer can emit, including ordinary subwords and reserved special entries. It must match the embedding table width and the output softmax when weights are tied. Training recipes pick sizes such as 32k, 50k, or 128k to balance parameter count and average tokens per word."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Larger vocabularies shorten sequences but widen embedding and softmax matrices. Smaller vocabs save memory but split text into more tokens, shrinking effective context. Mismatched vocab sizes between tokenizer files and checkpoint config cause immediate shape errors or silent garbage if partially loaded."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A 32k BPE vocabulary might average fewer tokens per sentence than an 8k vocab on the same corpus, but the embedding table adds 24k extra rows worth of parameters."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Vocabulary size is not hidden size or number of layers—it only counts tokenizer symbols. It also differs from byte alphabet size in byte-level BPE, where merges expand the base 256 bytes into tens of thousands of learned pieces."
+    }
+  }
+}

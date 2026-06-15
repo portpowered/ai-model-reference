@@ -1,0 +1,40 @@
+{
+  "id": "concept.tokenizers-overview",
+  "slug": "tokenizers-overview",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "tokenizer overview",
+    "text tokenization overview",
+    "subword tokenization"
+  ],
+  "tags": ["foundations", "taxonomy", "token-to-probability-chain"],
+  "relatedIds": [
+    "concept.token",
+    "concept.embedding",
+    "concept.transformer",
+    "concept.autoregressive-generation",
+    "concept.bpe",
+    "concept.sentencepiece",
+    "concept.chat-templates",
+    "concept.tokenizer-mismatch"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.token"],
+  "explainsIds": [
+    "concept.bpe",
+    "concept.wordpiece",
+    "concept.unigram-tokenizer",
+    "concept.sentencepiece",
+    "concept.byte-level-tokenization",
+    "concept.vocabulary-size",
+    "concept.special-tokens",
+    "concept.chat-templates",
+    "concept.tokenizer-mismatch"
+  ]
+}

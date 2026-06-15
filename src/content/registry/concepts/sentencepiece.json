@@ -1,0 +1,24 @@
+{
+  "id": "concept.sentencepiece",
+  "slug": "sentencepiece",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Sentence Piece", "SPM", "SentencePiece model"],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "concept.token",
+    "concept.bpe",
+    "concept.unigram-tokenizer",
+    "concept.byte-level-tokenization",
+    "concept.special-tokens"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.token", "concept.tokenizers-overview"],
+  "explainsIds": []
+}

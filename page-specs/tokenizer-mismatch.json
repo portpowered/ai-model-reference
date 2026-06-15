@@ -1,0 +1,42 @@
+{
+  "kind": "glossary",
+  "slug": "tokenizer-mismatch",
+  "title": "Tokenizer mismatch",
+  "summary": "Integration failures when training, fine-tuning, or serving use different vocabularies, merges, or chat formatting than the checkpoint expects.",
+  "openingSummary": "Tokenizer mismatch happens when the IDs fed to embeddings do not match the vocabulary the weights were trained with—silent quality loss or hard shape errors follow.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": [
+    "tokenizer mismatch bug",
+    "vocabulary mismatch",
+    "wrong tokenizer"
+  ],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "prerequisiteIds": ["concept.token", "concept.chat-templates"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "concept.token",
+    "concept.embedding",
+    "concept.special-tokens",
+    "concept.chat-templates",
+    "concept.autoregressive-generation"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Tokenizer mismatch covers any divergence between the tokenizer files, special-token table, chat template, and embedding matrix used at runtime versus training. Swapping a BPE merges file, resizing vocab without retraining embeddings, or skipping the chat template all qualify. Symptoms range from CUDA shape errors to subtle repetition and gibberish."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "It is one of the most common reasons a notebook demo outperforms production. Mismatch wastes GPU cycles on the wrong subword segmentation and poisons KV-cache accounting. Clear debugging starts by diffing tokenizer.json, vocab size, and template output against the model card."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Serving Llama weights with a GPT-2 tokenizer might still run if shapes accidentally align, but token IDs map to unrelated embeddings—outputs look fluent yet ignore the prompt."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Tokenizer mismatch is not quantization error or wrong dtype—those affect weights, not ID mapping. It is also distinct from context-window overflow, though both show up as truncated prompts in logs."
+    }
+  }
+}

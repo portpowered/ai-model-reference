@@ -122,6 +122,18 @@ const POSITIONAL_CONTEXT_VARIANT_URLS = [
   "/docs/glossary/longrope",
   "/docs/glossary/positional-interpolation",
 ] as const;
+const TOKENIZER_FOUNDATION_URLS = [
+  "/docs/concepts/tokenizers-overview",
+  "/docs/glossary/bpe",
+  "/docs/glossary/wordpiece",
+  "/docs/glossary/unigram-tokenizer",
+  "/docs/glossary/sentencepiece",
+  "/docs/glossary/byte-level-tokenization",
+  "/docs/glossary/vocabulary-size",
+  "/docs/glossary/special-tokens",
+  "/docs/glossary/chat-templates",
+  "/docs/glossary/tokenizer-mismatch",
+] as const;
 const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/embedding",
   "/docs/glossary/vector",
@@ -175,6 +187,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ...ATTENTION_INTERACTION_CONCEPT_URLS,
   ...NORMALIZATION_ACTIVATION_VARIANT_URLS,
   ...POSITIONAL_CONTEXT_VARIANT_URLS,
+  ...TOKENIZER_FOUNDATION_URLS,
   ...CHAIN_GLOSSARY_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(

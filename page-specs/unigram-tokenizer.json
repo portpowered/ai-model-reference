@@ -1,0 +1,42 @@
+{
+  "kind": "glossary",
+  "slug": "unigram-tokenizer",
+  "title": "Unigram tokenizer",
+  "summary": "A probabilistic subword model that prunes a large candidate vocabulary by removing tokens that hurt likelihood the least.",
+  "openingSummary": "The Unigram tokenizer starts from an oversized subword inventory and iteratively drops low-impact pieces, then segments text with a Viterbi-style search over the remaining vocabulary.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": [
+    "Unigram",
+    "Unigram LM tokenizer",
+    "unigram language model tokenizer"
+  ],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "prerequisiteIds": ["concept.token", "concept.tokenizers-overview"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "concept.token",
+    "concept.sentencepiece",
+    "concept.wordpiece",
+    "concept.bpe",
+    "concept.vocabulary-size"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Unigram tokenization treats each subword as having a log-probability and finds the segmentation that maximizes total score. Training begins with many candidates and prunes tokens whose removal least reduces corpus likelihood. T5 and many SentencePiece models use this algorithm under the hood."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Unigram often yields smoother vocabulary pruning than fixed merge-count BPE, which helps multilingual and noisy text. When a model card says SentencePiece with Unigram, decoding rules differ from GPT-style BPE even if both output subword IDs."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Given probabilities for \"un\", \"ig\", \"ram\", and \"unigram\", the decoder might prefer [\"uni\", \"gram\"] or [\"unigram\"] depending on learned scores—not purely on longest greedy match."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Unigram tokenizer names the algorithm, not every SentencePiece model—SentencePiece can run BPE or Unigram. It is also unrelated to unigram language models used for next-token training; here unigram refers only to the segmentation objective."
+    }
+  }
+}

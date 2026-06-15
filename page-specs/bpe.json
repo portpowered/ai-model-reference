@@ -1,0 +1,38 @@
+{
+  "kind": "glossary",
+  "slug": "bpe",
+  "title": "BPE",
+  "summary": "Byte-pair encoding merges frequent symbol pairs into subword tokens until a target vocabulary size is reached.",
+  "openingSummary": "BPE (byte-pair encoding) grows a vocabulary by repeatedly merging the most common adjacent symbols, yielding subword tokens that balance open vocabulary coverage with a fixed embedding table size.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": ["byte-pair encoding", "byte pair encoding", "BPE tokenizer"],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "prerequisiteIds": ["concept.token", "concept.tokenizers-overview"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "concept.token",
+    "concept.embedding",
+    "concept.byte-level-tokenization",
+    "concept.wordpiece",
+    "concept.vocabulary-size"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "BPE starts from characters or bytes and iteratively merges the highest-frequency pairs into new symbols until the vocabulary reaches a chosen size. GPT-2, RoBERTa, and many open LLMs use BPE or byte-level BPE variants. The merge table and vocabulary file fully determine how text splits before embeddings."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "BPE controls how many tokens a prompt consumes and whether rare words split into familiar pieces. Integration bugs often trace to loading the wrong merges.txt with the right weights. Knowing BPE helps you compare context limits and serving cost across checkpoints that share architecture but differ in tokenizer files."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Training might merge \"l\" + \"ow\" into \"low\", then \"low\" + \"er\" into \"lower\", so \"lower\" becomes one token while \"lowest\" might still split into known pieces."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "BPE is not WordPiece or Unigram even though all three produce subwords—the merge versus likelihood rules differ. Byte-level BPE is a BPE variant that operates on bytes for Unicode safety; see the byte-level tokenization page for that distinction."
+    }
+  }
+}

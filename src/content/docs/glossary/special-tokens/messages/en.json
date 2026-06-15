@@ -1,0 +1,46 @@
+{
+  "title": "Special tokens",
+  "description": "Reserved tokenizer symbols for boundaries, padding, masking, and control roles that are not ordinary subwords.",
+  "openingSummary": "Special tokens are fixed IDs in the vocabulary—such as begin-, end-, pad, and mask slots—that frameworks insert around ordinary text for training and batching.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Special tokens occupy dedicated IDs in the vocabulary for structural roles: sequence start and end, padding to equal batch length, mask tokens for denoising objectives, and tool-specific markers in modern chat models. Tokenizer configs declare their strings and IDs so trainers and inference servers insert them consistently."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Wrong special-token handling shifts every position embedding and attention mask. Adding a new chat marker without resizing embeddings breaks fine-tunes. Debugging generation often starts by verifying that BOS, EOS, and pad IDs match between dataset code and the served tokenizer.json."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A batch might wrap user text as [BOS] + tokens + [EOS], then pad shorter rows with  IDs so tensor shapes align before the forward pass."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Special tokens are not the same as chat-template role strings—templates decide when to insert them. They are also unrelated to logits bias tricks; special tokens are part of the vocabulary, not post-hoc filters."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for Special tokens. Replace before publishing.",
+      "caption": "Draft placeholder for Special tokens. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for Special tokens. Replace before publishing.",
+        "summary": "Draft placeholder for Special tokens. Replace before publishing."
+      }
+    }
+  }
+}
