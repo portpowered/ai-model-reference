@@ -31,6 +31,10 @@ async function defaultLaunchBrowser(): Promise<Browser> {
   return launchPlaywrightBrowser();
 }
 
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function readSearchPageInputHydrationSnapshot(
   page: Page,
 ): Promise<SearchPageInputHydrationSnapshot> {
@@ -51,6 +55,32 @@ export async function readSearchPageInputHydrationSnapshot(
       .isVisible(),
     emptyVisible: await page.locator(SEARCH_PAGE_EMPTY_SELECTOR).isVisible(),
   };
+}
+
+/**
+ * Polls until `/search` exposes an operable input and idle shell before typing.
+ */
+export async function waitForSearchPageInputHydrationBeforeQuery(
+  page: Page,
+  timeoutMs: number,
+): Promise<string | null> {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    try {
+      const snapshot = await readSearchPageInputHydrationSnapshot(page);
+      const failure = evaluateSearchPageInputHydrationBeforeQuery(snapshot);
+      if (!failure) {
+        return null;
+      }
+    } catch {
+      // React hydration can detach the input between visibility and evaluate.
+    }
+
+    await sleep(250);
+  }
+
+  return `search input did not hydrate on /search within ${timeoutMs}ms`;
 }
 
 /**
@@ -136,19 +166,15 @@ async function verifySearchPageInputHydrationOnPage(
     waitUntil: "load",
   });
 
-  const input = page.locator(SEARCH_PAGE_INPUT_SELECTOR);
-  try {
-    await input.waitFor({ state: "visible", timeout: timeoutMs });
-  } catch {
-    return `search input did not hydrate on /search within ${timeoutMs}ms`;
-  }
-
-  const beforeQuery = evaluateSearchPageInputHydrationBeforeQuery(
-    await readSearchPageInputHydrationSnapshot(page),
+  const beforeQuery = await waitForSearchPageInputHydrationBeforeQuery(
+    page,
+    timeoutMs,
   );
   if (beforeQuery) {
     return beforeQuery;
   }
+
+  const input = page.locator(SEARCH_PAGE_INPUT_SELECTOR);
 
   await input.focus();
   await input.pressSequentially(query, { delay: 30 });
