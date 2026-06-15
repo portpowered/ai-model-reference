@@ -7,12 +7,14 @@ import {
 import { source } from "@/lib/source";
 
 describe("routable local docs pages", () => {
-  test("identifies concepts, glossary, and module page bundle paths", () => {
+  test("identifies concepts, glossary, module, model, paper, and training page bundle paths", () => {
     expect(isLocalDocsPageBundlePath("concepts/foo/page.mdx")).toBe(true);
     expect(isLocalDocsPageBundlePath("glossary/token/page.mdx")).toBe(true);
     expect(isLocalDocsPageBundlePath("modules/attention/page.mdx")).toBe(true);
+    expect(isLocalDocsPageBundlePath("models/foo/page.mdx")).toBe(true);
+    expect(isLocalDocsPageBundlePath("papers/foo/page.mdx")).toBe(true);
+    expect(isLocalDocsPageBundlePath("training/foo/page.mdx")).toBe(true);
     expect(isLocalDocsPageBundlePath("getting-started.mdx")).toBe(false);
-    expect(isLocalDocsPageBundlePath("models/foo/page.mdx")).toBe(false);
   });
 
   test("requires published status for local message bundles", () => {

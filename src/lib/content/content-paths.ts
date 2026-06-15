@@ -77,6 +77,15 @@ export const CONCEPTS_DOCS_ROOT = getConceptsDocsRoot(DOCS_ROOT);
 /** Default `src/content/docs/modules` root. */
 export const MODULES_DOCS_ROOT = getModulesDocsRoot(DOCS_ROOT);
 
+/** Default `src/content/docs/models` root. */
+export const MODELS_DOCS_ROOT = getModelsDocsRoot(DOCS_ROOT);
+
+/** Default `src/content/docs/papers` root. */
+export const PAPERS_DOCS_ROOT = getPapersDocsRoot(DOCS_ROOT);
+
+/** Default `src/content/docs/training` root. */
+export const TRAINING_DOCS_ROOT = getTrainingDocsRoot(DOCS_ROOT);
+
 /** Default `src/content/registry` root. */
 export const REGISTRY_ROOT = getRegistryRoot(contentRoot);
 

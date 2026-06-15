@@ -173,13 +173,15 @@ Generated registry records carry `relatedIds` and `citationIds` from the page sp
 
 **Content tooling (generation and validation)** — Owns page-spec parsing, template substitution, file writes, dry-run planning, canonical MDX prose checks, generated canonical docs validation, and generated-bundle alignment tests. Modules: `page-spec.ts`, `generate-page-bundle.ts`, `generate-page-bundle-cli.ts`, `validate-generated-page-bundle.ts`, `validate-canonical-mdx-prose.ts`, `validate-generated-canonical-docs.ts`, plus the `scripts/generate-page-bundle.ts` and `scripts/validate-registry.ts` entrypoints.
 
-**Existing runtime (loading, rendering, search)** — Unchanged. Generated bundles must load through:
+**Existing runtime (loading, rendering, search)** — Generated bundles load through the same local-docs path as hand-authored concept, glossary, and module pages. `parseLocalDocsPageRef` and `loadLocalDocsPage` in `local-docs-page.ts` cover `concepts`, `glossary`, `modules`, `models`, `papers`, and `training`; `src/lib/source.ts` maps those page bundles to Fumadocs slugs; `src/app/docs/[[...slug]]/page.tsx` renders them through `ModulePageProviders`. Kind-specific disk loaders live in `concept-page-load.ts`, `glossary-page-load.ts`, `module-page-load.ts`, `model-page-load.ts`, `paper-page-load.ts`, and `training-regime-page-load.ts`.
+
+Shared loader surfaces:
 
 - `loadPageMessages` / `loadPageAssets` (`page-messages-load.ts`, `page-assets-load.ts`)
 - `loadRegistry` and registry-backed search (`registry.ts`, Orama index builders)
 - Fumadocs docs routing and MDX components (`src/app/docs/**`, shared page components)
 
-The generator does not add special runtime loaders or bypass registry validation. Proving alignment is the responsibility of `validateGeneratedPageBundle` and integration tests such as `page-spec-workflow-sample.test.ts`.
+Draft local bundles (`messageNamespace: local`, `status !== published`) are excluded from Fumadocs routing via `excludeNonPublishedLocalDocsPlugin` in `src/lib/source.ts` while remaining on disk for generator tests. Proving alignment is the responsibility of `validateGeneratedPageBundle`, `local-docs-page.test.ts`, and integration tests such as `page-spec-workflow-sample.test.ts`.
 
 ## CLI review flow and sample proof
 

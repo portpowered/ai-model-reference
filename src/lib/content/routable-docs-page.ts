@@ -1,4 +1,4 @@
-/** True when a virtual docs path points at a concepts/glossary/modules page bundle. */
+/** True when a virtual docs path points at a local docs page bundle. */
 export function isLocalDocsPageBundlePath(path: string): boolean {
   if (!path.endsWith("/page.mdx")) {
     return false;
@@ -13,7 +13,10 @@ export function isLocalDocsPageBundlePath(path: string): boolean {
     sectionSlugs.length === 2 &&
     (sectionSlugs[0] === "concepts" ||
       sectionSlugs[0] === "glossary" ||
-      sectionSlugs[0] === "modules")
+      sectionSlugs[0] === "modules" ||
+      sectionSlugs[0] === "models" ||
+      sectionSlugs[0] === "papers" ||
+      sectionSlugs[0] === "training")
   );
 }
 
