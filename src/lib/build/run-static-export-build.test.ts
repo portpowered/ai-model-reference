@@ -10,10 +10,8 @@ import {
 } from "./run-static-export-build";
 
 describe("runStaticExportBuild", () => {
-  test("uses a longer Bun timeout ceiling under CI than locally", () => {
-    expect(getStaticExportBuildBunTestTimeoutMs({ CI: "true" })).toBe(
-      3_600_000,
-    );
+  test("uses a 600s Bun timeout ceiling for export build rows", () => {
+    expect(getStaticExportBuildBunTestTimeoutMs({ CI: "true" })).toBe(600_000);
     expect(getStaticExportBuildBunTestTimeoutMs({})).toBe(600_000);
   });
 

@@ -392,6 +392,8 @@ export type VerifyStaticExportSearchEmptyErrorStatesOptions = {
   errorQuery?: string;
   accessibilityQuery?: string;
   launchBrowser?: () => Promise<Browser>;
+  /** When false, isolated loopback probe servers skip CI export probe lock serialization. */
+  serializeProbe?: boolean;
 };
 
 /**
@@ -402,7 +404,7 @@ export async function verifyStaticExportSearchEmptyErrorStates(
   baseUrl: string,
   options: VerifyStaticExportSearchEmptyErrorStatesOptions = {},
 ): Promise<string | null> {
-  return withExportIntegrationProbeLock(async () => {
+  const runProbe = async (): Promise<string | null> => {
     try {
       const timeoutMs =
         options.timeoutMs ??
@@ -497,7 +499,13 @@ export async function verifyStaticExportSearchEmptyErrorStates(
     } catch (error) {
       return error instanceof Error ? error.message : String(error);
     }
-  });
+  };
+
+  if (options.serializeProbe === false) {
+    return runProbe();
+  }
+
+  return withExportIntegrationProbeLock(runProbe);
 }
 
 export function isRetryableStaticExportSearchProbeFailure(
