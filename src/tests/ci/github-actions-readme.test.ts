@@ -12,6 +12,7 @@ const ciSteps = [
   "make coverage",
   "make build",
   "make build-export",
+  "make test-integration",
   "make validate-data",
   "make linkcheck",
 ] as const;
