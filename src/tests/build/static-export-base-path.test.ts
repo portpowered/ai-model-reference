@@ -12,6 +12,7 @@ import {
   readExportClientChunkContents,
   resolveExportSearchBootstrapClientFrom,
 } from "@/lib/build/verify-export-search-bootstrap-client-path";
+import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integration-probe-lock";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
@@ -63,7 +64,7 @@ describe("static export GitHub Pages base path", () => {
         removeExportArtifacts();
       }
     },
-    { timeout: 180_000 },
+    { timeout: getExportIntegrationBunTestTimeoutMs() },
   );
 
   test(
@@ -94,7 +95,7 @@ describe("static export GitHub Pages base path", () => {
         removeExportArtifacts();
       }
     },
-    { timeout: 180_000 },
+    { timeout: getExportIntegrationBunTestTimeoutMs() },
   );
 
   test(
@@ -131,6 +132,6 @@ describe("static export GitHub Pages base path", () => {
         removeExportArtifacts();
       }
     },
-    { timeout: 180_000 },
+    { timeout: getExportIntegrationBunTestTimeoutMs() },
   );
 });

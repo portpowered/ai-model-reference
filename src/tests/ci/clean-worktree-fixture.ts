@@ -1,7 +1,17 @@
 import { type SpawnSyncReturns, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import {
+  closeSync,
+  constants,
+  existsSync,
+  mkdtempSync,
+  openSync,
+  rmSync,
+  statSync,
+  unlinkSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { sleepSync } from "bun";
 
 /**
  * A "clean tree" for the fresh-checkout proof is a detached git worktree at the
@@ -10,6 +20,74 @@ import { join } from "node:path";
  * developer workspace's node_modules, `.next/`, or generated artifacts.
  */
 export const CLEAN_WORKTREE_SOURCE_DIR = ".source";
+
+const CLEAN_WORKTREE_LOCK_PATH = join(
+  tmpdir(),
+  "model-atlas-clean-worktree.lock",
+);
+const LOCK_POLL_MS = 250;
+const STALE_CLEAN_WORKTREE_LOCK_MAX_AGE_MS = 5 * 60 * 1000;
+
+function removeStaleCleanWorktreeLockIfNeeded(): void {
+  try {
+    const { mtimeMs } = statSync(CLEAN_WORKTREE_LOCK_PATH);
+    if (Date.now() - mtimeMs > STALE_CLEAN_WORKTREE_LOCK_MAX_AGE_MS) {
+      unlinkSync(CLEAN_WORKTREE_LOCK_PATH);
+    }
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "ENOENT"
+    ) {
+      return;
+    }
+    throw error;
+  }
+}
+
+function tryAcquireCleanWorktreeLockSync(): boolean {
+  removeStaleCleanWorktreeLockIfNeeded();
+  try {
+    const fileDescriptor = openSync(
+      CLEAN_WORKTREE_LOCK_PATH,
+      constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY,
+      0o600,
+    );
+    closeSync(fileDescriptor);
+    return true;
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "EEXIST"
+    ) {
+      return false;
+    }
+    throw error;
+  }
+}
+
+function acquireCleanWorktreeLockSync(): void {
+  while (true) {
+    if (tryAcquireCleanWorktreeLockSync()) {
+      return;
+    }
+    sleepSync(LOCK_POLL_MS);
+  }
+}
+
+function releaseCleanWorktreeLockSync(): void {
+  try {
+    unlinkSync(CLEAN_WORKTREE_LOCK_PATH);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+      throw error;
+    }
+  }
+}
 
 export class CleanWorktreeSetupError extends Error {
   readonly phase = "setup" as const;
@@ -92,6 +170,17 @@ function assertNoSourceDir(worktreePath: string): void {
  * finished to remove the worktree reliably.
  */
 export function provisionCleanWorktree(repoRoot: string): CleanWorktreeFixture {
+  acquireCleanWorktreeLockSync();
+  try {
+    return provisionCleanWorktreeUnlocked(repoRoot);
+  } finally {
+    releaseCleanWorktreeLockSync();
+  }
+}
+
+function provisionCleanWorktreeUnlocked(
+  repoRoot: string,
+): CleanWorktreeFixture {
   const commitResult = runGit(repoRoot, ["rev-parse", "HEAD"]);
   if (commitResult.status !== 0 || !commitResult.stdout?.trim()) {
     throw new CleanWorktreeSetupError(
