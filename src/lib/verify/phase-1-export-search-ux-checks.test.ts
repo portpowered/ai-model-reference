@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -17,6 +17,20 @@ import { PHASE_1_SEARCH_PAGE_QUERIES } from "./phase-1-search-page-checks";
 import { VERIFY_COVERAGE_SUBPROCESS_ENV } from "./server-lifecycle";
 
 describe("resolveCiExportSearchUxProbeQueries", () => {
+  const originalCoverageSubprocess = process.env[VERIFY_COVERAGE_SUBPROCESS_ENV];
+
+  beforeEach(() => {
+    delete process.env[VERIFY_COVERAGE_SUBPROCESS_ENV];
+  });
+
+  afterEach(() => {
+    if (originalCoverageSubprocess === undefined) {
+      delete process.env[VERIFY_COVERAGE_SUBPROCESS_ENV];
+    } else {
+      process.env[VERIFY_COVERAGE_SUBPROCESS_ENV] = originalCoverageSubprocess;
+    }
+  });
+
   test("keeps explicit query lists", () => {
     expect(resolveCiExportSearchUxProbeQueries(["attention"])).toEqual([
       "attention",

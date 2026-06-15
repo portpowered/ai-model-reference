@@ -15,11 +15,13 @@ import { VERIFY_COVERAGE_SUBPROCESS_ENV } from "./server-lifecycle";
 describe("export integration probe lock", () => {
   const originalCi = process.env.CI;
   const originalGithubActions = process.env.GITHUB_ACTIONS;
+  const originalCoverageSubprocess = process.env[VERIFY_COVERAGE_SUBPROCESS_ENV];
 
   beforeEach(() => {
     removeExportIntegrationProbeLockForTests();
     delete process.env.CI;
     delete process.env.GITHUB_ACTIONS;
+    delete process.env[VERIFY_COVERAGE_SUBPROCESS_ENV];
   });
 
   afterEach(() => {
@@ -33,6 +35,11 @@ describe("export integration probe lock", () => {
       delete process.env.GITHUB_ACTIONS;
     } else {
       process.env.GITHUB_ACTIONS = originalGithubActions;
+    }
+    if (originalCoverageSubprocess === undefined) {
+      delete process.env[VERIFY_COVERAGE_SUBPROCESS_ENV];
+    } else {
+      process.env[VERIFY_COVERAGE_SUBPROCESS_ENV] = originalCoverageSubprocess;
     }
   });
 
