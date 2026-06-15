@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { readBuiltAppServerHtml } from "@/lib/build/built-app-html-test-utils";
 import {
   extractNdTocHtml,
   tocHtmlIncludesAnchor,
@@ -11,6 +10,7 @@ import {
   stripHtmlScripts,
   TOKEN_GLOSSARY_URL,
 } from "@/lib/navigation/docs-sidebar-contract";
+import { readBuiltHtmlForConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
 import { assertSearchPageBuiltAppShell } from "@/lib/verify/phase-1-search-built-app-shell-checks";
 
 const BUILT_HTML_SITE_ROUTES = [
@@ -41,11 +41,7 @@ const BUILT_HTML_SITE_ROUTES = [
 ] as const;
 
 function readBuiltRouteHtml(relativePath: string): string | null {
-  const prefix = ".next/server/app/";
-  if (!relativePath.startsWith(prefix)) {
-    return null;
-  }
-  return readBuiltAppServerHtml(relativePath.slice(prefix.length));
+  return readBuiltHtmlForConvergenceTests(relativePath);
 }
 
 describe("Phase 1 site routes unified shell (built HTML)", () => {

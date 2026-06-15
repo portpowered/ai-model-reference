@@ -1,6 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { hasTrustedProductionBuildArtifact } from "@/lib/verify/production-integration-build-trust";
+import { readBuiltHtmlForConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
 
 export const BUILT_APP_GITHUB_PAGES_BASE_PATH = "/ai-model-reference";
 
@@ -13,20 +11,13 @@ export function normalizeBuiltAppHtmlInternalPaths(html: string): string {
   return html.replaceAll(`href="${prefix}/`, 'href="/');
 }
 
-/** Reads production built HTML when a complete `.next` artifact is present. */
+/** Reads production built HTML when integration convergence tests should run. */
 export function readBuiltAppServerHtml(
   relativePathFromServerApp: string,
   cwd: string = process.cwd(),
 ): string | null {
-  if (!hasTrustedProductionBuildArtifact(cwd)) {
-    return null;
-  }
-
-  const absolutePath = join(cwd, ".next/server/app", relativePathFromServerApp);
-  if (!existsSync(absolutePath)) {
-    return null;
-  }
-
-  const html = readFileSync(absolutePath, "utf8");
-  return normalizeBuiltAppHtmlInternalPaths(html);
+  return readBuiltHtmlForConvergenceTests(
+    `.next/server/app/${relativePathFromServerApp}`,
+    cwd,
+  );
 }

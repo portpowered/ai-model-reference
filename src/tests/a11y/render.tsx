@@ -60,6 +60,8 @@ export function captureOriginalFetch(): void {
 
 type RenderWithProvidersOptions = Omit<RenderOptions, "wrapper"> & {
   context?: AppTestContext;
+  /** When set, replaces the default ModelAtlas search dialog (use `() => null` for nav-only tests). */
+  SearchDialog?: ComponentType<SharedProps>;
 };
 
 export async function renderWithAppProviders(
@@ -70,6 +72,7 @@ export async function renderWithAppProviders(
 
   function Wrapper({ children }: { children: ReactNode }) {
     const SearchDialog: ComponentType<SharedProps> =
+      options.SearchDialog ??
       function SearchDialogWithMeta(props) {
         return (
           <ModelAtlasSearchDialog

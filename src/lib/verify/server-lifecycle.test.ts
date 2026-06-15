@@ -4,6 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { writeBuildSourceFingerprint } from "./build-source-fingerprint";
 import {
   httpGetStatus,
   isListenPortFree,
@@ -11,7 +12,6 @@ import {
   VERIFY_PORT_RANGE_END,
   VERIFY_PORT_RANGE_START,
 } from "./http-harness";
-import { writeProductionIntegrationBuildDigest } from "./production-integration-build-trust";
 import {
   acquireVerifyServerSession,
   assertNextProductionBuild,
@@ -31,6 +31,7 @@ import {
   resolveVerifyBaseUrlFromEnv,
   shouldRunVerifyProductionIntegrationTests,
   VERIFY_COVERAGE_SUBPROCESS_ENV,
+  VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV,
   VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV,
   waitForServerReady,
 } from "./server-lifecycle";
@@ -118,10 +119,16 @@ if (!Number.isFinite(port)) {
   console.error("VERIFY_STUB_PORT required");
   process.exit(1);
 }
-createServer((_req, res) => {
+const server = createServer((_req, res) => {
   res.writeHead(200, { "Content-Type": "text/plain" });
   res.end("ok");
-}).listen(port, "127.0.0.1");
+});
+server.listen(port, "127.0.0.1");
+for (const signal of ["SIGTERM", "SIGINT"]) {
+  process.on(signal, () => {
+    server.close(() => process.exit(0));
+  });
+}
 `;
 
 function spawnStubProductionServer(port: number, cwd: string): ChildProcess {
@@ -266,49 +273,79 @@ describe("assertNextProductionBuild", () => {
     }
   });
 
-  test("skips production integration tests when build digest is missing", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "verify-no-digest-"));
+  test("skips production integration tests during the coverage subprocess rerun", () => {
+    expect(
+      shouldRunVerifyProductionIntegrationTests(repoRoot, {
+        [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
+        [VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV]: "1",
+      }),
+    ).toBe(false);
+  });
+
+  test("skips production integration tests unless VERIFY_PRODUCTION_INTEGRATION_TESTS=1", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-opt-in-gate-"));
     mkdirSync(join(projectRoot, ".next"), { recursive: true });
     writeFileSync(join(projectRoot, ".next", "BUILD_ID"), "test-build");
+    writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}');
+    writeFileSync(join(projectRoot, "bun.lock"), "lock");
+    writeBuildSourceFingerprint(projectRoot);
 
     try {
-      expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
-      expect(shouldRunVerifyProductionIntegrationTests(projectRoot)).toBe(
+      expect(shouldRunVerifyProductionIntegrationTests(projectRoot, {})).toBe(
         false,
       );
+      expect(
+        shouldRunVerifyProductionIntegrationTests(projectRoot, {
+          [VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV]: "1",
+        }),
+      ).toBe(true);
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
   });
 
-  test("skips production integration tests during the coverage subprocess rerun", () => {
-    expect(
-      shouldRunVerifyProductionIntegrationTests(repoRoot, {
-        [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
-      }),
-    ).toBe(false);
-  });
-
-  test("allows production integration tests when trusted build digest matches", () => {
+  test("allows production integration tests when BUILD_ID is present and fingerprint matches", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-complete-next-"));
     mkdirSync(join(projectRoot, "src"), { recursive: true });
     writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}\n');
     writeFileSync(join(projectRoot, "src", "app.ts"), "export {};\n");
     mkdirSync(join(projectRoot, ".next"), { recursive: true });
     writeFileSync(join(projectRoot, ".next", "BUILD_ID"), "test-build");
+    writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}');
+    writeFileSync(join(projectRoot, "bun.lock"), "lock");
+    writeBuildSourceFingerprint(projectRoot);
 
     try {
-      writeProductionIntegrationBuildDigest(projectRoot);
       expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
-      expect(shouldRunVerifyProductionIntegrationTests(projectRoot, {})).toBe(
-        true,
-      );
+      expect(
+        shouldRunVerifyProductionIntegrationTests(projectRoot, {
+          [VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV]: "1",
+        }),
+      ).toBe(true);
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
   });
 
-  test("allows production integration tests when Next.js 16 Turbopack build markers are present", () => {
+  test("skips production integration tests when build markers exist but fingerprint is stale", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "verify-stale-next-"));
+    mkdirSync(join(projectRoot, ".next"), { recursive: true });
+    writeFileSync(join(projectRoot, ".next", "BUILD_ID"), "test-build");
+    writeBuildSourceFingerprint(projectRoot, "stale:fingerprint:stamp:values");
+
+    try {
+      expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
+      expect(
+        shouldRunVerifyProductionIntegrationTests(projectRoot, {
+          [VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV]: "1",
+        }),
+      ).toBe(false);
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("allows production integration tests when Next.js 16 Turbopack build markers and fingerprint match", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-turbopack-next-"));
     mkdirSync(join(projectRoot, "src"), { recursive: true });
     writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}\n');
@@ -319,13 +356,17 @@ describe("assertNextProductionBuild", () => {
       "{}",
     );
     writeFileSync(join(projectRoot, ".next", "build-manifest.json"), "{}");
+    writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}');
+    writeFileSync(join(projectRoot, "bun.lock"), "lock");
+    writeBuildSourceFingerprint(projectRoot);
 
     try {
-      writeProductionIntegrationBuildDigest(projectRoot);
       expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
-      expect(shouldRunVerifyProductionIntegrationTests(projectRoot, {})).toBe(
-        true,
-      );
+      expect(
+        shouldRunVerifyProductionIntegrationTests(projectRoot, {
+          [VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV]: "1",
+        }),
+      ).toBe(true);
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
@@ -643,10 +684,16 @@ process.exit(42);
     const STUB_NEVER_READY_SCRIPT = `
 import { createServer } from "node:http";
 const port = Number(process.env.VERIFY_STUB_PORT);
-createServer((_req, res) => {
+const server = createServer((_req, res) => {
   res.writeHead(503);
   res.end("not ready");
-}).listen(port, "127.0.0.1");
+});
+server.listen(port, "127.0.0.1");
+for (const signal of ["SIGTERM", "SIGINT"]) {
+  process.on(signal, () => {
+    server.close(() => process.exit(0));
+  });
+}
 `;
 
     function spawnNeverReadyServer(port: number, cwd: string): ChildProcess {

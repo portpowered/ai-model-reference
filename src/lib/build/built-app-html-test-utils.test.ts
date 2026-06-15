@@ -6,7 +6,8 @@ import {
   normalizeBuiltAppHtmlInternalPaths,
   readBuiltAppServerHtml,
 } from "@/lib/build/built-app-html-test-utils";
-import { writeProductionIntegrationBuildDigest } from "@/lib/verify/production-integration-build-trust";
+import { writeBuildSourceFingerprint } from "@/lib/verify/build-source-fingerprint";
+import { VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV } from "@/lib/verify/server-lifecycle";
 
 describe("normalizeBuiltAppHtmlInternalPaths", () => {
   test("strips GitHub Pages base path from internal hrefs", () => {
@@ -24,7 +25,7 @@ describe("normalizeBuiltAppHtmlInternalPaths", () => {
 });
 
 describe("readBuiltAppServerHtml", () => {
-  test("returns null when production build digest is missing", () => {
+  test("returns null when production integration tests are not opted in", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "built-app-html-trust-"));
     mkdirSync(join(projectRoot, ".next", "server", "app", "docs", "glossary"), {
       recursive: true,
@@ -52,7 +53,7 @@ describe("readBuiltAppServerHtml", () => {
     }
   });
 
-  test("reads HTML when trusted production build digest matches", () => {
+  test("reads HTML when integration tests are opted in and fingerprint matches", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "built-app-html-read-"));
     mkdirSync(join(projectRoot, "src"), { recursive: true });
     writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}\n');
@@ -73,13 +74,20 @@ describe("readBuiltAppServerHtml", () => {
       ),
       '<html><a href="/docs/glossary/vector">vector</a></html>',
     );
-    writeProductionIntegrationBuildDigest(projectRoot);
+    writeBuildSourceFingerprint(projectRoot);
+    const previous = process.env[VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV];
+    process.env[VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV] = "1";
 
     try {
       expect(
         readBuiltAppServerHtml("docs/glossary/token.html", projectRoot),
       ).toContain('href="/docs/glossary/vector"');
     } finally {
+      if (previous === undefined) {
+        delete process.env[VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV];
+      } else {
+        process.env[VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV] = previous;
+      }
       rmSync(projectRoot, { recursive: true, force: true });
     }
   });

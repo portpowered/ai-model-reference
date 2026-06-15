@@ -1,7 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { readBuiltAppServerHtml } from "@/lib/build/built-app-html-test-utils";
+import { readBuiltHtmlForConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
 import {
   assertGlossaryChromeLinksConvergence,
   assertGlossaryEmbeddingDescriptionLinks,
@@ -20,9 +18,6 @@ import {
   GLOSSARY_TOKEN_REGISTRY_ID,
   GLOSSARY_VECTOR_REGISTRY_ID,
 } from "./customer-ask-glossary-convergence";
-import { shouldRunVerifyProductionIntegrationTests } from "./server-lifecycle";
-
-const repoRoot = join(import.meta.dir, "../../..");
 
 const CHROME_LINK_CLASS =
   'class="no-underline transition-colors hover:no-underline focus-visible:ring-2"';
@@ -416,12 +411,14 @@ describe("buildCustomerAskGlossaryBridgeDescriptionRows", () => {
 
 describe("buildCustomerAskGlossaryBridgeDescriptionRows (built HTML)", () => {
   test("bridge glossary built HTML reports pass for description link checks", () => {
-    const embeddingHtml = readBuiltAppServerHtml(
-      "docs/glossary/embedding.html",
+    const embeddingHtml = readBuiltHtmlForConvergenceTests(
+      ".next/server/app/docs/glossary/embedding.html",
     );
-    const vectorHtml = readBuiltAppServerHtml("docs/glossary/vector.html");
-    const hiddenSizeHtml = readBuiltAppServerHtml(
-      "docs/glossary/hidden-size.html",
+    const vectorHtml = readBuiltHtmlForConvergenceTests(
+      ".next/server/app/docs/glossary/vector.html",
+    );
+    const hiddenSizeHtml = readBuiltHtmlForConvergenceTests(
+      ".next/server/app/docs/glossary/hidden-size.html",
     );
 
     if (!embeddingHtml || !vectorHtml || !hiddenSizeHtml) {
@@ -441,19 +438,14 @@ describe("buildCustomerAskGlossaryBridgeDescriptionRows (built HTML)", () => {
 
 describe("buildCustomerAskGlossaryRows (built HTML)", () => {
   test("/docs/glossary/token built HTML reports pass for all customer-ask glossary checks", () => {
-    if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
-      return;
-    }
-
-    const builtPath = join(
-      process.cwd(),
+    const tokenHtml = readBuiltHtmlForConvergenceTests(
       ".next/server/app/docs/glossary/token.html",
     );
-    if (!existsSync(builtPath)) {
+    if (!tokenHtml) {
       return;
     }
 
-    const rows = buildCustomerAskGlossaryRows(readFileSync(builtPath, "utf8"));
+    const rows = buildCustomerAskGlossaryRows(tokenHtml);
     expect(rows).toHaveLength(3);
     expect(rows.map((row) => row.checkId)).toEqual([
       GLOSSARY_CUSTOMER_ASK_CHECKS.presentation.checkId,

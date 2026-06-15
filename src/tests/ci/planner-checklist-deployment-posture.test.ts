@@ -3,13 +3,13 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const repoRoot = join(import.meta.dir, "../../..");
-const checklistPath = join(repoRoot, "docs/temp/checklist.md");
+const checklistPath = join(repoRoot, "docs/internal/checklist.md");
 const deployWorkflowPath = join(repoRoot, ".github/workflows/deploy.yml");
 
 function readChecklist(): string {
   if (!existsSync(checklistPath)) {
     throw new Error(
-      "docs/temp/checklist.md is missing; planner deployment control state must exist",
+      "docs/internal/checklist.md is missing; planner deployment control state must exist",
     );
   }
   return readFileSync(checklistPath, "utf8");
@@ -29,7 +29,7 @@ function sectionSlice(
   return end === -1 ? content.slice(start) : content.slice(start, end);
 }
 
-describe("docs/temp/checklist.md planner deployment posture", () => {
+describe("docs/internal/checklist.md planner deployment posture", () => {
   test("exists with control-state sections when deploy workflow is present", () => {
     if (!existsSync(deployWorkflowPath)) {
       return;

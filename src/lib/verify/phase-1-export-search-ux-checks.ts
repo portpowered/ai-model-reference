@@ -47,13 +47,6 @@ function withCiScopedSearchUxQueryOptions<
   return { ...options, queries };
 }
 
-function shouldSerializePhase1ExportSearchUxProbe(
-  env: Record<string, string | undefined> = process.env,
-): boolean {
-  const stub = env[EXPORT_SEARCH_UX_STUB_ENV]?.trim();
-  return stub !== "pass" && stub !== "fail-search";
-}
-
 export type RunPhase1ExportSearchUxChecksOptions = {
   outDir?: string;
   cwd?: string;
@@ -126,7 +119,9 @@ export async function runPhase1ExportSearchUxChecks(
     ];
   }
 
-  const runChecks = async (): Promise<Phase1ExportSearchUxCheckFailure[]> => {
+  const runServedChecks = async (): Promise<
+    Phase1ExportSearchUxCheckFailure[]
+  > => {
     const session = await createStaticExportHttpServer({
       outDir,
       cwd,
@@ -173,11 +168,20 @@ export async function runPhase1ExportSearchUxChecks(
     }
   };
 
-  if (!shouldSerializePhase1ExportSearchUxProbe()) {
-    return runChecks();
+  if (isStubbedExportSearchUxCheck(options)) {
+    return runServedChecks();
   }
 
-  return withExportIntegrationProbeLock(runChecks);
+  return withExportIntegrationProbeLock(runServedChecks);
+}
+
+function isStubbedExportSearchUxCheck(
+  options: RunPhase1ExportSearchUxChecksOptions,
+): boolean {
+  return (
+    options.searchPageOptions?.runQueryCheck !== undefined &&
+    options.searchDialogOptions?.runQueryCheck !== undefined
+  );
 }
 
 /** Prefixes a `/search` hydration DOM outcome for standalone verifier stderr. */

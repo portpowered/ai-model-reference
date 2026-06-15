@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { shouldRunPlaywrightHttpVerifierUnitTests } from "./export-integration-probe-lock";
 import { buildGroupedQueryAttentionStubBody } from "./grouped-query-attention-module-convergence";
 import { verifyStaticExportGqaGraphHydration } from "./static-export-gqa-graph-hydration-http";
 import { createStaticExportHttpServer } from "./static-export-http-server";
@@ -26,6 +27,9 @@ describe("verifyStaticExportGqaGraphHydration", () => {
   test(
     "returns a failure reason when the comparison graph shell is absent",
     async () => {
+      if (!shouldRunPlaywrightHttpVerifierUnitTests()) {
+        return;
+      }
       const root = mkdtempSync(join(tmpdir(), "gqa-graph-hydration-missing-"));
       const gqaPath = join(
         root,
@@ -63,6 +67,9 @@ describe("verifyStaticExportGqaGraphHydration", () => {
   test(
     "returns a failure reason when SSR markers exist but React Flow does not hydrate",
     async () => {
+      if (!shouldRunPlaywrightHttpVerifierUnitTests()) {
+        return;
+      }
       const root = mkdtempSync(join(tmpdir(), "gqa-graph-hydration-static-"));
       writeGqaExportFixture(root);
 
