@@ -220,6 +220,8 @@ The committed sample is `status: published` so story 006 can prove docs routing 
 
 `page-spec-workflow-sample.test.ts` validates the committed bundle with `validateGeneratedPageBundle`, asserts Fumadocs routing via `source.getPage`, renders message-driven sections and the concept map through `ModulePageProviders`, and asserts no `Draft placeholder`, `data-missing-graph-id`, or missing message/asset markers.
 
+`page-spec-workflow-generation.test.ts` is the generator-parity gate: it generates one bundle per `PAGE_SPEC_KINDS` entry, asserts the five-file output shape (registry, graph registry, `page.mdx`, `messages/en.json`, `assets.json`), reloads `loadRegistry` before `validateGeneratedPageBundle`, and proves invalid kind-specific specs and path collisions never leave partial writes on disk.
+
 Browser verification after `bun run build`:
 
 ```bash
