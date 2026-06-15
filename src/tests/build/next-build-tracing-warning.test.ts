@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { ensureExportSearchArtifacts } from "@/lib/build/ensure-export-search-artifacts";
 import {
   buildOutputHasTurbopackWholeProjectTracingWarning,
   firstMatchingTurbopackTracingWarningPattern,
@@ -20,8 +21,10 @@ import {
 } from "@/lib/verify/customer-ask-glossary-page-convergence";
 import { SEARCH_SURFACE_CUSTOMER_ASK_CHECKS } from "@/lib/verify/customer-ask-search-surface-convergence";
 import { runCustomerAskSearchSurfaceChecks } from "@/lib/verify/customer-ask-search-surface-convergence-http";
+import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integration-probe-lock";
 import { assertBatch010BuiltAppConvergenceClosureReady } from "@/lib/verify/phase-1-built-app-convergence-closure";
 import { runPhase1DocsFooterHoverChecks } from "@/lib/verify/phase-1-docs-footer-hover-checks";
+import { runPhase1ExportSearchUxChecks } from "@/lib/verify/phase-1-export-search-ux-checks";
 import {
   acquireVerifyServerSession,
   DEFAULT_SERVER_STARTUP_TIMEOUT_MS,
@@ -341,4 +344,79 @@ describe("post-next-build built-app convergence (production Playwright)", () => 
       await session.cleanup();
     }
   }, 120_000);
+});
+
+/**
+ * Static-export Phase 1 search UX Playwright probes run in this file
+ * immediately after the in-suite production build so they do not contend with
+ * parallel export integration tests or read unhydrated `/search` snapshots.
+ */
+describe("post-next-build static export search UX (served Playwright)", () => {
+  test(
+    "build:export serves GQA, attention, and KV cache on /search and header dialog",
+    async () => {
+      if (process.env.CI === "true") {
+        return;
+      }
+      if (!shouldRunBuiltHtmlConvergenceTests(repoRoot)) {
+        return;
+      }
+
+      const tokenPath = join(
+        repoRoot,
+        ".next/server/app/docs/glossary/token.html",
+      );
+      if (!existsSync(tokenPath)) {
+        return;
+      }
+
+      ensureExportSearchArtifacts({ repoRoot });
+
+      const failures = await runPhase1ExportSearchUxChecks({
+        cwd: repoRoot,
+        searchPageOptions: { timeoutMs: 45_000 },
+        searchDialogOptions: { timeoutMs: 45_000 },
+      });
+      expect(failures).toEqual([]);
+    },
+    { timeout: getExportIntegrationBunTestTimeoutMs() },
+  );
+
+  test(
+    "verify-phase-1-export-search-ux script passes after build:export",
+    () => {
+      if (process.env.CI === "true") {
+        return;
+      }
+      if (!shouldRunBuiltHtmlConvergenceTests(repoRoot)) {
+        return;
+      }
+
+      const tokenPath = join(
+        repoRoot,
+        ".next/server/app/docs/glossary/token.html",
+      );
+      if (!existsSync(tokenPath)) {
+        return;
+      }
+
+      ensureExportSearchArtifacts({ repoRoot });
+
+      const verifyResult = spawnSync(
+        "bun",
+        ["./scripts/verify-phase-1-export-search-ux.ts"],
+        {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: process.env,
+        },
+      );
+
+      expect(verifyResult.status).toBe(0);
+      expect(verifyResult.stdout ?? "").toContain(
+        "Phase 1 static export search UX verified",
+      );
+    },
+    { timeout: getExportIntegrationBunTestTimeoutMs() },
+  );
 });

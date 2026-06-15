@@ -8,13 +8,13 @@ import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 import {
   evaluateSearchPageInputHydrationAfterTyping,
-  evaluateSearchPageInputHydrationBeforeQuery,
   evaluateSearchPageInputHydrationOutcome,
   readSearchPageInputHydrationSnapshot,
   SEARCH_PAGE_EMPTY_SELECTOR,
   SEARCH_PAGE_INPUT_SELECTOR,
   SEARCH_PAGE_LOADING_SELECTOR,
   SEARCH_PAGE_RESULTS_SELECTOR,
+  waitForSearchPageInputHydrationBeforeQuery,
 } from "./static-export-search-input-hydration-http";
 
 /** Phase 1 manual-gate queries exercised on the built `/search` page. */
@@ -281,20 +281,15 @@ export async function checkSearchPageQuery(
     waitUntil: "load",
   });
 
-  const input = page.locator(SEARCH_PAGE_INPUT_SELECTOR);
-  try {
-    await input.waitFor({ state: "visible", timeout: timeoutMs });
-  } catch {
-    return `search input did not hydrate on /search within ${timeoutMs}ms`;
-  }
-
-  const beforeQuery = evaluateSearchPageInputHydrationBeforeQuery(
-    await readSearchPageInputHydrationSnapshot(page),
+  const beforeQuery = await waitForSearchPageInputHydrationBeforeQuery(
+    page,
+    timeoutMs,
   );
   if (beforeQuery) {
     return beforeQuery;
   }
 
+  const input = page.locator(SEARCH_PAGE_INPUT_SELECTOR);
   await input.focus();
   await input.pressSequentially(query, { delay: 30 });
 

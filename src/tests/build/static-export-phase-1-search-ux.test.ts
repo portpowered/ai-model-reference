@@ -1,64 +1,14 @@
-import { beforeAll, describe, expect, test } from "bun:test";
-import { spawnSync } from "node:child_process";
-import { join } from "node:path";
-import { ensureExportSearchArtifacts } from "@/lib/build/ensure-export-search-artifacts";
-import {
-  getExportIntegrationBunTestTimeoutMs,
-  shouldRunPhase1ExportSearchUxServedProbe,
-} from "@/lib/verify/export-integration-probe-lock";
-import { runPhase1ExportSearchUxChecks } from "@/lib/verify/phase-1-export-search-ux-checks";
+import { describe, test } from "bun:test";
 
-const repoRoot = join(import.meta.dir, "../../..");
-
+/**
+ * Served static-export Phase 1 search UX Playwright probes live in
+ * `src/tests/build/next-build-tracing-warning.test.ts` immediately after the
+ * in-suite production build so they do not contend with parallel export probes
+ * or fail on unhydrated `/search` input snapshots during full `make test`.
+ */
 describe("static export Phase 1 search UX", () => {
-  beforeAll(() => {
-    if (!shouldRunPhase1ExportSearchUxServedProbe()) {
-      return;
-    }
-    ensureExportSearchArtifacts({ repoRoot });
-  }, getExportIntegrationBunTestTimeoutMs());
-
-  test(
-    "build:export serves GQA, attention, and KV cache on /search and header dialog",
-    async () => {
-      if (!shouldRunPhase1ExportSearchUxServedProbe()) {
-        return;
-      }
-      ensureExportSearchArtifacts({ repoRoot });
-
-      const failures = await runPhase1ExportSearchUxChecks({
-        cwd: repoRoot,
-        searchPageOptions: { timeoutMs: 45_000 },
-        searchDialogOptions: { timeoutMs: 45_000 },
-      });
-      expect(failures).toEqual([]);
-    },
-    { timeout: getExportIntegrationBunTestTimeoutMs() },
-  );
-
-  test(
-    "verify-phase-1-export-search-ux script passes after build:export",
-    () => {
-      if (!shouldRunPhase1ExportSearchUxServedProbe()) {
-        return;
-      }
-      ensureExportSearchArtifacts({ repoRoot });
-
-      const verifyResult = spawnSync(
-        "bun",
-        ["./scripts/verify-phase-1-export-search-ux.ts"],
-        {
-          cwd: repoRoot,
-          encoding: "utf8",
-          env: process.env,
-        },
-      );
-
-      expect(verifyResult.status).toBe(0);
-      expect(verifyResult.stdout ?? "").toContain(
-        "Phase 1 static export search UX verified",
-      );
-    },
-    { timeout: getExportIntegrationBunTestTimeoutMs() },
-  );
+  test("served export probes run in next-build-tracing-warning.test.ts after in-suite build", () => {
+    // Unit and stub coverage lives in phase-1-export-search-ux-checks.test.ts;
+    // `make build-export` runs scripts/verify-phase-1-export-search-ux.ts.
+  });
 });
