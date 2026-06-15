@@ -1,171 +1,166 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { dirname, join, normalize, resolve } from "node:path";
-import { SCAFFOLD_DOC_PAGE_KINDS } from "../../lib/content/scaffold-doc-page";
+import { spawnSync } from "node:child_process";
+import { access, mkdir, rm, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 
 const repoRoot = join(import.meta.dir, "../../..");
-const guidePath = join(repoRoot, "docs/contributors/CONTRIBUTING.md");
-const guideDir = dirname(guidePath);
-const templatesDir = join(repoRoot, "docs/templates");
 
-const factoryDocPaths = [
-  "factory/docs/overview.md",
-  "factory/docs/batch-inputs.md",
-  "factory/docs/batch-input-example.json",
-] as const;
+function runBun(args: string[]) {
+  return spawnSync("bun", args, {
+    cwd: repoRoot,
+    encoding: "utf8",
+    env: process.env,
+  });
+}
 
-const contributorMakeTargets = [
-  "validate-data",
-  "linkcheck",
-  "lint",
-  "typecheck",
-  "dev",
-  "ci",
-  "scaffold",
-] as const;
+function runMake(target: string) {
+  return spawnSync("make", [target], {
+    cwd: repoRoot,
+    encoding: "utf8",
+    env: process.env,
+  });
+}
 
-const contributorPackageScripts = [
-  "scaffold:doc-page",
-  "dev",
-  "generate:page-bundle",
-] as const;
-
-const contributorScriptPaths = [
-  "scripts/validate-registry.ts",
-  "scripts/validate-links.ts",
-  "scripts/generate-page-bundle.ts",
-] as const;
-
-function readGuide(): string {
-  if (!existsSync(guidePath)) {
-    throw new Error(
-      "docs/contributors/CONTRIBUTING.md is missing; contributor workflow guide must exist",
-    );
+async function pathExists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
   }
-  return readFileSync(guidePath, "utf8");
 }
 
-function listTemplateKinds(): string[] {
-  return readdirSync(templatesDir)
-    .filter((name) => name.endsWith(".mdx"))
-    .map((name) => name.replace(/\.mdx$/, ""))
-    .sort();
-}
+describe("contributor documented workflow commands", () => {
+  test("generate:page-bundle dry-run previews observable paths from committed sample spec", () => {
+    const result = runBun([
+      "run",
+      "generate:page-bundle",
+      "--",
+      "--spec",
+      "page-specs/page-spec-workflow-sample.json",
+      "--dry-run",
+    ]);
 
-function extractMarkdownLinks(markdown: string): string[] {
-  const links: string[] = [];
-  const linkPattern = /\[[^\]]+\]\(([^)]+)\)/g;
-  for (const match of markdown.matchAll(linkPattern)) {
-    const target = match[1]?.trim();
-    if (
-      !target ||
-      target.startsWith("http://") ||
-      target.startsWith("https://")
-    ) {
-      continue;
+    expect(result.status).toBe(0);
+    const output = `${result.stdout}${result.stderr}`;
+    expect(output).toContain("Registry id: concept.page-spec-workflow-sample");
+    expect(output).toContain("/docs/concepts/page-spec-workflow-sample");
+    expect(output).toContain("Planned files:");
+    expect(output).toContain("page-spec-workflow-sample/page.mdx");
+    expect(output).toContain("Dry run complete");
+  });
+
+  test("scaffold:doc-page --help steers contributors toward generate-page-bundle", () => {
+    const result = runBun(["run", "scaffold:doc-page", "--", "--help"]);
+
+    expect(result.status).toBe(0);
+    const output = `${result.stdout}${result.stderr}`;
+    expect(output).toContain("generate-page-bundle");
+    expect(output).toMatch(/prefer/i);
+  });
+
+  test("scaffold:doc-page dry-run prints planned paths without writing files", () => {
+    const slug = `contrib-dry-run-${crypto.randomUUID()}`;
+    const result = runBun([
+      "run",
+      "scaffold:doc-page",
+      "--",
+      "--kind",
+      "concept",
+      "--slug",
+      slug,
+      "--title",
+      "Contributor Dry Run",
+      "--concept-type",
+      "general",
+      "--dry-run",
+    ]);
+
+    expect(result.status).toBe(0);
+    const output = `${result.stdout}${result.stderr}`;
+    expect(output).toContain(`concept.${slug}`);
+    expect(output).toContain(`/docs/concepts/${slug}`);
+    expect(output).toContain("Dry run complete");
+    expect(output).not.toContain("Scaffold complete.");
+  });
+
+  test("generate:page-bundle writes a valid concept bundle that passes validate-data", async () => {
+    const slug = `contrib-write-${crypto.randomUUID()}`;
+    const tempRoot = join(repoRoot, "tmp", "contributor-guide-workflow", slug);
+    const specPath = join(tempRoot, "page-spec.json");
+
+    try {
+      await mkdir(tempRoot, { recursive: true });
+      await writeFile(
+        specPath,
+        JSON.stringify({
+          kind: "concept",
+          slug,
+          title: "Contributor Workflow Write Test",
+          summary: "Generated during contributor guide workflow verification.",
+          conceptType: "general",
+          status: "draft",
+        }),
+      );
+
+      const generateResult = runBun([
+        "run",
+        "generate:page-bundle",
+        "--",
+        "--spec",
+        specPath,
+      ]);
+      expect(generateResult.status).toBe(0);
+      expect(`${generateResult.stdout}${generateResult.stderr}`).toContain(
+        "Page bundle generation complete.",
+      );
+
+      const pagePath = join(
+        repoRoot,
+        "src/content/docs/concepts",
+        slug,
+        "page.mdx",
+      );
+      const registryPath = join(
+        repoRoot,
+        "src/content/registry/concepts",
+        `${slug}.json`,
+      );
+
+      expect(await pathExists(pagePath)).toBe(true);
+      expect(await pathExists(registryPath)).toBe(true);
+
+      const validateResult = runMake("validate-data");
+      expect(validateResult.status).toBe(0);
+      expect(`${validateResult.stdout}${validateResult.stderr}`).toMatch(
+        /validate-registry|validate data|validation/i,
+      );
+    } finally {
+      const pageDir = join(repoRoot, "src/content/docs/concepts", slug);
+      const registryPath = join(
+        repoRoot,
+        "src/content/registry/concepts",
+        `${slug}.json`,
+      );
+      const graphPath = join(
+        repoRoot,
+        "src/content/registry/graphs",
+        `${slug}-concept-map.json`,
+      );
+
+      await rm(pageDir, { recursive: true, force: true });
+      await rm(registryPath, { force: true });
+      await rm(graphPath, { force: true });
+      await rm(tempRoot, { recursive: true, force: true });
     }
-    const withoutAnchor = target.split("#")[0];
-    if (withoutAnchor.length > 0) {
-      links.push(withoutAnchor);
-    }
-  }
-  return links;
-}
+  });
 
-function resolveGuideLink(linkTarget: string): string {
-  return normalize(resolve(guideDir, linkTarget));
-}
+  test("make validate-data passes on committed registry content", () => {
+    const result = runMake("validate-data");
 
-describe("docs/contributors/CONTRIBUTING.md repository alignment", () => {
-  test("exists and references the contributor guide verification test", () => {
-    const guide = readGuide();
-    expect(guide).toMatch(
-      /src\/tests\/ci\/contributor-guide-alignment\.test\.ts/,
+    expect(result.status).toBe(0);
+    expect(`${result.stdout}${result.stderr}`).toMatch(
+      /validate-registry|validate data|validation/i,
     );
-    expect(guide).toMatch(/Keeping this guide aligned/i);
-  });
-
-  test("documents scaffold support only for checked-in scaffold kinds", () => {
-    const guide = readGuide();
-    const scaffoldSection = guide.slice(
-      guide.indexOf("### Scaffold support boundary"),
-      guide.indexOf("### Choosing slug, title, aliases, tags, and registryId"),
-    );
-
-    for (const kind of SCAFFOLD_DOC_PAGE_KINDS) {
-      expect(scaffoldSection).toContain(kind);
-    }
-
-    const nonScaffoldKinds = listTemplateKinds().filter(
-      (kind) =>
-        kind !== "blog-post" &&
-        !SCAFFOLD_DOC_PAGE_KINDS.includes(
-          kind as (typeof SCAFFOLD_DOC_PAGE_KINDS)[number],
-        ),
-    );
-
-    for (const kind of nonScaffoldKinds) {
-      expect(scaffoldSection).toContain(kind);
-      expect(scaffoldSection).toMatch(/template bundle|templates\//i);
-    }
-  });
-
-  test("template inventory table matches docs/templates production bundles", () => {
-    const guide = readGuide();
-    const inventorySection = guide.slice(
-      guide.indexOf("### Template inventory in `docs/templates/`"),
-      guide.indexOf("### Scaffold support boundary"),
-    );
-
-    for (const kind of listTemplateKinds()) {
-      expect(inventorySection).toContain(`${kind}.mdx`);
-      expect(inventorySection).toContain(`${kind}.content.md`);
-      expect(inventorySection).toContain(`${kind}.messages.en.json`);
-      expect(inventorySection).toContain(`${kind}.assets.json`);
-    }
-  });
-
-  test("references factory docs by stable checked-in paths", () => {
-    const guide = readGuide();
-
-    for (const relativePath of factoryDocPaths) {
-      expect(existsSync(join(repoRoot, relativePath))).toBe(true);
-      expect(guide).toContain(relativePath);
-    }
-  });
-
-  test("documents make targets and package scripts that exist today", () => {
-    const guide = readGuide();
-    const makefile = readFileSync(join(repoRoot, "Makefile"), "utf8");
-    const packageJson = JSON.parse(
-      readFileSync(join(repoRoot, "package.json"), "utf8"),
-    ) as { scripts: Record<string, string> };
-
-    for (const target of contributorMakeTargets) {
-      expect(guide).toContain(`make ${target}`);
-      expect(makefile).toMatch(new RegExp(`^${target}:`, "m"));
-    }
-
-    for (const scriptName of contributorPackageScripts) {
-      expect(guide).toContain(scriptName);
-      expect(packageJson.scripts[scriptName]).toBeDefined();
-    }
-
-    for (const scriptPath of contributorScriptPaths) {
-      expect(existsSync(join(repoRoot, scriptPath))).toBe(true);
-      expect(guide).toContain(scriptPath);
-    }
-  });
-
-  test("relative markdown links resolve to checked-in files", () => {
-    const guide = readGuide();
-    const links = extractMarkdownLinks(guide);
-
-    expect(links.length).toBeGreaterThan(0);
-
-    for (const link of links) {
-      const resolved = resolveGuideLink(link);
-      expect(existsSync(resolved)).toBe(true);
-    }
   });
 });

@@ -97,27 +97,43 @@ They differ in frontmatter `kind: glossary`, route prefix
 (`/docs/glossary/<slug>`), and glossary-specific message rules described in
 `glossary.content.md`.
 
-### Scaffold support boundary
+### Page generation for concept and glossary
 
-`scaffold:doc-page` generates a full page bundle for **glossary** and **concept**
-kinds only. It copies the matching template, creates the registry record, graph
-record when needed, and writes colocated messages and assets.
+For **concept** and **glossary** pages, the preferred direct-authoring path is
+the page-spec workflow:
+
+```sh
+bun run generate:page-bundle -- --help
+```
+
+Pass a compact JSON page spec so title, folded summary, sections, tags, and
+assets stay aligned across `page.mdx`, `messages/en.json`, `assets.json`, and
+the registry record:
+
+```sh
+bun run generate:page-bundle -- --spec page-specs/page-spec-workflow-sample.json --dry-run
+```
+
+See `page-specs/page-spec-workflow-sample.json` for the input shape and
+`docs/temp/processes/content-page-generation-workflow-relevant-files.md` for the
+full contract.
+
+**Legacy scaffold** — `scaffold:doc-page` still generates concept and glossary
+bundles from CLI flags for backward compatibility. Its `--help` output points
+maintainers at `generate:page-bundle` for new pages. Prefer the page-spec path
+unless you are reproducing an older scaffold-only workflow.
 
 ```sh
 bun run scaffold:doc-page -- --help
 ```
 
+### Template copy for other canonical kinds
+
 All other canonical kinds (**model**, **module**, **paper**, **training-regime**)
 still start from the template bundle in `docs/templates/`. Copy
 `<kind>.mdx` to `page.mdx`, rename the starter JSON files into the published
 folder, create the matching registry record under `src/content/registry/`, and
-follow `<kind>.content.md` until scaffold support expands.
-
-For concept and glossary work, contributors may also use
-`bun run generate:page-bundle` (`scripts/generate-page-bundle.ts`) with a page
-spec when they need generator alignment across structure, messages, and assets.
-That path is optional; the scaffold command is the default direct-authoring entry
-point.
+follow `<kind>.content.md` until page-spec or scaffold support expands.
 
 ### Choosing slug, title, aliases, tags, and registryId
 
@@ -159,11 +175,12 @@ resolve to published records in `src/content/registry/tags/` (for example
 `attention` maps to `tag.attention`). Repeat the same slugs in frontmatter and in
 the registry record `tags` array.
 
-When using `scaffold:doc-page`, pass `--concept-type` for concept and glossary
-pages. Valid values are `architecture`, `math`, `training`, `inference`,
-`systems`, `evaluation`, and `general`. Optional scaffold flags
-(`--tags`, `--aliases`, `--related-ids`, `--citation-ids`) seed registry and
-frontmatter fields in one step.
+When using `generate:page-bundle`, set `conceptType` in the page spec for
+concept and glossary pages. Valid values are `architecture`, `math`, `training`,
+`inference`, `systems`, `evaluation`, and `general`. Optional spec fields
+(`tags`, `aliases`, `relatedIds`, `citationIds`) seed registry and frontmatter
+fields in one step. The legacy `scaffold:doc-page` CLI accepts the same values
+through `--concept-type` and comma-separated optional flags.
 
 ## Canonical content requirements
 
@@ -418,10 +435,10 @@ convergence review. The checked-in scripts (`validate-registry.ts`,
 `validate-links.ts`, build verifiers inside `make build` / `make build-export`)
 are the supported validation surface.
 
-### After scaffolding or template copy
+### After page generation, scaffolding, or template copy
 
-When you add a new page with `scaffold:doc-page` or by copying a template
-bundle:
+When you add a new page with `generate:page-bundle`, the legacy
+`scaffold:doc-page` command, or by copying a template bundle:
 
 1. Replace placeholder copy in `messages/en.json`.
 2. Add or update registry records the page references.
@@ -444,16 +461,28 @@ Use direct authoring when you can implement the page yourself in a pull request:
 - You know the page kind and slug.
 - You can fill the MDX structure, registry record, messages, assets, tags, and
   citations without generator assistance.
-- The work fits an existing template and the current scaffold support boundary.
+- The work fits an existing template or the current page-generation support
+  boundary.
 
-For **glossary** and **concept** pages, start with the checked-in scaffold
-(see [Scaffold support boundary](#scaffold-support-boundary)):
+For **glossary** and **concept** pages, start with the page-spec generator
+(see [Page generation for concept and glossary](#page-generation-for-concept-and-glossary)):
 
 ```sh
-bun run scaffold:doc-page -- --help
+bun run generate:page-bundle -- --help
 ```
 
-Example dry run:
+Example dry run using the committed sample spec:
+
+```sh
+bun run generate:page-bundle -- --spec page-specs/page-spec-workflow-sample.json --dry-run
+```
+
+For a new page, copy `page-specs/page-spec-workflow-sample.json`, adjust
+`kind`, `slug`, `title`, `summary`, and section bodies, then dry-run before
+writing files.
+
+**Legacy scaffold** — when you need the older CLI-flag workflow, `scaffold:doc-page`
+still supports concept and glossary dry runs:
 
 ```sh
 bun run scaffold:doc-page -- --kind concept --slug my-concept --title "My concept" \
@@ -468,9 +497,9 @@ make scaffold ARGS='--kind glossary --slug my-term --title "My term" --concept-t
 
 For **model**, **module**, **paper**, and **training-regime** pages, copy the
 matching template bundle from `docs/templates/` and create the registry record
-manually until scaffold support expands.
+manually until page-spec or scaffold support expands.
 
-After scaffolding or copying a template bundle, replace placeholder copy in
+After generating, scaffolding, or copying a template bundle, replace placeholder copy in
 `messages/en.json`, add or update registry records the page references, and set
 `status` in `page.mdx` frontmatter when the page is ready for published checks.
 Use [Choosing slug, title, aliases, tags, and registryId](#choosing-slug-title-aliases-tags-and-registryid)
@@ -489,14 +518,14 @@ pages.
 
 | Path | When to use it | What you deliver |
 | --- | --- | --- |
-| **Direct pull request** | One page (or a small, tightly related set) you can implement yourself with existing templates, scaffold, or manual template copy | MDX, registry records, messages, assets, and passing local checks in a PR |
-| **Factory request** | Generator-assisted page creation, kinds scaffold does not support yet, broad conversions across many pages, or coordinated multi-page batches | A clear **idea** work item (or batch of ideas) that maintainers can route through the factory pipeline |
+| **Direct pull request** | One page (or a small, tightly related set) you can implement yourself with `generate:page-bundle`, template copy, or the legacy scaffold | MDX, registry records, messages, assets, and passing local checks in a PR |
+| **Factory request** | Generator-assisted page creation for kinds the page-spec workflow does not support yet, broad conversions across many pages, or coordinated multi-page batches | A clear **idea** work item (or batch of ideas) that maintainers can route through the factory pipeline |
 
 Direct authoring ends in a normal GitHub pull request you can review page by page.
 Factory work ends in one or more executor pull requests produced after planning
 and batch submission. Do not mix the two paths casually: if you can land the page
-with `scaffold:doc-page` or a template copy plus `make validate-data`, prefer a
-direct PR.
+with `generate:page-bundle`, template copy, or legacy scaffold plus
+`make validate-data`, prefer a direct PR.
 
 Examples of factory-appropriate requests:
 
@@ -509,7 +538,7 @@ Examples of factory-appropriate requests:
 
 Examples of direct-PR work:
 
-- A single new glossary or concept page after scaffold.
+- A single new glossary or concept page from a page spec or legacy scaffold.
 - Corrections to messages, citations, tags, or assets on an existing page.
 - Template-aligned edits that pass `make validate-data` and `make linkcheck`.
 
@@ -570,8 +599,8 @@ fields an `idea` payload needs:
 - **Page kind and slug** — for example `module` / `flash-attention`.
 - **Source material** — paper links, existing pages to align with, or draft
   outline.
-- **Starting path** — scaffold (when supported), template sidecar copy, or
-  generator-assisted creation.
+- **Starting path** — `generate:page-bundle` (concept/glossary), template sidecar
+  copy (other kinds), legacy scaffold, or generator-assisted creation.
 - **Scope** — single page vs multi-page batch; whether registry or template
   changes are in scope.
 
@@ -585,8 +614,8 @@ request reviewer-ready:
 
 1. Name the **page kind** and **slug** using the rules in
    [Choosing slug, title, aliases, tags, and registryId](#choosing-slug-title-aliases-tags-and-registryid).
-2. State whether **scaffold**, **template copy**, or **generator-assisted**
-   creation applies today.
+2. State whether **page-spec generation**, **template copy**, **legacy scaffold**,
+   or broader **generator-assisted** creation applies today.
 3. List **source references** (papers, upstream docs, related registry IDs).
 4. Call out **tags, citations, and related IDs** you already know.
 5. Say whether the work is **one page** or part of a **larger batch** listed in
@@ -631,25 +660,26 @@ checked-in scripts.
 
 ## Keeping this guide aligned
 
-This guide is checked against the repository so documented commands, template
-inventory, scaffold support, and factory references do not drift into fiction.
+This guide is checked against the repository so documented commands and
+workflows behave as described.
 
 | Verification surface | Path |
 | --- | --- |
-| Contributor guide alignment test | `src/tests/ci/contributor-guide-alignment.test.ts` |
-| Scaffold supported kinds | `src/lib/content/scaffold-doc-page.ts` (`SCAFFOLD_DOC_PAGE_KINDS`) |
+| Contributor workflow command test | `src/tests/ci/contributor-guide-alignment.test.ts` |
+| Page-spec workflow | `scripts/generate-page-bundle.ts`, `page-specs/page-spec-workflow-sample.json` |
+| Legacy scaffold kinds | `src/lib/content/scaffold-doc-page.ts` (`SCAFFOLD_DOC_PAGE_KINDS`) |
 | Production templates | `docs/templates/*.mdx` and starter sidecars |
 | Factory batch docs | `factory/docs/overview.md`, `factory/docs/batch-inputs.md`, `factory/docs/batch-input-example.json` |
 
-Run the alignment test while editing this guide:
+Run the workflow command test while editing this guide:
 
 ```sh
 bun test src/tests/ci/contributor-guide-alignment.test.ts
 ```
 
-The test verifies scaffold boundaries, template inventory, documented `make`
-targets and `package.json` scripts, factory doc paths, and relative links in this
-file. Run `make validate-data` and `make linkcheck` for published page bundles;
+The test dry-runs the documented `generate:page-bundle` and `scaffold:doc-page`
+entrypoints and runs `make validate-data` against committed content. Run
+`make validate-data` and `make linkcheck` for published page bundles;
 `linkcheck` does not scan arbitrary markdown under `docs/`.
 
 ## Maintainer references
