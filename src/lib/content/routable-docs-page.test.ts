@@ -53,15 +53,15 @@ describe("routable local docs pages", () => {
     ).toBe(false);
   });
 
-  test("draft maintainer sample is excluded from Fumadocs source routing", () => {
+  test("published page-spec workflow sample is routable through Fumadocs source", () => {
     expect(
       source.getPage(["concepts", "page-spec-workflow-sample"]),
-    ).toBeUndefined();
+    ).toBeDefined();
 
     const slugPaths = source
       .generateParams()
       .map((entry) => entry.slug.join("/"));
-    expect(slugPaths).not.toContain("concepts/page-spec-workflow-sample");
+    expect(slugPaths).toContain("concepts/page-spec-workflow-sample");
   });
 
   test("published local docs bundles remain routable", () => {

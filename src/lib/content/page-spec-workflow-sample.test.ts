@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import { source } from "@/lib/source";
 import { loadConceptPageFromDisk } from "./concept-page-load";
 import {
   getConceptsDocsRoot,
@@ -15,6 +16,10 @@ import { validateGeneratedPageBundle } from "./validate-generated-page-bundle";
 const SAMPLE_SLUG = "page-spec-workflow-sample";
 
 describe("page-spec workflow sample", () => {
+  test("committed sample bundle is routable through Fumadocs source", () => {
+    expect(source.getPage(["concepts", SAMPLE_SLUG])).toBeDefined();
+  });
+
   test("committed sample bundle loads, validates, and renders message-driven content", async () => {
     const conceptsDocsRoot = getConceptsDocsRoot();
     const pageDir = join(conceptsDocsRoot, SAMPLE_SLUG);

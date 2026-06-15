@@ -1,5 +1,6 @@
 /** Concept registry ids whose published docs page lives under `/docs/concepts`. */
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
+  "concept.page-spec-workflow-sample",
   "concept.transformer-architecture",
   "concept.positional-encodings",
   "concept.context-extension",
@@ -61,6 +62,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.diffusion-model",
   "concept.multimodal-model",
   "concept.world-model",
+  "concept.page-spec-workflow-sample",
   "concept.transformer-architecture",
   "concept.feed-forward-network",
   "concept.mixture-of-experts",

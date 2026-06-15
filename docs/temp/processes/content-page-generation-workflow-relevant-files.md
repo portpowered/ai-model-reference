@@ -199,7 +199,7 @@ Use dry-run before writing files, then review one small committed sample to prov
    `invalid-input`, `unresolved-reference`, `missing-template`, or `existing-target`.
 4. Generate when dry-run looks correct:
    `bun run generate:page-bundle --spec page-specs/<slug>.json`
-5. For published concept/glossary samples, also update `meta.json`, `published-docs-registry-ids.ts`, graph-registry runtime imports, and inventory tests when the page enters published inventories. Maintainer proof bundles should stay `status: draft` and validate through generator/bundle tests only.
+5. For published concept/glossary samples, also update `meta.json`, `published-docs-registry-ids.ts`, graph-registry runtime imports, and inventory tests when the page enters published inventories. Maintainer proof bundles that stay `status: draft` validate through generator/bundle tests only and are excluded from docs routing.
 
 `formatScaffoldUsage()` and `formatGeneratePageBundleUsage()` document the migration from legacy `scaffold:doc-page` flags to one page-spec file.
 
@@ -216,11 +216,21 @@ Non-published local docs bundles (`messageNamespace: local` with `status` other 
 | Registry record | `src/content/registry/concepts/page-spec-workflow-sample.json` |
 | Graph registry | `src/content/registry/graphs/page-spec-workflow-sample-concept-map.json` |
 
-The sample is `status: draft` with maintainer/process copy so it stays out of customer-facing inventories (`meta.json`, `PUBLISHED_*_REGISTRY_IDS`, tag landing pages, search-index URL fixtures) and Fumadocs docs routing. Reviewers replay generation with `--dry-run` and validate the committed bundle through tests.
+The committed sample is `status: published` so story 006 can prove docs routing at `/docs/concepts/page-spec-workflow-sample`. It is listed in `meta.json`, `PUBLISHED_*_REGISTRY_IDS`, and search-index URL fixtures alongside other concept pages. Reviewers replay generation with `--dry-run` and verify routing with `page-spec-workflow-sample.test.ts` plus a production-server curl on the docs route.
 
-`page-spec-workflow-sample.test.ts` validates the committed bundle with `validateGeneratedPageBundle`, renders message-driven sections and the concept map through `ModulePageProviders`, and asserts no `Draft placeholder`, `data-missing-graph-id`, or missing message/asset markers.
+`page-spec-workflow-sample.test.ts` validates the committed bundle with `validateGeneratedPageBundle`, asserts Fumadocs routing via `source.getPage`, renders message-driven sections and the concept map through `ModulePageProviders`, and asserts no `Draft placeholder`, `data-missing-graph-id`, or missing message/asset markers.
 
-Draft bundles are not served at `/docs/**`; use `page-spec-workflow-sample.test.ts` for render proof instead of browser routing.
+Browser verification after `bun run build`:
+
+```bash
+PORT=3477
+bun run start -- -p "$PORT" &
+server_pid=$!
+trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+sleep 4
+curl --fail --silent --show-error --max-time 10 \
+  "http://127.0.0.1:$PORT/docs/concepts/page-spec-workflow-sample"
+```
 
 ## Maintainer entrypoints
 
