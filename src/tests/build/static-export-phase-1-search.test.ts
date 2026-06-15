@@ -8,7 +8,10 @@ import {
   EXPORT_SEARCH_BOOTSTRAP_RELATIVE_PATH,
 } from "@/lib/build/export-search-bootstrap";
 import { runPhase1StaticHandoffSearchChecksFromOutDir } from "@/lib/build/run-phase-1-static-handoff-search-checks";
-import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
+import {
+  getStaticExportBuildBunTestTimeoutMs,
+  runStaticExportBuild,
+} from "@/lib/build/run-static-export-build";
 import { verifyPhase1ExportSearchFromOutDir } from "@/lib/build/verify-phase-1-export-search";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
@@ -18,6 +21,7 @@ import { SAMPLE_MODULE_URL } from "../search/helpers";
 const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
 const nextDir = join(repoRoot, ".next");
+const exportBuildTestTimeout = getStaticExportBuildBunTestTimeoutMs();
 const TEST_EXPORT_SEARCH_URL = "http://export.test/api/search";
 
 function removeExportArtifacts(): void {
@@ -104,7 +108,7 @@ describe("static export Phase 1 search bootstrap", () => {
         removeExportArtifacts();
       }
     },
-    { timeout: 180_000 },
+    { timeout: exportBuildTestTimeout },
   );
 
   test(
@@ -136,6 +140,6 @@ describe("static export Phase 1 search bootstrap", () => {
         removeExportArtifacts();
       }
     },
-    { timeout: 180_000 },
+    { timeout: exportBuildTestTimeout },
   );
 });

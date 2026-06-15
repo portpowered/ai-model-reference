@@ -2,7 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
+import {
+  getStaticExportBuildBunTestTimeoutMs,
+  runStaticExportBuild,
+} from "@/lib/build/run-static-export-build";
 import {
   GROUPED_QUERY_ATTENTION_EXPORT_HTML_PATH,
   verifyGroupedQueryAttentionBuiltRouteFromFile,
@@ -12,6 +15,7 @@ import { verifyPhase1ExportRoutesFromOutDir } from "@/lib/build/verify-phase-1-e
 const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
 const nextDir = join(repoRoot, ".next");
+const exportBuildTestTimeout = getStaticExportBuildBunTestTimeoutMs();
 
 function removeExportArtifacts(): void {
   if (existsSync(outDir)) {
@@ -58,7 +62,7 @@ describe("static export Phase 1 reader routes", () => {
         removeExportArtifacts();
       }
     },
-    { timeout: 180_000 },
+    { timeout: exportBuildTestTimeout },
   );
 
   test(
@@ -90,6 +94,6 @@ describe("static export Phase 1 reader routes", () => {
         removeExportArtifacts();
       }
     },
-    { timeout: 180_000 },
+    { timeout: exportBuildTestTimeout },
   );
 });
