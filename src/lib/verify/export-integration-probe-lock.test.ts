@@ -1,8 +1,10 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import {
   getExportIntegrationBunTestTimeoutMs,
   isInsideExportIntegrationProbeLock,
+  removeExportIntegrationProbeLockForTests,
   shouldRunExportIntegrationProbeTests,
+  shouldRunPlaywrightHttpVerifierUnitTests,
   shouldRunServedPhase1CanonicalQueriesProbe,
   shouldSerializeExportIntegrationProbes,
   withExportIntegrationProbeLock,
@@ -13,7 +15,14 @@ describe("export integration probe lock", () => {
   const originalCi = process.env.CI;
   const originalGithubActions = process.env.GITHUB_ACTIONS;
 
+  beforeEach(() => {
+    removeExportIntegrationProbeLockForTests();
+    delete process.env.CI;
+    delete process.env.GITHUB_ACTIONS;
+  });
+
   afterEach(() => {
+    removeExportIntegrationProbeLockForTests();
     if (originalCi === undefined) {
       delete process.env.CI;
     } else {
@@ -44,6 +53,15 @@ describe("export integration probe lock", () => {
     expect(shouldRunExportIntegrationProbeTests({})).toBe(true);
   });
 
+  test("skips Playwright HTTP verifier unit tests during the coverage subprocess rerun", () => {
+    expect(
+      shouldRunPlaywrightHttpVerifierUnitTests({
+        [VERIFY_COVERAGE_SUBPROCESS_ENV]: "1",
+      }),
+    ).toBe(false);
+    expect(shouldRunPlaywrightHttpVerifierUnitTests({})).toBe(true);
+  });
+
   test("skips served Phase 1 canonical query probe under CI serialization", () => {
     expect(shouldRunServedPhase1CanonicalQueriesProbe({ CI: "true" })).toBe(
       false,
@@ -69,20 +87,21 @@ describe("export integration probe lock", () => {
   });
 
   test("runs probes without serialization outside CI", async () => {
-    delete process.env.CI;
-    delete process.env.GITHUB_ACTIONS;
-    expect(shouldSerializeExportIntegrationProbes()).toBe(false);
+    expect(shouldSerializeExportIntegrationProbes({})).toBe(false);
 
     const value = await withExportIntegrationProbeLock(async () => "ok");
     expect(value).toBe("ok");
     expect(isInsideExportIntegrationProbeLock()).toBe(false);
   });
 
-  test("tracks export probe lock depth for nested launch serialization", async () => {
-    expect(isInsideExportIntegrationProbeLock()).toBe(false);
-    await withExportIntegrationProbeLock(async () => {
-      expect(isInsideExportIntegrationProbeLock()).toBe(true);
-    });
-    expect(isInsideExportIntegrationProbeLock()).toBe(false);
-  });
+  test.serial(
+    "tracks export probe lock depth for nested launch serialization",
+    async () => {
+      expect(isInsideExportIntegrationProbeLock()).toBe(false);
+      await withExportIntegrationProbeLock(async () => {
+        expect(isInsideExportIntegrationProbeLock()).toBe(true);
+      });
+      expect(isInsideExportIntegrationProbeLock()).toBe(false);
+    },
+  );
 });

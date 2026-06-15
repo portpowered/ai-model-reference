@@ -1,5 +1,25 @@
 import { describe, expect, test } from "bun:test";
-import { runExportProbeWithSpawnGuard } from "./export-probe-spawn-guard";
+import {
+  isRetryableExportProbeFailure,
+  runExportProbeWithSpawnGuard,
+} from "./export-probe-spawn-guard";
+
+describe("isRetryableExportProbeFailure", () => {
+  test("treats transient Playwright browser closure as retryable", () => {
+    expect(isRetryableExportProbeFailure(null)).toBe(false);
+    expect(
+      isRetryableExportProbeFailure(
+        "goto: Target page, context or browser has been closed",
+      ),
+    ).toBe(true);
+    expect(isRetryableExportProbeFailure("Failed to connect")).toBe(true);
+    expect(
+      isRetryableExportProbeFailure(
+        "GQA comparison graph shell did not appear after hydration.",
+      ),
+    ).toBe(false);
+  });
+});
 
 describe("runExportProbeWithSpawnGuard", () => {
   test("returns probe result when no spawn rejection escapes", async () => {
