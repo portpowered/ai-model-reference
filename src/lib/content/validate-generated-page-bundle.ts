@@ -196,6 +196,17 @@ export function validateGeneratedSearchText(
 ): ValidationError[] {
   const errors: ValidationError[] = [];
   const pagePath = pageUrl;
+  const registryRecord = frontmatter.registryId
+    ? indexes.byId.get(frontmatter.registryId)
+    : undefined;
+
+  if (frontmatter.registryId && !registryRecord) {
+    errors.push({
+      code: "missing-registry-record",
+      message: `${pagePath}: frontmatter registryId "${frontmatter.registryId}" is not loaded by loadRegistry`,
+    });
+    return errors;
+  }
 
   const docsPage = {
     pageDir: "",
@@ -226,6 +237,24 @@ export function validateGeneratedSearchText(
       code: "search-body-not-from-messages",
       message: `${pagePath}: search bodyText must come from resolved messages, not MDX`,
     });
+  }
+
+  if (registryRecord) {
+    if (!arraysEqual(searchDocument.relatedIds, registryRecord.relatedIds)) {
+      errors.push({
+        code: "search-related-not-from-registry",
+        message: `${pagePath}: search relatedIds must come from the registry record`,
+      });
+    }
+
+    for (const alias of registryRecord.aliases) {
+      if (!searchDocument.aliases.includes(alias)) {
+        errors.push({
+          code: "search-alias-not-from-registry",
+          message: `${pagePath}: search aliases must include registry alias "${alias}"`,
+        });
+      }
+    }
   }
 
   return errors;

@@ -39,6 +39,9 @@ const defaultDocsRoot = DOCS_ROOT;
 const registryKindDirectories: Record<string, string> = {
   module: "modules",
   concept: "concepts",
+  model: "models",
+  paper: "papers",
+  "training-regime": "training-regimes",
   tag: "tags",
   citation: "citations",
   graph: "graphs",
@@ -180,6 +183,35 @@ function validateRegistryRecordReferences(
     referenceFields.push(
       { field: "prerequisiteIds", ids: record.prerequisiteIds },
       { field: "explainsIds", ids: record.explainsIds },
+    );
+  }
+
+  if (record.kind === "model") {
+    referenceFields.push(
+      { field: "architectureIds", ids: record.architectureIds },
+      { field: "moduleIds", ids: record.moduleIds },
+      { field: "trainingRegimeIds", ids: record.trainingRegimeIds },
+      { field: "datasetIds", ids: record.datasetIds },
+      { field: "paperIds", ids: record.paperIds },
+    );
+  }
+
+  if (record.kind === "paper") {
+    referenceFields.push(
+      { field: "introducesIds", ids: record.introducesIds },
+      { field: "supportsIds", ids: record.supportsIds },
+      { field: "arguesAgainstIds", ids: record.arguesAgainstIds },
+      { field: "modelIds", ids: record.modelIds },
+      { field: "moduleIds", ids: record.moduleIds },
+      { field: "conceptIds", ids: record.conceptIds },
+    );
+  }
+
+  if (record.kind === "training-regime") {
+    referenceFields.push(
+      { field: "usedByModelIds", ids: record.usedByModelIds },
+      { field: "relatedModuleIds", ids: record.relatedModuleIds },
+      { field: "paperIds", ids: record.paperIds },
     );
   }
 

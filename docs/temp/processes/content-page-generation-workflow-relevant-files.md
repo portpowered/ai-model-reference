@@ -180,7 +180,7 @@ Generated registry records carry `relatedIds` and `citationIds` from the page sp
 Shared loader surfaces:
 
 - `loadPageMessages` / `loadPageAssets` (`page-messages-load.ts`, `page-assets-load.ts`)
-- `loadRegistry` and registry-backed search (`registry.ts`, Orama index builders)
+- `loadRegistry` and registry-backed search (`registry.ts`, `buildSearchDocument` in `src/lib/search/build-documents.ts`, Orama index builders) — `loadRegistry` reads `models`, `papers`, and `training-regimes` alongside the Phase 1 baseline directories so generated page-spec kinds resolve through the shared registry indexes.
 - Fumadocs docs routing and MDX components (`src/app/docs/**`, shared page components)
 
 Draft local bundles (`messageNamespace: local`, `status !== published`) are excluded from Fumadocs routing via `excludeNonPublishedLocalDocsPlugin` in `src/lib/source.ts` while remaining on disk for generator tests. Proving alignment is the responsibility of `validateGeneratedPageBundle`, `local-docs-page.test.ts`, and integration tests such as `page-spec-workflow-sample.test.ts`.
