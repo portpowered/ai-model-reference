@@ -1,4 +1,8 @@
 import { readBuiltHtmlForConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
+import {
+  PHASE_1_ROUTE_ASSERTIONS,
+  type Phase1RouteAssertion,
+} from "@/lib/verify/phase-1-route-checks";
 
 export const BUILT_APP_GITHUB_PAGES_BASE_PATH = "/ai-model-reference";
 
@@ -20,4 +24,17 @@ export function readBuiltAppServerHtml(
     `.next/server/app/${relativePathFromServerApp}`,
     cwd,
   );
+}
+
+/** Applies a Phase 1 route assertion to built-app HTML (null when content passes). */
+export function assertBuiltAppRouteHtml(
+  routePath: string,
+  html: string,
+  routes: readonly Phase1RouteAssertion[] = PHASE_1_ROUTE_ASSERTIONS,
+): string | null {
+  const assertion = routes.find((entry) => entry.path === routePath);
+  if (!assertion) {
+    return `missing Phase 1 route assertion for ${routePath}`;
+  }
+  return assertion.assertBody(html);
 }

@@ -1,5 +1,6 @@
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
+import { loadPhase1AttentionModuleUrls } from "@/lib/content/phase-1-published-resources";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
 import {
@@ -62,17 +63,6 @@ export const BATCH_017_DOCS_URLS = [
   "/docs/glossary/context-window",
   "/docs/concepts/context-extension",
   "/docs/concepts/why-long-context-is-hard",
-] as const;
-
-const EXPECTED_ATTENTION_MODULE_URLS = [
-  "/docs/modules/attention",
-  "/docs/modules/grouped-query-attention",
-  "/docs/modules/linear-attention",
-  "/docs/modules/multi-head-attention",
-  "/docs/modules/multi-head-latent-attention",
-  "/docs/modules/multi-query-attention",
-  "/docs/modules/sliding-window-attention",
-  "/docs/modules/sparse-attention",
 ] as const;
 
 const MODEL_FAMILY_REGISTRY_IDS = [
@@ -204,7 +194,8 @@ export async function runAttentionTagGroupingGate(): Promise<Phase23Reconciliati
   }
 
   const moduleUrls = moduleGroup.resources.map((resource) => resource.url);
-  for (const url of EXPECTED_ATTENTION_MODULE_URLS) {
+  const expectedModuleUrls = await loadPhase1AttentionModuleUrls("en");
+  for (const url of expectedModuleUrls) {
     if (!moduleUrls.includes(url)) {
       return failResult(
         domainId,
@@ -214,11 +205,11 @@ export async function runAttentionTagGroupingGate(): Promise<Phase23Reconciliati
     }
   }
 
-  if (moduleUrls.length !== EXPECTED_ATTENTION_MODULE_URLS.length) {
+  if (moduleUrls.length !== expectedModuleUrls.length) {
     return failResult(
       domainId,
       label,
-      `expected ${EXPECTED_ATTENTION_MODULE_URLS.length} attention modules, found ${moduleUrls.length}`,
+      `expected ${expectedModuleUrls.length} attention modules, found ${moduleUrls.length}`,
     );
   }
 

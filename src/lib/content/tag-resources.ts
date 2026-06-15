@@ -1,5 +1,5 @@
+import { publishedResourceMatchesTag } from "@/lib/content/phase-1-published-resources";
 import type { DocsPageSource } from "./pages";
-import { getRegistryRecord, type RegistryIndexes } from "./registry-index";
 import type { TagRecord } from "./schemas";
 import type { UiMessages } from "./ui-messages.types";
 import { formatPageKind } from "./ui-messages.types";
@@ -41,18 +41,6 @@ function kindSortIndex(kind: string): number {
     kind as (typeof TAG_RESOURCE_KIND_ORDER)[number],
   );
   return index === -1 ? TAG_RESOURCE_KIND_ORDER.length : index;
-}
-
-function pageMatchesTag(
-  page: DocsPageSource,
-  tagSlug: string,
-  indexes: RegistryIndexes,
-): boolean {
-  if (page.frontmatter.tags.includes(tagSlug)) {
-    return true;
-  }
-  const record = getRegistryRecord(indexes, page.frontmatter.registryId);
-  return record?.tags.includes(tagSlug) ?? false;
 }
 
 export function toTagResourceEntry(page: DocsPageSource): TagResourceEntry {
@@ -98,7 +86,7 @@ export async function loadTagResourceEntries(
   const { loadPublishedDocsPages } = await import("./pages");
   const indexes = await loadRegistry();
   const pages = (await loadPublishedDocsPages(locale)).filter((page) =>
-    pageMatchesTag(page, tagSlug, indexes),
+    publishedResourceMatchesTag(page, tagSlug, indexes),
   );
   return sortTagResourceEntriesByTitle(pages.map(toTagResourceEntry));
 }
