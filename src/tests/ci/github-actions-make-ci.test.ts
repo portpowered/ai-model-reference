@@ -25,6 +25,7 @@ const ciTargets = [
   "coverage",
   "build",
   "build-export",
+  "test-integration",
   "validate-data",
   "linkcheck",
 ] as const;

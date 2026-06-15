@@ -10,17 +10,20 @@ import {
   getExportIntegrationBunTestTimeoutMs,
   shouldRunExportIntegrationProbeTests,
 } from "@/lib/verify/export-integration-probe-lock";
+import { runExportProbeWithSpawnGuard } from "@/lib/verify/export-probe-spawn-guard";
 import {
   assertSearchPageExportShell,
   SEARCH_PAGE_INPUT_HTML_MARKER,
 } from "@/lib/verify/phase-1-search-export-shell-checks";
 import { createStaticExportHttpServer } from "@/lib/verify/static-export-http-server";
+import { isRetryableStaticExportSearchProbeFailure } from "@/lib/verify/static-export-search-empty-error-states-http";
 import { verifyStaticExportSearchInputHydration } from "@/lib/verify/static-export-search-input-hydration-http";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
 const exportBasePath = "/ai-model-reference";
 const searchExportHtmlPath = join(outDir, "search.html");
+const CI_PROBE_RETRY_DELAY_MS = 5_000;
 
 describe("static export /search input hydration on GitHub Pages base path", () => {
   beforeAll(() => {
@@ -58,10 +61,30 @@ describe("static export /search input hydration on GitHub Pages base path", () =
         basePath: exportBasePath,
       });
       try {
-        const reason = await verifyStaticExportSearchInputHydration(
-          server.baseUrl,
-          { timeoutMs: 45_000 },
-        );
+        const maxAttempts =
+          process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true"
+            ? 3
+            : 1;
+        let reason: string | null = null;
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+          reason = await runExportProbeWithSpawnGuard(async () =>
+            verifyStaticExportSearchInputHydration(server.baseUrl, {
+              timeoutMs: 45_000,
+            }),
+          );
+          if (
+            reason === null ||
+            !isRetryableStaticExportSearchProbeFailure(reason) ||
+            attempt === maxAttempts
+          ) {
+            break;
+          }
+          await new Promise((resolve) =>
+            setTimeout(resolve, CI_PROBE_RETRY_DELAY_MS),
+          );
+        }
+
         expect(reason).toBeNull();
       } finally {
         await server.cleanup();

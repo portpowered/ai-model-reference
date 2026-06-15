@@ -272,7 +272,7 @@ GitHub Actions runs the same gate sequence on pull requests and pushes to
 `main`: install dependencies with `bun install --frozen-lockfile`, then
 `make ci` (see `.github/workflows/ci.yml`). No repository secrets are required
 for lint, typecheck, test, manifest-scoped component coverage, build,
-build-export, validate-data, and linkcheck. The baseline CI workflow
+build-export, post-build integration tests, validate-data, and linkcheck. The baseline CI workflow
 (`.github/workflows/ci.yml`) does not invoke deploy or preview steps. GitHub
 Pages deployment runs separately via `.github/workflows/deploy.yml` on pushes to
 `main` (see [Operations and release](#operations-and-release)). PDF validation
@@ -287,8 +287,9 @@ the repository root after `bun install --frozen-lockfile`; it runs, in order:
 4. `make coverage` — manifest-scoped reusable component coverage gate (same as `bun run coverage`)
 5. `make build` — `next build` plus Phase 1 static route verification
 6. `make build-export` — static export to `out/` plus Phase 1 export route verification
-7. `make validate-data` — registry and content validation
-8. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
+7. `make test-integration` — post-build built HTML and production-server integration manifest (`bun run test:integration` / `scripts/run-production-integration-tests.ts`)
+8. `make validate-data` — registry and content validation
+9. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
 
 Use `bun run scaffold:doc-page` (or `make scaffold`) when adding Phase 2 glossary or
 concept pages, then run `make validate-data` before opening a pull request.
@@ -333,7 +334,7 @@ installed, and Playwright Chromium for real browser checks (`npx playwright
 install chromium` once per machine).
 
 After `make build`, run the built-app verifier to codify the Phase 1 manual gate
-from `docs/temp/customer-ask.md` (home, search, glossary, tags, sample
+from `docs/internal/customer-ask.md` (home, search, glossary, tags, sample
 docs, live `/search` and header search for GQA, attention, and KV cache, plus
 `/api/search` for the same queries):
 
@@ -361,7 +362,7 @@ completes the verifier in well under two minutes on a typical laptop, bounded
 by the configured timeouts.
 
 **Pass/fail interpretation:** Exit `0` means the production-built app satisfies
-the Phase 1 manual gate in `docs/temp/customer-ask.md`, including visible
+the Phase 1 manual gate in `docs/internal/customer-ask.md`, including visible
 links to Grouped-Query Attention for GQA, attention, and KV cache on `/search`
 and in the header search dialog. Exit `1` catches the known **empty-results
 regression**: `make ci` and in-process search tests can pass while `next start`
@@ -391,7 +392,7 @@ the same command prints a structured **Customer-ask convergence report** with
 one line per batch-008 customer-ask check. Each row includes a stable `checkId`,
 human title, optional `route` or `query`, `pass` / `fail` / `uncertain` status,
 failure reason when applicable, and a `checklistRow` mapping to
-`docs/temp/checklist.md`. The report covers home/header polish on `/`,
+`docs/internal/checklist.md`. The report covers home/header polish on `/`,
 tag list styling on `/tags` and `/tags/attention`, search surface behavior on
 `/search`, the header search dialog, and `/api/search`, glossary presentation on
 `/docs/glossary/token`, and the canonical GQA module page on
@@ -528,6 +529,6 @@ The loop is documented in:
 Project-level meta state lives in:
 
 ```txt
-docs/temp/progress.md
-docs/temp/checklist.md
+docs/internal/progress.txt
+docs/internal/checklist.md
 ```

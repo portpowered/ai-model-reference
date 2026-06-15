@@ -119,7 +119,9 @@ export async function runPhase1ExportSearchUxChecks(
     ];
   }
 
-  return withExportIntegrationProbeLock(async () => {
+  const runServedChecks = async (): Promise<
+    Phase1ExportSearchUxCheckFailure[]
+  > => {
     const session = await createStaticExportHttpServer({
       outDir,
       cwd,
@@ -164,7 +166,22 @@ export async function runPhase1ExportSearchUxChecks(
     } finally {
       await session.cleanup();
     }
-  });
+  };
+
+  if (isStubbedExportSearchUxCheck(options)) {
+    return runServedChecks();
+  }
+
+  return withExportIntegrationProbeLock(runServedChecks);
+}
+
+function isStubbedExportSearchUxCheck(
+  options: RunPhase1ExportSearchUxChecksOptions,
+): boolean {
+  return (
+    options.searchPageOptions?.runQueryCheck !== undefined &&
+    options.searchDialogOptions?.runQueryCheck !== undefined
+  );
 }
 
 /** Prefixes a `/search` hydration DOM outcome for standalone verifier stderr. */

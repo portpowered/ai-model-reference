@@ -9,11 +9,11 @@ import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import { expectModuleCompanionSections } from "@/lib/content/module-test-helpers";
+import { shouldRunBuiltHtmlFileConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
 import {
   assertGroupedQueryAttentionCompanionSectionsConvergence,
   assertGroupedQueryAttentionModuleConvergence,
 } from "@/lib/verify/grouped-query-attention-module-convergence";
-import { shouldRunBuiltHtmlConvergenceTests } from "@/lib/verify/server-lifecycle";
 
 describe("grouped-query-attention module companion sections", () => {
   test("published GQA page keeps comparison table, related docs, and attention bridge wiring", () => {
@@ -46,7 +46,7 @@ describe("grouped-query-attention module companion sections", () => {
   });
 
   test("built HTML for /docs/modules/grouped-query-attention passes shared GQA convergence", () => {
-    if (!shouldRunBuiltHtmlConvergenceTests()) {
+    if (!shouldRunBuiltHtmlFileConvergenceTests()) {
       return;
     }
 
