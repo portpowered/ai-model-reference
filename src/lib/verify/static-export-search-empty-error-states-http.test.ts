@@ -155,6 +155,7 @@ describe("verifyStaticExportSearchEmptyErrorStates", () => {
           server.baseUrl,
           {
             timeoutMs: 5_000,
+            serializeProbe: false,
           },
         );
         expect(reason).toMatch(/search-page-input|Search Model Atlas/);
@@ -189,6 +190,7 @@ describe("verifyStaticExportSearchEmptyErrorStates", () => {
           server.baseUrl,
           {
             timeoutMs: 5_000,
+            serializeProbe: false,
           },
         );
         expect(reason).toMatch(

@@ -147,7 +147,8 @@ export function hasCompleteNextProductionBuild(
 
 /**
  * Gates opt-in production-server integration tests: skip the coverage subprocess
- * rerun (make ci) and require a completed build artifact.
+ * rerun (`make ci` runs the full suite twice) and require explicit opt-in plus a
+ * fresh production build fingerprint.
  */
 export function shouldRunVerifyProductionIntegrationTests(
   projectRoot: string = process.cwd(),

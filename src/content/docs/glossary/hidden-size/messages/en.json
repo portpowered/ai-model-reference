@@ -8,7 +8,7 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Shape notation such as batch×sequence×768 uses hidden size as the last axis for activations inside the stack. Parameter counts, memory use, and FLOPs scale with width, so papers and configs often list hidden size alongside layer count and head count when comparing model sizes."
+      "body": "Shape notation such as batch×sequence×768 uses hidden size as the last axis for activations inside the stack. Parameter counts, memory use, and FLOPs scale with width, so papers and configs often list hidden size alongside layer count and head count when comparing model sizes. For MLP expansion ratios, head-dimension splits, and scaling trade-offs, see the model capacity glossary entry."
     },
     "simpleExample": {
       "title": "Simple Example",
@@ -26,12 +26,6 @@
     },
     "references": {
       "title": "References"
-    }
-  },
-  "callouts": {
-    "phase1Bridge": {
-      "title": "Phase 1 bridge page",
-      "body": "This entry is intentionally concise. Fuller capacity and width coverage—including MLP expansion ratios, head-dimension splits, and scaling trade-offs—continues in Phase 2 of the roadmap."
     }
   },
   "openingSummary": "Hidden size is the width of internal vectors in a transformer—every embedding and per-position hidden state uses that many dimensions until the output head."

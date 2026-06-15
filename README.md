@@ -299,6 +299,7 @@ checkouts do not include that directory; `pretypecheck` and `pretest` in
 `package.json` both run `fumadocs-mdx` so standalone `make typecheck` and
 `make test` succeed without a manual codegen step.
 
+
 Individual targets:
 
 ```sh

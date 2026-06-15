@@ -8,7 +8,7 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Papers and code often say \"vector\" when they mean a 1-D tensor: one row from an embedding table, a query vector, or a hidden state. Knowing that vectors are the building blocks inside tensors helps you follow shape notation from embeddings through attention."
+      "body": "Papers and code often say \"vector\" when they mean a 1-D tensor: one row from an embedding table, a query vector, or a hidden state. Knowing that vectors are the building blocks inside tensors helps you follow shape notation from embeddings through attention. For shape conventions, broadcasting, and framework dtypes, see the tensor and embedding glossary entries."
     },
     "simpleExample": {
       "title": "Simple Example",
@@ -26,12 +26,6 @@
     },
     "references": {
       "title": "References"
-    }
-  },
-  "callouts": {
-    "phase1Bridge": {
-      "title": "Phase 1 bridge page",
-      "body": "This entry is intentionally concise. Deeper tensor and embedding coverage—including shape conventions, broadcasting, and framework dtypes—continues in Phase 2 of the roadmap."
     }
   },
   "openingSummary": "A vector is an ordered list of numbers; token embeddings and per-position hidden states are vectors that later stack into tensors as they move through the model."

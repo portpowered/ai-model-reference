@@ -8,7 +8,7 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Clear representation language helps you compare transfer learning, contrastive training, and generative latent spaces without conflating them with tokenizer outputs or public embedding products."
+      "body": "Clear representation language helps you compare transfer learning, contrastive training, and generative latent spaces without conflating them with tokenizer outputs or public embedding products. Ask where in the stack the vector lives: input lookup (often called embedding) versus hidden state after layers (representation)."
     },
     "simpleExample": {
       "title": "Simple Example",
@@ -30,12 +30,6 @@
     },
     "references": {
       "title": "References"
-    }
-  },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Ask where in the stack the vector lives: input lookup (often called embedding) versus hidden state after layers (representation)."
     }
   },
   "openingSummary": "A representation is the learned internal form of data after encoding—vectors that capture structure for later layers, whether or not exposed as a standalone embedding API."

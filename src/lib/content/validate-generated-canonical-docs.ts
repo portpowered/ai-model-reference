@@ -99,6 +99,15 @@ function extractAssetIdFromComponentTag(tag: string): string | undefined {
   return match?.[1];
 }
 
+function mdxRendersFoldedSummary(mdxBody: string): boolean {
+  return mdxBody.includes("<FoldedSummary />");
+}
+
+const OPENING_SUMMARY_MDX_MARKERS = [
+  "<FoldedSummary />",
+  '<T k="openingSummary" />',
+] as const;
+
 export function validateGeneratedFoldedSummary(options: {
   pagePath: string;
   kind: PageKind;
@@ -145,10 +154,10 @@ export function validateGeneratedFoldedSummary(options: {
 
   const requiresOpeningSummary = rules?.requireOpeningSummaryInMdx ?? false;
   if (requiresOpeningSummary) {
-    if (!mdxBody.includes('<T k="openingSummary" />')) {
+    if (!mdxRendersFoldedSummary(mdxBody)) {
       errors.push({
         code: "missing-opening-summary-mdx",
-        message: `${pagePath}: generated MDX must render folded summary via <T k="openingSummary" />`,
+        message: `${pagePath}: generated MDX must render folded summary via <FoldedSummary />`,
         path: pagePath,
       });
     }
@@ -163,7 +172,9 @@ export function validateGeneratedFoldedSummary(options: {
       });
     }
   } else if (kind === "glossary") {
-    if (mdxBody.includes('<T k="openingSummary" />')) {
+    if (
+      OPENING_SUMMARY_MDX_MARKERS.some((marker) => mdxBody.includes(marker))
+    ) {
       errors.push({
         code: "glossary-opening-summary-in-mdx",
         message: `${pagePath}: glossary pages must not render openingSummary in MDX; use description in frontmatter and messages only`,

@@ -29,7 +29,7 @@ export function DocsIndexEntryList({
             <span className="flex items-center gap-2 font-medium text-foreground">
               {entry.title}
               <ArrowRight
-                className="size-4 text-primary opacity-0 transition-opacity group-hover:opacity-100"
+                className="size-4 text-primary opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
                 aria-hidden
               />
             </span>

@@ -39,6 +39,8 @@ describe("home page messages", () => {
     expect(home.tagsLinkDescription.length).toBeGreaterThan(0);
     expect(home.tokenLinkDescription.length).toBeGreaterThan(0);
     expect(home.docsLinkDescription.length).toBeGreaterThan(0);
+    expect(home.tokenLinkDescription).not.toMatch(/Phase 1/i);
+    expect(home.docsLinkDescription).not.toMatch(/Phase 1/i);
     expect(HOME_DISCOVERY_HREFS).toHaveLength(5);
   });
 });

@@ -1,7 +1,10 @@
-import type { Browser, Page } from "playwright";
+import type { Browser, Locator, Page } from "playwright";
 import { withExportIntegrationProbeLock } from "./export-integration-probe-lock";
 import { httpGetText } from "./http-harness";
-import { launchPlaywrightBrowser } from "./launch-playwright-browser";
+import {
+  closePlaywrightBrowserWithTimeout,
+  launchPlaywrightBrowser,
+} from "./launch-playwright-browser";
 import { assertSearchPageExportShell } from "./phase-1-search-export-shell-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
 
@@ -17,6 +20,8 @@ export const SEARCH_PAGE_EMPTY_SELECTOR = '[data-testid="search-page-empty"]';
 
 export const DEFAULT_SEARCH_INPUT_HYDRATION_QUERY = "GQA";
 
+const SEARCH_INPUT_SNAPSHOT_FIELD_TIMEOUT_MS = 5_000;
+
 export type SearchPageInputHydrationSnapshot = {
   inputVisible: boolean;
   inputFocused: boolean;
@@ -31,6 +36,16 @@ async function defaultLaunchBrowser(): Promise<Browser> {
   return launchPlaywrightBrowser();
 }
 
+async function readBoundedInputValue(input: Locator): Promise<string> {
+  try {
+    return await input.inputValue({
+      timeout: SEARCH_INPUT_SNAPSHOT_FIELD_TIMEOUT_MS,
+    });
+  } catch {
+    return "";
+  }
+}
+
 async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -42,10 +57,10 @@ export async function readSearchPageInputHydrationSnapshot(
 
   return {
     inputVisible: await input.isVisible(),
-    inputFocused: await input.evaluate(
-      (element) => element === document.activeElement,
-    ),
-    inputValue: await input.inputValue(),
+    inputFocused: await input
+      .evaluate((element) => element === document.activeElement)
+      .catch(() => false),
+    inputValue: await readBoundedInputValue(input),
     idleVisible: await page.locator(SEARCH_PAGE_IDLE_SELECTOR).isVisible(),
     loadingVisible: await page
       .locator(SEARCH_PAGE_LOADING_SELECTOR)
@@ -241,7 +256,7 @@ export async function verifyStaticExportSearchInputHydration(
     } catch (error) {
       return error instanceof Error ? error.message : String(error);
     } finally {
-      await browser.close();
+      await closePlaywrightBrowserWithTimeout(browser);
     }
   });
 }

@@ -316,6 +316,9 @@ describe("assertNextProductionBuild", () => {
 
   test("allows production integration tests when BUILD_ID is present and fingerprint matches", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-complete-next-"));
+    mkdirSync(join(projectRoot, "src"), { recursive: true });
+    writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}\n');
+    writeFileSync(join(projectRoot, "src", "app.ts"), "export {};\n");
     mkdirSync(join(projectRoot, ".next"), { recursive: true });
     writeFileSync(join(projectRoot, ".next", "BUILD_ID"), "test-build");
     writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}');
@@ -342,9 +345,11 @@ describe("assertNextProductionBuild", () => {
 
     try {
       expect(hasCompleteNextProductionBuild(projectRoot)).toBe(true);
-      expect(shouldRunVerifyProductionIntegrationTests(projectRoot, {})).toBe(
-        false,
-      );
+      expect(
+        shouldRunVerifyProductionIntegrationTests(projectRoot, {
+          [VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV]: "1",
+        }),
+      ).toBe(false);
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
@@ -352,6 +357,9 @@ describe("assertNextProductionBuild", () => {
 
   test("allows production integration tests when Next.js 16 Turbopack build markers and fingerprint match", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-turbopack-next-"));
+    mkdirSync(join(projectRoot, "src"), { recursive: true });
+    writeFileSync(join(projectRoot, "package.json"), '{"name":"fixture"}\n');
+    writeFileSync(join(projectRoot, "src", "app.ts"), "export {};\n");
     mkdirSync(join(projectRoot, ".next", "server"), { recursive: true });
     writeFileSync(
       join(projectRoot, ".next", "server", "app-paths-manifest.json"),

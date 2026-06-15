@@ -53,7 +53,10 @@ export function RegistryComparisonTable({
       data-table-id={tableId}
       data-registry-comparison-table="true"
     >
-      <div className="registry-comparison-table__scroll overflow-x-auto">
+      <div
+        className="registry-comparison-table__scroll overflow-x-auto"
+        data-rich-content-scroll="table"
+      >
         <table className="registry-comparison-table w-full min-w-[28rem] border-collapse text-sm">
           <thead>
             <tr>

@@ -48,9 +48,9 @@
     "tagsLinkTitle": "Tags",
     "tagsLinkDescription": "Controlled tags such as attention and kv-cache with landing pages for each topic.",
     "tokenLinkTitle": "Token (glossary)",
-    "tokenLinkDescription": "Phase 1 sample glossary entry for the token concept, linked from architecture and attention tags.",
+    "tokenLinkDescription": "Glossary entry for the token concept, linked from architecture and attention tags.",
     "docsLinkTitle": "Grouped-query attention",
-    "docsLinkDescription": "Phase 1 sample module page explaining grouped-query attention.",
+    "docsLinkDescription": "Module page explaining grouped-query attention and how query heads share KV cache.",
     "onThisPageBrowse": "Browse"
   },
   "glossaryIndex": {

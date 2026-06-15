@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { normalizeBuiltAppHtmlInternalPaths } from "@/lib/build/built-app-html-test-utils";
 import { shouldRunVerifyProductionIntegrationTests } from "./server-lifecycle";
 
 /**
@@ -28,5 +29,5 @@ export function readBuiltHtmlForConvergenceTests(
     return null;
   }
 
-  return readFileSync(absolutePath, "utf8");
+  return normalizeBuiltAppHtmlInternalPaths(readFileSync(absolutePath, "utf8"));
 }

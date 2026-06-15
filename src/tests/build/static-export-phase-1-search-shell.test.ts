@@ -2,7 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import { runStaticExportBuild } from "@/lib/build/run-static-export-build";
+import {
+  getStaticExportBuildBunTestTimeoutMs,
+  runStaticExportBuild,
+} from "@/lib/build/run-static-export-build";
 import {
   assertSearchPageExportShell,
   assertSearchPageExportShellStateRegion,
@@ -14,6 +17,7 @@ const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
 const nextDir = join(repoRoot, ".next");
 const searchExportHtmlPath = join(outDir, "search.html");
+const exportBuildTestTimeout = getStaticExportBuildBunTestTimeoutMs();
 
 function removeExportArtifacts(): void {
   if (existsSync(outDir)) {
@@ -56,7 +60,7 @@ describe("static export Phase 1 /search shell regression", () => {
         removeExportArtifacts();
       }
     },
-    { timeout: 180_000 },
+    { timeout: exportBuildTestTimeout },
   );
 
   test(
@@ -88,6 +92,6 @@ describe("static export Phase 1 /search shell regression", () => {
         removeExportArtifacts();
       }
     },
-    { timeout: 180_000 },
+    { timeout: exportBuildTestTimeout },
   );
 });

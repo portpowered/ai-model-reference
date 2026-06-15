@@ -11,7 +11,12 @@ import {
 import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
 import { readBuiltHtmlForConvergenceTests } from "@/lib/verify/built-html-convergence-test-helpers";
 import { readBundledAppCss } from "@/lib/verify/bundled-app-css";
-import { shouldRunBuiltHtmlConvergenceTests } from "@/lib/verify/server-lifecycle";
+import { runPhase1DocsFooterHoverChecks } from "@/lib/verify/phase-1-docs-footer-hover-checks";
+import {
+  acquireVerifyServerSession,
+  shouldRunBuiltHtmlConvergenceTests,
+  shouldRunVerifyProductionIntegrationTests,
+} from "@/lib/verify/server-lifecycle";
 
 const repoRoot = join(import.meta.dir, "../../..");
 
@@ -64,4 +69,18 @@ describe("docs page footer hover convergence (built HTML)", () => {
 
     expect(bundledCssHasFooterSublabelInheritRule(bundledCss)).toBe(true);
   });
+
+  test("production build footer cards invert sublabel foreground on hover and focus-visible", async () => {
+    if (!shouldRunVerifyProductionIntegrationTests(repoRoot)) {
+      return;
+    }
+
+    const session = await acquireVerifyServerSession({ projectRoot: repoRoot });
+    try {
+      const failures = await runPhase1DocsFooterHoverChecks(session.baseUrl);
+      expect(failures).toEqual([]);
+    } finally {
+      await session.cleanup();
+    }
+  }, 60_000);
 });

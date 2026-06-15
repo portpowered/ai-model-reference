@@ -263,6 +263,11 @@ async function waitForSearchPageOutcome(
     results.waitFor({ state: "visible", timeout: timeoutMs }),
     empty.waitFor({ state: "visible", timeout: timeoutMs }),
   ]);
+
+  await Promise.race([
+    results.waitFor({ state: "visible", timeout: timeoutMs }),
+    empty.waitFor({ state: "visible", timeout: timeoutMs }),
+  ]);
 }
 
 /**

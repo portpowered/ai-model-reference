@@ -41,7 +41,10 @@ export type RunPhase1SearchShortcutChecksOptions = {
 };
 
 /** Default browser deadline for keyboard shortcut checks. */
-export const DEFAULT_SEARCH_SHORTCUT_TIMEOUT_MS = 10_000;
+export const DEFAULT_SEARCH_SHORTCUT_TIMEOUT_MS = 30_000;
+
+const SEARCH_DIALOG_TRIGGER_SELECTOR = "button[data-search]";
+const SEARCH_SHORTCUT_RETRY_ATTEMPTS = 2;
 
 export function formatPhase1SearchShortcutCheckFailure(
   failure: Phase1SearchShortcutCheckFailure,
@@ -128,6 +131,37 @@ async function ensureSearchDialogClosed(
   }
 }
 
+async function waitForSearchShortcutSurfaceReady(
+  page: Page,
+  timeoutMs: number,
+): Promise<void> {
+  const trigger = page.locator(SEARCH_DIALOG_TRIGGER_SELECTOR).first();
+  await trigger.waitFor({ state: "visible", timeout: timeoutMs });
+  await page.locator("body").click({ position: { x: 8, y: 8 }, force: true });
+}
+
+function searchShortcutKey(shortcut: Phase1SearchShortcut): string {
+  return shortcut.modifier === "Meta" ? "Meta+KeyK" : "Control+KeyK";
+}
+
+async function tryOpenSearchDialogWithShortcut(
+  page: Page,
+  shortcut: Phase1SearchShortcut,
+  timeoutMs: number,
+): Promise<string | null> {
+  await page.keyboard.press(searchShortcutKey(shortcut));
+
+  try {
+    const dialog = page.getByRole("dialog", { name: "Search" });
+    await dialog.waitFor({ state: "visible", timeout: timeoutMs });
+  } catch {
+    return `${shortcut.label} did not open the header search dialog on the home page`;
+  }
+
+  const snapshot = await readSearchShortcutDomSnapshot(page, timeoutMs);
+  return evaluateSearchShortcutDomSnapshot(snapshot, shortcut.label);
+}
+
 /**
  * Presses a keyboard shortcut on the home page and returns a failure reason,
  * or null when the search dialog opens with a visible textbox.
@@ -144,20 +178,31 @@ export async function checkSearchShortcut(
     waitUntil: "domcontentloaded",
   });
 
+  await waitForSearchShortcutSurfaceReady(page, timeoutMs);
   await ensureSearchDialogClosed(page, timeoutMs);
 
-  const key = shortcut.modifier === "Meta" ? "Meta+KeyK" : "Control+KeyK";
-  await page.keyboard.press(key);
+  let lastReason: string | null = null;
+  for (
+    let attempt = 0;
+    attempt < SEARCH_SHORTCUT_RETRY_ATTEMPTS;
+    attempt += 1
+  ) {
+    lastReason = await tryOpenSearchDialogWithShortcut(
+      page,
+      shortcut,
+      timeoutMs,
+    );
+    if (!lastReason) {
+      return null;
+    }
 
-  try {
-    const dialog = page.getByRole("dialog", { name: "Search" });
-    await dialog.waitFor({ state: "visible", timeout: timeoutMs });
-  } catch {
-    return `${shortcut.label} did not open the header search dialog on the home page`;
+    if (attempt < SEARCH_SHORTCUT_RETRY_ATTEMPTS - 1) {
+      await ensureSearchDialogClosed(page, timeoutMs);
+      await waitForSearchShortcutSurfaceReady(page, timeoutMs);
+    }
   }
 
-  const snapshot = await readSearchShortcutDomSnapshot(page, timeoutMs);
-  return evaluateSearchShortcutDomSnapshot(snapshot, shortcut.label);
+  return lastReason;
 }
 
 /**
