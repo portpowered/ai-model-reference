@@ -8,6 +8,7 @@ real local validation commands contributors should use.
 | Surface | Path | Role |
 | --- | --- | --- |
 | Contributor workflow guide | `docs/contributors/CONTRIBUTING.md` | Durable contributor contract: page kinds, content requirements, local validation, factory requests |
+| Guide alignment test | `src/tests/ci/contributor-guide-alignment.test.ts` | Verifies scaffold boundary, template inventory, commands, factory paths, and relative links in the guide |
 
 ## Local validation entrypoints
 
