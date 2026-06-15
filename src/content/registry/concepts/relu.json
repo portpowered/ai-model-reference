@@ -1,0 +1,23 @@
+{
+  "id": "concept.relu",
+  "slug": "relu",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["rectified linear unit", "rectifier"],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "relatedIds": [
+    "concept.activation",
+    "concept.leaky-relu",
+    "concept.silu",
+    "concept.feed-forward-network",
+    "concept.standard-ffn"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.activation"],
+  "explainsIds": []
+}

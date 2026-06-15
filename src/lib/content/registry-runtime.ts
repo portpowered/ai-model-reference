@@ -5,6 +5,7 @@ import architectureConcept from "@/content/registry/concepts/architecture.json";
 import architecturesOverviewConcept from "@/content/registry/concepts/architectures-overview.json";
 import autoregressiveGenerationConcept from "@/content/registry/concepts/autoregressive-generation.json";
 import backpropagationConcept from "@/content/registry/concepts/backpropagation.json";
+import batchNormConcept from "@/content/registry/concepts/batch-norm.json";
 import bidirectionalAttentionConcept from "@/content/registry/concepts/bidirectional-attention.json";
 import causalAttentionConcept from "@/content/registry/concepts/causal-attention.json";
 import componentConcept from "@/content/registry/concepts/component.json";
@@ -32,10 +33,12 @@ import generalizationConcept from "@/content/registry/concepts/generalization.js
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
 import gradientConcept from "@/content/registry/concepts/gradient.json";
 import graphNeuralNetworkConcept from "@/content/registry/concepts/graph-neural-network.json";
+import groupNormConcept from "@/content/registry/concepts/group-norm.json";
 import hiddenSizeConcept from "@/content/registry/concepts/hidden-size.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
 import layerNormConcept from "@/content/registry/concepts/layer-norm.json";
+import leakyReluConcept from "@/content/registry/concepts/leaky-relu.json";
 import logitConcept from "@/content/registry/concepts/logit.json";
 import lossFunctionConcept from "@/content/registry/concepts/loss-function.json";
 import mixtureOfExpertsConcept from "@/content/registry/concepts/mixture-of-experts.json";
@@ -51,7 +54,9 @@ import parameterConcept from "@/content/registry/concepts/parameter.json";
 import patchConcept from "@/content/registry/concepts/patch.json";
 import perplexityConcept from "@/content/registry/concepts/perplexity.json";
 import positionalEncodingsConcept from "@/content/registry/concepts/positional-encodings.json";
+import qkNormConcept from "@/content/registry/concepts/qk-norm.json";
 import recurrentNeuralNetworkConcept from "@/content/registry/concepts/recurrent-neural-network.json";
+import reluConcept from "@/content/registry/concepts/relu.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
 import residualConnectionConcept from "@/content/registry/concepts/residual-connection.json";
 import rmsnormConcept from "@/content/registry/concepts/rmsnorm.json";
@@ -59,8 +64,11 @@ import ropeConcept from "@/content/registry/concepts/rope.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import selfAttentionConcept from "@/content/registry/concepts/self-attention.json";
 import sequenceModelConcept from "@/content/registry/concepts/sequence-model.json";
+import siluConcept from "@/content/registry/concepts/silu.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
+import standardFfnConcept from "@/content/registry/concepts/standard-ffn.json";
 import stateSpaceModelConcept from "@/content/registry/concepts/state-space-model.json";
+import swigluConcept from "@/content/registry/concepts/swiglu.json";
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
@@ -114,8 +122,10 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(activationConcept),
   conceptRecordSchema.parse(computationalGraphConcept),
   conceptRecordSchema.parse(gradientConcept),
-  conceptRecordSchema.parse(graphNeuralNetworkConcept),
   conceptRecordSchema.parse(backpropagationConcept),
+  conceptRecordSchema.parse(graphNeuralNetworkConcept),
+  conceptRecordSchema.parse(groupNormConcept),
+  conceptRecordSchema.parse(batchNormConcept),
   conceptRecordSchema.parse(bidirectionalAttentionConcept),
   conceptRecordSchema.parse(causalAttentionConcept),
   conceptRecordSchema.parse(lossFunctionConcept),
@@ -152,19 +162,25 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(overfittingConcept),
   conceptRecordSchema.parse(generalizationConcept),
   conceptRecordSchema.parse(perplexityConcept),
+  conceptRecordSchema.parse(qkNormConcept),
   conceptRecordSchema.parse(scalingLawConcept),
   conceptRecordSchema.parse(selfAttentionConcept),
   conceptRecordSchema.parse(sequenceModelConcept),
+  conceptRecordSchema.parse(siluConcept),
   conceptRecordSchema.parse(stateSpaceModelConcept),
   conceptRecordSchema.parse(emergentBehaviorConcept),
   conceptRecordSchema.parse(feedForwardNetworkConcept),
+  conceptRecordSchema.parse(standardFfnConcept),
+  conceptRecordSchema.parse(swigluConcept),
   conceptRecordSchema.parse(mixtureOfExpertsConcept),
   conceptRecordSchema.parse(layerNormConcept),
+  conceptRecordSchema.parse(leakyReluConcept),
   conceptRecordSchema.parse(normalizationConcept),
   conceptRecordSchema.parse(rmsnormConcept),
   conceptRecordSchema.parse(alibiConcept),
   conceptRecordSchema.parse(positionalEncodingsConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
+  conceptRecordSchema.parse(reluConcept),
   conceptRecordSchema.parse(ropeConcept),
   conceptRecordSchema.parse(transformerArchitectureConcept),
   conceptRecordSchema.parse(transformerConcept),

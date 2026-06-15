@@ -13,5 +13,5 @@
   "updatedAt": "2026-06-04T23:00:00.000Z",
   "conceptType": "architecture",
   "prerequisiteIds": ["concept.parameter"],
-  "explainsIds": []
+  "explainsIds": ["concept.relu", "concept.leaky-relu", "concept.silu"]
 }

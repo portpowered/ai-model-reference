@@ -1,0 +1,22 @@
+{
+  "id": "concept.batch-norm",
+  "slug": "batch-norm",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["batch normalization", "BatchNorm", "BN"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.normalization",
+    "concept.layer-norm",
+    "concept.group-norm",
+    "concept.rmsnorm"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.normalization"],
+  "explainsIds": []
+}

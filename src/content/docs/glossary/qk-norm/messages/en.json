@@ -1,0 +1,46 @@
+{
+  "title": "QK norm",
+  "description": "Normalization applied to query and key vectors before attention scores are computed, stabilizing dot-product magnitudes in deep stacks.",
+  "openingSummary": "QK norm rescales query and key projections—often with RMSNorm or layer norm—right before the attention dot product so logits stay well behaved as models scale depth or context.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "QK norm is a normalization variant placed on attention queries and keys before their dot product, not on the full residual stream around a sublayer. Implementations typically wrap the projected Q and K tensors with RMSNorm or layer norm while leaving values untouched. It targets score magnitudes inside the attention module rather than replacing block-level pre-norm around attention and the FFN."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Recent large models add QK norm to curb exploding attention logits without changing the outer pre-norm block layout readers already know. Separating QK norm from layer norm clarifies config fields: one knob rescales hidden states entering sublayers, another stabilizes the Q·K interaction itself."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A multi-head block projects hidden states into queries and keys, applies RMSNorm on each head's Q and K vectors, then computes scaled dot-product scores. Values feed the weighted sum unchanged; only the compatibility scores see the extra normalization step."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "QK norm is not the same as pre-norm around the attention sublayer—it runs inside attention on Q and K only. It also does not replace RMSNorm on the residual stream; many models use both. Finally, QK norm is not rotary position embedding: RoPE encodes position in Q and K, while QK norm rescales their magnitudes."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for QK norm. Replace before publishing.",
+      "caption": "Draft placeholder for QK norm. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for QK norm. Replace before publishing.",
+        "summary": "Draft placeholder for QK norm. Replace before publishing."
+      }
+    }
+  }
+}

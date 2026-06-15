@@ -1,0 +1,37 @@
+{
+  "kind": "glossary",
+  "slug": "silu",
+  "title": "SiLU",
+  "summary": "The sigmoid-weighted linear unit—also called Swish—a smooth activation that multiplies each input by a sigmoid gate.",
+  "openingSummary": "SiLU applies x·σ(x), giving a smooth, non-monotonic curve that behaves like a softened ReLU and often appears inside modern feed-forward blocks before gating variants like SwiGLU.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": ["Swish", "sigmoid linear unit", "SiLU activation"],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "prerequisiteIds": ["concept.activation"],
+  "relatedIds": [
+    "concept.activation",
+    "concept.relu",
+    "concept.swiglu",
+    "concept.feed-forward-network",
+    "concept.standard-ffn"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "SiLU is an activation variant defined as x multiplied by the logistic sigmoid of x. It is smooth everywhere, unlike piecewise ReLU, and is the same function often labeled Swish in papers. Under the activation concept, SiLU names one concrete nonlinearity you can slot into the middle of a standard FFN or as half of a gated MLP."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Many Llama-class and other open-weight stacks moved from ReLU or GELU toward SiLU-based gated FFNs. Understanding SiLU on its own clarifies SwiGLU configs: the gated block reuses this smooth gate on one branch while the other branch stays linear before the two are multiplied."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "For input 1.0, sigmoid(1) ≈ 0.73, so SiLU(1) ≈ 0.73. Small negative inputs produce small negative outputs instead of hard zeros, while large positive inputs grow almost linearly—behavior between ReLU smoothness and identity."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "SiLU is not SwiGLU: SwiGLU pairs a SiLU-gated branch with a linear branch in a two-matrix FFN. SiLU is also not softmax or the sigmoid on logits at the output head. Finally, SiLU and GELU are different smooth activations; model cards specify which one the checkpoint actually uses."
+    }
+  }
+}

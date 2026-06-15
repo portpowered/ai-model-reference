@@ -1,0 +1,46 @@
+{
+  "title": "Batch norm",
+  "description": "Normalization that rescales activations using mean and variance pooled across the batch dimension—common in vision CNNs but rare inside decoder transformer stacks.",
+  "openingSummary": "Batch normalization subtracts a batch-wide mean and divides by batch variance for each feature channel, then applies learned scale and shift—stabilizing training when batch statistics are meaningful.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Batch normalization is a normalization variant that computes mean and variance across the batch axis (and spatial axes in images) for each feature, then rescales activations before the next layer. Learned scale and bias parameters let the network recover representational capacity after normalization. It is a specific recipe under the broader normalization concept, not a placement strategy for transformer blocks."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Vision and early conv nets rely on batch norm to tame internal covariate shift. When you read hybrid or multimodal stacks, seeing batch norm signals CNN-style blocks rather than the per-token layer norm or RMSNorm used in most language decoders. Knowing the variant helps you predict which training tricks transfer and why variable-length text batches avoid batch norm in the main trunk."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A ResNet stage might batch-normalize 64 image feature maps at once: for channel seven, it averages activations across all pixels in the mini-batch, subtracts that mean, divides by the batch standard deviation, then applies a learned gain and offset before the next convolution."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Batch norm is not layer norm: layer norm statistics come from each token's feature vector alone, while batch norm pools across examples. It is also not group norm, which splits channels into fixed groups when batch size is tiny. Finally, batch norm in a checkpoint does not mean the language-model trunk uses it—many transformers keep batch norm only in vision towers or deprecated encoder stacks."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for Batch norm. Replace before publishing.",
+      "caption": "Draft placeholder for Batch norm. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for Batch norm. Replace before publishing.",
+        "summary": "Draft placeholder for Batch norm. Replace before publishing."
+      }
+    }
+  }
+}

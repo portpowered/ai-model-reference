@@ -1,0 +1,24 @@
+{
+  "id": "concept.qk-norm",
+  "slug": "qk-norm",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["QK normalization", "query-key normalization", "QK-Norm"],
+  "tags": ["foundations", "attention"],
+  "relatedIds": [
+    "concept.normalization",
+    "concept.layer-norm",
+    "concept.rmsnorm",
+    "concept.transformer-architecture",
+    "module.attention",
+    "module.multi-head-attention"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.normalization", "concept.layer-norm"],
+  "explainsIds": []
+}

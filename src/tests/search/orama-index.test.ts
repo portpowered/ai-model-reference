@@ -99,6 +99,16 @@ const ATTENTION_INTERACTION_CONCEPT_URLS = [
   "/docs/concepts/cross-attention",
   "/docs/concepts/self-attention",
 ] as const;
+const NORMALIZATION_ACTIVATION_VARIANT_URLS = [
+  "/docs/glossary/standard-ffn",
+  "/docs/glossary/batch-norm",
+  "/docs/glossary/group-norm",
+  "/docs/glossary/qk-norm",
+  "/docs/glossary/relu",
+  "/docs/glossary/leaky-relu",
+  "/docs/glossary/silu",
+  "/docs/glossary/swiglu",
+] as const;
 const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/embedding",
   "/docs/glossary/vector",
@@ -150,6 +160,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ...MODEL_FAMILY_URLS,
   ...ARCHITECTURE_LAYOUT_CONCEPT_URLS,
   ...ATTENTION_INTERACTION_CONCEPT_URLS,
+  ...NORMALIZATION_ACTIVATION_VARIANT_URLS,
   ...CHAIN_GLOSSARY_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(

@@ -1,0 +1,37 @@
+{
+  "kind": "glossary",
+  "slug": "standard-ffn",
+  "title": "Standard FFN",
+  "summary": "The dense two-linear MLP block applied per token after attention—the default feed-forward slot before mixture-of-experts or other routed variants.",
+  "openingSummary": "A standard FFN is the classic position-wise MLP in a transformer block: expand hidden size, apply a nonlinearity such as GELU or SwiGLU, then project back—same weights at every token, no cross-position mixing.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": ["dense FFN", "standard MLP block", "two-layer FFN"],
+  "tags": ["foundations"],
+  "prerequisiteIds": ["concept.feed-forward-network"],
+  "relatedIds": [
+    "concept.feed-forward-network",
+    "concept.mixture-of-experts",
+    "concept.transformer-architecture",
+    "concept.silu",
+    "concept.swiglu"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A standard FFN is the dense feed-forward sublayer inside a transformer block: two linear maps with an activation in between, run independently on each token vector. It is the default implementation of the feed-forward network concept—one shared MLP recipe at every position—before you swap in mixture-of-experts routing or other sparse variants."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Model cards and architecture diagrams often say FFN without clarifying whether the block is dense or sparse. Recognizing the standard FFN pattern helps you compare parameter counts, spot when SwiGLU replaces GELU, and see why MoE papers still describe the same block slot even when only a few experts activate per token."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "After causal self-attention updates a 4,096-wide vector at one position, the standard FFN might expand it to 11,008 intermediate units, apply SwiGLU, and project back to 4,096. The identical weight matrices run on every other position in the batch; only the input vectors differ."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Standard FFN names the dense MLP shape, not the whole transformer block—it still sits after attention and before the next residual add. It is not the same as mixture-of-experts: MoE replaces this dense layer with routed experts but occupies the same slot. Finally, standard FFN does not specify which activation you use; GELU, ReLU, SiLU, and SwiGLU are separate variant pages."
+    }
+  }
+}

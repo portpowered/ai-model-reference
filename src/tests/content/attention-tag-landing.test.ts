@@ -74,6 +74,7 @@ describe("attention tag landing resources", () => {
     );
     expect(glossaryGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/glossary/autoregressive-generation",
+      "/docs/glossary/qk-norm",
       "/docs/glossary/token",
     ]);
   });
@@ -147,6 +148,7 @@ describe("attention tag landing page render", () => {
     expect(html).toContain("Autoregressive Generation");
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain("Token");
+    expect(html).toContain('href="/docs/glossary/qk-norm"');
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain('href="/search?tag=attention"');
     expect(html).toContain("data-search");

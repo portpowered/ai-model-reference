@@ -1,0 +1,23 @@
+{
+  "id": "concept.standard-ffn",
+  "slug": "standard-ffn",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["dense FFN", "standard MLP block", "two-layer FFN"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.feed-forward-network",
+    "concept.mixture-of-experts",
+    "concept.transformer-architecture",
+    "concept.silu",
+    "concept.swiglu"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.feed-forward-network"],
+  "explainsIds": []
+}

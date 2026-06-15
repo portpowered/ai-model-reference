@@ -1,0 +1,46 @@
+{
+  "title": "Leaky ReLU",
+  "description": "A ReLU variant that lets a small negative slope through instead of hard-zeroing every negative value.",
+  "openingSummary": "Leaky ReLU keeps the ReLU recipe but multiplies negative inputs by a small constant—often 0.01—so gradients can flow through inactive units instead of dying entirely.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Leaky ReLU is an activation variant that applies x when x is positive and α·x when x is negative, with a small α such as 0.01. It modifies the standard ReLU gate rather than replacing the whole activation concept—same slot in an MLP, slightly different negative-side behavior."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Dead ReLU units—neurons that never reactivate—slow learning in some conv and MLP stacks. Leaky ReLU was a lightweight fix before smooth activations like GELU and SiLU spread through transformers. Recognizing the variant helps when you port older vision weights or read ablations that compare ReLU against leaky ReLU."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "With α = 0.01, inputs [-2.0, 0.5, 3.0] become [-0.02, 0.5, 3.0]. Negative entries stay small but non-zero, so backpropagation still nudges their weights on the next step."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Leaky ReLU is not parametric ReLU (PReLU), which learns α per channel. It is also not SiLU or GELU—those are smooth curves, not piecewise linear gates. Most current large language model FFNs use GELU or SwiGLU instead, but leaky ReLU remains a named variant when reading older or vision-centric code."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for Leaky ReLU. Replace before publishing.",
+      "caption": "Draft placeholder for Leaky ReLU. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for Leaky ReLU. Replace before publishing.",
+        "summary": "Draft placeholder for Leaky ReLU. Replace before publishing."
+      }
+    }
+  }
+}

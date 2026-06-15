@@ -1,0 +1,42 @@
+{
+  "kind": "glossary",
+  "slug": "swiglu",
+  "title": "SwiGLU",
+  "summary": "A gated feed-forward activation that multiplies a SiLU-gated branch by a linear branch—common in modern dense and MoE transformer blocks.",
+  "openingSummary": "SwiGLU replaces a single FFN activation with a gated pair: one projection runs through SiLU, another stays linear, and the element-wise product feeds the down projection—adding capacity without an extra attention step.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": ["SwiGLU FFN", "SiLU-gated linear unit", "gated FFN"],
+  "tags": ["foundations"],
+  "prerequisiteIds": [
+    "concept.feed-forward-network",
+    "concept.activation",
+    "concept.silu"
+  ],
+  "relatedIds": [
+    "concept.feed-forward-network",
+    "concept.standard-ffn",
+    "concept.mixture-of-experts",
+    "concept.silu",
+    "concept.activation",
+    "concept.transformer-architecture"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "SwiGLU is a feed-forward activation variant that uses three weight matrices: one linear branch, one branch passed through SiLU, and an element-wise product between them before the final down projection. It sits in the same standard FFN slot after attention but changes how the MLP nonlinearity works compared with a single GELU or ReLU sandwiched between two matrices."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Open-weight decoder configs frequently list SwiGLU FFNs alongside RMSNorm and rotary embeddings. Treating SwiGLU as its own variant—not just generic activation—helps you interpret wider intermediate sizes, extra gate projections in parameter counts, and why FFN FLOPs differ from older GELU baselines at the same hidden width."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "For one token vector, the block computes gate = SiLU(W₁x) and value = W₂x, multiplies them element-wise, then applies W₃ to return to model width. Attention already mixed tokens; SwiGLU only changes the per-token MLP transform that follows."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "SwiGLU is not mixture-of-experts: MoE routes tokens to different expert MLPs, while SwiGLU is still one dense recipe unless combined with expert routing. It is not the same as SiLU alone—SiLU is the gate on one branch, not the full three-matrix pattern. Finally, SwiGLU does not replace layer norm or QK norm; it only changes the FFN activation path."
+    }
+  }
+}

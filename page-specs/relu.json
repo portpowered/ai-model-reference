@@ -1,0 +1,37 @@
+{
+  "kind": "glossary",
+  "slug": "relu",
+  "title": "ReLU",
+  "summary": "The rectified linear activation that keeps positive inputs and zeros negatives—an early default nonlinearity inside feed-forward and conv blocks.",
+  "openingSummary": "ReLU passes positive values through unchanged and clamps negatives to zero, giving a simple sparse nonlinearity that is cheap to compute and easy to differentiate almost everywhere.",
+  "status": "published",
+  "conceptType": "general",
+  "aliases": ["rectified linear unit", "rectifier"],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "prerequisiteIds": ["concept.activation"],
+  "relatedIds": [
+    "concept.activation",
+    "concept.leaky-relu",
+    "concept.silu",
+    "concept.feed-forward-network",
+    "concept.standard-ffn"
+  ],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "ReLU is an activation variant that applies max(0, x) element-wise. It is a concrete nonlinearity under the broader activation concept—what happens after a linear map when the network needs more than identity transforms. Early transformer and conv stacks often used ReLU or close cousins inside the FFN before GELU and SwiGLU became common in large language models."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Architecture prose still references ReLU when describing MLP blocks, legacy checkpoints, or vision backbones. Knowing ReLU as a specific variant—not the whole idea of activations—helps you compare why modern decoders moved to smooth activations and when a reproduced baseline still expects ReLU in the FFN."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "An intermediate FFN vector might contain values [-2.1, 0.4, 3.0]. ReLU outputs [0, 0.4, 3.0], zeroing negative entries so only positive features continue to the second linear map."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "ReLU is not softmax: softmax turns logits into a probability distribution, while ReLU acts inside hidden layers. It is not the same as leaky ReLU, which allows a small negative slope. Finally, saying a model uses activations does not specify ReLU—GELU, SiLU, and SwiGLU are different variant pages under the same parent concept."
+    }
+  }
+}

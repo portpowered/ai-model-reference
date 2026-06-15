@@ -1,0 +1,22 @@
+{
+  "id": "concept.group-norm",
+  "slug": "group-norm",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["group normalization", "GroupNorm", "GN"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.normalization",
+    "concept.batch-norm",
+    "concept.layer-norm",
+    "concept.rmsnorm"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-15T00:00:00.000Z",
+  "updatedAt": "2026-06-15T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.normalization"],
+  "explainsIds": []
+}

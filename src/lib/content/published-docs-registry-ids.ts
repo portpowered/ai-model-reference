@@ -97,6 +97,14 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.encoder-only-architecture",
   "concept.decoder-only-architecture",
   "concept.encoder-decoder-architecture",
+  "concept.standard-ffn",
+  "concept.batch-norm",
+  "concept.group-norm",
+  "concept.qk-norm",
+  "concept.relu",
+  "concept.leaky-relu",
+  "concept.silu",
+  "concept.swiglu",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;

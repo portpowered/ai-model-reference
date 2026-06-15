@@ -1,0 +1,46 @@
+{
+  "title": "Group norm",
+  "description": "Normalization that divides channels into groups and rescales each group using its own mean and variance—useful when batch size is too small for batch norm.",
+  "openingSummary": "Group normalization pools statistics within fixed channel groups per example, giving stable rescaling without relying on large mini-batches the way batch norm does.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Group normalization splits a layer's channels into G equal groups and normalizes activations inside each group using mean and variance computed per example. Like batch norm, it applies learned affine parameters after rescaling, but the statistics never cross batch items. It is another normalization variant under the same parent concept as layer norm and RMSNorm."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Small-batch training—common in detection, generative image models, or edge devices—makes batch norm noisy. Group norm trades some cross-channel coupling for stable per-example stats. When a paper mentions GN in a vision tower paired with a transformer trunk, you can tell which sublayer uses per-token norms versus grouped conv norms."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A feature map with 32 channels and group size 8 forms four groups of eight channels. For one image, group two's mean and variance come only from that image's eight channels across height and width; the network then rescales those activations before the next convolution."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Group norm is not layer norm: layer norm runs across the full hidden vector at each token, while group norm runs within channel groups on spatial tensors. It is not batch norm either—batch norm pools across the batch dimension. Decoder-only language models rarely use group norm in the text trunk; seeing GN usually points to conv or diffusion backbones."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Draft placeholder for Group norm. Replace before publishing.",
+      "caption": "Draft placeholder for Group norm. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for Group norm. Replace before publishing.",
+        "summary": "Draft placeholder for Group norm. Replace before publishing."
+      }
+    }
+  }
+}
