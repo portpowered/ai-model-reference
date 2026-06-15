@@ -16,12 +16,9 @@ storybook-static/
 *.tsbuildinfo
 *.exe
 
+docs/temp/
 tasks/
 tasks/todo
-docs/temp/**
-!docs/temp/checklist.md
-!docs/temp/processes/
-!docs/temp/processes/**
 factory/internal/**
 factory/inputs/**
 !factory/inputs/BATCH/
