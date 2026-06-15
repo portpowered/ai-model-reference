@@ -4,6 +4,7 @@ import {
   evaluateSearchPageCanonicalResultUrls,
   evaluateSearchPageDomSnapshot,
   formatPhase1SearchPageCheckFailure,
+  isSearchPageDomSnapshotPopulated,
   PHASE_1_SEARCH_PAGE_QUERIES,
   resolveSearchPageCheckOptionsFromEnv,
   runPhase1SearchPageChecks,
@@ -74,6 +75,36 @@ describe("evaluateSearchPageCanonicalResultUrls", () => {
         }),
       ),
     ).toContain("duplicate one canonical page URL");
+  });
+});
+
+describe("isSearchPageDomSnapshotPopulated", () => {
+  test("returns true for empty terminal state", () => {
+    expect(
+      isSearchPageDomSnapshotPopulated({
+        hasResults: false,
+        hasEmpty: true,
+        hasGroupedQueryAttentionLink: false,
+        hasGroupedQueryAttentionResultUrl: false,
+        hasGroupedQueryAttentionButton: false,
+        resultUrls: [],
+      }),
+    ).toBe(true);
+  });
+
+  test("returns true when result URLs are populated", () => {
+    expect(isSearchPageDomSnapshotPopulated(passingSnapshot())).toBe(true);
+  });
+
+  test("returns false while results region is visible but URLs are still empty", () => {
+    expect(
+      isSearchPageDomSnapshotPopulated(
+        passingSnapshot({
+          resultUrls: [],
+          hasGroupedQueryAttentionResultUrl: false,
+        }),
+      ),
+    ).toBe(false);
   });
 });
 

@@ -30,6 +30,21 @@ export function getModulesDocsRoot(docsRoot = getDocsRoot()): string {
   return join(docsRoot, "modules");
 }
 
+/** Model docs under `src/content/docs/models`. */
+export function getModelsDocsRoot(docsRoot = getDocsRoot()): string {
+  return join(docsRoot, "models");
+}
+
+/** Paper docs under `src/content/docs/papers`. */
+export function getPapersDocsRoot(docsRoot = getDocsRoot()): string {
+  return join(docsRoot, "papers");
+}
+
+/** Training-regime docs under `src/content/docs/training`. */
+export function getTrainingDocsRoot(docsRoot = getDocsRoot()): string {
+  return join(docsRoot, "training");
+}
+
 /** Registry JSON under `src/content/registry`. */
 export function getRegistryRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "registry");
@@ -61,6 +76,15 @@ export const CONCEPTS_DOCS_ROOT = getConceptsDocsRoot(DOCS_ROOT);
 
 /** Default `src/content/docs/modules` root. */
 export const MODULES_DOCS_ROOT = getModulesDocsRoot(DOCS_ROOT);
+
+/** Default `src/content/docs/models` root. */
+export const MODELS_DOCS_ROOT = getModelsDocsRoot(DOCS_ROOT);
+
+/** Default `src/content/docs/papers` root. */
+export const PAPERS_DOCS_ROOT = getPapersDocsRoot(DOCS_ROOT);
+
+/** Default `src/content/docs/training` root. */
+export const TRAINING_DOCS_ROOT = getTrainingDocsRoot(DOCS_ROOT);
 
 /** Default `src/content/registry` root. */
 export const REGISTRY_ROOT = getRegistryRoot(contentRoot);

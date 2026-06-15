@@ -1,7 +1,8 @@
 import { loader } from "fumadocs-core/source";
+import { excludeNonPublishedLocalDocsPlugin } from "@/lib/content/exclude-non-published-local-docs-plugin";
 import { docs } from "../../.source/server";
 
-/** Maps glossary, concepts, and modules page bundles to reader URLs. */
+/** Maps local docs page bundles to reader URLs. */
 function pageBundleSlug(file: { path: string }): string[] | undefined {
   if (!file.path.endsWith("/page.mdx")) {
     return undefined;
@@ -15,7 +16,10 @@ function pageBundleSlug(file: { path: string }): string[] | undefined {
   if (
     sectionSlugs[0] === "concepts" ||
     sectionSlugs[0] === "glossary" ||
-    sectionSlugs[0] === "modules"
+    sectionSlugs[0] === "modules" ||
+    sectionSlugs[0] === "models" ||
+    sectionSlugs[0] === "papers" ||
+    sectionSlugs[0] === "training"
   ) {
     return sectionSlugs;
   }
@@ -27,4 +31,5 @@ export const source = loader({
   baseUrl: "/docs",
   source: docs.toFumadocsSource(),
   slugs: pageBundleSlug,
+  plugins: [excludeNonPublishedLocalDocsPlugin()],
 });

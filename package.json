@@ -18,6 +18,7 @@
     "precoverage": "fumadocs-mdx",
     "coverage": "bun ./scripts/component-coverage-gate.ts",
     "scaffold:doc-page": "bun ./scripts/scaffold-doc-page.ts",
+    "generate:page-bundle": "bun ./scripts/generate-page-bundle.ts",
     "build:search-index": "bun ./scripts/build-search-index.ts",
     "component-examples": "bun ./scripts/component-examples.ts",
     "verify:export-routes": "bun ./scripts/verify-phase-1-export-routes.ts",

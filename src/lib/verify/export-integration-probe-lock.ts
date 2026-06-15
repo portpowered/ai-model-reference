@@ -66,14 +66,13 @@ export function shouldRunServedPhase1CanonicalQueriesProbe(
 }
 
 /**
- * Served-export probe for Phase 1 `/search` plus header-dialog UX on static
- * export. Under CI serialization, `static-export-search-hydration.test.ts`
- * covers operable `/search` hydration earlier, and
- * `customer-ask-search-surface-convergence-http.test.ts` runs post-build in
- * `make test-integration`; skipping this duplicate late-suite probe avoids a 60m
- * Bun ceiling when it queues behind `withExportIntegrationProbeLock`.
+ * Served-export probe for combined `/search` page and header dialog UX. Under CI
+ * serialization, hydration, handoff, and GQA graph probes already exercise the
+ * same static export earlier in the suite; skipping this duplicate probe avoids
+ * a 60m Bun ceiling when it queues behind `withExportIntegrationProbeLock`
+ * late in the full test run. `make build-export` runs the standalone verifier.
  */
-export function shouldRunServedPhase1ExportSearchUxProbe(
+export function shouldRunPhase1ExportSearchUxServedProbe(
   env: Record<string, string | undefined> = process.env,
 ): boolean {
   if (!shouldRunExportIntegrationProbeTests(env)) {
