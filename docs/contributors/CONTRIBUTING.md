@@ -315,6 +315,123 @@ Images, charts, and code schemas follow the same split: define the asset in
 `assets.json`, put display text in messages, and reference the `assetId` from
 MDX or registry-backed components.
 
+## Local validation
+
+Verify docs changes with the same commands CI runs. Use a fast content loop
+while authoring, then run the full gate before opening a pull request.
+
+### Fast content loop
+
+While editing page bundles, registry records, or maintainer docs under `docs/`,
+run these lightweight checks often:
+
+| Command | Equivalent Bun script | What it validates |
+| --- | --- | --- |
+| `make validate-data` | `bun ./scripts/validate-registry.ts` | Registry schema, frontmatter ↔ registry alignment, message keys referenced from MDX, asset ids, graph/table references, tag and citation resolution, and colocated `messages/` + `assets.json` bundles under `src/content/docs/` |
+| `make linkcheck` | `bun ./scripts/validate-links.ts` | Internal links and `#section` anchors in published docs pages served through the Fumadocs catch-all route (`src/content/docs/**/page.mdx`) |
+
+`make validate-data` is the primary gate for docs content work. It catches the
+structural mistakes contributors make most often:
+
+- Missing or unknown `registryId`, tags, citations, or related record ids
+- Frontmatter `kind`, slug, or `aliases` out of sync with the registry record
+- Message keys in MDX that do not exist in colocated `messages/<locale>.json`
+- `assetId` references missing from `assets.json` or graph/table registry records
+- Invalid or incomplete registry JSON under `src/content/registry/`
+
+`make linkcheck` runs after content shape is stable. It verifies that links
+between docs routes resolve (for example
+`/docs/modules/grouped-query-attention`, `/docs/glossary/token`, and in-page
+`#section` anchors). Fix broken relative links in MDX before review.
+
+Optional during iteration:
+
+```sh
+make lint          # Biome check — same as bun run lint
+make typecheck     # fumadocs-mdx (pretypecheck), then tsc --noEmit
+```
+
+`make lint` helps when you edit TypeScript, MDX components, or scripts alongside
+docs content. `make typecheck` matters when your change touches typed loaders,
+registry code, or MDX component props.
+
+For a visual pass on a published page, start the dev server after installing
+dependencies:
+
+```sh
+bun install
+make dev
+```
+
+Open the page route in the browser (for example
+`http://localhost:3000/docs/modules/grouped-query-attention`). Pick a free port
+if `3000` is already in use: `bun run dev -- -p 3456`.
+
+### Full quality gate before PR
+
+GitHub Actions runs `make ci` on pull requests (see
+[README.md](../../README.md#quality-gates) and
+[operations.md](../operations.md)). Run the same sequence locally before you
+request review:
+
+```sh
+bun install --frozen-lockfile
+make ci
+```
+
+`make ci` runs, in order:
+
+1. `make lint` — Biome check
+2. `make typecheck` — `fumadocs-mdx`, then `tsc --noEmit`
+3. `make test` — `bun test`
+4. `make coverage` — manifest-scoped reusable component coverage gate
+5. `make build` — production Next.js build plus Phase 1 static route verification
+6. `make build-export` — static export to `out/` plus export route and search verification
+7. `make test-integration` — post-build HTML and production-server integration tests
+8. `make validate-data` — registry and content validation (same as the fast loop above)
+9. `make linkcheck` — internal docs link validation
+
+You do not need to run `fumadocs-mdx` manually. `pretypecheck` and `pretest` in
+`package.json` generate `.source/` automatically on fresh checkouts.
+
+For most docs-only pull requests, the **fast content loop** (`make validate-data`
+and `make linkcheck`) catches registry and linking regressions early. Run
+`make ci` once before opening the PR so you match the required GitHub **ci**
+check.
+
+### Checks that are not the default contributor path
+
+These commands exist in the repository but are not part of `make ci` or the
+standard docs contribution loop:
+
+| Command | Status |
+| --- | --- |
+| `make validate-pdf` | Stub — skipped (not implemented) |
+| `make verify-phase-1-ux` | Maintainer convergence tool — requires `make build`, Playwright, and a running server |
+| `make verify-phase-1-*-convergence` | Batch convergence validators for factory/meta-planner review |
+| `make component-examples` | Dev-only component gallery at `/component-examples` |
+
+Do not manually inspect bundle internals, emitted route inventories, or export
+artifact file lists unless a maintainer explicitly asks for that evidence in a
+convergence review. The checked-in scripts (`validate-registry.ts`,
+`validate-links.ts`, build verifiers inside `make build` / `make build-export`)
+are the supported validation surface.
+
+### After scaffolding or template copy
+
+When you add a new page with `scaffold:doc-page` or by copying a template
+bundle:
+
+1. Replace placeholder copy in `messages/en.json`.
+2. Add or update registry records the page references.
+3. Set `status: published` in `page.mdx` frontmatter when the page is ready for
+   published checks (keep `draft` while tags or citations still point at
+   unpublished targets).
+4. Run `make validate-data`, then `make linkcheck`.
+5. Run `make ci` before opening the pull request.
+
+This matches the post-scaffolding checklist in [README.md](../../README.md).
+
 ## Choose your path
 
 Contributors can land docs work in two ways.
@@ -358,9 +475,8 @@ After scaffolding or copying a template bundle, replace placeholder copy in
 Use [Choosing slug, title, aliases, tags, and registryId](#choosing-slug-title-aliases-tags-and-registryid)
 to keep metadata aligned.
 
-Open a pull request with your page changes. Run local validation before review;
-see [README.md](../../README.md#quality-gates) for the `make ci` sequence and
-individual targets such as `make validate-data` and `make linkcheck`.
+Open a pull request with your page changes. Run the checks in
+[Local validation](#local-validation) before review.
 
 ### Request factory-driven work
 
