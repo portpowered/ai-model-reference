@@ -34,6 +34,7 @@
     "verify:phase-1-github-pages-convergence": "bun ./scripts/run-phase-1-github-pages-convergence-pass.ts",
     "verify:phase-1-github-pages-deploy-convergence": "bun ./scripts/run-phase-1-github-pages-deploy-convergence-pass.ts",
     "verify:phase-2-3-reconciliation-convergence": "bun ./scripts/run-phase-2-3-reconciliation-convergence-pass.ts",
+    "verify:phase-2-token-probability-path-convergence": "bun ./scripts/run-phase-2-token-probability-path-convergence-pass.ts",
     "verify:architectural-checklist-mechanism-status": "bun ./scripts/verify-architectural-checklist-mechanism-status.ts",
     "verify:rendered-quality-baseline": "bun ./scripts/run-rendered-quality-baseline-audit.ts",
     "verify:rendered-quality-regression": "bun ./scripts/run-rendered-quality-regression-pass.ts"
