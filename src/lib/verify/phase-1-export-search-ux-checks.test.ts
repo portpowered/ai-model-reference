@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { docsSearchApi } from "@/lib/search/search-server";
 import { EXPORT_SEARCH_HYDRATION_SURFACE } from "./phase-1-export-search-convergence-evidence";
 import {
   CI_EXPORT_SEARCH_UX_PROBE_QUERIES,
@@ -13,6 +12,7 @@ import {
   resolveExportSearchUxCheckOptionsFromEnv,
   runPhase1ExportSearchUxChecks,
 } from "./phase-1-export-search-ux-checks";
+import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { PHASE_1_SEARCH_PAGE_QUERIES } from "./phase-1-search-page-checks";
 
 describe("resolveCiExportSearchUxProbeQueries", () => {
@@ -91,8 +91,13 @@ describe("runPhase1ExportSearchUxChecks", () => {
     async () => {
       const root = mkdtempSync(join(tmpdir(), "export-ux-pass-"));
       mkdirSync(join(root, "api"), { recursive: true });
-      const exported = await (await docsSearchApi.staticGET()).json();
-      writeFileSync(join(root, "api", "search"), JSON.stringify(exported));
+      writeFileSync(
+        join(root, "api", "search"),
+        JSON.stringify({
+          type: "advanced",
+          documents: [{ url: PHASE_1_GROUPED_QUERY_ATTENTION_URL }],
+        }),
+      );
       writeFileSync(join(root, "index.html"), "<html></html>");
 
       try {
@@ -162,8 +167,13 @@ describe("runPhase1ExportSearchUxChecks hydration failures", () => {
   test("returns per-query /search failures with hydration reasons", async () => {
     const root = mkdtempSync(join(tmpdir(), "export-ux-hydration-fail-"));
     mkdirSync(join(root, "api"), { recursive: true });
-    const exported = await (await docsSearchApi.staticGET()).json();
-    writeFileSync(join(root, "api", "search"), JSON.stringify(exported));
+    writeFileSync(
+      join(root, "api", "search"),
+      JSON.stringify({
+        type: "advanced",
+        documents: [{ url: PHASE_1_GROUPED_QUERY_ATTENTION_URL }],
+      }),
+    );
     writeFileSync(join(root, "index.html"), "<html></html>");
 
     try {
