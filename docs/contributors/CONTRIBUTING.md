@@ -484,25 +484,25 @@ Use the agent factory when the change is larger than a single direct PR, needs
 generated transformations, or requires coordinated batch execution across many
 pages.
 
-The factory loop is documented in:
+#### Direct authoring vs generated transformations
 
-- [factory/docs/overview.md](../../factory/docs/overview.md)
-- [factory/docs/batch-inputs.md](../../factory/docs/batch-inputs.md)
-- [factory/docs/batch-input-example.json](../../factory/docs/batch-input-example.json)
+| Path | When to use it | What you deliver |
+| --- | --- | --- |
+| **Direct pull request** | One page (or a small, tightly related set) you can implement yourself with existing templates, scaffold, or manual template copy | MDX, registry records, messages, assets, and passing local checks in a PR |
+| **Factory request** | Generator-assisted page creation, kinds scaffold does not support yet, broad conversions across many pages, or coordinated multi-page batches | A clear **idea** work item (or batch of ideas) that maintainers can route through the factory pipeline |
 
-Maintainers and meta-planners submit batches with the `you` CLI. Contributors who
-are not running the factory should open an issue or talk to a maintainer with a
-clear idea work item: page kind, slug, source material, and which template or
-generator path applies.
-
-Do not assume every contributor machine has `you` installed or authorized to
-submit real batches. The checked-in factory docs describe the request shape;
-submission authorization is controlled separately.
+Direct authoring ends in a normal GitHub pull request you can review page by page.
+Factory work ends in one or more executor pull requests produced after planning
+and batch submission. Do not mix the two paths casually: if you can land the page
+with `scaffold:doc-page` or a template copy plus `make validate-data`, prefer a
+direct PR.
 
 Examples of factory-appropriate requests:
 
-- Generator-assisted page creation for kinds the scaffold does not support yet.
-- Broad content conversions that touch many registry records or templates.
+- Generator-assisted page creation for **model**, **module**, **paper**, or
+  **training-regime** kinds before scaffold support expands.
+- Broad content conversions that touch many registry records, templates, or
+  message bundles at once.
 - Planned documentation batches tracked in
   [documentation site pages needed](../documentation-site-pages-needed.md).
 
@@ -512,14 +512,116 @@ Examples of direct-PR work:
 - Corrections to messages, citations, tags, or assets on an existing page.
 - Template-aligned edits that pass `make validate-data` and `make linkcheck`.
 
+#### How factory batches work
+
+The checked-in factory docs describe the real batch workflow:
+
+| Reference | What it covers |
+| --- | --- |
+| [factory/docs/overview.md](../../factory/docs/overview.md) | Factory roles, workstation flow, phase control, and submission entry points |
+| [factory/docs/batch-inputs.md](../../factory/docs/batch-inputs.md) | Human-readable batch ingress notes and dry-run guidance |
+| [factory/docs/batch-input-example.json](../../factory/docs/batch-input-example.json) | Example `FACTORY_REQUEST_BATCH` with `idea` work items and `DEPENDS_ON` relations |
+
+At a behavioral level, docs-related factory work starts as **`idea` work items**.
+Each idea names the outcome (for example “add a module page for flash-attention”)
+and carries enough payload for planners to turn it into a PRD and executor tasks.
+Batches group related ideas so prerequisites run in order.
+
+Minimal request shape contributors and maintainers should recognize:
+
+```json
+{
+  "requestId": "docs-module-flash-attention-001",
+  "type": "FACTORY_REQUEST_BATCH",
+  "works": [
+    {
+      "name": "module-flash-attention-page",
+      "workTypeName": "idea",
+      "payload": "Add a canonical module page for flash-attention: kind module, slug flash-attention, source paper and existing attention concept links, start from docs/templates/module.mdx because scaffold does not support module yet."
+    }
+  ]
+}
+```
+
+Real batches often include 3–5 `idea` items plus a loopback `thoughts` item and
+`DEPENDS_ON` relations between them. See
+[factory/docs/batch-input-example.json](../../factory/docs/batch-input-example.json)
+for the full pattern.
+
+**Maintainers and meta-planners** who run the factory submit batches with the
+`you` CLI after reading [factory/docs/overview.md](../../factory/docs/overview.md):
+
+```sh
+you submit batch --dry-run factory/docs/batch-input-example.json
+you submit batch factory/docs/batch-input-example.json
+```
+
+Watched-folder ingress also accepts the same JSON shape at
+`factory/inputs/BATCH/default/<request_id>.json`. Always dry-run before a real
+submission. Phase authorization and `realSubmissionAuthorized` are controlled
+separately; the overview doc explains when real batches are allowed.
+
+**Contributors who are not running the factory** should open an issue or talk to
+a maintainer instead of submitting batches directly. Provide the same behavioral
+fields an `idea` payload needs:
+
+- **Outcome** — what page or transformation you need.
+- **Page kind and slug** — for example `module` / `flash-attention`.
+- **Source material** — paper links, existing pages to align with, or draft
+  outline.
+- **Starting path** — scaffold (when supported), template sidecar copy, or
+  generator-assisted creation.
+- **Scope** — single page vs multi-page batch; whether registry or template
+  changes are in scope.
+
+Do not assume every contributor machine has `you` installed or authorized to
+submit real batches.
+
+#### What to include in a docs factory request
+
+Whether you file an issue or a maintainer files a batch JSON file, make the
+request reviewer-ready:
+
+1. Name the **page kind** and **slug** using the rules in
+   [Choosing slug, title, aliases, tags, and registryId](#choosing-slug-title-aliases-tags-and-registryid).
+2. State whether **scaffold**, **template copy**, or **generator-assisted**
+   creation applies today.
+3. List **source references** (papers, upstream docs, related registry IDs).
+4. Call out **tags, citations, and related IDs** you already know.
+5. Say whether the work is **one page** or part of a **larger batch** listed in
+   [documentation site pages needed](../documentation-site-pages-needed.md).
+
+Factory executors will produce PRs that follow the same content model and
+validation path documented in this guide. Request factory help when the
+transformation itself—not just review—is more than you can land in one direct PR.
+
 ## What is not an active contributor workflow today
 
 **Localization** — Canonical pages are designed for colocated
 `messages/<locale>.json` files, but a contributor-facing localization pipeline
-is not authorized in the current phase. Do not document or request locale rollout
-as if it were already implemented. When a future phase authorizes localization,
-requests should name the source page, target locales, and message keys to
-translate.
+is **not an active contribution workflow in the current authorized phase**. Do
+not open pull requests that add non-English locale bundles, request locale
+rollout through the factory, or document localization steps as if they were
+already implemented.
+
+Localization work may be requested **only when a future phase explicitly
+authorizes it**. Until then, treat English (`messages/en.json`) as the supported
+authoring locale for new and updated canonical pages.
+
+When localization is authorized, a request should include everything planners
+need to scope the work without implying the tooling already exists:
+
+| Field | What to specify |
+| --- | --- |
+| Source page | Published route or `registryId` (for example `module.grouped-query-attention`) |
+| Target locales | BCP-47 locale codes to add (for example `es`, `fr`) |
+| Message scope | Whether to translate the full `messages/en.json` tree or named key prefixes only |
+| Asset text | Whether graph labels, captions, and alt text in `assets.json` need locale-specific message keys |
+| Glossary and registry copy | Whether registry `defaultTitleKey` targets or tag display names are in scope |
+| Validation expectation | That new locale files must pass the same `make validate-data` alignment checks as English |
+
+Planners may route authorized localization as factory `idea` items. The
+implementation path is phase-gated; this guide documents the request shape only.
 
 **Unsupported generators** — Only commands and scripts checked into this
 repository are valid. Do not rely on undocumented CLI flags, external scaffolds,
