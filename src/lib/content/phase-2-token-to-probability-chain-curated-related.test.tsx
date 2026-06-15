@@ -28,7 +28,12 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
       getPublishedDocsRegistryIds(),
     );
 
-    expect(items).toHaveLength(1);
+    expect(items).toHaveLength(3);
+    expect(items.map((item) => item.registryId)).toEqual([
+      "concept.embedding",
+      "concept.logit",
+      "concept.softmax",
+    ]);
     expect(items[0]?.registryId).toBe("concept.embedding");
     expect(items[0]?.slug).toBe("embedding");
     expect(items[0]?.title).toBe("embeddings");
@@ -50,8 +55,12 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-related-group="curated-related"');
     expect(html).toContain("embeddings");
+    expect(html).toContain("logits");
+    expect(html).toContain("softmax function");
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
     expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/glossary/logit"');
+    expect(html).toContain('href="/docs/glossary/softmax"');
   });
 
   test("token glossary page related section surfaces embedding from registry relatedIds", async () => {
@@ -68,6 +77,8 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain("embeddings");
     expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/glossary/logit"');
+    expect(html).toContain('href="/docs/glossary/softmax"');
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
   });
 

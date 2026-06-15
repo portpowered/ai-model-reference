@@ -80,12 +80,12 @@ describe("Phase 2 token-probability path foundation inventory (phase-2-token-pro
     }
   });
 
-  test("token row marks missing logit and softmax curated related docs as in-scope repairs", async () => {
+  test("token row no longer marks logit and softmax curated related docs as repairs", async () => {
     const inventory = await buildFoundationPathInventory();
     const token = rowForSlug(inventory, "token");
 
-    expect(token.inScopeRepairs).toContain("token-to-logit");
-    expect(token.inScopeRepairs).toContain("token-to-softmax");
+    expect(token.inScopeRepairs).not.toContain("token-to-logit");
+    expect(token.inScopeRepairs).not.toContain("token-to-softmax");
     expect(token.inScopeRepairs).not.toContain("token-to-embedding");
     expect(token.inScopeRepairs).not.toContain("route");
     expect(token.inScopeRepairs).not.toContain("search-facet");
@@ -120,7 +120,6 @@ describe("Phase 2 token-probability path foundation inventory (phase-2-token-pro
     );
     expect(report).toContain("phase-3-transformer-component-expansion");
     expect(report).toContain("/docs/glossary/token");
-    expect(report).toContain("token-to-logit");
-    expect(report).toContain("token-to-softmax");
+    expect(report).toContain("token (/docs/glossary/token)");
   });
 });
