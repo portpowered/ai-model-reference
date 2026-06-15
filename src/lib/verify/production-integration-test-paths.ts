@@ -31,4 +31,5 @@ export const PRODUCTION_INTEGRATION_TEST_PATHS = [
   "src/tests/layout/sparse-attention-built-route-convergence.test.tsx",
   "src/tests/layout/site-routes-shell.test.tsx",
   "src/tests/content/phase-1-attention-tag-landing-built-app.test.ts",
+  "src/tests/content/phase-1-shell-discovery-built-app.test.ts",
 ] as const;
