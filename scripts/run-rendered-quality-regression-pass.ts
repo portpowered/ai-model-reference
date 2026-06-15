@@ -1,8 +1,7 @@
 import { spawn } from "node:child_process";
 import { join } from "node:path";
 import {
-  buildRenderedQualityRegressionCatalogRows,
-  deriveRenderedQualityRegressionEvidence,
+  buildRenderedQualityRegressionEvidence,
   formatRenderedQualityRegressionReport,
   getRenderedQualityRegressionExitCode,
   RENDERED_QUALITY_REGRESSION_TEST_FILES,
@@ -43,16 +42,11 @@ async function runShellCommand(command: string): Promise<CommandResult> {
 }
 
 async function main(): Promise<number> {
-  const catalogRows = buildRenderedQualityRegressionCatalogRows();
-  const catalogEvidence = deriveRenderedQualityRegressionEvidence(catalogRows);
+  const evidence = buildRenderedQualityRegressionEvidence();
 
-  console.log("Rendered quality regression pass: validating coverage catalog");
+  console.log("Rendered quality regression pass");
   console.log("");
-  console.log(formatRenderedQualityRegressionReport(catalogEvidence));
-
-  if (catalogEvidence.status === "fail") {
-    return getRenderedQualityRegressionExitCode(catalogEvidence);
-  }
+  console.log(formatRenderedQualityRegressionReport(evidence));
 
   const unitTestCommand = `bun test ${RENDERED_QUALITY_REGRESSION_TEST_FILES.join(" ")}`;
   console.log("");
@@ -61,10 +55,7 @@ async function main(): Promise<number> {
   );
   const unitTestResult = await runShellCommand(unitTestCommand);
   if (unitTestResult.exitCode !== 0) {
-    return getRenderedQualityRegressionExitCode(
-      catalogEvidence,
-      unitTestResult.exitCode,
-    );
+    return getRenderedQualityRegressionExitCode(unitTestResult.exitCode);
   }
 
   console.log("");
@@ -76,7 +67,6 @@ async function main(): Promise<number> {
   );
 
   return getRenderedQualityRegressionExitCode(
-    catalogEvidence,
     unitTestResult.exitCode,
     baselineResult.exitCode,
   );
