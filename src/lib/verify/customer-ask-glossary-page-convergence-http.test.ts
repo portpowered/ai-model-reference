@@ -5,10 +5,6 @@ import {
   BATCH_012_GLOSSARY_OPENING_SUMMARY_ROUTES,
   BATCH_012_GLOSSARY_ROUTES,
 } from "./batch-012-glossary-checks";
-import {
-  POST_REPAIR_HIDDEN_SIZE_GLOSSARY_OPENING_HTML,
-  POST_REPAIR_VECTOR_GLOSSARY_OPENING_HTML,
-} from "./batch-013-glossary-page-convergence.test";
 import { GLOSSARY_PAGE_CUSTOMER_ASK_REASONS } from "./customer-ask-glossary-page-convergence";
 import {
   POST_REPAIR_EMBEDDING_GLOSSARY_HTML,
@@ -17,6 +13,10 @@ import {
   PRE_REPAIR_TOKEN_GLOSSARY_OPENING_HTML,
 } from "./customer-ask-glossary-page-convergence.test";
 import { runCustomerAskGlossaryPageChecks } from "./customer-ask-glossary-page-convergence-http";
+import {
+  POST_REPAIR_HIDDEN_SIZE_GLOSSARY_OPENING_HTML,
+  POST_REPAIR_VECTOR_GLOSSARY_OPENING_HTML,
+} from "./glossary-page-convergence.test";
 
 function listenOnEphemeralPort(
   httpServer: ReturnType<typeof createHttpServer>,

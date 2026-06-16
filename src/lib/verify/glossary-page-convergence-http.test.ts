@@ -5,12 +5,6 @@ import {
   BATCH_013_GLOSSARY_OPENING_SUMMARY_ROUTES,
   BATCH_013_GLOSSARY_ROUTES,
 } from "./batch-013-glossary-checks";
-import {
-  POST_REPAIR_HIDDEN_SIZE_GLOSSARY_OPENING_HTML,
-  POST_REPAIR_VECTOR_GLOSSARY_OPENING_HTML,
-  PRE_REPAIR_HIDDEN_SIZE_ROUTE_HTML,
-  PRE_REPAIR_VECTOR_GLOSSARY_OPENING_HTML,
-} from "./batch-013-glossary-page-convergence.test";
 import { runBatch013GlossaryRouteChecks } from "./batch-013-glossary-page-convergence-http";
 import {
   BATCH_013_ROUTE_CHECKS,
@@ -27,6 +21,12 @@ import {
   POST_REPAIR_HIDDEN_SIZE_GLOSSARY_HTML,
   POST_REPAIR_VECTOR_GLOSSARY_HTML,
 } from "./customer-ask-missing-pages-convergence.test";
+import {
+  POST_REPAIR_HIDDEN_SIZE_GLOSSARY_OPENING_HTML,
+  POST_REPAIR_VECTOR_GLOSSARY_OPENING_HTML,
+  PRE_REPAIR_HIDDEN_SIZE_ROUTE_HTML,
+  PRE_REPAIR_VECTOR_GLOSSARY_OPENING_HTML,
+} from "./glossary-page-convergence.test";
 
 function listenOnEphemeralPort(
   httpServer: ReturnType<typeof createHttpServer>,

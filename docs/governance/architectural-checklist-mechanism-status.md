@@ -220,7 +220,7 @@ secrets to satisfy this artifact.
 | --- | --- |
 | **Status** | partially implemented |
 | **Summary** | CI runs on pull requests and `main` pushes; static export deploys to GitHub Pages on `main` via a separate workflow. Lockfile-backed installs, release/rollback guidance, and SHA traceability are documented. PR preview deploys and GitHub branch protection are not enforced from repository source. |
-| **Repository evidence** | `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`, `docs/operations.md`, `bun.lock`, `Makefile` (`ci`, `build-export`), `src/tests/ci/github-actions-*.test.ts`, `src/tests/ci/operations-documentation.test.ts` |
+| **Repository evidence** | `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`, `docs/operations.md`, `bun.lock`, `Makefile` (`ci`, `build-export`), `src/tests/ci/github-actions-*.test.ts` |
 | **Verification commands** | `make ci`, `make build-export`, `bun test src/tests/ci` |
 | **Gaps** | No PR preview deployment workflow; branch protection rules live in GitHub settings only; `make validate-pdf` is stubbed; environment secrets and Pages UI settings are operator-owned. |
 | **Follow-up or operator requirement** | Configure GitHub branch protection per `docs/operations.md`; treat preview deploys as deferred Phase 1 scope. |
@@ -264,7 +264,7 @@ secrets to satisfy this artifact.
 | --- | --- |
 | **Status** | partially implemented |
 | **Summary** | Layout and docs chrome use Tailwind responsive utilities; React Flow graph viewers support pan/zoom interactions tested in build and module convergence suites. There is no dedicated viewport regression matrix across mobile/tablet/desktop breakpoints. |
-| **Repository evidence** | `src/app/globals.css`, `src/features/models/components/RegistryGraphFlow.tsx`, `src/components/layout/canonical-docs-layout.tsx`, `src/tests/layout/phase-1-shell-contract.test.tsx`, `src/lib/verify/phase-1-ux-verifier.ts` |
+| **Repository evidence** | `src/app/globals.css`, `src/features/models/components/RegistryGraphFlow.tsx`, `src/components/layout/canonical-docs-layout.tsx`, `src/tests/layout/docs-shell-contract.test.tsx`, `src/lib/verify/phase-1-ux-verifier.ts` |
 | **Verification commands** | `bun test src/tests/layout`, `bun run verify:export-search-ux` |
 | **Gaps** | No systematic small-screen navigation/table/graph usability gate; touch and hover-alternative coverage is implicit only. |
 | **Follow-up or operator requirement** | Add viewport-focused Playwright or CSS contract checks for primary docs routes. |
@@ -363,7 +363,7 @@ secrets to satisfy this artifact.
 | --- | --- |
 | **Status** | partially implemented |
 | **Summary** | `/`, `/docs/**`, `/tags/**`, `/search`, and glossary/architecture index routes are implemented and covered by static-route and convergence tests. Blog and print URL families from the checklist are not routable. |
-| **Repository evidence** | `src/app/(site)/page.tsx`, `src/app/docs/[[...slug]]/page.tsx`, `src/app/(site)/tags/[slug]/page.tsx`, `src/app/(site)/search/page.tsx`, `scripts/verify-phase-1-static-routes.ts`, `scripts/verify-phase-1-export-routes.ts`, `src/tests/discovery/phase-1-route-modules.test.ts` |
+| **Repository evidence** | `src/app/(site)/page.tsx`, `src/app/docs/[[...slug]]/page.tsx`, `src/app/(site)/tags/[slug]/page.tsx`, `src/app/(site)/search/page.tsx`, `scripts/verify-phase-1-static-routes.ts`, `scripts/verify-phase-1-export-routes.ts`, `src/tests/discovery/route-modules.test.ts` |
 | **Verification commands** | `make build`, `bun ./scripts/verify-phase-1-static-routes.ts`, `bun ./scripts/verify-phase-1-export-routes.ts` |
 | **Gaps** | `/blog`, `/blog/<slug>`, and `/print/<locale>/...` routes missing; dedicated `/search?tag=` page behavior partially covered via tag landing handoffs. |
 | **Follow-up or operator requirement** | Extend route verifiers when blog/print routes are added. |
@@ -462,8 +462,8 @@ secrets to satisfy this artifact.
 | --- | --- |
 | **Status** | partially implemented |
 | **Summary** | React Flow powers interactive registry graphs; module graphs route through `PageAsset` with registry graph schemas and themed CSS. Tests cover layout, interaction, and static-export hydration for key module graphs. Print/static SVG fallback pipeline is not fully implemented. |
-| **Repository evidence** | `src/features/models/components/RegistryGraphFlow.tsx`, `ConceptMap.tsx`, `AttentionVariantComparisonGraph.tsx`, `src/content/registry/graphs/`, `src/features/docs/styles/registry-graph-flow-theme.css`, `src/tests/build/static-export-gqa-graph-hydration.test.ts` |
-| **Verification commands** | `bun test src/features/models/components`, `bun test src/tests/build/static-export-gqa-graph-hydration.test.ts` |
+| **Repository evidence** | `src/features/models/components/RegistryGraphFlow.tsx`, `ConceptMap.tsx`, `AttentionVariantComparisonGraph.tsx`, `src/content/registry/graphs/`, `src/features/docs/styles/registry-graph-flow-theme.css`, `src/tests/build/static-export-base-path-contract.test.ts` |
+| **Verification commands** | `bun test src/features/models/components`, `bun test src/tests/build/static-export-base-path-contract.test.ts` |
 | **Gaps** | Recursive module graph expand/collapse contract is partial; Mermaid print renderer validation absent; deep-linking to selected nodes not universal. |
 | **Follow-up or operator requirement** | Add print renderer validation when PDF/export graph path exists. |
 
@@ -473,8 +473,8 @@ secrets to satisfy this artifact.
 | --- | --- |
 | **Status** | partially implemented |
 | **Summary** | `README.md` documents problem/solution, content-layer shape (`Website Shape`), important governance docs, **Local Development** (`bun install`, `make dev`), **Static export (GitHub Pages)** with `make build-export`, **Quality Gates** with ordered `make ci` steps and full Makefile target listings, operations/release posture, Phase 1 UX verifiers, and the agent factory loop. It carries a CI badge and links to `docs/operations.md`. |
-| **Repository evidence** | `README.md` (`## Local Development`, `## Quality Gates`, `## Static export (GitHub Pages)`), `src/tests/ci/readme-deployment-documentation.test.ts`, `src/tests/ci/github-actions-readme.test.ts` |
-| **Verification commands** | `bun test src/tests/ci/readme-deployment-documentation.test.ts`, `bun test src/tests/ci/github-actions-readme.test.ts` |
+| **Repository evidence** | `README.md` (`## Local Development`, `## Quality Gates`, `## Static export (GitHub Pages)`) |
+| **Verification commands** | Manual review; README prose is not a test-gated contract. |
 | **Gaps** | Missing page-count/license/locale badges (only CI badge present); no explicit one-line published-site URL; no detailed top-level repository tree map beyond content-layer layout in **Website Shape**. |
 | **Follow-up or operator requirement** | Add remaining checklist rows (badges, live URL line, repo structure map) without duplicating `docs/operations.md`. |
 

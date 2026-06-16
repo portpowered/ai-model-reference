@@ -109,7 +109,7 @@ line target.
 | TagResourceList | `src/features/docs/components/TagResourceList.tsx` | ≥ 90% | `TagResourceList.test.tsx` | — |
 | TagsIndexList | `src/features/docs/tags/TagsIndexList.tsx` | ≥ 90% | `TagsIndexList.test.tsx` | — |
 
-Consolidated styling contracts: `src/tests/layout/phase-1-home-shell-styling-contract.test.tsx`.
+Consolidated styling contracts: `src/tests/layout/home-shell-styling-contract.test.tsx`.
 
 ### Phase 1 search presentation (dialog and `/search` rows)
 
@@ -122,9 +122,9 @@ Consolidated styling contracts: `src/tests/layout/phase-1-home-shell-styling-con
 | SearchResultTitle | `src/features/docs/search/SearchResultTitle.tsx` | ≥ 90% | `SearchResults.test.tsx` | — |
 | SearchResultMetaDetails | `src/features/docs/search/SearchResultMetaDetails.tsx` | ≥ 90% | `SearchResults.test.tsx` | `docs-components.a11y.test.tsx` |
 
-Coverage contract: `src/tests/search/phase-1-search-coverage-contract.test.ts`.
+Coverage contract: `src/tests/search/search-coverage-contract.test.ts`.
 
-Module page coverage contract: `src/tests/layout/phase-1-module-page-coverage-contract.test.ts` (see `PHASE_1_MODULE_PAGE_COVERAGE_COMPONENTS` in the manifest).
+Module page coverage contract: `src/tests/layout/module-page-coverage-contract.test.ts` (see `PHASE_1_MODULE_PAGE_COVERAGE_COMPONENTS` in the manifest).
 
 Thin wrappers: `ModuleGraph` and `ModuleComparisonTable` forward to `PageAsset` (see `REUSABLE_THIN_WRAPPERS` in the manifest).
 

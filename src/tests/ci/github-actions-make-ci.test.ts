@@ -25,6 +25,7 @@ const ciTargets = [
   "coverage",
   "build",
   "build-export",
+  "test-build-contract",
   "test-integration",
   "validate-data",
   "linkcheck",
@@ -60,13 +61,16 @@ describe("GitHub Actions make ci", () => {
     expect(workflow).not.toMatch(/continue-on-error:\s*true/i);
   });
 
-  test("make ci runs default bun test including Turbopack NFT build tracing regression", () => {
+  test("make ci splits fast tests from explicit build-contract tests", () => {
     expect(existsSync(buildTracingRegressionTestPath)).toBe(true);
 
     const packageJson = JSON.parse(
       readFileSync(join(repoRoot, "package.json"), "utf8"),
-    ) as { scripts: { test: string } };
-    expect(packageJson.scripts.test).toBe("bun test");
+    ) as { scripts: { test: string; "test:build-contract": string } };
+    expect(packageJson.scripts.test).toBe("bun ./scripts/run-fast-tests.ts");
+    expect(packageJson.scripts["test:build-contract"]).toBe(
+      "bun test src/tests/build",
+    );
 
     const workflow = readFileSync(ciWorkflowPath, "utf8");
     expect(workflow).not.toMatch(/--exclude/i);
@@ -74,6 +78,9 @@ describe("GitHub Actions make ci", () => {
 
     const makefile = readFileSync(makefilePath, "utf8");
     expect(parseMakefileCiPrerequisites(makefile)).toContain("test");
+    expect(parseMakefileCiPrerequisites(makefile)).toContain(
+      "test-build-contract",
+    );
   });
 
   test("Makefile ci target runs CI gates in order including linkcheck", () => {

@@ -9,7 +9,7 @@ Batch 017 navigation and search reconciliation (`phase-2-3-content-navigation-se
 Evidence:
 
 - `make verify-phase-1-github-pages-convergence` exits 0 with recommendation `stop-and-wait-for-phase-advancement`. Export command path, static server command path, and Phase 1 static regression probes (including `/search` hydration, page-level hits, and header dialog search for GQA, attention, and KV cache) pass against the `out/` artifact served from a loopback static file server.
-- `src/tests/build/static-export-phase-1-search.test.ts` passes: `build:export` emits the Orama bootstrap payload and `verify-phase-1-export-search-handoff` succeeds after export.
+- `src/tests/build/static-export-contract.test.ts` passes: `build:export` emits the Orama bootstrap payload, verifies route and `/search` shell markers, and the Phase 1 export route/search script entrypoints succeed against the shared export artifact.
 - Batch 017 reconciliation surfaces are present on the static export artifact: `/search`, `/tags`, `/tags/attention`, `/docs/architecture`, `/docs/glossary`, and `/docs/modules/grouped-query-attention` include reader markers in the GitHub Pages convergence export-artifact checks.
 
 Reconciliation search and tag behavior was verified on the dev server and through the focused Phase 2/3 gate (`make verify-phase-2-3-reconciliation-convergence`). Static-export search repair is not a blocker for shipping reconciliation work.

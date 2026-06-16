@@ -22,9 +22,9 @@ asdasd
 
 ## Current Direction
 
-Batch-015 documentation alignment is closed: planner state, maintainer docs, deploy
-workflow contract, and `deployment-posture-drift.test.ts` agree. Refresh convergence
-evidence after material export, search, or deploy contract changes.
+Batch-015 documentation alignment is closed: planner state, maintainer docs, and
+the deploy workflow contract agree. Refresh convergence evidence after material
+export, search, or deploy contract changes.
 
 Phase 1 convergence was refreshed on 2026-06-08 with:
 
@@ -82,6 +82,6 @@ export, search, or deploy contract changes.
 | --- | --- | --- |
 | `phase-1-github-pages-deploy-workflow-activation` | `deploy.yml` publishes `out/` on `main` with Pages permissions | **Complete** — merged; workflow present in repository. |
 | `phase-1-github-pages-workflow-and-ops-alignment` | Maintainer README/operations describe active deploy | **Complete** — `docs/operations.md` and `README.md` aligned. |
-| `phase-1-github-pages-docs-and-planner-alignment` | Planner checklist and maintainer docs agree; no deferral drift | **Complete** — maintainer docs, planner control state, and `deployment-posture-drift.test.ts` guard. |
+| `phase-1-github-pages-docs-and-planner-alignment` | Planner checklist and maintainer docs agree; no deferral drift | **Complete** — maintainer docs and planner control state aligned. |
 | `phase-1-github-pages-convergence-validator` | Static export convergence command and inventory | **Complete** — validator and docs in repository; rerun after material changes. |
-| Documentation drift guards | CI fails when deferral language returns while `deploy.yml` exists | **Complete** — `src/tests/ci/deployment-posture-drift.test.ts`. |
+| Documentation drift guards | CI fails when deferral language returns while `deploy.yml` exists | **Removed from test gates** — prose drift is handled by review instead of README/docs assertions. |

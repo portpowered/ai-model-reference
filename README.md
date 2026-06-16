@@ -271,8 +271,8 @@ generate `.source/` automatically before typecheck and tests.
 GitHub Actions runs the same gate sequence on pull requests and pushes to
 `main`: install dependencies with `bun install --frozen-lockfile`, then
 `make ci` (see `.github/workflows/ci.yml`). No repository secrets are required
-for lint, typecheck, test, manifest-scoped component coverage, build,
-build-export, post-build integration tests, validate-data, and linkcheck. The baseline CI workflow
+for lint, typecheck, fast tests, manifest-scoped component coverage, build,
+build-export, build-contract tests, post-build integration tests, validate-data, and linkcheck. The baseline CI workflow
 (`.github/workflows/ci.yml`) does not invoke deploy or preview steps. GitHub
 Pages deployment runs separately via `.github/workflows/deploy.yml` on pushes to
 `main` (see [Operations and release](#operations-and-release)). PDF validation
@@ -283,13 +283,14 @@ the repository root after `bun install --frozen-lockfile`; it runs, in order:
 
 1. `make lint` — Biome check (no auto-fix)
 2. `make typecheck` — generates Fumadocs MDX source, then `tsc --noEmit`
-3. `make test` — generates Fumadocs MDX source (when typecheck was skipped), then `bun test`
+3. `make test` — generates Fumadocs MDX source (when typecheck was skipped), then fast tests via `scripts/run-fast-tests.ts`
 4. `make coverage` — manifest-scoped reusable component coverage gate (same as `bun run coverage`)
 5. `make build` — `next build` plus Phase 1 static route verification
 6. `make build-export` — static export to `out/` plus Phase 1 export route verification
-7. `make test-integration` — post-build built HTML and production-server integration manifest (`bun run test:integration` / `scripts/run-production-integration-tests.ts`)
-8. `make validate-data` — registry and content validation
-9. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
+7. `make test-build-contract` — consolidated build/export contract suites (`bun run test:build-contract`)
+8. `make test-integration` — post-build built HTML and production-server integration manifest (`bun run test:integration` / `scripts/run-production-integration-tests.ts`)
+9. `make validate-data` — registry and content validation
+10. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
 
 Use `bun run scaffold:doc-page` (or `make scaffold`) when adding Phase 2 glossary or
 concept pages, then run `make validate-data` before opening a pull request.
@@ -307,7 +308,9 @@ make ci            # full gate sequence above
 make lint          # Biome check (no auto-fix)
 make format        # Biome format --write
 make typecheck     # fumadocs-mdx (pretypecheck), then tsc --noEmit
-make test          # fumadocs-mdx (pretest), then bun test
+make test          # fumadocs-mdx (pretest), then fast tests
+make test-build-contract # consolidated build/export contract suites
+make test-system   # build/export contracts plus post-build integration tests
 make coverage      # fumadocs-mdx (precoverage), manifest coverage gate
 make build         # next build + Phase 1 static route check
 make build-export  # static export to out/ + Phase 1 export route verification

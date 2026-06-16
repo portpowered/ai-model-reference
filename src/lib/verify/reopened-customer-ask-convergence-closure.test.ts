@@ -7,17 +7,9 @@ import {
 } from "./batch-013-customer-ask-check-inventory";
 import { BATCH_013_GLOSSARY_ROUTES } from "./batch-013-glossary-checks";
 import { buildBatch013GlossaryRouteConvergenceRows } from "./batch-013-glossary-page-convergence";
-import {
-  POST_REPAIR_HIDDEN_SIZE_GLOSSARY_OPENING_HTML,
-  POST_REPAIR_VECTOR_GLOSSARY_OPENING_HTML,
-  PRE_REPAIR_HIDDEN_SIZE_ROUTE_HTML,
-  PRE_REPAIR_VECTOR_GLOSSARY_OPENING_HTML,
-} from "./batch-013-glossary-page-convergence.test";
 import { BATCH_013_GQA_MODULE_CHECKS } from "./batch-013-gqa-module-checks";
 import { buildBatch013GqaModuleDeduplicationRows } from "./batch-013-gqa-module-deduplication-convergence";
-import { POST_REPAIR_BATCH_013_GQA_MODULE_HTML } from "./batch-013-gqa-module-deduplication-convergence.test";
 import { buildBatch013GqaModuleGraphMathRows } from "./batch-013-gqa-module-graph-math-convergence";
-import { POST_REPAIR_BATCH_013_GQA_GRAPH_MATH_HTML } from "./batch-013-gqa-module-graph-math-convergence.test";
 import { BATCH_013_ROUTE_PATHS } from "./batch-013-route-checks";
 import { formatCustomerAskConvergenceReport } from "./customer-ask-convergence-reporter";
 import type { CustomerAskConvergenceRow } from "./customer-ask-convergence-result";
@@ -31,6 +23,14 @@ import {
   MISSING_PAGES_HIDDEN_SIZE_REGISTRY_ID,
   MISSING_PAGES_VECTOR_REGISTRY_ID,
 } from "./customer-ask-missing-pages-convergence";
+import {
+  POST_REPAIR_HIDDEN_SIZE_GLOSSARY_OPENING_HTML,
+  POST_REPAIR_VECTOR_GLOSSARY_OPENING_HTML,
+  PRE_REPAIR_HIDDEN_SIZE_ROUTE_HTML,
+  PRE_REPAIR_VECTOR_GLOSSARY_OPENING_HTML,
+} from "./glossary-page-convergence.test";
+import { POST_REPAIR_BATCH_013_GQA_MODULE_HTML } from "./gqa-module-deduplication-convergence.test";
+import { POST_REPAIR_BATCH_013_GQA_GRAPH_MATH_HTML } from "./gqa-module-graph-math-convergence.test";
 import {
   assertBatch013CommandPathFailureIsActionable,
   assertBatch013ConvergenceClosureReady,

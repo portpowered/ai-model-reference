@@ -14,12 +14,12 @@ const builtRouteConvergencePaths = [
 ] as const;
 
 const excludedScriptE2ePaths = [
-  "src/lib/verify/phase-1-batch-013-convergence-validator.test.ts",
-  "src/lib/verify/phase-1-built-app-convergence-validator.test.ts",
-  "src/lib/verify/phase-1-follow-up-convergence-validator.test.ts",
-  "src/lib/verify/phase-1-github-pages-convergence-validator.test.ts",
-  "src/lib/verify/phase-1-github-pages-deploy-convergence-validator.test.ts",
-  "src/lib/verify/phase-1-ux-verifier.test.ts",
+  "src/lib/verify/reopened-customer-ask-convergence-validator.test.ts",
+  "src/lib/verify/built-app-convergence-validator.test.ts",
+  "src/lib/verify/follow-up-convergence-validator.test.ts",
+  "src/lib/verify/github-pages-convergence-validator.test.ts",
+  "src/lib/verify/github-pages-deploy-convergence-validator.test.ts",
+  "src/lib/verify/reader-ux-verifier.test.ts",
 ] as const;
 
 describe("PRODUCTION_INTEGRATION_TEST_PATHS", () => {

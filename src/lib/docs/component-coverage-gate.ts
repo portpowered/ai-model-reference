@@ -13,7 +13,7 @@ export const COVERAGE_TEST_ARGS = [
   "test",
   "--coverage",
   "--path-ignore-patterns",
-  "src/tests/docs/phase-2-component-coverage.test.ts",
+  "src/tests/docs/component-coverage.test.ts",
 ] as const;
 
 /** Documented search UI paths allowed outside `components/` directories. */

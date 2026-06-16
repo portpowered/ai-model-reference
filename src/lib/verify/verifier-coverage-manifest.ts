@@ -21,7 +21,7 @@ export const VERIFIER_COVERAGE_MODULES: VerifierCoverageEntry[] = [
     minReachableLinePercent: 90,
     unitTests: [
       "src/lib/verify/server-lifecycle.test.ts",
-      "src/lib/verify/phase-1-ux-verifier.test.ts",
+      "src/lib/verify/reader-ux-verifier.test.ts",
     ],
   },
 ];

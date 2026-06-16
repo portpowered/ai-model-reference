@@ -46,7 +46,15 @@ def read_prd(prd_path):
 
 
 def sync_main(repo_root):
-    """Run git pull unless the repo has no upstream configured."""
+    """Run git pull unless the repo has no upstream or local root changes."""
+    status = run_git("status", "--porcelain", cwd=repo_root, check=False)
+    if status.returncode != 0:
+        raise RuntimeError(
+            f"git status failed (exit {status.returncode}): {status.stderr.strip()}"
+        )
+    if status.stdout.strip():
+        return
+
     result = run_git("pull", cwd=repo_root, check=False)
     if result.returncode == 0:
         return

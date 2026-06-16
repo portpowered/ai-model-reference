@@ -1,12 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { createServer as createHttpServer } from "node:http";
 import { BATCH_013_GQA_MODULE_CHECKS } from "./batch-013-gqa-module-checks";
-import { POST_REPAIR_BATCH_013_GQA_MODULE_HTML } from "./batch-013-gqa-module-deduplication-convergence.test";
 import { runBatch013GqaModuleDeduplicationChecks } from "./batch-013-gqa-module-deduplication-convergence-http";
 import {
   GQA_MODULE_CUSTOMER_ASK_ROUTE,
   GQA_MODULE_DEDUP_CUSTOMER_ASK_REASONS,
 } from "./customer-ask-gqa-module-deduplication-convergence";
+import { POST_REPAIR_BATCH_013_GQA_MODULE_HTML } from "./gqa-module-deduplication-convergence.test";
 import { GROUPED_QUERY_ATTENTION_MODULE_TITLE } from "./grouped-query-attention-module-convergence";
 
 const PRE_REPAIR_BATCH_013_COMBINED_MODULE_HTML = `
