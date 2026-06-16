@@ -442,15 +442,15 @@ describe("waitForServerReady", () => {
 
     const port = await listenOnEphemeralPort(httpServer);
     const healthUrl = `http://127.0.0.1:${port}/`;
-    const timeoutMs = 800;
+    const timeoutMs = 200;
 
     try {
       let readinessError: Error | undefined;
       try {
         await waitForServerReady(`http://127.0.0.1:${port}`, {
           timeoutMs,
-          pollIntervalMs: 100,
-          perRequestTimeoutMs: 300,
+          pollIntervalMs: 25,
+          perRequestTimeoutMs: 75,
           port,
         });
       } catch (error) {
@@ -470,14 +470,14 @@ describe("waitForServerReady", () => {
   test("rejects with timeout, health URL, and last network error when nothing is listening", async () => {
     const port = await reserveClosedEphemeralPort();
     const healthUrl = `http://127.0.0.1:${port}/`;
-    const timeoutMs = 600;
+    const timeoutMs = 200;
 
     let readinessError: Error | undefined;
     try {
       await waitForServerReady(`http://127.0.0.1:${port}`, {
         timeoutMs,
-        pollIntervalMs: 100,
-        perRequestTimeoutMs: 300,
+        pollIntervalMs: 25,
+        perRequestTimeoutMs: 75,
         port,
       });
     } catch (error) {
@@ -710,7 +710,7 @@ process.exit(42);
 
       expect(spawnedChild).toBeDefined();
       if (spawnedChild) {
-        await waitForChildExit(spawnedChild, 2_000);
+        await waitForChildExit(spawnedChild, 500);
         expect(spawnedChild.exitCode).toBe(42);
       }
     } finally {
@@ -783,7 +783,7 @@ for (const signal of ["SIGTERM", "SIGINT"]) {
       expect(spawnedChild).toBeDefined();
       expect(assignedPort).toBeDefined();
       if (spawnedChild) {
-        await waitForChildExit(spawnedChild, 2_000);
+        await waitForChildExit(spawnedChild, 500);
         expect(
           spawnedChild.exitCode !== null || spawnedChild.killed === true,
         ).toBe(true);

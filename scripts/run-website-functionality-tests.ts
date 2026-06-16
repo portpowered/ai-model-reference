@@ -4,28 +4,29 @@ import { availableParallelism } from "node:os";
 import { join, relative } from "node:path";
 
 const repoRoot = join(import.meta.dir, "..");
-const excludedPrefixes = ["src/tests/build/"];
 const defaultParallelWorkers = Math.max(
   1,
   Math.min(8, availableParallelism() - 1),
 );
 
-const serialTestGroups = [
-  [
-    "src/lib/verify/github-pages-deploy-static-harness.test.ts",
-    "src/lib/verify/http-harness.test.ts",
-    "src/lib/verify/reader-ux-verifier.test.ts",
-    "src/lib/verify/server-lifecycle.test.ts",
-    "src/lib/verify/static-export-search-empty-error-states-http.test.ts",
-    "src/lib/verify/static-export-server-lifecycle.test.ts",
-    "src/lib/verify/verify-listen-port-lock.test.ts",
-  ],
-  [
-    "src/tests/ci/clean-worktree-fixture.test.ts",
-    "src/tests/ci/fresh-checkout-typecheck.test.ts",
-  ],
+const excludedPrefixes = [
+  "src/lib/verify/",
+  "src/lib/governance/",
+  "src/tests/build/",
+  "src/tests/ci/",
 ];
-const serialTestFiles = new Set(serialTestGroups.flat());
+
+const excludedFiles = new Set([
+  "src/lib/build/built-app-html-test-utils.test.ts",
+  "src/lib/build/ensure-export-search-artifacts.test.ts",
+  "src/lib/build/run-static-export-build.test.ts",
+  "src/lib/build/turbopack-nft-tracing-warning.test.ts",
+  "src/lib/build/validate-links.test.ts",
+  "src/lib/build/verify-export-base-path.test.ts",
+  "src/lib/build/verify-export-routes.test.ts",
+  "src/lib/build/verify-module-built-routes.test.ts",
+  "src/lib/docs/component-coverage-gate.test.ts",
+]);
 
 function normalizePath(path: string): string {
   return path.replace(/\\/g, "/");
@@ -62,11 +63,14 @@ function listTestFiles(directory: string): string[] {
 }
 
 function isExcluded(relativePath: string): boolean {
-  return excludedPrefixes.some((prefix) => relativePath.startsWith(prefix));
+  return (
+    excludedFiles.has(relativePath) ||
+    excludedPrefixes.some((prefix) => relativePath.startsWith(prefix))
+  );
 }
 
 function resolveShardWorkers(): number {
-  const raw = process.env.FAST_TEST_PARALLEL_WORKERS?.trim();
+  const raw = process.env.WEBSITE_TEST_PARALLEL_WORKERS?.trim();
   if (!raw) {
     return defaultParallelWorkers;
   }
@@ -81,11 +85,15 @@ function resolveShardWorkers(): number {
 
 function runBunTestShard(args: string[]): Promise<number> {
   return new Promise((resolve, reject) => {
-    const child = spawn("bun", ["test", ...args], {
-      cwd: repoRoot,
-      stdio: "inherit",
-      env: process.env,
-    });
+    const child = spawn(
+      "bun",
+      ["test", "--preload", "./src/tests/a11y/mock-navigation.ts", ...args],
+      {
+        cwd: repoRoot,
+        stdio: "inherit",
+        env: process.env,
+      },
+    );
 
     child.once("error", reject);
     child.once("close", (code) => {
@@ -113,44 +121,14 @@ const testFiles = listTestFiles(repoRoot)
   .sort();
 
 if (testFiles.length === 0) {
-  console.error("No fast test files found.");
+  console.error("No website functionality test files found.");
   process.exit(1);
 }
 
-const parallelTestFiles = testFiles.filter(
-  (relativePath) => !serialTestFiles.has(relativePath),
+const shards = distributeAcrossShards(testFiles, resolveShardWorkers());
+const statuses = await Promise.all(
+  shards.map((shard) => runBunTestShard(shard)),
 );
-const serialFileGroups = serialTestGroups
-  .map((group) =>
-    group.filter((relativePath) => testFiles.includes(relativePath)),
-  )
-  .filter((group) => group.length > 0);
-
-const unknownSerialFiles = [...serialTestFiles]
-  .filter((relativePath) => !testFiles.includes(relativePath))
-  .sort();
-if (unknownSerialFiles.length > 0) {
-  console.error(
-    `Serial fast-test file list contains missing files:\n${unknownSerialFiles.join("\n")}`,
-  );
-  process.exit(1);
-}
-
-const testRuns: Promise<number>[] = [];
-
-if (parallelTestFiles.length > 0) {
-  const shards = distributeAcrossShards(
-    parallelTestFiles,
-    resolveShardWorkers(),
-  );
-  testRuns.push(...shards.map((shard) => runBunTestShard(shard)));
-}
-
-for (const serialFiles of serialFileGroups) {
-  testRuns.push(runBunTestShard(["--max-concurrency=1", ...serialFiles]));
-}
-
-const statuses = await Promise.all(testRuns);
 const failingStatus = statuses.find((status) => status !== 0);
 if (failingStatus !== undefined) {
   process.exit(failingStatus);

@@ -91,7 +91,7 @@ describe("acquireStaticExportVerifySession", () => {
     const outcome = await acquireStaticExportVerifySession({
       outDir: root,
       port: 3195,
-      startupTimeoutMs: 500,
+      startupTimeoutMs: 200,
     });
 
     expect(outcome.status).toBe("fail");

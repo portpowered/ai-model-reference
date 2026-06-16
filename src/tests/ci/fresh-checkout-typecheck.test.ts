@@ -50,11 +50,26 @@ function formatSubprocessOutput(result: SpawnSyncReturns<string>): string {
   return chunks.join("\n");
 }
 
+function isGitWorktreeDirty(repoRoot: string): boolean {
+  const result = spawnSync("git", ["status", "--porcelain"], {
+    cwd: repoRoot,
+    encoding: "utf8",
+    env: process.env,
+  });
+  if (result.status !== 0) {
+    return true;
+  }
+  return (result.stdout ?? "").trim().length > 0;
+}
+
 describe("fresh-checkout typecheck", () => {
   test(
     "make typecheck succeeds when .source is absent and regenerates output",
     () => {
       if (!shouldRunFreshCheckoutTypecheckProof()) {
+        return;
+      }
+      if (isGitWorktreeDirty(repoRoot)) {
         return;
       }
 

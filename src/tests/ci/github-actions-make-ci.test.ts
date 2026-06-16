@@ -22,6 +22,7 @@ const ciTargets = [
   "lint",
   "typecheck",
   "test",
+  "test-verify-contract",
   "coverage",
   "test-build-contract",
   "test-integration",
@@ -59,13 +60,22 @@ describe("GitHub Actions make ci", () => {
     expect(workflow).not.toMatch(/continue-on-error:\s*true/i);
   });
 
-  test("make ci splits fast tests from explicit build-contract tests", () => {
+  test("make ci splits website tests from explicit verifier and build-contract tests", () => {
     expect(existsSync(buildTracingRegressionTestPath)).toBe(true);
 
     const packageJson = JSON.parse(
       readFileSync(join(repoRoot, "package.json"), "utf8"),
-    ) as { scripts: { test: string; "test:build-contract": string } };
-    expect(packageJson.scripts.test).toBe("bun ./scripts/run-fast-tests.ts");
+    ) as {
+      scripts: {
+        test: string;
+        "test:build-contract": string;
+        "test:verify-contract": string;
+      };
+    };
+    expect(packageJson.scripts.test).toBe("bun run test:website");
+    expect(packageJson.scripts["test:verify-contract"]).toBe(
+      "bun ./scripts/run-website-verifier-tests.ts",
+    );
     expect(packageJson.scripts["test:build-contract"]).toContain(
       "src/tests/build/next-build-tracing-warning.test.ts",
     );
@@ -85,6 +95,9 @@ describe("GitHub Actions make ci", () => {
 
     const makefile = readFileSync(makefilePath, "utf8");
     expect(parseMakefileCiPrerequisites(makefile)).toContain("test");
+    expect(parseMakefileCiPrerequisites(makefile)).toContain(
+      "test-verify-contract",
+    );
     expect(parseMakefileCiPrerequisites(makefile)).toContain(
       "test-build-contract",
     );

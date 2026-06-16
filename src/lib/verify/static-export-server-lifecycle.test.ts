@@ -60,7 +60,7 @@ describe("runStaticExportServerLifecycle", () => {
     const outcome = await runStaticExportServerLifecycle({
       outDir: root,
       port: 3191,
-      startupTimeoutMs: 500,
+      startupTimeoutMs: 200,
     });
 
     expect(outcome.status).toBe("fail");

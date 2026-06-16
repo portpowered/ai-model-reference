@@ -154,7 +154,7 @@ describe("verifyStaticExportSearchEmptyErrorStates", () => {
         const reason = await verifyStaticExportSearchEmptyErrorStates(
           server.baseUrl,
           {
-            timeoutMs: 5_000,
+            timeoutMs: 1_000,
             serializeProbe: false,
           },
         );
@@ -189,7 +189,7 @@ describe("verifyStaticExportSearchEmptyErrorStates", () => {
         const reason = await verifyStaticExportSearchEmptyErrorStates(
           server.baseUrl,
           {
-            timeoutMs: 5_000,
+            timeoutMs: 1_000,
             serializeProbe: false,
           },
         );

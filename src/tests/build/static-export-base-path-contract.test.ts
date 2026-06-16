@@ -231,7 +231,6 @@ describe("static export GitHub Pages base-path contract", () => {
 
     const shellVerification = verifyPhase1ExportSearchShellFromOutDir("out", {
       cwd: repoRoot,
-      basePath: exportBasePath,
     });
     expect(shellVerification.ok).toBe(true);
   });

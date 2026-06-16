@@ -454,7 +454,7 @@ describe("verify-phase-1-route-search-ux script", () => {
       const projectRoot = createVerifyCliFixtureRoot({
         nextBinBody: FAKE_NEVER_READY_NEXT_BIN_BODY,
       });
-      const startupTimeoutMs = 800;
+      const startupTimeoutMs = 200;
 
       try {
         const result = await runVerifyScriptWithEnv(
