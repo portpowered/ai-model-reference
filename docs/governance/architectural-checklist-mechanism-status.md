@@ -175,7 +175,7 @@ replace operator settings above.
 | **Triggers** | `pull_request` (all branches) and `push` to `main`. |
 | **Permissions** | `contents: read` at job scope. |
 | **Steps** | Checkout → setup Bun → `bun install --frozen-lockfile` → install Playwright Chromium → `make ci`. |
-| **What `make ci` runs** | lint, typecheck, test, manifest-scoped coverage, build, build-export, post-build integration tests (`make test-integration`), validate-data, linkcheck (see `Makefile`). |
+| **What `make ci` runs** | lint, typecheck, test, manifest-scoped coverage, build-contract tests (`make test-build-contract`), post-build integration tests (`make test-integration`), validate-data, linkcheck (see `Makefile`). |
 | **What it does not do** | Deploy, publish previews, configure branch protection, or prove GitHub Pages UI settings. |
 
 Verification: `make ci`, `bun test src/tests/ci/github-actions-make-ci.test.ts`
@@ -230,7 +230,7 @@ secrets to satisfy this artifact.
 | Field | Value |
 | --- | --- |
 | **Status** | partially implemented |
-| **Summary** | The repository has broad unit, integration, build-export, search, layout, and axe-based accessibility tests. `make ci` runs typecheck, lint, tests, manifest-scoped coverage, build, registry validation, and linkcheck. Storybook, Lighthouse CI, visual regression, and accessibility-in-CI are not present. |
+| **Summary** | The repository has broad unit, integration, build-export, search, layout, and axe-based accessibility tests. `make ci` runs typecheck, lint, tests, manifest-scoped coverage, build-contract tests, registry validation, and linkcheck. Storybook, Lighthouse CI, visual regression, and accessibility-in-CI are not present. |
 | **Repository evidence** | `src/tests/**`, `Makefile` (`ci`, `test`, `coverage`), `package.json` (`test`, `coverage`), `scripts/component-coverage-gate.ts`, `src/lib/docs/component-coverage-gate.ts`, `src/tests/a11y/*.a11y.test.tsx`, `.github/workflows/ci.yml` |
 | **Verification commands** | `bun test`, `make ci`, `make coverage` |
 | **Gaps** | No Storybook; no Lighthouse or performance regression suite in CI; accessibility tests exist but are not part of `make ci`; no visual regression harness; math/MDX rendering lacks dedicated CI contract beyond page-level tests. |
@@ -342,7 +342,7 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | The site is a TypeScript Next.js App Router project using Bun, Fumadocs MDX, Tailwind CSS variables, shadcn/ui primitives, React Flow graphs, Recharts (where used), KaTeX math, and Orama-backed search with static export support. PDF export and full blog stack described in the checklist are not yet in the tree. |
 | **Repository evidence** | `package.json`, `next.config.ts`, `source.config.ts`, `src/app/api/search/route.ts`, `src/features/models/components/RegistryGraphFlow.tsx`, `src/features/docs/components/Math.tsx`, `scripts/emit-export-search-index.ts` |
-| **Verification commands** | `make build-export`, `bun test src/tests/build` |
+| **Verification commands** | `make build-export`, `bun run test:build-contract` |
 | **Gaps** | PDF pipeline and blog authoring paths missing; Magic UI usage is minimal/optional and not centrally cataloged. |
 | **Follow-up or operator requirement** | Land print/PDF routes before claiming PDF support as implemented. |
 
@@ -529,7 +529,7 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | Static export pre-renders docs pages; heavy graph clients hydrate on module routes with targeted performance tests for export/search paths. Bundle-size tracking, Lighthouse budgets, and CI performance regression gates are not configured. |
 | **Repository evidence** | `next.config.ts`, `make build-export`, `src/tests/build/static-export-*.test.ts`, `scripts/verify-phase-1-export-search-handoff.ts` |
-| **Verification commands** | `make build-export`, `bun test src/tests/build` |
+| **Verification commands** | `make build-export`, `bun run test:build-contract` |
 | **Gaps** | No bundle analyzer or performance budget enforcement; image/font optimization policies are implicit via Next/static export. |
 | **Follow-up or operator requirement** | Add Lighthouse or bundle-size gate when performance enforcement is prioritized. |
 
@@ -538,7 +538,7 @@ secrets to satisfy this artifact.
 | Field | Value |
 | --- | --- |
 | **Status** | partially implemented |
-| **Summary** | `make ci` encodes much of the engineering definition of done (typecheck, lint, tests, coverage thresholds for manifest components, build, data validation, linkcheck). Human review for accuracy, mobile UX, accessibility in CI, and performance budgets still relies on process rather than full mechanical gates. |
+| **Summary** | `make ci` encodes much of the engineering definition of done (typecheck, lint, tests, coverage thresholds for manifest components, build-contract tests, data validation, linkcheck). Human review for accuracy, mobile UX, accessibility in CI, and performance budgets still relies on process rather than full mechanical gates. |
 | **Repository evidence** | `Makefile` (`ci`), `docs/architectural-checklist.md` (Definition of done), `scripts/component-coverage-gate.ts`, `.github/workflows/ci.yml` |
 | **Verification commands** | `make ci` |
 | **Gaps** | Not all DoD bullets (mobile/tablet/desktop sign-off, a11y in CI, performance budgets, editorial review) are automatically enforced. |
@@ -610,8 +610,8 @@ Run these steps in order when approving this governance pass:
 3. **Post-build integration coverage** — `make test-integration` (alias:
    `bun run test:integration`) runs the manifest in
    `src/lib/verify/production-integration-test-paths.ts` via
-   `scripts/run-production-integration-tests.ts` after `make build` and
-   `make build-export` so the default CI path exercises built HTML and
+   `scripts/run-production-integration-tests.ts` after `make test-build-contract`
+   so the default CI path exercises built HTML, served export checks, and
    production-server convergence assertions that default `make test` skips unless
    `VERIFY_PRODUCTION_INTEGRATION_TESTS=1` is set.
 
@@ -627,11 +627,11 @@ Run these steps in order when approving this governance pass:
 
 | Command | Purpose |
 | --- | --- |
-| `make ci` | Default maintainer gate: lint, typecheck, tests, component coverage, production build, static export build, post-build integration tests, registry validation, and internal linkcheck. |
+| `make ci` | Default maintainer gate: lint, typecheck, tests, component coverage, build-contract tests, post-build integration tests, registry validation, and internal linkcheck. |
 | `bun run lint` | Biome lint and format checks across the repository. |
 | `bun run typecheck` | TypeScript strict check (`tsc --noEmit`) after Fumadocs MDX generation. |
 | `bun test` | Full Bun test suite (includes governance verifier tests and CI contract tests; skips opt-in built HTML / production-server integration unless `VERIFY_PRODUCTION_INTEGRATION_TESTS=1`). |
-| `make test-integration` | Post-build built HTML and production-server integration manifest (`production-integration-test-paths.ts`); included in `make ci` after build steps. Script-level E2E validator suites remain opt-in via full `VERIFY_PRODUCTION_INTEGRATION_TESTS=1 bun test`. |
+| `make test-integration` | Served export, built HTML, and production-server integration manifest (`production-integration-test-paths.ts`); included in `make ci` after the build-contract gate. Script-level E2E validator suites remain opt-in via full `VERIFY_PRODUCTION_INTEGRATION_TESTS=1 bun test`. |
 | `bun run test:integration` | Package-script alias for `make test-integration` (`scripts/run-production-integration-tests.ts`). |
 
 Run `make verify-architectural-checklist-mechanism-status` first when reviewing

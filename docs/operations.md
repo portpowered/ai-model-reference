@@ -34,7 +34,7 @@ Observable constraints satisfied in the current repository:
 
 | Constraint | Evidence |
 | --- | --- |
-| Static export is verified in CI and deploy | `NEXT_STATIC_EXPORT=1` (`bun run build:export` / `make build-export`) emits `out/` with `output: "export"`. `make ci` runs `make build` then `make build-export` with export verifiers. The deploy workflow runs the same `make build-export` path with `GITHUB_PAGES_BASE_PATH` set for the project site. |
+| Static export is verified in CI and deploy | `NEXT_STATIC_EXPORT=1` (`bun run build:export` / `make build-export`) emits `out/` with `output: "export"`. `make ci` runs the consolidated build-contract gate, which performs one production build contract and one GitHub Pages base-path export artifact contract. The deploy workflow runs `make build-export` with `GITHUB_PAGES_BASE_PATH` set for the project site. |
 | Search works without live API routes on Pages | `make build-export` runs `verify-phase-1-export-search-handoff`, which validates static Orama bootstrap and Phase 1 `GQA` / `attention` / `KV cache` ranking under `out/api/search`. Client search loads the prebuilt index from `/api/search` in the static export. |
 | GitHub Pages is static-only | GitHub Pages cannot run Node.js API routes at request time. This site ships a pre-generated static export and search index instead of live `GET` handlers. |
 | CI and deploy are separate | `.github/workflows/ci.yml` runs `make ci` on pull requests and `main` pushes. `.github/workflows/deploy.yml` publishes `out/` on `main` pushes only and does not invoke `make ci`. |

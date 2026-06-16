@@ -403,11 +403,10 @@ make ci
 2. `make typecheck` — `fumadocs-mdx`, then `tsc --noEmit`
 3. `make test` — `bun test`
 4. `make coverage` — manifest-scoped reusable component coverage gate
-5. `make build` — production Next.js build plus Phase 1 static route verification
-6. `make build-export` — static export to `out/` plus export route and search verification
-7. `make test-integration` — post-build HTML and production-server integration tests
-8. `make validate-data` — registry and content validation (same as the fast loop above)
-9. `make linkcheck` — internal docs link validation
+5. `make test-build-contract` — production build contract plus one GitHub Pages base-path export artifact contract
+6. `make test-integration` — served export, built HTML, and production-server integration tests
+7. `make validate-data` — registry and content validation (same as the fast loop above)
+8. `make linkcheck` — internal docs link validation
 
 You do not need to run `fumadocs-mdx` manually. `pretypecheck` and `pretest` in
 `package.json` generate `.source/` automatically on fresh checkouts.

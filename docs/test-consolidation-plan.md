@@ -45,9 +45,9 @@ Command: `bun run test:build-contract` or `make test-build-contract`
 Owns:
 
 - one production `next build` contract
-- one non-base-path static export contract
 - one GitHub Pages base-path static export contract
-- static-export search/browser probes that reuse the shared export artifact
+- static-export artifact, route, search bootstrap, handoff, shell, and script
+  assertions that reuse the shared export artifact
 
 Rule: a build artifact is created once per contract and all related assertions
 run against that artifact.
@@ -59,6 +59,7 @@ Command: `bun run test:integration` or `make test-integration`
 Owns:
 
 - production server lifecycle
+- served static-export browser probes
 - Playwright/browser checks that need a served app
 - release/deploy evidence checks that are too slow or flaky for ordinary local
   development
@@ -83,12 +84,12 @@ factory documentation, but new regression tests should use the domain names.
 
 ## Migration Sequence
 
-1. Done: merge repeated static export build tests into one non-base-path
+1. Done: merge repeated static export build tests into one base-path artifact
    contract.
 2. Done: add a guard that rejects build/export invocations outside approved
    system test locations.
-3. Done: move base-path export HTML assertions and served export probes into one
-   shared base-path contract.
+3. Done: move base-path export HTML assertions into one shared base-path
+   contract and keep served export probes in the integration gate.
 4. Done: convert per-module built-route verifier files into a route matrix.
 5. Done: move slow build/export gates out of default `bun test` and into the
    explicit build-contract gate.
@@ -97,11 +98,11 @@ factory documentation, but new regression tests should use the domain names.
 
 ## Current Contract Files
 
-- `src/tests/build/static-export-contract.test.ts` — one non-base-path export
-  artifact, route/search/shell/script checks.
 - `src/tests/build/static-export-base-path-contract.test.ts` — one GitHub Pages
-  base-path export artifact, HTML/client-chunk checks, served search and graph
-  probes.
+  base-path export artifact, route/search/shell/script checks and
+  HTML/client-chunk checks.
+- `src/tests/build/static-export-base-path-served-integration.test.ts` — served
+  base-path export browser probes, run by the production integration gate.
 - `src/lib/build/verify-module-built-routes.test.ts` — matrix coverage for
   module built-route verifier helpers.
 - `src/lib/verify/customer-ask-domain.test.ts` — guard that every Phase 1

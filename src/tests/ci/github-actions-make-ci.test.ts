@@ -23,8 +23,6 @@ const ciTargets = [
   "typecheck",
   "test",
   "coverage",
-  "build",
-  "build-export",
   "test-build-contract",
   "test-integration",
   "validate-data",
@@ -68,8 +66,17 @@ describe("GitHub Actions make ci", () => {
       readFileSync(join(repoRoot, "package.json"), "utf8"),
     ) as { scripts: { test: string; "test:build-contract": string } };
     expect(packageJson.scripts.test).toBe("bun ./scripts/run-fast-tests.ts");
-    expect(packageJson.scripts["test:build-contract"]).toBe(
-      "bun test src/tests/build",
+    expect(packageJson.scripts["test:build-contract"]).toContain(
+      "src/tests/build/next-build-tracing-warning.test.ts",
+    );
+    expect(packageJson.scripts["test:build-contract"]).toContain(
+      "src/tests/build/static-export-base-path-contract.test.ts",
+    );
+    expect(packageJson.scripts["test:build-contract"]).not.toContain(
+      "static-export-contract.test.ts",
+    );
+    expect(packageJson.scripts["test:build-contract"]).not.toContain(
+      "static-export-search-ux-integration.test.ts",
     );
 
     const workflow = readFileSync(ciWorkflowPath, "utf8");
@@ -80,6 +87,10 @@ describe("GitHub Actions make ci", () => {
     expect(parseMakefileCiPrerequisites(makefile)).toContain("test");
     expect(parseMakefileCiPrerequisites(makefile)).toContain(
       "test-build-contract",
+    );
+    expect(parseMakefileCiPrerequisites(makefile)).not.toContain("build");
+    expect(parseMakefileCiPrerequisites(makefile)).not.toContain(
+      "build-export",
     );
   });
 

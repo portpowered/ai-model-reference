@@ -55,7 +55,7 @@ verify-export-search-handoff:
 verify-export-search-ux:
 	bun ./scripts/verify-phase-1-export-search-ux.ts
 
-ci: lint typecheck test coverage build build-export test-build-contract test-integration validate-data linkcheck
+ci: lint typecheck test coverage test-build-contract test-integration validate-data linkcheck
 
 validate-data:
 	bun ./scripts/validate-registry.ts

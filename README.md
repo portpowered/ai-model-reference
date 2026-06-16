@@ -85,9 +85,10 @@ workflow publishes.
 **Single command:** `make build-export` runs the export build and verifies the
 `out/` artifact in one step. It is the local verification command and the deploy
 workflow build entrypoint (`.github/workflows/deploy.yml` runs the same target on
-`main` pushes with `GITHUB_PAGES_BASE_PATH=ai-model-reference`). It also runs in
-`make ci` after `make build` so both the `.next/` production contract and the
-GitHub Pages `out/` artifact stay verified.
+`main` pushes with `GITHUB_PAGES_BASE_PATH=ai-model-reference`). The same export
+contract is covered by `make test-build-contract` in `make ci` so both the
+`.next/` production contract and the GitHub Pages `out/` artifact stay verified
+without duplicate CI builds.
 
 ```sh
 make build-export
@@ -271,8 +272,9 @@ generate `.source/` automatically before typecheck and tests.
 GitHub Actions runs the same gate sequence on pull requests and pushes to
 `main`: install dependencies with `bun install --frozen-lockfile`, then
 `make ci` (see `.github/workflows/ci.yml`). No repository secrets are required
-for lint, typecheck, fast tests, manifest-scoped component coverage, build,
-build-export, build-contract tests, post-build integration tests, validate-data, and linkcheck. The baseline CI workflow
+for lint, typecheck, fast tests, manifest-scoped component coverage,
+build-contract tests, post-build integration tests, validate-data, and
+linkcheck. The baseline CI workflow
 (`.github/workflows/ci.yml`) does not invoke deploy or preview steps. GitHub
 Pages deployment runs separately via `.github/workflows/deploy.yml` on pushes to
 `main` (see [Operations and release](#operations-and-release)). PDF validation
@@ -285,12 +287,10 @@ the repository root after `bun install --frozen-lockfile`; it runs, in order:
 2. `make typecheck` — generates Fumadocs MDX source, then `tsc --noEmit`
 3. `make test` — generates Fumadocs MDX source (when typecheck was skipped), then fast tests via `scripts/run-fast-tests.ts`
 4. `make coverage` — manifest-scoped reusable component coverage gate (same as `bun run coverage`)
-5. `make build` — `next build` plus Phase 1 static route verification
-6. `make build-export` — static export to `out/` plus Phase 1 export route verification
-7. `make test-build-contract` — consolidated build/export contract suites (`bun run test:build-contract`)
-8. `make test-integration` — post-build built HTML and production-server integration manifest (`bun run test:integration` / `scripts/run-production-integration-tests.ts`)
-9. `make validate-data` — registry and content validation
-10. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
+5. `make test-build-contract` — one production build contract and one GitHub Pages base-path export artifact contract (`bun run test:build-contract`)
+6. `make test-integration` — served export, built HTML, and production-server integration manifest (`bun run test:integration` / `scripts/run-production-integration-tests.ts`)
+7. `make validate-data` — registry and content validation
+8. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
 
 Use `bun run scaffold:doc-page` (or `make scaffold`) when adding Phase 2 glossary or
 concept pages, then run `make validate-data` before opening a pull request.

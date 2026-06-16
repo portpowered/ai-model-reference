@@ -1,8 +1,15 @@
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { beforeAll, describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { ensureExportSearchArtifacts } from "@/lib/build/ensure-export-search-artifacts";
+import {
+  type AdvancedOramaExportPayload,
+  EXPORT_SEARCH_BOOTSTRAP_RELATIVE_PATH,
+} from "@/lib/build/export-search-bootstrap";
+import { runPhase1StaticHandoffSearchChecksFromOutDir } from "@/lib/build/run-phase-1-static-handoff-search-checks";
+import { getStaticExportBuildBunTestTimeoutMs } from "@/lib/build/run-static-export-build";
 import {
   exportHtmlIncludesGqaAttentionVariantGraphShellMarkers,
   exportHtmlReferencesBasePathAssets,
@@ -14,22 +21,17 @@ import {
   resolveExportSearchBootstrapClientFrom,
 } from "@/lib/build/verify-export-search-bootstrap-client-path";
 import { verifyPhase1ExportRoutesFromOutDir } from "@/lib/build/verify-phase-1-export-routes";
-import {
-  getExportIntegrationBunTestTimeoutMs,
-  shouldRunExportIntegrationProbeTests,
-} from "@/lib/verify/export-integration-probe-lock";
-import { runExportProbeWithSpawnGuard } from "@/lib/verify/export-probe-spawn-guard";
+import { verifyPhase1ExportSearchFromOutDir } from "@/lib/build/verify-phase-1-export-search";
+import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
+import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
+import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "@/lib/verify/phase-1-search-checks";
 import {
   assertSearchPageExportShell,
+  assertSearchPageExportShellStateRegion,
   SEARCH_PAGE_INPUT_HTML_MARKER,
+  verifyPhase1ExportSearchShellFromOutDir,
 } from "@/lib/verify/phase-1-search-export-shell-checks";
-import { createStaticExportHttpServer } from "@/lib/verify/static-export-http-server";
-import {
-  isRetryableStaticExportSearchProbeFailure,
-  verifyStaticExportSearchEmptyErrorStates,
-} from "@/lib/verify/static-export-search-empty-error-states-http";
-import { verifyStaticExportSearchInputHydration } from "@/lib/verify/static-export-search-input-hydration-http";
-import { verifyStaticExportSearchUrlHandoff } from "@/lib/verify/static-export-search-url-handoff-http";
+import { SAMPLE_MODULE_URL } from "../search/helpers";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const outDir = join(repoRoot, "out");
@@ -40,41 +42,7 @@ const gqaExportHtmlPath = join(
   outDir,
   "docs/modules/grouped-query-attention.html",
 );
-const CI_PROBE_RETRY_DELAY_MS = 5_000;
-
-type StaticExportServer = Awaited<
-  ReturnType<typeof createStaticExportHttpServer>
->;
-
-async function retryProbe(
-  probe: () => Promise<string | null>,
-  isRetryable: (reason: string | null) => boolean,
-): Promise<string | null> {
-  const maxAttempts =
-    process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true" ? 3 : 1;
-  let reason: string | null = null;
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    reason = await runExportProbeWithSpawnGuard(probe);
-    if (reason === null || !isRetryable(reason) || attempt === maxAttempts) {
-      break;
-    }
-    await new Promise((resolve) =>
-      setTimeout(resolve, CI_PROBE_RETRY_DELAY_MS),
-    );
-  }
-
-  return reason;
-}
-
-function expectExportServer(
-  server: StaticExportServer | undefined,
-): StaticExportServer {
-  if (!server) {
-    throw new Error("static export HTTP server was not started");
-  }
-  return server;
-}
+const TEST_EXPORT_SEARCH_URL = "http://export.test/api/search";
 
 function removeExportArtifacts(): void {
   if (existsSync(outDir)) {
@@ -86,26 +54,69 @@ function removeExportArtifacts(): void {
 }
 
 describe("static export GitHub Pages base-path contract", () => {
-  let server: StaticExportServer | undefined;
+  const originalFetch = globalThis.fetch;
+  let searchPayload: AdvancedOramaExportPayload;
+  let metaByUrl: ReturnType<typeof searchResultMetaMapToRecord>;
 
   beforeAll(async () => {
     removeExportArtifacts();
+    metaByUrl = searchResultMetaMapToRecord(await loadSearchResultMetaMap());
 
     ensureExportSearchArtifacts({
       repoRoot,
       basePath: exportBasePath,
     });
 
-    if (shouldRunExportIntegrationProbeTests()) {
-      server = await createStaticExportHttpServer({
-        cwd: repoRoot,
-        basePath: exportBasePath,
-      });
-    }
-  }, getExportIntegrationBunTestTimeoutMs());
+    const bootstrapPath = join(outDir, EXPORT_SEARCH_BOOTSTRAP_RELATIVE_PATH);
+    expect(existsSync(bootstrapPath)).toBe(true);
+    searchPayload = JSON.parse(
+      readFileSync(bootstrapPath, "utf8"),
+    ) as AdvancedOramaExportPayload;
+  }, getStaticExportBuildBunTestTimeoutMs());
 
-  afterAll(async () => {
-    await server?.cleanup();
+  test("emits static search bootstrap and handoff payload", async () => {
+    expect(searchPayload.type).toBe("advanced");
+    expect(JSON.stringify(searchPayload)).toContain(
+      PHASE_1_GROUPED_QUERY_ATTENTION_URL,
+    );
+
+    const verification = await verifyPhase1ExportSearchFromOutDir("out", {
+      cwd: repoRoot,
+    });
+    expect(verification.ok).toBe(true);
+
+    const handoffChecks = await runPhase1StaticHandoffSearchChecksFromOutDir(
+      "out",
+      metaByUrl,
+      {
+        cwd: repoRoot,
+      },
+    );
+    expect(handoffChecks.ok).toBe(true);
+  });
+
+  test("serves bootstrap payload through the static Orama client contract", async () => {
+    globalThis.fetch = (async (input: RequestInfo | URL) => {
+      const url =
+        typeof input === "string"
+          ? input
+          : input instanceof URL
+            ? input.href
+            : input.url;
+      if (url === TEST_EXPORT_SEARCH_URL) {
+        return new Response(JSON.stringify(searchPayload), { status: 200 });
+      }
+      return originalFetch(input);
+    }) as typeof fetch;
+
+    try {
+      const client = oramaStaticClient({ from: TEST_EXPORT_SEARCH_URL });
+      const results = await client.search("GQA");
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0]?.url).toBe(SAMPLE_MODULE_URL);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 
   test("export verifiers pass with GITHUB_PAGES_BASE_PATH set", () => {
@@ -143,6 +154,7 @@ describe("static export GitHub Pages base-path contract", () => {
     expect(searchHtml).toContain("?q=");
     expect(searchHtml).toContain("?tag=");
     expect(searchHtml).toContain("tag handoffs may append ?tag=");
+    expect(assertSearchPageExportShellStateRegion(searchHtml)).toBeNull();
     expect(assertSearchPageExportShell(searchHtml)).toBeNull();
     expect(exportHtmlReferencesBasePathAssets(searchHtml, exportBasePath)).toBe(
       true,
@@ -169,50 +181,58 @@ describe("static export GitHub Pages base-path contract", () => {
     );
   });
 
-  test(
-    "served export hydrates /search input and URL handoffs",
-    async () => {
-      if (!shouldRunExportIntegrationProbeTests()) {
-        return;
-      }
-      const activeServer = expectExportServer(server);
+  test("script entrypoints pass against the shared base-path export artifact", () => {
+    const scriptEnv = {
+      ...process.env,
+      GITHUB_PAGES_BASE_PATH: exportBasePath,
+    };
 
-      const inputHydrationReason = await retryProbe(
-        () =>
-          verifyStaticExportSearchInputHydration(activeServer.baseUrl, {
-            timeoutMs: 45_000,
-          }),
-        isRetryableStaticExportSearchProbeFailure,
-      );
-      expect(inputHydrationReason).toBeNull();
+    const routeResult = spawnSync(
+      "bun",
+      ["./scripts/verify-phase-1-export-routes.ts"],
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+        env: scriptEnv,
+      },
+    );
+    expect(routeResult.status).toBe(0);
+    expect(routeResult.stdout ?? "").toContain(
+      "Phase 1 export routes verified",
+    );
 
-      const urlHandoffReason = await retryProbe(
-        () =>
-          verifyStaticExportSearchUrlHandoff(activeServer.baseUrl, {
-            timeoutMs: 60_000,
-            handoffPaths: ["/search?q=attention", "/search?tag=attention"],
-          }),
-        isRetryableStaticExportSearchProbeFailure,
-      );
-      expect(urlHandoffReason).toBeNull();
-    },
-    { timeout: getExportIntegrationBunTestTimeoutMs() },
-  );
+    const handoffResult = spawnSync(
+      "bun",
+      ["./scripts/verify-phase-1-export-search-handoff.ts"],
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+        env: scriptEnv,
+      },
+    );
+    expect(handoffResult.status).toBe(0);
+    expect(handoffResult.stdout ?? "").toContain(
+      "Phase 1 static export search handoff verified",
+    );
 
-  test(
-    "served export exposes search empty/error states",
-    async () => {
-      if (!shouldRunExportIntegrationProbeTests()) {
-        return;
-      }
-      const activeServer = expectExportServer(server);
+    const shellResult = spawnSync(
+      "bun",
+      ["./scripts/verify-phase-1-export-search-shell.ts"],
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+        env: scriptEnv,
+      },
+    );
+    expect(shellResult.status).toBe(0);
+    expect(shellResult.stdout ?? "").toContain(
+      "Phase 1 export search shell verified",
+    );
 
-      const emptyErrorReason = await retryProbe(
-        () => verifyStaticExportSearchEmptyErrorStates(activeServer.baseUrl),
-        isRetryableStaticExportSearchProbeFailure,
-      );
-      expect(emptyErrorReason).toBeNull();
-    },
-    { timeout: getExportIntegrationBunTestTimeoutMs() },
-  );
+    const shellVerification = verifyPhase1ExportSearchShellFromOutDir("out", {
+      cwd: repoRoot,
+      basePath: exportBasePath,
+    });
+    expect(shellVerification.ok).toBe(true);
+  });
 });

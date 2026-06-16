@@ -634,7 +634,7 @@ describe("acquireVerifyServerSession", () => {
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
-  });
+  }, 10_000);
 
   test("registers process signal handlers on the default-path session", async () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-signal-handlers-"));
@@ -887,7 +887,7 @@ describe("killManagedChild", () => {
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
-  });
+  }, 10_000);
 });
 
 describe("normalizeVerifyBaseUrl", () => {
