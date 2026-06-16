@@ -29,41 +29,33 @@ type GraphPlacementRule = {
   requiredSectionId?: string;
   forbiddenSectionIds?: readonly string[];
   maxPrimaryGraphComponents?: number;
-  requireOpeningSummaryInMdx: boolean;
 };
 
 const graphPlacementRulesByKind: Partial<Record<PageKind, GraphPlacementRule>> =
   {
     concept: {
       components: ["ConceptMap"],
-      requiredSectionId: "where-it-appears",
-      requireOpeningSummaryInMdx: true,
     },
     glossary: {
       components: ["ConceptMap"],
-      requireOpeningSummaryInMdx: false,
     },
     module: {
       components: ["ModuleGraph"],
       requiredSectionId: "how-it-works",
       forbiddenSectionIds: ["math-or-compute-schema"],
       maxPrimaryGraphComponents: 1,
-      requireOpeningSummaryInMdx: true,
     },
     model: {
       components: ["ModelArchitectureGraph"],
       requiredSectionId: "architecture",
-      requireOpeningSummaryInMdx: true,
     },
     paper: {
       components: ["PaperContributionGraph"],
       requiredSectionId: "method-or-architecture",
-      requireOpeningSummaryInMdx: true,
     },
     "training-regime": {
       components: ["TrainingRegimeFlow"],
       requiredSectionId: "how-it-works",
-      requireOpeningSummaryInMdx: true,
     },
   };
 
@@ -99,10 +91,6 @@ function extractAssetIdFromComponentTag(tag: string): string | undefined {
   return match?.[1];
 }
 
-function mdxRendersFoldedSummary(mdxBody: string): boolean {
-  return mdxBody.includes("<FoldedSummary />");
-}
-
 const OPENING_SUMMARY_MDX_MARKERS = [
   "<FoldedSummary />",
   '<T k="openingSummary" />',
@@ -114,12 +102,10 @@ export function validateGeneratedFoldedSummary(options: {
   mdxSource: string;
   messages: PageMessages;
 }): ValidationError[] {
-  const { pagePath, kind, mdxSource, messages } = options;
+  const { pagePath, mdxSource, messages } = options;
   const mdxBody = extractMdxBody(mdxSource);
   const messagesPath = pagePath.replace(/page\.mdx$/, "messages/en.json");
   const errors: ValidationError[] = [];
-  const rules = graphPlacementRulesByKind[kind];
-
   for (const legacyKey of LEGACY_SUMMARY_MESSAGE_KEYS) {
     if (legacyKey in messages && messages[legacyKey as keyof PageMessages]) {
       errors.push({
@@ -152,35 +138,12 @@ export function validateGeneratedFoldedSummary(options: {
     }
   }
 
-  const requiresOpeningSummary = rules?.requireOpeningSummaryInMdx ?? false;
-  if (requiresOpeningSummary) {
-    if (!mdxRendersFoldedSummary(mdxBody)) {
-      errors.push({
-        code: "missing-opening-summary-mdx",
-        message: `${pagePath}: generated MDX must render folded summary via <FoldedSummary />`,
-        path: pagePath,
-      });
-    }
-    if (
-      !messages.openingSummary ||
-      messages.openingSummary.trim().length === 0
-    ) {
-      errors.push({
-        code: "missing-opening-summary-message",
-        message: `${messagesPath}: generated bundles must include non-empty messages.openingSummary for folded summary pattern`,
-        path: messagesPath,
-      });
-    }
-  } else if (kind === "glossary") {
-    if (
-      OPENING_SUMMARY_MDX_MARKERS.some((marker) => mdxBody.includes(marker))
-    ) {
-      errors.push({
-        code: "glossary-opening-summary-in-mdx",
-        message: `${pagePath}: glossary pages must not render openingSummary in MDX; use description in frontmatter and messages only`,
-        path: pagePath,
-      });
-    }
+  if (OPENING_SUMMARY_MDX_MARKERS.some((marker) => mdxBody.includes(marker))) {
+    errors.push({
+      code: "opening-summary-in-mdx",
+      message: `${pagePath}: canonical docs pages must not render openingSummary in MDX; keep it in messages and shell metadata only`,
+      path: pagePath,
+    });
   }
 
   return errors;

@@ -23,13 +23,13 @@ export const SLIDING_WINDOW_ATTENTION_REQUIRED_MARKERS = [
   'data-attention-variant-active="window"',
   'data-attention-variant-option="mha"',
   'data-attention-variant-option="window"',
-  'data-graph-node-id="window-query-heads"',
-  'data-graph-node-id="window-local-boundary"',
+  'data-graph-node-id="window-time-current-query"',
+  'data-graph-node-id="window-time-kv-t-2"',
   'data-head-count-role="query"',
   'data-head-count-role="kv"',
-  'data-graph-node-count="3"',
+  'data-graph-node-count="7"',
   'data-react-flow-graph="true"',
-  'data-graph-id="graph.sliding-window-attention-window-comparison"',
+  'data-graph-id="graph.sliding-window-attention-time-window-pattern"',
   "--xy-node-color",
   "--xy-node-background-color",
   'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
@@ -101,7 +101,7 @@ export function buildSlidingWindowAttentionMathComparisonStub(): string {
 
 /** Minimal inner HTML that satisfies {@link assertSlidingWindowAttentionModuleConvergence}. */
 export function buildSlidingWindowAttentionStubBody(): string {
-  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="window" data-attention-variant-option="mha" data-attention-variant-option="window" data-react-flow-graph="true" data-graph-id="graph.sliding-window-attention-window-comparison" data-graph-node-id="window-query-heads" data-graph-node-id="window-local-boundary" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="3" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-node-color:var(--card-foreground);--xy-node-background-color:var(--card)"></div>`;
+  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="window" data-attention-variant-option="mha" data-attention-variant-option="window" data-react-flow-graph="true" data-graph-id="graph.sliding-window-attention-time-window-pattern" data-graph-node-id="window-time-current-query" data-graph-node-id="window-time-kv-t-2" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="7" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-background-color:#ffffff;--xy-node-color:#111827;--xy-node-background-color:#ffffff;--xy-node-border-color:#cbd5e1"></div>`;
   const tagPillList = `<ul data-testid="tag-pill-list" aria-label="Tags"></ul>`;
   const mathDefinitions = buildSlidingWindowAttentionMathComparisonStub();
 
@@ -112,16 +112,16 @@ export function buildSlidingWindowAttentionStubBody(): string {
       marker !== 'data-attention-schema-variable-definitions="true"' &&
       marker !== 'data-react-flow-graph="true"' &&
       marker !==
-        'data-graph-id="graph.sliding-window-attention-window-comparison"' &&
+        'data-graph-id="graph.sliding-window-attention-time-window-pattern"' &&
       marker !== 'data-attention-variant-comparison="true"' &&
       marker !== 'data-attention-variant-active="window"' &&
       marker !== 'data-attention-variant-option="mha"' &&
       marker !== 'data-attention-variant-option="window"' &&
-      marker !== 'data-graph-node-id="window-query-heads"' &&
-      marker !== 'data-graph-node-id="window-local-boundary"' &&
+      marker !== 'data-graph-node-id="window-time-current-query"' &&
+      marker !== 'data-graph-node-id="window-time-kv-t-2"' &&
       marker !== 'data-head-count-role="query"' &&
       marker !== 'data-head-count-role="kv"' &&
-      marker !== 'data-graph-node-count="3"' &&
+      marker !== 'data-graph-node-count="7"' &&
       marker !== 'data-testid="tag-pill-list"' &&
       marker !== "--xy-node-color" &&
       marker !== "--xy-node-background-color" &&

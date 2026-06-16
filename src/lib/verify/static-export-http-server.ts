@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { createServer, type Server } from "node:http";
+import type { Socket } from "node:net";
 import { isAbsolute, join } from "node:path";
 import { normalizeGitHubPagesBasePath } from "@/lib/build/static-export";
 import { exportHtmlRelativePath } from "@/lib/build/verify-phase-1-export-routes";
@@ -87,6 +88,7 @@ export async function createStaticExportHttpServer(
   const host = options.host ?? "127.0.0.1";
   const port = options.port ?? (await pickListenPort());
 
+  const activeSockets = new Set<Socket>();
   const server = createServer((req, res) => {
     const requestUrl = new URL(req.url ?? "/", `http://${host}`);
     const pathname = stripBasePath(requestUrl.pathname, basePath);
@@ -102,6 +104,12 @@ export async function createStaticExportHttpServer(
     res.writeHead(200, { "Content-Type": contentTypeForFile(filePath) });
     res.end(body);
   });
+  server.on("connection", (socket) => {
+    activeSockets.add(socket);
+    socket.on("close", () => {
+      activeSockets.delete(socket);
+    });
+  });
 
   await new Promise<void>((resolve, reject) => {
     server.once("error", reject);
@@ -115,13 +123,19 @@ export async function createStaticExportHttpServer(
     baseUrl,
     port,
     cleanup: async () => {
-      await closeHttpServer(server);
+      await closeHttpServer(server, activeSockets);
     },
   };
 }
 
-function closeHttpServer(server: Server): Promise<void> {
+function closeHttpServer(
+  server: Server,
+  activeSockets: ReadonlySet<Socket>,
+): Promise<void> {
   return new Promise((resolve, reject) => {
+    for (const socket of activeSockets) {
+      socket.destroy();
+    }
     server.close((error) => {
       if (error) {
         reject(error);

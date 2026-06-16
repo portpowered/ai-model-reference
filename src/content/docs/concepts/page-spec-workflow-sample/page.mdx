@@ -18,12 +18,9 @@ import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
-import { FoldedSummary } from "@/features/docs/components/FoldedSummary";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
 import { ConceptMap } from "@/features/models/components/ConceptMap";
-
-<FoldedSummary />
 
 <Section id="what-it-is" titleKey="sections.whatItIs.title">
   <T k="sections.whatItIs.body" />
@@ -35,21 +32,6 @@ import { ConceptMap } from "@/features/models/components/ConceptMap";
 
 <Section id="simple-example" titleKey="sections.simpleExample.title">
   <T k="sections.simpleExample.body" />
-</Section>
-
-<Section id="where-it-appears" titleKey="sections.whereItAppears.title">
-  <T k="sections.whereItAppears.body" />
-
-  <DerivedRelatedDocs
-    registryId="concept.page-spec-workflow-sample"
-    groups={[
-      "same-concept-type",
-      "shared-tags",
-      "used-by-models",
-      "curated-related"
-    ]}
-  />
-
   <ConceptMap
     registryId="concept.page-spec-workflow-sample"
     assetId="conceptMap"
@@ -61,6 +43,16 @@ import { ConceptMap } from "@/features/models/components/ConceptMap";
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.page-spec-workflow-sample"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "used-by-models",
+      "curated-related"
+    ]}
+  />
+
   <RelatedDocs registryId="concept.page-spec-workflow-sample" />
 </Section>
 

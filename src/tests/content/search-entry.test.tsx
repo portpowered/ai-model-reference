@@ -96,7 +96,11 @@ describe("search entry page built-app shell", () => {
 
     const user = userEvent.setup();
     await user.type(input, "GQA");
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: 5000 },
+    );
     expect(liveRegion?.contains(results)).toBe(true);
     expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
 

@@ -51,6 +51,36 @@ const gqaSchema = {
   variableDefinitions: gqaVariableDefinitions,
 };
 
+const mlaVariableDefinitions = {
+  q: { term: "Q", definition: "Query vectors for head i." },
+  k: {
+    term: "\\hat{K}",
+    definition: "Reconstructed key vectors from latent cache c.",
+  },
+  v: {
+    term: "\\hat{V}",
+    definition: "Reconstructed value vectors from latent cache c.",
+  },
+  h: { term: "H", definition: "Number of query heads." },
+  g: { term: "r", definition: "Latent rank of the compressed KV cache." },
+  dk: {
+    term: "d_k",
+    definition: "Key dimension per head after up-projection.",
+  },
+  i: { term: "i", definition: "Query head index." },
+  gi: {
+    term: "c",
+    definition: "Shared latent KV cache vector stored per token.",
+  },
+};
+
+const mlaSchema = {
+  label: "Multi-head latent attention (MLA)",
+  formula:
+    "\\text{Attention}(Q_i, \\hat{K}_i, \\hat{V}_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i \\hat{K}_i^{\\top}}{\\sqrt{d_k}}\\right) \\hat{V}_i,\\quad \\hat{K}_i = W^K_i c,\\; \\hat{V}_i = W^V_i c",
+  variableDefinitions: mlaVariableDefinitions,
+};
+
 const mqaSchema = {
   label: "Multi-query attention (MQA)",
   formula:
@@ -167,8 +197,47 @@ describe("ModuleAttentionSchemaComparison", () => {
 
     expect(html).toContain('data-attention-schema-variable-definitions="true"');
     expect(html).toContain('data-math-variable-definition="q"');
-    expect(html).toContain(">Q</dt>");
+    expect(html).toContain('class="katex"');
     expect(html).toContain("head i");
+  });
+
+  test("renders MLA variable terms as KaTeX instead of raw LaTeX source", () => {
+    const html = renderComparison(
+      {
+        math: {
+          mhaSchema,
+          gqaSchema: mlaSchema,
+        },
+      },
+      false,
+    );
+
+    const mlaSchemaStart = html.indexOf(
+      'data-message-block-math="math.gqaSchema.formula"',
+    );
+    expect(mlaSchemaStart).toBeGreaterThanOrEqual(0);
+
+    const mlaChunk = html.slice(mlaSchemaStart);
+    const valueRowStart = mlaChunk.indexOf('data-math-variable-definition="v"');
+    expect(valueRowStart).toBeGreaterThanOrEqual(0);
+
+    const valueRowEnd = mlaChunk.indexOf(
+      'data-math-variable-definition="h"',
+      valueRowStart,
+    );
+    const valueRow = mlaChunk.slice(
+      valueRowStart,
+      valueRowEnd === -1 ? undefined : valueRowEnd,
+    );
+
+    expect(valueRow).toContain("Reconstructed value ");
+    expect(valueRow).toContain('data-prose-auto-link="true"');
+    expect(valueRow).toContain("from latent cache c.");
+    expect(valueRow).toContain(
+      '<annotation encoding="application/x-tex">\\hat{V}</annotation>',
+    );
+    expect(valueRow).toContain('class="katex"');
+    expect(valueRow).toContain("accent-body");
   });
 
   test("shows a developer-visible error when a math variable term key is missing", () => {

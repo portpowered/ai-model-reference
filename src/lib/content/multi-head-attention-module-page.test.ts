@@ -62,7 +62,7 @@ describe("loadModulePage multi-head-attention", () => {
     );
 
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-    expect(html).toContain("runs that lookup in parallel");
+    expect(html).toContain("Each head computes its own");
     expect(html).not.toContain("Reader Shortcut");
     expect(html).toContain("At a glance");
     expectModuleTagPillListOnlyInTagsSection(html);
@@ -92,8 +92,10 @@ describe("loadModulePage multi-head-attention", () => {
     expect(html).toContain('data-attention-variant-active="mha"');
     expect(html).toContain('data-attention-variant-option="mha"');
     expect(html).toContain('data-attention-variant-option="mqa"');
-    expect(html).toContain("--xy-node-color:var(--card-foreground)");
-    expect(html).toContain("--xy-node-background-color:var(--card)");
+    expect(html).toContain("--xy-background-color:#ffffff");
+    expect(html).toContain("--xy-node-color:#111827");
+    expect(html).toContain("--xy-node-background-color:#ffffff");
+    expect(html).toContain("--xy-node-border-color:#cbd5e1");
   });
 });
 

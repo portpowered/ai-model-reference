@@ -196,7 +196,7 @@ async function verifyGqaGraphHydrationOnPage(
   if (
     !(await waitForGraphId(
       page,
-      "graph.grouped-query-attention-mha-comparison",
+      "graph.multi-head-attention-mha-comparison",
       timeoutMs,
     ))
   ) {

@@ -10,7 +10,7 @@ describe("grouped-query-attention canonical page template convergence", () => {
       "utf8",
     );
 
-    expect(template).toContain("<FoldedSummary />");
+    expect(template).not.toContain("<FoldedSummary />");
     expect(template).not.toContain('<T k="problemStatement" />');
     expect(template).not.toContain('<T k="coreIdea" />');
     expect(template).not.toContain("callouts.readerShortcut");

@@ -384,6 +384,11 @@ export async function scaffoldDocPage(
     "concepts",
     `${input.slug}.json`,
   );
+  const graphPath = join(
+    getRegistryRoot(contentRoot),
+    "graphs",
+    `${input.slug}-concept-map.json`,
+  );
   const pageParent =
     input.kind === "glossary"
       ? getGlossaryDocsRoot(docsRoot)
@@ -395,6 +400,7 @@ export async function scaffoldDocPage(
 
   const plannedFiles: ScaffoldPlannedFile[] = [
     { path: registryPath, label: "registry record" },
+    { path: graphPath, label: "graph record" },
     { path: pagePath, label: "page.mdx" },
     { path: messagesPath, label: "messages/en.json" },
     { path: assetsPath, label: "assets.json" },
@@ -412,12 +418,17 @@ export async function scaffoldDocPage(
     await assertPathDoesNotExist(file.path);
   }
 
-  const [templateMdx, templateMessagesRaw, templateAssetsRaw] =
-    await Promise.all([
-      readTemplateFile(projectRoot, input.kind, "<kind>.mdx"),
-      readTemplateFile(projectRoot, input.kind, "<kind>.messages.en.json"),
-      readTemplateFile(projectRoot, input.kind, "<kind>.assets.json"),
-    ]);
+  const [
+    templateMdx,
+    templateMessagesRaw,
+    templateAssetsRaw,
+    templateGraphRaw,
+  ] = await Promise.all([
+    readTemplateFile(projectRoot, input.kind, "<kind>.mdx"),
+    readTemplateFile(projectRoot, input.kind, "<kind>.messages.en.json"),
+    readTemplateFile(projectRoot, input.kind, "<kind>.assets.json"),
+    readTemplateFile(projectRoot, input.kind, "<kind>.graph.json"),
+  ]);
 
   const pageMdx = buildPageMdx(templateMdx, input);
   const messages = JSON.parse(templateMessagesRaw) as Record<string, unknown>;
@@ -428,11 +439,23 @@ export async function scaffoldDocPage(
     input.kind,
     input.slug,
   );
+  const graphJson = applyTemplateSubstitutions(
+    templateGraphRaw,
+    input.kind,
+    input.slug,
+  );
 
   const registryRecord = buildRegistryRecord(input);
 
   await mkdir(join(pageDir, "messages"), { recursive: true });
+  await mkdir(join(getRegistryRoot(contentRoot), "graphs"), {
+    recursive: true,
+  });
   await writeFile(registryPath, `${JSON.stringify(registryRecord, null, 2)}\n`);
+  await writeFile(
+    graphPath,
+    graphJson.endsWith("\n") ? graphJson : `${graphJson}\n`,
+  );
   await writeFile(pagePath, pageMdx);
   await writeFile(messagesPath, `${JSON.stringify(messages, null, 2)}\n`);
   await writeFile(

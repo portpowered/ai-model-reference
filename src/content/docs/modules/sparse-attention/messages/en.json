@@ -183,6 +183,24 @@
   },
   "graph": {
     "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "keysLabel": {
+        "label": "Keys"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "keyHead": {
+        "label": "k"
+      },
+      "valueHead": {
+        "label": "V"
+      },
       "mhaQueryHeads": {
         "label": "H query heads"
       },
@@ -200,6 +218,30 @@
       },
       "sparseSelectedPairs": {
         "label": "Compute attention on selected query-key pairs"
+      },
+      "sparsePatternNote": {
+        "label": "Only selected query-key pairs stay connected in the sparse pattern"
+      },
+      "timeCurrentQuery": {
+        "label": "q_t"
+      },
+      "timeKv0": {
+        "label": "KV_0"
+      },
+      "timeKv1": {
+        "label": "KV_1"
+      },
+      "timeKvEllipsis": {
+        "label": "\\cdots"
+      },
+      "timeKvT3": {
+        "label": "KV_{t-3}"
+      },
+      "timeKvT2": {
+        "label": "KV_{t-2}"
+      },
+      "timeKvT1": {
+        "label": "KV_{t-1}"
       }
     }
   }

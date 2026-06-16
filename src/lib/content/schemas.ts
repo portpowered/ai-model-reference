@@ -223,6 +223,7 @@ export const graphTypeSchema = z.enum([
   "recursive-module-graph",
   "model-architecture",
   "module-compute-flow",
+  "attention-pattern",
   "paper-contribution",
   "concept-map",
 ]);
@@ -272,16 +273,37 @@ export const moduleGraphEdgeKindSchema = z.enum([
 
 export const graphHeadCountRoleSchema = z.enum(["query", "kv"]);
 
+export const graphVisualRoleSchema = z.enum([
+  "row-label",
+  "query-head",
+  "key-head",
+  "value-head",
+  "timeline-node",
+  "timeline-node-muted",
+  "summary-node",
+  "process-node",
+  "latent-node",
+  "annotation",
+  "default",
+]);
+
 export const moduleGraphNodeSchema = z.object({
   id: z.string().min(1),
   labelKey: z.string().min(1),
   summaryKey: z.string().optional(),
   registryId: z.string().optional(),
   moduleKind: moduleGraphNodeKindSchema,
+  position: z
+    .object({
+      x: z.number(),
+      y: z.number(),
+    })
+    .optional(),
   childNodeIds: z.array(z.string()),
   collapsedByDefault: z.boolean().optional(),
   assetIds: z.array(z.string()).optional(),
   headCountRole: graphHeadCountRoleSchema.optional(),
+  visualRole: graphVisualRoleSchema.optional(),
 });
 
 export const moduleGraphEdgeSchema = z.object({

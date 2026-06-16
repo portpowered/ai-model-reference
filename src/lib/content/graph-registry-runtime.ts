@@ -6,15 +6,14 @@ import linearAttentionLinearComparison from "@/content/registry/graphs/linear-at
 import linearAttentionMhaComparison from "@/content/registry/graphs/linear-attention-mha-comparison.json";
 import multiHeadAttentionMhaComparison from "@/content/registry/graphs/multi-head-attention-mha-comparison.json";
 import multiHeadAttentionMqaComparison from "@/content/registry/graphs/multi-head-attention-mqa-comparison.json";
+import multiHeadAttentionTimePattern from "@/content/registry/graphs/multi-head-attention-time-pattern.json";
 import multiHeadLatentAttentionMhaComparison from "@/content/registry/graphs/multi-head-latent-attention-mha-comparison.json";
 import multiHeadLatentAttentionMlaComparison from "@/content/registry/graphs/multi-head-latent-attention-mla-comparison.json";
 import multiQueryAttentionMhaComparison from "@/content/registry/graphs/multi-query-attention-mha-comparison.json";
 import multiQueryAttentionMqaComparison from "@/content/registry/graphs/multi-query-attention-mqa-comparison.json";
 import pageSpecWorkflowSampleConceptMap from "@/content/registry/graphs/page-spec-workflow-sample-concept-map.json";
-import slidingWindowAttentionMhaComparison from "@/content/registry/graphs/sliding-window-attention-mha-comparison.json";
-import slidingWindowAttentionWindowComparison from "@/content/registry/graphs/sliding-window-attention-window-comparison.json";
-import sparseAttentionMhaComparison from "@/content/registry/graphs/sparse-attention-mha-comparison.json";
-import sparseAttentionSparseComparison from "@/content/registry/graphs/sparse-attention-sparse-comparison.json";
+import slidingWindowAttentionTimeWindowPattern from "@/content/registry/graphs/sliding-window-attention-time-window-pattern.json";
+import sparseAttentionTimePattern from "@/content/registry/graphs/sparse-attention-time-pattern.json";
 import tokenConceptMap from "@/content/registry/graphs/token-concept-map.json";
 import { type GraphRecord, graphRecordSchema } from "@/lib/content/schemas";
 
@@ -25,25 +24,31 @@ const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(groupedQueryAttentionGqaComparison),
   graphRecordSchema.parse(multiHeadAttentionMhaComparison),
   graphRecordSchema.parse(multiHeadAttentionMqaComparison),
+  graphRecordSchema.parse(multiHeadAttentionTimePattern),
   graphRecordSchema.parse(multiQueryAttentionMhaComparison),
   graphRecordSchema.parse(multiQueryAttentionMqaComparison),
   graphRecordSchema.parse(linearAttentionMhaComparison),
   graphRecordSchema.parse(linearAttentionLinearComparison),
   graphRecordSchema.parse(multiHeadLatentAttentionMhaComparison),
   graphRecordSchema.parse(multiHeadLatentAttentionMlaComparison),
-  graphRecordSchema.parse(slidingWindowAttentionMhaComparison),
-  graphRecordSchema.parse(slidingWindowAttentionWindowComparison),
-  graphRecordSchema.parse(sparseAttentionMhaComparison),
-  graphRecordSchema.parse(sparseAttentionSparseComparison),
+  graphRecordSchema.parse(slidingWindowAttentionTimeWindowPattern),
+  graphRecordSchema.parse(sparseAttentionTimePattern),
   graphRecordSchema.parse(pageSpecWorkflowSampleConceptMap),
   graphRecordSchema.parse(tokenConceptMap),
 ];
 
 const graphsById = new Map(graphRecords.map((record) => [record.id, record]));
+const registeredGraphsById = new Map<string, GraphRecord>();
+
+export function registerGraphRecords(records: readonly GraphRecord[]): void {
+  for (const record of records) {
+    registeredGraphsById.set(record.id, record);
+  }
+}
 
 /** Synchronous graph lookup for client graph renderers and tests. */
 export function getGraphById(graphId: string): GraphRecord | undefined {
-  return graphsById.get(graphId);
+  return registeredGraphsById.get(graphId) ?? graphsById.get(graphId);
 }
 
 export function listGraphRecords(): GraphRecord[] {

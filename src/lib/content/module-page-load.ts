@@ -7,6 +7,7 @@ import { parsePageAssetConfig } from "@/lib/content/assets";
 import { MODULES_DOCS_ROOT } from "@/lib/content/content-paths";
 import { moduleMdxCompileOptions } from "@/lib/content/mdx-compile-options";
 import { moduleMdxComponents } from "@/lib/content/mdx-components";
+import { registerPageGraphRecords } from "@/lib/content/page-graph-registry-load";
 import {
   type PageAssetConfig,
   type PageFrontmatter,
@@ -40,6 +41,7 @@ export async function loadModulePageFromDisk(
   const source = readFileSync(mdxPath, "utf8");
   const messages = pageMessagesSchema.parse(readJsonFile(messagesPath));
   const assets = parsePageAssetConfig(readJsonFile(assetsPath));
+  registerPageGraphRecords(join(MODULES_DOCS_ROOT, "..", ".."), assets);
 
   const { content, frontmatter } = await compileMDX<PageFrontmatter>({
     source,

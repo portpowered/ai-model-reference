@@ -64,8 +64,10 @@ describe("loadModulePage sliding-window-attention", () => {
     );
 
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-    expect(html).toContain("every query attend to every key");
-    expect(html).toContain("fixed local window so each position");
+    expect(html).toContain(
+      "limits each query position to keys within a fixed neighborhood",
+    );
+    expect(html).toContain("Each query position attends only to keys within");
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain('aria-label="Module metadata"');
     expect(html).toContain("At a glance");
@@ -78,6 +80,11 @@ describe("loadModulePage sliding-window-attention", () => {
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain("Curated related");
     expect(html).toContain("Fixed local window");
+    expect(html).toContain(
+      'data-graph-id="graph.sliding-window-attention-time-window-pattern"',
+    );
+    expect(html).toContain('data-graph-node-id="window-time-current-query"');
+    expect(html).toContain('data-graph-node-id="window-time-kv-t-1"');
     expect(assertSlidingWindowAttentionModuleConvergence(html)).toBeNull();
   });
 });
@@ -114,6 +121,14 @@ describe("sliding-window-attention page assets", () => {
     );
 
     expect(assets.computeFlow.type).toBe("attention-variant-graph");
+    if (assets.computeFlow.type === "attention-variant-graph") {
+      expect(
+        assets.computeFlow.variants.map((variant) => variant.graphId),
+      ).toEqual([
+        "graph.multi-head-attention-time-pattern",
+        "graph.sliding-window-attention-time-window-pattern",
+      ]);
+    }
     expect(assets.comparisonTable.type).toBe("table");
     expect(validatePageAssetReferences(assets, messages)).toEqual([]);
   });

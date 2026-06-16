@@ -65,8 +65,8 @@ describe("loadModulePage linear-attention", () => {
     );
 
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-    expect(html).toContain("materializes an n-by-n score matrix");
-    expect(html).toContain("feature map to queries and keys");
+    expect(html).toContain("without building the full softmax score matrix");
+    expect(html).toContain("Feature-map");
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain('aria-label="Module metadata"');
     expect(html).toContain("At a glance");

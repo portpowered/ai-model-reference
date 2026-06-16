@@ -170,7 +170,7 @@ async function collectGqaGraphInteractionIssues(
       .getAttribute("data-graph-id");
     mhaToggleWorked =
       activeVariant === "mha" &&
-      graphId === "graph.grouped-query-attention-mha-comparison";
+      graphId === "graph.multi-head-attention-mha-comparison";
   } catch {
     mhaToggleWorked = false;
   }

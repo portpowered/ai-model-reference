@@ -181,7 +181,7 @@ export const PHASE_1_MODULE_PAGE_COVERAGE_COMPONENTS: ComponentCoverageEntry[] =
       file: "src/features/docs/components/MissingGraphRecord.tsx",
       label: "MissingGraphRecord",
       minReachableLinePercent: 90,
-      unitTests: ["src/features/models/components/RegistryGraphFlow.test.tsx"],
+      unitTests: ["src/features/docs/components/MissingGraphRecord.test.tsx"],
     },
     {
       file: "src/features/models/components/MissingTableRecord.tsx",

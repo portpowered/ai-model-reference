@@ -24,10 +24,12 @@ export const MULTI_HEAD_LATENT_ATTENTION_REQUIRED_MARKERS = [
   'data-attention-variant-option="mha"',
   'data-attention-variant-option="mla"',
   'data-graph-node-id="mla-query-heads"',
+  'data-graph-node-id="mla-compression-node"',
   'data-graph-node-id="mla-latent-kv-cache"',
+  'data-graph-node-id="mla-decompression-node"',
   'data-head-count-role="query"',
   'data-head-count-role="kv"',
-  'data-graph-node-count="3"',
+  'data-graph-node-count="15"',
   'data-react-flow-graph="true"',
   'data-graph-id="graph.multi-head-latent-attention-mla-comparison"',
   "--xy-node-color",
@@ -101,7 +103,7 @@ export function buildMultiHeadLatentAttentionMathComparisonStub(): string {
 
 /** Minimal inner HTML that satisfies {@link assertMultiHeadLatentAttentionModuleConvergence}. */
 export function buildMultiHeadLatentAttentionStubBody(): string {
-  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="mla" data-attention-variant-option="mha" data-attention-variant-option="mla" data-react-flow-graph="true" data-graph-id="graph.multi-head-latent-attention-mla-comparison" data-graph-node-id="mla-query-heads" data-graph-node-id="mla-latent-kv-cache" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="3" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-node-color:var(--card-foreground);--xy-node-background-color:var(--card)"></div>`;
+  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="mla" data-attention-variant-option="mha" data-attention-variant-option="mla" data-react-flow-graph="true" data-graph-id="graph.multi-head-latent-attention-mla-comparison" data-graph-node-id="mla-query-heads" data-graph-node-id="mla-compression-node" data-graph-node-id="mla-latent-kv-cache" data-graph-node-id="mla-decompression-node" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="15" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-background-color:#ffffff;--xy-node-color:#111827;--xy-node-background-color:#ffffff;--xy-node-border-color:#cbd5e1"></div>`;
   const tagPillList = `<ul data-testid="tag-pill-list" aria-label="Tags"></ul>`;
   const mathDefinitions = buildMultiHeadLatentAttentionMathComparisonStub();
 
@@ -118,10 +120,12 @@ export function buildMultiHeadLatentAttentionStubBody(): string {
       marker !== 'data-attention-variant-option="mha"' &&
       marker !== 'data-attention-variant-option="mla"' &&
       marker !== 'data-graph-node-id="mla-query-heads"' &&
+      marker !== 'data-graph-node-id="mla-compression-node"' &&
       marker !== 'data-graph-node-id="mla-latent-kv-cache"' &&
+      marker !== 'data-graph-node-id="mla-decompression-node"' &&
       marker !== 'data-head-count-role="query"' &&
       marker !== 'data-head-count-role="kv"' &&
-      marker !== 'data-graph-node-count="3"' &&
+      marker !== 'data-graph-node-count="15"' &&
       marker !== 'data-testid="tag-pill-list"' &&
       marker !== "--xy-node-color" &&
       marker !== "--xy-node-background-color" &&

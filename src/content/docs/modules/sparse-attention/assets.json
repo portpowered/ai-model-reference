@@ -5,12 +5,12 @@
     "variants": [
       {
         "variantId": "mha",
-        "graphId": "graph.sparse-attention-mha-comparison",
+        "graphId": "graph.multi-head-attention-time-pattern",
         "labelKey": "assets.computeFlow.variants.mha.label"
       },
       {
         "variantId": "sparse",
-        "graphId": "graph.sparse-attention-sparse-comparison",
+        "graphId": "graph.sparse-attention-time-pattern",
         "labelKey": "assets.computeFlow.variants.sparse.label"
       }
     ],

@@ -59,7 +59,21 @@ describe("PageAsset", () => {
   });
 
   test("renders a react-flow graph asset with graph id, markers, and caption", () => {
-    const html = renderPageAsset("computeFlow", false);
+    const graphMessages = {
+      ...messages,
+      graph: {
+        nodes: {
+          hiddenStates: { label: "Hidden states" },
+          queryProjection: { label: "H query heads (Q projection)" },
+          queryGroups: { label: "G query groups" },
+          sharedKv: { label: "Shared KV heads per group" },
+          attentionScores: { label: "Attention scores per query head" },
+          outputProjection: { label: "Output projection" },
+        },
+      },
+    } satisfies PageMessages;
+
+    const html = renderPageAsset("computeFlow", false, assets, graphMessages);
     expect(html).toContain('data-page-asset="computeFlow"');
     expect(html).toContain(
       'data-graph-id="graph.grouped-query-attention-compute-flow"',
@@ -82,7 +96,7 @@ describe("PageAsset", () => {
     expect(html).toContain('data-react-flow-graph="true"');
     expect(html).toContain('data-web-renderer="react-flow"');
     expect(html).toContain('data-graph-node-id="gqa-query-heads"');
-    expect(html).toContain('data-graph-node-count="3"');
+    expect(html).toContain('data-graph-node-count="11"');
     expect(html).toContain(
       "Toggle MHA and GQA to compare query-head count against KV-head count on one canvas",
     );

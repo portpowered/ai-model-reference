@@ -19,37 +19,187 @@
   "supportedRenderers": ["react-flow", "mermaid"],
   "nodes": [
     {
+      "id": "mha-values-label",
+      "labelKey": "graph.nodes.valuesLabel.label",
+      "moduleKind": "other",
+      "position": { "x": 0, "y": 34 },
+      "visualRole": "row-label",
+      "childNodeIds": []
+    },
+    {
+      "id": "mha-keys-label",
+      "labelKey": "graph.nodes.keysLabel.label",
+      "moduleKind": "other",
+      "position": { "x": 0, "y": 184 },
+      "visualRole": "row-label",
+      "childNodeIds": []
+    },
+    {
       "id": "mha-query-heads",
-      "labelKey": "graph.nodes.mhaQueryHeads.label",
+      "labelKey": "graph.nodes.queriesLabel.label",
       "moduleKind": "projection",
+      "position": { "x": 0, "y": 334 },
       "headCountRole": "query",
-      "childNodeIds": ["mha-kv-heads"]
+      "visualRole": "row-label",
+      "childNodeIds": [
+        "mha-query-head-1",
+        "mha-query-head-2",
+        "mha-query-head-3",
+        "mha-query-head-4"
+      ]
     },
     {
-      "id": "mha-kv-heads",
-      "labelKey": "graph.nodes.mhaKvHeads.label",
+      "id": "mha-value-head-1",
+      "labelKey": "graph.nodes.valueHead.label",
       "moduleKind": "attention",
-      "headCountRole": "kv",
-      "childNodeIds": ["mha-one-to-one"]
+      "position": { "x": 180, "y": 0 },
+      "visualRole": "value-head",
+      "childNodeIds": ["mha-key-head-1"]
     },
     {
-      "id": "mha-one-to-one",
-      "labelKey": "graph.nodes.mhaOneToOne.label",
-      "moduleKind": "operation",
+      "id": "mha-value-head-2",
+      "labelKey": "graph.nodes.valueHead.label",
+      "moduleKind": "attention",
+      "position": { "x": 340, "y": 0 },
+      "visualRole": "value-head",
+      "childNodeIds": ["mha-key-head-2"]
+    },
+    {
+      "id": "mha-value-head-3",
+      "labelKey": "graph.nodes.valueHead.label",
+      "moduleKind": "attention",
+      "position": { "x": 500, "y": 0 },
+      "visualRole": "value-head",
+      "childNodeIds": ["mha-key-head-3"]
+    },
+    {
+      "id": "mha-value-head-4",
+      "labelKey": "graph.nodes.valueHead.label",
+      "moduleKind": "attention",
+      "position": { "x": 660, "y": 0 },
+      "visualRole": "value-head",
+      "childNodeIds": ["mha-key-head-4"]
+    },
+    {
+      "id": "mha-key-head-1",
+      "labelKey": "graph.nodes.keyHead.label",
+      "moduleKind": "attention",
+      "position": { "x": 180, "y": 150 },
+      "headCountRole": "kv",
+      "visualRole": "key-head",
+      "childNodeIds": ["mha-query-head-1"]
+    },
+    {
+      "id": "mha-key-head-2",
+      "labelKey": "graph.nodes.keyHead.label",
+      "moduleKind": "attention",
+      "position": { "x": 340, "y": 150 },
+      "headCountRole": "kv",
+      "visualRole": "key-head",
+      "childNodeIds": ["mha-query-head-2"]
+    },
+    {
+      "id": "mha-key-head-3",
+      "labelKey": "graph.nodes.keyHead.label",
+      "moduleKind": "attention",
+      "position": { "x": 500, "y": 150 },
+      "headCountRole": "kv",
+      "visualRole": "key-head",
+      "childNodeIds": ["mha-query-head-3"]
+    },
+    {
+      "id": "mha-key-head-4",
+      "labelKey": "graph.nodes.keyHead.label",
+      "moduleKind": "attention",
+      "position": { "x": 660, "y": 150 },
+      "headCountRole": "kv",
+      "visualRole": "key-head",
+      "childNodeIds": ["mha-query-head-4"]
+    },
+    {
+      "id": "mha-query-head-1",
+      "labelKey": "graph.nodes.queryHead.label",
+      "moduleKind": "projection",
+      "position": { "x": 180, "y": 300 },
+      "headCountRole": "query",
+      "visualRole": "query-head",
+      "childNodeIds": []
+    },
+    {
+      "id": "mha-query-head-2",
+      "labelKey": "graph.nodes.queryHead.label",
+      "moduleKind": "projection",
+      "position": { "x": 340, "y": 300 },
+      "headCountRole": "query",
+      "visualRole": "query-head",
+      "childNodeIds": []
+    },
+    {
+      "id": "mha-query-head-3",
+      "labelKey": "graph.nodes.queryHead.label",
+      "moduleKind": "projection",
+      "position": { "x": 500, "y": 300 },
+      "headCountRole": "query",
+      "visualRole": "query-head",
+      "childNodeIds": []
+    },
+    {
+      "id": "mha-query-head-4",
+      "labelKey": "graph.nodes.queryHead.label",
+      "moduleKind": "projection",
+      "position": { "x": 660, "y": 300 },
+      "headCountRole": "query",
+      "visualRole": "query-head",
       "childNodeIds": []
     }
   ],
   "edges": [
     {
-      "id": "mha-query-to-kv",
-      "source": "mha-query-heads",
-      "target": "mha-kv-heads",
+      "id": "mha-value-1-to-key-1",
+      "source": "mha-value-head-1",
+      "target": "mha-key-head-1",
       "edgeKind": "data-flow"
     },
     {
-      "id": "mha-kv-to-mapping",
-      "source": "mha-kv-heads",
-      "target": "mha-one-to-one",
+      "id": "mha-value-2-to-key-2",
+      "source": "mha-value-head-2",
+      "target": "mha-key-head-2",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "mha-value-3-to-key-3",
+      "source": "mha-value-head-3",
+      "target": "mha-key-head-3",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "mha-value-4-to-key-4",
+      "source": "mha-value-head-4",
+      "target": "mha-key-head-4",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "mha-key-1-to-query-1",
+      "source": "mha-key-head-1",
+      "target": "mha-query-head-1",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "mha-key-2-to-query-2",
+      "source": "mha-key-head-2",
+      "target": "mha-query-head-2",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "mha-key-3-to-query-3",
+      "source": "mha-key-head-3",
+      "target": "mha-query-head-3",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "mha-key-4-to-query-4",
+      "source": "mha-key-head-4",
+      "target": "mha-query-head-4",
       "edgeKind": "data-flow"
     }
   ]

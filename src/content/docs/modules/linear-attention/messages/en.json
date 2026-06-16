@@ -183,6 +183,18 @@
   },
   "graph": {
     "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "valueHead": {
+        "label": "V"
+      },
       "mhaQueryHeads": {
         "label": "H query heads"
       },
@@ -200,6 +212,15 @@
       },
       "linearAssociativeUpdate": {
         "label": "Associative KV accumulation without full score matrix"
+      },
+      "linearSummaryLabel": {
+        "label": "Running summaries"
+      },
+      "linearSummaryNode": {
+        "label": "\\phi(K)^{\\top} V"
+      },
+      "linearAssociativeNote": {
+        "label": "Queries read from running summaries instead of scoring every key"
       }
     }
   }

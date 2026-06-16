@@ -2,6 +2,7 @@ import type { Browser, Page } from "playwright";
 import { withExportIntegrationProbeLock } from "./export-integration-probe-lock";
 import { httpGetText } from "./http-harness";
 import {
+  closePlaywrightBrowserWithTimeout,
   isPlaywrightLaunchRetryableError,
   launchPlaywrightBrowser,
 } from "./launch-playwright-browser";
@@ -33,6 +34,7 @@ export const EMPTY_SUGGESTION_ATTENTION_LINK_LABEL = "attention tag index";
 export const ATTENTION_TAG_PATH_SUFFIX = "/tags/attention";
 
 export const DOCS_SEARCH_BOOTSTRAP_ROUTE_PATTERN = "**/api/search";
+const PLAYWRIGHT_CONTEXT_CLOSE_TIMEOUT_MS = 5_000;
 
 export type SearchPageEmptyStateSnapshot = {
   emptyVisible: boolean;
@@ -57,6 +59,19 @@ export type SearchPageResultsAccessibilitySnapshot = {
 
 async function defaultLaunchBrowser(): Promise<Browser> {
   return launchPlaywrightBrowser();
+}
+
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function closeBrowserContextWithTimeout(
+  closeContext: () => Promise<void>,
+): Promise<void> {
+  await Promise.race([
+    closeContext(),
+    sleep(PLAYWRIGHT_CONTEXT_CLOSE_TIMEOUT_MS),
+  ]);
 }
 
 async function readLiveRegionPolite(page: Page): Promise<boolean> {
@@ -444,7 +459,7 @@ export async function verifyStaticExportSearchEmptyErrorStates(
             return emptyFailure;
           }
         } finally {
-          await emptyContext.close();
+          await closeBrowserContextWithTimeout(() => emptyContext.close());
         }
 
         const errorContext = await browser.newContext();
@@ -462,7 +477,7 @@ export async function verifyStaticExportSearchEmptyErrorStates(
             return errorFailure;
           }
         } finally {
-          await errorContext.close();
+          await closeBrowserContextWithTimeout(() => errorContext.close());
         }
 
         const accessibilityContext = await browser.newContext();
@@ -481,7 +496,9 @@ export async function verifyStaticExportSearchEmptyErrorStates(
             return accessibilityFailure;
           }
         } finally {
-          await accessibilityContext.close();
+          await closeBrowserContextWithTimeout(() =>
+            accessibilityContext.close(),
+          );
         }
 
         return null;
@@ -490,7 +507,7 @@ export async function verifyStaticExportSearchEmptyErrorStates(
       } finally {
         if (browser) {
           try {
-            await browser.close();
+            await closePlaywrightBrowserWithTimeout(browser);
           } catch {
             // ignore cleanup races after transient spawn failures
           }

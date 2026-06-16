@@ -183,6 +183,24 @@
   },
   "graph": {
     "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "keysLabel": {
+        "label": "Keys"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "keyHead": {
+        "label": "k"
+      },
+      "valueHead": {
+        "label": "V"
+      },
       "mhaQueryHeads": {
         "label": "H query heads"
       },
@@ -200,6 +218,30 @@
       },
       "windowLimitedReach": {
         "label": "Attend only to keys inside the window"
+      },
+      "windowReachNote": {
+        "label": "Each query only reaches nearby keys inside the sliding window"
+      },
+      "timeCurrentQuery": {
+        "label": "q_t"
+      },
+      "timeKv0": {
+        "label": "KV_0"
+      },
+      "timeKv1": {
+        "label": "KV_1"
+      },
+      "timeKvEllipsis": {
+        "label": "\\cdots"
+      },
+      "timeKvT3": {
+        "label": "KV_{t-3}"
+      },
+      "timeKvT2": {
+        "label": "KV_{t-2}"
+      },
+      "timeKvT1": {
+        "label": "KV_{t-1}"
       }
     }
   }

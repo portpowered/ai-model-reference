@@ -10,7 +10,7 @@
       },
       {
         "variantId": "mqa",
-        "graphId": "graph.multi-head-attention-mqa-comparison",
+        "graphId": "graph.multi-query-attention-mqa-comparison",
         "labelKey": "assets.computeFlow.variants.mqa.label"
       }
     ],

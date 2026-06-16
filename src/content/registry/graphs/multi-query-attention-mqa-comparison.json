@@ -19,37 +19,123 @@
   "supportedRenderers": ["react-flow", "mermaid"],
   "nodes": [
     {
+      "id": "mqa-values-label",
+      "labelKey": "graph.nodes.valuesLabel.label",
+      "moduleKind": "other",
+      "position": { "x": 0, "y": 34 },
+      "visualRole": "row-label",
+      "childNodeIds": []
+    },
+    {
+      "id": "mqa-keys-label",
+      "labelKey": "graph.nodes.keysLabel.label",
+      "moduleKind": "other",
+      "position": { "x": 0, "y": 184 },
+      "visualRole": "row-label",
+      "childNodeIds": []
+    },
+    {
       "id": "mqa-query-heads",
-      "labelKey": "graph.nodes.mqaQueryHeads.label",
+      "labelKey": "graph.nodes.queriesLabel.label",
       "moduleKind": "projection",
+      "position": { "x": 0, "y": 334 },
       "headCountRole": "query",
-      "childNodeIds": ["mqa-kv-shared"]
+      "visualRole": "row-label",
+      "childNodeIds": [
+        "mqa-query-head-1",
+        "mqa-query-head-2",
+        "mqa-query-head-3",
+        "mqa-query-head-4"
+      ]
     },
     {
-      "id": "mqa-kv-shared",
-      "labelKey": "graph.nodes.mqaKvShared.label",
+      "id": "mqa-value-head-1",
+      "labelKey": "graph.nodes.valueHead.label",
       "moduleKind": "attention",
-      "headCountRole": "kv",
-      "childNodeIds": ["mqa-shared-mapping"]
+      "position": { "x": 300, "y": 0 },
+      "visualRole": "value-head",
+      "childNodeIds": ["mqa-key-head-1"]
     },
     {
-      "id": "mqa-shared-mapping",
-      "labelKey": "graph.nodes.mqaSharedMapping.label",
-      "moduleKind": "operation",
+      "id": "mqa-key-head-1",
+      "labelKey": "graph.nodes.keyHead.label",
+      "moduleKind": "attention",
+      "position": { "x": 300, "y": 150 },
+      "headCountRole": "kv",
+      "visualRole": "key-head",
+      "childNodeIds": [
+        "mqa-query-head-1",
+        "mqa-query-head-2",
+        "mqa-query-head-3",
+        "mqa-query-head-4"
+      ]
+    },
+    {
+      "id": "mqa-query-head-1",
+      "labelKey": "graph.nodes.queryHead.label",
+      "moduleKind": "projection",
+      "position": { "x": 60, "y": 300 },
+      "headCountRole": "query",
+      "visualRole": "query-head",
+      "childNodeIds": []
+    },
+    {
+      "id": "mqa-query-head-2",
+      "labelKey": "graph.nodes.queryHead.label",
+      "moduleKind": "projection",
+      "position": { "x": 220, "y": 300 },
+      "headCountRole": "query",
+      "visualRole": "query-head",
+      "childNodeIds": []
+    },
+    {
+      "id": "mqa-query-head-3",
+      "labelKey": "graph.nodes.queryHead.label",
+      "moduleKind": "projection",
+      "position": { "x": 380, "y": 300 },
+      "headCountRole": "query",
+      "visualRole": "query-head",
+      "childNodeIds": []
+    },
+    {
+      "id": "mqa-query-head-4",
+      "labelKey": "graph.nodes.queryHead.label",
+      "moduleKind": "projection",
+      "position": { "x": 540, "y": 300 },
+      "headCountRole": "query",
+      "visualRole": "query-head",
       "childNodeIds": []
     }
   ],
   "edges": [
     {
-      "id": "mqa-query-to-kv",
-      "source": "mqa-query-heads",
-      "target": "mqa-kv-shared",
+      "id": "mqa-value-1-to-key-1",
+      "source": "mqa-value-head-1",
+      "target": "mqa-key-head-1",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "mqa-key-1-to-query-1",
+      "source": "mqa-key-head-1",
+      "target": "mqa-query-head-1",
       "edgeKind": "parameter-sharing"
     },
     {
-      "id": "mqa-kv-to-mapping",
-      "source": "mqa-kv-shared",
-      "target": "mqa-shared-mapping",
+      "id": "mqa-key-1-to-query-2",
+      "source": "mqa-key-head-1",
+      "target": "mqa-query-head-2",
+      "edgeKind": "parameter-sharing"
+    },
+    {
+      "id": "mqa-key-1-to-query-3",
+      "source": "mqa-key-head-1",
+      "target": "mqa-query-head-3",
+      "edgeKind": "parameter-sharing"
+    },
+    {
+      "id": "mqa-key-1-to-query-4",
+      "source": "mqa-key-head-1",
+      "target": "mqa-query-head-4",
       "edgeKind": "parameter-sharing"
     }
   ]

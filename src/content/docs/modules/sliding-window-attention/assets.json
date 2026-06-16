@@ -5,12 +5,12 @@
     "variants": [
       {
         "variantId": "mha",
-        "graphId": "graph.sliding-window-attention-mha-comparison",
+        "graphId": "graph.multi-head-attention-time-pattern",
         "labelKey": "assets.computeFlow.variants.mha.label"
       },
       {
         "variantId": "window",
-        "graphId": "graph.sliding-window-attention-window-comparison",
+        "graphId": "graph.sliding-window-attention-time-window-pattern",
         "labelKey": "assets.computeFlow.variants.window.label"
       }
     ],

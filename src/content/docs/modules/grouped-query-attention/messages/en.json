@@ -175,6 +175,24 @@
   },
   "graph": {
     "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "keysLabel": {
+        "label": "Keys"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "keyHead": {
+        "label": "k"
+      },
+      "valueHead": {
+        "label": "V"
+      },
       "mhaQueryHeads": {
         "label": "H query heads"
       },
@@ -184,6 +202,36 @@
       "mhaOneToOne": {
         "label": "Each query head has its own K and V"
       },
+      "mhaQueryHead1": {
+        "label": "Q1"
+      },
+      "mhaQueryHead2": {
+        "label": "Q2"
+      },
+      "mhaQueryHead3": {
+        "label": "Q3"
+      },
+      "mhaQueryHead4": {
+        "label": "Q4"
+      },
+      "mhaQueryHead5": {
+        "label": "Q5"
+      },
+      "mhaKvPair1": {
+        "label": "K1 / V1"
+      },
+      "mhaKvPair2": {
+        "label": "K2 / V2"
+      },
+      "mhaKvPair3": {
+        "label": "K3 / V3"
+      },
+      "mhaKvPair4": {
+        "label": "K4 / V4"
+      },
+      "mhaKvPair5": {
+        "label": "K5 / V5"
+      },
       "gqaQueryHeads": {
         "label": "H query heads"
       },
@@ -192,6 +240,9 @@
       },
       "gqaGroupedMapping": {
         "label": "H/G query heads share each KV pair"
+      },
+      "gqaSharingNote": {
+        "label": "Same key/value heads are shared by two query heads"
       }
     }
   }

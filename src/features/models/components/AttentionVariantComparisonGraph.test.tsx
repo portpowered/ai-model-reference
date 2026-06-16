@@ -97,15 +97,30 @@ describe("AttentionVariantComparisonGraph", () => {
     ).toBeTruthy();
     expect(
       container.querySelector(
-        '[data-graph-id="graph.grouped-query-attention-mha-comparison"]',
+        '[data-graph-id="graph.multi-head-attention-mha-comparison"]',
       ),
     ).toBeTruthy();
     expect(
       container.querySelector('[data-graph-node-id="mha-query-heads"]'),
     ).toBeTruthy();
     expect(
-      container.querySelector('[data-graph-node-id="mha-kv-heads"]'),
+      container.querySelector('[data-graph-node-id="mha-keys-label"]'),
     ).toBeTruthy();
+    expect(
+      container.querySelector('[data-graph-node-id="mha-query-head-4"]'),
+    ).toBeTruthy();
+    expect(
+      container.querySelector('[data-graph-node-id="mha-value-head-4"]'),
+    ).toBeTruthy();
+    expect(container.textContent).toContain("Values");
+    expect(container.textContent).toContain("Queries");
+    expect(
+      container.querySelector('[data-graph-node-count="15"]'),
+    ).toBeTruthy();
+    expect(
+      container.querySelector<HTMLElement>(".registry-graph-flow__viewport")
+        ?.style.width,
+    ).toBe("100%");
     expect(container.querySelectorAll(".react-flow").length).toBe(1);
     expect(
       screen.getByRole("tab", { name: "MHA", selected: true }),

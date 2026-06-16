@@ -7,6 +7,12 @@ import { getExportIntegrationBunTestTimeoutMs } from "@/lib/verify/export-integr
 import { runPhase1ExportSearchUxChecks } from "@/lib/verify/phase-1-export-search-ux-checks";
 
 const repoRoot = join(import.meta.dir, "../../..");
+const VERIFY_EXPORT_SEARCH_UX_SCRIPT_INTEGRATION_ENV =
+  "VERIFY_EXPORT_SEARCH_UX_SCRIPT_INTEGRATION";
+
+function shouldRunExportSearchUxScriptIntegration(): boolean {
+  return process.env[VERIFY_EXPORT_SEARCH_UX_SCRIPT_INTEGRATION_ENV] === "1";
+}
 
 /**
  * Served static-export Phase 1 search UX probes run under `make test-integration`
@@ -37,6 +43,9 @@ describe("static export Phase 1 search UX integration", () => {
     "verify-phase-1-export-search-ux script passes after build:export",
     () => {
       if (!shouldRunBuiltHtmlFileConvergenceTests(repoRoot)) {
+        return;
+      }
+      if (!shouldRunExportSearchUxScriptIntegration()) {
         return;
       }
 

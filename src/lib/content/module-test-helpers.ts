@@ -161,8 +161,10 @@ export function expectModuleAttentionVariantGraphTheme(
   expect(html).toContain('data-attention-variant-option="mha"');
   expect(html).toContain('data-attention-variant-option="gqa"');
   expect(html).toContain(`data-graph-id="${graphId}"`);
-  expect(html).toContain("--xy-node-color:var(--card-foreground)");
-  expect(html).toContain("--xy-node-background-color:var(--card)");
+  expect(html).toContain("--xy-background-color:#ffffff");
+  expect(html).toContain("--xy-node-color:#111827");
+  expect(html).toContain("--xy-node-background-color:#ffffff");
+  expect(html).toContain("--xy-node-border-color:#cbd5e1");
   expect(html).toContain(
     'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
   );
@@ -172,14 +174,16 @@ export function expectModuleAttentionVariantGraphTheme(
     'data-attention-variant-comparison="true"',
   );
   expect(howItWorksSection).toContain(`data-graph-id="${graphId}"`);
-  expect(howItWorksSection).toContain("--xy-node-color:var(--card-foreground)");
-  expect(howItWorksSection).toContain("--xy-node-background-color:var(--card)");
+  expect(howItWorksSection).toContain("--xy-background-color:#ffffff");
+  expect(howItWorksSection).toContain("--xy-node-color:#111827");
+  expect(howItWorksSection).toContain("--xy-node-background-color:#ffffff");
+  expect(howItWorksSection).toContain("--xy-node-border-color:#cbd5e1");
   expect(howItWorksSection).toContain('class="registry-graph-flow');
   expect(howItWorksSection).toContain('data-graph-node-id="gqa-query-heads"');
   expect(howItWorksSection).toContain('data-graph-node-id="gqa-kv-groups"');
   expect(howItWorksSection).toContain('data-head-count-role="query"');
   expect(howItWorksSection).toContain('data-head-count-role="kv"');
-  expect(howItWorksSection).toContain('data-graph-node-count="3"');
+  expect(howItWorksSection).toContain('data-graph-node-count="11"');
 }
 
 /** @deprecated Use expectModuleAttentionVariantGraphTheme */

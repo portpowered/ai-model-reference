@@ -49,17 +49,6 @@ export const RENDERED_QUALITY_REGRESSION_CHECKS = [
     ],
   },
   {
-    checkId: "rendered-regression.page-shell.folded-summary",
-    title: "Canonical module pages render one folded opening summary",
-    lane: "page-shell",
-    behavior: "folded summary missing",
-    testFiles: [
-      "src/features/docs/components/FoldedSummary.test.tsx",
-      "src/lib/content/page-shell-folded-summary.test.tsx",
-      "src/lib/verify/rendered-quality-baseline.test.ts",
-    ],
-  },
-  {
     checkId: "rendered-regression.content-standards.process-language",
     title: "Canonical routes omit customer-visible process or meta language",
     lane: "content-standards",

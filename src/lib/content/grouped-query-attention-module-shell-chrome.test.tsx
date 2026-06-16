@@ -71,21 +71,18 @@ describe("grouped-query-attention module shell chrome", () => {
     ).toBe(1);
     expectGlossaryBodyOmitsTitleHeading(articleHtml, loadedPage.messages.title);
     expect(html).not.toContain('aria-label="Module metadata"');
-    expect(html).toContain('data-testid="folded-summary"');
+    expect(html).not.toContain('data-testid="folded-summary"');
     expect(html).toContain('aria-label="At a glance"');
     expect(assertGroupedQueryAttentionTitleConvergence(html)).toBeNull();
 
-    const plainHtml = stripHtmlTags(html);
-    const problemIndex = plainHtml.indexOf(
-      "KV caches grow with context length",
-    );
-    const coreIdeaIndex = plainHtml.indexOf("lets several query heads share");
     const atAGlanceIndex = html.indexOf('aria-label="At a glance"');
     const whatItIsIndex = html.indexOf('id="what-it-is"');
 
-    expect(problemIndex).toBeGreaterThanOrEqual(0);
-    expect(coreIdeaIndex).toBeGreaterThan(problemIndex);
-    expect(atAGlanceIndex).toBeGreaterThan(coreIdeaIndex);
+    const plainHtml = stripHtmlTags(html);
+    expect(plainHtml).toContain(
+      "Grouped-query attention is an attention variant",
+    );
+    expect(atAGlanceIndex).toBeGreaterThanOrEqual(0);
     expect(whatItIsIndex).toBeGreaterThan(atAGlanceIndex);
   });
 });

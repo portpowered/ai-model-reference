@@ -22,4 +22,35 @@ describe("ProseAutoLinkText", () => {
     expect(html).not.toContain("data-prose-auto-link");
     expect(html).toContain("Unknown phraseology without registry matches.");
   });
+
+  test("renders inline TeX annotations while preserving surrounding auto-links", () => {
+    const html = renderToStaticMarkup(
+      <ProseAutoLinkText
+        text={"Use $\\hat{x}$ and $x^{\\top}$ beside multi-head attention."}
+      />,
+    );
+
+    expect(html).toContain('class="katex-inline not-prose"');
+    expect(html).toContain('class="katex"');
+    expect(html).toContain('accent="true"');
+    expect(html).toContain("⊤");
+    expect(html).toContain('href="/docs/modules/multi-head-attention"');
+    expect(html).not.toContain("katex-error");
+    expect(html).not.toContain("ParseError");
+  });
+
+  test("leaves escaped dollars and block math delimiters as prose", () => {
+    const html = renderToStaticMarkup(
+      <ProseAutoLinkText
+        text={
+          "Keep \\$literal dollars and $$block math$$ delimiters untouched."
+        }
+      />,
+    );
+
+    expect(html).not.toContain('class="katex"');
+    expect(html).toContain("$literal dollars");
+    expect(html).not.toContain("\\$literal dollars");
+    expect(html).toContain("$$block math$$");
+  });
 });

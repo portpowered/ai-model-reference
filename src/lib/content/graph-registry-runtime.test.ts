@@ -28,7 +28,13 @@ describe("graph-registry-runtime", () => {
     expect(mhaComparison?.id).toBe(
       "graph.grouped-query-attention-mha-comparison",
     );
-    expect(mhaComparison?.nodes.length).toBe(3);
+    expect(mhaComparison?.nodes.length).toBe(15);
+    expect(mhaComparison?.nodes.map((node) => node.id)).toContain(
+      "mha-query-head-4",
+    );
+    expect(mhaComparison?.nodes.map((node) => node.id)).toContain(
+      "mha-value-head-4",
+    );
 
     const gqaComparison = getGraphById(
       "graph.grouped-query-attention-gqa-comparison",
@@ -36,7 +42,7 @@ describe("graph-registry-runtime", () => {
     expect(gqaComparison?.id).toBe(
       "graph.grouped-query-attention-gqa-comparison",
     );
-    expect(gqaComparison?.nodes.length).toBe(3);
+    expect(gqaComparison?.nodes.length).toBe(11);
 
     const mhaPageComparison = getGraphById(
       "graph.multi-head-attention-mha-comparison",
@@ -45,6 +51,7 @@ describe("graph-registry-runtime", () => {
       "graph.multi-head-attention-mha-comparison",
     );
     expect(mhaPageComparison?.subjectId).toBe("module.multi-head-attention");
+    expect(mhaPageComparison?.nodes.length).toBe(15);
 
     const mqaPageComparison = getGraphById(
       "graph.multi-head-attention-mqa-comparison",
@@ -53,6 +60,12 @@ describe("graph-registry-runtime", () => {
       "graph.multi-head-attention-mqa-comparison",
     );
     expect(mqaPageComparison?.nodes.length).toBe(3);
+
+    const mhaTimePattern = getGraphById(
+      "graph.multi-head-attention-time-pattern",
+    );
+    expect(mhaTimePattern?.id).toBe("graph.multi-head-attention-time-pattern");
+    expect(mhaTimePattern?.nodes.length).toBe(7);
 
     const mqaModuleMhaComparison = getGraphById(
       "graph.multi-query-attention-mha-comparison",
@@ -70,7 +83,7 @@ describe("graph-registry-runtime", () => {
     expect(mqaModuleMqaComparison?.id).toBe(
       "graph.multi-query-attention-mqa-comparison",
     );
-    expect(mqaModuleMqaComparison?.nodes.length).toBe(3);
+    expect(mqaModuleMqaComparison?.nodes.length).toBe(9);
 
     const mlaMhaComparison = getGraphById(
       "graph.multi-head-latent-attention-mha-comparison",
@@ -86,7 +99,7 @@ describe("graph-registry-runtime", () => {
     expect(mlaComparison?.id).toBe(
       "graph.multi-head-latent-attention-mla-comparison",
     );
-    expect(mlaComparison?.nodes.length).toBe(3);
+    expect(mlaComparison?.nodes.length).toBe(15);
 
     const linearMhaComparison = getGraphById(
       "graph.linear-attention-mha-comparison",
@@ -102,39 +115,21 @@ describe("graph-registry-runtime", () => {
     expect(linearComparison?.id).toBe(
       "graph.linear-attention-linear-comparison",
     );
-    expect(linearComparison?.nodes.length).toBe(3);
+    expect(linearComparison?.nodes.length).toBe(11);
 
-    const slidingWindowMhaComparison = getGraphById(
-      "graph.sliding-window-attention-mha-comparison",
+    const slidingWindowTimePattern = getGraphById(
+      "graph.sliding-window-attention-time-window-pattern",
     );
-    expect(slidingWindowMhaComparison?.id).toBe(
-      "graph.sliding-window-attention-mha-comparison",
+    expect(slidingWindowTimePattern?.id).toBe(
+      "graph.sliding-window-attention-time-window-pattern",
     );
-    expect(slidingWindowMhaComparison?.nodes.length).toBe(3);
+    expect(slidingWindowTimePattern?.nodes.length).toBe(7);
 
-    const slidingWindowComparison = getGraphById(
-      "graph.sliding-window-attention-window-comparison",
+    const sparseTimePattern = getGraphById(
+      "graph.sparse-attention-time-pattern",
     );
-    expect(slidingWindowComparison?.id).toBe(
-      "graph.sliding-window-attention-window-comparison",
-    );
-    expect(slidingWindowComparison?.nodes.length).toBe(3);
-
-    const sparseMhaComparison = getGraphById(
-      "graph.sparse-attention-mha-comparison",
-    );
-    expect(sparseMhaComparison?.id).toBe(
-      "graph.sparse-attention-mha-comparison",
-    );
-    expect(sparseMhaComparison?.nodes.length).toBe(3);
-
-    const sparseComparison = getGraphById(
-      "graph.sparse-attention-sparse-comparison",
-    );
-    expect(sparseComparison?.id).toBe(
-      "graph.sparse-attention-sparse-comparison",
-    );
-    expect(sparseComparison?.nodes.length).toBe(3);
+    expect(sparseTimePattern?.id).toBe("graph.sparse-attention-time-pattern");
+    expect(sparseTimePattern?.nodes.length).toBe(7);
 
     expect(getGraphById("graph.token-concept-map")?.id).toBe(
       "graph.token-concept-map",
@@ -142,6 +137,6 @@ describe("graph-registry-runtime", () => {
   });
 
   test("lists all bundled graph records", () => {
-    expect(listGraphRecords().length).toBe(18);
+    expect(listGraphRecords().length).toBe(17);
   });
 });

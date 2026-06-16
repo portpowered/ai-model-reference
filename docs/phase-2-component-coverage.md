@@ -18,7 +18,8 @@ bun run coverage
 ```
 
 Both run `bun test --coverage` with fixed flags (including
-`--path-ignore-patterns` for the manifest integration test), then print a
+`--path-ignore-patterns` for the manifest integration test) and a
+manifest-derived list of unit and a11y smoke test files, then print a
 per-component summary with **label | path | line % | PASS/FAIL** and exit
 non-zero when a listed non-thin-wrapper component is below its minimum.
 

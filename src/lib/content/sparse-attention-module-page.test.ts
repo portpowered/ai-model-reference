@@ -64,8 +64,12 @@ describe("loadModulePage sparse-attention", () => {
     );
 
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-    expect(html).toContain("scores every query against every key");
-    expect(html).toContain("mask or pattern that skips most");
+    expect(html).toContain(
+      "restricts which query-key pairs participate in the softmax",
+    );
+    expect(html).toContain(
+      "Each query position attends only to keys permitted by a sparsity mask",
+    );
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain('aria-label="Module metadata"');
     expect(html).toContain("At a glance");
@@ -77,6 +81,11 @@ describe("loadModulePage sparse-attention", () => {
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain("Curated related");
     expect(html).toContain("Mask-limited subset");
+    expect(html).toContain(
+      'data-graph-id="graph.sparse-attention-time-pattern"',
+    );
+    expect(html).toContain('data-graph-node-id="sparse-time-current-query"');
+    expect(html).toContain('data-graph-node-id="sparse-time-kv-t-1"');
     expect(assertSparseAttentionModuleConvergence(html)).toBeNull();
   });
 });
@@ -111,6 +120,14 @@ describe("sparse-attention page assets", () => {
     );
 
     expect(assets.computeFlow.type).toBe("attention-variant-graph");
+    if (assets.computeFlow.type === "attention-variant-graph") {
+      expect(
+        assets.computeFlow.variants.map((variant) => variant.graphId),
+      ).toEqual([
+        "graph.multi-head-attention-time-pattern",
+        "graph.sparse-attention-time-pattern",
+      ]);
+    }
     expect(assets.comparisonTable.type).toBe("table");
     expect(validatePageAssetReferences(assets, messages)).toEqual([]);
   });

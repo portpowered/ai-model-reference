@@ -1,5 +1,6 @@
 "use client";
 
+import { InlineMath } from "@/features/docs/components/Math";
 import { MissingMessageKey } from "@/features/docs/components/MissingMessageKey";
 import { ProseAutoLinkText } from "@/features/docs/components/ProseAutoLinkText";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
@@ -63,7 +64,7 @@ function PageMathVariableDefinitions({ mathId }: PageMathFormulaProps) {
               data-math-variable-definition={row.id}
             >
               <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
-                {row.term}
+                <InlineMath formula={row.term} />
               </dt>
               <dd className="text-sm text-muted-foreground">
                 <ProseAutoLinkText text={row.definition} />
@@ -109,7 +110,7 @@ function PageMathVariableDefinitions({ mathId }: PageMathFormulaProps) {
               data-math-variable-definition={row.id}
             >
               <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
-                {row.termResult.value}
+                <InlineMath formula={row.termResult.value} />
               </dt>
               <dd className="text-sm text-muted-foreground">
                 <ProseAutoLinkText text={row.definitionResult.value} />

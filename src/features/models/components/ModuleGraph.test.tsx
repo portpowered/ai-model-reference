@@ -57,10 +57,16 @@ describe("ModuleGraph live GQA graphs", () => {
     );
     expect(graphWrapper).toBeTruthy();
     expect(graphWrapper?.getAttribute("style")).toContain(
-      "--xy-node-color: var(--card-foreground)",
+      "--xy-background-color: #ffffff",
     );
     expect(graphWrapper?.getAttribute("style")).toContain(
-      "--xy-node-background-color: var(--card)",
+      "--xy-node-color: #111827",
+    );
+    expect(graphWrapper?.getAttribute("style")).toContain(
+      "--xy-node-background-color: #ffffff",
+    );
+    expect(graphWrapper?.getAttribute("style")).toContain(
+      "--xy-node-border-color: #cbd5e1",
     );
     expect(graphWrapper?.getAttribute("data-graph-interaction-pan")).toBe(
       "true",
@@ -81,7 +87,7 @@ describe("ModuleGraph live GQA graphs", () => {
         "Toggle MHA and GQA to compare query-head count against KV-head count on one canvas",
       ),
     ).toBeTruthy();
-    expect(container.querySelectorAll("[data-graph-node-id]")).toHaveLength(3);
+    expect(container.querySelectorAll("[data-graph-node-id]")).toHaveLength(11);
     expect(
       container.querySelector('[data-graph-node-id="gqa-query-heads"]'),
     ).toBeTruthy();

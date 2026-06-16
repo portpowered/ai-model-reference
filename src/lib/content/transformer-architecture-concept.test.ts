@@ -76,7 +76,7 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
     expect(normalization?.isPlanned).toBe(false);
   });
 
-  test("page renders title, sections, opening summary, and attention related link", async () => {
+  test("page renders title, sections, and attention related link without a where-it-appears section", async () => {
     const page = await loadConceptPage("transformer-architecture");
     expect(page.frontmatter.status).toBe("published");
     expect(page.frontmatter.registryId).toBe(
@@ -96,7 +96,11 @@ describe("Phase 3 transformer architecture concept page (US-001)", () => {
 
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
-    expect(html).toContain("repeating loop");
+    expect(html).toContain(
+      "Most modern language models share this block pattern",
+    );
+    expect(html).not.toContain('id="where-it-appears"');
+    expect(html).not.toContain('data-testid="folded-summary"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/glossary/feed-forward-network"');
     expect(html).toContain('href="/docs/glossary/normalization"');

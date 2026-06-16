@@ -5,7 +5,7 @@
     "variants": [
       {
         "variantId": "mha",
-        "graphId": "graph.multi-query-attention-mha-comparison",
+        "graphId": "graph.multi-head-attention-mha-comparison",
         "labelKey": "assets.computeFlow.variants.mha.label"
       },
       {

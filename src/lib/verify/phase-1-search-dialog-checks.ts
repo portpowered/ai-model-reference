@@ -1,5 +1,8 @@
 import type { Browser, Locator, Page } from "playwright";
-import { launchPlaywrightBrowser } from "./launch-playwright-browser";
+import {
+  closePlaywrightBrowserWithTimeout,
+  launchPlaywrightBrowser,
+} from "./launch-playwright-browser";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import { PHASE_1_SEARCH_PAGE_QUERIES } from "./phase-1-search-page-checks";
 import { normalizeVerifyBaseUrl } from "./server-lifecycle";
@@ -241,7 +244,7 @@ export async function runPhase1SearchDialogChecks(
       }
     }
   } finally {
-    await browser.close();
+    await closePlaywrightBrowserWithTimeout(browser, timeoutMs);
   }
 
   return failures;

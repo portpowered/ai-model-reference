@@ -18,14 +18,14 @@ const ATTENTION_VARIANT_ROUTE_CASES = [
     url: MULTI_HEAD_ATTENTION_URL,
     title: "Multi-Head Attention",
     registryId: "module.multi-head-attention",
-    expectInHtml: "runs that lookup in parallel",
+    expectInHtml: "Each head computes its own",
   },
   {
     slug: "multi-query-attention",
     url: MULTI_QUERY_ATTENTION_URL,
     title: "Multi-Query Attention",
     registryId: "module.multi-query-attention",
-    expectInHtml: "shared key-value pair",
+    expectInHtml: "Sharing one KV head across all queries",
   },
 ] as const;
 

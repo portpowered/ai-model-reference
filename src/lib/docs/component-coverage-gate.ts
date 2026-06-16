@@ -7,6 +7,7 @@ import {
   REUSABLE_THIN_WRAPPERS,
   type ThinWrapperEntry,
 } from "@/lib/docs/component-manifest";
+import { VERIFIER_COVERAGE_MODULES } from "@/lib/verify/verifier-coverage-manifest";
 
 /** Bun `bun test --coverage` args shared by make coverage and the gate script. */
 export const COVERAGE_TEST_ARGS = [
@@ -41,6 +42,44 @@ export type ComponentCoverageGateResult = {
   errors: string[];
 };
 
+export function normalizeSmokeTestPath(testPath: string): string {
+  return testPath.replace(/\s+\(.*\)$/, "").trim();
+}
+
+export function collectCoverageTestPaths(options?: {
+  components?: ComponentCoverageEntry[];
+  thinWrappers?: ThinWrapperEntry[];
+  verifierModules?: Array<{ unitTests: string[] }>;
+}): string[] {
+  const components = options?.components ?? REUSABLE_COVERAGE_COMPONENTS;
+  const thinWrappers = options?.thinWrappers ?? REUSABLE_THIN_WRAPPERS;
+  const verifierModules = options?.verifierModules ?? VERIFIER_COVERAGE_MODULES;
+  const testPaths = new Set<string>();
+
+  for (const component of components) {
+    for (const testPath of component.unitTests) {
+      testPaths.add(normalizeSmokeTestPath(testPath));
+    }
+    for (const testPath of component.a11ySmokeTests ?? []) {
+      testPaths.add(normalizeSmokeTestPath(testPath));
+    }
+  }
+
+  for (const wrapper of thinWrappers) {
+    for (const testPath of wrapper.smokeTests) {
+      testPaths.add(normalizeSmokeTestPath(testPath));
+    }
+  }
+
+  for (const verifierModule of verifierModules) {
+    for (const testPath of verifierModule.unitTests) {
+      testPaths.add(normalizeSmokeTestPath(testPath));
+    }
+  }
+
+  return [...testPaths].sort();
+}
+
 /** Surfaces failing test lines plus a tail slice when a coverage subprocess fails. */
 export function formatCoverageSubprocessFailure(
   combined: string,
@@ -65,16 +104,20 @@ export function runCoverageSubprocess(cwd: string): {
   rows: CoverageRow[];
   rawOutput: string;
 } {
-  const result = spawnSync("bun", [...COVERAGE_TEST_ARGS], {
-    cwd,
-    encoding: "utf8",
-    env: {
-      ...process.env,
-      FORCE_COLOR: "0",
-      VERIFY_COVERAGE_SUBPROCESS: "1",
+  const result = spawnSync(
+    "bun",
+    [...COVERAGE_TEST_ARGS, ...collectCoverageTestPaths()],
+    {
+      cwd,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        FORCE_COLOR: "0",
+        VERIFY_COVERAGE_SUBPROCESS: "1",
+      },
+      maxBuffer: 50 * 1024 * 1024,
     },
-    maxBuffer: 50 * 1024 * 1024,
-  });
+  );
 
   const combined = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
   if (result.status !== 0) {
@@ -121,10 +164,6 @@ export function isAllowedManifestPath(file: string): boolean {
     return true;
   }
   return false;
-}
-
-export function normalizeSmokeTestPath(testPath: string): string {
-  return testPath.replace(/\s+\(.*\)$/, "").trim();
 }
 
 function checkThinWrapper(

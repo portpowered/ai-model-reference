@@ -150,15 +150,26 @@ async function probeNextFooterFocusVisible(
     return "Next Page footer card not visible";
   }
 
-  await anchor.focus({ timeout: timeoutMs });
-  await anchor.evaluate((element) => {
-    if (!element.matches(":focus-visible")) {
-      element.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "Tab", bubbles: true }),
-      );
+  await page
+    .locator("body")
+    .click({ position: { x: 1, y: 1 } })
+    .catch(() => {});
+  await page.keyboard.press("Tab");
+
+  let attempts = 0;
+  while (attempts < 24) {
+    const isFocused = await anchor.evaluate(
+      (element) => document.activeElement === element,
+    );
+    if (isFocused) {
+      break;
     }
-  });
-  await page.waitForTimeout(50);
+    await page.keyboard.press("Tab");
+    attempts += 1;
+  }
+
+  await anchor.scrollIntoViewIfNeeded({ timeout: timeoutMs }).catch(() => {});
+  await page.waitForTimeout(100);
   const snapshot = await readFooterHoverPaintSnapshot(anchor);
   return evaluateFooterHoverPaintSnapshot(snapshot, "next", "focus-visible");
 }

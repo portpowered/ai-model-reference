@@ -48,4 +48,21 @@ def softmax(logits):
     expect(html).toContain('role="math"');
     expect(html).toContain("aria-label=");
   });
+
+  test("renders inline math annotations in markdown prose", async () => {
+    const content = await compileModuleMdx(`
+# Inline annotation smoke
+
+Inline annotated symbols $\\hat{x}$, $\\bar{h}$, $\\vec{v}$, and $x^{\\top}$ stay renderable in prose.
+`);
+
+    const html = renderToStaticMarkup(content);
+
+    expect(html).toContain('class="katex"');
+    expect(html).toContain("katex-mathml");
+    expect(html).toContain('accent="true"');
+    expect(html).toContain("⊤");
+    expect(html).not.toContain("katex-error");
+    expect(html).not.toContain("ParseError");
+  });
 });

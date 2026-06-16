@@ -27,7 +27,7 @@ export const GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS = [
   'data-graph-node-id="gqa-kv-groups"',
   'data-head-count-role="query"',
   'data-head-count-role="kv"',
-  'data-graph-node-count="3"',
+  'data-graph-node-count="11"',
   'data-react-flow-graph="true"',
   'data-graph-id="graph.grouped-query-attention-gqa-comparison"',
   "--xy-node-color",
@@ -122,7 +122,7 @@ export function buildGroupedQueryAttentionMathComparisonStub(): string {
 
 /** Minimal inner HTML that satisfies {@link assertGroupedQueryAttentionModuleConvergence}. */
 export function buildGroupedQueryAttentionStubBody(): string {
-  const graphWrapper = `<section id="how-it-works"><div data-attention-variant-comparison="true" data-attention-variant-active="gqa" data-attention-variant-option="mha" data-attention-variant-option="gqa" data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-gqa-comparison" data-graph-node-id="gqa-query-heads" data-graph-node-id="gqa-kv-groups" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="3" data-graph-interaction-pan="true" data-graph-interaction-zoom="true" data-graph-interaction-editing="false" role="img" aria-label="Multi-head attention versus grouped-query attention head-count comparison" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-node-color:var(--card-foreground);--xy-node-background-color:var(--card)"></div></section>`;
+  const graphWrapper = `<section id="how-it-works"><div data-attention-variant-comparison="true" data-attention-variant-active="gqa" data-attention-variant-option="mha" data-attention-variant-option="gqa" data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-gqa-comparison" data-graph-node-id="gqa-query-heads" data-graph-node-id="gqa-kv-groups" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="11" data-graph-interaction-pan="true" data-graph-interaction-zoom="true" data-graph-interaction-editing="false" role="img" aria-label="Multi-head attention versus grouped-query attention head-count comparison" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-background-color:#ffffff;--xy-node-color:#111827;--xy-node-background-color:#ffffff;--xy-node-border-color:#cbd5e1"></div></section>`;
   const tagPillList = `<ul data-testid="tag-pill-list" aria-label="Tags"></ul>`;
   const mathDefinitions = buildGroupedQueryAttentionMathComparisonStub();
 
@@ -142,7 +142,7 @@ export function buildGroupedQueryAttentionStubBody(): string {
       marker !== 'data-graph-node-id="gqa-kv-groups"' &&
       marker !== 'data-head-count-role="query"' &&
       marker !== 'data-head-count-role="kv"' &&
-      marker !== 'data-graph-node-count="3"' &&
+      marker !== 'data-graph-node-count="11"' &&
       marker !== 'data-testid="tag-pill-list"' &&
       marker !== "--xy-node-color" &&
       marker !== "--xy-node-background-color" &&

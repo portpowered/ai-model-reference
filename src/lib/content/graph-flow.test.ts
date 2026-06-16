@@ -29,6 +29,24 @@ const gqaMessages = {
       sharedKeyHeads: { label: "G shared key heads" },
       sharedValueHeads: { label: "G shared value heads" },
       kvCache: { label: "KV cache (G keys + G values per token)" },
+      valuesLabel: { label: "Values" },
+      keysLabel: { label: "Keys" },
+      queriesLabel: { label: "Queries" },
+      queryHead: { label: "q" },
+      keyHead: { label: "k" },
+      valueHead: { label: "V" },
+      mhaQueryHeads: { label: "H query heads" },
+      mhaKvHeads: { label: "H KV head pairs" },
+      mhaQueryHead1: { label: "Q1" },
+      mhaQueryHead2: { label: "Q2" },
+      mhaQueryHead3: { label: "Q3" },
+      mhaQueryHead4: { label: "Q4" },
+      mhaQueryHead5: { label: "Q5" },
+      mhaKvPair1: { label: "K1 / V1" },
+      mhaKvPair2: { label: "K2 / V2" },
+      mhaKvPair3: { label: "K3 / V3" },
+      mhaKvPair4: { label: "K4 / V4" },
+      mhaKvPair5: { label: "K5 / V5" },
     },
   },
 } satisfies PageMessages;
@@ -94,5 +112,75 @@ describe("graph-flow", () => {
       "token-ids",
       "embeddings",
     ]);
+  });
+
+  test("preserves explicit row positions for GQA MHA head multiplicity graph", () => {
+    const graph = getGraphById("graph.grouped-query-attention-mha-comparison");
+    expect(graph).toBeDefined();
+    if (!graph) {
+      return;
+    }
+
+    const { nodes, edges } = buildRegistryFlowGraph(graph, gqaMessages);
+    expect(nodes.length).toBe(15);
+    expect(edges.length).toBe(8);
+    expect(
+      nodes.find((node) => node.id === "mha-query-heads")?.position,
+    ).toEqual({ x: -112, y: 334 });
+    expect(
+      nodes.find((node) => node.id === "mha-keys-label")?.position,
+    ).toEqual({
+      x: -112,
+      y: 184,
+    });
+    expect(
+      nodes.find((node) => node.id === "mha-query-head-4")?.position,
+    ).toEqual({ x: 660, y: 300 });
+    expect(nodes.map((node) => node.data.label)).toContain("q");
+    expect(nodes.map((node) => node.data.label)).toContain("k");
+    expect(nodes.map((node) => node.data.label)).toContain("V");
+  });
+
+  test("prefers graph subject messages before host page messages for reusable graphs", () => {
+    const graph = getGraphById("graph.multi-head-attention-mha-comparison");
+    expect(graph).toBeDefined();
+    if (!graph) {
+      return;
+    }
+
+    const hostMessages = {
+      ...gqaMessages,
+      graph: {
+        nodes: {
+          valuesLabel: { label: "Host values" },
+        },
+      },
+    } satisfies PageMessages;
+
+    const subjectMessages = {
+      ...gqaMessages,
+      graph: {
+        nodes: {
+          valuesLabel: { label: "Subject values" },
+          keysLabel: { label: "Subject keys" },
+          queriesLabel: { label: "Subject queries" },
+          queryHead: { label: "q" },
+          keyHead: { label: "k" },
+          valueHead: { label: "V" },
+        },
+      },
+    } satisfies PageMessages;
+
+    const { nodes } = buildRegistryFlowGraph(
+      graph,
+      hostMessages,
+      subjectMessages,
+    );
+    expect(
+      nodes.find((node) => node.id === "mha-values-label")?.data.label,
+    ).toBe("Subject values");
+    expect(nodes.find((node) => node.id === "mha-keys-label")?.data.label).toBe(
+      "Subject keys",
+    );
   });
 });

@@ -15,36 +15,29 @@ const nonModuleTemplates: Array<{
   kind: TemplateKind;
   graphAssetId?: string;
   graphSectionId?: string;
-  openingSummaryInMdx: boolean;
 }> = [
   {
     kind: "model",
     graphAssetId: "architectureGraph",
     graphSectionId: "architecture",
-    openingSummaryInMdx: true,
   },
   {
     kind: "paper",
     graphAssetId: "contributionGraph",
     graphSectionId: "method-or-architecture",
-    openingSummaryInMdx: true,
   },
   {
     kind: "concept",
     graphAssetId: "conceptMap",
-    graphSectionId: "where-it-appears",
-    openingSummaryInMdx: true,
   },
   {
     kind: "training-regime",
     graphAssetId: "trainingFlow",
     graphSectionId: "how-it-works",
-    openingSummaryInMdx: true,
   },
   {
     kind: "glossary",
     graphAssetId: "conceptMap",
-    openingSummaryInMdx: false,
   },
 ];
 
@@ -60,13 +53,11 @@ function readStarterMessages(kind: TemplateKind): Record<string, unknown> {
 
 describe("non-module page template convergence", () => {
   for (const config of nonModuleTemplates) {
-    const { kind, graphAssetId, graphSectionId, openingSummaryInMdx } =
-      config as {
-        kind: TemplateKind;
-        graphAssetId?: string;
-        graphSectionId?: string;
-        openingSummaryInMdx: boolean;
-      };
+    const { kind, graphAssetId, graphSectionId } = config as {
+      kind: TemplateKind;
+      graphAssetId?: string;
+      graphSectionId?: string;
+    };
 
     test(`${kind}.mdx follows writing and graphing standards`, () => {
       const template = readTemplate(kind);
@@ -76,12 +67,9 @@ describe("non-module page template convergence", () => {
       expect(template).not.toContain('<T k="coreIdea" />');
       expect(template).not.toContain("callouts.readerShortcut");
 
-      if (openingSummaryInMdx) {
-        expect(template).toContain("<FoldedSummary />");
-      } else {
-        expect(template).not.toContain('<T k="openingSummary" />');
-        expect(template).not.toContain("<GlossaryOpening />");
-      }
+      expect(template).not.toContain("<FoldedSummary />");
+      expect(template).not.toContain('<T k="openingSummary" />');
+      expect(template).not.toContain("<GlossaryOpening />");
 
       if (graphAssetId) {
         expect(template).toContain(`assetId="${graphAssetId}"`);
@@ -96,7 +84,7 @@ describe("non-module page template convergence", () => {
       }
     });
 
-    test(`${kind} starter messages use folded summary and omit reader shortcuts`, () => {
+    test(`${kind} starter messages keep openingSummary in messages and omit reader shortcuts`, () => {
       const messages = readStarterMessages(kind);
 
       expect("openingSummary" in messages).toBe(true);

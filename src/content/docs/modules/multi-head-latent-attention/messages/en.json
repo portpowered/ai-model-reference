@@ -183,6 +183,24 @@
   },
   "graph": {
     "nodes": {
+      "valuesLabel": {
+        "label": "Reconstructed values"
+      },
+      "keysLabel": {
+        "label": "Reconstructed keys"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "keyHead": {
+        "label": "k"
+      },
+      "valueHead": {
+        "label": "V"
+      },
       "mhaQueryHeads": {
         "label": "H query heads"
       },
@@ -198,8 +216,20 @@
       "mlaLatentKvCache": {
         "label": "Latent KV cache (rank r)"
       },
+      "mlaCompressionNode": {
+        "label": "Compress KV"
+      },
+      "mlaDecompressionNode": {
+        "label": "Expand to per-head K/V"
+      },
       "mlaLowRankProjection": {
         "label": "Up-project latent cache to per-head K and V"
+      },
+      "mlaLatentLabel": {
+        "label": "Latent cache"
+      },
+      "mlaReconstructionNote": {
+        "label": "A compact latent cache is expanded back into per-head keys and values"
       }
     }
   }

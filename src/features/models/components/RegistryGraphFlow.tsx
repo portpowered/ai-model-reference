@@ -1,16 +1,194 @@
 "use client";
 
-import { Background, ReactFlow, ReactFlowProvider } from "@xyflow/react";
+import type { FitViewOptions, Node, NodeProps, NodeTypes } from "@xyflow/react";
+import {
+  Background,
+  type DefaultEdgeOptions,
+  Handle,
+  type OnError,
+  Position,
+  type ProOptions,
+  ReactFlow,
+  ReactFlowProvider,
+} from "@xyflow/react";
 import type { CSSProperties } from "react";
-import { MissingGraphRecord } from "@/features/docs/components/MissingGraphRecord";
+import { InlineMath } from "@/features/docs/components/Math";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
 import {
   buildRegistryGraphFlowNodeThemeStyle,
   REGISTRY_GRAPH_FLOW_INTERACTION,
   REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE,
 } from "@/features/models/components/registry-graph-flow-theme";
-import { buildRegistryFlowGraph } from "@/lib/content/graph-flow";
+import type { RegistryFlowNodeData } from "@/lib/content/graph-flow";
+import {
+  buildRegistryFlowGraph,
+  GraphRenderIssueError,
+} from "@/lib/content/graph-flow";
+import { getGraphSubjectMessages } from "@/lib/content/graph-message-runtime";
 import { getGraphById } from "@/lib/content/graph-registry-runtime";
+
+const FLOW_NODE_HEIGHT_ESTIMATE = 112;
+const FLOW_VIEWPORT_PADDING_Y = 24;
+const FLOW_MIN_VIEWPORT_HEIGHT = 360;
+const FLOW_MAX_VIEWPORT_HEIGHT = 560;
+
+const attentionHeadNodeTypes: NodeTypes = {
+  attentionHead: AttentionHeadNode,
+};
+
+const REGISTRY_GRAPH_FLOW_FIT_VIEW_OPTIONS: FitViewOptions = {
+  padding: 0.08,
+  maxZoom: 1.15,
+};
+
+const REGISTRY_GRAPH_FLOW_DEFAULT_EDGE_OPTIONS: DefaultEdgeOptions = {
+  type: "straight",
+  style: { strokeWidth: 3 },
+};
+
+const REGISTRY_GRAPH_FLOW_PRO_OPTIONS: ProOptions = {
+  hideAttribution: true,
+};
+
+const GRAPH_INLINE_MATH_PATTERN =
+  /\\[a-zA-Z]+|[A-Za-z]\([^)]*\)\s*\^[^\s]+|[A-Za-z0-9)}\]]_[A-Za-z0-9{(\\]|[φΦϕ]/u;
+
+function normalizeGraphInlineFormula(label: string): string {
+  return label
+    .replace(/\bphi\b/g, "\\phi")
+    .replace(/\^T\b/g, "^{\\top}")
+    .replace(/\^t\b/g, "^{\\top}");
+}
+
+function shouldRenderGraphInlineMath(label: string): boolean {
+  return GRAPH_INLINE_MATH_PATTERN.test(label);
+}
+
+export function GraphNodeLabel({ label }: { label: string }) {
+  if (!shouldRenderGraphInlineMath(label)) {
+    return <span>{label}</span>;
+  }
+
+  return (
+    <span className="registry-graph-flow__math-label">
+      <InlineMath formula={normalizeGraphInlineFormula(label)} />
+    </span>
+  );
+}
+
+function getAttentionHeadNodeClassName(
+  visualRole: RegistryFlowNodeData["visualRole"],
+): string {
+  switch (visualRole) {
+    case "row-label":
+      return "registry-graph-flow__row-label";
+    case "query-head":
+      return "registry-graph-flow__head-box registry-graph-flow__head-box--query";
+    case "key-head":
+      return "registry-graph-flow__head-box registry-graph-flow__head-box--key";
+    case "value-head":
+      return "registry-graph-flow__head-box registry-graph-flow__head-box--value";
+    case "timeline-node":
+      return "registry-graph-flow__timeline-node";
+    case "timeline-node-muted":
+      return "registry-graph-flow__timeline-node registry-graph-flow__timeline-node--muted";
+    case "summary-node":
+      return "registry-graph-flow__summary-node";
+    case "process-node":
+      return "registry-graph-flow__process-node";
+    case "latent-node":
+      return "registry-graph-flow__latent-node";
+    case "annotation":
+      return "registry-graph-flow__annotation";
+    default:
+      return "registry-graph-flow__default-node";
+  }
+}
+
+function estimateNodeHeight(
+  node: ReturnType<typeof buildRegistryFlowGraph>["nodes"][number],
+): number {
+  switch (node.data.visualRole) {
+    case "annotation":
+      return 160;
+    case "row-label":
+      return 48;
+    case "query-head":
+    case "key-head":
+    case "value-head":
+      return 96;
+    case "timeline-node":
+    case "timeline-node-muted":
+      return 56;
+    case "summary-node":
+    case "process-node":
+    case "latent-node":
+      return 64;
+    default:
+      return FLOW_NODE_HEIGHT_ESTIMATE;
+  }
+}
+
+function AttentionHeadNode({
+  data,
+}: NodeProps<Node<RegistryFlowNodeData, "attentionHead">>) {
+  const visualRole = data.visualRole ?? "default";
+  const isHeadBox =
+    visualRole === "query-head" ||
+    visualRole === "key-head" ||
+    visualRole === "value-head";
+  const hasHandles =
+    isHeadBox ||
+    visualRole === "timeline-node" ||
+    visualRole === "timeline-node-muted" ||
+    visualRole === "summary-node" ||
+    visualRole === "process-node" ||
+    visualRole === "latent-node" ||
+    visualRole === "default";
+
+  return (
+    <div
+      className={getAttentionHeadNodeClassName(visualRole)}
+      data-graph-visual-role={visualRole}
+    >
+      {hasHandles ? (
+        <>
+          <Handle
+            type="target"
+            position={Position.Top}
+            className="registry-graph-flow__handle"
+          />
+          <GraphNodeLabel label={data.label} />
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            className="registry-graph-flow__handle"
+          />
+        </>
+      ) : (
+        <GraphNodeLabel label={data.label} />
+      )}
+    </div>
+  );
+}
+
+function buildRegistryGraphFlowViewportStyle(
+  nodes: ReturnType<typeof buildRegistryFlowGraph>["nodes"],
+): CSSProperties {
+  const maxY = Math.max(
+    ...nodes.map((node) => node.position.y + estimateNodeHeight(node)),
+    0,
+  );
+  const height = Math.min(
+    FLOW_MAX_VIEWPORT_HEIGHT,
+    Math.max(FLOW_MIN_VIEWPORT_HEIGHT, maxY + FLOW_VIEWPORT_PADDING_Y),
+  );
+
+  return {
+    height,
+    width: "100%",
+  };
+}
 
 export function RegistryGraphFlowCanvas({
   assetId,
@@ -25,11 +203,25 @@ export function RegistryGraphFlowCanvas({
   const graphRecord = getGraphById(graphId);
 
   if (!graphRecord) {
-    return <MissingGraphRecord graphId={graphId} />;
+    throw new GraphRenderIssueError(graphId, [
+      `missing graph record "${graphId}"`,
+    ]);
   }
 
-  const { nodes, edges } = buildRegistryFlowGraph(graphRecord, messages);
+  const graphSubjectMessages = getGraphSubjectMessages(graphRecord.subjectId);
+  const { nodes, edges } = buildRegistryFlowGraph(
+    graphRecord,
+    messages,
+    graphSubjectMessages,
+  );
   const accessibleLabel = alt.length > 0 ? alt : graphId;
+  const viewportStyle = buildRegistryGraphFlowViewportStyle(nodes);
+  const handleReactFlowError: OnError = (id, message) => {
+    if (id === "002" || id === "004") {
+      return;
+    }
+    throw new GraphRenderIssueError(graphId, [`react-flow ${id}: ${message}`]);
+  };
 
   return (
     <div
@@ -76,12 +268,18 @@ export function RegistryGraphFlowCanvas({
           </span>
         ))}
       </div>
-      <div className="registry-graph-flow__viewport h-[min(420px,70vh)] min-h-[220px] w-full max-w-full overflow-hidden">
+      <div
+        className="registry-graph-flow__viewport w-full max-w-full overflow-hidden"
+        style={viewportStyle}
+      >
         <ReactFlow
           nodes={nodes}
           edges={edges}
+          onError={handleReactFlowError}
           fitView
-          fitViewOptions={{ padding: 0.2 }}
+          fitViewOptions={REGISTRY_GRAPH_FLOW_FIT_VIEW_OPTIONS}
+          nodeTypes={attentionHeadNodeTypes}
+          defaultEdgeOptions={REGISTRY_GRAPH_FLOW_DEFAULT_EDGE_OPTIONS}
           nodesDraggable={REGISTRY_GRAPH_FLOW_INTERACTION.nodesDraggable}
           nodesConnectable={REGISTRY_GRAPH_FLOW_INTERACTION.nodesConnectable}
           elementsSelectable={
@@ -92,7 +290,7 @@ export function RegistryGraphFlowCanvas({
           zoomOnPinch={REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnPinch}
           zoomOnDoubleClick={REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnDoubleClick}
           preventScrolling={REGISTRY_GRAPH_FLOW_INTERACTION.preventScrolling}
-          proOptions={{ hideAttribution: true }}
+          proOptions={REGISTRY_GRAPH_FLOW_PRO_OPTIONS}
         >
           <Background gap={16} size={1} />
         </ReactFlow>

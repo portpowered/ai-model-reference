@@ -71,9 +71,10 @@ describe("loadModulePage multi-head-latent-attention", () => {
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
     expectHtmlToContainProse(
       html,
-      "KV caches grow with context length and head dimension",
+      "Multi-head latent attention is an attention variant derived from multi-head attention.",
     );
-    expect(html).toContain("compact latent KV representation");
+    expect(html).toContain("compressed latent KV representation");
+    expect(html).toContain("Keys and values are down-projected into a latent");
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain('aria-label="Module metadata"');
     expect(html).toContain("At a glance");

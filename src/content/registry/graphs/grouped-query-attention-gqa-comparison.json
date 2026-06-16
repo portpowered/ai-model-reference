@@ -19,37 +19,141 @@
   "supportedRenderers": ["react-flow", "mermaid"],
   "nodes": [
     {
+      "id": "gqa-values-label",
+      "labelKey": "graph.nodes.valuesLabel.label",
+      "moduleKind": "other",
+      "position": { "x": 0, "y": 34 },
+      "visualRole": "row-label",
+      "childNodeIds": []
+    },
+    {
+      "id": "gqa-keys-label",
+      "labelKey": "graph.nodes.keysLabel.label",
+      "moduleKind": "other",
+      "position": { "x": 0, "y": 184 },
+      "visualRole": "row-label",
+      "childNodeIds": []
+    },
+    {
       "id": "gqa-query-heads",
-      "labelKey": "graph.nodes.gqaQueryHeads.label",
+      "labelKey": "graph.nodes.queriesLabel.label",
       "moduleKind": "projection",
+      "position": { "x": 0, "y": 334 },
       "headCountRole": "query",
+      "visualRole": "row-label",
+      "childNodeIds": [
+        "gqa-query-head-1",
+        "gqa-query-head-2",
+        "gqa-query-head-3",
+        "gqa-query-head-4"
+      ]
+    },
+    {
+      "id": "gqa-value-head-1",
+      "labelKey": "graph.nodes.valueHead.label",
+      "moduleKind": "attention",
+      "position": { "x": 250, "y": 0 },
+      "visualRole": "value-head",
       "childNodeIds": ["gqa-kv-groups"]
     },
     {
-      "id": "gqa-kv-groups",
-      "labelKey": "graph.nodes.gqaKvGroups.label",
+      "id": "gqa-value-head-2",
+      "labelKey": "graph.nodes.valueHead.label",
       "moduleKind": "attention",
-      "headCountRole": "kv",
-      "childNodeIds": ["gqa-grouped-mapping"]
+      "position": { "x": 570, "y": 0 },
+      "visualRole": "value-head",
+      "childNodeIds": ["gqa-key-head-2"]
     },
     {
-      "id": "gqa-grouped-mapping",
-      "labelKey": "graph.nodes.gqaGroupedMapping.label",
-      "moduleKind": "operation",
+      "id": "gqa-kv-groups",
+      "labelKey": "graph.nodes.keyHead.label",
+      "moduleKind": "attention",
+      "position": { "x": 250, "y": 150 },
+      "headCountRole": "kv",
+      "visualRole": "key-head",
+      "childNodeIds": ["gqa-query-head-1", "gqa-query-head-2"]
+    },
+    {
+      "id": "gqa-key-head-2",
+      "labelKey": "graph.nodes.keyHead.label",
+      "moduleKind": "attention",
+      "position": { "x": 570, "y": 150 },
+      "headCountRole": "kv",
+      "visualRole": "key-head",
+      "childNodeIds": ["gqa-query-head-3", "gqa-query-head-4"]
+    },
+    {
+      "id": "gqa-query-head-1",
+      "labelKey": "graph.nodes.queryHead.label",
+      "moduleKind": "projection",
+      "position": { "x": 170, "y": 300 },
+      "headCountRole": "query",
+      "visualRole": "query-head",
+      "childNodeIds": []
+    },
+    {
+      "id": "gqa-query-head-2",
+      "labelKey": "graph.nodes.queryHead.label",
+      "moduleKind": "projection",
+      "position": { "x": 330, "y": 300 },
+      "headCountRole": "query",
+      "visualRole": "query-head",
+      "childNodeIds": []
+    },
+    {
+      "id": "gqa-query-head-3",
+      "labelKey": "graph.nodes.queryHead.label",
+      "moduleKind": "projection",
+      "position": { "x": 490, "y": 300 },
+      "headCountRole": "query",
+      "visualRole": "query-head",
+      "childNodeIds": []
+    },
+    {
+      "id": "gqa-query-head-4",
+      "labelKey": "graph.nodes.queryHead.label",
+      "moduleKind": "projection",
+      "position": { "x": 650, "y": 300 },
+      "headCountRole": "query",
+      "visualRole": "query-head",
       "childNodeIds": []
     }
   ],
   "edges": [
     {
-      "id": "gqa-query-to-kv",
-      "source": "gqa-query-heads",
+      "id": "gqa-value-1-to-key-1",
+      "source": "gqa-value-head-1",
       "target": "gqa-kv-groups",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "gqa-value-2-to-key-2",
+      "source": "gqa-value-head-2",
+      "target": "gqa-key-head-2",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "gqa-key-1-to-query-1",
+      "source": "gqa-kv-groups",
+      "target": "gqa-query-head-1",
       "edgeKind": "parameter-sharing"
     },
     {
-      "id": "gqa-kv-to-mapping",
+      "id": "gqa-key-1-to-query-2",
       "source": "gqa-kv-groups",
-      "target": "gqa-grouped-mapping",
+      "target": "gqa-query-head-2",
+      "edgeKind": "parameter-sharing"
+    },
+    {
+      "id": "gqa-key-2-to-query-3",
+      "source": "gqa-key-head-2",
+      "target": "gqa-query-head-3",
+      "edgeKind": "parameter-sharing"
+    },
+    {
+      "id": "gqa-key-2-to-query-4",
+      "source": "gqa-key-head-2",
+      "target": "gqa-query-head-4",
       "edgeKind": "parameter-sharing"
     }
   ]

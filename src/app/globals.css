@@ -74,3 +74,11 @@
 body {
   font-family: Inter, system-ui, sans-serif;
 }
+
+article[data-registry-id] > section:first-of-type {
+  margin-top: 1rem;
+}
+
+article[data-registry-id] > section:first-of-type > h2 {
+  margin-top: 0;
+}

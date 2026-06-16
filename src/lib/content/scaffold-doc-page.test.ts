@@ -77,6 +77,11 @@ describe("scaffoldDocPage", () => {
     expect(result.writtenFiles).toEqual([]);
     expect(result.plannedFiles.map((file) => file.path)).toEqual([
       join(projectRoot, "src/content/registry/concepts", `${slug}.json`),
+      join(
+        projectRoot,
+        "src/content/registry/graphs",
+        `${slug}-concept-map.json`,
+      ),
       join(projectRoot, "src/content/docs/glossary", slug, "page.mdx"),
       join(
         projectRoot,
@@ -129,7 +134,7 @@ describe("scaffoldDocPage", () => {
     });
 
     expect(result.registryId).toBe(`concept.${slug}`);
-    expect(result.writtenFiles).toHaveLength(4);
+    expect(result.writtenFiles).toHaveLength(5);
 
     const registryRaw = await readFile(
       join(contentRoot, "registry", "concepts", `${slug}.json`),

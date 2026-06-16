@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import {
+  collectCoverageTestPaths,
   evaluateComponentCoverageGate,
   formatComponentCoverageSummaryLine,
   formatCoverageSubprocessFailure,
   isAllowedManifestPath,
+  normalizeSmokeTestPath,
   parseCoverageTable,
 } from "@/lib/docs/component-coverage-gate";
 import {
@@ -56,6 +58,51 @@ describe("component-coverage-gate", () => {
         file: "src/features/docs/search/SearchResults.tsx",
         linePercent: 91.76,
       },
+    ]);
+  });
+
+  test("normalizeSmokeTestPath strips named test suffixes", () => {
+    expect(
+      normalizeSmokeTestPath(
+        "src/tests/a11y/docs-components.a11y.test.tsx (Section accessibility smoke)",
+      ),
+    ).toBe("src/tests/a11y/docs-components.a11y.test.tsx");
+  });
+
+  test("collectCoverageTestPaths deduplicates and normalizes manifest test files", () => {
+    expect(
+      collectCoverageTestPaths({
+        components: [
+          {
+            ...TEST_COMPONENT,
+            a11ySmokeTests: [
+              "src/tests/a11y/docs-components.a11y.test.tsx (Callout accessibility smoke)",
+            ],
+          },
+        ],
+        thinWrappers: [
+          {
+            ...TEST_THIN_WRAPPER,
+            smokeTests: [
+              "src/features/docs/components/Callout.test.tsx",
+              "src/lib/content/module-page.test.ts",
+            ],
+          },
+        ],
+        verifierModules: [
+          {
+            unitTests: [
+              "src/lib/verify/server-lifecycle.test.ts",
+              "src/lib/verify/server-lifecycle.test.ts",
+            ],
+          },
+        ],
+      }),
+    ).toEqual([
+      "src/features/docs/components/Callout.test.tsx",
+      "src/lib/content/module-page.test.ts",
+      "src/lib/verify/server-lifecycle.test.ts",
+      "src/tests/a11y/docs-components.a11y.test.tsx",
     ]);
   });
 

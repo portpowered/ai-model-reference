@@ -1,7 +1,9 @@
 /** React Flow node theme tokens applied on registry graph wrappers. */
 export const REGISTRY_GRAPH_FLOW_NODE_THEME = {
-  nodeColor: "var(--card-foreground)",
-  nodeBackgroundColor: "var(--card)",
+  graphBackgroundColor: "#ffffff",
+  nodeColor: "#111827",
+  nodeBackgroundColor: "#ffffff",
+  nodeBorderColor: "#cbd5e1",
 } as const;
 
 /**
@@ -37,8 +39,11 @@ export const REGISTRY_GRAPH_FLOW_INTERACTION = {
 
 export function buildRegistryGraphFlowNodeThemeStyle(): Record<string, string> {
   return {
+    "--xy-background-color":
+      REGISTRY_GRAPH_FLOW_NODE_THEME.graphBackgroundColor,
     "--xy-node-color": REGISTRY_GRAPH_FLOW_NODE_THEME.nodeColor,
     "--xy-node-background-color":
       REGISTRY_GRAPH_FLOW_NODE_THEME.nodeBackgroundColor,
+    "--xy-node-border-color": REGISTRY_GRAPH_FLOW_NODE_THEME.nodeBorderColor,
   };
 }

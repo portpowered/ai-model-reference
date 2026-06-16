@@ -66,7 +66,7 @@ describe("loadModulePage multi-query-attention", () => {
     );
 
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-    expect(html).toContain("stores only one K tensor");
+    expect(html).toContain("stores one KV pair instead of H");
     expect(html).not.toContain("Reader Shortcut");
     expect(html).toContain("At a glance");
     expectModuleTagPillListOnlyInTagsSection(html);
@@ -101,8 +101,10 @@ describe("loadModulePage multi-query-attention", () => {
     expect(html).toContain('data-attention-variant-active="mqa"');
     expect(html).toContain('data-attention-variant-option="mha"');
     expect(html).toContain('data-attention-variant-option="mqa"');
-    expect(html).toContain("--xy-node-color:var(--card-foreground)");
-    expect(html).toContain("--xy-node-background-color:var(--card)");
+    expect(html).toContain("--xy-background-color:#ffffff");
+    expect(html).toContain("--xy-node-color:#111827");
+    expect(html).toContain("--xy-node-background-color:#ffffff");
+    expect(html).toContain("--xy-node-border-color:#cbd5e1");
   });
 });
 

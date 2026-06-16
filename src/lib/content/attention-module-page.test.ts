@@ -24,7 +24,7 @@ const FORBIDDEN_META_TERMS = [
 ];
 
 describe("attention module variant hub messages", () => {
-  test("uses folded openingSummary without legacy bridge or split lead keys", () => {
+  test("keeps openingSummary in messages without legacy bridge or split lead keys", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
@@ -46,7 +46,7 @@ describe("attention module variant hub page", () => {
   test("page.mdx omits duplicate body title and phase bridge callout", () => {
     const template = readFileSync(pageMdxPath, "utf8");
 
-    expect(template).toContain("<FoldedSummary />");
+    expect(template).not.toContain("<FoldedSummary />");
     expect(template).not.toContain('<T k="title" />');
     expect(template).not.toContain('<T k="problemStatement" />');
     expect(template).not.toContain('<T k="coreIdea" />');
@@ -54,7 +54,7 @@ describe("attention module variant hub page", () => {
     expect(template).not.toContain("<Callout");
   });
 
-  test("compiles MDX with opening summary, variant links, and registry chrome", async () => {
+  test("compiles MDX without a rendered summary block and keeps variant links and registry chrome", async () => {
     const page = await loadModulePage("attention");
 
     expect(page.frontmatter.registryId).toBe("module.attention");
@@ -71,9 +71,10 @@ describe("attention module variant hub page", () => {
       }),
     );
 
-    expect(html).toContain('data-testid="folded-summary"');
-    expect(html).toContain('data-folded-summary="true"');
-    expect(html).toContain("scores how much each position should read");
+    expect(html).not.toContain('data-testid="folded-summary"');
+    expect(html).not.toContain('data-folded-summary="true"');
+    expect(html).toContain("core mixing mechanism in transformer blocks");
+    expect(html).toContain("Attention Variants");
     expect(html).not.toContain("Phase 1 bridge page");
     expect(html).not.toContain("roadmap");
     expect(html).toContain('data-registry-id="module.attention"');

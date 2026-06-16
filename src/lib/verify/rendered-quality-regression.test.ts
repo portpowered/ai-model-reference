@@ -90,7 +90,9 @@ describe("rendered quality regression catalog", () => {
       "Rendered documentation quality regression coverage",
     );
     expect(report).toContain("Maintainer catalog only");
-    expect(report).toContain("rendered-regression.page-shell.folded-summary");
+    expect(report).toContain(
+      "rendered-regression.page-shell.single-title-chrome",
+    );
     expect(report).toContain("[CATALOG]");
     expect(report).toContain("bun test");
     expect(report).toContain("make verify-rendered-quality-baseline");

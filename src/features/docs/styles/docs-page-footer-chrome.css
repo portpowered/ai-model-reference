@@ -1,8 +1,8 @@
 /**
  * Fumadocs DocsPage footer cards set hover:bg-fd-accent/* and
  * hover:text-fd-accent-foreground on the anchor while the Previous/Next
- * sublabel keeps text-fd-muted-foreground. Mirror hover and focus-visible on
- * the card and inherit foreground on the sublabel.
+ * sublabel keeps text-fd-muted-foreground. Mirror hover, focused, and
+ * focus-visible states on the card and inherit foreground on the sublabel.
  *
  * Sublabel color:inherit lives in @layer utilities so it wins over the
  * Tailwind .text-fd-muted-foreground utility at runtime.
@@ -31,10 +31,10 @@
 
   #nd-page
     a[class*="hover:bg-fd-accent"][class*="hover:text-fd-accent-foreground"]:focus-visible {
-    outline-style: solid;
-    outline-width: 2px;
-    outline-color: var(--ring);
+    outline-style: solid !important;
+    outline-width: 2px !important;
+    outline-color: var(--ring) !important;
     outline-offset: 2px;
-    box-shadow: 0 0 0 2px var(--ring);
+    box-shadow: 0 0 0 2px var(--ring) !important;
   }
 }

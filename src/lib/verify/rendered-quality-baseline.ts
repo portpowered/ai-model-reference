@@ -79,8 +79,6 @@ export type RenderedQualityAuditRoute = {
   path: string;
   label: string;
   kind: RenderedQualityRouteKind;
-  /** When true, canonical pages should expose one folded summary marker. */
-  requiresFoldedSummary?: boolean;
   /** When true, audit checks for customer-visible process or meta language. */
   checksProcessLanguage?: boolean;
 };
@@ -110,13 +108,11 @@ export const RENDERED_QUALITY_AUDIT_ROUTES: readonly RenderedQualityAuditRoute[]
       path: "/docs/modules/grouped-query-attention",
       label: "grouped-query-attention",
       kind: "module",
-      requiresFoldedSummary: true,
     },
     {
       path: "/docs/modules/attention",
       label: "attention module",
       kind: "module",
-      requiresFoldedSummary: true,
     },
     {
       path: "/docs/glossary/token",
@@ -201,12 +197,6 @@ export const RENDERED_QUALITY_READER_SHORTCUT_MARKERS = [
   "reader-shortcut",
 ] as const;
 
-export const RENDERED_QUALITY_FOLDED_SUMMARY_MARKERS = [
-  'data-testid="folded-summary"',
-  'data-folded-summary="true"',
-  'data-opening-summary="folded"',
-] as const;
-
 const H1_PATTERN = /<h1\b[^>]*>[\s\S]*?<\/h1>/gi;
 
 function countH1Elements(html: string): number {
@@ -231,15 +221,6 @@ function findProcessLanguageMatches(text: string): string[] {
     }
   }
   return matches;
-}
-
-function hasFoldedSummaryMarker(html: string): boolean {
-  for (const marker of RENDERED_QUALITY_FOLDED_SUMMARY_MARKERS) {
-    if (html.includes(marker)) {
-      return true;
-    }
-  }
-  return /<details\b[^>]*\bdata-opening-summary\b/i.test(html);
 }
 
 function hasReaderShortcutMarker(html: string): string | null {
@@ -310,24 +291,6 @@ export function auditRenderedQualityHtml(
       lane: "page-shell",
       behavior: "duplicate title chrome",
       detail: `found ${h1Count} h1 elements`,
-    });
-  }
-
-  if (route.requiresFoldedSummary && !hasFoldedSummaryMarker(visibleHtml)) {
-    const hasOpeningSummaryBody =
-      visibleHtml.includes('data-message-key="openingSummary"') ||
-      /<T k="openingSummary"/i.test(visibleHtml) ||
-      (route.kind === "module" &&
-        visibleHtml.includes('aria-label="At a glance"'));
-    issues.push({
-      route: route.path,
-      routeLabel: route.label,
-      viewport,
-      lane: "content-standards",
-      behavior: "folded summary missing",
-      detail: hasOpeningSummaryBody
-        ? "openingSummary renders as visible prose without folded-summary marker"
-        : "canonical page missing folded summary marker near top",
     });
   }
 

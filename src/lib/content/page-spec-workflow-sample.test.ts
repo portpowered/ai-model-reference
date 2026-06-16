@@ -57,7 +57,7 @@ describe("page-spec workflow sample", () => {
       }),
     );
 
-    expect(html).toContain("page-spec file");
+    expect(html).not.toContain("page-spec file");
     expect(html).toContain("Page spec input");
     expect(html).toContain("Generated bundle");
     expect(html).toContain(

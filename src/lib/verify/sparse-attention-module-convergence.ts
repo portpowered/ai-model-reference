@@ -22,13 +22,13 @@ export const SPARSE_ATTENTION_REQUIRED_MARKERS = [
   'data-attention-variant-active="sparse"',
   'data-attention-variant-option="mha"',
   'data-attention-variant-option="sparse"',
-  'data-graph-node-id="sparse-query-heads"',
-  'data-graph-node-id="sparse-attention-mask"',
+  'data-graph-node-id="sparse-time-current-query"',
+  'data-graph-node-id="sparse-time-kv-t-3"',
   'data-head-count-role="query"',
   'data-head-count-role="kv"',
-  'data-graph-node-count="3"',
+  'data-graph-node-count="7"',
   'data-react-flow-graph="true"',
-  'data-graph-id="graph.sparse-attention-sparse-comparison"',
+  'data-graph-id="graph.sparse-attention-time-pattern"',
   "--xy-node-color",
   "--xy-node-background-color",
   'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
@@ -100,7 +100,7 @@ export function buildSparseAttentionMathComparisonStub(): string {
 
 /** Minimal inner HTML that satisfies {@link assertSparseAttentionModuleConvergence}. */
 export function buildSparseAttentionStubBody(): string {
-  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="sparse" data-attention-variant-option="mha" data-attention-variant-option="sparse" data-react-flow-graph="true" data-graph-id="graph.sparse-attention-sparse-comparison" data-graph-node-id="sparse-query-heads" data-graph-node-id="sparse-attention-mask" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="3" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-node-color:var(--card-foreground);--xy-node-background-color:var(--card)"></div>`;
+  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="sparse" data-attention-variant-option="mha" data-attention-variant-option="sparse" data-react-flow-graph="true" data-graph-id="graph.sparse-attention-time-pattern" data-graph-node-id="sparse-time-current-query" data-graph-node-id="sparse-time-kv-t-3" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="7" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-background-color:#ffffff;--xy-node-color:#111827;--xy-node-background-color:#ffffff;--xy-node-border-color:#cbd5e1"></div>`;
   const tagPillList = `<ul data-testid="tag-pill-list" aria-label="Tags"></ul>`;
   const mathDefinitions = buildSparseAttentionMathComparisonStub();
 
@@ -110,16 +110,16 @@ export function buildSparseAttentionStubBody(): string {
       !marker.startsWith("data-math-variable-definition=") &&
       marker !== 'data-attention-schema-variable-definitions="true"' &&
       marker !== 'data-react-flow-graph="true"' &&
-      marker !== 'data-graph-id="graph.sparse-attention-sparse-comparison"' &&
+      marker !== 'data-graph-id="graph.sparse-attention-time-pattern"' &&
       marker !== 'data-attention-variant-comparison="true"' &&
       marker !== 'data-attention-variant-active="sparse"' &&
       marker !== 'data-attention-variant-option="mha"' &&
       marker !== 'data-attention-variant-option="sparse"' &&
-      marker !== 'data-graph-node-id="sparse-query-heads"' &&
-      marker !== 'data-graph-node-id="sparse-attention-mask"' &&
+      marker !== 'data-graph-node-id="sparse-time-current-query"' &&
+      marker !== 'data-graph-node-id="sparse-time-kv-t-3"' &&
       marker !== 'data-head-count-role="query"' &&
       marker !== 'data-head-count-role="kv"' &&
-      marker !== 'data-graph-node-count="3"' &&
+      marker !== 'data-graph-node-count="7"' &&
       marker !== 'data-testid="tag-pill-list"' &&
       marker !== "--xy-node-color" &&
       marker !== "--xy-node-background-color" &&

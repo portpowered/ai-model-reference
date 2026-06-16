@@ -2,8 +2,12 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { PageAssetsProvider } from "@/features/docs/components/page-assets-context";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
-import { RegistryGraphFlow } from "@/features/models/components/RegistryGraphFlow";
+import {
+  GraphNodeLabel,
+  RegistryGraphFlow,
+} from "@/features/models/components/RegistryGraphFlow";
 import { REGISTRY_GRAPH_FLOW_INTERACTION } from "@/features/models/components/registry-graph-flow-theme";
+import { GraphRenderIssueError } from "@/lib/content/graph-flow";
 import type { PageAssetConfig, PageMessages } from "@/lib/content/schemas";
 
 const messages = {
@@ -68,8 +72,10 @@ describe("RegistryGraphFlow", () => {
     );
     expect(html).toContain('data-react-flow-graph="true"');
     expect(html).toContain('data-web-renderer="react-flow"');
-    expect(html).toContain("--xy-node-color:var(--card-foreground)");
-    expect(html).toContain("--xy-node-background-color:var(--card)");
+    expect(html).toContain("--xy-background-color:#ffffff");
+    expect(html).toContain("--xy-node-color:#111827");
+    expect(html).toContain("--xy-node-background-color:#ffffff");
+    expect(html).toContain("--xy-node-border-color:#cbd5e1");
     expect(html).toContain(
       'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
     );
@@ -129,20 +135,58 @@ describe("RegistryGraphFlow", () => {
     );
   });
 
-  test("renders a missing graph record marker when graphId is unknown", () => {
+  test("throws when graphId is unknown", () => {
+    expect(() =>
+      renderToStaticMarkup(
+        <PageMessagesProvider messages={messages} isDev={false}>
+          <PageAssetsProvider assets={assets} isDev={false}>
+            <RegistryGraphFlow
+              assetId="computeFlow"
+              graphId="graph.missing-fixture"
+              alt="Missing graph"
+            />
+          </PageAssetsProvider>
+        </PageMessagesProvider>,
+      ),
+    ).toThrow(GraphRenderIssueError);
+  });
+
+  test("throws when a required graph message key is missing", () => {
+    const brokenMessages = {
+      ...messages,
+      graph: {
+        nodes: {
+          hiddenStates: { label: "Hidden states" },
+          queryProjection: { label: "H query heads (Q projection)" },
+          queryGroups: { label: "G query groups" },
+          attentionScores: { label: "Attention scores per query head" },
+          outputProjection: { label: "Output projection" },
+        },
+      },
+    } satisfies PageMessages;
+
+    expect(() =>
+      renderToStaticMarkup(
+        <PageMessagesProvider messages={brokenMessages} isDev={false}>
+          <PageAssetsProvider assets={assets} isDev={false}>
+            <RegistryGraphFlow
+              assetId="computeFlow"
+              graphId="graph.grouped-query-attention-compute-flow"
+              alt="Broken graph"
+            />
+          </PageAssetsProvider>
+        </PageMessagesProvider>,
+      ),
+    ).toThrow(GraphRenderIssueError);
+  });
+
+  test("renders formula-like graph labels with KaTeX", () => {
     const html = renderToStaticMarkup(
-      <PageMessagesProvider messages={messages} isDev={false}>
-        <PageAssetsProvider assets={assets} isDev={false}>
-          <RegistryGraphFlow
-            assetId="computeFlow"
-            graphId="graph.missing-fixture"
-            alt="Missing graph"
-          />
-        </PageAssetsProvider>
-      </PageMessagesProvider>,
+      <GraphNodeLabel label={"\\phi(K)^{\\top} V"} />,
     );
 
-    expect(html).toContain('data-missing-graph-id="graph.missing-fixture"');
-    expect(html).toContain("Missing graph record: graph.missing-fixture");
+    expect(html).toContain("registry-graph-flow__math-label");
+    expect(html).toContain("katex");
+    expect(html).toContain("\\phi(K)^{\\top} V");
   });
 });

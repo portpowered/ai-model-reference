@@ -69,12 +69,12 @@ describe("loadModulePage grouped-query-attention", () => {
     );
 
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-    expectHtmlToContainProse(
-      html,
+    expect(page.messages.openingSummary).toContain(
       "KV caches grow with context length and head count",
     );
-    expect(html).toContain(
-      "lets several query heads share fewer key-value heads",
+    expectHtmlToContainProse(
+      html,
+      "Grouped-query attention is an attention variant derived from multi-head attention.",
     );
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain('aria-label="Module metadata"');

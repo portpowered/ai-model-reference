@@ -23,10 +23,10 @@ export const LINEAR_ATTENTION_REQUIRED_MARKERS = [
   'data-attention-variant-option="mha"',
   'data-attention-variant-option="linear"',
   'data-graph-node-id="linear-query-heads"',
-  'data-graph-node-id="linear-feature-map"',
+  'data-graph-node-id="linear-summary-node-1"',
   'data-head-count-role="query"',
   'data-head-count-role="kv"',
-  'data-graph-node-count="3"',
+  'data-graph-node-count="11"',
   'data-react-flow-graph="true"',
   'data-graph-id="graph.linear-attention-linear-comparison"',
   "--xy-node-color",
@@ -100,7 +100,7 @@ export function buildLinearAttentionMathComparisonStub(): string {
 
 /** Minimal inner HTML that satisfies {@link assertLinearAttentionModuleConvergence}. */
 export function buildLinearAttentionStubBody(): string {
-  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="linear" data-attention-variant-option="mha" data-attention-variant-option="linear" data-react-flow-graph="true" data-graph-id="graph.linear-attention-linear-comparison" data-graph-node-id="linear-query-heads" data-graph-node-id="linear-feature-map" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="3" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-node-color:var(--card-foreground);--xy-node-background-color:var(--card)"></div>`;
+  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="linear" data-attention-variant-option="mha" data-attention-variant-option="linear" data-react-flow-graph="true" data-graph-id="graph.linear-attention-linear-comparison" data-graph-node-id="linear-query-heads" data-graph-node-id="linear-summary-node-1" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="11" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-background-color:#ffffff;--xy-node-color:#111827;--xy-node-background-color:#ffffff;--xy-node-border-color:#cbd5e1"></div>`;
   const tagPillList = `<ul data-testid="tag-pill-list" aria-label="Tags"></ul>`;
   const mathDefinitions = buildLinearAttentionMathComparisonStub();
 
@@ -116,10 +116,10 @@ export function buildLinearAttentionStubBody(): string {
       marker !== 'data-attention-variant-option="mha"' &&
       marker !== 'data-attention-variant-option="linear"' &&
       marker !== 'data-graph-node-id="linear-query-heads"' &&
-      marker !== 'data-graph-node-id="linear-feature-map"' &&
+      marker !== 'data-graph-node-id="linear-summary-node-1"' &&
       marker !== 'data-head-count-role="query"' &&
       marker !== 'data-head-count-role="kv"' &&
-      marker !== 'data-graph-node-count="3"' &&
+      marker !== 'data-graph-node-count="11"' &&
       marker !== 'data-testid="tag-pill-list"' &&
       marker !== "--xy-node-color" &&
       marker !== "--xy-node-background-color" &&

@@ -80,7 +80,7 @@ describe("rendered quality baseline", () => {
     ).toBe(true);
   });
 
-  test("flags missing folded summary on canonical module pages", () => {
+  test("does not flag canonical module pages for missing removed summary blocks", () => {
     const html = `<html><body><article data-registry-id="module.attention">
       <p>Attention shares query, key, and value projections across heads.</p>
     </article></body></html>`;
@@ -92,7 +92,7 @@ describe("rendered quality baseline", () => {
 
     expect(
       issues.some((issue) => issue.behavior === "folded summary missing"),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   test("passes grouped-query-attention stub HTML for chrome and graph lane checks", () => {

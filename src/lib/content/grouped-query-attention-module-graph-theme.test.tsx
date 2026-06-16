@@ -57,12 +57,10 @@ const assets = {
 
 describe("grouped-query-attention module graph theme", () => {
   test("registry graph flow theme exports stable manual visibility selectors", () => {
-    expect(REGISTRY_GRAPH_FLOW_NODE_THEME.nodeColor).toBe(
-      "var(--card-foreground)",
-    );
-    expect(REGISTRY_GRAPH_FLOW_NODE_THEME.nodeBackgroundColor).toBe(
-      "var(--card)",
-    );
+    expect(REGISTRY_GRAPH_FLOW_NODE_THEME.graphBackgroundColor).toBe("#ffffff");
+    expect(REGISTRY_GRAPH_FLOW_NODE_THEME.nodeColor).toBe("#111827");
+    expect(REGISTRY_GRAPH_FLOW_NODE_THEME.nodeBackgroundColor).toBe("#ffffff");
+    expect(REGISTRY_GRAPH_FLOW_NODE_THEME.nodeBorderColor).toBe("#cbd5e1");
     expect(REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE).toBe(
       "registry-graph-flow-node-contrast",
     );
@@ -96,8 +94,10 @@ describe("grouped-query-attention module graph theme", () => {
     );
 
     expect(html).toContain(`data-graph-id="${GQA_COMPUTE_FLOW_GRAPH_ID}"`);
-    expect(html).toContain("--xy-node-color:var(--card-foreground)");
-    expect(html).toContain("--xy-node-background-color:var(--card)");
+    expect(html).toContain("--xy-background-color:#ffffff");
+    expect(html).toContain("--xy-node-color:#111827");
+    expect(html).toContain("--xy-node-background-color:#ffffff");
+    expect(html).toContain("--xy-node-border-color:#cbd5e1");
     expect(html).toContain(
       'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
     );

@@ -167,6 +167,24 @@
   },
   "graph": {
     "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "keysLabel": {
+        "label": "Keys"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "keyHead": {
+        "label": "k"
+      },
+      "valueHead": {
+        "label": "V"
+      },
       "mhaQueryHeads": {
         "label": "H query heads"
       },
@@ -184,6 +202,9 @@
       },
       "mqaSharedMapping": {
         "label": "All H query heads read from one K and V"
+      },
+      "mqaSharingNote": {
+        "label": "One shared key/value pair serves every query head"
       }
     }
   }

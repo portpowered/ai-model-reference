@@ -37,6 +37,42 @@ starterBatch:
 notes:
 ```
 
+## Graph Presentation Strategy
+
+When adding module pages, choose graph presentations by teaching goal rather
+than by module label.
+
+### Preferred graph families
+
+* **Head-structure comparison**
+  * Best for head-sharing and KV-structure variants.
+  * Current examples: multi-head attention, multi-query attention,
+    grouped-query attention, multi-head latent attention.
+
+* **Attention-over-time comparison**
+  * Best for variants that change which prior positions are reachable.
+  * Current examples: sliding-window attention, sparse attention.
+
+* **Compute-path comparison**
+  * Best for variants that change how attention is computed internally rather
+    than which positions are reachable.
+  * Current example: linear attention.
+
+* **Architecture/block placement view**
+  * Best for model, architecture, and system pages, or module pages whose main
+    question is where a component sits inside a stack.
+
+### Working heuristic
+
+If the page's central question is:
+
+* "How many Q/K/V or KV groups exist?" use **head-structure comparison**
+* "What time steps can `q_t` read from?" use **attention-over-time comparison**
+* "What summary/recurrent object replaces dense attention?" use
+  **compute-path comparison**
+* "Where does this live in the larger model?" use **architecture/block
+  placement**
+
 ## Phase 0: Factory And Planning Readiness
 
 Goal: make the autonomous loop safe enough to start implementation work.
@@ -249,12 +285,44 @@ Required outcomes:
 * tag pages enumerate modules, concepts, and glossary entries by tag
 * architecture index pages can group pages by family, modality, and component
   role
+* graph family selection follows `docs/graphing-standards.md` rather than
+  forcing all attention variants into one shared QKV diagram shape
 
 Manual review gate:
 
 * confirm MHA, MQA, GQA, MLA, sparse attention, and sliding-window attention
   compare correctly
 * confirm the graph expands/collapses vertically on desktop and mobile
+
+Suggested graph-family mapping for Phase 3 pages:
+
+* **Head-structure comparison**
+  * multi-head attention
+  * multi-query attention
+  * grouped-query attention
+  * multi-head latent attention
+
+* **Attention-over-time comparison**
+  * sparse attention
+  * sliding-window attention
+  * local attention
+  * global attention
+  * dilated attention
+  * block-sparse attention
+  * ring attention
+  * attention sinks
+
+* **Compute-path comparison**
+  * linear attention
+  * DeltaNet attention
+
+* **Probably no primary React Flow comparison yet**
+  * tokenizer pages
+  * activation pages
+  * normalization pages
+  * positional encoding pages
+  * glossary/concept pages that are better served by prose, equations, tables,
+    or static figures
 
 ## Phase 4: Localization And Assetized Content Workflow
 

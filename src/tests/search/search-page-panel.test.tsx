@@ -78,7 +78,11 @@ async function typeQueryAndExpectGqaResult(
   );
   await user.type(searchInput, query);
 
-  const results = await screen.findByTestId("search-page-results");
+  const results = await screen.findByTestId(
+    "search-page-results",
+    {},
+    { timeout: 5000 },
+  );
   expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
 }
 

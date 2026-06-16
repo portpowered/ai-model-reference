@@ -27,7 +27,7 @@ function readTemplateAssets(kind: string): PageAssetConfig {
 }
 
 describe("validateGeneratedFoldedSummary", () => {
-  test("passes concept template with folded openingSummary", () => {
+  test("passes concept template when openingSummary stays out of MDX", () => {
     const errors = validateGeneratedFoldedSummary({
       pagePath: "/docs/concepts/example/page.mdx",
       kind: "concept",
@@ -61,7 +61,7 @@ describe("validateGeneratedFoldedSummary", () => {
     expect(errors[0]?.message).toContain("problemStatement");
   });
 
-  test("fails missing openingSummary for module pages", () => {
+  test("does not require openingSummary to render inside module MDX", () => {
     const errors = validateGeneratedFoldedSummary({
       pagePath: "/docs/modules/example/page.mdx",
       kind: "module",
@@ -74,7 +74,7 @@ describe("validateGeneratedFoldedSummary", () => {
 
     expect(
       errors.some((error) => error.code === "missing-opening-summary-message"),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   test("fails glossary MDX that renders openingSummary", () => {
@@ -87,7 +87,7 @@ describe("validateGeneratedFoldedSummary", () => {
     });
 
     expect(
-      errors.some((error) => error.code === "glossary-opening-summary-in-mdx"),
+      errors.some((error) => error.code === "opening-summary-in-mdx"),
     ).toBe(true);
   });
 });
@@ -169,8 +169,8 @@ describe("validateGeneratedCanonicalDocs", () => {
 
   test("reports page path evidence for MDX prose violations", () => {
     const conceptMdx = readTemplateMdx("concept").replace(
-      "<FoldedSummary />",
-      "## Hard-coded heading\n\n<FoldedSummary />",
+      '<Section id="what-it-is" titleKey="sections.whatItIs.title">',
+      '## Hard-coded heading\n\n<Section id="what-it-is" titleKey="sections.whatItIs.title">',
     );
 
     const errors = validateGeneratedCanonicalDocs({

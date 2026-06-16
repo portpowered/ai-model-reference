@@ -1,7 +1,174 @@
+.registry-graph-flow__viewport,
+.registry-graph-flow .react-flow {
+  background-color: var(--xy-background-color, #ffffff);
+}
+
+.registry-graph-flow__viewport {
+  border: 1px solid var(--xy-node-border-color, #cbd5e1);
+  border-radius: 8px;
+}
+
 .registry-graph-flow .react-flow__node-default,
 .registry-graph-flow .react-flow__node-input,
 .registry-graph-flow .react-flow__node-output,
-.registry-graph-flow .react-flow__node-group {
-  color: var(--xy-node-color, var(--card-foreground));
-  background-color: var(--xy-node-background-color, var(--card));
+.registry-graph-flow .react-flow__node-group,
+.registry-graph-flow .react-flow__node-attentionHead {
+  color: var(--xy-node-color, #111827);
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.registry-graph-flow .react-flow__edge-path {
+  stroke: #111111;
+  stroke-width: 4;
+}
+
+.registry-graph-flow__handle {
+  height: 1px;
+  width: 1px;
+  border: 0;
+  opacity: 0;
+}
+
+.registry-graph-flow__row-label {
+  width: 108px;
+  color: #111111;
+  font-size: 20px;
+  line-height: 1;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.registry-graph-flow__head-box {
+  display: grid;
+  height: 88px;
+  width: 60px;
+  place-items: center;
+  border: 3px solid currentColor;
+  border-radius: 8px;
+  background: #fffaf5;
+  font-size: 34px;
+  font-weight: 500;
+  line-height: 1;
+  box-shadow: 0 6px 18px rgb(15 23 42 / 0.08);
+}
+
+.registry-graph-flow__head-box--query {
+  color: #075985;
+}
+
+.registry-graph-flow__head-box--key {
+  color: #991b1b;
+}
+
+.registry-graph-flow__head-box--value {
+  color: #d97706;
+}
+
+.registry-graph-flow__annotation {
+  max-width: 320px;
+  color: #111111;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.registry-graph-flow__default-node {
+  display: grid;
+  min-height: 48px;
+  place-items: center;
+  max-width: 176px;
+  border: 1px solid var(--xy-node-border-color, #cbd5e1);
+  background-color: var(--xy-node-background-color, #ffffff);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--xy-node-color, #111827);
+  font-size: 13px;
+  line-height: 1.25;
+  text-align: center;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.08);
+}
+
+.registry-graph-flow__timeline-node {
+  display: grid;
+  min-height: 48px;
+  min-width: 84px;
+  place-items: center;
+  border: 1px solid #94a3b8;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 8px 10px;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 6px 18px rgb(15 23 42 / 0.06);
+}
+
+.registry-graph-flow__timeline-node--muted {
+  border-style: dashed;
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #94a3b8;
+  box-shadow: none;
+  opacity: 0.72;
+}
+
+.registry-graph-flow__summary-node,
+.registry-graph-flow__process-node,
+.registry-graph-flow__latent-node {
+  display: grid;
+  min-height: 48px;
+  place-items: center;
+  border-radius: 8px;
+  padding: 8px 10px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.08);
+}
+
+.registry-graph-flow__summary-node {
+  min-width: 116px;
+  border: 2px solid #0369a1;
+  background: linear-gradient(180deg, #f8fbff 0%, #eff6ff 100%);
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.registry-graph-flow__process-node {
+  min-width: 134px;
+  border: 2px solid #7c2d12;
+  background: linear-gradient(180deg, #fffaf5 0%, #fff7ed 100%);
+  color: #7c2d12;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.registry-graph-flow__latent-node {
+  min-width: 148px;
+  border: 2px solid #4c1d95;
+  background: linear-gradient(180deg, #faf8ff 0%, #f5f3ff 100%);
+  color: #4c1d95;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.registry-graph-flow__math-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.registry-graph-flow__math-label .katex-inline,
+.registry-graph-flow__math-label .katex {
+  max-width: 100%;
+  color: inherit;
+  font-size: 1em;
+}
+
+.registry-graph-flow__math-label .katex {
+  white-space: nowrap;
 }
