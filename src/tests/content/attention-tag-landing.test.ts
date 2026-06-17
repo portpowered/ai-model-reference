@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { renderTagLandingPage } from "@/app/(site)/site-renderers";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import { TagLandingEmptyState } from "@/features/docs/tags/TagLandingEmptyState";
-import { TagMessagesLoadError } from "@/lib/content/tag-messages";
 import {
   groupTagResourceEntriesByKind,
   loadTagLandingContext,
@@ -164,14 +164,42 @@ describe("attention tag landing page render", () => {
     expect(html).not.toContain("list-disc");
   });
 
-  it("fails clearly on /vi when the shipped tag landing page is missing vi tag copy", async () => {
-    await expect(
-      loadTagLandingContext("attention", await loadUiMessages("vi"), "vi"),
-    ).rejects.toBeInstanceOf(TagMessagesLoadError);
-    await expect(
-      loadTagLandingContext("attention", await loadUiMessages("vi"), "vi"),
-    ).rejects.toMatchObject({
-      message: expect.stringContaining('route "/vi/tags/attention"'),
-    });
+  it("loads localized vietnamese tag copy and shipped vi resources", async () => {
+    const messages = await loadUiMessages("vi");
+    const context = await loadTagLandingContext("attention", messages, "vi");
+
+    expect(context).toBeDefined();
+    expect(context?.title).toBe("Attention");
+    expect(context?.summary).toContain("Self-attention");
+
+    const groups = await loadTagResourceGroups("attention", messages, "vi");
+    expect(groups.map((group) => group.kind)).toEqual(["module", "glossary"]);
+    expect(groups[0]?.resources.map((resource) => resource.url)).toEqual([
+      "/vi/docs/modules/attention",
+      "/vi/docs/modules/grouped-query-attention",
+    ]);
+    expect(groups[1]?.resources.map((resource) => resource.url)).toEqual([
+      "/vi/docs/glossary/autoregressive-generation",
+      "/vi/docs/glossary/token",
+    ]);
+  });
+
+  it("renders localized /vi attention landing content and locale-preserving links", async () => {
+    const page = await renderTagLandingPage(
+      {
+        params: Promise.resolve({ slug: "attention" }),
+      },
+      "vi",
+    );
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Tìm trong thẻ này");
+    expect(html).toContain("Tài nguyên theo loại");
+    expect(html).toContain('href="/vi/search?tag=attention"');
+    expect(html).toContain('href="/vi/docs/modules/attention"');
+    expect(html).toContain("Sinh tự hồi quy");
+    expect(html).toContain(
+      'href="/vi/docs/glossary/autoregressive-generation"',
+    );
   });
 });

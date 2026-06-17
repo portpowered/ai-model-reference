@@ -1,0 +1,4 @@
+{
+  "title": "Cửa sổ ngữ cảnh",
+  "summary": "Mô hình có thể attention xa tới đâu trong một chuỗi, từ cửa sổ cục bộ, vùng sparse, tới attention dày đặc trên các token trước đó."
+}

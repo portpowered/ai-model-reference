@@ -1,0 +1,4 @@
+{
+  "title": "Chuỗi token tới xác suất",
+  "summary": "Lộ trình thuật ngữ nhập môn đi từ token qua embedding, tensor, logit, softmax, và các nền tảng huấn luyện."
+}

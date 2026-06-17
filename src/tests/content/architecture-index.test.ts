@@ -162,12 +162,19 @@ describe("architecture index page render", () => {
     expect(html).not.toContain("list-disc");
   });
 
-  it("renders an empty vietnamese browse surface when no localized architecture pages are shipped", async () => {
+  it("renders localized vietnamese architecture entries when shipped page-local messages exist", async () => {
     const page = await renderArchitectureIndexPage("vi");
     const html = renderToStaticMarkup(page);
 
-    expect(html).toContain("Architecture");
-    expect(html).toContain('href="/vi"');
-    expect(html).toContain("No architecture entries yet");
+    expect(html).toContain("Kiến trúc");
+    expect(html).toContain("Kiến trúc transformer");
+    expect(html).toContain('href="/vi/docs/concepts/transformer-architecture"');
+    expect(html).toContain("Sinh tự hồi quy");
+    expect(html).toContain(
+      'href="/vi/docs/glossary/autoregressive-generation"',
+    );
+    expect(html).toContain("Token");
+    expect(html).toContain('href="/vi/docs/glossary/token"');
+    expect(html).not.toContain("Chưa có mục kiến trúc nào");
   });
 });

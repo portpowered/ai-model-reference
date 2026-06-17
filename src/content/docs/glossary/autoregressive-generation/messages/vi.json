@@ -1,0 +1,42 @@
+{
+  "title": "Sinh tự hồi quy",
+  "description": "Một kiểu sinh tạo đầu ra từng bước rời rạc, trong đó mỗi bước được điều kiện hóa bởi toàn bộ những gì đã được tạo ra trước đó.",
+  "sections": {
+    "whatItIs": {
+      "title": "Nó là gì",
+      "body": "Ở thời điểm suy luận, mô hình giữ một tiền tố token đang tăng dần, hoặc các đơn vị rời rạc tương tự. Decoder tính logits trên toàn bộ từ vựng, softmax biến chúng thành xác suất, rồi đơn vị được chọn được gắn vào cuối chuỗi. KV cache lưu key và value của quá khứ để không phải tính lại các vị trí trước đó. Các kiến trúc encoder-decoder vẫn tự hồi quy ở phía decoder trong khi đọc bộ nhớ encoder đã cố định."
+    },
+    "whyItMatters": {
+      "title": "Vì sao nó quan trọng",
+      "body": "Sinh tự hồi quy là kiểu sinh chủ đạo cho văn bản và mã nguồn, đồng thời là chế độ đầu ra mà hầu hết các trang về decoder và encoder-decoder đều dựa vào. Nó nối liền chuỗi token, token ID, embedding, logit, softmax với các lựa chọn kiến trúc như causal attention, kích thước KV cache, và grouped-query attention để giải mã hiệu quả."
+    },
+    "simpleExample": {
+      "title": "Ví dụ đơn giản",
+      "body": "Với tiền tố \"The capital of France is\", mô hình tạo logits cho token kế tiếp, softmax cho xác suất cao nhất ở \"Paris\", token đó được nối thêm, và quy trình lặp lại cho đến khi gặp token kết thúc chuỗi hoặc chạm giới hạn độ dài."
+    },
+    "whereItAppears": {
+      "title": "Nó xuất hiện ở đâu",
+      "body": "Các mô hình decoder-only kiểu GPT, decoder dịch trong transformer encoder-decoder, decoder token âm thanh, và một số mô hình đa phương thức phát ra token thị giác rời rạc đều dùng các bước tự hồi quy. Sinh khử nhiễu là họ lớn còn lại, lặp trên không gian latent liên tục thay vì từng bước token rời rạc."
+    },
+    "commonConfusions": {
+      "title": "Những nhầm lẫn thường gặp",
+      "body": "Sinh tự hồi quy không đồng nghĩa với mọi decoder block; decoder là thành phần kiến trúc, còn tự hồi quy mô tả vòng lặp lấy mẫu từng bước. Nó cũng không giống hoàn toàn với teacher forcing trong huấn luyện, nơi tiền tố chuẩn được đưa vào trong khi tối ưu dù lúc suy luận vẫn là tự hồi quy. Diffusion cũng lặp qua các bước thời gian nhiễu nhưng không phải tự hồi quy theo token trừ khi mô hình phát ra token rời rạc ở mỗi bước."
+    },
+    "related": {
+      "title": "Khái niệm và module liên quan"
+    },
+    "tags": {
+      "title": "Thẻ"
+    },
+    "references": {
+      "title": "Tài liệu tham khảo"
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Lối tắt cho người đọc",
+      "body": "Theo một vòng lặp: tra embedding → decoder chạy thuận → logits → softmax → thêm token. Lặp lại cho đến khi xong."
+    }
+  },
+  "openingSummary": "Sinh tự hồi quy chọn hoặc lấy mẫu một đơn vị đầu ra, thường là token tiếp theo, rồi đưa lựa chọn đó quay lại làm ngữ cảnh; mỗi bước đều đi qua embedding, logits, và softmax trước khi decoder tiến tiếp."
+}

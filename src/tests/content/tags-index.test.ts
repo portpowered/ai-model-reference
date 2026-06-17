@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { renderTagsIndexPage } from "@/app/(site)/site-renderers";
-import { TagMessagesLoadError } from "@/lib/content/tag-messages";
 import {
   groupTagIndexEntriesByCategory,
   loadPublishedTagIndexEntries,
@@ -156,12 +155,18 @@ describe("tags index page render", () => {
     expect(html).not.toContain("list-disc");
   });
 
-  it("fails clearly on the vietnamese route surface when tag-localized copy is missing", async () => {
-    await expect(renderTagsIndexPage("vi")).rejects.toBeInstanceOf(
-      TagMessagesLoadError,
-    );
-    await expect(renderTagsIndexPage("vi")).rejects.toMatchObject({
-      message: expect.stringContaining('route "/vi/tags/attention"'),
-    });
+  it("renders localized vietnamese tag titles, categories, and links", async () => {
+    const page = await renderTagsIndexPage("vi");
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Thẻ");
+    expect(html).toContain("Nền tảng");
+    expect(html).toContain('href="/vi/tags/foundations"');
+    expect(html).toContain("Attention");
+    expect(html).toContain('href="/vi/tags/attention"');
+    expect(html).toContain("Loại module");
+    expect(html).toContain("Cửa sổ ngữ cảnh");
+    expect(html).toContain('href="/vi/tags/context-window"');
+    expect(html).toContain("Suy luận");
   });
 });

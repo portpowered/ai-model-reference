@@ -44,6 +44,19 @@ describe("createModelAtlasSearchClient", () => {
     );
   });
 
+  test("loads vietnamese result metadata for shipped localized pages", async () => {
+    const localizedMeta = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap("vi"),
+    );
+
+    expect(
+      localizedMeta["/vi/docs/modules/grouped-query-attention"]?.title,
+    ).toBe("Grouped-query attention");
+    expect(localizedMeta["/vi/docs/glossary/token"]?.description).toContain(
+      "Đơn vị văn bản nhỏ nhất",
+    );
+  });
+
   test("fetches GQA results from a basePath-prefixed static bootstrap URL", async () => {
     const bootstrapFrom = "/ai-model-reference/api/search";
     const payload = await docsSearchApi.export();

@@ -203,12 +203,17 @@ describe("glossary index page render", () => {
     expect(html).not.toContain("list-disc");
   });
 
-  it("renders an empty vietnamese browse surface when no localized glossary pages are shipped", async () => {
+  it("renders localized vietnamese glossary entries when shipped page-local messages exist", async () => {
     const page = await renderGlossaryIndexPage("vi");
     const html = renderToStaticMarkup(page);
 
-    expect(html).toContain("Glossary");
-    expect(html).toContain('href="/vi"');
-    expect(html).toContain("No glossary entries yet");
+    expect(html).toContain("Thuật ngữ");
+    expect(html).toContain("Sinh tự hồi quy");
+    expect(html).toContain(
+      'href="/vi/docs/glossary/autoregressive-generation"',
+    );
+    expect(html).toContain("Token");
+    expect(html).toContain('href="/vi/docs/glossary/token"');
+    expect(html).not.toContain("Chưa có mục thuật ngữ nào");
   });
 });

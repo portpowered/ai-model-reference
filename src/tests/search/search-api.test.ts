@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { GET } from "@/app/api/search/route";
+import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
 import {
   PHASE_1_ATTENTION_MODULE_URL,
@@ -82,6 +83,20 @@ describe("live /api/search HTTP contract", () => {
 
     const results = (await response.json()) as Array<{ url: string }>;
     expect(results.every((result) => result.url.startsWith("/vi/"))).toBe(true);
+  });
+
+  test("GET with a vietnamese locale query returns localized grouped-query attention content", async () => {
+    const results = await docsSearchApi.search("GQA", { locale: "vi" });
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe("/vi/docs/modules/grouped-query-attention");
+
+    const meta = await loadSearchResultMetaMap("vi");
+    expect(meta.get("/vi/docs/modules/grouped-query-attention")?.title).toBe(
+      "Grouped-query attention",
+    );
+    expect(
+      meta.get("/vi/docs/modules/grouped-query-attention")?.description,
+    ).toContain("giảm bộ nhớ KV cache");
   });
 
   test("GET returns grouped-query attention for GQA query", async () => {

@@ -1,0 +1,107 @@
+{
+  "search": {
+    "open": "Mở tìm kiếm",
+    "placeholder": "Tìm trong Model Atlas…",
+    "close": "Đóng tìm kiếm",
+    "idle": "Nhập truy vấn để tìm module, mục thuật ngữ, và thẻ.",
+    "noResults": "Không tìm thấy kết quả.",
+    "loading": "Đang tìm…",
+    "error": "Tìm kiếm hiện tạm thời chưa khả dụng. Không thể tải chỉ mục.",
+    "retry": "Thử lại",
+    "shortcut": "Tìm kiếm",
+    "resultPath": "Đường dẫn"
+  },
+  "nav": {
+    "home": "Trang chủ",
+    "search": "Tìm kiếm",
+    "menu": "Mở menu",
+    "architecture": "Kiến trúc",
+    "glossary": "Thuật ngữ",
+    "tags": "Thẻ"
+  },
+  "searchEntry": {
+    "title": "Tìm kiếm",
+    "description": "Tìm trong Model Atlas theo tiêu đề, tên gọi khác, hoặc thẻ. Dùng ô tìm kiếm để chuyển nhanh tới module, khái niệm, và mục thuật ngữ.",
+    "canonicalNote": "URL tìm kiếm chuẩn là /search. Các liên kết chuyển tiếp có thể thêm ?q=<term>; các liên kết theo thẻ có thể thêm ?tag=<slug> (ví dụ /search?tag=attention).",
+    "tagFilterDescription": "Đang hiển thị kết quả cho các tài nguyên gắn thẻ {tag}.",
+    "emptySuggestionGqa": "GQA",
+    "emptySuggestionAttentionLinkLabel": "chỉ mục thẻ attention",
+    "emptySuggestionPrefix": "Hãy thử tìm",
+    "emptySuggestionMiddle": "hoặc duyệt",
+    "emptySuggestionSuffix": "."
+  },
+  "shell": {
+    "sidebarTitle": "Tham chiếu",
+    "sidebarDescription": "Duyệt module, khái niệm, và thẻ.",
+    "onThisPage": "Trên trang này"
+  },
+  "home": {
+    "title": "Model Atlas",
+    "subtitle": "Cẩm nang về các mô hình và module AI hiện đại",
+    "intro": "Model Atlas là tài liệu tham chiếu dành cho transformer, các biến thể attention, phương pháp huấn luyện, và các hệ thống xoay quanh chúng.",
+    "browseSectionTitle": "Duyệt",
+    "browseSectionDescription": "Bắt đầu từ một chỉ mục khi bạn muốn khám phá chủ đề mà chưa có truy vấn cụ thể.",
+    "architectureLinkTitle": "Kiến trúc",
+    "architectureLinkDescription": "Các khái niệm kiến trúc, họ mô hình, và mẫu thành phần được gom trong một chỉ mục.",
+    "glossaryLinkTitle": "Thuật ngữ",
+    "glossaryLinkDescription": "Các thuật ngữ ML được định nghĩa ngắn gọn và liên kết tới những module liên quan.",
+    "tagsLinkTitle": "Thẻ",
+    "tagsLinkDescription": "Các thẻ được kiểm soát như attention và kv-cache, mỗi thẻ có trang đích riêng theo chủ đề.",
+    "tokenLinkTitle": "Token (thuật ngữ)",
+    "tokenLinkDescription": "Mục thuật ngữ giải thích khái niệm token, được liên kết từ trang kiến trúc và thẻ attention.",
+    "docsLinkTitle": "Grouped-query attention",
+    "docsLinkDescription": "Trang module giải thích grouped-query attention và cách các query head dùng chung KV cache.",
+    "onThisPageBrowse": "Duyệt"
+  },
+  "glossaryIndex": {
+    "title": "Thuật ngữ",
+    "description": "Các thuật ngữ machine learning được định nghĩa ngắn gọn. Mỗi mục liên kết tới một trang thuật ngữ chuẩn khi đã được xuất bản.",
+    "listLabel": "Các mục thuật ngữ",
+    "emptyTitle": "Chưa có mục thuật ngữ nào",
+    "emptyDescription": "Các trang thuật ngữ đã xuất bản sẽ xuất hiện ở đây khi được thêm vào bộ tham chiếu. Trong lúc này, hãy quay lại trang chủ hoặc mở tìm kiếm để khám phá module và thẻ.",
+    "emptyHomeLink": "Về trang chủ"
+  },
+  "architectureIndex": {
+    "title": "Kiến trúc",
+    "description": "Các khái niệm về kiến trúc, họ mô hình, và mẫu thành phần. Mỗi mục liên kết tới một trang tài liệu chuẩn khi đã được xuất bản.",
+    "listLabel": "Các mục kiến trúc",
+    "emptyTitle": "Chưa có mục kiến trúc nào",
+    "emptyDescription": "Các trang khái niệm kiến trúc đã xuất bản và các trang trong nhóm nội dung kiến trúc sẽ xuất hiện ở đây. Trong lúc này, hãy quay lại trang chủ hoặc mở tìm kiếm để khám phá module và thẻ.",
+    "emptyHomeLink": "Về trang chủ"
+  },
+  "tagsIndex": {
+    "title": "Thẻ",
+    "description": "Các thẻ được kiểm soát để duyệt chủ đề xuyên suốt module, khái niệm, mô hình, và trang thuật ngữ. Mỗi thẻ liên kết tới một trang đích liệt kê mọi tài nguyên đã xuất bản mang thẻ đó.",
+    "listLabel": "Thẻ theo danh mục"
+  },
+  "tagLanding": {
+    "listLabel": "Tài nguyên theo loại",
+    "searchHandoff": "Tìm trong thẻ này",
+    "searchEntryLink": "Mở trang tìm kiếm",
+    "emptyTitle": "Chưa có tài nguyên nào được xuất bản cho thẻ này",
+    "emptyDescription": "Khi các trang tài liệu hoặc bài blog được gắn thẻ này, chúng sẽ xuất hiện ở đây và được nhóm theo loại. Hãy quay lại trang chủ, duyệt tất cả thẻ, hoặc mở tìm kiếm để khám phá các chủ đề liên quan.",
+    "emptyHomeLink": "Về trang chủ",
+    "emptyTagsLink": "Duyệt tất cả thẻ"
+  },
+  "tagCategories": {
+    "architecture": "Kiến trúc",
+    "module-type": "Loại module",
+    "training": "Huấn luyện",
+    "inference": "Suy luận",
+    "systems": "Hệ thống",
+    "modality": "Phương thức",
+    "paper-topic": "Chủ đề bài báo",
+    "model-family": "Họ mô hình",
+    "difficulty": "Độ khó"
+  },
+  "pageKind": {
+    "module": "Module",
+    "model": "Mô hình",
+    "concept": "Khái niệm",
+    "paper": "Bài báo",
+    "glossary": "Thuật ngữ",
+    "training": "Huấn luyện",
+    "system": "Hệ thống",
+    "blog": "Blog"
+  }
+}

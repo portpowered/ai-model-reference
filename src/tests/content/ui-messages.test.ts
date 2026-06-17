@@ -15,10 +15,10 @@ describe("loadUiMessages shell keys", () => {
     expect(messages.tagsIndex.title).toBe("Tags");
   });
 
-  it("falls back to english shell copy when vi shared messages are not shipped yet", async () => {
+  it("loads shipped vietnamese shell copy when vi shared messages are available", async () => {
     const messages = await loadUiMessages("vi");
-    expect(messages.nav.home).toBe("Home");
-    expect(messages.searchEntry.title).toBe("Search");
-    expect(messages.tagsIndex.title).toBe("Tags");
+    expect(messages.nav.home).toBe("Trang chủ");
+    expect(messages.searchEntry.title).toBe("Tìm kiếm");
+    expect(messages.tagsIndex.title).toBe("Thẻ");
   });
 });

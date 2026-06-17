@@ -1,0 +1,69 @@
+{
+  "title": "Token",
+  "description": "Đơn vị văn bản nhỏ nhất mà mô hình ngôn ngữ đọc và dự đoán, thường là mảnh từ chứ không phải lúc nào cũng là cả một từ. Mỗi mã token được ánh xạ thành một vector dày đặc qua embedding có kích thước hidden size của mô hình trước khi attention chạy.",
+  "sections": {
+    "whatItIs": {
+      "title": "Nó là gì",
+      "body": "Token là một bước trong từ vựng văn bản rời rạc của mô hình. Các tokenizer theo kiểu subword thường tách từ hiếm thành nhiều mảnh để từ vựng vẫn hữu hạn nhưng vẫn phủ được văn bản có từ mới."
+    },
+    "whyItMatters": {
+      "title": "Vì sao nó quan trọng",
+      "body": "Tokenization quyết định độ dài ngữ cảnh theo token, định hình chi phí mỗi yêu cầu, và quyết định hai chuỗi có trông giống nhau với mô hình hay không. Tokenizer lệch giữa lúc huấn luyện và lúc phục vụ là lỗi tích hợp rất phổ biến. Khi ai đó nói \"128k context\", họ đang nói 128k token, tức chính các đơn vị tokenizer tạo ra trước embedding và bước chấm điểm token tiếp theo. Dùng các tài liệu liên quan bên dưới để đi từ token sang embedding rồi tiếp tới logit và softmax."
+    },
+    "simpleExample": {
+      "title": "Ví dụ đơn giản",
+      "body": "Cụm \"language models\" có thể trở thành hai hoặc ba token tùy tokenizer. Mỗi ID sẽ được tra trong bảng embedding trước khi các tầng attention chạy."
+    },
+    "whereItAppears": {
+      "title": "Nó xuất hiện ở đâu",
+      "body": "Token xuất hiện ở tầng embedding đầu vào, trong quá trình chấm điểm token kế tiếp của tự hồi quy, và trong việc tính toán KV cache khi giải mã. Các module attention hoạt động trên vị trí token chứ không phải ký tự thô. Từ đây, hãy theo liên kết tuyển chọn tới embeddings để tiếp tục chuỗi token tới xác suất."
+    },
+    "commonConfusions": {
+      "title": "Những nhầm lẫn thường gặp",
+      "body": "Token không phải lúc nào cũng là từ; byte-level BPE có thể tạo ra token chỉ gồm một ký tự. Số lượng token cũng khác số lượng từ và khác số lượng cụm ký tự Unicode."
+    },
+    "related": {
+      "title": "Khái niệm và module liên quan"
+    },
+    "tags": {
+      "title": "Thẻ"
+    },
+    "references": {
+      "title": "Tài liệu tham khảo"
+    }
+  },
+  "relatedDocs": {
+    "concept.embedding": {
+      "reason": "Mỗi token ID trở thành một biểu diễn số học được học trước khi mô hình trộn ngữ cảnh."
+    },
+    "concept.logit": {
+      "reason": "Dự đoán token tiếp theo bắt đầu như một điểm số ứng viên cho từng token trong từ vựng."
+    },
+    "concept.softmax": {
+      "reason": "Các điểm số ứng viên đó được đổi thành xác suất trên toàn bộ từ vựng."
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "Sơ đồ cho thấy văn bản đi qua tokenizer thành token ID rồi thành embedding",
+      "caption": "Cách văn bản thô trở thành token ID trước khi đi vào chồng transformer"
+    }
+  },
+  "graph": {
+    "nodes": {
+      "rawText": {
+        "label": "Văn bản thô"
+      },
+      "tokenizer": {
+        "label": "Tokenizer"
+      },
+      "tokenIds": {
+        "label": "Token ID"
+      },
+      "embeddings": {
+        "label": "Embedding"
+      }
+    }
+  },
+  "openingSummary": "Mô hình dùng một từ vựng tokenizer cố định, ánh xạ văn bản thành các ID số nguyên rồi embedding và chấm điểm chúng, thay vì đọc trực tiếp các ký tự thô."
+}

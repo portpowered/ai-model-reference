@@ -149,19 +149,34 @@ describe("docs source local pages", () => {
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
   });
 
+  test("loadLocalDocsPage resolves shipped vietnamese canonical page messages without changing the shared MDX route contract", async () => {
+    const page = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "grouped-query-attention",
+      },
+      "vi",
+    );
+
+    expect(page.messages.title).toBe("Grouped-query attention");
+    expect(page.messages.sections?.whatItIs?.title).toBe("Nó là gì");
+    expect(page.frontmatter.registryId).toBe("module.grouped-query-attention");
+    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+  });
+
   test("loadLocalDocsPage fails clearly when a shipped vi canonical page is missing page-local messages", async () => {
     await expect(
       loadLocalDocsPage(
         {
           section: "modules",
-          slug: "grouped-query-attention",
+          slug: "linear-attention",
         },
         "vi",
       ),
     ).rejects.toMatchObject({
       name: "MessageLoadError",
       message: expect.stringContaining(
-        'route "/vi/docs/modules/grouped-query-attention"',
+        'route "/vi/docs/modules/linear-attention"',
       ),
     });
   });

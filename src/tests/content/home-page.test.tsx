@@ -60,11 +60,13 @@ describe("home page render", () => {
   });
 
   it("preserves the active locale in browse links on the vietnamese route surface", async () => {
-    const messages = await loadUiMessages();
+    const messages = await loadUiMessages("vi");
     const html = renderToStaticMarkup(
       <HomeArticle messages={messages} locale="vi" />,
     );
 
+    expect(html).toContain("Cẩm nang về các mô hình và module AI hiện đại");
+    expect(html).toContain("Token (thuật ngữ)");
     expect(html).toContain('href="/vi/docs/architecture"');
     expect(html).toContain('href="/vi/docs/glossary"');
     expect(html).toContain('href="/vi/docs/glossary/token"');

@@ -1,0 +1,36 @@
+{
+  "title": "Kiến trúc transformer",
+  "description": "Cách attention, các tầng feed-forward, normalization, residual, và thông tin vị trí lặp lại bên trong từng block transformer kiểu decoder.",
+  "openingSummary": "Một block transformer là một vòng lặp lặp lại: mỗi vector token đi qua attention, một phép biến đổi feed-forward dày đặc, normalization, và các phép cộng residual để mô hình có thể trộn ngữ cảnh và tinh chỉnh đặc trưng qua từng tầng.",
+  "sections": {
+    "whatItIs": {
+      "title": "Nó là gì",
+      "body": "Một kiến trúc transformer xếp chồng nhiều block giống nhau lên trên các token embedding. Mỗi block thường chạy attention trước để mọi vị trí có thể đọc các vị trí khác, rồi tới một feed-forward network theo từng vị trí áp cùng một MLP nhỏ lên mọi token. Normalization và residual connection bao quanh các lớp con đó để kích hoạt ổn định và gradient đi xuyên qua chiều sâu tốt hơn. Thông tin vị trí được thêm vào trước hoặc bên trong attention để thứ tự vẫn có ý nghĩa dù bản thân attention bất biến với phép hoán vị."
+    },
+    "whyItMatters": {
+      "title": "Vì sao nó quan trọng",
+      "body": "Phần lớn mô hình ngôn ngữ hiện đại đều chia sẻ mẫu block này dù độ rộng, độ sâu, hay biến thể attention có khác nhau. Hiểu vòng lặp đó giúp bạn ánh xạ những model card xa lạ sang đúng trang module: attention để trộn ngữ cảnh, feed-forward để tinh chỉnh từng token, normalization để ổn định huấn luyện, residual để đi sâu, và các sơ đồ vị trí để giữ thứ tự."
+    },
+    "simpleExample": {
+      "title": "Ví dụ đơn giản",
+      "body": "Hãy hình dung một chồng decoder-only cho sinh văn bản. Token embedding đi vào block đầu tiên: self-attention cho mỗi từ nhìn về các từ trước đó, feed-forward kéo giãn và lọc từng vector, layer normalization giữ thang độ ổn định, rồi residual add ghi phần cập nhật trở lại dòng biểu diễn đang chạy. Block hai lặp lại đúng công thức đó trên các vector đã được cập nhật, và chồng block tiếp tục cho tới khi một chuẩn hóa cuối cùng và language-model head dự đoán token kế tiếp."
+    },
+    "whereItAppears": {
+      "title": "Nó xuất hiện ở đâu",
+      "body": "Transformer decoder-only trong các mô hình chat và completion, encoder trong các mô hình embedding, và các chồng encoder-decoder trong hệ thống dịch đều dùng các biến thể của vòng lặp này. Độ rộng, độ sâu, biến thể attention, kích thước feed-forward, và kiểu normalization thay đổi giữa các họ, nhưng bố cục block lặp lại là bộ khung chung."
+    },
+    "commonConfusions": {
+      "title": "Những nhầm lẫn thường gặp",
+      "body": "Một block transformer không giống một module attention; attention chỉ là một lớp con bên trong block. Kiến trúc này cũng không phải một checkpoint đã huấn luyện; nhiều mô hình có thể chia sẻ cùng bố cục ở các mức tham số khác nhau. Cuối cùng, positional encoding là một phần của cách block biểu diễn thứ tự; nó không thay thế cho attention hay feed-forward."
+    },
+    "related": {
+      "title": "Khái niệm và module liên quan"
+    },
+    "tags": {
+      "title": "Thẻ"
+    },
+    "references": {
+      "title": "Tài liệu tham khảo"
+    }
+  }
+}
