@@ -12,10 +12,28 @@ import {
   loadLocalDocsPage,
   parseLocalDocsPageRef,
 } from "@/lib/content/local-docs-page";
+import { isDocsPageShippedForLocale } from "@/lib/content/pages";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
 import { source } from "@/lib/source";
 import { getMDXComponents } from "../../../mdx-components";
+
+function buildDocsPageAlternates(docsSlug: string) {
+  const alternates = localizedRouteAlternates({
+    surface: "docs-page",
+    slug: docsSlug,
+  });
+  const languages = alternates.languages ?? {};
+
+  return {
+    ...alternates,
+    languages: Object.fromEntries(
+      Object.entries(languages).filter(([locale]) =>
+        isDocsPageShippedForLocale(docsSlug, locale as SiteLocale),
+      ),
+    ),
+  };
+}
 
 async function renderLocalDocsPage(
   slug: string[] | undefined,
@@ -61,6 +79,11 @@ export async function renderDocsSlugPage(
   slug: string[] | undefined,
   locale: SiteLocale = defaultLocale,
 ) {
+  const docsSlug = slug?.join("/");
+  if (docsSlug && !isDocsPageShippedForLocale(docsSlug, locale)) {
+    notFound();
+  }
+
   const localPage = await renderLocalDocsPage(slug, locale);
   if (localPage) {
     return localPage;
@@ -94,6 +117,10 @@ export async function buildDocsPageMetadata(
   locale: SiteLocale = defaultLocale,
 ) {
   const docsSlug = slug?.join("/");
+  if (docsSlug && !isDocsPageShippedForLocale(docsSlug, locale)) {
+    notFound();
+  }
+
   const localRef = parseLocalDocsPageRef(slug);
 
   if (localRef) {
@@ -103,10 +130,7 @@ export async function buildDocsPageMetadata(
       return {
         title: loadedPage.messages.title,
         description: loadedPage.messages.description,
-        alternates: localizedRouteAlternates({
-          surface: "docs-page",
-          slug: docsSlug,
-        }),
+        alternates: buildDocsPageAlternates(docsSlug),
       };
     }
   }
@@ -122,11 +146,6 @@ export async function buildDocsPageMetadata(
   return {
     title: page.data.title,
     description: page.data.description,
-    alternates: docsSlug
-      ? localizedRouteAlternates({
-          surface: "docs-page",
-          slug: docsSlug,
-        })
-      : undefined,
+    alternates: docsSlug ? buildDocsPageAlternates(docsSlug) : undefined,
   };
 }

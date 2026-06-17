@@ -60,6 +60,18 @@ export function docsUrlFromSlug(docsSlug: string, locale: SiteLocale): string {
   return buildLocalizedRoute({ surface: "docs-page", slug: docsSlug }, locale);
 }
 
+export function isDocsPageShippedForLocale(
+  docsSlug: string,
+  locale: SiteLocale,
+  rootDir = DOCS_ROOT,
+): boolean {
+  if (locale === defaultLocale) {
+    return true;
+  }
+
+  return hasPageMessagesFile(path.join(rootDir, docsSlug), locale);
+}
+
 export async function loadPublishedDocsPages(
   locale: SiteLocale,
   rootDir = DOCS_ROOT,
@@ -108,7 +120,7 @@ export async function loadShippedLocalizedDocsPages(
       continue;
     }
 
-    if (!hasPageMessagesFile(pageDir, locale)) {
+    if (!isDocsPageShippedForLocale(path.relative(rootDir, pageDir), locale)) {
       continue;
     }
 

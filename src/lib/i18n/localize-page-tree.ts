@@ -1,7 +1,5 @@
-import path from "node:path";
 import type { Node } from "fumadocs-core/page-tree";
-import { DOCS_ROOT } from "@/lib/content/content-paths";
-import { hasPageMessagesFile } from "@/lib/content/page-messages-load";
+import { isDocsPageShippedForLocale } from "@/lib/content/pages";
 import {
   defaultLocale,
   matchLocalizedRoute,
@@ -13,11 +11,7 @@ function shouldUseLocalizedDocsRoute(
   docsSlug: string,
   locale: SiteLocale,
 ): boolean {
-  if (locale === defaultLocale) {
-    return true;
-  }
-
-  return hasPageMessagesFile(path.join(DOCS_ROOT, docsSlug), locale);
+  return isDocsPageShippedForLocale(docsSlug, locale);
 }
 
 function localizeNode(node: Node, locale: SiteLocale): Node {

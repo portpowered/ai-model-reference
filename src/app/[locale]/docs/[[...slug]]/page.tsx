@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import {
   buildDocsPageMetadata,
   renderDocsSlugPage,
 } from "@/app/docs/docs-slug-renderer";
-import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
+import {
+  isDocsPageShippedForLocale,
+  loadShippedLocalizedDocsPages,
+} from "@/lib/content/pages";
 import {
   generateStaticLocaleParams,
   resolveRouteLocaleOrNotFound,
@@ -34,6 +38,10 @@ export async function generateMetadata({
 }: LocalizedDocsSlugPageProps): Promise<Metadata> {
   const { locale: rawLocale, slug } = await params;
   const locale = resolveRouteLocaleOrNotFound(rawLocale);
+  const docsSlug = slug?.join("/");
+  if (docsSlug && !isDocsPageShippedForLocale(docsSlug, locale)) {
+    notFound();
+  }
   return buildDocsPageMetadata(slug, locale);
 }
 
@@ -42,5 +50,9 @@ export default async function LocalizedDocsSlugPage({
 }: LocalizedDocsSlugPageProps) {
   const { locale: rawLocale, slug } = await params;
   const locale = resolveRouteLocaleOrNotFound(rawLocale);
+  const docsSlug = slug?.join("/");
+  if (docsSlug && !isDocsPageShippedForLocale(docsSlug, locale)) {
+    notFound();
+  }
   return renderDocsSlugPage(slug, locale);
 }
