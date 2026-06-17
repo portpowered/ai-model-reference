@@ -32,6 +32,10 @@ import {
 } from "./schemas";
 import { getTableById } from "./table-registry-runtime";
 import { loadTagMessages, TagMessagesLoadError } from "./tag-messages";
+import {
+  loadUiMessagesFromDisk,
+  UiMessagesLoadError,
+} from "./ui-messages-load";
 import { parseYamlFrontmatterBlock } from "./yaml-frontmatter";
 
 export { parseYamlFrontmatterBlock };
@@ -103,6 +107,7 @@ export const phase1PageDirectories = [
 export type ValidateRegistryContentOptions = {
   registryRoot?: string;
   docsRoot?: string;
+  messagesRoot?: string;
   /** Override Phase 1 page directories (for tests). */
   phase1PageDirectories?: readonly string[];
 };
@@ -712,6 +717,40 @@ function validateLocalizedTagMessages(
   return errors;
 }
 
+function validationErrorsFromUiMessagesLoadError(
+  error: UiMessagesLoadError,
+): ValidationError[] {
+  return error.details.map((detail) => ({
+    code:
+      detail.type === "missing-file"
+        ? "ui-messages-load-error"
+        : "ui-messages-parse-error",
+    message: error.message,
+    path: detail.path,
+  }));
+}
+
+function validateLocalizedUiMessages(
+  options: ValidateRegistryContentOptions,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  for (const locale of supportedLocales) {
+    try {
+      loadUiMessagesFromDisk(locale, { messagesRoot: options.messagesRoot });
+    } catch (error) {
+      if (error instanceof UiMessagesLoadError) {
+        errors.push(...validationErrorsFromUiMessagesLoadError(error));
+        continue;
+      }
+
+      throw error;
+    }
+  }
+
+  return errors;
+}
+
 async function validateRegistryFiles(
   options: ValidateRegistryContentOptions,
 ): Promise<{ indexes: RegistryIndexes; errors: ValidationError[] }> {
@@ -797,6 +836,7 @@ export async function validateRegistryContent(
   }
 
   errors.push(...validateLocalizedTagMessages(indexes));
+  errors.push(...validateLocalizedUiMessages(options));
 
   return errors;
 }

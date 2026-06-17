@@ -845,6 +845,47 @@ updatedAt: "2026-06-02"
       await rm(tempRoot, { recursive: true, force: true });
     }
   });
+
+  test("reports missing vietnamese shared UI messages for shipped locales", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    const docsRoot = join(tempRoot, "docs-empty");
+    const messagesRoot = join(tempRoot, "messages");
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(docsRoot, { recursive: true });
+    await mkdir(join(messagesRoot, "en"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(messagesRoot, "en", "common.json"),
+      JSON.stringify({
+        nav: {
+          home: "Home",
+        },
+      }),
+    );
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+        messagesRoot,
+        phase1PageDirectories: [],
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "ui-messages-load-error" &&
+            error.message.includes('locale "vi"'),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("make validate-data", () => {
