@@ -1,10 +1,7 @@
 import { type StaticOptions, useDocsSearch } from "fumadocs-core/search/client";
 import type { DependencyList } from "react";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
-import {
-  DOCS_SEARCH_API_PATH,
-  resolveDocsSearchBootstrapFromForLocale,
-} from "@/lib/search/docs-search-bootstrap-path";
+import { DOCS_SEARCH_API_PATH } from "@/lib/search/docs-search-bootstrap-path";
 import { modelAtlasOramaSearchClient } from "./model-atlas-search-client";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";
 
@@ -17,6 +14,18 @@ export { DOCS_SEARCH_API_PATH } from "@/lib/search/docs-search-bootstrap-path";
 const bakedDocsSearchBootstrapFrom =
   process.env.NEXT_PUBLIC_DOCS_SEARCH_BOOTSTRAP_FROM ?? DOCS_SEARCH_API_PATH;
 
+function resolveBakedDocsSearchBootstrapFromForLocale(
+  locale: SiteLocale,
+): string {
+  if (locale === defaultLocale) {
+    return bakedDocsSearchBootstrapFrom;
+  }
+
+  return bakedDocsSearchBootstrapFrom === DOCS_SEARCH_API_PATH
+    ? `${DOCS_SEARCH_API_PATH}?locale=${encodeURIComponent(locale)}`
+    : `${bakedDocsSearchBootstrapFrom}.${locale}`;
+}
+
 export const docsSearchStaticOptions = {
   type: "static",
   from: bakedDocsSearchBootstrapFrom,
@@ -27,7 +36,7 @@ export function buildDocsSearchStaticOptions(
 ): { type: "static" } & StaticOptions {
   return {
     type: "static",
-    from: resolveDocsSearchBootstrapFromForLocale(locale),
+    from: resolveBakedDocsSearchBootstrapFromForLocale(locale),
   };
 }
 

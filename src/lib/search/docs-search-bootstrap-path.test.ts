@@ -5,6 +5,7 @@ import {
   DOCS_SEARCH_API_PATH,
   DOCS_SEARCH_BOOTSTRAP_FROM_ENV,
   readDocsSearchStaticBootstrapFrom,
+  resolveClientDocsSearchBootstrapFromForLocale,
   resolveDocsSearchBootstrapFromForLocale,
   resolveDocsSearchStaticBootstrapFrom,
 } from "./docs-search-bootstrap-path";
@@ -55,6 +56,24 @@ describe("resolveDocsSearchBootstrapFromForLocale", () => {
       resolveDocsSearchBootstrapFromForLocale("vi", {
         NEXT_STATIC_EXPORT: "1",
         GITHUB_PAGES_BASE_PATH: "/ai-model-reference",
+      }),
+    ).toBe("/ai-model-reference/api/search.vi");
+  });
+});
+
+describe("resolveClientDocsSearchBootstrapFromForLocale", () => {
+  test("prefers the baked public bootstrap path for english", () => {
+    expect(
+      resolveClientDocsSearchBootstrapFromForLocale("en", {
+        [DOCS_SEARCH_BOOTSTRAP_FROM_ENV]: "/ai-model-reference/api/search",
+      }),
+    ).toBe("/ai-model-reference/api/search");
+  });
+
+  test("derives localized export artifacts from the baked public bootstrap path", () => {
+    expect(
+      resolveClientDocsSearchBootstrapFromForLocale("vi", {
+        [DOCS_SEARCH_BOOTSTRAP_FROM_ENV]: "/ai-model-reference/api/search",
       }),
     ).toBe("/ai-model-reference/api/search.vi");
   });

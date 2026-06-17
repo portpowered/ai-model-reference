@@ -66,3 +66,22 @@ export function readDocsSearchStaticBootstrapFrom(
 
   return resolveDocsSearchStaticBootstrapFrom(env);
 }
+
+/**
+ * Resolves the locale-aware bootstrap path a client bundle should use.
+ * Prefer the baked public bootstrap path when present because client bundles do
+ * not receive non-public build flags like `NEXT_STATIC_EXPORT`.
+ */
+export function resolveClientDocsSearchBootstrapFromForLocale(
+  locale: SiteLocale,
+  env: BuildModeEnv = process.env,
+): string {
+  const bakedBootstrapFrom = env[DOCS_SEARCH_BOOTSTRAP_FROM_ENV];
+  if (bakedBootstrapFrom !== undefined && bakedBootstrapFrom !== "") {
+    return locale === defaultLocale
+      ? bakedBootstrapFrom
+      : `${bakedBootstrapFrom}.${locale}`;
+  }
+
+  return resolveDocsSearchBootstrapFromForLocale(locale, env);
+}
