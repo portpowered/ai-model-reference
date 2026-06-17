@@ -1,5 +1,4 @@
 import type { Node } from "fumadocs-core/page-tree";
-import { isDocsPageShippedForLocale } from "@/lib/content/pages";
 import {
   defaultLocale,
   matchLocalizedRoute,
@@ -7,25 +6,14 @@ import {
   switchRouteLocale,
 } from "@/lib/i18n/locale-routing";
 
-function shouldUseLocalizedDocsRoute(
-  docsSlug: string,
-  locale: SiteLocale,
-): boolean {
-  return isDocsPageShippedForLocale(docsSlug, locale);
-}
-
 function localizeNode(node: Node, locale: SiteLocale): Node {
   if ("url" in node && typeof node.url === "string") {
     const match = matchLocalizedRoute(node.url);
     if (match.kind === "matched") {
-      const shouldLocalize =
-        match.destination.surface !== "docs-page" ||
-        shouldUseLocalizedDocsRoute(match.destination.slug, locale);
-
       return {
         ...node,
         url:
-          locale === defaultLocale || !shouldLocalize
+          locale === defaultLocale
             ? node.url
             : switchRouteLocale(node.url, locale),
       };

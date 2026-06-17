@@ -20,12 +20,14 @@ function collectLinks(children: Node[]): string[] {
 }
 
 describe("localizePageTree", () => {
-  test("keeps non-shipped docs links on English routes for vi page trees", () => {
+  test("keeps localized page-tree docs links inside the active vi route space", () => {
     const localizedTree = localizePageTree(source.pageTree, "vi");
     const links = collectLinks(localizedTree.children);
 
-    expect(links).toContain("/docs/getting-started");
-    expect(links).not.toContain("/vi/docs/getting-started");
+    expect(links).not.toContain("/docs/getting-started");
+    expect(links).toContain("/vi/docs/getting-started");
+    expect(links).not.toContain("/docs/modules/multi-head-attention");
+    expect(links).toContain("/vi/docs/modules/multi-head-attention");
   });
 
   test("localizes shipped docs links for vi page trees", () => {

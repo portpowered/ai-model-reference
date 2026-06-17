@@ -112,5 +112,29 @@ describe("docs sidebar navigation accessibility", () => {
       name: "Model Reference",
     });
     expect(homeLink.getAttribute("href")).toBe("/vi");
+
+    const glossaryFolder = within(sidebar).getByRole("button", {
+      name: "Glossary",
+    });
+    await act(async () => {
+      glossaryFolder.click();
+    });
+
+    const modulesFolder = within(sidebar).getByRole("button", {
+      name: "Modules",
+    });
+    await act(async () => {
+      modulesFolder.click();
+    });
+
+    const tokenLink = within(sidebar).getByRole("link", { name: "Token" });
+    expect(tokenLink.getAttribute("href")).toBe("/vi/docs/glossary/token");
+
+    const gqaLink = within(sidebar).getByRole("link", {
+      name: "Grouped-Query Attention",
+    });
+    expect(gqaLink.getAttribute("href")).toBe(
+      "/vi/docs/modules/grouped-query-attention",
+    );
   });
 });
