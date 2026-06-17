@@ -81,7 +81,7 @@ describe("docs sidebar navigation accessibility", () => {
     expect(document.activeElement).toBe(gqaLink);
   });
 
-  test("localized docs shell preserves locale without surfacing unshipped docs links", async () => {
+  test("localized docs shell preserves locale while exposing only shipped Vietnamese docs links", async () => {
     captureOriginalFetch();
     await installDocsSearchFetchMock();
     const [messages, metaMap] = await Promise.all([
@@ -137,14 +137,30 @@ describe("docs sidebar navigation accessibility", () => {
       "/vi/docs/modules/grouped-query-attention",
     );
 
+    const multiHeadLink = within(sidebar).getByRole("link", {
+      name: "Multi-Head Attention",
+    });
+    expect(multiHeadLink.getAttribute("href")).toBe(
+      "/vi/docs/modules/multi-head-attention",
+    );
+
+    const linearAttentionLink = within(sidebar).getByRole("link", {
+      name: "Linear Attention",
+    });
+    expect(linearAttentionLink.getAttribute("href")).toBe(
+      "/vi/docs/modules/linear-attention",
+    );
+
     expect(
       within(sidebar).queryByRole("link", { name: "Getting started" }),
     ).toBeNull();
     expect(
-      within(sidebar).queryByRole("link", { name: "Multi-Head Attention" }),
+      within(sidebar).queryByRole("link", {
+        name: "Multi-Head Latent Attention",
+      }),
     ).toBeNull();
     expect(
-      within(sidebar).queryByRole("link", { name: "Linear Attention" }),
+      within(sidebar).queryByRole("link", { name: "Sparse Attention" }),
     ).toBeNull();
   });
 });

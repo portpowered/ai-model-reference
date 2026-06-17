@@ -52,6 +52,9 @@ describe("createModelAtlasSearchClient", () => {
     expect(
       localizedMeta["/vi/docs/modules/grouped-query-attention"]?.title,
     ).toBe("Grouped-query attention");
+    expect(
+      localizedMeta["/vi/docs/modules/linear-attention"]?.description,
+    ).toContain("gần tuyến tính");
     expect(localizedMeta["/vi/docs/glossary/token"]?.description).toContain(
       "Đơn vị văn bản nhỏ nhất",
     );

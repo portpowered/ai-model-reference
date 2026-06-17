@@ -12,8 +12,10 @@ const SHIPPED_LOCALIZED_DOCS: Record<NonDefaultLocale, string[]> = {
     "glossary/token",
     "modules/attention",
     "modules/grouped-query-attention",
+    "modules/linear-attention",
     "modules/multi-head-attention",
     "modules/multi-query-attention",
+    "modules/sliding-window-attention",
   ],
 };
 

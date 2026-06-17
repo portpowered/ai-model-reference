@@ -199,21 +199,43 @@ describe("docs source local pages", () => {
     );
   });
 
-  test("loadLocalDocsPage fails clearly when a shipped vi canonical page is missing page-local messages", async () => {
-    await expect(
-      loadLocalDocsPage(
-        {
-          section: "modules",
-          slug: "linear-attention",
-        },
-        "vi",
-      ),
-    ).rejects.toMatchObject({
-      name: "MessageLoadError",
-      message: expect.stringContaining(
-        'route "/vi/docs/modules/linear-attention"',
-      ),
-    });
+  test("loadLocalDocsPage resolves shipped vietnamese long-context module messages through the shared MDX route contract", async () => {
+    const slidingWindowPage = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "sliding-window-attention",
+      },
+      "vi",
+    );
+    const linearAttentionPage = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "linear-attention",
+      },
+      "vi",
+    );
+
+    expect(slidingWindowPage.messages.title).toBe("Sliding-window attention");
+    expect(slidingWindowPage.messages.sections?.whatItIs?.title).toBe(
+      "Nó là gì",
+    );
+    expect(slidingWindowPage.frontmatter.registryId).toBe(
+      "module.sliding-window-attention",
+    );
+    expect(
+      slidingWindowPage.toc.some((item) => item.url === "#what-it-is"),
+    ).toBe(true);
+
+    expect(linearAttentionPage.messages.title).toBe("Linear attention");
+    expect(linearAttentionPage.messages.sections?.whatItIs?.title).toBe(
+      "Nó là gì",
+    );
+    expect(linearAttentionPage.frontmatter.registryId).toBe(
+      "module.linear-attention",
+    );
+    expect(
+      linearAttentionPage.toc.some((item) => item.url === "#what-it-is"),
+    ).toBe(true);
   });
 
   test("loadLocalDocsPage loads generated model, paper, and training bundles", async () => {

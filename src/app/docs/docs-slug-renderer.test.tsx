@@ -57,6 +57,32 @@ describe("docs slug renderer locale gating", () => {
     });
   });
 
+  test("English docs metadata advertises shipped Vietnamese alternates for newly localized long-context modules", async () => {
+    const slidingWindowMetadata = await buildDocsPageMetadata([
+      "modules",
+      "sliding-window-attention",
+    ]);
+    const linearAttentionMetadata = await buildDocsPageMetadata([
+      "modules",
+      "linear-attention",
+    ]);
+
+    expect(slidingWindowMetadata.alternates).toEqual({
+      canonical: "/docs/modules/sliding-window-attention",
+      languages: {
+        en: "/docs/modules/sliding-window-attention",
+        vi: "/vi/docs/modules/sliding-window-attention",
+      },
+    });
+    expect(linearAttentionMetadata.alternates).toEqual({
+      canonical: "/docs/modules/linear-attention",
+      languages: {
+        en: "/docs/modules/linear-attention",
+        vi: "/vi/docs/modules/linear-attention",
+      },
+    });
+  });
+
   test("unshipped Vietnamese docs routes fail clearly instead of rendering English content", async () => {
     try {
       await renderDocsSlugPage(["getting-started"], "vi");
