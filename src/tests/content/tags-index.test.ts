@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import TagsIndexPage from "@/app/(site)/tags/page";
+import { renderTagsIndexPage } from "@/app/(site)/tags/page";
 import {
   groupTagIndexEntriesByCategory,
   loadPublishedTagIndexEntries,
@@ -132,7 +132,7 @@ describe("tags index messages", () => {
 
 describe("tags index page render", () => {
   it("lists foundational, attention, and kv-cache tags with category labels and landing links", async () => {
-    const page = await TagsIndexPage();
+    const page = await renderTagsIndexPage();
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Tags");
@@ -153,5 +153,14 @@ describe("tags index page render", () => {
     expect(html).not.toContain("mt-8");
     expect(html).toContain("list-none");
     expect(html).not.toContain("list-disc");
+  });
+
+  it("localizes tag landing hrefs on the vietnamese route surface", async () => {
+    const page = await renderTagsIndexPage("vi");
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain('href="/vi/tags/foundations"');
+    expect(html).toContain('href="/vi/tags/attention"');
+    expect(html).toContain('href="/vi/tags/kv-cache"');
   });
 });

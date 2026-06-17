@@ -4,6 +4,7 @@ import {
   DocsPage,
   DocsTitle,
 } from "fumadocs-ui/layouts/docs/page";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
@@ -15,6 +16,13 @@ import {
 } from "@/lib/content/tag-resources";
 import { loadPublishedTagIndexEntries } from "@/lib/content/tags";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import {
+  buildLocalizedRoute,
+  defaultLocale,
+  type SiteLocale,
+  switchRouteLocale,
+} from "@/lib/i18n/locale-routing";
+import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
 
 type TagLandingPageProps = {
   params: Promise<{ slug: string }>;
@@ -28,16 +36,27 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function TagLandingPage({ params }: TagLandingPageProps) {
+export async function renderTagLandingPage(
+  { params }: TagLandingPageProps,
+  locale: SiteLocale = defaultLocale,
+) {
   const { slug } = await params;
   const messages = await loadUiMessages();
-  const context = await loadTagLandingContext(slug, messages, "en");
+  const context = await loadTagLandingContext(slug, messages, defaultLocale);
 
   if (!context) {
     notFound();
   }
 
-  const groups = await loadTagResourceGroups(slug, messages, "en");
+  const groups = (
+    await loadTagResourceGroups(slug, messages, defaultLocale)
+  ).map((group) => ({
+    ...group,
+    resources: group.resources.map((resource) => ({
+      ...resource,
+      url: switchRouteLocale(resource.url, locale),
+    })),
+  }));
   const { tagLanding } = messages;
   const searchQuery = context.slug;
 
@@ -59,7 +78,7 @@ export default async function TagLandingPage({ params }: TagLandingPageProps) {
             label={tagLanding.searchHandoff}
           />
           <Link
-            href={`/search?tag=${encodeURIComponent(slug)}`}
+            href={`${buildLocalizedRoute({ surface: "search" }, locale)}?tag=${encodeURIComponent(slug)}`}
             className="inline-flex items-center rounded-lg border border-border bg-secondary/50 px-3 py-1.5 text-sm text-foreground transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {tagLanding.searchEntryLink}
@@ -70,6 +89,7 @@ export default async function TagLandingPage({ params }: TagLandingPageProps) {
             messages={messages}
             tagSlug={slug}
             searchQuery={searchQuery}
+            locale={locale}
           />
         ) : (
           <TagResourceList groups={groups} listLabel={tagLanding.listLabel} />
@@ -77,4 +97,28 @@ export default async function TagLandingPage({ params }: TagLandingPageProps) {
       </DocsBody>
     </DocsPage>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: TagLandingPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const messages = await loadUiMessages();
+  const context = await loadTagLandingContext(slug, messages, defaultLocale);
+
+  if (!context) {
+    return {
+      title: "Tag not found",
+    };
+  }
+
+  return {
+    title: context.title,
+    description: context.summary,
+    alternates: localizedRouteAlternates({ surface: "tag-page", slug }),
+  };
+}
+
+export default async function TagLandingPage(props: TagLandingPageProps) {
+  return renderTagLandingPage(props);
 }

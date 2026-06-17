@@ -13,9 +13,11 @@ import {
   SearchDialogOverlay,
 } from "fumadocs-ui/components/dialog/search";
 import type { SharedProps } from "fumadocs-ui/contexts/search";
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { consumePendingSearchQuery } from "@/features/docs/search/search-prefill";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import { matchLocalizedRoute } from "@/lib/i18n/locale-routing";
 import { SearchResultListItem } from "./SearchResults";
 import { useModelAtlasDocsSearch } from "./search-client";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";
@@ -38,6 +40,10 @@ export function ModelAtlasSearchDialog({
   messages,
   searchClient,
 }: ModelAtlasSearchDialogProps) {
+  const pathname = usePathname();
+  const routeMatch = pathname ? matchLocalizedRoute(pathname) : null;
+  const activeLocale =
+    routeMatch?.kind === "matched" ? routeMatch.locale : "en";
   const { search, setSearch, query } = useModelAtlasDocsSearch({
     metaByUrl,
     client: searchClient,
@@ -124,6 +130,7 @@ export function ModelAtlasSearchDialog({
               query={search}
               metaByUrl={metaByUrl}
               messages={messages}
+              locale={activeLocale}
               onClick={onClick}
               className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />

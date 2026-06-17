@@ -3,25 +3,29 @@ import type { ReactNode } from "react";
 
 import { ModelAtlasDocsHeader } from "@/components/layout/model-atlas-docs-header";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
+import { localizePageTree } from "@/lib/i18n/localize-page-tree";
 import { baseOptions } from "@/lib/layout.shared";
 import { source } from "@/lib/source";
 
 type CanonicalDocsLayoutProps = {
   children: ReactNode;
   messages: UiMessages;
+  locale?: SiteLocale;
 };
 
 export function CanonicalDocsLayout({
   children,
   messages,
+  locale = defaultLocale,
 }: CanonicalDocsLayoutProps) {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <ModelAtlasDocsHeader messages={messages} />
+      <ModelAtlasDocsHeader messages={messages} locale={locale} />
       <div className="flex min-h-0 flex-1 flex-col">
         <DocsLayout
-          tree={source.pageTree}
-          {...baseOptions}
+          tree={localizePageTree(source.pageTree, locale)}
+          {...baseOptions(locale)}
           nav={{ enabled: false }}
           searchToggle={{ enabled: false }}
           themeSwitch={{ enabled: false }}

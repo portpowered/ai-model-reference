@@ -8,6 +8,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { searchInlineResultsListClassName } from "@/features/docs/components/list-decoration";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import {
+  buildLocalizedRoute,
+  defaultLocale,
+  type SiteLocale,
+  switchRouteLocale,
+} from "@/lib/i18n/locale-routing";
 import { SearchInlineResultItem } from "./SearchResults";
 import { useModelAtlasDocsSearch } from "./search-client";
 import {
@@ -20,12 +26,11 @@ import {
 } from "./search-page-query";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";
 
-const ATTENTION_TAG_PATH = "/tags/attention";
-
 export type SearchPagePanelContentProps = {
   messages: UiMessages;
   metaByUrl: SearchResultMetaRecord;
   handoff: SearchPageHandoff;
+  locale?: SiteLocale;
   /** Test hook: override static bootstrap client options. */
   searchClient?: StaticOptions;
 };
@@ -48,6 +53,7 @@ export function SearchPagePanelContent({
   messages,
   metaByUrl,
   handoff,
+  locale = defaultLocale,
   searchClient,
 }: SearchPagePanelContentProps) {
   const router = useRouter();
@@ -110,7 +116,7 @@ export function SearchPagePanelContent({
     if (item.type === "action") {
       return;
     }
-    router.push(item.url);
+    router.push(switchRouteLocale(item.url, locale));
   };
 
   return (
@@ -191,7 +197,10 @@ export function SearchPagePanelContent({
               </button>{" "}
               {searchEntry.emptySuggestionMiddle}{" "}
               <Link
-                href={ATTENTION_TAG_PATH}
+                href={buildLocalizedRoute(
+                  { surface: "tag-page", slug: "attention" },
+                  locale,
+                )}
                 className="font-medium text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {searchEntry.emptySuggestionAttentionLinkLabel}
@@ -212,6 +221,7 @@ export function SearchPagePanelContent({
                   query={search}
                   metaByUrl={metaByUrl}
                   messages={messages}
+                  locale={locale}
                   onSelect={onSelect}
                   className="w-full px-3 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
@@ -237,6 +247,7 @@ export function SearchPagePanel({ messages, metaByUrl }: SearchPagePanelProps) {
         q: searchParams.get("q"),
         tag: searchParams.get("tag"),
       }}
+      locale={defaultLocale}
     />
   );
 }

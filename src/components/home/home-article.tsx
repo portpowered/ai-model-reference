@@ -4,12 +4,21 @@ import {
 } from "@/components/home/home-browse-link";
 import { HomeBrushHeader } from "@/components/home/home-brush-header";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import {
+  buildLocalizedRoute,
+  defaultLocale,
+  type SiteLocale,
+} from "@/lib/i18n/locale-routing";
 
 type HomeArticleProps = {
   messages: UiMessages;
+  locale?: SiteLocale;
 };
 
-export function HomeArticle({ messages }: HomeArticleProps) {
+export function HomeArticle({
+  messages,
+  locale = defaultLocale,
+}: HomeArticleProps) {
   const { home } = messages;
 
   return (
@@ -35,27 +44,36 @@ export function HomeArticle({ messages }: HomeArticleProps) {
         </p>
         <HomeBrowseList ariaLabel={home.browseSectionTitle}>
           <HomeBrowseLink
-            href="/docs/architecture"
+            href={buildLocalizedRoute(
+              { surface: "architecture-index" },
+              locale,
+            )}
             title={home.architectureLinkTitle}
             description={home.architectureLinkDescription}
           />
           <HomeBrowseLink
-            href="/docs/glossary"
+            href={buildLocalizedRoute({ surface: "glossary-index" }, locale)}
             title={home.glossaryLinkTitle}
             description={home.glossaryLinkDescription}
           />
           <HomeBrowseLink
-            href="/docs/glossary/token"
+            href={buildLocalizedRoute(
+              { surface: "docs-page", slug: "glossary/token" },
+              locale,
+            )}
             title={home.tokenLinkTitle}
             description={home.tokenLinkDescription}
           />
           <HomeBrowseLink
-            href="/tags"
+            href={buildLocalizedRoute({ surface: "tags-index" }, locale)}
             title={home.tagsLinkTitle}
             description={home.tagsLinkDescription}
           />
           <HomeBrowseLink
-            href="/docs/modules/grouped-query-attention"
+            href={buildLocalizedRoute(
+              { surface: "docs-page", slug: "modules/grouped-query-attention" },
+              locale,
+            )}
             title={home.docsLinkTitle}
             description={home.docsLinkDescription}
           />

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import type { ReactNode } from "react";
 import { AppProviders } from "@/components/providers/app-providers";
 import { loadUiMessages } from "@/lib/content/ui-messages";
@@ -23,6 +24,11 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        <Script id="route-locale-lang" strategy="beforeInteractive">
+          {`document.documentElement.lang = window.location.pathname.startsWith('/vi') ? 'vi' : 'en';`}
+        </Script>
+      </head>
       <body>
         <AppProviders metaByUrl={metaByUrl} messages={messages}>
           {children}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import GlossaryIndexPage from "@/app/(site)/docs/glossary/page";
+import { renderGlossaryIndexPage } from "@/app/(site)/docs/glossary/page";
 import {
   type GlossaryEntry,
   loadPublishedGlossaryEntries,
@@ -170,7 +170,7 @@ describe("glossary index messages", () => {
 
 describe("glossary index page render", () => {
   it("lists taxonomy glossary entries and token with localized titles", async () => {
-    const page = await GlossaryIndexPage();
+    const page = await renderGlossaryIndexPage();
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Glossary");
@@ -201,5 +201,14 @@ describe("glossary index page render", () => {
     expect(html).not.toContain("No glossary entries yet");
     expect(html).toContain("list-none");
     expect(html).not.toContain("list-disc");
+  });
+
+  it("preserves vietnamese locale in glossary browse links", async () => {
+    const page = await renderGlossaryIndexPage("vi");
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain('href="/vi/docs/glossary/architecture"');
+    expect(html).toContain('href="/vi/docs/glossary/generative-model"');
+    expect(html).toContain('href="/vi/docs/glossary/token"');
   });
 });

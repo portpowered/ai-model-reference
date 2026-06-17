@@ -13,6 +13,7 @@ import {
   loadLocalDocsPage,
   parseLocalDocsPageRef,
 } from "@/lib/content/local-docs-page";
+import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
 import { source } from "@/lib/source";
 import { getMDXComponents } from "../../../../mdx-components";
 
@@ -95,15 +96,20 @@ export async function generateMetadata({
   params,
 }: DocsPageProps): Promise<Metadata> {
   const { slug } = await params;
+  const docsSlug = slug?.join("/");
   const localRef = parseLocalDocsPageRef(slug);
 
   if (localRef) {
     const page = source.getPage(slug);
-    if (page) {
+    if (page && docsSlug) {
       const loadedPage = await loadLocalDocsPage(localRef);
       return {
         title: loadedPage.messages.title,
         description: loadedPage.messages.description,
+        alternates: localizedRouteAlternates({
+          surface: "docs-page",
+          slug: docsSlug,
+        }),
       };
     }
   }
@@ -119,5 +125,11 @@ export async function generateMetadata({
   return {
     title: page.data.title,
     description: page.data.description,
+    alternates: docsSlug
+      ? localizedRouteAlternates({
+          surface: "docs-page",
+          slug: docsSlug,
+        })
+      : undefined,
   };
 }

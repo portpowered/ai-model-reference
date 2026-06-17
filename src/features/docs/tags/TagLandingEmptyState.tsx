@@ -3,17 +3,24 @@
 import Link from "next/link";
 import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import {
+  buildLocalizedRoute,
+  defaultLocale,
+  type SiteLocale,
+} from "@/lib/i18n/locale-routing";
 
 type TagLandingEmptyStateProps = {
   messages: UiMessages;
   tagSlug: string;
   searchQuery: string;
+  locale?: SiteLocale;
 };
 
 export function TagLandingEmptyState({
   messages,
   tagSlug,
   searchQuery,
+  locale = defaultLocale,
 }: TagLandingEmptyStateProps) {
   const { tagLanding } = messages;
 
@@ -27,13 +34,13 @@ export function TagLandingEmptyState({
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <Link
-          href="/"
+          href={buildLocalizedRoute({ surface: "home" }, locale)}
           className="inline-flex items-center rounded-lg border border-border bg-secondary/50 px-3 py-1.5 text-sm text-foreground transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {tagLanding.emptyHomeLink}
         </Link>
         <Link
-          href="/tags"
+          href={buildLocalizedRoute({ surface: "tags-index" }, locale)}
           className="inline-flex items-center rounded-lg border border-border bg-secondary/50 px-3 py-1.5 text-sm text-foreground transition-colors hover:border-ring hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {tagLanding.emptyTagsLink}
