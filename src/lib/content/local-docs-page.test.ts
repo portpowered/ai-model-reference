@@ -149,6 +149,23 @@ describe("docs source local pages", () => {
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
   });
 
+  test("loadLocalDocsPage fails clearly when a shipped vi canonical page is missing page-local messages", async () => {
+    await expect(
+      loadLocalDocsPage(
+        {
+          section: "modules",
+          slug: "grouped-query-attention",
+        },
+        "vi",
+      ),
+    ).rejects.toMatchObject({
+      name: "MessageLoadError",
+      message: expect.stringContaining(
+        'route "/vi/docs/modules/grouped-query-attention"',
+      ),
+    });
+  });
+
   test("loadLocalDocsPage loads generated model, paper, and training bundles", async () => {
     const tempRoot = await createTemplateFixtureRoot();
     const contentRoot = await prepareContentRoots(tempRoot);

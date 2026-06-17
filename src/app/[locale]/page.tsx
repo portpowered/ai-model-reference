@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { renderHomePage } from "@/app/(site)/page";
+import { renderHomePage } from "@/app/(site)/site-renderers";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import {
   localizedRouteAlternates,
@@ -11,7 +11,7 @@ type LocalizedHomePageProps = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const messages = await loadUiMessages();
+  const messages = await loadUiMessages("vi");
 
   return {
     title: messages.home.title,

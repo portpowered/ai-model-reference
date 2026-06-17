@@ -66,14 +66,15 @@ export async function toTagIndexEntry(
   locale: SiteLocale,
 ): Promise<TagIndexEntry> {
   const { loadTagMessages } = await import("./tag-messages");
-  const tagMessages = loadTagMessages(record.slug, locale);
+  const url = tagPageHref(record.slug, locale);
+  const tagMessages = loadTagMessages(record.slug, locale, { route: url });
   const categoryLabel = formatTagCategoryLabel(messages, record.category);
 
   return {
     slug: record.slug,
     title: tagMessages.title,
     summary: tagMessages.summary,
-    url: tagPageHref(record.slug, locale),
+    url,
     category: record.category,
     categoryLabel,
   };

@@ -88,6 +88,27 @@ describe("loadPageMessages errors", () => {
     });
   });
 
+  test("names the localized route when a shipped vi page is missing canonical messages", async () => {
+    await mkdir(join(tempPageDir, "messages"), { recursive: true });
+
+    await expect(
+      loadPageMessages(tempPageDir, "vi", {
+        route: "/vi/docs/modules/grouped-query-attention",
+      }),
+    ).rejects.toMatchObject({
+      name: "MessageLoadError",
+      message: expect.stringContaining(
+        'route "/vi/docs/modules/grouped-query-attention"',
+      ),
+      details: [
+        expect.objectContaining({
+          type: "missing-file",
+          locale: "vi",
+        }),
+      ],
+    });
+  });
+
   test("throws when messages fail schema validation", async () => {
     await writeMessagesFixture("en", {
       title: "",

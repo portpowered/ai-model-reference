@@ -8,13 +8,18 @@ import { GLOSSARY_DOCS_ROOT } from "@/lib/content/content-paths";
 import { moduleMdxCompileOptions } from "@/lib/content/mdx-compile-options";
 import { moduleMdxComponents } from "@/lib/content/mdx-components";
 import { registerPageGraphRecords } from "@/lib/content/page-graph-registry-load";
+import { loadPageMessages } from "@/lib/content/page-messages-load";
 import {
   type PageAssetConfig,
   type PageFrontmatter,
   type PageMessages,
   pageFrontmatterSchema,
-  pageMessagesSchema,
 } from "@/lib/content/schemas";
+import {
+  buildLocalizedRoute,
+  defaultLocale,
+  type SiteLocale,
+} from "@/lib/i18n/locale-routing";
 import { buildLocalDocsTableOfContents } from "@/lib/navigation/local-docs-toc";
 
 export type LoadedGlossaryPage = {
@@ -31,16 +36,19 @@ function readJsonFile<T>(path: string): T {
 
 export async function loadGlossaryPageFromDisk(
   slug: string,
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
   glossaryDocsRoot = GLOSSARY_DOCS_ROOT,
 ): Promise<LoadedGlossaryPage> {
   const pageDir = join(glossaryDocsRoot, slug);
   const mdxPath = join(pageDir, "page.mdx");
-  const messagesPath = join(pageDir, "messages", `${locale}.json`);
   const assetsPath = join(pageDir, "assets.json");
+  const route = buildLocalizedRoute(
+    { surface: "docs-page", slug: `glossary/${slug}` },
+    locale,
+  );
 
   const source = readFileSync(mdxPath, "utf8");
-  const messages = pageMessagesSchema.parse(readJsonFile(messagesPath));
+  const messages = await loadPageMessages(pageDir, locale, { route });
   const assets = parsePageAssetConfig(readJsonFile(assetsPath));
   registerPageGraphRecords(join(glossaryDocsRoot, "..", ".."), assets);
 

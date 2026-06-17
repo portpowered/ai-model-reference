@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { renderSearchPage } from "@/app/(site)/search/page";
+import { renderSearchPage } from "@/app/(site)/site-renderers";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import {
   localizedRouteAlternates,
@@ -12,7 +12,7 @@ type LocalizedSearchPageProps = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const messages = await loadUiMessages();
+  const messages = await loadUiMessages("vi");
 
   return {
     title: messages.searchEntry.title,

@@ -14,4 +14,11 @@ describe("loadUiMessages shell keys", () => {
     expect(messages.glossaryIndex.title).toBe("Glossary");
     expect(messages.tagsIndex.title).toBe("Tags");
   });
+
+  it("falls back to english shell copy when vi shared messages are not shipped yet", async () => {
+    const messages = await loadUiMessages("vi");
+    expect(messages.nav.home).toBe("Home");
+    expect(messages.searchEntry.title).toBe("Search");
+    expect(messages.tagsIndex.title).toBe("Tags");
+  });
 });

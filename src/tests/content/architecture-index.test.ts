@@ -1,12 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { renderArchitectureIndexPage } from "@/app/(site)/docs/architecture/page";
+import { renderArchitectureIndexPage } from "@/app/(site)/site-renderers";
 import {
   type ArchitectureEntry,
   isArchitectureRelatedPage,
   loadPublishedArchitectureEntries,
   sortArchitectureEntriesByTitle,
 } from "@/lib/content/architecture";
+import { MessageLoadError } from "@/lib/content/page-messages-load";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
 import { loadUiMessages } from "@/lib/content/ui-messages";
@@ -162,12 +163,12 @@ describe("architecture index page render", () => {
     expect(html).not.toContain("list-disc");
   });
 
-  it("preserves vietnamese locale in architecture browse links", async () => {
-    const page = await renderArchitectureIndexPage("vi");
-    const html = renderToStaticMarkup(page);
-
-    expect(html).toContain('href="/vi/docs/glossary/architecture"');
-    expect(html).toContain('href="/vi/docs/glossary/foundation-model"');
-    expect(html).toContain('href="/vi/docs/glossary/token"');
+  it("fails clearly on the vietnamese route surface when canonical vi docs messages are missing", async () => {
+    await expect(renderArchitectureIndexPage("vi")).rejects.toBeInstanceOf(
+      MessageLoadError,
+    );
+    await expect(renderArchitectureIndexPage("vi")).rejects.toMatchObject({
+      message: expect.stringContaining('route "/vi/docs/'),
+    });
   });
 });

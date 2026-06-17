@@ -70,12 +70,13 @@ export async function loadPublishedDocsPages(
     }
 
     const docsSlug = path.relative(rootDir, pageDir);
+    const url = docsUrlFromSlug(docsSlug, locale);
     pages.push({
       pageDir,
       docsSlug,
-      url: docsUrlFromSlug(docsSlug, locale),
+      url,
       frontmatter,
-      messages: await loadPageMessages(pageDir, locale),
+      messages: await loadPageMessages(pageDir, locale, { route: url }),
     });
   }
 

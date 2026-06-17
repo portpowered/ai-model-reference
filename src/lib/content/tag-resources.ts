@@ -1,5 +1,9 @@
 import { publishedResourceMatchesTag } from "@/lib/content/phase-1-published-resources";
-import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
+import {
+  buildLocalizedRoute,
+  defaultLocale,
+  type SiteLocale,
+} from "@/lib/i18n/locale-routing";
 import type { DocsPageSource } from "./pages";
 import type { TagRecord } from "./schemas";
 import type { UiMessages } from "./ui-messages.types";
@@ -137,7 +141,11 @@ export async function loadTagLandingContext(
   }
 
   const { loadTagMessages } = await import("./tag-messages");
-  const tagMessages = loadTagMessages(record.slug, locale);
+  const route = buildLocalizedRoute(
+    { surface: "tag-page", slug: record.slug },
+    locale,
+  );
+  const tagMessages = loadTagMessages(record.slug, locale, { route });
   const categoryLabel =
     messages.tagCategories[record.category] ?? record.category;
 

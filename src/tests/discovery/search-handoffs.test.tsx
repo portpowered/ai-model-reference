@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { renderTagLandingPage } from "@/app/(site)/tags/[slug]/page";
+import { renderTagLandingPage } from "@/app/(site)/site-renderers";
 import { HomeArticle } from "@/components/home/home-article";
 import { getPrimaryNavItems } from "@/components/layout/primary-nav";
 import {
@@ -8,6 +8,7 @@ import {
   resolveInitialSearchPageQuery,
   resolveSearchPageHandoff,
 } from "@/features/docs/search/search-page-query";
+import { TagMessagesLoadError } from "@/lib/content/tag-messages";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { expectHomeArticleHeaderOnlySearchEntry } from "@/tests/discovery/home-search-entry-contract";
@@ -85,15 +86,25 @@ describe("Phase 1 discovery search handoffs", () => {
     expect(html).toContain("data-search");
   });
 
-  it("attention tag landing preserves locale in search handoff links on /vi", async () => {
-    const page = await renderTagLandingPage(
-      {
-        params: Promise.resolve({ slug: "attention" }),
-      },
-      "vi",
-    );
-    const html = renderToStaticMarkup(page);
-    expect(html).toContain('href="/vi/search?tag=attention"');
+  it("attention tag landing fails clearly on /vi until vi tag copy is shipped", async () => {
+    await expect(
+      renderTagLandingPage(
+        {
+          params: Promise.resolve({ slug: "attention" }),
+        },
+        "vi",
+      ),
+    ).rejects.toBeInstanceOf(TagMessagesLoadError);
+    await expect(
+      renderTagLandingPage(
+        {
+          params: Promise.resolve({ slug: "attention" }),
+        },
+        "vi",
+      ),
+    ).rejects.toMatchObject({
+      message: expect.stringContaining('route "/vi/tags/attention"'),
+    });
   });
 
   it("attention prefill query surfaces grouped-query attention in search API results", async () => {

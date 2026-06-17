@@ -1,11 +1,12 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { renderGlossaryIndexPage } from "@/app/(site)/docs/glossary/page";
+import { renderGlossaryIndexPage } from "@/app/(site)/site-renderers";
 import {
   type GlossaryEntry,
   loadPublishedGlossaryEntries,
   sortGlossaryEntriesByTitle,
 } from "@/lib/content/glossary";
+import { MessageLoadError } from "@/lib/content/page-messages-load";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("loadPublishedGlossaryEntries", () => {
@@ -203,12 +204,12 @@ describe("glossary index page render", () => {
     expect(html).not.toContain("list-disc");
   });
 
-  it("preserves vietnamese locale in glossary browse links", async () => {
-    const page = await renderGlossaryIndexPage("vi");
-    const html = renderToStaticMarkup(page);
-
-    expect(html).toContain('href="/vi/docs/glossary/architecture"');
-    expect(html).toContain('href="/vi/docs/glossary/generative-model"');
-    expect(html).toContain('href="/vi/docs/glossary/token"');
+  it("fails clearly on the vietnamese route surface when canonical vi docs messages are missing", async () => {
+    await expect(renderGlossaryIndexPage("vi")).rejects.toBeInstanceOf(
+      MessageLoadError,
+    );
+    await expect(renderGlossaryIndexPage("vi")).rejects.toMatchObject({
+      message: expect.stringContaining('route "/vi/docs/'),
+    });
   });
 });

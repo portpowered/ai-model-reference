@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { renderArchitectureIndexPage } from "@/app/(site)/docs/architecture/page";
+import { renderArchitectureIndexPage } from "@/app/(site)/site-renderers";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import {
   localizedRouteAlternates,
@@ -11,7 +11,7 @@ type LocalizedArchitectureIndexPageProps = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const messages = await loadUiMessages();
+  const messages = await loadUiMessages("vi");
 
   return {
     title: messages.architectureIndex.title,

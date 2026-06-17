@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import {
-  generateMetadata as generateEnglishMetadata,
+  buildTagLandingMetadata,
   renderTagLandingPage,
-} from "@/app/(site)/tags/[slug]/page";
+} from "@/app/(site)/site-renderers";
 import { resolveRouteLocaleOrNotFound } from "@/lib/i18n/route-locale";
 
 type LocalizedTagLandingPageProps = {
@@ -12,8 +12,9 @@ type LocalizedTagLandingPageProps = {
 export async function generateMetadata({
   params,
 }: LocalizedTagLandingPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  return generateEnglishMetadata({ params: Promise.resolve({ slug }) });
+  const { locale: rawLocale, slug } = await params;
+  const locale = resolveRouteLocaleOrNotFound(rawLocale);
+  return buildTagLandingMetadata(slug, locale);
 }
 
 export default async function LocalizedTagLandingPage({
