@@ -14,27 +14,30 @@ export function renderGlossaryDocsShell(
 ): string {
   return renderToStaticMarkup(
     createElement(
-      "div",
-      null,
-      createElement(DocsTitle, null, loadedPage.messages.title),
-      createElement(
-        DocsDescription,
-        null,
-        createElement(DocsAutoLinkedDescription, {
-          text: loadedPage.messages.description,
-        }),
-      ),
-      createElement(
-        "article",
-        { "data-registry-id": loadedPage.frontmatter.registryId },
-        createElement(ModulePageProviders, {
-          messages: loadedPage.messages,
-          assets: loadedPage.assets,
-          locale: options?.locale ?? defaultLocale,
-          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-          children: options?.articleChildren ?? loadedPage.content,
-        }),
-      ),
+      ModulePageProviders,
+      {
+        messages: loadedPage.messages,
+        assets: loadedPage.assets,
+        locale: options?.locale ?? defaultLocale,
+      },
+      createElement("div", null, [
+        createElement(DocsTitle, { key: "title" }, loadedPage.messages.title),
+        createElement(
+          DocsDescription,
+          { key: "description" },
+          createElement(DocsAutoLinkedDescription, {
+            text: loadedPage.messages.description,
+          }),
+        ),
+        createElement(
+          "article",
+          {
+            key: "article",
+            "data-registry-id": loadedPage.frontmatter.registryId,
+          },
+          options?.articleChildren ?? loadedPage.content,
+        ),
+      ]),
     ),
   );
 }

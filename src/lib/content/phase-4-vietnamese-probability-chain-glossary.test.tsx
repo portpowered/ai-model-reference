@@ -31,6 +31,7 @@ const VIETNAMESE_GLOSSARY_EXPECTATIONS = [
       "/vi/tags/foundations",
     ],
     shellLocalizedHrefs: ["/vi/docs/glossary/token"],
+    shellRejectedCanonicalHrefs: ["/docs/glossary/token"],
     fallbackHref: "/docs/glossary/tensor",
     shellFallbackHref: "/docs/glossary/vector",
   },
@@ -49,6 +50,7 @@ const VIETNAMESE_GLOSSARY_EXPECTATIONS = [
       "/vi/docs/glossary/softmax",
     ],
     shellLocalizedHrefs: ["/vi/docs/glossary/softmax"],
+    shellRejectedCanonicalHrefs: ["/docs/glossary/softmax"],
   },
   {
     slug: "softmax",
@@ -64,6 +66,7 @@ const VIETNAMESE_GLOSSARY_EXPECTATIONS = [
       "/vi/tags/foundations",
     ],
     shellLocalizedHrefs: ["/vi/docs/glossary/token"],
+    shellRejectedCanonicalHrefs: ["/docs/glossary/token"],
   },
 ] as const;
 
@@ -124,6 +127,12 @@ describe("Phase 4 Vietnamese probability-chain glossary coverage", () => {
 
       for (const href of expectation.shellLocalizedHrefs) {
         expect(shellHtml).toContain(`href="${href}"`);
+      }
+
+      if ("shellRejectedCanonicalHrefs" in expectation) {
+        for (const href of expectation.shellRejectedCanonicalHrefs) {
+          expect(shellHtml).not.toContain(`href="${href}"`);
+        }
       }
 
       if ("fallbackHref" in expectation) {
