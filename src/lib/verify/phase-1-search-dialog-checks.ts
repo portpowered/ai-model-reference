@@ -60,6 +60,7 @@ export function resolveSearchDialogCheckOptionsFromEnv(
 const SEARCH_DIALOG_TRIGGER_SELECTOR = "button[data-search]";
 const SEARCH_DIALOG_EMPTY_SELECTOR = '[data-testid="search-dialog-empty"]';
 const SEARCH_RESULT_URL_SELECTOR = '[data-testid="search-result-url"]';
+const SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS = 250;
 
 /** Default per-query browser deadline (client hydration can exceed 10s under CI load). */
 export const DEFAULT_SEARCH_DIALOG_TIMEOUT_MS = 30_000;
@@ -141,6 +142,10 @@ async function defaultLaunchBrowser(): Promise<Browser> {
   return launchPlaywrightBrowser();
 }
 
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function openHeaderSearchDialog(
   page: Page,
   baseUrl: string,
@@ -153,10 +158,31 @@ async function openHeaderSearchDialog(
   });
 
   const trigger = page.locator(SEARCH_DIALOG_TRIGGER_SELECTOR).first();
-  await trigger.click({ timeout: timeoutMs });
-
   const dialog = page.getByRole("dialog", { name: "Search" });
-  await dialog.waitFor({ state: "visible", timeout: timeoutMs });
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    if (await dialog.isVisible().catch(() => false)) {
+      return dialog;
+    }
+
+    const remainingMs = Math.max(1, deadline - Date.now());
+    await trigger.click({ timeout: Math.min(remainingMs, timeoutMs) });
+
+    try {
+      await dialog.waitFor({
+        state: "visible",
+        timeout: Math.min(1_000, remainingMs),
+      });
+      return dialog;
+    } catch {
+      await sleep(
+        Math.min(SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS, remainingMs),
+      );
+    }
+  }
+
+  await dialog.waitFor({ state: "visible", timeout: 1 });
   return dialog;
 }
 
