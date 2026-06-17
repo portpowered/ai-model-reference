@@ -2,10 +2,11 @@
 
 import { createContext, type ReactNode, useContext } from "react";
 import type { PageMessages } from "@/lib/content/schemas";
+import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 
 export type PageMessagesContextValue = {
   messages: PageMessages;
-  locale: string;
+  locale: SiteLocale;
   isDev: boolean;
 };
 
@@ -15,12 +16,12 @@ const PageMessagesContext = createContext<PageMessagesContextValue | null>(
 
 export function PageMessagesProvider({
   messages,
-  locale = "en",
+  locale = defaultLocale,
   isDev = process.env.NODE_ENV === "development",
   children,
 }: {
   messages: PageMessages;
-  locale?: string;
+  locale?: SiteLocale;
   isDev?: boolean;
   children: ReactNode;
 }) {
@@ -41,4 +42,10 @@ export function usePageMessages(): PageMessagesContextValue {
 
 export function useOptionalPageMessages(): PageMessages | undefined {
   return useContext(PageMessagesContext)?.messages;
+}
+
+export function useOptionalPageMessagesContext():
+  | PageMessagesContextValue
+  | undefined {
+  return useContext(PageMessagesContext) ?? undefined;
 }

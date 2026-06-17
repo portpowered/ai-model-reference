@@ -65,6 +65,7 @@ async function renderLocalDocsPage(
         <ModulePageProviders
           messages={loadedPage.messages}
           assets={loadedPage.assets}
+          locale={locale}
         >
           <article data-registry-id={loadedPage.frontmatter.registryId}>
             {loadedPage.content}

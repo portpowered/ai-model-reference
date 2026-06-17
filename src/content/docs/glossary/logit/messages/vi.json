@@ -1,0 +1,47 @@
+{
+  "title": "Logit",
+  "description": "Điểm số thô, chưa chuẩn hóa, cho từng mục trong từ vựng trước khi softmax biến các điểm đó thành xác suất.",
+  "sections": {
+    "whatItIs": {
+      "title": "Nó là gì",
+      "body": "Logit là một điểm số thực gán cho một lựa chọn từ vựng tại một vị trí, thường do một ma trận trọng số tác động lên hidden state tạo ra. Toàn bộ vector logit có độ dài bằng kích thước từ vựng; trước khi softmax chạy, không có phần tử nào bị buộc phải nằm trong khoảng từ 0 đến 1."
+    },
+    "whyItMatters": {
+      "title": "Vì sao nó quan trọng",
+      "body": "Sampling, hàm loss, và nhiều cách giải thích hành vi mô hình đều nói về logit hoặc xác suất suy ra từ logit. Temperature scaling chia các logit trước khi softmax; khi softmax là đơn điệu, thứ hạng token theo logit thường trùng với thứ hạng theo xác suất."
+    },
+    "simpleExample": {
+      "title": "Ví dụ đơn giản",
+      "body": "Giả sử mô hình phát ra ba logit cho ba token ứng viên tiếp theo. Softmax sẽ biến ba số đó thành ba giá trị cộng lại bằng 1; logit lớn nhất thường trở thành xác suất lớn nhất, nhưng điều quan trọng là quan hệ tương đối giữa các logit."
+    },
+    "whereItAppears": {
+      "title": "Nó xuất hiện ở đâu",
+      "body": "Mô hình ngôn ngữ decoder-only áp dụng một phép chiếu đầu ra, thường buộc chung trọng số với ma trận embedding đầu vào, lên hidden state ở mỗi vị trí để tạo tensor logit có dạng batch × sequence × vocabulary. Mã huấn luyện đôi khi vẫn giữ logit ở float32 ngay cả khi activation chạy ở độ chính xác thấp hơn."
+    },
+    "commonConfusions": {
+      "title": "Những nhầm lẫn thường gặp",
+      "body": "Logit không phải xác suất: nó có thể âm, lớn hơn một, và không cần cộng lại thành 1. Logit cũng không giống log-probability trừ khi bạn thật sự lấy log của xác suất đã được chuẩn hóa. Dạng số nhiều logits thường chỉ toàn bộ vector điểm số."
+    },
+    "related": {
+      "title": "Khái niệm và module liên quan"
+    },
+    "tags": {
+      "title": "Thẻ"
+    },
+    "references": {
+      "title": "Tài liệu tham khảo"
+    }
+  },
+  "relatedDocs": {
+    "concept.softmax": {
+      "reason": "Softmax là bước chuẩn hóa trực tiếp biến logit thành xác suất trên toàn bộ từ vựng."
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Lối tắt cho người đọc",
+      "body": "Hãy nghĩ tới điểm số trước softmax: logit chính là các con số mà softmax nhận vào. Trang tiếp theo trong chuỗi này cho thấy rõ cách bước chuẩn hóa đó hoạt động."
+    }
+  },
+  "openingSummary": "Logit là các điểm số trước softmax mà tầng từ vựng gán cho từng token, rồi softmax mới đổi chúng thành xác suất của token tiếp theo."
+}

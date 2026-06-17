@@ -5,11 +5,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { DocsAutoLinkedDescription } from "@/features/docs/components/DocsAutoLinkedDescription";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import type { LoadedGlossaryPage } from "@/lib/content/glossary-page-load";
+import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 
 /** Renders glossary docs shell markup matching production auto-linked description wiring. */
 export function renderGlossaryDocsShell(
   loadedPage: LoadedGlossaryPage,
-  options?: { articleChildren?: ReactNode },
+  options?: { articleChildren?: ReactNode; locale?: SiteLocale },
 ): string {
   return renderToStaticMarkup(
     createElement(
@@ -29,6 +30,7 @@ export function renderGlossaryDocsShell(
         createElement(ModulePageProviders, {
           messages: loadedPage.messages,
           assets: loadedPage.assets,
+          locale: options?.locale ?? defaultLocale,
           // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
           children: options?.articleChildren ?? loadedPage.content,
         }),
