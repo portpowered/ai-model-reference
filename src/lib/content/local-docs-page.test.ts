@@ -164,6 +164,41 @@ describe("docs source local pages", () => {
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
   });
 
+  test("loadLocalDocsPage resolves shipped vietnamese head-sharing module messages through the shared MDX route contract", async () => {
+    const multiHeadPage = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "multi-head-attention",
+      },
+      "vi",
+    );
+    const multiQueryPage = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "multi-query-attention",
+      },
+      "vi",
+    );
+
+    expect(multiHeadPage.messages.title).toBe("Multi-head attention");
+    expect(multiHeadPage.messages.sections?.whatItIs?.title).toBe("Nó là gì");
+    expect(multiHeadPage.frontmatter.registryId).toBe(
+      "module.multi-head-attention",
+    );
+    expect(multiHeadPage.toc.some((item) => item.url === "#what-it-is")).toBe(
+      true,
+    );
+
+    expect(multiQueryPage.messages.title).toBe("Multi-query attention");
+    expect(multiQueryPage.messages.sections?.whatItIs?.title).toBe("Nó là gì");
+    expect(multiQueryPage.frontmatter.registryId).toBe(
+      "module.multi-query-attention",
+    );
+    expect(multiQueryPage.toc.some((item) => item.url === "#what-it-is")).toBe(
+      true,
+    );
+  });
+
   test("loadLocalDocsPage fails clearly when a shipped vi canonical page is missing page-local messages", async () => {
     await expect(
       loadLocalDocsPage(

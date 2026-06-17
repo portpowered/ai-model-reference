@@ -1,0 +1,222 @@
+{
+  "title": "Multi-query attention",
+  "description": "Một biến thể attention cho mọi query head dùng chung một key-value head để giảm tối đa bộ nhớ KV cache.",
+  "openingSummary": "Suy luận tự hồi quy phải lưu key và value cho mọi token trước đó, và KV cache đó tăng theo độ dài ngữ cảnh lẫn số lượng head; multi-query attention (MQA) vẫn giữ H query head nhưng cho chúng đi qua một cặp key-value dùng chung nên mỗi lớp chỉ cần lưu một tensor K và một tensor V.",
+  "sections": {
+    "whatItIs": {
+      "title": "Nó là gì",
+      "body": "Multi-query attention là một biến thể attention phát triển từ multi-head attention. Mỗi query head vẫn tự tính điểm attention của riêng mình, nhưng tất cả cùng đọc từ một key head và một value head dùng chung."
+    },
+    "whatItOptimizes": {
+      "title": "Nó tối ưu điều gì",
+      "body": "MQA nhắm vào dung lượng KV cache và băng thông bộ nhớ trong giải mã tự hồi quy. Việc chia sẻ một cặp KV cho toàn bộ query head giúp giảm tối đa số tensor phải lưu cho mỗi token."
+    },
+    "practicalBenefit": {
+      "title": "Lợi ích thực tế",
+      "body": "Các hệ thống phục vụ chọn MQA khi suy luận ngữ cảnh dài sẽ làm kích thước cache tăng quá mạnh nếu giữ KV riêng cho từng head. MQA mang lại dung lượng KV nhỏ nhất trong họ attention chia sẻ head mà vẫn giữ các phép chiếu query tách biệt."
+    },
+    "howItWorks": {
+      "title": "Cách nó hoạt động",
+      "body": "Các phép chiếu tuyến tính vẫn tạo ra H query head, nhưng phép chiếu key và value rút xuống chỉ còn một head cho mỗi loại. Mỗi query head i sẽ chú ý vào cùng tensor K và V dùng chung, rồi các đầu ra được nối lại và chiếu như bình thường."
+    },
+    "mathOrComputeSchema": {
+      "title": "Công thức hoặc sơ đồ tính toán",
+      "body": "Các công thức bên dưới đối chiếu cách multi-head attention ghép từng query head với KV riêng của nó và cách multi-query attention cho mọi query head đi qua một cặp KV dùng chung."
+    },
+    "comparedToNearbyModules": {
+      "title": "So với các module lân cận",
+      "body": "So với multi-head attention, MQA chỉ lưu một cặp KV thay vì H cặp. So với grouped-query attention, MQA còn nén mạnh hơn nữa bằng cách cho toàn bộ query head dùng chung một KV head thay vì chia thành G nhóm."
+    },
+    "exampleArchitectures": {
+      "title": "Kiến trúc ví dụ",
+      "body": "MQA xuất hiện trong các mô hình ngôn ngữ decoder-only ưu tiên thông lượng suy luận và KV cache gọn nhẹ, bao gồm một số cấu hình phục vụ quy mô lớn chấp nhận đánh đổi về khả năng biểu diễn."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Giới hạn và đánh đổi",
+      "body": "Việc cho mọi query dùng chung một KV head có thể làm giảm độ linh hoạt biểu diễn so với full multi-head attention hoặc grouped-query attention. Các khối lượng công việc nhạy với chất lượng có thể ưu tiên GQA hoặc MHA hơn."
+    },
+    "whyItStillMatters": {
+      "title": "Vì sao nó vẫn quan trọng",
+      "body": "MQA mở ra không gian thiết kế chia sẻ head: nó cho thấy việc nén KV có thể đi xa tới đâu trước khi grouped-query attention trở thành điểm cân bằng tốt hơn giữa kích thước cache và độ đa dạng của query."
+    },
+    "related": {
+      "title": "Liên quan"
+    },
+    "tags": {
+      "title": "Thẻ"
+    },
+    "references": {
+      "title": "Tài liệu tham khảo"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "So sánh số head giữa multi-head attention và multi-query attention",
+      "caption": "Chuyển giữa MHA và MQA để so sánh số query head với số KV head trên cùng một đồ thị",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "mqa": {
+          "label": "MQA"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "Cách MQA so với các biến thể attention lân cận"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "mqa": {
+          "title": "Multi-query attention"
+        },
+        "mha": {
+          "title": "Multi-head attention"
+        },
+        "gqa": {
+          "title": "Grouped-query attention"
+        }
+      },
+      "dimensions": {
+        "kvHeadCount": "Số lượng KV head",
+        "queryHeadFlexibility": "Độ linh hoạt của query head",
+        "cacheFootprint": "Dung lượng cache trên mỗi token"
+      },
+      "values": {
+        "mqa": {
+          "kvHeadCount": "1 key head và 1 value head",
+          "queryHeadFlexibility": "H query head dùng chung một cặp KV",
+          "cacheFootprint": "2 tensor (một KV cache dùng chung)"
+        },
+        "mha": {
+          "kvHeadCount": "H key head và H value head",
+          "queryHeadFlexibility": "H cặp query/KV head độc lập",
+          "cacheFootprint": "2H tensor (KV cache đầy đủ của multi-head attention)"
+        },
+        "gqa": {
+          "kvHeadCount": "G key head và G value head",
+          "queryHeadFlexibility": "H query head riêng biệt được gom vào G cặp KV dùng chung",
+          "cacheFootprint": "2G tensor (G key + G value)"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Vector query cho head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Vector key cho head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Vector value cho head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Số lượng query head."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Chiều key trên mỗi head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Chỉ số query head."
+        }
+      }
+    },
+    "mqaSchema": {
+      "label": "Multi-query attention (MQA)",
+      "formula": "\\text{Attention}(Q_i, K, V) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K^{\\top}}{\\sqrt{d_k}}\\right) V",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Vector query cho head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Vector key dùng chung (một KV head)."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Vector value dùng chung (một KV head)."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Số lượng query head."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Chiều key trên mỗi head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Chỉ số query head."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "keysLabel": {
+        "label": "Keys"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "keyHead": {
+        "label": "k"
+      },
+      "valueHead": {
+        "label": "V"
+      },
+      "mhaQueryHeads": {
+        "label": "H query head"
+      },
+      "mhaKvHeads": {
+        "label": "H cặp KV head (1:1 với query)"
+      },
+      "mhaOneToOne": {
+        "label": "Mỗi query head có K và V riêng"
+      },
+      "mqaQueryHeads": {
+        "label": "H query head"
+      },
+      "mqaKvShared": {
+        "label": "1 cặp KV dùng chung"
+      },
+      "mqaSharedMapping": {
+        "label": "Tất cả H query head cùng đọc từ một K và một V"
+      },
+      "mqaSharingNote": {
+        "label": "Một cặp key/value dùng chung phục vụ mọi query head"
+      }
+    }
+  },
+  "relatedDocs": {
+    "module.attention": {
+      "reason": "Attention là khối cơ sở mà MQA sửa lại để nén KV cache."
+    },
+    "module.multi-head-attention": {
+      "reason": "MHA là đường cơ sở giữ KV riêng cho từng head, nên là đối chiếu trực tiếp cho đánh đổi của MQA."
+    },
+    "module.grouped-query-attention": {
+      "reason": "GQA là phương án ở giữa, chia sẻ KV theo nhóm thay vì thu gọn xuống chỉ một cặp như MQA."
+    }
+  }
+}
