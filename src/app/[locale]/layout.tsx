@@ -5,8 +5,10 @@ import { RouteLocaleEffect } from "@/components/i18n/RouteLocaleEffect";
 import { CanonicalDocsLayout } from "@/components/layout/canonical-docs-layout";
 import { AppProviders } from "@/components/providers/app-providers";
 import { loadUiMessages } from "@/lib/content/ui-messages";
-import { defaultLocale, supportedLocales } from "@/lib/i18n/locale-routing";
-import { resolveRouteLocaleOrNotFound } from "@/lib/i18n/route-locale";
+import {
+  generateStaticLocaleParams,
+  resolveRouteLocaleOrNotFound,
+} from "@/lib/i18n/route-locale";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
 import "../globals.css";
@@ -21,9 +23,7 @@ type LocalizedLayoutProps = {
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return supportedLocales
-    .filter((locale) => locale !== defaultLocale)
-    .map((locale) => ({ locale }));
+  return generateStaticLocaleParams();
 }
 
 export default async function LocalizedLayout({

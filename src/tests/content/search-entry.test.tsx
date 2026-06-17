@@ -42,7 +42,7 @@ describe("search entry page messages", () => {
 
 describe("search entry page render", () => {
   it("renders accessible heading and inline search input shell", async () => {
-    const html = renderToStaticMarkup(await SearchEntryPage());
+    const html = renderToStaticMarkup(await SearchEntryPage({}));
     expect(assertSearchPageBuiltAppShell(html)).toBeNull();
   });
 });
@@ -64,7 +64,7 @@ describe("search entry page built-app shell", () => {
 
   it("hydrates with exactly one title, search input, and canonical note", async () => {
     const context = await loadAppTestContext();
-    const page = await SearchEntryPage();
+    const page = await SearchEntryPage({});
     await renderWithAppProviders(page, { context });
 
     expect(
@@ -81,7 +81,7 @@ describe("search entry page built-app shell", () => {
 
   it("keeps idle, results, and empty states in the results region below the input", async () => {
     const context = await loadAppTestContext();
-    const page = await SearchEntryPage();
+    const page = await SearchEntryPage({});
     const { container } = await renderWithAppProviders(page, { context });
 
     const input = screen.getByLabelText(context.messages.search.placeholder);

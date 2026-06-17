@@ -3,11 +3,31 @@ import {
   buildDocsPageMetadata,
   renderDocsSlugPage,
 } from "@/app/docs/docs-slug-renderer";
-import { resolveRouteLocaleOrNotFound } from "@/lib/i18n/route-locale";
+import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
+import {
+  generateStaticLocaleParams,
+  resolveRouteLocaleOrNotFound,
+} from "@/lib/i18n/route-locale";
 
 type LocalizedDocsSlugPageProps = {
   params: Promise<{ locale: string; slug?: string[] }>;
 };
+
+export async function generateStaticParams() {
+  const params: Array<{ locale: string; slug?: string[] }> = [];
+
+  for (const { locale } of generateStaticLocaleParams()) {
+    const pages = await loadShippedLocalizedDocsPages(locale);
+    for (const page of pages) {
+      params.push({
+        locale,
+        slug: page.docsSlug.split("/"),
+      });
+    }
+  }
+
+  return params;
+}
 
 export async function generateMetadata({
   params,

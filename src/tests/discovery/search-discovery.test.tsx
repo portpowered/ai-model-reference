@@ -38,7 +38,7 @@ const PHASE_1_DISCOVERY_ROUTES = [
   },
   {
     path: "/search",
-    render: () => SearchEntryPage(),
+    render: () => SearchEntryPage({}),
     expectInHtml: "Search",
   },
   {

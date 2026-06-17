@@ -13,6 +13,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function SearchPage(props: SearchPageProps = {}) {
-  return renderSearchPage(undefined, props);
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  return renderSearchPage(undefined, { searchParams });
 }

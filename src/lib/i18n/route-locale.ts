@@ -34,3 +34,20 @@ export function localizedRouteAlternates(
     ),
   };
 }
+
+export function generateStaticLocaleParams() {
+  return supportedLocales
+    .filter((locale) => locale !== defaultLocale)
+    .map((locale) => ({ locale }));
+}
+
+export function localizeStaticParams<TParam extends Record<string, unknown>>(
+  params: readonly TParam[],
+): Array<TParam & { locale: SiteLocale }> {
+  return generateStaticLocaleParams().flatMap(({ locale }) =>
+    params.map((param) => ({
+      ...param,
+      locale,
+    })),
+  );
+}

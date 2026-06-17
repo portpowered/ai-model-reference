@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
 import {
   buildTagLandingMetadata,
+  generateTagLandingStaticParams,
   renderTagLandingPage,
 } from "@/app/(site)/site-renderers";
-import { resolveRouteLocaleOrNotFound } from "@/lib/i18n/route-locale";
+import {
+  localizeStaticParams,
+  resolveRouteLocaleOrNotFound,
+} from "@/lib/i18n/route-locale";
 
 type LocalizedTagLandingPageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };
+
+export async function generateStaticParams() {
+  return localizeStaticParams(await generateTagLandingStaticParams());
+}
 
 export async function generateMetadata({
   params,
