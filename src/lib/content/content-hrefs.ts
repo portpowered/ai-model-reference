@@ -1,19 +1,46 @@
+import {
+  buildLocalizedRoute,
+  defaultLocale,
+  type SiteLocale,
+} from "@/lib/i18n/locale-routing";
+
 /** Canonical docs URL for a glossary entry slug. */
-export function glossaryPageHref(slug: string): string {
-  return `/docs/glossary/${slug}`;
+export function glossaryPageHref(
+  slug: string,
+  locale: SiteLocale = defaultLocale,
+): string {
+  return buildLocalizedRoute(
+    { surface: "docs-page", slug: `glossary/${slug}` },
+    locale,
+  );
 }
 
 /** Canonical docs URL for a concept entry slug under `docs/concepts`. */
-export function conceptPageHref(slug: string): string {
-  return `/docs/concepts/${slug}`;
+export function conceptPageHref(
+  slug: string,
+  locale: SiteLocale = defaultLocale,
+): string {
+  return buildLocalizedRoute(
+    { surface: "docs-page", slug: `concepts/${slug}` },
+    locale,
+  );
 }
 
 /** Canonical docs URL for a module entry slug. */
-export function modulePageHref(slug: string): string {
-  return `/docs/modules/${slug}`;
+export function modulePageHref(
+  slug: string,
+  locale: SiteLocale = defaultLocale,
+): string {
+  return buildLocalizedRoute(
+    { surface: "docs-page", slug: `modules/${slug}` },
+    locale,
+  );
 }
 
 /** Canonical tag landing URL for a registry tag slug. */
-export function tagPageHref(slug: string): string {
-  return `/tags/${slug}`;
+export function tagPageHref(
+  slug: string,
+  locale: SiteLocale = defaultLocale,
+): string {
+  return buildLocalizedRoute({ surface: "tag-page", slug }, locale);
 }

@@ -1,3 +1,4 @@
+import { defaultLocale } from "@/lib/i18n/locale-routing";
 import { buildSearchDocuments } from "./build-documents";
 import type { SearchDocument } from "./types";
 
@@ -8,8 +9,6 @@ export type SearchResultMeta = {
   tags: string[];
   aliases: string[];
 };
-
-const DEFAULT_LOCALE = "en";
 
 export function buildSearchResultMetaMap(
   documents: SearchDocument[],
@@ -33,7 +32,7 @@ export async function loadSearchResultMetaMap(): Promise<
   const { loadRegistry } = await import("@/lib/content/registry");
   const { loadPublishedDocsPages } = await import("@/lib/content/pages");
   const indexes = await loadRegistry();
-  const pages = await loadPublishedDocsPages(DEFAULT_LOCALE);
+  const pages = await loadPublishedDocsPages(defaultLocale);
   const documents = buildSearchDocuments(pages, indexes);
   return buildSearchResultMetaMap(documents);
 }

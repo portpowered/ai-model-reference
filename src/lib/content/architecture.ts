@@ -1,3 +1,4 @@
+import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import type { DocsPageSource } from "./pages";
 import { getRegistryRecord, type RegistryIndexes } from "./registry-index";
 import type { ConceptRecord } from "./schemas";
@@ -81,7 +82,7 @@ export function sortArchitectureEntriesByTitle(
 }
 
 export async function loadPublishedArchitectureEntries(
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<ArchitectureEntry[]> {
   const { loadRegistry } = await import("./registry");
   const { loadPublishedDocsPages } = await import("./pages");

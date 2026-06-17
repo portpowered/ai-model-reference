@@ -1,3 +1,4 @@
+import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import type { TagRecord } from "./schemas";
 
 /** Human-readable label for a kebab-case tag slug. */
@@ -62,7 +63,7 @@ export function formatTagCategoryLabel(
 export async function toTagIndexEntry(
   record: TagRecord,
   messages: UiMessages,
-  locale = "en",
+  locale: SiteLocale,
 ): Promise<TagIndexEntry> {
   const { loadTagMessages } = await import("./tag-messages");
   const tagMessages = loadTagMessages(record.slug, locale);
@@ -72,7 +73,7 @@ export async function toTagIndexEntry(
     slug: record.slug,
     title: tagMessages.title,
     summary: tagMessages.summary,
-    url: `/tags/${record.slug}`,
+    url: tagPageHref(record.slug, locale),
     category: record.category,
     categoryLabel,
   };
@@ -88,7 +89,7 @@ export function sortTagIndexEntriesByTitle(
 
 export async function loadPublishedTagIndexEntries(
   messages: UiMessages,
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<TagIndexEntry[]> {
   const { loadRegistry } = await import("./registry");
   const indexes = await loadRegistry();
@@ -126,7 +127,7 @@ export function groupTagIndexEntriesByCategory(
 
 export async function loadPublishedTagIndexGroups(
   messages: UiMessages,
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<TagIndexCategoryGroup[]> {
   const entries = await loadPublishedTagIndexEntries(messages, locale);
   return groupTagIndexEntriesByCategory(entries);

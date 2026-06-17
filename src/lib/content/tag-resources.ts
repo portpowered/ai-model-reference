@@ -1,4 +1,5 @@
 import { publishedResourceMatchesTag } from "@/lib/content/phase-1-published-resources";
+import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import type { DocsPageSource } from "./pages";
 import type { TagRecord } from "./schemas";
 import type { UiMessages } from "./ui-messages.types";
@@ -80,7 +81,7 @@ export async function loadPublishedTagRecord(
 
 export async function loadTagResourceEntries(
   tagSlug: string,
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<TagResourceEntry[]> {
   const { loadRegistry } = await import("./registry");
   const { loadPublishedDocsPages } = await import("./pages");
@@ -119,7 +120,7 @@ export function groupTagResourceEntriesByKind(
 export async function loadTagResourceGroups(
   tagSlug: string,
   messages: UiMessages,
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<TagResourceKindGroup[]> {
   const entries = await loadTagResourceEntries(tagSlug, locale);
   return groupTagResourceEntriesByKind(entries, messages);
@@ -128,7 +129,7 @@ export async function loadTagResourceGroups(
 export async function loadTagLandingContext(
   slug: string,
   messages: UiMessages,
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<TagLandingContext | undefined> {
   const record = await loadPublishedTagRecord(slug);
   if (!record) {

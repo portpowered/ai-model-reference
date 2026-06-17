@@ -8,6 +8,10 @@ import {
   pageFrontmatterSchema,
 } from "@/lib/content/schemas";
 import { parseYamlFrontmatterBlock } from "@/lib/content/yaml-frontmatter";
+import {
+  buildLocalizedRoute,
+  type SiteLocale,
+} from "@/lib/i18n/locale-routing";
 
 export type DocsPageSource = {
   pageDir: string;
@@ -48,12 +52,12 @@ function findPageDirectories(
   return directories;
 }
 
-export function docsUrlFromSlug(docsSlug: string): string {
-  return `/docs/${docsSlug}`;
+export function docsUrlFromSlug(docsSlug: string, locale: SiteLocale): string {
+  return buildLocalizedRoute({ surface: "docs-page", slug: docsSlug }, locale);
 }
 
 export async function loadPublishedDocsPages(
-  locale: string,
+  locale: SiteLocale,
   rootDir = DOCS_ROOT,
 ): Promise<DocsPageSource[]> {
   const pages: DocsPageSource[] = [];
@@ -69,7 +73,7 @@ export async function loadPublishedDocsPages(
     pages.push({
       pageDir,
       docsSlug,
-      url: docsUrlFromSlug(docsSlug),
+      url: docsUrlFromSlug(docsSlug, locale),
       frontmatter,
       messages: await loadPageMessages(pageDir, locale),
     });
