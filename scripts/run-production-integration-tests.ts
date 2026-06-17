@@ -5,6 +5,15 @@ import { VERIFY_PRODUCTION_INTEGRATION_TESTS_ENV } from "../src/lib/verify/serve
 
 const repoRoot = join(import.meta.dir, "..");
 
+const prepareResult = spawnSync("bun", ["run", "pretest"], {
+  cwd: repoRoot,
+  stdio: "inherit",
+});
+
+if (prepareResult.status !== 0) {
+  process.exit(prepareResult.status ?? 1);
+}
+
 const result = spawnSync(
   "bun",
   ["test", "--max-concurrency=1", ...PRODUCTION_INTEGRATION_TEST_PATHS],

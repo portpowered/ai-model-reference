@@ -1,9 +1,18 @@
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
 const repoRoot = join(import.meta.dir, "..");
 const verifyDir = join(repoRoot, "src/lib/verify");
+
+const prepareResult = spawnSync("bun", ["run", "pretest"], {
+  cwd: repoRoot,
+  stdio: "inherit",
+});
+
+if (prepareResult.status !== 0) {
+  process.exit(prepareResult.status ?? 1);
+}
 
 const websiteVerifierPatterns = [
   /customer-ask-.*convergence(-http)?\.test\.ts$/,
