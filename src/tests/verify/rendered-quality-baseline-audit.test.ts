@@ -12,7 +12,7 @@ import { shouldRunVerifyProductionIntegrationTests } from "@/lib/verify/server-l
 const repoRoot = join(import.meta.dir, "../../..");
 const auditReportPath = join(
   repoRoot,
-  "docs/internal/rendered-quality-baseline-audit.md",
+  "docs/temp/rendered-quality-baseline-audit.md",
 );
 
 describe("rendered quality baseline audit integration", () => {

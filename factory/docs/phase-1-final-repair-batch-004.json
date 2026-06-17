@@ -20,7 +20,7 @@
     {
       "name": "ideafy-loopback-phase-1-final-repair-batch-004",
       "workTypeName": "thoughts",
-      "payload": "Review the final Phase 1 repair batch, rerun the local Phase 1 checks, update `docs/internal/checklist.md` and `docs/internal/progress.txt`, and decide whether Phase 1 is now complete. Do not advance to Phase 2 unless `docs/internal/customer-ask.md` is updated to name it."
+      "payload": "Review the final Phase 1 repair batch, rerun the local Phase 1 checks, update `docs/temp/checklist.md` and `docs/temp/progress.txt`, and decide whether Phase 1 is now complete. Do not advance to Phase 2 unless `docs/temp/customer-ask.md` is updated to name it."
     }
   ],
   "relations": [

@@ -20,7 +20,7 @@
     {
       "name": "ideafy-loopback-phase-1-completion-batch-002",
       "workTypeName": "thoughts",
-      "payload": "Review the completed Phase 1 completion batch, rerun the Phase 1 manual gate checks as far as possible, update docs/internal progress and checklist state, and decide whether the customer-authorized away-mode permits moving to Phase 2 or whether another Phase 1 repair batch is needed."
+      "payload": "Review the completed Phase 1 completion batch, rerun the Phase 1 manual gate checks as far as possible, update docs/temp progress and checklist state, and decide whether the customer-authorized away-mode permits moving to Phase 2 or whether another Phase 1 repair batch is needed."
     }
   ],
   "relations": [

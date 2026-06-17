@@ -338,7 +338,7 @@ installed, and Playwright Chromium for real browser checks (`npx playwright
 install chromium` once per machine).
 
 After `make build`, run the built-app verifier to codify the Phase 1 manual gate
-from `docs/internal/customer-ask.md` (home, search, glossary, tags, sample
+from `docs/temp/customer-ask.md` (home, search, glossary, tags, sample
 docs, live `/search` and header search for GQA, attention, and KV cache, plus
 `/api/search` for the same queries):
 
@@ -366,7 +366,7 @@ completes the verifier in well under two minutes on a typical laptop, bounded
 by the configured timeouts.
 
 **Pass/fail interpretation:** Exit `0` means the production-built app satisfies
-the Phase 1 manual gate in `docs/internal/customer-ask.md`, including visible
+the Phase 1 manual gate in `docs/temp/customer-ask.md`, including visible
 links to Grouped-Query Attention for GQA, attention, and KV cache on `/search`
 and in the header search dialog. Exit `1` catches the known **empty-results
 regression**: `make ci` and in-process search tests can pass while `next start`
@@ -396,7 +396,7 @@ the same command prints a structured **Customer-ask convergence report** with
 one line per batch-008 customer-ask check. Each row includes a stable `checkId`,
 human title, optional `route` or `query`, `pass` / `fail` / `uncertain` status,
 failure reason when applicable, and a `checklistRow` mapping to
-`docs/internal/checklist.md`. The report covers home/header polish on `/`,
+`docs/temp/checklist.md`. The report covers home/header polish on `/`,
 tag list styling on `/tags` and `/tags/attention`, search surface behavior on
 `/search`, the header search dialog, and `/api/search`, glossary presentation on
 `/docs/glossary/token`, and the canonical GQA module page on
@@ -533,6 +533,6 @@ The loop is documented in:
 Project-level meta state lives in:
 
 ```txt
-docs/internal/progress.txt
-docs/internal/checklist.md
+docs/temp/progress.txt
+docs/temp/checklist.md
 ```

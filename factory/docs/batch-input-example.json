@@ -30,7 +30,7 @@
     {
       "name": "ideafy-loopback-phase-1-default-site-batch-001",
       "workTypeName": "thoughts",
-      "payload": "Review the completed Phase 1 default-site ideas, update docs/internal progress and checklist state, wait for manual confirmation if needed, and prepare the next coherent phase batch."
+      "payload": "Review the completed Phase 1 default-site ideas, update docs/temp progress and checklist state, wait for manual confirmation if needed, and prepare the next coherent phase batch."
     }
   ],
   "relations": [

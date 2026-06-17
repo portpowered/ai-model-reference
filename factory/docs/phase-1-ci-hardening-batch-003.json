@@ -20,7 +20,7 @@
     {
       "name": "ideafy-loopback-phase-1-ci-hardening-batch-003",
       "workTypeName": "thoughts",
-      "payload": "Review the Phase 1 CI hardening batch, rerun the local Phase 1 checks as far as possible, update `docs/internal/checklist.md` and `docs/internal/progress.txt`, and decide whether Phase 1 is complete or whether another narrowly-scoped Phase 1 repair batch is still required."
+      "payload": "Review the Phase 1 CI hardening batch, rerun the local Phase 1 checks as far as possible, update `docs/temp/checklist.md` and `docs/temp/progress.txt`, and decide whether Phase 1 is complete or whether another narrowly-scoped Phase 1 repair batch is still required."
     }
   ],
   "relations": [

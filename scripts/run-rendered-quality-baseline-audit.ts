@@ -13,7 +13,7 @@ import {
 const projectRoot = join(import.meta.dir, "..");
 const auditReportPath = join(
   projectRoot,
-  "docs/internal/rendered-quality-baseline-audit.md",
+  "docs/temp/rendered-quality-baseline-audit.md",
 );
 
 async function main(): Promise<number> {
