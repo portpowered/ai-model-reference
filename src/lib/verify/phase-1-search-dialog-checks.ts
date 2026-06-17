@@ -176,9 +176,7 @@ async function openHeaderSearchDialog(
       });
       return dialog;
     } catch {
-      await sleep(
-        Math.min(SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS, remainingMs),
-      );
+      await sleep(Math.min(SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS, remainingMs));
     }
   }
 

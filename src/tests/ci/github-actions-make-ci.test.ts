@@ -197,9 +197,7 @@ describe("GitHub Actions make ci", () => {
     );
 
     expect(commands).toHaveLength(ciTargets.length + 1);
-    expect([...commands].sort()).toEqual(
-      [...ciTargets, "build-export"].sort(),
-    );
+    expect([...commands].sort()).toEqual([...ciTargets, "build-export"].sort());
   });
 
   test("make ci stops on the first failing prerequisite", () => {
