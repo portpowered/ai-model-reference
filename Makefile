@@ -67,7 +67,7 @@ scaffold:
 	bun ./scripts/scaffold-doc-page.ts $(ARGS)
 
 linkcheck:
-	bun ./scripts/validate-links.ts
+	bun run linkcheck
 
 validate-pdf:
 	@echo "validate-pdf: skipped (not yet implemented in scaffold)"

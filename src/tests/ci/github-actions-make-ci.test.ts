@@ -61,8 +61,8 @@ describe("GitHub Actions make ci", () => {
     expect(finalCiJobIndex).toBeGreaterThan(matrixIndex);
     expect(workflow).not.toContain("run: make ci");
     expect(workflow).toContain("needs: gate");
-    expect(workflow).toContain('if: ${{ always() }}');
-    expect(workflow).toContain('if: ${{ matrix.install_playwright }}');
+    expect(workflow).toMatch(/if: \$\{\{ always\(\) \}\}/);
+    expect(workflow).toMatch(/if: \$\{\{ matrix\.install_playwright \}\}/);
     expect(workflow).not.toMatch(/continue-on-error:\s*true/i);
   });
 
@@ -73,11 +73,17 @@ describe("GitHub Actions make ci", () => {
       readFileSync(join(repoRoot, "package.json"), "utf8"),
     ) as {
       scripts: {
+        linkcheck: string;
         test: string;
         "test:build-contract": string;
         "test:verify-contract": string;
+        prelinkcheck: string;
       };
     };
+    expect(packageJson.scripts.prelinkcheck).toBe("fumadocs-mdx");
+    expect(packageJson.scripts.linkcheck).toBe(
+      "bun ./scripts/validate-links.ts",
+    );
     expect(packageJson.scripts.test).toBe("bun run test:website");
     expect(packageJson.scripts["test:verify-contract"]).toBe(
       "bun ./scripts/run-website-verifier-tests.ts",
@@ -104,6 +110,7 @@ describe("GitHub Actions make ci", () => {
     expect(workflow).toContain("command: make test-integration");
 
     const makefile = readFileSync(makefilePath, "utf8");
+    expect(makefile).toContain("linkcheck:\n\tbun run linkcheck");
     expect(parseMakefileCiPrerequisites(makefile)).toContain("test");
     expect(parseMakefileCiPrerequisites(makefile)).toContain(
       "test-verify-contract",

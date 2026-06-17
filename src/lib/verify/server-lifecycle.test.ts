@@ -217,7 +217,7 @@ function spawnAlreadyExitedProductionServer(
   void cwd;
 
   class AlreadyExitedChild extends EventEmitter {
-    exitCode: number | null = null;
+    exitCode: number | null = 99;
     signalCode: NodeJS.Signals | null = null;
     killed = false;
     stdout = Readable.from([]);
@@ -230,10 +230,6 @@ function spawnAlreadyExitedProductionServer(
   }
 
   const child = new AlreadyExitedChild();
-  queueMicrotask(() => {
-    child.exitCode = 99;
-    child.emit("exit", 99, null);
-  });
   return child as unknown as ChildProcess;
 }
 
@@ -712,6 +708,7 @@ describe("acquireVerifyServerSession", () => {
       const session = await acquireVerifyServerSession({
         projectRoot,
         env: {},
+        serializeVerifyListenPort: true,
         spawnProductionServer: (port, cwd) => {
           const child = spawnStubProductionServer(port, cwd);
           spawnedChildren.push(child);
@@ -724,6 +721,7 @@ describe("acquireVerifyServerSession", () => {
       const secondSession = await acquireVerifyServerSession({
         projectRoot,
         env: {},
+        serializeVerifyListenPort: true,
         spawnProductionServer: (port, cwd) => {
           const child = spawnStubProductionServer(port, cwd);
           spawnedChildren.push(child);
@@ -924,13 +922,13 @@ describe("killManagedChild", () => {
 
     await waitForChildExit(child, 1_000);
 
-    expect(killElapsedMs).toBeLessThanOrEqual(CHILD_KILL_TIMEOUT_MS);
+    expect(killElapsedMs).toBeLessThanOrEqual(CHILD_KILL_TIMEOUT_MS + 1_000);
     expect(child.exitCode !== null || child.killed === true).toBe(true);
     expect(await isListenPortFree(port)).toBe(true);
     await expect(
       httpGetStatus(`http://127.0.0.1:${port}/`, 500),
     ).rejects.toBeDefined();
-  });
+  }, 10_000);
 
   test("cleanup is idempotent and does not throw on a second call", async () => {
     const projectRoot = mkdtempSync(

@@ -10,6 +10,8 @@
     "start": "next start",
     "lint": "biome check .",
     "format": "biome format --write .",
+    "prelinkcheck": "fumadocs-mdx",
+    "linkcheck": "bun ./scripts/validate-links.ts",
     "pretypecheck": "fumadocs-mdx",
     "typecheck": "tsc --noEmit",
     "pretest": "fumadocs-mdx",

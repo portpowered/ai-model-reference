@@ -265,7 +265,8 @@ make ci
 
 You do not need to run `fumadocs-mdx` manually. The repository does not commit
 `.source/` (Fumadocs MDX bindings) or `.next/`; `pretypecheck` and `pretest`
-generate `.source/` automatically before typecheck and tests.
+generate `.source/` automatically before typecheck and tests, and
+`prelinkcheck` does the same before standalone link validation.
 
 ### CI sequence
 
@@ -297,8 +298,9 @@ concept pages, then run `make validate-data` before opening a pull request.
 
 Fumadocs writes generated MDX bindings under `.source/` (gitignored). Fresh
 checkouts do not include that directory; `pretypecheck` and `pretest` in
-`package.json` both run `fumadocs-mdx` so standalone `make typecheck` and
-`make test` succeed without a manual codegen step.
+`package.json` both run `fumadocs-mdx`, and `prelinkcheck` does as well, so
+standalone `make typecheck`, `make test`, and `make linkcheck` succeed without
+a manual codegen step.
 
 
 Individual targets:
