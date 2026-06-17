@@ -292,6 +292,7 @@ export type WaitForServerReadyOptions = {
   pollIntervalMs?: number;
   perRequestTimeoutMs?: number;
   port?: number;
+  signal?: AbortSignal;
 };
 
 function formatReadinessTimeoutError(
@@ -391,6 +392,10 @@ export async function waitForServerReady(
   let lastError: unknown;
 
   while (Date.now() < deadline) {
+    if (options.signal?.aborted) {
+      return;
+    }
+
     try {
       const status = await httpGetStatus(healthUrl, perRequestTimeoutMs);
       if (status === 200) {
@@ -404,6 +409,9 @@ export async function waitForServerReady(
     const remaining = deadline - Date.now();
     if (remaining <= 0) {
       break;
+    }
+    if (options.signal?.aborted) {
+      return;
     }
     await new Promise((resolve) =>
       setTimeout(resolve, Math.min(pollIntervalMs, remaining)),
@@ -525,6 +533,7 @@ async function acquireSpawnedVerifyServerSession(options: {
         registerProcessSignalHandlers(cleanup);
       }
 
+      const readinessAbortController = new AbortController();
       const earlyExit = waitForChildEarlyExit(child, port, healthUrl);
       try {
         await Promise.race([
@@ -532,6 +541,7 @@ async function acquireSpawnedVerifyServerSession(options: {
             timeoutMs: options.startupTimeoutMs,
             pollPath: healthPath,
             port,
+            signal: readinessAbortController.signal,
           }),
           earlyExit.promise,
         ]);
@@ -539,6 +549,7 @@ async function acquireSpawnedVerifyServerSession(options: {
         await cleanup();
         throw error;
       } finally {
+        readinessAbortController.abort();
         earlyExit.cancel();
       }
 

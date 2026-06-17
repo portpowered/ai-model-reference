@@ -137,10 +137,10 @@ aggregate job named **`ci`** for branch protection. Each gate job checks out the
 branch, installs with `bun install --frozen-lockfile`, and runs one Make target:
 `lint`, `typecheck`, `test`, `test-verify-contract`, `coverage`,
 `test-build-contract`, `test-integration`, `validate-data`, or `linkcheck`.
-Only the `test-integration` gate installs Playwright Chromium
-(`bunx playwright install chromium --with-deps`) because it owns the
-browser-backed export search UX checks. Deploy and preview steps are
-intentionally excluded from CI.
+The `test-build-contract` and `test-integration` gates install Playwright
+Chromium (`bunx playwright install chromium --with-deps`) because both contain
+browser-backed static export checks. Deploy and preview steps are intentionally
+excluded from CI.
 
 Production publish is workflow file `.github/workflows/deploy.yml`, job **`deploy`**.
 It runs only on `push` to `main`, builds with `make build-export`, and publishes

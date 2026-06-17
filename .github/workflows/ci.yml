@@ -31,6 +31,7 @@ jobs:
             command: make coverage
           - name: test-build-contract
             command: make test-build-contract
+            install_playwright: true
           - name: test-integration
             command: make test-integration
             install_playwright: true
