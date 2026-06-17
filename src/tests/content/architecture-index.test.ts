@@ -7,7 +7,6 @@ import {
   loadPublishedArchitectureEntries,
   sortArchitectureEntriesByTitle,
 } from "@/lib/content/architecture";
-import { MessageLoadError } from "@/lib/content/page-messages-load";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
 import { loadUiMessages } from "@/lib/content/ui-messages";
@@ -163,12 +162,12 @@ describe("architecture index page render", () => {
     expect(html).not.toContain("list-disc");
   });
 
-  it("fails clearly on the vietnamese route surface when canonical vi docs messages are missing", async () => {
-    await expect(renderArchitectureIndexPage("vi")).rejects.toBeInstanceOf(
-      MessageLoadError,
-    );
-    await expect(renderArchitectureIndexPage("vi")).rejects.toMatchObject({
-      message: expect.stringContaining('route "/vi/docs/'),
-    });
+  it("renders an empty vietnamese browse surface when no localized architecture pages are shipped", async () => {
+    const page = await renderArchitectureIndexPage("vi");
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Architecture");
+    expect(html).toContain('href="/vi"');
+    expect(html).toContain("No architecture entries yet");
   });
 });

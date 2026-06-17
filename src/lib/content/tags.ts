@@ -82,9 +82,10 @@ export async function toTagIndexEntry(
 
 export function sortTagIndexEntriesByTitle(
   entries: TagIndexEntry[],
+  locale: SiteLocale = defaultLocale,
 ): TagIndexEntry[] {
   return [...entries].sort((a, b) =>
-    a.title.localeCompare(b.title, "en", { sensitivity: "base" }),
+    a.title.localeCompare(b.title, locale, { sensitivity: "base" }),
   );
 }
 
@@ -99,11 +100,12 @@ export async function loadPublishedTagIndexEntries(
       .filter(isPublishedTagRecord)
       .map((record) => toTagIndexEntry(record, messages, locale)),
   );
-  return sortTagIndexEntriesByTitle(entries);
+  return sortTagIndexEntriesByTitle(entries, locale);
 }
 
 export function groupTagIndexEntriesByCategory(
   entries: TagIndexEntry[],
+  locale: SiteLocale = defaultLocale,
 ): TagIndexCategoryGroup[] {
   const byCategory = new Map<string, TagIndexEntry[]>();
 
@@ -117,12 +119,12 @@ export function groupTagIndexEntriesByCategory(
     .sort(
       ([categoryA], [categoryB]) =>
         categorySortIndex(categoryA) - categorySortIndex(categoryB) ||
-        categoryA.localeCompare(categoryB, "en", { sensitivity: "base" }),
+        categoryA.localeCompare(categoryB, locale, { sensitivity: "base" }),
     )
     .map(([category, tags]) => ({
       category,
       categoryLabel: tags[0]?.categoryLabel ?? category,
-      tags: sortTagIndexEntriesByTitle(tags),
+      tags: sortTagIndexEntriesByTitle(tags, locale),
     }));
 }
 
@@ -131,5 +133,5 @@ export async function loadPublishedTagIndexGroups(
   locale: SiteLocale = defaultLocale,
 ): Promise<TagIndexCategoryGroup[]> {
   const entries = await loadPublishedTagIndexEntries(messages, locale);
-  return groupTagIndexEntriesByCategory(entries);
+  return groupTagIndexEntriesByCategory(entries, locale);
 }

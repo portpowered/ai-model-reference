@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
-import { AppProviders } from "@/components/providers/app-providers";
-import { loadUiMessages } from "@/lib/content/ui-messages";
-import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
-import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,11 +13,6 @@ export default async function RootLayout({
 }: {
   children: ReactNode;
 }) {
-  const messages = await loadUiMessages();
-  const metaByUrl = searchResultMetaMapToRecord(
-    await loadSearchResultMetaMap(),
-  );
-
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
@@ -29,11 +20,7 @@ export default async function RootLayout({
           {`document.documentElement.lang = window.location.pathname.startsWith('/vi') ? 'vi' : 'en';`}
         </Script>
       </head>
-      <body>
-        <AppProviders metaByUrl={metaByUrl} messages={messages}>
-          {children}
-        </AppProviders>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

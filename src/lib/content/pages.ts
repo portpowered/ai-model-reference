@@ -1,7 +1,10 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { DOCS_ROOT } from "@/lib/content/content-paths";
-import { loadPageMessages } from "@/lib/content/page-messages-load";
+import {
+  hasPageMessagesFile,
+  loadPageMessages,
+} from "@/lib/content/page-messages-load";
 import {
   type PageFrontmatter,
   type PageMessages,
@@ -10,6 +13,7 @@ import {
 import { parseYamlFrontmatterBlock } from "@/lib/content/yaml-frontmatter";
 import {
   buildLocalizedRoute,
+  defaultLocale,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
 
@@ -66,6 +70,45 @@ export async function loadPublishedDocsPages(
     const pageMdx = path.join(pageDir, "page.mdx");
     const frontmatter = parseFrontmatter(pageMdx);
     if (frontmatter.status !== "published") {
+      continue;
+    }
+
+    const docsSlug = path.relative(rootDir, pageDir);
+    const url = docsUrlFromSlug(docsSlug, locale);
+    pages.push({
+      pageDir,
+      docsSlug,
+      url,
+      frontmatter,
+      messages: await loadPageMessages(pageDir, locale, { route: url }),
+    });
+  }
+
+  return pages;
+}
+
+/**
+ * Loads the docs pages that are actually shippable for the requested locale.
+ * Non-default locales only include pages with a locale-specific messages file.
+ */
+export async function loadShippedLocalizedDocsPages(
+  locale: SiteLocale,
+  rootDir = DOCS_ROOT,
+): Promise<DocsPageSource[]> {
+  if (locale === defaultLocale) {
+    return loadPublishedDocsPages(locale, rootDir);
+  }
+
+  const pages: DocsPageSource[] = [];
+
+  for (const pageDir of findPageDirectories(rootDir)) {
+    const pageMdx = path.join(pageDir, "page.mdx");
+    const frontmatter = parseFrontmatter(pageMdx);
+    if (frontmatter.status !== "published") {
+      continue;
+    }
+
+    if (!hasPageMessagesFile(pageDir, locale)) {
       continue;
     }
 

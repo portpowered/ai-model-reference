@@ -75,9 +75,10 @@ export function toArchitectureEntry(page: DocsPageSource): ArchitectureEntry {
 
 export function sortArchitectureEntriesByTitle(
   entries: ArchitectureEntry[],
+  locale: SiteLocale = defaultLocale,
 ): ArchitectureEntry[] {
   return [...entries].sort((a, b) =>
-    a.title.localeCompare(b.title, "en", { sensitivity: "base" }),
+    a.title.localeCompare(b.title, locale, { sensitivity: "base" }),
   );
 }
 
@@ -85,10 +86,10 @@ export async function loadPublishedArchitectureEntries(
   locale: SiteLocale = defaultLocale,
 ): Promise<ArchitectureEntry[]> {
   const { loadRegistry } = await import("./registry");
-  const { loadPublishedDocsPages } = await import("./pages");
+  const { loadShippedLocalizedDocsPages } = await import("./pages");
   const indexes = await loadRegistry();
-  const pages = (await loadPublishedDocsPages(locale)).filter((page) =>
+  const pages = (await loadShippedLocalizedDocsPages(locale)).filter((page) =>
     isArchitectureRelatedPage(page, indexes),
   );
-  return sortArchitectureEntriesByTitle(pages.map(toArchitectureEntry));
+  return sortArchitectureEntriesByTitle(pages.map(toArchitectureEntry), locale);
 }

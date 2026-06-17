@@ -61,9 +61,10 @@ export function toTagResourceEntry(page: DocsPageSource): TagResourceEntry {
 
 export function sortTagResourceEntriesByTitle(
   entries: TagResourceEntry[],
+  locale: SiteLocale = defaultLocale,
 ): TagResourceEntry[] {
   return [...entries].sort((a, b) =>
-    a.title.localeCompare(b.title, "en", { sensitivity: "base" }),
+    a.title.localeCompare(b.title, locale, { sensitivity: "base" }),
   );
 }
 
@@ -88,17 +89,18 @@ export async function loadTagResourceEntries(
   locale: SiteLocale = defaultLocale,
 ): Promise<TagResourceEntry[]> {
   const { loadRegistry } = await import("./registry");
-  const { loadPublishedDocsPages } = await import("./pages");
+  const { loadShippedLocalizedDocsPages } = await import("./pages");
   const indexes = await loadRegistry();
-  const pages = (await loadPublishedDocsPages(locale)).filter((page) =>
+  const pages = (await loadShippedLocalizedDocsPages(locale)).filter((page) =>
     publishedResourceMatchesTag(page, tagSlug, indexes),
   );
-  return sortTagResourceEntriesByTitle(pages.map(toTagResourceEntry));
+  return sortTagResourceEntriesByTitle(pages.map(toTagResourceEntry), locale);
 }
 
 export function groupTagResourceEntriesByKind(
   entries: TagResourceEntry[],
   messages: UiMessages,
+  locale: SiteLocale = defaultLocale,
 ): TagResourceKindGroup[] {
   const byKind = new Map<string, TagResourceEntry[]>();
 
@@ -112,12 +114,12 @@ export function groupTagResourceEntriesByKind(
     .sort(
       ([kindA], [kindB]) =>
         kindSortIndex(kindA) - kindSortIndex(kindB) ||
-        kindA.localeCompare(kindB, "en", { sensitivity: "base" }),
+        kindA.localeCompare(kindB, locale, { sensitivity: "base" }),
     )
     .map(([kind, resources]) => ({
       kind,
       kindLabel: formatPageKind(messages, kind),
-      resources: sortTagResourceEntriesByTitle(resources),
+      resources: sortTagResourceEntriesByTitle(resources, locale),
     }));
 }
 
@@ -127,7 +129,7 @@ export async function loadTagResourceGroups(
   locale: SiteLocale = defaultLocale,
 ): Promise<TagResourceKindGroup[]> {
   const entries = await loadTagResourceEntries(tagSlug, locale);
-  return groupTagResourceEntriesByKind(entries, messages);
+  return groupTagResourceEntriesByKind(entries, messages, locale);
 }
 
 export async function loadTagLandingContext(

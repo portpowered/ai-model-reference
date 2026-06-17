@@ -6,7 +6,6 @@ import {
   loadPublishedGlossaryEntries,
   sortGlossaryEntriesByTitle,
 } from "@/lib/content/glossary";
-import { MessageLoadError } from "@/lib/content/page-messages-load";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("loadPublishedGlossaryEntries", () => {
@@ -204,12 +203,12 @@ describe("glossary index page render", () => {
     expect(html).not.toContain("list-disc");
   });
 
-  it("fails clearly on the vietnamese route surface when canonical vi docs messages are missing", async () => {
-    await expect(renderGlossaryIndexPage("vi")).rejects.toBeInstanceOf(
-      MessageLoadError,
-    );
-    await expect(renderGlossaryIndexPage("vi")).rejects.toMatchObject({
-      message: expect.stringContaining('route "/vi/docs/'),
-    });
+  it("renders an empty vietnamese browse surface when no localized glossary pages are shipped", async () => {
+    const page = await renderGlossaryIndexPage("vi");
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Glossary");
+    expect(html).toContain('href="/vi"');
+    expect(html).toContain("No glossary entries yet");
   });
 });

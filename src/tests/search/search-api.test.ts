@@ -64,6 +64,26 @@ describe("live /api/search HTTP contract", () => {
     expect(payload.type).toBe("advanced");
   });
 
+  test("GET without query returns a locale-specific export for vietnamese", async () => {
+    const response = await GET(
+      new Request("http://localhost/api/search?locale=vi"),
+    );
+    expect(response.ok).toBe(true);
+
+    const payload = (await response.json()) as { type: string };
+    expect(payload.type).toBe("advanced");
+  });
+
+  test("GET with a vietnamese locale query returns locale-scoped URLs", async () => {
+    const response = await GET(
+      new Request("http://localhost/api/search?query=GQA&locale=vi"),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    expect(results.every((result) => result.url.startsWith("/vi/"))).toBe(true);
+  });
+
   test("GET returns grouped-query attention for GQA query", async () => {
     const response = await GET(
       new Request("http://localhost/api/search?query=GQA"),

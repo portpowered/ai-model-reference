@@ -1,5 +1,6 @@
 import { afterEach, beforeAll, describe, expect, test } from "bun:test";
 import {
+  buildDocsSearchStaticOptions,
   createModelAtlasSearchClient,
   DOCS_SEARCH_API_PATH,
   docsSearchStaticOptions,
@@ -35,6 +36,12 @@ describe("createModelAtlasSearchClient", () => {
 
   test("docsSearchStaticOptions.from resolves to the static bootstrap path", () => {
     expect(docsSearchStaticOptions.from).toBe(DOCS_SEARCH_API_PATH);
+  });
+
+  test("buildDocsSearchStaticOptions uses a locale-specific bootstrap path", () => {
+    expect(buildDocsSearchStaticOptions("vi").from).toBe(
+      "/api/search?locale=vi",
+    );
   });
 
   test("fetches GQA results from a basePath-prefixed static bootstrap URL", async () => {

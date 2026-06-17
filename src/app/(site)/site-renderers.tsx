@@ -70,7 +70,7 @@ export async function renderSearchPage(
 ) {
   const messages = await loadUiMessages(locale);
   const metaByUrl = searchResultMetaMapToRecord(
-    await loadSearchResultMetaMap(),
+    await loadSearchResultMetaMap(locale),
   );
   const { searchEntry } = messages;
   const handoff =

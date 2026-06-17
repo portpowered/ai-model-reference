@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { SiteLocale } from "@/lib/i18n/locale-routing";
@@ -31,6 +32,13 @@ type PageMessagesLoadOptions = {
 
 function messagesFilePath(pageDirectory: string, locale: string): string {
   return join(pageDirectory, "messages", `${locale}.json`);
+}
+
+export function hasPageMessagesFile(
+  pageDirectory: string,
+  locale: SiteLocale,
+): boolean {
+  return existsSync(messagesFilePath(pageDirectory, locale));
 }
 
 export async function loadPageMessages(

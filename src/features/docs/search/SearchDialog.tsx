@@ -46,6 +46,7 @@ export function ModelAtlasSearchDialog({
     routeMatch?.kind === "matched" ? routeMatch.locale : "en";
   const { search, setSearch, query } = useModelAtlasDocsSearch({
     metaByUrl,
+    locale: activeLocale,
     client: searchClient,
   });
   const hasQuery = search.trim().length > 0;

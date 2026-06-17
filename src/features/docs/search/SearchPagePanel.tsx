@@ -64,6 +64,7 @@ export function SearchPagePanelContent({
   const { searchEntry, search: searchCopy } = messages;
   const { search, setSearch, query } = useModelAtlasDocsSearch({
     metaByUrl,
+    locale,
     client: searchClient,
   });
   const effectiveHandoff = resolveEffectiveSearchPageHandoff(
