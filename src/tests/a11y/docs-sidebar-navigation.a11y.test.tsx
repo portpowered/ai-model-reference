@@ -81,7 +81,7 @@ describe("docs sidebar navigation accessibility", () => {
     expect(document.activeElement).toBe(gqaLink);
   });
 
-  test("localized docs shell preserves the sidebar home link locale", async () => {
+  test("localized docs shell preserves locale without surfacing unshipped docs links", async () => {
     captureOriginalFetch();
     await installDocsSearchFetchMock();
     const [messages, metaMap] = await Promise.all([
@@ -112,5 +112,39 @@ describe("docs sidebar navigation accessibility", () => {
       name: "Model Reference",
     });
     expect(homeLink.getAttribute("href")).toBe("/vi");
+
+    const glossaryFolder = within(sidebar).getByRole("button", {
+      name: "Glossary",
+    });
+    await act(async () => {
+      glossaryFolder.click();
+    });
+
+    const modulesFolder = within(sidebar).getByRole("button", {
+      name: "Modules",
+    });
+    await act(async () => {
+      modulesFolder.click();
+    });
+
+    const tokenLink = within(sidebar).getByRole("link", { name: "Token" });
+    expect(tokenLink.getAttribute("href")).toBe("/vi/docs/glossary/token");
+
+    const gqaLink = within(sidebar).getByRole("link", {
+      name: "Grouped-Query Attention",
+    });
+    expect(gqaLink.getAttribute("href")).toBe(
+      "/vi/docs/modules/grouped-query-attention",
+    );
+
+    expect(
+      within(sidebar).queryByRole("link", { name: "Getting started" }),
+    ).toBeNull();
+    expect(
+      within(sidebar).queryByRole("link", { name: "Multi-Head Attention" }),
+    ).toBeNull();
+    expect(
+      within(sidebar).queryByRole("link", { name: "Linear Attention" }),
+    ).toBeNull();
   });
 });
