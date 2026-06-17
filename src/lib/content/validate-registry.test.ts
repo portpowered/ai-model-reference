@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { TAG_MESSAGES_ROOT } from "./content-paths";
 import { tokenGlossaryPageDir } from "./page-messages-load";
 import { loadRegistry } from "./registry";
 import {
@@ -707,6 +708,140 @@ updatedAt: "2026-06-02"
         ),
       ).toBe(true);
     } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports missing localized asset text keys for shipped vietnamese docs pages", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    const docsRoot = join(tempRoot, "docs");
+    const pageDir = join(docsRoot, "concepts", "localized-page");
+    await mkdir(join(registryRoot, "concepts"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(join(pageDir, "messages"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "concepts", "localized-page.json"),
+      JSON.stringify({
+        ...validConceptRecord,
+        id: "concept.localized-page",
+        slug: "localized-page",
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(pageDir, "page.mdx"),
+      `---
+kind: concept
+registryId: concept.localized-page
+messageNamespace: local
+assetNamespace: local
+status: published
+tags:
+  - attention
+updatedAt: "2026-06-02"
+---
+
+# <T k="title" />
+`,
+    );
+    await writeFile(
+      join(pageDir, "messages", "en.json"),
+      JSON.stringify({
+        title: "Localized Page",
+        description: "English description",
+        assets: {
+          hero: {
+            alt: "English hero alt",
+          },
+        },
+      }),
+    );
+    await writeFile(
+      join(pageDir, "messages", "vi.json"),
+      JSON.stringify({
+        title: "Trang da ban dia hoa",
+        description: "Mo ta tieng Viet",
+      }),
+    );
+    await writeFile(
+      join(pageDir, "assets.json"),
+      JSON.stringify({
+        hero: {
+          type: "image",
+          src: "./assets/hero.png",
+          altKey: "assets.hero.alt",
+        },
+      }),
+    );
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+        phase1PageDirectories: [],
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "missing-message-key" &&
+            error.message.includes('locale "vi"') &&
+            error.message.includes('asset "hero"') &&
+            error.message.includes('missing message key "assets.hero.alt"'),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports missing vietnamese tag messages for published tag pages", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    const docsRoot = join(tempRoot, "docs-empty");
+    const slug = `localized-tag-${crypto.randomUUID()}`;
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(docsRoot, { recursive: true });
+    await mkdir(TAG_MESSAGES_ROOT, { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "tags", `${slug}.json`),
+      JSON.stringify({
+        ...validTagRecord,
+        id: `tag.${slug}`,
+        slug,
+      }),
+    );
+    await writeFile(
+      join(TAG_MESSAGES_ROOT, `${slug}.en.json`),
+      JSON.stringify({
+        title: "Localized Tag",
+        summary: "English tag summary",
+      }),
+    );
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+        phase1PageDirectories: [],
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "tag-messages-load-error" &&
+            error.message.includes(`/vi/tags/${slug}`) &&
+            error.message.includes(`locale "vi"`),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(join(TAG_MESSAGES_ROOT, `${slug}.en.json`), {
+        force: true,
+      });
       await rm(tempRoot, { recursive: true, force: true });
     }
   });
