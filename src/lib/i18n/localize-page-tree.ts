@@ -1,4 +1,5 @@
 import type { Node } from "fumadocs-core/page-tree";
+import { isDocsPageShippedForLocale } from "@/lib/content/pages";
 import {
   defaultLocale,
   matchLocalizedRoute,
@@ -6,10 +7,39 @@ import {
   switchRouteLocale,
 } from "@/lib/i18n/locale-routing";
 
-function localizeNode(node: Node, locale: SiteLocale): Node {
+function trimEmptySeparators(children: Node[]): Node[] {
+  const trimmed: Node[] = [];
+
+  for (const child of children) {
+    if (child.type === "separator") {
+      const previous = trimmed.at(-1);
+      if (!previous || previous.type === "separator") {
+        continue;
+      }
+    }
+
+    trimmed.push(child);
+  }
+
+  while (trimmed.at(-1)?.type === "separator") {
+    trimmed.pop();
+  }
+
+  return trimmed;
+}
+
+function localizeNode(node: Node, locale: SiteLocale): Node | null {
   if ("url" in node && typeof node.url === "string") {
     const match = matchLocalizedRoute(node.url);
     if (match.kind === "matched") {
+      if (
+        locale !== defaultLocale &&
+        match.destination.surface === "docs-page" &&
+        !isDocsPageShippedForLocale(match.destination.slug, locale)
+      ) {
+        return null;
+      }
+
       return {
         ...node,
         url:
@@ -21,9 +51,18 @@ function localizeNode(node: Node, locale: SiteLocale): Node {
   }
 
   if ("children" in node && Array.isArray(node.children)) {
+    const children = trimEmptySeparators(
+      node.children
+        .map((child) => localizeNode(child, locale))
+        .filter((child): child is Node => child !== null),
+    );
+    if (children.length === 0) {
+      return null;
+    }
+
     return {
       ...node,
-      children: node.children.map((child) => localizeNode(child, locale)),
+      children,
     };
   }
 
@@ -40,6 +79,10 @@ export function localizePageTree<T extends { children: Node[] }>(
 
   return {
     ...tree,
-    children: tree.children.map((child) => localizeNode(child, locale)),
+    children: trimEmptySeparators(
+      tree.children
+        .map((child) => localizeNode(child, locale))
+        .filter((child): child is Node => child !== null),
+    ),
   };
 }

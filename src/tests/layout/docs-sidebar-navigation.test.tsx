@@ -25,6 +25,22 @@ const BUILT_HTML_DOC_ROUTES = [
   },
 ] as const;
 
+const BUILT_HTML_LOCALIZED_DOC_ROUTES = [
+  {
+    path: "/vi/docs/modules/grouped-query-attention",
+    file: ".next/server/app/vi/docs/modules/grouped-query-attention.html",
+    requiredSidebarUrls: [
+      "/vi/docs/glossary/token",
+      "/vi/docs/modules/grouped-query-attention",
+    ],
+    forbiddenSidebarUrls: [
+      "/vi/docs/getting-started",
+      "/vi/docs/modules/multi-head-attention",
+      "/vi/docs/modules/linear-attention",
+    ],
+  },
+] as const;
+
 const BUILT_HTML_INDEX_ROUTES = [
   {
     path: "/docs/architecture",
@@ -96,6 +112,26 @@ describe("docs sidebar navigation (built HTML)", () => {
       expect(visibleHtml).toContain(TOKEN_GLOSSARY_URL);
       expect(sidebar).not.toContain(PLACEHOLDER_SIDEBAR_DESCRIPTION);
       expect(hasLegacyPlaceholderSidebar(visibleHtml)).toBe(false);
+    });
+  }
+
+  for (const route of BUILT_HTML_LOCALIZED_DOC_ROUTES) {
+    test(`${route.path} omits broken localized docs links from the sidebar`, () => {
+      const html = readBuiltRouteHtml(route.file);
+      if (!html) {
+        return;
+      }
+
+      const visibleHtml = stripHtmlScripts(html);
+      const sidebar = extractNdSidebarHtml(visibleHtml);
+
+      expect(sidebar.length).toBeGreaterThan(0);
+      for (const url of route.requiredSidebarUrls) {
+        expect(sidebar).toContain(url);
+      }
+      for (const url of route.forbiddenSidebarUrls) {
+        expect(sidebar).not.toContain(url);
+      }
     });
   }
 });

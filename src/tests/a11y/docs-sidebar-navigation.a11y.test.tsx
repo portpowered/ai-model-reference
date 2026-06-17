@@ -81,7 +81,7 @@ describe("docs sidebar navigation accessibility", () => {
     expect(document.activeElement).toBe(gqaLink);
   });
 
-  test("localized docs shell preserves the sidebar home link locale", async () => {
+  test("localized docs shell preserves locale without surfacing unshipped docs links", async () => {
     captureOriginalFetch();
     await installDocsSearchFetchMock();
     const [messages, metaMap] = await Promise.all([
@@ -136,5 +136,15 @@ describe("docs sidebar navigation accessibility", () => {
     expect(gqaLink.getAttribute("href")).toBe(
       "/vi/docs/modules/grouped-query-attention",
     );
+
+    expect(
+      within(sidebar).queryByRole("link", { name: "Getting started" }),
+    ).toBeNull();
+    expect(
+      within(sidebar).queryByRole("link", { name: "Multi-Head Attention" }),
+    ).toBeNull();
+    expect(
+      within(sidebar).queryByRole("link", { name: "Linear Attention" }),
+    ).toBeNull();
   });
 });
