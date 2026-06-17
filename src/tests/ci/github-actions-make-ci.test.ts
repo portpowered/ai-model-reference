@@ -47,16 +47,22 @@ function parseMakefileCiPrerequisites(makefile: string): string[] {
 }
 
 describe("GitHub Actions make ci", () => {
-  test("ci workflow runs make ci after frozen lockfile install at repo root", () => {
+  test("ci workflow fans CI gates out after frozen lockfile install and keeps a final ci status job", () => {
     const workflow = readFileSync(ciWorkflowPath, "utf8");
 
     const frozenInstallIndex = workflow.indexOf(
       "bun install --frozen-lockfile",
     );
-    const makeCiIndex = workflow.indexOf("run: make ci");
+    const matrixIndex = workflow.indexOf("matrix:");
+    const finalCiJobIndex = workflow.indexOf("\n  ci:\n");
 
     expect(frozenInstallIndex).toBeGreaterThan(-1);
-    expect(makeCiIndex).toBeGreaterThan(frozenInstallIndex);
+    expect(matrixIndex).toBeGreaterThan(-1);
+    expect(finalCiJobIndex).toBeGreaterThan(matrixIndex);
+    expect(workflow).not.toContain("run: make ci");
+    expect(workflow).toContain("needs: gate");
+    expect(workflow).toContain('if: ${{ always() }}');
+    expect(workflow).toContain('if: ${{ matrix.install_playwright }}');
     expect(workflow).not.toMatch(/continue-on-error:\s*true/i);
   });
 
@@ -92,6 +98,10 @@ describe("GitHub Actions make ci", () => {
     const workflow = readFileSync(ciWorkflowPath, "utf8");
     expect(workflow).not.toMatch(/--exclude/i);
     expect(workflow).not.toMatch(/next-build-tracing-warning/i);
+    expect(workflow).toContain("command: make test");
+    expect(workflow).toContain("command: make test-verify-contract");
+    expect(workflow).toContain("command: make test-build-contract");
+    expect(workflow).toContain("command: make test-integration");
 
     const makefile = readFileSync(makefilePath, "utf8");
     expect(parseMakefileCiPrerequisites(makefile)).toContain("test");
@@ -116,6 +126,16 @@ describe("GitHub Actions make ci", () => {
     for (const excluded of excludedCiTargets) {
       expect(prerequisites).not.toContain(excluded);
     }
+  });
+
+  test("ci workflow matrix covers every Makefile ci prerequisite once", () => {
+    const workflow = readFileSync(ciWorkflowPath, "utf8");
+    const commands = Array.from(
+      workflow.matchAll(/command:\s+make\s+([a-z-]+)/g),
+      (match) => match[1],
+    );
+
+    expect(commands).toEqual([...ciTargets]);
   });
 
   test("make ci stops on the first failing prerequisite", () => {

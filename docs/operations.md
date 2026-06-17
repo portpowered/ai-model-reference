@@ -132,12 +132,15 @@ the rule is active.
 ## CI status expectations
 
 The baseline quality gate is workflow file `.github/workflows/ci.yml`, which
-defines a single job named **`ci`**. That job checks out the branch, installs
-with `bun install --frozen-lockfile`, installs Playwright Chromium
-(`bunx playwright install chromium --with-deps`) for browser-backed export
-search UX tests, and runs `make ci` (lint, typecheck, test,
-manifest-scoped coverage, build, validate-data, linkcheck). Deploy and preview
-steps are intentionally excluded from CI.
+defines parallel gate jobs for each `make ci` prerequisite plus a final
+aggregate job named **`ci`** for branch protection. Each gate job checks out the
+branch, installs with `bun install --frozen-lockfile`, and runs one Make target:
+`lint`, `typecheck`, `test`, `test-verify-contract`, `coverage`,
+`test-build-contract`, `test-integration`, `validate-data`, or `linkcheck`.
+Only the `test-integration` gate installs Playwright Chromium
+(`bunx playwright install chromium --with-deps`) because it owns the
+browser-backed export search UX checks. Deploy and preview steps are
+intentionally excluded from CI.
 
 Production publish is workflow file `.github/workflows/deploy.yml`, job **`deploy`**.
 It runs only on `push` to `main`, builds with `make build-export`, and publishes
@@ -147,27 +150,29 @@ It runs only on `push` to `main`, builds with `make build-export`, and publishes
 
 | Event | Workflow trigger | Expected checks |
 | --- | --- | --- |
-| Pull request opened or updated | `on: pull_request` in `ci.yml` | **ci** runs against the PR head commit and appears in the PR **Checks** tab. No deploy check on PRs. |
-| Push to `main` | `on: push` branches `main` in `ci.yml` and `deploy.yml` | **ci** and **deploy** run against the pushed commit and appear on the commit and branch views. |
+| Pull request opened or updated | `on: pull_request` in `ci.yml` | Parallel CI gate jobs and the aggregate **ci** job run against the PR head commit and appear in the PR **Checks** tab. No deploy check on PRs. |
+| Push to `main` | `on: push` branches `main` in `ci.yml` and `deploy.yml` | Parallel CI gate jobs, the aggregate **ci** job, and **deploy** run against the pushed commit and appear on the commit and branch views. |
 | Push to other branches without a PR | No workflow trigger | No GitHub Actions run until a pull request is opened (or the branch is pushed to `main`). |
 
 ### What contributors see
 
 **On pull requests**
 
-- The **Checks** tab shows a **ci** entry while the workflow is queued, in
-  progress, or finished.
-- A green **ci** check means every step in `make ci` passed on the PR head SHA.
+- The **Checks** tab shows per-gate entries such as `lint`, `typecheck`, and
+  `test-integration`, plus the aggregate **ci** entry.
+- A green **ci** check means every parallel `make ci` gate passed on the PR
+  head SHA.
 - A red **ci** check blocks merge when branch protection requires status checks
-  (see [Branch protection](#branch-protection)).
+  (see [Branch protection](#branch-protection)); the failing per-gate job shows
+  which target broke.
 - The PR conversation may also show “All checks have passed” or list failing
   checks; the authoritative job name for required-merge gating is **ci**.
 - No **deploy** check appears on PRs; production deploy runs after merge to `main`.
 
 **On pushes to `main`**
 
-- Each commit on `main` shows **ci** and **deploy** status badges on the commit
-  list and commit detail page.
+- Each commit on `main` shows the per-gate CI jobs, aggregate **ci**, and
+  **deploy** on the commit list and commit detail page.
 - Failed **ci** on `main` signals the integration branch is unhealthy; fix
   forward with a follow-up commit or revert—do not force-push.
 - Failed **deploy** on `main` means the static export did not publish; the prior
