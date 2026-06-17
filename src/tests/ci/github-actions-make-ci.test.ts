@@ -36,6 +36,12 @@ const excludedCiTargets = [
   "build-search-index",
 ] as const;
 
+type WorkflowMatrixEntry = {
+  name: string;
+  command: string;
+  installPlaywright: boolean;
+};
+
 function parseMakefileCiPrerequisites(makefile: string): string[] {
   const ciLine = makefile
     .split("\n")
@@ -44,6 +50,33 @@ function parseMakefileCiPrerequisites(makefile: string): string[] {
     throw new Error("Makefile is missing a ci: target");
   }
   return ciLine.slice("ci:".length).trim().split(/\s+/).filter(Boolean);
+}
+
+function parseWorkflowMatrixEntries(workflow: string): WorkflowMatrixEntry[] {
+  const match = workflow.match(
+    /include:\n((?:\s+- name: [^\n]+\n(?:\s{12,}.+\n)*)+)/,
+  );
+  if (!match?.[1]) {
+    throw new Error("CI workflow is missing matrix include entries");
+  }
+
+  return match[1]
+    .split(/\n(?=\s+- name: )/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block) => {
+      const name = block.match(/^- name:\s+([^\n]+)/m)?.[1]?.trim();
+      const command = block.match(/^\s*command:\s+([^\n]+)/m)?.[1]?.trim();
+      if (!name || !command) {
+        throw new Error(`Invalid CI matrix entry:\n${block}`);
+      }
+
+      return {
+        name,
+        command,
+        installPlaywright: /^\s*install_playwright:\s*true\s*$/m.test(block),
+      };
+    });
 }
 
 describe("GitHub Actions make ci", () => {
@@ -107,16 +140,28 @@ describe("GitHub Actions make ci", () => {
     expect(workflow).toContain("command: make test");
     expect(workflow).toContain("command: make test-verify-contract");
     expect(workflow).toContain("command: make test-build-contract");
+    expect(workflow).toContain("command: make build-export");
     expect(workflow).toContain("command: make test-integration");
-    expect(workflow).toMatch(
-      /name: test-verify-contract[\s\S]*?install_playwright: true/,
+
+    const matrixEntries = parseWorkflowMatrixEntries(workflow);
+    const testVerifyContract = matrixEntries.find(
+      (entry) => entry.name === "test-verify-contract",
     );
-    expect(workflow).toMatch(
-      /name: test-build-contract[\s\S]*?install_playwright: true/,
+    const testBuildContract = matrixEntries.find(
+      (entry) => entry.name === "test-build-contract",
     );
-    expect(workflow).toMatch(
-      /name: test-integration[\s\S]*?install_playwright: true/,
+    const buildExport = matrixEntries.find(
+      (entry) => entry.name === "build-export",
     );
+    const testIntegration = matrixEntries.find(
+      (entry) => entry.name === "test-integration",
+    );
+
+    expect(testVerifyContract?.installPlaywright).toBe(true);
+    expect(testBuildContract?.installPlaywright).toBe(true);
+    expect(buildExport?.command).toBe("make build-export");
+    expect(buildExport?.installPlaywright).toBe(true);
+    expect(testIntegration?.installPlaywright).toBe(true);
 
     const makefile = readFileSync(makefilePath, "utf8");
     expect(makefile).toContain("linkcheck:\n\tbun run linkcheck");
@@ -144,14 +189,15 @@ describe("GitHub Actions make ci", () => {
     }
   });
 
-  test("ci workflow matrix covers every Makefile ci prerequisite once", () => {
+  test("ci workflow matrix covers every Makefile ci prerequisite and the deploy-path build once", () => {
     const workflow = readFileSync(ciWorkflowPath, "utf8");
-    const commands = Array.from(
-      workflow.matchAll(/command:\s+make\s+([a-z-]+)/g),
-      (match) => match[1],
+    const matrixEntries = parseWorkflowMatrixEntries(workflow);
+    const commands = matrixEntries.map((entry) =>
+      entry.command.replace(/^make\s+/, ""),
     );
 
-    expect(commands).toEqual([...ciTargets]);
+    expect(commands).toHaveLength(ciTargets.length + 1);
+    expect([...commands].sort()).toEqual([...ciTargets, "build-export"].sort());
   });
 
   test("make ci stops on the first failing prerequisite", () => {
