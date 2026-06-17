@@ -10,6 +10,11 @@ import { loadPaperPage } from "@/lib/content/paper-page";
 import type { LoadedPaperPage } from "@/lib/content/paper-page-load";
 import { loadTrainingRegimePage } from "@/lib/content/training-regime-page";
 import type { LoadedTrainingRegimePage } from "@/lib/content/training-regime-page-load";
+import {
+  buildLocalizedRoute,
+  defaultLocale,
+  type SiteLocale,
+} from "@/lib/i18n/locale-routing";
 
 export type LocalDocsPageRef =
   | { section: "concepts"; slug: string }
@@ -63,10 +68,23 @@ export function isLocalDocsCatchAllSlug(slug: string[] | undefined): boolean {
   return parseLocalDocsPageRef(slug) !== null;
 }
 
+export function localDocsRoute(
+  ref: LocalDocsPageRef,
+  locale: SiteLocale = defaultLocale,
+): string {
+  return buildLocalizedRoute(
+    {
+      surface: "docs-page",
+      slug: `${ref.section}/${ref.slug}`,
+    },
+    locale,
+  );
+}
+
 /** Loads a local docs page bundle with colocated messages and assets. */
 export async function loadLocalDocsPage(
   ref: LocalDocsPageRef,
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<LoadedLocalDocsPage> {
   switch (ref.section) {
     case "concepts":

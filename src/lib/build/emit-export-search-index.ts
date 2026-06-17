@@ -1,5 +1,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+import { supportedLocales } from "@/lib/i18n/locale-routing";
 import { docsSearchApi } from "@/lib/search/search-server";
 import {
   type AdvancedOramaExportPayload,
@@ -16,7 +17,7 @@ export type EmitExportSearchIndexOptions = {
 };
 
 export type EmitExportSearchIndexResult =
-  | { ok: true; filePath: string }
+  | { ok: true; filePaths: string[] }
   | { ok: false; reason: string };
 
 /** Writes the Fumadocs advanced Orama export to the static bootstrap path in `out/`. */
@@ -31,20 +32,27 @@ export async function emitExportSearchIndex(
     return directoryResult;
   }
 
-  const payload = (await docsSearchApi.export()) as AdvancedOramaExportPayload;
-  if (payload.type !== "advanced") {
-    return {
-      ok: false,
-      reason: `Expected advanced Orama export payload, received type "${String(payload.type)}".`,
-    };
-  }
+  const filePaths: string[] = [];
 
-  const filePath = resolveExportSearchBootstrapFilePath(outDir, cwd);
-  mkdirSync(dirname(filePath), { recursive: true });
-  writeFileSync(filePath, `${JSON.stringify(payload)}\n`, "utf8");
+  for (const locale of supportedLocales) {
+    const payload = (await docsSearchApi.export(
+      locale,
+    )) as AdvancedOramaExportPayload;
+    if (payload.type !== "advanced") {
+      return {
+        ok: false,
+        reason: `Expected advanced Orama export payload, received type "${String(payload.type)}" for locale "${locale}".`,
+      };
+    }
+
+    const filePath = resolveExportSearchBootstrapFilePath(outDir, cwd, locale);
+    mkdirSync(dirname(filePath), { recursive: true });
+    writeFileSync(filePath, `${JSON.stringify(payload)}\n`, "utf8");
+    filePaths.push(filePath);
+  }
 
   return {
     ok: true,
-    filePath,
+    filePaths,
   };
 }

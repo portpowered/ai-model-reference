@@ -1,13 +1,21 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { DOCS_ROOT } from "@/lib/content/content-paths";
-import { loadPageMessages } from "@/lib/content/page-messages-load";
+import {
+  hasPageMessagesFile,
+  loadPageMessages,
+} from "@/lib/content/page-messages-load";
 import {
   type PageFrontmatter,
   type PageMessages,
   pageFrontmatterSchema,
 } from "@/lib/content/schemas";
 import { parseYamlFrontmatterBlock } from "@/lib/content/yaml-frontmatter";
+import {
+  buildLocalizedRoute,
+  defaultLocale,
+  type SiteLocale,
+} from "@/lib/i18n/locale-routing";
 
 export type DocsPageSource = {
   pageDir: string;
@@ -48,12 +56,24 @@ function findPageDirectories(
   return directories;
 }
 
-export function docsUrlFromSlug(docsSlug: string): string {
-  return `/docs/${docsSlug}`;
+export function docsUrlFromSlug(docsSlug: string, locale: SiteLocale): string {
+  return buildLocalizedRoute({ surface: "docs-page", slug: docsSlug }, locale);
+}
+
+export function isDocsPageShippedForLocale(
+  docsSlug: string,
+  locale: SiteLocale,
+  rootDir = DOCS_ROOT,
+): boolean {
+  if (locale === defaultLocale) {
+    return true;
+  }
+
+  return hasPageMessagesFile(path.join(rootDir, docsSlug), locale);
 }
 
 export async function loadPublishedDocsPages(
-  locale: string,
+  locale: SiteLocale,
   rootDir = DOCS_ROOT,
 ): Promise<DocsPageSource[]> {
   const pages: DocsPageSource[] = [];
@@ -66,12 +86,52 @@ export async function loadPublishedDocsPages(
     }
 
     const docsSlug = path.relative(rootDir, pageDir);
+    const url = docsUrlFromSlug(docsSlug, locale);
     pages.push({
       pageDir,
       docsSlug,
-      url: docsUrlFromSlug(docsSlug),
+      url,
       frontmatter,
-      messages: await loadPageMessages(pageDir, locale),
+      messages: await loadPageMessages(pageDir, locale, { route: url }),
+    });
+  }
+
+  return pages;
+}
+
+/**
+ * Loads the docs pages that are actually shippable for the requested locale.
+ * Non-default locales only include pages with a locale-specific messages file.
+ */
+export async function loadShippedLocalizedDocsPages(
+  locale: SiteLocale,
+  rootDir = DOCS_ROOT,
+): Promise<DocsPageSource[]> {
+  if (locale === defaultLocale) {
+    return loadPublishedDocsPages(locale, rootDir);
+  }
+
+  const pages: DocsPageSource[] = [];
+
+  for (const pageDir of findPageDirectories(rootDir)) {
+    const pageMdx = path.join(pageDir, "page.mdx");
+    const frontmatter = parseFrontmatter(pageMdx);
+    if (frontmatter.status !== "published") {
+      continue;
+    }
+
+    if (!isDocsPageShippedForLocale(path.relative(rootDir, pageDir), locale)) {
+      continue;
+    }
+
+    const docsSlug = path.relative(rootDir, pageDir);
+    const url = docsUrlFromSlug(docsSlug, locale);
+    pages.push({
+      pageDir,
+      docsSlug,
+      url,
+      frontmatter,
+      messages: await loadPageMessages(pageDir, locale, { route: url }),
     });
   }
 

@@ -1,0 +1,249 @@
+{
+  "title": "Grouped-query attention",
+  "description": "Một biến thể attention giảm bộ nhớ KV cache bằng cách cho các nhóm query dùng chung key-value head.",
+  "openingSummary": "KV cache tăng theo độ dài ngữ cảnh và số head, làm chi phí bộ nhớ tăng mạnh khi suy luận ngữ cảnh dài; grouped-query attention (GQA) cho nhiều query head dùng chung ít key-value head hơn nên cache lưu ít tensor KV hơn mà không thu gọn về chỉ một head dùng chung.",
+  "sections": {
+    "whatItIs": {
+      "title": "Nó là gì",
+      "body": "Grouped-query attention là một biến thể attention phát triển từ multi-head attention. Nó vẫn giữ nhiều query head nhưng gom chúng thành nhóm để mỗi nhóm cùng đọc từ một cặp key-value head."
+    },
+    "whatItOptimizes": {
+      "title": "Nó tối ưu điều gì",
+      "body": "GQA nhắm vào kích thước KV cache, băng thông bộ nhớ trong giải mã tự hồi quy, và chi phí phục vụ ngữ cảnh dài khi số head sẽ làm cache phình lên."
+    },
+    "practicalBenefit": {
+      "title": "Lợi ích thực tế",
+      "body": "Các nhóm triển khai chọn GQA khi họ muốn giữ mức biểu đạt của multi-head trong lúc huấn luyện nhưng cần cache suy luận gọn hơn và ít lưu lượng KV hơn khi triển khai. GQA giữ được nhiều độ đa dạng của query hơn multi-query attention nhưng dùng cache nhỏ hơn full multi-head attention."
+    },
+    "howItWorks": {
+      "title": "Cách nó hoạt động",
+      "body": "Các query được chia thành từng nhóm. Mỗi nhóm dùng chung một key head và một value head. Điểm attention vẫn được tính cho từng query head trên cặp KV dùng chung của nhóm đó, rồi đầu ra được chiếu như bình thường."
+    },
+    "mathOrComputeSchema": {
+      "title": "Công thức hoặc sơ đồ tính toán",
+      "body": "Với H query head và G nhóm KV, kích thước mỗi nhóm là H/G. Các công thức bên dưới đối chiếu multi-head attention, nơi mỗi query head có một KV head riêng, với grouped-query attention, nơi nhiều query head đi qua các cặp KV dùng chung theo nhóm."
+    },
+    "comparedToNearbyModules": {
+      "title": "So với các module lân cận",
+      "body": "So với multi-head attention, GQA giảm số tensor KV. So với multi-query attention, GQA giữ được nhiều query head phân biệt hơn trong khi vẫn cho các KV head được chia sẻ trong từng nhóm."
+    },
+    "exampleArchitectures": {
+      "title": "Kiến trúc ví dụ",
+      "body": "GQA xuất hiện trong các mô hình ngôn ngữ decoder-only lớn, nơi cần suy luận ngữ cảnh dài hiệu quả nhưng vẫn muốn giữ động lực huấn luyện của multi-head."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Giới hạn và đánh đổi",
+      "body": "Việc chia sẻ KV head có thể làm giảm độ linh hoạt biểu diễn so với full multi-head attention. Số nhóm tối ưu còn phụ thuộc vào quy mô mô hình và mục tiêu chất lượng."
+    },
+    "whyItStillMatters": {
+      "title": "Vì sao nó vẫn quan trọng",
+      "body": "Khi cửa sổ ngữ cảnh tiếp tục tăng, hiệu quả của KV cache vẫn là ràng buộc hàng đầu trong phục vụ mô hình, nên GQA tiếp tục là lựa chọn thực dụng nằm giữa độ trung thực của MHA và mức nén của MQA."
+    },
+    "related": {
+      "title": "Liên quan"
+    },
+    "tags": {
+      "title": "Thẻ"
+    },
+    "references": {
+      "title": "Tài liệu tham khảo"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "So sánh số head giữa multi-head attention và grouped-query attention",
+      "caption": "Chuyển giữa MHA và GQA để so sánh số query head với số KV head trên cùng một đồ thị",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "gqa": {
+          "label": "GQA"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "Cách GQA so với các biến thể attention lân cận"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "gqa": {
+          "title": "Grouped-query attention"
+        },
+        "mha": {
+          "title": "Multi-head attention"
+        },
+        "mqa": {
+          "title": "Multi-query attention"
+        }
+      },
+      "dimensions": {
+        "kvHeadCount": "Số lượng KV head",
+        "queryHeadFlexibility": "Độ linh hoạt của query head",
+        "cacheFootprint": "Dung lượng cache trên mỗi token"
+      },
+      "values": {
+        "gqa": {
+          "kvHeadCount": "G key head và G value head",
+          "queryHeadFlexibility": "H query head riêng biệt được gom vào G cặp KV dùng chung",
+          "cacheFootprint": "2G tensor (G key + G value)"
+        },
+        "mha": {
+          "kvHeadCount": "H key head và H value head",
+          "queryHeadFlexibility": "H cặp query/KV head độc lập",
+          "cacheFootprint": "2H tensor (KV cache đầy đủ của multi-head attention)"
+        },
+        "mqa": {
+          "kvHeadCount": "1 key head và 1 value head",
+          "queryHeadFlexibility": "H query head dùng chung một cặp KV",
+          "cacheFootprint": "2 tensor (một KV cache dùng chung)"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Vector query cho head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Vector key cho head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Vector value cho head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Số lượng query head."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Chiều key trên mỗi head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Chỉ số query head."
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Grouped-query attention (GQA)",
+      "formula": "\\text{Attention}(Q_i, K_{g(i)}, V_{g(i)}) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_{g(i)}^{\\top}}{\\sqrt{d_k}}\\right) V_{g(i)}",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Vector query cho head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Vector key cho nhóm g(i)."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Vector value cho nhóm g(i)."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Số lượng query head."
+        },
+        "g": {
+          "term": "G",
+          "definition": "Số nhóm KV dùng chung."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Chiều key trên mỗi head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Chỉ số query head."
+        },
+        "gi": {
+          "term": "g(i)",
+          "definition": "Chỉ số nhóm KV của query head i."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "keysLabel": {
+        "label": "Keys"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "keyHead": {
+        "label": "k"
+      },
+      "valueHead": {
+        "label": "V"
+      },
+      "mhaQueryHeads": {
+        "label": "H query head"
+      },
+      "mhaKvHeads": {
+        "label": "H cặp KV head (1:1 với query)"
+      },
+      "mhaOneToOne": {
+        "label": "Mỗi query head có K và V riêng"
+      },
+      "mhaQueryHead1": {
+        "label": "Q1"
+      },
+      "mhaQueryHead2": {
+        "label": "Q2"
+      },
+      "mhaQueryHead3": {
+        "label": "Q3"
+      },
+      "mhaQueryHead4": {
+        "label": "Q4"
+      },
+      "mhaQueryHead5": {
+        "label": "Q5"
+      },
+      "mhaKvPair1": {
+        "label": "K1 / V1"
+      },
+      "mhaKvPair2": {
+        "label": "K2 / V2"
+      },
+      "mhaKvPair3": {
+        "label": "K3 / V3"
+      },
+      "mhaKvPair4": {
+        "label": "K4 / V4"
+      },
+      "mhaKvPair5": {
+        "label": "K5 / V5"
+      },
+      "gqaQueryHeads": {
+        "label": "H query head"
+      },
+      "gqaKvGroups": {
+        "label": "G cặp KV dùng chung"
+      },
+      "gqaGroupedMapping": {
+        "label": "H/G query head dùng chung mỗi cặp KV"
+      },
+      "gqaSharingNote": {
+        "label": "Cùng một key/value head được chia sẻ bởi hai query head"
+      }
+    }
+  }
+}

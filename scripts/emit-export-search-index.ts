@@ -11,4 +11,6 @@ if (!result.ok) {
   process.exit(1);
 }
 
-console.log(`Wrote advanced Orama search bootstrap to ${result.filePath}.`);
+console.log(
+  `Wrote advanced Orama search bootstrap to ${result.filePaths.join(", ")}.`,
+);

@@ -16,6 +16,7 @@ import {
 } from "@/lib/content/page-messages-load";
 import { type PageMessages, pageMessagesSchema } from "@/lib/content/schemas";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import type { SiteLocale } from "@/lib/i18n/locale-routing";
 import {
   type AppTestContext,
   loadAppTestContext,
@@ -69,6 +70,7 @@ type RenderSearchResultListItemOptions = {
   query: string;
   metaByUrl?: SearchResultMetaRecord;
   messages?: UiMessages;
+  locale?: SiteLocale;
   violation?: ReactNode;
   context?: AppTestContext;
 };
@@ -78,6 +80,7 @@ export async function renderSearchResultListItem({
   query,
   metaByUrl,
   messages,
+  locale,
   violation,
   context: contextOverride,
 }: RenderSearchResultListItemOptions) {
@@ -103,6 +106,7 @@ export async function renderSearchResultListItem({
                 query={query}
                 metaByUrl={resolvedMeta}
                 messages={resolvedMessages}
+                locale={locale}
                 onClick={onClick}
               />
               {violation}

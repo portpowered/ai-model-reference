@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import { getMessageString, loadPageMessages } from "./page-messages-load";
 import {
   type PageAsset,
@@ -147,7 +148,7 @@ export function validateAssetMessageKeys(
 export async function resolvePageAssetWithMessages(
   pageDirectory: string,
   assetId: string,
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<PageAsset> {
   const asset = await resolvePageAsset(pageDirectory, assetId);
   const messages = await loadPageMessages(pageDirectory, locale);

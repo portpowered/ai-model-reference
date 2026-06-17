@@ -1,4 +1,9 @@
 import { publishedResourceMatchesTag } from "@/lib/content/phase-1-published-resources";
+import {
+  buildLocalizedRoute,
+  defaultLocale,
+  type SiteLocale,
+} from "@/lib/i18n/locale-routing";
 import type { DocsPageSource } from "./pages";
 import type { TagRecord } from "./schemas";
 import type { UiMessages } from "./ui-messages.types";
@@ -56,9 +61,10 @@ export function toTagResourceEntry(page: DocsPageSource): TagResourceEntry {
 
 export function sortTagResourceEntriesByTitle(
   entries: TagResourceEntry[],
+  locale: SiteLocale = defaultLocale,
 ): TagResourceEntry[] {
   return [...entries].sort((a, b) =>
-    a.title.localeCompare(b.title, "en", { sensitivity: "base" }),
+    a.title.localeCompare(b.title, locale, { sensitivity: "base" }),
   );
 }
 
@@ -80,20 +86,21 @@ export async function loadPublishedTagRecord(
 
 export async function loadTagResourceEntries(
   tagSlug: string,
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<TagResourceEntry[]> {
   const { loadRegistry } = await import("./registry");
-  const { loadPublishedDocsPages } = await import("./pages");
+  const { loadShippedLocalizedDocsPages } = await import("./pages");
   const indexes = await loadRegistry();
-  const pages = (await loadPublishedDocsPages(locale)).filter((page) =>
+  const pages = (await loadShippedLocalizedDocsPages(locale)).filter((page) =>
     publishedResourceMatchesTag(page, tagSlug, indexes),
   );
-  return sortTagResourceEntriesByTitle(pages.map(toTagResourceEntry));
+  return sortTagResourceEntriesByTitle(pages.map(toTagResourceEntry), locale);
 }
 
 export function groupTagResourceEntriesByKind(
   entries: TagResourceEntry[],
   messages: UiMessages,
+  locale: SiteLocale = defaultLocale,
 ): TagResourceKindGroup[] {
   const byKind = new Map<string, TagResourceEntry[]>();
 
@@ -107,28 +114,28 @@ export function groupTagResourceEntriesByKind(
     .sort(
       ([kindA], [kindB]) =>
         kindSortIndex(kindA) - kindSortIndex(kindB) ||
-        kindA.localeCompare(kindB, "en", { sensitivity: "base" }),
+        kindA.localeCompare(kindB, locale, { sensitivity: "base" }),
     )
     .map(([kind, resources]) => ({
       kind,
       kindLabel: formatPageKind(messages, kind),
-      resources: sortTagResourceEntriesByTitle(resources),
+      resources: sortTagResourceEntriesByTitle(resources, locale),
     }));
 }
 
 export async function loadTagResourceGroups(
   tagSlug: string,
   messages: UiMessages,
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<TagResourceKindGroup[]> {
   const entries = await loadTagResourceEntries(tagSlug, locale);
-  return groupTagResourceEntriesByKind(entries, messages);
+  return groupTagResourceEntriesByKind(entries, messages, locale);
 }
 
 export async function loadTagLandingContext(
   slug: string,
   messages: UiMessages,
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<TagLandingContext | undefined> {
   const record = await loadPublishedTagRecord(slug);
   if (!record) {
@@ -136,7 +143,11 @@ export async function loadTagLandingContext(
   }
 
   const { loadTagMessages } = await import("./tag-messages");
-  const tagMessages = loadTagMessages(record.slug, locale);
+  const route = buildLocalizedRoute(
+    { surface: "tag-page", slug: record.slug },
+    locale,
+  );
+  const tagMessages = loadTagMessages(record.slug, locale, { route });
   const categoryLabel =
     messages.tagCategories[record.category] ?? record.category;
 

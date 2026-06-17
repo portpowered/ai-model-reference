@@ -1,11 +1,19 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
+import {
+  buildLocalizedRoute,
+  defaultLocale,
+  type SiteLocale,
+  supportedLocales,
+} from "@/lib/i18n/locale-routing";
+import { tagPageHref } from "./content-hrefs";
 import { CONTENT_ROOT, DOCS_ROOT } from "./content-paths";
 import { collectTableMessageKeys } from "./module-comparison-table";
 import { assetMessageKeys, loadPageAssets } from "./page-assets-load";
 import {
   getMessageString,
   groupedQueryAttentionPageDir,
+  hasPageMessagesFile,
   loadPageMessages,
   tokenGlossaryPageDir,
 } from "./page-messages-load";
@@ -23,6 +31,7 @@ import {
   pageFrontmatterSchema,
 } from "./schemas";
 import { getTableById } from "./table-registry-runtime";
+import { loadTagMessages, TagMessagesLoadError } from "./tag-messages";
 import { parseYamlFrontmatterBlock } from "./yaml-frontmatter";
 
 export { parseYamlFrontmatterBlock };
@@ -303,6 +312,7 @@ function validateAssetMessageKeys(
   pageDirectory: string,
   assets: PageAssetConfig,
   messages: PageMessages,
+  locale: SiteLocale = defaultLocale,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
 
@@ -312,7 +322,7 @@ function validateAssetMessageKeys(
       if (!getMessageString(messages, key)) {
         errors.push({
           code: "missing-message-key",
-          message: `${pageDirectory}: asset "${assetId}" references missing message key "${key}"`,
+          message: `${pageDirectory}: locale "${locale}" asset "${assetId}" references missing message key "${key}"`,
           path: join(pageDirectory, "assets.json"),
         });
       }
@@ -350,6 +360,7 @@ function validateTableAssetReferences(
   assets: PageAssetConfig,
   messages: PageMessages,
   indexes: RegistryIndexes,
+  locale: SiteLocale = defaultLocale,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
 
@@ -382,8 +393,8 @@ function validateTableAssetReferences(
       if (!getMessageString(messages, key)) {
         errors.push({
           code: "missing-table-message-key",
-          message: `${pageDirectory}: table "${asset.tableId}" references missing message key "${key}"`,
-          path: join(pageDirectory, "messages", "en.json"),
+          message: `${pageDirectory}: locale "${locale}" table "${asset.tableId}" references missing message key "${key}"`,
+          path: join(pageDirectory, "messages", `${locale}.json`),
         });
       }
     }
@@ -467,8 +478,78 @@ export async function validateColocatedPageBundle(
   return { errors, messages, assets };
 }
 
+function docsUrlForPageDirectory(
+  docsRoot: string,
+  pageDirectory: string,
+  locale: SiteLocale,
+): string {
+  const docsSlug = pageDirectory
+    .replace(`${docsRoot}/`, "")
+    .replace(/\\/g, "/");
+  return buildLocalizedRoute({ surface: "docs-page", slug: docsSlug }, locale);
+}
+
+async function validateLocalizedPageMessages(
+  pagePath: string,
+  pageDirectory: string,
+  docsRoot: string,
+  mdxBody: string,
+  assets: PageAssetConfig,
+  indexes: RegistryIndexes,
+): Promise<ValidationError[]> {
+  const errors: ValidationError[] = [];
+
+  for (const locale of supportedLocales) {
+    if (
+      locale === defaultLocale ||
+      !hasPageMessagesFile(pageDirectory, locale)
+    ) {
+      continue;
+    }
+
+    const route = docsUrlForPageDirectory(docsRoot, pageDirectory, locale);
+
+    let messages: PageMessages;
+    try {
+      messages = await loadPageMessages(pageDirectory, locale, { route });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      errors.push({
+        code: "messages-load-error",
+        message: `${pageDirectory}: ${message}`,
+        path: join(pageDirectory, "messages", `${locale}.json`),
+      });
+      continue;
+    }
+
+    errors.push(
+      ...validateAssetMessageKeys(pageDirectory, assets, messages, locale),
+      ...validateTableAssetReferences(
+        pageDirectory,
+        assets,
+        messages,
+        indexes,
+        locale,
+      ),
+    );
+
+    for (const messageKey of extractMdxMessageKeys(mdxBody)) {
+      if (!getMessageString(messages, messageKey)) {
+        errors.push({
+          code: "missing-message-key",
+          message: `${pagePath}: locale "${locale}" MDX references missing message key "${messageKey}"`,
+          path: join(pageDirectory, "messages", `${locale}.json`),
+        });
+      }
+    }
+  }
+
+  return errors;
+}
+
 async function validatePageMdx(
   pagePath: string,
+  docsRoot: string,
   indexes: RegistryIndexes,
 ): Promise<ValidationError[]> {
   const errors: ValidationError[] = [];
@@ -571,6 +652,63 @@ async function validatePageMdx(
     }
   }
 
+  errors.push(
+    ...(await validateLocalizedPageMessages(
+      pagePath,
+      pageDirectory,
+      docsRoot,
+      mdxBody,
+      assets,
+      indexes,
+    )),
+  );
+
+  return errors;
+}
+
+function isPublishedTagRecord(record: RegistryRecord): boolean {
+  return record.kind === "tag" && record.status === "published";
+}
+
+function validationErrorsFromTagMessagesLoadError(
+  error: TagMessagesLoadError,
+): ValidationError[] {
+  return error.details.map((detail) => ({
+    code:
+      detail.type === "missing-file"
+        ? "tag-messages-load-error"
+        : "tag-messages-parse-error",
+    message: error.message,
+    path: detail.path,
+  }));
+}
+
+function validateLocalizedTagMessages(
+  indexes: RegistryIndexes,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  for (const record of indexes.byId.values()) {
+    if (!isPublishedTagRecord(record)) {
+      continue;
+    }
+
+    for (const locale of supportedLocales) {
+      try {
+        loadTagMessages(record.slug, locale, {
+          route: tagPageHref(record.slug, locale),
+        });
+      } catch (error) {
+        if (error instanceof TagMessagesLoadError) {
+          errors.push(...validationErrorsFromTagMessagesLoadError(error));
+          continue;
+        }
+
+        throw error;
+      }
+    }
+  }
+
   return errors;
 }
 
@@ -644,7 +782,7 @@ export async function validateRegistryContent(
 
   for (const pagePath of pagePaths) {
     validatedPageDirectories.add(join(pagePath, ".."));
-    errors.push(...(await validatePageMdx(pagePath, indexes)));
+    errors.push(...(await validatePageMdx(pagePath, docsRoot, indexes)));
   }
 
   const phase1Dirs = options.phase1PageDirectories ?? phase1PageDirectories;
@@ -657,6 +795,8 @@ export async function validateRegistryContent(
       ...(await validateColocatedPageBundle(pageDirectory, indexes)).errors,
     );
   }
+
+  errors.push(...validateLocalizedTagMessages(indexes));
 
   return errors;
 }

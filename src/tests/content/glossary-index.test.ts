@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import GlossaryIndexPage from "@/app/(site)/docs/glossary/page";
+import { renderGlossaryIndexPage } from "@/app/(site)/site-renderers";
 import {
   type GlossaryEntry,
   loadPublishedGlossaryEntries,
@@ -170,7 +170,7 @@ describe("glossary index messages", () => {
 
 describe("glossary index page render", () => {
   it("lists taxonomy glossary entries and token with localized titles", async () => {
-    const page = await GlossaryIndexPage();
+    const page = await renderGlossaryIndexPage();
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Glossary");
@@ -201,5 +201,19 @@ describe("glossary index page render", () => {
     expect(html).not.toContain("No glossary entries yet");
     expect(html).toContain("list-none");
     expect(html).not.toContain("list-disc");
+  });
+
+  it("renders localized vietnamese glossary entries when shipped page-local messages exist", async () => {
+    const page = await renderGlossaryIndexPage("vi");
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Thuật ngữ");
+    expect(html).toContain("Sinh tự hồi quy");
+    expect(html).toContain(
+      'href="/vi/docs/glossary/autoregressive-generation"',
+    );
+    expect(html).toContain("Token");
+    expect(html).toContain('href="/vi/docs/glossary/token"');
+    expect(html).not.toContain("Chưa có mục thuật ngữ nào");
   });
 });

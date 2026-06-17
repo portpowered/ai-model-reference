@@ -1,5 +1,6 @@
 import { afterEach, beforeAll, describe, expect, test } from "bun:test";
 import {
+  buildDocsSearchStaticOptions,
   createModelAtlasSearchClient,
   DOCS_SEARCH_API_PATH,
   docsSearchStaticOptions,
@@ -35,6 +36,25 @@ describe("createModelAtlasSearchClient", () => {
 
   test("docsSearchStaticOptions.from resolves to the static bootstrap path", () => {
     expect(docsSearchStaticOptions.from).toBe(DOCS_SEARCH_API_PATH);
+  });
+
+  test("buildDocsSearchStaticOptions uses a locale-specific bootstrap path", () => {
+    expect(buildDocsSearchStaticOptions("vi").from).toBe(
+      "/api/search?locale=vi",
+    );
+  });
+
+  test("loads vietnamese result metadata for shipped localized pages", async () => {
+    const localizedMeta = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap("vi"),
+    );
+
+    expect(
+      localizedMeta["/vi/docs/modules/grouped-query-attention"]?.title,
+    ).toBe("Grouped-query attention");
+    expect(localizedMeta["/vi/docs/glossary/token"]?.description).toContain(
+      "Đơn vị văn bản nhỏ nhất",
+    );
   });
 
   test("fetches GQA results from a basePath-prefixed static bootstrap URL", async () => {

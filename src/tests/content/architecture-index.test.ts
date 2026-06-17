@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import ArchitectureIndexPage from "@/app/(site)/docs/architecture/page";
+import { renderArchitectureIndexPage } from "@/app/(site)/site-renderers";
 import {
   type ArchitectureEntry,
   isArchitectureRelatedPage,
@@ -148,7 +148,7 @@ describe("architecture index messages", () => {
 
 describe("architecture index page render", () => {
   it("lists taxonomy glossary entries and token with localized titles", async () => {
-    const page = await ArchitectureIndexPage();
+    const page = await renderArchitectureIndexPage();
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Architecture");
@@ -160,5 +160,21 @@ describe("architecture index page render", () => {
     expect(html).not.toContain("No architecture entries yet");
     expect(html).toContain("list-none");
     expect(html).not.toContain("list-disc");
+  });
+
+  it("renders localized vietnamese architecture entries when shipped page-local messages exist", async () => {
+    const page = await renderArchitectureIndexPage("vi");
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Kiến trúc");
+    expect(html).toContain("Kiến trúc transformer");
+    expect(html).toContain('href="/vi/docs/concepts/transformer-architecture"');
+    expect(html).toContain("Sinh tự hồi quy");
+    expect(html).toContain(
+      'href="/vi/docs/glossary/autoregressive-generation"',
+    );
+    expect(html).toContain("Token");
+    expect(html).toContain('href="/vi/docs/glossary/token"');
+    expect(html).not.toContain("Chưa có mục kiến trúc nào");
   });
 });

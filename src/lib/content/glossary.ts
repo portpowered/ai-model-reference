@@ -1,3 +1,4 @@
+import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import type { DocsPageSource } from "./pages";
 
 export type GlossaryEntry = {
@@ -17,7 +18,7 @@ export type GlossaryPageListing = {
 export type ListPublishedGlossaryPagesOptions = {
   /** Glossary docs root override for fixture tests (defaults to published content). */
   contentRoot?: string;
-  locale?: string;
+  locale?: SiteLocale;
 };
 
 function isEnoent(error: unknown): boolean {
@@ -54,20 +55,21 @@ export function toGlossaryEntry(page: DocsPageSource): GlossaryEntry {
 
 export function sortGlossaryEntriesByTitle(
   entries: GlossaryEntry[],
+  locale: SiteLocale = defaultLocale,
 ): GlossaryEntry[] {
   return [...entries].sort((a, b) =>
-    a.title.localeCompare(b.title, "en", { sensitivity: "base" }),
+    a.title.localeCompare(b.title, locale, { sensitivity: "base" }),
   );
 }
 
 export async function loadPublishedGlossaryEntries(
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<GlossaryEntry[]> {
-  const { loadPublishedDocsPages } = await import("./pages");
-  const pages = (await loadPublishedDocsPages(locale)).filter(
+  const { loadShippedLocalizedDocsPages } = await import("./pages");
+  const pages = (await loadShippedLocalizedDocsPages(locale)).filter(
     (page) => page.frontmatter.kind === "glossary",
   );
-  return sortGlossaryEntriesByTitle(pages.map(toGlossaryEntry));
+  return sortGlossaryEntriesByTitle(pages.map(toGlossaryEntry), locale);
 }
 
 /**
@@ -77,7 +79,7 @@ export async function loadPublishedGlossaryEntries(
 export async function listPublishedGlossaryPages(
   options: ListPublishedGlossaryPagesOptions = {},
 ): Promise<GlossaryPageListing[]> {
-  const locale = options.locale ?? "en";
+  const locale = options.locale ?? defaultLocale;
 
   if (options.contentRoot) {
     const { loadPublishedDocsPages } = await import("./pages");
@@ -85,7 +87,7 @@ export async function listPublishedGlossaryPages(
       const pages = (
         await loadPublishedDocsPages(locale, options.contentRoot)
       ).filter((page) => page.frontmatter.kind === "glossary");
-      return sortGlossaryEntriesByTitle(pages.map(toGlossaryEntry)).map(
+      return sortGlossaryEntriesByTitle(pages.map(toGlossaryEntry), locale).map(
         toGlossaryPageListing,
       );
     } catch (error) {

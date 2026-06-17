@@ -27,6 +27,18 @@ describe("getPrimaryNavItems", () => {
     ]);
   });
 
+  it("can emit vietnamese-prefixed navigation routes from the shared locale contract", async () => {
+    const messages = await loadUiMessages();
+    const items = getPrimaryNavItems(messages, "vi");
+
+    expect(items.map((item) => item.href)).toEqual([
+      "/vi",
+      "/vi/docs/architecture",
+      "/vi/docs/glossary",
+      "/vi/tags",
+    ]);
+  });
+
   it("omits duplicate /search link from primary navigation", async () => {
     const messages = await loadUiMessages();
     const items = getPrimaryNavItems(messages);

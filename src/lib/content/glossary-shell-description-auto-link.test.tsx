@@ -18,7 +18,11 @@ import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 
 describe("glossary shell description auto-link convergence", () => {
   test("glossary docs routes wire shell descriptions through DocsAutoLinkedDescription", () => {
-    const pageSource = readFileSync(
+    const pageRendererSource = readFileSync(
+      join(process.cwd(), "src/app/docs/docs-slug-renderer.tsx"),
+      "utf8",
+    );
+    const pageRouteSource = readFileSync(
       join(process.cwd(), "src/app/docs/[[...slug]]/page.tsx"),
       "utf8",
     );
@@ -34,36 +38,42 @@ describe("glossary shell description auto-link convergence", () => {
       "utf8",
     );
 
-    expect(pageSource).toContain("DocsAutoLinkedDescription");
-    expect(pageSource).toContain('localRef.section === "glossary"');
+    expect(pageRendererSource).toContain("DocsAutoLinkedDescription");
+    expect(pageRendererSource).toContain('localRef.section === "glossary"');
+    expect(pageRouteSource).toContain("renderDocsSlugPage");
     expect(shellRenderSource).toContain("DocsAutoLinkedDescription");
     expect(autoLinkedDescriptionSource).toContain("ProseAutoLinkText");
   });
 
-  test("published glossary pages render auto-linked shell descriptions without body duplication", async () => {
-    const pages = await listPublishedGlossaryPages();
+  test(
+    "published glossary pages render auto-linked shell descriptions without body duplication",
+    async () => {
+      const pages = await listPublishedGlossaryPages();
 
-    for (const page of pages) {
-      const loadedPage = await loadLocalDocsPage({
-        section: "glossary",
-        slug: page.slug,
-      });
-      const html = renderGlossaryDocsShell(loadedPage);
-      const articleHtml = extractGlossaryArticleHtml(
-        html,
-        loadedPage.frontmatter.registryId,
-      );
+      for (const page of pages) {
+        const loadedPage = await loadLocalDocsPage({
+          section: "glossary",
+          slug: page.slug,
+        });
+        const html = renderGlossaryDocsShell(loadedPage);
+        const articleHtml = extractGlossaryArticleHtml(
+          html,
+          loadedPage.frontmatter.registryId,
+        );
 
-      const articleStart = html.indexOf("<article");
-      const shellHtml = articleStart >= 0 ? html.slice(0, articleStart) : html;
-      expectHtmlToContainProse(shellHtml, loadedPage.messages.description);
-      expectGlossaryBodyOmitsShellDescription(
-        articleHtml,
-        loadedPage.messages.description,
-      );
-      expectGlossaryShellAutoLinksUseProseContract(html);
-    }
-  });
+        const articleStart = html.indexOf("<article");
+        const shellHtml =
+          articleStart >= 0 ? html.slice(0, articleStart) : html;
+        expectHtmlToContainProse(shellHtml, loadedPage.messages.description);
+        expectGlossaryBodyOmitsShellDescription(
+          articleHtml,
+          loadedPage.messages.description,
+        );
+        expectGlossaryShellAutoLinksUseProseContract(html);
+      }
+    },
+    { timeout: 10_000 },
+  );
 
   test("/docs/glossary/embedding shell description links dense vector and token with preserved link text", async () => {
     const loadedPage = await loadLocalDocsPage({

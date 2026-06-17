@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import TagLandingPage from "@/app/(site)/tags/[slug]/page";
+import { renderTagLandingPage } from "@/app/(site)/site-renderers";
 import { HomeArticle } from "@/components/home/home-article";
 import { getPrimaryNavItems } from "@/components/layout/primary-nav";
 import {
@@ -77,11 +77,23 @@ describe("Phase 1 discovery search handoffs", () => {
   });
 
   it("attention tag landing links to /search?tag=attention and exposes dialog handoff", async () => {
-    const page = await TagLandingPage({
+    const page = await renderTagLandingPage({
       params: Promise.resolve({ slug: "attention" }),
     });
     const html = renderToStaticMarkup(page);
     expect(html).toContain('href="/search?tag=attention"');
+    expect(html).toContain("data-search");
+  });
+
+  it("attention tag landing preserves the locale in vietnamese search handoffs", async () => {
+    const page = await renderTagLandingPage(
+      {
+        params: Promise.resolve({ slug: "attention" }),
+      },
+      "vi",
+    );
+    const html = renderToStaticMarkup(page);
+    expect(html).toContain('href="/vi/search?tag=attention"');
     expect(html).toContain("data-search");
   });
 

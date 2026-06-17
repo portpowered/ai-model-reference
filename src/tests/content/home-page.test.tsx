@@ -59,6 +59,21 @@ describe("home page render", () => {
     }
   });
 
+  it("preserves the active locale in browse links on the vietnamese route surface", async () => {
+    const messages = await loadUiMessages("vi");
+    const html = renderToStaticMarkup(
+      <HomeArticle messages={messages} locale="vi" />,
+    );
+
+    expect(html).toContain("Cẩm nang về các mô hình và module AI hiện đại");
+    expect(html).toContain("Token (thuật ngữ)");
+    expect(html).toContain('href="/vi/docs/architecture"');
+    expect(html).toContain('href="/vi/docs/glossary"');
+    expect(html).toContain('href="/vi/docs/glossary/token"');
+    expect(html).toContain('href="/vi/tags"');
+    expect(html).toContain('href="/vi/docs/modules/grouped-query-attention"');
+  });
+
   it("omits verbose search handoff prose and inline /search link", async () => {
     const html = await renderHomeArticleHtml();
     expect(html).not.toContain("Search entry page");

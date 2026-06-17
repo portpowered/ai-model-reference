@@ -1,3 +1,4 @@
+import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import type { TagRecord } from "./schemas";
 
 /** Human-readable label for a kebab-case tag slug. */
@@ -62,17 +63,18 @@ export function formatTagCategoryLabel(
 export async function toTagIndexEntry(
   record: TagRecord,
   messages: UiMessages,
-  locale = "en",
+  locale: SiteLocale,
 ): Promise<TagIndexEntry> {
   const { loadTagMessages } = await import("./tag-messages");
-  const tagMessages = loadTagMessages(record.slug, locale);
+  const url = tagPageHref(record.slug, locale);
+  const tagMessages = loadTagMessages(record.slug, locale, { route: url });
   const categoryLabel = formatTagCategoryLabel(messages, record.category);
 
   return {
     slug: record.slug,
     title: tagMessages.title,
     summary: tagMessages.summary,
-    url: `/tags/${record.slug}`,
+    url,
     category: record.category,
     categoryLabel,
   };
@@ -80,15 +82,16 @@ export async function toTagIndexEntry(
 
 export function sortTagIndexEntriesByTitle(
   entries: TagIndexEntry[],
+  locale: SiteLocale = defaultLocale,
 ): TagIndexEntry[] {
   return [...entries].sort((a, b) =>
-    a.title.localeCompare(b.title, "en", { sensitivity: "base" }),
+    a.title.localeCompare(b.title, locale, { sensitivity: "base" }),
   );
 }
 
 export async function loadPublishedTagIndexEntries(
   messages: UiMessages,
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<TagIndexEntry[]> {
   const { loadRegistry } = await import("./registry");
   const indexes = await loadRegistry();
@@ -97,11 +100,12 @@ export async function loadPublishedTagIndexEntries(
       .filter(isPublishedTagRecord)
       .map((record) => toTagIndexEntry(record, messages, locale)),
   );
-  return sortTagIndexEntriesByTitle(entries);
+  return sortTagIndexEntriesByTitle(entries, locale);
 }
 
 export function groupTagIndexEntriesByCategory(
   entries: TagIndexEntry[],
+  locale: SiteLocale = defaultLocale,
 ): TagIndexCategoryGroup[] {
   const byCategory = new Map<string, TagIndexEntry[]>();
 
@@ -115,19 +119,19 @@ export function groupTagIndexEntriesByCategory(
     .sort(
       ([categoryA], [categoryB]) =>
         categorySortIndex(categoryA) - categorySortIndex(categoryB) ||
-        categoryA.localeCompare(categoryB, "en", { sensitivity: "base" }),
+        categoryA.localeCompare(categoryB, locale, { sensitivity: "base" }),
     )
     .map(([category, tags]) => ({
       category,
       categoryLabel: tags[0]?.categoryLabel ?? category,
-      tags: sortTagIndexEntriesByTitle(tags),
+      tags: sortTagIndexEntriesByTitle(tags, locale),
     }));
 }
 
 export async function loadPublishedTagIndexGroups(
   messages: UiMessages,
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<TagIndexCategoryGroup[]> {
   const entries = await loadPublishedTagIndexEntries(messages, locale);
-  return groupTagIndexEntriesByCategory(entries);
+  return groupTagIndexEntriesByCategory(entries, locale);
 }

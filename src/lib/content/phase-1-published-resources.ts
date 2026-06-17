@@ -4,6 +4,7 @@ import {
   getRegistryRecord,
   type RegistryIndexes,
 } from "@/lib/content/registry-index";
+import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 
 /** Phase 1 attention discovery tag slug shared by tag landing and search. */
 export const PHASE_1_ATTENTION_TAG_SLUG = "attention" as const;
@@ -45,7 +46,7 @@ export function publishedResourceMatchesTag(
 /** Published docs pages discoverable under a tag slug via the canonical Phase 1 rule. */
 export async function loadPublishedResourcesForTag(
   tagSlug: string,
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<DocsPageSource[]> {
   const { loadRegistry } = await import("./registry");
   const { loadPublishedDocsPages } = await import("./pages");
@@ -58,7 +59,7 @@ export async function loadPublishedResourcesForTag(
 
 /** Module docs URLs for the Phase 1 attention tag, sorted by reader-facing title. */
 export async function loadPhase1AttentionModuleUrls(
-  locale = "en",
+  locale: SiteLocale = defaultLocale,
 ): Promise<string[]> {
   const pages = await loadPublishedResourcesForTag(
     PHASE_1_ATTENTION_TAG_SLUG,

@@ -13,17 +13,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { SearchTrigger } from "@/features/docs/search/SearchTrigger";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 
 type ModelAtlasDocsHeaderProps = {
   messages: UiMessages;
+  locale?: SiteLocale;
   trailing?: ReactNode;
 };
 
 export function ModelAtlasDocsHeader({
   messages,
+  locale = defaultLocale,
   trailing,
 }: ModelAtlasDocsHeaderProps) {
-  const primaryNavItems = getPrimaryNavItems(messages);
+  const primaryNavItems = getPrimaryNavItems(messages, locale);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuPanelId = useId();
 

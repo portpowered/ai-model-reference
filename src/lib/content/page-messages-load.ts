@@ -1,5 +1,7 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import type { SiteLocale } from "@/lib/i18n/locale-routing";
 import {
   GROUPED_QUERY_ATTENTION_PAGE_DIR,
   TOKEN_GLOSSARY_PAGE_DIR,
@@ -24,15 +26,28 @@ export const groupedQueryAttentionPageDir = GROUPED_QUERY_ATTENTION_PAGE_DIR;
 
 export const tokenGlossaryPageDir = TOKEN_GLOSSARY_PAGE_DIR;
 
+type PageMessagesLoadOptions = {
+  route?: string;
+};
+
 function messagesFilePath(pageDirectory: string, locale: string): string {
   return join(pageDirectory, "messages", `${locale}.json`);
 }
 
+export function hasPageMessagesFile(
+  pageDirectory: string,
+  locale: SiteLocale,
+): boolean {
+  return existsSync(messagesFilePath(pageDirectory, locale));
+}
+
 export async function loadPageMessages(
   pageDirectory: string,
-  locale: string,
+  locale: SiteLocale,
+  options: PageMessagesLoadOptions = {},
 ): Promise<PageMessages> {
   const path = messagesFilePath(pageDirectory, locale);
+  const route = options.route ? ` for route "${options.route}"` : "";
 
   let raw: string;
   try {
@@ -45,16 +60,17 @@ export async function loadPageMessages(
     if (code === "ENOENT") {
       const message =
         locale === "en"
-          ? `Missing required default locale messages file: ${path}`
-          : `Missing messages file for locale "${locale}": ${path}`;
+          ? `Missing required default locale messages file${route}: ${path}`
+          : `Missing messages file${route} for locale "${locale}": ${path}`;
       throw new MessageLoadError(message, [
         { type: "missing-file", path, locale },
       ]);
     }
     const message = error instanceof Error ? error.message : String(error);
-    throw new MessageLoadError(`Failed to read messages file ${path}`, [
-      { type: "parse-error", path, message },
-    ]);
+    throw new MessageLoadError(
+      `Failed to read messages file${route}: ${path}`,
+      [{ type: "parse-error", path, message }],
+    );
   }
 
   let json: unknown;
@@ -62,9 +78,10 @@ export async function loadPageMessages(
     json = JSON.parse(raw);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new MessageLoadError(`Invalid JSON in messages file ${path}`, [
-      { type: "parse-error", path, message },
-    ]);
+    throw new MessageLoadError(
+      `Invalid JSON in messages file${route}: ${path}`,
+      [{ type: "parse-error", path, message }],
+    );
   }
 
   const result = pageMessagesSchema.safeParse(json);
@@ -73,7 +90,7 @@ export async function loadPageMessages(
       .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
       .join("; ");
     throw new MessageLoadError(
-      `Page messages schema validation failed for ${path}`,
+      `Page messages schema validation failed${route}: ${path}`,
       [{ type: "parse-error", path, message }],
     );
   }

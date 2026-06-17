@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { GET } from "@/app/api/search/route";
+import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
 import {
   PHASE_1_ATTENTION_MODULE_URL,
@@ -62,6 +63,40 @@ describe("live /api/search HTTP contract", () => {
 
     const payload = (await response.json()) as { type: string };
     expect(payload.type).toBe("advanced");
+  });
+
+  test("GET without query returns a locale-specific export for vietnamese", async () => {
+    const response = await GET(
+      new Request("http://localhost/api/search?locale=vi"),
+    );
+    expect(response.ok).toBe(true);
+
+    const payload = (await response.json()) as { type: string };
+    expect(payload.type).toBe("advanced");
+  });
+
+  test("GET with a vietnamese locale query returns locale-scoped URLs", async () => {
+    const response = await GET(
+      new Request("http://localhost/api/search?query=GQA&locale=vi"),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    expect(results.every((result) => result.url.startsWith("/vi/"))).toBe(true);
+  });
+
+  test("GET with a vietnamese locale query returns localized grouped-query attention content", async () => {
+    const results = await docsSearchApi.search("GQA", { locale: "vi" });
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe("/vi/docs/modules/grouped-query-attention");
+
+    const meta = await loadSearchResultMetaMap("vi");
+    expect(meta.get("/vi/docs/modules/grouped-query-attention")?.title).toBe(
+      "Grouped-query attention",
+    );
+    expect(
+      meta.get("/vi/docs/modules/grouped-query-attention")?.description,
+    ).toContain("giảm bộ nhớ KV cache");
   });
 
   test("GET returns grouped-query attention for GQA query", async () => {

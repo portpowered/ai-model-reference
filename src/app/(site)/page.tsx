@@ -1,22 +1,18 @@
-import { DocsBody, DocsPage } from "fumadocs-ui/layouts/docs/page";
-
-import { HomeArticle } from "@/components/home/home-article";
+import type { Metadata } from "next";
 import { loadUiMessages } from "@/lib/content/ui-messages";
-import { buildHomeTableOfContents } from "@/lib/navigation/home-page-toc";
+import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
+import { renderHomePage } from "./site-renderers";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const messages = await loadUiMessages();
+
+  return {
+    title: messages.home.title,
+    description: messages.home.intro,
+    alternates: localizedRouteAlternates({ surface: "home" }),
+  };
+}
 
 export default async function HomePage() {
-  const messages = await loadUiMessages();
-  const { home } = messages;
-
-  return (
-    <DocsPage
-      toc={buildHomeTableOfContents(home)}
-      breadcrumb={{ enabled: false }}
-      footer={{ enabled: false }}
-    >
-      <DocsBody>
-        <HomeArticle messages={messages} />
-      </DocsBody>
-    </DocsPage>
-  );
+  return renderHomePage();
 }

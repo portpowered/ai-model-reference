@@ -5,6 +5,11 @@ import {
   type SearchItemType,
 } from "fumadocs-ui/components/dialog/search";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import {
+  defaultLocale,
+  type SiteLocale,
+  switchRouteLocale,
+} from "@/lib/i18n/locale-routing";
 import { cn } from "@/lib/utils";
 import { SearchResultMetaDetails } from "./SearchResultMetaDetails";
 import { SearchResultTitle } from "./SearchResultTitle";
@@ -38,6 +43,7 @@ export type SearchResultRowProps = {
   query: string;
   metaByUrl: SearchResultMetaRecord;
   messages: UiMessages;
+  locale?: SiteLocale;
   surface: "dialog" | "page";
   onActivate: () => void;
   className?: string;
@@ -49,15 +55,21 @@ export function SearchResultRow({
   query,
   metaByUrl,
   messages,
+  locale = defaultLocale,
   surface,
   onActivate,
   className,
 }: SearchResultRowProps) {
+  const localizedItem =
+    item.type === "page"
+      ? { ...item, url: switchRouteLocale(item.url, locale) }
+      : item;
+
   if (!isPageSearchItem(item)) {
     if (surface === "dialog") {
       return (
         <SearchDialogListItem
-          item={item}
+          item={localizedItem}
           onClick={onActivate}
           className={className}
         />
@@ -98,7 +110,7 @@ export function SearchResultRow({
   if (surface === "dialog") {
     return (
       <SearchDialogListItem
-        item={item}
+        item={localizedItem}
         onClick={onActivate}
         aria-label={accessibleTitle}
         data-testid="search-result-row"
