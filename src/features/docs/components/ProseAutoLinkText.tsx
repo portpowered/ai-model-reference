@@ -3,9 +3,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { InlineMath } from "@/features/docs/components/Math";
+import { useOptionalPageMessagesContext } from "@/features/docs/components/page-messages-context";
 import { proseAutoLinkClassName } from "@/features/docs/components/prose-auto-link-class";
+import { localizeDocsHref } from "@/lib/content/localized-docs-href";
 import { segmentProseWithAutoLinks } from "@/lib/content/prose-auto-link";
 import { PROSE_AUTO_LINK_PHRASES } from "@/lib/content/prose-auto-link-runtime";
+import type { SiteLocale } from "@/lib/i18n/locale-routing";
 
 type ProseInlineSegment =
   | {
@@ -98,7 +101,11 @@ function splitProseInlineMath(text: string): ProseInlineSegment[] {
   return segments.length > 0 ? segments : [{ type: "text", value: text }];
 }
 
-function renderAutoLinkedText(text: string, keyPrefix: string): ReactNode[] {
+function renderAutoLinkedText(
+  text: string,
+  keyPrefix: string,
+  locale?: SiteLocale,
+): ReactNode[] {
   const segments = segmentProseWithAutoLinks(text, PROSE_AUTO_LINK_PHRASES);
   let textOffset = 0;
 
@@ -114,7 +121,7 @@ function renderAutoLinkedText(text: string, keyPrefix: string): ReactNode[] {
     return (
       <Link
         key={key}
-        href={segment.href}
+        href={locale ? localizeDocsHref(segment.href, locale) : segment.href}
         className={proseAutoLinkClassName}
         data-prose-auto-link="true"
       >
@@ -125,10 +132,15 @@ function renderAutoLinkedText(text: string, keyPrefix: string): ReactNode[] {
 }
 
 export function ProseAutoLinkText({ text }: { text: string }) {
+  const pageContext = useOptionalPageMessagesContext();
   const inlineSegments = splitProseInlineMath(text);
 
   if (inlineSegments.length === 1 && inlineSegments[0]?.type === "text") {
-    const nodes = renderAutoLinkedText(inlineSegments[0].value, "text");
+    const nodes = renderAutoLinkedText(
+      inlineSegments[0].value,
+      "text",
+      pageContext?.locale,
+    );
     return <>{nodes}</>;
   }
 
@@ -137,7 +149,11 @@ export function ProseAutoLinkText({ text }: { text: string }) {
     if (segment.type === "text") {
       const keyPrefix = `text:${inlineOffset}`;
       inlineOffset += segment.value.length;
-      return renderAutoLinkedText(segment.value, keyPrefix);
+      return renderAutoLinkedText(
+        segment.value,
+        keyPrefix,
+        pageContext?.locale,
+      );
     }
 
     const key = `math:${inlineOffset}:${segment.formula}`;

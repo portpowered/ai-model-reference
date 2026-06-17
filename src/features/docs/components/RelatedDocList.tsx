@@ -3,40 +3,14 @@
 import Link from "next/link";
 import { docsChromeLinkClassName } from "@/features/docs/components/docs-chrome-link";
 import { useOptionalPageMessagesContext } from "@/features/docs/components/page-messages-context";
+import { localizeDocsHref } from "@/lib/content/localized-docs-href";
 import type { RelatedDocItem } from "@/lib/content/related-docs";
-import { isShippedLocalizedDocsSlug } from "@/lib/content/shipped-localized-docs";
-import {
-  defaultLocale,
-  matchLocalizedRoute,
-  type SiteLocale,
-  switchRouteLocale,
-} from "@/lib/i18n/locale-routing";
 
 type RelatedDocListProps = {
   items: RelatedDocItem[];
   testId?: string;
   groupId?: string;
 };
-
-function localizeRelatedHref(href: string, locale: SiteLocale): string {
-  if (locale === defaultLocale) {
-    return href;
-  }
-
-  const match = matchLocalizedRoute(href);
-  if (match.kind !== "matched") {
-    return href;
-  }
-
-  if (
-    match.destination.surface === "docs-page" &&
-    !isShippedLocalizedDocsSlug(match.destination.slug, locale)
-  ) {
-    return href;
-  }
-
-  return switchRouteLocale(href, locale);
-}
 
 export function RelatedDocList({
   items,
@@ -58,7 +32,7 @@ export function RelatedDocList({
       {items.map((item) => {
         const href =
           item.href && pageContext
-            ? localizeRelatedHref(item.href, pageContext.locale)
+            ? localizeDocsHref(item.href, pageContext.locale)
             : item.href;
 
         return (

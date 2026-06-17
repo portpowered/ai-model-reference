@@ -6,6 +6,8 @@ import { ModulePageProviders } from "@/features/docs/components/ModulePageProvid
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { TagPillList } from "@/features/docs/components/TagPillList";
 import { GLOSSARY_DOCS_ROOT } from "@/lib/content/content-paths";
+import { renderGlossaryDocsShell } from "@/lib/content/glossary-shell-render";
+import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { loadPageMessages } from "@/lib/content/page-messages-load";
 import {
   isDocsPageShippedForLocale,
@@ -28,7 +30,9 @@ const VIETNAMESE_GLOSSARY_EXPECTATIONS = [
       "/vi/tags/token-to-probability-chain",
       "/vi/tags/foundations",
     ],
+    shellLocalizedHrefs: ["/vi/docs/glossary/token"],
     fallbackHref: "/docs/glossary/tensor",
+    shellFallbackHref: "/docs/glossary/vector",
   },
   {
     slug: "logit",
@@ -44,6 +48,7 @@ const VIETNAMESE_GLOSSARY_EXPECTATIONS = [
       "/vi/tags/foundations",
       "/vi/docs/glossary/softmax",
     ],
+    shellLocalizedHrefs: ["/vi/docs/glossary/softmax"],
   },
   {
     slug: "softmax",
@@ -58,6 +63,7 @@ const VIETNAMESE_GLOSSARY_EXPECTATIONS = [
       "/vi/tags/token-to-probability-chain",
       "/vi/tags/foundations",
     ],
+    shellLocalizedHrefs: ["/vi/docs/glossary/token"],
   },
 ] as const;
 
@@ -81,6 +87,13 @@ describe("Phase 4 Vietnamese probability-chain glossary coverage", () => {
         join(GLOSSARY_DOCS_ROOT, expectation.slug),
         "vi",
       );
+      const page = await loadLocalDocsPage(
+        {
+          section: "glossary",
+          slug: expectation.slug,
+        },
+        "vi",
+      );
       const html = renderToStaticMarkup(
         createElement(
           ModulePageProviders,
@@ -95,6 +108,7 @@ describe("Phase 4 Vietnamese probability-chain glossary coverage", () => {
           </>,
         ),
       );
+      const shellHtml = renderGlossaryDocsShell(page, { locale: "vi" });
 
       expect(messages.description).toBe(expectation.vietnameseDescription);
       expect(messages.sections?.whatItIs.body).toContain(
@@ -102,15 +116,25 @@ describe("Phase 4 Vietnamese probability-chain glossary coverage", () => {
       );
       expect(messages.description).not.toBe(expectation.englishFallback);
       expect(html).not.toContain(expectation.englishFallback);
+      expect(shellHtml).not.toContain(expectation.englishFallback);
 
       for (const href of expectation.expectedHrefs) {
         expect(html).toContain(`href="${href}"`);
+      }
+
+      for (const href of expectation.shellLocalizedHrefs) {
+        expect(shellHtml).toContain(`href="${href}"`);
       }
 
       if ("fallbackHref" in expectation) {
         expect(isDocsPageShippedForLocale("glossary/tensor", "vi")).toBe(false);
         expect(html).toContain(`href="${expectation.fallbackHref}"`);
         expect(html).not.toContain('href="/vi/docs/glossary/tensor"');
+      }
+
+      if ("shellFallbackHref" in expectation) {
+        expect(shellHtml).toContain(`href="${expectation.shellFallbackHref}"`);
+        expect(shellHtml).not.toContain('href="/vi/docs/glossary/vector"');
       }
     });
   }

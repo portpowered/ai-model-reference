@@ -1,6 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ProseAutoLinkText } from "@/features/docs/components/ProseAutoLinkText";
+import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
+
+const TEST_PAGE_MESSAGES = {
+  title: "Test page",
+  description: "Test description",
+};
 
 describe("ProseAutoLinkText", () => {
   test("renders internal links for recognizable module aliases", () => {
@@ -12,6 +18,37 @@ describe("ProseAutoLinkText", () => {
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('data-prose-auto-link="true"');
     expect(html).toContain("focus-visible:ring-2");
+  });
+
+  test("localizes shipped docs auto-links when the page locale is non-default", () => {
+    const html = renderToStaticMarkup(
+      <PageMessagesProvider
+        messages={TEST_PAGE_MESSAGES}
+        locale="vi"
+        isDev={false}
+      >
+        <ProseAutoLinkText text="Compare attention, token, and grouped-query attention." />
+      </PageMessagesProvider>,
+    );
+
+    expect(html).toContain('href="/vi/docs/modules/attention"');
+    expect(html).toContain('href="/vi/docs/glossary/token"');
+    expect(html).toContain('href="/vi/docs/modules/grouped-query-attention"');
+  });
+
+  test("keeps canonical docs hrefs when the localized target is not shipped", () => {
+    const html = renderToStaticMarkup(
+      <PageMessagesProvider
+        messages={TEST_PAGE_MESSAGES}
+        locale="vi"
+        isDev={false}
+      >
+        <ProseAutoLinkText text="A dense vector can summarize activations." />
+      </PageMessagesProvider>,
+    );
+
+    expect(html).toContain('href="/docs/glossary/vector"');
+    expect(html).not.toContain('href="/vi/docs/glossary/vector"');
   });
 
   test("leaves ambiguous or unknown phrases as plain text", () => {
