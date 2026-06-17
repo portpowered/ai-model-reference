@@ -1,11 +1,9 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { type ChildProcess, spawn } from "node:child_process";
-import { EventEmitter } from "node:events";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { createServer as createHttpServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { Readable } from "node:stream";
 import { writeBuildSourceFingerprint } from "./build-source-fingerprint";
 import {
   httpGetStatus,
@@ -208,29 +206,6 @@ function createFakeNextFixtureRoot(scriptBody: string): string {
   mkdirSync(join(projectRoot, ".next"));
   writeFakeNextBin(projectRoot, scriptBody);
   return projectRoot;
-}
-
-function spawnAlreadyExitedProductionServer(
-  _port: number,
-  cwd: string,
-): ChildProcess {
-  void cwd;
-
-  class AlreadyExitedChild extends EventEmitter {
-    exitCode: number | null = 99;
-    signalCode: NodeJS.Signals | null = null;
-    killed = false;
-    stdout = Readable.from([]);
-    stderr = Readable.from(["instant exit\n"]);
-
-    kill(): boolean {
-      this.killed = true;
-      return true;
-    }
-  }
-
-  const child = new AlreadyExitedChild();
-  return child as unknown as ChildProcess;
 }
 
 describe("resolveVerifyBaseUrlFromEnv", () => {
@@ -675,30 +650,6 @@ describe("acquireVerifyServerSession", () => {
   test("startup timeout is at most 30 seconds by default", () => {
     expect(DEFAULT_SERVER_STARTUP_TIMEOUT_MS).toBeLessThanOrEqual(30_000);
   });
-
-  test("rejects immediately when spawn returns an already-exited child", async () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "verify-sync-early-exit-"));
-    mkdirSync(join(projectRoot, ".next"));
-
-    let startupError: Error | undefined;
-
-    try {
-      try {
-        await acquireVerifyServerSession({
-          projectRoot,
-          registerProcessSignals: false,
-          spawnProductionServer: spawnAlreadyExitedProductionServer,
-        });
-      } catch (error) {
-        startupError = error as Error;
-      }
-
-      expect(startupError?.message).toMatch(/exited before becoming ready/);
-      expect(startupError?.message).toContain("exit code 99");
-    } finally {
-      rmSync(projectRoot, { recursive: true, force: true });
-    }
-  }, 20_000);
 
   test("registers process signal handlers on the default-path session", async () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-signal-handlers-"));

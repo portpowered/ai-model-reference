@@ -1,10 +1,10 @@
-import {
-  SearchDialog,
-  SearchDialogContent,
-  SearchDialogList,
-  type SearchItemType,
-} from "fumadocs-ui/components/dialog/search";
 import type { ReactNode } from "react";
+import {
+  SearchInlineResultActionExample,
+  SearchInlineResultWithMetaExample,
+  SearchResultListItemExample,
+  SearchResultListItemNoMetaExample,
+} from "@/component-examples/client-search-examples";
 import type {
   ComponentExampleContext,
   ComponentExampleDefinition,
@@ -17,10 +17,6 @@ import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
 import { SearchResultMetaDetails } from "@/features/docs/search/SearchResultMetaDetails";
-import {
-  SearchInlineResultItem,
-  SearchResultListItem,
-} from "@/features/docs/search/SearchResults";
 import {
   SAME_CONCEPT_TYPE,
   SAME_VARIANT_GROUP,
@@ -36,37 +32,6 @@ function withPageMessages(
     <PageMessagesProvider messages={context.pageMessages} isDev={isDev}>
       {ui}
     </PageMessagesProvider>
-  );
-}
-
-function renderSearchResultListItemExample(
-  context: ComponentExampleContext,
-  item: SearchItemType,
-  query: string,
-) {
-  return (
-    <SearchDialog
-      open
-      onOpenChange={() => {}}
-      search={query}
-      onSearchChange={() => {}}
-      isLoading={false}
-    >
-      <SearchDialogContent>
-        <SearchDialogList
-          items={[item]}
-          Item={({ item: listItem, onClick }) => (
-            <SearchResultListItem
-              item={listItem}
-              query={query}
-              metaByUrl={context.metaByUrl}
-              messages={context.uiMessages}
-              onClick={onClick}
-            />
-          )}
-        />
-      </SearchDialogContent>
-    </SearchDialog>
   );
 }
 
@@ -179,38 +144,14 @@ export const componentExamples: ComponentExampleDefinition[] = [
     componentName: "SearchInlineResultItem",
     variantLabel: "default (page result with metadata)",
     render: (context) => (
-      <SearchInlineResultItem
-        item={{
-          id: "page-gqa",
-          type: "page",
-          url: context.sampleModuleUrl,
-          content: "Grouped-Query Attention",
-        }}
-        query="GQA"
-        metaByUrl={context.metaByUrl}
-        messages={context.uiMessages}
-        onSelect={() => {}}
-      />
+      <SearchInlineResultWithMetaExample context={context} />
     ),
   },
   {
     id: "search-inline-result-action",
     componentName: "SearchInlineResultItem",
     variantLabel: "action result (no metadata)",
-    render: (context) => (
-      <SearchInlineResultItem
-        item={{
-          id: "action-open-search",
-          type: "action",
-          node: "Open search page",
-          onSelect: () => {},
-        }}
-        query=""
-        metaByUrl={context.metaByUrl}
-        messages={context.uiMessages}
-        onSelect={() => {}}
-      />
-    ),
+    render: (context) => <SearchInlineResultActionExample context={context} />,
   },
   {
     id: "search-result-meta-details",
@@ -252,33 +193,15 @@ export const componentExamples: ComponentExampleDefinition[] = [
     id: "search-result-list-item",
     componentName: "SearchResultListItem",
     variantLabel: "default (dialog row with metadata)",
-    render: (context) =>
-      renderSearchResultListItemExample(
-        context,
-        {
-          id: "page-gqa",
-          type: "page",
-          url: context.sampleModuleUrl,
-          content: "Grouped-Query Attention",
-        },
-        "GQA",
-      ),
+    render: (context) => <SearchResultListItemExample context={context} />,
   },
   {
     id: "search-result-list-item-no-meta",
     componentName: "SearchResultListItem",
     variantLabel: "page row without metadata",
-    render: (context) =>
-      renderSearchResultListItemExample(
-        context,
-        {
-          id: "page-token",
-          type: "page",
-          url: "/docs/glossary/unknown-example",
-          content: "Unknown glossary entry",
-        },
-        "token",
-      ),
+    render: (context) => (
+      <SearchResultListItemNoMetaExample context={context} />
+    ),
   },
 ];
 

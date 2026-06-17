@@ -27,6 +27,7 @@ jobs:
             command: make test
           - name: test-verify-contract
             command: make test-verify-contract
+            install_playwright: true
           - name: coverage
             command: make coverage
           - name: test-build-contract

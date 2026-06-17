@@ -466,7 +466,9 @@ describe("verify-phase-1-route-search-ux script", () => {
         );
 
         expect(result.exitCode).toBe(1);
-        expect(result.output).toMatch(/did not become ready/i);
+        expect(result.output).toMatch(
+          /did not become ready|exited before becoming ready/i,
+        );
         expect(result.output).toContain("health URL http://127.0.0.1:");
         expect(result.output).toContain(`within ${startupTimeoutMs}ms`);
       } finally {

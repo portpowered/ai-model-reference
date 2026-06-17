@@ -109,6 +109,9 @@ describe("GitHub Actions make ci", () => {
     expect(workflow).toContain("command: make test-build-contract");
     expect(workflow).toContain("command: make test-integration");
     expect(workflow).toMatch(
+      /name: test-verify-contract[\s\S]*?install_playwright: true/,
+    );
+    expect(workflow).toMatch(
       /name: test-build-contract[\s\S]*?install_playwright: true/,
     );
     expect(workflow).toMatch(
