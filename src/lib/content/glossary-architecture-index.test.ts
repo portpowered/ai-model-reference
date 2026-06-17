@@ -72,6 +72,12 @@ const CHAIN_GLOSSARY_SLUGS = [
 ] as const;
 const PUBLISHED_GLOSSARY_ENTRY_COUNT = 54;
 const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 47;
+const GLOSSARY_SEPARATOR_TITLES = [
+  "Model Taxonomy",
+  "Sequence And Attention",
+  "Math And Training",
+  "Generation And Diffusion",
+] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {
   const urls: string[] = [];
@@ -94,8 +100,14 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     const meta = JSON.parse(await readFile(metaPath, "utf8")) as {
       pages: string[];
     };
+    const linkEntries = meta.pages.filter((entry) => entry.startsWith("["));
 
-    expect(meta.pages).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
+    expect(linkEntries).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
+    expect(meta.pages).toEqual(
+      expect.arrayContaining(
+        GLOSSARY_SEPARATOR_TITLES.map((title) => `---${title}---`),
+      ),
+    );
     for (const slug of [
       ...TAXONOMY_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
@@ -103,9 +115,9 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     ] as const) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
       expect(
-        meta.pages.some((entry) => entry.includes(`/docs/glossary/${slug}`)),
+        linkEntries.some((entry) => entry.includes(`/docs/glossary/${slug}`)),
       ).toBe(true);
-      expect(meta.pages.some((entry) => entry.startsWith(`[${title}]`))).toBe(
+      expect(linkEntries.some((entry) => entry.startsWith(`[${title}]`))).toBe(
         true,
       );
     }

@@ -1,10 +1,13 @@
 {
   "title": "Concepts",
   "pages": [
+    "---Long Context---",
     "[Context extension](/docs/concepts/context-extension)",
     "[Positional encodings](/docs/concepts/positional-encodings)",
-    "[Page Spec Workflow Sample](/docs/concepts/page-spec-workflow-sample)",
+    "[Why long context is hard](/docs/concepts/why-long-context-is-hard)",
+    "---Architecture---",
     "[Transformer architecture](/docs/concepts/transformer-architecture)",
-    "[Why long context is hard](/docs/concepts/why-long-context-is-hard)"
+    "---Reference Samples---",
+    "[Page Spec Workflow Sample](/docs/concepts/page-spec-workflow-sample)"
   ]
 }

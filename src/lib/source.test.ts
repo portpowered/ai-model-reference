@@ -74,6 +74,21 @@ function collectPageUrls(nodes: Node[]): string[] {
   return urls;
 }
 
+function collectSeparatorNames(nodes: Node[]): string[] {
+  const names: string[] = [];
+
+  for (const node of nodes) {
+    if (node.type === "separator" && typeof node.name === "string") {
+      names.push(node.name);
+    }
+    if (node.type === "folder" && "children" in node) {
+      names.push(...collectSeparatorNames(node.children));
+    }
+  }
+
+  return names;
+}
+
 describe("docs navigation source", () => {
   test("page tree includes taxonomy glossary links under Glossary", () => {
     const urls = collectPageUrls(source.pageTree.children);
@@ -98,5 +113,23 @@ describe("docs navigation source", () => {
       const slug = url.replace("/docs/", "").split("/");
       expect(source.getPage(slug)).toBeDefined();
     }
+  });
+
+  test("page tree exposes sidebar grouping separators for modules, concepts, and glossary", () => {
+    const separatorNames = collectSeparatorNames(source.pageTree.children);
+
+    expect(separatorNames).toEqual(
+      expect.arrayContaining([
+        "Attention Foundations",
+        "Attention Variants",
+        "Long Context",
+        "Architecture",
+        "Reference Samples",
+        "Model Taxonomy",
+        "Sequence And Attention",
+        "Math And Training",
+        "Generation And Diffusion",
+      ]),
+    );
   });
 });

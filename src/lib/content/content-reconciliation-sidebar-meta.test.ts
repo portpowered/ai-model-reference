@@ -10,6 +10,10 @@ type SectionMeta = {
   pages: string[];
 };
 
+function isMarkdownLinkEntry(entry: string): boolean {
+  return /^\[.+\]\(.+\)$/.test(entry);
+}
+
 const SECTION_META_PATHS = {
   glossary: "src/content/docs/glossary/meta.json",
   concepts: "src/content/docs/concepts/meta.json",
@@ -68,12 +72,13 @@ describe("Phase 2/3 reconciliation docs sidebar meta (US-003)", () => {
       const meta = JSON.parse(
         await readFile(join(process.cwd(), metaPath), "utf8"),
       ) as SectionMeta;
+      const linkEntries = meta.pages.filter(isMarkdownLinkEntry);
 
       expect(sectionPages.length).toBeGreaterThan(0);
-      expect(meta.pages).toHaveLength(sectionPages.length);
+      expect(linkEntries).toHaveLength(sectionPages.length);
 
       for (const page of sectionPages) {
-        const entry = meta.pages.find((item) => item.includes(page.url));
+        const entry = linkEntries.find((item) => item.includes(page.url));
         expect(entry).toBeDefined();
         const parsed = parseMetaPageEntry(entry ?? "");
         expect(parsed.url).toBe(page.url);

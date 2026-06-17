@@ -49,6 +49,15 @@ describe("docs sidebar page-tree contract", () => {
     expect(token?.name).toBe("Token");
     expect(gqa?.name).toBe("Grouped-Query Attention");
   });
+
+  test("page tree includes sidebar subheadings for module and glossary traversal", () => {
+    const sidebarJson = JSON.stringify(source.pageTree);
+
+    expect(sidebarJson).toContain("Attention Foundations");
+    expect(sidebarJson).toContain("Attention Variants");
+    expect(sidebarJson).toContain("Model Taxonomy");
+    expect(sidebarJson).toContain("Sequence And Attention");
+  });
 });
 
 describe("docs sidebar navigation (built HTML)", () => {
