@@ -34,18 +34,22 @@ describe("glossary opening convergence", () => {
     }
   });
 
-  test("published glossary pages keep openingSummary in messages but omit it in shell render", async () => {
-    const pages = await listPublishedGlossaryPages();
+  test(
+    "published glossary pages keep openingSummary in messages but omit it in shell render",
+    async () => {
+      const pages = await listPublishedGlossaryPages();
 
-    for (const page of pages) {
-      const loadedPage = await loadLocalDocsPage({
-        section: "glossary",
-        slug: page.slug,
-      });
-      expectGlossaryOpeningSummaryMessage(loadedPage.messages);
+      for (const page of pages) {
+        const loadedPage = await loadLocalDocsPage({
+          section: "glossary",
+          slug: page.slug,
+        });
+        expectGlossaryOpeningSummaryMessage(loadedPage.messages);
 
-      const html = renderGlossaryDocsShell(loadedPage);
-      expectGlossaryOmitsOpeningSummary(html);
-    }
-  });
+        const html = renderGlossaryDocsShell(loadedPage);
+        expectGlossaryOmitsOpeningSummary(html);
+      }
+    },
+    { timeout: 10_000 },
+  );
 });

@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { RootDocument, siteMetadata } from "@/app/root-layout.shared";
 import { RouteLocaleEffect } from "@/components/i18n/RouteLocaleEffect";
 import { CanonicalDocsLayout } from "@/components/layout/canonical-docs-layout";
 import { AppProviders } from "@/components/providers/app-providers";
@@ -7,6 +9,9 @@ import { defaultLocale, supportedLocales } from "@/lib/i18n/locale-routing";
 import { resolveRouteLocaleOrNotFound } from "@/lib/i18n/route-locale";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
+import "../globals.css";
+
+export const metadata: Metadata = siteMetadata;
 
 type LocalizedLayoutProps = {
   children: ReactNode;
@@ -33,11 +38,13 @@ export default async function LocalizedLayout({
   );
 
   return (
-    <AppProviders metaByUrl={metaByUrl} messages={messages}>
-      <CanonicalDocsLayout messages={messages} locale={locale}>
-        <RouteLocaleEffect locale={locale} />
-        {children}
-      </CanonicalDocsLayout>
-    </AppProviders>
+    <RootDocument lang={locale}>
+      <AppProviders metaByUrl={metaByUrl} messages={messages}>
+        <CanonicalDocsLayout messages={messages} locale={locale}>
+          <RouteLocaleEffect locale={locale} />
+          {children}
+        </CanonicalDocsLayout>
+      </AppProviders>
+    </RootDocument>
   );
 }

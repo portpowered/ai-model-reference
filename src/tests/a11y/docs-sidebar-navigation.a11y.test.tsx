@@ -3,11 +3,14 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { cleanup, within } from "@testing-library/react";
 import { act } from "react";
 import { CanonicalDocsLayout } from "@/components/layout/canonical-docs-layout";
+import { loadUiMessages } from "@/lib/content/ui-messages";
 import {
   GROUPED_QUERY_ATTENTION_URL,
   PLACEHOLDER_SIDEBAR_DESCRIPTION,
   TOKEN_GLOSSARY_URL,
 } from "@/lib/navigation/docs-sidebar-contract";
+import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
+import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
 import {
   captureOriginalFetch,
   installDocsSearchFetchMock,
@@ -76,5 +79,38 @@ describe("docs sidebar navigation accessibility", () => {
     expect(gqaLink.getAttribute("href")).toBe(GROUPED_QUERY_ATTENTION_URL);
     gqaLink.focus();
     expect(document.activeElement).toBe(gqaLink);
+  });
+
+  test("localized docs shell preserves the sidebar home link locale", async () => {
+    captureOriginalFetch();
+    await installDocsSearchFetchMock();
+    const [messages, metaMap] = await Promise.all([
+      loadUiMessages("vi"),
+      loadSearchResultMetaMap("vi"),
+    ]);
+    const context = {
+      messages,
+      metaByUrl: searchResultMetaMapToRecord(metaMap),
+    };
+
+    await act(async () => {
+      await renderWithAppProviders(
+        <CanonicalDocsLayout messages={context.messages} locale="vi">
+          <p>Fixture article</p>
+        </CanonicalDocsLayout>,
+        { context },
+      );
+    });
+
+    const sidebar = document.getElementById("nd-sidebar");
+    expect(sidebar).toBeTruthy();
+    if (!sidebar) {
+      throw new Error("expected Fumadocs docs sidebar");
+    }
+
+    const homeLink = within(sidebar).getByRole("link", {
+      name: "Model Reference",
+    });
+    expect(homeLink.getAttribute("href")).toBe("/vi");
   });
 });

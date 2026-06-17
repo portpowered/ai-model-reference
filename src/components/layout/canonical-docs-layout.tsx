@@ -19,14 +19,16 @@ export function CanonicalDocsLayout({
   messages,
   locale = defaultLocale,
 }: CanonicalDocsLayoutProps) {
+  const options = baseOptions(locale);
+
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <ModelAtlasDocsHeader messages={messages} locale={locale} />
       <div className="flex min-h-0 flex-1 flex-col">
         <DocsLayout
           tree={localizePageTree(source.pageTree, locale)}
-          {...baseOptions(locale)}
-          nav={{ enabled: false }}
+          {...options}
+          nav={{ ...options.nav, enabled: false }}
           searchToggle={{ enabled: false }}
           themeSwitch={{ enabled: false }}
           slots={{ searchTrigger: false, themeSwitch: false }}
