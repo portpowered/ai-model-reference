@@ -322,33 +322,44 @@ describe("docs search static client", () => {
     globalThis.fetch = originalFetch;
   });
 
-  test("orama static client returns grouped-query attention for GQA", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+  test.serial(
+    "orama static client returns grouped-query attention for GQA",
+    async () => {
+      globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const results = await client.search("GQA");
+      const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+      const results = await client.search("GQA");
 
-    expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.url).toBe(SAMPLE_URL);
-  });
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0]?.url).toBe(SAMPLE_URL);
+    },
+  );
 
-  test("orama static client returns non-empty attention results before app-level reranking", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+  test.serial(
+    "orama static client returns non-empty attention results before app-level reranking",
+    async () => {
+      globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const results = await client.search("attention");
+      const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+      const results = await client.search("attention");
 
-    expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL)).toBe(true);
-  });
+      expect(results.length).toBeGreaterThan(0);
+      expect(resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL)).toBe(
+        true,
+      );
+    },
+  );
 
-  test("orama static client includes grouped-query attention for KV cache", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+  test.serial(
+    "orama static client includes grouped-query attention for KV cache",
+    async () => {
+      globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const results = await client.search("KV cache");
+      const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+      const results = await client.search("KV cache");
 
-    expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeSampleModule(results)).toBe(true);
-  });
+      expect(results.length).toBeGreaterThan(0);
+      expect(resultsIncludeSampleModule(results)).toBe(true);
+    },
+  );
 });

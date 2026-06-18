@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ComponentExampleContext } from "@/component-examples/types";
-import { getProjectRoot } from "@/lib/content/content-paths";
 import { modulePageHref } from "@/lib/content/content-hrefs";
+import { getProjectRoot } from "@/lib/content/content-paths";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
