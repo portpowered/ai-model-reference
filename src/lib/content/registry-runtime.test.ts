@@ -86,6 +86,36 @@ describe("registry-runtime", () => {
     expect(record?.moduleType).toBe("attention");
   });
 
+  test("getModuleById returns published unigram tokenizer with tokenizer-family metadata", () => {
+    const record = getModuleById("module.unigram-tokenizer");
+
+    expect(record?.slug).toBe("unigram-tokenizer");
+    expect(record?.status).toBe("published");
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "unigram tokenizer",
+        "unigram tokenization",
+        "SentencePiece unigram",
+      ]),
+    );
+    expect(record?.tags).toEqual(["foundations", "token-to-probability-chain"]);
+    expect(record?.moduleType).toBe("tokenizer");
+    expect(record?.moduleFamily).toBe("tokenization");
+    expect(record?.conceptType).toBe("tokenizer-variant");
+    expect(record?.variantGroup).toBe("subword-tokenizers");
+    expect(record?.sourceId).toBe("citation.sentencepiece-paper");
+    expect(record?.citationIds).toEqual([
+      "citation.sentencepiece-paper",
+      "citation.sennrich-bpe-paper",
+    ]);
+    expect(record?.relatedIds).toEqual([
+      "concept.token",
+      "concept.tokenizers-overview",
+      "module.sentencepiece",
+      "module.bpe",
+    ]);
+  });
+
   test("getModuleById returns bidirectional attention with encoder-side links", () => {
     const record = getModuleById("module.bidirectional-attention");
     expect(record?.slug).toBe("bidirectional-attention");

@@ -26,6 +26,7 @@ const CANONICAL_GLOSSARY_SLUGS = [
 const CANONICAL_MODULE_SLUGS = [
   "grouped-query-attention",
   "attention",
+  "unigram-tokenizer",
 ] as const;
 
 function assertNoProcessLanguage(text: string): void {
