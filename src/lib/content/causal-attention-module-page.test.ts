@@ -6,6 +6,8 @@ import {
   validatePageAssetReferences,
 } from "@/lib/content/assets";
 import { CAUSAL_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { loadModulePage } from "@/lib/content/module-page";
+import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
@@ -134,6 +136,25 @@ describe("causal-attention page bundle", () => {
     expect(assets.computeFlow.type).toBe("graph");
     expect(assets.comparisonTable.type).toBe("table");
     expect(validatePageAssetReferences(assets, messages)).toEqual([]);
+  });
+
+  test("rendered shell exposes the canonical summary, tags, and nearby related links", async () => {
+    const page = await loadModulePage("causal-attention");
+    const html = renderModuleDocsShell(page);
+
+    expect(html).toContain("Causal Attention");
+    expect(html).toContain(
+      "lets each token read only earlier tokens and itself, never future tokens",
+    );
+    expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
+    expect(html).toContain('href="/tags/attention"');
+    expect(html).toContain('href="/tags/kv-cache"');
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/modules/attention"');
+    expect(html).toContain('href="/docs/glossary/decoder"');
+    expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
+    expect(html).not.toContain("Reader Shortcut");
   });
 });
 
