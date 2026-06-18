@@ -1,6 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { REGISTRY_ROOT } from "./content-paths";
+import { validateSidebarGroupingForRecord } from "./sidebar-grouping";
 import type { RegistryIndexes, RegistryRecord } from "./registry-index";
 import {
   citationRecordSchema,
@@ -131,6 +132,34 @@ async function readRegistryDirectory(
         `Registry schema validation failed for ${path}`,
         [{ type: "parse-error", path, message }],
       );
+    }
+
+    const sidebarGroupingRecord = result.data as
+      | RegistryRecord
+      | (RegistryRecord & { sidebarGrouping?: unknown });
+    if (
+      sidebarGroupingRecord.kind === "concept" ||
+      sidebarGroupingRecord.kind === "module" ||
+      sidebarGroupingRecord.kind === "training-regime" ||
+      sidebarGroupingRecord.kind === "system"
+    ) {
+      const sidebarIssues = validateSidebarGroupingForRecord(
+        sidebarGroupingRecord.kind,
+        sidebarGroupingRecord.id,
+        sidebarGroupingRecord.sidebarGrouping,
+      );
+      if (sidebarIssues.length > 0) {
+        const message = sidebarIssues
+          .map(
+            (issue) =>
+              `sidebarGrouping.${issue.path.join(".")}: ${issue.message}`,
+          )
+          .join("; ");
+        throw new RegistryLoadError(
+          `Registry schema validation failed for ${path}`,
+          [{ type: "parse-error", path, message }],
+        );
+      }
     }
 
     parsed.push({ path, record: result.data });
