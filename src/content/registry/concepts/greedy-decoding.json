@@ -8,19 +8,26 @@
     "Greedy Decoding",
     "greedy decoding",
     "argmax decoding",
-    "deterministic decoding"
+    "deterministic decoding",
+    "highest-probability decoding"
   ],
-  "tags": ["foundations"],
+  "tags": ["foundations", "token-to-probability-chain"],
   "relatedIds": [
     "concept.sampling-overview",
+    "concept.temperature",
+    "concept.autoregressive-generation",
     "concept.top-k-sampling",
     "concept.top-p-sampling"
   ],
   "citationIds": [],
-  "status": "draft",
+  "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "inference",
-  "prerequisiteIds": ["concept.sampling-overview"],
-  "explainsIds": []
+  "prerequisiteIds": [
+    "concept.sampling-overview",
+    "concept.temperature",
+    "concept.autoregressive-generation"
+  ],
+  "explainsIds": ["concept.top-k-sampling", "concept.top-p-sampling"]
 }

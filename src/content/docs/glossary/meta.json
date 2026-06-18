@@ -60,6 +60,7 @@
     "[Vector](/docs/glossary/vector)",
     "---Generation And Diffusion---",
     "[Autoregressive Generation](/docs/glossary/autoregressive-generation)",
+    "[Greedy Decoding](/docs/glossary/greedy-decoding)",
     "[Sampling Overview](/docs/glossary/sampling-overview)",
     "[Conditioning](/docs/glossary/conditioning)",
     "[Denoising Generation](/docs/glossary/denoising-generation)",

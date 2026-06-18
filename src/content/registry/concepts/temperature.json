@@ -6,7 +6,11 @@
   "defaultSummaryKey": "description",
   "aliases": ["sampling temperature", "softmax temperature"],
   "tags": ["token-to-probability-chain", "foundations"],
-  "relatedIds": ["concept.softmax", "concept.sampling-overview"],
+  "relatedIds": [
+    "concept.softmax",
+    "concept.sampling-overview",
+    "concept.greedy-decoding"
+  ],
   "citationIds": [],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",

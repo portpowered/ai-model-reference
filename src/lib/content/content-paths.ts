@@ -224,6 +224,12 @@ export const SAMPLING_OVERVIEW_GLOSSARY_PAGE_DIR = join(
   "sampling-overview",
 );
 
+/** Phase 5 greedy decoding glossary page directory. */
+export const GREEDY_DECODING_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "greedy-decoding",
+);
+
 /** Phase 3 context extension concept page directory. */
 export const CONTEXT_EXTENSION_CONCEPT_PAGE_DIR = join(
   CONCEPTS_DOCS_ROOT,

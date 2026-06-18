@@ -27,6 +27,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.entropy",
   "concept.temperature",
   "concept.sampling-overview",
+  "concept.greedy-decoding",
   "concept.parameter",
   "concept.activation",
   "concept.computational-graph",
