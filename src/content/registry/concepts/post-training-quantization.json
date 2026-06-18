@@ -1,0 +1,27 @@
+{
+  "id": "concept.post-training-quantization",
+  "slug": "post-training-quantization",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["PTQ", "post training quantization", "offline quantization"],
+  "tags": ["quantization"],
+  "relatedIds": [
+    "concept.quantization",
+    "concept.calibration",
+    "concept.weight-only-quantization",
+    "concept.activation-quantization",
+    "concept.quantization-aware-training",
+    "concept.dynamic-quantization"
+  ],
+  "citationIds": [
+    "citation.quantization-integer-only-inference",
+    "citation.smoothquant"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": ["concept.quantization"],
+  "explainsIds": ["concept.calibration", "concept.quantization-aware-training"]
+}

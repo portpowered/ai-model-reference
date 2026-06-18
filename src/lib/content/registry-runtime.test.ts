@@ -34,6 +34,7 @@ describe("registry-runtime", () => {
       "module.multi-query-attention",
       "concept.kv-cache",
       "concept.decode",
+      "concept.quantization",
       "concept.prefill-decode-split",
     ]);
   });
@@ -94,6 +95,7 @@ describe("registry-runtime", () => {
       "module.grouped-query-attention",
       "concept.kv-cache",
       "concept.decode",
+      "concept.quantization",
       "concept.prefill-decode-split",
     ]);
   });

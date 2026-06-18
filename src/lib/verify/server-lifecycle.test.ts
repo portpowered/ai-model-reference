@@ -200,7 +200,14 @@ createServer((_req, res) => {
 `;
 
 function writeFakeNextBin(projectRoot: string, scriptBody: string): void {
-  const nextBinPath = resolveNextProductionServerBin(projectRoot);
+  const nextBinPath = join(
+    projectRoot,
+    "node_modules",
+    "next",
+    "dist",
+    "bin",
+    "next",
+  );
   mkdirSync(dirname(nextBinPath), { recursive: true });
   writeFileSync(nextBinPath, `#!/usr/bin/env bun\n${scriptBody}`, {
     mode: 0o755,
@@ -1034,9 +1041,11 @@ describe("defaultSpawnProductionServer integration", () => {
   });
 
   test("resolveNextProductionServerBin points at the local next CLI", () => {
-    const resolved = resolveNextProductionServerBin(repoRoot);
-    expect(existsSync(resolved)).toBe(true);
-    expect(resolved.endsWith("node_modules/next/dist/bin/next")).toBe(true);
+    const nextBinPath = resolveNextProductionServerBin(repoRoot);
+    expect(
+      nextBinPath.endsWith(join("node_modules", "next", "dist", "bin", "next")),
+    ).toBe(true);
+    expect(existsSync(nextBinPath)).toBe(true);
   });
 
   test("defaultSpawnProductionServer reaches HTTP 200 using a fixture next bin", async () => {

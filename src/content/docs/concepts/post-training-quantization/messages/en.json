@@ -1,0 +1,32 @@
+{
+  "title": "Post-training quantization",
+  "description": "Converting an already trained model to lower precision after training so it can use less memory or run more efficiently.",
+  "openingSummary": "Post-training quantization converts a finished model into a lower-precision form after training is over, which makes deployment simpler than retraining but can expose quality loss when the chosen scales, kernels, or calibration data do not match the real workload.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Post-training quantization starts with a model that has already been trained in a higher-precision format. Instead of teaching the model again, the workflow rewrites some weights, activations, or caches into lower-bit representations for inference. That makes PTQ attractive when teams need a faster deployment path than full retraining or fine-tuning."
+    },
+    "whyTeamsUseIt": {
+      "title": "Why Teams Use It",
+      "body": "The main appeal is operational: the original training run is already done, so the team can try a lower-precision build without reopening the full optimization loop. PTQ often works well for shrinking checkpoints or enabling lower-bit runtime kernels on supported hardware. The tradeoff is that accuracy can drift because the model did not learn to adapt to quantization noise during training, and the exact outcome can depend heavily on the target kernels and packing format."
+    },
+    "whereCalibrationFits": {
+      "title": "Where Calibration Fits",
+      "body": "Many PTQ pipelines still need a short calibration pass. Representative inputs are run through the model so the system can estimate useful ranges, scales, or clipping thresholds before the final quantized build is emitted. If those examples do not resemble real traffic, activation ranges can be set badly and the deployed model may lose more quality than expected."
+    },
+    "compareWorkflows": {
+      "title": "Compared To Nearby Workflows",
+      "body": "PTQ is the lowest-friction workflow when the goal is to quantize an existing checkpoint quickly. Calibration explains how the runtime chooses ranges for that conversion. Weight-only and activation quantization explain what tensors are compressed. Quantization-aware training moves earlier in the lifecycle by modeling low-precision effects during training instead of after the fact."
+    },
+    "related": {
+      "title": "Related Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

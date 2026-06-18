@@ -1,0 +1,36 @@
+{
+  "title": "Quantization",
+  "description": "Storing or computing with fewer bits so models use less memory and sometimes run more efficiently, with tradeoffs around quality, calibration, and hardware support.",
+  "openingSummary": "Quantization shrinks some model numbers from higher-precision formats into fewer bits, which usually cuts memory footprint first and can improve serving efficiency when the hardware and kernels can use those smaller representations without spending the savings on dequantization or fallback work.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Quantization means representing model values with fewer bits than a higher-precision baseline such as FP16 or FP32. In practice, teams may quantize stored weights, live activations, or the KV cache used during autoregressive decoding. Each choice compresses a different part of inference, so the benefit depends on which tensors dominate memory movement on the target workload."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Serving large models is often limited by memory capacity or memory bandwidth before raw arithmetic becomes the bottleneck. Lower-bit weights can make checkpoints fit on smaller devices; lower-bit activations or KV caches can reduce the bytes moved during runtime. The tradeoff is that fewer bits remove numeric detail, so quality can drift if ranges are chosen poorly, if calibration data is unrepresentative, or if the hardware cannot execute the quantized path efficiently."
+    },
+    "whatChanges": {
+      "title": "What Changes",
+      "body": "Quantization does not turn a model into a uniformly smaller or uniformly faster machine. Some parts may stay in higher precision for stability, accumulation, or unsupported kernels. That is why two 4-bit deployments can behave very differently: one may mainly shrink stored parameters, while another also compresses activations or the KV cache. The practical question is not only how many bits are used, but which tensors are compressed, when scales are chosen, and where dequantization happens."
+    },
+    "whereItShowsUp": {
+      "title": "Where It Shows Up",
+      "body": "Readers most often meet quantization while fitting a model on a smaller GPU, shipping a CPU-friendly build, or increasing batch size and context length without exhausting memory. It connects directly to parameter storage, activation ranges, autoregressive decoding, and head-sharing attention variants that already reduce KV-cache cost. That is why quantization shows up in both model-loading workflows and runtime-serving discussions rather than in one isolated part of the stack."
+    },
+    "readNext": {
+      "title": "Read Next",
+      "body": "The chapter branches by which tensors get compressed and by when the low-precision plan is chosen. Start with the path that matches your question."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

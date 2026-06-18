@@ -1,0 +1,25 @@
+{
+  "id": "concept.weight-only-quantization",
+  "slug": "weight-only-quantization",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["weight quantization", "low-bit weights", "W4A16"],
+  "tags": ["quantization"],
+  "relatedIds": [
+    "concept.quantization",
+    "concept.activation-quantization",
+    "concept.kv-cache-quantization",
+    "concept.parameter"
+  ],
+  "citationIds": [
+    "citation.quantization-integer-only-inference",
+    "citation.awq"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": ["concept.quantization", "concept.parameter"],
+  "explainsIds": []
+}

@@ -1,0 +1,32 @@
+{
+  "title": "KV cache quantization",
+  "description": "Compressing the cached keys and values kept across autoregressive decode steps to reduce long-context serving memory.",
+  "openingSummary": "KV cache quantization shrinks the cached attention keys and values saved across decode steps, so it directly targets the memory growth that makes long prompts and large batches expensive during autoregressive serving.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "During autoregressive decoding, attention layers keep the past keys and values so the model does not recompute them for every next token. KV cache quantization stores those cached tensors in fewer bits than the baseline runtime format. That leaves the main checkpoint format unchanged while compressing the state that grows with sequence length, layer count, and batch size."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "As context windows grow, the KV cache can become one of the largest memory consumers in serving. Compressing it can let the same hardware hold longer prompts, larger batches, or more concurrent requests. Because decode repeatedly reads that cache, smaller cache tensors can also improve throughput when memory bandwidth is the limiting factor."
+    },
+    "runtimeTradeoff": {
+      "title": "Runtime Tradeoff",
+      "body": "KV cache quantization helps only the cached attention state, not every tensor in the model. The runtime still needs kernels that can read, unpack, or dequantize the cache efficiently, and some layers may stay in higher precision for stability. If scales are poorly chosen, attention quality can drift, especially over long contexts where small errors compound across many decode steps."
+    },
+    "compareMethods": {
+      "title": "Compared To Nearby Methods",
+      "body": "Weight-only quantization focuses on stored parameters. Activation quantization focuses on live intermediate tensors throughout execution. KV cache quantization is narrower and more deployment-specific: it pays off when autoregressive decode memory, not only checkpoint size, is the operational bottleneck."
+    },
+    "related": {
+      "title": "Related Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

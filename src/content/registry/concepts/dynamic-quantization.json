@@ -1,0 +1,27 @@
+{
+  "id": "concept.dynamic-quantization",
+  "slug": "dynamic-quantization",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "runtime quantization",
+    "on-the-fly quantization",
+    "dynamic range quantization"
+  ],
+  "tags": ["quantization"],
+  "relatedIds": [
+    "concept.quantization",
+    "concept.post-training-quantization",
+    "concept.quantization-aware-training",
+    "concept.activation-quantization",
+    "concept.weight-only-quantization"
+  ],
+  "citationIds": ["citation.quantization-integer-only-inference"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": ["concept.quantization", "concept.activation"],
+  "explainsIds": []
+}

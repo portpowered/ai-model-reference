@@ -1,0 +1,87 @@
+---
+title: Calibration
+description: Running representative inputs through a model to estimate the ranges or scales a quantized deployment will need.
+kind: "concept"
+registryId: "concept.calibration"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - "quantization"
+aliases:
+  - "quantization calibration"
+  - "representative dataset"
+  - "activation ranges"
+updatedAt: "2026-06-18"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-data-quality-matters" titleKey="sections.whyDataQualityMatters.title">
+  <T k="sections.whyDataQualityMatters.body" />
+</Section>
+
+<Section id="what-can-go-wrong" titleKey="sections.whatCanGoWrong.title">
+  <T k="sections.whatCanGoWrong.body" />
+</Section>
+
+<Section id="compare-workflows" titleKey="sections.compareWorkflows.title">
+  <T k="sections.compareWorkflows.body" />
+
+  <ul className="mt-4 space-y-2 list-none pl-0">
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/post-training-quantization"
+      >
+        Post-training quantization
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/activation-quantization"
+      >
+        Activation quantization
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/weight-only-quantization"
+      >
+        Weight-only quantization
+      </a>
+    </li>
+  </ul>
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.calibration"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.calibration" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.calibration" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.calibration" />
+</Section>

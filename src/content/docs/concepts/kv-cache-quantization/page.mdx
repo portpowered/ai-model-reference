@@ -1,0 +1,88 @@
+---
+title: KV cache quantization
+description: Compressing the cached keys and values kept across autoregressive decode steps to reduce long-context serving memory.
+kind: "concept"
+registryId: "concept.kv-cache-quantization"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - "quantization"
+  - "kv-cache"
+aliases:
+  - "key-value cache quantization"
+  - "cache quantization"
+  - "quantized KV cache"
+updatedAt: "2026-06-18"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="runtime-tradeoff" titleKey="sections.runtimeTradeoff.title">
+  <T k="sections.runtimeTradeoff.body" />
+</Section>
+
+<Section id="compare-methods" titleKey="sections.compareMethods.title">
+  <T k="sections.compareMethods.body" />
+
+  <ul className="mt-4 space-y-2 list-none pl-0">
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/quantization"
+      >
+        Quantization overview
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/weight-only-quantization"
+      >
+        Weight-only quantization
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/activation-quantization"
+      >
+        Activation quantization
+      </a>
+    </li>
+  </ul>
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.kv-cache-quantization"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.kv-cache-quantization" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.kv-cache-quantization" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.kv-cache-quantization" />
+</Section>

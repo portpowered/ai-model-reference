@@ -69,6 +69,18 @@ const TOP_P_SAMPLING_URL = "/docs/glossary/top-p-sampling";
 const CONTEXT_EXTENSION_URL = "/docs/concepts/context-extension";
 const WHY_LONG_CONTEXT_IS_HARD_URL = "/docs/concepts/why-long-context-is-hard";
 const YARN_URL = "/docs/glossary/yarn";
+const QUANTIZATION_URL = "/docs/concepts/quantization";
+const POST_TRAINING_QUANTIZATION_URL =
+  "/docs/concepts/post-training-quantization";
+const CALIBRATION_URL = "/docs/concepts/calibration";
+const QUANTIZATION_AWARE_TRAINING_URL =
+  "/docs/concepts/quantization-aware-training";
+const DYNAMIC_QUANTIZATION_URL = "/docs/concepts/dynamic-quantization";
+const WEIGHT_ONLY_QUANTIZATION_URL = "/docs/concepts/weight-only-quantization";
+const ACTIVATION_QUANTIZATION_URL = "/docs/concepts/activation-quantization";
+const KV_CACHE_QUANTIZATION_URL = "/docs/concepts/kv-cache-quantization";
+const WHY_FOUR_BIT_MODELS_ARE_NOT_EXACTLY_FOUR_X_FASTER_URL =
+  "/docs/concepts/why-4-bit-models-are-not-exactly-4x-faster";
 const STRUCTURAL_TAXONOMY_URLS = [
   "/docs/glossary/model",
   "/docs/glossary/architecture",
@@ -183,6 +195,15 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   CONTEXT_EXTENSION_URL,
   WHY_LONG_CONTEXT_IS_HARD_URL,
   YARN_URL,
+  QUANTIZATION_URL,
+  POST_TRAINING_QUANTIZATION_URL,
+  CALIBRATION_URL,
+  QUANTIZATION_AWARE_TRAINING_URL,
+  DYNAMIC_QUANTIZATION_URL,
+  WEIGHT_ONLY_QUANTIZATION_URL,
+  ACTIVATION_QUANTIZATION_URL,
+  KV_CACHE_QUANTIZATION_URL,
+  WHY_FOUR_BIT_MODELS_ARE_NOT_EXACTLY_FOUR_X_FASTER_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
   ...REPRESENTATION_LATENT_URLS,

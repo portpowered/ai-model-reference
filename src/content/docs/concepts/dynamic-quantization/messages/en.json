@@ -1,0 +1,32 @@
+{
+  "title": "Dynamic quantization",
+  "description": "Choosing some quantization scales or converted values at runtime instead of fixing every low-precision detail ahead of deployment.",
+  "openingSummary": "Dynamic quantization leaves some quantization work until execution time, which can make deployment simpler for certain workloads but usually gives less control over the exact runtime path than a fully prepared low-bit build.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Dynamic quantization means some values are quantized when the model is actually running rather than being fully rewritten ahead of time. A common pattern is that weights are prepared in advance while activation ranges or converted values are chosen from the current batch at runtime. That makes the low-precision path more responsive to live inputs, but it also means the runtime has extra work to do on each execution step."
+    },
+    "whereItFits": {
+      "title": "Where It Fits",
+      "body": "This approach fits best when teams want some of the memory or compute savings of quantization without a large offline calibration or retraining workflow. It is often used where runtime frameworks already support dynamic scale selection for activations or where workloads vary enough that a single fixed range would be awkward. In plain language, it trades some ahead-of-time setup for more work inside the serving loop."
+    },
+    "whereItIsLimited": {
+      "title": "Where It Is Limited",
+      "body": "Dynamic quantization does not remove the need for hardware support or efficient kernels. Because some conversion happens during execution, the runtime can spend part of the saved budget on extra quantize and dequantize steps. It also does not solve every quality problem: if unsupported layers stay high precision or the runtime path is not optimized, the end-to-end gain may be modest."
+    },
+    "compareWorkflows": {
+      "title": "Compared To Nearby Workflows",
+      "body": "Post-training quantization prepares more of the low-bit plan before deployment, often with calibration data. Quantization-aware training goes further by teaching the model to adapt during optimization. Dynamic quantization sits closer to runtime, where some range choices are made on the fly instead of being fixed entirely ahead of time."
+    },
+    "related": {
+      "title": "Related Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

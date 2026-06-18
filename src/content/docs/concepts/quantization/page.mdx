@@ -1,0 +1,131 @@
+---
+title: Quantization
+description: Storing or computing with fewer bits so models use less memory and sometimes run more efficiently, with tradeoffs around quality, calibration, and hardware support.
+kind: "concept"
+registryId: "concept.quantization"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - "quantization"
+aliases:
+  - "model quantization"
+  - "low-bit inference"
+  - "low precision inference"
+updatedAt: "2026-06-18"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="what-changes" titleKey="sections.whatChanges.title">
+  <T k="sections.whatChanges.body" />
+</Section>
+
+<Section id="where-it-shows-up" titleKey="sections.whereItShowsUp.title">
+  <T k="sections.whereItShowsUp.body" />
+</Section>
+
+<Section id="read-next" titleKey="sections.readNext.title">
+  <T k="sections.readNext.body" />
+
+  <ul className="mt-4 space-y-2 list-none pl-0">
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/weight-only-quantization"
+      >
+        Weight-only quantization
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/activation-quantization"
+      >
+        Activation quantization
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/kv-cache-quantization"
+      >
+        KV cache quantization
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/post-training-quantization"
+      >
+        Post-training quantization
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/calibration"
+      >
+        Calibration
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/quantization-aware-training"
+      >
+        Quantization-aware training
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/dynamic-quantization"
+      >
+        Dynamic quantization
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/why-4-bit-models-are-not-exactly-4x-faster"
+      >
+        Why 4-bit models are not exactly 4x faster
+      </a>
+    </li>
+  </ul>
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.quantization"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.quantization" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.quantization" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.quantization" />
+</Section>

@@ -1,0 +1,32 @@
+{
+  "title": "Why 4-bit models are not exactly 4x faster",
+  "description": "Why lowering model weights to 4-bit often cuts memory more than it cuts end-to-end latency or throughput.",
+  "openingSummary": "A 4-bit model moves fewer bytes for some tensors, but end-to-end serving time still depends on the rest of the stack, so memory savings do not turn into a clean 4x speedup.",
+  "sections": {
+    "whatPeopleExpect": {
+      "title": "Why The Simple Math Breaks",
+      "body": "It is tempting to say that if weights shrink from 16 bits to 4 bits, generation should become exactly four times faster. That shortcut ignores what the runtime is actually doing. Quantization usually compresses only part of the path, often the stored weights first, while other tensors, memory copies, scheduler work, and output steps still run at their own cost."
+    },
+    "whereTimeStillGoes": {
+      "title": "Where Time Still Goes",
+      "body": "Serving time still includes memory movement, kernel launch overhead, dequantization or unpacking work, attention math, activation handling, KV cache reads and writes, batching effects, and everything around the model call. If weights are 4-bit but activations stay BF16 or FP16, the runtime is still moving and computing on untouched higher-precision data. In many stacks, that means the biggest win shows up in model fit or bandwidth pressure before it shows up as a neat latency multiplier."
+    },
+    "whatSetsTheCeiling": {
+      "title": "What Usually Sets The Ceiling",
+      "body": "The practical ceiling depends on hardware support, fused low-bit kernels, how much work is still memory-bound, how much of the graph remains unquantized, and whether the workload is prompt-heavy, decode-heavy, or batch-heavy. Weight-only quantization often helps memory first. Activation quantization can push more of the live path into low precision, but it is harder to make stable. KV cache quantization helps when long contexts make cached keys and values the real memory bottleneck. Put plainly, 4-bit lowers one cost center, not the whole serving bill."
+    },
+    "readNearbyMethods": {
+      "title": "Read Nearby Methods",
+      "body": "Use the overview page for the big picture, then compare the concrete quantization methods below to see which tensors are actually changing in your runtime."
+    },
+    "related": {
+      "title": "Related Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

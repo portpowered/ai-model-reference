@@ -1,0 +1,31 @@
+{
+  "id": "citation.awq",
+  "slug": "awq",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["AWQ paper", "Activation-aware Weight Quantization paper"],
+  "tags": ["quantization"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Ji Lin",
+    "Jiaming Tang",
+    "Haotian Tang",
+    "Shang Yang",
+    "Wei-Ming Chen",
+    "Wei-Chen Wang",
+    "Guangxuan Xiao",
+    "Xingyu Dang",
+    "Chuang Gan",
+    "Song Han"
+  ],
+  "title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
+  "year": 2023,
+  "url": "https://arxiv.org/abs/2306.00978",
+  "mla": "Lin, Ji, et al. \"AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration.\" arXiv, 2023, https://arxiv.org/abs/2306.00978."
+}

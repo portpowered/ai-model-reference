@@ -6,7 +6,7 @@
   "defaultSummaryKey": "description",
   "aliases": ["model parameters", "weights", "learnable weights"],
   "tags": ["token-to-probability-chain", "foundations"],
-  "relatedIds": ["concept.activation"],
+  "relatedIds": ["concept.activation", "concept.quantization"],
   "citationIds": [],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",

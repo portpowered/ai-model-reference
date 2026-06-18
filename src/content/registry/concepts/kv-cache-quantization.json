@@ -1,0 +1,31 @@
+{
+  "id": "concept.kv-cache-quantization",
+  "slug": "kv-cache-quantization",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "key-value cache quantization",
+    "cache quantization",
+    "quantized KV cache"
+  ],
+  "tags": ["quantization", "kv-cache"],
+  "relatedIds": [
+    "concept.quantization",
+    "concept.weight-only-quantization",
+    "concept.activation-quantization",
+    "concept.autoregressive-generation",
+    "module.multi-query-attention",
+    "module.grouped-query-attention"
+  ],
+  "citationIds": ["citation.kivi-kv-cache-quantization"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": [
+    "concept.quantization",
+    "concept.autoregressive-generation"
+  ],
+  "explainsIds": []
+}

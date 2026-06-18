@@ -1,0 +1,25 @@
+{
+  "id": "concept.activation-quantization",
+  "slug": "activation-quantization",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["activation-aware quantization", "W8A8", "quantized activations"],
+  "tags": ["quantization"],
+  "relatedIds": [
+    "concept.quantization",
+    "concept.weight-only-quantization",
+    "concept.kv-cache-quantization",
+    "concept.activation"
+  ],
+  "citationIds": [
+    "citation.quantization-integer-only-inference",
+    "citation.smoothquant"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": ["concept.quantization", "concept.activation"],
+  "explainsIds": []
+}

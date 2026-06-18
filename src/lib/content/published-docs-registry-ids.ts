@@ -5,6 +5,15 @@ export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
   "concept.positional-encodings",
   "concept.context-extension",
   "concept.why-long-context-is-hard",
+  "concept.quantization",
+  "concept.post-training-quantization",
+  "concept.calibration",
+  "concept.quantization-aware-training",
+  "concept.dynamic-quantization",
+  "concept.weight-only-quantization",
+  "concept.activation-quantization",
+  "concept.kv-cache-quantization",
+  "concept.why-4-bit-models-are-not-exactly-4x-faster",
 ]);
 
 /** Registry ids for docs pages with `status: published` in frontmatter. */
@@ -104,6 +113,15 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.context-window",
   "concept.context-extension",
   "concept.why-long-context-is-hard",
+  "concept.quantization",
+  "concept.post-training-quantization",
+  "concept.calibration",
+  "concept.quantization-aware-training",
+  "concept.dynamic-quantization",
+  "concept.weight-only-quantization",
+  "concept.activation-quantization",
+  "concept.kv-cache-quantization",
+  "concept.why-4-bit-models-are-not-exactly-4x-faster",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;
