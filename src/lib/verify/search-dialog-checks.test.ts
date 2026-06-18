@@ -2,11 +2,15 @@ import { describe, expect, test } from "bun:test";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import {
   evaluateSearchDialogDomSnapshot,
+  evaluateSearchDialogInputHydrationAfterTyping,
+  evaluateSearchDialogInputHydrationBeforeQuery,
+  evaluateSearchDialogInputHydrationOutcome,
   formatPhase1SearchDialogCheckFailure,
   PHASE_1_SEARCH_DIALOG_QUERIES,
   resolveSearchDialogCheckOptionsFromEnv,
   runPhase1SearchDialogChecks,
   type SearchDialogDomSnapshot,
+  type SearchDialogInputHydrationSnapshot,
 } from "./phase-1-search-dialog-checks";
 
 function passingSnapshot(
@@ -18,6 +22,21 @@ function passingSnapshot(
     hasGroupedQueryAttentionLink: false,
     hasGroupedQueryAttentionResultUrl: true,
     hasGroupedQueryAttentionButton: false,
+    ...overrides,
+  };
+}
+
+function passingInputHydrationSnapshot(
+  overrides: Partial<SearchDialogInputHydrationSnapshot> = {},
+): SearchDialogInputHydrationSnapshot {
+  return {
+    inputVisible: true,
+    inputFocused: true,
+    inputValue: "GQA",
+    idleVisible: false,
+    loadingVisible: true,
+    resultsVisible: false,
+    emptyVisible: false,
     ...overrides,
   };
 }
@@ -102,6 +121,70 @@ describe("evaluateSearchDialogDomSnapshot", () => {
     );
 
     expect(reason).toContain("no search results rendered");
+  });
+});
+
+describe("search dialog hydration checks", () => {
+  test("pre-query hydration requires a visible input and idle state", () => {
+    expect(
+      evaluateSearchDialogInputHydrationBeforeQuery(
+        passingInputHydrationSnapshot({
+          idleVisible: true,
+          inputValue: "",
+          loadingVisible: false,
+          inputFocused: false,
+        }),
+      ),
+    ).toBeNull();
+
+    expect(
+      evaluateSearchDialogInputHydrationBeforeQuery(
+        passingInputHydrationSnapshot({
+          inputVisible: false,
+          idleVisible: true,
+          inputValue: "",
+          loadingVisible: false,
+          inputFocused: false,
+        }),
+      ),
+    ).toContain("search input is not visible");
+  });
+
+  test("post-typing hydration requires the typed value and hidden idle state", () => {
+    expect(
+      evaluateSearchDialogInputHydrationAfterTyping(
+        passingInputHydrationSnapshot(),
+        "GQA",
+      ),
+    ).toBeNull();
+
+    expect(
+      evaluateSearchDialogInputHydrationAfterTyping(
+        passingInputHydrationSnapshot({
+          inputValue: "",
+          idleVisible: true,
+        }),
+        "GQA",
+      ),
+    ).toContain('did not update to "GQA"');
+  });
+
+  test("post-query hydration accepts loading, results, or empty states", () => {
+    expect(
+      evaluateSearchDialogInputHydrationOutcome(
+        passingInputHydrationSnapshot(),
+      ),
+    ).toBeNull();
+
+    expect(
+      evaluateSearchDialogInputHydrationOutcome(
+        passingInputHydrationSnapshot({
+          loadingVisible: false,
+          resultsVisible: false,
+          emptyVisible: false,
+        }),
+      ),
+    ).toContain("no loading, results, or empty outcome");
   });
 });
 
