@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { generateMetadata as generateHomeMetadata } from "@/app/(site)/page";
 import { generateMetadata as generateSearchMetadata } from "@/app/(site)/search/page";
 import { generateMetadata as generateTagMetadata } from "@/app/(site)/tags/[slug]/page";
+import { generateStaticParams as generateLocalizedDocsStaticParams } from "@/app/[locale]/docs/[[...slug]]/page";
 import { generateMetadata as generateLocalizedArchitectureMetadata } from "@/app/[locale]/docs/architecture/page";
 import { generateMetadata as generateLocalizedGlossaryMetadata } from "@/app/[locale]/docs/glossary/page";
 import { generateMetadata as generateLocalizedHomeMetadata } from "@/app/[locale]/page";
@@ -81,5 +82,24 @@ describe("localized route metadata alternates", () => {
     expect(jaHomeMetadata.alternates?.languages?.en).toBe("/");
     expect(jaHomeMetadata.alternates?.languages?.vi).toBe("/vi");
     expect(jaHomeMetadata.alternates?.languages?.ja).toBe("/ja");
+  });
+
+  it("does not generate japanese docs routes for unshipped docs pages", async () => {
+    const params = await generateLocalizedDocsStaticParams();
+
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" &&
+          slug?.join("/") === "modules/grouped-query-attention",
+      ),
+    ).toBe(false);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "vi" &&
+          slug?.join("/") === "modules/grouped-query-attention",
+      ),
+    ).toBe(true);
   });
 });

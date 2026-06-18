@@ -1,8 +1,13 @@
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 
-type NonDefaultLocale = Exclude<SiteLocale, "en">;
+export type NonDefaultLocale = Exclude<SiteLocale, "en">;
 
-const SHIPPED_LOCALIZED_DOCS: Record<NonDefaultLocale, string[]> = {
+export type ShippedLocalizedDocsManifest = Record<
+  NonDefaultLocale,
+  readonly string[]
+>;
+
+const SHIPPED_LOCALIZED_DOCS: ShippedLocalizedDocsManifest = {
   ja: [],
   vi: [
     "concepts/transformer-architecture",
@@ -20,22 +25,41 @@ const SHIPPED_LOCALIZED_DOCS: Record<NonDefaultLocale, string[]> = {
   ],
 };
 
-const SHIPPED_LOCALIZED_DOCS_SET: Record<NonDefaultLocale, Set<string>> = {
-  ja: new Set(SHIPPED_LOCALIZED_DOCS.ja),
-  vi: new Set(SHIPPED_LOCALIZED_DOCS.vi),
-};
+function shippedLocalizedDocsSet(
+  manifest: ShippedLocalizedDocsManifest,
+): Record<NonDefaultLocale, Set<string>> {
+  return {
+    ja: new Set(manifest.ja),
+    vi: new Set(manifest.vi),
+  };
+}
+
+export function resolveShippedLocalizedDocsManifest(
+  overrides: Partial<ShippedLocalizedDocsManifest> = {},
+): ShippedLocalizedDocsManifest {
+  return {
+    ja: overrides.ja ?? SHIPPED_LOCALIZED_DOCS.ja,
+    vi: overrides.vi ?? SHIPPED_LOCALIZED_DOCS.vi,
+  };
+}
+
+export function getShippedLocalizedDocsSlugs(
+  locale: NonDefaultLocale,
+  manifest: ShippedLocalizedDocsManifest = SHIPPED_LOCALIZED_DOCS,
+): readonly string[] {
+  return manifest[locale];
+}
 
 /** Client-safe shipped-locale docs manifest for localized route gating. */
 export function isShippedLocalizedDocsSlug(
   docsSlug: string,
   locale: SiteLocale,
+  manifest: ShippedLocalizedDocsManifest = SHIPPED_LOCALIZED_DOCS,
 ): boolean {
   if (locale === defaultLocale) {
     return true;
   }
 
-  return (
-    SHIPPED_LOCALIZED_DOCS_SET[locale as NonDefaultLocale]?.has(docsSlug) ??
-    false
-  );
+  const shippedDocsSet = shippedLocalizedDocsSet(manifest);
+  return shippedDocsSet[locale as NonDefaultLocale]?.has(docsSlug) ?? false;
 }

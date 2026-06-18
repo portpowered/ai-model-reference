@@ -716,17 +716,17 @@ updatedAt: "2026-06-02"
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     const docsRoot = join(tempRoot, "docs");
-    const pageDir = join(docsRoot, "concepts", "localized-page");
+    const pageDir = join(docsRoot, "glossary", "embedding");
     await mkdir(join(registryRoot, "concepts"), { recursive: true });
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(pageDir, "messages"), { recursive: true });
 
     await writeFile(
-      join(registryRoot, "concepts", "localized-page.json"),
+      join(registryRoot, "concepts", "embedding.json"),
       JSON.stringify({
         ...validConceptRecord,
-        id: "concept.localized-page",
-        slug: "localized-page",
+        id: "concept.embedding",
+        slug: "embedding",
       }),
     );
     await writeFile(
@@ -736,8 +736,8 @@ updatedAt: "2026-06-02"
     await writeFile(
       join(pageDir, "page.mdx"),
       `---
-kind: concept
-registryId: concept.localized-page
+kind: glossary
+registryId: concept.embedding
 messageNamespace: local
 assetNamespace: local
 status: published
@@ -792,6 +792,153 @@ updatedAt: "2026-06-02"
             error.message.includes('locale "vi"') &&
             error.message.includes('asset "hero"') &&
             error.message.includes('missing message key "assets.hero.alt"'),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports missing japanese page messages for docs declared shipped in the locale manifest", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    const docsRoot = join(tempRoot, "docs");
+    const pageDir = join(docsRoot, "modules", "multi-query-attention");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(join(registryRoot, "citations"), { recursive: true });
+    await mkdir(join(pageDir, "messages"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "multi-query-attention.json"),
+      JSON.stringify({
+        ...validModuleRecord,
+        id: "module.multi-query-attention",
+        slug: "multi-query-attention",
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(registryRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+    await writeFile(
+      join(pageDir, "page.mdx"),
+      `---
+kind: module
+registryId: module.multi-query-attention
+messageNamespace: local
+assetNamespace: local
+status: published
+tags:
+  - attention
+updatedAt: "2026-06-02"
+---
+
+# <T k="title" />
+`,
+    );
+    await writeFile(
+      join(pageDir, "messages", "en.json"),
+      JSON.stringify({
+        title: "Multi-Query Attention",
+        description: "English description",
+      }),
+    );
+    await writeFile(join(pageDir, "assets.json"), JSON.stringify({}));
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+        phase1PageDirectories: [],
+        shippedLocalizedDocsManifest: {
+          ja: ["modules/multi-query-attention"],
+        },
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "missing-localized-page-messages" &&
+            error.message.includes('locale "ja"') &&
+            error.message.includes("/ja/docs/modules/multi-query-attention"),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports localized page messages for docs not declared shipped in the locale manifest", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    const docsRoot = join(tempRoot, "docs");
+    const pageDir = join(docsRoot, "concepts", "localized-page");
+    await mkdir(join(registryRoot, "concepts"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(join(pageDir, "messages"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "concepts", "localized-page.json"),
+      JSON.stringify({
+        ...validConceptRecord,
+        id: "concept.localized-page",
+        slug: "localized-page",
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(pageDir, "page.mdx"),
+      `---
+kind: concept
+registryId: concept.localized-page
+messageNamespace: local
+assetNamespace: local
+status: published
+tags:
+  - attention
+updatedAt: "2026-06-02"
+---
+
+# <T k="title" />
+`,
+    );
+    await writeFile(
+      join(pageDir, "messages", "en.json"),
+      JSON.stringify({
+        title: "Localized Page",
+        description: "English description",
+      }),
+    );
+    await writeFile(
+      join(pageDir, "messages", "ja.json"),
+      JSON.stringify({
+        title: "ローカライズ済みページ",
+        description: "日本語の説明",
+      }),
+    );
+    await writeFile(join(pageDir, "assets.json"), JSON.stringify({}));
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+        phase1PageDirectories: [],
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "unexpected-localized-page-messages" &&
+            error.message.includes('locale "ja"') &&
+            error.message.includes(
+              'docs slug "concepts/localized-page" is not declared in the shipped localized docs manifest',
+            ),
         ),
       ).toBe(true);
     } finally {
