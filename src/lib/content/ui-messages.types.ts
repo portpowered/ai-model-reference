@@ -18,6 +18,8 @@ export type UiMessages = {
     architecture: string;
     glossary: string;
     tags: string;
+    language: string;
+    currentLanguage: string;
   };
   searchEntry: {
     title: string;

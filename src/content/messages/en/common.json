@@ -17,7 +17,9 @@
     "menu": "Open menu",
     "architecture": "Architecture",
     "glossary": "Glossary",
-    "tags": "Tags"
+    "tags": "Tags",
+    "language": "Language",
+    "currentLanguage": "Current"
   },
   "searchEntry": {
     "title": "Search",

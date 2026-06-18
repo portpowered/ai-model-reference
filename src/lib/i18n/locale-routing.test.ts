@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   buildLocalizedRoute,
   defaultLocale,
+  localeOptions,
   localizePath,
   matchLocalizedRoute,
   resolveLocale,
@@ -14,6 +15,11 @@ describe("locale-routing", () => {
   test("exports the shared locale contract", () => {
     expect(supportedLocales).toEqual(["en", "vi", "ja"]);
     expect(defaultLocale).toBe("en");
+    expect(localeOptions).toEqual([
+      { code: "en", label: "English" },
+      { code: "vi", label: "Tiếng Việt" },
+      { code: "ja", label: "日本語" },
+    ]);
   });
 
   test("resolveLocale defaults to english and rejects unsupported locales", () => {

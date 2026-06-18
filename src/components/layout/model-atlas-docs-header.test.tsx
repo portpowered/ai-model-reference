@@ -14,6 +14,7 @@ import {
   PRIMARY_NAV_MOBILE_PANEL_CLASS,
 } from "@/components/layout/primary-nav";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import { localeOptions } from "@/lib/i18n/locale-routing";
 import { assertPrimaryNavNoDuplicateSearchLink } from "@/lib/verify/customer-ask-home-header-convergence";
 import { renderWithAppProviders } from "@/tests/a11y/render";
 
@@ -52,6 +53,35 @@ describe("ModelAtlasDocsHeader", () => {
     expect(html).toContain('data-search=""');
     expect(html).toContain(`aria-label="${messages.search.open}"`);
     expect(html).toContain(messages.search.shortcut);
+    expect(html).toContain(`aria-label="${messages.nav.language}"`);
+    for (const option of localeOptions) {
+      expect(html).toContain(`value="${option.code}"`);
+      expect(html).toContain(option.label);
+    }
+  });
+
+  test("renders the shared locale selector with the active locale selected", async () => {
+    const messages = await loadUiMessages("vi");
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    await renderWithAppProviders(
+      <ModelAtlasDocsHeader messages={messages} locale="vi" />,
+      {
+        SearchDialog,
+      },
+    );
+
+    const selector = screen.getByRole("combobox", {
+      name: messages.nav.language,
+    }) as HTMLSelectElement;
+    expect(selector.value).toBe("vi");
+
+    const options = within(selector).getAllByRole("option");
+    expect(options).toHaveLength(localeOptions.length);
+    expect(options.map((option) => option.textContent)).toEqual([
+      "English",
+      "Tiếng Việt (Hiện tại)",
+      "日本語",
+    ]);
   });
 
   test("mobile width markup hides desktop inline nav links and exposes the menu control", async () => {
@@ -189,6 +219,9 @@ describe("ModelAtlasDocsHeader", () => {
     });
     const user = userEvent.setup();
     const menuButton = screen.getByRole("button", { name: messages.nav.menu });
+    const languageSelector = screen.getByRole("combobox", {
+      name: messages.nav.language,
+    });
     const searchTrigger = screen.getByRole("button", {
       name: messages.search.open,
     });
@@ -212,6 +245,9 @@ describe("ModelAtlasDocsHeader", () => {
       await user.tab();
       expect(document.activeElement).toBe(link);
     }
+
+    await user.tab();
+    expect(document.activeElement).toBe(languageSelector);
 
     await user.tab();
     expect(document.activeElement).toBe(searchTrigger);

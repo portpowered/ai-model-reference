@@ -17,7 +17,9 @@
     "menu": "メニューを開く",
     "architecture": "アーキテクチャ",
     "glossary": "用語集",
-    "tags": "タグ"
+    "tags": "タグ",
+    "language": "言語",
+    "currentLanguage": "現在"
   },
   "searchEntry": {
     "title": "検索",

@@ -148,4 +148,34 @@ describe("primary navigation accessibility smoke", () => {
 
     await expectNoSeriousAxeViolations(header ?? document.body);
   });
+
+  test("header exposes a keyboard-focusable language selector with the current locale selected", async () => {
+    await installDocsSearchFetchMock();
+    const context = await loadAppTestContext();
+    await act(async () => {
+      await renderWithAppProviders(
+        <ModelAtlasDocsHeader messages={context.messages} locale="ja" />,
+        { context },
+      );
+    });
+
+    const selector = screen.getByRole("combobox", {
+      name: context.messages.nav.language,
+    }) as HTMLSelectElement;
+
+    expect(selector.value).toBe("ja");
+
+    const options = within(selector).getAllByRole("option");
+    expect(options.map((option) => option.textContent)).toEqual([
+      "English",
+      "Tiếng Việt",
+      "日本語 (Current)",
+    ]);
+
+    selector.focus();
+    expect(document.activeElement).toBe(selector);
+
+    const header = document.querySelector("header");
+    await expectNoSeriousAxeViolations(header ?? document.body);
+  });
 });

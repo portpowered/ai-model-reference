@@ -6,6 +6,17 @@ export type SiteLocale = (typeof supportedLocales)[number];
 
 export const defaultLocale: SiteLocale = "en";
 
+export type LocaleOption = {
+  code: SiteLocale;
+  label: string;
+};
+
+export const localeOptions: readonly LocaleOption[] = [
+  { code: "en", label: "English" },
+  { code: "vi", label: "Tiếng Việt" },
+  { code: "ja", label: "日本語" },
+] as const;
+
 export type LocalizedRouteDestination =
   | { surface: "home" }
   | { surface: "search" }

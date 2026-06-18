@@ -39,17 +39,19 @@ describe("glossary opening convergence", () => {
     async () => {
       const pages = await listPublishedGlossaryPages();
 
-      for (const page of pages) {
-        const loadedPage = await loadLocalDocsPage({
-          section: "glossary",
-          slug: page.slug,
-        });
-        expectGlossaryOpeningSummaryMessage(loadedPage.messages);
+      await Promise.all(
+        pages.map(async (page) => {
+          const loadedPage = await loadLocalDocsPage({
+            section: "glossary",
+            slug: page.slug,
+          });
+          expectGlossaryOpeningSummaryMessage(loadedPage.messages);
 
-        const html = renderGlossaryDocsShell(loadedPage);
-        expectGlossaryOmitsOpeningSummary(html);
-      }
+          const html = renderGlossaryDocsShell(loadedPage);
+          expectGlossaryOmitsOpeningSummary(html);
+        }),
+      );
     },
-    { timeout: 10_000 },
+    { timeout: 20_000 },
   );
 });

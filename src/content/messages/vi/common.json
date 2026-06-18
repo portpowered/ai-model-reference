@@ -17,7 +17,9 @@
     "menu": "Mở menu",
     "architecture": "Kiến trúc",
     "glossary": "Thuật ngữ",
-    "tags": "Thẻ"
+    "tags": "Thẻ",
+    "language": "Ngôn ngữ",
+    "currentLanguage": "Hiện tại"
   },
   "searchEntry": {
     "title": "Tìm kiếm",

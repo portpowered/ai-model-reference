@@ -25,6 +25,8 @@ describe("loadUiMessages shell keys", () => {
     expect(messages.nav.search).toBe("Search");
     expect(messages.nav.menu).toBe("Open menu");
     expect(messages.nav.architecture).toBe("Architecture");
+    expect(messages.nav.language).toBe("Language");
+    expect(messages.nav.currentLanguage).toBe("Current");
     expect(messages.searchEntry.title).toBe("Search");
     expect(messages.architectureIndex.title).toBe("Architecture");
     expect(messages.glossaryIndex.title).toBe("Glossary");
@@ -34,6 +36,7 @@ describe("loadUiMessages shell keys", () => {
   it("loads shipped vietnamese shell copy when vi shared messages are available", async () => {
     const messages = await loadUiMessages("vi");
     expect(messages.nav.home).toBe("Trang chủ");
+    expect(messages.nav.language).toBe("Ngôn ngữ");
     expect(messages.searchEntry.title).toBe("Tìm kiếm");
     expect(messages.tagsIndex.title).toBe("Thẻ");
   });
@@ -41,6 +44,7 @@ describe("loadUiMessages shell keys", () => {
   it("loads shipped japanese shell copy when ja shared messages are available", async () => {
     const messages = await loadUiMessages("ja");
     expect(messages.nav.home).toBe("ホーム");
+    expect(messages.nav.language).toBe("言語");
     expect(messages.searchEntry.title).toBe("検索");
     expect(messages.tagsIndex.title).toBe("タグ");
     expect(messages.shell.sidebarTitle).toBe("リファレンス");
