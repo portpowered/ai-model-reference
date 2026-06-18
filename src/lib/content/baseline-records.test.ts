@@ -141,6 +141,7 @@ describe("Phase 1 baseline registry records", () => {
       expect.arrayContaining([
         "bidirectional attention",
         "bidirectional self-attention",
+        "bert attention",
         "full-context attention",
         "full context attention",
       ]),
@@ -149,11 +150,10 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.conceptType).toBe("attention-variant");
     expect(module.relatedIds).toEqual([
       "module.attention",
-      "module.multi-head-attention",
-      "module.grouped-query-attention",
+      "concept.autoregressive-generation",
       "concept.encoder",
+      "concept.transformer-architecture",
       "concept.encoder-decoder",
-      "concept.transformer",
     ]);
     expect(module.citationIds).toContain("citation.attention-is-all-you-need");
     expect(module.optimizes.length).toBeGreaterThan(0);

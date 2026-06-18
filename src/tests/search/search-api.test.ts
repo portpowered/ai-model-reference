@@ -247,6 +247,19 @@ describe("docsSearchApi", () => {
     expect(resultsIncludeSampleModule(results)).toBe(true);
   });
 
+  test.each([
+    "bidirectional attention",
+    "bidirectional self-attention",
+    "full context attention",
+    "bert attention",
+  ] as const)("search returns bidirectional attention for %s", async (query) => {
+    const results = await docsSearchApi.search(query);
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe(BIDIRECTIONAL_ATTENTION_URL);
+    expect(resultsIncludeUrl(results, BIDIRECTIONAL_ATTENTION_URL)).toBe(true);
+    expectUniqueCanonicalPageUrls(results.map((result) => result.url));
+  });
+
   test("search includes vector glossary for vector query", async () => {
     const results = await docsSearchApi.search("vector");
     expect(results.length).toBeGreaterThan(0);

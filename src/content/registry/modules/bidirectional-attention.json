@@ -7,17 +7,17 @@
   "aliases": [
     "bidirectional attention",
     "bidirectional self-attention",
+    "bert attention",
     "full-context attention",
     "full context attention"
   ],
   "tags": ["attention"],
   "relatedIds": [
     "module.attention",
-    "module.multi-head-attention",
-    "module.grouped-query-attention",
+    "concept.autoregressive-generation",
     "concept.encoder",
-    "concept.encoder-decoder",
-    "concept.transformer"
+    "concept.transformer-architecture",
+    "concept.encoder-decoder"
   ],
   "citationIds": ["citation.attention-is-all-you-need"],
   "status": "published",

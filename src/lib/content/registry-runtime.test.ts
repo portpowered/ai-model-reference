@@ -49,17 +49,17 @@ describe("registry-runtime", () => {
       expect.arrayContaining([
         "bidirectional attention",
         "bidirectional self-attention",
+        "bert attention",
         "full-context attention",
         "full context attention",
       ]),
     );
     expect(record?.relatedIds).toEqual([
       "module.attention",
-      "module.multi-head-attention",
-      "module.grouped-query-attention",
+      "concept.autoregressive-generation",
       "concept.encoder",
+      "concept.transformer-architecture",
       "concept.encoder-decoder",
-      "concept.transformer",
     ]);
   });
 
