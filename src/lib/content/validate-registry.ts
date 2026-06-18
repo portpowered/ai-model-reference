@@ -33,9 +33,12 @@ import {
 } from "./schemas";
 import {
   isShippedLocalizedDocsSlug,
-  resolveShippedLocalizedDocsManifest,
   type ShippedLocalizedDocsManifest,
 } from "./shipped-localized-docs";
+import {
+  resetDerivedShippedLocalizedDocsManifestCache,
+  resolveDerivedShippedLocalizedDocsManifest,
+} from "./shipped-localized-docs.server";
 import { getTableById } from "./table-registry-runtime";
 import { loadTagMessages, TagMessagesLoadError } from "./tag-messages";
 import {
@@ -273,7 +276,7 @@ export type ValidateRegistryContentOptions = {
   messagesRoot?: string;
   /** Override Phase 1 page directories (for tests). */
   phase1PageDirectories?: readonly string[];
-  /** Override shipped localized docs manifest entries in tests. */
+  /** Override derived shipped localized docs entries in tests. */
   shippedLocalizedDocsManifest?: Partial<ShippedLocalizedDocsManifest>;
 };
 
@@ -785,7 +788,7 @@ async function validateLocalizedPageMessages(
     if (!isShipped && hasMessages) {
       errors.push({
         code: "unexpected-localized-page-messages",
-        message: `${pageDirectory}: locale "${locale}" has page messages but docs slug "${docsSlug}" is not declared in the shipped localized docs manifest`,
+        message: `${pageDirectory}: locale "${locale}" has page messages but docs slug "${docsSlug}" does not derive as a shipped localized docs page`,
         path: messagesPath,
       });
       continue;
@@ -1101,9 +1104,12 @@ export async function validateRegistryContent(
   options: ValidateRegistryContentOptions = {},
 ): Promise<ValidationError[]> {
   const docsRoot = options.docsRoot ?? defaultDocsRoot;
-  const shippedLocalizedDocsManifest = resolveShippedLocalizedDocsManifest(
-    options.shippedLocalizedDocsManifest,
-  );
+  resetDerivedShippedLocalizedDocsManifestCache();
+  const shippedLocalizedDocsManifest =
+    resolveDerivedShippedLocalizedDocsManifest(
+      options.shippedLocalizedDocsManifest,
+      docsRoot,
+    );
   const { indexes, errors: registryErrors } =
     await validateRegistryFiles(options);
 

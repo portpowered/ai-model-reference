@@ -909,7 +909,7 @@ updatedAt: "2026-06-02"
     }
   });
 
-  test("reports missing localized asset text keys for shipped non-default docs pages", async () => {
+  test("reports missing localized asset text keys for derived shipped non-default docs pages", async () => {
     for (const locale of nonDefaultLocales) {
       const tempRoot = join(
         import.meta.dir,
@@ -986,9 +986,6 @@ updatedAt: "2026-06-02"
           registryRoot,
           docsRoot,
           phase1PageDirectories: [],
-          shippedLocalizedDocsManifest: {
-            [locale]: ["glossary/embedding"],
-          },
         });
         expect(
           errors.some(
@@ -1078,11 +1075,11 @@ updatedAt: "2026-06-02"
     }
   });
 
-  test("reports localized page messages for docs not declared shipped in the locale manifest", async () => {
+  test("adding or removing locale page messages changes derived shipped validation without a manifest edit", async () => {
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     const docsRoot = join(tempRoot, "docs");
-    const pageDir = join(docsRoot, "concepts", "localized-page");
+    const pageDir = join(docsRoot, "glossary", "localized-page");
     await mkdir(join(registryRoot, "concepts"), { recursive: true });
     await mkdir(join(registryRoot, "tags"), { recursive: true });
     await mkdir(join(pageDir, "messages"), { recursive: true });
@@ -1120,6 +1117,11 @@ updatedAt: "2026-06-02"
       JSON.stringify({
         title: "Localized Page",
         description: "English description",
+        assets: {
+          hero: {
+            alt: "English hero alt",
+          },
+        },
       }),
     );
     await writeFile(
@@ -1129,24 +1131,55 @@ updatedAt: "2026-06-02"
         description: "日本語の説明",
       }),
     );
-    await writeFile(join(pageDir, "assets.json"), JSON.stringify({}));
+    await writeFile(
+      join(pageDir, "assets.json"),
+      JSON.stringify({
+        hero: {
+          type: "image",
+          src: "./assets/hero.png",
+          altKey: "assets.hero.alt",
+        },
+      }),
+    );
 
     try {
-      const errors = await validateRegistryContent({
+      const derivedShippedErrors = await validateRegistryContent({
         registryRoot,
         docsRoot,
         phase1PageDirectories: [],
       });
       expect(
-        errors.some(
+        derivedShippedErrors.some(
           (error) =>
-            error.code === "unexpected-localized-page-messages" &&
+            error.code === "missing-message-key" &&
             error.message.includes('locale "ja"') &&
-            error.message.includes(
-              'docs slug "concepts/localized-page" is not declared in the shipped localized docs manifest',
-            ),
+            error.message.includes('asset "hero"') &&
+            error.message.includes('missing message key "assets.hero.alt"'),
         ),
       ).toBe(true);
+      expect(
+        derivedShippedErrors.some(
+          (error) => error.code === "unexpected-localized-page-messages",
+        ),
+      ).toBe(false);
+
+      await rm(join(pageDir, "messages", "ja.json"), { force: true });
+
+      const removedLocaleErrors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+        phase1PageDirectories: [],
+      });
+      expect(
+        removedLocaleErrors.some(
+          (error) =>
+            error.message.includes(pageDir) &&
+            error.message.includes('locale "ja"') &&
+            (error.code === "missing-message-key" ||
+              error.code === "unexpected-localized-page-messages" ||
+              error.code === "missing-localized-page-messages"),
+        ),
+      ).toBe(false);
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }
