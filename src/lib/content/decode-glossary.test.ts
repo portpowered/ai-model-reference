@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { PREFILL_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
+import { DECODE_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryBodyOmitsTitleHeading,
@@ -24,37 +24,38 @@ import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const pageDir = PREFILL_GLOSSARY_PAGE_DIR;
+const pageDir = DECODE_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 
-describe("Phase 5 prefill glossary page (US-002)", () => {
-  test("registry record is published with prompt-processing aliases, serving tags, and related ids", () => {
-    const record = getConceptById("concept.prefill");
+describe("Phase 5 decode glossary page (US-003)", () => {
+  test("registry record is published with decode aliases, serving tags, and related ids", () => {
+    const record = getConceptById("concept.decode");
     expect(record?.status).toBe("published");
     expect(record?.aliases).toEqual([
-      "Prefill",
-      "prompt processing",
-      "prompt pass",
-      "initial prompt pass",
-      "time to first token stage",
+      "Decode",
+      "decoding",
+      "token-by-token generation",
+      "next-token step",
+      "inter-token generation",
     ]);
     expect(record?.tags).toEqual(["foundations", "attention", "kv-cache"]);
     expect(record?.relatedIds).toEqual([
+      "concept.prefill",
       "concept.kv-cache",
-      "concept.decode",
       "concept.autoregressive-generation",
       "module.attention",
       "module.multi-query-attention",
       "module.grouped-query-attention",
+      "module.sliding-window-attention",
       "concept.transformer",
     ]);
-    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.prefill")).toBe(true);
+    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.decode")).toBe(true);
   });
 
-  test("curated related links point to kv cache, autoregressive generation, and nearby attention pages", () => {
-    const source = getConceptById("concept.prefill");
+  test("curated related links point to serving-path and nearby attention-variant pages", () => {
+    const source = getConceptById("concept.decode");
     if (!source) {
-      throw new Error("expected concept.prefill in registry");
+      throw new Error("expected concept.decode in registry");
     }
 
     const items = deriveCuratedRelatedItems(
@@ -66,6 +67,13 @@ describe("Phase 5 prefill glossary page (US-002)", () => {
     expect(
       items.some(
         (item) =>
+          item.registryId === "concept.prefill" &&
+          item.href === "/docs/glossary/prefill",
+      ),
+    ).toBe(true);
+    expect(
+      items.some(
+        (item) =>
           item.registryId === "concept.kv-cache" &&
           item.href === "/docs/glossary/kv-cache",
       ),
@@ -73,49 +81,56 @@ describe("Phase 5 prefill glossary page (US-002)", () => {
     expect(
       items.some(
         (item) =>
-          item.registryId === "concept.autoregressive-generation" &&
-          item.href === "/docs/glossary/autoregressive-generation",
+          item.registryId === "module.multi-query-attention" &&
+          item.href === "/docs/modules/multi-query-attention",
       ),
     ).toBe(true);
     expect(
       items.some(
         (item) =>
-          item.registryId === "module.attention" &&
-          item.href === "/docs/modules/attention",
+          item.registryId === "module.grouped-query-attention" &&
+          item.href === "/docs/modules/grouped-query-attention",
+      ),
+    ).toBe(true);
+    expect(
+      items.some(
+        (item) =>
+          item.registryId === "module.sliding-window-attention" &&
+          item.href === "/docs/modules/sliding-window-attention",
       ),
     ).toBe(true);
   });
 
-  test("messages teach prompt processing, time to first token, and serving tradeoffs", () => {
+  test("messages teach next-token generation, inter-token latency, and serving tradeoffs", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
-    expect(messages.title).toBe("Prefill");
+    expect(messages.title).toBe("Decode");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
-      "time to first token",
+      "kv cache",
+    );
+    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
+      "next-token",
     );
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
-      "latency",
+      "inter-token latency",
     );
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
-      "memory",
+      "memory bandwidth",
     );
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
-      "cost",
-    );
-    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
-      "decode",
+      "serving cost",
     );
   });
 
-  test("page renders serving-path links to kv cache, decode, and prefill/decode split", async () => {
-    const page = await loadGlossaryPage("prefill");
+  test("page renders serving-path links to kv cache, prefill, split handoff, and nearby modules", async () => {
+    const page = await loadGlossaryPage("decode");
 
     expect(page.frontmatter.kind).toBe("glossary");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.registryId).toBe("concept.prefill");
+    expect(page.frontmatter.registryId).toBe("concept.decode");
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -129,38 +144,40 @@ describe("Phase 5 prefill glossary page (US-002)", () => {
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
     expectGlossaryOmitsOpeningSummary(html);
     expectGlossarySingleTagPillList(html);
-    expectHtmlToContainProse(html, "Prefill");
-    expectHtmlToContainProse(html, "time to first token");
-    expectHtmlToContainProse(html, "serving cost");
+    expectHtmlToContainProse(html, "Decode");
+    expectHtmlToContainProse(html, "inter-token latency");
+    expectHtmlToContainProse(html, "memory bandwidth");
     expect(html).toContain('href="/docs/glossary/kv-cache"');
-    expect(html).toContain('href="/docs/glossary/decode"');
+    expect(html).toContain('href="/docs/glossary/prefill"');
     expect(html).toContain('href="/search?q=prefill%2Fdecode%20split"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
+    expect(html).toContain('href="/docs/modules/sliding-window-attention"');
     expect(html).toContain('href="/docs/glossary/transformer"');
+    expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Reader Shortcut");
   });
 
-  test("search index records prefill as a glossary page with aliases and tags", async () => {
+  test("search index records decode as a glossary page with aliases and tags", async () => {
     const registry = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
     const documents = buildSearchDocuments(pages, registry);
 
     const document = documents.find(
-      (entry) => entry.url === "/docs/glossary/prefill",
+      (entry) => entry.url === "/docs/glossary/decode",
     );
     expect(document?.kind).toBe("glossary");
     expect(document?.facets.kind).toBe("glossary");
     expect(document?.aliases).toEqual(
       expect.arrayContaining([
-        "Prefill",
-        "prompt processing",
-        "prompt pass",
-        "initial prompt pass",
+        "Decode",
+        "decoding",
+        "token-by-token generation",
+        "next-token step",
       ]),
     );
     expect(document?.tags).toEqual(
@@ -168,16 +185,16 @@ describe("Phase 5 prefill glossary page (US-002)", () => {
     );
   });
 
-  test("search finds prefill by title, aliases, and body terms", async () => {
+  test("search finds decode by title, aliases, and body terms", async () => {
     for (const query of [
-      "Prefill",
-      "prompt processing",
-      "prompt pass",
-      "time to first token",
+      "Decode",
+      "decoding",
+      "token-by-token generation",
+      "inter-token latency",
     ] as const) {
       const results = await docsSearchApi.search(query);
       expect(
-        results.some((result) => result.url === "/docs/glossary/prefill"),
+        results.some((result) => result.url === "/docs/glossary/decode"),
       ).toBe(true);
     }
   });

@@ -41,6 +41,7 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
     expect(record?.tags).toEqual(["foundations", "attention", "kv-cache"]);
     expect(record?.relatedIds).toEqual([
       "concept.prefill",
+      "concept.decode",
       "concept.autoregressive-generation",
       "module.attention",
       "module.multi-query-attention",
@@ -144,8 +145,9 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
     );
     expectHtmlToContainProse(html, "cost real money to serve");
     expect(html).toContain('href="/docs/glossary/prefill"');
-    expect(html).toContain('href="/search?q=decode"');
+    expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');

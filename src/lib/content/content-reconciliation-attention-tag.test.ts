@@ -84,6 +84,7 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
     expect(glossaryGroup?.kindLabel).toBe("Glossary");
     expect(glossaryGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/glossary/autoregressive-generation",
+      "/docs/glossary/decode",
       "/docs/glossary/kv-cache",
       "/docs/glossary/prefill",
       "/docs/glossary/token",
@@ -135,6 +136,7 @@ describe("Phase 2/3 reconciliation attention tag page render (US-007)", () => {
 
     expect(html).toContain("Linear Attention");
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain('href="/docs/glossary/prefill"');
     expect(html).toContain('href="/docs/glossary/token"');

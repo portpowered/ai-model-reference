@@ -105,6 +105,17 @@ describe("docs slug renderer locale gating", () => {
     });
   });
 
+  test("English docs metadata omits unshipped Vietnamese alternate for decode", async () => {
+    const metadata = await buildDocsPageMetadata(["glossary", "decode"]);
+
+    expect(metadata.alternates).toEqual({
+      canonical: "/docs/glossary/decode",
+      languages: {
+        en: "/docs/glossary/decode",
+      },
+    });
+  });
+
   test("unshipped Vietnamese docs routes fail clearly instead of rendering English content", async () => {
     try {
       await renderDocsSlugPage(["getting-started"], "vi");
@@ -133,6 +144,18 @@ describe("docs slug renderer locale gating", () => {
     try {
       await renderDocsSlugPage(["glossary", "prefill"], "vi");
       throw new Error("Expected Vietnamese prefill route to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toMatch(
+        /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
+      );
+    }
+  });
+
+  test("unshipped Vietnamese decode route fails instead of rendering English content", async () => {
+    try {
+      await renderDocsSlugPage(["glossary", "decode"], "vi");
+      throw new Error("Expected Vietnamese decode route to fail");
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
       expect((error as Error).message).toMatch(

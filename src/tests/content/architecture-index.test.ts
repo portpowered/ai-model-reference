@@ -36,6 +36,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/computational-graph",
         "/docs/glossary/conditioning",
         "/docs/glossary/context-window",
+        "/docs/glossary/decode",
         "/docs/glossary/decoder",
         "/docs/glossary/denoising-generation",
         "/docs/glossary/diffusion-model",
@@ -159,6 +160,8 @@ describe("architecture index page render", () => {
     expect(html).toContain('href="/docs/glossary/foundation-model"');
     expect(html).toContain("KV cache");
     expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html).toContain("Decode");
+    expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain("Prefill");
     expect(html).toContain('href="/docs/glossary/prefill"');
     expect(html).toContain("Token");

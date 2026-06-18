@@ -78,7 +78,10 @@ describe("Phase 2/3 reconciliation docs sidebar meta (US-003)", () => {
       expect(linkEntries).toHaveLength(sectionPages.length);
 
       for (const page of sectionPages) {
-        const entry = linkEntries.find((item) => item.includes(page.url));
+        const entry = linkEntries.find((item) => {
+          const parsed = parseMetaPageEntry(item);
+          return parsed.url === page.url;
+        });
         expect(entry).toBeDefined();
         const parsed = parseMetaPageEntry(entry ?? "");
         expect(parsed.url).toBe(page.url);

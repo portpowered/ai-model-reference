@@ -108,9 +108,9 @@ describe("loadPublishedGlossaryEntries", () => {
     expect(optimizerState?.summary.length).toBeGreaterThan(0);
   });
 
-  it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
+  it("includes all published glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(56);
+    expect(entries).toHaveLength(57);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -137,6 +137,11 @@ describe("loadPublishedGlossaryEntries", () => {
       (entry) => entry.url === "/docs/glossary/prefill",
     );
     expect(prefill?.title).toBe("Prefill");
+
+    const decode = entries.find(
+      (entry) => entry.url === "/docs/glossary/decode",
+    );
+    expect(decode?.title).toBe("Decode");
   });
 });
 
@@ -210,6 +215,8 @@ describe("glossary index page render", () => {
     expect(html).toContain('href="/docs/glossary/computational-graph"');
     expect(html).toContain("KV cache");
     expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html).toContain("Decode");
+    expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain("Prefill");
     expect(html).toContain('href="/docs/glossary/prefill"');
     expect(html).not.toContain("No glossary entries yet");

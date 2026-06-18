@@ -9,6 +9,7 @@ import computationalGraphConcept from "@/content/registry/concepts/computational
 import conditioningConcept from "@/content/registry/concepts/conditioning.json";
 import contextExtensionConcept from "@/content/registry/concepts/context-extension.json";
 import contextWindowConcept from "@/content/registry/concepts/context-window.json";
+import decodeConcept from "@/content/registry/concepts/decode.json";
 import decoderConcept from "@/content/registry/concepts/decoder.json";
 import denoisingGenerationConcept from "@/content/registry/concepts/denoising-generation.json";
 import diffusionModelConcept from "@/content/registry/concepts/diffusion-model.json";
@@ -120,6 +121,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(latentConcept),
   conceptRecordSchema.parse(latentSpaceConcept),
   conceptRecordSchema.parse(encoderConcept),
+  conceptRecordSchema.parse(decodeConcept),
   conceptRecordSchema.parse(decoderConcept),
   conceptRecordSchema.parse(encoderDecoderConcept),
   conceptRecordSchema.parse(autoregressiveGenerationConcept),

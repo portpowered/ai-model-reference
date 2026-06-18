@@ -11,6 +11,7 @@
     "concept.encoder-decoder",
     "concept.autoregressive-generation",
     "concept.kv-cache",
+    "concept.decode",
     "concept.foundation-model",
     "concept.module"
   ],

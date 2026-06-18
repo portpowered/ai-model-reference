@@ -19,6 +19,7 @@
     "concept.decoder",
     "concept.kv-cache",
     "concept.prefill",
+    "concept.decode",
     "concept.encoder-decoder",
     "concept.conditioning",
     "concept.denoising-generation"

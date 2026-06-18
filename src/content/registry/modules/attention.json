@@ -11,6 +11,7 @@
     "module.multi-query-attention",
     "module.grouped-query-attention",
     "concept.kv-cache",
+    "concept.decode",
     "concept.token"
   ],
   "citationIds": [],

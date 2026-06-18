@@ -10,6 +10,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/component",
   "/docs/glossary/conditioning",
   "/docs/glossary/context-window",
+  "/docs/glossary/decode",
   "/docs/glossary/decoder",
   "/docs/glossary/denoising-generation",
   "/docs/glossary/diffusion-model",

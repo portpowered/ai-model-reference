@@ -10,7 +10,8 @@
     "module.attention",
     "module.multi-head-attention",
     "module.grouped-query-attention",
-    "concept.kv-cache"
+    "concept.kv-cache",
+    "concept.decode"
   ],
   "citationIds": ["citation.shazeer-mqa-paper"],
   "status": "published",

@@ -32,6 +32,7 @@ describe("registry-runtime", () => {
       "module.multi-head-attention",
       "module.multi-query-attention",
       "concept.kv-cache",
+      "concept.decode",
     ]);
   });
 
@@ -90,6 +91,7 @@ describe("registry-runtime", () => {
       "module.multi-head-attention",
       "module.grouped-query-attention",
       "concept.kv-cache",
+      "concept.decode",
     ]);
   });
 

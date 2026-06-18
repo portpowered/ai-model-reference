@@ -1,0 +1,36 @@
+{
+  "title": "Decode",
+  "description": "The repeated next-token stage that reuses the KV cache and turns inter-token latency into the main reader experience after prefill finishes.",
+  "openingSummary": "Once the prompt has been processed, readers feel the model one token at a time; decode is that repeated next-token stage, where saved KV-cache state lowers recompute work but memory bandwidth and cache size still shape latency and serving cost.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Decode is the repeated next-token loop that starts after prefill has built the initial KV cache. For each step, the model reads the current prefix, reuses the saved keys and values from earlier positions, computes fresh attention and decoder activations for the newest position, then predicts one more token. That cycle repeats until the reply stops."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Decode usually controls the pace of a long answer because inter-token latency becomes the main reader experience after the first token arrives. Reusing the KV cache avoids replaying the whole prompt, but every generated token still has to read growing cache state from memory. That means latency, memory bandwidth, and serving cost stay tightly linked during decode, which is why operators care about cache-sharing variants such as MQA and GQA and locality choices such as sliding-window attention."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a prompt has already been prefetched and the model is about to write a 60-token answer. Decode generates token 1 of the answer, appends it to the prefix, updates the cache with one new position, then repeats for token 2, token 3, and so on. Each step is smaller than the original prompt pass, but sixty small steps can still dominate the feel and cost of a long response."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Decode is not the same as the decoder module. The decoder is the network stack; decode is the runtime loop that calls that stack again and again during generation. Decode is also not the same as prefill: prefill reads the whole prompt once, while decode handles one new token at a time. Finally, faster decode is not only a math problem. Memory movement across a large KV cache often matters as much as raw compute."
+    },
+    "servingPath": {
+      "title": "Serving Path",
+      "body": "Decode sits after prefill and keeps extending the KV cache until generation ends. Follow the prefill/decode split next if you want the serving-systems view of why many deployments separate the two stages onto different hardware or queues."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

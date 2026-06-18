@@ -10,7 +10,8 @@
     "module.attention",
     "module.multi-head-attention",
     "module.multi-query-attention",
-    "concept.kv-cache"
+    "concept.kv-cache",
+    "concept.decode"
   ],
   "citationIds": ["citation.gqa-paper"],
   "status": "published",

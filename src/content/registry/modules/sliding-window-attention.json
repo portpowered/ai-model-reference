@@ -10,7 +10,8 @@
     "module.multi-head-attention",
     "module.multi-query-attention",
     "module.grouped-query-attention",
-    "concept.kv-cache"
+    "concept.kv-cache",
+    "concept.decode"
   ],
   "citationIds": [],
   "status": "published",

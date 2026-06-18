@@ -1,8 +1,8 @@
 ---
-title: KV cache
-description: The saved key and value tensors a decoder keeps from earlier tokens so later tokens can reuse attention state instead of recomputing the full prefix.
+title: Decode
+description: The repeated next-token stage that reuses the KV cache and turns inter-token latency into the main reader experience after prefill finishes.
 kind: "glossary"
-registryId: "concept.kv-cache"
+registryId: "concept.decode"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
@@ -11,10 +11,10 @@ tags:
   - attention
   - kv-cache
 aliases:
-  - "KV cache"
-  - "key-value cache"
-  - "key value cache"
-  - "kv-cache"
+  - "Decode"
+  - "decoding"
+  - "token-by-token generation"
+  - "next-token step"
 updatedAt: "2026-06-18"
 ---
 
@@ -44,22 +44,25 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
   <T k="sections.servingPath.body" />
   <ul className="mt-3 list-disc pl-6">
     <li>
+      <a href="/docs/glossary/kv-cache">KV cache</a>
+    </li>
+    <li>
       <a href="/docs/glossary/prefill">Prefill</a>
     </li>
     <li>
-      <a href="/docs/glossary/decode">Decode</a>
+      <a href="/search?q=prefill%2Fdecode%20split">Prefill/decode split</a>
     </li>
   </ul>
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
-  <RelatedDocs registryId="concept.kv-cache" />
+  <RelatedDocs registryId="concept.decode" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
-  <TagPillList registryId="concept.kv-cache" showDescriptions />
+  <TagPillList registryId="concept.decode" showDescriptions />
 </Section>
 
 <Section id="references" titleKey="sections.references.title">
-  <CitationList registryId="concept.kv-cache" />
+  <CitationList registryId="concept.decode" />
 </Section>

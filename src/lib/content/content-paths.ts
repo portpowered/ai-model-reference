@@ -209,6 +209,9 @@ export const KV_CACHE_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "kv-cache");
 /** Phase 5 prefill glossary page directory. */
 export const PREFILL_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "prefill");
 
+/** Phase 5 decode glossary page directory. */
+export const DECODE_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "decode");
+
 /** Phase 3 context extension concept page directory. */
 export const CONTEXT_EXTENSION_CONCEPT_PAGE_DIR = join(
   CONCEPTS_DOCS_ROOT,

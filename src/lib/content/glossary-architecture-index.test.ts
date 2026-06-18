@@ -53,6 +53,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   "loss-function": "Loss Function",
   "optimizer-state": "Optimizer State",
   "kv-cache": "KV cache",
+  decode: "Decode",
   prefill: "Prefill",
 };
 
@@ -72,8 +73,8 @@ const CHAIN_GLOSSARY_SLUGS = [
   "loss-function",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 56;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 49;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 57;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 50;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
@@ -114,6 +115,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ...TAXONOMY_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
       "kv-cache",
+      "decode",
       "prefill",
       "token",
     ] as const) {
@@ -141,6 +143,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ...TAXONOMY_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
       "kv-cache",
+      "decode",
       "prefill",
       "token",
     ] as const) {
@@ -170,6 +173,9 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       (item) => item.url === "/docs/glossary/kv-cache",
     );
     expect(kvCache?.title).toBe("KV cache");
+
+    const decode = entries.find((item) => item.url === "/docs/glossary/decode");
+    expect(decode?.title).toBe("Decode");
 
     const prefill = entries.find(
       (item) => item.url === "/docs/glossary/prefill",
@@ -207,6 +213,11 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       (entry) => entry.url === "/docs/glossary/kv-cache",
     );
     expect(kvCache?.title).toBe("KV cache");
+
+    const decode = entries.find(
+      (entry) => entry.url === "/docs/glossary/decode",
+    );
+    expect(decode?.title).toBe("Decode");
 
     const prefill = entries.find(
       (entry) => entry.url === "/docs/glossary/prefill",
@@ -258,6 +269,8 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(glossaryHtml).toContain('href="/docs/glossary/computational-graph"');
     expect(glossaryHtml).toContain("KV cache");
     expect(glossaryHtml).toContain('href="/docs/glossary/kv-cache"');
+    expect(glossaryHtml).toContain("Decode");
+    expect(glossaryHtml).toContain('href="/docs/glossary/decode"');
     expect(glossaryHtml).toContain("Prefill");
     expect(glossaryHtml).toContain('href="/docs/glossary/prefill"');
     expect(architectureHtml).toContain("Activation");
@@ -268,6 +281,8 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     );
     expect(architectureHtml).toContain("KV cache");
     expect(architectureHtml).toContain('href="/docs/glossary/kv-cache"');
+    expect(architectureHtml).toContain("Decode");
+    expect(architectureHtml).toContain('href="/docs/glossary/decode"');
     expect(architectureHtml).toContain("Prefill");
     expect(architectureHtml).toContain('href="/docs/glossary/prefill"');
     expect(architectureHtml).not.toContain('href="/docs/glossary/parameter"');
