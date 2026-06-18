@@ -1,0 +1,32 @@
+{
+  "title": "Weight-only quantization",
+  "description": "Compressing stored model weights into fewer bits while most runtime activations stay at a higher precision.",
+  "openingSummary": "Weight-only quantization shrinks the stored parameters of a model without trying to quantize every live tensor during execution, so it usually cuts memory footprint more directly than it cuts end-to-end decode time.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "In weight-only quantization, the checkpoint weights for layers such as linear projections are stored in fewer bits, while activations often remain in FP16, BF16, or another higher-precision runtime format. That makes the saved model smaller and lowers the bytes read from memory, but it does not mean every multiply or add in the serving stack is now fully low precision."
+    },
+    "whatChanges": {
+      "title": "What Changes",
+      "body": "The main tensor that changes is the stored parameter matrix. Before a layer runs, kernels may unpack or dequantize those weights into a form the hardware can consume. Because many activations stay higher precision, weight-only schemes often help model fit and memory bandwidth first, while latency gains depend on kernel support, packing format, and how much dequantization overhead remains in the path."
+    },
+    "whereItHelps": {
+      "title": "Where It Helps",
+      "body": "This method is attractive when the bottleneck is the checkpoint itself: fitting a larger model on one device, reducing VRAM pressure, or increasing batch size without rewriting the full runtime around low-bit activations. The tradeoff is that aggressive low-bit weights can still hurt quality, especially around outlier channels or sensitive layers, so modern methods often protect a small fraction of important weights or use calibration statistics to choose scales."
+    },
+    "compareMethods": {
+      "title": "Compared To Nearby Methods",
+      "body": "If your main question is about stored parameters, start here. If the harder part is the live tensors produced during execution, read activation quantization. If long-context decode memory is the pain point, read KV cache quantization."
+    },
+    "related": {
+      "title": "Related Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

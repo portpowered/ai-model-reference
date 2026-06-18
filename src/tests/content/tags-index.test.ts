@@ -62,6 +62,7 @@ describe("groupTagIndexEntriesByCategory", () => {
     expect(groups[2]?.tags.map((tag) => tag.slug)).toEqual([
       "context-window",
       "kv-cache",
+      "quantization",
     ]);
     expect(groups[3]?.tags.map((tag) => tag.slug)).toEqual(["model-family"]);
   });
@@ -131,7 +132,7 @@ describe("tags index messages", () => {
 });
 
 describe("tags index page render", () => {
-  it("lists foundational, attention, and kv-cache tags with category labels and landing links", async () => {
+  it("lists foundational, attention, and inference tags with category labels and landing links", async () => {
     const page = await renderTagsIndexPage();
     const html = renderToStaticMarkup(page);
 
@@ -149,6 +150,8 @@ describe("tags index page render", () => {
     expect(html).toContain("Module type");
     expect(html).toContain("KV Cache");
     expect(html).toContain('href="/tags/kv-cache"');
+    expect(html).toContain("Quantization");
+    expect(html).toContain('href="/tags/quantization"');
     expect(html).toContain("Inference");
     expect(html).not.toContain("mt-8");
     expect(html).toContain("list-none");
@@ -167,6 +170,8 @@ describe("tags index page render", () => {
     expect(html).toContain("Loại module");
     expect(html).toContain("Cửa sổ ngữ cảnh");
     expect(html).toContain('href="/vi/tags/context-window"');
+    expect(html).toContain("Lượng tử hóa");
+    expect(html).toContain('href="/vi/tags/quantization"');
     expect(html).toContain("Suy luận");
   });
 });

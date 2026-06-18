@@ -4,6 +4,7 @@ import {
   spawn,
 } from "node:child_process";
 import { existsSync } from "node:fs";
+import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { isNextProductionBuildFresh } from "./build-source-fingerprint";
 import {
@@ -213,9 +214,17 @@ export function resolveNextProductionServerBin(projectRoot: string): string {
 
     const parentRoot = dirname(currentRoot);
     if (parentRoot === currentRoot) {
-      return join(projectRoot, "node_modules", "next", "dist", "bin", "next");
+      break;
     }
     currentRoot = parentRoot;
+  }
+
+  try {
+    return createRequire(join(projectRoot, "package.json")).resolve(
+      "next/dist/bin/next",
+    );
+  } catch {
+    return createRequire(import.meta.url).resolve("next/dist/bin/next");
   }
 }
 

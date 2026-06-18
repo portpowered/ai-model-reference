@@ -1,0 +1,32 @@
+{
+  "title": "Activation quantization",
+  "description": "Quantizing live intermediate activations during execution instead of only shrinking stored weights.",
+  "openingSummary": "Activation quantization lowers the precision of the intermediate values a model produces while it runs, which can reduce runtime memory traffic but is usually more sensitive than weight-only schemes because those activation ranges shift with real inputs.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "An activation is the live tensor produced by a layer for the current prompt. Activation quantization maps those intermediate values into lower-bit ranges during execution, often alongside low-bit weights. Because the tensors are created on the fly, the runtime needs scales or zero-points that match the values actually appearing in the workload."
+    },
+    "whyItIsHarder": {
+      "title": "Why It Is Harder",
+      "body": "Activations can change shape and magnitude from one prompt to the next, and some channels contain outliers that do not compress cleanly. That makes activation quantization more sensitive to calibration, clipping choices, and kernel support than a simple weight-only path. If ranges are too narrow, quality can drop; if ranges are too loose, the low-bit representation wastes precision and the gains shrink."
+    },
+    "whereItHelps": {
+      "title": "Where It Helps",
+      "body": "Activation quantization matters when runtime memory movement is the bottleneck and the hardware can execute low-bit activation kernels efficiently. It can reduce the bytes moved through matrix multiplies and temporary buffers, but the tradeoff is tighter dependence on representative calibration data and more risk that unsupported layers stay in higher precision."
+    },
+    "compareMethods": {
+      "title": "Compared To Nearby Methods",
+      "body": "Weight-only quantization mainly shrinks stored parameters. Activation quantization tries to compress the live tensors moving through the model. KV cache quantization is narrower: it targets only the cached keys and values kept across autoregressive decode steps."
+    },
+    "related": {
+      "title": "Related Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

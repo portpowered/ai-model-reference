@@ -1,0 +1,16 @@
+{
+  "id": "tag.quantization",
+  "slug": "quantization",
+  "kind": "tag",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["model quantization", "low precision"],
+  "tags": [],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "category": "inference",
+  "landingPage": "generated-tag-page"
+}

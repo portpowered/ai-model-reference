@@ -1,0 +1,36 @@
+{
+  "id": "concept.why-4-bit-models-are-not-exactly-4x-faster",
+  "slug": "why-4-bit-models-are-not-exactly-4x-faster",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "4-bit faster",
+    "4x faster myth",
+    "why quantization is not 4x faster"
+  ],
+  "tags": ["quantization"],
+  "relatedIds": [
+    "concept.quantization",
+    "concept.weight-only-quantization",
+    "concept.activation-quantization",
+    "concept.kv-cache-quantization",
+    "concept.dynamic-quantization"
+  ],
+  "citationIds": [
+    "citation.quantization-integer-only-inference",
+    "citation.awq",
+    "citation.kivi-kv-cache-quantization"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": [
+    "concept.quantization",
+    "concept.weight-only-quantization",
+    "concept.activation-quantization",
+    "concept.kv-cache-quantization"
+  ],
+  "explainsIds": []
+}

@@ -40,7 +40,6 @@ import {
   defaultSpawnProductionServer,
   killManagedChild,
   NEXT_BUILD_REQUIRED_MESSAGE,
-  resolveNextProductionServerBin,
   shouldRunVerifyProductionIntegrationTests,
   VERIFY_SERVER_STARTUP_TIMEOUT_MS_ENV,
   waitForServerReady,
@@ -382,7 +381,14 @@ createServer((_req, res) => {
 `;
 
 function writeFakeNextBin(projectRoot: string, scriptBody: string): void {
-  const nextBinPath = resolveNextProductionServerBin(projectRoot);
+  const nextBinPath = join(
+    projectRoot,
+    "node_modules",
+    "next",
+    "dist",
+    "bin",
+    "next",
+  );
   mkdirSync(dirname(nextBinPath), { recursive: true });
   writeFileSync(nextBinPath, `#!/usr/bin/env bun\n${scriptBody}`, {
     mode: 0o755,

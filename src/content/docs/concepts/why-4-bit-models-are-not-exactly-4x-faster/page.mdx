@@ -1,0 +1,98 @@
+---
+title: Why 4-bit models are not exactly 4x faster
+description: Why lowering model weights to 4-bit often cuts memory more than it cuts end-to-end latency or throughput.
+kind: "concept"
+registryId: "concept.why-4-bit-models-are-not-exactly-4x-faster"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - "quantization"
+aliases:
+  - "4-bit faster"
+  - "4x faster myth"
+  - "why quantization is not 4x faster"
+updatedAt: "2026-06-18"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-people-expect" titleKey="sections.whatPeopleExpect.title">
+  <T k="sections.whatPeopleExpect.body" />
+</Section>
+
+<Section id="where-time-still-goes" titleKey="sections.whereTimeStillGoes.title">
+  <T k="sections.whereTimeStillGoes.body" />
+</Section>
+
+<Section id="what-sets-the-ceiling" titleKey="sections.whatSetsTheCeiling.title">
+  <T k="sections.whatSetsTheCeiling.body" />
+</Section>
+
+<Section id="read-nearby-methods" titleKey="sections.readNearbyMethods.title">
+  <T k="sections.readNearbyMethods.body" />
+
+  <ul className="mt-4 space-y-2 list-none pl-0">
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/quantization"
+      >
+        Quantization overview
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/weight-only-quantization"
+      >
+        Weight-only quantization
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/activation-quantization"
+      >
+        Activation quantization
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/kv-cache-quantization"
+      >
+        KV cache quantization
+      </a>
+    </li>
+  </ul>
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.why-4-bit-models-are-not-exactly-4x-faster"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.why-4-bit-models-are-not-exactly-4x-faster" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList
+    registryId="concept.why-4-bit-models-are-not-exactly-4x-faster"
+    showDescriptions
+  />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.why-4-bit-models-are-not-exactly-4x-faster" />
+</Section>

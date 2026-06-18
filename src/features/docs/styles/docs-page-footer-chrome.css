@@ -26,7 +26,7 @@
       :focus-visible
     )
     > p.text-fd-muted-foreground {
-    color: currentColor;
+    color: currentColor !important;
   }
 
   #nd-page

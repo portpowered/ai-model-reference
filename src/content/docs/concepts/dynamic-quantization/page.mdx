@@ -1,0 +1,87 @@
+---
+title: Dynamic quantization
+description: Choosing some quantization scales or converted values at runtime instead of fixing every low-precision detail ahead of deployment.
+kind: "concept"
+registryId: "concept.dynamic-quantization"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - "quantization"
+aliases:
+  - "runtime quantization"
+  - "on-the-fly quantization"
+  - "dynamic range quantization"
+updatedAt: "2026-06-18"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="where-it-fits" titleKey="sections.whereItFits.title">
+  <T k="sections.whereItFits.body" />
+</Section>
+
+<Section id="where-it-is-limited" titleKey="sections.whereItIsLimited.title">
+  <T k="sections.whereItIsLimited.body" />
+</Section>
+
+<Section id="compare-workflows" titleKey="sections.compareWorkflows.title">
+  <T k="sections.compareWorkflows.body" />
+
+  <ul className="mt-4 space-y-2 list-none pl-0">
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/post-training-quantization"
+      >
+        Post-training quantization
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/quantization-aware-training"
+      >
+        Quantization-aware training
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/activation-quantization"
+      >
+        Activation quantization
+      </a>
+    </li>
+  </ul>
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.dynamic-quantization"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.dynamic-quantization" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.dynamic-quantization" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.dynamic-quantization" />
+</Section>
