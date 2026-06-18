@@ -1,25 +1,50 @@
 {
   "title": "Mixture of experts",
   "description": "A sparse feed-forward layer that routes each token to a small subset of expert MLPs instead of one dense block.",
+  "openingSummary": "A mixture-of-experts layer routes each token through a few specialist MLPs instead of one dense feed-forward block, trading sparse activation for extra capacity.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "A mixture-of-experts (MoE) layer replaces the single dense feed-forward network in a transformer block with many parallel expert MLPs plus a router. For each token position, a gating network scores every expert and sends the hidden vector to only the top-k experts—often one or two. Each chosen expert runs the usual expand–activate–project recipe; their outputs are weighted and summed back into one updated vector."
+      "body": "A mixture-of-experts layer replaces the single dense feed-forward network in a transformer block with many parallel expert MLPs plus a router. For each token position, a gating network scores every expert and sends the hidden vector to only the top-k experts. The chosen expert outputs are then weighted and merged back into one updated token state."
     },
-    "whyItMatters": {
-      "title": "Why It Matters",
-      "body": "MoE increases total parameter count while keeping compute per token roughly flat, because only a few experts activate per step. That tradeoff matters when scaling language models: you can add capacity without multiplying FLOPs for every position. Capacity limits, load balancing, and routing noise also shape training stability, so recognizing MoE helps you read model cards that list expert counts and top-k routing."
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "MoE optimizes for parameter capacity without forcing every token to pay for every expert. Instead of making one dense FFN larger, it keeps activation sparse and lets different tokens use different expert subsets."
     },
-    "simpleExample": {
-      "title": "Simple Example",
-      "body": "Suppose a block has sixty-four expert MLPs but top-2 routing. A token vector enters the router, which picks the two highest-scoring experts—say experts 7 and 41. Each expert applies its own two-layer MLP; the router weights blend their outputs into one vector that continues through normalization and the residual add. The next token in the batch may activate a completely different pair."
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "This is why MoE matters in large-model scaling discussions: it can grow the total parameter pool sharply while keeping active compute per token much closer to a dense baseline."
     },
-    "commonConfusions": {
-      "title": "Common Confusions",
-      "body": "MoE is not a model ensemble: ensembles combine separate full models at inference, while MoE keeps one shared stack and only sparsely activates internal experts. MoE is also not the same as a dense FFN—both sit after attention in the block, but dense FFN runs one MLP for every token whereas MoE selects a small subset. Finally, total expert parameters are not all used on every forward pass; active compute tracks top-k, not the full expert pool."
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The token state first goes through a router. The router picks a small top-k expert set for that token. Each selected expert runs its own FFN, and their outputs are blended into one result. The next token in the sequence can activate a different expert pair even though the block slot in the architecture stays the same."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The dense FFN formula below is the baseline that activates one shared path for every token. The MoE formula adds routing and weighted expert selection to the same general slot."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with dense FFN variants, MoE changes not just the hidden path shape but the activation pattern itself. The key contrast is dense-for-every-token versus sparse-top-k routing."
+    },
+    "variantsAndNearbyModules": {
+      "title": "Variants And Nearby Modules",
+      "body": "These nearby pages show the dense FFN baseline and the gated dense alternative that readers usually compare against MoE before jumping into sparse expert routing details."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Large decoder-only language models often mention expert count and top-k routing in their architecture summaries when they adopt MoE blocks."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "MoE adds routing, capacity management, and load-balancing concerns that dense FFNs do not have. It can raise total capacity efficiently, but the training and serving story becomes more complex."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Sparse expert routing remains one of the clearest ways to separate total parameter count from active per-token compute, so readers keep encountering MoE whenever scaling tradeoffs come up."
     },
     "related": {
-      "title": "Related Concepts And Modules"
+      "title": "Related"
     },
     "tags": {
       "title": "Tags"
@@ -38,6 +63,96 @@
         },
         "moe": {
           "label": "MoE"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "How mixture of experts compares with nearby FFN variants"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "moe": {
+          "title": "Mixture of experts"
+        },
+        "standard": {
+          "title": "Standard FFN"
+        },
+        "swiglu": {
+          "title": "SwiGLU"
+        }
+      },
+      "dimensions": {
+        "pathShape": "Path shape",
+        "activeCompute": "Active compute per token",
+        "mainTradeoff": "Main tradeoff"
+      },
+      "values": {
+        "moe": {
+          "pathShape": "Router selects a few expert MLPs, then merges them",
+          "activeCompute": "Only top-k experts activate for each token",
+          "mainTradeoff": "Adds much more parameter capacity, but routing and balancing add system complexity"
+        },
+        "standard": {
+          "pathShape": "One dense expand -> activate -> project path",
+          "activeCompute": "All hidden units in one shared MLP",
+          "mainTradeoff": "Simple dense baseline, but every token pays for the whole block"
+        },
+        "swiglu": {
+          "pathShape": "Value branch multiplied by a SiLU gate branch",
+          "activeCompute": "All hidden units plus a learned gate",
+          "mainTradeoff": "More expressive dense path, but still no sparse expert capacity"
+        }
+      }
+    }
+  },
+  "math": {
+    "standardSchema": {
+      "label": "Standard dense FFN",
+      "formula": "\\mathrm{FFN}(h_t) = W_2\\,\\sigma(W_1 h_t + b_1) + b_2",
+      "variableDefinitions": {
+        "ht": {
+          "term": "h_t",
+          "definition": "Hidden state for token position t."
+        },
+        "w1": {
+          "term": "W_1",
+          "definition": "Projection into the wide hidden layer."
+        },
+        "w2": {
+          "term": "W_2",
+          "definition": "Projection back to model width."
+        },
+        "sigma": {
+          "term": "σ",
+          "definition": "Pointwise activation inside the dense hidden layer."
+        }
+      }
+    },
+    "moeSchema": {
+      "label": "Mixture of experts",
+      "formula": "\\mathrm{MoE}(h_t) = \\sum_{e \\in \\mathrm{TopK}(r(h_t))} \\alpha_e(h_t)\\,\\mathrm{Expert}_e(h_t)",
+      "variableDefinitions": {
+        "ht": {
+          "term": "h_t",
+          "definition": "Hidden state for token position t."
+        },
+        "r": {
+          "term": "r",
+          "definition": "Router that scores experts for the current token."
+        },
+        "topk": {
+          "term": "\\mathrm{TopK}",
+          "definition": "Operation that keeps only the highest-scoring expert choices."
+        },
+        "alpha": {
+          "term": "\\alpha_e",
+          "definition": "Weight assigned to expert e for this token."
+        },
+        "expert": {
+          "term": "\\mathrm{Expert}_e",
+          "definition": "Expert-specific FFN chosen by the router."
         }
       }
     }
@@ -69,6 +184,5 @@
         "label": "Updated token state"
       }
     }
-  },
-  "openingSummary": "A mixture-of-experts layer routes each token through a few specialist MLPs instead of one dense feed-forward block, trading sparse activation for extra capacity."
+  }
 }

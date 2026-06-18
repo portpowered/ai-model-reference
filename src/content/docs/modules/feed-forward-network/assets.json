@@ -23,5 +23,10 @@
     "printRenderer": "mermaid",
     "altKey": "assets.computeFlow.alt",
     "captionKey": "assets.computeFlow.caption"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.feed-forward-network-comparison",
+    "captionKey": "assets.comparisonTable.caption"
   }
 }

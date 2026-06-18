@@ -1,25 +1,50 @@
 {
   "title": "SwiGLU",
   "description": "A gated FFN design that splits the hidden expansion into value and gate branches, then uses SiLU to scale the result.",
+  "openingSummary": "SwiGLU splits the FFN expansion into value and gate branches, uses SiLU on the gate, and multiplies them together before projection so the block can choose which hidden features stay strong.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
       "body": "SwiGLU is a feed-forward variant used in many modern language models. Instead of one expanded hidden branch, the FFN creates two branches after attention: a value branch and a gate branch. The gate branch passes through a SiLU activation, then multiplies the value branch element by element before the block projects back to model width."
     },
-    "whyItMatters": {
-      "title": "Why It Matters",
-      "body": "A standard FFN uses one activation on one expanded vector. SwiGLU changes the block shape by adding a separate learned gate, which lets the FFN decide more precisely which hidden features should stay strong for each token. That usually makes it a better comparison to standard FFN than to mixture of experts: SwiGLU is still one dense per-token block, while MoE changes the slot into sparse routed experts."
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "SwiGLU optimizes for a more selective dense hidden path. Instead of treating every hidden feature the same way, it lets a learned gate strengthen or suppress each feature before the final projection."
     },
-    "simpleExample": {
-      "title": "Simple Example",
-      "body": "Imagine an FFN expands a token into two vectors of the same width. One vector carries candidate features. The second goes through SiLU and becomes a gate between roughly zero and the original scale. If one gate entry is small, the matching feature in the value branch is suppressed before projection. If the gate entry is large, that feature passes through more strongly."
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "This gives many modern stacks a stronger dense FFN without changing the overall transformer block layout. For a reader, that means the page is best understood as a variant of the standard FFN, not as a separate module family."
     },
-    "commonConfusions": {
-      "title": "Common Confusions",
-      "body": "SwiGLU is not just another name for SiLU. SiLU is the activation on the gate branch, while SwiGLU is the full two-branch FFN pattern built around that activation. SwiGLU also is not mixture of experts: every token still uses the same dense block, so there is no top-k router choosing different experts."
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The token state enters two learned projections. One branch carries candidate values. The other branch becomes a SiLU gate. The two branches multiply elementwise, then the block projects the result back to model width. The slot stays dense because every token still uses the same shared block."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The dense baseline below shows the simpler one-branch FFN. The SwiGLU formula shows the extra gate that turns the same post-attention slot into a two-branch gated path."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "SwiGLU stays closer to the dense FFN baseline than MoE does. It changes how features are filtered inside one dense block rather than changing the slot into a sparse routed expert system."
+    },
+    "variantsAndNearbyModules": {
+      "title": "Variants And Nearby Modules",
+      "body": "These nearby pages show the dense FFN baseline, the broader FFN family context, and the sparse expert alternative that readers often compare against SwiGLU."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Many recent decoder-only language models use gated FFN designs like SwiGLU while keeping the same attention-then-FFN block structure."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "SwiGLU is still a dense block, so every token activates the whole path. It improves selectivity inside the FFN, but it does not add sparse expert capacity the way MoE does."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "SwiGLU appears often enough in modern model descriptions that readers benefit from seeing it as one of the default FFN baselines, not as a rare paper-only detail."
     },
     "related": {
-      "title": "Related Concepts And Modules"
+      "title": "Related"
     },
     "tags": {
       "title": "Tags"
@@ -32,6 +57,96 @@
     "computeFlow": {
       "alt": "SwiGLU graph showing value and gate branches, SiLU on the gate branch, and elementwise multiplication before projection",
       "caption": "SwiGLU changes the standard FFN by splitting the wide hidden state into value and gate branches before multiplying them back together"
+    },
+    "comparisonTable": {
+      "caption": "How SwiGLU compares with nearby FFN variants"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "swiglu": {
+          "title": "SwiGLU"
+        },
+        "standard": {
+          "title": "Standard FFN"
+        },
+        "moe": {
+          "title": "Mixture of experts"
+        }
+      },
+      "dimensions": {
+        "pathShape": "Path shape",
+        "activeCompute": "Active compute per token",
+        "mainTradeoff": "Main tradeoff"
+      },
+      "values": {
+        "swiglu": {
+          "pathShape": "Value branch multiplied by a SiLU gate branch",
+          "activeCompute": "All hidden units plus a learned gate",
+          "mainTradeoff": "More selective dense features, but still full dense compute"
+        },
+        "standard": {
+          "pathShape": "One dense expand -> activate -> project path",
+          "activeCompute": "All hidden units in one shared MLP",
+          "mainTradeoff": "Simpler path, but less selective hidden filtering"
+        },
+        "moe": {
+          "pathShape": "Router selects a few expert MLPs, then merges them",
+          "activeCompute": "Only top-k experts activate for each token",
+          "mainTradeoff": "More capacity, but routing and sparse training become part of the design"
+        }
+      }
+    }
+  },
+  "math": {
+    "standardSchema": {
+      "label": "Standard dense FFN",
+      "formula": "\\mathrm{FFN}(h_t) = W_2\\,\\sigma(W_1 h_t + b_1) + b_2",
+      "variableDefinitions": {
+        "ht": {
+          "term": "h_t",
+          "definition": "Hidden state for token position t."
+        },
+        "w1": {
+          "term": "W_1",
+          "definition": "Projection into the wide hidden layer."
+        },
+        "w2": {
+          "term": "W_2",
+          "definition": "Projection back to model width."
+        },
+        "sigma": {
+          "term": "σ",
+          "definition": "Pointwise activation inside the dense hidden layer."
+        }
+      }
+    },
+    "swigluSchema": {
+      "label": "SwiGLU variant",
+      "formula": "\\mathrm{SwiGLU}(h_t) = W_o\\big((W_v h_t) \\odot \\mathrm{SiLU}(W_g h_t)\\big)",
+      "variableDefinitions": {
+        "ht": {
+          "term": "h_t",
+          "definition": "Hidden state for token position t."
+        },
+        "wv": {
+          "term": "W_v",
+          "definition": "Projection that builds the value branch."
+        },
+        "wg": {
+          "term": "W_g",
+          "definition": "Projection that builds the gate branch."
+        },
+        "wo": {
+          "term": "W_o",
+          "definition": "Projection back to model width after gating."
+        },
+        "odot": {
+          "term": "\\odot",
+          "definition": "Elementwise multiplication between the value and gate branches."
+        }
+      }
     }
   },
   "graph": {
@@ -61,6 +176,5 @@
         "label": "Updated token state"
       }
     }
-  },
-  "openingSummary": "SwiGLU splits the FFN expansion into value and gate branches, uses SiLU on the gate, and multiplies them together before projection so the block can choose which hidden features stay strong."
+  }
 }
