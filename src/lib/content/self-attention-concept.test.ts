@@ -105,7 +105,10 @@ describe("Self-attention concept page (transformer-self-attention-page-001)", ()
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
+    expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('data-testid="tag-pill-list"');
+    expect(html).toContain('href="/tags/attention"');
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");
   });

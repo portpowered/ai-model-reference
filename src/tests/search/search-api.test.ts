@@ -201,6 +201,16 @@ describe("docsSearchApi", () => {
     expectUniqueCanonicalPageUrls(results.map((result) => result.url));
   });
 
+  test("search ranks the canonical self-attention concept first for exact reader queries", async () => {
+    const hyphenatedResults = await docsSearchApi.search("self-attention");
+    const spacedResults = await docsSearchApi.search("self attention");
+
+    expect(hyphenatedResults.length).toBeGreaterThan(0);
+    expect(spacedResults.length).toBeGreaterThan(0);
+    expect(hyphenatedResults[0]?.url).toBe("/docs/concepts/self-attention");
+    expect(spacedResults[0]?.url).toBe("/docs/concepts/self-attention");
+  });
+
   test.each([
     "attention",
     "KV cache",
