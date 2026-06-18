@@ -7,15 +7,29 @@
   "aliases": [
     "RoPE",
     "rotary position embedding",
-    "rotary positional embedding"
+    "rotary positional embedding",
+    "rotary position encoding"
   ],
   "tags": ["foundations"],
-  "relatedIds": ["concept.context-extension", "concept.alibi"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "concept.relative-position-bias",
+    "concept.alibi",
+    "concept.context-extension",
+    "concept.ntk-aware-rope-scaling",
+    "concept.longrope"
+  ],
   "citationIds": ["citation.su-roformer-rope"],
   "status": "published",
   "createdAt": "2026-06-08T00:00:00.000Z",
-  "updatedAt": "2026-06-09T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": ["concept.positional-encodings"],
-  "explainsIds": []
+  "explainsIds": [
+    "concept.superhot-rope",
+    "concept.ntk-aware-rope-scaling",
+    "concept.yarn",
+    "concept.longrope",
+    "concept.positional-interpolation"
+  ]
 }

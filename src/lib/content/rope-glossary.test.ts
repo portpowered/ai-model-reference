@@ -34,18 +34,30 @@ describe("Phase 3 RoPE glossary page (US-009)", () => {
       "RoPE",
       "rotary position embedding",
       "rotary positional embedding",
+      "rotary position encoding",
     ]);
     expect(record?.tags).toEqual(["foundations"]);
     expect(record?.prerequisiteIds).toEqual(["concept.positional-encodings"]);
     expect(record?.relatedIds).toEqual([
-      "concept.context-extension",
+      "concept.positional-encodings",
+      "concept.relative-position-bias",
       "concept.alibi",
+      "concept.context-extension",
+      "concept.ntk-aware-rope-scaling",
+      "concept.longrope",
     ]);
     expect(record?.citationIds).toEqual(["citation.su-roformer-rope"]);
+    expect(record?.explainsIds).toEqual([
+      "concept.superhot-rope",
+      "concept.ntk-aware-rope-scaling",
+      "concept.yarn",
+      "concept.longrope",
+      "concept.positional-interpolation",
+    ]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.rope")).toBe(true);
   });
 
-  test("curated related links context extension and ALiBi with navigable hrefs", () => {
+  test("curated related links bridge the position family and RoPE extension pages", () => {
     const source = getConceptById("concept.rope");
     if (!source) {
       throw new Error("expected concept.rope in registry");
@@ -57,6 +69,20 @@ describe("Phase 3 RoPE glossary page (US-009)", () => {
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
 
+    const positionalEncodings = items.find(
+      (item) => item.registryId === "concept.positional-encodings",
+    );
+    expect(positionalEncodings?.href).toBe(
+      "/docs/concepts/positional-encodings",
+    );
+    expect(positionalEncodings?.isPlanned).toBe(false);
+
+    const relativeBias = items.find(
+      (item) => item.registryId === "concept.relative-position-bias",
+    );
+    expect(relativeBias?.href).toBe("/docs/glossary/relative-position-bias");
+    expect(relativeBias?.isPlanned).toBe(false);
+
     const contextExtension = items.find(
       (item) => item.registryId === "concept.context-extension",
     );
@@ -66,6 +92,18 @@ describe("Phase 3 RoPE glossary page (US-009)", () => {
     const alibi = items.find((item) => item.registryId === "concept.alibi");
     expect(alibi?.href).toBe("/docs/glossary/alibi");
     expect(alibi?.isPlanned).toBe(false);
+
+    const ntkAware = items.find(
+      (item) => item.registryId === "concept.ntk-aware-rope-scaling",
+    );
+    expect(ntkAware?.href).toBe("/docs/glossary/ntk-aware-rope-scaling");
+    expect(ntkAware?.isPlanned).toBe(false);
+
+    const longrope = items.find(
+      (item) => item.registryId === "concept.longrope",
+    );
+    expect(longrope?.href).toBe("/docs/glossary/longrope");
+    expect(longrope?.isPlanned).toBe(false);
   });
 
   test("messages explain rotary query/key rotation and relative distance", () => {
@@ -111,8 +149,12 @@ describe("Phase 3 RoPE glossary page (US-009)", () => {
     expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain("Su, Jianlin, et al.");
     expect(html).toContain("https://arxiv.org/abs/2104.09864");
+    expect(html).toContain('href="/docs/concepts/positional-encodings"');
+    expect(html).toContain('href="/docs/glossary/relative-position-bias"');
     expect(html).toContain('href="/docs/glossary/alibi"');
     expect(html).toContain('href="/docs/concepts/context-extension"');
+    expect(html).toContain('href="/docs/glossary/ntk-aware-rope-scaling"');
+    expect(html).toContain('href="/docs/glossary/longrope"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="curated-related-docs"');

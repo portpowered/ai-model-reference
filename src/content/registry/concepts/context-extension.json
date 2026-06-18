@@ -14,6 +14,8 @@
     "concept.context-window",
     "concept.rope",
     "concept.why-long-context-is-hard",
+    "concept.positional-interpolation",
+    "concept.longrope",
     "module.grouped-query-attention",
     "module.attention"
   ],
@@ -23,5 +25,11 @@
   "updatedAt": "2026-06-09T21:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": ["concept.context-window", "concept.rope"],
-  "explainsIds": []
+  "explainsIds": [
+    "concept.superhot-rope",
+    "concept.ntk-aware-rope-scaling",
+    "concept.yarn",
+    "concept.longrope",
+    "concept.positional-interpolation"
+  ]
 }

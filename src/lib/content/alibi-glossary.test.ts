@@ -34,19 +34,22 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
       "ALiBi",
       "attention with linear biases",
       "attention linear bias",
+      "linear attention bias",
     ]);
     expect(record?.tags).toEqual(["foundations"]);
     expect(record?.prerequisiteIds).toEqual(["concept.positional-encodings"]);
     expect(record?.relatedIds).toEqual([
       "concept.positional-encodings",
+      "concept.relative-position-bias",
       "concept.rope",
       "concept.context-window",
+      "concept.nope",
     ]);
     expect(record?.citationIds).toEqual(["citation.press-alibi"]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.alibi")).toBe(true);
   });
 
-  test("curated related links positional encodings, RoPE, and context window with navigable hrefs", () => {
+  test("curated related links positional encodings, relative bias, RoPE, and NoPE with navigable hrefs", () => {
     const source = getConceptById("concept.alibi");
     if (!source) {
       throw new Error("expected concept.alibi in registry");
@@ -66,6 +69,12 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
     );
     expect(positionalEncodings?.isPlanned).toBe(false);
 
+    const relativeBias = items.find(
+      (item) => item.registryId === "concept.relative-position-bias",
+    );
+    expect(relativeBias?.href).toBe("/docs/glossary/relative-position-bias");
+    expect(relativeBias?.isPlanned).toBe(false);
+
     const rope = items.find((item) => item.registryId === "concept.rope");
     expect(rope?.href).toBe("/docs/glossary/rope");
     expect(rope?.isPlanned).toBe(false);
@@ -75,6 +84,10 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
     );
     expect(contextWindow?.href).toBe("/docs/glossary/context-window");
     expect(contextWindow?.isPlanned).toBe(false);
+
+    const nope = items.find((item) => item.registryId === "concept.nope");
+    expect(nope?.href).toBe("/docs/glossary/nope");
+    expect(nope?.isPlanned).toBe(false);
   });
 
   test("messages explain distance-based attention biases and contrast with RoPE", () => {
@@ -121,8 +134,10 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
     expect(html).toContain("Press, Ofir, et al.");
     expect(html).toContain("https://arxiv.org/abs/2108.12409");
     expect(html).toContain('href="/docs/concepts/positional-encodings"');
+    expect(html).toContain('href="/docs/glossary/relative-position-bias"');
     expect(html).toContain('href="/docs/glossary/rope"');
     expect(html).toContain('href="/docs/glossary/context-window"');
+    expect(html).toContain('href="/docs/glossary/nope"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="curated-related-docs"');
