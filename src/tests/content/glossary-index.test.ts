@@ -57,6 +57,7 @@ describe("loadPublishedGlossaryEntries", () => {
       ["/docs/glossary/prefill-decode-split", "Prefill/decode split"],
       ["/docs/glossary/transformer", "Transformer"],
       ["/docs/glossary/vector", "Vector"],
+      ["/docs/glossary/vocabulary-size", "Vocabulary Size"],
       ["/docs/glossary/world-model", "World Model"],
     ] as const) {
       const entry = entries.find((item) => item.url === url);
@@ -128,6 +129,7 @@ describe("glossary index page render", () => {
       ["Prefill", "/docs/glossary/prefill"],
       ["Transformer", "/docs/glossary/transformer"],
       ["Vector", "/docs/glossary/vector"],
+      ["Vocabulary Size", "/docs/glossary/vocabulary-size"],
     ] as const) {
       expect(html).toContain(title);
       expect(html).toContain(`href="${href}"`);

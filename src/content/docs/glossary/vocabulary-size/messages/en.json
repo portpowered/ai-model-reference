@@ -1,0 +1,32 @@
+{
+  "title": "Vocabulary Size",
+  "description": "The total number of token IDs a tokenizer can emit, including ordinary text pieces and reserved control tokens that occupy part of the same table.",
+  "openingSummary": "Vocabulary size is the count of entries in a tokenizer's token table. It matters because that count affects how text gets split into tokens, how large the embedding and output tables are, and how to read model-card numbers without mistaking them for a quality score.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Vocabulary size is how many distinct token IDs a tokenizer knows about. Each ID points to one entry in the same vocabulary table the model uses for token lookup, so the count covers common word pieces, punctuation, byte-level fragments, and any reserved control entries."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "People often see vocabulary size in tokenizer configs or model cards and assume a larger number means a better model. That is not how it works. A larger vocabulary can let common strings stay in fewer tokens, but it also grows the embedding table and the final vocabulary projection, and it can make rare forms less shared across words. A smaller vocabulary reuses pieces more aggressively, which can improve coverage but may turn the same sentence into a longer token sequence."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine one tokenizer with 32,000 entries and another with 100,000. The larger one may store more whole words or longer fragments, so some names or domain terms split into fewer tokens. The smaller one may break those same strings into more pieces, which increases sequence length even though both tokenizers can still represent the text."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Vocabulary size is not hidden size: hidden size is the width of each embedding vector, while vocabulary size is the number of rows in the table. It also is not a count of only ordinary words. Reserved tokens such as beginning-of-sequence, end-of-sequence, padding, mask, or other control markers are usually included in the published total, so the headline number is larger than the set of everyday text pieces alone."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

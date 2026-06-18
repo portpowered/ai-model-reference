@@ -165,6 +165,12 @@ export const HIDDEN_SIZE_GLOSSARY_PAGE_DIR = join(
   "hidden-size",
 );
 
+/** Vocabulary size glossary page directory. */
+export const VOCABULARY_SIZE_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "vocabulary-size",
+);
+
 /** Phase 3 feed-forward network glossary page directory. */
 export const FEED_FORWARD_NETWORK_GLOSSARY_PAGE_DIR = join(
   MODULES_DOCS_ROOT,

@@ -210,6 +210,21 @@ describe("Phase 1 discovery route smoke", () => {
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
   });
 
+  test("/docs/glossary/vocabulary-size loads published local docs content", async () => {
+    const page = await loadLocalDocsPage({
+      section: "glossary",
+      slug: "vocabulary-size",
+    });
+
+    expect(page.messages.title).toBe("Vocabulary Size");
+    expect(page.frontmatter.registryId).toBe("concept.vocabulary-size");
+    expect(page.messages.callouts).toBeUndefined();
+    expect(
+      page.messages.sections?.commonConfusions.body?.toLowerCase(),
+    ).toContain("reserved tokens");
+    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+  });
+
   test("/docs/modules/grouped-query-attention loads published local docs content", async () => {
     const page = await loadLocalDocsPage({
       section: "modules",

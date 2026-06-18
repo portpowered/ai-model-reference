@@ -65,6 +65,7 @@ const CURRENT_GLOSSARY_SLUGS = [
   "conditioning",
   "denoising-generation",
   "diffusion-model",
+  "vocabulary-size",
 ] as const;
 
 const EXPECTED_GLOSSARY_TITLES: Record<
@@ -127,10 +128,11 @@ const EXPECTED_GLOSSARY_TITLES: Record<
   "top-p-sampling": "Top-P Sampling",
   transformer: "Transformer",
   vector: "Vector",
+  "vocabulary-size": "Vocabulary Size",
   "world-model": "World Model",
 };
 
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 57;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 58;
 const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 46;
 
 const GLOSSARY_SEPARATOR_TITLES = [

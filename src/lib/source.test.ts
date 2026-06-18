@@ -59,6 +59,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/top-p-sampling",
   "/docs/glossary/transformer",
   "/docs/glossary/vector",
+  "/docs/glossary/vocabulary-size",
   "/docs/glossary/world-model",
 ] as const;
 
