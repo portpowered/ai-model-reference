@@ -81,6 +81,47 @@ describe("docs sidebar navigation accessibility", () => {
     expect(document.activeElement).toBe(gqaLink);
   });
 
+  test("rendered docs sidebar shows registry-driven separators for glossary, concepts, and modules", async () => {
+    captureOriginalFetch();
+    await installDocsSearchFetchMock();
+    const context = await loadAppTestContext();
+
+    await act(async () => {
+      await renderWithAppProviders(
+        <CanonicalDocsLayout messages={context.messages}>
+          <p>Fixture article</p>
+        </CanonicalDocsLayout>,
+        { context },
+      );
+    });
+
+    const sidebar = document.getElementById("nd-sidebar");
+    expect(sidebar).toBeTruthy();
+    if (!sidebar) {
+      throw new Error("expected Fumadocs docs sidebar");
+    }
+
+    for (const folderName of ["Glossary", "Concepts", "Modules"] as const) {
+      const folder = within(sidebar).getByRole("button", { name: folderName });
+      await act(async () => {
+        folder.click();
+      });
+    }
+
+    expect(within(sidebar).getByText("Sequence And Attention")).toBeTruthy();
+    expect(within(sidebar).getByRole("link", { name: "Token" })).toBeTruthy();
+
+    expect(within(sidebar).getByText("Long Context")).toBeTruthy();
+    expect(
+      within(sidebar).getByRole("link", { name: "Context extension" }),
+    ).toBeTruthy();
+
+    expect(within(sidebar).getByText("Attention Variants")).toBeTruthy();
+    expect(
+      within(sidebar).getByRole("link", { name: "Grouped-Query Attention" }),
+    ).toBeTruthy();
+  });
+
   test("localized docs shell preserves locale while exposing only shipped Vietnamese docs links", async () => {
     captureOriginalFetch();
     await installDocsSearchFetchMock();
