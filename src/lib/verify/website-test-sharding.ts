@@ -1,7 +1,7 @@
 import { availableParallelism } from "node:os";
 
 export const defaultLocalWebsiteTestWorkers = 4;
-export const defaultCiWebsiteTestWorkers = 2;
+export const defaultCiWebsiteTestWorkers = 1;
 
 export function resolveWebsiteTestShardWorkers(
   rawWorkers: string | undefined,
