@@ -1,0 +1,29 @@
+{
+  "id": "citation.quantization-integer-only-inference",
+  "slug": "quantization-integer-only-inference",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["integer-only quantization paper", "Jacob quantization paper"],
+  "tags": ["quantization"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Benoit Jacob",
+    "Skirmantas Kligys",
+    "Bo Chen",
+    "Menglong Zhu",
+    "Matthew Tang",
+    "Andrew Howard",
+    "Hartwig Adam",
+    "Dmitry Kalenichenko"
+  ],
+  "title": "Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference",
+  "year": 2017,
+  "url": "https://arxiv.org/abs/1712.05877",
+  "mla": "Jacob, Benoit, et al. \"Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference.\" arXiv, 2017, https://arxiv.org/abs/1712.05877."
+}

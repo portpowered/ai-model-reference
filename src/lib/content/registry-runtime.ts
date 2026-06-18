@@ -50,6 +50,7 @@ import perplexityConcept from "@/content/registry/concepts/perplexity.json";
 import positionalEncodingsConcept from "@/content/registry/concepts/positional-encodings.json";
 import prefillConcept from "@/content/registry/concepts/prefill.json";
 import prefillDecodeSplitConcept from "@/content/registry/concepts/prefill-decode-split.json";
+import quantizationConcept from "@/content/registry/concepts/quantization.json";
 import qkNormConcept from "@/content/registry/concepts/qk-norm.json";
 import reluConcept from "@/content/registry/concepts/relu.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
@@ -171,6 +172,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(rmsnormConcept),
   conceptRecordSchema.parse(alibiConcept),
   conceptRecordSchema.parse(positionalEncodingsConcept),
+  conceptRecordSchema.parse(quantizationConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
   conceptRecordSchema.parse(skipConnectionConcept),
   conceptRecordSchema.parse(ropeConcept),

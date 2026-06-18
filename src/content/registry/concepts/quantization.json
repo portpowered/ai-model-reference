@@ -1,0 +1,31 @@
+{
+  "id": "concept.quantization",
+  "slug": "quantization",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "model quantization",
+    "low-bit inference",
+    "low precision inference"
+  ],
+  "tags": ["quantization"],
+  "relatedIds": [
+    "concept.parameter",
+    "concept.activation",
+    "concept.autoregressive-generation",
+    "module.multi-query-attention",
+    "module.grouped-query-attention"
+  ],
+  "citationIds": [
+    "citation.quantization-integer-only-inference",
+    "citation.qlora",
+    "citation.kivi-kv-cache-quantization"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": ["concept.parameter", "concept.activation"],
+  "explainsIds": []
+}

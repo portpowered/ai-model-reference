@@ -35,6 +35,7 @@ describe("registry-runtime", () => {
       "concept.kv-cache",
       "concept.decode",
       "concept.prefill-decode-split",
+      "concept.quantization",
     ]);
   });
 
@@ -95,6 +96,7 @@ describe("registry-runtime", () => {
       "concept.kv-cache",
       "concept.decode",
       "concept.prefill-decode-split",
+      "concept.quantization",
     ]);
   });
 

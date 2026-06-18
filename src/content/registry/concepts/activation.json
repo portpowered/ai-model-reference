@@ -6,7 +6,7 @@
   "defaultSummaryKey": "description",
   "aliases": ["activations", "hidden activation", "layer output"],
   "tags": ["token-to-probability-chain", "foundations"],
-  "relatedIds": ["concept.computational-graph"],
+  "relatedIds": ["concept.computational-graph", "concept.quantization"],
   "citationIds": [],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",

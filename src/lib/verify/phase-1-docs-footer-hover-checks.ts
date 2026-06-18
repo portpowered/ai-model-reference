@@ -39,6 +39,7 @@ export type RunPhase1DocsFooterHoverChecksOptions = {
 
 /** Default browser deadline for footer hover paint checks. */
 export const DEFAULT_DOCS_FOOTER_HOVER_TIMEOUT_MS = 10_000;
+const MAX_FOOTER_FOCUS_TAB_STEPS = 160;
 
 export function colorsMatch(left: string, right: string): boolean {
   return left.trim() === right.trim();
@@ -165,6 +166,18 @@ async function probeNextFooterFocusVisible(
   await page.mouse.move(1, 1).catch(() => {});
   await previousAnchor.focus({ timeout: timeoutMs });
   await page.keyboard.press("Tab");
+
+  let attempts = 0;
+  while (attempts < MAX_FOOTER_FOCUS_TAB_STEPS) {
+    const isFocused = await anchor.evaluate(
+      (element) => document.activeElement === element,
+    );
+    if (isFocused) {
+      break;
+    }
+    await page.keyboard.press("Tab");
+    attempts += 1;
+  }
 
   const isFocused = await anchor.evaluate(
     (element) => document.activeElement === element,

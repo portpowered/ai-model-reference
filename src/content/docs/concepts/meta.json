@@ -5,6 +5,8 @@
     "[Context extension](/docs/concepts/context-extension)",
     "[Positional encodings](/docs/concepts/positional-encodings)",
     "[Why long context is hard](/docs/concepts/why-long-context-is-hard)",
+    "---Inference---",
+    "[Quantization](/docs/concepts/quantization)",
     "---Architecture---",
     "[Transformer architecture](/docs/concepts/transformer-architecture)",
     "---Reference Samples---",

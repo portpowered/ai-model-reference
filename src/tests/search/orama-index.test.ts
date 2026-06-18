@@ -54,6 +54,7 @@ const TOP_K_SAMPLING_URL = "/docs/glossary/top-k-sampling";
 const TOP_P_SAMPLING_URL = "/docs/glossary/top-p-sampling";
 const CONTEXT_EXTENSION_URL = "/docs/concepts/context-extension";
 const WHY_LONG_CONTEXT_IS_HARD_URL = "/docs/concepts/why-long-context-is-hard";
+const QUANTIZATION_URL = "/docs/concepts/quantization";
 const STRUCTURAL_TAXONOMY_URLS = [
   "/docs/glossary/model",
   "/docs/glossary/architecture",
@@ -157,6 +158,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   CONTEXT_WINDOW_URL,
   CONTEXT_EXTENSION_URL,
   WHY_LONG_CONTEXT_IS_HARD_URL,
+  QUANTIZATION_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
   ...REPRESENTATION_LATENT_URLS,

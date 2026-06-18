@@ -1,0 +1,29 @@
+{
+  "id": "citation.kivi-kv-cache-quantization",
+  "slug": "kivi-kv-cache-quantization",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["KIVI paper", "KV cache quantization paper"],
+  "tags": ["quantization", "kv-cache"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Zirui Liu",
+    "Jiayi Yuan",
+    "Hongye Jin",
+    "Shaochen Zhong",
+    "Zhaozhuo Xu",
+    "Vladimir Braverman",
+    "Beidi Chen",
+    "Xia Hu"
+  ],
+  "title": "KIVI: A Tuning-Free Asymmetric 2bit Quantization for KV Cache",
+  "year": 2024,
+  "url": "https://arxiv.org/abs/2402.02750",
+  "mla": "Liu, Zirui, et al. \"KIVI: A Tuning-Free Asymmetric 2bit Quantization for KV Cache.\" arXiv, 2024, https://arxiv.org/abs/2402.02750."
+}
