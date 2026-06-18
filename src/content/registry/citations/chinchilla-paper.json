@@ -1,0 +1,29 @@
+{
+  "id": "citation.chinchilla-paper",
+  "slug": "chinchilla-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Chinchilla paper",
+    "Chinchilla",
+    "Training Compute-Optimal Large Language Models"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": ["model.chinchilla"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Jordan Hoffmann",
+    "Sebastian Borgeaud",
+    "Arthur Mensch",
+    "Elena Buchatskaya"
+  ],
+  "title": "Training Compute-Optimal Large Language Models",
+  "url": "https://arxiv.org/abs/2203.15556",
+  "mla": "Hoffmann, Jordan, et al. \"Training Compute-Optimal Large Language Models.\" arXiv, 2022, https://arxiv.org/abs/2203.15556.",
+  "year": 2022
+}

@@ -145,3 +145,47 @@ describe("chapter 7 BERT and T5 checkpoint support", () => {
     );
   });
 });
+
+describe("chapter 7 foundational checkpoint pages", () => {
+  test("published docs discovery includes PaLM and Chinchilla", async () => {
+    const pages = await loadPublishedDocsPages("en");
+    const urls = pages.map((page) => page.url);
+
+    expect(urls).toEqual(
+      expect.arrayContaining(["/docs/models/palm", "/docs/models/chinchilla"]),
+    );
+  });
+
+  test("PaLM and Chinchilla render canonical sections with decoder-only and autoregressive links plus explicit training empty states", async () => {
+    const palm = await loadModelPage("palm");
+    const chinchilla = await loadModelPage("chinchilla");
+
+    const palmHtml = renderToStaticMarkup(
+      <ModulePageProviders messages={palm.messages} assets={palm.assets}>
+        {palm.content}
+      </ModulePageProviders>,
+    );
+    const chinchillaHtml = renderToStaticMarkup(
+      <ModulePageProviders
+        messages={chinchilla.messages}
+        assets={chinchilla.assets}
+      >
+        {chinchilla.content}
+      </ModulePageProviders>,
+    );
+
+    expect(palmHtml).toContain('data-testid="model-at-a-glance"');
+    expect(palmHtml).toContain('data-testid="model-module-list"');
+    expect(palmHtml).toContain("/docs/models/decoder-only-models");
+    expect(palmHtml).toContain("/docs/models/autoregressive-models");
+    expect(palmHtml).toContain("Structured paper links are not available yet.");
+
+    expect(chinchillaHtml).toContain('data-testid="model-at-a-glance"');
+    expect(chinchillaHtml).toContain('data-testid="model-module-list"');
+    expect(chinchillaHtml).toContain("/docs/models/decoder-only-models");
+    expect(chinchillaHtml).toContain("/docs/models/autoregressive-models");
+    expect(chinchillaHtml).toContain(
+      "Structured training-regime details are not available yet.",
+    );
+  });
+});

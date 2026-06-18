@@ -1,0 +1,37 @@
+{
+  "id": "model.palm",
+  "slug": "palm",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["PaLM", "Pathways Language Model", "Google PaLM"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "concept.transformer",
+    "concept.causal-attention",
+    "concept.autoregressive-generation",
+    "concept.scaling-law",
+    "module.attention",
+    "module.multi-head-attention"
+  ],
+  "citationIds": ["citation.palm-paper", "citation.attention-is-all-you-need"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "foundational-checkpoints",
+  "sourceType": "research",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.causal-attention",
+    "concept.autoregressive-generation"
+  ],
+  "moduleIds": ["module.attention", "module.multi-head-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2022-04-05",
+  "parameterCount": "540B"
+}

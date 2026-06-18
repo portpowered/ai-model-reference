@@ -1,0 +1,40 @@
+{
+  "title": "PaLM",
+  "description": "A decoder-only Transformer checkpoint from Google that pushed large-scale language-model scaling and few-shot behavior into the mainstream Pathways era.",
+  "openingSummary": "PaLM matters because it shows a giant decoder-only Transformer at the point where scale itself became part of the story, giving readers a concrete checkpoint for decoder-only architecture, autoregressive generation, and why later model families kept chasing larger pretraining runs.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "PaLM is a research language model introduced by Google in 2022. It is a text-only decoder-only Transformer trained at very large scale with the Pathways system. In this atlas, it works as a clean checkpoint page for readers who want a named model that sits farther along the same broad decoder-only line as GPT-2."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The input is tokenized text. PaLM reads the prompt left to right, updates one hidden state per token position, and predicts a probability distribution over the next token. That output loop makes it part of the same autoregressive family as many later chat and completion systems, even though product layers on top can differ a lot."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "PaLM uses a decoder-only Transformer architecture with causal attention and the standard repeated attention-plus-feed-forward block pattern. The key contrast with BERT and T5 is architectural role: PaLM keeps one causal stack for generation instead of an encoder-only reader or a split encoder-decoder system. That is why the most relevant category links here are decoder-only models and autoregressive models."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The module story is still the familiar Transformer recipe: attention lets each token position use earlier context, while feed-forward layers reshape the representation between attention steps. PaLM matters less because it introduced a brand-new core block and more because it showed how far the standard decoder-only stack could go when scaled aggressively."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public PaLM summaries emphasize large-scale next-token pretraining and the system effort required to train a dense model at that size. In this bounded atlas slice, structured training-regime, dataset, and paper relationship fields remain optional, so the page keeps the training shell visible and shows explicit unavailable states where richer registry metadata has not been filled in yet."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "PaLM is useful here as a historical scaling waypoint. It helps readers separate two ideas that often get blurred together: decoder-only architecture on one side, and massive pretraining scale on the other. That makes it easier to compare later frontier checkpoints without treating every capability jump as a brand-new architecture."
+    },
+    "related": {
+      "title": "Related Categories And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

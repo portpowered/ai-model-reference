@@ -1,0 +1,25 @@
+{
+  "id": "citation.palm-paper",
+  "slug": "palm-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["PaLM paper", "PaLM", "Pathways Language Model"],
+  "tags": ["foundations"],
+  "relatedIds": ["model.palm"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Aakanksha Chowdhery",
+    "Sharan Narang",
+    "Jacob Devlin",
+    "Maarten Bosma"
+  ],
+  "title": "PaLM: Scaling Language Modeling with Pathways",
+  "url": "https://arxiv.org/abs/2204.02311",
+  "mla": "Chowdhery, Aakanksha, et al. \"PaLM: Scaling Language Modeling with Pathways.\" arXiv, 2022, https://arxiv.org/abs/2204.02311.",
+  "year": 2022
+}

@@ -60,6 +60,7 @@ import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-co
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
 import autoregressiveModels from "@/content/registry/models/autoregressive-models.json";
 import bertModel from "@/content/registry/models/bert.json";
+import chinchillaModel from "@/content/registry/models/chinchilla.json";
 import decoderOnlyModels from "@/content/registry/models/decoder-only-models.json";
 import diffusionModelFamilies from "@/content/registry/models/diffusion-model-families.json";
 import encoderDecoderModels from "@/content/registry/models/encoder-decoder-models.json";
@@ -69,6 +70,7 @@ import maskedLanguageModels from "@/content/registry/models/masked-language-mode
 import modelFamiliesOverview from "@/content/registry/models/model-families-overview.json";
 import multimodalModelFamilies from "@/content/registry/models/multimodal-model-families.json";
 import omniModelFamilies from "@/content/registry/models/omni-model-families.json";
+import palmModel from "@/content/registry/models/palm.json";
 import sequenceToSequenceModels from "@/content/registry/models/sequence-to-sequence-models.json";
 import t5Model from "@/content/registry/models/t5.json";
 import transformerModelFamilies from "@/content/registry/models/transformer-model-families.json";
@@ -176,10 +178,12 @@ const conceptsById = new Map(
 const modelRecords: ModelRecord[] = [
   modelRecordSchema.parse(autoregressiveModels),
   modelRecordSchema.parse(bertModel),
+  modelRecordSchema.parse(chinchillaModel),
   modelRecordSchema.parse(decoderOnlyModels),
   modelRecordSchema.parse(modelFamiliesOverview),
   modelRecordSchema.parse(encoderDecoderModels),
   modelRecordSchema.parse(encoderOnlyModels),
+  modelRecordSchema.parse(palmModel),
   modelRecordSchema.parse(transformerModelFamilies),
   modelRecordSchema.parse(diffusionModelFamilies),
   modelRecordSchema.parse(gpt2Model),

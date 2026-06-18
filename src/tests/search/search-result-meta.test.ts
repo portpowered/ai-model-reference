@@ -18,9 +18,11 @@ import {
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
 const BERT_URL = "/docs/models/bert";
+const CHINCHILLA_URL = "/docs/models/chinchilla";
 const GPT2_URL = "/docs/models/gpt-2";
 const MASKED_LANGUAGE_MODELS_URL = "/docs/models/masked-language-models";
 const MODEL_FAMILIES_OVERVIEW_URL = "/docs/models/model-families-overview";
+const PALM_URL = "/docs/models/palm";
 
 describe("search result meta", () => {
   test("loadSearchResultMetaMap includes grouped-query attention sample", async () => {
@@ -133,6 +135,22 @@ describe("search result meta", () => {
     expect(bertMeta?.aliases).toContain(
       "Bidirectional Encoder Representations from Transformers",
     );
+  });
+
+  test("loadSearchResultMetaMap includes PaLM and Chinchilla as foundation checkpoint results", async () => {
+    const map = await loadSearchResultMetaMap();
+
+    const palmMeta = map.get(PALM_URL);
+    expect(palmMeta).toBeDefined();
+    expect(palmMeta?.kind).toBe("model");
+    expect(palmMeta?.tags).toContain("foundations");
+    expect(palmMeta?.aliases).toContain("Pathways Language Model");
+
+    const chinchillaMeta = map.get(CHINCHILLA_URL);
+    expect(chinchillaMeta).toBeDefined();
+    expect(chinchillaMeta?.kind).toBe("model");
+    expect(chinchillaMeta?.tags).toContain("foundations");
+    expect(chinchillaMeta?.aliases).toContain("DeepMind Chinchilla");
   });
 
   test("buildSearchResultMetaMap keys by url", () => {

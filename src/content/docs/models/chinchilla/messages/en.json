@@ -1,0 +1,40 @@
+{
+  "title": "Chinchilla",
+  "description": "A decoder-only Transformer checkpoint from DeepMind that became the clearest public example of compute-optimal language-model scaling.",
+  "openingSummary": "Chinchilla matters because it gave readers a named checkpoint that made one scaling lesson memorable: a decoder-only Transformer can improve not just by getting larger, but by balancing model size and training data more carefully under a fixed compute budget.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Chinchilla is a research language model published by DeepMind in 2022. It is a text-only decoder-only Transformer, but its main claim to fame is not a new block design. Instead, it became the public reference point for compute-optimal scaling: how large a model should be, and how much data it should see, for a given training budget."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The input is tokenized text. Chinchilla reads the prompt causally and predicts the next token one step at a time, just like other decoder-only language models. That keeps the interface simple while making the training story the more interesting part of the page."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Chinchilla uses a decoder-only Transformer with causal attention and repeated feed-forward refinement blocks. Architecturally, it sits close to the same broad class as GPT-2 and PaLM. What makes it important is the training-compute lesson attached to that architecture, which is why decoder-only and autoregressive category pages are the right navigation anchors here."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The important modules are still the standard language-model pieces: attention for context mixing and feed-forward layers for per-token transformation. Chinchilla is a useful checkpoint precisely because the core module recipe is familiar. That lets readers focus on the difference between architectural novelty and scaling strategy."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Chinchilla is commonly cited for its compute-optimal training argument: under a fixed budget, model size and training-token count should be balanced more carefully than many earlier giant models did. In this atlas slice, structured training-regime, dataset, and paper relationship fields remain optional, so the page still shows explicit unavailable states where detailed registry links have not been added yet."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Chinchilla is best used here as a bridge between architecture pages and scaling-law pages. It reminds readers that two checkpoints can look similar at the block level while differing sharply in how efficiently they use training compute. That historical contrast matters when reading later frontier-model claims."
+    },
+    "related": {
+      "title": "Related Categories And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

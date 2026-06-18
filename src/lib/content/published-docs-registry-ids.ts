@@ -11,10 +11,12 @@ export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
 export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "model.autoregressive-models",
   "model.bert",
+  "model.chinchilla",
   "model.decoder-only-models",
   "model.model-families-overview",
   "model.encoder-decoder-models",
   "model.encoder-only-models",
+  "model.palm",
   "model.transformer-model-families",
   "model.diffusion-model-families",
   "model.masked-language-models",
