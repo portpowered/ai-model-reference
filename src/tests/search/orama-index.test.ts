@@ -42,6 +42,7 @@ const PREFILL_DECODE_SPLIT_URL = "/docs/glossary/prefill-decode-split";
 const SAMPLING_OVERVIEW_URL = "/docs/glossary/sampling-overview";
 const GREEDY_DECODING_URL = "/docs/glossary/greedy-decoding";
 const TOP_K_SAMPLING_URL = "/docs/glossary/top-k-sampling";
+const TOP_P_SAMPLING_URL = "/docs/glossary/top-p-sampling";
 const CONTEXT_EXTENSION_URL = "/docs/concepts/context-extension";
 const WHY_LONG_CONTEXT_IS_HARD_URL = "/docs/concepts/why-long-context-is-hard";
 const STRUCTURAL_TAXONOMY_URLS = [
@@ -78,6 +79,7 @@ const GENERATION_PARADIGM_URLS = [
   SAMPLING_OVERVIEW_URL,
   GREEDY_DECODING_URL,
   TOP_K_SAMPLING_URL,
+  TOP_P_SAMPLING_URL,
 ] as const;
 const TRAINING_BEHAVIOR_URLS = [
   "/docs/glossary/alignment",

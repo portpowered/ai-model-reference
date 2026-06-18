@@ -236,6 +236,12 @@ export const TOP_K_SAMPLING_GLOSSARY_PAGE_DIR = join(
   "top-k-sampling",
 );
 
+/** Phase 5 top-p sampling glossary page directory. */
+export const TOP_P_SAMPLING_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "top-p-sampling",
+);
+
 /** Phase 3 context extension concept page directory. */
 export const CONTEXT_EXTENSION_CONCEPT_PAGE_DIR = join(
   CONCEPTS_DOCS_ROOT,

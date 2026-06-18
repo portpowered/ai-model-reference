@@ -110,7 +110,7 @@ describe("loadPublishedGlossaryEntries", () => {
 
   it("includes all published glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(61);
+    expect(entries).toHaveLength(62);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -162,6 +162,11 @@ describe("loadPublishedGlossaryEntries", () => {
       (entry) => entry.url === "/docs/glossary/top-k-sampling",
     );
     expect(topKSampling?.title).toBe("Top-K Sampling");
+
+    const topPSampling = entries.find(
+      (entry) => entry.url === "/docs/glossary/top-p-sampling",
+    );
+    expect(topPSampling?.title).toBe("Top-P Sampling");
   });
 });
 
@@ -231,6 +236,8 @@ describe("glossary index page render", () => {
     expect(html).toContain('href="/docs/glossary/greedy-decoding"');
     expect(html).toContain("Top-K Sampling");
     expect(html).toContain('href="/docs/glossary/top-k-sampling"');
+    expect(html).toContain("Top-P Sampling");
+    expect(html).toContain('href="/docs/glossary/top-p-sampling"');
     expect(html).toContain("Parameter");
     expect(html).toContain('href="/docs/glossary/parameter"');
     expect(html).toContain("Activation");

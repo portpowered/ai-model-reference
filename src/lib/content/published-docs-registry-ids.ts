@@ -29,6 +29,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.sampling-overview",
   "concept.greedy-decoding",
   "concept.top-k-sampling",
+  "concept.top-p-sampling",
   "concept.parameter",
   "concept.activation",
   "concept.computational-graph",

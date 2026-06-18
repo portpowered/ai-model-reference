@@ -48,6 +48,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   "sampling-overview": "Sampling Overview",
   "greedy-decoding": "Greedy Decoding",
   "top-k-sampling": "Top-K Sampling",
+  "top-p-sampling": "Top-P Sampling",
   parameter: "Parameter",
   activation: "Activation",
   "computational-graph": "Computational Graph",
@@ -72,6 +73,7 @@ const CHAIN_GLOSSARY_SLUGS = [
   "sampling-overview",
   "greedy-decoding",
   "top-k-sampling",
+  "top-p-sampling",
   "parameter",
   "activation",
   "computational-graph",
@@ -80,7 +82,7 @@ const CHAIN_GLOSSARY_SLUGS = [
   "loss-function",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 61;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 62;
 const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 51;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -128,6 +130,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "sampling-overview",
       "greedy-decoding",
       "top-k-sampling",
+      "top-p-sampling",
       "token",
     ] as const) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
@@ -160,6 +163,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "sampling-overview",
       "greedy-decoding",
       "top-k-sampling",
+      "top-p-sampling",
       "token",
     ] as const) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);

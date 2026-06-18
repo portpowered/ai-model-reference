@@ -63,6 +63,7 @@
     "[Greedy Decoding](/docs/glossary/greedy-decoding)",
     "[Sampling Overview](/docs/glossary/sampling-overview)",
     "[Top-K Sampling](/docs/glossary/top-k-sampling)",
+    "[Top-P Sampling](/docs/glossary/top-p-sampling)",
     "[Conditioning](/docs/glossary/conditioning)",
     "[Denoising Generation](/docs/glossary/denoising-generation)",
     "[Diffusion Model](/docs/glossary/diffusion-model)"

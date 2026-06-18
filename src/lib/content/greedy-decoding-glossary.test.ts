@@ -63,7 +63,7 @@ describe("Phase 5 greedy decoding glossary page (phase-5-sampling-basics-decisio
     ).toContain("concept.greedy-decoding");
   });
 
-  test("curated related docs keep published backward links, publish top-k, and leave top-p planned", () => {
+  test("curated related docs keep published backward links and expose both nearby sampling alternatives", () => {
     const source = getConceptById("concept.greedy-decoding");
     if (!source) {
       throw new Error("expected concept.greedy-decoding in registry");
@@ -112,8 +112,8 @@ describe("Phase 5 greedy decoding glossary page (phase-5-sampling-basics-decisio
       items.some(
         (item) =>
           item.registryId === "concept.top-p-sampling" &&
-          item.href === undefined &&
-          item.isPlanned === true,
+          item.href === "/docs/glossary/top-p-sampling" &&
+          item.isPlanned === false,
       ),
     ).toBe(true);
   });
@@ -149,7 +149,7 @@ describe("Phase 5 greedy decoding glossary page (phase-5-sampling-basics-decisio
     );
   });
 
-  test("page renders argmax teaching copy, a published top-k alternative, and a planned top-p alternative", async () => {
+  test("page renders argmax teaching copy and published top-k and top-p alternatives", async () => {
     const page = await loadGlossaryPage("greedy-decoding");
 
     expect(page.frontmatter.kind).toBe("glossary");
@@ -180,10 +180,11 @@ describe("Phase 5 greedy decoding glossary page (phase-5-sampling-basics-decisio
     expect(html).toContain('href="/docs/glossary/temperature"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/top-k-sampling"');
+    expect(html).toContain('href="/docs/glossary/top-p-sampling"');
     expect(html).toContain('data-testid="curated-related-docs"');
-    expect(html).toContain('data-planned="true"');
+    expect(html).not.toContain('data-planned="true"');
     expect(html).toContain("Top K Sampling");
-    expect(html).toContain("Top P Sampling");
+    expect(html).toContain("Top-P Sampling");
     expect(html).not.toContain("Reader Shortcut");
   });
 

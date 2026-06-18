@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { TOP_K_SAMPLING_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
+import { TOP_P_SAMPLING_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryBodyOmitsTitleHeading,
@@ -24,45 +24,48 @@ import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const pageDir = TOP_K_SAMPLING_GLOSSARY_PAGE_DIR;
+const pageDir = TOP_P_SAMPLING_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 
-describe("Phase 5 top-k sampling glossary page (phase-5-sampling-basics-decision-path-003)", () => {
-  test("registry record is published with fixed-count aliases, chain tags, and forward top-p relationship", () => {
-    const record = getConceptById("concept.top-k-sampling");
+describe("Phase 5 top-p sampling glossary page (phase-5-sampling-basics-decision-path-004)", () => {
+  test("registry record is published with nucleus aliases, chain tags, and nearby backward links", () => {
+    const record = getConceptById("concept.top-p-sampling");
     expect(record?.status).toBe("published");
     expect(record?.aliases).toEqual([
-      "Top K Sampling",
-      "top-k sampling",
-      "top k sampling",
-      "k sampling",
-      "fixed-count sampling",
+      "Top-P Sampling",
+      "top-p sampling",
+      "top p sampling",
+      "nucleus sampling",
+      "cumulative-mass sampling",
     ]);
     expect(record?.tags).toEqual(["foundations", "token-to-probability-chain"]);
     expect(record?.relatedIds).toEqual([
       "concept.sampling-overview",
       "concept.greedy-decoding",
+      "concept.top-k-sampling",
       "concept.temperature",
-      "concept.top-p-sampling",
     ]);
-    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.top-k-sampling")).toBe(
+    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.top-p-sampling")).toBe(
       true,
     );
   });
 
-  test("sampling overview and greedy decoding surface top-k as the bounded stochastic follow-on page", () => {
+  test("sampling overview, greedy decoding, and top-k sampling all surface top-p as a published next step", () => {
     expect(getConceptById("concept.sampling-overview")?.relatedIds).toContain(
-      "concept.top-k-sampling",
+      "concept.top-p-sampling",
     );
     expect(getConceptById("concept.greedy-decoding")?.relatedIds).toContain(
-      "concept.top-k-sampling",
+      "concept.top-p-sampling",
+    );
+    expect(getConceptById("concept.top-k-sampling")?.relatedIds).toContain(
+      "concept.top-p-sampling",
     );
   });
 
-  test("curated related docs keep published backward links and publish top-p as the next step", () => {
-    const source = getConceptById("concept.top-k-sampling");
+  test("curated related docs keep the completed chain traversable without a dead end", () => {
+    const source = getConceptById("concept.top-p-sampling");
     if (!source) {
-      throw new Error("expected concept.top-k-sampling in registry");
+      throw new Error("expected concept.top-p-sampling in registry");
     }
 
     const items = deriveCuratedRelatedItems(
@@ -74,6 +77,7 @@ describe("Phase 5 top-k sampling glossary page (phase-5-sampling-basics-decision
     for (const publishedId of [
       ["concept.sampling-overview", "/docs/glossary/sampling-overview"],
       ["concept.greedy-decoding", "/docs/glossary/greedy-decoding"],
+      ["concept.top-k-sampling", "/docs/glossary/top-k-sampling"],
       ["concept.temperature", "/docs/glossary/temperature"],
     ] as const) {
       expect(
@@ -85,35 +89,26 @@ describe("Phase 5 top-k sampling glossary page (phase-5-sampling-basics-decision
         ),
       ).toBe(true);
     }
-
-    expect(
-      items.some(
-        (item) =>
-          item.registryId === "concept.top-p-sampling" &&
-          item.href === "/docs/glossary/top-p-sampling" &&
-          item.isPlanned === false,
-      ),
-    ).toBe(true);
   });
 
-  test("messages teach fixed-count truncation and contrast it with argmax and cumulative-mass truncation", () => {
+  test("messages teach nucleus sampling, cumulative-mass truncation, and the variable candidate count", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
-    expect(messages.title).toBe("Top-K Sampling");
+    expect(messages.title).toBe("Top-P Sampling");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
-      "top k candidates",
+      "cumulative probability mass",
     );
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
-      "discards everything below that cutoff",
+      "threshold p",
     );
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
-      "smaller k values",
+      "number of eligible tokens can change",
     );
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
-      "larger k values",
+      "stability",
     );
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
       "diversity",
@@ -122,22 +117,22 @@ describe("Phase 5 top-k sampling glossary page (phase-5-sampling-basics-decision
       "greedy decoding",
     );
     expect(messages.sections?.simpleExample.body?.toLowerCase()).toContain(
-      "top-p sampling",
+      "top-k sampling",
     );
     expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
-      "fixed number of candidates",
+      "nucleus sampling",
     );
     expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
-      "cumulative probability mass",
+      "variable number",
     );
   });
 
-  test("page renders fixed-count teaching copy, published backward links, and a published top-p link", async () => {
-    const page = await loadGlossaryPage("top-k-sampling");
+  test("page renders cumulative-mass teaching copy and published nearby links", async () => {
+    const page = await loadGlossaryPage("top-p-sampling");
 
     expect(page.frontmatter.kind).toBe("glossary");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.registryId).toBe("concept.top-k-sampling");
+    expect(page.frontmatter.registryId).toBe("concept.top-p-sampling");
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -153,39 +148,38 @@ describe("Phase 5 top-k sampling glossary page (phase-5-sampling-basics-decision
     expectGlossarySingleTagPillList(html);
     expectHtmlToContainProse(
       html,
-      "Top-k sampling first sorts the next-token distribution by probability, keeps only the top k candidates, discards everything below that cutoff, and then samples from the remaining set.",
+      "Top-p sampling sorts the next-token distribution from most likely to least likely, keeps the smallest prefix whose cumulative probability mass crosses a chosen threshold p, and then samples from that retained set.",
     );
     expectHtmlToContainProse(
       html,
-      "Top-p sampling would instead keep however many tokens are needed to cross a cumulative probability threshold, so its candidate count can change from one step to the next.",
+      "Top-k sampling would keep a fixed number of candidates even if the distribution became much sharper or flatter on the next step.",
     );
     expect(html).toContain('href="/docs/glossary/sampling-overview"');
     expect(html).toContain('href="/docs/glossary/greedy-decoding"');
+    expect(html).toContain('href="/docs/glossary/top-k-sampling"');
     expect(html).toContain('href="/docs/glossary/temperature"');
-    expect(html).toContain('href="/docs/glossary/top-p-sampling"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain('data-planned="true"');
-    expect(html).toContain("Top-P Sampling");
     expect(html).not.toContain("Reader Shortcut");
   });
 
-  test("search index records top-k sampling as a glossary page with aliases", async () => {
+  test("search index records top-p sampling as a glossary page with aliases", async () => {
     const registry = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
     const documents = buildSearchDocuments(pages, registry);
 
     const document = documents.find(
-      (entry) => entry.url === "/docs/glossary/top-k-sampling",
+      (entry) => entry.url === "/docs/glossary/top-p-sampling",
     );
     expect(document?.kind).toBe("glossary");
     expect(document?.facets.kind).toBe("glossary");
     expect(document?.aliases).toEqual(
       expect.arrayContaining([
-        "Top K Sampling",
-        "top-k sampling",
-        "top k sampling",
-        "k sampling",
-        "fixed-count sampling",
+        "Top-P Sampling",
+        "top-p sampling",
+        "top p sampling",
+        "nucleus sampling",
+        "cumulative-mass sampling",
       ]),
     );
     expect(document?.tags).toEqual(
@@ -193,17 +187,17 @@ describe("Phase 5 top-k sampling glossary page (phase-5-sampling-basics-decision
     );
   });
 
-  test("search finds top-k sampling by title, aliases, and fixed-count truncation terms", async () => {
+  test("search finds top-p sampling by title, aliases, and cumulative-mass terms", async () => {
     for (const query of [
-      "Top-K Sampling",
-      "top k sampling",
-      "k sampling",
-      "restrict choices to the highest-probability tokens",
+      "Top-P Sampling",
+      "nucleus sampling",
+      "cumulative-mass sampling",
+      "smallest set whose cumulative probability mass crosses a threshold",
     ] as const) {
       const results = await docsSearchApi.search(query);
       expect(
         results.some(
-          (result) => result.url === "/docs/glossary/top-k-sampling",
+          (result) => result.url === "/docs/glossary/top-p-sampling",
         ),
       ).toBe(true);
     }
