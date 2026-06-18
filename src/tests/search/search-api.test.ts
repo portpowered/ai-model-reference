@@ -28,6 +28,11 @@ import {
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
+const STATIC_CLIENT_GQA_URL = `${TEST_DOCS_SEARCH_URL}?static-client=gqa`;
+const STATIC_CLIENT_ATTENTION_URL =
+  `${TEST_DOCS_SEARCH_URL}?static-client=attention`;
+const STATIC_CLIENT_KV_CACHE_URL =
+  `${TEST_DOCS_SEARCH_URL}?static-client=kv-cache`;
 
 describe("Phase 1 /api/search regression", () => {
   for (const assertion of PHASE_1_SEARCH_ASSERTIONS) {
@@ -325,7 +330,7 @@ describe("docs search static client", () => {
   test("orama static client returns grouped-query attention for GQA", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+    const client = oramaStaticClient({ from: STATIC_CLIENT_GQA_URL });
     const results = await client.search("GQA");
 
     expect(results.length).toBeGreaterThan(0);
@@ -335,7 +340,7 @@ describe("docs search static client", () => {
   test("orama static client returns non-empty attention results before app-level reranking", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+    const client = oramaStaticClient({ from: STATIC_CLIENT_ATTENTION_URL });
     const results = await client.search("attention");
 
     expect(results.length).toBeGreaterThan(0);
@@ -345,7 +350,7 @@ describe("docs search static client", () => {
   test("orama static client includes grouped-query attention for KV cache", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+    const client = oramaStaticClient({ from: STATIC_CLIENT_KV_CACHE_URL });
     const results = await client.search("KV cache");
 
     expect(results.length).toBeGreaterThan(0);
