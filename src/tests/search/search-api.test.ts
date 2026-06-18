@@ -342,16 +342,17 @@ describe("docs search static client", () => {
     expect(results[0]?.url).toBe(SAMPLE_URL);
   });
 
-  test("orama static client returns non-empty attention results before app-level reranking", async () => {
+  test("orama static client returns the canonical self-attention page for exact reader queries before app-level reranking", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
     const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const results = await client.search("attention");
+    const hyphenatedResults = await client.search("self-attention");
+    const spacedResults = await client.search("self attention");
 
-    expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeUrl(results, "/docs/concepts/self-attention")).toBe(
-      true,
-    );
+    expect(hyphenatedResults.length).toBeGreaterThan(0);
+    expect(spacedResults.length).toBeGreaterThan(0);
+    expect(hyphenatedResults[0]?.url).toBe("/docs/concepts/self-attention");
+    expect(spacedResults[0]?.url).toBe("/docs/concepts/self-attention");
   });
 
   test("orama static client includes grouped-query attention for KV cache", async () => {
