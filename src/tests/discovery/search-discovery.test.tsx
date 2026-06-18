@@ -116,6 +116,19 @@ describe("Phase 1 search discovery", () => {
       true,
     );
   });
+
+  test.each([
+    "vocabulary size",
+    "vocab size",
+    "tokenizer vocabulary",
+  ] as const)("%s query returns canonical vocabulary-size glossary hit without duplicate pages", async (query) => {
+    const results = await docsSearchApi.search(query);
+    expect(results.length).toBeGreaterThan(0);
+    expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
+    expect(resultsIncludeUrl(results, "/docs/glossary/vocabulary-size")).toBe(
+      true,
+    );
+  });
 });
 
 describe("Phase 1 discovery route smoke", () => {

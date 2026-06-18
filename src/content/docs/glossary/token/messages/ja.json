@@ -36,6 +36,9 @@
     "concept.embedding": {
       "reason": "各 token ID は、モデルが文脈を混ぜる前に学習済みの数値表現へ変換されます。"
     },
+    "concept.vocabulary-size": {
+      "reason": "その語彙数は、tokenizer が ID を割り当てられる通常 token と予約 token の総数を示します。"
+    },
     "concept.logit": {
       "reason": "次 token の予測は、語彙中の各 token 候補に対する score として始まります。"
     },

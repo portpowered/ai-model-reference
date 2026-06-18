@@ -92,6 +92,12 @@ describe("registry-runtime", () => {
       "token-to-probability-chain",
       "foundations",
     ]);
+    expect(record?.relatedIds).toEqual([
+      "concept.embedding",
+      "concept.vocabulary-size",
+      "concept.logit",
+      "concept.softmax",
+    ]);
   });
 
   test("getRegistryTags returns undefined for unknown records", () => {

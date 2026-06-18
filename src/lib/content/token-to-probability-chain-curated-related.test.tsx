@@ -16,7 +16,7 @@ import {
 } from "@/lib/content/related-docs";
 
 describe("Phase 2 token-to-probability chain curated related docs (US-002)", () => {
-  test("token registry curated related resolves embedding as a published forward step", () => {
+  test("token registry curated related resolves embedding and vocabulary size as published forward steps", () => {
     const source = getRegistryRecordById("concept.token");
     if (!source) {
       throw new Error("expected concept.token in registry runtime");
@@ -28,9 +28,10 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
       getPublishedDocsRegistryIds(),
     );
 
-    expect(items).toHaveLength(3);
+    expect(items).toHaveLength(4);
     expect(items.map((item) => item.registryId)).toEqual([
       "concept.embedding",
+      "concept.vocabulary-size",
       "concept.logit",
       "concept.softmax",
     ]);
@@ -55,10 +56,12 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-related-group="curated-related"');
     expect(html).toContain("embeddings");
+    expect(html).toContain("vocabulary size");
     expect(html).toContain("logits");
     expect(html).toContain("softmax function");
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
     expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');
   });
@@ -77,10 +80,14 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain("embeddings");
     expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');
     expect(html).toContain(
       "Each token ID becomes a learned numerical representation before the model mixes context.",
+    );
+    expect(html).toContain(
+      "That vocabulary count tells you how many ordinary and reserved tokens the tokenizer can emit IDs for.",
     );
     expect(html).toContain(
       "Next-token prediction starts as a candidate score for each vocabulary token.",

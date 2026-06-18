@@ -79,7 +79,7 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
     }
   });
 
-  test("token curated relatedIds expose embedding, logit, and softmax without prose-only links", () => {
+  test("token curated relatedIds expose embedding, vocabulary size, logit, and softmax without prose-only links", () => {
     const token = getRegistryRecordById("concept.token");
     if (!token) {
       throw new Error("expected concept.token in registry runtime");
@@ -87,6 +87,7 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
 
     expect(token.relatedIds).toEqual([
       "concept.embedding",
+      "concept.vocabulary-size",
       "concept.logit",
       "concept.softmax",
     ]);
@@ -99,6 +100,7 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
 
     expect(items.map((item) => item.registryId)).toEqual([
       "concept.embedding",
+      "concept.vocabulary-size",
       "concept.logit",
       "concept.softmax",
     ]);
