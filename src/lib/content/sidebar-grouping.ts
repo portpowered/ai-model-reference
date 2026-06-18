@@ -61,6 +61,28 @@ export type SidebarGroupingValidationIssue = {
   message: string;
 };
 
+type GlossarySidebarRecord = {
+  conceptType: string;
+  sidebarGrouping?: SidebarGrouping;
+};
+
+type ConceptsSidebarRecord = GlossarySidebarRecord;
+
+type ModulesSidebarRecord = {
+  moduleType: string;
+  sidebarGrouping?: SidebarGrouping;
+};
+
+type TrainingSidebarRecord = {
+  regimeType: string;
+  sidebarGrouping?: SidebarGrouping;
+};
+
+type SystemsSidebarRecord = {
+  systemType: string;
+  sidebarGrouping?: SidebarGrouping;
+};
+
 export function getSidebarGroupingSectionsForKind(
   kind: SidebarGroupingKind,
 ): readonly SidebarGroupingSection[] {
@@ -79,6 +101,103 @@ export function isSidebarGroupingSection(
   value: string,
 ): value is SidebarGroupingSection {
   return value in SIDEBAR_GROUP_LABELS;
+}
+
+export function getSidebarGroupLabel<Section extends SidebarGroupingSection>(
+  section: Section,
+  groupId: SidebarGroupIdBySection[Section],
+): string {
+  return SIDEBAR_GROUP_LABELS[section][groupId] as string;
+}
+
+export function resolveGlossarySidebarGroup(
+  record: GlossarySidebarRecord,
+): SidebarGroupIdBySection["glossary"] | undefined {
+  if (
+    record.conceptType === "math" ||
+    record.conceptType === "training" ||
+    record.conceptType === "evaluation"
+  ) {
+    return "math-and-training";
+  }
+
+  const editorialGroup = record.sidebarGrouping?.glossary;
+  if (editorialGroup) {
+    return editorialGroup;
+  }
+
+  if (record.conceptType !== "inference") {
+    return "model-taxonomy";
+  }
+
+  return undefined;
+}
+
+export function resolveConceptsSidebarGroup(
+  record: ConceptsSidebarRecord,
+): SidebarGroupIdBySection["concepts"] | undefined {
+  if (record.conceptType === "inference") {
+    return "inference";
+  }
+
+  return record.sidebarGrouping?.concepts;
+}
+
+export function resolveModulesSidebarGroup(
+  record: ModulesSidebarRecord,
+): SidebarGroupIdBySection["modules"] | undefined {
+  if (
+    record.moduleType === "feed-forward" ||
+    record.moduleType === "activation"
+  ) {
+    return "feed-forward-and-activation";
+  }
+
+  if (record.moduleType === "normalization") {
+    return "normalization";
+  }
+
+  if (record.moduleType === "position-encoding") {
+    return "positional-and-sequence-encoding";
+  }
+
+  if (record.moduleType === "attention") {
+    return record.sidebarGrouping?.modules ?? "attention-variants";
+  }
+
+  return record.sidebarGrouping?.modules;
+}
+
+export function resolveTrainingSidebarGroup(
+  record: TrainingSidebarRecord,
+): SidebarGroupIdBySection["training"] | undefined {
+  if (record.regimeType === "post-training") {
+    return "post-training";
+  }
+
+  if (record.regimeType === "distillation") {
+    return "distillation";
+  }
+
+  if (record.regimeType === "optimization") {
+    return "optimization";
+  }
+
+  return record.sidebarGrouping?.training;
+}
+
+export function resolveSystemsSidebarGroup(
+  record: SystemsSidebarRecord,
+): SidebarGroupIdBySection["systems"] | undefined {
+  if (record.systemType === "memory") {
+    return "memory";
+  }
+
+  if (record.systemType === "routing") {
+    return "routing";
+  }
+
+  return record.sidebarGrouping?.systems;
 }
 
 export function validateSidebarGroupingForRecord(
