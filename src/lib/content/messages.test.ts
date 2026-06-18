@@ -109,6 +109,25 @@ describe("loadPageMessages errors", () => {
     });
   });
 
+  test("names the localized route when a shipped ja page is missing canonical messages", async () => {
+    await mkdir(join(tempPageDir, "messages"), { recursive: true });
+
+    await expect(
+      loadPageMessages(tempPageDir, "ja", {
+        route: "/ja/docs/modules/attention",
+      }),
+    ).rejects.toMatchObject({
+      name: "MessageLoadError",
+      message: expect.stringContaining("/ja/docs/modules/attention"),
+      details: [
+        expect.objectContaining({
+          type: "missing-file",
+          locale: "ja",
+        }),
+      ],
+    });
+  });
+
   test("throws when messages fail schema validation", async () => {
     await writeMessagesFixture("en", {
       title: "",
