@@ -125,6 +125,7 @@ import absolutePositionalEmbeddingsModule from "@/content/registry/modules/absol
 import alibiModule from "@/content/registry/modules/alibi.json";
 import attention from "@/content/registry/modules/attention.json";
 import batchNormModule from "@/content/registry/modules/batch-norm.json";
+import bidirectionalAttentionModule from "@/content/registry/modules/bidirectional-attention.json";
 import compressedSparseAttentionModule from "@/content/registry/modules/compressed-sparse-attention.json";
 import deepseekMoeModule from "@/content/registry/modules/deepseekmoe.json";
 import feedForwardNetworkModule from "@/content/registry/modules/feed-forward-network.json";
@@ -196,6 +197,7 @@ const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(alibiModule),
   moduleRecordSchema.parse(attention),
   moduleRecordSchema.parse(batchNormModule),
+  moduleRecordSchema.parse(bidirectionalAttentionModule),
   moduleRecordSchema.parse(compressedSparseAttentionModule),
   moduleRecordSchema.parse(deepseekMoeModule),
   moduleRecordSchema.parse(feedForwardNetworkModule),
