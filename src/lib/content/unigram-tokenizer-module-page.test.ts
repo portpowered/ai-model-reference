@@ -69,8 +69,11 @@ describe("loadModulePage unigram-tokenizer", () => {
     expect(html).toContain('href="/tags/token-to-probability-chain"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/glossary/token"');
-    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).not.toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain("Tokenizers Overview");
+    expect(html).toContain("SentencePiece");
     expect(html).toContain("BPE");
+    expect(html).toContain('data-planned="true"');
     expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain("Kudo, Taku, and John Richardson.");
     expect(html).toContain('href="https://arxiv.org/abs/1808.06226"');

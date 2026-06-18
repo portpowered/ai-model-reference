@@ -10,7 +10,12 @@
     "SentencePiece unigram"
   ],
   "tags": ["foundations", "token-to-probability-chain"],
-  "relatedIds": ["concept.token", "concept.embedding", "module.bpe"],
+  "relatedIds": [
+    "concept.token",
+    "concept.tokenizers-overview",
+    "module.sentencepiece",
+    "module.bpe"
+  ],
   "citationIds": [
     "citation.sentencepiece-paper",
     "citation.sennrich-bpe-paper"
