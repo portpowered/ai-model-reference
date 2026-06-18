@@ -146,7 +146,7 @@ export function expectModuleCompanionSections(html: string): void {
     'data-table-id="table.grouped-query-attention-comparison"',
   );
   expect(html).toContain('data-comparison-dimension="cacheFootprint"');
-  expect(html).toContain("KV head count");
+  expect(html).toContain("Key-value head count");
   expect(html).toContain('id="compared-to-nearby-modules"');
   expect(html).toContain('id="related"');
 }

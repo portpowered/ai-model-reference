@@ -10,10 +10,7 @@
     "absolute positional encoding",
     "absolute position encoding"
   ],
-  "tags": [
-    "position-encoding",
-    "foundations"
-  ],
+  "tags": ["position-encoding", "foundations"],
   "relatedIds": [
     "concept.positional-encodings",
     "concept.learned-positional-embeddings",
@@ -27,9 +24,7 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "general",
-  "prerequisiteIds": [
-    "concept.positional-encodings"
-  ],
+  "prerequisiteIds": ["concept.positional-encodings"],
   "explainsIds": [
     "concept.learned-positional-embeddings",
     "concept.sinusoidal-positional-embeddings"

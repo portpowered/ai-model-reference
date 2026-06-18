@@ -4,11 +4,7 @@
   "kind": "citation",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "summary",
-  "aliases": [
-    "QK norm paper",
-    "QKNorm paper",
-    "Query-Key Normalization paper"
-  ],
+  "aliases": ["QK norm paper", "QKNorm paper", "Query-Key Normalization paper"],
   "tags": ["attention"],
   "relatedIds": [],
   "citationIds": [],

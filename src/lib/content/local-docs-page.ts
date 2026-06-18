@@ -8,6 +8,8 @@ import { loadModulePage } from "@/lib/content/module-page";
 import type { LoadedModulePage } from "@/lib/content/module-page-load";
 import { loadPaperPage } from "@/lib/content/paper-page";
 import type { LoadedPaperPage } from "@/lib/content/paper-page-load";
+import { loadSystemPage } from "@/lib/content/system-page";
+import type { LoadedSystemPage } from "@/lib/content/system-page-load";
 import { loadTrainingRegimePage } from "@/lib/content/training-regime-page";
 import type { LoadedTrainingRegimePage } from "@/lib/content/training-regime-page-load";
 import {
@@ -22,7 +24,8 @@ export type LocalDocsPageRef =
   | { section: "modules"; slug: string }
   | { section: "models"; slug: string }
   | { section: "papers"; slug: string }
-  | { section: "training"; slug: string };
+  | { section: "training"; slug: string }
+  | { section: "systems"; slug: string };
 
 export type LoadedLocalDocsPage =
   | LoadedConceptPage
@@ -30,7 +33,8 @@ export type LoadedLocalDocsPage =
   | LoadedModulePage
   | LoadedModelPage
   | LoadedPaperPage
-  | LoadedTrainingRegimePage;
+  | LoadedTrainingRegimePage
+  | LoadedSystemPage;
 
 const LOCAL_DOCS_SECTIONS = new Set([
   "concepts",
@@ -39,6 +43,7 @@ const LOCAL_DOCS_SECTIONS = new Set([
   "models",
   "papers",
   "training",
+  "systems",
 ]);
 
 /** Parses catch-all slug segments for local-message page bundles. */
@@ -99,5 +104,7 @@ export async function loadLocalDocsPage(
       return loadPaperPage(ref.slug, locale);
     case "training":
       return loadTrainingRegimePage(ref.slug, locale);
+    case "systems":
+      return loadSystemPage(ref.slug, locale);
   }
 }

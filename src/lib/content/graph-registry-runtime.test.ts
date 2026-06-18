@@ -137,6 +137,20 @@ describe("graph-registry-runtime", () => {
   });
 
   test("lists all bundled graph records", () => {
-    expect(listGraphRecords().length).toBe(31);
+    const records = listGraphRecords();
+
+    expect(records.length).toBe(43);
+    expect(records.map((record) => record.id)).toContain(
+      "graph.deepseek-v4-contribution",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.deepseek-v4-flash-architecture",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.deepseek-v4-pro-architecture",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.expert-parallel-overlap-system-flow",
+    );
   });
 });

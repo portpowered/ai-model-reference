@@ -3,7 +3,7 @@
 import type * as PageTree from "fumadocs-core/page-tree";
 import { Menu } from "lucide-react";
 import Link from "next/link";
-import { type ReactNode, useId, useState } from "react";
+import { type ReactNode, Suspense, useId, useState } from "react";
 import { FaGithub } from "react-icons/fa";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { MobileDocsDrawer } from "@/components/layout/mobile-docs-drawer";
@@ -77,7 +77,9 @@ export function ModelAtlasDocsHeader({
             />
           </div>
           <div className="pointer-events-auto">
-            <LanguageSwitcher locale={locale} messages={messages} />
+            <Suspense fallback={null}>
+              <LanguageSwitcher locale={locale} messages={messages} />
+            </Suspense>
           </div>
           <div className="pointer-events-auto">
             <Link

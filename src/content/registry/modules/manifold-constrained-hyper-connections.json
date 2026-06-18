@@ -1,0 +1,31 @@
+{
+  "id": "module.manifold-constrained-hyper-connections",
+  "slug": "manifold-constrained-hyper-connections",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["MHC", "manifold constrained hyper connections"],
+  "tags": ["attention", "foundations"],
+  "relatedIds": ["concept.transformer-architecture", "paper.deepseek-v4"],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "releaseDate": "2026-06-13",
+  "authors": ["DeepSeek-AI"],
+  "sourceId": "paper.deepseek-v4",
+  "moduleType": "other",
+  "optimizes": ["depth-stability", "information-routing"],
+  "practicalBenefits": [
+    "lets many layers exchange richer state without fully widening every residual path"
+  ],
+  "exampleModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
+  "introducedByPaperIds": ["paper.deepseek-v4"],
+  "mathLevel": "light",
+  "moduleFamily": "transformer-block",
+  "conceptType": "architecture",
+  "variantGroup": "deepseek-v4-architecture"
+}

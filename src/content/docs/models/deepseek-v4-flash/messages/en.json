@@ -1,0 +1,47 @@
+{
+  "title": "DeepSeek-V4-Flash",
+  "description": "A lighter DeepSeek-V4 serving profile that keeps the same conceptual stack while prioritizing faster deployment paths.",
+  "openingSummary": "DeepSeek-V4-Flash matters because it shows the same paper can produce more than one practical model surface. It keeps the V4 architecture story, but the reader should expect a faster, smaller serving profile instead of the heaviest reasoning mode.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "DeepSeek-V4-Flash is the lighter member of the V4 pair. It still belongs to the same architecture and long-context family, but it is framed as the more deployment-friendly surface."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Like Pro, Flash is a text-in, text-out model. The distinction is operational. It aims to keep the V4 design ideas while making the serving path easier to sustain."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "The same named V4 modules remain central here: compressed sparse attention, heavily compressed attention, DeepSeekMoE routing, and changed block wiring. Flash should be read as a smaller operating point on the same overall design."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "These modules carry the conceptual identity of the model family, even when the deployment target differs from Pro."
+    },
+    "training": {
+      "title": "Training",
+      "body": "The model still inherits the V4 post-training and quantization story. The difference is that Flash emphasizes a more economical runtime target."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "If Pro is the page for maximum capability under the V4 report, Flash is the page for understanding how the same design is pushed toward speed and cost control."
+    },
+    "related": { "title": "Related Models, Modules, And Papers" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "A simplified DeepSeek-V4-Flash architecture path from token input through a modified backbone to token output.",
+      "caption": "Flash keeps the same main architecture story while targeting a lighter deployment profile."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "input": { "label": "Token input" },
+      "backbone": { "label": "DeepSeek-V4 backbone" },
+      "output": { "label": "Token output" }
+    }
+  }
+}

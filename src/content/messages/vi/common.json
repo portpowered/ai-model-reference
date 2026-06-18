@@ -71,10 +71,22 @@
     "tagsRouteDescription": "Duyệt các thẻ chủ đề được tuyển chọn, trải dài qua mô hình, module, khái niệm, và trang thuật ngữ.",
     "modelsSectionTitle": "Mô hình",
     "modelsSectionDescription": "Trang mô hình giải thích một họ mô hình hoặc dòng checkpoint cụ thể, kiến trúc nó dùng, và những module quan trọng nhất cần hiểu trước khi đi sâu hơn.",
+    "modelsSectionLinkLabel": "Duyệt tất cả trang mô hình",
     "modulesSectionTitle": "Module",
     "modulesSectionDescription": "Trang module bóc tách các phần chuyển động bên trong mô hình, như biến thể attention, khối feed-forward, chuẩn hóa, và sơ đồ vị trí.",
+    "modulesSectionLinkLabel": "Duyệt tất cả trang module",
     "conceptsSectionTitle": "Khái niệm",
     "conceptsSectionDescription": "Trang khái niệm giải thích các ý tưởng rộng hơn xuất hiện trên nhiều mô hình hoặc module, như cấu trúc transformer, lượng tử hóa, hoặc đánh đổi của ngữ cảnh dài.",
+    "conceptsSectionLinkLabel": "Duyệt tất cả trang khái niệm",
+    "papersSectionTitle": "Bài báo",
+    "papersSectionDescription": "Trang bài báo chưng cất một công trình thành các mô hình, module, phương pháp huấn luyện, và hệ thống mà nó giới thiệu hoặc củng cố.",
+    "papersSectionLinkLabel": "Duyệt tất cả trang bài báo",
+    "trainingSectionTitle": "Huấn luyện",
+    "trainingSectionDescription": "Trang huấn luyện tập trung vào các regime và phương pháp hậu huấn luyện có tên rõ ràng, tức những bước định hình hành vi của mô hình ngoài kiến trúc cơ sở.",
+    "trainingSectionLinkLabel": "Duyệt tất cả trang huấn luyện",
+    "systemsSectionTitle": "Hệ thống",
+    "systemsSectionDescription": "Trang hệ thống giải thích phần hạ tầng chạy quanh mô hình, như quản lý KV cache, chồng lấp song song phân tán, và luồng phục vụ triển khai.",
+    "systemsSectionLinkLabel": "Duyệt tất cả trang hệ thống",
     "glossarySectionTitle": "Thuật ngữ",
     "glossarySectionDescription": "Trang thuật ngữ định nghĩa từ vựng về kiến trúc mô hình, huấn luyện, suy luận, và đánh giá để phần còn lại của atlas dễ đọc hơn.",
     "glossarySectionLinkLabel": "Duyệt toàn bộ thuật ngữ"
@@ -101,6 +113,30 @@
     "listLabel": "Các mục khái niệm",
     "emptyTitle": "Chưa có mục khái niệm nào",
     "emptyDescription": "Các trang khái niệm đã xuất bản sẽ xuất hiện ở đây khi được thêm vào atlas. Trong lúc này, hãy quay lại trang chủ hoặc mở Duyệt Atlas để khám phá mô hình, module, và thuật ngữ.",
+    "emptyHomeLink": "Về trang chủ"
+  },
+  "papersIndex": {
+    "title": "Bài báo",
+    "description": "Các trang bài báo đã xuất bản tách một báo cáo hoặc công trình thành các luận điểm chính, thực thể liên kết, và nguồn hỗ trợ.",
+    "listLabel": "Các mục bài báo",
+    "emptyTitle": "Chưa có mục bài báo nào",
+    "emptyDescription": "Các trang bài báo đã xuất bản sẽ xuất hiện ở đây khi được thêm vào atlas. Trong lúc này, hãy quay lại trang chủ hoặc mở Duyệt Atlas để khám phá mô hình, module, và khái niệm.",
+    "emptyHomeLink": "Về trang chủ"
+  },
+  "trainingIndex": {
+    "title": "Huấn luyện",
+    "description": "Các trang training-regime đã xuất bản bao quát pretraining, post-training, distillation, huấn luyện nhận biết lượng tử hóa, và các phương pháp tối ưu liên quan.",
+    "listLabel": "Các mục huấn luyện",
+    "emptyTitle": "Chưa có mục huấn luyện nào",
+    "emptyDescription": "Các trang training-regime đã xuất bản sẽ xuất hiện ở đây khi được thêm vào atlas. Trong lúc này, hãy quay lại trang chủ hoặc mở Duyệt Atlas để khám phá mô hình, module, và bài báo.",
+    "emptyHomeLink": "Về trang chủ"
+  },
+  "systemsIndex": {
+    "title": "Hệ thống",
+    "description": "Các trang hệ thống đã xuất bản bao quát thiết kế suy luận, phục vụ, runtime, và vận hành dùng để hỗ trợ các stack mô hình hiện đại.",
+    "listLabel": "Các mục hệ thống",
+    "emptyTitle": "Chưa có mục hệ thống nào",
+    "emptyDescription": "Các trang hệ thống đã xuất bản sẽ xuất hiện ở đây khi được thêm vào atlas. Trong lúc này, hãy quay lại trang chủ hoặc mở Duyệt Atlas để khám phá mô hình, module, và bài báo.",
     "emptyHomeLink": "Về trang chủ"
   },
   "glossaryIndex": {
@@ -151,6 +187,7 @@
     "paper": "Bài báo",
     "glossary": "Thuật ngữ",
     "training": "Huấn luyện",
+    "training-regime": "Huấn luyện",
     "system": "Hệ thống",
     "blog": "Blog"
   }

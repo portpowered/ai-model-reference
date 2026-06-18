@@ -1,0 +1,50 @@
+{
+  "title": "FP4 Quantization-Aware Training",
+  "description": "A DeepSeek-V4 training step that prepares the model for very low precision by exposing it to quantization effects during training.",
+  "openingSummary": "A model that was never trained to survive very low precision often breaks when it is compressed too far. FP4 quantization-aware training bakes that low-precision pressure into training so the deployed model loses less of itself when it finally runs at FP4-like constraints.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "This is a quantization-aware training step aimed at extremely low precision. Instead of treating quantization as a last-minute export trick, the model sees precision loss during training."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "It targets low-bit deployment quality, memory savings, and practical serving cost."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The training loop injects low-precision behavior into the optimization path so the model learns weights and activations that remain more stable after compression."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "This matters because long-context serving is expensive. Low precision is one of the few levers that can materially reduce that cost if the model survives it."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Unlike post-training quantization, the model is warned about future quantization damage during training instead of after the fact."
+    },
+    "modelsAndPapers": {
+      "title": "Models And Papers",
+      "body": "These links are generated from registry metadata for the regime."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "QAT adds training complexity and still may not save every capability if the target precision is aggressive enough."
+    },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "trainingFlow": {
+      "alt": "A flow from a float model through injected FP4 noise to a deployed low-precision model.",
+      "caption": "QAT teaches the model under the same precision pressure it will later face in deployment."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "floatModel": { "label": "Float model" },
+      "fp4Noise": { "label": "FP4-aware training step" },
+      "deployed": { "label": "Low-precision deployment" }
+    }
+  }
+}

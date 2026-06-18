@@ -61,6 +61,9 @@ const registryKindDirectories: Record<string, string> = {
   model: "models",
   paper: "papers",
   "training-regime": "training-regimes",
+  system: "systems",
+  dataset: "datasets",
+  organization: "organizations",
   tag: "tags",
   citation: "citations",
   graph: "graphs",
@@ -402,6 +405,49 @@ function validateRegistryRecordReferences(
     if (record.sourceId) {
       referenceFields.push({ field: "sourceId", ids: [record.sourceId] });
     }
+  }
+
+  if (record.kind === "system") {
+    referenceFields.push(
+      { field: "relatedModelIds", ids: record.relatedModelIds },
+      { field: "relatedModuleIds", ids: record.relatedModuleIds },
+      { field: "relatedConceptIds", ids: record.relatedConceptIds },
+      { field: "paperIds", ids: record.paperIds },
+      { field: "datasetIds", ids: record.datasetIds },
+    );
+    if (record.organizationId) {
+      referenceFields.push({
+        field: "organizationId",
+        ids: [record.organizationId],
+      });
+    }
+    if (record.sourceId) {
+      referenceFields.push({ field: "sourceId", ids: [record.sourceId] });
+    }
+  }
+
+  if (record.kind === "dataset") {
+    referenceFields.push(
+      { field: "usedByModelIds", ids: record.usedByModelIds },
+      { field: "paperIds", ids: record.paperIds },
+    );
+    if (record.organizationId) {
+      referenceFields.push({
+        field: "organizationId",
+        ids: [record.organizationId],
+      });
+    }
+    if (record.sourceId) {
+      referenceFields.push({ field: "sourceId", ids: [record.sourceId] });
+    }
+  }
+
+  if (record.kind === "organization") {
+    referenceFields.push(
+      { field: "modelIds", ids: record.modelIds },
+      { field: "paperIds", ids: record.paperIds },
+      { field: "systemIds", ids: record.systemIds },
+    );
   }
 
   if (

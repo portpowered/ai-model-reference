@@ -87,20 +87,20 @@ const CLUSTER_REASON_LABEL_SAMPLES: {
   {
     label: "representation cluster",
     registryId: "concept.patch",
-    expectedGroupId: SHARED_TAGS,
+    expectedGroupId: CURATED_RELATED,
     expectedPeerSlug: "latent",
   },
   {
     label: "encoder-decoder cluster",
     registryId: "concept.encoder",
-    expectedGroupId: SAME_CONCEPT_TYPE,
+    expectedGroupId: CURATED_RELATED,
     expectedPeerSlug: "decoder",
   },
   {
     label: "generation paradigm cluster",
     registryId: "concept.autoregressive-generation",
-    expectedGroupId: SAME_CONCEPT_TYPE,
-    expectedPeerSlug: "denoising-generation",
+    expectedGroupId: CURATED_RELATED,
+    expectedPeerSlug: "conditioning",
   },
   {
     label: "training behavior cluster",

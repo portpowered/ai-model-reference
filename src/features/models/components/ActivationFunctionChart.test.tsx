@@ -34,7 +34,9 @@ describe("ActivationFunctionChart", () => {
     );
 
     expect(
-      container.querySelector('[data-chart-id="chart.activation-family.relu-intro"]'),
+      container.querySelector(
+        '[data-chart-id="chart.activation-family.relu-intro"]',
+      ),
     ).toBeTruthy();
     expect(container.querySelectorAll(".recharts-line-curve").length).toBe(1);
     expect(container.querySelector(".line-graph__line--relu")).toBeTruthy();

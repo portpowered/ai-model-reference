@@ -34,6 +34,14 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Legacy module overview predates the current full module template.",
   "modules/grouped-query-attention/page.mdx":
     "Legacy module page predates the variants-and-nearby-modules section.",
+  "modules/manifold-constrained-hyper-connections/page.mdx":
+    "DeepSeek-V4 module uses a custom math and comparison structure outside the baseline module template.",
+  "modules/compressed-sparse-attention/page.mdx":
+    "DeepSeek-V4 module uses a custom math and comparison structure outside the baseline module template.",
+  "modules/deepseekmoe/page.mdx":
+    "DeepSeek-V4 module uses a custom math and comparison structure outside the baseline module template.",
+  "modules/heavily-compressed-attention/page.mdx":
+    "DeepSeek-V4 module uses a custom math and comparison structure outside the baseline module template.",
   "modules/learned-positional-embeddings/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/linear-attention/page.mdx":
@@ -52,12 +60,16 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/positional-interpolation/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "modules/relu/page.mdx":
+    "Activation modules use an inline chart in how-it-works instead of the default ModuleGraph slot.",
   "modules/relative-position-bias/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/rope/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/sinusoidal-positional-embeddings/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "modules/silu/page.mdx":
+    "Activation modules use an inline chart in how-it-works instead of the default ModuleGraph slot.",
   "modules/sliding-window-attention/page.mdx":
     "Legacy module page predates the variants-and-nearby-modules section.",
   "modules/sparse-attention/page.mdx":

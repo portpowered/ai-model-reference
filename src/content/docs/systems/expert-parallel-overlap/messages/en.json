@@ -1,0 +1,40 @@
+{
+  "title": "Expert Parallel Overlap",
+  "description": "A serving system that overlaps expert routing, communication, and compute so sparse MoE execution does not stall on movement alone.",
+  "openingSummary": "Sparse MoE can waste time moving token batches around even when the experts themselves are fast. Expert parallel overlap reduces that idle time by hiding communication behind useful compute wherever the runtime can.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "This is a runtime scheduling pattern for sparse experts. It belongs to the serving stack that makes MoE practical, not to the logical definition of an MoE block by itself."
+    },
+    "whereItSits": {
+      "title": "Where It Sits",
+      "body": "It sits in the execution layer around expert dispatch, communication, and gather. The model asks for experts. The runtime decides how to keep those expert steps from idling each other out."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Routing decisions, device-to-device movement, and expert compute are overlapped so the next useful action can begin before the previous communication phase has fully drained."
+    },
+    "practicalImpact": {
+      "title": "Practical Impact",
+      "body": "This keeps sparse expert models closer to their theoretical compute savings. Without a system like this, MoE can lose too much time to transport overhead."
+    },
+    "associatedRecords": { "title": "Associated Records" },
+    "related": { "title": "Related" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "systemFlow": {
+      "alt": "Dispatch, expert compute, and gather stages overlapping each other.",
+      "caption": "The goal is not a new expert function. It is better scheduling around expert work."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "dispatch": { "label": "Dispatch tokens" },
+      "compute": { "label": "Compute experts" },
+      "gather": { "label": "Gather outputs" }
+    }
+  }
+}

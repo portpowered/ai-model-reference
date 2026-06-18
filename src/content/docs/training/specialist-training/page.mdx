@@ -1,0 +1,39 @@
+---
+title: "Specialist Training"
+description: "A DeepSeek-V4 post-training pattern that sharpens separate capability areas before they are merged back into the final stack."
+kind: "training-regime"
+registryId: "training-regime.specialist-training"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - quantization
+aliases:
+  - "Specialist training"
+updatedAt: "2026-06-18"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { RegistryAssociatedRecords } from "@/features/docs/components/RegistryAssociatedRecords";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
+import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeFlow";
+
+
+<TrainingRegimeAtAGlance registryId="training-regime.specialist-training" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title"><T k="sections.whatItIs.body" /></Section>
+<Section id="what-it-optimizes" titleKey="sections.whatItOptimizes.title"><T k="sections.whatItOptimizes.body" /></Section>
+<Section id="how-it-works" titleKey="sections.howItWorks.title"><T k="sections.howItWorks.body" /><TrainingRegimeFlow registryId="training-regime.specialist-training" assetId="trainingFlow" /></Section>
+<Section id="practical-benefit" titleKey="sections.practicalBenefit.title"><T k="sections.practicalBenefit.body" /></Section>
+<Section id="compared-to-nearby-regimes" titleKey="sections.comparedToNearbyRegimes.title"><T k="sections.comparedToNearbyRegimes.body" /></Section>
+<Section id="models-and-papers" titleKey="sections.modelsAndPapers.title"><T k="sections.modelsAndPapers.body" /><RegistryAssociatedRecords registryId="training-regime.specialist-training" groups={[
+  { id: "models", title: "Used by models", fields: ["usedByModelIds"], emptyLabel: "No linked models listed yet.", defaultOpen: true },
+  { id: "papers", title: "Paper sources", fields: ["paperIds"], emptyLabel: "No linked paper pages listed yet." }
+]} /></Section>
+<Section id="limitations-and-failure-modes" titleKey="sections.limitationsAndFailureModes.title"><T k="sections.limitationsAndFailureModes.body" /></Section>
+<Section id="tags" titleKey="sections.tags.title"><TagPillList registryId="training-regime.specialist-training" showDescriptions /></Section>
+<Section id="references" titleKey="sections.references.title"><CitationList registryId="training-regime.specialist-training" /></Section>

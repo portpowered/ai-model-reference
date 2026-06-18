@@ -1,4 +1,9 @@
 import { LocalizedMonthYear } from "@/features/docs/components/LocalizedMonthYear";
+import { RegistryLinkList } from "@/features/docs/components/RegistryLinkList";
+import {
+  AtAGlanceCard,
+  AtAGlanceListSection,
+} from "@/features/models/components/AtAGlanceCard";
 import { buildPageReleaseMetadata } from "@/lib/content/page-release-metadata";
 import { getModuleById } from "@/lib/content/registry-runtime";
 
@@ -37,14 +42,7 @@ export function ModuleAtAGlance({ registryId }: { registryId: string }) {
   const releaseMetadata = buildPageReleaseMetadata(record);
 
   return (
-    <section
-      className="my-6 rounded-lg border border-border bg-card p-4"
-      data-registry-id={registryId}
-      aria-label="At a glance"
-    >
-      <h2 className="mb-4 text-base font-semibold text-foreground">
-        At a glance
-      </h2>
+    <AtAGlanceCard registryId={registryId}>
       <div className="space-y-4">
         {releaseMetadata ? (
           <div className="space-y-2">
@@ -87,25 +85,19 @@ export function ModuleAtAGlance({ registryId }: { registryId: string }) {
             ) : null}
           </div>
         ) : null}
-        <div>
-          <h3 className="mb-2 text-sm font-medium text-muted-foreground">
-            Optimizes
-          </h3>
+        <AtAGlanceListSection title="Optimizes">
           <BulletList items={record.optimizes} formatItem={formatToken} />
-        </div>
-        <div>
-          <h3 className="mb-2 text-sm font-medium text-muted-foreground">
-            Practical benefits
-          </h3>
+        </AtAGlanceListSection>
+        <AtAGlanceListSection title="Practical benefits">
           <BulletList items={record.practicalBenefits} />
-        </div>
-        <div>
-          <h3 className="mb-2 text-sm font-medium text-muted-foreground">
-            Example models
-          </h3>
-          <BulletList items={record.exampleModelIds} />
-        </div>
+        </AtAGlanceListSection>
+        <AtAGlanceListSection title="Example models">
+          <RegistryLinkList
+            registryIds={record.exampleModelIds}
+            emptyLabel="No example models listed yet."
+          />
+        </AtAGlanceListSection>
       </div>
-    </section>
+    </AtAGlanceCard>
   );
 }

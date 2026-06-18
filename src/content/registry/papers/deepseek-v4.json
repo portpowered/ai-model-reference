@@ -1,0 +1,51 @@
+{
+  "id": "paper.deepseek-v4",
+  "slug": "deepseek-v4",
+  "kind": "paper",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["DeepSeek-V4", "DeepSeek V4 Technical Report"],
+  "tags": ["foundations", "attention", "context-window", "quantization"],
+  "relatedIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "authors": ["DeepSeek-AI"],
+  "publishedAt": "2026-06-13",
+  "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro/resolve/main/DeepSeek_V4.pdf?download=true",
+  "introducesIds": [
+    "model.deepseek-v4-pro",
+    "model.deepseek-v4-flash",
+    "module.manifold-constrained-hyper-connections",
+    "module.compressed-sparse-attention",
+    "module.heavily-compressed-attention",
+    "module.deepseekmoe",
+    "training-regime.on-policy-distillation",
+    "training-regime.specialist-training",
+    "training-regime.fp4-quantization-aware-training",
+    "system.on-disk-kv-cache",
+    "system.expert-parallel-overlap"
+  ],
+  "supportsIds": [
+    "concept.transformer-architecture",
+    "concept.context-extension",
+    "concept.quantization",
+    "concept.kv-cache"
+  ],
+  "arguesAgainstIds": [],
+  "modelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
+  "moduleIds": [
+    "module.manifold-constrained-hyper-connections",
+    "module.compressed-sparse-attention",
+    "module.heavily-compressed-attention",
+    "module.deepseekmoe"
+  ],
+  "conceptIds": [
+    "concept.transformer-architecture",
+    "concept.context-extension",
+    "concept.quantization",
+    "concept.kv-cache"
+  ],
+  "venue": "Technical report"
+}

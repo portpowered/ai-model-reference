@@ -4,15 +4,8 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "GroupNorm",
-    "group normalization",
-    "GN"
-  ],
-  "tags": [
-    "normalization",
-    "foundations"
-  ],
+  "aliases": ["GroupNorm", "group normalization", "GN"],
+  "tags": ["normalization", "foundations"],
   "relatedIds": [
     "concept.normalization",
     "concept.batch-norm",
@@ -23,8 +16,6 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "general",
-  "prerequisiteIds": [
-    "concept.normalization"
-  ],
+  "prerequisiteIds": ["concept.normalization"],
   "explainsIds": []
 }

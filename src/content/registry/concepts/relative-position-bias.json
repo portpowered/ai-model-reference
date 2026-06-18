@@ -9,10 +9,7 @@
     "relative positional bias",
     "relative attention bias"
   ],
-  "tags": [
-    "position-encoding",
-    "foundations"
-  ],
+  "tags": ["position-encoding", "foundations"],
   "relatedIds": [
     "concept.positional-encodings",
     "concept.absolute-positional-embeddings",
@@ -25,10 +22,6 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "general",
-  "prerequisiteIds": [
-    "concept.positional-encodings"
-  ],
-  "explainsIds": [
-    "concept.t5-relative-position-bias"
-  ]
+  "prerequisiteIds": ["concept.positional-encodings"],
+  "explainsIds": ["concept.t5-relative-position-bias"]
 }

@@ -11,10 +11,7 @@
     "T5 position buckets",
     "bucketed relative position bias"
   ],
-  "tags": [
-    "position-encoding",
-    "foundations"
-  ],
+  "tags": ["position-encoding", "foundations"],
   "relatedIds": [
     "concept.positional-encodings",
     "concept.relative-position-bias",
@@ -22,9 +19,7 @@
     "concept.rope",
     "concept.alibi"
   ],
-  "citationIds": [
-    "citation.raffel-t5"
-  ],
+  "citationIds": ["citation.raffel-t5"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",

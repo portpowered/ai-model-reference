@@ -1,0 +1,67 @@
+{
+  "id": "graph.fp4-quantization-aware-training-training-flow",
+  "slug": "fp4-quantization-aware-training-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["FP4 QAT flow"],
+  "tags": ["quantization"],
+  "relatedIds": [],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "training-regime.fp4-quantization-aware-training",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "float-model",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "float-model",
+      "labelKey": "graph.nodes.floatModel.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["fp4-noise"]
+    },
+    {
+      "id": "fp4-noise",
+      "labelKey": "graph.nodes.fp4Noise.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 180, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["deployed"]
+    },
+    {
+      "id": "deployed",
+      "labelKey": "graph.nodes.deployed.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 240 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "float-fp4",
+      "source": "float-model",
+      "target": "fp4-noise",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "fp4-deployed",
+      "source": "fp4-noise",
+      "target": "deployed",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

@@ -47,7 +47,14 @@ export const MODULE_BACKED_CONCEPT_REGISTRY_IDS = new Set<string>([
 
 export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "model.gpt-3",
+  "model.deepseek-v4-pro",
+  "model.deepseek-v4-flash",
+  "paper.deepseek-v4",
   "module.attention",
+  "module.compressed-sparse-attention",
+  "module.deepseekmoe",
+  "module.heavily-compressed-attention",
+  "module.manifold-constrained-hyper-connections",
   "module.multi-head-attention",
   "module.multi-query-attention",
   "module.grouped-query-attention",
@@ -176,6 +183,11 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.activation-quantization",
   "concept.kv-cache-quantization",
   "concept.why-4-bit-models-are-not-exactly-4x-faster",
+  "training-regime.on-policy-distillation",
+  "training-regime.specialist-training",
+  "training-regime.fp4-quantization-aware-training",
+  "system.on-disk-kv-cache",
+  "system.expert-parallel-overlap",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;

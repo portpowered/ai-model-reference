@@ -117,37 +117,37 @@ const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
   {
     query: "feed-forward network",
     firstUrl: "/docs/modules/feed-forward-network",
-    firstKind: "glossary" as const,
+    firstKind: "module" as const,
   },
   {
     query: "standard FFN",
     firstUrl: "/docs/modules/standard-ffn",
-    firstKind: "glossary" as const,
+    firstKind: "module" as const,
   },
   {
     query: "mixture of experts",
     firstUrl: "/docs/modules/mixture-of-experts",
-    firstKind: "glossary" as const,
+    firstKind: "module" as const,
   },
   {
     query: "ReLU",
     firstUrl: "/docs/modules/relu",
-    firstKind: "glossary" as const,
+    firstKind: "module" as const,
   },
   {
     query: "LeakyReLU",
     firstUrl: "/docs/modules/leaky-relu",
-    firstKind: "glossary" as const,
+    firstKind: "module" as const,
   },
   {
     query: "SiLU",
     firstUrl: "/docs/modules/silu",
-    firstKind: "glossary" as const,
+    firstKind: "module" as const,
   },
   {
     query: "SwiGLU",
     firstUrl: "/docs/modules/swiglu",
-    firstKind: "glossary" as const,
+    firstKind: "module" as const,
   },
   {
     query: "normalization",
@@ -157,27 +157,27 @@ const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
   {
     query: "layer norm",
     firstUrl: "/docs/modules/layer-norm",
-    firstKind: "glossary" as const,
+    firstKind: "module" as const,
   },
   {
     query: "batch norm",
     firstUrl: "/docs/modules/batch-norm",
-    firstKind: "glossary" as const,
+    firstKind: "module" as const,
   },
   {
     query: "group norm",
     firstUrl: "/docs/modules/group-norm",
-    firstKind: "glossary" as const,
+    firstKind: "module" as const,
   },
   {
     query: "RMSNorm",
     firstUrl: "/docs/modules/rmsnorm",
-    firstKind: "glossary" as const,
+    firstKind: "module" as const,
   },
   {
     query: "QK norm",
     firstUrl: "/docs/modules/qk-norm",
-    firstKind: "glossary" as const,
+    firstKind: "module" as const,
   },
   {
     query: "residual connection",
@@ -192,7 +192,7 @@ const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
   {
     query: "RoPE",
     firstUrl: "/docs/modules/rope",
-    firstKind: "glossary" as const,
+    firstKind: "module" as const,
   },
   {
     query: "context window",

@@ -67,9 +67,7 @@ describe("Phase 3 residual connection glossary page (US-007)", () => {
     const feedForwardNetwork = items.find(
       (item) => item.registryId === "concept.feed-forward-network",
     );
-    expect(feedForwardNetwork?.href).toBe(
-      "/docs/modules/feed-forward-network",
-    );
+    expect(feedForwardNetwork?.href).toBe("/docs/modules/feed-forward-network");
     expect(feedForwardNetwork?.isPlanned).toBe(false);
 
     const architecture = items.find(

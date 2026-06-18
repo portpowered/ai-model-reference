@@ -16,9 +16,9 @@ import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   defaultLocale,
   matchLocalizedRoute,
+  type SiteLocale,
   supportedLocales,
   switchRouteLocale,
-  type SiteLocale,
 } from "@/lib/i18n/locale-routing";
 
 type LanguageSwitcherProps = {

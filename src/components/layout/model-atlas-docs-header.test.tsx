@@ -21,6 +21,11 @@ import {
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { source } from "@/lib/source";
 import { assertPrimaryNavNoDuplicateSearchLink } from "@/lib/verify/customer-ask-home-header-convergence";
+import {
+  resetMockNavigation,
+  setMockPathname,
+  setMockSearchParams,
+} from "@/tests/a11y/mock-navigation";
 import { NextNavigationTestProvider } from "@/tests/a11y/next-navigation-test-provider";
 import { renderWithAppProviders } from "@/tests/a11y/render";
 
@@ -36,6 +41,9 @@ function renderHeaderWithNavigation(
     searchParams?: URLSearchParams;
   },
 ) {
+  setMockPathname(pathname);
+  setMockSearchParams(searchParams);
+
   return render(
     <NextNavigationTestProvider pathname={pathname} searchParams={searchParams}>
       <RootProvider search={{ SearchDialog, enabled: true }}>{ui}</RootProvider>
@@ -46,6 +54,7 @@ function renderHeaderWithNavigation(
 describe("ModelAtlasDocsHeader", () => {
   afterEach(() => {
     cleanup();
+    resetMockNavigation();
   });
 
   test("renders header search trigger without duplicate /search primary nav link", async () => {

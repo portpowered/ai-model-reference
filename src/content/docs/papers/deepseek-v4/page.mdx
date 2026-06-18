@@ -1,0 +1,84 @@
+---
+title: "DeepSeek-V4"
+description: "A technical report that bundles DeepSeek-V4 architecture, long-context attention, post-training methods, and serving systems into one connected release."
+kind: "paper"
+registryId: "paper.deepseek-v4"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - attention
+  - context-window
+  - quantization
+aliases:
+  - "DeepSeek-V4"
+updatedAt: "2026-06-18"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RegistryAssociatedRecords } from "@/features/docs/components/RegistryAssociatedRecords";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { PaperContributionGraph } from "@/features/models/components/PaperContributionGraph";
+import { PaperAtAGlance } from "@/features/models/components/PaperAtAGlance";
+
+
+<PaperAtAGlance registryId="paper.deepseek-v4" />
+
+<Section id="what-the-paper-introduced" titleKey="sections.whatThePaperIntroduced.title">
+  <T k="sections.whatThePaperIntroduced.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="method-or-architecture" titleKey="sections.methodOrArchitecture.title">
+  <T k="sections.methodOrArchitecture.body" />
+  <PaperContributionGraph registryId="paper.deepseek-v4" assetId="contributionGraph" />
+</Section>
+
+<Section id="evidence" titleKey="sections.evidence.title">
+  <T k="sections.evidence.body" />
+</Section>
+
+<Section id="limitations" titleKey="sections.limitations.title">
+  <T k="sections.limitations.body" />
+</Section>
+
+<Section id="what-it-connects-to" titleKey="sections.whatItConnectsTo.title">
+  <T k="sections.whatItConnectsTo.body" />
+  <RegistryAssociatedRecords
+    registryId="paper.deepseek-v4"
+    groups={[
+      { id: "introduced", title: "Introduced records", fields: ["introducesIds"], emptyLabel: "No introduced records listed yet.", defaultOpen: true },
+      { id: "models", title: "Model pages", fields: ["modelIds"], emptyLabel: "No model pages listed yet." },
+      { id: "modules", title: "Module pages", fields: ["moduleIds"], emptyLabel: "No module pages listed yet." },
+      { id: "concepts", title: "Concept pages", fields: ["conceptIds", "supportsIds"], emptyLabel: "No concept pages listed yet." }
+    ]}
+  />
+  <DerivedRelatedDocs
+    registryId="paper.deepseek-v4"
+    groups={[
+      "introduced-records",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="paper.deepseek-v4" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="paper.deepseek-v4" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="paper.deepseek-v4" />
+</Section>

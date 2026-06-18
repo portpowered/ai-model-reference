@@ -1,0 +1,42 @@
+---
+title: "On-Disk KV Cache"
+description: "A serving system that spills part of the KV cache to disk so very long sessions remain workable without keeping every token state in expensive fast memory."
+kind: "system"
+registryId: "system.on-disk-kv-cache"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - kv-cache
+  - context-window
+  - foundations
+aliases:
+  - "On-disk KV cache"
+updatedAt: "2026-06-18"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { RegistryAssociatedRecords } from "@/features/docs/components/RegistryAssociatedRecords";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { SystemAtAGlance } from "@/features/models/components/SystemAtAGlance";
+import { SystemFlowGraph } from "@/features/models/components/SystemFlowGraph";
+
+
+<SystemAtAGlance registryId="system.on-disk-kv-cache" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title"><T k="sections.whatItIs.body" /></Section>
+<Section id="where-it-sits" titleKey="sections.whereItSits.title"><T k="sections.whereItSits.body" /></Section>
+<Section id="how-it-works" titleKey="sections.howItWorks.title"><T k="sections.howItWorks.body" /><SystemFlowGraph registryId="system.on-disk-kv-cache" assetId="systemFlow" /></Section>
+<Section id="practical-impact" titleKey="sections.practicalImpact.title"><T k="sections.practicalImpact.body" /></Section>
+<Section id="associated-records" titleKey="sections.associatedRecords.title"><RegistryAssociatedRecords registryId="system.on-disk-kv-cache" groups={[
+  { id: "models", title: "Related models", fields: ["relatedModelIds"], emptyLabel: "No related models listed yet.", defaultOpen: true },
+  { id: "modules", title: "Related modules", fields: ["relatedModuleIds"], emptyLabel: "No related modules listed yet." },
+  { id: "concepts", title: "Related concepts", fields: ["relatedConceptIds"], emptyLabel: "No related concepts listed yet." },
+  { id: "papers", title: "Paper sources", fields: ["paperIds"], emptyLabel: "No linked paper pages listed yet." }
+]} /></Section>
+<Section id="related" titleKey="sections.related.title"><DerivedRelatedDocs registryId="system.on-disk-kv-cache" groups={["shared-tags","same-concept-type","curated-related"]} /></Section>
+<Section id="tags" titleKey="sections.tags.title"><TagPillList registryId="system.on-disk-kv-cache" showDescriptions /></Section>
+<Section id="references" titleKey="sections.references.title"><CitationList registryId="system.on-disk-kv-cache" /></Section>

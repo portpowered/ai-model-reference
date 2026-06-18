@@ -14,8 +14,8 @@ import reluComparison from "@/content/registry/tables/relu-comparison.json";
 import rmsNormComparison from "@/content/registry/tables/rmsnorm-comparison.json";
 import siluComparison from "@/content/registry/tables/silu-comparison.json";
 import slidingWindowAttentionComparison from "@/content/registry/tables/sliding-window-attention-comparison.json";
-import standardFfnComparison from "@/content/registry/tables/standard-ffn-comparison.json";
 import sparseAttentionComparison from "@/content/registry/tables/sparse-attention-comparison.json";
+import standardFfnComparison from "@/content/registry/tables/standard-ffn-comparison.json";
 import swigluComparison from "@/content/registry/tables/swiglu-comparison.json";
 import { type TableRecord, tableRecordSchema } from "@/lib/content/schemas";
 

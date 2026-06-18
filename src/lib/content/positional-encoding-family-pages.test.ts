@@ -6,11 +6,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
 import {
-  GLOSSARY_DOCS_ROOT,
+  MODULES_DOCS_ROOT,
   POSITIONAL_ENCODINGS_CONCEPT_PAGE_DIR,
 } from "@/lib/content/content-paths";
-import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import { expectGlossaryPresentationConvergence } from "@/lib/content/glossary-test-helpers";
+import { loadModulePage } from "@/lib/content/module-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
   getConceptById,
@@ -141,7 +141,7 @@ describe("Phase 3 positional family glossary pages (US-001 dependencies)", () =>
 
   for (const slug of POSITIONAL_FAMILY_GLOSSARY_SLUGS) {
     test(`${slug} glossary page compiles with localized sections and family links`, async () => {
-      const messagesPath = join(GLOSSARY_DOCS_ROOT, slug, "messages/en.json");
+      const messagesPath = join(MODULES_DOCS_ROOT, slug, "messages/en.json");
       const messages = pageMessagesSchema.parse(
         JSON.parse(readFileSync(messagesPath, "utf8")),
       );
@@ -153,7 +153,7 @@ describe("Phase 3 positional family glossary pages (US-001 dependencies)", () =>
         0,
       );
 
-      const page = await loadGlossaryPage(slug);
+      const page = await loadModulePage(slug);
       const html = renderToStaticMarkup(
         createElement(ModulePageProviders, {
           messages: page.messages,

@@ -38,7 +38,7 @@ export const GROUPED_QUERY_ATTENTION_REQUIRED_MARKERS = [
   'data-prose-auto-link="true"',
   'data-registry-comparison-table="true"',
   'data-table-id="table.grouped-query-attention-comparison"',
-  "KV head count",
+  "Key-value head count",
   'href="/docs/modules/multi-query-attention"',
   'data-comparison-dimension="cacheFootprint"',
   'data-attention-schema-comparison="true"',

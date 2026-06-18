@@ -176,7 +176,7 @@ describe("Phase 1 discovery route smoke", () => {
     expect(page.messages.callouts?.phase1Bridge).toBeUndefined();
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
     expect(
-      page.toc.some((item) => item.url === "#variants-and-nearby-modules"),
+      page.toc.some((item) => item.url === "#compared-to-nearby-modules"),
     ).toBe(true);
   });
 

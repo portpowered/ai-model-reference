@@ -75,7 +75,7 @@ describe("Phase 3 standard FFN module page (US-001)", () => {
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
-    expect(messages.title).toBe("Standard FFN");
+    expect(messages.title).toBe("Standard Feed-Forward Network");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
       "attention",
@@ -91,9 +91,7 @@ describe("Phase 3 standard FFN module page (US-001)", () => {
       messages.sections?.comparedToNearbyModules.body?.toLowerCase(),
     ).toContain("full hidden block");
     expect(messages.math?.standardSchema?.formula).toContain("\\mathrm{FFN}");
-    expect(messages.math?.swigluSchema?.formula).toContain(
-      "\\mathrm{SwiGLU}",
-    );
+    expect(messages.math?.swigluSchema?.formula).toContain("\\mathrm{SwiGLU}");
   });
 
   test("page renders module-template sections, comparison table, and nearby FFN-family links", async () => {

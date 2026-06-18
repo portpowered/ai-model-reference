@@ -45,6 +45,11 @@ export function getTrainingDocsRoot(docsRoot = getDocsRoot()): string {
   return join(docsRoot, "training");
 }
 
+/** System docs under `src/content/docs/systems`. */
+export function getSystemsDocsRoot(docsRoot = getDocsRoot()): string {
+  return join(docsRoot, "systems");
+}
+
 /** Registry JSON under `src/content/registry`. */
 export function getRegistryRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "registry");
@@ -85,6 +90,9 @@ export const PAPERS_DOCS_ROOT = getPapersDocsRoot(DOCS_ROOT);
 
 /** Default `src/content/docs/training` root. */
 export const TRAINING_DOCS_ROOT = getTrainingDocsRoot(DOCS_ROOT);
+
+/** Default `src/content/docs/systems` root. */
+export const SYSTEMS_DOCS_ROOT = getSystemsDocsRoot(DOCS_ROOT);
 
 /** Default `src/content/registry` root. */
 export const REGISTRY_ROOT = getRegistryRoot(contentRoot);

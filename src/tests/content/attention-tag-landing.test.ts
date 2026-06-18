@@ -41,8 +41,11 @@ describe("attention tag landing resources", () => {
     expect(moduleGroup?.kindLabel).toBe("Module");
     expect(moduleGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/modules/attention",
+      "/docs/modules/compressed-sparse-attention",
       "/docs/modules/grouped-query-attention",
+      "/docs/modules/heavily-compressed-attention",
       "/docs/modules/linear-attention",
+      "/docs/modules/manifold-constrained-hyper-connections",
       "/docs/modules/multi-head-attention",
       "/docs/modules/multi-head-latent-attention",
       "/docs/modules/multi-query-attention",
@@ -51,12 +54,29 @@ describe("attention tag landing resources", () => {
     ]);
   });
 
-  it("omits empty kind groups and groups module and glossary resources separately", async () => {
+  it("omits empty kind groups and groups model, module, and glossary resources separately", async () => {
     const messages = await loadUiMessages();
     const groups = await loadTagResourceGroups("attention", messages, "en");
 
     expect(groups.every((group) => group.resources.length > 0)).toBe(true);
-    expect(groups.map((group) => group.kind)).toEqual(["module", "glossary"]);
+    expect(groups.map((group) => group.kind)).toEqual([
+      "model",
+      "module",
+      "paper",
+      "glossary",
+    ]);
+
+    const modelGroup = groups.find((group) => group.kind === "model");
+    expect(modelGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/models/deepseek-v4-flash",
+      "/docs/models/deepseek-v4-pro",
+      "/docs/models/gpt-3",
+    ]);
+
+    const paperGroup = groups.find((group) => group.kind === "paper");
+    expect(paperGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/papers/deepseek-v4",
+    ]);
 
     const glossaryGroup = groups.find((group) => group.kind === "glossary");
     expect(glossaryGroup?.resources[0]?.url).toBe(
@@ -142,8 +162,12 @@ describe("attention tag landing page render", () => {
     expect(html).toContain("Module");
     expect(html).toContain("Glossary");
     expect(html).toContain('href="/docs/modules/attention"');
+    expect(html).toContain("Compressed Sparse Attention");
+    expect(html).toContain('href="/docs/modules/compressed-sparse-attention"');
     expect(html).toContain("Grouped-Query Attention");
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
+    expect(html).toContain("Heavily Compressed Attention");
+    expect(html).toContain('href="/docs/modules/heavily-compressed-attention"');
     expect(html).toContain("Multi-Head Attention");
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain("Multi-Query Attention");
@@ -156,6 +180,12 @@ describe("attention tag landing page render", () => {
     expect(html).toContain('href="/docs/modules/sparse-attention"');
     expect(html).toContain("Linear Attention");
     expect(html).toContain('href="/docs/modules/linear-attention"');
+    expect(html).toContain("Manifold-Constrained Hyper-Connections");
+    expect(html).toContain(
+      'href="/docs/modules/manifold-constrained-hyper-connections"',
+    );
+    expect(html).toContain("DeepSeek-V4");
+    expect(html).toContain('href="/docs/papers/deepseek-v4"');
     expect(html).toContain("Autoregressive Generation");
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain("Decode");

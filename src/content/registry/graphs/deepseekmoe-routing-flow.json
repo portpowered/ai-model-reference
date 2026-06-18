@@ -1,0 +1,67 @@
+{
+  "id": "graph.deepseekmoe-routing-flow",
+  "slug": "deepseekmoe-routing-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["DeepSeekMoE routing graph"],
+  "tags": ["feed-forward"],
+  "relatedIds": [],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "module.deepseekmoe",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "token",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "token",
+      "labelKey": "graph.nodes.token.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["router"]
+    },
+    {
+      "id": "router",
+      "labelKey": "graph.nodes.router.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 180, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["experts"]
+    },
+    {
+      "id": "experts",
+      "labelKey": "graph.nodes.experts.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 250, "y": 240 },
+      "size": { "width": 180, "height": 80 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "token-router",
+      "source": "token",
+      "target": "router",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "router-experts",
+      "source": "router",
+      "target": "experts",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

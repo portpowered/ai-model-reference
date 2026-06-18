@@ -78,7 +78,26 @@ describe("Phase 2/3 reconciliation attention tag landing (US-007)", () => {
       "en",
     );
 
-    expect(groups.map((group) => group.kind)).toEqual(["module", "glossary"]);
+    expect(groups.map((group) => group.kind)).toEqual([
+      "model",
+      "module",
+      "paper",
+      "glossary",
+    ]);
+
+    const modelGroup = groups.find((group) => group.kind === "model");
+    expect(modelGroup?.kindLabel).toBe("Model");
+    expect(modelGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/models/deepseek-v4-flash",
+      "/docs/models/deepseek-v4-pro",
+      "/docs/models/gpt-3",
+    ]);
+
+    const paperGroup = groups.find((group) => group.kind === "paper");
+    expect(paperGroup?.kindLabel).toBe("Paper");
+    expect(paperGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/papers/deepseek-v4",
+    ]);
 
     const glossaryGroup = groups.find((group) => group.kind === "glossary");
     expect(glossaryGroup?.kindLabel).toBe("Glossary");

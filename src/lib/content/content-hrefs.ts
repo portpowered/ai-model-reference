@@ -70,6 +70,17 @@ export function trainingPageHref(
   );
 }
 
+/** Canonical docs URL for a system entry slug. */
+export function systemPageHref(
+  slug: string,
+  locale: SiteLocale = defaultLocale,
+): string {
+  return buildLocalizedRoute(
+    { surface: "docs-page", slug: `systems/${slug}` },
+    locale,
+  );
+}
+
 /** Canonical tag landing URL for a registry tag slug. */
 export function tagPageHref(
   slug: string,

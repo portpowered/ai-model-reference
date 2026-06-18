@@ -1,10 +1,15 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { PageAssetsProvider } from "@/features/docs/components/page-assets-context";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import {
   GraphNodeLabel,
   RegistryGraphFlow,
+  nodeVisualRoleHasHandles,
 } from "@/features/models/components/RegistryGraphFlow";
 import { REGISTRY_GRAPH_FLOW_INTERACTION } from "@/features/models/components/registry-graph-flow-theme";
 import {
@@ -16,6 +21,7 @@ import type {
   PageAssetConfig,
   PageMessages,
 } from "@/lib/content/schemas";
+import { pageMessagesSchema } from "@/lib/content/schemas";
 
 const messages = {
   title: "Grouped-Query Attention",
@@ -58,11 +64,37 @@ const assets = {
   },
 } satisfies PageAssetConfig;
 
+const GPT_3_MODEL_PAGE_DIR = "src/content/docs/models/gpt-3";
+
+const gpt3Messages = pageMessagesSchema.parse(
+  JSON.parse(
+    readFileSync(join(GPT_3_MODEL_PAGE_DIR, "messages/en.json"), "utf8"),
+  ),
+);
+
 function stripHtmlTags(html: string): string {
   return html.replaceAll(/<[^>]+>/g, "");
 }
 
+function renderRegistryGraph(
+  ui: ReactElement,
+  pageMessages: PageMessages = messages,
+) {
+  return render(
+    <PageMessagesProvider messages={pageMessages} isDev={false}>
+      <PageAssetsProvider assets={assets} isDev={false}>
+        {ui}
+      </PageAssetsProvider>
+    </PageMessagesProvider>,
+  );
+}
+
 describe("RegistryGraphFlow", () => {
+  afterEach(() => {
+    cleanup();
+    document.body.style.overflow = "";
+  });
+
   test("renders react-flow graph markers for the GQA compute-flow fixture", () => {
     const html = renderToStaticMarkup(
       <PageMessagesProvider messages={messages} isDev={false}>
@@ -147,6 +179,24 @@ describe("RegistryGraphFlow", () => {
     );
   });
 
+  test("falls back to a graph-derived accessible label when alt and caption are omitted", () => {
+    const html = renderToStaticMarkup(
+      <PageMessagesProvider messages={messages} isDev={false}>
+        <PageAssetsProvider assets={assets} isDev={false}>
+          <RegistryGraphFlow
+            assetId="computeFlow"
+            graphId="graph.grouped-query-attention-compute-flow"
+          />
+        </PageAssetsProvider>
+      </PageMessagesProvider>,
+    );
+
+    expect(html).toContain(
+      'aria-label="Graph graph.grouped-query-attention-compute-flow"',
+    );
+    expect(html).not.toContain("<figcaption>");
+  });
+
   test("throws when graphId is unknown", () => {
     expect(() =>
       renderToStaticMarkup(
@@ -222,6 +272,109 @@ describe("RegistryGraphFlow", () => {
     expect(html).toContain("h_t");
   });
 
+  test("renders architecture graphs with container and operator visual roles", () => {
+    const html = renderToStaticMarkup(
+      <PageMessagesProvider messages={gpt3Messages} isDev={false}>
+        <PageAssetsProvider assets={assets} isDev={false}>
+          <RegistryGraphFlow
+            assetId="computeFlow"
+            graphId="graph.gpt-3-architecture"
+            alt="GPT-3 architecture"
+          />
+        </PageAssetsProvider>
+      </PageMessagesProvider>,
+    );
+
+    expect(html).toContain('data-graph-id="graph.gpt-3-architecture"');
+    expect(html).toContain('data-graph-node-id="input-embedding"');
+    expect(html).toContain('data-graph-node-id="softmax"');
+    expect(html).toContain('data-graph-node-id="repeat-marker"');
+  });
+
+  test("renders timeline and annotation graph families with their node markers", () => {
+    const html = renderToStaticMarkup(
+      <PageMessagesProvider messages={messages} isDev={false}>
+        <PageAssetsProvider assets={assets} isDev={false}>
+          <RegistryGraphFlow
+            assetId="computeFlow"
+            graphId="graph.sliding-window-attention-time-window-pattern"
+            alt="Sliding-window attention timeline"
+          />
+          <RegistryGraphFlow
+            assetId="computeSchema"
+            graphId="graph.standard-ffn-compute-flow"
+            alt="Standard FFN compute flow"
+          />
+        </PageAssetsProvider>
+      </PageMessagesProvider>,
+    );
+
+    expect(html).toContain(
+      'data-graph-id="graph.sliding-window-attention-time-window-pattern"',
+    );
+    expect(html).toContain('data-graph-node-id="window-time-current-query"');
+    expect(html).toContain('data-graph-node-id="window-time-kv-ellipsis"');
+    expect(html).toContain('data-graph-node-id="window-time-kv-t-1"');
+    expect(html).toContain('data-graph-id="graph.standard-ffn-compute-flow"');
+    expect(html).toContain('data-graph-node-id="expand-projection"');
+    expect(html).toContain('data-graph-node-id="dense-note"');
+    expect(html).toContain('data-graph-node-id="output-state"');
+  });
+
+  test("opens and closes the full-screen dialog from the expand button and Escape key", () => {
+    renderRegistryGraph(
+      <RegistryGraphFlow
+        assetId="computeFlow"
+        graphId="graph.grouped-query-attention-compute-flow"
+        alt="Grouped-query attention compute flow"
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Expand graph to full screen" }),
+    );
+
+    expect(
+      screen.getByRole("dialog", {
+        name: "Grouped-query attention compute flow full-screen view",
+      }),
+    ).toBeTruthy();
+    expect(document.body.style.overflow).toBe("hidden");
+
+    fireEvent.keyDown(window, { key: "Escape" });
+
+    expect(
+      screen.queryByRole("dialog", {
+        name: "Grouped-query attention compute flow full-screen view",
+      }),
+    ).toBeNull();
+    expect(document.body.style.overflow).toBe("");
+  });
+
+  test("closes the full-screen dialog from the close button", () => {
+    renderRegistryGraph(
+      <RegistryGraphFlow
+        assetId="computeFlow"
+        graphId="graph.grouped-query-attention-compute-flow"
+        alt="Grouped-query attention compute flow"
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Expand graph to full screen" }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Close full-screen graph" }),
+    );
+
+    expect(
+      screen.queryByRole("dialog", {
+        name: "Grouped-query attention compute flow full-screen view",
+      }),
+    ).toBeNull();
+    expect(document.body.style.overflow).toBe("");
+  });
+
   test("preserves explicit size and architecture visual roles for container-style nodes", () => {
     const graph = {
       id: "graph.architecture-fixture",
@@ -281,7 +434,12 @@ describe("RegistryGraphFlow", () => {
     const { nodes } = buildRegistryFlowGraph(graph, graphMessages);
     expect(nodes[0]?.style).toMatchObject({ width: 320, height: 180 });
     expect(nodes[0]?.data.visualRole).toBe("group-container");
-    expect(nodes[1]?.style).toMatchObject({ width: 180, height: 72 });
+    expect(nodes[1]?.style).toMatchObject({ width: 180, height: 78 });
     expect(nodes[1]?.data.visualRole).toBe("architecture-attention");
+  });
+
+  test("allows group containers to expose edge handles for architecture graphs", () => {
+    expect(nodeVisualRoleHasHandles("group-container")).toBe(true);
+    expect(nodeVisualRoleHasHandles("annotation")).toBe(false);
   });
 });

@@ -9,25 +9,18 @@
     "sinusoidal position embeddings",
     "sine-cosine positional encoding"
   ],
-  "tags": [
-    "position-encoding",
-    "foundations"
-  ],
+  "tags": ["position-encoding", "foundations"],
   "relatedIds": [
     "concept.positional-encodings",
     "module.absolute-positional-embeddings",
     "module.learned-positional-embeddings"
   ],
-  "citationIds": [
-    "citation.attention-is-all-you-need"
-  ],
+  "citationIds": ["citation.attention-is-all-you-need"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "position-encoding",
-  "optimizes": [
-    "parameter-efficiency"
-  ],
+  "optimizes": ["parameter-efficiency"],
   "practicalBenefits": [
     "provides fixed positional signals without learned parameters"
   ],

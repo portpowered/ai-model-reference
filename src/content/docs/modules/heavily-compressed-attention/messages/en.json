@@ -1,0 +1,59 @@
+{
+  "title": "Heavily Compressed Attention",
+  "description": "A DeepSeek-V4 long-context attention path that relies on a more aggressively compressed memory view when full-detail history is too costly.",
+  "openingSummary": "Compressed sparse attention still keeps a route back to selected high-resolution detail. Heavily compressed attention goes further toward a compact memory view so very long contexts remain feasible even when detailed revisit must be rare.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Heavily compressed attention is the more aggressively compressed side of the DeepSeek-V4 hybrid attention story. Instead of preserving broad access to detailed tokens, it leans harder on a compact representation of old context."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "The module targets extreme long-context efficiency, especially KV-cache growth and memory bandwidth pressure."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "Readers should care because not every long-context step deserves expensive detailed lookup. HCA gives the system a cheaper path for broad distant memory when the full-resolution route would cost too much."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Older context is pushed into a more compressed memory structure, and queries interact with that compact summary rather than reopening a large detailed history by default."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The sketch below keeps the central mental model simple: the history is compressed harder, then queried through that compact path."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "CSA preserves a compressed path plus selective detailed retrieval. HCA moves farther toward compression-first memory, which can be cheaper but also more lossy."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "DeepSeek-V4 presents HCA alongside CSA as part of its hybrid attention design for million-token context."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Heavier compression risks hiding details that would matter if the summary path is too coarse. The gain is efficiency, but the tradeoff is a less faithful memory of distant exact tokens."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "It is a useful reference because it shows that long-context design is not one knob. Systems can mix multiple memory paths with different cost and fidelity."
+    },
+    "related": { "title": "Related" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "A flow from long token history into a heavily compressed memory path and then into a compact query stage.",
+      "caption": "HCA favors a very compact memory path for distant context."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "tokens": { "label": "Long token history" },
+      "compress": { "label": "Heavily compressed memory" },
+      "query": { "label": "Compact long-range query" }
+    }
+  }
+}

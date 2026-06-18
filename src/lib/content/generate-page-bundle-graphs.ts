@@ -108,7 +108,9 @@ export async function buildGraphRegistryArtifacts(input: {
     record.updatedAt = timestamp;
 
     if (spec.graph?.nodes) {
-      const structure = buildGraphStructureFromSpecNodes(spec.graph.nodes);
+      const structure = buildGraphStructureFromSpecNodes(
+        spec.graph.nodes as Record<string, { label: string; summary?: string }>,
+      );
       record.rootNodeId = structure.rootNodeId;
       record.nodes = structure.nodes;
       record.edges = structure.edges;

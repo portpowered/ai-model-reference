@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import {
   getConceptById,
+  getDatasetById,
   getModuleById,
+  getOrganizationById,
   getRegistryCitationIds,
   getRegistryRecordById,
   getRegistryTags,
@@ -112,6 +114,22 @@ describe("registry-runtime", () => {
     expect(getRegistryRecordById("concept.token")?.kind).toBe("concept");
     expect(getRegistryRecordById("module.grouped-query-attention")?.kind).toBe(
       "module",
+    );
+  });
+
+  test("dataset and organization entity types resolve through the runtime", () => {
+    const dataset = getDatasetById("dataset.deepseek-v4-specialist-corpus");
+    const organization = getOrganizationById("organization.deepseek-ai");
+
+    expect(dataset?.kind).toBe("dataset");
+    expect(dataset?.relatedIds).toContain("paper.deepseek-v4");
+    expect(organization?.kind).toBe("organization");
+    expect(organization?.aliases).toContain("DeepSeek AI");
+    expect(
+      getRegistryRecordById("dataset.deepseek-v4-specialist-corpus")?.kind,
+    ).toBe("dataset");
+    expect(getRegistryRecordById("organization.deepseek-ai")?.kind).toBe(
+      "organization",
     );
   });
 

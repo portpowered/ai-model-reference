@@ -1,0 +1,54 @@
+{
+  "title": "DeepSeek-V4",
+  "description": "A technical report that bundles DeepSeek-V4 architecture, long-context attention, post-training methods, and serving systems into one connected release.",
+  "openingSummary": "DeepSeek-V4 matters because it is not one isolated trick. The report ties together new block wiring, long-context attention, post-training routines, and serving systems so the model can keep reasoning depth while staying deployable at very long context lengths.",
+  "sections": {
+    "whatThePaperIntroduced": {
+      "title": "What The Paper Introduced",
+      "body": "The report introduces the DeepSeek-V4-Pro and DeepSeek-V4-Flash models, manifold-constrained hyper-connections inside the backbone, compressed sparse attention and heavily compressed attention for million-token context, DeepSeekMoE routing changes, several post-training methods, and two important serving systems: on-disk KV cache and expert-parallel overlap."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Many papers improve only one layer of the stack. DeepSeek-V4 is more useful as a reference because it shows how model architecture, post-training, quantization, and serving choices can be designed together."
+    },
+    "methodOrArchitecture": {
+      "title": "Method Or Architecture",
+      "body": "At a high level, the architecture keeps a transformer-style backbone but changes how layers share state and how long context is handled. The post-training story then adds specialist data and distillation, while the serving story keeps long sessions practical."
+    },
+    "evidence": {
+      "title": "Evidence",
+      "body": "The paper mixes architecture explanation with deployment evidence. For this site, the important part is not leaderboard ranking. It is the evidence that the proposed modules and systems work together under long-context and low-precision constraints."
+    },
+    "limitations": {
+      "title": "Limitations",
+      "body": "The paper is broad, which means some components are described at a systems level rather than with one clean ablation each. Readers should treat several claims as stack-level evidence, not as perfect proof that one isolated mechanism is always the cause."
+    },
+    "whatItConnectsTo": {
+      "title": "What It Connects To",
+      "body": "This expandable list comes directly from paper metadata rather than inferred similarity. It is the fast map from the report to the reusable records it touches."
+    },
+    "related": {
+      "title": "Related Reference Pages"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "contributionGraph": {
+      "alt": "A contribution map that splits DeepSeek-V4 into architecture, training, and serving branches.",
+      "caption": "The report is easiest to decompose as three connected branches: architecture, post-training, and serving."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "paper": { "label": "DeepSeek-V4 report" },
+      "architecture": { "label": "Architecture changes" },
+      "training": { "label": "Post-training methods" },
+      "systems": { "label": "Serving systems" }
+    }
+  }
+}

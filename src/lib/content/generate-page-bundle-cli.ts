@@ -95,7 +95,7 @@ export function formatGeneratePageBundleUsage(): string {
     "Usage: bun ./scripts/generate-page-bundle.ts --spec <page-spec.json> [options]",
     "",
     "Required:",
-    "  --spec <path>  JSON page spec for concept, glossary, module, model, paper, or training-regime pages",
+    "  --spec <path>  JSON page spec for concept, glossary, module, model, paper, system, or training-regime pages",
     "",
     "Optional:",
     "  --dry-run  Print planned registry id, route, and file paths without writing files",

@@ -57,7 +57,7 @@ export function footerCardHasMutedDirectionalSublabel(
 
 /** Minified bundled CSS drops whitespace and attribute-selector quotes. */
 export function normalizeBundledCss(css: string): string {
-  return css.replaceAll(/\s+/g, "");
+  return css.replaceAll(/\s+/g, "").toLowerCase();
 }
 
 /**
@@ -66,14 +66,30 @@ export function normalizeBundledCss(css: string): string {
  */
 export function bundledCssHasFooterSublabelInheritRule(css: string): boolean {
   const normalized = normalizeBundledCss(css);
+  const hasAccentHoverSelector =
+    normalized.includes('a[class*="hover:bg-fd-accent"]') ||
+    normalized.includes("a[class*=hover\\:bg-fd-accent]") ||
+    normalized.includes("a[class*=hover:bg-fd-accent]");
+  const hasAccentForegroundSelector =
+    normalized.includes('[class*="hover:text-fd-accent-foreground"]') ||
+    normalized.includes("[class*=hover\\:text-fd-accent-foreground]") ||
+    normalized.includes("[class*=hover:text-fd-accent-foreground]");
+  const hasSublabelInheritRule =
+    normalized.includes(">p.text-fd-muted-foreground{color:inherit}") ||
+    normalized.includes(
+      ">p.text-fd-muted-foreground{color:inherit!important}",
+    ) ||
+    normalized.includes(">p.text-fd-muted-foreground{color:currentcolor}") ||
+    normalized.includes(
+      ">p.text-fd-muted-foreground{color:currentcolor!important}",
+    );
 
   return (
     normalized.includes("#nd-page") &&
-    normalized.includes("a[class*=hover\\:bg-fd-accent]") &&
-    normalized.includes("[class*=hover\\:text-fd-accent-foreground]") &&
+    hasAccentHoverSelector &&
+    hasAccentForegroundSelector &&
     normalized.includes(":is(:hover,:focus-visible)") &&
-    (normalized.includes(">p.text-fd-muted-foreground{color:inherit}") ||
-      normalized.includes(">p.text-fd-muted-foreground{color:currentcolor}"))
+    hasSublabelInheritRule
   );
 }
 

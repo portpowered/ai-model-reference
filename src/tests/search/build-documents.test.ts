@@ -26,7 +26,7 @@ describe("buildSearchDocuments", () => {
 
     expect(sample).toBeDefined();
     expect(sample?.title).toBe("Grouped-Query Attention");
-    expect(sample?.description).toContain("KV cache");
+    expect(sample?.description).toContain("key-value cache");
     expect(sample?.aliases).toEqual(
       expect.arrayContaining([
         "GQA",
@@ -38,7 +38,7 @@ describe("buildSearchDocuments", () => {
       expect.arrayContaining(["attention", "kv-cache"]),
     );
     expect(sample?.bodyText).toContain("GQA");
-    expect(sample?.bodyText).toContain("KV-cache");
+    expect(sample?.bodyText).toContain("key-value cache");
     expect(sample?.registryId).toBe("module.grouped-query-attention");
     expect(sample?.facets.moduleType).toBe("attention");
   });

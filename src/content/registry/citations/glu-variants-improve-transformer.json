@@ -4,11 +4,7 @@
   "kind": "citation",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "summary",
-  "aliases": [
-    "SwiGLU paper",
-    "GLU variants paper",
-    "Shazeer SwiGLU paper"
-  ],
+  "aliases": ["SwiGLU paper", "GLU variants paper", "Shazeer SwiGLU paper"],
   "tags": ["foundations"],
   "relatedIds": [],
   "citationIds": [],

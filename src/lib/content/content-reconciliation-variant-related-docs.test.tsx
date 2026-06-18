@@ -170,9 +170,15 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
       <RelatedDocs registryId="module.grouped-query-attention" />,
     );
 
-    expect(html.match(/href="\/docs\/modules\/multi-head-attention"/g)).toHaveLength(1);
-    expect(html.match(/href="\/docs\/modules\/multi-query-attention"/g)).toHaveLength(1);
-    expect(html.match(/href="\/docs\/modules\/multi-head-latent-attention"/g)).toHaveLength(1);
+    expect(
+      html.match(/href="\/docs\/modules\/multi-head-attention"/g),
+    ).toHaveLength(1);
+    expect(
+      html.match(/href="\/docs\/modules\/multi-query-attention"/g),
+    ).toHaveLength(1);
+    expect(
+      html.match(/href="\/docs\/modules\/multi-head-latent-attention"/g),
+    ).toHaveLength(1);
   });
 
   test("module pages render same-variant-group peer links in the related section", async () => {

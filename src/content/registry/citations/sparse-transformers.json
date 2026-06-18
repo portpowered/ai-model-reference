@@ -16,12 +16,7 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "citationType": "paper",
-  "authors": [
-    "Rewon Child",
-    "Scott Gray",
-    "Alec Radford",
-    "Ilya Sutskever"
-  ],
+  "authors": ["Rewon Child", "Scott Gray", "Alec Radford", "Ilya Sutskever"],
   "title": "Generating Long Sequences with Sparse Transformers",
   "year": 2019,
   "url": "https://arxiv.org/abs/1904.10509",

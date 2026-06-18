@@ -1,15 +1,15 @@
 import Link from "next/link";
-import { DocsIndexEntryList, type DocsIndexEntry } from "./DocsIndexEntryList";
-import {
-  bulletlessListClassName,
-  docsResourceCardLinkClassName,
-} from "./list-decoration";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   buildLocalizedRoute,
   defaultLocale,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
+import { type DocsIndexEntry, DocsIndexEntryList } from "./DocsIndexEntryList";
+import {
+  bulletlessListClassName,
+  docsResourceCardLinkClassName,
+} from "./list-decoration";
 
 type BrowseAtlasPageProps = {
   messages: UiMessages;
@@ -17,6 +17,9 @@ type BrowseAtlasPageProps = {
   models: DocsIndexEntry[];
   modules: DocsIndexEntry[];
   concepts: DocsIndexEntry[];
+  papers: DocsIndexEntry[];
+  training: DocsIndexEntry[];
+  systems: DocsIndexEntry[];
   glossary: DocsIndexEntry[];
 };
 
@@ -65,7 +68,11 @@ function BrowseSection({
   linkHref?: string;
 }) {
   return (
-    <section id={id} className="mt-10 scroll-mt-6" aria-labelledby={`${id}-heading`}>
+    <section
+      id={id}
+      className="mt-10 scroll-mt-6"
+      aria-labelledby={`${id}-heading`}
+    >
       <h2
         id={`${id}-heading`}
         className="font-serif text-2xl font-semibold text-foreground"
@@ -96,10 +103,18 @@ export function BrowseAtlasPage({
   models,
   modules,
   concepts,
+  papers,
+  training,
+  systems,
   glossary,
 }: BrowseAtlasPageProps) {
-  const { browseIndex, searchEntry, glossaryIndex, architectureIndex, tagsIndex } =
-    messages;
+  const {
+    browseIndex,
+    searchEntry,
+    glossaryIndex,
+    architectureIndex,
+    tagsIndex,
+  } = messages;
   const quickRoutes: BrowseRouteCard[] = [
     {
       href: buildLocalizedRoute({ surface: "search" }, locale),
@@ -139,7 +154,10 @@ export function BrowseAtlasPage({
         <p className="mt-3 text-sm leading-7 text-muted-foreground">
           {browseIndex.quickRoutesDescription}
         </p>
-        <BrowseRouteCardList cards={quickRoutes} label={browseIndex.quickRoutesTitle} />
+        <BrowseRouteCardList
+          cards={quickRoutes}
+          label={browseIndex.quickRoutesTitle}
+        />
       </section>
 
       <BrowseSection
@@ -147,18 +165,66 @@ export function BrowseAtlasPage({
         title={browseIndex.modelsSectionTitle}
         description={browseIndex.modelsSectionDescription}
         entries={models}
+        linkHref={buildLocalizedRoute(
+          { surface: "docs-page", slug: "models" },
+          locale,
+        )}
+        linkLabel={browseIndex.modelsSectionLinkLabel}
       />
       <BrowseSection
         id="modules"
         title={browseIndex.modulesSectionTitle}
         description={browseIndex.modulesSectionDescription}
         entries={modules}
+        linkHref={buildLocalizedRoute(
+          { surface: "docs-page", slug: "modules" },
+          locale,
+        )}
+        linkLabel={browseIndex.modulesSectionLinkLabel}
       />
       <BrowseSection
         id="concepts"
         title={browseIndex.conceptsSectionTitle}
         description={browseIndex.conceptsSectionDescription}
         entries={concepts}
+        linkHref={buildLocalizedRoute(
+          { surface: "docs-page", slug: "concepts" },
+          locale,
+        )}
+        linkLabel={browseIndex.conceptsSectionLinkLabel}
+      />
+      <BrowseSection
+        id="papers"
+        title={browseIndex.papersSectionTitle}
+        description={browseIndex.papersSectionDescription}
+        entries={papers}
+        linkHref={buildLocalizedRoute(
+          { surface: "docs-page", slug: "papers" },
+          locale,
+        )}
+        linkLabel={browseIndex.papersSectionLinkLabel}
+      />
+      <BrowseSection
+        id="training"
+        title={browseIndex.trainingSectionTitle}
+        description={browseIndex.trainingSectionDescription}
+        entries={training}
+        linkHref={buildLocalizedRoute(
+          { surface: "docs-page", slug: "training" },
+          locale,
+        )}
+        linkLabel={browseIndex.trainingSectionLinkLabel}
+      />
+      <BrowseSection
+        id="systems"
+        title={browseIndex.systemsSectionTitle}
+        description={browseIndex.systemsSectionDescription}
+        entries={systems}
+        linkHref={buildLocalizedRoute(
+          { surface: "docs-page", slug: "systems" },
+          locale,
+        )}
+        linkLabel={browseIndex.systemsSectionLinkLabel}
       />
       <BrowseSection
         id="glossary"

@@ -1,10 +1,13 @@
 import type {
   CitationRecord,
   ConceptRecord,
+  DatasetRecord,
   GraphRecord,
   ModelRecord,
   ModuleRecord,
+  OrganizationRecord,
   PaperRecord,
+  SystemRecord,
   TagRecord,
   TrainingRegimeRecord,
 } from "./schemas";
@@ -15,6 +18,9 @@ export type RegistryRecord =
   | ModelRecord
   | PaperRecord
   | TrainingRegimeRecord
+  | SystemRecord
+  | DatasetRecord
+  | OrganizationRecord
   | TagRecord
   | CitationRecord
   | GraphRecord;

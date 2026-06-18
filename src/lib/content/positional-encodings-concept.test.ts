@@ -63,9 +63,7 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     const absolute = items.find(
       (item) => item.registryId === "concept.absolute-positional-embeddings",
     );
-    expect(absolute?.href).toBe(
-      "/docs/modules/absolute-positional-embeddings",
-    );
+    expect(absolute?.href).toBe("/docs/modules/absolute-positional-embeddings");
     expect(absolute?.isPlanned).toBe(false);
 
     const relativeBias = items.find(

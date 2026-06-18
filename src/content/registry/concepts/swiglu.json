@@ -4,15 +4,8 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "swish gated linear unit",
-    "SiLU-gated FFN",
-    "SwiGLU FFN"
-  ],
-  "tags": [
-    "feed-forward",
-    "foundations"
-  ],
+  "aliases": ["swish gated linear unit", "SiLU-gated FFN", "SwiGLU FFN"],
+  "tags": ["feed-forward", "foundations"],
   "relatedIds": [
     "concept.feed-forward-network",
     "concept.standard-ffn",

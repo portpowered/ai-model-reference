@@ -1,0 +1,23 @@
+{
+  "id": "training-regime.fp4-quantization-aware-training",
+  "slug": "fp4-quantization-aware-training",
+  "kind": "training-regime",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["FP4 QAT", "fp4 quantization-aware training"],
+  "tags": ["quantization", "foundations"],
+  "relatedIds": ["paper.deepseek-v4", "concept.quantization-aware-training"],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "releaseDate": "2026-06-13",
+  "authors": ["DeepSeek-AI"],
+  "sourceId": "paper.deepseek-v4",
+  "regimeType": "optimization",
+  "usedByModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
+  "relatedModuleIds": ["module.compressed-sparse-attention"],
+  "paperIds": ["paper.deepseek-v4"],
+  "conceptType": "training",
+  "variantGroup": "deepseek-v4-quantization"
+}

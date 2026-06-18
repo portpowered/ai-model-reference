@@ -71,6 +71,7 @@ type RegistryKind =
   | "concept"
   | "paper"
   | "training-regime"
+  | "system"
   | "dataset"
   | "hardware"
   | "organization"

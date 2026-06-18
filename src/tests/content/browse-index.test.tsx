@@ -8,9 +8,9 @@ describe("browse index messages", () => {
     const messages = await loadUiMessages();
     expect(messages.browseIndex.title).toBe("Browse the Atlas");
     expect(messages.browseIndex.description.length).toBeGreaterThan(0);
-    expect(messages.browseIndex.modelsSectionDescription.length).toBeGreaterThan(
-      0,
-    );
+    expect(
+      messages.browseIndex.modelsSectionDescription.length,
+    ).toBeGreaterThan(0);
   });
 });
 
@@ -27,6 +27,9 @@ describe("browse index page render", () => {
       "/docs/models/gpt-3",
       "/docs/modules/grouped-query-attention",
       "/docs/concepts/transformer-architecture",
+      "/docs/papers/deepseek-v4",
+      "/docs/training/on-policy-distillation",
+      "/docs/systems/on-disk-kv-cache",
       "/docs/glossary/token",
     ] as const) {
       expect(html).toContain(`href="${href}"`);
@@ -37,6 +40,9 @@ describe("browse index page render", () => {
       "Models",
       "Modules",
       "Concepts",
+      "Papers",
+      "Training",
+      "Systems",
       "Glossary",
       "Browse the full glossary",
     ] as const) {

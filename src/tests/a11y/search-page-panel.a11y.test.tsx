@@ -7,7 +7,7 @@ import {
   expect,
   test,
 } from "bun:test";
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SearchPagePanelContent } from "@/features/docs/search/SearchPagePanel";
 import { expectNoSeriousAxeViolations } from "@/tests/a11y/axe";
@@ -96,6 +96,9 @@ describe("search page panel accessibility smoke", () => {
     );
     await user.type(searchInput, "zzzz-no-matches-zzzz");
 
+    await waitFor(() => {
+      expect(screen.queryByTestId("search-page-loading")).toBeNull();
+    });
     await screen.findByTestId("search-page-empty");
     expect(screen.getByText(context.messages.search.noResults)).toBeTruthy();
 

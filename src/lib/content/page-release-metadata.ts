@@ -1,9 +1,10 @@
-import { getCitationById } from "@/lib/content/registry-runtime";
+import { getCitationById, getPaperById } from "@/lib/content/registry-runtime";
 import type {
   ConceptRecord,
   ModelRecord,
   ModuleRecord,
   PaperRecord,
+  SystemRecord,
   TrainingRegimeRecord,
 } from "@/lib/content/schemas";
 
@@ -22,6 +23,7 @@ export type ReleasablePageRecord =
   | ModelRecord
   | ModuleRecord
   | PaperRecord
+  | SystemRecord
   | TrainingRegimeRecord;
 
 function resolveSource(sourceId: string | undefined) {
@@ -30,13 +32,21 @@ function resolveSource(sourceId: string | undefined) {
   }
 
   const sourceRecord = getCitationById(sourceId);
-  if (!sourceRecord) {
+  if (sourceRecord) {
+    return {
+      title: sourceRecord.title,
+      url: sourceRecord.url,
+    };
+  }
+
+  const paperRecord = getPaperById(sourceId);
+  if (!paperRecord) {
     return undefined;
   }
 
   return {
-    title: sourceRecord.title,
-    url: sourceRecord.url,
+    title: paperRecord.aliases[0] ?? paperRecord.slug,
+    url: paperRecord.url,
   };
 }
 
@@ -52,6 +62,10 @@ export function buildPageReleaseMetadata(
       authors: record.authors,
       dateLabel: "Published",
       releaseDate: record.publishedAt,
+      source: {
+        title: record.aliases[0] ?? record.slug,
+        url: record.url,
+      },
     };
   }
 

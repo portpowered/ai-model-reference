@@ -1,0 +1,55 @@
+{
+  "title": "DeepSeekMoE",
+  "description": "The MoE block style emphasized in DeepSeek-V4, where expert routing is a central architecture and serving choice rather than a small add-on.",
+  "openingSummary": "Dense feed-forward blocks waste compute when only a few specialized transformations are useful for one token. DeepSeekMoE keeps sparse expert capacity, but the V4 framing makes routing and parallel serving part of the module story instead of an afterthought.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "DeepSeekMoE is the DeepSeek-specific MoE block family described in the V4 report. It still follows the broad MoE idea of routing tokens to a subset of experts, but it is presented as a mature backbone choice rather than an experimental add-on."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "The module aims to raise parameter capacity while keeping per-token active compute much lower than a dense feed-forward block of the same total size."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "DeepSeekMoE matters because it links model design to serving design. Once expert routing is central, the runtime must also be built to move tokens and overlap expert work efficiently."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "A router scores the token state, selects experts, and combines the chosen expert outputs. The V4 story then adds serving machinery so those expert choices do not turn into a deployment bottleneck."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with a dense FFN, the difference is obvious: not every expert fires. Compared with a generic MoE page, DeepSeekMoE is more tightly coupled to the runtime and system assumptions in the paper."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "DeepSeek-V4-Pro and Flash both use this family of sparse expert block."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Sparse experts raise system complexity. Routing, load balance, cross-device traffic, and debugging all become more demanding than in a dense baseline."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "This page is a good bridge between architecture and systems thinking, because MoE is rarely just a local block choice once the model is large enough."
+    },
+    "related": { "title": "Related" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "A token enters a router, selected experts process it, and their outputs are merged.",
+      "caption": "DeepSeekMoE is easiest to picture as token routing plus expert execution plus merge."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "token": { "label": "Token state" },
+      "router": { "label": "Router" },
+      "experts": { "label": "Selected experts" }
+    }
+  }
+}

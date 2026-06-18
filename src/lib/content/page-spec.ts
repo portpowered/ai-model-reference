@@ -11,6 +11,7 @@ import {
   pageAssetConfigSchema,
   pageGraphMessagesSchema,
   registryStatusSchema,
+  systemTypeSchema,
   trainingRegimeTypeSchema,
 } from "./schemas";
 
@@ -21,6 +22,7 @@ export const PAGE_SPEC_KINDS = [
   "model",
   "paper",
   "training-regime",
+  "system",
 ] as const;
 
 export type PageSpecKind = (typeof PAGE_SPEC_KINDS)[number];
@@ -28,6 +30,7 @@ export type PageSpecKind = (typeof PAGE_SPEC_KINDS)[number];
 export {
   modelModalitySchema,
   modelSourceTypeSchema,
+  systemTypeSchema,
   trainingRegimeTypeSchema,
 } from "./schemas";
 
@@ -155,6 +158,22 @@ export const trainingRegimePageSpecSchema = pageSpecBaseSchema.extend({
   paperIds: z.array(z.string()).default([]),
 });
 
+export const systemPageSpecSchema = pageSpecBaseSchema.extend({
+  kind: z.literal("system"),
+  releaseDate: z.string().optional(),
+  authors: z.array(z.string().min(1)).min(1).optional(),
+  sourceId: z.string().min(1).optional(),
+  systemType: systemTypeSchema,
+  conceptType: conceptTypeSchema.optional(),
+  variantGroup: z.string().optional(),
+  relatedModelIds: z.array(z.string()).default([]),
+  relatedModuleIds: z.array(z.string()).default([]),
+  relatedConceptIds: z.array(z.string()).default([]),
+  paperIds: z.array(z.string()).default([]),
+  datasetIds: z.array(z.string()).default([]),
+  organizationId: z.string().optional(),
+});
+
 export const pageSpecSchema = z.discriminatedUnion("kind", [
   conceptPageSpecSchema,
   glossaryPageSpecSchema,
@@ -162,6 +181,7 @@ export const pageSpecSchema = z.discriminatedUnion("kind", [
   modelPageSpecSchema,
   paperPageSpecSchema,
   trainingRegimePageSpecSchema,
+  systemPageSpecSchema,
 ]);
 
 export type ConceptPageSpec = z.infer<typeof conceptPageSpecSchema>;
@@ -172,6 +192,7 @@ export type PaperPageSpec = z.infer<typeof paperPageSpecSchema>;
 export type TrainingRegimePageSpec = z.infer<
   typeof trainingRegimePageSpecSchema
 >;
+export type SystemPageSpec = z.infer<typeof systemPageSpecSchema>;
 export type PageSpec = z.infer<typeof pageSpecSchema>;
 
 export type PageSpecValidationIssue = {
@@ -248,7 +269,7 @@ export async function parsePageSpecFile(path: string): Promise<PageSpec> {
 
 const registryKindByPageKind: Record<
   PageSpecKind,
-  "concept" | "module" | "model" | "paper" | "training-regime"
+  "concept" | "module" | "model" | "paper" | "training-regime" | "system"
 > = {
   concept: "concept",
   glossary: "concept",
@@ -256,6 +277,7 @@ const registryKindByPageKind: Record<
   model: "model",
   paper: "paper",
   "training-regime": "training-regime",
+  system: "system",
 };
 
 export function registryKindForPageSpec(

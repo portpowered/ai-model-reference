@@ -52,15 +52,17 @@ describe("RegistryComparisonTable", () => {
     expect(html).toContain('data-registry-comparison-table="true"');
     expect(html).toContain('data-rich-content-scroll="table"');
     expect(html).not.toContain(">table.grouped-query-attention-comparison<");
-    expect(html).toContain("KV head count");
+    expect(html).toContain("Key-value head count");
     expect(html).toContain("Query-head flexibility");
     expect(html).toContain("Cache footprint per token");
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain("G key heads and G value heads");
-    expect(html).toContain("single shared");
-    expect(html).toContain("KV cache");
-    expect(html).toContain("How GQA compares with nearby attention variants");
+    expect(html).toContain("single shared key-value cache");
+    expect(html).toContain("key-value cache");
+    expect(html).toContain(
+      "How grouped-query attention compares with nearby attention variants",
+    );
   });
 
   test("localizes shipped docs column links for Vietnamese pages", () => {

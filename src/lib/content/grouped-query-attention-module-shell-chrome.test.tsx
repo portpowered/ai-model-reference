@@ -80,7 +80,7 @@ describe("grouped-query-attention module shell chrome", () => {
 
     const plainHtml = stripHtmlTags(html);
     expect(plainHtml).toContain(
-      "Grouped-query attention is an attention variant",
+      "Grouped-query attention (GQA) is an attention variant",
     );
     expect(atAGlanceIndex).toBeGreaterThanOrEqual(0);
     expect(whatItIsIndex).toBeGreaterThan(atAGlanceIndex);

@@ -71,19 +71,21 @@ describe("Phase 3 layer norm module page (US-005)", () => {
     expect(messages.math?.layerNormSchema?.variableDefinitions?.x?.term).toBe(
       "x",
     );
-    expect(
-      messages.math?.layerNormSchema?.variableDefinitions?.mu?.term,
-    ).toBe("\\mu");
+    expect(messages.math?.layerNormSchema?.variableDefinitions?.mu?.term).toBe(
+      "\\mu",
+    );
     expect(
       messages.math?.layerNormSchema?.variableDefinitions?.gamma?.definition,
     ).toContain("scale");
-    expect(messages.math?.rmsNormSchema?.formula).toContain("\\mathrm{RMSNorm}");
+    expect(messages.math?.rmsNormSchema?.formula).toContain(
+      "\\mathrm{RMSNorm}",
+    );
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
       "layer normalization",
     );
-    expect(messages.sections?.mathOrComputeSchema.body?.toLowerCase()).toContain(
-      "rmsnorm",
-    );
+    expect(
+      messages.sections?.mathOrComputeSchema.body?.toLowerCase(),
+    ).toContain("rmsnorm");
   });
 
   test("page renders module-template sections, norm switcher, and formula comparison", async () => {

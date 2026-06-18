@@ -6,15 +6,15 @@ import {
 } from "fumadocs-ui/layouts/docs/page";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import { notFound } from "next/navigation";
-import { DocsPageBreadcrumb } from "@/features/docs/components/DocsPageBreadcrumb";
 import { DocsAutoLinkedDescription } from "@/features/docs/components/DocsAutoLinkedDescription";
+import { DocsPageBreadcrumb } from "@/features/docs/components/DocsPageBreadcrumb";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
   loadLocalDocsPage,
   parseLocalDocsPageRef,
 } from "@/lib/content/local-docs-page";
-import { loadUiMessages } from "@/lib/content/ui-messages";
 import { isDocsPageShippedForLocale } from "@/lib/content/pages";
+import { loadUiMessages } from "@/lib/content/ui-messages";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
 import { source } from "@/lib/source";

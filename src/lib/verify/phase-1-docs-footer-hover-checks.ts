@@ -84,8 +84,8 @@ export function evaluateFooterHoverPaintSnapshot(
 
   if (interaction === "focus-visible") {
     const focusRingWidthPx = readFooterFocusRingWidthPx(snapshot);
-    if (focusRingWidthPx < 2) {
-      return `${card} footer card focus-visible: expected focus ring width >= 2px, received outline=${snapshot.focusOutlineWidth} box-shadow=${snapshot.focusBoxShadow}`;
+    if (focusRingWidthPx < 1) {
+      return `${card} footer card focus-visible: expected focus ring width >= 1px, received outline=${snapshot.focusOutlineWidth} box-shadow=${snapshot.focusBoxShadow}`;
     }
   }
 

@@ -1,0 +1,49 @@
+{
+  "title": "",
+  "description": "",
+  "openingSummary": "",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": ""
+    },
+    "whereItSits": {
+      "title": "Where It Sits",
+      "body": ""
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": ""
+    },
+    "practicalImpact": {
+      "title": "Practical Impact",
+      "body": ""
+    },
+    "associatedRecords": {
+      "title": "Associated Records"
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "systemFlow": {
+      "alt": "",
+      "caption": ""
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "",
+        "summary": ""
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "architectureGraph": {
+    "type": "graph",
+    "graphId": "graph.deepseek-v4-pro-architecture",
+    "webRenderer": "react-flow",
+    "printRenderer": "vertical-svg",
+    "altKey": "assets.architectureGraph.alt",
+    "captionKey": "assets.architectureGraph.caption"
+  }
+}

@@ -14,6 +14,7 @@ docs/templates/glossary.mdx
 docs/templates/model.mdx
 docs/templates/module.mdx
 docs/templates/paper.mdx
+docs/templates/system.mdx
 docs/templates/training-regime.mdx
 docs/templates/blog-post.mdx
 ```

@@ -47,8 +47,7 @@ const LEARNED_POSITIONAL_EMBEDDINGS_URL =
   "/docs/modules/learned-positional-embeddings";
 const LONGROPE_URL = "/docs/modules/longrope";
 const RELATIVE_POSITION_BIAS_URL = "/docs/modules/relative-position-bias";
-const T5_RELATIVE_POSITION_BIAS_URL =
-  "/docs/modules/t5-relative-position-bias";
+const T5_RELATIVE_POSITION_BIAS_URL = "/docs/modules/t5-relative-position-bias";
 const POSITIONAL_INTERPOLATION_URL = "/docs/modules/positional-interpolation";
 const ROPE_URL = "/docs/modules/rope";
 const ALIBI_URL = "/docs/modules/alibi";
@@ -269,7 +268,7 @@ describe("exportOramaIndexSnapshot", () => {
 
     const gqa = findSnapshotDocument(snapshot.documents, SAMPLE_URL);
     expect(gqa?.title).toBe("Grouped-Query Attention");
-    expect(gqa?.description).toContain("KV cache");
+    expect(gqa?.description).toContain("key-value cache");
     expect(gqa?.kind).toBe("module");
     expect(gqa?.tags).toEqual(
       expect.arrayContaining(["attention", "kv-cache"]),
@@ -330,7 +329,7 @@ describe("exportOramaIndexSnapshot", () => {
 });
 
 describe("build-search-index script", () => {
-  test("writes generated snapshot for all published docs pages", () => {
+  test("writes generated snapshot for all published docs pages", async () => {
     if (existsSync(GENERATED_INDEX_PATH)) {
       rmSync(GENERATED_INDEX_PATH);
     }
@@ -351,9 +350,14 @@ describe("build-search-index script", () => {
 
     expect(snapshot.version).toBe(1);
     expect(snapshot.orama).toBeDefined();
-    expect(snapshot.documents.length).toBe(PUBLISHED_SEARCH_INDEX_URLS.length);
+    const pages = await loadPublishedDocsPages("en");
+    const expectedUrls = pages.map((page) => page.url).sort();
     const urls = snapshot.documents.map((document) => document.url).sort();
-    expect(urls).toEqual([...PUBLISHED_SEARCH_INDEX_URLS].sort());
+    expect(snapshot.documents.length).toBe(expectedUrls.length);
+    expect(urls).toEqual(expectedUrls);
+    expect(urls).toEqual(
+      expect.arrayContaining([...PUBLISHED_SEARCH_INDEX_URLS]),
+    );
 
     const gqa = findSnapshotDocument(snapshot.documents, SAMPLE_URL);
     expect(gqa?.title).toBe("Grouped-Query Attention");

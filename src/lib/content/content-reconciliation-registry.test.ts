@@ -1,8 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { loadPublishedDocsPages } from "./pages";
-import { PUBLISHED_DOCS_REGISTRY_IDS } from "./published-docs-registry-ids";
+import {
+  MODULE_BACKED_CONCEPT_REGISTRY_IDS,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "./published-docs-registry-ids";
 import type { RegistryRecord } from "./registry";
 import { loadRegistry } from "./registry";
+import { hasPublishedDocsPageForRecord } from "./registry-linking";
 import {
   validateColocatedPageBundle,
   validateRegistryContent,
@@ -62,17 +66,31 @@ describe("Phase 2/3 reconciliation registry validation (US-001)", () => {
   });
 
   test("published docs registry ids match every published page frontmatter registryId", async () => {
+    const indexes = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
     const pageRegistryIds = new Set(
       pages.map((page) => page.frontmatter.registryId),
     );
 
-    expect(pageRegistryIds.size).toBe(PUBLISHED_DOCS_REGISTRY_IDS.size);
-    for (const registryId of PUBLISHED_DOCS_REGISTRY_IDS) {
-      expect(pageRegistryIds.has(registryId)).toBe(true);
+    for (const page of pages) {
+      expect(PUBLISHED_DOCS_REGISTRY_IDS.has(page.frontmatter.registryId)).toBe(
+        true,
+      );
     }
-    for (const registryId of pageRegistryIds) {
-      expect(PUBLISHED_DOCS_REGISTRY_IDS.has(registryId)).toBe(true);
+
+    for (const registryId of PUBLISHED_DOCS_REGISTRY_IDS) {
+      const record = indexes.byId.get(registryId);
+      expect(record).toBeDefined();
+      if (!record) {
+        continue;
+      }
+      expect(
+        hasPublishedDocsPageForRecord(record, PUBLISHED_DOCS_REGISTRY_IDS),
+      ).toBe(true);
+      if (MODULE_BACKED_CONCEPT_REGISTRY_IDS.has(registryId)) {
+        const moduleRegistryId = registryId.replace(/^concept\./, "module.");
+        expect(pageRegistryIds.has(moduleRegistryId)).toBe(true);
+      }
     }
   });
 

@@ -6,6 +6,7 @@ export const registryKindSchema = z.enum([
   "concept",
   "paper",
   "training-regime",
+  "system",
   "dataset",
   "hardware",
   "organization",
@@ -217,6 +218,49 @@ export const trainingRegimeRecordSchema = z.object({
   variantGroup: z.string().optional(),
 });
 
+export const systemTypeSchema = z.enum([
+  "runtime",
+  "memory",
+  "routing",
+  "serving",
+  "training-infrastructure",
+  "kernel",
+  "other",
+]);
+
+export const systemRecordSchema = z.object({
+  ...baseRecordShape,
+  kind: z.literal("system"),
+  ...releaseMetadataShape,
+  systemType: systemTypeSchema,
+  relatedModelIds: z.array(z.string()),
+  relatedModuleIds: z.array(z.string()),
+  relatedConceptIds: z.array(z.string()),
+  paperIds: z.array(z.string()),
+  datasetIds: z.array(z.string()),
+  organizationId: z.string().optional(),
+  conceptType: conceptTypeSchema.optional(),
+  variantGroup: z.string().optional(),
+});
+
+export const datasetRecordSchema = z.object({
+  ...baseRecordShape,
+  kind: z.literal("dataset"),
+  ...releaseMetadataShape,
+  usedByModelIds: z.array(z.string()),
+  paperIds: z.array(z.string()),
+  organizationId: z.string().optional(),
+});
+
+export const organizationRecordSchema = z.object({
+  ...baseRecordShape,
+  kind: z.literal("organization"),
+  website: z.string().url().optional(),
+  modelIds: z.array(z.string()),
+  paperIds: z.array(z.string()),
+  systemIds: z.array(z.string()),
+});
+
 export const generatedPageBundleRegistryRecordSchema = z.discriminatedUnion(
   "kind",
   [
@@ -225,6 +269,7 @@ export const generatedPageBundleRegistryRecordSchema = z.discriminatedUnion(
     modelRecordSchema,
     paperRecordSchema,
     trainingRegimeRecordSchema,
+    systemRecordSchema,
   ],
 );
 
@@ -362,6 +407,9 @@ export const registryRecordSchema = z.discriminatedUnion("kind", [
   modelRecordSchema,
   paperRecordSchema,
   trainingRegimeRecordSchema,
+  systemRecordSchema,
+  datasetRecordSchema,
+  organizationRecordSchema,
   tagRecordSchema,
   citationRecordSchema,
   graphRecordSchema,
@@ -565,6 +613,9 @@ export type ConceptRecord = z.infer<typeof conceptRecordSchema>;
 export type ModelRecord = z.infer<typeof modelRecordSchema>;
 export type PaperRecord = z.infer<typeof paperRecordSchema>;
 export type TrainingRegimeRecord = z.infer<typeof trainingRegimeRecordSchema>;
+export type SystemRecord = z.infer<typeof systemRecordSchema>;
+export type DatasetRecord = z.infer<typeof datasetRecordSchema>;
+export type OrganizationRecord = z.infer<typeof organizationRecordSchema>;
 export type GeneratedPageBundleRegistryRecord = z.infer<
   typeof generatedPageBundleRegistryRecordSchema
 >;

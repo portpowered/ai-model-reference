@@ -9,8 +9,8 @@ import { notFound } from "next/navigation";
 import { HomeArticle } from "@/components/home/home-article";
 import { BrowseAtlasPage } from "@/features/docs/components/BrowseAtlasPage";
 import { DocsIndexEmptyState } from "@/features/docs/components/DocsIndexEmptyState";
-import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
 import type { DocsIndexEntry } from "@/features/docs/components/DocsIndexEntryList";
+import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
 import { SearchPagePanelContent } from "@/features/docs/search/SearchPagePanel";
 import {
@@ -74,14 +74,12 @@ function toDocsIndexEntries(
     (page) => !preferredSlugs.includes(page.docsSlug),
   );
 
-  return [...preferredPages, ...remainingPages]
-    .slice(0, limit)
-    .map((page) => ({
-      slug: page.docsSlug,
-      title: page.messages.title,
-      summary: page.messages.description,
-      url: page.url,
-    }));
+  return [...preferredPages, ...remainingPages].slice(0, limit).map((page) => ({
+    slug: page.docsSlug,
+    title: page.messages.title,
+    summary: page.messages.description,
+    url: page.url,
+  }));
 }
 
 const BROWSE_MODELS_STARTER_SLUGS = ["models/gpt-3"] as const;
@@ -100,6 +98,16 @@ const BROWSE_CONCEPTS_STARTER_SLUGS = [
   "concepts/quantization",
   "concepts/why-long-context-is-hard",
   "concepts/kv-cache-quantization",
+] as const;
+const BROWSE_PAPERS_STARTER_SLUGS = ["papers/deepseek-v4"] as const;
+const BROWSE_TRAINING_STARTER_SLUGS = [
+  "training/on-policy-distillation",
+  "training/specialist-training",
+  "training/fp4-quantization-aware-training",
+] as const;
+const BROWSE_SYSTEMS_STARTER_SLUGS = [
+  "systems/on-disk-kv-cache",
+  "systems/expert-parallel-overlap",
 ] as const;
 const BROWSE_GLOSSARY_STARTER_SLUGS = [
   "glossary/token",
@@ -156,6 +164,21 @@ export async function renderBrowseIndexPage(
             locale,
             [...BROWSE_CONCEPTS_STARTER_SLUGS],
           )}
+          papers={toDocsIndexEntries(
+            pages.filter((page) => page.frontmatter.kind === "paper"),
+            locale,
+            [...BROWSE_PAPERS_STARTER_SLUGS],
+          )}
+          training={toDocsIndexEntries(
+            pages.filter((page) => page.frontmatter.kind === "training-regime"),
+            locale,
+            [...BROWSE_TRAINING_STARTER_SLUGS],
+          )}
+          systems={toDocsIndexEntries(
+            pages.filter((page) => page.frontmatter.kind === "system"),
+            locale,
+            [...BROWSE_SYSTEMS_STARTER_SLUGS],
+          )}
           glossary={toDocsIndexEntries(
             pages.filter((page) => page.frontmatter.kind === "glossary"),
             locale,
@@ -168,7 +191,7 @@ export async function renderBrowseIndexPage(
 }
 
 export async function renderSectionKindIndexPage(
-  kind: "model" | "module" | "concept",
+  kind: "model" | "module" | "concept" | "paper" | "training-regime" | "system",
   locale: SiteLocale = defaultLocale,
 ) {
   const messages = await loadUiMessages(locale);
@@ -178,7 +201,13 @@ export async function renderSectionKindIndexPage(
       ? messages.modelsIndex
       : kind === "module"
         ? messages.modulesIndex
-        : messages.conceptsIndex;
+        : kind === "concept"
+          ? messages.conceptsIndex
+          : kind === "paper"
+            ? messages.papersIndex
+            : kind === "training-regime"
+              ? messages.trainingIndex
+              : messages.systemsIndex;
   const entries = toDocsIndexEntries(
     pages.filter((page) => page.frontmatter.kind === kind),
     locale,

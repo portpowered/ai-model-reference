@@ -4,15 +4,8 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "sigmoid linear unit",
-    "Swish",
-    "SiLU activation"
-  ],
-  "tags": [
-    "activation",
-    "foundations"
-  ],
+  "aliases": ["sigmoid linear unit", "Swish", "SiLU activation"],
+  "tags": ["activation", "foundations"],
   "relatedIds": [
     "concept.activation",
     "concept.feed-forward-network",

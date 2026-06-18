@@ -1,0 +1,83 @@
+{
+  "title": "Manifold-Constrained Hyper-Connections",
+  "description": "A DeepSeek-V4 block-level wiring change that gives layers a richer shared path without making every update fully dense.",
+  "openingSummary": "Deep transformer stacks often lose useful intermediate state as they get deeper. Manifold-constrained hyper-connections try to preserve richer cross-layer exchange while keeping the update path structured enough to remain trainable.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "This module is a block-level connection pattern rather than a new attention rule by itself. The paper presents it as a way for the residual pathway to carry more structured information between layers."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "The goal is depth stability and better reuse of useful state, especially when the rest of the stack is already complicated by sparse experts and long-context attention."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "Readers should think of MHC as plumbing that helps the rest of the architecture cooperate. It matters because long-context and sparse routing tricks are easier to use when the block-to-block pathway stays reliable."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The incoming residual stream is projected into a constrained shared space, transformed, then merged back into the block update. The exact implementation details matter less here than the high-level fact that the residual route is no longer treated as one simple passthrough."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "This formula is only a teaching sketch. It highlights the idea that a residual state is mapped into a constrained latent route before it is merged back."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Unlike an attention variant, MHC changes how layers exchange and preserve state. It sits closer to block wiring and residual design than to token reachability."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "DeepSeek-V4 uses this pattern as part of its backbone story."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "The paper treats MHC as part of a bundle. That makes it harder to isolate the exact gain from this one mechanism in every setting."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "It is a good reminder that major model releases can change the wiring around familiar blocks, not only the blocks themselves."
+    },
+    "related": { "title": "Related" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "A simple flow from residual input through a constrained shared manifold and back to a merged output.",
+      "caption": "MHC is easier to read as structured block wiring than as a new attention pattern."
+    }
+  },
+  "math": {
+    "mhcSchema": {
+      "label": "Residual update sketch",
+      "formula": "z = M(h), \\quad h' = h + U(z)",
+      "variableDefinitions": {
+        "h": {
+          "term": "h",
+          "definition": "the incoming hidden or residual state"
+        },
+        "z": {
+          "term": "z",
+          "definition": "the constrained shared representation"
+        },
+        "m": {
+          "term": "M",
+          "definition": "the mapping into the constrained route"
+        },
+        "u": {
+          "term": "U",
+          "definition": "the update merged back into the block state"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "residual": { "label": "Residual state" },
+      "manifold": { "label": "Constrained shared route" },
+      "merge": { "label": "Merged block update" }
+    }
+  }
+}

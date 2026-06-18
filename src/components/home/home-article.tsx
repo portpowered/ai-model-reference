@@ -6,9 +6,9 @@ import { HomeBrushHeader } from "@/components/home/home-brush-header";
 import { isDocsPageShippedForLocale } from "@/lib/content/pages";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
+  buildLocalizedRoute,
   defaultLocale,
   type SiteLocale,
-  buildLocalizedRoute,
 } from "@/lib/i18n/locale-routing";
 
 type HomeArticleProps = {

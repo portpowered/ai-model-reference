@@ -41,11 +41,18 @@ describe("validatePageSpec", () => {
       },
     });
 
+    const callouts = spec.callouts as
+      | Record<string, { body: string }>
+      | undefined;
+    const graph = spec.graph as
+      | { nodes: Record<string, { label: string }> }
+      | undefined;
+
     expect(spec.openingSummary).toBe("Folded opening summary for the page.");
     expect(spec.relatedIds).toEqual(["concept.token"]);
     expect(spec.citationIds).toEqual(["citation.example"]);
-    expect(spec.callouts?.keyIdea.body).toContain("compact page spec");
-    expect(spec.graph?.nodes.input.label).toBe("Page spec");
+    expect(callouts?.keyIdea?.body).toContain("compact page spec");
+    expect(graph?.nodes.input?.label).toBe("Page spec");
   });
 
   test("accepts a valid concept page spec", () => {
@@ -72,7 +79,11 @@ describe("validatePageSpec", () => {
     expect(registryIdForPageSpec(spec)).toBe("concept.example-page");
     expect(registryKindForPageSpec(spec)).toBe("concept");
     if (spec.kind === "concept") {
-      expect(spec.assetMessages?.conceptMap.alt).toBe(
+      const assetMessages = spec.assetMessages as
+        | Record<string, { alt?: string }>
+        | undefined;
+
+      expect(assetMessages?.conceptMap?.alt).toBe(
         "Diagram alt from page spec.",
       );
     }
@@ -163,6 +174,21 @@ describe("validatePageSpec", () => {
       expect(spec.regimeType).toBe("pretraining");
     }
     expect(registryIdForPageSpec(spec)).toBe("training-regime.example-page");
+  });
+
+  test("accepts a valid system page spec", () => {
+    const spec = validatePageSpec({
+      ...baseFields,
+      kind: "system",
+      systemType: "serving",
+      relatedModelIds: ["model.example-model"],
+    });
+
+    expect(spec.kind).toBe("system");
+    if (spec.kind === "system") {
+      expect(spec.systemType).toBe("serving");
+    }
+    expect(registryIdForPageSpec(spec)).toBe("system.example-page");
   });
 
   test("derives canonical frontmatter fields from a page spec", () => {
@@ -269,6 +295,21 @@ describe("validatePageSpec", () => {
       const validationError = error as PageSpecValidationError;
       expect(
         validationError.issues.some((issue) => issue.field === "regimeType"),
+      ).toBe(true);
+    }
+  });
+
+  test("reports missing systemType for system pages", () => {
+    try {
+      validatePageSpec({
+        ...baseFields,
+        kind: "system",
+      });
+    } catch (error) {
+      expect(error).toBeInstanceOf(PageSpecValidationError);
+      const validationError = error as PageSpecValidationError;
+      expect(
+        validationError.issues.some((issue) => issue.field === "systemType"),
       ).toBe(true);
     }
   });

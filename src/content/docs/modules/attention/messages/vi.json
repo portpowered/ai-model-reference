@@ -7,6 +7,34 @@
       "title": "Nó là gì",
       "body": "Attention là cơ chế trộn cốt lõi trong các block transformer. Mỗi vị trí chiếu hidden state thành query, key, và value, so sánh query với key để tạo trọng số, rồi cộng các vector value để tạo biểu diễn đã được cập nhật."
     },
+    "whatItOptimizes": {
+      "title": "Nó tối ưu điều gì",
+      "body": "Attention tối ưu khả năng trộn ngữ cảnh một cách linh hoạt. Thay vì dùng một quy tắc cục bộ cố định, nó cho mô hình tự quyết định vị trí nào quan trọng với token hiện tại và nên đóng góp mạnh đến mức nào."
+    },
+    "practicalBenefit": {
+      "title": "Lợi ích thực tế",
+      "body": "Khi đã hiểu attention, bạn sẽ đọc các biến thể mô hình sau này dễ hơn nhiều. Hầu hết các trang về attention không thay cả transformer; chúng thay cách attention lưu ngữ cảnh, độ xa mỗi token có thể nhìn, hoặc chi phí tính toán cho mỗi lần tra cứu."
+    },
+    "howItWorks": {
+      "title": "Nó hoạt động như thế nào",
+      "body": "Với mỗi token, mô hình so sánh query của token đó với các key từ những vị trí khác để tạo ra attention score. Các điểm số này được chuẩn hóa thành trọng số, rồi mô hình dùng các trọng số đó để trộn những vector value thành một trạng thái token đã được cập nhật."
+    },
+    "comparedToNearbyModules": {
+      "title": "So với các module lân cận",
+      "body": "Các lớp feed-forward tinh chỉnh từng trạng thái token sau khi ngữ cảnh đã được gom lại. Attention là phần đầu tiên chuyển thông tin giữa các vị trí. Nhiều biến thể attention sau đó chủ yếu thay đổi cách chia sẻ head, độ dài chuỗi có thể nhìn, hoặc cách chi phí tính toán tăng theo chiều dài chuỗi."
+    },
+    "exampleArchitectures": {
+      "title": "Kiến trúc ví dụ",
+      "body": "Attention xuất hiện trong các mô hình ngôn ngữ decoder-only, các mô hình encoder, hệ encoder-decoder, và nhiều transformer đa phương thức vì tất cả chúng đều cần một cách để chuyển thông tin giữa các vị trí."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Giới hạn và đánh đổi",
+      "body": "Dense attention có thể trở nên tốn kém khi chiều dài chuỗi tăng lên vì mỗi token có thể phải so với rất nhiều token khác. Đó là lý do các biến thể về sau thường đánh đổi giữa bộ nhớ, băng thông, hoặc tầm nhìn toàn cục để đổi lấy khả năng mở rộng tốt hơn."
+    },
+    "whyItStillMatters": {
+      "title": "Vì sao nó vẫn quan trọng",
+      "body": "Attention vẫn là điểm chuẩn để hiểu các mô hình chuỗi hiện đại. Khi một bài báo giới thiệu biến thể attention mới, câu hỏi thực sự thường là nó đã thay phần nào của cơ chế nền tảng này."
+    },
     "whyItMatters": {
       "title": "Vì sao nó quan trọng",
       "body": "Nếu không có attention, các chồng feed-forward sâu sẽ không thể chuyển thông tin qua những khoảng cách tùy ý chỉ trong một bước. Các biến thể chia sẻ head đánh đổi giữa bộ nhớ, băng thông, và số lượng query head hoặc key-value head riêng biệt còn giữ lại ở thời điểm suy luận."

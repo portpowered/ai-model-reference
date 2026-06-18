@@ -24,7 +24,7 @@ describe("validatePageTemplateConformance", () => {
 
   test("reports missing module variants section", () => {
     const missingVariantsSection = readTemplate("module").replace(
-      /\n<Section id="variants-and-nearby-modules"[\s\S]*?<\/Section>\n/,
+      /\n<Section id="compared-to-nearby-modules"[\s\S]*?<\/Section>\n/,
       "\n",
     );
 
@@ -71,7 +71,7 @@ describe("validatePageTemplateConformance", () => {
 
   test("skips configured exception pages", () => {
     const legacyGroupedQueryPage = readTemplate("module").replace(
-      /\n<Section id="variants-and-nearby-modules"[\s\S]*?<\/Section>\n/,
+      /\n<Section id="compared-to-nearby-modules"[\s\S]*?<\/Section>\n/,
       "\n",
     );
 

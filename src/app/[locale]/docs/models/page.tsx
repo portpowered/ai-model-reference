@@ -17,7 +17,10 @@ export async function generateMetadata({
   return {
     title: messages.modelsIndex.title,
     description: messages.modelsIndex.description,
-    alternates: localizedRouteAlternates({ surface: "docs-page", slug: "models" }),
+    alternates: localizedRouteAlternates({
+      surface: "docs-page",
+      slug: "models",
+    }),
   };
 }
 

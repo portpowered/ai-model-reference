@@ -1,3 +1,26 @@
+import attentionIsAllYouNeedCitation from "@/content/registry/citations/attention-is-all-you-need.json";
+import awqCitation from "@/content/registry/citations/awq.json";
+import brownGpt3Citation from "@/content/registry/citations/brown-gpt-3.json";
+import chenPositionalInterpolationCitation from "@/content/registry/citations/chen-positional-interpolation.json";
+import deepseekV2MlaPaperCitation from "@/content/registry/citations/deepseek-v2-mla-paper.json";
+import deepseekV4PaperCitation from "@/content/registry/citations/deepseek-v4-paper.json";
+import dingLongropeCitation from "@/content/registry/citations/ding-longrope.json";
+import goodfellowDeepLearningCitation from "@/content/registry/citations/goodfellow-deep-learning.json";
+import gqaPaperCitation from "@/content/registry/citations/gqa-paper.json";
+import kaiokendevSuperhotCitation from "@/content/registry/citations/kaiokendev-superhot.json";
+import kaplanScalingLawsCitation from "@/content/registry/citations/kaplan-scaling-laws.json";
+import katharopoulosLinearAttentionPaperCitation from "@/content/registry/citations/katharopoulos-linear-attention-paper.json";
+import kingmaAdamCitation from "@/content/registry/citations/kingma-adam.json";
+import kiviKvCacheQuantizationCitation from "@/content/registry/citations/kivi-kv-cache-quantization.json";
+import pengYarnCitation from "@/content/registry/citations/peng-yarn.json";
+import pressAlibiCitation from "@/content/registry/citations/press-alibi.json";
+import qloraCitation from "@/content/registry/citations/qlora.json";
+import quantizationIntegerOnlyInferenceCitation from "@/content/registry/citations/quantization-integer-only-inference.json";
+import raffelT5Citation from "@/content/registry/citations/raffel-t5.json";
+import shazeerMqaPaperCitation from "@/content/registry/citations/shazeer-mqa-paper.json";
+import smoothquantCitation from "@/content/registry/citations/smoothquant.json";
+import suRoformerRopeCitation from "@/content/registry/citations/su-roformer-rope.json";
+import weiEmergentAbilitiesCitation from "@/content/registry/citations/wei-emergent-abilities.json";
 import absolutePositionalEmbeddingsConcept from "@/content/registry/concepts/absolute-positional-embeddings.json";
 import activationConcept from "@/content/registry/concepts/activation.json";
 import activationQuantizationConcept from "@/content/registry/concepts/activation-quantization.json";
@@ -93,41 +116,26 @@ import whyFourBitModelsAreNotExactlyFourXFasterConcept from "@/content/registry/
 import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-context-is-hard.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
 import yarnConcept from "@/content/registry/concepts/yarn.json";
+import deepseekV4SpecialistCorpus from "@/content/registry/datasets/deepseek-v4-specialist-corpus.json";
+import deepseekV4FlashModel from "@/content/registry/models/deepseek-v4-flash.json";
+import deepseekV4ProModel from "@/content/registry/models/deepseek-v4-pro.json";
 import gpt3Model from "@/content/registry/models/gpt-3.json";
-import attentionIsAllYouNeedCitation from "@/content/registry/citations/attention-is-all-you-need.json";
-import awqCitation from "@/content/registry/citations/awq.json";
-import brownGpt3Citation from "@/content/registry/citations/brown-gpt-3.json";
-import chenPositionalInterpolationCitation from "@/content/registry/citations/chen-positional-interpolation.json";
-import deepseekV2MlaPaperCitation from "@/content/registry/citations/deepseek-v2-mla-paper.json";
-import dingLongropeCitation from "@/content/registry/citations/ding-longrope.json";
-import goodfellowDeepLearningCitation from "@/content/registry/citations/goodfellow-deep-learning.json";
-import gqaPaperCitation from "@/content/registry/citations/gqa-paper.json";
-import kaiokendevSuperhotCitation from "@/content/registry/citations/kaiokendev-superhot.json";
-import kaplanScalingLawsCitation from "@/content/registry/citations/kaplan-scaling-laws.json";
-import katharopoulosLinearAttentionPaperCitation from "@/content/registry/citations/katharopoulos-linear-attention-paper.json";
-import kingmaAdamCitation from "@/content/registry/citations/kingma-adam.json";
-import kiviKvCacheQuantizationCitation from "@/content/registry/citations/kivi-kv-cache-quantization.json";
-import pengYarnCitation from "@/content/registry/citations/peng-yarn.json";
-import pressAlibiCitation from "@/content/registry/citations/press-alibi.json";
-import qloraCitation from "@/content/registry/citations/qlora.json";
-import quantizationIntegerOnlyInferenceCitation from "@/content/registry/citations/quantization-integer-only-inference.json";
-import raffelT5Citation from "@/content/registry/citations/raffel-t5.json";
-import shazeerMqaPaperCitation from "@/content/registry/citations/shazeer-mqa-paper.json";
-import smoothquantCitation from "@/content/registry/citations/smoothquant.json";
-import suRoformerRopeCitation from "@/content/registry/citations/su-roformer-rope.json";
-import weiEmergentAbilitiesCitation from "@/content/registry/citations/wei-emergent-abilities.json";
 import absolutePositionalEmbeddingsModule from "@/content/registry/modules/absolute-positional-embeddings.json";
 import alibiModule from "@/content/registry/modules/alibi.json";
 import attention from "@/content/registry/modules/attention.json";
 import batchNormModule from "@/content/registry/modules/batch-norm.json";
+import compressedSparseAttentionModule from "@/content/registry/modules/compressed-sparse-attention.json";
+import deepseekMoeModule from "@/content/registry/modules/deepseekmoe.json";
 import feedForwardNetworkModule from "@/content/registry/modules/feed-forward-network.json";
 import groupNormModule from "@/content/registry/modules/group-norm.json";
 import groupedQueryAttention from "@/content/registry/modules/grouped-query-attention.json";
+import heavilyCompressedAttentionModule from "@/content/registry/modules/heavily-compressed-attention.json";
 import layerNormModule from "@/content/registry/modules/layer-norm.json";
 import leakyReluModule from "@/content/registry/modules/leaky-relu.json";
 import learnedPositionalEmbeddingsModule from "@/content/registry/modules/learned-positional-embeddings.json";
 import linearAttention from "@/content/registry/modules/linear-attention.json";
 import longropeModule from "@/content/registry/modules/longrope.json";
+import manifoldConstrainedHyperConnectionsModule from "@/content/registry/modules/manifold-constrained-hyper-connections.json";
 import mixtureOfExpertsModule from "@/content/registry/modules/mixture-of-experts.json";
 import multiHeadAttention from "@/content/registry/modules/multi-head-attention.json";
 import multiHeadLatentAttention from "@/content/registry/modules/multi-head-latent-attention.json";
@@ -149,6 +157,13 @@ import superhotRopeModule from "@/content/registry/modules/superhot-rope.json";
 import swigluModule from "@/content/registry/modules/swiglu.json";
 import t5RelativePositionBiasModule from "@/content/registry/modules/t5-relative-position-bias.json";
 import yarnModule from "@/content/registry/modules/yarn.json";
+import deepseekAiOrganization from "@/content/registry/organizations/deepseek-ai.json";
+import deepseekV4Paper from "@/content/registry/papers/deepseek-v4.json";
+import expertParallelOverlapSystem from "@/content/registry/systems/expert-parallel-overlap.json";
+import onDiskKvCacheSystem from "@/content/registry/systems/on-disk-kv-cache.json";
+import fp4QuantizationAwareTrainingRegime from "@/content/registry/training-regimes/fp4-quantization-aware-training.json";
+import onPolicyDistillationRegime from "@/content/registry/training-regimes/on-policy-distillation.json";
+import specialistTrainingRegime from "@/content/registry/training-regimes/specialist-training.json";
 import {
   PUBLISHED_DOCS_REGISTRY_IDS,
   type PublishedDocsRegistryIds,
@@ -156,13 +171,23 @@ import {
 import type { RelatedRegistryRecord } from "@/lib/content/related-docs";
 import {
   type CitationRecord,
-  citationRecordSchema,
   type ConceptRecord,
+  citationRecordSchema,
   conceptRecordSchema,
+  type DatasetRecord,
+  datasetRecordSchema,
   type ModelRecord,
   type ModuleRecord,
   modelRecordSchema,
   moduleRecordSchema,
+  type OrganizationRecord,
+  organizationRecordSchema,
+  type PaperRecord,
+  paperRecordSchema,
+  type SystemRecord,
+  systemRecordSchema,
+  type TrainingRegimeRecord,
+  trainingRegimeRecordSchema,
 } from "@/lib/content/schemas";
 
 const moduleRecords: ModuleRecord[] = [
@@ -170,14 +195,18 @@ const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(alibiModule),
   moduleRecordSchema.parse(attention),
   moduleRecordSchema.parse(batchNormModule),
+  moduleRecordSchema.parse(compressedSparseAttentionModule),
+  moduleRecordSchema.parse(deepseekMoeModule),
   moduleRecordSchema.parse(feedForwardNetworkModule),
   moduleRecordSchema.parse(groupNormModule),
   moduleRecordSchema.parse(groupedQueryAttention),
+  moduleRecordSchema.parse(heavilyCompressedAttentionModule),
   moduleRecordSchema.parse(layerNormModule),
   moduleRecordSchema.parse(leakyReluModule),
   moduleRecordSchema.parse(learnedPositionalEmbeddingsModule),
   moduleRecordSchema.parse(linearAttention),
   moduleRecordSchema.parse(longropeModule),
+  moduleRecordSchema.parse(manifoldConstrainedHyperConnectionsModule),
   moduleRecordSchema.parse(mixtureOfExpertsModule),
   moduleRecordSchema.parse(multiHeadLatentAttention),
   moduleRecordSchema.parse(multiQueryAttention),
@@ -299,7 +328,27 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(yarnConcept),
 ];
 
-const modelRecords: ModelRecord[] = [modelRecordSchema.parse(gpt3Model)];
+const modelRecords: ModelRecord[] = [
+  modelRecordSchema.parse(gpt3Model),
+  modelRecordSchema.parse(deepseekV4ProModel),
+  modelRecordSchema.parse(deepseekV4FlashModel),
+];
+const paperRecords: PaperRecord[] = [paperRecordSchema.parse(deepseekV4Paper)];
+const trainingRegimeRecords: TrainingRegimeRecord[] = [
+  trainingRegimeRecordSchema.parse(onPolicyDistillationRegime),
+  trainingRegimeRecordSchema.parse(specialistTrainingRegime),
+  trainingRegimeRecordSchema.parse(fp4QuantizationAwareTrainingRegime),
+];
+const systemRecords: SystemRecord[] = [
+  systemRecordSchema.parse(onDiskKvCacheSystem),
+  systemRecordSchema.parse(expertParallelOverlapSystem),
+];
+const datasetRecords: DatasetRecord[] = [
+  datasetRecordSchema.parse(deepseekV4SpecialistCorpus),
+];
+const organizationRecords: OrganizationRecord[] = [
+  organizationRecordSchema.parse(deepseekAiOrganization),
+];
 
 const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(attentionIsAllYouNeedCitation),
@@ -307,6 +356,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(brownGpt3Citation),
   citationRecordSchema.parse(chenPositionalInterpolationCitation),
   citationRecordSchema.parse(deepseekV2MlaPaperCitation),
+  citationRecordSchema.parse(deepseekV4PaperCitation),
   citationRecordSchema.parse(dingLongropeCitation),
   citationRecordSchema.parse(goodfellowDeepLearningCitation),
   citationRecordSchema.parse(gqaPaperCitation),
@@ -331,11 +381,30 @@ const conceptsById = new Map(
   conceptRecords.map((record) => [record.id, record]),
 );
 const modelsById = new Map(modelRecords.map((record) => [record.id, record]));
+const papersById = new Map(paperRecords.map((record) => [record.id, record]));
+const trainingRegimesById = new Map(
+  trainingRegimeRecords.map((record) => [record.id, record]),
+);
+const systemsById = new Map(systemRecords.map((record) => [record.id, record]));
+const datasetsById = new Map(
+  datasetRecords.map((record) => [record.id, record]),
+);
+const organizationsById = new Map(
+  organizationRecords.map((record) => [record.id, record]),
+);
 const citationsById = new Map(
   citationRecords.map((record) => [record.id, record]),
 );
 
-type TaggedRegistryRecord = ModuleRecord | ConceptRecord | ModelRecord;
+type TaggedRegistryRecord =
+  | ModuleRecord
+  | ConceptRecord
+  | ModelRecord
+  | PaperRecord
+  | TrainingRegimeRecord
+  | SystemRecord
+  | DatasetRecord
+  | OrganizationRecord;
 
 function getTaggedRecordById(
   registryId: string,
@@ -343,7 +412,12 @@ function getTaggedRecordById(
   return (
     modulesById.get(registryId) ??
     conceptsById.get(registryId) ??
-    modelsById.get(registryId)
+    modelsById.get(registryId) ??
+    papersById.get(registryId) ??
+    trainingRegimesById.get(registryId) ??
+    systemsById.get(registryId) ??
+    datasetsById.get(registryId) ??
+    organizationsById.get(registryId)
   );
 }
 
@@ -360,6 +434,30 @@ export function getConceptById(registryId: string): ConceptRecord | undefined {
 /** Synchronous model lookup for docs components and tests. */
 export function getModelById(registryId: string): ModelRecord | undefined {
   return modelsById.get(registryId);
+}
+
+export function getPaperById(registryId: string): PaperRecord | undefined {
+  return papersById.get(registryId);
+}
+
+export function getTrainingRegimeById(
+  registryId: string,
+): TrainingRegimeRecord | undefined {
+  return trainingRegimesById.get(registryId);
+}
+
+export function getSystemById(registryId: string): SystemRecord | undefined {
+  return systemsById.get(registryId);
+}
+
+export function getDatasetById(registryId: string): DatasetRecord | undefined {
+  return datasetsById.get(registryId);
+}
+
+export function getOrganizationById(
+  registryId: string,
+): OrganizationRecord | undefined {
+  return organizationsById.get(registryId);
 }
 
 /** Synchronous citation lookup for source metadata and tests. */
@@ -381,9 +479,30 @@ export function listModelRecords(): ModelRecord[] {
   return [...modelRecords];
 }
 
+export function listPaperRecords(): PaperRecord[] {
+  return [...paperRecords];
+}
+
+export function listTrainingRegimeRecords(): TrainingRegimeRecord[] {
+  return [...trainingRegimeRecords];
+}
+
+export function listSystemRecords(): SystemRecord[] {
+  return [...systemRecords];
+}
+
 /** Registry records used for derived related-document groups. */
 export function listRelatedRegistryRecords(): RelatedRegistryRecord[] {
-  return [...moduleRecords, ...conceptRecords, ...modelRecords];
+  return [
+    ...moduleRecords,
+    ...conceptRecords,
+    ...modelRecords,
+    ...paperRecords,
+    ...trainingRegimeRecords,
+    ...systemRecords,
+    ...datasetRecords,
+    ...organizationRecords,
+  ];
 }
 
 /** Synchronous registry lookup for related-doc capable registry records. */

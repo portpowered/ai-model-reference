@@ -1,0 +1,67 @@
+{
+  "id": "graph.on-policy-distillation-training-flow",
+  "slug": "on-policy-distillation-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["on-policy distillation training flow"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "training-regime.on-policy-distillation",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "policy",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "policy",
+      "labelKey": "graph.nodes.policy.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["sample"]
+    },
+    {
+      "id": "sample",
+      "labelKey": "graph.nodes.sample.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 180, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["update"]
+    },
+    {
+      "id": "update",
+      "labelKey": "graph.nodes.update.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 240 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "policy-sample",
+      "source": "policy",
+      "target": "sample",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "sample-update",
+      "source": "sample",
+      "target": "update",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

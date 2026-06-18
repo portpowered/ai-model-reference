@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { loadModulePage } from "@/lib/content/module-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
   getConceptById,
@@ -94,7 +94,7 @@ describe("Phase 3 absolute positional embedding family pages (US-002)", () => {
       "learned-positional-embeddings",
       "sinusoidal-positional-embeddings",
     ] as const) {
-      const page = await loadGlossaryPage(slug);
+      const page = await loadModulePage(slug);
       const html = renderToStaticMarkup(
         createElement(ModulePageProviders, {
           messages: page.messages,
@@ -111,9 +111,7 @@ describe("Phase 3 absolute positional embedding family pages (US-002)", () => {
       expect(html).toContain('href="/tags/foundations"');
     }
 
-    const absolutePage = await loadGlossaryPage(
-      "absolute-positional-embeddings",
-    );
+    const absolutePage = await loadModulePage("absolute-positional-embeddings");
     const absoluteHtml = renderToStaticMarkup(
       createElement(ModulePageProviders, {
         messages: absolutePage.messages,

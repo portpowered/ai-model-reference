@@ -71,10 +71,22 @@
     "tagsRouteDescription": "モデル、モジュール、概念、用語集ページを横断する整理済みトピックタグを参照できます。",
     "modelsSectionTitle": "モデル",
     "modelsSectionDescription": "モデルのページでは、具体的なモデルファミリーやチェックポイント系統、そのアーキテクチャ、そして先に押さえるべき重要モジュールを説明します。",
+    "modelsSectionLinkLabel": "モデルページをすべて見る",
     "modulesSectionTitle": "モジュール",
     "modulesSectionDescription": "モジュールのページでは、attention の派生、feed-forward ブロック、正規化、位置表現の方式など、モデル内部の動く部品を分解して説明します。",
+    "modulesSectionLinkLabel": "モジュールページをすべて見る",
     "conceptsSectionTitle": "概念",
     "conceptsSectionDescription": "概念のページでは、transformer の構造、量子化、長文コンテキストのトレードオフのように、多くのモデルやモジュールにまたがる広い考え方を扱います。",
+    "conceptsSectionLinkLabel": "概念ページをすべて見る",
+    "papersSectionTitle": "論文",
+    "papersSectionDescription": "論文ページでは、ひとつの公開資料を、それが導入または補強したモデル、モジュール、学習法、システムへ分解して示します。",
+    "papersSectionLinkLabel": "論文ページをすべて見る",
+    "trainingSectionTitle": "学習",
+    "trainingSectionDescription": "学習ページでは、ベースアーキテクチャの外側でモデル挙動を形づくる、名前のあるレジームや post-training 手法に焦点を当てます。",
+    "trainingSectionLinkLabel": "学習ページをすべて見る",
+    "systemsSectionTitle": "システム",
+    "systemsSectionDescription": "システムページでは、KV キャッシュ管理、分散オーバーラップ、配備向けのデータフローなど、モデルを支える実行時と serving の仕組みを説明します。",
+    "systemsSectionLinkLabel": "システムページをすべて見る",
     "glossarySectionTitle": "用語集",
     "glossarySectionDescription": "用語集ページでは、モデルアーキテクチャ、学習、推論、評価まわりの語彙を定義し、アトラス全体を読みやすくします。",
     "glossarySectionLinkLabel": "用語集をすべて見る"
@@ -101,6 +113,30 @@
     "listLabel": "概念項目",
     "emptyTitle": "概念項目はまだありません",
     "emptyDescription": "公開された概念ページは、アトラスに追加されるとここに表示されます。それまではホームに戻るか、アトラスを参照してモデル、モジュール、用語集を探索してください。",
+    "emptyHomeLink": "ホームに戻る"
+  },
+  "papersIndex": {
+    "title": "論文",
+    "description": "公開済みの論文ページでは、ひとつの報告書や論文を主要な主張、関連する実体、支えるソースへ分解して整理します。",
+    "listLabel": "論文項目",
+    "emptyTitle": "論文項目はまだありません",
+    "emptyDescription": "公開された論文ページは、アトラスに追加されるとここに表示されます。それまではホームに戻るか、アトラスを参照してモデル、モジュール、概念を探索してください。",
+    "emptyHomeLink": "ホームに戻る"
+  },
+  "trainingIndex": {
+    "title": "学習",
+    "description": "公開済みの training-regime ページでは、pretraining、post-training、distillation、量子化対応学習、関連する最適化手法を扱います。",
+    "listLabel": "学習項目",
+    "emptyTitle": "学習項目はまだありません",
+    "emptyDescription": "公開された training-regime ページは、アトラスに追加されるとここに表示されます。それまではホームに戻るか、アトラスを参照してモデル、モジュール、論文を探索してください。",
+    "emptyHomeLink": "ホームに戻る"
+  },
+  "systemsIndex": {
+    "title": "システム",
+    "description": "公開済みのシステムページでは、現代のモデルスタックを支える推論、serving、runtime、運用設計を扱います。",
+    "listLabel": "システム項目",
+    "emptyTitle": "システム項目はまだありません",
+    "emptyDescription": "公開されたシステムページは、アトラスに追加されるとここに表示されます。それまではホームに戻るか、アトラスを参照してモデル、モジュール、論文を探索してください。",
     "emptyHomeLink": "ホームに戻る"
   },
   "glossaryIndex": {
@@ -151,6 +187,7 @@
     "paper": "論文",
     "glossary": "用語集",
     "training": "学習",
+    "training-regime": "学習",
     "system": "システム",
     "blog": "ブログ"
   }

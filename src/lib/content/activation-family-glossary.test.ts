@@ -10,11 +10,8 @@ import {
   SILU_GLOSSARY_PAGE_DIR,
   SWIGLU_GLOSSARY_PAGE_DIR,
 } from "@/lib/content/content-paths";
-import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { expectHtmlToContainProse } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
-import {
-  expectHtmlToContainProse,
-} from "@/lib/content/glossary-test-helpers";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -30,7 +27,7 @@ const PAGE_CASES = [
   {
     slug: "relu",
     registryId: "concept.relu",
-    title: "ReLU",
+    title: "Rectified Linear Unit",
     pageDir: RELU_GLOSSARY_PAGE_DIR,
     pageKind: "module",
     usesModuleTemplate: true,
@@ -50,7 +47,7 @@ const PAGE_CASES = [
       "/docs/modules/leaky-relu",
       "/docs/modules/silu",
     ],
-    messageNeedles: ["positive", "zero", "attention"],
+    messageNeedles: ["positive", "zero", "negative evidence"],
     renderNeedle: "keep positive numbers",
     searchQuery: "ReLU",
     searchUrl: "/docs/modules/relu",
@@ -58,7 +55,7 @@ const PAGE_CASES = [
   {
     slug: "leaky-relu",
     registryId: "concept.leaky-relu",
-    title: "LeakyReLU",
+    title: "Leaky Rectified Linear Unit",
     pageDir: LEAKY_RELU_GLOSSARY_PAGE_DIR,
     pageKind: "module",
     usesModuleTemplate: true,
@@ -82,7 +79,7 @@ const PAGE_CASES = [
       "/docs/modules/relu",
       "/docs/modules/silu",
     ],
-    messageNeedles: ["small constant", "negative", "standard ffn"],
+    messageNeedles: ["small constant", "negative", "weak negative signal"],
     renderNeedle: "small constant such as 0.01",
     searchQuery: "LeakyReLU",
     searchUrl: "/docs/modules/leaky-relu",
@@ -90,7 +87,7 @@ const PAGE_CASES = [
   {
     slug: "silu",
     registryId: "concept.silu",
-    title: "SiLU",
+    title: "Sigmoid Linear Unit",
     pageDir: SILU_GLOSSARY_PAGE_DIR,
     pageKind: "module",
     usesModuleTemplate: true,
@@ -118,7 +115,7 @@ const PAGE_CASES = [
   {
     slug: "swiglu",
     registryId: "concept.swiglu",
-    title: "SwiGLU",
+    title: "Swish Gated Linear Unit",
     pageDir: SWIGLU_GLOSSARY_PAGE_DIR,
     pageKind: "module",
     usesModuleTemplate: true,
@@ -138,8 +135,8 @@ const PAGE_CASES = [
       "/docs/modules/silu",
       "/docs/glossary/activation",
     ],
-    messageNeedles: ["gate", "silu", "moe"],
-    renderNeedle: "two branches after attention",
+    messageNeedles: ["gate", "silu", "mixture of experts"],
+    renderNeedle: "input state enters two learned projections",
     searchQuery: "SwiGLU",
     expectedGraphId: "graph.swiglu-compute-flow",
     searchUrl: "/docs/modules/swiglu",
@@ -201,12 +198,11 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
 
       expect(messages.title).toBe(testCase.title);
       expect(messages.openingSummary?.length).toBeGreaterThan(0);
-      const combinedBody =
-        [
-          messages.sections?.whatItIs.body,
-          messages.sections?.practicalBenefit.body,
-          messages.sections?.limitationsAndTradeoffs.body,
-        ].join(" ");
+      const combinedBody = [
+        messages.sections?.whatItIs.body,
+        messages.sections?.practicalBenefit.body,
+        messages.sections?.limitationsAndTradeoffs.body,
+      ].join(" ");
       const normalizedBody = combinedBody.toLowerCase();
 
       for (const needle of testCase.messageNeedles) {
@@ -239,11 +235,16 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
       expect(html).toContain(`data-registry-id="module.${testCase.slug}"`);
       expect(html).toContain('data-page-asset="comparisonTable"');
       expect(html).toContain('data-attention-schema-comparison="true"');
-      expect(html).toContain('data-attention-variant-comparison="true"');
       expectHtmlToContainProse(html, testCase.renderNeedle);
       if ("expectedGraphId" in testCase) {
         expect(html).toContain('data-react-flow-graph="true"');
+        expect(html).toContain('data-attention-variant-comparison="true"');
         expect(html).toContain(`data-graph-id="${testCase.expectedGraphId}"`);
+      } else {
+        expect(
+          html.includes('data-activation-chart="true"') ||
+            html.includes('data-attention-variant-comparison="true"'),
+        ).toBe(true);
       }
       for (const href of testCase.hrefs) {
         expect(html).toContain(`href="${href}"`);

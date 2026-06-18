@@ -30,7 +30,6 @@ const BUILT_HTML_LOCALIZED_DOC_ROUTES = [
     path: "/vi/docs/modules/grouped-query-attention",
     file: ".next/server/app/vi/docs/modules/grouped-query-attention.html",
     requiredSidebarUrls: [
-      "/vi/docs/glossary/token",
       "/vi/docs/modules/grouped-query-attention",
       "/vi/docs/modules/linear-attention",
       "/vi/docs/modules/multi-head-attention",

@@ -4,15 +4,8 @@
   "kind": "module",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "MoE",
-    "mixture-of-experts layer",
-    "sparse MoE"
-  ],
-  "tags": [
-    "feed-forward",
-    "foundations"
-  ],
+  "aliases": ["MoE", "mixture-of-experts layer", "sparse MoE"],
+  "tags": ["feed-forward", "foundations"],
   "relatedIds": [
     "module.feed-forward-network",
     "module.standard-ffn",
@@ -23,10 +16,7 @@
   "createdAt": "2026-06-08T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "feed-forward",
-  "optimizes": [
-    "parameter-capacity",
-    "compute-efficiency"
-  ],
+  "optimizes": ["parameter-capacity", "compute-efficiency"],
   "practicalBenefits": [
     "adds parameter capacity without activating every expert each step"
   ],

@@ -1,0 +1,23 @@
+{
+  "id": "training-regime.on-policy-distillation",
+  "slug": "on-policy-distillation",
+  "kind": "training-regime",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["on-policy distillation"],
+  "tags": ["foundations", "quantization"],
+  "relatedIds": ["paper.deepseek-v4", "training-regime.specialist-training"],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "releaseDate": "2026-06-13",
+  "authors": ["DeepSeek-AI"],
+  "sourceId": "paper.deepseek-v4",
+  "regimeType": "distillation",
+  "usedByModelIds": ["model.deepseek-v4-pro"],
+  "relatedModuleIds": ["module.deepseekmoe"],
+  "paperIds": ["paper.deepseek-v4"],
+  "conceptType": "training",
+  "variantGroup": "deepseek-v4-post-training"
+}

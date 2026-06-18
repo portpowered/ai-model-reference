@@ -71,7 +71,7 @@ describe("loadModulePage multi-head-latent-attention", () => {
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
     expectHtmlToContainProse(
       html,
-      "Multi-head latent attention is an attention variant derived from multi-head attention.",
+      "Multi-head latent attention (MLA) is an attention variant derived from multi-head attention.",
     );
     expect(html).toContain("compressed latent KV representation");
     expect(html).toContain("Keys and values are down-projected into a latent");
@@ -81,9 +81,8 @@ describe("loadModulePage multi-head-latent-attention", () => {
     expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/kv-cache"');
-    expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
-    expect(html).toContain("curated");
+    expect(html).toContain("Same variant group");
     expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain("DeepSeek-AI");
     expect(html).toContain('href="https://arxiv.org/abs/2405.04434"');

@@ -219,21 +219,19 @@ function estimateNodeHeight(
   }
 }
 
-function AttentionHeadNode({
-  data,
-}: NodeProps<Node<RegistryFlowNodeData, "attentionHead">>) {
-  const visualRole = data.visualRole ?? "default";
-  const isHeadBox =
+export function nodeVisualRoleHasHandles(
+  visualRole: RegistryFlowNodeData["visualRole"],
+): boolean {
+  return (
     visualRole === "query-head" ||
     visualRole === "key-head" ||
-    visualRole === "value-head";
-  const hasHandles =
-    isHeadBox ||
+    visualRole === "value-head" ||
     visualRole === "timeline-node" ||
     visualRole === "timeline-node-muted" ||
     visualRole === "summary-node" ||
     visualRole === "process-node" ||
     visualRole === "latent-node" ||
+    visualRole === "group-container" ||
     visualRole === "architecture-embedding" ||
     visualRole === "architecture-attention" ||
     visualRole === "architecture-feed-forward" ||
@@ -242,7 +240,19 @@ function AttentionHeadNode({
     visualRole === "architecture-softmax" ||
     visualRole === "architecture-io" ||
     visualRole === "operator-circle" ||
-    visualRole === "default";
+    visualRole === "default"
+  );
+}
+
+function AttentionHeadNode({
+  data,
+}: NodeProps<Node<RegistryFlowNodeData, "attentionHead">>) {
+  const visualRole = data.visualRole ?? "default";
+  const isHeadBox =
+    visualRole === "query-head" ||
+    visualRole === "key-head" ||
+    visualRole === "value-head";
+  const hasHandles = nodeVisualRoleHasHandles(visualRole);
 
   return (
     <div

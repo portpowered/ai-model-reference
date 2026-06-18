@@ -1,0 +1,8 @@
+{
+  "title": "Training",
+  "pages": [
+    "[FP4 Quantization-Aware Training](/docs/training/fp4-quantization-aware-training)",
+    "[On-Policy Distillation](/docs/training/on-policy-distillation)",
+    "[Specialist Training](/docs/training/specialist-training)"
+  ]
+}

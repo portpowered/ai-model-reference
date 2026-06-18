@@ -1,0 +1,67 @@
+{
+  "id": "graph.deepseek-v4-flash-architecture",
+  "slug": "deepseek-v4-flash-architecture",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["DeepSeek-V4-Flash architecture graph"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "model.deepseek-v4-flash",
+  "graphType": "model-architecture",
+  "rootNodeId": "input",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "input",
+      "labelKey": "graph.nodes.input.label",
+      "moduleKind": "input",
+      "position": { "x": 260, "y": 0 },
+      "size": { "width": 180, "height": 60 },
+      "visualRole": "architecture-io",
+      "childNodeIds": ["backbone"]
+    },
+    {
+      "id": "backbone",
+      "labelKey": "graph.nodes.backbone.label",
+      "moduleKind": "block",
+      "position": { "x": 170, "y": 100 },
+      "size": { "width": 360, "height": 90 },
+      "visualRole": "group-container",
+      "childNodeIds": []
+    },
+    {
+      "id": "output",
+      "labelKey": "graph.nodes.output.label",
+      "moduleKind": "output",
+      "position": { "x": 260, "y": 240 },
+      "size": { "width": 180, "height": 60 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "input-backbone",
+      "source": "input",
+      "target": "backbone",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "backbone-output",
+      "source": "backbone",
+      "target": "output",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

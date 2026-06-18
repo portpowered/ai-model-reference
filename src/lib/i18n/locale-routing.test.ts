@@ -43,12 +43,8 @@ describe("locale-routing", () => {
     expect(buildLocalizedRoute({ surface: "home" }, "vi")).toBe("/vi");
     expect(buildLocalizedRoute({ surface: "home" }, "ja")).toBe("/ja");
     expect(buildLocalizedRoute({ surface: "browse" }, "en")).toBe("/browse");
-    expect(buildLocalizedRoute({ surface: "browse" }, "vi")).toBe(
-      "/vi/browse",
-    );
-    expect(buildLocalizedRoute({ surface: "browse" }, "ja")).toBe(
-      "/ja/browse",
-    );
+    expect(buildLocalizedRoute({ surface: "browse" }, "vi")).toBe("/vi/browse");
+    expect(buildLocalizedRoute({ surface: "browse" }, "ja")).toBe("/ja/browse");
     expect(buildLocalizedRoute({ surface: "search" }, "vi")).toBe("/vi/search");
     expect(buildLocalizedRoute({ surface: "search" }, "ja")).toBe("/ja/search");
     expect(

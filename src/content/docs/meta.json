@@ -1,4 +1,13 @@
 {
   "title": "Documentation",
-  "pages": ["getting-started", "glossary", "concepts", "modules", "models"]
+  "pages": [
+    "getting-started",
+    "glossary",
+    "concepts",
+    "modules",
+    "models",
+    "papers",
+    "training",
+    "systems"
+  ]
 }

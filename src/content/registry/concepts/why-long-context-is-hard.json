@@ -9,10 +9,7 @@
     "long context difficulty",
     "long-context challenges"
   ],
-  "tags": [
-    "context-window",
-    "foundations"
-  ],
+  "tags": ["context-window", "foundations"],
   "relatedIds": [
     "concept.context-extension",
     "concept.rope",
@@ -25,11 +22,6 @@
   "createdAt": "2026-06-09T00:00:00.000Z",
   "updatedAt": "2026-06-09T22:00:00.000Z",
   "conceptType": "general",
-  "prerequisiteIds": [
-    "concept.context-window"
-  ],
-  "explainsIds": [
-    "concept.longrope",
-    "concept.positional-interpolation"
-  ]
+  "prerequisiteIds": ["concept.context-window"],
+  "explainsIds": ["concept.longrope", "concept.positional-interpolation"]
 }

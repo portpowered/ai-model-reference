@@ -1,0 +1,40 @@
+{
+  "title": "On-Disk KV Cache",
+  "description": "A serving system that spills part of the KV cache to disk so very long sessions remain workable without keeping every token state in expensive fast memory.",
+  "openingSummary": "Very long sessions can outgrow fast device memory even when the model weights fit. On-disk KV cache keeps the session alive by moving colder cache state to cheaper storage and pulling it back when needed.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "This is a serving system, not a model module. It manages cached attention state once the active session becomes too large to hold entirely in the fastest memory tier."
+    },
+    "whereItSits": {
+      "title": "Where It Sits",
+      "body": "It sits between the model's logical KV cache and the runtime memory hierarchy. The model still thinks it has cache. The system decides which parts stay hot and which parts spill."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Recent or valuable cache blocks remain hot, while colder blocks are spilled to slower storage. When later decoding needs them, the runtime reloads them instead of pretending the whole history stayed resident."
+    },
+    "practicalImpact": {
+      "title": "Practical Impact",
+      "body": "This makes million-token sessions easier to sustain in practice, especially when multiple long-running sessions compete for memory."
+    },
+    "associatedRecords": { "title": "Associated Records" },
+    "related": { "title": "Related" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "systemFlow": {
+      "alt": "A prefill stage spills cache blocks to disk and reloads them later during decode.",
+      "caption": "The point is not to avoid cache entirely. It is to move cold cache to a cheaper tier."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "prefill": { "label": "Prefill and cache build" },
+      "spill": { "label": "Spill cold cache" },
+      "reload": { "label": "Reload on demand" }
+    }
+  }
+}

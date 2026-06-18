@@ -1,0 +1,84 @@
+{
+  "id": "graph.deepseek-v4-contribution",
+  "slug": "deepseek-v4-contribution",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["DeepSeek-V4 contribution graph"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "paper.deepseek-v4",
+  "graphType": "paper-contribution",
+  "rootNodeId": "paper",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "paper",
+      "labelKey": "graph.nodes.paper.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 220, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["architecture", "training", "systems"]
+    },
+    {
+      "id": "architecture",
+      "labelKey": "graph.nodes.architecture.label",
+      "moduleKind": "block",
+      "position": { "x": 40, "y": 150 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "training",
+      "labelKey": "graph.nodes.training.label",
+      "moduleKind": "block",
+      "position": { "x": 260, "y": 150 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "systems",
+      "labelKey": "graph.nodes.systems.label",
+      "moduleKind": "block",
+      "position": { "x": 480, "y": 150 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "paper-architecture",
+      "source": "paper",
+      "target": "architecture",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-training",
+      "source": "paper",
+      "target": "training",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-systems",
+      "source": "paper",
+      "target": "systems",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

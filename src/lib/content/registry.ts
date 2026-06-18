@@ -5,10 +5,13 @@ import type { RegistryIndexes, RegistryRecord } from "./registry-index";
 import {
   citationRecordSchema,
   conceptRecordSchema,
+  datasetRecordSchema,
   graphRecordSchema,
   modelRecordSchema,
   moduleRecordSchema,
+  organizationRecordSchema,
   paperRecordSchema,
+  systemRecordSchema,
   type TagRecord,
   tagRecordSchema,
   trainingRegimeRecordSchema,
@@ -41,6 +44,9 @@ type RegistryDirectory = {
     | "models"
     | "papers"
     | "training-regimes"
+    | "systems"
+    | "datasets"
+    | "organizations"
     | "tags"
     | "citations"
     | "graphs";
@@ -50,6 +56,9 @@ type RegistryDirectory = {
     | typeof modelRecordSchema
     | typeof paperRecordSchema
     | typeof trainingRegimeRecordSchema
+    | typeof systemRecordSchema
+    | typeof datasetRecordSchema
+    | typeof organizationRecordSchema
     | typeof tagRecordSchema
     | typeof citationRecordSchema
     | typeof graphRecordSchema;
@@ -61,6 +70,9 @@ const registryDirectories: RegistryDirectory[] = [
   { name: "models", schema: modelRecordSchema },
   { name: "papers", schema: paperRecordSchema },
   { name: "training-regimes", schema: trainingRegimeRecordSchema },
+  { name: "systems", schema: systemRecordSchema },
+  { name: "datasets", schema: datasetRecordSchema },
+  { name: "organizations", schema: organizationRecordSchema },
   { name: "tags", schema: tagRecordSchema },
   { name: "citations", schema: citationRecordSchema },
   { name: "graphs", schema: graphRecordSchema },

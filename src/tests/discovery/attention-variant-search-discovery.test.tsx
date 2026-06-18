@@ -25,7 +25,7 @@ const ATTENTION_VARIANT_ROUTE_CASES = [
     url: MULTI_QUERY_ATTENTION_URL,
     title: "Multi-Query Attention",
     registryId: "module.multi-query-attention",
-    expectInHtml: "Sharing one KV head across all queries",
+    expectInHtml: "Sharing one key-value head across all queries",
   },
 ] as const;
 

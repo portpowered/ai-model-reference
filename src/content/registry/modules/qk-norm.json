@@ -4,15 +4,8 @@
   "kind": "module",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "QK norm",
-    "query-key normalization",
-    "QK normalization"
-  ],
-  "tags": [
-    "normalization",
-    "foundations"
-  ],
+  "aliases": ["QK norm", "query-key normalization", "QK normalization"],
+  "tags": ["normalization", "foundations"],
   "relatedIds": [
     "concept.normalization",
     "module.layer-norm",
@@ -23,12 +16,8 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "normalization",
-  "optimizes": [
-    "attention-logit-stability"
-  ],
-  "practicalBenefits": [
-    "keeps attention logits from growing too sharp"
-  ],
+  "optimizes": ["attention-logit-stability"],
+  "practicalBenefits": ["keeps attention logits from growing too sharp"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

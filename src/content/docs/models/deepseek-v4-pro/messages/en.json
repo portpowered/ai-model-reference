@@ -1,0 +1,47 @@
+{
+  "title": "DeepSeek-V4-Pro",
+  "description": "The larger DeepSeek-V4 reasoning model, built around long-context attention, MoE routing, and coupled post-training and serving choices.",
+  "openingSummary": "DeepSeek-V4-Pro is useful to study because the model page points to a whole stack, not just a bigger checkpoint. Its identity comes from how architecture, post-training, and long-context serving are combined.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "DeepSeek-V4-Pro is the larger reasoning-oriented model in the DeepSeek-V4 release. It is a text model with a transformer-style backbone, sparse expert blocks, and an unusually large advertised context length."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The model takes text tokens and produces text tokens. The practical difference from an ordinary chat model is not modality. It is that the stack is designed to preserve useful work over very long prompts and long reasoning traces."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "The model keeps a transformer skeleton, but the paper highlights manifold-constrained hyper-connections, compressed sparse attention, heavily compressed attention, DeepSeekMoE routing, MLA-style cache compression, and supporting serving systems rather than one single signature block."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "These are the modules worth opening if you want to understand why the V4 stack behaves differently from a plain decoder-only transformer."
+    },
+    "training": {
+      "title": "Training",
+      "body": "The public story emphasizes specialist post-training, on-policy distillation, and FP4 quantization-aware work. Those steps matter because the model is presented as a system meant to survive reasoning load and deployment pressure together."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "The million-token context is the headline, but the page is easiest to read as a coordinated stack. Architecture choices reduce long-context cost, and serving choices keep that cost from collapsing the runtime."
+    },
+    "related": { "title": "Related Models, Modules, And Papers" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "A simplified DeepSeek-V4-Pro architecture path from token input through a modified backbone to token output.",
+      "caption": "The model is best understood as a backbone whose attention, routing, and serving assumptions were all changed together."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "input": { "label": "Token input" },
+      "backbone": { "label": "DeepSeek-V4 backbone" },
+      "output": { "label": "Token output" }
+    }
+  }
+}

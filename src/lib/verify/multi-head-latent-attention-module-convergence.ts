@@ -18,7 +18,7 @@ export const MULTI_HEAD_LATENT_ATTENTION_REQUIRED_MARKERS = [
   'id="compared-to-nearby-modules"',
   "Related",
   'id="related"',
-  'data-testid="curated-related-docs"',
+  "Same variant group",
   'data-attention-variant-comparison="true"',
   'data-attention-variant-active="mla"',
   'data-attention-variant-option="mha"',

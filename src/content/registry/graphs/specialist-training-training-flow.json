@@ -1,0 +1,67 @@
+{
+  "id": "graph.specialist-training-training-flow",
+  "slug": "specialist-training-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["specialist training flow"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "training-regime.specialist-training",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "domains",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "domains",
+      "labelKey": "graph.nodes.domains.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["specialists"]
+    },
+    {
+      "id": "specialists",
+      "labelKey": "graph.nodes.specialists.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 180, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["merge"]
+    },
+    {
+      "id": "merge",
+      "labelKey": "graph.nodes.merge.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 240 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "domains-specialists",
+      "source": "domains",
+      "target": "specialists",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "specialists-merge",
+      "source": "specialists",
+      "target": "merge",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

@@ -4,15 +4,8 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "rectified linear unit",
-    "ReLU activation",
-    "rectifier"
-  ],
-  "tags": [
-    "activation",
-    "foundations"
-  ],
+  "aliases": ["rectified linear unit", "ReLU activation", "rectifier"],
+  "tags": ["activation", "foundations"],
   "relatedIds": [
     "concept.activation",
     "concept.feed-forward-network",

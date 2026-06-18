@@ -27,6 +27,9 @@ describe("loadUiMessages shell keys", () => {
     expect(messages.nav.architecture).toBe("Architecture");
     expect(messages.searchEntry.title).toBe("Search");
     expect(messages.browseIndex.title).toBe("Browse the Atlas");
+    expect(messages.modelsIndex.title).toBe("Models");
+    expect(messages.modulesIndex.title).toBe("Modules");
+    expect(messages.conceptsIndex.title).toBe("Concepts");
     expect(messages.architectureIndex.title).toBe("Architecture");
     expect(messages.glossaryIndex.title).toBe("Glossary");
     expect(messages.tagsIndex.title).toBe("Tags");
@@ -36,6 +39,7 @@ describe("loadUiMessages shell keys", () => {
     const messages = await loadUiMessages("vi");
     expect(messages.nav.home).toBe("Trang chủ");
     expect(messages.browseIndex.title).toBe("Duyệt Atlas");
+    expect(messages.modelsIndex.title).toBe("Mô hình");
     expect(messages.searchEntry.title).toBe("Tìm kiếm");
     expect(messages.tagsIndex.title).toBe("Thẻ");
   });
@@ -44,6 +48,7 @@ describe("loadUiMessages shell keys", () => {
     const messages = await loadUiMessages("ja");
     expect(messages.nav.home).toBe("ホーム");
     expect(messages.browseIndex.title).toBe("アトラスを参照");
+    expect(messages.modelsIndex.title).toBe("モデル");
     expect(messages.searchEntry.title).toBe("検索");
     expect(messages.tagsIndex.title).toBe("タグ");
     expect(messages.shell.sidebarTitle).toBe("リファレンス");

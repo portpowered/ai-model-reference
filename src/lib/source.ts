@@ -19,7 +19,8 @@ function pageBundleSlug(file: { path: string }): string[] | undefined {
     sectionSlugs[0] === "modules" ||
     sectionSlugs[0] === "models" ||
     sectionSlugs[0] === "papers" ||
-    sectionSlugs[0] === "training"
+    sectionSlugs[0] === "training" ||
+    sectionSlugs[0] === "systems"
   ) {
     return sectionSlugs;
   }

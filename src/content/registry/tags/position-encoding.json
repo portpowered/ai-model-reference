@@ -4,7 +4,11 @@
   "kind": "tag",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "summary",
-  "aliases": ["positional encoding", "positional embeddings", "position signal"],
+  "aliases": [
+    "positional encoding",
+    "positional embeddings",
+    "position signal"
+  ],
   "tags": [],
   "relatedIds": [],
   "citationIds": [],

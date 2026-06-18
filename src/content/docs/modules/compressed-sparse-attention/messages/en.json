@@ -1,0 +1,84 @@
+{
+  "title": "Compressed Sparse Attention",
+  "description": "A DeepSeek-V4 attention variant that mixes compression and sparse access so very long prompts stay tractable.",
+  "openingSummary": "Dense long-context attention becomes too expensive when every query wants every detailed key and value. Compressed sparse attention lowers that cost by keeping a compact memory view and only paying for selected detailed access.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "This is an attention design for extremely long contexts. The key idea is not only sparsity and not only compression. It is the combination: a compact representation for broad coverage plus selective detailed retrieval where it matters."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "The module targets KV-cache size, memory bandwidth, and long-context attention cost."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "Readers should care because million-token context is mostly a systems and memory problem. CSA gives the model a way to keep broad context available without paying dense cost on every step."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Tokens are first summarized into a compressed memory path. The query can then use sparse detailed access rather than reopening the full dense history every time."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The sketch below emphasizes the two-stage idea: compact memory first, selective detailed attention second."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Sliding-window attention cuts reach. Sparse attention cuts connectivity. CSA instead keeps broad reach but changes how much detail the model stores and revisits."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "DeepSeek-V4 uses CSA as part of its million-token context story."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Compression can hide detail if the summary path is too aggressive, and sparse access adds policy complexity about what deserves high-resolution lookup."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "It is a useful reference point for long-context design because it shows a third path beyond pure locality and pure dense recurrence."
+    },
+    "related": { "title": "Related" },
+    "tags": { "title": "Tags" },
+    "references": { "title": "References" }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "A flow from raw token history into compressed memory and then into sparse detailed access.",
+      "caption": "CSA combines broad compressed memory with selective sparse detail."
+    }
+  },
+  "math": {
+    "csaSchema": {
+      "label": "Compressed sparse attention sketch",
+      "formula": "\\tilde{K},\\tilde{V} = C(K,V), \\quad y_t = A_s(q_t, \\tilde{K}, \\tilde{V}, K_{\\mathcal{S}}, V_{\\mathcal{S}})",
+      "variableDefinitions": {
+        "ktilde": {
+          "term": "\\tilde{K}, \\tilde{V}",
+          "definition": "compressed keys and values that summarize broad context"
+        },
+        "c": { "term": "C", "definition": "the compression step" },
+        "qt": {
+          "term": "q_t",
+          "definition": "the current query at time step t"
+        },
+        "s": {
+          "term": "\\mathcal{S}",
+          "definition": "the selected sparse detailed positions"
+        },
+        "as": {
+          "term": "A_s",
+          "definition": "the sparse attention computation over compressed and selected detailed memory"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "tokens": { "label": "Long token history" },
+      "compress": { "label": "Compressed memory path" },
+      "sparse": { "label": "Sparse detailed lookup" }
+    }
+  }
+}

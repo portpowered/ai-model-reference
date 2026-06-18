@@ -1,5 +1,8 @@
-import type { ReactNode } from "react";
 import { LocalizedMonthYear } from "@/features/docs/components/LocalizedMonthYear";
+import {
+  AtAGlanceCard,
+  AtAGlanceDefinitionRow,
+} from "@/features/models/components/AtAGlanceCard";
 import { buildPageReleaseMetadata } from "@/lib/content/page-release-metadata";
 import { getModelById } from "@/lib/content/registry-runtime";
 
@@ -17,24 +20,7 @@ function formatSourceType(value: string): string {
   return formatToken(value);
 }
 
-function DefinitionRow({
-  label,
-  value,
-}: {
-  label: string;
-  value?: ReactNode;
-}) {
-  if (!value) {
-    return null;
-  }
-
-  return (
-    <div className="grid gap-1 sm:grid-cols-[12rem_1fr] sm:gap-4">
-      <dt className="text-sm font-medium text-muted-foreground">{label}</dt>
-      <dd className="text-sm text-foreground">{value}</dd>
-    </div>
-  );
-}
+const DefinitionRow = AtAGlanceDefinitionRow;
 
 export function ModelAtAGlance({ registryId }: { registryId: string }) {
   const record = getModelById(registryId);
@@ -53,14 +39,7 @@ export function ModelAtAGlance({ registryId }: { registryId: string }) {
     : undefined;
 
   return (
-    <section
-      className="my-6 rounded-lg border border-border bg-card p-4"
-      data-registry-id={registryId}
-      aria-label="At a glance"
-    >
-      <h2 className="mb-4 text-base font-semibold text-foreground">
-        At a glance
-      </h2>
+    <AtAGlanceCard registryId={registryId}>
       <dl className="space-y-3">
         <DefinitionRow label="Family" value={record.family} />
         <DefinitionRow
@@ -103,6 +82,6 @@ export function ModelAtAGlance({ registryId }: { registryId: string }) {
         <DefinitionRow label="Context length" value={contextLength} />
         <DefinitionRow label="Precision" value={precision} />
       </dl>
-    </section>
+    </AtAGlanceCard>
   );
 }

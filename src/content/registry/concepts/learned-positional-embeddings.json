@@ -9,10 +9,7 @@
     "learned position embeddings",
     "learned positional encoding"
   ],
-  "tags": [
-    "position-encoding",
-    "foundations"
-  ],
+  "tags": ["position-encoding", "foundations"],
   "relatedIds": [
     "concept.positional-encodings",
     "concept.absolute-positional-embeddings",

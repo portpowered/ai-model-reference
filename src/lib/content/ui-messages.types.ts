@@ -67,10 +67,22 @@ export type UiMessages = {
     tagsRouteDescription: string;
     modelsSectionTitle: string;
     modelsSectionDescription: string;
+    modelsSectionLinkLabel: string;
     modulesSectionTitle: string;
     modulesSectionDescription: string;
+    modulesSectionLinkLabel: string;
     conceptsSectionTitle: string;
     conceptsSectionDescription: string;
+    conceptsSectionLinkLabel: string;
+    papersSectionTitle: string;
+    papersSectionDescription: string;
+    papersSectionLinkLabel: string;
+    trainingSectionTitle: string;
+    trainingSectionDescription: string;
+    trainingSectionLinkLabel: string;
+    systemsSectionTitle: string;
+    systemsSectionDescription: string;
+    systemsSectionLinkLabel: string;
     glossarySectionTitle: string;
     glossarySectionDescription: string;
     glossarySectionLinkLabel: string;
@@ -92,6 +104,30 @@ export type UiMessages = {
     emptyHomeLink: string;
   };
   conceptsIndex: {
+    title: string;
+    description: string;
+    listLabel: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    emptyHomeLink: string;
+  };
+  papersIndex: {
+    title: string;
+    description: string;
+    listLabel: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    emptyHomeLink: string;
+  };
+  trainingIndex: {
+    title: string;
+    description: string;
+    listLabel: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    emptyHomeLink: string;
+  };
+  systemsIndex: {
     title: string;
     description: string;
     listLabel: string;

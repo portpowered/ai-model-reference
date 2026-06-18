@@ -1,0 +1,67 @@
+{
+  "id": "graph.expert-parallel-overlap-system-flow",
+  "slug": "expert-parallel-overlap-system-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["expert parallel overlap system flow"],
+  "tags": ["feed-forward"],
+  "relatedIds": [],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "system.expert-parallel-overlap",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "dispatch",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "dispatch",
+      "labelKey": "graph.nodes.dispatch.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["compute"]
+    },
+    {
+      "id": "compute",
+      "labelKey": "graph.nodes.compute.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 180, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["gather"]
+    },
+    {
+      "id": "gather",
+      "labelKey": "graph.nodes.gather.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 240 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "dispatch-compute",
+      "source": "dispatch",
+      "target": "compute",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "compute-gather",
+      "source": "compute",
+      "target": "gather",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

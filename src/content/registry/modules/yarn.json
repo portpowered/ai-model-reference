@@ -4,33 +4,20 @@
   "kind": "module",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "YaRN",
-    "Yarn",
-    "Yet another RoPE extensioN method",
-    "rope yarn"
-  ],
-  "tags": [
-    "position-encoding",
-    "context-window",
-    "foundations"
-  ],
+  "aliases": ["YaRN", "Yarn", "Yet another RoPE extensioN method", "rope yarn"],
+  "tags": ["position-encoding", "context-window", "foundations"],
   "relatedIds": [
     "module.rope",
     "concept.context-extension",
     "module.ntk-aware-rope-scaling",
     "module.superhot-rope"
   ],
-  "citationIds": [
-    "citation.peng-yarn"
-  ],
+  "citationIds": ["citation.peng-yarn"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "position-encoding",
-  "optimizes": [
-    "long-context-extrapolation"
-  ],
+  "optimizes": ["long-context-extrapolation"],
   "practicalBenefits": [
     "stretches RoPE context with interpolation and rescaling"
   ],

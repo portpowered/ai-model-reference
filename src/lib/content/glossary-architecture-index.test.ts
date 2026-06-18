@@ -9,7 +9,7 @@ import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
 import { source } from "@/lib/source";
 
-const TAXONOMY_GLOSSARY_SLUGS = [
+const CURRENT_GLOSSARY_SLUGS = [
   "model",
   "architecture",
   "module",
@@ -22,137 +22,132 @@ const TAXONOMY_GLOSSARY_SLUGS = [
   "patch",
   "latent",
   "latent-space",
-] as const;
-
-const FFN_ACTIVATION_GLOSSARY_SLUGS = [
-  "feed-forward-network",
-  "batch-norm",
-  "group-norm",
-  "standard-ffn",
-  "mixture-of-experts",
-  "relu",
-  "leaky-relu",
-  "silu",
-  "swiglu",
-  "qk-norm",
-  "residual-connection",
-  "skip-connection",
-] as const;
-
-const POSITIONAL_GLOSSARY_SLUGS = [
-  "absolute-positional-embeddings",
-  "learned-positional-embeddings",
-  "longrope",
-  "nope",
-  "ntk-aware-rope-scaling",
-  "positional-interpolation",
-  "relative-position-bias",
-  "sinusoidal-positional-embeddings",
-  "superhot-rope",
-  "t5-relative-position-bias",
-  "yarn",
-] as const;
-
-const CHAIN_GLOSSARY_SLUGS = [
-  "embedding",
-  "vector",
-  "tensor",
-  "logit",
-  "softmax",
-  "entropy",
-  "temperature",
-  "parameter",
-  "activation",
-  "computational-graph",
-  "gradient",
-  "backpropagation",
-  "loss-function",
-  "optimizer-state",
-] as const;
-
-const SEQUENCE_OPERATION_GLOSSARY_SLUGS = [
-  "kv-cache",
+  "model-capacity",
+  "multimodal-model",
+  "world-model",
+  "context-window",
+  "decoder",
   "decode",
+  "encoder",
+  "encoder-decoder",
+  "hidden-size",
+  "kv-cache",
+  "normalization",
   "prefill",
   "prefill-decode-split",
-] as const;
-
-const GENERATION_GLOSSARY_SLUGS = [
-  "sampling-overview",
+  "perplexity",
+  "residual-connection",
+  "skip-connection",
+  "token",
+  "transformer",
+  "activation",
+  "alignment",
+  "backpropagation",
+  "computational-graph",
+  "embedding",
+  "entropy",
+  "emergent-behavior",
+  "generalization",
+  "gradient",
+  "logit",
+  "loss-function",
+  "optimizer-state",
+  "overfitting",
+  "parameter",
+  "scaling-law",
+  "softmax",
+  "temperature",
+  "tensor",
+  "vector",
+  "autoregressive-generation",
   "greedy-decoding",
+  "sampling-overview",
   "top-k-sampling",
   "top-p-sampling",
+  "conditioning",
+  "denoising-generation",
+  "diffusion-model",
 ] as const;
 
-const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
-  model: "Model",
+const EXPECTED_GLOSSARY_TITLES: Record<
+  (typeof CURRENT_GLOSSARY_SLUGS)[number],
+  string
+> = {
+  activation: "Activation",
+  alignment: "Alignment",
   architecture: "Architecture",
-  module: "Module",
+  "autoregressive-generation": "Autoregressive Generation",
+  backpropagation: "Backpropagation",
   component: "Component",
-  modality: "Modality",
-  "foundation-model": "Foundation Model",
-  "generative-model": "Generative Model",
+  "computational-graph": "Computational Graph",
+  conditioning: "Conditioning",
+  "context-window": "Context window",
+  decode: "Decode",
+  decoder: "Decoder",
+  "denoising-generation": "Denoising Generation",
+  "diffusion-model": "Diffusion Model",
   "discriminative-model": "Discriminative Model",
-  representation: "Representation",
-  patch: "Patch",
+  embedding: "Embedding",
+  entropy: "Entropy",
+  "emergent-behavior": "Emergent Behavior",
+  encoder: "Encoder",
+  "encoder-decoder": "Encoder-Decoder",
+  "foundation-model": "Foundation Model",
+  generalization: "Generalization",
+  "generative-model": "Generative Model",
+  "greedy-decoding": "Greedy Decoding",
+  gradient: "Gradient",
+  "hidden-size": "Hidden Size",
+  "kv-cache": "KV cache",
   latent: "Latent",
   "latent-space": "Latent Space",
-  "feed-forward-network": "Feed-forward network",
-  "batch-norm": "Batch norm",
-  "group-norm": "Group norm",
-  "standard-ffn": "Standard FFN",
-  "mixture-of-experts": "Mixture of experts",
-  relu: "ReLU",
-  "leaky-relu": "LeakyReLU",
-  silu: "SiLU",
-  swiglu: "SwiGLU",
-  "qk-norm": "QK norm",
-  "residual-connection": "Residual connection",
-  "skip-connection": "Skip connection",
-  "absolute-positional-embeddings": "Absolute positional embeddings",
-  "learned-positional-embeddings": "Learned positional embeddings",
-  longrope: "LongRoPE",
-  nope: "NoPE",
-  "ntk-aware-rope-scaling": "NTK-aware RoPE scaling",
-  "positional-interpolation": "Positional interpolation",
-  "relative-position-bias": "Relative position bias",
-  "sinusoidal-positional-embeddings": "Sinusoidal positional embeddings",
-  "superhot-rope": "SuperHOT RoPE",
-  "t5-relative-position-bias": "T5 relative position bias",
-  yarn: "YaRN",
-  token: "Token",
-  embedding: "Embedding",
-  vector: "Vector",
-  tensor: "Tensor",
   logit: "Logit",
-  softmax: "Softmax",
-  entropy: "Entropy",
-  temperature: "Temperature",
-  parameter: "Parameter",
-  activation: "Activation",
-  "computational-graph": "Computational Graph",
-  gradient: "Gradient",
-  backpropagation: "Backpropagation",
   "loss-function": "Loss Function",
+  modality: "Modality",
+  model: "Model",
+  "model-capacity": "Model Capacity",
+  module: "Module",
+  "multimodal-model": "Multimodal Model",
+  normalization: "Normalization",
   "optimizer-state": "Optimizer State",
-  "kv-cache": "KV cache",
-  decode: "Decode",
+  overfitting: "Overfitting",
+  parameter: "Parameter",
+  patch: "Patch",
+  perplexity: "Perplexity",
   prefill: "Prefill",
   "prefill-decode-split": "Prefill/decode split",
+  representation: "Representation",
+  "residual-connection": "Residual connection",
   "sampling-overview": "Sampling Overview",
-  "greedy-decoding": "Greedy Decoding",
+  "scaling-law": "Scaling Law",
+  "skip-connection": "Skip connection",
+  softmax: "Softmax",
+  temperature: "Temperature",
+  tensor: "Tensor",
+  token: "Token",
   "top-k-sampling": "Top-K Sampling",
   "top-p-sampling": "Top-P Sampling",
+  transformer: "Transformer",
+  vector: "Vector",
+  "world-model": "World Model",
 };
 
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 82;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 71;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 57;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 46;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
   "Math And Training",
   "Generation And Diffusion",
+] as const;
+
+const ARCHITECTURE_CONCEPT_URLS = [
+  "/docs/concepts/context-extension",
+  "/docs/concepts/page-spec-workflow-sample",
+  "/docs/concepts/positional-encodings",
+  "/docs/concepts/transformer-architecture",
+  "/docs/concepts/why-long-context-is-hard",
 ] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {
@@ -171,7 +166,7 @@ function collectPageUrls(nodes: Node[]): string[] {
 }
 
 describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
-  test("glossary meta.json lists merged glossary families and separators", async () => {
+  test("glossary meta.json lists current glossary families and separators", async () => {
     const metaPath = join(process.cwd(), "src/content/docs/glossary/meta.json");
     const meta = JSON.parse(await readFile(metaPath, "utf8")) as {
       pages: string[];
@@ -185,15 +180,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ),
     );
 
-    for (const slug of [
-      ...TAXONOMY_GLOSSARY_SLUGS,
-      ...FFN_ACTIVATION_GLOSSARY_SLUGS,
-      ...POSITIONAL_GLOSSARY_SLUGS,
-      ...CHAIN_GLOSSARY_SLUGS,
-      ...SEQUENCE_OPERATION_GLOSSARY_SLUGS,
-      ...GENERATION_GLOSSARY_SLUGS,
-      "token",
-    ] as const) {
+    for (const slug of CURRENT_GLOSSARY_SLUGS) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
       expect(
         linkEntries.some((entry) => entry.includes(`/docs/glossary/${slug}`)),
@@ -204,7 +191,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     }
   });
 
-  test("fumadocs glossary sidebar includes merged glossary families", () => {
+  test("fumadocs glossary sidebar includes the shipped glossary surface", () => {
     const glossaryFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Glossary",
     );
@@ -214,33 +201,17 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     }
 
     const glossaryUrls = collectPageUrls(glossaryFolder.children);
-    for (const slug of [
-      ...TAXONOMY_GLOSSARY_SLUGS,
-      ...FFN_ACTIVATION_GLOSSARY_SLUGS,
-      ...POSITIONAL_GLOSSARY_SLUGS,
-      ...CHAIN_GLOSSARY_SLUGS,
-      ...SEQUENCE_OPERATION_GLOSSARY_SLUGS,
-      ...GENERATION_GLOSSARY_SLUGS,
-      "token",
-    ] as const) {
+    for (const slug of CURRENT_GLOSSARY_SLUGS) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
     }
     expect(glossaryUrls).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
   });
 
-  test("glossary index lists merged published entries with localized titles", async () => {
+  test("glossary index lists shipped published entries with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
     expect(entries).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
 
-    for (const slug of [
-      ...TAXONOMY_GLOSSARY_SLUGS,
-      ...FFN_ACTIVATION_GLOSSARY_SLUGS,
-      ...POSITIONAL_GLOSSARY_SLUGS,
-      ...CHAIN_GLOSSARY_SLUGS,
-      ...SEQUENCE_OPERATION_GLOSSARY_SLUGS,
-      ...GENERATION_GLOSSARY_SLUGS,
-      "token",
-    ] as const) {
+    for (const slug of CURRENT_GLOSSARY_SLUGS) {
       const entry = entries.find(
         (item) => item.url === `/docs/glossary/${slug}`,
       );
@@ -248,30 +219,27 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     }
   });
 
-  test("architecture index includes merged architecture-related glossary entries", async () => {
+  test("architecture index includes current architecture-related glossary and concept entries", async () => {
     const entries = await loadPublishedArchitectureEntries("en");
     expect(entries).toHaveLength(PUBLISHED_ARCHITECTURE_ENTRY_COUNT);
 
-    expect(
-      entries.some((entry) => entry.url === "/docs/glossary/architecture"),
-    ).toBe(true);
-    expect(
-      entries.some((entry) => entry.url === "/docs/glossary/kv-cache"),
-    ).toBe(true);
-    expect(
-      entries.some(
-        (entry) => entry.url === "/docs/modules/relative-position-bias",
-      ),
-    ).toBe(true);
-    expect(entries.some((entry) => entry.url === "/docs/glossary/token")).toBe(
-      true,
-    );
+    for (const url of [
+      "/docs/glossary/architecture",
+      "/docs/glossary/kv-cache",
+      "/docs/glossary/normalization",
+      "/docs/glossary/residual-connection",
+      "/docs/glossary/token",
+      ...ARCHITECTURE_CONCEPT_URLS,
+    ] as const) {
+      expect(entries.some((entry) => entry.url === url)).toBe(true);
+    }
+
     expect(entries.some((entry) => entry.url === "/docs/glossary/tensor")).toBe(
       false,
     );
   });
 
-  test("glossary and architecture index pages render merged family links", async () => {
+  test("glossary and architecture index pages render current family links", async () => {
     const glossaryHtml = renderToStaticMarkup(await GlossaryIndexPage());
     const architectureHtml = renderToStaticMarkup(
       await ArchitectureIndexPage(),
@@ -282,11 +250,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["Token", "/docs/glossary/token"],
       ["Embedding", "/docs/glossary/embedding"],
       ["KV cache", "/docs/glossary/kv-cache"],
-      [
-        "Absolute positional embeddings",
-        "/docs/modules/absolute-positional-embeddings",
-      ],
-      ["Relative position bias", "/docs/modules/relative-position-bias"],
+      ["Normalization", "/docs/glossary/normalization"],
       ["Prefill", "/docs/glossary/prefill"],
       ["Sampling Overview", "/docs/glossary/sampling-overview"],
     ] as const) {
@@ -300,12 +264,9 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["KV cache", "/docs/glossary/kv-cache"],
       ["Decode", "/docs/glossary/decode"],
       ["Prefill", "/docs/glossary/prefill"],
-      [
-        "Absolute positional embeddings",
-        "/docs/modules/absolute-positional-embeddings",
-      ],
-      ["Relative position bias", "/docs/modules/relative-position-bias"],
+      ["Positional encodings", "/docs/concepts/positional-encodings"],
       ["Token", "/docs/glossary/token"],
+      ["Transformer architecture", "/docs/concepts/transformer-architecture"],
     ] as const) {
       expect(architectureHtml).toContain(title);
       expect(architectureHtml).toContain(`href="${href}"`);

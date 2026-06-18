@@ -84,7 +84,7 @@ describe("ModuleGraph live GQA graphs", () => {
     ).toBeTruthy();
     expect(
       screen.getByText(
-        "Toggle MHA and GQA to compare query-head count against KV-head count on one canvas",
+        "Toggle multi-head attention and grouped-query attention to compare query-head count against key-value head count on one canvas.",
       ),
     ).toBeTruthy();
     expect(container.querySelectorAll("[data-graph-node-id]")).toHaveLength(11);

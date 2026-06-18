@@ -16,7 +16,8 @@ export function isLocalDocsPageBundlePath(path: string): boolean {
       sectionSlugs[0] === "modules" ||
       sectionSlugs[0] === "models" ||
       sectionSlugs[0] === "papers" ||
-      sectionSlugs[0] === "training")
+      sectionSlugs[0] === "training" ||
+      sectionSlugs[0] === "systems")
   );
 }
 

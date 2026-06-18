@@ -19,11 +19,7 @@ export function formatRenderedQualityAuditReport(
     `Viewport checks: ${result.viewportChecks}`,
   ];
 
-  lines.push(
-    "",
-    "## Implementation-facing issue list",
-    "",
-  );
+  lines.push("", "## Implementation-facing issue list", "");
 
   if (result.issues.length === 0) {
     lines.push(

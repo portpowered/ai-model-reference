@@ -4,14 +4,8 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "normalization layer",
-    "norm layer"
-  ],
-  "tags": [
-    "normalization",
-    "foundations"
-  ],
+  "aliases": ["normalization layer", "norm layer"],
+  "tags": ["normalization", "foundations"],
   "relatedIds": [
     "concept.transformer-architecture",
     "concept.residual-connection"

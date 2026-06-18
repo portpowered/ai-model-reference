@@ -4,15 +4,8 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "context length",
-    "sequence length limit",
-    "max context"
-  ],
-  "tags": [
-    "context-window",
-    "foundations"
-  ],
+  "aliases": ["context length", "sequence length limit", "max context"],
+  "tags": ["context-window", "foundations"],
   "relatedIds": [
     "concept.context-extension",
     "concept.why-long-context-is-hard"

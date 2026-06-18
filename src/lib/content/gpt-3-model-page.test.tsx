@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadModelPage } from "@/lib/content/model-page";
@@ -20,9 +20,7 @@ describe("gpt-3 model page related docs", () => {
       />,
     );
 
-    expect(
-      html.match(/href="\/docs\/modules\/alibi"/g) ?? [],
-    ).toHaveLength(1);
+    expect(html.match(/href="\/docs\/modules\/alibi"/g) ?? []).toHaveLength(1);
     expect(
       html.match(/href="\/docs\/modules\/learned-positional-embeddings"/g) ??
         [],

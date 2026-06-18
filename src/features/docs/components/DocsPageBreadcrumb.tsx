@@ -84,7 +84,7 @@ export function DocsPageBreadcrumb({
     <Breadcrumb className="mb-3">
       <BreadcrumbList>
         {segments.map((segment, index) => (
-          <BreadcrumbItem key={`${segment.label}-${index}`}>
+          <BreadcrumbItem key={`${segment.href ?? "current"}-${segment.label}`}>
             {segment.href && index !== lastIndex ? (
               <BreadcrumbLink
                 render={<Link href={segment.href} />}

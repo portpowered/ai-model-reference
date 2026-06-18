@@ -66,7 +66,9 @@ describe("loadModulePage multi-query-attention", () => {
     );
 
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
-    expect(html).toContain("stores one KV pair instead of H");
+    expect(html).toContain(
+      "stores one key-value pair instead of one pair per head",
+    );
     expect(html).not.toContain("Reader Shortcut");
     expect(html).toContain("At a glance");
     expectModuleTagPillListOnlyInTagsSection(html);

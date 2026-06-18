@@ -19,7 +19,7 @@ const BUILT_HTML_SITE_ROUTES = [
     path: "/",
     file: ".next/server/app/index.html",
     contentMarker: "Model Atlas",
-    alsoExpectInHtml: TOKEN_GLOSSARY_URL,
+    alsoExpectInHtml: 'href="/browse"',
     tocAnchor: { anchorId: "browse", label: "Browse" },
     tocMustNotIncludeAnchor: "search",
   },

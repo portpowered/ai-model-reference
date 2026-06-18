@@ -4,17 +4,8 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "LongRoPE",
-    "Long RoPE",
-    "long rope",
-    "long rope scaling"
-  ],
-  "tags": [
-    "position-encoding",
-    "context-window",
-    "foundations"
-  ],
+  "aliases": ["LongRoPE", "Long RoPE", "long rope", "long rope scaling"],
+  "tags": ["position-encoding", "context-window", "foundations"],
   "relatedIds": [
     "concept.rope",
     "concept.context-extension",
@@ -22,16 +13,11 @@
     "concept.ntk-aware-rope-scaling",
     "concept.yarn"
   ],
-  "citationIds": [
-    "citation.ding-longrope"
-  ],
+  "citationIds": ["citation.ding-longrope"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "general",
-  "prerequisiteIds": [
-    "concept.positional-encodings",
-    "concept.rope"
-  ],
+  "prerequisiteIds": ["concept.positional-encodings", "concept.rope"],
   "explainsIds": []
 }

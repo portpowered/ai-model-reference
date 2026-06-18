@@ -16,13 +16,7 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "citationType": "paper",
-  "authors": [
-    "Adi Haviv",
-    "Ori Ram",
-    "Ofir Press",
-    "Peter Izsak",
-    "Omer Levy"
-  ],
+  "authors": ["Adi Haviv", "Ori Ram", "Ofir Press", "Peter Izsak", "Omer Levy"],
   "title": "Transformer Language Models without Positional Encodings Still Learn Positional Information",
   "year": 2022,
   "url": "https://arxiv.org/abs/2203.16634",

@@ -10,6 +10,7 @@ import {
   getPapersDocsRoot,
   getProjectRoot,
   getRegistryRoot,
+  getSystemsDocsRoot,
   getTrainingDocsRoot,
 } from "./content-paths";
 import type { GraphRegistryArtifact } from "./generate-page-bundle-graphs";
@@ -76,6 +77,7 @@ const registryDirectoryByKind: Record<
   module: "modules",
   model: "models",
   paper: "papers",
+  system: "systems",
   "training-regime": "training-regimes",
 };
 
@@ -85,6 +87,7 @@ const templateRegistryIdByKind: Record<PageSpecKind, string> = {
   module: "module.example-module",
   model: "model.example-model",
   paper: "paper.example-paper",
+  system: "system.example-system",
   "training-regime": "training-regime.example-training-regime",
 };
 
@@ -107,6 +110,9 @@ const templateAssetIdReplacementsByKind: Record<
   },
   paper: {
     "graph.example-paper-contribution": (slug) => `graph.${slug}-contribution`,
+  },
+  system: {
+    "graph.example-system-map": (slug) => `graph.${slug}-system-map`,
   },
   "training-regime": {
     "graph.example-training-flow": (slug) => `graph.${slug}-training-flow`,
@@ -154,6 +160,8 @@ function docsParentForSpec(spec: PageSpec, docsRoot: string): string {
       return getModelsDocsRoot(docsRoot);
     case "paper":
       return getPapersDocsRoot(docsRoot);
+    case "system":
+      return getSystemsDocsRoot(docsRoot);
     case "training-regime":
       return getTrainingDocsRoot(docsRoot);
   }
@@ -171,6 +179,8 @@ function routeForSpec(spec: PageSpec): string {
       return `/docs/models/${spec.slug}`;
     case "paper":
       return `/docs/papers/${spec.slug}`;
+    case "system":
+      return `/docs/systems/${spec.slug}`;
     case "training-regime":
       return `/docs/training/${spec.slug}`;
   }
@@ -178,8 +188,11 @@ function routeForSpec(spec: PageSpec): string {
 
 function assetIdReplacementsForSpec(spec: PageSpec): Record<string, string> {
   const replacements: Record<string, string> = {};
+  const templateAssetIdReplacements =
+    templateAssetIdReplacementsByKind[spec.kind] ?? {};
+
   for (const [templateId, buildReplacement] of Object.entries(
-    templateAssetIdReplacementsByKind[spec.kind],
+    templateAssetIdReplacements,
   )) {
     replacements[templateId] = buildReplacement(spec.slug);
   }
@@ -308,11 +321,12 @@ function buildPageMessages(
     const templateGraph = (templateMessages.graph ?? {}) as {
       nodes?: Record<string, unknown>;
     };
+    const graphNodes = spec.graph.nodes as Record<string, unknown>;
     messages.graph = {
       ...templateGraph,
       nodes: {
         ...(templateGraph.nodes ?? {}),
-        ...spec.graph.nodes,
+        ...graphNodes,
       },
     };
   }
@@ -373,11 +387,6 @@ function buildRegistryRecord(
     status: spec.status,
     createdAt: timestamp,
     updatedAt: timestamp,
-    ...(spec.kind !== "paper" && spec.releaseDate
-      ? { releaseDate: spec.releaseDate }
-      : {}),
-    ...(spec.kind !== "paper" && spec.authors ? { authors: spec.authors } : {}),
-    ...(spec.kind !== "paper" && spec.sourceId ? { sourceId: spec.sourceId } : {}),
   };
 
   switch (spec.kind) {
@@ -385,6 +394,9 @@ function buildRegistryRecord(
     case "glossary":
       return {
         ...base,
+        ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
+        ...(spec.authors ? { authors: spec.authors } : {}),
+        ...(spec.sourceId ? { sourceId: spec.sourceId } : {}),
         conceptType: spec.conceptType,
         prerequisiteIds: spec.prerequisiteIds,
         explainsIds: spec.explainsIds,
@@ -392,6 +404,9 @@ function buildRegistryRecord(
     case "module":
       return {
         ...base,
+        ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
+        ...(spec.authors ? { authors: spec.authors } : {}),
+        ...(spec.sourceId ? { sourceId: spec.sourceId } : {}),
         moduleType: spec.moduleType,
         mathLevel: spec.mathLevel,
         optimizes: spec.optimizes,
@@ -408,6 +423,9 @@ function buildRegistryRecord(
     case "model":
       return {
         ...base,
+        ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
+        ...(spec.authors ? { authors: spec.authors } : {}),
+        ...(spec.sourceId ? { sourceId: spec.sourceId } : {}),
         family: spec.family,
         sourceType: spec.sourceType,
         modalities: spec.modalities,
@@ -442,10 +460,29 @@ function buildRegistryRecord(
     case "training-regime":
       return {
         ...base,
+        ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
+        ...(spec.authors ? { authors: spec.authors } : {}),
+        ...(spec.sourceId ? { sourceId: spec.sourceId } : {}),
         regimeType: spec.regimeType,
         usedByModelIds: spec.usedByModelIds,
         relatedModuleIds: spec.relatedModuleIds,
         paperIds: spec.paperIds,
+        ...(spec.conceptType ? { conceptType: spec.conceptType } : {}),
+        ...(spec.variantGroup ? { variantGroup: spec.variantGroup } : {}),
+      };
+    case "system":
+      return {
+        ...base,
+        ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
+        ...(spec.authors ? { authors: spec.authors } : {}),
+        ...(spec.sourceId ? { sourceId: spec.sourceId } : {}),
+        systemType: spec.systemType,
+        relatedModelIds: spec.relatedModelIds,
+        relatedModuleIds: spec.relatedModuleIds,
+        relatedConceptIds: spec.relatedConceptIds,
+        paperIds: spec.paperIds,
+        datasetIds: spec.datasetIds,
+        ...(spec.organizationId ? { organizationId: spec.organizationId } : {}),
         ...(spec.conceptType ? { conceptType: spec.conceptType } : {}),
         ...(spec.variantGroup ? { variantGroup: spec.variantGroup } : {}),
       };

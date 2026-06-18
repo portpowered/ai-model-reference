@@ -161,7 +161,7 @@
       "summaryKey": "graph.nodes.learnedPositions.summary",
       "registryId": "module.learned-positional-embeddings",
       "moduleKind": "embedding",
-      "position": { "x": 68, "y": 780  },
+      "position": { "x": 68, "y": 780 },
       "size": { "width": 190, "height": 80 },
       "visualRole": "architecture-embedding",
       "zIndex": 3,

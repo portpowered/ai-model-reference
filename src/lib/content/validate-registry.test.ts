@@ -901,9 +901,7 @@ updatedAt: "2026-06-02"
         errors.some(
           (error) =>
             error.code === "missing-module-at-a-glance-metadata" &&
-            error.message.includes(
-              "module.absolute-positional-embeddings",
-            ),
+            error.message.includes("module.absolute-positional-embeddings"),
         ),
       ).toBe(false);
     } finally {

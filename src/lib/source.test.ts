@@ -67,14 +67,18 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/alibi",
   "/docs/modules/attention",
   "/docs/modules/batch-norm",
+  "/docs/modules/compressed-sparse-attention",
+  "/docs/modules/deepseekmoe",
   "/docs/modules/feed-forward-network",
   "/docs/modules/group-norm",
   "/docs/modules/grouped-query-attention",
+  "/docs/modules/heavily-compressed-attention",
   "/docs/modules/layer-norm",
   "/docs/modules/leaky-relu",
   "/docs/modules/learned-positional-embeddings",
   "/docs/modules/linear-attention",
   "/docs/modules/longrope",
+  "/docs/modules/manifold-constrained-hyper-connections",
   "/docs/modules/mixture-of-experts",
   "/docs/modules/multi-head-attention",
   "/docs/modules/multi-head-latent-attention",
@@ -96,6 +100,25 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/swiglu",
   "/docs/modules/t5-relative-position-bias",
   "/docs/modules/yarn",
+] as const;
+
+const MODEL_INDEX_URLS = [
+  "/docs/models/deepseek-v4-flash",
+  "/docs/models/deepseek-v4-pro",
+  "/docs/models/gpt-3",
+] as const;
+
+const PAPER_INDEX_URLS = ["/docs/papers/deepseek-v4"] as const;
+
+const TRAINING_INDEX_URLS = [
+  "/docs/training/fp4-quantization-aware-training",
+  "/docs/training/on-policy-distillation",
+  "/docs/training/specialist-training",
+] as const;
+
+const SYSTEM_INDEX_URLS = [
+  "/docs/systems/expert-parallel-overlap",
+  "/docs/systems/on-disk-kv-cache",
 ] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {
@@ -137,6 +160,18 @@ describe("docs navigation source", () => {
     for (const url of MODULE_INDEX_URLS) {
       expect(urls).toContain(url);
     }
+    for (const url of MODEL_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
+    for (const url of PAPER_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
+    for (const url of TRAINING_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
+    for (const url of SYSTEM_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
 
     const glossaryFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Glossary",
@@ -159,10 +194,64 @@ describe("docs navigation source", () => {
 
     const moduleUrls = collectPageUrls(modulesFolder.children).sort();
     expect(moduleUrls).toEqual([...MODULE_INDEX_URLS].sort());
+
+    const modelsFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Models",
+    );
+    expect(modelsFolder?.type).toBe("folder");
+    if (modelsFolder?.type !== "folder") {
+      throw new Error("expected Models folder in docs sidebar");
+    }
+
+    const modelUrls = collectPageUrls(modelsFolder.children).sort();
+    expect(modelUrls).toEqual([...MODEL_INDEX_URLS].sort());
+
+    const papersFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Papers",
+    );
+    expect(papersFolder?.type).toBe("folder");
+    if (papersFolder?.type !== "folder") {
+      throw new Error("expected Papers folder in docs sidebar");
+    }
+
+    const paperUrls = collectPageUrls(papersFolder.children).sort();
+    expect(paperUrls).toEqual([...PAPER_INDEX_URLS].sort());
+
+    const trainingFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Training",
+    );
+    expect(trainingFolder?.type).toBe("folder");
+    if (trainingFolder?.type !== "folder") {
+      throw new Error("expected Training folder in docs sidebar");
+    }
+
+    const trainingUrls = collectPageUrls(trainingFolder.children).sort();
+    expect(trainingUrls).toEqual([...TRAINING_INDEX_URLS].sort());
+
+    const systemsFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Systems",
+    );
+    expect(systemsFolder?.type).toBe("folder");
+    if (systemsFolder?.type !== "folder") {
+      throw new Error("expected Systems folder in docs sidebar");
+    }
+
+    const systemUrls = collectPageUrls(systemsFolder.children).sort();
+    expect(systemUrls).toEqual([...SYSTEM_INDEX_URLS].sort());
   });
 
   test("glossary navigation URLs resolve through Fumadocs source entries", () => {
     for (const url of GLOSSARY_INDEX_URLS) {
+      const slug = url.replace("/docs/", "").split("/");
+      expect(source.getPage(slug)).toBeDefined();
+    }
+
+    for (const url of [
+      ...MODEL_INDEX_URLS,
+      ...PAPER_INDEX_URLS,
+      ...TRAINING_INDEX_URLS,
+      ...SYSTEM_INDEX_URLS,
+    ]) {
       const slug = url.replace("/docs/", "").split("/");
       expect(source.getPage(slug)).toBeDefined();
     }

@@ -9,6 +9,9 @@ import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList"
 import { BlockMath, InlineMath } from "@/features/docs/components/Math";
 import { PageAsset } from "@/features/docs/components/PageAsset";
 import { PageMathFormula } from "@/features/docs/components/PageMathFormula";
+import { RegistryAssociatedRecords } from "@/features/docs/components/RegistryAssociatedRecords";
+import { RegistryDeepLinkList } from "@/features/docs/components/RegistryDeepLinkList";
+import { RegistryLinkList } from "@/features/docs/components/RegistryLinkList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -29,6 +32,12 @@ import { ModuleChart } from "@/features/models/components/ModuleChart";
 import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
 import { ModuleGraph } from "@/features/models/components/ModuleGraph";
 import { ModuleMetadataCard } from "@/features/models/components/ModuleMetadataCard";
+import { PaperAtAGlance } from "@/features/models/components/PaperAtAGlance";
+import { PaperContributionGraph } from "@/features/models/components/PaperContributionGraph";
+import { SystemAtAGlance } from "@/features/models/components/SystemAtAGlance";
+import { SystemFlowGraph } from "@/features/models/components/SystemFlowGraph";
+import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
+import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeFlow";
 
 export const moduleMdxComponents: MDXComponents = {
   ...defaultMdxComponents,
@@ -42,6 +51,9 @@ export const moduleMdxComponents: MDXComponents = {
   LocalizedLinkList,
   PageAsset,
   RelatedDocs,
+  RegistryAssociatedRecords,
+  RegistryDeepLinkList,
+  RegistryLinkList,
   Section,
   T,
   TagPillList,
@@ -59,5 +71,11 @@ export const moduleMdxComponents: MDXComponents = {
   ModuleMetadataCard,
   ModuleAtAGlance,
   ModelsUsingModule,
+  PaperAtAGlance,
+  PaperContributionGraph,
   PageMathFormula,
+  SystemAtAGlance,
+  SystemFlowGraph,
+  TrainingRegimeAtAGlance,
+  TrainingRegimeFlow,
 };

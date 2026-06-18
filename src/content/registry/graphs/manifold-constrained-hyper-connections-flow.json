@@ -1,0 +1,67 @@
+{
+  "id": "graph.manifold-constrained-hyper-connections-flow",
+  "slug": "manifold-constrained-hyper-connections-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["MHC flow graph"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "module.manifold-constrained-hyper-connections",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "residual",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "residual",
+      "labelKey": "graph.nodes.residual.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["manifold"]
+    },
+    {
+      "id": "manifold",
+      "labelKey": "graph.nodes.manifold.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 180, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["merge"]
+    },
+    {
+      "id": "merge",
+      "labelKey": "graph.nodes.merge.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 240 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "residual-manifold",
+      "source": "residual",
+      "target": "manifold",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "manifold-merge",
+      "source": "manifold",
+      "target": "merge",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

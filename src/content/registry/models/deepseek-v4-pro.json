@@ -1,0 +1,44 @@
+{
+  "id": "model.deepseek-v4-pro",
+  "slug": "deepseek-v4-pro",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["DeepSeek-V4-Pro"],
+  "tags": ["foundations", "attention", "context-window", "model-family"],
+  "relatedIds": ["model.deepseek-v4-flash", "paper.deepseek-v4"],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "authors": ["DeepSeek-AI"],
+  "sourceId": "citation.deepseek-v4-paper",
+  "family": "deepseek",
+  "sourceType": "research",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer-architecture",
+    "concept.context-extension"
+  ],
+  "moduleIds": [
+    "module.manifold-constrained-hyper-connections",
+    "module.compressed-sparse-attention",
+    "module.heavily-compressed-attention",
+    "module.deepseekmoe",
+    "module.multi-head-latent-attention",
+    "module.rmsnorm"
+  ],
+  "trainingRegimeIds": [
+    "training-regime.specialist-training",
+    "training-regime.on-policy-distillation",
+    "training-regime.fp4-quantization-aware-training"
+  ],
+  "datasetIds": ["dataset.deepseek-v4-specialist-corpus"],
+  "paperIds": ["paper.deepseek-v4"],
+  "organizationId": "organization.deepseek-ai",
+  "releaseDate": "2026-06-13",
+  "parameterCount": "671 billion total parameters",
+  "activeParameterCount": "37 billion active parameters",
+  "contextLength": 1048576,
+  "precision": ["fp8", "fp4"]
+}

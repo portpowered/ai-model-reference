@@ -1,0 +1,36 @@
+{
+  "id": "module.compressed-sparse-attention",
+  "slug": "compressed-sparse-attention",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["CSA", "compressed sparse attention"],
+  "tags": ["attention", "kv-cache", "context-window"],
+  "relatedIds": [
+    "module.sparse-attention",
+    "module.heavily-compressed-attention",
+    "module.multi-head-latent-attention",
+    "paper.deepseek-v4"
+  ],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "releaseDate": "2026-06-13",
+  "authors": ["DeepSeek-AI"],
+  "sourceId": "paper.deepseek-v4",
+  "moduleType": "attention",
+  "optimizes": ["kv-cache", "long-context-inference", "memory-bandwidth"],
+  "practicalBenefits": [
+    "keeps long-context attention usable by combining compression with selective sparse access"
+  ],
+  "exampleModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
+  "improvesOnIds": ["module.sparse-attention"],
+  "tradeoffIds": [],
+  "usedByModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
+  "introducedByPaperIds": ["paper.deepseek-v4"],
+  "mathLevel": "light",
+  "moduleFamily": "attention",
+  "conceptType": "attention-variant",
+  "variantGroup": "long-context-attention"
+}

@@ -84,7 +84,7 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
-    expect(messages.title).toBe("Feed-forward network");
+    expect(messages.title).toBe("Feed-Forward Network");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
       "attention",
@@ -92,16 +92,14 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
       "position",
     );
-    expect(
-      messages.sections?.practicalBenefit.body?.toLowerCase(),
-    ).toContain("swiglu");
+    expect(messages.sections?.practicalBenefit.body?.toLowerCase()).toContain(
+      "swish gated linear unit",
+    );
     expect(
       messages.sections?.comparedToNearbyModules.body?.toLowerCase(),
     ).toContain("tradeoffs");
     expect(messages.math?.standardSchema?.formula).toContain("\\mathrm{FFN}");
-    expect(messages.math?.swigluSchema?.formula).toContain(
-      "\\mathrm{SwiGLU}",
-    );
+    expect(messages.math?.swigluSchema?.formula).toContain("\\mathrm{SwiGLU}");
   });
 
   test("page renders module-template sections, math comparison, and FFN-family links", async () => {

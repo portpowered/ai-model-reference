@@ -77,7 +77,7 @@ describe("Phase 3 mixture of experts module page (US-003)", () => {
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
-    expect(messages.title).toBe("Mixture of experts");
+    expect(messages.title).toBe("Mixture of Experts");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain("router");
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain("top-k");
@@ -86,14 +86,12 @@ describe("Phase 3 mixture of experts module page (US-003)", () => {
     );
     expect(
       messages.sections?.comparedToNearbyModules.body?.toLowerCase(),
-    ).toContain("sparse-top-k routing");
+    ).toContain("sparse top-k routing");
     expect(
       messages.sections?.limitationsAndTradeoffs.body?.toLowerCase(),
     ).toContain("load-balancing");
     expect(messages.math?.standardSchema?.formula).toContain("\\mathrm{FFN}");
-    expect(messages.math?.moeSchema?.formula).toContain(
-      "\\mathrm{MoE}",
-    );
+    expect(messages.math?.moeSchema?.formula).toContain("\\mathrm{MoE}");
   });
 
   test("page renders MoE module-template sections, switcher, and FFN-family related links", async () => {

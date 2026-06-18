@@ -9,9 +9,7 @@ import {
   GROUP_NORM_GLOSSARY_PAGE_DIR,
   QK_NORM_GLOSSARY_PAGE_DIR,
 } from "@/lib/content/content-paths";
-import {
-  expectHtmlToContainProse,
-} from "@/lib/content/glossary-test-helpers";
+import { expectHtmlToContainProse } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
@@ -193,7 +191,9 @@ describe("Phase 3 normalization-variant module pages (US-004)", () => {
       const pages = await loadPublishedDocsPages("en");
       const documents = buildSearchDocuments(pages, registry);
 
-      const document = documents.find((entry) => entry.url === testCase.searchUrl);
+      const document = documents.find(
+        (entry) => entry.url === testCase.searchUrl,
+      );
       expect(document?.title).toBe(testCase.title);
       expect(document?.kind).toBe(testCase.pageKind);
       expect(document?.facets.kind).toBe(testCase.pageKind);

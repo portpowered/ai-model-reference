@@ -1,0 +1,18 @@
+{
+  "id": "dataset.deepseek-v4-specialist-corpus",
+  "slug": "deepseek-v4-specialist-corpus",
+  "kind": "dataset",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["DeepSeek V4 specialist corpus"],
+  "tags": ["foundations", "quantization"],
+  "relatedIds": ["training-regime.specialist-training", "paper.deepseek-v4"],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "sourceId": "citation.deepseek-v4-paper",
+  "usedByModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
+  "paperIds": ["paper.deepseek-v4"],
+  "organizationId": "organization.deepseek-ai"
+}

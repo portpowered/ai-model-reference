@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
+import type { TOCItemType } from "fumadocs-core/toc";
 import {
   getModelsDocsRoot,
   getPapersDocsRoot,
   getProjectRoot,
+  getSystemsDocsRoot,
   getTrainingDocsRoot,
 } from "@/lib/content/content-paths";
 import { generatePageBundle } from "@/lib/content/generate-page-bundle";
@@ -16,6 +18,7 @@ import {
 import { loadModelPageFromDisk } from "@/lib/content/model-page-load";
 import { validatePageSpec } from "@/lib/content/page-spec";
 import { loadPaperPageFromDisk } from "@/lib/content/paper-page-load";
+import { loadSystemPageFromDisk } from "@/lib/content/system-page-load";
 import { loadTrainingRegimePageFromDisk } from "@/lib/content/training-regime-page-load";
 import { source } from "@/lib/source";
 
@@ -43,9 +46,11 @@ async function prepareContentRoots(tempRoot: string): Promise<string> {
   await mkdir(join(contentRoot, "registry", "training-regimes"), {
     recursive: true,
   });
+  await mkdir(join(contentRoot, "registry", "systems"), { recursive: true });
   await mkdir(join(docsRoot, "models"), { recursive: true });
   await mkdir(join(docsRoot, "papers"), { recursive: true });
   await mkdir(join(docsRoot, "training"), { recursive: true });
+  await mkdir(join(docsRoot, "systems"), { recursive: true });
   return contentRoot;
 }
 
@@ -55,6 +60,10 @@ const baseSpecFields = {
   summary: "Reader-facing summary for cards and search.",
   openingSummary: "Folded opening summary for the page hero.",
 };
+
+function hasTocUrl(url: string) {
+  return (item: TOCItemType) => item.url === url;
+}
 
 describe("parseLocalDocsPageRef", () => {
   test("returns glossary ref for glossary slugs", () => {
@@ -82,7 +91,7 @@ describe("parseLocalDocsPageRef", () => {
     });
   });
 
-  test("returns model, paper, and training refs for extended page kinds", () => {
+  test("returns model, paper, training, and system refs for extended page kinds", () => {
     expect(parseLocalDocsPageRef(["models", "gpt-2"])).toEqual({
       section: "models",
       slug: "gpt-2",
@@ -96,6 +105,10 @@ describe("parseLocalDocsPageRef", () => {
     expect(parseLocalDocsPageRef(["training", "pretraining"])).toEqual({
       section: "training",
       slug: "pretraining",
+    });
+    expect(parseLocalDocsPageRef(["systems", "on-disk-kv-cache"])).toEqual({
+      section: "systems",
+      slug: "on-disk-kv-cache",
     });
   });
 
@@ -146,7 +159,7 @@ describe("docs source local pages", () => {
     expect(page.messages.title).toBe("Token");
     expect(page.messages.description?.length).toBeGreaterThan(0);
     expect(page.frontmatter.registryId).toBe("concept.token");
-    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+    expect(page.toc.some(hasTocUrl("#what-it-is"))).toBe(true);
   });
 
   test("loadLocalDocsPage resolves shipped vietnamese canonical page messages without changing the shared MDX route contract", async () => {
@@ -161,7 +174,7 @@ describe("docs source local pages", () => {
     expect(page.messages.title).toBe("Grouped-query attention");
     expect(page.messages.sections?.whatItIs?.title).toBe("Nó là gì");
     expect(page.frontmatter.registryId).toBe("module.grouped-query-attention");
-    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+    expect(page.toc.some(hasTocUrl("#what-it-is"))).toBe(true);
   });
 
   test("loadLocalDocsPage resolves shipped vietnamese head-sharing module messages through the shared MDX route contract", async () => {
@@ -185,18 +198,14 @@ describe("docs source local pages", () => {
     expect(multiHeadPage.frontmatter.registryId).toBe(
       "module.multi-head-attention",
     );
-    expect(multiHeadPage.toc.some((item) => item.url === "#what-it-is")).toBe(
-      true,
-    );
+    expect(multiHeadPage.toc.some(hasTocUrl("#what-it-is"))).toBe(true);
 
     expect(multiQueryPage.messages.title).toBe("Multi-query attention");
     expect(multiQueryPage.messages.sections?.whatItIs?.title).toBe("Nó là gì");
     expect(multiQueryPage.frontmatter.registryId).toBe(
       "module.multi-query-attention",
     );
-    expect(multiQueryPage.toc.some((item) => item.url === "#what-it-is")).toBe(
-      true,
-    );
+    expect(multiQueryPage.toc.some(hasTocUrl("#what-it-is"))).toBe(true);
   });
 
   test("loadLocalDocsPage resolves shipped vietnamese long-context module messages through the shared MDX route contract", async () => {
@@ -222,9 +231,7 @@ describe("docs source local pages", () => {
     expect(slidingWindowPage.frontmatter.registryId).toBe(
       "module.sliding-window-attention",
     );
-    expect(
-      slidingWindowPage.toc.some((item) => item.url === "#what-it-is"),
-    ).toBe(true);
+    expect(slidingWindowPage.toc.some(hasTocUrl("#what-it-is"))).toBe(true);
 
     expect(linearAttentionPage.messages.title).toBe("Linear attention");
     expect(linearAttentionPage.messages.sections?.whatItIs?.title).toBe(
@@ -233,12 +240,10 @@ describe("docs source local pages", () => {
     expect(linearAttentionPage.frontmatter.registryId).toBe(
       "module.linear-attention",
     );
-    expect(
-      linearAttentionPage.toc.some((item) => item.url === "#what-it-is"),
-    ).toBe(true);
+    expect(linearAttentionPage.toc.some(hasTocUrl("#what-it-is"))).toBe(true);
   });
 
-  test("loadLocalDocsPage loads generated model, paper, and training bundles", async () => {
+  test("loadLocalDocsPage loads generated model, paper, training, and system bundles", async () => {
     const tempRoot = await createTemplateFixtureRoot();
     const contentRoot = await prepareContentRoots(tempRoot);
     const docsRoot = join(contentRoot, "docs");
@@ -246,6 +251,7 @@ describe("docs source local pages", () => {
     const modelSlug = "generated-model-loader";
     const paperSlug = "generated-paper-loader";
     const trainingSlug = "generated-training-loader";
+    const systemSlug = "generated-system-loader";
 
     try {
       await generatePageBundle({
@@ -282,6 +288,16 @@ describe("docs source local pages", () => {
         }),
         projectRoot: tempRoot,
       });
+      await generatePageBundle({
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: systemSlug,
+          kind: "system",
+          systemType: "serving",
+          tags: ["systems"],
+        }),
+        projectRoot: tempRoot,
+      });
 
       const modelPage = await loadModelPageFromDisk(
         modelSlug,
@@ -308,6 +324,14 @@ describe("docs source local pages", () => {
       expect(trainingPage.frontmatter.registryId).toBe(
         `training-regime.${trainingSlug}`,
       );
+
+      const systemPage = await loadSystemPageFromDisk(
+        systemSlug,
+        "en",
+        getSystemsDocsRoot(docsRoot),
+      );
+      expect(systemPage.messages.title).toBe("Generated Page");
+      expect(systemPage.frontmatter.registryId).toBe(`system.${systemSlug}`);
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }

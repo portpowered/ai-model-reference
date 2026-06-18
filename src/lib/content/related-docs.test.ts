@@ -16,11 +16,20 @@ import {
   SAME_VARIANT_GROUP,
   SHARED_TAGS,
 } from "@/lib/content/related-docs";
-import type { ConceptRecord, ModelRecord, ModuleRecord } from "@/lib/content/schemas";
+import type {
+  ConceptRecord,
+  ModelRecord,
+  ModuleRecord,
+} from "@/lib/content/schemas";
 
 const publishedRegistryIds = new Set([
   "module.grouped-query-attention",
+  "module.multi-head-attention",
+  "module.multi-query-attention",
+  "module.sparse-attention",
+  "module.learned-positional-embeddings",
   "concept.token",
+  "concept.learned-positional-embeddings",
 ]);
 
 const gqa: ModuleRecord = {
@@ -451,10 +460,7 @@ describe("related-docs", () => {
       source,
       [source, draftTransformer, gqa],
       [SHARED_TAGS, SAME_CONCEPT_TYPE, CURATED_RELATED],
-      new Set([
-        ...publishedRegistryIds,
-        "concept.transformer",
-      ]),
+      new Set([...publishedRegistryIds, "concept.transformer"]),
     );
 
     expect(groups.map((group) => group.id)).toEqual([
