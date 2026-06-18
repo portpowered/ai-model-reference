@@ -15,6 +15,7 @@ import {
 /** Attention modules expected after Phase 2/3 parallel slices land. */
 const EXPECTED_ATTENTION_MODULE_IDS = [
   "module.attention",
+  "module.causal-attention",
   "module.bidirectional-attention",
   "module.multi-head-attention",
   "module.multi-query-attention",

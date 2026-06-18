@@ -1,0 +1,193 @@
+{
+  "title": "Causal Attention",
+  "description": "A self-attention masking rule that lets each token read only earlier tokens and itself, never future tokens.",
+  "openingSummary": "Causal attention is the no-looking-ahead rule behind decoder-only generation: each token can use the prefix that already exists, but it cannot peek at tokens that come later.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Causal attention is self-attention with a mask that blocks future positions. For a token at position t, the model may attend to tokens 0 through t, including itself, but not to token t+1 or anything after that."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "Causal attention optimizes for correct next-token prediction. It keeps training and inference aligned because the decoder never learns from information that would be unavailable at generation time."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "This rule is why decoder-only language models can train on many token positions in parallel and still behave correctly when they later generate one token at a time. It also gives the KV cache and the prefill/decode split a clean contract: saved keys and values always come from the prefix, never from the future."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Before softmax turns attention scores into weights, the model applies a lower-triangular mask. Scores that point from the current query token to future tokens are replaced with a blocked value, so their probability becomes zero. The remaining scores cover only the visible prefix, which is why a decoder can continue text without leaking answers from later positions."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formulas below contrast plain multi-head attention with causal attention, which adds a mask before softmax so each query token can read only the prefix available at that step."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Causal attention changes who a token is allowed to read, not how many heads exist. Multi-head attention is the general implementation pattern underneath many attention blocks, while sliding-window attention adds another restriction by clipping even the past context down to a local neighborhood."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "GPT-style decoder-only transformers use causal attention in every generation block. Encoder-decoder systems also use it on the decoder side, where each output token must rely only on earlier output tokens plus encoder memory."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Because future tokens are hidden, causal attention is a poor fit for tasks where the model should inspect the whole sequence at once, such as bidirectional understanding in an encoder. Long sequences also remain expensive because the visible prefix still grows with every token even though future positions are masked out."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Causal attention remains one of the core ideas behind modern large language models. If you want to understand why generation is left-to-right, why tokens are produced step by step, or why serving systems split prefill from decode, this masking rule is one of the first places to look."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "A query token can attend to earlier tokens and itself, while future tokens stay masked out.",
+      "caption": "Causal attention keeps the visible prefix and blocks future tokens before softmax."
+    },
+    "comparisonTable": {
+      "caption": "How causal attention compares with nearby attention patterns"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "causal": {
+          "title": "Causal Attention"
+        },
+        "mha": {
+          "title": "Multi-Head Attention"
+        },
+        "window": {
+          "title": "Sliding-Window Attention"
+        }
+      },
+      "dimensions": {
+        "maskRule": "Mask rule",
+        "visibleContext": "Visible context",
+        "generationRole": "Generation role"
+      },
+      "values": {
+        "causal": {
+          "maskRule": "Lower-triangular mask blocks all future tokens",
+          "visibleContext": "Full prefix up to the current token",
+          "generationRole": "Default decoder rule for next-token generation"
+        },
+        "mha": {
+          "maskRule": "No built-in mask; the caller decides whether attention is dense or masked",
+          "visibleContext": "Whatever positions the surrounding architecture allows",
+          "generationRole": "General attention implementation used in encoders and decoders"
+        },
+        "window": {
+          "maskRule": "Past-only or local band mask clips attention to a fixed window",
+          "visibleContext": "Only a recent local prefix window plus the current token",
+          "generationRole": "Decoder variant for long-context efficiency with limited reach"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Causal attention",
+      "formula": "\\text{Attention}(Q_t, K, V) = \\mathrm{softmax}\\!\\left(M_{\\text{causal}} \\odot \\frac{Q_t K^{\\top}}{\\sqrt{d_k}}\\right) V",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vector for the current token position t."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors from all candidate token positions."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors from all candidate token positions."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "g": {
+          "term": "t",
+          "definition": "Current query token position."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "j",
+          "definition": "Candidate key position index."
+        },
+        "gi": {
+          "term": "M_{causal}",
+          "definition": "Mask that keeps positions j <= t and blocks positions j > t."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "timeCurrentQuery": {
+        "label": "q_t"
+      },
+      "timeKvT3": {
+        "label": "KV_{t-3}"
+      },
+      "timeKvT2": {
+        "label": "KV_{t-2}"
+      },
+      "timeKvT1": {
+        "label": "KV_{t-1}"
+      },
+      "timeKvT": {
+        "label": "KV_t"
+      },
+      "timeKvTPlus1": {
+        "label": "KV_{t+1}"
+      },
+      "timeKvTPlus2": {
+        "label": "KV_{t+2}"
+      }
+    }
+  }
+}

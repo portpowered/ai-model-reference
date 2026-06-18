@@ -1,13 +1,39 @@
+import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const REPO_ROOT = dirname(
+const CONTENT_ROOT_PATH_PARTS = ["src", "content"] as const;
+const MODULE_INFERRED_REPO_ROOT = dirname(
   dirname(dirname(dirname(fileURLToPath(import.meta.url)))),
 );
 
-/** Repository root inferred from this module so helper imports remain stable outside repo cwd. */
+function looksLikeProjectRoot(candidateRoot: string): boolean {
+  return existsSync(join(candidateRoot, ...CONTENT_ROOT_PATH_PARTS));
+}
+
+function resolveProjectRootFrom(startDir: string): string | undefined {
+  let currentDir = startDir;
+
+  while (true) {
+    if (looksLikeProjectRoot(currentDir)) {
+      return currentDir;
+    }
+
+    const parentDir = join(currentDir, "..");
+    if (parentDir === currentDir) {
+      return undefined;
+    }
+    currentDir = parentDir;
+  }
+}
+
+/** Repository root, even when helper code executes from a temporary fixture cwd. */
 export function getProjectRoot(): string {
-  return REPO_ROOT;
+  return (
+    resolveProjectRootFrom(process.cwd()) ??
+    resolveProjectRootFrom(MODULE_INFERRED_REPO_ROOT) ??
+    MODULE_INFERRED_REPO_ROOT
+  );
 }
 
 /** Committed content tree root (`src/content`). */
@@ -110,6 +136,12 @@ export const TAG_MESSAGES_ROOT = getTagMessagesRoot(REGISTRY_ROOT);
 
 /** Phase 1 attention module bridge page directory. */
 export const ATTENTION_MODULE_PAGE_DIR = join(MODULES_DOCS_ROOT, "attention");
+
+/** Transformer causal attention canonical module page directory. */
+export const CAUSAL_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "causal-attention",
+);
 
 /** Phase 1 grouped-query attention sample module page directory. */
 export const GROUPED_QUERY_ATTENTION_PAGE_DIR = join(

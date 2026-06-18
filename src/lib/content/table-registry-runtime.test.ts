@@ -66,6 +66,17 @@ describe("table-registry-runtime", () => {
     ).toBe("tables.comparison.values.sparse.attentionConnectivity");
   });
 
+  test("loads the causal-attention nearby-module comparison table by id", () => {
+    const table = getTableById("table.causal-attention-comparison");
+    expect(table?.id).toBe("table.causal-attention-comparison");
+    expect(table?.subjectId).toBe("module.causal-attention");
+    expect(table?.columns.length).toBe(3);
+    expect(table?.dimensions.length).toBe(3);
+    expect(
+      table?.valueKeysByModuleId["module.causal-attention"]?.visibleContext,
+    ).toBe("tables.comparison.values.causal.visibleContext");
+  });
+
   test("loads the bidirectional-attention nearby-module comparison table by id", () => {
     const table = getTableById("table.bidirectional-attention-comparison");
     expect(table?.id).toBe("table.bidirectional-attention-comparison");
@@ -79,6 +90,6 @@ describe("table-registry-runtime", () => {
   });
 
   test("lists bundled table records", () => {
-    expect(listTableRecords().length).toBe(20);
+    expect(listTableRecords().length).toBe(21);
   });
 });

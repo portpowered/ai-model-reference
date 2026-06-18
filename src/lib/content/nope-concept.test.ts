@@ -81,7 +81,8 @@ describe("Phase 3 NoPE glossary page (US-004)", () => {
     expect(html).toContain(
       "does not mean better long-context support. It usually names an ablation",
     );
-    expect(html).toContain("causal masking and training order still exist");
+    expect(html).toContain('href="/docs/modules/causal-attention"');
+    expect(html).toContain("training order still exist");
     expect(html).toContain('href="/docs/concepts/positional-encodings"');
     expect(html).toContain(
       'href="/docs/modules/absolute-positional-embeddings"',
