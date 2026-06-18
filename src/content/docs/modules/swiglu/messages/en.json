@@ -28,5 +28,39 @@
       "title": "References"
     }
   },
+  "assets": {
+    "computeFlow": {
+      "alt": "SwiGLU graph showing value and gate branches, SiLU on the gate branch, and elementwise multiplication before projection",
+      "caption": "SwiGLU changes the standard FFN by splitting the wide hidden state into value and gate branches before multiplying them back together"
+    }
+  },
+  "graph": {
+    "nodes": {
+      "inputState": {
+        "label": "Token state h_t"
+      },
+      "valueProjection": {
+        "label": "Value projection W_v"
+      },
+      "gateProjection": {
+        "label": "Gate projection W_g"
+      },
+      "valueBranch": {
+        "label": "Value branch"
+      },
+      "gateActivation": {
+        "label": "SiLU gate"
+      },
+      "gatedProduct": {
+        "label": "Elementwise multiply"
+      },
+      "projectBack": {
+        "label": "Project back with W_o"
+      },
+      "outputState": {
+        "label": "Updated token state"
+      }
+    }
+  },
   "openingSummary": "SwiGLU splits the FFN expansion into value and gate branches, uses SiLU on the gate, and multiplies them together before projection so the block can choose which hidden features stay strong."
 }

@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Parameters are the weights; gradients say how to change them this step; optimizer state remembers past steps so updates stay stable and adaptive."
-    }
-  },
   "openingSummary": "Optimizer state stores per-parameter running history used to shape each update—distinct from the weights themselves and required for faithful training resumes."
 }

@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "After softmax shows how predictions are scored, parameters are what training actually rewrites so those scores improve on real examples."
-    }
-  },
   "openingSummary": "Parameters are the persistent numbers in weight matrices and bias vectors that optimization nudges so forward passes produce better predictions."
 }

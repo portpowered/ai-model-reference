@@ -1,0 +1,36 @@
+{
+  "id": "module.relative-position-bias",
+  "slug": "relative-position-bias",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Relative position bias",
+    "relative positional bias",
+    "relative attention bias"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "module.absolute-positional-embeddings",
+    "module.t5-relative-position-bias",
+    "module.rope",
+    "module.alibi"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "position-encoding",
+  "optimizes": ["distance-awareness"],
+  "practicalBenefits": ["helps attention reason about token distance"],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "none",
+  "moduleFamily": "relative-position-methods",
+  "conceptType": "relative-position-encoding",
+  "variantGroup": "relative-position-family"
+}

@@ -37,11 +37,5 @@
       "reason": "Softmax là bước chuẩn hóa trực tiếp biến logit thành xác suất trên toàn bộ từ vựng."
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Lối tắt cho người đọc",
-      "body": "Hãy nghĩ tới điểm số trước softmax: logit chính là các con số mà softmax nhận vào. Trang tiếp theo trong chuỗi này cho thấy rõ cách bước chuẩn hóa đó hoạt động."
-    }
-  },
   "openingSummary": "Logit là các điểm số trước softmax mà tầng từ vựng gán cho từng token, rồi softmax mới đổi chúng thành xác suất của token tiếp theo."
 }

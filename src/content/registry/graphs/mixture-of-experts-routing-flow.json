@@ -1,0 +1,130 @@
+{
+  "id": "graph.mixture-of-experts-routing-flow",
+  "slug": "mixture-of-experts-routing-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "concept.mixture-of-experts",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "input-state",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "input-state",
+      "labelKey": "graph.nodes.inputState.label",
+      "moduleKind": "input",
+      "position": { "x": 265, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["router"]
+    },
+    {
+      "id": "router",
+      "labelKey": "graph.nodes.router.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 250, "y": 110 },
+      "visualRole": "process-node",
+      "childNodeIds": ["topk-choice", "inactive-experts"]
+    },
+    {
+      "id": "topk-choice",
+      "labelKey": "graph.nodes.topkChoice.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 250, "y": 220 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["expert-one", "expert-two"]
+    },
+    {
+      "id": "expert-one",
+      "labelKey": "graph.nodes.expertOne.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 70, "y": 360 },
+      "visualRole": "process-node",
+      "childNodeIds": ["weighted-merge"]
+    },
+    {
+      "id": "expert-two",
+      "labelKey": "graph.nodes.expertTwo.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 430, "y": 360 },
+      "visualRole": "process-node",
+      "childNodeIds": ["weighted-merge"]
+    },
+    {
+      "id": "inactive-experts",
+      "labelKey": "graph.nodes.inactiveExperts.label",
+      "moduleKind": "other",
+      "position": { "x": 520, "y": 210 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "weighted-merge",
+      "labelKey": "graph.nodes.weightedMerge.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 225, "y": 500 },
+      "visualRole": "process-node",
+      "childNodeIds": ["output-state"]
+    },
+    {
+      "id": "output-state",
+      "labelKey": "graph.nodes.outputState.label",
+      "moduleKind": "output",
+      "position": { "x": 260, "y": 620 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "input-to-router",
+      "source": "input-state",
+      "target": "router",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "router-to-topk",
+      "source": "router",
+      "target": "topk-choice",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "topk-to-expert-one",
+      "source": "topk-choice",
+      "target": "expert-one",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "topk-to-expert-two",
+      "source": "topk-choice",
+      "target": "expert-two",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "expert-one-to-merge",
+      "source": "expert-one",
+      "target": "weighted-merge",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "expert-two-to-merge",
+      "source": "expert-two",
+      "target": "weighted-merge",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "merge-to-output",
+      "source": "weighted-merge",
+      "target": "output-state",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

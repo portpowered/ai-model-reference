@@ -1,0 +1,110 @@
+{
+  "id": "graph.standard-ffn-compute-flow",
+  "slug": "standard-ffn-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "concept.standard-ffn",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "input-state",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "input-state",
+      "labelKey": "graph.nodes.inputState.label",
+      "moduleKind": "input",
+      "position": { "x": 210, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["expand-projection"]
+    },
+    {
+      "id": "expand-projection",
+      "labelKey": "graph.nodes.expandProjection.label",
+      "moduleKind": "projection",
+      "position": { "x": 180, "y": 110 },
+      "visualRole": "process-node",
+      "childNodeIds": ["wide-hidden"]
+    },
+    {
+      "id": "wide-hidden",
+      "labelKey": "graph.nodes.wideHidden.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 195, "y": 220 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["activation-step"]
+    },
+    {
+      "id": "activation-step",
+      "labelKey": "graph.nodes.activationStep.label",
+      "moduleKind": "operation",
+      "position": { "x": 210, "y": 330 },
+      "visualRole": "process-node",
+      "childNodeIds": ["project-back"]
+    },
+    {
+      "id": "project-back",
+      "labelKey": "graph.nodes.projectBack.label",
+      "moduleKind": "projection",
+      "position": { "x": 175, "y": 440 },
+      "visualRole": "process-node",
+      "childNodeIds": ["output-state"]
+    },
+    {
+      "id": "output-state",
+      "labelKey": "graph.nodes.outputState.label",
+      "moduleKind": "output",
+      "position": { "x": 200, "y": 550 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "dense-note",
+      "labelKey": "graph.nodes.denseNote.label",
+      "moduleKind": "other",
+      "position": { "x": 460, "y": 235 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "input-to-expand",
+      "source": "input-state",
+      "target": "expand-projection",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "expand-to-wide",
+      "source": "expand-projection",
+      "target": "wide-hidden",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "wide-to-activation",
+      "source": "wide-hidden",
+      "target": "activation-step",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "activation-to-project",
+      "source": "activation-step",
+      "target": "project-back",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "project-to-output",
+      "source": "project-back",
+      "target": "output-state",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

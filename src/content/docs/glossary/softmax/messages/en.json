@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "If you can read one softmax formula, you can follow temperature and entropy pages next—they all manipulate the same probability vector."
-    }
-  },
   "openingSummary": "Softmax converts logits into nonnegative probabilities that sum to 1 across the vocabulary—the standard step from raw scores to interpretable chances."
 }

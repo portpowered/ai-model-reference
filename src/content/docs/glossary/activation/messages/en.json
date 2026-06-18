@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Parameters are the stored weights; activations are the live values those weights produce for your prompt as it moves through the stack."
-    }
-  },
   "openingSummary": "An activation is the tensor a layer outputs for a given input—hidden states in transformers are intermediate signals flowing between blocks until the vocabulary head produces logits, distinct from final softmax probabilities."
 }

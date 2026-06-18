@@ -32,11 +32,5 @@
       "title": "Tài liệu tham khảo"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Lối tắt cho người đọc",
-      "body": "Theo một vòng lặp: tra embedding → decoder chạy thuận → logits → softmax → thêm token. Lặp lại cho đến khi xong."
-    }
-  },
   "openingSummary": "Sinh tự hồi quy chọn hoặc lấy mẫu một đơn vị đầu ra, thường là token tiếp theo, rồi đưa lựa chọn đó quay lại làm ngữ cảnh; mỗi bước đều đi qua embedding, logits, và softmax trước khi decoder tiến tiếp."
 }

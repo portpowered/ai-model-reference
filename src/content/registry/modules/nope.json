@@ -1,0 +1,31 @@
+{
+  "id": "module.nope",
+  "slug": "nope",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["NoPE", "no positional encoding", "no positional embeddings"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "module.absolute-positional-embeddings",
+    "module.rope",
+    "module.alibi"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "position-encoding",
+  "optimizes": ["position-encoding-simplicity"],
+  "practicalBenefits": ["removes explicit positional encodings entirely"],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "none",
+  "moduleFamily": "position-encoding",
+  "conceptType": "position-encoding-variant",
+  "variantGroup": "position-encoding-family"
+}

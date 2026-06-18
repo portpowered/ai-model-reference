@@ -1,0 +1,30 @@
+{
+  "id": "module.qk-norm",
+  "slug": "qk-norm",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["QK norm", "query-key normalization", "QK normalization"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.normalization",
+    "module.layer-norm",
+    "module.rmsnorm"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "normalization",
+  "optimizes": ["attention-logit-stability"],
+  "practicalBenefits": ["keeps attention logits from growing too sharp"],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light",
+  "moduleFamily": "normalization",
+  "conceptType": "normalization-variant",
+  "variantGroup": "normalization-variants"
+}

@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Zoom out one level to \"module\" when the block has its own page in `/docs/modules/`; zoom in to \"component\" when you are inside that block."
-    }
-  },
   "openingSummary": "A component is a sub-part of a module that performs one identifiable job in the forward pass, smaller than a full repeating block in the stack."
 }

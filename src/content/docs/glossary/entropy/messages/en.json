@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "If softmax gives you probabilities, entropy tells you how spread out they are—then temperature explains how to dial that spread up or down on purpose."
-    }
-  },
   "openingSummary": "Entropy summarizes a softmax probability vector in one number: low entropy means the model is confident, high entropy means many tokens look equally plausible."
 }

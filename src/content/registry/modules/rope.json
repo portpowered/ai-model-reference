@@ -1,0 +1,40 @@
+{
+  "id": "module.rope",
+  "slug": "rope",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "RoPE",
+    "rotary position embedding",
+    "rotary positional embedding",
+    "rotary position encoding"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "module.relative-position-bias",
+    "module.alibi",
+    "concept.context-extension",
+    "module.ntk-aware-rope-scaling",
+    "module.longrope"
+  ],
+  "citationIds": ["citation.su-roformer-rope"],
+  "status": "published",
+  "createdAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "position-encoding",
+  "optimizes": ["relative-position-awareness"],
+  "practicalBenefits": [
+    "preserves relative position cues inside attention rotations"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "none",
+  "moduleFamily": "rotary-position-embeddings",
+  "conceptType": "rotary-position-encoding",
+  "variantGroup": "position-encoding-family"
+}

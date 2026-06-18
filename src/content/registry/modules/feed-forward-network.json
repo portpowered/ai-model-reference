@@ -1,0 +1,31 @@
+{
+  "id": "module.feed-forward-network",
+  "slug": "feed-forward-network",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["FFN", "feedforward network", "MLP block"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.transformer-architecture",
+    "module.standard-ffn",
+    "module.mixture-of-experts",
+    "concept.activation"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "feed-forward",
+  "optimizes": ["per-token-capacity"],
+  "practicalBenefits": ["adds per-token nonlinear compute after attention"],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "none",
+  "moduleFamily": "feed-forward-network",
+  "conceptType": "feed-forward-block",
+  "variantGroup": "feed-forward-family"
+}

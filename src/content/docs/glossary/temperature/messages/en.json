@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Remember: lower temperature → sharper softmax → more repetitive outputs; higher temperature → flatter softmax → more surprise."
-    }
-  },
   "openingSummary": "Temperature divides logits by T before softmax: T below 1 sharpens the distribution, T above 1 flattens it, and T equal to 1 leaves the model's raw scores unchanged."
 }

@@ -1,0 +1,36 @@
+{
+  "id": "module.sinusoidal-positional-embeddings",
+  "slug": "sinusoidal-positional-embeddings",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Sinusoidal positional embeddings",
+    "sinusoidal position embeddings",
+    "sine-cosine positional encoding"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "module.absolute-positional-embeddings",
+    "module.learned-positional-embeddings"
+  ],
+  "citationIds": ["citation.attention-is-all-you-need"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "position-encoding",
+  "optimizes": ["parameter-efficiency"],
+  "practicalBenefits": [
+    "provides fixed positional signals without learned parameters"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "none",
+  "moduleFamily": "absolute-positional-embeddings",
+  "conceptType": "absolute-position-encoding",
+  "variantGroup": "absolute-position-family"
+}

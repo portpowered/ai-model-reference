@@ -1,0 +1,32 @@
+{
+  "id": "module.silu",
+  "slug": "silu",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["sigmoid linear unit", "Swish", "SiLU activation"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.activation",
+    "module.feed-forward-network",
+    "module.standard-ffn",
+    "module.relu",
+    "module.swiglu"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "activation",
+  "optimizes": ["activation-smoothness"],
+  "practicalBenefits": ["adds a smoother activation curve than ReLU"],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "none",
+  "moduleFamily": "activation-functions",
+  "conceptType": "activation-function",
+  "variantGroup": "activation-variants"
+}

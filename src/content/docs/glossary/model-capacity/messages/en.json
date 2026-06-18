@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Ask how many independent degrees of freedom the model has and whether the training setup can fill them without memorizing noise."
-    }
-  },
   "openingSummary": "Model capacity is the upper bound on patterns an architecture could fit given its parameters and depth, while data, loss design, and regularization determine how much of that bound training actually uses."
 }

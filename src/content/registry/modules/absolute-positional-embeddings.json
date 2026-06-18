@@ -1,0 +1,38 @@
+{
+  "id": "module.absolute-positional-embeddings",
+  "slug": "absolute-positional-embeddings",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Absolute positional embeddings",
+    "absolute position embeddings",
+    "absolute positional encoding",
+    "absolute position encoding"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "module.learned-positional-embeddings",
+    "module.sinusoidal-positional-embeddings",
+    "module.relative-position-bias",
+    "module.rope",
+    "module.alibi"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "position-encoding",
+  "optimizes": ["token-order-awareness"],
+  "practicalBenefits": ["injects token order directly into hidden states"],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "none",
+  "moduleFamily": "absolute-positional-embeddings",
+  "conceptType": "absolute-position-encoding",
+  "variantGroup": "absolute-position-family"
+}

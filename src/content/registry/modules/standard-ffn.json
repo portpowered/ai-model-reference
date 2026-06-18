@@ -1,0 +1,32 @@
+{
+  "id": "module.standard-ffn",
+  "slug": "standard-ffn",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["dense FFN", "dense MLP block", "standard feed-forward network"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "module.feed-forward-network",
+    "module.mixture-of-experts",
+    "concept.activation"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "feed-forward",
+  "optimizes": ["per-token-capacity"],
+  "practicalBenefits": [
+    "provides a simple dense baseline for transformer blocks"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "none",
+  "moduleFamily": "feed-forward-network",
+  "conceptType": "feed-forward-variant",
+  "variantGroup": "feed-forward-family"
+}

@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "If the output is a label, score, or ranking over existing options, use discriminative; if the system fabricates new tokens or media, use generative."
-    }
-  },
   "openingSummary": "A discriminative model estimates p(label | input) or preference scores from inputs rather than learning a full generative distribution over outputs."
 }

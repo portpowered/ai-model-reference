@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Treat perplexity as exponentiated average surprise per token—always check which corpus and tokenizer produced the score."
-    }
-  },
   "openingSummary": "Perplexity summarizes how surprised a model is by held-out text as exp(average cross-entropy), so lower scores mean higher probability on true continuations."
 }

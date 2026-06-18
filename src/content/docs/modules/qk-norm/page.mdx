@@ -1,8 +1,8 @@
 ---
 title: QK norm
 description: Query-key normalization that rescales attention queries and keys before their dot products, changing the attention score path rather than the whole residual stream.
-kind: "glossary"
-registryId: "concept.qk-norm"
+kind: "module"
+registryId: "module.qk-norm"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
@@ -16,35 +16,88 @@ updatedAt: "2026-06-18"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
+import { ModuleGraph } from "@/features/models/components/ModuleGraph";
+import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
+import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
+import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
+
+
+<ModuleAtAGlance registryId="module.qk-norm" />
 
 <Section id="what-it-is" titleKey="sections.whatItIs.title">
   <T k="sections.whatItIs.body" />
 </Section>
 
-<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
-  <T k="sections.whyItMatters.body" />
+<Section id="what-it-optimizes" titleKey="sections.whatItOptimizes.title">
+  <T k="sections.whatItOptimizes.body" />
 </Section>
 
-<Section id="simple-example" titleKey="sections.simpleExample.title">
-  <T k="sections.simpleExample.body" />
+<Section id="practical-benefit" titleKey="sections.practicalBenefit.title">
+  <T k="sections.practicalBenefit.body" />
 </Section>
 
-<Section id="common-confusions" titleKey="sections.commonConfusions.title">
-  <T k="sections.commonConfusions.body" />
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+
+  <ModuleGraph registryId="module.qk-norm" assetId="computeFlow" />
+</Section>
+
+<Section id="math-or-compute-schema" titleKey="sections.mathOrComputeSchema.title">
+  <T k="sections.mathOrComputeSchema.body" />
+  <ModuleAttentionSchemaComparison schemaIds={["qkNorm"]} />
+</Section>
+
+<Section id="compared-to-nearby-modules" titleKey="sections.comparedToNearbyModules.title">
+  <T k="sections.comparedToNearbyModules.body" />
+
+  <ModuleComparisonTable
+    registryId="module.qk-norm"
+    assetId="comparisonTable"
+  />
+</Section>
+
+<Section id="variants-and-nearby-modules" titleKey="sections.variantsAndNearbyModules.title">
+  <T k="sections.variantsAndNearbyModules.body" />
+
+  <DerivedRelatedDocs
+    registryId="module.qk-norm"
+    groups={[
+      "same-variant-group",
+      "same-concept-type",
+      "same-module-family",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+</Section>
+
+<Section id="example-architectures" titleKey="sections.exampleArchitectures.title">
+  <T k="sections.exampleArchitectures.body" />
+  <ModelsUsingModule registryId="module.qk-norm" />
+</Section>
+
+<Section id="limitations-and-tradeoffs" titleKey="sections.limitationsAndTradeoffs.title">
+  <T k="sections.limitationsAndTradeoffs.body" />
+</Section>
+
+<Section id="why-it-still-matters" titleKey="sections.whyItStillMatters.title">
+  <T k="sections.whyItStillMatters.body" />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
-  <RelatedDocs registryId="concept.qk-norm" />
+  <RelatedDocs registryId="module.qk-norm" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
-  <TagPillList registryId="concept.qk-norm" showDescriptions />
+  <TagPillList registryId="module.qk-norm" showDescriptions />
 </Section>
 
 <Section id="references" titleKey="sections.references.title">
-  <CitationList registryId="concept.qk-norm" />
+  <CitationList registryId="module.qk-norm" />
 </Section>

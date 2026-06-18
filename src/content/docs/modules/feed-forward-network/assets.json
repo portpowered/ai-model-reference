@@ -1,1 +1,27 @@
-{}
+{
+  "computeFlow": {
+    "type": "attention-variant-graph",
+    "defaultVariantId": "standard",
+    "variants": [
+      {
+        "variantId": "standard",
+        "graphId": "graph.standard-ffn-parallel-baseline",
+        "labelKey": "assets.computeFlow.variants.standard.label"
+      },
+      {
+        "variantId": "swiglu",
+        "graphId": "graph.swiglu-compute-flow",
+        "labelKey": "assets.computeFlow.variants.swiglu.label"
+      },
+      {
+        "variantId": "moe",
+        "graphId": "graph.mixture-of-experts-routing-flow",
+        "labelKey": "assets.computeFlow.variants.moe.label"
+      }
+    ],
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  }
+}

@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Once you know activations flow forward, think of the computational graph as the map backpropagation follows to turn a loss signal into parameter updates."
-    }
-  },
   "openingSummary": "The computational graph links inputs, parameters, and activations through differentiable ops, and backpropagation walks that graph in reverse to assign credit to each parameter."
 }

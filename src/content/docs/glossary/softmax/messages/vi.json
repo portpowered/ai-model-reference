@@ -43,11 +43,5 @@
       "reason": "Các tham số học được quyết định những logit nào softmax sẽ chuẩn hóa thành xác suất ở bước giải mã."
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Lối tắt cho người đọc",
-      "body": "Nếu bạn đọc được một công thức softmax, bạn đã có nền cho các trang temperature và entropy tiếp theo, vì chúng đều thao tác trên cùng vector xác suất đó."
-    }
-  },
   "openingSummary": "Softmax đổi logit thành các xác suất không âm cộng lại bằng 1 trên toàn bộ từ vựng, tức bước chuẩn từ điểm số thô sang cơ hội có thể diễn giải được."
 }

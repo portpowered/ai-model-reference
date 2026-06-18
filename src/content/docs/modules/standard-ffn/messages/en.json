@@ -28,5 +28,51 @@
       "title": "References"
     }
   },
+  "assets": {
+    "computeFlow": {
+      "alt": "Standard FFN graph showing one dense expand, activate, and project path for each token",
+      "caption": "A standard FFN keeps one dense path for every token: widen the hidden state, apply an activation, then project back to model width"
+    }
+  },
+  "graph": {
+    "nodes": {
+      "inputState": {
+        "label": "Token state h_t"
+      },
+      "sharedDensePath": {
+        "label": "One shared dense FFN"
+      },
+      "allUnitsActive": {
+        "label": "All wide hidden units activate for every token"
+      },
+      "denseBranchOne": {
+        "label": "Wide projection branch A"
+      },
+      "denseBranchTwo": {
+        "label": "Wide projection branch B"
+      },
+      "expandProjection": {
+        "label": "Wide projection"
+      },
+      "wideHidden": {
+        "label": "Expanded hidden width"
+      },
+      "activationStep": {
+        "label": "Activation"
+      },
+      "projectBack": {
+        "label": "Project back"
+      },
+      "outputState": {
+        "label": "Updated token state"
+      },
+      "noRouterNote": {
+        "label": "No router and no expert choice: every token uses the same dense block"
+      },
+      "denseNote": {
+        "label": "Every token uses the same dense expand -> activate -> project path"
+      }
+    }
+  },
   "openingSummary": "A standard FFN is the default dense MLP after attention in a transformer block, using an expand-activate-project path so each token gets the same per-position transformation."
 }

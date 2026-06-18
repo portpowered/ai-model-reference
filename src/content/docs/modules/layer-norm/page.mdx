@@ -1,8 +1,8 @@
 ---
 title: Layer norm
 description: Per-token mean-and-variance normalization that rescales each hidden vector before the next sublayer in a transformer block.
-kind: "glossary"
-registryId: "concept.layer-norm"
+kind: "module"
+registryId: "module.layer-norm"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
@@ -16,41 +16,88 @@ updatedAt: "2026-06-08"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
-import { PageMathFormula } from "@/features/docs/components/PageMathFormula";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
+import { ModuleGraph } from "@/features/models/components/ModuleGraph";
+import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
+import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
+import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
+
+
+<ModuleAtAGlance registryId="module.layer-norm" />
 
 <Section id="what-it-is" titleKey="sections.whatItIs.title">
   <T k="sections.whatItIs.body" />
 </Section>
 
-<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
-  <T k="sections.whyItMatters.body" />
+<Section id="what-it-optimizes" titleKey="sections.whatItOptimizes.title">
+  <T k="sections.whatItOptimizes.body" />
 </Section>
 
-<Section id="simple-example" titleKey="sections.simpleExample.title">
-  <T k="sections.simpleExample.body" />
+<Section id="practical-benefit" titleKey="sections.practicalBenefit.title">
+  <T k="sections.practicalBenefit.body" />
 </Section>
 
-<Section id="math" titleKey="sections.math.title">
-  <T k="sections.math.body" />
-  <PageMathFormula mathId="layerNorm" />
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+
+  <ModuleGraph registryId="module.layer-norm" assetId="computeFlow" />
 </Section>
 
-<Section id="common-confusions" titleKey="sections.commonConfusions.title">
-  <T k="sections.commonConfusions.body" />
+<Section id="math-or-compute-schema" titleKey="sections.mathOrComputeSchema.title">
+  <T k="sections.mathOrComputeSchema.body" />
+  <ModuleAttentionSchemaComparison schemaIds={["layerNorm"]} />
+</Section>
+
+<Section id="compared-to-nearby-modules" titleKey="sections.comparedToNearbyModules.title">
+  <T k="sections.comparedToNearbyModules.body" />
+
+  <ModuleComparisonTable
+    registryId="module.layer-norm"
+    assetId="comparisonTable"
+  />
+</Section>
+
+<Section id="variants-and-nearby-modules" titleKey="sections.variantsAndNearbyModules.title">
+  <T k="sections.variantsAndNearbyModules.body" />
+
+  <DerivedRelatedDocs
+    registryId="module.layer-norm"
+    groups={[
+      "same-variant-group",
+      "same-concept-type",
+      "same-module-family",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+</Section>
+
+<Section id="example-architectures" titleKey="sections.exampleArchitectures.title">
+  <T k="sections.exampleArchitectures.body" />
+  <ModelsUsingModule registryId="module.layer-norm" />
+</Section>
+
+<Section id="limitations-and-tradeoffs" titleKey="sections.limitationsAndTradeoffs.title">
+  <T k="sections.limitationsAndTradeoffs.body" />
+</Section>
+
+<Section id="why-it-still-matters" titleKey="sections.whyItStillMatters.title">
+  <T k="sections.whyItStillMatters.body" />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
-  <RelatedDocs registryId="concept.layer-norm" />
+  <RelatedDocs registryId="module.layer-norm" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
-  <TagPillList registryId="concept.layer-norm" showDescriptions />
+  <TagPillList registryId="module.layer-norm" showDescriptions />
 </Section>
 
 <Section id="references" titleKey="sections.references.title">
-  <CitationList registryId="concept.layer-norm" />
+  <CitationList registryId="module.layer-norm" />
 </Section>

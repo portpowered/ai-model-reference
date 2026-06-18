@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Loss turns predictions and targets into one number to minimize. Backpropagation starts from that scalar; the optimizer uses the resulting gradients to update parameters."
-    }
-  },
   "openingSummary": "A loss function compares model outputs to targets and returns one scalar whose gradients drive parameter updates during training."
 }

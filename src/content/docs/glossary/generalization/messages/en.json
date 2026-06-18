@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Ask what distribution the score was measured on and whether the model saw those examples during training."
-    }
-  },
   "openingSummary": "Generalization is useful performance on held-out or shifted data—the ability to apply stable structure learned in training when inputs change modestly or domains differ."
 }

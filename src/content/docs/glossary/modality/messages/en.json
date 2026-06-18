@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "List the input and output data types first; that list is the modality story before you compare parameters or benchmarks."
-    }
-  },
   "openingSummary": "Modality names the data channel—text tokens, pixels, or spectrograms—not the architecture or trained checkpoint powering a model."
 }

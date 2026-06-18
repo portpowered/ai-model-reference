@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Think pre-softmax score: logits are the numbers softmax eats. The next page in this chain shows exactly how that normalization works."
-    }
-  },
   "openingSummary": "Logits are the pre-softmax scores the vocabulary head assigns—one per token—that softmax converts into next-token probabilities."
 }

@@ -1,1 +1,10 @@
-{}
+{
+  "computeFlow": {
+    "type": "graph",
+    "graphId": "graph.swiglu-compute-flow",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  }
+}

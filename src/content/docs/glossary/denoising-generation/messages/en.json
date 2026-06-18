@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Track the working tensor: noise in → repeated denoiser updates → clean latent or pixels out."
-    }
-  },
   "openingSummary": "Denoising generation maintains a continuous noised state and repeatedly applies a network trained to predict noise or score so the state moves toward a plausible sample."
 }

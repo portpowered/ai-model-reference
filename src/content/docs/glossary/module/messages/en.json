@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "If the docs route starts with `/docs/modules/`, you are reading about a specific module implementation—not the abstract taxonomy term on this page."
-    }
-  },
   "openingSummary": "A module is a named, reusable unit of computation that an architecture stacks or wires together into a full model."
 }

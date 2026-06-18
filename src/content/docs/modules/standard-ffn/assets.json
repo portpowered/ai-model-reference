@@ -1,1 +1,10 @@
-{}
+{
+  "computeFlow": {
+    "type": "graph",
+    "graphId": "graph.standard-ffn-compute-flow",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  }
+}

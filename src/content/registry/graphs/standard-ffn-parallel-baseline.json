@@ -1,0 +1,130 @@
+{
+  "id": "graph.standard-ffn-parallel-baseline",
+  "slug": "standard-ffn-parallel-baseline",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "concept.standard-ffn",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "input-state",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "input-state",
+      "labelKey": "graph.nodes.inputState.label",
+      "moduleKind": "input",
+      "position": { "x": 265, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["shared-dense-path"]
+    },
+    {
+      "id": "shared-dense-path",
+      "labelKey": "graph.nodes.sharedDensePath.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 220, "y": 110 },
+      "visualRole": "process-node",
+      "childNodeIds": ["all-units-active", "no-router-note"]
+    },
+    {
+      "id": "all-units-active",
+      "labelKey": "graph.nodes.allUnitsActive.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 240, "y": 220 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["dense-branch-one", "dense-branch-two"]
+    },
+    {
+      "id": "dense-branch-one",
+      "labelKey": "graph.nodes.denseBranchOne.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 70, "y": 360 },
+      "visualRole": "process-node",
+      "childNodeIds": ["project-back"]
+    },
+    {
+      "id": "dense-branch-two",
+      "labelKey": "graph.nodes.denseBranchTwo.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 430, "y": 360 },
+      "visualRole": "process-node",
+      "childNodeIds": ["project-back"]
+    },
+    {
+      "id": "no-router-note",
+      "labelKey": "graph.nodes.noRouterNote.label",
+      "moduleKind": "other",
+      "position": { "x": 580, "y": 210 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "project-back",
+      "labelKey": "graph.nodes.projectBack.label",
+      "moduleKind": "projection",
+      "position": { "x": 220, "y": 500 },
+      "visualRole": "process-node",
+      "childNodeIds": ["output-state"]
+    },
+    {
+      "id": "output-state",
+      "labelKey": "graph.nodes.outputState.label",
+      "moduleKind": "output",
+      "position": { "x": 255, "y": 620 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "input-to-shared-dense-path",
+      "source": "input-state",
+      "target": "shared-dense-path",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "shared-dense-path-to-all-units-active",
+      "source": "shared-dense-path",
+      "target": "all-units-active",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "all-units-active-to-dense-branch-one",
+      "source": "all-units-active",
+      "target": "dense-branch-one",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "all-units-active-to-dense-branch-two",
+      "source": "all-units-active",
+      "target": "dense-branch-two",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "dense-branch-one-to-project-back",
+      "source": "dense-branch-one",
+      "target": "project-back",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "dense-branch-two-to-project-back",
+      "source": "dense-branch-two",
+      "target": "project-back",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "project-back-to-output-state",
+      "source": "project-back",
+      "target": "output-state",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

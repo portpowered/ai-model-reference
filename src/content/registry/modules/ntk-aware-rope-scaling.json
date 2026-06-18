@@ -1,0 +1,37 @@
+{
+  "id": "module.ntk-aware-rope-scaling",
+  "slug": "ntk-aware-rope-scaling",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "NTK-aware RoPE scaling",
+    "NTK-aware scaling",
+    "NTK-aware scaled RoPE",
+    "NTK-aware RoPE",
+    "rope scaling"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "module.rope",
+    "concept.context-extension",
+    "module.superhot-rope",
+    "module.yarn"
+  ],
+  "citationIds": ["citation.peng-yarn"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "position-encoding",
+  "optimizes": ["long-context-extrapolation"],
+  "practicalBenefits": ["retunes RoPE frequencies for longer context"],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "none",
+  "moduleFamily": "rope-scaling",
+  "conceptType": "rope-scaling-method",
+  "variantGroup": "rope-scaling-family"
+}

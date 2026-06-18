@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Follow one step: embedding lookup → decoder forward → logits → softmax → append token. Repeat until done."
-    }
-  },
   "openingSummary": "Autoregressive generation samples or selects one output unit—usually the next token—then feeds that choice back as context, with each step running through embeddings, logits, and softmax before the decoder advances."
 }

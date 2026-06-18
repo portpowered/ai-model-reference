@@ -1,0 +1,39 @@
+{
+  "id": "module.alibi",
+  "slug": "alibi",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "ALiBi",
+    "attention with linear biases",
+    "attention linear bias",
+    "linear attention bias"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "module.relative-position-bias",
+    "module.rope",
+    "concept.context-window",
+    "module.nope"
+  ],
+  "citationIds": ["citation.press-alibi"],
+  "status": "published",
+  "createdAt": "2026-06-08T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "position-encoding",
+  "optimizes": ["long-context-extrapolation"],
+  "practicalBenefits": [
+    "extends length handling without explicit position vectors"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "none",
+  "moduleFamily": "relative-position-methods",
+  "conceptType": "relative-position-encoding",
+  "variantGroup": "relative-position-family"
+}

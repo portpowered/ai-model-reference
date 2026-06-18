@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Follow the arrow from hidden states to outputs—that generative or reconstructive stack is the decoder, even when the model is labeled decoder-only."
-    }
-  },
   "openingSummary": "A decoder reads representations from an encoder or earlier blocks and maps them to an output space, often autoregressively or iteratively until a full sample is formed."
 }

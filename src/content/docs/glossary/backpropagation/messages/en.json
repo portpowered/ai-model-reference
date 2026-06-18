@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Forward pass builds the graph; backpropagation walks it backward to fill `.grad`. The loss-function page completes the story from predictions to the scalar you differentiate."
-    }
-  },
   "openingSummary": "Backpropagation reuses the forward graph in reverse so each op propagates loss derivatives into its inputs until every parameter receives a gradient for the optimizer."
 }

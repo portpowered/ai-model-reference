@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Compare training and validation curves—divergence with great training metrics is the overfitting smell test."
-    }
-  },
   "openingSummary": "Overfitting means the model memorized spurious training patterns that fail on validation or live data, often visible when validation loss rises while training loss keeps falling."
 }

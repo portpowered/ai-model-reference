@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "If the system creates new content you could not pick from a fixed label list, treat it as generative; if it only chooses among known classes, look at the discriminative model page."
-    }
-  },
   "openingSummary": "A generative model learns a distribution over outputs and samples or decodes new examples—tokens, pixels, or waveforms—conditioned on inputs or prompts."
 }

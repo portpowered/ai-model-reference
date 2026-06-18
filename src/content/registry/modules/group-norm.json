@@ -1,0 +1,30 @@
+{
+  "id": "module.group-norm",
+  "slug": "group-norm",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GroupNorm", "group normalization", "GN"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.normalization",
+    "module.batch-norm",
+    "module.layer-norm"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "normalization",
+  "optimizes": ["small-batch-stability"],
+  "practicalBenefits": ["keeps normalization stable at smaller batch sizes"],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light",
+  "moduleFamily": "normalization",
+  "conceptType": "normalization-variant",
+  "variantGroup": "normalization-variants"
+}

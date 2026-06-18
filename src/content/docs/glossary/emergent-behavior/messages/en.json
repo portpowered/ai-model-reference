@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Check whether the capability truly appeared abruptly on a well-defined metric or only after changing the prompt or grading rubric."
-    }
-  },
   "openingSummary": "Emergent behavior names capabilities absent at smaller scale that appear reliably above a threshold—often debated against smooth metric improvements with scale."
 }

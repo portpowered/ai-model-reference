@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Ask which preference signal is applied after pretraining—demonstrations, rewards, rules, or filters—and whether it changes weights or only inference."
-    }
-  },
   "openingSummary": "Alignment layers human or policy preferences on top of a pretrained generator through reward models, preference optimization, and runtime guardrails that sit after the core loss-and-optimizer training loop."
 }

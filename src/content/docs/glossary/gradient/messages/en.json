@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Gradient answers how much each parameter should change to reduce loss. Backpropagation is the algorithm that fills those gradients by walking the graph backward."
-    }
-  },
   "openingSummary": "A gradient is the partial derivative of the loss with respect to a parameter or activation; optimizers step in the opposite direction to reduce loss."
 }

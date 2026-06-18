@@ -28,5 +28,53 @@
       "title": "References"
     }
   },
+  "assets": {
+    "computeFlow": {
+      "alt": "Feed-forward network comparison showing standard FFN, SwiGLU, and mixture-of-experts variants in the same transformer slot",
+      "caption": "Switch between dense, gated, and sparse FFN forms to see what changes inside the same post-attention slot",
+      "variants": {
+        "standard": {
+          "label": "Standard FFN"
+        },
+        "swiglu": {
+          "label": "SwiGLU"
+        },
+        "moe": {
+          "label": "MoE"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "inputState": {
+        "label": "Token state after attention"
+      },
+      "ffnSlot": {
+        "label": "Position-wise FFN slot"
+      },
+      "denseBranch": {
+        "label": "Standard FFN"
+      },
+      "gatedBranch": {
+        "label": "SwiGLU"
+      },
+      "sparseBranch": {
+        "label": "Mixture of experts"
+      },
+      "denseNote": {
+        "label": "Dense path: expand -> activate -> project"
+      },
+      "gatedNote": {
+        "label": "Gated path: value x SiLU(gate)"
+      },
+      "sparseNote": {
+        "label": "Sparse path: router sends each token to top-k experts"
+      },
+      "outputState": {
+        "label": "Updated token state"
+      }
+    }
+  },
   "openingSummary": "A feed-forward network is the per-token MLP that follows attention in each transformer block, refining each position's hidden state without mixing across the sequence."
 }

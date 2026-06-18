@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Follow the chain forward: after embeddings become tensors, the model eventually produces logits and softmax probabilities for the next token."
-    }
-  },
   "openingSummary": "An embedding table maps each discrete token ID to a learned vector so the model can mix information in continuous space before deeper layers run."
 }

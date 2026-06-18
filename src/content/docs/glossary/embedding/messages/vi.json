@@ -37,11 +37,5 @@
       "reason": "Embedding biến một danh sách token thành tensor mà các tầng sau có thể xử lý."
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Lối tắt cho người đọc",
-      "body": "Đi tiếp trong chuỗi này: sau khi embedding trở thành tensor, mô hình cuối cùng sẽ tạo ra logit rồi xác suất softmax cho token tiếp theo."
-    }
-  },
   "openingSummary": "Bảng embedding ánh xạ mỗi token ID rời rạc sang một vector đã học để mô hình có thể trộn thông tin trong không gian liên tục trước khi các tầng sâu hơn chạy."
 }

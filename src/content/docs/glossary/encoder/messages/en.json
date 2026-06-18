@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Trace the arrow from raw input to the first representation tensor—that stack is the encoder story, regardless of modality."
-    }
-  },
   "openingSummary": "An encoder ingests modality-specific input units—tokens, patches, or frames—and outputs structured representations that later blocks consume for decoding or prediction."
 }

@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "When docs say \"move in latent space,\" ask which encoder produced the coordinates and which decoder or denoiser reads them back out."
-    }
-  },
   "openingSummary": "Latent space is the structured vector manifold where latents live; encoders map inputs into it and decoders or denoisers map points back to outputs."
 }

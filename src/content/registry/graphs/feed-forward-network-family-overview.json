@@ -1,0 +1,156 @@
+{
+  "id": "graph.feed-forward-network-family-overview",
+  "slug": "feed-forward-network-family-overview",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "concept.feed-forward-network",
+  "graphType": "concept-map",
+  "rootNodeId": "input-state",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "input-state",
+      "labelKey": "graph.nodes.inputState.label",
+      "moduleKind": "input",
+      "position": { "x": 290, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["ffn-slot"]
+    },
+    {
+      "id": "ffn-slot",
+      "labelKey": "graph.nodes.ffnSlot.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 260, "y": 110 },
+      "visualRole": "process-node",
+      "childNodeIds": ["dense-branch", "gated-branch", "sparse-branch"]
+    },
+    {
+      "id": "dense-branch",
+      "labelKey": "graph.nodes.denseBranch.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 20, "y": 230 },
+      "visualRole": "process-node",
+      "childNodeIds": ["dense-note"]
+    },
+    {
+      "id": "gated-branch",
+      "labelKey": "graph.nodes.gatedBranch.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 270, "y": 230 },
+      "visualRole": "process-node",
+      "childNodeIds": ["gated-note"]
+    },
+    {
+      "id": "sparse-branch",
+      "labelKey": "graph.nodes.sparseBranch.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 520, "y": 230 },
+      "visualRole": "process-node",
+      "childNodeIds": ["sparse-note"]
+    },
+    {
+      "id": "dense-note",
+      "labelKey": "graph.nodes.denseNote.label",
+      "moduleKind": "other",
+      "position": { "x": 0, "y": 340 },
+      "visualRole": "annotation",
+      "childNodeIds": ["output-state"]
+    },
+    {
+      "id": "gated-note",
+      "labelKey": "graph.nodes.gatedNote.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 340 },
+      "visualRole": "annotation",
+      "childNodeIds": ["output-state"]
+    },
+    {
+      "id": "sparse-note",
+      "labelKey": "graph.nodes.sparseNote.label",
+      "moduleKind": "other",
+      "position": { "x": 500, "y": 340 },
+      "visualRole": "annotation",
+      "childNodeIds": ["output-state"]
+    },
+    {
+      "id": "output-state",
+      "labelKey": "graph.nodes.outputState.label",
+      "moduleKind": "output",
+      "position": { "x": 270, "y": 500 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "input-to-slot",
+      "source": "input-state",
+      "target": "ffn-slot",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "slot-to-dense",
+      "source": "ffn-slot",
+      "target": "dense-branch",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "slot-to-gated",
+      "source": "ffn-slot",
+      "target": "gated-branch",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "slot-to-sparse",
+      "source": "ffn-slot",
+      "target": "sparse-branch",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "dense-to-note",
+      "source": "dense-branch",
+      "target": "dense-note",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "gated-to-note",
+      "source": "gated-branch",
+      "target": "gated-note",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "sparse-to-note",
+      "source": "sparse-branch",
+      "target": "sparse-note",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "dense-to-output",
+      "source": "dense-note",
+      "target": "output-state",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "gated-to-output",
+      "source": "gated-note",
+      "target": "output-state",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "sparse-to-output",
+      "source": "sparse-note",
+      "target": "output-state",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "module.yarn",
+  "slug": "yarn",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["YaRN", "Yarn", "Yet another RoPE extensioN method", "rope yarn"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "module.rope",
+    "concept.context-extension",
+    "module.ntk-aware-rope-scaling",
+    "module.superhot-rope"
+  ],
+  "citationIds": ["citation.peng-yarn"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "position-encoding",
+  "optimizes": ["long-context-extrapolation"],
+  "practicalBenefits": [
+    "stretches RoPE context with interpolation and rescaling"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "none",
+  "moduleFamily": "rope-scaling",
+  "conceptType": "rope-scaling-method",
+  "variantGroup": "rope-scaling-family"
+}

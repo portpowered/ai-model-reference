@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Ask whether the checkpoint is marketed and licensed for broad reuse; if yes, treat it as a foundation model before you classify generative versus discriminative behavior."
-    }
-  },
   "openingSummary": "A foundation model is pretrained at scale on broad data so teams can adapt it through fine-tuning, prompting, or distillation instead of training from scratch per task."
 }

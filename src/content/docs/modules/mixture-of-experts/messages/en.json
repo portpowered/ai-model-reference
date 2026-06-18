@@ -28,5 +28,47 @@
       "title": "References"
     }
   },
+  "assets": {
+    "computeFlow": {
+      "alt": "Comparison between a standard dense FFN and a mixture-of-experts layer with top-k routing",
+      "caption": "Switch between the dense baseline and MoE to see how routing replaces one shared MLP with a sparse expert pool",
+      "variants": {
+        "standard": {
+          "label": "Standard FFN"
+        },
+        "moe": {
+          "label": "MoE"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "inputState": {
+        "label": "Token state h_t"
+      },
+      "router": {
+        "label": "Router scores experts"
+      },
+      "topkChoice": {
+        "label": "Top-k selection"
+      },
+      "expertOne": {
+        "label": "Expert 7 MLP"
+      },
+      "expertTwo": {
+        "label": "Expert 41 MLP"
+      },
+      "inactiveExperts": {
+        "label": "Other experts stay inactive for this token"
+      },
+      "weightedMerge": {
+        "label": "Weighted sum of chosen experts"
+      },
+      "outputState": {
+        "label": "Updated token state"
+      }
+    }
+  },
   "openingSummary": "A mixture-of-experts layer routes each token through a few specialist MLPs instead of one dense feed-forward block, trading sparse activation for extra capacity."
 }

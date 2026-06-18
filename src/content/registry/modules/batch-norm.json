@@ -1,0 +1,30 @@
+{
+  "id": "module.batch-norm",
+  "slug": "batch-norm",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["BatchNorm", "batch normalization", "BN"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.normalization",
+    "module.group-norm",
+    "module.layer-norm"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "normalization",
+  "optimizes": ["training-stability"],
+  "practicalBenefits": ["stabilizes feature scales across minibatches"],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light",
+  "moduleFamily": "normalization",
+  "conceptType": "normalization-variant",
+  "variantGroup": "normalization-variants"
+}

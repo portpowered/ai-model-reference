@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Ask what extra signal is fused into each generation step and where in the network that fusion happens."
-    }
-  },
   "openingSummary": "Conditioning injects side information—prompts, class labels, or cross-attention context—so each generation step depends on both the current state and the control signal."
 }

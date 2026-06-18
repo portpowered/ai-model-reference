@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Once you are comfortable with tensor shapes, the next step in this chain is logits—the raw scores the model emits before softmax turns them into probabilities."
-    }
-  },
   "openingSummary": "A tensor is an n-dimensional array with a shape like batch × sequence × hidden; embeddings, activations, and logits are all tensors at different ranks."
 }

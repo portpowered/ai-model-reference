@@ -1,0 +1,136 @@
+{
+  "id": "graph.swiglu-compute-flow",
+  "slug": "swiglu-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "concept.swiglu",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "input-state",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "input-state",
+      "labelKey": "graph.nodes.inputState.label",
+      "moduleKind": "input",
+      "position": { "x": 290, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["value-projection", "gate-projection"]
+    },
+    {
+      "id": "value-projection",
+      "labelKey": "graph.nodes.valueProjection.label",
+      "moduleKind": "projection",
+      "position": { "x": 80, "y": 120 },
+      "visualRole": "process-node",
+      "childNodeIds": ["value-branch"]
+    },
+    {
+      "id": "gate-projection",
+      "labelKey": "graph.nodes.gateProjection.label",
+      "moduleKind": "projection",
+      "position": { "x": 430, "y": 120 },
+      "visualRole": "process-node",
+      "childNodeIds": ["gate-activation"]
+    },
+    {
+      "id": "value-branch",
+      "labelKey": "graph.nodes.valueBranch.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 105, "y": 250 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["gated-product"]
+    },
+    {
+      "id": "gate-activation",
+      "labelKey": "graph.nodes.gateActivation.label",
+      "moduleKind": "operation",
+      "position": { "x": 450, "y": 250 },
+      "visualRole": "process-node",
+      "childNodeIds": ["gated-product"]
+    },
+    {
+      "id": "gated-product",
+      "labelKey": "graph.nodes.gatedProduct.label",
+      "moduleKind": "feed-forward",
+      "position": { "x": 250, "y": 390 },
+      "visualRole": "process-node",
+      "childNodeIds": ["project-back"]
+    },
+    {
+      "id": "project-back",
+      "labelKey": "graph.nodes.projectBack.label",
+      "moduleKind": "projection",
+      "position": { "x": 250, "y": 510 },
+      "visualRole": "process-node",
+      "childNodeIds": ["output-state"]
+    },
+    {
+      "id": "output-state",
+      "labelKey": "graph.nodes.outputState.label",
+      "moduleKind": "output",
+      "position": { "x": 275, "y": 620 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "input-to-value-projection",
+      "source": "input-state",
+      "target": "value-projection",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "input-to-gate-projection",
+      "source": "input-state",
+      "target": "gate-projection",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "value-projection-to-branch",
+      "source": "value-projection",
+      "target": "value-branch",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "gate-projection-to-activation",
+      "source": "gate-projection",
+      "target": "gate-activation",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "value-branch-to-product",
+      "source": "value-branch",
+      "target": "gated-product",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "gate-activation-to-product",
+      "source": "gate-activation",
+      "target": "gated-product",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "product-to-project",
+      "source": "gated-product",
+      "target": "project-back",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "project-to-output",
+      "source": "project-back",
+      "target": "output-state",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

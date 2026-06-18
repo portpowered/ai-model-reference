@@ -1,0 +1,34 @@
+{
+  "id": "module.learned-positional-embeddings",
+  "slug": "learned-positional-embeddings",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Learned positional embeddings",
+    "learned position embeddings",
+    "learned positional encoding"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "module.absolute-positional-embeddings",
+    "module.sinusoidal-positional-embeddings"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "moduleType": "position-encoding",
+  "optimizes": ["task-specific-position-learning"],
+  "practicalBenefits": ["lets the model learn position-specific offsets"],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "none",
+  "moduleFamily": "absolute-positional-embeddings",
+  "conceptType": "absolute-position-encoding",
+  "variantGroup": "absolute-position-family"
+}

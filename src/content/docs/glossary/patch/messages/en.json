@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Ask how the raw input is tiled before the first transformer block—that tiling unit is the patch story."
-    }
-  },
   "openingSummary": "A patch is the smallest spatial or sequential unit the model treats as one input item before stacking layers, mapped by encoders into representation vectors."
 }

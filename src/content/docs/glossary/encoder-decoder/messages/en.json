@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "If one stack reads the full input and another generates outputs with cross-attention between them, you are looking at encoder–decoder—not decoder-only."
-    }
-  },
   "openingSummary": "Encoder–decoder models pair an input-side encoder with an output-side decoder that conditions on encoder memory while generating outputs step by step."
 }

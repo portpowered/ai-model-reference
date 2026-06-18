@@ -32,11 +32,5 @@
       "title": "References"
     }
   },
-  "callouts": {
-    "readerShortcut": {
-      "title": "Reader Shortcut",
-      "body": "Ask which axis was scaled (params, data, compute) and which metric was fit before trusting an extrapolation."
-    }
-  },
   "openingSummary": "Scaling laws describe predictable loss improvements when model size, dataset size, or compute increase along a training frontier, often as power laws until limits bend the curve."
 }
