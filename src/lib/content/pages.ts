@@ -158,7 +158,13 @@ export async function loadShippedLocalizedDocsPages(
       continue;
     }
 
-    if (!isDocsPageShippedForLocale(path.relative(rootDir, pageDir), locale)) {
+    if (
+      !isDocsPageShippedForLocale(
+        path.relative(rootDir, pageDir),
+        locale,
+        rootDir,
+      )
+    ) {
       continue;
     }
 
