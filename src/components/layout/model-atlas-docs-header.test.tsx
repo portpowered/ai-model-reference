@@ -1,9 +1,15 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { cleanup, fireEvent, screen, within } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { SharedProps } from "fumadocs-ui/contexts/search";
 import { RootProvider } from "fumadocs-ui/provider/next";
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModelAtlasDocsHeader } from "@/components/layout/model-atlas-docs-header";
 import {
@@ -16,6 +22,26 @@ import {
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { assertPrimaryNavNoDuplicateSearchLink } from "@/lib/verify/customer-ask-home-header-convergence";
 import { renderWithAppProviders } from "@/tests/a11y/render";
+import { NextNavigationTestProvider } from "@/tests/a11y/next-navigation-test-provider";
+
+function renderHeaderWithNavigation(
+  ui: ReactNode,
+  {
+    SearchDialog,
+    pathname = "/",
+    searchParams = new URLSearchParams(),
+  }: {
+    SearchDialog: ComponentType<SharedProps>;
+    pathname?: string;
+    searchParams?: URLSearchParams;
+  },
+) {
+  return render(
+    <NextNavigationTestProvider pathname={pathname} searchParams={searchParams}>
+      <RootProvider search={{ SearchDialog, enabled: true }}>{ui}</RootProvider>
+    </NextNavigationTestProvider>,
+  );
+}
 
 describe("ModelAtlasDocsHeader", () => {
   afterEach(() => {
@@ -52,6 +78,7 @@ describe("ModelAtlasDocsHeader", () => {
     expect(html).toContain('data-search=""');
     expect(html).toContain(`aria-label="${messages.search.open}"`);
     expect(html).toContain(messages.search.shortcut);
+    expect(html).toContain(`aria-label="${messages.language.open}"`);
   });
 
   test("mobile width markup hides desktop inline nav links and exposes the menu control", async () => {
@@ -215,5 +242,70 @@ describe("ModelAtlasDocsHeader", () => {
 
     await user.tab();
     expect(document.activeElement).toBe(searchTrigger);
+  });
+
+  test("opens a language selector with locale-preserving links", async () => {
+    const messages = await loadUiMessages();
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    const user = userEvent.setup();
+    window.history.replaceState({}, "", "/docs/glossary/token?tag=attention");
+    renderHeaderWithNavigation(<ModelAtlasDocsHeader messages={messages} />, {
+      SearchDialog,
+      pathname: "/docs/glossary/token",
+      searchParams: new URLSearchParams("tag=attention"),
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: messages.language.open }),
+    );
+
+    const dialog = screen.getByRole("menu");
+
+    expect(
+      within(dialog)
+        .getByRole("menuitem", { name: /English/i })
+        .getAttribute("href"),
+    ).toBe("/docs/glossary/token?tag=attention");
+    expect(
+      within(dialog)
+        .getByRole("menuitem", { name: /Tieng Viet|Tiếng Việt/i })
+        .getAttribute("href"),
+    ).toBe("/vi/docs/glossary/token?tag=attention");
+    expect(
+      within(dialog).queryByRole("menuitem", { name: /Japanese/i }),
+    ).toBeTruthy();
+    expect(dialog.textContent).toContain(messages.language.unavailable);
+  });
+
+  test("shows unavailable locales for docs pages that are not shipped in that locale", async () => {
+    const messages = await loadUiMessages();
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    const user = userEvent.setup();
+    window.history.replaceState({}, "", "/docs/modules/sparse-attention");
+    renderHeaderWithNavigation(<ModelAtlasDocsHeader messages={messages} />, {
+      SearchDialog,
+      pathname: "/docs/modules/sparse-attention",
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: messages.language.open }),
+    );
+
+    const dialog = screen.getByRole("menu");
+
+    expect(
+      within(dialog)
+        .getByRole("menuitem", { name: /English/i })
+        .getAttribute("href"),
+    ).toBe("/docs/modules/sparse-attention");
+    expect(
+      within(dialog).queryByRole("menuitem", {
+        name: /Tieng Viet|Tiếng Việt/i,
+      }),
+    ).toBeTruthy();
+    expect(
+      within(dialog).queryByRole("menuitem", { name: /Japanese/i }),
+    ).toBeTruthy();
+    expect(dialog.textContent).toContain(messages.language.unavailable);
   });
 });

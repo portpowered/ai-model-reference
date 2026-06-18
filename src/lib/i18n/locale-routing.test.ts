@@ -141,7 +141,14 @@ describe("locale-routing", () => {
     expect(switchRouteLocale("/vi/tags/attention", "ja")).toBe(
       "/ja/tags/attention",
     );
-    expect(switchRouteLocale("/search?tag=attention", "vi")).toBe("/vi/search");
-    expect(switchRouteLocale("/search?tag=attention", "ja")).toBe("/ja/search");
+    expect(switchRouteLocale("/search?tag=attention", "vi")).toBe(
+      "/vi/search?tag=attention",
+    );
+    expect(switchRouteLocale("/search?tag=attention", "ja")).toBe(
+      "/ja/search?tag=attention",
+    );
+    expect(switchRouteLocale("/docs/glossary/token?tag=attention", "vi")).toBe(
+      "/vi/docs/glossary/token?tag=attention",
+    );
   });
 });

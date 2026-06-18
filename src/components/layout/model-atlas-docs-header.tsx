@@ -3,6 +3,7 @@
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { type ReactNode, useId, useState } from "react";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import {
   getPrimaryNavItems,
   PRIMARY_NAV_DESKTOP_CLASS,
@@ -81,6 +82,7 @@ export function ModelAtlasDocsHeader({
         </nav>
         <div className="ms-auto flex items-center gap-2">
           <SearchTrigger messages={messages} />
+          <LanguageSwitcher locale={locale} messages={messages} />
           {trailing}
         </div>
       </div>

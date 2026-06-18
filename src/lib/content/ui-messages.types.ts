@@ -19,6 +19,12 @@ export type UiMessages = {
     glossary: string;
     tags: string;
   };
+  language: {
+    open: string;
+    selectorLabel: string;
+    unavailable: string;
+    locales: Record<string, string>;
+  };
   searchEntry: {
     title: string;
     description: string;
