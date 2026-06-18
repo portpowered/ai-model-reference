@@ -30,11 +30,7 @@ describe("toStructuredData", () => {
       .map((block) => block.content);
 
     expect(keywordContents).toEqual(
-      expect.arrayContaining([
-        "Attention",
-        "attention",
-        "self-attention",
-      ]),
+      expect.arrayContaining(["Attention", "attention", "self-attention"]),
     );
     expect(
       keywordContents.filter((content) => content === "attention"),
