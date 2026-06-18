@@ -13,7 +13,7 @@
     },
     "simpleExample": {
       "title": "Family Split",
-      "body": "The main branches are easy to sort. [Absolute positional embeddings](/docs/glossary/absolute-positional-embeddings) attach an index-specific vector to each token. [Relative position bias](/docs/glossary/relative-position-bias) changes attention scores based on token distance. [RoPE](/docs/glossary/rope) rotates query and key features so relative offsets appear inside the dot product. [ALiBi](/docs/glossary/alibi) adds a simpler distance penalty directly to logits. [NoPE](/docs/glossary/nope) is the unusual baseline where a model tries to work without an explicit position mechanism at all."
+      "body": "The main branches are easy to sort. Absolute positional embeddings attach an index-specific vector to each token. Relative position bias changes attention scores based on token distance. RoPE rotates query and key features so relative offsets appear inside the dot product. ALiBi adds a simpler distance penalty directly to logits. NoPE is the unusual baseline where a model tries to work without an explicit position mechanism at all."
     },
     "whereItAppears": {
       "title": "Where It Appears",

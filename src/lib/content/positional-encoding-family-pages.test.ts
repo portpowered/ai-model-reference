@@ -104,6 +104,14 @@ describe("Phase 3 positional encoding family hub (US-001)", () => {
     expect(html).toContain('href="/docs/glossary/alibi"');
     expect(html).toContain('href="/docs/glossary/nope"');
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).not.toContain("[Absolute positional embeddings]");
+    expect(html).not.toContain(
+      "](/docs/glossary/absolute-positional-embeddings)",
+    );
+    expect(html).not.toContain("](/docs/glossary/relative-position-bias)");
+    expect(html).not.toContain("](/docs/glossary/rope)");
+    expect(html).not.toContain("](/docs/glossary/alibi)");
+    expect(html).not.toContain("](/docs/glossary/nope)");
   });
 });
 
@@ -120,20 +128,15 @@ describe("Phase 3 positional family glossary pages (US-001 dependencies)", () =>
 
     expect(messages.sections?.simpleExample.title).toBe("Family Split");
     expect(messages.sections?.simpleExample.body).toContain(
-      "/docs/glossary/absolute-positional-embeddings",
+      "Absolute positional embeddings",
     );
     expect(messages.sections?.simpleExample.body).toContain(
-      "/docs/glossary/relative-position-bias",
+      "Relative position bias",
     );
-    expect(messages.sections?.simpleExample.body).toContain(
-      "/docs/glossary/rope",
-    );
-    expect(messages.sections?.simpleExample.body).toContain(
-      "/docs/glossary/alibi",
-    );
-    expect(messages.sections?.simpleExample.body).toContain(
-      "/docs/glossary/nope",
-    );
+    expect(messages.sections?.simpleExample.body).toContain("RoPE");
+    expect(messages.sections?.simpleExample.body).toContain("ALiBi");
+    expect(messages.sections?.simpleExample.body).toContain("NoPE");
+    expect(messages.sections?.simpleExample.body).not.toContain("](/docs/");
   });
 
   for (const slug of POSITIONAL_FAMILY_GLOSSARY_SLUGS) {
