@@ -40,6 +40,7 @@ type WorkflowMatrixEntry = {
   name: string;
   command: string;
   installPlaywright: boolean;
+  websiteTestParallelWorkers?: number;
 };
 
 function parseMakefileCiPrerequisites(makefile: string): string[] {
@@ -75,6 +76,16 @@ function parseWorkflowMatrixEntries(workflow: string): WorkflowMatrixEntry[] {
         name,
         command,
         installPlaywright: /^\s*install_playwright:\s*true\s*$/m.test(block),
+        websiteTestParallelWorkers: (() => {
+          const raw = block.match(
+            /^\s*website_test_parallel_workers:\s+([^\n]+)/m,
+          )?.[1];
+          if (!raw) {
+            return undefined;
+          }
+
+          return Number.parseInt(raw, 10);
+        })(),
       };
     });
 }
@@ -96,6 +107,9 @@ describe("GitHub Actions make ci", () => {
     expect(workflow).toContain("needs: gate");
     expect(workflow).toMatch(/if: \$\{\{ always\(\) \}\}/);
     expect(workflow).toMatch(/if: \$\{\{ matrix\.install_playwright \}\}/);
+    expect(workflow).toContain(
+      "WEBSITE_TEST_PARALLEL_WORKERS: ${{ matrix.website_test_parallel_workers }}",
+    );
     expect(workflow).not.toMatch(/continue-on-error:\s*true/i);
   });
 
@@ -147,6 +161,7 @@ describe("GitHub Actions make ci", () => {
     const testVerifyContract = matrixEntries.find(
       (entry) => entry.name === "test-verify-contract",
     );
+    const test = matrixEntries.find((entry) => entry.name === "test");
     const testBuildContract = matrixEntries.find(
       (entry) => entry.name === "test-build-contract",
     );
@@ -157,6 +172,7 @@ describe("GitHub Actions make ci", () => {
       (entry) => entry.name === "test-integration",
     );
 
+    expect(test?.websiteTestParallelWorkers).toBe(2);
     expect(testVerifyContract?.installPlaywright).toBe(true);
     expect(testBuildContract?.installPlaywright).toBe(true);
     expect(buildExport?.command).toBe("make build-export");

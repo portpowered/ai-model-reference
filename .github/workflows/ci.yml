@@ -25,6 +25,7 @@ jobs:
             command: make typecheck
           - name: test
             command: make test
+            website_test_parallel_workers: 2
           - name: test-verify-contract
             command: make test-verify-contract
             install_playwright: true
@@ -58,6 +59,8 @@ jobs:
         run: bunx playwright install chromium --with-deps
 
       - name: Run ${{ matrix.name }}
+        env:
+          WEBSITE_TEST_PARALLEL_WORKERS: ${{ matrix.website_test_parallel_workers }}
         run: ${{ matrix.command }}
 
   ci:
