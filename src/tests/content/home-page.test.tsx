@@ -74,6 +74,23 @@ describe("home page render", () => {
     expect(html).toContain('href="/vi/docs/modules/grouped-query-attention"');
   });
 
+  it("preserves the active locale in browse links on the japanese route surface", async () => {
+    const messages = await loadUiMessages("ja");
+    const html = renderToStaticMarkup(
+      <HomeArticle messages={messages} locale="ja" />,
+    );
+
+    expect(html).toContain(
+      "現代の AI モデルとモジュールのためのフィールドガイド",
+    );
+    expect(html).toContain("トークン（用語集）");
+    expect(html).toContain('href="/ja/docs/architecture"');
+    expect(html).toContain('href="/ja/docs/glossary"');
+    expect(html).toContain('href="/ja/docs/glossary/token"');
+    expect(html).toContain('href="/ja/tags"');
+    expect(html).toContain('href="/ja/docs/modules/grouped-query-attention"');
+  });
+
   it("omits verbose search handoff prose and inline /search link", async () => {
     const html = await renderHomeArticleHtml();
     expect(html).not.toContain("Search entry page");

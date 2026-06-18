@@ -38,6 +38,14 @@ describe("loadUiMessages shell keys", () => {
     expect(messages.tagsIndex.title).toBe("Thẻ");
   });
 
+  it("loads shipped japanese shell copy when ja shared messages are available", async () => {
+    const messages = await loadUiMessages("ja");
+    expect(messages.nav.home).toBe("ホーム");
+    expect(messages.searchEntry.title).toBe("検索");
+    expect(messages.tagsIndex.title).toBe("タグ");
+    expect(messages.shell.sidebarTitle).toBe("リファレンス");
+  });
+
   it("fails closed when shipped vietnamese shared UI messages are missing", async () => {
     await mkdir(join(tempMessagesRoot, "en"), { recursive: true });
     await writeFile(
@@ -53,5 +61,22 @@ describe("loadUiMessages shell keys", () => {
     expect(() =>
       loadUiMessagesFromDisk("vi", { messagesRoot: tempMessagesRoot }),
     ).toThrow(/Missing required UI messages file for locale "vi"/);
+  });
+
+  it("fails closed when shipped japanese shared UI messages are missing", async () => {
+    await mkdir(join(tempMessagesRoot, "en"), { recursive: true });
+    await writeFile(
+      join(tempMessagesRoot, "en", "common.json"),
+      JSON.stringify({
+        nav: { home: "Home" },
+      }),
+    );
+
+    expect(() =>
+      loadUiMessagesFromDisk("ja", { messagesRoot: tempMessagesRoot }),
+    ).toThrow(UiMessagesLoadError);
+    expect(() =>
+      loadUiMessagesFromDisk("ja", { messagesRoot: tempMessagesRoot }),
+    ).toThrow(/Missing required UI messages file for locale "ja"/);
   });
 });
