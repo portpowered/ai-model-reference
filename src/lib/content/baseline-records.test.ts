@@ -126,6 +126,40 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
+  test("bidirectional-attention module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/bidirectional-attention.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.bidirectional-attention");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("published");
+    expect(module.moduleType).toBe("attention");
+    expect(module.tags).toEqual(["attention"]);
+    expect(module.aliases).toEqual(
+      expect.arrayContaining([
+        "bidirectional attention",
+        "bidirectional self-attention",
+        "full-context attention",
+        "full context attention",
+      ]),
+    );
+    expect(module.variantGroup).toBe("attention-mask-patterns");
+    expect(module.conceptType).toBe("attention-variant");
+    expect(module.relatedIds).toEqual([
+      "module.attention",
+      "module.multi-head-attention",
+      "module.grouped-query-attention",
+      "concept.encoder",
+      "concept.encoder-decoder",
+      "concept.transformer",
+    ]);
+    expect(module.citationIds).toContain("citation.attention-is-all-you-need");
+    expect(module.optimizes.length).toBeGreaterThan(0);
+    expect(module.practicalBenefits.length).toBeGreaterThan(0);
+  });
+
   test("attention tag JSON passes tagRecordSchema", async () => {
     const tag = await readRegistryJson("tags/attention.json", tagRecordSchema);
 

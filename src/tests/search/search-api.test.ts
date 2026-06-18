@@ -28,6 +28,7 @@ import {
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
+const BIDIRECTIONAL_ATTENTION_URL = "/docs/modules/bidirectional-attention";
 
 describe("Phase 1 /api/search regression", () => {
   for (const assertion of PHASE_1_SEARCH_ASSERTIONS) {
@@ -332,14 +333,14 @@ describe("docs search static client", () => {
     expect(results[0]?.url).toBe(SAMPLE_URL);
   });
 
-  test("orama static client returns non-empty attention results before app-level reranking", async () => {
+  test("orama static client returns non-empty attention results including bidirectional attention before app-level reranking", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
     const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
     const results = await client.search("attention");
 
     expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL)).toBe(true);
+    expect(resultsIncludeUrl(results, BIDIRECTIONAL_ATTENTION_URL)).toBe(true);
   });
 
   test("orama static client includes grouped-query attention for KV cache", async () => {

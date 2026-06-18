@@ -18,6 +18,7 @@ import type { ModuleRecord } from "@/lib/content/schemas";
 
 /** Attention modules with a published docs page and variantGroup after batch 017. */
 const ATTENTION_VARIANT_MODULE_IDS = [
+  "module.bidirectional-attention",
   "module.multi-head-attention",
   "module.multi-query-attention",
   "module.grouped-query-attention",

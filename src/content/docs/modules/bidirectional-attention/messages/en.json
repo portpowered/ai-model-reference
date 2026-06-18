@@ -1,0 +1,48 @@
+{
+  "title": "Bidirectional Attention",
+  "description": "An attention pattern that lets each token read context on both sides when the model is allowed to see the full sequence.",
+  "openingSummary": "Bidirectional attention lets a token use context from both earlier and later positions, which makes it the standard attention pattern for encoder-style models that need to understand a whole sequence instead of predicting only the next token.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Bidirectional attention is the full-context version of self-attention. When the mask allows it, each token can compare itself with tokens to its left and right instead of looking in only one direction."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "Bidirectional attention optimizes for representation quality when the model's job is to understand an entire sequence at once. It helps each position build a richer hidden state before any downstream prediction head reads it."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "This pattern is useful for encoder-style reading tasks because the model can use both past and future words to decide what a token means in context. That is why the same word can get a different representation depending on the sentence around it."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Queries, keys, and values are computed as in ordinary self-attention, but the attention mask does not block later positions. A token can therefore assign weight to evidence from anywhere in the visible sequence."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with causal attention, bidirectional attention removes the next-token-only restriction and uses full-sequence context. Compared with the broader attention overview page, this page focuses on the specific mask pattern that encoder-style models use."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Bidirectional attention appears in encoder stacks and in the encoder side of encoder-decoder systems, where the model must build a contextual representation of the input before a later component consumes it."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Because tokens can read future positions, plain bidirectional attention does not match next-token generation. Decoder-only language models therefore use causal masks instead when they must predict text one token at a time."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Many readers first meet transformer attention through autoregressive chat models, so a dedicated bidirectional page prevents full-context encoder behavior from being hidden behind decoder-first explanations."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
