@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   createDocsSearchClient,
   DOCS_SEARCH_API_PATH,
@@ -12,6 +12,7 @@ import {
 } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
+import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 
 const CHAIN_TAG = "token-to-probability-chain";
 
@@ -105,27 +106,24 @@ describe("Phase 2 full chain search title ranking (US-011)", () => {
 });
 
 describe("Phase 2 full chain search aliases and body text (US-011)", () => {
-  const originalFetch = globalThis.fetch;
-
-  afterEach(() => {
-    globalThis.fetch = originalFetch;
-  });
-
   async function searchWithStaticClient(query: string) {
     const exported = await (await docsSearchApi.staticGET()).json();
-    globalThis.fetch = (async () =>
-      new Response(JSON.stringify(exported), {
-        status: 200,
-      })) as unknown as typeof fetch;
-
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
     );
-    const client = createDocsSearchClient({
-      metaByUrl,
-      client: { from: DOCS_SEARCH_API_PATH },
-    });
-    return client.search(query);
+    return withGlobalFetchOverride(
+      (async () =>
+        new Response(JSON.stringify(exported), {
+          status: 200,
+        })) as unknown as typeof fetch,
+      async () => {
+        const client = createDocsSearchClient({
+          metaByUrl,
+          client: { from: DOCS_SEARCH_API_PATH },
+        });
+        return client.search(query);
+      },
+    );
   }
 
   test.each(
