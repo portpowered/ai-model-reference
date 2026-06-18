@@ -273,4 +273,14 @@ describe("docs navigation source", () => {
       expect(separatorNames).toContain(separatorName);
     }
   });
+
+  test("top-level docs sidebar sections render expanded by default", () => {
+    for (const node of source.pageTree.children) {
+      if (node.type !== "folder") {
+        continue;
+      }
+
+      expect(node.defaultOpen).toBe(true);
+    }
+  });
 });

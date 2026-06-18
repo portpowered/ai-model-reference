@@ -391,6 +391,7 @@ export function buildGeneratedDocsPageTree(baseTree: Root): Root {
     children.push({
       type: "folder",
       name: SECTION_TITLES[section],
+      defaultOpen: true,
       children: generateSectionNodes(
         section,
         pagesBySection.get(section) ?? [],
