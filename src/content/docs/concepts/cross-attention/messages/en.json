@@ -1,0 +1,36 @@
+{
+  "title": "Cross-Attention",
+  "description": "How one sequence uses its own queries to read another sequence's keys and values, which lets decoders and multimodal systems pull in outside context.",
+  "openingSummary": "Cross-attention lets one stream of tokens ask questions about a different stream, so a decoder can read encoder states or a text prompt can pull detail from image features without mixing both sources into one undifferentiated sequence first.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Cross-attention is an attention pattern where the queries come from one sequence but the keys and values come from another. The querying side decides what it needs next, and the source side supplies the context. That makes cross-attention a bridge between two representations instead of a conversation inside one sequence."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Many important systems need to combine information that was produced elsewhere. Translation decoders need access to the encoded source sentence. Vision-language models need text tokens to inspect image features. Cross-attention gives the model a direct way to pull in that external context at each step instead of compressing everything into one fixed vector first."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "In a transformer encoder-decoder model, the encoder reads the input sentence and produces hidden states for every source token. The decoder then generates the output sentence one token at a time. During each decoder block, self-attention looks at the partial output so far, while cross-attention uses the decoder state as queries and the encoder states as keys and values. That lets the next output token focus on the most relevant source words before it is predicted."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Readers will most often meet cross-attention in encoder-decoder transformers, text-to-image systems, image captioning models, and other multimodal stacks where one modality needs to read features from another. Some systems also use it for retrieval or tool context, where the generated sequence queries a separate memory source."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Cross-attention is not the same as self-attention. In self-attention, queries, keys, and values all come from the same running sequence. In cross-attention, the querying side and the source side are different streams. It is also not limited to text translation: the same pattern works whenever one representation needs selective access to another."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

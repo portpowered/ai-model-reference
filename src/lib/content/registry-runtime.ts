@@ -34,6 +34,7 @@ import calibrationConcept from "@/content/registry/concepts/calibration.json";
 import componentConcept from "@/content/registry/concepts/component.json";
 import computationalGraphConcept from "@/content/registry/concepts/computational-graph.json";
 import conditioningConcept from "@/content/registry/concepts/conditioning.json";
+import crossAttentionConcept from "@/content/registry/concepts/cross-attention.json";
 import contextExtensionConcept from "@/content/registry/concepts/context-extension.json";
 import contextWindowConcept from "@/content/registry/concepts/context-window.json";
 import decodeConcept from "@/content/registry/concepts/decode.json";
@@ -276,6 +277,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(prefillDecodeSplitConcept),
   conceptRecordSchema.parse(denoisingGenerationConcept),
   conceptRecordSchema.parse(conditioningConcept),
+  conceptRecordSchema.parse(crossAttentionConcept),
   conceptRecordSchema.parse(contextExtensionConcept),
   conceptRecordSchema.parse(contextWindowConcept),
   conceptRecordSchema.parse(alignmentConcept),
