@@ -11,6 +11,7 @@ import {
   runPhase1SearchDialogChecks,
   type SearchDialogDomSnapshot,
   type SearchDialogInputHydrationSnapshot,
+  shouldRetrySearchDialogQuery,
 } from "./phase-1-search-dialog-checks";
 
 function passingSnapshot(
@@ -197,6 +198,34 @@ describe("formatPhase1SearchDialogCheckFailure", () => {
         reason: "empty results state",
       }),
     ).toBe("header-dialog?query=KV%20cache: empty results state");
+  });
+});
+
+describe("shouldRetrySearchDialogQuery", () => {
+  test("retries transient hydration and timeout failures", () => {
+    expect(
+      shouldRetrySearchDialogQuery(
+        "search input did not hydrate in header search dialog within 45000ms",
+      ),
+    ).toBeTrue();
+    expect(
+      shouldRetrySearchDialogQuery(
+        'timed out waiting for search results in header search dialog for query "GQA" after 45000ms',
+      ),
+    ).toBeTrue();
+    expect(
+      shouldRetrySearchDialogQuery(
+        "no loading, results, or empty outcome appeared after entering a query in header search dialog",
+      ),
+    ).toBeTrue();
+  });
+
+  test("does not retry deterministic result failures", () => {
+    expect(
+      shouldRetrySearchDialogQuery(
+        'empty results state in header search dialog for query "GQA" — expected visible result for /docs/modules/grouped-query-attention',
+      ),
+    ).toBeFalse();
   });
 });
 

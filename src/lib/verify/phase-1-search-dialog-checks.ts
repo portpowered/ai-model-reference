@@ -76,12 +76,26 @@ const SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS = 250;
 const SEARCH_INPUT_SNAPSHOT_FIELD_TIMEOUT_MS = 5_000;
 
 /** Default per-query browser deadline (client hydration can exceed 10s under CI load). */
-export const DEFAULT_SEARCH_DIALOG_TIMEOUT_MS = 30_000;
+export const DEFAULT_SEARCH_DIALOG_TIMEOUT_MS = 45_000;
+export const SEARCH_DIALOG_QUERY_RETRY_LIMIT = 1;
 
 export function formatPhase1SearchDialogCheckFailure(
   failure: Phase1SearchDialogCheckFailure,
 ): string {
   return `${failure.surface}?query=${encodeURIComponent(failure.query)}: ${failure.reason}`;
+}
+
+export function shouldRetrySearchDialogQuery(reason: string): boolean {
+  return (
+    reason.startsWith(
+      "search input did not hydrate in header search dialog within ",
+    ) ||
+    reason.startsWith(
+      "timed out waiting for search results in header search dialog for query ",
+    ) ||
+    reason ===
+      "no loading, results, or empty outcome appeared after entering a query in header search dialog"
+  );
 }
 
 /**
@@ -177,7 +191,7 @@ async function openHeaderSearchDialog(
   const homeUrl = normalizeVerifyBaseUrl(baseUrl);
   await page.goto(homeUrl, {
     timeout: timeoutMs,
-    waitUntil: "domcontentloaded",
+    waitUntil: "load",
   });
 
   const trigger = page.locator(SEARCH_DIALOG_TRIGGER_SELECTOR).first();
@@ -397,21 +411,54 @@ export async function runPhase1SearchDialogChecks(
   const browser = await launchBrowser();
 
   try {
-    const page = await browser.newPage();
-    page.setDefaultTimeout(timeoutMs);
+    const queryFailures = await Promise.all(
+      queries.map(async (query) => {
+        for (
+          let attempt = 0;
+          attempt <= SEARCH_DIALOG_QUERY_RETRY_LIMIT;
+          attempt += 1
+        ) {
+          const context = await browser.newContext();
+          try {
+            const page = await context.newPage();
+            page.setDefaultTimeout(timeoutMs);
+            page.setDefaultNavigationTimeout(timeoutMs);
 
-    const dialog = await openHeaderSearchDialog(page, baseUrl, timeoutMs);
+            const dialog = await openHeaderSearchDialog(
+              page,
+              baseUrl,
+              timeoutMs,
+            );
+            const reason = await checkSearchDialogQuery(
+              page,
+              baseUrl,
+              query,
+              timeoutMs,
+              dialog,
+            );
 
-    for (const query of queries) {
-      const reason = await checkSearchDialogQuery(
-        page,
-        baseUrl,
-        query,
-        timeoutMs,
-        dialog,
-      );
-      if (reason) {
-        failures.push({ query, surface: "header-dialog", reason });
+            if (!reason) {
+              return null;
+            }
+
+            if (
+              attempt === SEARCH_DIALOG_QUERY_RETRY_LIMIT ||
+              !shouldRetrySearchDialogQuery(reason)
+            ) {
+              return { query, surface: "header-dialog" as const, reason };
+            }
+          } finally {
+            await Promise.race([context.close(), sleep(timeoutMs)]);
+          }
+        }
+
+        return null;
+      }),
+    );
+
+    for (const failure of queryFailures) {
+      if (failure) {
+        failures.push(failure);
       }
     }
   } finally {
