@@ -61,13 +61,18 @@ import worldModelConcept from "@/content/registry/concepts/world-model.json";
 import autoregressiveModels from "@/content/registry/models/autoregressive-models.json";
 import bertModel from "@/content/registry/models/bert.json";
 import chinchillaModel from "@/content/registry/models/chinchilla.json";
+import claudeModel from "@/content/registry/models/claude.json";
 import decoderOnlyModels from "@/content/registry/models/decoder-only-models.json";
 import deepseekFamily from "@/content/registry/models/deepseek-family.json";
 import deepseekR1Model from "@/content/registry/models/deepseek-r1.json";
+import deepseekV2Model from "@/content/registry/models/deepseek-v2.json";
+import deepseekV3Model from "@/content/registry/models/deepseek-v3.json";
 import diffusionModelFamilies from "@/content/registry/models/diffusion-model-families.json";
 import encoderDecoderModels from "@/content/registry/models/encoder-decoder-models.json";
 import encoderOnlyModels from "@/content/registry/models/encoder-only-models.json";
+import geminiModel from "@/content/registry/models/gemini.json";
 import gpt2Model from "@/content/registry/models/gpt-2.json";
+import gptOssModel from "@/content/registry/models/gpt-oss.json";
 import llama3Model from "@/content/registry/models/llama-3.json";
 import llamaFamily from "@/content/registry/models/llama-family.json";
 import maskedLanguageModels from "@/content/registry/models/masked-language-models.json";
@@ -76,6 +81,8 @@ import multimodalModelFamilies from "@/content/registry/models/multimodal-model-
 import omniModelFamilies from "@/content/registry/models/omni-model-families.json";
 import palmModel from "@/content/registry/models/palm.json";
 import qwenFamily from "@/content/registry/models/qwen-family.json";
+import qwen2Model from "@/content/registry/models/qwen2.json";
+import qwen25Model from "@/content/registry/models/qwen2-5.json";
 import qwen3Model from "@/content/registry/models/qwen3.json";
 import sequenceToSequenceModels from "@/content/registry/models/sequence-to-sequence-models.json";
 import t5Model from "@/content/registry/models/t5.json";
@@ -185,15 +192,22 @@ const modelRecords: ModelRecord[] = [
   modelRecordSchema.parse(autoregressiveModels),
   modelRecordSchema.parse(bertModel),
   modelRecordSchema.parse(chinchillaModel),
+  modelRecordSchema.parse(claudeModel),
   modelRecordSchema.parse(deepseekFamily),
   modelRecordSchema.parse(deepseekR1Model),
+  modelRecordSchema.parse(deepseekV2Model),
+  modelRecordSchema.parse(deepseekV3Model),
   modelRecordSchema.parse(decoderOnlyModels),
   modelRecordSchema.parse(modelFamiliesOverview),
   modelRecordSchema.parse(encoderDecoderModels),
   modelRecordSchema.parse(encoderOnlyModels),
+  modelRecordSchema.parse(geminiModel),
+  modelRecordSchema.parse(gptOssModel),
   modelRecordSchema.parse(palmModel),
   modelRecordSchema.parse(llama3Model),
   modelRecordSchema.parse(llamaFamily),
+  modelRecordSchema.parse(qwen2Model),
+  modelRecordSchema.parse(qwen25Model),
   modelRecordSchema.parse(qwenFamily),
   modelRecordSchema.parse(qwen3Model),
   modelRecordSchema.parse(transformerModelFamilies),

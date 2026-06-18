@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import path from "node:path";
 import { search } from "@orama/orama";
+import { initAdvancedSearch } from "fumadocs-core/search/server";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
@@ -11,6 +12,7 @@ import {
   exportOramaIndexSnapshot,
   type OramaSnapshotDocument,
 } from "@/lib/search/orama-index";
+import { toAdvancedSearchIndexes } from "@/lib/search/to-advanced-index";
 
 const ATTENTION_MODULE_URL = "/docs/modules/attention";
 const MULTI_HEAD_ATTENTION_URL = "/docs/modules/multi-head-attention";
@@ -87,11 +89,16 @@ const MODEL_FAMILY_URLS = [
 const MODEL_HUB_URLS = [
   "/docs/models/autoregressive-models",
   "/docs/models/bert",
+  "/docs/models/claude",
   "/docs/models/decoder-only-models",
   "/docs/models/deepseek-family",
   "/docs/models/deepseek-r1",
+  "/docs/models/deepseek-v2",
+  "/docs/models/deepseek-v3",
   "/docs/models/encoder-decoder-models",
   "/docs/models/encoder-only-models",
+  "/docs/models/gemini",
+  "/docs/models/gpt-oss",
   "/docs/models/gpt-2",
   "/docs/models/chinchilla",
   "/docs/models/llama-3",
@@ -99,6 +106,8 @@ const MODEL_HUB_URLS = [
   "/docs/models/masked-language-models",
   "/docs/models/model-families-overview",
   "/docs/models/palm",
+  "/docs/models/qwen2",
+  "/docs/models/qwen2-5",
   "/docs/models/qwen-family",
   "/docs/models/qwen3",
   "/docs/models/transformer-model-families",
@@ -243,8 +252,15 @@ describe("exportOramaIndexSnapshot", () => {
     { query: "MQA", url: MULTI_QUERY_ATTENTION_URL },
     { query: "multi-query attention", url: MULTI_QUERY_ATTENTION_URL },
     { query: "Meta Llama family", url: "/docs/models/llama-family" },
+    { query: "Qwen2", url: "/docs/models/qwen2" },
+    { query: "Qwen2.5", url: "/docs/models/qwen2-5" },
     { query: "Qwen3", url: "/docs/models/qwen3" },
+    { query: "DeepSeek-V2", url: "/docs/models/deepseek-v2" },
+    { query: "DeepSeek-V3", url: "/docs/models/deepseek-v3" },
     { query: "DeepSeek-R1", url: "/docs/models/deepseek-r1" },
+    { query: "gpt-oss", url: "/docs/models/gpt-oss" },
+    { query: "Anthropic Claude", url: "/docs/models/claude" },
+    { query: "Google Gemini", url: "/docs/models/gemini" },
   ] as const)("Orama database records rank %s for the %s alias query", async ({
     query,
     url,
@@ -257,6 +273,19 @@ describe("exportOramaIndexSnapshot", () => {
 
     expect(hits.length).toBeGreaterThan(0);
     expect((hits[0]?.document as { url: string }).url).toBe(url);
+  });
+
+  test("advanced search accepts numbered model slugs without document id collisions", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const searchServer = initAdvancedSearch({
+      language: "english",
+      indexes: toAdvancedSearchIndexes(documents),
+    });
+
+    const exported = (await searchServer.export()) as { type?: string };
+    expect(exported.type).toBe("advanced");
   });
 });
 

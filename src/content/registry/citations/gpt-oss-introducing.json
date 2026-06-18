@@ -1,0 +1,20 @@
+{
+  "id": "citation.gpt-oss-introducing",
+  "slug": "gpt-oss-introducing",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["gpt-oss announcement", "OpenAI gpt-oss", "GPT-OSS"],
+  "tags": [],
+  "relatedIds": ["model.gpt-oss"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "blog",
+  "authors": ["OpenAI"],
+  "title": "Introducing gpt-oss",
+  "url": "https://openai.com/index/introducing-gpt-oss/",
+  "mla": "OpenAI. \"Introducing gpt-oss.\" OpenAI, 2025, https://openai.com/index/introducing-gpt-oss/.",
+  "year": 2025
+}

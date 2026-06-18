@@ -1,0 +1,40 @@
+{
+  "title": "Gemini",
+  "description": "A frontier Google model line whose public identity centers on natively multimodal inputs, long context, and broad agent-style usage.",
+  "openingSummary": "Gemini is useful as a checkpoint page because readers often hear the name in product settings but need a simpler model-level explanation. The most important framing is that Gemini is presented as a multimodal model family, so the route into understanding it runs through modality, context length, and tool-using workflows rather than a single text-only benchmark story.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Gemini is Google's frontier model line. It is better treated as a family of multimodal checkpoints than as one static release number, which makes it a natural representative page for readers comparing modern general-purpose model ecosystems."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Gemini is commonly framed around text plus other input and output modalities, including image, audio, or video understanding in the broader family story. That multimodal framing is the clearest difference between Gemini and older text-first language-model pages."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Gemini still belongs to the Transformer-era model landscape, but its public technical identity emphasizes multimodality, long context, and reasoning-oriented usage. That means the surrounding concepts that matter most are modality, context management, and how one model family handles more than plain text."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention remains central because it is the mechanism that lets the model connect information across long or mixed-modal sequences. On a page like this, the module story is less about one newly branded block and more about how standard sequence machinery is extended into a multimodal frontier system."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Google's technical reports emphasize multimodality, long context, and advanced reasoning capabilities across the family. This atlas still renders structured training-regime, dataset, and paper relationships as separate optional graph fields, so missing data shows up as an explicit unavailable state."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Gemini matters because it is a reference point for what a modern multimodal frontier family looks like. Readers should treat it as a model-system explanation page, not as a product catalog or a benchmark ranking entry."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

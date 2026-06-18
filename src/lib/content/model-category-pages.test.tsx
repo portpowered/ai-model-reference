@@ -191,20 +191,27 @@ describe("chapter 7 foundational checkpoint pages", () => {
 });
 
 describe("chapter 7 frontier representative checkpoints", () => {
-  test("published docs discovery includes Llama 3, Qwen3, and DeepSeek-R1", async () => {
+  test("published docs discovery includes all representative frontier checkpoints", async () => {
     const pages = await loadPublishedDocsPages("en");
     const urls = pages.map((page) => page.url);
 
     expect(urls).toEqual(
       expect.arrayContaining([
         "/docs/models/llama-3",
+        "/docs/models/qwen2",
+        "/docs/models/qwen2-5",
         "/docs/models/qwen3",
+        "/docs/models/deepseek-v2",
+        "/docs/models/deepseek-v3",
         "/docs/models/deepseek-r1",
+        "/docs/models/gpt-oss",
+        "/docs/models/claude",
+        "/docs/models/gemini",
       ]),
     );
   });
 
-  test("frontier checkpoints render canonical sections with family links and explicit empty states", async () => {
+  test("earlier frontier checkpoints render canonical sections with family links and explicit empty states", async () => {
     const llama3 = await loadModelPage("llama-3");
     const qwen3 = await loadModelPage("qwen3");
     const deepseekR1 = await loadModelPage("deepseek-r1");
@@ -243,6 +250,100 @@ describe("chapter 7 frontier representative checkpoints", () => {
     expect(deepseekR1Html).toContain('data-testid="model-at-a-glance"');
     expect(deepseekR1Html).toContain("/docs/models/deepseek-family");
     expect(deepseekR1Html).toContain(
+      "Structured paper links are not available yet.",
+    );
+  });
+
+  test("new frontier checkpoints render canonical sections with family or category links and explicit empty states", async () => {
+    const qwen2 = await loadModelPage("qwen2");
+    const qwen25 = await loadModelPage("qwen2-5");
+    const deepseekV2 = await loadModelPage("deepseek-v2");
+    const deepseekV3 = await loadModelPage("deepseek-v3");
+    const gptOss = await loadModelPage("gpt-oss");
+    const claude = await loadModelPage("claude");
+    const gemini = await loadModelPage("gemini");
+
+    const qwen2Html = renderToStaticMarkup(
+      <ModulePageProviders messages={qwen2.messages} assets={qwen2.assets}>
+        {qwen2.content}
+      </ModulePageProviders>,
+    );
+    const qwen25Html = renderToStaticMarkup(
+      <ModulePageProviders messages={qwen25.messages} assets={qwen25.assets}>
+        {qwen25.content}
+      </ModulePageProviders>,
+    );
+    const deepseekV2Html = renderToStaticMarkup(
+      <ModulePageProviders
+        messages={deepseekV2.messages}
+        assets={deepseekV2.assets}
+      >
+        {deepseekV2.content}
+      </ModulePageProviders>,
+    );
+    const deepseekV3Html = renderToStaticMarkup(
+      <ModulePageProviders
+        messages={deepseekV3.messages}
+        assets={deepseekV3.assets}
+      >
+        {deepseekV3.content}
+      </ModulePageProviders>,
+    );
+    const gptOssHtml = renderToStaticMarkup(
+      <ModulePageProviders messages={gptOss.messages} assets={gptOss.assets}>
+        {gptOss.content}
+      </ModulePageProviders>,
+    );
+    const claudeHtml = renderToStaticMarkup(
+      <ModulePageProviders messages={claude.messages} assets={claude.assets}>
+        {claude.content}
+      </ModulePageProviders>,
+    );
+    const geminiHtml = renderToStaticMarkup(
+      <ModulePageProviders messages={gemini.messages} assets={gemini.assets}>
+        {gemini.content}
+      </ModulePageProviders>,
+    );
+
+    expect(qwen2Html).toContain('data-testid="model-at-a-glance"');
+    expect(qwen2Html).toContain("/docs/models/qwen-family");
+    expect(qwen2Html).toContain(
+      "Structured training-regime details are not available yet.",
+    );
+
+    expect(qwen25Html).toContain('data-testid="model-at-a-glance"');
+    expect(qwen25Html).toContain("/docs/models/qwen-family");
+    expect(qwen25Html).toContain(
+      "Structured dataset details are not available yet.",
+    );
+
+    expect(deepseekV2Html).toContain('data-testid="model-at-a-glance"');
+    expect(deepseekV2Html).toContain("/docs/models/deepseek-family");
+    expect(deepseekV2Html).toContain(
+      "Structured paper links are not available yet.",
+    );
+
+    expect(deepseekV3Html).toContain('data-testid="model-at-a-glance"');
+    expect(deepseekV3Html).toContain("/docs/models/deepseek-family");
+    expect(deepseekV3Html).toContain(
+      "Structured dataset details are not available yet.",
+    );
+
+    expect(gptOssHtml).toContain('data-testid="model-at-a-glance"');
+    expect(gptOssHtml).toContain("/docs/models/decoder-only-models");
+    expect(gptOssHtml).toContain(
+      "Structured training-regime details are not available yet.",
+    );
+
+    expect(claudeHtml).toContain('data-testid="model-at-a-glance"');
+    expect(claudeHtml).toContain("/docs/models/multimodal-model-families");
+    expect(claudeHtml).toContain(
+      "Structured dataset details are not available yet.",
+    );
+
+    expect(geminiHtml).toContain('data-testid="model-at-a-glance"');
+    expect(geminiHtml).toContain("/docs/models/multimodal-model-families");
+    expect(geminiHtml).toContain(
       "Structured paper links are not available yet.",
     );
   });

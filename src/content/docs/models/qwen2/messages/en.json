@@ -1,0 +1,40 @@
+{
+  "title": "Qwen2",
+  "description": "A frontier Qwen checkpoint line that turned the family into a broad open-weight multilingual reference across dense and MoE language models.",
+  "openingSummary": "Qwen2 is a useful checkpoint page because it marks the point where Qwen becomes easy to treat as a modern frontier family rather than a side branch of open language models. The important reader-facing story is not one benchmark score. It is that Qwen2 bundles multilingual scope, a wide size ladder, and both dense and MoE variants into one coherent decoder-only release line.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Qwen2 is a major language-model release in the Qwen family. It represents a broad line of text-first checkpoints rather than one single parameter count, which makes it a good bridge between a family hub and a concrete model page."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Qwen2 takes tokenized text and predicts the next token. Chat wrappers, instruction tuning, and deployment layers can change how the experience feels, but the base checkpoint is still a token-in, token-out autoregressive model."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Qwen2 stays inside the familiar decoder-only Transformer pattern. The family report also frames the release as a broad suite that includes dense and MoE variants, so the surrounding concepts that matter most are Transformer structure, autoregressive generation, and the scaling choices that appear inside a modern open release line."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention remains the basic context-sharing mechanism, while grouped-query style efficiency choices help explain why modern decoder-only checkpoints can stretch farther on context and deployment efficiency than older language-model baselines."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public Qwen2 descriptions emphasize multilingual coverage, broad release coverage across sizes, and a mix of dense and expert-routed variants. In this atlas slice, structured training-regime, dataset, and paper relationships remain optional metadata and show explicit unavailable states when the graph is not filled in yet."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Qwen2 matters because it makes the Qwen family easier to compare with Llama and other frontier open checkpoints without pretending they are identical. Readers should focus on its multilingual and release-line breadth rather than reading it as one narrow benchmark anecdote."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

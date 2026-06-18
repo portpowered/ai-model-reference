@@ -1,0 +1,32 @@
+{
+  "id": "model.gemini",
+  "slug": "gemini",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Gemini", "Google Gemini", "Gemini model family"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.multimodal-model-families",
+    "concept.multimodal-model",
+    "concept.context-window",
+    "concept.transformer",
+    "module.attention"
+  ],
+  "citationIds": ["citation.gemini-2-5-report"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "gemini",
+  "sourceType": "closed",
+  "modalities": ["text", "multimodal"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.multimodal-model",
+    "concept.context-window"
+  ],
+  "moduleIds": ["module.attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

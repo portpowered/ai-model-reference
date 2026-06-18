@@ -1,0 +1,40 @@
+{
+  "title": "Qwen2.5",
+  "description": "A refined Qwen frontier checkpoint line that keeps the decoder-only family shape while pushing further on instruction following, long-form use, and specialized follow-on releases.",
+  "openingSummary": "Qwen2.5 matters because it shows what an incremental model-generation step often really means in practice. The architecture family does not suddenly reset. Instead, the release improves the same broad decoder-only Qwen line through better pretraining scale, stronger post-training, and a cleaner base for downstream variants such as coder, math, and multimodal branches.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Qwen2.5 is a later frontier release in the Qwen family. It is best understood as a refined language-model line that keeps the family identity from Qwen2 while improving the quality and usefulness of the release across many sizes and downstream tasks."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The checkpoint still works by consuming tokenized text and predicting the next token. What changes for readers is less the basic contract and more the quality of long-form responses, instruction following, and how well the release supports later specialized variants."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Qwen2.5 remains a decoder-only Transformer release line, so it belongs next to other autoregressive checkpoints rather than in a separate architecture bucket. The useful nuance is that it spans both dense and MoE offerings and acts as a stronger foundation for family branches built after it."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention is still the core mechanism, and the same efficiency-oriented decoder-only design choices remain important for understanding why the Qwen line can cover many checkpoint sizes without turning into a different kind of model."
+    },
+    "training": {
+      "title": "Training",
+      "body": "The technical report emphasizes larger high-quality pretraining, intricate supervised finetuning, and multistage reinforcement learning compared with the earlier Qwen2 framing. This atlas page still treats structured training-regime, dataset, and paper relationships as optional graph data and renders clear unavailable states when that structure is absent."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Qwen2.5 is a useful checkpoint page when you want to explain why a family name keeps appearing in code, math, and multimodal model branches. It is less about one flashy benchmark and more about becoming a stable base generation for a wider ecosystem."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "title": "DeepSeek-V3",
+  "description": "A later DeepSeek frontier checkpoint that keeps the family's MoE and MLA identity while scaling the release into a stronger general language-model reference.",
+  "openingSummary": "DeepSeek-V3 is useful because it shows continuity, not a full reset. The model still belongs to the same DeepSeek architecture story built around MoE and Multi-head Latent Attention, but it pushes that recipe farther and becomes a more direct modern frontier comparison point.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "DeepSeek-V3 is a later frontier release in the DeepSeek family. It is still a text-first autoregressive checkpoint line, but it is more often discussed as a strong general language model built on the engineering ideas that earlier DeepSeek releases established."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "DeepSeek-V3 takes tokenized text and predicts the next token. For atlas readers, the question is not whether the input-output contract changed, but which architectural choices let the model keep scaling without looking like a totally different class of system."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "DeepSeek-V3 stays in the decoder-only Transformer world while continuing the family's MoE and MLA orientation. That makes it a good checkpoint page for explaining how a frontier model can feel new in practice while still sharing the same broad architecture family as earlier causal language models."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention remains central, and MLA continues to be the module-level feature that most clearly marks the DeepSeek line as distinct. MoE matters alongside it because the model family is not only about raw parameter totals, but also about how much compute is activated per token."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public descriptions of DeepSeek-V3 emphasize stronger performance and improved scaling behavior on top of the V2-era efficiency recipe. This atlas page still renders structured training-regime, dataset, and paper relationship fields separately, so any missing graph data appears as an explicit unavailable state."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "DeepSeek-V3 matters when a reader wants a modern flagship-style checkpoint without skipping the engineering backstory. It is a more natural comparison point against Qwen, Llama, or GPT-style frontier releases than DeepSeek-V2, while still inheriting the same DeepSeek architecture identity."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

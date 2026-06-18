@@ -1,0 +1,40 @@
+{
+  "title": "GPT-OSS",
+  "description": "An open-weight OpenAI checkpoint line that brings GPT-style language modeling back into a self-hosted, local-inference-friendly deployment story.",
+  "openingSummary": "GPT-OSS is important because it changes the deployment conversation around a recognizable GPT-branded model line. Instead of only thinking about hosted APIs, readers can frame the checkpoint around open weights, local or self-managed inference, and the familiar decoder-only language-model contract underneath.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "GPT-OSS is an OpenAI open-weight language-model release line. It is still fundamentally a next-token model, but the public significance of the release is that it reintroduces a GPT-style checkpoint into workflows where people care about running, adapting, or hosting the model more directly."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The checkpoint consumes tokenized text and predicts the next token, just like other decoder-only language models. The notable difference is not the token contract itself, but the fact that the model is packaged for more direct local or self-hosted use."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "GPT-OSS is easiest to place in the same broad Transformer and autoregressive category as earlier GPT-style models. This page treats it as a modern checkpoint in that lineage, without turning the explanation into release-note sprawl or a weight-download guide."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention remains the key module because it is the mechanism that lets the model condition on prior text and continue a sequence coherently. On this page, the architecture value is the lineage link back to GPT-style causal language modeling more than a newly named internal block."
+    },
+    "training": {
+      "title": "Training",
+      "body": "The official announcement emphasizes deployment posture and practical accessibility more than a deeply structured training graph. When this atlas lacks structured training-regime, dataset, or paper relationship records, the page keeps those sections visible and labels them as unavailable."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "GPT-OSS is a helpful page for readers who want to compare hosted frontier systems with open-weight deployment options without pretending they are different species of model. The most useful mental model is still decoder-only next-token generation, now paired with a more direct self-hosting story."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

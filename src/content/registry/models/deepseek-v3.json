@@ -1,0 +1,36 @@
+{
+  "id": "model.deepseek-v3",
+  "slug": "deepseek-v3",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["DeepSeek-V3", "DeepSeek V3", "DeepSeek V3 model"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.deepseek-family",
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "concept.mixture-of-experts",
+    "concept.transformer",
+    "module.multi-head-latent-attention"
+  ],
+  "citationIds": [
+    "citation.deepseek-v3-technical-report",
+    "citation.deepseek-v2-mla-paper"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "deepseek-family",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.mixture-of-experts",
+    "concept.transformer-architecture"
+  ],
+  "moduleIds": ["module.attention", "module.multi-head-latent-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

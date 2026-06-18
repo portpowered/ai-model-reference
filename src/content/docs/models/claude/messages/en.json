@@ -1,0 +1,40 @@
+{
+  "title": "Claude",
+  "description": "A frontier Anthropic model line centered on assistant behavior, alignment, and increasingly multimodal and tool-using workflows.",
+  "openingSummary": "Claude is a useful checkpoint page because people often encounter the name as a product or assistant label and need a cleaner model-level explanation. The right lens is not a leaderboard. It is that Claude is a frontier model line whose public identity strongly emphasizes helpful assistant behavior, safety framing, and practical tool-oriented use.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Claude is Anthropic's frontier model line. It is best understood as a family of large assistant-oriented models rather than one frozen checkpoint number, which makes this page a bridge between product familiarity and architecture-level understanding."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Claude works over prompt-like inputs and returns generated outputs, usually in text, while newer usage patterns also include multimodal inputs and tool-driven workflows. Underneath those interfaces, the model still belongs to the broad sequence-modeling world that powers modern assistants."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Claude is easiest to place in the general Transformer family, but readers should not stop there. The more informative distinction is that Claude is commonly framed around assistant behavior, alignment, and practical tool use rather than only raw next-token capability."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention remains the core module because it enables the model to reuse prior context while following instructions over long interactions. On a page like this, the key explanatory move is to separate that shared Transformer machinery from the product and alignment layers built around it."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public Anthropic material emphasizes the assistant and safety framing more than a detailed open training graph. This atlas keeps the training, dataset, and paper sections visible anyway, and uses explicit unavailable states whenever the structured relationship data is not present."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Claude matters because it is a common reference point for coding, writing, and agent-style workflows, yet readers can easily confuse the product experience with the underlying model family. This page keeps the explanation mechanism-focused without pretending the system is only a benchmark entry."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

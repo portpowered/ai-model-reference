@@ -1,0 +1,32 @@
+{
+  "id": "model.gpt-oss",
+  "slug": "gpt-oss",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["gpt-oss", "GPT-OSS", "OpenAI gpt-oss"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.gpt-2",
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "module.attention"
+  ],
+  "citationIds": ["citation.gpt-oss-introducing"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "gpt-oss",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture"
+  ],
+  "moduleIds": ["module.attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

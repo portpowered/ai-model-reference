@@ -1,0 +1,40 @@
+{
+  "title": "DeepSeek-V2",
+  "description": "An efficiency-focused DeepSeek checkpoint line that made MoE design and Multi-head Latent Attention central to the family story.",
+  "openingSummary": "DeepSeek-V2 is important because it gives the DeepSeek family a recognizable architecture identity. Instead of being remembered only as another large language model, it is commonly discussed through the specific efficiency ideas it brings forward: mixture-of-experts structure and Multi-head Latent Attention.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "DeepSeek-V2 is a major DeepSeek language-model release that foregrounds economical scaling. It is still a text-generation checkpoint line, but it is especially useful as an explanatory page because the model's public identity is tied to concrete architecture choices rather than only raw scale."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Like other autoregressive language models, DeepSeek-V2 consumes tokenized text and predicts the next token. The interesting question is not the input-output contract itself, but how the checkpoint keeps that contract while trying to reduce cost and improve efficiency."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "DeepSeek-V2 remains a Transformer-family decoder-only model, but it is tightly associated with MoE design and Multi-head Latent Attention. That makes the page especially good for readers who want to see how an architecture can stay recognizably Transformer-shaped while still changing important internal efficiency choices."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention still carries contextual information across the sequence, but MLA is the standout module-level idea here because it reframes how the model stores and reuses attention information. MoE also matters because it changes how much of the model is active per token."
+    },
+    "training": {
+      "title": "Training",
+      "body": "The public DeepSeek-V2 story is mostly about economical scaling and architecture efficiency rather than a heavily narrated training-regime story. Structured training-regime, dataset, and paper relationship graphs remain optional in this atlas, so unavailable items are shown explicitly instead of disappearing."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "DeepSeek-V2 is the best checkpoint page in this slice for explaining why DeepSeek later feels different from many other frontier families. It gives readers the engineering context they need before they get to later releases like V3 or reasoning-oriented pages like R1."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

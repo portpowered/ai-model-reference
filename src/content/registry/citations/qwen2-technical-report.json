@@ -1,0 +1,20 @@
+{
+  "id": "citation.qwen2-technical-report",
+  "slug": "qwen2-technical-report",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Qwen2 report", "Qwen2 paper", "Qwen 2"],
+  "tags": [],
+  "relatedIds": ["model.qwen2", "model.qwen-family"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Qwen Team"],
+  "title": "Qwen2 Technical Report",
+  "url": "https://arxiv.org/abs/2407.10671",
+  "mla": "Qwen Team. \"Qwen2 Technical Report.\" arXiv, 2024, https://arxiv.org/abs/2407.10671.",
+  "year": 2024
+}

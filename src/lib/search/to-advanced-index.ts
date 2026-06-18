@@ -1,6 +1,10 @@
 import { toStructuredData } from "./to-structured-data";
 import type { SearchDocument } from "./types";
 
+function toAdvancedPageId(documentId: string): string {
+  return `page:${documentId}#page`;
+}
+
 export type DocsAdvancedSearchIndex = {
   id: string;
   title: string;
@@ -14,7 +18,7 @@ export function toAdvancedSearchIndex(
   document: SearchDocument,
 ): DocsAdvancedSearchIndex {
   return {
-    id: document.id,
+    id: toAdvancedPageId(document.id),
     title: document.title,
     description: document.description,
     url: document.url,

@@ -1,0 +1,32 @@
+{
+  "id": "model.claude",
+  "slug": "claude",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Claude", "Anthropic Claude", "Claude model family"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.multimodal-model-families",
+    "concept.multimodal-model",
+    "concept.alignment",
+    "concept.transformer",
+    "module.attention"
+  ],
+  "citationIds": ["citation.claude-3-family"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "claude",
+  "sourceType": "closed",
+  "modalities": ["text", "multimodal"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.multimodal-model",
+    "concept.alignment"
+  ],
+  "moduleIds": ["module.attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

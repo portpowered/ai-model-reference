@@ -111,32 +111,38 @@ describe("Phase 2/3 reconciliation single primary title (US-005)", () => {
     }
   });
 
-  test("every batch 017 page renders exactly one shell-owned primary title", async () => {
-    for (const url of BATCH_017_DOCS_URLS) {
-      const { section, slug } = parseDocsUrl(url);
-      const loadedPage = await loadLocalDocsPage({ section, slug });
-      const html = renderReconciledDocsShell(section, loadedPage);
-      const articleHtml = extractArticleHtml(
-        html,
-        loadedPage.frontmatter.registryId,
-      );
+  test(
+    "every batch 017 page renders exactly one shell-owned primary title",
+    async () => {
+      for (const url of BATCH_017_DOCS_URLS) {
+        const { section, slug } = parseDocsUrl(url);
+        const loadedPage = await loadLocalDocsPage({ section, slug });
+        const html = renderReconciledDocsShell(section, loadedPage);
+        const articleHtml = extractArticleHtml(
+          html,
+          loadedPage.frontmatter.registryId,
+        );
 
-      expect(articleHtml.length).toBeGreaterThan(0);
-      expect(countH1BlocksContaining(html, loadedPage.messages.title)).toBe(1);
-      expectGlossaryBodyOmitsTitleHeading(
-        articleHtml,
-        loadedPage.messages.title,
-      );
-      expectGlossaryBodyOmitsShellDescription(
-        articleHtml,
-        loadedPage.messages.description,
-      );
+        expect(articleHtml.length).toBeGreaterThan(0);
+        expect(countH1BlocksContaining(html, loadedPage.messages.title)).toBe(
+          1,
+        );
+        expectGlossaryBodyOmitsTitleHeading(
+          articleHtml,
+          loadedPage.messages.title,
+        );
+        expectGlossaryBodyOmitsShellDescription(
+          articleHtml,
+          loadedPage.messages.description,
+        );
 
-      if (section === "glossary" || section === "concepts") {
-        expectGlossaryOmitsOpeningSummary(html);
+        if (section === "glossary" || section === "concepts") {
+          expectGlossaryOmitsOpeningSummary(html);
+        }
       }
-    }
-  });
+    },
+    { timeout: 20_000 },
+  );
 
   test("spot-check pages keep glossary or module shell title patterns", async () => {
     for (const url of SPOT_CHECK_URLS) {

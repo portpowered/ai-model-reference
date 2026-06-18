@@ -1,10 +1,14 @@
 import attentionIsAllYouNeed from "@/content/registry/citations/attention-is-all-you-need.json";
 import bertPaper from "@/content/registry/citations/bert-paper.json";
 import chinchillaPaper from "@/content/registry/citations/chinchilla-paper.json";
+import claude3Family from "@/content/registry/citations/claude-3-family.json";
 import deepseekR1Paper from "@/content/registry/citations/deepseek-r1-paper.json";
 import deepseekV2MlaPaper from "@/content/registry/citations/deepseek-v2-mla-paper.json";
+import deepseekV3TechnicalReport from "@/content/registry/citations/deepseek-v3-technical-report.json";
+import gemini25Report from "@/content/registry/citations/gemini-2-5-report.json";
 import goodfellowDeepLearning from "@/content/registry/citations/goodfellow-deep-learning.json";
 import gpt2Report from "@/content/registry/citations/gpt-2-report.json";
+import gptOssIntroducing from "@/content/registry/citations/gpt-oss-introducing.json";
 import gqaPaper from "@/content/registry/citations/gqa-paper.json";
 import kaplanScalingLaws from "@/content/registry/citations/kaplan-scaling-laws.json";
 import katharopoulosLinearAttentionPaper from "@/content/registry/citations/katharopoulos-linear-attention-paper.json";
@@ -12,6 +16,8 @@ import kingmaAdam from "@/content/registry/citations/kingma-adam.json";
 import llama3HerdPaper from "@/content/registry/citations/llama-3-herd-of-models.json";
 import palmPaper from "@/content/registry/citations/palm-paper.json";
 import pressAlibi from "@/content/registry/citations/press-alibi.json";
+import qwen25TechnicalReport from "@/content/registry/citations/qwen2-5-technical-report.json";
+import qwen2TechnicalReport from "@/content/registry/citations/qwen2-technical-report.json";
 import qwen3TechnicalReport from "@/content/registry/citations/qwen3-technical-report.json";
 import shazeerMqaPaper from "@/content/registry/citations/shazeer-mqa-paper.json";
 import suRoformerRope from "@/content/registry/citations/su-roformer-rope.json";
@@ -26,9 +32,13 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(attentionIsAllYouNeed),
   citationRecordSchema.parse(bertPaper),
   citationRecordSchema.parse(chinchillaPaper),
+  citationRecordSchema.parse(claude3Family),
   citationRecordSchema.parse(deepseekR1Paper),
   citationRecordSchema.parse(deepseekV2MlaPaper),
+  citationRecordSchema.parse(deepseekV3TechnicalReport),
+  citationRecordSchema.parse(gemini25Report),
   citationRecordSchema.parse(goodfellowDeepLearning),
+  citationRecordSchema.parse(gptOssIntroducing),
   citationRecordSchema.parse(gpt2Report),
   citationRecordSchema.parse(gqaPaper),
   citationRecordSchema.parse(kaplanScalingLaws),
@@ -37,6 +47,8 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(llama3HerdPaper),
   citationRecordSchema.parse(palmPaper),
   citationRecordSchema.parse(pressAlibi),
+  citationRecordSchema.parse(qwen2TechnicalReport),
+  citationRecordSchema.parse(qwen25TechnicalReport),
   citationRecordSchema.parse(qwen3TechnicalReport),
   citationRecordSchema.parse(shazeerMqaPaper),
   citationRecordSchema.parse(suRoformerRope),

@@ -22,7 +22,14 @@
     "[PaLM](/docs/models/palm)",
     "[Chinchilla](/docs/models/chinchilla)",
     "[Llama 3](/docs/models/llama-3)",
+    "[Qwen2](/docs/models/qwen2)",
+    "[Qwen2.5](/docs/models/qwen2-5)",
     "[Qwen3](/docs/models/qwen3)",
-    "[DeepSeek-R1](/docs/models/deepseek-r1)"
+    "[DeepSeek-V2](/docs/models/deepseek-v2)",
+    "[DeepSeek-V3](/docs/models/deepseek-v3)",
+    "[DeepSeek-R1](/docs/models/deepseek-r1)",
+    "[GPT-OSS](/docs/models/gpt-oss)",
+    "[Claude](/docs/models/claude)",
+    "[Gemini](/docs/models/gemini)"
   ]
 }

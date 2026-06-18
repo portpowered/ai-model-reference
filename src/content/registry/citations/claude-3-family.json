@@ -1,0 +1,24 @@
+{
+  "id": "citation.claude-3-family",
+  "slug": "claude-3-family",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Claude 3 family",
+    "Claude family announcement",
+    "Anthropic Claude"
+  ],
+  "tags": [],
+  "relatedIds": ["model.claude"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "blog",
+  "authors": ["Anthropic"],
+  "title": "Introducing the next generation of Claude",
+  "url": "https://www.anthropic.com/news/claude-3-family",
+  "mla": "Anthropic. \"Introducing the next generation of Claude.\" Anthropic, 2024, https://www.anthropic.com/news/claude-3-family.",
+  "year": 2024
+}

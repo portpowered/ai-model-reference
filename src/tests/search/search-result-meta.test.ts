@@ -19,14 +19,21 @@ const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
 const BERT_URL = "/docs/models/bert";
 const CHINCHILLA_URL = "/docs/models/chinchilla";
+const CLAUDE_URL = "/docs/models/claude";
 const DEEPSEEK_FAMILY_URL = "/docs/models/deepseek-family";
 const DEEPSEEK_R1_URL = "/docs/models/deepseek-r1";
+const DEEPSEEK_V2_URL = "/docs/models/deepseek-v2";
+const DEEPSEEK_V3_URL = "/docs/models/deepseek-v3";
+const GEMINI_URL = "/docs/models/gemini";
+const GPT_OSS_URL = "/docs/models/gpt-oss";
 const GPT2_URL = "/docs/models/gpt-2";
 const LLAMA_3_URL = "/docs/models/llama-3";
 const LLAMA_FAMILY_URL = "/docs/models/llama-family";
 const MASKED_LANGUAGE_MODELS_URL = "/docs/models/masked-language-models";
 const MODEL_FAMILIES_OVERVIEW_URL = "/docs/models/model-families-overview";
 const PALM_URL = "/docs/models/palm";
+const QWEN2_URL = "/docs/models/qwen2";
+const QWEN25_URL = "/docs/models/qwen2-5";
 const QWEN3_URL = "/docs/models/qwen3";
 const QWEN_FAMILY_URL = "/docs/models/qwen-family";
 
@@ -180,6 +187,16 @@ describe("search result meta", () => {
   test("loadSearchResultMetaMap includes frontier representative checkpoints", async () => {
     const map = await loadSearchResultMetaMap();
 
+    const qwen2Meta = map.get(QWEN2_URL);
+    expect(qwen2Meta).toBeDefined();
+    expect(qwen2Meta?.kind).toBe("model");
+    expect(qwen2Meta?.aliases).toContain("Qwen 2");
+
+    const qwen25Meta = map.get(QWEN25_URL);
+    expect(qwen25Meta).toBeDefined();
+    expect(qwen25Meta?.kind).toBe("model");
+    expect(qwen25Meta?.aliases).toContain("Qwen 2.5");
+
     const llama3Meta = map.get(LLAMA_3_URL);
     expect(llama3Meta).toBeDefined();
     expect(llama3Meta?.kind).toBe("model");
@@ -194,6 +211,31 @@ describe("search result meta", () => {
     expect(deepseekR1Meta).toBeDefined();
     expect(deepseekR1Meta?.kind).toBe("model");
     expect(deepseekR1Meta?.aliases).toContain("DeepSeek R1");
+
+    const deepseekV2Meta = map.get(DEEPSEEK_V2_URL);
+    expect(deepseekV2Meta).toBeDefined();
+    expect(deepseekV2Meta?.kind).toBe("model");
+    expect(deepseekV2Meta?.aliases).toContain("DeepSeek V2");
+
+    const deepseekV3Meta = map.get(DEEPSEEK_V3_URL);
+    expect(deepseekV3Meta).toBeDefined();
+    expect(deepseekV3Meta?.kind).toBe("model");
+    expect(deepseekV3Meta?.aliases).toContain("DeepSeek V3");
+
+    const gptOssMeta = map.get(GPT_OSS_URL);
+    expect(gptOssMeta).toBeDefined();
+    expect(gptOssMeta?.kind).toBe("model");
+    expect(gptOssMeta?.aliases).toContain("GPT-OSS");
+
+    const claudeMeta = map.get(CLAUDE_URL);
+    expect(claudeMeta).toBeDefined();
+    expect(claudeMeta?.kind).toBe("model");
+    expect(claudeMeta?.aliases).toContain("Anthropic Claude");
+
+    const geminiMeta = map.get(GEMINI_URL);
+    expect(geminiMeta).toBeDefined();
+    expect(geminiMeta?.kind).toBe("model");
+    expect(geminiMeta?.aliases).toContain("Google Gemini");
   });
 
   test("buildSearchResultMetaMap keys by url", () => {

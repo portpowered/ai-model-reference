@@ -1,0 +1,20 @@
+{
+  "id": "citation.gemini-2-5-report",
+  "slug": "gemini-2-5-report",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Gemini 2.5 report", "Gemini report", "Google Gemini"],
+  "tags": [],
+  "relatedIds": ["model.gemini"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Gemini Team", "Google"],
+  "title": "Gemini 2.5: Pushing the Frontier with Advanced Reasoning, Multimodality, Long Context, and Next Generation Agentic Capabilities",
+  "url": "https://storage.googleapis.com/deepmind-media/gemini/gemini_v2_5_report.pdf",
+  "mla": "Gemini Team, and Google. \"Gemini 2.5: Pushing the Frontier with Advanced Reasoning, Multimodality, Long Context, and Next Generation Agentic Capabilities.\" 2025, https://storage.googleapis.com/deepmind-media/gemini/gemini_v2_5_report.pdf.",
+  "year": 2025
+}
