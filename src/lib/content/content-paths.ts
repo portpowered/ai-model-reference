@@ -1,7 +1,9 @@
 import { existsSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const REPO_ROOT_FALLBACK = resolve(import.meta.dir, "../../..");
+const MODULE_DIR = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT_FALLBACK = resolve(MODULE_DIR, "../../..");
 
 function hasContentTree(projectRoot: string): boolean {
   return existsSync(join(projectRoot, "src", "content", "docs"));
