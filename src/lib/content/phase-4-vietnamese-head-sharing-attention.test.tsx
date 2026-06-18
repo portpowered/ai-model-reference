@@ -122,6 +122,12 @@ describe("Phase 4 Vietnamese head-sharing attention coverage", () => {
       for (const href of expectation.expectedHrefs) {
         expect(html).toContain(`href="${href}"`);
       }
+
+      expect(html).not.toContain('href="/docs/modules/multi-head-attention"');
+      expect(html).not.toContain('href="/docs/modules/multi-query-attention"');
+      expect(html).not.toContain(
+        'href="/docs/modules/grouped-query-attention"',
+      );
     });
   }
 });

@@ -4,6 +4,7 @@ import { MissingMessageKey } from "@/features/docs/components/MissingMessageKey"
 import { ProseAutoLinkText } from "@/features/docs/components/ProseAutoLinkText";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
 import { MissingTableRecord } from "@/features/models/components/MissingTableRecord";
+import { localizeDocsHref } from "@/lib/content/localized-docs-href";
 import { lookupMessage } from "@/lib/content/messages";
 import {
   buildModuleComparisonTable,
@@ -23,7 +24,7 @@ export function RegistryComparisonTable({
   caption?: string;
   isDev?: boolean;
 }) {
-  const { messages } = usePageMessages();
+  const { messages, locale } = usePageMessages();
   const tableRecord = getTableById(tableId);
 
   if (!tableRecord) {
@@ -75,7 +76,7 @@ export function RegistryComparisonTable({
                 >
                   {column.href ? (
                     <a
-                      href={column.href}
+                      href={localizeDocsHref(column.href, locale)}
                       className="text-primary underline-offset-4 hover:underline"
                     >
                       {column.title}
