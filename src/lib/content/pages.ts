@@ -5,8 +5,8 @@ import { loadPageMessages } from "@/lib/content/page-messages-load";
 import {
   type PageFrontmatter,
   type PageMessages,
-  pageMessagesSchema,
   pageFrontmatterSchema,
+  pageMessagesSchema,
 } from "@/lib/content/schemas";
 import { isShippedLocalizedDocsSlug } from "@/lib/content/shipped-localized-docs";
 import { parseYamlFrontmatterBlock } from "@/lib/content/yaml-frontmatter";
