@@ -115,6 +115,16 @@ const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
     firstKind: "module" as const,
   },
   {
+    query: "feed-forward network",
+    firstUrl: "/docs/glossary/feed-forward-network",
+    firstKind: "glossary" as const,
+  },
+  {
+    query: "standard FFN",
+    firstUrl: "/docs/glossary/standard-ffn",
+    firstKind: "glossary" as const,
+  },
+  {
     query: "mixture of experts",
     firstUrl: "/docs/glossary/mixture-of-experts",
     firstKind: "glossary" as const,
@@ -140,6 +150,16 @@ const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
     firstKind: "glossary" as const,
   },
   {
+    query: "normalization",
+    firstUrl: "/docs/glossary/normalization",
+    firstKind: "glossary" as const,
+  },
+  {
+    query: "layer norm",
+    firstUrl: "/docs/glossary/layer-norm",
+    firstKind: "glossary" as const,
+  },
+  {
     query: "batch norm",
     firstUrl: "/docs/glossary/batch-norm",
     firstKind: "glossary" as const,
@@ -150,8 +170,18 @@ const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
     firstKind: "glossary" as const,
   },
   {
+    query: "RMSNorm",
+    firstUrl: "/docs/glossary/rmsnorm",
+    firstKind: "glossary" as const,
+  },
+  {
     query: "QK norm",
     firstUrl: "/docs/glossary/qk-norm",
+    firstKind: "glossary" as const,
+  },
+  {
+    query: "residual connection",
+    firstUrl: "/docs/glossary/residual-connection",
     firstKind: "glossary" as const,
   },
   {
