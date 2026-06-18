@@ -19,6 +19,7 @@ import {
 import { createStaticExportHttpServer } from "./static-export-http-server";
 
 export const DEFAULT_EXPORT_OUT_DIR = "out";
+export const DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS = 45_000;
 
 export const EXPORT_SEARCH_UX_STUB_ENV = "VERIFY_EXPORT_SEARCH_UX_STUB";
 
@@ -38,13 +39,17 @@ export function resolveCiExportSearchUxProbeQueries(
 }
 
 function withCiScopedSearchUxQueryOptions<
-  T extends { queries?: readonly string[] },
+  T extends { queries?: readonly string[]; timeoutMs?: number },
 >(options: T | undefined): T {
   const queries = resolveCiExportSearchUxProbeQueries(options?.queries);
+  const timeoutMs = Math.max(
+    options?.timeoutMs ?? 0,
+    DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS,
+  );
   if (options === undefined) {
-    return { queries } as T;
+    return { queries, timeoutMs } as T;
   }
-  return { ...options, queries };
+  return { ...options, queries, timeoutMs };
 }
 
 export type RunPhase1ExportSearchUxChecksOptions = {
