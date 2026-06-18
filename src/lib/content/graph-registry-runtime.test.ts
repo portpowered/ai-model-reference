@@ -131,6 +131,17 @@ describe("graph-registry-runtime", () => {
     expect(sparseTimePattern?.id).toBe("graph.sparse-attention-time-pattern");
     expect(sparseTimePattern?.nodes.length).toBe(7);
 
+    const bidirectionalTimePattern = getGraphById(
+      "graph.bidirectional-attention-time-pattern",
+    );
+    expect(bidirectionalTimePattern?.id).toBe(
+      "graph.bidirectional-attention-time-pattern",
+    );
+    expect(bidirectionalTimePattern?.subjectId).toBe(
+      "module.bidirectional-attention",
+    );
+    expect(bidirectionalTimePattern?.nodes.length).toBe(8);
+
     expect(getGraphById("graph.token-concept-map")?.id).toBe(
       "graph.token-concept-map",
     );
@@ -139,9 +150,12 @@ describe("graph-registry-runtime", () => {
   test("lists all bundled graph records", () => {
     const records = listGraphRecords();
 
-    expect(records.length).toBe(43);
+    expect(records.length).toBe(44);
     expect(records.map((record) => record.id)).toContain(
       "graph.deepseek-v4-contribution",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.bidirectional-attention-time-pattern",
     );
     expect(records.map((record) => record.id)).toContain(
       "graph.deepseek-v4-flash-architecture",

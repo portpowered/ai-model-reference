@@ -18,6 +18,7 @@ import type { ModuleRecord } from "@/lib/content/schemas";
 
 /** Attention modules with a published docs page and variantGroup after batch 017. */
 const ATTENTION_VARIANT_MODULE_IDS = [
+  "module.bidirectional-attention",
   "module.multi-head-attention",
   "module.multi-query-attention",
   "module.grouped-query-attention",
@@ -163,6 +164,22 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain("curated");
+  });
+
+  test("RelatedDocs prioritizes shipped self-attention, causal fallback, and encoder-side links on bidirectional attention", () => {
+    const html = renderToStaticMarkup(
+      <RelatedDocs registryId="module.bidirectional-attention" />,
+    );
+
+    expect(html).not.toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/modules/attention"');
+    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain('href="/docs/glossary/encoder"');
+    expect(html).toContain('href="/docs/concepts/transformer-architecture"');
+    expect(html).toContain('href="/docs/glossary/encoder-decoder"');
+    expect(html).not.toContain('href="/docs/modules/multi-head-attention"');
+    expect(html).not.toContain('href="/docs/modules/grouped-query-attention"');
   });
 
   test("RelatedDocs does not duplicate head-sharing module links between variant and curated groups on GQA", () => {

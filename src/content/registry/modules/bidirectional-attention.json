@@ -1,0 +1,53 @@
+{
+  "id": "module.bidirectional-attention",
+  "slug": "bidirectional-attention",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "bidirectional attention",
+    "bidirectional self-attention",
+    "bert attention",
+    "full-context attention",
+    "full context attention"
+  ],
+  "tags": ["attention"],
+  "relatedIds": [
+    "module.attention",
+    "concept.autoregressive-generation",
+    "concept.encoder",
+    "concept.transformer-architecture",
+    "concept.encoder-decoder"
+  ],
+  "citationIds": ["citation.attention-is-all-you-need"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "releaseDate": "2017-06-12",
+  "authors": [
+    "Ashish Vaswani",
+    "Noam Shazeer",
+    "Niki Parmar",
+    "Jakob Uszkoreit",
+    "Llion Jones",
+    "Aidan N. Gomez",
+    "Lukasz Kaiser",
+    "Illia Polosukhin"
+  ],
+  "sourceId": "citation.attention-is-all-you-need",
+  "moduleType": "attention",
+  "moduleFamily": "attention",
+  "conceptType": "attention-variant",
+  "variantGroup": "attention-mask-patterns",
+  "optimizes": ["full-sequence-context", "representation-quality"],
+  "practicalBenefits": [
+    "lets each token use both left and right context",
+    "fits encoder-style understanding tasks"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}
