@@ -248,10 +248,6 @@ function AttentionHeadNode({
   data,
 }: NodeProps<Node<RegistryFlowNodeData, "attentionHead">>) {
   const visualRole = data.visualRole ?? "default";
-  const isHeadBox =
-    visualRole === "query-head" ||
-    visualRole === "key-head" ||
-    visualRole === "value-head";
   const hasHandles = nodeVisualRoleHasHandles(visualRole);
 
   return (

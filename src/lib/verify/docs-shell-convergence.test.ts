@@ -81,4 +81,15 @@ describe("assertDocsShellConvergence", () => {
       DOCS_SHELL_CONVERGENCE_REASONS.missingGlossaryLabel,
     );
   });
+
+  test("reports a missing token glossary link from the rendered sidebar HTML", () => {
+    const missingTokenLinkHtml = UNIFIED_SHELL_HTML.replace(
+      `<a href="${TOKEN_GLOSSARY_URL}">Token</a>`,
+      "<span>Token</span>",
+    );
+
+    expect(assertDocsShellConvergence(missingTokenLinkHtml)).toBe(
+      DOCS_SHELL_CONVERGENCE_REASONS.missingTokenGlossaryLink,
+    );
+  });
 });

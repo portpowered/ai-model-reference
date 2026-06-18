@@ -25,6 +25,20 @@ describe("docs sidebar navigation accessibility", () => {
     restoreFetchMock();
   });
 
+  async function ensureSidebarFolderExpanded(
+    sidebar: HTMLElement,
+    name: string,
+  ) {
+    const folder = within(sidebar).getByRole("button", { name });
+    if (folder.getAttribute("aria-expanded") === "true") {
+      return;
+    }
+
+    await act(async () => {
+      folder.click();
+    });
+  }
+
   test("CanonicalDocsLayout exposes keyboard-reachable Token and GQA sidebar links", async () => {
     captureOriginalFetch();
     await installDocsSearchFetchMock();
@@ -54,19 +68,8 @@ describe("docs sidebar navigation accessibility", () => {
     expect(within(sidebar).queryByLabelText("Toggle Theme")).toBe(null);
     expect(sidebar.querySelector("[data-theme-toggle]")).toBe(null);
 
-    const glossaryFolder = within(sidebar).getByRole("button", {
-      name: "Glossary",
-    });
-    await act(async () => {
-      glossaryFolder.click();
-    });
-
-    const modulesFolder = within(sidebar).getByRole("button", {
-      name: "Modules",
-    });
-    await act(async () => {
-      modulesFolder.click();
-    });
+    await ensureSidebarFolderExpanded(sidebar, "Glossary");
+    await ensureSidebarFolderExpanded(sidebar, "Modules");
 
     const tokenLink = within(sidebar).getByRole("link", { name: "Token" });
     expect(tokenLink.getAttribute("href")).toBe(TOKEN_GLOSSARY_URL);
@@ -113,19 +116,8 @@ describe("docs sidebar navigation accessibility", () => {
     });
     expect(homeLink.getAttribute("href")).toBe("/vi");
 
-    const glossaryFolder = within(sidebar).getByRole("button", {
-      name: "Glossary",
-    });
-    await act(async () => {
-      glossaryFolder.click();
-    });
-
-    const modulesFolder = within(sidebar).getByRole("button", {
-      name: "Modules",
-    });
-    await act(async () => {
-      modulesFolder.click();
-    });
+    await ensureSidebarFolderExpanded(sidebar, "Glossary");
+    await ensureSidebarFolderExpanded(sidebar, "Modules");
 
     const tokenLink = within(sidebar).getByRole("link", { name: "Token" });
     expect(tokenLink.getAttribute("href")).toBe("/vi/docs/glossary/token");

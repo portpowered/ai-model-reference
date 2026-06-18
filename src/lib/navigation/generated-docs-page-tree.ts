@@ -1,10 +1,11 @@
 import type { Node, Root } from "fumadocs-core/page-tree";
-import { loadPublishedDocsPagesSync, type DocsPageSource } from "@/lib/content/pages";
+import {
+  type DocsPageSource,
+  loadPublishedDocsPagesSync,
+} from "@/lib/content/pages";
 import {
   getConceptById,
-  getModelById,
   getModuleById,
-  getPaperById,
   getSystemById,
   getTrainingRegimeById,
 } from "@/lib/content/registry-runtime";
@@ -171,7 +172,9 @@ function generateGlossaryNodes(pages: DocsPageSource[]): Node[] {
       name: "Sequence And Attention",
       match: (page) => {
         const record = getConceptById(page.frontmatter.registryId);
-        return record ? GLOSSARY_SEQUENCE_AND_ATTENTION_SLUGS.has(record.slug) : false;
+        return record
+          ? GLOSSARY_SEQUENCE_AND_ATTENTION_SLUGS.has(record.slug)
+          : false;
       },
     },
     {
@@ -212,7 +215,9 @@ function generateConceptNodes(pages: DocsPageSource[]): Node[] {
     },
     {
       name: "Inference",
-      match: (page) => getConceptById(page.frontmatter.registryId)?.conceptType === "inference",
+      match: (page) =>
+        getConceptById(page.frontmatter.registryId)?.conceptType ===
+        "inference",
     },
     {
       name: "Architecture",
@@ -237,7 +242,9 @@ function generateModuleNodes(pages: DocsPageSource[]): Node[] {
       name: "Attention Foundations",
       match: (page) => {
         const record = getModuleById(page.frontmatter.registryId);
-        return record ? MODULE_ATTENTION_FOUNDATION_SLUGS.has(record.slug) : false;
+        return record
+          ? MODULE_ATTENTION_FOUNDATION_SLUGS.has(record.slug)
+          : false;
       },
     },
     {
@@ -267,7 +274,8 @@ function generateModuleNodes(pages: DocsPageSource[]): Node[] {
     {
       name: "Normalization",
       match: (page) =>
-        getModuleById(page.frontmatter.registryId)?.moduleType === "normalization",
+        getModuleById(page.frontmatter.registryId)?.moduleType ===
+        "normalization",
     },
     {
       name: "Positional And Sequence Encoding",
@@ -368,7 +376,10 @@ export function buildGeneratedDocsPageTree(baseTree: Root): Root {
   }
 
   const gettingStarted = baseTree.children.find(
-    (node) => node.type === "page" && "url" in node && node.url === "/docs/getting-started",
+    (node) =>
+      node.type === "page" &&
+      "url" in node &&
+      node.url === "/docs/getting-started",
   );
 
   const children: Node[] = [];
@@ -380,7 +391,11 @@ export function buildGeneratedDocsPageTree(baseTree: Root): Root {
     children.push({
       type: "folder",
       name: SECTION_TITLES[section],
-      children: generateSectionNodes(section, pagesBySection.get(section) ?? []),
+      defaultOpen: true,
+      children: generateSectionNodes(
+        section,
+        pagesBySection.get(section) ?? [],
+      ),
     });
   }
 

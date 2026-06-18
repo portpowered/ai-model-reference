@@ -4,6 +4,7 @@ import {
   readBuiltAppServerHtml,
 } from "@/lib/build/built-app-html-test-utils";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_MODULE_URL } from "@/lib/content/phase-1-published-resources";
+import { extractNdPageHtml } from "@/lib/navigation/docs-page-footer-contract";
 import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
 import { shouldRunBuiltHtmlConvergenceTests } from "@/lib/verify/server-lifecycle";
 
@@ -38,11 +39,12 @@ describe("Phase 1 attention tag landing built-app HTML", () => {
     }
 
     const visibleHtml = stripHtmlScripts(html);
-    const gqaLinkCount = visibleHtml.split(GQA_HREF).length - 1;
+    const ndPageHtml = extractNdPageHtml(visibleHtml);
+    const gqaLinkCount = ndPageHtml.split(GQA_HREF).length - 1;
 
     expect(gqaLinkCount).toBe(1);
-    expect(visibleHtml).toContain("Grouped-Query Attention");
-    expect(visibleHtml).toContain('href="/search?tag=attention"');
-    expect(visibleHtml).not.toContain("lorem");
+    expect(ndPageHtml).toContain("Grouped-Query Attention");
+    expect(ndPageHtml).toContain('href="/search?tag=attention"');
+    expect(ndPageHtml).not.toContain("lorem");
   });
 });

@@ -100,10 +100,13 @@ describe("primary navigation accessibility smoke", () => {
     const panel = document.getElementById(panelId ?? "");
     expect(panel).toBeTruthy();
     expect(panel?.getAttribute("role")).toBe("dialog");
+    const primaryNav = within(panel as HTMLElement).getByRole("navigation", {
+      name: "Primary",
+    });
 
     const expectedItems = getPrimaryNavItems(context.messages);
     for (const item of expectedItems) {
-      const link = within(panel as HTMLElement).getByRole("link", {
+      const link = within(primaryNav).getByRole("link", {
         name: item.label,
       });
       expect(link.getAttribute("href")).toBe(item.href);
