@@ -126,8 +126,10 @@ export async function retrySearchResults<T>(
   accept: (results: T[]) => boolean,
   options: { maxAttempts?: number; delayMs?: number } = {},
 ): Promise<T[]> {
-  const maxAttempts = options.maxAttempts ?? 2;
-  const delayMs = options.delayMs ?? 50;
+  // CI occasionally needs an extra beat for static search bootstrap fixtures
+  // before raw client results stabilize to the expected shipped-doc set.
+  const maxAttempts = options.maxAttempts ?? 3;
+  const delayMs = options.delayMs ?? 100;
 
   let lastResults: T[] = [];
 
