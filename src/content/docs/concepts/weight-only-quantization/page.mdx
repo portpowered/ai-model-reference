@@ -1,17 +1,17 @@
 ---
-title: Quantization
-description: Storing or computing with fewer bits so models use less memory and sometimes run more efficiently, with tradeoffs around quality, calibration, and hardware support.
+title: Weight-only quantization
+description: Compressing stored model weights into fewer bits while most runtime activations stay at a higher precision.
 kind: "concept"
-registryId: "concept.quantization"
+registryId: "concept.weight-only-quantization"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
 tags:
   - "quantization"
 aliases:
-  - "model quantization"
-  - "low-bit inference"
-  - "low precision inference"
+  - "weight quantization"
+  - "low-bit weights"
+  - "W4A16"
 updatedAt: "2026-06-18"
 ---
 
@@ -26,28 +26,24 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
   <T k="sections.whatItIs.body" />
 </Section>
 
-<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
-  <T k="sections.whyItMatters.body" />
-</Section>
-
 <Section id="what-changes" titleKey="sections.whatChanges.title">
   <T k="sections.whatChanges.body" />
 </Section>
 
-<Section id="where-it-shows-up" titleKey="sections.whereItShowsUp.title">
-  <T k="sections.whereItShowsUp.body" />
+<Section id="where-it-helps" titleKey="sections.whereItHelps.title">
+  <T k="sections.whereItHelps.body" />
 </Section>
 
-<Section id="read-next" titleKey="sections.readNext.title">
-  <T k="sections.readNext.body" />
+<Section id="compare-methods" titleKey="sections.compareMethods.title">
+  <T k="sections.compareMethods.body" />
 
   <ul className="mt-4 space-y-2 list-none pl-0">
     <li>
       <a
         className="text-primary underline underline-offset-4"
-        href="/docs/concepts/weight-only-quantization"
+        href="/docs/concepts/quantization"
       >
-        Weight-only quantization
+        Quantization overview
       </a>
     </li>
     <li>
@@ -66,36 +62,12 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
         KV cache quantization
       </a>
     </li>
-    <li>
-      <a
-        className="text-primary underline underline-offset-4"
-        href="/search?query=post-training%20quantization"
-      >
-        Post-training quantization
-      </a>
-    </li>
-    <li>
-      <a
-        className="text-primary underline underline-offset-4"
-        href="/search?query=quantization-aware%20training"
-      >
-        Quantization-aware training
-      </a>
-    </li>
-    <li>
-      <a
-        className="text-primary underline underline-offset-4"
-        href="/search?query=why%204-bit%20models%20are%20not%20exactly%204x%20faster"
-      >
-        Why 4-bit models are not exactly 4x faster
-      </a>
-    </li>
   </ul>
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
   <DerivedRelatedDocs
-    registryId="concept.quantization"
+    registryId="concept.weight-only-quantization"
     groups={[
       "same-concept-type",
       "shared-tags",
@@ -103,13 +75,13 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
     ]}
   />
 
-  <RelatedDocs registryId="concept.quantization" />
+  <RelatedDocs registryId="concept.weight-only-quantization" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
-  <TagPillList registryId="concept.quantization" showDescriptions />
+  <TagPillList registryId="concept.weight-only-quantization" showDescriptions />
 </Section>
 
 <Section id="references" titleKey="sections.references.title">
-  <CitationList registryId="concept.quantization" />
+  <CitationList registryId="concept.weight-only-quantization" />
 </Section>

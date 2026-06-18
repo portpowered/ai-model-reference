@@ -1,4 +1,5 @@
 import activationConcept from "@/content/registry/concepts/activation.json";
+import activationQuantizationConcept from "@/content/registry/concepts/activation-quantization.json";
 import alibiConcept from "@/content/registry/concepts/alibi.json";
 import alignmentConcept from "@/content/registry/concepts/alignment.json";
 import architectureConcept from "@/content/registry/concepts/architecture.json";
@@ -29,6 +30,7 @@ import greedyDecodingConcept from "@/content/registry/concepts/greedy-decoding.j
 import groupNormConcept from "@/content/registry/concepts/group-norm.json";
 import hiddenSizeConcept from "@/content/registry/concepts/hidden-size.json";
 import kvCacheConcept from "@/content/registry/concepts/kv-cache.json";
+import kvCacheQuantizationConcept from "@/content/registry/concepts/kv-cache-quantization.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
 import layerNormConcept from "@/content/registry/concepts/layer-norm.json";
@@ -72,6 +74,7 @@ import topPSamplingConcept from "@/content/registry/concepts/top-p-sampling.json
 import transformerConcept from "@/content/registry/concepts/transformer.json";
 import transformerArchitectureConcept from "@/content/registry/concepts/transformer-architecture.json";
 import vectorConcept from "@/content/registry/concepts/vector.json";
+import weightOnlyQuantizationConcept from "@/content/registry/concepts/weight-only-quantization.json";
 import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-context-is-hard.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
 import attention from "@/content/registry/modules/attention.json";
@@ -112,6 +115,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(vectorConcept),
   conceptRecordSchema.parse(hiddenSizeConcept),
   conceptRecordSchema.parse(kvCacheConcept),
+  conceptRecordSchema.parse(kvCacheQuantizationConcept),
   conceptRecordSchema.parse(logitConcept),
   conceptRecordSchema.parse(softmaxConcept),
   conceptRecordSchema.parse(entropyConcept),
@@ -122,6 +126,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(topPSamplingConcept),
   conceptRecordSchema.parse(parameterConcept),
   conceptRecordSchema.parse(activationConcept),
+  conceptRecordSchema.parse(activationQuantizationConcept),
   conceptRecordSchema.parse(computationalGraphConcept),
   conceptRecordSchema.parse(gradientConcept),
   conceptRecordSchema.parse(backpropagationConcept),
@@ -178,6 +183,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(ropeConcept),
   conceptRecordSchema.parse(transformerArchitectureConcept),
   conceptRecordSchema.parse(transformerConcept),
+  conceptRecordSchema.parse(weightOnlyQuantizationConcept),
   conceptRecordSchema.parse(diffusionModelConcept),
   conceptRecordSchema.parse(multimodalModelConcept),
   conceptRecordSchema.parse(whyLongContextIsHardConcept),

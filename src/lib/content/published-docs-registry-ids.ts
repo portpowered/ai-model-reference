@@ -6,6 +6,9 @@ export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
   "concept.context-extension",
   "concept.why-long-context-is-hard",
   "concept.quantization",
+  "concept.weight-only-quantization",
+  "concept.activation-quantization",
+  "concept.kv-cache-quantization",
 ]);
 
 /** Registry ids for docs pages with `status: published` in frontmatter. */
@@ -95,6 +98,9 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.context-extension",
   "concept.why-long-context-is-hard",
   "concept.quantization",
+  "concept.weight-only-quantization",
+  "concept.activation-quantization",
+  "concept.kv-cache-quantization",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;

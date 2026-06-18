@@ -37,6 +37,9 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
       "citation.kivi-kv-cache-quantization",
     ]);
     expect(record?.relatedIds).toEqual([
+      "concept.weight-only-quantization",
+      "concept.activation-quantization",
+      "concept.kv-cache-quantization",
       "concept.parameter",
       "concept.activation",
       "concept.autoregressive-generation",
@@ -99,9 +102,9 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
     expect(html).toContain("Why It Matters");
     expect(html).toContain("memory bandwidth");
     expect(html).toContain("dequantization");
-    expect(html).toContain('href="/search?query=weight-only%20quantization"');
-    expect(html).toContain('href="/search?query=activation%20quantization"');
-    expect(html).toContain('href="/search?query=KV%20cache%20quantization"');
+    expect(html).toContain('href="/docs/concepts/weight-only-quantization"');
+    expect(html).toContain('href="/docs/concepts/activation-quantization"');
+    expect(html).toContain('href="/docs/concepts/kv-cache-quantization"');
     expect(html).toContain('href="/search?query=post-training%20quantization"');
     expect(html).toContain(
       'href="/search?query=quantization-aware%20training"',

@@ -1,0 +1,27 @@
+{
+  "id": "citation.smoothquant",
+  "slug": "smoothquant",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["SmoothQuant paper", "activation quantization paper"],
+  "tags": ["quantization"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Guangxuan Xiao",
+    "Ji Lin",
+    "Mickael Seznec",
+    "Hao Wu",
+    "Julien Demouth",
+    "Song Han"
+  ],
+  "title": "SmoothQuant: Accurate and Efficient Post-Training Quantization for Large Language Models",
+  "year": 2022,
+  "url": "https://arxiv.org/abs/2211.10438",
+  "mla": "Xiao, Guangxuan, et al. \"SmoothQuant: Accurate and Efficient Post-Training Quantization for Large Language Models.\" arXiv, 2022, https://arxiv.org/abs/2211.10438."
+}
