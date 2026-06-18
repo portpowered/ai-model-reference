@@ -19,7 +19,8 @@ import {
 import { createStaticExportHttpServer } from "./static-export-http-server";
 
 export const DEFAULT_EXPORT_OUT_DIR = "out";
-export const DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS = 45_000;
+/** CI can finish export hydration after 45s on slower runners; keep a single higher shared budget here. */
+export const DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS = 75_000;
 
 export const EXPORT_SEARCH_UX_STUB_ENV = "VERIFY_EXPORT_SEARCH_UX_STUB";
 
