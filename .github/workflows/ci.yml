@@ -25,7 +25,7 @@ jobs:
             command: make typecheck
           - name: test
             command: make test
-            website_test_parallel_workers: 2
+            website_test_parallel_workers: 1
           - name: test-verify-contract
             command: make test-verify-contract
             install_playwright: true

@@ -172,7 +172,7 @@ describe("GitHub Actions make ci", () => {
       (entry) => entry.name === "test-integration",
     );
 
-    expect(test?.websiteTestParallelWorkers).toBe(2);
+    expect(test?.websiteTestParallelWorkers).toBe(1);
     expect(testVerifyContract?.installPlaywright).toBe(true);
     expect(testBuildContract?.installPlaywright).toBe(true);
     expect(buildExport?.command).toBe("make build-export");
