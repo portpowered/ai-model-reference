@@ -50,6 +50,8 @@
     "subtitle": "A field guide to modern AI models and modules",
     "intro": "Model Atlas is a documentation-native reference for transformers, attention variants, training methods, and the systems around them.",
     "browseSectionTitle": "Browse",
+    "atlasLinkTitle": "Browse the atlas",
+    "atlasLinkDescription": "Start with a page that explains where models, modules, concepts, glossary entries, tags, and architecture pages fit together.",
     "gqaLinkTitle": "Grouped-query attention",
     "gqaLinkDescription": "An attention variant that shrinks KV cache costs by letting several query heads share fewer key-value heads.",
     "swigluLinkTitle": "SwiGLU",
@@ -57,6 +59,49 @@
     "reluLinkTitle": "ReLU",
     "reluLinkDescription": "A simple activation function page that gives a lightweight entry point into module basics.",
     "onThisPageBrowse": "Browse"
+  },
+  "browseIndex": {
+    "title": "Browse the Atlas",
+    "description": "Start from the kind of thing you already know: a model, a module, a concept, or a glossary term. This page points you to the right part of the reference and gives a few strong starting pages.",
+    "quickRoutesTitle": "Quick routes",
+    "quickRoutesDescription": "Use these entry points when you know how you want to explore, but not the exact page yet.",
+    "searchRouteDescription": "Jump straight to a title, alias, or tag when you already have a term in mind.",
+    "glossaryRouteDescription": "Scan short definitions when you need to decode unfamiliar language fast.",
+    "architectureRouteDescription": "Follow model-family structure, positional schemes, and other system-shape ideas.",
+    "tagsRouteDescription": "Browse curated topic labels that cut across models, modules, concepts, and glossary pages.",
+    "modelsSectionTitle": "Models",
+    "modelsSectionDescription": "Model pages explain a concrete model family or checkpoint line, what architecture it uses, and which modules matter most before you go deeper.",
+    "modulesSectionTitle": "Modules",
+    "modulesSectionDescription": "Module pages break down the moving parts inside a model, such as attention variants, feed-forward blocks, norms, and positional schemes.",
+    "conceptsSectionTitle": "Concepts",
+    "conceptsSectionDescription": "Concept pages explain broader ideas that span many models or modules, such as transformer structure, quantization, or long-context tradeoffs.",
+    "glossarySectionTitle": "Glossary",
+    "glossarySectionDescription": "Glossary pages define the vocabulary around model architecture, training, inference, and evaluation so the rest of the atlas reads more naturally.",
+    "glossarySectionLinkLabel": "Browse the full glossary"
+  },
+  "modelsIndex": {
+    "title": "Models",
+    "description": "Published model pages that explain concrete model families and checkpoints, along with the architectures and modules they rely on.",
+    "listLabel": "Model entries",
+    "emptyTitle": "No model entries yet",
+    "emptyDescription": "Published model pages will appear here once they are added to the atlas. Return home or open Browse the Atlas to explore modules, concepts, and glossary pages in the meantime.",
+    "emptyHomeLink": "Return home"
+  },
+  "modulesIndex": {
+    "title": "Modules",
+    "description": "Published module pages covering attention variants, feed-forward blocks, normalization layers, positional schemes, and other reusable building blocks.",
+    "listLabel": "Module entries",
+    "emptyTitle": "No module entries yet",
+    "emptyDescription": "Published module pages will appear here once they are added to the atlas. Return home or open Browse the Atlas to explore related concepts and glossary pages in the meantime.",
+    "emptyHomeLink": "Return home"
+  },
+  "conceptsIndex": {
+    "title": "Concepts",
+    "description": "Published concept pages that explain broader ideas spanning many models and modules, such as architecture patterns, quantization, and long-context tradeoffs.",
+    "listLabel": "Concept entries",
+    "emptyTitle": "No concept entries yet",
+    "emptyDescription": "Published concept pages will appear here once they are added to the atlas. Return home or open Browse the Atlas to explore models, modules, and glossary pages in the meantime.",
+    "emptyHomeLink": "Return home"
   },
   "glossaryIndex": {
     "title": "Glossary",

@@ -8,6 +8,7 @@ import { expectHomeArticleHeaderOnlySearchEntry } from "@/tests/discovery/home-s
 
 /** Discovery targets on `/` must stay aligned with Phase 1 acceptance criteria. */
 const HOME_DISCOVERY_HREFS = [
+  "/browse",
   "/docs/modules/grouped-query-attention",
   "/docs/modules/swiglu",
   "/docs/modules/relu",
@@ -22,6 +23,7 @@ describe("home page messages", () => {
     expect(home.intro).not.toMatch(/Search by alias/i);
     expect(home.intro).not.toMatch(/search by tag/i);
     expect(home.browseSectionTitle.length).toBeGreaterThan(0);
+    expect(home.atlasLinkTitle).toBe("Browse the atlas");
     expect(home.gqaLinkTitle).toBe("Grouped-query attention");
     expect(home.swigluLinkTitle).toBe("SwiGLU");
     expect(home.reluLinkTitle).toBe("ReLU");
@@ -30,12 +32,13 @@ describe("home page messages", () => {
 
   it("defines browse link titles for every homepage module shortcut", async () => {
     const { home } = await loadUiMessages();
+    expect(home.atlasLinkDescription.length).toBeGreaterThan(0);
     expect(home.gqaLinkDescription.length).toBeGreaterThan(0);
     expect(home.swigluLinkDescription.length).toBeGreaterThan(0);
     expect(home.reluLinkDescription.length).toBeGreaterThan(0);
     expect(home.gqaLinkDescription).not.toMatch(/Phase 1/i);
     expect(home.swigluLinkDescription).not.toMatch(/Phase 1/i);
-    expect(HOME_DISCOVERY_HREFS).toHaveLength(3);
+    expect(HOME_DISCOVERY_HREFS).toHaveLength(4);
   });
 });
 
@@ -60,6 +63,7 @@ describe("home page render", () => {
     );
 
     expect(html).toContain("Cẩm nang về các mô hình và module AI hiện đại");
+    expect(html).toContain('href="/vi/browse"');
     expect(html).toContain('href="/vi/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/docs/modules/swiglu"');
     expect(html).toContain('href="/docs/modules/relu"');
@@ -76,6 +80,7 @@ describe("home page render", () => {
     expect(html).toContain(
       "現代の AI モデルとモジュールのためのフィールドガイド",
     );
+    expect(html).toContain('href="/ja/browse"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/docs/modules/swiglu"');
     expect(html).toContain('href="/docs/modules/relu"');

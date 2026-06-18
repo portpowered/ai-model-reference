@@ -46,6 +46,8 @@ export type UiMessages = {
     subtitle: string;
     intro: string;
     browseSectionTitle: string;
+    atlasLinkTitle: string;
+    atlasLinkDescription: string;
     gqaLinkTitle: string;
     gqaLinkDescription: string;
     swigluLinkTitle: string;
@@ -53,6 +55,49 @@ export type UiMessages = {
     reluLinkTitle: string;
     reluLinkDescription: string;
     onThisPageBrowse: string;
+  };
+  browseIndex: {
+    title: string;
+    description: string;
+    quickRoutesTitle: string;
+    quickRoutesDescription: string;
+    searchRouteDescription: string;
+    glossaryRouteDescription: string;
+    architectureRouteDescription: string;
+    tagsRouteDescription: string;
+    modelsSectionTitle: string;
+    modelsSectionDescription: string;
+    modulesSectionTitle: string;
+    modulesSectionDescription: string;
+    conceptsSectionTitle: string;
+    conceptsSectionDescription: string;
+    glossarySectionTitle: string;
+    glossarySectionDescription: string;
+    glossarySectionLinkLabel: string;
+  };
+  modelsIndex: {
+    title: string;
+    description: string;
+    listLabel: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    emptyHomeLink: string;
+  };
+  modulesIndex: {
+    title: string;
+    description: string;
+    listLabel: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    emptyHomeLink: string;
+  };
+  conceptsIndex: {
+    title: string;
+    description: string;
+    listLabel: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    emptyHomeLink: string;
   };
   glossaryIndex: {
     title: string;

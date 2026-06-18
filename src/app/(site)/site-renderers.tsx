@@ -7,8 +7,10 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { HomeArticle } from "@/components/home/home-article";
+import { BrowseAtlasPage } from "@/features/docs/components/BrowseAtlasPage";
 import { DocsIndexEmptyState } from "@/features/docs/components/DocsIndexEmptyState";
 import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
+import type { DocsIndexEntry } from "@/features/docs/components/DocsIndexEntryList";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
 import { SearchPagePanelContent } from "@/features/docs/search/SearchPagePanel";
 import {
@@ -20,6 +22,7 @@ import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
+import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
 import {
   loadTagLandingContext,
   loadTagResourceGroups,
@@ -32,6 +35,7 @@ import { loadUiMessages } from "@/lib/content/ui-messages";
 import {
   buildLocalizedRoute,
   defaultLocale,
+  type LocalizedRouteDestination,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
 import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
@@ -47,6 +51,65 @@ export type TagLandingPageProps = {
   params: Promise<{ slug: string }>;
 };
 
+function toDocsIndexEntries(
+  pages: Array<{
+    docsSlug: string;
+    url: string;
+    messages: { title: string; description: string };
+  }>,
+  locale: SiteLocale,
+  preferredSlugs: string[] = [],
+  limit = 6,
+): DocsIndexEntry[] {
+  const sortedPages = [...pages].sort((left, right) =>
+    left.messages.title.localeCompare(right.messages.title, locale, {
+      sensitivity: "base",
+    }),
+  );
+  const pagesBySlug = new Map(sortedPages.map((page) => [page.docsSlug, page]));
+  const preferredPages = preferredSlugs
+    .map((slug) => pagesBySlug.get(slug))
+    .filter((page): page is (typeof sortedPages)[number] => Boolean(page));
+  const remainingPages = sortedPages.filter(
+    (page) => !preferredSlugs.includes(page.docsSlug),
+  );
+
+  return [...preferredPages, ...remainingPages]
+    .slice(0, limit)
+    .map((page) => ({
+      slug: page.docsSlug,
+      title: page.messages.title,
+      summary: page.messages.description,
+      url: page.url,
+    }));
+}
+
+const BROWSE_MODELS_STARTER_SLUGS = ["models/gpt-3"] as const;
+const BROWSE_MODULES_STARTER_SLUGS = [
+  "modules/grouped-query-attention",
+  "modules/attention",
+  "modules/swiglu",
+  "modules/relu",
+  "modules/multi-head-attention",
+  "modules/feed-forward-network",
+] as const;
+const BROWSE_CONCEPTS_STARTER_SLUGS = [
+  "concepts/transformer-architecture",
+  "concepts/positional-encodings",
+  "concepts/context-extension",
+  "concepts/quantization",
+  "concepts/why-long-context-is-hard",
+  "concepts/kv-cache-quantization",
+] as const;
+const BROWSE_GLOSSARY_STARTER_SLUGS = [
+  "glossary/token",
+  "glossary/embedding",
+  "glossary/logit",
+  "glossary/softmax",
+  "glossary/kv-cache",
+  "glossary/architecture",
+] as const;
+
 export async function renderHomePage(locale: SiteLocale = defaultLocale) {
   const messages = await loadUiMessages(locale);
   const { home } = messages;
@@ -59,6 +122,89 @@ export async function renderHomePage(locale: SiteLocale = defaultLocale) {
     >
       <DocsBody>
         <HomeArticle messages={messages} locale={locale} />
+      </DocsBody>
+    </DocsPage>
+  );
+}
+
+export async function renderBrowseIndexPage(
+  locale: SiteLocale = defaultLocale,
+) {
+  const messages = await loadUiMessages(locale);
+  const pages = await loadShippedLocalizedDocsPages(locale);
+
+  return (
+    <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
+      <DocsTitle>{messages.browseIndex.title}</DocsTitle>
+      <DocsDescription>{messages.browseIndex.description}</DocsDescription>
+      <DocsBody>
+        <BrowseAtlasPage
+          messages={messages}
+          locale={locale}
+          models={toDocsIndexEntries(
+            pages.filter((page) => page.frontmatter.kind === "model"),
+            locale,
+            [...BROWSE_MODELS_STARTER_SLUGS],
+          )}
+          modules={toDocsIndexEntries(
+            pages.filter((page) => page.frontmatter.kind === "module"),
+            locale,
+            [...BROWSE_MODULES_STARTER_SLUGS],
+          )}
+          concepts={toDocsIndexEntries(
+            pages.filter((page) => page.frontmatter.kind === "concept"),
+            locale,
+            [...BROWSE_CONCEPTS_STARTER_SLUGS],
+          )}
+          glossary={toDocsIndexEntries(
+            pages.filter((page) => page.frontmatter.kind === "glossary"),
+            locale,
+            [...BROWSE_GLOSSARY_STARTER_SLUGS],
+          )}
+        />
+      </DocsBody>
+    </DocsPage>
+  );
+}
+
+export async function renderSectionKindIndexPage(
+  kind: "model" | "module" | "concept",
+  locale: SiteLocale = defaultLocale,
+) {
+  const messages = await loadUiMessages(locale);
+  const pages = await loadShippedLocalizedDocsPages(locale);
+  const sectionMessages =
+    kind === "model"
+      ? messages.modelsIndex
+      : kind === "module"
+        ? messages.modulesIndex
+        : messages.conceptsIndex;
+  const entries = toDocsIndexEntries(
+    pages.filter((page) => page.frontmatter.kind === kind),
+    locale,
+    [],
+    Number.POSITIVE_INFINITY,
+  );
+
+  return (
+    <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
+      <DocsTitle>{sectionMessages.title}</DocsTitle>
+      <DocsDescription>{sectionMessages.description}</DocsDescription>
+      <DocsBody>
+        {entries.length === 0 ? (
+          <DocsIndexEmptyState
+            title={sectionMessages.emptyTitle}
+            description={sectionMessages.emptyDescription}
+            homeLinkLabel={sectionMessages.emptyHomeLink}
+            messages={messages}
+            locale={locale}
+          />
+        ) : (
+          <DocsIndexEntryList
+            entries={entries}
+            listLabel={sectionMessages.listLabel}
+          />
+        )}
       </DocsBody>
     </DocsPage>
   );
@@ -247,6 +393,23 @@ export async function buildTagLandingMetadata(
     title: context.title,
     description: context.summary,
     alternates: localizedRouteAlternates({ surface: "tag-page", slug }),
+  };
+}
+
+export async function buildStaticSurfaceMetadata(
+  destination: LocalizedRouteDestination,
+  {
+    title,
+    description,
+  }: {
+    title: string;
+    description: string;
+  },
+) {
+  return {
+    title,
+    description,
+    alternates: localizedRouteAlternates(destination),
   };
 }
 

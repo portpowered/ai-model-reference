@@ -42,6 +42,13 @@ describe("locale-routing", () => {
     expect(buildLocalizedRoute({ surface: "home" }, "en")).toBe("/");
     expect(buildLocalizedRoute({ surface: "home" }, "vi")).toBe("/vi");
     expect(buildLocalizedRoute({ surface: "home" }, "ja")).toBe("/ja");
+    expect(buildLocalizedRoute({ surface: "browse" }, "en")).toBe("/browse");
+    expect(buildLocalizedRoute({ surface: "browse" }, "vi")).toBe(
+      "/vi/browse",
+    );
+    expect(buildLocalizedRoute({ surface: "browse" }, "ja")).toBe(
+      "/ja/browse",
+    );
     expect(buildLocalizedRoute({ surface: "search" }, "vi")).toBe("/vi/search");
     expect(buildLocalizedRoute({ surface: "search" }, "ja")).toBe("/ja/search");
     expect(
@@ -88,6 +95,13 @@ describe("locale-routing", () => {
       locale: "en",
       pathname: "/search",
       destination: { surface: "search" },
+    });
+
+    expect(matchLocalizedRoute("/vi/browse")).toEqual({
+      kind: "matched",
+      locale: "vi",
+      pathname: "/browse",
+      destination: { surface: "browse" },
     });
 
     expect(matchLocalizedRoute("/vi/docs/glossary")).toEqual({
@@ -144,6 +158,7 @@ describe("locale-routing", () => {
     expect(switchRouteLocale("/search?tag=attention", "vi")).toBe(
       "/vi/search?tag=attention",
     );
+    expect(switchRouteLocale("/browse", "ja")).toBe("/ja/browse");
     expect(switchRouteLocale("/search?tag=attention", "ja")).toBe(
       "/ja/search?tag=attention",
     );

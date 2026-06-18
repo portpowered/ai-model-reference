@@ -50,6 +50,8 @@
     "subtitle": "現代の AI モデルとモジュールのためのフィールドガイド",
     "intro": "Model Atlas は、トランスフォーマー、注意機構の派生、学習手法、それらを支えるシステムを扱うドキュメント中心のリファレンスです。",
     "browseSectionTitle": "参照",
+    "atlasLinkTitle": "アトラス全体を見る",
+    "atlasLinkDescription": "モデル、モジュール、概念、用語集、タグ、アーキテクチャの各ページがどうつながるかを案内するページから始められます。",
     "gqaLinkTitle": "Grouped-query attention",
     "gqaLinkDescription": "複数の query head が少ない key-value head を共有し、KV キャッシュの負担を減らす attention の派生です。",
     "swigluLinkTitle": "SwiGLU",
@@ -57,6 +59,49 @@
     "reluLinkTitle": "ReLU",
     "reluLinkDescription": "モジュールの基本に入りやすい、シンプルな活性化関数のページです。",
     "onThisPageBrowse": "参照"
+  },
+  "browseIndex": {
+    "title": "アトラスを参照",
+    "description": "すでに知っている種類の情報から始められます。モデル、モジュール、概念、または用語集のどこから入るべきかを示し、良い出発点も並べます。",
+    "quickRoutesTitle": "主要な入口",
+    "quickRoutesDescription": "探し方は分かっているけれど、まだ具体的なページ名が分からないときに使ってください。",
+    "searchRouteDescription": "すでに用語が分かっているなら、タイトル、別名、タグへ直接ジャンプできます。",
+    "glossaryRouteDescription": "見慣れない言葉を素早くほどくために、短い定義をまとめて確認できます。",
+    "architectureRouteDescription": "モデルファミリーの構造、位置表現の方式、システム全体の形に関わる考え方を追えます。",
+    "tagsRouteDescription": "モデル、モジュール、概念、用語集ページを横断する整理済みトピックタグを参照できます。",
+    "modelsSectionTitle": "モデル",
+    "modelsSectionDescription": "モデルのページでは、具体的なモデルファミリーやチェックポイント系統、そのアーキテクチャ、そして先に押さえるべき重要モジュールを説明します。",
+    "modulesSectionTitle": "モジュール",
+    "modulesSectionDescription": "モジュールのページでは、attention の派生、feed-forward ブロック、正規化、位置表現の方式など、モデル内部の動く部品を分解して説明します。",
+    "conceptsSectionTitle": "概念",
+    "conceptsSectionDescription": "概念のページでは、transformer の構造、量子化、長文コンテキストのトレードオフのように、多くのモデルやモジュールにまたがる広い考え方を扱います。",
+    "glossarySectionTitle": "用語集",
+    "glossarySectionDescription": "用語集ページでは、モデルアーキテクチャ、学習、推論、評価まわりの語彙を定義し、アトラス全体を読みやすくします。",
+    "glossarySectionLinkLabel": "用語集をすべて見る"
+  },
+  "modelsIndex": {
+    "title": "モデル",
+    "description": "公開済みのモデルページでは、具体的なモデルファミリーやチェックポイントと、それらが依拠するアーキテクチャやモジュールを説明します。",
+    "listLabel": "モデル項目",
+    "emptyTitle": "モデル項目はまだありません",
+    "emptyDescription": "公開されたモデルページは、アトラスに追加されるとここに表示されます。それまではホームに戻るか、アトラスを参照してモジュール、概念、用語集を探索してください。",
+    "emptyHomeLink": "ホームに戻る"
+  },
+  "modulesIndex": {
+    "title": "モジュール",
+    "description": "公開済みのモジュールページでは、attention の派生、feed-forward ブロック、正規化層、位置表現の方式、その他の再利用可能な構成要素を扱います。",
+    "listLabel": "モジュール項目",
+    "emptyTitle": "モジュール項目はまだありません",
+    "emptyDescription": "公開されたモジュールページは、アトラスに追加されるとここに表示されます。それまではホームに戻るか、アトラスを参照して関連する概念や用語集を探索してください。",
+    "emptyHomeLink": "ホームに戻る"
+  },
+  "conceptsIndex": {
+    "title": "概念",
+    "description": "公開済みの概念ページでは、アーキテクチャパターン、量子化、長文コンテキストのトレードオフのように、多くのモデルやモジュールにまたがる広い考え方を説明します。",
+    "listLabel": "概念項目",
+    "emptyTitle": "概念項目はまだありません",
+    "emptyDescription": "公開された概念ページは、アトラスに追加されるとここに表示されます。それまではホームに戻るか、アトラスを参照してモデル、モジュール、用語集を探索してください。",
+    "emptyHomeLink": "ホームに戻る"
   },
   "glossaryIndex": {
     "title": "用語集",

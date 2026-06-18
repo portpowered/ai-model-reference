@@ -50,6 +50,8 @@
     "subtitle": "Cẩm nang về các mô hình và module AI hiện đại",
     "intro": "Model Atlas là tài liệu tham chiếu dành cho transformer, các biến thể attention, phương pháp huấn luyện, và các hệ thống xoay quanh chúng.",
     "browseSectionTitle": "Duyệt",
+    "atlasLinkTitle": "Duyệt toàn bộ atlas",
+    "atlasLinkDescription": "Bắt đầu từ một trang giải thích cách các trang mô hình, module, khái niệm, thuật ngữ, thẻ, và kiến trúc liên kết với nhau.",
     "gqaLinkTitle": "Grouped-query attention",
     "gqaLinkDescription": "Một biến thể attention giúp giảm chi phí KV cache bằng cách cho nhiều query head dùng chung ít key-value head hơn.",
     "swigluLinkTitle": "SwiGLU",
@@ -57,6 +59,49 @@
     "reluLinkTitle": "ReLU",
     "reluLinkDescription": "Trang về hàm kích hoạt đơn giản, phù hợp để bắt đầu với các khái niệm module cơ bản.",
     "onThisPageBrowse": "Duyệt"
+  },
+  "browseIndex": {
+    "title": "Duyệt Atlas",
+    "description": "Hãy bắt đầu từ loại nội dung mà bạn đã biết: một mô hình, một module, một khái niệm, hoặc một thuật ngữ. Trang này chỉ bạn đến đúng phần của bộ tham chiếu và gợi ý vài trang mở đầu hữu ích.",
+    "quickRoutesTitle": "Lối vào nhanh",
+    "quickRoutesDescription": "Dùng các điểm vào này khi bạn biết cách muốn khám phá, nhưng chưa biết chính xác trang nào.",
+    "searchRouteDescription": "Nhảy thẳng tới tiêu đề, tên gọi khác, hoặc thẻ khi bạn đã có sẵn một thuật ngữ.",
+    "glossaryRouteDescription": "Xem nhanh các định nghĩa ngắn khi bạn cần giải mã từ ngữ chưa quen.",
+    "architectureRouteDescription": "Theo dõi cấu trúc họ mô hình, các sơ đồ vị trí, và những ý tưởng về hình dáng hệ thống.",
+    "tagsRouteDescription": "Duyệt các thẻ chủ đề được tuyển chọn, trải dài qua mô hình, module, khái niệm, và trang thuật ngữ.",
+    "modelsSectionTitle": "Mô hình",
+    "modelsSectionDescription": "Trang mô hình giải thích một họ mô hình hoặc dòng checkpoint cụ thể, kiến trúc nó dùng, và những module quan trọng nhất cần hiểu trước khi đi sâu hơn.",
+    "modulesSectionTitle": "Module",
+    "modulesSectionDescription": "Trang module bóc tách các phần chuyển động bên trong mô hình, như biến thể attention, khối feed-forward, chuẩn hóa, và sơ đồ vị trí.",
+    "conceptsSectionTitle": "Khái niệm",
+    "conceptsSectionDescription": "Trang khái niệm giải thích các ý tưởng rộng hơn xuất hiện trên nhiều mô hình hoặc module, như cấu trúc transformer, lượng tử hóa, hoặc đánh đổi của ngữ cảnh dài.",
+    "glossarySectionTitle": "Thuật ngữ",
+    "glossarySectionDescription": "Trang thuật ngữ định nghĩa từ vựng về kiến trúc mô hình, huấn luyện, suy luận, và đánh giá để phần còn lại của atlas dễ đọc hơn.",
+    "glossarySectionLinkLabel": "Duyệt toàn bộ thuật ngữ"
+  },
+  "modelsIndex": {
+    "title": "Mô hình",
+    "description": "Các trang mô hình đã xuất bản giải thích các họ mô hình và checkpoint cụ thể, cùng với kiến trúc và module mà chúng dựa vào.",
+    "listLabel": "Các mục mô hình",
+    "emptyTitle": "Chưa có mục mô hình nào",
+    "emptyDescription": "Các trang mô hình đã xuất bản sẽ xuất hiện ở đây khi được thêm vào atlas. Trong lúc này, hãy quay lại trang chủ hoặc mở Duyệt Atlas để khám phá module, khái niệm, và thuật ngữ.",
+    "emptyHomeLink": "Về trang chủ"
+  },
+  "modulesIndex": {
+    "title": "Module",
+    "description": "Các trang module đã xuất bản bao quát các biến thể attention, khối feed-forward, lớp chuẩn hóa, sơ đồ vị trí, và các khối xây dựng có thể tái sử dụng khác.",
+    "listLabel": "Các mục module",
+    "emptyTitle": "Chưa có mục module nào",
+    "emptyDescription": "Các trang module đã xuất bản sẽ xuất hiện ở đây khi được thêm vào atlas. Trong lúc này, hãy quay lại trang chủ hoặc mở Duyệt Atlas để khám phá các khái niệm và thuật ngữ liên quan.",
+    "emptyHomeLink": "Về trang chủ"
+  },
+  "conceptsIndex": {
+    "title": "Khái niệm",
+    "description": "Các trang khái niệm đã xuất bản giải thích những ý tưởng rộng hơn xuất hiện trên nhiều mô hình và module, như mẫu kiến trúc, lượng tử hóa, và đánh đổi của ngữ cảnh dài.",
+    "listLabel": "Các mục khái niệm",
+    "emptyTitle": "Chưa có mục khái niệm nào",
+    "emptyDescription": "Các trang khái niệm đã xuất bản sẽ xuất hiện ở đây khi được thêm vào atlas. Trong lúc này, hãy quay lại trang chủ hoặc mở Duyệt Atlas để khám phá mô hình, module, và thuật ngữ.",
+    "emptyHomeLink": "Về trang chủ"
   },
   "glossaryIndex": {
     "title": "Thuật ngữ",

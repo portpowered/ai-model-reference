@@ -8,6 +8,7 @@ export const defaultLocale: SiteLocale = "en";
 
 export type LocalizedRouteDestination =
   | { surface: "home" }
+  | { surface: "browse" }
   | { surface: "search" }
   | { surface: "docs-page"; slug: string }
   | { surface: "architecture-index" }
@@ -113,6 +114,8 @@ export function buildLocalizedRoute(
   switch (destination.surface) {
     case "home":
       return localizePath("/", locale);
+    case "browse":
+      return localizePath("/browse", locale);
     case "search":
       return localizePath("/search", locale);
     case "docs-page":
@@ -133,6 +136,10 @@ function destinationFromNormalizedPath(
 ): LocalizedRouteDestination | null {
   if (pathname === "/") {
     return { surface: "home" };
+  }
+
+  if (pathname === "/browse") {
+    return { surface: "browse" };
   }
 
   if (pathname === "/search") {

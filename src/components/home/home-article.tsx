@@ -50,6 +50,11 @@ export function HomeArticle({
         </h2>
         <HomeBrowseList ariaLabel={home.browseSectionTitle}>
           <HomeBrowseLink
+            href={buildLocalizedRoute({ surface: "browse" }, locale)}
+            title={home.atlasLinkTitle}
+            description={home.atlasLinkDescription}
+          />
+          <HomeBrowseLink
             href={buildHomeDocsPageHref(
               "modules/grouped-query-attention",
               locale,

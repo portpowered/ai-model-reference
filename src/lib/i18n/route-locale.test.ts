@@ -37,6 +37,17 @@ describe("route-locale", () => {
     });
   });
 
+  test("publishes alternates for static browse routes", () => {
+    expect(localizedRouteAlternates({ surface: "browse" })).toEqual({
+      canonical: "/browse",
+      languages: {
+        en: "/browse",
+        vi: "/vi/browse",
+        ja: "/ja/browse",
+      },
+    });
+  });
+
   test("accepts japanese route locales", () => {
     expect(resolveRouteLocaleOrNotFound("ja")).toBe("ja");
   });
