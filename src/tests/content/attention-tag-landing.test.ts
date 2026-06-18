@@ -163,6 +163,8 @@ describe("attention tag landing page render", () => {
     expect(html).toContain("Module");
     expect(html).toContain("Glossary");
     expect(html).toContain('href="/docs/modules/attention"');
+    expect(html).toContain("Causal Attention");
+    expect(html).toContain('href="/docs/modules/causal-attention"');
     expect(html).toContain("Compressed Sparse Attention");
     expect(html).toContain('href="/docs/modules/compressed-sparse-attention"');
     expect(html).toContain("Grouped-Query Attention");

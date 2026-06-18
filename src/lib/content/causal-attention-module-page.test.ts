@@ -162,6 +162,7 @@ describe("causal-attention discovery surfaces", () => {
       "causal attention",
       "causal self-attention",
       "causal masking",
+      "causal mask",
       "look ahead mask",
     ] as const) {
       const results = await docsSearchApi.search(query);
