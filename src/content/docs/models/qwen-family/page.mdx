@@ -1,0 +1,55 @@
+---
+title: Qwen Family
+description: Qwen is a frontier open family that spans dense and mixture-of-experts language models, with later branches extending into code, multimodal, and omni variants.
+kind: "model"
+registryId: "model.qwen-family"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - taxonomy
+  - model-family
+aliases:
+  - Qwen family
+  - Qwen models
+  - Alibaba Qwen
+updatedAt: "2026-06-18"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="family-scope" titleKey="sections.familyScope.title">
+  <T k="sections.familyScope.body" />
+</Section>
+
+<Section
+  id="architecture-tendencies"
+  titleKey="sections.architectureTendencies.title"
+>
+  <T k="sections.architectureTendencies.body" />
+</Section>
+
+<Section id="notable-branches" titleKey="sections.notableBranches.title">
+  <T k="sections.notableBranches.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="model.qwen-family" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="model.qwen-family" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="model.qwen-family" />
+</Section>

@@ -1,0 +1,32 @@
+{
+  "title": "DeepSeek Family",
+  "description": "DeepSeek is a frontier family that combines efficient Transformer engineering with later reasoning-focused releases such as DeepSeek-R1.",
+  "openingSummary": "The DeepSeek family stands out because the public story is not only scale but also engineering choices around efficient attention, mixture-of-experts design, and later reasoning-oriented post-training. The family page helps readers keep those strands separate instead of collapsing everything into one model name.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "DeepSeek is a family of modern language models whose public releases emphasize economical training and inference, then later explicit reasoning behavior. It still sits inside the broader Transformer world, but the family identity is shaped by how it combines MoE routing, efficient attention choices, and reinforcement-learning-heavy follow-on work."
+    },
+    "familyScope": {
+      "title": "Family Scope",
+      "body": "Compared with Llama or Qwen, DeepSeek feels more tightly associated with a smaller set of headline architectural and training ideas. The family hub should therefore help readers distinguish base language-model releases, engineering-heavy checkpoints like DeepSeek-V2 and DeepSeek-V3, and reasoning-oriented releases like DeepSeek-R1 rather than treating the whole line as one undifferentiated chatbot brand."
+    },
+    "architectureTendencies": {
+      "title": "Architecture Tendencies",
+      "body": "The recurring architecture story is still autoregressive Transformer generation, but the family is notably tied to MoE layouts and Multi-head Latent Attention for efficiency. On the training side, alignment and reinforcement-learning choices matter more here than on many earlier foundation pages because DeepSeek-R1 is explicitly framed around reasoning behavior rather than only raw pretraining scale."
+    },
+    "notableBranches": {
+      "title": "Notable Branches",
+      "body": "DeepSeek-R1 is the representative checkpoint in this slice because it gives readers a clear doorway into the family's reasoning-focused branch. It also creates a natural contrast with Llama and Qwen: the question is not only what the base model is, but what extra training stages and architecture choices were used to make deliberate reasoning behavior more visible."
+    },
+    "related": {
+      "title": "Related Families, Checkpoints, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

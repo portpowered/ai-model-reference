@@ -1,0 +1,40 @@
+{
+  "id": "model.qwen-family",
+  "slug": "qwen-family",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Qwen family", "Qwen models", "Alibaba Qwen"],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [
+    "model.transformer-model-families",
+    "model.llama-family",
+    "model.deepseek-family",
+    "model.qwen3",
+    "concept.transformer",
+    "concept.mixture-of-experts",
+    "concept.rope",
+    "module.grouped-query-attention"
+  ],
+  "citationIds": ["citation.qwen3-technical-report"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "qwen-family",
+  "sourceType": "unknown",
+  "modalities": ["text", "multimodal"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.mixture-of-experts",
+    "concept.rope"
+  ],
+  "moduleIds": [
+    "module.attention",
+    "module.multi-head-attention",
+    "module.grouped-query-attention"
+  ],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

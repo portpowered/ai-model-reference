@@ -1,0 +1,39 @@
+{
+  "id": "model.llama-3",
+  "slug": "llama-3",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Llama 3", "Meta Llama 3", "Llama3"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.llama-family",
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "concept.transformer",
+    "concept.rope",
+    "module.grouped-query-attention"
+  ],
+  "citationIds": ["citation.llama-3-herd-of-models"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "llama-family",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.rope"
+  ],
+  "moduleIds": [
+    "module.attention",
+    "module.multi-head-attention",
+    "module.grouped-query-attention"
+  ],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "parameterCount": "8B-405B",
+  "contextLength": 128000
+}

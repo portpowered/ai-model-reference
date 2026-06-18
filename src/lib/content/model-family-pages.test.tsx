@@ -14,6 +14,9 @@ const MODEL_FAMILY_URLS = [
   "/docs/models/multimodal-model-families",
   "/docs/models/omni-model-families",
   "/docs/models/world-model-families",
+  "/docs/models/llama-family",
+  "/docs/models/qwen-family",
+  "/docs/models/deepseek-family",
 ] as const;
 
 describe("chapter 7 model-family pages", () => {
@@ -30,7 +33,7 @@ describe("chapter 7 model-family pages", () => {
     expect(page.toc.some((item) => item.url === "#related")).toBe(true);
   });
 
-  test("published docs discovery includes all six model-family pages", async () => {
+  test("published docs discovery includes overview, structural, and frontier family pages", async () => {
     const pages = await loadPublishedDocsPages("en");
     const modelPages = pages
       .filter((page) => page.frontmatter.kind === "model")
@@ -54,6 +57,23 @@ describe("chapter 7 model-family pages", () => {
         expect.arrayContaining(["taxonomy", "model-family"]),
       );
     }
+  });
+
+  test("frontier family pages compile with lineage-oriented sections", async () => {
+    const llama = await loadModelPage("llama-family");
+    const qwen = await loadModelPage("qwen-family");
+    const deepseek = await loadModelPage("deepseek-family");
+
+    expect(llama.frontmatter.registryId).toBe("model.llama-family");
+    expect(llama.messages.sections?.architectureTendencies?.body).toContain(
+      "grouped-query attention",
+    );
+    expect(qwen.frontmatter.registryId).toBe("model.qwen-family");
+    expect(qwen.messages.sections?.familyScope?.body).toContain("multimodal");
+    expect(deepseek.frontmatter.registryId).toBe("model.deepseek-family");
+    expect(deepseek.messages.sections?.notableBranches?.body).toContain(
+      "DeepSeek-R1",
+    );
   });
 
   test("overview and transformer family pages render registry-backed related docs", () => {
@@ -81,5 +101,24 @@ describe("chapter 7 model-family pages", () => {
 
     expect(html).toContain('href="/tags/model-family"');
     expect(html).toContain('href="/tags/taxonomy"');
+  });
+
+  test("frontier family related docs include both a sibling family and a representative checkpoint", () => {
+    const llamaHtml = renderToStaticMarkup(
+      <RelatedDocs registryId="model.llama-family" />,
+    );
+    const qwenHtml = renderToStaticMarkup(
+      <RelatedDocs registryId="model.qwen-family" />,
+    );
+    const deepseekHtml = renderToStaticMarkup(
+      <RelatedDocs registryId="model.deepseek-family" />,
+    );
+
+    expect(llamaHtml).toContain("/docs/models/qwen-family");
+    expect(llamaHtml).toContain("/docs/models/llama-3");
+    expect(qwenHtml).toContain("/docs/models/llama-family");
+    expect(qwenHtml).toContain("/docs/models/qwen3");
+    expect(deepseekHtml).toContain("/docs/models/qwen-family");
+    expect(deepseekHtml).toContain("/docs/models/deepseek-r1");
   });
 });

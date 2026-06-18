@@ -1,0 +1,40 @@
+{
+  "title": "Qwen3",
+  "description": "A frontier Qwen release line that spans dense and mixture-of-experts checkpoints while staying inside the broader decoder-only Transformer pattern.",
+  "openingSummary": "Qwen3 matters because it shows how a modern family release can cover multiple checkpoint shapes without abandoning a coherent model identity. Instead of treating every new parameter count as a different architecture, this page helps readers track the shared Qwen3 story: autoregressive language modeling, multilingual scope, and a release line that includes both dense and MoE options.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Qwen3 is a named frontier release in the Qwen family. It is best read as a modern language-model line rather than one isolated checkpoint size: the release includes multiple parameter scales and both dense and mixture-of-experts variants while still centering on token-based next-token generation."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The core input is tokenized text, and the core output is an autoregressive next-token distribution. Even when a deployment wraps the model in chat formatting, tools, or agent loops, the underlying model page remains about that text-generation contract and the architecture that supports it."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Qwen3 stays in the Transformer family and is easiest to compare with other decoder-only open checkpoints. The distinctive wrinkle is that the release line includes both dense and MoE variants, so the most useful explanatory links are not only decoder-only and autoregressive pages but also the mixture-of-experts concept and family-level context."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention remains the basic context-sharing mechanism, while MoE routing becomes part of the practical story for some variants in the line. Qwen3 is therefore a good checkpoint page for readers who want to separate the standard Transformer block from the optional efficiency and scaling choices layered on top."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public Qwen3 descriptions emphasize multilingual breadth, broad model-scale coverage, and a release strategy that includes both dense and expert-routed variants. This atlas slice still treats structured training-regime, dataset, and paper relationships as optional metadata, so unavailable items are rendered explicitly rather than disappearing."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Qwen3 is useful as a representative frontier checkpoint because it is not just another GPT-style label. It shows readers how a modern open family can keep the same general language-model contract while expanding along size, efficiency, and usage-scope dimensions that matter when comparing current ecosystems."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

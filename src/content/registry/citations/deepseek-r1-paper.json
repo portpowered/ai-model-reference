@@ -1,0 +1,20 @@
+{
+  "id": "citation.deepseek-r1-paper",
+  "slug": "deepseek-r1-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["DeepSeek-R1 paper", "DeepSeek R1", "DeepSeek reasoning paper"],
+  "tags": [],
+  "relatedIds": ["model.deepseek-family", "model.deepseek-r1"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["DeepSeek-AI"],
+  "title": "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning",
+  "url": "https://arxiv.org/abs/2501.12948",
+  "mla": "DeepSeek-AI. \"DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning.\" arXiv, 2025, https://arxiv.org/abs/2501.12948.",
+  "year": 2025
+}

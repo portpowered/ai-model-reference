@@ -62,15 +62,21 @@ import autoregressiveModels from "@/content/registry/models/autoregressive-model
 import bertModel from "@/content/registry/models/bert.json";
 import chinchillaModel from "@/content/registry/models/chinchilla.json";
 import decoderOnlyModels from "@/content/registry/models/decoder-only-models.json";
+import deepseekFamily from "@/content/registry/models/deepseek-family.json";
+import deepseekR1Model from "@/content/registry/models/deepseek-r1.json";
 import diffusionModelFamilies from "@/content/registry/models/diffusion-model-families.json";
 import encoderDecoderModels from "@/content/registry/models/encoder-decoder-models.json";
 import encoderOnlyModels from "@/content/registry/models/encoder-only-models.json";
 import gpt2Model from "@/content/registry/models/gpt-2.json";
+import llama3Model from "@/content/registry/models/llama-3.json";
+import llamaFamily from "@/content/registry/models/llama-family.json";
 import maskedLanguageModels from "@/content/registry/models/masked-language-models.json";
 import modelFamiliesOverview from "@/content/registry/models/model-families-overview.json";
 import multimodalModelFamilies from "@/content/registry/models/multimodal-model-families.json";
 import omniModelFamilies from "@/content/registry/models/omni-model-families.json";
 import palmModel from "@/content/registry/models/palm.json";
+import qwenFamily from "@/content/registry/models/qwen-family.json";
+import qwen3Model from "@/content/registry/models/qwen3.json";
 import sequenceToSequenceModels from "@/content/registry/models/sequence-to-sequence-models.json";
 import t5Model from "@/content/registry/models/t5.json";
 import transformerModelFamilies from "@/content/registry/models/transformer-model-families.json";
@@ -179,11 +185,17 @@ const modelRecords: ModelRecord[] = [
   modelRecordSchema.parse(autoregressiveModels),
   modelRecordSchema.parse(bertModel),
   modelRecordSchema.parse(chinchillaModel),
+  modelRecordSchema.parse(deepseekFamily),
+  modelRecordSchema.parse(deepseekR1Model),
   modelRecordSchema.parse(decoderOnlyModels),
   modelRecordSchema.parse(modelFamiliesOverview),
   modelRecordSchema.parse(encoderDecoderModels),
   modelRecordSchema.parse(encoderOnlyModels),
   modelRecordSchema.parse(palmModel),
+  modelRecordSchema.parse(llama3Model),
+  modelRecordSchema.parse(llamaFamily),
+  modelRecordSchema.parse(qwenFamily),
+  modelRecordSchema.parse(qwen3Model),
   modelRecordSchema.parse(transformerModelFamilies),
   modelRecordSchema.parse(diffusionModelFamilies),
   modelRecordSchema.parse(gpt2Model),

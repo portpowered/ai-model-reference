@@ -1,0 +1,36 @@
+{
+  "id": "model.qwen3",
+  "slug": "qwen3",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Qwen3", "Qwen 3", "Qwen3 model"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.qwen-family",
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "concept.transformer",
+    "concept.mixture-of-experts",
+    "concept.rope",
+    "module.grouped-query-attention"
+  ],
+  "citationIds": ["citation.qwen3-technical-report"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "qwen-family",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.mixture-of-experts",
+    "concept.rope"
+  ],
+  "moduleIds": ["module.attention", "module.grouped-query-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "parameterCount": "0.6B-235B"
+}

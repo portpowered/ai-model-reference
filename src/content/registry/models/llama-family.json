@@ -1,0 +1,39 @@
+{
+  "id": "model.llama-family",
+  "slug": "llama-family",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Llama family", "Meta Llama family", "Llama models"],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [
+    "model.transformer-model-families",
+    "model.qwen-family",
+    "model.deepseek-family",
+    "model.llama-3",
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.rope",
+    "module.grouped-query-attention"
+  ],
+  "citationIds": ["citation.llama-3-herd-of-models"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "llama-family",
+  "sourceType": "unknown",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.rope"
+  ],
+  "moduleIds": [
+    "module.attention",
+    "module.multi-head-attention",
+    "module.grouped-query-attention"
+  ],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

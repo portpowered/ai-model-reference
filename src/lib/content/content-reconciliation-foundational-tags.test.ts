@@ -130,10 +130,13 @@ describe("Phase 2/3 reconciliation foundational tags (US-006)", () => {
     expect(
       modelFamilyGroups[0]?.resources.map((resource) => resource.url),
     ).toEqual([
+      "/docs/models/deepseek-family",
       "/docs/models/diffusion-model-families",
+      "/docs/models/llama-family",
       "/docs/models/model-families-overview",
       "/docs/models/multimodal-model-families",
       "/docs/models/omni-model-families",
+      "/docs/models/qwen-family",
       "/docs/models/transformer-model-families",
       "/docs/models/world-model-families",
     ]);

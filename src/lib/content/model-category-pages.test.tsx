@@ -189,3 +189,61 @@ describe("chapter 7 foundational checkpoint pages", () => {
     );
   });
 });
+
+describe("chapter 7 frontier representative checkpoints", () => {
+  test("published docs discovery includes Llama 3, Qwen3, and DeepSeek-R1", async () => {
+    const pages = await loadPublishedDocsPages("en");
+    const urls = pages.map((page) => page.url);
+
+    expect(urls).toEqual(
+      expect.arrayContaining([
+        "/docs/models/llama-3",
+        "/docs/models/qwen3",
+        "/docs/models/deepseek-r1",
+      ]),
+    );
+  });
+
+  test("frontier checkpoints render canonical sections with family links and explicit empty states", async () => {
+    const llama3 = await loadModelPage("llama-3");
+    const qwen3 = await loadModelPage("qwen3");
+    const deepseekR1 = await loadModelPage("deepseek-r1");
+
+    const llama3Html = renderToStaticMarkup(
+      <ModulePageProviders messages={llama3.messages} assets={llama3.assets}>
+        {llama3.content}
+      </ModulePageProviders>,
+    );
+    const qwen3Html = renderToStaticMarkup(
+      <ModulePageProviders messages={qwen3.messages} assets={qwen3.assets}>
+        {qwen3.content}
+      </ModulePageProviders>,
+    );
+    const deepseekR1Html = renderToStaticMarkup(
+      <ModulePageProviders
+        messages={deepseekR1.messages}
+        assets={deepseekR1.assets}
+      >
+        {deepseekR1.content}
+      </ModulePageProviders>,
+    );
+
+    expect(llama3Html).toContain('data-testid="model-at-a-glance"');
+    expect(llama3Html).toContain("/docs/models/llama-family");
+    expect(llama3Html).toContain(
+      "Structured training-regime details are not available yet.",
+    );
+
+    expect(qwen3Html).toContain('data-testid="model-at-a-glance"');
+    expect(qwen3Html).toContain("/docs/models/qwen-family");
+    expect(qwen3Html).toContain(
+      "Structured dataset details are not available yet.",
+    );
+
+    expect(deepseekR1Html).toContain('data-testid="model-at-a-glance"');
+    expect(deepseekR1Html).toContain("/docs/models/deepseek-family");
+    expect(deepseekR1Html).toContain(
+      "Structured paper links are not available yet.",
+    );
+  });
+});

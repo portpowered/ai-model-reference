@@ -1,0 +1,32 @@
+{
+  "title": "Llama Family",
+  "description": "Meta's Llama line is an open-weights decoder-only Transformer family that became a common reference point for general-purpose language models.",
+  "openingSummary": "The Llama family matters because it turned an open-weights decoder-only line into a shared baseline for instruction tuning, long-context experimentation, and downstream adaptation. In this atlas, the family hub is less about benchmark placement and more about the recurring architecture choices that keep showing up across named Llama checkpoints.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Llama is Meta's family of general-purpose language models. Readers should treat it as a decoder-only Transformer branch that keeps the familiar next-token recipe while changing scale, data mixture, context handling, and instruction-tuned product shape from release to release."
+    },
+    "familyScope": {
+      "title": "Family Scope",
+      "body": "Compared with older foundation checkpoints like GPT-2 or PaLM, Llama became important as a reusable open-weights ecosystem rather than a one-off historical milestone. That means the family page should help readers orient around the line itself: base versus instruct variants, tooling around local deployment, and the way later open families often compare themselves against Llama rather than starting from scratch."
+    },
+    "architectureTendencies": {
+      "title": "Architecture Tendencies",
+      "body": "The recurring pattern is still a decoder-only Transformer with causal generation. What changes within the family is less the high-level shape and more the engineering details around tokenizer choices, context length, positional handling such as RoPE, and efficiency tweaks like grouped-query attention that make large checkpoints easier to serve."
+    },
+    "notableBranches": {
+      "title": "Notable Branches",
+      "body": "A useful mental model is that the family grows by shipping recognizable checkpoints that stay architecturally familiar while broadening practical use. Llama 3 is the representative waypoint in this slice because it captures the family as a mainstream open-weights reference for multilingual, coding, and tool-oriented language-model use without turning this page into a release-notes archive."
+    },
+    "related": {
+      "title": "Related Families, Checkpoints, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

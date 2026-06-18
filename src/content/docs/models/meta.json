@@ -7,6 +7,9 @@
     "[Multimodal Model Families](/docs/models/multimodal-model-families)",
     "[Omni Model Families](/docs/models/omni-model-families)",
     "[World Model Families](/docs/models/world-model-families)",
+    "[Llama Family](/docs/models/llama-family)",
+    "[Qwen Family](/docs/models/qwen-family)",
+    "[DeepSeek Family](/docs/models/deepseek-family)",
     "[Encoder-Only Models](/docs/models/encoder-only-models)",
     "[Decoder-Only Models](/docs/models/decoder-only-models)",
     "[Encoder-Decoder Models](/docs/models/encoder-decoder-models)",
@@ -17,6 +20,9 @@
     "[BERT](/docs/models/bert)",
     "[T5](/docs/models/t5)",
     "[PaLM](/docs/models/palm)",
-    "[Chinchilla](/docs/models/chinchilla)"
+    "[Chinchilla](/docs/models/chinchilla)",
+    "[Llama 3](/docs/models/llama-3)",
+    "[Qwen3](/docs/models/qwen3)",
+    "[DeepSeek-R1](/docs/models/deepseek-r1)"
   ]
 }

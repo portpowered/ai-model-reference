@@ -1,0 +1,20 @@
+{
+  "id": "citation.llama-3-herd-of-models",
+  "slug": "llama-3-herd-of-models",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Llama 3 paper", "Llama 3 Herd", "Meta Llama 3"],
+  "tags": [],
+  "relatedIds": ["model.llama-family", "model.llama-3"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Meta AI"],
+  "title": "The Llama 3 Herd of Models",
+  "url": "https://arxiv.org/abs/2407.21783",
+  "mla": "Meta AI. \"The Llama 3 Herd of Models.\" arXiv, 2024, https://arxiv.org/abs/2407.21783.",
+  "year": 2024
+}

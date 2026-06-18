@@ -1,6 +1,7 @@
 import attentionIsAllYouNeed from "@/content/registry/citations/attention-is-all-you-need.json";
 import bertPaper from "@/content/registry/citations/bert-paper.json";
 import chinchillaPaper from "@/content/registry/citations/chinchilla-paper.json";
+import deepseekR1Paper from "@/content/registry/citations/deepseek-r1-paper.json";
 import deepseekV2MlaPaper from "@/content/registry/citations/deepseek-v2-mla-paper.json";
 import goodfellowDeepLearning from "@/content/registry/citations/goodfellow-deep-learning.json";
 import gpt2Report from "@/content/registry/citations/gpt-2-report.json";
@@ -8,8 +9,10 @@ import gqaPaper from "@/content/registry/citations/gqa-paper.json";
 import kaplanScalingLaws from "@/content/registry/citations/kaplan-scaling-laws.json";
 import katharopoulosLinearAttentionPaper from "@/content/registry/citations/katharopoulos-linear-attention-paper.json";
 import kingmaAdam from "@/content/registry/citations/kingma-adam.json";
+import llama3HerdPaper from "@/content/registry/citations/llama-3-herd-of-models.json";
 import palmPaper from "@/content/registry/citations/palm-paper.json";
 import pressAlibi from "@/content/registry/citations/press-alibi.json";
+import qwen3TechnicalReport from "@/content/registry/citations/qwen3-technical-report.json";
 import shazeerMqaPaper from "@/content/registry/citations/shazeer-mqa-paper.json";
 import suRoformerRope from "@/content/registry/citations/su-roformer-rope.json";
 import t5Paper from "@/content/registry/citations/t5-paper.json";
@@ -23,6 +26,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(attentionIsAllYouNeed),
   citationRecordSchema.parse(bertPaper),
   citationRecordSchema.parse(chinchillaPaper),
+  citationRecordSchema.parse(deepseekR1Paper),
   citationRecordSchema.parse(deepseekV2MlaPaper),
   citationRecordSchema.parse(goodfellowDeepLearning),
   citationRecordSchema.parse(gpt2Report),
@@ -30,8 +34,10 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(kaplanScalingLaws),
   citationRecordSchema.parse(katharopoulosLinearAttentionPaper),
   citationRecordSchema.parse(kingmaAdam),
+  citationRecordSchema.parse(llama3HerdPaper),
   citationRecordSchema.parse(palmPaper),
   citationRecordSchema.parse(pressAlibi),
+  citationRecordSchema.parse(qwen3TechnicalReport),
   citationRecordSchema.parse(shazeerMqaPaper),
   citationRecordSchema.parse(suRoformerRope),
   citationRecordSchema.parse(t5Paper),

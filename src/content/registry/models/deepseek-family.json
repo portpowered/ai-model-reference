@@ -1,0 +1,42 @@
+{
+  "id": "model.deepseek-family",
+  "slug": "deepseek-family",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["DeepSeek family", "DeepSeek models", "DeepSeek language models"],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [
+    "model.transformer-model-families",
+    "model.qwen-family",
+    "model.llama-family",
+    "model.deepseek-r1",
+    "concept.transformer",
+    "concept.mixture-of-experts",
+    "concept.alignment",
+    "module.multi-head-latent-attention"
+  ],
+  "citationIds": [
+    "citation.deepseek-v2-mla-paper",
+    "citation.deepseek-r1-paper"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "deepseek-family",
+  "sourceType": "unknown",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.mixture-of-experts",
+    "concept.alignment"
+  ],
+  "moduleIds": [
+    "module.attention",
+    "module.grouped-query-attention",
+    "module.multi-head-latent-attention"
+  ],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

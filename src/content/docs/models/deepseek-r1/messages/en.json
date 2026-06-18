@@ -1,0 +1,40 @@
+{
+  "title": "DeepSeek-R1",
+  "description": "A reasoning-focused DeepSeek release that pairs a Transformer base with reinforcement-learning-heavy post-training to make deliberate reasoning behavior more visible.",
+  "openingSummary": "DeepSeek-R1 is a useful checkpoint page because it shifts the explanatory focus from pretraining scale alone to the combination of architecture, efficiency work, and reasoning-oriented post-training. It still belongs to the broader decoder-only language-model world, but readers usually care about it because of what the later training stages are trying to make the model do.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "DeepSeek-R1 is a reasoning-oriented release inside the DeepSeek family. It is still a token-based language model, but the public framing emphasizes a deliberate training path for reasoning behavior rather than presenting it only as another dense next-token checkpoint."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The model still takes tokenized text prompts and produces the next-token distribution used to continue a response. What changes is how the system is trained and post-trained to make multi-step reasoning behavior more legible to readers and users, not the basic token-in token-out contract."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "DeepSeek-R1 remains easiest to understand as a Transformer-family autoregressive model, but it sits near a branch of the DeepSeek line that is tightly associated with MoE efficiency work and Multi-head Latent Attention. That means the architecture story here is partly about the base model family and partly about the reasoning-oriented training path layered on top."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention is still the mechanism that lets the model reuse prior context, but DeepSeek's family story makes MLA and MoE especially relevant because they shape efficiency and scaling. R1 is therefore a useful example of how the modules that make a checkpoint economical can matter even when the public headline is reasoning."
+    },
+    "training": {
+      "title": "Training",
+      "body": "This is the section where DeepSeek-R1 differs most from earlier foundation checkpoints. Public descriptions emphasize multi-stage training with reinforcement learning and a cold-start stage for better reasoning behavior. The atlas still uses explicit unavailable states for structured training-regime, dataset, and paper links when the registry does not yet contain the fuller graph."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Readers should avoid treating R1 as proof that the family abandoned standard language-model architecture. The more useful mental model is that DeepSeek-R1 keeps a familiar autoregressive base while making reasoning-oriented post-training central to the checkpoint's identity. That makes it a good contrast case against frontier checkpoints whose public story is mostly scale or open deployment."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

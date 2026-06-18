@@ -19,10 +19,16 @@ const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
 const BERT_URL = "/docs/models/bert";
 const CHINCHILLA_URL = "/docs/models/chinchilla";
+const DEEPSEEK_FAMILY_URL = "/docs/models/deepseek-family";
+const DEEPSEEK_R1_URL = "/docs/models/deepseek-r1";
 const GPT2_URL = "/docs/models/gpt-2";
+const LLAMA_3_URL = "/docs/models/llama-3";
+const LLAMA_FAMILY_URL = "/docs/models/llama-family";
 const MASKED_LANGUAGE_MODELS_URL = "/docs/models/masked-language-models";
 const MODEL_FAMILIES_OVERVIEW_URL = "/docs/models/model-families-overview";
 const PALM_URL = "/docs/models/palm";
+const QWEN3_URL = "/docs/models/qwen3";
+const QWEN_FAMILY_URL = "/docs/models/qwen-family";
 
 describe("search result meta", () => {
   test("loadSearchResultMetaMap includes grouped-query attention sample", async () => {
@@ -151,6 +157,43 @@ describe("search result meta", () => {
     expect(chinchillaMeta?.kind).toBe("model");
     expect(chinchillaMeta?.tags).toContain("foundations");
     expect(chinchillaMeta?.aliases).toContain("DeepMind Chinchilla");
+  });
+
+  test("loadSearchResultMetaMap includes frontier family hubs as model-family results", async () => {
+    const map = await loadSearchResultMetaMap();
+
+    for (const [url, alias] of [
+      [LLAMA_FAMILY_URL, "Llama family"],
+      [QWEN_FAMILY_URL, "Qwen family"],
+      [DEEPSEEK_FAMILY_URL, "DeepSeek family"],
+    ] as const) {
+      const meta = map.get(url);
+      expect(meta).toBeDefined();
+      expect(meta?.kind).toBe("model");
+      expect(meta?.tags).toEqual(
+        expect.arrayContaining(["taxonomy", "model-family"]),
+      );
+      expect(meta?.aliases).toContain(alias);
+    }
+  });
+
+  test("loadSearchResultMetaMap includes frontier representative checkpoints", async () => {
+    const map = await loadSearchResultMetaMap();
+
+    const llama3Meta = map.get(LLAMA_3_URL);
+    expect(llama3Meta).toBeDefined();
+    expect(llama3Meta?.kind).toBe("model");
+    expect(llama3Meta?.aliases).toContain("Meta Llama 3");
+
+    const qwen3Meta = map.get(QWEN3_URL);
+    expect(qwen3Meta).toBeDefined();
+    expect(qwen3Meta?.kind).toBe("model");
+    expect(qwen3Meta?.aliases).toContain("Qwen 3");
+
+    const deepseekR1Meta = map.get(DEEPSEEK_R1_URL);
+    expect(deepseekR1Meta).toBeDefined();
+    expect(deepseekR1Meta?.kind).toBe("model");
+    expect(deepseekR1Meta?.aliases).toContain("DeepSeek R1");
   });
 
   test("buildSearchResultMetaMap keys by url", () => {

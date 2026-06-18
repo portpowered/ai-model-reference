@@ -1,0 +1,32 @@
+{
+  "title": "Qwen Family",
+  "description": "Qwen is a frontier open family that spans dense and mixture-of-experts language models, with later branches extending into code, multimodal, and omni variants.",
+  "openingSummary": "The Qwen family is useful because it shows how one modern open line can stay recognizably Transformer-based while branching across sizes, dense and MoE layouts, multilingual coverage, and adjacent multimodal work. The family hub should help readers separate the lineage from any one checkpoint name.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Qwen is Alibaba's broad model line for modern language and adjacent multimodal systems. In this atlas, it is best framed as a family first: a continuing release branch that keeps a familiar autoregressive language-model core while varying architecture details and deployment targets across versions."
+    },
+    "familyScope": {
+      "title": "Family Scope",
+      "body": "Compared with Llama, the Qwen line is easier to think of as a branch that rapidly fans out into multiple usage niches. The family includes smaller edge-friendly releases, larger research checkpoints, multilingual variants, code-focused work, and nearby multimodal or omni siblings, so the family page needs to orient readers before they chase a specific version number."
+    },
+    "architectureTendencies": {
+      "title": "Architecture Tendencies",
+      "body": "The family remains Transformer-centered, but later Qwen releases increasingly mix dense and mixture-of-experts checkpoints under one release banner. That is why the useful conceptual links here include Transformer basics, MoE routing, RoPE-style positional handling, and inference-oriented attention changes rather than one completely new architecture diagram."
+    },
+    "notableBranches": {
+      "title": "Notable Branches",
+      "body": "Qwen3 is the representative checkpoint in this slice because it captures the family as a modern frontier line rather than a single-size release. It is a good bridge from the family page into questions like when dense versus MoE matters, why multilingual scope changes reader expectations, and how a release family can cover more than one deployment shape."
+    },
+    "related": {
+      "title": "Related Families, Checkpoints, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

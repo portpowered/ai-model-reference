@@ -1,0 +1,40 @@
+{
+  "title": "Llama 3",
+  "description": "A modern open-weights Llama checkpoint line that kept the decoder-only Transformer recipe while becoming a common frontier reference for general-purpose language use.",
+  "openingSummary": "Llama 3 is useful in this atlas because it shows what a modern flagship open-weights checkpoint looks like without forcing readers into a benchmark race. It is still a decoder-only Transformer, but the surrounding story now includes longer context, stronger multilingual and coding behavior, and the practical reality that many open ecosystems use Llama-style checkpoints as a base.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Llama 3 is a named release line inside Meta's Llama family. It is best understood as a frontier open-weights language-model checkpoint family rather than a totally new architecture: tokenized text goes in, a decoder-only Transformer stack updates the representation, and the model predicts the next token."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The main input is tokenized text, and the main output is the next-token distribution used to continue a completion or chat turn. Readers can treat tool use, chat formatting, and system prompts as later interface layers around the same autoregressive loop rather than evidence of a different core architecture."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Llama 3 stays in the decoder-only Transformer lane. The main ideas to keep in view are causal generation, RoPE-style positional handling, and efficiency-oriented attention choices such as grouped-query attention. That is why the right comparisons are usually decoder-only and autoregressive pages, plus the family hub that explains how Llama versions relate to each other."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The important module story is evolutionary, not exotic. Attention still carries context, the standard Transformer block still organizes the stack, and grouped-query attention matters because it helps make large checkpoints more practical to serve. Llama 3 is useful precisely because it is modern while remaining structurally legible."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public Llama 3 descriptions emphasize large-scale pretraining plus later tuning for instruction-following and broad downstream behavior. In this atlas slice, structured training-regime, dataset, and paper relationship fields remain optional, so the page keeps those slots visible and marks unavailable registry-backed details explicitly instead of pretending they already exist."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Readers often meet Llama 3 through product wrappers, local inference stacks, or derivative fine-tunes. This page keeps the focus narrower: Llama 3 is a current decoder-only reference checkpoint inside a larger family, useful for understanding how a modern open-weights language model stays close to the classic Transformer story while adding deployment-oriented refinements."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

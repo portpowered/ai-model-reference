@@ -1,0 +1,20 @@
+{
+  "id": "citation.qwen3-technical-report",
+  "slug": "qwen3-technical-report",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Qwen3 report", "Qwen3 paper", "Qwen3"],
+  "tags": [],
+  "relatedIds": ["model.qwen-family", "model.qwen3"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Qwen Team"],
+  "title": "Qwen3 Technical Report",
+  "url": "https://arxiv.org/abs/2505.09388",
+  "mla": "Qwen Team. \"Qwen3 Technical Report.\" arXiv, 2025, https://arxiv.org/abs/2505.09388.",
+  "year": 2025
+}
