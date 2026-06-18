@@ -77,6 +77,13 @@ const SEQUENCE_OPERATION_GLOSSARY_SLUGS = [
   "prefill-decode-split",
 ] as const;
 
+const GENERATION_GLOSSARY_SLUGS = [
+  "sampling-overview",
+  "greedy-decoding",
+  "top-k-sampling",
+  "top-p-sampling",
+] as const;
+
 const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   model: "Model",
   architecture: "Architecture",
@@ -132,9 +139,13 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   decode: "Decode",
   prefill: "Prefill",
   "prefill-decode-split": "Prefill/decode split",
+  "sampling-overview": "Sampling Overview",
+  "greedy-decoding": "Greedy Decoding",
+  "top-k-sampling": "Top-K Sampling",
+  "top-p-sampling": "Top-P Sampling",
 };
 
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 78;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 82;
 const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 71;
 
 const GLOSSARY_SEPARATOR_TITLES = [
@@ -180,6 +191,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ...POSITIONAL_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
       ...SEQUENCE_OPERATION_GLOSSARY_SLUGS,
+      ...GENERATION_GLOSSARY_SLUGS,
       "token",
     ] as const) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
@@ -208,6 +220,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ...POSITIONAL_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
       ...SEQUENCE_OPERATION_GLOSSARY_SLUGS,
+      ...GENERATION_GLOSSARY_SLUGS,
       "token",
     ] as const) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
@@ -225,6 +238,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ...POSITIONAL_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
       ...SEQUENCE_OPERATION_GLOSSARY_SLUGS,
+      ...GENERATION_GLOSSARY_SLUGS,
       "token",
     ] as const) {
       const entry = entries.find(
@@ -274,6 +288,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ],
       ["Relative position bias", "/docs/glossary/relative-position-bias"],
       ["Prefill", "/docs/glossary/prefill"],
+      ["Sampling Overview", "/docs/glossary/sampling-overview"],
     ] as const) {
       expect(glossaryHtml).toContain(title);
       expect(glossaryHtml).toContain(`href="${href}"`);

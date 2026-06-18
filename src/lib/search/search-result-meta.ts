@@ -1,3 +1,5 @@
+import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
+import { loadRegistry } from "@/lib/content/registry";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import { buildSearchDocumentsForLocale } from "./build-documents";
 import type { SearchDocument } from "./types";
@@ -35,8 +37,6 @@ export async function loadSearchResultMetaMap(
 export async function loadSearchResultMetaMap(
   locale: SiteLocale = defaultLocale,
 ): Promise<Map<string, SearchResultMeta>> {
-  const { loadRegistry } = await import("@/lib/content/registry");
-  const { loadShippedLocalizedDocsPages } = await import("@/lib/content/pages");
   const indexes = await loadRegistry();
   const pages = await loadShippedLocalizedDocsPages(locale);
   const documents = buildSearchDocumentsForLocale(locale, indexes, pages);

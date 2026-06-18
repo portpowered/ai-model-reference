@@ -1,0 +1,33 @@
+{
+  "id": "concept.greedy-decoding",
+  "slug": "greedy-decoding",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Greedy Decoding",
+    "greedy decoding",
+    "argmax decoding",
+    "deterministic decoding",
+    "highest-probability decoding"
+  ],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "relatedIds": [
+    "concept.sampling-overview",
+    "concept.temperature",
+    "concept.autoregressive-generation",
+    "concept.top-k-sampling",
+    "concept.top-p-sampling"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": [
+    "concept.sampling-overview",
+    "concept.temperature",
+    "concept.autoregressive-generation"
+  ],
+  "explainsIds": ["concept.top-k-sampling", "concept.top-p-sampling"]
+}

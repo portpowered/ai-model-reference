@@ -31,7 +31,7 @@ describe("loadPublishedGlossaryEntries", () => {
 
   it("includes merged glossary entries with title and summary", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(78);
+    expect(entries).toHaveLength(82);
 
     for (const [url, title] of [
       ["/docs/glossary/embedding", "Embedding"],
@@ -47,6 +47,10 @@ describe("loadPublishedGlossaryEntries", () => {
       ["/docs/glossary/backpropagation", "Backpropagation"],
       ["/docs/glossary/loss-function", "Loss Function"],
       ["/docs/glossary/optimizer-state", "Optimizer State"],
+      ["/docs/glossary/sampling-overview", "Sampling Overview"],
+      ["/docs/glossary/greedy-decoding", "Greedy Decoding"],
+      ["/docs/glossary/top-k-sampling", "Top-K Sampling"],
+      ["/docs/glossary/top-p-sampling", "Top-P Sampling"],
       ["/docs/glossary/kv-cache", "KV cache"],
       ["/docs/glossary/decode", "Decode"],
       ["/docs/glossary/prefill", "Prefill"],
@@ -134,6 +138,7 @@ describe("glossary index page render", () => {
       ["Parameter", "/docs/glossary/parameter"],
       ["Activation", "/docs/glossary/activation"],
       ["Computational Graph", "/docs/glossary/computational-graph"],
+      ["Sampling Overview", "/docs/glossary/sampling-overview"],
       ["KV cache", "/docs/glossary/kv-cache"],
       ["Decode", "/docs/glossary/decode"],
       ["Prefill", "/docs/glossary/prefill"],

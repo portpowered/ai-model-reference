@@ -1,0 +1,32 @@
+{
+  "title": "Top-K Sampling",
+  "description": "A next-token rule that keeps only the k highest-probability options before drawing one, trading some stability for more bounded diversity than greedy decoding.",
+  "openingSummary": "Top-k sampling narrows the next-token choice to the k strongest candidates, then samples inside that smaller pool, which usually adds more variety than greedy decoding while still keeping control tighter than fully open-ended sampling.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Top-k sampling first sorts the next-token distribution by probability, keeps only the top k candidates, discards everything below that cutoff, and then samples from the remaining set. In plain language, it says: do not always take the single front-runner, but also do not consider the entire tail of unlikely options."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "This fixed-count truncation gives a middle ground between greedy decoding and broader sampling. Smaller k values keep the model more stable and controlled because only a few high-probability tokens stay eligible. Larger k values admit more diversity because the model can branch into more phrasings, but they also make it easier for lower-confidence options to enter the output."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine the next-token distribution ranks \"Paris\" first, \"Lyon\" second, \"Marseille\" third, and then dozens of much less likely tokens. With top-k sampling and k = 3, the model throws away every option below those first three and samples only within that fixed set. Greedy decoding would always pick \"Paris.\" Top-p sampling would instead keep however many tokens are needed to cross a cumulative probability threshold, so its candidate count can change from one step to the next."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Top-k sampling is not deterministic because it still samples inside the kept set. It is also not the same as top-p or nucleus sampling: top-k uses a fixed number of candidates, while top-p uses cumulative probability mass and may keep a different number of tokens at each step. Finally, k does not tell you how much total probability mass was preserved; a top 20 set can be very concentrated on one step and much flatter on another."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

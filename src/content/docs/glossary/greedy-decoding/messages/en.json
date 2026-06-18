@@ -1,0 +1,32 @@
+{
+  "title": "Greedy Decoding",
+  "description": "A deterministic next-token rule that always picks the highest-probability option, making output stable and repeatable but usually less diverse.",
+  "openingSummary": "When you want the model to make the same next-token choice every time, greedy decoding simply takes the single highest-probability option at each step, which improves stability and repeatability but narrows variety.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Greedy decoding is the simplest next-token rule: at every step, it picks the token with the highest probability and ignores the rest. In math language, that is an argmax choice. In plain language, it means the model always takes the current front-runner instead of drawing from several plausible options."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Because it never samples from lower-ranked options, greedy decoding is deterministic. The same prompt and model state produce the same next token each time. That can be useful when you want stable, repeatable output or a clear baseline. The tradeoff is lower diversity: once the model starts down one phrasing path, it is less likely to branch into alternatives that might sound fresher or more creative."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine the next-token distribution gives 52 percent to \"Paris,\" 28 percent to \"Lyon,\" and 8 percent to \"Marseille.\" Greedy decoding always picks \"Paris\" because it has the highest probability. Top-k sampling would keep a few high-ranking options and sample among them. Top-p sampling would keep the smallest set whose cumulative probability mass crosses a threshold and sample there. Greedy decoding is the baseline because it removes randomness entirely."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Greedy decoding is not the same as temperature. Temperature reshapes the distribution before a choice rule runs; greedy decoding is the rule that chooses after the probabilities exist. Greedy decoding also does not mean the model is globally optimal. It only picks the locally highest-probability token at each step, so a stable token-by-token path can still become repetitive or boxed in later."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
