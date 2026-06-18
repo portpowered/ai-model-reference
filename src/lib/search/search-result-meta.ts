@@ -1,5 +1,5 @@
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
-import { buildSearchDocuments } from "./build-documents";
+import { buildSearchDocumentsForLocale } from "./build-documents";
 import type { SearchDocument } from "./types";
 
 export type SearchResultMeta = {
@@ -39,6 +39,6 @@ export async function loadSearchResultMetaMap(
   const { loadShippedLocalizedDocsPages } = await import("@/lib/content/pages");
   const indexes = await loadRegistry();
   const pages = await loadShippedLocalizedDocsPages(locale);
-  const documents = buildSearchDocuments(pages, indexes);
+  const documents = buildSearchDocumentsForLocale(locale, indexes, pages);
   return buildSearchResultMetaMap(documents);
 }
