@@ -117,6 +117,9 @@ export const GROUPED_QUERY_ATTENTION_PAGE_DIR = join(
   "grouped-query-attention",
 );
 
+/** Phase 4 byte pair encoding module page directory. */
+export const BPE_MODULE_PAGE_DIR = join(MODULES_DOCS_ROOT, "bpe");
+
 /** Phase 3 multi-head attention module page directory. */
 export const MULTI_HEAD_ATTENTION_PAGE_DIR = join(
   MODULES_DOCS_ROOT,
