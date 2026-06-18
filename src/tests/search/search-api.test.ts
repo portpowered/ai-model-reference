@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { GET } from "@/app/api/search/route";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
@@ -9,6 +9,7 @@ import {
   PHASE_1_SEARCH_ASSERTIONS,
   PHASE_1_VECTOR_GLOSSARY_URL,
 } from "@/lib/verify/phase-1-search-checks";
+import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 import {
   expectUniqueCanonicalPageUrls,
   MULTI_HEAD_ATTENTION_URL,
@@ -316,39 +317,35 @@ describe("docsSearchApi", () => {
 });
 
 describe("docs search static client", () => {
-  const originalFetch = globalThis.fetch;
-
-  afterEach(() => {
-    globalThis.fetch = originalFetch;
-  });
-
   test("orama static client returns grouped-query attention for GQA", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+      const results = await client.search("GQA");
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const results = await client.search("GQA");
-
-    expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.url).toBe(SAMPLE_URL);
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0]?.url).toBe(SAMPLE_URL);
+    });
   });
 
   test("orama static client returns non-empty attention results before app-level reranking", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+      const results = await client.search("attention");
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const results = await client.search("attention");
-
-    expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL)).toBe(true);
+      expect(results.length).toBeGreaterThan(0);
+      expect(resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL)).toBe(
+        true,
+      );
+    });
   });
 
   test("orama static client includes grouped-query attention for KV cache", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+      const results = await client.search("KV cache");
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const results = await client.search("KV cache");
-
-    expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeSampleModule(results)).toBe(true);
+      expect(results.length).toBeGreaterThan(0);
+      expect(resultsIncludeSampleModule(results)).toBe(true);
+    });
   });
 });

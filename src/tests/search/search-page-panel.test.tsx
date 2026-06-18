@@ -30,6 +30,7 @@ import {
   SAMPLE_MODULE_URL,
 } from "@/tests/search/helpers";
 import { createDocsSearchRouteFetch } from "@/tests/search/route-fetch";
+import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
 
 function toSearchPageHandoff(searchParams: URLSearchParams) {
   return {
@@ -87,19 +88,30 @@ async function typeQueryAndExpectGqaResult(
 }
 
 describe("SearchPagePanel Phase 1 queries", () => {
+  let releaseFetchLock: (() => void) | null = null;
+
   beforeAll(async () => {
     captureOriginalFetch();
-    installDocsSearchRouteFetch();
-    await primeDocsSearchClient(await loadAppTestContext());
+    await lockGlobalFetch().then(async (release) => {
+      releaseFetchLock = release;
+      installDocsSearchRouteFetch();
+      await primeDocsSearchClient(await loadAppTestContext());
+      restoreFetchMock();
+      releaseFetchLock?.();
+      releaseFetchLock = null;
+    });
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    releaseFetchLock = await lockGlobalFetch();
     installDocsSearchRouteFetch();
   });
 
   afterEach(() => {
     cleanup();
     restoreFetchMock();
+    releaseFetchLock?.();
+    releaseFetchLock = null;
   });
 
   test.each([

@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, describe, expect, test } from "bun:test";
+import { beforeAll, describe, expect, test } from "bun:test";
 import {
   buildDocsSearchStaticOptions,
   createModelAtlasSearchClient,
@@ -8,6 +8,7 @@ import {
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
+import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 import {
   expectUniqueCanonicalPageUrls,
   resultsIncludeSampleModule,
@@ -25,15 +26,10 @@ const SAMPLE_URL = SAMPLE_MODULE_URL;
 const ATTENTION_MODULE_URL = "/docs/modules/attention";
 
 describe("createModelAtlasSearchClient", () => {
-  const originalFetch = globalThis.fetch;
   let metaByUrl: ReturnType<typeof searchResultMetaMapToRecord>;
 
   beforeAll(async () => {
     metaByUrl = searchResultMetaMapToRecord(await loadSearchResultMetaMap());
-  });
-
-  afterEach(() => {
-    globalThis.fetch = originalFetch;
   });
 
   test("docsSearchStaticOptions.from resolves to the static bootstrap path", () => {
@@ -67,104 +63,110 @@ describe("createModelAtlasSearchClient", () => {
     const payload = await docsSearchApi.export();
     let fetchedUrl: string | undefined;
 
-    globalThis.fetch = (async (input: RequestInfo | URL) => {
-      fetchedUrl =
-        typeof input === "string"
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      return new Response(JSON.stringify(payload), { status: 200 });
-    }) as typeof fetch;
+    await withGlobalFetchOverride(
+      (async (input: RequestInfo | URL) => {
+        fetchedUrl =
+          typeof input === "string"
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url;
+        return new Response(JSON.stringify(payload), { status: 200 });
+      }) as typeof fetch,
+      async () => {
+        const client = createModelAtlasSearchClient({
+          metaByUrl,
+          client: { from: bootstrapFrom },
+        });
+        const results = await client.search("GQA");
 
-    const client = createModelAtlasSearchClient({
-      metaByUrl,
-      client: { from: bootstrapFrom },
-    });
-    const results = await client.search("GQA");
-
-    expect(fetchedUrl).toBe(bootstrapFrom);
-    expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.url).toBe(SAMPLE_URL);
+        expect(fetchedUrl).toBe(bootstrapFrom);
+        expect(results.length).toBeGreaterThan(0);
+        expect(results[0]?.url).toBe(SAMPLE_URL);
+      },
+    );
   });
 
   test("uses the docs search API path and ranks GQA sample page first", async () => {
-    globalThis.fetch = (async (input: RequestInfo | URL) => {
-      const url =
-        typeof input === "string"
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      expect(url).toContain(DOCS_SEARCH_API_PATH);
-      return createDocsSearchRouteFetch()(input);
-    }) as unknown as typeof fetch;
+    await withGlobalFetchOverride(
+      (async (input: RequestInfo | URL) => {
+        const url =
+          typeof input === "string"
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url;
+        expect(url).toContain(DOCS_SEARCH_API_PATH);
+        return createDocsSearchRouteFetch()(input);
+      }) as unknown as typeof fetch,
+      async () => {
+        const client = createModelAtlasSearchClient({
+          metaByUrl,
+          client: { from: TEST_DOCS_SEARCH_URL },
+        });
+        const results = await client.search("GQA");
 
-    const client = createModelAtlasSearchClient({
-      metaByUrl,
-      client: { from: TEST_DOCS_SEARCH_URL },
-    });
-    const results = await client.search("GQA");
-
-    expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.url).toBe(SAMPLE_URL);
-    expect(results.every((result) => !result.url.includes("#"))).toBe(true);
+        expect(results.length).toBeGreaterThan(0);
+        expect(results[0]?.url).toBe(SAMPLE_URL);
+        expect(results.every((result) => !result.url.includes("#"))).toBe(true);
+      },
+    );
   });
 
   test("returns at most one hit per canonical page URL for attention query", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const client = createModelAtlasSearchClient({
+        metaByUrl,
+        client: { from: TEST_DOCS_SEARCH_URL },
+      });
+      const results = await client.search("attention");
 
-    const client = createModelAtlasSearchClient({
-      metaByUrl,
-      client: { from: TEST_DOCS_SEARCH_URL },
+      expect(results.length).toBeGreaterThan(0);
+      expectUniqueCanonicalPageUrls(results.map((result) => result.url));
+      expect(resultsIncludeUrl(results, ATTENTION_MODULE_URL)).toBe(true);
     });
-    const results = await client.search("attention");
-
-    expect(results.length).toBeGreaterThan(0);
-    expectUniqueCanonicalPageUrls(results.map((result) => result.url));
-    expect(resultsIncludeUrl(results, ATTENTION_MODULE_URL)).toBe(true);
   });
 
   test("returns at most one hit per canonical page URL for KV cache query", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const client = createModelAtlasSearchClient({
+        metaByUrl,
+        client: { from: TEST_DOCS_SEARCH_URL },
+      });
+      const results = await client.search("KV cache");
 
-    const client = createModelAtlasSearchClient({
-      metaByUrl,
-      client: { from: TEST_DOCS_SEARCH_URL },
+      expect(results.length).toBeGreaterThan(0);
+      expectUniqueCanonicalPageUrls(results.map((result) => result.url));
+      expect(resultsIncludeSampleModule(results)).toBe(true);
     });
-    const results = await client.search("KV cache");
-
-    expect(results.length).toBeGreaterThan(0);
-    expectUniqueCanonicalPageUrls(results.map((result) => result.url));
-    expect(resultsIncludeSampleModule(results)).toBe(true);
   });
 
   test("ranks token glossary first for Token query", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const client = createModelAtlasSearchClient({
+        metaByUrl,
+        client: { from: TEST_DOCS_SEARCH_URL },
+      });
+      const results = await client.search("Token");
 
-    const client = createModelAtlasSearchClient({
-      metaByUrl,
-      client: { from: TEST_DOCS_SEARCH_URL },
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0]?.url).toBe(TOKEN_GLOSSARY_URL);
     });
-    const results = await client.search("Token");
-
-    expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.url).toBe(TOKEN_GLOSSARY_URL);
   });
 
   test.each([
     "tokens",
     "tokenizer",
   ] as const)("includes token glossary for %s query", async (query) => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const client = createModelAtlasSearchClient({
+        metaByUrl,
+        client: { from: TEST_DOCS_SEARCH_URL },
+      });
+      const results = await client.search(query);
 
-    const client = createModelAtlasSearchClient({
-      metaByUrl,
-      client: { from: TEST_DOCS_SEARCH_URL },
+      expect(results.length).toBeGreaterThan(0);
+      expect(resultsIncludeTokenGlossary(results)).toBe(true);
     });
-    const results = await client.search(query);
-
-    expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeTokenGlossary(results)).toBe(true);
   });
 });
