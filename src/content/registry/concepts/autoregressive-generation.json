@@ -33,6 +33,9 @@
   "createdAt": "2026-06-04T12:30:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "general",
+  "sidebarGrouping": {
+    "glossary": "generation-and-diffusion"
+  },
   "prerequisiteIds": [
     "concept.token",
     "concept.logit",

@@ -24,8 +24,8 @@ function findSidebarFolder(name: string): Node | undefined {
   );
 }
 
-describe("Phase 2/3 reconciliation docs sidebar meta (US-003)", () => {
-  test("generated docs sidebar exposes glossary, concepts, and modules folders", () => {
+describe("Phase 2/3 reconciliation docs sidebar meta (US-004)", () => {
+  test("generated docs sidebar exposes all published docs section folders", () => {
     const folderNames = source.pageTree.children
       .filter((node) => node.type === "folder")
       .map((node) => node.name);
@@ -33,10 +33,22 @@ describe("Phase 2/3 reconciliation docs sidebar meta (US-003)", () => {
     expect(folderNames).toContain("Glossary");
     expect(folderNames).toContain("Concepts");
     expect(folderNames).toContain("Modules");
+    expect(folderNames).toContain("Models");
+    expect(folderNames).toContain("Papers");
+    expect(folderNames).toContain("Training");
+    expect(folderNames).toContain("Systems");
   });
 
-  for (const section of ["glossary", "concepts", "modules"] as const) {
-    test(`generated ${section} sidebar lists every published page with localized titles`, async () => {
+  for (const section of [
+    "glossary",
+    "concepts",
+    "modules",
+    "models",
+    "papers",
+    "training",
+    "systems",
+  ] as const) {
+    test(`generated ${section} sidebar lists every published page exactly once with localized titles`, async () => {
       const pages = await loadPublishedDocsPages("en");
       const sectionPages = pages
         .filter((page) => page.docsSlug.startsWith(`${section}/`))
@@ -49,18 +61,23 @@ describe("Phase 2/3 reconciliation docs sidebar meta (US-003)", () => {
           ? "Glossary"
           : section === "concepts"
             ? "Concepts"
-            : "Modules";
+            : section === "modules"
+              ? "Modules"
+              : section === "models"
+                ? "Models"
+                : section === "papers"
+                  ? "Papers"
+                  : section === "training"
+                    ? "Training"
+                    : "Systems";
       const folder = findSidebarFolder(folderName);
       expect(folder?.type).toBe("folder");
       if (folder?.type !== "folder") {
         throw new Error(`expected ${folderName} folder in docs sidebar`);
       }
 
-      const sidebarUrls = collectPageUrls(folder.children);
-      for (const page of sectionPages) {
-        expect(sidebarUrls).toContain(page.url);
-      }
-      expect(sidebarUrls).toHaveLength(sectionPages.length);
+      const sidebarUrls = collectPageUrls(folder.children).sort();
+      expect(sidebarUrls).toEqual(sectionPages.map((page) => page.url));
 
       const sidebarTitles = folder.children
         .filter(

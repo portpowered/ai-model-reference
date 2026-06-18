@@ -12,6 +12,9 @@
   "createdAt": "2026-06-11T12:11:36.725Z",
   "updatedAt": "2026-06-11T12:11:36.725Z",
   "conceptType": "general",
+  "sidebarGrouping": {
+    "concepts": "reference-samples"
+  },
   "prerequisiteIds": [],
   "explainsIds": []
 }

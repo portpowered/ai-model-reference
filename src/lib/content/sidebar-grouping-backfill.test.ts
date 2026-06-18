@@ -1,0 +1,92 @@
+import { describe, expect, test } from "bun:test";
+import {
+  getConceptById,
+  getModuleById,
+  getSystemById,
+  getTrainingRegimeById,
+} from "@/lib/content/registry-runtime";
+
+const GLOSSARY_SIDEBAR_BACKFILLS = [
+  ["concept.activation", "math-and-training"],
+  ["concept.embedding", "math-and-training"],
+  ["concept.context-window", "sequence-and-attention"],
+  ["concept.decoder", "sequence-and-attention"],
+  ["concept.decode", "sequence-and-attention"],
+  ["concept.encoder", "sequence-and-attention"],
+  ["concept.encoder-decoder", "sequence-and-attention"],
+  ["concept.hidden-size", "sequence-and-attention"],
+  ["concept.kv-cache", "sequence-and-attention"],
+  ["concept.normalization", "sequence-and-attention"],
+  ["concept.prefill", "sequence-and-attention"],
+  ["concept.prefill-decode-split", "sequence-and-attention"],
+  ["concept.perplexity", "sequence-and-attention"],
+  ["concept.residual-connection", "sequence-and-attention"],
+  ["concept.skip-connection", "sequence-and-attention"],
+  ["concept.token", "sequence-and-attention"],
+  ["concept.transformer", "sequence-and-attention"],
+  ["concept.autoregressive-generation", "generation-and-diffusion"],
+  ["concept.greedy-decoding", "generation-and-diffusion"],
+  ["concept.sampling-overview", "generation-and-diffusion"],
+  ["concept.top-k-sampling", "generation-and-diffusion"],
+  ["concept.top-p-sampling", "generation-and-diffusion"],
+  ["concept.conditioning", "generation-and-diffusion"],
+  ["concept.denoising-generation", "generation-and-diffusion"],
+  ["concept.diffusion-model", "generation-and-diffusion"],
+] as const;
+
+const CONCEPT_SIDEBAR_BACKFILLS = [
+  ["concept.context-extension", "long-context"],
+  ["concept.positional-encodings", "long-context"],
+  ["concept.why-long-context-is-hard", "long-context"],
+  ["concept.transformer-architecture", "architecture"],
+  ["concept.page-spec-workflow-sample", "reference-samples"],
+] as const;
+
+const MODULE_SIDEBAR_BACKFILLS = [
+  ["module.attention", "attention-foundations"],
+  ["module.multi-head-attention", "attention-foundations"],
+  ["module.manifold-constrained-hyper-connections", "attention-variants"],
+] as const;
+
+describe("sidebar grouping backfill", () => {
+  test("records from slug-driven glossary groups now carry explicit registry metadata", () => {
+    for (const [recordId, expectedGroup] of GLOSSARY_SIDEBAR_BACKFILLS) {
+      expect(getConceptById(recordId)?.sidebarGrouping?.glossary).toBe(
+        expectedGroup,
+      );
+    }
+  });
+
+  test("records from slug-driven concept and module groups now carry explicit registry metadata", () => {
+    for (const [recordId, expectedGroup] of CONCEPT_SIDEBAR_BACKFILLS) {
+      expect(getConceptById(recordId)?.sidebarGrouping?.concepts).toBe(
+        expectedGroup,
+      );
+    }
+
+    for (const [recordId, expectedGroup] of MODULE_SIDEBAR_BACKFILLS) {
+      expect(getModuleById(recordId)?.sidebarGrouping?.modules).toBe(
+        expectedGroup,
+      );
+    }
+  });
+
+  test("typed taxonomy groups stay derivable without redundant sidebar overrides", () => {
+    expect(
+      getConceptById("concept.calibration")?.sidebarGrouping,
+    ).toBeUndefined();
+    expect(
+      getConceptById("concept.top-p-sampling")?.sidebarGrouping?.concepts,
+    ).toBe(undefined);
+    expect(
+      getModuleById("module.grouped-query-attention")?.sidebarGrouping,
+    ).toBe(undefined);
+    expect(
+      getTrainingRegimeById("training-regime.on-policy-distillation")
+        ?.sidebarGrouping,
+    ).toBeUndefined();
+    expect(
+      getSystemById("system.on-disk-kv-cache")?.sidebarGrouping,
+    ).toBeUndefined();
+  });
+});

@@ -76,6 +76,7 @@ import normalizationConcept from "@/content/registry/concepts/normalization.json
 import ntkAwareRopeScalingConcept from "@/content/registry/concepts/ntk-aware-rope-scaling.json";
 import optimizerStateConcept from "@/content/registry/concepts/optimizer-state.json";
 import overfittingConcept from "@/content/registry/concepts/overfitting.json";
+import pageSpecWorkflowSampleConcept from "@/content/registry/concepts/page-spec-workflow-sample.json";
 import parameterConcept from "@/content/registry/concepts/parameter.json";
 import patchConcept from "@/content/registry/concepts/patch.json";
 import perplexityConcept from "@/content/registry/concepts/perplexity.json";
@@ -286,6 +287,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(overfittingConcept),
   conceptRecordSchema.parse(generalizationConcept),
   conceptRecordSchema.parse(groupNormConcept),
+  conceptRecordSchema.parse(pageSpecWorkflowSampleConcept),
   conceptRecordSchema.parse(perplexityConcept),
   conceptRecordSchema.parse(scalingLawConcept),
   conceptRecordSchema.parse(emergentBehaviorConcept),

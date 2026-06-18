@@ -12,6 +12,9 @@
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T12:00:00.000Z",
   "conceptType": "architecture",
+  "sidebarGrouping": {
+    "glossary": "math-and-training"
+  },
   "prerequisiteIds": ["concept.token"],
   "explainsIds": []
 }

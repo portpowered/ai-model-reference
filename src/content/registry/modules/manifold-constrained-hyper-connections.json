@@ -27,5 +27,8 @@
   "mathLevel": "light",
   "moduleFamily": "transformer-block",
   "conceptType": "architecture",
+  "sidebarGrouping": {
+    "modules": "attention-variants"
+  },
   "variantGroup": "deepseek-v4-architecture"
 }

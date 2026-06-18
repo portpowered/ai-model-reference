@@ -1,10 +1,11 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const CONTENT_PATHS_MODULE_DIR = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = join(CONTENT_PATHS_MODULE_DIR, "../../..");
+const REPO_ROOT = dirname(
+  dirname(dirname(dirname(fileURLToPath(import.meta.url)))),
+);
 
-/** Repository root for committed docs/registry content regardless of caller cwd. */
+/** Repository root inferred from this module so helper imports remain stable outside repo cwd. */
 export function getProjectRoot(): string {
   return REPO_ROOT;
 }

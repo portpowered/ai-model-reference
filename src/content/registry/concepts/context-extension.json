@@ -24,6 +24,9 @@
   "createdAt": "2026-06-09T00:00:00.000Z",
   "updatedAt": "2026-06-09T21:00:00.000Z",
   "conceptType": "general",
+  "sidebarGrouping": {
+    "concepts": "long-context"
+  },
   "prerequisiteIds": ["concept.context-window", "concept.rope"],
   "explainsIds": [
     "concept.superhot-rope",
