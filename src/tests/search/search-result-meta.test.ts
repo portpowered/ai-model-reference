@@ -91,12 +91,24 @@ describe("search result meta", () => {
     expect(meta?.aliases.length).toBeGreaterThan(0);
   });
 
-  test("loadSearchResultMetaMap returns the shipped japanese core reader path only", async () => {
+  test("loadSearchResultMetaMap returns the shipped japanese attention proof set", async () => {
     const map = await loadSearchResultMetaMap("ja");
-    expect(map.size).toBe(4);
+    expect(map.size).toBe(8);
     expect(map.get("/ja/docs/modules/attention")?.title).toBe("Attention");
     expect(map.get("/ja/docs/modules/grouped-query-attention")?.title).toBe(
       "Grouped-query attention",
+    );
+    expect(map.get("/ja/docs/modules/multi-head-attention")?.title).toBe(
+      "Multi-head attention",
+    );
+    expect(map.get("/ja/docs/modules/multi-query-attention")?.title).toBe(
+      "Multi-query attention",
+    );
+    expect(map.get("/ja/docs/modules/sliding-window-attention")?.title).toBe(
+      "Sliding-window attention",
+    );
+    expect(map.get("/ja/docs/modules/linear-attention")?.title).toBe(
+      "Linear attention",
     );
     expect(map.get("/ja/docs/glossary/token")?.title).toBe("Token");
     expect(map.get("/ja/docs/concepts/transformer-architecture")?.title).toBe(

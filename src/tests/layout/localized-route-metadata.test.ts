@@ -86,7 +86,7 @@ describe("localized route metadata alternates", () => {
     expect(jaHomeMetadata.alternates?.languages?.ja).toBe("/ja");
   });
 
-  it("generates japanese docs routes only for the shipped core reader path", async () => {
+  it("generates japanese docs routes for the shipped attention proof set", async () => {
     const params = await generateLocalizedDocsStaticParams();
 
     expect(
@@ -113,6 +113,32 @@ describe("localized route metadata alternates", () => {
         ({ locale, slug }) =>
           locale === "ja" &&
           slug?.join("/") === "concepts/transformer-architecture",
+      ),
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" && slug?.join("/") === "modules/multi-head-attention",
+      ),
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" &&
+          slug?.join("/") === "modules/multi-query-attention",
+      ),
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" &&
+          slug?.join("/") === "modules/sliding-window-attention",
+      ),
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" && slug?.join("/") === "modules/linear-attention",
       ),
     ).toBe(true);
     expect(

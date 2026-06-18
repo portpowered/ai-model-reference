@@ -131,7 +131,7 @@ describe("live /api/search HTTP contract", () => {
     ).toContain("gần tuyến tính");
   });
 
-  test("GET with a japanese locale query returns only the shipped japanese core reader path", async () => {
+  test("GET with a japanese locale query returns the shipped japanese attention proof set", async () => {
     const response = await GET(
       new Request("http://localhost/api/search?query=attention&locale=ja"),
     );
@@ -140,7 +140,11 @@ describe("live /api/search HTTP contract", () => {
     const results = (await response.json()) as Array<{ url: string }>;
     expect(results.map((result) => result.url)).toEqual([
       "/ja/docs/modules/attention",
+      "/ja/docs/modules/linear-attention",
+      "/ja/docs/modules/multi-head-attention",
       "/ja/docs/modules/grouped-query-attention",
+      "/ja/docs/modules/multi-query-attention",
+      "/ja/docs/modules/sliding-window-attention",
       "/ja/docs/glossary/token",
       "/ja/docs/concepts/transformer-architecture",
     ]);
@@ -329,11 +333,15 @@ describe("docsSearchApi", () => {
     expect(payload.type).toBe("advanced");
   });
 
-  test("search returns only the shipped japanese core reader path", async () => {
+  test("search returns the shipped japanese attention proof set", async () => {
     const results = await docsSearchApi.search("attention", { locale: "ja" });
     expect(results.map((result) => result.url)).toEqual([
       "/ja/docs/modules/attention",
+      "/ja/docs/modules/linear-attention",
+      "/ja/docs/modules/multi-head-attention",
       "/ja/docs/modules/grouped-query-attention",
+      "/ja/docs/modules/multi-query-attention",
+      "/ja/docs/modules/sliding-window-attention",
       "/ja/docs/glossary/token",
       "/ja/docs/concepts/transformer-architecture",
     ]);

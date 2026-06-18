@@ -435,7 +435,7 @@ describe("SearchPagePanel tag handoff", () => {
     ).toBeTruthy();
   });
 
-  test("renders the japanese shipped search slice with locale-aware copy and urls", async () => {
+  test("renders the japanese shipped attention proof set with locale-aware copy and urls", async () => {
     const context = await loadAppTestContext("ja");
     const searchParams = new URLSearchParams("tag=attention");
     await renderWithAppProviders(
@@ -469,7 +469,11 @@ describe("SearchPagePanel tag handoff", () => {
 
     expect(urls).toEqual([
       "/ja/docs/modules/attention",
+      "/ja/docs/modules/linear-attention",
+      "/ja/docs/modules/multi-head-attention",
       "/ja/docs/modules/grouped-query-attention",
+      "/ja/docs/modules/multi-query-attention",
+      "/ja/docs/modules/sliding-window-attention",
       "/ja/docs/glossary/token",
       "/ja/docs/concepts/transformer-architecture",
     ]);
