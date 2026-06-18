@@ -41,6 +41,7 @@ describe("attention tag landing resources", () => {
     expect(moduleGroup?.kindLabel).toBe("Module");
     expect(moduleGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/modules/attention",
+      "/docs/modules/causal-attention",
       "/docs/modules/compressed-sparse-attention",
       "/docs/modules/grouped-query-attention",
       "/docs/modules/heavily-compressed-attention",

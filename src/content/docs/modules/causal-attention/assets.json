@@ -1,0 +1,15 @@
+{
+  "computeFlow": {
+    "type": "graph",
+    "graphId": "graph.causal-attention-time-pattern",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.causal-attention-comparison",
+    "captionKey": "assets.comparisonTable.caption"
+  }
+}

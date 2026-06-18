@@ -1,0 +1,118 @@
+{
+  "id": "graph.causal-attention-time-pattern",
+  "slug": "causal-attention-time-pattern",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "module.causal-attention",
+  "graphType": "attention-pattern",
+  "rootNodeId": "causal-time-current-query",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "causal-time-current-query",
+      "labelKey": "graph.nodes.timeCurrentQuery.label",
+      "moduleKind": "attention",
+      "position": { "x": 350, "y": 0 },
+      "headCountRole": "query",
+      "visualRole": "summary-node",
+      "childNodeIds": [
+        "causal-time-kv-t-3",
+        "causal-time-kv-t-2",
+        "causal-time-kv-t-1",
+        "causal-time-kv-t",
+        "causal-time-kv-t-plus-1",
+        "causal-time-kv-t-plus-2"
+      ]
+    },
+    {
+      "id": "causal-time-kv-t-3",
+      "labelKey": "graph.nodes.timeKvT3.label",
+      "moduleKind": "cache",
+      "position": { "x": 0, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "causal-time-kv-t-2",
+      "labelKey": "graph.nodes.timeKvT2.label",
+      "moduleKind": "cache",
+      "position": { "x": 140, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "causal-time-kv-t-1",
+      "labelKey": "graph.nodes.timeKvT1.label",
+      "moduleKind": "cache",
+      "position": { "x": 280, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "causal-time-kv-t",
+      "labelKey": "graph.nodes.timeKvT.label",
+      "moduleKind": "cache",
+      "position": { "x": 420, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "causal-time-kv-t-plus-1",
+      "labelKey": "graph.nodes.timeKvTPlus1.label",
+      "moduleKind": "cache",
+      "position": { "x": 560, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node-muted",
+      "childNodeIds": []
+    },
+    {
+      "id": "causal-time-kv-t-plus-2",
+      "labelKey": "graph.nodes.timeKvTPlus2.label",
+      "moduleKind": "cache",
+      "position": { "x": 700, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node-muted",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "causal-time-query-to-kv-t-3",
+      "source": "causal-time-current-query",
+      "target": "causal-time-kv-t-3",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "causal-time-query-to-kv-t-2",
+      "source": "causal-time-current-query",
+      "target": "causal-time-kv-t-2",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "causal-time-query-to-kv-t-1",
+      "source": "causal-time-current-query",
+      "target": "causal-time-kv-t-1",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "causal-time-query-to-kv-t",
+      "source": "causal-time-current-query",
+      "target": "causal-time-kv-t",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

@@ -67,6 +67,6 @@ describe("table-registry-runtime", () => {
   });
 
   test("lists bundled table records", () => {
-    expect(listTableRecords().length).toBe(19);
+    expect(listTableRecords().length).toBe(20);
   });
 });

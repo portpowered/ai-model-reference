@@ -1,0 +1,60 @@
+{
+  "id": "module.causal-attention",
+  "slug": "causal-attention",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "causal attention",
+    "causal self-attention",
+    "causal masking",
+    "causal mask",
+    "look-ahead mask",
+    "look ahead mask"
+  ],
+  "tags": ["attention", "kv-cache"],
+  "relatedIds": [
+    "module.attention",
+    "module.multi-head-attention",
+    "concept.decoder",
+    "concept.token",
+    "concept.autoregressive-generation",
+    "concept.prefill-decode-split"
+  ],
+  "citationIds": ["citation.attention-is-all-you-need"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "releaseDate": "2017-06-12",
+  "authors": [
+    "Ashish Vaswani",
+    "Noam Shazeer",
+    "Niki Parmar",
+    "Jakob Uszkoreit",
+    "Llion Jones",
+    "Aidan N. Gomez",
+    "Lukasz Kaiser",
+    "Illia Polosukhin"
+  ],
+  "sourceId": "citation.attention-is-all-you-need",
+  "moduleType": "attention",
+  "moduleFamily": "attention",
+  "conceptType": "attention-variant",
+  "variantGroup": "attention-mask-pattern",
+  "variantOf": "module.attention",
+  "optimizes": [
+    "autoregressive-generation",
+    "training-inference-alignment",
+    "prefix-consistency"
+  ],
+  "practicalBenefits": [
+    "prevents future-token leakage during next-token prediction",
+    "matches decoder training with left-to-right generation"
+  ],
+  "exampleModelIds": ["model.gpt-3"],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}

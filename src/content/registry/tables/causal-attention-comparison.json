@@ -1,0 +1,49 @@
+{
+  "id": "table.causal-attention-comparison",
+  "subjectId": "module.causal-attention",
+  "columns": [
+    {
+      "moduleId": "module.causal-attention",
+      "titleKey": "tables.comparison.columns.causal.title"
+    },
+    {
+      "moduleId": "module.multi-head-attention",
+      "titleKey": "tables.comparison.columns.mha.title"
+    },
+    {
+      "moduleId": "module.sliding-window-attention",
+      "titleKey": "tables.comparison.columns.window.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "maskRule",
+      "labelKey": "tables.comparison.dimensions.maskRule"
+    },
+    {
+      "id": "visibleContext",
+      "labelKey": "tables.comparison.dimensions.visibleContext"
+    },
+    {
+      "id": "generationRole",
+      "labelKey": "tables.comparison.dimensions.generationRole"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.causal-attention": {
+      "maskRule": "tables.comparison.values.causal.maskRule",
+      "visibleContext": "tables.comparison.values.causal.visibleContext",
+      "generationRole": "tables.comparison.values.causal.generationRole"
+    },
+    "module.multi-head-attention": {
+      "maskRule": "tables.comparison.values.mha.maskRule",
+      "visibleContext": "tables.comparison.values.mha.visibleContext",
+      "generationRole": "tables.comparison.values.mha.generationRole"
+    },
+    "module.sliding-window-attention": {
+      "maskRule": "tables.comparison.values.window.maskRule",
+      "visibleContext": "tables.comparison.values.window.visibleContext",
+      "generationRole": "tables.comparison.values.window.generationRole"
+    }
+  }
+}

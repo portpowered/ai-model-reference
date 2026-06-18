@@ -106,6 +106,12 @@ export const TAG_MESSAGES_ROOT = getTagMessagesRoot(REGISTRY_ROOT);
 /** Phase 1 attention module bridge page directory. */
 export const ATTENTION_MODULE_PAGE_DIR = join(MODULES_DOCS_ROOT, "attention");
 
+/** Transformer causal attention canonical module page directory. */
+export const CAUSAL_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "causal-attention",
+);
+
 /** Phase 1 grouped-query attention sample module page directory. */
 export const GROUPED_QUERY_ATTENTION_PAGE_DIR = join(
   MODULES_DOCS_ROOT,

@@ -81,11 +81,12 @@ describe("attention module variant hub page", () => {
     expect(html).not.toContain("Phase 1 bridge page");
     expect(html).not.toContain("roadmap");
     expect(html).toContain('data-registry-id="module.attention"');
+    expect(html).toContain('href="/docs/modules/causal-attention"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/docs/glossary/kv-cache"');
-    expect(html).toContain("Show 2 more");
+    expect(html).toContain("Show 3 more");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('data-testid="tag-pill-list"');

@@ -139,7 +139,10 @@ describe("graph-registry-runtime", () => {
   test("lists all bundled graph records", () => {
     const records = listGraphRecords();
 
-    expect(records.length).toBe(43);
+    expect(records.length).toBe(44);
+    expect(records.map((record) => record.id)).toContain(
+      "graph.causal-attention-time-pattern",
+    );
     expect(records.map((record) => record.id)).toContain(
       "graph.deepseek-v4-contribution",
     );

@@ -8,8 +8,8 @@ import { PageAssetsProvider } from "@/features/docs/components/page-assets-conte
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import {
   GraphNodeLabel,
-  RegistryGraphFlow,
   nodeVisualRoleHasHandles,
+  RegistryGraphFlow,
 } from "@/features/models/components/RegistryGraphFlow";
 import { REGISTRY_GRAPH_FLOW_INTERACTION } from "@/features/models/components/registry-graph-flow-theme";
 import {
