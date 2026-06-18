@@ -8,7 +8,11 @@ import { PageMessagesProvider } from "@/features/docs/components/page-messages-c
 import assetFixture from "@/lib/content/__fixtures__/page-assets.json";
 import messageFixture from "@/lib/content/__fixtures__/page-messages.json";
 import { parsePageAssetConfig } from "@/lib/content/assets";
-import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import {
+  GROUPED_QUERY_ATTENTION_PAGE_DIR,
+  RELU_GLOSSARY_PAGE_DIR,
+  SILU_GLOSSARY_PAGE_DIR,
+} from "@/lib/content/content-paths";
 import type { PageAssetConfig, PageMessages } from "@/lib/content/schemas";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
@@ -28,6 +32,26 @@ const gqaAssets = parsePageAssetConfig(
   JSON.parse(
     readFileSync(join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "assets.json"), "utf8"),
   ),
+);
+
+const reluMessages = pageMessagesSchema.parse(
+  JSON.parse(
+    readFileSync(join(RELU_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
+  ),
+);
+
+const reluAssets = parsePageAssetConfig(
+  JSON.parse(readFileSync(join(RELU_GLOSSARY_PAGE_DIR, "assets.json"), "utf8")),
+);
+
+const siluMessages = pageMessagesSchema.parse(
+  JSON.parse(
+    readFileSync(join(SILU_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
+  ),
+);
+
+const siluAssets = parsePageAssetConfig(
+  JSON.parse(readFileSync(join(SILU_GLOSSARY_PAGE_DIR, "assets.json"), "utf8")),
 );
 
 function renderPageAsset(
@@ -185,6 +209,41 @@ describe("PageAsset", () => {
     expect(schemaHtml).toContain(
       'data-asset-reference-id="schema.gqa-forward-pass"',
     );
+  });
+
+  test("renders activation chart for the ReLU module page", () => {
+    const html = renderPageAsset(
+      "computeFlow",
+      false,
+      reluAssets,
+      reluMessages,
+    );
+    expect(html).toContain('data-page-asset="computeFlow"');
+    expect(html).toContain('data-asset-type="chart"');
+    expect(html).toContain('data-activation-chart="true"');
+    expect(html).toContain(
+      'data-chart-id="chart.activation-family.relu-silu-comparison"',
+    );
+    expect(html).toContain("ReLU and SiLU shown together");
+    expect(html).toContain("SiLU");
+    expect(html).not.toContain('data-graph-id="graph.relu-activation-flow"');
+  });
+
+  test("renders activation chart for the SiLU module page", () => {
+    const html = renderPageAsset(
+      "computeFlow",
+      false,
+      siluAssets,
+      siluMessages,
+    );
+    expect(html).toContain('data-page-asset="computeFlow"');
+    expect(html).toContain('data-asset-type="chart"');
+    expect(html).toContain('data-activation-chart="true"');
+    expect(html).toContain(
+      'data-chart-id="chart.activation-family.relu-silu-comparison"',
+    );
+    expect(html).toContain("ReLU and SiLU shown together");
+    expect(html).not.toContain('data-graph-id="graph.silu-activation-flow"');
   });
 
   test("renders non-react-flow graph fallback markup when webRenderer is not react-flow", () => {

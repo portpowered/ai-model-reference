@@ -22,9 +22,9 @@ import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
 import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
-import { ModuleGraph } from "@/features/models/components/ModuleGraph";
 import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
 import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
+import { ModuleChart } from "@/features/models/components/ModuleChart";
 import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
 
 <ModuleAtAGlance registryId="module.relu" />
@@ -44,7 +44,7 @@ import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModul
 <Section id="how-it-works" titleKey="sections.howItWorks.title">
   <T k="sections.howItWorks.body" />
 
-  <ModuleGraph registryId="module.relu" assetId="computeFlow" />
+  <ModuleChart registryId="module.relu" assetId="computeFlow" />
 </Section>
 
 <Section id="math-or-compute-schema" titleKey="sections.mathOrComputeSchema.title">

@@ -25,6 +25,7 @@ import {
   ModuleAttentionSchema,
   ModuleAttentionSchemaComparison,
 } from "@/features/models/components/ModuleAttentionSchemaComparison";
+import { ModuleChart } from "@/features/models/components/ModuleChart";
 import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
 import { ModuleGraph } from "@/features/models/components/ModuleGraph";
 import { ModuleMetadataCard } from "@/features/models/components/ModuleMetadataCard";
@@ -45,6 +46,7 @@ export const moduleMdxComponents: MDXComponents = {
   T,
   TagPillList,
   ModuleComparisonTable,
+  ModuleChart,
   ModuleAttentionMhaMqaSchemaComparison,
   ModuleAttentionSchema,
   ModuleAttentionSchemaComparison,

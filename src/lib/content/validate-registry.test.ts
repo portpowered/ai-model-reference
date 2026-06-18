@@ -814,6 +814,103 @@ updatedAt: "2026-06-02"
     }
   });
 
+  test("reports published modules missing At a Glance release metadata", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(join(registryRoot, "citations"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "missing-at-a-glance.json"),
+      JSON.stringify({
+        ...validModuleRecord,
+        id: "module.missing-at-a-glance",
+        slug: "missing-at-a-glance",
+        releaseDate: undefined,
+        authors: undefined,
+        sourceId: undefined,
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(registryRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "missing-module-at-a-glance-metadata" &&
+            error.message.includes("module.missing-at-a-glance") &&
+            error.message.includes("missing releaseDate, authors, sourceId"),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("allowlists current legacy modules missing At a Glance release metadata", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(join(registryRoot, "citations"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "absolute-positional-embeddings.json"),
+      JSON.stringify({
+        ...validModuleRecord,
+        id: "module.absolute-positional-embeddings",
+        slug: "absolute-positional-embeddings",
+        releaseDate: undefined,
+        authors: undefined,
+        sourceId: undefined,
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(registryRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "missing-module-at-a-glance-metadata" &&
+            error.message.includes(
+              "module.absolute-positional-embeddings",
+            ),
+        ),
+      ).toBe(false);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   test("reports missing localized asset text keys for shipped non-default docs pages", async () => {
     for (const locale of nonDefaultLocales) {
       const tempRoot = join(

@@ -52,7 +52,7 @@
   "assets": {
     "computeFlow": {
       "alt": "Activation comparison graph showing how ReLU, LeakyReLU, and SiLU change the hidden activation step inside the same FFN slot",
-      "caption": "Switch between nearby activation rules to see how the same FFN path changes once hidden values cross below zero",
+      "caption": "ReLU and SiLU are plotted on the same axes so the hard cutoff and smooth gate are visible directly",
       "variants": {
         "relu": {
           "label": "ReLU"

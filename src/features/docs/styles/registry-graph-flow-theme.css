@@ -68,15 +68,24 @@
 }
 
 .registry-graph-flow__annotation {
+  display: grid;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  place-items: center;
   max-width: 320px;
   color: #111111;
   font-size: 20px;
   font-weight: 700;
   line-height: 1.35;
+  text-align: center;
 }
 
 .registry-graph-flow__default-node {
   display: grid;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
   min-height: 48px;
   place-items: center;
   max-width: 176px;
@@ -93,6 +102,9 @@
 
 .registry-graph-flow__timeline-node {
   display: grid;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
   min-height: 48px;
   min-width: 84px;
   place-items: center;
@@ -120,6 +132,9 @@
 .registry-graph-flow__process-node,
 .registry-graph-flow__latent-node {
   display: grid;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
   min-height: 48px;
   place-items: center;
   border-radius: 8px;

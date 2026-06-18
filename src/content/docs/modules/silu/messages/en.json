@@ -52,7 +52,7 @@
   "assets": {
     "computeFlow": {
       "alt": "Activation comparison graph showing how ReLU, LeakyReLU, and SiLU reshape hidden values inside the same FFN path",
-      "caption": "SiLU keeps the same dense FFN slot as ReLU-family activations, but it replaces the hard cutoff with a smooth self-gating curve",
+      "caption": "ReLU and SiLU are plotted on the same axes so the hard cutoff and smooth gate are visible directly",
       "variants": {
         "relu": {
           "label": "ReLU"

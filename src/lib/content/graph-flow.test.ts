@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import mixtureOfExpertsMessages from "@/content/docs/modules/mixture-of-experts/messages/en.json";
 import {
   buildRegistryFlowGraph,
+  estimateRegistryFlowNodeBoxSize,
   orderGraphNodes,
   resolveGraphNodeLabel,
 } from "@/lib/content/graph-flow";
@@ -182,5 +184,47 @@ describe("graph-flow", () => {
     expect(nodes.find((node) => node.id === "mha-keys-label")?.data.label).toBe(
       "Subject keys",
     );
+  });
+
+  test("preserves the requested MoE annotation height when the content already fits", () => {
+    const graph = getGraphById("graph.mixture-of-experts-routing-flow");
+    expect(graph).toBeDefined();
+    if (!graph) {
+      return;
+    }
+
+    const { nodes } = buildRegistryFlowGraph(
+      graph,
+      mixtureOfExpertsMessages as PageMessages,
+    );
+    const inactiveExpertsNode = nodes.find(
+      (node) => node.id === "inactive-experts",
+    );
+    const sourceNode = graph.nodes.find(
+      (node) => node.id === "inactive-experts",
+    );
+
+    expect(sourceNode?.size?.height).toBe(120);
+    expect(inactiveExpertsNode?.data.label).toBe(
+      "Other experts stay inactive for this token",
+    );
+    expect(inactiveExpertsNode?.style).toBeDefined();
+    expect(inactiveExpertsNode?.data.size?.height).toBe(
+      sourceNode?.size?.height,
+    );
+    expect(inactiveExpertsNode?.style).toMatchObject({
+      width: inactiveExpertsNode?.data.size?.width,
+      height: inactiveExpertsNode?.data.size?.height,
+    });
+  });
+
+  test("keeps the requested annotation box when the MoE inactive-experts label fits", () => {
+    const estimated = estimateRegistryFlowNodeBoxSize({
+      label: "Other experts stay inactive for this token",
+      visualRole: "annotation",
+      requestedSize: { width: 230, height: 120 },
+    });
+
+    expect(estimated).toEqual({ width: 230, height: 120 });
   });
 });

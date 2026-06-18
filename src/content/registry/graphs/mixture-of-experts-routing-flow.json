@@ -22,7 +22,8 @@
       "id": "input-state",
       "labelKey": "graph.nodes.inputState.label",
       "moduleKind": "input",
-      "position": { "x": 265, "y": 0 },
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 170, "height": 80 },
       "visualRole": "process-node",
       "childNodeIds": ["router"]
     },
@@ -31,6 +32,7 @@
       "labelKey": "graph.nodes.router.label",
       "moduleKind": "feed-forward",
       "position": { "x": 250, "y": 110 },
+      "size": { "width": 170, "height": 80 },
       "visualRole": "process-node",
       "childNodeIds": ["topk-choice", "inactive-experts"]
     },
@@ -38,7 +40,8 @@
       "id": "topk-choice",
       "labelKey": "graph.nodes.topkChoice.label",
       "moduleKind": "feed-forward",
-      "position": { "x": 250, "y": 220 },
+      "position": { "x": 230, "y": 220 },
+      "size": { "width": 210, "height": 96 },
       "visualRole": "summary-node",
       "childNodeIds": ["expert-one", "expert-two"]
     },
@@ -46,7 +49,8 @@
       "id": "expert-one",
       "labelKey": "graph.nodes.expertOne.label",
       "moduleKind": "feed-forward",
-      "position": { "x": 70, "y": 360 },
+      "position": { "x": 60, "y": 360 },
+      "size": { "width": 170, "height": 80 },
       "visualRole": "process-node",
       "childNodeIds": ["weighted-merge"]
     },
@@ -54,7 +58,8 @@
       "id": "expert-two",
       "labelKey": "graph.nodes.expertTwo.label",
       "moduleKind": "feed-forward",
-      "position": { "x": 430, "y": 360 },
+      "position": { "x": 440, "y": 360 },
+      "size": { "width": 170, "height": 80 },
       "visualRole": "process-node",
       "childNodeIds": ["weighted-merge"]
     },
@@ -63,6 +68,7 @@
       "labelKey": "graph.nodes.inactiveExperts.label",
       "moduleKind": "other",
       "position": { "x": 520, "y": 210 },
+      "size": { "width": 230, "height": 120 },
       "visualRole": "annotation",
       "childNodeIds": []
     },
@@ -70,7 +76,8 @@
       "id": "weighted-merge",
       "labelKey": "graph.nodes.weightedMerge.label",
       "moduleKind": "feed-forward",
-      "position": { "x": 225, "y": 500 },
+      "position": { "x": 250, "y": 500 },
+      "size": { "width": 170, "height": 80 },
       "visualRole": "process-node",
       "childNodeIds": ["output-state"]
     },
@@ -78,7 +85,8 @@
       "id": "output-state",
       "labelKey": "graph.nodes.outputState.label",
       "moduleKind": "output",
-      "position": { "x": 260, "y": 620 },
+      "position": { "x": 250, "y": 620 },
+      "size": { "width": 170, "height": 80 },
       "visualRole": "process-node",
       "childNodeIds": []
     }
@@ -88,43 +96,57 @@
       "id": "input-to-router",
       "source": "input-state",
       "target": "router",
-      "edgeKind": "data-flow"
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
     },
     {
       "id": "router-to-topk",
       "source": "router",
       "target": "topk-choice",
-      "edgeKind": "data-flow"
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
     },
     {
       "id": "topk-to-expert-one",
       "source": "topk-choice",
       "target": "expert-one",
-      "edgeKind": "data-flow"
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
     },
     {
       "id": "topk-to-expert-two",
       "source": "topk-choice",
       "target": "expert-two",
-      "edgeKind": "data-flow"
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
     },
     {
       "id": "expert-one-to-merge",
       "source": "expert-one",
       "target": "weighted-merge",
-      "edgeKind": "data-flow"
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
     },
     {
       "id": "expert-two-to-merge",
       "source": "expert-two",
       "target": "weighted-merge",
-      "edgeKind": "data-flow"
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
     },
     {
       "id": "merge-to-output",
       "source": "weighted-merge",
       "target": "output-state",
-      "edgeKind": "data-flow"
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
     }
   ]
 }

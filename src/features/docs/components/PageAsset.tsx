@@ -4,6 +4,10 @@ import { MissingAssetId } from "@/features/docs/components/MissingAssetId";
 import { MissingMessageKey } from "@/features/docs/components/MissingMessageKey";
 import { usePageAssets } from "@/features/docs/components/page-assets-context";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
+import {
+  ActivationFunctionChart,
+  isActivationChartId,
+} from "@/features/models/components/ActivationFunctionChart";
 import { AttentionVariantComparisonGraph } from "@/features/models/components/AttentionVariantComparisonGraph";
 import { RegistryComparisonTable } from "@/features/models/components/RegistryComparisonTable";
 import { RegistryGraphFlow } from "@/features/models/components/RegistryGraphFlow";
@@ -116,6 +120,27 @@ function StructuredAssetSlot({
   );
 }
 
+function ChartAssetSlot({
+  assetId,
+  asset,
+  alt,
+  caption,
+}: {
+  assetId: string;
+  asset: Extract<PageAssetRecord, { type: "chart" }>;
+  alt?: string;
+  caption?: string;
+}) {
+  return (
+    <ActivationFunctionChart
+      assetId={assetId}
+      chartId={asset.chartId}
+      alt={alt}
+      caption={caption}
+    />
+  );
+}
+
 export function PageAsset({ assetId }: { assetId: string }) {
   const { assets, isDev } = usePageAssets();
   const { messages } = usePageMessages();
@@ -186,6 +211,27 @@ export function PageAsset({ assetId }: { assetId: string }) {
         asset={asset}
         caption={text.caption}
         isDev={isDev}
+      />
+    );
+  }
+
+  if (asset.type === "chart") {
+    if (!isActivationChartId(asset.chartId)) {
+      return (
+        <StructuredAssetSlot
+          assetId={assetId}
+          asset={asset}
+          caption={text.caption}
+        />
+      );
+    }
+
+    return (
+      <ChartAssetSlot
+        assetId={assetId}
+        asset={asset}
+        alt={text.alt}
+        caption={text.caption}
       />
     );
   }

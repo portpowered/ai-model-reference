@@ -16,6 +16,7 @@ import type {
 const NODE_X = 0;
 const NODE_Y_GAP = 110;
 const ROW_LABEL_X_OFFSET = -112;
+const NODE_BOX_SAFETY_PADDING = 4;
 
 export type RegistryFlowNodeData = {
   label: string;
@@ -58,6 +59,19 @@ export class GraphRenderIssueError extends Error {
   }
 }
 
+type RegistryFlowNodeVisualRole = NonNullable<
+  RegistryFlowNodeData["visualRole"]
+>;
+
+type NodeSizeEstimateConfig = {
+  minWidth: number;
+  fontSize: number;
+  lineHeight: number;
+  paddingX: number;
+  paddingY: number;
+  borderWidth: number;
+};
+
 export function resolveGraphNodeLabel(
   messages: PageMessages | readonly PageMessages[],
   labelKey: string,
@@ -70,6 +84,139 @@ export function resolveGraphNodeLabel(
     }
   }
   return labelKey;
+}
+
+function getNodeSizeEstimateConfig(
+  visualRole: RegistryFlowNodeVisualRole,
+): NodeSizeEstimateConfig | null {
+  switch (visualRole) {
+    case "annotation":
+      return {
+        minWidth: 0,
+        fontSize: 20,
+        lineHeight: 1.35,
+        paddingX: 0,
+        paddingY: 0,
+        borderWidth: 0,
+      };
+    case "summary-node":
+      return {
+        minWidth: 116,
+        fontSize: 14,
+        lineHeight: 1.25,
+        paddingX: 10,
+        paddingY: 8,
+        borderWidth: 2,
+      };
+    case "process-node":
+      return {
+        minWidth: 134,
+        fontSize: 14,
+        lineHeight: 1.25,
+        paddingX: 10,
+        paddingY: 8,
+        borderWidth: 2,
+      };
+    case "latent-node":
+      return {
+        minWidth: 148,
+        fontSize: 14,
+        lineHeight: 1.25,
+        paddingX: 10,
+        paddingY: 8,
+        borderWidth: 2,
+      };
+    case "default":
+      return {
+        minWidth: 0,
+        fontSize: 13,
+        lineHeight: 1.25,
+        paddingX: 10,
+        paddingY: 8,
+        borderWidth: 1,
+      };
+    case "timeline-node":
+    case "timeline-node-muted":
+      return {
+        minWidth: 84,
+        fontSize: 13,
+        lineHeight: 1.25,
+        paddingX: 10,
+        paddingY: 8,
+        borderWidth: 1,
+      };
+    case "architecture-embedding":
+    case "architecture-attention":
+    case "architecture-feed-forward":
+    case "architecture-add-norm":
+    case "architecture-linear":
+    case "architecture-softmax":
+    case "architecture-io":
+      return {
+        minWidth: 0,
+        fontSize: 15,
+        lineHeight: 1.15,
+        paddingX: 12,
+        paddingY: 8,
+        borderWidth: 3,
+      };
+    default:
+      return null;
+  }
+}
+
+function countWrappedTextLines(text: string, maxCharsPerLine: number): number {
+  const explicitLines = text.split("\n");
+  let total = 0;
+
+  for (const explicitLine of explicitLines) {
+    const trimmed = explicitLine.trim();
+    if (trimmed.length === 0) {
+      total += 1;
+      continue;
+    }
+    total += Math.max(1, Math.ceil(trimmed.length / maxCharsPerLine));
+  }
+
+  return total;
+}
+
+export function estimateRegistryFlowNodeBoxSize(input: {
+  label: string;
+  visualRole?: RegistryFlowNodeData["visualRole"];
+  requestedSize?: { width: number; height: number };
+}): { width: number; height: number } | undefined {
+  const visualRole = input.visualRole ?? "default";
+  const config = getNodeSizeEstimateConfig(visualRole);
+
+  if (!config) {
+    return input.requestedSize;
+  }
+
+  const requestedWidth = input.requestedSize?.width ?? config.minWidth;
+  const width = Math.max(requestedWidth, config.minWidth);
+  const availableTextWidth = Math.max(
+    1,
+    width - config.paddingX * 2 - config.borderWidth * 2,
+  );
+  const averageCharacterWidth = config.fontSize * 0.56;
+  const maxCharsPerLine = Math.max(
+    1,
+    Math.floor(availableTextWidth / averageCharacterWidth),
+  );
+  const lineCount = countWrappedTextLines(input.label, maxCharsPerLine);
+  const contentHeight = Math.ceil(
+    lineCount * config.fontSize * config.lineHeight +
+      config.paddingY * 2 +
+      config.borderWidth * 2 +
+      NODE_BOX_SAFETY_PADDING,
+  );
+  const requestedHeight = input.requestedSize?.height ?? 0;
+
+  return {
+    width,
+    height: Math.max(requestedHeight, contentHeight),
+  };
 }
 
 export function orderGraphNodes(graph: GraphRecord): ModuleGraphNode[] {
@@ -289,19 +436,25 @@ export function buildRegistryFlowGraph(
       node.visualRole === "row-label"
         ? { ...basePosition, x: basePosition.x + ROW_LABEL_X_OFFSET }
         : basePosition;
+    const label = resolveGraphNodeLabel(labelSources, node.labelKey);
+    const resolvedSize = estimateRegistryFlowNodeBoxSize({
+      label,
+      visualRole: node.visualRole,
+      requestedSize: node.size,
+    });
 
     return {
       id: node.id,
       position,
       type: "attentionHead",
-      ...(node.size
-        ? { style: { width: node.size.width, height: node.size.height } }
+      ...(resolvedSize
+        ? { style: { width: resolvedSize.width, height: resolvedSize.height } }
         : {}),
       ...(node.zIndex !== undefined ? { zIndex: node.zIndex } : {}),
       data: {
-        label: resolveGraphNodeLabel(labelSources, node.labelKey),
+        label,
         moduleKind: node.moduleKind,
-        ...(node.size ? { size: node.size } : {}),
+        ...(resolvedSize ? { size: resolvedSize } : {}),
         ...(node.headCountRole ? { headCountRole: node.headCountRole } : {}),
         ...(node.visualRole ? { visualRole: node.visualRole } : {}),
       },

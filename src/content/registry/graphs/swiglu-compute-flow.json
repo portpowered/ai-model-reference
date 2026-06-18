@@ -22,7 +22,7 @@
       "id": "input-state",
       "labelKey": "graph.nodes.inputState.label",
       "moduleKind": "input",
-      "position": { "x": 290, "y": 0 },
+      "position": { "x": 210, "y": 0 },
       "visualRole": "process-node",
       "childNodeIds": ["value-projection", "gate-projection"]
     },
@@ -30,7 +30,7 @@
       "id": "value-projection",
       "labelKey": "graph.nodes.valueProjection.label",
       "moduleKind": "projection",
-      "position": { "x": 80, "y": 120 },
+      "position": { "x": 80, "y": 110 },
       "visualRole": "process-node",
       "childNodeIds": ["value-branch"]
     },
@@ -38,7 +38,7 @@
       "id": "gate-projection",
       "labelKey": "graph.nodes.gateProjection.label",
       "moduleKind": "projection",
-      "position": { "x": 430, "y": 120 },
+      "position": { "x": 430, "y": 110 },
       "visualRole": "process-node",
       "childNodeIds": ["gate-activation"]
     },
@@ -46,7 +46,7 @@
       "id": "value-branch",
       "labelKey": "graph.nodes.valueBranch.label",
       "moduleKind": "feed-forward",
-      "position": { "x": 105, "y": 250 },
+      "position": { "x": 105, "y": 220 },
       "visualRole": "summary-node",
       "childNodeIds": ["gated-product"]
     },
@@ -54,7 +54,7 @@
       "id": "gate-activation",
       "labelKey": "graph.nodes.gateActivation.label",
       "moduleKind": "operation",
-      "position": { "x": 450, "y": 250 },
+      "position": { "x": 450, "y": 220 },
       "visualRole": "process-node",
       "childNodeIds": ["gated-product"]
     },
@@ -62,7 +62,7 @@
       "id": "gated-product",
       "labelKey": "graph.nodes.gatedProduct.label",
       "moduleKind": "feed-forward",
-      "position": { "x": 250, "y": 390 },
+      "position": { "x": 250, "y": 330 },
       "visualRole": "process-node",
       "childNodeIds": ["project-back"]
     },
@@ -70,7 +70,7 @@
       "id": "project-back",
       "labelKey": "graph.nodes.projectBack.label",
       "moduleKind": "projection",
-      "position": { "x": 250, "y": 510 },
+      "position": { "x": 175, "y": 440 },
       "visualRole": "process-node",
       "childNodeIds": ["output-state"]
     },
@@ -78,7 +78,7 @@
       "id": "output-state",
       "labelKey": "graph.nodes.outputState.label",
       "moduleKind": "output",
-      "position": { "x": 275, "y": 620 },
+      "position": { "x": 200, "y": 550 },
       "visualRole": "process-node",
       "childNodeIds": []
     }

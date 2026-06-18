@@ -119,6 +119,75 @@ const requiredCitationExceptionReasons: Partial<
     "Legacy migrated module is published before citation backfill is complete.",
 };
 
+const moduleAtAGlanceMetadataExceptionReasons: Partial<
+  Record<RegistryRecord["id"], string>
+> = {
+  "module.absolute-positional-embeddings":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.alibi":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.attention":
+    "Legacy module overview predates the At a Glance release metadata backfill requirement.",
+  "module.batch-norm":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.feed-forward-network":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.group-norm":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.layer-norm":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.leaky-relu":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.learned-positional-embeddings":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.linear-attention":
+    "Legacy module is published before At a Glance release metadata backfill is complete.",
+  "module.longrope":
+    "Legacy module is published before At a Glance release metadata backfill is complete.",
+  "module.mixture-of-experts":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.multi-head-attention":
+    "Legacy module is published before At a Glance release metadata backfill is complete.",
+  "module.multi-head-latent-attention":
+    "Legacy module is published before At a Glance release metadata backfill is complete.",
+  "module.multi-query-attention":
+    "Legacy module is published before At a Glance release metadata backfill is complete.",
+  "module.nope":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.ntk-aware-rope-scaling":
+    "Legacy module is published before At a Glance release metadata backfill is complete.",
+  "module.positional-interpolation":
+    "Legacy module is published before At a Glance release metadata backfill is complete.",
+  "module.qk-norm":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.relative-position-bias":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.relu":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.rmsnorm":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.rope":
+    "Legacy module is published before At a Glance release metadata backfill is complete.",
+  "module.silu":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.sinusoidal-positional-embeddings":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.sliding-window-attention":
+    "Legacy module is published before At a Glance release metadata backfill is complete.",
+  "module.sparse-attention":
+    "Legacy module is published before At a Glance release metadata backfill is complete.",
+  "module.standard-ffn":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.superhot-rope":
+    "Legacy module is published before At a Glance release metadata backfill is complete.",
+  "module.swiglu":
+    "Legacy migrated module is published before At a Glance release metadata backfill is complete.",
+  "module.t5-relative-position-bias":
+    "Legacy module is published before At a Glance release metadata backfill is complete.",
+  "module.yarn":
+    "Legacy module is published before At a Glance release metadata backfill is complete.",
+};
+
 function pageKindMatchesRegistryRecord(
   pageKind: PageKind,
   registryKind: RegistryRecord["kind"],
@@ -161,6 +230,32 @@ function requiresAtLeastOneCitation(record: RegistryRecord): boolean {
   }
 
   return record.citationIds.length === 0;
+}
+
+function missingModuleAtAGlanceFields(record: RegistryRecord): string[] {
+  if (record.kind !== "module" || record.status !== "published") {
+    return [];
+  }
+
+  if (moduleAtAGlanceMetadataExceptionReasons[record.id]) {
+    return [];
+  }
+
+  const missingFields: string[] = [];
+
+  if (!record.releaseDate) {
+    missingFields.push("releaseDate");
+  }
+
+  if (!record.authors?.length) {
+    missingFields.push("authors");
+  }
+
+  if (!record.sourceId) {
+    missingFields.push("sourceId");
+  }
+
+  return missingFields;
 }
 
 /** Phase 1 page directories validated even when `page.mdx` is not present yet. */
@@ -379,6 +474,15 @@ function validateRegistryRecordReferences(
     errors.push({
       code: "missing-required-citation",
       message: `${record.id}: published ${record.kind} pages must include at least one reference via citationIds`,
+      path: filePath,
+    });
+  }
+
+  const missingAtAGlanceFields = missingModuleAtAGlanceFields(record);
+  if (missingAtAGlanceFields.length > 0) {
+    errors.push({
+      code: "missing-module-at-a-glance-metadata",
+      message: `${record.id}: published module pages using ModuleAtAGlance must provide releaseDate, authors, and sourceId so the page can render release date, author, and paper/source details; missing ${missingAtAGlanceFields.join(", ")}`,
       path: filePath,
     });
   }
