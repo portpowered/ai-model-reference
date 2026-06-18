@@ -41,6 +41,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/prefill",
   "/docs/glossary/prefill-decode-split",
   "/docs/glossary/greedy-decoding",
+  "/docs/glossary/top-k-sampling",
   "/docs/glossary/representation",
   "/docs/glossary/scaling-law",
   "/docs/glossary/token",

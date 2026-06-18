@@ -62,6 +62,7 @@
     "[Autoregressive Generation](/docs/glossary/autoregressive-generation)",
     "[Greedy Decoding](/docs/glossary/greedy-decoding)",
     "[Sampling Overview](/docs/glossary/sampling-overview)",
+    "[Top-K Sampling](/docs/glossary/top-k-sampling)",
     "[Conditioning](/docs/glossary/conditioning)",
     "[Denoising Generation](/docs/glossary/denoising-generation)",
     "[Diffusion Model](/docs/glossary/diffusion-model)"

@@ -28,7 +28,7 @@ const pageDir = SAMPLING_OVERVIEW_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 
 describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decision-path-001)", () => {
-  test("registry record is published and links backward to foundations and forward to planned decoding pages", () => {
+  test("registry record is published and links backward to foundations and forward to decoding pages", () => {
     const record = getConceptById("concept.sampling-overview");
     expect(record?.status).toBe("published");
     expect(record?.aliases).toEqual([
@@ -65,7 +65,7 @@ describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decis
     ).toContain("concept.sampling-overview");
   });
 
-  test("curated related docs preserve published links backward, publish greedy decoding, and keep top-k/top-p planned", () => {
+  test("curated related docs preserve published links backward, publish greedy decoding and top-k, and keep top-p planned", () => {
     const source = getConceptById("concept.sampling-overview");
     if (!source) {
       throw new Error("expected concept.sampling-overview in registry");
@@ -111,19 +111,22 @@ describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decis
       ),
     ).toBe(true);
 
-    for (const plannedId of [
-      "concept.top-k-sampling",
-      "concept.top-p-sampling",
-    ] as const) {
-      expect(
-        items.some(
-          (item) =>
-            item.registryId === plannedId &&
-            item.href === undefined &&
-            item.isPlanned === true,
-        ),
-      ).toBe(true);
-    }
+    expect(
+      items.some(
+        (item) =>
+          item.registryId === "concept.top-k-sampling" &&
+          item.href === "/docs/glossary/top-k-sampling" &&
+          item.isPlanned === false,
+      ),
+    ).toBe(true);
+    expect(
+      items.some(
+        (item) =>
+          item.registryId === "concept.top-p-sampling" &&
+          item.href === undefined &&
+          item.isPlanned === true,
+      ),
+    ).toBe(true);
   });
 
   test("messages explain the final next-token choice and distinguish greedy, top-k, and top-p in plain language", () => {
@@ -162,7 +165,7 @@ describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decis
     );
   });
 
-  test("page renders overview tradeoff copy, published greedy link, and planned top-k/top-p rows", async () => {
+  test("page renders overview tradeoff copy, published greedy and top-k links, and a planned top-p row", async () => {
     const page = await loadGlossaryPage("sampling-overview");
 
     expect(page.frontmatter.kind).toBe("glossary");
@@ -193,6 +196,7 @@ describe("Phase 5 sampling overview glossary page (phase-5-sampling-basics-decis
     expect(html).toContain('href="/docs/glossary/softmax"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/greedy-decoding"');
+    expect(html).toContain('href="/docs/glossary/top-k-sampling"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('data-planned="true"');
     expect(html).toContain("Greedy Decoding");

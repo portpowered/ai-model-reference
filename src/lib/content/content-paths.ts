@@ -230,6 +230,12 @@ export const GREEDY_DECODING_GLOSSARY_PAGE_DIR = join(
   "greedy-decoding",
 );
 
+/** Phase 5 top-k sampling glossary page directory. */
+export const TOP_K_SAMPLING_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "top-k-sampling",
+);
+
 /** Phase 3 context extension concept page directory. */
 export const CONTEXT_EXTENSION_CONCEPT_PAGE_DIR = join(
   CONCEPTS_DOCS_ROOT,

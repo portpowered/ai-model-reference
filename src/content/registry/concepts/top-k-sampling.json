@@ -8,19 +8,21 @@
     "Top K Sampling",
     "top-k sampling",
     "top k sampling",
-    "k sampling"
+    "k sampling",
+    "fixed-count sampling"
   ],
-  "tags": ["foundations"],
+  "tags": ["foundations", "token-to-probability-chain"],
   "relatedIds": [
     "concept.sampling-overview",
     "concept.greedy-decoding",
+    "concept.temperature",
     "concept.top-p-sampling"
   ],
   "citationIds": [],
-  "status": "draft",
+  "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "inference",
   "prerequisiteIds": ["concept.sampling-overview", "concept.greedy-decoding"],
-  "explainsIds": []
+  "explainsIds": ["concept.top-p-sampling"]
 }

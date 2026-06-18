@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { GREEDY_DECODING_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
+import { TOP_K_SAMPLING_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryBodyOmitsTitleHeading,
@@ -24,49 +24,45 @@ import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const pageDir = GREEDY_DECODING_GLOSSARY_PAGE_DIR;
+const pageDir = TOP_K_SAMPLING_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 
-describe("Phase 5 greedy decoding glossary page (phase-5-sampling-basics-decision-path-002)", () => {
-  test("registry record is published with greedy aliases, chain tags, and forward sampling relationships", () => {
-    const record = getConceptById("concept.greedy-decoding");
+describe("Phase 5 top-k sampling glossary page (phase-5-sampling-basics-decision-path-003)", () => {
+  test("registry record is published with fixed-count aliases, chain tags, and forward top-p relationship", () => {
+    const record = getConceptById("concept.top-k-sampling");
     expect(record?.status).toBe("published");
     expect(record?.aliases).toEqual([
-      "Greedy Decoding",
-      "greedy decoding",
-      "argmax decoding",
-      "deterministic decoding",
-      "highest-probability decoding",
+      "Top K Sampling",
+      "top-k sampling",
+      "top k sampling",
+      "k sampling",
+      "fixed-count sampling",
     ]);
     expect(record?.tags).toEqual(["foundations", "token-to-probability-chain"]);
     expect(record?.relatedIds).toEqual([
       "concept.sampling-overview",
+      "concept.greedy-decoding",
       "concept.temperature",
-      "concept.autoregressive-generation",
-      "concept.top-k-sampling",
       "concept.top-p-sampling",
     ]);
-    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.greedy-decoding")).toBe(
+    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.top-k-sampling")).toBe(
       true,
     );
   });
 
-  test("sampling overview, temperature, and autoregressive generation surface greedy decoding as the deterministic baseline", () => {
+  test("sampling overview and greedy decoding surface top-k as the bounded stochastic follow-on page", () => {
     expect(getConceptById("concept.sampling-overview")?.relatedIds).toContain(
-      "concept.greedy-decoding",
+      "concept.top-k-sampling",
     );
-    expect(getConceptById("concept.temperature")?.relatedIds).toContain(
-      "concept.greedy-decoding",
+    expect(getConceptById("concept.greedy-decoding")?.relatedIds).toContain(
+      "concept.top-k-sampling",
     );
-    expect(
-      getConceptById("concept.autoregressive-generation")?.relatedIds,
-    ).toContain("concept.greedy-decoding");
   });
 
-  test("curated related docs keep published backward links, publish top-k, and leave top-p planned", () => {
-    const source = getConceptById("concept.greedy-decoding");
+  test("curated related docs keep published backward links and retain top-p as the planned next step", () => {
+    const source = getConceptById("concept.top-k-sampling");
     if (!source) {
-      throw new Error("expected concept.greedy-decoding in registry");
+      throw new Error("expected concept.top-k-sampling in registry");
     }
 
     const items = deriveCuratedRelatedItems(
@@ -75,39 +71,21 @@ describe("Phase 5 greedy decoding glossary page (phase-5-sampling-basics-decisio
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
 
-    expect(
-      items.some(
-        (item) =>
-          item.registryId === "concept.sampling-overview" &&
-          item.href === "/docs/glossary/sampling-overview" &&
-          item.isPlanned === false,
-      ),
-    ).toBe(true);
-    expect(
-      items.some(
-        (item) =>
-          item.registryId === "concept.temperature" &&
-          item.href === "/docs/glossary/temperature" &&
-          item.isPlanned === false,
-      ),
-    ).toBe(true);
-    expect(
-      items.some(
-        (item) =>
-          item.registryId === "concept.autoregressive-generation" &&
-          item.href === "/docs/glossary/autoregressive-generation" &&
-          item.isPlanned === false,
-      ),
-    ).toBe(true);
+    for (const publishedId of [
+      ["concept.sampling-overview", "/docs/glossary/sampling-overview"],
+      ["concept.greedy-decoding", "/docs/glossary/greedy-decoding"],
+      ["concept.temperature", "/docs/glossary/temperature"],
+    ] as const) {
+      expect(
+        items.some(
+          (item) =>
+            item.registryId === publishedId[0] &&
+            item.href === publishedId[1] &&
+            item.isPlanned === false,
+        ),
+      ).toBe(true);
+    }
 
-    expect(
-      items.some(
-        (item) =>
-          item.registryId === "concept.top-k-sampling" &&
-          item.href === "/docs/glossary/top-k-sampling" &&
-          item.isPlanned === false,
-      ),
-    ).toBe(true);
     expect(
       items.some(
         (item) =>
@@ -118,43 +96,48 @@ describe("Phase 5 greedy decoding glossary page (phase-5-sampling-basics-decisio
     ).toBe(true);
   });
 
-  test("messages teach argmax, determinism, and the stability-versus-diversity tradeoff in plain language", () => {
+  test("messages teach fixed-count truncation and contrast it with argmax and cumulative-mass truncation", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
-    expect(messages.title).toBe("Greedy Decoding");
+    expect(messages.title).toBe("Top-K Sampling");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
-    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain("argmax");
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
-      "highest probability",
+      "top k candidates",
+    );
+    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
+      "discards everything below that cutoff",
     );
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
-      "deterministic",
+      "smaller k values",
     );
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
-      "stable",
+      "larger k values",
     );
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
-      "repeatable",
+      "diversity",
     );
     expect(messages.sections?.simpleExample.body?.toLowerCase()).toContain(
-      "top-k sampling",
+      "greedy decoding",
     );
     expect(messages.sections?.simpleExample.body?.toLowerCase()).toContain(
       "top-p sampling",
     );
     expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
-      "temperature",
+      "fixed number of candidates",
+    );
+    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
+      "cumulative probability mass",
     );
   });
 
-  test("page renders argmax teaching copy, a published top-k alternative, and a planned top-p alternative", async () => {
-    const page = await loadGlossaryPage("greedy-decoding");
+  test("page renders fixed-count teaching copy, published backward links, and planned top-p row", async () => {
+    const page = await loadGlossaryPage("top-k-sampling");
 
     expect(page.frontmatter.kind).toBe("glossary");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.registryId).toBe("concept.greedy-decoding");
+    expect(page.frontmatter.registryId).toBe("concept.top-k-sampling");
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -170,40 +153,38 @@ describe("Phase 5 greedy decoding glossary page (phase-5-sampling-basics-decisio
     expectGlossarySingleTagPillList(html);
     expectHtmlToContainProse(
       html,
-      "In math language, that is an argmax choice.",
+      "Top-k sampling first sorts the next-token distribution by probability, keeps only the top k candidates, discards everything below that cutoff, and then samples from the remaining set.",
     );
     expectHtmlToContainProse(
       html,
-      "The same prompt and model state produce the same next token each time.",
+      "Top-p sampling would instead keep however many tokens are needed to cross a cumulative probability threshold, so its candidate count can change from one step to the next.",
     );
     expect(html).toContain('href="/docs/glossary/sampling-overview"');
+    expect(html).toContain('href="/docs/glossary/greedy-decoding"');
     expect(html).toContain('href="/docs/glossary/temperature"');
-    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
-    expect(html).toContain('href="/docs/glossary/top-k-sampling"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('data-planned="true"');
-    expect(html).toContain("Top K Sampling");
     expect(html).toContain("Top P Sampling");
     expect(html).not.toContain("Reader Shortcut");
   });
 
-  test("search index records greedy decoding as a glossary page with aliases", async () => {
+  test("search index records top-k sampling as a glossary page with aliases", async () => {
     const registry = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
     const documents = buildSearchDocuments(pages, registry);
 
     const document = documents.find(
-      (entry) => entry.url === "/docs/glossary/greedy-decoding",
+      (entry) => entry.url === "/docs/glossary/top-k-sampling",
     );
     expect(document?.kind).toBe("glossary");
     expect(document?.facets.kind).toBe("glossary");
     expect(document?.aliases).toEqual(
       expect.arrayContaining([
-        "Greedy Decoding",
-        "greedy decoding",
-        "argmax decoding",
-        "deterministic decoding",
-        "highest-probability decoding",
+        "Top K Sampling",
+        "top-k sampling",
+        "top k sampling",
+        "k sampling",
+        "fixed-count sampling",
       ]),
     );
     expect(document?.tags).toEqual(
@@ -211,17 +192,17 @@ describe("Phase 5 greedy decoding glossary page (phase-5-sampling-basics-decisio
     );
   });
 
-  test("search finds greedy decoding by title, aliases, and deterministic-decoding terms", async () => {
+  test("search finds top-k sampling by title, aliases, and fixed-count truncation terms", async () => {
     for (const query of [
-      "Greedy Decoding",
-      "argmax decoding",
-      "deterministic decoding",
-      "highest probability token",
+      "Top-K Sampling",
+      "top k sampling",
+      "k sampling",
+      "restrict choices to the highest-probability tokens",
     ] as const) {
       const results = await docsSearchApi.search(query);
       expect(
         results.some(
-          (result) => result.url === "/docs/glossary/greedy-decoding",
+          (result) => result.url === "/docs/glossary/top-k-sampling",
         ),
       ).toBe(true);
     }
