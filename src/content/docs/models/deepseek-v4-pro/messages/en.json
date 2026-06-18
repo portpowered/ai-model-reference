@@ -33,15 +33,72 @@
   },
   "assets": {
     "architectureGraph": {
-      "alt": "A simplified DeepSeek-V4-Pro architecture path from token input through a modified backbone to token output.",
-      "caption": "The model is best understood as a backbone whose attention, routing, and serving assumptions were all changed together."
+      "alt": "DeepSeek-V4-Pro architecture diagram with token embeddings, RoPE position encoding, a repeated decoder block containing compressed attention, RMSNorm, and DeepSeekMoE, then an output projection and softmax.",
+      "caption": "DeepSeek-V4-Pro keeps the GPT-style decoder stack shape, but swaps in RoPE, compressed long-context attention, RMSNorm, and DeepSeekMoE inside each repeated block."
     }
   },
   "graph": {
     "nodes": {
-      "input": { "label": "Token input" },
-      "backbone": { "label": "DeepSeek-V4 backbone" },
-      "output": { "label": "Token output" }
+      "outputProbabilities": {
+        "label": "Output\nProbabilities",
+        "summary": "The model's probability distribution over the next token"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns final vocabulary scores into probabilities"
+      },
+      "linear": {
+        "label": "Output\nLinear",
+        "summary": "Projects the final hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated decoder block container for the main DeepSeek-V4 stack"
+      },
+      "attentionSublayer": {
+        "label": " ",
+        "summary": "Attention sublayer container"
+      },
+      "moeSublayer": {
+        "label": " ",
+        "summary": "Sparse expert sublayer container"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats through the full stack"
+      },
+      "rmsnormAttention": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the residual stream before the long-context attention step"
+      },
+      "compressedAttention": {
+        "label": "Compressed\nAttention\n(CSA + HCA)",
+        "summary": "The attention path combines compressed sparse and heavily compressed attention for very long context"
+      },
+      "rmsnormMoe": {
+        "label": "RMSNorm",
+        "summary": "Normalizes the stream before the sparse expert block"
+      },
+      "deepseekmoe": {
+        "label": "DeepSeekMoE",
+        "summary": "Routes each token through a small active set of experts instead of one dense feed-forward path"
+      },
+      "ropeInject": {
+        "label": "+",
+        "summary": "Applies token states together with rotary position information before the stack"
+      },
+      "rope": {
+        "label": "RoPE",
+        "summary": "Rotary position encoding gives the attention stack token order information"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs into hidden vectors"
+      },
+      "inputTokens": {
+        "label": "Input\nTokens",
+        "summary": "Prompt text after tokenization"
+      }
     }
   }
 }

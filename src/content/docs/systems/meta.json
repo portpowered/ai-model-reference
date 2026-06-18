@@ -1,7 +1,0 @@
-{
-  "title": "Systems",
-  "pages": [
-    "[Expert Parallel Overlap](/docs/systems/expert-parallel-overlap)",
-    "[On-Disk KV Cache](/docs/systems/on-disk-kv-cache)"
-  ]
-}

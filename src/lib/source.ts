@@ -1,5 +1,6 @@
 import { loader } from "fumadocs-core/source";
 import { excludeNonPublishedLocalDocsPlugin } from "@/lib/content/exclude-non-published-local-docs-plugin";
+import { buildGeneratedDocsPageTree } from "@/lib/navigation/generated-docs-page-tree";
 import { docs } from "../../.source/server";
 
 /** Maps local docs page bundles to reader URLs. */
@@ -34,3 +35,5 @@ export const source = loader({
   slugs: pageBundleSlug,
   plugins: [excludeNonPublishedLocalDocsPlugin()],
 });
+
+source.pageTree = buildGeneratedDocsPageTree(source.pageTree);

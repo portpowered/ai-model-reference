@@ -35,7 +35,7 @@ Before approval, reviewers **SHOULD** confirm:
 - Operational signals are sufficient to diagnose latency, failures, and degraded dependency behavior.
 - CI and lint surfaces would catch the class of failure introduced by this area in the future.
 - Public contracts, generated artifacts, and runtime behavior remain aligned.
-
+- Generate schemas from data, we MUST not hardcode. i.e. there should be single source of truth for what types of models exist, modules, etc.
 ## Regulations
 
 ### 1. Architecture and Package Boundaries

@@ -1,6 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import type { Node } from "fumadocs-core/page-tree";
 import { renderToStaticMarkup } from "react-dom/server";
 import ArchitectureIndexPage from "@/app/(site)/docs/architecture/page";
@@ -166,28 +164,33 @@ function collectPageUrls(nodes: Node[]): string[] {
 }
 
 describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
-  test("glossary meta.json lists current glossary families and separators", async () => {
-    const metaPath = join(process.cwd(), "src/content/docs/glossary/meta.json");
-    const meta = JSON.parse(await readFile(metaPath, "utf8")) as {
-      pages: string[];
-    };
-    const linkEntries = meta.pages.filter((entry) => entry.startsWith("["));
+  test("generated glossary sidebar lists current glossary families and separators", () => {
+    const glossaryFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Glossary",
+    );
+    expect(glossaryFolder?.type).toBe("folder");
+    if (glossaryFolder?.type !== "folder") {
+      throw new Error("expected Glossary folder in docs sidebar");
+    }
 
-    expect(linkEntries).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
-    expect(meta.pages).toEqual(
-      expect.arrayContaining(
-        GLOSSARY_SEPARATOR_TITLES.map((title) => `---${title}---`),
-      ),
+    const separatorTitles = glossaryFolder.children
+      .filter((node) => node.type === "separator")
+      .map((node) => node.name);
+    const linkNodes = glossaryFolder.children.filter(
+      (node): node is Extract<Node, { type: "page" }> => node.type === "page",
+    );
+
+    expect(linkNodes).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
+    expect(separatorTitles).toEqual(
+      expect.arrayContaining([...GLOSSARY_SEPARATOR_TITLES]),
     );
 
     for (const slug of CURRENT_GLOSSARY_SLUGS) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
-      expect(
-        linkEntries.some((entry) => entry.includes(`/docs/glossary/${slug}`)),
-      ).toBe(true);
-      expect(linkEntries.some((entry) => entry.startsWith(`[${title}]`))).toBe(
+      expect(linkNodes.some((entry) => entry.url === `/docs/glossary/${slug}`)).toBe(
         true,
       );
+      expect(linkNodes.some((entry) => entry.name === title)).toBe(true);
     }
   });
 

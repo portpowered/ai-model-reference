@@ -260,18 +260,17 @@ describe("docs navigation source", () => {
   test("page tree exposes sidebar grouping separators for modules, concepts, and glossary", () => {
     const separatorNames = collectSeparatorNames(source.pageTree.children);
 
-    expect(separatorNames).toEqual(
-      expect.arrayContaining([
-        "Attention Foundations",
-        "Attention Variants",
-        "Long Context",
-        "Architecture",
-        "Reference Samples",
-        "Model Taxonomy",
-        "Sequence And Attention",
-        "Math And Training",
-        "Generation And Diffusion",
-      ]),
-    );
+    for (const separatorName of [
+      "Attention Foundations",
+      "Attention Variants",
+      "Long Context",
+      "Architecture",
+      "Model Taxonomy",
+      "Sequence And Attention",
+      "Math And Training",
+      "Generation And Diffusion",
+    ]) {
+      expect(separatorNames).toContain(separatorName);
+    }
   });
 });

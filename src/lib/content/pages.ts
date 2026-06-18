@@ -5,6 +5,7 @@ import { loadPageMessages } from "@/lib/content/page-messages-load";
 import {
   type PageFrontmatter,
   type PageMessages,
+  pageMessagesSchema,
   pageFrontmatterSchema,
 } from "@/lib/content/schemas";
 import { isShippedLocalizedDocsSlug } from "@/lib/content/shipped-localized-docs";
@@ -62,6 +63,15 @@ function hasPageMessagesFile(pageDir: string, locale: SiteLocale): boolean {
   return existsSync(path.join(pageDir, "messages", `${locale}.json`));
 }
 
+function loadPageMessagesSync(
+  pageDirectory: string,
+  locale: SiteLocale,
+): PageMessages {
+  const messagesPath = path.join(pageDirectory, "messages", `${locale}.json`);
+  const raw = readFileSync(messagesPath, "utf8");
+  return pageMessagesSchema.parse(JSON.parse(raw));
+}
+
 export function isDocsPageShippedForLocale(
   docsSlug: string,
   locale: SiteLocale,
@@ -98,6 +108,33 @@ export async function loadPublishedDocsPages(
       url,
       frontmatter,
       messages: await loadPageMessages(pageDir, locale, { route: url }),
+    });
+  }
+
+  return pages;
+}
+
+export function loadPublishedDocsPagesSync(
+  locale: SiteLocale,
+  rootDir = DOCS_ROOT,
+): DocsPageSource[] {
+  const pages: DocsPageSource[] = [];
+
+  for (const pageDir of findPageDirectories(rootDir)) {
+    const pageMdx = path.join(pageDir, "page.mdx");
+    const frontmatter = parseFrontmatter(pageMdx);
+    if (frontmatter.status !== "published") {
+      continue;
+    }
+
+    const docsSlug = path.relative(rootDir, pageDir);
+    const url = docsUrlFromSlug(docsSlug, locale);
+    pages.push({
+      pageDir,
+      docsSlug,
+      url,
+      frontmatter,
+      messages: loadPageMessagesSync(pageDir, locale),
     });
   }
 

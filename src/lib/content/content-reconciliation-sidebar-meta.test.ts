@@ -1,34 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import type { Node } from "fumadocs-core/page-tree";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { source } from "@/lib/source";
-
-type SectionMeta = {
-  title: string;
-  pages: string[];
-};
-
-function isMarkdownLinkEntry(entry: string): boolean {
-  return /^\[.+\]\(.+\)$/.test(entry);
-}
-
-const SECTION_META_PATHS = {
-  glossary: "src/content/docs/glossary/meta.json",
-  concepts: "src/content/docs/concepts/meta.json",
-  modules: "src/content/docs/modules/meta.json",
-} as const;
-
-const ROOT_META_PATH = "src/content/docs/meta.json";
-
-function parseMetaPageEntry(entry: string): { title: string; url: string } {
-  const match = entry.match(/^\[(.+)\]\((.+)\)$/);
-  if (!match) {
-    throw new Error(`Invalid meta page entry: ${entry}`);
-  }
-  return { title: match[1], url: match[2] };
-}
 
 function collectPageUrls(nodes: Node[]): string[] {
   const urls: string[] = [];
@@ -52,48 +25,24 @@ function findSidebarFolder(name: string): Node | undefined {
 }
 
 describe("Phase 2/3 reconciliation docs sidebar meta (US-003)", () => {
-  test("root docs meta exposes glossary, concepts, and modules folders", async () => {
-    const meta = JSON.parse(
-      await readFile(join(process.cwd(), ROOT_META_PATH), "utf8"),
-    ) as { pages: string[] };
+  test("generated docs sidebar exposes glossary, concepts, and modules folders", () => {
+    const folderNames = source.pageTree.children
+      .filter((node) => node.type === "folder")
+      .map((node) => node.name);
 
-    expect(meta.pages).toContain("glossary");
-    expect(meta.pages).toContain("concepts");
-    expect(meta.pages).toContain("modules");
+    expect(folderNames).toContain("Glossary");
+    expect(folderNames).toContain("Concepts");
+    expect(folderNames).toContain("Modules");
   });
 
-  for (const [section, metaPath] of Object.entries(SECTION_META_PATHS)) {
-    test(`${section} meta.json lists every published page with localized titles`, async () => {
+  for (const section of ["glossary", "concepts", "modules"] as const) {
+    test(`generated ${section} sidebar lists every published page with localized titles`, async () => {
       const pages = await loadPublishedDocsPages("en");
       const sectionPages = pages
         .filter((page) => page.docsSlug.startsWith(`${section}/`))
         .sort((left, right) => left.url.localeCompare(right.url));
 
-      const meta = JSON.parse(
-        await readFile(join(process.cwd(), metaPath), "utf8"),
-      ) as SectionMeta;
-      const linkEntries = meta.pages.filter(isMarkdownLinkEntry);
-
       expect(sectionPages.length).toBeGreaterThan(0);
-      expect(linkEntries).toHaveLength(sectionPages.length);
-
-      for (const page of sectionPages) {
-        const entry = linkEntries.find((item) => {
-          const parsed = parseMetaPageEntry(item);
-          return parsed.url === page.url;
-        });
-        expect(entry).toBeDefined();
-        const parsed = parseMetaPageEntry(entry ?? "");
-        expect(parsed.url).toBe(page.url);
-        expect(parsed.title).toBe(page.messages.title);
-      }
-    });
-
-    test(`Fumadocs ${section} sidebar folder includes every published page URL`, async () => {
-      const pages = await loadPublishedDocsPages("en");
-      const sectionPages = pages.filter((page) =>
-        page.docsSlug.startsWith(`${section}/`),
-      );
 
       const folderName =
         section === "glossary"
@@ -112,6 +61,13 @@ describe("Phase 2/3 reconciliation docs sidebar meta (US-003)", () => {
         expect(sidebarUrls).toContain(page.url);
       }
       expect(sidebarUrls).toHaveLength(sectionPages.length);
+
+      const sidebarTitles = folder.children
+        .filter((node): node is Extract<Node, { type: "page" }> => node.type === "page")
+        .map((node) => node.name);
+      for (const page of sectionPages) {
+        expect(sidebarTitles).toContain(page.messages.title);
+      }
     });
   }
 });

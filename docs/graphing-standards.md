@@ -80,52 +80,6 @@ Avoid diagrams that are technically valid but visually teach the wrong thing.
 That failure mode matters more than whether a graph looks "consistent" with
 other pages.
 
-## Readable node theme
-
-Graph nodes must be readable on the live page and on GitHub Pages static export.
-
-* Set near-white node backgrounds with dark label text using React Flow theme variables on the graph wrapper:
-  * `--xy-background-color` → white or near-white (for example `#ffffff`)
-  * `--xy-node-background-color` → white or near-white (for example `#ffffff`)
-  * `--xy-node-color` → dark foreground (for example `#111827`)
-  * `--xy-node-border-color` → a light outline that keeps white nodes visible on the white graph surface
-* Invert any legacy styling that produced dark nodes with light text on a light page background.
-* Keep `data-manual-visibility-evidence` on the wrapper so reviewers can find the graph in HTML; static HTML cannot prove contrast — confirm visually per `factory/docs/phase-1-batch-012-gqa-graph-visibility-manual-check.md` when automated checks are `uncertain`.
-
-**Pass:** Node labels are legible at default zoom in light theme; theme CSS variables present on the wrapper.
-
-**Fail:** Missing theme variables, unreadable contrast, or graph shell without hydrated nodes on static export.
-
-## Constrained canvas and fit
-
-Graphs must live inside the same content width as the rest of the article.
-
-* The React Flow canvas should be constrained by the page content column rather
-  than imposing its own wide scroll surface.
-* Default viewport framing should use `fitView` so the visible content is
-  centered inside the canvas on first render.
-* Prefer compact node sizing and spacing that remain readable on mobile.
-* Horizontal overflow is a fallback, not the default reading mode.
-
-**Pass:** The graph fits within the article width, opens centered on the visible
-content, and remains legible on narrow viewports.
-
-**Fail:** The graph expands the article width, starts off-center, or requires
-horizontal scrolling for normal reading.
-
-## Zoom and pan (interaction without editing)
-
-Readers must inspect graph structure on desktop and on static GitHub Pages deployment.
-
-* Enable **pan** and **zoom** on the React Flow canvas (`RegistryGraphFlow` and shared wrappers).
-* Keep **editing disabled**: no draggable nodes, no new connections, no selectable elements that imply authoring.
-* Preserve accessibility:
-  * `role="img"` and `aria-label` on the graph wrapper
-  * sr-only node label fallbacks for screen readers
-
-**Pass:** Scroll/pinch or drag pans and zooms the viewport; nodes and edges are not editable.
-
-**Fail:** `panOnDrag`, `zoomOnScroll`, or equivalent flags disable interaction.
 
 ## Attention-variant comparison pattern
 
@@ -165,30 +119,6 @@ Across all of these:
 
 Directional reference: [Sebastian Raschka — Grouped-Query Attention](https://sebastianraschka.com/faq/docs/grouped-query-attention.html).
 
-### Comparison switcher API
-
-* At minimum, support the **baseline MHA view** and the **target variant view**
-  on the same canvas.
-* Structure the switcher so additional modes register through graph registry or
-  asset config — not a one-off page fork.
-* Only one React Flow instance mounts per page; switching variants updates
-  nodes/edges in place.
-
-**Pass:** Reader toggles baseline vs target variant and sees the key difference
-on one canvas.
-
-**Fail:** Static pipeline-only diagram, no variant toggle, or comparison
-requires reading long prose instead of the graph.
-
-## Graph assets and messages
-
-* Reference graphs by `assetId` in MDX; resolve node labels, edge labels, captions, and alt text from colocated messages.
-* Captions state what the graph teaches (for example “Compare query heads to shared KV heads”) — not implementation step lists.
-* Model pages may use recursive graph viewers for architecture; module pages follow the single-comparison-graph rule above unless a future standard documents an exception.
-
-Keep graph records reusable. If two module pages need the same MHA baseline or
-the same time-pattern baseline, reuse the same graph record rather than cloning
-the graph into every page directory.
 
 ## Non-module graphs
 
@@ -199,15 +129,18 @@ Paper and model pages include graphs **only where they teach architecture or con
 Before approving a module graph change:
 
 1. Exactly one React Flow canvas, located in How it works.
-2. Theme variables on wrapper; manual visual check when convergence is `uncertain`.
-3. Canvas width is constrained to the article column; default viewport is centered with `fitView`.
-4. Zoom and pan work; nodes/edges not editable.
-5. For attention variants: choose the correct graph family for the module, then compare MHA vs target variant on one canvas.
-6. Static export route hydrates the graph (including switcher markers when applicable).
-7. The graph properly expresses math formulas by apply katex based formatting
-8. The graph properly presents arrows in flow direction. 
-
-Cross-check open GQA graph manual gate rows in [customer-ask](./internal/customer-ask.md) before treating the graph baseline as complete.
+2. The graph properly expresses math formulas by apply katex based formatting
+3. The graph properly presents arrows in flow direction. 
+4. The graph is renderable and is visible
+5. The graph MUST fits with the other presentations of graphs. i.e. 
+5.1. model pages for llms should look like the gpt-3 model page, 
+5.2. attention should look like the various variants that we have like for sparse attention. 
+5.3. the only caveat is that if there is no existing comparable, then we shoudl add a new one.
+6. The graph MUST immediately be obvious to the customer what it is trying to present
+7. the graph MUST be the most appropriate presentation 
+8. the nodes MUST be legible, we should not have weird graph presentations where the text covered nodes are overlain with edge nodes. 
+9. Edge flows MUST be visible. we should try to angle the nodes such that edges are either directly straight visible, or we should make them angle around. 
+10. 
 
 ## Lessons from prior GQA repair
 
