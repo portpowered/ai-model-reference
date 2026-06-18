@@ -8,6 +8,7 @@
   "tags": ["foundations"],
   "relatedIds": [
     "concept.positional-encodings",
+    "concept.absolute-positional-embeddings",
     "concept.rope",
     "concept.alibi"
   ],

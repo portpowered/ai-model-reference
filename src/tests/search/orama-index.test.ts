@@ -153,6 +153,15 @@ const GENERATED_INDEX_PATH = path.join(
   process.cwd(),
   "src/generated/search-index.json",
 );
+const BUILD_SEARCH_INDEX_TEST_ENV: NodeJS.ProcessEnv = {
+  PATH: process.env.PATH ?? "",
+  HOME: process.env.HOME ?? "",
+  TMPDIR: process.env.TMPDIR ?? "",
+  USER: process.env.USER ?? "",
+  SHELL: process.env.SHELL ?? "",
+  TERM: process.env.TERM ?? "",
+  NODE_ENV: process.env.NODE_ENV ?? "test",
+};
 
 function findSnapshotDocument(
   documents: OramaSnapshotDocument[],
@@ -252,6 +261,7 @@ describe("build-search-index script", () => {
     const result = spawnSync("bun", ["./scripts/build-search-index.ts"], {
       cwd: process.cwd(),
       encoding: "utf8",
+      env: BUILD_SEARCH_INDEX_TEST_ENV,
     });
 
     expect(result.status).toBe(0);
