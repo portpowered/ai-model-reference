@@ -31,6 +31,7 @@ import {
   SEARCH_PAGE_INPUT_HTML_MARKER,
   verifyPhase1ExportSearchShellFromOutDir,
 } from "@/lib/verify/phase-1-search-export-shell-checks";
+import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 import { SAMPLE_MODULE_URL } from "../search/helpers";
 
 const repoRoot = join(import.meta.dir, "../../..");
@@ -96,27 +97,26 @@ describe("static export GitHub Pages base-path contract", () => {
   });
 
   test("serves bootstrap payload through the static Orama client contract", async () => {
-    globalThis.fetch = (async (input: RequestInfo | URL) => {
-      const url =
-        typeof input === "string"
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      if (url === TEST_EXPORT_SEARCH_URL) {
-        return new Response(JSON.stringify(searchPayload), { status: 200 });
-      }
-      return originalFetch(input);
-    }) as typeof fetch;
-
-    try {
-      const client = oramaStaticClient({ from: TEST_EXPORT_SEARCH_URL });
-      const results = await client.search("GQA");
-      expect(results.length).toBeGreaterThan(0);
-      expect(results[0]?.url).toBe(SAMPLE_MODULE_URL);
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+    await withGlobalFetchOverride(
+      (async (input: RequestInfo | URL) => {
+        const url =
+          typeof input === "string"
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url;
+        if (url === TEST_EXPORT_SEARCH_URL) {
+          return new Response(JSON.stringify(searchPayload), { status: 200 });
+        }
+        return originalFetch(input);
+      }) as typeof fetch,
+      async () => {
+        const client = oramaStaticClient({ from: TEST_EXPORT_SEARCH_URL });
+        const results = await client.search("GQA");
+        expect(results.length).toBeGreaterThan(0);
+        expect(results[0]?.url).toBe(SAMPLE_MODULE_URL);
+      },
+    );
   });
 
   test("export verifiers pass with GITHUB_PAGES_BASE_PATH set", () => {
