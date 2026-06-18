@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   getStaticExportBuildBunTestTimeoutMs,
+  runLockedNextBuild,
   runStaticExportBuild,
   STALE_STATIC_EXPORT_BUILD_LOCK_MAX_AGE_MS,
   STATIC_EXPORT_BUILD_LOCK_PATH,
@@ -24,6 +25,21 @@ describe("runStaticExportBuild", () => {
 
     const result = runStaticExportBuild({
       cwd: join(tmpdir(), "missing-model-atlas-export-cwd"),
+    });
+
+    expect(result.status).not.toBe(0);
+  });
+
+  test("returns a non-zero status when build is invoked from an invalid cwd", () => {
+    try {
+      unlinkSync(STATIC_EXPORT_BUILD_LOCK_PATH);
+    } catch {
+      // Lock file may not exist between parallel test files.
+    }
+
+    const result = runLockedNextBuild({
+      cwd: join(tmpdir(), "missing-model-atlas-build-cwd"),
+      script: "build",
     });
 
     expect(result.status).not.toBe(0);

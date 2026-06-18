@@ -1,8 +1,9 @@
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 /** Repository root when Next.js or Bun runs from the project directory. */
 export function getProjectRoot(): string {
-  return join(import.meta.dir, "../../..");
+  return join(dirname(fileURLToPath(import.meta.url)), "../../..");
 }
 
 /** Committed content tree root (`src/content`). */

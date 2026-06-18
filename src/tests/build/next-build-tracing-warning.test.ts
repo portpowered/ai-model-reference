@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { spawn, spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { runLockedNextBuild } from "@/lib/build/run-static-export-build";
 import {
   buildOutputHasTurbopackWholeProjectTracingWarning,
   firstMatchingTurbopackTracingWarningPattern,
@@ -86,11 +87,10 @@ describe("next build turbopack NFT tracing warning", () => {
       }
 
       try {
-        const result = spawnSync("bun", ["run", "build"], {
+        const result = runLockedNextBuild({
           cwd: repoRoot,
-          encoding: "utf8",
+          script: "build",
           env: {
-            ...process.env,
             GITHUB_PAGES_BASE_PATH: undefined,
             NEXT_STATIC_EXPORT: undefined,
           },
