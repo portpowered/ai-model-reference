@@ -10,6 +10,7 @@ import {
 import { createServer as createHttpServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { MODEL_ATLAS_PROJECT_ROOT_ENV } from "@/lib/content/content-paths";
 import { VERIFY_CUSTOMER_ASK_BATCH_012_STUB_ENV } from "./batch-012-customer-ask-convergence-http-env";
 import { CUSTOMER_ASK_CONVERGENCE_REPORT_HEADER } from "./customer-ask-convergence-reporter";
 import {
@@ -416,6 +417,7 @@ function runVerifyScriptWithEnv(
   ] as const) {
     delete mergedEnv[key];
   }
+  mergedEnv[MODEL_ATLAS_PROJECT_ROOT_ENV] = repoRoot;
   for (const [key, value] of Object.entries(env)) {
     if (value === undefined) {
       delete mergedEnv[key];

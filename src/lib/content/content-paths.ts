@@ -1,7 +1,19 @@
 import { join } from "node:path";
 
-/** Repository root when Next.js or Bun runs from the project directory. */
+export const MODEL_ATLAS_PROJECT_ROOT_ENV = "MODEL_ATLAS_PROJECT_ROOT";
+
+/**
+ * Repository root for committed content lookups.
+ * Most runtime code executes from the repo root, but spawned verifier fixtures
+ * can override this with `MODEL_ATLAS_PROJECT_ROOT` while keeping their own cwd
+ * for `.next` and fake-server lifecycle behavior.
+ */
 export function getProjectRoot(): string {
+  const overriddenRoot = process.env[MODEL_ATLAS_PROJECT_ROOT_ENV]?.trim();
+  if (overriddenRoot) {
+    return overriddenRoot;
+  }
+
   return process.cwd();
 }
 
