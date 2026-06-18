@@ -32,5 +32,9 @@
     "references": {
       "title": "References"
     }
+  },
+  "links": {
+    "prefill": "Prefill",
+    "decode": "Decode"
   }
 }

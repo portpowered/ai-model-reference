@@ -424,6 +424,7 @@ export const pageMessagesSchema = z.object({
   sections: z.record(z.string(), pageSectionSchema).optional(),
   relatedDocs: z.record(z.string(), pageRelatedDocMessageSchema).optional(),
   callouts: z.record(z.string(), pageCalloutSchema).optional(),
+  links: z.record(z.string(), z.string().min(1)).optional(),
   assets: z.record(z.string(), pageAssetMessageSchema).optional(),
   graph: pageGraphMessagesSchema.optional(),
   tables: z.record(z.string(), pageTableMessagesSchema).optional(),

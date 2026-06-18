@@ -32,5 +32,10 @@
     "references": {
       "title": "References"
     }
+  },
+  "links": {
+    "kvCache": "KV cache",
+    "prefill": "Prefill",
+    "prefillDecodeSplit": "Prefill/decode split"
   }
 }

@@ -19,6 +19,7 @@ updatedAt: "2026-06-18"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -42,17 +43,16 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="serving-path" titleKey="sections.servingPath.title">
   <T k="sections.servingPath.body" />
-  <ul className="mt-3 list-disc pl-6">
-    <li>
-      <a href="/docs/glossary/kv-cache">KV cache</a>
-    </li>
-    <li>
-      <a href="/docs/glossary/prefill">Prefill</a>
-    </li>
-    <li>
-      <a href="/docs/glossary/prefill-decode-split">Prefill/decode split</a>
-    </li>
-  </ul>
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/glossary/kv-cache", labelKey: "links.kvCache" },
+      { href: "/docs/glossary/prefill", labelKey: "links.prefill" },
+      {
+        href: "/docs/glossary/prefill-decode-split",
+        labelKey: "links.prefillDecodeSplit",
+      },
+    ]}
+  />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">

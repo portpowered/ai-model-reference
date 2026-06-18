@@ -18,6 +18,7 @@ updatedAt: "2026-06-18"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -41,29 +42,26 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="serving-path" titleKey="sections.servingPath.title">
   <T k="sections.servingPath.body" />
-  <ul className="mt-3 list-disc pl-6">
-    <li>
-      <a href="/docs/glossary/kv-cache">KV cache</a>
-    </li>
-    <li>
-      <a href="/docs/glossary/prefill">Prefill</a>
-    </li>
-    <li>
-      <a href="/docs/glossary/decode">Decode</a>
-    </li>
-    <li>
-      <a href="/search?q=paged%20attention">Paged attention</a>
-    </li>
-    <li>
-      <a href="/search?q=chunked%20prefill">Chunked prefill</a>
-    </li>
-    <li>
-      <a href="/search?q=speculative%20decoding">Speculative decoding</a>
-    </li>
-    <li>
-      <a href="/search?q=quantization">Quantization</a>
-    </li>
-  </ul>
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/glossary/kv-cache", labelKey: "links.kvCache" },
+      { href: "/docs/glossary/prefill", labelKey: "links.prefill" },
+      { href: "/docs/glossary/decode", labelKey: "links.decode" },
+      {
+        href: "/search?q=paged%20attention",
+        labelKey: "links.pagedAttention",
+      },
+      {
+        href: "/search?q=chunked%20prefill",
+        labelKey: "links.chunkedPrefill",
+      },
+      {
+        href: "/search?q=speculative%20decoding",
+        labelKey: "links.speculativeDecoding",
+      },
+      { href: "/search?q=quantization", labelKey: "links.quantization" },
+    ]}
+  />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">

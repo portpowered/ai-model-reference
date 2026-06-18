@@ -93,6 +93,12 @@ export function collectMessageBodyText(messages: PageMessages): string {
     }
   }
 
+  if (messages.links) {
+    for (const label of Object.values(messages.links)) {
+      parts.push(label);
+    }
+  }
+
   if (messages.assets) {
     for (const asset of Object.values(messages.assets)) {
       parts.push(asset.alt ?? "", asset.caption ?? "");
