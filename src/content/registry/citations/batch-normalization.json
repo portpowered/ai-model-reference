@@ -1,0 +1,24 @@
+{
+  "id": "citation.batch-normalization",
+  "slug": "batch-normalization",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Batch Normalization paper",
+    "Ioffe Szegedy batch norm paper",
+    "BN paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Sergey Ioffe", "Christian Szegedy"],
+  "title": "Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift",
+  "year": 2015,
+  "url": "https://arxiv.org/abs/1502.03167",
+  "mla": "Ioffe, Sergey, and Christian Szegedy. \"Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift.\" arXiv, 2015, https://arxiv.org/abs/1502.03167."
+}

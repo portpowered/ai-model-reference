@@ -27,10 +27,6 @@
       "title": "Compared To Nearby Modules",
       "body": "RMSNorm is closest to layer norm because both normalize one token at a time. The main difference is that RMSNorm keeps the scale correction but drops mean centering and often omits the learned bias term as well."
     },
-    "variantsAndNearbyModules": {
-      "title": "Variants And Nearby Modules",
-      "body": "The nearby normalization pages show the main design forks: batch-coupled statistics, grouped statistics, full per-token centering, and lighter scale-only alternatives like RMSNorm."
-    },
     "exampleArchitectures": {
       "title": "Example Architectures",
       "body": "RMSNorm appears in many recent decoder transformers, especially Llama-style stacks and related architectures that prefer a lighter normalization rule than classic layer norm."

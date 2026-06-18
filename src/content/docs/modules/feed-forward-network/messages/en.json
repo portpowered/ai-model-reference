@@ -27,10 +27,6 @@
       "title": "Compared To Nearby Modules",
       "body": "Nearby FFN variants trade dense simplicity, gated expressiveness, and sparse routing. The table below keeps those tradeoffs in one place."
     },
-    "variantsAndNearbyModules": {
-      "title": "Variants And Nearby Modules",
-      "body": "These nearby pages cover the main branches of the FFN family, plus closely related modules that often appear in the same block slot."
-    },
     "exampleArchitectures": {
       "title": "Example Architectures",
       "body": "Decoder transformers, encoder stacks, and encoder-decoder systems all include an FFN-style block after attention, even when the exact FFN variant changes."

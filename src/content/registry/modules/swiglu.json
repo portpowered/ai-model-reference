@@ -20,7 +20,7 @@
     "module.silu",
     "concept.activation"
   ],
-  "citationIds": [],
+  "citationIds": ["citation.glu-variants-improve-transformer"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",

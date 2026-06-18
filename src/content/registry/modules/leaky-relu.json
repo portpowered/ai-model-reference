@@ -20,7 +20,9 @@
     "module.relu",
     "module.silu"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.rectifier-nonlinearities-improve-neural-network-acoustic-models"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",

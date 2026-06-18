@@ -11,7 +11,7 @@
     "module.multi-query-attention",
     "module.grouped-query-attention"
   ],
-  "citationIds": [],
+  "citationIds": ["citation.sparse-transformers"],
   "status": "published",
   "createdAt": "2026-06-08T00:00:00.000Z",
   "updatedAt": "2026-06-08T00:00:00.000Z",

@@ -16,7 +16,7 @@ import {
   SAME_VARIANT_GROUP,
   SHARED_TAGS,
 } from "@/lib/content/related-docs";
-import type { ConceptRecord, ModuleRecord } from "@/lib/content/schemas";
+import type { ConceptRecord, ModelRecord, ModuleRecord } from "@/lib/content/schemas";
 
 const publishedRegistryIds = new Set([
   "module.grouped-query-attention",
@@ -97,6 +97,50 @@ const draftTransformer: ConceptRecord = {
   aliases: ["Transformer"],
   status: "draft",
   relatedIds: [],
+};
+
+const gpt3: ModelRecord = {
+  id: "model.gpt-3",
+  slug: "gpt-3",
+  kind: "model",
+  defaultTitleKey: "title",
+  defaultSummaryKey: "description",
+  aliases: ["GPT-3"],
+  tags: ["attention"],
+  relatedIds: [
+    "module.multi-head-attention",
+    "module.learned-positional-embeddings",
+  ],
+  citationIds: [],
+  status: "published",
+  createdAt: "2026-06-18T00:00:00.000Z",
+  updatedAt: "2026-06-18T00:00:00.000Z",
+  family: "gpt",
+  sourceType: "closed",
+  modalities: ["text"],
+  architectureIds: [],
+  moduleIds: [
+    "module.multi-head-attention",
+    "module.learned-positional-embeddings",
+  ],
+  trainingRegimeIds: [],
+  datasetIds: [],
+  paperIds: [],
+};
+
+const learnedPositionalEmbeddingsModule: ModuleRecord = {
+  ...gqa,
+  id: "module.learned-positional-embeddings",
+  slug: "learned-positional-embeddings",
+  aliases: ["Learned positional embeddings"],
+  variantGroup: "absolute-positional-encodings",
+};
+
+const learnedPositionalEmbeddingsConcept: ConceptRecord = {
+  ...token,
+  id: "concept.learned-positional-embeddings",
+  slug: "learned-positional-embeddings",
+  aliases: ["Learned positional embeddings"],
 };
 
 describe("registryDisplayTitle", () => {
@@ -262,6 +306,18 @@ describe("related-docs", () => {
     expect(items[1]?.href).toBe("/docs/modules/grouped-query-attention");
   });
 
+  test("deriveSharedTagPeers collapses module-backed concept and module duplicates to one visible link", () => {
+    const peers = deriveSharedTagPeers(
+      gpt3,
+      [learnedPositionalEmbeddingsModule, learnedPositionalEmbeddingsConcept],
+      publishedRegistryIds,
+    );
+
+    expect(peers).toHaveLength(1);
+    expect(peers[0]?.registryId).toBe("module.learned-positional-embeddings");
+    expect(peers[0]?.href).toBe("/docs/modules/learned-positional-embeddings");
+  });
+
   test("excludeRelatedDocItems removes already-rendered peers without reordering the rest", () => {
     const source: ConceptRecord = {
       ...token,
@@ -283,6 +339,134 @@ describe("related-docs", () => {
         "module.multi-query-attention",
       ]).map((item) => item.registryId),
     ).toEqual(["module.grouped-query-attention"]);
+  });
+
+  test("deriveRelatedDocGroups lets curated-related own overlaps with shared-tags", () => {
+    const groups = deriveRelatedDocGroups(
+      gpt3,
+      [
+        gpt3,
+        mha,
+        learnedPositionalEmbeddingsModule,
+        learnedPositionalEmbeddingsConcept,
+      ],
+      [SHARED_TAGS, CURATED_RELATED],
+      new Set([
+        ...publishedRegistryIds,
+        "model.gpt-3",
+        "module.multi-head-attention",
+        "module.learned-positional-embeddings",
+        "concept.learned-positional-embeddings",
+      ]),
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([CURATED_RELATED]);
+    expect(groups[0]?.items.map((item) => item.registryId)).toEqual([
+      "module.multi-head-attention",
+      "module.learned-positional-embeddings",
+    ]);
+  });
+
+  test("deriveRelatedDocGroups lets same-concept-type own overlaps with shared-tags", () => {
+    const overlappingPeer: ConceptRecord = {
+      ...token,
+      id: "concept.architecture",
+      slug: "architecture",
+      aliases: ["Architecture"],
+    };
+    const tagOnlyPeer: ModuleRecord = {
+      ...gqa,
+      id: "module.attention",
+      slug: "attention",
+      aliases: ["Attention"],
+      variantGroup: undefined,
+    };
+
+    const groups = deriveRelatedDocGroups(
+      token,
+      [token, overlappingPeer, tagOnlyPeer],
+      [SHARED_TAGS, SAME_CONCEPT_TYPE],
+      new Set([
+        ...publishedRegistryIds,
+        "concept.architecture",
+        "module.attention",
+      ]),
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([
+      SAME_CONCEPT_TYPE,
+      SHARED_TAGS,
+    ]);
+    expect(groups[0]?.items.map((item) => item.registryId)).toEqual([
+      "concept.architecture",
+    ]);
+    expect(groups[1]?.items.map((item) => item.registryId)).toEqual([
+      "module.attention",
+    ]);
+  });
+
+  test("deriveRelatedDocGroups lets curated-related own overlaps with same-variant-group and renders it first", () => {
+    const source: ModuleRecord = {
+      ...gqa,
+      relatedIds: [
+        "module.multi-head-attention",
+        "module.multi-query-attention",
+        "module.attention",
+      ],
+    };
+    const attention: ModuleRecord = {
+      ...gqa,
+      id: "module.attention",
+      slug: "attention",
+      aliases: ["Attention"],
+      variantGroup: undefined,
+    };
+
+    const groups = deriveRelatedDocGroups(
+      source,
+      [source, mha, mqa, attention],
+      [SAME_VARIANT_GROUP, CURATED_RELATED],
+      new Set([
+        ...publishedRegistryIds,
+        "module.attention",
+        "module.multi-head-attention",
+        "module.multi-query-attention",
+      ]),
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([CURATED_RELATED]);
+    expect(groups[0]?.items.map((item) => item.registryId)).toEqual([
+      "module.multi-head-attention",
+      "module.multi-query-attention",
+      "module.attention",
+    ]);
+  });
+
+  test("deriveRelatedDocGroups renders curated-related before same-concept-type and shared-tags", () => {
+    const source: ConceptRecord = {
+      ...token,
+      relatedIds: ["concept.transformer"],
+    };
+    const groups = deriveRelatedDocGroups(
+      source,
+      [source, draftTransformer, gqa],
+      [SHARED_TAGS, SAME_CONCEPT_TYPE, CURATED_RELATED],
+      new Set([
+        ...publishedRegistryIds,
+        "concept.transformer",
+      ]),
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([
+      CURATED_RELATED,
+      SHARED_TAGS,
+    ]);
+    expect(groups[0]?.items.map((item) => item.registryId)).toEqual([
+      "concept.transformer",
+    ]);
+    expect(groups[1]?.items.map((item) => item.registryId)).toEqual([
+      "module.grouped-query-attention",
+    ]);
   });
 
   test("deriveRelatedDocGroups omits empty groups and ignores unsupported ids", () => {
@@ -307,8 +491,8 @@ describe("related-docs", () => {
     );
 
     expect(groups.map((group) => group.id)).toEqual([
-      SHARED_TAGS,
       SAME_CONCEPT_TYPE,
+      SHARED_TAGS,
     ]);
     const plannedGroup = groups.find((group) => group.id === SAME_CONCEPT_TYPE);
     expect(plannedGroup?.items[0]?.isPlanned).toBe(true);

@@ -67,6 +67,33 @@ export type RelatedDocGroup = {
   items: RelatedDocItem[];
 };
 
+const RELATED_DOC_GROUP_PRIORITY: readonly DerivedRelatedDocGroupId[] = [
+  CURATED_RELATED,
+  SAME_VARIANT_GROUP,
+  SAME_CONCEPT_TYPE,
+  SHARED_TAGS,
+];
+
+function relatedDocDedupKey(item: RelatedDocItem): string {
+  return item.href ?? `planned:${item.registryId}`;
+}
+
+function dedupeRelatedDocItems(items: RelatedDocItem[]): RelatedDocItem[] {
+  const seen = new Set<string>();
+  const deduped: RelatedDocItem[] = [];
+
+  for (const item of items) {
+    const dedupKey = relatedDocDedupKey(item);
+    if (seen.has(dedupKey)) {
+      continue;
+    }
+    seen.add(dedupKey);
+    deduped.push(item);
+  }
+
+  return deduped;
+}
+
 function formatSlugLabel(slug: string): string {
   return slug
     .split("-")
@@ -165,14 +192,16 @@ export function deriveSameVariantGroupPeers(
   }
 
   const reasonLabel = DERIVED_RELATED_DOC_GROUP_LABELS[SAME_VARIANT_GROUP];
-  return modules
-    .filter(
-      (candidate) =>
-        candidate.id !== source.id &&
-        candidate.variantGroup === source.variantGroup,
-    )
-    .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds))
-    .sort((a, b) => a.title.localeCompare(b.title));
+  return dedupeRelatedDocItems(
+    modules
+      .filter(
+        (candidate) =>
+          candidate.id !== source.id &&
+          candidate.variantGroup === source.variantGroup,
+      )
+      .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds))
+      .sort((a, b) => a.title.localeCompare(b.title)),
+  );
 }
 
 /** Peers sharing at least one tag with the source record, excluding the source. */
@@ -186,13 +215,15 @@ export function deriveSharedTagPeers(
   }
 
   const reasonLabel = DERIVED_RELATED_DOC_GROUP_LABELS[SHARED_TAGS];
-  return candidates
-    .filter(
-      (candidate) =>
-        candidate.id !== source.id && sharesTag(source.tags, candidate.tags),
-    )
-    .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds))
-    .sort((a, b) => a.title.localeCompare(b.title));
+  return dedupeRelatedDocItems(
+    candidates
+      .filter(
+        (candidate) =>
+          candidate.id !== source.id && sharesTag(source.tags, candidate.tags),
+      )
+      .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds))
+      .sort((a, b) => a.title.localeCompare(b.title)),
+  );
 }
 
 /** Peers with the same `conceptType`, excluding the source. */
@@ -207,14 +238,16 @@ export function deriveSameConceptTypePeers(
   }
 
   const reasonLabel = DERIVED_RELATED_DOC_GROUP_LABELS[SAME_CONCEPT_TYPE];
-  return candidates
-    .filter(
-      (candidate) =>
-        candidate.id !== source.id &&
-        getConceptType(candidate) === sourceConceptType,
-    )
-    .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds))
-    .sort((a, b) => a.title.localeCompare(b.title));
+  return dedupeRelatedDocItems(
+    candidates
+      .filter(
+        (candidate) =>
+          candidate.id !== source.id &&
+          getConceptType(candidate) === sourceConceptType,
+      )
+      .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds))
+      .sort((a, b) => a.title.localeCompare(b.title)),
+  );
 }
 
 /** Applies page-message overrides for curated related-doc relationship labels. */
@@ -268,13 +301,15 @@ export function deriveCuratedRelatedItems(
   );
   const reasonLabel = DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED];
 
-  return source.relatedIds
-    .map((id) => candidatesById.get(id))
-    .filter(
-      (record): record is RelatedRegistryRecord =>
-        record !== undefined && record.id !== source.id,
-    )
-    .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds));
+  return dedupeRelatedDocItems(
+    source.relatedIds
+      .map((id) => candidatesById.get(id))
+      .filter(
+        (record): record is RelatedRegistryRecord =>
+          record !== undefined && record.id !== source.id,
+      )
+      .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds)),
+  );
 }
 
 export function deriveRelatedDocGroups(
@@ -283,7 +318,7 @@ export function deriveRelatedDocGroups(
   requestedGroups: string[],
   publishedRegistryIds: PublishedDocsRegistryIds,
 ): RelatedDocGroup[] {
-  const groups: RelatedDocGroup[] = [];
+  const groupsById = new Map<DerivedRelatedDocGroupId, RelatedDocGroup>();
 
   if (
     requestedGroups.includes(SAME_VARIANT_GROUP) &&
@@ -298,7 +333,7 @@ export function deriveRelatedDocGroups(
       publishedRegistryIds,
     );
     if (items.length > 0) {
-      groups.push({
+      groupsById.set(SAME_VARIANT_GROUP, {
         id: SAME_VARIANT_GROUP,
         reasonLabel: DERIVED_RELATED_DOC_GROUP_LABELS[SAME_VARIANT_GROUP],
         items,
@@ -313,7 +348,7 @@ export function deriveRelatedDocGroups(
       publishedRegistryIds,
     );
     if (items.length > 0) {
-      groups.push({
+      groupsById.set(SHARED_TAGS, {
         id: SHARED_TAGS,
         reasonLabel: DERIVED_RELATED_DOC_GROUP_LABELS[SHARED_TAGS],
         items,
@@ -328,7 +363,7 @@ export function deriveRelatedDocGroups(
       publishedRegistryIds,
     );
     if (items.length > 0) {
-      groups.push({
+      groupsById.set(SAME_CONCEPT_TYPE, {
         id: SAME_CONCEPT_TYPE,
         reasonLabel: DERIVED_RELATED_DOC_GROUP_LABELS[SAME_CONCEPT_TYPE],
         items,
@@ -343,7 +378,7 @@ export function deriveRelatedDocGroups(
       publishedRegistryIds,
     );
     if (items.length > 0) {
-      groups.push({
+      groupsById.set(CURATED_RELATED, {
         id: CURATED_RELATED,
         reasonLabel: DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED],
         items,
@@ -351,5 +386,43 @@ export function deriveRelatedDocGroups(
     }
   }
 
-  return groups;
+  const orderedGroupIds = requestedGroups.filter(
+    (groupId): groupId is DerivedRelatedDocGroupId =>
+      groupId === SAME_VARIANT_GROUP ||
+      groupId === SHARED_TAGS ||
+      groupId === SAME_CONCEPT_TYPE ||
+      groupId === CURATED_RELATED,
+  );
+  const filteredGroupsById = new Map<DerivedRelatedDocGroupId, RelatedDocGroup>();
+  const seenKeys = new Set<string>();
+
+  for (const groupId of RELATED_DOC_GROUP_PRIORITY) {
+    const group = groupsById.get(groupId);
+    if (!group) {
+      continue;
+    }
+
+    const items = group.items.filter((item) => {
+      const dedupKey = relatedDocDedupKey(item);
+      if (seenKeys.has(dedupKey)) {
+        return false;
+      }
+      seenKeys.add(dedupKey);
+      return true;
+    });
+
+    if (items.length === 0) {
+      continue;
+    }
+
+    filteredGroupsById.set(groupId, {
+      ...group,
+      items,
+    });
+  }
+
+  return RELATED_DOC_GROUP_PRIORITY
+    .filter((groupId) => orderedGroupIds.includes(groupId))
+    .map((groupId) => filteredGroupsById.get(groupId) ?? null)
+    .filter((group): group is RelatedDocGroup => group !== null);
 }

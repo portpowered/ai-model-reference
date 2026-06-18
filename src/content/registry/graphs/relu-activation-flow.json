@@ -1,0 +1,96 @@
+{
+  "id": "graph.relu-activation-flow",
+  "slug": "relu-activation-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "concept.relu",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "input-state",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "input-state",
+      "labelKey": "graph.nodes.inputState.label",
+      "moduleKind": "input",
+      "position": { "x": 210, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["expand-projection"]
+    },
+    {
+      "id": "expand-projection",
+      "labelKey": "graph.nodes.expandProjection.label",
+      "moduleKind": "projection",
+      "position": { "x": 180, "y": 120 },
+      "visualRole": "process-node",
+      "childNodeIds": ["activation-rule"]
+    },
+    {
+      "id": "activation-rule",
+      "labelKey": "graph.nodes.activationRule.label",
+      "moduleKind": "operation",
+      "position": { "x": 160, "y": 250 },
+      "visualRole": "process-node",
+      "childNodeIds": ["negative-behavior", "project-back"]
+    },
+    {
+      "id": "negative-behavior",
+      "labelKey": "graph.nodes.negativeBehavior.label",
+      "moduleKind": "other",
+      "position": { "x": 470, "y": 220 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "project-back",
+      "labelKey": "graph.nodes.projectBack.label",
+      "moduleKind": "projection",
+      "position": { "x": 180, "y": 410 },
+      "visualRole": "process-node",
+      "childNodeIds": ["output-state"]
+    },
+    {
+      "id": "output-state",
+      "labelKey": "graph.nodes.outputState.label",
+      "moduleKind": "output",
+      "position": { "x": 200, "y": 530 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "input-to-expand",
+      "source": "input-state",
+      "target": "expand-projection",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "expand-to-activation",
+      "source": "expand-projection",
+      "target": "activation-rule",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "activation-to-project",
+      "source": "activation-rule",
+      "target": "project-back",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "project-to-output",
+      "source": "project-back",
+      "target": "output-state",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

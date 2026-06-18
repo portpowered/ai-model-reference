@@ -27,10 +27,6 @@
       "title": "Compared To Nearby Modules",
       "body": "Layer norm and RMSNorm usually normalize the hidden state that flows through a whole transformer block. QK norm is narrower: it only changes the query-key score path inside attention. That makes it more of a targeted attention tweak than a general residual-stream norm."
     },
-    "variantsAndNearbyModules": {
-      "title": "Variants And Nearby Modules",
-      "body": "Nearby normalization pages cover broader hidden-state norms, while QK norm shows what happens when normalization is attached to one internal attention step instead. Reading them together makes the placement difference clear."
-    },
     "exampleArchitectures": {
       "title": "Example Architectures",
       "body": "QK norm appears in some transformer variants that want extra control over attention sharpness, especially when long context or deep stacks make logits harder to keep in a comfortable range."

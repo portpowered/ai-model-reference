@@ -155,6 +155,87 @@
   font-weight: 700;
 }
 
+.registry-graph-flow__group-container {
+  display: grid;
+  height: 100%;
+  width: 100%;
+  border: 3px solid #111111;
+  border-radius: 22px;
+  background: rgb(255 255 255 / 0.88);
+  box-shadow: 0 10px 30px rgb(15 23 42 / 0.06);
+}
+
+.registry-graph-flow__repeat-label {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  width: 100%;
+  color: #111111;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+}
+
+.registry-graph-flow__architecture-node {
+  display: grid;
+  height: 100%;
+  width: 100%;
+  place-items: center;
+  border: 3px solid #111111;
+  border-radius: 12px;
+  padding: 8px 12px;
+  color: #111111;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.15;
+  text-align: center;
+  white-space: pre-line;
+  box-shadow: 0 8px 22px rgb(15 23 42 / 0.08);
+}
+
+.registry-graph-flow__architecture-node--embedding {
+  background: #f9dfe3;
+}
+
+.registry-graph-flow__architecture-node--attention {
+  background: #fde3bf;
+}
+
+.registry-graph-flow__architecture-node--feed-forward {
+  background: #cfeafb;
+}
+
+.registry-graph-flow__architecture-node--add-norm {
+  background: #f5f3b8;
+}
+
+.registry-graph-flow__architecture-node--linear {
+  background: #d8def2;
+}
+
+.registry-graph-flow__architecture-node--softmax {
+  background: #d5ecd3;
+}
+
+.registry-graph-flow__architecture-node--io {
+  background: #f7e6ea;
+}
+
+.registry-graph-flow__operator-circle {
+  display: grid;
+  height: 100%;
+  width: 100%;
+  place-items: center;
+  border: 3px solid #111111;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #111111;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1;
+}
+
 .registry-graph-flow__math-label {
   display: inline-flex;
   align-items: center;

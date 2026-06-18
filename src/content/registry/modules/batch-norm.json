@@ -18,7 +18,7 @@
     "module.group-norm",
     "module.layer-norm"
   ],
-  "citationIds": [],
+  "citationIds": ["citation.batch-normalization"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",

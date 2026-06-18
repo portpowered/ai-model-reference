@@ -7,6 +7,7 @@ import groupedQueryAttentionComputeSchema from "@/content/registry/graphs/groupe
 import groupedQueryAttentionGqaComparison from "@/content/registry/graphs/grouped-query-attention-gqa-comparison.json";
 import groupedQueryAttentionMhaComparison from "@/content/registry/graphs/grouped-query-attention-mha-comparison.json";
 import layerNormComputeFlow from "@/content/registry/graphs/layer-norm-compute-flow.json";
+import leakyReluActivationFlow from "@/content/registry/graphs/leaky-relu-activation-flow.json";
 import linearAttentionLinearComparison from "@/content/registry/graphs/linear-attention-linear-comparison.json";
 import linearAttentionMhaComparison from "@/content/registry/graphs/linear-attention-mha-comparison.json";
 import mixtureOfExpertsRoutingFlow from "@/content/registry/graphs/mixture-of-experts-routing-flow.json";
@@ -19,7 +20,9 @@ import multiQueryAttentionMhaComparison from "@/content/registry/graphs/multi-qu
 import multiQueryAttentionMqaComparison from "@/content/registry/graphs/multi-query-attention-mqa-comparison.json";
 import pageSpecWorkflowSampleConceptMap from "@/content/registry/graphs/page-spec-workflow-sample-concept-map.json";
 import qkNormComputeFlow from "@/content/registry/graphs/qk-norm-compute-flow.json";
+import reluActivationFlow from "@/content/registry/graphs/relu-activation-flow.json";
 import rmsnormComputeFlow from "@/content/registry/graphs/rmsnorm-compute-flow.json";
+import siluActivationFlow from "@/content/registry/graphs/silu-activation-flow.json";
 import slidingWindowAttentionTimeWindowPattern from "@/content/registry/graphs/sliding-window-attention-time-window-pattern.json";
 import sparseAttentionTimePattern from "@/content/registry/graphs/sparse-attention-time-pattern.json";
 import standardFfnComputeFlow from "@/content/registry/graphs/standard-ffn-compute-flow.json";
@@ -38,6 +41,7 @@ const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(groupedQueryAttentionMhaComparison),
   graphRecordSchema.parse(groupedQueryAttentionGqaComparison),
   graphRecordSchema.parse(layerNormComputeFlow),
+  graphRecordSchema.parse(leakyReluActivationFlow),
   graphRecordSchema.parse(multiHeadAttentionMhaComparison),
   graphRecordSchema.parse(multiHeadAttentionMqaComparison),
   graphRecordSchema.parse(multiHeadAttentionTimePattern),
@@ -56,7 +60,9 @@ const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(sparseAttentionTimePattern),
   graphRecordSchema.parse(swigluComputeFlow),
   graphRecordSchema.parse(pageSpecWorkflowSampleConceptMap),
+  graphRecordSchema.parse(reluActivationFlow),
   graphRecordSchema.parse(tokenConceptMap),
+  graphRecordSchema.parse(siluActivationFlow),
 ];
 
 const graphsById = new Map(graphRecords.map((record) => [record.id, record]));

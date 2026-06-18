@@ -27,10 +27,6 @@
       "title": "Compared To Nearby Modules",
       "body": "Compared with dense FFN variants, MoE changes not just the hidden path shape but the activation pattern itself. The key contrast is dense-for-every-token versus sparse-top-k routing."
     },
-    "variantsAndNearbyModules": {
-      "title": "Variants And Nearby Modules",
-      "body": "These nearby pages show the dense FFN baseline and the gated dense alternative that readers usually compare against MoE before jumping into sparse expert routing details."
-    },
     "exampleArchitectures": {
       "title": "Example Architectures",
       "body": "Large decoder-only language models often mention expert count and top-k routing in their architecture summaries when they adopt MoE blocks."

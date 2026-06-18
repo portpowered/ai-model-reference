@@ -1,0 +1,24 @@
+{
+  "id": "citation.self-attention-with-relative-position-representations",
+  "slug": "self-attention-with-relative-position-representations",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "relative position representations paper",
+    "Shaw relative position paper",
+    "relative position bias paper"
+  ],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Peter Shaw", "Jakob Uszkoreit", "Ashish Vaswani"],
+  "title": "Self-Attention with Relative Position Representations",
+  "year": 2018,
+  "url": "https://arxiv.org/abs/1803.02155",
+  "mla": "Shaw, Peter, Jakob Uszkoreit, and Ashish Vaswani. \"Self-Attention with Relative Position Representations.\" arXiv, 2018, https://arxiv.org/abs/1803.02155."
+}

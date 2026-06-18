@@ -1,0 +1,32 @@
+{
+  "id": "citation.sparsely-gated-mixture-of-experts-layer",
+  "slug": "sparsely-gated-mixture-of-experts-layer",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "MoE paper",
+    "Sparsely-Gated Mixture-of-Experts paper",
+    "Shazeer MoE paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Noam Shazeer",
+    "Azalia Mirhoseini",
+    "Krzysztof Maziarz",
+    "Andy Davis",
+    "Quoc Le",
+    "Geoffrey Hinton",
+    "Jeff Dean"
+  ],
+  "title": "Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer",
+  "year": 2017,
+  "url": "https://arxiv.org/abs/1701.06538",
+  "mla": "Shazeer, Noam, et al. \"Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer.\" arXiv, 2017, https://arxiv.org/abs/1701.06538."
+}

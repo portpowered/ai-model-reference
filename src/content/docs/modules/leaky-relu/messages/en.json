@@ -1,25 +1,46 @@
 {
   "title": "LeakyReLU",
   "description": "A ReLU-style activation that keeps a small negative slope instead of zeroing every negative FFN value.",
+  "openingSummary": "LeakyReLU keeps a small negative slope inside an FFN instead of clamping every negative hidden value to zero, so weak signals and gradients can still pass through the block.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
       "body": "LeakyReLU is a small change to ReLU. Positive hidden values pass through as usual, but negative values are multiplied by a small constant such as 0.01 instead of becoming zero. In a standard FFN after attention, that means a token can keep a weak negative signal rather than shutting the feature off completely."
     },
-    "whyItMatters": {
-      "title": "Why It Matters",
-      "body": "The main reason to use LeakyReLU is to avoid losing all gradient signal on the negative side. A dense FFN with plain ReLU can leave some hidden units inactive for long stretches if they keep landing below zero. LeakyReLU softens that cutoff, so papers sometimes use it when they want ReLU-like behavior with a less brittle negative branch."
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "LeakyReLU optimizes for better negative-side gradient flow while staying very close to ReLU. It keeps the same cheap piecewise-linear behavior, but it avoids a fully dead negative branch."
     },
-    "simpleExample": {
-      "title": "Simple Example",
-      "body": "If the hidden values are [-2.0, 0.7, 3.4] and the leak factor is 0.01, LeakyReLU produces [-0.02, 0.7, 3.4]. The FFN still runs the same expand then activate then project recipe; only the activation rule changes."
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "For a reader, LeakyReLU is useful because it shows how much behavior can change without redesigning the FFN block. The module still uses one dense path. Only the negative half of the activation rule changes."
     },
-    "commonConfusions": {
-      "title": "Common Confusions",
-      "body": "LeakyReLU is not a gated FFN like SwiGLU and it is not a sparse router like mixture of experts. It stays inside the same dense standard FFN block. It also does not make negative values equally important as positive ones; the negative side is still much smaller, just not forced to zero."
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The token state expands into a wide hidden layer, then LeakyReLU acts on each hidden value separately. Positive values keep their size. Negative values stay negative, but they are scaled down by a small factor before the block projects back to model width."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formula below shows the same split as ReLU, but the negative branch no longer vanishes. Instead, it keeps a small slope alpha."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "LeakyReLU sits between ReLU and SiLU. It is less abrupt than ReLU because the negative side survives, but it still keeps a piecewise-linear corner rather than moving to the fully smooth SiLU curve."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "LeakyReLU appears more often in older convolutional or experimental dense networks than in current frontier language models, but it remains a common comparison point when authors discuss negative-side gradient flow."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "LeakyReLU preserves more negative information than ReLU, but the negative side is still fixed and weak. It does not provide the smoother learned filtering that many modern transformer FFNs get from SiLU-based designs."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "LeakyReLU helps readers separate two questions: whether an FFN is dense or gated, and whether its activation fully shuts off negative features. That distinction comes up often in model and paper comparisons."
     },
     "related": {
-      "title": "Related Concepts And Modules"
+      "title": "Related"
     },
     "tags": {
       "title": "Tags"
@@ -28,5 +49,99 @@
       "title": "References"
     }
   },
-  "openingSummary": "LeakyReLU keeps a small negative slope inside an FFN instead of clamping every negative hidden value to zero, so weak signals can still flow through the block."
+  "assets": {
+    "computeFlow": {
+      "alt": "Activation comparison graph showing how ReLU, LeakyReLU, and SiLU treat negative hidden values inside the same FFN path",
+      "caption": "LeakyReLU keeps the same dense FFN path as ReLU, but the negative branch now leaks through at a small scale",
+      "variants": {
+        "relu": {
+          "label": "ReLU"
+        },
+        "leakyRelu": {
+          "label": "LeakyReLU"
+        },
+        "silu": {
+          "label": "SiLU"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "How LeakyReLU compares with nearby activation variants"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "relu": {
+          "title": "ReLU"
+        },
+        "leakyRelu": {
+          "title": "LeakyReLU"
+        },
+        "silu": {
+          "title": "SiLU"
+        }
+      },
+      "dimensions": {
+        "negativeBranch": "Negative branch",
+        "transitionShape": "Transition shape",
+        "mainTradeoff": "Main tradeoff"
+      },
+      "values": {
+        "relu": {
+          "negativeBranch": "Clamp every negative hidden value to 0",
+          "transitionShape": "Hard corner at 0",
+          "mainTradeoff": "Simplest rule, but fully drops negative signal"
+        },
+        "leakyRelu": {
+          "negativeBranch": "Keep a small slope alpha x for x < 0",
+          "transitionShape": "Hard corner with a weak negative path",
+          "mainTradeoff": "Improves negative-side gradient flow, but remains less smooth than SiLU"
+        },
+        "silu": {
+          "negativeBranch": "Shrink negative values smoothly with x sigma(x)",
+          "transitionShape": "Smooth curve through 0",
+          "mainTradeoff": "Smoother hidden filtering, but less minimal than a piecewise-linear rule"
+        }
+      }
+    }
+  },
+  "math": {
+    "leakyReluSchema": {
+      "label": "LeakyReLU activation",
+      "formula": "\\mathrm{LeakyReLU}(x) = \\max(\\alpha x, x)",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "One hidden value inside the expanded FFN state."
+        },
+        "alpha": {
+          "term": "\\alpha",
+          "definition": "Small negative-side slope, often around 0.01."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "inputState": {
+        "label": "Token state h_t"
+      },
+      "expandProjection": {
+        "label": "Wide projection W_1"
+      },
+      "activationRule": {
+        "label": "LeakyReLU(x) = max(alpha x, x)"
+      },
+      "negativeBehavior": {
+        "label": "Negative hidden values still flow, but only through a small slope alpha x"
+      },
+      "projectBack": {
+        "label": "Project back with W_2"
+      },
+      "outputState": {
+        "label": "Updated token state"
+      }
+    }
+  }
 }

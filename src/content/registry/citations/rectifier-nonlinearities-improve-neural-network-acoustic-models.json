@@ -1,0 +1,24 @@
+{
+  "id": "citation.rectifier-nonlinearities-improve-neural-network-acoustic-models",
+  "slug": "rectifier-nonlinearities-improve-neural-network-acoustic-models",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Leaky ReLU paper",
+    "Maas Hannun Ng rectifier paper",
+    "rectifier nonlinearities paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Andrew L. Maas", "Awni Y. Hannun", "Andrew Y. Ng"],
+  "title": "Rectifier Nonlinearities Improve Neural Network Acoustic Models",
+  "year": 2013,
+  "url": "https://ai.stanford.edu/~amaas/papers/relu_hybrid_icml2013_final.pdf",
+  "mla": "Maas, Andrew L., Awni Y. Hannun, and Andrew Y. Ng. \"Rectifier Nonlinearities Improve Neural Network Acoustic Models.\" ICML Workshop on Deep Learning for Audio, Speech, and Language Processing, 2013, https://ai.stanford.edu/~amaas/papers/relu_hybrid_icml2013_final.pdf."
+}

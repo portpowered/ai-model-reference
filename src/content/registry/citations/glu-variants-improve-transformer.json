@@ -1,0 +1,24 @@
+{
+  "id": "citation.glu-variants-improve-transformer",
+  "slug": "glu-variants-improve-transformer",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "SwiGLU paper",
+    "GLU variants paper",
+    "Shazeer SwiGLU paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Noam Shazeer"],
+  "title": "GLU Variants Improve Transformer",
+  "year": 2020,
+  "url": "https://arxiv.org/abs/2002.05202",
+  "mla": "Shazeer, Noam. \"GLU Variants Improve Transformer.\" arXiv, 2020, https://arxiv.org/abs/2002.05202."
+}

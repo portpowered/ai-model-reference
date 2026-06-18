@@ -27,10 +27,6 @@
       "title": "Compared To Nearby Modules",
       "body": "Group norm sits between batch norm and layer norm. Like layer norm, it stays inside one example. Like batch norm, it can still share statistics across multiple channels, just within a smaller local group."
     },
-    "variantsAndNearbyModules": {
-      "title": "Variants And Nearby Modules",
-      "body": "Normalization choices differ by how wide their statistics reach. Nearby pages show the spectrum from batch-wide pooling to full-vector layer norms and lighter per-token variants like RMSNorm."
-    },
     "exampleArchitectures": {
       "title": "Example Architectures",
       "body": "Group norm appears most often in convolution-heavy systems and mixed vision architectures. It is less central to large language models, but it remains an important comparison point for normalization design."

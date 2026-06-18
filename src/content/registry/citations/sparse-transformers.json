@@ -1,0 +1,29 @@
+{
+  "id": "citation.sparse-transformers",
+  "slug": "sparse-transformers",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Sparse Transformers paper",
+    "Generating Long Sequences with Sparse Transformers",
+    "sparse attention paper"
+  ],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Rewon Child",
+    "Scott Gray",
+    "Alec Radford",
+    "Ilya Sutskever"
+  ],
+  "title": "Generating Long Sequences with Sparse Transformers",
+  "year": 2019,
+  "url": "https://arxiv.org/abs/1904.10509",
+  "mla": "Child, Rewon, et al. \"Generating Long Sequences with Sparse Transformers.\" arXiv, 2019, https://arxiv.org/abs/1904.10509."
+}

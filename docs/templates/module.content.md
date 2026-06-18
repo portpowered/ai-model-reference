@@ -18,7 +18,6 @@ Follow [writing-standards](../writing-standards.md) and [graphing-standards](../
 * `howItWorks`: explain the computation step by step. Link to prerequisites instead of redefining them. Render the **single primary React Flow graph** here.
 * `mathOrComputeSchema`: equations and symbol-only definitions under each formula—no second React Flow canvas. Attention modules use `ModuleAttentionSchemaComparison` with `math.mhaSchema` / `math.gqaSchema` keys.
 * `comparedToNearbyModules`: explain why this module exists relative to nearby modules. Table values should come from an asset or registry-backed comparison config.
-* `variantsAndNearbyModules`: introduce the derived neighborhood. The rendered list should come from taxonomy, tags, and relationships.
 * `exampleArchitectures`: explain why the example model list matters. The list itself should come from registry `exampleModelIds` or usage fields.
 * `limitationsAndTradeoffs`: explain what the module does not solve and the main tradeoffs.
 * `whyItStillMatters`: connect the module to current search intent and newer alternatives.

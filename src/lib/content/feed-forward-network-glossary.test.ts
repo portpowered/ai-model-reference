@@ -98,9 +98,6 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
     expect(
       messages.sections?.comparedToNearbyModules.body?.toLowerCase(),
     ).toContain("tradeoffs");
-    expect(
-      messages.sections?.variantsAndNearbyModules.body?.toLowerCase(),
-    ).toContain("family");
     expect(messages.math?.standardSchema?.formula).toContain("\\mathrm{FFN}");
     expect(messages.math?.swigluSchema?.formula).toContain(
       "\\mathrm{SwiGLU}",
@@ -127,7 +124,6 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
     expect(html).toContain("What It Is");
     expect(html).toContain("What It Optimizes");
     expect(html).toContain("Compared To Nearby Modules");
-    expect(html).toContain("Variants And Nearby Modules");
     expectHtmlToContainProse(html, "same post-attention slot");
     expect(html).toContain('data-registry-id="module.feed-forward-network"');
     expect(html).toContain('data-attention-variant-comparison="true"');
@@ -146,7 +142,6 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
     expect(html).toContain('href="/docs/glossary/activation"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
-    expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
     expect(html).not.toContain("Phase");

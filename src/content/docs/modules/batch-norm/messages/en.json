@@ -27,10 +27,6 @@
       "title": "Compared To Nearby Modules",
       "body": "Batch norm shares statistics across examples. Layer norm and RMSNorm stay inside one token or hidden vector, while group norm stays inside one example but uses smaller channel groups. That difference is why batch norm fits image minibatches better than autoregressive transformer decoding."
     },
-    "variantsAndNearbyModules": {
-      "title": "Variants And Nearby Modules",
-      "body": "Normalization modules mostly differ by where they collect statistics and which operations they keep. Nearby pages help you compare batch-coupled normalization against per-token and per-group alternatives."
-    },
     "exampleArchitectures": {
       "title": "Example Architectures",
       "body": "Batch norm is common in convolutional backbones and many earlier vision architectures. It appears less often in modern decoder-only language models, so it is useful here mainly as a comparison point."

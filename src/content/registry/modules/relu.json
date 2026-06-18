@@ -20,7 +20,9 @@
     "module.leaky-relu",
     "module.silu"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.rectified-linear-units-improve-restricted-boltzmann-machines"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",

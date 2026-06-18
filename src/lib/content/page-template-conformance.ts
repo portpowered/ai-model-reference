@@ -34,8 +34,6 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Legacy module overview predates the current full module template.",
   "modules/grouped-query-attention/page.mdx":
     "Legacy module page predates the variants-and-nearby-modules section.",
-  "modules/leaky-relu/page.mdx":
-    "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/learned-positional-embeddings/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/linear-attention/page.mdx":
@@ -56,11 +54,7 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/relative-position-bias/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
-  "modules/relu/page.mdx":
-    "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/rope/page.mdx":
-    "Legacy module migration still uses the older glossary-shaped structure.",
-  "modules/silu/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/sinusoidal-positional-embeddings/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",

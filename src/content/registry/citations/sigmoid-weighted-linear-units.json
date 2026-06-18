@@ -1,0 +1,24 @@
+{
+  "id": "citation.sigmoid-weighted-linear-units",
+  "slug": "sigmoid-weighted-linear-units",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "SiLU paper",
+    "sigmoid-weighted linear units paper",
+    "Elfwing SiLU paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Stefan Elfwing", "Eiji Uchibe", "Kenji Doya"],
+  "title": "Sigmoid-Weighted Linear Units for Neural Network Function Approximation in Reinforcement Learning",
+  "year": 2017,
+  "url": "https://arxiv.org/abs/1702.03118",
+  "mla": "Elfwing, Stefan, Eiji Uchibe, and Kenji Doya. \"Sigmoid-Weighted Linear Units for Neural Network Function Approximation in Reinforcement Learning.\" arXiv, 2017, https://arxiv.org/abs/1702.03118."
+}

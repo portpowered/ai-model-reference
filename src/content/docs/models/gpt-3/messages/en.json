@@ -89,10 +89,6 @@
         "label": "Feed\nForward",
         "summary": "Per-token dense transformation inside each decoder block"
       },
-      "residualNote": {
-        "label": "Residual paths loop around each sublayer",
-        "summary": "The add-and-norm boxes sit on top of residual skips"
-      },
       "positionAdd": {
         "label": "+",
         "summary": "Adds token embeddings and learned positional embeddings"

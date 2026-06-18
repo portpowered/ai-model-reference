@@ -137,6 +137,6 @@ describe("graph-registry-runtime", () => {
   });
 
   test("lists all bundled graph records", () => {
-    expect(listGraphRecords().length).toBe(17);
+    expect(listGraphRecords().length).toBe(31);
   });
 });

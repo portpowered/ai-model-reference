@@ -1,0 +1,24 @@
+{
+  "id": "citation.root-mean-square-layer-normalization",
+  "slug": "root-mean-square-layer-normalization",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "RMSNorm paper",
+    "Root Mean Square Layer Normalization paper",
+    "Zhang Sennrich RMSNorm paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Biao Zhang", "Rico Sennrich"],
+  "title": "Root Mean Square Layer Normalization",
+  "year": 2019,
+  "url": "https://arxiv.org/abs/1910.07467",
+  "mla": "Zhang, Biao, and Rico Sennrich. \"Root Mean Square Layer Normalization.\" arXiv, 2019, https://arxiv.org/abs/1910.07467."
+}

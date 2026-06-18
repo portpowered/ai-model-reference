@@ -1,4 +1,5 @@
 import attentionIsAllYouNeed from "@/content/registry/citations/attention-is-all-you-need.json";
+import brownGpt3 from "@/content/registry/citations/brown-gpt-3.json";
 import chenPositionalInterpolation from "@/content/registry/citations/chen-positional-interpolation.json";
 import deepseekV2MlaPaper from "@/content/registry/citations/deepseek-v2-mla-paper.json";
 import dingLongrope from "@/content/registry/citations/ding-longrope.json";
@@ -21,6 +22,7 @@ import {
 
 const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(attentionIsAllYouNeed),
+  citationRecordSchema.parse(brownGpt3),
   citationRecordSchema.parse(chenPositionalInterpolation),
   citationRecordSchema.parse(deepseekV2MlaPaper),
   citationRecordSchema.parse(dingLongrope),

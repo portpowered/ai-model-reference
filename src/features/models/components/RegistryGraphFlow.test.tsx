@@ -7,8 +7,15 @@ import {
   RegistryGraphFlow,
 } from "@/features/models/components/RegistryGraphFlow";
 import { REGISTRY_GRAPH_FLOW_INTERACTION } from "@/features/models/components/registry-graph-flow-theme";
-import { GraphRenderIssueError } from "@/lib/content/graph-flow";
-import type { PageAssetConfig, PageMessages } from "@/lib/content/schemas";
+import {
+  buildRegistryFlowGraph,
+  GraphRenderIssueError,
+} from "@/lib/content/graph-flow";
+import type {
+  GraphRecord,
+  PageAssetConfig,
+  PageMessages,
+} from "@/lib/content/schemas";
 
 const messages = {
   title: "Grouped-Query Attention",
@@ -212,5 +219,68 @@ describe("RegistryGraphFlow", () => {
     expect(stripHtmlTags(html)).toContain("Token state");
     expect(html).toContain("registry-graph-flow__math-label");
     expect(html).toContain("h_t");
+  });
+
+  test("preserves explicit size and architecture visual roles for container-style nodes", () => {
+    const graph = {
+      id: "graph.architecture-fixture",
+      slug: "architecture-fixture",
+      kind: "graph",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-18T00:00:00.000Z",
+      updatedAt: "2026-06-18T00:00:00.000Z",
+      subjectId: "model.gpt-3",
+      graphType: "model-architecture",
+      rootNodeId: "container",
+      layout: "vertical-expandable",
+      defaultExpandedDepth: 1,
+      supportedRenderers: ["react-flow"],
+      nodes: [
+        {
+          id: "container",
+          labelKey: "graph.nodes.container.label",
+          moduleKind: "block",
+          position: { x: 0, y: 0 },
+          size: { width: 320, height: 180 },
+          visualRole: "group-container",
+          zIndex: 0,
+          childNodeIds: [],
+        },
+        {
+          id: "attention",
+          labelKey: "graph.nodes.attention.label",
+          moduleKind: "attention",
+          position: { x: 32, y: 42 },
+          size: { width: 180, height: 72 },
+          visualRole: "architecture-attention",
+          zIndex: 2,
+          childNodeIds: [],
+        },
+      ],
+      edges: [],
+    } satisfies GraphRecord;
+
+    const graphMessages = {
+      title: "Fixture",
+      description: "Fixture",
+      graph: {
+        nodes: {
+          container: { label: " " },
+          attention: { label: "Masked\nMulti-Head\nAttention" },
+        },
+      },
+    } satisfies PageMessages;
+
+    const { nodes } = buildRegistryFlowGraph(graph, graphMessages);
+    expect(nodes[0]?.style).toMatchObject({ width: 320, height: 180 });
+    expect(nodes[0]?.data.visualRole).toBe("group-container");
+    expect(nodes[1]?.style).toMatchObject({ width: 180, height: 72 });
+    expect(nodes[1]?.data.visualRole).toBe("architecture-attention");
   });
 });

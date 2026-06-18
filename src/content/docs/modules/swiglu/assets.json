@@ -1,7 +1,19 @@
 {
   "computeFlow": {
-    "type": "graph",
-    "graphId": "graph.swiglu-compute-flow",
+    "type": "attention-variant-graph",
+    "defaultVariantId": "swiglu",
+    "variants": [
+      {
+        "variantId": "standard",
+        "graphId": "graph.standard-ffn-compute-flow",
+        "labelKey": "assets.computeFlow.variants.standard.label"
+      },
+      {
+        "variantId": "swiglu",
+        "graphId": "graph.swiglu-compute-flow",
+        "labelKey": "assets.computeFlow.variants.swiglu.label"
+      }
+    ],
     "webRenderer": "react-flow",
     "printRenderer": "mermaid",
     "altKey": "assets.computeFlow.alt",

@@ -27,10 +27,6 @@
       "title": "Compared To Nearby Modules",
       "body": "Layer norm stays within one token, unlike batch norm, and it includes mean centering, unlike RMSNorm. Group norm also avoids batch coupling, but it normalizes channel groups rather than an entire token vector."
     },
-    "variantsAndNearbyModules": {
-      "title": "Variants And Nearby Modules",
-      "body": "Normalization variants mostly disagree about two things: where statistics are measured and whether mean centering is worth the extra work. Nearby pages let you compare those choices directly."
-    },
     "exampleArchitectures": {
       "title": "Example Architectures",
       "body": "Layer norm appears throughout the original transformer family and many later encoder-decoder or decoder stacks. Even when a newer model switches to RMSNorm, layer norm remains the reference point for comparison."

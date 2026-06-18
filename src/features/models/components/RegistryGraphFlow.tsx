@@ -150,6 +150,26 @@ function getAttentionHeadNodeClassName(
       return "registry-graph-flow__latent-node";
     case "annotation":
       return "registry-graph-flow__annotation";
+    case "group-container":
+      return "registry-graph-flow__group-container";
+    case "repeat-label":
+      return "registry-graph-flow__repeat-label";
+    case "architecture-embedding":
+      return "registry-graph-flow__architecture-node registry-graph-flow__architecture-node--embedding";
+    case "architecture-attention":
+      return "registry-graph-flow__architecture-node registry-graph-flow__architecture-node--attention";
+    case "architecture-feed-forward":
+      return "registry-graph-flow__architecture-node registry-graph-flow__architecture-node--feed-forward";
+    case "architecture-add-norm":
+      return "registry-graph-flow__architecture-node registry-graph-flow__architecture-node--add-norm";
+    case "architecture-linear":
+      return "registry-graph-flow__architecture-node registry-graph-flow__architecture-node--linear";
+    case "architecture-softmax":
+      return "registry-graph-flow__architecture-node registry-graph-flow__architecture-node--softmax";
+    case "architecture-io":
+      return "registry-graph-flow__architecture-node registry-graph-flow__architecture-node--io";
+    case "operator-circle":
+      return "registry-graph-flow__operator-circle";
     default:
       return "registry-graph-flow__default-node";
   }
@@ -161,6 +181,10 @@ function estimateNodeHeight(
   switch (node.data.visualRole) {
     case "annotation":
       return 160;
+    case "group-container":
+      return node.data.size?.height ?? 320;
+    case "repeat-label":
+      return 96;
     case "row-label":
       return 48;
     case "query-head":
@@ -174,6 +198,16 @@ function estimateNodeHeight(
     case "process-node":
     case "latent-node":
       return 64;
+    case "architecture-embedding":
+    case "architecture-attention":
+    case "architecture-feed-forward":
+    case "architecture-add-norm":
+    case "architecture-linear":
+    case "architecture-softmax":
+    case "architecture-io":
+      return node.data.size?.height ?? 72;
+    case "operator-circle":
+      return node.data.size?.height ?? 52;
     default:
       return FLOW_NODE_HEIGHT_ESTIMATE;
   }
@@ -194,6 +228,14 @@ function AttentionHeadNode({
     visualRole === "summary-node" ||
     visualRole === "process-node" ||
     visualRole === "latent-node" ||
+    visualRole === "architecture-embedding" ||
+    visualRole === "architecture-attention" ||
+    visualRole === "architecture-feed-forward" ||
+    visualRole === "architecture-add-norm" ||
+    visualRole === "architecture-linear" ||
+    visualRole === "architecture-softmax" ||
+    visualRole === "architecture-io" ||
+    visualRole === "operator-circle" ||
     visualRole === "default";
 
   return (
@@ -206,12 +248,50 @@ function AttentionHeadNode({
           <Handle
             type="target"
             position={Position.Top}
+            id="target-top"
+            className="registry-graph-flow__handle"
+          />
+          <Handle
+            type="target"
+            position={Position.Right}
+            id="target-right"
+            className="registry-graph-flow__handle"
+          />
+          <Handle
+            type="target"
+            position={Position.Bottom}
+            id="target-bottom"
+            className="registry-graph-flow__handle"
+          />
+          <Handle
+            type="target"
+            position={Position.Left}
+            id="target-left"
             className="registry-graph-flow__handle"
           />
           <GraphNodeLabel label={data.label} />
           <Handle
             type="source"
             position={Position.Bottom}
+            id="source-bottom"
+            className="registry-graph-flow__handle"
+          />
+          <Handle
+            type="source"
+            position={Position.Top}
+            id="source-top"
+            className="registry-graph-flow__handle"
+          />
+          <Handle
+            type="source"
+            position={Position.Right}
+            id="source-right"
+            className="registry-graph-flow__handle"
+          />
+          <Handle
+            type="source"
+            position={Position.Left}
+            id="source-left"
             className="registry-graph-flow__handle"
           />
         </>

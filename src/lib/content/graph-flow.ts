@@ -110,6 +110,7 @@ export function buildRegistryFlowEdges(graph: GraphRecord): Edge[] {
       source: edge.source,
       target: edge.target,
       type: buildRegistryFlowEdgeType(edge),
+      zIndex: buildRegistryFlowEdgeZIndex(edge),
       ...(edge.sourceHandleSide
         ? {
             sourceHandle: buildRegistryFlowHandleId(
@@ -139,6 +140,7 @@ export function buildRegistryFlowEdges(graph: GraphRecord): Edge[] {
         source: node.id,
         target: childId,
         type: buildRegistryFlowEdgeType({ edgeKind: "data-flow" }),
+        zIndex: buildRegistryFlowEdgeZIndex({ edgeKind: "data-flow" }),
         markerEnd: buildRegistryFlowEdgeMarker({ edgeKind: "data-flow" }),
         style: buildRegistryFlowEdgeStyle({ edgeKind: "data-flow" }),
       });
@@ -152,6 +154,19 @@ function buildRegistryFlowHandleId(
   side: "top" | "right" | "bottom" | "left",
 ): string {
   return `${type}-${side}`;
+}
+
+function buildRegistryFlowEdgeZIndex(
+  edge: Pick<ModuleGraphEdge, "edgeKind">,
+): number {
+  switch (edge.edgeKind) {
+    case "contains":
+      return 0;
+    case "residual":
+      return 2;
+    default:
+      return 2;
+  }
 }
 
 function buildRegistryFlowEdgeType(
@@ -170,16 +185,20 @@ function buildRegistryFlowEdgeType(
 function buildRegistryFlowEdgeMarker(
   edge: Pick<ModuleGraphEdge, "edgeKind">,
 ): EdgeMarker {
+  const color =
+    edge.edgeKind === "cache-read" || edge.edgeKind === "cache-write"
+      ? "#2563eb"
+      : edge.edgeKind === "residual"
+        ? "#7c3aed"
+        : edge.edgeKind === "contains"
+          ? "#334155"
+          : "#111111";
+
   return {
     type: MarkerType.ArrowClosed,
-    color:
-      edge.edgeKind === "cache-read" || edge.edgeKind === "cache-write"
-        ? "#2563eb"
-        : edge.edgeKind === "residual"
-          ? "#7c3aed"
-          : "#94a3b8",
-    width: 18,
-    height: 18,
+    color,
+    width: 12,
+    height: 12,
   };
 }
 

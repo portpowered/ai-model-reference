@@ -183,7 +183,6 @@ describe("Phase 3 normalization-variant module pages (US-004)", () => {
       }
       expect(html).toContain('href="/tags/foundations"');
       expect(html).toContain('data-testid="tag-pill-list"');
-      expect(html).toContain('data-testid="derived-related-docs"');
       expect(html).toContain('data-testid="curated-related-docs"');
       expect(html).not.toContain("Phase");
       expect(html).not.toContain("Reader Shortcut");

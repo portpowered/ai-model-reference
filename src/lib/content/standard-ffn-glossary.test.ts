@@ -123,7 +123,7 @@ describe("Phase 3 standard FFN module page (US-001)", () => {
     expect(html).toContain('data-graph-id="graph.standard-ffn-compute-flow"');
     expect(html).toContain('data-attention-schema-comparison="true"');
     expect(html).toContain('data-math-schema="standard"');
-    expect(html).toContain('data-math-schema="swiglu"');
+    expect(html).not.toContain('data-math-schema="swiglu"');
     expect(html).toContain('data-page-asset="comparisonTable"');
     expect(html).toContain('data-table-id="table.standard-ffn-comparison"');
     expect(html).toContain('href="/docs/modules/feed-forward-network"');
@@ -131,7 +131,6 @@ describe("Phase 3 standard FFN module page (US-001)", () => {
     expect(html).toContain('href="/docs/glossary/activation"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
-    expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
     expect(html).not.toContain("Phase");

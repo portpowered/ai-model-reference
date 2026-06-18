@@ -21,15 +21,11 @@
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
-      "body": "The dense FFN formula below is the baseline. The second formula shows SwiGLU as a nearby variant so the reader can see exactly what the extra gate changes."
+      "body": "The dense FFN formula below is the baseline for the whole family. It shows the single shared expand, activate, and project path that many later variants start from."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
       "body": "Compared with other FFN-family modules, the standard FFN keeps the most direct dense path. The main tradeoff is that every token activates the full hidden block every time."
-    },
-    "variantsAndNearbyModules": {
-      "title": "Variants And Nearby Modules",
-      "body": "These nearby pages cover the main FFN alternatives that keep the same block slot but change the hidden path inside it."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",

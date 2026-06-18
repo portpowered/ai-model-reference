@@ -27,10 +27,6 @@
       "title": "Compared To Nearby Modules",
       "body": "SwiGLU stays closer to the dense FFN baseline than MoE does. It changes how features are filtered inside one dense block rather than changing the slot into a sparse routed expert system."
     },
-    "variantsAndNearbyModules": {
-      "title": "Variants And Nearby Modules",
-      "body": "These nearby pages show the dense FFN baseline, the broader FFN family context, and the sparse expert alternative that readers often compare against SwiGLU."
-    },
     "exampleArchitectures": {
       "title": "Example Architectures",
       "body": "Many recent decoder-only language models use gated FFN designs like SwiGLU while keeping the same attention-then-FFN block structure."
@@ -55,8 +51,16 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "SwiGLU graph showing value and gate branches, SiLU on the gate branch, and elementwise multiplication before projection",
-      "caption": "SwiGLU changes the standard FFN by splitting the wide hidden state into value and gate branches before multiplying them back together"
+      "alt": "Comparison graph showing a standard FFN path versus a SwiGLU path with value and SiLU gate branches",
+      "caption": "Switch between the standard FFN and SwiGLU to see exactly where the extra gate branch appears",
+      "variants": {
+        "standard": {
+          "label": "Standard FFN"
+        },
+        "swiglu": {
+          "label": "SwiGLU"
+        }
+      }
     },
     "comparisonTable": {
       "caption": "How SwiGLU compares with nearby FFN variants"

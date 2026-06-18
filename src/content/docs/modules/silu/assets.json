@@ -1,1 +1,32 @@
-{}
+{
+  "computeFlow": {
+    "type": "attention-variant-graph",
+    "defaultVariantId": "silu",
+    "variants": [
+      {
+        "variantId": "relu",
+        "graphId": "graph.relu-activation-flow",
+        "labelKey": "assets.computeFlow.variants.relu.label"
+      },
+      {
+        "variantId": "leakyRelu",
+        "graphId": "graph.leaky-relu-activation-flow",
+        "labelKey": "assets.computeFlow.variants.leakyRelu.label"
+      },
+      {
+        "variantId": "silu",
+        "graphId": "graph.silu-activation-flow",
+        "labelKey": "assets.computeFlow.variants.silu.label"
+      }
+    ],
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.silu-comparison",
+    "captionKey": "assets.comparisonTable.caption"
+  }
+}

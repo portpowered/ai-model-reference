@@ -1,0 +1,49 @@
+{
+  "id": "table.relu-comparison",
+  "subjectId": "module.relu",
+  "columns": [
+    {
+      "moduleId": "module.relu",
+      "titleKey": "tables.comparison.columns.relu.title"
+    },
+    {
+      "moduleId": "module.leaky-relu",
+      "titleKey": "tables.comparison.columns.leakyRelu.title"
+    },
+    {
+      "moduleId": "module.silu",
+      "titleKey": "tables.comparison.columns.silu.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "negativeBranch",
+      "labelKey": "tables.comparison.dimensions.negativeBranch"
+    },
+    {
+      "id": "transitionShape",
+      "labelKey": "tables.comparison.dimensions.transitionShape"
+    },
+    {
+      "id": "mainTradeoff",
+      "labelKey": "tables.comparison.dimensions.mainTradeoff"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.relu": {
+      "negativeBranch": "tables.comparison.values.relu.negativeBranch",
+      "transitionShape": "tables.comparison.values.relu.transitionShape",
+      "mainTradeoff": "tables.comparison.values.relu.mainTradeoff"
+    },
+    "module.leaky-relu": {
+      "negativeBranch": "tables.comparison.values.leakyRelu.negativeBranch",
+      "transitionShape": "tables.comparison.values.leakyRelu.transitionShape",
+      "mainTradeoff": "tables.comparison.values.leakyRelu.mainTradeoff"
+    },
+    "module.silu": {
+      "negativeBranch": "tables.comparison.values.silu.negativeBranch",
+      "transitionShape": "tables.comparison.values.silu.transitionShape",
+      "mainTradeoff": "tables.comparison.values.silu.mainTradeoff"
+    }
+  }
+}

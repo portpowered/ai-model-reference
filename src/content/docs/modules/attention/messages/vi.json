@@ -11,10 +11,6 @@
       "title": "Vì sao nó quan trọng",
       "body": "Nếu không có attention, các chồng feed-forward sâu sẽ không thể chuyển thông tin qua những khoảng cách tùy ý chỉ trong một bước. Các biến thể chia sẻ head đánh đổi giữa bộ nhớ, băng thông, và số lượng query head hoặc key-value head riêng biệt còn giữ lại ở thời điểm suy luận."
     },
-    "variantsAndNearbyModules": {
-      "title": "Các biến thể attention",
-      "body": "Transformer triển khai attention qua nhiều head song song. Multi-head attention giữ các key-value head độc lập cho từng query head; multi-query attention cho mọi query dùng chung một KV head; grouped-query attention cho các query dùng chung KV head theo từng nhóm nhưng vẫn giữ đa dạng query nhiều hơn multi-query attention."
-    },
     "related": {
       "title": "Liên quan"
     },

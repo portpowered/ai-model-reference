@@ -144,18 +144,6 @@
       "childNodeIds": []
     },
     {
-      "id": "residual-note",
-      "labelKey": "graph.nodes.residualNote.label",
-      "summaryKey": "graph.nodes.residualNote.summary",
-      "registryId": "concept.residual-connection",
-      "moduleKind": "other",
-      "position": { "x": 22, "y": 416 },
-      "size": { "width": 132, "height": 88 },
-      "visualRole": "annotation",
-      "zIndex": 2,
-      "childNodeIds": []
-    },
-    {
       "id": "position-add",
       "labelKey": "graph.nodes.positionAdd.label",
       "summaryKey": "graph.nodes.positionAdd.summary",
@@ -173,8 +161,8 @@
       "summaryKey": "graph.nodes.learnedPositions.summary",
       "registryId": "module.learned-positional-embeddings",
       "moduleKind": "embedding",
-      "position": { "x": 88, "y": 676 },
-      "size": { "width": 190, "height": 62 },
+      "position": { "x": 68, "y": 780  },
+      "size": { "width": 190, "height": 80 },
       "visualRole": "architecture-embedding",
       "zIndex": 3,
       "childNodeIds": []
@@ -185,7 +173,7 @@
       "summaryKey": "graph.nodes.inputEmbedding.summary",
       "registryId": "concept.embedding",
       "moduleKind": "embedding",
-      "position": { "x": 273, "y": 762 },
+      "position": { "x": 273, "y": 780 },
       "size": { "width": 205, "height": 62 },
       "visualRole": "architecture-embedding",
       "zIndex": 3,
@@ -197,7 +185,7 @@
       "summaryKey": "graph.nodes.inputTokens.summary",
       "registryId": "concept.token",
       "moduleKind": "input",
-      "position": { "x": 291, "y": 856 },
+      "position": { "x": 291, "y": 880 },
       "size": { "width": 170, "height": 60 },
       "visualRole": "architecture-io",
       "zIndex": 3,
@@ -225,7 +213,7 @@
       "id": "add-norm-ffn-to-linear",
       "source": "add-norm-ffn",
       "target": "linear",
-      "edgeKind": "data-flow",
+      "edgeKind": "control-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
     },
@@ -244,6 +232,14 @@
       "edgeKind": "data-flow",
       "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
+    },
+    {
+      "id": "add-norm-attention-to-add-norm-ffn",
+      "target": "add-norm-attention",
+      "source": "add-norm-ffn",
+      "edgeKind": "residual",
+      "sourceHandleSide": "right",
+      "targetHandleSide": "right"
     },
     {
       "id": "masked-mha-to-add-norm-attention",
@@ -266,7 +262,7 @@
       "source": "position-add",
       "target": "add-norm-attention",
       "edgeKind": "residual",
-      "sourceHandleSide": "left",
+      "sourceHandleSide": "top",
       "targetHandleSide": "left"
     },
     {
@@ -281,8 +277,8 @@
       "id": "learned-positions-to-position-add",
       "source": "learned-positions",
       "target": "position-add",
-      "edgeKind": "data-flow",
-      "sourceHandleSide": "right",
+      "edgeKind": "control-flow",
+      "sourceHandleSide": "top",
       "targetHandleSide": "bottom"
     },
     {

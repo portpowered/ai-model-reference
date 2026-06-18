@@ -11,10 +11,6 @@
       "title": "Why It Matters",
       "body": "Without attention, deep stacks of feed-forward layers could not route information across arbitrary distances in one step. Head-sharing variants trade memory and bandwidth against how many distinct query and key-value heads you keep at inference time."
     },
-    "variantsAndNearbyModules": {
-      "title": "Attention Variants",
-      "body": "Transformer blocks implement attention through parallel heads. Multi-head attention keeps independent key-value heads per query head; multi-query attention shares one KV head across all queries; grouped-query attention shares KV heads within groups while keeping more query diversity than multi-query attention."
-    },
     "related": {
       "title": "Related"
     },

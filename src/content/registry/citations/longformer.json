@@ -1,0 +1,24 @@
+{
+  "id": "citation.longformer",
+  "slug": "longformer",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Longformer paper",
+    "sliding-window attention paper",
+    "long-document transformer paper"
+  ],
+  "tags": ["context-window"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Iz Beltagy", "Matthew E. Peters", "Arman Cohan"],
+  "title": "Longformer: The Long-Document Transformer",
+  "year": 2020,
+  "url": "https://arxiv.org/abs/2004.05150",
+  "mla": "Beltagy, Iz, Matthew E. Peters, and Arman Cohan. \"Longformer: The Long-Document Transformer.\" arXiv, 2020, https://arxiv.org/abs/2004.05150."
+}

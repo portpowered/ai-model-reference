@@ -20,7 +20,10 @@
     "module.relu",
     "module.swiglu"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.sigmoid-weighted-linear-units",
+    "citation.glu-variants-improve-transformer"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",

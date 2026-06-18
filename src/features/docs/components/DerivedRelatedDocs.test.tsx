@@ -76,6 +76,22 @@ describe("DerivedRelatedDocs", () => {
     expect(html).toContain("curated");
   });
 
+  test("renders curated-related before other derived groups when both are requested", () => {
+    const html = renderToStaticMarkup(
+      <DerivedRelatedDocs
+        registryId="concept.token"
+        groups={["shared-tags", "same-concept-type", "curated-related"]}
+      />,
+    );
+
+    const curatedIndex = html.indexOf('data-related-group="curated-related"');
+    const sharedTagsIndex = html.indexOf('data-related-group="shared-tags"');
+
+    expect(curatedIndex).toBeGreaterThanOrEqual(0);
+    expect(sharedTagsIndex).toBeGreaterThanOrEqual(0);
+    expect(curatedIndex).toBeLessThan(sharedTagsIndex);
+  });
+
   test("renders nothing for curated-related when the source has no relatedIds", () => {
     const html = renderToStaticMarkup(
       <DerivedRelatedDocs

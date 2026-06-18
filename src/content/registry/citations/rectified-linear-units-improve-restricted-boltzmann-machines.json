@@ -1,0 +1,24 @@
+{
+  "id": "citation.rectified-linear-units-improve-restricted-boltzmann-machines",
+  "slug": "rectified-linear-units-improve-restricted-boltzmann-machines",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "ReLU paper",
+    "Nair Hinton ReLU paper",
+    "rectified linear units paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Vinod Nair", "Geoffrey E. Hinton"],
+  "title": "Rectified Linear Units Improve Restricted Boltzmann Machines",
+  "year": 2010,
+  "url": "https://www.cs.toronto.edu/~fritz/absps/reluICML.pdf",
+  "mla": "Nair, Vinod, and Geoffrey E. Hinton. \"Rectified Linear Units Improve Restricted Boltzmann Machines.\" ICML, 2010, https://www.cs.toronto.edu/~fritz/absps/reluICML.pdf."
+}

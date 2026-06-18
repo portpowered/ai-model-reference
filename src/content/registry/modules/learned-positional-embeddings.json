@@ -18,7 +18,7 @@
     "module.absolute-positional-embeddings",
     "module.sinusoidal-positional-embeddings"
   ],
-  "citationIds": [],
+  "citationIds": ["citation.attention-is-all-you-need"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",

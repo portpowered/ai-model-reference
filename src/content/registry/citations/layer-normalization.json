@@ -1,0 +1,28 @@
+{
+  "id": "citation.layer-normalization",
+  "slug": "layer-normalization",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Layer Normalization paper",
+    "Ba Kiros Hinton layer norm paper",
+    "LayerNorm paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Jimmy Lei Ba",
+    "Jamie Ryan Kiros",
+    "Geoffrey E. Hinton"
+  ],
+  "title": "Layer Normalization",
+  "year": 2016,
+  "url": "https://arxiv.org/abs/1607.06450",
+  "mla": "Ba, Jimmy Lei, Jamie Ryan Kiros, and Geoffrey E. Hinton. \"Layer Normalization.\" arXiv, 2016, https://arxiv.org/abs/1607.06450."
+}

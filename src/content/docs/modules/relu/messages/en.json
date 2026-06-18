@@ -1,25 +1,46 @@
 {
   "title": "ReLU",
   "description": "A pointwise activation that keeps positive FFN values and clamps negative ones to zero.",
+  "openingSummary": "ReLU is a simple FFN activation that keeps positive hidden values and snaps negative ones to zero, giving transformer MLPs a cheap way to decide which features stay active.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "ReLU stands for rectified linear unit. Inside a standard FFN, it looks at each hidden value after the expand layer and applies a simple rule: keep positive numbers, replace negative numbers with zero. The FFN stays in the same slot after attention, but this activation changes which hidden features stay active before the block projects back to model width."
+      "body": "ReLU stands for rectified linear unit. Inside a standard FFN, it looks at each hidden value after the expand layer and applies one rule: keep positive numbers, replace negative numbers with zero. The FFN stays in the same slot after attention, but this activation changes which hidden features survive before the block projects back to model width."
     },
-    "whyItMatters": {
-      "title": "Why It Matters",
-      "body": "ReLU became popular because the rule is cheap to compute and easy to reason about. When a token's hidden feature is positive, the feature passes through unchanged; when it is negative, the feature drops out for that step. That sharp gate can help a dense FFN learn sparse feature patterns, which is why ReLU remains a useful baseline when papers compare newer activations."
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "ReLU optimizes for a very cheap, very sharp nonlinearity. It creates sparse hidden activity because only positive features pass through fully, which made it a strong early baseline for dense FFNs."
     },
-    "simpleExample": {
-      "title": "Simple Example",
-      "body": "Suppose an FFN hidden vector contains [-2.1, 0.7, 3.4]. ReLU turns it into [0, 0.7, 3.4]. The token stays in the same per-position feed-forward path; only the hidden values change before the next projection."
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "Once you recognize ReLU, it becomes easier to spot what later activation variants are changing. Many newer activations keep the same FFN slot and the same dense path, then only soften or gate the activation step."
     },
-    "commonConfusions": {
-      "title": "Common Confusions",
-      "body": "ReLU is only the activation step inside an FFN, not the whole feed-forward block. It also is not the same as LeakyReLU or SiLU, which keep some information for negative values instead of forcing every negative entry to zero. In transformer papers, seeing ReLU usually tells you how the hidden FFN state is shaped, not that the model changed its attention or residual path."
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The token state enters the wide hidden layer, then ReLU acts on each hidden coordinate separately. Positive values keep their size. Negative values become zero. After that, the FFN projects the filtered hidden state back to model width."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formula below shows ReLU as the one-coordinate rule inside the wider FFN. The key detail is the hard cutoff at zero."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "ReLU is the sharpest cutoff in this small activation family. LeakyReLU preserves a faint negative path, while SiLU smooths the whole transition instead of using a hard corner."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "ReLU mattered most in earlier dense networks and remains a common baseline in papers, even when the largest language models now favor smoother or gated FFN activations."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Because every negative value becomes zero, ReLU can discard weak negative evidence completely. That simplicity helps efficiency, but it also makes the activation less smooth than newer alternatives."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "ReLU remains the cleanest reference point for activation discussions. When a paper claims an FFN activation is smoother, leakier, or more selective, ReLU is usually the baseline hiding underneath that comparison."
     },
     "related": {
-      "title": "Related Concepts And Modules"
+      "title": "Related"
     },
     "tags": {
       "title": "Tags"
@@ -28,5 +49,95 @@
       "title": "References"
     }
   },
-  "openingSummary": "ReLU is a simple FFN activation that zeroes negative hidden values, giving transformer MLPs a cheap nonlinearity that decides which features remain active."
+  "assets": {
+    "computeFlow": {
+      "alt": "Activation comparison graph showing how ReLU, LeakyReLU, and SiLU change the hidden activation step inside the same FFN slot",
+      "caption": "Switch between nearby activation rules to see how the same FFN path changes once hidden values cross below zero",
+      "variants": {
+        "relu": {
+          "label": "ReLU"
+        },
+        "leakyRelu": {
+          "label": "LeakyReLU"
+        },
+        "silu": {
+          "label": "SiLU"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "How ReLU compares with nearby activation variants"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "relu": {
+          "title": "ReLU"
+        },
+        "leakyRelu": {
+          "title": "LeakyReLU"
+        },
+        "silu": {
+          "title": "SiLU"
+        }
+      },
+      "dimensions": {
+        "negativeBranch": "Negative branch",
+        "transitionShape": "Transition shape",
+        "mainTradeoff": "Main tradeoff"
+      },
+      "values": {
+        "relu": {
+          "negativeBranch": "Clamp every negative hidden value to 0",
+          "transitionShape": "Hard corner at 0",
+          "mainTradeoff": "Very simple and sparse, but it throws away all negative signal"
+        },
+        "leakyRelu": {
+          "negativeBranch": "Keep a small slope alpha x for x < 0",
+          "transitionShape": "Hard corner with a weak negative path",
+          "mainTradeoff": "Preserves gradient on the negative side, but stays less smooth than SiLU"
+        },
+        "silu": {
+          "negativeBranch": "Shrink negative values smoothly with x sigma(x)",
+          "transitionShape": "Smooth curve through 0",
+          "mainTradeoff": "Smoother hidden filtering, but less minimal than ReLU"
+        }
+      }
+    }
+  },
+  "math": {
+    "reluSchema": {
+      "label": "ReLU activation",
+      "formula": "\\mathrm{ReLU}(x) = \\max(0, x)",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "One hidden value inside the expanded FFN state."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "inputState": {
+        "label": "Token state h_t"
+      },
+      "expandProjection": {
+        "label": "Wide projection W_1"
+      },
+      "activationRule": {
+        "label": "ReLU(x) = max(0, x)"
+      },
+      "negativeBehavior": {
+        "label": "Negative hidden values stop here: x < 0 becomes 0 before projection back"
+      },
+      "projectBack": {
+        "label": "Project back with W_2"
+      },
+      "outputState": {
+        "label": "Updated token state"
+      }
+    }
+  }
 }
