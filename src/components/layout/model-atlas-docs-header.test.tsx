@@ -101,7 +101,11 @@ describe("ModelAtlasDocsHeader", () => {
     const selector = screen.getByRole("combobox", {
       name: messages.nav.language,
     }) as HTMLSelectElement;
+    const selectorLabel = selector.closest("div")?.querySelector("label");
     expect(selector.value).toBe("vi");
+    expect(selector.getAttribute("id")).toBeTruthy();
+    expect(selectorLabel?.tagName).toBe("LABEL");
+    expect(selectorLabel?.getAttribute("for")).toBe(selector.id);
 
     const options = within(selector).getAllByRole("option");
     expect(options).toHaveLength(localeOptions.length);
@@ -109,6 +113,11 @@ describe("ModelAtlasDocsHeader", () => {
       "English",
       "Tiếng Việt (Hiện tại)",
       "日本語",
+    ]);
+    expect(options.map((option) => option.getAttribute("lang"))).toEqual([
+      "en",
+      "vi",
+      "ja",
     ]);
   });
 
@@ -145,9 +154,13 @@ describe("ModelAtlasDocsHeader", () => {
 
         expect(japaneseOption?.textContent).toBe("日本語 (Unavailable)");
         expect(japaneseOption?.hasAttribute("disabled")).toBe(true);
-        expect(
-          screen.getByText("Unavailable on this page: 日本語"),
-        ).toBeTruthy();
+        const unavailableStatus = screen.getByText(
+          "Unavailable on this page: 日本語",
+        );
+        expect(unavailableStatus.getAttribute("role")).toBe("status");
+        expect(selector.getAttribute("aria-describedby")).toBe(
+          unavailableStatus.id,
+        );
 
         fireEvent.change(selector, {
           target: { value: "ja" },
@@ -275,6 +288,12 @@ describe("ModelAtlasDocsHeader", () => {
     const panel = document.getElementById(panelId ?? "");
     expect(panel).toBeTruthy();
     expect(panel?.className).toContain(PRIMARY_NAV_MOBILE_PANEL_CLASS);
+
+    const selector = screen.getByRole("combobox", {
+      name: messages.nav.language,
+    });
+    selector.focus();
+    expect(document.activeElement).toBe(selector);
 
     const expectedItems = getPrimaryNavItems(messages);
     for (const item of expectedItems) {

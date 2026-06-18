@@ -163,14 +163,23 @@ describe("primary navigation accessibility smoke", () => {
     const selector = screen.getByRole("combobox", {
       name: context.messages.nav.language,
     }) as HTMLSelectElement;
+    const selectorLabel = selector.closest("div")?.querySelector("label");
 
     expect(selector.value).toBe("ja");
+    expect(selector.getAttribute("id")).toBeTruthy();
+    expect(selectorLabel?.tagName).toBe("LABEL");
+    expect(selectorLabel?.getAttribute("for")).toBe(selector.id);
 
     const options = within(selector).getAllByRole("option");
     expect(options.map((option) => option.textContent)).toEqual([
       "English",
       "Tiếng Việt",
       "日本語 (Current)",
+    ]);
+    expect(options.map((option) => option.getAttribute("lang"))).toEqual([
+      "en",
+      "vi",
+      "ja",
     ]);
 
     selector.focus();
@@ -198,10 +207,16 @@ describe("primary navigation accessibility smoke", () => {
     const japaneseOption = options.find((option) =>
       option.textContent?.includes("日本語"),
     );
+    const unavailableStatus = screen.getByText(
+      "Unavailable on this page: 日本語",
+    );
 
     expect(japaneseOption?.textContent).toBe("日本語 (Unavailable)");
     expect(japaneseOption?.hasAttribute("disabled")).toBe(true);
-    expect(screen.getByText("Unavailable on this page: 日本語")).toBeTruthy();
+    expect(unavailableStatus.getAttribute("role")).toBe("status");
+    expect(selector.getAttribute("aria-describedby")).toBe(
+      unavailableStatus.id,
+    );
 
     const header = document.querySelector("header");
     await expectNoSeriousAxeViolations(header ?? document.body);

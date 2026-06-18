@@ -22,6 +22,7 @@ export function LanguageSelector({
   locale = defaultLocale,
 }: LanguageSelectorProps) {
   const pathname = usePathname();
+  const selectId = useId();
   const unavailableHintId = useId();
   const routePath =
     pathname || buildLocalizedRoute({ surface: "home" }, locale);
@@ -65,12 +66,13 @@ export function LanguageSelector({
   }
 
   return (
-    <label className="flex flex-col gap-1 text-sm text-muted-foreground">
-      <span className="flex items-center gap-2">
+    <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+      <label htmlFor={selectId} className="flex items-center gap-2">
         <span className="hidden sm:inline">{messages.nav.language}</span>
         <span className="sr-only md:hidden">{messages.nav.language}</span>
-      </span>
+      </label>
       <select
+        id={selectId}
         aria-label={messages.nav.language}
         aria-describedby={unavailableSummary ? unavailableHintId : undefined}
         className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -81,6 +83,7 @@ export function LanguageSelector({
           <option
             key={option.code}
             disabled={!option.available}
+            lang={option.code}
             value={option.code}
           >
             {option.label}
@@ -101,6 +104,6 @@ export function LanguageSelector({
           {unavailableSummary}
         </span>
       ) : null}
-    </label>
+    </div>
   );
 }
