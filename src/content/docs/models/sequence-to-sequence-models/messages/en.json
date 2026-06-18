@@ -1,0 +1,25 @@
+{
+  "title": "Sequence-to-Sequence Models",
+  "description": "Models that map one sequence into another, often with an encoder for the source and an autoregressive decoder for the target.",
+  "openingSummary": "Sequence-to-sequence models are the category to use when the input and output are both structured sequences but they play different roles: the model reads one sequence, then generates another that may differ in language, length, or task framing.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A sequence-to-sequence model takes one sequence as input and emits another as output. Translation, summarization, and text rewriting fit this pattern. In modern transformers the usual implementation is encoder-decoder: the encoder reads the source, and the decoder emits the target autoregressively."
+    },
+    "howItDiffers": {
+      "title": "How It Differs From Nearby Categories",
+      "body": "Compared with encoder-decoder pages, sequence-to-sequence is the task framing rather than the stack diagram. Many seq2seq checkpoints are encoder-decoder transformers, but the category exists to answer a different question: is the model turning one ordered input into another ordered output? Compared with decoder-only generation, seq2seq systems usually preserve a clear source-target distinction instead of treating the whole interaction as one long prefix."
+    },
+    "representativeCheckpoints": {
+      "title": "Representative Checkpoints",
+      "body": "T5 is the cleanest checkpoint example because it makes many tasks look like text in, text out while preserving the encoder-decoder backbone underneath. The related links below connect it back to encoder-decoder architecture and autoregressive decoding so the reader can compare task framing with implementation shape."
+    },
+    "related": {
+      "title": "Representative Checkpoints And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    }
+  }
+}

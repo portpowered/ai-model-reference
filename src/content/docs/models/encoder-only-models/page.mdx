@@ -1,0 +1,45 @@
+---
+title: Encoder-Only Models
+description: Models that read the full input before producing a representation or label, without a separate generative decoder stack.
+kind: "model"
+registryId: "model.encoder-only-models"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - taxonomy
+aliases:
+  - encoder-only models
+  - encoder only models
+  - bidirectional encoders
+updatedAt: "2026-06-18"
+---
+
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="how-it-differs" titleKey="sections.howItDiffers.title">
+  <T k="sections.howItDiffers.body" />
+</Section>
+
+<Section
+  id="representative-checkpoints"
+  titleKey="sections.representativeCheckpoints.title"
+>
+  <T k="sections.representativeCheckpoints.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="model.encoder-only-models" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="model.encoder-only-models" showDescriptions />
+</Section>

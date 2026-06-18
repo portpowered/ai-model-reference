@@ -1,0 +1,25 @@
+{
+  "title": "Decoder-Only Models",
+  "description": "Models that keep one causal stack for both representation building and generation, producing outputs one step at a time from a growing prefix.",
+  "openingSummary": "Decoder-only models are the category to reach for when a reader wants the classic language-model loop: one causal stack reads the prefix so far, predicts the next token, then repeats without a separate encoder stage.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A decoder-only model uses one stack of causal blocks to do both context understanding and generation. Each position can read only the prefix allowed by the mask, so the model naturally fits next-token prediction and other autoregressive decoding loops. GPT-style language models are the most familiar example."
+    },
+    "howItDiffers": {
+      "title": "How It Differs From Nearby Categories",
+      "body": "Compared with encoder-only models, decoder-only models trade bidirectional reading for a clean generation loop. Compared with encoder-decoder models, they do not split reading and writing into separate stacks. That simplicity makes them a strong fit for open-ended text completion, chat-style continuation, and code generation, but it also makes inference sensitive to KV-cache size and causal-attention cost."
+    },
+    "representativeCheckpoints": {
+      "title": "Representative Checkpoints",
+      "body": "GPT-2 is the clearest checkpoint example in the current atlas slice because it exposes the standard decoder-only recipe without many later product layers. The related links also point to autoregressive generation and causal attention so a reader can separate the stack shape from the sampling loop that runs on top of it."
+    },
+    "related": {
+      "title": "Representative Checkpoints And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    }
+  }
+}

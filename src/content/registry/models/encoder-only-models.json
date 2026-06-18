@@ -1,0 +1,36 @@
+{
+  "id": "model.encoder-only-models",
+  "slug": "encoder-only-models",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "encoder-only models",
+    "encoder only models",
+    "bidirectional encoders"
+  ],
+  "tags": ["taxonomy"],
+  "relatedIds": [
+    "model.masked-language-models",
+    "model.bert",
+    "concept.encoder",
+    "concept.transformer",
+    "model.transformer-model-families"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "model-category-pages",
+  "sourceType": "unknown",
+  "modalities": ["text", "multimodal"],
+  "architectureIds": [
+    "concept.encoder",
+    "concept.transformer",
+    "concept.transformer-architecture"
+  ],
+  "moduleIds": ["module.attention", "module.multi-head-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

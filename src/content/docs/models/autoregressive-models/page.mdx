@@ -1,0 +1,45 @@
+---
+title: Autoregressive Models
+description: Models whose primary output loop predicts the next discrete unit from the prefix so far, then feeds that choice back into the next step.
+kind: "model"
+registryId: "model.autoregressive-models"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - taxonomy
+aliases:
+  - autoregressive models
+  - autoregressive model
+  - next token models
+updatedAt: "2026-06-18"
+---
+
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="how-it-differs" titleKey="sections.howItDiffers.title">
+  <T k="sections.howItDiffers.body" />
+</Section>
+
+<Section
+  id="representative-checkpoints"
+  titleKey="sections.representativeCheckpoints.title"
+>
+  <T k="sections.representativeCheckpoints.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="model.autoregressive-models" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="model.autoregressive-models" showDescriptions />
+</Section>

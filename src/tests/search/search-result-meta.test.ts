@@ -17,7 +17,9 @@ import {
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
+const BERT_URL = "/docs/models/bert";
 const GPT2_URL = "/docs/models/gpt-2";
+const MASKED_LANGUAGE_MODELS_URL = "/docs/models/masked-language-models";
 const MODEL_FAMILIES_OVERVIEW_URL = "/docs/models/model-families-overview";
 
 describe("search result meta", () => {
@@ -112,6 +114,24 @@ describe("search result meta", () => {
     expect(meta?.tags).toEqual(expect.arrayContaining(["foundations"]));
     expect(meta?.aliases).toEqual(
       expect.arrayContaining(["GPT-2", "OpenAI GPT-2"]),
+    );
+  });
+
+  test("loadSearchResultMetaMap includes model category pages and new checkpoint support", async () => {
+    const map = await loadSearchResultMetaMap();
+
+    const categoryMeta = map.get(MASKED_LANGUAGE_MODELS_URL);
+    expect(categoryMeta).toBeDefined();
+    expect(categoryMeta?.kind).toBe("model");
+    expect(categoryMeta?.tags).toContain("taxonomy");
+    expect(categoryMeta?.aliases).toContain("masked language model");
+
+    const bertMeta = map.get(BERT_URL);
+    expect(bertMeta).toBeDefined();
+    expect(bertMeta?.kind).toBe("model");
+    expect(bertMeta?.tags).toContain("foundations");
+    expect(bertMeta?.aliases).toContain(
+      "Bidirectional Encoder Representations from Transformers",
     );
   });
 

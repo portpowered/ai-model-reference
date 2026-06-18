@@ -9,11 +9,19 @@ export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
 
 /** Registry ids for docs pages with `status: published` in frontmatter. */
 export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
+  "model.autoregressive-models",
+  "model.bert",
+  "model.decoder-only-models",
   "model.model-families-overview",
+  "model.encoder-decoder-models",
+  "model.encoder-only-models",
   "model.transformer-model-families",
   "model.diffusion-model-families",
+  "model.masked-language-models",
   "model.multimodal-model-families",
   "model.omni-model-families",
+  "model.sequence-to-sequence-models",
+  "model.t5",
   "model.world-model-families",
   "module.attention",
   "module.multi-head-attention",

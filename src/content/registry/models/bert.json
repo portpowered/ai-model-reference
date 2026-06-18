@@ -1,0 +1,34 @@
+{
+  "id": "model.bert",
+  "slug": "bert",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "BERT",
+    "Bert",
+    "Bidirectional Encoder Representations from Transformers"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.encoder-only-models",
+    "model.masked-language-models",
+    "concept.encoder",
+    "concept.transformer",
+    "concept.token"
+  ],
+  "citationIds": ["citation.bert-paper", "citation.attention-is-all-you-need"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "foundational-checkpoints",
+  "sourceType": "research",
+  "modalities": ["text"],
+  "architectureIds": ["concept.encoder", "concept.transformer"],
+  "moduleIds": ["module.attention", "module.multi-head-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2018-10-11",
+  "contextLength": 512
+}

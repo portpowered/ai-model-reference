@@ -1,0 +1,25 @@
+{
+  "title": "Encoder-Decoder Models",
+  "description": "Models that split reading and generation into an encoder stack plus a decoder stack connected by cross-attention or another memory bridge.",
+  "openingSummary": "Encoder-decoder models help when the reader needs to separate understanding the input from generating the output: one stack reads the full source, another stack emits the target while consulting the encoder memory.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "An encoder-decoder model has two major stages. The encoder reads the full input and builds memory vectors. The decoder then generates outputs while attending back into that memory. In transformer systems, cross-attention is the usual bridge between the two."
+    },
+    "howItDiffers": {
+      "title": "How It Differs From Nearby Categories",
+      "body": "Compared with encoder-only models, encoder-decoder systems add an explicit generation stack. Compared with decoder-only models, they keep the input-side representation separate from the output-side generation loop instead of compressing both jobs into one causal stack. That design often fits translation, summarization, and text-to-text reformulation better than plain decoder-only continuation."
+    },
+    "representativeCheckpoints": {
+      "title": "Representative Checkpoints",
+      "body": "T5 is the clean checkpoint anchor for this category because it keeps the classic two-stack layout while framing many tasks as text in, text out. The related links below also connect the category to encoder, decoder, and autoregressive-generation pages so readers can see which parts belong to the architecture and which part belongs to the decoding loop."
+    },
+    "related": {
+      "title": "Representative Checkpoints And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    }
+  }
+}

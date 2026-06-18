@@ -58,11 +58,19 @@ import transformerArchitectureConcept from "@/content/registry/concepts/transfor
 import vectorConcept from "@/content/registry/concepts/vector.json";
 import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-context-is-hard.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
+import autoregressiveModels from "@/content/registry/models/autoregressive-models.json";
+import bertModel from "@/content/registry/models/bert.json";
+import decoderOnlyModels from "@/content/registry/models/decoder-only-models.json";
 import diffusionModelFamilies from "@/content/registry/models/diffusion-model-families.json";
+import encoderDecoderModels from "@/content/registry/models/encoder-decoder-models.json";
+import encoderOnlyModels from "@/content/registry/models/encoder-only-models.json";
 import gpt2Model from "@/content/registry/models/gpt-2.json";
+import maskedLanguageModels from "@/content/registry/models/masked-language-models.json";
 import modelFamiliesOverview from "@/content/registry/models/model-families-overview.json";
 import multimodalModelFamilies from "@/content/registry/models/multimodal-model-families.json";
 import omniModelFamilies from "@/content/registry/models/omni-model-families.json";
+import sequenceToSequenceModels from "@/content/registry/models/sequence-to-sequence-models.json";
+import t5Model from "@/content/registry/models/t5.json";
 import transformerModelFamilies from "@/content/registry/models/transformer-model-families.json";
 import worldModelFamilies from "@/content/registry/models/world-model-families.json";
 import attention from "@/content/registry/modules/attention.json";
@@ -166,12 +174,20 @@ const conceptsById = new Map(
   conceptRecords.map((record) => [record.id, record]),
 );
 const modelRecords: ModelRecord[] = [
+  modelRecordSchema.parse(autoregressiveModels),
+  modelRecordSchema.parse(bertModel),
+  modelRecordSchema.parse(decoderOnlyModels),
   modelRecordSchema.parse(modelFamiliesOverview),
+  modelRecordSchema.parse(encoderDecoderModels),
+  modelRecordSchema.parse(encoderOnlyModels),
   modelRecordSchema.parse(transformerModelFamilies),
   modelRecordSchema.parse(diffusionModelFamilies),
   modelRecordSchema.parse(gpt2Model),
+  modelRecordSchema.parse(maskedLanguageModels),
   modelRecordSchema.parse(multimodalModelFamilies),
   modelRecordSchema.parse(omniModelFamilies),
+  modelRecordSchema.parse(sequenceToSequenceModels),
+  modelRecordSchema.parse(t5Model),
   modelRecordSchema.parse(worldModelFamilies),
 ];
 const modelsById = new Map(modelRecords.map((record) => [record.id, record]));

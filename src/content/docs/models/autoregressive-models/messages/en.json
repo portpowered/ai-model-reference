@@ -1,0 +1,25 @@
+{
+  "title": "Autoregressive Models",
+  "description": "Models whose primary output loop predicts the next discrete unit from the prefix so far, then feeds that choice back into the next step.",
+  "openingSummary": "Autoregressive models are the right category when the reader cares about token-by-token generation rather than only stack layout: the central behavior is not just having a decoder, but repeatedly predicting the next step from the history so far.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "An autoregressive model emits one discrete unit at a time and treats each emitted unit as new context for the next prediction. In text systems that usually means next-token prediction. In practice, many autoregressive models are decoder-only transformers, but encoder-decoder systems can also decode autoregressively on the output side."
+    },
+    "howItDiffers": {
+      "title": "How It Differs From Nearby Categories",
+      "body": "Compared with decoder-only, encoder-only, or encoder-decoder pages, this category names the output loop rather than the stack arrangement. A decoder-only GPT model is usually autoregressive, but a category page about autoregressive models should also leave room for encoder-decoder decoders that generate step by step. The key distinction is repeated discrete prediction, KV-cache growth, and causal dependency across steps."
+    },
+    "representativeCheckpoints": {
+      "title": "Representative Checkpoints",
+      "body": "GPT-2 is the simplest checkpoint to inspect if you want to see autoregression without extra routing or tool layers. T5 also belongs nearby because its decoder is autoregressive even though the whole model is encoder-decoder. The related links make that split explicit so readers do not confuse the generation loop with the broader architecture class."
+    },
+    "related": {
+      "title": "Representative Checkpoints And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    }
+  }
+}

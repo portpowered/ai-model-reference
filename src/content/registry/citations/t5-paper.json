@@ -1,0 +1,20 @@
+{
+  "id": "citation.t5-paper",
+  "slug": "t5-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["T5 paper", "Text-to-Text Transfer Transformer"],
+  "tags": ["foundations"],
+  "relatedIds": ["model.t5"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Colin Raffel", "Noam Shazeer", "Adam Roberts", "Katherine Lee"],
+  "title": "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer",
+  "url": "https://arxiv.org/abs/1910.10683",
+  "mla": "Raffel, Colin, et al. \"Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer.\" arXiv, 2019, https://arxiv.org/abs/1910.10683.",
+  "year": 2019
+}

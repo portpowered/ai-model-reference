@@ -1,0 +1,25 @@
+{
+  "title": "Masked-Language Models",
+  "description": "Models trained to fill in hidden tokens from surrounding context instead of predicting only the next token from the left.",
+  "openingSummary": "Masked-language models matter when the reader wants the BERT-style training objective rather than a generative decoder loop: the model sees context on both sides of a hidden token and learns to reconstruct the missing piece.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A masked-language model learns from partially hidden text. During training, some input tokens are replaced or obscured, and the model predicts the missing originals from the surrounding context. That objective strongly favors encoder-style bidirectional reading rather than causal next-token decoding."
+    },
+    "howItDiffers": {
+      "title": "How It Differs From Nearby Categories",
+      "body": "Compared with autoregressive models, masked-language models do not learn by stepping strictly left to right. Compared with encoder-only pages, this category names the training objective rather than the stack shape. In practice the two often travel together because bidirectional encoders fit masked-token reconstruction naturally, but the distinction matters: one page explains architecture, the other explains what the model was asked to predict."
+    },
+    "representativeCheckpoints": {
+      "title": "Representative Checkpoints",
+      "body": "BERT is the checkpoint most readers mean when they ask for a masked-language model. Its bidirectional encoder and masked-token objective make it a strong bridge between the encoder-only category and task-specific heads for search, classification, and representation learning."
+    },
+    "related": {
+      "title": "Representative Checkpoints And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "title": "BERT",
+  "description": "A bidirectional encoder-only Transformer checkpoint that made masked-language pretraining a standard reference for language understanding tasks.",
+  "openingSummary": "BERT matters because it gave readers a durable example of an encoder-only Transformer trained to fill in masked tokens instead of generating the next token, which made bidirectional language understanding much easier to explain and reuse.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "BERT is a research checkpoint introduced by Google in 2018. It is a text-only encoder-only Transformer that reads the full sequence bidirectionally and outputs contextual token representations. The model became a standard reference for search, classification, and other language-understanding tasks rather than open-ended text generation."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The input is tokenized text, often with segment and position signals added before the encoder stack. The main output is a representation per token position plus pooled summaries that downstream heads can read. During pretraining, a masked-token head predicts hidden tokens from both left and right context."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "BERT uses the Transformer family in an encoder-only layout. Self-attention runs bidirectionally across the sequence, which makes it a clean checkpoint for the encoder-only and masked-language-model category pages. The important contrast with GPT-2 is not the attention block itself but the absence of a causal decoder loop."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Standard multi-head attention and feed-forward blocks still do most of the work here. What changes is the reading pattern and objective: BERT keeps the familiar Transformer internals but applies them in a bidirectional encoder that supports masked-token reconstruction and strong contextual embeddings."
+    },
+    "training": {
+      "title": "Training",
+      "body": "BERT is famous for masked-language pretraining and next-sentence-style objectives on large text corpora. In this atlas slice, structured training-regime, dataset, and paper relationship slots remain optional, so the page keeps the training shell visible and shows explicit unavailable states where richer registry metadata has not been filled in yet."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "BERT is best used here as a checkpoint anchor for understanding bidirectional encoders, masked-language modeling, and why encoder-only models often serve representation-heavy tasks better than decoder-only chat loops. It is not the page to open if you want a pure next-token generator."
+    },
+    "related": {
+      "title": "Related Categories And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

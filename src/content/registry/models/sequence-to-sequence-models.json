@@ -1,0 +1,37 @@
+{
+  "id": "model.sequence-to-sequence-models",
+  "slug": "sequence-to-sequence-models",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "sequence-to-sequence models",
+    "sequence to sequence models",
+    "seq2seq",
+    "seq2seq models"
+  ],
+  "tags": ["taxonomy"],
+  "relatedIds": [
+    "model.encoder-decoder-models",
+    "model.t5",
+    "concept.encoder-decoder",
+    "concept.autoregressive-generation",
+    "concept.transformer"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "model-category-pages",
+  "sourceType": "unknown",
+  "modalities": ["text", "multimodal"],
+  "architectureIds": [
+    "concept.encoder-decoder",
+    "concept.autoregressive-generation",
+    "concept.transformer"
+  ],
+  "moduleIds": ["module.attention", "module.multi-head-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

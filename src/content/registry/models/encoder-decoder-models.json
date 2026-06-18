@@ -1,0 +1,36 @@
+{
+  "id": "model.encoder-decoder-models",
+  "slug": "encoder-decoder-models",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "encoder-decoder models",
+    "encoder decoder models",
+    "seq2seq models"
+  ],
+  "tags": ["taxonomy"],
+  "relatedIds": [
+    "model.sequence-to-sequence-models",
+    "model.t5",
+    "concept.encoder-decoder",
+    "concept.autoregressive-generation",
+    "concept.transformer"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "model-category-pages",
+  "sourceType": "unknown",
+  "modalities": ["text", "multimodal"],
+  "architectureIds": [
+    "concept.encoder-decoder",
+    "concept.transformer",
+    "concept.autoregressive-generation"
+  ],
+  "moduleIds": ["module.attention", "module.multi-head-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

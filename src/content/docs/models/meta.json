@@ -7,6 +7,14 @@
     "[Multimodal Model Families](/docs/models/multimodal-model-families)",
     "[Omni Model Families](/docs/models/omni-model-families)",
     "[World Model Families](/docs/models/world-model-families)",
-    "[GPT-2](/docs/models/gpt-2)"
+    "[Encoder-Only Models](/docs/models/encoder-only-models)",
+    "[Decoder-Only Models](/docs/models/decoder-only-models)",
+    "[Encoder-Decoder Models](/docs/models/encoder-decoder-models)",
+    "[Autoregressive Models](/docs/models/autoregressive-models)",
+    "[Masked-Language Models](/docs/models/masked-language-models)",
+    "[Sequence-to-Sequence Models](/docs/models/sequence-to-sequence-models)",
+    "[GPT-2](/docs/models/gpt-2)",
+    "[BERT](/docs/models/bert)",
+    "[T5](/docs/models/t5)"
   ]
 }

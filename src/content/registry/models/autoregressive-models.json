@@ -1,0 +1,36 @@
+{
+  "id": "model.autoregressive-models",
+  "slug": "autoregressive-models",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "autoregressive models",
+    "autoregressive model",
+    "next token models"
+  ],
+  "tags": ["taxonomy"],
+  "relatedIds": [
+    "model.decoder-only-models",
+    "model.gpt-2",
+    "model.t5",
+    "concept.autoregressive-generation",
+    "concept.causal-attention"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "model-category-pages",
+  "sourceType": "unknown",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.autoregressive-generation",
+    "concept.decoder",
+    "concept.causal-attention"
+  ],
+  "moduleIds": ["module.attention", "module.multi-head-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

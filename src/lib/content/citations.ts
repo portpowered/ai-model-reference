@@ -1,4 +1,5 @@
 import attentionIsAllYouNeed from "@/content/registry/citations/attention-is-all-you-need.json";
+import bertPaper from "@/content/registry/citations/bert-paper.json";
 import deepseekV2MlaPaper from "@/content/registry/citations/deepseek-v2-mla-paper.json";
 import goodfellowDeepLearning from "@/content/registry/citations/goodfellow-deep-learning.json";
 import gpt2Report from "@/content/registry/citations/gpt-2-report.json";
@@ -9,6 +10,7 @@ import kingmaAdam from "@/content/registry/citations/kingma-adam.json";
 import pressAlibi from "@/content/registry/citations/press-alibi.json";
 import shazeerMqaPaper from "@/content/registry/citations/shazeer-mqa-paper.json";
 import suRoformerRope from "@/content/registry/citations/su-roformer-rope.json";
+import t5Paper from "@/content/registry/citations/t5-paper.json";
 import weiEmergentAbilities from "@/content/registry/citations/wei-emergent-abilities.json";
 import {
   type CitationRecord,
@@ -17,6 +19,7 @@ import {
 
 const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(attentionIsAllYouNeed),
+  citationRecordSchema.parse(bertPaper),
   citationRecordSchema.parse(deepseekV2MlaPaper),
   citationRecordSchema.parse(goodfellowDeepLearning),
   citationRecordSchema.parse(gpt2Report),
@@ -27,6 +30,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(pressAlibi),
   citationRecordSchema.parse(shazeerMqaPaper),
   citationRecordSchema.parse(suRoformerRope),
+  citationRecordSchema.parse(t5Paper),
   citationRecordSchema.parse(weiEmergentAbilities),
 ];
 

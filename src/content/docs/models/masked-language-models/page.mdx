@@ -1,0 +1,46 @@
+---
+title: Masked-Language Models
+description: Models trained to fill in hidden tokens from surrounding context instead of predicting only the next token from the left.
+kind: "model"
+registryId: "model.masked-language-models"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - taxonomy
+aliases:
+  - masked-language models
+  - masked language model
+  - masked language models
+  - mlm models
+updatedAt: "2026-06-18"
+---
+
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="how-it-differs" titleKey="sections.howItDiffers.title">
+  <T k="sections.howItDiffers.body" />
+</Section>
+
+<Section
+  id="representative-checkpoints"
+  titleKey="sections.representativeCheckpoints.title"
+>
+  <T k="sections.representativeCheckpoints.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="model.masked-language-models" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="model.masked-language-models" showDescriptions />
+</Section>

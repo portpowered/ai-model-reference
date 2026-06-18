@@ -85,12 +85,20 @@ const MODEL_FAMILY_URLS = [
   "/docs/glossary/world-model",
 ] as const;
 const MODEL_HUB_URLS = [
+  "/docs/models/autoregressive-models",
+  "/docs/models/bert",
+  "/docs/models/decoder-only-models",
+  "/docs/models/encoder-decoder-models",
+  "/docs/models/encoder-only-models",
   "/docs/models/gpt-2",
+  "/docs/models/masked-language-models",
   "/docs/models/model-families-overview",
   "/docs/models/transformer-model-families",
   "/docs/models/diffusion-model-families",
   "/docs/models/multimodal-model-families",
   "/docs/models/omni-model-families",
+  "/docs/models/sequence-to-sequence-models",
+  "/docs/models/t5",
   "/docs/models/world-model-families",
 ] as const;
 const CHAIN_GLOSSARY_URLS = [

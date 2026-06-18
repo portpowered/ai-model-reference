@@ -1,0 +1,33 @@
+{
+  "id": "model.decoder-only-models",
+  "slug": "decoder-only-models",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["decoder-only models", "decoder only models", "gpt style models"],
+  "tags": ["taxonomy"],
+  "relatedIds": [
+    "model.autoregressive-models",
+    "model.gpt-2",
+    "concept.decoder",
+    "concept.causal-attention",
+    "concept.autoregressive-generation",
+    "model.transformer-model-families"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "model-category-pages",
+  "sourceType": "unknown",
+  "modalities": ["text", "multimodal"],
+  "architectureIds": [
+    "concept.decoder",
+    "concept.causal-attention",
+    "concept.transformer"
+  ],
+  "moduleIds": ["module.attention", "module.multi-head-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

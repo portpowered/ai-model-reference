@@ -1,0 +1,25 @@
+{
+  "title": "Encoder-Only Models",
+  "description": "Models that read the full input before producing a representation or label, without a separate generative decoder stack.",
+  "openingSummary": "Encoder-only models matter when the reader needs a model that understands an input all at once instead of generating token by token: the stack can attend bidirectionally across the sequence, build a strong internal representation, then hand that representation to a classification, retrieval, or masked-token head.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "An encoder-only model keeps the transformer-style stack on the reading side only. Tokens enter, the stack updates contextual vectors with full left-and-right visibility, and a task head reads those vectors for classification, retrieval, tagging, or masked-token prediction. There is no separate decoder that emits a new sequence step by step."
+    },
+    "howItDiffers": {
+      "title": "How It Differs From Nearby Categories",
+      "body": "Compared with decoder-only models, encoder-only models optimize understanding rather than open-ended generation. Compared with encoder-decoder models, they skip the second stack and therefore do not need cross-attention into encoder memory during output generation. They often sit closer to BERT-style retrieval, ranking, or labeling tasks than to chatbot or completion loops."
+    },
+    "representativeCheckpoints": {
+      "title": "Representative Checkpoints",
+      "body": "BERT is the canonical checkpoint to keep in mind here. The model reads text bidirectionally, then uses heads tuned for tasks such as masked-language modeling, sentence classification, or embedding-style similarity. The linked pages below connect that checkpoint to the encoder concept, transformer family, and masked-language-model category."
+    },
+    "related": {
+      "title": "Representative Checkpoints And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    }
+  }
+}

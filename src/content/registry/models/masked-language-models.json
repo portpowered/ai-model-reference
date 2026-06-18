@@ -1,0 +1,33 @@
+{
+  "id": "model.masked-language-models",
+  "slug": "masked-language-models",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "masked-language models",
+    "masked language model",
+    "masked language models",
+    "mlm models"
+  ],
+  "tags": ["taxonomy"],
+  "relatedIds": [
+    "model.encoder-only-models",
+    "model.bert",
+    "concept.encoder",
+    "concept.transformer",
+    "concept.token"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "model-category-pages",
+  "sourceType": "unknown",
+  "modalities": ["text"],
+  "architectureIds": ["concept.encoder", "concept.transformer"],
+  "moduleIds": ["module.attention", "module.multi-head-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}
