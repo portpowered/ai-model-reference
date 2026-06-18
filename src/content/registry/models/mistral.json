@@ -1,0 +1,40 @@
+{
+  "id": "model.mistral",
+  "slug": "mistral",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Mistral", "Mistral 7B", "Mistral AI models"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.mixtral",
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "concept.transformer",
+    "concept.rope",
+    "module.grouped-query-attention",
+    "module.sliding-window-attention"
+  ],
+  "citationIds": ["citation.mistral-7b-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "mistral-family",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.rope"
+  ],
+  "moduleIds": [
+    "module.attention",
+    "module.grouped-query-attention",
+    "module.sliding-window-attention"
+  ],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2023-10-10",
+  "parameterCount": "7B"
+}

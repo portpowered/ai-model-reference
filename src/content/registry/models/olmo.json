@@ -1,0 +1,34 @@
+{
+  "id": "model.olmo",
+  "slug": "olmo",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["OLMo", "Ai2 OLMo", "Open Language Model OLMo"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "concept.transformer",
+    "concept.autoregressive-generation",
+    "module.attention"
+  ],
+  "citationIds": ["citation.olmo-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "olmo",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.autoregressive-generation"
+  ],
+  "moduleIds": ["module.attention", "module.multi-head-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2024-02-01",
+  "parameterCount": "7B"
+}

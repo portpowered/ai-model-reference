@@ -24,14 +24,21 @@ const DEEPSEEK_FAMILY_URL = "/docs/models/deepseek-family";
 const DEEPSEEK_R1_URL = "/docs/models/deepseek-r1";
 const DEEPSEEK_V2_URL = "/docs/models/deepseek-v2";
 const DEEPSEEK_V3_URL = "/docs/models/deepseek-v3";
+const FALCON_URL = "/docs/models/falcon";
+const GEMMA_URL = "/docs/models/gemma";
 const GEMINI_URL = "/docs/models/gemini";
 const GPT_OSS_URL = "/docs/models/gpt-oss";
 const GPT2_URL = "/docs/models/gpt-2";
 const LLAMA_3_URL = "/docs/models/llama-3";
 const LLAMA_FAMILY_URL = "/docs/models/llama-family";
 const MASKED_LANGUAGE_MODELS_URL = "/docs/models/masked-language-models";
+const MISTRAL_URL = "/docs/models/mistral";
+const MIXTRAL_URL = "/docs/models/mixtral";
 const MODEL_FAMILIES_OVERVIEW_URL = "/docs/models/model-families-overview";
+const OLMO_URL = "/docs/models/olmo";
+const OPT_URL = "/docs/models/opt";
 const PALM_URL = "/docs/models/palm";
+const PHI_URL = "/docs/models/phi";
 const QWEN2_URL = "/docs/models/qwen2";
 const QWEN25_URL = "/docs/models/qwen2-5";
 const QWEN3_URL = "/docs/models/qwen3";
@@ -236,6 +243,26 @@ describe("search result meta", () => {
     expect(geminiMeta).toBeDefined();
     expect(geminiMeta?.kind).toBe("model");
     expect(geminiMeta?.aliases).toContain("Google Gemini");
+  });
+
+  test("loadSearchResultMetaMap includes the remaining named language-model checkpoints", async () => {
+    const map = await loadSearchResultMetaMap();
+
+    for (const [url, alias] of [
+      [MISTRAL_URL, "Mistral 7B"],
+      [MIXTRAL_URL, "Mixtral 8x7B"],
+      [GEMMA_URL, "Google Gemma"],
+      [PHI_URL, "Microsoft Phi"],
+      [FALCON_URL, "Falcon LLM"],
+      [OPT_URL, "Open Pre-trained Transformer"],
+      [OLMO_URL, "Ai2 OLMo"],
+    ] as const) {
+      const meta = map.get(url);
+      expect(meta).toBeDefined();
+      expect(meta?.kind).toBe("model");
+      expect(meta?.tags).toContain("foundations");
+      expect(meta?.aliases).toContain(alias);
+    }
   });
 
   test("buildSearchResultMetaMap keys by url", () => {

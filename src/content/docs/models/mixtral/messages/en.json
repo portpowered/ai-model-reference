@@ -1,0 +1,40 @@
+{
+  "title": "Mixtral",
+  "description": "A sparse mixture-of-experts model line from Mistral AI that keeps a decoder-only language-model shape while routing tokens through selected experts.",
+  "openingSummary": "Mixtral matters because it gives readers a concrete example of how a language model can grow in capability without turning every token through the full dense network. The core idea is that Mixtral keeps the familiar autoregressive Transformer setup but adds expert routing, which makes mixture-of-experts architecture a practical model-family question rather than an abstract concept page only.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Mixtral is a Mistral AI language-model line built around sparse mixture-of-experts routing. It is still a text-generating decoder-only model, but it differs from a dense checkpoint because only selected experts become active for a given token."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Mixtral takes tokenized text and produces an autoregressive next-token distribution, just like other causal language models. The input-output contract stays familiar even though the internal feed-forward path is more selective."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Mixtral sits in the decoder-only and autoregressive categories, but the defining architectural hook is sparse mixture-of-experts routing. That means the useful comparison is not only with GPT-like dense models, but also with the mixture-of-experts concept and the underlying Mistral line it extends."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention remains central because the model still has to share context across the sequence, while the mixture-of-experts machinery changes how the feed-forward work is allocated. Grouped-query attention also matters here because Mixtral inherits part of the efficiency story from the broader Mistral architecture."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public Mixtral material emphasizes the sparse expert design, open weights, and the difference between total parameters and active parameters per token. This page keeps the structured training sections visible even when detailed regime, dataset, or paper relationships have not been filled in yet."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Mixtral is helpful when a reader wants to understand why mixture-of-experts models keep appearing in modern model discussions. It turns MoE from a glossary term into a named checkpoint line that readers are likely to see in real comparisons and tooling."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "model.falcon",
+  "slug": "falcon",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Falcon", "Falcon LLM", "Falcon series"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "concept.transformer",
+    "concept.autoregressive-generation",
+    "module.attention"
+  ],
+  "citationIds": ["citation.falcon-series-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "falcon",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.autoregressive-generation"
+  ],
+  "moduleIds": ["module.attention", "module.multi-head-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2023-11-28",
+  "parameterCount": "7B-180B"
+}

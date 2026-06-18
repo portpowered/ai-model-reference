@@ -1,0 +1,20 @@
+{
+  "id": "citation.mixtral-of-experts-paper",
+  "slug": "mixtral-of-experts-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Mixtral paper", "Mixtral 8x7B paper", "Mixtral of Experts"],
+  "tags": [],
+  "relatedIds": ["model.mixtral", "model.mistral"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Mistral AI"],
+  "title": "Mixtral of Experts",
+  "url": "https://arxiv.org/abs/2401.04088",
+  "mla": "Mistral AI. \"Mixtral of Experts.\" arXiv, 2024, https://arxiv.org/abs/2401.04088.",
+  "year": 2024
+}

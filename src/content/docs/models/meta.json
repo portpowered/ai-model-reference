@@ -30,6 +30,13 @@
     "[DeepSeek-R1](/docs/models/deepseek-r1)",
     "[GPT-OSS](/docs/models/gpt-oss)",
     "[Claude](/docs/models/claude)",
-    "[Gemini](/docs/models/gemini)"
+    "[Gemini](/docs/models/gemini)",
+    "[Mistral](/docs/models/mistral)",
+    "[Mixtral](/docs/models/mixtral)",
+    "[Gemma](/docs/models/gemma)",
+    "[Phi](/docs/models/phi)",
+    "[Falcon](/docs/models/falcon)",
+    "[OPT](/docs/models/opt)",
+    "[OLMo](/docs/models/olmo)"
   ]
 }

@@ -1,0 +1,40 @@
+{
+  "title": "OLMo",
+  "description": "A truly open language-model line from Ai2 that released weights, training data, code, and intermediate artifacts for research use.",
+  "openingSummary": "OLMo matters because it turns openness from a marketing adjective into part of the model's actual technical identity. The key point is that OLMo is not only a decoder-only language model with released weights. It is a research-focused model line that exposes much more of the training pipeline than most named checkpoints do.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "OLMo is a language-model line from Ai2 built for open scientific study. In the atlas, it functions as a checkpoint page for readers who want an example of a modern model release that exposes much more than an inference endpoint or a final checkpoint."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "OLMo consumes tokenized text and produces text continuations through next-token prediction. The input-output behavior is familiar, even though the release philosophy around the model is unusually transparent."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "OLMo stays within the standard Transformer decoder-only language-model pattern. What makes it notable is the surrounding openness of data, code, checkpoints, and logs rather than a clean break from mainstream architecture."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention remains the central module because OLMo still relies on the usual sequence-modeling machinery. The page is therefore a good reminder that a model can be architecturally familiar while still being distinctive in how openly it is released."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public OLMo material emphasizes open training data, open code, and intermediate artifacts intended for research inspection. This atlas keeps the detailed training shells visible even where the structured supporting records are not fully populated yet."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "OLMo is especially useful for readers interested in the scientific study of language models, because the release is designed to support inspection and reproduction rather than only downstream use. That makes the page a helpful contrast with more closed frontier systems."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "id": "citation.mistral-7b-paper",
+  "slug": "mistral-7b-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Mistral 7B paper", "Mistral paper", "Mistral 7B"],
+  "tags": [],
+  "relatedIds": ["model.mistral", "model.mixtral"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Mistral AI"],
+  "title": "Mistral 7B",
+  "url": "https://arxiv.org/abs/2310.06825",
+  "mla": "Mistral AI. \"Mistral 7B.\" arXiv, 2023, https://arxiv.org/abs/2310.06825.",
+  "year": 2023
+}

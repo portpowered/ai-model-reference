@@ -70,16 +70,23 @@ import deepseekV3Model from "@/content/registry/models/deepseek-v3.json";
 import diffusionModelFamilies from "@/content/registry/models/diffusion-model-families.json";
 import encoderDecoderModels from "@/content/registry/models/encoder-decoder-models.json";
 import encoderOnlyModels from "@/content/registry/models/encoder-only-models.json";
+import falconModel from "@/content/registry/models/falcon.json";
 import geminiModel from "@/content/registry/models/gemini.json";
+import gemmaModel from "@/content/registry/models/gemma.json";
 import gpt2Model from "@/content/registry/models/gpt-2.json";
 import gptOssModel from "@/content/registry/models/gpt-oss.json";
 import llama3Model from "@/content/registry/models/llama-3.json";
 import llamaFamily from "@/content/registry/models/llama-family.json";
 import maskedLanguageModels from "@/content/registry/models/masked-language-models.json";
+import mistralModel from "@/content/registry/models/mistral.json";
+import mixtralModel from "@/content/registry/models/mixtral.json";
 import modelFamiliesOverview from "@/content/registry/models/model-families-overview.json";
 import multimodalModelFamilies from "@/content/registry/models/multimodal-model-families.json";
+import olmoModel from "@/content/registry/models/olmo.json";
 import omniModelFamilies from "@/content/registry/models/omni-model-families.json";
+import optModel from "@/content/registry/models/opt.json";
 import palmModel from "@/content/registry/models/palm.json";
+import phiModel from "@/content/registry/models/phi.json";
 import qwenFamily from "@/content/registry/models/qwen-family.json";
 import qwen2Model from "@/content/registry/models/qwen2.json";
 import qwen25Model from "@/content/registry/models/qwen2-5.json";
@@ -201,11 +208,18 @@ const modelRecords: ModelRecord[] = [
   modelRecordSchema.parse(modelFamiliesOverview),
   modelRecordSchema.parse(encoderDecoderModels),
   modelRecordSchema.parse(encoderOnlyModels),
+  modelRecordSchema.parse(falconModel),
+  modelRecordSchema.parse(gemmaModel),
   modelRecordSchema.parse(geminiModel),
   modelRecordSchema.parse(gptOssModel),
   modelRecordSchema.parse(palmModel),
   modelRecordSchema.parse(llama3Model),
   modelRecordSchema.parse(llamaFamily),
+  modelRecordSchema.parse(mistralModel),
+  modelRecordSchema.parse(mixtralModel),
+  modelRecordSchema.parse(olmoModel),
+  modelRecordSchema.parse(optModel),
+  modelRecordSchema.parse(phiModel),
   modelRecordSchema.parse(qwen2Model),
   modelRecordSchema.parse(qwen25Model),
   modelRecordSchema.parse(qwenFamily),

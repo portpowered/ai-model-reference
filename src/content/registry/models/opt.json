@@ -1,0 +1,35 @@
+{
+  "id": "model.opt",
+  "slug": "opt",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["OPT", "Open Pre-trained Transformer", "Meta OPT"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.gpt-2",
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "concept.transformer",
+    "concept.autoregressive-generation",
+    "module.attention"
+  ],
+  "citationIds": ["citation.opt-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "opt",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.autoregressive-generation"
+  ],
+  "moduleIds": ["module.attention", "module.multi-head-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2022-05-02",
+  "parameterCount": "125M-175B"
+}

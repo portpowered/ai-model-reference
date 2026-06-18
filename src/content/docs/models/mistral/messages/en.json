@@ -1,0 +1,40 @@
+{
+  "title": "Mistral",
+  "description": "An open-weight decoder-only Transformer line from Mistral AI that became known for strong capability at relatively compact sizes.",
+  "openingSummary": "Mistral matters because it gave readers a well-known example of a modern open language model that was not defined only by raw size. The useful idea is that Mistral pairs the familiar decoder-only Transformer pattern with efficiency-oriented design choices, so people can compare it with older GPT-like models without assuming every strong model must simply be bigger.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Mistral is an open-weight language-model line from Mistral AI. In this atlas, it works as a checkpoint page for a compact but capable general-purpose model family that still stays inside the broad decoder-only Transformer tradition."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Mistral takes tokenized text as input and predicts the next token as output. Chat wrappers, instructions, and agent loops may shape the interaction style, but the core model contract remains token-by-token language generation."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Mistral is easiest to place under decoder-only and autoregressive model categories. The details that make it more informative than a generic GPT-like label are its use of grouped-query attention and sliding-window attention, which help explain why the model is often discussed as efficient rather than only large."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention is still the core context-sharing mechanism, but grouped-query attention and sliding-window attention matter because they change how the model handles memory and long context at inference time. Those module links are more helpful here than benchmark tables because they explain what readers would actually want to understand from the name."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public Mistral material describes an open-weight release with a compact parameter budget and an architecture tuned for efficient inference. This atlas slice keeps structured training-regime, dataset, and paper relationships visible even when the detailed records are still missing."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Mistral is a good reference model when a reader wants to compare modern open checkpoints without jumping immediately to the very largest families. It shows how architecture and efficiency choices can become part of a model's identity instead of being hidden behind a product label."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

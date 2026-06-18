@@ -1,0 +1,20 @@
+{
+  "id": "citation.gemma-open-models-paper",
+  "slug": "gemma-open-models-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Gemma paper", "Gemma report", "Google Gemma"],
+  "tags": [],
+  "relatedIds": ["model.gemma", "model.gemini"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Gemma Team"],
+  "title": "Gemma: Open Models Based on Gemini Research and Technology",
+  "url": "https://arxiv.org/abs/2403.08295",
+  "mla": "Gemma Team. \"Gemma: Open Models Based on Gemini Research and Technology.\" arXiv, 2024, https://arxiv.org/abs/2403.08295.",
+  "year": 2024
+}

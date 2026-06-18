@@ -1,0 +1,20 @@
+{
+  "id": "citation.phi-3-technical-report",
+  "slug": "phi-3-technical-report",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Phi-3 paper", "Phi paper", "Microsoft Phi"],
+  "tags": [],
+  "relatedIds": ["model.phi"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Microsoft"],
+  "title": "Phi-3 Technical Report: A Highly Capable Language Model Locally on Your Phone",
+  "url": "https://arxiv.org/abs/2404.14219",
+  "mla": "Microsoft. \"Phi-3 Technical Report: A Highly Capable Language Model Locally on Your Phone.\" arXiv, 2024, https://arxiv.org/abs/2404.14219.",
+  "year": 2024
+}

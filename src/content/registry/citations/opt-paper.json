@@ -1,0 +1,20 @@
+{
+  "id": "citation.opt-paper",
+  "slug": "opt-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["OPT paper", "OPT report", "Open Pre-trained Transformer"],
+  "tags": [],
+  "relatedIds": ["model.opt"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Meta AI"],
+  "title": "OPT: Open Pre-trained Transformer Language Models",
+  "url": "https://arxiv.org/abs/2205.01068",
+  "mla": "Meta AI. \"OPT: Open Pre-trained Transformer Language Models.\" arXiv, 2022, https://arxiv.org/abs/2205.01068.",
+  "year": 2022
+}

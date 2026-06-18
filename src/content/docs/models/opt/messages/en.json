@@ -1,0 +1,40 @@
+{
+  "title": "OPT",
+  "description": "Meta's Open Pre-trained Transformer line, published to give researchers a GPT-style model family with weights and training details they could inspect.",
+  "openingSummary": "OPT matters because many readers need a named example of a GPT-style language model that was released with an unusually explicit openness goal. The important idea is not that OPT changed the architecture class. It is that OPT made a large decoder-only model family easier to study directly.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "OPT is Meta's Open Pre-trained Transformer model line. It is a family of decoder-only language models released to make large GPT-style systems more inspectable to researchers."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "OPT takes tokenized text and predicts the next token in sequence. That makes the model easy to place alongside GPT-like systems and other autoregressive language-model families."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "OPT follows the standard Transformer decoder-only pattern rather than introducing a new model class. The page is useful because it separates the familiar architecture from the unusual release goal of sharing a large-scale open research reference."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention is the main module to understand because OPT is a straightforward causal language model. The most useful adjacent pages are therefore Transformer architecture, decoder-only models, and autoregressive generation."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public OPT documentation emphasizes the effort to release large pretrained models, weights, and training notes more openly than many peers. Structured training-regime and dataset relationships can still be incomplete in this atlas, so the page keeps those sections visible with explicit unavailable states."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "OPT remains a useful historical page because it gave people a public large-model reference for studying GPT-style systems. The name often appears when readers are tracing the open-model lineage before the later wave of Llama, Mistral, and similar releases."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

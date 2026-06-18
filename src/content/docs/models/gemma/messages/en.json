@@ -1,0 +1,40 @@
+{
+  "title": "Gemma",
+  "description": "A family of lightweight open models from Google that carries research ideas from Gemini into more openly released checkpoints.",
+  "openingSummary": "Gemma matters because it gives readers a cleaner bridge between a frontier research stack and a more openly released model family they can actually reference by name. The key idea is that Gemma is not a separate architecture world. It is an open model line that packages familiar Transformer language-model ideas into smaller, more accessible checkpoints.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Gemma is Google's family of lightweight open models. It is useful as a reference point for readers who want to compare an open release line with the broader Gemini research program without confusing the two."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Gemma consumes tokenized text and predicts text continuations through next-token generation. Some later family members add broader capabilities, but the core model identity still starts with text sequence modeling."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Gemma belongs to the Transformer and decoder-only language-model tradition. What makes the family notable is not a break from that pattern, but the way it packages strong general-model behavior into comparatively lightweight checkpoints."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention remains the core mechanism because Gemma still has to reuse prior context across a token sequence. The most helpful adjacent pages are therefore the usual Transformer building blocks, not release-by-release scorecards."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public Gemma reports frame the family as an open-model line built from research and technology associated with Gemini. This atlas keeps the structured training shells visible even where the detailed regime, dataset, or paper relationships are still incomplete."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Gemma is a useful page for readers who keep hearing Gemini and Gemma in the same conversations and need the distinction. Gemma is the open model line to study when the question is architecture and checkpoint identity rather than product branding."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

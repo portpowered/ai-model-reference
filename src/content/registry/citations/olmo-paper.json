@@ -1,0 +1,20 @@
+{
+  "id": "citation.olmo-paper",
+  "slug": "olmo-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["OLMo paper", "Ai2 OLMo", "Open Language Model OLMo"],
+  "tags": [],
+  "relatedIds": ["model.olmo"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Ai2"],
+  "title": "OLMo: Accelerating the Science of Language Models",
+  "url": "https://arxiv.org/abs/2402.00838",
+  "mla": "Ai2. \"OLMo: Accelerating the Science of Language Models.\" arXiv, 2024, https://arxiv.org/abs/2402.00838.",
+  "year": 2024
+}

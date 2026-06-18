@@ -1,0 +1,33 @@
+{
+  "id": "model.phi",
+  "slug": "phi",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Phi", "Microsoft Phi", "Phi model family"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "module.attention"
+  ],
+  "citationIds": ["citation.phi-3-technical-report"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "phi",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture"
+  ],
+  "moduleIds": ["module.attention", "module.multi-head-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2024-04-22",
+  "parameterCount": "3.8B-14B"
+}

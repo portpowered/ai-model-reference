@@ -1,0 +1,35 @@
+{
+  "id": "model.mixtral",
+  "slug": "mixtral",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Mixtral", "Mixtral 8x7B", "Mixtral of Experts"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.mistral",
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "concept.mixture-of-experts",
+    "concept.transformer",
+    "module.grouped-query-attention"
+  ],
+  "citationIds": ["citation.mixtral-of-experts-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "mistral-family",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.mixture-of-experts"
+  ],
+  "moduleIds": ["module.attention", "module.grouped-query-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2024-01-08",
+  "parameterCount": "47B total, 13B active"
+}

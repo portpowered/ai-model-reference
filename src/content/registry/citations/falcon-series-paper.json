@@ -1,0 +1,20 @@
+{
+  "id": "citation.falcon-series-paper",
+  "slug": "falcon-series-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Falcon paper", "Falcon series paper", "Falcon LLM"],
+  "tags": [],
+  "relatedIds": ["model.falcon"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Technology Innovation Institute"],
+  "title": "The Falcon Series of Open Language Models",
+  "url": "https://arxiv.org/abs/2311.16867",
+  "mla": "Technology Innovation Institute. \"The Falcon Series of Open Language Models.\" arXiv, 2023, https://arxiv.org/abs/2311.16867.",
+  "year": 2023
+}

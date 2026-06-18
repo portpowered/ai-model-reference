@@ -1,0 +1,35 @@
+{
+  "id": "model.gemma",
+  "slug": "gemma",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Gemma", "Google Gemma", "Gemma models"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.gemini",
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "concept.transformer",
+    "concept.rope",
+    "module.attention"
+  ],
+  "citationIds": ["citation.gemma-open-models-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "gemma",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.rope"
+  ],
+  "moduleIds": ["module.attention", "module.multi-head-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2024-02-21",
+  "parameterCount": "2B-7B"
+}

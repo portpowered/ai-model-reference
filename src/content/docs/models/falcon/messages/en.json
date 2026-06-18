@@ -1,0 +1,40 @@
+{
+  "title": "Falcon",
+  "description": "An open decoder-only language-model series from the Technology Innovation Institute that became a major open reference at larger parameter scales.",
+  "openingSummary": "Falcon matters because it became one of the early open model names that readers saw in conversations about very large openly released checkpoints. The main lesson is that Falcon still belongs to the familiar decoder-only Transformer world, but it pushed openness and scale together in a way that made the model line a common reference point.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Falcon is an open language-model series released by the Technology Innovation Institute. It is best understood as a family of large causal language models rather than a single isolated checkpoint."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Falcon takes tokenized text and predicts the next token in sequence. The input-output shape is standard for decoder-only language models, which makes Falcon easy to compare with GPT-style and other autoregressive model lines."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Falcon belongs to the Transformer, decoder-only, and autoregressive categories. The page matters less for introducing a novel architecture and more for showing a named open model line that scaled far beyond earlier smaller open checkpoints."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention remains the main module to understand because Falcon still follows the usual causal language-model recipe. The surrounding concepts that matter most are therefore Transformer architecture and autoregressive generation."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public Falcon reports emphasize large-scale pretraining and a web-heavy data pipeline assembled for open model release. This atlas keeps missing training-regime, dataset, and paper relationships visible through explicit unavailable states instead of dropping the sections."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Falcon is useful as a historical comparison point for readers tracing how open language models moved from smaller research curiosities toward very large public checkpoints. The name often appears as a milestone in that shift."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

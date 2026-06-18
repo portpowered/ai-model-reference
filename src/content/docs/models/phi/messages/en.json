@@ -1,0 +1,40 @@
+{
+  "title": "Phi",
+  "description": "A small-model line from Microsoft that is often used to show how data quality and compact deployment can matter as much as raw parameter count.",
+  "openingSummary": "Phi matters because it gives readers a named model line for the idea that language-model capability is not only about building the largest possible network. The useful lesson is that Phi is a compact model family whose public story emphasizes careful data curation, synthetic data use, and deployment at smaller scales.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Phi is Microsoft's compact language-model line. It serves as a practical checkpoint page for readers who want an example of a small-model family that still belongs to the mainstream language-model ecosystem."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Phi takes tokenized text prompts and predicts text continuations one token at a time. The outputs may appear in chat or assistant form, but the underlying model contract is still autoregressive text generation."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Phi is easiest to place among decoder-only and autoregressive models. The more distinctive angle is not a radically different architecture class, but the way small-scale deployment and data quality become central to the explanation."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention remains the key shared-context mechanism, because Phi is still a Transformer language model. The adjacent ideas that matter most are the standard decoder-only building blocks and the broader question of how a compact model can still behave strongly."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public Phi reports emphasize filtered web data, synthetic data, and training choices aimed at strong performance in smaller checkpoints. This atlas still renders missing training-regime, dataset, and paper relationships explicitly so the page shape stays stable."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Phi is a useful contrast page when readers assume the next meaningful model comparison must involve only giant frontier systems. It helps show why compact language models remain part of the larger model map."
+    },
+    "related": {
+      "title": "Related Families, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
