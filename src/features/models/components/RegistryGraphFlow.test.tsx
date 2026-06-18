@@ -51,6 +51,10 @@ const assets = {
   },
 } satisfies PageAssetConfig;
 
+function stripHtmlTags(html: string): string {
+  return html.replaceAll(/<[^>]+>/g, "");
+}
+
 describe("RegistryGraphFlow", () => {
   test("renders react-flow graph markers for the GQA compute-flow fixture", () => {
     const html = renderToStaticMarkup(
@@ -188,5 +192,25 @@ describe("RegistryGraphFlow", () => {
     expect(html).toContain("registry-graph-flow__math-label");
     expect(html).toContain("katex");
     expect(html).toContain("\\phi(K)^{\\top} V");
+  });
+
+  test("keeps mixed prose labels as plain text so spaces remain readable", () => {
+    const html = renderToStaticMarkup(
+      <GraphNodeLabel label="Wide projection W_1" />,
+    );
+
+    expect(html).toContain("registry-graph-flow__math-label");
+    expect(stripHtmlTags(html)).toContain("Wide projection");
+    expect(html).toContain("W_1");
+  });
+
+  test("renders inline math tokens inside prose labels", () => {
+    const html = renderToStaticMarkup(
+      <GraphNodeLabel label="Token state h_t" />,
+    );
+
+    expect(stripHtmlTags(html)).toContain("Token state");
+    expect(html).toContain("registry-graph-flow__math-label");
+    expect(html).toContain("h_t");
   });
 });

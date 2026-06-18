@@ -1,4 +1,5 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import { RelatedDocList } from "@/features/docs/components/RelatedDocList";
@@ -7,6 +8,10 @@ const TEST_PAGE_MESSAGES = {
   title: "Test page",
   description: "Test description",
 };
+
+afterEach(() => {
+  cleanup();
+});
 
 describe("RelatedDocList", () => {
   test("renders related doc links without underline utilities", () => {
@@ -119,5 +124,31 @@ describe("RelatedDocList", () => {
     const html = renderToStaticMarkup(<RelatedDocList items={[]} />);
 
     expect(html).toBe("");
+  });
+
+  test("shows only the first five related docs by default and expands on demand", () => {
+    render(
+      <RelatedDocList
+        items={Array.from({ length: 7 }, (_, index) => ({
+          registryId: `concept.item-${index + 1}`,
+          slug: `item-${index + 1}`,
+          title: `Item ${index + 1}`,
+          href: `/docs/glossary/item-${index + 1}`,
+          reasonLabel: "Shared tag",
+          isPlanned: false,
+        }))}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Item 1" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Item 5" })).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "Item 6" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Show 2 more" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Show 2 more" }));
+
+    expect(screen.getByRole("link", { name: "Item 6" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Item 7" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Show fewer" })).toBeTruthy();
   });
 });

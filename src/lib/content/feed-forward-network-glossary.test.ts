@@ -5,11 +5,11 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { FEED_FORWARD_NETWORK_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
-import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryPresentationConvergence,
   expectHtmlToContainProse,
 } from "@/lib/content/glossary-test-helpers";
+import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -101,11 +101,11 @@ describe("Phase 3 feed-forward network glossary page (US-002)", () => {
   });
 
   test("page renders glossary sections, tag pills, and FFN-family related links", async () => {
-    const page = await loadGlossaryPage("feed-forward-network");
+    const page = await loadModulePage("feed-forward-network");
 
-    expect(page.frontmatter.kind).toBe("glossary");
+    expect(page.frontmatter.kind).toBe("module");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.registryId).toBe("concept.feed-forward-network");
+    expect(page.frontmatter.registryId).toBe("module.feed-forward-network");
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -122,6 +122,11 @@ describe("Phase 3 feed-forward network glossary page (US-002)", () => {
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
     expectHtmlToContainProse(html, "two-layer perceptron");
+    expect(html).toContain('data-react-flow-graph="true"');
+    expect(html).toContain('data-attention-variant-comparison="true"');
+    expect(html).toContain(
+      'data-graph-id="graph.standard-ffn-parallel-baseline"',
+    );
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/modules/standard-ffn"');
     expect(html).toContain('href="/docs/modules/mixture-of-experts"');
@@ -141,7 +146,7 @@ describe("Phase 3 feed-forward network glossary page (US-002)", () => {
     const document = documents.find(
       (entry) => entry.url === "/docs/modules/feed-forward-network",
     );
-    expect(document?.kind).toBe("glossary");
-    expect(document?.facets.kind).toBe("glossary");
+    expect(document?.kind).toBe("module");
+    expect(document?.facets.kind).toBe("module");
   });
 });

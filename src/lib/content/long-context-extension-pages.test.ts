@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { loadModulePage } from "@/lib/content/module-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
   getConceptById,
@@ -68,14 +68,14 @@ describe("Phase 3 long-context extension pages (phase-3-pages-006)", () => {
         )?.href,
       ).toBe("/docs/concepts/why-long-context-is-hard");
       expect(items.find((item) => item.registryId === siblingId)?.href).toMatch(
-        /^\/docs\/glossary\//,
+        /^\/docs\/modules\//,
       );
     }
   });
 
   test("new pages render glossary content, long-context links, and references", async () => {
     for (const slug of ["longrope", "positional-interpolation"] as const) {
-      const page = await loadGlossaryPage(slug);
+      const page = await loadModulePage(slug);
       const html = renderToStaticMarkup(
         createElement(ModulePageProviders, {
           messages: page.messages,
@@ -98,7 +98,7 @@ describe("Phase 3 long-context extension pages (phase-3-pages-006)", () => {
       expect(html).not.toContain("Phase");
     }
 
-    const longropePage = await loadGlossaryPage("longrope");
+    const longropePage = await loadModulePage("longrope");
     const longropeHtml = renderToStaticMarkup(
       createElement(ModulePageProviders, {
         messages: longropePage.messages,
@@ -113,7 +113,7 @@ describe("Phase 3 long-context extension pages (phase-3-pages-006)", () => {
     );
     expect(longropeHtml).toContain('href="/docs/modules/yarn"');
 
-    const positionalInterpolationPage = await loadGlossaryPage(
+    const positionalInterpolationPage = await loadModulePage(
       "positional-interpolation",
     );
     const positionalInterpolationHtml = renderToStaticMarkup(

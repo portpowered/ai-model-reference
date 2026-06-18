@@ -5,11 +5,11 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { MIXTURE_OF_EXPERTS_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
-import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryPresentationConvergence,
   expectHtmlToContainProse,
 } from "@/lib/content/glossary-test-helpers";
+import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -96,11 +96,11 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
   });
 
   test("page renders MoE summary, common confusions, and FFN-family related links", async () => {
-    const page = await loadGlossaryPage("mixture-of-experts");
+    const page = await loadModulePage("mixture-of-experts");
 
-    expect(page.frontmatter.kind).toBe("glossary");
+    expect(page.frontmatter.kind).toBe("module");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.registryId).toBe("concept.mixture-of-experts");
+    expect(page.frontmatter.registryId).toBe("module.mixture-of-experts");
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -117,6 +117,10 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
     expect(html).toContain("What It Is");
     expect(html).toContain("Common Confusions");
     expectHtmlToContainProse(html, "gating network");
+    expect(html).toContain('data-react-flow-graph="true"');
+    expect(html).toContain(
+      'data-graph-id="graph.mixture-of-experts-routing-flow"',
+    );
     expect(html).toContain('href="/docs/modules/feed-forward-network"');
     expect(html).toContain('href="/docs/modules/standard-ffn"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
@@ -135,7 +139,7 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
     const document = documents.find(
       (entry) => entry.url === "/docs/modules/mixture-of-experts",
     );
-    expect(document?.kind).toBe("glossary");
-    expect(document?.facets.kind).toBe("glossary");
+    expect(document?.kind).toBe("module");
+    expect(document?.facets.kind).toBe("module");
   });
 });

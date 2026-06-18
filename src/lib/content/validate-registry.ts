@@ -17,6 +17,7 @@ import {
   loadPageMessages,
   tokenGlossaryPageDir,
 } from "./page-messages-load";
+import { validatePageTemplateConformance } from "./page-template-conformance";
 import {
   loadRegistry,
   type RegistryIndexes,
@@ -706,6 +707,15 @@ async function validatePageMdx(
       indexes,
       shippedLocalizedDocsManifest,
     )),
+  );
+
+  errors.push(
+    ...validatePageTemplateConformance({
+      pagePath,
+      docsRoot,
+      kind: frontmatter.data.kind,
+      mdxSource: raw,
+    }),
   );
 
   return errors;

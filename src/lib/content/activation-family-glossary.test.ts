@@ -126,6 +126,7 @@ const PAGE_CASES = [
     messageNeedles: ["gate", "silu", "mixture of experts"],
     renderNeedle: "two branches after attention",
     searchQuery: "SwiGLU",
+    expectedGraphId: "graph.swiglu-compute-flow",
   },
 ] as const;
 
@@ -203,6 +204,10 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
       expect(html).toContain("What It Is");
       expect(html).toContain("Common Confusions");
       expectHtmlToContainProse(html, testCase.renderNeedle);
+      if ("expectedGraphId" in testCase) {
+        expect(html).toContain('data-react-flow-graph="true"');
+        expect(html).toContain(`data-graph-id="${testCase.expectedGraphId}"`);
+      }
       for (const href of testCase.hrefs) {
         expect(html).toContain(`href="${href}"`);
       }

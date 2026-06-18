@@ -4,6 +4,7 @@ import {
   modulePageHref,
 } from "@/lib/content/content-hrefs";
 import {
+  MODULE_BACKED_CONCEPT_REGISTRY_IDS,
   PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
   type PublishedDocsRegistryIds,
 } from "@/lib/content/published-docs-registry-ids";
@@ -68,6 +69,9 @@ export function registryDisplayTitle(record: RelatedRegistryRecord): string {
 }
 
 function conceptRecordPageHref(record: ConceptRecord): string {
+  if (MODULE_BACKED_CONCEPT_REGISTRY_IDS.has(record.id)) {
+    return modulePageHref(record.slug);
+  }
   if (PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has(record.id)) {
     return conceptPageHref(record.slug);
   }

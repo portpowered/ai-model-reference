@@ -5,13 +5,13 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { ALIBI_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
-import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryBodyOmitsTitleHeading,
   expectGlossaryOmitsOpeningSummary,
   expectGlossarySingleTagPillList,
   expectHtmlToContainProse,
 } from "@/lib/content/glossary-test-helpers";
+import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -109,11 +109,11 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
   });
 
   test("page renders summary, references section, and related links", async () => {
-    const page = await loadGlossaryPage("alibi");
+    const page = await loadModulePage("alibi");
 
-    expect(page.frontmatter.kind).toBe("glossary");
+    expect(page.frontmatter.kind).toBe("module");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.registryId).toBe("concept.alibi");
+    expect(page.frontmatter.registryId).toBe("module.alibi");
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -153,7 +153,7 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
     const document = documents.find(
       (entry) => entry.url === "/docs/modules/alibi",
     );
-    expect(document?.kind).toBe("glossary");
-    expect(document?.facets.kind).toBe("glossary");
+    expect(document?.kind).toBe("module");
+    expect(document?.facets.kind).toBe("module");
   });
 });

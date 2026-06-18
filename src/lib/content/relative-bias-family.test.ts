@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { loadModulePage } from "@/lib/content/module-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
   getConceptById,
@@ -90,7 +90,7 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
       "relative-position-bias",
       "t5-relative-position-bias",
     ] as const) {
-      const page = await loadGlossaryPage(slug);
+      const page = await loadModulePage(slug);
       const html = renderToStaticMarkup(
         createElement(ModulePageProviders, {
           messages: page.messages,
@@ -110,7 +110,7 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
       expect(html).toContain('href="/tags/foundations"');
     }
 
-    const relativeBiasPage = await loadGlossaryPage("relative-position-bias");
+    const relativeBiasPage = await loadModulePage("relative-position-bias");
     const relativeBiasHtml = renderToStaticMarkup(
       createElement(ModulePageProviders, {
         messages: relativeBiasPage.messages,
@@ -123,7 +123,7 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
       'href="/docs/modules/t5-relative-position-bias"',
     );
 
-    const t5Page = await loadGlossaryPage("t5-relative-position-bias");
+    const t5Page = await loadModulePage("t5-relative-position-bias");
     const t5Html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
         messages: t5Page.messages,

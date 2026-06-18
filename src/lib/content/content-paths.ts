@@ -154,19 +154,19 @@ export const HIDDEN_SIZE_GLOSSARY_PAGE_DIR = join(
 
 /** Phase 3 feed-forward network glossary page directory. */
 export const FEED_FORWARD_NETWORK_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+  MODULES_DOCS_ROOT,
   "feed-forward-network",
 );
 
 /** Phase 3 standard FFN glossary page directory. */
 export const STANDARD_FFN_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+  MODULES_DOCS_ROOT,
   "standard-ffn",
 );
 
 /** Phase 3 mixture of experts glossary page directory. */
 export const MIXTURE_OF_EXPERTS_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+  MODULES_DOCS_ROOT,
   "mixture-of-experts",
 );
 
@@ -178,42 +178,42 @@ export const NORMALIZATION_GLOSSARY_PAGE_DIR = join(
 
 /** Phase 3 batch norm glossary page directory. */
 export const BATCH_NORM_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+  MODULES_DOCS_ROOT,
   "batch-norm",
 );
 
 /** Phase 3 group norm glossary page directory. */
 export const GROUP_NORM_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+  MODULES_DOCS_ROOT,
   "group-norm",
 );
 
 /** Phase 3 layer norm glossary page directory. */
 export const LAYER_NORM_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+  MODULES_DOCS_ROOT,
   "layer-norm",
 );
 
 /** Phase 3 ReLU glossary page directory. */
-export const RELU_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "relu");
+export const RELU_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "relu");
 
 /** Phase 3 LeakyReLU glossary page directory. */
 export const LEAKY_RELU_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+  MODULES_DOCS_ROOT,
   "leaky-relu",
 );
 
 /** Phase 3 SiLU glossary page directory. */
-export const SILU_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "silu");
+export const SILU_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "silu");
 
 /** Phase 3 SwiGLU glossary page directory. */
-export const SWIGLU_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "swiglu");
+export const SWIGLU_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "swiglu");
 
 /** Phase 3 RMSNorm glossary page directory. */
-export const RMSNORM_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "rmsnorm");
+export const RMSNORM_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "rmsnorm");
 
 /** Phase 3 QK norm glossary page directory. */
-export const QK_NORM_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "qk-norm");
+export const QK_NORM_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "qk-norm");
 
 /** Phase 3 residual connection glossary page directory. */
 export const RESIDUAL_CONNECTION_GLOSSARY_PAGE_DIR = join(
@@ -234,10 +234,10 @@ export const POSITIONAL_ENCODINGS_CONCEPT_PAGE_DIR = join(
 );
 
 /** Phase 3 RoPE glossary page directory. */
-export const ROPE_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "rope");
+export const ROPE_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "rope");
 
 /** Phase 3 ALiBi glossary page directory. */
-export const ALIBI_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "alibi");
+export const ALIBI_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "alibi");
 
 /** Phase 3 context window glossary page directory. */
 export const CONTEXT_WINDOW_GLOSSARY_PAGE_DIR = join(

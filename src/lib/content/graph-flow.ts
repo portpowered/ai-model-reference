@@ -1,4 +1,9 @@
-import type { Edge, Node } from "@xyflow/react";
+import {
+  type Edge,
+  type EdgeMarker,
+  MarkerType,
+  type Node,
+} from "@xyflow/react";
 import type { CSSProperties } from "react";
 import { lookupMessage } from "@/lib/content/messages";
 import type {
@@ -94,6 +99,7 @@ export function buildRegistryFlowEdges(graph: GraphRecord): Edge[] {
       source: edge.source,
       target: edge.target,
       type: "straight",
+      markerEnd: buildRegistryFlowEdgeMarker(edge),
       style: buildRegistryFlowEdgeStyle(edge),
     }));
   }
@@ -106,11 +112,28 @@ export function buildRegistryFlowEdges(graph: GraphRecord): Edge[] {
         source: node.id,
         target: childId,
         type: "straight",
+        markerEnd: buildRegistryFlowEdgeMarker({ edgeKind: "data-flow" }),
         style: buildRegistryFlowEdgeStyle({ edgeKind: "data-flow" }),
       });
     }
   }
   return edges;
+}
+
+function buildRegistryFlowEdgeMarker(
+  edge: Pick<ModuleGraphEdge, "edgeKind">,
+): EdgeMarker {
+  return {
+    type: MarkerType.ArrowClosed,
+    color:
+      edge.edgeKind === "cache-read" || edge.edgeKind === "cache-write"
+        ? "#2563eb"
+        : edge.edgeKind === "residual"
+          ? "#7c3aed"
+          : "#94a3b8",
+    width: 18,
+    height: 18,
+  };
 }
 
 function buildRegistryFlowEdgeStyle(

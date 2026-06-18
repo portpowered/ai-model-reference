@@ -93,14 +93,39 @@ import whyFourBitModelsAreNotExactlyFourXFasterConcept from "@/content/registry/
 import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-context-is-hard.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
 import yarnConcept from "@/content/registry/concepts/yarn.json";
+import absolutePositionalEmbeddingsModule from "@/content/registry/modules/absolute-positional-embeddings.json";
+import alibiModule from "@/content/registry/modules/alibi.json";
 import attention from "@/content/registry/modules/attention.json";
+import batchNormModule from "@/content/registry/modules/batch-norm.json";
+import feedForwardNetworkModule from "@/content/registry/modules/feed-forward-network.json";
+import groupNormModule from "@/content/registry/modules/group-norm.json";
 import groupedQueryAttention from "@/content/registry/modules/grouped-query-attention.json";
+import layerNormModule from "@/content/registry/modules/layer-norm.json";
+import leakyReluModule from "@/content/registry/modules/leaky-relu.json";
+import learnedPositionalEmbeddingsModule from "@/content/registry/modules/learned-positional-embeddings.json";
 import linearAttention from "@/content/registry/modules/linear-attention.json";
+import longropeModule from "@/content/registry/modules/longrope.json";
+import mixtureOfExpertsModule from "@/content/registry/modules/mixture-of-experts.json";
 import multiHeadAttention from "@/content/registry/modules/multi-head-attention.json";
 import multiHeadLatentAttention from "@/content/registry/modules/multi-head-latent-attention.json";
 import multiQueryAttention from "@/content/registry/modules/multi-query-attention.json";
+import nopeModule from "@/content/registry/modules/nope.json";
+import ntkAwareRopeScalingModule from "@/content/registry/modules/ntk-aware-rope-scaling.json";
+import positionalInterpolationModule from "@/content/registry/modules/positional-interpolation.json";
+import qkNormModule from "@/content/registry/modules/qk-norm.json";
+import relativePositionBiasModule from "@/content/registry/modules/relative-position-bias.json";
+import reluModule from "@/content/registry/modules/relu.json";
+import rmsnormModule from "@/content/registry/modules/rmsnorm.json";
+import ropeModule from "@/content/registry/modules/rope.json";
+import siluModule from "@/content/registry/modules/silu.json";
+import sinusoidalPositionalEmbeddingsModule from "@/content/registry/modules/sinusoidal-positional-embeddings.json";
 import slidingWindowAttention from "@/content/registry/modules/sliding-window-attention.json";
 import sparseAttention from "@/content/registry/modules/sparse-attention.json";
+import standardFfnModule from "@/content/registry/modules/standard-ffn.json";
+import superhotRopeModule from "@/content/registry/modules/superhot-rope.json";
+import swigluModule from "@/content/registry/modules/swiglu.json";
+import t5RelativePositionBiasModule from "@/content/registry/modules/t5-relative-position-bias.json";
+import yarnModule from "@/content/registry/modules/yarn.json";
 import {
   PUBLISHED_DOCS_REGISTRY_IDS,
   type PublishedDocsRegistryIds,
@@ -114,14 +139,39 @@ import {
 } from "@/lib/content/schemas";
 
 const moduleRecords: ModuleRecord[] = [
+  moduleRecordSchema.parse(absolutePositionalEmbeddingsModule),
+  moduleRecordSchema.parse(alibiModule),
   moduleRecordSchema.parse(attention),
+  moduleRecordSchema.parse(batchNormModule),
+  moduleRecordSchema.parse(feedForwardNetworkModule),
+  moduleRecordSchema.parse(groupNormModule),
   moduleRecordSchema.parse(groupedQueryAttention),
+  moduleRecordSchema.parse(layerNormModule),
+  moduleRecordSchema.parse(leakyReluModule),
+  moduleRecordSchema.parse(learnedPositionalEmbeddingsModule),
   moduleRecordSchema.parse(linearAttention),
+  moduleRecordSchema.parse(longropeModule),
+  moduleRecordSchema.parse(mixtureOfExpertsModule),
   moduleRecordSchema.parse(multiHeadLatentAttention),
   moduleRecordSchema.parse(multiQueryAttention),
   moduleRecordSchema.parse(multiHeadAttention),
+  moduleRecordSchema.parse(nopeModule),
+  moduleRecordSchema.parse(ntkAwareRopeScalingModule),
+  moduleRecordSchema.parse(positionalInterpolationModule),
+  moduleRecordSchema.parse(qkNormModule),
+  moduleRecordSchema.parse(relativePositionBiasModule),
+  moduleRecordSchema.parse(reluModule),
+  moduleRecordSchema.parse(rmsnormModule),
+  moduleRecordSchema.parse(ropeModule),
+  moduleRecordSchema.parse(siluModule),
+  moduleRecordSchema.parse(sinusoidalPositionalEmbeddingsModule),
   moduleRecordSchema.parse(slidingWindowAttention),
   moduleRecordSchema.parse(sparseAttention),
+  moduleRecordSchema.parse(standardFfnModule),
+  moduleRecordSchema.parse(superhotRopeModule),
+  moduleRecordSchema.parse(swigluModule),
+  moduleRecordSchema.parse(t5RelativePositionBiasModule),
+  moduleRecordSchema.parse(yarnModule),
 ];
 
 const conceptRecords: ConceptRecord[] = [

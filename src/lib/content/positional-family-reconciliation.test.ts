@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
-import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { loadModulePage } from "@/lib/content/module-page";
 import { getConceptById } from "@/lib/content/registry-runtime";
 
 describe("Phase 3 positional family reconciliation (phase-3-pages-007)", () => {
@@ -39,7 +39,7 @@ describe("Phase 3 positional family reconciliation (phase-3-pages-007)", () => {
   });
 
   test("rendered pages keep visible references and navigation across the family", async () => {
-    const ropePage = await loadGlossaryPage("rope");
+    const ropePage = await loadModulePage("rope");
     const ropeHtml = renderToStaticMarkup(
       createElement(ModulePageProviders, {
         messages: ropePage.messages,

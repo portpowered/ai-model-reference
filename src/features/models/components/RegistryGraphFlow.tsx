@@ -11,7 +11,7 @@ import {
   ReactFlow,
   ReactFlowProvider,
 } from "@xyflow/react";
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { InlineMath } from "@/features/docs/components/Math";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
 import {
@@ -61,17 +61,67 @@ function normalizeGraphInlineFormula(label: string): string {
 }
 
 function shouldRenderGraphInlineMath(label: string): boolean {
-  return GRAPH_INLINE_MATH_PATTERN.test(label);
+  if (!GRAPH_INLINE_MATH_PATTERN.test(label)) {
+    return false;
+  }
+
+  const tokens = label.trim().split(/\s+/).filter(Boolean);
+  const proseTokens = tokens.filter((token) =>
+    /^[A-Za-z][A-Za-z-]+$/.test(token),
+  );
+
+  if (tokens.length > 2 && proseTokens.length > 0) {
+    return false;
+  }
+
+  if (tokens.length > 1 && proseTokens.length > 1) {
+    return false;
+  }
+
+  return true;
 }
 
 export function GraphNodeLabel({ label }: { label: string }) {
-  if (!shouldRenderGraphInlineMath(label)) {
+  if (shouldRenderGraphInlineMath(label)) {
+    return (
+      <span className="registry-graph-flow__math-label">
+        <InlineMath formula={normalizeGraphInlineFormula(label)} />
+      </span>
+    );
+  }
+
+  const parts = label.split(/(\s+)/);
+  const hasInlineMath = parts.some(
+    (part) => part.trim().length > 0 && shouldRenderGraphInlineMath(part),
+  );
+
+  if (!hasInlineMath) {
     return <span>{label}</span>;
   }
 
   return (
-    <span className="registry-graph-flow__math-label">
-      <InlineMath formula={normalizeGraphInlineFormula(label)} />
+    <span>
+      {parts.reduce<ReactNode[]>((nodes, part, index) => {
+        const key = `${index}-${part}`;
+
+        if (part.trim().length === 0) {
+          nodes.push(<span key={`space-${key}`}>{part}</span>);
+          return nodes;
+        }
+
+        if (!shouldRenderGraphInlineMath(part)) {
+          nodes.push(<span key={`text-${key}`}>{part}</span>);
+          return nodes;
+        }
+
+        nodes.push(
+          <span key={`math-${key}`} className="registry-graph-flow__math-label">
+            <InlineMath formula={normalizeGraphInlineFormula(part)} />
+          </span>,
+        );
+
+        return nodes;
+      }, [])}
     </span>
   );
 }

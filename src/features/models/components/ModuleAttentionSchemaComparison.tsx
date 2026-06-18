@@ -12,7 +12,7 @@ import {
 import { lookupMessage } from "@/lib/content/messages";
 
 type SchemaFormulaBlockProps = {
-  schemaId: ModuleAttentionMathSchemaId;
+  schemaId: string;
   labelKey: string;
   formulaKey: string;
 };
@@ -20,11 +20,10 @@ type SchemaFormulaBlockProps = {
 function ModuleAttentionSchemaVariableDefinitions({
   schemaId,
 }: {
-  schemaId: ModuleAttentionMathSchemaId;
+  schemaId: string;
 }) {
   const { messages, isDev } = usePageMessages();
-  const definitionIds =
-    moduleAttentionMathVariableDefinitionIdsForSchema(schemaId);
+  const definitionIds = resolveVariableDefinitionIds(messages, schemaId);
 
   const rows = definitionIds.map((id) => {
     const termKey = `math.${schemaId}Schema.variableDefinitions.${id}.term`;
@@ -126,6 +125,19 @@ function ModuleAttentionSchemaVariableDefinitions({
   );
 }
 
+function resolveVariableDefinitionIds(messages: {
+  math?: Record<string, { variableDefinitions?: Record<string, unknown> }>;
+}, schemaId: string): string[] {
+  if (schemaId === "mha" || schemaId === "gqa" || schemaId === "mqa") {
+    return moduleAttentionMathVariableDefinitionIdsForSchema(
+      schemaId as ModuleAttentionMathSchemaId,
+    );
+  }
+
+  const definitions = messages.math?.[`${schemaId}Schema`]?.variableDefinitions;
+  return definitions ? Object.keys(definitions) : [];
+}
+
 function SchemaFormulaBlock({
   schemaId,
   labelKey,
@@ -146,7 +158,7 @@ function SchemaFormulaBlock({
 export function ModuleAttentionSchema({
   schemaId = "mha",
 }: {
-  schemaId?: ModuleAttentionMathSchemaId;
+  schemaId?: string;
 }) {
   return (
     <div
@@ -162,7 +174,37 @@ export function ModuleAttentionSchema({
   );
 }
 
-export function ModuleAttentionSchemaComparison() {
+export function ModuleAttentionSchemaComparison({
+  schemaIds,
+}: {
+  schemaIds?: string[];
+}) {
+  const resolvedSchemaIds =
+    schemaIds && schemaIds.length > 0 ? schemaIds : ["mha", "gqa"];
+
+  if (resolvedSchemaIds.length === 1) {
+    return <ModuleAttentionSchema schemaId={resolvedSchemaIds[0]} />;
+  }
+
+  const [leftSchemaId, rightSchemaId] = resolvedSchemaIds;
+  if (!leftSchemaId || !rightSchemaId) {
+    return null;
+  }
+
+  return (
+    <ModuleAttentionSchemaComparisonSchemas
+      schemaIds={[leftSchemaId, rightSchemaId]}
+    />
+  );
+}
+
+export function ModuleAttentionSchemaComparisonSchemas({
+  schemaIds,
+}: {
+  schemaIds: [string, string];
+}) {
+  const [leftSchemaId, rightSchemaId] = schemaIds;
+
   return (
     <div
       className="not-prose my-4 flex flex-col gap-6"
@@ -170,14 +212,14 @@ export function ModuleAttentionSchemaComparison() {
     >
       <div className="flex flex-col gap-6 sm:grid sm:grid-cols-2 sm:gap-4">
         <SchemaFormulaBlock
-          schemaId="mha"
-          labelKey="math.mhaSchema.label"
-          formulaKey="math.mhaSchema.formula"
+          schemaId={leftSchemaId}
+          labelKey={`math.${leftSchemaId}Schema.label`}
+          formulaKey={`math.${leftSchemaId}Schema.formula`}
         />
         <SchemaFormulaBlock
-          schemaId="gqa"
-          labelKey="math.gqaSchema.label"
-          formulaKey="math.gqaSchema.formula"
+          schemaId={rightSchemaId}
+          labelKey={`math.${rightSchemaId}Schema.label`}
+          formulaKey={`math.${rightSchemaId}Schema.formula`}
         />
       </div>
     </div>

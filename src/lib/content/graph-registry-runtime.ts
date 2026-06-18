@@ -1,9 +1,11 @@
+import feedForwardNetworkFamilyOverview from "@/content/registry/graphs/feed-forward-network-family-overview.json";
 import groupedQueryAttentionComputeFlow from "@/content/registry/graphs/grouped-query-attention-compute-flow.json";
 import groupedQueryAttentionComputeSchema from "@/content/registry/graphs/grouped-query-attention-compute-schema.json";
 import groupedQueryAttentionGqaComparison from "@/content/registry/graphs/grouped-query-attention-gqa-comparison.json";
 import groupedQueryAttentionMhaComparison from "@/content/registry/graphs/grouped-query-attention-mha-comparison.json";
 import linearAttentionLinearComparison from "@/content/registry/graphs/linear-attention-linear-comparison.json";
 import linearAttentionMhaComparison from "@/content/registry/graphs/linear-attention-mha-comparison.json";
+import mixtureOfExpertsRoutingFlow from "@/content/registry/graphs/mixture-of-experts-routing-flow.json";
 import multiHeadAttentionMhaComparison from "@/content/registry/graphs/multi-head-attention-mha-comparison.json";
 import multiHeadAttentionMqaComparison from "@/content/registry/graphs/multi-head-attention-mqa-comparison.json";
 import multiHeadAttentionTimePattern from "@/content/registry/graphs/multi-head-attention-time-pattern.json";
@@ -14,10 +16,14 @@ import multiQueryAttentionMqaComparison from "@/content/registry/graphs/multi-qu
 import pageSpecWorkflowSampleConceptMap from "@/content/registry/graphs/page-spec-workflow-sample-concept-map.json";
 import slidingWindowAttentionTimeWindowPattern from "@/content/registry/graphs/sliding-window-attention-time-window-pattern.json";
 import sparseAttentionTimePattern from "@/content/registry/graphs/sparse-attention-time-pattern.json";
+import standardFfnComputeFlow from "@/content/registry/graphs/standard-ffn-compute-flow.json";
+import standardFfnParallelBaseline from "@/content/registry/graphs/standard-ffn-parallel-baseline.json";
+import swigluComputeFlow from "@/content/registry/graphs/swiglu-compute-flow.json";
 import tokenConceptMap from "@/content/registry/graphs/token-concept-map.json";
 import { type GraphRecord, graphRecordSchema } from "@/lib/content/schemas";
 
 const graphRecords: GraphRecord[] = [
+  graphRecordSchema.parse(feedForwardNetworkFamilyOverview),
   graphRecordSchema.parse(groupedQueryAttentionComputeFlow),
   graphRecordSchema.parse(groupedQueryAttentionComputeSchema),
   graphRecordSchema.parse(groupedQueryAttentionMhaComparison),
@@ -29,10 +35,14 @@ const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(multiQueryAttentionMqaComparison),
   graphRecordSchema.parse(linearAttentionMhaComparison),
   graphRecordSchema.parse(linearAttentionLinearComparison),
+  graphRecordSchema.parse(mixtureOfExpertsRoutingFlow),
   graphRecordSchema.parse(multiHeadLatentAttentionMhaComparison),
   graphRecordSchema.parse(multiHeadLatentAttentionMlaComparison),
   graphRecordSchema.parse(slidingWindowAttentionTimeWindowPattern),
+  graphRecordSchema.parse(standardFfnComputeFlow),
+  graphRecordSchema.parse(standardFfnParallelBaseline),
   graphRecordSchema.parse(sparseAttentionTimePattern),
+  graphRecordSchema.parse(swigluComputeFlow),
   graphRecordSchema.parse(pageSpecWorkflowSampleConceptMap),
   graphRecordSchema.parse(tokenConceptMap),
 ];

@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { loadModulePage } from "@/lib/content/module-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
   getConceptById,
@@ -61,9 +61,9 @@ describe("Phase 3 NoPE glossary page (US-004)", () => {
   });
 
   test("page render explains NoPE as an unusual baseline rather than long-context support", async () => {
-    const page = await loadGlossaryPage("nope");
+    const page = await loadModulePage("nope");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.registryId).toBe("concept.nope");
+    expect(page.frontmatter.registryId).toBe("module.nope");
     expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
 
     const html = renderToStaticMarkup(

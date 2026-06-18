@@ -5,11 +5,11 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { STANDARD_FFN_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
-import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryPresentationConvergence,
   expectHtmlToContainProse,
 } from "@/lib/content/glossary-test-helpers";
+import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -93,11 +93,11 @@ describe("Phase 3 standard FFN glossary page (US-001)", () => {
   });
 
   test("page renders glossary sections, tags, and nearby FFN-family links", async () => {
-    const page = await loadGlossaryPage("standard-ffn");
+    const page = await loadModulePage("standard-ffn");
 
-    expect(page.frontmatter.kind).toBe("glossary");
+    expect(page.frontmatter.kind).toBe("module");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.registryId).toBe("concept.standard-ffn");
+    expect(page.frontmatter.registryId).toBe("module.standard-ffn");
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -114,6 +114,9 @@ describe("Phase 3 standard FFN glossary page (US-001)", () => {
     expect(html).toContain("What It Is");
     expect(html).toContain("Common Confusions");
     expectHtmlToContainProse(html, "expand, activate, project");
+    expect(html).toContain('data-react-flow-graph="true"');
+    expect(html).toContain('data-graph-id="graph.standard-ffn-compute-flow"');
+    expect(html).not.toContain('data-attention-variant-comparison="true"');
     expect(html).toContain('href="/docs/modules/feed-forward-network"');
     expect(html).toContain('href="/docs/modules/mixture-of-experts"');
     expect(html).toContain('href="/docs/glossary/activation"');
@@ -132,8 +135,8 @@ describe("Phase 3 standard FFN glossary page (US-001)", () => {
     const document = documents.find(
       (entry) => entry.url === "/docs/modules/standard-ffn",
     );
-    expect(document?.kind).toBe("glossary");
-    expect(document?.facets.kind).toBe("glossary");
+    expect(document?.kind).toBe("module");
+    expect(document?.facets.kind).toBe("module");
     expect(document?.aliases).toEqual(
       expect.arrayContaining(["dense FFN", "standard feed-forward network"]),
     );

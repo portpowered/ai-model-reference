@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { loadModulePage } from "@/lib/content/module-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
   getConceptById,
@@ -68,7 +68,7 @@ describe("Phase 3 RoPE scaling family pages (phase-3-pages-005)", () => {
           ?.href,
       ).toBe("/docs/concepts/context-extension");
       expect(items.find((item) => item.registryId === siblingId)?.href).toMatch(
-        /^\/docs\/glossary\//,
+        /^\/docs\/modules\//,
       );
     }
   });
@@ -79,7 +79,7 @@ describe("Phase 3 RoPE scaling family pages (phase-3-pages-005)", () => {
       "ntk-aware-rope-scaling",
       "yarn",
     ] as const) {
-      const page = await loadGlossaryPage(slug);
+      const page = await loadModulePage(slug);
       const html = renderToStaticMarkup(
         createElement(ModulePageProviders, {
           messages: page.messages,
@@ -101,7 +101,7 @@ describe("Phase 3 RoPE scaling family pages (phase-3-pages-005)", () => {
       expect(html).not.toContain("Phase");
     }
 
-    const ntkAwarePage = await loadGlossaryPage("ntk-aware-rope-scaling");
+    const ntkAwarePage = await loadModulePage("ntk-aware-rope-scaling");
     const ntkAwareHtml = renderToStaticMarkup(
       createElement(ModulePageProviders, {
         messages: ntkAwarePage.messages,

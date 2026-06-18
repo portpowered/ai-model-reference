@@ -72,7 +72,7 @@ export function AttentionVariantComparisonGraph({
     );
   }
 
-  const accessibleLabel = alt ?? "Attention variant head-count comparison";
+  const accessibleLabel = alt ?? "Variant comparison graph";
 
   return (
     <figure
@@ -86,7 +86,7 @@ export function AttentionVariantComparisonGraph({
       <div
         className="attention-variant-comparison__controls mb-3 flex flex-wrap gap-2"
         role="tablist"
-        aria-label="Attention variant comparison"
+        aria-label="Variant comparison"
       >
         {variantLabels.map(({ variant, label }) => (
           <button

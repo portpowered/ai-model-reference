@@ -7,6 +7,7 @@ import { DocsPre } from "@/features/docs/components/DocsCodeBlock";
 import { FoldedSummary } from "@/features/docs/components/FoldedSummary";
 import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { BlockMath, InlineMath } from "@/features/docs/components/Math";
+import { PageAsset } from "@/features/docs/components/PageAsset";
 import { PageMathFormula } from "@/features/docs/components/PageMathFormula";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
@@ -34,6 +35,7 @@ export const moduleMdxComponents: MDXComponents = {
   DerivedRelatedDocs,
   FoldedSummary,
   LocalizedLinkList,
+  PageAsset,
   RelatedDocs,
   Section,
   T,
