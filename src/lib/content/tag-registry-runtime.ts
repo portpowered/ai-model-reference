@@ -6,6 +6,7 @@ import modelFamilyTag from "@/content/registry/tags/model-family.json";
 import quantizationTag from "@/content/registry/tags/quantization.json";
 import taxonomyTag from "@/content/registry/tags/taxonomy.json";
 import tokenToProbabilityChainTag from "@/content/registry/tags/token-to-probability-chain.json";
+import tokenizationTag from "@/content/registry/tags/tokenization.json";
 import { type TagRecord, tagRecordSchema } from "@/lib/content/schemas";
 
 const tagRecords: TagRecord[] = [
@@ -16,6 +17,7 @@ const tagRecords: TagRecord[] = [
   tagRecordSchema.parse(modelFamilyTag),
   tagRecordSchema.parse(quantizationTag),
   tagRecordSchema.parse(taxonomyTag),
+  tagRecordSchema.parse(tokenizationTag),
   tagRecordSchema.parse(tokenToProbabilityChainTag),
 ];
 

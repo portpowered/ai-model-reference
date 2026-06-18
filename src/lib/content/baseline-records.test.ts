@@ -169,6 +169,32 @@ describe("Phase 1 baseline registry records", () => {
     expect(tag.aliases.length).toBeGreaterThan(0);
   });
 
+  test("bpe module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/bpe.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.bpe");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("published");
+    expect(module.moduleType).toBe("tokenizer");
+    expect(module.moduleFamily).toBe("tokenization");
+    expect(module.tags).toContain("tokenization");
+    expect(module.aliases).toEqual(
+      expect.arrayContaining([
+        "BPE",
+        "byte pair encoding",
+        "byte-pair encoding",
+      ]),
+    );
+    expect(module.relatedIds).toContain("concept.token");
+    expect(module.relatedIds).toContain("model.gpt-3");
+    expect(module.exampleModelIds).toContain("model.gpt-3");
+    expect(module.usedByModelIds).toContain("model.gpt-3");
+    expect(module.citationIds).toContain("citation.sennrich-bpe");
+  });
+
   test("token concept JSON passes conceptRecordSchema", async () => {
     const concept = await readRegistryJson(
       "concepts/token.json",
@@ -190,6 +216,20 @@ describe("Phase 1 baseline registry records", () => {
     expect(tag.parentTagId).toBe("tag.attention");
   });
 
+  test("tokenization tag JSON passes tagRecordSchema", async () => {
+    const tag = await readRegistryJson(
+      "tags/tokenization.json",
+      tagRecordSchema,
+    );
+
+    expect(tag.id).toBe("tag.tokenization");
+    expect(tag.kind).toBe("tag");
+    expect(tag.category).toBe("module-type");
+    expect(tag.aliases).toEqual(
+      expect.arrayContaining(["tokenizer", "subword tokenization"]),
+    );
+  });
+
   test("gqa-paper citation JSON passes citationRecordSchema", async () => {
     const citation = await readRegistryJson(
       "citations/gqa-paper.json",
@@ -205,6 +245,26 @@ describe("Phase 1 baseline registry records", () => {
     expect(citation.mla.length).toBeGreaterThan(0);
   });
 
+  test("sennrich-bpe citation JSON passes citationRecordSchema", async () => {
+    const citation = await readRegistryJson(
+      "citations/sennrich-bpe.json",
+      citationRecordSchema,
+    );
+
+    expect(citation.id).toBe("citation.sennrich-bpe");
+    expect(citation.kind).toBe("citation");
+    expect(citation.status).toBe("published");
+    expect(citation.authors).toEqual([
+      "Rico Sennrich",
+      "Barry Haddow",
+      "Alexandra Birch",
+    ]);
+    expect(citation.title).toBe(
+      "Neural Machine Translation of Rare Words with Subword Units",
+    );
+    expect(citation.url).toBe("https://arxiv.org/abs/1508.07909");
+  });
+
   test("Phase 1 starter records cross-reference via loadRegistry", async () => {
     const indexes = await loadRegistry();
 
@@ -214,6 +274,8 @@ describe("Phase 1 baseline registry records", () => {
     const concept = indexes.byId.get("concept.token");
     expect(concept?.kind).toBe("concept");
     expect(indexes.bySlug.get("token")?.id).toBe("concept.token");
+    expect(indexes.byId.get("module.bpe")?.kind).toBe("module");
+    expect(indexes.bySlug.get("bpe")?.id).toBe("module.bpe");
 
     for (const tagRef of module?.tags ?? []) {
       expect(resolveTag(indexes, tagRef)).toBeDefined();
@@ -224,6 +286,7 @@ describe("Phase 1 baseline registry records", () => {
     for (const tagRef of concept?.tags ?? []) {
       expect(resolveTag(indexes, tagRef)).toBeDefined();
     }
+    expect(resolveTag(indexes, "tokenization")?.id).toBe("tag.tokenization");
   });
 });
 

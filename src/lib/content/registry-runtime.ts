@@ -17,6 +17,7 @@ import pressAlibiCitation from "@/content/registry/citations/press-alibi.json";
 import qloraCitation from "@/content/registry/citations/qlora.json";
 import quantizationIntegerOnlyInferenceCitation from "@/content/registry/citations/quantization-integer-only-inference.json";
 import raffelT5Citation from "@/content/registry/citations/raffel-t5.json";
+import bpeCitation from "@/content/registry/citations/sennrich-bpe.json";
 import shazeerMqaPaperCitation from "@/content/registry/citations/shazeer-mqa-paper.json";
 import smoothquantCitation from "@/content/registry/citations/smoothquant.json";
 import suRoformerRopeCitation from "@/content/registry/citations/su-roformer-rope.json";
@@ -126,6 +127,7 @@ import alibiModule from "@/content/registry/modules/alibi.json";
 import attention from "@/content/registry/modules/attention.json";
 import batchNormModule from "@/content/registry/modules/batch-norm.json";
 import bidirectionalAttentionModule from "@/content/registry/modules/bidirectional-attention.json";
+import bpeModule from "@/content/registry/modules/bpe.json";
 import compressedSparseAttentionModule from "@/content/registry/modules/compressed-sparse-attention.json";
 import deepseekMoeModule from "@/content/registry/modules/deepseekmoe.json";
 import feedForwardNetworkModule from "@/content/registry/modules/feed-forward-network.json";
@@ -197,6 +199,7 @@ const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(alibiModule),
   moduleRecordSchema.parse(attention),
   moduleRecordSchema.parse(batchNormModule),
+  moduleRecordSchema.parse(bpeModule),
   moduleRecordSchema.parse(bidirectionalAttentionModule),
   moduleRecordSchema.parse(compressedSparseAttentionModule),
   moduleRecordSchema.parse(deepseekMoeModule),
@@ -358,6 +361,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(attentionIsAllYouNeedCitation),
   citationRecordSchema.parse(awqCitation),
   citationRecordSchema.parse(brownGpt3Citation),
+  citationRecordSchema.parse(bpeCitation),
   citationRecordSchema.parse(chenPositionalInterpolationCitation),
   citationRecordSchema.parse(deepseekV2MlaPaperCitation),
   citationRecordSchema.parse(deepseekV4PaperCitation),

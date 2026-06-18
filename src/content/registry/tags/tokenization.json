@@ -1,0 +1,16 @@
+{
+  "id": "tag.tokenization",
+  "slug": "tokenization",
+  "kind": "tag",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["tokenizer", "subword tokenization"],
+  "tags": [],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "category": "module-type",
+  "landingPage": "generated-tag-page"
+}

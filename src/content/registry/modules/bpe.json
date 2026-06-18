@@ -1,0 +1,38 @@
+{
+  "id": "module.bpe",
+  "slug": "bpe",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "BPE",
+    "byte pair encoding",
+    "byte-pair encoding",
+    "byte-level BPE",
+    "subword tokenizer"
+  ],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": ["concept.token", "model.gpt-3"],
+  "citationIds": ["citation.sennrich-bpe"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "releaseDate": "2016-06-10",
+  "authors": ["Rico Sennrich", "Barry Haddow", "Alexandra Birch"],
+  "sourceId": "citation.sennrich-bpe",
+  "moduleType": "tokenizer",
+  "moduleFamily": "tokenization",
+  "conceptType": "subword-tokenization",
+  "variantGroup": "subword-tokenizers",
+  "optimizes": ["open-vocabulary-coverage", "vocabulary-size-efficiency"],
+  "practicalBenefits": [
+    "covers rare words without a word-level vocabulary",
+    "reuses frequent subword pieces across many words"
+  ],
+  "exampleModelIds": ["model.gpt-3"],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": ["model.gpt-3"],
+  "introducedByPaperIds": [],
+  "mathLevel": "none"
+}

@@ -64,6 +64,7 @@ describe("groupTagIndexEntriesByCategory", () => {
       "feed-forward",
       "normalization",
       "position-encoding",
+      "tokenization",
     ]);
     expect(groups[2]?.tags.map((tag) => tag.slug)).toEqual([
       "context-window",
@@ -159,6 +160,8 @@ describe("tags index page render", () => {
     expect(html).toContain('href="/tags/feed-forward"');
     expect(html).toContain("Normalization");
     expect(html).toContain('href="/tags/normalization"');
+    expect(html).toContain("Tokenization");
+    expect(html).toContain('href="/tags/tokenization"');
     expect(html).toContain("Position Encoding");
     expect(html).toContain('href="/tags/position-encoding"');
     expect(html).toContain("Module type");
