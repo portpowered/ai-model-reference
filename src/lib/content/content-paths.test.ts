@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   ATTENTION_MODULE_PAGE_DIR,
@@ -53,4 +55,21 @@ describe("content-paths", () => {
     );
     expect(TOKEN_GLOSSARY_PAGE_DIR).toBe(join(GLOSSARY_DOCS_ROOT, "token"));
   });
+
+  test.serial(
+    "getProjectRoot falls back to the repo root outside the project cwd",
+    () => {
+      const originalCwd = process.cwd();
+      const fixtureRoot = mkdtempSync(join(tmpdir(), "content-paths-cwd-"));
+
+      try {
+        process.chdir(fixtureRoot);
+        expect(getProjectRoot()).toBe(originalCwd);
+        expect(getContentRoot()).toBe(join(originalCwd, "src/content"));
+      } finally {
+        process.chdir(originalCwd);
+        rmSync(fixtureRoot, { recursive: true, force: true });
+      }
+    },
+  );
 });

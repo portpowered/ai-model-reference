@@ -1,8 +1,35 @@
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 
-/** Repository root when Next.js or Bun runs from the project directory. */
+const CONTENT_ROOT_PATH_PARTS = ["src", "content"] as const;
+
+function looksLikeProjectRoot(candidateRoot: string): boolean {
+  return existsSync(join(candidateRoot, ...CONTENT_ROOT_PATH_PARTS));
+}
+
+function resolveProjectRootFrom(startDir: string): string | undefined {
+  let currentDir = startDir;
+
+  while (true) {
+    if (looksLikeProjectRoot(currentDir)) {
+      return currentDir;
+    }
+
+    const parentDir = join(currentDir, "..");
+    if (parentDir === currentDir) {
+      return undefined;
+    }
+    currentDir = parentDir;
+  }
+}
+
+/** Repository root, even when helper code executes from a temporary fixture cwd. */
 export function getProjectRoot(): string {
-  return process.cwd();
+  return (
+    resolveProjectRootFrom(process.cwd()) ??
+    resolveProjectRootFrom(import.meta.dir) ??
+    process.cwd()
+  );
 }
 
 /** Committed content tree root (`src/content`). */
