@@ -1,7 +1,7 @@
 {
   "title": "DeepSeek-V4-Pro",
   "description": "The larger DeepSeek-V4 reasoning model, built around long-context attention, MoE routing, and coupled post-training and serving choices.",
-  "openingSummary": "DeepSeek-V4-Pro is useful to study because the model page points to a whole stack, not just a bigger checkpoint. Its identity comes from how architecture, post-training, and long-context serving are combined.",
+  "openingSummary": "DeepSeek-V4-Pro is useful to study because the model page points to a whole stack, not just a bigger checkpoint. Its identity comes from how V4-specific modules are combined with earlier attention and post-training ideas.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -13,7 +13,7 @@
     },
     "architecture": {
       "title": "Architecture",
-      "body": "The model keeps a transformer skeleton, but the paper highlights manifold-constrained hyper-connections, compressed sparse attention, heavily compressed attention, DeepSeekMoE routing, MLA-style cache compression, and supporting serving systems rather than one single signature block."
+      "body": "The model keeps a transformer skeleton, but the paper highlights several different layers of lineage instead of one single signature block. Manifold-constrained hyper-connections plus the compressed sparse attention (CSA) and heavily compressed attention (HCA) long-context variants are presented as V4-specific additions, while MLA-style cache compression builds on the earlier DeepSeek-V2 multi-head latent attention design."
     },
     "importantModules": {
       "title": "Important Modules",
@@ -21,7 +21,7 @@
     },
     "training": {
       "title": "Training",
-      "body": "The public story emphasizes specialist post-training, on-policy distillation, and FP4 quantization-aware work. Those steps matter because the model is presented as a system meant to survive reasoning load and deployment pressure together."
+      "body": "The public story emphasizes specialist post-training, on-policy distillation, and FP4 quantization-aware work. The important lineage point is that on-policy distillation predates V4, while this release shows how DeepSeek uses that earlier method alongside newer V4-specific post-training and deployment work."
     },
     "practicalNotes": {
       "title": "Practical Notes",
