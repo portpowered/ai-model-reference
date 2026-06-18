@@ -34,6 +34,12 @@ describe("toStructuredData", () => {
     );
     expect(
       keywordContents.filter((content) => content === "attention"),
-    ).toEqual(["attention", "attention", "attention"]);
+    ).toEqual([
+      "attention",
+      "attention",
+      "attention",
+      "attention",
+      "attention",
+    ]);
   });
 });

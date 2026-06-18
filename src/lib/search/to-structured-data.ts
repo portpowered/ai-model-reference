@@ -13,6 +13,24 @@ function slugSearchTerm(url: string): string | undefined {
   return slug.replace(/-/g, " ");
 }
 
+function exactMatchKeywords(document: SearchDocument): string[] {
+  const title = document.title.trim();
+  const normalizedTitle = title.toLowerCase();
+  const slugTerm = slugSearchTerm(document.url);
+  const weightedKeywords = [
+    title,
+    normalizedTitle !== title ? normalizedTitle : undefined,
+    slugTerm,
+    slugTerm,
+    ...document.aliases,
+    ...document.tags,
+  ];
+
+  // Keep repeated exact-match sources so the raw static client still surfaces
+  // canonical overview pages ahead of fragment-heavy broad-topic matches.
+  return weightedKeywords.filter((value): value is string => Boolean(value));
+}
+
 export function toStructuredData(
   document: SearchDocument,
 ): FumadocsStructuredData {
@@ -20,12 +38,6 @@ export function toStructuredData(
     id: `heading-${index}`,
     content: heading,
   }));
-  const exactMatchKeywords = [
-    document.title,
-    slugSearchTerm(document.url),
-    ...document.aliases,
-    ...document.tags,
-  ].filter((value): value is string => Boolean(value));
 
   const contents = [
     {
@@ -34,7 +46,7 @@ export function toStructuredData(
         .filter(Boolean)
         .join("\n\n"),
     },
-    ...exactMatchKeywords.map((keyword) => ({
+    ...exactMatchKeywords(document).map((keyword) => ({
       heading: undefined,
       content: keyword,
     })),
