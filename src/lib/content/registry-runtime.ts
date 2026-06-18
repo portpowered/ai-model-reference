@@ -52,8 +52,6 @@ import parameterConcept from "@/content/registry/concepts/parameter.json";
 import patchConcept from "@/content/registry/concepts/patch.json";
 import perplexityConcept from "@/content/registry/concepts/perplexity.json";
 import positionalEncodingsConcept from "@/content/registry/concepts/positional-encodings.json";
-import prefillConcept from "@/content/registry/concepts/prefill.json";
-import prefillDecodeSplitConcept from "@/content/registry/concepts/prefill-decode-split.json";
 import postTrainingQuantizationConcept from "@/content/registry/concepts/post-training-quantization.json";
 import quantizationConcept from "@/content/registry/concepts/quantization.json";
 import quantizationAwareTrainingConcept from "@/content/registry/concepts/quantization-aware-training.json";

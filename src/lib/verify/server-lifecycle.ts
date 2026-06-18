@@ -5,7 +5,6 @@ import {
 } from "node:child_process";
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
-import { join } from "node:path";
 import { dirname, join } from "node:path";
 import { isNextProductionBuildFresh } from "./build-source-fingerprint";
 import {
