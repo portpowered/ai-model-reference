@@ -1,11 +1,22 @@
-export function ModelsUsingModule({
-  registryId: _registryId,
-}: {
-  registryId: string;
-}) {
+import { RegistryLinkList } from "@/features/docs/components/RegistryLinkList";
+import { getModuleById } from "@/lib/content/registry-runtime";
+
+export function ModelsUsingModule({ registryId }: { registryId: string }) {
+  const record = getModuleById(registryId);
+
+  if (!record) {
+    return null;
+  }
+
+  const registryIds =
+    record.usedByModelIds.length > 0
+      ? record.usedByModelIds
+      : record.exampleModelIds;
+
   return (
-    <p className="text-sm text-muted-foreground">
-      Example model links will render from registry usage in a later story.
-    </p>
+    <RegistryLinkList
+      registryIds={registryIds}
+      emptyLabel="No example models listed yet."
+    />
   );
 }
