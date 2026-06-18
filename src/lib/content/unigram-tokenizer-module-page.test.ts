@@ -63,6 +63,7 @@ describe("loadModulePage unigram-tokenizer", () => {
     expect(html).toContain("highest-scoring full segmentation");
     expect(html).toContain("SentencePiece-style");
     expect(html).not.toContain("Reader Shortcut");
+    expect(html).not.toContain("Example model links will render");
     expect(html).toContain("At a glance");
     expectModuleTagPillListOnlyInTagsSection(html);
     expect(html).toContain('href="/tags/foundations"');
