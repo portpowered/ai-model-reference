@@ -4,13 +4,10 @@ import { source } from "@/lib/source";
 
 const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/activation",
-  "/docs/glossary/alibi",
-  "/docs/glossary/absolute-positional-embeddings",
   "/docs/glossary/alignment",
   "/docs/glossary/architecture",
   "/docs/glossary/autoregressive-generation",
   "/docs/glossary/backpropagation",
-  "/docs/glossary/batch-norm",
   "/docs/glossary/component",
   "/docs/glossary/computational-graph",
   "/docs/glossary/conditioning",
@@ -25,57 +22,36 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/encoder",
   "/docs/glossary/encoder-decoder",
   "/docs/glossary/entropy",
-  "/docs/glossary/feed-forward-network",
   "/docs/glossary/foundation-model",
   "/docs/glossary/generalization",
   "/docs/glossary/generative-model",
   "/docs/glossary/gradient",
   "/docs/glossary/greedy-decoding",
-  "/docs/glossary/group-norm",
   "/docs/glossary/hidden-size",
   "/docs/glossary/kv-cache",
   "/docs/glossary/latent",
   "/docs/glossary/latent-space",
-  "/docs/glossary/layer-norm",
-  "/docs/glossary/leaky-relu",
-  "/docs/glossary/learned-positional-embeddings",
   "/docs/glossary/logit",
-  "/docs/glossary/longrope",
   "/docs/glossary/loss-function",
-  "/docs/glossary/mixture-of-experts",
   "/docs/glossary/modality",
   "/docs/glossary/model",
   "/docs/glossary/model-capacity",
   "/docs/glossary/module",
   "/docs/glossary/multimodal-model",
-  "/docs/glossary/nope",
   "/docs/glossary/normalization",
-  "/docs/glossary/ntk-aware-rope-scaling",
   "/docs/glossary/optimizer-state",
   "/docs/glossary/overfitting",
   "/docs/glossary/parameter",
   "/docs/glossary/patch",
   "/docs/glossary/perplexity",
-  "/docs/glossary/positional-interpolation",
   "/docs/glossary/prefill",
   "/docs/glossary/prefill-decode-split",
-  "/docs/glossary/qk-norm",
-  "/docs/glossary/relu",
-  "/docs/glossary/relative-position-bias",
   "/docs/glossary/representation",
   "/docs/glossary/residual-connection",
-  "/docs/glossary/rmsnorm",
-  "/docs/glossary/rope",
   "/docs/glossary/sampling-overview",
   "/docs/glossary/scaling-law",
-  "/docs/glossary/silu",
-  "/docs/glossary/sinusoidal-positional-embeddings",
   "/docs/glossary/skip-connection",
   "/docs/glossary/softmax",
-  "/docs/glossary/standard-ffn",
-  "/docs/glossary/superhot-rope",
-  "/docs/glossary/swiglu",
-  "/docs/glossary/t5-relative-position-bias",
   "/docs/glossary/temperature",
   "/docs/glossary/tensor",
   "/docs/glossary/token",
@@ -84,7 +60,42 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/transformer",
   "/docs/glossary/vector",
   "/docs/glossary/world-model",
-  "/docs/glossary/yarn",
+] as const;
+
+const MODULE_INDEX_URLS = [
+  "/docs/modules/absolute-positional-embeddings",
+  "/docs/modules/alibi",
+  "/docs/modules/attention",
+  "/docs/modules/batch-norm",
+  "/docs/modules/feed-forward-network",
+  "/docs/modules/group-norm",
+  "/docs/modules/grouped-query-attention",
+  "/docs/modules/layer-norm",
+  "/docs/modules/leaky-relu",
+  "/docs/modules/learned-positional-embeddings",
+  "/docs/modules/linear-attention",
+  "/docs/modules/longrope",
+  "/docs/modules/mixture-of-experts",
+  "/docs/modules/multi-head-attention",
+  "/docs/modules/multi-head-latent-attention",
+  "/docs/modules/multi-query-attention",
+  "/docs/modules/nope",
+  "/docs/modules/ntk-aware-rope-scaling",
+  "/docs/modules/positional-interpolation",
+  "/docs/modules/qk-norm",
+  "/docs/modules/relu",
+  "/docs/modules/relative-position-bias",
+  "/docs/modules/rmsnorm",
+  "/docs/modules/rope",
+  "/docs/modules/silu",
+  "/docs/modules/sinusoidal-positional-embeddings",
+  "/docs/modules/sliding-window-attention",
+  "/docs/modules/sparse-attention",
+  "/docs/modules/standard-ffn",
+  "/docs/modules/superhot-rope",
+  "/docs/modules/swiglu",
+  "/docs/modules/t5-relative-position-bias",
+  "/docs/modules/yarn",
 ] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {
@@ -123,6 +134,9 @@ describe("docs navigation source", () => {
     for (const url of GLOSSARY_INDEX_URLS) {
       expect(urls).toContain(url);
     }
+    for (const url of MODULE_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
 
     const glossaryFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Glossary",
@@ -134,6 +148,17 @@ describe("docs navigation source", () => {
 
     const glossaryUrls = collectPageUrls(glossaryFolder.children).sort();
     expect(glossaryUrls).toEqual([...GLOSSARY_INDEX_URLS].sort());
+
+    const modulesFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Modules",
+    );
+    expect(modulesFolder?.type).toBe("folder");
+    if (modulesFolder?.type !== "folder") {
+      throw new Error("expected Modules folder in docs sidebar");
+    }
+
+    const moduleUrls = collectPageUrls(modulesFolder.children).sort();
+    expect(moduleUrls).toEqual([...MODULE_INDEX_URLS].sort());
   });
 
   test("glossary navigation URLs resolve through Fumadocs source entries", () => {

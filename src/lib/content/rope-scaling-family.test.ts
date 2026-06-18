@@ -62,7 +62,7 @@ describe("Phase 3 RoPE scaling family pages (phase-3-pages-005)", () => {
 
       expect(
         items.find((item) => item.registryId === "concept.rope")?.href,
-      ).toBe("/docs/glossary/rope");
+      ).toBe("/docs/modules/rope");
       expect(
         items.find((item) => item.registryId === "concept.context-extension")
           ?.href,
@@ -92,7 +92,7 @@ describe("Phase 3 RoPE scaling family pages (phase-3-pages-005)", () => {
       expect(page.frontmatter.status).toBe("published");
       expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
       expect(html).toContain("Related Concepts And Modules");
-      expect(html).toContain('href="/docs/glossary/rope"');
+      expect(html).toContain('href="/docs/modules/rope"');
       expect(html).toContain('href="/docs/concepts/context-extension"');
       expect(html).toContain('href="/tags/foundations"');
       expect(html).toContain('data-testid="citation-list"');
@@ -111,7 +111,7 @@ describe("Phase 3 RoPE scaling family pages (phase-3-pages-005)", () => {
       }),
     );
 
-    expect(ntkAwareHtml).toContain('href="/docs/glossary/yarn"');
-    expect(ntkAwareHtml).toContain('href="/docs/glossary/superhot-rope"');
+    expect(ntkAwareHtml).toContain('href="/docs/modules/yarn"');
+    expect(ntkAwareHtml).toContain('href="/docs/modules/superhot-rope"');
   });
 });

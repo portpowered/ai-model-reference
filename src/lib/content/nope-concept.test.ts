@@ -51,13 +51,13 @@ describe("Phase 3 NoPE glossary page (US-004)", () => {
       items.find(
         (item) => item.registryId === "concept.absolute-positional-embeddings",
       )?.href,
-    ).toBe("/docs/glossary/absolute-positional-embeddings");
+    ).toBe("/docs/modules/absolute-positional-embeddings");
     expect(items.find((item) => item.registryId === "concept.rope")?.href).toBe(
-      "/docs/glossary/rope",
+      "/docs/modules/rope",
     );
     expect(
       items.find((item) => item.registryId === "concept.alibi")?.href,
-    ).toBe("/docs/glossary/alibi");
+    ).toBe("/docs/modules/alibi");
   });
 
   test("page render explains NoPE as an unusual baseline rather than long-context support", async () => {
@@ -84,10 +84,10 @@ describe("Phase 3 NoPE glossary page (US-004)", () => {
     expect(html).toContain("causal masking and training order still exist");
     expect(html).toContain('href="/docs/concepts/positional-encodings"');
     expect(html).toContain(
-      'href="/docs/glossary/absolute-positional-embeddings"',
+      'href="/docs/modules/absolute-positional-embeddings"',
     );
-    expect(html).toContain('href="/docs/glossary/rope"');
-    expect(html).toContain('href="/docs/glossary/alibi"');
+    expect(html).toContain('href="/docs/modules/rope"');
+    expect(html).toContain('href="/docs/modules/alibi"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="curated-related-docs"');
   });

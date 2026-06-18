@@ -64,28 +64,28 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
       (item) => item.registryId === "concept.absolute-positional-embeddings",
     );
     expect(absolute?.href).toBe(
-      "/docs/glossary/absolute-positional-embeddings",
+      "/docs/modules/absolute-positional-embeddings",
     );
     expect(absolute?.isPlanned).toBe(false);
 
     const relativeBias = items.find(
       (item) => item.registryId === "concept.relative-position-bias",
     );
-    expect(relativeBias?.href).toBe("/docs/glossary/relative-position-bias");
+    expect(relativeBias?.href).toBe("/docs/modules/relative-position-bias");
     expect(relativeBias?.isPlanned).toBe(false);
 
     const rope = items.find((item) => item.registryId === "concept.rope");
-    expect(rope?.href).toBe("/docs/glossary/rope");
+    expect(rope?.href).toBe("/docs/modules/rope");
     expect(rope?.isPlanned).toBe(false);
     expect(rope?.title).toBe("RoPE");
 
     const alibi = items.find((item) => item.registryId === "concept.alibi");
-    expect(alibi?.href).toBe("/docs/glossary/alibi");
+    expect(alibi?.href).toBe("/docs/modules/alibi");
     expect(alibi?.isPlanned).toBe(false);
     expect(alibi?.title).toBe("ALiBi");
 
     const nope = items.find((item) => item.registryId === "concept.nope");
-    expect(nope?.href).toBe("/docs/glossary/nope");
+    expect(nope?.href).toBe("/docs/modules/nope");
     expect(nope?.isPlanned).toBe(false);
     expect(nope?.title).toBe("NoPE");
   });
@@ -112,12 +112,12 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain(
-      'href="/docs/glossary/absolute-positional-embeddings"',
+      'href="/docs/modules/absolute-positional-embeddings"',
     );
-    expect(html).toContain('href="/docs/glossary/relative-position-bias"');
-    expect(html).toContain('href="/docs/glossary/rope"');
-    expect(html).toContain('href="/docs/glossary/alibi"');
-    expect(html).toContain('href="/docs/glossary/nope"');
+    expect(html).toContain('href="/docs/modules/relative-position-bias"');
+    expect(html).toContain('href="/docs/modules/rope"');
+    expect(html).toContain('href="/docs/modules/alibi"');
+    expect(html).toContain('href="/docs/modules/nope"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");

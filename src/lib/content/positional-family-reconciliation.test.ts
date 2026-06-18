@@ -51,8 +51,8 @@ describe("Phase 3 positional family reconciliation (phase-3-pages-007)", () => {
 
     expect(ropeHtml).toContain("References");
     expect(ropeHtml).toContain('data-testid="citation-list"');
-    expect(ropeHtml).toContain('href="/docs/glossary/ntk-aware-rope-scaling"');
-    expect(ropeHtml).toContain('href="/docs/glossary/longrope"');
+    expect(ropeHtml).toContain('href="/docs/modules/ntk-aware-rope-scaling"');
+    expect(ropeHtml).toContain('href="/docs/modules/longrope"');
 
     const contextExtensionPage = await loadConceptPage("context-extension");
     const contextExtensionHtml = renderToStaticMarkup(
@@ -65,9 +65,9 @@ describe("Phase 3 positional family reconciliation (phase-3-pages-007)", () => {
     );
 
     expect(contextExtensionHtml).toContain(
-      'href="/docs/glossary/positional-interpolation"',
+      'href="/docs/modules/positional-interpolation"',
     );
-    expect(contextExtensionHtml).toContain('href="/docs/glossary/longrope"');
+    expect(contextExtensionHtml).toContain('href="/docs/modules/longrope"');
 
     const positionalEncodingsPage = await loadConceptPage(
       "positional-encodings",
@@ -82,10 +82,10 @@ describe("Phase 3 positional family reconciliation (phase-3-pages-007)", () => {
     );
 
     expect(positionalEncodingsHtml).toContain(
-      'href="/docs/glossary/absolute-positional-embeddings"',
+      'href="/docs/modules/absolute-positional-embeddings"',
     );
     expect(positionalEncodingsHtml).toContain(
-      'href="/docs/glossary/relative-position-bias"',
+      'href="/docs/modules/relative-position-bias"',
     );
   });
 });

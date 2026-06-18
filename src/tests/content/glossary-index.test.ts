@@ -56,24 +56,24 @@ describe("loadPublishedGlossaryEntries", () => {
       ["/docs/glossary/prefill", "Prefill"],
       ["/docs/glossary/prefill-decode-split", "Prefill/decode split"],
       [
-        "/docs/glossary/absolute-positional-embeddings",
+        "/docs/modules/absolute-positional-embeddings",
         "Absolute positional embeddings",
       ],
       [
-        "/docs/glossary/learned-positional-embeddings",
+        "/docs/modules/learned-positional-embeddings",
         "Learned positional embeddings",
       ],
-      ["/docs/glossary/relative-position-bias", "Relative position bias"],
-      ["/docs/glossary/t5-relative-position-bias", "T5 relative position bias"],
+      ["/docs/modules/relative-position-bias", "Relative position bias"],
+      ["/docs/modules/t5-relative-position-bias", "T5 relative position bias"],
       [
-        "/docs/glossary/sinusoidal-positional-embeddings",
+        "/docs/modules/sinusoidal-positional-embeddings",
         "Sinusoidal positional embeddings",
       ],
-      ["/docs/glossary/nope", "NoPE"],
-      ["/docs/glossary/ntk-aware-rope-scaling", "NTK-aware RoPE scaling"],
-      ["/docs/glossary/positional-interpolation", "Positional interpolation"],
-      ["/docs/glossary/superhot-rope", "SuperHOT RoPE"],
-      ["/docs/glossary/yarn", "YaRN"],
+      ["/docs/modules/nope", "NoPE"],
+      ["/docs/modules/ntk-aware-rope-scaling", "NTK-aware RoPE scaling"],
+      ["/docs/modules/positional-interpolation", "Positional interpolation"],
+      ["/docs/modules/superhot-rope", "SuperHOT RoPE"],
+      ["/docs/modules/yarn", "YaRN"],
     ] as const) {
       const entry = entries.find((item) => item.url === url);
       expect(entry?.title).toBe(title);
@@ -144,9 +144,9 @@ describe("glossary index page render", () => {
       ["Prefill", "/docs/glossary/prefill"],
       [
         "Absolute positional embeddings",
-        "/docs/glossary/absolute-positional-embeddings",
+        "/docs/modules/absolute-positional-embeddings",
       ],
-      ["Relative position bias", "/docs/glossary/relative-position-bias"],
+      ["Relative position bias", "/docs/modules/relative-position-bias"],
     ] as const) {
       expect(html).toContain(title);
       expect(html).toContain(`href="${href}"`);

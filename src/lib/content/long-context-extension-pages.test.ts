@@ -57,7 +57,7 @@ describe("Phase 3 long-context extension pages (phase-3-pages-006)", () => {
 
       expect(
         items.find((item) => item.registryId === "concept.rope")?.href,
-      ).toBe("/docs/glossary/rope");
+      ).toBe("/docs/modules/rope");
       expect(
         items.find((item) => item.registryId === "concept.context-extension")
           ?.href,
@@ -88,7 +88,7 @@ describe("Phase 3 long-context extension pages (phase-3-pages-006)", () => {
       expect(page.frontmatter.status).toBe("published");
       expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
       expect(html).toContain("Related Concepts And Modules");
-      expect(html).toContain('href="/docs/glossary/rope"');
+      expect(html).toContain('href="/docs/modules/rope"');
       expect(html).toContain('href="/docs/concepts/context-extension"');
       expect(html).toContain('href="/docs/concepts/why-long-context-is-hard"');
       expect(html).toContain('href="/tags/foundations"');
@@ -109,9 +109,9 @@ describe("Phase 3 long-context extension pages (phase-3-pages-006)", () => {
     );
 
     expect(longropeHtml).toContain(
-      'href="/docs/glossary/ntk-aware-rope-scaling"',
+      'href="/docs/modules/ntk-aware-rope-scaling"',
     );
-    expect(longropeHtml).toContain('href="/docs/glossary/yarn"');
+    expect(longropeHtml).toContain('href="/docs/modules/yarn"');
 
     const positionalInterpolationPage = await loadGlossaryPage(
       "positional-interpolation",
@@ -126,10 +126,10 @@ describe("Phase 3 long-context extension pages (phase-3-pages-006)", () => {
     );
 
     expect(positionalInterpolationHtml).toContain(
-      'href="/docs/glossary/longrope"',
+      'href="/docs/modules/longrope"',
     );
     expect(positionalInterpolationHtml).toContain(
-      'href="/docs/glossary/ntk-aware-rope-scaling"',
+      'href="/docs/modules/ntk-aware-rope-scaling"',
     );
   });
 });

@@ -39,8 +39,8 @@ const PAGE_CASES = [
     ],
     hrefs: [
       "/docs/glossary/normalization",
-      "/docs/glossary/group-norm",
-      "/docs/glossary/layer-norm",
+      "/docs/modules/group-norm",
+      "/docs/modules/layer-norm",
     ],
     messageNeedles: ["minibatch", "convolutional", "layer norm"],
     renderNeedle: "batch neighbors",
@@ -58,8 +58,8 @@ const PAGE_CASES = [
     ],
     hrefs: [
       "/docs/glossary/normalization",
-      "/docs/glossary/batch-norm",
-      "/docs/glossary/layer-norm",
+      "/docs/modules/batch-norm",
+      "/docs/modules/layer-norm",
     ],
     messageNeedles: ["groups", "small or irregular", "vision models"],
     renderNeedle: "64 channels",
@@ -77,8 +77,8 @@ const PAGE_CASES = [
     ],
     hrefs: [
       "/docs/glossary/normalization",
-      "/docs/glossary/layer-norm",
-      "/docs/glossary/rmsnorm",
+      "/docs/modules/layer-norm",
+      "/docs/modules/rmsnorm",
     ],
     messageNeedles: ["query", "key", "attention"],
     renderNeedle: "softmax",

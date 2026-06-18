@@ -57,13 +57,13 @@ describe("Phase 3 standard FFN glossary page (US-001)", () => {
     const feedForward = items.find(
       (item) => item.registryId === "concept.feed-forward-network",
     );
-    expect(feedForward?.href).toBe("/docs/glossary/feed-forward-network");
+    expect(feedForward?.href).toBe("/docs/modules/feed-forward-network");
     expect(feedForward?.isPlanned).toBe(false);
 
     const moe = items.find(
       (item) => item.registryId === "concept.mixture-of-experts",
     );
-    expect(moe?.href).toBe("/docs/glossary/mixture-of-experts");
+    expect(moe?.href).toBe("/docs/modules/mixture-of-experts");
     expect(moe?.isPlanned).toBe(false);
 
     const activation = items.find(
@@ -114,8 +114,8 @@ describe("Phase 3 standard FFN glossary page (US-001)", () => {
     expect(html).toContain("What It Is");
     expect(html).toContain("Common Confusions");
     expectHtmlToContainProse(html, "expand, activate, project");
-    expect(html).toContain('href="/docs/glossary/feed-forward-network"');
-    expect(html).toContain('href="/docs/glossary/mixture-of-experts"');
+    expect(html).toContain('href="/docs/modules/feed-forward-network"');
+    expect(html).toContain('href="/docs/modules/mixture-of-experts"');
     expect(html).toContain('href="/docs/glossary/activation"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
@@ -130,7 +130,7 @@ describe("Phase 3 standard FFN glossary page (US-001)", () => {
     const documents = buildSearchDocuments(pages, registry);
 
     const document = documents.find(
-      (entry) => entry.url === "/docs/glossary/standard-ffn",
+      (entry) => entry.url === "/docs/modules/standard-ffn",
     );
     expect(document?.kind).toBe("glossary");
     expect(document?.facets.kind).toBe("glossary");

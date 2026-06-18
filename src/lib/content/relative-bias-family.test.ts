@@ -65,24 +65,24 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
       relativeItems.find(
         (item) => item.registryId === "concept.t5-relative-position-bias",
       )?.href,
-    ).toBe("/docs/glossary/t5-relative-position-bias");
+    ).toBe("/docs/modules/t5-relative-position-bias");
     expect(
       relativeItems.find((item) => item.registryId === "concept.rope")?.href,
-    ).toBe("/docs/glossary/rope");
+    ).toBe("/docs/modules/rope");
     expect(
       relativeItems.find((item) => item.registryId === "concept.alibi")?.href,
-    ).toBe("/docs/glossary/alibi");
+    ).toBe("/docs/modules/alibi");
     expect(
       t5Items.find(
         (item) => item.registryId === "concept.relative-position-bias",
       )?.href,
-    ).toBe("/docs/glossary/relative-position-bias");
+    ).toBe("/docs/modules/relative-position-bias");
     expect(
       t5Items.find((item) => item.registryId === "concept.rope")?.href,
-    ).toBe("/docs/glossary/rope");
+    ).toBe("/docs/modules/rope");
     expect(
       t5Items.find((item) => item.registryId === "concept.alibi")?.href,
-    ).toBe("/docs/glossary/alibi");
+    ).toBe("/docs/modules/alibi");
   });
 
   test("published pages render with visible family navigation and references", async () => {
@@ -105,8 +105,8 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
       expect(html).toContain("Related Concepts And Modules");
       expect(html).toContain("References");
       expect(html).toContain('href="/docs/concepts/positional-encodings"');
-      expect(html).toContain('href="/docs/glossary/rope"');
-      expect(html).toContain('href="/docs/glossary/alibi"');
+      expect(html).toContain('href="/docs/modules/rope"');
+      expect(html).toContain('href="/docs/modules/alibi"');
       expect(html).toContain('href="/tags/foundations"');
     }
 
@@ -120,7 +120,7 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
       }),
     );
     expect(relativeBiasHtml).toContain(
-      'href="/docs/glossary/t5-relative-position-bias"',
+      'href="/docs/modules/t5-relative-position-bias"',
     );
 
     const t5Page = await loadGlossaryPage("t5-relative-position-bias");
@@ -132,7 +132,7 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
         children: t5Page.content,
       }),
     );
-    expect(t5Html).toContain('href="/docs/glossary/relative-position-bias"');
+    expect(t5Html).toContain('href="/docs/modules/relative-position-bias"');
     expect(t5Html).toContain("Raffel");
   });
 });

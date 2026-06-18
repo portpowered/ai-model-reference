@@ -260,7 +260,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     ).toBe(true);
     expect(
       entries.some(
-        (entry) => entry.url === "/docs/glossary/relative-position-bias",
+        (entry) => entry.url === "/docs/modules/relative-position-bias",
       ),
     ).toBe(true);
     expect(entries.some((entry) => entry.url === "/docs/glossary/token")).toBe(
@@ -284,9 +284,9 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["KV cache", "/docs/glossary/kv-cache"],
       [
         "Absolute positional embeddings",
-        "/docs/glossary/absolute-positional-embeddings",
+        "/docs/modules/absolute-positional-embeddings",
       ],
-      ["Relative position bias", "/docs/glossary/relative-position-bias"],
+      ["Relative position bias", "/docs/modules/relative-position-bias"],
       ["Prefill", "/docs/glossary/prefill"],
       ["Sampling Overview", "/docs/glossary/sampling-overview"],
     ] as const) {
@@ -302,9 +302,9 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["Prefill", "/docs/glossary/prefill"],
       [
         "Absolute positional embeddings",
-        "/docs/glossary/absolute-positional-embeddings",
+        "/docs/modules/absolute-positional-embeddings",
       ],
-      ["Relative position bias", "/docs/glossary/relative-position-bias"],
+      ["Relative position bias", "/docs/modules/relative-position-bias"],
       ["Token", "/docs/glossary/token"],
     ] as const) {
       expect(architectureHtml).toContain(title);

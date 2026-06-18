@@ -63,19 +63,19 @@ describe("Phase 3 positional encoding family hub (US-001)", () => {
       items.find(
         (item) => item.registryId === "concept.absolute-positional-embeddings",
       )?.href,
-    ).toBe("/docs/glossary/absolute-positional-embeddings");
+    ).toBe("/docs/modules/absolute-positional-embeddings");
     expect(
       items.find((item) => item.registryId === "concept.relative-position-bias")
         ?.href,
-    ).toBe("/docs/glossary/relative-position-bias");
+    ).toBe("/docs/modules/relative-position-bias");
     expect(items.find((item) => item.registryId === "concept.rope")?.href).toBe(
-      "/docs/glossary/rope",
+      "/docs/modules/rope",
     );
     expect(
       items.find((item) => item.registryId === "concept.alibi")?.href,
-    ).toBe("/docs/glossary/alibi");
+    ).toBe("/docs/modules/alibi");
     expect(items.find((item) => item.registryId === "concept.nope")?.href).toBe(
-      "/docs/glossary/nope",
+      "/docs/modules/nope",
     );
   });
 
@@ -97,21 +97,21 @@ describe("Phase 3 positional encoding family hub (US-001)", () => {
     );
     expect(html).toContain("Family Split");
     expect(html).toContain(
-      'href="/docs/glossary/absolute-positional-embeddings"',
+      'href="/docs/modules/absolute-positional-embeddings"',
     );
-    expect(html).toContain('href="/docs/glossary/relative-position-bias"');
-    expect(html).toContain('href="/docs/glossary/rope"');
-    expect(html).toContain('href="/docs/glossary/alibi"');
-    expect(html).toContain('href="/docs/glossary/nope"');
+    expect(html).toContain('href="/docs/modules/relative-position-bias"');
+    expect(html).toContain('href="/docs/modules/rope"');
+    expect(html).toContain('href="/docs/modules/alibi"');
+    expect(html).toContain('href="/docs/modules/nope"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("[Absolute positional embeddings]");
     expect(html).not.toContain(
-      "](/docs/glossary/absolute-positional-embeddings)",
+      "](/docs/modules/absolute-positional-embeddings)",
     );
-    expect(html).not.toContain("](/docs/glossary/relative-position-bias)");
-    expect(html).not.toContain("](/docs/glossary/rope)");
-    expect(html).not.toContain("](/docs/glossary/alibi)");
-    expect(html).not.toContain("](/docs/glossary/nope)");
+    expect(html).not.toContain("](/docs/modules/relative-position-bias)");
+    expect(html).not.toContain("](/docs/modules/rope)");
+    expect(html).not.toContain("](/docs/modules/alibi)");
+    expect(html).not.toContain("](/docs/modules/nope)");
   });
 });
 

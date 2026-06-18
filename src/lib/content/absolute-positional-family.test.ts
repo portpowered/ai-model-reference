@@ -69,23 +69,23 @@ describe("Phase 3 absolute positional embedding family pages (US-002)", () => {
       absoluteItems.find(
         (item) => item.registryId === "concept.learned-positional-embeddings",
       )?.href,
-    ).toBe("/docs/glossary/learned-positional-embeddings");
+    ).toBe("/docs/modules/learned-positional-embeddings");
     expect(
       absoluteItems.find(
         (item) =>
           item.registryId === "concept.sinusoidal-positional-embeddings",
       )?.href,
-    ).toBe("/docs/glossary/sinusoidal-positional-embeddings");
+    ).toBe("/docs/modules/sinusoidal-positional-embeddings");
     expect(
       learnedItems.find(
         (item) => item.registryId === "concept.absolute-positional-embeddings",
       )?.href,
-    ).toBe("/docs/glossary/absolute-positional-embeddings");
+    ).toBe("/docs/modules/absolute-positional-embeddings");
     expect(
       sinusoidalItems.find(
         (item) => item.registryId === "concept.absolute-positional-embeddings",
       )?.href,
-    ).toBe("/docs/glossary/absolute-positional-embeddings");
+    ).toBe("/docs/modules/absolute-positional-embeddings");
   });
 
   test("new pages render published glossary content with family navigation", async () => {
@@ -124,10 +124,10 @@ describe("Phase 3 absolute positional embedding family pages (US-002)", () => {
     );
 
     expect(absoluteHtml).toContain(
-      'href="/docs/glossary/learned-positional-embeddings"',
+      'href="/docs/modules/learned-positional-embeddings"',
     );
     expect(absoluteHtml).toContain(
-      'href="/docs/glossary/sinusoidal-positional-embeddings"',
+      'href="/docs/modules/sinusoidal-positional-embeddings"',
     );
   });
 });

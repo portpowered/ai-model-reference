@@ -68,7 +68,7 @@ describe("Phase 3 residual connection glossary page (US-007)", () => {
       (item) => item.registryId === "concept.feed-forward-network",
     );
     expect(feedForwardNetwork?.href).toBe(
-      "/docs/glossary/feed-forward-network",
+      "/docs/modules/feed-forward-network",
     );
     expect(feedForwardNetwork?.isPlanned).toBe(false);
 
@@ -139,7 +139,7 @@ describe("Phase 3 residual connection glossary page (US-007)", () => {
     expectHtmlToContainProse(html, "residual add");
     expectHtmlToContainProse(html, "pre-norm");
     expect(html).toContain('href="/docs/glossary/skip-connection"');
-    expect(html).toContain('href="/docs/glossary/feed-forward-network"');
+    expect(html).toContain('href="/docs/modules/feed-forward-network"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/glossary/normalization"');
     expect(html).toContain('href="/docs/modules/attention"');

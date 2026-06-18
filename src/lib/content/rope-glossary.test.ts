@@ -80,7 +80,7 @@ describe("Phase 3 RoPE glossary page (US-009)", () => {
     const relativeBias = items.find(
       (item) => item.registryId === "concept.relative-position-bias",
     );
-    expect(relativeBias?.href).toBe("/docs/glossary/relative-position-bias");
+    expect(relativeBias?.href).toBe("/docs/modules/relative-position-bias");
     expect(relativeBias?.isPlanned).toBe(false);
 
     const contextExtension = items.find(
@@ -90,19 +90,19 @@ describe("Phase 3 RoPE glossary page (US-009)", () => {
     expect(contextExtension?.isPlanned).toBe(false);
 
     const alibi = items.find((item) => item.registryId === "concept.alibi");
-    expect(alibi?.href).toBe("/docs/glossary/alibi");
+    expect(alibi?.href).toBe("/docs/modules/alibi");
     expect(alibi?.isPlanned).toBe(false);
 
     const ntkAware = items.find(
       (item) => item.registryId === "concept.ntk-aware-rope-scaling",
     );
-    expect(ntkAware?.href).toBe("/docs/glossary/ntk-aware-rope-scaling");
+    expect(ntkAware?.href).toBe("/docs/modules/ntk-aware-rope-scaling");
     expect(ntkAware?.isPlanned).toBe(false);
 
     const longrope = items.find(
       (item) => item.registryId === "concept.longrope",
     );
-    expect(longrope?.href).toBe("/docs/glossary/longrope");
+    expect(longrope?.href).toBe("/docs/modules/longrope");
     expect(longrope?.isPlanned).toBe(false);
   });
 
@@ -150,11 +150,11 @@ describe("Phase 3 RoPE glossary page (US-009)", () => {
     expect(html).toContain("Su, Jianlin, et al.");
     expect(html).toContain("https://arxiv.org/abs/2104.09864");
     expect(html).toContain('href="/docs/concepts/positional-encodings"');
-    expect(html).toContain('href="/docs/glossary/relative-position-bias"');
-    expect(html).toContain('href="/docs/glossary/alibi"');
+    expect(html).toContain('href="/docs/modules/relative-position-bias"');
+    expect(html).toContain('href="/docs/modules/alibi"');
     expect(html).toContain('href="/docs/concepts/context-extension"');
-    expect(html).toContain('href="/docs/glossary/ntk-aware-rope-scaling"');
-    expect(html).toContain('href="/docs/glossary/longrope"');
+    expect(html).toContain('href="/docs/modules/ntk-aware-rope-scaling"');
+    expect(html).toContain('href="/docs/modules/longrope"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="curated-related-docs"');
@@ -168,7 +168,7 @@ describe("Phase 3 RoPE glossary page (US-009)", () => {
     const documents = buildSearchDocuments(pages, registry);
 
     const document = documents.find(
-      (entry) => entry.url === "/docs/glossary/rope",
+      (entry) => entry.url === "/docs/modules/rope",
     );
     expect(document?.kind).toBe("glossary");
     expect(document?.facets.kind).toBe("glossary");

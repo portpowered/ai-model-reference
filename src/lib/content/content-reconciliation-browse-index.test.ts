@@ -11,12 +11,12 @@ describe("Phase 2/3 reconciliation browse indexes (US-004)", () => {
     );
 
     for (const url of [
-      "/docs/glossary/feed-forward-network",
-      "/docs/glossary/standard-ffn",
-      "/docs/glossary/mixture-of-experts",
+      "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/mixture-of-experts",
       "/docs/glossary/normalization",
-      "/docs/glossary/layer-norm",
-      "/docs/glossary/qk-norm",
+      "/docs/modules/layer-norm",
+      "/docs/modules/qk-norm",
       "/docs/glossary/residual-connection",
       "/docs/glossary/skip-connection",
     ]) {
@@ -26,7 +26,7 @@ describe("Phase 2/3 reconciliation browse indexes (US-004)", () => {
     for (const url of [
       "/docs/concepts/transformer-architecture",
       "/docs/concepts/positional-encodings",
-      "/docs/glossary/feed-forward-network",
+      "/docs/modules/feed-forward-network",
       "/docs/glossary/normalization",
       "/docs/glossary/residual-connection",
     ]) {

@@ -51,20 +51,20 @@ describe("Phase 3 why long context is hard concept page (US-013)", () => {
     expect(contextExtension?.isPlanned).toBe(false);
 
     const rope = items.find((item) => item.registryId === "concept.rope");
-    expect(rope?.href).toBe("/docs/glossary/rope");
+    expect(rope?.href).toBe("/docs/modules/rope");
     expect(rope?.isPlanned).toBe(false);
 
     const longrope = items.find(
       (item) => item.registryId === "concept.longrope",
     );
-    expect(longrope?.href).toBe("/docs/glossary/longrope");
+    expect(longrope?.href).toBe("/docs/modules/longrope");
     expect(longrope?.isPlanned).toBe(false);
 
     const positionalInterpolation = items.find(
       (item) => item.registryId === "concept.positional-interpolation",
     );
     expect(positionalInterpolation?.href).toBe(
-      "/docs/glossary/positional-interpolation",
+      "/docs/modules/positional-interpolation",
     );
     expect(positionalInterpolation?.isPlanned).toBe(false);
 
@@ -101,9 +101,9 @@ describe("Phase 3 why long context is hard concept page (US-013)", () => {
     expect(html).toContain("KV-cache");
     expect(html).toContain("extrapolat");
     expect(html).toContain('href="/docs/concepts/context-extension"');
-    expect(html).toContain('href="/docs/glossary/rope"');
-    expect(html).toContain('href="/docs/glossary/longrope"');
-    expect(html).toContain('href="/docs/glossary/positional-interpolation"');
+    expect(html).toContain('href="/docs/modules/rope"');
+    expect(html).toContain('href="/docs/modules/longrope"');
+    expect(html).toContain('href="/docs/modules/positional-interpolation"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Phase");

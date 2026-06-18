@@ -6,7 +6,6 @@ import { type ReactNode, useId, useState } from "react";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import {
   getPrimaryNavItems,
-  PRIMARY_NAV_DESKTOP_CLASS,
   PRIMARY_NAV_LINK_CLASS,
   PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS,
   PRIMARY_NAV_MOBILE_PANEL_CLASS,
@@ -33,7 +32,7 @@ export function ModelAtlasDocsHeader({
 
   return (
     <header className="border-b border-border">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-3">
+      <div className="grid w-full grid-cols-[auto_1fr] items-center gap-4 px-4 py-3 [--fd-layout-width:97rem] [--fd-sidebar-width:0px] [--fd-toc-width:0px] md:grid-cols-[minmax(min-content,1fr)_var(--fd-sidebar-width,268px)_minmax(0,calc(var(--fd-layout-width,97rem)-var(--fd-sidebar-width,268px)-var(--fd-toc-width,0px)))_var(--fd-toc-width,0px)_minmax(min-content,1fr)] md:px-0 md:[--fd-sidebar-width:268px] xl:[--fd-toc-width:268px]">
         <Button
           type="button"
           variant="outline"
@@ -49,7 +48,7 @@ export function ModelAtlasDocsHeader({
         {menuOpen ? (
           <nav
             id={menuPanelId}
-            className={PRIMARY_NAV_MOBILE_PANEL_CLASS}
+            className={`${PRIMARY_NAV_MOBILE_PANEL_CLASS} col-span-2`}
             aria-label="Primary"
           >
             <ul className="flex flex-col gap-2 text-sm">
@@ -67,9 +66,13 @@ export function ModelAtlasDocsHeader({
             </ul>
           </nav>
         ) : null}
-        <nav className={PRIMARY_NAV_DESKTOP_CLASS} aria-label="Primary">
-          {!menuOpen
-            ? primaryNavItems.map((item) => (
+        {!menuOpen ? (
+          <nav
+            className="hidden md:col-start-3 md:col-end-4 md:row-start-1 md:block"
+            aria-label="Primary"
+          >
+            <div className="mx-auto flex w-full max-w-[900px] items-center gap-4 px-6 xl:px-8">
+              {primaryNavItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -77,10 +80,11 @@ export function ModelAtlasDocsHeader({
                 >
                   {item.label}
                 </Link>
-              ))
-            : null}
-        </nav>
-        <div className="ms-auto flex items-center gap-2">
+              ))}
+            </div>
+          </nav>
+        ) : null}
+        <div className="col-start-2 row-start-1 ms-auto flex items-center gap-2 md:col-start-3 md:col-end-5 md:mx-auto md:w-full md:max-w-[1168px] md:justify-end md:px-6 xl:px-8">
           <SearchTrigger messages={messages} />
           <LanguageSwitcher locale={locale} messages={messages} />
           {trailing}

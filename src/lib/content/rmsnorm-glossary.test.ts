@@ -57,7 +57,7 @@ describe("Phase 3 RMSNorm glossary page (US-006)", () => {
     const layerNorm = items.find(
       (item) => item.registryId === "concept.layer-norm",
     );
-    expect(layerNorm?.href).toBe("/docs/glossary/layer-norm");
+    expect(layerNorm?.href).toBe("/docs/modules/layer-norm");
     expect(layerNorm?.isPlanned).toBe(false);
 
     const normalization = items.find(
@@ -116,7 +116,7 @@ describe("Phase 3 RMSNorm glossary page (US-006)", () => {
     expect(html).toContain('data-math-variable-definition="gamma"');
     expectHtmlToContainProse(html, "root mean square");
     expectHtmlToContainProse(html, "layer norm");
-    expect(html).toContain('href="/docs/glossary/layer-norm"');
+    expect(html).toContain('href="/docs/modules/layer-norm"');
     expect(html).toContain('href="/docs/glossary/normalization"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
@@ -131,7 +131,7 @@ describe("Phase 3 RMSNorm glossary page (US-006)", () => {
     const documents = buildSearchDocuments(pages, registry);
 
     const document = documents.find(
-      (entry) => entry.url === "/docs/glossary/rmsnorm",
+      (entry) => entry.url === "/docs/modules/rmsnorm",
     );
     expect(document?.kind).toBe("glossary");
     expect(document?.facets.kind).toBe("glossary");

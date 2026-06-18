@@ -72,11 +72,11 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
     const relativeBias = items.find(
       (item) => item.registryId === "concept.relative-position-bias",
     );
-    expect(relativeBias?.href).toBe("/docs/glossary/relative-position-bias");
+    expect(relativeBias?.href).toBe("/docs/modules/relative-position-bias");
     expect(relativeBias?.isPlanned).toBe(false);
 
     const rope = items.find((item) => item.registryId === "concept.rope");
-    expect(rope?.href).toBe("/docs/glossary/rope");
+    expect(rope?.href).toBe("/docs/modules/rope");
     expect(rope?.isPlanned).toBe(false);
 
     const contextWindow = items.find(
@@ -86,7 +86,7 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
     expect(contextWindow?.isPlanned).toBe(false);
 
     const nope = items.find((item) => item.registryId === "concept.nope");
-    expect(nope?.href).toBe("/docs/glossary/nope");
+    expect(nope?.href).toBe("/docs/modules/nope");
     expect(nope?.isPlanned).toBe(false);
   });
 
@@ -134,10 +134,10 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
     expect(html).toContain("Press, Ofir, et al.");
     expect(html).toContain("https://arxiv.org/abs/2108.12409");
     expect(html).toContain('href="/docs/concepts/positional-encodings"');
-    expect(html).toContain('href="/docs/glossary/relative-position-bias"');
-    expect(html).toContain('href="/docs/glossary/rope"');
+    expect(html).toContain('href="/docs/modules/relative-position-bias"');
+    expect(html).toContain('href="/docs/modules/rope"');
     expect(html).toContain('href="/docs/glossary/context-window"');
-    expect(html).toContain('href="/docs/glossary/nope"');
+    expect(html).toContain('href="/docs/modules/nope"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="curated-related-docs"');
@@ -151,7 +151,7 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
     const documents = buildSearchDocuments(pages, registry);
 
     const document = documents.find(
-      (entry) => entry.url === "/docs/glossary/alibi",
+      (entry) => entry.url === "/docs/modules/alibi",
     );
     expect(document?.kind).toBe("glossary");
     expect(document?.facets.kind).toBe("glossary");

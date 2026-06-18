@@ -120,7 +120,7 @@ describe("Phase 3 layer norm glossary page (US-005)", () => {
     const documents = buildSearchDocuments(pages, registry);
 
     const document = documents.find(
-      (entry) => entry.url === "/docs/glossary/layer-norm",
+      (entry) => entry.url === "/docs/modules/layer-norm",
     );
     expect(document?.kind).toBe("glossary");
     expect(document?.facets.kind).toBe("glossary");

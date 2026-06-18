@@ -97,14 +97,11 @@ describe("ModelAtlasDocsHeader", () => {
     expect(html).toContain('aria-controls="');
     expect(html).not.toContain(PRIMARY_NAV_MOBILE_PANEL_CLASS);
 
-    expect(html).toContain(PRIMARY_NAV_DESKTOP_CLASS);
     expect(PRIMARY_NAV_DESKTOP_CLASS).toContain("hidden");
     expect(PRIMARY_NAV_DESKTOP_CLASS).toContain("md:flex");
 
     const desktopNavMatch = html.match(
-      new RegExp(
-        `<nav class="${PRIMARY_NAV_DESKTOP_CLASS.replace(/ /g, "\\s+")}" aria-label="Primary">([\\s\\S]*?)</nav>`,
-      ),
+      /<nav[^>]*aria-label="Primary"[^>]*>([\s\S]*?)<\/nav>/,
     );
     expect(desktopNavMatch).toBeTruthy();
     for (const item of getPrimaryNavItems(messages)) {
@@ -124,7 +121,6 @@ describe("ModelAtlasDocsHeader", () => {
       </RootProvider>,
     );
 
-    expect(html).toContain(PRIMARY_NAV_DESKTOP_CLASS);
     expect(PRIMARY_NAV_DESKTOP_CLASS).toContain("md:flex");
 
     const expectedItems = getPrimaryNavItems(messages);
@@ -138,6 +134,13 @@ describe("ModelAtlasDocsHeader", () => {
     expect(PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS).toBe("md:hidden");
     expect(html).not.toContain(PRIMARY_NAV_MOBILE_PANEL_CLASS);
     expect(html).toContain('data-search=""');
+    expect(html).toContain("grid-cols-[auto_1fr]");
+    expect(html).toContain("[--fd-layout-width:97rem]");
+    expect(html).toContain("md:[--fd-sidebar-width:268px]");
+    expect(html).toContain("xl:[--fd-toc-width:268px]");
+    expect(html).toContain("max-w-[900px]");
+    expect(html).toContain("max-w-[1168px]");
+    expect(html).toContain("md:col-start-3 md:col-end-4 md:row-start-1 md:block");
   });
 
   test("reveals mobile primary nav links in a disclosure panel when the menu opens", async () => {
