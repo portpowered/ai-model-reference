@@ -65,6 +65,7 @@ export const BATCH_017_DOCS_URLS = [
   "/docs/glossary/layer-norm",
   "/docs/glossary/rmsnorm",
   "/docs/glossary/residual-connection",
+  "/docs/glossary/skip-connection",
   "/docs/concepts/positional-encodings",
   "/docs/glossary/rope",
   "/docs/glossary/alibi",
@@ -151,6 +152,11 @@ const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
   {
     query: "QK norm",
     firstUrl: "/docs/glossary/qk-norm",
+    firstKind: "glossary" as const,
+  },
+  {
+    query: "skip connection",
+    firstUrl: "/docs/glossary/skip-connection",
     firstKind: "glossary" as const,
   },
   {

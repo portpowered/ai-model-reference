@@ -35,6 +35,8 @@ const FFN_ACTIVATION_GLOSSARY_SLUGS = [
   "silu",
   "swiglu",
   "qk-norm",
+  "residual-connection",
+  "skip-connection",
 ] as const;
 
 const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
@@ -60,6 +62,8 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   silu: "SiLU",
   swiglu: "SwiGLU",
   "qk-norm": "QK norm",
+  "residual-connection": "Residual connection",
+  "skip-connection": "Skip connection",
   token: "Token",
   embedding: "Embedding",
   tensor: "Tensor",
@@ -97,8 +101,8 @@ const CHAIN_GLOSSARY_SLUGS = [
   "loss-function",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 66;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 59;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 67;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 60;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",

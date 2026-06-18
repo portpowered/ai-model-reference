@@ -38,6 +38,7 @@ const BATCH_017_TAG_URLS = {
     "/docs/glossary/qk-norm",
     "/docs/glossary/relu",
     "/docs/glossary/residual-connection",
+    "/docs/glossary/skip-connection",
     "/docs/glossary/rmsnorm",
     "/docs/glossary/rope",
     "/docs/glossary/silu",

@@ -57,6 +57,7 @@ import rmsnormConcept from "@/content/registry/concepts/rmsnorm.json";
 import ropeConcept from "@/content/registry/concepts/rope.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import siluConcept from "@/content/registry/concepts/silu.json";
+import skipConnectionConcept from "@/content/registry/concepts/skip-connection.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
 import standardFfnConcept from "@/content/registry/concepts/standard-ffn.json";
 import swigluConcept from "@/content/registry/concepts/swiglu.json";
@@ -163,6 +164,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(alibiConcept),
   conceptRecordSchema.parse(positionalEncodingsConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
+  conceptRecordSchema.parse(skipConnectionConcept),
   conceptRecordSchema.parse(ropeConcept),
   conceptRecordSchema.parse(transformerArchitectureConcept),
   conceptRecordSchema.parse(transformerConcept),

@@ -35,6 +35,7 @@ const BATCH_017_DOCS_URLS = [
   "/docs/glossary/layer-norm",
   "/docs/glossary/rmsnorm",
   "/docs/glossary/residual-connection",
+  "/docs/glossary/skip-connection",
   "/docs/concepts/positional-encodings",
   "/docs/glossary/rope",
   "/docs/glossary/alibi",

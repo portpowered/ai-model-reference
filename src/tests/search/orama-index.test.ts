@@ -39,6 +39,7 @@ const RMSNORM_URL = "/docs/glossary/rmsnorm";
 const NORMALIZATION_URL = "/docs/glossary/normalization";
 const QK_NORM_URL = "/docs/glossary/qk-norm";
 const RESIDUAL_CONNECTION_URL = "/docs/glossary/residual-connection";
+const SKIP_CONNECTION_URL = "/docs/glossary/skip-connection";
 const POSITIONAL_ENCODINGS_URL = "/docs/concepts/positional-encodings";
 const ROPE_URL = "/docs/glossary/rope";
 const ALIBI_URL = "/docs/glossary/alibi";
@@ -141,6 +142,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   NORMALIZATION_URL,
   QK_NORM_URL,
   RESIDUAL_CONNECTION_URL,
+  SKIP_CONNECTION_URL,
   POSITIONAL_ENCODINGS_URL,
   ROPE_URL,
   ALIBI_URL,
@@ -239,6 +241,7 @@ describe("exportOramaIndexSnapshot", () => {
     { query: "batch norm", url: BATCH_NORM_URL },
     { query: "group norm", url: GROUP_NORM_URL },
     { query: "QK norm", url: QK_NORM_URL },
+    { query: "skip connection", url: SKIP_CONNECTION_URL },
   ] as const)("Orama database records rank %s for the %s alias query", async ({
     query,
     url,

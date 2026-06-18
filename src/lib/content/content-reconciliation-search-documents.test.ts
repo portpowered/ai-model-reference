@@ -31,6 +31,7 @@ const BATCH_017_DOCS_URLS = [
   "/docs/glossary/layer-norm",
   "/docs/glossary/rmsnorm",
   "/docs/glossary/residual-connection",
+  "/docs/glossary/skip-connection",
   "/docs/concepts/positional-encodings",
   "/docs/glossary/rope",
   "/docs/glossary/alibi",
@@ -73,6 +74,7 @@ const ALIAS_EXPECTATIONS = [
   { url: "/docs/glossary/batch-norm", alias: "batch normalization" },
   { url: "/docs/glossary/group-norm", alias: "group normalization" },
   { url: "/docs/glossary/qk-norm", alias: "query-key normalization" },
+  { url: "/docs/glossary/skip-connection", alias: "skip path" },
 ] as const;
 
 describe("Phase 2/3 reconciliation search documents (US-009)", () => {

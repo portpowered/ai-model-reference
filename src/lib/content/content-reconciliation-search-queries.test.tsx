@@ -22,6 +22,7 @@ const RELU_GLOSSARY_URL = "/docs/glossary/relu";
 const LEAKY_RELU_GLOSSARY_URL = "/docs/glossary/leaky-relu";
 const SILU_GLOSSARY_URL = "/docs/glossary/silu";
 const SWIGLU_GLOSSARY_URL = "/docs/glossary/swiglu";
+const SKIP_CONNECTION_GLOSSARY_URL = "/docs/glossary/skip-connection";
 
 const ATTENTION_MODULE_QUERIES = [
   { query: "MHA", url: MULTI_HEAD_ATTENTION_URL },
@@ -49,6 +50,11 @@ const GLOSSARY_CANONICAL_QUERIES = [
   },
   { query: "SiLU", url: SILU_GLOSSARY_URL, kind: "glossary" as const },
   { query: "SwiGLU", url: SWIGLU_GLOSSARY_URL, kind: "glossary" as const },
+  {
+    query: "skip connection",
+    url: SKIP_CONNECTION_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
 ] as const;
 
 function resultsIncludeUrl(
@@ -128,6 +134,7 @@ describe("Phase 2/3 reconciliation search UI kind labels (US-010)", () => {
     [LEAKY_RELU_GLOSSARY_URL, "glossary", "Glossary"],
     [SILU_GLOSSARY_URL, "glossary", "Glossary"],
     [SWIGLU_GLOSSARY_URL, "glossary", "Glossary"],
+    [SKIP_CONNECTION_GLOSSARY_URL, "glossary", "Glossary"],
   ] as const)("SearchResultMetaDetails shows localized %s kind for %s", async (url, kind, label) => {
     const messages = await loadUiMessages();
     const metaByUrl = searchResultMetaMapToRecord(

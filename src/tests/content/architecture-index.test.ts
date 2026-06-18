@@ -72,6 +72,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/relu",
         "/docs/glossary/representation",
         "/docs/glossary/residual-connection",
+        "/docs/glossary/skip-connection",
         "/docs/glossary/rmsnorm",
         "/docs/glossary/rope",
         "/docs/glossary/scaling-law",

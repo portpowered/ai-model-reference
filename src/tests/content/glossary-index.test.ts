@@ -110,7 +110,7 @@ describe("loadPublishedGlossaryEntries", () => {
 
   it("includes all published glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(66);
+    expect(entries).toHaveLength(67);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -152,6 +152,11 @@ describe("loadPublishedGlossaryEntries", () => {
       (entry) => entry.url === "/docs/glossary/swiglu",
     );
     expect(swiglu?.title).toBe("SwiGLU");
+
+    const skipConnection = entries.find(
+      (entry) => entry.url === "/docs/glossary/skip-connection",
+    );
+    expect(skipConnection?.title).toBe("Skip connection");
   });
 });
 

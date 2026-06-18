@@ -41,6 +41,7 @@
     "[RoPE](/docs/glossary/rope)",
     "[RMSNorm](/docs/glossary/rmsnorm)",
     "[Residual connection](/docs/glossary/residual-connection)",
+    "[Skip connection](/docs/glossary/skip-connection)",
     "[SiLU](/docs/glossary/silu)",
     "[Standard FFN](/docs/glossary/standard-ffn)",
     "[SwiGLU](/docs/glossary/swiglu)",

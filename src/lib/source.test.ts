@@ -36,6 +36,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/multimodal-model",
   "/docs/glossary/normalization",
   "/docs/glossary/residual-connection",
+  "/docs/glossary/skip-connection",
   "/docs/glossary/rope",
   "/docs/glossary/rmsnorm",
   "/docs/glossary/overfitting",

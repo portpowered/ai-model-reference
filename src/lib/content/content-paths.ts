@@ -221,6 +221,12 @@ export const RESIDUAL_CONNECTION_GLOSSARY_PAGE_DIR = join(
   "residual-connection",
 );
 
+/** Phase 3 skip connection glossary page directory. */
+export const SKIP_CONNECTION_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "skip-connection",
+);
+
 /** Phase 3 positional encodings concept page directory. */
 export const POSITIONAL_ENCODINGS_CONCEPT_PAGE_DIR = join(
   CONCEPTS_DOCS_ROOT,

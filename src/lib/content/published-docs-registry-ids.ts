@@ -82,6 +82,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.rmsnorm",
   "concept.qk-norm",
   "concept.residual-connection",
+  "concept.skip-connection",
   "concept.positional-encodings",
   "concept.rope",
   "concept.alibi",
