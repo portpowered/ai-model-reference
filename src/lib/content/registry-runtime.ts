@@ -12,6 +12,8 @@ import kaplanScalingLawsCitation from "@/content/registry/citations/kaplan-scali
 import katharopoulosLinearAttentionPaperCitation from "@/content/registry/citations/katharopoulos-linear-attention-paper.json";
 import kingmaAdamCitation from "@/content/registry/citations/kingma-adam.json";
 import kiviKvCacheQuantizationCitation from "@/content/registry/citations/kivi-kv-cache-quantization.json";
+import nativeSparseAttentionCitation from "@/content/registry/citations/native-sparse-attention.json";
+import onPolicyDistillationOfLanguageModelsCitation from "@/content/registry/citations/on-policy-distillation-of-language-models.json";
 import pengYarnCitation from "@/content/registry/citations/peng-yarn.json";
 import pressAlibiCitation from "@/content/registry/citations/press-alibi.json";
 import qloraCitation from "@/content/registry/citations/qlora.json";
@@ -19,6 +21,7 @@ import quantizationIntegerOnlyInferenceCitation from "@/content/registry/citatio
 import raffelT5Citation from "@/content/registry/citations/raffel-t5.json";
 import shazeerMqaPaperCitation from "@/content/registry/citations/shazeer-mqa-paper.json";
 import smoothquantCitation from "@/content/registry/citations/smoothquant.json";
+import sparseTransformersCitation from "@/content/registry/citations/sparse-transformers.json";
 import suRoformerRopeCitation from "@/content/registry/citations/su-roformer-rope.json";
 import weiEmergentAbilitiesCitation from "@/content/registry/citations/wei-emergent-abilities.json";
 import absolutePositionalEmbeddingsConcept from "@/content/registry/concepts/absolute-positional-embeddings.json";
@@ -365,6 +368,8 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(katharopoulosLinearAttentionPaperCitation),
   citationRecordSchema.parse(kingmaAdamCitation),
   citationRecordSchema.parse(kiviKvCacheQuantizationCitation),
+  citationRecordSchema.parse(nativeSparseAttentionCitation),
+  citationRecordSchema.parse(onPolicyDistillationOfLanguageModelsCitation),
   citationRecordSchema.parse(pengYarnCitation),
   citationRecordSchema.parse(pressAlibiCitation),
   citationRecordSchema.parse(qloraCitation),
@@ -372,6 +377,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(raffelT5Citation),
   citationRecordSchema.parse(shazeerMqaPaperCitation),
   citationRecordSchema.parse(smoothquantCitation),
+  citationRecordSchema.parse(sparseTransformersCitation),
   citationRecordSchema.parse(suRoformerRopeCitation),
   citationRecordSchema.parse(weiEmergentAbilitiesCitation),
 ];

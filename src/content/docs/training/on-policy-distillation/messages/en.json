@@ -1,11 +1,11 @@
 {
   "title": "On-Policy Distillation",
-  "description": "A DeepSeek-V4 post-training routine where the student is refined on trajectories produced under its current policy rather than only on frozen offline traces.",
+  "description": "A distillation regime where the student is refined on trajectories produced under its current policy rather than only on frozen offline traces.",
   "openingSummary": "Offline distillation can drift away from the states a student model actually visits. On-policy distillation closes that gap by training on trajectories produced under the current model policy, so the supervision stays closer to the behavior you are trying to shape.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "This is a distillation routine used in the DeepSeek-V4 report. The important idea is that data is refreshed from the model's own current behavior rather than treated as one fixed offline replay set."
+      "body": "On-policy distillation is a general training method, not a DeepSeek-only invention. The ICLR 2024 paper on on-policy distillation introduced the core loop: refresh the training data from the student's current behavior instead of treating distillation as one fixed offline replay set."
     },
     "whatItOptimizes": {
       "title": "What It Optimizes",
@@ -13,19 +13,19 @@
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "A current policy samples trajectories, those trajectories are scored or filtered, and the student is updated on the accepted behavior. The loop then repeats with the new policy."
+      "body": "A current policy samples trajectories, those trajectories are scored or filtered, and the student is updated on the accepted behavior. The loop then repeats with the new policy, so later training steps keep following the student's real error pattern instead of an older frozen dataset."
     },
     "practicalBenefit": {
       "title": "Practical Benefit",
-      "body": "This matters when you care about long reasoning traces, because the student is trained on the kinds of rollouts it really produces."
+      "body": "This matters when you care about long reasoning traces, because the student is trained on the kinds of rollouts it really produces. Later systems such as DeepSeek-V4 can use that loop without being mistaken for the origin of the idea."
     },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
-      "body": "Unlike plain offline distillation, the training set is not fully frozen. Unlike full RL, the emphasis is still on teacher-guided or filtered behavior rather than only scalar reward optimization."
+      "body": "Unlike plain offline distillation, the training set is not fully frozen. Unlike full reinforcement learning (RL), the emphasis is still on teacher-guided or filtered behavior rather than only scalar reward optimization."
     },
     "modelsAndPapers": {
       "title": "Models And Papers",
-      "body": "These links are generated from registry metadata for the regime."
+      "body": "These links separate later adopters from the original citation lineage. DeepSeek-V4 appears here as a paper and model that use the regime, while the references section keeps the 2024 origin paper first."
     },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",

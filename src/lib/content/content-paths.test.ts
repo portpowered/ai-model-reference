@@ -1,4 +1,6 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   ATTENTION_MODULE_PAGE_DIR,
@@ -15,6 +17,7 @@ import {
   getRegistryRoot,
   getTagMessagesRoot,
   MESSAGES_ROOT,
+  MODEL_ATLAS_PROJECT_ROOT_ENV,
   MODULES_DOCS_ROOT,
   REGISTRY_ROOT,
   TAG_MESSAGES_ROOT,
@@ -22,6 +25,21 @@ import {
 } from "./content-paths";
 
 describe("content-paths", () => {
+  let originalCwd: string | undefined;
+  let tempCwd: string | undefined;
+
+  afterEach(() => {
+    delete process.env[MODEL_ATLAS_PROJECT_ROOT_ENV];
+    if (originalCwd) {
+      process.chdir(originalCwd);
+      originalCwd = undefined;
+    }
+    if (tempCwd) {
+      rmSync(tempCwd, { recursive: true, force: true });
+      tempCwd = undefined;
+    }
+  });
+
   test("roots resolve under src/content from the project directory", () => {
     const projectRoot = getProjectRoot();
     const contentRoot = getContentRoot(projectRoot);
@@ -52,5 +70,18 @@ describe("content-paths", () => {
       join(MODULES_DOCS_ROOT, "grouped-query-attention"),
     );
     expect(TOKEN_GLOSSARY_PAGE_DIR).toBe(join(GLOSSARY_DOCS_ROOT, "token"));
+  });
+
+  test("prefers the explicit project-root override when cwd is a fixture directory", () => {
+    originalCwd = process.cwd();
+    tempCwd = mkdtempSync(join(tmpdir(), "content-paths-fixture-"));
+    process.chdir(tempCwd);
+    process.env[MODEL_ATLAS_PROJECT_ROOT_ENV] = originalCwd;
+
+    const projectRoot = getProjectRoot();
+
+    expect(projectRoot).not.toBe(tempCwd);
+    expect(projectRoot).toBe(originalCwd);
+    expect(getDocsRoot()).toBe(join(projectRoot, "src/content/docs"));
   });
 });

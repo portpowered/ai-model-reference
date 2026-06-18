@@ -85,6 +85,29 @@ describe("registry-runtime", () => {
     ]);
   });
 
+  test("getRegistryCitationIds separates origin and DeepSeek usage papers", () => {
+    expect(
+      getRegistryCitationIds("training-regime.on-policy-distillation"),
+    ).toEqual([
+      "citation.on-policy-distillation-of-language-models",
+      "citation.deepseek-v4-paper",
+    ]);
+    expect(
+      getRegistryCitationIds("module.compressed-sparse-attention"),
+    ).toEqual([
+      "citation.deepseek-v4-paper",
+      "citation.sparse-transformers",
+      "citation.native-sparse-attention",
+    ]);
+    expect(
+      getRegistryCitationIds("module.heavily-compressed-attention"),
+    ).toEqual([
+      "citation.deepseek-v4-paper",
+      "citation.sparse-transformers",
+      "citation.native-sparse-attention",
+    ]);
+  });
+
   test("MHA and MQA modules link attention overview and sibling variants", () => {
     expect(getModuleById("module.multi-head-attention")?.relatedIds).toEqual([
       "module.attention",

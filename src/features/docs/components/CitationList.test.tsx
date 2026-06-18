@@ -35,6 +35,36 @@ describe("CitationList", () => {
     expect(html).toBe("");
   });
 
+  test("renders origin and usage citations for on-policy distillation", () => {
+    const html = renderToStaticMarkup(
+      <CitationList registryId="training-regime.on-policy-distillation" />,
+    );
+
+    expect(html).toContain(
+      "On-Policy Distillation of Language Models: Learning from Self-Generated Mistakes",
+    );
+    expect(html).toContain('href="https://openreview.net/forum?id=3zKtaqxLhW"');
+    expect(html).toContain("DeepSeek-V4 Technical Report");
+  });
+
+  test("renders V4, generic sparse-attention, and DeepSeek sparse-attention papers for CSA", () => {
+    const html = renderToStaticMarkup(
+      <CitationList registryId="module.compressed-sparse-attention" />,
+    );
+
+    expect(html).toContain("DeepSeek-V4 Technical Report");
+    expect(html).toContain(
+      "Generating Long Sequences with Sparse Transformers",
+    );
+    expect(html).toContain(
+      "Native Sparse Attention: Hardware-Aligned and Natively Trainable Sparse Attention",
+    );
+    expect(html).toContain('href="https://arxiv.org/abs/1904.10509"');
+    expect(html).toContain(
+      'href="https://aclanthology.org/2025.acl-long.1126/"',
+    );
+  });
+
   test("renders nothing for an unknown registry id", () => {
     const html = renderToStaticMarkup(
       <CitationList registryId="module.unknown-module" />,

@@ -4,6 +4,15 @@ import type {
   SearchDocument,
 } from "./types";
 
+function slugSearchTerm(url: string): string | undefined {
+  const slug = url.split("/").pop();
+  if (!slug) {
+    return undefined;
+  }
+
+  return slug.replace(/-/g, " ");
+}
+
 export function toStructuredData(
   document: SearchDocument,
 ): FumadocsStructuredData {
@@ -11,6 +20,12 @@ export function toStructuredData(
     id: `heading-${index}`,
     content: heading,
   }));
+  const exactMatchKeywords = [
+    document.title,
+    slugSearchTerm(document.url),
+    ...document.aliases,
+    ...document.tags,
+  ].filter((value): value is string => Boolean(value));
 
   const contents = [
     {
@@ -19,13 +34,9 @@ export function toStructuredData(
         .filter(Boolean)
         .join("\n\n"),
     },
-    ...document.aliases.map((alias) => ({
+    ...exactMatchKeywords.map((keyword) => ({
       heading: undefined,
-      content: alias,
-    })),
-    ...document.tags.map((tag) => ({
-      heading: undefined,
-      content: tag,
+      content: keyword,
     })),
   ];
 

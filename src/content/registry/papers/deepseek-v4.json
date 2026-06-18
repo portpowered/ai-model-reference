@@ -21,7 +21,6 @@
     "module.compressed-sparse-attention",
     "module.heavily-compressed-attention",
     "module.deepseekmoe",
-    "training-regime.on-policy-distillation",
     "training-regime.specialist-training",
     "training-regime.fp4-quantization-aware-training",
     "system.on-disk-kv-cache",

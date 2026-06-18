@@ -1,7 +1,7 @@
 {
   "title": "DeepSeek-V4-Flash",
   "description": "A lighter DeepSeek-V4 serving profile that keeps the same conceptual stack while prioritizing faster deployment paths.",
-  "openingSummary": "DeepSeek-V4-Flash matters because it shows the same paper can produce more than one practical model surface. It keeps the V4 architecture story, but the reader should expect a faster, smaller serving profile instead of the heaviest reasoning mode.",
+  "openingSummary": "DeepSeek-V4-Flash matters because it shows the same report can produce more than one practical model surface. It keeps the V4 family ideas, but it still depends on a mix of new V4-specific components and older techniques reused from earlier work.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -13,7 +13,7 @@
     },
     "architecture": {
       "title": "Architecture",
-      "body": "The same named V4 modules remain central here: compressed sparse attention, heavily compressed attention, DeepSeekMoE routing, and changed block wiring. Flash should be read as a smaller operating point on the same overall design."
+      "body": "The same named V4 modules remain central here: compressed sparse attention, heavily compressed attention, DeepSeekMoE routing, and changed block wiring. Flash should be read as a smaller operating point on the same overall design, with MLA-style cache compression still coming from earlier DeepSeek-V2 work rather than being a new V4 invention."
     },
     "importantModules": {
       "title": "Important Modules",
@@ -21,7 +21,7 @@
     },
     "training": {
       "title": "Training",
-      "body": "The model still inherits the V4 post-training and quantization story. The difference is that Flash emphasizes a more economical runtime target."
+      "body": "The model still inherits the V4 post-training and quantization story. The difference is that Flash emphasizes a more economical runtime target, while the underlying on-policy distillation lineage still comes from earlier work that V4 adopts rather than invents."
     },
     "practicalNotes": {
       "title": "Practical Notes",

@@ -78,4 +78,33 @@ describe("citations", () => {
     expect(ids).toContain("citation.chen-positional-interpolation");
     expect(ids).toContain("citation.ding-longrope");
   });
+
+  test("getCitationById returns on-policy distillation origin paper", () => {
+    const citation = getCitationById(
+      "citation.on-policy-distillation-of-language-models",
+    );
+    expect(citation?.title).toBe(
+      "On-Policy Distillation of Language Models: Learning from Self-Generated Mistakes",
+    );
+    expect(citation?.mla).toContain("Agarwal, Rishabh, et al.");
+    expect(citation?.url).toBe("https://openreview.net/forum?id=3zKtaqxLhW");
+  });
+
+  test("getCitationById returns DeepSeek sparse attention paper", () => {
+    const citation = getCitationById("citation.native-sparse-attention");
+    expect(citation?.title).toBe(
+      "Native Sparse Attention: Hardware-Aligned and Natively Trainable Sparse Attention",
+    );
+    expect(citation?.mla).toContain("Yuan, Jingyang, et al.");
+    expect(citation?.url).toBe("https://aclanthology.org/2025.acl-long.1126/");
+  });
+
+  test("getCitationById returns sparse transformers origin paper", () => {
+    const citation = getCitationById("citation.sparse-transformers");
+    expect(citation?.title).toBe(
+      "Generating Long Sequences with Sparse Transformers",
+    );
+    expect(citation?.mla).toContain("Child, Rewon, et al.");
+    expect(citation?.url).toBe("https://arxiv.org/abs/1904.10509");
+  });
 });
