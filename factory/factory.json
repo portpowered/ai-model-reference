@@ -409,14 +409,6 @@
         "content": {
           "encoding": "utf-8"
         },
-        "id": "factory/docs/batch-input-example.json",
-        "targetPath": "factory/docs/batch-input-example.json",
-        "type": "DOC"
-      },
-      {
-        "content": {
-          "encoding": "utf-8"
-        },
         "id": "factory/scripts/setup-workspace.py",
         "targetPath": "factory/scripts/setup-workspace.py",
         "type": "SCRIPT"
@@ -424,8 +416,8 @@
     ]
   },
   "version": {
-    "logical": "1780285923114720801",
-    "physical": "2026-06-11T10:34:17.266476Z"
+    "logical": "1780219232503513624",
+    "physical": "2026-06-17T05:43:19.294602Z"
   },
   "workTypes": [
     {
@@ -557,12 +549,11 @@
   "workers": [
     {
       "executorProvider": "SCRIPT_WRAP",
-      "id": "processor",
       "modelProvider": "CODEX",
       "name": "processor",
       "skipPermissions": true,
       "stopToken": "\u003cCOMPLETE\u003e",
-      "type": "MODEL_WORKER"
+      "type": "AGENT_WORKER"
     },
     {
       "args": [
@@ -581,7 +572,7 @@
       "name": "planner",
       "skipPermissions": true,
       "stopToken": "\u003cCOMPLETE\u003e",
-      "type": "MODEL_WORKER"
+      "type": "AGENT_WORKER"
     }
   ],
   "workstations": [
@@ -612,7 +603,7 @@
           "name": "concurrent-planners"
         }
       ],
-      "type": "MODEL_WORKSTATION",
+      "type": "AGENT_RUN",
       "worker": "planner"
     },
     {
@@ -652,7 +643,7 @@
           "name": "executor-slot"
         }
       ],
-      "type": "MODEL_WORKSTATION",
+      "type": "AGENT_RUN",
       "worker": "planner"
     },
     {
@@ -712,7 +703,7 @@
           "workType": "task"
         }
       ],
-      "type": "MODEL_WORKSTATION",
+      "type": "SCRIPT_RUN",
       "worker": "workspace-setup"
     },
     {
@@ -759,7 +750,7 @@
           "name": "executor-slot"
         }
       ],
-      "type": "MODEL_WORKSTATION",
+      "type": "AGENT_RUN",
       "worker": "processor",
       "workingDirectory": ".claude/worktrees/{{ (index .Inputs 0).Name }}"
     },
@@ -808,7 +799,7 @@
           "name": "executor-slot"
         }
       ],
-      "type": "MODEL_WORKSTATION",
+      "type": "AGENT_RUN",
       "worker": "planner",
       "workingDirectory": ".claude/worktrees/{{ (index .Inputs 0).Name }}"
     },

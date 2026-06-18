@@ -19,6 +19,16 @@
     "glossary": "用語集",
     "tags": "タグ"
   },
+  "language": {
+    "open": "言語を切り替える",
+    "selectorLabel": "言語",
+    "unavailable": "このページでは利用できません",
+    "locales": {
+      "en": "English",
+      "vi": "Tiếng Việt",
+      "ja": "日本語"
+    }
+  },
   "searchEntry": {
     "title": "検索",
     "description": "タイトル、別名、タグで Model Atlas を検索します。検索コントロールを使ってモジュール、概念、用語集の項目へ移動できます。",

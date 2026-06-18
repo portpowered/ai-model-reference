@@ -29,7 +29,7 @@ You are processing work item {{ (index .Inputs 0).WorkID }} of type {{ (index .I
 Run: make test
 Report any failures. Failing checks are a BLOCKING issue.
 
-If the change involves modification to the website, you should use the playwright browser and READ instructions for docs/temp/processes/manual-qa.md.
+If the change involves modification to the website, you should use the playwright browser and READ instructions for docs/internal/processes/manual-qa.md.
 
 ### Step 2.1 — Reconcile CI state before commenting
 - Check the live required PR checks on the current head with `gh pr view --json headRefOid,mergeStateStatus,statusCheckRollup` and `gh pr checks`.
@@ -55,13 +55,24 @@ enforce command, route, or registration inventories without proving observable
 runtime, API, CLI, UI, or emitted-event behavior, raise that as a BLOCKING
 quality-rule violation and ask for behavioral coverage instead.
 
-### Step 4 — Apply the review rules in order
+### Step 4 - review the code against the appropriate standards
+if the code is for the backend, use the backend standards in factory/docs/standards/general-backend-standards.md
+if the code is for the website, use the website standards in factory/docs/standa
+
+For each rule in the standard, please check if the code is conformant and properly shaped. 
+
+Go through the acceptance criteria from standard **one by one**. For each criterion, as part of the PR comment: 
+- State the criterion
+- Check whether the code diff satisfies it
+- Mark it as PASS or FAIL with a brief explanation
+
+### Step 5 — Apply the review rules in order
 
 Check the PR directly against the review rules above and confirm whether it
 meets them. Every review comment must be actionable and must clearly signal
 whether it is BLOCKING or non-blocking.
 
-### Step 5 - handle feedback
+### Step 6 - handle feedback
 
 - Post a PR comment with your review summary, including the acceptance criteria checklist results, only after the required CI state is terminal for the current head or you have concrete independent review findings to report.
 - Include any blocking issues, correctness concerns, missing tests, CI failures, or prompt-rule violations in that comment.
@@ -71,13 +82,13 @@ whether it is BLOCKING or non-blocking.
 
 Use `gh pr comment` for the comment post. Do not use `gh pr review --approve` or `gh pr review --request-changes`.
 
-### Step 6 - merge if correct. 
+### Step 7 - merge if correct. 
 
 If you believe that the PR is complete and the CI passes, please merge the PR. 
 
 If the PR has merge conflicts, please tell the processor to fix the merge conflicts and rebase and push the changes.
 
-### Step 7 - respond back
+### Step 8 - respond back
 
 To terminate the review loop, please respond exactly with
 

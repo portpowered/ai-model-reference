@@ -27,6 +27,7 @@
     "test:integration": "bun ./scripts/run-production-integration-tests.ts",
     "precoverage": "fumadocs-mdx",
     "coverage": "bun ./scripts/component-coverage-gate.ts",
+    "cleanup:merged-worktrees": "bash ./scripts/cleanup-merged-worktrees.sh",
     "scaffold:doc-page": "bun ./scripts/scaffold-doc-page.ts",
     "generate:page-bundle": "bun ./scripts/generate-page-bundle.ts",
     "build:search-index": "bun ./scripts/build-search-index.ts",

@@ -1,41 +1,662 @@
 # Model Atlas Pages Needed
 
-This document is the phased content roadmap for Model Atlas, a general AI model
-reference site. The atlas should explain modern model systems across language,
-vision, audio, video, multimodal, omni, diffusion, transformer, and world-model
-families.
+This document defines the content structure for Model Atlas as a set of
+parallel, end-to-end subject bundles.
 
-The meta-planner should work one phase at a time and wait for manual review
-before moving to the next phase through Phase 10. After Phase 10, the site
-should have enough structure, validation, templates, and representative pages to
-run long-tail expansion mostly autonomously.
+The site should not be planned as a long serial phase ladder. Readers do not
+arrive by phase. They arrive with a subject in mind:
 
-Each phase should produce working pages, registry records, localized messages,
-asset config, search coverage, related-document behavior, citations where
-needed, and validation coverage appropriate for that phase.
+* "I want to understand ChatGPT-style systems"
+* "I want to understand Stable Diffusion"
+* "I want to understand attention variants"
+* "I want to understand how inference serving works"
 
-A phase is complete only when all required outcomes are implemented, validation
-passes, the manual review gate is satisfied, and `docs/temp/customer-ask.md`
-is updated by the customer or an authorized operator. Checklist completion alone
-does not authorize phase advancement.
+The roadmap should therefore be organized around complete reader journeys.
+Every subject bundle should contain the connected set of pages, models,
+modules, concepts, glossary terms, papers, training regimes, and systems pages
+that make that subject understandable end to end.
+
+Work should be parallel by default. Different bundles can advance at the same
+time when they do not collide on the same files or implementation surface.
+
+## How To Use This Document
+
+Use this document in three passes:
+
+1. Choose a subject bundle based on the customer or reader need.
+2. Use the grouping and tag rules below to classify every page candidate.
+3. Build or reconcile the bundle as a connected slice rather than adding loose
+   isolated pages.
+
+## Overall Content Structure
+
+The site has three planning layers:
+
+* **Page kind**: what kind of page this is
+* **Grouping**: the structured family the page belongs to
+* **Tag**: the controlled discovery label used by search and tag landing pages
+
+Every canonical page should declare all three.
+
+## Canonical Page Kinds
+
+Use these page kinds:
+
+* `glossary`
+* `concept`
+* `module`
+* `model`
+* `paper`
+* `training-regime`
+* `system`
+* `blog`
+
+### Page-kind intent
+
+* `glossary`: compact prerequisite definitions that unlock deeper pages
+* `concept`: broad ideas that span many implementations
+* `module`: named building blocks that appear inside models or systems
+* `model`: a specific model family or release
+* `paper`: a specific publication and its contributions
+* `training-regime`: a named training or post-training method
+* `system`: a serving, runtime, deployment, or operational system design
+* `blog`: narrative or time-bound writing that links back to canonical docs
+
+### Classification rules
+
+Use `module` when the topic is a replaceable architecture component or named
+building block.
+
+Default these to `module` unless there is a strong documented reason not to:
+
+* attention variants
+* normalization variants
+* feed-forward block variants
+* activation modules when treated as stack components
+* positional encoding mechanisms
+* tokenizer algorithms
+* inference optimization components
+
+Examples:
+
+* `RMSNorm` -> `module`
+* `BatchNorm` -> `module`
+* `GroupNorm` -> `module`
+* `QK Norm` -> `module`
+* `SwiGLU` -> `module`
+* `Standard FFN` -> `module`
+* `RoPE` -> `module`
+* `ALiBi` -> `module`
+
+Use `concept` when the page is about the broad idea across many
+implementations.
+
+Examples:
+
+* `attention` -> `concept`
+* `normalization` -> `concept`
+* `activation` -> `concept`
+* `architecture` -> `concept`
+* `alignment` -> `concept`
+
+Use `glossary` when the page is mainly a prerequisite term, quantity, or
+object.
+
+Examples:
+
+* `token` -> `glossary`
+* `logit` -> `glossary`
+* `tensor` -> `glossary`
+* `parameter` -> `glossary`
+* `context window` -> `glossary`
+
+Tie-breakers:
+
+* if the page is about the general idea across many implementations, use
+  `concept`
+* if the page is about one named implementation a model may include, use
+  `module`
+* if a topic could be either `glossary` or `module`, prefer `module` when it is
+  a replaceable architecture component
+* if the site needs both a broad explainer and a specific implementation page,
+  create both pages
+
+## Page Shape By Kind
+
+### Glossary page shape
+
+Expect:
+
+* short definition-first structure
+* prerequisite framing
+* links outward to deeper concept, module, model, and paper pages
+
+### Concept page shape
+
+Expect:
+
+* broad idea framing
+* mental-model explanation
+* links to concrete module and model examples
+
+### Module page shape
+
+Expect:
+
+* module metadata and tags
+* role in the stack
+* how-it-works explanation
+* optimization targets, tradeoffs, and nearby variants
+* example model usage
+* graph or comparison where useful
+
+### Model page shape
+
+Expect:
+
+* model family or release framing
+* architecture summary
+* module list and relationships
+* training regime, datasets, papers, and organization links
+
+### Paper page shape
+
+Expect:
+
+* what the paper introduced or argued
+* linked models, modules, concepts, and training regimes
+* citations and source links
+
+### Training-regime page shape
+
+Expect:
+
+* objective of the regime
+* when it is used
+* related models, modules, and papers
+
+### System page shape
+
+Expect:
+
+* system boundary and purpose
+* major components and flows
+* relationship to models, modules, inference, and hardware concerns
+
+## Controlled Groupings
+
+Every page should declare one or more groupings from this controlled set:
+
+* `page kind`
+* `subject bundle`
+* `modality`
+* `model family`
+* `architecture family`
+* `module family`
+* `module type`
+* `concept type`
+* `training category`
+* `inference category`
+* `systems category`
+* `paper topic`
+* `difficulty`
+
+### Starter grouping values
+
+* `subject bundle`: `chatgpt`, `stable-diffusion`, `transformer-core`,
+  `inference-serving`, `training-alignment`, `multimodal-omni`,
+  `world-models`, `hardware-distributed`
+* `modality`: `text`, `image`, `audio`, `video`, `multimodal`
+* `model family`: `gpt`, `llama`, `mistral`, `gemma`, `bert`, `t5`, `whisper`,
+  `clip`, `stable-diffusion`, `flux`, `world-model`
+* `architecture family`: `transformer`, `diffusion`, `state-space-model`,
+  `recurrent`, `convolutional`, `graph-neural-network`, `multimodal`,
+  `world-model`
+* `module family`: `attention`, `normalization`, `feed-forward`, `activation`,
+  `position-encoding`, `tokenization`, `quantization`, `inference-optimization`
+* `module type`: `attention`, `normalization`, `feed-forward`, `activation`,
+  `position-encoding`, `tokenizer`, `optimizer`, `quantization`,
+  `inference-optimization`, `training-method`, `systems`, `other`
+* `concept type`: `architecture`, `math`, `training`, `inference`, `systems`,
+  `evaluation`, `general`
+* `training category`: `pretraining`, `post-training`, `alignment`, `rl`,
+  `distillation`, `optimization`
+* `inference category`: `kv-cache`, `speculative-decoding`, `quantized-inference`,
+  `long-context`, `serving`, `latency`, `throughput`
+* `systems category`: `serving-stack`, `runtime`, `scheduler`, `memory`,
+  `routing`, `distributed-training`, `deployment`
+* `paper topic`: `architecture`, `training`, `inference`, `evaluation`,
+  `dataset`, `systems`, `scaling`, `alignment`
+* `difficulty`: `intro`, `intermediate`, `advanced`
+
+## Controlled Tag Set
+
+Tags should be chosen from a controlled vocabulary up front rather than
+invented page by page.
+
+Use the data-model tag categories:
+
+* `architecture`
+* `module-type`
+* `training`
+* `inference`
+* `systems`
+* `modality`
+* `paper-topic`
+* `model-family`
+* `difficulty`
+
+### Starter canonical tags
+
+* `architecture`: `transformer`, `diffusion`, `state-space-model`,
+  `encoder-only`, `decoder-only`, `encoder-decoder`, `multimodal`,
+  `world-model`
+* `module-type`: `attention`, `normalization`, `feed-forward`, `activation`,
+  `position-encoding`, `tokenization`, `mixture-of-experts`, `quantization`
+* `training`: `pretraining`, `post-training`, `alignment`, `distillation`,
+  `rlhf`, `dpo`
+* `inference`: `kv-cache`, `long-context`, `speculative-decoding`, `serving`,
+  `latency`, `throughput`
+* `systems`: `inference-engine`, `scheduler`, `memory`, `routing`,
+  `deployment`, `distributed-training`
+* `modality`: `text`, `image`, `audio`, `video`, `multimodal`
+* `paper-topic`: `architecture`, `training`, `inference`, `evaluation`,
+  `dataset`, `scaling`, `alignment`
+* `model-family`: `gpt`, `llama`, `mistral`, `gemma`, `bert`, `t5`, `whisper`,
+  `clip`, `stable-diffusion`, `flux`
+* `difficulty`: `intro`, `intermediate`, `advanced`
+
+### Tagging rules
+
+* tags do not replace typed fields such as `moduleType`, `moduleFamily`,
+  `conceptType`, or `family`
+* every page should have tags that match its page kind and grouping
+* module pages should usually carry both a `module-type` tag and a broader
+  family tag such as `attention` or `normalization`
+* glossary pages should stay light on tags
 
 ## Page Candidate Shape
 
 When promoting a topic into work, shape it like:
 
 ```txt
+subject:
 kind: module | model | concept | paper | training-regime | system | glossary | blog
 slug:
-priority: P0 | P1 | P2 | P3
-phase:
+route:
+registryKind:
+template:
+groupings:
 tags:
 aliases:
 registryFields:
-dependsOn:
+whyThisKind:
+whyThisSubject:
 relatedBy:
 starterBatch:
 notes:
 ```
+
+## Bundle Structure
+
+Each subject bundle should try to include a complete end-to-end reader path:
+
+* one landing or anchor concept
+* glossary prerequisites
+* concrete modules
+* representative models
+* representative papers
+* training-regime pages where relevant
+* systems pages where relevant
+
+## Subject Bundles
+
+### ChatGPT And Modern Chat Assistants
+
+Reader goal: understand what a ChatGPT-like product is built from, what model
+families it depends on, how chat generation works, and what alignment and
+serving concepts matter.
+
+#### Bundle anchors
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| chatgpt | subject bundle | gpt |
+| transformer | architecture family | transformer |
+| decoder-only architecture | architecture | decoder-only |
+
+#### Glossary pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| token | glossary | intro |
+| embedding | glossary | intro |
+| logit | glossary | intro |
+| softmax | glossary | intro |
+
+#### Concept pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| attention | concept | attention |
+| self-attention | concept | attention |
+| normalization | concept | normalization |
+
+#### Module pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| causal attention | module type | attention |
+| multi-head attention | module family | attention |
+| grouped-query attention | module family | attention |
+| sliding-window attention | module family | attention |
+| feed-forward network | module family | feed-forward |
+| standard FFN | module type | feed-forward |
+| SwiGLU | module type | activation |
+| RMSNorm | module family | normalization |
+| RoPE | module family | position-encoding |
+| tokenizer mismatch | module family | tokenization |
+
+#### Model pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| ChatGPT | model family | gpt |
+| GPT-4 class models | model family | gpt |
+
+#### Training-regime pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| instruction tuning | training category | post-training |
+| RLHF | training category | alignment |
+| DPO | training category | alignment |
+
+#### Inference pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| KV cache | inference category | kv-cache |
+| prefill/decode split | inference category | serving |
+| sampling overview | inference category | serving |
+| speculative decoding | inference category | speculative-decoding |
+
+#### System pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| inference serving stack | systems category | inference-engine |
+
+### Stable Diffusion And Image Generation
+
+Reader goal: understand diffusion-based image generation from latent space and
+denoising through model families, conditioning, and serving.
+
+#### Bundle anchors
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| stable diffusion | subject bundle | stable-diffusion |
+| diffusion model | architecture family | diffusion |
+
+#### Glossary pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| latent | glossary | intro |
+| patch | glossary | intro |
+
+#### Concept pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| denoising generation | concept type | architecture |
+| latent space | concept | intro |
+| conditioning | concept type | architecture |
+| self-attention | concept | attention |
+| U-Net style denoiser | concept type | architecture |
+| guidance | concept type | inference |
+
+#### Module pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| cross-attention | module family | attention |
+
+#### Model pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| CLIP | model family | clip |
+| Stable Diffusion | model family | stable-diffusion |
+| Flux | model family | flux |
+
+#### Training-regime pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| diffusion training objective | training category | pretraining |
+
+#### Inference pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| sampler | inference category | serving |
+
+#### Paper pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| latent diffusion paper | paper topic | architecture |
+
+#### System pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| scheduler | systems category | scheduler |
+| image generation serving | systems category | deployment |
+
+### Transformer Core And Attention Variants
+
+Reader goal: compare transformer building blocks and navigate the major
+attention, normalization, feed-forward, positional, and tokenizer choices.
+
+#### Bundle anchors
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| transformer-core | subject bundle | transformer |
+| transformer | architecture family | transformer |
+| encoder-only architecture | architecture | encoder-only |
+| decoder-only architecture | architecture | decoder-only |
+| encoder-decoder architecture | architecture | encoder-decoder |
+
+#### Concept pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| attention | concept | attention |
+| self-attention | concept | attention |
+| cross-attention | concept | attention |
+| normalization | concept | normalization |
+| feed-forward network | concept | feed-forward |
+| activation | concept | activation |
+| positional encodings | concept | position-encoding |
+| tokenizer overview | concept | tokenization |
+
+#### Module pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| multi-head attention | module family | attention |
+| multi-query attention | module family | attention |
+| grouped-query attention | module family | attention |
+| multi-head latent attention | module family | attention |
+| sparse attention | module family | attention |
+| sliding-window attention | module family | attention |
+| linear attention | module family | attention |
+| layer norm | module family | normalization |
+| RMSNorm | module family | normalization |
+| QK norm | module family | normalization |
+| standard FFN | module family | feed-forward |
+| mixture of experts | module family | mixture-of-experts |
+| ReLU | module type | activation |
+| SiLU | module type | activation |
+| SwiGLU | module type | activation |
+| RoPE | module family | position-encoding |
+| ALiBi | module family | position-encoding |
+| BPE | module family | tokenization |
+| SentencePiece | module family | tokenization |
+
+### Inference, Serving, And Runtime Behavior
+
+Reader goal: understand how model outputs are actually served, optimized, and
+measured in production.
+
+#### Bundle anchors
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| inference-serving | subject bundle | serving |
+
+#### Glossary pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| prefill | glossary | serving |
+| decode | glossary | serving |
+
+#### Inference pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| KV cache | inference category | kv-cache |
+| prefill/decode split | inference category | serving |
+| speculative decoding | inference category | speculative-decoding |
+| quantized inference | inference category | quantized-inference |
+| latency | inference category | latency |
+| throughput | inference category | throughput |
+| time to first token | inference category | latency |
+| inter-token latency | inference category | latency |
+| tokens per second | inference category | throughput |
+| throughput vs latency | inference category | throughput |
+
+#### System pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| batching | systems category | scheduler |
+| inference engine | systems category | inference-engine |
+| routing | systems category | routing |
+| deployment | systems category | deployment |
+| memory | systems category | memory |
+
+### Training, Alignment, And Optimization
+
+Reader goal: understand how modern models are trained, tuned, aligned, and kept
+stable.
+
+#### Bundle anchors
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| training-alignment | subject bundle | pretraining |
+
+#### Glossary pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| optimizer state | glossary | optimization |
+| backpropagation | glossary | optimization |
+| gradient | glossary | optimization |
+| loss function | glossary | optimization |
+| overfitting | glossary | evaluation |
+| generalization | glossary | evaluation |
+
+#### Concept pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| alignment | concept type | alignment |
+| scaling law | concept | scaling |
+| regularization | concept type | training |
+
+#### Training-regime pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| pretraining | training category | pretraining |
+| post-training | training category | post-training |
+| distillation | training category | distillation |
+| RLHF | training category | alignment |
+| PPO | training category | alignment |
+| DPO | training category | alignment |
+| GRPO | training category | alignment |
+
+### Multimodal, Omni, World, Audio, And Video
+
+Reader goal: understand how the same reference system extends beyond text-only
+language models.
+
+#### Bundle anchors
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| multimodal-omni | subject bundle | multimodal |
+| world-models | subject bundle | world-model |
+| multimodal model | architecture family | multimodal |
+| world model | architecture family | world-model |
+
+#### Module pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| multimodal tokenization | module family | tokenization |
+| cross-modal attention | module family | attention |
+
+#### Model pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| Whisper | model family | whisper |
+| CLIP | model family | clip |
+
+#### Modality pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| video generation | modality | video |
+| audio model | modality | audio |
+| image model | modality | image |
+
+#### Concept pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| encoder-decoder fusion | architecture | multimodal |
+
+### Hardware, Distributed Systems, And Kernels
+
+Reader goal: understand the practical systems layer under training and
+inference.
+
+#### Bundle anchors
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| hardware-distributed | subject bundle | distributed-training |
+
+#### System pages
+
+| Subject | Grouping | Tag |
+| --- | --- | --- |
+| GPU | systems category | memory |
+| memory hierarchy | systems category | memory |
+| interconnect | systems category | distributed-training |
+| distributed training | systems category | distributed-training |
+| scheduler | systems category | scheduler |
+| kernel optimization | systems category | inference-engine |
+| deployment topology | systems category | deployment |
 
 ## Graph Presentation Strategy
 
@@ -73,974 +694,13 @@ If the page's central question is:
 * "Where does this live in the larger model?" use **architecture/block
   placement**
 
-## Phase 0: Factory And Planning Readiness
-
-Goal: make the autonomous loop safe enough to start implementation work.
-
-Pages:
-
-* none
-
-Required outcomes:
-
-* root README explains the project, stack, content model, commands, and factory loop
-* ideafy meta-planner instructions are explicit about current phase, state checks,
-  session checks, batch submission, loopback work, and repair moves
-* batch input example matches the canonical `FACTORY_REQUEST_BATCH` shape
-* `docs/temp/progress.md` and `docs/temp/checklist.md` exist
-* `docs/architecture.md`, `docs/data-model.md`, and
-  `docs/architectural-checklist.md` describe the implementation target
-* this document has a clean phased roadmap with no unmapped raw backlog
-
-Manual review gate:
-
-* confirm the meta-planner can inspect state with `you work list`
-* confirm the meta-planner can inspect sessions with `you session list`
-* confirm the batch example validates with `you submit batch --dry-run`
-* confirm Phase 1 can be submitted as 3-5 concrete `idea` work items
-
-## Phase 1: Default Model Atlas Site And One Canonical Docs Page
-
-Goal: prove the site works end to end with the smallest meaningful reference
-surface while establishing the broad Model Atlas identity.
-
-Pages:
-
-* Model Atlas home/reference entry page
-* search page or search dialog entry
-* architecture index page
-* glossary index page
-* tags index page
-* one tag landing page: attention
-* one canonical module page: grouped-query attention
-* one basic glossary page: token
-
-Required outcomes:
-
-* Next.js/Fumadocs app scaffold exists
-* Bun, Biome, TypeScript, Tailwind, shadcn/ui, and Makefile commands exist
-* docs route renders one canonical MDX page
-* page-local `messages/en.json` and `assets.json` resolve
-* one registry module record, one tag record, and one citation record exist
-* Orama search can find the sample page by title, alias, tag, and body text
-* related docs and tag pills render in basic form
-* `make ci`, `make lint`, `make typecheck`, `make test`, and `make build` are
-  defined
-
-Manual review gate:
-
-* open the app locally and confirm home, search, architecture, glossary, tag,
-  and sample docs routes work
-* confirm the sample page uses message keys rather than raw prose in canonical
-  MDX
-* confirm search finds `GQA`, `attention`, and `KV cache`
-
-## Phase 2: Core Foundations
-
-Goal: create the basic pages that make advanced pages readable across model
-families, not only text language models.
-
-Pages:
-
-* model
-* architecture
-* module
-* component
-* modality
-* foundation model
-* generative model
-* discriminative model
-* representation
-* token
-* patch
-* latent
-* tensor
-* embedding
-* latent space
-* encoder
-* decoder
-* encoder-decoder
-* autoregressive generation
-* denoising generation
-* conditioning
-* alignment
-* logit
-* softmax
-* entropy
-* temperature
-* parameter
-* activation
-* computational graph
-* gradient
-* backpropagation
-* loss function
-* optimizer state
-* model capacity
-* overfitting
-* generalization
-* perplexity
-* scaling law
-* emergent behavior
-
-Required outcomes:
-
-* glossary and concept pages can be generated from templates
-* foundational pages link to one another through derived relationships and tags
-* basic math/code rendering works where needed
-* search can distinguish glossary pages from module/model pages
-
-Manual review gate:
-
-* confirm a beginner can move from `token` to `embedding`, `logit`, and
-  `softmax`
-* confirm a beginner can move from `architecture` to `transformer`, `diffusion
-  model`, `multimodal model`, and `world model`
-* confirm related docs explain why links appear
-
-## Phase 3: Transformer And Shared Component Foundations
-
-Goal: cover transformer-era building blocks and the shared component concepts
-that later diffusion, multimodal, omni, and world-model pages can reuse.
-
-Pages:
-
-* architectures overview
-* transformer architecture
-* transformer
-* sequence model
-* state space model
-* recurrent neural network
-* convolutional neural network
-* graph neural network
-* encoder-only architecture
-* decoder-only architecture
-* encoder-decoder architecture
-* attention
-* self-attention
-* cross-attention
-* causal attention
-* bidirectional attention
-* multi-head attention
-* multi-query attention
-* grouped-query attention
-* multi-head latent attention
-* sparse attention
-* sliding-window attention
-* linear attention
-* DeltaNet attention
-* local attention
-* global attention
-* dilated attention
-* block-sparse attention
-* ring attention
-* attention sinks
-* feed-forward network
-* standard FFN
-* mixture of experts
-* ReLU
-* LeakyReLU
-* SiLU
-* SwiGLU
-* normalization
-* layer norm
-* batch norm
-* group norm
-* RMSNorm
-* QK norm
-* residual connection
-* skip connection
-* positional encodings
-* absolute positional embeddings
-* learned positional embeddings
-* sinusoidal positional embeddings
-* relative position bias
-* T5 relative position bias
-* RoPE
-* NoPE
-* ALiBi
-* SuperHOT RoPE
-* NTK-aware RoPE scaling
-* YaRN
-* LongRoPE
-* positional interpolation
-* context window
-* context extension
-* why long context is hard
-* tokenizers overview
-* BPE
-* WordPiece
-* Unigram tokenizer
-* SentencePiece
-* byte-level tokenization
-* vocabulary size
-* special tokens
-* chat templates
-* tokenizer mismatch
-
-Required outcomes:
-
-* module templates support comparison tables and example architectures
-* recursive module graph rendering works for a transformer block
-* derived related docs group attention variants by `variantGroup`
-* tag pages enumerate modules, concepts, and glossary entries by tag
-* architecture index pages can group pages by family, modality, and component
-  role
-* graph family selection follows `docs/graphing-standards.md` rather than
-  forcing all attention variants into one shared QKV diagram shape
-
-Manual review gate:
-
-* confirm MHA, MQA, GQA, MLA, sparse attention, and sliding-window attention
-  compare correctly
-* confirm the graph expands/collapses vertically on desktop and mobile
-
-Suggested graph-family mapping for Phase 3 pages:
-
-* **Head-structure comparison**
-  * multi-head attention
-  * multi-query attention
-  * grouped-query attention
-  * multi-head latent attention
-
-* **Attention-over-time comparison**
-  * sparse attention
-  * sliding-window attention
-  * local attention
-  * global attention
-  * dilated attention
-  * block-sparse attention
-  * ring attention
-  * attention sinks
-
-* **Compute-path comparison**
-  * linear attention
-  * DeltaNet attention
-
-* **Probably no primary React Flow comparison yet**
-  * tokenizer pages
-  * activation pages
-  * normalization pages
-  * positional encoding pages
-  * glossary/concept pages that are better served by prose, equations, tables,
-    or static figures
-
-## Phase 4: Localization And Assetized Content Workflow
-
-Goal: prove the structured-doc model works for more than English before content
-volume becomes large.
-
-Pages:
-
-* localize all Phase 1 pages
-* localize a representative subset of Phase 2 and Phase 3 pages
-* add localized graph labels and captions for grouped-query attention
-* add localized glossary labels for token, embedding, logit, softmax, and
-  attention
-
-Required outcomes:
-
-* locale routing or locale selection works
-* page-local `messages/<locale>.json` fallback behavior is defined
-* missing translation validation exists
-* asset alt text and captions resolve through localized message keys
-* search can index localized titles, summaries, aliases, and body text
-* canonical MDX structure remains shared across locales
-
-Manual review gate:
-
-* confirm English plus one non-English locale render correctly
-* confirm missing translation failures are understandable
-* confirm graph labels, alt text, captions, and search results localize
-
-## Phase 5: Inference, Serving, Sampling, And Quantization
-
-Goal: cover practical runtime behavior and why serving models is expensive.
-
-Pages:
-
-* KV cache
-* KV cache memory
-* KV cache eviction
-* sliding-window KV cache
-* paged KV cache
-* KV cache quantization
-* prefill
-* decode
-* prefill/decode split
-* disaggregated prefill/decode
-* time to first token
-* inter-token latency
-* tokens per second
-* throughput vs latency
-* continuous batching
-* dynamic batching
-* request scheduling
-* prefix caching
-* prompt caching
-* paged attention
-* chunked prefill
-* FlashAttention
-* Flash decoding
-* FlashMLA
-* fast attention
-* speculative decoding
-* draft model
-* EAGLE
-* Medusa
-* n-gram speculative decoding
-* model warmup
-* CUDA graph capture
-* kernel fusion
-* sampling overview
-* greedy decoding
-* top-k sampling
-* top-p sampling
-* min-p sampling
-* typical sampling
-* beam search
-* parallel sampling
-* repetition penalty
-* frequency penalty
-* presence penalty
-* contrastive decoding
-* structured generation
-* constrained decoding
-* grammar-based decoding
-* tool-call parsing
-* logit bias
-* stop sequences
-* best-of sampling
-* quantization overview
-* INT8
-* INT4
-* FP8
-* FP4
-* BF16
-* FP32
-* FP64
-* NF4
-* MXFP4
-* GPTQ
-* AWQ
-* SmoothQuant
-* GGUF
-* EXL2
-* bitsandbytes 4-bit
-* Q_K_M quantization
-* activation quantization
-* weight-only quantization
-* quantization-aware training
-* post-training quantization
-* dynamic quantization
-* calibration
-* why 4-bit models are not exactly 4x faster
-
-Required outcomes:
-
-* systems pages and module pages share tags and related-document derivation
-* search facets include `inference`, `quantization`, `sampling`, and `systems`
-* practical benefit sections consistently explain latency, memory, and cost
-
-Manual review gate:
-
-* confirm a reader can follow `KV cache -> paged attention -> prefill/decode ->
-  speculative decoding`
-* confirm quantization pages explain tradeoffs without benchmark leaderboard
-  framing
-
-## Phase 6: Training, Data, Objectives, Optimization, And Regularization
-
-Goal: cover how models are trained and why data/objectives matter.
-
-Pages:
-
-* next-token prediction
-* masked language modeling
-* causal language modeling
-* span corruption
-* instruction tuning loss
-* preference loss
-* cross entropy
-* negative log likelihood
-* mean squared error
-* L1 loss
-* Huber loss
-* KL divergence
-* contrastive loss
-* triplet loss
-* InfoNCE
-* CTC loss
-* diffusion denoising loss
-* flow matching loss
-* policy gradient loss
-* reward model loss
-* distillation loss
-* advantage estimation
-* reward modeling
-* DPO
-* PPO
-* GRPO
-* RLHF
-* RLAIF
-* RLVR
-* on-policy distillation
-* multi-parent distillation
-* hybrid model mixing
-* pretraining data
-* instruction data
-* preference data
-* synthetic data
-* data filtering
-* data deduplication
-* near-duplicate detection
-* contamination
-* train/test contamination
-* benchmark leakage
-* evaluation leakage
-* curriculum learning
-* mixture weighting
-* data ablation
-* data flywheel
-* RL environment data
-* human annotation
-* weak supervision
-* self-training
-* dataset quality vs dataset quantity
-* data governance
-* licensing
-* Adam
-* AdamW
-* why AdamW is not just Adam plus L2
-* Muon
-* SGD
-* momentum
-* Nesterov momentum
-* Adafactor
-* Lion
-* Sophia
-* Shampoo
-* RMSProp
-* learning rate schedules
-* cosine decay
-* warmup
-* linear decay
-* one-cycle schedule
-* gradient clipping
-* loss scaling
-* mixed precision training
-* numerical underflow
-* numerical overflow
-* softmax stability
-* log-sum-exp trick
-* exploding gradients
-* vanishing gradients
-* dropout
-* weight decay
-* early stopping
-* label smoothing
-* data augmentation
-* stochastic depth
-* DropPath
-* Mixup
-* CutMix
-* noise injection
-* gradient noise
-* spectral normalization
-* max-norm regularization
-* L1 regularization
-* L2 regularization
-* weight tying
-* teacher forcing
-* scheduled sampling
-* batch size as implicit regularization
-* ensembling
-* KL penalty
-* entropy bonus
-* reward clipping
-* advantage normalization
-
-Required outcomes:
-
-* training-regime templates are exercised
-* data pages can link to evaluation and safety concepts
-* paper pages can introduce or support training regimes
-* optimization pages can link to numerical stability and hardware constraints
-
-Manual review gate:
-
-* confirm DPO/PPO/GRPO comparison works
-* confirm data contamination and benchmark leakage are easy to find from
-  evaluation pages
-
-## Phase 7: Model And Paper Families
-
-Goal: add recognizable model and paper pages that exercise the registry across
-language, code, multimodal, diffusion, and agentic families.
-
-Pages:
-
-* model families overview
-* transformer model families
-* diffusion model families
-* multimodal model families
-* omni model families
-* world model families
-* GPT-2
-* GPT-Nano
-* GPT-OSS
-* BERT
-* T5
-* PaLM
-* Chinchilla
-* Claude
-* Gemini
-* Llama family
-* Llama 3
-* Qwen family
-* Qwen2
-* Qwen2.5
-* Qwen3
-* DeepSeek family
-* DeepSeek-V2
-* DeepSeek-V3
-* DeepSeek-R1
-* Mistral
-* Mixtral
-* Gemma
-* Nemotron
-* Phi
-* Yi
-* GLM
-* InternLM
-* Command R
-* Falcon
-* OPT
-* OLMo
-* SmolLM
-* MiniCPM
-* Kimi K2.5
-* encoder-only models
-* decoder-only models
-* encoder-decoder models
-* autoregressive models
-* masked language models
-* sequence-to-sequence models
-* retrieval-augmented generation models
-* agentic models
-* world models
-* omni models
-* multimodal foundation models
-* vision-language models
-* text-to-image models
-* text-to-video models
-* speech-language models
-* energy-based models
-* autoencoders
-* variational autoencoders
-* GANs
-* normalizing flows
-* Code Llama
-* StarCoder
-* DeepSeek-Coder
-* Qwen-Coder
-* Codestral
-* code repair models
-* browser agents
-* computer-use agents
-
-Required outcomes:
-
-* model pages render architecture summaries, modules, training regimes, papers,
-  and related models
-* paper pages render contributions, introduced modules/models, evidence, and
-  citations
-* model graphs treat models as root modules
-* family pages group variants without becoming benchmark pages
-
-Manual review gate:
-
-* confirm GPT-2 links to transformer, causal attention, tokenization, and
-  next-token prediction
-* confirm model pages do not turn into benchmark pages
-
-## Phase 8: Multimodal, Diffusion, Omni, World, Audio, And Video
-
-Goal: expand beyond text LLMs while preserving the same module abstraction for
-diffusion, multimodal, omni, video, audio, embodied, and world-model systems.
-
-Pages:
-
-* multimodal models
-* omni models
-* world models
-* embodied models
-* perception-action models
-* latent world models
-* predictive world models
-* model-based reinforcement learning
-* video prediction models
-* action-conditioned models
-* multimodal fusion
-* early fusion
-* late fusion
-* cross-modal attention
-* modality adapters
-* shared embedding space
-* image-language models
-* audio-language models
-* video-language models
-* speech-language models
-* vision transformer
-* patch embeddings
-* ViT patchification
-* CLIP
-* CLIP-style contrastive embeddings
-* BLIP
-* BLIP-2
-* Flamingo
-* Kosmos
-* LLaVA
-* Qwen-VL
-* Pixtral
-* vision encoders
-* projector layers
-* image patch embeddings
-* image tokenizers
-* discrete image tokens
-* VQ-VAE
-* VQGAN
-* latent diffusion autoencoders
-* diffusion models
-* DDPM
-* DDIM
-* latent diffusion
-* Stable Diffusion
-* Stable Diffusion XL
-* Stable Diffusion 3
-* Flux
-* Imagen
-* DALL-E
-* Sora-style video diffusion
-* DiT
-* U-Net diffusion
-* VAE in diffusion
-* diffusion schedulers
-* Euler sampler
-* DPM-Solver
-* consistency models
-* classifier guidance
-* classifier-free guidance
-* classifier-free guidance dropout
-* conditioning dropout
-* augmentation regularization
-* ControlNet
-* IP-Adapter
-* LoRA for diffusion
-* temporal positions for video generation
-* flow matching
-* rectified flow
-* diffusion vs path-finding optimization
-* audio tokenizers
-* EnCodec
-* SoundStream
-* Mimi
-* DAC
-* semantic audio tokens
-* acoustic audio tokens
-* residual vector quantization
-* vector quantization
-* finite scalar quantization
-* mel spectrogram patch tokens
-* CLAP
-* Whisper
-* Qwen-ASR
-* StepFun-ASR
-* Voxtral
-* Moshi
-* Orpheus
-* OmniVoice
-* wav2vec 2.0
-* HuBERT
-* WavLM
-* Bark
-* VALL-E
-* CosyVoice
-* Fish Speech
-* Parakeet
-* SeamlessM4T
-* AudioPaLM
-* Qwen-Audio
-* Qwen-Omni
-* audio-language alignment
-* audio hallucination
-* voice spoofing
-* speaker privacy
-* biometric leakage
-* audio jailbreaks
-* acoustic backdoors
-
-Required outcomes:
-
-* recursive module graph abstraction works for diffusion, image, and audio
-  models, not only transformers
-* multimodal tags and facets work
-* graph labels and asset captions remain localizable
-* modality-specific tokenizers still use the same data model
-
-Manual review gate:
-
-* confirm diffusion and audio pages use the same docs/data model rather than
-  bespoke diagram logic
-
-## Phase 9: Retrieval, Agents, Safety, And Evaluation
-
-Goal: cover practical AI systems people build around models.
-
-Pages:
-
-* embeddings
-* dense retrieval
-* sparse retrieval
-* BM25
-* hybrid search
-* reranking
-* cross-encoder
-* bi-encoder
-* twin-tower model
-* single-tower model
-* late interaction
-* ColBERT
-* vector database
-* approximate nearest neighbor search
-* HNSW
-* IVF
-* product quantization
-* chunking
-* semantic chunking
-* query rewriting
-* HyDE
-* reranker models
-* context compression
-* retrieval-augmented generation
-* citation grounding
-* hallucination reduction
-* BGE-M3
-* tool calling
-* function calling
-* structured outputs
-* JSON mode
-* ReAct
-* chain-of-thought prompting
-* tree-of-thought prompting
-* self-consistency
-* planning agents
-* reflection
-* memory systems
-* short-term memory
-* long-term memory
-* vector memory
-* agent harnesses
-* MCP
-* sandboxing
-* constitutional AI
-* helpfulness, harmlessness, and honesty
-* reward hacking
-* specification gaming
-* jailbreaks
-* prompt injection
-* indirect prompt injection
-* data poisoning
-* model poisoning
-* backdoors
-* adversarial examples
-* hallucination
-* refusal behavior
-* uncertainty estimation
-* calibration
-* red teaming
-* guardrails
-* content filtering
-* model monitoring
-* privacy leakage
-* memorization
-* differential privacy
-* benchmark overview
-* benchmark saturation
-* benchmark contamination
-* human eval vs automatic eval
-* eval harnesses
-* MMLU
-* MMLU-Pro
-* GPQA
-* GSM8K
-* MATH
-* AIME
-* HumanEval
-* MBPP
-* Big-Bench Hard
-* IFEval
-* LiveBench
-* Chatbot Arena
-* MT-Bench
-* AlpacaEval
-* HELM
-* SWE-bench
-* SWE-bench Verified
-* SWE-bench Multimodal
-* SWE-bench Lite
-* OSWorld
-* WebArena
-* tau-bench
-* terminal-bench
-* MMMU
-* MathVista
-* ChartQA
-* DocVQA
-* VQAv2
-* AudioBench
-* WER
-* CER
-* FID
-* CLIP score
-* aesthetic score
-* human preference eval
-* temporal consistency for video
-* recall@k
-* MRR
-* nDCG
-* hit rate
-
-Required outcomes:
-
-* evaluation pages are explanatory and do not become benchmark leaderboards
-* safety and reliability pages link to relevant training/data/evaluation pages
-* retrieval and agent pages share system tags with serving pages
-* benchmark pages explain use and caveats rather than ranking models
-
-Manual review gate:
-
-* confirm tag pages show cross-category resources for `retrieval`, `agents`,
-  `evaluation`, and `safety`
-
-## Phase 10: Hardware, Distributed Systems, And Kernels
-
-Goal: explain why model training and inference behave the way they do on real
-hardware.
-
-Pages:
-
-* GPU
-* TPU
-* NPU
-* CPU
-* unified memory
-* GDDR
-* GDDR7
-* HBM
-* SRAM
-* CPU RAM
-* registers
-* shared memory
-* L1 cache
-* L2 cache
-* PCIe
-* NVLink
-* NVSwitch
-* InfiniBand
-* RDMA
-* network fabric
-* tensor cores
-* CUDA cores
-* SM
-* warp
-* wavefront
-* thread block
-* threadgroup
-* memory barrier
-* occupancy
-* register pressure
-* shared memory bank conflicts
-* coalesced memory access
-* memory bandwidth
-* memory-bound workload
-* compute-bound workload
-* latency-bound workload
-* arithmetic intensity
-* roofline model
-* FLOPs vs FLOP/s
-* batch size and hardware utilization
-* numbers to remember for GPU latency and bandwidth
-* GEMM
-* matmul tiling
-* epilogue fusion
-* persistent kernels
-* split-K
-* kernel counters vs synchronization
-* CUDA graphs
-* Triton
-* CUTLASS
-* Metal Performance Shaders
-* omnikernels
-* tiling
-* data parallelism
-* tensor parallelism
-* pipeline parallelism
-* sequence parallelism
-* expert parallelism
-* context parallelism
-* FSDP
-* ZeRO
-* DeepSpeed
-* Megatron-LM
-* activation checkpointing
-* gradient accumulation
-* gradient clipping
-* all-reduce
-* reduce-scatter
-* all-gather
-* NCCL
-* stragglers
-* elastic training
-* training memory breakdown
-* parameters memory
-* gradients memory
-* optimizer states memory
-* activations memory
-* Cerebras wafer-scale systems
-* Groq wafer-scale systems
-
-Required outcomes:
-
-* systems pages support diagrams and numeric reference tables
-* hardware pages link back to inference and distributed-training pages
-* PDF output handles tables, diagrams, and citations cleanly
-* by the end of this phase, the site has representative coverage for every
-  major content kind and can expand autonomously
-
-Manual review gate:
-
-* confirm memory hierarchy and batching pages explain latency/cost tradeoffs in
-  plain language
-* confirm the meta-planner can safely start autonomous long-tail expansion
-
-## Phase 11: Autonomous Backfill, Governance, And Long-Tail Expansion
-
-Goal: turn the site from a seed reference into a maintained encyclopedia.
-After Phase 10 passes manual review, this phase may run mostly autonomously in
-small batches.
-
-Work:
-* does research as is appropriate and tries to find new papers on arxiv, hackernews, wherever else is appropriate.  
-* backfill remaining model pages as new models, papers, and techniques appear
-* add pages for newly discovered modules, papers, datasets, systems ideas, and
-  training regimes
-* add freshness and last-reviewed metadata
-* add source review rules for technical claims
-* add SEO metadata and sitemap coverage
-* add content quality review workflows
-* periodically review tags for duplication and drift
-* periodically review related-document derivation quality
-* periodically review localization gaps
-
-Manual review gate:
-* at the autonomous phase, there is basically no submitted work, the system just scrounges data and processes things itself. 
+## Bundle-Level Delivery Rules
+
+A subject bundle is in good shape when:
+
+* a beginner can enter through one anchor page and keep moving without getting
+  stranded
+* the subject has glossary, concept, module, and model coverage where needed
+* the tags and groupings let search and tag pages reconstruct the subject cleanly
+* nearby variants and related pages are derived rather than manually hand-listed
+* the bundle can ship independently of unrelated bundles

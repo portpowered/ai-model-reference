@@ -19,6 +19,16 @@
     "glossary": "Glossary",
     "tags": "Tags"
   },
+  "language": {
+    "open": "Switch language",
+    "selectorLabel": "Language",
+    "unavailable": "Not available on this page",
+    "locales": {
+      "en": "English",
+      "vi": "Tiếng Việt",
+      "ja": "日本語"
+    }
+  },
   "searchEntry": {
     "title": "Search",
     "description": "Search Model Atlas by title, alias, or tag. Use the search control to jump to modules, concepts, and glossary entries.",

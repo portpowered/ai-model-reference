@@ -19,6 +19,16 @@
     "glossary": "Thuật ngữ",
     "tags": "Thẻ"
   },
+  "language": {
+    "open": "Chuyển ngôn ngữ",
+    "selectorLabel": "Ngôn ngữ",
+    "unavailable": "Trang này chưa có bản dịch",
+    "locales": {
+      "en": "English",
+      "vi": "Tiếng Việt",
+      "ja": "日本語"
+    }
+  },
   "searchEntry": {
     "title": "Tìm kiếm",
     "description": "Tìm trong Model Atlas theo tiêu đề, tên gọi khác, hoặc thẻ. Dùng ô tìm kiếm để chuyển nhanh tới module, khái niệm, và mục thuật ngữ.",

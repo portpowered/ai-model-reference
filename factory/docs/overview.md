@@ -1,9 +1,6 @@
 # Factory Overview
 
-This factory coordinates autonomous work for the AI model reference website.
-The ideafy workstation is the meta-planner. It chooses phase-scoped batches,
-submits ideas, and records progress. Executors implement PRD stories in
-worktrees. Review gates the resulting PRs.
+This factory coordinates autonomous work for a meta software factory, which is responsible for building lots of software.
 
 ## Read First
 
@@ -13,26 +10,18 @@ Before submitting work, read:
 * `factory/workstations/ideafy/AGENTS.md`
 * `docs/temp/customer-ask.md`
 * `docs/temp/checklist.md`
-* `docs/temp/progress.txt`
-* `docs/documentation-site-pages-needed.md`
+* `docs/temp/progress.md`
+* `factory/docs/batch-inputs.md`
+* `factory/docs/batch-input-example.json`
 * `you docs agents`
 * `you docs batch-inputs`
 
-## Phase Control
+Contributor-facing docs that shape list work:
 
-Current phase authorization lives in:
-
-```txt
-docs/temp/customer-ask.md
-```
-
-The meta-planner may dry-run batches during planning. It must not submit a real
-batch unless `customer-ask.md` sets `realSubmissionAuthorized: true` or the
-customer explicitly authorizes submission in the current conversation.
-
-Phase work is review-gated through Phase 10. After Phase 10, long-tail backfill
-may run mostly autonomously in small batches, still with batch summaries and
-review.
+* `README.md`
+* `CONTRIBUTING.md` — ten curated README categories (Theories through Related Lists), entry format, and **Local checks** (`make check`, `make test`, `make all`, optional `make lint` / `make links`, GitHub Actions table)
+* `docs/taxonomy.md` — category definitions aligned with README section headings and CONTRIBUTING
+* `docs/review-policy.md` — maintainer checklist and `resource:*` labels for the same ten categories
 
 ## Work Types
 
@@ -61,9 +50,13 @@ task:in-review -> review -> task:to-complete
 idea:to-complete + task:to-complete with the same name -> consume
 ```
 
+Executor and review workstations run in worktrees under
+`.claude/worktrees/<work-item-name>/`, created by `factory/scripts/setup-workspace.py`.
+
 ## Batch Submission
 
 Use the canonical `FACTORY_REQUEST_BATCH` shape from `you docs batch-inputs`.
+Human-readable notes live in `factory/docs/batch-inputs.md`.
 
 For a running factory, prefer:
 
@@ -111,14 +104,35 @@ you work move
 ```
 
 only for deliberate workflow repair. Record every manual move in
-`docs/temp/progress.txt` with the work item, old state, new state, reason,
+`docs/internal/progress.md` with the work item, old state, new state, reason,
 and expected next workstation. Do not use work moves to skip implementation,
 review, or validation.
 
 ## Local State Files
 
+Planner-owned state under `docs/internal/`:
+
 ```txt
-docs/temp/customer-ask.md  current phase and submission authorization
-docs/temp/checklist.md     high-level phase and customer ask tracking
-docs/temp/progress.txt     append-only meta-planner progress log
+docs/temp/customer-ask.md  current phase authorization and Awesome List build goal
+docs/temp/checklist.md     high-level phase and customer-ask tracking (meta-planner)
+docs/temp/progress.md     append-only meta-planner progress log (meta-planner)
 ```
+
+The meta-planner creates and maintains `checklist.md` and `progress.txt` when
+they are not already present. Task executors append to the worktree `progress.txt`
+at the repository root during implementation batches.
+
+## Quality Gates
+
+Before opening or merging reconciliation PRs, run from the repository root:
+
+```sh
+make check   # or make all — same README validation
+make test
+git diff --check
+```
+
+Optional pre-submit targets (`make lint`, `make links`) and GitHub workflow
+gates are documented in `CONTRIBUTING.md` **Local checks** and **GitHub Actions**.
+These commands mirror the Go README checks in `internal/checks`, `go test ./...`,
+and whitespace hygiene enforced in CI.

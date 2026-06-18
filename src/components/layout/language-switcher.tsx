@@ -117,7 +117,7 @@ export function LanguageSwitcher({ locale, messages }: LanguageSwitcherProps) {
             <DropdownMenuItem
               key={option.locale}
               render={<Link href={option.href} />}
-              className="justify-between rounded-lg px-3 py-2"
+              className="rounded-lg px-3 py-2"
             >
               <span className="flex items-center gap-2">
                 {option.locale === locale ? (
@@ -126,9 +126,6 @@ export function LanguageSwitcher({ locale, messages }: LanguageSwitcherProps) {
                   <span className="size-4" aria-hidden />
                 )}
                 <span>{option.label}</span>
-              </span>
-              <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                {option.locale}
               </span>
             </DropdownMenuItem>
           ) : (

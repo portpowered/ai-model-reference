@@ -268,11 +268,11 @@ describe("ModelAtlasDocsHeader", () => {
     ).toBe("/docs/glossary/token?tag=attention");
     expect(
       within(dialog)
-        .getByRole("menuitem", { name: /Tieng Viet|Tiếng Việt/i })
+        .getByRole("menuitem", { name: /^Tiếng Việt$/i })
         .getAttribute("href"),
     ).toBe("/vi/docs/glossary/token?tag=attention");
     expect(
-      within(dialog).queryByRole("menuitem", { name: /Japanese/i }),
+      within(dialog).queryByRole("menuitem", { name: /日本語/ }),
     ).toBeTruthy();
     expect(dialog.textContent).toContain(messages.language.unavailable);
   });
@@ -300,11 +300,11 @@ describe("ModelAtlasDocsHeader", () => {
     ).toBe("/docs/modules/sparse-attention");
     expect(
       within(dialog).queryByRole("menuitem", {
-        name: /Tieng Viet|Tiếng Việt/i,
+        name: /Tiếng Việt/,
       }),
     ).toBeTruthy();
     expect(
-      within(dialog).queryByRole("menuitem", { name: /Japanese/i }),
+      within(dialog).queryByRole("menuitem", { name: /日本語/ }),
     ).toBeTruthy();
     expect(dialog.textContent).toContain(messages.language.unavailable);
   });
