@@ -1,0 +1,32 @@
+{
+  "title": "Causal Attention",
+  "description": "An attention mask pattern that lets each position read only the current token and earlier tokens, never future tokens.",
+  "openingSummary": "Causal attention keeps generation honest by blocking future tokens, so each position can read only the prefix that would actually exist at that step.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Causal attention is a masking rule inside self-attention. The query at position $t$ can read keys from positions up to $t$, but not from $t+1$ or later. That is why decoder-only models can generate one token at a time without leaking the answer from the future."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Without causal attention, a language model trained for next-token prediction could cheat by looking ahead at tokens it is supposed to predict. The mask makes training and inference line up: both use only the prefix that already exists."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "When GPT-2 predicts the next token after \"The sky is\", the final position may attend to \"The\", \"sky\", and \"is\" but not to the word that comes next. That is the mechanism that makes autoregressive generation work."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Causal attention is not the whole Transformer. It is one masking choice inside attention, and it differs from bidirectional reading in encoder models such as BERT. It also does not mean the model remembers everything equally well across long contexts; memory quality still depends on attention patterns, context length, and training."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

@@ -64,6 +64,7 @@ describe("attention tag landing resources", () => {
     );
     expect(glossaryGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/glossary/autoregressive-generation",
+      "/docs/glossary/causal-attention",
       "/docs/glossary/token",
     ]);
   });

@@ -115,30 +115,37 @@ describe("isLocalMessageDocsPage", () => {
 describe("docs source local pages", () => {
   test("exposes representative glossary, concept, and module slugs for static export", () => {
     const tokenPage = source.getPage(["glossary", "token"]);
+    const causalAttentionPage = source.getPage([
+      "glossary",
+      "causal-attention",
+    ]);
     const conceptPage = source.getPage([
       "concepts",
       "transformer-architecture",
     ]);
     const modulePage = source.getPage(["modules", "grouped-query-attention"]);
-    const modelPage = source.getPage(["models", "model-families-overview"]);
+    const modelPage = source.getPage(["models", "gpt-2"]);
 
     expect(tokenPage).toBeDefined();
+    expect(causalAttentionPage).toBeDefined();
     expect(conceptPage).toBeDefined();
     expect(modulePage).toBeDefined();
     expect(modelPage).toBeDefined();
     expect(tokenPage?.url).toBe("/docs/glossary/token");
+    expect(causalAttentionPage?.url).toBe("/docs/glossary/causal-attention");
     expect(conceptPage?.url).toBe("/docs/concepts/transformer-architecture");
     expect(modulePage?.url).toBe("/docs/modules/grouped-query-attention");
-    expect(modelPage?.url).toBe("/docs/models/model-families-overview");
+    expect(modelPage?.url).toBe("/docs/models/gpt-2");
   });
 
   test("generateParams includes representative published glossary, concept, and module slugs", () => {
     const params = source.generateParams();
     const slugParams = params.map((entry) => entry.slug);
     expect(slugParams).toContainEqual(["glossary", "token"]);
+    expect(slugParams).toContainEqual(["glossary", "causal-attention"]);
     expect(slugParams).toContainEqual(["concepts", "transformer-architecture"]);
     expect(slugParams).toContainEqual(["modules", "grouped-query-attention"]);
-    expect(slugParams).toContainEqual(["models", "model-families-overview"]);
+    expect(slugParams).toContainEqual(["models", "gpt-2"]);
   });
 
   test("loadLocalDocsPage resolves localized metadata for glossary pages", async () => {
@@ -156,12 +163,12 @@ describe("docs source local pages", () => {
   test("loadLocalDocsPage resolves model-family overview pages through the shared local docs route contract", async () => {
     const page = await loadLocalDocsPage({
       section: "models",
-      slug: "model-families-overview",
+      slug: "gpt-2",
     });
 
-    expect(page.messages.title).toBe("Model Families Overview");
+    expect(page.messages.title).toBe("GPT-2");
     expect(page.messages.description.length).toBeGreaterThan(0);
-    expect(page.frontmatter.registryId).toBe("model.model-families-overview");
+    expect(page.frontmatter.registryId).toBe("model.gpt-2");
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
     expect(page.toc.some((item) => item.url === "#related")).toBe(true);
   });

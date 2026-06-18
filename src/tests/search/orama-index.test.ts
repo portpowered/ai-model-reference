@@ -22,6 +22,8 @@ const SLIDING_WINDOW_ATTENTION_MODULE_URL =
   "/docs/modules/sliding-window-attention";
 const SPARSE_ATTENTION_MODULE_URL = "/docs/modules/sparse-attention";
 const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
+const CAUSAL_ATTENTION_URL = "/docs/glossary/causal-attention";
+const NEXT_TOKEN_PREDICTION_URL = "/docs/glossary/next-token-prediction";
 const TRANSFORMER_ARCHITECTURE_URL = "/docs/concepts/transformer-architecture";
 const PAGE_SPEC_WORKFLOW_SAMPLE_URL =
   "/docs/concepts/page-spec-workflow-sample";
@@ -83,6 +85,7 @@ const MODEL_FAMILY_URLS = [
   "/docs/glossary/world-model",
 ] as const;
 const MODEL_HUB_URLS = [
+  "/docs/models/gpt-2",
   "/docs/models/model-families-overview",
   "/docs/models/transformer-model-families",
   "/docs/models/diffusion-model-families",
@@ -91,12 +94,14 @@ const MODEL_HUB_URLS = [
   "/docs/models/world-model-families",
 ] as const;
 const CHAIN_GLOSSARY_URLS = [
+  CAUSAL_ATTENTION_URL,
   "/docs/glossary/embedding",
   "/docs/glossary/vector",
   "/docs/glossary/hidden-size",
   "/docs/glossary/tensor",
   "/docs/glossary/logit",
   "/docs/glossary/softmax",
+  NEXT_TOKEN_PREDICTION_URL,
   "/docs/glossary/entropy",
   "/docs/glossary/temperature",
   "/docs/glossary/parameter",

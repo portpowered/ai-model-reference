@@ -1,0 +1,42 @@
+{
+  "id": "model.gpt-2",
+  "slug": "gpt-2",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GPT-2", "GPT 2", "OpenAI GPT-2"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.transformer-model-families",
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.causal-attention",
+    "concept.token",
+    "concept.next-token-prediction",
+    "module.multi-head-attention",
+    "concept.autoregressive-generation"
+  ],
+  "citationIds": [
+    "citation.gpt-2-report",
+    "citation.attention-is-all-you-need"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "transformer-families",
+  "sourceType": "research",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "concept.causal-attention"
+  ],
+  "moduleIds": ["module.attention", "module.multi-head-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "organizationId": "organization.openai",
+  "releaseDate": "2019-02-14",
+  "parameterCount": "1.5B",
+  "contextLength": 1024
+}

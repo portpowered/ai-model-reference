@@ -80,8 +80,11 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.rope",
   "concept.alibi",
   "concept.context-window",
+  "concept.causal-attention",
   "concept.context-extension",
   "concept.why-long-context-is-hard",
+  "concept.next-token-prediction",
+  "model.gpt-2",
 ]);
 
 export type PublishedDocsRegistryIds = ReadonlySet<string>;

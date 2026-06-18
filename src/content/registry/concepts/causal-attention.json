@@ -1,0 +1,31 @@
+{
+  "id": "concept.causal-attention",
+  "slug": "causal-attention",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "causal attention",
+    "causal self-attention",
+    "masked self-attention"
+  ],
+  "tags": ["attention"],
+  "relatedIds": [
+    "module.attention",
+    "module.multi-head-attention",
+    "concept.transformer",
+    "concept.autoregressive-generation",
+    "concept.next-token-prediction"
+  ],
+  "citationIds": ["citation.attention-is-all-you-need"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "architecture",
+  "prerequisiteIds": [
+    "module.attention",
+    "concept.token",
+    "concept.transformer"
+  ],
+  "explainsIds": ["concept.autoregressive-generation"]
+}

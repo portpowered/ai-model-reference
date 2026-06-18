@@ -1,0 +1,31 @@
+{
+  "id": "citation.gpt-2-report",
+  "slug": "gpt-2-report",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "GPT-2 report",
+    "Language Models are Unsupervised Multitask Learners",
+    "GPT-2 technical report"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Alec Radford",
+    "Jeffrey Wu",
+    "Rewon Child",
+    "David Luan",
+    "Dario Amodei",
+    "Ilya Sutskever"
+  ],
+  "title": "Language Models are Unsupervised Multitask Learners",
+  "year": 2019,
+  "url": "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf",
+  "mla": "Radford, Alec, et al. \"Language Models are Unsupervised Multitask Learners.\" OpenAI technical report, 2019, https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf."
+}

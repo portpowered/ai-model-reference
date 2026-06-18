@@ -12,7 +12,11 @@ import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
 import { ConceptMap } from "@/features/models/components/ConceptMap";
+import { ModelArchitectureGraph } from "@/features/models/components/ModelArchitectureGraph";
+import { ModelAtAGlance } from "@/features/models/components/ModelAtAGlance";
+import { ModelModuleList } from "@/features/models/components/ModelModuleList";
 import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
+import { ModelTrainingSummary } from "@/features/models/components/ModelTrainingSummary";
 import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
 import {
   ModuleAttentionMhaMqaSchemaComparison,
@@ -44,6 +48,10 @@ export const moduleMdxComponents: MDXComponents = {
   ModuleGraph,
   ModuleMetadataCard,
   ModuleAtAGlance,
+  ModelArchitectureGraph,
+  ModelAtAGlance,
+  ModelModuleList,
+  ModelTrainingSummary,
   ModelsUsingModule,
   PageMathFormula,
 };

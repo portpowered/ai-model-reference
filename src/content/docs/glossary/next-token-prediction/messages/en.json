@@ -1,0 +1,32 @@
+{
+  "title": "Next-Token Prediction",
+  "description": "The language-model training objective that asks the model to predict the next token from the prefix it has already seen.",
+  "openingSummary": "Next-token prediction trains a language model to guess one token ahead from the current prefix, which is why decoding can later run by repeating the same step at inference time.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Next-token prediction is the objective used by many decoder-only language models. During training, the model reads a prefix of tokenized text and produces logits for the token that should come next. Cross-entropy then rewards high probability on the correct next token."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "This objective is the bridge between training and use. A model such as GPT-2 learns from huge text corpora by repeating the same local question millions of times, then inference reuses that behavior through autoregressive generation."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "If the training text reads \"Paris is the capital of France\", the model may receive the prefix \"Paris is the capital of\" and be asked to score the next token \"France\" above the alternatives."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Next-token prediction is not the same as full-sequence understanding or instruction tuning. It is the base pretraining objective that teaches local continuation skill. It also differs from tokenization: tokenization defines the units being predicted, while next-token prediction defines the learning target over those units."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

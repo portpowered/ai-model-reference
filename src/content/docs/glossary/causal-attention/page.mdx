@@ -1,22 +1,18 @@
 ---
-title: Token
-description: The smallest unit of text a language model reads and predicts—usually a word piece, not always a whole word. Each token ID maps to a dense vector through vector embedding of model hidden size before attention runs.
+title: Causal Attention
+description: An attention mask pattern that lets each position read only the current token and earlier tokens, never future tokens.
 kind: "glossary"
-registryId: "concept.token"
+registryId: "concept.causal-attention"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
 tags:
   - attention
-  - token-to-probability-chain
-  - foundations
 aliases:
-  - "token"
-  - "tokens"
-  - "token id"
-  - "subword token"
-  - "tokenization"
-updatedAt: "2026-06-05"
+  - causal attention
+  - causal self-attention
+  - masked self-attention
+updatedAt: "2026-06-18"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
@@ -24,7 +20,6 @@ import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
-import { ConceptMap } from "@/features/models/components/ConceptMap";
 
 
 <Section id="what-it-is" titleKey="sections.whatItIs.title">
@@ -39,20 +34,18 @@ import { ConceptMap } from "@/features/models/components/ConceptMap";
   <T k="sections.simpleExample.body" />
 </Section>
 
-<ConceptMap registryId="concept.token" assetId="conceptMap" />
-
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">
   <T k="sections.commonConfusions.body" />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
-  <RelatedDocs registryId="concept.token" />
+  <RelatedDocs registryId="concept.causal-attention" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
-  <TagPillList registryId="concept.token" showDescriptions />
+  <TagPillList registryId="concept.causal-attention" showDescriptions />
 </Section>
 
 <Section id="references" titleKey="sections.references.title">
-  <CitationList registryId="concept.token" />
+  <CitationList registryId="concept.causal-attention" />
 </Section>

@@ -1,0 +1,74 @@
+{
+  "title": "GPT-2",
+  "description": "A decoder-only Transformer language model from OpenAI that made large-scale next-token pretraining a mainstream reference point for modern language models.",
+  "openingSummary": "GPT-2 matters because it turned a plain decoder-only Transformer trained with next-token prediction into a widely recognized example of zero-shot language transfer, making the model itself a useful doorway into transformer blocks, causal attention, tokenization, and decoding.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "GPT-2 is a research language model released by OpenAI in 2019. It is a text-only decoder-only Transformer: tokenized text goes in, hidden states move through repeated causal attention and feed-forward blocks, and the model emits logits for the next token. It is best treated as a canonical checkpoint page because many later families keep the same broad recipe while changing scale, data, or post-training."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The input is tokenized text, not raw characters. GPT-2 reads a prefix, updates one hidden state per token position, and produces a probability distribution over the next token. Repeating that next-token prediction step yields longer text outputs, which is why GPT-2 sits naturally beside tokenization, next-token prediction, and autoregressive generation pages."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "GPT-2 uses the Transformer family in a decoder-only layout. Each layer applies causal attention so later positions cannot peek at future tokens, then a feed-forward network refines the per-token representation before the language-model head scores the next token. The architecture graph below treats GPT-2 itself as the root so readers can move outward to Transformer, causal attention, tokenization, and next-token prediction without leaving the page context."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The key module story is not exotic specialization but the baseline recipe. GPT-2 is a useful reference point because standard attention and multi-head attention are still easy to spot, so later variants such as grouped-query attention can be explained as changes to a familiar decoder stack."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public GPT-2 summaries describe the model as large-scale unsupervised pretraining on web text with a next-token objective. In this atlas slice, the structured training-regime, dataset, and paper relationship slots are still optional, so the page renders explicit unavailable states instead of implying richer metadata than the registry currently has."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "GPT-2 is historically important, but it is not a modern chat or reasoning model. It is best used here as a clean architectural reference: a decoder-only Transformer with causal attention, fixed tokenization, and a straightforward next-token loop. That makes it easier to compare newer checkpoints without starting from a heavily post-trained product model."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Architecture graph showing GPT-2 as the root with tokenization, decoder blocks, causal attention, feed-forward layers, and next-token prediction as the main parts.",
+      "caption": "GPT-2 as a decoder-only Transformer: tokenization feeds a causal decoder stack, which feeds the next-token prediction head."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "gpt2": {
+        "label": "GPT-2",
+        "summary": "A decoder-only Transformer checkpoint used here as a canonical language-model reference."
+      },
+      "tokenizer": {
+        "label": "Tokenization",
+        "summary": "Maps raw text into token IDs before the decoder stack runs."
+      },
+      "decoderStack": {
+        "label": "Decoder stack",
+        "summary": "Repeated Transformer blocks update one hidden state per token position."
+      },
+      "causalAttention": {
+        "label": "Causal attention",
+        "summary": "The mask lets each token read only the current prefix, not future tokens."
+      },
+      "ffn": {
+        "label": "Feed-forward network",
+        "summary": "The per-token MLP stage that refines features after attention."
+      },
+      "lmHead": {
+        "label": "Next-token prediction",
+        "summary": "The language-model head turns the final hidden state into logits over the next token."
+      }
+    }
+  }
+}

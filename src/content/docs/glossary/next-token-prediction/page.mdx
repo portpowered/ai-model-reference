@@ -1,22 +1,19 @@
 ---
-title: Token
-description: The smallest unit of text a language model reads and predicts—usually a word piece, not always a whole word. Each token ID maps to a dense vector through vector embedding of model hidden size before attention runs.
+title: Next-Token Prediction
+description: The language-model training objective that asks the model to predict the next token from the prefix it has already seen.
 kind: "glossary"
-registryId: "concept.token"
+registryId: "concept.next-token-prediction"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
 tags:
-  - attention
-  - token-to-probability-chain
   - foundations
+  - token-to-probability-chain
 aliases:
-  - "token"
-  - "tokens"
-  - "token id"
-  - "subword token"
-  - "tokenization"
-updatedAt: "2026-06-05"
+  - next-token prediction
+  - next token prediction
+  - language modeling objective
+updatedAt: "2026-06-18"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
@@ -24,7 +21,6 @@ import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
-import { ConceptMap } from "@/features/models/components/ConceptMap";
 
 
 <Section id="what-it-is" titleKey="sections.whatItIs.title">
@@ -39,20 +35,18 @@ import { ConceptMap } from "@/features/models/components/ConceptMap";
   <T k="sections.simpleExample.body" />
 </Section>
 
-<ConceptMap registryId="concept.token" assetId="conceptMap" />
-
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">
   <T k="sections.commonConfusions.body" />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
-  <RelatedDocs registryId="concept.token" />
+  <RelatedDocs registryId="concept.next-token-prediction" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
-  <TagPillList registryId="concept.token" showDescriptions />
+  <TagPillList registryId="concept.next-token-prediction" showDescriptions />
 </Section>
 
 <Section id="references" titleKey="sections.references.title">
-  <CitationList registryId="concept.token" />
+  <CitationList registryId="concept.next-token-prediction" />
 </Section>

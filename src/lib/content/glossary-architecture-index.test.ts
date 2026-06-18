@@ -25,6 +25,7 @@ const TAXONOMY_GLOSSARY_SLUGS = [
 ] as const;
 
 const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
+  "causal-attention": "Causal Attention",
   model: "Model",
   architecture: "Architecture",
   module: "Module",
@@ -51,10 +52,12 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   gradient: "Gradient",
   backpropagation: "Backpropagation",
   "loss-function": "Loss Function",
+  "next-token-prediction": "Next-Token Prediction",
   "optimizer-state": "Optimizer State",
 };
 
 const CHAIN_GLOSSARY_SLUGS = [
+  "causal-attention",
   "embedding",
   "vector",
   "tensor",
@@ -68,10 +71,11 @@ const CHAIN_GLOSSARY_SLUGS = [
   "gradient",
   "backpropagation",
   "loss-function",
+  "next-token-prediction",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 54;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 47;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 56;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 48;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",

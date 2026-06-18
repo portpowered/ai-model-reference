@@ -20,6 +20,7 @@
     "---Sequence And Attention---",
     "[ALiBi](/docs/glossary/alibi)",
     "[Context window](/docs/glossary/context-window)",
+    "[Causal Attention](/docs/glossary/causal-attention)",
     "[Decoder](/docs/glossary/decoder)",
     "[Encoder](/docs/glossary/encoder)",
     "[Encoder-Decoder](/docs/glossary/encoder-decoder)",
@@ -58,6 +59,7 @@
     "[Autoregressive Generation](/docs/glossary/autoregressive-generation)",
     "[Conditioning](/docs/glossary/conditioning)",
     "[Denoising Generation](/docs/glossary/denoising-generation)",
-    "[Diffusion Model](/docs/glossary/diffusion-model)"
+    "[Diffusion Model](/docs/glossary/diffusion-model)",
+    "[Next-Token Prediction](/docs/glossary/next-token-prediction)"
   ]
 }

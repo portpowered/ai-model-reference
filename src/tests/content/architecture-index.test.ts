@@ -32,6 +32,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/alignment",
         "/docs/glossary/architecture",
         "/docs/glossary/autoregressive-generation",
+        "/docs/glossary/causal-attention",
         "/docs/glossary/component",
         "/docs/glossary/computational-graph",
         "/docs/glossary/conditioning",

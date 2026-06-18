@@ -1,3 +1,4 @@
+import gpt2Architecture from "@/content/registry/graphs/gpt-2-architecture.json";
 import groupedQueryAttentionComputeFlow from "@/content/registry/graphs/grouped-query-attention-compute-flow.json";
 import groupedQueryAttentionComputeSchema from "@/content/registry/graphs/grouped-query-attention-compute-schema.json";
 import groupedQueryAttentionGqaComparison from "@/content/registry/graphs/grouped-query-attention-gqa-comparison.json";
@@ -22,6 +23,7 @@ const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(groupedQueryAttentionComputeSchema),
   graphRecordSchema.parse(groupedQueryAttentionMhaComparison),
   graphRecordSchema.parse(groupedQueryAttentionGqaComparison),
+  graphRecordSchema.parse(gpt2Architecture),
   graphRecordSchema.parse(multiHeadAttentionMhaComparison),
   graphRecordSchema.parse(multiHeadAttentionMqaComparison),
   graphRecordSchema.parse(multiHeadAttentionTimePattern),

@@ -17,6 +17,7 @@ import {
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
+const GPT2_URL = "/docs/models/gpt-2";
 const MODEL_FAMILIES_OVERVIEW_URL = "/docs/models/model-families-overview";
 
 describe("search result meta", () => {
@@ -101,6 +102,17 @@ describe("search result meta", () => {
       expect.arrayContaining(["taxonomy", "model-family"]),
     );
     expect(meta?.aliases).toContain("model families");
+  });
+
+  test("loadSearchResultMetaMap includes GPT-2 as a checkpoint model result", async () => {
+    const map = await loadSearchResultMetaMap();
+    const meta = map.get(GPT2_URL);
+    expect(meta).toBeDefined();
+    expect(meta?.kind).toBe("model");
+    expect(meta?.tags).toEqual(expect.arrayContaining(["foundations"]));
+    expect(meta?.aliases).toEqual(
+      expect.arrayContaining(["GPT-2", "OpenAI GPT-2"]),
+    );
   });
 
   test("buildSearchResultMetaMap keys by url", () => {

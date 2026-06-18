@@ -1,0 +1,102 @@
+{
+  "id": "graph.gpt-2-architecture",
+  "slug": "gpt-2-architecture",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GPT-2 architecture graph"],
+  "tags": ["attention", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "model.gpt-2",
+  "graphType": "model-architecture",
+  "rootNodeId": "gpt-2",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "gpt-2",
+      "labelKey": "graph.nodes.gpt2.label",
+      "summaryKey": "graph.nodes.gpt2.summary",
+      "registryId": "model.gpt-2",
+      "moduleKind": "model",
+      "childNodeIds": ["tokenizer", "decoder-stack", "lm-head"]
+    },
+    {
+      "id": "tokenizer",
+      "labelKey": "graph.nodes.tokenizer.label",
+      "summaryKey": "graph.nodes.tokenizer.summary",
+      "registryId": "concept.token",
+      "moduleKind": "tokenizer",
+      "childNodeIds": []
+    },
+    {
+      "id": "decoder-stack",
+      "labelKey": "graph.nodes.decoderStack.label",
+      "summaryKey": "graph.nodes.decoderStack.summary",
+      "registryId": "concept.transformer-architecture",
+      "moduleKind": "block",
+      "childNodeIds": ["causal-attention", "ffn"]
+    },
+    {
+      "id": "causal-attention",
+      "labelKey": "graph.nodes.causalAttention.label",
+      "summaryKey": "graph.nodes.causalAttention.summary",
+      "registryId": "concept.causal-attention",
+      "moduleKind": "attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "ffn",
+      "labelKey": "graph.nodes.ffn.label",
+      "summaryKey": "graph.nodes.ffn.summary",
+      "registryId": "concept.feed-forward-network",
+      "moduleKind": "feed-forward",
+      "childNodeIds": []
+    },
+    {
+      "id": "lm-head",
+      "labelKey": "graph.nodes.lmHead.label",
+      "summaryKey": "graph.nodes.lmHead.summary",
+      "registryId": "concept.next-token-prediction",
+      "moduleKind": "output",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "gpt-2-to-tokenizer",
+      "source": "gpt-2",
+      "target": "tokenizer",
+      "edgeKind": "contains"
+    },
+    {
+      "id": "gpt-2-to-decoder-stack",
+      "source": "gpt-2",
+      "target": "decoder-stack",
+      "edgeKind": "contains"
+    },
+    {
+      "id": "gpt-2-to-lm-head",
+      "source": "gpt-2",
+      "target": "lm-head",
+      "edgeKind": "contains"
+    },
+    {
+      "id": "decoder-stack-to-causal-attention",
+      "source": "decoder-stack",
+      "target": "causal-attention",
+      "edgeKind": "contains"
+    },
+    {
+      "id": "decoder-stack-to-ffn",
+      "source": "decoder-stack",
+      "target": "ffn",
+      "edgeKind": "contains"
+    }
+  ]
+}

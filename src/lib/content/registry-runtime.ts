@@ -4,6 +4,7 @@ import alignmentConcept from "@/content/registry/concepts/alignment.json";
 import architectureConcept from "@/content/registry/concepts/architecture.json";
 import autoregressiveGenerationConcept from "@/content/registry/concepts/autoregressive-generation.json";
 import backpropagationConcept from "@/content/registry/concepts/backpropagation.json";
+import causalAttentionConcept from "@/content/registry/concepts/causal-attention.json";
 import componentConcept from "@/content/registry/concepts/component.json";
 import computationalGraphConcept from "@/content/registry/concepts/computational-graph.json";
 import conditioningConcept from "@/content/registry/concepts/conditioning.json";
@@ -35,6 +36,7 @@ import modelConcept from "@/content/registry/concepts/model.json";
 import modelCapacityConcept from "@/content/registry/concepts/model-capacity.json";
 import moduleConcept from "@/content/registry/concepts/module.json";
 import multimodalModelConcept from "@/content/registry/concepts/multimodal-model.json";
+import nextTokenPredictionConcept from "@/content/registry/concepts/next-token-prediction.json";
 import normalizationConcept from "@/content/registry/concepts/normalization.json";
 import optimizerStateConcept from "@/content/registry/concepts/optimizer-state.json";
 import overfittingConcept from "@/content/registry/concepts/overfitting.json";
@@ -57,6 +59,7 @@ import vectorConcept from "@/content/registry/concepts/vector.json";
 import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-context-is-hard.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
 import diffusionModelFamilies from "@/content/registry/models/diffusion-model-families.json";
+import gpt2Model from "@/content/registry/models/gpt-2.json";
 import modelFamiliesOverview from "@/content/registry/models/model-families-overview.json";
 import multimodalModelFamilies from "@/content/registry/models/multimodal-model-families.json";
 import omniModelFamilies from "@/content/registry/models/omni-model-families.json";
@@ -132,6 +135,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(conditioningConcept),
   conceptRecordSchema.parse(contextExtensionConcept),
   conceptRecordSchema.parse(contextWindowConcept),
+  conceptRecordSchema.parse(causalAttentionConcept),
   conceptRecordSchema.parse(alignmentConcept),
   conceptRecordSchema.parse(modelCapacityConcept),
   conceptRecordSchema.parse(overfittingConcept),
@@ -152,6 +156,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(transformerConcept),
   conceptRecordSchema.parse(diffusionModelConcept),
   conceptRecordSchema.parse(multimodalModelConcept),
+  conceptRecordSchema.parse(nextTokenPredictionConcept),
   conceptRecordSchema.parse(whyLongContextIsHardConcept),
   conceptRecordSchema.parse(worldModelConcept),
 ];
@@ -164,6 +169,7 @@ const modelRecords: ModelRecord[] = [
   modelRecordSchema.parse(modelFamiliesOverview),
   modelRecordSchema.parse(transformerModelFamilies),
   modelRecordSchema.parse(diffusionModelFamilies),
+  modelRecordSchema.parse(gpt2Model),
   modelRecordSchema.parse(multimodalModelFamilies),
   modelRecordSchema.parse(omniModelFamilies),
   modelRecordSchema.parse(worldModelFamilies),

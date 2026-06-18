@@ -1,0 +1,28 @@
+{
+  "id": "concept.next-token-prediction",
+  "slug": "next-token-prediction",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "next-token prediction",
+    "next token prediction",
+    "language modeling objective"
+  ],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "relatedIds": [
+    "concept.token",
+    "concept.embedding",
+    "concept.logit",
+    "concept.softmax",
+    "concept.autoregressive-generation",
+    "concept.causal-attention"
+  ],
+  "citationIds": ["citation.gpt-2-report"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "training",
+  "prerequisiteIds": ["concept.token", "concept.logit", "concept.softmax"],
+  "explainsIds": ["concept.autoregressive-generation"]
+}
