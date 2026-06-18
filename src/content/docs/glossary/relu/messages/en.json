@@ -1,0 +1,32 @@
+{
+  "title": "ReLU",
+  "description": "A pointwise activation that keeps positive FFN values and clamps negative ones to zero.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "ReLU stands for rectified linear unit. Inside a standard FFN, it looks at each hidden value after the expand layer and applies a simple rule: keep positive numbers, replace negative numbers with zero. The FFN stays in the same slot after attention, but this activation changes which hidden features stay active before the block projects back to model width."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "ReLU became popular because the rule is cheap to compute and easy to reason about. When a token's hidden feature is positive, the feature passes through unchanged; when it is negative, the feature drops out for that step. That sharp gate can help a dense FFN learn sparse feature patterns, which is why ReLU remains a useful baseline when papers compare newer activations."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose an FFN hidden vector contains [-2.1, 0.7, 3.4]. ReLU turns it into [0, 0.7, 3.4]. The token stays in the same per-position feed-forward path; only the hidden values change before the next projection."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "ReLU is only the activation step inside an FFN, not the whole feed-forward block. It also is not the same as LeakyReLU or SiLU, which keep some information for negative values instead of forcing every negative entry to zero. In transformer papers, seeing ReLU usually tells you how the hidden FFN state is shaped, not that the model changed its attention or residual path."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "ReLU is a simple FFN activation that zeroes negative hidden values, giving transformer MLPs a cheap nonlinearity that decides which features remain active."
+}

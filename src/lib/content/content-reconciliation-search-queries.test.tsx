@@ -17,6 +17,11 @@ const MULTI_QUERY_ATTENTION_URL = "/docs/modules/multi-query-attention";
 const SPARSE_ATTENTION_URL = "/docs/modules/sparse-attention";
 const ROPE_GLOSSARY_URL = "/docs/glossary/rope";
 const CONTEXT_WINDOW_GLOSSARY_URL = "/docs/glossary/context-window";
+const MIXTURE_OF_EXPERTS_GLOSSARY_URL = "/docs/glossary/mixture-of-experts";
+const RELU_GLOSSARY_URL = "/docs/glossary/relu";
+const LEAKY_RELU_GLOSSARY_URL = "/docs/glossary/leaky-relu";
+const SILU_GLOSSARY_URL = "/docs/glossary/silu";
+const SWIGLU_GLOSSARY_URL = "/docs/glossary/swiglu";
 
 const ATTENTION_MODULE_QUERIES = [
   { query: "MHA", url: MULTI_HEAD_ATTENTION_URL },
@@ -31,6 +36,19 @@ const GLOSSARY_CANONICAL_QUERIES = [
     url: CONTEXT_WINDOW_GLOSSARY_URL,
     kind: "glossary" as const,
   },
+  {
+    query: "mixture of experts",
+    url: MIXTURE_OF_EXPERTS_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
+  { query: "ReLU", url: RELU_GLOSSARY_URL, kind: "glossary" as const },
+  {
+    query: "LeakyReLU",
+    url: LEAKY_RELU_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
+  { query: "SiLU", url: SILU_GLOSSARY_URL, kind: "glossary" as const },
+  { query: "SwiGLU", url: SWIGLU_GLOSSARY_URL, kind: "glossary" as const },
 ] as const;
 
 function resultsIncludeUrl(
@@ -105,6 +123,11 @@ describe("Phase 2/3 reconciliation search UI kind labels (US-010)", () => {
     [SPARSE_ATTENTION_URL, "module", "Module"],
     [ROPE_GLOSSARY_URL, "glossary", "Glossary"],
     [CONTEXT_WINDOW_GLOSSARY_URL, "glossary", "Glossary"],
+    [MIXTURE_OF_EXPERTS_GLOSSARY_URL, "glossary", "Glossary"],
+    [RELU_GLOSSARY_URL, "glossary", "Glossary"],
+    [LEAKY_RELU_GLOSSARY_URL, "glossary", "Glossary"],
+    [SILU_GLOSSARY_URL, "glossary", "Glossary"],
+    [SWIGLU_GLOSSARY_URL, "glossary", "Glossary"],
   ] as const)("SearchResultMetaDetails shows localized %s kind for %s", async (url, kind, label) => {
     const messages = await loadUiMessages();
     const metaByUrl = searchResultMetaMapToRecord(

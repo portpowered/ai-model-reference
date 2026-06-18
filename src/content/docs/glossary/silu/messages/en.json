@@ -1,0 +1,32 @@
+{
+  "title": "SiLU",
+  "description": "A smooth activation that multiplies each FFN hidden value by its sigmoid gate.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "SiLU stands for sigmoid linear unit. For each hidden value x inside an FFN, it outputs x multiplied by sigmoid(x). Large positive values pass through strongly, values near zero are softened, and negative values are reduced smoothly instead of being cut off sharply. Many modern transformer blocks use SiLU because it fits well with wide FFN layers after attention."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Compared with ReLU, SiLU changes hidden states more gradually. That smoother shape often works well in large language model FFNs, where small changes in hidden values can matter across many layers. SiLU also matters because SwiGLU builds on the same nonlinearity: the gate branch in a SwiGLU block uses SiLU before it scales the value branch."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "If one hidden value is 3, sigmoid(3) is close to 0.95, so SiLU keeps most of that signal. If another value is -2, sigmoid(-2) is small, so the output stays negative but shrinks in magnitude. The token still follows the same standard FFN slot; SiLU only changes how the expanded hidden features are filtered."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "SiLU is an activation, not a full gated FFN by itself. SwiGLU uses SiLU as part of a larger two-branch feed-forward design, while plain SiLU can also appear inside an otherwise standard FFN. SiLU is also not the same as softmax or sigmoid output heads; it is an internal hidden-state transform."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "SiLU smoothly gates each FFN hidden value with its own sigmoid score, giving transformer MLPs a softer activation than ReLU and setting up the gate used in SwiGLU blocks."
+}

@@ -29,6 +29,7 @@ import kvCacheConcept from "@/content/registry/concepts/kv-cache.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
 import layerNormConcept from "@/content/registry/concepts/layer-norm.json";
+import leakyReluConcept from "@/content/registry/concepts/leaky-relu.json";
 import logitConcept from "@/content/registry/concepts/logit.json";
 import lossFunctionConcept from "@/content/registry/concepts/loss-function.json";
 import mixtureOfExpertsConcept from "@/content/registry/concepts/mixture-of-experts.json";
@@ -46,13 +47,16 @@ import perplexityConcept from "@/content/registry/concepts/perplexity.json";
 import positionalEncodingsConcept from "@/content/registry/concepts/positional-encodings.json";
 import prefillConcept from "@/content/registry/concepts/prefill.json";
 import prefillDecodeSplitConcept from "@/content/registry/concepts/prefill-decode-split.json";
+import reluConcept from "@/content/registry/concepts/relu.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
 import residualConnectionConcept from "@/content/registry/concepts/residual-connection.json";
 import rmsnormConcept from "@/content/registry/concepts/rmsnorm.json";
 import ropeConcept from "@/content/registry/concepts/rope.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
+import siluConcept from "@/content/registry/concepts/silu.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
 import standardFfnConcept from "@/content/registry/concepts/standard-ffn.json";
+import swigluConcept from "@/content/registry/concepts/swiglu.json";
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
@@ -143,6 +147,10 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(feedForwardNetworkConcept),
   conceptRecordSchema.parse(standardFfnConcept),
   conceptRecordSchema.parse(mixtureOfExpertsConcept),
+  conceptRecordSchema.parse(reluConcept),
+  conceptRecordSchema.parse(leakyReluConcept),
+  conceptRecordSchema.parse(siluConcept),
+  conceptRecordSchema.parse(swigluConcept),
   conceptRecordSchema.parse(layerNormConcept),
   conceptRecordSchema.parse(normalizationConcept),
   conceptRecordSchema.parse(rmsnormConcept),

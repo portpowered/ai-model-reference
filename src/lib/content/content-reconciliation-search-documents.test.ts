@@ -20,6 +20,10 @@ const BATCH_017_DOCS_URLS = [
   "/docs/glossary/feed-forward-network",
   "/docs/glossary/standard-ffn",
   "/docs/glossary/mixture-of-experts",
+  "/docs/glossary/relu",
+  "/docs/glossary/leaky-relu",
+  "/docs/glossary/silu",
+  "/docs/glossary/swiglu",
   "/docs/glossary/normalization",
   "/docs/glossary/layer-norm",
   "/docs/glossary/rmsnorm",
@@ -59,6 +63,10 @@ const ALIAS_EXPECTATIONS = [
   { url: "/docs/glossary/rope", alias: "RoPE" },
   { url: "/docs/glossary/context-window", alias: "context length" },
   { url: "/docs/glossary/standard-ffn", alias: "dense FFN" },
+  { url: "/docs/glossary/relu", alias: "rectified linear unit" },
+  { url: "/docs/glossary/leaky-relu", alias: "leaky ReLU" },
+  { url: "/docs/glossary/silu", alias: "sigmoid linear unit" },
+  { url: "/docs/glossary/swiglu", alias: "swish gated linear unit" },
 ] as const;
 
 describe("Phase 2/3 reconciliation search documents (US-009)", () => {

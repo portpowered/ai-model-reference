@@ -26,7 +26,12 @@ const TRANSFORMER_ARCHITECTURE_URL = "/docs/concepts/transformer-architecture";
 const PAGE_SPEC_WORKFLOW_SAMPLE_URL =
   "/docs/concepts/page-spec-workflow-sample";
 const FEED_FORWARD_NETWORK_URL = "/docs/glossary/feed-forward-network";
+const STANDARD_FFN_URL = "/docs/glossary/standard-ffn";
 const MIXTURE_OF_EXPERTS_URL = "/docs/glossary/mixture-of-experts";
+const RELU_URL = "/docs/glossary/relu";
+const LEAKY_RELU_URL = "/docs/glossary/leaky-relu";
+const SILU_URL = "/docs/glossary/silu";
+const SWIGLU_URL = "/docs/glossary/swiglu";
 const LAYER_NORM_URL = "/docs/glossary/layer-norm";
 const RMSNORM_URL = "/docs/glossary/rmsnorm";
 const NORMALIZATION_URL = "/docs/glossary/normalization";
@@ -120,7 +125,12 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   TRANSFORMER_ARCHITECTURE_URL,
   PAGE_SPEC_WORKFLOW_SAMPLE_URL,
   FEED_FORWARD_NETWORK_URL,
+  STANDARD_FFN_URL,
   MIXTURE_OF_EXPERTS_URL,
+  RELU_URL,
+  LEAKY_RELU_URL,
+  SILU_URL,
+  SWIGLU_URL,
   LAYER_NORM_URL,
   RMSNORM_URL,
   NORMALIZATION_URL,
