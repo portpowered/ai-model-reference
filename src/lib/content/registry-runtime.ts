@@ -79,6 +79,7 @@ import transformerConcept from "@/content/registry/concepts/transformer.json";
 import transformerArchitectureConcept from "@/content/registry/concepts/transformer-architecture.json";
 import vectorConcept from "@/content/registry/concepts/vector.json";
 import weightOnlyQuantizationConcept from "@/content/registry/concepts/weight-only-quantization.json";
+import whyFourBitModelsAreNotExactlyFourXFasterConcept from "@/content/registry/concepts/why-4-bit-models-are-not-exactly-4x-faster.json";
 import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-context-is-hard.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
 import attention from "@/content/registry/modules/attention.json";
@@ -192,6 +193,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(transformerArchitectureConcept),
   conceptRecordSchema.parse(transformerConcept),
   conceptRecordSchema.parse(weightOnlyQuantizationConcept),
+  conceptRecordSchema.parse(whyFourBitModelsAreNotExactlyFourXFasterConcept),
   conceptRecordSchema.parse(diffusionModelConcept),
   conceptRecordSchema.parse(multimodalModelConcept),
   conceptRecordSchema.parse(whyLongContextIsHardConcept),

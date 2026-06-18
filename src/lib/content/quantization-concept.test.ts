@@ -44,6 +44,7 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
       "concept.calibration",
       "concept.quantization-aware-training",
       "concept.dynamic-quantization",
+      "concept.why-4-bit-models-are-not-exactly-4x-faster",
       "concept.parameter",
       "concept.activation",
       "concept.autoregressive-generation",
@@ -114,7 +115,7 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
     expect(html).toContain('href="/docs/concepts/quantization-aware-training"');
     expect(html).toContain('href="/docs/concepts/dynamic-quantization"');
     expect(html).toContain(
-      'href="/search?query=why%204-bit%20models%20are%20not%20exactly%204x%20faster"',
+      'href="/docs/concepts/why-4-bit-models-are-not-exactly-4x-faster"',
     );
     expect(html).toContain('href="/docs/glossary/parameter"');
     expect(html).toContain('href="/docs/glossary/activation"');

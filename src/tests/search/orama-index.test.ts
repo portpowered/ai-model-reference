@@ -64,6 +64,8 @@ const DYNAMIC_QUANTIZATION_URL = "/docs/concepts/dynamic-quantization";
 const WEIGHT_ONLY_QUANTIZATION_URL = "/docs/concepts/weight-only-quantization";
 const ACTIVATION_QUANTIZATION_URL = "/docs/concepts/activation-quantization";
 const KV_CACHE_QUANTIZATION_URL = "/docs/concepts/kv-cache-quantization";
+const WHY_FOUR_BIT_MODELS_ARE_NOT_EXACTLY_FOUR_X_FASTER_URL =
+  "/docs/concepts/why-4-bit-models-are-not-exactly-4x-faster";
 const STRUCTURAL_TAXONOMY_URLS = [
   "/docs/glossary/model",
   "/docs/glossary/architecture",
@@ -175,6 +177,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   WEIGHT_ONLY_QUANTIZATION_URL,
   ACTIVATION_QUANTIZATION_URL,
   KV_CACHE_QUANTIZATION_URL,
+  WHY_FOUR_BIT_MODELS_ARE_NOT_EXACTLY_FOUR_X_FASTER_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
   ...REPRESENTATION_LATENT_URLS,

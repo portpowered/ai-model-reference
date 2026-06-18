@@ -14,6 +14,7 @@
     "[Weight-only quantization](/docs/concepts/weight-only-quantization)",
     "[Activation quantization](/docs/concepts/activation-quantization)",
     "[KV cache quantization](/docs/concepts/kv-cache-quantization)",
+    "[Why 4-bit models are not exactly 4x faster](/docs/concepts/why-4-bit-models-are-not-exactly-4x-faster)",
     "---Architecture---",
     "[Transformer architecture](/docs/concepts/transformer-architecture)",
     "---Reference Samples---",
