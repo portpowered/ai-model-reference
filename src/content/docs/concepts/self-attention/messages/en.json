@@ -15,13 +15,21 @@
       "title": "Simple Example",
       "body": "In the sentence \"The animal didn't fit in the suitcase because it was too small,\" the token for \"it\" needs clues from earlier tokens in the same sentence. Self-attention lets that token score earlier positions such as \"animal\" and \"suitcase,\" then blend the most useful evidence into its next hidden state before the transformer block moves on."
     },
-    "whereItAppears": {
-      "title": "Where It Appears",
-      "body": "Decoder-only language models use masked self-attention so each token can only read earlier positions. Encoder stacks often use bidirectional self-attention, and encoder-decoder models combine self-attention with a separate cross-attention stage. The broad idea stays the same: the sequence looks back at itself."
+    "insideTransformerBlock": {
+      "title": "Inside A Transformer Block",
+      "body": "In a transformer architecture, each token first arrives as a token vector. The self-attention step compares that token's query against keys from the same sequence, mixes the most relevant values, and hands the updated representation to the rest of the block. Decoder-only models usually apply a causal mask so the token can only read earlier positions, while encoder-style stacks often let the token look in both directions."
     },
     "commonConfusions": {
       "title": "Common Confusions",
       "body": "Self-attention is not the same thing as attention as a full family. The family also includes cross-attention, where one sequence reads from another source. It is also not the same thing as multi-head attention: multi-head attention is one popular way to implement self-attention with several parallel heads. Finally, self-attention is broader than grouped-query attention, which is a memory-saving variant rather than the baseline concept itself."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Full self-attention gives every token a chance to consult every other token in the same sequence, but that flexibility is expensive. As sequences grow, the score matrix and the saved key-value state grow quickly, which is why long-context systems often reach for memory-saving variants, sparse patterns, or serving tricks. Self-attention also does not guarantee good reasoning by itself: the model can still spread focus across too many irrelevant positions or miss the one clue that matters."
+    },
+    "nearbyPages": {
+      "title": "Where To Read Next",
+      "body": "Use the nearby pages below to separate the broad idea from the surrounding architecture and the variants that change its cost profile."
     },
     "related": {
       "title": "Related Concepts And Modules"

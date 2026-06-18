@@ -90,7 +90,16 @@ describe("Self-attention concept page (transformer-self-attention-page-001)", ()
 
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
+    expect(html).toContain("Inside A Transformer Block");
+    expect(html).toContain("Limitations And Tradeoffs");
+    expect(html).toContain("Where To Read Next");
+    expect(html).toContain(
+      "hands the updated representation to the rest of the block",
+    );
     expect(html).toContain("memory-saving variant");
+    expect(html).toContain(
+      "the score matrix and the saved key-value state grow quickly",
+    );
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/glossary/token"');
