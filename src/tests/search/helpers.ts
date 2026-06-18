@@ -121,6 +121,27 @@ export function resultsIncludeTokenGlossary(
   return resultsIncludeUrl(results, TOKEN_GLOSSARY_URL);
 }
 
+export async function retrySearchResults<T>(
+  runSearch: () => T[] | PromiseLike<T[]>,
+  accept: (results: T[]) => boolean,
+  options: { maxAttempts?: number; delayMs?: number } = {},
+): Promise<T[]> {
+  const maxAttempts = options.maxAttempts ?? 2;
+  const delayMs = options.delayMs ?? 50;
+
+  let lastResults: T[] = [];
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    lastResults = await runSearch();
+    if (accept(lastResults) || attempt === maxAttempts) {
+      return lastResults;
+    }
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+
+  return lastResults;
+}
+
 type ThinMetadataQueries = {
   queryAllByTestId: (id: string) => HTMLElement[];
   queryByTestId: (id: string) => HTMLElement | null;

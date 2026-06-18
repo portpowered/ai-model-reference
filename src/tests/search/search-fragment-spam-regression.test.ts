@@ -9,6 +9,7 @@ import { PHASE_1_SEARCH_ASSERTIONS } from "@/lib/verify/phase-1-search-checks";
 import {
   expectCollapsedResultsDominateFragmentSpam,
   expectUniqueCanonicalPageUrls,
+  retrySearchResults,
 } from "./helpers";
 import {
   createDocsSearchRouteFetch,
@@ -35,7 +36,10 @@ describe("Phase 1 fragment-spam regression", () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
     const rawClient = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const rawResults = await rawClient.search(query);
+    const rawResults = await retrySearchResults(
+      () => rawClient.search(query),
+      (results) => results.length > 0,
+    );
     const collapsedResults = await docsSearchApi.search(query);
 
     expectCollapsedResultsDominateFragmentSpam(

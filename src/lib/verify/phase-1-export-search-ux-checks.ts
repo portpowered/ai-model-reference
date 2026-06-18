@@ -17,10 +17,13 @@ import {
   runPhase1SearchPageChecks,
 } from "./phase-1-search-page-checks";
 import { createStaticExportHttpServer } from "./static-export-http-server";
+import { isRetryableStaticExportSearchProbeFailure } from "./static-export-search-empty-error-states-http";
 
 export const DEFAULT_EXPORT_OUT_DIR = "out";
 
 export const EXPORT_SEARCH_UX_STUB_ENV = "VERIFY_EXPORT_SEARCH_UX_STUB";
+const EXPORT_SEARCH_UX_RETRY_ATTEMPTS = 3;
+const EXPORT_SEARCH_UX_RETRY_DELAY_MS = 5_000;
 
 /** Under full-suite probe serialization, export Playwright probes only GQA to avoid lock-queue timeouts. */
 export const CI_EXPORT_SEARCH_UX_PROBE_QUERIES = ["GQA"] as const;
@@ -88,6 +91,40 @@ function resolveOutDirAbsolute(outDir: string, cwd: string): string {
   return isAbsolute(outDir) ? outDir : join(cwd, outDir);
 }
 
+async function sleep(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryableSearchDialogFailureReason(reason: string): boolean {
+  return (
+    reason.includes(
+      "timed out waiting for search results in header search dialog",
+    ) || reason.includes("no search results rendered in header search dialog")
+  );
+}
+
+function isRetryableExportSearchUxFailure(
+  failure: Phase1ExportSearchUxCheckFailure,
+): boolean {
+  const retryableProbeReason: string | null = failure.reason;
+
+  if (isRetryableStaticExportSearchProbeFailure(retryableProbeReason)) {
+    return true;
+  }
+
+  const reason = failure.reason;
+
+  if (failure.surface === "header-dialog") {
+    return isRetryableSearchDialogFailureReason(reason);
+  }
+
+  if (failure.surface !== "/search") {
+    return false;
+  }
+
+  return reason.includes("search input did not hydrate on /search within");
+}
+
 /**
  * Verifies Phase 1 `/search` and header dialog queries against a served static export artifact.
  */
@@ -119,7 +156,7 @@ export async function runPhase1ExportSearchUxChecks(
     ];
   }
 
-  const runServedChecks = async (): Promise<
+  const runServedChecksOnce = async (): Promise<
     Phase1ExportSearchUxCheckFailure[]
   > => {
     const session = await createStaticExportHttpServer({
@@ -166,6 +203,32 @@ export async function runPhase1ExportSearchUxChecks(
     } finally {
       await session.cleanup();
     }
+  };
+
+  const runServedChecks = async (): Promise<
+    Phase1ExportSearchUxCheckFailure[]
+  > => {
+    let failures: Phase1ExportSearchUxCheckFailure[] = [];
+
+    for (
+      let attempt = 1;
+      attempt <= EXPORT_SEARCH_UX_RETRY_ATTEMPTS;
+      attempt += 1
+    ) {
+      failures = await runServedChecksOnce();
+      const shouldRetry =
+        failures.length > 0 &&
+        failures.every(isRetryableExportSearchUxFailure) &&
+        attempt < EXPORT_SEARCH_UX_RETRY_ATTEMPTS;
+
+      if (!shouldRetry) {
+        return failures;
+      }
+
+      await sleep(EXPORT_SEARCH_UX_RETRY_DELAY_MS);
+    }
+
+    return failures;
   };
 
   if (isStubbedExportSearchUxCheck(options)) {

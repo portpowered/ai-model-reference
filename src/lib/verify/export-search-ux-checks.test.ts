@@ -202,4 +202,42 @@ describe("runPhase1ExportSearchUxChecks hydration failures", () => {
       rmSync(root, { recursive: true, force: true });
     }
   }, 15_000);
+
+  test("retries transient header-dialog search timeouts before failing", async () => {
+    const root = mkdtempSync(join(tmpdir(), "export-ux-retry-pass-"));
+    mkdirSync(join(root, "api"), { recursive: true });
+    writeFileSync(
+      join(root, "api", "search"),
+      JSON.stringify({
+        type: "advanced",
+        documents: [{ url: PHASE_1_GROUPED_QUERY_ATTENTION_URL }],
+      }),
+    );
+    writeFileSync(join(root, "index.html"), "<html></html>");
+
+    let attempts = 0;
+
+    try {
+      const failures = await runPhase1ExportSearchUxChecks({
+        outDir: root,
+        cwd: root,
+        searchPageOptions: { runQueryCheck: async () => null },
+        searchDialogOptions: {
+          queries: ["GQA"],
+          runQueryCheck: async () => {
+            attempts += 1;
+            if (attempts === 1) {
+              return 'timed out waiting for search results in header search dialog for query "GQA" after 30000ms';
+            }
+            return null;
+          },
+        },
+      });
+
+      expect(failures).toEqual([]);
+      expect(attempts).toBe(2);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }, 20_000);
 });

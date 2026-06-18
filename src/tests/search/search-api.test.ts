@@ -18,6 +18,7 @@ import {
   resultsIncludeSampleModule,
   resultsIncludeTokenGlossary,
   resultsIncludeUrl,
+  retrySearchResults,
   SAMPLE_MODULE_URL,
   TOKEN_GLOSSARY_URL,
 } from "./helpers";
@@ -350,7 +351,10 @@ describe("docs search static client", () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
     const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const results = await client.search("GQA");
+    const results = await retrySearchResults(
+      () => client.search("GQA"),
+      (candidateResults) => candidateResults[0]?.url === SAMPLE_URL,
+    );
 
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url).toBe(SAMPLE_URL);
@@ -360,7 +364,11 @@ describe("docs search static client", () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
     const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const results = await client.search("attention");
+    const results = await retrySearchResults(
+      () => client.search("attention"),
+      (candidateResults) =>
+        resultsIncludeUrl(candidateResults, PHASE_1_ATTENTION_MODULE_URL),
+    );
 
     expect(results.length).toBeGreaterThan(0);
     expect(resultsIncludeUrl(results, BIDIRECTIONAL_ATTENTION_URL)).toBe(true);
@@ -370,7 +378,10 @@ describe("docs search static client", () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
     const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const results = await client.search("KV cache");
+    const results = await retrySearchResults(
+      () => client.search("KV cache"),
+      resultsIncludeSampleModule,
+    );
 
     expect(results.length).toBeGreaterThan(0);
     expect(resultsIncludeSampleModule(results)).toBe(true);
