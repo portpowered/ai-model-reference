@@ -96,12 +96,14 @@ describe("registry-runtime", () => {
       getRegistryCitationIds("module.compressed-sparse-attention"),
     ).toEqual([
       "citation.deepseek-v4-paper",
+      "citation.sparse-transformers",
       "citation.native-sparse-attention",
     ]);
     expect(
       getRegistryCitationIds("module.heavily-compressed-attention"),
     ).toEqual([
       "citation.deepseek-v4-paper",
+      "citation.sparse-transformers",
       "citation.native-sparse-attention",
     ]);
   });

@@ -47,15 +47,19 @@ describe("CitationList", () => {
     expect(html).toContain("DeepSeek-V4 Technical Report");
   });
 
-  test("renders DeepSeek V4 and Native Sparse Attention for CSA", () => {
+  test("renders V4, generic sparse-attention, and DeepSeek sparse-attention papers for CSA", () => {
     const html = renderToStaticMarkup(
       <CitationList registryId="module.compressed-sparse-attention" />,
     );
 
     expect(html).toContain("DeepSeek-V4 Technical Report");
     expect(html).toContain(
+      "Generating Long Sequences with Sparse Transformers",
+    );
+    expect(html).toContain(
       "Native Sparse Attention: Hardware-Aligned and Natively Trainable Sparse Attention",
     );
+    expect(html).toContain('href="https://arxiv.org/abs/1904.10509"');
     expect(html).toContain(
       'href="https://aclanthology.org/2025.acl-long.1126/"',
     );

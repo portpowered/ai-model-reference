@@ -5,7 +5,7 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Heavily compressed attention is the more aggressively compressed side of the DeepSeek-V4 hybrid attention story. Instead of preserving broad access to detailed tokens, it leans harder on a compact representation of old context."
+      "body": "Heavily compressed attention is the more aggressively compressed side of the DeepSeek-V4 hybrid attention story. It is a V4-specific variant built on earlier sparse-attention work, but it leans harder on a compact representation of old context than those earlier papers do."
     },
     "whatItOptimizes": {
       "title": "What It Optimizes",
@@ -25,11 +25,11 @@
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "CSA preserves a compressed path plus selective detailed retrieval. HCA moves farther toward compression-first memory, which can be cheaper but also more lossy."
+      "body": "CSA preserves a compressed path plus selective detailed retrieval. Earlier sparse-attention papers focus on which token pairs stay active. HCA moves farther toward compression-first memory in the DeepSeek-V4 design, which can be cheaper but also more lossy."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
-      "body": "DeepSeek-V4 presents HCA alongside CSA as part of its hybrid attention design for million-token context."
+      "body": "DeepSeek-V4 presents HCA alongside CSA as part of its hybrid attention design for million-token context, while the reference list keeps the older sparse-attention lineage separate from this V4-specific variant."
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",

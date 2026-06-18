@@ -14,6 +14,7 @@
   ],
   "citationIds": [
     "citation.deepseek-v4-paper",
+    "citation.sparse-transformers",
     "citation.native-sparse-attention"
   ],
   "status": "published",
