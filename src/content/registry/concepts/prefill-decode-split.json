@@ -1,0 +1,33 @@
+{
+  "id": "concept.prefill-decode-split",
+  "slug": "prefill-decode-split",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Prefill/decode split",
+    "prefill decode split",
+    "split serving",
+    "disaggregated serving",
+    "disaggregated prefill decode"
+  ],
+  "tags": ["foundations", "kv-cache"],
+  "relatedIds": [
+    "concept.prefill",
+    "concept.decode",
+    "concept.kv-cache",
+    "concept.autoregressive-generation",
+    "module.attention",
+    "module.multi-query-attention",
+    "module.grouped-query-attention",
+    "module.sliding-window-attention",
+    "concept.transformer"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": ["concept.prefill", "concept.decode", "concept.kv-cache"],
+  "explainsIds": []
+}

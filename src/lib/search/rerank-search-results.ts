@@ -11,6 +11,13 @@ function slugFromUrl(url: string): string {
   return segment.replace(/-/g, " ");
 }
 
+function hasExactTagMatch(query: string, document: SearchDocument): boolean {
+  const normalizedQuery = normalizeSearchTerm(query);
+  return document.tags.some(
+    (tag) => normalizeSearchTerm(tag) === normalizedQuery,
+  );
+}
+
 function scoreDocumentMatch(query: string, document: SearchDocument): number {
   const normalizedQuery = normalizeSearchTerm(query);
   const normalizedTitle = normalizeSearchTerm(document.title);
@@ -58,19 +65,37 @@ export function rerankSearchResults(
   documentsByUrl: Map<string, SearchDocument>,
 ): SortedResult[] {
   const bestPageUrl = findBestTitleMatchPageUrl(query, documentsByUrl);
-  if (!bestPageUrl) {
-    return results;
-  }
-
-  const boostedIndex = results.findIndex(
-    (result) =>
-      result.type === "page" && pageBaseUrl(result.url) === bestPageUrl,
+  const hasTagMatch = [...documentsByUrl.values()].some((document) =>
+    hasExactTagMatch(query, document),
   );
-  if (boostedIndex <= 0) {
+
+  if (!bestPageUrl && !hasTagMatch) {
     return results;
   }
 
-  const boosted = results[boostedIndex];
-  const rest = results.filter((_, index) => index !== boostedIndex);
-  return [boosted, ...rest];
+  return [...results].sort((left, right) => {
+    const leftUrl = pageBaseUrl(left.url);
+    const rightUrl = pageBaseUrl(right.url);
+    const leftDocument = documentsByUrl.get(leftUrl);
+    const rightDocument = documentsByUrl.get(rightUrl);
+
+    const leftPriority =
+      leftUrl === bestPageUrl
+        ? 0
+        : leftDocument && hasExactTagMatch(query, leftDocument)
+          ? leftDocument.kind === "module"
+            ? 1
+            : 2
+          : 3;
+    const rightPriority =
+      rightUrl === bestPageUrl
+        ? 0
+        : rightDocument && hasExactTagMatch(query, rightDocument)
+          ? rightDocument.kind === "module"
+            ? 1
+            : 2
+          : 3;
+
+    return leftPriority - rightPriority;
+  });
 }

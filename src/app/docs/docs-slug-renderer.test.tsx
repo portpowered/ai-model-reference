@@ -83,10 +83,105 @@ describe("docs slug renderer locale gating", () => {
     });
   });
 
+  test("English docs metadata omits unshipped Vietnamese alternate for kv-cache", async () => {
+    const metadata = await buildDocsPageMetadata(["glossary", "kv-cache"]);
+
+    expect(metadata.alternates).toEqual({
+      canonical: "/docs/glossary/kv-cache",
+      languages: {
+        en: "/docs/glossary/kv-cache",
+      },
+    });
+  });
+
+  test("English docs metadata omits unshipped Vietnamese alternate for prefill", async () => {
+    const metadata = await buildDocsPageMetadata(["glossary", "prefill"]);
+
+    expect(metadata.alternates).toEqual({
+      canonical: "/docs/glossary/prefill",
+      languages: {
+        en: "/docs/glossary/prefill",
+      },
+    });
+  });
+
+  test("English docs metadata omits unshipped Vietnamese alternate for decode", async () => {
+    const metadata = await buildDocsPageMetadata(["glossary", "decode"]);
+
+    expect(metadata.alternates).toEqual({
+      canonical: "/docs/glossary/decode",
+      languages: {
+        en: "/docs/glossary/decode",
+      },
+    });
+  });
+
+  test("English docs metadata omits unshipped Vietnamese alternate for prefill-decode-split", async () => {
+    const metadata = await buildDocsPageMetadata([
+      "glossary",
+      "prefill-decode-split",
+    ]);
+
+    expect(metadata.alternates).toEqual({
+      canonical: "/docs/glossary/prefill-decode-split",
+      languages: {
+        en: "/docs/glossary/prefill-decode-split",
+      },
+    });
+  });
+
   test("unshipped Vietnamese docs routes fail clearly instead of rendering English content", async () => {
     try {
       await renderDocsSlugPage(["getting-started"], "vi");
       throw new Error("Expected Vietnamese unshipped route to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toMatch(
+        /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
+      );
+    }
+  });
+
+  test("unshipped Vietnamese kv-cache route fails instead of rendering English content", async () => {
+    try {
+      await renderDocsSlugPage(["glossary", "kv-cache"], "vi");
+      throw new Error("Expected Vietnamese KV cache route to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toMatch(
+        /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
+      );
+    }
+  });
+
+  test("unshipped Vietnamese prefill route fails instead of rendering English content", async () => {
+    try {
+      await renderDocsSlugPage(["glossary", "prefill"], "vi");
+      throw new Error("Expected Vietnamese prefill route to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toMatch(
+        /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
+      );
+    }
+  });
+
+  test("unshipped Vietnamese decode route fails instead of rendering English content", async () => {
+    try {
+      await renderDocsSlugPage(["glossary", "decode"], "vi");
+      throw new Error("Expected Vietnamese decode route to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toMatch(
+        /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
+      );
+    }
+  });
+
+  test("unshipped Vietnamese prefill-decode-split route fails instead of rendering English content", async () => {
+    try {
+      await renderDocsSlugPage(["glossary", "prefill-decode-split"], "vi");
+      throw new Error("Expected Vietnamese prefill/decode split route to fail");
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
       expect((error as Error).message).toMatch(

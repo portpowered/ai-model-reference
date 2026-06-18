@@ -1,0 +1,33 @@
+{
+  "id": "concept.decode",
+  "slug": "decode",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Decode",
+    "decoding",
+    "token-by-token generation",
+    "next-token step",
+    "inter-token generation"
+  ],
+  "tags": ["foundations", "attention", "kv-cache"],
+  "relatedIds": [
+    "concept.prefill",
+    "concept.kv-cache",
+    "concept.prefill-decode-split",
+    "concept.autoregressive-generation",
+    "module.attention",
+    "module.multi-query-attention",
+    "module.grouped-query-attention",
+    "module.sliding-window-attention",
+    "concept.transformer"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": ["concept.prefill", "concept.kv-cache", "concept.decoder"],
+  "explainsIds": []
+}

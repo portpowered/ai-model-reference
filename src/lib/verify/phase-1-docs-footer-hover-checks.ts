@@ -143,6 +143,10 @@ async function probeNextFooterFocusVisible(
   page: Page,
   timeoutMs: number,
 ): Promise<string | null> {
+  const previousAnchor = footerCardLocator(
+    page,
+    FOOTER_DIRECTIONAL_SUBLABELS.previous,
+  );
   const anchor = footerCardLocator(page, FOOTER_DIRECTIONAL_SUBLABELS.next);
   await anchor.scrollIntoViewIfNeeded({ timeout: timeoutMs }).catch(() => {});
   const visible = await anchor.isVisible().catch(() => false);
@@ -150,22 +154,23 @@ async function probeNextFooterFocusVisible(
     return "Next Page footer card not visible";
   }
 
-  await page
-    .locator("body")
-    .click({ position: { x: 1, y: 1 } })
+  await previousAnchor
+    .scrollIntoViewIfNeeded({ timeout: timeoutMs })
     .catch(() => {});
+  const previousVisible = await previousAnchor.isVisible().catch(() => false);
+  if (!previousVisible) {
+    return "Previous Page footer card not visible";
+  }
+
+  await page.mouse.move(1, 1).catch(() => {});
+  await previousAnchor.focus({ timeout: timeoutMs });
   await page.keyboard.press("Tab");
 
-  let attempts = 0;
-  while (attempts < 24) {
-    const isFocused = await anchor.evaluate(
-      (element) => document.activeElement === element,
-    );
-    if (isFocused) {
-      break;
-    }
-    await page.keyboard.press("Tab");
-    attempts += 1;
+  const isFocused = await anchor.evaluate(
+    (element) => document.activeElement === element,
+  );
+  if (!isFocused) {
+    return "Next Page footer card did not receive keyboard focus";
   }
 
   await anchor.scrollIntoViewIfNeeded({ timeout: timeoutMs }).catch(() => {});

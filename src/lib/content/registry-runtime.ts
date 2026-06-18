@@ -9,6 +9,7 @@ import computationalGraphConcept from "@/content/registry/concepts/computational
 import conditioningConcept from "@/content/registry/concepts/conditioning.json";
 import contextExtensionConcept from "@/content/registry/concepts/context-extension.json";
 import contextWindowConcept from "@/content/registry/concepts/context-window.json";
+import decodeConcept from "@/content/registry/concepts/decode.json";
 import decoderConcept from "@/content/registry/concepts/decoder.json";
 import denoisingGenerationConcept from "@/content/registry/concepts/denoising-generation.json";
 import diffusionModelConcept from "@/content/registry/concepts/diffusion-model.json";
@@ -24,6 +25,7 @@ import generalizationConcept from "@/content/registry/concepts/generalization.js
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
 import gradientConcept from "@/content/registry/concepts/gradient.json";
 import hiddenSizeConcept from "@/content/registry/concepts/hidden-size.json";
+import kvCacheConcept from "@/content/registry/concepts/kv-cache.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
 import layerNormConcept from "@/content/registry/concepts/layer-norm.json";
@@ -42,6 +44,8 @@ import parameterConcept from "@/content/registry/concepts/parameter.json";
 import patchConcept from "@/content/registry/concepts/patch.json";
 import perplexityConcept from "@/content/registry/concepts/perplexity.json";
 import positionalEncodingsConcept from "@/content/registry/concepts/positional-encodings.json";
+import prefillConcept from "@/content/registry/concepts/prefill.json";
+import prefillDecodeSplitConcept from "@/content/registry/concepts/prefill-decode-split.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
 import residualConnectionConcept from "@/content/registry/concepts/residual-connection.json";
 import rmsnormConcept from "@/content/registry/concepts/rmsnorm.json";
@@ -93,6 +97,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(tensorConcept),
   conceptRecordSchema.parse(vectorConcept),
   conceptRecordSchema.parse(hiddenSizeConcept),
+  conceptRecordSchema.parse(kvCacheConcept),
   conceptRecordSchema.parse(logitConcept),
   conceptRecordSchema.parse(softmaxConcept),
   conceptRecordSchema.parse(entropyConcept),
@@ -117,9 +122,12 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(latentConcept),
   conceptRecordSchema.parse(latentSpaceConcept),
   conceptRecordSchema.parse(encoderConcept),
+  conceptRecordSchema.parse(decodeConcept),
   conceptRecordSchema.parse(decoderConcept),
   conceptRecordSchema.parse(encoderDecoderConcept),
   conceptRecordSchema.parse(autoregressiveGenerationConcept),
+  conceptRecordSchema.parse(prefillConcept),
+  conceptRecordSchema.parse(prefillDecodeSplitConcept),
   conceptRecordSchema.parse(denoisingGenerationConcept),
   conceptRecordSchema.parse(conditioningConcept),
   conceptRecordSchema.parse(contextExtensionConcept),

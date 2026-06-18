@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { type ChildProcess, spawn } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { createServer as createHttpServer } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -1028,9 +1034,9 @@ describe("defaultSpawnProductionServer integration", () => {
   });
 
   test("resolveNextProductionServerBin points at the local next CLI", () => {
-    expect(resolveNextProductionServerBin(repoRoot)).toBe(
-      join(repoRoot, "node_modules", "next", "dist", "bin", "next"),
-    );
+    const resolved = resolveNextProductionServerBin(repoRoot);
+    expect(existsSync(resolved)).toBe(true);
+    expect(resolved.endsWith("node_modules/next/dist/bin/next")).toBe(true);
   });
 
   test("defaultSpawnProductionServer reaches HTTP 200 using a fixture next bin", async () => {

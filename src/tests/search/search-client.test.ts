@@ -12,6 +12,7 @@ import {
   expectUniqueCanonicalPageUrls,
   resultsIncludeSampleModule,
   resultsIncludeTokenGlossary,
+  resultsIncludeUrl,
   SAMPLE_MODULE_URL,
   TOKEN_GLOSSARY_URL,
 } from "./helpers";
@@ -21,6 +22,7 @@ import {
 } from "./route-fetch";
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
+const ATTENTION_MODULE_URL = "/docs/modules/attention";
 
 describe("createModelAtlasSearchClient", () => {
   const originalFetch = globalThis.fetch;
@@ -109,17 +111,28 @@ describe("createModelAtlasSearchClient", () => {
     expect(results.every((result) => !result.url.includes("#"))).toBe(true);
   });
 
-  test.each([
-    "attention",
-    "KV cache",
-  ] as const)("returns at most one hit per canonical page URL for %s query", async (query) => {
+  test("returns at most one hit per canonical page URL for attention query", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
     const client = createModelAtlasSearchClient({
       metaByUrl,
       client: { from: TEST_DOCS_SEARCH_URL },
     });
-    const results = await client.search(query);
+    const results = await client.search("attention");
+
+    expect(results.length).toBeGreaterThan(0);
+    expectUniqueCanonicalPageUrls(results.map((result) => result.url));
+    expect(resultsIncludeUrl(results, ATTENTION_MODULE_URL)).toBe(true);
+  });
+
+  test("returns at most one hit per canonical page URL for KV cache query", async () => {
+    globalThis.fetch = createDocsSearchRouteFetch();
+
+    const client = createModelAtlasSearchClient({
+      metaByUrl,
+      client: { from: TEST_DOCS_SEARCH_URL },
+    });
+    const results = await client.search("KV cache");
 
     expect(results.length).toBeGreaterThan(0);
     expectUniqueCanonicalPageUrls(results.map((result) => result.url));

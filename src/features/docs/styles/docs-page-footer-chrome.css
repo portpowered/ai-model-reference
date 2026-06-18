@@ -26,7 +26,7 @@
       :focus-visible
     )
     > p.text-fd-muted-foreground {
-    color: inherit;
+    color: currentColor;
   }
 
   #nd-page
@@ -36,5 +36,11 @@
     outline-color: var(--ring) !important;
     outline-offset: 2px;
     box-shadow: 0 0 0 2px var(--ring) !important;
+  }
+
+  #nd-page
+    a[class*="hover:bg-fd-accent"][class*="hover:text-fd-accent-foreground"]:focus-visible
+    > p.text-fd-muted-foreground {
+    color: currentColor !important;
   }
 }

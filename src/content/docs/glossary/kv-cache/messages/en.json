@@ -1,0 +1,40 @@
+{
+  "title": "KV cache",
+  "description": "The saved key and value tensors a decoder keeps from earlier tokens so later tokens can reuse attention state instead of recomputing the full prefix.",
+  "openingSummary": "Generating one more token should not require re-running attention over the whole prompt from scratch; a KV cache stores earlier key and value tensors so later decode steps can reuse them, trading extra memory for lower latency and lower serving cost.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A KV cache is the running store of key and value tensors produced by earlier positions in a decoder. During the prefill stage, the model reads the prompt once and writes one cache entry per token per layer. During decode, each newly generated token appends one more entry, and attention reuses the saved keys and values instead of recomputing the whole prompt pass."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "The cache is one of the main reasons long prompts and long replies cost real money to serve. Reusing saved attention state lowers latency because later steps avoid repeating prompt processing, but the cache also grows with sequence length, layer count, and key-value head layout. That means operators constantly balance time to first token, inter-token latency, and raw memory footprint when they choose head-sharing variants such as multi-query attention, grouped-query attention, or locality tricks such as sliding-window attention."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a 2,000-token prompt. The first pass builds keys and values for those 2,000 positions. When the model generates token 2,001, attention reads the saved tensors for the prompt, computes fresh tensors only for the new position, and writes that extra entry back into the cache. Without the KV cache, the model would pay most of the prompt-processing cost again for every next token."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A KV cache is not the same as chat history saved in an app database: the product may store a transcript forever, while the model only keeps the active attention state for the current request. It is also not model weights or training memory. Finally, a smaller cache is not always a free win. MQA and GQA shrink the key-value state, and sliding-window attention limits how much old state stays active, but those designs change what information is preserved or how much detail each head can keep."
+    },
+    "servingPath": {
+      "title": "Serving Path",
+      "body": "KV cache sits between prompt processing and token-by-token generation. Follow the next two stages to see when the cache is first built and how later tokens keep reusing it."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "prefill": "Prefill",
+    "decode": "Decode"
+  }
+}

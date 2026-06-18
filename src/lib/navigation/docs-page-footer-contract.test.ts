@@ -75,7 +75,7 @@ describe("docs page footer contract", () => {
 
   test("bundledCssHasFooterSublabelInheritRule matches production minified selector chain", () => {
     const bundledCss = `
-      #nd-page a[class*=hover\\:bg-fd-accent][class*=hover\\:text-fd-accent-foreground]:is(:hover,:focus-visible)>p.text-fd-muted-foreground{color:inherit}
+      #nd-page a[class*=hover\\:bg-fd-accent][class*=hover\\:text-fd-accent-foreground]:is(:hover,:focus-visible)>p.text-fd-muted-foreground{color:currentcolor}
     `;
 
     expect(bundledCssHasFooterSublabelInheritRule(bundledCss)).toBe(true);
