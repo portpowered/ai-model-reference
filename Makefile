@@ -61,7 +61,7 @@ verify-export-search-ux:
 ci: lint typecheck test test-verify-contract coverage test-build-contract test-integration validate-data linkcheck
 
 validate-data:
-	bun ./scripts/validate-registry.ts
+	bun run validate-data
 
 scaffold:
 	bun ./scripts/scaffold-doc-page.ts $(ARGS)
