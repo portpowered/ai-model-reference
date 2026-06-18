@@ -52,6 +52,9 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   backpropagation: "Backpropagation",
   "loss-function": "Loss Function",
   "optimizer-state": "Optimizer State",
+  "absolute-positional-embeddings": "Absolute positional embeddings",
+  "relative-position-bias": "Relative position bias",
+  nope: "NoPE",
 };
 
 const CHAIN_GLOSSARY_SLUGS = [
@@ -70,8 +73,13 @@ const CHAIN_GLOSSARY_SLUGS = [
   "loss-function",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 54;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 47;
+const POSITIONAL_GLOSSARY_SLUGS = [
+  "absolute-positional-embeddings",
+  "relative-position-bias",
+  "nope",
+] as const;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 57;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 50;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
@@ -111,6 +119,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     for (const slug of [
       ...TAXONOMY_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
+      ...POSITIONAL_GLOSSARY_SLUGS,
       "token",
     ] as const) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
@@ -136,6 +145,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     for (const slug of [
       ...TAXONOMY_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
+      ...POSITIONAL_GLOSSARY_SLUGS,
       "token",
     ] as const) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
@@ -161,6 +171,13 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(token?.title).toBe("Token");
 
     for (const slug of CHAIN_GLOSSARY_SLUGS) {
+      const entry = entries.find(
+        (item) => item.url === `/docs/glossary/${slug}`,
+      );
+      expect(entry?.title).toBe(EXPECTED_GLOSSARY_TITLES[slug]);
+    }
+
+    for (const slug of POSITIONAL_GLOSSARY_SLUGS) {
       const entry = entries.find(
         (item) => item.url === `/docs/glossary/${slug}`,
       );
@@ -230,12 +247,32 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(glossaryHtml).toContain('href="/docs/glossary/activation"');
     expect(glossaryHtml).toContain("Computational Graph");
     expect(glossaryHtml).toContain('href="/docs/glossary/computational-graph"');
+    expect(glossaryHtml).toContain("Absolute positional embeddings");
+    expect(glossaryHtml).toContain(
+      'href="/docs/glossary/absolute-positional-embeddings"',
+    );
+    expect(glossaryHtml).toContain("Relative position bias");
+    expect(glossaryHtml).toContain(
+      'href="/docs/glossary/relative-position-bias"',
+    );
+    expect(glossaryHtml).toContain("NoPE");
+    expect(glossaryHtml).toContain('href="/docs/glossary/nope"');
     expect(architectureHtml).toContain("Activation");
     expect(architectureHtml).toContain('href="/docs/glossary/activation"');
     expect(architectureHtml).toContain("Computational Graph");
     expect(architectureHtml).toContain(
       'href="/docs/glossary/computational-graph"',
     );
+    expect(architectureHtml).toContain("Absolute positional embeddings");
+    expect(architectureHtml).toContain(
+      'href="/docs/glossary/absolute-positional-embeddings"',
+    );
+    expect(architectureHtml).toContain("Relative position bias");
+    expect(architectureHtml).toContain(
+      'href="/docs/glossary/relative-position-bias"',
+    );
+    expect(architectureHtml).toContain("NoPE");
+    expect(architectureHtml).toContain('href="/docs/glossary/nope"');
     expect(architectureHtml).not.toContain('href="/docs/glossary/parameter"');
     expect(architectureHtml).toContain("Embedding");
     expect(architectureHtml).toContain('href="/docs/glossary/embedding"');

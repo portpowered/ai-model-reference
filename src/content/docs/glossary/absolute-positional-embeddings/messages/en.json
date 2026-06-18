@@ -1,0 +1,32 @@
+{
+  "title": "Absolute positional embeddings",
+  "description": "Absolute positional embeddings give each token position its own index-specific vector, then add that vector directly to the token embedding before attention runs.",
+  "openingSummary": "Absolute positional embeddings restore token order by adding a position-specific vector at each index, which makes them the simplest family to compare against relative bias, RoPE, or NoPE.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Absolute positional embeddings assign a separate vector to position 1, position 2, position 3, and so on. The model adds that vector to the token embedding before the sequence enters the attention stack. After that addition, each hidden state carries both token identity and a direct clue about its absolute index in the sequence."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "This approach is conceptually simple and easy to wire into the input layer, which is why many early transformers used it. It also gives a clean baseline for comparing newer schemes. Once positions are tied to fixed indices, though, models can become less comfortable when inference reaches positions that were rare or unseen during training."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose the token \"cat\" appears at position 4 in one sentence and position 40 in another. With absolute positional embeddings, the same token vector is paired with two different position vectors before attention starts. That lets the model tell early and late uses apart even if the token identity stays the same."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Absolute positional embeddings name the broad family, not one specific implementation. Some models fill the table with learned vectors, while others use deterministic patterns such as sinusoidal values. They also differ from relative methods, which care more about distance between tokens than about a single fixed index."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

@@ -4,6 +4,7 @@ import { source } from "@/lib/source";
 
 const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/alibi",
+  "/docs/glossary/absolute-positional-embeddings",
   "/docs/glossary/alignment",
   "/docs/glossary/architecture",
   "/docs/glossary/autoregressive-generation",
@@ -30,6 +31,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/layer-norm",
   "/docs/glossary/mixture-of-experts",
   "/docs/glossary/multimodal-model",
+  "/docs/glossary/nope",
   "/docs/glossary/normalization",
   "/docs/glossary/residual-connection",
   "/docs/glossary/rope",
@@ -37,6 +39,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/overfitting",
   "/docs/glossary/patch",
   "/docs/glossary/perplexity",
+  "/docs/glossary/relative-position-bias",
   "/docs/glossary/representation",
   "/docs/glossary/scaling-law",
   "/docs/glossary/token",

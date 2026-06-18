@@ -1,0 +1,26 @@
+{
+  "id": "concept.relative-position-bias",
+  "slug": "relative-position-bias",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Relative position bias",
+    "relative positional bias",
+    "relative attention bias"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "concept.absolute-positional-embeddings",
+    "concept.rope",
+    "concept.alibi"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.positional-encodings"],
+  "explainsIds": []
+}

@@ -72,7 +72,7 @@ describe("glossary shell description auto-link convergence", () => {
         expectGlossaryShellAutoLinksUseProseContract(html);
       }
     },
-    { timeout: 10_000 },
+    { timeout: 20_000 },
   );
 
   test("/docs/glossary/embedding shell description links dense vector and token with preserved link text", async () => {

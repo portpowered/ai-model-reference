@@ -1,0 +1,32 @@
+{
+  "title": "NoPE",
+  "description": "NoPE means a model removes explicit positional encoding and tests how much order signal attention and training can recover without a dedicated position mechanism.",
+  "openingSummary": "NoPE removes explicit positional encoding altogether, which makes it useful as a baseline for asking what order signal a transformer can recover without absolute tables, RoPE, or ALiBi.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "NoPE stands for no positional encoding. In this setup, the model does not add a dedicated position table, rotary angle, or attention bias to tell tokens where they sit in the sequence. Researchers use it to test whether architecture details, masking, training data, or other cues let a transformer recover some sense of order anyway."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "NoPE is useful because it exposes how much work the explicit position mechanism was really doing. If performance collapses, that tells you the removed scheme carried essential order information. If some behavior survives, that tells you the stack still had weaker order cues available through causal structure, token co-occurrence, or optimization pressure."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine training two otherwise identical decoders on the same data. One uses RoPE and one uses NoPE. The RoPE model gets a built-in sense of distance every time attention compares queries and keys. The NoPE model must infer order from weaker signals, so it is usually a much harder setting."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "NoPE does not mean better long-context support. It usually names an ablation, baseline, or specialized architectural experiment. It also does not mean the model sees no sequence structure at all, because causal masking and training order still exist. The missing piece is the explicit positional mechanism that most transformers add on purpose."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

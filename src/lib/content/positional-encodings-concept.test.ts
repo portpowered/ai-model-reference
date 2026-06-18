@@ -15,19 +15,28 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     const record = getConceptById("concept.positional-encodings");
     expect(record?.status).toBe("published");
     expect(record?.kind).toBe("concept");
-    expect(record?.explainsIds).toEqual(["concept.rope", "concept.alibi"]);
+    expect(record?.explainsIds).toEqual([
+      "concept.absolute-positional-embeddings",
+      "concept.relative-position-bias",
+      "concept.rope",
+      "concept.alibi",
+      "concept.nope",
+    ]);
     expect(record?.relatedIds).toEqual([
       "concept.transformer-architecture",
       "module.attention",
+      "concept.absolute-positional-embeddings",
+      "concept.relative-position-bias",
       "concept.rope",
       "concept.alibi",
+      "concept.nope",
     ]);
     expect(
       PUBLISHED_DOCS_REGISTRY_IDS.has("concept.positional-encodings"),
     ).toBe(true);
   });
 
-  test("curated related links transformer architecture and attention with navigable RoPE and ALiBi", () => {
+  test("curated related links transformer architecture and attention with navigable positional family pages", () => {
     const source = getConceptById("concept.positional-encodings");
     if (!source) {
       throw new Error("expected concept.positional-encodings in registry");
@@ -51,6 +60,20 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     expect(attention?.href).toBe("/docs/modules/attention");
     expect(attention?.isPlanned).toBe(false);
 
+    const absolute = items.find(
+      (item) => item.registryId === "concept.absolute-positional-embeddings",
+    );
+    expect(absolute?.href).toBe(
+      "/docs/glossary/absolute-positional-embeddings",
+    );
+    expect(absolute?.isPlanned).toBe(false);
+
+    const relativeBias = items.find(
+      (item) => item.registryId === "concept.relative-position-bias",
+    );
+    expect(relativeBias?.href).toBe("/docs/glossary/relative-position-bias");
+    expect(relativeBias?.isPlanned).toBe(false);
+
     const rope = items.find((item) => item.registryId === "concept.rope");
     expect(rope?.href).toBe("/docs/glossary/rope");
     expect(rope?.isPlanned).toBe(false);
@@ -60,9 +83,14 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     expect(alibi?.href).toBe("/docs/glossary/alibi");
     expect(alibi?.isPlanned).toBe(false);
     expect(alibi?.title).toBe("ALiBi");
+
+    const nope = items.find((item) => item.registryId === "concept.nope");
+    expect(nope?.href).toBe("/docs/glossary/nope");
+    expect(nope?.isPlanned).toBe(false);
+    expect(nope?.title).toBe("NoPE");
   });
 
-  test("page renders title, sections, opening summary, and forward references to RoPE and ALiBi", async () => {
+  test("page renders title, sections, opening summary, and forward references to the family pages", async () => {
     const page = await loadConceptPage("positional-encodings");
     expect(page.frontmatter.status).toBe("published");
     expect(page.frontmatter.registryId).toBe("concept.positional-encodings");
@@ -83,8 +111,13 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     expect(html).toContain("built-in order");
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/modules/attention"');
+    expect(html).toContain(
+      'href="/docs/glossary/absolute-positional-embeddings"',
+    );
+    expect(html).toContain('href="/docs/glossary/relative-position-bias"');
     expect(html).toContain('href="/docs/glossary/rope"');
     expect(html).toContain('href="/docs/glossary/alibi"');
+    expect(html).toContain('href="/docs/glossary/nope"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");
