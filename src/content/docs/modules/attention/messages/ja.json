@@ -1,0 +1,48 @@
+{
+  "title": "Attention",
+  "description": "Transformer block が query、key、value の projection を使って token 位置どうしの情報を混ぜる仕組み。",
+  "openingSummary": "Attention は、各 token がどの token を重視するべきかを自分で決め、関連度の高い位置から情報を混ぜ合わせることで、文脈を系列の中で動的に移動させます。",
+  "sections": {
+    "whatItIs": {
+      "title": "これは何か",
+      "body": "Attention は、ある token がほかの token から情報を読むための仕組みです。各位置は query、key、value を作ります。Query は何を探すかを表し、key は各位置が何を持っているかを示し、value は最終的に出力へ混ぜ込まれる情報を運びます。"
+    },
+    "whatItOptimizes": {
+      "title": "何を最適化するか",
+      "body": "Attention が最適化するのは、柔軟な文脈混合です。固定の局所ルールを使う代わりに、現在の token にとってどの位置が重要か、どれだけ強く寄与させるかをモデル自身が決められます。"
+    },
+    "practicalBenefit": {
+      "title": "実務上の利点",
+      "body": "Attention を理解すると、その後に出てくる多くのモデル変種が読みやすくなります。多くの attention 系ページは transformer 全体を置き換えているのではなく、attention が文脈を保持する方法、各 token が見渡せる距離、あるいは参照 1 回あたりの計算コストを変えています。"
+    },
+    "howItWorks": {
+      "title": "どう動くか",
+      "body": "各 token について、モデルはその token の query を他位置の key と比較し、attention score を作ります。Score は重みに正規化され、その重みを使って value ベクトルを混ぜ合わせ、更新済みの token state を作ります。"
+    },
+    "comparedToNearbyModules": {
+      "title": "近い module との違い",
+      "body": "Feed-forward 層は、文脈が集められた後に各 token state を 1 つずつ洗練します。Attention は、その前段で位置どうしに情報を移動させる部分です。その上で多くの attention 変種は、head の共有方法、見られる系列の長さ、または計算量の伸び方を変えます。"
+    },
+    "exampleArchitectures": {
+      "title": "例となるアーキテクチャ",
+      "body": "Attention は decoder-only 言語モデル、encoder モデル、encoder-decoder システム、そして多くの multimodal transformer に現れます。どれも位置間で情報を動かす仕組みを必要とするからです。"
+    },
+    "limitationsAndTradeoffs": {
+      "title": "限界とトレードオフ",
+      "body": "Dense attention は系列長が伸びると高コストになりやすく、各 token が多数の位置と比較する必要があります。そのため後続の変種は、より良いスケーリングのために、メモリ、帯域、または大域的な到達範囲を何らかの形で交換します。"
+    },
+    "whyItStillMatters": {
+      "title": "今でも重要な理由",
+      "body": "Attention は現代の系列モデルを理解するための基準点であり続けます。新しい attention 変種の論文が出たときに本当に問うべきなのは、基礎メカニズムのどの部分を変えたのかです。"
+    },
+    "related": {
+      "title": "関連"
+    },
+    "tags": {
+      "title": "タグ"
+    },
+    "references": {
+      "title": "参考文献"
+    }
+  }
+}

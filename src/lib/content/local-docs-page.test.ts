@@ -177,6 +177,67 @@ describe("docs source local pages", () => {
     expect(page.toc.some(hasTocUrl("#what-it-is"))).toBe(true);
   });
 
+  test("loadLocalDocsPage resolves the shipped japanese core reader path through the shared MDX route contract", async () => {
+    const transformerPage = await loadLocalDocsPage(
+      {
+        section: "concepts",
+        slug: "transformer-architecture",
+      },
+      "ja",
+    );
+    const tokenPage = await loadLocalDocsPage(
+      {
+        section: "glossary",
+        slug: "token",
+      },
+      "ja",
+    );
+    const attentionPage = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "attention",
+      },
+      "ja",
+    );
+    const groupedQueryAttentionPage = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "grouped-query-attention",
+      },
+      "ja",
+    );
+
+    expect(transformerPage.messages.title).toBe("Transformer アーキテクチャ");
+    expect(transformerPage.messages.sections?.whatItIs?.title).toBe(
+      "これは何か",
+    );
+
+    expect(tokenPage.messages.description).toContain(
+      "言語モデルが読み取り、予測する",
+    );
+    expect(tokenPage.messages.graph?.nodes?.rawText?.label).toBe("生テキスト");
+
+    expect(attentionPage.messages.openingSummary).toContain(
+      "各 token がどの token を重視するべきか",
+    );
+    expect(attentionPage.messages.sections?.howItWorks?.title).toBe(
+      "どう動くか",
+    );
+
+    expect(
+      groupedQueryAttentionPage.messages.assets?.computeFlow?.caption,
+    ).toBe(
+      "Multi-head attention と grouped-query attention を切り替えて、query head 数と key-value head 数を同じ図で比較します。",
+    );
+    expect(
+      groupedQueryAttentionPage.messages.tables?.comparison?.dimensions
+        ?.kvHeadCount,
+    ).toBe("Key-value head 数");
+    expect(groupedQueryAttentionPage.toc.some(hasTocUrl("#what-it-is"))).toBe(
+      true,
+    );
+  });
+
   test("loadLocalDocsPage resolves shipped vietnamese head-sharing module messages through the shared MDX route contract", async () => {
     const multiHeadPage = await loadLocalDocsPage(
       {

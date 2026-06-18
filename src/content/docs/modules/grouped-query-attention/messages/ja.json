@@ -1,0 +1,249 @@
+{
+  "title": "Grouped-query attention",
+  "description": "複数の query group で key-value head を共有し、KV-cache メモリを減らす attention 変種。",
+  "openingSummary": "Grouped-query attention (GQA) は、複数の query head がより少ない key-value head を共有できるようにし、すべてを 1 組に潰すことなく KV-cache のサイズを削減する attention 変種です。",
+  "sections": {
+    "whatItIs": {
+      "title": "これは何か",
+      "body": "Grouped-query attention (GQA) は multi-head attention から派生した attention 変種です。複数の query head を保ちつつ、それらを group に分け、各 group が同じ key-value head の組を読むようにします。"
+    },
+    "whatItOptimizes": {
+      "title": "何を最適化するか",
+      "body": "GQA は KV-cache のサイズ、自回帰 decoding 中のメモリ帯域、そして head 数がそのまま cache サイズを増やしてしまう長文脈 serving のコストを対象に最適化します。"
+    },
+    "practicalBenefit": {
+      "title": "実務上の利点",
+      "body": "複数の query head は維持したいが、推論 cache を軽くし、デプロイ時の key-value 転送量を減らしたいときに GQA が採用されます。GQA は multi-query attention より多くの query の多様性を保ちつつ、完全な multi-head attention より小さな cache で動かせます。"
+    },
+    "howItWorks": {
+      "title": "どう動くか",
+      "body": "Query は複数の group に分割されます。各 group は 1 つの key head と 1 つの value head を共有します。Attention score は各 query head ごとに、その group に割り当てられた共有 key-value に対して計算され、出力は通常どおり射影されます。"
+    },
+    "mathOrComputeSchema": {
+      "title": "数式または計算図式",
+      "body": "複数の query head と複数の key-value group があるとき、各 group は query head の一部を受け持ちます。下の式は、各 query head が固有の key-value head を持つ multi-head attention と、query head を group ごとの共有 key-value pair に通す grouped-query attention の違いを対比しています。"
+    },
+    "comparedToNearbyModules": {
+      "title": "近い module との違い",
+      "body": "Multi-head attention と比べると、GQA は保存すべき key-value tensor の数を減らします。Multi-query attention と比べると、GQA は key-value head を共有しながらも、より多くの独立した query head を保てます。"
+    },
+    "exampleArchitectures": {
+      "title": "例となるアーキテクチャ",
+      "body": "GQA は、長文脈推論の効率を重視しつつ multi-head の学習ダイナミクスを保ちたい大規模な decoder-only 言語モデルで使われます。"
+    },
+    "limitationsAndTradeoffs": {
+      "title": "限界とトレードオフ",
+      "body": "Key-value head を共有すると、完全な multi-head attention に比べて表現の柔軟性が下がることがあります。最適な group 数はモデル規模と品質目標に依存します。"
+    },
+    "whyItStillMatters": {
+      "title": "今でも重要な理由",
+      "body": "Context window が広がるほど、KV-cache 効率は serving 上の主要制約であり続けます。そのため GQA は、multi-head の忠実性と multi-query の圧縮の中間にある実用的な選択肢として重要です。"
+    },
+    "related": {
+      "title": "関連"
+    },
+    "tags": {
+      "title": "タグ"
+    },
+    "references": {
+      "title": "参考文献"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Multi-head attention と grouped-query attention の head 数比較",
+      "caption": "Multi-head attention と grouped-query attention を切り替えて、query head 数と key-value head 数を同じ図で比較します。",
+      "variants": {
+        "mha": {
+          "label": "Multi-head"
+        },
+        "gqa": {
+          "label": "Grouped-query"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "Grouped-query attention と近い attention 変種の比較"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "gqa": {
+          "title": "Grouped-query attention"
+        },
+        "mha": {
+          "title": "Multi-head attention"
+        },
+        "mqa": {
+          "title": "Multi-query attention"
+        }
+      },
+      "dimensions": {
+        "kvHeadCount": "Key-value head 数",
+        "queryHeadFlexibility": "Query head の柔軟性",
+        "cacheFootprint": "1 token あたりの cache 容量"
+      },
+      "values": {
+        "gqa": {
+          "kvHeadCount": "G 本の key head と G 本の value head",
+          "queryHeadFlexibility": "H 個の query head を G 個の共有 key-value pair に束ねる",
+          "cacheFootprint": "2G tensor（G keys と G values）"
+        },
+        "mha": {
+          "kvHeadCount": "H 本の key head と H 本の value head",
+          "queryHeadFlexibility": "H 個の独立した query と key-value の pair",
+          "cacheFootprint": "2H tensor（完全な multi-head attention cache）"
+        },
+        "mqa": {
+          "kvHeadCount": "1 本の key head と 1 本の value head",
+          "queryHeadFlexibility": "H 個の query head が 1 つの key-value pair を共有",
+          "cacheFootprint": "2 tensor（単一の共有 key-value cache）"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Head i の query vector。"
+        },
+        "k": {
+          "term": "K",
+          "definition": "Head i の key vector。"
+        },
+        "v": {
+          "term": "V",
+          "definition": "Head i の value vector。"
+        },
+        "h": {
+          "term": "H",
+          "definition": "Query head の数。"
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Head ごとの key 次元。"
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head の index。"
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Grouped-query attention (GQA)",
+      "formula": "\\text{Attention}(Q_i, K_{g(i)}, V_{g(i)}) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_{g(i)}^{\\top}}{\\sqrt{d_k}}\\right) V_{g(i)}",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Head i の query vector。"
+        },
+        "k": {
+          "term": "K",
+          "definition": "Group g(i) の key vector。"
+        },
+        "v": {
+          "term": "V",
+          "definition": "Group g(i) の value vector。"
+        },
+        "h": {
+          "term": "H",
+          "definition": "Query head の数。"
+        },
+        "g": {
+          "term": "G",
+          "definition": "共有 key-value group の数。"
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Head ごとの key 次元。"
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head の index。"
+        },
+        "gi": {
+          "term": "g(i)",
+          "definition": "Query head i が属する key-value group の index。"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "keysLabel": {
+        "label": "Keys"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "keyHead": {
+        "label": "k"
+      },
+      "valueHead": {
+        "label": "V"
+      },
+      "mhaQueryHeads": {
+        "label": "H query heads"
+      },
+      "mhaKvHeads": {
+        "label": "H 個の key-value head pair（query と 1:1）"
+      },
+      "mhaOneToOne": {
+        "label": "各 query head は固有の K と V を持つ"
+      },
+      "mhaQueryHead1": {
+        "label": "Q1"
+      },
+      "mhaQueryHead2": {
+        "label": "Q2"
+      },
+      "mhaQueryHead3": {
+        "label": "Q3"
+      },
+      "mhaQueryHead4": {
+        "label": "Q4"
+      },
+      "mhaQueryHead5": {
+        "label": "Q5"
+      },
+      "mhaKvPair1": {
+        "label": "K1 / V1"
+      },
+      "mhaKvPair2": {
+        "label": "K2 / V2"
+      },
+      "mhaKvPair3": {
+        "label": "K3 / V3"
+      },
+      "mhaKvPair4": {
+        "label": "K4 / V4"
+      },
+      "mhaKvPair5": {
+        "label": "K5 / V5"
+      },
+      "gqaQueryHeads": {
+        "label": "H query heads"
+      },
+      "gqaKvGroups": {
+        "label": "G 個の共有 key-value pair"
+      },
+      "gqaGroupedMapping": {
+        "label": "各 key-value pair を H/G 個の query head が共有"
+      },
+      "gqaSharingNote": {
+        "label": "同じ key/value head を 2 つの query head が共有する"
+      }
+    }
+  }
+}
