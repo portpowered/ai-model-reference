@@ -1,8 +1,12 @@
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-/** Repository root when Next.js or Bun runs from the project directory. */
+const CONTENT_PATHS_MODULE_DIR = dirname(fileURLToPath(import.meta.url));
+const REPOSITORY_ROOT = resolve(CONTENT_PATHS_MODULE_DIR, "../../..");
+
+/** Repository root for committed content loaders, independent of child-process cwd. */
 export function getProjectRoot(): string {
-  return process.cwd();
+  return REPOSITORY_ROOT;
 }
 
 /** Committed content tree root (`src/content`). */
