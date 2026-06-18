@@ -10,7 +10,9 @@
     "concept.quantization",
     "concept.calibration",
     "concept.weight-only-quantization",
-    "concept.activation-quantization"
+    "concept.activation-quantization",
+    "concept.quantization-aware-training",
+    "concept.dynamic-quantization"
   ],
   "citationIds": [
     "citation.quantization-integer-only-inference",
@@ -21,5 +23,5 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "inference",
   "prerequisiteIds": ["concept.quantization"],
-  "explainsIds": ["concept.calibration"]
+  "explainsIds": ["concept.calibration", "concept.quantization-aware-training"]
 }

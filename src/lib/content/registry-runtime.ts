@@ -7,7 +7,6 @@ import autoregressiveGenerationConcept from "@/content/registry/concepts/autoreg
 import backpropagationConcept from "@/content/registry/concepts/backpropagation.json";
 import batchNormConcept from "@/content/registry/concepts/batch-norm.json";
 import calibrationConcept from "@/content/registry/concepts/calibration.json";
-import batchNormConcept from "@/content/registry/concepts/batch-norm.json";
 import componentConcept from "@/content/registry/concepts/component.json";
 import computationalGraphConcept from "@/content/registry/concepts/computational-graph.json";
 import conditioningConcept from "@/content/registry/concepts/conditioning.json";
@@ -18,6 +17,7 @@ import decoderConcept from "@/content/registry/concepts/decoder.json";
 import denoisingGenerationConcept from "@/content/registry/concepts/denoising-generation.json";
 import diffusionModelConcept from "@/content/registry/concepts/diffusion-model.json";
 import discriminativeModelConcept from "@/content/registry/concepts/discriminative-model.json";
+import dynamicQuantizationConcept from "@/content/registry/concepts/dynamic-quantization.json";
 import embeddingConcept from "@/content/registry/concepts/embedding.json";
 import emergentBehaviorConcept from "@/content/registry/concepts/emergent-behavior.json";
 import encoderConcept from "@/content/registry/concepts/encoder.json";
@@ -56,6 +56,7 @@ import prefillConcept from "@/content/registry/concepts/prefill.json";
 import prefillDecodeSplitConcept from "@/content/registry/concepts/prefill-decode-split.json";
 import postTrainingQuantizationConcept from "@/content/registry/concepts/post-training-quantization.json";
 import quantizationConcept from "@/content/registry/concepts/quantization.json";
+import quantizationAwareTrainingConcept from "@/content/registry/concepts/quantization-aware-training.json";
 import qkNormConcept from "@/content/registry/concepts/qk-norm.json";
 import reluConcept from "@/content/registry/concepts/relu.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
@@ -143,6 +144,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(foundationModelConcept),
   conceptRecordSchema.parse(generativeModelConcept),
   conceptRecordSchema.parse(discriminativeModelConcept),
+  conceptRecordSchema.parse(dynamicQuantizationConcept),
   conceptRecordSchema.parse(representationConcept),
   conceptRecordSchema.parse(patchConcept),
   conceptRecordSchema.parse(latentConcept),
@@ -183,6 +185,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(positionalEncodingsConcept),
   conceptRecordSchema.parse(postTrainingQuantizationConcept),
   conceptRecordSchema.parse(quantizationConcept),
+  conceptRecordSchema.parse(quantizationAwareTrainingConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
   conceptRecordSchema.parse(skipConnectionConcept),
   conceptRecordSchema.parse(ropeConcept),

@@ -1,0 +1,30 @@
+{
+  "id": "concept.quantization-aware-training",
+  "slug": "quantization-aware-training",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "QAT",
+    "training-aware quantization",
+    "fake quantization training"
+  ],
+  "tags": ["quantization"],
+  "relatedIds": [
+    "concept.quantization",
+    "concept.post-training-quantization",
+    "concept.calibration",
+    "concept.dynamic-quantization",
+    "concept.activation-quantization"
+  ],
+  "citationIds": [
+    "citation.quantization-integer-only-inference",
+    "citation.smoothquant"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "training",
+  "prerequisiteIds": ["concept.quantization", "concept.activation"],
+  "explainsIds": []
+}

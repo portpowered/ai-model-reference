@@ -9,6 +9,8 @@
     "[Quantization](/docs/concepts/quantization)",
     "[Post-training quantization](/docs/concepts/post-training-quantization)",
     "[Calibration](/docs/concepts/calibration)",
+    "[Quantization-aware training](/docs/concepts/quantization-aware-training)",
+    "[Dynamic quantization](/docs/concepts/dynamic-quantization)",
     "[Weight-only quantization](/docs/concepts/weight-only-quantization)",
     "[Activation quantization](/docs/concepts/activation-quantization)",
     "[KV cache quantization](/docs/concepts/kv-cache-quantization)",

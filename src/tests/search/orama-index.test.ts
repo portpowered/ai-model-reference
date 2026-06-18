@@ -58,6 +58,9 @@ const QUANTIZATION_URL = "/docs/concepts/quantization";
 const POST_TRAINING_QUANTIZATION_URL =
   "/docs/concepts/post-training-quantization";
 const CALIBRATION_URL = "/docs/concepts/calibration";
+const QUANTIZATION_AWARE_TRAINING_URL =
+  "/docs/concepts/quantization-aware-training";
+const DYNAMIC_QUANTIZATION_URL = "/docs/concepts/dynamic-quantization";
 const WEIGHT_ONLY_QUANTIZATION_URL = "/docs/concepts/weight-only-quantization";
 const ACTIVATION_QUANTIZATION_URL = "/docs/concepts/activation-quantization";
 const KV_CACHE_QUANTIZATION_URL = "/docs/concepts/kv-cache-quantization";
@@ -167,6 +170,8 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   QUANTIZATION_URL,
   POST_TRAINING_QUANTIZATION_URL,
   CALIBRATION_URL,
+  QUANTIZATION_AWARE_TRAINING_URL,
+  DYNAMIC_QUANTIZATION_URL,
   WEIGHT_ONLY_QUANTIZATION_URL,
   ACTIVATION_QUANTIZATION_URL,
   KV_CACHE_QUANTIZATION_URL,

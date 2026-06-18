@@ -1,17 +1,17 @@
 ---
-title: Post-training quantization
-description: Converting an already trained model to lower precision after training so it can use less memory or run more efficiently.
+title: Dynamic quantization
+description: Choosing some quantization scales or converted values at runtime instead of fixing every low-precision detail ahead of deployment.
 kind: "concept"
-registryId: "concept.post-training-quantization"
+registryId: "concept.dynamic-quantization"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
 tags:
   - "quantization"
 aliases:
-  - "PTQ"
-  - "post training quantization"
-  - "offline quantization"
+  - "runtime quantization"
+  - "on-the-fly quantization"
+  - "dynamic range quantization"
 updatedAt: "2026-06-18"
 ---
 
@@ -26,12 +26,12 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
   <T k="sections.whatItIs.body" />
 </Section>
 
-<Section id="why-teams-use-it" titleKey="sections.whyTeamsUseIt.title">
-  <T k="sections.whyTeamsUseIt.body" />
+<Section id="where-it-fits" titleKey="sections.whereItFits.title">
+  <T k="sections.whereItFits.body" />
 </Section>
 
-<Section id="where-calibration-fits" titleKey="sections.whereCalibrationFits.title">
-  <T k="sections.whereCalibrationFits.body" />
+<Section id="where-it-is-limited" titleKey="sections.whereItIsLimited.title">
+  <T k="sections.whereItIsLimited.body" />
 </Section>
 
 <Section id="compare-workflows" titleKey="sections.compareWorkflows.title">
@@ -41,25 +41,9 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
     <li>
       <a
         className="text-primary underline underline-offset-4"
-        href="/docs/concepts/calibration"
+        href="/docs/concepts/post-training-quantization"
       >
-        Calibration
-      </a>
-    </li>
-    <li>
-      <a
-        className="text-primary underline underline-offset-4"
-        href="/docs/concepts/weight-only-quantization"
-      >
-        Weight-only quantization
-      </a>
-    </li>
-    <li>
-      <a
-        className="text-primary underline underline-offset-4"
-        href="/docs/concepts/activation-quantization"
-      >
-        Activation quantization
+        Post-training quantization
       </a>
     </li>
     <li>
@@ -73,9 +57,9 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
     <li>
       <a
         className="text-primary underline underline-offset-4"
-        href="/docs/concepts/dynamic-quantization"
+        href="/docs/concepts/activation-quantization"
       >
-        Dynamic quantization
+        Activation quantization
       </a>
     </li>
   </ul>
@@ -83,7 +67,7 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="related" titleKey="sections.related.title">
   <DerivedRelatedDocs
-    registryId="concept.post-training-quantization"
+    registryId="concept.dynamic-quantization"
     groups={[
       "same-concept-type",
       "shared-tags",
@@ -91,16 +75,13 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
     ]}
   />
 
-  <RelatedDocs registryId="concept.post-training-quantization" />
+  <RelatedDocs registryId="concept.dynamic-quantization" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
-  <TagPillList
-    registryId="concept.post-training-quantization"
-    showDescriptions
-  />
+  <TagPillList registryId="concept.dynamic-quantization" showDescriptions />
 </Section>
 
 <Section id="references" titleKey="sections.references.title">
-  <CitationList registryId="concept.post-training-quantization" />
+  <CitationList registryId="concept.dynamic-quantization" />
 </Section>

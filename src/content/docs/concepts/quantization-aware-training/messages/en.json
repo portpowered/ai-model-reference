@@ -1,0 +1,32 @@
+{
+  "title": "Quantization-aware training",
+  "description": "Training or fine-tuning with simulated low-precision effects so a model can adapt before deployment.",
+  "openingSummary": "Quantization-aware training exposes a model to low-precision effects while it is still being optimized, which usually preserves quality better than a last-minute conversion but costs more work because the training loop has to model the deployment constraint in advance.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Quantization-aware training keeps the training or fine-tuning loop open while the model is taught to live with low-precision behavior. The exact implementation varies, but the common pattern is that training simulates quantization noise, clipping, or fake-quantized values before the final low-bit checkpoint is exported. That gives the weights time to adapt instead of being surprised by quantization only after training is done."
+    },
+    "whyTeamsUseIt": {
+      "title": "Why Teams Use It",
+      "body": "Teams choose QAT when post-training quantization loses too much quality, especially on sensitive activations or layers that do not tolerate narrow ranges well. Because the model sees the low-precision constraint during optimization, it can shift parameters toward representations that survive deployment more cleanly. The tradeoff is cost: training becomes more complex, hardware time goes up, and the workflow is heavier than converting an existing checkpoint after the fact."
+    },
+    "whereItCostsMore": {
+      "title": "Where It Costs More",
+      "body": "QAT adds work earlier in the lifecycle. You need a training or fine-tuning loop, extra validation, and a deployment target that is stable enough to justify teaching the model toward a specific low-bit plan. If kernels, bit widths, or runtime assumptions change late, some of that earlier effort can lose value."
+    },
+    "compareWorkflows": {
+      "title": "Compared To Nearby Workflows",
+      "body": "Post-training quantization starts after training and is easier to try quickly. Calibration helps that post-training path estimate useful ranges from representative inputs. Dynamic quantization moves some decisions to runtime, while QAT pushes the adaptation step earlier so the model can learn around quantization error before deployment."
+    },
+    "related": {
+      "title": "Related Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

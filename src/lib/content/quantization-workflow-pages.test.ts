@@ -33,6 +33,8 @@ describe("Phase 5 quantization workflow concept pages (chapter-5-quantization-00
       "concept.calibration",
       "concept.weight-only-quantization",
       "concept.activation-quantization",
+      "concept.quantization-aware-training",
+      "concept.dynamic-quantization",
     ]);
 
     const calibration = getConceptById("concept.calibration");
@@ -101,8 +103,9 @@ describe("Phase 5 quantization workflow concept pages (chapter-5-quantization-00
     expect(ptqHtml).toContain('href="/docs/concepts/weight-only-quantization"');
     expect(ptqHtml).toContain('href="/docs/concepts/activation-quantization"');
     expect(ptqHtml).toContain(
-      'href="/search?query=quantization-aware%20training"',
+      'href="/docs/concepts/quantization-aware-training"',
     );
+    expect(ptqHtml).toContain('href="/docs/concepts/dynamic-quantization"');
 
     const calibrationPage = await loadConceptPage("calibration");
     const calibrationHtml = renderToStaticMarkup(

@@ -1,17 +1,17 @@
 ---
-title: Post-training quantization
-description: Converting an already trained model to lower precision after training so it can use less memory or run more efficiently.
+title: Quantization-aware training
+description: Training or fine-tuning with simulated low-precision effects so a model can adapt before deployment.
 kind: "concept"
-registryId: "concept.post-training-quantization"
+registryId: "concept.quantization-aware-training"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
 tags:
   - "quantization"
 aliases:
-  - "PTQ"
-  - "post training quantization"
-  - "offline quantization"
+  - "QAT"
+  - "training-aware quantization"
+  - "fake quantization training"
 updatedAt: "2026-06-18"
 ---
 
@@ -30,8 +30,8 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
   <T k="sections.whyTeamsUseIt.body" />
 </Section>
 
-<Section id="where-calibration-fits" titleKey="sections.whereCalibrationFits.title">
-  <T k="sections.whereCalibrationFits.body" />
+<Section id="where-it-costs-more" titleKey="sections.whereItCostsMore.title">
+  <T k="sections.whereItCostsMore.body" />
 </Section>
 
 <Section id="compare-workflows" titleKey="sections.compareWorkflows.title">
@@ -41,33 +41,17 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
     <li>
       <a
         className="text-primary underline underline-offset-4"
+        href="/docs/concepts/post-training-quantization"
+      >
+        Post-training quantization
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
         href="/docs/concepts/calibration"
       >
         Calibration
-      </a>
-    </li>
-    <li>
-      <a
-        className="text-primary underline underline-offset-4"
-        href="/docs/concepts/weight-only-quantization"
-      >
-        Weight-only quantization
-      </a>
-    </li>
-    <li>
-      <a
-        className="text-primary underline underline-offset-4"
-        href="/docs/concepts/activation-quantization"
-      >
-        Activation quantization
-      </a>
-    </li>
-    <li>
-      <a
-        className="text-primary underline underline-offset-4"
-        href="/docs/concepts/quantization-aware-training"
-      >
-        Quantization-aware training
       </a>
     </li>
     <li>
@@ -83,7 +67,7 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="related" titleKey="sections.related.title">
   <DerivedRelatedDocs
-    registryId="concept.post-training-quantization"
+    registryId="concept.quantization-aware-training"
     groups={[
       "same-concept-type",
       "shared-tags",
@@ -91,16 +75,16 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
     ]}
   />
 
-  <RelatedDocs registryId="concept.post-training-quantization" />
+  <RelatedDocs registryId="concept.quantization-aware-training" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
   <TagPillList
-    registryId="concept.post-training-quantization"
+    registryId="concept.quantization-aware-training"
     showDescriptions
   />
 </Section>
 
 <Section id="references" titleKey="sections.references.title">
-  <CitationList registryId="concept.post-training-quantization" />
+  <CitationList registryId="concept.quantization-aware-training" />
 </Section>

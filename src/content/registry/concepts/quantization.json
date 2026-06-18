@@ -16,6 +16,8 @@
     "concept.kv-cache-quantization",
     "concept.post-training-quantization",
     "concept.calibration",
+    "concept.quantization-aware-training",
+    "concept.dynamic-quantization",
     "concept.parameter",
     "concept.activation",
     "concept.autoregressive-generation",
@@ -37,6 +39,8 @@
     "concept.activation-quantization",
     "concept.kv-cache-quantization",
     "concept.post-training-quantization",
-    "concept.calibration"
+    "concept.calibration",
+    "concept.quantization-aware-training",
+    "concept.dynamic-quantization"
   ]
 }
