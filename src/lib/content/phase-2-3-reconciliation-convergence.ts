@@ -72,6 +72,8 @@ export const BATCH_017_DOCS_URLS = [
   "/docs/glossary/context-window",
   "/docs/concepts/context-extension",
   "/docs/concepts/why-long-context-is-hard",
+  "/docs/glossary/silu",
+  "/docs/glossary/swiglu",
 ] as const;
 
 const MODEL_FAMILY_REGISTRY_IDS = [
@@ -197,6 +199,16 @@ const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
   {
     query: "context window",
     firstUrl: "/docs/glossary/context-window",
+    firstKind: "glossary" as const,
+  },
+  {
+    query: "SiLU",
+    firstUrl: "/docs/glossary/silu",
+    firstKind: "glossary" as const,
+  },
+  {
+    query: "SwiGLU",
+    firstUrl: "/docs/glossary/swiglu",
     firstKind: "glossary" as const,
   },
 ] as const;

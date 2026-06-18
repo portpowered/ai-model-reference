@@ -4,14 +4,14 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["swish gated linear unit", "SiLU-gated FFN", "SwiGLU FFN"],
+  "aliases": ["SwiGLU", "Swi GLU", "Swish GLU", "swish gated linear unit"],
   "tags": ["foundations"],
   "relatedIds": [
+    "concept.activation",
     "concept.feed-forward-network",
     "concept.standard-ffn",
-    "concept.mixture-of-experts",
     "concept.silu",
-    "concept.activation"
+    "concept.mixture-of-experts"
   ],
   "citationIds": [],
   "status": "published",

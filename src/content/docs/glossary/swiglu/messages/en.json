@@ -1,22 +1,22 @@
 {
   "title": "SwiGLU",
-  "description": "A gated FFN design that splits the hidden expansion into value and gate branches, then uses SiLU to scale the result.",
+  "description": "A gated FFN variant that uses a SiLU-based gate to control a second hidden branch before projecting back to model width.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "SwiGLU is a feed-forward variant used in many modern language models. Instead of one expanded hidden branch, the FFN creates two branches after attention: a value branch and a gate branch. The gate branch passes through a SiLU activation, then multiplies the value branch element by element before the block projects back to model width."
+      "body": "SwiGLU is a gated FFN variant. Instead of one hidden branch followed by one activation, the block creates two hidden branches after the input projection: one branch carries candidate values, and the other branch uses a SiLU-style gate to decide how much of those values should pass through. After that gating step, the FFN projects the result back to model width in the same transformer slot after attention."
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "A standard FFN uses one activation on one expanded vector. SwiGLU changes the block shape by adding a separate learned gate, which lets the FFN decide more precisely which hidden features should stay strong for each token. That usually makes it a better comparison to standard FFN than to mixture of experts: SwiGLU is still one dense per-token block, while MoE changes the slot into sparse routed experts."
+      "body": "This page matters because SwiGLU changes the shape of the FFN block, not just the name of one activation. A standard FFN usually follows an expand, activate, and project pattern with one hidden path. SwiGLU keeps the same role inside the transformer block, but it replaces that single hidden path with a two-branch gated design. Many modern LLMs use this pattern because it gives the FFN a richer way to control hidden features."
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "Imagine an FFN expands a token into two vectors of the same width. One vector carries candidate features. The second goes through SiLU and becomes a gate between roughly zero and the original scale. If one gate entry is small, the matching feature in the value branch is suppressed before projection. If the gate entry is large, that feature passes through more strongly."
+      "body": "Picture one branch proposing hidden features like possible facts to keep, while the SiLU-gated branch acts like a soft valve that decides how open each feature should be. If the gate is near closed, that candidate feature is damped before the output projection. If the gate is more open, the feature survives more strongly. The important point is that the FFN is still a per-token transform, just with a gated internal path."
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "SwiGLU is not just another name for SiLU. SiLU is the activation on the gate branch, while SwiGLU is the full two-branch FFN pattern built around that activation. SwiGLU also is not mixture of experts: every token still uses the same dense block, so there is no top-k router choosing different experts."
+      "body": "SwiGLU is not the same thing as plain SiLU. SiLU is an activation that can live inside a standard FFN, while SwiGLU is a gated FFN structure that uses a SiLU-like gate across two branches. It is also not a mixture-of-experts layer: mixture-of-experts routes tokens across different FFN experts, but SwiGLU keeps one shared FFN block and only changes its internal shape."
     },
     "related": {
       "title": "Related Concepts And Modules"
@@ -28,5 +28,5 @@
       "title": "References"
     }
   },
-  "openingSummary": "SwiGLU splits the FFN expansion into value and gate branches, uses SiLU on the gate, and multiplies them together before projection so the block can choose which hidden features stay strong."
+  "openingSummary": "SwiGLU is a gated FFN: after attention, the block splits into two hidden branches, uses a SiLU-based gate to filter one branch with the other, and then projects the result back down in the same slot where a standard FFN would sit."
 }

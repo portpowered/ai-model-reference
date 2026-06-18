@@ -173,6 +173,12 @@ export const LEAKY_RELU_GLOSSARY_PAGE_DIR = join(
   "leaky-relu",
 );
 
+/** Phase 3 SiLU glossary page directory. */
+export const SILU_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "silu");
+
+/** Phase 3 SwiGLU glossary page directory. */
+export const SWIGLU_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "swiglu");
+
 /** Phase 3 mixture of experts glossary page directory. */
 export const MIXTURE_OF_EXPERTS_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,

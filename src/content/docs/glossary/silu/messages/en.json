@@ -1,22 +1,22 @@
 {
   "title": "SiLU",
-  "description": "A smooth activation that multiplies each FFN hidden value by its sigmoid gate.",
+  "description": "A smooth FFN activation that scales each hidden value by a soft gate based on that same value.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "SiLU stands for sigmoid linear unit. For each hidden value x inside an FFN, it outputs x multiplied by sigmoid(x). Large positive values pass through strongly, values near zero are softened, and negative values are reduced smoothly instead of being cut off sharply. Many modern transformer blocks use SiLU because it fits well with wide FFN layers after attention."
+      "body": "SiLU stands for sigmoid linear unit. Inside an FFN, it multiplies each hidden value by a soft gate computed from that same value, so the response changes smoothly instead of snapping at zero the way ReLU does. The FFN still sits in the same transformer slot after attention and still transforms each token on its own."
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Compared with ReLU, SiLU changes hidden states more gradually. That smoother shape often works well in large language model FFNs, where small changes in hidden values can matter across many layers. SiLU also matters because SwiGLU builds on the same nonlinearity: the gate branch in a SwiGLU block uses SiLU before it scales the value branch."
+      "body": "SiLU is a useful bridge between simple activations and more modern gated FFN designs. It keeps the dense FFN shape of a standard FFN, but it gives the hidden transform a smoother response that many recent architectures build on. If you understand SiLU, the jump to SwiGLU is much easier because SwiGLU reuses the same smooth gating idea inside a two-branch FFN."
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "If one hidden value is 3, sigmoid(3) is close to 0.95, so SiLU keeps most of that signal. If another value is -2, sigmoid(-2) is small, so the output stays negative but shrinks in magnitude. The token still follows the same standard FFN slot; SiLU only changes how the expanded hidden features are filtered."
+      "body": "Imagine an FFN hidden value is slightly negative. ReLU would cut it to zero, but SiLU usually leaves a small negative output because the gate fades it down instead of shutting it off completely. Large positive values still pass through strongly, so the FFN can keep strong positive evidence while treating weaker values more gently."
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "SiLU is an activation, not a full gated FFN by itself. SwiGLU uses SiLU as part of a larger two-branch feed-forward design, while plain SiLU can also appear inside an otherwise standard FFN. SiLU is also not the same as softmax or sigmoid output heads; it is an internal hidden-state transform."
+      "body": "SiLU is still just an activation choice inside a dense FFN, not a separate expert-routing layer and not a gated FFN by itself. A model using SiLU can still have a standard FFN block shape. SwiGLU goes further by adding a second branch that gates the main branch, while mixture-of-experts changes which FFN path a token uses."
     },
     "related": {
       "title": "Related Concepts And Modules"
@@ -28,5 +28,5 @@
       "title": "References"
     }
   },
-  "openingSummary": "SiLU smoothly gates each FFN hidden value with its own sigmoid score, giving transformer MLPs a softer activation than ReLU and setting up the gate used in SwiGLU blocks."
+  "openingSummary": "SiLU is a smooth FFN activation: it softly gates each hidden value using that value itself, so the dense block keeps the same slot as a standard FFN but changes how hidden responses flow through it."
 }
