@@ -1,0 +1,33 @@
+{
+  "id": "model.multimodal-model-families",
+  "slug": "multimodal-model-families",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "multimodal model families",
+    "multimodal families",
+    "multimodal models"
+  ],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [
+    "model.model-families-overview",
+    "model.transformer-model-families",
+    "model.omni-model-families",
+    "concept.multimodal-model",
+    "concept.modality",
+    "concept.transformer"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "multimodal-families",
+  "sourceType": "unknown",
+  "modalities": ["multimodal"],
+  "architectureIds": ["concept.multimodal-model", "concept.transformer"],
+  "moduleIds": ["module.attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

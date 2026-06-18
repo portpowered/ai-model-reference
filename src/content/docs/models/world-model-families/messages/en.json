@@ -1,0 +1,25 @@
+{
+  "title": "World Model Families",
+  "description": "Families that try to predict state, dynamics, or latent structure of an environment rather than only generate the next visible output.",
+  "openingSummary": "World model families matter when the goal is not just a good answer or a good image, but an internal model of how a system evolves: what state matters now, what will likely happen next, and how observations should update that latent picture over time.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A world model family focuses on internal state and dynamics. The model tries to compress observations into a latent representation, predict how that state changes, and use the result for planning, control, simulation, or grounded reasoning. That is why world model pages sit closer to latent space and conditioning than to pure next-token prediction."
+    },
+    "howItDiffers": {
+      "title": "How It Differs From Nearby Families",
+      "body": "Compared with transformer families, the central question is not only how to score the next token in a sequence. Compared with diffusion model pages, the goal is not mainly to denoise toward a polished sample. Compared with omni families, the emphasis is less on smooth conversation across modes and more on maintaining a usable hidden picture of an environment or process."
+    },
+    "representativePatterns": {
+      "title": "Representative Patterns",
+      "body": "Readers should look for latent state, rollout prediction, and conditioning paths that update an internal scene or system estimate over time. These pages often connect back to transformer backbones or multimodal inputs, but the distinctive idea is that the latent representation is carrying forward a world estimate rather than only a response draft."
+    },
+    "related": {
+      "title": "Representative Families And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "title": "Diffusion Model Families",
+  "description": "Families that learn to denoise a representation step by step until it becomes a coherent image, video, audio clip, or other sample.",
+  "openingSummary": "Diffusion families are easier to recognize by process than by checkpoint name: start from noise or a noisy latent, apply many denoising updates conditioned on a prompt or context, and stop when the sample becomes structured enough to decode back into something a person can use.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A diffusion family bundles models that generate by reversing a corruption process. Instead of predicting only the next token, the model repeatedly cleans up a latent or pixel-space representation. That makes the family especially natural for image and video generation, but the same denoising generation idea also shows up in other modalities."
+    },
+    "howItDiffers": {
+      "title": "How It Differs From Nearby Families",
+      "body": "Compared with transformer families, the core loop is about iterative denoising rather than walking through a sequence token by token. Compared with a world model, the target is usually a polished sample rather than a persistent internal state that tracks an environment. Compared with multimodal model families, diffusion pages emphasize the generation process itself more than the fusion of different input channels."
+    },
+    "representativePatterns": {
+      "title": "Representative Patterns",
+      "body": "Readers should look for conditioning paths, latent spaces, and denoising schedules when they inspect a diffusion family. Attention still matters, especially in prompt-conditioned systems, but it appears inside a broader process whose main question is how each denoising step improves the sample."
+    },
+    "related": {
+      "title": "Representative Families And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    }
+  }
+}

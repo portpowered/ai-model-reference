@@ -56,6 +56,12 @@ import transformerArchitectureConcept from "@/content/registry/concepts/transfor
 import vectorConcept from "@/content/registry/concepts/vector.json";
 import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-context-is-hard.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
+import diffusionModelFamilies from "@/content/registry/models/diffusion-model-families.json";
+import modelFamiliesOverview from "@/content/registry/models/model-families-overview.json";
+import multimodalModelFamilies from "@/content/registry/models/multimodal-model-families.json";
+import omniModelFamilies from "@/content/registry/models/omni-model-families.json";
+import transformerModelFamilies from "@/content/registry/models/transformer-model-families.json";
+import worldModelFamilies from "@/content/registry/models/world-model-families.json";
 import attention from "@/content/registry/modules/attention.json";
 import groupedQueryAttention from "@/content/registry/modules/grouped-query-attention.json";
 import linearAttention from "@/content/registry/modules/linear-attention.json";
@@ -72,7 +78,9 @@ import type { RelatedRegistryRecord } from "@/lib/content/related-docs";
 import {
   type ConceptRecord,
   conceptRecordSchema,
+  type ModelRecord,
   type ModuleRecord,
+  modelRecordSchema,
   moduleRecordSchema,
 } from "@/lib/content/schemas";
 
@@ -152,13 +160,26 @@ const modulesById = new Map(moduleRecords.map((record) => [record.id, record]));
 const conceptsById = new Map(
   conceptRecords.map((record) => [record.id, record]),
 );
+const modelRecords: ModelRecord[] = [
+  modelRecordSchema.parse(modelFamiliesOverview),
+  modelRecordSchema.parse(transformerModelFamilies),
+  modelRecordSchema.parse(diffusionModelFamilies),
+  modelRecordSchema.parse(multimodalModelFamilies),
+  modelRecordSchema.parse(omniModelFamilies),
+  modelRecordSchema.parse(worldModelFamilies),
+];
+const modelsById = new Map(modelRecords.map((record) => [record.id, record]));
 
-type TaggedRegistryRecord = ModuleRecord | ConceptRecord;
+type TaggedRegistryRecord = ModuleRecord | ConceptRecord | ModelRecord;
 
 function getTaggedRecordById(
   registryId: string,
 ): TaggedRegistryRecord | undefined {
-  return modulesById.get(registryId) ?? conceptsById.get(registryId);
+  return (
+    modulesById.get(registryId) ??
+    conceptsById.get(registryId) ??
+    modelsById.get(registryId)
+  );
 }
 
 /** Synchronous module lookup for client MDX components and tests. */
@@ -179,12 +200,20 @@ export function listConceptRecords(): ConceptRecord[] {
   return [...conceptRecords];
 }
 
-/** Module and concept records used for derived related-document groups. */
-export function listRelatedRegistryRecords(): RelatedRegistryRecord[] {
-  return [...moduleRecords, ...conceptRecords];
+export function getModelById(registryId: string): ModelRecord | undefined {
+  return modelsById.get(registryId);
 }
 
-/** Synchronous registry lookup for modules and concepts. */
+export function listModelRecords(): ModelRecord[] {
+  return [...modelRecords];
+}
+
+/** Module, concept, and model records used for derived related-document groups. */
+export function listRelatedRegistryRecords(): RelatedRegistryRecord[] {
+  return [...moduleRecords, ...conceptRecords, ...modelRecords];
+}
+
+/** Synchronous registry lookup for modules, concepts, and models. */
 export function getRegistryRecordById(
   registryId: string,
 ): RelatedRegistryRecord | undefined {

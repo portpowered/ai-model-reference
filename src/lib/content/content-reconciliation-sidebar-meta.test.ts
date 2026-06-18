@@ -18,6 +18,7 @@ const SECTION_META_PATHS = {
   glossary: "src/content/docs/glossary/meta.json",
   concepts: "src/content/docs/concepts/meta.json",
   modules: "src/content/docs/modules/meta.json",
+  models: "src/content/docs/models/meta.json",
 } as const;
 
 const ROOT_META_PATH = "src/content/docs/meta.json";
@@ -52,7 +53,7 @@ function findSidebarFolder(name: string): Node | undefined {
 }
 
 describe("Phase 2/3 reconciliation docs sidebar meta (US-003)", () => {
-  test("root docs meta exposes glossary, concepts, and modules folders", async () => {
+  test("root docs meta exposes glossary, concepts, modules, and models folders", async () => {
     const meta = JSON.parse(
       await readFile(join(process.cwd(), ROOT_META_PATH), "utf8"),
     ) as { pages: string[] };
@@ -60,6 +61,7 @@ describe("Phase 2/3 reconciliation docs sidebar meta (US-003)", () => {
     expect(meta.pages).toContain("glossary");
     expect(meta.pages).toContain("concepts");
     expect(meta.pages).toContain("modules");
+    expect(meta.pages).toContain("models");
   });
 
   for (const [section, metaPath] of Object.entries(SECTION_META_PATHS)) {
@@ -97,7 +99,9 @@ describe("Phase 2/3 reconciliation docs sidebar meta (US-003)", () => {
           ? "Glossary"
           : section === "concepts"
             ? "Concepts"
-            : "Modules";
+            : section === "modules"
+              ? "Modules"
+              : "Models";
       const folder = findSidebarFolder(folderName);
       expect(folder?.type).toBe("folder");
       if (folder?.type !== "folder") {

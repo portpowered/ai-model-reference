@@ -17,6 +17,7 @@ import {
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
+const MODEL_FAMILIES_OVERVIEW_URL = "/docs/models/model-families-overview";
 
 describe("search result meta", () => {
   test("loadSearchResultMetaMap includes grouped-query attention sample", async () => {
@@ -89,6 +90,17 @@ describe("search result meta", () => {
     expect(meta?.kind).toBe("glossary");
     expect(meta?.tags).toContain("attention");
     expect(meta?.aliases.length).toBeGreaterThan(0);
+  });
+
+  test("loadSearchResultMetaMap includes model-family overview pages as model results", async () => {
+    const map = await loadSearchResultMetaMap();
+    const meta = map.get(MODEL_FAMILIES_OVERVIEW_URL);
+    expect(meta).toBeDefined();
+    expect(meta?.kind).toBe("model");
+    expect(meta?.tags).toEqual(
+      expect.arrayContaining(["taxonomy", "model-family"]),
+    );
+    expect(meta?.aliases).toContain("model families");
   });
 
   test("buildSearchResultMetaMap keys by url", () => {

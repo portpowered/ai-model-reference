@@ -37,6 +37,17 @@ export function modulePageHref(
   );
 }
 
+/** Canonical docs URL for a model entry slug. */
+export function modelPageHref(
+  slug: string,
+  locale: SiteLocale = defaultLocale,
+): string {
+  return buildLocalizedRoute(
+    { surface: "docs-page", slug: `models/${slug}` },
+    locale,
+  );
+}
+
 /** Canonical tag landing URL for a registry tag slug. */
 export function tagPageHref(
   slug: string,

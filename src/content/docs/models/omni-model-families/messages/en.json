@@ -1,0 +1,25 @@
+{
+  "title": "Omni Model Families",
+  "description": "Families designed so multiple modalities and actions feel native inside one conversational or interactive loop rather than bolted on as separate subsystems.",
+  "openingSummary": "An omni family is less about one new tensor trick than about a product-shaped systems pattern: the model reads and emits several modalities, often reasons across turns, and tries to make speaking, seeing, listening, and acting feel like one continuous interaction instead of many disconnected APIs.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Omni model families extend multimodal model ideas into one native interaction loop. A reader should expect text, image, audio, or tool actions to be handled as peers in the same experience, even if the internals still borrow heavily from transformer stacks, modality-specific encoders, and routing layers."
+    },
+    "howItDiffers": {
+      "title": "How It Differs From Nearby Families",
+      "body": "Compared with a plain multimodal model page, omni families care more about seamless turn-taking, latency, and shared interaction state. Compared with transformer families, the differentiator is not only architecture blocks but also the product loop around those blocks. Compared with world model families, omni systems usually optimize for fluent interaction first, while world models optimize for persistent internal simulation or state prediction."
+    },
+    "representativePatterns": {
+      "title": "Representative Patterns",
+      "body": "Useful clues are real-time audio handling, cross-modal grounding, and one response path that can move between speaking, pointing, reading, and acting. The nearby concepts are multimodal model, modality, and attention because the family depends on aligning many streams without forcing the reader to think in separate disconnected products."
+    },
+    "related": {
+      "title": "Representative Families And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    }
+  }
+}

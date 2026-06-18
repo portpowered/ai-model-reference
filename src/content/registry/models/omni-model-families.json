@@ -1,0 +1,29 @@
+{
+  "id": "model.omni-model-families",
+  "slug": "omni-model-families",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["omni model families", "omni families", "omni models"],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [
+    "model.model-families-overview",
+    "model.multimodal-model-families",
+    "model.world-model-families",
+    "concept.multimodal-model",
+    "concept.modality",
+    "module.attention"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "omni-families",
+  "sourceType": "unknown",
+  "modalities": ["multimodal", "audio", "video", "text", "image"],
+  "architectureIds": ["concept.multimodal-model", "concept.transformer"],
+  "moduleIds": ["module.attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

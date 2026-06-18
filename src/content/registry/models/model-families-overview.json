@@ -1,0 +1,33 @@
+{
+  "id": "model.model-families-overview",
+  "slug": "model-families-overview",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["model families", "ai model families", "model family overview"],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [
+    "model.transformer-model-families",
+    "model.diffusion-model-families",
+    "model.multimodal-model-families",
+    "model.omni-model-families",
+    "model.world-model-families"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "atlas-model-family-hubs",
+  "sourceType": "unknown",
+  "modalities": ["text", "image", "audio", "video", "multimodal"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.diffusion-model",
+    "concept.multimodal-model",
+    "concept.world-model"
+  ],
+  "moduleIds": ["module.attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

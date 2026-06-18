@@ -1,0 +1,25 @@
+{
+  "title": "Model Families Overview",
+  "description": "A single entry point for the major model families in the atlas, organized by how they process information rather than by benchmark rank.",
+  "openingSummary": "Use this page when you know a model name only loosely and need the right family door first: transformers predict or fuse sequences, diffusion systems denoise toward a sample, multimodal families combine modalities, omni families make that combination feel native in one loop, and world models try to model state and dynamics instead of only the next response.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "This overview is the atlas map for model families. It groups pages by the main mechanism a reader should expect before opening a named checkpoint. If you can answer \"is this mostly a transformer, a diffusion model, a multimodal model, an omni system, or a world model?\" you usually know which concepts, modules, and tradeoffs to read next."
+    },
+    "howFamiliesDiffer": {
+      "title": "How Families Differ",
+      "body": "Transformer families usually center on attention over token-like inputs. Diffusion model families center on repeated denoising steps. Multimodal model families focus on how text, image, audio, or video signals are represented together. Omni families push that integration further into one interaction loop instead of separate mode-specific handoffs. World model families emphasize latent state, prediction, and environment dynamics rather than only immediate output quality."
+    },
+    "whyThisEntryPointHelps": {
+      "title": "Why This Entry Point Helps",
+      "body": "A reader who starts from the wrong family often confuses architecture with product packaging. The same chatbot may use transformer internals, multimodal inputs, and omni interaction patterns at once. This overview keeps those layers separate so the next page explains the right mechanism instead of mixing everything into one vague \"AI model\" bucket."
+    },
+    "related": {
+      "title": "Model Family Hubs"
+    },
+    "tags": {
+      "title": "Tags"
+    }
+  }
+}

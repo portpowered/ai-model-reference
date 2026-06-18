@@ -1,0 +1,42 @@
+{
+  "id": "model.transformer-model-families",
+  "slug": "transformer-model-families",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "transformer model families",
+    "transformer families",
+    "transformer models"
+  ],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [
+    "model.model-families-overview",
+    "model.multimodal-model-families",
+    "model.omni-model-families",
+    "concept.transformer",
+    "concept.transformer-architecture",
+    "module.attention",
+    "module.multi-head-attention"
+  ],
+  "citationIds": ["citation.attention-is-all-you-need"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "transformer-families",
+  "sourceType": "unknown",
+  "modalities": ["text", "multimodal"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture"
+  ],
+  "moduleIds": [
+    "module.attention",
+    "module.multi-head-attention",
+    "module.multi-query-attention",
+    "module.grouped-query-attention"
+  ],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

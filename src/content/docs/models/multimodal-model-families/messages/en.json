@@ -1,0 +1,25 @@
+{
+  "title": "Multimodal Model Families",
+  "description": "Families that join more than one modality, such as text with image, audio, or video, inside one model workflow.",
+  "openingSummary": "Multimodal families matter because the hard problem is no longer only generating or classifying one type of signal. The system has to decide how text, image, audio, or video representations are encoded, aligned, fused, and handed to the next component without losing what each modality means.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A multimodal model family combines more than one modality in a coordinated pipeline. One branch may tokenize text while another turns images into patches or audio into frames, but the family question is how those streams meet: shared embeddings, cross-attention, late fusion, or another alignment pattern."
+    },
+    "howItDiffers": {
+      "title": "How It Differs From Nearby Families",
+      "body": "Compared with transformer families, multimodal pages focus on input and representation mixing more than on one repeating block recipe. Compared with omni families, multimodal systems may still feel stitched together across modes even when they share one backbone. Compared with world model pages, the emphasis is on combining modalities for understanding or generation, not necessarily on maintaining a persistent simulated state."
+    },
+    "representativePatterns": {
+      "title": "Representative Patterns",
+      "body": "Look for modality-specific encoders, shared latent spaces, and cross-attention bridges. If a page says the model can answer about an image, summarize video, or ground text in pixels, the useful follow-up concepts are modality, representation, embedding, and transformer rather than only benchmark labels."
+    },
+    "related": {
+      "title": "Representative Families And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "model.world-model-families",
+  "slug": "world-model-families",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["world model families", "world-model families", "world models"],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [
+    "model.model-families-overview",
+    "model.diffusion-model-families",
+    "model.omni-model-families",
+    "concept.world-model",
+    "concept.latent-space",
+    "concept.conditioning"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "world-model-families",
+  "sourceType": "unknown",
+  "modalities": ["video", "multimodal"],
+  "architectureIds": ["concept.world-model", "concept.transformer"],
+  "moduleIds": ["module.attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

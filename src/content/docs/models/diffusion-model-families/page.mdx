@@ -1,0 +1,46 @@
+---
+title: Diffusion Model Families
+description: Families that learn to denoise a representation step by step until it becomes a coherent image, video, audio clip, or other sample.
+kind: "model"
+registryId: "model.diffusion-model-families"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - taxonomy
+  - model-family
+aliases:
+  - diffusion model families
+  - diffusion families
+  - diffusion models
+updatedAt: "2026-06-18"
+---
+
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="how-it-differs" titleKey="sections.howItDiffers.title">
+  <T k="sections.howItDiffers.body" />
+</Section>
+
+<Section
+  id="representative-patterns"
+  titleKey="sections.representativePatterns.title"
+>
+  <T k="sections.representativePatterns.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="model.diffusion-model-families" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="model.diffusion-model-families" showDescriptions />
+</Section>

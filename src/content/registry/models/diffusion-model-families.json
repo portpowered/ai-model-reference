@@ -1,0 +1,33 @@
+{
+  "id": "model.diffusion-model-families",
+  "slug": "diffusion-model-families",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "diffusion model families",
+    "diffusion families",
+    "diffusion models"
+  ],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [
+    "model.model-families-overview",
+    "model.multimodal-model-families",
+    "model.world-model-families",
+    "concept.diffusion-model",
+    "concept.denoising-generation",
+    "concept.conditioning"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "diffusion-families",
+  "sourceType": "unknown",
+  "modalities": ["image", "video", "audio", "multimodal"],
+  "architectureIds": ["concept.diffusion-model"],
+  "moduleIds": ["module.attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

@@ -82,6 +82,14 @@ const MODEL_FAMILY_URLS = [
   "/docs/glossary/multimodal-model",
   "/docs/glossary/world-model",
 ] as const;
+const MODEL_HUB_URLS = [
+  "/docs/models/model-families-overview",
+  "/docs/models/transformer-model-families",
+  "/docs/models/diffusion-model-families",
+  "/docs/models/multimodal-model-families",
+  "/docs/models/omni-model-families",
+  "/docs/models/world-model-families",
+] as const;
 const CHAIN_GLOSSARY_URLS = [
   "/docs/glossary/embedding",
   "/docs/glossary/vector",
@@ -131,6 +139,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ...TRAINING_BEHAVIOR_URLS,
   ...EVALUATION_SCALING_URLS,
   ...MODEL_FAMILY_URLS,
+  ...MODEL_HUB_URLS,
   ...CHAIN_GLOSSARY_URLS,
 ] as const;
 const GENERATED_INDEX_PATH = path.join(

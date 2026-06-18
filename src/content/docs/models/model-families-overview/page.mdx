@@ -1,0 +1,46 @@
+---
+title: Model Families Overview
+description: A single entry point for the major model families in the atlas, organized by how they process information rather than by benchmark rank.
+kind: "model"
+registryId: "model.model-families-overview"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - taxonomy
+  - model-family
+aliases:
+  - model families
+  - ai model families
+  - model family overview
+updatedAt: "2026-06-18"
+---
+
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="how-families-differ" titleKey="sections.howFamiliesDiffer.title">
+  <T k="sections.howFamiliesDiffer.body" />
+</Section>
+
+<Section
+  id="why-this-entry-point-helps"
+  titleKey="sections.whyThisEntryPointHelps.title"
+>
+  <T k="sections.whyThisEntryPointHelps.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="model.model-families-overview" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="model.model-families-overview" showDescriptions />
+</Section>

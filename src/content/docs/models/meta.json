@@ -1,0 +1,11 @@
+{
+  "title": "Models",
+  "pages": [
+    "[Model Families Overview](/docs/models/model-families-overview)",
+    "[Transformer Model Families](/docs/models/transformer-model-families)",
+    "[Diffusion Model Families](/docs/models/diffusion-model-families)",
+    "[Multimodal Model Families](/docs/models/multimodal-model-families)",
+    "[Omni Model Families](/docs/models/omni-model-families)",
+    "[World Model Families](/docs/models/world-model-families)"
+  ]
+}

@@ -1,6 +1,7 @@
 import {
   conceptPageHref,
   glossaryPageHref,
+  modelPageHref,
   modulePageHref,
 } from "@/lib/content/content-hrefs";
 import {
@@ -9,17 +10,20 @@ import {
 } from "@/lib/content/published-docs-registry-ids";
 import type {
   ConceptRecord,
+  ModelRecord,
   ModuleRecord,
   PageMessages,
 } from "@/lib/content/schemas";
 
 export const SAME_VARIANT_GROUP = "same-variant-group" as const;
+export const SAME_MODEL_FAMILY = "same-model-family" as const;
 export const SHARED_TAGS = "shared-tags" as const;
 export const SAME_CONCEPT_TYPE = "same-concept-type" as const;
 export const CURATED_RELATED = "curated-related" as const;
 
 export type DerivedRelatedDocGroupId =
   | typeof SAME_VARIANT_GROUP
+  | typeof SAME_MODEL_FAMILY
   | typeof SHARED_TAGS
   | typeof SAME_CONCEPT_TYPE
   | typeof CURATED_RELATED;
@@ -29,6 +33,7 @@ export const DERIVED_RELATED_DOC_GROUP_LABELS: Record<
   string
 > = {
   [SAME_VARIANT_GROUP]: "Same variant group",
+  [SAME_MODEL_FAMILY]: "Same model family",
   [SHARED_TAGS]: "Shared tag",
   [SAME_CONCEPT_TYPE]: "Same concept type",
   [CURATED_RELATED]: "Curated related",
@@ -37,7 +42,7 @@ export const DERIVED_RELATED_DOC_GROUP_LABELS: Record<
 export const PLANNED_RELATED_REASON_LABEL =
   "Planned — coming in a later phase" as const;
 
-export type RelatedRegistryRecord = ModuleRecord | ConceptRecord;
+export type RelatedRegistryRecord = ModuleRecord | ConceptRecord | ModelRecord;
 
 export type RelatedDocItem = {
   registryId: string;
@@ -78,6 +83,9 @@ function recordPageHref(record: RelatedRegistryRecord): string {
   if (record.kind === "concept") {
     return conceptRecordPageHref(record);
   }
+  if (record.kind === "model") {
+    return modelPageHref(record.slug);
+  }
   return modulePageHref(record.slug);
 }
 
@@ -85,11 +93,21 @@ function getConceptType(record: RelatedRegistryRecord): string | undefined {
   if (record.kind === "concept") {
     return record.conceptType;
   }
-  return record.conceptType;
+  if (record.kind === "module") {
+    return record.conceptType;
+  }
+  return undefined;
 }
 
 function sharesTag(sourceTags: string[], candidateTags: string[]): boolean {
   return sourceTags.some((tag) => candidateTags.includes(tag));
+}
+
+function getModelFamily(record: RelatedRegistryRecord): string | undefined {
+  if (record.kind === "model") {
+    return record.family;
+  }
+  return undefined;
 }
 
 /** True when the registry record has a published docs page readers can open. */
@@ -143,6 +161,23 @@ export function deriveSameVariantGroupPeers(
       (candidate) =>
         candidate.id !== source.id &&
         candidate.variantGroup === source.variantGroup,
+    )
+    .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds))
+    .sort((a, b) => a.title.localeCompare(b.title));
+}
+
+/** Peers sharing `family` with the source model, excluding the source. */
+export function deriveSameModelFamilyPeers(
+  source: ModelRecord,
+  candidates: RelatedRegistryRecord[],
+  publishedRegistryIds: PublishedDocsRegistryIds,
+): RelatedDocItem[] {
+  const reasonLabel = DERIVED_RELATED_DOC_GROUP_LABELS[SAME_MODEL_FAMILY];
+  return candidates
+    .filter(
+      (candidate) =>
+        candidate.id !== source.id &&
+        getModelFamily(candidate) === source.family,
     )
     .map((record) => toRelatedItem(record, reasonLabel, publishedRegistryIds))
     .sort((a, b) => a.title.localeCompare(b.title));
@@ -261,6 +296,21 @@ export function deriveRelatedDocGroups(
       groups.push({
         id: SAME_VARIANT_GROUP,
         reasonLabel: DERIVED_RELATED_DOC_GROUP_LABELS[SAME_VARIANT_GROUP],
+        items,
+      });
+    }
+  }
+
+  if (requestedGroups.includes(SAME_MODEL_FAMILY) && source.kind === "model") {
+    const items = deriveSameModelFamilyPeers(
+      source,
+      candidates,
+      publishedRegistryIds,
+    );
+    if (items.length > 0) {
+      groups.push({
+        id: SAME_MODEL_FAMILY,
+        reasonLabel: DERIVED_RELATED_DOC_GROUP_LABELS[SAME_MODEL_FAMILY],
         items,
       });
     }

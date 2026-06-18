@@ -120,13 +120,16 @@ describe("docs source local pages", () => {
       "transformer-architecture",
     ]);
     const modulePage = source.getPage(["modules", "grouped-query-attention"]);
+    const modelPage = source.getPage(["models", "model-families-overview"]);
 
     expect(tokenPage).toBeDefined();
     expect(conceptPage).toBeDefined();
     expect(modulePage).toBeDefined();
+    expect(modelPage).toBeDefined();
     expect(tokenPage?.url).toBe("/docs/glossary/token");
     expect(conceptPage?.url).toBe("/docs/concepts/transformer-architecture");
     expect(modulePage?.url).toBe("/docs/modules/grouped-query-attention");
+    expect(modelPage?.url).toBe("/docs/models/model-families-overview");
   });
 
   test("generateParams includes representative published glossary, concept, and module slugs", () => {
@@ -135,6 +138,7 @@ describe("docs source local pages", () => {
     expect(slugParams).toContainEqual(["glossary", "token"]);
     expect(slugParams).toContainEqual(["concepts", "transformer-architecture"]);
     expect(slugParams).toContainEqual(["modules", "grouped-query-attention"]);
+    expect(slugParams).toContainEqual(["models", "model-families-overview"]);
   });
 
   test("loadLocalDocsPage resolves localized metadata for glossary pages", async () => {
@@ -147,6 +151,19 @@ describe("docs source local pages", () => {
     expect(page.messages.description?.length).toBeGreaterThan(0);
     expect(page.frontmatter.registryId).toBe("concept.token");
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+  });
+
+  test("loadLocalDocsPage resolves model-family overview pages through the shared local docs route contract", async () => {
+    const page = await loadLocalDocsPage({
+      section: "models",
+      slug: "model-families-overview",
+    });
+
+    expect(page.messages.title).toBe("Model Families Overview");
+    expect(page.messages.description.length).toBeGreaterThan(0);
+    expect(page.frontmatter.registryId).toBe("model.model-families-overview");
+    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+    expect(page.toc.some((item) => item.url === "#related")).toBe(true);
   });
 
   test("loadLocalDocsPage resolves shipped vietnamese canonical page messages without changing the shared MDX route contract", async () => {

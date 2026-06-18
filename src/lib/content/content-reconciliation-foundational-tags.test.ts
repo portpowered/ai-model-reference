@@ -48,6 +48,12 @@ const BATCH_017_TAG_URLS = {
     "/docs/glossary/multimodal-model",
     "/docs/glossary/transformer",
     "/docs/glossary/world-model",
+    "/docs/models/diffusion-model-families",
+    "/docs/models/model-families-overview",
+    "/docs/models/multimodal-model-families",
+    "/docs/models/omni-model-families",
+    "/docs/models/transformer-model-families",
+    "/docs/models/world-model-families",
   ],
   "token-to-probability-chain": [],
 } as const;
@@ -87,9 +93,7 @@ describe("Phase 2/3 reconciliation foundational tags (US-006)", () => {
       "en",
     );
     expect(modelFamily?.title).toBe("Model family");
-    expect(modelFamily?.summary).toContain(
-      "Published model-family glossary pages",
-    );
+    expect(modelFamily?.summary).toContain("Published model-family hubs");
     expect(modelFamily?.categoryLabel).toBe("Model family");
 
     const tokenChain = await loadTagLandingContext(
@@ -118,11 +122,23 @@ describe("Phase 2/3 reconciliation foundational tags (US-006)", () => {
       messages,
       "en",
     );
-    expect(modelFamilyGroups).toHaveLength(1);
-    expect(modelFamilyGroups[0]?.kind).toBe("glossary");
-    expect(modelFamilyGroups[0]?.kindLabel).toBe("Glossary");
+    expect(modelFamilyGroups).toHaveLength(2);
+    expect(modelFamilyGroups[0]?.kind).toBe("model");
+    expect(modelFamilyGroups[0]?.kindLabel).toBe("Model");
+    expect(modelFamilyGroups[1]?.kind).toBe("glossary");
+    expect(modelFamilyGroups[1]?.kindLabel).toBe("Glossary");
     expect(
       modelFamilyGroups[0]?.resources.map((resource) => resource.url),
+    ).toEqual([
+      "/docs/models/diffusion-model-families",
+      "/docs/models/model-families-overview",
+      "/docs/models/multimodal-model-families",
+      "/docs/models/omni-model-families",
+      "/docs/models/transformer-model-families",
+      "/docs/models/world-model-families",
+    ]);
+    expect(
+      modelFamilyGroups[1]?.resources.map((resource) => resource.url),
     ).toEqual([
       "/docs/glossary/diffusion-model",
       "/docs/glossary/multimodal-model",
@@ -178,9 +194,7 @@ describe("Phase 2/3 reconciliation foundational tags (US-006)", () => {
     }
 
     const modelFamily = entries.find((entry) => entry.slug === "model-family");
-    expect(modelFamily?.summary).toContain(
-      "Published model-family glossary pages",
-    );
+    expect(modelFamily?.summary).toContain("Published model-family hubs");
   });
 });
 
@@ -202,14 +216,19 @@ describe("Phase 2/3 reconciliation foundational tag page render (US-006)", () =>
     expect(html).not.toContain("list-disc");
   });
 
-  test("model-family landing lists all four published model family glossary pages", async () => {
+  test("model-family landing lists published model hubs and glossary pages", async () => {
     const page = await TagLandingPage({
       params: Promise.resolve({ slug: "model-family" }),
     });
     const html = renderToStaticMarkup(page);
 
     expect(html).toContain("Model family");
-    expect(html).toContain("Published model-family glossary pages");
+    expect(html).toContain("Published model-family hubs");
+    expect(html).toContain("Model");
+    expect(html).toContain('href="/docs/models/model-families-overview"');
+    expect(html).toContain('href="/docs/models/transformer-model-families"');
+    expect(html).toContain('href="/docs/models/omni-model-families"');
+    expect(html).toContain("Glossary");
     expect(html).toContain('href="/docs/glossary/transformer"');
     expect(html).toContain('href="/docs/glossary/diffusion-model"');
     expect(html).toContain('href="/docs/glossary/multimodal-model"');

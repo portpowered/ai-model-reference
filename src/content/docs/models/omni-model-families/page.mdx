@@ -1,0 +1,46 @@
+---
+title: Omni Model Families
+description: Families designed so multiple modalities and actions feel native inside one conversational or interactive loop rather than bolted on as separate subsystems.
+kind: "model"
+registryId: "model.omni-model-families"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - taxonomy
+  - model-family
+aliases:
+  - omni model families
+  - omni families
+  - omni models
+updatedAt: "2026-06-18"
+---
+
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="how-it-differs" titleKey="sections.howItDiffers.title">
+  <T k="sections.howItDiffers.body" />
+</Section>
+
+<Section
+  id="representative-patterns"
+  titleKey="sections.representativePatterns.title"
+>
+  <T k="sections.representativePatterns.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="model.omni-model-families" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="model.omni-model-families" showDescriptions />
+</Section>

@@ -1,0 +1,28 @@
+{
+  "title": "Transformer Model Families",
+  "description": "Families built from repeated attention and feed-forward blocks, commonly used for language, code, and many multimodal systems.",
+  "openingSummary": "Transformer families are the broadest branch in the atlas because they separate the reusable block recipe from any one named checkpoint: stacked attention and feed-forward layers update token representations in parallel, then a decoding or readout head turns those hidden states into the next action, label, or prediction.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A transformer family page is about the shared architecture recipe, not one checkpoint. The common pattern is tokenization, embeddings, repeated attention plus feed-forward blocks, and a head that turns hidden states into an output. Decoder-only stacks lean on causal attention for next-token prediction, while other transformer branches reuse the same block idea for bidirectional reading, cross-modal fusion, or encoder-decoder behavior."
+    },
+    "howItDiffers": {
+      "title": "How It Differs From Nearby Families",
+      "body": "Compared with a diffusion model, a transformer usually reasons over a structured sequence rather than a denoising trajectory. Compared with a multimodal model page, this family description is about the block recipe first and the input mix second. Compared with an omni model family, transformers do not automatically imply unified turn-taking across text, image, audio, and tools; many omni systems still use transformer internals under a broader product loop."
+    },
+    "representativePatterns": {
+      "title": "Representative Patterns",
+      "body": "When readers say GPT-style, encoder-only, seq2seq, retrieval-aware, or long-context, they are usually naming a transformer branch or operating pattern rather than leaving the transformer family entirely. Attention, multi-head attention, multi-query attention, and grouped-query attention matter here because they change memory use, latency, or how much context the same stack can afford."
+    },
+    "related": {
+      "title": "Representative Families And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
