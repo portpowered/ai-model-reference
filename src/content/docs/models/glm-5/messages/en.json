@@ -5,7 +5,7 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "GLM-5 is the flagship model release described in the GLM-5 paper. It is best understood as a sparse MoE language model tuned for coding, reasoning, and agent-style workflows rather than as a small architectural tweak on its own."
+      "body": "GLM-5 is the flagship model release described in the GLM-5 paper from Zhipu AI. It is best understood as a sparse MoE language model tuned for coding, reasoning, and agent-style workflows rather than as a small architectural tweak on its own."
     },
     "inputsAndOutputs": {
       "title": "Inputs And Outputs",

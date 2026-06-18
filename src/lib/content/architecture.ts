@@ -34,6 +34,7 @@ function isFoundationsArchitectureConceptRecord(
   return (
     isConceptRecord(record) &&
     record.tags.includes("foundations") &&
+    record.conceptType !== "systems" &&
     !record.tags.includes("token-to-probability-chain")
   );
 }

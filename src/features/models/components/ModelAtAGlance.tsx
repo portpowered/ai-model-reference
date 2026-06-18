@@ -4,7 +4,10 @@ import {
   AtAGlanceDefinitionRow,
 } from "@/features/models/components/AtAGlanceCard";
 import { buildPageReleaseMetadata } from "@/lib/content/page-release-metadata";
-import { getModelById } from "@/lib/content/registry-runtime";
+import {
+  getModelById,
+  getOrganizationById,
+} from "@/lib/content/registry-runtime";
 
 function formatToken(value: string): string {
   return value
@@ -28,6 +31,9 @@ export function ModelAtAGlance({ registryId }: { registryId: string }) {
     return null;
   }
   const releaseMetadata = buildPageReleaseMetadata(record);
+  const organization = record.organizationId
+    ? getOrganizationById(record.organizationId)
+    : undefined;
 
   const modalities = record.modalities.map(formatToken).join(", ");
   const precision =
@@ -60,6 +66,25 @@ export function ModelAtAGlance({ registryId }: { registryId: string }) {
                 ? releaseMetadata.authors.join(", ")
                 : `${releaseMetadata.authors.slice(0, 3).join(", ")}, et al.`
               : undefined
+          }
+        />
+        <DefinitionRow
+          label="Organization"
+          value={
+            organization ? (
+              organization.website ? (
+                <a
+                  className="underline decoration-border underline-offset-4 transition-colors hover:text-primary"
+                  href={organization.website}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  {organization.aliases[0] ?? organization.slug}
+                </a>
+              ) : (
+                (organization.aliases[0] ?? organization.slug)
+              )
+            ) : undefined
           }
         />
         <DefinitionRow
