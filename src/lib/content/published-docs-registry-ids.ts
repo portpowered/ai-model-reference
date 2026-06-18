@@ -54,6 +54,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "paper.deepseek-v4",
   "paper.glm-5",
   "module.attention",
+  "module.bidirectional-attention",
   "module.compressed-sparse-attention",
   "module.deepseekmoe",
   "module.heavily-compressed-attention",

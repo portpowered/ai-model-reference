@@ -1,6 +1,7 @@
 import agenticEngineeringConceptMap from "@/content/registry/graphs/agentic-engineering-concept-map.json";
 import asynchronousAgentReinforcementLearningTrainingFlow from "@/content/registry/graphs/asynchronous-agent-reinforcement-learning-training-flow.json";
 import batchNormComputeFlow from "@/content/registry/graphs/batch-norm-compute-flow.json";
+import bidirectionalAttentionTimePattern from "@/content/registry/graphs/bidirectional-attention-time-pattern.json";
 import compressedSparseAttentionFlow from "@/content/registry/graphs/compressed-sparse-attention-flow.json";
 import deepseekV4Contribution from "@/content/registry/graphs/deepseek-v4-contribution.json";
 import deepseekV4FlashArchitecture from "@/content/registry/graphs/deepseek-v4-flash-architecture.json";
@@ -52,6 +53,7 @@ const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(agenticEngineeringConceptMap),
   graphRecordSchema.parse(asynchronousAgentReinforcementLearningTrainingFlow),
   graphRecordSchema.parse(batchNormComputeFlow),
+  graphRecordSchema.parse(bidirectionalAttentionTimePattern),
   graphRecordSchema.parse(compressedSparseAttentionFlow),
   graphRecordSchema.parse(deepseekV4Contribution),
   graphRecordSchema.parse(deepseekV4FlashArchitecture),
