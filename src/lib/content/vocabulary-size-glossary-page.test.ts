@@ -10,6 +10,7 @@ import {
   expectGlossaryPresentationConvergence,
   expectHtmlToContainProse,
 } from "@/lib/content/glossary-test-helpers";
+import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
   getConceptById,
@@ -17,6 +18,7 @@ import {
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 const pageDir = VOCABULARY_SIZE_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
@@ -102,5 +104,25 @@ describe("vocabulary size glossary page", () => {
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");
+  });
+
+  test("published route, registry record, messages, and search aliases stay aligned", async () => {
+    const page = await loadLocalDocsPage({
+      section: "glossary",
+      slug: "vocabulary-size",
+    });
+    const record = getConceptById(page.frontmatter.registryId);
+
+    expect(record?.slug).toBe("vocabulary-size");
+    expect(page.messages.title).toBe("Vocabulary Size");
+    expect(page.messages.sections?.commonConfusions.body).toContain(
+      "Reserved tokens",
+    );
+    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+
+    const results = await docsSearchApi.search("vocab size");
+    expect(
+      results.some((result) => result.url === "/docs/glossary/vocabulary-size"),
+    ).toBe(true);
   });
 });
