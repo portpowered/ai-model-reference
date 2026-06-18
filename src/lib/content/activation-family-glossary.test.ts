@@ -11,6 +11,7 @@ import {
   SWIGLU_GLOSSARY_PAGE_DIR,
 } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { loadModulePage } from "@/lib/content/module-page";
 import {
   expectGlossaryPresentationConvergence,
   expectHtmlToContainProse,
@@ -32,6 +33,9 @@ const PAGE_CASES = [
     registryId: "concept.relu",
     title: "ReLU",
     pageDir: RELU_GLOSSARY_PAGE_DIR,
+    pageKind: "module",
+    usesModuleTemplate: false,
+    expectedTags: ["activation", "foundations"],
     aliases: ["rectified linear unit", "ReLU activation", "rectifier"],
     relatedIds: [
       "concept.activation",
@@ -50,12 +54,16 @@ const PAGE_CASES = [
     messageNeedles: ["positive", "zero", "attention"],
     renderNeedle: "keep positive numbers",
     searchQuery: "ReLU",
+    searchUrl: "/docs/modules/relu",
   },
   {
     slug: "leaky-relu",
     registryId: "concept.leaky-relu",
     title: "LeakyReLU",
     pageDir: LEAKY_RELU_GLOSSARY_PAGE_DIR,
+    pageKind: "module",
+    usesModuleTemplate: false,
+    expectedTags: ["activation", "foundations"],
     aliases: [
       "leaky ReLU",
       "leaky rectified linear unit",
@@ -78,12 +86,16 @@ const PAGE_CASES = [
     messageNeedles: ["small constant", "negative", "standard ffn"],
     renderNeedle: "small constant such as 0.01",
     searchQuery: "LeakyReLU",
+    searchUrl: "/docs/modules/leaky-relu",
   },
   {
     slug: "silu",
     registryId: "concept.silu",
     title: "SiLU",
     pageDir: SILU_GLOSSARY_PAGE_DIR,
+    pageKind: "module",
+    usesModuleTemplate: false,
+    expectedTags: ["activation", "foundations"],
     aliases: ["sigmoid linear unit", "Swish", "SiLU activation"],
     relatedIds: [
       "concept.activation",
@@ -102,12 +114,16 @@ const PAGE_CASES = [
     messageNeedles: ["sigmoid", "smooth", "swiglu"],
     renderNeedle: "sigmoid linear unit",
     searchQuery: "SiLU",
+    searchUrl: "/docs/modules/silu",
   },
   {
     slug: "swiglu",
     registryId: "concept.swiglu",
     title: "SwiGLU",
     pageDir: SWIGLU_GLOSSARY_PAGE_DIR,
+    pageKind: "module",
+    usesModuleTemplate: true,
+    expectedTags: ["feed-forward", "foundations"],
     aliases: ["swish gated linear unit", "SiLU-gated FFN", "SwiGLU FFN"],
     relatedIds: [
       "concept.feed-forward-network",
@@ -123,12 +139,29 @@ const PAGE_CASES = [
       "/docs/modules/silu",
       "/docs/glossary/activation",
     ],
-    messageNeedles: ["gate", "silu", "mixture of experts"],
+    messageNeedles: ["gate", "silu", "moe"],
     renderNeedle: "two branches after attention",
     searchQuery: "SwiGLU",
     expectedGraphId: "graph.swiglu-compute-flow",
+    searchUrl: "/docs/modules/swiglu",
   },
-] as const;
+] as const satisfies ReadonlyArray<{
+  slug: string;
+  registryId: string;
+  title: string;
+  pageDir: string;
+  pageKind: "glossary" | "module";
+  usesModuleTemplate: boolean;
+  expectedTags: readonly string[];
+  aliases: readonly string[];
+  relatedIds: readonly string[];
+  hrefs: readonly string[];
+  messageNeedles: readonly string[];
+  renderNeedle: string;
+  searchQuery: string;
+  searchUrl: string;
+  expectedGraphId?: string;
+}>;
 
 describe("Phase 3 activation-family glossary pages (US-002)", () => {
   for (const testCase of PAGE_CASES) {
@@ -136,7 +169,7 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
       const record = getConceptById(testCase.registryId);
       expect(record?.status).toBe("published");
       expect(record?.aliases).toEqual([...testCase.aliases]);
-      expect(record?.tags).toEqual(["foundations"]);
+      expect(record?.tags).toEqual([...testCase.expectedTags]);
       expect(record?.relatedIds).toEqual([...testCase.relatedIds]);
       expect(PUBLISHED_DOCS_REGISTRY_IDS.has(testCase.registryId)).toBe(true);
     });
@@ -169,25 +202,31 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
 
       expect(messages.title).toBe(testCase.title);
       expect(messages.openingSummary?.length).toBeGreaterThan(0);
-      const combinedBody = [
-        messages.sections?.whatItIs.body,
-        messages.sections?.whyItMatters.body,
-        messages.sections?.commonConfusions.body,
-      ]
-        .join(" ")
-        .toLowerCase();
+      const combinedBody =
+        testCase.usesModuleTemplate
+          ? [
+              messages.sections?.whatItIs.body,
+              messages.sections?.practicalBenefit.body,
+              messages.sections?.limitationsAndTradeoffs.body,
+            ].join(" ")
+          : [
+              messages.sections?.whatItIs.body,
+              messages.sections?.whyItMatters.body,
+              messages.sections?.commonConfusions.body,
+            ].join(" ");
+      const normalizedBody = combinedBody.toLowerCase();
 
       for (const needle of testCase.messageNeedles) {
-        expect(combinedBody).toContain(needle);
+        expect(normalizedBody).toContain(needle);
       }
     });
 
     test(`${testCase.title} page renders glossary sections, tags, and FFN-family links`, async () => {
-      const page = await loadGlossaryPage(testCase.slug);
+      const page = await loadModulePage(testCase.slug);
 
-      expect(page.frontmatter.kind).toBe("glossary");
+      expect(page.frontmatter.kind).toBe(testCase.pageKind);
       expect(page.frontmatter.status).toBe("published");
-      expect(page.frontmatter.registryId).toBe(testCase.registryId);
+      expect(page.frontmatter.registryId).toBe(`module.${testCase.slug}`);
 
       const html = renderToStaticMarkup(
         createElement(ModulePageProviders, {
@@ -198,11 +237,28 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
         }),
       );
 
-      expectGlossaryPresentationConvergence(html, {
-        title: testCase.title,
-      });
+      if (testCase.usesModuleTemplate) {
+        expect(html).not.toContain(`<h1>${testCase.title}</h1>`);
+        expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(
+          1,
+        );
+      } else {
+        expectGlossaryPresentationConvergence(html, {
+          title: testCase.title,
+        });
+      }
       expect(html).toContain("What It Is");
-      expect(html).toContain("Common Confusions");
+      if (testCase.usesModuleTemplate) {
+        expect(html).toContain("What It Optimizes");
+        expect(html).toContain("Compared To Nearby Modules");
+        expect(html).toContain("Why It Still Matters");
+        expect(html).toContain(`data-registry-id="module.${testCase.slug}"`);
+        expect(html).toContain('data-page-asset="comparisonTable"');
+        expect(html).toContain('data-testid="derived-related-docs"');
+        expect(html).toContain('data-attention-schema-comparison="true"');
+      } else {
+        expect(html).toContain("Common Confusions");
+      }
       expectHtmlToContainProse(html, testCase.renderNeedle);
       if ("expectedGraphId" in testCase) {
         expect(html).toContain('data-react-flow-graph="true"');
@@ -224,11 +280,11 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
       const documents = buildSearchDocuments(pages, registry);
 
       const document = documents.find(
-        (entry) => entry.url === `/docs/glossary/${testCase.slug}`,
+        (entry) => entry.url === testCase.searchUrl,
       );
       expect(document?.title).toBe(testCase.title);
-      expect(document?.kind).toBe("glossary");
-      expect(document?.facets.kind).toBe("glossary");
+      expect(document?.kind).toBe(testCase.pageKind);
+      expect(document?.facets.kind).toBe(testCase.pageKind);
       expect(document?.aliases).toEqual(
         expect.arrayContaining(testCase.aliases),
       );

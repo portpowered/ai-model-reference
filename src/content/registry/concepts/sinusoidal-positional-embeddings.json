@@ -9,13 +9,18 @@
     "sinusoidal position embeddings",
     "sine-cosine positional encoding"
   ],
-  "tags": ["foundations"],
+  "tags": [
+    "position-encoding",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.positional-encodings",
     "concept.absolute-positional-embeddings",
     "concept.learned-positional-embeddings"
   ],
-  "citationIds": ["citation.attention-is-all-you-need"],
+  "citationIds": [
+    "citation.attention-is-all-you-need"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",

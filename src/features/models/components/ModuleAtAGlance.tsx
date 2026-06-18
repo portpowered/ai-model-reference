@@ -1,3 +1,5 @@
+import { LocalizedMonthYear } from "@/features/docs/components/LocalizedMonthYear";
+import { buildPageReleaseMetadata } from "@/lib/content/page-release-metadata";
 import { getModuleById } from "@/lib/content/registry-runtime";
 
 function formatToken(value: string): string {
@@ -32,6 +34,7 @@ export function ModuleAtAGlance({ registryId }: { registryId: string }) {
   if (!record) {
     return null;
   }
+  const releaseMetadata = buildPageReleaseMetadata(record);
 
   return (
     <section
@@ -43,6 +46,47 @@ export function ModuleAtAGlance({ registryId }: { registryId: string }) {
         At a glance
       </h2>
       <div className="space-y-4">
+        {releaseMetadata ? (
+          <div className="space-y-2">
+            {releaseMetadata.releaseDate ? (
+              <div>
+                <h3 className="mb-1 text-sm font-medium text-muted-foreground">
+                  {releaseMetadata.dateLabel}
+                </h3>
+                <p className="text-sm text-foreground">
+                  <LocalizedMonthYear value={releaseMetadata.releaseDate} />
+                </p>
+              </div>
+            ) : null}
+            {releaseMetadata.authors.length > 0 ? (
+              <div>
+                <h3 className="mb-1 text-sm font-medium text-muted-foreground">
+                  Authors
+                </h3>
+                <p className="text-sm text-foreground">
+                  {releaseMetadata.authors.length <= 3
+                    ? releaseMetadata.authors.join(", ")
+                    : `${releaseMetadata.authors.slice(0, 3).join(", ")}, et al.`}
+                </p>
+              </div>
+            ) : null}
+            {releaseMetadata.source ? (
+              <div>
+                <h3 className="mb-1 text-sm font-medium text-muted-foreground">
+                  Source
+                </h3>
+                <a
+                  className="text-sm text-foreground underline decoration-border underline-offset-4 transition-colors hover:text-primary"
+                  href={releaseMetadata.source.url}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  {releaseMetadata.source.title}
+                </a>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
         <div>
           <h3 className="mb-2 text-sm font-medium text-muted-foreground">
             Optimizes

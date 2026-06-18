@@ -1,0 +1,16 @@
+{
+  "id": "tag.position-encoding",
+  "slug": "position-encoding",
+  "kind": "tag",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["positional encoding", "positional embeddings", "position signal"],
+  "tags": [],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "category": "module-type",
+  "landingPage": "generated-tag-page"
+}

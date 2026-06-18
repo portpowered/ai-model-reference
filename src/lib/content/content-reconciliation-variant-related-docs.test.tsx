@@ -165,6 +165,16 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     expect(html).toContain("curated");
   });
 
+  test("RelatedDocs does not duplicate head-sharing module links between variant and curated groups on GQA", () => {
+    const html = renderToStaticMarkup(
+      <RelatedDocs registryId="module.grouped-query-attention" />,
+    );
+
+    expect(html.match(/href="\/docs\/modules\/multi-head-attention"/g)).toHaveLength(1);
+    expect(html.match(/href="\/docs\/modules\/multi-query-attention"/g)).toHaveLength(1);
+    expect(html.match(/href="\/docs\/modules\/multi-head-latent-attention"/g)).toHaveLength(1);
+  });
+
   test("module pages render same-variant-group peer links in the related section", async () => {
     for (const url of HEAD_SHARING_MODULE_URLS) {
       const slug = url.replace("/docs/modules/", "");

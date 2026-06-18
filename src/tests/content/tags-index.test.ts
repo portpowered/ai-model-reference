@@ -58,7 +58,13 @@ describe("groupTagIndexEntriesByCategory", () => {
       "taxonomy",
       "token-to-probability-chain",
     ]);
-    expect(groups[1]?.tags.map((tag) => tag.slug)).toEqual(["attention"]);
+    expect(groups[1]?.tags.map((tag) => tag.slug)).toEqual([
+      "activation",
+      "attention",
+      "feed-forward",
+      "normalization",
+      "position-encoding",
+    ]);
     expect(groups[2]?.tags.map((tag) => tag.slug)).toEqual([
       "context-window",
       "kv-cache",
@@ -147,6 +153,14 @@ describe("tags index page render", () => {
     expect(html).toContain('href="/tags/token-to-probability-chain"');
     expect(html).toContain("Attention");
     expect(html).toContain('href="/tags/attention"');
+    expect(html).toContain("Activation");
+    expect(html).toContain('href="/tags/activation"');
+    expect(html).toContain("Feed-forward");
+    expect(html).toContain('href="/tags/feed-forward"');
+    expect(html).toContain("Normalization");
+    expect(html).toContain('href="/tags/normalization"');
+    expect(html).toContain("Position Encoding");
+    expect(html).toContain('href="/tags/position-encoding"');
     expect(html).toContain("Module type");
     expect(html).toContain("KV Cache");
     expect(html).toContain('href="/tags/kv-cache"');
@@ -167,6 +181,10 @@ describe("tags index page render", () => {
     expect(html).toContain('href="/vi/tags/foundations"');
     expect(html).toContain("Attention");
     expect(html).toContain('href="/vi/tags/attention"');
+    expect(html).toContain('href="/vi/tags/activation"');
+    expect(html).toContain('href="/vi/tags/feed-forward"');
+    expect(html).toContain('href="/vi/tags/normalization"');
+    expect(html).toContain('href="/vi/tags/position-encoding"');
     expect(html).toContain("Loại module");
     expect(html).toContain("Cửa sổ ngữ cảnh");
     expect(html).toContain('href="/vi/tags/context-window"');

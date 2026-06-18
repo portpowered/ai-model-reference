@@ -1,0 +1,78 @@
+{
+  "id": "graph.batch-norm-compute-flow",
+  "slug": "batch-norm-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "module.batch-norm",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "inputActivations",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "inputActivations",
+      "labelKey": "graph.nodes.inputActivations.label",
+      "moduleKind": "input",
+      "childNodeIds": ["batchStats"]
+    },
+    {
+      "id": "batchStats",
+      "labelKey": "graph.nodes.batchStats.label",
+      "moduleKind": "operation",
+      "childNodeIds": ["normalizeChannel"]
+    },
+    {
+      "id": "normalizeChannel",
+      "labelKey": "graph.nodes.normalizeChannel.label",
+      "moduleKind": "normalization",
+      "childNodeIds": ["learnedAffine"]
+    },
+    {
+      "id": "learnedAffine",
+      "labelKey": "graph.nodes.learnedAffine.label",
+      "moduleKind": "projection",
+      "childNodeIds": ["outputActivations"]
+    },
+    {
+      "id": "outputActivations",
+      "labelKey": "graph.nodes.outputActivations.label",
+      "moduleKind": "output",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "input-to-stats",
+      "source": "inputActivations",
+      "target": "batchStats",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "stats-to-normalize",
+      "source": "batchStats",
+      "target": "normalizeChannel",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "normalize-to-affine",
+      "source": "normalizeChannel",
+      "target": "learnedAffine",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "affine-to-output",
+      "source": "learnedAffine",
+      "target": "outputActivations",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

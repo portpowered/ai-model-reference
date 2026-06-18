@@ -9,7 +9,10 @@
     "long-context extension",
     "context length extension"
   ],
-  "tags": ["foundations"],
+  "tags": [
+    "context-window",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.context-window",
     "concept.rope",
@@ -24,7 +27,10 @@
   "createdAt": "2026-06-09T00:00:00.000Z",
   "updatedAt": "2026-06-09T21:00:00.000Z",
   "conceptType": "general",
-  "prerequisiteIds": ["concept.context-window", "concept.rope"],
+  "prerequisiteIds": [
+    "concept.context-window",
+    "concept.rope"
+  ],
   "explainsIds": [
     "concept.superhot-rope",
     "concept.ntk-aware-rope-scaling",

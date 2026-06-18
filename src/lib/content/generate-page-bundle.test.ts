@@ -356,6 +356,9 @@ describe("generatePageBundle", () => {
         ...baseSpecFields,
         slug,
         kind: "module",
+        releaseDate: "2023-05-01",
+        authors: ["Joshua Ainslie"],
+        sourceId: "citation.gqa-paper",
         moduleType: "attention",
         moduleFamily: "attention",
         variantGroup: "attention-head-sharing",
@@ -380,13 +383,19 @@ describe("generatePageBundle", () => {
         "utf8",
       ),
     ) as {
+      authors: string[];
       id: string;
+      releaseDate: string;
       moduleType: string;
       moduleFamily: string;
+      sourceId: string;
       variantGroup: string;
       optimizes: string[];
     };
     expect(registry.id).toBe(`module.${slug}`);
+    expect(registry.releaseDate).toBe("2023-05-01");
+    expect(registry.authors).toEqual(["Joshua Ainslie"]);
+    expect(registry.sourceId).toBe("citation.gqa-paper");
     expect(registry.moduleType).toBe("attention");
     expect(registry.moduleFamily).toBe("attention");
     expect(registry.variantGroup).toBe("attention-head-sharing");

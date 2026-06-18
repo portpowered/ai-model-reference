@@ -7,6 +7,10 @@ describe("ModuleAtAGlance", () => {
     const html = renderToStaticMarkup(
       <ModuleAtAGlance registryId="module.grouped-query-attention" />,
     );
+    expect(html).toContain("Released");
+    expect(html).toContain("May 2023");
+    expect(html).toContain("Joshua Ainslie, James Lee-Thorp, Seth R. Robertson, et al.");
+    expect(html).toContain("GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints");
     expect(html).toContain("Kv Cache");
     expect(html).toContain("lower KV-cache memory");
     expect(html).toContain("reduced memory bandwidth during inference");

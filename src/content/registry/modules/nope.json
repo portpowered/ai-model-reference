@@ -4,8 +4,15 @@
   "kind": "module",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["NoPE", "no positional encoding", "no positional embeddings"],
-  "tags": ["foundations"],
+  "aliases": [
+    "NoPE",
+    "no positional encoding",
+    "no positional embeddings"
+  ],
+  "tags": [
+    "position-encoding",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.positional-encodings",
     "module.absolute-positional-embeddings",
@@ -17,8 +24,12 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "position-encoding",
-  "optimizes": ["position-encoding-simplicity"],
-  "practicalBenefits": ["removes explicit positional encodings entirely"],
+  "optimizes": [
+    "position-encoding-simplicity"
+  ],
+  "practicalBenefits": [
+    "removes explicit positional encodings entirely"
+  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

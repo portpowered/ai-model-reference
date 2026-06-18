@@ -1,0 +1,90 @@
+{
+  "id": "graph.qk-norm-compute-flow",
+  "slug": "qk-norm-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "module.qk-norm",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "hiddenStates",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "hiddenStates",
+      "labelKey": "graph.nodes.hiddenStates.label",
+      "moduleKind": "input",
+      "childNodeIds": ["projectQK"]
+    },
+    {
+      "id": "projectQK",
+      "labelKey": "graph.nodes.projectQK.label",
+      "moduleKind": "projection",
+      "childNodeIds": ["normalizeQK"]
+    },
+    {
+      "id": "normalizeQK",
+      "labelKey": "graph.nodes.normalizeQK.label",
+      "moduleKind": "normalization",
+      "childNodeIds": ["attentionScores"]
+    },
+    {
+      "id": "attentionScores",
+      "labelKey": "graph.nodes.attentionScores.label",
+      "moduleKind": "attention",
+      "childNodeIds": ["weightedValues"]
+    },
+    {
+      "id": "weightedValues",
+      "labelKey": "graph.nodes.weightedValues.label",
+      "moduleKind": "attention",
+      "childNodeIds": ["outputState"]
+    },
+    {
+      "id": "outputState",
+      "labelKey": "graph.nodes.outputState.label",
+      "moduleKind": "output",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "hidden-to-project",
+      "source": "hiddenStates",
+      "target": "projectQK",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "project-to-normalize",
+      "source": "projectQK",
+      "target": "normalizeQK",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "normalize-to-scores",
+      "source": "normalizeQK",
+      "target": "attentionScores",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "scores-to-values",
+      "source": "attentionScores",
+      "target": "weightedValues",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "values-to-output",
+      "source": "weightedValues",
+      "target": "outputState",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

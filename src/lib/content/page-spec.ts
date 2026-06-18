@@ -72,6 +72,9 @@ const pageSpecBaseSchema = z.object({
 });
 
 const conceptBackedPageSpecSchema = pageSpecBaseSchema.extend({
+  releaseDate: z.string().optional(),
+  authors: z.array(z.string().min(1)).min(1).optional(),
+  sourceId: z.string().min(1).optional(),
   conceptType: conceptTypeSchema,
   prerequisiteIds: z.array(z.string()).default([]),
   explainsIds: z.array(z.string()).default([]),
@@ -87,6 +90,9 @@ export const glossaryPageSpecSchema = conceptBackedPageSpecSchema.extend({
 
 export const modulePageSpecSchema = pageSpecBaseSchema.extend({
   kind: z.literal("module"),
+  releaseDate: z.string().optional(),
+  authors: z.array(z.string().min(1)).min(1).optional(),
+  sourceId: z.string().min(1).optional(),
   moduleType: moduleTypeSchema,
   mathLevel: mathLevelSchema.default("none"),
   moduleFamily: z.string().optional(),
@@ -103,11 +109,13 @@ export const modulePageSpecSchema = pageSpecBaseSchema.extend({
 
 export const modelPageSpecSchema = pageSpecBaseSchema.extend({
   kind: z.literal("model"),
+  releaseDate: z.string().optional(),
+  authors: z.array(z.string().min(1)).min(1).optional(),
+  sourceId: z.string().min(1).optional(),
   family: z.string().min(1),
   sourceType: modelSourceTypeSchema,
   modalities: z.array(modelModalitySchema).min(1),
   organizationId: z.string().optional(),
-  releaseDate: z.string().optional(),
   architectureIds: z.array(z.string()).default([]),
   moduleIds: z.array(z.string()).default([]),
   trainingRegimeIds: z.array(z.string()).default([]),
@@ -136,6 +144,9 @@ export const paperPageSpecSchema = pageSpecBaseSchema.extend({
 
 export const trainingRegimePageSpecSchema = pageSpecBaseSchema.extend({
   kind: z.literal("training-regime"),
+  releaseDate: z.string().optional(),
+  authors: z.array(z.string().min(1)).min(1).optional(),
+  sourceId: z.string().min(1).optional(),
   regimeType: trainingRegimeTypeSchema,
   conceptType: conceptTypeSchema.optional(),
   variantGroup: z.string().optional(),

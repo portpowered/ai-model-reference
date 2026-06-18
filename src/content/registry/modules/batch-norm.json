@@ -4,8 +4,15 @@
   "kind": "module",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["BatchNorm", "batch normalization", "BN"],
-  "tags": ["foundations"],
+  "aliases": [
+    "BatchNorm",
+    "batch normalization",
+    "BN"
+  ],
+  "tags": [
+    "normalization",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.normalization",
     "module.group-norm",
@@ -16,8 +23,12 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "normalization",
-  "optimizes": ["training-stability"],
-  "practicalBenefits": ["stabilizes feature scales across minibatches"],
+  "optimizes": [
+    "training-stability"
+  ],
+  "practicalBenefits": [
+    "stabilizes feature scales across minibatches"
+  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

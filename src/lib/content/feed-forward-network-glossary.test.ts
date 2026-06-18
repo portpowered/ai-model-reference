@@ -5,10 +5,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { FEED_FORWARD_NETWORK_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
-import {
-  expectGlossaryPresentationConvergence,
-  expectHtmlToContainProse,
-} from "@/lib/content/glossary-test-helpers";
+import { expectHtmlToContainProse } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
@@ -24,7 +21,7 @@ import { buildSearchDocuments } from "@/lib/search/build-documents";
 const pageDir = FEED_FORWARD_NETWORK_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 
-describe("Phase 3 feed-forward network glossary page (US-002)", () => {
+describe("Phase 3 feed-forward network module page (US-002)", () => {
   test("registry record is published with aliases, tags, and curated related ids", () => {
     const record = getConceptById("concept.feed-forward-network");
     expect(record?.status).toBe("published");
@@ -33,7 +30,7 @@ describe("Phase 3 feed-forward network glossary page (US-002)", () => {
       "feedforward network",
       "MLP block",
     ]);
-    expect(record?.tags).toEqual(["foundations"]);
+    expect(record?.tags).toEqual(["feed-forward", "foundations"]);
     expect(record?.relatedIds).toEqual([
       "concept.transformer-architecture",
       "concept.standard-ffn",
@@ -82,7 +79,7 @@ describe("Phase 3 feed-forward network glossary page (US-002)", () => {
     expect(activation?.isPlanned).toBe(false);
   });
 
-  test("messages describe per-position FFN role after attention", () => {
+  test("messages describe the FFN family using module-template sections", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
@@ -95,12 +92,22 @@ describe("Phase 3 feed-forward network glossary page (US-002)", () => {
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
       "position",
     );
-    expect(messages.sections?.simpleExample.body?.toLowerCase()).toContain(
-      "attention",
+    expect(
+      messages.sections?.practicalBenefit.body?.toLowerCase(),
+    ).toContain("swiglu");
+    expect(
+      messages.sections?.comparedToNearbyModules.body?.toLowerCase(),
+    ).toContain("tradeoffs");
+    expect(
+      messages.sections?.variantsAndNearbyModules.body?.toLowerCase(),
+    ).toContain("family");
+    expect(messages.math?.standardSchema?.formula).toContain("\\mathrm{FFN}");
+    expect(messages.math?.swigluSchema?.formula).toContain(
+      "\\mathrm{SwiGLU}",
     );
   });
 
-  test("page renders glossary sections, tag pills, and FFN-family related links", async () => {
+  test("page renders module-template sections, math comparison, and FFN-family links", async () => {
     const page = await loadModulePage("feed-forward-network");
 
     expect(page.frontmatter.kind).toBe("module");
@@ -116,16 +123,22 @@ describe("Phase 3 feed-forward network glossary page (US-002)", () => {
       }),
     );
 
-    expectGlossaryPresentationConvergence(html, {
-      title: page.messages.title,
-    });
+    expect(html).not.toContain(`<h1>${page.messages.title}</h1>`);
     expect(html).toContain("What It Is");
-    expect(html).toContain("Why It Matters");
-    expectHtmlToContainProse(html, "two-layer perceptron");
-    expect(html).toContain('data-react-flow-graph="true"');
+    expect(html).toContain("What It Optimizes");
+    expect(html).toContain("Compared To Nearby Modules");
+    expect(html).toContain("Variants And Nearby Modules");
+    expectHtmlToContainProse(html, "same post-attention slot");
+    expect(html).toContain('data-registry-id="module.feed-forward-network"');
     expect(html).toContain('data-attention-variant-comparison="true"');
     expect(html).toContain(
       'data-graph-id="graph.standard-ffn-parallel-baseline"',
+    );
+    expect(html).toContain('data-math-schema="standard"');
+    expect(html).toContain('data-math-schema="swiglu"');
+    expect(html).toContain('data-page-asset="comparisonTable"');
+    expect(html).toContain(
+      'data-table-id="table.feed-forward-network-comparison"',
     );
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/modules/standard-ffn"');
@@ -133,7 +146,9 @@ describe("Phase 3 feed-forward network glossary page (US-002)", () => {
     expect(html).toContain('href="/docs/glossary/activation"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
+    expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");
   });

@@ -7,12 +7,13 @@ messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
 tags:
+  - normalization
   - foundations
 aliases:
   - "LayerNorm"
   - "layer normalization"
   - "LN"
-updatedAt: "2026-06-08"
+updatedAt: "2026-06-18"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
@@ -50,7 +51,7 @@ import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModul
 
 <Section id="math-or-compute-schema" titleKey="sections.mathOrComputeSchema.title">
   <T k="sections.mathOrComputeSchema.body" />
-  <ModuleAttentionSchemaComparison schemaIds={["layerNorm"]} />
+  <ModuleAttentionSchemaComparison schemaIds={["layerNorm", "rmsNorm"]} />
 </Section>
 
 <Section id="compared-to-nearby-modules" titleKey="sections.comparedToNearbyModules.title">

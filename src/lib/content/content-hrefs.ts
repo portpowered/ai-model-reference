@@ -37,6 +37,39 @@ export function modulePageHref(
   );
 }
 
+/** Canonical docs URL for a model entry slug. */
+export function modelPageHref(
+  slug: string,
+  locale: SiteLocale = defaultLocale,
+): string {
+  return buildLocalizedRoute(
+    { surface: "docs-page", slug: `models/${slug}` },
+    locale,
+  );
+}
+
+/** Canonical docs URL for a paper entry slug. */
+export function paperPageHref(
+  slug: string,
+  locale: SiteLocale = defaultLocale,
+): string {
+  return buildLocalizedRoute(
+    { surface: "docs-page", slug: `papers/${slug}` },
+    locale,
+  );
+}
+
+/** Canonical docs URL for a training-regime entry slug. */
+export function trainingPageHref(
+  slug: string,
+  locale: SiteLocale = defaultLocale,
+): string {
+  return buildLocalizedRoute(
+    { surface: "docs-page", slug: `training/${slug}` },
+    locale,
+  );
+}
+
 /** Canonical tag landing URL for a registry tag slug. */
 export function tagPageHref(
   slug: string,

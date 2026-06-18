@@ -4,8 +4,15 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["FFN", "feedforward network", "MLP block"],
-  "tags": ["foundations"],
+  "aliases": [
+    "FFN",
+    "feedforward network",
+    "MLP block"
+  ],
+  "tags": [
+    "feed-forward",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.transformer-architecture",
     "concept.standard-ffn",

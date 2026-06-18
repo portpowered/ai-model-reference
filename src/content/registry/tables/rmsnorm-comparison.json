@@ -1,0 +1,49 @@
+{
+  "id": "table.rmsnorm-comparison",
+  "subjectId": "module.rmsnorm",
+  "columns": [
+    {
+      "moduleId": "module.rmsnorm",
+      "titleKey": "tables.comparison.columns.rms.title"
+    },
+    {
+      "moduleId": "module.layer-norm",
+      "titleKey": "tables.comparison.columns.layer.title"
+    },
+    {
+      "moduleId": "module.batch-norm",
+      "titleKey": "tables.comparison.columns.batch.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "meanCentering",
+      "labelKey": "tables.comparison.dimensions.meanCentering"
+    },
+    {
+      "id": "learnedShift",
+      "labelKey": "tables.comparison.dimensions.learnedShift"
+    },
+    {
+      "id": "commonPlacement",
+      "labelKey": "tables.comparison.dimensions.commonPlacement"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.rmsnorm": {
+      "meanCentering": "tables.comparison.values.rms.meanCentering",
+      "learnedShift": "tables.comparison.values.rms.learnedShift",
+      "commonPlacement": "tables.comparison.values.rms.commonPlacement"
+    },
+    "module.layer-norm": {
+      "meanCentering": "tables.comparison.values.layer.meanCentering",
+      "learnedShift": "tables.comparison.values.layer.learnedShift",
+      "commonPlacement": "tables.comparison.values.layer.commonPlacement"
+    },
+    "module.batch-norm": {
+      "meanCentering": "tables.comparison.values.batch.meanCentering",
+      "learnedShift": "tables.comparison.values.batch.learnedShift",
+      "commonPlacement": "tables.comparison.values.batch.commonPlacement"
+    }
+  }
+}

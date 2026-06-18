@@ -1,1 +1,15 @@
-{}
+{
+  "computeFlow": {
+    "type": "graph",
+    "graphId": "graph.group-norm-compute-flow",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.group-norm-comparison",
+    "captionKey": "assets.comparisonTable.caption"
+  }
+}

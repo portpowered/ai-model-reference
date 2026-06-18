@@ -1,29 +1,50 @@
 {
   "title": "RMSNorm",
   "description": "Per-token root-mean-square scaling that rescales each hidden vector without mean centering, as used in many modern decoder transformers.",
+  "openingSummary": "RMSNorm keeps each token's hidden vector in a stable scale band by dividing by its root mean square instead of using full mean-and-variance normalization, which makes it a lighter fit for many modern decoder-only transformer stacks.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Root mean square normalization (RMSNorm) rescales one token's hidden vector by dividing each feature by the root mean square of those features, then applying a learned per-feature scale. Unlike layer norm, it skips subtracting the mean across features. Statistics are still computed per position, which fits decoder transformers that process one token vector at a time inside each block."
+      "body": "Root mean square normalization rescales one token's hidden vector by dividing by the root mean square of its features, then applying learned gain. Unlike layer norm, it does not subtract the feature mean first."
     },
-    "whyItMatters": {
-      "title": "Why It Matters",
-      "body": "Many recent large language models—including Llama-class stacks—use RMSNorm instead of layer norm because dropping mean centering saves compute while keeping activations in a stable range. The choice matters when you read model cards or compare training recipes: RMSNorm is not a different placement strategy, it is a lighter rescaling rule inside the same pre-norm block pattern."
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "RMSNorm targets stable hidden-state scale with less normalization work than full layer norm. It keeps per-token magnitudes predictable while avoiding the mean-centering step."
     },
-    "simpleExample": {
-      "title": "Simple Example",
-      "body": "After self-attention, one token vector might have features with different magnitudes. RMSNorm measures the root mean square spread across those features, divides each feature by that stabilized scale, then multiplies by learned gain. The feed-forward network receives a vector whose overall magnitude sits in a predictable band without shifting every feature toward zero mean first."
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "Many modern decoder-only language models use RMSNorm because it is simple, fast, and usually good enough for the residual-stream stability they need. It preserves the familiar per-token normalization pattern while trimming some overhead."
     },
-    "math": {
-      "title": "Formula And Symbols",
-      "body": "The rescale below applies to one token position. Each symbol names a quantity in that vector, not a batch-wide statistic."
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "For one token vector, RMSNorm computes the root mean square over the features, divides the vector by that stabilized scale, then applies learned gain. The switcher below keeps that path next to layer norm so you can see that RMSNorm preserves the same per-token pattern while skipping mean subtraction."
     },
-    "commonConfusions": {
-      "title": "Common Confusions",
-      "body": "RMSNorm is not layer norm with a different name: layer norm subtracts the feature mean and uses both learned scale and shift, while RMSNorm only divides by root mean square and typically applies learned scale alone. RMSNorm is also not batch norm—it never pools statistics across examples. When a model card says RMSNorm, expect the lighter no-centering rescale rather than full mean-and-variance normalization."
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "These two formulas both normalize one token vector at a time. RMSNorm keeps the scale correction from layer norm but removes the mean-centering term."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "RMSNorm is closest to layer norm because both normalize one token at a time. The main difference is that RMSNorm keeps the scale correction but drops mean centering and often omits the learned bias term as well."
+    },
+    "variantsAndNearbyModules": {
+      "title": "Variants And Nearby Modules",
+      "body": "The nearby normalization pages show the main design forks: batch-coupled statistics, grouped statistics, full per-token centering, and lighter scale-only alternatives like RMSNorm."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "RMSNorm appears in many recent decoder transformers, especially Llama-style stacks and related architectures that prefer a lighter normalization rule than classic layer norm."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "RMSNorm gives up explicit mean centering, so it is not identical to layer norm. In setups that benefit from subtracting the feature mean, designers may still prefer the fuller layer norm rule."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "RMSNorm is now one of the most common normalization names in modern LLM writeups. Knowing how it differs from layer norm helps you read those architectures without treating the label as a black box."
     },
     "related": {
-      "title": "Related Concepts And Modules"
+      "title": "Related"
     },
     "tags": {
       "title": "Tags"
@@ -32,10 +53,64 @@
       "title": "References"
     }
   },
+  "assets": {
+    "computeFlow": {
+      "alt": "Normalization comparison showing LayerNorm and RMSNorm as two per-token normalization paths in the same transformer slot",
+      "caption": "Switch between LayerNorm and RMSNorm to compare full mean-and-variance normalization against lighter scale-only normalization",
+      "variants": {
+        "layer": {
+          "label": "LayerNorm"
+        },
+        "rms": {
+          "label": "RMSNorm"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "How RMSNorm compares with nearby normalization modules"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "rms": {
+          "title": "RMSNorm"
+        },
+        "layer": {
+          "title": "Layer Norm"
+        },
+        "batch": {
+          "title": "Batch Norm"
+        }
+      },
+      "dimensions": {
+        "meanCentering": "Mean centering",
+        "learnedShift": "Learned shift term",
+        "commonPlacement": "Common placement"
+      },
+      "values": {
+        "rms": {
+          "meanCentering": "No; scales by root mean square only",
+          "learnedShift": "Often omitted; learned gain is the main parameter",
+          "commonPlacement": "Per-token norm inside modern decoder transformers"
+        },
+        "layer": {
+          "meanCentering": "Yes; subtracts the token's feature mean",
+          "learnedShift": "Usually includes both learned gain and bias",
+          "commonPlacement": "Per-token norm around transformer sublayers"
+        },
+        "batch": {
+          "meanCentering": "Yes; uses minibatch feature statistics",
+          "learnedShift": "Usually includes both learned gain and bias",
+          "commonPlacement": "Feature or channel norm across image-style minibatches"
+        }
+      }
+    }
+  },
   "math": {
-    "rmsNorm": {
+    "rmsNormSchema": {
       "label": "RMS normalization",
-      "formula": "\\text{RMSNorm}(x) = \\gamma \\odot \\frac{x}{\\sqrt{\\frac{1}{d}\\sum_{i=1}^{d} x_i^2 + \\epsilon}}",
+      "formula": "\\mathrm{RMSNorm}(x) = \\gamma \\odot \\frac{x}{\\sqrt{\\frac{1}{d}\\sum_{i=1}^{d} x_i^2 + \\epsilon}}",
       "variableDefinitions": {
         "x": {
           "term": "x",
@@ -46,15 +121,69 @@
           "definition": "Number of features in x."
         },
         "epsilon": {
-          "term": "ε",
-          "definition": "Small positive constant for numerical stability."
+          "term": "\\epsilon",
+          "definition": "Small constant for numerical stability."
         },
         "gamma": {
-          "term": "γ",
-          "definition": "Learned per-feature scale vector."
+          "term": "\\gamma",
+          "definition": "Learned per-feature scale."
+        }
+      }
+    },
+    "layerNormSchema": {
+      "label": "Layer normalization",
+      "formula": "\\mathrm{LN}(x) = \\gamma \\odot \\frac{x - \\mu}{\\sqrt{\\sigma^2 + \\epsilon}} + \\beta",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "Hidden feature vector at one token position."
+        },
+        "mu": {
+          "term": "\\mu",
+          "definition": "Mean of the features in x."
+        },
+        "sigma2": {
+          "term": "\\sigma^2",
+          "definition": "Variance of the features in x."
+        },
+        "epsilon": {
+          "term": "\\epsilon",
+          "definition": "Small constant for numerical stability."
+        },
+        "gamma": {
+          "term": "\\gamma",
+          "definition": "Learned per-feature scale."
+        },
+        "beta": {
+          "term": "\\beta",
+          "definition": "Learned per-feature shift."
         }
       }
     }
   },
-  "openingSummary": "RMSNorm rescales each token's hidden vector by its root mean square spread without subtracting the mean, then applies learned per-feature gain before the next sublayer runs."
+  "graph": {
+    "nodes": {
+      "tokenState": {
+        "label": "Token state x"
+      },
+      "rmsEstimate": {
+        "label": "Root mean square over features"
+      },
+      "scaleVector": {
+        "label": "Divide by RMS scale only"
+      },
+      "learnedGain": {
+        "label": "Apply learned gain γ"
+      },
+      "nextSublayer": {
+        "label": "Stable token for next sublayer"
+      },
+      "perTokenStats": {
+        "label": "Statistics still come from one token vector, not from the batch"
+      },
+      "noCenteringNote": {
+        "label": "No mean subtraction step: RMSNorm corrects magnitude without recentering the vector"
+      }
+    }
+  }
 }

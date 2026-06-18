@@ -1,11 +1,13 @@
 import tokenMessages from "@/content/docs/glossary/token/messages/en.json";
 import feedForwardNetworkMessages from "@/content/docs/modules/feed-forward-network/messages/en.json";
 import groupedQueryAttentionMessages from "@/content/docs/modules/grouped-query-attention/messages/en.json";
+import layerNormMessages from "@/content/docs/modules/layer-norm/messages/en.json";
 import linearAttentionMessages from "@/content/docs/modules/linear-attention/messages/en.json";
 import mixtureOfExpertsMessages from "@/content/docs/modules/mixture-of-experts/messages/en.json";
 import multiHeadAttentionMessages from "@/content/docs/modules/multi-head-attention/messages/en.json";
 import multiHeadLatentAttentionMessages from "@/content/docs/modules/multi-head-latent-attention/messages/en.json";
 import multiQueryAttentionMessages from "@/content/docs/modules/multi-query-attention/messages/en.json";
+import rmsnormMessages from "@/content/docs/modules/rmsnorm/messages/en.json";
 import slidingWindowAttentionMessages from "@/content/docs/modules/sliding-window-attention/messages/en.json";
 import sparseAttentionMessages from "@/content/docs/modules/sparse-attention/messages/en.json";
 import standardFfnMessages from "@/content/docs/modules/standard-ffn/messages/en.json";
@@ -37,10 +39,12 @@ const messagesBySubjectId = new Map<string, PageMessages>([
     "module.linear-attention",
     pageMessagesSchema.parse(linearAttentionMessages),
   ],
+  ["module.layer-norm", pageMessagesSchema.parse(layerNormMessages)],
   [
     "concept.mixture-of-experts",
     pageMessagesSchema.parse(mixtureOfExpertsMessages),
   ],
+  ["module.rmsnorm", pageMessagesSchema.parse(rmsnormMessages)],
   [
     "module.sliding-window-attention",
     pageMessagesSchema.parse(slidingWindowAttentionMessages),

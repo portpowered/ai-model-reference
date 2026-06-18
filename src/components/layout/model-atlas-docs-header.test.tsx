@@ -143,6 +143,19 @@ describe("ModelAtlasDocsHeader", () => {
     expect(html).toContain("md:col-start-3 md:col-end-4 md:row-start-1 md:block");
   });
 
+  test("desktop action cluster does not intercept pointer events from inline nav links", async () => {
+    const messages = await loadUiMessages();
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    const html = renderToStaticMarkup(
+      <RootProvider search={{ SearchDialog, enabled: true }}>
+        <ModelAtlasDocsHeader messages={messages} />
+      </RootProvider>,
+    );
+
+    expect(html).toContain("pointer-events-none");
+    expect(html).toContain("pointer-events-auto");
+  });
+
   test("reveals mobile primary nav links in a disclosure panel when the menu opens", async () => {
     const messages = await loadUiMessages();
     const SearchDialog: ComponentType<SharedProps> = () => null;

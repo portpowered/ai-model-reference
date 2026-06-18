@@ -1,0 +1,49 @@
+{
+  "id": "table.qk-norm-comparison",
+  "subjectId": "module.qk-norm",
+  "columns": [
+    {
+      "moduleId": "module.qk-norm",
+      "titleKey": "tables.comparison.columns.qk.title"
+    },
+    {
+      "moduleId": "module.layer-norm",
+      "titleKey": "tables.comparison.columns.layer.title"
+    },
+    {
+      "moduleId": "module.rmsnorm",
+      "titleKey": "tables.comparison.columns.rms.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "normalizationTarget",
+      "labelKey": "tables.comparison.dimensions.normalizationTarget"
+    },
+    {
+      "id": "placement",
+      "labelKey": "tables.comparison.dimensions.placement"
+    },
+    {
+      "id": "mainBenefit",
+      "labelKey": "tables.comparison.dimensions.mainBenefit"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.qk-norm": {
+      "normalizationTarget": "tables.comparison.values.qk.normalizationTarget",
+      "placement": "tables.comparison.values.qk.placement",
+      "mainBenefit": "tables.comparison.values.qk.mainBenefit"
+    },
+    "module.layer-norm": {
+      "normalizationTarget": "tables.comparison.values.layer.normalizationTarget",
+      "placement": "tables.comparison.values.layer.placement",
+      "mainBenefit": "tables.comparison.values.layer.mainBenefit"
+    },
+    "module.rmsnorm": {
+      "normalizationTarget": "tables.comparison.values.rms.normalizationTarget",
+      "placement": "tables.comparison.values.rms.placement",
+      "mainBenefit": "tables.comparison.values.rms.mainBenefit"
+    }
+  }
+}

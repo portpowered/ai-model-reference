@@ -1,0 +1,49 @@
+{
+  "id": "table.batch-norm-comparison",
+  "subjectId": "module.batch-norm",
+  "columns": [
+    {
+      "moduleId": "module.batch-norm",
+      "titleKey": "tables.comparison.columns.batch.title"
+    },
+    {
+      "moduleId": "module.layer-norm",
+      "titleKey": "tables.comparison.columns.layer.title"
+    },
+    {
+      "moduleId": "module.group-norm",
+      "titleKey": "tables.comparison.columns.group.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "statisticsScope",
+      "labelKey": "tables.comparison.dimensions.statisticsScope"
+    },
+    {
+      "id": "batchDependence",
+      "labelKey": "tables.comparison.dimensions.batchDependence"
+    },
+    {
+      "id": "commonUse",
+      "labelKey": "tables.comparison.dimensions.commonUse"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.batch-norm": {
+      "statisticsScope": "tables.comparison.values.batch.statisticsScope",
+      "batchDependence": "tables.comparison.values.batch.batchDependence",
+      "commonUse": "tables.comparison.values.batch.commonUse"
+    },
+    "module.layer-norm": {
+      "statisticsScope": "tables.comparison.values.layer.statisticsScope",
+      "batchDependence": "tables.comparison.values.layer.batchDependence",
+      "commonUse": "tables.comparison.values.layer.commonUse"
+    },
+    "module.group-norm": {
+      "statisticsScope": "tables.comparison.values.group.statisticsScope",
+      "batchDependence": "tables.comparison.values.group.batchDependence",
+      "commonUse": "tables.comparison.values.group.commonUse"
+    }
+  }
+}

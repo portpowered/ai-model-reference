@@ -4,8 +4,14 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["positional encoding", "position embedding"],
-  "tags": ["foundations"],
+  "aliases": [
+    "positional encoding",
+    "position embedding"
+  ],
+  "tags": [
+    "position-encoding",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.transformer-architecture",
     "module.attention",

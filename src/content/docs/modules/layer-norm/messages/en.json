@@ -1,29 +1,50 @@
 {
   "title": "Layer norm",
   "description": "Per-token mean-and-variance normalization that rescales each hidden vector before the next sublayer in a transformer block.",
+  "openingSummary": "Layer norm keeps each token's hidden vector in a predictable range by using that token's own feature mean and variance, which makes it a clean fit for transformer blocks that cannot rely on stable minibatch statistics.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Layer normalization (LayerNorm) rescales one token's hidden vector by subtracting the mean across its features, dividing by a stabilized standard deviation, then applying learned scale and shift parameters. Statistics are computed per position, not across the batch or sequence, which matches how decoder transformers process variable-length text."
+      "body": "Layer normalization rescales one token's hidden vector by subtracting its feature mean, dividing by a stabilized feature standard deviation, then applying learned scale and shift. The statistics come from that one vector, not from the rest of the batch."
     },
-    "whyItMatters": {
-      "title": "Why It Matters",
-      "body": "Original transformer stacks used layer norm around attention and feed-forward sublayers to keep activations stable as depth grows. Many encoder-decoder and early decoder models still rely on it. Understanding the mean-centering step helps when you compare layer norm with RMSNorm, which drops the mean subtraction but keeps per-feature scaling."
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "Layer norm targets training stability in deep sequence models where batch statistics are either noisy or structurally inconvenient. It keeps residual-stream magnitudes from drifting too far before attention or feed-forward sublayers run."
     },
-    "simpleExample": {
-      "title": "Simple Example",
-      "body": "After self-attention, one token vector might have features ranging from -3 to 12. Layer norm measures the mean and spread across those features, divides by the stabilized scale, then multiplies by learned gain γ and adds learned bias β. The feed-forward network receives a vector whose feature magnitudes sit in a predictable band."
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "Because each token is normalized independently, layer norm works with variable batch sizes, variable sequence lengths, and autoregressive decoding. That is why it became one of the standard normalization choices in transformer architecture."
     },
-    "math": {
-      "title": "Formula And Symbols",
-      "body": "The rescale below applies to one token position. Each symbol names a quantity in that vector, not a batch-wide statistic."
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "For one token position, layer norm measures the mean and variance across the hidden features in that vector, recenters and rescales the vector, then applies learned gain and bias. The switcher below keeps that path next to RMSNorm so you can see that the extra mean-centering step is the main structural difference."
     },
-    "commonConfusions": {
-      "title": "Common Confusions",
-      "body": "Layer norm is not batch norm: it never pools statistics across examples in a minibatch. It is also not the residual add—that path preserves the skip stream while norm actively rescales it. RMSNorm is a close cousin that omits mean centering; both are layer-style norms used inside transformer blocks rather than across tokens."
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "These two formulas apply to one token vector at a time. Layer norm subtracts the feature mean before scaling, while RMSNorm keeps only the scale correction."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Layer norm stays within one token, unlike batch norm, and it includes mean centering, unlike RMSNorm. Group norm also avoids batch coupling, but it normalizes channel groups rather than an entire token vector."
+    },
+    "variantsAndNearbyModules": {
+      "title": "Variants And Nearby Modules",
+      "body": "Normalization variants mostly disagree about two things: where statistics are measured and whether mean centering is worth the extra work. Nearby pages let you compare those choices directly."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Layer norm appears throughout the original transformer family and many later encoder-decoder or decoder stacks. Even when a newer model switches to RMSNorm, layer norm remains the reference point for comparison."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Layer norm adds mean-centering work that RMSNorm skips, and that extra step is not always needed. Some modern decoder stacks prefer the lighter RMSNorm rule when they want similar stability with slightly less computation."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Layer norm is still one of the clearest ways to understand how transformer normalization works. Many papers explain newer normalization tricks by contrasting them with the layer norm baseline."
     },
     "related": {
-      "title": "Related Concepts And Modules"
+      "title": "Related"
     },
     "tags": {
       "title": "Tags"
@@ -32,37 +53,137 @@
       "title": "References"
     }
   },
+  "assets": {
+    "computeFlow": {
+      "alt": "Normalization comparison showing LayerNorm and RMSNorm as two per-token normalization paths in the same transformer slot",
+      "caption": "Switch between LayerNorm and RMSNorm to compare full mean-and-variance normalization against lighter scale-only normalization",
+      "variants": {
+        "layer": {
+          "label": "LayerNorm"
+        },
+        "rms": {
+          "label": "RMSNorm"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "How layer norm compares with nearby normalization modules"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "layer": {
+          "title": "Layer Norm"
+        },
+        "rms": {
+          "title": "RMSNorm"
+        },
+        "batch": {
+          "title": "Batch Norm"
+        }
+      },
+      "dimensions": {
+        "meanCentering": "Mean centering",
+        "statisticsScope": "Statistics scope",
+        "transformerFit": "Fit for transformer blocks"
+      },
+      "values": {
+        "layer": {
+          "meanCentering": "Yes; subtracts the token's feature mean",
+          "statisticsScope": "One token or hidden vector at a time",
+          "transformerFit": "Very common and structurally simple"
+        },
+        "rms": {
+          "meanCentering": "No; scales by root mean square only",
+          "statisticsScope": "One token or hidden vector at a time",
+          "transformerFit": "Very common in newer decoder-only LLMs"
+        },
+        "batch": {
+          "meanCentering": "Yes; uses the minibatch feature mean",
+          "statisticsScope": "One feature or channel across the minibatch",
+          "transformerFit": "Usually awkward for autoregressive token streams"
+        }
+      }
+    }
+  },
   "math": {
-    "layerNorm": {
+    "layerNormSchema": {
       "label": "Layer normalization",
-      "formula": "\\text{LN}(x) = \\gamma \\odot \\frac{x - \\mu}{\\sqrt{\\sigma^2 + \\epsilon}} + \\beta",
+      "formula": "\\mathrm{LN}(x) = \\gamma \\odot \\frac{x - \\mu}{\\sqrt{\\sigma^2 + \\epsilon}} + \\beta",
       "variableDefinitions": {
         "x": {
           "term": "x",
           "definition": "Hidden feature vector at one token position."
         },
         "mu": {
-          "term": "μ",
+          "term": "\\mu",
           "definition": "Mean of the features in x."
         },
         "sigma2": {
-          "term": "σ²",
+          "term": "\\sigma^2",
           "definition": "Variance of the features in x."
         },
         "epsilon": {
-          "term": "ε",
-          "definition": "Small positive constant for numerical stability."
+          "term": "\\epsilon",
+          "definition": "Small constant for numerical stability."
         },
         "gamma": {
-          "term": "γ",
-          "definition": "Learned per-feature scale vector."
+          "term": "\\gamma",
+          "definition": "Learned per-feature scale."
         },
         "beta": {
-          "term": "β",
-          "definition": "Learned per-feature shift vector."
+          "term": "\\beta",
+          "definition": "Learned per-feature shift."
+        }
+      }
+    },
+    "rmsNormSchema": {
+      "label": "RMS normalization",
+      "formula": "\\mathrm{RMSNorm}(x) = \\gamma \\odot \\frac{x}{\\sqrt{\\frac{1}{d}\\sum_{i=1}^{d} x_i^2 + \\epsilon}}",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "Hidden feature vector at one token position."
+        },
+        "d": {
+          "term": "d",
+          "definition": "Number of features in x."
+        },
+        "epsilon": {
+          "term": "\\epsilon",
+          "definition": "Small constant for numerical stability."
+        },
+        "gamma": {
+          "term": "\\gamma",
+          "definition": "Learned per-feature scale."
         }
       }
     }
   },
-  "openingSummary": "Layer norm recenters and rescales each token's hidden vector using mean and variance across its features, then applies learned scale and shift before the next sublayer runs."
+  "graph": {
+    "nodes": {
+      "tokenState": {
+        "label": "Token state x"
+      },
+      "tokenStats": {
+        "label": "Feature mean μ and variance σ²"
+      },
+      "normalizeToken": {
+        "label": "Subtract mean and divide by standard deviation"
+      },
+      "learnedAffine": {
+        "label": "Apply learned gain γ and bias β"
+      },
+      "nextSublayer": {
+        "label": "Stable token for next sublayer"
+      },
+      "perTokenStats": {
+        "label": "Statistics come from this one token vector, not from the batch"
+      },
+      "centeringBenefit": {
+        "label": "Mean centering makes the output zero-centered before the learned affine step"
+      }
+    }
+  }
 }

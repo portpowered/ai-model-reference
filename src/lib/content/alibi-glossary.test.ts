@@ -36,7 +36,7 @@ describe("Phase 3 ALiBi glossary page (US-010)", () => {
       "attention linear bias",
       "linear attention bias",
     ]);
-    expect(record?.tags).toEqual(["foundations"]);
+    expect(record?.tags).toEqual(["position-encoding", "foundations"]);
     expect(record?.prerequisiteIds).toEqual(["concept.positional-encodings"]);
     expect(record?.relatedIds).toEqual([
       "concept.positional-encodings",

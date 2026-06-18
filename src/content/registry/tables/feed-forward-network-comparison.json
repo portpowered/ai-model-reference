@@ -1,0 +1,49 @@
+{
+  "id": "table.feed-forward-network-comparison",
+  "subjectId": "module.feed-forward-network",
+  "columns": [
+    {
+      "moduleId": "module.standard-ffn",
+      "titleKey": "tables.comparison.columns.standard.title"
+    },
+    {
+      "moduleId": "module.swiglu",
+      "titleKey": "tables.comparison.columns.swiglu.title"
+    },
+    {
+      "moduleId": "module.mixture-of-experts",
+      "titleKey": "tables.comparison.columns.moe.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "pathShape",
+      "labelKey": "tables.comparison.dimensions.pathShape"
+    },
+    {
+      "id": "activeCompute",
+      "labelKey": "tables.comparison.dimensions.activeCompute"
+    },
+    {
+      "id": "mainStrength",
+      "labelKey": "tables.comparison.dimensions.mainStrength"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.standard-ffn": {
+      "pathShape": "tables.comparison.values.standard.pathShape",
+      "activeCompute": "tables.comparison.values.standard.activeCompute",
+      "mainStrength": "tables.comparison.values.standard.mainStrength"
+    },
+    "module.swiglu": {
+      "pathShape": "tables.comparison.values.swiglu.pathShape",
+      "activeCompute": "tables.comparison.values.swiglu.activeCompute",
+      "mainStrength": "tables.comparison.values.swiglu.mainStrength"
+    },
+    "module.mixture-of-experts": {
+      "pathShape": "tables.comparison.values.moe.pathShape",
+      "activeCompute": "tables.comparison.values.moe.activeCompute",
+      "mainStrength": "tables.comparison.values.moe.mainStrength"
+    }
+  }
+}

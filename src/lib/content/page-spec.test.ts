@@ -94,6 +94,9 @@ describe("validatePageSpec", () => {
     const spec = validatePageSpec({
       ...baseFields,
       kind: "module",
+      releaseDate: "2023-05-01",
+      authors: ["Joshua Ainslie"],
+      sourceId: "citation.gqa-paper",
       moduleType: "attention",
       assets: {
         computeFlow: {
@@ -108,6 +111,8 @@ describe("validatePageSpec", () => {
     expect(spec.kind).toBe("module");
     if (spec.kind === "module") {
       expect(spec.moduleType).toBe("attention");
+      expect(spec.releaseDate).toBe("2023-05-01");
+      expect(spec.sourceId).toBe("citation.gqa-paper");
       expect(spec.assets?.computeFlow.type).toBe("graph");
     }
   });

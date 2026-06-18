@@ -129,8 +129,10 @@ function resolveVariableDefinitionIds(messages: {
   math?: Record<string, { variableDefinitions?: Record<string, unknown> }>;
 }, schemaId: string): string[] {
   if (schemaId === "mha" || schemaId === "gqa" || schemaId === "mqa") {
-    return moduleAttentionMathVariableDefinitionIdsForSchema(
-      schemaId as ModuleAttentionMathSchemaId,
+    return Array.from(
+      moduleAttentionMathVariableDefinitionIdsForSchema(
+        schemaId as ModuleAttentionMathSchemaId,
+      ),
     );
   }
 
@@ -177,7 +179,7 @@ export function ModuleAttentionSchema({
 export function ModuleAttentionSchemaComparison({
   schemaIds,
 }: {
-  schemaIds?: string[];
+  schemaIds?: readonly string[];
 }) {
   const resolvedSchemaIds =
     schemaIds && schemaIds.length > 0 ? schemaIds : ["mha", "gqa"];

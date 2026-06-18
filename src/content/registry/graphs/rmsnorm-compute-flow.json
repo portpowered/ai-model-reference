@@ -1,0 +1,104 @@
+{
+  "id": "graph.rmsnorm-compute-flow",
+  "slug": "rmsnorm-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "module.rmsnorm",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "tokenState",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "tokenState",
+      "labelKey": "graph.nodes.tokenState.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["rmsEstimate"]
+    },
+    {
+      "id": "rmsEstimate",
+      "labelKey": "graph.nodes.rmsEstimate.label",
+      "moduleKind": "operation",
+      "position": { "x": 205, "y": 110 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["scaleVector", "perTokenStats"]
+    },
+    {
+      "id": "scaleVector",
+      "labelKey": "graph.nodes.scaleVector.label",
+      "moduleKind": "normalization",
+      "position": { "x": 205, "y": 250 },
+      "visualRole": "process-node",
+      "childNodeIds": ["learnedGain", "noCenteringNote"]
+    },
+    {
+      "id": "learnedGain",
+      "labelKey": "graph.nodes.learnedGain.label",
+      "moduleKind": "projection",
+      "position": { "x": 205, "y": 410 },
+      "visualRole": "process-node",
+      "childNodeIds": ["nextSublayer"]
+    },
+    {
+      "id": "nextSublayer",
+      "labelKey": "graph.nodes.nextSublayer.label",
+      "moduleKind": "output",
+      "position": { "x": 205, "y": 550 },
+      "visualRole": "summary-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "perTokenStats",
+      "labelKey": "graph.nodes.perTokenStats.label",
+      "moduleKind": "other",
+      "position": { "x": 560, "y": 110 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "noCenteringNote",
+      "labelKey": "graph.nodes.noCenteringNote.label",
+      "moduleKind": "other",
+      "position": { "x": 560, "y": 260 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "token-to-rms",
+      "source": "tokenState",
+      "target": "rmsEstimate",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "rms-to-scale",
+      "source": "rmsEstimate",
+      "target": "scaleVector",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "scale-to-gain",
+      "source": "scaleVector",
+      "target": "learnedGain",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "gain-to-next",
+      "source": "learnedGain",
+      "target": "nextSublayer",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

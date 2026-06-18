@@ -1,0 +1,90 @@
+{
+  "id": "graph.group-norm-compute-flow",
+  "slug": "group-norm-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "module.group-norm",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "inputFeatures",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "inputFeatures",
+      "labelKey": "graph.nodes.inputFeatures.label",
+      "moduleKind": "input",
+      "childNodeIds": ["splitGroups"]
+    },
+    {
+      "id": "splitGroups",
+      "labelKey": "graph.nodes.splitGroups.label",
+      "moduleKind": "operation",
+      "childNodeIds": ["groupStats"]
+    },
+    {
+      "id": "groupStats",
+      "labelKey": "graph.nodes.groupStats.label",
+      "moduleKind": "operation",
+      "childNodeIds": ["normalizeGroups"]
+    },
+    {
+      "id": "normalizeGroups",
+      "labelKey": "graph.nodes.normalizeGroups.label",
+      "moduleKind": "normalization",
+      "childNodeIds": ["learnedAffine"]
+    },
+    {
+      "id": "learnedAffine",
+      "labelKey": "graph.nodes.learnedAffine.label",
+      "moduleKind": "projection",
+      "childNodeIds": ["outputFeatures"]
+    },
+    {
+      "id": "outputFeatures",
+      "labelKey": "graph.nodes.outputFeatures.label",
+      "moduleKind": "output",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "input-to-split",
+      "source": "inputFeatures",
+      "target": "splitGroups",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "split-to-stats",
+      "source": "splitGroups",
+      "target": "groupStats",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "stats-to-normalize",
+      "source": "groupStats",
+      "target": "normalizeGroups",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "normalize-to-affine",
+      "source": "normalizeGroups",
+      "target": "learnedAffine",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "affine-to-output",
+      "source": "learnedAffine",
+      "target": "outputFeatures",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

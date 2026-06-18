@@ -84,10 +84,14 @@ export function ModelAtlasDocsHeader({
             </div>
           </nav>
         ) : null}
-        <div className="col-start-2 row-start-1 ms-auto flex items-center gap-2 md:col-start-3 md:col-end-5 md:mx-auto md:w-full md:max-w-[1168px] md:justify-end md:px-6 xl:px-8">
-          <SearchTrigger messages={messages} />
-          <LanguageSwitcher locale={locale} messages={messages} />
-          {trailing}
+        <div className="pointer-events-none col-start-2 row-start-1 ms-auto flex items-center gap-2 md:col-start-3 md:col-end-5 md:mx-auto md:w-full md:max-w-[1168px] md:justify-end md:px-6 xl:px-8">
+          <div className="pointer-events-auto">
+            <SearchTrigger messages={messages} />
+          </div>
+          <div className="pointer-events-auto">
+            <LanguageSwitcher locale={locale} messages={messages} />
+          </div>
+          {trailing ? <div className="pointer-events-auto">{trailing}</div> : null}
         </div>
       </div>
     </header>

@@ -9,7 +9,10 @@
     "learned position embeddings",
     "learned positional encoding"
   ],
-  "tags": ["foundations"],
+  "tags": [
+    "position-encoding",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.positional-encodings",
     "module.absolute-positional-embeddings",
@@ -20,8 +23,12 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "position-encoding",
-  "optimizes": ["task-specific-position-learning"],
-  "practicalBenefits": ["lets the model learn position-specific offsets"],
+  "optimizes": [
+    "task-specific-position-learning"
+  ],
+  "practicalBenefits": [
+    "lets the model learn position-specific offsets"
+  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

@@ -1,7 +1,10 @@
 import {
   conceptPageHref,
   glossaryPageHref,
+  modelPageHref,
   modulePageHref,
+  paperPageHref,
+  trainingPageHref,
 } from "@/lib/content/content-hrefs";
 import {
   MODULE_BACKED_CONCEPT_REGISTRY_IDS,
@@ -10,8 +13,11 @@ import {
 } from "@/lib/content/published-docs-registry-ids";
 import type {
   ConceptRecord,
+  ModelRecord,
   ModuleRecord,
   PageMessages,
+  PaperRecord,
+  TrainingRegimeRecord,
 } from "@/lib/content/schemas";
 
 export const SAME_VARIANT_GROUP = "same-variant-group" as const;
@@ -38,7 +44,12 @@ export const DERIVED_RELATED_DOC_GROUP_LABELS: Record<
 export const PLANNED_RELATED_REASON_LABEL =
   "planned - coming in a later phase to be planned" as const;
 
-export type RelatedRegistryRecord = ModuleRecord | ConceptRecord;
+export type RelatedRegistryRecord =
+  | ModuleRecord
+  | ConceptRecord
+  | ModelRecord
+  | PaperRecord
+  | TrainingRegimeRecord;
 
 export type RelatedDocItem = {
   registryId: string;
@@ -82,14 +93,26 @@ function recordPageHref(record: RelatedRegistryRecord): string {
   if (record.kind === "concept") {
     return conceptRecordPageHref(record);
   }
-  return modulePageHref(record.slug);
+  if (record.kind === "module") {
+    return modulePageHref(record.slug);
+  }
+  if (record.kind === "model") {
+    return modelPageHref(record.slug);
+  }
+  if (record.kind === "paper") {
+    return paperPageHref(record.slug);
+  }
+  return trainingPageHref(record.slug);
 }
 
 function getConceptType(record: RelatedRegistryRecord): string | undefined {
   if (record.kind === "concept") {
     return record.conceptType;
   }
-  return record.conceptType;
+  if (record.kind === "module") {
+    return record.conceptType;
+  }
+  return undefined;
 }
 
 function sharesTag(sourceTags: string[], candidateTags: string[]): boolean {
@@ -215,6 +238,19 @@ export function applyRelatedDocMessageOverrides(
       reasonLabel: override.reason,
     };
   });
+}
+
+/** Removes duplicate related items while preserving the original item order. */
+export function excludeRelatedDocItems(
+  items: RelatedDocItem[],
+  excludedRegistryIds: Iterable<string>,
+): RelatedDocItem[] {
+  const excluded = new Set(excludedRegistryIds);
+  if (excluded.size === 0) {
+    return items;
+  }
+
+  return items.filter((item) => !excluded.has(item.registryId));
 }
 
 /** Curated `relatedIds` on the source record, preserving registry order. */

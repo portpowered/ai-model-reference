@@ -1,0 +1,104 @@
+{
+  "id": "graph.layer-norm-compute-flow",
+  "slug": "layer-norm-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "subjectId": "module.layer-norm",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "tokenState",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "tokenState",
+      "labelKey": "graph.nodes.tokenState.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "visualRole": "process-node",
+      "childNodeIds": ["tokenStats"]
+    },
+    {
+      "id": "tokenStats",
+      "labelKey": "graph.nodes.tokenStats.label",
+      "moduleKind": "operation",
+      "position": { "x": 205, "y": 110 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["normalizeToken", "perTokenStats"]
+    },
+    {
+      "id": "normalizeToken",
+      "labelKey": "graph.nodes.normalizeToken.label",
+      "moduleKind": "normalization",
+      "position": { "x": 195, "y": 250 },
+      "visualRole": "process-node",
+      "childNodeIds": ["learnedAffine", "centeringBenefit"]
+    },
+    {
+      "id": "learnedAffine",
+      "labelKey": "graph.nodes.learnedAffine.label",
+      "moduleKind": "projection",
+      "position": { "x": 205, "y": 410 },
+      "visualRole": "process-node",
+      "childNodeIds": ["nextSublayer"]
+    },
+    {
+      "id": "nextSublayer",
+      "labelKey": "graph.nodes.nextSublayer.label",
+      "moduleKind": "output",
+      "position": { "x": 205, "y": 550 },
+      "visualRole": "summary-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "perTokenStats",
+      "labelKey": "graph.nodes.perTokenStats.label",
+      "moduleKind": "other",
+      "position": { "x": 560, "y": 110 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    },
+    {
+      "id": "centeringBenefit",
+      "labelKey": "graph.nodes.centeringBenefit.label",
+      "moduleKind": "other",
+      "position": { "x": 560, "y": 260 },
+      "visualRole": "annotation",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "token-to-stats",
+      "source": "tokenState",
+      "target": "tokenStats",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "stats-to-normalize",
+      "source": "tokenStats",
+      "target": "normalizeToken",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "normalize-to-affine",
+      "source": "normalizeToken",
+      "target": "learnedAffine",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "affine-to-next",
+      "source": "learnedAffine",
+      "target": "nextSublayer",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

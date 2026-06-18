@@ -19,6 +19,18 @@
   "status": "published",
   "createdAt": "2026-06-01T00:00:00.000Z",
   "updatedAt": "2026-06-02T00:00:00.000Z",
+  "releaseDate": "2023-05-01",
+  "authors": [
+    "Joshua Ainslie",
+    "James Lee-Thorp",
+    "Seth R. Robertson",
+    "Emily Reif",
+    "Noam Shazeer",
+    "Andy Davis",
+    "Coleman Caulfield",
+    "Jonathan H. Clark"
+  ],
+  "sourceId": "citation.gqa-paper",
   "moduleType": "attention",
   "moduleFamily": "attention",
   "conceptType": "attention-variant",

@@ -1,32 +1,160 @@
 {
   "title": "Group norm",
   "description": "Channel-group normalization that rescales each example using per-group statistics, often used when batch norm is awkward or unstable.",
-  "openingSummary": "Group norm normalizes small channel groups inside one example, which avoids depending on minibatch-wide statistics while still sharing scale information across related features.",
+  "openingSummary": "Group norm keeps normalization inside one example by measuring small channel groups instead of the whole minibatch, which helps when batch sizes are too small or too irregular for batch norm to behave well.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Group normalization splits a hidden tensor's channels into several groups, computes a mean and variance inside each group for one example, then rescales those channels before applying learned parameters. It does not pool statistics across the whole minibatch, and it does not treat the entire feature vector as one unit the way layer norm does."
+      "body": "Group normalization splits channels into groups, computes a mean and variance within each group for one example, normalizes those channels, then applies learned scale and shift. It avoids using minibatch-wide statistics while still sharing information across related channels."
     },
-    "whyItMatters": {
-      "title": "Why It Matters",
-      "body": "Group norm is useful when batch norm would be noisy because batches are small or irregular, especially in vision models. It shows up less often in transformer language models because token vectors are usually normalized with layer norm or RMSNorm, but it remains a helpful comparison point when a paper mixes convolutional and transformer blocks."
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "Group norm targets stable normalization when minibatch statistics are unreliable. It is especially helpful in models where memory limits force small batches or where example shapes vary too much for batch-wide estimates to stay steady."
     },
-    "simpleExample": {
-      "title": "Simple Example",
-      "body": "Suppose an image feature map has 64 channels and the model groups them into 8 groups of 8 channels each. Group norm rescales each group using only that example's own values, so one image does not depend on its batch neighbors. The result is steadier than raw activations while staying less batch-sensitive than batch norm."
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "Teams often reach for group norm in vision systems that want more predictable behavior than batch norm at small batch sizes. It keeps normalization local to each example without forcing the whole vector into one shared statistic."
     },
-    "commonConfusions": {
-      "title": "Common Confusions",
-      "body": "Group norm is not batch norm without learned parameters. Both usually keep learned scale and shift, but batch norm pools across examples while group norm stays inside one example. Group norm is also not layer norm: layer norm uses one full token or feature vector, while group norm keeps several smaller channel groups. In transformer papers, layer norm and RMSNorm are still the more common default names."
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The module partitions channels into fixed groups, measures mean and variance inside each group for one example, recenters and rescales the group, then applies learned gain and bias. Each example is normalized independently, but the groups preserve some local channel structure."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formula below describes one group inside one example. The group index matters because the statistics are shared only within that channel subset."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Group norm sits between batch norm and layer norm. Like layer norm, it stays inside one example. Like batch norm, it can still share statistics across multiple channels, just within a smaller local group."
+    },
+    "variantsAndNearbyModules": {
+      "title": "Variants And Nearby Modules",
+      "body": "Normalization choices differ by how wide their statistics reach. Nearby pages show the spectrum from batch-wide pooling to full-vector layer norms and lighter per-token variants like RMSNorm."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Group norm appears most often in convolution-heavy systems and mixed vision architectures. It is less central to large language models, but it remains an important comparison point for normalization design."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Group norm adds a grouping choice that designers must tune, and it is usually less natural for plain token vectors than layer norm or RMSNorm. In many transformer stacks, the simpler per-token norms remain the cleaner fit."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Group norm explains how normalization can stay local without fully collapsing to one-vector statistics. That makes it useful whenever a paper blends convolutional modules with transformer-style components."
     },
     "related": {
-      "title": "Related Concepts And Modules"
+      "title": "Related"
     },
     "tags": {
       "title": "Tags"
     },
     "references": {
       "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Group norm flow from channel groups to group statistics, normalized groups, and scaled output",
+      "caption": "Group norm normalizes each example by channel group rather than by full minibatch statistics"
+    },
+    "comparisonTable": {
+      "caption": "How group norm compares with nearby normalization modules"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "group": {
+          "title": "Group Norm"
+        },
+        "batch": {
+          "title": "Batch Norm"
+        },
+        "layer": {
+          "title": "Layer Norm"
+        }
+      },
+      "dimensions": {
+        "statisticsScope": "Statistics scope",
+        "batchDependence": "Depends on batch neighbors",
+        "commonUse": "Common use"
+      },
+      "values": {
+        "group": {
+          "statisticsScope": "Channel groups inside one example",
+          "batchDependence": "No; groups stay within one example",
+          "commonUse": "Vision models with small or irregular batches"
+        },
+        "batch": {
+          "statisticsScope": "One feature or channel across the minibatch",
+          "batchDependence": "Yes; examples share live batch statistics",
+          "commonUse": "Convolutional models with stable batch structure"
+        },
+        "layer": {
+          "statisticsScope": "All features inside one token or hidden vector",
+          "batchDependence": "No; one token is normalized on its own",
+          "commonUse": "Transformer blocks and sequence models"
+        }
+      }
+    }
+  },
+  "math": {
+    "groupNormSchema": {
+      "label": "Group normalization",
+      "formula": "\\mathrm{GN}(x_g) = \\gamma \\odot \\frac{x_g - \\mu_g}{\\sqrt{\\sigma_g^2 + \\epsilon}} + \\beta",
+      "variableDefinitions": {
+        "xg": {
+          "term": "x_g",
+          "definition": "Feature values in group g for one example."
+        },
+        "g": {
+          "term": "g",
+          "definition": "Channel-group index."
+        },
+        "mug": {
+          "term": "\\mu_g",
+          "definition": "Mean of the features in group g."
+        },
+        "sigmag2": {
+          "term": "\\sigma_g^2",
+          "definition": "Variance of the features in group g."
+        },
+        "epsilon": {
+          "term": "\\epsilon",
+          "definition": "Small constant for numerical stability."
+        },
+        "gamma": {
+          "term": "\\gamma",
+          "definition": "Learned per-feature scale."
+        },
+        "beta": {
+          "term": "\\beta",
+          "definition": "Learned per-feature shift."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "inputFeatures": {
+        "label": "Input feature map"
+      },
+      "splitGroups": {
+        "label": "Split channels into groups"
+      },
+      "groupStats": {
+        "label": "Group mean and variance"
+      },
+      "normalizeGroups": {
+        "label": "Normalize each group"
+      },
+      "learnedAffine": {
+        "label": "Learned scale and shift"
+      },
+      "outputFeatures": {
+        "label": "Output feature map"
+      }
     }
   }
 }

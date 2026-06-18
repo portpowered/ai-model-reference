@@ -1,32 +1,148 @@
 {
   "title": "QK norm",
   "description": "Query-key normalization that rescales attention queries and keys before their dot products, changing the attention score path rather than the whole residual stream.",
-  "openingSummary": "QK norm normalizes the query and key representations inside attention before similarity scores are computed, so it changes one narrow part of the attention path instead of normalizing the full token stream.",
+  "openingSummary": "QK norm stabilizes attention by normalizing the query and key vectors right before their dot products, which narrows the change to the score path instead of renormalizing the entire hidden stream around every transformer sublayer.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "QK norm means the model normalizes the query and key vectors that feed the attention score calculation. Instead of applying normalization to the whole residual stream before or after a block, it targets the vectors used in the query-key dot product, which changes how sharply attention scores can grow."
+      "body": "QK norm applies normalization directly to the query and key vectors used in attention scoring. Instead of normalizing the whole residual stream, it targets the part of the block that decides how sharply one token attends to another."
     },
-    "whyItMatters": {
-      "title": "Why It Matters",
-      "body": "Attention scores can become unstable when query and key magnitudes drift too far apart, especially in deep or long-context models. QK norm gives papers a way to tame that score path without replacing layer norm or RMSNorm everywhere else in the transformer block. When you see QK norm in a model writeup, read it as an attention-specific stabilization trick."
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "QK norm mainly targets attention-logit stability. It reduces the chance that raw query or key magnitude will make the softmax too sharp, especially in deeper models or longer-context settings."
     },
-    "simpleExample": {
-      "title": "Simple Example",
-      "body": "Imagine two tokens whose query and key vectors suddenly become much larger than the rest. Their dot product can dominate the softmax and make attention overly sharp. QK norm rescales those vectors before the score is formed, so the attention pattern depends more on direction and less on raw magnitude."
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "Because the change is local to attention scoring, QK norm can complement layer norm or RMSNorm rather than replace them. Model designers can tune the score path without rewriting the whole normalization pattern of the block."
     },
-    "commonConfusions": {
-      "title": "Common Confusions",
-      "body": "QK norm is not the same thing as layer norm or RMSNorm. Those usually normalize the hidden state that flows through the broader transformer block. QK norm only touches the query and key path inside attention. It is also not batch norm or group norm, which are defined by how statistics are pooled across examples or channel groups rather than by attention placement."
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The block projects hidden states into queries and keys, normalizes those vectors, then forms attention scores from the normalized versions before the usual softmax and value mixing. The attention pattern depends more on direction and less on raw vector length."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formula below shows the attention score path after normalized queries and keys are substituted into the standard dot product. The hats mark the normalized forms."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Layer norm and RMSNorm usually normalize the hidden state that flows through a whole transformer block. QK norm is narrower: it only changes the query-key score path inside attention. That makes it more of a targeted attention tweak than a general residual-stream norm."
+    },
+    "variantsAndNearbyModules": {
+      "title": "Variants And Nearby Modules",
+      "body": "Nearby normalization pages cover broader hidden-state norms, while QK norm shows what happens when normalization is attached to one internal attention step instead. Reading them together makes the placement difference clear."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "QK norm appears in some transformer variants that want extra control over attention sharpness, especially when long context or deep stacks make logits harder to keep in a comfortable range."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "QK norm only solves one narrow problem. It does not replace the broader stability role of layer norm or RMSNorm across the residual stream, so many architectures still need a separate hidden-state normalization strategy."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "QK norm is a good reminder that normalization is not only about whole-layer placement. Sometimes the most useful intervention is inside one sensitive operation, such as attention scoring."
     },
     "related": {
-      "title": "Related Concepts And Modules"
+      "title": "Related"
     },
     "tags": {
       "title": "Tags"
     },
     "references": {
       "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "QK norm flow from query and key projections to normalized scores and attended output",
+      "caption": "QK norm inserts normalization into the query-key score path before softmax"
+    },
+    "comparisonTable": {
+      "caption": "How QK norm compares with nearby normalization modules"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "qk": {
+          "title": "QK Norm"
+        },
+        "layer": {
+          "title": "Layer Norm"
+        },
+        "rms": {
+          "title": "RMSNorm"
+        }
+      },
+      "dimensions": {
+        "normalizationTarget": "Normalization target",
+        "placement": "Placement",
+        "mainBenefit": "Main benefit"
+      },
+      "values": {
+        "qk": {
+          "normalizationTarget": "Query and key vectors only",
+          "placement": "Inside attention before the dot product",
+          "mainBenefit": "Keeps attention logits from becoming too sharp"
+        },
+        "layer": {
+          "normalizationTarget": "Full token or hidden vector",
+          "placement": "Around transformer sublayers",
+          "mainBenefit": "Stabilizes the broader residual stream"
+        },
+        "rms": {
+          "normalizationTarget": "Full token or hidden vector",
+          "placement": "Around transformer sublayers",
+          "mainBenefit": "Stabilizes scale with less work than layer norm"
+        }
+      }
+    }
+  },
+  "math": {
+    "qkNormSchema": {
+      "label": "QK normalization inside attention",
+      "formula": "\\mathrm{Attention}(\\hat{Q}, \\hat{K}, V) = \\mathrm{softmax}\\!\\left(\\frac{\\hat{Q}\\hat{K}^{\\top}}{\\sqrt{d_k}}\\right) V",
+      "variableDefinitions": {
+        "qhat": {
+          "term": "\\hat{Q}",
+          "definition": "Normalized query vectors."
+        },
+        "khat": {
+          "term": "\\hat{K}",
+          "definition": "Normalized key vectors."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors used after the attention weights are formed."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension used in the score scaling factor."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "hiddenStates": {
+        "label": "Hidden states"
+      },
+      "projectQK": {
+        "label": "Project queries and keys"
+      },
+      "normalizeQK": {
+        "label": "Normalize Q and K"
+      },
+      "attentionScores": {
+        "label": "Attention scores"
+      },
+      "weightedValues": {
+        "label": "Weighted values"
+      },
+      "outputState": {
+        "label": "Attention output"
+      }
     }
   }
 }

@@ -10,7 +10,11 @@
     "PI",
     "rope interpolation"
   ],
-  "tags": ["foundations"],
+  "tags": [
+    "position-encoding",
+    "context-window",
+    "foundations"
+  ],
   "relatedIds": [
     "module.rope",
     "concept.context-extension",
@@ -18,12 +22,16 @@
     "module.longrope",
     "module.ntk-aware-rope-scaling"
   ],
-  "citationIds": ["citation.chen-positional-interpolation"],
+  "citationIds": [
+    "citation.chen-positional-interpolation"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "position-encoding",
-  "optimizes": ["long-context-extrapolation"],
+  "optimizes": [
+    "long-context-extrapolation"
+  ],
   "practicalBenefits": [
     "reuses pretrained positional behavior at longer lengths"
   ],

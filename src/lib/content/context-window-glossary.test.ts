@@ -35,7 +35,7 @@ describe("Phase 3 context window glossary page (US-011)", () => {
       "sequence length limit",
       "max context",
     ]);
-    expect(record?.tags).toEqual(["foundations"]);
+    expect(record?.tags).toEqual(["context-window", "foundations"]);
     expect(record?.relatedIds).toEqual([
       "concept.context-extension",
       "concept.why-long-context-is-hard",

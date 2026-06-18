@@ -373,6 +373,11 @@ function buildRegistryRecord(
     status: spec.status,
     createdAt: timestamp,
     updatedAt: timestamp,
+    ...(spec.kind !== "paper" && spec.releaseDate
+      ? { releaseDate: spec.releaseDate }
+      : {}),
+    ...(spec.kind !== "paper" && spec.authors ? { authors: spec.authors } : {}),
+    ...(spec.kind !== "paper" && spec.sourceId ? { sourceId: spec.sourceId } : {}),
   };
 
   switch (spec.kind) {
@@ -412,7 +417,6 @@ function buildRegistryRecord(
         datasetIds: spec.datasetIds,
         paperIds: spec.paperIds,
         ...(spec.organizationId ? { organizationId: spec.organizationId } : {}),
-        ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
         ...(spec.parameterCount ? { parameterCount: spec.parameterCount } : {}),
         ...(spec.activeParameterCount
           ? { activeParameterCount: spec.activeParameterCount }

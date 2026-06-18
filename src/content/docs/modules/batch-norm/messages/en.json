@@ -1,32 +1,153 @@
 {
   "title": "Batch norm",
   "description": "Batch-level normalization that rescales activations using statistics pooled across examples, common in convolutional networks but uncommon inside modern transformers.",
-  "openingSummary": "Batch norm normalizes activations with minibatch-wide mean and variance, which works well when examples share stable feature layouts but fits transformer token streams less cleanly than layer-style norms do.",
+  "openingSummary": "Batch norm steadies features by using the minibatch's shared mean and variance, which works best when examples line up cleanly but becomes awkward when token streams, batch sizes, or decoding steps vary from one pass to the next.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Batch normalization computes a mean and variance from the same feature across many examples in a minibatch, rescales that feature, then applies learned scale and shift. The key idea is that one example is normalized partly using information from its batch neighbors, not only from its own hidden vector."
+      "body": "Batch normalization computes feature statistics across the minibatch, rescales each feature with those shared numbers, then applies learned scale and shift. One example is partly normalized using information from its batch neighbors rather than only from its own hidden state."
     },
-    "whyItMatters": {
-      "title": "Why It Matters",
-      "body": "Batch norm became a standard tool in convolutional networks because images in a batch usually share the same layout and large batch statistics are easy to estimate. Transformer decoders often process variable sequence lengths, autoregressive steps, and small effective batch slices, so layer norm or RMSNorm is usually the cleaner default when you read modern language model architectures."
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "Batch norm mainly targets training stability in settings where many examples share the same feature layout. It can reduce internal scale drift and make optimization easier when minibatches are large enough to give reliable statistics."
     },
-    "simpleExample": {
-      "title": "Simple Example",
-      "body": "Imagine one channel in an image model is much larger than the others for the whole minibatch. Batch norm measures that channel across all examples, recenters and rescales it, then passes a steadier value downstream. If you tried the same idea inside token-by-token decoding, the needed batch statistics would depend on which examples happened to be grouped together at that moment."
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "In convolutional networks, batch norm often lets models train faster and with less sensitivity to raw feature scale. It became a default building block for vision systems long before layer-style norms became the normal choice inside large language models."
     },
-    "commonConfusions": {
-      "title": "Common Confusions",
-      "body": "Batch norm is not layer norm with a different name. Layer norm uses one token or one example at a time, while batch norm mixes information across the minibatch. Group norm sits between those two scopes by normalizing groups of channels inside one example. In transformer papers, batch norm usually signals an older or nonstandard choice rather than the default LLM block pattern."
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "For each feature or channel, batch norm measures the minibatch mean and variance, recenters the values, rescales them by the stabilized spread, then applies learned gain and bias. During inference it uses running estimates collected during training rather than the live minibatch."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formula below summarizes one normalized feature channel. The important distinction is the subscript B: the mean and variance come from the batch, not from one token or one hidden vector alone."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Batch norm shares statistics across examples. Layer norm and RMSNorm stay inside one token or hidden vector, while group norm stays inside one example but uses smaller channel groups. That difference is why batch norm fits image minibatches better than autoregressive transformer decoding."
+    },
+    "variantsAndNearbyModules": {
+      "title": "Variants And Nearby Modules",
+      "body": "Normalization modules mostly differ by where they collect statistics and which operations they keep. Nearby pages help you compare batch-coupled normalization against per-token and per-group alternatives."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Batch norm is common in convolutional backbones and many earlier vision architectures. It appears less often in modern decoder-only language models, so it is useful here mainly as a comparison point."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Batch norm depends on stable minibatch statistics. Small batches, variable sequence slices, and token-by-token decoding make those statistics noisy or inconvenient, which is why transformer language models usually prefer layer norm or RMSNorm."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Many model families outside LLMs still use batch norm, and papers often compare newer norms against it. Understanding batch norm makes the rest of the normalization family much easier to interpret."
     },
     "related": {
-      "title": "Related Concepts And Modules"
+      "title": "Related"
     },
     "tags": {
       "title": "Tags"
     },
     "references": {
       "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Batch norm flow from activations to batch statistics, normalized channels, and scaled output",
+      "caption": "Batch norm measures minibatch statistics, normalizes each channel with them, then applies learned scale and shift"
+    },
+    "comparisonTable": {
+      "caption": "How batch norm differs from nearby normalization modules"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "batch": {
+          "title": "Batch Norm"
+        },
+        "layer": {
+          "title": "Layer Norm"
+        },
+        "group": {
+          "title": "Group Norm"
+        }
+      },
+      "dimensions": {
+        "statisticsScope": "Statistics scope",
+        "batchDependence": "Depends on batch neighbors",
+        "commonUse": "Common use"
+      },
+      "values": {
+        "batch": {
+          "statisticsScope": "One feature or channel across the minibatch",
+          "batchDependence": "Yes; each example uses shared batch statistics",
+          "commonUse": "Convolutional and vision models with stable batches"
+        },
+        "layer": {
+          "statisticsScope": "All features inside one token or hidden vector",
+          "batchDependence": "No; each token is normalized on its own",
+          "commonUse": "Transformer blocks and sequence models"
+        },
+        "group": {
+          "statisticsScope": "Small channel groups inside one example",
+          "batchDependence": "No; groups stay inside one example",
+          "commonUse": "Vision models when batch norm is awkward at small batch sizes"
+        }
+      }
+    }
+  },
+  "math": {
+    "batchNormSchema": {
+      "label": "Batch normalization",
+      "formula": "\\mathrm{BN}(x) = \\gamma \\odot \\frac{x - \\mu_B}{\\sqrt{\\sigma_B^2 + \\epsilon}} + \\beta",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "Feature values for one channel before normalization."
+        },
+        "muB": {
+          "term": "\\mu_B",
+          "definition": "Mean of that feature over the current minibatch."
+        },
+        "sigmaB2": {
+          "term": "\\sigma_B^2",
+          "definition": "Variance of that feature over the current minibatch."
+        },
+        "epsilon": {
+          "term": "\\epsilon",
+          "definition": "Small constant for numerical stability."
+        },
+        "gamma": {
+          "term": "\\gamma",
+          "definition": "Learned per-feature scale."
+        },
+        "beta": {
+          "term": "\\beta",
+          "definition": "Learned per-feature shift."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "inputActivations": {
+        "label": "Input activations"
+      },
+      "batchStats": {
+        "label": "Batch mean and variance"
+      },
+      "normalizeChannel": {
+        "label": "Normalize each channel"
+      },
+      "learnedAffine": {
+        "label": "Learned scale and shift"
+      },
+      "outputActivations": {
+        "label": "Output activations"
+      }
     }
   }
 }

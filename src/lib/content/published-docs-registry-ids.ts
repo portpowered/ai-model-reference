@@ -46,6 +46,7 @@ export const MODULE_BACKED_CONCEPT_REGISTRY_IDS = new Set<string>([
 ]);
 
 export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
+  "model.gpt-3",
   "module.attention",
   "module.multi-head-attention",
   "module.multi-query-attention",

@@ -4,8 +4,17 @@
   "kind": "module",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["LongRoPE", "Long RoPE", "long rope", "long rope scaling"],
-  "tags": ["foundations"],
+  "aliases": [
+    "LongRoPE",
+    "Long RoPE",
+    "long rope",
+    "long rope scaling"
+  ],
+  "tags": [
+    "position-encoding",
+    "context-window",
+    "foundations"
+  ],
   "relatedIds": [
     "module.rope",
     "concept.context-extension",
@@ -13,13 +22,19 @@
     "module.ntk-aware-rope-scaling",
     "module.yarn"
   ],
-  "citationIds": ["citation.ding-longrope"],
+  "citationIds": [
+    "citation.ding-longrope"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "position-encoding",
-  "optimizes": ["very-long-context-extrapolation"],
-  "practicalBenefits": ["pushes rotary scaling to very long context windows"],
+  "optimizes": [
+    "very-long-context-extrapolation"
+  ],
+  "practicalBenefits": [
+    "pushes rotary scaling to very long context windows"
+  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

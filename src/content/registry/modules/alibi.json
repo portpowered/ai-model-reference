@@ -10,7 +10,10 @@
     "attention linear bias",
     "linear attention bias"
   ],
-  "tags": ["foundations"],
+  "tags": [
+    "position-encoding",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.positional-encodings",
     "module.relative-position-bias",
@@ -18,12 +21,16 @@
     "concept.context-window",
     "module.nope"
   ],
-  "citationIds": ["citation.press-alibi"],
+  "citationIds": [
+    "citation.press-alibi"
+  ],
   "status": "published",
   "createdAt": "2026-06-08T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "position-encoding",
-  "optimizes": ["long-context-extrapolation"],
+  "optimizes": [
+    "long-context-extrapolation"
+  ],
   "practicalBenefits": [
     "extends length handling without explicit position vectors"
   ],

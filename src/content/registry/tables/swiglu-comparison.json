@@ -1,0 +1,49 @@
+{
+  "id": "table.swiglu-comparison",
+  "subjectId": "module.swiglu",
+  "columns": [
+    {
+      "moduleId": "module.swiglu",
+      "titleKey": "tables.comparison.columns.swiglu.title"
+    },
+    {
+      "moduleId": "module.standard-ffn",
+      "titleKey": "tables.comparison.columns.standard.title"
+    },
+    {
+      "moduleId": "module.mixture-of-experts",
+      "titleKey": "tables.comparison.columns.moe.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "pathShape",
+      "labelKey": "tables.comparison.dimensions.pathShape"
+    },
+    {
+      "id": "activeCompute",
+      "labelKey": "tables.comparison.dimensions.activeCompute"
+    },
+    {
+      "id": "mainTradeoff",
+      "labelKey": "tables.comparison.dimensions.mainTradeoff"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.swiglu": {
+      "pathShape": "tables.comparison.values.swiglu.pathShape",
+      "activeCompute": "tables.comparison.values.swiglu.activeCompute",
+      "mainTradeoff": "tables.comparison.values.swiglu.mainTradeoff"
+    },
+    "module.standard-ffn": {
+      "pathShape": "tables.comparison.values.standard.pathShape",
+      "activeCompute": "tables.comparison.values.standard.activeCompute",
+      "mainTradeoff": "tables.comparison.values.standard.mainTradeoff"
+    },
+    "module.mixture-of-experts": {
+      "pathShape": "tables.comparison.values.moe.pathShape",
+      "activeCompute": "tables.comparison.values.moe.activeCompute",
+      "mainTradeoff": "tables.comparison.values.moe.mainTradeoff"
+    }
+  }
+}

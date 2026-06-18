@@ -29,7 +29,7 @@ describe("Phase 3 normalization glossary page (US-004)", () => {
     const record = getConceptById("concept.normalization");
     expect(record?.status).toBe("published");
     expect(record?.aliases).toEqual(["normalization layer", "norm layer"]);
-    expect(record?.tags).toEqual(["foundations"]);
+    expect(record?.tags).toEqual(["normalization", "foundations"]);
     expect(record?.explainsIds).toEqual([
       "concept.layer-norm",
       "concept.rmsnorm",

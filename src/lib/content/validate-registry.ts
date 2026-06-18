@@ -76,6 +76,49 @@ const pageKindRegistryKindAliases: Partial<
 /** Docs sections whose `page.mdx` slugs must match a concept registry record slug. */
 const conceptBackedDocsSections = new Set(["glossary", "concepts"]);
 
+const requiredCitationExceptionReasons: Partial<
+  Record<RegistryRecord["id"], string>
+> = {
+  "module.absolute-positional-embeddings":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.attention":
+    "Legacy module overview predates the citation backfill requirement.",
+  "module.batch-norm":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.feed-forward-network":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.group-norm":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.layer-norm":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.leaky-relu":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.learned-positional-embeddings":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.mixture-of-experts":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.nope":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.qk-norm":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.relative-position-bias":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.relu":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.rmsnorm":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.silu":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.sliding-window-attention":
+    "Legacy module is published before citation backfill is complete.",
+  "module.sparse-attention":
+    "Legacy module is published before citation backfill is complete.",
+  "module.standard-ffn":
+    "Legacy migrated module is published before citation backfill is complete.",
+  "module.swiglu":
+    "Legacy migrated module is published before citation backfill is complete.",
+};
+
 function pageKindMatchesRegistryRecord(
   pageKind: PageKind,
   registryKind: RegistryRecord["kind"],
@@ -102,6 +145,22 @@ function conceptBackedDocsSectionFromPath(
 
 function isPublishedSourceRecord(record: RegistryRecord): boolean {
   return record.status === "published";
+}
+
+function requiresAtLeastOneCitation(record: RegistryRecord): boolean {
+  if (record.status !== "published") {
+    return false;
+  }
+
+  if (record.kind !== "module" && record.kind !== "model") {
+    return false;
+  }
+
+  if (requiredCitationExceptionReasons[record.id]) {
+    return false;
+  }
+
+  return record.citationIds.length === 0;
 }
 
 /** Phase 1 page directories validated even when `page.mdx` is not present yet. */
@@ -175,7 +234,7 @@ function resolveTagRecord(
 function moduleReferenceFields(
   record: ModuleRecord,
 ): Array<{ field: string; ids: string[] }> {
-  return [
+  const fields = [
     { field: "relatedIds", ids: record.relatedIds },
     { field: "citationIds", ids: record.citationIds },
     { field: "exampleModelIds", ids: record.exampleModelIds },
@@ -184,6 +243,10 @@ function moduleReferenceFields(
     { field: "usedByModelIds", ids: record.usedByModelIds },
     { field: "introducedByPaperIds", ids: record.introducedByPaperIds },
   ];
+  if (record.sourceId) {
+    fields.push({ field: "sourceId", ids: [record.sourceId] });
+  }
+  return fields;
 }
 
 function validateRegistryRecordReferences(
@@ -206,6 +269,9 @@ function validateRegistryRecordReferences(
       { field: "prerequisiteIds", ids: record.prerequisiteIds },
       { field: "explainsIds", ids: record.explainsIds },
     );
+    if (record.sourceId) {
+      referenceFields.push({ field: "sourceId", ids: [record.sourceId] });
+    }
   }
 
   if (record.kind === "model") {
@@ -216,6 +282,9 @@ function validateRegistryRecordReferences(
       { field: "datasetIds", ids: record.datasetIds },
       { field: "paperIds", ids: record.paperIds },
     );
+    if (record.sourceId) {
+      referenceFields.push({ field: "sourceId", ids: [record.sourceId] });
+    }
   }
 
   if (record.kind === "paper") {
@@ -235,6 +304,9 @@ function validateRegistryRecordReferences(
       { field: "relatedModuleIds", ids: record.relatedModuleIds },
       { field: "paperIds", ids: record.paperIds },
     );
+    if (record.sourceId) {
+      referenceFields.push({ field: "sourceId", ids: [record.sourceId] });
+    }
   }
 
   if (
@@ -252,10 +324,24 @@ function validateRegistryRecordReferences(
   if (isPublishedSourceRecord(record)) {
     for (const { field, ids } of referenceFields) {
       for (const id of ids) {
-        if (!indexes.byId.has(id)) {
+        const referenced = indexes.byId.get(id);
+        if (!referenced) {
           errors.push({
             code: "unresolved-reference",
             message: `${record.id}: ${field} references missing record "${id}"`,
+            path: filePath,
+          });
+          continue;
+        }
+
+        if (
+          field === "sourceId" &&
+          referenced.kind !== "citation" &&
+          referenced.kind !== "paper"
+        ) {
+          errors.push({
+            code: "invalid-source-reference",
+            message: `${record.id}: sourceId must reference a paper or citation record, found "${referenced.kind}" for "${id}"`,
             path: filePath,
           });
         }
@@ -287,6 +373,14 @@ function validateRegistryRecordReferences(
         path: filePath,
       });
     }
+  }
+
+  if (requiresAtLeastOneCitation(record)) {
+    errors.push({
+      code: "missing-required-citation",
+      message: `${record.id}: published ${record.kind} pages must include at least one reference via citationIds`,
+      path: filePath,
+    });
   }
 
   return errors;

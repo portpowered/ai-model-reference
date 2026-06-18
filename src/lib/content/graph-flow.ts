@@ -20,6 +20,7 @@ const ROW_LABEL_X_OFFSET = -112;
 export type RegistryFlowNodeData = {
   label: string;
   moduleKind: string;
+  size?: { width: number; height: number };
   headCountRole?: "query" | "kv";
   visualRole?:
     | "row-label"
@@ -32,6 +33,16 @@ export type RegistryFlowNodeData = {
     | "process-node"
     | "latent-node"
     | "annotation"
+    | "group-container"
+    | "repeat-label"
+    | "architecture-embedding"
+    | "architecture-attention"
+    | "architecture-feed-forward"
+    | "architecture-add-norm"
+    | "architecture-linear"
+    | "architecture-softmax"
+    | "architecture-io"
+    | "operator-circle"
     | "default";
 };
 
@@ -98,7 +109,23 @@ export function buildRegistryFlowEdges(graph: GraphRecord): Edge[] {
       id: edge.id,
       source: edge.source,
       target: edge.target,
-      type: "straight",
+      type: buildRegistryFlowEdgeType(edge),
+      ...(edge.sourceHandleSide
+        ? {
+            sourceHandle: buildRegistryFlowHandleId(
+              "source",
+              edge.sourceHandleSide,
+            ),
+          }
+        : {}),
+      ...(edge.targetHandleSide
+        ? {
+            targetHandle: buildRegistryFlowHandleId(
+              "target",
+              edge.targetHandleSide,
+            ),
+          }
+        : {}),
       markerEnd: buildRegistryFlowEdgeMarker(edge),
       style: buildRegistryFlowEdgeStyle(edge),
     }));
@@ -111,13 +138,33 @@ export function buildRegistryFlowEdges(graph: GraphRecord): Edge[] {
         id: `${node.id}->${childId}`,
         source: node.id,
         target: childId,
-        type: "straight",
+        type: buildRegistryFlowEdgeType({ edgeKind: "data-flow" }),
         markerEnd: buildRegistryFlowEdgeMarker({ edgeKind: "data-flow" }),
         style: buildRegistryFlowEdgeStyle({ edgeKind: "data-flow" }),
       });
     }
   }
   return edges;
+}
+
+function buildRegistryFlowHandleId(
+  type: "source" | "target",
+  side: "top" | "right" | "bottom" | "left",
+): string {
+  return `${type}-${side}`;
+}
+
+function buildRegistryFlowEdgeType(
+  edge: Pick<ModuleGraphEdge, "edgeKind">,
+): Edge["type"] {
+  switch (edge.edgeKind) {
+    case "contains":
+    case "control-flow":
+    case "residual":
+      return "smoothstep";
+    default:
+      return "straight";
+  }
 }
 
 function buildRegistryFlowEdgeMarker(
@@ -143,6 +190,7 @@ function buildRegistryFlowEdgeStyle(
     case "parameter-sharing":
       return {
         strokeWidth: 3,
+        stroke: "#0f172a",
         strokeDasharray: "10 8",
       };
     case "cache-read":
@@ -156,9 +204,15 @@ function buildRegistryFlowEdgeStyle(
         strokeWidth: 3,
         stroke: "#7c3aed",
       };
+    case "contains":
+      return {
+        strokeWidth: 2.5,
+        stroke: "#334155",
+      };
     default:
       return {
         strokeWidth: 3,
+        stroke: "#111111",
       };
   }
 }
@@ -221,9 +275,14 @@ export function buildRegistryFlowGraph(
       id: node.id,
       position,
       type: "attentionHead",
+      ...(node.size
+        ? { style: { width: node.size.width, height: node.size.height } }
+        : {}),
+      ...(node.zIndex !== undefined ? { zIndex: node.zIndex } : {}),
       data: {
         label: resolveGraphNodeLabel(labelSources, node.labelKey),
         moduleKind: node.moduleKind,
+        ...(node.size ? { size: node.size } : {}),
         ...(node.headCountRole ? { headCountRole: node.headCountRole } : {}),
         ...(node.visualRole ? { visualRole: node.visualRole } : {}),
       },

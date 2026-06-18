@@ -1,0 +1,114 @@
+{
+  "title": "GPT-3",
+  "description": "A large decoder-only language model that made in-context prompting and few-shot text generation a mainstream reference point.",
+  "openingSummary": "GPT-3 showed that scaling a decoder-only transformer far enough could turn plain text prompting into a practical interface, because the same pretrained model could continue text, follow patterns, and imitate simple tasks without task-specific fine-tuning.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "GPT-3 is a closed text-only language model from OpenAI. It is a decoder-only transformer trained to predict the next token in long text streams, and it became the best-known early example of a general-purpose prompting model."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The model reads text tokens and produces text tokens. In practice, a prompt can include instructions, examples, or unfinished prose, and GPT-3 continues from that context one token at a time through autoregressive generation."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "At a high level, GPT-3 keeps the familiar decoder-only transformer stack. Input embeddings are combined with learned positional embeddings, then a repeated decoder block runs masked multi-head attention, add-and-norm, a standard feed-forward network, and another add-and-norm before a linear head and softmax produce next-token probabilities."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The modules below are the main moving parts to understand before reading GPT-style descendants. Multi-head attention carries context across the prompt, the standard FFN transforms each position locally, learned positional embeddings mark token order, and layer normalization helps the repeated stack stay trainable."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Publicly described GPT-3 training centered on large-scale next-token pretraining over a broad text mixture rather than specialized instruction tuning. The model's importance came less from a brand-new block and more from scale: parameter count, data volume, and compute were pushed far enough that few-shot prompting became much more useful."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "GPT-3 is historically important because it made prompt design a mainstream workflow, but it also reflects an earlier generation of language models. Its 2,048-token context window is short by modern standards, it predates later long-context tricks such as RoPE scaling or grouped-query attention, and it was served as a closed system rather than an open checkpoint family."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "GPT-3 architecture diagram with token embeddings, learned positional embeddings, a repeated decoder block containing masked attention and feed-forward layers, then a linear head and softmax.",
+      "caption": "GPT-3 uses a repeated decoder-only transformer block: masked attention, add and norm, feed-forward, add and norm, then a linear vocabulary head."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputProbabilities": {
+        "label": "Output\nProbabilities",
+        "summary": "The model's probability distribution over the next token"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns final vocabulary scores into probabilities"
+      },
+      "linear": {
+        "label": "Linear",
+        "summary": "Projects the hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated decoder block container"
+      },
+      "attentionSublayer": {
+        "label": " ",
+        "summary": "Attention sublayer container"
+      },
+      "ffnSublayer": {
+        "label": " ",
+        "summary": "Feed-forward sublayer container"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats many times through the stack"
+      },
+      "addNormAttention": {
+        "label": "Add & Norm",
+        "summary": "Residual add followed by normalization after masked attention"
+      },
+      "maskedMha": {
+        "label": "Masked\nMulti-Head\nAttention",
+        "summary": "Each token can read earlier tokens but not future ones"
+      },
+      "addNormFfn": {
+        "label": "Add & Norm",
+        "summary": "Residual add followed by normalization after the feed-forward block"
+      },
+      "feedForward": {
+        "label": "Feed\nForward",
+        "summary": "Per-token dense transformation inside each decoder block"
+      },
+      "residualNote": {
+        "label": "Residual paths loop around each sublayer",
+        "summary": "The add-and-norm boxes sit on top of residual skips"
+      },
+      "positionAdd": {
+        "label": "+",
+        "summary": "Adds token embeddings and learned positional embeddings"
+      },
+      "learnedPositions": {
+        "label": "Learned\nPosition\nEmbeddings",
+        "summary": "Absolute position vectors added before the stack"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs to hidden vectors"
+      },
+      "inputTokens": {
+        "label": "Input\nTokens",
+        "summary": "Prompt text after tokenization"
+      }
+    }
+  }
+}

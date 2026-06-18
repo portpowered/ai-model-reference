@@ -5,10 +5,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { MIXTURE_OF_EXPERTS_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
-import {
-  expectGlossaryPresentationConvergence,
-  expectHtmlToContainProse,
-} from "@/lib/content/glossary-test-helpers";
+import { expectHtmlToContainProse } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
@@ -24,7 +21,7 @@ import { buildSearchDocuments } from "@/lib/search/build-documents";
 const pageDir = MIXTURE_OF_EXPERTS_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 
-describe("Phase 3 mixture of experts glossary page (US-003)", () => {
+describe("Phase 3 mixture of experts module page (US-003)", () => {
   test("registry record is published with aliases, tags, and curated related ids", () => {
     const record = getConceptById("concept.mixture-of-experts");
     expect(record?.status).toBe("published");
@@ -33,7 +30,7 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
       "mixture-of-experts layer",
       "sparse MoE",
     ]);
-    expect(record?.tags).toEqual(["foundations"]);
+    expect(record?.tags).toEqual(["feed-forward", "foundations"]);
     expect(record?.relatedIds).toEqual([
       "concept.feed-forward-network",
       "concept.standard-ffn",
@@ -75,7 +72,7 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
     expect(architecture?.isPlanned).toBe(false);
   });
 
-  test("messages explain expert routing, top-k activation, and capacity tradeoffs", () => {
+  test("messages explain expert routing, top-k activation, and capacity tradeoffs in module-template sections", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
@@ -84,18 +81,22 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain("router");
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain("top-k");
-    expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
+    expect(messages.sections?.whatItOptimizes.body?.toLowerCase()).toContain(
       "capacity",
     );
-    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
-      "ensemble",
-    );
-    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
-      "dense ffn",
+    expect(
+      messages.sections?.comparedToNearbyModules.body?.toLowerCase(),
+    ).toContain("sparse-top-k routing");
+    expect(
+      messages.sections?.limitationsAndTradeoffs.body?.toLowerCase(),
+    ).toContain("load-balancing");
+    expect(messages.math?.standardSchema?.formula).toContain("\\mathrm{FFN}");
+    expect(messages.math?.moeSchema?.formula).toContain(
+      "\\mathrm{MoE}",
     );
   });
 
-  test("page renders MoE summary, common confusions, and FFN-family related links", async () => {
+  test("page renders MoE module-template sections, switcher, and FFN-family related links", async () => {
     const page = await loadModulePage("mixture-of-experts");
 
     expect(page.frontmatter.kind).toBe("module");
@@ -111,22 +112,31 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
       }),
     );
 
-    expectGlossaryPresentationConvergence(html, {
-      title: page.messages.title,
-    });
+    expect(html).not.toContain(`<h1>${page.messages.title}</h1>`);
     expect(html).toContain("What It Is");
-    expect(html).toContain("Common Confusions");
-    expectHtmlToContainProse(html, "gating network");
-    expect(html).toContain('data-react-flow-graph="true"');
+    expect(html).toContain("Practical Benefit");
+    expect(html).toContain("Compared To Nearby Modules");
+    expect(html).toContain("Why It Still Matters");
+    expectHtmlToContainProse(html, "router picks a small top-k expert set");
+    expect(html).toContain('data-registry-id="module.mixture-of-experts"');
+    expect(html).toContain('data-attention-variant-comparison="true"');
     expect(html).toContain(
       'data-graph-id="graph.mixture-of-experts-routing-flow"',
+    );
+    expect(html).toContain('data-math-schema="standard"');
+    expect(html).toContain('data-math-schema="moe"');
+    expect(html).toContain('data-page-asset="comparisonTable"');
+    expect(html).toContain(
+      'data-table-id="table.mixture-of-experts-comparison"',
     );
     expect(html).toContain('href="/docs/modules/feed-forward-network"');
     expect(html).toContain('href="/docs/modules/standard-ffn"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
+    expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");
   });

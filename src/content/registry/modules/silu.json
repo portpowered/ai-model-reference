@@ -4,8 +4,15 @@
   "kind": "module",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["sigmoid linear unit", "Swish", "SiLU activation"],
-  "tags": ["foundations"],
+  "aliases": [
+    "sigmoid linear unit",
+    "Swish",
+    "SiLU activation"
+  ],
+  "tags": [
+    "activation",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.activation",
     "module.feed-forward-network",
@@ -18,8 +25,12 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "activation",
-  "optimizes": ["activation-smoothness"],
-  "practicalBenefits": ["adds a smoother activation curve than ReLU"],
+  "optimizes": [
+    "activation-smoothness"
+  ],
+  "practicalBenefits": [
+    "adds a smoother activation curve than ReLU"
+  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

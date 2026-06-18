@@ -9,7 +9,10 @@
     "leaky rectified linear unit",
     "Leaky ReLU activation"
   ],
-  "tags": ["foundations"],
+  "tags": [
+    "activation",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.activation",
     "concept.feed-forward-network",

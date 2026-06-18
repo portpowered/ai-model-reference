@@ -110,12 +110,12 @@ review, or validation.
 
 ## Local State Files
 
-Planner-owned state under `docs/internal/`:
+Planner-owned state under `docs/temp/`:
 
 ```txt
-docs/temp/customer-ask.md  current phase authorization and Awesome List build goal
-docs/temp/checklist.md     high-level phase and customer-ask tracking (meta-planner)
-docs/temp/progress.md     append-only meta-planner progress log (meta-planner)
+docs/temp/customer-ask.md  current customer ask and planner authorization notes
+docs/temp/checklist.md     high-level outcomes and workstream board (meta-planner)
+docs/temp/progress.md      append-only meta-planner progress log (meta-planner)
 ```
 
 The meta-planner creates and maintains `checklist.md` and `progress.txt` when

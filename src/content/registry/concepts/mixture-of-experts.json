@@ -4,8 +4,15 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["MoE", "mixture-of-experts layer", "sparse MoE"],
-  "tags": ["foundations"],
+  "aliases": [
+    "MoE",
+    "mixture-of-experts layer",
+    "sparse MoE"
+  ],
+  "tags": [
+    "feed-forward",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.feed-forward-network",
     "concept.standard-ffn",

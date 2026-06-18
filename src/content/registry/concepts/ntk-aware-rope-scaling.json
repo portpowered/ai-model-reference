@@ -11,18 +11,27 @@
     "NTK-aware RoPE",
     "rope scaling"
   ],
-  "tags": ["foundations"],
+  "tags": [
+    "position-encoding",
+    "context-window",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.rope",
     "concept.context-extension",
     "concept.superhot-rope",
     "concept.yarn"
   ],
-  "citationIds": ["citation.peng-yarn"],
+  "citationIds": [
+    "citation.peng-yarn"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "general",
-  "prerequisiteIds": ["concept.positional-encodings", "concept.rope"],
+  "prerequisiteIds": [
+    "concept.positional-encodings",
+    "concept.rope"
+  ],
   "explainsIds": []
 }

@@ -69,6 +69,29 @@ const validConceptRecord = {
   explainsIds: [],
 };
 
+const validModelRecord = {
+  id: "model.demo",
+  slug: "demo",
+  kind: "model",
+  defaultTitleKey: "title",
+  defaultSummaryKey: "description",
+  aliases: ["demo-model"],
+  tags: [],
+  relatedIds: [],
+  citationIds: ["citation.gqa-paper"],
+  status: "published",
+  createdAt: "2026-06-01T00:00:00.000Z",
+  updatedAt: "2026-06-02T00:00:00.000Z",
+  family: "demo",
+  sourceType: "open-weights",
+  modalities: ["text"],
+  architectureIds: [],
+  moduleIds: [],
+  trainingRegimeIds: [],
+  datasetIds: [],
+  paperIds: [],
+};
+
 const validCitationRecord = {
   id: "citation.gqa-paper",
   slug: "gqa-paper",
@@ -710,6 +733,80 @@ updatedAt: "2026-06-02"
           error.message.includes(
             'citationIds references missing record "citation.missing-paper"',
           ),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports published modules without references unless explicitly excepted", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "reference-free-module.json"),
+      JSON.stringify({
+        ...validModuleRecord,
+        id: "module.reference-free-module",
+        slug: "reference-free-module",
+        citationIds: [],
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "missing-required-citation" &&
+            error.message.includes("module.reference-free-module") &&
+            error.message.includes("must include at least one reference"),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports published models without references", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "models"), { recursive: true });
+    await writeFile(
+      join(registryRoot, "models", "demo.json"),
+      JSON.stringify({
+        ...validModelRecord,
+        citationIds: [],
+      }),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "missing-required-citation" &&
+            error.message.includes("model.demo") &&
+            error.message.includes("must include at least one reference"),
         ),
       ).toBe(true);
     } finally {

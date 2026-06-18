@@ -52,9 +52,16 @@ export const moduleTypeSchema = z.enum([
 
 export const mathLevelSchema = z.enum(["none", "light", "detailed"]);
 
+const releaseMetadataShape = {
+  releaseDate: z.string().optional(),
+  authors: z.array(z.string().min(1)).min(1).optional(),
+  sourceId: z.string().min(1).optional(),
+};
+
 export const moduleRecordSchema = z.object({
   ...baseRecordShape,
   kind: z.literal("module"),
+  ...releaseMetadataShape,
   moduleType: moduleTypeSchema,
   optimizes: z.array(z.string()),
   practicalBenefits: z.array(z.string()),
@@ -132,6 +139,7 @@ export const conceptTypeSchema = z.enum([
 export const conceptRecordSchema = z.object({
   ...baseRecordShape,
   kind: z.literal("concept"),
+  ...releaseMetadataShape,
   conceptType: conceptTypeSchema,
   prerequisiteIds: z.array(z.string()),
   explainsIds: z.array(z.string()),
@@ -155,6 +163,7 @@ export const modelModalitySchema = z.enum([
 export const modelRecordSchema = z.object({
   ...baseRecordShape,
   kind: z.literal("model"),
+  ...releaseMetadataShape,
   family: z.string().min(1),
   sourceType: modelSourceTypeSchema,
   modalities: z.array(modelModalitySchema).min(1),
@@ -164,7 +173,6 @@ export const modelRecordSchema = z.object({
   datasetIds: z.array(z.string()),
   paperIds: z.array(z.string()),
   organizationId: z.string().optional(),
-  releaseDate: z.string().optional(),
   parameterCount: z.string().optional(),
   activeParameterCount: z.string().optional(),
   contextLength: z.number().int().positive().optional(),
@@ -200,6 +208,7 @@ export const trainingRegimeTypeSchema = z.enum([
 export const trainingRegimeRecordSchema = z.object({
   ...baseRecordShape,
   kind: z.literal("training-regime"),
+  ...releaseMetadataShape,
   regimeType: trainingRegimeTypeSchema,
   usedByModelIds: z.array(z.string()),
   relatedModuleIds: z.array(z.string()),
@@ -272,6 +281,7 @@ export const moduleGraphEdgeKindSchema = z.enum([
 ]);
 
 export const graphHeadCountRoleSchema = z.enum(["query", "kv"]);
+export const graphHandleSideSchema = z.enum(["top", "right", "bottom", "left"]);
 
 export const graphVisualRoleSchema = z.enum([
   "row-label",
@@ -284,6 +294,16 @@ export const graphVisualRoleSchema = z.enum([
   "process-node",
   "latent-node",
   "annotation",
+  "group-container",
+  "repeat-label",
+  "architecture-embedding",
+  "architecture-attention",
+  "architecture-feed-forward",
+  "architecture-add-norm",
+  "architecture-linear",
+  "architecture-softmax",
+  "architecture-io",
+  "operator-circle",
   "default",
 ]);
 
@@ -299,11 +319,18 @@ export const moduleGraphNodeSchema = z.object({
       y: z.number(),
     })
     .optional(),
+  size: z
+    .object({
+      width: z.number().positive(),
+      height: z.number().positive(),
+    })
+    .optional(),
   childNodeIds: z.array(z.string()),
   collapsedByDefault: z.boolean().optional(),
   assetIds: z.array(z.string()).optional(),
   headCountRole: graphHeadCountRoleSchema.optional(),
   visualRole: graphVisualRoleSchema.optional(),
+  zIndex: z.number().int().optional(),
 });
 
 export const moduleGraphEdgeSchema = z.object({
@@ -312,6 +339,8 @@ export const moduleGraphEdgeSchema = z.object({
   target: z.string().min(1),
   edgeKind: moduleGraphEdgeKindSchema,
   labelKey: z.string().optional(),
+  sourceHandleSide: graphHandleSideSchema.optional(),
+  targetHandleSide: graphHandleSideSchema.optional(),
 });
 
 export const graphRecordSchema = z.object({
@@ -330,6 +359,9 @@ export const graphRecordSchema = z.object({
 export const registryRecordSchema = z.discriminatedUnion("kind", [
   moduleRecordSchema,
   conceptRecordSchema,
+  modelRecordSchema,
+  paperRecordSchema,
+  trainingRegimeRecordSchema,
   tagRecordSchema,
   citationRecordSchema,
   graphRecordSchema,

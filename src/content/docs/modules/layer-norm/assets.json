@@ -1,1 +1,27 @@
-{}
+{
+  "computeFlow": {
+    "type": "attention-variant-graph",
+    "defaultVariantId": "layer",
+    "variants": [
+      {
+        "variantId": "layer",
+        "graphId": "graph.layer-norm-compute-flow",
+        "labelKey": "assets.computeFlow.variants.layer.label"
+      },
+      {
+        "variantId": "rms",
+        "graphId": "graph.rmsnorm-compute-flow",
+        "labelKey": "assets.computeFlow.variants.rms.label"
+      }
+    ],
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.layer-norm-comparison",
+    "captionKey": "assets.comparisonTable.caption"
+  }
+}

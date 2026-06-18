@@ -4,8 +4,15 @@
   "kind": "module",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["FFN", "feedforward network", "MLP block"],
-  "tags": ["foundations"],
+  "aliases": [
+    "FFN",
+    "feedforward network",
+    "MLP block"
+  ],
+  "tags": [
+    "feed-forward",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.transformer-architecture",
     "module.standard-ffn",
@@ -17,8 +24,12 @@
   "createdAt": "2026-06-08T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "feed-forward",
-  "optimizes": ["per-token-capacity"],
-  "practicalBenefits": ["adds per-token nonlinear compute after attention"],
+  "optimizes": [
+    "per-token-capacity"
+  ],
+  "practicalBenefits": [
+    "adds per-token nonlinear compute after attention"
+  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

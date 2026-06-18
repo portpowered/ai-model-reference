@@ -1,8 +1,12 @@
+import batchNormComputeFlow from "@/content/registry/graphs/batch-norm-compute-flow.json";
 import feedForwardNetworkFamilyOverview from "@/content/registry/graphs/feed-forward-network-family-overview.json";
+import gpt3Architecture from "@/content/registry/graphs/gpt-3-architecture.json";
+import groupNormComputeFlow from "@/content/registry/graphs/group-norm-compute-flow.json";
 import groupedQueryAttentionComputeFlow from "@/content/registry/graphs/grouped-query-attention-compute-flow.json";
 import groupedQueryAttentionComputeSchema from "@/content/registry/graphs/grouped-query-attention-compute-schema.json";
 import groupedQueryAttentionGqaComparison from "@/content/registry/graphs/grouped-query-attention-gqa-comparison.json";
 import groupedQueryAttentionMhaComparison from "@/content/registry/graphs/grouped-query-attention-mha-comparison.json";
+import layerNormComputeFlow from "@/content/registry/graphs/layer-norm-compute-flow.json";
 import linearAttentionLinearComparison from "@/content/registry/graphs/linear-attention-linear-comparison.json";
 import linearAttentionMhaComparison from "@/content/registry/graphs/linear-attention-mha-comparison.json";
 import mixtureOfExpertsRoutingFlow from "@/content/registry/graphs/mixture-of-experts-routing-flow.json";
@@ -14,6 +18,8 @@ import multiHeadLatentAttentionMlaComparison from "@/content/registry/graphs/mul
 import multiQueryAttentionMhaComparison from "@/content/registry/graphs/multi-query-attention-mha-comparison.json";
 import multiQueryAttentionMqaComparison from "@/content/registry/graphs/multi-query-attention-mqa-comparison.json";
 import pageSpecWorkflowSampleConceptMap from "@/content/registry/graphs/page-spec-workflow-sample-concept-map.json";
+import qkNormComputeFlow from "@/content/registry/graphs/qk-norm-compute-flow.json";
+import rmsnormComputeFlow from "@/content/registry/graphs/rmsnorm-compute-flow.json";
 import slidingWindowAttentionTimeWindowPattern from "@/content/registry/graphs/sliding-window-attention-time-window-pattern.json";
 import sparseAttentionTimePattern from "@/content/registry/graphs/sparse-attention-time-pattern.json";
 import standardFfnComputeFlow from "@/content/registry/graphs/standard-ffn-compute-flow.json";
@@ -23,11 +29,15 @@ import tokenConceptMap from "@/content/registry/graphs/token-concept-map.json";
 import { type GraphRecord, graphRecordSchema } from "@/lib/content/schemas";
 
 const graphRecords: GraphRecord[] = [
+  graphRecordSchema.parse(batchNormComputeFlow),
   graphRecordSchema.parse(feedForwardNetworkFamilyOverview),
+  graphRecordSchema.parse(gpt3Architecture),
+  graphRecordSchema.parse(groupNormComputeFlow),
   graphRecordSchema.parse(groupedQueryAttentionComputeFlow),
   graphRecordSchema.parse(groupedQueryAttentionComputeSchema),
   graphRecordSchema.parse(groupedQueryAttentionMhaComparison),
   graphRecordSchema.parse(groupedQueryAttentionGqaComparison),
+  graphRecordSchema.parse(layerNormComputeFlow),
   graphRecordSchema.parse(multiHeadAttentionMhaComparison),
   graphRecordSchema.parse(multiHeadAttentionMqaComparison),
   graphRecordSchema.parse(multiHeadAttentionTimePattern),
@@ -39,6 +49,8 @@ const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(multiHeadLatentAttentionMhaComparison),
   graphRecordSchema.parse(multiHeadLatentAttentionMlaComparison),
   graphRecordSchema.parse(slidingWindowAttentionTimeWindowPattern),
+  graphRecordSchema.parse(qkNormComputeFlow),
+  graphRecordSchema.parse(rmsnormComputeFlow),
   graphRecordSchema.parse(standardFfnComputeFlow),
   graphRecordSchema.parse(standardFfnParallelBaseline),
   graphRecordSchema.parse(sparseAttentionTimePattern),

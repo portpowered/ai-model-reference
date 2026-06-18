@@ -1,0 +1,49 @@
+{
+  "id": "table.layer-norm-comparison",
+  "subjectId": "module.layer-norm",
+  "columns": [
+    {
+      "moduleId": "module.layer-norm",
+      "titleKey": "tables.comparison.columns.layer.title"
+    },
+    {
+      "moduleId": "module.rmsnorm",
+      "titleKey": "tables.comparison.columns.rms.title"
+    },
+    {
+      "moduleId": "module.batch-norm",
+      "titleKey": "tables.comparison.columns.batch.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "meanCentering",
+      "labelKey": "tables.comparison.dimensions.meanCentering"
+    },
+    {
+      "id": "statisticsScope",
+      "labelKey": "tables.comparison.dimensions.statisticsScope"
+    },
+    {
+      "id": "transformerFit",
+      "labelKey": "tables.comparison.dimensions.transformerFit"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.layer-norm": {
+      "meanCentering": "tables.comparison.values.layer.meanCentering",
+      "statisticsScope": "tables.comparison.values.layer.statisticsScope",
+      "transformerFit": "tables.comparison.values.layer.transformerFit"
+    },
+    "module.rmsnorm": {
+      "meanCentering": "tables.comparison.values.rms.meanCentering",
+      "statisticsScope": "tables.comparison.values.rms.statisticsScope",
+      "transformerFit": "tables.comparison.values.rms.transformerFit"
+    },
+    "module.batch-norm": {
+      "meanCentering": "tables.comparison.values.batch.meanCentering",
+      "statisticsScope": "tables.comparison.values.batch.statisticsScope",
+      "transformerFit": "tables.comparison.values.batch.transformerFit"
+    }
+  }
+}

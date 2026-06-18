@@ -9,7 +9,10 @@
     "leaky rectified linear unit",
     "Leaky ReLU activation"
   ],
-  "tags": ["foundations"],
+  "tags": [
+    "activation",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.activation",
     "module.feed-forward-network",
@@ -22,8 +25,12 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "activation",
-  "optimizes": ["gradient-flow"],
-  "practicalBenefits": ["keeps a small gradient for negative activations"],
+  "optimizes": [
+    "gradient-flow"
+  ],
+  "practicalBenefits": [
+    "keeps a small gradient for negative activations"
+  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

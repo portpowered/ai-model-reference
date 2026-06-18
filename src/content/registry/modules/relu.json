@@ -4,8 +4,15 @@
   "kind": "module",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["rectified linear unit", "ReLU activation", "rectifier"],
-  "tags": ["foundations"],
+  "aliases": [
+    "rectified linear unit",
+    "ReLU activation",
+    "rectifier"
+  ],
+  "tags": [
+    "activation",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.activation",
     "module.feed-forward-network",
@@ -18,8 +25,12 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "activation",
-  "optimizes": ["activation-sparsity"],
-  "practicalBenefits": ["adds a simple sparse nonlinearity"],
+  "optimizes": [
+    "activation-sparsity"
+  ],
+  "practicalBenefits": [
+    "adds a simple sparse nonlinearity"
+  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

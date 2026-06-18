@@ -5,10 +5,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { STANDARD_FFN_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
-import {
-  expectGlossaryPresentationConvergence,
-  expectHtmlToContainProse,
-} from "@/lib/content/glossary-test-helpers";
+import { expectHtmlToContainProse } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
@@ -24,7 +21,7 @@ import { buildSearchDocuments } from "@/lib/search/build-documents";
 const pageDir = STANDARD_FFN_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 
-describe("Phase 3 standard FFN glossary page (US-001)", () => {
+describe("Phase 3 standard FFN module page (US-001)", () => {
   test("registry record is published with aliases, tags, and curated related ids", () => {
     const record = getConceptById("concept.standard-ffn");
     expect(record?.status).toBe("published");
@@ -33,7 +30,7 @@ describe("Phase 3 standard FFN glossary page (US-001)", () => {
       "dense MLP block",
       "standard feed-forward network",
     ]);
-    expect(record?.tags).toEqual(["foundations"]);
+    expect(record?.tags).toEqual(["feed-forward", "foundations"]);
     expect(record?.relatedIds).toEqual([
       "concept.feed-forward-network",
       "concept.mixture-of-experts",
@@ -73,7 +70,7 @@ describe("Phase 3 standard FFN glossary page (US-001)", () => {
     expect(activation?.isPlanned).toBe(false);
   });
 
-  test("messages explain dense expand-activate-project baseline and contrast nearby variants", () => {
+  test("messages explain the dense baseline using module-template sections", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
@@ -84,15 +81,22 @@ describe("Phase 3 standard FFN glossary page (US-001)", () => {
       "attention",
     );
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain("dense");
-    expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
+    expect(messages.sections?.howItWorks.body?.toLowerCase()).toContain(
       "expand",
     );
-    expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
-      "mixture of experts",
+    expect(
+      messages.sections?.limitationsAndTradeoffs.body?.toLowerCase(),
+    ).toContain("sparse");
+    expect(
+      messages.sections?.comparedToNearbyModules.body?.toLowerCase(),
+    ).toContain("full hidden block");
+    expect(messages.math?.standardSchema?.formula).toContain("\\mathrm{FFN}");
+    expect(messages.math?.swigluSchema?.formula).toContain(
+      "\\mathrm{SwiGLU}",
     );
   });
 
-  test("page renders glossary sections, tags, and nearby FFN-family links", async () => {
+  test("page renders module-template sections, comparison table, and nearby FFN-family links", async () => {
     const page = await loadModulePage("standard-ffn");
 
     expect(page.frontmatter.kind).toBe("module");
@@ -108,21 +112,28 @@ describe("Phase 3 standard FFN glossary page (US-001)", () => {
       }),
     );
 
-    expectGlossaryPresentationConvergence(html, {
-      title: page.messages.title,
-    });
+    expect(html).not.toContain(`<h1>${page.messages.title}</h1>`);
     expect(html).toContain("What It Is");
-    expect(html).toContain("Common Confusions");
-    expectHtmlToContainProse(html, "expand, activate, project");
+    expect(html).toContain("What It Optimizes");
+    expect(html).toContain("Compared To Nearby Modules");
+    expect(html).toContain("Why It Still Matters");
+    expectHtmlToContainProse(html, "expands into a wider hidden width");
+    expect(html).toContain('data-registry-id="module.standard-ffn"');
     expect(html).toContain('data-react-flow-graph="true"');
     expect(html).toContain('data-graph-id="graph.standard-ffn-compute-flow"');
-    expect(html).not.toContain('data-attention-variant-comparison="true"');
+    expect(html).toContain('data-attention-schema-comparison="true"');
+    expect(html).toContain('data-math-schema="standard"');
+    expect(html).toContain('data-math-schema="swiglu"');
+    expect(html).toContain('data-page-asset="comparisonTable"');
+    expect(html).toContain('data-table-id="table.standard-ffn-comparison"');
     expect(html).toContain('href="/docs/modules/feed-forward-network"');
     expect(html).toContain('href="/docs/modules/mixture-of-experts"');
     expect(html).toContain('href="/docs/glossary/activation"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
+    expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");
   });

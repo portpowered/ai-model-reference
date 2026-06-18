@@ -9,11 +9,10 @@ import {
   GROUP_NORM_GLOSSARY_PAGE_DIR,
   QK_NORM_GLOSSARY_PAGE_DIR,
 } from "@/lib/content/content-paths";
-import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
-  expectGlossaryPresentationConvergence,
   expectHtmlToContainProse,
 } from "@/lib/content/glossary-test-helpers";
+import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -31,6 +30,7 @@ const PAGE_CASES = [
     registryId: "concept.batch-norm",
     title: "Batch norm",
     pageDir: BATCH_NORM_GLOSSARY_PAGE_DIR,
+    pageKind: "module",
     aliases: ["BatchNorm", "batch normalization", "BN"],
     relatedIds: [
       "concept.normalization",
@@ -42,14 +42,16 @@ const PAGE_CASES = [
       "/docs/modules/group-norm",
       "/docs/modules/layer-norm",
     ],
-    messageNeedles: ["minibatch", "convolutional", "layer norm"],
+    messageNeedles: ["minibatch", "image minibatches", "layer norm"],
     renderNeedle: "batch neighbors",
+    searchUrl: "/docs/modules/batch-norm",
   },
   {
     slug: "group-norm",
     registryId: "concept.group-norm",
     title: "Group norm",
     pageDir: GROUP_NORM_GLOSSARY_PAGE_DIR,
+    pageKind: "module",
     aliases: ["GroupNorm", "group normalization", "GN"],
     relatedIds: [
       "concept.normalization",
@@ -61,14 +63,16 @@ const PAGE_CASES = [
       "/docs/modules/batch-norm",
       "/docs/modules/layer-norm",
     ],
-    messageNeedles: ["groups", "small or irregular", "vision models"],
-    renderNeedle: "64 channels",
+    messageNeedles: ["groups", "small batches", "layer norm"],
+    renderNeedle: "channels into fixed groups",
+    searchUrl: "/docs/modules/group-norm",
   },
   {
     slug: "qk-norm",
     registryId: "concept.qk-norm",
     title: "QK norm",
     pageDir: QK_NORM_GLOSSARY_PAGE_DIR,
+    pageKind: "module",
     aliases: ["QK norm", "query-key normalization", "QK normalization"],
     relatedIds: [
       "concept.normalization",
@@ -82,10 +86,11 @@ const PAGE_CASES = [
     ],
     messageNeedles: ["query", "key", "attention"],
     renderNeedle: "softmax",
+    searchUrl: "/docs/modules/qk-norm",
   },
 ] as const;
 
-describe("Phase 3 normalization-variant glossary pages (US-004)", () => {
+describe("Phase 3 normalization-variant module pages (US-004)", () => {
   test("normalization overview explains the added variant family", () => {
     const record = getConceptById("concept.normalization");
     expect(record?.explainsIds).toEqual([
@@ -102,7 +107,7 @@ describe("Phase 3 normalization-variant glossary pages (US-004)", () => {
       const record = getConceptById(testCase.registryId);
       expect(record?.status).toBe("published");
       expect(record?.aliases).toEqual([...testCase.aliases]);
-      expect(record?.tags).toEqual(["foundations"]);
+      expect(record?.tags).toEqual(["normalization", "foundations"]);
       expect(record?.prerequisiteIds).toEqual(["concept.normalization"]);
       expect(record?.relatedIds).toEqual([...testCase.relatedIds]);
       expect(PUBLISHED_DOCS_REGISTRY_IDS.has(testCase.registryId)).toBe(true);
@@ -139,8 +144,8 @@ describe("Phase 3 normalization-variant glossary pages (US-004)", () => {
 
       const combinedBody = [
         messages.sections?.whatItIs.body,
-        messages.sections?.whyItMatters.body,
-        messages.sections?.commonConfusions.body,
+        messages.sections?.whatItOptimizes.body,
+        messages.sections?.comparedToNearbyModules.body,
       ]
         .join(" ")
         .toLowerCase();
@@ -150,12 +155,12 @@ describe("Phase 3 normalization-variant glossary pages (US-004)", () => {
       }
     });
 
-    test(`${testCase.title} page renders glossary sections, tags, and related normalization links`, async () => {
-      const page = await loadGlossaryPage(testCase.slug);
+    test(`${testCase.title} page renders module sections, tags, and related normalization links`, async () => {
+      const page = await loadModulePage(testCase.slug);
 
-      expect(page.frontmatter.kind).toBe("glossary");
+      expect(page.frontmatter.kind).toBe(testCase.pageKind);
       expect(page.frontmatter.status).toBe("published");
-      expect(page.frontmatter.registryId).toBe(testCase.registryId);
+      expect(page.frontmatter.registryId).toBe(`module.${testCase.slug}`);
 
       const html = renderToStaticMarkup(
         createElement(ModulePageProviders, {
@@ -166,33 +171,33 @@ describe("Phase 3 normalization-variant glossary pages (US-004)", () => {
         }),
       );
 
-      expectGlossaryPresentationConvergence(html, {
-        title: testCase.title,
-      });
+      expect(html).not.toContain(`<h1>${testCase.title}</h1>`);
+      expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
       expect(html).toContain("What It Is");
-      expect(html).toContain("Common Confusions");
+      expect(html).toContain("What It Optimizes");
+      expect(html).toContain("Compared To Nearby Modules");
+      expect(html).toContain(`data-registry-id="module.${testCase.slug}"`);
       expectHtmlToContainProse(html, testCase.renderNeedle);
       for (const href of testCase.hrefs) {
         expect(html).toContain(`href="${href}"`);
       }
       expect(html).toContain('href="/tags/foundations"');
       expect(html).toContain('data-testid="tag-pill-list"');
+      expect(html).toContain('data-testid="derived-related-docs"');
       expect(html).toContain('data-testid="curated-related-docs"');
       expect(html).not.toContain("Phase");
       expect(html).not.toContain("Reader Shortcut");
     });
 
-    test(`${testCase.title} search index records the glossary page and preserves aliases`, async () => {
+    test(`${testCase.title} search index records the module page and preserves aliases`, async () => {
       const registry = await loadRegistry();
       const pages = await loadPublishedDocsPages("en");
       const documents = buildSearchDocuments(pages, registry);
 
-      const document = documents.find(
-        (entry) => entry.url === `/docs/glossary/${testCase.slug}`,
-      );
+      const document = documents.find((entry) => entry.url === testCase.searchUrl);
       expect(document?.title).toBe(testCase.title);
-      expect(document?.kind).toBe("glossary");
-      expect(document?.facets.kind).toBe("glossary");
+      expect(document?.kind).toBe(testCase.pageKind);
+      expect(document?.facets.kind).toBe(testCase.pageKind);
       expect(document?.aliases).toEqual(
         expect.arrayContaining(testCase.aliases),
       );

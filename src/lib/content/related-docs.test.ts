@@ -7,6 +7,7 @@ import {
   deriveSameConceptTypePeers,
   deriveSameVariantGroupPeers,
   deriveSharedTagPeers,
+  excludeRelatedDocItems,
   hasPublishedDocsPage,
   isPlannedRelatedTarget,
   PLANNED_RELATED_REASON_LABEL,
@@ -259,6 +260,29 @@ describe("related-docs", () => {
     expect(items[0]?.isPlanned).toBe(true);
     expect(items[0]?.href).toBeUndefined();
     expect(items[1]?.href).toBe("/docs/modules/grouped-query-attention");
+  });
+
+  test("excludeRelatedDocItems removes already-rendered peers without reordering the rest", () => {
+    const source: ConceptRecord = {
+      ...token,
+      relatedIds: [
+        "module.grouped-query-attention",
+        "module.multi-head-attention",
+        "module.multi-query-attention",
+      ],
+    };
+    const items = deriveCuratedRelatedItems(
+      source,
+      [gqa, mha, mqa],
+      publishedRegistryIds,
+    );
+
+    expect(
+      excludeRelatedDocItems(items, [
+        "module.multi-head-attention",
+        "module.multi-query-attention",
+      ]).map((item) => item.registryId),
+    ).toEqual(["module.grouped-query-attention"]);
   });
 
   test("deriveRelatedDocGroups omits empty groups and ignores unsupported ids", () => {

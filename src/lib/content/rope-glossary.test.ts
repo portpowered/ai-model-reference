@@ -36,7 +36,7 @@ describe("Phase 3 RoPE glossary page (US-009)", () => {
       "rotary positional embedding",
       "rotary position encoding",
     ]);
-    expect(record?.tags).toEqual(["foundations"]);
+    expect(record?.tags).toEqual(["position-encoding", "foundations"]);
     expect(record?.prerequisiteIds).toEqual(["concept.positional-encodings"]);
     expect(record?.relatedIds).toEqual([
       "concept.positional-encodings",

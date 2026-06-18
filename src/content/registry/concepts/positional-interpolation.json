@@ -10,7 +10,11 @@
     "PI",
     "rope interpolation"
   ],
-  "tags": ["foundations"],
+  "tags": [
+    "position-encoding",
+    "context-window",
+    "foundations"
+  ],
   "relatedIds": [
     "concept.rope",
     "concept.context-extension",
@@ -18,11 +22,16 @@
     "concept.longrope",
     "concept.ntk-aware-rope-scaling"
   ],
-  "citationIds": ["citation.chen-positional-interpolation"],
+  "citationIds": [
+    "citation.chen-positional-interpolation"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "general",
-  "prerequisiteIds": ["concept.positional-encodings", "concept.rope"],
+  "prerequisiteIds": [
+    "concept.positional-encodings",
+    "concept.rope"
+  ],
   "explainsIds": []
 }

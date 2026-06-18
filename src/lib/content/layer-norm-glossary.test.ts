@@ -5,10 +5,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { LAYER_NORM_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
-import {
-  expectGlossaryPresentationConvergence,
-  expectHtmlToContainProse,
-} from "@/lib/content/glossary-test-helpers";
+import { expectHtmlToContainProse } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
@@ -24,12 +21,12 @@ import { buildSearchDocuments } from "@/lib/search/build-documents";
 const pageDir = LAYER_NORM_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 
-describe("Phase 3 layer norm glossary page (US-005)", () => {
+describe("Phase 3 layer norm module page (US-005)", () => {
   test("registry record is published with aliases and prerequisite ids", () => {
     const record = getConceptById("concept.layer-norm");
     expect(record?.status).toBe("published");
     expect(record?.aliases).toEqual(["LayerNorm", "layer normalization", "LN"]);
-    expect(record?.tags).toEqual(["foundations"]);
+    expect(record?.tags).toEqual(["normalization", "foundations"]);
     expect(record?.prerequisiteIds).toEqual(["concept.normalization"]);
     expect(record?.relatedIds).toEqual([
       "concept.normalization",
@@ -63,25 +60,33 @@ describe("Phase 3 layer norm glossary page (US-005)", () => {
     expect(architecture?.isPlanned).toBe(false);
   });
 
-  test("messages include layer norm formula with symbol-only definitions", () => {
+  test("messages compare LayerNorm with RMSNorm using module-template math schemas", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
     expect(messages.title).toBe("Layer norm");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
-    expect(messages.math?.layerNorm?.formula).toContain("\\mu");
-    expect(messages.math?.layerNorm?.variableDefinitions?.x?.term).toBe("x");
-    expect(messages.math?.layerNorm?.variableDefinitions?.mu?.term).toBe("μ");
+    expect(messages.math?.layerNormSchema?.formula).toContain("\\mu");
+    expect(messages.math?.layerNormSchema?.variableDefinitions?.x?.term).toBe(
+      "x",
+    );
     expect(
-      messages.math?.layerNorm?.variableDefinitions?.gamma?.definition,
+      messages.math?.layerNormSchema?.variableDefinitions?.mu?.term,
+    ).toBe("\\mu");
+    expect(
+      messages.math?.layerNormSchema?.variableDefinitions?.gamma?.definition,
     ).toContain("scale");
+    expect(messages.math?.rmsNormSchema?.formula).toContain("\\mathrm{RMSNorm}");
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
       "layer normalization",
     );
+    expect(messages.sections?.mathOrComputeSchema.body?.toLowerCase()).toContain(
+      "rmsnorm",
+    );
   });
 
-  test("page renders narrative sections, math block, and related links", async () => {
+  test("page renders module-template sections, norm switcher, and formula comparison", async () => {
     const page = await loadModulePage("layer-norm");
 
     expect(page.frontmatter.kind).toBe("module");
@@ -97,19 +102,32 @@ describe("Phase 3 layer norm glossary page (US-005)", () => {
       }),
     );
 
-    expectGlossaryPresentationConvergence(html, {
-      title: page.messages.title,
-    });
+    expect(html).not.toContain(`<h1>${page.messages.title}</h1>`);
     expect(html).toContain("What It Is");
-    expect(html).toContain("Formula And Symbols");
-    expect(html).toContain('data-page-math-formula="layerNorm"');
+    expect(html).toContain("How It Works");
+    expect(html).toContain("Math Or Compute Schema");
+    expect(html).toContain("Compared To Nearby Modules");
+    expect(html).toContain('data-registry-id="module.layer-norm"');
+    expect(html).toContain('data-attention-variant-comparison="true"');
+    expect(html).toContain('data-graph-id="graph.layer-norm-compute-flow"');
+    expect(html).toContain('data-attention-schema-comparison="true"');
+    expect(html).toContain('data-math-schema="layerNorm"');
+    expect(html).toContain('data-math-schema="rmsNorm"');
     expect(html).toContain('data-math-variable-definition="mu"');
+    expect(html).toContain('data-page-asset="comparisonTable"');
+    expect(html).toContain('data-table-id="table.layer-norm-comparison"');
     expectHtmlToContainProse(html, "mean");
+    expectHtmlToContainProse(
+      html,
+      "full mean-and-variance normalization against lighter scale-only normalization",
+    );
     expect(html).toContain('href="/docs/glossary/normalization"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
+    expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");
   });

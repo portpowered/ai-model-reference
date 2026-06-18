@@ -11,6 +11,7 @@ import {
   applyRelatedDocMessageOverrides,
   deriveCuratedRelatedItems,
   deriveSameVariantGroupPeers,
+  excludeRelatedDocItems,
   SAME_VARIANT_GROUP,
 } from "@/lib/content/related-docs";
 import type { ModuleRecord } from "@/lib/content/schemas";
@@ -24,10 +25,6 @@ export function RelatedDocs({ registryId }: { registryId: string }) {
 
   const candidates = listRelatedRegistryRecords();
   const publishedRegistryIds = getPublishedDocsRegistryIds();
-  const curatedItems = applyRelatedDocMessageOverrides(
-    deriveCuratedRelatedItems(source, candidates, publishedRegistryIds),
-    messages,
-  );
   const variantGroupItems =
     source.kind === "module"
       ? deriveSameVariantGroupPeers(
@@ -39,6 +36,13 @@ export function RelatedDocs({ registryId }: { registryId: string }) {
           publishedRegistryIds,
         )
       : [];
+  const curatedItems = applyRelatedDocMessageOverrides(
+    excludeRelatedDocItems(
+      deriveCuratedRelatedItems(source, candidates, publishedRegistryIds),
+      variantGroupItems.map((item) => item.registryId),
+    ),
+    messages,
+  );
 
   if (variantGroupItems.length === 0 && curatedItems.length === 0) {
     return null;
