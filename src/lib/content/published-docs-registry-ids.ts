@@ -1,5 +1,14 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import {
+  conceptPageHref,
+  glossaryPageHref,
+  modelPageHref,
+  modulePageHref,
+  paperPageHref,
+  systemPageHref,
+  trainingPageHref,
+} from "@/lib/content/content-hrefs";
 import { REGISTRY_ROOT } from "@/lib/content/content-paths";
 import {
   type DocsPageSource,
@@ -35,6 +44,12 @@ export type PublishedDocsIndex = {
   byRegistryId: ReadonlyMap<string, PublishedDocsEntry>;
   bySlug: ReadonlyMap<string, readonly PublishedDocsEntry[]>;
   registryIds: PublishedDocsRegistryIds;
+};
+
+export type PublishedDocsRecordRef = {
+  id: string;
+  slug: string;
+  kind: string;
 };
 
 function docsSectionFromSlug(docsSlug: string): PublishedDocsSection {
@@ -139,12 +154,62 @@ function deriveModuleBackedConceptRegistryIds(
   return conceptIds;
 }
 
+function derivePublishedDocsRegistryIds(
+  index: PublishedDocsIndex,
+): PublishedDocsRegistryIds {
+  const registryIds = new Set(index.entries.map((entry) => entry.registryId));
+
+  for (const conceptId of deriveModuleBackedConceptRegistryIds(index)) {
+    registryIds.add(conceptId);
+  }
+
+  return registryIds;
+}
+
+function publishedDocsHrefFromEntry(entry: PublishedDocsEntry): string {
+  switch (entry.section) {
+    case "glossary":
+      return glossaryPageHref(entry.slug);
+    case "concepts":
+      return conceptPageHref(entry.slug);
+    case "modules":
+      return modulePageHref(entry.slug);
+    case "models":
+      return modelPageHref(entry.slug);
+    case "papers":
+      return paperPageHref(entry.slug);
+    case "training":
+      return trainingPageHref(entry.slug);
+    case "systems":
+      return systemPageHref(entry.slug);
+  }
+}
+
+function getModuleBackedConceptEntryBySlug(
+  slug: string,
+): PublishedDocsEntry | undefined {
+  const moduleEntries = getPublishedDocsEntriesBySlug(slug).filter(
+    (entry) => entry.section === "modules" && entry.pageKind === "module",
+  );
+
+  if (moduleEntries.length > 1) {
+    throw new Error(
+      `Multiple published module pages share concept slug "${slug}": ${moduleEntries
+        .map((entry) => entry.docsSlug)
+        .join(", ")}`,
+    );
+  }
+
+  return moduleEntries[0];
+}
+
 const publishedDocsIndex = buildPublishedDocsIndex(
   loadPublishedDocsPagesSync("en"),
 );
 
 export const PUBLISHED_DOCS_INDEX = publishedDocsIndex;
-export const PUBLISHED_DOCS_REGISTRY_IDS = publishedDocsIndex.registryIds;
+export const PUBLISHED_DOCS_REGISTRY_IDS =
+  derivePublishedDocsRegistryIds(publishedDocsIndex);
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS =
   derivePublishedConceptSectionRegistryIds(publishedDocsIndex);
 export const MODULE_BACKED_CONCEPT_REGISTRY_IDS =
@@ -164,4 +229,26 @@ export function getPublishedDocsEntriesBySlug(
   slug: string,
 ): readonly PublishedDocsEntry[] {
   return PUBLISHED_DOCS_INDEX.bySlug.get(slug) ?? [];
+}
+
+export function getPublishedDocsEntryForRecord(
+  record: PublishedDocsRecordRef,
+): PublishedDocsEntry | undefined {
+  const exactEntry = getPublishedDocsEntryByRegistryId(record.id);
+  if (exactEntry) {
+    return exactEntry;
+  }
+
+  if (record.kind === "concept") {
+    return getModuleBackedConceptEntryBySlug(record.slug);
+  }
+
+  return undefined;
+}
+
+export function getPublishedDocsHrefForRecord(
+  record: PublishedDocsRecordRef,
+): string | undefined {
+  const entry = getPublishedDocsEntryForRecord(record);
+  return entry ? publishedDocsHrefFromEntry(entry) : undefined;
 }

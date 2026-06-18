@@ -7,6 +7,7 @@ import {
   buildPublishedDocsIndex,
   getPublishedDocsEntriesBySlug,
   getPublishedDocsEntryByRegistryId,
+  getPublishedDocsHrefForRecord,
   listPublishedDocsEntries,
   MODULE_BACKED_CONCEPT_REGISTRY_IDS,
   PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
@@ -115,6 +116,9 @@ describe("published-docs-registry-ids", () => {
       PUBLISHED_DOCS_REGISTRY_IDS.has("module.grouped-query-attention"),
     ).toBe(true);
     expect(
+      PUBLISHED_DOCS_REGISTRY_IDS.has("concept.feed-forward-network"),
+    ).toBe(true);
+    expect(
       PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has("concept.quantization"),
     ).toBe(true);
     expect(
@@ -131,5 +135,29 @@ describe("published-docs-registry-ids", () => {
           publishedPage.section === "glossary",
       ),
     ).toBe(true);
+  });
+
+  test("published docs href lookup resolves module-backed, concept-section, and glossary concepts", () => {
+    expect(
+      getPublishedDocsHrefForRecord({
+        id: "concept.feed-forward-network",
+        slug: "feed-forward-network",
+        kind: "concept",
+      }),
+    ).toBe("/docs/modules/feed-forward-network");
+    expect(
+      getPublishedDocsHrefForRecord({
+        id: "concept.quantization",
+        slug: "quantization",
+        kind: "concept",
+      }),
+    ).toBe("/docs/concepts/quantization");
+    expect(
+      getPublishedDocsHrefForRecord({
+        id: "concept.token",
+        slug: "token",
+        kind: "concept",
+      }),
+    ).toBe("/docs/glossary/token");
   });
 });
