@@ -33,7 +33,7 @@ export function TagPillList(props: TagPillListProps) {
 
   return (
     <ul
-      className="my-4 flex flex-wrap gap-2"
+      className="my-4 flex list-none flex-wrap gap-2 p-0"
       aria-label="Tags"
       data-testid="tag-pill-list"
     >

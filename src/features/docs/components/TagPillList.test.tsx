@@ -9,6 +9,8 @@ describe("TagPillList", () => {
     );
 
     expect(html).toContain('data-testid="tag-pill-list"');
+    expect(html).toContain("list-none");
+    expect(html).toContain("p-0");
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain("Attention");
