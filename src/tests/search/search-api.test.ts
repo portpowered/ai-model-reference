@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { GET } from "@/app/api/search/route";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -10,6 +9,7 @@ import {
   PHASE_1_VECTOR_GLOSSARY_URL,
 } from "@/lib/verify/phase-1-search-checks";
 import {
+  createRetriedStaticClientSearch,
   expectUniqueCanonicalPageUrls,
   MULTI_HEAD_ATTENTION_URL,
   MULTI_QUERY_ATTENTION_URL,
@@ -350,9 +350,8 @@ describe("docs search static client", () => {
   test("orama static client returns grouped-query attention for GQA", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
     const results = await retrySearchResults(
-      () => client.search("GQA"),
+      createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "GQA"),
       (candidateResults) => candidateResults[0]?.url === SAMPLE_URL,
     );
 
@@ -363,9 +362,8 @@ describe("docs search static client", () => {
   test("orama static client returns non-empty attention results including bidirectional attention before app-level reranking", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
     const results = await retrySearchResults(
-      () => client.search("attention"),
+      createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "attention"),
       (candidateResults) =>
         resultsIncludeUrl(candidateResults, PHASE_1_ATTENTION_MODULE_URL),
     );
@@ -377,9 +375,8 @@ describe("docs search static client", () => {
   test("orama static client includes grouped-query attention for KV cache", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
     const results = await retrySearchResults(
-      () => client.search("KV cache"),
+      createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "KV cache"),
       resultsIncludeSampleModule,
     );
 

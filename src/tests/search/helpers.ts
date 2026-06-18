@@ -1,4 +1,5 @@
 import { expect } from "bun:test";
+import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import {
   assertSearchNoMatchedTags,
@@ -142,6 +143,16 @@ export async function retrySearchResults<T>(
   }
 
   return lastResults;
+}
+
+export function createRetriedStaticClientSearch(
+  bootstrapFrom: string,
+  query: string,
+) {
+  return async () => {
+    const client = oramaStaticClient({ from: bootstrapFrom });
+    return client.search(query);
+  };
 }
 
 type ThinMetadataQueries = {
