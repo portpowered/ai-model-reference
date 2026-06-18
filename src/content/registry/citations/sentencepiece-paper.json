@@ -1,0 +1,24 @@
+{
+  "id": "citation.sentencepiece-paper",
+  "slug": "sentencepiece-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "SentencePiece paper",
+    "SentencePiece unigram paper",
+    "SentencePiece: A simple and language independent subword tokenizer and detokenizer for Neural Text Processing"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Taku Kudo", "John Richardson"],
+  "title": "SentencePiece: A simple and language independent subword tokenizer and detokenizer for Neural Text Processing",
+  "year": 2018,
+  "url": "https://arxiv.org/abs/1808.06226",
+  "mla": "Kudo, Taku, and John Richardson. \"SentencePiece: A simple and language independent subword tokenizer and detokenizer for Neural Text Processing.\" arXiv, 2018, https://arxiv.org/abs/1808.06226."
+}

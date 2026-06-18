@@ -1,0 +1,39 @@
+{
+  "id": "module.unigram-tokenizer",
+  "slug": "unigram-tokenizer",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "unigram tokenizer",
+    "unigram tokenization",
+    "SentencePiece unigram"
+  ],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "relatedIds": ["concept.token", "concept.embedding", "module.bpe"],
+  "citationIds": [
+    "citation.sentencepiece-paper",
+    "citation.sennrich-bpe-paper"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "releaseDate": "2018-08-19",
+  "authors": ["Taku Kudo", "John Richardson"],
+  "sourceId": "citation.sentencepiece-paper",
+  "moduleType": "tokenizer",
+  "moduleFamily": "tokenization",
+  "conceptType": "tokenizer-variant",
+  "variantGroup": "subword-tokenizers",
+  "optimizes": ["open-vocabulary text", "language-independent preprocessing"],
+  "practicalBenefits": [
+    "lets one vocabulary cover rare words through subword pieces",
+    "works directly from raw text without an external word splitter"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}

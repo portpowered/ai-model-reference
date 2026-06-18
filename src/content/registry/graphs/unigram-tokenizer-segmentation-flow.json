@@ -1,0 +1,78 @@
+{
+  "id": "graph.unigram-tokenizer-segmentation-flow",
+  "slug": "unigram-tokenizer-segmentation-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "module.unigram-tokenizer",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "raw-text",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "raw-text",
+      "labelKey": "graph.nodes.rawText.label",
+      "moduleKind": "input",
+      "childNodeIds": ["candidate-vocabulary"]
+    },
+    {
+      "id": "candidate-vocabulary",
+      "labelKey": "graph.nodes.candidateVocabulary.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["candidate-paths"]
+    },
+    {
+      "id": "candidate-paths",
+      "labelKey": "graph.nodes.candidatePaths.label",
+      "moduleKind": "other",
+      "childNodeIds": ["best-path"]
+    },
+    {
+      "id": "best-path",
+      "labelKey": "graph.nodes.bestPath.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["token-ids"]
+    },
+    {
+      "id": "token-ids",
+      "labelKey": "graph.nodes.tokenIds.label",
+      "moduleKind": "output",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "raw-text-to-candidate-vocabulary",
+      "source": "raw-text",
+      "target": "candidate-vocabulary",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "candidate-vocabulary-to-candidate-paths",
+      "source": "candidate-vocabulary",
+      "target": "candidate-paths",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "candidate-paths-to-best-path",
+      "source": "candidate-paths",
+      "target": "best-path",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "best-path-to-token-ids",
+      "source": "best-path",
+      "target": "token-ids",
+      "edgeKind": "data-flow"
+    }
+  ]
+}
