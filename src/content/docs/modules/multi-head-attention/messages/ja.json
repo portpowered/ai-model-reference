@@ -1,0 +1,202 @@
+{
+  "title": "Multi-head attention",
+  "description": "各 query head が専用の key-value head の組を持つ、attention の基準となる設計です。",
+  "openingSummary": "transformer block では、各 token 位置がほかの位置から文脈を取り込む必要があります。multi-head attention（MHA）は、射影した queries、keys、values を H 個の独立した head に分けてその参照を並列に行い、各 head が別の関係へ特化できるようにしたうえで、最後に出力を結合して戻します。",
+  "sections": {
+    "whatItIs": {
+      "title": "これは何か",
+      "body": "multi-head attention は Transformer で使われた元祖の scaled dot-product attention です。各 head は keys と values に対する自分専用の attention 分布を計算し、その head ごとの出力を次の sublayer に入る前にまとめます。"
+    },
+    "whatItOptimizes": {
+      "title": "何を最適化するか",
+      "body": "MHA は表現の広さを狙います。異なる query head が同じ系列の中で別々の関係へ注意を向けられ、key-value のパラメータも head ごとに共有せずに持てます。"
+    },
+    "practicalBenefit": {
+      "title": "実務上の利点",
+      "body": "学習時も推論時も、head ごとの完全な表現力を保てます。品質を KV cache サイズより優先したいときの基準設計であり、multi-query attention や grouped-query attention を比べる際の土台になります。"
+    },
+    "howItWorks": {
+      "title": "どう動くか",
+      "body": "線形射影によって H 個の query head、H 個の key head、H 個の value head が作られます。各 query head i は対応する key head i と value head i を読み、得られた H 個の出力を連結してから再び射影します。"
+    },
+    "mathOrComputeSchema": {
+      "title": "式または計算スキーマ",
+      "body": "下の式は multi-head attention の中で各 head が使う attention 計算です。head 添字 i ごとに query、key、value の tensor が 1 対 1 で組になり、その出力があとでまとめられます。"
+    },
+    "comparedToNearbyModules": {
+      "title": "近いモジュールとの比較",
+      "body": "multi-query attention と比べると、MHA は query head ごとに 1 組の KV を保存するため、cache サイズは H に応じて増えます。grouped-query attention と比べると、MHA は共有 KV グループを使わず、head 共有ファミリーの中で最も大きな KV 使用量になります。"
+    },
+    "exampleArchitectures": {
+      "title": "採用例",
+      "body": "MHA は元の Transformer の encoder-decoder、初期の GPT 系 decoder-only 言語モデル、そして標準的な attention block を採用する多くの vision transformer や speech transformer に現れます。"
+    },
+    "limitationsAndTradeoffs": {
+      "title": "制約とトレードオフ",
+      "body": "自回帰推論では、すべての key head と value head を cache し続ける必要があるため、メモリと帯域はコンテキスト長と head 数に応じて増えます。長い文脈を配信する場面では、その負担が MQA や GQA を選ぶ動機になります。"
+    },
+    "whyItStillMatters": {
+      "title": "今も重要な理由",
+      "body": "MHA は head 共有系の変種すべての概念上の基準です。query と KV が 1 対 1 に対応する仕組みを理解すると、MQA や GQA のトレードオフも追いやすくなります。"
+    },
+    "related": {
+      "title": "関連"
+    },
+    "tags": {
+      "title": "タグ"
+    },
+    "references": {
+      "title": "参考資料"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "multi-head attention と multi-query attention の head 数比較",
+      "caption": "MHA と MQA を切り替えて、1 つの図上で query head 数と KV head 数を比較する",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "mqa": {
+          "label": "MQA"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "MHA と近い attention 変種の比較"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "mha": {
+          "title": "Multi-head attention"
+        },
+        "mqa": {
+          "title": "Multi-query attention"
+        },
+        "gqa": {
+          "title": "Grouped-query attention"
+        }
+      },
+      "dimensions": {
+        "kvHeadCount": "KV head 数",
+        "queryHeadFlexibility": "Query head の柔軟性",
+        "cacheFootprint": "1 token あたりの cache 使用量"
+      },
+      "values": {
+        "mha": {
+          "kvHeadCount": "H 個の key head と H 個の value head",
+          "queryHeadFlexibility": "H 個の独立した query/KV head の組",
+          "cacheFootprint": "2H tensor（完全な multi-head attention cache）"
+        },
+        "mqa": {
+          "kvHeadCount": "1 個の key head と 1 個の value head",
+          "queryHeadFlexibility": "H 個の query head が 1 組の KV を共有",
+          "cacheFootprint": "2 tensor（単一の共有 KV cache）"
+        },
+        "gqa": {
+          "kvHeadCount": "G 個の key head と G 個の value head",
+          "queryHeadFlexibility": "H 個の独立した query head が G 個の共有 KV 組に分かれる",
+          "cacheFootprint": "2G tensor（G 個の keys + G 個の values）"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "head i の query ベクトル。"
+        },
+        "k": {
+          "term": "K",
+          "definition": "head i の key ベクトル。"
+        },
+        "v": {
+          "term": "V",
+          "definition": "head i の value ベクトル。"
+        },
+        "h": {
+          "term": "H",
+          "definition": "query head の数。"
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "各 head の key 次元。"
+        },
+        "i": {
+          "term": "i",
+          "definition": "query head の添字。"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "keysLabel": {
+        "label": "Keys"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "keyHead": {
+        "label": "k"
+      },
+      "valueHead": {
+        "label": "V"
+      },
+      "mhaQueryHeads": {
+        "label": "H 個の query head"
+      },
+      "mhaKvHeads": {
+        "label": "H 組の KV head（query と 1:1）"
+      },
+      "mhaOneToOne": {
+        "label": "各 query head が専用の K と V を持つ"
+      },
+      "mqaQueryHeads": {
+        "label": "H 個の query head"
+      },
+      "mqaKvShared": {
+        "label": "1 組の共有 KV"
+      },
+      "mqaSharedMapping": {
+        "label": "H 個すべての query head が同じ K と V を読む"
+      },
+      "mqaSharingNote": {
+        "label": "1 組の共有 key/value がすべての query head を支える"
+      },
+      "timeCurrentQuery": {
+        "label": "q_t"
+      },
+      "timeKv0": {
+        "label": "KV_0"
+      },
+      "timeKv1": {
+        "label": "KV_1"
+      },
+      "timeKvEllipsis": {
+        "label": "\\cdots"
+      },
+      "timeKvT3": {
+        "label": "KV_{t-3}"
+      },
+      "timeKvT2": {
+        "label": "KV_{t-2}"
+      },
+      "timeKvT1": {
+        "label": "KV_{t-1}"
+      }
+    }
+  }
+}

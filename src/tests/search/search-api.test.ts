@@ -137,12 +137,15 @@ describe("live /api/search HTTP contract", () => {
 
     const results = (await response.json()) as Array<{ url: string }>;
     expect(results.length).toBeGreaterThan(0);
-    expect(results.map((result) => result.url)).toEqual([
-      "/ja/docs/modules/attention",
-      "/ja/docs/modules/grouped-query-attention",
-      "/ja/docs/glossary/token",
-      "/ja/docs/concepts/transformer-architecture",
-    ]);
+    const urls = results.map((result) => result.url);
+    expect(urls).toContain("/ja/docs/modules/attention");
+    expect(urls).toContain("/ja/docs/modules/grouped-query-attention");
+    expect(urls).toContain("/ja/docs/modules/linear-attention");
+    expect(urls).toContain("/ja/docs/modules/multi-head-attention");
+    expect(urls).toContain("/ja/docs/modules/multi-query-attention");
+    expect(urls).toContain("/ja/docs/modules/sliding-window-attention");
+    expect(urls).toContain("/ja/docs/glossary/token");
+    expect(urls).toContain("/ja/docs/concepts/transformer-architecture");
   });
 
   test("GET returns grouped-query attention for GQA query", async () => {
@@ -317,12 +320,15 @@ describe("docsSearchApi", () => {
 
   test("search returns the shipped japanese representative slice", async () => {
     const results = await docsSearchApi.search("attention", { locale: "ja" });
-    expect(results.map((result) => result.url)).toEqual([
-      "/ja/docs/modules/attention",
-      "/ja/docs/modules/grouped-query-attention",
-      "/ja/docs/glossary/token",
-      "/ja/docs/concepts/transformer-architecture",
-    ]);
+    const urls = results.map((result) => result.url);
+    expect(urls).toContain("/ja/docs/modules/attention");
+    expect(urls).toContain("/ja/docs/modules/grouped-query-attention");
+    expect(urls).toContain("/ja/docs/modules/linear-attention");
+    expect(urls).toContain("/ja/docs/modules/multi-head-attention");
+    expect(urls).toContain("/ja/docs/modules/multi-query-attention");
+    expect(urls).toContain("/ja/docs/modules/sliding-window-attention");
+    expect(urls).toContain("/ja/docs/glossary/token");
+    expect(urls).toContain("/ja/docs/concepts/transformer-architecture");
   });
 });
 

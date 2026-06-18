@@ -1,0 +1,227 @@
+{
+  "title": "Linear attention",
+  "description": "明示的な softmax の内積 attention を、系列長に対してほぼ線形に伸びる kernel または feature-map の定式化へ置き換える attention の変種です。",
+  "openingSummary": "標準的な attention は softmax の前に n 行 n 列の score 行列を実体化するため、コストは系列長の二乗で増えます。linear attention は queries と keys に feature map を適用し、attention を結合則のある更新や再帰で計算できるようにすることで、厳密な softmax 内積 scoring を手放す代わりに長い系列でほぼ線形の伸びを狙います。",
+  "sections": {
+    "whatItIs": {
+      "title": "これは何か",
+      "body": "linear attention は、完全な softmax score 行列を組み立てずに attention を再定式化する変種です。queries と keys に feature map をかけることで、すべての query-key の組を明示的に採点する代わりに、key-value の統計を線形時間で蓄積できます。"
+    },
+    "whatItOptimizes": {
+      "title": "何を最適化するか",
+      "body": "linear attention は、系列長に対する伸び方、attention 計算コスト、そして密な二次 attention が長文脈で実行時間を支配してしまうときのメモリ帯域を狙って最適化します。"
+    },
+    "practicalBenefit": {
+      "title": "実務上の利点",
+      "body": "長い系列を処理したいが二次 attention のコストは払えない場合に、チームは linear attention を採用します。kernel や再帰として捉えると、新しい token ごとに走行中の統計を更新するだけで済み、完全な score 行列を何度も見直さずに済みます。"
+    },
+    "howItWorks": {
+      "title": "どう動くか",
+      "body": "queries と keys は積を結合可能にする feature map φ を通ります。モデルは位置ごとに φ(K)^T V を蓄積し、その結果を各 step の φ(Q) と組み合わせることで、完全な n 行 n 列の attention 行列を明示的に作らずに出力を計算します。"
+    },
+    "mathOrComputeSchema": {
+      "title": "式または計算スキーマ",
+      "body": "queries と keys に feature map φ を適用すると、linear attention はすべての組に softmax をかける代わりに、結合可能な積を通して出力を計算できます。下の式は、密な multi-head attention と、φ と正規化項を経由する linear attention を対比しています。"
+    },
+    "comparedToNearbyModules": {
+      "title": "近いモジュールとの比較",
+      "body": "multi-head attention と比べると、linear attention は KV head を共有するのではなく計算の仕組みそのものを変えます。multi-query attention と grouped-query attention は許可された位置に対しては依然として密な attention を行いますが、KV head 数を減らします。linear attention は kernel や再帰の定式化で系列長に対する二次未満の伸びを狙います。"
+    },
+    "exampleArchitectures": {
+      "title": "採用例",
+      "body": "linear attention は、長文脈モデルや、効率と表現力の両立のために二次未満の attention 層と標準的な密ブロックを組み合わせる研究アーキテクチャで使われます。"
+    },
+    "limitationsAndTradeoffs": {
+      "title": "制約とトレードオフ",
+      "body": "feature-map 型の linear attention は softmax 内積 attention と同一ではありません。近似の質は選ぶ kernel に依存し、定式化によっては密な attention が持つ厳密な pairwise scoring を犠牲にします。"
+    },
+    "whyItStillMatters": {
+      "title": "今も重要な理由",
+      "body": "コンテキスト長が伸び続けるほど、二次未満の attention は実務上の設計軸として残ります。すべての層で二次 attention のコストを払わずに長い系列を扱いたいモデルにとって、linear attention は今も有力な選択肢です。"
+    },
+    "related": {
+      "title": "関連"
+    },
+    "tags": {
+      "title": "タグ"
+    },
+    "references": {
+      "title": "参考資料"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "密な multi-head attention と linear attention の feature-map 流れの比較",
+      "caption": "MHA と linear attention を切り替えて、完全な softmax 内積 scoring と feature-map による結合的な更新を 1 つの図上で比較する",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "linear": {
+          "label": "Linear"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "Linear attention と近い attention 変種の比較"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "linear": {
+          "title": "Linear attention"
+        },
+        "mha": {
+          "title": "Multi-head attention"
+        },
+        "mqa": {
+          "title": "Multi-query attention"
+        },
+        "gqa": {
+          "title": "Grouped-query attention"
+        }
+      },
+      "dimensions": {
+        "sequenceScaling": "系列長に対する伸び方",
+        "computeMechanism": "計算の仕組み",
+        "expressiveness": "表現力"
+      },
+      "values": {
+        "linear": {
+          "sequenceScaling": "feature-map 次元を固定すると head ごとにほぼ線形の O(n)",
+          "computeMechanism": "queries と keys に feature map φ を適用し、KV を結合的に蓄積する",
+          "expressiveness": "選んだ kernel を通して softmax 内積 attention を近似する"
+        },
+        "mha": {
+          "sequenceScaling": "head ごとに二次の O(n²)",
+          "computeMechanism": "すべての query-key の内積に対して明示的に softmax を取る",
+          "expressiveness": "完全な pairwise softmax attention"
+        },
+        "mqa": {
+          "sequenceScaling": "KV 射影を減らしても二次の O(n²)",
+          "computeMechanism": "共有 KV head を使う密な softmax attention",
+          "expressiveness": "共有 KV を持つ完全な pairwise softmax attention"
+        },
+        "gqa": {
+          "sequenceScaling": "KV head 数を減らしても二次の O(n²)",
+          "computeMechanism": "グループ化した KV head を使う密な softmax attention",
+          "expressiveness": "グループ化した KV を持つ完全な pairwise softmax attention"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "head i の query ベクトル。"
+        },
+        "k": {
+          "term": "K",
+          "definition": "head i の key ベクトル。"
+        },
+        "v": {
+          "term": "V",
+          "definition": "head i の value ベクトル。"
+        },
+        "h": {
+          "term": "H",
+          "definition": "query head の数。"
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "各 head の key 次元。"
+        },
+        "i": {
+          "term": "i",
+          "definition": "query head の添字。"
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Linear attention",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\frac{\\phi(Q_i)\\big(\\phi(K_i)^{\\top} V_i\\big)}{\\phi(Q_i)\\big(\\sum_j \\phi(K_{i,j})\\big)}",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "head i の query ベクトル。"
+        },
+        "k": {
+          "term": "K",
+          "definition": "head i の key ベクトル。"
+        },
+        "v": {
+          "term": "V",
+          "definition": "head i の value ベクトル。"
+        },
+        "h": {
+          "term": "H",
+          "definition": "query head の数。"
+        },
+        "g": {
+          "term": "φ",
+          "definition": "queries と keys に適用され、結合的な蓄積を可能にする feature map。"
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "各 head の key 次元。"
+        },
+        "i": {
+          "term": "i",
+          "definition": "query head の添字。"
+        },
+        "gi": {
+          "term": "Z",
+          "definition": "feature map 済みの keys を合計して得る正規化分母。"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "valueHead": {
+        "label": "V"
+      },
+      "mhaQueryHeads": {
+        "label": "H 個の query head"
+      },
+      "mhaKvHeads": {
+        "label": "H 組の KV head（query と 1:1）"
+      },
+      "mhaOneToOne": {
+        "label": "各 query がすべての key 位置を見る"
+      },
+      "linearQueryHeads": {
+        "label": "H 個の query head"
+      },
+      "linearFeatureMap": {
+        "label": "queries と keys に feature map φ を適用"
+      },
+      "linearAssociativeUpdate": {
+        "label": "完全な score 行列なしで KV を結合的に蓄積する"
+      },
+      "linearSummaryLabel": {
+        "label": "走行中の要約"
+      },
+      "linearSummaryNode": {
+        "label": "\\phi(K)^{\\top} V"
+      },
+      "linearAssociativeNote": {
+        "label": "queries は全 key を採点せず、要約された統計を読む"
+      }
+    }
+  }
+}

@@ -1,0 +1,211 @@
+{
+  "title": "Multi-query attention",
+  "description": "すべての query head が 1 組の key-value head を共有し、KV cache のメモリを最小化する attention の変種です。",
+  "openingSummary": "自回帰推論では、過去 token ごとの keys と values を保存し続ける必要があり、その KV cache はコンテキスト長と head 数に応じて大きくなります。multi-query attention（MQA）は H 個の query head を保ちながら、それらを 1 組の共有 key-value へ通すことで、層ごとに保存する K tensor と V tensor をそれぞれ 1 本ずつに抑えます。",
+  "sections": {
+    "whatItIs": {
+      "title": "これは何か",
+      "body": "multi-query attention は multi-head attention から派生した attention の変種です。各 query head は自分の attention score を計算し続けますが、すべての head が同じ key head と value head を読みます。"
+    },
+    "whatItOptimizes": {
+      "title": "何を最適化するか",
+      "body": "MQA は自回帰 decoding 中の KV cache 使用量とメモリ帯域を狙って最適化します。すべての query head で 1 組の KV を共有するため、token ごとに保存する tensor 数を最小にできます。"
+    },
+    "practicalBenefit": {
+      "title": "実務上の利点",
+      "body": "長文脈推論で cache サイズが head 数ぶん膨らむのを避けたい配信系では MQA が使われます。query の射影は分けたまま、head 共有ファミリーの中で最も小さい KV 使用量を実現できます。"
+    },
+    "howItWorks": {
+      "title": "どう動くか",
+      "body": "線形射影によって H 個の query head は引き続き作られますが、key と value の射影はそれぞれ 1 head に畳み込まれます。各 query head i は共有された K と V tensor を相手に attention を計算し、その出力を通常どおり連結して射影します。"
+    },
+    "mathOrComputeSchema": {
+      "title": "式または計算スキーマ",
+      "body": "下の式は、各 query head が専用の KV head を持つ multi-head attention と、すべての query head が 1 組の共有 KV を通る multi-query attention の違いを対比しています。"
+    },
+    "comparedToNearbyModules": {
+      "title": "近いモジュールとの比較",
+      "body": "multi-head attention と比べると、MQA は H 組ではなく 1 組の KV を保存します。grouped-query attention と比べると、MQA は G 個のグループすら持たず、全 query head が 1 つの共有 KV head を読むぶん、さらに強く圧縮します。"
+    },
+    "exampleArchitectures": {
+      "title": "採用例",
+      "body": "MQA は、推論スループットと軽い KV cache を優先する decoder-only 言語モデルに現れます。表現力の一部を引き換えにしてでも配信効率を取りたい大規模サービング構成で使われます。"
+    },
+    "limitationsAndTradeoffs": {
+      "title": "制約とトレードオフ",
+      "body": "すべての query が 1 本の KV head を共有すると、完全な multi-head attention や grouped-query attention に比べて表現の柔軟性が下がることがあります。品質を重視する用途では GQA や MHA のほうが適する場合があります。"
+    },
+    "whyItStillMatters": {
+      "title": "今も重要な理由",
+      "body": "MQA は head 共有設計空間の端点を示しました。KV 圧縮をどこまで進められるかを示し、そこから cache サイズと query の多様性の中間を狙う GQA の位置づけも分かりやすくします。"
+    },
+    "related": {
+      "title": "関連"
+    },
+    "tags": {
+      "title": "タグ"
+    },
+    "references": {
+      "title": "参考資料"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "multi-head attention と multi-query attention の head 数比較",
+      "caption": "MHA と MQA を切り替えて、1 つの図上で query head 数と KV head 数を比較する",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "mqa": {
+          "label": "MQA"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "MQA と近い attention 変種の比較"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "mqa": {
+          "title": "Multi-query attention"
+        },
+        "mha": {
+          "title": "Multi-head attention"
+        },
+        "gqa": {
+          "title": "Grouped-query attention"
+        }
+      },
+      "dimensions": {
+        "kvHeadCount": "KV head 数",
+        "queryHeadFlexibility": "Query head の柔軟性",
+        "cacheFootprint": "1 token あたりの cache 使用量"
+      },
+      "values": {
+        "mqa": {
+          "kvHeadCount": "1 個の key head と 1 個の value head",
+          "queryHeadFlexibility": "H 個の query head が 1 組の KV を共有",
+          "cacheFootprint": "2 tensor（単一の共有 KV cache）"
+        },
+        "mha": {
+          "kvHeadCount": "H 個の key head と H 個の value head",
+          "queryHeadFlexibility": "H 個の独立した query/KV head の組",
+          "cacheFootprint": "2H tensor（完全な multi-head attention cache）"
+        },
+        "gqa": {
+          "kvHeadCount": "G 個の key head と G 個の value head",
+          "queryHeadFlexibility": "H 個の独立した query head が G 個の共有 KV 組に分かれる",
+          "cacheFootprint": "2G tensor（G 個の keys + G 個の values）"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "head i の query ベクトル。"
+        },
+        "k": {
+          "term": "K",
+          "definition": "head i の key ベクトル。"
+        },
+        "v": {
+          "term": "V",
+          "definition": "head i の value ベクトル。"
+        },
+        "h": {
+          "term": "H",
+          "definition": "query head の数。"
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "各 head の key 次元。"
+        },
+        "i": {
+          "term": "i",
+          "definition": "query head の添字。"
+        }
+      }
+    },
+    "mqaSchema": {
+      "label": "Multi-query attention (MQA)",
+      "formula": "\\text{Attention}(Q_i, K, V) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K^{\\top}}{\\sqrt{d_k}}\\right) V",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "head i の query ベクトル。"
+        },
+        "k": {
+          "term": "K",
+          "definition": "共有される key ベクトル（単一の KV head）。"
+        },
+        "v": {
+          "term": "V",
+          "definition": "共有される value ベクトル（単一の KV head）。"
+        },
+        "h": {
+          "term": "H",
+          "definition": "query head の数。"
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "各 head の key 次元。"
+        },
+        "i": {
+          "term": "i",
+          "definition": "query head の添字。"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "keysLabel": {
+        "label": "Keys"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "keyHead": {
+        "label": "k"
+      },
+      "valueHead": {
+        "label": "V"
+      },
+      "mhaQueryHeads": {
+        "label": "H 個の query head"
+      },
+      "mhaKvHeads": {
+        "label": "H 組の KV head（query と 1:1）"
+      },
+      "mhaOneToOne": {
+        "label": "各 query head が専用の K と V を持つ"
+      },
+      "mqaQueryHeads": {
+        "label": "H 個の query head"
+      },
+      "mqaKvShared": {
+        "label": "1 組の共有 KV"
+      },
+      "mqaSharedMapping": {
+        "label": "H 個すべての query head が同じ K と V を読む"
+      },
+      "mqaSharingNote": {
+        "label": "1 組の共有 key/value がすべての query head を支える"
+      }
+    }
+  }
+}

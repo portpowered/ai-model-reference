@@ -228,6 +228,10 @@ describe("attention tag landing page render", () => {
     expect(groups[0]?.resources.map((resource) => resource.url)).toEqual([
       "/ja/docs/modules/attention",
       "/ja/docs/modules/grouped-query-attention",
+      "/ja/docs/modules/linear-attention",
+      "/ja/docs/modules/multi-head-attention",
+      "/ja/docs/modules/multi-query-attention",
+      "/ja/docs/modules/sliding-window-attention",
     ]);
     expect(groups[1]?.resources.map((resource) => resource.url)).toEqual([
       "/ja/docs/glossary/token",
@@ -246,10 +250,10 @@ describe("attention tag landing page render", () => {
     expect(html).toContain('href="/ja/search?tag=attention"');
     expect(html).toContain('href="/ja/docs/modules/attention"');
     expect(html).toContain('href="/ja/docs/modules/grouped-query-attention"');
+    expect(html).toContain('href="/ja/docs/modules/linear-attention"');
+    expect(html).toContain('href="/ja/docs/modules/multi-head-attention"');
+    expect(html).toContain('href="/ja/docs/modules/multi-query-attention"');
+    expect(html).toContain('href="/ja/docs/modules/sliding-window-attention"');
     expect(html).toContain('href="/ja/docs/glossary/token"');
-    expect(html).not.toContain('href="/ja/docs/modules/multi-head-attention"');
-    expect(html).not.toContain(
-      'href="/ja/docs/modules/sliding-window-attention"',
-    );
   });
 });

@@ -32,7 +32,7 @@ describe("docs slug renderer locale gating", () => {
     });
   });
 
-  test("English docs metadata advertises shipped Vietnamese alternates for newly localized head-sharing modules", async () => {
+  test("English docs metadata advertises shipped Vietnamese and Japanese alternates for newly localized head-sharing modules", async () => {
     const multiHeadMetadata = await buildDocsPageMetadata([
       "modules",
       "multi-head-attention",
@@ -46,6 +46,7 @@ describe("docs slug renderer locale gating", () => {
       canonical: "/docs/modules/multi-head-attention",
       languages: {
         en: "/docs/modules/multi-head-attention",
+        ja: "/ja/docs/modules/multi-head-attention",
         vi: "/vi/docs/modules/multi-head-attention",
       },
     });
@@ -53,12 +54,13 @@ describe("docs slug renderer locale gating", () => {
       canonical: "/docs/modules/multi-query-attention",
       languages: {
         en: "/docs/modules/multi-query-attention",
+        ja: "/ja/docs/modules/multi-query-attention",
         vi: "/vi/docs/modules/multi-query-attention",
       },
     });
   });
 
-  test("English docs metadata advertises shipped Vietnamese alternates for newly localized long-context modules", async () => {
+  test("English docs metadata advertises shipped Vietnamese and Japanese alternates for newly localized long-context modules", async () => {
     const slidingWindowMetadata = await buildDocsPageMetadata([
       "modules",
       "sliding-window-attention",
@@ -72,6 +74,7 @@ describe("docs slug renderer locale gating", () => {
       canonical: "/docs/modules/sliding-window-attention",
       languages: {
         en: "/docs/modules/sliding-window-attention",
+        ja: "/ja/docs/modules/sliding-window-attention",
         vi: "/vi/docs/modules/sliding-window-attention",
       },
     });
@@ -79,6 +82,7 @@ describe("docs slug renderer locale gating", () => {
       canonical: "/docs/modules/linear-attention",
       languages: {
         en: "/docs/modules/linear-attention",
+        ja: "/ja/docs/modules/linear-attention",
         vi: "/vi/docs/modules/linear-attention",
       },
     });

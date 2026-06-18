@@ -93,9 +93,13 @@ describe("search result meta", () => {
 
   test("loadSearchResultMetaMap includes the shipped japanese representative slice", async () => {
     const map = await loadSearchResultMetaMap("ja");
-    expect(map.size).toBe(4);
+    expect(map.size).toBe(8);
     expect(map.has("/ja/docs/modules/attention")).toBe(true);
     expect(map.has("/ja/docs/modules/grouped-query-attention")).toBe(true);
+    expect(map.has("/ja/docs/modules/linear-attention")).toBe(true);
+    expect(map.has("/ja/docs/modules/multi-head-attention")).toBe(true);
+    expect(map.has("/ja/docs/modules/multi-query-attention")).toBe(true);
+    expect(map.has("/ja/docs/modules/sliding-window-attention")).toBe(true);
     expect(map.has("/ja/docs/glossary/token")).toBe(true);
     expect(map.has("/ja/docs/concepts/transformer-architecture")).toBe(true);
   });

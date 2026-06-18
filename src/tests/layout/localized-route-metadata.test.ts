@@ -101,7 +101,27 @@ describe("localized route metadata alternates", () => {
         ({ locale, slug }) =>
           locale === "ja" && slug?.join("/") === "modules/multi-head-attention",
       ),
-    ).toBe(false);
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" &&
+          slug?.join("/") === "modules/multi-query-attention",
+      ),
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" && slug?.join("/") === "modules/linear-attention",
+      ),
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" &&
+          slug?.join("/") === "modules/sliding-window-attention",
+      ),
+    ).toBe(true);
     expect(
       params.some(
         ({ locale, slug }) =>

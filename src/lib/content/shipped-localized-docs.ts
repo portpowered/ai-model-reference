@@ -13,6 +13,10 @@ const SHIPPED_LOCALIZED_DOCS: ShippedLocalizedDocsManifest = {
     "glossary/token",
     "modules/attention",
     "modules/grouped-query-attention",
+    "modules/linear-attention",
+    "modules/multi-head-attention",
+    "modules/multi-query-attention",
+    "modules/sliding-window-attention",
   ],
   vi: [
     "concepts/transformer-architecture",

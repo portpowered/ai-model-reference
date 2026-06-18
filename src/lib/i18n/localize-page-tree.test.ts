@@ -50,7 +50,10 @@ describe("localizePageTree", () => {
     expect(links).toContain("/ja/docs/glossary/token");
     expect(links).toContain("/ja/docs/modules/attention");
     expect(links).toContain("/ja/docs/modules/grouped-query-attention");
-    expect(links).not.toContain("/ja/docs/modules/multi-head-attention");
+    expect(links).toContain("/ja/docs/modules/linear-attention");
+    expect(links).toContain("/ja/docs/modules/multi-head-attention");
+    expect(links).toContain("/ja/docs/modules/multi-query-attention");
+    expect(links).toContain("/ja/docs/modules/sliding-window-attention");
     expect(links).not.toContain("/ja/docs/modules/sparse-attention");
   });
 
