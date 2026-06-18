@@ -174,8 +174,21 @@ describe("loadRegistry", () => {
     expect(concept?.kind).toBe("concept");
     expect(indexes.bySlug.get("token")?.id).toBe("concept.token");
 
+    const byteLevelTokenization = indexes.byId.get(
+      "module.byte-level-tokenization",
+    );
+    expect(byteLevelTokenization?.kind).toBe("module");
+    expect(indexes.bySlug.get("byte-level-tokenization")?.id).toBe(
+      "module.byte-level-tokenization",
+    );
+
+    const tokenizationTag = indexes.byId.get("tag.tokenization");
+    expect(tokenizationTag?.kind).toBe("tag");
+    expect(indexes.tagsBySlug.get("tokenization")?.id).toBe("tag.tokenization");
+
     expect(indexes.tagsBySlug.get("kv-cache")?.id).toBe("tag.kv-cache");
     expect(module?.tags).toContain("kv-cache");
+    expect(byteLevelTokenization?.tags).toContain("tokenization");
 
     const conceptMapGraph = indexes.byId.get("graph.token-concept-map");
     expect(conceptMapGraph?.kind).toBe("graph");
