@@ -12,10 +12,12 @@ describe("localized route metadata alternates", () => {
     expect(homeMetadata.alternates?.canonical).toBe("/");
     expect(homeMetadata.alternates?.languages?.en).toBe("/");
     expect(homeMetadata.alternates?.languages?.vi).toBe("/vi");
+    expect(homeMetadata.alternates?.languages?.ja).toBe("/ja");
 
     expect(searchMetadata.alternates?.canonical).toBe("/search");
     expect(searchMetadata.alternates?.languages?.en).toBe("/search");
     expect(searchMetadata.alternates?.languages?.vi).toBe("/vi/search");
+    expect(searchMetadata.alternates?.languages?.ja).toBe("/ja/search");
   });
 
   it("publishes alternate-language metadata for tag and docs pages", async () => {
@@ -28,6 +30,7 @@ describe("localized route metadata alternates", () => {
 
     expect(tagMetadata.alternates?.canonical).toBe("/tags/attention");
     expect(tagMetadata.alternates?.languages?.vi).toBe("/vi/tags/attention");
+    expect(tagMetadata.alternates?.languages?.ja).toBe("/ja/tags/attention");
 
     expect(docsMetadata.alternates?.canonical).toBe(
       "/docs/modules/grouped-query-attention",
@@ -35,5 +38,6 @@ describe("localized route metadata alternates", () => {
     expect(docsMetadata.alternates?.languages?.vi).toBe(
       "/vi/docs/modules/grouped-query-attention",
     );
+    expect(docsMetadata.alternates?.languages?.ja).toBeUndefined();
   });
 });
