@@ -1,0 +1,45 @@
+{
+  "id": "paper.glm-5",
+  "slug": "glm-5",
+  "kind": "paper",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GLM-5", "GLM-5: from Vibe Coding to Agentic Engineering"],
+  "tags": ["foundations", "context-window", "model-family"],
+  "relatedIds": [
+    "model.glm-5",
+    "concept.agentic-engineering",
+    "training-regime.asynchronous-agent-reinforcement-learning",
+    "system.slime-rollout-framework",
+    "module.multi-head-latent-attention",
+    "module.sparse-attention",
+    "training-regime.on-policy-distillation"
+  ],
+  "citationIds": ["citation.glm-5-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "authors": ["GLM-5 Team"],
+  "publishedAt": "2026-02-17",
+  "url": "https://arxiv.org/abs/2602.15763",
+  "introducesIds": [
+    "model.glm-5",
+    "concept.agentic-engineering",
+    "training-regime.asynchronous-agent-reinforcement-learning",
+    "system.slime-rollout-framework"
+  ],
+  "supportsIds": ["concept.transformer-architecture"],
+  "arguesAgainstIds": [],
+  "modelIds": ["model.glm-5"],
+  "moduleIds": [
+    "module.multi-head-latent-attention",
+    "module.sparse-attention",
+    "module.mixture-of-experts"
+  ],
+  "conceptIds": [
+    "concept.agentic-engineering",
+    "concept.transformer-architecture"
+  ],
+  "venue": "arXiv",
+  "arxivId": "2602.15763"
+}

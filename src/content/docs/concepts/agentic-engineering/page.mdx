@@ -1,0 +1,64 @@
+---
+title: "Agentic Engineering"
+description: "A concept page that explains the shift from one-shot code generation to longer-running software agents that plan, act, and recover over many steps."
+kind: "concept"
+registryId: "concept.agentic-engineering"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - model-family
+aliases:
+  - "agentic engineering"
+  - "coding agents"
+  - "software engineering agents"
+updatedAt: "2026-06-19"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ConceptMap } from "@/features/models/components/ConceptMap";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="simple-example" titleKey="sections.simpleExample.title">
+  <T k="sections.simpleExample.body" />
+  <ConceptMap registryId="concept.agentic-engineering" assetId="conceptMap" />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.agentic-engineering"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "used-by-models",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.agentic-engineering" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.agentic-engineering" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.agentic-engineering" />
+</Section>

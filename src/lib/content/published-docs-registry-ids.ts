@@ -1,5 +1,6 @@
 /** Concept registry ids whose published docs page lives under `/docs/concepts`. */
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
+  "concept.agentic-engineering",
   "concept.page-spec-workflow-sample",
   "concept.transformer-architecture",
   "concept.positional-encodings",
@@ -49,7 +50,9 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "model.gpt-3",
   "model.deepseek-v4-pro",
   "model.deepseek-v4-flash",
+  "model.glm-5",
   "paper.deepseek-v4",
+  "paper.glm-5",
   "module.attention",
   "module.compressed-sparse-attention",
   "module.deepseekmoe",
@@ -141,6 +144,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.multimodal-model",
   "concept.world-model",
   "concept.page-spec-workflow-sample",
+  "concept.agentic-engineering",
   "concept.transformer-architecture",
   "concept.feed-forward-network",
   "concept.standard-ffn",
@@ -183,9 +187,11 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.activation-quantization",
   "concept.kv-cache-quantization",
   "concept.why-4-bit-models-are-not-exactly-4x-faster",
+  "training-regime.asynchronous-agent-reinforcement-learning",
   "training-regime.on-policy-distillation",
   "training-regime.specialist-training",
   "training-regime.fp4-quantization-aware-training",
+  "system.slime-rollout-framework",
   "system.on-disk-kv-cache",
   "system.expert-parallel-overlap",
 ]);

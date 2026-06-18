@@ -187,9 +187,9 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
 
     for (const slug of CURRENT_GLOSSARY_SLUGS) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
-      expect(linkNodes.some((entry) => entry.url === `/docs/glossary/${slug}`)).toBe(
-        true,
-      );
+      expect(
+        linkNodes.some((entry) => entry.url === `/docs/glossary/${slug}`),
+      ).toBe(true);
       expect(linkNodes.some((entry) => entry.name === title)).toBe(true);
     }
   });

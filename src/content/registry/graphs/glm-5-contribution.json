@@ -1,0 +1,101 @@
+{
+  "id": "graph.glm-5-contribution",
+  "slug": "glm-5-contribution",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GLM-5 contribution graph"],
+  "tags": ["foundations", "attention"],
+  "relatedIds": [],
+  "citationIds": ["citation.glm-5-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "paper.glm-5",
+  "graphType": "paper-contribution",
+  "rootNodeId": "paper",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "paper",
+      "labelKey": "graph.nodes.paper.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 240, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["architecture", "training", "systems", "agentic"]
+    },
+    {
+      "id": "architecture",
+      "labelKey": "graph.nodes.architecture.label",
+      "moduleKind": "block",
+      "position": { "x": 0, "y": 160 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "training",
+      "labelKey": "graph.nodes.training.label",
+      "moduleKind": "loss",
+      "position": { "x": 210, "y": 160 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "systems",
+      "labelKey": "graph.nodes.systems.label",
+      "moduleKind": "other",
+      "position": { "x": 420, "y": 160 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "agentic",
+      "labelKey": "graph.nodes.agentic.label",
+      "moduleKind": "other",
+      "position": { "x": 210, "y": 280 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "paper-architecture",
+      "source": "paper",
+      "target": "architecture",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-training",
+      "source": "paper",
+      "target": "training",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-systems",
+      "source": "paper",
+      "target": "systems",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "paper-agentic",
+      "source": "paper",
+      "target": "agentic",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

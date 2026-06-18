@@ -1,0 +1,32 @@
+{
+  "id": "system.slime-rollout-framework",
+  "slug": "slime-rollout-framework",
+  "kind": "system",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["slime", "slime framework", "slime rollout framework"],
+  "tags": ["foundations", "kv-cache"],
+  "relatedIds": [
+    "paper.glm-5",
+    "model.glm-5",
+    "training-regime.asynchronous-agent-reinforcement-learning",
+    "concept.agentic-engineering",
+    "system.on-disk-kv-cache"
+  ],
+  "citationIds": ["citation.glm-5-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "releaseDate": "2026-02-17",
+  "authors": ["GLM-5 Team"],
+  "sourceId": "paper.glm-5",
+  "systemType": "training-infrastructure",
+  "relatedModelIds": ["model.glm-5"],
+  "relatedModuleIds": ["module.multi-head-latent-attention"],
+  "relatedConceptIds": ["concept.agentic-engineering"],
+  "paperIds": ["paper.glm-5"],
+  "datasetIds": [],
+  "organizationId": "organization.zhipu-ai",
+  "conceptType": "systems",
+  "variantGroup": "glm-5-agent-training"
+}

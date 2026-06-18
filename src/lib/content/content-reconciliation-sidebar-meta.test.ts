@@ -63,7 +63,10 @@ describe("Phase 2/3 reconciliation docs sidebar meta (US-003)", () => {
       expect(sidebarUrls).toHaveLength(sectionPages.length);
 
       const sidebarTitles = folder.children
-        .filter((node): node is Extract<Node, { type: "page" }> => node.type === "page")
+        .filter(
+          (node): node is Extract<Node, { type: "page" }> =>
+            node.type === "page",
+        )
         .map((node) => node.name);
       for (const page of sectionPages) {
         expect(sidebarTitles).toContain(page.messages.title);

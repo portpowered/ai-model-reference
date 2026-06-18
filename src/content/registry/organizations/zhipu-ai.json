@@ -1,0 +1,18 @@
+{
+  "id": "organization.zhipu-ai",
+  "slug": "zhipu-ai",
+  "kind": "organization",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Zhipu AI", "Z.ai"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": ["paper.glm-5", "model.glm-5"],
+  "citationIds": ["citation.glm-5-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "website": "https://www.z.ai",
+  "modelIds": ["model.glm-5"],
+  "paperIds": ["paper.glm-5"],
+  "systemIds": ["system.slime-rollout-framework"]
+}

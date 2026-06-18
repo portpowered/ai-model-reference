@@ -1,0 +1,10 @@
+{
+  "conceptMap": {
+    "type": "graph",
+    "graphId": "graph.agentic-engineering-concept-map",
+    "webRenderer": "react-flow",
+    "printRenderer": "vertical-svg",
+    "altKey": "assets.conceptMap.alt",
+    "captionKey": "assets.conceptMap.caption"
+  }
+}

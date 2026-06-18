@@ -1,0 +1,49 @@
+{
+  "title": "slime Rollout Framework",
+  "description": "A system page that explains the rollout infrastructure GLM-5 uses to run customizable, latency-sensitive, and fault-tolerant agent trajectories at scale.",
+  "openingSummary": "The slime rollout framework matters because long-horizon agent training is often blocked by runtime behavior, not by the optimizer alone. slime provides the rollout-side machinery for customizable tasks, tail-latency control, and heartbeat-based recovery so asynchronous agent training can stay productive instead of spending most of its time waiting.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "slime is the rollout framework GLM-5 uses for reinforcement-learning style agent training. It is not the learning rule itself; it is the runtime layer that serves environments, executes tool-rich trajectories, and keeps rollout traffic moving across many workers."
+    },
+    "whereItSits": {
+      "title": "Where It Sits",
+      "body": "This system sits between the model and the trainer. The model still decides what action to take, and Asynchronous Agent Reinforcement Learning still decides how updates are computed, but slime is the layer that actually makes large rollout batches feasible."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The GLM-5 paper highlights three ideas: highly customizable rollouts for many task types, latency-oriented scheduling to reduce tail stalls, and heartbeat-driven fault tolerance so dead or unhealthy rollout servers do not silently poison progress. The page keeps those runtime concerns here instead of duplicating the full training thesis from the asynchronous RL page."
+    },
+    "practicalImpact": {
+      "title": "Practical Impact",
+      "body": "The practical payoff is more usable agent data per unit time. When long or tool-heavy trajectories stop clogging the pipeline, researchers can run more experiments and trainers spend less time waiting for the slowest sample."
+    },
+    "associatedRecords": {
+      "title": "Associated Records"
+    },
+    "related": {
+      "title": "Related Reference Pages"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "systemFlow": {
+      "alt": "A system flow where the slime framework coordinates custom rollouts, scheduling, and heartbeat supervision.",
+      "caption": "slime is easiest to understand as runtime glue for customizable rollouts, tail-latency control, and fault recovery."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "slime": { "label": "slime framework" },
+      "customRollouts": { "label": "Custom rollouts" },
+      "scheduler": { "label": "Latency-aware scheduler" },
+      "heartbeat": { "label": "Heartbeat recovery" }
+    }
+  }
+}
