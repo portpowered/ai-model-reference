@@ -77,6 +77,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.rope",
   "concept.alibi",
   "concept.relative-position-bias",
+  "concept.t5-relative-position-bias",
   "concept.nope",
   "concept.context-window",
   "concept.context-extension",

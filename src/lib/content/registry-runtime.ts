@@ -53,6 +53,7 @@ import ropeConcept from "@/content/registry/concepts/rope.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import sinusoidalPositionalEmbeddingsConcept from "@/content/registry/concepts/sinusoidal-positional-embeddings.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
+import t5RelativePositionBiasConcept from "@/content/registry/concepts/t5-relative-position-bias.json";
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
@@ -145,6 +146,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(rmsnormConcept),
   conceptRecordSchema.parse(alibiConcept),
   conceptRecordSchema.parse(relativePositionBiasConcept),
+  conceptRecordSchema.parse(t5RelativePositionBiasConcept),
   conceptRecordSchema.parse(positionalEncodingsConcept),
   conceptRecordSchema.parse(nopeConcept),
   conceptRecordSchema.parse(residualConnectionConcept),

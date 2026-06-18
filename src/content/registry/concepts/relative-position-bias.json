@@ -13,6 +13,7 @@
   "relatedIds": [
     "concept.positional-encodings",
     "concept.absolute-positional-embeddings",
+    "concept.t5-relative-position-bias",
     "concept.rope",
     "concept.alibi"
   ],
@@ -22,5 +23,5 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": ["concept.positional-encodings"],
-  "explainsIds": []
+  "explainsIds": ["concept.t5-relative-position-bias"]
 }

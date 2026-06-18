@@ -37,6 +37,7 @@
     "[RMSNorm](/docs/glossary/rmsnorm)",
     "[Residual connection](/docs/glossary/residual-connection)",
     "[Sinusoidal positional embeddings](/docs/glossary/sinusoidal-positional-embeddings)",
+    "[T5 relative position bias](/docs/glossary/t5-relative-position-bias)",
     "[Token](/docs/glossary/token)",
     "[Transformer](/docs/glossary/transformer)",
     "---Math And Training---",

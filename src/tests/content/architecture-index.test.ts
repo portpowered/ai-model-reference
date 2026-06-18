@@ -71,6 +71,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/rope",
         "/docs/glossary/scaling-law",
         "/docs/glossary/sinusoidal-positional-embeddings",
+        "/docs/glossary/t5-relative-position-bias",
         "/docs/glossary/token",
         "/docs/glossary/transformer",
         "/docs/glossary/world-model",

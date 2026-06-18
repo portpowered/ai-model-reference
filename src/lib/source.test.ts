@@ -44,6 +44,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/relative-position-bias",
   "/docs/glossary/representation",
   "/docs/glossary/scaling-law",
+  "/docs/glossary/t5-relative-position-bias",
   "/docs/glossary/token",
   "/docs/glossary/transformer",
   "/docs/glossary/world-model",

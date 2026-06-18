@@ -110,7 +110,7 @@ describe("loadPublishedGlossaryEntries", () => {
 
   it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(59);
+    expect(entries).toHaveLength(60);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -142,6 +142,11 @@ describe("loadPublishedGlossaryEntries", () => {
       (entry) => entry.url === "/docs/glossary/relative-position-bias",
     );
     expect(relativeBias?.title).toBe("Relative position bias");
+
+    const t5RelativeBias = entries.find(
+      (entry) => entry.url === "/docs/glossary/t5-relative-position-bias",
+    );
+    expect(t5RelativeBias?.title).toBe("T5 relative position bias");
 
     const sinusoidal = entries.find(
       (entry) =>
@@ -232,6 +237,8 @@ describe("glossary index page render", () => {
     );
     expect(html).toContain("Relative position bias");
     expect(html).toContain('href="/docs/glossary/relative-position-bias"');
+    expect(html).toContain("T5 relative position bias");
+    expect(html).toContain('href="/docs/glossary/t5-relative-position-bias"');
     expect(html).toContain("NoPE");
     expect(html).toContain('href="/docs/glossary/nope"');
     expect(html).toContain("Sinusoidal positional embeddings");

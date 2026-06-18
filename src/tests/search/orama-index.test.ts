@@ -37,6 +37,8 @@ const ABSOLUTE_POSITIONAL_EMBEDDINGS_URL =
 const LEARNED_POSITIONAL_EMBEDDINGS_URL =
   "/docs/glossary/learned-positional-embeddings";
 const RELATIVE_POSITION_BIAS_URL = "/docs/glossary/relative-position-bias";
+const T5_RELATIVE_POSITION_BIAS_URL =
+  "/docs/glossary/t5-relative-position-bias";
 const ROPE_URL = "/docs/glossary/rope";
 const ALIBI_URL = "/docs/glossary/alibi";
 const NOPE_URL = "/docs/glossary/nope";
@@ -129,6 +131,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ABSOLUTE_POSITIONAL_EMBEDDINGS_URL,
   LEARNED_POSITIONAL_EMBEDDINGS_URL,
   RELATIVE_POSITION_BIAS_URL,
+  T5_RELATIVE_POSITION_BIAS_URL,
   ROPE_URL,
   ALIBI_URL,
   NOPE_URL,

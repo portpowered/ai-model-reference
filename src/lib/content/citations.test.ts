@@ -44,4 +44,13 @@ describe("citations", () => {
     expect(citation?.mla).toContain("Shazeer, Noam.");
     expect(citation?.url).toBe("https://arxiv.org/abs/1911.02150");
   });
+
+  test("getCitationById returns T5 paper with MLA text", () => {
+    const citation = getCitationById("citation.raffel-t5");
+    expect(citation?.title).toBe(
+      "Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer",
+    );
+    expect(citation?.mla).toContain("Raffel, Colin, et al.");
+    expect(citation?.url).toBe("https://arxiv.org/abs/1910.10683");
+  });
 });

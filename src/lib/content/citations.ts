@@ -6,6 +6,7 @@ import kaplanScalingLaws from "@/content/registry/citations/kaplan-scaling-laws.
 import katharopoulosLinearAttentionPaper from "@/content/registry/citations/katharopoulos-linear-attention-paper.json";
 import kingmaAdam from "@/content/registry/citations/kingma-adam.json";
 import pressAlibi from "@/content/registry/citations/press-alibi.json";
+import raffelT5 from "@/content/registry/citations/raffel-t5.json";
 import shazeerMqaPaper from "@/content/registry/citations/shazeer-mqa-paper.json";
 import suRoformerRope from "@/content/registry/citations/su-roformer-rope.json";
 import weiEmergentAbilities from "@/content/registry/citations/wei-emergent-abilities.json";
@@ -23,6 +24,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(katharopoulosLinearAttentionPaper),
   citationRecordSchema.parse(kingmaAdam),
   citationRecordSchema.parse(pressAlibi),
+  citationRecordSchema.parse(raffelT5),
   citationRecordSchema.parse(shazeerMqaPaper),
   citationRecordSchema.parse(suRoformerRope),
   citationRecordSchema.parse(weiEmergentAbilities),

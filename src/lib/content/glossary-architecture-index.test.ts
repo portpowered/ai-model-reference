@@ -55,6 +55,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   "absolute-positional-embeddings": "Absolute positional embeddings",
   "learned-positional-embeddings": "Learned positional embeddings",
   "relative-position-bias": "Relative position bias",
+  "t5-relative-position-bias": "T5 relative position bias",
   nope: "NoPE",
   "sinusoidal-positional-embeddings": "Sinusoidal positional embeddings",
 };
@@ -79,11 +80,12 @@ const POSITIONAL_GLOSSARY_SLUGS = [
   "absolute-positional-embeddings",
   "learned-positional-embeddings",
   "relative-position-bias",
+  "t5-relative-position-bias",
   "nope",
   "sinusoidal-positional-embeddings",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 52;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 60;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 53;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
