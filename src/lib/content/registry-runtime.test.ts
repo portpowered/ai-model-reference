@@ -119,6 +119,7 @@ describe("registry-runtime", () => {
     expect(ids).toContain("concept.token");
     expect(ids).toContain("concept.embedding");
     expect(ids).toContain("concept.softmax");
+    expect(ids).toContain("concept.prefill");
   });
 
   test("getConceptById returns published embedding and logit for chain", () => {

@@ -18,6 +18,7 @@
     "concept.embedding",
     "concept.decoder",
     "concept.kv-cache",
+    "concept.prefill",
     "concept.encoder-decoder",
     "concept.conditioning",
     "concept.denoising-generation"

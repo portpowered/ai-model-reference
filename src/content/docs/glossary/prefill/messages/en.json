@@ -1,0 +1,36 @@
+{
+  "title": "Prefill",
+  "description": "The one-time prompt-processing stage that reads the input, computes the first attention pass, and builds the initial KV cache before generation starts.",
+  "openingSummary": "Waiting for the first generated token often feels slow because the model must read the whole prompt before it can start replying; prefill is that one-time prompt-processing stage, and its cost usually grows with prompt length while it builds the initial KV cache.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Prefill is the first forward pass over the prompt during autoregressive generation. The model reads the full input, runs attention and the rest of the decoder stack across every prompt position, and writes the initial KV cache that later decode steps will reuse. No output token has been generated yet, so this stage mostly determines how long a reader waits for time to first token."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Prefill is usually the expensive burst at the start of a request. Longer prompts mean more positions to process, more attention work, and more cache entries to allocate before generation can begin. That raises latency for the first token, increases memory pressure from the new KV cache, and raises serving cost even if the final reply is short."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a 4,000-token prompt and a 40-token answer. Prefill is the pass that reads those 4,000 prompt tokens once, computes the hidden states and attention outputs for them, and stores the resulting keys and values. After that, decode can generate the 40 answer tokens one at a time by reusing the cache instead of replaying the entire prompt pass."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Prefill is not the same as decode. Prefill processes the existing prompt once, while decode repeats a much smaller next-token step many times. It is also not the same as batching policy, chunked prefill, or speculative decoding. Those are serving strategies built around the stage, not the stage itself."
+    },
+    "servingPath": {
+      "title": "Serving Path",
+      "body": "Prefill sits between the user prompt and the repeated decode loop. Start from KV cache if you want the saved state it creates, then continue to decode and the later prefill/decode split discussion to see why serving systems often separate the two stages."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

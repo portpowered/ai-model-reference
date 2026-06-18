@@ -53,6 +53,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   "loss-function": "Loss Function",
   "optimizer-state": "Optimizer State",
   "kv-cache": "KV cache",
+  prefill: "Prefill",
 };
 
 const CHAIN_GLOSSARY_SLUGS = [
@@ -71,8 +72,8 @@ const CHAIN_GLOSSARY_SLUGS = [
   "loss-function",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 55;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 48;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 56;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 49;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
@@ -96,7 +97,7 @@ function collectPageUrls(nodes: Node[]): string[] {
 }
 
 describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
-  test("glossary meta.json lists token and all nine taxonomy pages", async () => {
+  test("glossary meta.json lists token, prefill, and all taxonomy pages", async () => {
     const metaPath = join(process.cwd(), "src/content/docs/glossary/meta.json");
     const meta = JSON.parse(await readFile(metaPath, "utf8")) as {
       pages: string[];
@@ -113,6 +114,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ...TAXONOMY_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
       "kv-cache",
+      "prefill",
       "token",
     ] as const) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
@@ -139,6 +141,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ...TAXONOMY_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
       "kv-cache",
+      "prefill",
       "token",
     ] as const) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
@@ -146,7 +149,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(glossaryUrls).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
   });
 
-  test("glossary index lists forty entries with localized titles sorted by title", async () => {
+  test("glossary index lists published entries with localized titles sorted by title", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
     expect(entries).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
 
@@ -167,6 +170,11 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       (item) => item.url === "/docs/glossary/kv-cache",
     );
     expect(kvCache?.title).toBe("KV cache");
+
+    const prefill = entries.find(
+      (item) => item.url === "/docs/glossary/prefill",
+    );
+    expect(prefill?.title).toBe("Prefill");
 
     for (const slug of CHAIN_GLOSSARY_SLUGS) {
       const entry = entries.find(
@@ -199,6 +207,11 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       (entry) => entry.url === "/docs/glossary/kv-cache",
     );
     expect(kvCache?.title).toBe("KV cache");
+
+    const prefill = entries.find(
+      (entry) => entry.url === "/docs/glossary/prefill",
+    );
+    expect(prefill?.title).toBe("Prefill");
 
     const embedding = entries.find(
       (entry) => entry.url === "/docs/glossary/embedding",
@@ -245,6 +258,8 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(glossaryHtml).toContain('href="/docs/glossary/computational-graph"');
     expect(glossaryHtml).toContain("KV cache");
     expect(glossaryHtml).toContain('href="/docs/glossary/kv-cache"');
+    expect(glossaryHtml).toContain("Prefill");
+    expect(glossaryHtml).toContain('href="/docs/glossary/prefill"');
     expect(architectureHtml).toContain("Activation");
     expect(architectureHtml).toContain('href="/docs/glossary/activation"');
     expect(architectureHtml).toContain("Computational Graph");
@@ -253,6 +268,8 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     );
     expect(architectureHtml).toContain("KV cache");
     expect(architectureHtml).toContain('href="/docs/glossary/kv-cache"');
+    expect(architectureHtml).toContain("Prefill");
+    expect(architectureHtml).toContain('href="/docs/glossary/prefill"');
     expect(architectureHtml).not.toContain('href="/docs/glossary/parameter"');
     expect(architectureHtml).toContain("Embedding");
     expect(architectureHtml).toContain('href="/docs/glossary/embedding"');

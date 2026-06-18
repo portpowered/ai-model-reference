@@ -62,6 +62,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/overfitting",
         "/docs/glossary/patch",
         "/docs/glossary/perplexity",
+        "/docs/glossary/prefill",
         "/docs/glossary/representation",
         "/docs/glossary/residual-connection",
         "/docs/glossary/rmsnorm",
@@ -158,6 +159,8 @@ describe("architecture index page render", () => {
     expect(html).toContain('href="/docs/glossary/foundation-model"');
     expect(html).toContain("KV cache");
     expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html).toContain("Prefill");
+    expect(html).toContain('href="/docs/glossary/prefill"');
     expect(html).toContain("Token");
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).not.toContain("No architecture entries yet");

@@ -29,6 +29,7 @@
     "[Layer norm](/docs/glossary/layer-norm)",
     "[Mixture of experts](/docs/glossary/mixture-of-experts)",
     "[Normalization](/docs/glossary/normalization)",
+    "[Prefill](/docs/glossary/prefill)",
     "[Perplexity](/docs/glossary/perplexity)",
     "[RoPE](/docs/glossary/rope)",
     "[RMSNorm](/docs/glossary/rmsnorm)",

@@ -37,6 +37,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/overfitting",
   "/docs/glossary/patch",
   "/docs/glossary/perplexity",
+  "/docs/glossary/prefill",
   "/docs/glossary/representation",
   "/docs/glossary/scaling-law",
   "/docs/glossary/token",

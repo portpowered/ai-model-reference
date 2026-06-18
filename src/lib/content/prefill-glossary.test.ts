@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { KV_CACHE_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
+import { PREFILL_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryBodyOmitsTitleHeading,
@@ -24,37 +24,36 @@ import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const pageDir = KV_CACHE_GLOSSARY_PAGE_DIR;
+const pageDir = PREFILL_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 
-describe("Phase 5 KV cache glossary page (US-001)", () => {
-  test("registry record is published with aliases, serving tags, and related ids", () => {
-    const record = getConceptById("concept.kv-cache");
+describe("Phase 5 prefill glossary page (US-002)", () => {
+  test("registry record is published with prompt-processing aliases, serving tags, and related ids", () => {
+    const record = getConceptById("concept.prefill");
     expect(record?.status).toBe("published");
     expect(record?.aliases).toEqual([
-      "KV cache",
-      "key-value cache",
-      "key value cache",
-      "kv-cache",
-      "attention cache",
+      "Prefill",
+      "prompt processing",
+      "prompt pass",
+      "initial prompt pass",
+      "time to first token stage",
     ]);
     expect(record?.tags).toEqual(["foundations", "attention", "kv-cache"]);
     expect(record?.relatedIds).toEqual([
-      "concept.prefill",
+      "concept.kv-cache",
       "concept.autoregressive-generation",
       "module.attention",
       "module.multi-query-attention",
       "module.grouped-query-attention",
-      "module.sliding-window-attention",
       "concept.transformer",
     ]);
-    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.kv-cache")).toBe(true);
+    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.prefill")).toBe(true);
   });
 
-  test("curated related links point to nearby serving and attention pages", () => {
-    const source = getConceptById("concept.kv-cache");
+  test("curated related links point to kv cache, autoregressive generation, and nearby attention pages", () => {
+    const source = getConceptById("concept.prefill");
     if (!source) {
-      throw new Error("expected concept.kv-cache in registry");
+      throw new Error("expected concept.prefill in registry");
     }
 
     const items = deriveCuratedRelatedItems(
@@ -66,8 +65,8 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
     expect(
       items.some(
         (item) =>
-          item.registryId === "concept.prefill" &&
-          item.href === "/docs/glossary/prefill",
+          item.registryId === "concept.kv-cache" &&
+          item.href === "/docs/glossary/kv-cache",
       ),
     ).toBe(true);
     expect(
@@ -80,30 +79,22 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
     expect(
       items.some(
         (item) =>
-          item.registryId === "module.multi-query-attention" &&
-          item.href === "/docs/modules/multi-query-attention",
-      ),
-    ).toBe(true);
-    expect(
-      items.some(
-        (item) =>
-          item.registryId === "module.grouped-query-attention" &&
-          item.href === "/docs/modules/grouped-query-attention",
+          item.registryId === "module.attention" &&
+          item.href === "/docs/modules/attention",
       ),
     ).toBe(true);
   });
 
-  test("messages teach cache reuse, prompt processing, and serving tradeoffs", () => {
+  test("messages teach prompt processing, time to first token, and serving tradeoffs", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
-    expect(messages.title).toBe("KV cache");
+    expect(messages.title).toBe("Prefill");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
-      "prefill stage",
+      "time to first token",
     );
-    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain("decode");
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
       "latency",
     );
@@ -113,17 +104,17 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
       "cost",
     );
-    expect(messages.sections?.servingPath.body?.toLowerCase()).toContain(
-      "token-by-token generation",
+    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
+      "decode",
     );
   });
 
-  test("page renders serving tradeoff copy, links to published prefill and decode handoff, and related attention pages", async () => {
-    const page = await loadGlossaryPage("kv-cache");
+  test("page renders serving-path links to kv cache, decode, and prefill/decode split", async () => {
+    const page = await loadGlossaryPage("prefill");
 
     expect(page.frontmatter.kind).toBe("glossary");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.registryId).toBe("concept.kv-cache");
+    expect(page.frontmatter.registryId).toBe("concept.prefill");
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -137,43 +128,38 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
     expectGlossaryOmitsOpeningSummary(html);
     expectGlossarySingleTagPillList(html);
-    expectHtmlToContainProse(html, "KV cache");
-    expectHtmlToContainProse(
-      html,
-      "latency because later steps avoid repeating prompt processing",
-    );
-    expectHtmlToContainProse(html, "cost real money to serve");
-    expect(html).toContain('href="/docs/glossary/prefill"');
+    expectHtmlToContainProse(html, "Prefill");
+    expectHtmlToContainProse(html, "time to first token");
+    expectHtmlToContainProse(html, "serving cost");
+    expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain('href="/search?q=decode"');
-    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/search?q=prefill%2Fdecode%20split"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
-    expect(html).toContain('href="/docs/modules/sliding-window-attention"');
     expect(html).toContain('href="/docs/glossary/transformer"');
-    expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Reader Shortcut");
   });
 
-  test("search index records kv-cache as a glossary page with aliases and tags", async () => {
+  test("search index records prefill as a glossary page with aliases and tags", async () => {
     const registry = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
     const documents = buildSearchDocuments(pages, registry);
 
     const document = documents.find(
-      (entry) => entry.url === "/docs/glossary/kv-cache",
+      (entry) => entry.url === "/docs/glossary/prefill",
     );
     expect(document?.kind).toBe("glossary");
     expect(document?.facets.kind).toBe("glossary");
     expect(document?.aliases).toEqual(
       expect.arrayContaining([
-        "KV cache",
-        "key-value cache",
-        "key value cache",
-        "kv-cache",
+        "Prefill",
+        "prompt processing",
+        "prompt pass",
+        "initial prompt pass",
       ]),
     );
     expect(document?.tags).toEqual(
@@ -181,16 +167,16 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
     );
   });
 
-  test("search finds KV cache by title, aliases, and body terms", async () => {
+  test("search finds prefill by title, aliases, and body terms", async () => {
     for (const query of [
-      "KV cache",
-      "key-value cache",
-      "kv-cache",
-      "cached keys and values",
+      "Prefill",
+      "prompt processing",
+      "prompt pass",
+      "time to first token",
     ] as const) {
       const results = await docsSearchApi.search(query);
       expect(
-        results.some((result) => result.url === "/docs/glossary/kv-cache"),
+        results.some((result) => result.url === "/docs/glossary/prefill"),
       ).toBe(true);
     }
   });

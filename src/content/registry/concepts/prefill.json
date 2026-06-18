@@ -1,24 +1,23 @@
 {
-  "id": "concept.kv-cache",
-  "slug": "kv-cache",
+  "id": "concept.prefill",
+  "slug": "prefill",
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
   "aliases": [
-    "KV cache",
-    "key-value cache",
-    "key value cache",
-    "kv-cache",
-    "attention cache"
+    "Prefill",
+    "prompt processing",
+    "prompt pass",
+    "initial prompt pass",
+    "time to first token stage"
   ],
   "tags": ["foundations", "attention", "kv-cache"],
   "relatedIds": [
-    "concept.prefill",
+    "concept.kv-cache",
     "concept.autoregressive-generation",
     "module.attention",
     "module.multi-query-attention",
     "module.grouped-query-attention",
-    "module.sliding-window-attention",
     "concept.transformer"
   ],
   "citationIds": [],
