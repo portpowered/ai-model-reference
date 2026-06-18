@@ -86,9 +86,13 @@ describe("home page render", () => {
     expect(html).toContain("トークン（用語集）");
     expect(html).toContain('href="/ja/docs/architecture"');
     expect(html).toContain('href="/ja/docs/glossary"');
-    expect(html).toContain('href="/ja/docs/glossary/token"');
     expect(html).toContain('href="/ja/tags"');
-    expect(html).toContain('href="/ja/docs/modules/grouped-query-attention"');
+    expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).toContain('href="/docs/modules/grouped-query-attention"');
+    expect(html).not.toContain('href="/ja/docs/glossary/token"');
+    expect(html).not.toContain(
+      'href="/ja/docs/modules/grouped-query-attention"',
+    );
   });
 
   it("omits verbose search handoff prose and inline /search link", async () => {
