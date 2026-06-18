@@ -50,6 +50,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/top-p-sampling",
   "/docs/glossary/representation",
   "/docs/glossary/scaling-law",
+  "/docs/glossary/standard-ffn",
   "/docs/glossary/token",
   "/docs/glossary/transformer",
   "/docs/glossary/world-model",

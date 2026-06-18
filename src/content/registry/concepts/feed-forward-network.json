@@ -8,14 +8,18 @@
   "tags": ["foundations"],
   "relatedIds": [
     "concept.transformer-architecture",
+    "concept.activation",
     "concept.standard-ffn",
-    "concept.mixture-of-experts",
-    "concept.activation"
+    "concept.relu",
+    "concept.leaky-relu",
+    "concept.silu",
+    "concept.swiglu",
+    "concept.mixture-of-experts"
   ],
   "citationIds": [],
   "status": "published",
   "createdAt": "2026-06-08T00:00:00.000Z",
-  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-08T00:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": [],
   "explainsIds": []

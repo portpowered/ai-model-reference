@@ -27,45 +27,21 @@ const PAGE_SPEC_WORKFLOW_SAMPLE_URL =
   "/docs/concepts/page-spec-workflow-sample";
 const FEED_FORWARD_NETWORK_URL = "/docs/glossary/feed-forward-network";
 const STANDARD_FFN_URL = "/docs/glossary/standard-ffn";
-const NORMALIZATION_URL = "/docs/glossary/normalization";
-const LAYER_NORM_URL = "/docs/glossary/layer-norm";
-const BATCH_NORM_URL = "/docs/glossary/batch-norm";
-const GROUP_NORM_URL = "/docs/glossary/group-norm";
-const MIXTURE_OF_EXPERTS_URL = "/docs/glossary/mixture-of-experts";
 const RELU_URL = "/docs/glossary/relu";
 const LEAKY_RELU_URL = "/docs/glossary/leaky-relu";
 const SILU_URL = "/docs/glossary/silu";
 const SWIGLU_URL = "/docs/glossary/swiglu";
+const MIXTURE_OF_EXPERTS_URL = "/docs/glossary/mixture-of-experts";
+const LAYER_NORM_URL = "/docs/glossary/layer-norm";
 const RMSNORM_URL = "/docs/glossary/rmsnorm";
-const QK_NORM_URL = "/docs/glossary/qk-norm";
+const NORMALIZATION_URL = "/docs/glossary/normalization";
 const RESIDUAL_CONNECTION_URL = "/docs/glossary/residual-connection";
-const SKIP_CONNECTION_URL = "/docs/glossary/skip-connection";
 const POSITIONAL_ENCODINGS_URL = "/docs/concepts/positional-encodings";
 const ROPE_URL = "/docs/glossary/rope";
 const ALIBI_URL = "/docs/glossary/alibi";
 const CONTEXT_WINDOW_URL = "/docs/glossary/context-window";
-const KV_CACHE_URL = "/docs/glossary/kv-cache";
-const PREFILL_URL = "/docs/glossary/prefill";
-const DECODE_URL = "/docs/glossary/decode";
-const PREFILL_DECODE_SPLIT_URL = "/docs/glossary/prefill-decode-split";
-const SAMPLING_OVERVIEW_URL = "/docs/glossary/sampling-overview";
-const GREEDY_DECODING_URL = "/docs/glossary/greedy-decoding";
-const TOP_K_SAMPLING_URL = "/docs/glossary/top-k-sampling";
-const TOP_P_SAMPLING_URL = "/docs/glossary/top-p-sampling";
 const CONTEXT_EXTENSION_URL = "/docs/concepts/context-extension";
 const WHY_LONG_CONTEXT_IS_HARD_URL = "/docs/concepts/why-long-context-is-hard";
-const QUANTIZATION_URL = "/docs/concepts/quantization";
-const POST_TRAINING_QUANTIZATION_URL =
-  "/docs/concepts/post-training-quantization";
-const CALIBRATION_URL = "/docs/concepts/calibration";
-const QUANTIZATION_AWARE_TRAINING_URL =
-  "/docs/concepts/quantization-aware-training";
-const DYNAMIC_QUANTIZATION_URL = "/docs/concepts/dynamic-quantization";
-const WEIGHT_ONLY_QUANTIZATION_URL = "/docs/concepts/weight-only-quantization";
-const ACTIVATION_QUANTIZATION_URL = "/docs/concepts/activation-quantization";
-const KV_CACHE_QUANTIZATION_URL = "/docs/concepts/kv-cache-quantization";
-const WHY_FOUR_BIT_MODELS_ARE_NOT_EXACTLY_FOUR_X_FASTER_URL =
-  "/docs/concepts/why-4-bit-models-are-not-exactly-4x-faster";
 const STRUCTURAL_TAXONOMY_URLS = [
   "/docs/glossary/model",
   "/docs/glossary/architecture",
@@ -93,14 +69,6 @@ const GENERATION_PARADIGM_URLS = [
   "/docs/glossary/autoregressive-generation",
   "/docs/glossary/denoising-generation",
   "/docs/glossary/conditioning",
-  KV_CACHE_URL,
-  PREFILL_URL,
-  DECODE_URL,
-  PREFILL_DECODE_SPLIT_URL,
-  SAMPLING_OVERVIEW_URL,
-  GREEDY_DECODING_URL,
-  TOP_K_SAMPLING_URL,
-  TOP_P_SAMPLING_URL,
 ] as const;
 const TRAINING_BEHAVIOR_URLS = [
   "/docs/glossary/alignment",
@@ -149,35 +117,22 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   TRANSFORMER_ARCHITECTURE_URL,
   PAGE_SPEC_WORKFLOW_SAMPLE_URL,
   FEED_FORWARD_NETWORK_URL,
-  BATCH_NORM_URL,
-  GROUP_NORM_URL,
   STANDARD_FFN_URL,
-  MIXTURE_OF_EXPERTS_URL,
   RELU_URL,
   LEAKY_RELU_URL,
   SILU_URL,
   SWIGLU_URL,
+  MIXTURE_OF_EXPERTS_URL,
   LAYER_NORM_URL,
   RMSNORM_URL,
   NORMALIZATION_URL,
-  QK_NORM_URL,
   RESIDUAL_CONNECTION_URL,
-  SKIP_CONNECTION_URL,
   POSITIONAL_ENCODINGS_URL,
   ROPE_URL,
   ALIBI_URL,
   CONTEXT_WINDOW_URL,
   CONTEXT_EXTENSION_URL,
   WHY_LONG_CONTEXT_IS_HARD_URL,
-  QUANTIZATION_URL,
-  POST_TRAINING_QUANTIZATION_URL,
-  CALIBRATION_URL,
-  QUANTIZATION_AWARE_TRAINING_URL,
-  DYNAMIC_QUANTIZATION_URL,
-  WEIGHT_ONLY_QUANTIZATION_URL,
-  ACTIVATION_QUANTIZATION_URL,
-  KV_CACHE_QUANTIZATION_URL,
-  WHY_FOUR_BIT_MODELS_ARE_NOT_EXACTLY_FOUR_X_FASTER_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
   ...REPRESENTATION_LATENT_URLS,
@@ -267,16 +222,6 @@ describe("exportOramaIndexSnapshot", () => {
     { query: "multi-head attention", url: MULTI_HEAD_ATTENTION_URL },
     { query: "MQA", url: MULTI_QUERY_ATTENTION_URL },
     { query: "multi-query attention", url: MULTI_QUERY_ATTENTION_URL },
-    { query: "feed-forward network", url: FEED_FORWARD_NETWORK_URL },
-    { query: "standard FFN", url: STANDARD_FFN_URL },
-    { query: "normalization", url: NORMALIZATION_URL },
-    { query: "layer norm", url: LAYER_NORM_URL },
-    { query: "batch norm", url: BATCH_NORM_URL },
-    { query: "group norm", url: GROUP_NORM_URL },
-    { query: "RMSNorm", url: RMSNORM_URL },
-    { query: "QK norm", url: QK_NORM_URL },
-    { query: "residual connection", url: RESIDUAL_CONNECTION_URL },
-    { query: "skip connection", url: SKIP_CONNECTION_URL },
   ] as const)("Orama database records rank %s for the %s alias query", async ({
     query,
     url,

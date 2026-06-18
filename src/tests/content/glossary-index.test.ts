@@ -108,9 +108,9 @@ describe("loadPublishedGlossaryEntries", () => {
     expect(optimizerState?.summary.length).toBeGreaterThan(0);
   });
 
-  it("includes all published glossary pages with localized titles", async () => {
+  it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(71);
+    expect(entries).toHaveLength(59);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -128,55 +128,26 @@ describe("loadPublishedGlossaryEntries", () => {
     );
     expect(encoder?.title).toBe("Encoder");
 
-    const kvCache = entries.find(
-      (entry) => entry.url === "/docs/glossary/kv-cache",
+    const standardFfn = entries.find(
+      (entry) => entry.url === "/docs/glossary/standard-ffn",
     );
-    expect(kvCache?.title).toBe("KV cache");
+    expect(standardFfn?.title).toBe("Standard FFN");
 
-    const prefill = entries.find(
-      (entry) => entry.url === "/docs/glossary/prefill",
-    );
-    expect(prefill?.title).toBe("Prefill");
+    const relu = entries.find((entry) => entry.url === "/docs/glossary/relu");
+    expect(relu?.title).toBe("ReLU");
 
-    const prefillDecodeSplit = entries.find(
-      (entry) => entry.url === "/docs/glossary/prefill-decode-split",
+    const leakyRelu = entries.find(
+      (entry) => entry.url === "/docs/glossary/leaky-relu",
     );
-    expect(prefillDecodeSplit?.title).toBe("Prefill/decode split");
+    expect(leakyRelu?.title).toBe("LeakyReLU");
 
-    const decode = entries.find(
-      (entry) => entry.url === "/docs/glossary/decode",
-    );
-    expect(decode?.title).toBe("Decode");
-
-    const samplingOverview = entries.find(
-      (entry) => entry.url === "/docs/glossary/sampling-overview",
-    );
-    expect(samplingOverview?.title).toBe("Sampling Overview");
-
-    const greedyDecoding = entries.find(
-      (entry) => entry.url === "/docs/glossary/greedy-decoding",
-    );
-    expect(greedyDecoding?.title).toBe("Greedy Decoding");
-
-    const topKSampling = entries.find(
-      (entry) => entry.url === "/docs/glossary/top-k-sampling",
-    );
-    expect(topKSampling?.title).toBe("Top-K Sampling");
-
-    const topPSampling = entries.find(
-      (entry) => entry.url === "/docs/glossary/top-p-sampling",
-    );
-    expect(topPSampling?.title).toBe("Top-P Sampling");
+    const silu = entries.find((entry) => entry.url === "/docs/glossary/silu");
+    expect(silu?.title).toBe("SiLU");
 
     const swiglu = entries.find(
       (entry) => entry.url === "/docs/glossary/swiglu",
     );
     expect(swiglu?.title).toBe("SwiGLU");
-
-    const skipConnection = entries.find(
-      (entry) => entry.url === "/docs/glossary/skip-connection",
-    );
-    expect(skipConnection?.title).toBe("Skip connection");
   });
 });
 
@@ -242,26 +213,16 @@ describe("glossary index page render", () => {
     expect(html).toContain('href="/docs/glossary/entropy"');
     expect(html).toContain("Temperature");
     expect(html).toContain('href="/docs/glossary/temperature"');
-    expect(html).toContain("Greedy Decoding");
-    expect(html).toContain('href="/docs/glossary/greedy-decoding"');
-    expect(html).toContain("Top-K Sampling");
-    expect(html).toContain('href="/docs/glossary/top-k-sampling"');
-    expect(html).toContain("Top-P Sampling");
-    expect(html).toContain('href="/docs/glossary/top-p-sampling"');
     expect(html).toContain("Parameter");
     expect(html).toContain('href="/docs/glossary/parameter"');
     expect(html).toContain("Activation");
     expect(html).toContain('href="/docs/glossary/activation"');
+    expect(html).toContain("ReLU");
+    expect(html).toContain('href="/docs/glossary/relu"');
+    expect(html).toContain("LeakyReLU");
+    expect(html).toContain('href="/docs/glossary/leaky-relu"');
     expect(html).toContain("Computational Graph");
     expect(html).toContain('href="/docs/glossary/computational-graph"');
-    expect(html).toContain("KV cache");
-    expect(html).toContain('href="/docs/glossary/kv-cache"');
-    expect(html).toContain("Decode");
-    expect(html).toContain('href="/docs/glossary/decode"');
-    expect(html).toContain("Prefill");
-    expect(html).toContain('href="/docs/glossary/prefill"');
-    expect(html).toContain("Prefill/decode split");
-    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(html).not.toContain("No glossary entries yet");
     expect(html).toContain("list-none");
     expect(html).not.toContain("list-disc");

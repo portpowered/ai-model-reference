@@ -36,16 +36,20 @@ describe("Phase 3 feed-forward network glossary page (US-002)", () => {
     expect(record?.tags).toEqual(["foundations"]);
     expect(record?.relatedIds).toEqual([
       "concept.transformer-architecture",
-      "concept.standard-ffn",
-      "concept.mixture-of-experts",
       "concept.activation",
+      "concept.standard-ffn",
+      "concept.relu",
+      "concept.leaky-relu",
+      "concept.silu",
+      "concept.swiglu",
+      "concept.mixture-of-experts",
     ]);
     expect(
       PUBLISHED_DOCS_REGISTRY_IDS.has("concept.feed-forward-network"),
     ).toBe(true);
   });
 
-  test("curated related links transformer architecture, standard FFN, mixture of experts, and activation", () => {
+  test("curated related links connect the broad FFN overview to architecture and nearby family variants", () => {
     const source = getConceptById("concept.feed-forward-network");
     if (!source) {
       throw new Error("expected concept.feed-forward-network in registry");
@@ -69,17 +73,35 @@ describe("Phase 3 feed-forward network glossary page (US-002)", () => {
     expect(standardFfn?.href).toBe("/docs/glossary/standard-ffn");
     expect(standardFfn?.isPlanned).toBe(false);
 
-    const moe = items.find(
-      (item) => item.registryId === "concept.mixture-of-experts",
-    );
-    expect(moe?.href).toBe("/docs/glossary/mixture-of-experts");
-    expect(moe?.isPlanned).toBe(false);
-
     const activation = items.find(
       (item) => item.registryId === "concept.activation",
     );
     expect(activation?.href).toBe("/docs/glossary/activation");
     expect(activation?.isPlanned).toBe(false);
+
+    const relu = items.find((item) => item.registryId === "concept.relu");
+    expect(relu?.href).toBe("/docs/glossary/relu");
+    expect(relu?.isPlanned).toBe(false);
+
+    const leakyRelu = items.find(
+      (item) => item.registryId === "concept.leaky-relu",
+    );
+    expect(leakyRelu?.href).toBe("/docs/glossary/leaky-relu");
+    expect(leakyRelu?.isPlanned).toBe(false);
+
+    const silu = items.find((item) => item.registryId === "concept.silu");
+    expect(silu?.href).toBe("/docs/glossary/silu");
+    expect(silu?.isPlanned).toBe(false);
+
+    const swiglu = items.find((item) => item.registryId === "concept.swiglu");
+    expect(swiglu?.href).toBe("/docs/glossary/swiglu");
+    expect(swiglu?.isPlanned).toBe(false);
+
+    const moe = items.find(
+      (item) => item.registryId === "concept.mixture-of-experts",
+    );
+    expect(moe?.href).toBe("/docs/glossary/mixture-of-experts");
+    expect(moe?.isPlanned).toBe(false);
   });
 
   test("messages describe per-position FFN role after attention", () => {
@@ -100,7 +122,7 @@ describe("Phase 3 feed-forward network glossary page (US-002)", () => {
     );
   });
 
-  test("page renders glossary sections, tag pills, and FFN-family related links", async () => {
+  test("page renders glossary sections, tag pills, and FFN family related links", async () => {
     const page = await loadGlossaryPage("feed-forward-network");
 
     expect(page.frontmatter.kind).toBe("glossary");
@@ -123,9 +145,13 @@ describe("Phase 3 feed-forward network glossary page (US-002)", () => {
     expect(html).toContain("Why It Matters");
     expectHtmlToContainProse(html, "two-layer perceptron");
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
-    expect(html).toContain('href="/docs/glossary/standard-ffn"');
-    expect(html).toContain('href="/docs/glossary/mixture-of-experts"');
     expect(html).toContain('href="/docs/glossary/activation"');
+    expect(html).toContain('href="/docs/glossary/standard-ffn"');
+    expect(html).toContain('href="/docs/glossary/relu"');
+    expect(html).toContain('href="/docs/glossary/leaky-relu"');
+    expect(html).toContain('href="/docs/glossary/silu"');
+    expect(html).toContain('href="/docs/glossary/swiglu"');
+    expect(html).toContain('href="/docs/glossary/mixture-of-experts"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="curated-related-docs"');

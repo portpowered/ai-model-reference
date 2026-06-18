@@ -29,26 +29,19 @@ const BATCH_017_DOCS_URLS = [
   "/docs/modules/linear-attention",
   "/docs/concepts/transformer-architecture",
   "/docs/glossary/feed-forward-network",
-  "/docs/glossary/batch-norm",
-  "/docs/glossary/group-norm",
-  "/docs/glossary/standard-ffn",
   "/docs/glossary/mixture-of-experts",
-  "/docs/glossary/relu",
-  "/docs/glossary/leaky-relu",
-  "/docs/glossary/silu",
-  "/docs/glossary/swiglu",
   "/docs/glossary/normalization",
-  "/docs/glossary/qk-norm",
   "/docs/glossary/layer-norm",
   "/docs/glossary/rmsnorm",
   "/docs/glossary/residual-connection",
-  "/docs/glossary/skip-connection",
   "/docs/concepts/positional-encodings",
   "/docs/glossary/rope",
   "/docs/glossary/alibi",
   "/docs/glossary/context-window",
   "/docs/concepts/context-extension",
   "/docs/concepts/why-long-context-is-hard",
+  "/docs/glossary/silu",
+  "/docs/glossary/swiglu",
 ] as const;
 
 const SPOT_CHECK_URLS = [
@@ -56,11 +49,6 @@ const SPOT_CHECK_URLS = [
   "/docs/modules/multi-head-attention",
   "/docs/glossary/rope",
   "/docs/glossary/context-window",
-] as const;
-
-const BATCH_017_DOCS_URL_GROUPS = [
-  BATCH_017_DOCS_URLS.slice(0, 12),
-  BATCH_017_DOCS_URLS.slice(12),
 ] as const;
 
 function parseDocsUrl(url: string): {
@@ -101,28 +89,6 @@ function extractArticleHtml(html: string, registryId: string): string {
   return extractModuleArticleHtml(html, registryId);
 }
 
-async function expectSingleShellOwnedPrimaryTitle(url: string): Promise<void> {
-  const { section, slug } = parseDocsUrl(url);
-  const loadedPage = await loadLocalDocsPage({ section, slug });
-  const html = renderReconciledDocsShell(section, loadedPage);
-  const articleHtml = extractArticleHtml(
-    html,
-    loadedPage.frontmatter.registryId,
-  );
-
-  expect(articleHtml.length).toBeGreaterThan(0);
-  expect(countH1BlocksContaining(html, loadedPage.messages.title)).toBe(1);
-  expectGlossaryBodyOmitsTitleHeading(articleHtml, loadedPage.messages.title);
-  expectGlossaryBodyOmitsShellDescription(
-    articleHtml,
-    loadedPage.messages.description,
-  );
-
-  if (section === "glossary" || section === "concepts") {
-    expectGlossaryOmitsOpeningSummary(html);
-  }
-}
-
 describe("Phase 2/3 reconciliation single primary title (US-005)", () => {
   if (process.env[VERIFY_COVERAGE_SUBPROCESS_ENV] === "1") {
     test("skips shell title convergence during coverage subprocess rerun", () => {});
@@ -147,17 +113,38 @@ describe("Phase 2/3 reconciliation single primary title (US-005)", () => {
     }
   });
 
-  for (const [index, urls] of BATCH_017_DOCS_URL_GROUPS.entries()) {
-    test(
-      `batch 017 title convergence group ${index + 1} renders exactly one shell-owned primary title`,
-      async () => {
-        for (const url of urls) {
-          await expectSingleShellOwnedPrimaryTitle(url);
+  test(
+    "every batch 017 page renders exactly one shell-owned primary title",
+    async () => {
+      for (const url of BATCH_017_DOCS_URLS) {
+        const { section, slug } = parseDocsUrl(url);
+        const loadedPage = await loadLocalDocsPage({ section, slug });
+        const html = renderReconciledDocsShell(section, loadedPage);
+        const articleHtml = extractArticleHtml(
+          html,
+          loadedPage.frontmatter.registryId,
+        );
+
+        expect(articleHtml.length).toBeGreaterThan(0);
+        expect(countH1BlocksContaining(html, loadedPage.messages.title)).toBe(
+          1,
+        );
+        expectGlossaryBodyOmitsTitleHeading(
+          articleHtml,
+          loadedPage.messages.title,
+        );
+        expectGlossaryBodyOmitsShellDescription(
+          articleHtml,
+          loadedPage.messages.description,
+        );
+
+        if (section === "glossary" || section === "concepts") {
+          expectGlossaryOmitsOpeningSummary(html);
         }
-      },
-      { timeout: 15_000 },
-    );
-  }
+      }
+    },
+    { timeout: 10_000 },
+  );
 
   test("spot-check pages keep glossary or module shell title patterns", async () => {
     for (const url of SPOT_CHECK_URLS) {

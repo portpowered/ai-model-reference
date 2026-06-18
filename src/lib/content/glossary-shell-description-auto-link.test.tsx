@@ -16,16 +16,6 @@ import {
 } from "@/lib/content/glossary-test-helpers";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 
-function chunkValues<T>(values: T[], size: number): T[][] {
-  const chunks: T[][] = [];
-
-  for (let index = 0; index < values.length; index += size) {
-    chunks.push(values.slice(index, index + size));
-  }
-
-  return chunks;
-}
-
 describe("glossary shell description auto-link convergence", () => {
   test("glossary docs routes wire shell descriptions through DocsAutoLinkedDescription", () => {
     const pageRendererSource = readFileSync(
@@ -55,103 +45,35 @@ describe("glossary shell description auto-link convergence", () => {
     expect(autoLinkedDescriptionSource).toContain("ProseAutoLinkText");
   });
 
-  for (const [chunkIndex, slugChunk] of chunkValues(
-    [
-      "activation",
-      "alibi",
-      "alignment",
-      "architecture",
-      "autoregressive-generation",
-      "component",
-      "computational-graph",
-      "conditioning",
-      "context-window",
-      "decode",
-      "decoder",
-      "denoising-generation",
-      "diffusion-model",
-      "discriminative-model",
-      "embedding",
-      "emergent-behavior",
-      "encoder",
-      "encoder-decoder",
-      "entropy",
-      "feed-forward-network",
-      "foundation-model",
-      "generalization",
-      "generative-model",
-      "gradient",
-      "hidden-size",
-      "kv-cache",
-      "latent",
-      "latent-space",
-      "layer-norm",
-      "logit",
-      "loss-function",
-      "mixture-of-experts",
-      "modality",
-      "model",
-      "model-capacity",
-      "module",
-      "multimodal-model",
-      "normalization",
-      "optimizer-state",
-      "overfitting",
-      "parameter",
-      "patch",
-      "perplexity",
-      "prefill",
-      "prefill-decode-split",
-      "representation",
-      "residual-connection",
-      "rmsnorm",
-      "rope",
-      "scaling-law",
-      "softmax",
-      "temperature",
-      "tensor",
-      "token",
-      "transformer",
-      "vector",
-      "world-model",
-    ],
-    20,
-  ).entries()) {
-    test(
-      `published glossary pages chunk ${chunkIndex + 1} renders auto-linked shell descriptions without body duplication`,
-      async () => {
-        const pageSet = new Set(slugChunk);
-        const pages = (await listPublishedGlossaryPages()).filter((page) =>
-          pageSet.has(page.slug),
+  test(
+    "published glossary pages render auto-linked shell descriptions without body duplication",
+    async () => {
+      const pages = await listPublishedGlossaryPages();
+
+      for (const page of pages) {
+        const loadedPage = await loadLocalDocsPage({
+          section: "glossary",
+          slug: page.slug,
+        });
+        const html = renderGlossaryDocsShell(loadedPage);
+        const articleHtml = extractGlossaryArticleHtml(
+          html,
+          loadedPage.frontmatter.registryId,
         );
 
-        expect(pages).toHaveLength(slugChunk.length);
-
-        for (const page of pages) {
-          const loadedPage = await loadLocalDocsPage({
-            section: "glossary",
-            slug: page.slug,
-          });
-          const html = renderGlossaryDocsShell(loadedPage);
-          const articleHtml = extractGlossaryArticleHtml(
-            html,
-            loadedPage.frontmatter.registryId,
-          );
-
-          const articleStart = html.indexOf("<article");
-          const shellHtml =
-            articleStart >= 0 ? html.slice(0, articleStart) : html;
-          expectHtmlToContainProse(shellHtml, loadedPage.messages.description);
-          expectGlossaryBodyOmitsShellDescription(
-            articleHtml,
-            loadedPage.messages.description,
-          );
-          expectGlossaryShellAutoLinksUseProseContract(html);
-        }
-      },
-      { timeout: 10_000 },
-    );
-  }
+        const articleStart = html.indexOf("<article");
+        const shellHtml =
+          articleStart >= 0 ? html.slice(0, articleStart) : html;
+        expectHtmlToContainProse(shellHtml, loadedPage.messages.description);
+        expectGlossaryBodyOmitsShellDescription(
+          articleHtml,
+          loadedPage.messages.description,
+        );
+        expectGlossaryShellAutoLinksUseProseContract(html);
+      }
+    },
+    { timeout: 20_000 },
+  );
 
   test("/docs/glossary/embedding shell description links dense vector and token with preserved link text", async () => {
     const loadedPage = await loadLocalDocsPage({
