@@ -9,6 +9,8 @@
   "relatedIds": [
     "concept.feed-forward-network",
     "concept.standard-ffn",
+    "concept.swiglu",
+    "concept.activation",
     "concept.transformer-architecture"
   ],
   "citationIds": [],

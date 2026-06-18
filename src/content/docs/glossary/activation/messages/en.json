@@ -8,7 +8,7 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Activations determine what information reaches the next layer and what backpropagation will differentiate. Memory planners track activation tensors during training because they are large but temporary, unlike checkpointed parameters."
+      "body": "Activations determine what information reaches the next layer and what backpropagation will differentiate. Memory planners track activation tensors during training because they are large but temporary, unlike checkpointed parameters. This page is the broad foundation for that idea; pages like ReLU, LeakyReLU, and SiLU zoom in on specific FFN activation choices, while SwiGLU shows how gating can turn that idea into a different FFN block shape."
     },
     "simpleExample": {
       "title": "Simple Example",
@@ -20,7 +20,7 @@
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "A hidden activation is not the same as softmax: softmax turns vocabulary logits into a probability vector at the output head, while activations are internal layer outputs that may never be normalized across the vocabulary. Saying a “ReLU activation” refers to the nonlinearity applied inside a layer, not to the softmax step at decode time."
+      "body": "A hidden activation is not the same as softmax: softmax turns vocabulary logits into a probability vector at the output head, while activations are internal layer outputs that may never be normalized across the vocabulary. Saying a “ReLU activation” refers to one specific nonlinearity that shapes FFN activations, not to the softmax step at decode time. ReLU, LeakyReLU, and SiLU are specific activation choices; SwiGLU goes one step further and changes the FFN into a gated two-branch block."
     },
     "related": {
       "title": "Related Concepts And Modules"

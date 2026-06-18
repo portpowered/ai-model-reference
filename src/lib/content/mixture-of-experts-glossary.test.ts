@@ -37,6 +37,8 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
     expect(record?.relatedIds).toEqual([
       "concept.feed-forward-network",
       "concept.standard-ffn",
+      "concept.swiglu",
+      "concept.activation",
       "concept.transformer-architecture",
     ]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.mixture-of-experts")).toBe(
@@ -44,7 +46,7 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
     );
   });
 
-  test("curated related links feed-forward network, standard FFN, and transformer architecture", () => {
+  test("curated related links contrast MoE with the dense and gated FFN family", () => {
     const source = getConceptById("concept.mixture-of-experts");
     if (!source) {
       throw new Error("expected concept.mixture-of-experts in registry");
@@ -67,6 +69,16 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
     );
     expect(standardFfn?.href).toBe("/docs/glossary/standard-ffn");
     expect(standardFfn?.isPlanned).toBe(false);
+
+    const swiglu = items.find((item) => item.registryId === "concept.swiglu");
+    expect(swiglu?.href).toBe("/docs/glossary/swiglu");
+    expect(swiglu?.isPlanned).toBe(false);
+
+    const activation = items.find(
+      (item) => item.registryId === "concept.activation",
+    );
+    expect(activation?.href).toBe("/docs/glossary/activation");
+    expect(activation?.isPlanned).toBe(false);
 
     const architecture = items.find(
       (item) => item.registryId === "concept.transformer-architecture",
@@ -119,6 +131,8 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
     expectHtmlToContainProse(html, "gating network");
     expect(html).toContain('href="/docs/glossary/feed-forward-network"');
     expect(html).toContain('href="/docs/glossary/standard-ffn"');
+    expect(html).toContain('href="/docs/glossary/swiglu"');
+    expect(html).toContain('href="/docs/glossary/activation"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');

@@ -8,7 +8,7 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Attention decides what each position can read from the sequence; the FFN decides how to transform what was read into richer features. Most transformer blocks alternate these two steps, so recognizing the FFN slot helps you read architecture diagrams and spot when a model swaps a dense MLP for a mixture-of-experts layer while keeping the block shape."
+      "body": "Attention decides what each position can read from the sequence; the FFN decides how to transform what was read into richer features. Most transformer blocks alternate these two steps, so recognizing the FFN slot helps you read architecture diagrams and spot when a model swaps a dense MLP for a mixture-of-experts layer while keeping the block shape. This page is the broad map of that slot; nearby pages like Standard FFN, ReLU, SiLU, and SwiGLU zoom in on one default block shape or one activation-driven variant inside it."
     },
     "simpleExample": {
       "title": "Simple Example",
@@ -16,7 +16,7 @@
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "The FFN is not attention: it does not look at other tokens. It is also not the language-model head at the stack top—that head maps final hidden states to vocabulary logits. A mixture-of-experts layer replaces the dense FFN with routed expert MLPs but still sits in the same block slot after attention."
+      "body": "The FFN is not attention: it does not look at other tokens. It is also not the language-model head at the stack top—that head maps final hidden states to vocabulary logits. Standard FFN is the default dense version of this slot, while ReLU, LeakyReLU, and SiLU name different nonlinearities that can live inside it. SwiGLU changes the internal FFN shape with gating, and a mixture-of-experts layer replaces one shared dense path with routed expert MLPs while still sitting in the same block slot after attention."
     },
     "related": {
       "title": "Related Concepts And Modules"

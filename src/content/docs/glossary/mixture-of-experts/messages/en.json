@@ -8,7 +8,7 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "MoE increases total parameter count while keeping compute per token roughly flat, because only a few experts activate per step. That tradeoff matters when scaling language models: you can add capacity without multiplying FLOPs for every position. Capacity limits, load balancing, and routing noise also shape training stability, so recognizing MoE helps you read model cards that list expert counts and top-k routing."
+      "body": "MoE increases total parameter count while keeping compute per token roughly flat, because only a few experts activate per step. That tradeoff matters when scaling language models: you can add capacity without multiplying FLOPs for every position. Capacity limits, load balancing, and routing noise also shape training stability, so recognizing MoE helps you read model cards that list expert counts and top-k routing. It also helps to see where MoE sits relative to the rest of the FFN family: it replaces the default dense block in the usual transformer slot rather than adding a whole new stage elsewhere."
     },
     "simpleExample": {
       "title": "Simple Example",
@@ -16,7 +16,7 @@
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "MoE is not a model ensemble: ensembles combine separate full models at inference, while MoE keeps one shared stack and only sparsely activates internal experts. MoE is also not the same as a dense FFN—both sit after attention in the block, but dense FFN runs one MLP for every token whereas MoE selects a small subset. Finally, total expert parameters are not all used on every forward pass; active compute tracks top-k, not the full expert pool."
+      "body": "MoE is not a model ensemble: ensembles combine separate full models at inference, while MoE keeps one shared stack and only sparsely activates internal experts. MoE is also not the same as a dense FFN—both sit after attention in the block, but dense FFN runs one MLP for every token whereas MoE selects a small subset. SwiGLU is another FFN variant, but it keeps one shared gated dense block rather than routing tokens across experts. Finally, total expert parameters are not all used on every forward pass; active compute tracks top-k, not the full expert pool."
     },
     "related": {
       "title": "Related Concepts And Modules"

@@ -29,6 +29,12 @@ describe("Phase 2 parameter, activation, and computational graph glossary pages 
     expect(parameter?.prerequisiteIds).toContain("concept.softmax");
     expect(parameter?.relatedIds).toContain("concept.activation");
     expect(activation?.prerequisiteIds).toContain("concept.parameter");
+    expect(activation?.relatedIds).toContain("concept.feed-forward-network");
+    expect(activation?.relatedIds).toContain("concept.standard-ffn");
+    expect(activation?.relatedIds).toContain("concept.relu");
+    expect(activation?.relatedIds).toContain("concept.leaky-relu");
+    expect(activation?.relatedIds).toContain("concept.silu");
+    expect(activation?.relatedIds).toContain("concept.swiglu");
     expect(activation?.relatedIds).toContain("concept.computational-graph");
     expect(graph?.prerequisiteIds).toContain("concept.activation");
     expect(graph?.relatedIds).toContain("concept.gradient");
@@ -55,7 +61,7 @@ describe("Phase 2 parameter, activation, and computational graph glossary pages 
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
   });
 
-  test("activation page distinguishes activations from softmax and links to computational graph", async () => {
+  test("activation page distinguishes activations from softmax and links into the FFN variant family", async () => {
     const page = await loadGlossaryPage("activation");
     expect(page.frontmatter.status).toBe("published");
 
@@ -71,6 +77,15 @@ describe("Phase 2 parameter, activation, and computational graph glossary pages 
     expect(html).toContain("Activation");
     expect(html).toContain("What It Is");
     expect(html).toContain("not the same as softmax");
+    expect(html).toContain(">ReLU<");
+    expect(html).toContain(">LeakyReLU<");
+    expect(html).toContain(">SiLU<");
+    expect(html).toContain('href="/docs/glossary/feed-forward-network"');
+    expect(html).toContain('href="/docs/glossary/standard-ffn"');
+    expect(html).toContain('href="/docs/glossary/relu"');
+    expect(html).toContain('href="/docs/glossary/leaky-relu"');
+    expect(html).toContain('href="/docs/glossary/silu"');
+    expect(html).toContain('href="/docs/glossary/swiglu"');
     expect(html).toContain('href="/docs/glossary/computational-graph"');
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
   });
