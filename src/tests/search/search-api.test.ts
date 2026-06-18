@@ -29,10 +29,8 @@ import {
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
 const STATIC_CLIENT_GQA_URL = `${TEST_DOCS_SEARCH_URL}?static-client=gqa`;
-const STATIC_CLIENT_ATTENTION_URL =
-  `${TEST_DOCS_SEARCH_URL}?static-client=attention`;
-const STATIC_CLIENT_KV_CACHE_URL =
-  `${TEST_DOCS_SEARCH_URL}?static-client=kv-cache`;
+const STATIC_CLIENT_ATTENTION_URL = `${TEST_DOCS_SEARCH_URL}?static-client=attention`;
+const STATIC_CLIENT_KV_CACHE_URL = `${TEST_DOCS_SEARCH_URL}?static-client=kv-cache`;
 
 describe("Phase 1 /api/search regression", () => {
   for (const assertion of PHASE_1_SEARCH_ASSERTIONS) {
