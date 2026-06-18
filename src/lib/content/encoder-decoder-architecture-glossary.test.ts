@@ -84,6 +84,7 @@ describe("Phase 2 encoder-decoder architecture glossary pages (US-002)", () => {
   test("encoder-decoder surfaces published autoregressive generation and transformer links", async () => {
     const html = await renderGlossaryHtml("encoder-decoder");
 
+    expect(html).toContain('href="/docs/concepts/cross-attention"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/transformer"');
     expect(html).toContain("Transformers");

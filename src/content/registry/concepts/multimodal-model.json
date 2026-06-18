@@ -13,6 +13,7 @@
   "relatedIds": [
     "concept.architecture",
     "concept.modality",
+    "concept.cross-attention",
     "concept.patch",
     "concept.representation",
     "concept.generative-model"

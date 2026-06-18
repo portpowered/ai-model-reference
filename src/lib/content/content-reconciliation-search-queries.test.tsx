@@ -24,6 +24,7 @@ const RELU_GLOSSARY_URL = "/docs/modules/relu";
 const LEAKY_RELU_GLOSSARY_URL = "/docs/modules/leaky-relu";
 const SILU_GLOSSARY_URL = "/docs/modules/silu";
 const SWIGLU_GLOSSARY_URL = "/docs/modules/swiglu";
+const CROSS_ATTENTION_CONCEPT_URL = "/docs/concepts/cross-attention";
 const NORMALIZATION_GLOSSARY_URL = "/docs/glossary/normalization";
 const LAYER_NORM_GLOSSARY_URL = "/docs/modules/layer-norm";
 const BATCH_NORM_GLOSSARY_URL = "/docs/modules/batch-norm";
@@ -37,6 +38,19 @@ const ATTENTION_MODULE_QUERIES = [
   { query: "MHA", url: MULTI_HEAD_ATTENTION_URL },
   { query: "MQA", url: MULTI_QUERY_ATTENTION_URL },
   { query: "sparse attention", url: SPARSE_ATTENTION_URL },
+] as const;
+
+const ATTENTION_CONCEPT_QUERIES = [
+  {
+    query: "cross attention",
+    url: CROSS_ATTENTION_CONCEPT_URL,
+    kind: "concept" as const,
+  },
+  {
+    query: "encoder-decoder attention",
+    url: CROSS_ATTENTION_CONCEPT_URL,
+    kind: "concept" as const,
+  },
 ] as const;
 
 const GLOSSARY_CANONICAL_QUERIES = [
@@ -160,6 +174,20 @@ describe("Phase 2/3 reconciliation search API ranking (US-010)", () => {
   });
 
   test.each(
+    ATTENTION_CONCEPT_QUERIES.map(
+      ({ query, url, kind }) => [query, url, kind] as const,
+    ),
+  )("%s query ranks cross-attention concept first with %s kind", async (query, url, kind) => {
+    const results = await docsSearchApi.search(query);
+    const metaMap = await loadSearchResultMetaMap();
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(pageBaseUrl(results[0]?.url ?? "")).toBe(url);
+    expect(metaMap.get(url)?.kind).toBe(kind);
+    expectUniqueCanonicalPageUrls(results.map((result) => result.url));
+  });
+
+  test.each(
     GLOSSARY_CANONICAL_QUERIES.map(
       ({ query, url, kind }) => [query, url, kind] as const,
     ),
@@ -181,6 +209,7 @@ describe("Phase 2/3 reconciliation search UI kind labels (US-010)", () => {
     [MULTI_HEAD_ATTENTION_URL, "module", "Module"],
     [MULTI_QUERY_ATTENTION_URL, "module", "Module"],
     [SPARSE_ATTENTION_URL, "module", "Module"],
+    [CROSS_ATTENTION_CONCEPT_URL, "concept", "Concept"],
     [ROPE_GLOSSARY_URL, "module", "Module"],
     [CONTEXT_WINDOW_GLOSSARY_URL, "glossary", "Glossary"],
     [FEED_FORWARD_NETWORK_GLOSSARY_URL, "module", "Module"],
