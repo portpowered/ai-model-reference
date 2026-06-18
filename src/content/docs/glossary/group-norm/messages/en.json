@@ -1,0 +1,32 @@
+{
+  "title": "Group norm",
+  "description": "Channel-group normalization that rescales each example using per-group statistics, often used when batch norm is awkward or unstable.",
+  "openingSummary": "Group norm normalizes small channel groups inside one example, which avoids depending on minibatch-wide statistics while still sharing scale information across related features.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Group normalization splits a hidden tensor's channels into several groups, computes a mean and variance inside each group for one example, then rescales those channels before applying learned parameters. It does not pool statistics across the whole minibatch, and it does not treat the entire feature vector as one unit the way layer norm does."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Group norm is useful when batch norm would be noisy because batches are small or irregular, especially in vision models. It shows up less often in transformer language models because token vectors are usually normalized with layer norm or RMSNorm, but it remains a helpful comparison point when a paper mixes convolutional and transformer blocks."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose an image feature map has 64 channels and the model groups them into 8 groups of 8 channels each. Group norm rescales each group using only that example's own values, so one image does not depend on its batch neighbors. The result is steadier than raw activations while staying less batch-sensitive than batch norm."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Group norm is not batch norm without learned parameters. Both usually keep learned scale and shift, but batch norm pools across examples while group norm stays inside one example. Group norm is also not layer norm: layer norm uses one full token or feature vector, while group norm keeps several smaller channel groups. In transformer papers, layer norm and RMSNorm are still the more common default names."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

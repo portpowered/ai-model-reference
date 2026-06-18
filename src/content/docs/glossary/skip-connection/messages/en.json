@@ -1,0 +1,32 @@
+{
+  "title": "Skip connection",
+  "description": "A broader shortcut path that carries information around one or more layers, including the residual adds used inside transformers.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A skip connection is any shortcut path that lets a signal bypass part of a network and rejoin later. Residual connections are the transformer version most readers see: the block input travels around attention or the feed-forward network and is added back to the updated stream. In other architectures, the skipped path can also be concatenated or merged in other ways, so skip connection is the broader family name."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Shortcut paths help deep models keep useful information alive while later layers learn refinements. In transformers, that means attention and feed-forward sublayers can make focused updates without overwriting the whole residual stream. In convolutional or encoder-decoder systems, skip paths can also carry spatial detail or earlier features forward so later layers do not need to reconstruct everything from scratch."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Picture a transformer block as two workstations in a row: one attention step and one feed-forward step. A residual connection wraps each workstation, so the incoming hidden state can skip around the work and be added back at the end. That is a skip connection. In a U-Net, a skip connection can send early image features directly to a later decoder stage instead of only through the deepest bottleneck."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Readers often use skip connection and residual connection as if they were exact synonyms. In transformer writing that is usually harmless, because the main skip path is a residual add. The broader term still matters because some skip connections are concatenations or cross-stage handoffs rather than adds. A skip path is also not the same as normalization: the shortcut preserves or forwards information, while normalization rescales activations."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "Skip connections give information a shortcut around layers; in transformers that shortcut is usually the residual add around attention and feed-forward blocks, while other architectures use the same broader idea in different ways."
+}

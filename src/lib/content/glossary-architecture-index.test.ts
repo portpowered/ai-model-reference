@@ -24,6 +24,21 @@ const TAXONOMY_GLOSSARY_SLUGS = [
   "latent-space",
 ] as const;
 
+const FFN_ACTIVATION_GLOSSARY_SLUGS = [
+  "feed-forward-network",
+  "batch-norm",
+  "group-norm",
+  "standard-ffn",
+  "mixture-of-experts",
+  "relu",
+  "leaky-relu",
+  "silu",
+  "swiglu",
+  "qk-norm",
+  "residual-connection",
+  "skip-connection",
+] as const;
+
 const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   model: "Model",
   architecture: "Architecture",
@@ -37,6 +52,18 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   patch: "Patch",
   latent: "Latent",
   "latent-space": "Latent Space",
+  "feed-forward-network": "Feed-forward network",
+  "batch-norm": "Batch norm",
+  "group-norm": "Group norm",
+  "standard-ffn": "Standard FFN",
+  "mixture-of-experts": "Mixture of experts",
+  relu: "ReLU",
+  "leaky-relu": "LeakyReLU",
+  silu: "SiLU",
+  swiglu: "SwiGLU",
+  "qk-norm": "QK norm",
+  "residual-connection": "Residual connection",
+  "skip-connection": "Skip connection",
   token: "Token",
   embedding: "Embedding",
   tensor: "Tensor",
@@ -74,8 +101,8 @@ const CHAIN_GLOSSARY_SLUGS = [
   "loss-function",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 58;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 51;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 67;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 60;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
@@ -114,6 +141,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     );
     for (const slug of [
       ...TAXONOMY_GLOSSARY_SLUGS,
+      ...FFN_ACTIVATION_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
       "kv-cache",
       "decode",
@@ -143,6 +171,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     const glossaryUrls = collectPageUrls(glossaryFolder.children);
     for (const slug of [
       ...TAXONOMY_GLOSSARY_SLUGS,
+      ...FFN_ACTIVATION_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
       "kv-cache",
       "decode",
@@ -190,6 +219,13 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     );
     expect(prefillDecodeSplit?.title).toBe("Prefill/decode split");
 
+    for (const slug of FFN_ACTIVATION_GLOSSARY_SLUGS) {
+      const entry = entries.find(
+        (item) => item.url === `/docs/glossary/${slug}`,
+      );
+      expect(entry?.title).toBe(EXPECTED_GLOSSARY_TITLES[slug]);
+    }
+
     for (const slug of CHAIN_GLOSSARY_SLUGS) {
       const entry = entries.find(
         (item) => item.url === `/docs/glossary/${slug}`,
@@ -208,6 +244,13 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(architecture?.title).toBe("Architecture");
 
     for (const slug of TAXONOMY_GLOSSARY_SLUGS) {
+      const entry = entries.find(
+        (item) => item.url === `/docs/glossary/${slug}`,
+      );
+      expect(entry?.title).toBe(EXPECTED_GLOSSARY_TITLES[slug]);
+    }
+
+    for (const slug of FFN_ACTIVATION_GLOSSARY_SLUGS) {
       const entry = entries.find(
         (item) => item.url === `/docs/glossary/${slug}`,
       );

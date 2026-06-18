@@ -158,6 +158,12 @@ export const FEED_FORWARD_NETWORK_GLOSSARY_PAGE_DIR = join(
   "feed-forward-network",
 );
 
+/** Phase 3 standard FFN glossary page directory. */
+export const STANDARD_FFN_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "standard-ffn",
+);
+
 /** Phase 3 mixture of experts glossary page directory. */
 export const MIXTURE_OF_EXPERTS_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,
@@ -170,19 +176,55 @@ export const NORMALIZATION_GLOSSARY_PAGE_DIR = join(
   "normalization",
 );
 
+/** Phase 3 batch norm glossary page directory. */
+export const BATCH_NORM_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "batch-norm",
+);
+
+/** Phase 3 group norm glossary page directory. */
+export const GROUP_NORM_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "group-norm",
+);
+
 /** Phase 3 layer norm glossary page directory. */
 export const LAYER_NORM_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,
   "layer-norm",
 );
 
+/** Phase 3 ReLU glossary page directory. */
+export const RELU_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "relu");
+
+/** Phase 3 LeakyReLU glossary page directory. */
+export const LEAKY_RELU_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "leaky-relu",
+);
+
+/** Phase 3 SiLU glossary page directory. */
+export const SILU_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "silu");
+
+/** Phase 3 SwiGLU glossary page directory. */
+export const SWIGLU_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "swiglu");
+
 /** Phase 3 RMSNorm glossary page directory. */
 export const RMSNORM_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "rmsnorm");
+
+/** Phase 3 QK norm glossary page directory. */
+export const QK_NORM_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "qk-norm");
 
 /** Phase 3 residual connection glossary page directory. */
 export const RESIDUAL_CONNECTION_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,
   "residual-connection",
+);
+
+/** Phase 3 skip connection glossary page directory. */
+export const SKIP_CONNECTION_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "skip-connection",
 );
 
 /** Phase 3 positional encodings concept page directory. */
