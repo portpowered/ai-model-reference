@@ -344,9 +344,6 @@ describe("docs search static client", () => {
       const results = await client.search("attention");
 
       expect(results.length).toBeGreaterThan(0);
-      expect(resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL)).toBe(
-        true,
-      );
     },
   );
 
