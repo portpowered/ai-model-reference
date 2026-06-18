@@ -1,31 +1,31 @@
 {
   "title": "Grouped-Query Attention",
-  "description": "An attention variant that reduces KV cache memory by sharing key-value heads across query groups.",
-  "openingSummary": "KV caches grow with context length and head count, raising memory use during long-context inference; grouped-query attention (GQA) lets several query heads share fewer key-value heads so the cache stores fewer KV tensors without collapsing to one shared head.",
+  "description": "An attention variant that reduces key-value cache memory by sharing key-value heads across query groups.",
+  "openingSummary": "Grouped-query attention (GQA) is an attention variant that lets several query heads share fewer key-value heads, cutting key-value cache size without collapsing all heads into one shared pair.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Grouped-query attention is an attention variant derived from multi-head attention. It keeps multiple query heads but groups them so each group reads from the same key-value head pair."
+      "body": "Grouped-query attention (GQA) is an attention variant derived from multi-head attention. It keeps multiple query heads but groups them so each group reads from the same key-value head pair."
     },
     "whatItOptimizes": {
       "title": "What It Optimizes",
-      "body": "GQA targets KV-cache footprint, memory bandwidth during autoregressive decoding, and the cost of serving long contexts when head count would otherwise multiply cache size."
+      "body": "GQA targets key-value cache size, memory bandwidth during autoregressive decoding, and the cost of serving long contexts when head count would otherwise multiply cache size."
     },
     "practicalBenefit": {
       "title": "Practical Benefit",
-      "body": "Teams adopt GQA when they need multi-head expressiveness at training time but want leaner inference caches and less KV traffic at deployment time. GQA keeps more query diversity than multi-query attention while using a smaller cache than full multi-head attention."
+      "body": "Teams adopt GQA when they need multiple query heads but want leaner inference caches and less key-value traffic at deployment time. GQA keeps more query diversity than multi-query attention while using a smaller cache than full multi-head attention."
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "Queries are partitioned into groups. Each group shares one key head and one value head. Attention scores are computed per query head against the shared KV pair for that group, then outputs are projected as usual."
+      "body": "Queries are partitioned into groups. Each group shares one key head and one value head. Attention scores are computed per query head against the shared key-value pair for that group, and the outputs are then projected as usual."
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
-      "body": "With H query heads and G KV groups, each group size is H/G. The formulas below contrast how multi-head attention pairs every query head with its own KV heads versus grouped-query attention, which routes query heads through shared KV pairs per group."
+      "body": "With multiple query heads and several key-value groups, each group serves a subset of the query heads. The formulas below contrast how multi-head attention pairs every query head with its own key-value heads versus grouped-query attention, which routes query heads through shared key-value pairs per group."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Compared with multi-head attention, GQA reduces KV tensors. Compared with multi-query attention, GQA keeps more distinct query heads while still sharing KV heads within each group."
+      "body": "Compared with multi-head attention, GQA reduces the number of key-value tensors that must be stored. Compared with multi-query attention, GQA keeps more distinct query heads while still sharing key-value heads within each group."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
@@ -33,11 +33,11 @@
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
-      "body": "Sharing KV heads can reduce representational flexibility versus full multi-head attention. The optimal group count depends on model scale and quality targets."
+      "body": "Sharing key-value heads can reduce representational flexibility versus full multi-head attention. The optimal group count depends on model scale and quality targets."
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",
-      "body": "As context windows grow, KV-cache efficiency remains a first-order serving constraint, so GQA stays a practical default between MHA fidelity and MQA compression."
+      "body": "As context windows grow, key-value cache efficiency remains a first-order serving constraint, so GQA stays a practical default between multi-head fidelity and multi-query compression."
     },
     "related": {
       "title": "Related"
@@ -52,18 +52,18 @@
   "assets": {
     "computeFlow": {
       "alt": "Multi-head attention versus grouped-query attention head-count comparison",
-      "caption": "Toggle MHA and GQA to compare query-head count against KV-head count on one canvas",
+      "caption": "Toggle multi-head attention and grouped-query attention to compare query-head count against key-value head count on one canvas.",
       "variants": {
         "mha": {
-          "label": "MHA"
+          "label": "Multi-head"
         },
         "gqa": {
-          "label": "GQA"
+          "label": "Grouped-query"
         }
       }
     },
     "comparisonTable": {
-      "caption": "How GQA compares with nearby attention variants"
+      "caption": "How grouped-query attention compares with nearby attention variants"
     }
   },
   "tables": {
@@ -80,25 +80,25 @@
         }
       },
       "dimensions": {
-        "kvHeadCount": "KV head count",
+        "kvHeadCount": "Key-value head count",
         "queryHeadFlexibility": "Query-head flexibility",
         "cacheFootprint": "Cache footprint per token"
       },
       "values": {
         "gqa": {
           "kvHeadCount": "G key heads and G value heads",
-          "queryHeadFlexibility": "H distinct query heads grouped into G shared KV pairs",
-          "cacheFootprint": "2G tensors (G keys + G values)"
+          "queryHeadFlexibility": "H distinct query heads grouped into G shared key-value pairs",
+          "cacheFootprint": "2G tensors (G keys plus G values)"
         },
         "mha": {
           "kvHeadCount": "H key heads and H value heads",
-          "queryHeadFlexibility": "H independent query/KV head pairs",
+          "queryHeadFlexibility": "H independent query and key-value head pairs",
           "cacheFootprint": "2H tensors (full multi-head attention cache)"
         },
         "mqa": {
           "kvHeadCount": "1 key head and 1 value head",
-          "queryHeadFlexibility": "H query heads share one KV pair",
-          "cacheFootprint": "2 tensors (single shared KV cache)"
+          "queryHeadFlexibility": "H query heads share one key-value pair",
+          "cacheFootprint": "2 tensors (single shared key-value cache)"
         }
       }
     }
@@ -156,7 +156,7 @@
         },
         "g": {
           "term": "G",
-          "definition": "Number of shared KV groups."
+          "definition": "Number of shared key-value groups."
         },
         "dk": {
           "term": "d_k",
@@ -168,7 +168,7 @@
         },
         "gi": {
           "term": "g(i)",
-          "definition": "KV group index for query head i."
+          "definition": "Key-value group index for query head i."
         }
       }
     }
@@ -197,7 +197,7 @@
         "label": "H query heads"
       },
       "mhaKvHeads": {
-        "label": "H KV head pairs (1:1 with queries)"
+        "label": "H key-value head pairs (1:1 with queries)"
       },
       "mhaOneToOne": {
         "label": "Each query head has its own K and V"
@@ -236,10 +236,10 @@
         "label": "H query heads"
       },
       "gqaKvGroups": {
-        "label": "G shared KV pairs"
+        "label": "G shared key-value pairs"
       },
       "gqaGroupedMapping": {
-        "label": "H/G query heads share each KV pair"
+        "label": "H/G query heads share each key-value pair"
       },
       "gqaSharingNote": {
         "label": "Same key/value heads are shared by two query heads"

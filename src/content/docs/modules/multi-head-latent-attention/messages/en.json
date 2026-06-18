@@ -1,31 +1,31 @@
 {
   "title": "Multi-Head Latent Attention",
   "description": "An attention variant that compresses key-value cache storage into a low-rank latent space while keeping distinct query heads.",
-  "openingSummary": "KV caches grow with context length and head dimension, raising memory use during long-context inference; multi-head latent attention (MLA) stores a compact latent KV representation and reconstructs per-head keys and values on demand so the cache holds fewer bytes without collapsing to a single shared head.",
+  "openingSummary": "Multi-head latent attention (MLA) is an attention variant that stores a compact latent key-value representation and reconstructs per-head keys and values when needed, reducing cache size without collapsing to one shared head.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Multi-head latent attention is an attention variant derived from multi-head attention. It keeps multiple query heads but projects keys and values into a shared low-rank latent space that is cached during autoregressive decoding."
+      "body": "Multi-head latent attention (MLA) is an attention variant derived from multi-head attention. It keeps multiple query heads but projects keys and values into a shared low-rank latent space that is cached during autoregressive decoding."
     },
     "whatItOptimizes": {
       "title": "What It Optimizes",
-      "body": "MLA targets KV-cache footprint, memory bandwidth during autoregressive decoding, and the cost of serving long contexts when full per-head KV tensors would otherwise dominate memory."
+      "body": "MLA targets key-value cache size, memory bandwidth during autoregressive decoding, and the cost of serving long contexts when full per-head key-value tensors would otherwise dominate memory."
     },
     "practicalBenefit": {
       "title": "Practical Benefit",
-      "body": "Teams adopt MLA when they need multi-head query expressiveness but want a smaller inference cache than full multi-head attention. MLA compresses stored KV state more aggressively than grouped-query or multi-query sharing alone by caching a latent representation instead of full head tensors."
+      "body": "Teams adopt MLA when they need multiple query heads but want a smaller inference cache than full multi-head attention. MLA compresses stored key-value state more aggressively than grouped-query or multi-query sharing alone by caching a latent representation instead of full head tensors."
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "Keys and values are down-projected into a latent KV cache with rank r. During attention, latent vectors are up-projected back to per-head key and value spaces. Queries remain head-specific, so each head attends against reconstructed KV pairs derived from the shared latent cache."
+      "body": "Keys and values are down-projected into a latent cache with rank r. During attention, those latent vectors are up-projected back to per-head key and value spaces. Queries remain head-specific, so each head attends against reconstructed key-value pairs derived from the shared latent cache."
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
-      "body": "With H query heads and latent rank r, MLA caches compact latent KV vectors and reconstructs per-head keys and values through low-rank projections. The formulas below contrast full multi-head attention against MLA, which routes queries through a shared latent cache."
+      "body": "With multiple query heads and latent rank r, MLA caches compact latent vectors and reconstructs per-head keys and values through low-rank projections. The formulas below contrast full multi-head attention against MLA, which routes queries through a shared latent cache."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Compared with multi-head attention, MLA stores a compressed latent cache instead of full per-head KV tensors. Compared with multi-query and grouped-query attention, MLA keeps distinct query heads while compressing KV state through low-rank projection rather than only sharing heads."
+      "body": "Compared with multi-head attention, MLA stores a compressed latent cache instead of full per-head key-value tensors. Compared with multi-query and grouped-query attention, MLA keeps distinct query heads while compressing key-value state through low-rank projection rather than only sharing heads."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
@@ -33,11 +33,11 @@
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
-      "body": "Low-rank KV compression can limit representational flexibility versus storing full per-head tensors. The optimal latent rank depends on model scale and quality targets."
+      "body": "Low-rank key-value compression can limit representational flexibility versus storing full per-head tensors. The optimal latent rank depends on model scale and quality targets."
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",
-      "body": "As context windows grow, KV-cache efficiency remains a first-order serving constraint, so MLA offers a path between MHA fidelity and aggressive cache compression through latent storage."
+      "body": "As context windows grow, key-value cache efficiency remains a first-order serving constraint, so MLA offers a path between multi-head fidelity and aggressive cache compression through latent storage."
     },
     "related": {
       "title": "Related"
@@ -51,19 +51,19 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Multi-head attention versus multi-head latent attention KV-cache comparison",
-      "caption": "Toggle MHA and MLA to compare full per-head KV storage against compressed latent KV caching on one canvas",
+      "alt": "Multi-head attention versus multi-head latent attention key-value cache comparison",
+      "caption": "Toggle multi-head attention and multi-head latent attention to compare full per-head key-value storage against compressed latent caching on one canvas.",
       "variants": {
         "mha": {
-          "label": "MHA"
+          "label": "Multi-head"
         },
         "mla": {
-          "label": "MLA"
+          "label": "Latent"
         }
       }
     },
     "comparisonTable": {
-      "caption": "How MLA compares with nearby attention variants"
+      "caption": "How multi-head latent attention compares with nearby attention variants"
     }
   },
   "tables": {
@@ -83,30 +83,30 @@
         }
       },
       "dimensions": {
-        "kvRepresentation": "KV representation",
+        "kvRepresentation": "Key-value representation",
         "queryHeadFlexibility": "Query-head flexibility",
         "cacheFootprint": "Cache footprint per token"
       },
       "values": {
         "mla": {
-          "kvRepresentation": "Low-rank latent KV vectors (rank r)",
-          "queryHeadFlexibility": "H distinct query heads with latent KV reconstruction",
-          "cacheFootprint": "r-dimensional latent tensors (compressed KV cache)"
+          "kvRepresentation": "Low-rank latent key-value vectors (rank r)",
+          "queryHeadFlexibility": "H distinct query heads with latent key-value reconstruction",
+          "cacheFootprint": "r-dimensional latent tensors (compressed key-value cache)"
         },
         "mha": {
           "kvRepresentation": "H key heads and H value heads",
-          "queryHeadFlexibility": "H independent query/KV head pairs",
+          "queryHeadFlexibility": "H independent query and key-value head pairs",
           "cacheFootprint": "2H tensors (full multi-head attention cache)"
         },
         "mqa": {
           "kvRepresentation": "1 key head and 1 value head",
-          "queryHeadFlexibility": "H query heads share one KV pair",
-          "cacheFootprint": "2 tensors (single shared KV cache)"
+          "queryHeadFlexibility": "H query heads share one key-value pair",
+          "cacheFootprint": "2 tensors (single shared key-value cache)"
         },
         "gqa": {
           "kvRepresentation": "G key heads and G value heads",
-          "queryHeadFlexibility": "H distinct query heads grouped into G shared KV pairs",
-          "cacheFootprint": "2G tensors (G keys + G values)"
+          "queryHeadFlexibility": "H distinct query heads grouped into G shared key-value pairs",
+          "cacheFootprint": "2G tensors (G keys plus G values)"
         }
       }
     }
@@ -164,7 +164,7 @@
         },
         "g": {
           "term": "r",
-          "definition": "Latent rank of the compressed KV cache."
+          "definition": "Latent rank of the compressed key-value cache."
         },
         "dk": {
           "term": "d_k",
@@ -176,7 +176,7 @@
         },
         "gi": {
           "term": "c",
-          "definition": "Shared latent KV cache vector stored per token."
+          "definition": "Shared latent key-value cache vector stored per token."
         }
       }
     }
@@ -205,7 +205,7 @@
         "label": "H query heads"
       },
       "mhaKvHeads": {
-        "label": "H KV head pairs (1:1 with queries)"
+        "label": "H key-value head pairs (1:1 with queries)"
       },
       "mhaOneToOne": {
         "label": "Each query head has its own K and V"
@@ -214,10 +214,10 @@
         "label": "H query heads"
       },
       "mlaLatentKvCache": {
-        "label": "Latent KV cache (rank r)"
+        "label": "Latent key-value cache (rank r)"
       },
       "mlaCompressionNode": {
-        "label": "Compress KV"
+        "label": "Compress key-value state"
       },
       "mlaDecompressionNode": {
         "label": "Expand to per-head K/V"

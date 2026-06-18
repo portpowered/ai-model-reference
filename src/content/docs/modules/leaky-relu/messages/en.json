@@ -1,23 +1,23 @@
 {
-  "title": "LeakyReLU",
-  "description": "A ReLU-style activation that keeps a small negative slope instead of zeroing every negative FFN value.",
-  "openingSummary": "LeakyReLU keeps a small negative slope inside an FFN instead of clamping every negative hidden value to zero, so weak signals and gradients can still pass through the block.",
+  "title": "Leaky Rectified Linear Unit",
+  "description": "An activation function that keeps a small negative slope instead of turning every negative value into zero.",
+  "openingSummary": "The leaky rectified linear unit (LeakyReLU) keeps a small negative slope instead of zeroing every negative value, so weak negative evidence and gradients can still pass through.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "LeakyReLU is a small change to ReLU. Positive hidden values pass through as usual, but negative values are multiplied by a small constant such as 0.01 instead of becoming zero. In a standard FFN after attention, that means a token can keep a weak negative signal rather than shutting the feature off completely."
+      "body": "The leaky rectified linear unit (LeakyReLU) is a small variation on the rectified linear unit. Positive values pass through as usual, but negative values are multiplied by a small constant such as 0.01 instead of becoming zero. In feed-forward layers, that means the model can keep a weak negative signal instead of shutting it off completely."
     },
     "whatItOptimizes": {
       "title": "What It Optimizes",
-      "body": "LeakyReLU optimizes for better negative-side gradient flow while staying very close to ReLU. It keeps the same cheap piecewise-linear behavior, but it avoids a fully dead negative branch."
+      "body": "LeakyReLU optimizes for better negative-side gradient flow while staying very close to ReLU. It keeps the same cheap piecewise-linear shape, but it avoids a fully dead negative branch."
     },
     "practicalBenefit": {
       "title": "Practical Benefit",
-      "body": "For a reader, LeakyReLU is useful because it shows how much behavior can change without redesigning the FFN block. The module still uses one dense path. Only the negative half of the activation rule changes."
+      "body": "LeakyReLU is useful because it shows how much behavior can change without redesigning the whole layer. The model keeps the same general dense path, and only the negative half of the activation rule changes."
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "The token state expands into a wide hidden layer, then LeakyReLU acts on each hidden value separately. Positive values keep their size. Negative values stay negative, but they are scaled down by a small factor before the block projects back to model width."
+      "body": "LeakyReLU works one value at a time. Positive values keep their size. Negative values stay negative, but they are scaled down by a small factor. In a transformer feed-forward layer, the model expands into a wider hidden state, applies that rule to each hidden value, and then projects the result back down."
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
@@ -25,7 +25,7 @@
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "LeakyReLU sits between ReLU and SiLU. It is less abrupt than ReLU because the negative side survives, but it still keeps a piecewise-linear corner rather than moving to the fully smooth SiLU curve."
+      "body": "LeakyReLU sits between ReLU and SiLU. It is less abrupt than ReLU because the negative side survives, but it still keeps a piecewise-linear corner instead of moving to the fully smooth SiLU curve."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
@@ -33,11 +33,11 @@
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
-      "body": "LeakyReLU preserves more negative information than ReLU, but the negative side is still fixed and weak. It does not provide the smoother learned filtering that many modern transformer FFNs get from SiLU-based designs."
+      "body": "LeakyReLU preserves more negative information than ReLU, but the negative side is still fixed and weak. It does not provide the smoother filtering that many modern feed-forward designs get from SiLU-based activations."
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",
-      "body": "LeakyReLU helps readers separate two questions: whether an FFN is dense or gated, and whether its activation fully shuts off negative features. That distinction comes up often in model and paper comparisons."
+      "body": "LeakyReLU helps readers separate two questions: whether a layer is dense or gated, and whether its activation fully shuts off negative features. That distinction comes up often in model and paper comparisons."
     },
     "related": {
       "title": "Related"
@@ -51,8 +51,8 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Activation comparison graph showing how ReLU, LeakyReLU, and SiLU treat negative hidden values inside the same FFN path",
-      "caption": "LeakyReLU keeps the same dense FFN path as ReLU, but the negative branch now leaks through at a small scale",
+      "alt": "Activation comparison chart showing how rectified linear unit, leaky rectified linear unit, and sigmoid linear unit treat negative values",
+      "caption": "LeakyReLU keeps the same basic path as ReLU, but the negative branch now leaks through at a small scale.",
       "variants": {
         "relu": {
           "label": "ReLU"
@@ -66,7 +66,7 @@
       }
     },
     "comparisonTable": {
-      "caption": "How LeakyReLU compares with nearby activation variants"
+      "caption": "How leaky rectified linear unit compares with nearby activation variants"
     }
   },
   "tables": {
@@ -108,12 +108,12 @@
   },
   "math": {
     "leakyReluSchema": {
-      "label": "LeakyReLU activation",
+      "label": "Leaky rectified linear unit activation",
       "formula": "\\mathrm{LeakyReLU}(x) = \\max(\\alpha x, x)",
       "variableDefinitions": {
         "x": {
           "term": "x",
-          "definition": "One hidden value inside the expanded FFN state."
+          "definition": "One input value before the activation rule is applied."
         },
         "alpha": {
           "term": "\\alpha",
@@ -134,7 +134,7 @@
         "label": "LeakyReLU(x) = max(alpha x, x)"
       },
       "negativeBehavior": {
-        "label": "Negative hidden values still flow, but only through a small slope alpha x"
+        "label": "Negative values still flow, but only through a small slope alpha x"
       },
       "projectBack": {
         "label": "Project back with W_2"

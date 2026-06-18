@@ -1,13 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { buildGroupedQueryAttentionStubBody } from "./grouped-query-attention-module-convergence";
 import {
   auditRenderedQualityHtml,
   auditRenderedQualityOverflow,
   buildRenderedQualityAuditResult,
-  buildRenderedQualityStandardsBaseline,
   mergeRenderedQualityIssues,
   RENDERED_QUALITY_AUDIT_ROUTES,
 } from "./rendered-quality-baseline";
@@ -27,41 +23,6 @@ const gqaRoute = findAuditRoute("/docs/modules/grouped-query-attention");
 const homeRoute = findAuditRoute("/");
 
 describe("rendered quality baseline", () => {
-  test("marks quality-documents-standards.md present in repository root", () => {
-    const baseline = buildRenderedQualityStandardsBaseline(process.cwd());
-    expect(baseline.qualityDocumentsStandardsPresent).toBe(true);
-    expect(baseline.qualityDocumentsStandardsGap).toBeNull();
-    expect(baseline.activeStandards).toContain("docs/writing-standards.md");
-    expect(baseline.activeStandards).toContain(
-      "docs/quality-documents-standards.md",
-    );
-  });
-
-  test("records quality-documents-standards.md gap when file is absent", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "rendered-quality-absent-"));
-    mkdirSync(join(tempRoot, "docs"), { recursive: true });
-
-    const baseline = buildRenderedQualityStandardsBaseline(tempRoot);
-    expect(baseline.qualityDocumentsStandardsPresent).toBe(false);
-    expect(baseline.qualityDocumentsStandardsGap).toContain(
-      "docs/quality-documents-standards.md is absent",
-    );
-  });
-
-  test("marks quality-documents-standards.md present in temporary project root", () => {
-    const tempRoot = mkdtempSync(join(tmpdir(), "rendered-quality-present-"));
-    mkdirSync(join(tempRoot, "docs"), { recursive: true });
-    writeFileSync(
-      join(tempRoot, "docs/quality-documents-standards.md"),
-      "# quality",
-      "utf8",
-    );
-
-    const baseline = buildRenderedQualityStandardsBaseline(tempRoot);
-    expect(baseline.qualityDocumentsStandardsPresent).toBe(true);
-    expect(baseline.qualityDocumentsStandardsGap).toBeNull();
-  });
-
   test("flags duplicate title chrome and process language on home HTML", () => {
     const html = `<html><body>
       <h1>Model Atlas</h1>
@@ -148,7 +109,7 @@ describe("rendered quality baseline", () => {
     expect(merged).toHaveLength(1);
   });
 
-  test("formats audit report with standards baseline and issue list", () => {
+  test("formats audit report with rendered issue details", () => {
     const result = buildRenderedQualityAuditResult({
       issues: [
         {
@@ -167,9 +128,6 @@ describe("rendered quality baseline", () => {
 
     const report = formatRenderedQualityAuditReport(result);
     expect(report).toContain("Rendered quality baseline audit");
-    expect(report).toContain(
-      "docs/quality-documents-standards.md present: yes",
-    );
     expect(report).toContain("Phase 1 bridge page");
     expect(report).toContain("Routes visited: 14");
   });

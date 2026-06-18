@@ -1,15 +1,39 @@
 {
   "title": "Attention",
   "description": "How transformer blocks mix information across token positions using query, key, and value projections.",
-  "openingSummary": "A sequence model must decide which earlier tokens matter for each position without hard-coding fixed windows or hand-built alignment rules; attention scores how much each position should read from every other position and blends value vectors according to those scores so context flows dynamically along the sequence.",
+  "openingSummary": "Attention lets each token decide which other tokens matter most, scoring possible connections and blending information from the most relevant positions so context can move dynamically across a sequence.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Attention is the core mixing mechanism in transformer blocks. Each position projects hidden states into queries, keys, and values, compares queries to keys to form weights, and sums value vectors to produce an updated representation."
+      "body": "Attention is the mechanism that lets one token read information from other tokens. Each position produces a query, key, and value. The query asks what to look for, the keys describe what each position offers, and the values carry the information that gets mixed into the output."
     },
-    "whyItMatters": {
-      "title": "Why It Matters",
-      "body": "Without attention, deep stacks of feed-forward layers could not route information across arbitrary distances in one step. Head-sharing variants trade memory and bandwidth against how many distinct query and key-value heads you keep at inference time."
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "Attention optimizes for flexible context mixing. Instead of using a fixed local rule, it lets the model decide which positions matter for the current token and how strongly they should contribute."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "Once you understand attention, many later model variants become easier to read. Most attention pages are not replacing the whole transformer. They are changing how attention stores context, how far each token can look, or how much computation each lookup costs."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "For each token, the model compares that token's query against the keys from other positions to produce attention scores. Those scores are normalized into weights, and the model uses the weights to blend the value vectors into one updated token state."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Feed-forward layers refine one token state at a time after context has already been gathered. Attention is the part that moves information across positions in the first place. Many attention variants then change either head sharing, sequence reach, or compute scaling."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Attention appears in decoder-only language models, encoder models, encoder-decoder systems, and many multimodal transformers because all of them need a way to move information across positions."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Dense attention can become expensive as sequence length grows because every token may compare against many others. That is why later variants often trade memory, bandwidth, or global reach for better scaling."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Attention remains the reference point for understanding modern sequence models. When a paper introduces a new attention variant, the real question is usually which part of the baseline mechanism it changed."
     },
     "related": {
       "title": "Related"

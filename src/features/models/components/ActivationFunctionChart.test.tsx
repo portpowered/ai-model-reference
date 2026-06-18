@@ -17,7 +17,7 @@ describe("ActivationFunctionChart", () => {
     cleanup();
   });
 
-  test("renders both ReLU and SiLU function curves on the shared comparison chart", async () => {
+  test("renders only the ReLU function curve on the ReLU intro chart", async () => {
     const { ActivationFunctionChart } = await import(
       "@/features/models/components/ActivationFunctionChart"
     );
@@ -26,7 +26,7 @@ describe("ActivationFunctionChart", () => {
       <PageMessagesProvider messages={reluMessages} isDev={false}>
         <ActivationFunctionChart
           assetId="computeFlow"
-          chartId="chart.activation-family.relu-silu-comparison"
+          chartId="chart.activation-family.relu-intro"
           alt={reluMessages.assets?.computeFlow?.alt}
           caption={reluMessages.assets?.computeFlow?.caption}
         />
@@ -34,17 +34,11 @@ describe("ActivationFunctionChart", () => {
     );
 
     expect(
-      container.querySelector(
-        '[data-chart-id="chart.activation-family.relu-silu-comparison"]',
-      ),
+      container.querySelector('[data-chart-id="chart.activation-family.relu-intro"]'),
     ).toBeTruthy();
-    expect(container.querySelectorAll(".recharts-line-curve").length).toBe(2);
-    expect(
-      container.querySelector(".activation-chart__line--relu"),
-    ).toBeTruthy();
-    expect(
-      container.querySelector(".activation-chart__line--silu"),
-    ).toBeTruthy();
-    expect(container.textContent).toContain("ReLU and SiLU shown together");
+    expect(container.querySelectorAll(".recharts-line-curve").length).toBe(1);
+    expect(container.querySelector(".line-graph__line--relu")).toBeTruthy();
+    expect(container.querySelector(".line-graph__line--silu")).toBeNull();
+    expect(container.textContent).toContain("Activation Curves");
   });
 });

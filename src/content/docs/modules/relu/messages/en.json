@@ -1,43 +1,43 @@
 {
-  "title": "ReLU",
-  "description": "A pointwise activation that keeps positive FFN values and clamps negative ones to zero.",
-  "openingSummary": "ReLU is a simple FFN activation that keeps positive hidden values and snaps negative ones to zero, giving transformer MLPs a cheap way to decide which features stay active.",
+  "title": "Rectified Linear Unit",
+  "description": "A simple activation function that keeps positive values and turns negative values into zero.",
+  "openingSummary": "The rectified linear unit (ReLU) is a simple activation function that leaves positive values alone and turns negative values into zero, making it a useful baseline for understanding how later activation variants trade simplicity for smoother or leakier behavior.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "ReLU stands for rectified linear unit. Inside a standard FFN, it looks at each hidden value after the expand layer and applies one rule: keep positive numbers, replace negative numbers with zero. The FFN stays in the same slot after attention, but this activation changes which hidden features survive before the block projects back to model width."
+      "body": "The rectified linear unit (ReLU) is an activation function used in many neural networks. It applies one simple rule to each value: keep positive numbers and replace negative numbers with zero. In transformer feed-forward layers, that rule decides which hidden features stay active before the layer projects back to the model width."
     },
     "whatItOptimizes": {
       "title": "What It Optimizes",
-      "body": "ReLU optimizes for a very cheap, very sharp nonlinearity. It creates sparse hidden activity because only positive features pass through fully, which made it a strong early baseline for dense FFNs."
+      "body": "ReLU optimizes for a very cheap and very sharp nonlinearity. It is easy to compute, easy to implement, and naturally creates sparse activity because only positive values pass through fully."
     },
     "practicalBenefit": {
       "title": "Practical Benefit",
-      "body": "Once you recognize ReLU, it becomes easier to spot what later activation variants are changing. Many newer activations keep the same FFN slot and the same dense path, then only soften or gate the activation step."
+      "body": "ReLU gives readers a clean reference point. Once you understand its hard zero cutoff, it becomes much easier to see what later variants change when they add a small negative path, a smoother curve, or a learned gate."
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "The token state enters the wide hidden layer, then ReLU acts on each hidden coordinate separately. Positive values keep their size. Negative values become zero. After that, the FFN projects the filtered hidden state back to model width."
+      "body": "ReLU works one value at a time. If the value is positive, it stays as it is. If the value is negative, it becomes zero. In a transformer feed-forward layer, the model first expands into a wider hidden state, applies that rule to each hidden value, and then projects the filtered result back down."
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
-      "body": "The formula below shows ReLU as the one-coordinate rule inside the wider FFN. The key detail is the hard cutoff at zero."
+      "body": "The formula below shows the ReLU rule for one value at a time. The key detail is the hard cutoff at zero."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "ReLU is the sharpest cutoff in this small activation family. LeakyReLU preserves a faint negative path, while SiLU smooths the whole transition instead of using a hard corner."
+      "body": "ReLU is the sharpest cutoff in this activation family. Leaky rectified linear unit keeps a faint negative path, while sigmoid linear unit smooths the whole transition instead of using a hard corner."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
-      "body": "ReLU mattered most in earlier dense networks and remains a common baseline in papers, even when the largest language models now favor smoother or gated FFN activations."
+      "body": "ReLU mattered most in earlier deep networks and remains a common baseline in papers, even though many newer language models now prefer smoother or gated feed-forward activations."
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
-      "body": "Because every negative value becomes zero, ReLU can discard weak negative evidence completely. That simplicity helps efficiency, but it also makes the activation less smooth than newer alternatives."
+      "body": "Because every negative value becomes zero, ReLU can throw away weak negative evidence completely. That simplicity helps efficiency, but it also makes the activation less smooth and less expressive than many newer alternatives."
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",
-      "body": "ReLU remains the cleanest reference point for activation discussions. When a paper claims an FFN activation is smoother, leakier, or more selective, ReLU is usually the baseline hiding underneath that comparison."
+      "body": "ReLU remains the cleanest reference point for activation discussions. When a paper says an activation is smoother, leakier, or more selective, ReLU is usually the baseline sitting underneath that comparison."
     },
     "related": {
       "title": "Related"
@@ -51,8 +51,8 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Activation comparison graph showing how ReLU, LeakyReLU, and SiLU change the hidden activation step inside the same FFN slot",
-      "caption": "ReLU and SiLU are plotted on the same axes so the hard cutoff and smooth gate are visible directly",
+      "alt": "Activation comparison chart showing how rectified linear unit, leaky rectified linear unit, and sigmoid linear unit treat positive and negative values",
+      "caption": "This chart compares the hard zero cutoff in ReLU, the small negative slope in LeakyReLU, and the smooth negative-side shrinkage in SiLU.",
       "variants": {
         "relu": {
           "label": "ReLU"
@@ -66,7 +66,7 @@
       }
     },
     "comparisonTable": {
-      "caption": "How ReLU compares with nearby activation variants"
+      "caption": "How rectified linear unit compares with nearby activation variants"
     }
   },
   "tables": {
@@ -108,12 +108,12 @@
   },
   "math": {
     "reluSchema": {
-      "label": "ReLU activation",
+      "label": "Rectified linear unit activation",
       "formula": "\\mathrm{ReLU}(x) = \\max(0, x)",
       "variableDefinitions": {
         "x": {
           "term": "x",
-          "definition": "One hidden value inside the expanded FFN state."
+          "definition": "One input value before the activation rule is applied."
         }
       }
     }
@@ -130,7 +130,7 @@
         "label": "ReLU(x) = max(0, x)"
       },
       "negativeBehavior": {
-        "label": "Negative hidden values stop here: x < 0 becomes 0 before projection back"
+        "label": "Negative values stop here: x < 0 becomes 0"
       },
       "projectBack": {
         "label": "Project back with W_2"

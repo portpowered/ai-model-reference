@@ -25,9 +25,9 @@ Read these references before authoring or reviewing docs:
 | Reference | What it covers |
 | --- | --- |
 | [documentation template](../documentation-template.md) | Page structure, MDX components, message keys, and asset placement |
-| [writing standards](../writing-standards.md) | Folded summary, tone, symbol-only math, and customer-facing copy rules |
+| [writing standards](../../factory/docs/standards/docs-writing-standards.md) | Folded summary, tone, symbol-only math, and customer-facing copy rules |
 | [graphing standards](../graphing-standards.md) | Single primary graph, node theme, and attention-variant comparison |
-| [quality documents standards](../quality-documents-standards.md) | Review checklist for compact, accurate reference pages |
+| [docs quality standards](../../factory/docs/standards/docs-quality-standards.md) | Review checklist for compact, accurate reference pages |
 | [data model](../data-model.md) | Registry IDs, tags, aliases, citations, and storage layout |
 | [site fundamentals](../site-fundamentals.md) | Product frame, visual direction, and docs shell expectations |
 
@@ -225,7 +225,7 @@ page resolves colocated `messages/<locale>.json` and `assets.json` files.
 Every canonical page opens with **one folded summary**, not separate problem and
 solution lead lines. Put it in `messages/en.json` under `openingSummary` and
 render it from the template (glossary pages keep the key in messages but omit
-the MDX render block per [writing standards](../writing-standards.md)).
+the MDX render block per [writing standards](../../factory/docs/standards/docs-writing-standards.md)).
 
 The summary should answer, in plain language:
 
@@ -245,8 +245,8 @@ Additional writing rules contributors must follow before opening a PR:
 - Do not put factory phases, batch numbers, or other internal process language
   in customer-facing message files.
 
-See [writing standards](../writing-standards.md) and
-[quality documents standards](../quality-documents-standards.md) for the full
+See [writing standards](../../factory/docs/standards/docs-writing-standards.md) and
+[docs quality standards](../../factory/docs/standards/docs-quality-standards.md) for the full
 review checklist.
 
 ### Citations, tags, related links, and aliases

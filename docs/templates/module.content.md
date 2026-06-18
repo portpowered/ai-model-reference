@@ -2,7 +2,7 @@
 
 Use `module.mdx` as the production page structure. Put localized reader-facing text in `messages/<locale>.json` using the keys from `module.messages.en.json`. Put module diagrams and comparison tables in `assets.json` using `module.assets.json`.
 
-Follow [writing-standards](../writing-standards.md) and [graphing-standards](../graphing-standards.md) for summary tone, math placement, and graph rules.
+Follow [docs writing standards](../../factory/docs/standards/docs-writing-standards.md) and [graphing-standards](../graphing-standards.md) for summary tone, math placement, and graph rules.
 
 ## Required Content
 

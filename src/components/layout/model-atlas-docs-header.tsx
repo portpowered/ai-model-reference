@@ -1,28 +1,34 @@
 "use client";
 
+import type * as PageTree from "fumadocs-core/page-tree";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { type ReactNode, useId, useState } from "react";
+import { FaGithub } from "react-icons/fa";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { MobileDocsDrawer } from "@/components/layout/mobile-docs-drawer";
 import {
   getPrimaryNavItems,
   PRIMARY_NAV_LINK_CLASS,
   PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS,
-  PRIMARY_NAV_MOBILE_PANEL_CLASS,
 } from "@/components/layout/primary-nav";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { SearchTrigger } from "@/features/docs/search/SearchTrigger";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 
 type ModelAtlasDocsHeaderProps = {
   messages: UiMessages;
+  pageTree: PageTree.Root;
   locale?: SiteLocale;
   trailing?: ReactNode;
 };
 
+const PROJECT_GITHUB_URL = "https://github.com/portpowered/ai-model-reference";
+
 export function ModelAtlasDocsHeader({
   messages,
+  pageTree,
   locale = defaultLocale,
   trailing,
 }: ModelAtlasDocsHeaderProps) {
@@ -45,27 +51,6 @@ export function ModelAtlasDocsHeader({
         >
           <Menu className="size-4" aria-hidden />
         </Button>
-        {menuOpen ? (
-          <nav
-            id={menuPanelId}
-            className={`${PRIMARY_NAV_MOBILE_PANEL_CLASS} col-span-2`}
-            aria-label="Primary"
-          >
-            <ul className="flex flex-col gap-2 text-sm">
-              {primaryNavItems.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={PRIMARY_NAV_LINK_CLASS}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        ) : null}
         {!menuOpen ? (
           <nav
             className="hidden md:col-start-3 md:col-end-4 md:row-start-1 md:block"
@@ -84,16 +69,54 @@ export function ModelAtlasDocsHeader({
             </div>
           </nav>
         ) : null}
-        <div className="pointer-events-none col-start-2 row-start-1 ms-auto flex items-center gap-2 md:col-start-3 md:col-end-5 md:mx-auto md:w-full md:max-w-[1168px] md:justify-end md:px-6 xl:px-8">
-          <div className="pointer-events-auto">
-            <SearchTrigger messages={messages} />
+        <div className="pointer-events-none col-start-2 row-start-1 flex min-w-0 w-full items-center gap-2 md:col-start-3 md:col-end-5 md:mx-auto md:max-w-[1168px] md:justify-end md:px-6 xl:px-8">
+          <div className="pointer-events-auto min-w-0 flex-1 md:flex-none">
+            <SearchTrigger
+              messages={messages}
+              className="flex w-full min-w-0 items-center justify-between px-3 py-2 md:inline-flex md:w-auto md:justify-start md:px-2 md:py-1.5"
+            />
           </div>
           <div className="pointer-events-auto">
             <LanguageSwitcher locale={locale} messages={messages} />
           </div>
-          {trailing ? <div className="pointer-events-auto">{trailing}</div> : null}
+          <div className="pointer-events-auto">
+            <Link
+              href={PROJECT_GITHUB_URL}
+              aria-label="Open project GitHub repository"
+              title="Open project GitHub repository"
+              className={buttonVariants({ variant: "outline", size: "icon" })}
+            >
+              <FaGithub className="size-4" aria-hidden />
+            </Link>
+          </div>
+          {trailing ? (
+            <div className="pointer-events-auto">{trailing}</div>
+          ) : null}
         </div>
       </div>
+      <MobileDocsDrawer
+        id={menuPanelId}
+        open={menuOpen}
+        onOpenChange={setMenuOpen}
+        pageTree={pageTree}
+        messages={messages}
+      >
+        <nav aria-label="Primary">
+          <ul className="grid grid-cols-2 gap-2">
+            {primaryNavItems.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className="flex rounded-lg border border-sidebar-border px-3 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </MobileDocsDrawer>
     </header>
   );
 }

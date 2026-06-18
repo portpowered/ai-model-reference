@@ -1,43 +1,43 @@
 {
-  "title": "Standard FFN",
-  "description": "The default dense transformer MLP that expands, activates, and projects each token state after attention.",
-  "openingSummary": "A standard FFN is the default dense MLP after attention in a transformer block, using an expand-activate-project path so each token gets the same per-position transformation.",
+  "title": "Standard Feed-Forward Network",
+  "description": "The default dense feed-forward layer that expands, activates, and projects each token state after attention.",
+  "openingSummary": "A standard feed-forward network, often shortened to standard FFN, is the default dense layer after attention in a transformer block, using one shared expand-activate-project path for every token.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "A standard FFN is the default dense feed-forward block used in most transformer layers. After attention updates a token's hidden state, the standard FFN sends that vector through one wide linear layer, applies a pointwise activation, and projects it back to the model width."
+      "body": "A standard feed-forward network, often shortened to standard FFN, is the default dense feed-forward block used in most transformer layers. After attention updates a token state, the layer sends that state through one wide linear layer, applies a pointwise activation, and projects it back to the model width."
     },
     "whatItOptimizes": {
       "title": "What It Optimizes",
-      "body": "The standard FFN optimizes for a simple, uniform dense path after attention. Every token uses the same parameters and the same full hidden width, which keeps the block easy to reason about and easy to compare against later variants."
+      "body": "The standard feed-forward network optimizes for a simple, uniform dense path after attention. Every token uses the same parameters and the same full hidden width, which keeps the block easy to reason about and easy to compare against later variants."
     },
     "practicalBenefit": {
       "title": "Practical Benefit",
-      "body": "This is the baseline most transformer readers see in diagrams, code, and papers. Once you know the dense baseline, it becomes much easier to spot what later FFN variants are actually changing."
+      "body": "This is the baseline most transformer readers see in diagrams, code, and papers. Once you know the dense baseline, it becomes much easier to spot what later feed-forward variants are actually changing."
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "The token state enters one shared dense block, expands into a wider hidden width, passes through an activation, and then projects back to the model width. No router chooses between experts, and no separate gate branch changes which hidden features stay active."
+      "body": "The token state enters one shared dense block, expands into a wider hidden width, passes through an activation, and then projects back to the model width. No router chooses between experts, and no separate gate branch decides which hidden features stay active."
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
-      "body": "The dense FFN formula below is the baseline for the whole family. It shows the single shared expand, activate, and project path that many later variants start from."
+      "body": "The dense feed-forward formula below is the baseline for the whole family. It shows the single shared expand, activate, and project path that many later variants start from."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Compared with other FFN-family modules, the standard FFN keeps the most direct dense path. The main tradeoff is that every token activates the full hidden block every time."
+      "body": "Compared with other feed-forward modules, the standard feed-forward network keeps the most direct dense path. The main tradeoff is that every token activates the full hidden block every time."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
-      "body": "Many early and still-common transformer stacks use the standard dense FFN as the default post-attention module."
+      "body": "Many early and still-common transformer stacks use the standard dense feed-forward network as the default post-attention module."
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
-      "body": "The standard FFN activates the whole hidden path for every token, so it cannot add expert capacity sparsely the way MoE does. It also lacks the extra gating flexibility that later dense variants such as SwiGLU introduce."
+      "body": "The standard feed-forward network activates the whole hidden path for every token, so it cannot add expert capacity sparsely the way a mixture-of-experts layer can. It also lacks the extra gating flexibility that later dense variants such as the swish gated linear unit introduce."
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",
-      "body": "Even when a paper introduces a new FFN variant, the standard FFN remains the reference point that explains what changed. It is the baseline shape many readers still need first."
+      "body": "Even when a paper introduces a new feed-forward variant, the standard feed-forward network remains the reference point that explains what changed. It is the baseline shape many readers still need first."
     },
     "related": {
       "title": "Related"
@@ -51,18 +51,18 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Standard FFN graph showing one dense expand, activate, and project path for each token",
-      "caption": "A standard FFN keeps one dense path for every token: widen the hidden state, apply an activation, then project back to model width"
+      "alt": "Standard feed-forward network graph showing one dense expand, activate, and project path for each token",
+      "caption": "A standard feed-forward network keeps one dense path for every token: widen the hidden state, apply an activation, then project back to the model width."
     },
     "comparisonTable": {
-      "caption": "How the standard FFN compares with nearby FFN variants"
+      "caption": "How the standard feed-forward network compares with nearby variants"
     }
   },
   "tables": {
     "comparison": {
       "columns": {
         "standard": {
-          "title": "Standard FFN"
+          "title": "Standard feed-forward"
         },
         "swiglu": {
           "title": "SwiGLU"
@@ -79,7 +79,7 @@
       "values": {
         "standard": {
           "pathShape": "One dense expand -> activate -> project path",
-          "activeCompute": "All hidden units in one shared MLP",
+          "activeCompute": "All hidden units in one shared feed-forward block",
           "mainTradeoff": "Simple and predictable, but every token pays for the full block"
         },
         "swiglu": {
@@ -88,7 +88,7 @@
           "mainTradeoff": "More expressive, but the block is less minimal than the dense baseline"
         },
         "moe": {
-          "pathShape": "Router chooses a few expert MLPs, then merges them",
+          "pathShape": "Router chooses a few expert layers, then merges them",
           "activeCompute": "Only top-k experts activate for each token",
           "mainTradeoff": "Much more capacity, but routing and load balancing add complexity"
         }
@@ -97,7 +97,7 @@
   },
   "math": {
     "standardSchema": {
-      "label": "Standard dense FFN",
+      "label": "Standard dense feed-forward network",
       "formula": "\\mathrm{FFN}(h_t) = W_2\\,\\sigma(W_1 h_t + b_1) + b_2",
       "variableDefinitions": {
         "ht": {
@@ -119,7 +119,7 @@
       }
     },
     "swigluSchema": {
-      "label": "SwiGLU comparison target",
+      "label": "Swish gated linear unit comparison target",
       "formula": "\\mathrm{SwiGLU}(h_t) = W_o\\big((W_v h_t) \\odot \\mathrm{SiLU}(W_g h_t)\\big)",
       "variableDefinitions": {
         "ht": {
@@ -151,7 +151,7 @@
         "label": "Token state h_t"
       },
       "sharedDensePath": {
-        "label": "One shared dense FFN"
+        "label": "One shared dense feed-forward network"
       },
       "allUnitsActive": {
         "label": "All wide hidden units activate for every token"

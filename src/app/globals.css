@@ -82,3 +82,12 @@ article[data-registry-id] > section:first-of-type {
 article[data-registry-id] > section:first-of-type > h2 {
   margin-top: 0;
 }
+
+/*
+ * Fumadocs renders an extra search trigger inside the collapsed docs sidebar
+ * panel even when we provide our own primary search entry point in the header.
+ * Hide only that redundant control and keep the collapse toggle visible.
+ */
+[data-sidebar-panel] [data-search] {
+  display: none;
+}

@@ -65,6 +65,16 @@ describe("AttentionVariantComparisonGraph", () => {
     ).toBe(2);
     expect(
       container.querySelector(
+        ".attention-variant-comparison-figure.flex.flex-col",
+      ),
+    ).toBeTruthy();
+    expect(
+      container.querySelector(
+        ".attention-variant-comparison__controls.order-2.mt-3.md\\:order-1.md\\:mb-3.md\\:mt-0",
+      ),
+    ).toBeTruthy();
+    expect(
+      container.querySelector(
         '[data-graph-id="graph.grouped-query-attention-gqa-comparison"]',
       ),
     ).toBeTruthy();
@@ -80,17 +90,17 @@ describe("AttentionVariantComparisonGraph", () => {
     expect(container.querySelector('[data-head-count-role="kv"]')).toBeTruthy();
     expect(container.querySelector(".react-flow")).toBeTruthy();
     expect(
-      screen.getByRole("tab", { name: "MHA", selected: false }),
+      screen.getByRole("tab", { name: "Multi-head", selected: false }),
     ).toBeTruthy();
     expect(
-      screen.getByRole("tab", { name: "GQA", selected: true }),
+      screen.getByRole("tab", { name: "Grouped-query", selected: true }),
     ).toBeTruthy();
   });
 
   test("switches to MHA variant on the same React Flow canvas", () => {
     const { container } = renderComparisonGraph();
 
-    fireEvent.click(screen.getByRole("tab", { name: "MHA" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Multi-head" }));
 
     expect(
       container.querySelector('[data-attention-variant-active="mha"]'),
@@ -123,7 +133,7 @@ describe("AttentionVariantComparisonGraph", () => {
     ).toBe("100%");
     expect(container.querySelectorAll(".react-flow").length).toBe(1);
     expect(
-      screen.getByRole("tab", { name: "MHA", selected: true }),
+      screen.getByRole("tab", { name: "Multi-head", selected: true }),
     ).toBeTruthy();
   });
 });

@@ -4,6 +4,7 @@ import { InlineMath } from "@/features/docs/components/Math";
 import { MissingMessageKey } from "@/features/docs/components/MissingMessageKey";
 import { ProseAutoLinkText } from "@/features/docs/components/ProseAutoLinkText";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
+import { ResponsiveMathFormulaBlock } from "@/features/docs/components/ResponsiveMathFormulaBlock";
 import { TBlockMath } from "@/features/docs/components/TBlockMath";
 import { lookupMessage } from "@/lib/content/messages";
 
@@ -125,15 +126,19 @@ function PageMathVariableDefinitions({ mathId }: PageMathFormulaProps) {
 
 export function PageMathFormula({ mathId }: PageMathFormulaProps) {
   return (
-    <div
-      className="not-prose my-4 flex flex-col gap-3"
-      data-page-math-formula={mathId}
+    <ResponsiveMathFormulaBlock
+      className="not-prose my-4"
+      formula={
+        <TBlockMath
+          labelKey={`math.${mathId}.label`}
+          formulaKey={`math.${mathId}.formula`}
+        />
+      }
+      formulaId={mathId}
     >
-      <TBlockMath
-        labelKey={`math.${mathId}.label`}
-        formulaKey={`math.${mathId}.formula`}
-      />
-      <PageMathVariableDefinitions mathId={mathId} />
-    </div>
+      <div data-page-math-formula={mathId}>
+        <PageMathVariableDefinitions mathId={mathId} />
+      </div>
+    </ResponsiveMathFormulaBlock>
   );
 }

@@ -2,7 +2,7 @@
 
 Use `training-regime.mdx` as the production page structure. Put localized reader-facing text in `messages/<locale>.json` using the keys from `training-regime.messages.en.json`. Put training flow diagrams and visual references in `assets.json` using `training-regime.assets.json`.
 
-Follow [writing-standards](../writing-standards.md) and [graphing-standards](../graphing-standards.md) for summary tone and graph placement.
+Follow [docs writing standards](../../factory/docs/standards/docs-writing-standards.md) and [graphing-standards](../graphing-standards.md) for summary tone and graph placement.
 
 ## Required Content
 

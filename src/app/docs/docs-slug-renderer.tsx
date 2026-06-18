@@ -6,12 +6,14 @@ import {
 } from "fumadocs-ui/layouts/docs/page";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import { notFound } from "next/navigation";
+import { DocsPageBreadcrumb } from "@/features/docs/components/DocsPageBreadcrumb";
 import { DocsAutoLinkedDescription } from "@/features/docs/components/DocsAutoLinkedDescription";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
   loadLocalDocsPage,
   parseLocalDocsPageRef,
 } from "@/lib/content/local-docs-page";
+import { loadUiMessages } from "@/lib/content/ui-messages";
 import { isDocsPageShippedForLocale } from "@/lib/content/pages";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
@@ -50,6 +52,7 @@ async function renderLocalDocsPage(
   }
 
   const loadedPage = await loadLocalDocsPage(localRef, locale);
+  const uiMessages = await loadUiMessages(locale);
   const description =
     localRef.section === "glossary" ? (
       <DocsAutoLinkedDescription text={loadedPage.messages.description} />
@@ -58,12 +61,18 @@ async function renderLocalDocsPage(
     );
 
   return (
-    <DocsPage toc={loadedPage.toc}>
+    <DocsPage breadcrumb={{ enabled: false }} toc={loadedPage.toc}>
       <ModulePageProviders
         messages={loadedPage.messages}
         assets={loadedPage.assets}
         locale={locale}
       >
+        <DocsPageBreadcrumb
+          locale={locale}
+          messages={uiMessages}
+          slug={slug}
+          title={loadedPage.messages.title}
+        />
         <DocsTitle>{loadedPage.messages.title}</DocsTitle>
         <DocsDescription>{description}</DocsDescription>
         <DocsBody>
@@ -97,9 +106,20 @@ export async function renderDocsSlugPage(
   }
 
   const MDXContent = page.data.body;
+  const uiMessages = await loadUiMessages(locale);
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
+    <DocsPage
+      breadcrumb={{ enabled: false }}
+      toc={page.data.toc}
+      full={page.data.full}
+    >
+      <DocsPageBreadcrumb
+        locale={locale}
+        messages={uiMessages}
+        slug={slug}
+        title={page.data.title}
+      />
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>

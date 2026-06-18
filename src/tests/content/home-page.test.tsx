@@ -8,11 +8,9 @@ import { expectHomeArticleHeaderOnlySearchEntry } from "@/tests/discovery/home-s
 
 /** Discovery targets on `/` must stay aligned with Phase 1 acceptance criteria. */
 const HOME_DISCOVERY_HREFS = [
-  "/docs/architecture",
-  "/docs/glossary",
-  "/tags",
   "/docs/modules/grouped-query-attention",
-  "/docs/glossary/token",
+  "/docs/modules/swiglu",
+  "/docs/modules/relu",
 ] as const;
 
 describe("home page messages", () => {
@@ -24,24 +22,20 @@ describe("home page messages", () => {
     expect(home.intro).not.toMatch(/Search by alias/i);
     expect(home.intro).not.toMatch(/search by tag/i);
     expect(home.browseSectionTitle.length).toBeGreaterThan(0);
-    expect(home.architectureLinkTitle).toBe("Architecture");
-    expect(home.glossaryLinkTitle).toBe("Glossary");
-    expect(home.tagsLinkTitle).toBe("Tags");
-    expect(home.tokenLinkTitle).toBe("Token (glossary)");
-    expect(home.docsLinkTitle).toBe("Grouped-query attention");
+    expect(home.gqaLinkTitle).toBe("Grouped-query attention");
+    expect(home.swigluLinkTitle).toBe("SwiGLU");
+    expect(home.reluLinkTitle).toBe("ReLU");
     expect(home.onThisPageBrowse).toBe("Browse");
   });
 
-  it("defines browse link titles for every Phase 1 discovery index", async () => {
+  it("defines browse link titles for every homepage module shortcut", async () => {
     const { home } = await loadUiMessages();
-    expect(home.architectureLinkDescription.length).toBeGreaterThan(0);
-    expect(home.glossaryLinkDescription.length).toBeGreaterThan(0);
-    expect(home.tagsLinkDescription.length).toBeGreaterThan(0);
-    expect(home.tokenLinkDescription.length).toBeGreaterThan(0);
-    expect(home.docsLinkDescription.length).toBeGreaterThan(0);
-    expect(home.tokenLinkDescription).not.toMatch(/Phase 1/i);
-    expect(home.docsLinkDescription).not.toMatch(/Phase 1/i);
-    expect(HOME_DISCOVERY_HREFS).toHaveLength(5);
+    expect(home.gqaLinkDescription.length).toBeGreaterThan(0);
+    expect(home.swigluLinkDescription.length).toBeGreaterThan(0);
+    expect(home.reluLinkDescription.length).toBeGreaterThan(0);
+    expect(home.gqaLinkDescription).not.toMatch(/Phase 1/i);
+    expect(home.swigluLinkDescription).not.toMatch(/Phase 1/i);
+    expect(HOME_DISCOVERY_HREFS).toHaveLength(3);
   });
 });
 
@@ -51,7 +45,7 @@ describe("home page render", () => {
     return renderToStaticMarkup(<HomeArticle messages={messages} />);
   }
 
-  it("links to indexes, sample module, and token glossary", async () => {
+  it("links to concrete starter module pages", async () => {
     const html = await renderHomeArticleHtml();
     expect(html).toContain("Model Atlas");
     for (const href of HOME_DISCOVERY_HREFS) {
@@ -66,12 +60,11 @@ describe("home page render", () => {
     );
 
     expect(html).toContain("Cẩm nang về các mô hình và module AI hiện đại");
-    expect(html).toContain("Token (thuật ngữ)");
-    expect(html).toContain('href="/vi/docs/architecture"');
-    expect(html).toContain('href="/vi/docs/glossary"');
-    expect(html).toContain('href="/vi/docs/glossary/token"');
-    expect(html).toContain('href="/vi/tags"');
     expect(html).toContain('href="/vi/docs/modules/grouped-query-attention"');
+    expect(html).toContain('href="/docs/modules/swiglu"');
+    expect(html).toContain('href="/docs/modules/relu"');
+    expect(html).not.toContain('href="/vi/docs/modules/swiglu"');
+    expect(html).not.toContain('href="/vi/docs/modules/relu"');
   });
 
   it("preserves the active locale in browse links on the japanese route surface", async () => {
@@ -83,16 +76,14 @@ describe("home page render", () => {
     expect(html).toContain(
       "現代の AI モデルとモジュールのためのフィールドガイド",
     );
-    expect(html).toContain("トークン（用語集）");
-    expect(html).toContain('href="/ja/docs/architecture"');
-    expect(html).toContain('href="/ja/docs/glossary"');
-    expect(html).toContain('href="/ja/tags"');
-    expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
-    expect(html).not.toContain('href="/ja/docs/glossary/token"');
+    expect(html).toContain('href="/docs/modules/swiglu"');
+    expect(html).toContain('href="/docs/modules/relu"');
     expect(html).not.toContain(
       'href="/ja/docs/modules/grouped-query-attention"',
     );
+    expect(html).not.toContain('href="/ja/docs/modules/swiglu"');
+    expect(html).not.toContain('href="/ja/docs/modules/relu"');
   });
 
   it("omits verbose search handoff prose and inline /search link", async () => {

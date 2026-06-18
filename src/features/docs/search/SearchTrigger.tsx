@@ -4,6 +4,7 @@ import { useSearchContext } from "fumadocs-ui/contexts/search";
 import { Search } from "lucide-react";
 import type { ComponentProps } from "react";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import { cn } from "@/lib/utils";
 
 type SearchTriggerProps = Omit<ComponentProps<"button">, "type"> & {
   messages: UiMessages;
@@ -28,19 +29,17 @@ export function SearchTrigger({
       data-search=""
       aria-label={messages.search.open}
       onClick={() => setOpenSearch(true)}
-      className={[
+      className={cn(
         "group inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-2 py-1.5 text-sm text-muted-foreground transition-colors",
         "hover:bg-accent hover:text-accent-foreground",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
       {...props}
     >
       <Search className="size-4 shrink-0" aria-hidden />
       <span>{messages.search.shortcut}</span>
-      <span className="ms-1 inline-flex gap-0.5">
+      <span className="ms-1 hidden gap-0.5 md:inline-flex">
         {hotKey.map((key) => (
           <kbd
             key={String(key.display)}

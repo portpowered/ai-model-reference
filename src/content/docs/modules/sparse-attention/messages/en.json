@@ -1,7 +1,7 @@
 {
   "title": "Sparse Attention",
   "description": "An attention variant that computes scores only for a subset of token pairs instead of every query-key combination.",
-  "openingSummary": "Dense attention scores every query against every key, so compute and memory grow with the square of sequence length; sparse attention applies a mask or pattern that skips most token pairs and computes attention only where the pattern allows, trading full connectivity for lower cost on long contexts.",
+  "openingSummary": "Sparse attention is an attention variant that computes scores only for selected token pairs, trading full connectivity for lower cost on long contexts.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -25,7 +25,7 @@
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Compared with multi-head attention, sparse attention skips most token pairs rather than scoring all of them. Multi-query and grouped-query attention remain dense over allowed positions but reduce KV head count; sparse attention changes which positions connect at all."
+      "body": "Compared with multi-head attention, sparse attention skips most token pairs rather than scoring all of them. Multi-query and grouped-query attention remain dense over allowed positions but reduce key-value head count. Sparse attention instead changes which positions connect at all."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
@@ -52,10 +52,10 @@
   "assets": {
     "computeFlow": {
       "alt": "Dense multi-head attention versus sparse attention pair selection",
-      "caption": "Toggle MHA and sparse attention to compare all-pairs scoring against mask-limited pair selection on one canvas",
+      "caption": "Toggle multi-head attention and sparse attention to compare all-pairs scoring against mask-limited pair selection on one canvas.",
       "variants": {
         "mha": {
-          "label": "MHA"
+          "label": "Multi-head"
         },
         "sparse": {
           "label": "Sparse"
@@ -99,13 +99,13 @@
           "globalReach": "Any position can attend to any other position"
         },
         "mqa": {
-          "attentionConnectivity": "All n-by-n pairs with shared KV heads",
-          "computeScaling": "Quadratic O(n²) with fewer KV projections",
+          "attentionConnectivity": "All n-by-n pairs with shared key-value heads",
+          "computeScaling": "Quadratic O(n²) with fewer key-value projections",
           "globalReach": "Any position can attend to any other position"
         },
         "gqa": {
-          "attentionConnectivity": "All n-by-n pairs with grouped KV heads",
-          "computeScaling": "Quadratic O(n²) with reduced KV head count",
+          "attentionConnectivity": "All n-by-n pairs with grouped key-value heads",
+          "computeScaling": "Quadratic O(n²) with reduced key-value head count",
           "globalReach": "Any position can attend to any other position"
         }
       }
@@ -205,7 +205,7 @@
         "label": "H query heads"
       },
       "mhaKvHeads": {
-        "label": "H KV head pairs (1:1 with queries)"
+        "label": "H key-value head pairs (1:1 with queries)"
       },
       "mhaOneToOne": {
         "label": "Each query attends to every key position"

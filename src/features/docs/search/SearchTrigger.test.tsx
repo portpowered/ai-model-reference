@@ -27,6 +27,7 @@ describe("SearchTrigger", () => {
     expect(html).toContain('type="button"');
     expect(html).toContain(messages.search.shortcut);
     expect(html).toContain("<kbd");
+    expect(html).toContain("hidden gap-0.5 md:inline-flex");
   });
 
   test("keeps shortcut chips readable on trigger hover and focus via group accent styles", async () => {
@@ -38,6 +39,24 @@ describe("SearchTrigger", () => {
     expect(html).toContain("group-hover:bg-accent-foreground/10");
     expect(html).toContain("group-focus-visible:text-accent-foreground");
     expect(html).toContain("group-focus-visible:bg-accent-foreground/10");
+  });
+
+  test("merges caller layout classes so the trigger can expand in mobile header slots", async () => {
+    const messages = await loadUiMessages();
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+
+    const html = renderToStaticMarkup(
+      <RootProvider search={{ SearchDialog, enabled: true }}>
+        <SearchTrigger
+          messages={messages}
+          className="w-full justify-between md:w-auto"
+        />
+      </RootProvider>,
+    );
+
+    expect(html).toContain("w-full");
+    expect(html).toContain("justify-between");
+    expect(html).toContain("md:w-auto");
   });
 
   test("omits the trigger when search is disabled and hideIfDisabled is set", async () => {

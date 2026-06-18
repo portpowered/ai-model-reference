@@ -4,7 +4,7 @@ Use `glossary.mdx` as the production page structure for glossary entries at `/do
 
 Glossary pages use `kind: glossary` in frontmatter and resolve through a `concept.<slug>` registry record, the same registry shape as concept pages. The route lives under `src/content/docs/glossary/<slug>/` even though the registry id prefix is `concept.`.
 
-Follow [writing-standards](../writing-standards.md) and [graphing-standards](../graphing-standards.md) for layperson tone and optional graph placement.
+Follow [docs writing standards](../../factory/docs/standards/docs-writing-standards.md) and [graphing-standards](../graphing-standards.md) for layperson tone and optional graph placement.
 
 ## Required Content
 

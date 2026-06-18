@@ -1,23 +1,23 @@
 {
   "title": "Multi-Head Attention",
   "description": "The baseline attention design that gives every query head its own key-value head pair.",
-  "openingSummary": "Transformer blocks need each token position to gather context from others; multi-head attention (MHA) runs that lookup in parallel by splitting projected queries, keys, and values into H independent heads so each head can specialize while outputs are concatenated back together.",
+  "openingSummary": "Multi-head attention (MHA) is the baseline transformer attention design, splitting attention into several parallel heads so different heads can focus on different relationships while each head keeps its own key and value pair.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Multi-head attention is the original scaled dot-product attention used in the Transformer. Each head computes its own attention distribution over keys and values, then the head outputs are merged before the next sublayer."
+      "body": "Multi-head attention (MHA) is the original scaled dot-product attention design used in the Transformer. Instead of running one large attention lookup, the model splits the work across several heads. Each head computes its own attention distribution over keys and values, and the head outputs are then merged."
     },
     "whatItOptimizes": {
       "title": "What It Optimizes",
-      "body": "MHA targets representational breadth: distinct query heads can attend to different relationships in the same sequence without sharing key-value parameters."
+      "body": "MHA optimizes for representational breadth. Distinct query heads can attend to different relationships in the same sequence without sharing key-value parameters."
     },
     "practicalBenefit": {
       "title": "Practical Benefit",
-      "body": "Models keep full per-head expressiveness at training and inference time. MHA remains the reference design when quality matters more than KV-cache size, and it is the baseline against which multi-query attention and grouped-query attention are compared."
+      "body": "Models keep full per-head expressiveness at training and inference time. MHA remains the reference design when quality matters more than key-value cache size, and it is the baseline against which multi-query attention and grouped-query attention are compared."
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "Linear projections produce H query heads, H key heads, and H value heads. Each query head i attends to its matching key head i and value head i, producing H outputs that are concatenated and projected again."
+      "body": "Linear projections produce multiple query heads, multiple key heads, and multiple value heads. Each query head attends to its matching key and value head, producing several outputs that are concatenated and projected again."
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
@@ -25,7 +25,7 @@
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Compared with multi-query attention, MHA stores one KV pair per query head, so cache size scales with H. Compared with grouped-query attention, MHA avoids shared KV groups and keeps the largest KV footprint in the head-sharing family."
+      "body": "Compared with multi-query attention, MHA stores one key-value pair per query head, so cache size grows with head count. Compared with grouped-query attention, MHA avoids shared key-value groups and keeps the largest cache footprint in the head-sharing family."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
@@ -33,11 +33,11 @@
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
-      "body": "Autoregressive inference must cache every key and value head, so memory and bandwidth grow with context length and head count. Serving long contexts often motivates MQA or GQA instead."
+      "body": "Autoregressive inference must cache every key and value head, so memory and bandwidth grow with context length and head count. Serving long contexts often motivates multi-query attention or grouped-query attention instead."
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",
-      "body": "MHA is the conceptual baseline for every head-sharing variant: understanding its one-to-one query-to-KV mapping makes MQA and GQA tradeoffs easier to reason about."
+      "body": "MHA is the conceptual baseline for every head-sharing variant. Understanding its one-to-one query-to-key-value mapping makes later tradeoffs easier to reason about."
     },
     "related": {
       "title": "Related"
@@ -52,18 +52,18 @@
   "assets": {
     "computeFlow": {
       "alt": "Multi-head attention versus multi-query attention head-count comparison",
-      "caption": "Toggle MHA and MQA to compare query-head count against KV-head count on one canvas",
+      "caption": "Toggle multi-head attention and multi-query attention to compare query-head count against key-value head count on one canvas.",
       "variants": {
         "mha": {
-          "label": "MHA"
+          "label": "Multi-head"
         },
         "mqa": {
-          "label": "MQA"
+          "label": "Multi-query"
         }
       }
     },
     "comparisonTable": {
-      "caption": "How MHA compares with nearby attention variants"
+      "caption": "How multi-head attention compares with nearby attention variants"
     }
   },
   "tables": {
@@ -80,25 +80,25 @@
         }
       },
       "dimensions": {
-        "kvHeadCount": "KV head count",
+        "kvHeadCount": "Key-value head count",
         "queryHeadFlexibility": "Query-head flexibility",
         "cacheFootprint": "Cache footprint per token"
       },
       "values": {
         "mha": {
           "kvHeadCount": "H key heads and H value heads",
-          "queryHeadFlexibility": "H independent query/KV head pairs",
+          "queryHeadFlexibility": "H independent query and key-value head pairs",
           "cacheFootprint": "2H tensors (full multi-head attention cache)"
         },
         "mqa": {
           "kvHeadCount": "1 key head and 1 value head",
-          "queryHeadFlexibility": "H query heads share one KV pair",
-          "cacheFootprint": "2 tensors (single shared KV cache)"
+          "queryHeadFlexibility": "H query heads share one key-value pair",
+          "cacheFootprint": "2 tensors (single shared key-value cache)"
         },
         "gqa": {
           "kvHeadCount": "G key heads and G value heads",
-          "queryHeadFlexibility": "H distinct query heads grouped into G shared KV pairs",
-          "cacheFootprint": "2G tensors (G keys + G values)"
+          "queryHeadFlexibility": "H distinct query heads grouped into G shared key-value pairs",
+          "cacheFootprint": "2G tensors (G keys plus G values)"
         }
       }
     }
@@ -159,7 +159,7 @@
         "label": "H query heads"
       },
       "mhaKvHeads": {
-        "label": "H KV head pairs (1:1 with queries)"
+        "label": "H key-value head pairs (1:1 with queries)"
       },
       "mhaOneToOne": {
         "label": "Each query head has its own K and V"
@@ -168,7 +168,7 @@
         "label": "H query heads"
       },
       "mqaKvShared": {
-        "label": "1 shared KV pair"
+        "label": "1 shared key-value pair"
       },
       "mqaSharedMapping": {
         "label": "All H query heads read from one K and V"

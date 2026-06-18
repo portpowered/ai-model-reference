@@ -2,7 +2,7 @@
 
 Use `concept.mdx` as the production page structure. Put localized reader-facing text in `messages/<locale>.json` using the keys from `concept.messages.en.json`. Put page-specific visual references in `assets.json` using `concept.assets.json`.
 
-Follow [writing-standards](../writing-standards.md) and [graphing-standards](../graphing-standards.md) for summary tone and optional graph placement.
+Follow [docs writing standards](../../factory/docs/standards/docs-writing-standards.md) and [graphing-standards](../graphing-standards.md) for summary tone and optional graph placement.
 
 ## Required Content
 

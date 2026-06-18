@@ -1,5 +1,3 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import { PHASE_2_TAXONOMY_GLOSSARY_ROUTES } from "@/lib/build/verify-phase-1-static-routes";
 import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
 import { assertDocsShellConvergence } from "./docs-shell-convergence";
@@ -30,18 +28,6 @@ import {
 
 export const RENDERED_QUALITY_BASELINE_REPORT_HEADER =
   "Rendered quality baseline audit";
-
-export const QUALITY_DOCUMENTS_STANDARDS_PATH = join(
-  process.cwd(),
-  "docs/quality-documents-standards.md",
-);
-
-export const RENDERED_QUALITY_ACTIVE_STANDARDS = [
-  "docs/writing-standards.md",
-  "docs/documentation-template.md",
-  "docs/graphing-standards.md",
-  "docs/quality-documents-standards.md",
-] as const;
 
 export type RenderedQualityViewportId = "desktop" | "mobile";
 
@@ -167,15 +153,8 @@ export type RenderedQualityIssue = {
   detail: string;
 };
 
-export type RenderedQualityStandardsBaseline = {
-  qualityDocumentsStandardsPresent: boolean;
-  qualityDocumentsStandardsGap: string | null;
-  activeStandards: readonly string[];
-};
-
 export type RenderedQualityAuditResult = {
   auditedAtUtc: string;
-  standards: RenderedQualityStandardsBaseline;
   issues: RenderedQualityIssue[];
   routesVisited: number;
   viewportChecks: number;
@@ -234,22 +213,6 @@ function hasReaderShortcutMarker(html: string): string | null {
 
 function countReactFlowGraphs(html: string): number {
   return (html.match(/data-react-flow-graph="true"/g) ?? []).length;
-}
-
-export function buildRenderedQualityStandardsBaseline(
-  projectRoot: string = process.cwd(),
-): RenderedQualityStandardsBaseline {
-  const qualityDocumentsStandardsPresent = existsSync(
-    join(projectRoot, "docs/quality-documents-standards.md"),
-  );
-
-  return {
-    qualityDocumentsStandardsPresent,
-    qualityDocumentsStandardsGap: qualityDocumentsStandardsPresent
-      ? null
-      : "docs/quality-documents-standards.md is absent; writing-standards.md, documentation-template.md, and graphing-standards.md are the active rendered-quality baseline.",
-    activeStandards: RENDERED_QUALITY_ACTIVE_STANDARDS,
-  };
 }
 
 export type RenderedQualityHtmlAuditInput = {
@@ -517,11 +480,9 @@ export function buildRenderedQualityAuditResult(input: {
   routesVisited: number;
   viewportChecks: number;
   auditedAtUtc?: string;
-  projectRoot?: string;
 }): RenderedQualityAuditResult {
   return {
     auditedAtUtc: input.auditedAtUtc ?? new Date().toISOString(),
-    standards: buildRenderedQualityStandardsBaseline(input.projectRoot),
     issues: [...input.issues],
     routesVisited: input.routesVisited,
     viewportChecks: input.viewportChecks,

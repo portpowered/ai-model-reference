@@ -321,7 +321,7 @@ secrets to satisfy this artifact.
 | **Summary** | Biome lint/format, TypeScript strict mode, Bun tests, manifest-scoped coverage, build/export validation, registry validation, and internal linkcheck run through `make ci`. Dependency security scans, bundle-size tracking, performance budgets, and global dead-code detection are not automated. |
 | **Repository evidence** | `biome.json`, `tsconfig.json` (`strict: true`), `Makefile` (`ci`), `package.json`, `scripts/validate-registry.ts`, `scripts/validate-links.ts`, `scripts/component-coverage-gate.ts`, `scripts/verify-architectural-checklist-mechanism-status.ts`, `src/lib/governance/architectural-checklist-audit.ts`, `.github/workflows/ci.yml` |
 | **Verification commands** | `make ci`, `make verify-architectural-checklist-mechanism-status`, `bun run lint`, `bun run typecheck` |
-| **Gaps** | No Dependabot/npm-audit gate; no bundle analyzer or Lighthouse budget in CI; MDX prose lint is manual via `docs/writing-standards.md`. |
+| **Gaps** | No Dependabot/npm-audit gate; no bundle analyzer or Lighthouse budget in CI; MDX prose lint is manual via `factory/docs/standards/docs-writing-standards.md`. |
 | **Follow-up or operator requirement** | Add dependency scan workflow or document operator-owned security review cadence. |
 
 ### Build systems
@@ -451,7 +451,7 @@ secrets to satisfy this artifact.
 | --- | --- |
 | **Status** | partially implemented |
 | **Summary** | Attention-variant module pages, glossary entries, comparison tables/graphs, and writing standards provide structured ML explainers with accessibility-oriented summaries on key module routes. Full model-card coverage, benchmark caveats, and safety/limitations sections are not uniform across all records. |
-| **Repository evidence** | `src/content/docs/modules/`, `src/content/registry/modules/`, `docs/writing-standards.md`, `docs/documentation-template.md`, `src/features/models/components/ModuleAtAGlance.tsx`, `ModuleAttentionSchemaComparison.tsx` |
+| **Repository evidence** | `src/content/docs/modules/`, `src/content/registry/modules/`, `factory/docs/standards/docs-writing-standards.md`, `docs/documentation-template.md`, `src/features/models/components/ModuleAtAGlance.tsx`, `ModuleAttentionSchemaComparison.tsx` |
 | **Verification commands** | `bun test src/lib/content/*-module-page.test.ts`, `make validate-data` |
 | **Gaps** | Few live model/paper pages vs checklist breadth; performance claims and hardware assumptions not consistently documented. |
 | **Follow-up or operator requirement** | Expand model/paper content with registry-backed sections as planner batches land. |
@@ -495,7 +495,7 @@ secrets to satisfy this artifact.
 | --- | --- |
 | **Status** | partially implemented |
 | **Summary** | Authoring standards, documentation templates, graphing standards, and AGENTS.md define tone, structure, and review expectations. Automated doc owners, freshness dates, deprecation markers, and CI-detectable stale content are not implemented. |
-| **Repository evidence** | `docs/writing-standards.md`, `docs/documentation-template.md`, `docs/graphing-standards.md`, `AGENTS.md`, `docs/templates/` |
+| **Repository evidence** | `factory/docs/standards/docs-writing-standards.md`, `docs/documentation-template.md`, `docs/graphing-standards.md`, `AGENTS.md`, `docs/templates/` |
 | **Verification commands** | n/a |
 | **Gaps** | No per-page owner or last-reviewed metadata enforcement; no deprecated-doc flag in content model. |
 | **Follow-up or operator requirement** | Add registry or frontmatter fields for freshness/ownership when governance automation is prioritized. |

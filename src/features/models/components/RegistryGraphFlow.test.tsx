@@ -100,6 +100,7 @@ describe("RegistryGraphFlow", () => {
     expect(REGISTRY_GRAPH_FLOW_INTERACTION.nodesConnectable).toBe(false);
     expect(REGISTRY_GRAPH_FLOW_INTERACTION.elementsSelectable).toBe(false);
     expect(html).toContain('aria-label="Grouped-query attention compute flow"');
+    expect(html).toContain('aria-label="Expand graph to full screen"');
     expect(html).toContain('data-graph-node-id="hidden-states"');
     expect(html).toContain('data-graph-node-id="query-groups"');
     expect(html).toContain('data-graph-node-id="shared-kv"');

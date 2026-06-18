@@ -36,13 +36,19 @@ Canonical docs pages should include:
 
 * frontmatter with `kind`, `registryId`, `messageNamespace`, `assetNamespace`, `status`, `tags`, `aliases`, and `updatedAt`
 * `messageNamespace` and `assetNamespace` references, usually `local`
-* a localized folded `openingSummary` rendered from messages (merge legacy `problemStatement` + `coreIdea` into one key; glossary pages keep `openingSummary` in messages but omit it from MDX—see [writing-standards](./writing-standards.md))
+* a localized folded `openingSummary` rendered from messages (merge legacy `problemStatement` + `coreIdea` into one key; glossary pages keep `openingSummary` in messages but omit it from MDX—see [writing standards](../factory/docs/standards/docs-writing-standards.md))
 * no in-body `# <T k="title" />` heading; the docs shell renders the page title once
 * registry-backed metadata or at-a-glance component where relevant
 * clickable tags through `TagPillList`
 * page-kind-specific sections
 * derived related documents through `DerivedRelatedDocs` where useful
 * references through `CitationList`
+
+The page structure should support a reader who lands on the page directly from search.
+
+* Introductory sections should define the topic in isolation before narrowing into one implementation context.
+* Section order should move from definition -> value -> mechanism -> comparison -> tradeoffs.
+* Avoid templates that force authors to restate the same idea in multiple adjacent sections.
 
 Production docs pages should render sections through localized section components, for example:
 
@@ -63,7 +69,7 @@ When a section needs a graph, chart, diagram, code schema, image, or table, refe
 
 * Place the **single primary React Flow graph** in **How it works** via `ModuleGraph` or an attention-variant comparison wrapper (see [graphing-standards](./graphing-standards.md)).
 * The **math or compute schema** section holds equations and **symbol-only** definitions under each formula via `ModuleAttentionSchemaComparison`—no second React Flow canvas (`computeSchema` graphs belong out of baseline templates).
-* Symbol definitions are notation only (`Q`, `K`, `V`, `H`, `G`, indices); projection, grouping, and head-count concept rows belong in narrative sections (see [writing-standards](./writing-standards.md)).
+* Symbol definitions are notation only (`Q`, `K`, `V`, `H`, `G`, indices); projection, grouping, and head-count concept rows belong in narrative sections (see [writing standards](../factory/docs/standards/docs-writing-standards.md)).
 
 ### Non-module graph placement
 
@@ -97,7 +103,7 @@ Use message components for localized user-facing text. Use asset components or r
 
 For graph-heavy pages, reference graph assets by `assetId`. Graph node labels, edge labels, summaries, captions, and alt text should resolve from colocated messages. A model page should treat the model as a root module and let the recursive graph viewer expand submodules vertically. Graphs must use the readable node theme and zoom/pan interaction rules in [graphing-standards](./graphing-standards.md).
 
-Baseline templates must not include `callouts.readerShortcut` unless [writing-standards](./writing-standards.md) documents a justified exception.
+Baseline templates must not include `callouts.readerShortcut` unless [writing standards](../factory/docs/standards/docs-writing-standards.md) documents a justified exception.
 
 Do not hand-maintain lists of related pages when the same result can be derived from registry data, tags, taxonomy fields, model usage, paper usage, or `relatedIds` overrides.
 

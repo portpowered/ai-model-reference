@@ -1,11 +1,11 @@
 {
-  "title": "SwiGLU",
-  "description": "A gated FFN design that splits the hidden expansion into value and gate branches, then uses SiLU to scale the result.",
-  "openingSummary": "SwiGLU splits the FFN expansion into value and gate branches, uses SiLU on the gate, and multiplies them together before projection so the block can choose which hidden features stay strong.",
+  "title": "Swish Gated Linear Unit",
+  "description": "A gated feed-forward design that multiplies a value branch by a swish gate before projecting back.",
+  "openingSummary": "The swish gated linear unit (SwiGLU) splits a feed-forward layer into value and gate branches, applies the sigmoid linear unit (SiLU) to the gate, and multiplies the two branches so the layer can filter features more selectively.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "SwiGLU is a feed-forward variant used in many modern language models. Instead of one expanded hidden branch, the FFN creates two branches after attention: a value branch and a gate branch. The gate branch passes through a SiLU activation, then multiplies the value branch element by element before the block projects back to model width."
+      "body": "The swish gated linear unit (SwiGLU) is a gated feed-forward design used in many modern language models. Instead of using one expanded hidden branch, the layer creates a value branch and a gate branch. The gate branch passes through SiLU, then scales the value branch element by element before the layer projects back to the model width."
     },
     "whatItOptimizes": {
       "title": "What It Optimizes",
@@ -13,31 +13,31 @@
     },
     "practicalBenefit": {
       "title": "Practical Benefit",
-      "body": "This gives many modern stacks a stronger dense FFN without changing the overall transformer block layout. For a reader, that means the page is best understood as a variant of the standard FFN, not as a separate module family."
+      "body": "SwiGLU helps explain why many modern models get better feature filtering without switching to sparse experts. The overall transformer block still has the same feed-forward slot, but the inside of that slot becomes more selective."
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "The token state enters two learned projections. One branch carries candidate values. The other branch becomes a SiLU gate. The two branches multiply elementwise, then the block projects the result back to model width. The slot stays dense because every token still uses the same shared block."
+      "body": "The input state enters two learned projections. One branch carries candidate values. The other branch becomes a SiLU gate. The two branches multiply elementwise, and the layer then projects the result back to the model width. The path stays dense because every token still uses the same shared block."
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
-      "body": "The dense baseline below shows the simpler one-branch FFN. The SwiGLU formula shows the extra gate that turns the same post-attention slot into a two-branch gated path."
+      "body": "The dense baseline below shows the simpler one-branch feed-forward layer. The SwiGLU formula shows the extra gate that turns that same slot into a two-branch gated path."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "SwiGLU stays closer to the dense FFN baseline than MoE does. It changes how features are filtered inside one dense block rather than changing the slot into a sparse routed expert system."
+      "body": "SwiGLU stays closer to the standard dense feed-forward baseline than mixture of experts does. It changes how features are filtered inside one dense block rather than turning the slot into a sparse routed expert system."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
-      "body": "Many recent decoder-only language models use gated FFN designs like SwiGLU while keeping the same attention-then-FFN block structure."
+      "body": "Many recent decoder-only language models use gated feed-forward designs like SwiGLU while keeping the same attention-then-feed-forward block structure."
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
-      "body": "SwiGLU is still a dense block, so every token activates the whole path. It improves selectivity inside the FFN, but it does not add sparse expert capacity the way MoE does."
+      "body": "SwiGLU is still a dense block, so every token activates the whole path. It improves selectivity inside the layer, but it does not add sparse expert capacity the way mixture of experts does."
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",
-      "body": "SwiGLU appears often enough in modern model descriptions that readers benefit from seeing it as one of the default FFN baselines, not as a rare paper-only detail."
+      "body": "SwiGLU appears often enough in modern model descriptions that readers benefit from seeing it as one of the default feed-forward baselines, not as a rare paper-only detail."
     },
     "related": {
       "title": "Related"
@@ -51,11 +51,11 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Comparison graph showing a standard FFN path versus a SwiGLU path with value and SiLU gate branches",
-      "caption": "Switch between the standard FFN and SwiGLU to see exactly where the extra gate branch appears",
+      "alt": "Comparison graph showing a standard feed-forward layer versus a swish gated linear unit path with value and SiLU gate branches",
+      "caption": "Switch between the standard feed-forward layer and SwiGLU to see exactly where the extra gate branch appears.",
       "variants": {
         "standard": {
-          "label": "Standard FFN"
+          "label": "Standard feed-forward"
         },
         "swiglu": {
           "label": "SwiGLU"
@@ -63,7 +63,7 @@
       }
     },
     "comparisonTable": {
-      "caption": "How SwiGLU compares with nearby FFN variants"
+      "caption": "How swish gated linear unit compares with nearby feed-forward variants"
     }
   },
   "tables": {
@@ -73,7 +73,7 @@
           "title": "SwiGLU"
         },
         "standard": {
-          "title": "Standard FFN"
+          "title": "Standard feed-forward"
         },
         "moe": {
           "title": "Mixture of experts"
@@ -92,7 +92,7 @@
         },
         "standard": {
           "pathShape": "One dense expand -> activate -> project path",
-          "activeCompute": "All hidden units in one shared MLP",
+          "activeCompute": "All hidden units in one shared feed-forward block",
           "mainTradeoff": "Simpler path, but less selective hidden filtering"
         },
         "moe": {
@@ -105,7 +105,7 @@
   },
   "math": {
     "standardSchema": {
-      "label": "Standard dense FFN",
+      "label": "Standard dense feed-forward layer",
       "formula": "\\mathrm{FFN}(h_t) = W_2\\,\\sigma(W_1 h_t + b_1) + b_2",
       "variableDefinitions": {
         "ht": {
@@ -127,7 +127,7 @@
       }
     },
     "swigluSchema": {
-      "label": "SwiGLU variant",
+      "label": "Swish gated linear unit variant",
       "formula": "\\mathrm{SwiGLU}(h_t) = W_o\\big((W_v h_t) \\odot \\mathrm{SiLU}(W_g h_t)\\big)",
       "variableDefinitions": {
         "ht": {

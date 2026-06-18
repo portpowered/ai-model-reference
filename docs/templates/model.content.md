@@ -2,7 +2,7 @@
 
 Use `model.mdx` as the production page structure. Put localized reader-facing text in `messages/<locale>.json` using the keys from `model.messages.en.json`. Put model diagrams and page-specific visuals in `assets.json` using `model.assets.json`.
 
-Follow [writing-standards](../writing-standards.md) and [graphing-standards](../graphing-standards.md) for summary tone, layperson readability, and graph placement.
+Follow [docs writing standards](../../factory/docs/standards/docs-writing-standards.md) and [graphing-standards](../graphing-standards.md) for summary tone, layperson readability, and graph placement.
 
 ## Required Content
 

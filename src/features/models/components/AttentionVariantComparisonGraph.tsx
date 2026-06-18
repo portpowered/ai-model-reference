@@ -76,7 +76,7 @@ export function AttentionVariantComparisonGraph({
 
   return (
     <figure
-      className="attention-variant-comparison-figure"
+      className="attention-variant-comparison-figure flex flex-col"
       data-attention-variant-comparison="true"
       data-attention-variant-active={activeVariant.variantId}
       data-attention-variant-options={variants
@@ -84,7 +84,7 @@ export function AttentionVariantComparisonGraph({
         .join(",")}
     >
       <div
-        className="attention-variant-comparison__controls mb-3 flex flex-wrap gap-2"
+        className="attention-variant-comparison__controls order-2 mt-3 flex flex-wrap gap-2 md:order-1 md:mb-3 md:mt-0"
         role="tablist"
         aria-label="Variant comparison"
       >
@@ -106,13 +106,15 @@ export function AttentionVariantComparisonGraph({
           </button>
         ))}
       </div>
-      <ReactFlowProvider>
-        <RegistryGraphFlowCanvas
-          assetId={assetId}
-          graphId={activeVariant.graphId}
-          alt={accessibleLabel}
-        />
-      </ReactFlowProvider>
+      <div className="order-1 md:order-2">
+        <ReactFlowProvider>
+          <RegistryGraphFlowCanvas
+            assetId={assetId}
+            graphId={activeVariant.graphId}
+            alt={accessibleLabel}
+          />
+        </ReactFlowProvider>
+      </div>
       {caption ? <figcaption>{caption}</figcaption> : null}
     </figure>
   );

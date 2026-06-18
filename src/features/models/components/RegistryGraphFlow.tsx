@@ -11,7 +11,11 @@ import {
   ReactFlow,
   ReactFlowProvider,
 } from "@xyflow/react";
+import { Expand, X } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useId, useState } from "react";
+import { createPortal } from "react-dom";
+import { Button } from "@/components/ui/button";
 import { InlineMath } from "@/features/docs/components/Math";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
 import {
@@ -31,6 +35,8 @@ const FLOW_NODE_HEIGHT_ESTIMATE = 112;
 const FLOW_VIEWPORT_PADDING_Y = 24;
 const FLOW_MIN_VIEWPORT_HEIGHT = 360;
 const FLOW_MAX_VIEWPORT_HEIGHT = 560;
+const FLOW_EXPANDED_MIN_VIEWPORT_HEIGHT = 448;
+const FLOW_EXPANDED_VIEWPORT_HEIGHT = "max(28rem, calc(100dvh - 8rem))";
 
 const attentionHeadNodeTypes: NodeTypes = {
   attentionHead: AttentionHeadNode,
@@ -304,20 +310,144 @@ function AttentionHeadNode({
 
 function buildRegistryGraphFlowViewportStyle(
   nodes: ReturnType<typeof buildRegistryFlowGraph>["nodes"],
+  expanded = false,
 ): CSSProperties {
   const maxY = Math.max(
     ...nodes.map((node) => node.position.y + estimateNodeHeight(node)),
     0,
   );
-  const height = Math.min(
+  const compactHeight = Math.min(
     FLOW_MAX_VIEWPORT_HEIGHT,
     Math.max(FLOW_MIN_VIEWPORT_HEIGHT, maxY + FLOW_VIEWPORT_PADDING_Y),
   );
+  const expandedHeight = Math.max(
+    FLOW_EXPANDED_MIN_VIEWPORT_HEIGHT,
+    maxY + FLOW_VIEWPORT_PADDING_Y,
+  );
 
   return {
-    height,
+    height: expanded
+      ? `max(${FLOW_EXPANDED_VIEWPORT_HEIGHT}, ${expandedHeight}px)`
+      : compactHeight,
     width: "100%",
   };
+}
+
+function RegistryGraphFlowSurface({
+  assetId,
+  graphId,
+  accessibleLabel,
+  nodes,
+  edges,
+  onExpand,
+  viewportStyle,
+}: {
+  assetId: string;
+  graphId: string;
+  accessibleLabel: string;
+  edges: ReturnType<typeof buildRegistryFlowGraph>["edges"];
+  nodes: ReturnType<typeof buildRegistryFlowGraph>["nodes"];
+  onExpand?: () => void;
+  viewportStyle: CSSProperties;
+}) {
+  const handleReactFlowError: OnError = (id, message) => {
+    if (id === "002" || id === "004") {
+      return;
+    }
+    throw new GraphRenderIssueError(graphId, [`react-flow ${id}: ${message}`]);
+  };
+
+  return (
+    <div className="relative w-full min-w-0">
+      {onExpand ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="icon-xs"
+          className="absolute top-3 right-3 z-20 border-border/80 bg-background/88 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/72"
+          aria-label="Expand graph to full screen"
+          title="Expand graph to full screen"
+          onClick={onExpand}
+        >
+          <Expand />
+        </Button>
+      ) : null}
+      <div
+        data-page-asset={assetId}
+        data-asset-type="graph"
+        data-graph-id={graphId}
+        data-web-renderer="react-flow"
+        data-react-flow-graph="true"
+        data-manual-visibility-evidence={
+          REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE
+        }
+        data-graph-node-count={String(nodes.length)}
+        data-graph-interaction-pan={
+          REGISTRY_GRAPH_FLOW_INTERACTION.panOnDrag ? "true" : "false"
+        }
+        data-graph-interaction-zoom={
+          REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnScroll &&
+          REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnPinch
+            ? "true"
+            : "false"
+        }
+        data-graph-interaction-editing={
+          REGISTRY_GRAPH_FLOW_INTERACTION.nodesDraggable ||
+          REGISTRY_GRAPH_FLOW_INTERACTION.nodesConnectable ||
+          REGISTRY_GRAPH_FLOW_INTERACTION.elementsSelectable
+            ? "true"
+            : "false"
+        }
+        className="registry-graph-flow w-full min-w-0"
+        style={buildRegistryGraphFlowNodeThemeStyle() as CSSProperties}
+        role="img"
+        aria-label={accessibleLabel}
+      >
+        <div className="sr-only" aria-hidden="false">
+          {nodes.map((node) => (
+            <span
+              key={node.id}
+              data-graph-node-id={node.id}
+              {...(node.data.headCountRole
+                ? { "data-head-count-role": node.data.headCountRole }
+                : {})}
+            >
+              {node.data.label}
+            </span>
+          ))}
+        </div>
+        <div
+          className="registry-graph-flow__viewport w-full max-w-full overflow-hidden"
+          style={viewportStyle}
+        >
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onError={handleReactFlowError}
+            fitView
+            fitViewOptions={REGISTRY_GRAPH_FLOW_FIT_VIEW_OPTIONS}
+            nodeTypes={attentionHeadNodeTypes}
+            defaultEdgeOptions={REGISTRY_GRAPH_FLOW_DEFAULT_EDGE_OPTIONS}
+            nodesDraggable={REGISTRY_GRAPH_FLOW_INTERACTION.nodesDraggable}
+            nodesConnectable={REGISTRY_GRAPH_FLOW_INTERACTION.nodesConnectable}
+            elementsSelectable={
+              REGISTRY_GRAPH_FLOW_INTERACTION.elementsSelectable
+            }
+            panOnDrag={REGISTRY_GRAPH_FLOW_INTERACTION.panOnDrag}
+            zoomOnScroll={REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnScroll}
+            zoomOnPinch={REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnPinch}
+            zoomOnDoubleClick={
+              REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnDoubleClick
+            }
+            preventScrolling={REGISTRY_GRAPH_FLOW_INTERACTION.preventScrolling}
+            proOptions={REGISTRY_GRAPH_FLOW_PRO_OPTIONS}
+          >
+            <Background gap={16} size={1} />
+          </ReactFlow>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function RegistryGraphFlowCanvas({
@@ -330,7 +460,10 @@ export function RegistryGraphFlowCanvas({
   alt: string;
 }) {
   const { messages } = usePageMessages();
+  const dialogId = useId();
   const graphRecord = getGraphById(graphId);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
 
   if (!graphRecord) {
     throw new GraphRenderIssueError(graphId, [
@@ -345,87 +478,90 @@ export function RegistryGraphFlowCanvas({
     graphSubjectMessages,
   );
   const accessibleLabel = alt.length > 0 ? alt : graphId;
-  const viewportStyle = buildRegistryGraphFlowViewportStyle(nodes);
-  const handleReactFlowError: OnError = (id, message) => {
-    if (id === "002" || id === "004") {
+  const compactViewportStyle = buildRegistryGraphFlowViewportStyle(nodes);
+  const expandedViewportStyle = buildRegistryGraphFlowViewportStyle(
+    nodes,
+    true,
+  );
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isExpanded) {
       return;
     }
-    throw new GraphRenderIssueError(graphId, [`react-flow ${id}: ${message}`]);
-  };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsExpanded(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isExpanded]);
 
   return (
-    <div
-      data-page-asset={assetId}
-      data-asset-type="graph"
-      data-graph-id={graphId}
-      data-web-renderer="react-flow"
-      data-react-flow-graph="true"
-      data-manual-visibility-evidence={
-        REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE
-      }
-      data-graph-node-count={String(nodes.length)}
-      data-graph-interaction-pan={
-        REGISTRY_GRAPH_FLOW_INTERACTION.panOnDrag ? "true" : "false"
-      }
-      data-graph-interaction-zoom={
-        REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnScroll &&
-        REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnPinch
-          ? "true"
-          : "false"
-      }
-      data-graph-interaction-editing={
-        REGISTRY_GRAPH_FLOW_INTERACTION.nodesDraggable ||
-        REGISTRY_GRAPH_FLOW_INTERACTION.nodesConnectable ||
-        REGISTRY_GRAPH_FLOW_INTERACTION.elementsSelectable
-          ? "true"
-          : "false"
-      }
-      className="registry-graph-flow w-full min-w-0"
-      style={buildRegistryGraphFlowNodeThemeStyle() as CSSProperties}
-      role="img"
-      aria-label={accessibleLabel}
-    >
-      <div className="sr-only" aria-hidden="false">
-        {nodes.map((node) => (
-          <span
-            key={node.id}
-            data-graph-node-id={node.id}
-            {...(node.data.headCountRole
-              ? { "data-head-count-role": node.data.headCountRole }
-              : {})}
-          >
-            {node.data.label}
-          </span>
-        ))}
-      </div>
-      <div
-        className="registry-graph-flow__viewport w-full max-w-full overflow-hidden"
-        style={viewportStyle}
-      >
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onError={handleReactFlowError}
-          fitView
-          fitViewOptions={REGISTRY_GRAPH_FLOW_FIT_VIEW_OPTIONS}
-          nodeTypes={attentionHeadNodeTypes}
-          defaultEdgeOptions={REGISTRY_GRAPH_FLOW_DEFAULT_EDGE_OPTIONS}
-          nodesDraggable={REGISTRY_GRAPH_FLOW_INTERACTION.nodesDraggable}
-          nodesConnectable={REGISTRY_GRAPH_FLOW_INTERACTION.nodesConnectable}
-          elementsSelectable={
-            REGISTRY_GRAPH_FLOW_INTERACTION.elementsSelectable
-          }
-          panOnDrag={REGISTRY_GRAPH_FLOW_INTERACTION.panOnDrag}
-          zoomOnScroll={REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnScroll}
-          zoomOnPinch={REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnPinch}
-          zoomOnDoubleClick={REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnDoubleClick}
-          preventScrolling={REGISTRY_GRAPH_FLOW_INTERACTION.preventScrolling}
-          proOptions={REGISTRY_GRAPH_FLOW_PRO_OPTIONS}
-        >
-          <Background gap={16} size={1} />
-        </ReactFlow>
-      </div>
-    </div>
+    <>
+      <RegistryGraphFlowSurface
+        assetId={assetId}
+        graphId={graphId}
+        accessibleLabel={accessibleLabel}
+        nodes={nodes}
+        edges={edges}
+        viewportStyle={compactViewportStyle}
+        onExpand={() => setIsExpanded(true)}
+      />
+      {hasMounted && isExpanded
+        ? createPortal(
+            <div
+              id={dialogId}
+              className="fixed inset-0 z-50 bg-background/94 backdrop-blur-sm"
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${accessibleLabel} full-screen view`}
+            >
+              <div className="flex h-full flex-col">
+                <div className="flex items-center justify-between border-b border-border/70 px-4 py-3 sm:px-5">
+                  <p className="truncate pr-4 text-sm font-medium text-foreground">
+                    {accessibleLabel}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon-sm"
+                    aria-label="Close full-screen graph"
+                    onClick={() => setIsExpanded(false)}
+                  >
+                    <X />
+                  </Button>
+                </div>
+                <div className="min-h-0 flex-1 overflow-auto p-3 sm:p-5">
+                  <div className="mx-auto w-full max-w-6xl">
+                    <RegistryGraphFlowSurface
+                      assetId={assetId}
+                      graphId={graphId}
+                      accessibleLabel={accessibleLabel}
+                      nodes={nodes}
+                      edges={edges}
+                      viewportStyle={expandedViewportStyle}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
+    </>
   );
 }
 

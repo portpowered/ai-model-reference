@@ -4,6 +4,7 @@ import { InlineMath } from "@/features/docs/components/Math";
 import { MissingMessageKey } from "@/features/docs/components/MissingMessageKey";
 import { ProseAutoLinkText } from "@/features/docs/components/ProseAutoLinkText";
 import { usePageMessages } from "@/features/docs/components/page-messages-context";
+import { ResponsiveMathFormulaBlock } from "@/features/docs/components/ResponsiveMathFormulaBlock";
 import { TBlockMath } from "@/features/docs/components/TBlockMath";
 import {
   type ModuleAttentionMathSchemaId,
@@ -125,9 +126,12 @@ function ModuleAttentionSchemaVariableDefinitions({
   );
 }
 
-function resolveVariableDefinitionIds(messages: {
-  math?: Record<string, { variableDefinitions?: Record<string, unknown> }>;
-}, schemaId: string): string[] {
+function resolveVariableDefinitionIds(
+  messages: {
+    math?: Record<string, { variableDefinitions?: Record<string, unknown> }>;
+  },
+  schemaId: string,
+): string[] {
   if (schemaId === "mha" || schemaId === "gqa" || schemaId === "mqa") {
     return Array.from(
       moduleAttentionMathVariableDefinitionIdsForSchema(
@@ -147,12 +151,16 @@ function SchemaFormulaBlock({
 }: SchemaFormulaBlockProps) {
   return (
     <div
-      className="flex min-w-0 max-w-full flex-col gap-3"
+      className="min-w-0"
       data-math-schema={schemaId}
       data-attention-schema-formula="true"
     >
-      <TBlockMath labelKey={labelKey} formulaKey={formulaKey} />
-      <ModuleAttentionSchemaVariableDefinitions schemaId={schemaId} />
+      <ResponsiveMathFormulaBlock
+        formula={<TBlockMath labelKey={labelKey} formulaKey={formulaKey} />}
+        formulaId={schemaId}
+      >
+        <ModuleAttentionSchemaVariableDefinitions schemaId={schemaId} />
+      </ResponsiveMathFormulaBlock>
     </div>
   );
 }
@@ -212,7 +220,7 @@ export function ModuleAttentionSchemaComparisonSchemas({
       className="not-prose my-4 flex flex-col gap-6"
       data-attention-schema-comparison="true"
     >
-      <div className="flex flex-col gap-6 sm:grid sm:grid-cols-2 sm:gap-4">
+      <div className="grid grid-cols-1 items-start gap-3 md:grid-cols-2 md:gap-4">
         <SchemaFormulaBlock
           schemaId={leftSchemaId}
           labelKey={`math.${leftSchemaId}Schema.label`}
@@ -234,7 +242,7 @@ export function ModuleAttentionMhaMqaSchemaComparison() {
       className="not-prose my-4 flex flex-col gap-6"
       data-attention-schema-comparison="true"
     >
-      <div className="flex flex-col gap-6 sm:grid sm:grid-cols-2 sm:gap-4">
+      <div className="grid grid-cols-1 items-start gap-3 md:grid-cols-2 md:gap-4">
         <SchemaFormulaBlock
           schemaId="mha"
           labelKey="math.mhaSchema.label"

@@ -1,43 +1,43 @@
 {
-  "title": "SiLU",
-  "description": "A smooth activation that multiplies each FFN hidden value by its sigmoid gate.",
-  "openingSummary": "SiLU smoothly gates each FFN hidden value with its own sigmoid score, giving transformer MLPs a softer activation than ReLU and setting up the gate used in SwiGLU blocks.",
+  "title": "Sigmoid Linear Unit",
+  "description": "A smooth activation function that scales each value by its own sigmoid score.",
+  "openingSummary": "The sigmoid linear unit (SiLU) smoothly scales each value by its own sigmoid score, making it a softer alternative to ReLU and an important stepping stone to gated designs such as SwiGLU.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "SiLU stands for sigmoid linear unit. For each hidden value x inside an FFN, it outputs x multiplied by sigmoid(x). Large positive values pass through strongly, values near zero are softened, and negative values are reduced smoothly instead of being cut off sharply."
+      "body": "The sigmoid linear unit (SiLU) is an activation function that multiplies each value x by sigmoid(x). Large positive values pass through strongly, values near zero are softened, and negative values are reduced smoothly instead of being cut off sharply. In transformer feed-forward layers, that gives the model a softer filter than ReLU."
     },
     "whatItOptimizes": {
       "title": "What It Optimizes",
-      "body": "SiLU optimizes for a smoother hidden activation rule. Instead of a hard cutoff, it lets the negative side fade gradually, which often fits modern wide transformer FFNs better than a sharp zero clamp."
+      "body": "SiLU optimizes for a smoother activation rule. Instead of a hard cutoff, it lets the negative side fade gradually, which often fits modern wide feed-forward layers better than a sharp zero clamp."
     },
     "practicalBenefit": {
       "title": "Practical Benefit",
-      "body": "SiLU matters because it shows up both as a plain FFN activation and as the gate nonlinearity inside SwiGLU. Learning this page makes the jump to gated FFN variants much easier."
+      "body": "SiLU matters because it shows up both as a plain activation and as the gate nonlinearity inside SwiGLU. Learning this page makes the jump from classic activations to modern gated feed-forward variants much easier."
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "The token state expands into a wide hidden layer, then each hidden value is multiplied by its own sigmoid gate. Large positive values mostly survive, small values are softened, and negative values shrink rather than snapping to zero before projection back to model width."
+      "body": "SiLU works one value at a time by multiplying that value by its own sigmoid score. Large positive values mostly survive, small values are softened, and negative values shrink rather than snapping to zero. In a transformer feed-forward layer, the model applies that rule after expanding into a wider hidden state and before projecting back down."
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
-      "body": "The formula below shows the smooth self-gating rule directly. The sigmoid term is what turns one hidden value into its own soft gate."
+      "body": "The formula below shows the smooth self-gating rule directly. The sigmoid term is what turns one value into its own soft gate."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Compared with ReLU and LeakyReLU, SiLU is the smooth option in this activation family. It still stays inside one dense FFN path, but it prepares the reader for the stronger two-branch gate used by SwiGLU."
+      "body": "Compared with ReLU and LeakyReLU, SiLU is the smooth option in this activation family. It still stays inside one dense feed-forward path, but it prepares the reader for the stronger two-branch gate used by SwiGLU."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
-      "body": "Many recent decoder-only language models and gated FFN blocks use SiLU or a close relative, especially when authors want a smoother dense baseline before moving to SwiGLU."
+      "body": "Many recent decoder-only language models and gated feed-forward blocks use SiLU or a close relative, especially when authors want a smoother dense baseline before moving to SwiGLU."
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
-      "body": "SiLU is smoother than ReLU-family activations, but it is still a dense per-token activation, not a separate routing or expert mechanism. Every token still runs through the full shared FFN path."
+      "body": "SiLU is smoother than ReLU-family activations, but it is still a dense per-token activation, not a routing or expert mechanism. Every token still runs through the full shared feed-forward path."
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",
-      "body": "SiLU sits at an important bridge point between classic activation pages and modern gated FFN pages. Readers who understand SiLU can usually decode SwiGLU much faster."
+      "body": "SiLU sits at an important bridge point between classic activation pages and modern gated feed-forward pages. Readers who understand SiLU can usually decode SwiGLU much faster."
     },
     "related": {
       "title": "Related"
@@ -51,8 +51,8 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Activation comparison graph showing how ReLU, LeakyReLU, and SiLU reshape hidden values inside the same FFN path",
-      "caption": "ReLU and SiLU are plotted on the same axes so the hard cutoff and smooth gate are visible directly",
+      "alt": "Activation comparison chart showing how rectified linear unit, leaky rectified linear unit, and sigmoid linear unit reshape positive and negative values",
+      "caption": "This chart compares the hard cutoff in ReLU, the small negative leak in LeakyReLU, and the smooth self-gating curve in SiLU.",
       "variants": {
         "relu": {
           "label": "ReLU"
@@ -66,7 +66,7 @@
       }
     },
     "comparisonTable": {
-      "caption": "How SiLU compares with nearby activation variants"
+      "caption": "How sigmoid linear unit compares with nearby activation variants"
     }
   },
   "tables": {
@@ -108,16 +108,16 @@
   },
   "math": {
     "siluSchema": {
-      "label": "SiLU activation",
+      "label": "Sigmoid linear unit activation",
       "formula": "\\mathrm{SiLU}(x) = x\\,\\sigma(x)",
       "variableDefinitions": {
         "x": {
           "term": "x",
-          "definition": "One hidden value inside the expanded FFN state."
+          "definition": "One input value before the activation rule is applied."
         },
         "sigma": {
           "term": "\\sigma",
-          "definition": "Sigmoid gate applied to that same hidden value."
+          "definition": "Sigmoid function applied to that same input value."
         }
       }
     }
@@ -134,7 +134,7 @@
         "label": "SiLU(x) = x sigma(x)"
       },
       "negativeBehavior": {
-        "label": "Negative hidden values shrink smoothly instead of snapping to 0"
+        "label": "Negative values shrink smoothly instead of snapping to 0"
       },
       "projectBack": {
         "label": "Project back with W_2"

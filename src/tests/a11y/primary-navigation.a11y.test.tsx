@@ -5,6 +5,7 @@ import { act } from "react";
 import { CanonicalDocsLayout } from "@/components/layout/canonical-docs-layout";
 import { ModelAtlasDocsHeader } from "@/components/layout/model-atlas-docs-header";
 import { getPrimaryNavItems } from "@/components/layout/primary-nav";
+import { source } from "@/lib/source";
 import { expectNoSeriousAxeViolations } from "@/tests/a11y/axe";
 import {
   captureOriginalFetch,
@@ -71,7 +72,10 @@ describe("primary navigation accessibility smoke", () => {
     const context = await loadAppTestContext();
     await act(async () => {
       await renderWithAppProviders(
-        <ModelAtlasDocsHeader messages={context.messages} />,
+        <ModelAtlasDocsHeader
+          messages={context.messages}
+          pageTree={source.pageTree}
+        />,
         { context },
       );
     });
@@ -95,6 +99,7 @@ describe("primary navigation accessibility smoke", () => {
     expect(panelId).toBeTruthy();
     const panel = document.getElementById(panelId ?? "");
     expect(panel).toBeTruthy();
+    expect(panel?.getAttribute("role")).toBe("dialog");
 
     const expectedItems = getPrimaryNavItems(context.messages);
     for (const item of expectedItems) {

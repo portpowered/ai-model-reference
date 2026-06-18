@@ -149,6 +149,8 @@ describe("ModuleAttentionSchemaComparison", () => {
     const html = renderComparison();
 
     expect(html).toContain('data-attention-schema-comparison="true"');
+    expect(html).toContain("grid-cols-1");
+    expect(html).toContain("md:grid-cols-2");
     expect(html).toContain('data-attention-schema-variable-definitions="true"');
     expect(html).toContain('data-math-schema="mha"');
     expect(html).toContain('data-math-schema="gqa"');

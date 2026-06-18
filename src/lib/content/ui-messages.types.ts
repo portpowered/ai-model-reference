@@ -46,17 +46,12 @@ export type UiMessages = {
     subtitle: string;
     intro: string;
     browseSectionTitle: string;
-    browseSectionDescription: string;
-    architectureLinkTitle: string;
-    architectureLinkDescription: string;
-    glossaryLinkTitle: string;
-    glossaryLinkDescription: string;
-    tagsLinkTitle: string;
-    tagsLinkDescription: string;
-    tokenLinkTitle: string;
-    tokenLinkDescription: string;
-    docsLinkTitle: string;
-    docsLinkDescription: string;
+    gqaLinkTitle: string;
+    gqaLinkDescription: string;
+    swigluLinkTitle: string;
+    swigluLinkDescription: string;
+    reluLinkTitle: string;
+    reluLinkDescription: string;
     onThisPageBrowse: string;
   };
   glossaryIndex: {

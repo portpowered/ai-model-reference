@@ -109,7 +109,7 @@ describe("docs sidebar navigation accessibility", () => {
     }
 
     const homeLink = within(sidebar).getByRole("link", {
-      name: "Model Reference",
+      name: "Model Atlas",
     });
     expect(homeLink.getAttribute("href")).toBe("/vi");
 

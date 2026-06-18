@@ -1,7 +1,7 @@
 {
   "title": "Linear Attention",
   "description": "An attention variant that replaces explicit softmax dot-product attention with kernel or feature-map formulations that scale near-linearly with sequence length.",
-  "openingSummary": "Standard attention materializes an n-by-n score matrix before softmax, so cost grows quadratically with sequence length; linear attention applies a feature map to queries and keys so attention can be computed through associative updates or recurrence, trading exact softmax dot-product scoring for near-linear scaling on long sequences.",
+  "openingSummary": "Linear attention is an attention variant that replaces full all-pairs softmax scoring with feature-map or recurrent formulations, trading exact dense attention for better sequence-length scaling on long inputs.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -25,7 +25,7 @@
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Compared with multi-head attention, linear attention changes the compute mechanism rather than only sharing KV heads. Multi-query and grouped-query attention remain dense over allowed positions but reduce KV head count; linear attention pursues subquadratic sequence scaling through kernel or recurrence formulations."
+      "body": "Compared with multi-head attention, linear attention changes the compute mechanism rather than only sharing key-value heads. Multi-query and grouped-query attention remain dense over allowed positions but reduce key-value head count. Linear attention instead pursues subquadratic sequence scaling through kernel or recurrence formulations."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
@@ -52,10 +52,10 @@
   "assets": {
     "computeFlow": {
       "alt": "Dense multi-head attention versus linear attention feature-map flow",
-      "caption": "Toggle MHA and linear attention to compare full softmax dot-product scoring against feature-map associative updates on one canvas",
+      "caption": "Toggle multi-head attention and linear attention to compare full softmax dot-product scoring against feature-map associative updates on one canvas.",
       "variants": {
         "mha": {
-          "label": "MHA"
+          "label": "Multi-head"
         },
         "linear": {
           "label": "Linear"
@@ -90,7 +90,7 @@
       "values": {
         "linear": {
           "sequenceScaling": "Near-linear O(n) per head with fixed feature-map dimension",
-          "computeMechanism": "Feature-map φ on queries and keys; associative KV accumulation",
+          "computeMechanism": "Feature-map φ on queries and keys; associative key-value accumulation",
           "expressiveness": "Approximates softmax dot-product attention via chosen kernel"
         },
         "mha": {
@@ -99,14 +99,14 @@
           "expressiveness": "Full pairwise softmax attention"
         },
         "mqa": {
-          "sequenceScaling": "Quadratic O(n²) with fewer KV projections",
-          "computeMechanism": "Dense softmax with shared KV heads",
-          "expressiveness": "Full pairwise softmax attention with shared KV"
+          "sequenceScaling": "Quadratic O(n²) with fewer key-value projections",
+          "computeMechanism": "Dense softmax with shared key-value heads",
+          "expressiveness": "Full pairwise softmax attention with shared key-value heads"
         },
         "gqa": {
-          "sequenceScaling": "Quadratic O(n²) with reduced KV head count",
-          "computeMechanism": "Dense softmax with grouped KV heads",
-          "expressiveness": "Full pairwise softmax attention with grouped KV"
+          "sequenceScaling": "Quadratic O(n²) with reduced key-value head count",
+          "computeMechanism": "Dense softmax with grouped key-value heads",
+          "expressiveness": "Full pairwise softmax attention with grouped key-value heads"
         }
       }
     }
@@ -199,7 +199,7 @@
         "label": "H query heads"
       },
       "mhaKvHeads": {
-        "label": "H KV head pairs (1:1 with queries)"
+        "label": "H key-value head pairs (1:1 with queries)"
       },
       "mhaOneToOne": {
         "label": "Each query attends to every key position"
@@ -211,7 +211,7 @@
         "label": "Feature map φ on queries and keys"
       },
       "linearAssociativeUpdate": {
-        "label": "Associative KV accumulation without full score matrix"
+        "label": "Associative key-value accumulation without full score matrix"
       },
       "linearSummaryLabel": {
         "label": "Running summaries"

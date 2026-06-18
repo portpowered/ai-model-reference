@@ -2,7 +2,7 @@
 
 Use `paper.mdx` as the production page structure. Put localized reader-facing text in `messages/<locale>.json` using the keys from `paper.messages.en.json`. Put contribution diagrams or evidence visuals in `assets.json` using `paper.assets.json`.
 
-Follow [writing-standards](../writing-standards.md) and [graphing-standards](../graphing-standards.md) for summary tone and graph placement.
+Follow [docs writing standards](../../factory/docs/standards/docs-writing-standards.md) and [graphing-standards](../graphing-standards.md) for summary tone and graph placement.
 
 ## Required Content
 

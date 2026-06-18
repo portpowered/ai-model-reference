@@ -1,7 +1,7 @@
 {
   "computeFlow": {
     "type": "chart",
-    "chartId": "chart.activation-family.relu-silu-comparison",
+    "chartId": "chart.activation-family.relu-intro",
     "altKey": "assets.computeFlow.alt",
     "captionKey": "assets.computeFlow.caption"
   },

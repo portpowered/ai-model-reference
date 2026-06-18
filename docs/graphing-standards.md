@@ -8,8 +8,8 @@ rather than reusing one generic diagram shape everywhere.
 ## Related references
 
 * [documentation-template](./documentation-template.md) — where graphs belong in page structure and how to reference `assetId`
-* [quality-documents-standards](./quality-documents-standards.md) — concise teaching tone for captions and alt text
-* [writing-standards](./writing-standards.md) — math vs narrative placement (no duplicate graph in math section)
+* [docs quality standards](../factory/docs/standards/docs-quality-standards.md) — concise teaching tone for captions and alt text
+* [docs writing standards](../factory/docs/standards/docs-writing-standards.md) — math vs narrative placement (no duplicate graph in math section)
 * [docs/temp/customer-ask.md](./internal/customer-ask.md) — GQA graph manual gate items (MHA vs GQA comparison, head counts, zoom/pan, readability)
 
 When this document conflicts with older graph assets or pipeline-style diagrams,

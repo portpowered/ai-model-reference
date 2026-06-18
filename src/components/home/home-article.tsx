@@ -6,9 +6,9 @@ import { HomeBrushHeader } from "@/components/home/home-brush-header";
 import { isDocsPageShippedForLocale } from "@/lib/content/pages";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
-  buildLocalizedRoute,
   defaultLocale,
   type SiteLocale,
+  buildLocalizedRoute,
 } from "@/lib/i18n/locale-routing";
 
 type HomeArticleProps = {
@@ -36,13 +36,10 @@ export function HomeArticle({
   return (
     <article className="max-w-3xl">
       <HomeBrushHeader title={home.title} subtitle={home.subtitle} />
-      <p className="text-base leading-relaxed text-muted-foreground">
-        {home.intro}
-      </p>
 
       <section
         id="browse"
-        className="mt-10 scroll-mt-6"
+        className="mt-4 scroll-mt-6"
         aria-labelledby="home-browse-heading"
       >
         <h2
@@ -51,40 +48,24 @@ export function HomeArticle({
         >
           {home.browseSectionTitle}
         </h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {home.browseSectionDescription}
-        </p>
         <HomeBrowseList ariaLabel={home.browseSectionTitle}>
-          <HomeBrowseLink
-            href={buildLocalizedRoute(
-              { surface: "architecture-index" },
-              locale,
-            )}
-            title={home.architectureLinkTitle}
-            description={home.architectureLinkDescription}
-          />
-          <HomeBrowseLink
-            href={buildLocalizedRoute({ surface: "glossary-index" }, locale)}
-            title={home.glossaryLinkTitle}
-            description={home.glossaryLinkDescription}
-          />
-          <HomeBrowseLink
-            href={buildHomeDocsPageHref("glossary/token", locale)}
-            title={home.tokenLinkTitle}
-            description={home.tokenLinkDescription}
-          />
-          <HomeBrowseLink
-            href={buildLocalizedRoute({ surface: "tags-index" }, locale)}
-            title={home.tagsLinkTitle}
-            description={home.tagsLinkDescription}
-          />
           <HomeBrowseLink
             href={buildHomeDocsPageHref(
               "modules/grouped-query-attention",
               locale,
             )}
-            title={home.docsLinkTitle}
-            description={home.docsLinkDescription}
+            title={home.gqaLinkTitle}
+            description={home.gqaLinkDescription}
+          />
+          <HomeBrowseLink
+            href={buildHomeDocsPageHref("modules/swiglu", locale)}
+            title={home.swigluLinkTitle}
+            description={home.swigluLinkDescription}
+          />
+          <HomeBrowseLink
+            href={buildHomeDocsPageHref("modules/relu", locale)}
+            title={home.reluLinkTitle}
+            description={home.reluLinkDescription}
           />
         </HomeBrowseList>
       </section>

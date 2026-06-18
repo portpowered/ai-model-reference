@@ -1,43 +1,43 @@
 {
-  "title": "Feed-forward network",
-  "description": "The position-wise dense transform that refines each token's hidden vector after attention in a transformer block.",
-  "openingSummary": "A feed-forward network is the per-token MLP that follows attention in each transformer block, refining each position's hidden state without mixing across the sequence.",
+  "title": "Feed-Forward Network",
+  "description": "The per-token layer that refines each token state after attention without mixing information across positions.",
+  "openingSummary": "A feed-forward network is the per-token layer that follows attention in a transformer block, refining each token state with learned nonlinear processing while leaving token-to-token mixing to attention.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "A feed-forward network, often shortened to FFN, is the per-token transform that runs after attention inside a transformer block. Attention mixes information across positions first. The FFN then takes one token's updated hidden vector, applies learned nonlinear compute to that one vector, and writes the result back into the residual stream."
+      "body": "A feed-forward network, often shortened to FFN, is the layer that processes one token state at a time after attention. Attention mixes information across positions first. The feed-forward network then takes each updated token state, applies learned nonlinear processing to that one state, and writes the result back into the residual stream."
     },
     "whatItOptimizes": {
       "title": "What It Optimizes",
-      "body": "The FFN slot adds nonlinear capacity after attention has already gathered context. That helps the model turn mixed context into sharper features, patterns, and intermediate abstractions without paying for another token-to-token interaction step."
+      "body": "The feed-forward network adds nonlinear capacity after attention has already gathered context. That helps the model turn mixed context into sharper features, patterns, and intermediate abstractions without paying for another token-to-token interaction step."
     },
     "practicalBenefit": {
       "title": "Practical Benefit",
-      "body": "Once you recognize the FFN slot, many paper claims become easier to decode. Standard FFN, SwiGLU, and mixture of experts all live in the same place in the block, so a reader can compare them as alternative ways to spend per-token compute."
+      "body": "Once you recognize the feed-forward slot, many paper claims become easier to decode. A standard dense feed-forward network, a swish gated linear unit, and a mixture-of-experts layer all live in the same place in the block, so a reader can compare them as different ways to spend per-token compute."
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "The token leaves attention and enters one FFN design. In the dense baseline, every token uses one shared expand-activate-project path. In SwiGLU, that path splits into value and gate branches before recombining. In MoE, a router chooses only a few expert MLPs for that token. The slot stays the same even when the internal path changes."
+      "body": "The token leaves attention and enters one feed-forward design. In the dense baseline, every token uses one shared expand-activate-project path. In a swish gated linear unit, that path splits into value and gate branches before recombining. In a mixture-of-experts layer, a router chooses only a few expert layers for that token. The slot stays the same even when the internal path changes."
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
-      "body": "These formulas show a dense FFN baseline and a common gated variant. Both act on one token state at a time; the difference is whether the wide hidden path stays single-branch or becomes value-plus-gate."
+      "body": "These formulas show a dense feed-forward baseline and a common gated variant. Both act on one token state at a time. The difference is whether the wide hidden path stays single-branch or becomes value-plus-gate."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Nearby FFN variants trade dense simplicity, gated expressiveness, and sparse routing. The table below keeps those tradeoffs in one place."
+      "body": "Nearby feed-forward variants trade dense simplicity, gated expressiveness, and sparse routing. The table below keeps those tradeoffs in one place."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
-      "body": "Decoder transformers, encoder stacks, and encoder-decoder systems all include an FFN-style block after attention, even when the exact FFN variant changes."
+      "body": "Decoder transformers, encoder stacks, and encoder-decoder systems all include a feed-forward block after attention, even when the exact variant changes."
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
-      "body": "The FFN does not mix information across tokens by itself, so it depends on attention to bring the right context into each token state first. Different FFN variants also change memory use, routing complexity, and training behavior in different ways."
+      "body": "The feed-forward network does not mix information across tokens by itself, so it depends on attention to bring the right context into each token state first. Different feed-forward variants also change memory use, routing complexity, and training behavior in different ways."
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",
-      "body": "Many model changes that sound exotic are really swaps inside this one familiar slot. Understanding the FFN family helps a reader map new papers back to a stable block-level pattern instead of treating every variant as a brand-new architecture."
+      "body": "Many model changes that sound exotic are really swaps inside this one familiar slot. Understanding the feed-forward family helps a reader map new papers back to a stable block-level pattern instead of treating every variant as a brand-new architecture."
     },
     "related": {
       "title": "Related"
@@ -51,29 +51,29 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "Feed-forward network comparison showing standard FFN, SwiGLU, and mixture-of-experts variants in the same transformer slot",
-      "caption": "Switch between dense, gated, and sparse FFN forms to see what changes inside the same post-attention slot",
+      "alt": "Feed-forward network comparison showing a standard dense feed-forward network, a swish gated linear unit, and a mixture-of-experts layer in the same transformer slot",
+      "caption": "Switch between dense, gated, and sparse feed-forward forms to see what changes inside the same post-attention slot.",
       "variants": {
         "standard": {
-          "label": "Standard FFN"
+          "label": "Standard feed-forward"
         },
         "swiglu": {
           "label": "SwiGLU"
         },
         "moe": {
-          "label": "MoE"
+          "label": "Mixture of experts"
         }
       }
     },
     "comparisonTable": {
-      "caption": "How the main FFN-family variants compare"
+      "caption": "How the main feed-forward variants compare"
     }
   },
   "tables": {
     "comparison": {
       "columns": {
         "standard": {
-          "title": "Standard FFN"
+          "title": "Standard feed-forward"
         },
         "swiglu": {
           "title": "SwiGLU"
@@ -90,7 +90,7 @@
       "values": {
         "standard": {
           "pathShape": "One dense expand -> activate -> project path",
-          "activeCompute": "All hidden units in one shared MLP",
+          "activeCompute": "All hidden units in one shared feed-forward block",
           "mainStrength": "Simple dense baseline with predictable behavior"
         },
         "swiglu": {
@@ -99,7 +99,7 @@
           "mainStrength": "More expressive feature selection inside the same slot"
         },
         "moe": {
-          "pathShape": "Router selects a few expert MLPs, then merges them",
+          "pathShape": "Router selects a few expert layers, then merges them",
           "activeCompute": "Only top-k experts activate for each token",
           "mainStrength": "Adds parameter capacity without activating every expert"
         }
@@ -108,7 +108,7 @@
   },
   "math": {
     "standardSchema": {
-      "label": "Standard dense FFN",
+      "label": "Standard dense feed-forward network",
       "formula": "\\mathrm{FFN}(h_t) = W_2\\,\\sigma(W_1 h_t + b_1) + b_2",
       "variableDefinitions": {
         "ht": {
@@ -130,7 +130,7 @@
       }
     },
     "swigluSchema": {
-      "label": "SwiGLU FFN",
+      "label": "Swish gated linear unit comparison",
       "formula": "\\mathrm{SwiGLU}(h_t) = W_o\\big((W_v h_t) \\odot \\mathrm{SiLU}(W_g h_t)\\big)",
       "variableDefinitions": {
         "ht": {
@@ -162,10 +162,10 @@
         "label": "Token state after attention"
       },
       "ffnSlot": {
-        "label": "Position-wise FFN slot"
+        "label": "Position-wise feed-forward slot"
       },
       "denseBranch": {
-        "label": "Standard FFN"
+        "label": "Standard feed-forward"
       },
       "gatedBranch": {
         "label": "SwiGLU"

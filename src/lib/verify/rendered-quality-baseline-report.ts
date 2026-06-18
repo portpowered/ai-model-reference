@@ -17,20 +17,9 @@ export function formatRenderedQualityAuditReport(
     `Audited at (UTC): ${result.auditedAtUtc}`,
     `Routes visited: ${result.routesVisited}`,
     `Viewport checks: ${result.viewportChecks}`,
-    "",
-    "## Standards baseline",
-    "",
-    `- docs/quality-documents-standards.md present: ${result.standards.qualityDocumentsStandardsPresent ? "yes" : "no"}`,
   ];
 
-  if (result.standards.qualityDocumentsStandardsGap) {
-    lines.push(
-      `- Documentation gap: ${result.standards.qualityDocumentsStandardsGap}`,
-    );
-  }
-
   lines.push(
-    `- Active standards: ${result.standards.activeStandards.join(", ")}`,
     "",
     "## Implementation-facing issue list",
     "",

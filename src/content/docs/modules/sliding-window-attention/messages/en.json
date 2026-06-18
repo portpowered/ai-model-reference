@@ -1,7 +1,7 @@
 {
   "title": "Sliding-Window Attention",
   "description": "An attention variant that restricts each query to a fixed local window of key positions instead of the full sequence.",
-  "openingSummary": "Dense attention lets every query attend to every key across the sequence, so cost grows with the square of length; sliding-window attention applies a fixed local window so each position attends only to nearby keys, trading global reach for bounded compute and memory on long contexts.",
+  "openingSummary": "Sliding-window attention is an attention variant that limits each token to a fixed local neighborhood, trading full-sequence reach for bounded compute and memory on long contexts.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -25,7 +25,7 @@
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Compared with multi-head attention, sliding-window attention limits reach to a local neighborhood rather than scoring all positions. Multi-query and grouped-query attention remain dense over allowed positions but reduce KV head count; sliding-window attention changes how far each query can look."
+      "body": "Compared with multi-head attention, sliding-window attention limits reach to a local neighborhood rather than scoring all positions. Multi-query and grouped-query attention remain dense over allowed positions but reduce key-value head count. Sliding-window attention instead changes how far each query can look."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
@@ -52,10 +52,10 @@
   "assets": {
     "computeFlow": {
       "alt": "Dense multi-head attention versus sliding-window local reach",
-      "caption": "Toggle MHA and sliding-window attention to compare full-sequence reach against fixed local windows on one canvas",
+      "caption": "Toggle multi-head attention and sliding-window attention to compare full-sequence reach against fixed local windows on one canvas.",
       "variants": {
         "mha": {
-          "label": "MHA"
+          "label": "Multi-head"
         },
         "window": {
           "label": "Window"
@@ -99,13 +99,13 @@
           "globalReach": "Any position can attend to any other position"
         },
         "mqa": {
-          "attentionLocality": "Full sequence with shared KV heads",
-          "computeScaling": "Quadratic O(n²) with fewer KV projections",
+          "attentionLocality": "Full sequence with shared key-value heads",
+          "computeScaling": "Quadratic O(n²) with fewer key-value projections",
           "globalReach": "Any position can attend to any other position"
         },
         "gqa": {
-          "attentionLocality": "Full sequence with grouped KV heads",
-          "computeScaling": "Quadratic O(n²) with reduced KV head count",
+          "attentionLocality": "Full sequence with grouped key-value heads",
+          "computeScaling": "Quadratic O(n²) with reduced key-value head count",
           "globalReach": "Any position can attend to any other position"
         }
       }
@@ -205,7 +205,7 @@
         "label": "H query heads"
       },
       "mhaKvHeads": {
-        "label": "H KV head pairs (1:1 with queries)"
+        "label": "H key-value head pairs (1:1 with queries)"
       },
       "mhaOneToOne": {
         "label": "Each query attends to every key position"
