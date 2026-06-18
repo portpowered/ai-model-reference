@@ -164,6 +164,15 @@ export const STANDARD_FFN_GLOSSARY_PAGE_DIR = join(
   "standard-ffn",
 );
 
+/** Phase 3 ReLU glossary page directory. */
+export const RELU_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "relu");
+
+/** Phase 3 LeakyReLU glossary page directory. */
+export const LEAKY_RELU_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "leaky-relu",
+);
+
 /** Phase 3 mixture of experts glossary page directory. */
 export const MIXTURE_OF_EXPERTS_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,

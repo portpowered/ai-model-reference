@@ -1,22 +1,22 @@
 {
   "title": "ReLU",
-  "description": "A pointwise activation that keeps positive FFN values and clamps negative ones to zero.",
+  "description": "A simple activation that keeps positive values and turns negative values into zero inside many FFN hidden layers.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "ReLU stands for rectified linear unit. Inside a standard FFN, it looks at each hidden value after the expand layer and applies a simple rule: keep positive numbers, replace negative numbers with zero. The FFN stays in the same slot after attention, but this activation changes which hidden features stay active before the block projects back to model width."
+      "body": "ReLU stands for rectified linear unit. Inside a standard FFN, it leaves positive hidden values alone and replaces negative ones with zero before the next projection. That gives the FFN a simple nonlinearity, so the block can reshape features instead of behaving like one big linear map."
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "ReLU became popular because the rule is cheap to compute and easy to reason about. When a token's hidden feature is positive, the feature passes through unchanged; when it is negative, the feature drops out for that step. That sharp gate can help a dense FFN learn sparse feature patterns, which is why ReLU remains a useful baseline when papers compare newer activations."
+      "body": "ReLU is one of the easiest activation choices to understand, so it often acts as the baseline when people compare FFN variants. In a transformer block, the attention sublayer mixes information across tokens, then the FFN with ReLU transforms each token's hidden state on its own. If you know what ReLU changes, later pages on smoother or gated variants are easier to read."
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "Suppose an FFN hidden vector contains [-2.1, 0.7, 3.4]. ReLU turns it into [0, 0.7, 3.4]. The token stays in the same per-position feed-forward path; only the hidden values change before the next projection."
+      "body": "Imagine an FFN hidden vector with values like -2, -0.3, 0.1, and 4. ReLU turns that into 0, 0, 0.1, and 4 before the FFN projects the vector back to model width. In plain terms, the layer stops carrying the negative hidden responses forward but keeps the positive ones."
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "ReLU is only the activation step inside an FFN, not the whole feed-forward block. It also is not the same as LeakyReLU or SiLU, which keep some information for negative values instead of forcing every negative entry to zero. In transformer papers, seeing ReLU usually tells you how the hidden FFN state is shaped, not that the model changed its attention or residual path."
+      "body": "ReLU is an activation choice inside an FFN, not a separate transformer block. Swapping in ReLU does not move the feed-forward slot or turn the model into a mixture-of-experts layer. It is also not the same as LeakyReLU: plain ReLU cuts negative values all the way to zero, while LeakyReLU lets a small negative signal keep flowing."
     },
     "related": {
       "title": "Related Concepts And Modules"
@@ -28,5 +28,5 @@
       "title": "References"
     }
   },
-  "openingSummary": "ReLU is a simple FFN activation that zeroes negative hidden values, giving transformer MLPs a cheap nonlinearity that decides which features remain active."
+  "openingSummary": "ReLU is the simplest common FFN activation: after the hidden projection, it keeps positive values, zeros out negative ones, and then the block projects the result back down."
 }

@@ -83,6 +83,8 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.transformer-architecture",
   "concept.feed-forward-network",
   "concept.standard-ffn",
+  "concept.relu",
+  "concept.leaky-relu",
   "concept.mixture-of-experts",
   "concept.relu",
   "concept.leaky-relu",

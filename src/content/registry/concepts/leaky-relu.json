@@ -4,18 +4,13 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": [
-    "leaky ReLU",
-    "leaky rectified linear unit",
-    "Leaky ReLU activation"
-  ],
+  "aliases": ["LeakyReLU", "leaky ReLU", "leaky rectified linear unit"],
   "tags": ["foundations"],
   "relatedIds": [
     "concept.activation",
     "concept.feed-forward-network",
     "concept.standard-ffn",
-    "concept.relu",
-    "concept.silu"
+    "concept.relu"
   ],
   "citationIds": [],
   "status": "published",

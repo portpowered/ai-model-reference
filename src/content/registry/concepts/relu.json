@@ -4,14 +4,13 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["rectified linear unit", "ReLU activation", "rectifier"],
+  "aliases": ["ReLU", "rectified linear unit", "relu activation"],
   "tags": ["foundations"],
   "relatedIds": [
     "concept.activation",
     "concept.feed-forward-network",
     "concept.standard-ffn",
-    "concept.leaky-relu",
-    "concept.silu"
+    "concept.leaky-relu"
   ],
   "citationIds": [],
   "status": "published",
