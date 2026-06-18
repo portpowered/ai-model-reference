@@ -19,6 +19,7 @@ import { loadRegistry } from "@/lib/content/registry";
 import { getRegistryRecordById } from "@/lib/content/registry-runtime";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 const pageDir = BPE_MODULE_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
@@ -103,6 +104,17 @@ describe("loadModulePage bpe", () => {
     expect(bpeDocument?.tags).toContain("tokenization");
     expect(bpeDocument?.relatedIds).toContain("concept.token");
     expect(bpeDocument?.relatedIds).toContain("model.gpt-3");
+  });
+
+  test.each([
+    "BPE",
+    "byte pair encoding",
+    "subword tokenizer",
+  ] as const)("search ranks the canonical BPE page for %s", async (query) => {
+    const results = await docsSearchApi.search(query);
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url.split("#")[0]).toBe("/docs/modules/bpe");
   });
 });
 
