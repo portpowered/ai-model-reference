@@ -1,6 +1,7 @@
 import {
   closeSync,
   constants,
+  existsSync,
   mkdirSync,
   openSync,
   statSync,
@@ -19,9 +20,13 @@ const CI_PLAYWRIGHT_LAUNCH_RETRY_DELAY_MS = 5_000;
 const CI_PLAYWRIGHT_LAUNCH_INITIAL_DELAY_MS = 3_000;
 const MAX_CONCURRENT_CI_LAUNCHES = 1;
 const LAUNCH_SLOT_DIR = join(tmpdir(), "model-atlas-playwright-launch-slots");
+const SYSTEM_CHROME_EXECUTABLE_PATH =
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const LOCK_POLL_MS = 200;
 /** Drop launch slots left behind by crashed workers so waiters do not poll until Bun timeout. */
 const STALE_LAUNCH_SLOT_MAX_AGE_MS = 5 * 60 * 1000;
+export const PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH_ENV =
+  "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH";
 
 let inProcessLaunchGate: Promise<void> = Promise.resolve();
 
@@ -35,15 +40,44 @@ function shouldAcquireCrossProcessLaunchSlot(): boolean {
   );
 }
 
+export function resolvePlaywrightChromiumExecutablePath({
+  env = process.env,
+  bundledExecutablePath = chromium.executablePath(),
+  systemChromePath = SYSTEM_CHROME_EXECUTABLE_PATH,
+}: {
+  env?: Record<string, string | undefined>;
+  bundledExecutablePath?: string;
+  systemChromePath?: string;
+} = {}): string | undefined {
+  const override = env[PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH_ENV]?.trim();
+  if (override) {
+    return override;
+  }
+
+  if (existsSync(bundledExecutablePath)) {
+    return undefined;
+  }
+
+  if (existsSync(systemChromePath)) {
+    return systemChromePath;
+  }
+
+  return undefined;
+}
+
 function resolveLaunchOptions(options: LaunchOptions): LaunchOptions {
+  const executablePath =
+    options.executablePath ?? resolvePlaywrightChromiumExecutablePath();
+
   if (!shouldSerializePlaywrightLaunch()) {
-    return { headless: true, ...options };
+    return { headless: true, ...options, executablePath };
   }
 
   return {
     headless: true,
     timeout: options.timeout ?? CI_PLAYWRIGHT_LAUNCH_TIMEOUT_MS,
     ...options,
+    executablePath,
   };
 }
 

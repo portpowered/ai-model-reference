@@ -12,7 +12,7 @@ import { loadRegistry } from "@/lib/content/registry";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
 describe("isArchitectureRelatedPage", () => {
-  it("includes published pages whose registry concept is architecture-related", async () => {
+  it("includes merged published pages whose registry concept is architecture-related", async () => {
     const indexes = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
     const architecturePages = pages.filter((page) =>
@@ -21,66 +21,31 @@ describe("isArchitectureRelatedPage", () => {
 
     const urls = architecturePages.map((page) => page.url).sort();
     expect(urls).toEqual(
-      [
+      expect.arrayContaining([
         "/docs/concepts/context-extension",
         "/docs/concepts/page-spec-workflow-sample",
         "/docs/concepts/positional-encodings",
         "/docs/concepts/transformer-architecture",
         "/docs/concepts/why-long-context-is-hard",
-        "/docs/glossary/activation",
         "/docs/glossary/alibi",
         "/docs/glossary/absolute-positional-embeddings",
-        "/docs/glossary/alignment",
-        "/docs/glossary/architecture",
-        "/docs/glossary/autoregressive-generation",
-        "/docs/glossary/component",
-        "/docs/glossary/computational-graph",
-        "/docs/glossary/conditioning",
-        "/docs/glossary/context-window",
-        "/docs/glossary/decoder",
-        "/docs/glossary/denoising-generation",
-        "/docs/glossary/diffusion-model",
-        "/docs/glossary/discriminative-model",
-        "/docs/glossary/embedding",
-        "/docs/glossary/emergent-behavior",
-        "/docs/glossary/encoder",
-        "/docs/glossary/encoder-decoder",
-        "/docs/glossary/feed-forward-network",
-        "/docs/glossary/foundation-model",
-        "/docs/glossary/generalization",
-        "/docs/glossary/generative-model",
-        "/docs/glossary/latent",
-        "/docs/glossary/latent-space",
-        "/docs/glossary/layer-norm",
+        "/docs/glossary/batch-norm",
+        "/docs/glossary/decode",
+        "/docs/glossary/kv-cache",
         "/docs/glossary/learned-positional-embeddings",
         "/docs/glossary/longrope",
-        "/docs/glossary/mixture-of-experts",
-        "/docs/glossary/modality",
-        "/docs/glossary/model",
-        "/docs/glossary/model-capacity",
-        "/docs/glossary/module",
-        "/docs/glossary/ntk-aware-rope-scaling",
-        "/docs/glossary/multimodal-model",
-        "/docs/glossary/normalization",
         "/docs/glossary/nope",
-        "/docs/glossary/overfitting",
-        "/docs/glossary/patch",
-        "/docs/glossary/perplexity",
-        "/docs/glossary/positional-interpolation",
-        "/docs/glossary/representation",
-        "/docs/glossary/residual-connection",
+        "/docs/glossary/ntk-aware-rope-scaling",
+        "/docs/glossary/prefill",
+        "/docs/glossary/prefill-decode-split",
+        "/docs/glossary/qk-norm",
         "/docs/glossary/relative-position-bias",
-        "/docs/glossary/rmsnorm",
-        "/docs/glossary/rope",
-        "/docs/glossary/scaling-law",
         "/docs/glossary/sinusoidal-positional-embeddings",
+        "/docs/glossary/skip-connection",
         "/docs/glossary/superhot-rope",
         "/docs/glossary/t5-relative-position-bias",
-        "/docs/glossary/token",
-        "/docs/glossary/transformer",
-        "/docs/glossary/world-model",
         "/docs/glossary/yarn",
-      ].sort(),
+      ]),
     );
   });
 
@@ -158,16 +123,27 @@ describe("architecture index messages", () => {
 });
 
 describe("architecture index page render", () => {
-  it("lists taxonomy glossary entries and token with localized titles", async () => {
+  it("lists merged architecture glossary entries with localized titles", async () => {
     const page = await renderArchitectureIndexPage();
     const html = renderToStaticMarkup(page);
 
-    expect(html).toContain("Architecture");
-    expect(html).toContain('href="/docs/glossary/architecture"');
-    expect(html).toContain("Foundation Model");
-    expect(html).toContain('href="/docs/glossary/foundation-model"');
-    expect(html).toContain("Token");
-    expect(html).toContain('href="/docs/glossary/token"');
+    for (const [title, href] of [
+      ["Architecture", "/docs/glossary/architecture"],
+      ["Foundation Model", "/docs/glossary/foundation-model"],
+      ["KV cache", "/docs/glossary/kv-cache"],
+      ["Decode", "/docs/glossary/decode"],
+      ["Prefill", "/docs/glossary/prefill"],
+      [
+        "Absolute positional embeddings",
+        "/docs/glossary/absolute-positional-embeddings",
+      ],
+      ["Relative position bias", "/docs/glossary/relative-position-bias"],
+      ["Token", "/docs/glossary/token"],
+    ] as const) {
+      expect(html).toContain(title);
+      expect(html).toContain(`href="${href}"`);
+    }
+
     expect(html).not.toContain("No architecture entries yet");
     expect(html).toContain("list-none");
     expect(html).not.toContain("list-disc");

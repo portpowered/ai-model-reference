@@ -1,10 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { DOCS_ROOT } from "@/lib/content/content-paths";
-import {
-  hasPageMessagesFile,
-  loadPageMessages,
-} from "@/lib/content/page-messages-load";
+import { loadPageMessages } from "@/lib/content/page-messages-load";
 import {
   type PageFrontmatter,
   type PageMessages,
@@ -16,6 +13,7 @@ import {
   defaultLocale,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
+import { isShippedLocalizedDocsSlug } from "./shipped-localized-docs";
 
 export type DocsPageSource = {
   pageDir: string;
@@ -63,13 +61,13 @@ export function docsUrlFromSlug(docsSlug: string, locale: SiteLocale): string {
 export function isDocsPageShippedForLocale(
   docsSlug: string,
   locale: SiteLocale,
-  rootDir = DOCS_ROOT,
+  _rootDir = DOCS_ROOT,
 ): boolean {
   if (locale === defaultLocale) {
     return true;
   }
 
-  return hasPageMessagesFile(path.join(rootDir, docsSlug), locale);
+  return isShippedLocalizedDocsSlug(docsSlug, locale);
 }
 
 export async function loadPublishedDocsPages(
@@ -101,7 +99,7 @@ export async function loadPublishedDocsPages(
 
 /**
  * Loads the docs pages that are actually shippable for the requested locale.
- * Non-default locales only include pages with a locale-specific messages file.
+ * Non-default locales only include pages declared in the shipped-docs manifest.
  */
 export async function loadShippedLocalizedDocsPages(
   locale: SiteLocale,

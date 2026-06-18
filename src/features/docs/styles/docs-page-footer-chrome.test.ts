@@ -30,7 +30,7 @@ describe("docs page footer chrome CSS contract", () => {
       'class*="hover:text-fd-accent-foreground"',
     );
     expect(footerChromeCss).toContain("@layer utilities");
-    expect(footerChromeCss).toContain("color: inherit");
+    expect(footerChromeCss).toContain("color: currentColor");
     expect(footerChromeCss).toContain(":focus");
     expect(footerChromeCss).toContain(":focus-visible");
     expect(footerChromeCss).toContain("var(--color-fd-accent-foreground)");

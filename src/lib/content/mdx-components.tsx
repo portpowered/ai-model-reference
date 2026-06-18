@@ -5,6 +5,7 @@ import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { DocsPre } from "@/features/docs/components/DocsCodeBlock";
 import { FoldedSummary } from "@/features/docs/components/FoldedSummary";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { BlockMath, InlineMath } from "@/features/docs/components/Math";
 import { PageMathFormula } from "@/features/docs/components/PageMathFormula";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
@@ -32,6 +33,7 @@ export const moduleMdxComponents: MDXComponents = {
   CitationList,
   DerivedRelatedDocs,
   FoldedSummary,
+  LocalizedLinkList,
   RelatedDocs,
   Section,
   T,

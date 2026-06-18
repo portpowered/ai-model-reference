@@ -36,6 +36,7 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
     expect(record?.tags).toEqual(["foundations"]);
     expect(record?.relatedIds).toEqual([
       "concept.feed-forward-network",
+      "concept.standard-ffn",
       "concept.transformer-architecture",
     ]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.mixture-of-experts")).toBe(
@@ -43,7 +44,7 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
     );
   });
 
-  test("curated related links feed-forward network and transformer architecture", () => {
+  test("curated related links feed-forward network, standard FFN, and transformer architecture", () => {
     const source = getConceptById("concept.mixture-of-experts");
     if (!source) {
       throw new Error("expected concept.mixture-of-experts in registry");
@@ -60,6 +61,12 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
     );
     expect(feedForward?.href).toBe("/docs/glossary/feed-forward-network");
     expect(feedForward?.isPlanned).toBe(false);
+
+    const standardFfn = items.find(
+      (item) => item.registryId === "concept.standard-ffn",
+    );
+    expect(standardFfn?.href).toBe("/docs/glossary/standard-ffn");
+    expect(standardFfn?.isPlanned).toBe(false);
 
     const architecture = items.find(
       (item) => item.registryId === "concept.transformer-architecture",
@@ -88,7 +95,7 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
     );
   });
 
-  test("page renders MoE summary, common confusions, and feed-forward related link", async () => {
+  test("page renders MoE summary, common confusions, and FFN-family related links", async () => {
     const page = await loadGlossaryPage("mixture-of-experts");
 
     expect(page.frontmatter.kind).toBe("glossary");
@@ -111,6 +118,7 @@ describe("Phase 3 mixture of experts glossary page (US-003)", () => {
     expect(html).toContain("Common Confusions");
     expectHtmlToContainProse(html, "gating network");
     expect(html).toContain('href="/docs/glossary/feed-forward-network"');
+    expect(html).toContain('href="/docs/glossary/standard-ffn"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');

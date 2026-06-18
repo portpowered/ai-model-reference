@@ -1,0 +1,32 @@
+{
+  "title": "Standard FFN",
+  "description": "The default dense transformer MLP that expands, activates, and projects each token state after attention.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A standard FFN is the default dense feed-forward block used in most transformer layers. After attention updates a token's hidden state, the standard FFN sends that vector through one wide linear layer, applies a pointwise activation, and projects it back to the model width. Every token position uses the same weights, and every token goes through the same dense path."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "The broader feed-forward-network idea includes several designs that live in the same block slot. Standard FFN names the baseline most readers see in transformer diagrams and papers: expand, activate, project. Once you know that baseline, it becomes easier to notice when a paper swaps in a gated form such as SwiGLU or a sparse replacement such as mixture of experts."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose a transformer uses hidden size 4096 and FFN width 16384. A token vector leaves attention, multiplies by a 4096-to-16384 matrix, passes through an activation such as ReLU, GELU, or SiLU, then multiplies by a 16384-to-4096 matrix before returning to the residual stream. The path is dense because every hidden unit in the wide layer participates for every token."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Standard FFN is not the name for every feed-forward design. It is one common member of the larger FFN family. It also is not mixture of experts: MoE keeps the same transformer slot but routes each token through only a few experts instead of one dense MLP. The activation inside the block, such as ReLU, is only one step inside the standard FFN rather than the whole component."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "A standard FFN is the default dense MLP after attention in a transformer block, using an expand-activate-project path so each token gets the same per-position transformation."
+}

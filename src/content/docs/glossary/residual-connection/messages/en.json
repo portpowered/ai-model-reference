@@ -4,7 +4,7 @@
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "A residual connection—also called a skip connection or residual add—carries the input of a sublayer forward and adds it to that sublayer's output. In transformers, the same hidden vector stream passes through attention, feed-forward layers, and normalization while residuals preserve a direct path from earlier layers. Each block typically applies two residual adds: one around attention and one around the feed-forward network."
+      "body": "A residual connection carries the input of a sublayer forward and adds it to that sublayer's output. In transformers, the same hidden vector stream passes through attention, feed-forward layers, and normalization while residuals preserve a direct path from earlier layers. Each block typically applies two residual adds: one around attention and one around the feed-forward network."
     },
     "whyItMatters": {
       "title": "Why It Matters",
@@ -16,7 +16,7 @@
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "A residual add is not the same as normalization: residuals preserve and sum streams, while norm layers rescale activations. The residual stream is also not a second hidden size—it is the main width that every sublayer reads and writes. Finally, skip connections here are inside one model stack, not shortcuts between separate ensemble members."
+      "body": "A residual add is not the same as normalization: residuals preserve and sum streams, while norm layers rescale activations. The residual stream is also not a second hidden size—it is the main width that every sublayer reads and writes. Residual connection is also narrower than skip connection: every residual add is a skip path, but some skip paths in other architectures concatenate or hand features forward instead of summing them."
     },
     "related": {
       "title": "Related Concepts And Modules"
@@ -28,5 +28,5 @@
       "title": "References"
     }
   },
-  "openingSummary": "Residual connections add each sublayer's output back onto the running hidden stream, giving gradients a skip highway through depth and pairing with pre-norm or post-norm placement around attention and feed-forward blocks."
+  "openingSummary": "Residual connections add each sublayer's output back onto the running hidden stream, giving gradients a skip highway through depth and forming the transformer-specific skip path around attention and feed-forward blocks."
 }

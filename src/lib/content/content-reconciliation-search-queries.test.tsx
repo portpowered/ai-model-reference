@@ -17,6 +17,21 @@ const MULTI_QUERY_ATTENTION_URL = "/docs/modules/multi-query-attention";
 const SPARSE_ATTENTION_URL = "/docs/modules/sparse-attention";
 const ROPE_GLOSSARY_URL = "/docs/glossary/rope";
 const CONTEXT_WINDOW_GLOSSARY_URL = "/docs/glossary/context-window";
+const FEED_FORWARD_NETWORK_GLOSSARY_URL = "/docs/glossary/feed-forward-network";
+const STANDARD_FFN_GLOSSARY_URL = "/docs/glossary/standard-ffn";
+const MIXTURE_OF_EXPERTS_GLOSSARY_URL = "/docs/glossary/mixture-of-experts";
+const RELU_GLOSSARY_URL = "/docs/glossary/relu";
+const LEAKY_RELU_GLOSSARY_URL = "/docs/glossary/leaky-relu";
+const SILU_GLOSSARY_URL = "/docs/glossary/silu";
+const SWIGLU_GLOSSARY_URL = "/docs/glossary/swiglu";
+const NORMALIZATION_GLOSSARY_URL = "/docs/glossary/normalization";
+const LAYER_NORM_GLOSSARY_URL = "/docs/glossary/layer-norm";
+const BATCH_NORM_GLOSSARY_URL = "/docs/glossary/batch-norm";
+const GROUP_NORM_GLOSSARY_URL = "/docs/glossary/group-norm";
+const RMSNORM_GLOSSARY_URL = "/docs/glossary/rmsnorm";
+const QK_NORM_GLOSSARY_URL = "/docs/glossary/qk-norm";
+const RESIDUAL_CONNECTION_GLOSSARY_URL = "/docs/glossary/residual-connection";
+const SKIP_CONNECTION_GLOSSARY_URL = "/docs/glossary/skip-connection";
 
 const ATTENTION_MODULE_QUERIES = [
   { query: "MHA", url: MULTI_HEAD_ATTENTION_URL },
@@ -29,6 +44,69 @@ const GLOSSARY_CANONICAL_QUERIES = [
   {
     query: "context window",
     url: CONTEXT_WINDOW_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
+  {
+    query: "feed-forward network",
+    url: FEED_FORWARD_NETWORK_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
+  {
+    query: "standard FFN",
+    url: STANDARD_FFN_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
+  {
+    query: "mixture of experts",
+    url: MIXTURE_OF_EXPERTS_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
+  { query: "ReLU", url: RELU_GLOSSARY_URL, kind: "glossary" as const },
+  {
+    query: "LeakyReLU",
+    url: LEAKY_RELU_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
+  { query: "SiLU", url: SILU_GLOSSARY_URL, kind: "glossary" as const },
+  { query: "SwiGLU", url: SWIGLU_GLOSSARY_URL, kind: "glossary" as const },
+  {
+    query: "normalization",
+    url: NORMALIZATION_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
+  {
+    query: "layer norm",
+    url: LAYER_NORM_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
+  {
+    query: "batch norm",
+    url: BATCH_NORM_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
+  {
+    query: "group norm",
+    url: GROUP_NORM_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
+  {
+    query: "RMSNorm",
+    url: RMSNORM_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
+  {
+    query: "QK norm",
+    url: QK_NORM_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
+  {
+    query: "residual connection",
+    url: RESIDUAL_CONNECTION_GLOSSARY_URL,
+    kind: "glossary" as const,
+  },
+  {
+    query: "skip connection",
+    url: SKIP_CONNECTION_GLOSSARY_URL,
     kind: "glossary" as const,
   },
 ] as const;
@@ -105,6 +183,21 @@ describe("Phase 2/3 reconciliation search UI kind labels (US-010)", () => {
     [SPARSE_ATTENTION_URL, "module", "Module"],
     [ROPE_GLOSSARY_URL, "glossary", "Glossary"],
     [CONTEXT_WINDOW_GLOSSARY_URL, "glossary", "Glossary"],
+    [FEED_FORWARD_NETWORK_GLOSSARY_URL, "glossary", "Glossary"],
+    [STANDARD_FFN_GLOSSARY_URL, "glossary", "Glossary"],
+    [MIXTURE_OF_EXPERTS_GLOSSARY_URL, "glossary", "Glossary"],
+    [RELU_GLOSSARY_URL, "glossary", "Glossary"],
+    [LEAKY_RELU_GLOSSARY_URL, "glossary", "Glossary"],
+    [SILU_GLOSSARY_URL, "glossary", "Glossary"],
+    [SWIGLU_GLOSSARY_URL, "glossary", "Glossary"],
+    [NORMALIZATION_GLOSSARY_URL, "glossary", "Glossary"],
+    [LAYER_NORM_GLOSSARY_URL, "glossary", "Glossary"],
+    [BATCH_NORM_GLOSSARY_URL, "glossary", "Glossary"],
+    [GROUP_NORM_GLOSSARY_URL, "glossary", "Glossary"],
+    [RMSNORM_GLOSSARY_URL, "glossary", "Glossary"],
+    [QK_NORM_GLOSSARY_URL, "glossary", "Glossary"],
+    [RESIDUAL_CONNECTION_GLOSSARY_URL, "glossary", "Glossary"],
+    [SKIP_CONNECTION_GLOSSARY_URL, "glossary", "Glossary"],
   ] as const)("SearchResultMetaDetails shows localized %s kind for %s", async (url, kind, label) => {
     const messages = await loadUiMessages();
     const metaByUrl = searchResultMetaMapToRecord(

@@ -64,6 +64,9 @@ describe("attention tag landing resources", () => {
     );
     expect(glossaryGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/glossary/autoregressive-generation",
+      "/docs/glossary/decode",
+      "/docs/glossary/kv-cache",
+      "/docs/glossary/prefill",
       "/docs/glossary/token",
     ]);
   });
@@ -155,6 +158,12 @@ describe("attention tag landing page render", () => {
     expect(html).toContain('href="/docs/modules/linear-attention"');
     expect(html).toContain("Autoregressive Generation");
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain("Decode");
+    expect(html).toContain('href="/docs/glossary/decode"');
+    expect(html).toContain("KV cache");
+    expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html).toContain("Prefill");
+    expect(html).toContain('href="/docs/glossary/prefill"');
     expect(html).toContain("Token");
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain('href="/search?tag=attention"');

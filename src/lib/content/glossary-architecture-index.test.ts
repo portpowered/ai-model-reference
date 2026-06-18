@@ -24,46 +24,34 @@ const TAXONOMY_GLOSSARY_SLUGS = [
   "latent-space",
 ] as const;
 
-const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
-  model: "Model",
-  architecture: "Architecture",
-  module: "Module",
-  component: "Component",
-  modality: "Modality",
-  "foundation-model": "Foundation Model",
-  "generative-model": "Generative Model",
-  "discriminative-model": "Discriminative Model",
-  representation: "Representation",
-  patch: "Patch",
-  latent: "Latent",
-  "latent-space": "Latent Space",
-  token: "Token",
-  embedding: "Embedding",
-  tensor: "Tensor",
-  vector: "Vector",
-  logit: "Logit",
-  softmax: "Softmax",
-  entropy: "Entropy",
-  temperature: "Temperature",
-  parameter: "Parameter",
-  activation: "Activation",
-  "computational-graph": "Computational Graph",
-  gradient: "Gradient",
-  backpropagation: "Backpropagation",
-  "loss-function": "Loss Function",
-  "optimizer-state": "Optimizer State",
-  "absolute-positional-embeddings": "Absolute positional embeddings",
-  "learned-positional-embeddings": "Learned positional embeddings",
-  longrope: "LongRoPE",
-  "ntk-aware-rope-scaling": "NTK-aware RoPE scaling",
-  "relative-position-bias": "Relative position bias",
-  "t5-relative-position-bias": "T5 relative position bias",
-  nope: "NoPE",
-  "positional-interpolation": "Positional interpolation",
-  "superhot-rope": "SuperHOT RoPE",
-  "sinusoidal-positional-embeddings": "Sinusoidal positional embeddings",
-  yarn: "YaRN",
-};
+const FFN_ACTIVATION_GLOSSARY_SLUGS = [
+  "feed-forward-network",
+  "batch-norm",
+  "group-norm",
+  "standard-ffn",
+  "mixture-of-experts",
+  "relu",
+  "leaky-relu",
+  "silu",
+  "swiglu",
+  "qk-norm",
+  "residual-connection",
+  "skip-connection",
+] as const;
+
+const POSITIONAL_GLOSSARY_SLUGS = [
+  "absolute-positional-embeddings",
+  "learned-positional-embeddings",
+  "longrope",
+  "nope",
+  "ntk-aware-rope-scaling",
+  "positional-interpolation",
+  "relative-position-bias",
+  "sinusoidal-positional-embeddings",
+  "superhot-rope",
+  "t5-relative-position-bias",
+  "yarn",
+] as const;
 
 const CHAIN_GLOSSARY_SLUGS = [
   "embedding",
@@ -81,21 +69,74 @@ const CHAIN_GLOSSARY_SLUGS = [
   "loss-function",
   "optimizer-state",
 ] as const;
-const POSITIONAL_GLOSSARY_SLUGS = [
-  "absolute-positional-embeddings",
-  "learned-positional-embeddings",
-  "longrope",
-  "ntk-aware-rope-scaling",
-  "relative-position-bias",
-  "t5-relative-position-bias",
-  "nope",
-  "positional-interpolation",
-  "superhot-rope",
-  "sinusoidal-positional-embeddings",
-  "yarn",
+
+const SEQUENCE_OPERATION_GLOSSARY_SLUGS = [
+  "kv-cache",
+  "decode",
+  "prefill",
+  "prefill-decode-split",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 65;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 58;
+
+const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
+  model: "Model",
+  architecture: "Architecture",
+  module: "Module",
+  component: "Component",
+  modality: "Modality",
+  "foundation-model": "Foundation Model",
+  "generative-model": "Generative Model",
+  "discriminative-model": "Discriminative Model",
+  representation: "Representation",
+  patch: "Patch",
+  latent: "Latent",
+  "latent-space": "Latent Space",
+  "feed-forward-network": "Feed-forward network",
+  "batch-norm": "Batch norm",
+  "group-norm": "Group norm",
+  "standard-ffn": "Standard FFN",
+  "mixture-of-experts": "Mixture of experts",
+  relu: "ReLU",
+  "leaky-relu": "LeakyReLU",
+  silu: "SiLU",
+  swiglu: "SwiGLU",
+  "qk-norm": "QK norm",
+  "residual-connection": "Residual connection",
+  "skip-connection": "Skip connection",
+  "absolute-positional-embeddings": "Absolute positional embeddings",
+  "learned-positional-embeddings": "Learned positional embeddings",
+  longrope: "LongRoPE",
+  nope: "NoPE",
+  "ntk-aware-rope-scaling": "NTK-aware RoPE scaling",
+  "positional-interpolation": "Positional interpolation",
+  "relative-position-bias": "Relative position bias",
+  "sinusoidal-positional-embeddings": "Sinusoidal positional embeddings",
+  "superhot-rope": "SuperHOT RoPE",
+  "t5-relative-position-bias": "T5 relative position bias",
+  yarn: "YaRN",
+  token: "Token",
+  embedding: "Embedding",
+  vector: "Vector",
+  tensor: "Tensor",
+  logit: "Logit",
+  softmax: "Softmax",
+  entropy: "Entropy",
+  temperature: "Temperature",
+  parameter: "Parameter",
+  activation: "Activation",
+  "computational-graph": "Computational Graph",
+  gradient: "Gradient",
+  backpropagation: "Backpropagation",
+  "loss-function": "Loss Function",
+  "optimizer-state": "Optimizer State",
+  "kv-cache": "KV cache",
+  decode: "Decode",
+  prefill: "Prefill",
+  "prefill-decode-split": "Prefill/decode split",
+};
+
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 78;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 71;
+
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
@@ -119,7 +160,7 @@ function collectPageUrls(nodes: Node[]): string[] {
 }
 
 describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
-  test("glossary meta.json lists token and all nine taxonomy pages", async () => {
+  test("glossary meta.json lists merged glossary families and separators", async () => {
     const metaPath = join(process.cwd(), "src/content/docs/glossary/meta.json");
     const meta = JSON.parse(await readFile(metaPath, "utf8")) as {
       pages: string[];
@@ -132,10 +173,13 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
         GLOSSARY_SEPARATOR_TITLES.map((title) => `---${title}---`),
       ),
     );
+
     for (const slug of [
       ...TAXONOMY_GLOSSARY_SLUGS,
-      ...CHAIN_GLOSSARY_SLUGS,
+      ...FFN_ACTIVATION_GLOSSARY_SLUGS,
       ...POSITIONAL_GLOSSARY_SLUGS,
+      ...CHAIN_GLOSSARY_SLUGS,
+      ...SEQUENCE_OPERATION_GLOSSARY_SLUGS,
       "token",
     ] as const) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
@@ -148,7 +192,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     }
   });
 
-  test("fumadocs glossary sidebar includes all taxonomy glossary URLs", () => {
+  test("fumadocs glossary sidebar includes merged glossary families", () => {
     const glossaryFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Glossary",
     );
@@ -160,8 +204,10 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     const glossaryUrls = collectPageUrls(glossaryFolder.children);
     for (const slug of [
       ...TAXONOMY_GLOSSARY_SLUGS,
-      ...CHAIN_GLOSSARY_SLUGS,
+      ...FFN_ACTIVATION_GLOSSARY_SLUGS,
       ...POSITIONAL_GLOSSARY_SLUGS,
+      ...CHAIN_GLOSSARY_SLUGS,
+      ...SEQUENCE_OPERATION_GLOSSARY_SLUGS,
       "token",
     ] as const) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
@@ -169,31 +215,18 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(glossaryUrls).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
   });
 
-  test("glossary index lists forty entries with localized titles sorted by title", async () => {
+  test("glossary index lists merged published entries with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
     expect(entries).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
 
-    for (const slug of TAXONOMY_GLOSSARY_SLUGS) {
-      const entry = entries.find(
-        (item) => item.url === `/docs/glossary/${slug}`,
-      );
-      expect(entry?.title).toBe(EXPECTED_GLOSSARY_TITLES[slug]);
-      if (slug !== "latent-space") {
-        expect(entry?.title).not.toContain("-");
-      }
-    }
-
-    const token = entries.find((item) => item.url === "/docs/glossary/token");
-    expect(token?.title).toBe("Token");
-
-    for (const slug of CHAIN_GLOSSARY_SLUGS) {
-      const entry = entries.find(
-        (item) => item.url === `/docs/glossary/${slug}`,
-      );
-      expect(entry?.title).toBe(EXPECTED_GLOSSARY_TITLES[slug]);
-    }
-
-    for (const slug of POSITIONAL_GLOSSARY_SLUGS) {
+    for (const slug of [
+      ...TAXONOMY_GLOSSARY_SLUGS,
+      ...FFN_ACTIVATION_GLOSSARY_SLUGS,
+      ...POSITIONAL_GLOSSARY_SLUGS,
+      ...CHAIN_GLOSSARY_SLUGS,
+      ...SEQUENCE_OPERATION_GLOSSARY_SLUGS,
+      "token",
+    ] as const) {
       const entry = entries.find(
         (item) => item.url === `/docs/glossary/${slug}`,
       );
@@ -201,141 +234,66 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     }
   });
 
-  test("architecture index includes architecture taxonomy and other taxonomy entries", async () => {
+  test("architecture index includes merged architecture-related glossary entries", async () => {
     const entries = await loadPublishedArchitectureEntries("en");
     expect(entries).toHaveLength(PUBLISHED_ARCHITECTURE_ENTRY_COUNT);
 
-    const architecture = entries.find(
-      (entry) => entry.url === "/docs/glossary/architecture",
+    expect(
+      entries.some((entry) => entry.url === "/docs/glossary/architecture"),
+    ).toBe(true);
+    expect(
+      entries.some((entry) => entry.url === "/docs/glossary/kv-cache"),
+    ).toBe(true);
+    expect(
+      entries.some(
+        (entry) => entry.url === "/docs/glossary/relative-position-bias",
+      ),
+    ).toBe(true);
+    expect(entries.some((entry) => entry.url === "/docs/glossary/token")).toBe(
+      true,
     );
-    expect(architecture?.title).toBe("Architecture");
-
-    for (const slug of TAXONOMY_GLOSSARY_SLUGS) {
-      const entry = entries.find(
-        (item) => item.url === `/docs/glossary/${slug}`,
-      );
-      expect(entry?.title).toBe(EXPECTED_GLOSSARY_TITLES[slug]);
-    }
-
-    const token = entries.find((entry) => entry.url === "/docs/glossary/token");
-    expect(token?.title).toBe("Token");
-
-    const embedding = entries.find(
-      (entry) => entry.url === "/docs/glossary/embedding",
-    );
-    expect(embedding?.title).toBe("Embedding");
     expect(entries.some((entry) => entry.url === "/docs/glossary/tensor")).toBe(
       false,
     );
   });
 
-  test("glossary and architecture index pages render taxonomy links with localized titles", async () => {
+  test("glossary and architecture index pages render merged family links", async () => {
     const glossaryHtml = renderToStaticMarkup(await GlossaryIndexPage());
     const architectureHtml = renderToStaticMarkup(
       await ArchitectureIndexPage(),
     );
 
-    for (const slug of TAXONOMY_GLOSSARY_SLUGS) {
-      const title = EXPECTED_GLOSSARY_TITLES[slug];
+    for (const [title, href] of [
+      ["Architecture", "/docs/glossary/architecture"],
+      ["Token", "/docs/glossary/token"],
+      ["Embedding", "/docs/glossary/embedding"],
+      ["KV cache", "/docs/glossary/kv-cache"],
+      [
+        "Absolute positional embeddings",
+        "/docs/glossary/absolute-positional-embeddings",
+      ],
+      ["Relative position bias", "/docs/glossary/relative-position-bias"],
+      ["Prefill", "/docs/glossary/prefill"],
+    ] as const) {
       expect(glossaryHtml).toContain(title);
-      expect(glossaryHtml).toContain(`href="/docs/glossary/${slug}"`);
-      expect(architectureHtml).toContain(title);
-      expect(architectureHtml).toContain(`href="/docs/glossary/${slug}"`);
+      expect(glossaryHtml).toContain(`href="${href}"`);
     }
 
-    expect(glossaryHtml).toContain("Token");
-    expect(glossaryHtml).toContain('href="/docs/glossary/token"');
-    expect(glossaryHtml).toContain("Embedding");
-    expect(glossaryHtml).toContain('href="/docs/glossary/embedding"');
-    expect(glossaryHtml).toContain("Tensor");
-    expect(glossaryHtml).toContain('href="/docs/glossary/tensor"');
-    expect(glossaryHtml).toContain("Logit");
-    expect(glossaryHtml).toContain('href="/docs/glossary/logit"');
-    expect(glossaryHtml).toContain("Softmax");
-    expect(glossaryHtml).toContain('href="/docs/glossary/softmax"');
-    expect(glossaryHtml).toContain("Entropy");
-    expect(glossaryHtml).toContain('href="/docs/glossary/entropy"');
-    expect(glossaryHtml).toContain("Temperature");
-    expect(glossaryHtml).toContain('href="/docs/glossary/temperature"');
-    expect(glossaryHtml).toContain("Parameter");
-    expect(glossaryHtml).toContain('href="/docs/glossary/parameter"');
-    expect(glossaryHtml).toContain("Activation");
-    expect(glossaryHtml).toContain('href="/docs/glossary/activation"');
-    expect(glossaryHtml).toContain("Computational Graph");
-    expect(glossaryHtml).toContain('href="/docs/glossary/computational-graph"');
-    expect(glossaryHtml).toContain("Absolute positional embeddings");
-    expect(glossaryHtml).toContain(
-      'href="/docs/glossary/absolute-positional-embeddings"',
-    );
-    expect(glossaryHtml).toContain("Learned positional embeddings");
-    expect(glossaryHtml).toContain(
-      'href="/docs/glossary/learned-positional-embeddings"',
-    );
-    expect(glossaryHtml).toContain("LongRoPE");
-    expect(glossaryHtml).toContain('href="/docs/glossary/longrope"');
-    expect(glossaryHtml).toContain("Relative position bias");
-    expect(glossaryHtml).toContain(
-      'href="/docs/glossary/relative-position-bias"',
-    );
-    expect(glossaryHtml).toContain("NoPE");
-    expect(glossaryHtml).toContain('href="/docs/glossary/nope"');
-    expect(glossaryHtml).toContain("NTK-aware RoPE scaling");
-    expect(glossaryHtml).toContain(
-      'href="/docs/glossary/ntk-aware-rope-scaling"',
-    );
-    expect(glossaryHtml).toContain("Positional interpolation");
-    expect(glossaryHtml).toContain(
-      'href="/docs/glossary/positional-interpolation"',
-    );
-    expect(glossaryHtml).toContain("Sinusoidal positional embeddings");
-    expect(glossaryHtml).toContain(
-      'href="/docs/glossary/sinusoidal-positional-embeddings"',
-    );
-    expect(glossaryHtml).toContain("SuperHOT RoPE");
-    expect(glossaryHtml).toContain('href="/docs/glossary/superhot-rope"');
-    expect(glossaryHtml).toContain("YaRN");
-    expect(glossaryHtml).toContain('href="/docs/glossary/yarn"');
-    expect(architectureHtml).toContain("Activation");
-    expect(architectureHtml).toContain('href="/docs/glossary/activation"');
-    expect(architectureHtml).toContain("Computational Graph");
-    expect(architectureHtml).toContain(
-      'href="/docs/glossary/computational-graph"',
-    );
-    expect(architectureHtml).toContain("Absolute positional embeddings");
-    expect(architectureHtml).toContain(
-      'href="/docs/glossary/absolute-positional-embeddings"',
-    );
-    expect(architectureHtml).toContain("Learned positional embeddings");
-    expect(architectureHtml).toContain(
-      'href="/docs/glossary/learned-positional-embeddings"',
-    );
-    expect(architectureHtml).toContain("LongRoPE");
-    expect(architectureHtml).toContain('href="/docs/glossary/longrope"');
-    expect(architectureHtml).toContain("Relative position bias");
-    expect(architectureHtml).toContain(
-      'href="/docs/glossary/relative-position-bias"',
-    );
-    expect(architectureHtml).toContain("NoPE");
-    expect(architectureHtml).toContain('href="/docs/glossary/nope"');
-    expect(architectureHtml).toContain("NTK-aware RoPE scaling");
-    expect(architectureHtml).toContain(
-      'href="/docs/glossary/ntk-aware-rope-scaling"',
-    );
-    expect(architectureHtml).toContain("Positional interpolation");
-    expect(architectureHtml).toContain(
-      'href="/docs/glossary/positional-interpolation"',
-    );
-    expect(architectureHtml).toContain("Sinusoidal positional embeddings");
-    expect(architectureHtml).toContain(
-      'href="/docs/glossary/sinusoidal-positional-embeddings"',
-    );
-    expect(architectureHtml).toContain("SuperHOT RoPE");
-    expect(architectureHtml).toContain('href="/docs/glossary/superhot-rope"');
-    expect(architectureHtml).toContain("YaRN");
-    expect(architectureHtml).toContain('href="/docs/glossary/yarn"');
-    expect(architectureHtml).not.toContain('href="/docs/glossary/parameter"');
-    expect(architectureHtml).toContain("Embedding");
-    expect(architectureHtml).toContain('href="/docs/glossary/embedding"');
-    expect(architectureHtml).not.toContain('href="/docs/glossary/tensor"');
+    for (const [title, href] of [
+      ["Architecture", "/docs/glossary/architecture"],
+      ["Foundation Model", "/docs/glossary/foundation-model"],
+      ["KV cache", "/docs/glossary/kv-cache"],
+      ["Decode", "/docs/glossary/decode"],
+      ["Prefill", "/docs/glossary/prefill"],
+      [
+        "Absolute positional embeddings",
+        "/docs/glossary/absolute-positional-embeddings",
+      ],
+      ["Relative position bias", "/docs/glossary/relative-position-bias"],
+      ["Token", "/docs/glossary/token"],
+    ] as const) {
+      expect(architectureHtml).toContain(title);
+      expect(architectureHtml).toContain(`href="${href}"`);
+    }
   });
 });

@@ -6,16 +6,17 @@ import {
   resolveLocale,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
-import { buildSearchDocuments } from "./build-documents";
+import { buildSearchDocumentsForLocale } from "./build-documents";
 import { collapseSearchResultsToPageHits } from "./collapse-search-results-to-page-hits";
 import { rerankSearchResults } from "./rerank-search-results";
 import { toAdvancedSearchIndexes } from "./to-advanced-index";
+import type { SearchDocument } from "./types";
 
 const SEARCH_LANGUAGE = "english";
 
 type SearchCatalog = {
   searchServer: ReturnType<typeof initAdvancedSearch>;
-  documentsByUrl: Map<string, ReturnType<typeof buildSearchDocuments>[number]>;
+  documentsByUrl: Map<string, SearchDocument>;
 };
 
 const searchCatalogs = new Map<SiteLocale, Promise<SearchCatalog>>();
@@ -23,7 +24,7 @@ const searchCatalogs = new Map<SiteLocale, Promise<SearchCatalog>>();
 async function loadSearchCatalog(locale: SiteLocale): Promise<SearchCatalog> {
   const indexes = await loadRegistry();
   const pages = await loadShippedLocalizedDocsPages(locale);
-  const documents = buildSearchDocuments(pages, indexes);
+  const documents = buildSearchDocumentsForLocale(locale, indexes, pages);
 
   return {
     searchServer: initAdvancedSearch({

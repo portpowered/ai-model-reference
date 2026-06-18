@@ -7,11 +7,30 @@ import {
 } from "@/lib/search/collapse-search-results-from-meta";
 import { rerankSearchResults } from "@/lib/search/rerank-search-results";
 
+const DEFAULT_STATIC_SEARCH_OPTIONS = {
+  limit: 120,
+  groupBy: {
+    maxResult: 16,
+  },
+} as const;
+
 export function modelAtlasOramaSearchClient(
   options: StaticOptions,
   metaByUrl: Record<string, SearchResultMetaForCollapse>,
 ) {
-  const base = oramaStaticClient(options);
+  const mergedSearchOptions = {
+    ...DEFAULT_STATIC_SEARCH_OPTIONS,
+    ...options.search,
+    groupBy: {
+      ...DEFAULT_STATIC_SEARCH_OPTIONS.groupBy,
+      ...(options.search?.groupBy ?? {}),
+    } as NonNullable<NonNullable<StaticOptions["search"]>["groupBy"]>,
+  } as NonNullable<StaticOptions["search"]>;
+
+  const base = oramaStaticClient({
+    ...options,
+    search: mergedSearchOptions,
+  });
   const documentsByUrl = documentsByUrlFromMeta(metaByUrl);
 
   return {

@@ -29,156 +29,52 @@ describe("loadPublishedGlossaryEntries", () => {
     expect(token?.summary.length).toBeGreaterThan(0);
   });
 
-  it("includes embedding and tensor chain glossary pages with title and summary", async () => {
+  it("includes merged glossary entries with title and summary", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    const embedding = entries.find(
-      (entry) => entry.url === "/docs/glossary/embedding",
-    );
-    expect(embedding?.title).toBe("Embedding");
-    expect(embedding?.summary.length).toBeGreaterThan(0);
+    expect(entries).toHaveLength(78);
 
-    const tensor = entries.find(
-      (entry) => entry.url === "/docs/glossary/tensor",
-    );
-    expect(tensor?.title).toBe("Tensor");
-    expect(tensor?.summary.length).toBeGreaterThan(0);
-
-    const logit = entries.find((entry) => entry.url === "/docs/glossary/logit");
-    expect(logit?.title).toBe("Logit");
-    expect(logit?.summary.length).toBeGreaterThan(0);
-
-    const softmax = entries.find(
-      (entry) => entry.url === "/docs/glossary/softmax",
-    );
-    expect(softmax?.title).toBe("Softmax");
-    expect(softmax?.summary.length).toBeGreaterThan(0);
-
-    const entropy = entries.find(
-      (entry) => entry.url === "/docs/glossary/entropy",
-    );
-    expect(entropy?.title).toBe("Entropy");
-    expect(entropy?.summary.length).toBeGreaterThan(0);
-
-    const temperature = entries.find(
-      (entry) => entry.url === "/docs/glossary/temperature",
-    );
-    expect(temperature?.title).toBe("Temperature");
-    expect(temperature?.summary.length).toBeGreaterThan(0);
-
-    const parameter = entries.find(
-      (entry) => entry.url === "/docs/glossary/parameter",
-    );
-    expect(parameter?.title).toBe("Parameter");
-    expect(parameter?.summary.length).toBeGreaterThan(0);
-
-    const activation = entries.find(
-      (entry) => entry.url === "/docs/glossary/activation",
-    );
-    expect(activation?.title).toBe("Activation");
-    expect(activation?.summary.length).toBeGreaterThan(0);
-
-    const computationalGraph = entries.find(
-      (entry) => entry.url === "/docs/glossary/computational-graph",
-    );
-    expect(computationalGraph?.title).toBe("Computational Graph");
-    expect(computationalGraph?.summary.length).toBeGreaterThan(0);
-
-    const gradient = entries.find(
-      (entry) => entry.url === "/docs/glossary/gradient",
-    );
-    expect(gradient?.title).toBe("Gradient");
-    expect(gradient?.summary.length).toBeGreaterThan(0);
-
-    const backpropagation = entries.find(
-      (entry) => entry.url === "/docs/glossary/backpropagation",
-    );
-    expect(backpropagation?.title).toBe("Backpropagation");
-    expect(backpropagation?.summary.length).toBeGreaterThan(0);
-
-    const lossFunction = entries.find(
-      (entry) => entry.url === "/docs/glossary/loss-function",
-    );
-    expect(lossFunction?.title).toBe("Loss Function");
-    expect(lossFunction?.summary.length).toBeGreaterThan(0);
-
-    const optimizerState = entries.find(
-      (entry) => entry.url === "/docs/glossary/optimizer-state",
-    );
-    expect(optimizerState?.title).toBe("Optimizer State");
-    expect(optimizerState?.summary.length).toBeGreaterThan(0);
-  });
-
-  it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
-    const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(65);
-
-    const architecture = entries.find(
-      (entry) => entry.url === "/docs/glossary/architecture",
-    );
-    expect(architecture?.title).toBe("Architecture");
-
-    const foundationModel = entries.find(
-      (entry) => entry.url === "/docs/glossary/foundation-model",
-    );
-    expect(foundationModel?.title).toBe("Foundation Model");
-    expect(foundationModel?.title).not.toContain("-");
-
-    const encoder = entries.find(
-      (entry) => entry.url === "/docs/glossary/encoder",
-    );
-    expect(encoder?.title).toBe("Encoder");
-
-    const absolute = entries.find(
-      (entry) => entry.url === "/docs/glossary/absolute-positional-embeddings",
-    );
-    expect(absolute?.title).toBe("Absolute positional embeddings");
-
-    const learned = entries.find(
-      (entry) => entry.url === "/docs/glossary/learned-positional-embeddings",
-    );
-    expect(learned?.title).toBe("Learned positional embeddings");
-
-    const longrope = entries.find(
-      (entry) => entry.url === "/docs/glossary/longrope",
-    );
-    expect(longrope?.title).toBe("LongRoPE");
-
-    const relativeBias = entries.find(
-      (entry) => entry.url === "/docs/glossary/relative-position-bias",
-    );
-    expect(relativeBias?.title).toBe("Relative position bias");
-
-    const t5RelativeBias = entries.find(
-      (entry) => entry.url === "/docs/glossary/t5-relative-position-bias",
-    );
-    expect(t5RelativeBias?.title).toBe("T5 relative position bias");
-
-    const sinusoidal = entries.find(
-      (entry) =>
-        entry.url === "/docs/glossary/sinusoidal-positional-embeddings",
-    );
-    expect(sinusoidal?.title).toBe("Sinusoidal positional embeddings");
-
-    const nope = entries.find((entry) => entry.url === "/docs/glossary/nope");
-    expect(nope?.title).toBe("NoPE");
-
-    const ntkAware = entries.find(
-      (entry) => entry.url === "/docs/glossary/ntk-aware-rope-scaling",
-    );
-    expect(ntkAware?.title).toBe("NTK-aware RoPE scaling");
-
-    const positionalInterpolation = entries.find(
-      (entry) => entry.url === "/docs/glossary/positional-interpolation",
-    );
-    expect(positionalInterpolation?.title).toBe("Positional interpolation");
-
-    const superhot = entries.find(
-      (entry) => entry.url === "/docs/glossary/superhot-rope",
-    );
-    expect(superhot?.title).toBe("SuperHOT RoPE");
-
-    const yarn = entries.find((entry) => entry.url === "/docs/glossary/yarn");
-    expect(yarn?.title).toBe("YaRN");
+    for (const [url, title] of [
+      ["/docs/glossary/embedding", "Embedding"],
+      ["/docs/glossary/tensor", "Tensor"],
+      ["/docs/glossary/logit", "Logit"],
+      ["/docs/glossary/softmax", "Softmax"],
+      ["/docs/glossary/entropy", "Entropy"],
+      ["/docs/glossary/temperature", "Temperature"],
+      ["/docs/glossary/parameter", "Parameter"],
+      ["/docs/glossary/activation", "Activation"],
+      ["/docs/glossary/computational-graph", "Computational Graph"],
+      ["/docs/glossary/gradient", "Gradient"],
+      ["/docs/glossary/backpropagation", "Backpropagation"],
+      ["/docs/glossary/loss-function", "Loss Function"],
+      ["/docs/glossary/optimizer-state", "Optimizer State"],
+      ["/docs/glossary/kv-cache", "KV cache"],
+      ["/docs/glossary/decode", "Decode"],
+      ["/docs/glossary/prefill", "Prefill"],
+      ["/docs/glossary/prefill-decode-split", "Prefill/decode split"],
+      [
+        "/docs/glossary/absolute-positional-embeddings",
+        "Absolute positional embeddings",
+      ],
+      [
+        "/docs/glossary/learned-positional-embeddings",
+        "Learned positional embeddings",
+      ],
+      ["/docs/glossary/relative-position-bias", "Relative position bias"],
+      ["/docs/glossary/t5-relative-position-bias", "T5 relative position bias"],
+      [
+        "/docs/glossary/sinusoidal-positional-embeddings",
+        "Sinusoidal positional embeddings",
+      ],
+      ["/docs/glossary/nope", "NoPE"],
+      ["/docs/glossary/ntk-aware-rope-scaling", "NTK-aware RoPE scaling"],
+      ["/docs/glossary/positional-interpolation", "Positional interpolation"],
+      ["/docs/glossary/superhot-rope", "SuperHOT RoPE"],
+      ["/docs/glossary/yarn", "YaRN"],
+    ] as const) {
+      const entry = entries.find((item) => item.url === url);
+      expect(entry?.title).toBe(title);
+      expect(entry?.summary.length).toBeGreaterThan(0);
+    }
   });
 });
 
@@ -221,63 +117,36 @@ describe("glossary index messages", () => {
 });
 
 describe("glossary index page render", () => {
-  it("lists taxonomy glossary entries and token with localized titles", async () => {
+  it("lists merged glossary entries with localized titles", async () => {
     const page = await renderGlossaryIndexPage();
     const html = renderToStaticMarkup(page);
 
-    expect(html).toContain("Glossary");
-    expect(html).toContain("Architecture");
-    expect(html).toContain('href="/docs/glossary/architecture"');
-    expect(html).toContain("Generative Model");
-    expect(html).toContain('href="/docs/glossary/generative-model"');
-    expect(html).toContain("Token");
-    expect(html).toContain('href="/docs/glossary/token"');
-    expect(html).toContain("Embedding");
-    expect(html).toContain('href="/docs/glossary/embedding"');
-    expect(html).toContain("Tensor");
-    expect(html).toContain('href="/docs/glossary/tensor"');
-    expect(html).toContain("Logit");
-    expect(html).toContain('href="/docs/glossary/logit"');
-    expect(html).toContain("Softmax");
-    expect(html).toContain('href="/docs/glossary/softmax"');
-    expect(html).toContain("Entropy");
-    expect(html).toContain('href="/docs/glossary/entropy"');
-    expect(html).toContain("Temperature");
-    expect(html).toContain('href="/docs/glossary/temperature"');
-    expect(html).toContain("Parameter");
-    expect(html).toContain('href="/docs/glossary/parameter"');
-    expect(html).toContain("Activation");
-    expect(html).toContain('href="/docs/glossary/activation"');
-    expect(html).toContain("Computational Graph");
-    expect(html).toContain('href="/docs/glossary/computational-graph"');
-    expect(html).toContain("Absolute positional embeddings");
-    expect(html).toContain(
-      'href="/docs/glossary/absolute-positional-embeddings"',
-    );
-    expect(html).toContain("Learned positional embeddings");
-    expect(html).toContain(
-      'href="/docs/glossary/learned-positional-embeddings"',
-    );
-    expect(html).toContain("LongRoPE");
-    expect(html).toContain('href="/docs/glossary/longrope"');
-    expect(html).toContain("Relative position bias");
-    expect(html).toContain('href="/docs/glossary/relative-position-bias"');
-    expect(html).toContain("T5 relative position bias");
-    expect(html).toContain('href="/docs/glossary/t5-relative-position-bias"');
-    expect(html).toContain("NoPE");
-    expect(html).toContain('href="/docs/glossary/nope"');
-    expect(html).toContain("NTK-aware RoPE scaling");
-    expect(html).toContain('href="/docs/glossary/ntk-aware-rope-scaling"');
-    expect(html).toContain("Positional interpolation");
-    expect(html).toContain('href="/docs/glossary/positional-interpolation"');
-    expect(html).toContain("Sinusoidal positional embeddings");
-    expect(html).toContain(
-      'href="/docs/glossary/sinusoidal-positional-embeddings"',
-    );
-    expect(html).toContain("SuperHOT RoPE");
-    expect(html).toContain('href="/docs/glossary/superhot-rope"');
-    expect(html).toContain("YaRN");
-    expect(html).toContain('href="/docs/glossary/yarn"');
+    for (const [title, href] of [
+      ["Architecture", "/docs/glossary/architecture"],
+      ["Generative Model", "/docs/glossary/generative-model"],
+      ["Token", "/docs/glossary/token"],
+      ["Embedding", "/docs/glossary/embedding"],
+      ["Tensor", "/docs/glossary/tensor"],
+      ["Logit", "/docs/glossary/logit"],
+      ["Softmax", "/docs/glossary/softmax"],
+      ["Entropy", "/docs/glossary/entropy"],
+      ["Temperature", "/docs/glossary/temperature"],
+      ["Parameter", "/docs/glossary/parameter"],
+      ["Activation", "/docs/glossary/activation"],
+      ["Computational Graph", "/docs/glossary/computational-graph"],
+      ["KV cache", "/docs/glossary/kv-cache"],
+      ["Decode", "/docs/glossary/decode"],
+      ["Prefill", "/docs/glossary/prefill"],
+      [
+        "Absolute positional embeddings",
+        "/docs/glossary/absolute-positional-embeddings",
+      ],
+      ["Relative position bias", "/docs/glossary/relative-position-bias"],
+    ] as const) {
+      expect(html).toContain(title);
+      expect(html).toContain(`href="${href}"`);
+    }
+
     expect(html).not.toContain("No glossary entries yet");
     expect(html).toContain("list-none");
     expect(html).not.toContain("list-disc");

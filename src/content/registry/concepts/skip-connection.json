@@ -1,0 +1,22 @@
+{
+  "id": "concept.skip-connection",
+  "slug": "skip-connection",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["skip path", "shortcut connection", "residual shortcut"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.residual-connection",
+    "concept.normalization",
+    "concept.feed-forward-network",
+    "concept.transformer-architecture"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": [],
+  "explainsIds": []
+}

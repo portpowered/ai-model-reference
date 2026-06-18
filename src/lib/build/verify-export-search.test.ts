@@ -1,10 +1,19 @@
 import { describe, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { supportedLocales } from "@/lib/i18n/locale-routing";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "@/lib/verify/phase-1-search-checks";
 import { emitExportSearchIndex } from "./emit-export-search-index";
+import { resolveExportSearchBootstrapFilePath } from "./export-search-bootstrap";
 import { verifyPhase1ExportSearchFromOutDir } from "./verify-phase-1-export-search";
 
 describe("verifyPhase1ExportSearchFromOutDir", () => {
@@ -36,6 +45,27 @@ describe("verifyPhase1ExportSearchFromOutDir", () => {
       cwd: dir,
     });
     expect(verifyResult.ok).toBe(true);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("emits locale-specific bootstrap payloads for every supported locale", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "export-search-locales-"));
+    mkdirSync(join(dir, "out"), { recursive: true });
+    writeFileSync(join(dir, "out", "index.html"), "<html>ok</html>", "utf8");
+
+    const emitResult = await emitExportSearchIndex({ outDir: "out", cwd: dir });
+    expect(emitResult.ok).toBe(true);
+
+    for (const locale of supportedLocales) {
+      const filePath = resolveExportSearchBootstrapFilePath("out", dir, locale);
+      expect(existsSync(filePath)).toBe(true);
+
+      const payload = JSON.parse(readFileSync(filePath, "utf8")) as {
+        type: string;
+      };
+      expect(payload.type).toBe("advanced");
+    }
 
     rmSync(dir, { recursive: true, force: true });
   });

@@ -1,0 +1,21 @@
+{
+  "id": "concept.qk-norm",
+  "slug": "qk-norm",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["QK norm", "query-key normalization", "QK normalization"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.normalization",
+    "concept.layer-norm",
+    "concept.rmsnorm"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.normalization"],
+  "explainsIds": []
+}

@@ -1,0 +1,32 @@
+{
+  "title": "LeakyReLU",
+  "description": "A ReLU-style activation that keeps a small negative slope instead of zeroing every negative FFN value.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "LeakyReLU is a small change to ReLU. Positive hidden values pass through as usual, but negative values are multiplied by a small constant such as 0.01 instead of becoming zero. In a standard FFN after attention, that means a token can keep a weak negative signal rather than shutting the feature off completely."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "The main reason to use LeakyReLU is to avoid losing all gradient signal on the negative side. A dense FFN with plain ReLU can leave some hidden units inactive for long stretches if they keep landing below zero. LeakyReLU softens that cutoff, so papers sometimes use it when they want ReLU-like behavior with a less brittle negative branch."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "If the hidden values are [-2.0, 0.7, 3.4] and the leak factor is 0.01, LeakyReLU produces [-0.02, 0.7, 3.4]. The FFN still runs the same expand then activate then project recipe; only the activation rule changes."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "LeakyReLU is not a gated FFN like SwiGLU and it is not a sparse router like mixture of experts. It stays inside the same dense standard FFN block. It also does not make negative values equally important as positive ones; the negative side is still much smaller, just not forced to zero."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "openingSummary": "LeakyReLU keeps a small negative slope inside an FFN instead of clamping every negative hidden value to zero, so weak signals can still flow through the block."
+}

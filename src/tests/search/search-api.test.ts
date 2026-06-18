@@ -75,6 +75,16 @@ describe("live /api/search HTTP contract", () => {
     expect(payload.type).toBe("advanced");
   });
 
+  test("GET without query returns a locale-specific export for japanese", async () => {
+    const response = await GET(
+      new Request("http://localhost/api/search?locale=ja"),
+    );
+    expect(response.ok).toBe(true);
+
+    const payload = (await response.json()) as { type: string };
+    expect(payload.type).toBe("advanced");
+  });
+
   test("GET with a vietnamese locale query returns locale-scoped URLs", async () => {
     const response = await GET(
       new Request("http://localhost/api/search?query=GQA&locale=vi"),
@@ -117,6 +127,16 @@ describe("live /api/search HTTP contract", () => {
     expect(
       meta.get("/vi/docs/modules/linear-attention")?.description,
     ).toContain("gần tuyến tính");
+  });
+
+  test("GET with a japanese locale query stays empty when no japanese docs pages are shipped", async () => {
+    const response = await GET(
+      new Request("http://localhost/api/search?query=attention&locale=ja"),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    expect(results).toEqual([]);
   });
 
   test("GET returns grouped-query attention for GQA query", async () => {
@@ -280,6 +300,19 @@ describe("docsSearchApi", () => {
     const payload = (await response.json()) as { type: string };
     expect(payload.type).toBe("advanced");
   });
+
+  test("staticGET exports an advanced Orama index for japanese", async () => {
+    const response = await docsSearchApi.staticGET("ja");
+    expect(response.ok).toBe(true);
+
+    const payload = (await response.json()) as { type: string };
+    expect(payload.type).toBe("advanced");
+  });
+
+  test("search returns no japanese results when no japanese docs pages are shipped", async () => {
+    const results = await docsSearchApi.search("attention", { locale: "ja" });
+    expect(results).toEqual([]);
+  });
 });
 
 describe("docs search static client", () => {
@@ -299,14 +332,14 @@ describe("docs search static client", () => {
     expect(results[0]?.url).toBe(SAMPLE_URL);
   });
 
-  test("orama static client includes grouped-query attention for attention", async () => {
+  test("orama static client returns non-empty attention results before app-level reranking", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
     const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
     const results = await client.search("attention");
 
     expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeSampleModule(results)).toBe(true);
+    expect(resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL)).toBe(true);
   });
 
   test("orama static client includes grouped-query attention for KV cache", async () => {

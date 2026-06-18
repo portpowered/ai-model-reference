@@ -4,6 +4,8 @@ import type { SearchDocument } from "./types";
 
 export type SearchResultMetaForCollapse = {
   title: string;
+  kind: string;
+  tags: string[];
   aliases?: string[];
 };
 
@@ -16,14 +18,14 @@ export function documentsByUrlFromMeta(
       id: url,
       url,
       title: meta.title,
-      kind: "page",
+      kind: meta.kind,
       description: "",
       bodyText: "",
       headings: [],
       aliases: meta.aliases ?? [],
-      tags: [],
+      tags: meta.tags,
       relatedIds: [],
-      facets: { kind: "page", tags: [] },
+      facets: { kind: meta.kind, tags: meta.tags },
     });
   }
   return map;

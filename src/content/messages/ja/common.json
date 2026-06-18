@@ -1,0 +1,107 @@
+{
+  "search": {
+    "open": "検索を開く",
+    "placeholder": "Model Atlas を検索…",
+    "close": "検索を閉じる",
+    "idle": "クエリを入力して、モジュール、用語集、タグを検索します。",
+    "noResults": "結果が見つかりませんでした。",
+    "loading": "検索中…",
+    "error": "検索は一時的に利用できません。インデックスを読み込めませんでした。",
+    "retry": "再試行",
+    "shortcut": "検索",
+    "resultPath": "パス"
+  },
+  "nav": {
+    "home": "ホーム",
+    "search": "検索",
+    "menu": "メニューを開く",
+    "architecture": "アーキテクチャ",
+    "glossary": "用語集",
+    "tags": "タグ"
+  },
+  "searchEntry": {
+    "title": "検索",
+    "description": "タイトル、別名、タグで Model Atlas を検索します。検索コントロールを使ってモジュール、概念、用語集の項目へ移動できます。",
+    "canonicalNote": "正規の検索エントリ URL: /search。検索クエリの受け渡しでは ?q=<term> を、タグの受け渡しでは ?tag=<slug> を付けることがあります（例: /search?tag=attention）。",
+    "tagFilterDescription": "{tag} タグの付いたリソースの結果を表示しています。",
+    "emptySuggestionGqa": "GQA",
+    "emptySuggestionAttentionLinkLabel": "attention タグ一覧",
+    "emptySuggestionPrefix": "たとえば",
+    "emptySuggestionMiddle": "を検索するか、",
+    "emptySuggestionSuffix": "を参照してください。"
+  },
+  "shell": {
+    "sidebarTitle": "リファレンス",
+    "sidebarDescription": "モジュール、概念、タグを参照します。",
+    "onThisPage": "このページ内"
+  },
+  "home": {
+    "title": "Model Atlas",
+    "subtitle": "現代の AI モデルとモジュールのためのフィールドガイド",
+    "intro": "Model Atlas は、トランスフォーマー、注意機構の派生、学習手法、それらを支えるシステムを扱うドキュメント中心のリファレンスです。",
+    "browseSectionTitle": "参照",
+    "browseSectionDescription": "特定の検索語がないときは、索引からトピックを探せます。",
+    "architectureLinkTitle": "アーキテクチャ",
+    "architectureLinkDescription": "アーキテクチャ関連の概念、モデルファミリー、コンポーネントのパターンを一つの索引にまとめています。",
+    "glossaryLinkTitle": "用語集",
+    "glossaryLinkDescription": "機械学習の用語を短い要約と関連モジュールへのリンク付きで定義します。",
+    "tagsLinkTitle": "タグ",
+    "tagsLinkDescription": "attention や kv-cache のような統制タグと、各トピックのランディングページです。",
+    "tokenLinkTitle": "トークン（用語集）",
+    "tokenLinkDescription": "アーキテクチャや attention タグから参照される token 概念の用語集ページです。",
+    "docsLinkTitle": "Grouped-query attention",
+    "docsLinkDescription": "Grouped-query attention と、クエリヘッドがどのように KV キャッシュを共有するかを説明するモジュールページです。",
+    "onThisPageBrowse": "参照"
+  },
+  "glossaryIndex": {
+    "title": "用語集",
+    "description": "短い要約付きの機械学習用語です。公開済みの各項目は正規の用語集ページにリンクします。",
+    "listLabel": "用語集の項目",
+    "emptyTitle": "用語集の項目はまだありません",
+    "emptyDescription": "公開された用語集ページは、このリファレンスに追加されるとここに表示されます。それまではホームに戻るか検索を開いて、モジュールやタグを参照してください。",
+    "emptyHomeLink": "ホームに戻る"
+  },
+  "architectureIndex": {
+    "title": "アーキテクチャ",
+    "description": "アーキテクチャ関連の概念、モデルファミリー、コンポーネントのパターンです。各項目は公開済みなら正規のドキュメントページにリンクします。",
+    "listLabel": "アーキテクチャ項目",
+    "emptyTitle": "アーキテクチャ項目はまだありません",
+    "emptyDescription": "公開されたアーキテクチャ概念ページと、architecture コンテンツ群のページがここに表示されます。それまではホームに戻るか検索を開いて、モジュールやタグを参照してください。",
+    "emptyHomeLink": "ホームに戻る"
+  },
+  "tagsIndex": {
+    "title": "タグ",
+    "description": "モジュール、概念、モデル、用語集ページを横断して参照するための統制タグです。各タグは、そのタグが付いた公開リソースを一覧するランディングページにリンクします。",
+    "listLabel": "カテゴリ別タグ"
+  },
+  "tagLanding": {
+    "listLabel": "種類別リソース",
+    "searchHandoff": "このタグを検索",
+    "searchEntryLink": "検索ページを開く",
+    "emptyTitle": "このタグの公開リソースはまだありません",
+    "emptyDescription": "ドキュメントページやブログ記事にこのタグが付くと、種類ごとにここへ表示されます。ホームに戻るか、すべてのタグを参照するか、検索を開いて関連トピックを探してください。",
+    "emptyHomeLink": "ホームに戻る",
+    "emptyTagsLink": "すべてのタグを参照"
+  },
+  "tagCategories": {
+    "architecture": "アーキテクチャ",
+    "module-type": "モジュール種別",
+    "training": "学習",
+    "inference": "推論",
+    "systems": "システム",
+    "modality": "モダリティ",
+    "paper-topic": "論文トピック",
+    "model-family": "モデルファミリー",
+    "difficulty": "難易度"
+  },
+  "pageKind": {
+    "module": "モジュール",
+    "model": "モデル",
+    "concept": "概念",
+    "paper": "論文",
+    "glossary": "用語集",
+    "training": "学習",
+    "system": "システム",
+    "blog": "ブログ"
+  }
+}

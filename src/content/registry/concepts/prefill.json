@@ -1,0 +1,32 @@
+{
+  "id": "concept.prefill",
+  "slug": "prefill",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Prefill",
+    "prompt processing",
+    "prompt pass",
+    "initial prompt pass",
+    "time to first token stage"
+  ],
+  "tags": ["foundations", "attention", "kv-cache"],
+  "relatedIds": [
+    "concept.kv-cache",
+    "concept.decode",
+    "concept.prefill-decode-split",
+    "concept.autoregressive-generation",
+    "module.attention",
+    "module.multi-query-attention",
+    "module.grouped-query-attention",
+    "concept.transformer"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": ["concept.decoder", "module.attention"],
+  "explainsIds": []
+}
