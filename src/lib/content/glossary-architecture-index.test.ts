@@ -24,6 +24,21 @@ const TAXONOMY_GLOSSARY_SLUGS = [
   "latent-space",
 ] as const;
 
+const FFN_ACTIVATION_GLOSSARY_SLUGS = [
+  "feed-forward-network",
+  "batch-norm",
+  "group-norm",
+  "standard-ffn",
+  "mixture-of-experts",
+  "relu",
+  "leaky-relu",
+  "silu",
+  "swiglu",
+  "qk-norm",
+  "residual-connection",
+  "skip-connection",
+] as const;
+
 const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   model: "Model",
   architecture: "Architecture",
@@ -37,6 +52,18 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   patch: "Patch",
   latent: "Latent",
   "latent-space": "Latent Space",
+  "feed-forward-network": "Feed-forward network",
+  "batch-norm": "Batch norm",
+  "group-norm": "Group norm",
+  "standard-ffn": "Standard FFN",
+  "mixture-of-experts": "Mixture of experts",
+  relu: "ReLU",
+  "leaky-relu": "LeakyReLU",
+  silu: "SiLU",
+  swiglu: "SwiGLU",
+  "qk-norm": "QK norm",
+  "residual-connection": "Residual connection",
+  "skip-connection": "Skip connection",
   token: "Token",
   embedding: "Embedding",
   tensor: "Tensor",
@@ -45,18 +72,21 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   softmax: "Softmax",
   entropy: "Entropy",
   temperature: "Temperature",
+  "sampling-overview": "Sampling Overview",
+  "greedy-decoding": "Greedy Decoding",
+  "top-k-sampling": "Top-K Sampling",
+  "top-p-sampling": "Top-P Sampling",
   parameter: "Parameter",
   activation: "Activation",
-  relu: "ReLU",
-  "leaky-relu": "LeakyReLU",
-  silu: "SiLU",
   "computational-graph": "Computational Graph",
   gradient: "Gradient",
   backpropagation: "Backpropagation",
   "loss-function": "Loss Function",
   "optimizer-state": "Optimizer State",
-  "standard-ffn": "Standard FFN",
-  swiglu: "SwiGLU",
+  "kv-cache": "KV cache",
+  decode: "Decode",
+  prefill: "Prefill",
+  "prefill-decode-split": "Prefill/decode split",
 };
 
 const CHAIN_GLOSSARY_SLUGS = [
@@ -67,19 +97,20 @@ const CHAIN_GLOSSARY_SLUGS = [
   "softmax",
   "entropy",
   "temperature",
+  "sampling-overview",
+  "greedy-decoding",
+  "top-k-sampling",
+  "top-p-sampling",
   "parameter",
   "activation",
-  "relu",
-  "leaky-relu",
-  "silu",
   "computational-graph",
   "gradient",
   "backpropagation",
   "loss-function",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 52;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 71;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 60;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
@@ -103,7 +134,7 @@ function collectPageUrls(nodes: Node[]): string[] {
 }
 
 describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
-  test("glossary meta.json lists token and all nine taxonomy pages", async () => {
+  test("glossary meta.json lists token, prefill, and all taxonomy pages", async () => {
     const metaPath = join(process.cwd(), "src/content/docs/glossary/meta.json");
     const meta = JSON.parse(await readFile(metaPath, "utf8")) as {
       pages: string[];
@@ -118,9 +149,16 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     );
     for (const slug of [
       ...TAXONOMY_GLOSSARY_SLUGS,
+      ...FFN_ACTIVATION_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
-      "standard-ffn",
-      "swiglu",
+      "kv-cache",
+      "decode",
+      "prefill",
+      "prefill-decode-split",
+      "sampling-overview",
+      "greedy-decoding",
+      "top-k-sampling",
+      "top-p-sampling",
       "token",
     ] as const) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
@@ -145,9 +183,16 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     const glossaryUrls = collectPageUrls(glossaryFolder.children);
     for (const slug of [
       ...TAXONOMY_GLOSSARY_SLUGS,
+      ...FFN_ACTIVATION_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
-      "standard-ffn",
-      "swiglu",
+      "kv-cache",
+      "decode",
+      "prefill",
+      "prefill-decode-split",
+      "sampling-overview",
+      "greedy-decoding",
+      "top-k-sampling",
+      "top-p-sampling",
       "token",
     ] as const) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
@@ -172,13 +217,30 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     const token = entries.find((item) => item.url === "/docs/glossary/token");
     expect(token?.title).toBe("Token");
 
-    const standardFfn = entries.find(
-      (item) => item.url === "/docs/glossary/standard-ffn",
+    const kvCache = entries.find(
+      (item) => item.url === "/docs/glossary/kv-cache",
     );
-    expect(standardFfn?.title).toBe("Standard FFN");
+    expect(kvCache?.title).toBe("KV cache");
 
-    const swiglu = entries.find((item) => item.url === "/docs/glossary/swiglu");
-    expect(swiglu?.title).toBe("SwiGLU");
+    const decode = entries.find((item) => item.url === "/docs/glossary/decode");
+    expect(decode?.title).toBe("Decode");
+
+    const prefill = entries.find(
+      (item) => item.url === "/docs/glossary/prefill",
+    );
+    expect(prefill?.title).toBe("Prefill");
+
+    const prefillDecodeSplit = entries.find(
+      (item) => item.url === "/docs/glossary/prefill-decode-split",
+    );
+    expect(prefillDecodeSplit?.title).toBe("Prefill/decode split");
+
+    for (const slug of FFN_ACTIVATION_GLOSSARY_SLUGS) {
+      const entry = entries.find(
+        (item) => item.url === `/docs/glossary/${slug}`,
+      );
+      expect(entry?.title).toBe(EXPECTED_GLOSSARY_TITLES[slug]);
+    }
 
     for (const slug of CHAIN_GLOSSARY_SLUGS) {
       const entry = entries.find(
@@ -204,18 +266,35 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       expect(entry?.title).toBe(EXPECTED_GLOSSARY_TITLES[slug]);
     }
 
-    const standardFfn = entries.find(
-      (entry) => entry.url === "/docs/glossary/standard-ffn",
-    );
-    expect(standardFfn?.title).toBe("Standard FFN");
-
-    const swiglu = entries.find(
-      (entry) => entry.url === "/docs/glossary/swiglu",
-    );
-    expect(swiglu?.title).toBe("SwiGLU");
+    for (const slug of FFN_ACTIVATION_GLOSSARY_SLUGS) {
+      const entry = entries.find(
+        (item) => item.url === `/docs/glossary/${slug}`,
+      );
+      expect(entry?.title).toBe(EXPECTED_GLOSSARY_TITLES[slug]);
+    }
 
     const token = entries.find((entry) => entry.url === "/docs/glossary/token");
     expect(token?.title).toBe("Token");
+
+    const kvCache = entries.find(
+      (entry) => entry.url === "/docs/glossary/kv-cache",
+    );
+    expect(kvCache?.title).toBe("KV cache");
+
+    const decode = entries.find(
+      (entry) => entry.url === "/docs/glossary/decode",
+    );
+    expect(decode?.title).toBe("Decode");
+
+    const prefill = entries.find(
+      (entry) => entry.url === "/docs/glossary/prefill",
+    );
+    expect(prefill?.title).toBe("Prefill");
+
+    const prefillDecodeSplit = entries.find(
+      (entry) => entry.url === "/docs/glossary/prefill-decode-split",
+    );
+    expect(prefillDecodeSplit?.title).toBe("Prefill/decode split");
 
     const embedding = entries.find(
       (entry) => entry.url === "/docs/glossary/embedding",
@@ -258,29 +337,33 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(glossaryHtml).toContain('href="/docs/glossary/parameter"');
     expect(glossaryHtml).toContain("Activation");
     expect(glossaryHtml).toContain('href="/docs/glossary/activation"');
-    expect(glossaryHtml).toContain("ReLU");
-    expect(glossaryHtml).toContain('href="/docs/glossary/relu"');
-    expect(glossaryHtml).toContain("LeakyReLU");
-    expect(glossaryHtml).toContain('href="/docs/glossary/leaky-relu"');
-    expect(glossaryHtml).toContain("SiLU");
-    expect(glossaryHtml).toContain('href="/docs/glossary/silu"');
-    expect(glossaryHtml).toContain("SwiGLU");
-    expect(glossaryHtml).toContain('href="/docs/glossary/swiglu"');
     expect(glossaryHtml).toContain("Computational Graph");
     expect(glossaryHtml).toContain('href="/docs/glossary/computational-graph"');
+    expect(glossaryHtml).toContain("KV cache");
+    expect(glossaryHtml).toContain('href="/docs/glossary/kv-cache"');
+    expect(glossaryHtml).toContain("Decode");
+    expect(glossaryHtml).toContain('href="/docs/glossary/decode"');
+    expect(glossaryHtml).toContain("Prefill");
+    expect(glossaryHtml).toContain('href="/docs/glossary/prefill"');
+    expect(glossaryHtml).toContain("Prefill/decode split");
+    expect(glossaryHtml).toContain(
+      'href="/docs/glossary/prefill-decode-split"',
+    );
     expect(architectureHtml).toContain("Activation");
     expect(architectureHtml).toContain('href="/docs/glossary/activation"');
-    expect(architectureHtml).toContain("ReLU");
-    expect(architectureHtml).toContain('href="/docs/glossary/relu"');
-    expect(architectureHtml).toContain("LeakyReLU");
-    expect(architectureHtml).toContain('href="/docs/glossary/leaky-relu"');
-    expect(architectureHtml).toContain("SiLU");
-    expect(architectureHtml).toContain('href="/docs/glossary/silu"');
-    expect(architectureHtml).toContain("SwiGLU");
-    expect(architectureHtml).toContain('href="/docs/glossary/swiglu"');
     expect(architectureHtml).toContain("Computational Graph");
     expect(architectureHtml).toContain(
       'href="/docs/glossary/computational-graph"',
+    );
+    expect(architectureHtml).toContain("KV cache");
+    expect(architectureHtml).toContain('href="/docs/glossary/kv-cache"');
+    expect(architectureHtml).toContain("Decode");
+    expect(architectureHtml).toContain('href="/docs/glossary/decode"');
+    expect(architectureHtml).toContain("Prefill");
+    expect(architectureHtml).toContain('href="/docs/glossary/prefill"');
+    expect(architectureHtml).toContain("Prefill/decode split");
+    expect(architectureHtml).toContain(
+      'href="/docs/glossary/prefill-decode-split"',
     );
     expect(architectureHtml).not.toContain('href="/docs/glossary/parameter"');
     expect(architectureHtml).toContain("Embedding");

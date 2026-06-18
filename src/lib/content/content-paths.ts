@@ -209,21 +209,6 @@ export const LAYER_NORM_GLOSSARY_PAGE_DIR = join(
   "layer-norm",
 );
 
-/** Phase 3 ReLU glossary page directory. */
-export const RELU_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "relu");
-
-/** Phase 3 LeakyReLU glossary page directory. */
-export const LEAKY_RELU_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
-  "leaky-relu",
-);
-
-/** Phase 3 SiLU glossary page directory. */
-export const SILU_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "silu");
-
-/** Phase 3 SwiGLU glossary page directory. */
-export const SWIGLU_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "swiglu");
-
 /** Phase 3 RMSNorm glossary page directory. */
 export const RMSNORM_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "rmsnorm");
 

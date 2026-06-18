@@ -32,10 +32,12 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/alignment",
         "/docs/glossary/architecture",
         "/docs/glossary/autoregressive-generation",
+        "/docs/glossary/batch-norm",
         "/docs/glossary/component",
         "/docs/glossary/computational-graph",
         "/docs/glossary/conditioning",
         "/docs/glossary/context-window",
+        "/docs/glossary/decode",
         "/docs/glossary/decoder",
         "/docs/glossary/denoising-generation",
         "/docs/glossary/diffusion-model",
@@ -48,11 +50,12 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/foundation-model",
         "/docs/glossary/generalization",
         "/docs/glossary/generative-model",
+        "/docs/glossary/group-norm",
+        "/docs/glossary/kv-cache",
         "/docs/glossary/latent",
         "/docs/glossary/latent-space",
         "/docs/glossary/layer-norm",
         "/docs/glossary/leaky-relu",
-        "/docs/glossary/relu",
         "/docs/glossary/mixture-of-experts",
         "/docs/glossary/modality",
         "/docs/glossary/model",
@@ -63,8 +66,13 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/overfitting",
         "/docs/glossary/patch",
         "/docs/glossary/perplexity",
+        "/docs/glossary/prefill",
+        "/docs/glossary/prefill-decode-split",
+        "/docs/glossary/qk-norm",
+        "/docs/glossary/relu",
         "/docs/glossary/representation",
         "/docs/glossary/residual-connection",
+        "/docs/glossary/skip-connection",
         "/docs/glossary/rmsnorm",
         "/docs/glossary/rope",
         "/docs/glossary/scaling-law",
@@ -160,16 +168,14 @@ describe("architecture index page render", () => {
     expect(html).toContain('href="/docs/glossary/architecture"');
     expect(html).toContain("Foundation Model");
     expect(html).toContain('href="/docs/glossary/foundation-model"');
-    expect(html).toContain("Standard FFN");
-    expect(html).toContain('href="/docs/glossary/standard-ffn"');
-    expect(html).toContain("ReLU");
-    expect(html).toContain('href="/docs/glossary/relu"');
-    expect(html).toContain("LeakyReLU");
-    expect(html).toContain('href="/docs/glossary/leaky-relu"');
-    expect(html).toContain("SiLU");
-    expect(html).toContain('href="/docs/glossary/silu"');
-    expect(html).toContain("SwiGLU");
-    expect(html).toContain('href="/docs/glossary/swiglu"');
+    expect(html).toContain("KV cache");
+    expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html).toContain("Decode");
+    expect(html).toContain('href="/docs/glossary/decode"');
+    expect(html).toContain("Prefill");
+    expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain("Prefill/decode split");
+    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(html).toContain("Token");
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).not.toContain("No architecture entries yet");

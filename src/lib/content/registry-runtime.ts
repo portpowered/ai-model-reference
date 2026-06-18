@@ -1,18 +1,23 @@
 import activationConcept from "@/content/registry/concepts/activation.json";
+import activationQuantizationConcept from "@/content/registry/concepts/activation-quantization.json";
 import alibiConcept from "@/content/registry/concepts/alibi.json";
 import alignmentConcept from "@/content/registry/concepts/alignment.json";
 import architectureConcept from "@/content/registry/concepts/architecture.json";
 import autoregressiveGenerationConcept from "@/content/registry/concepts/autoregressive-generation.json";
 import backpropagationConcept from "@/content/registry/concepts/backpropagation.json";
+import batchNormConcept from "@/content/registry/concepts/batch-norm.json";
+import calibrationConcept from "@/content/registry/concepts/calibration.json";
 import componentConcept from "@/content/registry/concepts/component.json";
 import computationalGraphConcept from "@/content/registry/concepts/computational-graph.json";
 import conditioningConcept from "@/content/registry/concepts/conditioning.json";
 import contextExtensionConcept from "@/content/registry/concepts/context-extension.json";
 import contextWindowConcept from "@/content/registry/concepts/context-window.json";
+import decodeConcept from "@/content/registry/concepts/decode.json";
 import decoderConcept from "@/content/registry/concepts/decoder.json";
 import denoisingGenerationConcept from "@/content/registry/concepts/denoising-generation.json";
 import diffusionModelConcept from "@/content/registry/concepts/diffusion-model.json";
 import discriminativeModelConcept from "@/content/registry/concepts/discriminative-model.json";
+import dynamicQuantizationConcept from "@/content/registry/concepts/dynamic-quantization.json";
 import embeddingConcept from "@/content/registry/concepts/embedding.json";
 import emergentBehaviorConcept from "@/content/registry/concepts/emergent-behavior.json";
 import encoderConcept from "@/content/registry/concepts/encoder.json";
@@ -23,7 +28,11 @@ import foundationModelConcept from "@/content/registry/concepts/foundation-model
 import generalizationConcept from "@/content/registry/concepts/generalization.json";
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
 import gradientConcept from "@/content/registry/concepts/gradient.json";
+import greedyDecodingConcept from "@/content/registry/concepts/greedy-decoding.json";
+import groupNormConcept from "@/content/registry/concepts/group-norm.json";
 import hiddenSizeConcept from "@/content/registry/concepts/hidden-size.json";
+import kvCacheConcept from "@/content/registry/concepts/kv-cache.json";
+import kvCacheQuantizationConcept from "@/content/registry/concepts/kv-cache-quantization.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
 import layerNormConcept from "@/content/registry/concepts/layer-norm.json";
@@ -43,22 +52,34 @@ import parameterConcept from "@/content/registry/concepts/parameter.json";
 import patchConcept from "@/content/registry/concepts/patch.json";
 import perplexityConcept from "@/content/registry/concepts/perplexity.json";
 import positionalEncodingsConcept from "@/content/registry/concepts/positional-encodings.json";
+import postTrainingQuantizationConcept from "@/content/registry/concepts/post-training-quantization.json";
+import prefillConcept from "@/content/registry/concepts/prefill.json";
+import prefillDecodeSplitConcept from "@/content/registry/concepts/prefill-decode-split.json";
+import qkNormConcept from "@/content/registry/concepts/qk-norm.json";
+import quantizationConcept from "@/content/registry/concepts/quantization.json";
+import quantizationAwareTrainingConcept from "@/content/registry/concepts/quantization-aware-training.json";
 import reluConcept from "@/content/registry/concepts/relu.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
 import residualConnectionConcept from "@/content/registry/concepts/residual-connection.json";
 import rmsnormConcept from "@/content/registry/concepts/rmsnorm.json";
 import ropeConcept from "@/content/registry/concepts/rope.json";
+import samplingOverviewConcept from "@/content/registry/concepts/sampling-overview.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import siluConcept from "@/content/registry/concepts/silu.json";
+import skipConnectionConcept from "@/content/registry/concepts/skip-connection.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
 import standardFfnConcept from "@/content/registry/concepts/standard-ffn.json";
 import swigluConcept from "@/content/registry/concepts/swiglu.json";
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
+import topKSamplingConcept from "@/content/registry/concepts/top-k-sampling.json";
+import topPSamplingConcept from "@/content/registry/concepts/top-p-sampling.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
 import transformerArchitectureConcept from "@/content/registry/concepts/transformer-architecture.json";
 import vectorConcept from "@/content/registry/concepts/vector.json";
+import weightOnlyQuantizationConcept from "@/content/registry/concepts/weight-only-quantization.json";
+import whyFourBitModelsAreNotExactlyFourXFasterConcept from "@/content/registry/concepts/why-4-bit-models-are-not-exactly-4x-faster.json";
 import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-context-is-hard.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
 import attention from "@/content/registry/modules/attention.json";
@@ -98,12 +119,19 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(tensorConcept),
   conceptRecordSchema.parse(vectorConcept),
   conceptRecordSchema.parse(hiddenSizeConcept),
+  conceptRecordSchema.parse(kvCacheConcept),
+  conceptRecordSchema.parse(kvCacheQuantizationConcept),
   conceptRecordSchema.parse(logitConcept),
   conceptRecordSchema.parse(softmaxConcept),
   conceptRecordSchema.parse(entropyConcept),
   conceptRecordSchema.parse(temperatureConcept),
+  conceptRecordSchema.parse(samplingOverviewConcept),
+  conceptRecordSchema.parse(greedyDecodingConcept),
+  conceptRecordSchema.parse(topKSamplingConcept),
+  conceptRecordSchema.parse(topPSamplingConcept),
   conceptRecordSchema.parse(parameterConcept),
   conceptRecordSchema.parse(activationConcept),
+  conceptRecordSchema.parse(activationQuantizationConcept),
   conceptRecordSchema.parse(computationalGraphConcept),
   conceptRecordSchema.parse(gradientConcept),
   conceptRecordSchema.parse(backpropagationConcept),
@@ -117,41 +145,55 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(foundationModelConcept),
   conceptRecordSchema.parse(generativeModelConcept),
   conceptRecordSchema.parse(discriminativeModelConcept),
+  conceptRecordSchema.parse(dynamicQuantizationConcept),
   conceptRecordSchema.parse(representationConcept),
   conceptRecordSchema.parse(patchConcept),
   conceptRecordSchema.parse(latentConcept),
   conceptRecordSchema.parse(latentSpaceConcept),
   conceptRecordSchema.parse(encoderConcept),
+  conceptRecordSchema.parse(decodeConcept),
   conceptRecordSchema.parse(decoderConcept),
   conceptRecordSchema.parse(encoderDecoderConcept),
   conceptRecordSchema.parse(autoregressiveGenerationConcept),
+  conceptRecordSchema.parse(prefillConcept),
+  conceptRecordSchema.parse(prefillDecodeSplitConcept),
   conceptRecordSchema.parse(denoisingGenerationConcept),
   conceptRecordSchema.parse(conditioningConcept),
   conceptRecordSchema.parse(contextExtensionConcept),
   conceptRecordSchema.parse(contextWindowConcept),
   conceptRecordSchema.parse(alignmentConcept),
+  conceptRecordSchema.parse(batchNormConcept),
   conceptRecordSchema.parse(modelCapacityConcept),
   conceptRecordSchema.parse(overfittingConcept),
   conceptRecordSchema.parse(generalizationConcept),
+  conceptRecordSchema.parse(groupNormConcept),
   conceptRecordSchema.parse(perplexityConcept),
   conceptRecordSchema.parse(scalingLawConcept),
   conceptRecordSchema.parse(emergentBehaviorConcept),
   conceptRecordSchema.parse(feedForwardNetworkConcept),
   conceptRecordSchema.parse(standardFfnConcept),
+  conceptRecordSchema.parse(mixtureOfExpertsConcept),
   conceptRecordSchema.parse(reluConcept),
   conceptRecordSchema.parse(leakyReluConcept),
   conceptRecordSchema.parse(siluConcept),
   conceptRecordSchema.parse(swigluConcept),
-  conceptRecordSchema.parse(mixtureOfExpertsConcept),
   conceptRecordSchema.parse(layerNormConcept),
   conceptRecordSchema.parse(normalizationConcept),
+  conceptRecordSchema.parse(qkNormConcept),
   conceptRecordSchema.parse(rmsnormConcept),
   conceptRecordSchema.parse(alibiConcept),
+  conceptRecordSchema.parse(calibrationConcept),
   conceptRecordSchema.parse(positionalEncodingsConcept),
+  conceptRecordSchema.parse(postTrainingQuantizationConcept),
+  conceptRecordSchema.parse(quantizationConcept),
+  conceptRecordSchema.parse(quantizationAwareTrainingConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
+  conceptRecordSchema.parse(skipConnectionConcept),
   conceptRecordSchema.parse(ropeConcept),
   conceptRecordSchema.parse(transformerArchitectureConcept),
   conceptRecordSchema.parse(transformerConcept),
+  conceptRecordSchema.parse(weightOnlyQuantizationConcept),
+  conceptRecordSchema.parse(whyFourBitModelsAreNotExactlyFourXFasterConcept),
   conceptRecordSchema.parse(diffusionModelConcept),
   conceptRecordSchema.parse(multimodalModelConcept),
   conceptRecordSchema.parse(whyLongContextIsHardConcept),

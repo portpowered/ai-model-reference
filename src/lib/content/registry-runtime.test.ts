@@ -19,7 +19,9 @@ describe("registry-runtime", () => {
     expect(record?.relatedIds).toContain("module.multi-head-attention");
     expect(record?.relatedIds).toContain("module.multi-query-attention");
     expect(record?.relatedIds).toContain("module.grouped-query-attention");
+    expect(record?.relatedIds).toContain("concept.kv-cache");
     expect(record?.relatedIds).toContain("concept.token");
+    expect(record?.relatedIds).toContain("concept.prefill-decode-split");
   });
 
   test("getModuleById returns grouped-query attention", () => {
@@ -30,6 +32,10 @@ describe("registry-runtime", () => {
       "module.attention",
       "module.multi-head-attention",
       "module.multi-query-attention",
+      "concept.kv-cache",
+      "concept.decode",
+      "concept.quantization",
+      "concept.prefill-decode-split",
     ]);
   });
 
@@ -87,6 +93,10 @@ describe("registry-runtime", () => {
       "module.attention",
       "module.multi-head-attention",
       "module.grouped-query-attention",
+      "concept.kv-cache",
+      "concept.decode",
+      "concept.quantization",
+      "concept.prefill-decode-split",
     ]);
   });
 
@@ -116,7 +126,8 @@ describe("registry-runtime", () => {
     expect(ids).toContain("concept.token");
     expect(ids).toContain("concept.embedding");
     expect(ids).toContain("concept.softmax");
-    expect(ids).toContain("concept.standard-ffn");
+    expect(ids).toContain("concept.prefill");
+    expect(ids).toContain("concept.prefill-decode-split");
   });
 
   test("getConceptById returns published embedding and logit for chain", () => {
