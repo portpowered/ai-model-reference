@@ -30,6 +30,7 @@ import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
 import layerNormConcept from "@/content/registry/concepts/layer-norm.json";
 import learnedPositionalEmbeddingsConcept from "@/content/registry/concepts/learned-positional-embeddings.json";
 import logitConcept from "@/content/registry/concepts/logit.json";
+import longropeConcept from "@/content/registry/concepts/longrope.json";
 import lossFunctionConcept from "@/content/registry/concepts/loss-function.json";
 import mixtureOfExpertsConcept from "@/content/registry/concepts/mixture-of-experts.json";
 import modalityConcept from "@/content/registry/concepts/modality.json";
@@ -46,6 +47,7 @@ import parameterConcept from "@/content/registry/concepts/parameter.json";
 import patchConcept from "@/content/registry/concepts/patch.json";
 import perplexityConcept from "@/content/registry/concepts/perplexity.json";
 import positionalEncodingsConcept from "@/content/registry/concepts/positional-encodings.json";
+import positionalInterpolationConcept from "@/content/registry/concepts/positional-interpolation.json";
 import relativePositionBiasConcept from "@/content/registry/concepts/relative-position-bias.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
 import residualConnectionConcept from "@/content/registry/concepts/residual-connection.json";
@@ -142,6 +144,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(emergentBehaviorConcept),
   conceptRecordSchema.parse(absolutePositionalEmbeddingsConcept),
   conceptRecordSchema.parse(learnedPositionalEmbeddingsConcept),
+  conceptRecordSchema.parse(longropeConcept),
   conceptRecordSchema.parse(feedForwardNetworkConcept),
   conceptRecordSchema.parse(mixtureOfExpertsConcept),
   conceptRecordSchema.parse(layerNormConcept),
@@ -154,6 +157,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(nopeConcept),
   conceptRecordSchema.parse(ntkAwareRopeScalingConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
+  conceptRecordSchema.parse(positionalInterpolationConcept),
   conceptRecordSchema.parse(ropeConcept),
   conceptRecordSchema.parse(superhotRopeConcept),
   conceptRecordSchema.parse(sinusoidalPositionalEmbeddingsConcept),

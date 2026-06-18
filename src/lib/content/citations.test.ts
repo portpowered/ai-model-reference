@@ -63,9 +63,19 @@ describe("citations", () => {
     expect(citation?.url).toBe("https://arxiv.org/abs/2309.00071");
   });
 
-  test("listCitationRecords includes SuperHOT and positional interpolation citations", () => {
+  test("getCitationById returns LongRoPE paper with MLA text", () => {
+    const citation = getCitationById("citation.ding-longrope");
+    expect(citation?.title).toBe(
+      "LongRoPE: Extending LLM Context Window Beyond 2 Million Tokens",
+    );
+    expect(citation?.mla).toContain("Ding, Yiran, et al.");
+    expect(citation?.url).toBe("https://arxiv.org/abs/2402.13753");
+  });
+
+  test("listCitationRecords includes SuperHOT, positional interpolation, and LongRoPE citations", () => {
     const ids = listCitationRecords().map((record) => record.id);
     expect(ids).toContain("citation.kaiokendev-superhot");
     expect(ids).toContain("citation.chen-positional-interpolation");
+    expect(ids).toContain("citation.ding-longrope");
   });
 });

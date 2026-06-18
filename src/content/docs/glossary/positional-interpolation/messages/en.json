@@ -1,0 +1,32 @@
+{
+  "title": "Positional interpolation",
+  "description": "Positional interpolation extends a RoPE model by compressing new token positions back into the position range the model was originally trained to handle.",
+  "openingSummary": "Positional interpolation extends a RoPE-based model by remapping long prompts into the position range the model already knows, which makes long context more stable than pretending the model trained on those raw new indices.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Positional interpolation is a context-extension method for models that already use RoPE. Instead of letting token 32,000 keep the raw index 32,000 when a model was trained on much shorter sequences, it compresses or remaps positions into the trained range. The rotary math still runs, but it runs on gentler position values that look less foreign to the model."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "This matters because raw extrapolation asks RoPE to keep increasing angles far beyond the region the model saw during training. Positional interpolation takes a different route: preserve the basic architecture, squeeze the new positions into a safer range, and fine-tune or adapt from there. That made it one of the clearest long-context recipes for RoPE models and a base idea behind later extension work."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose a model trained on 4k tokens now needs 16k. Raw extrapolation would hand late tokens indices that are four times farther out than the trained window. Positional interpolation instead maps those 16k locations into something closer to the old 4k range, so attention still sees order and distance, but through a compressed position scale."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Positional interpolation does not remove RoPE and does not create a new attention module. It is one way to reuse RoPE more safely at longer lengths, so it should be compared with LongRoPE, NTK-aware scaling, or YaRN rather than with ALiBi or no-position baselines. It also compresses positions; it does not claim the model truly trained on the new raw token indices."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

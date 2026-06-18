@@ -1,0 +1,32 @@
+{
+  "id": "citation.ding-longrope",
+  "slug": "ding-longrope",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "LongRoPE paper",
+    "Ding LongRoPE",
+    "LongRoPE context extension paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Yiran Ding",
+    "Liangyue Zhang",
+    "Tianle Cai",
+    "Yuan Hong",
+    "Shangqing Tu",
+    "Jiahang Xu",
+    "Mao Yang"
+  ],
+  "title": "LongRoPE: Extending LLM Context Window Beyond 2 Million Tokens",
+  "year": 2024,
+  "url": "https://arxiv.org/abs/2402.13753",
+  "mla": "Ding, Yiran, et al. \"LongRoPE: Extending LLM Context Window Beyond 2 Million Tokens.\" arXiv, 2024, https://arxiv.org/abs/2402.13753."
+}

@@ -1,6 +1,7 @@
 import attentionIsAllYouNeed from "@/content/registry/citations/attention-is-all-you-need.json";
 import chenPositionalInterpolation from "@/content/registry/citations/chen-positional-interpolation.json";
 import deepseekV2MlaPaper from "@/content/registry/citations/deepseek-v2-mla-paper.json";
+import dingLongrope from "@/content/registry/citations/ding-longrope.json";
 import goodfellowDeepLearning from "@/content/registry/citations/goodfellow-deep-learning.json";
 import gqaPaper from "@/content/registry/citations/gqa-paper.json";
 import kaiokendevSuperhot from "@/content/registry/citations/kaiokendev-superhot.json";
@@ -22,6 +23,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(attentionIsAllYouNeed),
   citationRecordSchema.parse(chenPositionalInterpolation),
   citationRecordSchema.parse(deepseekV2MlaPaper),
+  citationRecordSchema.parse(dingLongrope),
   citationRecordSchema.parse(goodfellowDeepLearning),
   citationRecordSchema.parse(gqaPaper),
   citationRecordSchema.parse(kaiokendevSuperhot),

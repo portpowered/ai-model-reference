@@ -54,10 +54,12 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   "optimizer-state": "Optimizer State",
   "absolute-positional-embeddings": "Absolute positional embeddings",
   "learned-positional-embeddings": "Learned positional embeddings",
+  longrope: "LongRoPE",
   "ntk-aware-rope-scaling": "NTK-aware RoPE scaling",
   "relative-position-bias": "Relative position bias",
   "t5-relative-position-bias": "T5 relative position bias",
   nope: "NoPE",
+  "positional-interpolation": "Positional interpolation",
   "superhot-rope": "SuperHOT RoPE",
   "sinusoidal-positional-embeddings": "Sinusoidal positional embeddings",
   yarn: "YaRN",
@@ -82,16 +84,18 @@ const CHAIN_GLOSSARY_SLUGS = [
 const POSITIONAL_GLOSSARY_SLUGS = [
   "absolute-positional-embeddings",
   "learned-positional-embeddings",
+  "longrope",
   "ntk-aware-rope-scaling",
   "relative-position-bias",
   "t5-relative-position-bias",
   "nope",
+  "positional-interpolation",
   "superhot-rope",
   "sinusoidal-positional-embeddings",
   "yarn",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 63;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 56;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 65;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 58;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
@@ -267,6 +271,8 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(glossaryHtml).toContain(
       'href="/docs/glossary/learned-positional-embeddings"',
     );
+    expect(glossaryHtml).toContain("LongRoPE");
+    expect(glossaryHtml).toContain('href="/docs/glossary/longrope"');
     expect(glossaryHtml).toContain("Relative position bias");
     expect(glossaryHtml).toContain(
       'href="/docs/glossary/relative-position-bias"',
@@ -276,6 +282,10 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(glossaryHtml).toContain("NTK-aware RoPE scaling");
     expect(glossaryHtml).toContain(
       'href="/docs/glossary/ntk-aware-rope-scaling"',
+    );
+    expect(glossaryHtml).toContain("Positional interpolation");
+    expect(glossaryHtml).toContain(
+      'href="/docs/glossary/positional-interpolation"',
     );
     expect(glossaryHtml).toContain("Sinusoidal positional embeddings");
     expect(glossaryHtml).toContain(
@@ -299,6 +309,8 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(architectureHtml).toContain(
       'href="/docs/glossary/learned-positional-embeddings"',
     );
+    expect(architectureHtml).toContain("LongRoPE");
+    expect(architectureHtml).toContain('href="/docs/glossary/longrope"');
     expect(architectureHtml).toContain("Relative position bias");
     expect(architectureHtml).toContain(
       'href="/docs/glossary/relative-position-bias"',
@@ -308,6 +320,10 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(architectureHtml).toContain("NTK-aware RoPE scaling");
     expect(architectureHtml).toContain(
       'href="/docs/glossary/ntk-aware-rope-scaling"',
+    );
+    expect(architectureHtml).toContain("Positional interpolation");
+    expect(architectureHtml).toContain(
+      'href="/docs/glossary/positional-interpolation"',
     );
     expect(architectureHtml).toContain("Sinusoidal positional embeddings");
     expect(architectureHtml).toContain(

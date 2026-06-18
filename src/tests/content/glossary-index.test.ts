@@ -110,7 +110,7 @@ describe("loadPublishedGlossaryEntries", () => {
 
   it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(63);
+    expect(entries).toHaveLength(65);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -138,6 +138,11 @@ describe("loadPublishedGlossaryEntries", () => {
     );
     expect(learned?.title).toBe("Learned positional embeddings");
 
+    const longrope = entries.find(
+      (entry) => entry.url === "/docs/glossary/longrope",
+    );
+    expect(longrope?.title).toBe("LongRoPE");
+
     const relativeBias = entries.find(
       (entry) => entry.url === "/docs/glossary/relative-position-bias",
     );
@@ -161,6 +166,11 @@ describe("loadPublishedGlossaryEntries", () => {
       (entry) => entry.url === "/docs/glossary/ntk-aware-rope-scaling",
     );
     expect(ntkAware?.title).toBe("NTK-aware RoPE scaling");
+
+    const positionalInterpolation = entries.find(
+      (entry) => entry.url === "/docs/glossary/positional-interpolation",
+    );
+    expect(positionalInterpolation?.title).toBe("Positional interpolation");
 
     const superhot = entries.find(
       (entry) => entry.url === "/docs/glossary/superhot-rope",
@@ -248,6 +258,8 @@ describe("glossary index page render", () => {
     expect(html).toContain(
       'href="/docs/glossary/learned-positional-embeddings"',
     );
+    expect(html).toContain("LongRoPE");
+    expect(html).toContain('href="/docs/glossary/longrope"');
     expect(html).toContain("Relative position bias");
     expect(html).toContain('href="/docs/glossary/relative-position-bias"');
     expect(html).toContain("T5 relative position bias");
@@ -256,6 +268,8 @@ describe("glossary index page render", () => {
     expect(html).toContain('href="/docs/glossary/nope"');
     expect(html).toContain("NTK-aware RoPE scaling");
     expect(html).toContain('href="/docs/glossary/ntk-aware-rope-scaling"');
+    expect(html).toContain("Positional interpolation");
+    expect(html).toContain('href="/docs/glossary/positional-interpolation"');
     expect(html).toContain("Sinusoidal positional embeddings");
     expect(html).toContain(
       'href="/docs/glossary/sinusoidal-positional-embeddings"',

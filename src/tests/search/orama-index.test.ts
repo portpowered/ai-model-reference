@@ -36,9 +36,11 @@ const ABSOLUTE_POSITIONAL_EMBEDDINGS_URL =
   "/docs/glossary/absolute-positional-embeddings";
 const LEARNED_POSITIONAL_EMBEDDINGS_URL =
   "/docs/glossary/learned-positional-embeddings";
+const LONGROPE_URL = "/docs/glossary/longrope";
 const RELATIVE_POSITION_BIAS_URL = "/docs/glossary/relative-position-bias";
 const T5_RELATIVE_POSITION_BIAS_URL =
   "/docs/glossary/t5-relative-position-bias";
+const POSITIONAL_INTERPOLATION_URL = "/docs/glossary/positional-interpolation";
 const ROPE_URL = "/docs/glossary/rope";
 const ALIBI_URL = "/docs/glossary/alibi";
 const NOPE_URL = "/docs/glossary/nope";
@@ -133,8 +135,10 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   POSITIONAL_ENCODINGS_URL,
   ABSOLUTE_POSITIONAL_EMBEDDINGS_URL,
   LEARNED_POSITIONAL_EMBEDDINGS_URL,
+  LONGROPE_URL,
   RELATIVE_POSITION_BIAS_URL,
   T5_RELATIVE_POSITION_BIAS_URL,
+  POSITIONAL_INTERPOLATION_URL,
   ROPE_URL,
   ALIBI_URL,
   NOPE_URL,
@@ -243,6 +247,8 @@ describe("exportOramaIndexSnapshot", () => {
     { query: "multi-head attention", url: MULTI_HEAD_ATTENTION_URL },
     { query: "MQA", url: MULTI_QUERY_ATTENTION_URL },
     { query: "multi-query attention", url: MULTI_QUERY_ATTENTION_URL },
+    { query: "LongRoPE", url: LONGROPE_URL },
+    { query: "positional interpolation", url: POSITIONAL_INTERPOLATION_URL },
   ] as const)("Orama database records rank %s for the %s alias query", async ({
     query,
     url,

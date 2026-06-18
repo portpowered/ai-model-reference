@@ -82,6 +82,8 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.superhot-rope",
   "concept.ntk-aware-rope-scaling",
   "concept.yarn",
+  "concept.longrope",
+  "concept.positional-interpolation",
   "concept.context-window",
   "concept.context-extension",
   "concept.why-long-context-is-hard",
