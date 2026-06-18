@@ -14,6 +14,8 @@
     "concept.weight-only-quantization",
     "concept.activation-quantization",
     "concept.kv-cache-quantization",
+    "concept.post-training-quantization",
+    "concept.calibration",
     "concept.parameter",
     "concept.activation",
     "concept.autoregressive-generation",
@@ -33,6 +35,8 @@
   "explainsIds": [
     "concept.weight-only-quantization",
     "concept.activation-quantization",
-    "concept.kv-cache-quantization"
+    "concept.kv-cache-quantization",
+    "concept.post-training-quantization",
+    "concept.calibration"
   ]
 }

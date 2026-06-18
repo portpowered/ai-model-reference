@@ -1,0 +1,32 @@
+{
+  "title": "Calibration",
+  "description": "Running representative inputs through a model to estimate the ranges or scales a quantized deployment will need.",
+  "openingSummary": "Calibration runs representative inputs through a model before or during quantization so the system can choose realistic ranges and scales, because a low-bit deployment usually fails when those settings are learned from traffic that does not resemble the real job.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Calibration is a short measurement pass over representative inputs. The model is observed in a higher-precision mode so the quantization pipeline can estimate ranges, scales, zero-points, or clipping thresholds for later low-bit execution. The exact math differs by method, but the practical goal is simple: choose numeric boundaries that fit normal deployment traffic."
+    },
+    "whyDataQualityMatters": {
+      "title": "Why Data Quality Matters",
+      "body": "Calibration works only if the sample inputs resemble the prompts, sequence lengths, and activation patterns the model will actually see in production. A tiny sample can still be useful, but it has to cover the right kinds of requests. When the calibration set misses important outliers or long-context behavior, the chosen ranges can be too tight or too loose."
+    },
+    "whatCanGoWrong": {
+      "title": "What Can Go Wrong",
+      "body": "Bad calibration data can push quality down in several ways. Saturated activations lose detail because they no longer fit the chosen range; overly wide ranges waste the available low-bit precision; and workload shifts after deployment can expose layers that looked safe during calibration but were not truly representative. That is why calibration sensitivity often shows up first on activation-heavy quantization paths."
+    },
+    "compareWorkflows": {
+      "title": "Compared To Nearby Workflows",
+      "body": "Calibration is usually one step inside a post-training quantization workflow, not a separate model family. It matters most when quantized activations or other runtime tensors need realistic ranges. Weight-only methods can sometimes need less calibration pressure, while activation quantization often needs it much more."
+    },
+    "related": {
+      "title": "Related Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

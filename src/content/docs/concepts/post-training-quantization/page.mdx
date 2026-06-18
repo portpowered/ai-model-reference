@@ -1,0 +1,98 @@
+---
+title: Post-training quantization
+description: Converting an already trained model to lower precision after training so it can use less memory or run more efficiently.
+kind: "concept"
+registryId: "concept.post-training-quantization"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - "quantization"
+aliases:
+  - "PTQ"
+  - "post training quantization"
+  - "offline quantization"
+updatedAt: "2026-06-18"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-teams-use-it" titleKey="sections.whyTeamsUseIt.title">
+  <T k="sections.whyTeamsUseIt.body" />
+</Section>
+
+<Section id="where-calibration-fits" titleKey="sections.whereCalibrationFits.title">
+  <T k="sections.whereCalibrationFits.body" />
+</Section>
+
+<Section id="compare-workflows" titleKey="sections.compareWorkflows.title">
+  <T k="sections.compareWorkflows.body" />
+
+  <ul className="mt-4 space-y-2 list-none pl-0">
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/calibration"
+      >
+        Calibration
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/weight-only-quantization"
+      >
+        Weight-only quantization
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/concepts/activation-quantization"
+      >
+        Activation quantization
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/search?query=quantization-aware%20training"
+      >
+        Quantization-aware training
+      </a>
+    </li>
+  </ul>
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.post-training-quantization"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.post-training-quantization" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList
+    registryId="concept.post-training-quantization"
+    showDescriptions
+  />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.post-training-quantization" />
+</Section>

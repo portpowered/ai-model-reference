@@ -40,6 +40,8 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
       "concept.weight-only-quantization",
       "concept.activation-quantization",
       "concept.kv-cache-quantization",
+      "concept.post-training-quantization",
+      "concept.calibration",
       "concept.parameter",
       "concept.activation",
       "concept.autoregressive-generation",
@@ -105,7 +107,8 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
     expect(html).toContain('href="/docs/concepts/weight-only-quantization"');
     expect(html).toContain('href="/docs/concepts/activation-quantization"');
     expect(html).toContain('href="/docs/concepts/kv-cache-quantization"');
-    expect(html).toContain('href="/search?query=post-training%20quantization"');
+    expect(html).toContain('href="/docs/concepts/post-training-quantization"');
+    expect(html).toContain('href="/docs/concepts/calibration"');
     expect(html).toContain(
       'href="/search?query=quantization-aware%20training"',
     );

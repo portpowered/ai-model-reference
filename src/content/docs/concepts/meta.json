@@ -7,6 +7,8 @@
     "[Why long context is hard](/docs/concepts/why-long-context-is-hard)",
     "---Inference---",
     "[Quantization](/docs/concepts/quantization)",
+    "[Post-training quantization](/docs/concepts/post-training-quantization)",
+    "[Calibration](/docs/concepts/calibration)",
     "[Weight-only quantization](/docs/concepts/weight-only-quantization)",
     "[Activation quantization](/docs/concepts/activation-quantization)",
     "[KV cache quantization](/docs/concepts/kv-cache-quantization)",

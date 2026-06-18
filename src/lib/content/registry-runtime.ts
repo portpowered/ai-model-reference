@@ -6,6 +6,8 @@ import architectureConcept from "@/content/registry/concepts/architecture.json";
 import autoregressiveGenerationConcept from "@/content/registry/concepts/autoregressive-generation.json";
 import backpropagationConcept from "@/content/registry/concepts/backpropagation.json";
 import batchNormConcept from "@/content/registry/concepts/batch-norm.json";
+import calibrationConcept from "@/content/registry/concepts/calibration.json";
+import batchNormConcept from "@/content/registry/concepts/batch-norm.json";
 import componentConcept from "@/content/registry/concepts/component.json";
 import computationalGraphConcept from "@/content/registry/concepts/computational-graph.json";
 import conditioningConcept from "@/content/registry/concepts/conditioning.json";
@@ -52,6 +54,7 @@ import perplexityConcept from "@/content/registry/concepts/perplexity.json";
 import positionalEncodingsConcept from "@/content/registry/concepts/positional-encodings.json";
 import prefillConcept from "@/content/registry/concepts/prefill.json";
 import prefillDecodeSplitConcept from "@/content/registry/concepts/prefill-decode-split.json";
+import postTrainingQuantizationConcept from "@/content/registry/concepts/post-training-quantization.json";
 import quantizationConcept from "@/content/registry/concepts/quantization.json";
 import qkNormConcept from "@/content/registry/concepts/qk-norm.json";
 import reluConcept from "@/content/registry/concepts/relu.json";
@@ -176,7 +179,9 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(qkNormConcept),
   conceptRecordSchema.parse(rmsnormConcept),
   conceptRecordSchema.parse(alibiConcept),
+  conceptRecordSchema.parse(calibrationConcept),
   conceptRecordSchema.parse(positionalEncodingsConcept),
+  conceptRecordSchema.parse(postTrainingQuantizationConcept),
   conceptRecordSchema.parse(quantizationConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
   conceptRecordSchema.parse(skipConnectionConcept),
