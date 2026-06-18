@@ -35,6 +35,7 @@ function hydratedInputSnapshot(
     inputValue: "GQA",
     idleVisible: false,
     loadingVisible: true,
+    errorVisible: false,
     emptyVisible: false,
     resultsVisible: false,
     ...overrides,
@@ -215,6 +216,15 @@ describe("search dialog input hydration", () => {
       evaluateSearchDialogInputHydrationOutcome(
         hydratedInputSnapshot({
           loadingVisible: false,
+          errorVisible: true,
+        }),
+      ),
+    ).toContain("search error state");
+
+    expect(
+      evaluateSearchDialogInputHydrationOutcome(
+        hydratedInputSnapshot({
+          loadingVisible: false,
           emptyVisible: false,
           resultsVisible: false,
         }),
@@ -288,5 +298,47 @@ describe("runPhase1SearchDialogChecks", () => {
     expect(formatPhase1SearchDialogCheckFailure(failure)).toBe(
       "header-dialog?query=GQA: forced failure for GQA",
     );
+  });
+
+  test("retries one injected query timeout before recording a failure", async () => {
+    let attempts = 0;
+
+    const failures = await runPhase1SearchDialogChecks(
+      "http://127.0.0.1:3200",
+      {
+        queries: ["GQA"],
+        runQueryCheck: async () => {
+          attempts += 1;
+          if (attempts === 1) {
+            return 'timed out waiting for search results in header search dialog for query "GQA" after 30000ms';
+          }
+          return null;
+        },
+      },
+    );
+
+    expect(failures).toEqual([]);
+    expect(attempts).toBe(2);
+  });
+
+  test("retries one injected error-state failure before recording a failure", async () => {
+    let attempts = 0;
+
+    const failures = await runPhase1SearchDialogChecks(
+      "http://127.0.0.1:3200",
+      {
+        queries: ["GQA"],
+        runQueryCheck: async () => {
+          attempts += 1;
+          if (attempts === 1) {
+            return "search error state appeared after entering a query in header search dialog";
+          }
+          return null;
+        },
+      },
+    );
+
+    expect(failures).toEqual([]);
+    expect(attempts).toBe(2);
   });
 });

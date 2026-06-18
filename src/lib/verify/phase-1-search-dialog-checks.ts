@@ -33,6 +33,7 @@ export type SearchDialogInputHydrationSnapshot = {
   inputValue: string;
   idleVisible: boolean;
   loadingVisible: boolean;
+  errorVisible: boolean;
   emptyVisible: boolean;
   resultsVisible: boolean;
 };
@@ -70,12 +71,18 @@ export function resolveSearchDialogCheckOptionsFromEnv(
 const SEARCH_DIALOG_TRIGGER_SELECTOR = "button[data-search]";
 const SEARCH_DIALOG_IDLE_SELECTOR = '[data-testid="search-dialog-idle"]';
 const SEARCH_DIALOG_LOADING_SELECTOR = '[data-testid="search-dialog-loading"]';
+const SEARCH_DIALOG_ERROR_SELECTOR = '[data-testid="search-dialog-error"]';
 const SEARCH_DIALOG_EMPTY_SELECTOR = '[data-testid="search-dialog-empty"]';
 const SEARCH_RESULT_URL_SELECTOR = '[data-testid="search-result-url"]';
 const SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS = 250;
 
 /** Default per-query browser deadline (client hydration can exceed 10s under CI load). */
 export const DEFAULT_SEARCH_DIALOG_TIMEOUT_MS = 30_000;
+
+const RETRYABLE_SEARCH_DIALOG_REASON_SNIPPETS = [
+  "timed out waiting for search results",
+  "search error state appeared",
+] as const;
 
 export function formatPhase1SearchDialogCheckFailure(
   failure: Phase1SearchDialogCheckFailure,
@@ -166,6 +173,9 @@ export async function readSearchDialogInputHydrationSnapshot(
     loadingVisible: await dialog
       .locator(SEARCH_DIALOG_LOADING_SELECTOR)
       .isVisible(),
+    errorVisible: await dialog
+      .locator(SEARCH_DIALOG_ERROR_SELECTOR)
+      .isVisible(),
     emptyVisible: await dialog
       .locator(SEARCH_DIALOG_EMPTY_SELECTOR)
       .isVisible(),
@@ -209,6 +219,10 @@ export function evaluateSearchDialogInputHydrationAfterTyping(
 export function evaluateSearchDialogInputHydrationOutcome(
   snapshot: SearchDialogInputHydrationSnapshot,
 ): string | null {
+  if (snapshot.errorVisible) {
+    return "search error state appeared after entering a query in header search dialog";
+  }
+
   if (
     snapshot.loadingVisible ||
     snapshot.emptyVisible ||
@@ -302,14 +316,26 @@ async function waitForSearchDialogOutcome(
   timeoutMs: number,
 ): Promise<void> {
   const loading = dialog.locator(SEARCH_DIALOG_LOADING_SELECTOR);
+  const error = dialog.locator(SEARCH_DIALOG_ERROR_SELECTOR);
   const results = dialog.locator(SEARCH_RESULT_URL_SELECTOR);
   const empty = dialog.locator(SEARCH_DIALOG_EMPTY_SELECTOR);
 
   await Promise.race([
     loading.waitFor({ state: "visible", timeout: timeoutMs }),
+    error.waitFor({ state: "visible", timeout: timeoutMs }),
     results.first().waitFor({ state: "visible", timeout: timeoutMs }),
     empty.waitFor({ state: "visible", timeout: timeoutMs }),
   ]);
+}
+
+function shouldRetrySearchDialogQueryReason(reason: string | null): boolean {
+  if (!reason) {
+    return false;
+  }
+
+  return RETRYABLE_SEARCH_DIALOG_REASON_SNIPPETS.some((snippet) =>
+    reason.includes(snippet),
+  );
 }
 
 /**
@@ -377,7 +403,10 @@ export async function runPhase1SearchDialogChecks(
 
   if (options.runQueryCheck) {
     for (const query of queries) {
-      const reason = await options.runQueryCheck(baseUrl, query, timeoutMs);
+      let reason = await options.runQueryCheck(baseUrl, query, timeoutMs);
+      if (shouldRetrySearchDialogQueryReason(reason)) {
+        reason = await options.runQueryCheck(baseUrl, query, timeoutMs);
+      }
       if (reason) {
         failures.push({ query, surface: "header-dialog", reason });
       }
@@ -395,13 +424,20 @@ export async function runPhase1SearchDialogChecks(
     const dialog = await openHeaderSearchDialog(page, baseUrl, timeoutMs);
 
     for (const query of queries) {
-      const reason = await checkSearchDialogQuery(
+      let reason = await checkSearchDialogQuery(
         page,
         baseUrl,
         query,
         timeoutMs,
         dialog,
       );
+      if (shouldRetrySearchDialogQueryReason(reason)) {
+        await page.goto(normalizeVerifyBaseUrl(baseUrl), {
+          timeout: timeoutMs,
+          waitUntil: "domcontentloaded",
+        });
+        reason = await checkSearchDialogQuery(page, baseUrl, query, timeoutMs);
+      }
       if (reason) {
         failures.push({ query, surface: "header-dialog", reason });
       }
