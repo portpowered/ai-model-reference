@@ -216,6 +216,37 @@ describe("registry-runtime", () => {
     expect(record?.relatedIds).toContain("concept.tensor");
   });
 
+  test("getConceptById returns vocabulary size as a glossary quantity", () => {
+    const record = getConceptById("concept.vocabulary-size");
+    expect(record?.slug).toBe("vocabulary-size");
+    expect(record?.conceptType).toBe("math");
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "vocabulary size",
+        "vocab size",
+        "tokenizer vocabulary",
+        "token vocabulary size",
+      ]),
+    );
+    expect(record?.tags).toEqual(
+      expect.arrayContaining(["token-to-probability-chain", "foundations"]),
+    );
+    expect(record?.sidebarGrouping?.glossary).toBe("sequence-and-attention");
+    expect(record?.relatedIds).toEqual(
+      expect.arrayContaining([
+        "concept.token",
+        "concept.embedding",
+        "concept.hidden-size",
+        "concept.logit",
+        "model.gpt-3",
+      ]),
+    );
+    expect(record?.prerequisiteIds).toEqual([
+      "concept.token",
+      "concept.embedding",
+    ]);
+  });
+
   test("listModuleRecords includes attention overview and variant-group peers", () => {
     const ids = listModuleRecords().map((record) => record.id);
     expect(ids).toContain("module.attention");
