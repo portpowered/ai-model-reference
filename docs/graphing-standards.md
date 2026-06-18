@@ -34,7 +34,7 @@ modules into one shared diagram shape.
 
 ### Graph families
 
-Use one of these presentation families:
+Use one of these presentation families or update this document if we need to add a new one:
 
 1. **Head-structure comparison**
    * Teaches how Q/K/V heads, KV sharing, grouping, compression, or cache shape
@@ -204,6 +204,8 @@ Before approving a module graph change:
 4. Zoom and pan work; nodes/edges not editable.
 5. For attention variants: choose the correct graph family for the module, then compare MHA vs target variant on one canvas.
 6. Static export route hydrates the graph (including switcher markers when applicable).
+7. The graph properly expresses math formulas by apply katex based formatting
+8. The graph properly presents arrows in flow direction. 
 
 Cross-check open GQA graph manual gate rows in [customer-ask](./internal/customer-ask.md) before treating the graph baseline as complete.
 
