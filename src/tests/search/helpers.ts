@@ -1,4 +1,5 @@
 import { expect } from "bun:test";
+import type { StaticOptions } from "fumadocs-core/search/client";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import {
@@ -145,12 +146,22 @@ export async function retrySearchResults<T>(
   return lastResults;
 }
 
+const STATIC_SEARCH_TEST_OPTIONS = {
+  limit: 120,
+  groupBy: {
+    maxResult: 16,
+  },
+} as NonNullable<StaticOptions["search"]>;
+
 export function createRetriedStaticClientSearch(
   bootstrapFrom: string,
   query: string,
 ) {
   return async () => {
-    const client = oramaStaticClient({ from: bootstrapFrom });
+    const client = oramaStaticClient({
+      from: bootstrapFrom,
+      search: STATIC_SEARCH_TEST_OPTIONS,
+    });
     return client.search(query);
   };
 }
