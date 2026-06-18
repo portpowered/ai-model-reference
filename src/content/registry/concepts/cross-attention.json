@@ -1,0 +1,26 @@
+{
+  "id": "concept.cross-attention",
+  "slug": "cross-attention",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "cross attention",
+    "encoder-decoder attention",
+    "cross modal attention"
+  ],
+  "tags": ["attention", "foundations"],
+  "relatedIds": [
+    "module.attention",
+    "concept.transformer-architecture",
+    "concept.encoder-decoder",
+    "concept.multimodal-model"
+  ],
+  "citationIds": ["citation.attention-is-all-you-need"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["module.attention"],
+  "explainsIds": []
+}

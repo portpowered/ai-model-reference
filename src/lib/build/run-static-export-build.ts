@@ -110,16 +110,20 @@ export type RunStaticExportBuildOptions = {
   env?: Record<string, string | undefined>;
 };
 
+export type RunLockedNextBuildOptions = RunStaticExportBuildOptions & {
+  script: "build" | "build:export";
+};
+
 /**
- * Runs `bun run build:export` under a process-wide lock so integration tests
- * do not race on shared `out/` and `.next/` directories.
+ * Runs a Next.js build script under a process-wide lock so integration tests
+ * do not race on shared `.next/` and `out/` directories.
  */
-export function runStaticExportBuild(
-  options: RunStaticExportBuildOptions,
+export function runLockedNextBuild(
+  options: RunLockedNextBuildOptions,
 ): SpawnSyncReturns<string> {
   acquireStaticExportBuildLockSync();
   try {
-    return spawnSync("bun", ["run", "build:export"], {
+    return spawnSync("bun", ["run", options.script], {
       cwd: options.cwd,
       encoding: "utf8",
       env: {
@@ -130,4 +134,14 @@ export function runStaticExportBuild(
   } finally {
     releaseStaticExportBuildLockSync();
   }
+}
+
+/**
+ * Runs `bun run build:export` under a process-wide lock so integration tests
+ * do not race on shared `out/` and `.next/` directories.
+ */
+export function runStaticExportBuild(
+  options: RunStaticExportBuildOptions,
+): SpawnSyncReturns<string> {
+  return runLockedNextBuild({ ...options, script: "build:export" });
 }

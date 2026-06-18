@@ -9,6 +9,7 @@
   "relatedIds": [
     "concept.encoder",
     "concept.decoder",
+    "concept.cross-attention",
     "concept.autoregressive-generation",
     "concept.transformer"
   ],

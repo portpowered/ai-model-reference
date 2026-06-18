@@ -76,6 +76,7 @@ describe("Phase 2 multimodal model-family glossary page (US-003)", () => {
     const html = await renderGlossaryHtml();
 
     expect(html).toContain('href="/docs/glossary/architecture"');
+    expect(html).toContain('href="/docs/concepts/cross-attention"');
     expect(html).toContain('href="/docs/glossary/modality"');
     expect(html).toContain('href="/docs/glossary/patch"');
     expect(html).toContain('href="/docs/glossary/representation"');

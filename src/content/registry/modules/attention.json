@@ -10,6 +10,7 @@
     "module.multi-head-attention",
     "module.multi-query-attention",
     "module.grouped-query-attention",
+    "concept.cross-attention",
     "concept.kv-cache",
     "concept.decode",
     "concept.prefill-decode-split",
