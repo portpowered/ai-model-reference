@@ -141,13 +141,26 @@ describe("locale-routing", () => {
     expect(switchRouteLocale("/docs/glossary/token", "ja")).toBe(
       "/ja/docs/glossary/token",
     );
+    expect(
+      switchRouteLocale("/docs/glossary/token?view=compact#usage-notes", "vi"),
+    ).toBe("/vi/docs/glossary/token?view=compact#usage-notes");
+    expect(
+      switchRouteLocale(
+        "/vi/docs/modules/grouped-query-attention?tab=graph#kv-cache",
+        "en",
+      ),
+    ).toBe("/docs/modules/grouped-query-attention?tab=graph#kv-cache");
     expect(switchRouteLocale("/vi/tags/attention", "en")).toBe(
       "/tags/attention",
     );
     expect(switchRouteLocale("/vi/tags/attention", "ja")).toBe(
       "/ja/tags/attention",
     );
-    expect(switchRouteLocale("/search?tag=attention", "vi")).toBe("/vi/search");
-    expect(switchRouteLocale("/search?tag=attention", "ja")).toBe("/ja/search");
+    expect(switchRouteLocale("/search?tag=attention", "vi")).toBe(
+      "/vi/search?tag=attention",
+    );
+    expect(switchRouteLocale("/search?tag=attention", "ja")).toBe(
+      "/ja/search?tag=attention",
+    );
   });
 });

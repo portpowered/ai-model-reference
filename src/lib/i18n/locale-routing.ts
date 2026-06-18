@@ -225,6 +225,7 @@ export function switchRouteLocale(
   pathname: string,
   locale: SiteLocale,
 ): string {
+  const { suffix } = splitPathname(pathname);
   const match = matchLocalizedRoute(pathname);
 
   if (match.kind !== "matched") {
@@ -234,5 +235,5 @@ export function switchRouteLocale(
     return localizePath(pathname, locale);
   }
 
-  return buildLocalizedRoute(match.destination, locale);
+  return `${buildLocalizedRoute(match.destination, locale)}${suffix}`;
 }

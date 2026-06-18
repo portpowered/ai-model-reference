@@ -23,6 +23,28 @@ describe("ModelAtlasDocsHeader", () => {
     cleanup();
   });
 
+  function withWindowLocation(
+    location: Pick<Location, "pathname" | "search" | "hash"> &
+      Partial<Pick<Location, "assign">>,
+    run: () => Promise<void>,
+  ): Promise<void> {
+    const originalLocation = window.location;
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: {
+        ...originalLocation,
+        ...location,
+      },
+    });
+
+    return run().finally(() => {
+      Object.defineProperty(window, "location", {
+        configurable: true,
+        value: originalLocation,
+      });
+    });
+  }
+
   test("renders header search trigger without duplicate /search primary nav link", async () => {
     const messages = await loadUiMessages();
     const SearchDialog: ComponentType<SharedProps> = () => null;
@@ -82,6 +104,42 @@ describe("ModelAtlasDocsHeader", () => {
       "Tiếng Việt (Hiện tại)",
       "日本語",
     ]);
+  });
+
+  test("switches to the localized equivalent route while preserving query and hash state", async () => {
+    const messages = await loadUiMessages();
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    const assignedUrls: string[] = [];
+
+    await withWindowLocation(
+      {
+        assign: (url: string | URL) => {
+          assignedUrls.push(String(url));
+        },
+        pathname: "/docs/modules/grouped-query-attention",
+        search: "?view=graph",
+        hash: "#kv-cache",
+      },
+      async () => {
+        await renderWithAppProviders(
+          <ModelAtlasDocsHeader messages={messages} locale="en" />,
+          {
+            SearchDialog,
+          },
+        );
+
+        fireEvent.change(
+          screen.getByRole("combobox", { name: messages.nav.language }),
+          {
+            target: { value: "vi" },
+          },
+        );
+
+        expect(assignedUrls).toEqual([
+          "/vi/docs/modules/grouped-query-attention?view=graph#kv-cache",
+        ]);
+      },
+    );
   });
 
   test("mobile width markup hides desktop inline nav links and exposes the menu control", async () => {
