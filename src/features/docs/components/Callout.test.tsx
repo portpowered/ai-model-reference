@@ -1,11 +1,20 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { Callout } from "@/features/docs/components/Callout";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
-import fixture from "@/lib/content/__fixtures__/page-messages.json";
 import type { PageMessages } from "@/lib/content/schemas";
 
-const messages = fixture as PageMessages;
+const messages = JSON.parse(
+  readFileSync(
+    join(
+      import.meta.dir,
+      "../../../lib/content/__fixtures__/page-messages.json",
+    ),
+    "utf8",
+  ),
+) as PageMessages;
 
 function renderCallout(
   titleKey: string,

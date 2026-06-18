@@ -5,10 +5,11 @@ import { loadPageMessages } from "@/lib/content/page-messages-load";
 import {
   type PageFrontmatter,
   type PageMessages,
-  pageMessagesSchema,
   pageFrontmatterSchema,
+  pageMessagesSchema,
 } from "@/lib/content/schemas";
-import { isShippedLocalizedDocsSlug } from "@/lib/content/shipped-localized-docs";
+import type { NonDefaultLocale } from "@/lib/content/shipped-localized-docs";
+import { deriveShippedLocalizedDocsManifest } from "@/lib/content/shipped-localized-docs.server";
 import { parseYamlFrontmatterBlock } from "@/lib/content/yaml-frontmatter";
 import {
   buildLocalizedRoute,
@@ -59,10 +60,6 @@ export function docsUrlFromSlug(docsSlug: string, locale: SiteLocale): string {
   return buildLocalizedRoute({ surface: "docs-page", slug: docsSlug }, locale);
 }
 
-function hasPageMessagesFile(pageDir: string, locale: SiteLocale): boolean {
-  return existsSync(path.join(pageDir, "messages", `${locale}.json`));
-}
-
 function loadPageMessagesSync(
   pageDirectory: string,
   locale: SiteLocale,
@@ -81,10 +78,9 @@ export function isDocsPageShippedForLocale(
     return true;
   }
 
-  return (
-    isShippedLocalizedDocsSlug(docsSlug, locale) &&
-    hasPageMessagesFile(path.join(rootDir, docsSlug), locale)
-  );
+  return deriveShippedLocalizedDocsManifest(rootDir)[
+    locale as NonDefaultLocale
+  ].includes(docsSlug);
 }
 
 export async function loadPublishedDocsPages(

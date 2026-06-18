@@ -1,12 +1,21 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import { T } from "@/features/docs/components/T";
-import fixture from "@/lib/content/__fixtures__/page-messages.json";
 import { expectHtmlToContainProse } from "@/lib/content/glossary-test-helpers";
 import type { PageMessages } from "@/lib/content/schemas";
 
-const messages = fixture as PageMessages;
+const messages = JSON.parse(
+  readFileSync(
+    join(
+      import.meta.dir,
+      "../../../lib/content/__fixtures__/page-messages.json",
+    ),
+    "utf8",
+  ),
+) as PageMessages;
 
 function renderT(key: string, isDev: boolean) {
   return renderToStaticMarkup(
