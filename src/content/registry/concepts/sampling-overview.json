@@ -24,6 +24,9 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "inference",
+  "sidebarGrouping": {
+    "glossary": "generation-and-diffusion"
+  },
   "prerequisiteIds": [
     "concept.softmax",
     "concept.temperature",

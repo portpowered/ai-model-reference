@@ -18,6 +18,9 @@
   "createdAt": "2026-06-08T11:08:01.058Z",
   "updatedAt": "2026-06-08T12:00:00.000Z",
   "conceptType": "architecture",
+  "sidebarGrouping": {
+    "concepts": "architecture"
+  },
   "prerequisiteIds": ["concept.architecture", "concept.module"],
   "explainsIds": []
 }

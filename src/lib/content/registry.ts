@@ -1,7 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { REGISTRY_ROOT } from "./content-paths";
-import { validateSidebarGroupingForRecord } from "./sidebar-grouping";
 import type { RegistryIndexes, RegistryRecord } from "./registry-index";
 import {
   citationRecordSchema,
@@ -17,6 +16,7 @@ import {
   tagRecordSchema,
   trainingRegimeRecordSchema,
 } from "./schemas";
+import { validateSidebarGroupingForRecord } from "./sidebar-grouping";
 
 export type { RegistryIndexes, RegistryRecord } from "./registry-index";
 export { getRegistryRecord } from "./registry-index";
