@@ -2,7 +2,7 @@ import { join } from "node:path";
 
 /** Repository root when Next.js or Bun runs from the project directory. */
 export function getProjectRoot(): string {
-  return process.cwd();
+  return join(import.meta.dir, "../../..");
 }
 
 /** Committed content tree root (`src/content`). */

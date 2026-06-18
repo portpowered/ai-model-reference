@@ -332,14 +332,16 @@ describe("docs search static client", () => {
     expect(results[0]?.url).toBe(SAMPLE_URL);
   });
 
-  test("orama static client returns non-empty attention results before app-level reranking", async () => {
+  test("orama static client returns non-empty attention concept results before app-level reranking", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
     const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
     const results = await client.search("attention");
 
     expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL)).toBe(true);
+    expect(resultsIncludeUrl(results, "/docs/concepts/cross-attention")).toBe(
+      true,
+    );
   });
 
   test("orama static client includes grouped-query attention for KV cache", async () => {

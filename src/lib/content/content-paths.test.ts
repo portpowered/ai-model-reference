@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   ATTENTION_MODULE_PAGE_DIR,
@@ -52,5 +54,19 @@ describe("content-paths", () => {
       join(MODULES_DOCS_ROOT, "grouped-query-attention"),
     );
     expect(TOKEN_GLOSSARY_PAGE_DIR).toBe(join(GLOSSARY_DOCS_ROOT, "token"));
+  });
+
+  test("project root resolution stays anchored to the repo when cwd changes", () => {
+    const originalCwd = process.cwd();
+    const tempDir = mkdtempSync(join(tmpdir(), "content-paths-"));
+
+    try {
+      process.chdir(tempDir);
+      expect(getProjectRoot()).toBe(join(import.meta.dir, "../../.."));
+      expect(getContentRoot()).toBe(join(getProjectRoot(), "src/content"));
+    } finally {
+      process.chdir(originalCwd);
+      rmSync(tempDir, { recursive: true, force: true });
+    }
   });
 });
