@@ -339,7 +339,9 @@ describe("docs search static client", () => {
     const results = await client.search("attention");
 
     expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL)).toBe(true);
+    expect(resultsIncludeUrl(results, "/docs/concepts/self-attention")).toBe(
+      true,
+    );
   });
 
   test("orama static client includes grouped-query attention for KV cache", async () => {

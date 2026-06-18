@@ -95,6 +95,7 @@ import rmsnormConcept from "@/content/registry/concepts/rmsnorm.json";
 import ropeConcept from "@/content/registry/concepts/rope.json";
 import samplingOverviewConcept from "@/content/registry/concepts/sampling-overview.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
+import selfAttentionConcept from "@/content/registry/concepts/self-attention.json";
 import siluConcept from "@/content/registry/concepts/silu.json";
 import sinusoidalPositionalEmbeddingsConcept from "@/content/registry/concepts/sinusoidal-positional-embeddings.json";
 import skipConnectionConcept from "@/content/registry/concepts/skip-connection.json";
@@ -313,6 +314,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(ntkAwareRopeScalingConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
   conceptRecordSchema.parse(skipConnectionConcept),
+  conceptRecordSchema.parse(selfAttentionConcept),
   conceptRecordSchema.parse(positionalInterpolationConcept),
   conceptRecordSchema.parse(ropeConcept),
   conceptRecordSchema.parse(superhotRopeConcept),

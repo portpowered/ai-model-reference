@@ -1,0 +1,36 @@
+{
+  "title": "Self-attention",
+  "description": "How a token reads other tokens from the same sequence so a transformer can mix context before producing the next representation.",
+  "openingSummary": "Self-attention lets each token compare itself with other tokens from the same sequence, decide which positions matter, and blend that context into an updated representation. It is the broad transformer idea behind many later attention variants, not just one specialized optimization.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Self-attention is the case where queries, keys, and values all come from the same running sequence. A token asks what it needs, compares that question against other token positions, and then mixes in information from the positions that score highest. In a decoder model, the mask usually limits each token to earlier positions. In an encoder, the same basic mechanism can look both backward and forward."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "This is the mechanism that makes transformers good at context mixing. Instead of reading text through one fixed window, the model can decide that one earlier word matters more than another and weight them differently for each token. Once you understand broad self-attention, pages like multi-head attention and grouped-query attention become easier to read because they are changing how this baseline is expressed, stored, or scaled."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "In the sentence \"The animal didn't fit in the suitcase because it was too small,\" the token for \"it\" needs clues from earlier tokens in the same sentence. Self-attention lets that token score earlier positions such as \"animal\" and \"suitcase,\" then blend the most useful evidence into its next hidden state before the transformer block moves on."
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": "Decoder-only language models use masked self-attention so each token can only read earlier positions. Encoder stacks often use bidirectional self-attention, and encoder-decoder models combine self-attention with a separate cross-attention stage. The broad idea stays the same: the sequence looks back at itself."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Self-attention is not the same thing as attention as a full family. The family also includes cross-attention, where one sequence reads from another source. It is also not the same thing as multi-head attention: multi-head attention is one popular way to implement self-attention with several parallel heads. Finally, self-attention is broader than grouped-query attention, which is a memory-saving variant rather than the baseline concept itself."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

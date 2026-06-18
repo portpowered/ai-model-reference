@@ -2,6 +2,7 @@
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
   "concept.page-spec-workflow-sample",
   "concept.transformer-architecture",
+  "concept.self-attention",
   "concept.positional-encodings",
   "concept.context-extension",
   "concept.why-long-context-is-hard",
@@ -142,6 +143,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.world-model",
   "concept.page-spec-workflow-sample",
   "concept.transformer-architecture",
+  "concept.self-attention",
   "concept.feed-forward-network",
   "concept.standard-ffn",
   "concept.mixture-of-experts",

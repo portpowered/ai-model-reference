@@ -131,7 +131,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<
 };
 
 const PUBLISHED_GLOSSARY_ENTRY_COUNT = 57;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 46;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 47;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -144,6 +144,7 @@ const ARCHITECTURE_CONCEPT_URLS = [
   "/docs/concepts/context-extension",
   "/docs/concepts/page-spec-workflow-sample",
   "/docs/concepts/positional-encodings",
+  "/docs/concepts/self-attention",
   "/docs/concepts/transformer-architecture",
   "/docs/concepts/why-long-context-is-hard",
 ] as const;
@@ -187,9 +188,9 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
 
     for (const slug of CURRENT_GLOSSARY_SLUGS) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
-      expect(linkNodes.some((entry) => entry.url === `/docs/glossary/${slug}`)).toBe(
-        true,
-      );
+      expect(
+        linkNodes.some((entry) => entry.url === `/docs/glossary/${slug}`),
+      ).toBe(true);
       expect(linkNodes.some((entry) => entry.name === title)).toBe(true);
     }
   });
@@ -268,6 +269,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["Decode", "/docs/glossary/decode"],
       ["Prefill", "/docs/glossary/prefill"],
       ["Positional encodings", "/docs/concepts/positional-encodings"],
+      ["Self-attention", "/docs/concepts/self-attention"],
       ["Token", "/docs/glossary/token"],
       ["Transformer architecture", "/docs/concepts/transformer-architecture"],
     ] as const) {

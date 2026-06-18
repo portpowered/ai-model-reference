@@ -54,7 +54,7 @@ describe("attention tag landing resources", () => {
     ]);
   });
 
-  it("omits empty kind groups and groups model, module, and glossary resources separately", async () => {
+  it("omits empty kind groups and groups model, module, concept, paper, and glossary resources separately", async () => {
     const messages = await loadUiMessages();
     const groups = await loadTagResourceGroups("attention", messages, "en");
 
@@ -62,6 +62,7 @@ describe("attention tag landing resources", () => {
     expect(groups.map((group) => group.kind)).toEqual([
       "model",
       "module",
+      "concept",
       "paper",
       "glossary",
     ]);
@@ -71,6 +72,11 @@ describe("attention tag landing resources", () => {
       "/docs/models/deepseek-v4-flash",
       "/docs/models/deepseek-v4-pro",
       "/docs/models/gpt-3",
+    ]);
+
+    const conceptGroup = groups.find((group) => group.kind === "concept");
+    expect(conceptGroup?.resources.map((resource) => resource.url)).toEqual([
+      "/docs/concepts/self-attention",
     ]);
 
     const paperGroup = groups.find((group) => group.kind === "paper");
@@ -160,6 +166,7 @@ describe("attention tag landing page render", () => {
 
     expect(html).toContain("Attention");
     expect(html).toContain("Module");
+    expect(html).toContain("Concept");
     expect(html).toContain("Glossary");
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain("Compressed Sparse Attention");
@@ -186,6 +193,8 @@ describe("attention tag landing page render", () => {
     );
     expect(html).toContain("DeepSeek-V4");
     expect(html).toContain('href="/docs/papers/deepseek-v4"');
+    expect(html).toContain("Self-attention");
+    expect(html).toContain('href="/docs/concepts/self-attention"');
     expect(html).toContain("Autoregressive Generation");
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain("Decode");
