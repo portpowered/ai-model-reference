@@ -1,193 +1,167 @@
-/** Concept registry ids whose published docs page lives under `/docs/concepts`. */
-export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
-  "concept.page-spec-workflow-sample",
-  "concept.transformer-architecture",
-  "concept.positional-encodings",
-  "concept.context-extension",
-  "concept.why-long-context-is-hard",
-  "concept.quantization",
-  "concept.post-training-quantization",
-  "concept.calibration",
-  "concept.quantization-aware-training",
-  "concept.dynamic-quantization",
-  "concept.weight-only-quantization",
-  "concept.activation-quantization",
-  "concept.kv-cache-quantization",
-  "concept.why-4-bit-models-are-not-exactly-4x-faster",
-]);
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { REGISTRY_ROOT } from "@/lib/content/content-paths";
+import {
+  type DocsPageSource,
+  loadPublishedDocsPagesSync,
+} from "@/lib/content/pages";
+import type { PageKind } from "@/lib/content/schemas";
 
-/** Registry ids for docs pages with `status: published` in frontmatter. */
-export const MODULE_BACKED_CONCEPT_REGISTRY_IDS = new Set<string>([
-  "concept.feed-forward-network",
-  "concept.standard-ffn",
-  "concept.mixture-of-experts",
-  "concept.relu",
-  "concept.leaky-relu",
-  "concept.silu",
-  "concept.swiglu",
-  "concept.batch-norm",
-  "concept.group-norm",
-  "concept.layer-norm",
-  "concept.rmsnorm",
-  "concept.qk-norm",
-  "concept.absolute-positional-embeddings",
-  "concept.learned-positional-embeddings",
-  "concept.sinusoidal-positional-embeddings",
-  "concept.rope",
-  "concept.alibi",
-  "concept.relative-position-bias",
-  "concept.t5-relative-position-bias",
-  "concept.nope",
-  "concept.superhot-rope",
-  "concept.ntk-aware-rope-scaling",
-  "concept.yarn",
-  "concept.longrope",
-  "concept.positional-interpolation",
-]);
+export const PUBLISHED_DOCS_SECTIONS = [
+  "glossary",
+  "concepts",
+  "modules",
+  "models",
+  "papers",
+  "training",
+  "systems",
+] as const;
 
-export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
-  "model.gpt-3",
-  "model.deepseek-v4-pro",
-  "model.deepseek-v4-flash",
-  "paper.deepseek-v4",
-  "module.attention",
-  "module.compressed-sparse-attention",
-  "module.deepseekmoe",
-  "module.heavily-compressed-attention",
-  "module.manifold-constrained-hyper-connections",
-  "module.multi-head-attention",
-  "module.multi-query-attention",
-  "module.grouped-query-attention",
-  "module.linear-attention",
-  "module.multi-head-latent-attention",
-  "module.sliding-window-attention",
-  "module.sparse-attention",
-  "module.feed-forward-network",
-  "module.standard-ffn",
-  "module.mixture-of-experts",
-  "module.relu",
-  "module.leaky-relu",
-  "module.silu",
-  "module.swiglu",
-  "module.batch-norm",
-  "module.group-norm",
-  "module.layer-norm",
-  "module.rmsnorm",
-  "module.qk-norm",
-  "module.absolute-positional-embeddings",
-  "module.learned-positional-embeddings",
-  "module.sinusoidal-positional-embeddings",
-  "module.rope",
-  "module.alibi",
-  "module.relative-position-bias",
-  "module.t5-relative-position-bias",
-  "module.nope",
-  "module.superhot-rope",
-  "module.ntk-aware-rope-scaling",
-  "module.yarn",
-  "module.longrope",
-  "module.positional-interpolation",
-  "concept.token",
-  "concept.embedding",
-  "concept.tensor",
-  "concept.vector",
-  "concept.hidden-size",
-  "concept.logit",
-  "concept.softmax",
-  "concept.entropy",
-  "concept.temperature",
-  "concept.sampling-overview",
-  "concept.greedy-decoding",
-  "concept.top-k-sampling",
-  "concept.top-p-sampling",
-  "concept.parameter",
-  "concept.activation",
-  "concept.computational-graph",
-  "concept.gradient",
-  "concept.backpropagation",
-  "concept.loss-function",
-  "concept.optimizer-state",
-  "concept.model",
-  "concept.architecture",
-  "concept.module",
-  "concept.component",
-  "concept.modality",
-  "concept.foundation-model",
-  "concept.generative-model",
-  "concept.discriminative-model",
-  "concept.representation",
-  "concept.patch",
-  "concept.latent",
-  "concept.latent-space",
-  "concept.encoder",
-  "concept.decoder",
-  "concept.encoder-decoder",
-  "concept.autoregressive-generation",
-  "concept.kv-cache",
-  "concept.prefill",
-  "concept.decode",
-  "concept.prefill-decode-split",
-  "concept.denoising-generation",
-  "concept.conditioning",
-  "concept.alignment",
-  "concept.model-capacity",
-  "concept.overfitting",
-  "concept.generalization",
-  "concept.perplexity",
-  "concept.scaling-law",
-  "concept.emergent-behavior",
-  "concept.transformer",
-  "concept.diffusion-model",
-  "concept.multimodal-model",
-  "concept.world-model",
-  "concept.page-spec-workflow-sample",
-  "concept.transformer-architecture",
-  "concept.feed-forward-network",
-  "concept.standard-ffn",
-  "concept.mixture-of-experts",
-  "concept.relu",
-  "concept.leaky-relu",
-  "concept.silu",
-  "concept.swiglu",
-  "concept.normalization",
-  "concept.batch-norm",
-  "concept.group-norm",
-  "concept.layer-norm",
-  "concept.rmsnorm",
-  "concept.qk-norm",
-  "concept.residual-connection",
-  "concept.skip-connection",
-  "concept.positional-encodings",
-  "concept.absolute-positional-embeddings",
-  "concept.learned-positional-embeddings",
-  "concept.sinusoidal-positional-embeddings",
-  "concept.rope",
-  "concept.alibi",
-  "concept.relative-position-bias",
-  "concept.t5-relative-position-bias",
-  "concept.nope",
-  "concept.superhot-rope",
-  "concept.ntk-aware-rope-scaling",
-  "concept.yarn",
-  "concept.longrope",
-  "concept.positional-interpolation",
-  "concept.context-window",
-  "concept.context-extension",
-  "concept.why-long-context-is-hard",
-  "concept.quantization",
-  "concept.post-training-quantization",
-  "concept.calibration",
-  "concept.quantization-aware-training",
-  "concept.dynamic-quantization",
-  "concept.weight-only-quantization",
-  "concept.activation-quantization",
-  "concept.kv-cache-quantization",
-  "concept.why-4-bit-models-are-not-exactly-4x-faster",
-  "training-regime.on-policy-distillation",
-  "training-regime.specialist-training",
-  "training-regime.fp4-quantization-aware-training",
-  "system.on-disk-kv-cache",
-  "system.expert-parallel-overlap",
-]);
-
+export type PublishedDocsSection = (typeof PUBLISHED_DOCS_SECTIONS)[number];
 export type PublishedDocsRegistryIds = ReadonlySet<string>;
+
+export type PublishedDocsEntry = {
+  registryId: string;
+  slug: string;
+  docsSlug: string;
+  url: string;
+  pageDir: string;
+  pageKind: PageKind;
+  section: PublishedDocsSection;
+};
+
+export type PublishedDocsIndex = {
+  entries: readonly PublishedDocsEntry[];
+  byRegistryId: ReadonlyMap<string, PublishedDocsEntry>;
+  bySlug: ReadonlyMap<string, readonly PublishedDocsEntry[]>;
+  registryIds: PublishedDocsRegistryIds;
+};
+
+function docsSectionFromSlug(docsSlug: string): PublishedDocsSection {
+  const [section] = docsSlug.split("/");
+  if (!section) {
+    throw new Error(`Cannot derive docs section from empty docs slug`);
+  }
+
+  if (PUBLISHED_DOCS_SECTIONS.includes(section as PublishedDocsSection)) {
+    return section as PublishedDocsSection;
+  }
+
+  throw new Error(
+    `Unsupported published docs section "${section}" for docs slug "${docsSlug}"`,
+  );
+}
+
+function toPublishedDocsEntry(page: DocsPageSource): PublishedDocsEntry {
+  const slug = page.docsSlug.split("/").at(-1);
+  if (!slug) {
+    throw new Error(
+      `Cannot derive page slug from docs slug "${page.docsSlug}"`,
+    );
+  }
+
+  return {
+    registryId: page.frontmatter.registryId,
+    slug,
+    docsSlug: page.docsSlug,
+    url: page.url,
+    pageDir: page.pageDir,
+    pageKind: page.frontmatter.kind,
+    section: docsSectionFromSlug(page.docsSlug),
+  };
+}
+
+export function buildPublishedDocsIndex(
+  pages: readonly DocsPageSource[],
+): PublishedDocsIndex {
+  const entries = pages.map(toPublishedDocsEntry);
+  const byRegistryId = new Map<string, PublishedDocsEntry>();
+  const bySlug = new Map<string, PublishedDocsEntry[]>();
+
+  for (const entry of entries) {
+    const existingEntry = byRegistryId.get(entry.registryId);
+    if (existingEntry) {
+      throw new Error(
+        `Duplicate published docs registryId "${entry.registryId}" at "${existingEntry.docsSlug}" and "${entry.docsSlug}"`,
+      );
+    }
+
+    byRegistryId.set(entry.registryId, entry);
+
+    const slugEntries = bySlug.get(entry.slug);
+    if (slugEntries) {
+      slugEntries.push(entry);
+      continue;
+    }
+
+    bySlug.set(entry.slug, [entry]);
+  }
+
+  return {
+    entries,
+    byRegistryId,
+    bySlug: new Map(
+      [...bySlug.entries()].map(([slug, slugEntries]) => [slug, slugEntries]),
+    ),
+    registryIds: new Set(entries.map((entry) => entry.registryId)),
+  };
+}
+
+function hasConceptRegistryRecord(slug: string): boolean {
+  return existsSync(join(REGISTRY_ROOT, "concepts", `${slug}.json`));
+}
+
+function derivePublishedConceptSectionRegistryIds(
+  index: PublishedDocsIndex,
+): ReadonlySet<string> {
+  return new Set(
+    index.entries
+      .filter(
+        (entry) => entry.pageKind === "concept" && entry.section === "concepts",
+      )
+      .map((entry) => entry.registryId),
+  );
+}
+
+function deriveModuleBackedConceptRegistryIds(
+  index: PublishedDocsIndex,
+): ReadonlySet<string> {
+  const conceptIds = new Set<string>();
+
+  for (const entry of index.entries) {
+    if (entry.section !== "modules" || !hasConceptRegistryRecord(entry.slug)) {
+      continue;
+    }
+
+    conceptIds.add(`concept.${entry.slug}`);
+  }
+
+  return conceptIds;
+}
+
+const publishedDocsIndex = buildPublishedDocsIndex(
+  loadPublishedDocsPagesSync("en"),
+);
+
+export const PUBLISHED_DOCS_INDEX = publishedDocsIndex;
+export const PUBLISHED_DOCS_REGISTRY_IDS = publishedDocsIndex.registryIds;
+export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS =
+  derivePublishedConceptSectionRegistryIds(publishedDocsIndex);
+export const MODULE_BACKED_CONCEPT_REGISTRY_IDS =
+  deriveModuleBackedConceptRegistryIds(publishedDocsIndex);
+
+export function listPublishedDocsEntries(): readonly PublishedDocsEntry[] {
+  return PUBLISHED_DOCS_INDEX.entries;
+}
+
+export function getPublishedDocsEntryByRegistryId(
+  registryId: string,
+): PublishedDocsEntry | undefined {
+  return PUBLISHED_DOCS_INDEX.byRegistryId.get(registryId);
+}
+
+export function getPublishedDocsEntriesBySlug(
+  slug: string,
+): readonly PublishedDocsEntry[] {
+  return PUBLISHED_DOCS_INDEX.bySlug.get(slug) ?? [];
+}
