@@ -434,4 +434,49 @@ describe("SearchPagePanel tag handoff", () => {
       ),
     ).toBeTruthy();
   });
+
+  test("renders the japanese shipped search slice with locale-aware copy and urls", async () => {
+    const context = await loadAppTestContext("ja");
+    const searchParams = new URLSearchParams("tag=attention");
+    await renderWithAppProviders(
+      <SearchPagePanelContent
+        messages={context.messages}
+        metaByUrl={context.metaByUrl}
+        handoff={toSearchPageHandoff(searchParams)}
+        locale="ja"
+      />,
+      { context },
+    );
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("attention");
+    expect(searchInput.placeholder).toBe(context.messages.search.placeholder);
+    expect(
+      screen.getByText(
+        context.messages.searchEntry.tagFilterDescription.replace(
+          "{tag}",
+          "attention",
+        ),
+      ),
+    ).toBeTruthy();
+
+    const results = await screen.findByTestId("search-page-results");
+    const urls = collectResultUrlsFromNodes(
+      within(results).getAllByTestId("search-result-url"),
+    );
+
+    expect(urls).toEqual([
+      "/ja/docs/modules/attention",
+      "/ja/docs/modules/grouped-query-attention",
+      "/ja/docs/glossary/token",
+      "/ja/docs/concepts/transformer-architecture",
+    ]);
+    expect(results.textContent).toContain("最小の文字単位");
+    expect(results.textContent).toContain("Transformer アーキテクチャ");
+    expect(results.textContent).not.toContain(
+      "/ja/docs/modules/sparse-attention",
+    );
+  });
 });

@@ -1,5 +1,4 @@
 import { afterEach, beforeAll, describe, expect, test } from "bun:test";
-import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { createModelAtlasSearchClient } from "@/features/docs/search/search-client";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -7,8 +6,10 @@ import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta"
 import { assertApiGqaCanonicalPageHit } from "@/lib/verify/customer-ask-search-surface-convergence";
 import { PHASE_1_SEARCH_ASSERTIONS } from "@/lib/verify/phase-1-search-checks";
 import {
+  createRetriedStaticClientSearch,
   expectCollapsedResultsDominateFragmentSpam,
   expectUniqueCanonicalPageUrls,
+  retrySearchResults,
 } from "./helpers";
 import {
   createDocsSearchRouteFetch,
@@ -34,8 +35,10 @@ describe("Phase 1 fragment-spam regression", () => {
   ] as const)("collapsed API results dominate raw Orama fragment spam for %s", async (query) => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
-    const rawClient = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const rawResults = await rawClient.search(query);
+    const rawResults = await retrySearchResults(
+      createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, query),
+      (results) => results.length > 0,
+    );
     const collapsedResults = await docsSearchApi.search(query);
 
     expectCollapsedResultsDominateFragmentSpam(

@@ -44,7 +44,9 @@ describe("localized route metadata alternates", () => {
     expect(docsMetadata.alternates?.languages?.vi).toBe(
       "/vi/docs/modules/grouped-query-attention",
     );
-    expect(docsMetadata.alternates?.languages?.ja).toBeUndefined();
+    expect(docsMetadata.alternates?.languages?.ja).toBe(
+      "/ja/docs/modules/grouped-query-attention",
+    );
   });
 
   it("loads localized shell metadata copy from the requested locale", async () => {
@@ -84,7 +86,7 @@ describe("localized route metadata alternates", () => {
     expect(jaHomeMetadata.alternates?.languages?.ja).toBe("/ja");
   });
 
-  it("does not generate japanese docs routes for unshipped docs pages", async () => {
+  it("generates japanese docs routes only for the shipped core reader path", async () => {
     const params = await generateLocalizedDocsStaticParams();
 
     expect(
@@ -92,6 +94,31 @@ describe("localized route metadata alternates", () => {
         ({ locale, slug }) =>
           locale === "ja" &&
           slug?.join("/") === "modules/grouped-query-attention",
+      ),
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" && slug?.join("/") === "modules/attention",
+      ),
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" && slug?.join("/") === "glossary/token",
+      ),
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" &&
+          slug?.join("/") === "concepts/transformer-architecture",
+      ),
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" && slug?.join("/") === "modules/swiglu",
       ),
     ).toBe(false);
     expect(

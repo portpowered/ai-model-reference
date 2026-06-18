@@ -91,9 +91,18 @@ describe("search result meta", () => {
     expect(meta?.aliases.length).toBeGreaterThan(0);
   });
 
-  test("loadSearchResultMetaMap returns no japanese docs entries when no japanese docs pages are shipped", async () => {
+  test("loadSearchResultMetaMap returns the shipped japanese core reader path only", async () => {
     const map = await loadSearchResultMetaMap("ja");
-    expect(map.size).toBe(0);
+    expect(map.size).toBe(4);
+    expect(map.get("/ja/docs/modules/attention")?.title).toBe("Attention");
+    expect(map.get("/ja/docs/modules/grouped-query-attention")?.title).toBe(
+      "Grouped-query attention",
+    );
+    expect(map.get("/ja/docs/glossary/token")?.title).toBe("Token");
+    expect(map.get("/ja/docs/concepts/transformer-architecture")?.title).toBe(
+      "Transformer アーキテクチャ",
+    );
+    expect(map.has("/ja/docs/modules/swiglu")).toBe(false);
   });
 
   test("buildSearchResultMetaMap keys by url", () => {

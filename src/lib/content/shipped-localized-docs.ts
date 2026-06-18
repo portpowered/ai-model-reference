@@ -8,7 +8,12 @@ export type ShippedLocalizedDocsManifest = Record<
 >;
 
 const SHIPPED_LOCALIZED_DOCS: ShippedLocalizedDocsManifest = {
-  ja: [],
+  ja: [
+    "concepts/transformer-architecture",
+    "glossary/token",
+    "modules/attention",
+    "modules/grouped-query-attention",
+  ],
   vi: [
     "concepts/transformer-architecture",
     "glossary/autoregressive-generation",

@@ -44,6 +44,7 @@ describe("docs slug renderer locale gating", () => {
       canonical: "/docs/modules/grouped-query-attention",
       languages: {
         en: "/docs/modules/grouped-query-attention",
+        ja: "/ja/docs/modules/grouped-query-attention",
         vi: "/vi/docs/modules/grouped-query-attention",
       },
     });
@@ -152,6 +153,18 @@ describe("docs slug renderer locale gating", () => {
     try {
       await renderDocsSlugPage(["getting-started"], "vi");
       throw new Error("Expected Vietnamese unshipped route to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toMatch(
+        /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
+      );
+    }
+  });
+
+  test("unshipped Japanese docs routes fail clearly instead of rendering English content", async () => {
+    try {
+      await renderDocsSlugPage(["getting-started"], "ja");
+      throw new Error("Expected Japanese unshipped route to fail");
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
       expect((error as Error).message).toMatch(
