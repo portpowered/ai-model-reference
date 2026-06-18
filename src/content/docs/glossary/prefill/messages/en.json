@@ -21,7 +21,7 @@
     },
     "servingPath": {
       "title": "Serving Path",
-      "body": "Prefill sits between the user prompt and the repeated decode loop. Start from KV cache if you want the saved state it creates, then continue to decode and the later prefill/decode split discussion to see why serving systems often separate the two stages."
+      "body": "Prefill sits between the user prompt and the repeated decode loop. Start from KV cache if you want the saved state it creates, then continue to time to first token for the startup-delay metric that prefill usually dominates, decode for the later token loop, and the later prefill/decode split discussion for the serving-systems view."
     },
     "related": {
       "title": "Related Concepts And Modules"
@@ -35,6 +35,7 @@
   },
   "links": {
     "kvCache": "KV cache",
+    "timeToFirstToken": "Time to first token",
     "decode": "Decode",
     "prefillDecodeSplit": "Prefill/decode split"
   }

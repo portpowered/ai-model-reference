@@ -110,7 +110,7 @@ describe("loadPublishedGlossaryEntries", () => {
 
   it("includes all published glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(58);
+    expect(entries).toHaveLength(59);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -147,6 +147,11 @@ describe("loadPublishedGlossaryEntries", () => {
       (entry) => entry.url === "/docs/glossary/decode",
     );
     expect(decode?.title).toBe("Decode");
+
+    const timeToFirstToken = entries.find(
+      (entry) => entry.url === "/docs/glossary/time-to-first-token",
+    );
+    expect(timeToFirstToken?.title).toBe("Time to first token");
   });
 });
 
@@ -212,6 +217,8 @@ describe("glossary index page render", () => {
     expect(html).toContain('href="/docs/glossary/entropy"');
     expect(html).toContain("Temperature");
     expect(html).toContain('href="/docs/glossary/temperature"');
+    expect(html).toContain("Time to first token");
+    expect(html).toContain('href="/docs/glossary/time-to-first-token"');
     expect(html).toContain("Parameter");
     expect(html).toContain('href="/docs/glossary/parameter"');
     expect(html).toContain("Activation");

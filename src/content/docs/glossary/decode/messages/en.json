@@ -21,7 +21,7 @@
     },
     "servingPath": {
       "title": "Serving Path",
-      "body": "Decode sits after prefill and keeps extending the KV cache until generation ends. Follow the prefill/decode split next if you want the serving-systems view of why many deployments separate the two stages onto different hardware or queues."
+      "body": "Decode sits after prefill and keeps extending the KV cache until generation ends. Time to first token helps explain the startup delay before this loop begins, while the prefill/decode split explains why many deployments separate the two stages onto different hardware or queues."
     },
     "related": {
       "title": "Related Concepts And Modules"
@@ -36,6 +36,7 @@
   "links": {
     "kvCache": "KV cache",
     "prefill": "Prefill",
+    "timeToFirstToken": "Time to first token",
     "prefillDecodeSplit": "Prefill/decode split"
   }
 }

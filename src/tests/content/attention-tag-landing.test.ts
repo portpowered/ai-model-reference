@@ -67,6 +67,7 @@ describe("attention tag landing resources", () => {
       "/docs/glossary/decode",
       "/docs/glossary/kv-cache",
       "/docs/glossary/prefill",
+      "/docs/glossary/time-to-first-token",
       "/docs/glossary/token",
     ]);
   });
@@ -164,6 +165,8 @@ describe("attention tag landing page render", () => {
     expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain("Prefill");
     expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain("Time to first token");
+    expect(html).toContain('href="/docs/glossary/time-to-first-token"');
     expect(html).toContain("Token");
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain('href="/search?tag=attention"');

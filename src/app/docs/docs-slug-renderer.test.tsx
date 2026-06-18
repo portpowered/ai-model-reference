@@ -130,6 +130,20 @@ describe("docs slug renderer locale gating", () => {
     });
   });
 
+  test("English docs metadata omits unshipped Vietnamese alternate for time-to-first-token", async () => {
+    const metadata = await buildDocsPageMetadata([
+      "glossary",
+      "time-to-first-token",
+    ]);
+
+    expect(metadata.alternates).toEqual({
+      canonical: "/docs/glossary/time-to-first-token",
+      languages: {
+        en: "/docs/glossary/time-to-first-token",
+      },
+    });
+  });
+
   test("unshipped Vietnamese docs routes fail clearly instead of rendering English content", async () => {
     try {
       await renderDocsSlugPage(["getting-started"], "vi");
@@ -182,6 +196,18 @@ describe("docs slug renderer locale gating", () => {
     try {
       await renderDocsSlugPage(["glossary", "prefill-decode-split"], "vi");
       throw new Error("Expected Vietnamese prefill/decode split route to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toMatch(
+        /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
+      );
+    }
+  });
+
+  test("unshipped Vietnamese time-to-first-token route fails instead of rendering English content", async () => {
+    try {
+      await renderDocsSlugPage(["glossary", "time-to-first-token"], "vi");
+      throw new Error("Expected Vietnamese time-to-first-token route to fail");
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
       expect((error as Error).message).toMatch(

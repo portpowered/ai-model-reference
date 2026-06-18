@@ -42,6 +42,7 @@ describe("Phase 5 KV cache glossary page (US-001)", () => {
     expect(record?.relatedIds).toEqual([
       "concept.prefill",
       "concept.decode",
+      "concept.time-to-first-token",
       "concept.prefill-decode-split",
       "concept.autoregressive-generation",
       "module.attention",

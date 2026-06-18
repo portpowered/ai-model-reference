@@ -42,6 +42,7 @@ describe("Phase 5 prefill glossary page (US-002)", () => {
     expect(record?.relatedIds).toEqual([
       "concept.kv-cache",
       "concept.decode",
+      "concept.time-to-first-token",
       "concept.prefill-decode-split",
       "concept.autoregressive-generation",
       "module.attention",

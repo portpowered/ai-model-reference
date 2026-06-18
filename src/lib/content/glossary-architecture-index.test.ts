@@ -55,6 +55,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   "kv-cache": "KV cache",
   decode: "Decode",
   prefill: "Prefill",
+  "time-to-first-token": "Time to first token",
   "prefill-decode-split": "Prefill/decode split",
 };
 
@@ -74,8 +75,8 @@ const CHAIN_GLOSSARY_SLUGS = [
   "loss-function",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 58;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 51;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 52;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
@@ -118,6 +119,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "kv-cache",
       "decode",
       "prefill",
+      "time-to-first-token",
       "prefill-decode-split",
       "token",
     ] as const) {
@@ -147,6 +149,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "kv-cache",
       "decode",
       "prefill",
+      "time-to-first-token",
       "prefill-decode-split",
       "token",
     ] as const) {
@@ -184,6 +187,11 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       (item) => item.url === "/docs/glossary/prefill",
     );
     expect(prefill?.title).toBe("Prefill");
+
+    const timeToFirstToken = entries.find(
+      (item) => item.url === "/docs/glossary/time-to-first-token",
+    );
+    expect(timeToFirstToken?.title).toBe("Time to first token");
 
     const prefillDecodeSplit = entries.find(
       (item) => item.url === "/docs/glossary/prefill-decode-split",
@@ -232,6 +240,11 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     );
     expect(prefill?.title).toBe("Prefill");
 
+    const timeToFirstToken = entries.find(
+      (entry) => entry.url === "/docs/glossary/time-to-first-token",
+    );
+    expect(timeToFirstToken?.title).toBe("Time to first token");
+
     const prefillDecodeSplit = entries.find(
       (entry) => entry.url === "/docs/glossary/prefill-decode-split",
     );
@@ -278,6 +291,8 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(glossaryHtml).toContain('href="/docs/glossary/parameter"');
     expect(glossaryHtml).toContain("Activation");
     expect(glossaryHtml).toContain('href="/docs/glossary/activation"');
+    expect(glossaryHtml).toContain("Time to first token");
+    expect(glossaryHtml).toContain('href="/docs/glossary/time-to-first-token"');
     expect(glossaryHtml).toContain("Computational Graph");
     expect(glossaryHtml).toContain('href="/docs/glossary/computational-graph"');
     expect(glossaryHtml).toContain("KV cache");

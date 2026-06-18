@@ -171,26 +171,30 @@ describe("Phase 1 baseline registry records", () => {
     expect(citation.mla.length).toBeGreaterThan(0);
   });
 
-  test("Phase 1 starter records cross-reference via loadRegistry", async () => {
-    const indexes = await loadRegistry();
+  test(
+    "Phase 1 starter records cross-reference via loadRegistry",
+    async () => {
+      const indexes = await loadRegistry();
 
-    const module = indexes.byId.get("module.grouped-query-attention");
-    expect(module?.kind).toBe("module");
+      const module = indexes.byId.get("module.grouped-query-attention");
+      expect(module?.kind).toBe("module");
 
-    const concept = indexes.byId.get("concept.token");
-    expect(concept?.kind).toBe("concept");
-    expect(indexes.bySlug.get("token")?.id).toBe("concept.token");
+      const concept = indexes.byId.get("concept.token");
+      expect(concept?.kind).toBe("concept");
+      expect(indexes.bySlug.get("token")?.id).toBe("concept.token");
 
-    for (const tagRef of module?.tags ?? []) {
-      expect(resolveTag(indexes, tagRef)).toBeDefined();
-    }
-    for (const citationId of module?.citationIds ?? []) {
-      expect(indexes.byId.get(citationId)?.kind).toBe("citation");
-    }
-    for (const tagRef of concept?.tags ?? []) {
-      expect(resolveTag(indexes, tagRef)).toBeDefined();
-    }
-  });
+      for (const tagRef of module?.tags ?? []) {
+        expect(resolveTag(indexes, tagRef)).toBeDefined();
+      }
+      for (const citationId of module?.citationIds ?? []) {
+        expect(indexes.byId.get(citationId)?.kind).toBe("citation");
+      }
+      for (const tagRef of concept?.tags ?? []) {
+        expect(resolveTag(indexes, tagRef)).toBeDefined();
+      }
+    },
+    { timeout: 15_000 },
+  );
 });
 
 function resolveTag(

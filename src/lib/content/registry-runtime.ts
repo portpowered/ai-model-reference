@@ -54,6 +54,7 @@ import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
+import timeToFirstTokenConcept from "@/content/registry/concepts/time-to-first-token.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
 import transformerArchitectureConcept from "@/content/registry/concepts/transformer-architecture.json";
@@ -128,6 +129,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(autoregressiveGenerationConcept),
   conceptRecordSchema.parse(prefillConcept),
   conceptRecordSchema.parse(prefillDecodeSplitConcept),
+  conceptRecordSchema.parse(timeToFirstTokenConcept),
   conceptRecordSchema.parse(denoisingGenerationConcept),
   conceptRecordSchema.parse(conditioningConcept),
   conceptRecordSchema.parse(contextExtensionConcept),

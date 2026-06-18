@@ -70,6 +70,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/rmsnorm",
         "/docs/glossary/rope",
         "/docs/glossary/scaling-law",
+        "/docs/glossary/time-to-first-token",
         "/docs/glossary/token",
         "/docs/glossary/transformer",
         "/docs/glossary/world-model",
@@ -167,6 +168,8 @@ describe("architecture index page render", () => {
     expect(html).toContain('href="/docs/glossary/prefill"');
     expect(html).toContain("Prefill/decode split");
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
+    expect(html).toContain("Time to first token");
+    expect(html).toContain('href="/docs/glossary/time-to-first-token"');
     expect(html).toContain("Token");
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).not.toContain("No architecture entries yet");

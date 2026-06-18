@@ -1,0 +1,44 @@
+{
+  "title": "Time to first token",
+  "description": "The startup latency between sending a prompt and seeing the first generated token, usually driven by prompt length and prefill work.",
+  "openingSummary": "A model can feel slow before it says anything because it must finish the prompt-reading setup work first; time to first token measures that startup delay, and prefill usually dominates it.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Time to first token, often shortened to TTFT, is the delay between submitting a prompt and seeing the first generated token arrive. It includes the queueing and startup work needed to begin generation, but for modern decoder serving the biggest share often comes from prefill reading the prompt, running attention across it, and building the first KV cache."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Readers feel TTFT as startup delay. A long prompt, a busy queue, or heavy prompt-side compute can make the model seem unresponsive even when later tokens stream quickly. That is why teams separate TTFT from inter-token latency and tokens per second: the first number captures how long it takes to start, while the others describe what happens after the reply is already moving."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine two requests that both produce a 100-token answer. One has a short prompt and starts streaming in half a second. The other has a long prompt and starts streaming in three seconds because prefill has more positions to process and more KV-cache state to write. If both requests then stream at the same pace, their inter-token latency can match while their TTFT still feels very different."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "TTFT is not the same as total response time, inter-token latency, or tokens per second. A system can have fast TTFT but slow later token pace, or slow TTFT but a strong steady stream once decode starts. TTFT is also not only a model property. Prompt length, queueing, batching pressure, and hardware layout can all move it."
+    },
+    "servingPath": {
+      "title": "Serving Path",
+      "body": "TTFT sits on top of the earlier serving stages. KV cache explains the saved state, prefill explains the prompt-side work that usually dominates startup delay, and decode explains the repeated loop that takes over after the first token appears. The search links below point to the next latency metrics in this serving path while their canonical pages are still landing."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "kvCache": "KV cache",
+    "prefill": "Prefill",
+    "decode": "Decode",
+    "interTokenLatency": "Inter-token latency",
+    "tokensPerSecond": "Tokens per second",
+    "throughputVsLatency": "Throughput vs latency"
+  }
+}

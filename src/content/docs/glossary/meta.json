@@ -57,6 +57,7 @@
     "[Softmax](/docs/glossary/softmax)",
     "[Temperature](/docs/glossary/temperature)",
     "[Tensor](/docs/glossary/tensor)",
+    "[Time to first token](/docs/glossary/time-to-first-token)",
     "[Vector](/docs/glossary/vector)",
     "---Generation And Diffusion---",
     "[Autoregressive Generation](/docs/glossary/autoregressive-generation)",

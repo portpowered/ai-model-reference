@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { DECODE_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
+import { TIME_TO_FIRST_TOKEN_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryBodyOmitsTitleHeading,
@@ -24,40 +24,41 @@ import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
-const pageDir = DECODE_GLOSSARY_PAGE_DIR;
+const pageDir = TIME_TO_FIRST_TOKEN_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 
-describe("Phase 5 decode glossary page (US-003)", () => {
-  test("registry record is published with decode aliases, serving tags, and related ids", () => {
-    const record = getConceptById("concept.decode");
+describe("Phase 5 time-to-first-token glossary page (US-001)", () => {
+  test("registry record is published with TTFT aliases, tags, and serving-related ids", () => {
+    const record = getConceptById("concept.time-to-first-token");
     expect(record?.status).toBe("published");
     expect(record?.aliases).toEqual([
-      "Decode",
-      "decoding",
-      "token-by-token generation",
-      "next-token step",
-      "inter-token generation",
+      "Time to first token",
+      "TTFT",
+      "first token delay",
+      "startup latency",
+      "prompt startup latency",
     ]);
     expect(record?.tags).toEqual(["foundations", "attention", "kv-cache"]);
     expect(record?.relatedIds).toEqual([
       "concept.prefill",
+      "concept.decode",
       "concept.kv-cache",
-      "concept.time-to-first-token",
       "concept.prefill-decode-split",
       "concept.autoregressive-generation",
       "module.attention",
       "module.multi-query-attention",
       "module.grouped-query-attention",
-      "module.sliding-window-attention",
       "concept.transformer",
     ]);
-    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.decode")).toBe(true);
+    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.time-to-first-token")).toBe(
+      true,
+    );
   });
 
-  test("curated related links point to serving-path and nearby attention-variant pages", () => {
-    const source = getConceptById("concept.decode");
+  test("curated related links expose prefill, decode, KV cache, and nearby serving foundations", () => {
+    const source = getConceptById("concept.time-to-first-token");
     if (!source) {
-      throw new Error("expected concept.decode in registry");
+      throw new Error("expected concept.time-to-first-token in registry");
     }
 
     const items = deriveCuratedRelatedItems(
@@ -76,63 +77,47 @@ describe("Phase 5 decode glossary page (US-003)", () => {
     expect(
       items.some(
         (item) =>
+          item.registryId === "concept.decode" &&
+          item.href === "/docs/glossary/decode",
+      ),
+    ).toBe(true);
+    expect(
+      items.some(
+        (item) =>
           item.registryId === "concept.kv-cache" &&
           item.href === "/docs/glossary/kv-cache",
       ),
     ).toBe(true);
-    expect(
-      items.some(
-        (item) =>
-          item.registryId === "module.multi-query-attention" &&
-          item.href === "/docs/modules/multi-query-attention",
-      ),
-    ).toBe(true);
-    expect(
-      items.some(
-        (item) =>
-          item.registryId === "module.grouped-query-attention" &&
-          item.href === "/docs/modules/grouped-query-attention",
-      ),
-    ).toBe(true);
-    expect(
-      items.some(
-        (item) =>
-          item.registryId === "module.sliding-window-attention" &&
-          item.href === "/docs/modules/sliding-window-attention",
-      ),
-    ).toBe(true);
   });
 
-  test("messages teach next-token generation, inter-token latency, and serving tradeoffs", () => {
+  test("messages teach startup delay, prompt-length cost, and the difference from later token pace", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
-    expect(messages.title).toBe("Decode");
+    expect(messages.title).toBe("Time to first token");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
+    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain("ttft");
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
-      "kv cache",
+      "prefill",
     );
-    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
-      "next-token",
+    expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
+      "startup delay",
     );
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
       "inter-token latency",
     );
-    expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
-      "memory bandwidth",
-    );
-    expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
-      "serving cost",
+    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
+      "tokens per second",
     );
   });
 
-  test("page renders serving-path links to kv cache, prefill, published split page, and nearby modules", async () => {
-    const page = await loadGlossaryPage("decode");
+  test("page renders TTFT teaching copy and exposes downstream serving-metrics handoffs", async () => {
+    const page = await loadGlossaryPage("time-to-first-token");
 
     expect(page.frontmatter.kind).toBe("glossary");
     expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.registryId).toBe("concept.decode");
+    expect(page.frontmatter.registryId).toBe("concept.time-to-first-token");
 
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -146,58 +131,67 @@ describe("Phase 5 decode glossary page (US-003)", () => {
     expectGlossaryBodyOmitsTitleHeading(html, page.messages.title);
     expectGlossaryOmitsOpeningSummary(html);
     expectGlossarySingleTagPillList(html);
-    expectHtmlToContainProse(html, "Decode");
-    expectHtmlToContainProse(html, "inter-token latency");
-    expectHtmlToContainProse(html, "memory bandwidth");
+    expectHtmlToContainProse(html, "startup delay");
+    expectHtmlToContainProse(html, "first generated token");
+    expectHtmlToContainProse(html, "prefill");
     expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain('href="/docs/glossary/decode"');
+    expect(html).toContain('href="/search?q=inter-token%20latency"');
+    expect(html).toContain('href="/search?q=tokens%20per%20second"');
+    expect(html).toContain('href="/search?q=throughput%20vs%20latency"');
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
-    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
-    expect(html).toContain('href="/docs/modules/attention"');
-    expect(html).toContain('href="/docs/modules/multi-query-attention"');
-    expect(html).toContain('href="/docs/modules/grouped-query-attention"');
-    expect(html).toContain('href="/docs/modules/sliding-window-attention"');
-    expect(html).toContain('href="/docs/glossary/transformer"');
-    expect(html).toContain('href="/tags/attention"');
-    expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Reader Shortcut");
   });
 
-  test("search index records decode as a glossary page with aliases and tags", async () => {
+  test("search index records time-to-first-token as a glossary page with aliases and tags", async () => {
     const registry = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
     const documents = buildSearchDocuments(pages, registry);
 
     const document = documents.find(
-      (entry) => entry.url === "/docs/glossary/decode",
+      (entry) => entry.url === "/docs/glossary/time-to-first-token",
     );
     expect(document?.kind).toBe("glossary");
     expect(document?.facets.kind).toBe("glossary");
     expect(document?.aliases).toEqual(
       expect.arrayContaining([
-        "Decode",
-        "decoding",
-        "token-by-token generation",
-        "next-token step",
+        "Time to first token",
+        "TTFT",
+        "first token delay",
+        "startup latency",
       ]),
     );
-    expect(document?.tags).toEqual(
-      expect.arrayContaining(["attention", "kv-cache"]),
-    );
+    expect(document?.tags).toEqual(expect.arrayContaining(["kv-cache"]));
   });
 
-  test("search finds decode by title, aliases, and body terms", async () => {
+  test("search finds time to first token by title, aliases, and startup-latency body terms", async () => {
     for (const query of [
-      "Decode",
-      "decoding",
-      "token-by-token generation",
-      "inter-token latency",
+      "Time to first token",
+      "TTFT",
+      "first token delay",
+      "startup latency",
     ] as const) {
       const results = await docsSearchApi.search(query);
       expect(
-        results.some((result) => result.url === "/docs/glossary/decode"),
+        results.some(
+          (result) => result.url === "/docs/glossary/time-to-first-token",
+        ),
       ).toBe(true);
+    }
+  });
+
+  test("kv cache, prefill, decode, and prefill/decode split expose entry points into TTFT", () => {
+    for (const registryId of [
+      "concept.kv-cache",
+      "concept.prefill",
+      "concept.decode",
+      "concept.prefill-decode-split",
+    ] as const) {
+      const record = getConceptById(registryId);
+      expect(record).toBeDefined();
+      expect(record?.relatedIds).toContain("concept.time-to-first-token");
     }
   });
 });

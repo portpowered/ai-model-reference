@@ -1,8 +1,8 @@
 ---
-title: Prefill
-description: The one-time prompt-processing stage that reads the input, computes the first attention pass, and builds the initial KV cache before generation starts.
+title: Time to first token
+description: The startup latency between sending a prompt and seeing the first generated token, usually driven by prompt length and prefill work.
 kind: "glossary"
-registryId: "concept.prefill"
+registryId: "concept.time-to-first-token"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
@@ -11,10 +11,10 @@ tags:
   - attention
   - kv-cache
 aliases:
-  - "Prefill"
-  - "prompt processing"
-  - "prompt pass"
-  - "initial prompt pass"
+  - "Time to first token"
+  - "TTFT"
+  - "first token delay"
+  - "startup latency"
 updatedAt: "2026-06-18"
 ---
 
@@ -46,27 +46,32 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
   <LocalizedLinkList
     items={[
       { href: "/docs/glossary/kv-cache", labelKey: "links.kvCache" },
-      {
-        href: "/docs/glossary/time-to-first-token",
-        labelKey: "links.timeToFirstToken",
-      },
+      { href: "/docs/glossary/prefill", labelKey: "links.prefill" },
       { href: "/docs/glossary/decode", labelKey: "links.decode" },
       {
-        href: "/docs/glossary/prefill-decode-split",
-        labelKey: "links.prefillDecodeSplit",
+        href: "/search?q=inter-token%20latency",
+        labelKey: "links.interTokenLatency",
+      },
+      {
+        href: "/search?q=tokens%20per%20second",
+        labelKey: "links.tokensPerSecond",
+      },
+      {
+        href: "/search?q=throughput%20vs%20latency",
+        labelKey: "links.throughputVsLatency",
       },
     ]}
   />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
-  <RelatedDocs registryId="concept.prefill" />
+  <RelatedDocs registryId="concept.time-to-first-token" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
-  <TagPillList registryId="concept.prefill" showDescriptions />
+  <TagPillList registryId="concept.time-to-first-token" showDescriptions />
 </Section>
 
 <Section id="references" titleKey="sections.references.title">
-  <CitationList registryId="concept.prefill" />
+  <CitationList registryId="concept.time-to-first-token" />
 </Section>

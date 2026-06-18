@@ -1,27 +1,26 @@
 {
-  "id": "concept.prefill-decode-split",
-  "slug": "prefill-decode-split",
+  "id": "concept.time-to-first-token",
+  "slug": "time-to-first-token",
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
   "aliases": [
-    "Prefill/decode split",
-    "prefill decode split",
-    "split serving",
-    "disaggregated serving",
-    "disaggregated prefill decode"
+    "Time to first token",
+    "TTFT",
+    "first token delay",
+    "startup latency",
+    "prompt startup latency"
   ],
-  "tags": ["foundations", "kv-cache"],
+  "tags": ["foundations", "attention", "kv-cache"],
   "relatedIds": [
     "concept.prefill",
     "concept.decode",
     "concept.kv-cache",
-    "concept.time-to-first-token",
+    "concept.prefill-decode-split",
     "concept.autoregressive-generation",
     "module.attention",
     "module.multi-query-attention",
     "module.grouped-query-attention",
-    "module.sliding-window-attention",
     "concept.transformer"
   ],
   "citationIds": [],
