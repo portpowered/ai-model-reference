@@ -4,7 +4,6 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadPublishedDocsPagesSync } from "@/lib/content/pages";
 import {
-  buildPublishedDocsIndex,
   getPublishedDocsEntriesBySlug,
   getPublishedDocsEntryByRegistryId,
   getPublishedDocsHrefForRecord,
@@ -13,6 +12,7 @@ import {
   PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
   PUBLISHED_DOCS_REGISTRY_IDS,
 } from "@/lib/content/published-docs-registry-ids";
+import { buildPublishedDocsIndex } from "@/lib/content/published-docs-registry-source";
 
 function writePage(
   rootDir: string,
