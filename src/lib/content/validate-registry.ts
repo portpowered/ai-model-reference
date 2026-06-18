@@ -30,6 +30,11 @@ import {
   type PageMessages,
   pageFrontmatterSchema,
 } from "./schemas";
+import {
+  isShippedLocalizedDocsSlug,
+  resolveShippedLocalizedDocsManifest,
+  type ShippedLocalizedDocsManifest,
+} from "./shipped-localized-docs";
 import { getTableById } from "./table-registry-runtime";
 import { loadTagMessages, TagMessagesLoadError } from "./tag-messages";
 import {
@@ -110,6 +115,8 @@ export type ValidateRegistryContentOptions = {
   messagesRoot?: string;
   /** Override Phase 1 page directories (for tests). */
   phase1PageDirectories?: readonly string[];
+  /** Override shipped localized docs manifest entries in tests. */
+  shippedLocalizedDocsManifest?: Partial<ShippedLocalizedDocsManifest>;
 };
 
 export function formatValidationErrors(errors: ValidationError[]): string {
@@ -501,14 +508,45 @@ async function validateLocalizedPageMessages(
   mdxBody: string,
   assets: PageAssetConfig,
   indexes: RegistryIndexes,
+  shippedLocalizedDocsManifest: ShippedLocalizedDocsManifest,
 ): Promise<ValidationError[]> {
   const errors: ValidationError[] = [];
+  const docsSlug = pageDirectory
+    .replace(`${docsRoot}/`, "")
+    .replace(/\\/g, "/");
 
   for (const locale of supportedLocales) {
-    if (
-      locale === defaultLocale ||
-      !hasPageMessagesFile(pageDirectory, locale)
-    ) {
+    if (locale === defaultLocale) {
+      continue;
+    }
+
+    const isShipped = isShippedLocalizedDocsSlug(
+      docsSlug,
+      locale,
+      shippedLocalizedDocsManifest,
+    );
+    const hasMessages = hasPageMessagesFile(pageDirectory, locale);
+    const messagesPath = join(pageDirectory, "messages", `${locale}.json`);
+
+    if (isShipped && !hasMessages) {
+      errors.push({
+        code: "missing-localized-page-messages",
+        message: `${pageDirectory}: shipped locale "${locale}" is missing required page messages file for route "${docsUrlForPageDirectory(docsRoot, pageDirectory, locale)}"`,
+        path: messagesPath,
+      });
+      continue;
+    }
+
+    if (!isShipped && hasMessages) {
+      errors.push({
+        code: "unexpected-localized-page-messages",
+        message: `${pageDirectory}: locale "${locale}" has page messages but docs slug "${docsSlug}" is not declared in the shipped localized docs manifest`,
+        path: messagesPath,
+      });
+      continue;
+    }
+
+    if (!isShipped) {
       continue;
     }
 
@@ -522,7 +560,7 @@ async function validateLocalizedPageMessages(
       errors.push({
         code: "messages-load-error",
         message: `${pageDirectory}: ${message}`,
-        path: join(pageDirectory, "messages", `${locale}.json`),
+        path: messagesPath,
       });
       continue;
     }
@@ -543,7 +581,7 @@ async function validateLocalizedPageMessages(
         errors.push({
           code: "missing-message-key",
           message: `${pagePath}: locale "${locale}" MDX references missing message key "${messageKey}"`,
-          path: join(pageDirectory, "messages", `${locale}.json`),
+          path: messagesPath,
         });
       }
     }
@@ -556,6 +594,7 @@ async function validatePageMdx(
   pagePath: string,
   docsRoot: string,
   indexes: RegistryIndexes,
+  shippedLocalizedDocsManifest: ShippedLocalizedDocsManifest,
 ): Promise<ValidationError[]> {
   const errors: ValidationError[] = [];
   const pageDirectory = join(pagePath, "..");
@@ -665,6 +704,7 @@ async function validatePageMdx(
       mdxBody,
       assets,
       indexes,
+      shippedLocalizedDocsManifest,
     )),
   );
 
@@ -807,6 +847,9 @@ export async function validateRegistryContent(
   options: ValidateRegistryContentOptions = {},
 ): Promise<ValidationError[]> {
   const docsRoot = options.docsRoot ?? defaultDocsRoot;
+  const shippedLocalizedDocsManifest = resolveShippedLocalizedDocsManifest(
+    options.shippedLocalizedDocsManifest,
+  );
   const { indexes, errors: registryErrors } =
     await validateRegistryFiles(options);
 
@@ -821,7 +864,14 @@ export async function validateRegistryContent(
 
   for (const pagePath of pagePaths) {
     validatedPageDirectories.add(join(pagePath, ".."));
-    errors.push(...(await validatePageMdx(pagePath, docsRoot, indexes)));
+    errors.push(
+      ...(await validatePageMdx(
+        pagePath,
+        docsRoot,
+        indexes,
+        shippedLocalizedDocsManifest,
+      )),
+    );
   }
 
   const phase1Dirs = options.phase1PageDirectories ?? phase1PageDirectories;

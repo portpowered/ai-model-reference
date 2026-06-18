@@ -146,6 +146,9 @@ export function buildSearchDocumentsForLocale(
   indexes: RegistryIndexes,
   pages: DocsPageSource[],
 ): SearchDocument[] {
-  void locale;
+  if (locale.trim() === "") {
+    throw new Error("Search document locale must be non-empty.");
+  }
+
   return buildSearchDocuments(pages, indexes);
 }
