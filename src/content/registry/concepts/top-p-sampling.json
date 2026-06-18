@@ -1,0 +1,32 @@
+{
+  "id": "concept.top-p-sampling",
+  "slug": "top-p-sampling",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Top-P Sampling",
+    "top-p sampling",
+    "top p sampling",
+    "nucleus sampling",
+    "cumulative-mass sampling"
+  ],
+  "tags": ["foundations", "token-to-probability-chain"],
+  "relatedIds": [
+    "concept.sampling-overview",
+    "concept.greedy-decoding",
+    "concept.top-k-sampling",
+    "concept.temperature"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": [
+    "concept.sampling-overview",
+    "concept.greedy-decoding",
+    "concept.top-k-sampling"
+  ],
+  "explainsIds": []
+}

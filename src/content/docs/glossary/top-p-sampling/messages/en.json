@@ -1,0 +1,32 @@
+{
+  "title": "Top-P Sampling",
+  "description": "A next-token rule that keeps the smallest probability mass above a threshold before drawing one token, adapting the candidate count from step to step.",
+  "openingSummary": "Top-p sampling, also called nucleus sampling, keeps just enough high-probability options to cross a probability threshold, then samples within that moving set, which often preserves variety without opening the door to the entire low-confidence tail.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Top-p sampling sorts the next-token distribution from most likely to least likely, keeps the smallest prefix whose cumulative probability mass crosses a chosen threshold p, and then samples from that retained set. In plain language, it says: keep enough plausible options to cover most of the probability, then ignore the long tail."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Because the threshold is based on cumulative mass instead of a fixed count, the number of eligible tokens can change from one step to the next. When the model is confident, the kept set may stay very small, which helps stability and control. When the distribution is flatter, the kept set expands, which can add diversity without automatically admitting every low-probability token."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine the next-token distribution gives 55 percent to \"Paris,\" 20 percent to \"Lyon,\" 12 percent to \"Marseille,\" and then many tiny options. With top-p sampling and p = 0.8, the model keeps \"Paris,\" \"Lyon,\" and \"Marseille\" because together they cross the threshold, then samples from those three. Greedy decoding would still always choose \"Paris.\" Top-k sampling would keep a fixed number of candidates even if the distribution became much sharper or flatter on the next step."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Top-p sampling is also called nucleus sampling, but the idea is the same: cumulative-mass truncation before sampling. It is not the same as top-k, because top-k keeps a fixed number of candidates while top-p keeps a variable number based on probability mass. It is also not deterministic like greedy decoding, because once the eligible set is chosen, the model still samples within it."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

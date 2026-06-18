@@ -1,0 +1,43 @@
+{
+  "title": "Sampling Overview",
+  "description": "The next-token decision step that turns a probability distribution into one chosen token, shaping how diverse, stable, or controllable a model's output feels.",
+  "openingSummary": "After logits become probabilities, the model still has to choose one next token; sampling is that decision step, and different rules trade off repeatable stability against variety and fine-grained control.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Sampling is the rule that picks one next token from the model's probability distribution. The model has already scored the vocabulary with logits, converted those scores with softmax, and possibly reshaped them with temperature. Sampling is the final choice step: do you always take the top token, or do you keep some randomness and draw from several plausible options?"
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "This one choice strongly shapes how the output feels. A stricter rule usually makes text more stable and repeatable, which helps when you want the same answer each time. A looser rule usually gives more diversity, which can help brainstorming or creative writing. In practice, people use sampling settings to balance diversity, stability, and control rather than to change the model's underlying knowledge."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine the next-token probabilities put most weight on \"Paris,\" some weight on \"Lyon,\" and a little weight on \"Marseille.\" Greedy decoding always picks \"Paris.\" Top-k sampling keeps only the k highest-scoring options, then draws from that smaller set. Top-p sampling keeps the smallest set whose probabilities add up to a chosen threshold, then draws from that set. All three start from the same distribution, but they make different decisions about certainty and variety."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Sampling is not the same as temperature. Temperature reshapes probabilities before the decision; sampling rules decide how to choose after probabilities exist. Sampling also does not mean \"pure randomness.\" Greedy decoding is a sampling rule too, just a deterministic one. Finally, top-k and top-p are both truncation methods, but top-k keeps a fixed number of candidates while top-p keeps a variable number of candidates based on cumulative probability mass."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "relatedDocs": {
+    "concept.temperature": {
+      "reason": "Temperature reshapes the probabilities before any sampling rule makes the final next-token choice."
+    },
+    "concept.softmax": {
+      "reason": "Softmax is the step that turns logits into the probability distribution sampling works from."
+    },
+    "concept.autoregressive-generation": {
+      "reason": "Autoregressive generation is the loop that repeats this next-token decision over and over."
+    }
+  }
+}

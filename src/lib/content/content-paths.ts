@@ -260,6 +260,30 @@ export const PREFILL_DECODE_SPLIT_GLOSSARY_PAGE_DIR = join(
   "prefill-decode-split",
 );
 
+/** Phase 5 sampling overview glossary page directory. */
+export const SAMPLING_OVERVIEW_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "sampling-overview",
+);
+
+/** Phase 5 greedy decoding glossary page directory. */
+export const GREEDY_DECODING_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "greedy-decoding",
+);
+
+/** Phase 5 top-k sampling glossary page directory. */
+export const TOP_K_SAMPLING_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "top-k-sampling",
+);
+
+/** Phase 5 top-p sampling glossary page directory. */
+export const TOP_P_SAMPLING_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "top-p-sampling",
+);
+
 /** Phase 3 context extension concept page directory. */
 export const CONTEXT_EXTENSION_CONCEPT_PAGE_DIR = join(
   CONCEPTS_DOCS_ROOT,

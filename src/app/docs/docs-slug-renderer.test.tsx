@@ -5,6 +5,24 @@ import {
 } from "@/app/docs/docs-slug-renderer";
 
 describe("docs slug renderer locale gating", () => {
+  test.each([
+    ["glossary", "sampling-overview"],
+    ["glossary", "greedy-decoding"],
+    ["glossary", "top-k-sampling"],
+    ["glossary", "top-p-sampling"],
+  ] as const)("English docs metadata omits unshipped Vietnamese alternate for %s/%s", async (...segments) => {
+    const [section, slug] = segments;
+    const metadata = await buildDocsPageMetadata([section, slug]);
+    const canonical = `/docs/${section}/${slug}`;
+
+    expect(metadata.alternates).toEqual({
+      canonical,
+      languages: {
+        en: canonical,
+      },
+    });
+  });
+
   test("English docs metadata omits unshipped Vietnamese alternates", async () => {
     const metadata = await buildDocsPageMetadata(["getting-started"]);
 
@@ -182,6 +200,25 @@ describe("docs slug renderer locale gating", () => {
     try {
       await renderDocsSlugPage(["glossary", "prefill-decode-split"], "vi");
       throw new Error("Expected Vietnamese prefill/decode split route to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toMatch(
+        /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
+      );
+    }
+  });
+
+  test.each([
+    ["glossary", "sampling-overview"],
+    ["glossary", "greedy-decoding"],
+    ["glossary", "top-k-sampling"],
+    ["glossary", "top-p-sampling"],
+  ] as const)("unshipped Vietnamese %s/%s route fails instead of rendering English content", async (...segments) => {
+    const [section, slug] = segments;
+
+    try {
+      await renderDocsSlugPage([section, slug], "vi");
+      throw new Error(`Expected Vietnamese ${section}/${slug} route to fail`);
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
       expect((error as Error).message).toMatch(

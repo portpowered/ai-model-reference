@@ -110,7 +110,7 @@ describe("loadPublishedGlossaryEntries", () => {
 
   it("includes all published glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(67);
+    expect(entries).toHaveLength(71);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -147,6 +147,26 @@ describe("loadPublishedGlossaryEntries", () => {
       (entry) => entry.url === "/docs/glossary/decode",
     );
     expect(decode?.title).toBe("Decode");
+
+    const samplingOverview = entries.find(
+      (entry) => entry.url === "/docs/glossary/sampling-overview",
+    );
+    expect(samplingOverview?.title).toBe("Sampling Overview");
+
+    const greedyDecoding = entries.find(
+      (entry) => entry.url === "/docs/glossary/greedy-decoding",
+    );
+    expect(greedyDecoding?.title).toBe("Greedy Decoding");
+
+    const topKSampling = entries.find(
+      (entry) => entry.url === "/docs/glossary/top-k-sampling",
+    );
+    expect(topKSampling?.title).toBe("Top-K Sampling");
+
+    const topPSampling = entries.find(
+      (entry) => entry.url === "/docs/glossary/top-p-sampling",
+    );
+    expect(topPSampling?.title).toBe("Top-P Sampling");
 
     const swiglu = entries.find(
       (entry) => entry.url === "/docs/glossary/swiglu",
@@ -222,6 +242,12 @@ describe("glossary index page render", () => {
     expect(html).toContain('href="/docs/glossary/entropy"');
     expect(html).toContain("Temperature");
     expect(html).toContain('href="/docs/glossary/temperature"');
+    expect(html).toContain("Greedy Decoding");
+    expect(html).toContain('href="/docs/glossary/greedy-decoding"');
+    expect(html).toContain("Top-K Sampling");
+    expect(html).toContain('href="/docs/glossary/top-k-sampling"');
+    expect(html).toContain("Top-P Sampling");
+    expect(html).toContain('href="/docs/glossary/top-p-sampling"');
     expect(html).toContain("Parameter");
     expect(html).toContain('href="/docs/glossary/parameter"');
     expect(html).toContain("Activation");
