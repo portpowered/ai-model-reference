@@ -1,0 +1,34 @@
+{
+  "id": "module.wordpiece",
+  "slug": "wordpiece",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["WordPiece", "wordpiece", "word piece"],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "concept.token",
+    "module.bpe",
+    "module.sentencepiece"
+  ],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "moduleType": "tokenizer",
+  "moduleFamily": "tokenization",
+  "conceptType": "subword-tokenization",
+  "variantGroup": "subword-tokenizers",
+  "optimizes": ["subword-coverage", "vocabulary-efficiency"],
+  "practicalBenefits": [
+    "splits rare words into reusable pieces",
+    "keeps token vocabularies smaller than word-level tokenizers"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "none"
+}

@@ -1,0 +1,34 @@
+{
+  "id": "module.sentencepiece",
+  "slug": "sentencepiece",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["SentencePiece", "sentencepiece", "sentence piece"],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "concept.token",
+    "module.bpe",
+    "module.wordpiece"
+  ],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "moduleType": "tokenizer",
+  "moduleFamily": "tokenization",
+  "conceptType": "subword-tokenization",
+  "variantGroup": "subword-tokenizers",
+  "optimizes": ["open-vocabulary-coverage", "pretokenization-independence"],
+  "practicalBenefits": [
+    "learns subword pieces directly from raw text",
+    "works across scripts without a fixed whitespace tokenizer"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "none"
+}

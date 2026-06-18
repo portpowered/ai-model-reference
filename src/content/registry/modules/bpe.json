@@ -12,7 +12,13 @@
     "subword tokenizer"
   ],
   "tags": ["tokenization", "foundations"],
-  "relatedIds": ["concept.token", "model.gpt-3"],
+  "relatedIds": [
+    "concept.token",
+    "concept.tokenizers-overview",
+    "module.wordpiece",
+    "module.sentencepiece",
+    "model.gpt-3"
+  ],
   "citationIds": ["citation.sennrich-bpe"],
   "status": "published",
   "createdAt": "2026-06-19T00:00:00.000Z",

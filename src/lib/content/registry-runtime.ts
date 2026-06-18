@@ -108,6 +108,7 @@ import t5RelativePositionBiasConcept from "@/content/registry/concepts/t5-relati
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
+import tokenizersOverviewConcept from "@/content/registry/concepts/tokenizers-overview.json";
 import topKSamplingConcept from "@/content/registry/concepts/top-k-sampling.json";
 import topPSamplingConcept from "@/content/registry/concepts/top-p-sampling.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
@@ -152,6 +153,7 @@ import relativePositionBiasModule from "@/content/registry/modules/relative-posi
 import reluModule from "@/content/registry/modules/relu.json";
 import rmsnormModule from "@/content/registry/modules/rmsnorm.json";
 import ropeModule from "@/content/registry/modules/rope.json";
+import sentencepieceModule from "@/content/registry/modules/sentencepiece.json";
 import siluModule from "@/content/registry/modules/silu.json";
 import sinusoidalPositionalEmbeddingsModule from "@/content/registry/modules/sinusoidal-positional-embeddings.json";
 import slidingWindowAttention from "@/content/registry/modules/sliding-window-attention.json";
@@ -160,6 +162,7 @@ import standardFfnModule from "@/content/registry/modules/standard-ffn.json";
 import superhotRopeModule from "@/content/registry/modules/superhot-rope.json";
 import swigluModule from "@/content/registry/modules/swiglu.json";
 import t5RelativePositionBiasModule from "@/content/registry/modules/t5-relative-position-bias.json";
+import wordpieceModule from "@/content/registry/modules/wordpiece.json";
 import yarnModule from "@/content/registry/modules/yarn.json";
 import deepseekAiOrganization from "@/content/registry/organizations/deepseek-ai.json";
 import deepseekV4Paper from "@/content/registry/papers/deepseek-v4.json";
@@ -225,6 +228,7 @@ const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(reluModule),
   moduleRecordSchema.parse(rmsnormModule),
   moduleRecordSchema.parse(ropeModule),
+  moduleRecordSchema.parse(sentencepieceModule),
   moduleRecordSchema.parse(siluModule),
   moduleRecordSchema.parse(sinusoidalPositionalEmbeddingsModule),
   moduleRecordSchema.parse(slidingWindowAttention),
@@ -233,6 +237,7 @@ const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(superhotRopeModule),
   moduleRecordSchema.parse(swigluModule),
   moduleRecordSchema.parse(t5RelativePositionBiasModule),
+  moduleRecordSchema.parse(wordpieceModule),
   moduleRecordSchema.parse(yarnModule),
 ];
 
@@ -241,6 +246,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(embeddingConcept),
   conceptRecordSchema.parse(tensorConcept),
   conceptRecordSchema.parse(vectorConcept),
+  conceptRecordSchema.parse(tokenizersOverviewConcept),
   conceptRecordSchema.parse(hiddenSizeConcept),
   conceptRecordSchema.parse(kvCacheConcept),
   conceptRecordSchema.parse(kvCacheQuantizationConcept),

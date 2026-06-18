@@ -189,10 +189,63 @@ describe("Phase 1 baseline registry records", () => {
       ]),
     );
     expect(module.relatedIds).toContain("concept.token");
+    expect(module.relatedIds).toContain("concept.tokenizers-overview");
+    expect(module.relatedIds).toContain("module.wordpiece");
+    expect(module.relatedIds).toContain("module.sentencepiece");
     expect(module.relatedIds).toContain("model.gpt-3");
     expect(module.exampleModelIds).toContain("model.gpt-3");
     expect(module.usedByModelIds).toContain("model.gpt-3");
     expect(module.citationIds).toContain("citation.sennrich-bpe");
+  });
+
+  test("tokenizers overview concept JSON passes conceptRecordSchema", async () => {
+    const concept = await readRegistryJson(
+      "concepts/tokenizers-overview.json",
+      conceptRecordSchema,
+    );
+
+    expect(concept.id).toBe("concept.tokenizers-overview");
+    expect(concept.kind).toBe("concept");
+    expect(concept.status).toBe("draft");
+    expect(concept.tags).toContain("tokenization");
+    expect(concept.prerequisiteIds).toContain("concept.token");
+    expect(concept.explainsIds).toEqual([
+      "module.bpe",
+      "module.wordpiece",
+      "module.sentencepiece",
+    ]);
+  });
+
+  test("wordpiece module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/wordpiece.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.wordpiece");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("draft");
+    expect(module.moduleType).toBe("tokenizer");
+    expect(module.moduleFamily).toBe("tokenization");
+    expect(module.variantGroup).toBe("subword-tokenizers");
+    expect(module.relatedIds).toContain("module.bpe");
+    expect(module.relatedIds).toContain("module.sentencepiece");
+  });
+
+  test("sentencepiece module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/sentencepiece.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.sentencepiece");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("draft");
+    expect(module.moduleType).toBe("tokenizer");
+    expect(module.moduleFamily).toBe("tokenization");
+    expect(module.variantGroup).toBe("subword-tokenizers");
+    expect(module.relatedIds).toContain("module.bpe");
+    expect(module.relatedIds).toContain("module.wordpiece");
   });
 
   test("token concept JSON passes conceptRecordSchema", async () => {
