@@ -8,6 +8,15 @@ import {
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import { loadTagResourceGroups } from "@/lib/content/tag-resources";
+import { loadUiMessages } from "@/lib/content/ui-messages";
+import { docsSearchApi } from "@/lib/search/search-server";
+
+const UNIGRAM_TOKENIZER_URL = "/docs/modules/unigram-tokenizer";
+
+function pageBaseUrl(url: string): string {
+  return url.split("#")[0] ?? url;
+}
 
 describe("unigram tokenizer discovery registry", () => {
   test("registry links unigram tokenizer to tokenizer-family neighbors in priority order", () => {
@@ -71,5 +80,34 @@ describe("unigram tokenizer discovery registry", () => {
     expect(html).not.toContain('href="/docs/modules/sentencepiece"');
     expect(html).not.toContain('href="/docs/modules/bpe"');
     expect(html).not.toContain('href="/docs/glossary/tokenizers-overview"');
+  });
+
+  test("token-to-probability-chain tag landing surfaces unigram tokenizer as a module entry point", async () => {
+    const messages = await loadUiMessages();
+    const groups = await loadTagResourceGroups(
+      "token-to-probability-chain",
+      messages,
+      "en",
+    );
+    const moduleGroup = groups.find((group) => group.kind === "module");
+
+    expect(moduleGroup).toBeDefined();
+    expect(moduleGroup?.kindLabel).toBe("Module");
+    expect(
+      moduleGroup?.resources.some(
+        (resource) => resource.url === UNIGRAM_TOKENIZER_URL,
+      ),
+    ).toBe(true);
+  });
+
+  test.each([
+    "unigram tokenizer",
+    "SentencePiece unigram",
+    "merge-based tokenizer",
+  ] as const)("search query %s returns unigram tokenizer through the normal discovery path", async (query) => {
+    const results = await docsSearchApi.search(query);
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(pageBaseUrl(results[0]?.url ?? "")).toBe(UNIGRAM_TOKENIZER_URL);
   });
 });
