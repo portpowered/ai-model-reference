@@ -16,7 +16,6 @@ export type {
   PublishedDocsRecordRef,
   PublishedDocsRegistryIds,
 } from "@/lib/content/published-docs-registry-contract";
-
 export type PublishedDocsIndex = {
   entries: readonly PublishedDocsEntry[];
   byRegistryId: ReadonlyMap<string, PublishedDocsEntry>;

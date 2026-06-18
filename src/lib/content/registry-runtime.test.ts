@@ -41,10 +41,38 @@ describe("registry-runtime", () => {
     ]);
   });
 
+  test("getModuleById returns bidirectional attention with encoder-side links", () => {
+    const record = getModuleById("module.bidirectional-attention");
+    expect(record?.slug).toBe("bidirectional-attention");
+    expect(record?.tags).toEqual(["attention"]);
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "bidirectional attention",
+        "bidirectional self-attention",
+        "bert attention",
+        "full-context attention",
+        "full context attention",
+      ]),
+    );
+    expect(record?.relatedIds).toEqual([
+      "module.attention",
+      "concept.autoregressive-generation",
+      "concept.encoder",
+      "concept.transformer-architecture",
+      "concept.encoder-decoder",
+    ]);
+  });
+
   test("getRegistryTags returns tags for a known module", () => {
     expect(getRegistryTags("module.grouped-query-attention")).toEqual([
       "attention",
       "kv-cache",
+    ]);
+  });
+
+  test("getRegistryTags returns tags for bidirectional attention", () => {
+    expect(getRegistryTags("module.bidirectional-attention")).toEqual([
+      "attention",
     ]);
   });
 
@@ -191,6 +219,7 @@ describe("registry-runtime", () => {
   test("listModuleRecords includes attention overview and variant-group peers", () => {
     const ids = listModuleRecords().map((record) => record.id);
     expect(ids).toContain("module.attention");
+    expect(ids).toContain("module.bidirectional-attention");
     expect(ids).toContain("module.multi-query-attention");
     expect(ids).toContain("module.multi-head-attention");
   });

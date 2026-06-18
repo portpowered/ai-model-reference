@@ -667,6 +667,14 @@ export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
     section: "modules",
   },
   {
+    registryId: "module.bidirectional-attention",
+    slug: "bidirectional-attention",
+    docsSlug: "modules/bidirectional-attention",
+    url: "/docs/modules/bidirectional-attention",
+    pageKind: "module",
+    section: "modules",
+  },
+  {
     registryId: "module.standard-ffn",
     slug: "standard-ffn",
     docsSlug: "modules/standard-ffn",
@@ -1044,6 +1052,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "module.alibi",
   "module.attention",
   "module.batch-norm",
+  "module.bidirectional-attention",
   "module.compressed-sparse-attention",
   "module.deepseekmoe",
   "module.feed-forward-network",
