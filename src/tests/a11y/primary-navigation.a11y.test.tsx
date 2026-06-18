@@ -1,4 +1,3 @@
-import "./mock-navigation";
 import { afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { cleanup, fireEvent, screen, within } from "@testing-library/react";
 import { act } from "react";
@@ -13,6 +12,7 @@ import {
   renderWithAppProviders,
   restoreFetchMock,
 } from "@/tests/a11y/render";
+import { resetMockNavigation, setMockPathname } from "./mock-navigation";
 
 describe("primary navigation accessibility smoke", () => {
   beforeAll(() => {
@@ -22,6 +22,7 @@ describe("primary navigation accessibility smoke", () => {
   afterEach(() => {
     cleanup();
     restoreFetchMock();
+    resetMockNavigation();
   });
 
   test("exposes nav landmark, accessible link names, keyboard focus, and no serious axe violations", async () => {
@@ -174,6 +175,33 @@ describe("primary navigation accessibility smoke", () => {
 
     selector.focus();
     expect(document.activeElement).toBe(selector);
+
+    const header = document.querySelector("header");
+    await expectNoSeriousAxeViolations(header ?? document.body);
+  });
+
+  test("header exposes unavailable locale state with disabled semantics on unshipped docs routes", async () => {
+    await installDocsSearchFetchMock();
+    const context = await loadAppTestContext();
+    setMockPathname("/docs/modules/grouped-query-attention");
+    await act(async () => {
+      await renderWithAppProviders(
+        <ModelAtlasDocsHeader messages={context.messages} locale="en" />,
+        { context },
+      );
+    });
+
+    const selector = screen.getByRole("combobox", {
+      name: context.messages.nav.language,
+    });
+    const options = within(selector).getAllByRole("option");
+    const japaneseOption = options.find((option) =>
+      option.textContent?.includes("日本語"),
+    );
+
+    expect(japaneseOption?.textContent).toBe("日本語 (Unavailable)");
+    expect(japaneseOption?.hasAttribute("disabled")).toBe(true);
+    expect(screen.getByText("Unavailable on this page: 日本語")).toBeTruthy();
 
     const header = document.querySelector("header");
     await expectNoSeriousAxeViolations(header ?? document.body);

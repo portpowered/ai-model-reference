@@ -2,10 +2,12 @@ import { describe, expect, test } from "bun:test";
 import {
   buildLocalizedRoute,
   defaultLocale,
+  isLocalizedRouteShipped,
   localeOptions,
   localizePath,
   matchLocalizedRoute,
   resolveLocale,
+  resolveLocalizedRouteSwitch,
   supportedLocales,
   switchRouteLocale,
   UnsupportedLocaleError,
@@ -162,5 +164,54 @@ describe("locale-routing", () => {
     expect(switchRouteLocale("/search?tag=attention", "ja")).toBe(
       "/ja/search?tag=attention",
     );
+  });
+
+  test("shared shipped-route gating distinguishes shipped docs from unshipped docs", () => {
+    expect(
+      isLocalizedRouteShipped(
+        { surface: "docs-page", slug: "modules/grouped-query-attention" },
+        "vi",
+      ),
+    ).toBe(true);
+    expect(
+      isLocalizedRouteShipped(
+        { surface: "docs-page", slug: "modules/grouped-query-attention" },
+        "ja",
+      ),
+    ).toBe(false);
+    expect(isLocalizedRouteShipped({ surface: "search" }, "ja")).toBe(true);
+    expect(
+      isLocalizedRouteShipped({ surface: "tag-page", slug: "attention" }, "ja"),
+    ).toBe(true);
+  });
+
+  test("resolveLocalizedRouteSwitch fails closed for unshipped localized docs destinations", () => {
+    expect(
+      resolveLocalizedRouteSwitch(
+        "/docs/modules/grouped-query-attention?view=graph#kv-cache",
+        "vi",
+      ),
+    ).toEqual({
+      available: true,
+      destination: {
+        surface: "docs-page",
+        slug: "modules/grouped-query-attention",
+      },
+      href: "/vi/docs/modules/grouped-query-attention?view=graph#kv-cache",
+    });
+
+    expect(
+      resolveLocalizedRouteSwitch(
+        "/docs/modules/grouped-query-attention?view=graph#kv-cache",
+        "ja",
+      ),
+    ).toEqual({
+      available: false,
+      destination: {
+        surface: "docs-page",
+        slug: "modules/grouped-query-attention",
+      },
+      reason: "unshipped-destination",
+    });
   });
 });

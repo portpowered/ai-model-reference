@@ -27,6 +27,8 @@ describe("loadUiMessages shell keys", () => {
     expect(messages.nav.architecture).toBe("Architecture");
     expect(messages.nav.language).toBe("Language");
     expect(messages.nav.currentLanguage).toBe("Current");
+    expect(messages.nav.unavailableLanguage).toBe("Unavailable");
+    expect(messages.nav.unavailableOnPage).toBe("Unavailable on this page");
     expect(messages.searchEntry.title).toBe("Search");
     expect(messages.architectureIndex.title).toBe("Architecture");
     expect(messages.glossaryIndex.title).toBe("Glossary");
@@ -37,6 +39,7 @@ describe("loadUiMessages shell keys", () => {
     const messages = await loadUiMessages("vi");
     expect(messages.nav.home).toBe("Trang chủ");
     expect(messages.nav.language).toBe("Ngôn ngữ");
+    expect(messages.nav.unavailableLanguage).toBe("Chưa khả dụng");
     expect(messages.searchEntry.title).toBe("Tìm kiếm");
     expect(messages.tagsIndex.title).toBe("Thẻ");
   });
@@ -45,6 +48,7 @@ describe("loadUiMessages shell keys", () => {
     const messages = await loadUiMessages("ja");
     expect(messages.nav.home).toBe("ホーム");
     expect(messages.nav.language).toBe("言語");
+    expect(messages.nav.unavailableOnPage).toBe("このページでは未提供");
     expect(messages.searchEntry.title).toBe("検索");
     expect(messages.tagsIndex.title).toBe("タグ");
     expect(messages.shell.sidebarTitle).toBe("リファレンス");

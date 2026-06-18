@@ -1,9 +1,7 @@
-import { isShippedLocalizedDocsSlug } from "@/lib/content/shipped-localized-docs";
 import {
   defaultLocale,
-  matchLocalizedRoute,
+  resolveLocalizedRouteSwitch,
   type SiteLocale,
-  switchRouteLocale,
 } from "@/lib/i18n/locale-routing";
 
 export function localizeDocsHref(href: string, locale: SiteLocale): string {
@@ -11,17 +9,10 @@ export function localizeDocsHref(href: string, locale: SiteLocale): string {
     return href;
   }
 
-  const match = matchLocalizedRoute(href);
-  if (match.kind !== "matched") {
+  const resolved = resolveLocalizedRouteSwitch(href, locale);
+  if (!resolved.available) {
     return href;
   }
 
-  if (
-    match.destination.surface === "docs-page" &&
-    !isShippedLocalizedDocsSlug(match.destination.slug, locale)
-  ) {
-    return href;
-  }
-
-  return switchRouteLocale(href, locale);
+  return resolved.href;
 }

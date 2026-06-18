@@ -19,7 +19,9 @@
     "glossary": "Glossary",
     "tags": "Tags",
     "language": "Language",
-    "currentLanguage": "Current"
+    "currentLanguage": "Current",
+    "unavailableLanguage": "Unavailable",
+    "unavailableOnPage": "Unavailable on this page"
   },
   "searchEntry": {
     "title": "Search",

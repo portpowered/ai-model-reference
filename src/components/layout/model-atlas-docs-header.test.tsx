@@ -16,11 +16,16 @@ import {
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { localeOptions } from "@/lib/i18n/locale-routing";
 import { assertPrimaryNavNoDuplicateSearchLink } from "@/lib/verify/customer-ask-home-header-convergence";
+import {
+  resetMockNavigation,
+  setMockPathname,
+} from "@/tests/a11y/mock-navigation";
 import { renderWithAppProviders } from "@/tests/a11y/render";
 
 describe("ModelAtlasDocsHeader", () => {
   afterEach(() => {
     cleanup();
+    resetMockNavigation();
   });
 
   function withWindowLocation(
@@ -34,6 +39,7 @@ describe("ModelAtlasDocsHeader", () => {
       value: {
         ...originalLocation,
         ...location,
+        assign: location.assign ?? originalLocation.assign,
       },
     });
 
@@ -106,6 +112,52 @@ describe("ModelAtlasDocsHeader", () => {
     ]);
   });
 
+  test("marks unshipped locale destinations as unavailable and does not navigate to them", async () => {
+    const messages = await loadUiMessages();
+    const SearchDialog: ComponentType<SharedProps> = () => null;
+    const assignedUrls: string[] = [];
+
+    await withWindowLocation(
+      {
+        assign: (url: string | URL) => {
+          assignedUrls.push(String(url));
+        },
+        pathname: "/docs/modules/grouped-query-attention",
+        search: "",
+        hash: "",
+      },
+      async () => {
+        setMockPathname("/docs/modules/grouped-query-attention");
+        await renderWithAppProviders(
+          <ModelAtlasDocsHeader messages={messages} locale="en" />,
+          {
+            SearchDialog,
+          },
+        );
+
+        const selector = screen.getByRole("combobox", {
+          name: messages.nav.language,
+        }) as HTMLSelectElement;
+        const options = within(selector).getAllByRole(
+          "option",
+        ) as HTMLOptionElement[];
+        const japaneseOption = options.find((option) => option.value === "ja");
+
+        expect(japaneseOption?.textContent).toBe("日本語 (Unavailable)");
+        expect(japaneseOption?.hasAttribute("disabled")).toBe(true);
+        expect(
+          screen.getByText("Unavailable on this page: 日本語"),
+        ).toBeTruthy();
+
+        fireEvent.change(selector, {
+          target: { value: "ja" },
+        });
+
+        expect(assignedUrls).toEqual([]);
+      },
+    );
+  });
+
   test("switches to the localized equivalent route while preserving query and hash state", async () => {
     const messages = await loadUiMessages();
     const SearchDialog: ComponentType<SharedProps> = () => null;
@@ -121,6 +173,7 @@ describe("ModelAtlasDocsHeader", () => {
         hash: "#kv-cache",
       },
       async () => {
+        setMockPathname("/docs/modules/grouped-query-attention");
         await renderWithAppProviders(
           <ModelAtlasDocsHeader messages={messages} locale="en" />,
           {

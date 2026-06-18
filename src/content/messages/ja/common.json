@@ -19,7 +19,9 @@
     "glossary": "用語集",
     "tags": "タグ",
     "language": "言語",
-    "currentLanguage": "現在"
+    "currentLanguage": "現在",
+    "unavailableLanguage": "未提供",
+    "unavailableOnPage": "このページでは未提供"
   },
   "searchEntry": {
     "title": "検索",

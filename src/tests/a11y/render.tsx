@@ -62,6 +62,8 @@ type RenderWithProvidersOptions = Omit<RenderOptions, "wrapper"> & {
   context?: AppTestContext;
   /** When set, replaces the default ModelAtlas search dialog (use `() => null` for nav-only tests). */
   SearchDialog?: ComponentType<SharedProps>;
+  pathname?: string;
+  searchParams?: URLSearchParams;
 };
 
 export async function renderWithAppProviders(
@@ -84,7 +86,10 @@ export async function renderWithAppProviders(
       };
 
     return (
-      <NextNavigationTestProvider>
+      <NextNavigationTestProvider
+        pathname={options.pathname}
+        searchParams={options.searchParams}
+      >
         <RootProvider
           theme={{ enabled: true, defaultTheme: "dark", forcedTheme: "dark" }}
           search={{

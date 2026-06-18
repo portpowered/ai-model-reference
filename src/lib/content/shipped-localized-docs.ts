@@ -1,4 +1,4 @@
-import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
+import { defaultLocale, type SiteLocale } from "../i18n/locale-routing";
 
 export type NonDefaultLocale = Exclude<SiteLocale, "en">;
 

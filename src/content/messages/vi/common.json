@@ -19,7 +19,9 @@
     "glossary": "Thuật ngữ",
     "tags": "Thẻ",
     "language": "Ngôn ngữ",
-    "currentLanguage": "Hiện tại"
+    "currentLanguage": "Hiện tại",
+    "unavailableLanguage": "Chưa khả dụng",
+    "unavailableOnPage": "Chưa khả dụng trên trang này"
   },
   "searchEntry": {
     "title": "Tìm kiếm",

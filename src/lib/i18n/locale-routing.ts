@@ -1,3 +1,5 @@
+import { isShippedLocalizedDocsSlug } from "../content/shipped-localized-docs";
+
 const LOCALE_PREFIX_PATTERN = /^[a-z]{2}(?:-[A-Z]{2})?$/;
 
 export const supportedLocales = ["en", "vi", "ja"] as const;
@@ -41,6 +43,18 @@ export type LocalizedRouteMatch =
   | {
       kind: "unmatched";
       pathname: string;
+    };
+
+export type LocalizedRouteSwitchResult =
+  | {
+      available: true;
+      destination: LocalizedRouteDestination;
+      href: string;
+    }
+  | {
+      available: false;
+      destination: LocalizedRouteDestination | null;
+      reason: "unmatched-route" | "unshipped-destination";
     };
 
 export class UnsupportedLocaleError extends Error {
@@ -236,4 +250,59 @@ export function switchRouteLocale(
   }
 
   return `${buildLocalizedRoute(match.destination, locale)}${suffix}`;
+}
+
+export function isLocalizedRouteShipped(
+  destination: LocalizedRouteDestination,
+  locale: SiteLocale,
+): boolean {
+  if (locale === defaultLocale) {
+    return true;
+  }
+
+  switch (destination.surface) {
+    case "docs-page":
+      return isShippedLocalizedDocsSlug(destination.slug, locale);
+    case "home":
+    case "search":
+    case "architecture-index":
+    case "glossary-index":
+    case "tags-index":
+    case "tag-page":
+      return true;
+  }
+}
+
+export function resolveLocalizedRouteSwitch(
+  pathname: string,
+  locale: SiteLocale,
+): LocalizedRouteSwitchResult {
+  const { suffix } = splitPathname(pathname);
+  const match = matchLocalizedRoute(pathname);
+
+  if (match.kind !== "matched") {
+    if (match.kind === "unsupported-locale") {
+      throw new UnsupportedLocaleError(match.locale);
+    }
+
+    return {
+      available: false,
+      destination: null,
+      reason: "unmatched-route",
+    };
+  }
+
+  if (!isLocalizedRouteShipped(match.destination, locale)) {
+    return {
+      available: false,
+      destination: match.destination,
+      reason: "unshipped-destination",
+    };
+  }
+
+  return {
+    available: true,
+    destination: match.destination,
+    href: `${buildLocalizedRoute(match.destination, locale)}${suffix}`,
+  };
 }

@@ -20,6 +20,8 @@ export type UiMessages = {
     tags: string;
     language: string;
     currentLanguage: string;
+    unavailableLanguage: string;
+    unavailableOnPage: string;
   };
   searchEntry: {
     title: string;
