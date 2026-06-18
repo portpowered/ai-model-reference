@@ -80,7 +80,7 @@ describe("Phase 2 evaluation and scaling glossary pages (US-005)", () => {
     expect(html).toContain('href="/docs/glossary/generalization"');
     expect(html).toContain('href="/docs/glossary/softmax"');
     expect(html).toContain('href="/docs/glossary/entropy"');
-    expect(html).toContain("Curated related");
+    expect(html).toContain("curated");
   });
 
   test("scaling law connects to capacity, generalization, and emergent behavior", async () => {

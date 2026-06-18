@@ -84,7 +84,7 @@ describe("loadModulePage grouped-query-attention", () => {
     expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/attention"');
-    expect(html).toContain("Curated related");
+    expect(html).toContain("curated");
     expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain("Ainslie, Joshua, et al.");
     expect(html).toContain('href="https://arxiv.org/abs/2305.13245"');

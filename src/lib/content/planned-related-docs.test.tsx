@@ -65,7 +65,7 @@ describe("Phase 2 planned related docs (US-002)", () => {
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/multi-head-latent-attention"');
     expect(html).toContain("Same variant group");
-    expect(html).toContain("Curated related");
+    expect(html).toContain("curated");
   });
 
   test("RelatedDocs renders published transformer and diffusion-model forwards", () => {

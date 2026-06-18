@@ -83,7 +83,7 @@ describe("loadModulePage multi-head-latent-attention", () => {
     expect(html).toContain('href="/tags/kv-cache"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
-    expect(html).toContain("Curated related");
+    expect(html).toContain("curated");
     expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain("DeepSeek-AI");
     expect(html).toContain('href="https://arxiv.org/abs/2405.04434"');

@@ -87,7 +87,9 @@ describe("Phase 2 encoder-decoder architecture glossary pages (US-002)", () => {
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/transformer"');
     expect(html).toContain("Transformers");
-    expect(html).not.toContain("Planned — coming in a later phase");
+    expect(html).not.toContain(
+      "planned - coming in a later phase to be planned",
+    );
   });
 
   test("encoder-decoder links to encoder and decoder peers", async () => {

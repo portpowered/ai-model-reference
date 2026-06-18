@@ -162,7 +162,7 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
     expect(html).toContain('href="/docs/modules/multi-head-latent-attention"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/modules/attention"');
-    expect(html).toContain("Curated related");
+    expect(html).toContain("curated");
   });
 
   test("module pages render same-variant-group peer links in the related section", async () => {
@@ -191,7 +191,7 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
 
       expect(html).not.toContain('data-related-group="same-variant-group"');
       expect(html).toContain('data-testid="curated-related-docs"');
-      expect(html).toContain("Curated related");
+      expect(html).toContain("curated");
     }
   });
 });

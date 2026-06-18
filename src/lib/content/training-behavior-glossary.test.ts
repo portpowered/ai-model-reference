@@ -95,7 +95,7 @@ describe("Phase 2 training behavior glossary pages (US-004)", () => {
     expect(generalizationHtml).toContain(
       'href="/docs/glossary/model-capacity"',
     );
-    expect(generalizationHtml).toContain("Curated related");
+    expect(generalizationHtml).toContain("curated");
   });
 
   test("registry uses training and evaluation concept types", async () => {

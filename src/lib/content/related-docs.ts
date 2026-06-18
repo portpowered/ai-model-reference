@@ -31,11 +31,11 @@ export const DERIVED_RELATED_DOC_GROUP_LABELS: Record<
   [SAME_VARIANT_GROUP]: "Same variant group",
   [SHARED_TAGS]: "Shared tag",
   [SAME_CONCEPT_TYPE]: "Same concept type",
-  [CURATED_RELATED]: "Curated related",
+  [CURATED_RELATED]: "curated",
 };
 
 export const PLANNED_RELATED_REASON_LABEL =
-  "Planned — coming in a later phase" as const;
+  "planned - coming in a later phase to be planned" as const;
 
 export type RelatedRegistryRecord = ModuleRecord | ConceptRecord;
 

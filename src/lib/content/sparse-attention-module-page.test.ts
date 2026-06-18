@@ -79,7 +79,7 @@ describe("loadModulePage sparse-attention", () => {
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
-    expect(html).toContain("Curated related");
+    expect(html).toContain("curated");
     expect(html).toContain("Mask-limited subset");
     expect(html).toContain(
       'data-graph-id="graph.sparse-attention-time-pattern"',

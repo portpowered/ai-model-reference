@@ -79,7 +79,7 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
     expect(html).toContain('href="/docs/glossary/embedding"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');
-    expect(html).not.toContain("Curated related");
+    expect(html).not.toContain("curated");
   });
 
   test("token related links remain keyboard-focusable docs chrome anchors", async () => {

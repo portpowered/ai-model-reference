@@ -98,7 +98,7 @@ describe("Phase 2 generation paradigm glossary pages (US-003)", () => {
 
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/glossary/denoising-generation"');
-    expect(html).toContain("Curated related");
+    expect(html).toContain("curated");
   });
 
   test("search index records generation pages with glossary kind not module", async () => {

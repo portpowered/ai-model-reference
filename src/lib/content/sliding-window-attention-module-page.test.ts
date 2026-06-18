@@ -78,7 +78,7 @@ describe("loadModulePage sliding-window-attention", () => {
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
-    expect(html).toContain("Curated related");
+    expect(html).toContain("curated");
     expect(html).toContain("Fixed local window");
     expect(html).toContain(
       'data-graph-id="graph.sliding-window-attention-time-window-pattern"',

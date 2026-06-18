@@ -76,7 +76,7 @@ describe("loadModulePage linear-attention", () => {
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
-    expect(html).toContain("Curated related");
+    expect(html).toContain("curated");
     expect(html).toContain("Near-linear O(n) per head");
     expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain("Katharopoulos");
