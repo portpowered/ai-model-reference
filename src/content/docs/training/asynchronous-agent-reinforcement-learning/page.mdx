@@ -1,0 +1,70 @@
+---
+title: "Asynchronous Agent Reinforcement Learning"
+description: "A training-regime page that explains how GLM-5 separates rollout generation from model updates so agent trajectories can be gathered and filtered without a tight synchronous loop."
+kind: "training-regime"
+registryId: "training-regime.asynchronous-agent-reinforcement-learning"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+aliases:
+  - "asynchronous agent reinforcement learning"
+  - "asynchronous agent RL"
+updatedAt: "2026-06-19"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { RegistryAssociatedRecords } from "@/features/docs/components/RegistryAssociatedRecords";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeFlow";
+import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
+
+
+<TrainingRegimeAtAGlance registryId="training-regime.asynchronous-agent-reinforcement-learning" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+<Section id="what-it-optimizes" titleKey="sections.whatItOptimizes.title">
+  <T k="sections.whatItOptimizes.body" />
+</Section>
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+  <TrainingRegimeFlow registryId="training-regime.asynchronous-agent-reinforcement-learning" assetId="trainingFlow" />
+</Section>
+<Section id="practical-benefit" titleKey="sections.practicalBenefit.title">
+  <T k="sections.practicalBenefit.body" />
+</Section>
+<Section id="compared-to-nearby-regimes" titleKey="sections.comparedToNearbyRegimes.title">
+  <T k="sections.comparedToNearbyRegimes.body" />
+  <DerivedRelatedDocs
+    registryId="training-regime.asynchronous-agent-reinforcement-learning"
+    groups={[
+      "same-concept-type",
+      "same-variant-group",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+</Section>
+<Section id="models-and-papers" titleKey="sections.modelsAndPapers.title">
+  <T k="sections.modelsAndPapers.body" />
+  <RegistryAssociatedRecords registryId="training-regime.asynchronous-agent-reinforcement-learning" groups={[
+    { id: "models", title: "Used by models", fields: ["usedByModelIds"], emptyLabel: "No linked models listed yet.", defaultOpen: true },
+    { id: "papers", title: "Paper sources", fields: ["paperIds"], emptyLabel: "No linked paper pages listed yet." }
+  ]} />
+</Section>
+<Section id="limitations-and-failure-modes" titleKey="sections.limitationsAndFailureModes.title">
+  <T k="sections.limitationsAndFailureModes.body" />
+</Section>
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="training-regime.asynchronous-agent-reinforcement-learning" showDescriptions />
+</Section>
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="training-regime.asynchronous-agent-reinforcement-learning" />
+</Section>

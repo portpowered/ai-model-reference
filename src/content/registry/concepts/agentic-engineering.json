@@ -1,0 +1,35 @@
+{
+  "id": "concept.agentic-engineering",
+  "slug": "agentic-engineering",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "agentic engineering",
+    "coding agents",
+    "software engineering agents"
+  ],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [
+    "paper.glm-5",
+    "model.glm-5",
+    "training-regime.asynchronous-agent-reinforcement-learning",
+    "system.slime-rollout-framework",
+    "concept.transformer-architecture",
+    "training-regime.on-policy-distillation"
+  ],
+  "citationIds": ["citation.glm-5-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "authors": ["GLM-5 Team"],
+  "sourceId": "paper.glm-5",
+  "releaseDate": "2026-02-17",
+  "conceptType": "systems",
+  "prerequisiteIds": ["concept.transformer-architecture"],
+  "explainsIds": [
+    "model.glm-5",
+    "training-regime.asynchronous-agent-reinforcement-learning",
+    "system.slime-rollout-framework"
+  ]
+}

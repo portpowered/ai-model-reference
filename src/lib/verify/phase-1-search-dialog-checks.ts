@@ -27,6 +27,16 @@ export type SearchDialogDomSnapshot = {
   hasGroupedQueryAttentionButton: boolean;
 };
 
+export type SearchDialogInputHydrationSnapshot = {
+  inputVisible: boolean;
+  inputFocused: boolean;
+  inputValue: string;
+  idleVisible: boolean;
+  loadingVisible: boolean;
+  resultsVisible: boolean;
+  emptyVisible: boolean;
+};
+
 export const VERIFY_SEARCH_DIALOG_STUB_ENV = "VERIFY_SEARCH_DIALOG_STUB";
 
 export type RunPhase1SearchDialogChecksOptions = {
@@ -58,17 +68,34 @@ export function resolveSearchDialogCheckOptionsFromEnv(
 }
 
 const SEARCH_DIALOG_TRIGGER_SELECTOR = "button[data-search]";
+const SEARCH_DIALOG_IDLE_SELECTOR = '[data-testid="search-dialog-idle"]';
+const SEARCH_DIALOG_LOADING_SELECTOR = '[data-testid="search-dialog-loading"]';
 const SEARCH_DIALOG_EMPTY_SELECTOR = '[data-testid="search-dialog-empty"]';
 const SEARCH_RESULT_URL_SELECTOR = '[data-testid="search-result-url"]';
 const SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS = 250;
+const SEARCH_INPUT_SNAPSHOT_FIELD_TIMEOUT_MS = 5_000;
 
 /** Default per-query browser deadline (client hydration can exceed 10s under CI load). */
-export const DEFAULT_SEARCH_DIALOG_TIMEOUT_MS = 30_000;
+export const DEFAULT_SEARCH_DIALOG_TIMEOUT_MS = 45_000;
+export const SEARCH_DIALOG_QUERY_RETRY_LIMIT = 1;
 
 export function formatPhase1SearchDialogCheckFailure(
   failure: Phase1SearchDialogCheckFailure,
 ): string {
   return `${failure.surface}?query=${encodeURIComponent(failure.query)}: ${failure.reason}`;
+}
+
+export function shouldRetrySearchDialogQuery(reason: string): boolean {
+  return (
+    reason.startsWith(
+      "search input did not hydrate in header search dialog within ",
+    ) ||
+    reason.startsWith(
+      "timed out waiting for search results in header search dialog for query ",
+    ) ||
+    reason ===
+      "no loading, results, or empty outcome appeared after entering a query in header search dialog"
+  );
 }
 
 /**
@@ -146,6 +173,16 @@ async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function readBoundedInputValue(input: Locator): Promise<string> {
+  try {
+    return await input.inputValue({
+      timeout: SEARCH_INPUT_SNAPSHOT_FIELD_TIMEOUT_MS,
+    });
+  } catch {
+    return "";
+  }
+}
+
 async function openHeaderSearchDialog(
   page: Page,
   baseUrl: string,
@@ -154,7 +191,7 @@ async function openHeaderSearchDialog(
   const homeUrl = normalizeVerifyBaseUrl(baseUrl);
   await page.goto(homeUrl, {
     timeout: timeoutMs,
-    waitUntil: "domcontentloaded",
+    waitUntil: "load",
   });
 
   const trigger = page.locator(SEARCH_DIALOG_TRIGGER_SELECTOR).first();
@@ -188,13 +225,113 @@ async function waitForSearchDialogOutcome(
   dialog: Locator,
   timeoutMs: number,
 ): Promise<void> {
+  const loading = dialog.locator(SEARCH_DIALOG_LOADING_SELECTOR);
   const results = dialog.locator(SEARCH_RESULT_URL_SELECTOR);
   const empty = dialog.locator(SEARCH_DIALOG_EMPTY_SELECTOR);
+
+  await Promise.race([
+    loading.waitFor({ state: "visible", timeout: timeoutMs }),
+    results.first().waitFor({ state: "visible", timeout: timeoutMs }),
+    empty.waitFor({ state: "visible", timeout: timeoutMs }),
+  ]);
 
   await Promise.race([
     results.first().waitFor({ state: "visible", timeout: timeoutMs }),
     empty.waitFor({ state: "visible", timeout: timeoutMs }),
   ]);
+}
+
+export async function readSearchDialogInputHydrationSnapshot(
+  dialog: Locator,
+): Promise<SearchDialogInputHydrationSnapshot> {
+  const input = dialog.getByRole("textbox");
+
+  return {
+    inputVisible: await input.isVisible(),
+    inputFocused: await input
+      .evaluate((element) => element === document.activeElement)
+      .catch(() => false),
+    inputValue: await readBoundedInputValue(input),
+    idleVisible: await dialog.locator(SEARCH_DIALOG_IDLE_SELECTOR).isVisible(),
+    loadingVisible: await dialog
+      .locator(SEARCH_DIALOG_LOADING_SELECTOR)
+      .isVisible(),
+    resultsVisible:
+      (await dialog.locator(SEARCH_RESULT_URL_SELECTOR).count()) > 0,
+    emptyVisible: await dialog
+      .locator(SEARCH_DIALOG_EMPTY_SELECTOR)
+      .isVisible(),
+  };
+}
+
+export function evaluateSearchDialogInputHydrationBeforeQuery(
+  snapshot: SearchDialogInputHydrationSnapshot,
+): string | null {
+  if (!snapshot.inputVisible) {
+    return "search input is not visible in header search dialog";
+  }
+
+  if (!snapshot.idleVisible) {
+    return "idle state is not visible before query entry in header search dialog";
+  }
+
+  return null;
+}
+
+export function evaluateSearchDialogInputHydrationAfterTyping(
+  snapshot: SearchDialogInputHydrationSnapshot,
+  typedQuery: string,
+): string | null {
+  if (!snapshot.inputFocused) {
+    return "search input did not retain focus after typing in header search dialog";
+  }
+
+  if (snapshot.inputValue !== typedQuery) {
+    return `search input value "${snapshot.inputValue}" did not update to "${typedQuery}" after typing in header search dialog`;
+  }
+
+  if (snapshot.idleVisible) {
+    return "idle state remained visible after entering a query in header search dialog";
+  }
+
+  return null;
+}
+
+export function evaluateSearchDialogInputHydrationOutcome(
+  snapshot: SearchDialogInputHydrationSnapshot,
+): string | null {
+  if (
+    snapshot.loadingVisible ||
+    snapshot.resultsVisible ||
+    snapshot.emptyVisible
+  ) {
+    return null;
+  }
+
+  return "no loading, results, or empty outcome appeared after entering a query in header search dialog";
+}
+
+async function waitForSearchDialogInputHydrationBeforeQuery(
+  dialog: Locator,
+  timeoutMs: number,
+): Promise<string | null> {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    try {
+      const snapshot = await readSearchDialogInputHydrationSnapshot(dialog);
+      const failure = evaluateSearchDialogInputHydrationBeforeQuery(snapshot);
+      if (!failure) {
+        return null;
+      }
+    } catch {
+      // React hydration can detach the input between visibility and evaluate.
+    }
+
+    await sleep(250);
+  }
+
+  return `search input did not hydrate in header search dialog within ${timeoutMs}ms`;
 }
 
 /**
@@ -211,14 +348,38 @@ export async function checkSearchDialogQuery(
   const activeDialog =
     dialog ?? (await openHeaderSearchDialog(page, baseUrl, timeoutMs));
 
+  const beforeQuery = await waitForSearchDialogInputHydrationBeforeQuery(
+    activeDialog,
+    timeoutMs,
+  );
+  if (beforeQuery) {
+    return beforeQuery;
+  }
+
   const input = activeDialog.getByRole("textbox");
   await input.fill("");
-  await input.fill(query);
+  await input.focus();
+  await input.pressSequentially(query, { delay: 30 });
+
+  const afterTyping = evaluateSearchDialogInputHydrationAfterTyping(
+    await readSearchDialogInputHydrationSnapshot(activeDialog),
+    query,
+  );
+  if (afterTyping) {
+    return afterTyping;
+  }
 
   try {
     await waitForSearchDialogOutcome(activeDialog, timeoutMs);
   } catch {
     return `timed out waiting for search results in header search dialog for query "${query}" after ${timeoutMs}ms`;
+  }
+
+  const hydrationOutcome = evaluateSearchDialogInputHydrationOutcome(
+    await readSearchDialogInputHydrationSnapshot(activeDialog),
+  );
+  if (hydrationOutcome) {
+    return hydrationOutcome;
   }
 
   const snapshot = await readSearchDialogDomSnapshot(activeDialog);
@@ -250,21 +411,54 @@ export async function runPhase1SearchDialogChecks(
   const browser = await launchBrowser();
 
   try {
-    const page = await browser.newPage();
-    page.setDefaultTimeout(timeoutMs);
+    const queryFailures = await Promise.all(
+      queries.map(async (query) => {
+        for (
+          let attempt = 0;
+          attempt <= SEARCH_DIALOG_QUERY_RETRY_LIMIT;
+          attempt += 1
+        ) {
+          const context = await browser.newContext();
+          try {
+            const page = await context.newPage();
+            page.setDefaultTimeout(timeoutMs);
+            page.setDefaultNavigationTimeout(timeoutMs);
 
-    const dialog = await openHeaderSearchDialog(page, baseUrl, timeoutMs);
+            const dialog = await openHeaderSearchDialog(
+              page,
+              baseUrl,
+              timeoutMs,
+            );
+            const reason = await checkSearchDialogQuery(
+              page,
+              baseUrl,
+              query,
+              timeoutMs,
+              dialog,
+            );
 
-    for (const query of queries) {
-      const reason = await checkSearchDialogQuery(
-        page,
-        baseUrl,
-        query,
-        timeoutMs,
-        dialog,
-      );
-      if (reason) {
-        failures.push({ query, surface: "header-dialog", reason });
+            if (!reason) {
+              return null;
+            }
+
+            if (
+              attempt === SEARCH_DIALOG_QUERY_RETRY_LIMIT ||
+              !shouldRetrySearchDialogQuery(reason)
+            ) {
+              return { query, surface: "header-dialog" as const, reason };
+            }
+          } finally {
+            await Promise.race([context.close(), sleep(timeoutMs)]);
+          }
+        }
+
+        return null;
+      }),
+    );
+
+    for (const failure of queryFailures) {
+      if (failure) {
+        failures.push(failure);
       }
     }
   } finally {

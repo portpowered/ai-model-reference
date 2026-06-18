@@ -2,11 +2,16 @@ import { describe, expect, test } from "bun:test";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import {
   evaluateSearchDialogDomSnapshot,
+  evaluateSearchDialogInputHydrationAfterTyping,
+  evaluateSearchDialogInputHydrationBeforeQuery,
+  evaluateSearchDialogInputHydrationOutcome,
   formatPhase1SearchDialogCheckFailure,
   PHASE_1_SEARCH_DIALOG_QUERIES,
   resolveSearchDialogCheckOptionsFromEnv,
   runPhase1SearchDialogChecks,
   type SearchDialogDomSnapshot,
+  type SearchDialogInputHydrationSnapshot,
+  shouldRetrySearchDialogQuery,
 } from "./phase-1-search-dialog-checks";
 
 function passingSnapshot(
@@ -18,6 +23,21 @@ function passingSnapshot(
     hasGroupedQueryAttentionLink: false,
     hasGroupedQueryAttentionResultUrl: true,
     hasGroupedQueryAttentionButton: false,
+    ...overrides,
+  };
+}
+
+function passingInputHydrationSnapshot(
+  overrides: Partial<SearchDialogInputHydrationSnapshot> = {},
+): SearchDialogInputHydrationSnapshot {
+  return {
+    inputVisible: true,
+    inputFocused: true,
+    inputValue: "GQA",
+    idleVisible: false,
+    loadingVisible: true,
+    resultsVisible: false,
+    emptyVisible: false,
     ...overrides,
   };
 }
@@ -105,6 +125,70 @@ describe("evaluateSearchDialogDomSnapshot", () => {
   });
 });
 
+describe("search dialog hydration checks", () => {
+  test("pre-query hydration requires a visible input and idle state", () => {
+    expect(
+      evaluateSearchDialogInputHydrationBeforeQuery(
+        passingInputHydrationSnapshot({
+          idleVisible: true,
+          inputValue: "",
+          loadingVisible: false,
+          inputFocused: false,
+        }),
+      ),
+    ).toBeNull();
+
+    expect(
+      evaluateSearchDialogInputHydrationBeforeQuery(
+        passingInputHydrationSnapshot({
+          inputVisible: false,
+          idleVisible: true,
+          inputValue: "",
+          loadingVisible: false,
+          inputFocused: false,
+        }),
+      ),
+    ).toContain("search input is not visible");
+  });
+
+  test("post-typing hydration requires the typed value and hidden idle state", () => {
+    expect(
+      evaluateSearchDialogInputHydrationAfterTyping(
+        passingInputHydrationSnapshot(),
+        "GQA",
+      ),
+    ).toBeNull();
+
+    expect(
+      evaluateSearchDialogInputHydrationAfterTyping(
+        passingInputHydrationSnapshot({
+          inputValue: "",
+          idleVisible: true,
+        }),
+        "GQA",
+      ),
+    ).toContain('did not update to "GQA"');
+  });
+
+  test("post-query hydration accepts loading, results, or empty states", () => {
+    expect(
+      evaluateSearchDialogInputHydrationOutcome(
+        passingInputHydrationSnapshot(),
+      ),
+    ).toBeNull();
+
+    expect(
+      evaluateSearchDialogInputHydrationOutcome(
+        passingInputHydrationSnapshot({
+          loadingVisible: false,
+          resultsVisible: false,
+          emptyVisible: false,
+        }),
+      ),
+    ).toContain("no loading, results, or empty outcome");
+  });
+});
+
 describe("formatPhase1SearchDialogCheckFailure", () => {
   test("includes surface, encoded query, and reason", () => {
     expect(
@@ -114,6 +198,34 @@ describe("formatPhase1SearchDialogCheckFailure", () => {
         reason: "empty results state",
       }),
     ).toBe("header-dialog?query=KV%20cache: empty results state");
+  });
+});
+
+describe("shouldRetrySearchDialogQuery", () => {
+  test("retries transient hydration and timeout failures", () => {
+    expect(
+      shouldRetrySearchDialogQuery(
+        "search input did not hydrate in header search dialog within 45000ms",
+      ),
+    ).toBeTrue();
+    expect(
+      shouldRetrySearchDialogQuery(
+        'timed out waiting for search results in header search dialog for query "GQA" after 45000ms',
+      ),
+    ).toBeTrue();
+    expect(
+      shouldRetrySearchDialogQuery(
+        "no loading, results, or empty outcome appeared after entering a query in header search dialog",
+      ),
+    ).toBeTrue();
+  });
+
+  test("does not retry deterministic result failures", () => {
+    expect(
+      shouldRetrySearchDialogQuery(
+        'empty results state in header search dialog for query "GQA" — expected visible result for /docs/modules/grouped-query-attention',
+      ),
+    ).toBeFalse();
   });
 });
 

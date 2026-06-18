@@ -1,0 +1,48 @@
+{
+  "id": "model.glm-5",
+  "slug": "glm-5",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GLM-5", "GLM 5"],
+  "tags": ["foundations", "context-window", "model-family"],
+  "relatedIds": [
+    "paper.glm-5",
+    "concept.agentic-engineering",
+    "training-regime.asynchronous-agent-reinforcement-learning",
+    "system.slime-rollout-framework",
+    "module.multi-head-latent-attention",
+    "module.sparse-attention"
+  ],
+  "citationIds": ["citation.glm-5-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "authors": ["GLM-5 Team"],
+  "sourceId": "paper.glm-5",
+  "family": "glm",
+  "sourceType": "research",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer-architecture",
+    "concept.agentic-engineering"
+  ],
+  "moduleIds": [
+    "module.multi-head-latent-attention",
+    "module.sparse-attention",
+    "module.mixture-of-experts",
+    "module.rmsnorm"
+  ],
+  "trainingRegimeIds": [
+    "training-regime.asynchronous-agent-reinforcement-learning",
+    "training-regime.on-policy-distillation"
+  ],
+  "datasetIds": [],
+  "paperIds": ["paper.glm-5"],
+  "organizationId": "organization.zhipu-ai",
+  "releaseDate": "2026-02-17",
+  "parameterCount": "744 billion total parameters",
+  "activeParameterCount": "40 billion active parameters",
+  "contextLength": 200000,
+  "precision": ["bf16", "fp8", "int4"]
+}

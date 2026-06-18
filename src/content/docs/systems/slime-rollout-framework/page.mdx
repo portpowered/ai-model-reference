@@ -1,0 +1,43 @@
+---
+title: "slime Rollout Framework"
+description: "A system page that explains the rollout infrastructure GLM-5 uses to run customizable, latency-sensitive, and fault-tolerant agent trajectories at scale."
+kind: "system"
+registryId: "system.slime-rollout-framework"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - kv-cache
+aliases:
+  - "slime"
+  - "slime framework"
+  - "slime rollout framework"
+updatedAt: "2026-06-19"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RegistryAssociatedRecords } from "@/features/docs/components/RegistryAssociatedRecords";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { SystemAtAGlance } from "@/features/models/components/SystemAtAGlance";
+import { SystemFlowGraph } from "@/features/models/components/SystemFlowGraph";
+
+
+<SystemAtAGlance registryId="system.slime-rollout-framework" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title"><T k="sections.whatItIs.body" /></Section>
+<Section id="where-it-sits" titleKey="sections.whereItSits.title"><T k="sections.whereItSits.body" /></Section>
+<Section id="how-it-works" titleKey="sections.howItWorks.title"><T k="sections.howItWorks.body" /><SystemFlowGraph registryId="system.slime-rollout-framework" assetId="systemFlow" /></Section>
+<Section id="practical-impact" titleKey="sections.practicalImpact.title"><T k="sections.practicalImpact.body" /></Section>
+<Section id="associated-records" titleKey="sections.associatedRecords.title"><RegistryAssociatedRecords registryId="system.slime-rollout-framework" groups={[
+  { id: "models", title: "Related models", fields: ["relatedModelIds"], emptyLabel: "No related models listed yet.", defaultOpen: true },
+  { id: "modules", title: "Related modules", fields: ["relatedModuleIds"], emptyLabel: "No related modules listed yet." },
+  { id: "concepts", title: "Related concepts", fields: ["relatedConceptIds"], emptyLabel: "No related concepts listed yet." },
+  { id: "papers", title: "Paper sources", fields: ["paperIds"], emptyLabel: "No linked paper pages listed yet." }
+]} /></Section>
+<Section id="related" titleKey="sections.related.title"><DerivedRelatedDocs registryId="system.slime-rollout-framework" groups={["shared-tags","same-concept-type","curated-related"]} /></Section>
+<Section id="tags" titleKey="sections.tags.title"><TagPillList registryId="system.slime-rollout-framework" showDescriptions /></Section>
+<Section id="references" titleKey="sections.references.title"><CitationList registryId="system.slime-rollout-framework" /></Section>

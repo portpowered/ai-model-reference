@@ -1,0 +1,33 @@
+{
+  "id": "training-regime.asynchronous-agent-reinforcement-learning",
+  "slug": "asynchronous-agent-reinforcement-learning",
+  "kind": "training-regime",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "asynchronous agent reinforcement learning",
+    "asynchronous agent RL",
+    "asynchronous reinforcement learning for agentic tasks"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "paper.glm-5",
+    "model.glm-5",
+    "system.slime-rollout-framework",
+    "concept.agentic-engineering",
+    "training-regime.on-policy-distillation"
+  ],
+  "citationIds": ["citation.glm-5-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "releaseDate": "2026-02-17",
+  "authors": ["GLM-5 Team"],
+  "sourceId": "paper.glm-5",
+  "regimeType": "rl",
+  "usedByModelIds": ["model.glm-5"],
+  "relatedModuleIds": [],
+  "paperIds": ["paper.glm-5"],
+  "conceptType": "training",
+  "variantGroup": "glm-5-post-training"
+}

@@ -1,0 +1,46 @@
+{
+  "title": "Agentic Engineering",
+  "description": "A concept page that explains the shift from one-shot code generation to longer-running software agents that plan, act, and recover over many steps.",
+  "openingSummary": "Agentic engineering means treating software work as a multi-step loop where the model plans, runs tools, reads feedback, and revises over time. The key difference from vibe coding is that the hard part is no longer one answer, but keeping a long trajectory coherent enough to finish real work.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Agentic engineering is a broad term for using models as persistent workers rather than as one-turn autocomplete. The model must remember goals, inspect files or web pages, call tools, react to failures, and keep making progress over many steps."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Long-horizon coding tasks break many systems that look strong in short prompts. Once the task lasts minutes or hours, the quality bottlenecks move toward planning, error recovery, and trajectory management, which is why GLM-5 centers the term instead of treating it as marketing language."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "A coding agent that debugs a failing test suite is doing agentic engineering when it can inspect the failure, edit files, rerun checks, and recover from dead ends. In the GLM-5 bundle, Asynchronous Agent Reinforcement Learning teaches that behavior while the slime Rollout Framework keeps the experiments flowing."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Agentic engineering does not simply mean adding tools to a chatbot. The idea is broader: the model, the training loop, and the rollout system must all support long trajectories. That is why the GLM-5 paper, the GLM-5 model page, the asynchronous RL page, and the slime page should be read together."
+    },
+    "related": {
+      "title": "Related Reference Pages"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "A concept map linking agentic engineering to long-horizon tasks, asynchronous RL, and the slime rollout system.",
+      "caption": "The term only makes sense when the behavior loop, the trainer loop, and the runtime loop all stay in view."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "agenticEngineering": { "label": "Agentic engineering" },
+      "longHorizon": { "label": "Long-horizon tasks" },
+      "asyncRl": { "label": "Async agent RL" },
+      "slime": { "label": "slime framework" }
+    }
+  }
+}

@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   ATTENTION_MODULE_PAGE_DIR,
@@ -52,5 +54,24 @@ describe("content-paths", () => {
       join(MODULES_DOCS_ROOT, "grouped-query-attention"),
     );
     expect(TOKEN_GLOSSARY_PAGE_DIR).toBe(join(GLOSSARY_DOCS_ROOT, "token"));
+  });
+
+  test("falls back to the repository root when cwd has no content tree", () => {
+    const originalCwd = process.cwd();
+    const tempRoot = mkdtempSync(join(tmpdir(), "content-paths-"));
+    mkdirSync(join(tempRoot, ".next"));
+
+    try {
+      process.chdir(tempRoot);
+      const projectRoot = getProjectRoot();
+
+      expect(projectRoot).not.toBe(tempRoot);
+      expect(getContentRoot(projectRoot)).toBe(
+        join(projectRoot, "src/content"),
+      );
+    } finally {
+      process.chdir(originalCwd);
+      rmSync(tempRoot, { recursive: true, force: true });
+    }
   });
 });

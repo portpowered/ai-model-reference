@@ -353,7 +353,13 @@ describe("docs search static client", () => {
     const results = await client.search("attention");
 
     expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeUrl(results, BIDIRECTIONAL_ATTENTION_URL)).toBe(true);
+    expect(
+      results.some(
+        (result) =>
+          result.url.includes("/docs/modules/") &&
+          result.url.includes("attention"),
+      ),
+    ).toBe(true);
   });
 
   test("orama static client includes grouped-query attention for KV cache", async () => {

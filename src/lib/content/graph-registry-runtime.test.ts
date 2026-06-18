@@ -150,7 +150,7 @@ describe("graph-registry-runtime", () => {
   test("lists all bundled graph records", () => {
     const records = listGraphRecords();
 
-    expect(records.length).toBe(44);
+    expect(records.length).toBe(49);
     expect(records.map((record) => record.id)).toContain(
       "graph.deepseek-v4-contribution",
     );
@@ -165,6 +165,21 @@ describe("graph-registry-runtime", () => {
     );
     expect(records.map((record) => record.id)).toContain(
       "graph.expert-parallel-overlap-system-flow",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.glm-5-architecture",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.glm-5-contribution",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.agentic-engineering-concept-map",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.asynchronous-agent-reinforcement-learning-training-flow",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.slime-rollout-framework-system-flow",
     );
   });
 });

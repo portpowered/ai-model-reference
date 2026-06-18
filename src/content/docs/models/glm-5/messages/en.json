@@ -1,0 +1,66 @@
+{
+  "title": "GLM-5",
+  "description": "A model page for the GLM-5 release that explains its sparse MoE shape, long-context attention choices, and linked training and rollout systems.",
+  "openingSummary": "GLM-5 is a large coding-focused model family built around sparse expert routing, long-context attention efficiency, and post-training meant for long-running agents. The key reader payoff is seeing how the model, its asynchronous RL recipe, and the slime rollout stack fit together without reading the whole paper first.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "GLM-5 is the flagship model release described in the GLM-5 paper from Zhipu AI. It is best understood as a sparse MoE language model tuned for coding, reasoning, and agent-style workflows rather than as a small architectural tweak on its own."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The public paper frames GLM-5 as a text model for long-context reasoning and software engineering tasks. In practice, the important interface is not only next-token generation but also the ability to sustain longer tool-using trajectories with fewer costly stalls."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "The release combines a sparse expert backbone with long-context attention choices borrowed from the nearby Multi-head Latent Attention and Sparse Attention family discussions. The paper also reports a 744B-parameter model with 40B active parameters, 256 experts, and design choices meant to keep long-context coding practical instead of purely maximal."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "The nearby module pages matter because GLM-5 is not explained by a single proprietary block. Multi-head Latent Attention, Sparse Attention, Mixture of Experts, and RMSNorm give the cleanest public view of the efficiency and backbone choices around the release."
+    },
+    "training": {
+      "title": "Training",
+      "body": "The model page links directly to Asynchronous Agent Reinforcement Learning for the algorithmic post-training loop and back to the GLM-5 paper for the broader recipe. On-Policy Distillation remains relevant as a nearby existing regime because GLM-5 still treats knowledge retention across post-training stages as a first-class concern."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Readers should treat GLM-5 as a release bundle, not a single canonical module. If you want the broad product shift, open Agentic Engineering; if you want the trainer loop, open Asynchronous Agent Reinforcement Learning; if you want the runtime layer, open the slime Rollout Framework."
+    },
+    "related": {
+      "title": "Related Reference Pages"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "A compact architecture sketch for GLM-5 showing the model root connected to MoE backbone, long-context attention, and asynchronous post-training.",
+      "caption": "This page emphasizes three teaching layers: sparse backbone, long-context attention, and agent-focused post-training."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "glm5": {
+        "label": "GLM-5",
+        "summary": "A coding-focused sparse MoE release."
+      },
+      "moeBackbone": {
+        "label": "MoE backbone",
+        "summary": "Sparse experts increase capacity without activating all parameters at once."
+      },
+      "longContext": {
+        "label": "Long-context attention",
+        "summary": "Nearby attention variants explain the efficiency story around the release."
+      },
+      "postTraining": {
+        "label": "Async post-training",
+        "summary": "Agent RL and rollout systems are part of the model story, not an afterthought."
+      }
+    }
+  }
+}

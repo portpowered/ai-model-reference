@@ -1,0 +1,84 @@
+{
+  "id": "graph.agentic-engineering-concept-map",
+  "slug": "agentic-engineering-concept-map",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["agentic engineering concept map"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": ["citation.glm-5-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "concept.agentic-engineering",
+  "graphType": "concept-map",
+  "rootNodeId": "agentic-engineering",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "agentic-engineering",
+      "labelKey": "graph.nodes.agenticEngineering.label",
+      "moduleKind": "other",
+      "position": { "x": 210, "y": 0 },
+      "size": { "width": 240, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["long-horizon", "async-rl", "slime"]
+    },
+    {
+      "id": "long-horizon",
+      "labelKey": "graph.nodes.longHorizon.label",
+      "moduleKind": "other",
+      "position": { "x": 0, "y": 160 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "async-rl",
+      "labelKey": "graph.nodes.asyncRl.label",
+      "moduleKind": "loss",
+      "position": { "x": 230, "y": 160 },
+      "size": { "width": 220, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "slime",
+      "labelKey": "graph.nodes.slime.label",
+      "moduleKind": "other",
+      "position": { "x": 500, "y": 160 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "agentic-long-horizon",
+      "source": "agentic-engineering",
+      "target": "long-horizon",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "agentic-async-rl",
+      "source": "agentic-engineering",
+      "target": "async-rl",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "agentic-slime",
+      "source": "agentic-engineering",
+      "target": "slime",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

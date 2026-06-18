@@ -1,0 +1,55 @@
+{
+  "title": "Asynchronous Agent Reinforcement Learning",
+  "description": "A training-regime page that explains how GLM-5 separates rollout generation from model updates so agent trajectories can be gathered and filtered without a tight synchronous loop.",
+  "openingSummary": "Asynchronous agent reinforcement learning helps long-horizon agents because the slowest rollout no longer blocks every model update. The idea is to let generation and training move on partially separate clocks, then filter or reweight stale trajectories so learning stays stable enough to remain useful.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Asynchronous agent reinforcement learning is a post-training setup where rollout workers keep generating trajectories while trainers continue consuming buffered data. In the GLM-5 paper, this design is used for agentic tasks that are too long and irregular for a simple fully synchronous RL loop."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "The main pressure is throughput on long, messy trajectories. Instead of letting one slow environment or one tail sample freeze the whole step, the asynchronous design tries to keep GPUs busy while still preserving enough policy freshness to learn from the right behaviors."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The paper describes a decoupled loop: rollout workers collect agent traces, a buffer holds them long enough for trainer consumption, and stability controls decide how much stale or noisy data to trust. Token-in-token-out training, importance-weighted clipping, and dropping off-policy or noisy samples are the core ideas on the algorithmic side, while the slime Rollout Framework handles the runtime side."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "The payoff is that the model can keep learning from long-horizon tasks without turning every training step into a global synchronization barrier. That matters for coding agents because the useful trajectories are often the longest and noisiest ones."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Compared with more stage-bound or synchronous post-training, this regime makes freshness and filtering explicit tradeoffs instead of pretending every sample arrives on the same schedule. On-Policy Distillation is the closest nearby page for understanding how GLM-style post-training still cares about policy alignment and retention across stages."
+    },
+    "modelsAndPapers": {
+      "title": "Models And Papers",
+      "body": "GLM-5 is the canonical model example for this page, and the GLM-5 paper is the primary source that motivates the regime."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "The extra throughput comes with a real risk of stale, off-policy, or simply bad trajectories. That is why the page distinguishes the algorithmic filtering story here from the rollout infrastructure story on the slime Rollout Framework page."
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "trainingFlow": {
+      "alt": "A training flow where rollout workers feed a trajectory buffer, a trainer, and filtering logic on partially separate clocks.",
+      "caption": "The core teaching point is decoupling generation from updates without ignoring stale-sample risk."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "rolloutWorkers": { "label": "Rollout workers" },
+      "trajectoryBuffer": { "label": "Trajectory buffer" },
+      "trainer": { "label": "Trainer" },
+      "filters": { "label": "Stability filters" }
+    }
+  }
+}

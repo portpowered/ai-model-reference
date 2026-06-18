@@ -1,0 +1,55 @@
+{
+  "title": "GLM-5: from Vibe Coding to Agentic Engineering",
+  "description": "A paper page that breaks GLM-5 into its model, agent-training, and rollout-system contributions so readers can navigate the release without reading the full report first.",
+  "openingSummary": "GLM-5 matters because it treats coding agents as long-running systems rather than one-shot code generators. The paper combines a large sparse MoE model, asynchronous agent reinforcement learning, and the slime rollout framework into one practical story about making agentic engineering work at scale.",
+  "sections": {
+    "whatThePaperIntroduced": {
+      "title": "What The Paper Introduced",
+      "body": "The report introduces the GLM-5 model page, the Agentic Engineering concept, Asynchronous Agent Reinforcement Learning, and the slime Rollout Framework as one connected bundle. It also anchors GLM-5 to nearby reference pages such as Multi-head Latent Attention, Sparse Attention, and On-Policy Distillation so readers can move from the flagship release into the reusable parts."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Many model reports describe one model and then leave the training and runtime story scattered across appendices. GLM-5 matters because it argues that real coding agents need all three layers at once: a capable base model, a post-training loop that can learn from long trajectories, and a rollout stack that keeps those trajectories flowing."
+    },
+    "methodOrArchitecture": {
+      "title": "Method Or Architecture",
+      "body": "At a high level, GLM-5 keeps a large MoE language model but pushes harder on long-context efficiency and agent post-training. The model route is GLM-5, the broad idea is Agentic Engineering, the post-training algorithm is Asynchronous Agent Reinforcement Learning, and the rollout substrate is the slime Rollout Framework."
+    },
+    "evidence": {
+      "title": "Evidence",
+      "body": "For this reference page, the useful evidence is not the leaderboard table itself. The important signal is that the paper reports stronger long-horizon coding behavior after pairing asynchronous rollout generation, filtered trajectory updates, and a rollout framework tuned for tail latency and fault tolerance."
+    },
+    "limitations": {
+      "title": "Limitations",
+      "body": "The paper is broad, so some claims are stack-level rather than clean single-variable proofs. Readers should treat the release as evidence for a combined recipe, not as a guarantee that every isolated ingredient always transfers unchanged to other agent stacks."
+    },
+    "whatItConnectsTo": {
+      "title": "What It Connects To",
+      "body": "This record map is the fastest way to jump from the report into the canonical pages it introduced and the nearby existing references it depends on."
+    },
+    "related": {
+      "title": "Related Reference Pages"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "contributionGraph": {
+      "alt": "A contribution map that splits GLM-5 into architecture, asynchronous training, rollout systems, and agentic engineering.",
+      "caption": "GLM-5 reads best as four connected branches: model architecture, asynchronous training, rollout infrastructure, and the broader shift toward agentic engineering."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "paper": { "label": "GLM-5 report" },
+      "architecture": { "label": "Model architecture" },
+      "training": { "label": "Async agent RL" },
+      "systems": { "label": "slime rollout stack" },
+      "agentic": { "label": "Agentic engineering" }
+    }
+  }
+}

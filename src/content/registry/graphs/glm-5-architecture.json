@@ -1,0 +1,92 @@
+{
+  "id": "graph.glm-5-architecture",
+  "slug": "glm-5-architecture",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GLM-5 architecture graph"],
+  "tags": ["foundations", "attention", "model-family"],
+  "relatedIds": [],
+  "citationIds": ["citation.glm-5-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "model.glm-5",
+  "graphType": "model-architecture",
+  "rootNodeId": "glm-5",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "glm-5",
+      "labelKey": "graph.nodes.glm5.label",
+      "summaryKey": "graph.nodes.glm5.summary",
+      "registryId": "model.glm-5",
+      "moduleKind": "model",
+      "position": { "x": 220, "y": 0 },
+      "size": { "width": 220, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["moe-backbone", "long-context", "post-training"]
+    },
+    {
+      "id": "moe-backbone",
+      "labelKey": "graph.nodes.moeBackbone.label",
+      "summaryKey": "graph.nodes.moeBackbone.summary",
+      "registryId": "module.mixture-of-experts",
+      "moduleKind": "feed-forward",
+      "position": { "x": 0, "y": 160 },
+      "size": { "width": 180, "height": 72 },
+      "visualRole": "architecture-feed-forward",
+      "childNodeIds": []
+    },
+    {
+      "id": "long-context",
+      "labelKey": "graph.nodes.longContext.label",
+      "summaryKey": "graph.nodes.longContext.summary",
+      "registryId": "module.multi-head-latent-attention",
+      "moduleKind": "attention",
+      "position": { "x": 220, "y": 160 },
+      "size": { "width": 220, "height": 72 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "post-training",
+      "labelKey": "graph.nodes.postTraining.label",
+      "summaryKey": "graph.nodes.postTraining.summary",
+      "registryId": "training-regime.asynchronous-agent-reinforcement-learning",
+      "moduleKind": "loss",
+      "position": { "x": 470, "y": 160 },
+      "size": { "width": 210, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "glm5-moe",
+      "source": "glm-5",
+      "target": "moe-backbone",
+      "edgeKind": "contains",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "glm5-long-context",
+      "source": "glm-5",
+      "target": "long-context",
+      "edgeKind": "contains",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "glm5-post-training",
+      "source": "glm-5",
+      "target": "post-training",
+      "edgeKind": "contains",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

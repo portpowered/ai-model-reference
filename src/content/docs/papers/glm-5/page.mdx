@@ -1,0 +1,84 @@
+---
+title: "GLM-5: from Vibe Coding to Agentic Engineering"
+description: "A paper page that breaks GLM-5 into its model, agent-training, and rollout-system contributions so readers can navigate the release without reading the full report first."
+kind: "paper"
+registryId: "paper.glm-5"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - context-window
+  - model-family
+aliases:
+  - "GLM-5"
+  - "GLM-5: from Vibe Coding to Agentic Engineering"
+updatedAt: "2026-06-19"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RegistryAssociatedRecords } from "@/features/docs/components/RegistryAssociatedRecords";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { PaperContributionGraph } from "@/features/models/components/PaperContributionGraph";
+import { PaperAtAGlance } from "@/features/models/components/PaperAtAGlance";
+
+
+<PaperAtAGlance registryId="paper.glm-5" />
+
+<Section id="what-the-paper-introduced" titleKey="sections.whatThePaperIntroduced.title">
+  <T k="sections.whatThePaperIntroduced.body" />
+</Section>
+
+<Section id="why-it-matters" titleKey="sections.whyItMatters.title">
+  <T k="sections.whyItMatters.body" />
+</Section>
+
+<Section id="method-or-architecture" titleKey="sections.methodOrArchitecture.title">
+  <T k="sections.methodOrArchitecture.body" />
+  <PaperContributionGraph registryId="paper.glm-5" assetId="contributionGraph" />
+</Section>
+
+<Section id="evidence" titleKey="sections.evidence.title">
+  <T k="sections.evidence.body" />
+</Section>
+
+<Section id="limitations" titleKey="sections.limitations.title">
+  <T k="sections.limitations.body" />
+</Section>
+
+<Section id="what-it-connects-to" titleKey="sections.whatItConnectsTo.title">
+  <T k="sections.whatItConnectsTo.body" />
+  <RegistryAssociatedRecords
+    registryId="paper.glm-5"
+    groups={[
+      { id: "introduced", title: "Introduced records", fields: ["introducesIds"], emptyLabel: "No introduced records listed yet.", defaultOpen: true },
+      { id: "models", title: "Model pages", fields: ["modelIds"], emptyLabel: "No model pages listed yet." },
+      { id: "modules", title: "Module pages", fields: ["moduleIds"], emptyLabel: "No module pages listed yet." },
+      { id: "concepts", title: "Concept pages", fields: ["conceptIds", "supportsIds"], emptyLabel: "No concept pages listed yet." }
+    ]}
+  />
+  <DerivedRelatedDocs
+    registryId="paper.glm-5"
+    groups={[
+      "introduced-records",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="paper.glm-5" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="paper.glm-5" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="paper.glm-5" />
+</Section>

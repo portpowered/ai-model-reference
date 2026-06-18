@@ -5,6 +5,7 @@ import chenPositionalInterpolationCitation from "@/content/registry/citations/ch
 import deepseekV2MlaPaperCitation from "@/content/registry/citations/deepseek-v2-mla-paper.json";
 import deepseekV4PaperCitation from "@/content/registry/citations/deepseek-v4-paper.json";
 import dingLongropeCitation from "@/content/registry/citations/ding-longrope.json";
+import glm5PaperCitation from "@/content/registry/citations/glm-5-paper.json";
 import goodfellowDeepLearningCitation from "@/content/registry/citations/goodfellow-deep-learning.json";
 import gqaPaperCitation from "@/content/registry/citations/gqa-paper.json";
 import kaiokendevSuperhotCitation from "@/content/registry/citations/kaiokendev-superhot.json";
@@ -24,6 +25,7 @@ import weiEmergentAbilitiesCitation from "@/content/registry/citations/wei-emerg
 import absolutePositionalEmbeddingsConcept from "@/content/registry/concepts/absolute-positional-embeddings.json";
 import activationConcept from "@/content/registry/concepts/activation.json";
 import activationQuantizationConcept from "@/content/registry/concepts/activation-quantization.json";
+import agenticEngineeringConcept from "@/content/registry/concepts/agentic-engineering.json";
 import alibiConcept from "@/content/registry/concepts/alibi.json";
 import alignmentConcept from "@/content/registry/concepts/alignment.json";
 import architectureConcept from "@/content/registry/concepts/architecture.json";
@@ -119,6 +121,7 @@ import yarnConcept from "@/content/registry/concepts/yarn.json";
 import deepseekV4SpecialistCorpus from "@/content/registry/datasets/deepseek-v4-specialist-corpus.json";
 import deepseekV4FlashModel from "@/content/registry/models/deepseek-v4-flash.json";
 import deepseekV4ProModel from "@/content/registry/models/deepseek-v4-pro.json";
+import glm5Model from "@/content/registry/models/glm-5.json";
 import gpt3Model from "@/content/registry/models/gpt-3.json";
 import absolutePositionalEmbeddingsModule from "@/content/registry/modules/absolute-positional-embeddings.json";
 import alibiModule from "@/content/registry/modules/alibi.json";
@@ -159,9 +162,13 @@ import swigluModule from "@/content/registry/modules/swiglu.json";
 import t5RelativePositionBiasModule from "@/content/registry/modules/t5-relative-position-bias.json";
 import yarnModule from "@/content/registry/modules/yarn.json";
 import deepseekAiOrganization from "@/content/registry/organizations/deepseek-ai.json";
+import zhipuAiOrganization from "@/content/registry/organizations/zhipu-ai.json";
 import deepseekV4Paper from "@/content/registry/papers/deepseek-v4.json";
+import glm5Paper from "@/content/registry/papers/glm-5.json";
 import expertParallelOverlapSystem from "@/content/registry/systems/expert-parallel-overlap.json";
 import onDiskKvCacheSystem from "@/content/registry/systems/on-disk-kv-cache.json";
+import slimeRolloutFrameworkSystem from "@/content/registry/systems/slime-rollout-framework.json";
+import asynchronousAgentReinforcementLearningRegime from "@/content/registry/training-regimes/asynchronous-agent-reinforcement-learning.json";
 import fp4QuantizationAwareTrainingRegime from "@/content/registry/training-regimes/fp4-quantization-aware-training.json";
 import onPolicyDistillationRegime from "@/content/registry/training-regimes/on-policy-distillation.json";
 import specialistTrainingRegime from "@/content/registry/training-regimes/specialist-training.json";
@@ -234,6 +241,7 @@ const moduleRecords: ModuleRecord[] = [
 
 const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(tokenConcept),
+  conceptRecordSchema.parse(agenticEngineeringConcept),
   conceptRecordSchema.parse(embeddingConcept),
   conceptRecordSchema.parse(tensorConcept),
   conceptRecordSchema.parse(vectorConcept),
@@ -334,9 +342,16 @@ const modelRecords: ModelRecord[] = [
   modelRecordSchema.parse(gpt3Model),
   modelRecordSchema.parse(deepseekV4ProModel),
   modelRecordSchema.parse(deepseekV4FlashModel),
+  modelRecordSchema.parse(glm5Model),
 ];
-const paperRecords: PaperRecord[] = [paperRecordSchema.parse(deepseekV4Paper)];
+const paperRecords: PaperRecord[] = [
+  paperRecordSchema.parse(deepseekV4Paper),
+  paperRecordSchema.parse(glm5Paper),
+];
 const trainingRegimeRecords: TrainingRegimeRecord[] = [
+  trainingRegimeRecordSchema.parse(
+    asynchronousAgentReinforcementLearningRegime,
+  ),
   trainingRegimeRecordSchema.parse(onPolicyDistillationRegime),
   trainingRegimeRecordSchema.parse(specialistTrainingRegime),
   trainingRegimeRecordSchema.parse(fp4QuantizationAwareTrainingRegime),
@@ -344,12 +359,14 @@ const trainingRegimeRecords: TrainingRegimeRecord[] = [
 const systemRecords: SystemRecord[] = [
   systemRecordSchema.parse(onDiskKvCacheSystem),
   systemRecordSchema.parse(expertParallelOverlapSystem),
+  systemRecordSchema.parse(slimeRolloutFrameworkSystem),
 ];
 const datasetRecords: DatasetRecord[] = [
   datasetRecordSchema.parse(deepseekV4SpecialistCorpus),
 ];
 const organizationRecords: OrganizationRecord[] = [
   organizationRecordSchema.parse(deepseekAiOrganization),
+  organizationRecordSchema.parse(zhipuAiOrganization),
 ];
 
 const citationRecords: CitationRecord[] = [
@@ -360,6 +377,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(deepseekV2MlaPaperCitation),
   citationRecordSchema.parse(deepseekV4PaperCitation),
   citationRecordSchema.parse(dingLongropeCitation),
+  citationRecordSchema.parse(glm5PaperCitation),
   citationRecordSchema.parse(goodfellowDeepLearningCitation),
   citationRecordSchema.parse(gqaPaperCitation),
   citationRecordSchema.parse(kaiokendevSuperhotCitation),

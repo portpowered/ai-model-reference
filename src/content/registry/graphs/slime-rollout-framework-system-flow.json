@@ -1,0 +1,84 @@
+{
+  "id": "graph.slime-rollout-framework-system-flow",
+  "slug": "slime-rollout-framework-system-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["slime rollout framework system flow"],
+  "tags": ["foundations", "kv-cache"],
+  "relatedIds": [],
+  "citationIds": ["citation.glm-5-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "system.slime-rollout-framework",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "slime",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "slime",
+      "labelKey": "graph.nodes.slime.label",
+      "moduleKind": "other",
+      "position": { "x": 210, "y": 0 },
+      "size": { "width": 220, "height": 72 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["custom-rollouts", "scheduler", "heartbeat"]
+    },
+    {
+      "id": "custom-rollouts",
+      "labelKey": "graph.nodes.customRollouts.label",
+      "moduleKind": "other",
+      "position": { "x": 0, "y": 160 },
+      "size": { "width": 200, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "scheduler",
+      "labelKey": "graph.nodes.scheduler.label",
+      "moduleKind": "other",
+      "position": { "x": 230, "y": 160 },
+      "size": { "width": 190, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "heartbeat",
+      "labelKey": "graph.nodes.heartbeat.label",
+      "moduleKind": "other",
+      "position": { "x": 470, "y": 160 },
+      "size": { "width": 190, "height": 72 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "slime-rollouts",
+      "source": "slime",
+      "target": "custom-rollouts",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "slime-scheduler",
+      "source": "slime",
+      "target": "scheduler",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "slime-heartbeat",
+      "source": "slime",
+      "target": "heartbeat",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}
