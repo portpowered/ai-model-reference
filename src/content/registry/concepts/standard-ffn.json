@@ -1,0 +1,21 @@
+{
+  "id": "concept.standard-ffn",
+  "slug": "standard-ffn",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["dense FFN", "dense MLP block", "standard feed-forward network"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.feed-forward-network",
+    "concept.mixture-of-experts",
+    "concept.activation"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": [],
+  "explainsIds": []
+}

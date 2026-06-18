@@ -26,11 +26,20 @@ const TRANSFORMER_ARCHITECTURE_URL = "/docs/concepts/transformer-architecture";
 const PAGE_SPEC_WORKFLOW_SAMPLE_URL =
   "/docs/concepts/page-spec-workflow-sample";
 const FEED_FORWARD_NETWORK_URL = "/docs/glossary/feed-forward-network";
-const MIXTURE_OF_EXPERTS_URL = "/docs/glossary/mixture-of-experts";
-const LAYER_NORM_URL = "/docs/glossary/layer-norm";
-const RMSNORM_URL = "/docs/glossary/rmsnorm";
+const STANDARD_FFN_URL = "/docs/glossary/standard-ffn";
 const NORMALIZATION_URL = "/docs/glossary/normalization";
+const LAYER_NORM_URL = "/docs/glossary/layer-norm";
+const BATCH_NORM_URL = "/docs/glossary/batch-norm";
+const GROUP_NORM_URL = "/docs/glossary/group-norm";
+const MIXTURE_OF_EXPERTS_URL = "/docs/glossary/mixture-of-experts";
+const RELU_URL = "/docs/glossary/relu";
+const LEAKY_RELU_URL = "/docs/glossary/leaky-relu";
+const SILU_URL = "/docs/glossary/silu";
+const SWIGLU_URL = "/docs/glossary/swiglu";
+const RMSNORM_URL = "/docs/glossary/rmsnorm";
+const QK_NORM_URL = "/docs/glossary/qk-norm";
 const RESIDUAL_CONNECTION_URL = "/docs/glossary/residual-connection";
+const SKIP_CONNECTION_URL = "/docs/glossary/skip-connection";
 const POSITIONAL_ENCODINGS_URL = "/docs/concepts/positional-encodings";
 const ROPE_URL = "/docs/glossary/rope";
 const ALIBI_URL = "/docs/glossary/alibi";
@@ -128,11 +137,20 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   TRANSFORMER_ARCHITECTURE_URL,
   PAGE_SPEC_WORKFLOW_SAMPLE_URL,
   FEED_FORWARD_NETWORK_URL,
+  BATCH_NORM_URL,
+  GROUP_NORM_URL,
+  STANDARD_FFN_URL,
   MIXTURE_OF_EXPERTS_URL,
+  RELU_URL,
+  LEAKY_RELU_URL,
+  SILU_URL,
+  SWIGLU_URL,
   LAYER_NORM_URL,
   RMSNORM_URL,
   NORMALIZATION_URL,
+  QK_NORM_URL,
   RESIDUAL_CONNECTION_URL,
+  SKIP_CONNECTION_URL,
   POSITIONAL_ENCODINGS_URL,
   ROPE_URL,
   ALIBI_URL,
@@ -228,6 +246,16 @@ describe("exportOramaIndexSnapshot", () => {
     { query: "multi-head attention", url: MULTI_HEAD_ATTENTION_URL },
     { query: "MQA", url: MULTI_QUERY_ATTENTION_URL },
     { query: "multi-query attention", url: MULTI_QUERY_ATTENTION_URL },
+    { query: "feed-forward network", url: FEED_FORWARD_NETWORK_URL },
+    { query: "standard FFN", url: STANDARD_FFN_URL },
+    { query: "normalization", url: NORMALIZATION_URL },
+    { query: "layer norm", url: LAYER_NORM_URL },
+    { query: "batch norm", url: BATCH_NORM_URL },
+    { query: "group norm", url: GROUP_NORM_URL },
+    { query: "RMSNorm", url: RMSNORM_URL },
+    { query: "QK norm", url: QK_NORM_URL },
+    { query: "residual connection", url: RESIDUAL_CONNECTION_URL },
+    { query: "skip connection", url: SKIP_CONNECTION_URL },
   ] as const)("Orama database records rank %s for the %s alias query", async ({
     query,
     url,

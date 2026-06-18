@@ -42,6 +42,14 @@ describe("localizePageTree", () => {
     expect(links).toContain("/vi/docs/glossary/token");
   });
 
+  test("keeps unshipped japanese docs pages out of the localized page tree", () => {
+    const localizedTree = localizePageTree(source.pageTree, "ja");
+    const links = collectLinks(localizedTree.children);
+
+    expect(links.some((link) => link.startsWith("/ja/docs/"))).toBe(false);
+    expect(links).toEqual([]);
+  });
+
   test("removes empty separators left behind by locale pruning", () => {
     const localizedTree = localizePageTree(source.pageTree, "vi");
     const glossaryFolder = localizedTree.children.find((child) => {

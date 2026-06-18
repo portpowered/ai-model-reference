@@ -33,6 +33,9 @@ describe("Phase 3 normalization glossary page (US-004)", () => {
     expect(record?.explainsIds).toEqual([
       "concept.layer-norm",
       "concept.rmsnorm",
+      "concept.batch-norm",
+      "concept.group-norm",
+      "concept.qk-norm",
     ]);
     expect(record?.relatedIds).toEqual([
       "concept.transformer-architecture",

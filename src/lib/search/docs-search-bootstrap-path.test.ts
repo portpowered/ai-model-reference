@@ -49,6 +49,9 @@ describe("resolveDocsSearchBootstrapFromForLocale", () => {
     expect(resolveDocsSearchBootstrapFromForLocale("vi", {})).toBe(
       "/api/search?locale=vi",
     );
+    expect(resolveDocsSearchBootstrapFromForLocale("ja", {})).toBe(
+      "/api/search?locale=ja",
+    );
   });
 
   test("uses a distinct export artifact for vietnamese in static export builds", () => {
@@ -58,6 +61,13 @@ describe("resolveDocsSearchBootstrapFromForLocale", () => {
         GITHUB_PAGES_BASE_PATH: "/ai-model-reference",
       }),
     ).toBe("/ai-model-reference/api/search.vi");
+
+    expect(
+      resolveDocsSearchBootstrapFromForLocale("ja", {
+        NEXT_STATIC_EXPORT: "1",
+        GITHUB_PAGES_BASE_PATH: "/ai-model-reference",
+      }),
+    ).toBe("/ai-model-reference/api/search.ja");
   });
 });
 
@@ -76,6 +86,12 @@ describe("resolveClientDocsSearchBootstrapFromForLocale", () => {
         [DOCS_SEARCH_BOOTSTRAP_FROM_ENV]: "/ai-model-reference/api/search",
       }),
     ).toBe("/ai-model-reference/api/search.vi");
+
+    expect(
+      resolveClientDocsSearchBootstrapFromForLocale("ja", {
+        [DOCS_SEARCH_BOOTSTRAP_FROM_ENV]: "/ai-model-reference/api/search",
+      }),
+    ).toBe("/ai-model-reference/api/search.ja");
   });
 });
 

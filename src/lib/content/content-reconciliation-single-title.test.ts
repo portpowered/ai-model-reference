@@ -29,11 +29,20 @@ const BATCH_017_DOCS_URLS = [
   "/docs/modules/linear-attention",
   "/docs/concepts/transformer-architecture",
   "/docs/glossary/feed-forward-network",
+  "/docs/glossary/batch-norm",
+  "/docs/glossary/group-norm",
+  "/docs/glossary/standard-ffn",
   "/docs/glossary/mixture-of-experts",
+  "/docs/glossary/relu",
+  "/docs/glossary/leaky-relu",
+  "/docs/glossary/silu",
+  "/docs/glossary/swiglu",
   "/docs/glossary/normalization",
+  "/docs/glossary/qk-norm",
   "/docs/glossary/layer-norm",
   "/docs/glossary/rmsnorm",
   "/docs/glossary/residual-connection",
+  "/docs/glossary/skip-connection",
   "/docs/concepts/positional-encodings",
   "/docs/glossary/rope",
   "/docs/glossary/alibi",
@@ -139,11 +148,15 @@ describe("Phase 2/3 reconciliation single primary title (US-005)", () => {
   });
 
   for (const [index, urls] of BATCH_017_DOCS_URL_GROUPS.entries()) {
-    test(`batch 017 title convergence group ${index + 1} renders exactly one shell-owned primary title`, async () => {
-      for (const url of urls) {
-        await expectSingleShellOwnedPrimaryTitle(url);
-      }
-    });
+    test(
+      `batch 017 title convergence group ${index + 1} renders exactly one shell-owned primary title`,
+      async () => {
+        for (const url of urls) {
+          await expectSingleShellOwnedPrimaryTitle(url);
+        }
+      },
+      { timeout: 15_000 },
+    );
   }
 
   test("spot-check pages keep glossary or module shell title patterns", async () => {

@@ -91,6 +91,11 @@ describe("search result meta", () => {
     expect(meta?.aliases.length).toBeGreaterThan(0);
   });
 
+  test("loadSearchResultMetaMap returns no japanese docs entries when no japanese docs pages are shipped", async () => {
+    const map = await loadSearchResultMetaMap("ja");
+    expect(map.size).toBe(0);
+  });
+
   test("buildSearchResultMetaMap keys by url", () => {
     const map = buildSearchResultMetaMap([]);
     expect(map.size).toBe(0);

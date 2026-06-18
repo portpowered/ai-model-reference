@@ -29,12 +29,14 @@ describe("Phase 3 residual connection glossary page (US-007)", () => {
     const record = getConceptById("concept.residual-connection");
     expect(record?.status).toBe("published");
     expect(record?.aliases).toEqual([
-      "skip connection",
       "residual stream",
       "residual add",
+      "residual pathway",
     ]);
     expect(record?.tags).toEqual(["foundations"]);
     expect(record?.relatedIds).toEqual([
+      "concept.skip-connection",
+      "concept.feed-forward-network",
       "concept.transformer-architecture",
       "concept.normalization",
       "module.attention",
@@ -44,7 +46,7 @@ describe("Phase 3 residual connection glossary page (US-007)", () => {
     );
   });
 
-  test("curated related links transformer architecture, normalization, and attention", () => {
+  test("curated related links skip connection, feed-forward network, transformer architecture, normalization, and attention", () => {
     const source = getConceptById("concept.residual-connection");
     if (!source) {
       throw new Error("expected concept.residual-connection in registry");
@@ -55,6 +57,20 @@ describe("Phase 3 residual connection glossary page (US-007)", () => {
       listRelatedRegistryRecords(),
       PUBLISHED_DOCS_REGISTRY_IDS,
     );
+
+    const skipConnection = items.find(
+      (item) => item.registryId === "concept.skip-connection",
+    );
+    expect(skipConnection?.href).toBe("/docs/glossary/skip-connection");
+    expect(skipConnection?.isPlanned).toBe(false);
+
+    const feedForwardNetwork = items.find(
+      (item) => item.registryId === "concept.feed-forward-network",
+    );
+    expect(feedForwardNetwork?.href).toBe(
+      "/docs/glossary/feed-forward-network",
+    );
+    expect(feedForwardNetwork?.isPlanned).toBe(false);
 
     const architecture = items.find(
       (item) => item.registryId === "concept.transformer-architecture",
@@ -75,16 +91,13 @@ describe("Phase 3 residual connection glossary page (US-007)", () => {
     expect(attention?.isPlanned).toBe(false);
   });
 
-  test("messages explain skip paths, gradient highway, and pre-norm vs post-norm placement", () => {
+  test("messages explain gradient highway, residual-vs-skip scope, and pre-norm vs post-norm placement", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
 
     expect(messages.title).toBe("Residual connection");
     expect(messages.openingSummary?.length).toBeGreaterThan(0);
-    expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
-      "skip connection",
-    );
     expect(messages.sections?.whatItIs.body?.toLowerCase()).toContain(
       "residual add",
     );
@@ -97,9 +110,12 @@ describe("Phase 3 residual connection glossary page (US-007)", () => {
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
       "post-norm",
     );
+    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
+      "narrower than skip connection",
+    );
   });
 
-  test("page renders residual explanation and related architecture link", async () => {
+  test("page renders residual explanation and related family links", async () => {
     const page = await loadGlossaryPage("residual-connection");
 
     expect(page.frontmatter.kind).toBe("glossary");
@@ -120,8 +136,10 @@ describe("Phase 3 residual connection glossary page (US-007)", () => {
     });
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
-    expectHtmlToContainProse(html, "skip connection");
+    expectHtmlToContainProse(html, "residual add");
     expectHtmlToContainProse(html, "pre-norm");
+    expect(html).toContain('href="/docs/glossary/skip-connection"');
+    expect(html).toContain('href="/docs/glossary/feed-forward-network"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/glossary/normalization"');
     expect(html).toContain('href="/docs/modules/attention"');

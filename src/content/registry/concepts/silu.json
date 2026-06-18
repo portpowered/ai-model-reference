@@ -1,0 +1,23 @@
+{
+  "id": "concept.silu",
+  "slug": "silu",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["sigmoid linear unit", "Swish", "SiLU activation"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.activation",
+    "concept.feed-forward-network",
+    "concept.standard-ffn",
+    "concept.relu",
+    "concept.swiglu"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": [],
+  "explainsIds": []
+}

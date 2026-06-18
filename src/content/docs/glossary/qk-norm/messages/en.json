@@ -1,0 +1,32 @@
+{
+  "title": "QK norm",
+  "description": "Query-key normalization that rescales attention queries and keys before their dot products, changing the attention score path rather than the whole residual stream.",
+  "openingSummary": "QK norm normalizes the query and key representations inside attention before similarity scores are computed, so it changes one narrow part of the attention path instead of normalizing the full token stream.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "QK norm means the model normalizes the query and key vectors that feed the attention score calculation. Instead of applying normalization to the whole residual stream before or after a block, it targets the vectors used in the query-key dot product, which changes how sharply attention scores can grow."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Attention scores can become unstable when query and key magnitudes drift too far apart, especially in deep or long-context models. QK norm gives papers a way to tame that score path without replacing layer norm or RMSNorm everywhere else in the transformer block. When you see QK norm in a model writeup, read it as an attention-specific stabilization trick."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine two tokens whose query and key vectors suddenly become much larger than the rest. Their dot product can dominate the softmax and make attention overly sharp. QK norm rescales those vectors before the score is formed, so the attention pattern depends more on direction and less on raw magnitude."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "QK norm is not the same thing as layer norm or RMSNorm. Those usually normalize the hidden state that flows through the broader transformer block. QK norm only touches the query and key path inside attention. It is also not batch norm or group norm, which are defined by how statistics are pooled across examples or channel groups rather than by attention placement."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

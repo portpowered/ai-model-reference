@@ -3,6 +3,7 @@ import {
   HomeBrowseList,
 } from "@/components/home/home-browse-link";
 import { HomeBrushHeader } from "@/components/home/home-brush-header";
+import { isDocsPageShippedForLocale } from "@/lib/content/pages";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   buildLocalizedRoute,
@@ -14,6 +15,17 @@ type HomeArticleProps = {
   messages: UiMessages;
   locale?: SiteLocale;
 };
+
+function buildHomeDocsPageHref(docsSlug: string, locale: SiteLocale): string {
+  const hrefLocale = isDocsPageShippedForLocale(docsSlug, locale)
+    ? locale
+    : defaultLocale;
+
+  return buildLocalizedRoute(
+    { surface: "docs-page", slug: docsSlug },
+    hrefLocale,
+  );
+}
 
 export function HomeArticle({
   messages,
@@ -57,10 +69,7 @@ export function HomeArticle({
             description={home.glossaryLinkDescription}
           />
           <HomeBrowseLink
-            href={buildLocalizedRoute(
-              { surface: "docs-page", slug: "glossary/token" },
-              locale,
-            )}
+            href={buildHomeDocsPageHref("glossary/token", locale)}
             title={home.tokenLinkTitle}
             description={home.tokenLinkDescription}
           />
@@ -70,8 +79,8 @@ export function HomeArticle({
             description={home.tagsLinkDescription}
           />
           <HomeBrowseLink
-            href={buildLocalizedRoute(
-              { surface: "docs-page", slug: "modules/grouped-query-attention" },
+            href={buildHomeDocsPageHref(
+              "modules/grouped-query-attention",
               locale,
             )}
             title={home.docsLinkTitle}

@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 import { renderArchitectureIndexPage } from "@/app/(site)/site-renderers";
 import { loadUiMessages } from "@/lib/content/ui-messages";
-import {
-  localizedRouteAlternates,
-  resolveRouteLocaleOrNotFound,
-} from "@/lib/i18n/route-locale";
+import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
+import { resolveMetadataLocale } from "../../localized-shell-metadata";
 
 type LocalizedArchitectureIndexPageProps = {
   params: Promise<{ locale: string }>;
 };
 
-export async function generateMetadata(): Promise<Metadata> {
-  const messages = await loadUiMessages("vi");
+export async function generateMetadata({
+  params,
+}: LocalizedArchitectureIndexPageProps): Promise<Metadata> {
+  const locale = await resolveMetadataLocale(params);
+  const messages = await loadUiMessages(locale);
 
   return {
     title: messages.architectureIndex.title,
@@ -23,7 +24,6 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function LocalizedArchitectureIndexPage({
   params,
 }: LocalizedArchitectureIndexPageProps) {
-  const { locale: rawLocale } = await params;
-  const locale = resolveRouteLocaleOrNotFound(rawLocale);
+  const locale = await resolveMetadataLocale(params);
   return renderArchitectureIndexPage(locale);
 }

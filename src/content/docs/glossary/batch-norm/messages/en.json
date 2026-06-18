@@ -1,0 +1,32 @@
+{
+  "title": "Batch norm",
+  "description": "Batch-level normalization that rescales activations using statistics pooled across examples, common in convolutional networks but uncommon inside modern transformers.",
+  "openingSummary": "Batch norm normalizes activations with minibatch-wide mean and variance, which works well when examples share stable feature layouts but fits transformer token streams less cleanly than layer-style norms do.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Batch normalization computes a mean and variance from the same feature across many examples in a minibatch, rescales that feature, then applies learned scale and shift. The key idea is that one example is normalized partly using information from its batch neighbors, not only from its own hidden vector."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Batch norm became a standard tool in convolutional networks because images in a batch usually share the same layout and large batch statistics are easy to estimate. Transformer decoders often process variable sequence lengths, autoregressive steps, and small effective batch slices, so layer norm or RMSNorm is usually the cleaner default when you read modern language model architectures."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine one channel in an image model is much larger than the others for the whole minibatch. Batch norm measures that channel across all examples, recenters and rescales it, then passes a steadier value downstream. If you tried the same idea inside token-by-token decoding, the needed batch statistics would depend on which examples happened to be grouped together at that moment."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Batch norm is not layer norm with a different name. Layer norm uses one token or one example at a time, while batch norm mixes information across the minibatch. Group norm sits between those two scopes by normalizing groups of channels inside one example. In transformer papers, batch norm usually signals an older or nonstandard choice rather than the default LLM block pattern."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
