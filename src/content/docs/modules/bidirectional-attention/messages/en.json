@@ -17,15 +17,19 @@
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "Queries, keys, and values are computed as in ordinary self-attention, but the attention mask does not block later positions. A token can therefore assign weight to evidence from anywhere in the visible sequence."
+      "body": "Queries, keys, and values are computed as in ordinary self-attention, but the attention mask does not block later positions. In a masked language model or other encoder setting, the score matrix stays open across the whole visible sequence, so one token can gather evidence from earlier words, later words, and its own position."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formulas below contrast causal attention with bidirectional attention. The projection math stays the same, but the mask changes from next-token-only reach to a full-context mask that keeps both left and right context available."
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Compared with causal attention, bidirectional attention removes the next-token-only restriction and uses full-sequence context. Compared with the broader attention overview page, this page focuses on the specific mask pattern that encoder-style models use."
+      "body": "Compared with causal attention, bidirectional attention removes the next-token-only restriction and uses full-sequence context. Compared with cross-attention, it still reads from the same sequence rather than a separate encoder memory. Compared with the broader attention page, this page focuses on the specific mask pattern that encoder-style models use."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
-      "body": "Bidirectional attention appears in encoder stacks and in the encoder side of encoder-decoder systems, where the model must build a contextual representation of the input before a later component consumes it."
+      "body": "Bidirectional attention appears in encoder stacks and on the encoder side of encoder-decoder systems, where the model must build a contextual representation of the input before a later component consumes it. That is why it is the natural fit for reading-style tasks, masked language models, and many Transformer pipelines that separate understanding from generation."
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
@@ -43,6 +47,158 @@
     },
     "references": {
       "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Causal attention versus bidirectional attention time reach",
+      "caption": "Toggle causal attention and bidirectional attention to compare next-token-only reach against full left-and-right context on one canvas.",
+      "variants": {
+        "causal": {
+          "label": "Causal"
+        },
+        "bidirectional": {
+          "label": "Bidirectional"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "How bidirectional attention compares with nearby attention patterns"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "bidirectional": {
+          "title": "Bidirectional Attention"
+        },
+        "attention": {
+          "title": "Attention Overview"
+        },
+        "mha": {
+          "title": "Multi-Head Attention"
+        }
+      },
+      "dimensions": {
+        "visibleContext": "Visible context per query",
+        "bestFitTask": "Best-fit task style",
+        "sequenceSource": "Where keys and values come from"
+      },
+      "values": {
+        "bidirectional": {
+          "visibleContext": "Both earlier and later tokens in the same visible sequence",
+          "bestFitTask": "Encoder-style understanding and masked language model objectives",
+          "sequenceSource": "The same sequence as the query position"
+        },
+        "attention": {
+          "visibleContext": "Depends on the architecture and mask pattern chosen for the attention block",
+          "bestFitTask": "General attention lookup across many Transformer designs",
+          "sequenceSource": "Usually the same sequence for self-attention, but the overview spans broader patterns"
+        },
+        "mha": {
+          "visibleContext": "Dense attention over whatever positions the chosen mask leaves visible",
+          "bestFitTask": "Baseline per-head attention when the model keeps one key-value pair per query head",
+          "sequenceSource": "The same sequence as the query position in self-attention blocks"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Causal attention",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(M_{\\mathrm{causal}} \\odot \\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Bidirectional attention",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(M_{\\mathrm{bi}} \\odot \\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "g": {
+          "term": "n",
+          "definition": "Visible sequence length."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        },
+        "gi": {
+          "term": "M_{\\mathrm{bi}}",
+          "definition": "Bidirectional mask that keeps both left and right context available inside the visible sequence."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "timeCurrentQuery": {
+        "label": "q_t"
+      },
+      "timeKvLeftEllipsis": {
+        "label": "\\cdots"
+      },
+      "timeKvTMinus2": {
+        "label": "KV_{t-2}"
+      },
+      "timeKvTMinus1": {
+        "label": "KV_{t-1}"
+      },
+      "timeKvT": {
+        "label": "KV_t"
+      },
+      "timeKvTPlus1": {
+        "label": "KV_{t+1}"
+      },
+      "timeKvTPlus2": {
+        "label": "KV_{t+2}"
+      },
+      "timeKvRightEllipsis": {
+        "label": "\\cdots"
+      }
     }
   }
 }

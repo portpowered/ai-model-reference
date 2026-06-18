@@ -20,7 +20,11 @@ import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
+import { ModuleGraph } from "@/features/models/components/ModuleGraph";
 import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
+import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
+import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
 
 
 <ModuleAtAGlance registryId="module.bidirectional-attention" />
@@ -39,14 +43,27 @@ import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
 
 <Section id="how-it-works" titleKey="sections.howItWorks.title">
   <T k="sections.howItWorks.body" />
+
+  <ModuleGraph registryId="module.bidirectional-attention" assetId="computeFlow" />
+</Section>
+
+<Section id="math-or-compute-schema" titleKey="sections.mathOrComputeSchema.title">
+  <T k="sections.mathOrComputeSchema.body" />
+  <ModuleAttentionSchemaComparison />
 </Section>
 
 <Section id="compared-to-nearby-modules" titleKey="sections.comparedToNearbyModules.title">
   <T k="sections.comparedToNearbyModules.body" />
+
+  <ModuleComparisonTable
+    registryId="module.bidirectional-attention"
+    assetId="comparisonTable"
+  />
 </Section>
 
 <Section id="example-architectures" titleKey="sections.exampleArchitectures.title">
   <T k="sections.exampleArchitectures.body" />
+  <ModelsUsingModule registryId="module.bidirectional-attention" />
 </Section>
 
 <Section id="limitations-and-tradeoffs" titleKey="sections.limitationsAndTradeoffs.title">

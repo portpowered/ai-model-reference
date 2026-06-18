@@ -32,8 +32,6 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/attention/page.mdx":
     "Legacy module overview predates the current full module template.",
-  "modules/bidirectional-attention/page.mdx":
-    "First-pass canonical page keeps the legacy overview-shaped structure until the dedicated comparison graph and table ship.",
   "modules/grouped-query-attention/page.mdx":
     "Legacy module page predates the variants-and-nearby-modules section.",
   "modules/manifold-constrained-hyper-connections/page.mdx":

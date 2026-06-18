@@ -1,0 +1,146 @@
+{
+  "id": "graph.bidirectional-attention-time-pattern",
+  "slug": "bidirectional-attention-time-pattern",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["attention"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "module.bidirectional-attention",
+  "graphType": "attention-pattern",
+  "rootNodeId": "bidirectional-time-current-query",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "bidirectional-time-current-query",
+      "labelKey": "graph.nodes.timeCurrentQuery.label",
+      "moduleKind": "attention",
+      "position": { "x": 420, "y": 0 },
+      "headCountRole": "query",
+      "visualRole": "summary-node",
+      "childNodeIds": [
+        "bidirectional-time-kv-left-ellipsis",
+        "bidirectional-time-kv-t-minus-2",
+        "bidirectional-time-kv-t-minus-1",
+        "bidirectional-time-kv-t",
+        "bidirectional-time-kv-t-plus-1",
+        "bidirectional-time-kv-t-plus-2",
+        "bidirectional-time-kv-right-ellipsis"
+      ]
+    },
+    {
+      "id": "bidirectional-time-kv-left-ellipsis",
+      "labelKey": "graph.nodes.timeKvLeftEllipsis.label",
+      "moduleKind": "cache",
+      "position": { "x": 0, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "bidirectional-time-kv-t-minus-2",
+      "labelKey": "graph.nodes.timeKvTMinus2.label",
+      "moduleKind": "cache",
+      "position": { "x": 140, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "bidirectional-time-kv-t-minus-1",
+      "labelKey": "graph.nodes.timeKvTMinus1.label",
+      "moduleKind": "cache",
+      "position": { "x": 280, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "bidirectional-time-kv-t",
+      "labelKey": "graph.nodes.timeKvT.label",
+      "moduleKind": "cache",
+      "position": { "x": 420, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "bidirectional-time-kv-t-plus-1",
+      "labelKey": "graph.nodes.timeKvTPlus1.label",
+      "moduleKind": "cache",
+      "position": { "x": 560, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "bidirectional-time-kv-t-plus-2",
+      "labelKey": "graph.nodes.timeKvTPlus2.label",
+      "moduleKind": "cache",
+      "position": { "x": 700, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    },
+    {
+      "id": "bidirectional-time-kv-right-ellipsis",
+      "labelKey": "graph.nodes.timeKvRightEllipsis.label",
+      "moduleKind": "cache",
+      "position": { "x": 840, "y": 220 },
+      "headCountRole": "kv",
+      "visualRole": "timeline-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "bidirectional-time-query-to-kv-left-ellipsis",
+      "source": "bidirectional-time-current-query",
+      "target": "bidirectional-time-kv-left-ellipsis",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "bidirectional-time-query-to-kv-t-minus-2",
+      "source": "bidirectional-time-current-query",
+      "target": "bidirectional-time-kv-t-minus-2",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "bidirectional-time-query-to-kv-t-minus-1",
+      "source": "bidirectional-time-current-query",
+      "target": "bidirectional-time-kv-t-minus-1",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "bidirectional-time-query-to-kv-t",
+      "source": "bidirectional-time-current-query",
+      "target": "bidirectional-time-kv-t",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "bidirectional-time-query-to-kv-t-plus-1",
+      "source": "bidirectional-time-current-query",
+      "target": "bidirectional-time-kv-t-plus-1",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "bidirectional-time-query-to-kv-t-plus-2",
+      "source": "bidirectional-time-current-query",
+      "target": "bidirectional-time-kv-t-plus-2",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "bidirectional-time-query-to-kv-right-ellipsis",
+      "source": "bidirectional-time-current-query",
+      "target": "bidirectional-time-kv-right-ellipsis",
+      "edgeKind": "data-flow"
+    }
+  ]
+}
