@@ -9,11 +9,11 @@
     },
     "whyItMatters": {
       "title": "Why It Matters",
-      "body": "Many important systems need to combine information that was produced elsewhere. Translation decoders need access to the encoded source sentence. Vision-language models need text tokens to inspect image features. Cross-attention gives the model a direct way to pull in that external context at each step instead of compressing everything into one fixed vector first."
+      "body": "Many important systems need to combine information that was produced elsewhere. Translation decoders need access to the encoded source sentence. A multimodal model needs text tokens to inspect image features or image features to guide generated text. Cross-attention gives the model a direct way to pull in that external context at each step instead of compressing everything into one fixed vector first."
     },
     "simpleExample": {
       "title": "Simple Example",
-      "body": "In a transformer encoder-decoder model, the encoder reads the input sentence and produces hidden states for every source token. The decoder then generates the output sentence one token at a time. During each decoder block, self-attention looks at the partial output so far, while cross-attention uses the decoder state as queries and the encoder states as keys and values. That lets the next output token focus on the most relevant source words before it is predicted."
+      "body": "In an encoder-decoder transformer, the encoder reads the input sentence and produces hidden states for every source token. The decoder then generates the output sentence one token at a time. During each decoder block, self-attention looks at the partial output so far, while cross-attention uses the decoder state as queries and the encoder states as keys and values. That lets the next output token focus on the most relevant source words before it is predicted. The same pattern appears in transformer architecture variants for image captioning, text-to-image generation, and other multimodal model systems where one stream needs selective access to another."
     },
     "whereItAppears": {
       "title": "Where It Appears",
@@ -21,7 +21,7 @@
     },
     "commonConfusions": {
       "title": "Common Confusions",
-      "body": "Cross-attention is not the same as self-attention. In self-attention, queries, keys, and values all come from the same running sequence. In cross-attention, the querying side and the source side are different streams. It is also not limited to text translation: the same pattern works whenever one representation needs selective access to another."
+      "body": "Cross-attention is not the same as self-attention. In self-attention, queries, keys, and values all come from the same running sequence. In cross-attention, the querying side and the source side are different streams. It is also not limited to text translation: the same pattern works whenever one representation needs selective access to another, whether that is an encoder-decoder stack or a multimodal model."
     },
     "related": {
       "title": "Related Concepts And Modules"

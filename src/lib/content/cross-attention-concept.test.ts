@@ -3,6 +3,13 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
+import { renderGlossaryDocsShell } from "@/lib/content/glossary-shell-render";
+import {
+  expectGlossaryShellPresentationConvergence,
+  expectHtmlToContainProse,
+  extractGlossaryArticleHtml,
+} from "@/lib/content/glossary-test-helpers";
+import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { getConceptById } from "@/lib/content/registry-runtime";
 
@@ -40,8 +47,42 @@ describe("Cross-attention concept page", () => {
     expect(html).toContain("Simple Example");
     expect(html).toContain("Common Confusions");
     expect(html).toContain("bridge between two representations");
+    expect(html).toContain('href="/docs/modules/attention"');
+    expect(html).toContain('href="/docs/glossary/encoder-decoder"');
+    expect(html).toContain('href="/docs/glossary/multimodal-model"');
+    expect(html).toContain('href="/docs/concepts/transformer-architecture"');
+    expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("missing message");
     expect(html).not.toContain("missing asset");
     expect(html).not.toContain("TODO");
+  });
+
+  test("docs shell renders title, summary, tags, and related links on the canonical route", async () => {
+    const loadedPage = await loadLocalDocsPage({
+      section: "concepts",
+      slug: "cross-attention",
+    });
+
+    const html = renderGlossaryDocsShell(loadedPage);
+    const articleHtml = extractGlossaryArticleHtml(
+      html,
+      loadedPage.frontmatter.registryId,
+    );
+
+    expect(articleHtml.length).toBeGreaterThan(0);
+    expectHtmlToContainProse(html, loadedPage.messages.description);
+    expectGlossaryShellPresentationConvergence(html, {
+      registryId: loadedPage.frontmatter.registryId,
+    });
+    expect(articleHtml).toContain('data-testid="tag-pill-list"');
+    expect(articleHtml).toContain('data-testid="curated-related-docs"');
+    expect(articleHtml).toContain('href="/docs/modules/attention"');
+    expect(articleHtml).toContain(
+      'href="/docs/concepts/transformer-architecture"',
+    );
+    expect(articleHtml).toContain('href="/docs/glossary/encoder-decoder"');
+    expect(articleHtml).toContain('href="/docs/glossary/multimodal-model"');
+    expect(articleHtml).not.toContain("missing message");
+    expect(articleHtml).not.toContain("missing asset");
   });
 });
