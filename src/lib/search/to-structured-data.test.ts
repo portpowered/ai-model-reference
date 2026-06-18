@@ -23,7 +23,7 @@ const SAMPLE_DOCUMENT: SearchDocument = {
 };
 
 describe("toStructuredData", () => {
-  test("adds exact-match keywords for the page title, slug, aliases, and tags", () => {
+  test("preserves repeated exact-match keywords from title, slug, aliases, and tags", () => {
     const structuredData = toStructuredData(SAMPLE_DOCUMENT);
     const keywordContents = structuredData.contents
       .filter((block) => block.heading === undefined)
@@ -34,6 +34,6 @@ describe("toStructuredData", () => {
     );
     expect(
       keywordContents.filter((content) => content === "attention"),
-    ).toHaveLength(1);
+    ).toEqual(["attention", "attention", "attention"]);
   });
 });

@@ -4,12 +4,6 @@ import type {
   SearchDocument,
 } from "./types";
 
-function unique(values: Array<string | undefined>): string[] {
-  return [
-    ...new Set(values.filter((value): value is string => Boolean(value))),
-  ];
-}
-
 function slugSearchTerm(url: string): string | undefined {
   const slug = url.split("/").pop();
   if (!slug) {
@@ -26,12 +20,12 @@ export function toStructuredData(
     id: `heading-${index}`,
     content: heading,
   }));
-  const exactMatchKeywords = unique([
+  const exactMatchKeywords = [
     document.title,
     slugSearchTerm(document.url),
     ...document.aliases,
     ...document.tags,
-  ]);
+  ].filter((value): value is string => Boolean(value));
 
   const contents = [
     {
