@@ -32,11 +32,15 @@ const BUILT_HTML_LOCALIZED_DOC_ROUTES = [
     requiredSidebarUrls: [
       "/vi/docs/glossary/token",
       "/vi/docs/modules/grouped-query-attention",
+      "/vi/docs/modules/linear-attention",
+      "/vi/docs/modules/multi-head-attention",
+      "/vi/docs/modules/multi-query-attention",
+      "/vi/docs/modules/sliding-window-attention",
     ],
     forbiddenSidebarUrls: [
       "/vi/docs/getting-started",
-      "/vi/docs/modules/multi-head-attention",
-      "/vi/docs/modules/linear-attention",
+      "/vi/docs/modules/multi-head-latent-attention",
+      "/vi/docs/modules/sparse-attention",
     ],
   },
 ] as const;

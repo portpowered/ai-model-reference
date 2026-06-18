@@ -99,6 +99,26 @@ describe("live /api/search HTTP contract", () => {
     ).toContain("giảm bộ nhớ KV cache");
   });
 
+  test("GET with a vietnamese locale query returns localized linear-attention content", async () => {
+    const results = await docsSearchApi.search("gần tuyến tính", {
+      locale: "vi",
+    });
+    expect(results.length).toBeGreaterThan(0);
+    expect(
+      results.some(
+        (result) => result.url === "/vi/docs/modules/linear-attention",
+      ),
+    ).toBe(true);
+
+    const meta = await loadSearchResultMetaMap("vi");
+    expect(meta.get("/vi/docs/modules/linear-attention")?.title).toBe(
+      "Linear attention",
+    );
+    expect(
+      meta.get("/vi/docs/modules/linear-attention")?.description,
+    ).toContain("gần tuyến tính");
+  });
+
   test("GET returns grouped-query attention for GQA query", async () => {
     const response = await GET(
       new Request("http://localhost/api/search?query=GQA"),

@@ -1,0 +1,47 @@
+{
+  "title": "Embedding",
+  "description": "Một vector dày đặc biểu diễn token hoặc mục rời rạc khác để mô hình có thể chạy phép toán liên tục trên nó.",
+  "sections": {
+    "whatItIs": {
+      "title": "Nó là gì",
+      "body": "Embedding là một danh sách số có độ dài cố định, tức một vector, gắn với một ký hiệu rời rạc như token ID. Trong mô hình ngôn ngữ transformer, tầng embedding đầu vào đổi token ID ở mỗi vị trí thành một vector có bề rộng đúng bằng hidden size của mô hình."
+    },
+    "whyItMatters": {
+      "title": "Vì sao nó quan trọng",
+      "body": "Embedding là nơi văn bản trở thành hình học số học: sau huấn luyện, những token giống nhau có thể nằm gần nhau trong không gian vector, và mọi tầng phía sau đều làm việc trên các vector đó. Độ dài ngữ cảnh, batching, và bộ nhớ triển khai đều phải tính theo số hàng embedding."
+    },
+    "simpleExample": {
+      "title": "Ví dụ đơn giản",
+      "body": "Giả sử token ID 42 được ánh xạ tới một vector 768 chiều. Một chuỗi gồm ba token sẽ trở thành tensor embedding 3×768 trước khi khối attention đầu tiên chạy."
+    },
+    "whereItAppears": {
+      "title": "Nó xuất hiện ở đâu",
+      "body": "Embedding nằm ở đáy của transformer decoder-only, ở đầu vào encoder của mô hình seq2seq, và trong các hệ truy hồi so sánh vector truy vấn với vector tài liệu. Thông tin vị trí thường được cộng vào embedding trước khi attention bắt đầu."
+    },
+    "commonConfusions": {
+      "title": "Những nhầm lẫn thường gặp",
+      "body": "Embedding không giống one-hot vector: bảng embedding chứa trọng số dày đặc đã học, chứ không phải một giá trị 1 duy nhất trong một vector thưa khổng lồ. Embedding cũng không phải logit hay xác suất; nó là đầu vào cho mô hình, không phải đầu ra của tầng từ vựng."
+    },
+    "related": {
+      "title": "Khái niệm và module liên quan"
+    },
+    "tags": {
+      "title": "Thẻ"
+    },
+    "references": {
+      "title": "Tài liệu tham khảo"
+    }
+  },
+  "relatedDocs": {
+    "concept.tensor": {
+      "reason": "Embedding biến một danh sách token thành tensor mà các tầng sau có thể xử lý."
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Lối tắt cho người đọc",
+      "body": "Đi tiếp trong chuỗi này: sau khi embedding trở thành tensor, mô hình cuối cùng sẽ tạo ra logit rồi xác suất softmax cho token tiếp theo."
+    }
+  },
+  "openingSummary": "Bảng embedding ánh xạ mỗi token ID rời rạc sang một vector đã học để mô hình có thể trộn thông tin trong không gian liên tục trước khi các tầng sâu hơn chạy."
+}

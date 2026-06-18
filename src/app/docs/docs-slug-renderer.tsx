@@ -59,18 +59,19 @@ async function renderLocalDocsPage(
 
   return (
     <DocsPage toc={loadedPage.toc}>
-      <DocsTitle>{loadedPage.messages.title}</DocsTitle>
-      <DocsDescription>{description}</DocsDescription>
-      <DocsBody>
-        <ModulePageProviders
-          messages={loadedPage.messages}
-          assets={loadedPage.assets}
-        >
+      <ModulePageProviders
+        messages={loadedPage.messages}
+        assets={loadedPage.assets}
+        locale={locale}
+      >
+        <DocsTitle>{loadedPage.messages.title}</DocsTitle>
+        <DocsDescription>{description}</DocsDescription>
+        <DocsBody>
           <article data-registry-id={loadedPage.frontmatter.registryId}>
             {loadedPage.content}
           </article>
-        </ModulePageProviders>
-      </DocsBody>
+        </DocsBody>
+      </ModulePageProviders>
     </DocsPage>
   );
 }

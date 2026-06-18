@@ -1,0 +1,213 @@
+{
+  "title": "Multi-head attention",
+  "description": "Thiết kế attention cơ sở trong đó mỗi query head có cặp key-value head riêng.",
+  "openingSummary": "Các khối Transformer cần để từng vị trí token gom ngữ cảnh từ những vị trí khác; multi-head attention (MHA) thực hiện phép tra cứu đó song song bằng cách tách query, key, và value đã được chiếu thành H head độc lập để mỗi head có thể chuyên vào một kiểu quan hệ riêng, rồi ghép các đầu ra lại.",
+  "sections": {
+    "whatItIs": {
+      "title": "Nó là gì",
+      "body": "Multi-head attention là dạng scaled dot-product attention gốc trong Transformer. Mỗi head tự tính phân phối attention của riêng mình trên key và value, rồi các đầu ra của head được gộp lại trước khi đi vào lớp con tiếp theo."
+    },
+    "whatItOptimizes": {
+      "title": "Nó tối ưu điều gì",
+      "body": "MHA nhắm tới độ phong phú biểu diễn: các query head khác nhau có thể chú ý tới những quan hệ khác nhau trong cùng một chuỗi mà không phải dùng chung tham số key-value."
+    },
+    "practicalBenefit": {
+      "title": "Lợi ích thực tế",
+      "body": "Mô hình giữ được đầy đủ khả năng biểu đạt theo từng head trong cả huấn luyện lẫn suy luận. MHA vẫn là thiết kế tham chiếu khi chất lượng quan trọng hơn kích thước KV cache, và là mốc so sánh cho multi-query attention và grouped-query attention."
+    },
+    "howItWorks": {
+      "title": "Cách nó hoạt động",
+      "body": "Các phép chiếu tuyến tính tạo ra H query head, H key head, và H value head. Mỗi query head i sẽ chú ý tới key head i và value head i tương ứng, tạo ra H đầu ra rồi được nối lại và chiếu thêm một lần nữa."
+    },
+    "mathOrComputeSchema": {
+      "title": "Công thức hoặc sơ đồ tính toán",
+      "body": "Công thức bên dưới là phép tính attention theo từng head dùng bên trong multi-head attention. Mỗi chỉ số head i ghép query, key, và value riêng của head đó trước khi các đầu ra được hợp nhất."
+    },
+    "comparedToNearbyModules": {
+      "title": "So với các module lân cận",
+      "body": "So với multi-query attention, MHA lưu một cặp KV cho mỗi query head nên kích thước cache tăng theo H. So với grouped-query attention, MHA không dùng nhóm KV chia sẻ và giữ dung lượng KV lớn nhất trong họ attention chia sẻ head."
+    },
+    "exampleArchitectures": {
+      "title": "Kiến trúc ví dụ",
+      "body": "MHA xuất hiện trong Transformer encoder-decoder gốc, các mô hình ngôn ngữ decoder-only kiểu GPT đời đầu, và nhiều Transformer cho thị giác hoặc tiếng nói dùng khối attention tiêu chuẩn."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Giới hạn và đánh đổi",
+      "body": "Suy luận tự hồi quy phải lưu cache cho mọi key head và value head, nên bộ nhớ và băng thông tăng theo độ dài ngữ cảnh và số lượng head. Khi phục vụ ngữ cảnh dài, người ta thường cân nhắc MQA hoặc GQA thay thế."
+    },
+    "whyItStillMatters": {
+      "title": "Vì sao nó vẫn quan trọng",
+      "body": "MHA là mốc khái niệm cho mọi biến thể chia sẻ head: hiểu ánh xạ một-một giữa query và KV của nó giúp việc suy luận các đánh đổi của MQA và GQA dễ hơn."
+    },
+    "related": {
+      "title": "Liên quan"
+    },
+    "tags": {
+      "title": "Thẻ"
+    },
+    "references": {
+      "title": "Tài liệu tham khảo"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "So sánh số head giữa multi-head attention và multi-query attention",
+      "caption": "Chuyển giữa MHA và MQA để so sánh số query head với số KV head trên cùng một đồ thị",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "mqa": {
+          "label": "MQA"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "Cách MHA so với các biến thể attention lân cận"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "mha": {
+          "title": "Multi-head attention"
+        },
+        "mqa": {
+          "title": "Multi-query attention"
+        },
+        "gqa": {
+          "title": "Grouped-query attention"
+        }
+      },
+      "dimensions": {
+        "kvHeadCount": "Số lượng KV head",
+        "queryHeadFlexibility": "Độ linh hoạt của query head",
+        "cacheFootprint": "Dung lượng cache trên mỗi token"
+      },
+      "values": {
+        "mha": {
+          "kvHeadCount": "H key head và H value head",
+          "queryHeadFlexibility": "H cặp query/KV head độc lập",
+          "cacheFootprint": "2H tensor (KV cache đầy đủ của multi-head attention)"
+        },
+        "mqa": {
+          "kvHeadCount": "1 key head và 1 value head",
+          "queryHeadFlexibility": "H query head dùng chung một cặp KV",
+          "cacheFootprint": "2 tensor (một KV cache dùng chung)"
+        },
+        "gqa": {
+          "kvHeadCount": "G key head và G value head",
+          "queryHeadFlexibility": "H query head riêng biệt được gom vào G cặp KV dùng chung",
+          "cacheFootprint": "2G tensor (G key + G value)"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Vector query cho head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Vector key cho head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Vector value cho head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Số lượng query head."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Chiều key trên mỗi head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Chỉ số query head."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "keysLabel": {
+        "label": "Keys"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "keyHead": {
+        "label": "k"
+      },
+      "valueHead": {
+        "label": "V"
+      },
+      "mhaQueryHeads": {
+        "label": "H query head"
+      },
+      "mhaKvHeads": {
+        "label": "H cặp KV head (1:1 với query)"
+      },
+      "mhaOneToOne": {
+        "label": "Mỗi query head có K và V riêng"
+      },
+      "mqaQueryHeads": {
+        "label": "H query head"
+      },
+      "mqaKvShared": {
+        "label": "1 cặp KV dùng chung"
+      },
+      "mqaSharedMapping": {
+        "label": "Tất cả H query head cùng đọc từ một K và một V"
+      },
+      "mqaSharingNote": {
+        "label": "Một cặp key/value dùng chung phục vụ mọi query head"
+      },
+      "timeCurrentQuery": {
+        "label": "q_t"
+      },
+      "timeKv0": {
+        "label": "KV_0"
+      },
+      "timeKv1": {
+        "label": "KV_1"
+      },
+      "timeKvEllipsis": {
+        "label": "\\cdots"
+      },
+      "timeKvT3": {
+        "label": "KV_{t-3}"
+      },
+      "timeKvT2": {
+        "label": "KV_{t-2}"
+      },
+      "timeKvT1": {
+        "label": "KV_{t-1}"
+      }
+    }
+  },
+  "relatedDocs": {
+    "module.attention": {
+      "reason": "Attention là khối cơ sở mà MHA triển khai theo dạng nhiều head song song."
+    },
+    "module.multi-query-attention": {
+      "reason": "MQA giữ nguyên query head nhưng nén KV xuống chỉ còn một cặp dùng chung để đổi lấy cache nhỏ hơn."
+    },
+    "module.grouped-query-attention": {
+      "reason": "GQA là điểm ở giữa MHA và MQA, dùng các nhóm KV chia sẻ thay vì giữ KV riêng cho mọi head."
+    }
+  }
+}

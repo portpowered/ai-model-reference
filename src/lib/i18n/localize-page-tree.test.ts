@@ -25,10 +25,9 @@ describe("localizePageTree", () => {
     const links = collectLinks(localizedTree.children);
 
     expect(links).not.toContain("/docs/getting-started");
-    expect(links).not.toContain("/docs/modules/multi-head-attention");
     expect(links).not.toContain("/vi/docs/getting-started");
-    expect(links).not.toContain("/vi/docs/modules/multi-head-attention");
-    expect(links).not.toContain("/vi/docs/modules/linear-attention");
+    expect(links).not.toContain("/vi/docs/modules/multi-head-latent-attention");
+    expect(links).not.toContain("/vi/docs/modules/sparse-attention");
   });
 
   test("localizes shipped docs links for vi page trees", () => {
@@ -36,6 +35,10 @@ describe("localizePageTree", () => {
     const links = collectLinks(localizedTree.children);
 
     expect(links).toContain("/vi/docs/modules/grouped-query-attention");
+    expect(links).toContain("/vi/docs/modules/multi-head-attention");
+    expect(links).toContain("/vi/docs/modules/multi-query-attention");
+    expect(links).toContain("/vi/docs/modules/sliding-window-attention");
+    expect(links).toContain("/vi/docs/modules/linear-attention");
     expect(links).toContain("/vi/docs/glossary/token");
   });
 

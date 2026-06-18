@@ -1,0 +1,238 @@
+{
+  "title": "Linear attention",
+  "description": "Một biến thể attention thay phép softmax dot-product tường minh bằng công thức kernel hoặc feature map có độ tăng gần tuyến tính theo độ dài chuỗi.",
+  "openingSummary": "Attention tiêu chuẩn phải dựng ma trận điểm n-n trước bước softmax nên chi phí tăng theo bình phương độ dài chuỗi; linear attention đưa query và key qua một feature map để phép attention được tính bằng các phép cộng dồn kết hợp hoặc dạng hồi quy, đổi cách chấm điểm softmax chính xác lấy độ tăng gần tuyến tính trên ngữ cảnh dài.",
+  "sections": {
+    "whatItIs": {
+      "title": "Nó là gì",
+      "body": "Linear attention là một biến thể attention viết lại phép attention mà không cần dựng toàn bộ ma trận điểm softmax. Feature map áp lên query và key cho phép mô hình tích lũy thống kê key-value theo thời gian tuyến tính thay vì chấm điểm tường minh cho mọi cặp query-key."
+    },
+    "whatItOptimizes": {
+      "title": "Nó tối ưu điều gì",
+      "body": "Linear attention nhắm vào độ tăng chi phí theo độ dài chuỗi, chi phí tính attention, và băng thông bộ nhớ khi attention bậc hai dày đặc sẽ chi phối thời gian chạy trên ngữ cảnh dài."
+    },
+    "practicalBenefit": {
+      "title": "Lợi ích thực tế",
+      "body": "Các nhóm chọn linear attention khi cần xử lý chuỗi dài nhưng không đủ khả năng trả chi phí attention bậc hai. Góc nhìn kernel hoặc hồi quy cho phép mỗi token mới cập nhật thống kê đang chạy thay vì quay lại toàn bộ ma trận điểm."
+    },
+    "howItWorks": {
+      "title": "Cách nó hoạt động",
+      "body": "Query và key đi qua một feature map φ để tích của chúng trở nên kết hợp được. Mô hình cộng dồn φ(K)^T V theo các vị trí rồi kết hợp kết quả đó với φ(Q) ở mỗi bước, nhờ vậy tránh phải hiện thực hóa ma trận attention n-n đầy đủ."
+    },
+    "mathOrComputeSchema": {
+      "title": "Công thức hoặc sơ đồ tính toán",
+      "body": "Khi feature map φ được áp lên query và key, linear attention tính đầu ra qua các tích kết hợp thay vì softmax trên mọi cặp. Các công thức dưới đây đối chiếu multi-head attention dày đặc với linear attention để chỉ ra vai trò của φ và hạng tử chuẩn hóa."
+    },
+    "comparedToNearbyModules": {
+      "title": "So với các module lân cận",
+      "body": "So với multi-head attention, linear attention đổi cơ chế tính thay vì chỉ chia sẻ KV head. Multi-query attention và grouped-query attention vẫn dày đặc trên các vị trí được phép nhưng giảm số KV head; linear attention theo đuổi độ tăng dưới bậc hai nhờ công thức kernel hoặc hồi quy."
+    },
+    "exampleArchitectures": {
+      "title": "Kiến trúc ví dụ",
+      "body": "Linear attention xuất hiện trong các mô hình ngữ cảnh dài và các kiến trúc nghiên cứu kết hợp lớp attention dưới bậc hai với khối dày đặc tiêu chuẩn để cân bằng hiệu năng và khả năng biểu đạt."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Giới hạn và đánh đổi",
+      "body": "Linear attention dựa trên feature map không hoàn toàn giống attention softmax dot-product. Chất lượng xấp xỉ phụ thuộc vào kernel được chọn, và một số công thức phải hy sinh cách chấm điểm theo từng cặp mà attention dày đặc cung cấp."
+    },
+    "whyItStillMatters": {
+      "title": "Vì sao nó vẫn quan trọng",
+      "body": "Khi ngữ cảnh ngày càng dài, các lựa chọn attention dưới bậc hai vẫn là một trục thiết kế thực tế cho những mô hình cần phục vụ chuỗi dài mà không phải trả chi phí attention bậc hai ở mọi lớp."
+    },
+    "related": {
+      "title": "Liên quan"
+    },
+    "tags": {
+      "title": "Thẻ"
+    },
+    "references": {
+      "title": "Tài liệu tham khảo"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "So sánh luồng tính của multi-head attention dày đặc và linear attention dùng feature map",
+      "caption": "Chuyển giữa MHA và linear attention để so sánh cách chấm điểm softmax đầy đủ với các phép cộng dồn kết hợp qua feature map trên cùng một đồ thị",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "linear": {
+          "label": "Linear"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "Cách linear attention so với các biến thể attention lân cận"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "linear": {
+          "title": "Linear attention"
+        },
+        "mha": {
+          "title": "Multi-head attention"
+        },
+        "mqa": {
+          "title": "Multi-query attention"
+        },
+        "gqa": {
+          "title": "Grouped-query attention"
+        }
+      },
+      "dimensions": {
+        "sequenceScaling": "Độ tăng theo độ dài chuỗi",
+        "computeMechanism": "Cơ chế tính toán",
+        "expressiveness": "Khả năng biểu đạt"
+      },
+      "values": {
+        "linear": {
+          "sequenceScaling": "Gần tuyến tính O(n) trên mỗi head khi chiều feature map cố định",
+          "computeMechanism": "Feature map φ trên query và key; cộng dồn KV theo tính kết hợp",
+          "expressiveness": "Xấp xỉ attention softmax dot-product theo kernel được chọn"
+        },
+        "mha": {
+          "sequenceScaling": "Bậc hai O(n²) trên mỗi head",
+          "computeMechanism": "Softmax tường minh trên mọi tích vô hướng query-key",
+          "expressiveness": "Attention softmax đầy đủ theo từng cặp"
+        },
+        "mqa": {
+          "sequenceScaling": "Bậc hai O(n²) với ít phép chiếu KV hơn",
+          "computeMechanism": "Softmax dày đặc với KV head dùng chung",
+          "expressiveness": "Attention softmax đầy đủ theo từng cặp với KV dùng chung"
+        },
+        "gqa": {
+          "sequenceScaling": "Bậc hai O(n²) với số KV head ít hơn",
+          "computeMechanism": "Softmax dày đặc với KV head được gom nhóm",
+          "expressiveness": "Attention softmax đầy đủ theo từng cặp với KV được gom nhóm"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Vector query cho head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Vector key cho head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Vector value cho head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Số lượng query head."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Chiều key trên mỗi head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Chỉ số query head."
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Linear attention",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\frac{\\phi(Q_i)\\big(\\phi(K_i)^{\\top} V_i\\big)}{\\phi(Q_i)\\big(\\sum_j \\phi(K_{i,j})\\big)}",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Vector query cho head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Vector key cho head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Vector value cho head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Số lượng query head."
+        },
+        "g": {
+          "term": "φ",
+          "definition": "Feature map áp lên query và key để cho phép cộng dồn theo tính kết hợp."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Chiều key trên mỗi head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Chỉ số query head."
+        },
+        "gi": {
+          "term": "Z",
+          "definition": "Mẫu số chuẩn hóa được tạo từ tổng các key sau khi qua feature map."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "valueHead": {
+        "label": "V"
+      },
+      "mhaQueryHeads": {
+        "label": "H query head"
+      },
+      "mhaKvHeads": {
+        "label": "H cặp KV head (1:1 với query)"
+      },
+      "mhaOneToOne": {
+        "label": "Mỗi query chấm điểm mọi vị trí key"
+      },
+      "linearQueryHeads": {
+        "label": "H query head"
+      },
+      "linearFeatureMap": {
+        "label": "Feature map φ trên query và key"
+      },
+      "linearAssociativeUpdate": {
+        "label": "Cộng dồn KV theo tính kết hợp, không cần ma trận điểm đầy đủ"
+      },
+      "linearSummaryLabel": {
+        "label": "Các bản tóm tắt đang chạy"
+      },
+      "linearSummaryNode": {
+        "label": "\\phi(K)^{\\top} V"
+      },
+      "linearAssociativeNote": {
+        "label": "Query đọc từ các bản tóm tắt đang chạy thay vì chấm điểm mọi key"
+      }
+    }
+  },
+  "relatedDocs": {
+    "module.attention": {
+      "reason": "Attention dày đặc là đường cơ sở mà linear attention viết lại để tránh ma trận điểm đầy đủ."
+    },
+    "module.multi-head-attention": {
+      "reason": "MHA giữ nguyên phép softmax dot-product theo từng cặp, nên là đối chiếu trực tiếp cho phần tính toán mà linear attention thay đổi."
+    },
+    "module.sliding-window-attention": {
+      "reason": "Sliding-window attention cũng nhắm tới ngữ cảnh dài, nhưng nó giới hạn tầm với theo thời gian thay vì đổi công thức tính attention."
+    }
+  }
+}

@@ -1,0 +1,259 @@
+{
+  "title": "Sliding-window attention",
+  "description": "Một biến thể attention giới hạn mỗi query vào một cửa sổ cục bộ cố định thay vì toàn bộ chuỗi.",
+  "openingSummary": "Attention dày đặc cho mọi query nhìn toàn bộ key trong chuỗi nên chi phí tăng theo bình phương độ dài; sliding-window attention chỉ cho mỗi vị trí nhìn vào một cửa sổ lân cận cố định, đổi tầm nhìn toàn cục lấy chi phí tính toán và bộ nhớ được giữ trong giới hạn khi ngữ cảnh dài hơn.",
+  "sections": {
+    "whatItIs": {
+      "title": "Nó là gì",
+      "body": "Sliding-window attention là một biến thể attention giới hạn mỗi vị trí query vào các key nằm trong một vùng lân cận cố định. Thay vì ma trận attention n-n đầy đủ, chỉ các ô nằm trong cửa sổ mới nhận trọng số khác không."
+    },
+    "whatItOptimizes": {
+      "title": "Nó tối ưu điều gì",
+      "body": "Sliding-window attention nhắm vào chi phí tính attention, băng thông bộ nhớ khi tạo ma trận điểm, và chi phí phục vụ chuỗi dài khi attention dày đặc trên mọi cặp vị trí sẽ chi phối thời gian chạy."
+    },
+    "practicalBenefit": {
+      "title": "Lợi ích thực tế",
+      "body": "Các nhóm dùng sliding-window attention khi cần mô hình hóa ngữ cảnh dài nhưng không đủ khả năng trả chi phí attention bậc hai. Giới hạn vùng được nhìn tới giúp giảm số phép nhân cộng và giữ bản đồ attention trong một phạm vi cục bộ có thể dự đoán."
+    },
+    "howItWorks": {
+      "title": "Cách nó hoạt động",
+      "body": "Mỗi vị trí query chỉ chú ý tới các key nằm trong W token về bên trái của nó, và đôi khi cả bên phải tùy mẫu mask. Các key nằm ngoài cửa sổ bị đưa về 0 trước bước chuẩn hóa softmax, nên mô hình dồn tính toán vào ngữ cảnh gần thay vì toàn bộ lưới token."
+    },
+    "mathOrComputeSchema": {
+      "title": "Công thức hoặc sơ đồ tính toán",
+      "body": "Với độ dài chuỗi n và kích thước cửa sổ W, sliding-window attention áp một mặt nạ dải trước softmax. Các công thức dưới đây đối chiếu multi-head attention dày đặc với attention giới hạn cửa sổ để cho thấy query có thể chạm tới những key nào."
+    },
+    "comparedToNearbyModules": {
+      "title": "So với các module lân cận",
+      "body": "So với multi-head attention, sliding-window attention giới hạn tầm với vào vùng lân cận cục bộ thay vì chấm điểm mọi vị trí. Multi-query attention và grouped-query attention vẫn dày đặc trên các vị trí được phép nhưng giảm số KV head; sliding-window attention thay đổi khoảng cách mà mỗi query có thể nhìn tới."
+    },
+    "exampleArchitectures": {
+      "title": "Kiến trúc ví dụ",
+      "body": "Sliding-window attention xuất hiện trong các mô hình decoder ngữ cảnh dài kết hợp cửa sổ cục bộ với những lớp toàn cục theo chu kỳ hoặc với các mẫu khác để phục hồi phụ thuộc ở xa."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Giới hạn và đánh đổi",
+      "body": "Một cửa sổ cố định không thể nối trực tiếp các token ở rất xa chỉ trong một lớp. Các mô hình chỉ dựa vào cửa sổ cục bộ thường cần chồng nhiều lớp hoặc kết hợp mẫu khác để chuyển thông tin đi hết chuỗi."
+    },
+    "whyItStillMatters": {
+      "title": "Vì sao nó vẫn quan trọng",
+      "body": "Khi độ dài chuỗi tiếp tục tăng, chi phí attention bậc hai khiến các mẫu locality trở thành hướng thiết kế quan trọng vì chúng giữ lại tín hiệu gần hữu ích mà không phải dựng ma trận điểm n-n đầy đủ ở mọi lớp."
+    },
+    "related": {
+      "title": "Liên quan"
+    },
+    "tags": {
+      "title": "Thẻ"
+    },
+    "references": {
+      "title": "Tài liệu tham khảo"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "So sánh tầm với của multi-head attention dày đặc và sliding-window attention cục bộ",
+      "caption": "Chuyển giữa MHA và cửa sổ trượt để so sánh tầm nhìn toàn chuỗi với cửa sổ cục bộ cố định trên cùng một đồ thị",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "window": {
+          "label": "Cửa sổ"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "Cách sliding-window attention so với các biến thể attention lân cận"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "window": {
+          "title": "Sliding-window attention"
+        },
+        "mha": {
+          "title": "Multi-head attention"
+        },
+        "mqa": {
+          "title": "Multi-query attention"
+        },
+        "gqa": {
+          "title": "Grouped-query attention"
+        }
+      },
+      "dimensions": {
+        "attentionLocality": "Tính cục bộ của attention",
+        "computeScaling": "Độ tăng chi phí theo độ dài chuỗi",
+        "globalReach": "Khả năng chạm tới token xa"
+      },
+      "values": {
+        "window": {
+          "attentionLocality": "Cửa sổ cục bộ cố định W token cho mỗi query",
+          "computeScaling": "Tuyến tính O(n·W) trên mỗi head khi W cố định",
+          "globalReach": "Token xa cần nhiều lớp chồng lên nhau hoặc mẫu bổ sung"
+        },
+        "mha": {
+          "attentionLocality": "Toàn bộ chuỗi; mọi query đều nhìn thấy mọi key",
+          "computeScaling": "Bậc hai O(n²) trên mỗi head",
+          "globalReach": "Bất kỳ vị trí nào cũng có thể chú ý tới vị trí khác"
+        },
+        "mqa": {
+          "attentionLocality": "Toàn bộ chuỗi với KV head dùng chung",
+          "computeScaling": "Bậc hai O(n²) với ít phép chiếu KV hơn",
+          "globalReach": "Bất kỳ vị trí nào cũng có thể chú ý tới vị trí khác"
+        },
+        "gqa": {
+          "attentionLocality": "Toàn bộ chuỗi với KV head được gom nhóm",
+          "computeScaling": "Bậc hai O(n²) với số KV head ít hơn",
+          "globalReach": "Bất kỳ vị trí nào cũng có thể chú ý tới vị trí khác"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Vector query cho head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Vector key cho head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Vector value cho head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Số lượng query head."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Chiều key trên mỗi head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Chỉ số query head."
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Sliding-window attention",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(B_W \\odot \\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Vector query cho head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Vector key cho head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Vector value cho head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Số lượng query head."
+        },
+        "g": {
+          "term": "W",
+          "definition": "Kích thước cửa sổ: khoảng cách token lớn nhất mà mỗi query được phép chú ý tới."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Chiều key trên mỗi head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Chỉ số query head."
+        },
+        "gi": {
+          "term": "B_W",
+          "definition": "Mặt nạ dải đưa về 0 các vị trí key nằm ngoài cửa sổ trượt."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "keysLabel": {
+        "label": "Keys"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "keyHead": {
+        "label": "k"
+      },
+      "valueHead": {
+        "label": "V"
+      },
+      "mhaQueryHeads": {
+        "label": "H query head"
+      },
+      "mhaKvHeads": {
+        "label": "H cặp KV head (1:1 với query)"
+      },
+      "mhaOneToOne": {
+        "label": "Mỗi query nhìn tới mọi vị trí key"
+      },
+      "windowQueryHeads": {
+        "label": "H query head"
+      },
+      "windowLocalBoundary": {
+        "label": "Cửa sổ cục bộ W token"
+      },
+      "windowLimitedReach": {
+        "label": "Chỉ chú ý tới key nằm trong cửa sổ"
+      },
+      "windowReachNote": {
+        "label": "Mỗi query chỉ chạm tới các key lân cận trong cửa sổ trượt"
+      },
+      "timeCurrentQuery": {
+        "label": "q_t"
+      },
+      "timeKv0": {
+        "label": "KV_0"
+      },
+      "timeKv1": {
+        "label": "KV_1"
+      },
+      "timeKvEllipsis": {
+        "label": "\\cdots"
+      },
+      "timeKvT3": {
+        "label": "KV_{t-3}"
+      },
+      "timeKvT2": {
+        "label": "KV_{t-2}"
+      },
+      "timeKvT1": {
+        "label": "KV_{t-1}"
+      }
+    }
+  },
+  "relatedDocs": {
+    "module.attention": {
+      "reason": "Attention dày đặc là đường cơ sở mà sliding-window attention cắt bớt tầm với theo thời gian."
+    },
+    "module.multi-head-attention": {
+      "reason": "MHA cho mọi vị trí nhìn toàn chuỗi, nên là đối chiếu trực tiếp để thấy sliding-window attention đổi tầm nhìn lấy chi phí thấp hơn."
+    },
+    "module.linear-attention": {
+      "reason": "Linear attention cũng nhắm vào ngữ cảnh dài, nhưng nó đổi cơ chế tính toán thay vì giới hạn cửa sổ mà query được phép nhìn."
+    }
+  }
+}

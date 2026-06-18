@@ -1,0 +1,53 @@
+{
+  "title": "Softmax",
+  "description": "Hàm biến một vector logit thành phân phối xác suất có tổng bằng một.",
+  "sections": {
+    "whatItIs": {
+      "title": "Nó là gì",
+      "body": "Softmax là bước chuẩn hóa cuối thường dùng cho đầu ra nhiều lớp của mô hình ngôn ngữ. Với một vector logit z, nó trả về các xác suất p_i tỉ lệ với exp(z_i), rồi chia cho tổng trên mọi lớp."
+    },
+    "whyItMatters": {
+      "title": "Vì sao nó quan trọng",
+      "body": "Sampling token tiếp theo đọc trực tiếp các xác suất softmax. Huấn luyện bằng cross-entropy so sánh đầu ra softmax với token đích. Bất kỳ cuộc thảo luận nào về độ tự tin của mô hình, entropy, hay temperature đều dựa trên việc hiểu phép đổi từ logit sang phân phối này."
+    },
+    "simpleExample": {
+      "title": "Ví dụ đơn giản",
+      "body": "Với các logit [2.0, 1.0, 0.0], softmax dồn khối lượng xác suất lớn nhất vào chỉ số 0 vì exp(2) trội hơn, nhưng cả ba phần tử vẫn nhận xác suất dương. Chia logit cho temperature trước khi softmax sẽ làm phân phối sắc hơn hoặc phẳng hơn."
+    },
+    "whereItAppears": {
+      "title": "Nó xuất hiện ở đâu",
+      "body": "Transformer tự hồi quy áp dụng softmax dọc theo chiều từ vựng của tensor logit ở mỗi vị trí. Các framework thường cung cấp nó dưới dạng nn.Softmax, jax.nn.softmax, hoặc kernel hợp nhất trong vòng lặp sampling. Đây là bước chuẩn hóa xác suất trên toàn bộ từ vựng ở lúc giải mã."
+    },
+    "commonConfusions": {
+      "title": "Những nhầm lẫn thường gặp",
+      "body": "Softmax không giống một activation đơn lẻ bên trong tầng ẩn, nơi người ta thường dùng ReLU hoặc GELU. Softmax cũng khác sigmoid, vốn phù hợp hơn cho xác suất nhị phân. Áp dụng softmax hai lần thường không khôi phục lại các logit ban đầu."
+    },
+    "related": {
+      "title": "Khái niệm và module liên quan"
+    },
+    "tags": {
+      "title": "Thẻ"
+    },
+    "references": {
+      "title": "Tài liệu tham khảo"
+    }
+  },
+  "relatedDocs": {
+    "concept.entropy": {
+      "reason": "Entropy đo mức độ dàn trải hay sắc nhọn của phân phối softmax sau khi chuẩn hóa."
+    },
+    "concept.temperature": {
+      "reason": "Temperature làm phân phối softmax sắc hơn hoặc phẳng hơn bằng cách co giãn logit trước khi chuẩn hóa."
+    },
+    "concept.parameter": {
+      "reason": "Các tham số học được quyết định những logit nào softmax sẽ chuẩn hóa thành xác suất ở bước giải mã."
+    }
+  },
+  "callouts": {
+    "readerShortcut": {
+      "title": "Lối tắt cho người đọc",
+      "body": "Nếu bạn đọc được một công thức softmax, bạn đã có nền cho các trang temperature và entropy tiếp theo, vì chúng đều thao tác trên cùng vector xác suất đó."
+    }
+  },
+  "openingSummary": "Softmax đổi logit thành các xác suất không âm cộng lại bằng 1 trên toàn bộ từ vựng, tức bước chuẩn từ điểm số thô sang cơ hội có thể diễn giải được."
+}

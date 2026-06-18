@@ -177,6 +177,10 @@ describe("attention tag landing page render", () => {
     expect(groups[0]?.resources.map((resource) => resource.url)).toEqual([
       "/vi/docs/modules/attention",
       "/vi/docs/modules/grouped-query-attention",
+      "/vi/docs/modules/linear-attention",
+      "/vi/docs/modules/multi-head-attention",
+      "/vi/docs/modules/multi-query-attention",
+      "/vi/docs/modules/sliding-window-attention",
     ]);
     expect(groups[1]?.resources.map((resource) => resource.url)).toEqual([
       "/vi/docs/glossary/autoregressive-generation",

@@ -31,9 +31,67 @@ describe("docs slug renderer locale gating", () => {
     });
   });
 
+  test("English docs metadata advertises shipped Vietnamese alternates for newly localized head-sharing modules", async () => {
+    const multiHeadMetadata = await buildDocsPageMetadata([
+      "modules",
+      "multi-head-attention",
+    ]);
+    const multiQueryMetadata = await buildDocsPageMetadata([
+      "modules",
+      "multi-query-attention",
+    ]);
+
+    expect(multiHeadMetadata.alternates).toEqual({
+      canonical: "/docs/modules/multi-head-attention",
+      languages: {
+        en: "/docs/modules/multi-head-attention",
+        vi: "/vi/docs/modules/multi-head-attention",
+      },
+    });
+    expect(multiQueryMetadata.alternates).toEqual({
+      canonical: "/docs/modules/multi-query-attention",
+      languages: {
+        en: "/docs/modules/multi-query-attention",
+        vi: "/vi/docs/modules/multi-query-attention",
+      },
+    });
+  });
+
+  test("English docs metadata advertises shipped Vietnamese alternates for newly localized long-context modules", async () => {
+    const slidingWindowMetadata = await buildDocsPageMetadata([
+      "modules",
+      "sliding-window-attention",
+    ]);
+    const linearAttentionMetadata = await buildDocsPageMetadata([
+      "modules",
+      "linear-attention",
+    ]);
+
+    expect(slidingWindowMetadata.alternates).toEqual({
+      canonical: "/docs/modules/sliding-window-attention",
+      languages: {
+        en: "/docs/modules/sliding-window-attention",
+        vi: "/vi/docs/modules/sliding-window-attention",
+      },
+    });
+    expect(linearAttentionMetadata.alternates).toEqual({
+      canonical: "/docs/modules/linear-attention",
+      languages: {
+        en: "/docs/modules/linear-attention",
+        vi: "/vi/docs/modules/linear-attention",
+      },
+    });
+  });
+
   test("unshipped Vietnamese docs routes fail clearly instead of rendering English content", async () => {
-    await expect(renderDocsSlugPage(["getting-started"], "vi")).rejects.toThrow(
-      "notFound()",
-    );
+    try {
+      await renderDocsSlugPage(["getting-started"], "vi");
+      throw new Error("Expected Vietnamese unshipped route to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toMatch(
+        /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
+      );
+    }
   });
 });

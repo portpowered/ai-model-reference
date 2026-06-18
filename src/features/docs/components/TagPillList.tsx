@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { docsChromePillLinkClassName } from "@/features/docs/components/docs-chrome-link";
+import { useOptionalPageMessagesContext } from "@/features/docs/components/page-messages-context";
+import { tagPageHref } from "@/lib/content/content-hrefs";
 import { getRegistryTags } from "@/lib/content/registry-runtime";
-import { formatTagLabel, tagPageHref } from "@/lib/content/tags";
+import { formatTagLabel } from "@/lib/content/tag-labels";
 
 type TagPillListProps = {
   showDescriptions?: boolean;
@@ -21,6 +25,7 @@ function resolveTags(props: TagPillListProps): string[] {
 }
 
 export function TagPillList(props: TagPillListProps) {
+  const pageContext = useOptionalPageMessagesContext();
   const tags = resolveTags(props);
   if (tags.length === 0) {
     return null;
@@ -35,7 +40,7 @@ export function TagPillList(props: TagPillListProps) {
       {tags.map((slug) => (
         <li key={slug}>
           <Link
-            href={tagPageHref(slug)}
+            href={tagPageHref(slug, pageContext?.locale ?? "en")}
             className={docsChromePillLinkClassName}
           >
             {formatTagLabel(slug)}

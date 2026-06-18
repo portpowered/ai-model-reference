@@ -63,6 +63,27 @@ describe("RegistryComparisonTable", () => {
     expect(html).toContain("How GQA compares with nearby attention variants");
   });
 
+  test("localizes shipped docs column links for Vietnamese pages", () => {
+    const html = renderToStaticMarkup(
+      <PageMessagesProvider messages={messages} locale="vi" isDev={false}>
+        <PageAssetsProvider assets={assets} isDev={false}>
+          <RegistryComparisonTable
+            assetId="comparisonTable"
+            tableId={comparisonAsset.tableId}
+            caption={caption}
+          />
+        </PageAssetsProvider>
+      </PageMessagesProvider>,
+    );
+
+    expect(html).toContain('href="/vi/docs/modules/multi-head-attention"');
+    expect(html).toContain('href="/vi/docs/modules/multi-query-attention"');
+    expect(html).toContain('href="/vi/docs/modules/grouped-query-attention"');
+    expect(html).not.toContain('href="/docs/modules/multi-head-attention"');
+    expect(html).not.toContain('href="/docs/modules/multi-query-attention"');
+    expect(html).not.toContain('href="/docs/modules/grouped-query-attention"');
+  });
+
   test("renders a missing table record marker when tableId is unknown", () => {
     const html = renderToStaticMarkup(
       <PageMessagesProvider messages={messages} isDev={false}>
