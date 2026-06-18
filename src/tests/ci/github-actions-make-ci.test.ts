@@ -107,8 +107,8 @@ describe("GitHub Actions make ci", () => {
     expect(workflow).toContain("needs: gate");
     expect(workflow).toMatch(/if: \$\{\{ always\(\) \}\}/);
     expect(workflow).toMatch(/if: \$\{\{ matrix\.install_playwright \}\}/);
-    expect(workflow).toContain(
-      "WEBSITE_TEST_PARALLEL_WORKERS: ${{ matrix.website_test_parallel_workers }}",
+    expect(workflow).toMatch(
+      /WEBSITE_TEST_PARALLEL_WORKERS: \$\{\{ matrix\.website_test_parallel_workers \}\}/,
     );
     expect(workflow).not.toMatch(/continue-on-error:\s*true/i);
   });
