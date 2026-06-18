@@ -17,6 +17,7 @@
     "concept.softmax",
     "concept.embedding",
     "concept.decoder",
+    "concept.kv-cache",
     "concept.encoder-decoder",
     "concept.conditioning",
     "concept.denoising-generation"

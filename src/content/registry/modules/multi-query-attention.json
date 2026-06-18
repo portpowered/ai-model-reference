@@ -9,7 +9,8 @@
   "relatedIds": [
     "module.attention",
     "module.multi-head-attention",
-    "module.grouped-query-attention"
+    "module.grouped-query-attention",
+    "concept.kv-cache"
   ],
   "citationIds": ["citation.shazeer-mqa-paper"],
   "status": "published",

@@ -10,6 +10,7 @@
     "concept.architecture",
     "concept.encoder-decoder",
     "concept.autoregressive-generation",
+    "concept.kv-cache",
     "concept.foundation-model",
     "concept.module"
   ],

@@ -48,6 +48,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/foundation-model",
         "/docs/glossary/generalization",
         "/docs/glossary/generative-model",
+        "/docs/glossary/kv-cache",
         "/docs/glossary/latent",
         "/docs/glossary/latent-space",
         "/docs/glossary/layer-norm",
@@ -155,6 +156,8 @@ describe("architecture index page render", () => {
     expect(html).toContain('href="/docs/glossary/architecture"');
     expect(html).toContain("Foundation Model");
     expect(html).toContain('href="/docs/glossary/foundation-model"');
+    expect(html).toContain("KV cache");
+    expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain("Token");
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).not.toContain("No architecture entries yet");

@@ -83,10 +83,33 @@ describe("docs slug renderer locale gating", () => {
     });
   });
 
+  test("English docs metadata omits unshipped Vietnamese alternate for kv-cache", async () => {
+    const metadata = await buildDocsPageMetadata(["glossary", "kv-cache"]);
+
+    expect(metadata.alternates).toEqual({
+      canonical: "/docs/glossary/kv-cache",
+      languages: {
+        en: "/docs/glossary/kv-cache",
+      },
+    });
+  });
+
   test("unshipped Vietnamese docs routes fail clearly instead of rendering English content", async () => {
     try {
       await renderDocsSlugPage(["getting-started"], "vi");
       throw new Error("Expected Vietnamese unshipped route to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toMatch(
+        /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
+      );
+    }
+  });
+
+  test("unshipped Vietnamese kv-cache route fails instead of rendering English content", async () => {
+    try {
+      await renderDocsSlugPage(["glossary", "kv-cache"], "vi");
+      throw new Error("Expected Vietnamese KV cache route to fail");
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
       expect((error as Error).message).toMatch(

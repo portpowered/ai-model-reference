@@ -52,6 +52,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   backpropagation: "Backpropagation",
   "loss-function": "Loss Function",
   "optimizer-state": "Optimizer State",
+  "kv-cache": "KV cache",
 };
 
 const CHAIN_GLOSSARY_SLUGS = [
@@ -70,8 +71,8 @@ const CHAIN_GLOSSARY_SLUGS = [
   "loss-function",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 54;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 47;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 55;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 48;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
@@ -111,6 +112,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     for (const slug of [
       ...TAXONOMY_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
+      "kv-cache",
       "token",
     ] as const) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
@@ -136,6 +138,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     for (const slug of [
       ...TAXONOMY_GLOSSARY_SLUGS,
       ...CHAIN_GLOSSARY_SLUGS,
+      "kv-cache",
       "token",
     ] as const) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
@@ -159,6 +162,11 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
 
     const token = entries.find((item) => item.url === "/docs/glossary/token");
     expect(token?.title).toBe("Token");
+
+    const kvCache = entries.find(
+      (item) => item.url === "/docs/glossary/kv-cache",
+    );
+    expect(kvCache?.title).toBe("KV cache");
 
     for (const slug of CHAIN_GLOSSARY_SLUGS) {
       const entry = entries.find(
@@ -186,6 +194,11 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
 
     const token = entries.find((entry) => entry.url === "/docs/glossary/token");
     expect(token?.title).toBe("Token");
+
+    const kvCache = entries.find(
+      (entry) => entry.url === "/docs/glossary/kv-cache",
+    );
+    expect(kvCache?.title).toBe("KV cache");
 
     const embedding = entries.find(
       (entry) => entry.url === "/docs/glossary/embedding",
@@ -230,12 +243,16 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(glossaryHtml).toContain('href="/docs/glossary/activation"');
     expect(glossaryHtml).toContain("Computational Graph");
     expect(glossaryHtml).toContain('href="/docs/glossary/computational-graph"');
+    expect(glossaryHtml).toContain("KV cache");
+    expect(glossaryHtml).toContain('href="/docs/glossary/kv-cache"');
     expect(architectureHtml).toContain("Activation");
     expect(architectureHtml).toContain('href="/docs/glossary/activation"');
     expect(architectureHtml).toContain("Computational Graph");
     expect(architectureHtml).toContain(
       'href="/docs/glossary/computational-graph"',
     );
+    expect(architectureHtml).toContain("KV cache");
+    expect(architectureHtml).toContain('href="/docs/glossary/kv-cache"');
     expect(architectureHtml).not.toContain('href="/docs/glossary/parameter"');
     expect(architectureHtml).toContain("Embedding");
     expect(architectureHtml).toContain('href="/docs/glossary/embedding"');

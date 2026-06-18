@@ -46,6 +46,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/tensor",
   "/docs/glossary/vector",
   "/docs/glossary/hidden-size",
+  "/docs/glossary/kv-cache",
   "/docs/glossary/logit",
   "/docs/glossary/softmax",
   "/docs/glossary/entropy",

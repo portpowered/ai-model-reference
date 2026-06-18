@@ -35,6 +35,7 @@ const POSITIONAL_ENCODINGS_URL = "/docs/concepts/positional-encodings";
 const ROPE_URL = "/docs/glossary/rope";
 const ALIBI_URL = "/docs/glossary/alibi";
 const CONTEXT_WINDOW_URL = "/docs/glossary/context-window";
+const KV_CACHE_URL = "/docs/glossary/kv-cache";
 const CONTEXT_EXTENSION_URL = "/docs/concepts/context-extension";
 const WHY_LONG_CONTEXT_IS_HARD_URL = "/docs/concepts/why-long-context-is-hard";
 const STRUCTURAL_TAXONOMY_URLS = [
@@ -64,6 +65,7 @@ const GENERATION_PARADIGM_URLS = [
   "/docs/glossary/autoregressive-generation",
   "/docs/glossary/denoising-generation",
   "/docs/glossary/conditioning",
+  KV_CACHE_URL,
 ] as const;
 const TRAINING_BEHAVIOR_URLS = [
   "/docs/glossary/alignment",

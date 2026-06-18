@@ -203,6 +203,9 @@ export const CONTEXT_WINDOW_GLOSSARY_PAGE_DIR = join(
   "context-window",
 );
 
+/** Phase 5 KV cache glossary page directory. */
+export const KV_CACHE_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "kv-cache");
+
 /** Phase 3 context extension concept page directory. */
 export const CONTEXT_EXTENSION_CONCEPT_PAGE_DIR = join(
   CONCEPTS_DOCS_ROOT,

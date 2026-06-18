@@ -19,6 +19,7 @@ describe("registry-runtime", () => {
     expect(record?.relatedIds).toContain("module.multi-head-attention");
     expect(record?.relatedIds).toContain("module.multi-query-attention");
     expect(record?.relatedIds).toContain("module.grouped-query-attention");
+    expect(record?.relatedIds).toContain("concept.kv-cache");
     expect(record?.relatedIds).toContain("concept.token");
   });
 
@@ -30,6 +31,7 @@ describe("registry-runtime", () => {
       "module.attention",
       "module.multi-head-attention",
       "module.multi-query-attention",
+      "concept.kv-cache",
     ]);
   });
 
@@ -87,6 +89,7 @@ describe("registry-runtime", () => {
       "module.attention",
       "module.multi-head-attention",
       "module.grouped-query-attention",
+      "concept.kv-cache",
     ]);
   });
 

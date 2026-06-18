@@ -9,7 +9,8 @@
   "relatedIds": [
     "module.attention",
     "module.multi-head-attention",
-    "module.multi-query-attention"
+    "module.multi-query-attention",
+    "concept.kv-cache"
   ],
   "citationIds": ["citation.gqa-paper"],
   "status": "published",

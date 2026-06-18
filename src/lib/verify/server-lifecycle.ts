@@ -4,7 +4,7 @@ import {
   spawn,
 } from "node:child_process";
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { isNextProductionBuildFresh } from "./build-source-fingerprint";
 import {
   DEFAULT_FETCH_TIMEOUT_MS,
@@ -196,7 +196,27 @@ export function assertNextProductionBuild(
 }
 
 export function resolveNextProductionServerBin(projectRoot: string): string {
-  return join(projectRoot, "node_modules", "next", "dist", "bin", "next");
+  let currentRoot = projectRoot;
+
+  while (true) {
+    const candidate = join(
+      currentRoot,
+      "node_modules",
+      "next",
+      "dist",
+      "bin",
+      "next",
+    );
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+
+    const parentRoot = dirname(currentRoot);
+    if (parentRoot === currentRoot) {
+      return join(projectRoot, "node_modules", "next", "dist", "bin", "next");
+    }
+    currentRoot = parentRoot;
+  }
 }
 
 export type ProductionServerSpawnSpec = {

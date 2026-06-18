@@ -72,7 +72,8 @@ export function bundledCssHasFooterSublabelInheritRule(css: string): boolean {
     normalized.includes("a[class*=hover\\:bg-fd-accent]") &&
     normalized.includes("[class*=hover\\:text-fd-accent-foreground]") &&
     normalized.includes(":is(:hover,:focus-visible)") &&
-    normalized.includes(">p.text-fd-muted-foreground{color:inherit}")
+    (normalized.includes(">p.text-fd-muted-foreground{color:inherit}") ||
+      normalized.includes(">p.text-fd-muted-foreground{color:currentcolor}"))
   );
 }
 

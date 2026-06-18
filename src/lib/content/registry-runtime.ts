@@ -24,6 +24,7 @@ import generalizationConcept from "@/content/registry/concepts/generalization.js
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
 import gradientConcept from "@/content/registry/concepts/gradient.json";
 import hiddenSizeConcept from "@/content/registry/concepts/hidden-size.json";
+import kvCacheConcept from "@/content/registry/concepts/kv-cache.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
 import layerNormConcept from "@/content/registry/concepts/layer-norm.json";
@@ -93,6 +94,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(tensorConcept),
   conceptRecordSchema.parse(vectorConcept),
   conceptRecordSchema.parse(hiddenSizeConcept),
+  conceptRecordSchema.parse(kvCacheConcept),
   conceptRecordSchema.parse(logitConcept),
   conceptRecordSchema.parse(softmaxConcept),
   conceptRecordSchema.parse(entropyConcept),

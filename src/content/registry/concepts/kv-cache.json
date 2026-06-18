@@ -1,0 +1,30 @@
+{
+  "id": "concept.kv-cache",
+  "slug": "kv-cache",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "KV cache",
+    "key-value cache",
+    "key value cache",
+    "kv-cache",
+    "attention cache"
+  ],
+  "tags": ["foundations", "attention", "kv-cache"],
+  "relatedIds": [
+    "concept.autoregressive-generation",
+    "module.attention",
+    "module.multi-query-attention",
+    "module.grouped-query-attention",
+    "module.sliding-window-attention",
+    "concept.transformer"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": ["concept.decoder", "module.attention"],
+  "explainsIds": []
+}
