@@ -1,7 +1,11 @@
 "use client";
 
-import { useOptionalPageMessages } from "@/features/docs/components/page-messages-context";
+import {
+  useOptionalPageMessages,
+  useOptionalPageMessagesContext,
+} from "@/features/docs/components/page-messages-context";
 import { RelatedDocList } from "@/features/docs/components/RelatedDocList";
+import { isLocalizedDocsHrefVisible } from "@/lib/content/localized-docs-href";
 import {
   getPublishedDocsRegistryIds,
   getRegistryRecordById,
@@ -17,6 +21,7 @@ import type { ModuleRecord } from "@/lib/content/schemas";
 
 export function RelatedDocs({ registryId }: { registryId: string }) {
   const messages = useOptionalPageMessages();
+  const pageContext = useOptionalPageMessagesContext();
   const source = getRegistryRecordById(registryId);
   if (!source) {
     return null;
@@ -40,23 +45,44 @@ export function RelatedDocs({ registryId }: { registryId: string }) {
         )
       : [];
 
-  if (variantGroupItems.length === 0 && curatedItems.length === 0) {
+  const visibleVariantGroupItems = pageContext
+    ? variantGroupItems.filter(
+        (item) =>
+          !item.href ||
+          isLocalizedDocsHrefVisible(item.href, pageContext.locale),
+      )
+    : variantGroupItems;
+  const visibleCuratedItems = pageContext
+    ? curatedItems.filter(
+        (item) =>
+          !item.href ||
+          isLocalizedDocsHrefVisible(item.href, pageContext.locale),
+      )
+    : curatedItems;
+
+  if (
+    visibleVariantGroupItems.length === 0 &&
+    visibleCuratedItems.length === 0
+  ) {
     return null;
   }
 
   return (
     <>
-      {variantGroupItems.length > 0 ? (
+      {visibleVariantGroupItems.length > 0 ? (
         <div className="my-4" data-testid="variant-group-related-docs">
           <RelatedDocList
-            items={variantGroupItems}
+            items={visibleVariantGroupItems}
             groupId={SAME_VARIANT_GROUP}
           />
         </div>
       ) : null}
-      {curatedItems.length > 0 ? (
+      {visibleCuratedItems.length > 0 ? (
         <div className="my-4" data-testid="curated-related-docs">
-          <RelatedDocList items={curatedItems} testId="curated-related-docs" />
+          <RelatedDocList
+            items={visibleCuratedItems}
+            testId="curated-related-docs"
+          />
         </div>
       ) : null}
     </>

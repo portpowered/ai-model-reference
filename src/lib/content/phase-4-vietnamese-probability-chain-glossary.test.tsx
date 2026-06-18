@@ -31,9 +31,8 @@ const VIETNAMESE_GLOSSARY_EXPECTATIONS = [
       "/vi/tags/foundations",
     ],
     shellLocalizedHrefs: ["/vi/docs/glossary/token"],
+    rejectedCanonicalHrefs: ["/docs/glossary/tensor"],
     shellRejectedCanonicalHrefs: ["/docs/glossary/token"],
-    fallbackHref: "/docs/glossary/tensor",
-    shellFallbackHref: "/docs/glossary/vector",
   },
   {
     slug: "logit",
@@ -129,21 +128,16 @@ describe("Phase 4 Vietnamese probability-chain glossary coverage", () => {
         expect(shellHtml).toContain(`href="${href}"`);
       }
 
-      if ("shellRejectedCanonicalHrefs" in expectation) {
-        for (const href of expectation.shellRejectedCanonicalHrefs) {
-          expect(shellHtml).not.toContain(`href="${href}"`);
-        }
+      for (const href of expectation.shellRejectedCanonicalHrefs) {
+        expect(shellHtml).not.toContain(`href="${href}"`);
       }
 
-      if ("fallbackHref" in expectation) {
+      if ("rejectedCanonicalHrefs" in expectation) {
         expect(isDocsPageShippedForLocale("glossary/tensor", "vi")).toBe(false);
-        expect(html).toContain(`href="${expectation.fallbackHref}"`);
+        for (const href of expectation.rejectedCanonicalHrefs) {
+          expect(html).not.toContain(`href="${href}"`);
+        }
         expect(html).not.toContain('href="/vi/docs/glossary/tensor"');
-      }
-
-      if ("shellFallbackHref" in expectation) {
-        expect(shellHtml).toContain(`href="${expectation.shellFallbackHref}"`);
-        expect(shellHtml).not.toContain('href="/vi/docs/glossary/vector"');
       }
     });
   }

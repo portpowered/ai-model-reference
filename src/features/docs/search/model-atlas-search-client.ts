@@ -6,6 +6,7 @@ import {
   documentsByUrlFromMeta,
 } from "@/lib/search/collapse-search-results-from-meta";
 import { rerankSearchResults } from "@/lib/search/rerank-search-results";
+import { createModelAtlasSearchDatabase } from "@/lib/search/tokenizer";
 
 const DEFAULT_STATIC_SEARCH_OPTIONS = {
   limit: 120,
@@ -29,6 +30,7 @@ export function modelAtlasOramaSearchClient(
 
   const base = oramaStaticClient({
     ...options,
+    initOrama: options.initOrama ?? createModelAtlasSearchDatabase,
     search: mergedSearchOptions,
   });
   const documentsByUrl = documentsByUrlFromMeta(metaByUrl);

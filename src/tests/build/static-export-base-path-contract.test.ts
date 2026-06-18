@@ -24,6 +24,7 @@ import { verifyPhase1ExportRoutesFromOutDir } from "@/lib/build/verify-phase-1-e
 import { verifyPhase1ExportSearchFromOutDir } from "@/lib/build/verify-phase-1-export-search";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
+import { createModelAtlasSearchDatabase } from "@/lib/search/tokenizer";
 import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "@/lib/verify/phase-1-search-checks";
 import {
   assertSearchPageExportShell,
@@ -110,7 +111,10 @@ describe("static export GitHub Pages base-path contract", () => {
     }) as typeof fetch;
 
     try {
-      const client = oramaStaticClient({ from: TEST_EXPORT_SEARCH_URL });
+      const client = oramaStaticClient({
+        from: TEST_EXPORT_SEARCH_URL,
+        initOrama: createModelAtlasSearchDatabase,
+      });
       const results = await client.search("GQA");
       expect(results.length).toBeGreaterThan(0);
       expect(results[0]?.url).toBe(SAMPLE_MODULE_URL);

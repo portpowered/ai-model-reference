@@ -158,4 +158,27 @@ describe("Phase 4 Japanese core learning-path coverage", () => {
       }
     });
   }
+
+  test("Japanese token page hides untranslated curated related-doc links from the reader surface", async () => {
+    const page = await loadLocalDocsPage(
+      { section: "glossary", slug: "token" },
+      "ja",
+    );
+    const html = renderToStaticMarkup(
+      createElement(
+        ModulePageProviders,
+        {
+          messages: page.messages,
+          assets: page.assets,
+          locale: "ja",
+        },
+        page.content,
+      ),
+    );
+
+    expect(html).not.toContain('href="/docs/glossary/embedding"');
+    expect(html).not.toContain('href="/docs/glossary/logit"');
+    expect(html).not.toContain('href="/docs/glossary/softmax"');
+    expect(html).not.toContain('data-testid="curated-related-docs"');
+  });
 });

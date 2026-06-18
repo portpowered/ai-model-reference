@@ -2,6 +2,7 @@ import { type StaticOptions, useDocsSearch } from "fumadocs-core/search/client";
 import type { DependencyList } from "react";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 import { DOCS_SEARCH_API_PATH } from "@/lib/search/docs-search-bootstrap-path";
+import { createModelAtlasSearchDatabase } from "@/lib/search/tokenizer";
 import { modelAtlasOramaSearchClient } from "./model-atlas-search-client";
 import type { SearchResultMetaRecord } from "./search-result-meta-client";
 
@@ -29,6 +30,7 @@ function resolveBakedDocsSearchBootstrapFromForLocale(
 export const docsSearchStaticOptions = {
   type: "static",
   from: bakedDocsSearchBootstrapFrom,
+  initOrama: createModelAtlasSearchDatabase,
 } as const satisfies { type: "static" } & StaticOptions;
 
 export function buildDocsSearchStaticOptions(
@@ -37,6 +39,7 @@ export function buildDocsSearchStaticOptions(
   return {
     type: "static",
     from: resolveBakedDocsSearchBootstrapFromForLocale(locale),
+    initOrama: createModelAtlasSearchDatabase,
   };
 }
 

@@ -3,6 +3,7 @@ import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { GET } from "@/app/api/search/route";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { createModelAtlasSearchDatabase } from "@/lib/search/tokenizer";
 import {
   PHASE_1_ATTENTION_MODULE_URL,
   PHASE_1_HIDDEN_SIZE_GLOSSARY_URL,
@@ -146,6 +147,19 @@ describe("live /api/search HTTP contract", () => {
     expect(urls).toContain("/ja/docs/modules/sliding-window-attention");
     expect(urls).toContain("/ja/docs/glossary/token");
     expect(urls).toContain("/ja/docs/concepts/transformer-architecture");
+  });
+
+  test("GET with a japanese locale query matches shipped japanese body text without leaking unshipped docs", async () => {
+    const results = await docsSearchApi.search("密なベクトル", {
+      locale: "ja",
+    });
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe("/ja/docs/glossary/token");
+    expect(
+      results.some((result) => result.url === "/ja/docs/glossary/embedding"),
+    ).toBe(false);
+    expect(results.every((result) => result.url.startsWith("/ja/"))).toBe(true);
   });
 
   test("GET returns grouped-query attention for GQA query", async () => {
@@ -342,7 +356,10 @@ describe("docs search static client", () => {
   test("orama static client returns grouped-query attention for GQA", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+    const client = oramaStaticClient({
+      from: TEST_DOCS_SEARCH_URL,
+      initOrama: createModelAtlasSearchDatabase,
+    });
     const results = await client.search("GQA");
 
     expect(results.length).toBeGreaterThan(0);
@@ -352,7 +369,10 @@ describe("docs search static client", () => {
   test("orama static client returns non-empty attention results before app-level reranking", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+    const client = oramaStaticClient({
+      from: TEST_DOCS_SEARCH_URL,
+      initOrama: createModelAtlasSearchDatabase,
+    });
     const results = await client.search("attention");
 
     expect(results.length).toBeGreaterThan(0);
@@ -362,7 +382,10 @@ describe("docs search static client", () => {
   test("orama static client includes grouped-query attention for KV cache", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+    const client = oramaStaticClient({
+      from: TEST_DOCS_SEARCH_URL,
+      initOrama: createModelAtlasSearchDatabase,
+    });
     const results = await client.search("KV cache");
 
     expect(results.length).toBeGreaterThan(0);

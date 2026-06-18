@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { createModelAtlasSearchDatabase } from "@/lib/search/tokenizer";
 import {
   DOCS_SEARCH_API_PATH,
   DOCS_SEARCH_BOOTSTRAP_FROM_ENV,
@@ -115,7 +116,10 @@ describe("static search bootstrap fetch path", () => {
     }) as typeof fetch;
 
     try {
-      const client = oramaStaticClient({ from: bootstrapFrom });
+      const client = oramaStaticClient({
+        from: bootstrapFrom,
+        initOrama: createModelAtlasSearchDatabase,
+      });
       const results = await client.search("GQA");
       expect(fetchedUrl).toBe(bootstrapFrom);
       expect(results.length).toBeGreaterThan(0);

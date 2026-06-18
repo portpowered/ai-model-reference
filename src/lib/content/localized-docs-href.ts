@@ -6,6 +6,26 @@ import {
   switchRouteLocale,
 } from "@/lib/i18n/locale-routing";
 
+export function isLocalizedDocsHrefVisible(
+  href: string,
+  locale: SiteLocale,
+): boolean {
+  if (locale === defaultLocale) {
+    return true;
+  }
+
+  const match = matchLocalizedRoute(href);
+  if (match.kind !== "matched") {
+    return true;
+  }
+
+  if (match.destination.surface !== "docs-page") {
+    return true;
+  }
+
+  return isShippedLocalizedDocsSlug(match.destination.slug, locale);
+}
+
 export function localizeDocsHref(href: string, locale: SiteLocale): string {
   if (locale === defaultLocale) {
     return href;

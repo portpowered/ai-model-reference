@@ -10,9 +10,8 @@ import { buildSearchDocumentsForLocale } from "./build-documents";
 import { collapseSearchResultsToPageHits } from "./collapse-search-results-to-page-hits";
 import { rerankSearchResults } from "./rerank-search-results";
 import { toAdvancedSearchIndexes } from "./to-advanced-index";
+import { createModelAtlasSearchTokenizer } from "./tokenizer";
 import type { SearchDocument } from "./types";
-
-const SEARCH_LANGUAGE = "english";
 
 type SearchCatalog = {
   searchServer: ReturnType<typeof initAdvancedSearch>;
@@ -28,7 +27,7 @@ async function loadSearchCatalog(locale: SiteLocale): Promise<SearchCatalog> {
 
   return {
     searchServer: initAdvancedSearch({
-      language: SEARCH_LANGUAGE,
+      tokenizer: createModelAtlasSearchTokenizer(),
       indexes: toAdvancedSearchIndexes(documents),
     }),
     documentsByUrl: new Map(

@@ -4,6 +4,7 @@ import { createModelAtlasSearchClient } from "@/features/docs/search/search-clie
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
+import { createModelAtlasSearchDatabase } from "@/lib/search/tokenizer";
 import { assertApiGqaCanonicalPageHit } from "@/lib/verify/customer-ask-search-surface-convergence";
 import { PHASE_1_SEARCH_ASSERTIONS } from "@/lib/verify/phase-1-search-checks";
 import {
@@ -34,7 +35,10 @@ describe("Phase 1 fragment-spam regression", () => {
   ] as const)("collapsed API results dominate raw Orama fragment spam for %s", async (query) => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
-    const rawClient = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+    const rawClient = oramaStaticClient({
+      from: TEST_DOCS_SEARCH_URL,
+      initOrama: createModelAtlasSearchDatabase,
+    });
     const rawResults = await rawClient.search(query);
     const collapsedResults = await docsSearchApi.search(query);
 
