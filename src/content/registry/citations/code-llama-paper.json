@@ -1,0 +1,20 @@
+{
+  "id": "citation.code-llama-paper",
+  "slug": "code-llama-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Code Llama paper", "Code Llama report", "Code Llama"],
+  "tags": [],
+  "relatedIds": ["model.code-llama", "model.code-repair-models"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Meta AI"],
+  "title": "Code Llama: Open Foundation Models for Code",
+  "url": "https://arxiv.org/abs/2308.12950",
+  "mla": "Meta AI. \"Code Llama: Open Foundation Models for Code.\" arXiv, 2023, https://arxiv.org/abs/2308.12950.",
+  "year": 2023
+}

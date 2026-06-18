@@ -1,0 +1,40 @@
+{
+  "title": "StarCoder",
+  "description": "An open code model from the BigCode project that made permissive-code training and fill-in-the-middle behavior central to its identity.",
+  "openingSummary": "StarCoder matters because it gave the code-model space a recognizable open reference point built around source code itself rather than around a general chat brand. The key idea for readers is that it is still a decoder-style language model, but its training mix, fill-in-the-middle focus, and code-centered ecosystem make it easier to discuss as a developer tool.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "StarCoder is a large language model for code released through the BigCode collaboration. In this atlas it serves as a practical checkpoint page for readers who want a named open code model that is distinct from Llama-based lines."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "StarCoder accepts tokenized prompts containing code, comments, and natural-language instructions, then predicts the next tokens needed to continue or complete the sequence. In coding workflows that often means code completion, missing-span insertion, and patch-style edits rather than ordinary paragraph continuation."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "The broad shape is still decoder-only and autoregressive, but StarCoder is especially useful for illustrating that code models can keep the same generation pattern while changing the objective and context shape. It also gives readers a concrete example of multi-query attention inside a coding model rather than only in a general-language one."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention remains the basic context-sharing mechanism, and multi-query attention is worth linking here because it changes the serving tradeoff for a model that may sit behind many completion requests. The module story should stay grounded in how the system handles long code context, not in benchmark-score comparisons."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public StarCoder descriptions focus on large-scale training over permissively licensed code and a strong fill-in-the-middle story. This atlas slice still treats structured dataset and training-regime links as optional metadata, so the page keeps those empty states visible instead of hiding the missing records."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "StarCoder helps readers separate three ideas that often get blurred together: open code data policy, code completion behavior, and general language-model architecture. It belongs beside the code-repair-models category because the coding specialization matters more here than any one leaderboard snapshot."
+    },
+    "related": {
+      "title": "Related Models, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

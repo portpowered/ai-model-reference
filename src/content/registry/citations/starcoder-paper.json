@@ -1,0 +1,20 @@
+{
+  "id": "citation.starcoder-paper",
+  "slug": "starcoder-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["StarCoder paper", "StarCoder report", "StarCoder"],
+  "tags": [],
+  "relatedIds": ["model.starcoder", "model.code-repair-models"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["BigCode"],
+  "title": "StarCoder: may the source be with you!",
+  "url": "https://arxiv.org/abs/2305.06161",
+  "mla": "BigCode. \"StarCoder: may the source be with you!\" arXiv, 2023, https://arxiv.org/abs/2305.06161.",
+  "year": 2023
+}

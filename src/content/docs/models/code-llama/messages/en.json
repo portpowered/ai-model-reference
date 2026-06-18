@@ -1,0 +1,40 @@
+{
+  "title": "Code Llama",
+  "description": "A code-specialized open-weight Llama line that made infilling and code completion a first-class part of the family.",
+  "openingSummary": "Code Llama matters because it gave the Llama ecosystem a model line aimed directly at programming work instead of leaving code assistance as a side effect of general language modeling. The important idea is that it keeps the familiar decoder-only recipe while shifting the page toward infilling, source-code context, and developer workflows.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Code Llama is Meta's code-focused branch of the Llama family. In this atlas it works as a code-model checkpoint page: a named line that still behaves like a language model, but is packaged and tuned for software tasks such as completion, editing, and code explanation."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The inputs are tokenized prompts that can mix natural-language instructions with code context. The outputs are token-by-token continuations, which may be full code blocks, inserted spans, or explanatory text around a patch, depending on how the calling system frames the request."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Code Llama remains easiest to understand through decoder-only models, autoregressive generation, and the broader Transformer family. What makes it code-oriented is not a wholly new architecture class, but that the Llama stack is adapted for source-code context and fill-in-the-middle style behavior that matters in editing workflows."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention still carries the context, and grouped-query attention still matters because Code Llama inherits the broader Llama-era push toward efficient large-context serving. The more practical difference for readers is that these modules now support code completion and infilling workflows instead of only general prose generation."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public Code Llama material emphasizes continued specialization for programming tasks on top of the Llama line, with variants for general code, Python-heavy use, and instruction following. This atlas slice keeps the training shell visible even when structured dataset and training-regime records are not fully expanded yet."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Code Llama is a good bridge page for readers who already know Llama as a general family and want to understand what changes when the same broad architecture is aimed at developers. It should point readers back to language-model basics and over to the code-repair-models category rather than pretending coding models need a separate theory of generation."
+    },
+    "related": {
+      "title": "Related Models, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

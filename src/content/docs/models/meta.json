@@ -37,6 +37,12 @@
     "[Phi](/docs/models/phi)",
     "[Falcon](/docs/models/falcon)",
     "[OPT](/docs/models/opt)",
-    "[OLMo](/docs/models/olmo)"
+    "[OLMo](/docs/models/olmo)",
+    "[Code Repair Models](/docs/models/code-repair-models)",
+    "[Code Llama](/docs/models/code-llama)",
+    "[StarCoder](/docs/models/starcoder)",
+    "[DeepSeek Coder](/docs/models/deepseek-coder)",
+    "[Qwen Coder](/docs/models/qwen-coder)",
+    "[Codestral](/docs/models/codestral)"
   ]
 }

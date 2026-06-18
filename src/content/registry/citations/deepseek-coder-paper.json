@@ -1,0 +1,20 @@
+{
+  "id": "citation.deepseek-coder-paper",
+  "slug": "deepseek-coder-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["DeepSeek Coder paper", "DeepSeek-Coder", "DeepSeek Coder"],
+  "tags": [],
+  "relatedIds": ["model.deepseek-coder", "model.code-repair-models"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["DeepSeek-AI"],
+  "title": "DeepSeek-Coder: When the Large Language Model Meets Programming -- The Rise of Code Intelligence",
+  "url": "https://arxiv.org/abs/2401.14196",
+  "mla": "DeepSeek-AI. \"DeepSeek-Coder: When the Large Language Model Meets Programming -- The Rise of Code Intelligence.\" arXiv, 2024, https://arxiv.org/abs/2401.14196.",
+  "year": 2024
+}

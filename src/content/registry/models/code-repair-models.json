@@ -1,0 +1,46 @@
+{
+  "id": "model.code-repair-models",
+  "slug": "code-repair-models",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "code repair models",
+    "coding models",
+    "code generation models",
+    "code llms"
+  ],
+  "tags": ["taxonomy", "model-family"],
+  "relatedIds": [
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "model.code-llama",
+    "model.starcoder",
+    "model.deepseek-coder",
+    "model.qwen-coder",
+    "model.codestral",
+    "concept.transformer",
+    "concept.next-token-prediction"
+  ],
+  "citationIds": [
+    "citation.code-llama-paper",
+    "citation.starcoder-paper",
+    "citation.deepseek-coder-paper",
+    "citation.qwen2-5-coder-technical-report",
+    "citation.codestral-announcement"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "code-models",
+  "sourceType": "unknown",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture"
+  ],
+  "moduleIds": ["module.attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": []
+}

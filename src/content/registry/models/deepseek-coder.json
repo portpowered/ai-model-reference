@@ -1,0 +1,36 @@
+{
+  "id": "model.deepseek-coder",
+  "slug": "deepseek-coder",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["DeepSeek Coder", "DeepSeek-Coder", "DeepSeek coder"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.code-repair-models",
+    "model.deepseek-family",
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "model.qwen-coder",
+    "concept.transformer",
+    "concept.next-token-prediction",
+    "module.attention"
+  ],
+  "citationIds": ["citation.deepseek-coder-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "code-models",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture"
+  ],
+  "moduleIds": ["module.attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2024-01-25",
+  "parameterCount": "1.3B-33B"
+}

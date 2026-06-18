@@ -1,0 +1,20 @@
+{
+  "id": "citation.qwen2-5-coder-technical-report",
+  "slug": "qwen2-5-coder-technical-report",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Qwen2.5-Coder report", "Qwen Coder report", "Qwen2.5-Coder"],
+  "tags": [],
+  "relatedIds": ["model.qwen-coder", "model.code-repair-models"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Qwen Team"],
+  "title": "Qwen2.5-Coder Technical Report",
+  "url": "https://arxiv.org/abs/2409.12186",
+  "mla": "Qwen Team. \"Qwen2.5-Coder Technical Report.\" arXiv, 2024, https://arxiv.org/abs/2409.12186.",
+  "year": 2024
+}

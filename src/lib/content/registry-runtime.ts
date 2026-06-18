@@ -62,7 +62,11 @@ import autoregressiveModels from "@/content/registry/models/autoregressive-model
 import bertModel from "@/content/registry/models/bert.json";
 import chinchillaModel from "@/content/registry/models/chinchilla.json";
 import claudeModel from "@/content/registry/models/claude.json";
+import codeLlamaModel from "@/content/registry/models/code-llama.json";
+import codeRepairModels from "@/content/registry/models/code-repair-models.json";
+import codestralModel from "@/content/registry/models/codestral.json";
 import decoderOnlyModels from "@/content/registry/models/decoder-only-models.json";
+import deepseekCoderModel from "@/content/registry/models/deepseek-coder.json";
 import deepseekFamily from "@/content/registry/models/deepseek-family.json";
 import deepseekR1Model from "@/content/registry/models/deepseek-r1.json";
 import deepseekV2Model from "@/content/registry/models/deepseek-v2.json";
@@ -87,11 +91,13 @@ import omniModelFamilies from "@/content/registry/models/omni-model-families.jso
 import optModel from "@/content/registry/models/opt.json";
 import palmModel from "@/content/registry/models/palm.json";
 import phiModel from "@/content/registry/models/phi.json";
+import qwenCoderModel from "@/content/registry/models/qwen-coder.json";
 import qwenFamily from "@/content/registry/models/qwen-family.json";
 import qwen2Model from "@/content/registry/models/qwen2.json";
 import qwen25Model from "@/content/registry/models/qwen2-5.json";
 import qwen3Model from "@/content/registry/models/qwen3.json";
 import sequenceToSequenceModels from "@/content/registry/models/sequence-to-sequence-models.json";
+import starcoderModel from "@/content/registry/models/starcoder.json";
 import t5Model from "@/content/registry/models/t5.json";
 import transformerModelFamilies from "@/content/registry/models/transformer-model-families.json";
 import worldModelFamilies from "@/content/registry/models/world-model-families.json";
@@ -200,6 +206,10 @@ const modelRecords: ModelRecord[] = [
   modelRecordSchema.parse(bertModel),
   modelRecordSchema.parse(chinchillaModel),
   modelRecordSchema.parse(claudeModel),
+  modelRecordSchema.parse(codeLlamaModel),
+  modelRecordSchema.parse(codeRepairModels),
+  modelRecordSchema.parse(codestralModel),
+  modelRecordSchema.parse(deepseekCoderModel),
   modelRecordSchema.parse(deepseekFamily),
   modelRecordSchema.parse(deepseekR1Model),
   modelRecordSchema.parse(deepseekV2Model),
@@ -220,10 +230,12 @@ const modelRecords: ModelRecord[] = [
   modelRecordSchema.parse(olmoModel),
   modelRecordSchema.parse(optModel),
   modelRecordSchema.parse(phiModel),
+  modelRecordSchema.parse(qwenCoderModel),
   modelRecordSchema.parse(qwen2Model),
   modelRecordSchema.parse(qwen25Model),
   modelRecordSchema.parse(qwenFamily),
   modelRecordSchema.parse(qwen3Model),
+  modelRecordSchema.parse(starcoderModel),
   modelRecordSchema.parse(transformerModelFamilies),
   modelRecordSchema.parse(diffusionModelFamilies),
   modelRecordSchema.parse(gpt2Model),

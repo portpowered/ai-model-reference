@@ -2,6 +2,9 @@ import attentionIsAllYouNeed from "@/content/registry/citations/attention-is-all
 import bertPaper from "@/content/registry/citations/bert-paper.json";
 import chinchillaPaper from "@/content/registry/citations/chinchilla-paper.json";
 import claude3Family from "@/content/registry/citations/claude-3-family.json";
+import codeLlamaPaper from "@/content/registry/citations/code-llama-paper.json";
+import codestralAnnouncement from "@/content/registry/citations/codestral-announcement.json";
+import deepseekCoderPaper from "@/content/registry/citations/deepseek-coder-paper.json";
 import deepseekR1Paper from "@/content/registry/citations/deepseek-r1-paper.json";
 import deepseekV2MlaPaper from "@/content/registry/citations/deepseek-v2-mla-paper.json";
 import deepseekV3TechnicalReport from "@/content/registry/citations/deepseek-v3-technical-report.json";
@@ -23,10 +26,12 @@ import optPaper from "@/content/registry/citations/opt-paper.json";
 import palmPaper from "@/content/registry/citations/palm-paper.json";
 import phi3TechnicalReport from "@/content/registry/citations/phi-3-technical-report.json";
 import pressAlibi from "@/content/registry/citations/press-alibi.json";
+import qwen25CoderTechnicalReport from "@/content/registry/citations/qwen2-5-coder-technical-report.json";
 import qwen25TechnicalReport from "@/content/registry/citations/qwen2-5-technical-report.json";
 import qwen2TechnicalReport from "@/content/registry/citations/qwen2-technical-report.json";
 import qwen3TechnicalReport from "@/content/registry/citations/qwen3-technical-report.json";
 import shazeerMqaPaper from "@/content/registry/citations/shazeer-mqa-paper.json";
+import starcoderPaper from "@/content/registry/citations/starcoder-paper.json";
 import suRoformerRope from "@/content/registry/citations/su-roformer-rope.json";
 import t5Paper from "@/content/registry/citations/t5-paper.json";
 import weiEmergentAbilities from "@/content/registry/citations/wei-emergent-abilities.json";
@@ -40,7 +45,10 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(bertPaper),
   citationRecordSchema.parse(chinchillaPaper),
   citationRecordSchema.parse(claude3Family),
+  citationRecordSchema.parse(codeLlamaPaper),
+  citationRecordSchema.parse(codestralAnnouncement),
   citationRecordSchema.parse(deepseekR1Paper),
+  citationRecordSchema.parse(deepseekCoderPaper),
   citationRecordSchema.parse(deepseekV2MlaPaper),
   citationRecordSchema.parse(deepseekV3TechnicalReport),
   citationRecordSchema.parse(falconSeriesPaper),
@@ -61,10 +69,12 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(palmPaper),
   citationRecordSchema.parse(phi3TechnicalReport),
   citationRecordSchema.parse(pressAlibi),
+  citationRecordSchema.parse(qwen25CoderTechnicalReport),
   citationRecordSchema.parse(qwen2TechnicalReport),
   citationRecordSchema.parse(qwen25TechnicalReport),
   citationRecordSchema.parse(qwen3TechnicalReport),
   citationRecordSchema.parse(shazeerMqaPaper),
+  citationRecordSchema.parse(starcoderPaper),
   citationRecordSchema.parse(suRoformerRope),
   citationRecordSchema.parse(t5Paper),
   citationRecordSchema.parse(weiEmergentAbilities),

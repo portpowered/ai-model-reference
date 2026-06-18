@@ -1,0 +1,72 @@
+---
+title: Codestral
+description: Mistral's code model line for code generation and completion, with a more direct focus on developer tasks than the general Mistral checkpoints.
+kind: "model"
+registryId: "model.codestral"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+aliases:
+  - Codestral
+  - Mistral Codestral
+  - Codestral 22B
+updatedAt: "2026-06-18"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ModelAtAGlance } from "@/features/models/components/ModelAtAGlance";
+import { ModelModuleList } from "@/features/models/components/ModelModuleList";
+import { ModelTrainingSummary } from "@/features/models/components/ModelTrainingSummary";
+
+
+<ModelAtAGlance registryId="model.codestral" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="inputs-and-outputs" titleKey="sections.inputsAndOutputs.title">
+  <T k="sections.inputsAndOutputs.body" />
+</Section>
+
+<Section id="architecture" titleKey="sections.architecture.title">
+  <T k="sections.architecture.body" />
+</Section>
+
+<Section id="important-modules" titleKey="sections.importantModules.title">
+  <T k="sections.importantModules.body" />
+  <ModelModuleList registryId="model.codestral" />
+</Section>
+
+<Section id="training" titleKey="sections.training.title">
+  <T k="sections.training.body" />
+  <ModelTrainingSummary registryId="model.codestral" />
+</Section>
+
+<Section id="practical-notes" titleKey="sections.practicalNotes.title">
+  <T k="sections.practicalNotes.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="model.codestral"
+    groups={["same-model-family", "shared-tags", "curated-related"]}
+  />
+
+  <RelatedDocs registryId="model.codestral" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="model.codestral" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="model.codestral" />
+</Section>

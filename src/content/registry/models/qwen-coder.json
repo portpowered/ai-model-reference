@@ -1,0 +1,36 @@
+{
+  "id": "model.qwen-coder",
+  "slug": "qwen-coder",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Qwen Coder", "Qwen2.5-Coder", "CodeQwen"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.code-repair-models",
+    "model.qwen-family",
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "model.deepseek-coder",
+    "concept.transformer",
+    "concept.next-token-prediction",
+    "module.attention"
+  ],
+  "citationIds": ["citation.qwen2-5-coder-technical-report"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "code-models",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture"
+  ],
+  "moduleIds": ["module.attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2024-09-18",
+  "parameterCount": "0.5B-32B"
+}

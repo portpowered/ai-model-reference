@@ -1,0 +1,32 @@
+{
+  "title": "Code Repair Models",
+  "description": "A category page for code-focused language models that specialize in completion, infilling, patching, and developer-facing assistance.",
+  "openingSummary": "Code repair models matter because many readers hear names like Code Llama or Codestral and assume they are a different species from ordinary language models. The useful mental model is simpler: they are usually decoder-style language models aimed more directly at source code, patching, and developer workflows than at broad general chat.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Code repair models are language models tuned or continued-pretrained for software tasks such as code completion, infilling, bug fixing, and patch generation. They still predict sequences token by token, but the tokens are often source code, markup, shell commands, or issue-oriented prompts instead of only plain prose."
+    },
+    "familyScope": {
+      "title": "Family Scope",
+      "body": "This category helps readers compare code-oriented model lines without turning the page into an IDE buyer guide. The main distinction is not that these systems stop being language models, but that they are trained and evaluated around developer workflows: filling missing code in the middle of a file, preserving syntax, handling repositories, and staying useful across many programming languages."
+    },
+    "architectureTendencies": {
+      "title": "Architecture Tendencies",
+      "body": "Most code models still sit inside the decoder-only Transformer pattern, so the important shift is usually data mix, long-context handling, and objectives such as infilling rather than a brand-new core block. That is why nearby pages like decoder-only models, autoregressive models, and next-token prediction remain relevant even when the model brand sounds specialized."
+    },
+    "notableBranches": {
+      "title": "Notable Branches",
+      "body": "A practical comparison set in this atlas includes Code Llama, StarCoder, DeepSeek Coder, Qwen Coder, and Codestral. They all target developer work, but they differ in family lineage, openness, surrounding ecosystem, and how directly they emphasize repository completion, patching, or tool-oriented software tasks."
+    },
+    "related": {
+      "title": "Related Models, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "id": "citation.codestral-announcement",
+  "slug": "codestral-announcement",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["Codestral announcement", "Codestral blog", "Codestral"],
+  "tags": [],
+  "relatedIds": ["model.codestral", "model.code-repair-models"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "blog",
+  "authors": ["Mistral AI"],
+  "title": "Codestral",
+  "url": "https://mistral.ai/news/codestral/",
+  "mla": "Mistral AI. \"Codestral.\" Mistral AI, 2024, https://mistral.ai/news/codestral/.",
+  "year": 2024
+}

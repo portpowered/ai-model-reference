@@ -1,0 +1,35 @@
+{
+  "id": "model.code-llama",
+  "slug": "code-llama",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Code Llama", "CodeLlama", "Meta Code Llama"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.code-repair-models",
+    "model.llama-family",
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "concept.transformer",
+    "concept.next-token-prediction",
+    "module.grouped-query-attention"
+  ],
+  "citationIds": ["citation.code-llama-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "code-models",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture"
+  ],
+  "moduleIds": ["module.attention", "module.grouped-query-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2023-08-24",
+  "parameterCount": "7B-70B"
+}

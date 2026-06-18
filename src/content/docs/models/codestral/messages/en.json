@@ -1,0 +1,40 @@
+{
+  "title": "Codestral",
+  "description": "Mistral's code model line for code generation and completion, with a more direct focus on developer tasks than the general Mistral checkpoints.",
+  "openingSummary": "Codestral matters because it shows a frontier open-model company carving out a dedicated coding branch instead of asking one general model name to cover every developer workflow. The useful takeaway is that it still behaves like a language model, but it is presented around software completion, editing, and coding assistance rather than around broad general text generation.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Codestral is Mistral's code-focused model line. In this atlas it is the code-oriented counterpart to the broader Mistral family story, giving readers a dedicated page for coding specialization rather than forcing that explanation into the general Mistral checkpoint page."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Codestral reads tokenized instructions and code context, then predicts source-code or helper-text continuations one token at a time. In practice, the output can look like completion, infilling, explanation, or patch generation depending on how the surrounding tool frames the prompt."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "The architecture story remains decoder-only and autoregressive, which is why the nearby decoder-only and next-token pages still matter. The coding specialization comes from the family branch and developer task framing, not from abandoning the usual Transformer-centered explanation."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention is still the main module to understand because coding systems need to keep track of symbols, surrounding context, and partially written files. The page should therefore keep the module section grounded in familiar generation mechanics rather than treating code completion as a separate science."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public Codestral material emphasizes a code-specific model release built for generation and completion tasks. In this atlas slice, structured training-regime, dataset, and paper relationships remain optional, so missing metadata appears through explicit unavailable states rather than broken section shells."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Codestral is useful for readers comparing modern open coding lines that sit closer to product-facing developer workflows. It should link back to Mistral and over to the code-repair-models category so readers can separate family lineage from coding specialization."
+    },
+    "related": {
+      "title": "Related Models, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

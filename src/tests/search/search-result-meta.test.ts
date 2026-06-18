@@ -20,7 +20,11 @@ const TOKEN_URL = TOKEN_GLOSSARY_URL;
 const BERT_URL = "/docs/models/bert";
 const CHINCHILLA_URL = "/docs/models/chinchilla";
 const CLAUDE_URL = "/docs/models/claude";
+const CODE_LLAMA_URL = "/docs/models/code-llama";
+const CODE_REPAIR_MODELS_URL = "/docs/models/code-repair-models";
+const CODESTRAL_URL = "/docs/models/codestral";
 const DEEPSEEK_FAMILY_URL = "/docs/models/deepseek-family";
+const DEEPSEEK_CODER_URL = "/docs/models/deepseek-coder";
 const DEEPSEEK_R1_URL = "/docs/models/deepseek-r1";
 const DEEPSEEK_V2_URL = "/docs/models/deepseek-v2";
 const DEEPSEEK_V3_URL = "/docs/models/deepseek-v3";
@@ -39,10 +43,12 @@ const OLMO_URL = "/docs/models/olmo";
 const OPT_URL = "/docs/models/opt";
 const PALM_URL = "/docs/models/palm";
 const PHI_URL = "/docs/models/phi";
+const QWEN_CODER_URL = "/docs/models/qwen-coder";
 const QWEN2_URL = "/docs/models/qwen2";
 const QWEN25_URL = "/docs/models/qwen2-5";
 const QWEN3_URL = "/docs/models/qwen3";
 const QWEN_FAMILY_URL = "/docs/models/qwen-family";
+const STARCODER_URL = "/docs/models/starcoder";
 
 describe("search result meta", () => {
   test("loadSearchResultMetaMap includes grouped-query attention sample", async () => {
@@ -256,6 +262,32 @@ describe("search result meta", () => {
       [FALCON_URL, "Falcon LLM"],
       [OPT_URL, "Open Pre-trained Transformer"],
       [OLMO_URL, "Ai2 OLMo"],
+    ] as const) {
+      const meta = map.get(url);
+      expect(meta).toBeDefined();
+      expect(meta?.kind).toBe("model");
+      expect(meta?.tags).toContain("foundations");
+      expect(meta?.aliases).toContain(alias);
+    }
+  });
+
+  test("loadSearchResultMetaMap includes code-model category and checkpoint pages", async () => {
+    const map = await loadSearchResultMetaMap();
+
+    const categoryMeta = map.get(CODE_REPAIR_MODELS_URL);
+    expect(categoryMeta).toBeDefined();
+    expect(categoryMeta?.kind).toBe("model");
+    expect(categoryMeta?.tags).toEqual(
+      expect.arrayContaining(["taxonomy", "model-family"]),
+    );
+    expect(categoryMeta?.aliases).toContain("code repair models");
+
+    for (const [url, alias] of [
+      [CODE_LLAMA_URL, "Meta Code Llama"],
+      [STARCODER_URL, "BigCode StarCoder"],
+      [DEEPSEEK_CODER_URL, "DeepSeek-Coder"],
+      [QWEN_CODER_URL, "Qwen2.5-Coder"],
+      [CODESTRAL_URL, "Mistral Codestral"],
     ] as const) {
       const meta = map.get(url);
       expect(meta).toBeDefined();

@@ -1,0 +1,40 @@
+{
+  "title": "Qwen Coder",
+  "description": "A code-specialized Qwen line that keeps broad language-model behavior while pushing harder on developer tasks and repository completion.",
+  "openingSummary": "Qwen Coder matters because it shows how a modern family can specialize for software work without discarding its broader language-model identity. Readers should come away with one clear frame: the model remains a Transformer text generator, but it is tuned so code completion, reasoning about programs, and patch-style editing become first-class uses.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Qwen Coder is the code-focused branch of the Qwen line. In this atlas it acts as a practical bridge between the general Qwen family hub and the narrower code-repair-models category."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The model reads tokenized instructions, source files, snippets, and repository-like context, then predicts token continuations that may represent code, edits, explanations, or tests. That means the output surface can look like an assistant, but the underlying behavior is still autoregressive sequence generation."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Qwen Coder stays inside the decoder-only Transformer pattern, so nearby architecture pages still matter more than product branding. The real shift is that the Qwen stack is continued into a code-heavy regime that balances programming tasks with enough general capability to follow natural-language developer prompts."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention remains the key context-sharing module because coding workflows depend heavily on long-range dependencies across files, symbols, and comments. The page should therefore link back to the core model and concept pages instead of treating coding models as an unrelated class."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public Qwen Coder material emphasizes continued pretraining on large code corpora plus synthetic and curated data for coding tasks. In this atlas slice, the training shell stays visible even when structured dataset and training-regime records have not been populated yet."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Qwen Coder is a good example for readers comparing code-specialized families that still retain broad assistant behavior. It belongs next to the Qwen family page and the code-repair-models category so the reader can move between general lineage and developer-specific specialization without dead ends."
+    },
+    "related": {
+      "title": "Related Models, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

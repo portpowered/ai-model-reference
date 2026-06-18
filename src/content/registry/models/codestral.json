@@ -1,0 +1,36 @@
+{
+  "id": "model.codestral",
+  "slug": "codestral",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Codestral", "Mistral Codestral", "Codestral 22B"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.code-repair-models",
+    "model.mistral",
+    "model.mixtral",
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "concept.transformer",
+    "concept.next-token-prediction",
+    "module.attention"
+  ],
+  "citationIds": ["citation.codestral-announcement"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "code-models",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture"
+  ],
+  "moduleIds": ["module.attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2024-05-29",
+  "parameterCount": "22B"
+}

@@ -1,0 +1,40 @@
+{
+  "title": "DeepSeek Coder",
+  "description": "A DeepSeek code-model line aimed at repository-scale completion, infilling, and software engineering tasks.",
+  "openingSummary": "DeepSeek Coder matters because it shows a code-specialized line growing out of a broader open-model ecosystem instead of starting from a single historical checkpoint. The page should teach one simple thing: it is still a Transformer language model, but it is organized around code intelligence, repository context, and developer patching workflows.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "DeepSeek Coder is DeepSeek's code-focused model line. In this atlas it is a representative code checkpoint page for readers comparing modern open coding systems rather than only general-language families."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The model takes tokenized code context, natural-language instructions, and mixed prompt scaffolding, then predicts the next tokens needed for a continuation or insertion. In practice that usually means completing code, filling gaps, generating patches, or explaining edits in plain language."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "DeepSeek Coder still fits the decoder-only Transformer pattern, so the right neighboring pages are decoder-only models, autoregressive models, and next-token prediction. The specialized part is not a different theory of generation, but a training and prompting setup that makes large code contexts more central to the model's identity."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Attention is still the core module because long-range code dependencies are one of the main things these systems must manage well. The useful architectural takeaway is that coding models often feel new because of task framing and data mix, even when the inner modules remain familiar."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Public DeepSeek Coder material emphasizes large-scale code pretraining and objectives that support completion and infilling. This atlas slice keeps the structured training shell visible so missing dataset, paper, or regime records become explicit unavailable states instead of silent omissions."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "DeepSeek Coder is useful when a reader wants a modern code-model page that still points back to core language-model concepts. It should sit near the DeepSeek family hub and the code-repair-models category, so the coding specialization feels like a branch of the larger atlas rather than a disconnected niche."
+    },
+    "related": {
+      "title": "Related Models, Categories, And Concepts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

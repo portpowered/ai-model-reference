@@ -1,0 +1,55 @@
+---
+title: Code Repair Models
+description: A category page for code-focused language models that specialize in completion, infilling, patching, and developer-facing assistance.
+kind: "model"
+registryId: "model.code-repair-models"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - taxonomy
+  - model-family
+aliases:
+  - code repair models
+  - coding models
+  - code generation models
+updatedAt: "2026-06-18"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="family-scope" titleKey="sections.familyScope.title">
+  <T k="sections.familyScope.body" />
+</Section>
+
+<Section
+  id="architecture-tendencies"
+  titleKey="sections.architectureTendencies.title"
+>
+  <T k="sections.architectureTendencies.body" />
+</Section>
+
+<Section id="notable-branches" titleKey="sections.notableBranches.title">
+  <T k="sections.notableBranches.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="model.code-repair-models" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="model.code-repair-models" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="model.code-repair-models" />
+</Section>

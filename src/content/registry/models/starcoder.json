@@ -1,0 +1,35 @@
+{
+  "id": "model.starcoder",
+  "slug": "starcoder",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["StarCoder", "BigCode StarCoder", "StarCoderBase"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "model.code-repair-models",
+    "model.decoder-only-models",
+    "model.autoregressive-models",
+    "model.code-llama",
+    "concept.transformer",
+    "concept.next-token-prediction",
+    "module.multi-query-attention"
+  ],
+  "citationIds": ["citation.starcoder-paper"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "family": "code-models",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": [
+    "concept.transformer",
+    "concept.transformer-architecture"
+  ],
+  "moduleIds": ["module.attention", "module.multi-query-attention"],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2023-05-04",
+  "parameterCount": "15.5B"
+}
