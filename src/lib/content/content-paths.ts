@@ -1,8 +1,19 @@
-import { join } from "node:path";
+import { existsSync } from "node:fs";
+import { join, resolve } from "node:path";
+
+const REPO_ROOT_FALLBACK = resolve(import.meta.dir, "../../..");
+
+function hasContentTree(projectRoot: string): boolean {
+  return existsSync(join(projectRoot, "src", "content", "docs"));
+}
 
 /** Repository root when Next.js or Bun runs from the project directory. */
 export function getProjectRoot(): string {
-  return process.cwd();
+  const cwd = process.cwd();
+  if (hasContentTree(cwd)) {
+    return cwd;
+  }
+  return REPO_ROOT_FALLBACK;
 }
 
 /** Committed content tree root (`src/content`). */
