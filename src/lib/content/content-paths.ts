@@ -1,7 +1,11 @@
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const CONTENT_ROOT_PATH_PARTS = ["src", "content"] as const;
+const MODULE_INFERRED_REPO_ROOT = dirname(
+  dirname(dirname(dirname(fileURLToPath(import.meta.url)))),
+);
 
 function looksLikeProjectRoot(candidateRoot: string): boolean {
   return existsSync(join(candidateRoot, ...CONTENT_ROOT_PATH_PARTS));
@@ -27,8 +31,8 @@ function resolveProjectRootFrom(startDir: string): string | undefined {
 export function getProjectRoot(): string {
   return (
     resolveProjectRootFrom(process.cwd()) ??
-    resolveProjectRootFrom(import.meta.dir) ??
-    process.cwd()
+    resolveProjectRootFrom(MODULE_INFERRED_REPO_ROOT) ??
+    MODULE_INFERRED_REPO_ROOT
   );
 }
 

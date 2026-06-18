@@ -1,0 +1,49 @@
+{
+  "id": "table.bidirectional-attention-comparison",
+  "subjectId": "module.bidirectional-attention",
+  "columns": [
+    {
+      "moduleId": "module.bidirectional-attention",
+      "titleKey": "tables.comparison.columns.bidirectional.title"
+    },
+    {
+      "moduleId": "module.attention",
+      "titleKey": "tables.comparison.columns.attention.title"
+    },
+    {
+      "moduleId": "module.multi-head-attention",
+      "titleKey": "tables.comparison.columns.mha.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "visibleContext",
+      "labelKey": "tables.comparison.dimensions.visibleContext"
+    },
+    {
+      "id": "bestFitTask",
+      "labelKey": "tables.comparison.dimensions.bestFitTask"
+    },
+    {
+      "id": "sequenceSource",
+      "labelKey": "tables.comparison.dimensions.sequenceSource"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.bidirectional-attention": {
+      "visibleContext": "tables.comparison.values.bidirectional.visibleContext",
+      "bestFitTask": "tables.comparison.values.bidirectional.bestFitTask",
+      "sequenceSource": "tables.comparison.values.bidirectional.sequenceSource"
+    },
+    "module.attention": {
+      "visibleContext": "tables.comparison.values.attention.visibleContext",
+      "bestFitTask": "tables.comparison.values.attention.bestFitTask",
+      "sequenceSource": "tables.comparison.values.attention.sequenceSource"
+    },
+    "module.multi-head-attention": {
+      "visibleContext": "tables.comparison.values.mha.visibleContext",
+      "bestFitTask": "tables.comparison.values.mha.bestFitTask",
+      "sequenceSource": "tables.comparison.values.mha.sequenceSource"
+    }
+  }
+}

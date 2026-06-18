@@ -68,6 +68,7 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/attention",
   "/docs/modules/batch-norm",
   "/docs/modules/causal-attention",
+  "/docs/modules/bidirectional-attention",
   "/docs/modules/compressed-sparse-attention",
   "/docs/modules/deepseekmoe",
   "/docs/modules/feed-forward-network",

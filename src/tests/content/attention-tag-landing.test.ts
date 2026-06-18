@@ -41,6 +41,7 @@ describe("attention tag landing resources", () => {
     expect(moduleGroup?.kindLabel).toBe("Module");
     expect(moduleGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/modules/attention",
+      "/docs/modules/bidirectional-attention",
       "/docs/modules/causal-attention",
       "/docs/modules/compressed-sparse-attention",
       "/docs/modules/grouped-query-attention",
@@ -165,6 +166,8 @@ describe("attention tag landing page render", () => {
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain("Causal Attention");
     expect(html).toContain('href="/docs/modules/causal-attention"');
+    expect(html).toContain("Bidirectional Attention");
+    expect(html).toContain('href="/docs/modules/bidirectional-attention"');
     expect(html).toContain("Compressed Sparse Attention");
     expect(html).toContain('href="/docs/modules/compressed-sparse-attention"');
     expect(html).toContain("Grouped-Query Attention");

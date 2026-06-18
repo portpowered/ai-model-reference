@@ -30,6 +30,8 @@ import {
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
 const STATIC_CLIENT_SEARCH_URL = createTestDocsSearchUrl("search-api-static");
+const BIDIRECTIONAL_ATTENTION_URL = "/docs/modules/bidirectional-attention";
+const CAUSAL_ATTENTION_URL = "/docs/modules/causal-attention";
 
 describe("Phase 1 /api/search regression", () => {
   for (const assertion of PHASE_1_SEARCH_ASSERTIONS) {
@@ -248,6 +250,32 @@ describe("docsSearchApi", () => {
     expect(resultsIncludeSampleModule(results)).toBe(true);
   });
 
+  test.each([
+    "causal attention",
+    "causal self-attention",
+    "causal mask",
+    "look ahead mask",
+  ] as const)("search returns causal attention for %s", async (query) => {
+    const results = await docsSearchApi.search(query);
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe(CAUSAL_ATTENTION_URL);
+    expect(resultsIncludeUrl(results, CAUSAL_ATTENTION_URL)).toBe(true);
+    expectUniqueCanonicalPageUrls(results.map((result) => result.url));
+  });
+
+  test.each([
+    "bidirectional attention",
+    "bidirectional self-attention",
+    "full context attention",
+    "bert attention",
+  ] as const)("search returns bidirectional attention for %s", async (query) => {
+    const results = await docsSearchApi.search(query);
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe(BIDIRECTIONAL_ATTENTION_URL);
+    expect(resultsIncludeUrl(results, BIDIRECTIONAL_ATTENTION_URL)).toBe(true);
+    expectUniqueCanonicalPageUrls(results.map((result) => result.url));
+  });
+
   test("search includes vector glossary for vector query", async () => {
     const results = await docsSearchApi.search("vector");
     expect(results.length).toBeGreaterThan(0);
@@ -334,13 +362,15 @@ describe("docs search static client", () => {
     expect(results[0]?.url).toBe(SAMPLE_URL);
   });
 
-  test("orama static client returns non-empty raw attention results before app-level reranking", async () => {
+  test("orama static client returns non-empty attention results including bidirectional attention before app-level reranking", async () => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
     const client = oramaStaticClient({ from: STATIC_CLIENT_SEARCH_URL });
     const results = await client.search("attention");
 
     expect(results.length).toBeGreaterThan(0);
+    expect(resultsIncludeUrl(results, BIDIRECTIONAL_ATTENTION_URL)).toBe(true);
+    expect(resultsIncludeUrl(results, CAUSAL_ATTENTION_URL)).toBe(true);
   });
 
   test("orama static client includes grouped-query attention for KV cache", async () => {

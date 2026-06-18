@@ -32,5 +32,8 @@
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "light"
+  "mathLevel": "light",
+  "sidebarGrouping": {
+    "modules": "attention-foundations"
+  }
 }
