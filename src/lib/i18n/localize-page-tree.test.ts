@@ -42,12 +42,16 @@ describe("localizePageTree", () => {
     expect(links).toContain("/vi/docs/glossary/token");
   });
 
-  test("keeps unshipped japanese docs pages out of the localized page tree", () => {
+  test("keeps only the shipped japanese docs pages in the localized page tree", () => {
     const localizedTree = localizePageTree(source.pageTree, "ja");
     const links = collectLinks(localizedTree.children);
 
-    expect(links.some((link) => link.startsWith("/ja/docs/"))).toBe(false);
-    expect(links).toEqual([]);
+    expect(links).toContain("/ja/docs/concepts/transformer-architecture");
+    expect(links).toContain("/ja/docs/glossary/token");
+    expect(links).toContain("/ja/docs/modules/attention");
+    expect(links).toContain("/ja/docs/modules/grouped-query-attention");
+    expect(links).not.toContain("/ja/docs/modules/multi-head-attention");
+    expect(links).not.toContain("/ja/docs/modules/sparse-attention");
   });
 
   test("removes empty separators left behind by locale pruning", () => {

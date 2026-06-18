@@ -244,4 +244,14 @@ describe("glossary index page render", () => {
     expect(html).toContain('href="/vi/docs/glossary/token"');
     expect(html).not.toContain("Chưa có mục thuật ngữ nào");
   });
+
+  it("renders localized japanese glossary entries for the shipped representative slice", async () => {
+    const page = await renderGlossaryIndexPage("ja");
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("用語集");
+    expect(html).toContain("トークン");
+    expect(html).toContain('href="/ja/docs/glossary/token"');
+    expect(html).not.toContain("用語集の項目はまだありません");
+  });
 });

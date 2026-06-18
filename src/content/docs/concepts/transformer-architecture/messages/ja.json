@@ -1,0 +1,36 @@
+{
+  "title": "Transformer architecture",
+  "description": "attention、feed-forward 層、normalization、residual、位置情報が decoder 型 transformer block の中でどう反復されるかを説明するページです。",
+  "openingSummary": "transformer block は反復するループです。各 token ベクトルは attention、密な feed-forward 変換、normalization、residual 加算を通り、モデルは文脈を混ぜながら層ごとに特徴を磨いていきます。",
+  "sections": {
+    "whatItIs": {
+      "title": "これは何か",
+      "body": "transformer architecture は、多数の同一 block を token embeddings の上に積み重ねます。各 block は通常、すべての位置が他の位置を読めるように最初に attention を実行し、その後で各 token に同じ小さな MLP を適用する position-wise feed-forward network が続きます。normalization と residual connection はそれらの sublayer を包み、活性を安定させ、深さ方向に gradient が流れやすいようにします。位置情報は attention の前または内部で加えられ、attention 自体が置換に不変でも順序が意味を持つようになります。"
+    },
+    "whyItMatters": {
+      "title": "なぜ重要か",
+      "body": "現代の多くの言語モデルは、幅や深さや attention の変種が違っても、この block パターンを共有しています。このループを理解すると、見慣れない model card を適切な module page へ結び付けやすくなります。attention は文脈混合、feed-forward は各 token の洗練、normalization は学習安定性、residual は深さ、位置方式は順序保持に対応します。"
+    },
+    "simpleExample": {
+      "title": "簡単な例",
+      "body": "テキスト生成用の decoder-only stack を思い浮かべてください。token embeddings が 1 個目の block に入り、self-attention が各単語に先行単語への参照を与え、feed-forward が各ベクトルを拡張して絞り込み、layer normalization が尺度を整え、residual add が更新を流れに書き戻します。2 個目の block は更新済みベクトルに同じ処理を繰り返し、最後に最終 norm と language-model head が次トークンを予測します。"
+    },
+    "whereItAppears": {
+      "title": "どこで現れるか",
+      "body": "chat や completion の decoder-only transformer、embedding model の encoder stack、翻訳システムの encoder-decoder stack はすべてこのループの変種を使います。幅、深さ、attention の変種、feed-forward の大きさ、normalization の選択はファミリーごとに変わりますが、反復 block の配置が共通の骨格です。"
+    },
+    "commonConfusions": {
+      "title": "よくある混同",
+      "body": "transformer block は attention module そのものではありません。attention は block 内の 1 つの sublayer にすぎません。この architecture は単一の学習済み checkpoint でもなく、異なるパラメータ数の複数モデルが同じ配置を共有できます。さらに positional encoding は block が順序を表現する方法の一部であり、attention や feed-forward を置き換えるものではありません。"
+    },
+    "related": {
+      "title": "関連する概念とモジュール"
+    },
+    "tags": {
+      "title": "タグ"
+    },
+    "references": {
+      "title": "参考資料"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "title": "Attention",
+  "description": "transformer block が query、key、value の射影を使って token 位置どうしの情報を混ぜる仕組みです。",
+  "openingSummary": "系列モデルは、固定の窓や手作業の整列規則を埋め込まずに、各位置でどの過去トークンが重要かを決める必要があります。attention は各位置がどれだけ他の位置を読むべきかを採点し、その重みに従って value ベクトルを混ぜることで、文脈を系列全体に動的に流します。",
+  "sections": {
+    "whatItIs": {
+      "title": "これは何か",
+      "body": "attention は transformer block における中核の混合機構です。各位置は hidden state を queries、keys、values に射影し、query と key を比較して重みを作り、その重みで value ベクトルを合成して更新後の表現を得ます。"
+    },
+    "whyItMatters": {
+      "title": "なぜ重要か",
+      "body": "attention がなければ、深い feed-forward の積み重ねだけで任意の距離にある情報を 1 ステップでやり取りすることはできません。head 共有系の変種は、推論時に保持する query head と key-value head の数と引き換えに、メモリと帯域の使い方を調整します。"
+    },
+    "variantsAndNearbyModules": {
+      "title": "Attention の変種",
+      "body": "transformer block は attention を複数の並列 head で実装します。multi-head attention は各 query head ごとに独立した key-value head を持ち、multi-query attention はすべての query が 1 つの KV head を共有し、grouped-query attention は query をグループ単位でまとめて KV head を共有しながら、multi-query attention より多くの query の多様性を残します。"
+    },
+    "related": {
+      "title": "関連"
+    },
+    "tags": {
+      "title": "タグ"
+    },
+    "references": {
+      "title": "参考資料"
+    }
+  }
+}

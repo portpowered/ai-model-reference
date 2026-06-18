@@ -189,4 +189,16 @@ describe("architecture index page render", () => {
     expect(html).toContain('href="/vi/docs/glossary/token"');
     expect(html).not.toContain("Chưa có mục kiến trúc nào");
   });
+
+  it("renders localized japanese architecture entries for the shipped representative slice", async () => {
+    const page = await renderArchitectureIndexPage("ja");
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("アーキテクチャ");
+    expect(html).toContain("Transformer architecture");
+    expect(html).toContain('href="/ja/docs/concepts/transformer-architecture"');
+    expect(html).toContain("トークン");
+    expect(html).toContain('href="/ja/docs/glossary/token"');
+    expect(html).not.toContain("アーキテクチャ項目はまだありません");
+  });
 });

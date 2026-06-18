@@ -215,4 +215,41 @@ describe("attention tag landing page render", () => {
       'href="/vi/docs/glossary/autoregressive-generation"',
     );
   });
+
+  it("renders localized /ja attention landing content and only the shipped japanese resources", async () => {
+    const messages = await loadUiMessages("ja");
+    const context = await loadTagLandingContext("attention", messages, "ja");
+
+    expect(context).toBeDefined();
+    expect(context?.title).toBe("Attention");
+
+    const groups = await loadTagResourceGroups("attention", messages, "ja");
+    expect(groups.map((group) => group.kind)).toEqual(["module", "glossary"]);
+    expect(groups[0]?.resources.map((resource) => resource.url)).toEqual([
+      "/ja/docs/modules/attention",
+      "/ja/docs/modules/grouped-query-attention",
+    ]);
+    expect(groups[1]?.resources.map((resource) => resource.url)).toEqual([
+      "/ja/docs/glossary/token",
+    ]);
+
+    const page = await renderTagLandingPage(
+      {
+        params: Promise.resolve({ slug: "attention" }),
+      },
+      "ja",
+    );
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("このタグを検索");
+    expect(html).toContain("種類別リソース");
+    expect(html).toContain('href="/ja/search?tag=attention"');
+    expect(html).toContain('href="/ja/docs/modules/attention"');
+    expect(html).toContain('href="/ja/docs/modules/grouped-query-attention"');
+    expect(html).toContain('href="/ja/docs/glossary/token"');
+    expect(html).not.toContain('href="/ja/docs/modules/multi-head-attention"');
+    expect(html).not.toContain(
+      'href="/ja/docs/modules/sliding-window-attention"',
+    );
+  });
 });

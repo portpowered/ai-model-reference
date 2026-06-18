@@ -129,14 +129,20 @@ describe("live /api/search HTTP contract", () => {
     ).toContain("gần tuyến tính");
   });
 
-  test("GET with a japanese locale query stays empty when no japanese docs pages are shipped", async () => {
+  test("GET with a japanese locale query returns only the shipped japanese representative slice", async () => {
     const response = await GET(
       new Request("http://localhost/api/search?query=attention&locale=ja"),
     );
     expect(response.ok).toBe(true);
 
     const results = (await response.json()) as Array<{ url: string }>;
-    expect(results).toEqual([]);
+    expect(results.length).toBeGreaterThan(0);
+    expect(results.map((result) => result.url)).toEqual([
+      "/ja/docs/modules/attention",
+      "/ja/docs/modules/grouped-query-attention",
+      "/ja/docs/glossary/token",
+      "/ja/docs/concepts/transformer-architecture",
+    ]);
   });
 
   test("GET returns grouped-query attention for GQA query", async () => {
@@ -309,9 +315,14 @@ describe("docsSearchApi", () => {
     expect(payload.type).toBe("advanced");
   });
 
-  test("search returns no japanese results when no japanese docs pages are shipped", async () => {
+  test("search returns the shipped japanese representative slice", async () => {
     const results = await docsSearchApi.search("attention", { locale: "ja" });
-    expect(results).toEqual([]);
+    expect(results.map((result) => result.url)).toEqual([
+      "/ja/docs/modules/attention",
+      "/ja/docs/modules/grouped-query-attention",
+      "/ja/docs/glossary/token",
+      "/ja/docs/concepts/transformer-architecture",
+    ]);
   });
 });
 

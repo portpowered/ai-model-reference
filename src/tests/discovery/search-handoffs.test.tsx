@@ -97,6 +97,18 @@ describe("Phase 1 discovery search handoffs", () => {
     expect(html).toContain("data-search");
   });
 
+  it("attention tag landing preserves the locale in japanese search handoffs", async () => {
+    const page = await renderTagLandingPage(
+      {
+        params: Promise.resolve({ slug: "attention" }),
+      },
+      "ja",
+    );
+    const html = renderToStaticMarkup(page);
+    expect(html).toContain('href="/ja/search?tag=attention"');
+    expect(html).toContain("data-search");
+  });
+
   it("attention prefill query surfaces grouped-query attention in search API results", async () => {
     const results = await docsSearchApi.search("attention");
     expect(results.length).toBeGreaterThan(0);

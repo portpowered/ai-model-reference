@@ -16,7 +16,7 @@ describe("docs slug renderer locale gating", () => {
     });
   });
 
-  test("English docs metadata advertises shipped Vietnamese alternates", async () => {
+  test("English docs metadata advertises shipped Vietnamese and Japanese alternates", async () => {
     const metadata = await buildDocsPageMetadata([
       "modules",
       "grouped-query-attention",
@@ -26,6 +26,7 @@ describe("docs slug renderer locale gating", () => {
       canonical: "/docs/modules/grouped-query-attention",
       languages: {
         en: "/docs/modules/grouped-query-attention",
+        ja: "/ja/docs/modules/grouped-query-attention",
         vi: "/vi/docs/modules/grouped-query-attention",
       },
     });

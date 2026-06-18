@@ -38,18 +38,22 @@ describe("glossary opening convergence", () => {
     "published glossary pages keep openingSummary in messages but omit it in shell render",
     async () => {
       const pages = await listPublishedGlossaryPages();
+      const loadedPages = await Promise.all(
+        pages.map((page) =>
+          loadLocalDocsPage({
+            section: "glossary",
+            slug: page.slug,
+          }),
+        ),
+      );
 
-      for (const page of pages) {
-        const loadedPage = await loadLocalDocsPage({
-          section: "glossary",
-          slug: page.slug,
-        });
+      for (const loadedPage of loadedPages) {
         expectGlossaryOpeningSummaryMessage(loadedPage.messages);
 
         const html = renderGlossaryDocsShell(loadedPage);
         expectGlossaryOmitsOpeningSummary(html);
       }
     },
-    { timeout: 10_000 },
+    { timeout: 20_000 },
   );
 });

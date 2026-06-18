@@ -91,9 +91,13 @@ describe("search result meta", () => {
     expect(meta?.aliases.length).toBeGreaterThan(0);
   });
 
-  test("loadSearchResultMetaMap returns no japanese docs entries when no japanese docs pages are shipped", async () => {
+  test("loadSearchResultMetaMap includes the shipped japanese representative slice", async () => {
     const map = await loadSearchResultMetaMap("ja");
-    expect(map.size).toBe(0);
+    expect(map.size).toBe(4);
+    expect(map.has("/ja/docs/modules/attention")).toBe(true);
+    expect(map.has("/ja/docs/modules/grouped-query-attention")).toBe(true);
+    expect(map.has("/ja/docs/glossary/token")).toBe(true);
+    expect(map.has("/ja/docs/concepts/transformer-architecture")).toBe(true);
   });
 
   test("buildSearchResultMetaMap keys by url", () => {

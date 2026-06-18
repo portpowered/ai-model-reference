@@ -1,0 +1,69 @@
+{
+  "title": "トークン",
+  "description": "言語モデルが読み取り、予測する最小単位のテキストです。多くの場合は単語そのものではなく単語片であり、各トークン ID は attention が動く前にモデルの hidden size に対応する密なベクトルへ embedding されます。",
+  "sections": {
+    "whatItIs": {
+      "title": "これは何か",
+      "body": "トークンは、モデルが扱う離散的な語彙の 1 単位です。subword tokenizer は珍しい単語を複数の断片に分けることが多く、語彙を有限に保ちながら未知の表現も扱えるようにします。"
+    },
+    "whyItMatters": {
+      "title": "なぜ重要か",
+      "body": "tokenization はコンテキスト長をトークン単位で決め、1 リクエストあたりのコストを左右し、2 つの文字列がモデルに同じものとして見えるかどうかも決めます。学習時とサービング時で tokenizer がずれるのは典型的な統合バグです。誰かが「128k context」と言うとき、それは embedding と次トークンのスコア計算の前に tokenizer が出力する 128k 個のトークンを意味します。下の関連ドキュメントをたどると、トークンから embedding、さらに logit と softmax へ進めます。"
+    },
+    "simpleExample": {
+      "title": "簡単な例",
+      "body": "「language models」という語句は tokenizer によって 2 個または 3 個のトークンになることがあります。各 ID は attention 層が動く前に embedding テーブルで参照されます。"
+    },
+    "whereItAppears": {
+      "title": "どこで現れるか",
+      "body": "トークンは入力 embedding 層、自回帰の次トークンスコア計算、そして decoding 中の KV cache の計算で現れます。attention モジュールが扱うのは生の文字ではなくトークン位置です。ここから embeddings への厳選リンクをたどると、トークンから確率への流れを続けて学べます。"
+    },
+    "commonConfusions": {
+      "title": "よくある混同",
+      "body": "トークンは常に単語とは限りません。byte-level BPE では 1 文字だけのトークンが出ることもあります。トークン数は単語数とも Unicode の書記素数とも一致しません。"
+    },
+    "related": {
+      "title": "関連する概念とモジュール"
+    },
+    "tags": {
+      "title": "タグ"
+    },
+    "references": {
+      "title": "参考資料"
+    }
+  },
+  "relatedDocs": {
+    "concept.embedding": {
+      "reason": "各トークン ID は、モデルが文脈を混ぜる前に学習済みの数値表現へ変換されます。"
+    },
+    "concept.logit": {
+      "reason": "次トークン予測は、語彙内の各候補トークンに対するスコアから始まります。"
+    },
+    "concept.softmax": {
+      "reason": "その候補スコアは語彙全体に対する確率へ変換されます。"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "テキストが tokenizer を通って token ID と embeddings になる流れを示す図",
+      "caption": "生のテキストが transformer stack に入る前に token ID へ変わる流れ"
+    }
+  },
+  "graph": {
+    "nodes": {
+      "rawText": {
+        "label": "生のテキスト"
+      },
+      "tokenizer": {
+        "label": "Tokenizer"
+      },
+      "tokenIds": {
+        "label": "トークン ID"
+      },
+      "embeddings": {
+        "label": "Embedding"
+      }
+    }
+  },
+  "openingSummary": "モデルは固定された tokenizer 語彙を使ってテキストを整数 ID に変換し、それを embedding とスコア計算へ渡すことで、生の文字を直接読むのではなく次トークン予測を進めます。"
+}
