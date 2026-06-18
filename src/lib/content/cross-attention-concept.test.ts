@@ -10,8 +10,14 @@ import {
   extractGlossaryArticleHtml,
 } from "@/lib/content/glossary-test-helpers";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
-import { getConceptById } from "@/lib/content/registry-runtime";
+import {
+  getConceptById,
+  listRelatedRegistryRecords,
+} from "@/lib/content/registry-runtime";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import { loadTagResourceEntries } from "@/lib/content/tag-resources";
 
 describe("Cross-attention concept page", () => {
   test("registry record is published and listed as a published docs page", () => {
@@ -19,9 +25,67 @@ describe("Cross-attention concept page", () => {
     expect(record?.status).toBe("published");
     expect(record?.slug).toBe("cross-attention");
     expect(record?.conceptType).toBe("general");
+    expect(record?.aliases).toEqual([
+      "cross attention",
+      "encoder-decoder attention",
+      "cross modal attention",
+    ]);
+    expect(record?.tags).toEqual(["attention", "foundations"]);
+    expect(record?.relatedIds).toEqual([
+      "module.attention",
+      "concept.transformer-architecture",
+      "concept.encoder-decoder",
+      "concept.multimodal-model",
+    ]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.cross-attention")).toBe(
       true,
     );
+  });
+
+  test("curated related links and attention-tag discovery stay navigable for cross-attention", async () => {
+    const source = getConceptById("concept.cross-attention");
+    if (!source) {
+      throw new Error("expected concept.cross-attention in registry");
+    }
+
+    const items = deriveCuratedRelatedItems(
+      source,
+      listRelatedRegistryRecords(),
+      PUBLISHED_DOCS_REGISTRY_IDS,
+    );
+
+    expect(items.map((item) => item.registryId)).toEqual([
+      "module.attention",
+      "concept.transformer-architecture",
+      "concept.encoder-decoder",
+      "concept.multimodal-model",
+    ]);
+    expect(items.map((item) => item.href)).toEqual([
+      "/docs/modules/attention",
+      "/docs/concepts/transformer-architecture",
+      "/docs/glossary/encoder-decoder",
+      "/docs/glossary/multimodal-model",
+    ]);
+    expect(items.every((item) => item.isPlanned === false)).toBe(true);
+
+    const publishedPages = await loadPublishedDocsPages("en");
+    expect(
+      publishedPages.some(
+        (page) =>
+          page.frontmatter.registryId === "concept.cross-attention" &&
+          page.url === "/docs/concepts/cross-attention",
+      ),
+    ).toBe(true);
+
+    const attentionEntries = await loadTagResourceEntries("attention", "en");
+    expect(
+      attentionEntries.some(
+        (entry) =>
+          entry.url === "/docs/concepts/cross-attention" &&
+          entry.kind === "concept" &&
+          entry.slug === "cross-attention",
+      ),
+    ).toBe(true);
   });
 
   test("page resolves the canonical concept route without missing-content placeholders", async () => {
