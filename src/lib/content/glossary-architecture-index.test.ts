@@ -26,12 +26,15 @@ const TAXONOMY_GLOSSARY_SLUGS = [
 
 const FFN_ACTIVATION_GLOSSARY_SLUGS = [
   "feed-forward-network",
+  "batch-norm",
+  "group-norm",
   "standard-ffn",
   "mixture-of-experts",
   "relu",
   "leaky-relu",
   "silu",
   "swiglu",
+  "qk-norm",
 ] as const;
 
 const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
@@ -48,12 +51,15 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   latent: "Latent",
   "latent-space": "Latent Space",
   "feed-forward-network": "Feed-forward network",
+  "batch-norm": "Batch norm",
+  "group-norm": "Group norm",
   "standard-ffn": "Standard FFN",
   "mixture-of-experts": "Mixture of experts",
   relu: "ReLU",
   "leaky-relu": "LeakyReLU",
   silu: "SiLU",
   swiglu: "SwiGLU",
+  "qk-norm": "QK norm",
   token: "Token",
   embedding: "Embedding",
   tensor: "Tensor",
@@ -91,8 +97,8 @@ const CHAIN_GLOSSARY_SLUGS = [
   "loss-function",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 63;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 56;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 66;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 59;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",

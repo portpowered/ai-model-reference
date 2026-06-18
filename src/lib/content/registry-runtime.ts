@@ -4,6 +4,7 @@ import alignmentConcept from "@/content/registry/concepts/alignment.json";
 import architectureConcept from "@/content/registry/concepts/architecture.json";
 import autoregressiveGenerationConcept from "@/content/registry/concepts/autoregressive-generation.json";
 import backpropagationConcept from "@/content/registry/concepts/backpropagation.json";
+import batchNormConcept from "@/content/registry/concepts/batch-norm.json";
 import componentConcept from "@/content/registry/concepts/component.json";
 import computationalGraphConcept from "@/content/registry/concepts/computational-graph.json";
 import conditioningConcept from "@/content/registry/concepts/conditioning.json";
@@ -24,6 +25,7 @@ import foundationModelConcept from "@/content/registry/concepts/foundation-model
 import generalizationConcept from "@/content/registry/concepts/generalization.json";
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
 import gradientConcept from "@/content/registry/concepts/gradient.json";
+import groupNormConcept from "@/content/registry/concepts/group-norm.json";
 import hiddenSizeConcept from "@/content/registry/concepts/hidden-size.json";
 import kvCacheConcept from "@/content/registry/concepts/kv-cache.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
@@ -47,6 +49,7 @@ import perplexityConcept from "@/content/registry/concepts/perplexity.json";
 import positionalEncodingsConcept from "@/content/registry/concepts/positional-encodings.json";
 import prefillConcept from "@/content/registry/concepts/prefill.json";
 import prefillDecodeSplitConcept from "@/content/registry/concepts/prefill-decode-split.json";
+import qkNormConcept from "@/content/registry/concepts/qk-norm.json";
 import reluConcept from "@/content/registry/concepts/relu.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
 import residualConnectionConcept from "@/content/registry/concepts/residual-connection.json";
@@ -138,9 +141,11 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(contextExtensionConcept),
   conceptRecordSchema.parse(contextWindowConcept),
   conceptRecordSchema.parse(alignmentConcept),
+  conceptRecordSchema.parse(batchNormConcept),
   conceptRecordSchema.parse(modelCapacityConcept),
   conceptRecordSchema.parse(overfittingConcept),
   conceptRecordSchema.parse(generalizationConcept),
+  conceptRecordSchema.parse(groupNormConcept),
   conceptRecordSchema.parse(perplexityConcept),
   conceptRecordSchema.parse(scalingLawConcept),
   conceptRecordSchema.parse(emergentBehaviorConcept),
@@ -153,6 +158,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(swigluConcept),
   conceptRecordSchema.parse(layerNormConcept),
   conceptRecordSchema.parse(normalizationConcept),
+  conceptRecordSchema.parse(qkNormConcept),
   conceptRecordSchema.parse(rmsnormConcept),
   conceptRecordSchema.parse(alibiConcept),
   conceptRecordSchema.parse(positionalEncodingsConcept),

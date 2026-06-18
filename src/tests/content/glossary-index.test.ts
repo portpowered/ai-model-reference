@@ -110,7 +110,7 @@ describe("loadPublishedGlossaryEntries", () => {
 
   it("includes all published glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(63);
+    expect(entries).toHaveLength(66);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",

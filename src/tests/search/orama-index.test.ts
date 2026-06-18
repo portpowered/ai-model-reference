@@ -26,6 +26,8 @@ const TRANSFORMER_ARCHITECTURE_URL = "/docs/concepts/transformer-architecture";
 const PAGE_SPEC_WORKFLOW_SAMPLE_URL =
   "/docs/concepts/page-spec-workflow-sample";
 const FEED_FORWARD_NETWORK_URL = "/docs/glossary/feed-forward-network";
+const BATCH_NORM_URL = "/docs/glossary/batch-norm";
+const GROUP_NORM_URL = "/docs/glossary/group-norm";
 const STANDARD_FFN_URL = "/docs/glossary/standard-ffn";
 const MIXTURE_OF_EXPERTS_URL = "/docs/glossary/mixture-of-experts";
 const RELU_URL = "/docs/glossary/relu";
@@ -35,6 +37,7 @@ const SWIGLU_URL = "/docs/glossary/swiglu";
 const LAYER_NORM_URL = "/docs/glossary/layer-norm";
 const RMSNORM_URL = "/docs/glossary/rmsnorm";
 const NORMALIZATION_URL = "/docs/glossary/normalization";
+const QK_NORM_URL = "/docs/glossary/qk-norm";
 const RESIDUAL_CONNECTION_URL = "/docs/glossary/residual-connection";
 const POSITIONAL_ENCODINGS_URL = "/docs/concepts/positional-encodings";
 const ROPE_URL = "/docs/glossary/rope";
@@ -125,6 +128,8 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   TRANSFORMER_ARCHITECTURE_URL,
   PAGE_SPEC_WORKFLOW_SAMPLE_URL,
   FEED_FORWARD_NETWORK_URL,
+  BATCH_NORM_URL,
+  GROUP_NORM_URL,
   STANDARD_FFN_URL,
   MIXTURE_OF_EXPERTS_URL,
   RELU_URL,
@@ -134,6 +139,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   LAYER_NORM_URL,
   RMSNORM_URL,
   NORMALIZATION_URL,
+  QK_NORM_URL,
   RESIDUAL_CONNECTION_URL,
   POSITIONAL_ENCODINGS_URL,
   ROPE_URL,
@@ -230,6 +236,9 @@ describe("exportOramaIndexSnapshot", () => {
     { query: "multi-head attention", url: MULTI_HEAD_ATTENTION_URL },
     { query: "MQA", url: MULTI_QUERY_ATTENTION_URL },
     { query: "multi-query attention", url: MULTI_QUERY_ATTENTION_URL },
+    { query: "batch norm", url: BATCH_NORM_URL },
+    { query: "group norm", url: GROUP_NORM_URL },
+    { query: "QK norm", url: QK_NORM_URL },
   ] as const)("Orama database records rank %s for the %s alias query", async ({
     query,
     url,

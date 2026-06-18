@@ -18,6 +18,8 @@ const BATCH_017_DOCS_URLS = [
   "/docs/modules/linear-attention",
   "/docs/concepts/transformer-architecture",
   "/docs/glossary/feed-forward-network",
+  "/docs/glossary/batch-norm",
+  "/docs/glossary/group-norm",
   "/docs/glossary/standard-ffn",
   "/docs/glossary/mixture-of-experts",
   "/docs/glossary/relu",
@@ -25,6 +27,7 @@ const BATCH_017_DOCS_URLS = [
   "/docs/glossary/silu",
   "/docs/glossary/swiglu",
   "/docs/glossary/normalization",
+  "/docs/glossary/qk-norm",
   "/docs/glossary/layer-norm",
   "/docs/glossary/rmsnorm",
   "/docs/glossary/residual-connection",
@@ -67,6 +70,9 @@ const ALIAS_EXPECTATIONS = [
   { url: "/docs/glossary/leaky-relu", alias: "leaky ReLU" },
   { url: "/docs/glossary/silu", alias: "sigmoid linear unit" },
   { url: "/docs/glossary/swiglu", alias: "swish gated linear unit" },
+  { url: "/docs/glossary/batch-norm", alias: "batch normalization" },
+  { url: "/docs/glossary/group-norm", alias: "group normalization" },
+  { url: "/docs/glossary/qk-norm", alias: "query-key normalization" },
 ] as const;
 
 describe("Phase 2/3 reconciliation search documents (US-009)", () => {

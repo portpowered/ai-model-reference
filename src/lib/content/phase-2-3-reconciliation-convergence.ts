@@ -52,6 +52,8 @@ export const BATCH_017_DOCS_URLS = [
   "/docs/modules/linear-attention",
   "/docs/concepts/transformer-architecture",
   "/docs/glossary/feed-forward-network",
+  "/docs/glossary/batch-norm",
+  "/docs/glossary/group-norm",
   "/docs/glossary/standard-ffn",
   "/docs/glossary/mixture-of-experts",
   "/docs/glossary/relu",
@@ -59,6 +61,7 @@ export const BATCH_017_DOCS_URLS = [
   "/docs/glossary/silu",
   "/docs/glossary/swiglu",
   "/docs/glossary/normalization",
+  "/docs/glossary/qk-norm",
   "/docs/glossary/layer-norm",
   "/docs/glossary/rmsnorm",
   "/docs/glossary/residual-connection",
@@ -133,6 +136,21 @@ const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
   {
     query: "SwiGLU",
     firstUrl: "/docs/glossary/swiglu",
+    firstKind: "glossary" as const,
+  },
+  {
+    query: "batch norm",
+    firstUrl: "/docs/glossary/batch-norm",
+    firstKind: "glossary" as const,
+  },
+  {
+    query: "group norm",
+    firstUrl: "/docs/glossary/group-norm",
+    firstKind: "glossary" as const,
+  },
+  {
+    query: "QK norm",
+    firstUrl: "/docs/glossary/qk-norm",
     firstKind: "glossary" as const,
   },
   {
