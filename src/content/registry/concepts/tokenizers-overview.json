@@ -1,0 +1,27 @@
+{
+  "id": "concept.tokenizers-overview",
+  "slug": "tokenizers-overview",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Tokenizer overview",
+    "tokenizer overview",
+    "tokenizers overview"
+  ],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [
+    "concept.token",
+    "module.bpe",
+    "module.wordpiece",
+    "module.sentencepiece",
+    "model.gpt-3"
+  ],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.token"],
+  "explainsIds": ["module.bpe", "module.wordpiece", "module.sentencepiece"]
+}

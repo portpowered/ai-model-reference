@@ -79,6 +79,8 @@ describe("table-registry-runtime", () => {
   });
 
   test("lists bundled table records", () => {
-    expect(listTableRecords().length).toBe(20);
+    const tableIds = listTableRecords().map((record) => record.id);
+    expect(tableIds.length).toBe(21);
+    expect(tableIds).toContain("table.bpe-comparison");
   });
 });

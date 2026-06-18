@@ -9,6 +9,7 @@
   "relatedIds": [
     "concept.transformer-architecture",
     "concept.autoregressive-generation",
+    "module.bpe",
     "module.multi-head-attention",
     "module.standard-ffn",
     "module.learned-positional-embeddings"

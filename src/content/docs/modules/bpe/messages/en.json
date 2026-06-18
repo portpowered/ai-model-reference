@@ -1,0 +1,156 @@
+{
+  "title": "Byte Pair Encoding",
+  "description": "A subword tokenizer that learns frequent text pieces by repeatedly merging common neighboring symbols.",
+  "openingSummary": "Byte pair encoding (BPE) is a tokenizer that builds a vocabulary from reusable text pieces instead of whole words, which helps models cover rare spellings and new words without exploding vocabulary size.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Byte pair encoding (BPE) is a subword tokenizer. Instead of treating every whole word as one fixed unit, it starts from smaller symbols and learns which neighboring pieces appear together often enough to be merged into a larger reusable token."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "BPE balances two pressures at once: the vocabulary should stay small enough to manage, but the tokenizer should still cover messy real text. Reusing common pieces like `ing`, `tion`, or `low` lets one vocabulary handle many rare or unseen words."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "For readers, BPE explains why token counts do not line up neatly with word counts. A short word may stay whole, while a longer or stranger-looking word may break into several pieces that the model can still read because those pieces were learned earlier."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "BPE begins with very small symbols, then repeatedly merges the most frequent adjacent pair in the training text. A simple example starts with pieces like `l` `o` `w`, `l` `o` `w` `e` `r`, and `n` `e` `w` `e` `s` `t`. If `l` + `o` appears often, the tokenizer adds `lo`. If `lo` + `w` is still common, it adds `low`. After enough rounds, words such as `lower` can be tokenized as pieces like `low` + `er` instead of six separate characters."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The notation below compresses one training step into a single rule: take the current inventory of pieces, find the most useful neighboring pair, and merge that pair into a new subword unit."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "BPE is one of several common subword tokenizers. WordPiece uses a similar piece-building idea but chooses merges with a different scoring rule, while SentencePiece is often trained directly on raw text and can avoid pre-tokenization assumptions about spaces or words."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Readers run into BPE most often in GPT-style language models and their descendants. Those systems need a tokenizer that can survive code, punctuation, names, and invented words without requiring a separate vocabulary entry for every full string."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "BPE pieces can look awkward to humans because the merge boundaries are chosen for frequency, not readability. Tokenizer mismatch also matters: if a model was trained with one BPE vocabulary and you feed text through another tokenizer, token counts and meaning-bearing pieces can shift in ways the model did not learn."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "BPE remains a foundation concept because it sits on the path between raw text and model input. Once you understand how it builds subword units, it becomes much easier to compare tokenizers, estimate context usage, and understand why the same sentence can occupy different numbers of tokens across model families."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Byte pair encoding flow from raw text pieces, pair counting, repeated merges, and final subword tokens",
+      "caption": "BPE repeatedly counts neighboring pairs and promotes the most frequent pair into a reusable subword token.",
+      "variants": {
+        "bpe": {
+          "label": "BPE merge flow"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "How byte pair encoding compares with nearby subword tokenizers"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "bpe": {
+          "title": "BPE"
+        },
+        "wordpiece": {
+          "title": "WordPiece"
+        },
+        "sentencepiece": {
+          "title": "SentencePiece"
+        }
+      },
+      "dimensions": {
+        "startingView": "Starting view of text",
+        "mergeChoice": "How new pieces are chosen",
+        "spaceHandling": "Handling of spaces and bytes",
+        "mainTradeoff": "Main tradeoff"
+      },
+      "values": {
+        "bpe": {
+          "startingView": "Starts from small symbols and merges common neighbors",
+          "mergeChoice": "Usually picks the most frequent adjacent pair",
+          "spaceHandling": "Often paired with byte-level handling in GPT-style tokenizers",
+          "mainTradeoff": "Simple and reusable, but learned pieces can look unnatural"
+        },
+        "wordpiece": {
+          "startingView": "Starts from subword candidates and grows a vocabulary",
+          "mergeChoice": "Uses a scoring rule instead of raw pair frequency alone",
+          "spaceHandling": "Usually assumes a word-like pre-tokenization step first",
+          "mainTradeoff": "Works well for many text models, but depends more on the upstream text split"
+        },
+        "sentencepiece": {
+          "startingView": "Trains directly on raw text without fixed word boundaries",
+          "mergeChoice": "Can learn pieces with BPE-style or unigram-style training",
+          "spaceHandling": "Treats spaces as regular symbols so boundaries stay explicit",
+          "mainTradeoff": "Flexible across languages, but its learned pieces may differ more from reader intuition"
+        }
+      }
+    }
+  },
+  "math": {
+    "bpeSchema": {
+      "label": "One byte pair encoding merge step",
+      "formula": "\\tau_{t+1} = \\operatorname{merge}(\\tau_t, p_t)",
+      "variableDefinitions": {
+        "tau": {
+          "term": "\\tau_t",
+          "definition": "Current token-piece inventory after merge step t."
+        },
+        "pt": {
+          "term": "p_t",
+          "definition": "Most useful neighboring pair chosen at step t."
+        },
+        "tauNext": {
+          "term": "\\tau_{t+1}",
+          "definition": "Updated inventory after that pair becomes one new subword piece."
+        },
+        "t": {
+          "term": "t",
+          "definition": "Merge-step index."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "rawText": {
+        "label": "Raw text pieces"
+      },
+      "startSymbols": {
+        "label": "Start from tiny symbols or bytes"
+      },
+      "countPairs": {
+        "label": "Count neighboring pairs"
+      },
+      "pickPair": {
+        "label": "Choose the most frequent pair"
+      },
+      "mergePair": {
+        "label": "Merge into one new subword"
+      },
+      "reusePieces": {
+        "label": "Reuse learned pieces such as `low` and `er`"
+      },
+      "tokenOutput": {
+        "label": "Final token sequence"
+      }
+    }
+  }
+}
