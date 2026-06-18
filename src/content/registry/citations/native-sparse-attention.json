@@ -1,0 +1,40 @@
+{
+  "id": "citation.native-sparse-attention",
+  "slug": "native-sparse-attention",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Native Sparse Attention paper",
+    "Hardware-Aligned and Natively Trainable Sparse Attention",
+    "DeepSeek sparse attention paper"
+  ],
+  "tags": ["attention", "context-window", "kv-cache"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Jingyang Yuan",
+    "Huazuo Gao",
+    "Damai Dai",
+    "Junyu Luo",
+    "Liang Zhao",
+    "Zhengyan Zhang",
+    "Zhenda Xie",
+    "Yuxing Wei",
+    "Lean Wang",
+    "Zhiping Xiao",
+    "Yuqing Wang",
+    "Chong Ruan",
+    "Ming Zhang",
+    "Wenfeng Liang",
+    "Wangding Zeng"
+  ],
+  "title": "Native Sparse Attention: Hardware-Aligned and Natively Trainable Sparse Attention",
+  "year": 2025,
+  "url": "https://aclanthology.org/2025.acl-long.1126/",
+  "mla": "Yuan, Jingyang, et al. \"Native Sparse Attention: Hardware-Aligned and Natively Trainable Sparse Attention.\" ACL Anthology, 2025, https://aclanthology.org/2025.acl-long.1126/."
+}

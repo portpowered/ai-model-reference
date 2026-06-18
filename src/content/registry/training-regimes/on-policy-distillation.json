@@ -7,7 +7,10 @@
   "aliases": ["on-policy distillation"],
   "tags": ["foundations", "quantization"],
   "relatedIds": ["paper.deepseek-v4", "training-regime.specialist-training"],
-  "citationIds": ["citation.deepseek-v4-paper"],
+  "citationIds": [
+    "citation.on-policy-distillation-of-language-models",
+    "citation.deepseek-v4-paper"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",

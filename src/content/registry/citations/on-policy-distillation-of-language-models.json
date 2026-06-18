@@ -1,0 +1,32 @@
+{
+  "id": "citation.on-policy-distillation-of-language-models",
+  "slug": "on-policy-distillation-of-language-models",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "On-Policy Distillation of Language Models",
+    "on-policy distillation paper",
+    "GKD paper"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Rishabh Agarwal",
+    "Nino Vieillard",
+    "Yongchao Zhou",
+    "Piotr Stanczyk",
+    "Sabela Ramos Garea",
+    "Matthieu Geist",
+    "Olivier Bachem"
+  ],
+  "title": "On-Policy Distillation of Language Models: Learning from Self-Generated Mistakes",
+  "year": 2024,
+  "url": "https://openreview.net/forum?id=3zKtaqxLhW",
+  "mla": "Agarwal, Rishabh, et al. \"On-Policy Distillation of Language Models: Learning from Self-Generated Mistakes.\" OpenReview, 2024, https://openreview.net/forum?id=3zKtaqxLhW."
+}

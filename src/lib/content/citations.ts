@@ -2,6 +2,7 @@ import attentionIsAllYouNeed from "@/content/registry/citations/attention-is-all
 import brownGpt3 from "@/content/registry/citations/brown-gpt-3.json";
 import chenPositionalInterpolation from "@/content/registry/citations/chen-positional-interpolation.json";
 import deepseekV2MlaPaper from "@/content/registry/citations/deepseek-v2-mla-paper.json";
+import deepseekV4Paper from "@/content/registry/citations/deepseek-v4-paper.json";
 import dingLongrope from "@/content/registry/citations/ding-longrope.json";
 import goodfellowDeepLearning from "@/content/registry/citations/goodfellow-deep-learning.json";
 import gqaPaper from "@/content/registry/citations/gqa-paper.json";
@@ -9,10 +10,13 @@ import kaiokendevSuperhot from "@/content/registry/citations/kaiokendev-superhot
 import kaplanScalingLaws from "@/content/registry/citations/kaplan-scaling-laws.json";
 import katharopoulosLinearAttentionPaper from "@/content/registry/citations/katharopoulos-linear-attention-paper.json";
 import kingmaAdam from "@/content/registry/citations/kingma-adam.json";
+import nativeSparseAttention from "@/content/registry/citations/native-sparse-attention.json";
+import onPolicyDistillationOfLanguageModels from "@/content/registry/citations/on-policy-distillation-of-language-models.json";
 import pengYarn from "@/content/registry/citations/peng-yarn.json";
 import pressAlibi from "@/content/registry/citations/press-alibi.json";
 import raffelT5 from "@/content/registry/citations/raffel-t5.json";
 import shazeerMqaPaper from "@/content/registry/citations/shazeer-mqa-paper.json";
+import sparseTransformers from "@/content/registry/citations/sparse-transformers.json";
 import suRoformerRope from "@/content/registry/citations/su-roformer-rope.json";
 import weiEmergentAbilities from "@/content/registry/citations/wei-emergent-abilities.json";
 import {
@@ -25,6 +29,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(brownGpt3),
   citationRecordSchema.parse(chenPositionalInterpolation),
   citationRecordSchema.parse(deepseekV2MlaPaper),
+  citationRecordSchema.parse(deepseekV4Paper),
   citationRecordSchema.parse(dingLongrope),
   citationRecordSchema.parse(goodfellowDeepLearning),
   citationRecordSchema.parse(gqaPaper),
@@ -32,10 +37,13 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(kaplanScalingLaws),
   citationRecordSchema.parse(katharopoulosLinearAttentionPaper),
   citationRecordSchema.parse(kingmaAdam),
+  citationRecordSchema.parse(nativeSparseAttention),
+  citationRecordSchema.parse(onPolicyDistillationOfLanguageModels),
   citationRecordSchema.parse(pengYarn),
   citationRecordSchema.parse(pressAlibi),
   citationRecordSchema.parse(raffelT5),
   citationRecordSchema.parse(shazeerMqaPaper),
+  citationRecordSchema.parse(sparseTransformers),
   citationRecordSchema.parse(suRoformerRope),
   citationRecordSchema.parse(weiEmergentAbilities),
 ];
