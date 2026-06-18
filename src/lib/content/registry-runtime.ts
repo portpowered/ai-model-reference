@@ -39,6 +39,7 @@ import moduleConcept from "@/content/registry/concepts/module.json";
 import multimodalModelConcept from "@/content/registry/concepts/multimodal-model.json";
 import nopeConcept from "@/content/registry/concepts/nope.json";
 import normalizationConcept from "@/content/registry/concepts/normalization.json";
+import ntkAwareRopeScalingConcept from "@/content/registry/concepts/ntk-aware-rope-scaling.json";
 import optimizerStateConcept from "@/content/registry/concepts/optimizer-state.json";
 import overfittingConcept from "@/content/registry/concepts/overfitting.json";
 import parameterConcept from "@/content/registry/concepts/parameter.json";
@@ -53,6 +54,7 @@ import ropeConcept from "@/content/registry/concepts/rope.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import sinusoidalPositionalEmbeddingsConcept from "@/content/registry/concepts/sinusoidal-positional-embeddings.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
+import superhotRopeConcept from "@/content/registry/concepts/superhot-rope.json";
 import t5RelativePositionBiasConcept from "@/content/registry/concepts/t5-relative-position-bias.json";
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
@@ -62,6 +64,7 @@ import transformerArchitectureConcept from "@/content/registry/concepts/transfor
 import vectorConcept from "@/content/registry/concepts/vector.json";
 import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-context-is-hard.json";
 import worldModelConcept from "@/content/registry/concepts/world-model.json";
+import yarnConcept from "@/content/registry/concepts/yarn.json";
 import attention from "@/content/registry/modules/attention.json";
 import groupedQueryAttention from "@/content/registry/modules/grouped-query-attention.json";
 import linearAttention from "@/content/registry/modules/linear-attention.json";
@@ -149,8 +152,10 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(t5RelativePositionBiasConcept),
   conceptRecordSchema.parse(positionalEncodingsConcept),
   conceptRecordSchema.parse(nopeConcept),
+  conceptRecordSchema.parse(ntkAwareRopeScalingConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
   conceptRecordSchema.parse(ropeConcept),
+  conceptRecordSchema.parse(superhotRopeConcept),
   conceptRecordSchema.parse(sinusoidalPositionalEmbeddingsConcept),
   conceptRecordSchema.parse(transformerArchitectureConcept),
   conceptRecordSchema.parse(transformerConcept),
@@ -158,6 +163,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(multimodalModelConcept),
   conceptRecordSchema.parse(whyLongContextIsHardConcept),
   conceptRecordSchema.parse(worldModelConcept),
+  conceptRecordSchema.parse(yarnConcept),
 ];
 
 const modulesById = new Map(moduleRecords.map((record) => [record.id, record]));

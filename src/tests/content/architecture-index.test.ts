@@ -58,6 +58,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/model",
         "/docs/glossary/model-capacity",
         "/docs/glossary/module",
+        "/docs/glossary/ntk-aware-rope-scaling",
         "/docs/glossary/multimodal-model",
         "/docs/glossary/normalization",
         "/docs/glossary/nope",
@@ -71,10 +72,12 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/rope",
         "/docs/glossary/scaling-law",
         "/docs/glossary/sinusoidal-positional-embeddings",
+        "/docs/glossary/superhot-rope",
         "/docs/glossary/t5-relative-position-bias",
         "/docs/glossary/token",
         "/docs/glossary/transformer",
         "/docs/glossary/world-model",
+        "/docs/glossary/yarn",
       ].sort(),
     );
   });

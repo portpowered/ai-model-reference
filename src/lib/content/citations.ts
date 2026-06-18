@@ -1,10 +1,13 @@
 import attentionIsAllYouNeed from "@/content/registry/citations/attention-is-all-you-need.json";
+import chenPositionalInterpolation from "@/content/registry/citations/chen-positional-interpolation.json";
 import deepseekV2MlaPaper from "@/content/registry/citations/deepseek-v2-mla-paper.json";
 import goodfellowDeepLearning from "@/content/registry/citations/goodfellow-deep-learning.json";
 import gqaPaper from "@/content/registry/citations/gqa-paper.json";
+import kaiokendevSuperhot from "@/content/registry/citations/kaiokendev-superhot.json";
 import kaplanScalingLaws from "@/content/registry/citations/kaplan-scaling-laws.json";
 import katharopoulosLinearAttentionPaper from "@/content/registry/citations/katharopoulos-linear-attention-paper.json";
 import kingmaAdam from "@/content/registry/citations/kingma-adam.json";
+import pengYarn from "@/content/registry/citations/peng-yarn.json";
 import pressAlibi from "@/content/registry/citations/press-alibi.json";
 import raffelT5 from "@/content/registry/citations/raffel-t5.json";
 import shazeerMqaPaper from "@/content/registry/citations/shazeer-mqa-paper.json";
@@ -17,12 +20,15 @@ import {
 
 const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(attentionIsAllYouNeed),
+  citationRecordSchema.parse(chenPositionalInterpolation),
   citationRecordSchema.parse(deepseekV2MlaPaper),
   citationRecordSchema.parse(goodfellowDeepLearning),
   citationRecordSchema.parse(gqaPaper),
+  citationRecordSchema.parse(kaiokendevSuperhot),
   citationRecordSchema.parse(kaplanScalingLaws),
   citationRecordSchema.parse(katharopoulosLinearAttentionPaper),
   citationRecordSchema.parse(kingmaAdam),
+  citationRecordSchema.parse(pengYarn),
   citationRecordSchema.parse(pressAlibi),
   citationRecordSchema.parse(raffelT5),
   citationRecordSchema.parse(shazeerMqaPaper),

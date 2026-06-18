@@ -53,4 +53,19 @@ describe("citations", () => {
     expect(citation?.mla).toContain("Raffel, Colin, et al.");
     expect(citation?.url).toBe("https://arxiv.org/abs/1910.10683");
   });
+
+  test("getCitationById returns YaRN paper with MLA text", () => {
+    const citation = getCitationById("citation.peng-yarn");
+    expect(citation?.title).toBe(
+      "YaRN: Efficient Context Window Extension of Large Language Models",
+    );
+    expect(citation?.mla).toContain("Peng, Bowen, et al.");
+    expect(citation?.url).toBe("https://arxiv.org/abs/2309.00071");
+  });
+
+  test("listCitationRecords includes SuperHOT and positional interpolation citations", () => {
+    const ids = listCitationRecords().map((record) => record.id);
+    expect(ids).toContain("citation.kaiokendev-superhot");
+    expect(ids).toContain("citation.chen-positional-interpolation");
+  });
 });

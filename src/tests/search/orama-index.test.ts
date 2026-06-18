@@ -42,11 +42,14 @@ const T5_RELATIVE_POSITION_BIAS_URL =
 const ROPE_URL = "/docs/glossary/rope";
 const ALIBI_URL = "/docs/glossary/alibi";
 const NOPE_URL = "/docs/glossary/nope";
+const NTK_AWARE_ROPE_SCALING_URL = "/docs/glossary/ntk-aware-rope-scaling";
 const SINUSOIDAL_POSITIONAL_EMBEDDINGS_URL =
   "/docs/glossary/sinusoidal-positional-embeddings";
+const SUPERHOT_ROPE_URL = "/docs/glossary/superhot-rope";
 const CONTEXT_WINDOW_URL = "/docs/glossary/context-window";
 const CONTEXT_EXTENSION_URL = "/docs/concepts/context-extension";
 const WHY_LONG_CONTEXT_IS_HARD_URL = "/docs/concepts/why-long-context-is-hard";
+const YARN_URL = "/docs/glossary/yarn";
 const STRUCTURAL_TAXONOMY_URLS = [
   "/docs/glossary/model",
   "/docs/glossary/architecture",
@@ -135,10 +138,13 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ROPE_URL,
   ALIBI_URL,
   NOPE_URL,
+  NTK_AWARE_ROPE_SCALING_URL,
   SINUSOIDAL_POSITIONAL_EMBEDDINGS_URL,
+  SUPERHOT_ROPE_URL,
   CONTEXT_WINDOW_URL,
   CONTEXT_EXTENSION_URL,
   WHY_LONG_CONTEXT_IS_HARD_URL,
+  YARN_URL,
   ...STRUCTURAL_TAXONOMY_URLS,
   ...ROLE_MODALITY_TAXONOMY_URLS,
   ...REPRESENTATION_LATENT_URLS,

@@ -1,0 +1,22 @@
+{
+  "id": "concept.yarn",
+  "slug": "yarn",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["YaRN", "Yarn", "Yet another RoPE extensioN method", "rope yarn"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.rope",
+    "concept.context-extension",
+    "concept.ntk-aware-rope-scaling",
+    "concept.superhot-rope"
+  ],
+  "citationIds": ["citation.peng-yarn"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.positional-encodings", "concept.rope"],
+  "explainsIds": []
+}

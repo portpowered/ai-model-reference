@@ -1,0 +1,32 @@
+{
+  "title": "NTK-aware RoPE scaling",
+  "description": "NTK-aware RoPE scaling changes the rotary frequency base so a RoPE model keeps more useful relative behavior when it is asked to run beyond its trained context length.",
+  "openingSummary": "NTK-aware RoPE scaling extends a RoPE model by rescaling its rotary frequencies, which aims to preserve more of the original relative-distance behavior at long positions without swapping out attention itself.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "NTK-aware RoPE scaling is a test-time or deployment-time way to stretch rotary position embedding farther than the training window. Instead of assigning every token the exact old RoPE angles, it changes the rotary frequency base so angle growth is gentler at long positions. The goal is to keep the model's relative-distance cues from drifting too quickly once prompts move far outside the range it saw during training."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "The method matters because it gave practitioners a way to push RoPE models past their nominal limits without immediately retraining the whole model. In many long-context stacks, NTK-aware scaling became a practical inference knob: adjust the rotary schedule, watch short-range quality trade against far-range stability, and decide whether a lighter change is enough before moving to continued fine-tuning methods such as YaRN."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose a model trained at 4k tokens now needs 16k prompts. Plain RoPE would rotate late positions with angles the model never learned to handle. NTK-aware scaling changes the rotary frequencies so those later positions still move apart, but more slowly, which gives attention a better chance to preserve useful relative structure deeper into the prompt."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "NTK-aware RoPE scaling is not a new attention module and not the same thing as fine-tuning on longer texts. It also does not guarantee equal quality at every length: changing the rotary schedule can help the tail while shifting behavior near the original training range. It belongs in the RoPE extension family alongside SuperHOT, YaRN, positional interpolation, and LongRoPE."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

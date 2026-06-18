@@ -110,7 +110,7 @@ describe("loadPublishedGlossaryEntries", () => {
 
   it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(60);
+    expect(entries).toHaveLength(63);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -156,6 +156,19 @@ describe("loadPublishedGlossaryEntries", () => {
 
     const nope = entries.find((entry) => entry.url === "/docs/glossary/nope");
     expect(nope?.title).toBe("NoPE");
+
+    const ntkAware = entries.find(
+      (entry) => entry.url === "/docs/glossary/ntk-aware-rope-scaling",
+    );
+    expect(ntkAware?.title).toBe("NTK-aware RoPE scaling");
+
+    const superhot = entries.find(
+      (entry) => entry.url === "/docs/glossary/superhot-rope",
+    );
+    expect(superhot?.title).toBe("SuperHOT RoPE");
+
+    const yarn = entries.find((entry) => entry.url === "/docs/glossary/yarn");
+    expect(yarn?.title).toBe("YaRN");
   });
 });
 
@@ -241,10 +254,16 @@ describe("glossary index page render", () => {
     expect(html).toContain('href="/docs/glossary/t5-relative-position-bias"');
     expect(html).toContain("NoPE");
     expect(html).toContain('href="/docs/glossary/nope"');
+    expect(html).toContain("NTK-aware RoPE scaling");
+    expect(html).toContain('href="/docs/glossary/ntk-aware-rope-scaling"');
     expect(html).toContain("Sinusoidal positional embeddings");
     expect(html).toContain(
       'href="/docs/glossary/sinusoidal-positional-embeddings"',
     );
+    expect(html).toContain("SuperHOT RoPE");
+    expect(html).toContain('href="/docs/glossary/superhot-rope"');
+    expect(html).toContain("YaRN");
+    expect(html).toContain('href="/docs/glossary/yarn"');
     expect(html).not.toContain("No glossary entries yet");
     expect(html).toContain("list-none");
     expect(html).not.toContain("list-disc");

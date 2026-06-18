@@ -1,0 +1,32 @@
+{
+  "title": "SuperHOT RoPE",
+  "description": "SuperHOT RoPE stretches rotary positions across a longer range, then fine-tunes the model so the compressed position map still behaves well at the new window.",
+  "openingSummary": "SuperHOT RoPE is a long-context recipe for RoPE-based models: it compresses trained positions into a larger window, then uses extra training so the model can live with that stretched rotary map.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "SuperHOT RoPE is an early long-context recipe built on top of rotary position embedding. Instead of inventing a new attention block, it keeps RoPE but spreads the trained positions across a larger sequence range. The model is then fine-tuned with that stretched mapping so later token indices look less foreign than raw RoPE extrapolation would make them."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "This matters because many decoder models already depend on RoPE, and changing the full architecture is expensive. SuperHOT showed a practical pattern: keep the same attention math, adjust how rotary positions are assigned, and pair the change with extra long-context training. That made it a useful stepping stone for later RoPE extension methods discussed in model cards and community tooling."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a model trained for 2k tokens that now needs to read 8k. SuperHOT compresses those 8k positions so they land inside the rotary range the model understands more easily, rather than asking RoPE to treat token 8000 as a completely new angle regime. Fine-tuning on long examples helps the model adapt to that denser position spacing."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "SuperHOT RoPE is not a new attention variant and not a replacement for RoPE. It is also not a proof that any RoPE model can jump to arbitrary lengths without retraining. The core idea is a RoPE extension recipe that depends on a stretched position map plus adaptation training, so it should be compared with other RoPE scaling methods rather than with ALiBi or sparse attention."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
