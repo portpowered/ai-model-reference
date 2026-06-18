@@ -18,11 +18,14 @@ import {
 } from "./helpers";
 import {
   createDocsSearchRouteFetch,
-  TEST_DOCS_SEARCH_URL,
+  createTestDocsSearchUrl,
 } from "./route-fetch";
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const ATTENTION_MODULE_URL = "/docs/modules/attention";
+const STATIC_CLIENT_SEARCH_URL = createTestDocsSearchUrl(
+  "search-client-static",
+);
 
 describe("createModelAtlasSearchClient", () => {
   const originalFetch = globalThis.fetch;
@@ -102,7 +105,7 @@ describe("createModelAtlasSearchClient", () => {
 
     const client = createModelAtlasSearchClient({
       metaByUrl,
-      client: { from: TEST_DOCS_SEARCH_URL },
+      client: { from: STATIC_CLIENT_SEARCH_URL },
     });
     const results = await client.search("GQA");
 
@@ -116,7 +119,7 @@ describe("createModelAtlasSearchClient", () => {
 
     const client = createModelAtlasSearchClient({
       metaByUrl,
-      client: { from: TEST_DOCS_SEARCH_URL },
+      client: { from: STATIC_CLIENT_SEARCH_URL },
     });
     const results = await client.search("attention");
 
@@ -130,7 +133,7 @@ describe("createModelAtlasSearchClient", () => {
 
     const client = createModelAtlasSearchClient({
       metaByUrl,
-      client: { from: TEST_DOCS_SEARCH_URL },
+      client: { from: STATIC_CLIENT_SEARCH_URL },
     });
     const results = await client.search("KV cache");
 
@@ -144,7 +147,7 @@ describe("createModelAtlasSearchClient", () => {
 
     const client = createModelAtlasSearchClient({
       metaByUrl,
-      client: { from: TEST_DOCS_SEARCH_URL },
+      client: { from: STATIC_CLIENT_SEARCH_URL },
     });
     const results = await client.search("Token");
 
@@ -160,7 +163,7 @@ describe("createModelAtlasSearchClient", () => {
 
     const client = createModelAtlasSearchClient({
       metaByUrl,
-      client: { from: TEST_DOCS_SEARCH_URL },
+      client: { from: STATIC_CLIENT_SEARCH_URL },
     });
     const results = await client.search(query);
 

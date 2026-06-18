@@ -12,8 +12,15 @@ import {
 } from "./helpers";
 import {
   createDocsSearchRouteFetch,
-  TEST_DOCS_SEARCH_URL,
+  createTestDocsSearchUrl,
 } from "./route-fetch";
+
+const RAW_STATIC_CLIENT_SEARCH_URL = createTestDocsSearchUrl(
+  "search-fragment-spam-raw-static",
+);
+const COLLAPSED_STATIC_CLIENT_SEARCH_URL = createTestDocsSearchUrl(
+  "search-fragment-spam-collapsed-static",
+);
 
 describe("Phase 1 fragment-spam regression", () => {
   const originalFetch = globalThis.fetch;
@@ -34,7 +41,7 @@ describe("Phase 1 fragment-spam regression", () => {
   ] as const)("collapsed API results dominate raw Orama fragment spam for %s", async (query) => {
     globalThis.fetch = createDocsSearchRouteFetch();
 
-    const rawClient = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
+    const rawClient = oramaStaticClient({ from: RAW_STATIC_CLIENT_SEARCH_URL });
     const rawResults = await rawClient.search(query);
     const collapsedResults = await docsSearchApi.search(query);
 
@@ -58,7 +65,7 @@ describe("Phase 1 fragment-spam regression", () => {
 
     const client = createModelAtlasSearchClient({
       metaByUrl,
-      client: { from: TEST_DOCS_SEARCH_URL },
+      client: { from: COLLAPSED_STATIC_CLIENT_SEARCH_URL },
     });
     const results = await client.search(query);
 

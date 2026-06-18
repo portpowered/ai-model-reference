@@ -4,6 +4,12 @@ const TEST_SEARCH_ORIGIN = "http://test.local";
 
 export const TEST_DOCS_SEARCH_URL = `${TEST_SEARCH_ORIGIN}/api/search`;
 
+export function createTestDocsSearchUrl(fixture: string): string {
+  const url = new URL(TEST_DOCS_SEARCH_URL);
+  url.searchParams.set("fixture", fixture);
+  return url.href;
+}
+
 function resolveDocsSearchRequestUrl(href: string): string {
   if (href.startsWith("http://") || href.startsWith("https://")) {
     return href;
