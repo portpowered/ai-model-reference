@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { ComponentExampleContext } from "@/component-examples/types";
+import { getProjectRoot } from "@/lib/content/content-paths";
 import { modulePageHref } from "@/lib/content/content-hrefs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { loadUiMessages } from "@/lib/content/ui-messages";
@@ -9,7 +10,14 @@ import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta"
 
 const messageFixture = JSON.parse(
   readFileSync(
-    join(import.meta.dir, "../lib/content/__fixtures__/page-messages.json"),
+    join(
+      getProjectRoot(),
+      "src",
+      "lib",
+      "content",
+      "__fixtures__",
+      "page-messages.json",
+    ),
     "utf8",
   ),
 );
