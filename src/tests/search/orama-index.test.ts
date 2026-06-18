@@ -39,6 +39,7 @@ const KV_CACHE_URL = "/docs/glossary/kv-cache";
 const PREFILL_URL = "/docs/glossary/prefill";
 const DECODE_URL = "/docs/glossary/decode";
 const PREFILL_DECODE_SPLIT_URL = "/docs/glossary/prefill-decode-split";
+const SAMPLING_OVERVIEW_URL = "/docs/glossary/sampling-overview";
 const CONTEXT_EXTENSION_URL = "/docs/concepts/context-extension";
 const WHY_LONG_CONTEXT_IS_HARD_URL = "/docs/concepts/why-long-context-is-hard";
 const STRUCTURAL_TAXONOMY_URLS = [
@@ -72,6 +73,7 @@ const GENERATION_PARADIGM_URLS = [
   PREFILL_URL,
   DECODE_URL,
   PREFILL_DECODE_SPLIT_URL,
+  SAMPLING_OVERVIEW_URL,
 ] as const;
 const TRAINING_BEHAVIOR_URLS = [
   "/docs/glossary/alignment",

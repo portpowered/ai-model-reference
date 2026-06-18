@@ -24,6 +24,7 @@ import foundationModelConcept from "@/content/registry/concepts/foundation-model
 import generalizationConcept from "@/content/registry/concepts/generalization.json";
 import generativeModelConcept from "@/content/registry/concepts/generative-model.json";
 import gradientConcept from "@/content/registry/concepts/gradient.json";
+import greedyDecodingConcept from "@/content/registry/concepts/greedy-decoding.json";
 import hiddenSizeConcept from "@/content/registry/concepts/hidden-size.json";
 import kvCacheConcept from "@/content/registry/concepts/kv-cache.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
@@ -50,11 +51,14 @@ import representationConcept from "@/content/registry/concepts/representation.js
 import residualConnectionConcept from "@/content/registry/concepts/residual-connection.json";
 import rmsnormConcept from "@/content/registry/concepts/rmsnorm.json";
 import ropeConcept from "@/content/registry/concepts/rope.json";
+import samplingOverviewConcept from "@/content/registry/concepts/sampling-overview.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
+import topKSamplingConcept from "@/content/registry/concepts/top-k-sampling.json";
+import topPSamplingConcept from "@/content/registry/concepts/top-p-sampling.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
 import transformerArchitectureConcept from "@/content/registry/concepts/transformer-architecture.json";
 import vectorConcept from "@/content/registry/concepts/vector.json";
@@ -102,6 +106,10 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(softmaxConcept),
   conceptRecordSchema.parse(entropyConcept),
   conceptRecordSchema.parse(temperatureConcept),
+  conceptRecordSchema.parse(samplingOverviewConcept),
+  conceptRecordSchema.parse(greedyDecodingConcept),
+  conceptRecordSchema.parse(topKSamplingConcept),
+  conceptRecordSchema.parse(topPSamplingConcept),
   conceptRecordSchema.parse(parameterConcept),
   conceptRecordSchema.parse(activationConcept),
   conceptRecordSchema.parse(computationalGraphConcept),

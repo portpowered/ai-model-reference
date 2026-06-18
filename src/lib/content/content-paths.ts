@@ -218,6 +218,12 @@ export const PREFILL_DECODE_SPLIT_GLOSSARY_PAGE_DIR = join(
   "prefill-decode-split",
 );
 
+/** Phase 5 sampling overview glossary page directory. */
+export const SAMPLING_OVERVIEW_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "sampling-overview",
+);
+
 /** Phase 3 context extension concept page directory. */
 export const CONTEXT_EXTENSION_CONCEPT_PAGE_DIR = join(
   CONCEPTS_DOCS_ROOT,

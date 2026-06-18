@@ -15,6 +15,7 @@
     "concept.token",
     "concept.logit",
     "concept.softmax",
+    "concept.sampling-overview",
     "concept.embedding",
     "concept.decoder",
     "concept.kv-cache",
@@ -28,7 +29,7 @@
   "citationIds": [],
   "status": "published",
   "createdAt": "2026-06-04T12:30:00.000Z",
-  "updatedAt": "2026-06-04T12:50:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": [
     "concept.token",

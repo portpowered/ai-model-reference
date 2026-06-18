@@ -26,6 +26,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.softmax",
   "concept.entropy",
   "concept.temperature",
+  "concept.sampling-overview",
   "concept.parameter",
   "concept.activation",
   "concept.computational-graph",

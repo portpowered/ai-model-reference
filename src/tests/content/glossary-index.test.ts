@@ -110,7 +110,7 @@ describe("loadPublishedGlossaryEntries", () => {
 
   it("includes all published glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(58);
+    expect(entries).toHaveLength(59);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -147,6 +147,11 @@ describe("loadPublishedGlossaryEntries", () => {
       (entry) => entry.url === "/docs/glossary/decode",
     );
     expect(decode?.title).toBe("Decode");
+
+    const samplingOverview = entries.find(
+      (entry) => entry.url === "/docs/glossary/sampling-overview",
+    );
+    expect(samplingOverview?.title).toBe("Sampling Overview");
   });
 });
 

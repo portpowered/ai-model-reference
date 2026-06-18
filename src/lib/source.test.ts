@@ -54,6 +54,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/softmax",
   "/docs/glossary/entropy",
   "/docs/glossary/temperature",
+  "/docs/glossary/sampling-overview",
   "/docs/glossary/parameter",
   "/docs/glossary/activation",
   "/docs/glossary/computational-graph",

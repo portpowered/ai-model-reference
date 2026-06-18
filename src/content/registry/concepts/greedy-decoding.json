@@ -1,0 +1,26 @@
+{
+  "id": "concept.greedy-decoding",
+  "slug": "greedy-decoding",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Greedy Decoding",
+    "greedy decoding",
+    "argmax decoding",
+    "deterministic decoding"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.sampling-overview",
+    "concept.top-k-sampling",
+    "concept.top-p-sampling"
+  ],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": ["concept.sampling-overview"],
+  "explainsIds": []
+}

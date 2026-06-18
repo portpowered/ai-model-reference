@@ -45,6 +45,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   softmax: "Softmax",
   entropy: "Entropy",
   temperature: "Temperature",
+  "sampling-overview": "Sampling Overview",
   parameter: "Parameter",
   activation: "Activation",
   "computational-graph": "Computational Graph",
@@ -66,6 +67,7 @@ const CHAIN_GLOSSARY_SLUGS = [
   "softmax",
   "entropy",
   "temperature",
+  "sampling-overview",
   "parameter",
   "activation",
   "computational-graph",
@@ -74,7 +76,7 @@ const CHAIN_GLOSSARY_SLUGS = [
   "loss-function",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 58;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
 const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 51;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -119,6 +121,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "decode",
       "prefill",
       "prefill-decode-split",
+      "sampling-overview",
       "token",
     ] as const) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
@@ -148,6 +151,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "decode",
       "prefill",
       "prefill-decode-split",
+      "sampling-overview",
       "token",
     ] as const) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);

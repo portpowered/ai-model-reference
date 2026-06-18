@@ -1,0 +1,26 @@
+{
+  "id": "concept.top-k-sampling",
+  "slug": "top-k-sampling",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Top K Sampling",
+    "top-k sampling",
+    "top k sampling",
+    "k sampling"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.sampling-overview",
+    "concept.greedy-decoding",
+    "concept.top-p-sampling"
+  ],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "inference",
+  "prerequisiteIds": ["concept.sampling-overview", "concept.greedy-decoding"],
+  "explainsIds": []
+}

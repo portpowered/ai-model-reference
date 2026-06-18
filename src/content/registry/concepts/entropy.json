@@ -6,11 +6,11 @@
   "defaultSummaryKey": "description",
   "aliases": ["output entropy", "prediction entropy", "uncertainty"],
   "tags": ["token-to-probability-chain", "foundations"],
-  "relatedIds": ["concept.temperature"],
+  "relatedIds": ["concept.temperature", "concept.sampling-overview"],
   "citationIds": [],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
-  "updatedAt": "2026-06-04T22:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "math",
   "prerequisiteIds": ["concept.softmax"],
   "explainsIds": []
