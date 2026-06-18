@@ -35,6 +35,7 @@ const BATCH_017_TAG_URLS = {
     "/docs/glossary/residual-connection",
     "/docs/glossary/rmsnorm",
     "/docs/glossary/rope",
+    "/docs/glossary/standard-ffn",
   ],
   taxonomy: [
     "/docs/concepts/transformer-architecture",

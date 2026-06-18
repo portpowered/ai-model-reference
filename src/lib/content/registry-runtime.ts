@@ -52,6 +52,7 @@ import rmsnormConcept from "@/content/registry/concepts/rmsnorm.json";
 import ropeConcept from "@/content/registry/concepts/rope.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
+import standardFfnConcept from "@/content/registry/concepts/standard-ffn.json";
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
@@ -140,6 +141,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(scalingLawConcept),
   conceptRecordSchema.parse(emergentBehaviorConcept),
   conceptRecordSchema.parse(feedForwardNetworkConcept),
+  conceptRecordSchema.parse(standardFfnConcept),
   conceptRecordSchema.parse(mixtureOfExpertsConcept),
   conceptRecordSchema.parse(layerNormConcept),
   conceptRecordSchema.parse(normalizationConcept),

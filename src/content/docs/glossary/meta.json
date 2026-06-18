@@ -36,6 +36,7 @@
     "[RoPE](/docs/glossary/rope)",
     "[RMSNorm](/docs/glossary/rmsnorm)",
     "[Residual connection](/docs/glossary/residual-connection)",
+    "[Standard FFN](/docs/glossary/standard-ffn)",
     "[Token](/docs/glossary/token)",
     "[Transformer](/docs/glossary/transformer)",
     "---Math And Training---",

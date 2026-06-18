@@ -69,6 +69,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.page-spec-workflow-sample",
   "concept.transformer-architecture",
   "concept.feed-forward-network",
+  "concept.standard-ffn",
   "concept.mixture-of-experts",
   "concept.normalization",
   "concept.layer-norm",

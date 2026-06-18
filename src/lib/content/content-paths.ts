@@ -158,6 +158,12 @@ export const FEED_FORWARD_NETWORK_GLOSSARY_PAGE_DIR = join(
   "feed-forward-network",
 );
 
+/** Phase 3 standard FFN glossary page directory. */
+export const STANDARD_FFN_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "standard-ffn",
+);
+
 /** Phase 3 mixture of experts glossary page directory. */
 export const MIXTURE_OF_EXPERTS_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,

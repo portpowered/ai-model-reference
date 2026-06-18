@@ -18,6 +18,7 @@ const BATCH_017_DOCS_URLS = [
   "/docs/modules/linear-attention",
   "/docs/concepts/transformer-architecture",
   "/docs/glossary/feed-forward-network",
+  "/docs/glossary/standard-ffn",
   "/docs/glossary/mixture-of-experts",
   "/docs/glossary/normalization",
   "/docs/glossary/layer-norm",
@@ -57,6 +58,7 @@ const ALIAS_EXPECTATIONS = [
   { url: "/docs/modules/sparse-attention", alias: "sparse attention" },
   { url: "/docs/glossary/rope", alias: "RoPE" },
   { url: "/docs/glossary/context-window", alias: "context length" },
+  { url: "/docs/glossary/standard-ffn", alias: "dense FFN" },
 ] as const;
 
 describe("Phase 2/3 reconciliation search documents (US-009)", () => {

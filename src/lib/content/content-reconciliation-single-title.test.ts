@@ -29,6 +29,7 @@ const BATCH_017_DOCS_URLS = [
   "/docs/modules/linear-attention",
   "/docs/concepts/transformer-architecture",
   "/docs/glossary/feed-forward-network",
+  "/docs/glossary/standard-ffn",
   "/docs/glossary/mixture-of-experts",
   "/docs/glossary/normalization",
   "/docs/glossary/layer-norm",

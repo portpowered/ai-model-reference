@@ -56,6 +56,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/temperature",
   "/docs/glossary/parameter",
   "/docs/glossary/activation",
+  "/docs/glossary/standard-ffn",
   "/docs/glossary/computational-graph",
   "/docs/glossary/gradient",
   "/docs/glossary/backpropagation",
