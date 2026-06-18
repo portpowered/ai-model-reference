@@ -9,6 +9,17 @@ import {
   getSystemById,
   getTrainingRegimeById,
 } from "@/lib/content/registry-runtime";
+import {
+  getSidebarGroupIdsForSection,
+  getSidebarGroupLabel,
+  resolveConceptsSidebarGroup,
+  resolveGlossarySidebarGroup,
+  resolveModulesSidebarGroup,
+  resolveSystemsSidebarGroup,
+  resolveTrainingSidebarGroup,
+  type SidebarGroupIdBySection,
+  type SidebarGroupingSection,
+} from "@/lib/content/sidebar-grouping";
 
 type SectionKey =
   | "glossary"
@@ -18,11 +29,6 @@ type SectionKey =
   | "papers"
   | "training"
   | "systems";
-
-type GroupDefinition = {
-  name: string;
-  match: (page: DocsPageSource) => boolean;
-};
 
 const SECTION_ORDER: readonly SectionKey[] = [
   "glossary",
@@ -43,56 +49,6 @@ const SECTION_TITLES: Record<SectionKey, string> = {
   training: "Training",
   systems: "Systems",
 };
-
-const GLOSSARY_SEQUENCE_AND_ATTENTION_SLUGS = new Set([
-  "context-window",
-  "decoder",
-  "decode",
-  "encoder",
-  "encoder-decoder",
-  "hidden-size",
-  "kv-cache",
-  "normalization",
-  "prefill",
-  "prefill-decode-split",
-  "perplexity",
-  "residual-connection",
-  "skip-connection",
-  "token",
-  "transformer",
-]);
-
-const GLOSSARY_GENERATION_AND_DIFFUSION_SLUGS = new Set([
-  "autoregressive-generation",
-  "greedy-decoding",
-  "sampling-overview",
-  "top-k-sampling",
-  "top-p-sampling",
-  "conditioning",
-  "denoising-generation",
-  "diffusion-model",
-]);
-
-const GLOSSARY_MATH_AND_TRAINING_SLUGS = new Set(["activation", "embedding"]);
-
-const MODULE_ATTENTION_FOUNDATION_SLUGS = new Set([
-  "attention",
-  "multi-head-attention",
-]);
-
-const MODULE_ATTENTION_VARIANT_SLUGS = new Set([
-  "manifold-constrained-hyper-connections",
-]);
-
-const CONCEPT_LONG_CONTEXT_SLUGS = new Set([
-  "context-extension",
-  "positional-encodings",
-  "why-long-context-is-hard",
-]);
-
-const CONCEPT_ARCHITECTURE_SLUGS = new Set(["transformer-architecture"]);
-
-const CONCEPT_REFERENCE_SAMPLE_SLUGS = new Set(["page-spec-workflow-sample"]);
 
 function createPageNode(page: DocsPageSource): Node {
   return {
@@ -119,14 +75,19 @@ function sortPages(pages: DocsPageSource[]): DocsPageSource[] {
 
 function groupPages(
   pages: DocsPageSource[],
-  groups: readonly GroupDefinition[],
+  groups: ReadonlyArray<{
+    name: string;
+    matchesPage: (page: DocsPageSource) => boolean;
+  }>,
 ): Node[] {
   const remaining = new Set(pages.map((page) => page.docsSlug));
   const nodes: Node[] = [];
 
   for (const group of groups) {
     const groupedPages = sortPages(
-      pages.filter((page) => remaining.has(page.docsSlug) && group.match(page)),
+      pages.filter(
+        (page) => remaining.has(page.docsSlug) && group.matchesPage(page),
+      ),
     );
     if (groupedPages.length === 0) {
       continue;
@@ -148,180 +109,55 @@ function groupPages(
   return nodes;
 }
 
+function groupPagesBySection<Section extends SidebarGroupingSection>(
+  section: Section,
+  pages: DocsPageSource[],
+  resolveGroupId: (
+    page: DocsPageSource,
+  ) => SidebarGroupIdBySection[Section] | undefined,
+): Node[] {
+  return groupPages(
+    pages,
+    getSidebarGroupIdsForSection(section).map((groupId) => ({
+      name: getSidebarGroupLabel(section, groupId),
+      matchesPage: (page) => resolveGroupId(page) === groupId,
+    })),
+  );
+}
+
 function generateGlossaryNodes(pages: DocsPageSource[]): Node[] {
-  return groupPages(pages, [
-    {
-      name: "Model Taxonomy",
-      match: (page) => {
-        const record = getConceptById(page.frontmatter.registryId);
-        if (!record) {
-          return false;
-        }
-        return (
-          !GLOSSARY_SEQUENCE_AND_ATTENTION_SLUGS.has(record.slug) &&
-          !GLOSSARY_GENERATION_AND_DIFFUSION_SLUGS.has(record.slug) &&
-          !GLOSSARY_MATH_AND_TRAINING_SLUGS.has(record.slug) &&
-          record.conceptType !== "math" &&
-          record.conceptType !== "training" &&
-          record.conceptType !== "evaluation" &&
-          record.conceptType !== "inference"
-        );
-      },
-    },
-    {
-      name: "Sequence And Attention",
-      match: (page) => {
-        const record = getConceptById(page.frontmatter.registryId);
-        return record
-          ? GLOSSARY_SEQUENCE_AND_ATTENTION_SLUGS.has(record.slug)
-          : false;
-      },
-    },
-    {
-      name: "Math And Training",
-      match: (page) => {
-        const record = getConceptById(page.frontmatter.registryId);
-        if (!record) {
-          return false;
-        }
-        return (
-          GLOSSARY_MATH_AND_TRAINING_SLUGS.has(record.slug) ||
-          record.conceptType === "math" ||
-          record.conceptType === "training" ||
-          record.conceptType === "evaluation"
-        );
-      },
-    },
-    {
-      name: "Generation And Diffusion",
-      match: (page) => {
-        const record = getConceptById(page.frontmatter.registryId);
-        return record
-          ? GLOSSARY_GENERATION_AND_DIFFUSION_SLUGS.has(record.slug)
-          : false;
-      },
-    },
-  ]);
+  return groupPagesBySection("glossary", pages, (page) => {
+    const record = getConceptById(page.frontmatter.registryId);
+    return record ? resolveGlossarySidebarGroup(record) : undefined;
+  });
 }
 
 function generateConceptNodes(pages: DocsPageSource[]): Node[] {
-  return groupPages(pages, [
-    {
-      name: "Long Context",
-      match: (page) => {
-        const record = getConceptById(page.frontmatter.registryId);
-        return record ? CONCEPT_LONG_CONTEXT_SLUGS.has(record.slug) : false;
-      },
-    },
-    {
-      name: "Inference",
-      match: (page) =>
-        getConceptById(page.frontmatter.registryId)?.conceptType ===
-        "inference",
-    },
-    {
-      name: "Architecture",
-      match: (page) => {
-        const record = getConceptById(page.frontmatter.registryId);
-        return record ? CONCEPT_ARCHITECTURE_SLUGS.has(record.slug) : false;
-      },
-    },
-    {
-      name: "Reference Samples",
-      match: (page) => {
-        const record = getConceptById(page.frontmatter.registryId);
-        return record ? CONCEPT_REFERENCE_SAMPLE_SLUGS.has(record.slug) : false;
-      },
-    },
-  ]);
+  return groupPagesBySection("concepts", pages, (page) => {
+    const record = getConceptById(page.frontmatter.registryId);
+    return record ? resolveConceptsSidebarGroup(record) : undefined;
+  });
 }
 
 function generateModuleNodes(pages: DocsPageSource[]): Node[] {
-  return groupPages(pages, [
-    {
-      name: "Attention Foundations",
-      match: (page) => {
-        const record = getModuleById(page.frontmatter.registryId);
-        return record
-          ? MODULE_ATTENTION_FOUNDATION_SLUGS.has(record.slug)
-          : false;
-      },
-    },
-    {
-      name: "Attention Variants",
-      match: (page) => {
-        const record = getModuleById(page.frontmatter.registryId);
-        if (!record) {
-          return false;
-        }
-        return (
-          MODULE_ATTENTION_VARIANT_SLUGS.has(record.slug) ||
-          (record.moduleType === "attention" &&
-            !MODULE_ATTENTION_FOUNDATION_SLUGS.has(record.slug))
-        );
-      },
-    },
-    {
-      name: "Feed-Forward And Activation",
-      match: (page) => {
-        const record = getModuleById(page.frontmatter.registryId);
-        return (
-          record?.moduleType === "feed-forward" ||
-          record?.moduleType === "activation"
-        );
-      },
-    },
-    {
-      name: "Normalization",
-      match: (page) =>
-        getModuleById(page.frontmatter.registryId)?.moduleType ===
-        "normalization",
-    },
-    {
-      name: "Positional And Sequence Encoding",
-      match: (page) =>
-        getModuleById(page.frontmatter.registryId)?.moduleType ===
-        "position-encoding",
-    },
-  ]);
+  return groupPagesBySection("modules", pages, (page) => {
+    const record = getModuleById(page.frontmatter.registryId);
+    return record ? resolveModulesSidebarGroup(record) : undefined;
+  });
 }
 
 function generateTrainingNodes(pages: DocsPageSource[]): Node[] {
-  return groupPages(pages, [
-    {
-      name: "Post-Training",
-      match: (page) =>
-        getTrainingRegimeById(page.frontmatter.registryId)?.regimeType ===
-        "post-training",
-    },
-    {
-      name: "Distillation",
-      match: (page) =>
-        getTrainingRegimeById(page.frontmatter.registryId)?.regimeType ===
-        "distillation",
-    },
-    {
-      name: "Optimization",
-      match: (page) =>
-        getTrainingRegimeById(page.frontmatter.registryId)?.regimeType ===
-        "optimization",
-    },
-  ]);
+  return groupPagesBySection("training", pages, (page) => {
+    const record = getTrainingRegimeById(page.frontmatter.registryId);
+    return record ? resolveTrainingSidebarGroup(record) : undefined;
+  });
 }
 
 function generateSystemNodes(pages: DocsPageSource[]): Node[] {
-  return groupPages(pages, [
-    {
-      name: "Memory",
-      match: (page) =>
-        getSystemById(page.frontmatter.registryId)?.systemType === "memory",
-    },
-    {
-      name: "Routing",
-      match: (page) =>
-        getSystemById(page.frontmatter.registryId)?.systemType === "routing",
-    },
-  ]);
+  return groupPagesBySection("systems", pages, (page) => {
+    const record = getSystemById(page.frontmatter.registryId);
+    return record ? resolveSystemsSidebarGroup(record) : undefined;
+  });
 }
 
 function generateModelNodes(pages: DocsPageSource[]): Node[] {

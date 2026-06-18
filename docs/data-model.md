@@ -394,6 +394,42 @@ Derived related-document rules:
 * A module page should show nearby variants by deriving records with the same `variantGroup`.
 * A tag page should show all resources for a tag, grouped by kind.
 
+## Sidebar Grouping Metadata
+
+Generated docs sidebar subgroup placement should be derived from typed taxonomy
+fields before using editorial overrides.
+
+Precedence:
+
+* First derive sidebar grouping from existing typed fields such as
+  `conceptType`, `moduleType`, `variantGroup`, `regimeType`, and `systemType`.
+* Use `sidebarGrouping` only when those typed fields are not enough to place a
+  page in the intended reader-facing subgroup.
+* `sidebarGrouping` is editorial navigation metadata. It does not replace
+  taxonomy fields such as `moduleType`, `conceptType`, `variantGroup`,
+  `regimeType`, or `systemType`.
+
+Supported `sidebarGrouping` sections and values:
+
+* Concept records may define `glossary` with `model-taxonomy`,
+  `sequence-and-attention`, `math-and-training`, or
+  `generation-and-diffusion`.
+* Concept records may define `concepts` with `long-context`, `inference`,
+  `architecture`, or `reference-samples`.
+* Module records may define `modules` with `attention-foundations`,
+  `attention-variants`, `feed-forward-and-activation`, `normalization`, or
+  `positional-and-sequence-encoding`.
+* Training-regime records may define `training` with `post-training`,
+  `distillation`, or `optimization`.
+* System records may define `systems` with `memory` or `routing`.
+
+Validation must fail before build output when:
+
+* a record uses a sidebar section that does not apply to its kind
+* a sidebar subgroup value is not one of the supported ids
+* malformed sidebar metadata would otherwise drift from the generated
+  navigation labels
+
 ## Model Record
 
 ```ts

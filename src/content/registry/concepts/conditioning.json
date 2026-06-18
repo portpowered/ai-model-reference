@@ -20,6 +20,9 @@
   "createdAt": "2026-06-04T11:46:45.985Z",
   "updatedAt": "2026-06-04T12:50:00.000Z",
   "conceptType": "general",
+  "sidebarGrouping": {
+    "glossary": "generation-and-diffusion"
+  },
   "prerequisiteIds": [
     "concept.autoregressive-generation",
     "concept.denoising-generation"

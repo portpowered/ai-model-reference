@@ -66,7 +66,19 @@ describe("table-registry-runtime", () => {
     ).toBe("tables.comparison.values.sparse.attentionConnectivity");
   });
 
+  test("loads the bidirectional-attention nearby-module comparison table by id", () => {
+    const table = getTableById("table.bidirectional-attention-comparison");
+    expect(table?.id).toBe("table.bidirectional-attention-comparison");
+    expect(table?.subjectId).toBe("module.bidirectional-attention");
+    expect(table?.columns.length).toBe(3);
+    expect(table?.dimensions.length).toBe(3);
+    expect(
+      table?.valueKeysByModuleId["module.bidirectional-attention"]
+        ?.visibleContext,
+    ).toBe("tables.comparison.values.bidirectional.visibleContext");
+  });
+
   test("lists bundled table records", () => {
-    expect(listTableRecords().length).toBe(19);
+    expect(listTableRecords().length).toBe(20);
   });
 });

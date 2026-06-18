@@ -39,6 +39,10 @@ function findPageDirectories(
   rootDir: string,
   relativeParts: string[] = [],
 ): string[] {
+  if (!existsSync(rootDir)) {
+    return [];
+  }
+
   const directories: string[] = [];
   for (const entry of readdirSync(rootDir, { withFileTypes: true })) {
     if (!entry.isDirectory()) {

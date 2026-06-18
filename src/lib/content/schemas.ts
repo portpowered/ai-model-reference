@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { SidebarGrouping } from "./sidebar-grouping";
 
 export const registryKindSchema = z.enum([
   "model",
@@ -59,6 +60,17 @@ const releaseMetadataShape = {
   sourceId: z.string().min(1).optional(),
 };
 
+const sidebarGroupingSchema = z
+  .object({
+    glossary: z.string().optional(),
+    concepts: z.string().optional(),
+    modules: z.string().optional(),
+    training: z.string().optional(),
+    systems: z.string().optional(),
+  })
+  .strict()
+  .optional() as z.ZodType<SidebarGrouping | undefined>;
+
 export const moduleRecordSchema = z.object({
   ...baseRecordShape,
   kind: z.literal("module"),
@@ -76,6 +88,7 @@ export const moduleRecordSchema = z.object({
   conceptType: z.string().optional(),
   variantGroup: z.string().optional(),
   variantOf: z.string().optional(),
+  sidebarGrouping: sidebarGroupingSchema,
 });
 
 export const tagCategorySchema = z.enum([
@@ -144,6 +157,7 @@ export const conceptRecordSchema = z.object({
   conceptType: conceptTypeSchema,
   prerequisiteIds: z.array(z.string()),
   explainsIds: z.array(z.string()),
+  sidebarGrouping: sidebarGroupingSchema,
 });
 
 export const modelSourceTypeSchema = z.enum([
@@ -216,6 +230,7 @@ export const trainingRegimeRecordSchema = z.object({
   paperIds: z.array(z.string()),
   conceptType: conceptTypeSchema.optional(),
   variantGroup: z.string().optional(),
+  sidebarGrouping: sidebarGroupingSchema,
 });
 
 export const systemTypeSchema = z.enum([
@@ -241,6 +256,7 @@ export const systemRecordSchema = z.object({
   organizationId: z.string().optional(),
   conceptType: conceptTypeSchema.optional(),
   variantGroup: z.string().optional(),
+  sidebarGrouping: sidebarGroupingSchema,
 });
 
 export const datasetRecordSchema = z.object({
@@ -624,6 +640,7 @@ export type CitationRecord = z.infer<typeof citationRecordSchema>;
 export type GraphRecord = z.infer<typeof graphRecordSchema>;
 export type ModuleGraphNode = z.infer<typeof moduleGraphNodeSchema>;
 export type ModuleGraphEdge = z.infer<typeof moduleGraphEdgeSchema>;
+export type SidebarGroupingMetadata = z.infer<typeof sidebarGroupingSchema>;
 export type PageKind = z.infer<typeof pageKindSchema>;
 export type PageFrontmatter = z.infer<typeof pageFrontmatterSchema>;
 export type PageMessages = z.infer<typeof pageMessagesSchema>;

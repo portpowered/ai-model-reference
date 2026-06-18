@@ -76,6 +76,7 @@ import normalizationConcept from "@/content/registry/concepts/normalization.json
 import ntkAwareRopeScalingConcept from "@/content/registry/concepts/ntk-aware-rope-scaling.json";
 import optimizerStateConcept from "@/content/registry/concepts/optimizer-state.json";
 import overfittingConcept from "@/content/registry/concepts/overfitting.json";
+import pageSpecWorkflowSampleConcept from "@/content/registry/concepts/page-spec-workflow-sample.json";
 import parameterConcept from "@/content/registry/concepts/parameter.json";
 import patchConcept from "@/content/registry/concepts/patch.json";
 import perplexityConcept from "@/content/registry/concepts/perplexity.json";
@@ -124,6 +125,7 @@ import absolutePositionalEmbeddingsModule from "@/content/registry/modules/absol
 import alibiModule from "@/content/registry/modules/alibi.json";
 import attention from "@/content/registry/modules/attention.json";
 import batchNormModule from "@/content/registry/modules/batch-norm.json";
+import bidirectionalAttentionModule from "@/content/registry/modules/bidirectional-attention.json";
 import compressedSparseAttentionModule from "@/content/registry/modules/compressed-sparse-attention.json";
 import deepseekMoeModule from "@/content/registry/modules/deepseekmoe.json";
 import feedForwardNetworkModule from "@/content/registry/modules/feed-forward-network.json";
@@ -195,6 +197,7 @@ const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(alibiModule),
   moduleRecordSchema.parse(attention),
   moduleRecordSchema.parse(batchNormModule),
+  moduleRecordSchema.parse(bidirectionalAttentionModule),
   moduleRecordSchema.parse(compressedSparseAttentionModule),
   moduleRecordSchema.parse(deepseekMoeModule),
   moduleRecordSchema.parse(feedForwardNetworkModule),
@@ -284,6 +287,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(overfittingConcept),
   conceptRecordSchema.parse(generalizationConcept),
   conceptRecordSchema.parse(groupNormConcept),
+  conceptRecordSchema.parse(pageSpecWorkflowSampleConcept),
   conceptRecordSchema.parse(perplexityConcept),
   conceptRecordSchema.parse(scalingLawConcept),
   conceptRecordSchema.parse(emergentBehaviorConcept),
