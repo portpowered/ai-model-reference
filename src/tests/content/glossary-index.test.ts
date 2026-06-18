@@ -110,7 +110,7 @@ describe("loadPublishedGlossaryEntries", () => {
 
   it("includes all nine Phase 2 taxonomy glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(57);
+    expect(entries).toHaveLength(59);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -133,10 +133,21 @@ describe("loadPublishedGlossaryEntries", () => {
     );
     expect(absolute?.title).toBe("Absolute positional embeddings");
 
+    const learned = entries.find(
+      (entry) => entry.url === "/docs/glossary/learned-positional-embeddings",
+    );
+    expect(learned?.title).toBe("Learned positional embeddings");
+
     const relativeBias = entries.find(
       (entry) => entry.url === "/docs/glossary/relative-position-bias",
     );
     expect(relativeBias?.title).toBe("Relative position bias");
+
+    const sinusoidal = entries.find(
+      (entry) =>
+        entry.url === "/docs/glossary/sinusoidal-positional-embeddings",
+    );
+    expect(sinusoidal?.title).toBe("Sinusoidal positional embeddings");
 
     const nope = entries.find((entry) => entry.url === "/docs/glossary/nope");
     expect(nope?.title).toBe("NoPE");
@@ -215,10 +226,18 @@ describe("glossary index page render", () => {
     expect(html).toContain(
       'href="/docs/glossary/absolute-positional-embeddings"',
     );
+    expect(html).toContain("Learned positional embeddings");
+    expect(html).toContain(
+      'href="/docs/glossary/learned-positional-embeddings"',
+    );
     expect(html).toContain("Relative position bias");
     expect(html).toContain('href="/docs/glossary/relative-position-bias"');
     expect(html).toContain("NoPE");
     expect(html).toContain('href="/docs/glossary/nope"');
+    expect(html).toContain("Sinusoidal positional embeddings");
+    expect(html).toContain(
+      'href="/docs/glossary/sinusoidal-positional-embeddings"',
+    );
     expect(html).not.toContain("No glossary entries yet");
     expect(html).toContain("list-none");
     expect(html).not.toContain("list-disc");

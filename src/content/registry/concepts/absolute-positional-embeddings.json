@@ -7,11 +7,14 @@
   "aliases": [
     "Absolute positional embeddings",
     "absolute position embeddings",
-    "absolute positional encoding"
+    "absolute positional encoding",
+    "absolute position encoding"
   ],
   "tags": ["foundations"],
   "relatedIds": [
     "concept.positional-encodings",
+    "concept.learned-positional-embeddings",
+    "concept.sinusoidal-positional-embeddings",
     "concept.relative-position-bias",
     "concept.rope",
     "concept.alibi"
@@ -22,5 +25,8 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": ["concept.positional-encodings"],
-  "explainsIds": []
+  "explainsIds": [
+    "concept.learned-positional-embeddings",
+    "concept.sinusoidal-positional-embeddings"
+  ]
 }

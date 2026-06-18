@@ -28,6 +28,7 @@ import hiddenSizeConcept from "@/content/registry/concepts/hidden-size.json";
 import latentConcept from "@/content/registry/concepts/latent.json";
 import latentSpaceConcept from "@/content/registry/concepts/latent-space.json";
 import layerNormConcept from "@/content/registry/concepts/layer-norm.json";
+import learnedPositionalEmbeddingsConcept from "@/content/registry/concepts/learned-positional-embeddings.json";
 import logitConcept from "@/content/registry/concepts/logit.json";
 import lossFunctionConcept from "@/content/registry/concepts/loss-function.json";
 import mixtureOfExpertsConcept from "@/content/registry/concepts/mixture-of-experts.json";
@@ -50,6 +51,7 @@ import residualConnectionConcept from "@/content/registry/concepts/residual-conn
 import rmsnormConcept from "@/content/registry/concepts/rmsnorm.json";
 import ropeConcept from "@/content/registry/concepts/rope.json";
 import scalingLawConcept from "@/content/registry/concepts/scaling-law.json";
+import sinusoidalPositionalEmbeddingsConcept from "@/content/registry/concepts/sinusoidal-positional-embeddings.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
@@ -135,6 +137,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(scalingLawConcept),
   conceptRecordSchema.parse(emergentBehaviorConcept),
   conceptRecordSchema.parse(absolutePositionalEmbeddingsConcept),
+  conceptRecordSchema.parse(learnedPositionalEmbeddingsConcept),
   conceptRecordSchema.parse(feedForwardNetworkConcept),
   conceptRecordSchema.parse(mixtureOfExpertsConcept),
   conceptRecordSchema.parse(layerNormConcept),
@@ -146,6 +149,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(nopeConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
   conceptRecordSchema.parse(ropeConcept),
+  conceptRecordSchema.parse(sinusoidalPositionalEmbeddingsConcept),
   conceptRecordSchema.parse(transformerArchitectureConcept),
   conceptRecordSchema.parse(transformerConcept),
   conceptRecordSchema.parse(diffusionModelConcept),

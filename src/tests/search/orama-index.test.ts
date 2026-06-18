@@ -34,10 +34,14 @@ const RESIDUAL_CONNECTION_URL = "/docs/glossary/residual-connection";
 const POSITIONAL_ENCODINGS_URL = "/docs/concepts/positional-encodings";
 const ABSOLUTE_POSITIONAL_EMBEDDINGS_URL =
   "/docs/glossary/absolute-positional-embeddings";
+const LEARNED_POSITIONAL_EMBEDDINGS_URL =
+  "/docs/glossary/learned-positional-embeddings";
 const RELATIVE_POSITION_BIAS_URL = "/docs/glossary/relative-position-bias";
 const ROPE_URL = "/docs/glossary/rope";
 const ALIBI_URL = "/docs/glossary/alibi";
 const NOPE_URL = "/docs/glossary/nope";
+const SINUSOIDAL_POSITIONAL_EMBEDDINGS_URL =
+  "/docs/glossary/sinusoidal-positional-embeddings";
 const CONTEXT_WINDOW_URL = "/docs/glossary/context-window";
 const CONTEXT_EXTENSION_URL = "/docs/concepts/context-extension";
 const WHY_LONG_CONTEXT_IS_HARD_URL = "/docs/concepts/why-long-context-is-hard";
@@ -123,10 +127,12 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   RESIDUAL_CONNECTION_URL,
   POSITIONAL_ENCODINGS_URL,
   ABSOLUTE_POSITIONAL_EMBEDDINGS_URL,
+  LEARNED_POSITIONAL_EMBEDDINGS_URL,
   RELATIVE_POSITION_BIAS_URL,
   ROPE_URL,
   ALIBI_URL,
   NOPE_URL,
+  SINUSOIDAL_POSITIONAL_EMBEDDINGS_URL,
   CONTEXT_WINDOW_URL,
   CONTEXT_EXTENSION_URL,
   WHY_LONG_CONTEXT_IS_HARD_URL,

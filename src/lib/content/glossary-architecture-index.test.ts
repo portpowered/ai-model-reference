@@ -53,8 +53,10 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   "loss-function": "Loss Function",
   "optimizer-state": "Optimizer State",
   "absolute-positional-embeddings": "Absolute positional embeddings",
+  "learned-positional-embeddings": "Learned positional embeddings",
   "relative-position-bias": "Relative position bias",
   nope: "NoPE",
+  "sinusoidal-positional-embeddings": "Sinusoidal positional embeddings",
 };
 
 const CHAIN_GLOSSARY_SLUGS = [
@@ -75,11 +77,13 @@ const CHAIN_GLOSSARY_SLUGS = [
 ] as const;
 const POSITIONAL_GLOSSARY_SLUGS = [
   "absolute-positional-embeddings",
+  "learned-positional-embeddings",
   "relative-position-bias",
   "nope",
+  "sinusoidal-positional-embeddings",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 57;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 50;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 52;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
@@ -251,12 +255,20 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(glossaryHtml).toContain(
       'href="/docs/glossary/absolute-positional-embeddings"',
     );
+    expect(glossaryHtml).toContain("Learned positional embeddings");
+    expect(glossaryHtml).toContain(
+      'href="/docs/glossary/learned-positional-embeddings"',
+    );
     expect(glossaryHtml).toContain("Relative position bias");
     expect(glossaryHtml).toContain(
       'href="/docs/glossary/relative-position-bias"',
     );
     expect(glossaryHtml).toContain("NoPE");
     expect(glossaryHtml).toContain('href="/docs/glossary/nope"');
+    expect(glossaryHtml).toContain("Sinusoidal positional embeddings");
+    expect(glossaryHtml).toContain(
+      'href="/docs/glossary/sinusoidal-positional-embeddings"',
+    );
     expect(architectureHtml).toContain("Activation");
     expect(architectureHtml).toContain('href="/docs/glossary/activation"');
     expect(architectureHtml).toContain("Computational Graph");
@@ -267,12 +279,20 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(architectureHtml).toContain(
       'href="/docs/glossary/absolute-positional-embeddings"',
     );
+    expect(architectureHtml).toContain("Learned positional embeddings");
+    expect(architectureHtml).toContain(
+      'href="/docs/glossary/learned-positional-embeddings"',
+    );
     expect(architectureHtml).toContain("Relative position bias");
     expect(architectureHtml).toContain(
       'href="/docs/glossary/relative-position-bias"',
     );
     expect(architectureHtml).toContain("NoPE");
     expect(architectureHtml).toContain('href="/docs/glossary/nope"');
+    expect(architectureHtml).toContain("Sinusoidal positional embeddings");
+    expect(architectureHtml).toContain(
+      'href="/docs/glossary/sinusoidal-positional-embeddings"',
+    );
     expect(architectureHtml).not.toContain('href="/docs/glossary/parameter"');
     expect(architectureHtml).toContain("Embedding");
     expect(architectureHtml).toContain('href="/docs/glossary/embedding"');

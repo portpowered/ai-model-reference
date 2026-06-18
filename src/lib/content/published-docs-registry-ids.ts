@@ -72,6 +72,8 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.residual-connection",
   "concept.positional-encodings",
   "concept.absolute-positional-embeddings",
+  "concept.learned-positional-embeddings",
+  "concept.sinusoidal-positional-embeddings",
   "concept.rope",
   "concept.alibi",
   "concept.relative-position-bias",

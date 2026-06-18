@@ -5,6 +5,7 @@ import { source } from "@/lib/source";
 const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/alibi",
   "/docs/glossary/absolute-positional-embeddings",
+  "/docs/glossary/learned-positional-embeddings",
   "/docs/glossary/alignment",
   "/docs/glossary/architecture",
   "/docs/glossary/autoregressive-generation",
@@ -36,6 +37,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/residual-connection",
   "/docs/glossary/rope",
   "/docs/glossary/rmsnorm",
+  "/docs/glossary/sinusoidal-positional-embeddings",
   "/docs/glossary/overfitting",
   "/docs/glossary/patch",
   "/docs/glossary/perplexity",
