@@ -64,6 +64,7 @@ describe("isArchitectureRelatedPage", () => {
         "/docs/glossary/patch",
         "/docs/glossary/perplexity",
         "/docs/glossary/prefill",
+        "/docs/glossary/prefill-decode-split",
         "/docs/glossary/representation",
         "/docs/glossary/residual-connection",
         "/docs/glossary/rmsnorm",
@@ -164,6 +165,8 @@ describe("architecture index page render", () => {
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain("Prefill");
     expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain("Prefill/decode split");
+    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(html).toContain("Token");
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).not.toContain("No architecture entries yet");

@@ -15,6 +15,7 @@
   "relatedIds": [
     "concept.prefill",
     "concept.decode",
+    "concept.prefill-decode-split",
     "concept.autoregressive-generation",
     "module.attention",
     "module.multi-query-attention",

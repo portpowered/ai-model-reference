@@ -116,6 +116,20 @@ describe("docs slug renderer locale gating", () => {
     });
   });
 
+  test("English docs metadata omits unshipped Vietnamese alternate for prefill-decode-split", async () => {
+    const metadata = await buildDocsPageMetadata([
+      "glossary",
+      "prefill-decode-split",
+    ]);
+
+    expect(metadata.alternates).toEqual({
+      canonical: "/docs/glossary/prefill-decode-split",
+      languages: {
+        en: "/docs/glossary/prefill-decode-split",
+      },
+    });
+  });
+
   test("unshipped Vietnamese docs routes fail clearly instead of rendering English content", async () => {
     try {
       await renderDocsSlugPage(["getting-started"], "vi");
@@ -156,6 +170,18 @@ describe("docs slug renderer locale gating", () => {
     try {
       await renderDocsSlugPage(["glossary", "decode"], "vi");
       throw new Error("Expected Vietnamese decode route to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toMatch(
+        /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
+      );
+    }
+  });
+
+  test("unshipped Vietnamese prefill-decode-split route fails instead of rendering English content", async () => {
+    try {
+      await renderDocsSlugPage(["glossary", "prefill-decode-split"], "vi");
+      throw new Error("Expected Vietnamese prefill/decode split route to fail");
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
       expect((error as Error).message).toMatch(

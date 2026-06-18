@@ -45,6 +45,7 @@ import patchConcept from "@/content/registry/concepts/patch.json";
 import perplexityConcept from "@/content/registry/concepts/perplexity.json";
 import positionalEncodingsConcept from "@/content/registry/concepts/positional-encodings.json";
 import prefillConcept from "@/content/registry/concepts/prefill.json";
+import prefillDecodeSplitConcept from "@/content/registry/concepts/prefill-decode-split.json";
 import representationConcept from "@/content/registry/concepts/representation.json";
 import residualConnectionConcept from "@/content/registry/concepts/residual-connection.json";
 import rmsnormConcept from "@/content/registry/concepts/rmsnorm.json";
@@ -126,6 +127,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(encoderDecoderConcept),
   conceptRecordSchema.parse(autoregressiveGenerationConcept),
   conceptRecordSchema.parse(prefillConcept),
+  conceptRecordSchema.parse(prefillDecodeSplitConcept),
   conceptRecordSchema.parse(denoisingGenerationConcept),
   conceptRecordSchema.parse(conditioningConcept),
   conceptRecordSchema.parse(contextExtensionConcept),

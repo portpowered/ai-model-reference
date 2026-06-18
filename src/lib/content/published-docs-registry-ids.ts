@@ -52,6 +52,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.kv-cache",
   "concept.prefill",
   "concept.decode",
+  "concept.prefill-decode-split",
   "concept.denoising-generation",
   "concept.conditioning",
   "concept.alignment",

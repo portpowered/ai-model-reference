@@ -42,6 +42,7 @@ describe("Phase 5 prefill glossary page (US-002)", () => {
     expect(record?.relatedIds).toEqual([
       "concept.kv-cache",
       "concept.decode",
+      "concept.prefill-decode-split",
       "concept.autoregressive-generation",
       "module.attention",
       "module.multi-query-attention",
@@ -110,7 +111,7 @@ describe("Phase 5 prefill glossary page (US-002)", () => {
     );
   });
 
-  test("page renders serving-path links to kv cache, decode, and prefill/decode split", async () => {
+  test("page renders serving-path links to kv cache, decode, and published prefill/decode split", async () => {
     const page = await loadGlossaryPage("prefill");
 
     expect(page.frontmatter.kind).toBe("glossary");
@@ -134,7 +135,7 @@ describe("Phase 5 prefill glossary page (US-002)", () => {
     expectHtmlToContainProse(html, "serving cost");
     expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain('href="/docs/glossary/decode"');
-    expect(html).toContain('href="/search?q=prefill%2Fdecode%20split"');
+    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');

@@ -1,21 +1,21 @@
 {
-  "id": "concept.decode",
-  "slug": "decode",
+  "id": "concept.prefill-decode-split",
+  "slug": "prefill-decode-split",
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
   "aliases": [
-    "Decode",
-    "decoding",
-    "token-by-token generation",
-    "next-token step",
-    "inter-token generation"
+    "Prefill/decode split",
+    "prefill decode split",
+    "split serving",
+    "disaggregated serving",
+    "disaggregated prefill decode"
   ],
-  "tags": ["foundations", "attention", "kv-cache"],
+  "tags": ["foundations", "kv-cache"],
   "relatedIds": [
     "concept.prefill",
+    "concept.decode",
     "concept.kv-cache",
-    "concept.prefill-decode-split",
     "concept.autoregressive-generation",
     "module.attention",
     "module.multi-query-attention",
@@ -28,6 +28,6 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "inference",
-  "prerequisiteIds": ["concept.prefill", "concept.kv-cache", "concept.decoder"],
+  "prerequisiteIds": ["concept.prefill", "concept.decode", "concept.kv-cache"],
   "explainsIds": []
 }

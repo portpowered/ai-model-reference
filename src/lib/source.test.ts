@@ -39,6 +39,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/patch",
   "/docs/glossary/perplexity",
   "/docs/glossary/prefill",
+  "/docs/glossary/prefill-decode-split",
   "/docs/glossary/representation",
   "/docs/glossary/scaling-law",
   "/docs/glossary/token",

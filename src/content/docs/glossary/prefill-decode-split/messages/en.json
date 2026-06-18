@@ -1,0 +1,36 @@
+{
+  "title": "Prefill/decode split",
+  "description": "The serving setup that separates prompt processing from token-by-token generation because the two stages stress hardware, memory, and latency in different ways.",
+  "openingSummary": "Serving stacks often separate prompt processing from token-by-token generation because prefill wants short bursts of heavy compute while decode wants steady low-latency access to a growing KV cache, and mixing both on the same workers can waste memory, hardware time, and money.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A prefill/decode split is a serving design where one set of workers handles the full prompt pass and another set handles the repeated next-token loop. Prefill builds the initial KV cache, then that state is handed to decode workers that keep generating tokens. The split exists because the two stages do different work even though they belong to the same request."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Prefill usually wants high compute throughput for a short burst, while decode cares more about inter-token latency and fast access to cache state that keeps growing. When both stages compete on the same machines, prompt-heavy traffic can delay active generations and large decode caches can crowd out fresh prefill work. Separating them can lower reader-visible latency, reduce wasteful memory pressure, and improve serving cost, but it also adds cache transfer and queueing overhead."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a service that receives long research prompts during the day and streams short answers back to many users at once. A prefill pool can read each long prompt, build the first KV cache, then hand that cache to a decode pool tuned for quick token streaming. The operator pays extra to move cache state between pools, but the service avoids letting one long prompt stall many ongoing responses."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A prefill/decode split is not a new model architecture. It is a serving layout around the same model. It is also not the same as paged attention, chunked prefill, speculative decoding, or quantization. Those are separate techniques that teams may combine with the split later if they need more control over memory movement, latency spikes, or hardware cost."
+    },
+    "servingPath": {
+      "title": "Serving Path",
+      "body": "This page closes the basic serving path: KV cache explains the saved state, prefill explains the first prompt pass, decode explains the repeated next-token loop, and this split explains why operators often place those stages on different workers. The search links below are safe follow-on paths for later serving topics that have not shipped as canonical pages yet."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

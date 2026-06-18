@@ -110,7 +110,7 @@ describe("loadPublishedGlossaryEntries", () => {
 
   it("includes all published glossary pages with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(57);
+    expect(entries).toHaveLength(58);
 
     const architecture = entries.find(
       (entry) => entry.url === "/docs/glossary/architecture",
@@ -137,6 +137,11 @@ describe("loadPublishedGlossaryEntries", () => {
       (entry) => entry.url === "/docs/glossary/prefill",
     );
     expect(prefill?.title).toBe("Prefill");
+
+    const prefillDecodeSplit = entries.find(
+      (entry) => entry.url === "/docs/glossary/prefill-decode-split",
+    );
+    expect(prefillDecodeSplit?.title).toBe("Prefill/decode split");
 
     const decode = entries.find(
       (entry) => entry.url === "/docs/glossary/decode",
@@ -219,6 +224,8 @@ describe("glossary index page render", () => {
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain("Prefill");
     expect(html).toContain('href="/docs/glossary/prefill"');
+    expect(html).toContain("Prefill/decode split");
+    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
     expect(html).not.toContain("No glossary entries yet");
     expect(html).toContain("list-none");
     expect(html).not.toContain("list-disc");

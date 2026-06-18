@@ -12,6 +12,7 @@
     "module.grouped-query-attention",
     "concept.kv-cache",
     "concept.decode",
+    "concept.prefill-decode-split",
     "concept.token"
   ],
   "citationIds": [],

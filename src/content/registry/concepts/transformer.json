@@ -12,6 +12,7 @@
     "concept.autoregressive-generation",
     "concept.kv-cache",
     "concept.decode",
+    "concept.prefill-decode-split",
     "concept.foundation-model",
     "concept.module"
   ],

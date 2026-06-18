@@ -31,6 +31,7 @@
     "[Mixture of experts](/docs/glossary/mixture-of-experts)",
     "[Normalization](/docs/glossary/normalization)",
     "[Prefill](/docs/glossary/prefill)",
+    "[Prefill/decode split](/docs/glossary/prefill-decode-split)",
     "[Perplexity](/docs/glossary/perplexity)",
     "[RoPE](/docs/glossary/rope)",
     "[RMSNorm](/docs/glossary/rmsnorm)",

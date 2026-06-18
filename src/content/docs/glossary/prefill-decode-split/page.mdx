@@ -1,20 +1,19 @@
 ---
-title: Decode
-description: The repeated next-token stage that reuses the KV cache and turns inter-token latency into the main reader experience after prefill finishes.
+title: Prefill/decode split
+description: The serving setup that separates prompt processing from token-by-token generation because the two stages stress hardware, memory, and latency in different ways.
 kind: "glossary"
-registryId: "concept.decode"
+registryId: "concept.prefill-decode-split"
 messageNamespace: "local"
 assetNamespace: "local"
 status: "published"
 tags:
   - foundations
-  - attention
   - kv-cache
 aliases:
-  - "Decode"
-  - "decoding"
-  - "token-by-token generation"
-  - "next-token step"
+  - "Prefill/decode split"
+  - "prefill decode split"
+  - "split serving"
+  - "disaggregated serving"
 updatedAt: "2026-06-18"
 ---
 
@@ -50,19 +49,31 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
       <a href="/docs/glossary/prefill">Prefill</a>
     </li>
     <li>
-      <a href="/docs/glossary/prefill-decode-split">Prefill/decode split</a>
+      <a href="/docs/glossary/decode">Decode</a>
+    </li>
+    <li>
+      <a href="/search?q=paged%20attention">Paged attention</a>
+    </li>
+    <li>
+      <a href="/search?q=chunked%20prefill">Chunked prefill</a>
+    </li>
+    <li>
+      <a href="/search?q=speculative%20decoding">Speculative decoding</a>
+    </li>
+    <li>
+      <a href="/search?q=quantization">Quantization</a>
     </li>
   </ul>
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
-  <RelatedDocs registryId="concept.decode" />
+  <RelatedDocs registryId="concept.prefill-decode-split" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">
-  <TagPillList registryId="concept.decode" showDescriptions />
+  <TagPillList registryId="concept.prefill-decode-split" showDescriptions />
 </Section>
 
 <Section id="references" titleKey="sections.references.title">
-  <CitationList registryId="concept.decode" />
+  <CitationList registryId="concept.prefill-decode-split" />
 </Section>

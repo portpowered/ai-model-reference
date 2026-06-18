@@ -55,6 +55,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<string, string> = {
   "kv-cache": "KV cache",
   decode: "Decode",
   prefill: "Prefill",
+  "prefill-decode-split": "Prefill/decode split",
 };
 
 const CHAIN_GLOSSARY_SLUGS = [
@@ -73,8 +74,8 @@ const CHAIN_GLOSSARY_SLUGS = [
   "loss-function",
   "optimizer-state",
 ] as const;
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 57;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 50;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 58;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 51;
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
@@ -117,6 +118,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "kv-cache",
       "decode",
       "prefill",
+      "prefill-decode-split",
       "token",
     ] as const) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
@@ -145,6 +147,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "kv-cache",
       "decode",
       "prefill",
+      "prefill-decode-split",
       "token",
     ] as const) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
@@ -181,6 +184,11 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       (item) => item.url === "/docs/glossary/prefill",
     );
     expect(prefill?.title).toBe("Prefill");
+
+    const prefillDecodeSplit = entries.find(
+      (item) => item.url === "/docs/glossary/prefill-decode-split",
+    );
+    expect(prefillDecodeSplit?.title).toBe("Prefill/decode split");
 
     for (const slug of CHAIN_GLOSSARY_SLUGS) {
       const entry = entries.find(
@@ -223,6 +231,11 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       (entry) => entry.url === "/docs/glossary/prefill",
     );
     expect(prefill?.title).toBe("Prefill");
+
+    const prefillDecodeSplit = entries.find(
+      (entry) => entry.url === "/docs/glossary/prefill-decode-split",
+    );
+    expect(prefillDecodeSplit?.title).toBe("Prefill/decode split");
 
     const embedding = entries.find(
       (entry) => entry.url === "/docs/glossary/embedding",
@@ -273,6 +286,10 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(glossaryHtml).toContain('href="/docs/glossary/decode"');
     expect(glossaryHtml).toContain("Prefill");
     expect(glossaryHtml).toContain('href="/docs/glossary/prefill"');
+    expect(glossaryHtml).toContain("Prefill/decode split");
+    expect(glossaryHtml).toContain(
+      'href="/docs/glossary/prefill-decode-split"',
+    );
     expect(architectureHtml).toContain("Activation");
     expect(architectureHtml).toContain('href="/docs/glossary/activation"');
     expect(architectureHtml).toContain("Computational Graph");
@@ -285,6 +302,10 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     expect(architectureHtml).toContain('href="/docs/glossary/decode"');
     expect(architectureHtml).toContain("Prefill");
     expect(architectureHtml).toContain('href="/docs/glossary/prefill"');
+    expect(architectureHtml).toContain("Prefill/decode split");
+    expect(architectureHtml).toContain(
+      'href="/docs/glossary/prefill-decode-split"',
+    );
     expect(architectureHtml).not.toContain('href="/docs/glossary/parameter"');
     expect(architectureHtml).toContain("Embedding");
     expect(architectureHtml).toContain('href="/docs/glossary/embedding"');
