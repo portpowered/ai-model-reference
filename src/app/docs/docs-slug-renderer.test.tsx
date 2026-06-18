@@ -161,6 +161,18 @@ describe("docs slug renderer locale gating", () => {
     }
   });
 
+  test("unshipped Japanese docs routes fail clearly instead of rendering English content", async () => {
+    try {
+      await renderDocsSlugPage(["getting-started"], "ja");
+      throw new Error("Expected Japanese unshipped route to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toMatch(
+        /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
+      );
+    }
+  });
+
   test("unshipped Vietnamese kv-cache route fails instead of rendering English content", async () => {
     try {
       await renderDocsSlugPage(["glossary", "kv-cache"], "vi");
