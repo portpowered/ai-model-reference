@@ -1,0 +1,24 @@
+{
+  "id": "citation.kaiokendev-superhot",
+  "slug": "kaiokendev-superhot",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "SuperHOT writeup",
+    "kaiokendev SuperHOT",
+    "Things I'm Learning While Training SuperHOT"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "blog",
+  "authors": ["kaiokendev"],
+  "title": "Things I'm Learning While Training SuperHOT",
+  "year": 2023,
+  "url": "https://kaiokendev.github.io/til",
+  "mla": "kaiokendev. \"Things I'm Learning While Training SuperHOT.\" 2023, https://kaiokendev.github.io/til."
+}

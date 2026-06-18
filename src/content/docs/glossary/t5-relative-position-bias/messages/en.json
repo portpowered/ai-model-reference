@@ -1,0 +1,32 @@
+{
+  "title": "T5 relative position bias",
+  "description": "T5 relative position bias buckets token distances into ranges, then adds a learned bias per bucket so attention can reason about near and far positions without a full absolute table.",
+  "openingSummary": "T5 relative position bias turns token distance into learned buckets inside attention scores, which makes it a concrete encoder-decoder flavored version of the broader relative-bias family.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "T5 relative position bias is a specific relative-bias design used in the T5 family. Instead of keeping one separate bias value for every exact distance, it groups distances into buckets such as very close, moderately far, or very far. Attention then adds a learned bias for the matching bucket to each query-key score. The model still sees token content through the normal attention dot product, but distance now arrives as a compact learned hint."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Bucketing keeps the positional signal manageable even when sequences get long, because the model does not need a unique parameter for every possible gap. That made the idea practical for T5-style encoder-decoder systems, where both the encoder and decoder need usable distance information across many layers. It also gives readers a concrete example of how the broad relative-bias idea turns into an implementation pattern."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine one token attending to keys one step away, four steps away, and fifty steps away. T5 relative position bias can map those gaps into three distance buckets, then add the learned bias for each bucket before softmax runs. Nearby positions may share one boost pattern, medium distances another, and very long gaps a coarser fallback. The model does not memorize every exact index. It learns a smaller set of distance bands instead."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "T5 relative position bias is not a separate attention variant. It is one way to supply positional information inside otherwise standard attention. It also differs from RoPE, which rotates query and key vectors, and from ALiBi, which uses fixed linear distance penalties rather than learned buckets. Finally, T5's bucketed design is a subtype of relative position bias, not a synonym for every relative-position method."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

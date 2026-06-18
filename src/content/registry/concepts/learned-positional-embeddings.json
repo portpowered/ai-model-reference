@@ -1,0 +1,28 @@
+{
+  "id": "concept.learned-positional-embeddings",
+  "slug": "learned-positional-embeddings",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Learned positional embeddings",
+    "learned position embeddings",
+    "learned positional encoding"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "concept.absolute-positional-embeddings",
+    "concept.sinusoidal-positional-embeddings"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": [
+    "concept.positional-encodings",
+    "concept.absolute-positional-embeddings"
+  ],
+  "explainsIds": []
+}

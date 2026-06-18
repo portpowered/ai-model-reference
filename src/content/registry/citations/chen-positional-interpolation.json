@@ -1,0 +1,29 @@
+{
+  "id": "citation.chen-positional-interpolation",
+  "slug": "chen-positional-interpolation",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "Position interpolation paper",
+    "extending context window via positional interpolation",
+    "Chen positional interpolation"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Shouyuan Chen",
+    "Sherman Wong",
+    "Liangjian Chen",
+    "Yuandong Tian"
+  ],
+  "title": "Extending Context Window of Large Language Models via Positional Interpolation",
+  "year": 2023,
+  "url": "https://arxiv.org/abs/2306.15595",
+  "mla": "Chen, Shouyuan, et al. \"Extending Context Window of Large Language Models via Positional Interpolation.\" arXiv, 2023, https://arxiv.org/abs/2306.15595."
+}

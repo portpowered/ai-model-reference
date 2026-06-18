@@ -1,0 +1,29 @@
+{
+  "id": "citation.peng-yarn",
+  "slug": "peng-yarn",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "YaRN paper",
+    "Yet another RoPE extensioN method paper",
+    "Peng YaRN"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Bowen Peng",
+    "Jeffrey Quesnelle",
+    "Honglu Fan",
+    "Enrico Shippole"
+  ],
+  "title": "YaRN: Efficient Context Window Extension of Large Language Models",
+  "year": 2023,
+  "url": "https://arxiv.org/abs/2309.00071",
+  "mla": "Peng, Bowen, et al. \"YaRN: Efficient Context Window Extension of Large Language Models.\" arXiv, 2023, https://arxiv.org/abs/2309.00071."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "concept.absolute-positional-embeddings",
+  "slug": "absolute-positional-embeddings",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Absolute positional embeddings",
+    "absolute position embeddings",
+    "absolute positional encoding",
+    "absolute position encoding"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "concept.learned-positional-embeddings",
+    "concept.sinusoidal-positional-embeddings",
+    "concept.relative-position-bias",
+    "concept.rope",
+    "concept.alibi"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.positional-encodings"],
+  "explainsIds": [
+    "concept.learned-positional-embeddings",
+    "concept.sinusoidal-positional-embeddings"
+  ]
+}

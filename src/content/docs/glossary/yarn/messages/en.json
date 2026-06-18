@@ -1,0 +1,32 @@
+{
+  "title": "YaRN",
+  "description": "YaRN is a RoPE extension method that mixes interpolation-style scaling with continued training so a model can use a larger context window more efficiently.",
+  "openingSummary": "YaRN extends RoPE-based models to longer prompts by reshaping rotary positions and fine-tuning on long examples, which makes it a practical long-context recipe rather than a new form of attention.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "YaRN stands for Yet another RoPE extensioN method. It is a long-context recipe for models that already use rotary position embedding. The method adjusts how rotary positions are stretched and then fine-tunes the model on longer sequences, aiming to preserve the short-range behavior learned during pretraining while making later positions more usable."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "YaRN matters because many teams need a larger context window without redesigning the transformer itself. The method became popular in open-weight long-context releases because it offered a relatively compute-efficient way to adapt existing RoPE models. In practice, it sits between pure inference-time scaling and full retraining: stronger than a knob change alone, but still focused on extending the same base architecture."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose a RoPE-based decoder was trained for 8k tokens and now needs 64k. A YaRN recipe reshapes the rotary positions so far-away tokens are not treated as wildly out-of-distribution angles, then fine-tunes the model on long documents. The model still uses the same attention block, but its rotary schedule and training data are adapted for the larger window."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "YaRN is not a replacement for RoPE and not a synonym for long context in general. It is one specific RoPE extension method, so it should be compared with NTK-aware scaling, SuperHOT, positional interpolation, or LongRoPE rather than with unrelated ideas such as ALiBi or grouped-query attention. It also relies on training, not just a runtime flag."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

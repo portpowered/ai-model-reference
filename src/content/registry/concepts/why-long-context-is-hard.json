@@ -13,6 +13,8 @@
   "relatedIds": [
     "concept.context-extension",
     "concept.rope",
+    "concept.longrope",
+    "concept.positional-interpolation",
     "module.attention"
   ],
   "citationIds": [],
@@ -21,5 +23,5 @@
   "updatedAt": "2026-06-09T22:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": ["concept.context-window"],
-  "explainsIds": []
+  "explainsIds": ["concept.longrope", "concept.positional-interpolation"]
 }

@@ -6,7 +6,7 @@ import { join, relative } from "node:path";
 const repoRoot = join(import.meta.dir, "..");
 const defaultParallelWorkers = Math.max(
   1,
-  Math.min(8, availableParallelism() - 1),
+  Math.min(4, availableParallelism() - 1),
 );
 
 const excludedPrefixes = [

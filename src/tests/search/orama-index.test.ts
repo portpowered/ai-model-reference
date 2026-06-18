@@ -41,8 +41,22 @@ const QK_NORM_URL = "/docs/glossary/qk-norm";
 const RESIDUAL_CONNECTION_URL = "/docs/glossary/residual-connection";
 const SKIP_CONNECTION_URL = "/docs/glossary/skip-connection";
 const POSITIONAL_ENCODINGS_URL = "/docs/concepts/positional-encodings";
+const ABSOLUTE_POSITIONAL_EMBEDDINGS_URL =
+  "/docs/glossary/absolute-positional-embeddings";
+const LEARNED_POSITIONAL_EMBEDDINGS_URL =
+  "/docs/glossary/learned-positional-embeddings";
+const LONGROPE_URL = "/docs/glossary/longrope";
+const RELATIVE_POSITION_BIAS_URL = "/docs/glossary/relative-position-bias";
+const T5_RELATIVE_POSITION_BIAS_URL =
+  "/docs/glossary/t5-relative-position-bias";
+const POSITIONAL_INTERPOLATION_URL = "/docs/glossary/positional-interpolation";
 const ROPE_URL = "/docs/glossary/rope";
 const ALIBI_URL = "/docs/glossary/alibi";
+const NOPE_URL = "/docs/glossary/nope";
+const NTK_AWARE_ROPE_SCALING_URL = "/docs/glossary/ntk-aware-rope-scaling";
+const SINUSOIDAL_POSITIONAL_EMBEDDINGS_URL =
+  "/docs/glossary/sinusoidal-positional-embeddings";
+const SUPERHOT_ROPE_URL = "/docs/glossary/superhot-rope";
 const CONTEXT_WINDOW_URL = "/docs/glossary/context-window";
 const KV_CACHE_URL = "/docs/glossary/kv-cache";
 const PREFILL_URL = "/docs/glossary/prefill";
@@ -54,6 +68,7 @@ const TOP_K_SAMPLING_URL = "/docs/glossary/top-k-sampling";
 const TOP_P_SAMPLING_URL = "/docs/glossary/top-p-sampling";
 const CONTEXT_EXTENSION_URL = "/docs/concepts/context-extension";
 const WHY_LONG_CONTEXT_IS_HARD_URL = "/docs/concepts/why-long-context-is-hard";
+const YARN_URL = "/docs/glossary/yarn";
 const QUANTIZATION_URL = "/docs/concepts/quantization";
 const POST_TRAINING_QUANTIZATION_URL =
   "/docs/concepts/post-training-quantization";
@@ -164,11 +179,22 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   RESIDUAL_CONNECTION_URL,
   SKIP_CONNECTION_URL,
   POSITIONAL_ENCODINGS_URL,
+  ABSOLUTE_POSITIONAL_EMBEDDINGS_URL,
+  LEARNED_POSITIONAL_EMBEDDINGS_URL,
+  LONGROPE_URL,
+  RELATIVE_POSITION_BIAS_URL,
+  T5_RELATIVE_POSITION_BIAS_URL,
+  POSITIONAL_INTERPOLATION_URL,
   ROPE_URL,
   ALIBI_URL,
+  NOPE_URL,
+  NTK_AWARE_ROPE_SCALING_URL,
+  SINUSOIDAL_POSITIONAL_EMBEDDINGS_URL,
+  SUPERHOT_ROPE_URL,
   CONTEXT_WINDOW_URL,
   CONTEXT_EXTENSION_URL,
   WHY_LONG_CONTEXT_IS_HARD_URL,
+  YARN_URL,
   QUANTIZATION_URL,
   POST_TRAINING_QUANTIZATION_URL,
   CALIBRATION_URL,
@@ -192,6 +218,15 @@ const GENERATED_INDEX_PATH = path.join(
   process.cwd(),
   "src/generated/search-index.json",
 );
+const BUILD_SEARCH_INDEX_TEST_ENV: NodeJS.ProcessEnv = {
+  PATH: process.env.PATH ?? "",
+  HOME: process.env.HOME ?? "",
+  TMPDIR: process.env.TMPDIR ?? "",
+  USER: process.env.USER ?? "",
+  SHELL: process.env.SHELL ?? "",
+  TERM: process.env.TERM ?? "",
+  NODE_ENV: process.env.NODE_ENV ?? "test",
+};
 
 function findSnapshotDocument(
   documents: OramaSnapshotDocument[],
@@ -267,6 +302,8 @@ describe("exportOramaIndexSnapshot", () => {
     { query: "multi-head attention", url: MULTI_HEAD_ATTENTION_URL },
     { query: "MQA", url: MULTI_QUERY_ATTENTION_URL },
     { query: "multi-query attention", url: MULTI_QUERY_ATTENTION_URL },
+    { query: "LongRoPE", url: LONGROPE_URL },
+    { query: "positional interpolation", url: POSITIONAL_INTERPOLATION_URL },
     { query: "feed-forward network", url: FEED_FORWARD_NETWORK_URL },
     { query: "standard FFN", url: STANDARD_FFN_URL },
     { query: "normalization", url: NORMALIZATION_URL },
@@ -301,6 +338,7 @@ describe("build-search-index script", () => {
     const result = spawnSync("bun", ["./scripts/build-search-index.ts"], {
       cwd: process.cwd(),
       encoding: "utf8",
+      env: BUILD_SEARCH_INDEX_TEST_ENV,
     });
 
     expect(result.status).toBe(0);

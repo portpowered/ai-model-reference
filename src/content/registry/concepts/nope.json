@@ -1,0 +1,22 @@
+{
+  "id": "concept.nope",
+  "slug": "nope",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["NoPE", "no positional encoding", "no positional embeddings"],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.positional-encodings",
+    "concept.absolute-positional-embeddings",
+    "concept.rope",
+    "concept.alibi"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.positional-encodings"],
+  "explainsIds": []
+}

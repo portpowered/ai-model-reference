@@ -1,0 +1,32 @@
+{
+  "title": "Sinusoidal positional embeddings",
+  "description": "Sinusoidal positional embeddings compute fixed wave-shaped position vectors from token index, so models get absolute order without learning a separate parameter row for each position.",
+  "openingSummary": "Sinusoidal positional embeddings encode each token index with a fixed mix of sine and cosine waves, which gives transformers an absolute position signal without training a separate table for every slot.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Sinusoidal positional embeddings are an absolute position method that computes each position vector from repeating sine and cosine patterns at different frequencies. Position 1, position 2, position 3, and later positions all get deterministic vectors from the same formula, and those vectors are added to token embeddings before attention begins."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "The original Transformer used sinusoidal positions because they gave the model a built-in sense of order without learning a separate parameter row for every index. Since the pattern is generated rather than stored in a learned table, it stays well-defined for positions beyond the exact indices seen during training, even though that does not guarantee strong long-context quality by itself."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine plotting one slow wave and one fast wave for each token position. Position 5 and position 6 get slightly different values on both waves, so their combined vectors are distinct. When those vectors are added to the token embeddings, attention can tell that the same word appearing at position 5 is not in exactly the same place as the same word at position 6."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Sinusoidal positional embeddings are not the same as learned positional embeddings. Both are absolute schemes, but sinusoidal vectors come from a fixed formula while learned vectors are updated by gradient descent. They are also separate from RoPE, which rotates query and key vectors inside attention instead of adding a position table at the input."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

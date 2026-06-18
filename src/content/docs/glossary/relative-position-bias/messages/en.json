@@ -1,0 +1,32 @@
+{
+  "title": "Relative position bias",
+  "description": "Relative position bias changes attention scores with distance-aware bias terms so the model reasons about how far apart tokens are instead of storing a fixed vector for every position.",
+  "openingSummary": "Relative position bias keeps order inside attention by adding distance-aware bias terms to the score matrix, which makes it a direct contrast with absolute position tables and the parent idea behind T5's bucketed bias variant.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Relative position bias adds a learned or designed offset to the attention score for each query-key pair based on how far apart the two positions are. The model still compares content through the usual dot product, but the score now also knows whether two tokens are nearby or far apart. That means order is represented through pairwise distance rather than through one absolute vector per token."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Distance often matters more than raw index. A token usually cares that another token is three steps away, not that it lives at position 427 exactly. Relative bias methods lean into that idea, which is why they often generalize differently from absolute tables and sit naturally beside later schemes such as ALiBi, RoPE, and T5's bucketed relative bias."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a query token looking at one key two steps away and another key twenty steps away. Relative position bias can lift the closer score or damp the farther one before softmax runs. The content match still matters, but the model is no longer blind to distance when choosing what to attend to."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Relative position bias is a broad family, not one paper-specific recipe. T5 relative position bias is a bucketed subtype, and ALiBi is a simpler linear version. It also differs from RoPE, which changes the query and key vectors themselves instead of adding bias terms after their dot product."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

@@ -19,14 +19,20 @@ describe("Phase 3 why long context is hard concept page (US-013)", () => {
     expect(record?.relatedIds).toEqual([
       "concept.context-extension",
       "concept.rope",
+      "concept.longrope",
+      "concept.positional-interpolation",
       "module.attention",
+    ]);
+    expect(record?.explainsIds).toEqual([
+      "concept.longrope",
+      "concept.positional-interpolation",
     ]);
     expect(
       PUBLISHED_DOCS_REGISTRY_IDS.has("concept.why-long-context-is-hard"),
     ).toBe(true);
   });
 
-  test("curated related links context extension, RoPE, and attention as navigable", () => {
+  test("curated related links context extension, RoPE, long-context methods, and attention as navigable", () => {
     const source = getConceptById("concept.why-long-context-is-hard");
     if (!source) {
       throw new Error("expected concept.why-long-context-is-hard in registry");
@@ -47,6 +53,20 @@ describe("Phase 3 why long context is hard concept page (US-013)", () => {
     const rope = items.find((item) => item.registryId === "concept.rope");
     expect(rope?.href).toBe("/docs/glossary/rope");
     expect(rope?.isPlanned).toBe(false);
+
+    const longrope = items.find(
+      (item) => item.registryId === "concept.longrope",
+    );
+    expect(longrope?.href).toBe("/docs/glossary/longrope");
+    expect(longrope?.isPlanned).toBe(false);
+
+    const positionalInterpolation = items.find(
+      (item) => item.registryId === "concept.positional-interpolation",
+    );
+    expect(positionalInterpolation?.href).toBe(
+      "/docs/glossary/positional-interpolation",
+    );
+    expect(positionalInterpolation?.isPlanned).toBe(false);
 
     const attention = items.find(
       (item) => item.registryId === "module.attention",
@@ -82,6 +102,8 @@ describe("Phase 3 why long context is hard concept page (US-013)", () => {
     expect(html).toContain("extrapolat");
     expect(html).toContain('href="/docs/concepts/context-extension"');
     expect(html).toContain('href="/docs/glossary/rope"');
+    expect(html).toContain('href="/docs/glossary/longrope"');
+    expect(html).toContain('href="/docs/glossary/positional-interpolation"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Phase");

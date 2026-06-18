@@ -1,0 +1,32 @@
+{
+  "title": "Learned positional embeddings",
+  "description": "Learned positional embeddings train a position table alongside token embeddings, so each index gets a position vector the model can adapt during training.",
+  "openingSummary": "Learned positional embeddings give each token index a trainable vector, which makes absolute positioning easy to fit to the training setup but harder to trust far beyond the positions the model practiced.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Learned positional embeddings are an absolute position method. The model keeps a table with one trainable vector for position 1, another for position 2, another for position 3, and so on. At the input layer it adds the matching position vector to each token embedding before attention starts."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "This scheme is common in GPT-style decoder stacks and BERT-style encoder stacks because it is simple and lets training shape the table for the model's own data and sequence length. The tradeoff is that the table is learned only for the positions it saw during training, so behavior often becomes less predictable when inference pushes much farther out."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine a model with a trainable row for position 8 and another for position 80. During training, gradient updates can make those rows specialize for what usually happens early or late in a sequence. The token \"report\" can therefore arrive with a slightly different combined embedding at position 8 than it does at position 80, even before any attention score is computed."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Learned positional embeddings still belong to the broader absolute positional embedding family. They differ from sinusoidal positional embeddings because the vectors are fit from data instead of computed from a fixed pattern. They also differ from RoPE and relative bias methods, which let distance influence attention more directly inside the attention calculation."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

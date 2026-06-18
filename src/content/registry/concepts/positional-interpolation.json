@@ -1,0 +1,28 @@
+{
+  "id": "concept.positional-interpolation",
+  "slug": "positional-interpolation",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "positional interpolation",
+    "position interpolation",
+    "PI",
+    "rope interpolation"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.rope",
+    "concept.context-extension",
+    "concept.why-long-context-is-hard",
+    "concept.longrope",
+    "concept.ntk-aware-rope-scaling"
+  ],
+  "citationIds": ["citation.chen-positional-interpolation"],
+  "status": "published",
+  "createdAt": "2026-06-18T00:00:00.000Z",
+  "updatedAt": "2026-06-18T00:00:00.000Z",
+  "conceptType": "general",
+  "prerequisiteIds": ["concept.positional-encodings", "concept.rope"],
+  "explainsIds": []
+}

@@ -1,0 +1,32 @@
+{
+  "title": "LongRoPE",
+  "description": "LongRoPE is a RoPE extension method that rescales rotary dimensions and positions non-uniformly so a model can stretch much farther into long-context ranges.",
+  "openingSummary": "LongRoPE pushes RoPE-based models to much longer prompts by reshaping rotary positions more carefully across dimensions and token ranges, which makes it a long-context extension recipe rather than a new attention block.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "LongRoPE is a long-context method built on rotary position embedding. Instead of using one uniform scaling rule for every rotary feature and every token index, it uses non-uniform rescaling so some parts of the rotary space stretch differently from others. The goal is to extend the usable context window much farther while keeping the model's short-range behavior from collapsing."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "LongRoPE matters because simple RoPE scaling can work for moderate jumps, yet very large jumps make angle drift and short-range regressions harder to manage. LongRoPE is an example of a more engineered extension recipe: it keeps RoPE, but treats long-range scaling as a tuning problem across dimensions, positions, and adaptation steps. That makes it a useful contrast with lighter methods such as NTK-aware scaling or YaRN."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Suppose a RoPE model trained for 8k tokens now needs hundreds of thousands of tokens. A simple scaling rule might stretch every rotary angle the same way, which can hurt near the original range or still drift badly at the tail. LongRoPE instead searches for a less uniform position map, then adapts the model so early positions still behave normally while later positions become more usable."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "LongRoPE is not a standalone attention variant and not a synonym for long context itself. It is one specific RoPE extension method, so it should be compared with positional interpolation, NTK-aware scaling, or YaRN rather than with unrelated choices such as ALiBi or sparse attention. It also depends on adaptation and tuning, not just a single runtime switch."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
