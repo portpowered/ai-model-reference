@@ -23,14 +23,11 @@
       "title": "Compared To Nearby Regimes",
       "body": "Unlike post-training quantization, the model is warned about future quantization damage during training instead of after the fact."
     },
-    "modelsAndPapers": {
-      "title": "Models And Papers",
-      "body": "These links are generated from registry metadata for the regime."
-    },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
       "body": "QAT adds training complexity and still may not save every capability if the target precision is aggressive enough."
     },
+    "related": { "title": "Related To" },
     "tags": { "title": "Tags" },
     "references": { "title": "References" }
   },

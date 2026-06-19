@@ -1,7 +1,6 @@
 {
   "title": "",
   "description": "",
-  "openingSummary": "",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -19,11 +18,8 @@
       "title": "Practical Impact",
       "body": ""
     },
-    "associatedRecords": {
-      "title": "Associated Records"
-    },
     "related": {
-      "title": "Related"
+      "title": "Related To"
     },
     "tags": {
       "title": "Tags"

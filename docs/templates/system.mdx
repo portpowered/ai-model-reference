@@ -12,8 +12,8 @@ updatedAt: "2026-06-18"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
-import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
-import { RegistryDeepLinkList } from "@/features/docs/components/RegistryDeepLinkList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
@@ -42,30 +42,11 @@ import { SystemFlowGraph } from "@/features/models/components/SystemFlowGraph";
 
 <Section id="practical-impact" titleKey="sections.practicalImpact.title">
   <T k="sections.practicalImpact.body" />
-</Section>
-
-<Section id="associated-records" titleKey="sections.associatedRecords.title">
-  <RegistryDeepLinkList
-    groups={[
-      {
-        id: "models",
-        title: "Related models",
-        registryIds: [],
-        emptyLabel: "No related models listed yet.",
-      },
-    ]}
-  />
+  <BlockMath formula="\\text{served cost per token} \\approx \\text{hot-tier work} + \\text{cold-tier work} + \\text{coordination overhead}" />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">
-  <DerivedRelatedDocs
-    registryId="system.example-system"
-    groups={[
-      "shared-tags",
-      "same-concept-type",
-      "curated-related"
-    ]}
-  />
+  <RelatedDocs registryId="system.example-system" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">

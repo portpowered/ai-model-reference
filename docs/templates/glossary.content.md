@@ -4,13 +4,13 @@ Use `glossary.mdx` as the production page structure for glossary entries at `/do
 
 Glossary pages use `kind: glossary` in frontmatter and resolve through a `concept.<slug>` registry record, the same registry shape as concept pages. The route lives under `src/content/docs/glossary/<slug>/` even though the registry id prefix is `concept.`.
 
-Follow [docs writing standards](../../factory/docs/standards/docs-writing-standards.md) and [graphing-standards](../graphing-standards.md) for layperson tone and optional graph placement.
+Follow [docs writing standards](../../factory/docs/standards/docs-writing-standards.md) and [graphing-standards](../graphing-standards.md) for layperson tone, isolation-first writing, and optional graph placement.
 
 ## Required Content
 
 * `title`: canonical glossary term name.
 * `description`: short search and metadata description used by the docs shell (folded thesis for readers).
-* `openingSummary`: keep in messages for search and metadata tooling; **do not** render `<T k="openingSummary" />` in glossary MDX—the shell description carries the folded summary.
+* `openingSummary`: optional lead copy for search or shell metadata; **do not** render `<T k="openingSummary" />` in glossary MDX.
 
 ## Sections
 
@@ -27,7 +27,7 @@ Follow [docs writing standards](../../factory/docs/standards/docs-writing-standa
 ## Baseline exclusions
 
 * No `callouts.readerShortcut` in the glossary template or converged pages.
-* No separate `problemStatement` / `coreIdea` keys—use `openingSummary` in messages only.
+* No separate `problemStatement` / `coreIdea` keys. If lead copy is needed, use `openingSummary` in messages only.
 * No in-body `# <T k="title" />` heading; the docs shell renders the page title once.
 * No `<T k="openingSummary" />` or `<GlossaryOpening />` in glossary MDX.
 

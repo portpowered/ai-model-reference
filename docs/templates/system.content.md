@@ -6,7 +6,7 @@ Use `system.mdx` as the production page structure. Put localized reader-facing t
 
 * `title`: canonical system or runtime component name.
 * `description`: short search and metadata description.
-* `openingSummary`: one folded summary that states the operational pain point and the system idea in plain language.
+* `openingSummary`: optional lead copy when the page benefits from it. If used, keep it to one concise block.
 
 ## Sections
 

@@ -1,7 +1,6 @@
 {
   "title": "",
   "description": "",
-  "openingSummary": "",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -23,13 +22,12 @@
       "title": "Compared To Nearby Regimes",
       "body": ""
     },
-    "modelsAndPapers": {
-      "title": "Models And Papers",
-      "body": ""
-    },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
       "body": ""
+    },
+    "related": {
+      "title": "Related To"
     },
     "tags": {
       "title": "Tags"

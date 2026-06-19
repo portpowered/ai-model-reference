@@ -4,7 +4,6 @@
     "graphId": "graph.gpt-3-architecture",
     "webRenderer": "react-flow",
     "printRenderer": "vertical-svg",
-    "altKey": "assets.architectureGraph.alt",
-    "captionKey": "assets.architectureGraph.caption"
+    "altKey": "assets.architectureGraph.alt"
   }
 }

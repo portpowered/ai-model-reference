@@ -23,14 +23,11 @@
       "title": "Compared To Nearby Regimes",
       "body": "Unlike plain offline distillation, the training set is not fully frozen. Unlike full RL, the emphasis is still on teacher-guided or filtered behavior rather than only scalar reward optimization."
     },
-    "modelsAndPapers": {
-      "title": "Models And Papers",
-      "body": "These links are generated from registry metadata for the regime."
-    },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
       "body": "If the current policy explores badly, the loop can reinforce narrow behavior. The regime also depends on good filtering or teacher signals."
     },
+    "related": { "title": "Related To" },
     "tags": { "title": "Tags" },
     "references": { "title": "References" }
   },

@@ -76,9 +76,6 @@ export function collectMessageBodyText(messages: PageMessages): string {
   const parts: string[] = [
     messages.title,
     messages.description,
-    messages.openingSummary ?? "",
-    messages.problemStatement ?? "",
-    messages.coreIdea ?? "",
   ];
 
   if (messages.sections) {

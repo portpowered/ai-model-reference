@@ -27,7 +27,7 @@ function readTemplateAssets(kind: string): PageAssetConfig {
 }
 
 describe("validateGeneratedFoldedSummary", () => {
-  test("passes concept template when openingSummary stays out of MDX", () => {
+  test("passes concept template without any summary requirement", () => {
     const errors = validateGeneratedFoldedSummary({
       pagePath: "/docs/concepts/example/page.mdx",
       kind: "concept",
@@ -36,7 +36,6 @@ describe("validateGeneratedFoldedSummary", () => {
         ...readTemplateMessages("concept"),
         title: "Example",
         description: "Summary",
-        openingSummary: "Folded summary for the page hero.",
       },
     });
     expect(errors).toEqual([]);
@@ -50,7 +49,6 @@ describe("validateGeneratedFoldedSummary", () => {
       messages: {
         title: "Example",
         description: "Summary",
-        openingSummary: "Folded summary.",
         problemStatement: "Legacy problem line.",
       },
     });
@@ -160,7 +158,6 @@ describe("validateGeneratedCanonicalDocs", () => {
         ...readTemplateMessages("concept"),
         title: "Example",
         description: "Summary",
-        openingSummary: "Folded summary for the page hero.",
       },
       assets: readTemplateAssets("concept"),
     });
@@ -180,7 +177,6 @@ describe("validateGeneratedCanonicalDocs", () => {
       messages: {
         title: "Example",
         description: "Summary",
-        openingSummary: "Folded summary.",
       },
       assets: readTemplateAssets("concept"),
     });
@@ -189,5 +185,80 @@ describe("validateGeneratedCanonicalDocs", () => {
       errors.some((error) => error.code === "mdx-hard-coded-heading"),
     ).toBe(true);
     expect(errors[0]?.message).toContain("/docs/concepts/example/page.mdx");
+  });
+
+  test("fails paper templates that keep duplicate relationship sections", () => {
+    const errors = validateGeneratedCanonicalDocs({
+      pagePath: "/docs/papers/example/page.mdx",
+      kind: "paper",
+      mdxSource: `${readTemplateMdx("paper")}\n<Section id="what-it-connects-to" titleKey="sections.related.title" />\n`,
+      messages: {
+        title: "Example",
+        description: "Summary",
+      },
+      assets: readTemplateAssets("paper"),
+    });
+
+    expect(
+      errors.some(
+        (error) => error.code === "forbidden-duplicate-related-section",
+      ),
+    ).toBe(true);
+  });
+
+  test("fails model assets that define captions", () => {
+    const errors = validateGeneratedCanonicalDocs({
+      pagePath: "/docs/models/example/page.mdx",
+      kind: "model",
+      mdxSource: readTemplateMdx("model"),
+      messages: {
+        ...readTemplateMessages("model"),
+        title: "Example",
+        description: "Summary",
+        assets: {
+          architectureGraph: {
+            alt: "Alt text",
+            caption: "Caption should not exist",
+          },
+        },
+      },
+      assets: {
+        ...readTemplateAssets("model"),
+        architectureGraph: {
+          ...readTemplateAssets("model").architectureGraph,
+          captionKey: "assets.architectureGraph.caption",
+        },
+      },
+    });
+
+    expect(
+      errors.some((error) => error.code === "forbidden-model-asset-caption"),
+    ).toBe(true);
+    expect(
+      errors.some(
+        (error) => error.code === "forbidden-model-asset-caption-message",
+      ),
+    ).toBe(true);
+  });
+
+  test("fails training pages without formulas", () => {
+    const mdx = readTemplateMdx("training-regime").replace(
+      /<BlockMath[\s\S]*?\/>\n?/,
+      "",
+    );
+    const errors = validateGeneratedCanonicalDocs({
+      pagePath: "/docs/training/example/page.mdx",
+      kind: "training-regime",
+      mdxSource: mdx,
+      messages: {
+        title: "Example",
+        description: "Summary",
+      },
+      assets: readTemplateAssets("training-regime"),
+    });
+
+    expect(
+      errors.some((error) => error.code === "missing-required-math"),
+    ).toBe(true);
   });
 });

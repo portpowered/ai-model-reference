@@ -8,6 +8,7 @@ type TemplateKind =
   | "model"
   | "paper"
   | "concept"
+  | "system"
   | "training-regime"
   | "glossary";
 
@@ -33,6 +34,11 @@ const nonModuleTemplates: Array<{
   {
     kind: "training-regime",
     graphAssetId: "trainingFlow",
+    graphSectionId: "how-it-works",
+  },
+  {
+    kind: "system",
+    graphAssetId: "systemFlow",
     graphSectionId: "how-it-works",
   },
   {
@@ -84,10 +90,10 @@ describe("non-module page template convergence", () => {
       }
     });
 
-    test(`${kind} starter messages keep openingSummary in messages and omit reader shortcuts`, () => {
+    test(`${kind} starter messages omit deprecated summary keys and reader shortcuts`, () => {
       const messages = readStarterMessages(kind);
 
-      expect("openingSummary" in messages).toBe(true);
+      expect("openingSummary" in messages).toBe(false);
       expect(messages.problemStatement).toBeUndefined();
       expect(messages.coreIdea).toBeUndefined();
       expect(

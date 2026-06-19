@@ -2,20 +2,20 @@
 
 Use `concept.mdx` as the production page structure. Put localized reader-facing text in `messages/<locale>.json` using the keys from `concept.messages.en.json`. Put page-specific visual references in `assets.json` using `concept.assets.json`.
 
-Follow [docs writing standards](../../factory/docs/standards/docs-writing-standards.md) and [graphing-standards](../graphing-standards.md) for summary tone and optional graph placement.
+Follow [docs writing standards](../../factory/docs/standards/docs-writing-standards.md) and [graphing-standards](../graphing-standards.md) for layperson tone, isolation-first writing, and optional graph placement.
 
 ## Required Content
 
 * `title`: canonical concept name.
 * `description`: short search and metadata description.
-* `openingSummary`: one folded summary that states the confusion or gap this concept resolves and the concept plainly (merge legacy `problemStatement` + `coreIdea` into this single key).
+* `openingSummary`: optional lead copy when the page benefits from it. If used, keep it to one concise block and prefer it over legacy split summary keys.
 
 ## Sections
 
 * `whatItIs`: define the concept without assuming the reader already knows the surrounding architecture.
 * `whyItMatters`: explain what the concept helps readers understand, compare, debug, or search for.
 * `simpleExample`: provide a compact concrete example, shape, flow, or analogy.
-* `whereItAppears`: describe which models, modules, papers, training regimes, or systems use the concept. Place an optional **concept map** graph here when visual relationships teach more than prose.
+* `whereItAppears`: describe usage only when it helps teach the concept itself. Place an optional **concept map** graph here when visual relationships teach more than prose.
 * `commonConfusions`: distinguish nearby concepts readers often mix up.
 * `related`, `tags`, `references`: localized section titles only; rendered content is registry-backed.
 
@@ -26,7 +26,7 @@ Follow [docs writing standards](../../factory/docs/standards/docs-writing-standa
 ## Baseline exclusions
 
 * No `callouts.readerShortcut` in the concept template or converged pages.
-* No separate `problemStatement` / `coreIdea` keys in new starter bundles—use `openingSummary` only.
+* No separate `problemStatement` / `coreIdea` keys in new starter bundles. If lead copy is needed, use `openingSummary`.
 * No in-body `# <T k="title" />` heading; the docs shell renders the page title once.
 
 ## Registry Expectations

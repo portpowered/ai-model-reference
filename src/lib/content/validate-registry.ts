@@ -19,6 +19,12 @@ import {
 } from "./page-messages-load";
 import { validatePageTemplateConformance } from "./page-template-conformance";
 import {
+  validateGeneratedAssetRules,
+  validateGeneratedFoldedSummary,
+  validateGeneratedGraphPlacement,
+  validateGeneratedKindSpecificStructure,
+} from "./validate-generated-canonical-docs";
+import {
   loadRegistry,
   type RegistryIndexes,
   RegistryLoadError,
@@ -960,7 +966,55 @@ async function validatePageMdx(
       kind: frontmatter.data.kind,
       mdxSource: raw,
     }),
+    ...validateGeneratedFoldedSummary({
+      pagePath,
+      kind: frontmatter.data.kind,
+      mdxSource: raw,
+      messages,
+    }),
   );
+
+  if (
+    frontmatter.data.kind === "model" ||
+    frontmatter.data.kind === "paper" ||
+    frontmatter.data.kind === "training-regime" ||
+    frontmatter.data.kind === "system"
+  ) {
+    errors.push(
+      ...validateGeneratedGraphPlacement({
+        pagePath,
+        kind: frontmatter.data.kind,
+        mdxSource: raw,
+        assets,
+      }),
+    );
+  }
+
+  if (
+    frontmatter.data.kind === "concept" ||
+    frontmatter.data.kind === "paper" ||
+    frontmatter.data.kind === "training-regime" ||
+    frontmatter.data.kind === "system"
+  ) {
+    errors.push(
+      ...validateGeneratedKindSpecificStructure({
+        pagePath,
+        kind: frontmatter.data.kind,
+        mdxSource: raw,
+      }),
+    );
+  }
+
+  if (frontmatter.data.kind === "model") {
+    errors.push(
+      ...validateGeneratedAssetRules({
+        pagePath,
+        kind: frontmatter.data.kind,
+        assets,
+        messages,
+      }),
+    );
+  }
 
   return errors;
 }

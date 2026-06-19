@@ -18,8 +18,6 @@ import type { PageMessages } from "./schemas";
 const validMessages = {
   title: "Grouped-Query Attention",
   description: "An attention variant that reduces KV cache memory.",
-  problemStatement: "KV caches get expensive as context length grows.",
-  coreIdea: "GQA lets several query heads share fewer key-value heads.",
   sections: {
     whatItIs: {
       title: "What It Is",
@@ -184,8 +182,8 @@ describe("lookupMessage", () => {
 
 describe("resolveMessage", () => {
   test("returns the resolved string", () => {
-    expect(resolveMessage(lookupFixture, "coreIdea")).toBe(
-      "GQA lets several query heads share fewer key-value heads.",
+    expect(resolveMessage(lookupFixture, "sections.whatItIs.title")).toBe(
+      "What It Is",
     );
   });
 

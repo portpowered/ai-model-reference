@@ -12,8 +12,6 @@ updatedAt: "2026-06-02"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
-import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
-import { RegistryAssociatedRecords } from "@/features/docs/components/RegistryAssociatedRecords";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -23,10 +21,6 @@ import { PaperAtAGlance } from "@/features/models/components/PaperAtAGlance";
 
 
 <PaperAtAGlance registryId="paper.example-paper" />
-
-<Section id="what-the-paper-introduced" titleKey="sections.whatThePaperIntroduced.title">
-  <T k="sections.whatThePaperIntroduced.body" />
-</Section>
 
 <Section id="why-it-matters" titleKey="sections.whyItMatters.title">
   <T k="sections.whyItMatters.body" />
@@ -47,50 +41,6 @@ import { PaperAtAGlance } from "@/features/models/components/PaperAtAGlance";
 
 <Section id="limitations" titleKey="sections.limitations.title">
   <T k="sections.limitations.body" />
-</Section>
-
-<Section id="what-it-connects-to" titleKey="sections.whatItConnectsTo.title">
-  <T k="sections.whatItConnectsTo.body" />
-
-  <RegistryAssociatedRecords
-    registryId="paper.example-paper"
-    groups={[
-      {
-        id: "introduced",
-        title: "Introduced records",
-        fields: ["introducesIds"],
-        emptyLabel: "No introduced records listed yet.",
-        defaultOpen: true
-      },
-      {
-        id: "models",
-        title: "Model pages",
-        fields: ["modelIds"],
-        emptyLabel: "No model pages listed yet."
-      },
-      {
-        id: "modules",
-        title: "Module pages",
-        fields: ["moduleIds"],
-        emptyLabel: "No module pages listed yet."
-      },
-      {
-        id: "concepts",
-        title: "Concept pages",
-        fields: ["conceptIds", "supportsIds"],
-        emptyLabel: "No concept pages listed yet."
-      }
-    ]}
-  />
-
-  <DerivedRelatedDocs
-    registryId="paper.example-paper"
-    groups={[
-      "introduced-records",
-      "shared-tags",
-      "curated-related"
-    ]}
-  />
 </Section>
 
 <Section id="related" titleKey="sections.related.title">

@@ -59,7 +59,6 @@ Start with:
 * [docs/documentation-site-pages-needed.md](./docs/documentation-site-pages-needed.md)
 * [docs/site-fundamentals.md](./docs/site-fundamentals.md)
 * [factory/docs/standards/docs-writing-standards.md](./factory/docs/standards/docs-writing-standards.md)
-* [factory/docs/standards/docs-quality-standards.md](./factory/docs/standards/docs-quality-standards.md)
 
 ## Local Development
 

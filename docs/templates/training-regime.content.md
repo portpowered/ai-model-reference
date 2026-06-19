@@ -2,13 +2,13 @@
 
 Use `training-regime.mdx` as the production page structure. Put localized reader-facing text in `messages/<locale>.json` using the keys from `training-regime.messages.en.json`. Put training flow diagrams and visual references in `assets.json` using `training-regime.assets.json`.
 
-Follow [docs writing standards](../../factory/docs/standards/docs-writing-standards.md) and [graphing-standards](../graphing-standards.md) for summary tone and graph placement.
+Follow [docs writing standards](../../factory/docs/standards/docs-writing-standards.md) and [graphing-standards](../graphing-standards.md) for layperson tone, isolation-first writing, and graph placement.
 
 ## Required Content
 
 * `title`: canonical training regime or optimization method name.
 * `description`: short search and metadata description.
-* `openingSummary`: one folded summary that states the training problem this regime addresses and the mechanism or objective in plain language (merge legacy `problemStatement` + `coreIdea` into this single key).
+* `openingSummary`: optional lead copy when the page benefits from it. If used, keep it to one concise block and prefer it over legacy split summary keys.
 
 ## Sections
 
@@ -28,7 +28,7 @@ Follow [docs writing standards](../../factory/docs/standards/docs-writing-standa
 ## Baseline exclusions
 
 * No `callouts.readerShortcut` in the training-regime template or converged pages.
-* No separate `problemStatement` / `coreIdea` keys in new starter bundles—use `openingSummary` only.
+* No separate `problemStatement` / `coreIdea` keys in new starter bundles. If lead copy is needed, use `openingSummary`.
 * No in-body `# <T k="title" />` heading; the docs shell renders the page title once.
 
 ## Registry Expectations

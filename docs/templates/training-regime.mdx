@@ -12,7 +12,7 @@ updatedAt: "2026-06-02"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
-import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { BlockMath } from "@/features/docs/components/Math";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -42,28 +42,19 @@ import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRe
 
 <Section id="practical-benefit" titleKey="sections.practicalBenefit.title">
   <T k="sections.practicalBenefit.body" />
+  <BlockMath formula="\\text{useful gain per unit cost} \\approx \\frac{\\Delta \\text{capability}}{\\text{data cost} + \\text{compute cost}}" />
 </Section>
 
 <Section id="compared-to-nearby-regimes" titleKey="sections.comparedToNearbyRegimes.title">
   <T k="sections.comparedToNearbyRegimes.body" />
-
-  <DerivedRelatedDocs
-    registryId="training-regime.example-training-regime"
-    groups={[
-      "same-concept-type",
-      "same-variant-group",
-      "shared-tags",
-      "curated-related"
-    ]}
-  />
-</Section>
-
-<Section id="models-and-papers" titleKey="sections.modelsAndPapers.title">
-  <T k="sections.modelsAndPapers.body" />
 </Section>
 
 <Section id="limitations-and-failure-modes" titleKey="sections.limitationsAndFailureModes.title">
   <T k="sections.limitationsAndFailureModes.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="training-regime.example-training-regime" />
 </Section>
 
 <Section id="tags" titleKey="sections.tags.title">

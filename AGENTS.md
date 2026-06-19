@@ -56,9 +56,8 @@ Mandatory references for canonical page authoring and review:
 You MUST read the appropriate components for when you're writing pages. 
 [writing-guide](./docs/guide-to-writing-pages.md)
 [documentation template](./docs/documentation-template.md)
-[writing standards](./factory/docs/standards/docs-writing-standards.md) — folded summary, layperson tone, acronym expansion, symbol-only math definitions, no reader-shortcut callouts
+[writing standards](./factory/docs/standards/docs-writing-standards.md) — layperson tone, isolation-first pages, no page-meta prose, required graphs/equations when the concept needs them, symbol-only math definitions, no reader-shortcut callouts
 [graphing standards](./docs/graphing-standards.md) — single primary graph, readable node theme, zoom/pan, attention-variant comparison
-[docs quality standards](./factory/docs/standards/docs-quality-standards.md)
 
 # generally relevant files
 we MUST read these generally when writing anything.

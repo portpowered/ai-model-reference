@@ -16,11 +16,13 @@ type PageTemplateStructure = {
   sections: SectionStructure[];
 };
 
-type SupportedTemplateKind = "module" | "paper";
+type SupportedTemplateKind = "module" | "paper" | "system" | "training-regime";
 
 const supportedTemplateKinds = new Set<SupportedTemplateKind>([
   "module",
   "paper",
+  "system",
+  "training-regime",
 ]);
 
 const ignoredStructuralComponents = new Set(["Section", "T"]);

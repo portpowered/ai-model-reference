@@ -66,7 +66,6 @@ const pageSpecBaseSchema = z.object({
   tags: z.array(z.string()).default([]),
   relatedIds: z.array(z.string()).default([]),
   citationIds: z.array(z.string()).default([]),
-  openingSummary: z.string().optional(),
   sections: z.record(z.string(), pageSpecSectionSchema).optional(),
   callouts: z.record(z.string(), pageSpecCalloutSchema).optional(),
   assets: pageAssetConfigSchema.optional(),

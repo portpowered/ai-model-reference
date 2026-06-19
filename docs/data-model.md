@@ -202,8 +202,7 @@ Example message file:
 {
   "title": "Grouped-Query Attention",
   "description": "An attention variant that reduces KV cache memory.",
-  "problemStatement": "KV caches get expensive as context length grows.",
-  "coreIdea": "GQA lets several query heads share fewer key-value heads.",
+  "openingSummary": "Grouped-query attention lowers KV-cache cost by letting several query heads share fewer key-value heads.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -231,6 +230,7 @@ Message files should satisfy this general shape:
 type PageMessages = {
   title: string;
   description: string;
+  openingSummary?: string;
   problemStatement?: string;
   coreIdea?: string;
   sections?: Record<

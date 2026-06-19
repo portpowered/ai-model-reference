@@ -23,14 +23,11 @@
       "title": "Compared To Nearby Regimes",
       "body": "Unlike one uniform post-training pass, specialist training accepts that not every domain should be shaped with identical data pressure."
     },
-    "modelsAndPapers": {
-      "title": "Models And Papers",
-      "body": "These links come from the regime's structured registry relationships."
-    },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
       "body": "Specialization can fragment the training story if the merge step is weak or if the chosen domains do not match real demand."
     },
+    "related": { "title": "Related To" },
     "tags": { "title": "Tags" },
     "references": { "title": "References" }
   },

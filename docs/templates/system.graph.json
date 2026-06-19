@@ -1,6 +1,6 @@
 {
-  "id": "graph.example-system-map",
-  "slug": "example-system-map",
+  "id": "graph.example-system-flow",
+  "slug": "example-system-flow",
   "kind": "graph",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
