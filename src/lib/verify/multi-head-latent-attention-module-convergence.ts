@@ -41,7 +41,7 @@ export const MULTI_HEAD_LATENT_ATTENTION_REQUIRED_MARKERS = [
   'data-prose-auto-link="true"',
   'data-registry-comparison-table="true"',
   'data-table-id="table.multi-head-latent-attention-comparison"',
-  "KV representation",
+  "Key-value representation",
   'data-comparison-dimension="cacheFootprint"',
   'data-attention-schema-comparison="true"',
   'data-math-schema="mha"',

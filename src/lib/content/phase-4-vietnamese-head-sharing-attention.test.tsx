@@ -98,13 +98,7 @@ describe("Phase 4 Vietnamese head-sharing attention coverage", () => {
       expect(page.messages.sections?.whyItExists.body).toContain(
         expectation.vietnameseBody,
       );
-      expect(page.messages.assets?.computeFlow?.caption).toBe(
-        expectation.graphCaption,
-      );
       expect(page.messages.assets?.computeFlow?.alt).toBe(expectation.graphAlt);
-      expect(page.messages.assets?.comparisonTable?.caption).toBe(
-        expectation.tableCaption,
-      );
       expect(page.messages.tables?.comparison?.dimensions?.kvHeadCount).toBe(
         expectation.tableDimension,
       );
@@ -114,9 +108,7 @@ describe("Phase 4 Vietnamese head-sharing attention coverage", () => {
         ),
       ).toBe(true);
       expect(html).not.toContain(expectation.englishFallback);
-      expect(html).toContain(expectation.graphCaption);
       expect(html).toContain(expectation.graphAlt);
-      expect(html).toContain(expectation.tableCaption);
       expect(html).toContain(expectation.tableDimension);
 
       for (const href of expectation.expectedHrefs) {

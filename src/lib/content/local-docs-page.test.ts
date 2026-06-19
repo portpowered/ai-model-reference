@@ -255,7 +255,7 @@ describe("docs source local pages", () => {
     expect(
       groupedQueryAttentionPage.messages.assets?.computeFlow?.caption,
     ).toBe(
-      "Multi-head attention と grouped-query attention を切り替えて、query head 数と key-value head 数を同じ図で比較します。",
+      "Grouped-query attention は複数の query head に各 key-value pair を共有させることで、key-value head 数を減らします。",
     );
     expect(
       groupedQueryAttentionPage.messages.tables?.comparison?.dimensions
@@ -273,15 +273,15 @@ describe("docs source local pages", () => {
       "KV-cache サイズ",
     );
     expect(multiQueryPage.messages.title).toBe("マルチクエリ attention");
-    expect(
-      slidingWindowPage.messages.sections?.whyItExists?.body,
-    ).toContain("attention 計算コスト");
+    expect(slidingWindowPage.messages.sections?.whyItExists?.body).toContain(
+      "attention 計算コスト",
+    );
     expect(slidingWindowPage.messages.title).toBe(
       "スライディングウィンドウ attention",
     );
-    expect(
-      linearAttentionPage.messages.sections?.whyItExists?.body,
-    ).toContain("系列長スケーリング");
+    expect(linearAttentionPage.messages.sections?.whyItExists?.body).toContain(
+      "系列長スケーリング",
+    );
     expect(linearAttentionPage.messages.title).toBe("線形 attention");
   });
 

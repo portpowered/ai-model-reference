@@ -121,7 +121,7 @@ describe("Phase 3 layer norm module page (US-005)", () => {
     expectHtmlToContainProse(html, "mean");
     expectHtmlToContainProse(
       html,
-      "full mean-and-variance normalization against lighter scale-only normalization",
+      "Layer norm subtracts the feature mean before scaling, while RMSNorm keeps only the scale correction.",
     );
     expect(html).toContain('href="/docs/glossary/normalization"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');

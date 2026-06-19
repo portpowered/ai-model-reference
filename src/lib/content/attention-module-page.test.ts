@@ -74,7 +74,7 @@ describe("attention module variant hub page", () => {
     expect(html).not.toContain('data-testid="folded-summary"');
     expect(html).not.toContain('data-folded-summary="true"');
     expect(html).toContain(
-      "routes information between positions in a sequence",
+      "moves information across positions in the first place",
     );
     expect(html).toContain("What It Is");
     expect(html).toContain("Compared To Nearby Modules");

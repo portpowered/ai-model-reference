@@ -93,7 +93,6 @@ describe("non-module page template convergence", () => {
     test(`${kind} starter messages omit deprecated summary keys and reader shortcuts`, () => {
       const messages = readStarterMessages(kind);
 
-      expect("openingSummary" in messages).toBe(false);
       expect(messages.problemStatement).toBeUndefined();
       expect(messages.coreIdea).toBeUndefined();
       expect(

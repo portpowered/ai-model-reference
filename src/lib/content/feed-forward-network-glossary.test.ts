@@ -97,11 +97,11 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
       "input vector enters the first learned projection",
     );
     expect(messages.sections?.howItWorks.body?.toLowerCase()).toContain(
-      "directed from input to output",
+      "continues toward the output",
     );
-    expect(messages.sections?.exampleArchitectures.body?.toLowerCase()).toContain(
-      "convolutional classifiers",
-    );
+    expect(
+      messages.sections?.exampleArchitectures.body?.toLowerCase(),
+    ).toContain("convolutional classifiers");
     expect(messages.sections?.comparedToNearbyModules).toBeUndefined();
     expect(messages.math?.standardSchema?.formula).toContain("\\mathrm{FFN}");
     expect(messages.math?.standardSchema?.formula).toContain("(x)");

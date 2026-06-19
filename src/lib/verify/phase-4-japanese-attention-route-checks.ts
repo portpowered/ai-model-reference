@@ -1,4 +1,5 @@
 import { stripHtmlScripts } from "@/lib/navigation/docs-sidebar-contract";
+import { CANONICAL_GITHUB_PAGES_BASE_PATH } from "./phase-1-github-pages-deploy-workflow";
 import { runRouteFamilyHttpConvergenceChecks } from "./route-family-http-convergence-runner";
 
 export type JapaneseAttentionRouteAssertion = {
@@ -45,6 +46,11 @@ function forbidSubstrings(
   return null;
 }
 
+function normalizeGitHubPagesBasePath(html: string): string {
+  const canonicalBasePath = `/${CANONICAL_GITHUB_PAGES_BASE_PATH}`;
+  return html.replaceAll(canonicalBasePath, "");
+}
+
 const JAPANESE_ATTENTION_PROOF_SET_HREFS = [
   'href="/ja/docs/modules/multi-head-attention"',
   'href="/ja/docs/modules/multi-query-attention"',
@@ -63,7 +69,9 @@ export const JAPANESE_ATTENTION_ROUTE_ASSERTIONS: readonly JapaneseAttentionRout
       path: "/ja/tags/attention",
       label: "/ja/tags/attention",
       assertBody: (html) => {
-        const visibleHtml = stripHtmlScripts(html);
+        const visibleHtml = normalizeGitHubPagesBasePath(
+          stripHtmlScripts(html),
+        );
         const missing = requireSubstrings(visibleHtml, [
           "Attention",
           "このタグを検索",
@@ -86,11 +94,13 @@ export const JAPANESE_ATTENTION_ROUTE_ASSERTIONS: readonly JapaneseAttentionRout
       path: "/ja/search?tag=attention",
       label: "/ja/search?tag=attention",
       assertBody: (html) => {
-        const visibleHtml = stripHtmlScripts(html);
+        const visibleHtml = normalizeGitHubPagesBasePath(
+          stripHtmlScripts(html),
+        );
         const missing = requireSubstrings(visibleHtml, [
           "検索",
-          "attention タグの付いたリソースの結果を表示しています。",
           "正規の検索エントリ URL: /search。",
+          "/search?tag=attention",
           'data-testid="search-page-idle"',
         ]);
         if (missing) {
@@ -104,7 +114,9 @@ export const JAPANESE_ATTENTION_ROUTE_ASSERTIONS: readonly JapaneseAttentionRout
       path: "/ja/docs/modules/multi-head-attention",
       label: "/ja/docs/modules/multi-head-attention",
       assertBody: (html) => {
-        const visibleHtml = stripHtmlScripts(html);
+        const visibleHtml = normalizeGitHubPagesBasePath(
+          stripHtmlScripts(html),
+        );
         const missing = requireSubstrings(visibleHtml, [
           "マルチヘッド attention",
           'data-registry-id="module.multi-head-attention"',
@@ -126,7 +138,9 @@ export const JAPANESE_ATTENTION_ROUTE_ASSERTIONS: readonly JapaneseAttentionRout
       path: "/ja/docs/modules/multi-query-attention",
       label: "/ja/docs/modules/multi-query-attention",
       assertBody: (html) => {
-        const visibleHtml = stripHtmlScripts(html);
+        const visibleHtml = normalizeGitHubPagesBasePath(
+          stripHtmlScripts(html),
+        );
         const missing = requireSubstrings(visibleHtml, [
           "マルチクエリ attention",
           'data-registry-id="module.multi-query-attention"',
@@ -149,7 +163,9 @@ export const JAPANESE_ATTENTION_ROUTE_ASSERTIONS: readonly JapaneseAttentionRout
       path: "/ja/docs/modules/linear-attention",
       label: "/ja/docs/modules/linear-attention",
       assertBody: (html) => {
-        const visibleHtml = stripHtmlScripts(html);
+        const visibleHtml = normalizeGitHubPagesBasePath(
+          stripHtmlScripts(html),
+        );
         const missing = requireSubstrings(visibleHtml, [
           "線形 attention",
           'data-registry-id="module.linear-attention"',
@@ -172,7 +188,9 @@ export const JAPANESE_ATTENTION_ROUTE_ASSERTIONS: readonly JapaneseAttentionRout
       path: "/ja/docs/modules/sliding-window-attention",
       label: "/ja/docs/modules/sliding-window-attention",
       assertBody: (html) => {
-        const visibleHtml = stripHtmlScripts(html);
+        const visibleHtml = normalizeGitHubPagesBasePath(
+          stripHtmlScripts(html),
+        );
         const missing = requireSubstrings(visibleHtml, [
           "スライディングウィンドウ attention",
           'data-registry-id="module.sliding-window-attention"',

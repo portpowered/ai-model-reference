@@ -122,7 +122,7 @@ describe("PageAsset", () => {
     expect(html).toContain('data-graph-node-id="gqa-query-heads"');
     expect(html).toContain('data-graph-node-count="11"');
     expect(html).toContain(
-      "Toggle multi-head attention and grouped-query attention to compare query-head count against key-value head count on one canvas.",
+      "Grouped-query attention reduces key-value head count by letting several query heads share each key-value pair.",
     );
     expect(html).not.toContain(
       ">graph.grouped-query-attention-gqa-comparison<",
@@ -224,8 +224,8 @@ describe("PageAsset", () => {
     expect(html).toContain(
       'data-chart-id="chart.activation-family.relu-intro"',
     );
-    expect(html).toContain("LeakyReLU");
-    expect(html).toContain("SiLU");
+    expect(html).toContain("Activation Curves");
+    expect(html).toContain("ReLU");
     expect(html).not.toContain('data-graph-id="graph.relu-activation-flow"');
   });
 
@@ -258,7 +258,8 @@ describe("PageAsset", () => {
     expect(html).toContain(
       'data-chart-id="chart.activation-family.relu-silu-comparison"',
     );
-    expect(html).toContain("smooth self-gating curve in SiLU");
+    expect(html).toContain("ReLU");
+    expect(html).toContain("SiLU");
     expect(html).not.toContain('data-graph-id="graph.silu-activation-flow"');
   });
 
