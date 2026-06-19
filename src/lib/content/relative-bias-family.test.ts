@@ -2,6 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import {
+  loadLocalDocsPage,
+  localDocsRoute,
+} from "@/lib/content/local-docs-page";
 import { loadModulePage } from "@/lib/content/module-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
@@ -16,6 +20,37 @@ import {
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
 describe("Phase 3 relative bias family pages (US-003)", () => {
+  test("canonical route, frontmatter, and default English messages resolve together for relative position bias", async () => {
+    const route = localDocsRoute({
+      section: "modules",
+      slug: "relative-position-bias",
+    });
+    const page = await loadLocalDocsPage({
+      section: "modules",
+      slug: "relative-position-bias",
+    });
+    const messages = pageMessagesSchema.parse(page.messages);
+
+    expect(route).toBe("/docs/modules/relative-position-bias");
+    expect(page.frontmatter.kind).toBe("module");
+    expect(page.frontmatter.registryId).toBe("module.relative-position-bias");
+    expect(page.frontmatter.messageNamespace).toBe("local");
+    expect(page.frontmatter.assetNamespace).toBe("local");
+    expect(page.frontmatter.status).toBe("published");
+    expect(messages.title).toBe("Relative position bias");
+    expect(messages.description).toContain("distance-aware bias terms");
+    expect(messages.openingSummary).toContain("broad family");
+    expect(page.toc.map((item) => item.url)).toEqual([
+      "#what-it-is",
+      "#why-it-matters",
+      "#simple-example",
+      "#common-confusions",
+      "#related",
+      "#tags",
+      "#references",
+    ]);
+  });
+
   test("relative position bias distinguishes the general family from the T5-specific subtype", () => {
     const relativeBias = getConceptById("concept.relative-position-bias");
     const relativeBiasModule = getModuleById("module.relative-position-bias");
