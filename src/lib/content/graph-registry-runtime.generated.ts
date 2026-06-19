@@ -41,6 +41,7 @@ import ppoTrainingFlowGraphRecord from "@/content/registry/graphs/ppo-training-f
 import qkNormComputeFlowGraphRecord from "@/content/registry/graphs/qk-norm-compute-flow.json";
 import reluActivationFlowGraphRecord from "@/content/registry/graphs/relu-activation-flow.json";
 import rmsnormComputeFlowGraphRecord from "@/content/registry/graphs/rmsnorm-compute-flow.json";
+import routingSystemFlowGraphRecord from "@/content/registry/graphs/routing-system-flow.json";
 import sentencepieceComputeFlowGraphRecord from "@/content/registry/graphs/sentencepiece-compute-flow.json";
 import siluActivationFlowGraphRecord from "@/content/registry/graphs/silu-activation-flow.json";
 import slidingWindowAttentionTimeWindowPatternGraphRecord from "@/content/registry/graphs/sliding-window-attention-time-window-pattern.json";
@@ -92,6 +93,7 @@ export const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(qkNormComputeFlowGraphRecord),
   graphRecordSchema.parse(reluActivationFlowGraphRecord),
   graphRecordSchema.parse(rmsnormComputeFlowGraphRecord),
+  graphRecordSchema.parse(routingSystemFlowGraphRecord),
   graphRecordSchema.parse(sentencepieceComputeFlowGraphRecord),
   graphRecordSchema.parse(siluActivationFlowGraphRecord),
   graphRecordSchema.parse(slidingWindowAttentionTimeWindowPatternGraphRecord),

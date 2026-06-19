@@ -1,0 +1,35 @@
+---
+title: "Routing"
+description: "A serving system that decides which model, hardware tier, or execution path should handle a request so operators can balance cost, latency, safety, and specialization."
+kind: "system"
+registryId: "system.routing"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+aliases:
+  - "Request routing"
+  - "Inference routing"
+updatedAt: "2026-06-19"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { SystemAtAGlance } from "@/features/models/components/SystemAtAGlance";
+import { SystemFlowGraph } from "@/features/models/components/SystemFlowGraph";
+
+
+<SystemAtAGlance registryId="system.routing" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title"><T k="sections.whatItIs.body" /></Section>
+<Section id="where-it-sits" titleKey="sections.whereItSits.title"><T k="sections.whereItSits.body" /></Section>
+<Section id="how-it-works" titleKey="sections.howItWorks.title"><T k="sections.howItWorks.body" /><SystemFlowGraph registryId="system.routing" assetId="systemFlow" /></Section>
+<Section id="practical-impact" titleKey="sections.practicalImpact.title"><T k="sections.practicalImpact.body" /><BlockMath formula="\\text{request cost} \\approx \\text{cheap-path share} \\cdot c_{\\text{cheap}} + \\text{specialist-path share} \\cdot c_{\\text{specialist}} + \\text{routing overhead}" /></Section>
+<Section id="related" titleKey="sections.related.title"><RelatedDocs registryId="system.routing" /></Section>
+<Section id="tags" titleKey="sections.tags.title"><TagPillList registryId="system.routing" showDescriptions /></Section>
+<Section id="references" titleKey="sections.references.title"><CitationList registryId="system.routing" /></Section>

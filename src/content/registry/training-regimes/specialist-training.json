@@ -6,7 +6,11 @@
   "defaultSummaryKey": "description",
   "aliases": ["specialist training"],
   "tags": ["foundations", "quantization"],
-  "relatedIds": ["paper.deepseek-v4", "training-regime.on-policy-distillation"],
+  "relatedIds": [
+    "paper.deepseek-v4",
+    "training-regime.on-policy-distillation",
+    "system.routing"
+  ],
   "citationIds": ["citation.deepseek-v4-paper"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",

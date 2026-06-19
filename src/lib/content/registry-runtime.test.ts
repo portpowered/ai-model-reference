@@ -4,12 +4,15 @@ import {
   getDatasetById,
   getModuleById,
   getOrganizationById,
+  getPaperById,
   getRegistryCitationIds,
   getRegistryRecordById,
   getRegistryTags,
+  getSystemById,
   listConceptRecords,
   listModuleRecords,
   listRelatedRegistryRecords,
+  listSystemRecords,
 } from "@/lib/content/registry-runtime";
 
 describe("registry-runtime", () => {
@@ -149,6 +152,20 @@ describe("registry-runtime", () => {
     expect(getRegistryCitationIds("module.unknown")).toBeUndefined();
   });
 
+  test("missing runtime lookups stay scoped to undefined without affecting known records", () => {
+    expect(getModuleById("module.missing-runtime-record")).toBeUndefined();
+    expect(getConceptById("concept.missing-runtime-record")).toBeUndefined();
+    expect(
+      getRegistryRecordById("module.missing-runtime-record"),
+    ).toBeUndefined();
+    expect(getRegistryTags("module.missing-runtime-record")).toBeUndefined();
+    expect(
+      getRegistryCitationIds("module.missing-runtime-record"),
+    ).toBeUndefined();
+
+    expect(getModuleById("module.attention")?.slug).toBe("attention");
+  });
+
   test("getRegistryRecordById resolves modules and concepts", () => {
     expect(getRegistryRecordById("concept.token")?.kind).toBe("concept");
     expect(getRegistryRecordById("module.grouped-query-attention")?.kind).toBe(
@@ -170,6 +187,60 @@ describe("registry-runtime", () => {
     expect(getRegistryRecordById("organization.deepseek-ai")?.kind).toBe(
       "organization",
     );
+  });
+
+  test("getSystemById returns the canonical routing system with serving aliases and nearby docs", () => {
+    const record = getSystemById("system.routing");
+
+    expect(record?.slug).toBe("routing");
+    expect(record?.status).toBe("published");
+    expect(record?.tags).toEqual(["foundations"]);
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "Routing",
+        "request routing",
+        "inference routing",
+        "serving router",
+        "serve request to specialist model",
+      ]),
+    );
+    expect(record?.relatedIds).toEqual([
+      "training-regime.specialist-training",
+      "module.mixture-of-experts",
+      "module.deepseekmoe",
+      "system.expert-parallel-overlap",
+      "system.on-disk-kv-cache",
+      "paper.deepseek-v4",
+    ]);
+    expect(record?.relatedModuleIds).toEqual([
+      "module.mixture-of-experts",
+      "module.deepseekmoe",
+    ]);
+    expect(record?.organizationId).toBe("organization.deepseek-ai");
+  });
+
+  test("routing system is reachable from paper, organization, and the system registry list", () => {
+    expect(getPaperById("paper.deepseek-v4")?.introducesIds).toContain(
+      "system.routing",
+    );
+    expect(
+      getOrganizationById("organization.deepseek-ai")?.systemIds,
+    ).toContain("system.routing");
+    expect(listSystemRecords().map((record) => record.id)).toContain(
+      "system.routing",
+    );
+  });
+
+  test("nearby published MoE and training records link back to routing for reciprocal discovery", () => {
+    expect(getModuleById("module.mixture-of-experts")?.relatedIds).toContain(
+      "system.routing",
+    );
+    expect(getModuleById("module.deepseekmoe")?.relatedIds).toContain(
+      "system.routing",
+    );
+    expect(
+      getRegistryRecordById("training-regime.specialist-training")?.relatedIds,
+    ).toContain("system.routing");
   });
 
   test("listRelatedRegistryRecords includes concepts and modules", () => {

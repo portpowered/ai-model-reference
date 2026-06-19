@@ -107,6 +107,7 @@ const BROWSE_TRAINING_STARTER_SLUGS = [
   "training/ppo",
 ] as const;
 const BROWSE_SYSTEMS_STARTER_SLUGS = [
+  "systems/routing",
   "systems/on-disk-kv-cache",
   "systems/expert-parallel-overlap",
 ] as const;
