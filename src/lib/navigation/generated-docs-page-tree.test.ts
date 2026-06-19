@@ -136,6 +136,13 @@ describe("generated docs page tree", () => {
         url: "/docs/training/fp4-quantization-aware-training",
       }),
     );
+    expect(
+      findNodeIndex(trainingChildren, { name: "Post-Training" }),
+    ).toBeLessThan(
+      findNodeIndex(trainingChildren, {
+        url: "/docs/training/ppo",
+      }),
+    );
 
     const systemsChildren = getFolderChildren("Systems");
     expect(findNodeIndex(systemsChildren, { name: "Memory" })).toBeLessThan(

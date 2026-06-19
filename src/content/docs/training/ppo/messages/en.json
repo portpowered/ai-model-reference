@@ -1,0 +1,55 @@
+{
+  "title": "Proximal Policy Optimization",
+  "description": "A post-training regime that updates a model with clipped reinforcement-learning steps so RLHF behavior improves without each update moving too far at once.",
+  "openingSummary": "Proximal policy optimization (PPO) is the clipped policy-update method that made early RLHF systems workable. It improves a model against reward signals, but it does so in small guarded steps because aggressive reinforcement-learning updates can damage language behavior quickly.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Proximal policy optimization is a reinforcement-learning training regime. In language-model use, it usually appears after supervised fine-tuning, where the model samples responses, a reward model scores them, and PPO nudges the policy toward higher-reward behavior without letting one update swing too far."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Early RLHF pipelines needed a way to optimize against learned preference signals while keeping the language model stable. PPO was attractive because its clipped update rule is meant to limit abrupt policy shifts, which helped teams improve helpfulness or harmlessness without fully trusting raw reward maximization."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The current policy generates candidate answers, a reward model or preference-derived score judges them, and PPO compares the new policy against the old one before taking the update. The clipped objective keeps the policy ratio inside a bounded range, so the optimizer only accepts gains that do not come from moving the model too far in one step."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "PPO is heavier than direct preference optimization (DPO) because it needs online rollouts and repeated policy updates instead of only fitting preference pairs offline. It is closer to RLHF's classic reinforcement-learning loop than group relative policy optimization (GRPO), which tries to simplify the scoring story by comparing grouped outputs more directly."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "PPO is operationally heavy because teams must keep a sampling loop, reward-model scoring path, advantage estimation, and repeated policy-training passes all working together. It can also become unstable if rewards are noisy, if the reward model is exploitable, or if the clipping guard is too weak to stop reward hacking and language-quality collapse."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "trainingFlow": {
+      "alt": "A loop from policy rollout to reward scoring to clipped PPO update.",
+      "caption": "PPO keeps sampling, scoring, and clipped policy updates inside one repeated RLHF-style loop."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "rollout": {
+        "label": "Policy rollout"
+      },
+      "score": {
+        "label": "Reward scoring"
+      },
+      "update": {
+        "label": "Clipped PPO update"
+      }
+    }
+  }
+}

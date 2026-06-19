@@ -1,0 +1,37 @@
+---
+title: "Proximal Policy Optimization"
+description: "A post-training regime that updates a model with clipped reinforcement-learning steps so RLHF behavior improves without each update moving too far at once."
+kind: "training-regime"
+registryId: "training-regime.ppo"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+  - taxonomy
+aliases:
+  - "PPO"
+  - "Proximal Policy Optimization"
+updatedAt: "2026-06-19"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
+import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeFlow";
+
+
+<TrainingRegimeAtAGlance registryId="training-regime.ppo" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title"><T k="sections.whatItIs.body" /></Section>
+<Section id="why-it-exists" titleKey="sections.whyItExists.title"><T k="sections.whyItExists.body" /></Section>
+<Section id="how-it-works" titleKey="sections.howItWorks.title"><T k="sections.howItWorks.body" /><TrainingRegimeFlow registryId="training-regime.ppo" assetId="trainingFlow" /><BlockMath formula="L^{\\mathrm{CLIP}}(\\theta)=\\mathbb{E}_t\\left[\\min\\left(r_t(\\theta)A_t,\\operatorname{clip}(r_t(\\theta),1-\\epsilon,1+\\epsilon)A_t\\right)\\right]" /></Section>
+<Section id="compared-to-nearby-regimes" titleKey="sections.comparedToNearbyRegimes.title"><T k="sections.comparedToNearbyRegimes.body" /></Section>
+<Section id="limitations-and-failure-modes" titleKey="sections.limitationsAndFailureModes.title"><T k="sections.limitationsAndFailureModes.body" /></Section>
+<Section id="related" titleKey="sections.related.title"><RelatedDocs registryId="training-regime.ppo" /></Section>
+<Section id="tags" titleKey="sections.tags.title"><TagPillList registryId="training-regime.ppo" showDescriptions /></Section>
+<Section id="references" titleKey="sections.references.title"><CitationList registryId="training-regime.ppo" /></Section>

@@ -104,6 +104,7 @@ const BROWSE_TRAINING_STARTER_SLUGS = [
   "training/on-policy-distillation",
   "training/specialist-training",
   "training/fp4-quantization-aware-training",
+  "training/ppo",
 ] as const;
 const BROWSE_SYSTEMS_STARTER_SLUGS = [
   "systems/on-disk-kv-cache",

@@ -118,6 +118,17 @@ describe("Phase 1 search discovery", () => {
   });
 
   test.each([
+    "ppo",
+    "proximal policy optimization",
+    "rlhf ppo",
+  ] as const)("%s query returns the canonical PPO training page", async (query) => {
+    const results = await docsSearchApi.search(query);
+    expect(results.length).toBeGreaterThan(0);
+    expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
+    expect(resultsIncludeUrl(results, "/docs/training/ppo")).toBe(true);
+  });
+
+  test.each([
     "vocabulary size",
     "vocab size",
     "tokenizer vocabulary",
