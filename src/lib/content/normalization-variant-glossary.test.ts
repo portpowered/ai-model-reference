@@ -36,7 +36,7 @@ const PAGE_CASES = [
       "concept.layer-norm",
     ],
     hrefs: [
-      "/docs/glossary/normalization",
+      "/docs/concepts/normalization",
       "/docs/modules/group-norm",
       "/docs/modules/layer-norm",
     ],
@@ -57,7 +57,7 @@ const PAGE_CASES = [
       "concept.layer-norm",
     ],
     hrefs: [
-      "/docs/glossary/normalization",
+      "/docs/concepts/normalization",
       "/docs/modules/batch-norm",
       "/docs/modules/layer-norm",
     ],
@@ -78,7 +78,7 @@ const PAGE_CASES = [
       "concept.rmsnorm",
     ],
     hrefs: [
-      "/docs/glossary/normalization",
+      "/docs/concepts/normalization",
       "/docs/modules/layer-norm",
       "/docs/modules/rmsnorm",
     ],

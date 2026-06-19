@@ -76,6 +76,16 @@ const GLOSSARY_CANONICAL_QUERIES = [
     kind: "concept" as const,
   },
   {
+    query: "normalization layer",
+    url: NORMALIZATION_CONCEPT_URL,
+    kind: "concept" as const,
+  },
+  {
+    query: "norm layer",
+    url: NORMALIZATION_CONCEPT_URL,
+    kind: "concept" as const,
+  },
+  {
     query: "layer norm",
     url: LAYER_NORM_GLOSSARY_URL,
     kind: "module" as const,

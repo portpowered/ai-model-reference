@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
@@ -56,6 +59,28 @@ describe("Normalization concept page (normalization-concept-page-001)", () => {
     expect(mdxSource).toContain('href="/docs/modules/qk-norm"');
     expect(mdxSource).not.toContain("Reader Shortcut");
     expect(mdxSource).not.toContain("benchmark leaderboard");
+  });
+
+  test("rendered concept page keeps the normalization family navigable from the broad explainer", async () => {
+    const page = await loadConceptPage("normalization");
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('href="/docs/modules/layer-norm"');
+    expect(html).toContain('href="/docs/modules/rmsnorm"');
+    expect(html).toContain('href="/docs/modules/batch-norm"');
+    expect(html).toContain('href="/docs/modules/group-norm"');
+    expect(html).toContain('href="/docs/modules/qk-norm"');
+    expect(html).toContain('href="/docs/concepts/transformer-architecture"');
+    expect(html).toContain('href="/docs/glossary/residual-connection"');
+    expect(html).toContain('data-testid="curated-related-docs"');
   });
 
   test("published docs and search documents include the normalization concept route", async () => {

@@ -2,6 +2,7 @@
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
   "concept.page-spec-workflow-sample",
   "concept.transformer-architecture",
+  "concept.normalization",
   "concept.positional-encodings",
   "concept.context-extension",
   "concept.why-long-context-is-hard",

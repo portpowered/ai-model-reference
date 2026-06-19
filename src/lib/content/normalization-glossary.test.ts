@@ -11,7 +11,10 @@ import {
   expectHtmlToContainProse,
 } from "@/lib/content/glossary-test-helpers";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
-import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import {
+  PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
 import {
   getConceptById,
@@ -44,7 +47,7 @@ describe("Phase 3 normalization glossary page (US-004)", () => {
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.normalization")).toBe(true);
   });
 
-  test("curated related links transformer architecture and residual connection", () => {
+  test("curated related links transformer architecture and residual connection while the canonical concept route resolves directly", () => {
     const source = getConceptById("concept.normalization");
     if (!source) {
       throw new Error("expected concept.normalization in registry");
@@ -67,9 +70,13 @@ describe("Phase 3 normalization glossary page (US-004)", () => {
     );
     expect(residual?.href).toBe("/docs/glossary/residual-connection");
     expect(residual?.isPlanned).toBe(false);
+
+    expect(
+      PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has("concept.normalization"),
+    ).toBe(true);
   });
 
-  test("messages explain stabilization and layer-style norms over batch norm", () => {
+  test("messages explain stabilization, layer-style norms over batch norm, and the handoff to the broad concept page", () => {
     const messages = pageMessagesSchema.parse(
       JSON.parse(readFileSync(messagesPath, "utf8")),
     );
@@ -85,9 +92,12 @@ describe("Phase 3 normalization glossary page (US-004)", () => {
     expect(messages.sections?.whyItMatters.body?.toLowerCase()).toContain(
       "layer norm",
     );
+    expect(messages.sections?.readNext.body?.toLowerCase()).toContain(
+      "broad normalization concept page",
+    );
   });
 
-  test("page renders overview sections and transformer architecture related link", async () => {
+  test("page renders overview sections, handoff links, and transformer architecture related link", async () => {
     const page = await loadGlossaryPage("normalization");
 
     expect(page.frontmatter.kind).toBe("glossary");
@@ -108,7 +118,14 @@ describe("Phase 3 normalization glossary page (US-004)", () => {
     });
     expect(html).toContain("What It Is");
     expect(html).toContain("Why It Matters");
+    expect(html).toContain("Read Next");
     expectHtmlToContainProse(html, "layer norm");
+    expect(html).toContain('href="/docs/concepts/normalization"');
+    expect(html).toContain('href="/docs/modules/layer-norm"');
+    expect(html).toContain('href="/docs/modules/rmsnorm"');
+    expect(html).toContain('href="/docs/modules/batch-norm"');
+    expect(html).toContain('href="/docs/modules/group-norm"');
+    expect(html).toContain('href="/docs/modules/qk-norm"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');

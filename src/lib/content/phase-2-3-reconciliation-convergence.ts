@@ -155,6 +155,16 @@ const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
     firstKind: "concept" as const,
   },
   {
+    query: "normalization layer",
+    firstUrl: "/docs/concepts/normalization",
+    firstKind: "concept" as const,
+  },
+  {
+    query: "norm layer",
+    firstUrl: "/docs/concepts/normalization",
+    firstKind: "concept" as const,
+  },
+  {
     query: "layer norm",
     firstUrl: "/docs/modules/layer-norm",
     firstKind: "module" as const,
