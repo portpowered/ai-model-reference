@@ -71,14 +71,16 @@ export const publishedDocsIndex = buildRuntimePublishedDocsIndex(
   GENERATED_PUBLISHED_DOCS_ENTRIES,
 );
 
-export const PUBLISHED_DOCS_REGISTRY_IDS: ReadonlySet<string> =
-  new Set(GENERATED_PUBLISHED_DOCS_REGISTRY_IDS);
+export const PUBLISHED_DOCS_REGISTRY_IDS: ReadonlySet<string> = new Set(
+  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS,
+);
 
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS: ReadonlySet<string> =
   new Set(GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS);
 
-export const MODULE_BACKED_CONCEPT_REGISTRY_IDS: ReadonlySet<string> =
-  new Set(GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS);
+export const MODULE_BACKED_CONCEPT_REGISTRY_IDS: ReadonlySet<string> = new Set(
+  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS,
+);
 
 export function listPublishedDocsEntries(): readonly PublishedDocsEntry[] {
   return publishedDocsIndex.entries;
