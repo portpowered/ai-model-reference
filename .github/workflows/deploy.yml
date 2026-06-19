@@ -36,7 +36,7 @@ jobs:
         run: bunx playwright install chromium --with-deps
 
       - name: Build static export
-        run: make build-export
+        run: make internal-build-export
         env:
           GITHUB_PAGES_BASE_PATH: ai-model-reference
 

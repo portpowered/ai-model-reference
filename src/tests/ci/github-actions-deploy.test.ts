@@ -24,7 +24,7 @@ describe("GitHub Actions deploy workflow", () => {
     expect(ciWorkflow).toMatch(/pull_request:/);
   });
 
-  test("deploy workflow installs with frozen lockfile then runs make build-export", () => {
+  test("deploy workflow installs with frozen lockfile then runs make internal-build-export", () => {
     const workflow = readFileSync(deployWorkflowPath, "utf8");
 
     const setupBunIndex = workflow.indexOf("oven-sh/setup-bun@v2");
@@ -32,7 +32,9 @@ describe("GitHub Actions deploy workflow", () => {
     const frozenInstallIndex = workflow.indexOf(
       "bun install --frozen-lockfile",
     );
-    const buildExportIndex = workflow.indexOf("run: make build-export");
+    const buildExportIndex = workflow.indexOf(
+      "run: make internal-build-export",
+    );
 
     expect(setupBunIndex).toBeGreaterThan(-1);
     expect(pinnedBunVersionIndex).toBeGreaterThan(setupBunIndex);

@@ -1006,7 +1006,7 @@ describe("pickListenPort integration", () => {
 });
 
 describe("defaultSpawnProductionServer spawn contract", () => {
-  test("buildDefaultProductionServerSpawnSpec matches bun run start loopback contract", () => {
+  test("buildDefaultProductionServerSpawnSpec matches bun run internal:start loopback contract", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "verify-spawn-contract-"));
     const port = 3456;
 

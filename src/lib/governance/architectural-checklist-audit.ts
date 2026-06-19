@@ -67,7 +67,7 @@ const REQUIRED_REVIEWER_COMMAND_MARKERS = [
   "### Repeatable reviewer path",
   "### Governance audit (this artifact)",
   "### General quality gates",
-  "make verify-architectural-checklist-mechanism-status",
+  "make internal-verify-architectural-checklist-mechanism-status",
   "bun run verify:architectural-checklist-mechanism-status",
   "make ci",
   "bun run test:integration",

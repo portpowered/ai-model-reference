@@ -145,9 +145,9 @@ describe("validateDocumentationLinks", () => {
   });
 });
 
-describe("make linkcheck", () => {
+describe("make internal-linkcheck", () => {
   test("exits zero on current repository content", () => {
-    const result = spawnSync("make", ["linkcheck"], {
+    const result = spawnSync("make", ["internal-linkcheck"], {
       cwd: repoRoot,
       encoding: "utf8",
     });

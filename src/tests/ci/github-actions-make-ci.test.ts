@@ -20,14 +20,14 @@ const buildTracingRegressionTestPath = join(
 
 const ciTargets = [
   "lint",
-  "typecheck",
+  "internal-typecheck",
   "test",
-  "test-verify-contract",
-  "coverage",
-  "test-build-contract",
-  "test-integration",
-  "validate-data",
-  "linkcheck",
+  "internal-test-verify-contract",
+  "internal-coverage",
+  "internal-test-build-contract",
+  "internal-test-integration",
+  "internal-validate-data",
+  "internal-linkcheck",
 ] as const;
 
 const excludedCiTargets = [
@@ -120,15 +120,17 @@ describe("GitHub Actions make ci", () => {
       readFileSync(join(repoRoot, "package.json"), "utf8"),
     ) as {
       scripts: {
-        linkcheck: string;
+        "internal:linkcheck": string;
         test: string;
         "test:build-contract": string;
         "test:verify-contract": string;
-        prelinkcheck: string;
+        "preinternal:linkcheck": string;
       };
     };
-    expect(packageJson.scripts.prelinkcheck).toBe("fumadocs-mdx");
-    expect(packageJson.scripts.linkcheck).toBe(
+    expect(packageJson.scripts["preinternal:linkcheck"]).toBe(
+      "bun run generate:shipped-localized-docs && bun run generate:graph-registry-runtime && bun run generate:registry-runtime && fumadocs-mdx",
+    );
+    expect(packageJson.scripts["internal:linkcheck"]).toBe(
       "bun ./scripts/validate-links.ts",
     );
     expect(packageJson.scripts.test).toBe("bun run test:website");
@@ -152,45 +154,47 @@ describe("GitHub Actions make ci", () => {
     expect(workflow).not.toMatch(/--exclude/i);
     expect(workflow).not.toMatch(/next-build-tracing-warning/i);
     expect(workflow).toContain("command: make test");
-    expect(workflow).toContain("command: make test-verify-contract");
-    expect(workflow).toContain("command: make test-build-contract");
-    expect(workflow).toContain("command: make build-export");
-    expect(workflow).toContain("command: make test-integration");
+    expect(workflow).toContain("command: make internal-test-verify-contract");
+    expect(workflow).toContain("command: make internal-test-build-contract");
+    expect(workflow).toContain("command: make internal-build-export");
+    expect(workflow).toContain("command: make internal-test-integration");
 
     const matrixEntries = parseWorkflowMatrixEntries(workflow);
     const testVerifyContract = matrixEntries.find(
-      (entry) => entry.name === "test-verify-contract",
+      (entry) => entry.name === "internal-test-verify-contract",
     );
     const test = matrixEntries.find((entry) => entry.name === "test");
     const testBuildContract = matrixEntries.find(
-      (entry) => entry.name === "test-build-contract",
+      (entry) => entry.name === "internal-test-build-contract",
     );
     const buildExport = matrixEntries.find(
-      (entry) => entry.name === "build-export",
+      (entry) => entry.name === "internal-build-export",
     );
     const testIntegration = matrixEntries.find(
-      (entry) => entry.name === "test-integration",
+      (entry) => entry.name === "internal-test-integration",
     );
 
     expect(test?.websiteTestParallelWorkers).toBe(1);
     expect(testVerifyContract?.installPlaywright).toBe(true);
     expect(testBuildContract?.installPlaywright).toBe(true);
-    expect(buildExport?.command).toBe("make build-export");
+    expect(buildExport?.command).toBe("make internal-build-export");
     expect(buildExport?.installPlaywright).toBe(true);
     expect(testIntegration?.installPlaywright).toBe(true);
 
     const makefile = readFileSync(makefilePath, "utf8");
-    expect(makefile).toContain("linkcheck:\n\tbun run linkcheck");
+    expect(makefile).toContain(
+      "internal-linkcheck:\n\tbun run internal:linkcheck",
+    );
     expect(parseMakefileCiPrerequisites(makefile)).toContain("test");
     expect(parseMakefileCiPrerequisites(makefile)).toContain(
-      "test-verify-contract",
+      "internal-test-verify-contract",
     );
     expect(parseMakefileCiPrerequisites(makefile)).toContain(
-      "test-build-contract",
+      "internal-test-build-contract",
     );
     expect(parseMakefileCiPrerequisites(makefile)).not.toContain("build");
     expect(parseMakefileCiPrerequisites(makefile)).not.toContain(
-      "build-export",
+      "internal-build-export",
     );
   });
 
@@ -213,7 +217,9 @@ describe("GitHub Actions make ci", () => {
     );
 
     expect(commands).toHaveLength(ciTargets.length + 1);
-    expect([...commands].sort()).toEqual([...ciTargets, "build-export"].sort());
+    expect([...commands].sort()).toEqual(
+      [...ciTargets, "internal-build-export"].sort(),
+    );
   });
 
   test("make ci stops on the first failing prerequisite", () => {

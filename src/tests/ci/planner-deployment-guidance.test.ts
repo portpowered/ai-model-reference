@@ -35,7 +35,7 @@ describe("batch-014 planner deployment guidance", () => {
 
     const guidanceText = plannerGuidanceText(opsWork as Batch014Work);
     expect(guidanceText).toMatch(/\.github\/workflows\/deploy\.yml/);
-    expect(guidanceText).toMatch(/make build-export/);
+    expect(guidanceText).toMatch(/make internal-build-export/);
     expect(guidanceText).toMatch(/GITHUB_PAGES_BASE_PATH/);
     expect(guidanceText).not.toMatch(/lacks deploy automation/i);
     expect(guidanceText).not.toMatch(/no deploy workflow/i);

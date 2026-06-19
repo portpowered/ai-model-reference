@@ -49,9 +49,9 @@ export const PHASE_2_3_RECONCILIATION_RESIDUAL_PHASE_1_BLOCKERS: readonly Phase2
         "customer-ask-convergence",
       ],
       verificationCommands: [
-        "make verify-phase-1-built-app-convergence",
-        "make verify-phase-1-follow-up-convergence",
-        "make verify-phase-1-ux",
+        "make internal-verify-phase-1-built-app-convergence",
+        "make internal-verify-phase-1-follow-up-convergence",
+        "make internal-verify-phase-1-ux",
       ],
     },
     {

@@ -21,29 +21,29 @@ jobs:
         include:
           - name: lint
             command: make lint
-          - name: typecheck
-            command: make typecheck
+          - name: internal-typecheck
+            command: make internal-typecheck
           - name: test
             command: make test
             website_test_parallel_workers: 1
-          - name: test-verify-contract
-            command: make test-verify-contract
+          - name: internal-test-verify-contract
+            command: make internal-test-verify-contract
             install_playwright: true
-          - name: coverage
-            command: make coverage
-          - name: test-build-contract
-            command: make test-build-contract
+          - name: internal-coverage
+            command: make internal-coverage
+          - name: internal-test-build-contract
+            command: make internal-test-build-contract
             install_playwright: true
-          - name: build-export
-            command: make build-export
+          - name: internal-build-export
+            command: make internal-build-export
             install_playwright: true
-          - name: test-integration
-            command: make test-integration
+          - name: internal-test-integration
+            command: make internal-test-integration
             install_playwright: true
-          - name: validate-data
-            command: make validate-data
-          - name: linkcheck
-            command: make linkcheck
+          - name: internal-validate-data
+            command: make internal-validate-data
+          - name: internal-linkcheck
+            command: make internal-linkcheck
     steps:
       - name: Checkout
         uses: actions/checkout@v4

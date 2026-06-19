@@ -3,7 +3,7 @@
  *
  * Simulates a clean clone without mutating the developer workspace: provisions a
  * detached git worktree at HEAD, runs `bun install --frozen-lockfile`, asserts
- * `.source/` is absent, then runs `make linkcheck` inside the isolated tree.
+ * `.source/` is absent, then runs `make internal-linkcheck` inside the isolated tree.
  */
 import { describe, expect, test } from "bun:test";
 import { type SpawnSyncReturns, spawnSync } from "node:child_process";
@@ -62,7 +62,7 @@ function isGitWorktreeDirty(repoRoot: string): boolean {
 
 describe("fresh-checkout linkcheck", () => {
   test(
-    "make linkcheck succeeds when .source is absent and regenerates output",
+    "make internal-linkcheck succeeds when .source is absent and regenerates output",
     () => {
       if (!shouldRunFreshCheckoutTypecheckProof()) {
         return;
@@ -83,7 +83,7 @@ describe("fresh-checkout linkcheck", () => {
 
         expect(existsSync(isolatedSourceDir)).toBe(false);
 
-        const result = spawnSync("make", ["linkcheck"], {
+        const result = spawnSync("make", ["internal-linkcheck"], {
           cwd: fixture.worktreePath,
           encoding: "utf8",
           env: process.env,
@@ -91,7 +91,7 @@ describe("fresh-checkout linkcheck", () => {
 
         if (result.status === null) {
           throw new Error(
-            `make linkcheck did not finish within the test budget.\n${formatSubprocessOutput(result)}`,
+            `make internal-linkcheck did not finish within the test budget.\n${formatSubprocessOutput(result)}`,
           );
         }
 
@@ -101,7 +101,7 @@ describe("fresh-checkout linkcheck", () => {
 
         if (result.status !== 0) {
           throw new Error(
-            `make linkcheck exited non-zero.\n${formatSubprocessOutput(result)}`,
+            `make internal-linkcheck exited non-zero.\n${formatSubprocessOutput(result)}`,
           );
         }
 

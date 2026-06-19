@@ -101,7 +101,7 @@ export function derivePhase1GitHubPagesDeployConvergenceRecommendation(input: {
     }
     if (input.exportArtifact.status === "fail") {
       failureParts.push(
-        `export-artifact (${input.exportArtifact.reason ?? "make build-export or export-route gate failure"})`,
+        `export-artifact (${input.exportArtifact.reason ?? "make internal-build-export or export-route gate failure"})`,
       );
     }
     if (input.deployPathSearch.status === "fail") {
@@ -153,13 +153,13 @@ export function derivePhase1GitHubPagesDeployConvergenceRecommendation(input: {
   return {
     recommendation: "stop-and-wait-for-phase-advancement",
     rationale:
-      "Deploy workflow and documentation align, make build-export passed export-route verification, and Phase 1 deploy-path /search probes passed against the static export harness.",
+      "Deploy workflow and documentation align, make internal-build-export passed export-route verification, and Phase 1 deploy-path /search probes passed against the static export harness.",
   };
 }
 
 /**
  * Builds the planner-facing batch-015 GitHub Pages deploy convergence summary
- * from repository workflow/docs evidence, captured `make build-export` output,
+ * from repository workflow/docs evidence, captured `make internal-build-export` output,
  * and deploy-path search probe rows.
  */
 export function buildPhase1GitHubPagesDeployConvergenceEvidenceSummary(
@@ -265,7 +265,7 @@ export function getPhase1GitHubPagesDeployConvergenceExitCode(
 
 export const PHASE_1_GITHUB_PAGES_DEPLOY_CONVERGENCE_WORKFLOW_STEPS = [
   "inspect deploy workflow and deploy-facing documentation",
-  "make build-export with canonical GITHUB_PAGES_BASE_PATH",
+  "make internal-build-export with canonical GITHUB_PAGES_BASE_PATH",
   "serve out/ on loopback static file server with project-site base path",
   "run Phase 1 deploy-path /search probes (GQA, attention, KV cache)",
 ] as const;
@@ -273,6 +273,6 @@ export const PHASE_1_GITHUB_PAGES_DEPLOY_CONVERGENCE_WORKFLOW_STEPS = [
 export const PHASE_1_GITHUB_PAGES_DEPLOY_CONVERGENCE_PREREQUISITES = [
   "Bun dependencies installed (`bun install`)",
   "Playwright Chromium for live browser checks on the static export server (`npx playwright install chromium`)",
-  "Static export output (`out/`) produced by `make build-export` inside the workflow",
+  "Static export output (`out/`) produced by `make internal-build-export` inside the workflow",
   "VERIFY_BASE_URL unset for canonical default static export spawn path",
 ] as const;

@@ -3,7 +3,7 @@
  *
  * Simulates a clean clone without mutating the developer workspace: provisions a
  * detached git worktree at HEAD, runs `bun install --frozen-lockfile`, asserts
- * `.source/` is absent, then runs `make typecheck` inside the isolated tree.
+ * `.source/` is absent, then runs `make internal-typecheck` inside the isolated tree.
  * See README.md § Quality Gates — Fresh-checkout CI proof.
  */
 import { describe, expect, test } from "bun:test";
@@ -64,7 +64,7 @@ function isGitWorktreeDirty(repoRoot: string): boolean {
 
 describe("fresh-checkout typecheck", () => {
   test(
-    "make typecheck succeeds when .source is absent and regenerates output",
+    "make internal-typecheck succeeds when .source is absent and regenerates output",
     () => {
       if (!shouldRunFreshCheckoutTypecheckProof()) {
         return;
@@ -86,8 +86,8 @@ describe("fresh-checkout typecheck", () => {
 
         expect(existsSync(isolatedSourceDir)).toBe(false);
 
-        // Full Makefile gate: pretypecheck (fumadocs-mdx) then tsc — not fumadocs-mdx alone.
-        const result = spawnSync("make", ["typecheck"], {
+        // Full Makefile gate: preinternal:typecheck (fumadocs-mdx) then tsc — not fumadocs-mdx alone.
+        const result = spawnSync("make", ["internal-typecheck"], {
           cwd: fixture.worktreePath,
           encoding: "utf8",
           env: process.env,
@@ -95,7 +95,7 @@ describe("fresh-checkout typecheck", () => {
 
         if (result.status === null) {
           throw new Error(
-            `make typecheck did not finish within the test budget.\n${formatSubprocessOutput(result)}`,
+            `make internal-typecheck did not finish within the test budget.\n${formatSubprocessOutput(result)}`,
           );
         }
 
@@ -105,7 +105,7 @@ describe("fresh-checkout typecheck", () => {
 
         if (result.status !== 0) {
           throw new Error(
-            `make typecheck exited non-zero.\n${formatSubprocessOutput(result)}`,
+            `make internal-typecheck exited non-zero.\n${formatSubprocessOutput(result)}`,
           );
         }
 

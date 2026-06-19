@@ -12,9 +12,9 @@ machine-readable manifest in `src/lib/docs/component-manifest.ts`.
 Local and CI runs use the same deterministic entry point:
 
 ```sh
-make coverage
+make internal-coverage
 # equivalent:
-bun run coverage
+bun run internal:coverage
 ```
 
 Both run `bun test --coverage` with fixed flags (including
@@ -136,7 +136,7 @@ Thin wrappers: `ModuleGraph` and `ModuleComparisonTable` forward to `PageAsset` 
 2. Add unit tests and, when the component is user-facing chrome or MDX UI,
    accessibility smoke under `src/tests/a11y/`.
 3. Update the table in this file.
-4. Run `make coverage` and confirm the manifest gate passes.
+4. Run `make internal-coverage` and confirm the manifest gate passes.
 
 Do not add global coverage thresholds—keep enforcement scoped to this manifest
-and the `make coverage` / `make ci` gate.
+and the `make internal-coverage` / `make ci` gate.

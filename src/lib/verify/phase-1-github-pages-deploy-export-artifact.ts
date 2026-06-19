@@ -10,13 +10,13 @@ import { deriveExportCommandPathEvidence } from "./phase-1-github-pages-export-c
 export const DEPLOY_EXPORT_ARTIFACT_DOMAIN_ID = "export-artifact" as const;
 
 export const DEPLOY_EXPORT_ARTIFACT_DOMAIN_LABEL =
-  "GitHub Pages export artifact (make build-export + export-route gate)";
+  "GitHub Pages export artifact (make internal-build-export + export-route gate)";
 
 export const DEPLOY_EXPORT_ARTIFACT_CHECKLIST_ROW =
   "phase-1-export-route-gate" as const;
 
 export const DEPLOY_CONVERGENCE_BUILD_EXPORT_COMMAND =
-  "make build-export" as const;
+  "make internal-build-export" as const;
 
 export type DeployExportArtifactStatus = "pass" | "fail" | "uncertain";
 
@@ -37,7 +37,7 @@ export type DeriveDeployExportArtifactEvidenceInput = {
 };
 
 const MISSING_OUT_AFTER_ZERO_EXIT_UNCERTAIN_REASON =
-  "make build-export exited 0 but out/ is missing or incomplete; cannot confirm export-route gate health.";
+  "make internal-build-export exited 0 but out/ is missing or incomplete; cannot confirm export-route gate health.";
 
 function buildEvidence(
   status: DeployExportArtifactStatus,
@@ -62,7 +62,7 @@ function resolveCanonicalBasePath(
 }
 
 /**
- * Environment for the deploy convergence `make build-export` step with the
+ * Environment for the deploy convergence `make internal-build-export` step with the
  * canonical GitHub Pages project-site base path.
  */
 export function buildDeployConvergenceBuildExportEnv(
@@ -76,7 +76,7 @@ export function buildDeployConvergenceBuildExportEnv(
 
 /**
  * Derives export-artifact pass/fail/uncertain evidence from captured
- * `make build-export` output and `verifyPhase1ExportRoutesFromOutDir` against
+ * `make internal-build-export` output and `verifyPhase1ExportRoutesFromOutDir` against
  * the built `out/` tree. Build or route verification failures yield fail;
  * missing `out/` after a zero exit yields uncertain.
  */

@@ -31,7 +31,7 @@ describe("component coverage contract", () => {
     }
   });
 
-  test("reachable line coverage minimums are enforced by make coverage, not nested bun test", () => {
+  test("reachable line coverage minimums are enforced by make internal-coverage, not nested bun test", () => {
     expect(existsSync(coverageGateScriptPath)).toBe(true);
     expect(COVERAGE_TEST_ARGS).toContain("--path-ignore-patterns");
     expect(COVERAGE_TEST_ARGS.join(" ")).toContain(

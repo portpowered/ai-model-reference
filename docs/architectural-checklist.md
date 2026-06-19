@@ -269,14 +269,14 @@ Required commands:
 ```makefile
 make ci        # run all CI checks
 make test      # run Bun tests
-make coverage  # run Bun tests with coverage
+make internal-coverage  # run Bun tests with coverage
 make build     # build the website
 make lint      # run Biome lint checks
-make format    # format code with Biome
-make typecheck # run TypeScript checks
-make validate-data # validate JSON registry data and relationships
-make validate-pdf # validate PDF export inputs for a locale or all default PDFs
-make linkcheck # run Fumadocs/next-validate-link docs link validation
+make internal-format    # format code with Biome
+make internal-typecheck # run TypeScript checks
+make internal-validate-data # validate JSON registry data and relationships
+make internal-validate-pdf # validate PDF export inputs for a locale or all default PDFs
+make internal-linkcheck # run Fumadocs/next-validate-link docs link validation
 make pdf       # generate PDFs, usually with LOCALE=en
 make pdf-page  # generate one page PDF with LOCALE=en PAGE=...
 make pdf-set   # generate one curated PDF set with LOCALE=en SET=...
@@ -285,12 +285,12 @@ make clean     # remove generated artifacts
 
 * `make ci` should run Biome linting, Biome formatting checks, type checking, Bun tests, Bun coverage, registry validation, PDF input validation, build validation, accessibility checks, and Fumadocs link checks.
 * `make lint` should run `bunx biome check .` or the local package-script equivalent.
-* `make format` should run `bunx biome format --write .` or the local package-script equivalent.
+* `make internal-format` should run `bunx biome format --write .` or the local package-script equivalent.
 * `make test` should run `bun test`.
-* `make coverage` should run `bun test --coverage`.
-* `make validate-data` should run `bun ./scripts/validate-registry.ts`.
-* `make validate-pdf` should run `bun ./scripts/validate-pdf.ts`.
-* `make linkcheck` should run `bun ./scripts/validate-links.ts`.
+* `make internal-coverage` should run `bun test --coverage`.
+* `make internal-validate-data` should run `bun ./scripts/validate-registry.ts`.
+* `make internal-validate-pdf` should run `bun ./scripts/validate-pdf.ts`.
+* `make internal-linkcheck` should run `bun ./scripts/validate-links.ts`.
 * `make pdf LOCALE=en` should run `bun ./scripts/build-pdf.ts --locale en`.
 * `make pdf-page LOCALE=en PAGE=docs/modules/grouped-query-attention` should run `bun ./scripts/build-pdf.ts --locale en --page docs/modules/grouped-query-attention`.
 * `make pdf-set LOCALE=en SET=attention` should run `bun ./scripts/build-pdf.ts --locale en --set attention`.
@@ -404,7 +404,7 @@ make clean     # remove generated artifacts
 * The validator checks links in raw MDX text from `page.data.getText("raw")`.
 * The validator checks relative paths as URLs with `checkRelativePaths: "as-url"`.
 * The validator must include href-bearing MDX components in its markdown component configuration, including `Card`, `Cards`, `Callout`, `SourceLink`, `RelatedLink`, and any custom link-like component introduced by the docs system.
-* `make linkcheck` and `make ci` must fail when internal docs links, relative URL links, heading anchors, or configured MDX component hrefs are broken.
+* `make internal-linkcheck` and `make ci` must fail when internal docs links, relative URL links, heading anchors, or configured MDX component hrefs are broken.
 * External link validation may be kept separate from `make ci` if network flakiness makes it unreliable, but internal link validation is required in CI.
 
 ## Blog Components Contract
@@ -422,7 +422,7 @@ make clean     # remove generated artifacts
 * `src/features/blog/components/BlogRelatedDocs.tsx` renders links to canonical docs pages using `relatedDocIds`.
 * Blog MDX uses the same core MDX component mapping as docs pages for code blocks, math, callouts, citations, tables, and diagrams.
 * Blog pages must have canonical metadata, Open Graph metadata, and sitemap entries.
-* Blog links are included in `scripts/validate-links.ts` so `make linkcheck` validates blog routes, anchors, relative links, and custom blog MDX component hrefs.
+* Blog links are included in `scripts/validate-links.ts` so `make internal-linkcheck` validates blog routes, anchors, relative links, and custom blog MDX component hrefs.
 * Blog content should not duplicate canonical reference definitions. When a post explains a concept, it links to the canonical docs page and focuses on narrative context, recency, or practical interpretation.
 
 ## Documentation features
@@ -475,7 +475,7 @@ make clean     # remove generated artifacts
 * `scripts/build-pdf.ts` owns PDF generation.
 * `scripts/validate-pdf.ts` owns PDF input validation.
 * Curated PDF bundles live under `src/content/pdf-sets`.
-* `make validate-pdf` runs in CI.
+* `make internal-validate-pdf` runs in CI.
 * `make pdf LOCALE=en` generates all default PDFs for one locale.
 * `make pdf-page LOCALE=en PAGE=docs/modules/grouped-query-attention` generates one docs-page PDF.
 * `make pdf-set LOCALE=en SET=attention` generates one curated PDF bundle.

@@ -1558,7 +1558,7 @@ updatedAt: "2026-06-02"
   });
 });
 
-describe("make validate-data", () => {
+describe("make internal-validate-data", () => {
   test("succeeds on the committed Phase 1 baseline", async () => {
     const proc = Bun.spawn({
       cmd: ["make", "validate-data"],

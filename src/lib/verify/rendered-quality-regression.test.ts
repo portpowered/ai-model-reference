@@ -95,8 +95,10 @@ describe("rendered quality regression catalog", () => {
     );
     expect(report).toContain("[CATALOG]");
     expect(report).toContain("bun test");
-    expect(report).toContain("make verify-rendered-quality-baseline");
-    expect(report).toContain("make verify-rendered-quality-regression");
+    expect(report).toContain("make internal-verify-rendered-quality-baseline");
+    expect(report).toContain(
+      "make internal-verify-rendered-quality-regression",
+    );
     expect(report).not.toContain("Status: pass");
   });
 

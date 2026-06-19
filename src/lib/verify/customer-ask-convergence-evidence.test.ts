@@ -152,7 +152,7 @@ describe("buildPhase1ConvergenceEvidenceSummary", () => {
     for (const domain of summary.domains) {
       expect(domain.sources).toHaveLength(2);
       expect(domain.sources[0]?.source).toBe("make ci");
-      expect(domain.sources[1]?.source).toBe("make verify-phase-1-ux");
+      expect(domain.sources[1]?.source).toBe("make internal-verify-phase-1-ux");
     }
   });
 
@@ -239,7 +239,7 @@ describe("formatPhase1ConvergenceEvidenceSummary", () => {
     expect(report).toContain("checklistRow=phase-1-docs-footer");
     expect(report).toContain("checklistRow=phase-1-route-gate");
     expect(report).toContain("[PASS] make ci —");
-    expect(report).toContain("make verify-phase-1-ux");
+    expect(report).toContain("make internal-verify-phase-1-ux");
     expect(report).toContain(
       "Recommendation: stop-and-wait-for-phase-advancement",
     );

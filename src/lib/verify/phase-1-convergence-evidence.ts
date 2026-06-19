@@ -14,7 +14,7 @@ export type Phase1BlockerDomainStatus = "pass" | "fail" | "uncertain";
 
 export type Phase1ConvergenceCommandSource =
   | "make ci"
-  | "make verify-phase-1-ux";
+  | "make internal-verify-phase-1-ux";
 
 export type Phase1BlockerDomainSourceEvidence = {
   source: Phase1ConvergenceCommandSource;
@@ -96,7 +96,7 @@ function summarizeVerifyRows(
   const uncertainRow = relevantRows.find((row) => row.status === "uncertain");
 
   return {
-    source: "make verify-phase-1-ux",
+    source: "make internal-verify-phase-1-ux",
     status,
     checkIdOrAssertion: relevantRows.map((row) => row.checkId).join(", "),
     reason:
@@ -121,7 +121,7 @@ function summarizeRouteGateVerifyEvidence(
 
   if (phase1UxFailure.failed) {
     return {
-      source: "make verify-phase-1-ux",
+      source: "make internal-verify-phase-1-ux",
       status: "fail",
       checkIdOrAssertion: PHASE_1_LEGACY_UX_VERIFY_CHECK_ID,
       reason: phase1UxFailure.reason,
@@ -130,7 +130,7 @@ function summarizeRouteGateVerifyEvidence(
 
   if (rowStatus === "fail") {
     return {
-      source: "make verify-phase-1-ux",
+      source: "make internal-verify-phase-1-ux",
       status: "fail",
       checkIdOrAssertion:
         failingRow?.checkId ?? PHASE_1_LEGACY_UX_VERIFY_CHECK_ID,
@@ -140,7 +140,7 @@ function summarizeRouteGateVerifyEvidence(
 
   if (rowStatus === "uncertain") {
     return {
-      source: "make verify-phase-1-ux",
+      source: "make internal-verify-phase-1-ux",
       status: "uncertain",
       checkIdOrAssertion:
         uncertainRow?.checkId ??
@@ -150,7 +150,7 @@ function summarizeRouteGateVerifyEvidence(
   }
 
   return {
-    source: "make verify-phase-1-ux",
+    source: "make internal-verify-phase-1-ux",
     status: "pass",
     checkIdOrAssertion:
       routeGateRows.map((row) => row.checkId).join(", ") ||
@@ -175,7 +175,7 @@ export type Phase1UxFailureEvidence = {
 };
 
 /**
- * Detects legacy Phase 1 UX failure from captured `make verify-phase-1-ux`
+ * Detects legacy Phase 1 UX failure from captured `make internal-verify-phase-1-ux`
  * output without treating customer-ask row failures as UX failures.
  */
 export function derivePhase1UxFailureFromVerifyOutput(
