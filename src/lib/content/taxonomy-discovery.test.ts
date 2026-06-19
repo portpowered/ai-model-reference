@@ -132,39 +132,40 @@ describe("Phase 2 taxonomy discovery (US-009)", () => {
       > = {
         model: {
           alias: "ML model",
-          bodySnippet: "trained artifact",
+          bodySnippet: "end product you run at inference time",
         },
         architecture: {
           alias: "model architecture",
-          bodySnippet: "structural recipe",
+          bodySnippet:
+            "layer types, connectivity, and the order of computation",
         },
         module: {
           alias: "model module",
-          bodySnippet: "reusable unit",
+          bodySnippet: "mid-level parts of a network",
         },
         component: {
           alias: "model component",
-          bodySnippet: "sub-part of a module",
+          bodySnippet: "individual attention heads",
         },
         modality: {
           alias: "data modality",
-          bodySnippet: "data channel",
+          bodySnippet: "data type the model consumes or produces",
         },
         "foundation-model": {
           alias: "foundation models",
-          bodySnippet: "pretrained at scale",
+          bodySnippet: "general-purpose pretrained checkpoint",
         },
         "generative-model": {
           alias: "generative models",
-          bodySnippet: "learns a distribution",
+          bodySnippet: "support sampling or decoding",
         },
         "discriminative-model": {
           alias: "discriminative models",
-          bodySnippet: "estimates p(label",
+          bodySnippet: "rerankers, and reward models",
         },
         representation: {
           alias: "latent representation",
-          bodySnippet: "internal form",
+          bodySnippet: "internal encoding of input data",
         },
       };
 

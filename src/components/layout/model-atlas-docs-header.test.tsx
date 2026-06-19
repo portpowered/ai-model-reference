@@ -319,9 +319,11 @@ describe("ModelAtlasDocsHeader", () => {
         .getAttribute("href"),
     ).toBe("/vi/docs/glossary/token?tag=attention");
     expect(
-      within(dialog).queryByRole("menuitem", { name: /日本語/ }),
-    ).toBeTruthy();
-    expect(dialog.textContent).toContain(messages.language.unavailable);
+      within(dialog)
+        .getByRole("menuitem", { name: /日本語/ })
+        .getAttribute("href"),
+    ).toBe("/ja/docs/glossary/token?tag=attention");
+    expect(dialog.textContent).not.toContain(messages.language.unavailable);
   });
 
   test("shows unavailable locales for docs pages that are not shipped in that locale", async () => {

@@ -50,8 +50,7 @@ export const DERIVED_RELATED_DOC_GROUP_LABELS: Record<
   [INTRODUCED_RECORDS]: "Introduced by this paper",
 };
 
-export const PLANNED_RELATED_REASON_LABEL =
-  "planned - coming in a later phase to be planned" as const;
+export const PLANNED_RELATED_REASON_LABEL = "Planned related doc" as const;
 
 export type RelatedRegistryRecord =
   | ModuleRecord

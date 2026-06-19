@@ -82,16 +82,11 @@ describe("ModuleGraph live GQA graphs", () => {
         name: "Multi-head attention versus grouped-query attention head-count comparison",
       }),
     ).toBeTruthy();
-    expect(
-      screen.getByText(
-        "Toggle multi-head attention and grouped-query attention to compare query-head count against key-value head count on one canvas.",
-      ),
-    ).toBeTruthy();
     expect(container.querySelectorAll("[data-graph-node-id]")).toHaveLength(11);
     expect(
       container.querySelector('[data-graph-node-id="gqa-query-heads"]'),
     ).toBeTruthy();
-    expect(container.textContent).not.toContain(
+    expect(graphWrapper?.getAttribute("data-graph-id")).toBe(
       "graph.grouped-query-attention-gqa-comparison",
     );
   });

@@ -51,7 +51,7 @@ export function registryRecordHref(
     record.kind === "training-regime" ||
     record.kind === "system"
   ) {
-    return getPublishedDocsHrefForRecord(record);
+    return getPublishedDocsHrefForRecord(record) ?? undefined;
   }
   return undefined;
 }

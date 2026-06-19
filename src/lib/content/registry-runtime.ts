@@ -17,6 +17,7 @@ import pressAlibiCitation from "@/content/registry/citations/press-alibi.json";
 import qloraCitation from "@/content/registry/citations/qlora.json";
 import quantizationIntegerOnlyInferenceCitation from "@/content/registry/citations/quantization-integer-only-inference.json";
 import raffelT5Citation from "@/content/registry/citations/raffel-t5.json";
+import bpeCitation from "@/content/registry/citations/sennrich-bpe.json";
 import shazeerMqaPaperCitation from "@/content/registry/citations/shazeer-mqa-paper.json";
 import smoothquantCitation from "@/content/registry/citations/smoothquant.json";
 import suRoformerRopeCitation from "@/content/registry/citations/su-roformer-rope.json";
@@ -76,6 +77,7 @@ import normalizationConcept from "@/content/registry/concepts/normalization.json
 import ntkAwareRopeScalingConcept from "@/content/registry/concepts/ntk-aware-rope-scaling.json";
 import optimizerStateConcept from "@/content/registry/concepts/optimizer-state.json";
 import overfittingConcept from "@/content/registry/concepts/overfitting.json";
+import pageSpecWorkflowSampleConcept from "@/content/registry/concepts/page-spec-workflow-sample.json";
 import parameterConcept from "@/content/registry/concepts/parameter.json";
 import patchConcept from "@/content/registry/concepts/patch.json";
 import perplexityConcept from "@/content/registry/concepts/perplexity.json";
@@ -99,6 +101,7 @@ import siluConcept from "@/content/registry/concepts/silu.json";
 import sinusoidalPositionalEmbeddingsConcept from "@/content/registry/concepts/sinusoidal-positional-embeddings.json";
 import skipConnectionConcept from "@/content/registry/concepts/skip-connection.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
+import specialTokensConcept from "@/content/registry/concepts/special-tokens.json";
 import standardFfnConcept from "@/content/registry/concepts/standard-ffn.json";
 import superhotRopeConcept from "@/content/registry/concepts/superhot-rope.json";
 import swigluConcept from "@/content/registry/concepts/swiglu.json";
@@ -106,11 +109,13 @@ import t5RelativePositionBiasConcept from "@/content/registry/concepts/t5-relati
 import temperatureConcept from "@/content/registry/concepts/temperature.json";
 import tensorConcept from "@/content/registry/concepts/tensor.json";
 import tokenConcept from "@/content/registry/concepts/token.json";
+import tokenizersOverviewConcept from "@/content/registry/concepts/tokenizers-overview.json";
 import topKSamplingConcept from "@/content/registry/concepts/top-k-sampling.json";
 import topPSamplingConcept from "@/content/registry/concepts/top-p-sampling.json";
 import transformerConcept from "@/content/registry/concepts/transformer.json";
 import transformerArchitectureConcept from "@/content/registry/concepts/transformer-architecture.json";
 import vectorConcept from "@/content/registry/concepts/vector.json";
+import vocabularySizeConcept from "@/content/registry/concepts/vocabulary-size.json";
 import weightOnlyQuantizationConcept from "@/content/registry/concepts/weight-only-quantization.json";
 import whyFourBitModelsAreNotExactlyFourXFasterConcept from "@/content/registry/concepts/why-4-bit-models-are-not-exactly-4x-faster.json";
 import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-context-is-hard.json";
@@ -125,6 +130,8 @@ import alibiModule from "@/content/registry/modules/alibi.json";
 import attention from "@/content/registry/modules/attention.json";
 import batchNormModule from "@/content/registry/modules/batch-norm.json";
 import bidirectionalAttentionModule from "@/content/registry/modules/bidirectional-attention.json";
+import bpeModule from "@/content/registry/modules/bpe.json";
+import byteLevelTokenizationModule from "@/content/registry/modules/byte-level-tokenization.json";
 import compressedSparseAttentionModule from "@/content/registry/modules/compressed-sparse-attention.json";
 import deepseekMoeModule from "@/content/registry/modules/deepseekmoe.json";
 import feedForwardNetworkModule from "@/content/registry/modules/feed-forward-network.json";
@@ -149,6 +156,7 @@ import relativePositionBiasModule from "@/content/registry/modules/relative-posi
 import reluModule from "@/content/registry/modules/relu.json";
 import rmsnormModule from "@/content/registry/modules/rmsnorm.json";
 import ropeModule from "@/content/registry/modules/rope.json";
+import sentencepieceModule from "@/content/registry/modules/sentencepiece.json";
 import siluModule from "@/content/registry/modules/silu.json";
 import sinusoidalPositionalEmbeddingsModule from "@/content/registry/modules/sinusoidal-positional-embeddings.json";
 import slidingWindowAttention from "@/content/registry/modules/sliding-window-attention.json";
@@ -157,6 +165,7 @@ import standardFfnModule from "@/content/registry/modules/standard-ffn.json";
 import superhotRopeModule from "@/content/registry/modules/superhot-rope.json";
 import swigluModule from "@/content/registry/modules/swiglu.json";
 import t5RelativePositionBiasModule from "@/content/registry/modules/t5-relative-position-bias.json";
+import wordpieceModule from "@/content/registry/modules/wordpiece.json";
 import yarnModule from "@/content/registry/modules/yarn.json";
 import deepseekAiOrganization from "@/content/registry/organizations/deepseek-ai.json";
 import deepseekV4Paper from "@/content/registry/papers/deepseek-v4.json";
@@ -196,7 +205,9 @@ const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(alibiModule),
   moduleRecordSchema.parse(attention),
   moduleRecordSchema.parse(batchNormModule),
+  moduleRecordSchema.parse(bpeModule),
   moduleRecordSchema.parse(bidirectionalAttentionModule),
+  moduleRecordSchema.parse(byteLevelTokenizationModule),
   moduleRecordSchema.parse(compressedSparseAttentionModule),
   moduleRecordSchema.parse(deepseekMoeModule),
   moduleRecordSchema.parse(feedForwardNetworkModule),
@@ -221,6 +232,7 @@ const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(reluModule),
   moduleRecordSchema.parse(rmsnormModule),
   moduleRecordSchema.parse(ropeModule),
+  moduleRecordSchema.parse(sentencepieceModule),
   moduleRecordSchema.parse(siluModule),
   moduleRecordSchema.parse(sinusoidalPositionalEmbeddingsModule),
   moduleRecordSchema.parse(slidingWindowAttention),
@@ -229,6 +241,7 @@ const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(superhotRopeModule),
   moduleRecordSchema.parse(swigluModule),
   moduleRecordSchema.parse(t5RelativePositionBiasModule),
+  moduleRecordSchema.parse(wordpieceModule),
   moduleRecordSchema.parse(yarnModule),
 ];
 
@@ -237,7 +250,9 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(embeddingConcept),
   conceptRecordSchema.parse(tensorConcept),
   conceptRecordSchema.parse(vectorConcept),
+  conceptRecordSchema.parse(tokenizersOverviewConcept),
   conceptRecordSchema.parse(hiddenSizeConcept),
+  conceptRecordSchema.parse(vocabularySizeConcept),
   conceptRecordSchema.parse(kvCacheConcept),
   conceptRecordSchema.parse(kvCacheQuantizationConcept),
   conceptRecordSchema.parse(logitConcept),
@@ -286,6 +301,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(overfittingConcept),
   conceptRecordSchema.parse(generalizationConcept),
   conceptRecordSchema.parse(groupNormConcept),
+  conceptRecordSchema.parse(pageSpecWorkflowSampleConcept),
   conceptRecordSchema.parse(perplexityConcept),
   conceptRecordSchema.parse(scalingLawConcept),
   conceptRecordSchema.parse(emergentBehaviorConcept),
@@ -315,6 +331,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(ntkAwareRopeScalingConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
   conceptRecordSchema.parse(skipConnectionConcept),
+  conceptRecordSchema.parse(specialTokensConcept),
   conceptRecordSchema.parse(positionalInterpolationConcept),
   conceptRecordSchema.parse(ropeConcept),
   conceptRecordSchema.parse(superhotRopeConcept),
@@ -356,6 +373,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(attentionIsAllYouNeedCitation),
   citationRecordSchema.parse(awqCitation),
   citationRecordSchema.parse(brownGpt3Citation),
+  citationRecordSchema.parse(bpeCitation),
   citationRecordSchema.parse(chenPositionalInterpolationCitation),
   citationRecordSchema.parse(deepseekV2MlaPaperCitation),
   citationRecordSchema.parse(deepseekV4PaperCitation),

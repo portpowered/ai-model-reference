@@ -25,7 +25,6 @@ const validModuleRecord = {
   updatedAt: "2026-06-02T00:00:00.000Z",
   moduleType: "attention",
   optimizes: ["kv-cache"],
-  practicalBenefits: ["lower memory"],
   exampleModelIds: [],
   improvesOnIds: [],
   tradeoffIds: [],
@@ -169,6 +168,52 @@ describe("validateRegistryContent", () => {
           error.message.includes(
             'Duplicate registry id "module.grouped-query-attention"',
           ),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports invalid sidebar grouping metadata before registry validation continues", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(join(registryRoot, "citations"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify({
+        ...validModuleRecord,
+        sidebarGrouping: {
+          modules: "not-a-real-group",
+        },
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(registryRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(errors.length).toBeGreaterThan(0);
+      expect(
+        errors.some(
+          (error) =>
+            error.message.includes("module.grouped-query-attention") &&
+            error.message.includes('"not-a-real-group"'),
         ),
       ).toBe(true);
     } finally {
@@ -814,7 +859,7 @@ updatedAt: "2026-06-02"
     }
   });
 
-  test("reports published modules missing At a Glance release metadata", async () => {
+  test("reports published modules missing standardized release metadata", async () => {
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
@@ -852,7 +897,7 @@ updatedAt: "2026-06-02"
       expect(
         errors.some(
           (error) =>
-            error.code === "missing-module-at-a-glance-metadata" &&
+            error.code === "missing-release-metadata" &&
             error.message.includes("module.missing-at-a-glance") &&
             error.message.includes("missing releaseDate, authors, sourceId"),
         ),
@@ -862,7 +907,7 @@ updatedAt: "2026-06-02"
     }
   });
 
-  test("allowlists current legacy modules missing At a Glance release metadata", async () => {
+  test("allowlists current legacy modules missing standardized release metadata", async () => {
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
@@ -900,10 +945,62 @@ updatedAt: "2026-06-02"
       expect(
         errors.some(
           (error) =>
-            error.code === "missing-module-at-a-glance-metadata" &&
+            error.code === "missing-release-metadata" &&
             error.message.includes("module.absolute-positional-embeddings"),
         ),
       ).toBe(false);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports published training regimes missing standardized release metadata", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "training-regimes"), { recursive: true });
+    await writeFile(
+      join(registryRoot, "training-regimes", "demo-regime.json"),
+      JSON.stringify({
+        id: "training-regime.demo-regime",
+        slug: "demo-regime",
+        kind: "training-regime",
+        defaultTitleKey: "title",
+        defaultSummaryKey: "description",
+        aliases: [],
+        tags: [],
+        relatedIds: [],
+        citationIds: ["citation.gqa-paper"],
+        status: "published",
+        createdAt: "2026-06-01T00:00:00.000Z",
+        updatedAt: "2026-06-02T00:00:00.000Z",
+        regimeType: "distillation",
+        usedByModelIds: [],
+        relatedModuleIds: [],
+        paperIds: [],
+      }),
+    );
+    await mkdir(join(registryRoot, "citations"), { recursive: true });
+    await writeFile(
+      join(registryRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "missing-release-metadata" &&
+            error.message.includes("training-regime.demo-regime") &&
+            error.message.includes("published training-regime records"),
+        ),
+      ).toBe(true);
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }
@@ -1071,6 +1168,86 @@ updatedAt: "2026-06-02"
             error.code === "missing-localized-page-messages" &&
             error.message.includes('locale "ja"') &&
             error.message.includes("/ja/docs/modules/multi-query-attention"),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports invalid japanese page messages for docs declared shipped in the locale manifest", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    const docsRoot = join(tempRoot, "docs");
+    const pageDir = join(docsRoot, "modules", "multi-query-attention");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+    await mkdir(join(registryRoot, "citations"), { recursive: true });
+    await mkdir(join(pageDir, "messages"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "multi-query-attention.json"),
+      JSON.stringify({
+        ...validModuleRecord,
+        id: "module.multi-query-attention",
+        slug: "multi-query-attention",
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(registryRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+    await writeFile(
+      join(pageDir, "page.mdx"),
+      `---
+kind: module
+registryId: module.multi-query-attention
+messageNamespace: local
+assetNamespace: local
+status: published
+tags:
+  - attention
+updatedAt: "2026-06-02"
+---
+
+# <T k="title" />
+`,
+    );
+    await writeFile(
+      join(pageDir, "messages", "en.json"),
+      JSON.stringify({
+        title: "Multi-Query Attention",
+        description: "English description",
+      }),
+    );
+    await writeFile(
+      join(pageDir, "messages", "ja.json"),
+      JSON.stringify({
+        title: "マルチクエリアテンション",
+      }),
+    );
+    await writeFile(join(pageDir, "assets.json"), JSON.stringify({}));
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+        phase1PageDirectories: [],
+        shippedLocalizedDocsManifest: {
+          ja: ["modules/multi-query-attention"],
+          vi: [],
+        },
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "messages-load-error" &&
+            error.message.includes("/ja/docs/modules/multi-query-attention") &&
+            error.message.includes("Page messages schema validation failed"),
         ),
       ).toBe(true);
     } finally {

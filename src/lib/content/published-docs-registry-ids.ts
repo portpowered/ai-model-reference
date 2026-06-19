@@ -62,59 +62,68 @@ function buildRuntimePublishedDocsIndex(
   return {
     entries,
     byRegistryId,
-    bySlug: new Map(
-      [...bySlug.entries()].map(([slug, slugEntries]) => [slug, slugEntries]),
-    ),
-    registryIds: new Set(GENERATED_PUBLISHED_DOCS_REGISTRY_IDS),
+    bySlug,
+    registryIds: new Set(entries.map((entry) => entry.registryId)),
   };
 }
 
-const publishedDocsIndex = buildRuntimePublishedDocsIndex(
+export const publishedDocsIndex = buildRuntimePublishedDocsIndex(
   GENERATED_PUBLISHED_DOCS_ENTRIES,
 );
 
-export const PUBLISHED_DOCS_INDEX = publishedDocsIndex;
-export const PUBLISHED_DOCS_REGISTRY_IDS: PublishedDocsRegistryIds =
-  new Set<string>(GENERATED_PUBLISHED_DOCS_REGISTRY_IDS);
+export const PUBLISHED_DOCS_REGISTRY_IDS: ReadonlySet<string> =
+  new Set(GENERATED_PUBLISHED_DOCS_REGISTRY_IDS);
+
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS: ReadonlySet<string> =
-  new Set<string>(GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS);
+  new Set(GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS);
+
 export const MODULE_BACKED_CONCEPT_REGISTRY_IDS: ReadonlySet<string> =
-  new Set<string>(GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS);
+  new Set(GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS);
 
 export function listPublishedDocsEntries(): readonly PublishedDocsEntry[] {
-  return PUBLISHED_DOCS_INDEX.entries;
+  return publishedDocsIndex.entries;
 }
 
 export function getPublishedDocsEntryByRegistryId(
   registryId: string,
 ): PublishedDocsEntry | undefined {
-  return PUBLISHED_DOCS_INDEX.byRegistryId.get(registryId);
+  return publishedDocsIndex.byRegistryId.get(registryId);
 }
 
 export function getPublishedDocsEntriesBySlug(
   slug: string,
 ): readonly PublishedDocsEntry[] {
-  return PUBLISHED_DOCS_INDEX.bySlug.get(slug) ?? [];
+  return publishedDocsIndex.bySlug.get(slug) ?? [];
 }
 
-export function getPublishedDocsEntryForRecord(
+export function hasPublishedDocsPageForRecord(
   record: PublishedDocsRecordRef,
-): PublishedDocsEntry | undefined {
-  const exactEntry = getPublishedDocsEntryByRegistryId(record.id);
-  if (exactEntry) {
-    return exactEntry;
-  }
-
-  if (record.kind === "concept") {
-    return getModuleBackedConceptEntryBySlug(record.slug);
-  }
-
-  return undefined;
+): boolean {
+  return getPublishedDocsEntryForRecord(record) !== undefined;
 }
 
 export function getPublishedDocsHrefForRecord(
   record: PublishedDocsRecordRef,
-): string | undefined {
+): string | null {
   const entry = getPublishedDocsEntryForRecord(record);
-  return entry ? publishedDocsHrefFromEntry(entry) : undefined;
+  if (!entry) {
+    return null;
+  }
+
+  return publishedDocsHrefFromEntry(entry);
+}
+
+function getPublishedDocsEntryForRecord(
+  record: PublishedDocsRecordRef,
+): PublishedDocsEntry | undefined {
+  const directEntry = getPublishedDocsEntryByRegistryId(record.id);
+  if (directEntry) {
+    return directEntry;
+  }
+
+  if (record.kind !== "concept") {
+    return undefined;
+  }
+
+  return getModuleBackedConceptEntryBySlug(record.slug);
 }

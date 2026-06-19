@@ -79,6 +79,12 @@ describe("table-registry-runtime", () => {
   });
 
   test("lists bundled table records", () => {
-    expect(listTableRecords().length).toBe(20);
+    const tableIds = listTableRecords().map((record) => record.id);
+    expect(tableIds.length).toBe(22);
+    expect(tableIds).toContain("table.bpe-comparison");
+    expect(tableIds).toContain("table.byte-level-tokenization-comparison");
+    expect(
+      getTableById("table.byte-level-tokenization-comparison")?.subjectId,
+    ).toBe("module.byte-level-tokenization");
   });
 });

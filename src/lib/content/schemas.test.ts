@@ -10,6 +10,7 @@ import {
   registryRecordSchema,
   tagRecordSchema,
 } from "./schemas";
+import { validateSidebarGroupingForRecord } from "./sidebar-grouping";
 
 const validBaseFields = {
   id: "module.grouped-query-attention",
@@ -32,13 +33,15 @@ describe("registry schemas", () => {
       kind: "module",
       moduleType: "attention",
       optimizes: ["kv-cache"],
-      practicalBenefits: ["lower memory"],
       exampleModelIds: [],
       improvesOnIds: [],
       tradeoffIds: [],
       usedByModelIds: [],
       introducedByPaperIds: [],
       mathLevel: "light",
+      sidebarGrouping: {
+        modules: "attention-foundations",
+      },
     });
     expect(result.success).toBe(true);
   });
@@ -80,6 +83,9 @@ describe("registry schemas", () => {
       conceptType: "architecture",
       prerequisiteIds: [],
       explainsIds: [],
+      sidebarGrouping: {
+        glossary: "sequence-and-attention",
+      },
     });
     expect(result.success).toBe(true);
   });
@@ -112,10 +118,35 @@ describe("registry schemas", () => {
       ...validBaseFields,
       kind: "module",
       optimizes: ["kv-cache"],
-      practicalBenefits: ["lower memory"],
       mathLevel: "none",
     });
     expect(result.success).toBe(false);
+  });
+
+  test("reports unsupported sidebar grouping values with record id and value", () => {
+    const issues = validateSidebarGroupingForRecord(
+      "module",
+      "module.grouped-query-attention",
+      {
+        modules: "wrong-group" as never,
+      },
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0]?.message).toContain("module.grouped-query-attention");
+    expect(issues[0]?.message).toContain('"wrong-group"');
+  });
+
+  test("reports sidebar grouping sections that do not apply to the record kind", () => {
+    const issues = validateSidebarGroupingForRecord(
+      "module",
+      "module.grouped-query-attention",
+      {
+        glossary: "model-taxonomy",
+      },
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0]?.message).toContain("module.grouped-query-attention");
+    expect(issues[0]?.message).toContain("sidebarGrouping.glossary");
   });
 
   test("rejects tag records missing category and landingPage", () => {

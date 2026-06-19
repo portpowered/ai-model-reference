@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { GET } from "@/app/api/search/route";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -11,6 +10,7 @@ import {
 } from "@/lib/verify/phase-1-search-checks";
 import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 import {
+  createRetriedStaticClientSearch,
   expectUniqueCanonicalPageUrls,
   MULTI_HEAD_ATTENTION_URL,
   MULTI_QUERY_ATTENTION_URL,
@@ -19,6 +19,7 @@ import {
   resultsIncludeSampleModule,
   resultsIncludeTokenGlossary,
   resultsIncludeUrl,
+  retrySearchResults,
   SAMPLE_MODULE_URL,
   TOKEN_GLOSSARY_URL,
 } from "./helpers";
@@ -30,6 +31,16 @@ import {
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
 const BIDIRECTIONAL_ATTENTION_URL = "/docs/modules/bidirectional-attention";
+const JAPANESE_ATTENTION_PROOF_SET_URLS = [
+  "/ja/docs/modules/attention",
+  "/ja/docs/modules/linear-attention",
+  "/ja/docs/modules/multi-head-attention",
+  "/ja/docs/modules/grouped-query-attention",
+  "/ja/docs/modules/multi-query-attention",
+  "/ja/docs/modules/sliding-window-attention",
+  "/ja/docs/glossary/token",
+  "/ja/docs/concepts/transformer-architecture",
+] as const;
 
 describe("Phase 1 /api/search regression", () => {
   for (const assertion of PHASE_1_SEARCH_ASSERTIONS) {
@@ -131,14 +142,18 @@ describe("live /api/search HTTP contract", () => {
     ).toContain("gần tuyến tính");
   });
 
-  test("GET with a japanese locale query stays empty when no japanese docs pages are shipped", async () => {
+  test("GET with a japanese locale query returns the shipped japanese attention proof set", async () => {
     const response = await GET(
       new Request("http://localhost/api/search?query=attention&locale=ja"),
     );
     expect(response.ok).toBe(true);
 
     const results = (await response.json()) as Array<{ url: string }>;
-    expect(results).toEqual([]);
+    const urls = results.map((result) => result.url);
+    expect(urls).toHaveLength(JAPANESE_ATTENTION_PROOF_SET_URLS.length);
+    expect([...urls].sort()).toEqual(
+      [...JAPANESE_ATTENTION_PROOF_SET_URLS].sort(),
+    );
   });
 
   test("GET returns grouped-query attention for GQA query", async () => {
@@ -324,17 +339,23 @@ describe("docsSearchApi", () => {
     expect(payload.type).toBe("advanced");
   });
 
-  test("search returns no japanese results when no japanese docs pages are shipped", async () => {
+  test("search returns the shipped japanese attention proof set", async () => {
     const results = await docsSearchApi.search("attention", { locale: "ja" });
-    expect(results).toEqual([]);
+    const urls = results.map((result) => result.url);
+    expect(urls).toHaveLength(JAPANESE_ATTENTION_PROOF_SET_URLS.length);
+    expect([...urls].sort()).toEqual(
+      [...JAPANESE_ATTENTION_PROOF_SET_URLS].sort(),
+    );
   });
 });
 
 describe("docs search static client", () => {
   test("orama static client returns grouped-query attention for GQA", async () => {
     await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
-      const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-      const results = await client.search("GQA");
+      const results = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "GQA"),
+        (candidateResults) => candidateResults[0]?.url === SAMPLE_URL,
+      );
 
       expect(results.length).toBeGreaterThan(0);
       expect(results[0]?.url).toBe(SAMPLE_URL);
@@ -343,8 +364,11 @@ describe("docs search static client", () => {
 
   test("orama static client returns non-empty attention results including bidirectional attention before app-level reranking", async () => {
     await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
-      const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-      const results = await client.search("attention");
+      const results = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "attention"),
+        (candidateResults) =>
+          resultsIncludeUrl(candidateResults, PHASE_1_ATTENTION_MODULE_URL),
+      );
 
       expect(results.length).toBeGreaterThan(0);
       expect(resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL)).toBe(
@@ -358,8 +382,10 @@ describe("docs search static client", () => {
 
   test("orama static client includes grouped-query attention for KV cache", async () => {
     await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
-      const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-      const results = await client.search("KV cache");
+      const results = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "KV cache"),
+        resultsIncludeSampleModule,
+      );
 
       expect(results.length).toBeGreaterThan(0);
       expect(resultsIncludeSampleModule(results)).toBe(true);

@@ -112,7 +112,7 @@ const templateAssetIdReplacementsByKind: Record<
     "graph.example-paper-contribution": (slug) => `graph.${slug}-contribution`,
   },
   system: {
-    "graph.example-system-map": (slug) => `graph.${slug}-system-map`,
+    "graph.example-system-flow": (slug) => `graph.${slug}-system-flow`,
   },
   "training-regime": {
     "graph.example-training-flow": (slug) => `graph.${slug}-training-flow`,
@@ -293,10 +293,6 @@ function buildPageMessages(
     description: spec.summary,
   };
 
-  if (spec.openingSummary !== undefined) {
-    messages.openingSummary = spec.openingSummary;
-  }
-
   const mergedSections = mergeRecordSection(
     templateMessages.sections as
       | Record<string, Record<string, unknown>>
@@ -348,9 +344,6 @@ function buildPageMessages(
   >;
   filled.title = spec.title;
   filled.description = spec.summary;
-  if (spec.openingSummary !== undefined) {
-    filled.openingSummary = spec.openingSummary;
-  }
 
   return filled;
 }
@@ -410,7 +403,6 @@ function buildRegistryRecord(
         moduleType: spec.moduleType,
         mathLevel: spec.mathLevel,
         optimizes: spec.optimizes,
-        practicalBenefits: spec.practicalBenefits,
         exampleModelIds: spec.exampleModelIds,
         improvesOnIds: spec.improvesOnIds,
         tradeoffIds: spec.tradeoffIds,

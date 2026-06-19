@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Multi-head attention (MHA) is the original scaled dot-product attention design used in the Transformer. Instead of running one large attention lookup, the model splits the work across several heads. Each head computes its own attention distribution over keys and values, and the head outputs are then merged."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "MHA optimizes for representational breadth. Distinct query heads can attend to different relationships in the same sequence without sharing key-value parameters."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "Models keep full per-head expressiveness at training and inference time. MHA remains the reference design when quality matters more than key-value cache size, and it is the baseline against which multi-query attention and grouped-query attention are compared."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Multi-head attention versus multi-query attention head-count comparison",
-      "caption": "Toggle multi-head attention and multi-query attention to compare query-head count against key-value head count on one canvas.",
       "variants": {
         "mha": {
           "label": "Multi-head"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How multi-head attention compares with nearby attention variants"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

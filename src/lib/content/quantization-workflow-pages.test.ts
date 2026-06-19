@@ -147,7 +147,9 @@ describe("Phase 5 quantization workflow concept pages (chapter-5-quantization-00
     expect(calibrationDocument?.aliases).toEqual(
       expect.arrayContaining(["representative dataset", "activation ranges"]),
     );
-    expect(calibrationDocument?.bodyText).toContain("real job");
+    expect(calibrationDocument?.bodyText).toContain(
+      "normal deployment traffic",
+    );
 
     expect(
       (await docsSearchApi.search("PTQ")).some(

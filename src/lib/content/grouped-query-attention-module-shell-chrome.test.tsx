@@ -54,7 +54,7 @@ describe("grouped-query-attention module shell chrome", () => {
     expect(raw).not.toMatch(/<TagPillList[^>]*\/>\s*\n\s*<ModuleAtAGlance/);
   });
 
-  test("/docs/modules/grouped-query-attention renders one shell title and At a glance after opening copy", async () => {
+  test("/docs/modules/grouped-query-attention renders one shell title and At a glance before the first content section", async () => {
     const loadedPage = await loadLocalDocsPage({
       section: "modules",
       slug: "grouped-query-attention",
@@ -72,6 +72,7 @@ describe("grouped-query-attention module shell chrome", () => {
     expectGlossaryBodyOmitsTitleHeading(articleHtml, loadedPage.messages.title);
     expect(html).not.toContain('aria-label="Module metadata"');
     expect(html).not.toContain('data-testid="folded-summary"');
+    expect(html).not.toContain('data-opening-summary="folded"');
     expect(html).toContain('aria-label="At a glance"');
     expect(assertGroupedQueryAttentionTitleConvergence(html)).toBeNull();
 

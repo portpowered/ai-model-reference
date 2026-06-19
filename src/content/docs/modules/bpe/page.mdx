@@ -1,0 +1,80 @@
+---
+title: Byte Pair Encoding
+description: A subword tokenizer that learns frequent text pieces by repeatedly merging common neighboring symbols.
+kind: "module"
+registryId: "module.bpe"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - tokenization
+  - foundations
+aliases:
+  - "BPE"
+  - "byte pair encoding"
+  - "byte-level BPE"
+updatedAt: "2026-06-19"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
+import { ModuleGraph } from "@/features/models/components/ModuleGraph";
+import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
+import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
+import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
+
+<ModuleAtAGlance registryId="module.bpe" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-exists" titleKey="sections.whyItExists.title">
+  <T k="sections.whyItExists.body" />
+</Section>
+
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+
+  <ModuleGraph registryId="module.bpe" assetId="computeFlow" />
+</Section>
+
+<Section id="math-or-compute-schema" titleKey="sections.mathOrComputeSchema.title">
+  <T k="sections.mathOrComputeSchema.body" />
+  <ModuleAttentionSchemaComparison schemaIds={["bpe"]} />
+</Section>
+
+<Section id="compared-to-nearby-modules" titleKey="sections.comparedToNearbyModules.title">
+  <T k="sections.comparedToNearbyModules.body" />
+
+  <ModuleComparisonTable registryId="module.bpe" assetId="comparisonTable" />
+</Section>
+
+<Section id="example-architectures" titleKey="sections.exampleArchitectures.title">
+  <T k="sections.exampleArchitectures.body" />
+  <ModelsUsingModule registryId="module.bpe" />
+</Section>
+
+<Section id="limitations-and-tradeoffs" titleKey="sections.limitationsAndTradeoffs.title">
+  <T k="sections.limitationsAndTradeoffs.body" />
+</Section>
+
+<Section id="why-it-still-matters" titleKey="sections.whyItStillMatters.title">
+  <T k="sections.whyItStillMatters.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="module.bpe" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="module.bpe" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="module.bpe" />
+</Section>

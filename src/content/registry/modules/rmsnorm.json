@@ -11,11 +11,11 @@
   "status": "published",
   "createdAt": "2026-06-08T00:00:00.000Z",
   "updatedAt": "2026-06-08T00:00:00.000Z",
+  "releaseDate": "2019-10-01",
+  "authors": ["Biao Zhang", "Rico Sennrich"],
+  "sourceId": "citation.root-mean-square-layer-normalization",
   "moduleType": "normalization",
   "optimizes": ["training-stability", "inference-efficiency"],
-  "practicalBenefits": [
-    "reduces normalization overhead while preserving stable scaling"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

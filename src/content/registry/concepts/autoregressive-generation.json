@@ -28,11 +28,17 @@
     "concept.denoising-generation",
     "concept.quantization"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.brown-gpt-3",
+    "citation.curious-case-neural-text-degeneration"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T12:30:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "general",
+  "sidebarGrouping": {
+    "glossary": "generation-and-diffusion"
+  },
   "prerequisiteIds": [
     "concept.token",
     "concept.logit",

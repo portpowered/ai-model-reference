@@ -17,11 +17,18 @@
     "concept.positional-interpolation",
     "module.attention"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.longformer",
+    "citation.kivi-kv-cache-quantization",
+    "citation.deepseek-v4-paper"
+  ],
   "status": "published",
   "createdAt": "2026-06-09T00:00:00.000Z",
   "updatedAt": "2026-06-09T22:00:00.000Z",
   "conceptType": "general",
+  "sidebarGrouping": {
+    "concepts": "long-context"
+  },
   "prerequisiteIds": ["concept.context-window"],
   "explainsIds": ["concept.longrope", "concept.positional-interpolation"]
 }

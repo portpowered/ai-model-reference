@@ -1,0 +1,31 @@
+{
+  "id": "table.byte-level-tokenization-comparison",
+  "subjectId": "module.byte-level-tokenization",
+  "columns": [
+    {
+      "moduleId": "module.byte-level-tokenization",
+      "titleKey": "tables.comparison.columns.byteLevel.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "baseUnit",
+      "labelKey": "tables.comparison.dimensions.baseUnit"
+    },
+    {
+      "id": "coverageBehavior",
+      "labelKey": "tables.comparison.dimensions.coverageBehavior"
+    },
+    {
+      "id": "mainTradeoff",
+      "labelKey": "tables.comparison.dimensions.mainTradeoff"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.byte-level-tokenization": {
+      "baseUnit": "tables.comparison.values.byteLevel.baseUnit",
+      "coverageBehavior": "tables.comparison.values.byteLevel.coverageBehavior",
+      "mainTradeoff": "tables.comparison.values.byteLevel.mainTradeoff"
+    }
+  }
+}

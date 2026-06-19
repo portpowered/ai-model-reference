@@ -1,0 +1,10 @@
+{
+  "conceptMap": {
+    "type": "graph",
+    "graphId": "graph.example-concept-map",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.conceptMap.alt",
+    "captionKey": "assets.conceptMap.caption"
+  }
+}

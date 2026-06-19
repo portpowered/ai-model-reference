@@ -20,9 +20,6 @@
     "compute-efficiency",
     "routing-specialization"
   ],
-  "practicalBenefits": [
-    "uses specialized experts without paying dense-feed-forward cost on every token"
-  ],
   "exampleModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "improvesOnIds": ["module.mixture-of-experts"],
   "tradeoffIds": [],

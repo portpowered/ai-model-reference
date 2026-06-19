@@ -116,6 +116,19 @@ describe("Phase 1 search discovery", () => {
       true,
     );
   });
+
+  test.each([
+    "vocabulary size",
+    "vocab size",
+    "tokenizer vocabulary",
+  ] as const)("%s query returns canonical vocabulary-size glossary hit without duplicate pages", async (query) => {
+    const results = await docsSearchApi.search(query);
+    expect(results.length).toBeGreaterThan(0);
+    expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
+    expect(resultsIncludeUrl(results, "/docs/glossary/vocabulary-size")).toBe(
+      true,
+    );
+  });
 });
 
 describe("Phase 1 discovery route smoke", () => {
@@ -207,6 +220,21 @@ describe("Phase 1 discovery route smoke", () => {
     expect(page.messages.sections?.whyItMatters.body).toContain(
       "model capacity glossary entry",
     );
+    expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+  });
+
+  test("/docs/glossary/vocabulary-size loads published local docs content", async () => {
+    const page = await loadLocalDocsPage({
+      section: "glossary",
+      slug: "vocabulary-size",
+    });
+
+    expect(page.messages.title).toBe("Vocabulary Size");
+    expect(page.frontmatter.registryId).toBe("concept.vocabulary-size");
+    expect(page.messages.callouts).toBeUndefined();
+    expect(
+      page.messages.sections?.commonConfusions.body?.toLowerCase(),
+    ).toContain("reserved tokens");
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
   });
 

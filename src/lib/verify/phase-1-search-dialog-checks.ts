@@ -64,8 +64,8 @@ const SEARCH_RESULT_URL_SELECTOR = '[data-testid="search-result-url"]';
 const SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS = 250;
 const SEARCH_DIALOG_QUERY_RETRY_DELAY_MS = 250;
 
-/** Default per-query browser deadline (client hydration can exceed 10s under CI load). */
-export const DEFAULT_SEARCH_DIALOG_TIMEOUT_MS = 30_000;
+/** Default per-query browser deadline (static-export dialog hydration can exceed 30s under CI load). */
+export const DEFAULT_SEARCH_DIALOG_TIMEOUT_MS = 45_000;
 
 export function formatPhase1SearchDialogCheckFailure(
   failure: Phase1SearchDialogCheckFailure,

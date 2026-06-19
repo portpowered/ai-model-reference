@@ -23,11 +23,18 @@
     "module.sliding-window-attention",
     "concept.transformer"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.shazeer-mqa-paper",
+    "citation.gqa-paper",
+    "citation.kivi-kv-cache-quantization"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "conceptType": "inference",
+  "sidebarGrouping": {
+    "glossary": "sequence-and-attention"
+  },
   "prerequisiteIds": ["concept.decoder", "module.attention"],
   "explainsIds": []
 }

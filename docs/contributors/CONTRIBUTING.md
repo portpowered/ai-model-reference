@@ -25,9 +25,8 @@ Read these references before authoring or reviewing docs:
 | Reference | What it covers |
 | --- | --- |
 | [documentation template](../documentation-template.md) | Page structure, MDX components, message keys, and asset placement |
-| [writing standards](../../factory/docs/standards/docs-writing-standards.md) | Folded summary, tone, symbol-only math, and customer-facing copy rules |
+| [writing standards](../../factory/docs/standards/docs-writing-standards.md) | Tone, isolation-first writing, symbol-only math, graph/equation expectations, and customer-facing copy rules |
 | [graphing standards](../graphing-standards.md) | Single primary graph, node theme, and attention-variant comparison |
-| [docs quality standards](../../factory/docs/standards/docs-quality-standards.md) | Review checklist for compact, accurate reference pages |
 | [data model](../data-model.md) | Registry IDs, tags, aliases, citations, and storage layout |
 | [site fundamentals](../site-fundamentals.md) | Product frame, visual direction, and docs shell expectations |
 
@@ -106,7 +105,7 @@ the page-spec workflow:
 bun run generate:page-bundle -- --help
 ```
 
-Pass a compact JSON page spec so title, folded summary, sections, tags, and
+Pass a compact JSON page spec so title, optional lead copy, sections, tags, and
 assets stay aligned across `page.mdx`, `messages/en.json`, `assets.json`, and
 the registry record:
 
@@ -220,33 +219,33 @@ The docs shell renders the page title once. Do not add an in-body
 Set `messageNamespace: local` and `assetNamespace: local` in frontmatter so the
 page resolves colocated `messages/<locale>.json` and `assets.json` files.
 
-### Folded opening summary and writing expectations
+### Writing expectations
 
-Every canonical page opens with **one folded summary**, not separate problem and
-solution lead lines. Put it in `messages/en.json` under `openingSummary` and
-render it from the template (glossary pages keep the key in messages but omit
-the MDX render block per [writing standards](../../factory/docs/standards/docs-writing-standards.md)).
+Canonical pages must work for a first-time reader without leaning on adjacent
+pages, page-meta explanation, or navigation guidance inside the narrative body.
 
-The summary should answer, in plain language:
-
-- What confuses or blocks the reader on this topic.
-- What this page teaches as the fix, mechanism, or idea.
-
-Merge legacy `problemStatement` and `coreIdea` keys into `openingSummary` for
-new or updated pages. Do not add `callouts.readerShortcut` to baseline
-templates.
+If a page benefits from lead copy, put it in `messages/en.json` under
+`openingSummary` and keep it to one concise block. Do not split the same idea
+across legacy `problemStatement` and `coreIdea` keys. Do not add
+`callouts.readerShortcut` to baseline templates.
 
 Additional writing rules contributors must follow before opening a PR:
 
 - Write for a technical layperson: short sentences, concrete nouns, active voice.
 - Keep section bodies scannable; each paragraph should advance one idea.
+- Keep the page body focused on the concept itself, not on why the page exists,
+  how the page is structured, or which other page should be read first.
+- If the concept is mathematically heavy, include the equations needed to teach
+  it.
+- If the concept is conceptually heavy or relationship-heavy, include the
+  appropriate graph, diagram, chart, or comparison view and follow
+  [graphing standards](../graphing-standards.md).
 - Put symbol-only definitions under equations in the math/schema section; move
   projection, grouping, and head-count explanations into narrative sections.
 - Do not put factory phases, batch numbers, or other internal process language
   in customer-facing message files.
 
-See [writing standards](../../factory/docs/standards/docs-writing-standards.md) and
-[docs quality standards](../../factory/docs/standards/docs-quality-standards.md) for the full
+See [writing standards](../../factory/docs/standards/docs-writing-standards.md) for the full
 review checklist.
 
 ### Citations, tags, related links, and aliases

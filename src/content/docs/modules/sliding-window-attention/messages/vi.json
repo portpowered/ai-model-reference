@@ -7,13 +7,9 @@
       "title": "Nó là gì",
       "body": "Sliding-window attention là một biến thể attention giới hạn mỗi vị trí query vào các key nằm trong một vùng lân cận cố định. Thay vì ma trận attention n-n đầy đủ, chỉ các ô nằm trong cửa sổ mới nhận trọng số khác không."
     },
-    "whatItOptimizes": {
+    "whyItExists": {
       "title": "Nó tối ưu điều gì",
       "body": "Sliding-window attention nhắm vào chi phí tính attention, băng thông bộ nhớ khi tạo ma trận điểm, và chi phí phục vụ chuỗi dài khi attention dày đặc trên mọi cặp vị trí sẽ chi phối thời gian chạy."
-    },
-    "practicalBenefit": {
-      "title": "Lợi ích thực tế",
-      "body": "Các nhóm dùng sliding-window attention khi cần mô hình hóa ngữ cảnh dài nhưng không đủ khả năng trả chi phí attention bậc hai. Giới hạn vùng được nhìn tới giúp giảm số phép nhân cộng và giữ bản đồ attention trong một phạm vi cục bộ có thể dự đoán."
     },
     "howItWorks": {
       "title": "Cách nó hoạt động",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "So sánh tầm với của multi-head attention dày đặc và sliding-window attention cục bộ",
-      "caption": "Chuyển giữa MHA và cửa sổ trượt để so sánh tầm nhìn toàn chuỗi với cửa sổ cục bộ cố định trên cùng một đồ thị",
       "variants": {
         "mha": {
           "label": "MHA"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "Cách sliding-window attention so với các biến thể attention lân cận"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {
