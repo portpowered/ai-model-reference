@@ -1,0 +1,170 @@
+{
+  "id": "graph.clip-architecture",
+  "slug": "clip-architecture",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["CLIP architecture graph"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.learning-transferable-visual-models-from-natural-language-supervision"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "subjectId": "model.clip",
+  "graphType": "model-architecture",
+  "rootNodeId": "similarity-output",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "similarity-output",
+      "labelKey": "graph.nodes.similarityOutput.label",
+      "summaryKey": "graph.nodes.similarityOutput.summary",
+      "registryId": "concept.representation",
+      "moduleKind": "output",
+      "position": { "x": 284, "y": 0 },
+      "size": { "width": 180, "height": 62 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "shared-space",
+      "labelKey": "graph.nodes.sharedSpace.label",
+      "summaryKey": "graph.nodes.sharedSpace.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 250, "height": 96 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "text-projection",
+      "labelKey": "graph.nodes.textProjection.label",
+      "summaryKey": "graph.nodes.textProjection.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "projection",
+      "position": { "x": 102, "y": 254 },
+      "size": { "width": 190, "height": 62 },
+      "visualRole": "architecture-linear",
+      "childNodeIds": []
+    },
+    {
+      "id": "image-projection",
+      "labelKey": "graph.nodes.imageProjection.label",
+      "summaryKey": "graph.nodes.imageProjection.summary",
+      "registryId": "concept.embedding",
+      "moduleKind": "projection",
+      "position": { "x": 458, "y": 254 },
+      "size": { "width": 190, "height": 62 },
+      "visualRole": "architecture-linear",
+      "childNodeIds": []
+    },
+    {
+      "id": "text-encoder",
+      "labelKey": "graph.nodes.textEncoder.label",
+      "summaryKey": "graph.nodes.textEncoder.summary",
+      "registryId": "concept.encoder",
+      "moduleKind": "attention",
+      "position": { "x": 102, "y": 360 },
+      "size": { "width": 190, "height": 82 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "image-encoder",
+      "labelKey": "graph.nodes.imageEncoder.label",
+      "summaryKey": "graph.nodes.imageEncoder.summary",
+      "registryId": "concept.encoder",
+      "moduleKind": "attention",
+      "position": { "x": 458, "y": 360 },
+      "size": { "width": 190, "height": 82 },
+      "visualRole": "architecture-attention",
+      "childNodeIds": []
+    },
+    {
+      "id": "text-tokens",
+      "labelKey": "graph.nodes.textTokens.label",
+      "summaryKey": "graph.nodes.textTokens.summary",
+      "registryId": "concept.token",
+      "moduleKind": "input",
+      "position": { "x": 112, "y": 506 },
+      "size": { "width": 170, "height": 60 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    },
+    {
+      "id": "image-patches",
+      "labelKey": "graph.nodes.imagePatches.label",
+      "summaryKey": "graph.nodes.imagePatches.summary",
+      "registryId": "concept.patch",
+      "moduleKind": "input",
+      "position": { "x": 468, "y": 506 },
+      "size": { "width": 170, "height": 60 },
+      "visualRole": "architecture-io",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "shared-space-to-similarity-output",
+      "source": "shared-space",
+      "target": "similarity-output",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "text-projection-to-shared-space",
+      "source": "text-projection",
+      "target": "shared-space",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "image-projection-to-shared-space",
+      "source": "image-projection",
+      "target": "shared-space",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "text-encoder-to-text-projection",
+      "source": "text-encoder",
+      "target": "text-projection",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "image-encoder-to-image-projection",
+      "source": "image-encoder",
+      "target": "image-projection",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "text-tokens-to-text-encoder",
+      "source": "text-tokens",
+      "target": "text-encoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    },
+    {
+      "id": "image-patches-to-image-encoder",
+      "source": "image-patches",
+      "target": "image-encoder",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "top",
+      "targetHandleSide": "bottom"
+    }
+  ]
+}

@@ -6,6 +6,7 @@ import batchNormComputeFlowGraphRecord from "@/content/registry/graphs/batch-nor
 import bidirectionalAttentionTimePatternGraphRecord from "@/content/registry/graphs/bidirectional-attention-time-pattern.json";
 import bpeComputeFlowGraphRecord from "@/content/registry/graphs/bpe-compute-flow.json";
 import byteLevelTokenizationComputeFlowGraphRecord from "@/content/registry/graphs/byte-level-tokenization-compute-flow.json";
+import clipArchitectureGraphRecord from "@/content/registry/graphs/clip-architecture.json";
 import compressedSparseAttentionFlowGraphRecord from "@/content/registry/graphs/compressed-sparse-attention-flow.json";
 import deepseekV4ContributionGraphRecord from "@/content/registry/graphs/deepseek-v4-contribution.json";
 import deepseekV4FlashArchitectureGraphRecord from "@/content/registry/graphs/deepseek-v4-flash-architecture.json";
@@ -58,6 +59,7 @@ export const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(bidirectionalAttentionTimePatternGraphRecord),
   graphRecordSchema.parse(bpeComputeFlowGraphRecord),
   graphRecordSchema.parse(byteLevelTokenizationComputeFlowGraphRecord),
+  graphRecordSchema.parse(clipArchitectureGraphRecord),
   graphRecordSchema.parse(compressedSparseAttentionFlowGraphRecord),
   graphRecordSchema.parse(deepseekV4ContributionGraphRecord),
   graphRecordSchema.parse(deepseekV4FlashArchitectureGraphRecord),

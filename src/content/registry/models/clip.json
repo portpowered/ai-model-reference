@@ -46,9 +46,14 @@
     "concept.multimodal-model",
     "concept.patch"
   ],
-  "moduleIds": [],
+  "moduleIds": [
+    "module.bidirectional-attention",
+    "module.multi-head-attention",
+    "module.learned-positional-embeddings"
+  ],
   "trainingRegimeIds": [],
   "datasetIds": [],
   "paperIds": [],
-  "releaseDate": "2021-01-05"
+  "releaseDate": "2021-01-05",
+  "parameterCount": "400 million parameters"
 }

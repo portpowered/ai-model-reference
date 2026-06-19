@@ -51,6 +51,14 @@ export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
     section: "models",
   },
   {
+    registryId: "model.clip",
+    slug: "clip",
+    docsSlug: "models/clip",
+    url: "/docs/models/clip",
+    pageKind: "model",
+    section: "models",
+  },
+  {
     registryId: "model.deepseek-v4-flash",
     slug: "deepseek-v4-flash",
     docsSlug: "models/deepseek-v4-flash",
@@ -1111,6 +1119,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "concept.why-long-context-is-hard",
   "concept.world-model",
   "concept.yarn",
+  "model.clip",
   "model.deepseek-v4-flash",
   "model.deepseek-v4-pro",
   "model.gpt-3",
