@@ -1,0 +1,54 @@
+{
+  "id": "model.clip",
+  "slug": "clip",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "CLIP",
+    "Contrastive Language-Image Pre-training",
+    "text-image encoder",
+    "text image encoder"
+  ],
+  "tags": ["foundations", "model-family", "alignment"],
+  "relatedIds": [
+    "concept.conditioning",
+    "concept.encoder",
+    "concept.patch",
+    "concept.multimodal-model"
+  ],
+  "citationIds": [
+    "citation.learning-transferable-visual-models-from-natural-language-supervision"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "authors": [
+    "Alec Radford",
+    "Jong Wook Kim",
+    "Chris Hallacy",
+    "Aditya Ramesh",
+    "Gabriel Goh",
+    "Sandhini Agarwal",
+    "Girish Sastry",
+    "Amanda Askell",
+    "Pamela Mishkin",
+    "Jack Clark",
+    "Gretchen Krueger",
+    "Ilya Sutskever"
+  ],
+  "sourceId": "citation.learning-transferable-visual-models-from-natural-language-supervision",
+  "family": "clip",
+  "sourceType": "research",
+  "modalities": ["text", "image", "multimodal"],
+  "architectureIds": [
+    "concept.encoder",
+    "concept.multimodal-model",
+    "concept.patch"
+  ],
+  "moduleIds": [],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2021-01-05"
+}
