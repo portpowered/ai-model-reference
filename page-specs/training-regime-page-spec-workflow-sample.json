@@ -1,0 +1,15 @@
+{
+  "kind": "training-regime",
+  "slug": "training-regime-page-spec-workflow-sample",
+  "title": "Training Regime Page Spec Workflow Sample",
+  "summary": "A generated training-regime page spec that exercises the canonical bundle workflow for training regimes.",
+  "status": "draft",
+  "regimeType": "pretraining",
+  "tags": ["foundations"],
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "This sample proves training-regime bundles can be generated and reviewed through the same page-spec path as the other canonical kinds."
+    }
+  }
+}

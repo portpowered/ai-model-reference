@@ -1,0 +1,17 @@
+{
+  "kind": "paper",
+  "slug": "paper-page-spec-workflow-sample",
+  "title": "Paper Page Spec Workflow Sample",
+  "summary": "A generated paper page spec that exercises the canonical bundle workflow for papers.",
+  "status": "draft",
+  "authors": ["Sample Author"],
+  "publishedAt": "2024-01-01",
+  "url": "https://example.com/paper-page-spec-workflow-sample",
+  "tags": ["attention"],
+  "sections": {
+    "whatThePaperIntroduced": {
+      "title": "What The Paper Introduced",
+      "body": "This sample demonstrates that the canonical paper workflow no longer depends on copying template files into multiple locations by hand."
+    }
+  }
+}

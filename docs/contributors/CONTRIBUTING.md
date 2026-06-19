@@ -114,8 +114,9 @@ the registry record:
 bun run generate:page-bundle -- --spec page-specs/page-spec-workflow-sample.json --dry-run
 ```
 
-See `page-specs/page-spec-workflow-sample.json` for the input shape and
-`bun run generate:page-bundle -- --help` for the full checked-in contract.
+See `page-specs/` for checked-in sample inputs across the supported canonical
+kinds and `bun run generate:page-bundle -- --help` for the full checked-in
+contract.
 
 **Legacy scaffold** — `scaffold:doc-page` still generates concept and glossary
 bundles from CLI flags for backward compatibility. Its `--help` output points

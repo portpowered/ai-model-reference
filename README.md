@@ -168,6 +168,8 @@ The generator writes the page bundle and aligned registry artifacts together:
 - `src/content/registry/graphs/*.json` when the template references a graph
 
 Run `bun run generate:page-bundle -- --help` for the full page-spec contract.
+Checked-in example specs for each supported canonical kind live in
+`page-specs/`.
 The legacy `scaffold:doc-page` CLI remains available for concept and glossary
 backward compatibility, but new canonical bundles should use the page-spec path.
 
