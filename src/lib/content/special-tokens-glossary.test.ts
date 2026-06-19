@@ -12,13 +12,16 @@ import {
   expectGlossarySingleTagPillList,
   expectHtmlToContainProse,
 } from "@/lib/content/glossary-test-helpers";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import { loadRegistry } from "@/lib/content/registry";
 import {
   getConceptById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
 const pageDir = SPECIAL_TOKENS_GLOSSARY_PAGE_DIR;
@@ -100,6 +103,41 @@ describe("special tokens glossary page (special-tokens-page-002)", () => {
     expect(html).toContain('href="/tags/tokenization"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Reader Shortcut");
+  });
+
+  test("registry record, shipped route, and default English messages resolve the same canonical search document", async () => {
+    const registry = await loadRegistry();
+    const page = await loadGlossaryPage("special-tokens");
+    const pages = await loadPublishedDocsPages("en");
+    const bundledMessages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const record = registry.byId.get("concept.special-tokens");
+
+    expect(record?.slug).toBe("special-tokens");
+    expect(page.frontmatter.registryId).toBe("concept.special-tokens");
+    expect(page.frontmatter.kind).toBe("glossary");
+    expect(page.messages.title).toBe(bundledMessages.title);
+    expect(page.messages.openingSummary).toBe(bundledMessages.openingSummary);
+
+    const publishedPage = pages.find(
+      (entry) => entry.docsSlug === "glossary/special-tokens",
+    );
+    expect(publishedPage?.url).toBe("/docs/glossary/special-tokens");
+    expect(publishedPage?.frontmatter.registryId).toBe(
+      "concept.special-tokens",
+    );
+    expect(publishedPage?.messages.title).toBe(bundledMessages.title);
+
+    const searchDocument = buildSearchDocuments(pages, registry).find(
+      (entry) => entry.url === "/docs/glossary/special-tokens",
+    );
+    expect(searchDocument?.registryId).toBe("concept.special-tokens");
+    expect(searchDocument?.title).toBe(bundledMessages.title);
+    expect(searchDocument?.aliases).toEqual(
+      expect.arrayContaining(["special token", "control token"]),
+    );
+    expect(searchDocument?.relatedIds).toEqual(record?.relatedIds ?? []);
   });
 
   test("curated related docs keep tokenizer, prompting, and model paths connected", () => {
