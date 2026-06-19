@@ -17,6 +17,7 @@ describe("Phase 2 token page learning chain entry (US-010)", () => {
       "concept.vocabulary-size",
       "concept.logit",
       "concept.softmax",
+      "module.wordpiece",
     ]);
   });
 
@@ -53,8 +54,12 @@ describe("Phase 2 token page learning chain entry (US-010)", () => {
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');
+    expect(html).toContain('href="/docs/modules/wordpiece"');
     expect(html).toContain(
       "Each token ID becomes a learned numerical representation before the model mixes context.",
+    );
+    expect(html).toContain(
+      "WordPiece gives one concrete example of how many tokenizers break unfamiliar words into reusable subword pieces.",
     );
     expect(html).toContain('href="/tags/token-to-probability-chain"');
     expect(html).toContain("Token To Probability Chain");

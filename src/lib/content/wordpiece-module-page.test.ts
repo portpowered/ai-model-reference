@@ -9,6 +9,7 @@ import {
   validatePageAssetReferences,
 } from "@/lib/content/assets";
 import { WORDPIECE_MODULE_PAGE_DIR } from "@/lib/content/content-paths";
+import { loadGlossaryPage } from "@/lib/content/glossary-page";
 import {
   expectGlossaryBodyOmitsTitleHeading,
   expectHtmlToContainProse,
@@ -19,6 +20,7 @@ import { loadRegistry } from "@/lib/content/registry";
 import { getRegistryRecordById } from "@/lib/content/registry-runtime";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 const pageDir = WORDPIECE_MODULE_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
@@ -116,9 +118,37 @@ describe("loadModulePage wordpiece", () => {
     expect(wordpieceDocument?.aliases).toContain("WordPiece");
     expect(wordpieceDocument?.aliases).toContain("word piece");
     expect(wordpieceDocument?.aliases).toContain("WordPiece tokenizer");
+    expect(wordpieceDocument?.aliases).toContain("bert tokenizer");
     expect(wordpieceDocument?.tags).toContain("tokenization");
     expect(wordpieceDocument?.relatedIds).toContain("concept.encoder");
     expect(wordpieceDocument?.relatedIds).toContain("concept.special-tokens");
+  });
+
+  test.each([
+    "WordPiece",
+    "word piece",
+    "wordpiece tokenizer",
+    "bert tokenizer",
+  ] as const)("search routes %s to the canonical WordPiece page", async (query) => {
+    const results = await docsSearchApi.search(query);
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url.split("#")[0]).toBe("/docs/modules/wordpiece");
+  });
+
+  test("token glossary related docs link readers into WordPiece", async () => {
+    const tokenPage = await loadGlossaryPage("token");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: tokenPage.messages,
+        assets: tokenPage.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: tokenPage.content,
+      }),
+    );
+
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/modules/wordpiece"');
   });
 });
 

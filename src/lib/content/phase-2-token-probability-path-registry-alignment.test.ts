@@ -92,6 +92,7 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
       "concept.vocabulary-size",
       "concept.logit",
       "concept.softmax",
+      "module.wordpiece",
     ]);
 
     const items = deriveCuratedRelatedItems(
@@ -107,6 +108,7 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
       "concept.vocabulary-size",
       "concept.logit",
       "concept.softmax",
+      "module.wordpiece",
     ]);
     expect(
       items.find((item) => item.registryId === "module.byte-level-tokenization")
@@ -120,10 +122,14 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
         .filter(
           (item) =>
             item.registryId !== "module.byte-level-tokenization" &&
-            item.registryId !== "concept.special-tokens",
+            item.registryId !== "concept.special-tokens" &&
+            item.registryId !== "module.wordpiece",
         )
         .every((item) => item.href?.startsWith("/docs/glossary/")),
     ).toBe(true);
+    expect(
+      items.find((item) => item.registryId === "module.wordpiece")?.href,
+    ).toBe("/docs/modules/wordpiece");
     expect(items.every((item) => item.isPlanned === false)).toBe(true);
   });
 

@@ -4,7 +4,13 @@
   "kind": "module",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["WordPiece", "wordpiece", "word piece", "WordPiece tokenizer"],
+  "aliases": [
+    "WordPiece",
+    "wordpiece",
+    "word piece",
+    "WordPiece tokenizer",
+    "bert tokenizer"
+  ],
   "tags": ["tokenization", "foundations"],
   "relatedIds": [
     "concept.tokenizers-overview",

@@ -50,6 +50,9 @@
     },
     "concept.softmax": {
       "reason": "Those candidate scores convert into probabilities across the vocabulary."
+    },
+    "module.wordpiece": {
+      "reason": "WordPiece gives one concrete example of how many tokenizers break unfamiliar words into reusable subword pieces."
     }
   },
   "assets": {

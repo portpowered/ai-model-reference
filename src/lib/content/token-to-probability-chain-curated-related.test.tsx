@@ -28,7 +28,7 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
       getPublishedDocsRegistryIds(),
     );
 
-    expect(items).toHaveLength(6);
+    expect(items).toHaveLength(7);
     expect(items.map((item) => item.registryId)).toEqual([
       "module.byte-level-tokenization",
       "concept.special-tokens",
@@ -36,6 +36,7 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
       "concept.vocabulary-size",
       "concept.logit",
       "concept.softmax",
+      "module.wordpiece",
     ]);
     expect(items[0]?.registryId).toBe("module.byte-level-tokenization");
     expect(items[0]?.slug).toBe("byte-level-tokenization");
@@ -73,6 +74,7 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain("logits");
     expect(html).toContain("softmax function");
     expect(html).toContain("byte-level tokenization");
+    expect(html).toContain("WordPiece");
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
     expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain('href="/docs/glossary/special-tokens"');
@@ -80,6 +82,7 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');
+    expect(html).toContain('href="/docs/modules/wordpiece"');
   });
 
   test("token glossary page related section surfaces special tokens and embedding from registry relatedIds", async () => {
@@ -103,6 +106,7 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');
+    expect(html).toContain('href="/docs/modules/wordpiece"');
     expect(html).toContain(
       "Each token ID becomes a learned numerical representation before the model mixes context.",
     );
@@ -114,6 +118,9 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     );
     expect(html).toContain(
       "Those candidate scores convert into probabilities across the vocabulary.",
+    );
+    expect(html).toContain(
+      "WordPiece gives one concrete example of how many tokenizers break unfamiliar words into reusable subword pieces.",
     );
   });
 
