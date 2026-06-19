@@ -11,6 +11,7 @@ import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { loadSystemPage } from "./system-page";
+import { renderSystemDocsShell } from "./system-shell-render";
 
 describe("Deployment system page (deployment-system-page-001)", () => {
   test("registry record publishes deployment as a serving system with canonical discovery metadata", () => {
@@ -98,6 +99,17 @@ describe("Deployment system page (deployment-system-page-001)", () => {
       "rollout",
       "rollback",
     ]);
+  });
+
+  test("system docs shell renders the folded opening summary for deployment", async () => {
+    const page = await loadSystemPage("deployment");
+    const html = renderSystemDocsShell(page, { articleChildren: null });
+
+    expect(html).toContain('data-testid="folded-opening-summary"');
+    expect(html).toContain("Opening summary");
+    expect(html).toContain(
+      "The job is not just to copy weights onto a machine.",
+    );
   });
 
   test("search indexes deployment for representative deployment queries", async () => {
