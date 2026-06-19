@@ -44,6 +44,7 @@ const BATCH_017_DOCS_URLS = [
   "/docs/glossary/residual-connection",
   "/docs/glossary/skip-connection",
   "/docs/concepts/positional-encodings",
+  "/docs/concepts/alibi",
   "/docs/modules/rope",
   "/docs/modules/alibi",
   "/docs/glossary/context-window",
