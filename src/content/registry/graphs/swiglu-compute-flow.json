@@ -114,13 +114,13 @@
       "id": "value-branch-to-product",
       "source": "value-branch",
       "target": "gated-product",
-      "edgeKind": "data-flow"
+      "edgeKind": "depends-on"
     },
     {
       "id": "gate-activation-to-product",
       "source": "gate-activation",
       "target": "gated-product",
-      "edgeKind": "data-flow"
+      "edgeKind": "depends-on"
     },
     {
       "id": "product-to-project",

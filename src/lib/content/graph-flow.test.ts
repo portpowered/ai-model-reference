@@ -455,6 +455,35 @@ describe("graph-flow", () => {
     expect(gateActivationNode?.data.semantic.registryId).toBeUndefined();
   });
 
+  test("enables dependency edge interaction metadata and outbound destinations on the published SwiGLU graph", () => {
+    const graph = getGraphById("graph.swiglu-compute-flow");
+    expect(graph).toBeDefined();
+    if (!graph) {
+      return;
+    }
+
+    const { edges } = buildRegistryFlowGraph(
+      graph,
+      swigluMessages as PageMessages,
+    );
+    const dependencyEdge = edges.find(
+      (edge) => edge.id === "gate-activation-to-product",
+    );
+
+    expect(dependencyEdge?.type).toBe("interactiveDependency");
+    expect(dependencyEdge?.data?.semantic).toMatchObject({
+      edgeFamily: "depends-on",
+      edgeKind: "depends-on",
+      sourceTitle: "SiLU gate",
+      targetTitle: "Elementwise multiply",
+      relationshipSummary: "Elementwise multiply depends on SiLU gate.",
+      sourcePageHref: "/docs/modules/silu",
+      sourcePageTitle: "SiLU gate",
+      interactionEnabled: true,
+    });
+    expect(dependencyEdge?.data?.semantic.targetPageHref).toBeUndefined();
+  });
+
   test("preserves the requested MoE annotation height when the content already fits", () => {
     const graph = getGraphById("graph.mixture-of-experts-routing-flow");
     expect(graph).toBeDefined();

@@ -103,6 +103,11 @@ export type RegistryFlowEdgeSemanticData = {
   targetRegistryId?: string;
   sourceTitle: string;
   targetTitle: string;
+  relationshipSummary?: string;
+  sourcePageHref?: string;
+  sourcePageTitle?: string;
+  targetPageHref?: string;
+  targetPageTitle?: string;
   interactionEnabled: boolean;
 };
 
@@ -474,9 +479,47 @@ export function buildRegistryFlowNodeType(
 }
 
 function edgeKindSupportsInteraction(
-  _edgeKind: ModuleGraphEdge["edgeKind"],
+  edgeKind: ModuleGraphEdge["edgeKind"],
 ): boolean {
-  return false;
+  return edgeKind === "depends-on";
+}
+
+function buildRegistryFlowEdgeRelationshipSummary(input: {
+  edgeKind: ModuleGraphEdge["edgeKind"];
+  sourceTitle: string;
+  targetTitle: string;
+}): string | undefined {
+  switch (input.edgeKind) {
+    case "depends-on":
+      return `${input.targetTitle} depends on ${input.sourceTitle}.`;
+    default:
+      return undefined;
+  }
+}
+
+function resolveRegistryFlowNodeDestination(node?: RegistryFlowNodeData): {
+  href?: string;
+  title?: string;
+} {
+  if (!node) {
+    return {};
+  }
+
+  if (node.semantic.hasCanonicalPage && node.semantic.canonicalPageHref) {
+    return {
+      href: node.semantic.canonicalPageHref,
+      title: node.semantic.resolvedTitle,
+    };
+  }
+
+  if (node.semantic.relatedPageHref) {
+    return {
+      href: node.semantic.relatedPageHref,
+      title: node.semantic.relatedPageTitle ?? node.semantic.resolvedTitle,
+    };
+  }
+
+  return {};
 }
 
 export function resolveRegistryFlowEdgeFamily(
@@ -509,11 +552,20 @@ export function buildRegistryFlowEdges(
   if (graph.edges.length > 0) {
     return graph.edges.map((edge) => {
       const edgeFamily = resolveRegistryFlowEdgeFamily(edge.edgeKind);
+      const sourceNode = nodesById.get(edge.source);
+      const targetNode = nodesById.get(edge.target);
+      const sourceDestination = resolveRegistryFlowNodeDestination(sourceNode);
+      const targetDestination = resolveRegistryFlowNodeDestination(targetNode);
+      const sourceTitle = sourceNode?.semantic.resolvedTitle ?? edge.source;
+      const targetTitle = targetNode?.semantic.resolvedTitle ?? edge.target;
       return {
         id: edge.id,
         source: edge.source,
         target: edge.target,
-        type: buildRegistryFlowEdgeType(edgeFamily),
+        type: buildRegistryFlowEdgeType(
+          edgeFamily,
+          edgeKindSupportsInteraction(edge.edgeKind),
+        ),
         zIndex: buildRegistryFlowEdgeZIndex(edgeFamily),
         className: buildRegistryFlowEdgeClassName(edgeFamily),
         ...(edge.sourceHandleSide
@@ -541,22 +593,39 @@ export function buildRegistryFlowEdges(
             edgeKind: edge.edgeKind,
             sourceNodeId: edge.source,
             targetNodeId: edge.target,
-            ...(nodesById.get(edge.source)?.semantic.registryId
+            ...(sourceNode?.semantic.registryId
               ? {
-                  sourceRegistryId: nodesById.get(edge.source)?.semantic
-                    .registryId,
+                  sourceRegistryId: sourceNode.semantic.registryId,
                 }
               : {}),
-            ...(nodesById.get(edge.target)?.semantic.registryId
+            ...(targetNode?.semantic.registryId
               ? {
-                  targetRegistryId: nodesById.get(edge.target)?.semantic
-                    .registryId,
+                  targetRegistryId: targetNode.semantic.registryId,
                 }
               : {}),
-            sourceTitle:
-              nodesById.get(edge.source)?.semantic.resolvedTitle ?? edge.source,
-            targetTitle:
-              nodesById.get(edge.target)?.semantic.resolvedTitle ?? edge.target,
+            sourceTitle,
+            targetTitle,
+            ...(() => {
+              const relationshipSummary =
+                buildRegistryFlowEdgeRelationshipSummary({
+                  edgeKind: edge.edgeKind,
+                  sourceTitle,
+                  targetTitle,
+                });
+              return relationshipSummary ? { relationshipSummary } : {};
+            })(),
+            ...(sourceDestination.href
+              ? { sourcePageHref: sourceDestination.href }
+              : {}),
+            ...(sourceDestination.title
+              ? { sourcePageTitle: sourceDestination.title }
+              : {}),
+            ...(targetDestination.href
+              ? { targetPageHref: targetDestination.href }
+              : {}),
+            ...(targetDestination.title
+              ? { targetPageTitle: targetDestination.title }
+              : {}),
             interactionEnabled: edgeKindSupportsInteraction(edge.edgeKind),
           },
         },
@@ -574,7 +643,10 @@ export function buildRegistryFlowEdges(
         id: `${node.id}->${childId}`,
         source: node.id,
         target: childId,
-        type: buildRegistryFlowEdgeType(edgeFamily),
+        type: buildRegistryFlowEdgeType(
+          edgeFamily,
+          edgeKindSupportsInteraction("data-flow"),
+        ),
         zIndex: buildRegistryFlowEdgeZIndex(edgeFamily),
         className: buildRegistryFlowEdgeClassName(edgeFamily),
         markerEnd: buildRegistryFlowEdgeMarker(edgeFamily),
@@ -625,7 +697,12 @@ function buildRegistryFlowEdgeZIndex(
 
 function buildRegistryFlowEdgeType(
   edgeFamily: RegistryFlowEdgeFamily,
+  interactionEnabled: boolean,
 ): Edge["type"] {
+  if (edgeFamily === "depends-on" && interactionEnabled) {
+    return "interactiveDependency";
+  }
+
   switch (edgeFamily) {
     case "contains":
     case "residual":

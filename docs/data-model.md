@@ -663,10 +663,12 @@ Graph renderer rules:
 * Graph authors may attach an optional outbound destination for graph-local popups through `relatedRegistryId` when the destination is another published canonical docs page, or `relatedHref` for an explicit docs destination when no registry-backed route is appropriate.
 * The fallback node must preserve label-first rendering for older graphs that only provide the minimum current schema fields. When graph-local summary content exists, the fallback may surface a summary affordance and, in the interactive runtime, open the same graph-local popup without requiring a schema rewrite.
 * Runtime edge rendering should resolve an explicit semantic edge family before choosing React Flow path behavior. V1 families are `data-flow`, `contains`, `residual`, `cache-read`, `cache-write`, `parameter-sharing`, `depends-on`, and a default fallback family for older but still supported relationship kinds such as `control-flow`, `conditioning`, and `loss-signal`.
+* Interactive dependency-style edges should carry resolved relationship text and the source or target docs destinations in runtime edge metadata so the UI does not need client-only fetching to populate the popup.
 * The fallback edge must keep older graphs rendering by using the default path treatment for supported but not-yet-specialized edge kinds instead of failing closed.
 * Web graph rendering uses React Flow as the interaction engine.
 * React Flow is not the visual design system. Visual consistency comes from semantic `moduleKind` node styles, semantic `edgeKind` edge styles, and the vertical expandable layout.
 * When a React Flow node becomes directly clickable, its hidden handles and the clickable node wrapper must not capture or lose pointer events in a way that blocks popup activation.
+* Interactive edges should keep a larger invisible button or hit target than the visible path so keyboard and touch activation stay practical without adding visible inline labels to the edge itself.
 * Users can expand and collapse nodes recursively.
 * Every expandable node should expose icon buttons for expand and collapse. Use accessible icon buttons with labels such as "Expand module" and "Collapse module".
 * Layout is always vertical-first. Expanded modules flow top-to-bottom on mobile and desktop.

@@ -1,9 +1,20 @@
 "use client";
 
-import type { FitViewOptions, Node, NodeProps, NodeTypes } from "@xyflow/react";
+import type {
+  Edge,
+  EdgeProps,
+  EdgeTypes,
+  FitViewOptions,
+  Node,
+  NodeProps,
+  NodeTypes,
+} from "@xyflow/react";
 import {
   Background,
+  BaseEdge,
   type DefaultEdgeOptions,
+  EdgeLabelRenderer,
+  getSmoothStepPath,
   Handle,
   type OnError,
   Position,
@@ -27,7 +38,10 @@ import {
   REGISTRY_GRAPH_FLOW_INTERACTION,
   REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE,
 } from "@/features/models/components/registry-graph-flow-theme";
-import type { RegistryFlowNodeData } from "@/lib/content/graph-flow";
+import type {
+  RegistryFlowEdgeData,
+  RegistryFlowNodeData,
+} from "@/lib/content/graph-flow";
 import {
   buildRegistryFlowGraph,
   buildRegistryFlowNodeType,
@@ -52,6 +66,10 @@ const registryGraphNodeTypes: NodeTypes = {
   operator: OperatorNode,
   architectureBlock: ArchitectureBlockNode,
   fallback: FallbackNode,
+};
+
+const registryGraphEdgeTypes: EdgeTypes = {
+  interactiveDependency: InteractiveDependencyEdge,
 };
 
 const REGISTRY_GRAPH_FLOW_FIT_VIEW_OPTIONS: FitViewOptions = {
@@ -91,6 +109,26 @@ type RegistryGraphFlowInteractionContextValue = {
 
 export const RegistryGraphFlowInteractionContext =
   createContext<RegistryGraphFlowInteractionContextValue | null>(null);
+
+type ActiveRegistryGraphEdge = {
+  id: string;
+  relationshipSummary: string;
+  sourcePageHref?: string;
+  sourcePageTitle?: string;
+  sourceTitle: string;
+  targetPageHref?: string;
+  targetPageTitle?: string;
+  targetTitle: string;
+};
+
+type RegistryGraphFlowEdgeInteractionContextValue = {
+  activeEdgeId?: string;
+  openEdgePopup: (edge: ActiveRegistryGraphEdge) => void;
+  popupId: string;
+};
+
+export const RegistryGraphFlowEdgeInteractionContext =
+  createContext<RegistryGraphFlowEdgeInteractionContextValue | null>(null);
 
 function normalizeGraphInlineFormula(label: string): string {
   return label
@@ -620,28 +658,212 @@ export function RegistryGraphFlowNodePopup({
   );
 }
 
+function buildInteractiveDependencyEdgeLabel(
+  data?: RegistryFlowEdgeData,
+): string {
+  const sourceTitle = data?.semantic.sourceTitle ?? "Source node";
+  const targetTitle = data?.semantic.targetTitle ?? "Target node";
+  return `Open relationship details: ${targetTitle} depends on ${sourceTitle}`;
+}
+
+export function InteractiveDependencyEdge({
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition,
+  targetPosition,
+  markerEnd,
+  style,
+  data,
+}: EdgeProps<Edge<RegistryFlowEdgeData>>) {
+  const interactionContext = useContext(
+    RegistryGraphFlowEdgeInteractionContext,
+  );
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+    sourcePosition,
+    targetPosition,
+  });
+  const semantic = data?.semantic;
+  const isInteractive =
+    Boolean(semantic?.interactionEnabled) && interactionContext !== null;
+  const isActive = interactionContext?.activeEdgeId === id;
+  const accessibleLabel = buildInteractiveDependencyEdgeLabel(
+    data as RegistryFlowEdgeData | undefined,
+  );
+
+  const openEdgePopup = () => {
+    if (!interactionContext || !semantic?.interactionEnabled) {
+      return;
+    }
+
+    interactionContext.openEdgePopup({
+      id,
+      relationshipSummary:
+        semantic.relationshipSummary ??
+        `${semantic.targetTitle} depends on ${semantic.sourceTitle}.`,
+      sourceTitle: semantic.sourceTitle,
+      targetTitle: semantic.targetTitle,
+      ...(semantic.sourcePageHref
+        ? { sourcePageHref: semantic.sourcePageHref }
+        : {}),
+      ...(semantic.sourcePageTitle
+        ? { sourcePageTitle: semantic.sourcePageTitle }
+        : {}),
+      ...(semantic.targetPageHref
+        ? { targetPageHref: semantic.targetPageHref }
+        : {}),
+      ...(semantic.targetPageTitle
+        ? { targetPageTitle: semantic.targetPageTitle }
+        : {}),
+    });
+  };
+
+  return (
+    <>
+      <BaseEdge id={id} path={edgePath} markerEnd={markerEnd} style={style} />
+      {isInteractive ? (
+        <EdgeLabelRenderer>
+          <button
+            type="button"
+            className="registry-graph-flow__edge-button nodrag nopan"
+            style={{
+              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+            }}
+            aria-controls={interactionContext.popupId}
+            aria-expanded={isActive ? "true" : "false"}
+            aria-haspopup="dialog"
+            aria-label={accessibleLabel}
+            data-graph-edge-button="true"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              openEdgePopup();
+            }}
+            onKeyDown={(event) => {
+              if (event.key !== "Enter" && event.key !== " ") {
+                return;
+              }
+
+              event.preventDefault();
+              event.stopPropagation();
+              openEdgePopup();
+            }}
+            onPointerDown={(event) => {
+              event.stopPropagation();
+            }}
+          >
+            <span className="sr-only">{accessibleLabel}</span>
+          </button>
+        </EdgeLabelRenderer>
+      ) : null}
+    </>
+  );
+}
+
+export function RegistryGraphFlowEdgePopup({
+  activeEdge,
+  onClose,
+  popupId,
+}: {
+  activeEdge: ActiveRegistryGraphEdge | null;
+  onClose: () => void;
+  popupId: string;
+}) {
+  if (!activeEdge) {
+    return null;
+  }
+
+  return (
+    <div className="pointer-events-none absolute inset-x-3 bottom-3 z-30 sm:inset-x-auto sm:max-w-md">
+      <section
+        id={popupId}
+        role="dialog"
+        aria-modal="false"
+        aria-label={`${activeEdge.sourceTitle} and ${activeEdge.targetTitle} relationship details`}
+        className="registry-graph-flow__popup pointer-events-auto"
+        data-testid="registry-graph-edge-popup"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="registry-graph-flow__popup-kind">Dependency edge</p>
+            <h3 className="registry-graph-flow__popup-title">
+              {activeEdge.sourceTitle}
+              {" and "}
+              {activeEdge.targetTitle}
+            </h3>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-xs"
+            aria-label={`Close ${activeEdge.sourceTitle} and ${activeEdge.targetTitle} relationship details`}
+            onClick={onClose}
+          >
+            <X />
+          </Button>
+        </div>
+        <p className="registry-graph-flow__popup-summary">
+          {activeEdge.relationshipSummary}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-3">
+          {activeEdge.sourcePageHref ? (
+            <a
+              href={activeEdge.sourcePageHref}
+              className="registry-graph-flow__popup-link"
+            >
+              {`Open ${activeEdge.sourcePageTitle ?? activeEdge.sourceTitle}`}
+            </a>
+          ) : null}
+          {activeEdge.targetPageHref ? (
+            <a
+              href={activeEdge.targetPageHref}
+              className="registry-graph-flow__popup-link"
+            >
+              {`Open ${activeEdge.targetPageTitle ?? activeEdge.targetTitle}`}
+            </a>
+          ) : null}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function RegistryGraphFlowSurface({
   assetId,
+  activeEdge,
   activeNode,
   graphId,
   accessibleLabel,
   nodes,
   edges,
+  onCloseEdgePopup,
   onCloseNodePopup,
   onExpand,
+  onOpenEdgePopup,
   onOpenNodePopup,
+  edgePopupId,
   popupId,
   viewportStyle,
 }: {
   assetId: string;
+  activeEdge: ActiveRegistryGraphEdge | null;
   activeNode: ActiveRegistryGraphNode | null;
   graphId: string;
   accessibleLabel: string;
   edges: ReturnType<typeof buildRegistryFlowGraph>["edges"];
   nodes: ReturnType<typeof buildRegistryFlowGraph>["nodes"];
+  onCloseEdgePopup: () => void;
   onCloseNodePopup: () => void;
   onExpand?: () => void;
+  onOpenEdgePopup: (edge: ActiveRegistryGraphEdge) => void;
   onOpenNodePopup: (node: ActiveRegistryGraphNode) => void;
+  edgePopupId: string;
   popupId: string;
   viewportStyle: CSSProperties;
 }) {
@@ -670,120 +892,137 @@ function RegistryGraphFlowSurface({
         popupId,
       }}
     >
-      <div className="relative w-full min-w-0">
-        {onExpand ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-xs"
-            className="absolute top-3 right-3 z-20 border-border/80 bg-background/88 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/72"
-            aria-label="Expand graph to full screen"
-            title="Expand graph to full screen"
-            onClick={onExpand}
-          >
-            <Expand />
-          </Button>
-        ) : null}
-        <div
-          data-page-asset={assetId}
-          data-asset-type="graph"
-          data-graph-id={graphId}
-          data-web-renderer="react-flow"
-          data-react-flow-graph="true"
-          data-manual-visibility-evidence={
-            REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE
-          }
-          data-graph-node-count={String(nodes.length)}
-          data-graph-interaction-pan={
-            REGISTRY_GRAPH_FLOW_INTERACTION.panOnDrag ? "true" : "false"
-          }
-          data-graph-interaction-zoom={
-            REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnScroll &&
-            REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnPinch
-              ? "true"
-              : "false"
-          }
-          data-graph-interaction-editing={
-            REGISTRY_GRAPH_FLOW_INTERACTION.nodesDraggable ||
-            REGISTRY_GRAPH_FLOW_INTERACTION.nodesConnectable ||
-            REGISTRY_GRAPH_FLOW_INTERACTION.elementsSelectable
-              ? "true"
-              : "false"
-          }
-          className="registry-graph-flow w-full min-w-0"
-          style={buildRegistryGraphFlowNodeThemeStyle() as CSSProperties}
-          role="img"
-          aria-label={accessibleLabel}
-        >
-          <div className="sr-only" aria-hidden="false">
-            {nodes.map((node) => (
-              <span
-                key={node.id}
-                data-graph-node-id={node.id}
-                {...(node.data.headCountRole
-                  ? { "data-head-count-role": node.data.headCountRole }
-                  : {})}
-              >
-                {node.data.label}
-              </span>
-            ))}
-            {edges.map((edge) => (
-              <span
-                key={edge.id}
-                data-graph-edge-id={edge.id}
-                data-graph-edge-family={edge.data?.edgeFamily ?? "fallback"}
-                data-graph-edge-kind={
-                  edge.data?.semantic.edgeKind ?? "data-flow"
-                }
-                data-graph-edge-source={edge.source}
-                data-graph-edge-target={edge.target}
-              >
-                {edge.data?.semantic.sourceTitle ?? edge.source}
-                {" to "}
-                {edge.data?.semantic.targetTitle ?? edge.target}
-              </span>
-            ))}
-          </div>
-          <div
-            className="registry-graph-flow__viewport w-full max-w-full overflow-hidden"
-            style={viewportStyle}
-          >
-            <ReactFlow
-              nodes={renderedNodes}
-              edges={edges}
-              onError={handleReactFlowError}
-              fitView
-              fitViewOptions={REGISTRY_GRAPH_FLOW_FIT_VIEW_OPTIONS}
-              nodeTypes={registryGraphNodeTypes}
-              defaultEdgeOptions={REGISTRY_GRAPH_FLOW_DEFAULT_EDGE_OPTIONS}
-              nodesDraggable={REGISTRY_GRAPH_FLOW_INTERACTION.nodesDraggable}
-              nodesConnectable={
-                REGISTRY_GRAPH_FLOW_INTERACTION.nodesConnectable
-              }
-              elementsSelectable={
-                REGISTRY_GRAPH_FLOW_INTERACTION.elementsSelectable
-              }
-              panOnDrag={REGISTRY_GRAPH_FLOW_INTERACTION.panOnDrag}
-              zoomOnScroll={REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnScroll}
-              zoomOnPinch={REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnPinch}
-              zoomOnDoubleClick={
-                REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnDoubleClick
-              }
-              preventScrolling={
-                REGISTRY_GRAPH_FLOW_INTERACTION.preventScrolling
-              }
-              proOptions={REGISTRY_GRAPH_FLOW_PRO_OPTIONS}
+      <RegistryGraphFlowEdgeInteractionContext.Provider
+        value={{
+          activeEdgeId: activeEdge?.id,
+          openEdgePopup: onOpenEdgePopup,
+          popupId: edgePopupId,
+        }}
+      >
+        <div className="relative w-full min-w-0">
+          {onExpand ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-xs"
+              className="absolute top-3 right-3 z-20 border-border/80 bg-background/88 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/72"
+              aria-label="Expand graph to full screen"
+              title="Expand graph to full screen"
+              onClick={onExpand}
             >
-              <Background gap={16} size={1} />
-            </ReactFlow>
+              <Expand />
+            </Button>
+          ) : null}
+          <div
+            data-page-asset={assetId}
+            data-asset-type="graph"
+            data-graph-id={graphId}
+            data-web-renderer="react-flow"
+            data-react-flow-graph="true"
+            data-manual-visibility-evidence={
+              REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE
+            }
+            data-graph-node-count={String(nodes.length)}
+            data-graph-interaction-pan={
+              REGISTRY_GRAPH_FLOW_INTERACTION.panOnDrag ? "true" : "false"
+            }
+            data-graph-interaction-zoom={
+              REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnScroll &&
+              REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnPinch
+                ? "true"
+                : "false"
+            }
+            data-graph-interaction-editing={
+              REGISTRY_GRAPH_FLOW_INTERACTION.nodesDraggable ||
+              REGISTRY_GRAPH_FLOW_INTERACTION.nodesConnectable ||
+              REGISTRY_GRAPH_FLOW_INTERACTION.elementsSelectable
+                ? "true"
+                : "false"
+            }
+            className="registry-graph-flow w-full min-w-0"
+            style={buildRegistryGraphFlowNodeThemeStyle() as CSSProperties}
+            role="img"
+            aria-label={accessibleLabel}
+          >
+            <div className="sr-only" aria-hidden="false">
+              {nodes.map((node) => (
+                <span
+                  key={node.id}
+                  data-graph-node-id={node.id}
+                  {...(node.data.headCountRole
+                    ? { "data-head-count-role": node.data.headCountRole }
+                    : {})}
+                >
+                  {node.data.label}
+                </span>
+              ))}
+              {edges.map((edge) => (
+                <span
+                  key={edge.id}
+                  data-graph-edge-id={edge.id}
+                  data-graph-edge-family={edge.data?.edgeFamily ?? "fallback"}
+                  data-graph-edge-kind={
+                    edge.data?.semantic.edgeKind ?? "data-flow"
+                  }
+                  data-graph-edge-source={edge.source}
+                  data-graph-edge-target={edge.target}
+                  data-graph-edge-interactive={
+                    edge.data?.semantic.interactionEnabled ? "true" : "false"
+                  }
+                >
+                  {edge.data?.semantic.sourceTitle ?? edge.source}
+                  {" to "}
+                  {edge.data?.semantic.targetTitle ?? edge.target}
+                </span>
+              ))}
+            </div>
+            <div
+              className="registry-graph-flow__viewport w-full max-w-full overflow-hidden"
+              style={viewportStyle}
+            >
+              <ReactFlow
+                nodes={renderedNodes}
+                edges={edges}
+                onError={handleReactFlowError}
+                fitView
+                fitViewOptions={REGISTRY_GRAPH_FLOW_FIT_VIEW_OPTIONS}
+                nodeTypes={registryGraphNodeTypes}
+                edgeTypes={registryGraphEdgeTypes}
+                defaultEdgeOptions={REGISTRY_GRAPH_FLOW_DEFAULT_EDGE_OPTIONS}
+                nodesDraggable={REGISTRY_GRAPH_FLOW_INTERACTION.nodesDraggable}
+                nodesConnectable={
+                  REGISTRY_GRAPH_FLOW_INTERACTION.nodesConnectable
+                }
+                elementsSelectable={
+                  REGISTRY_GRAPH_FLOW_INTERACTION.elementsSelectable
+                }
+                panOnDrag={REGISTRY_GRAPH_FLOW_INTERACTION.panOnDrag}
+                zoomOnScroll={REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnScroll}
+                zoomOnPinch={REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnPinch}
+                zoomOnDoubleClick={
+                  REGISTRY_GRAPH_FLOW_INTERACTION.zoomOnDoubleClick
+                }
+                preventScrolling={
+                  REGISTRY_GRAPH_FLOW_INTERACTION.preventScrolling
+                }
+                proOptions={REGISTRY_GRAPH_FLOW_PRO_OPTIONS}
+              >
+                <Background gap={16} size={1} />
+              </ReactFlow>
+            </div>
+            <RegistryGraphFlowNodePopup
+              activeNode={activeNode}
+              onClose={onCloseNodePopup}
+              popupId={popupId}
+            />
+            <RegistryGraphFlowEdgePopup
+              activeEdge={activeEdge}
+              onClose={onCloseEdgePopup}
+              popupId={edgePopupId}
+            />
           </div>
-          <RegistryGraphFlowNodePopup
-            activeNode={activeNode}
-            onClose={onCloseNodePopup}
-            popupId={popupId}
-          />
         </div>
-      </div>
+      </RegistryGraphFlowEdgeInteractionContext.Provider>
     </RegistryGraphFlowInteractionContext.Provider>
   );
 }
@@ -800,10 +1039,14 @@ export function RegistryGraphFlowCanvas({
   const { messages } = usePageMessages();
   const dialogId = useId();
   const popupId = useId();
+  const edgePopupId = useId();
   const graphRecord = getGraphById(graphId);
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
   const [activeNode, setActiveNode] = useState<ActiveRegistryGraphNode | null>(
+    null,
+  );
+  const [activeEdge, setActiveEdge] = useState<ActiveRegistryGraphEdge | null>(
     null,
   );
 
@@ -825,6 +1068,14 @@ export function RegistryGraphFlowCanvas({
     nodes,
     true,
   );
+  const handleOpenNodePopup = (node: ActiveRegistryGraphNode) => {
+    setActiveEdge(null);
+    setActiveNode((current) => (current?.id === node.id ? null : node));
+  };
+  const handleOpenEdgePopup = (edge: ActiveRegistryGraphEdge) => {
+    setActiveNode(null);
+    setActiveEdge((current) => (current?.id === edge.id ? null : edge));
+  };
 
   useEffect(() => {
     setHasMounted(true);
@@ -844,6 +1095,10 @@ export function RegistryGraphFlowCanvas({
           setActiveNode(null);
           return;
         }
+        if (activeEdge) {
+          setActiveEdge(null);
+          return;
+        }
         setIsExpanded(false);
       }
     };
@@ -853,16 +1108,17 @@ export function RegistryGraphFlowCanvas({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [activeNode, isExpanded]);
+  }, [activeEdge, activeNode, isExpanded]);
 
   useEffect(() => {
-    if (!activeNode || isExpanded) {
+    if ((!activeNode && !activeEdge) || isExpanded) {
       return;
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setActiveNode(null);
+        setActiveEdge(null);
       }
     };
 
@@ -870,23 +1126,25 @@ export function RegistryGraphFlowCanvas({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [activeNode, isExpanded]);
+  }, [activeEdge, activeNode, isExpanded]);
 
   return (
     <>
       <RegistryGraphFlowSurface
         assetId={assetId}
+        activeEdge={activeEdge}
         activeNode={activeNode}
         graphId={graphId}
         accessibleLabel={accessibleLabel}
         nodes={nodes}
         edges={edges}
+        onCloseEdgePopup={() => setActiveEdge(null)}
         onCloseNodePopup={() => setActiveNode(null)}
-        onOpenNodePopup={(node) =>
-          setActiveNode((current) => (current?.id === node.id ? null : node))
-        }
+        onOpenEdgePopup={handleOpenEdgePopup}
+        onOpenNodePopup={handleOpenNodePopup}
         viewportStyle={compactViewportStyle}
         onExpand={() => setIsExpanded(true)}
+        edgePopupId={edgePopupId}
         popupId={popupId}
       />
       {hasMounted && isExpanded
@@ -917,17 +1175,17 @@ export function RegistryGraphFlowCanvas({
                   <div className="mx-auto w-full max-w-6xl">
                     <RegistryGraphFlowSurface
                       assetId={assetId}
+                      activeEdge={activeEdge}
                       activeNode={activeNode}
                       graphId={graphId}
                       accessibleLabel={accessibleLabel}
                       nodes={nodes}
                       edges={edges}
+                      onCloseEdgePopup={() => setActiveEdge(null)}
                       onCloseNodePopup={() => setActiveNode(null)}
-                      onOpenNodePopup={(node) =>
-                        setActiveNode((current) =>
-                          current?.id === node.id ? null : node,
-                        )
-                      }
+                      onOpenEdgePopup={handleOpenEdgePopup}
+                      onOpenNodePopup={handleOpenNodePopup}
+                      edgePopupId={edgePopupId}
                       popupId={popupId}
                       viewportStyle={expandedViewportStyle}
                     />

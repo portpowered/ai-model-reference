@@ -19,6 +19,7 @@ import {
   GraphNodeLabel,
   nodeVisualRoleHasHandles,
   RegistryGraphFlow,
+  RegistryGraphFlowEdgePopup,
   RegistryGraphFlowInteractionContext,
   RegistryGraphFlowNodePopup,
 } from "@/features/models/components/RegistryGraphFlow";
@@ -82,10 +83,17 @@ const assets = {
 } satisfies PageAssetConfig;
 
 const GPT_3_MODEL_PAGE_DIR = "src/content/docs/models/gpt-3";
+const SWIGLU_MODULE_PAGE_DIR = "src/content/docs/modules/swiglu";
 
 const gpt3Messages = pageMessagesSchema.parse(
   JSON.parse(
     readFileSync(join(GPT_3_MODEL_PAGE_DIR, "messages/en.json"), "utf8"),
+  ),
+);
+
+const swigluMessages = pageMessagesSchema.parse(
+  JSON.parse(
+    readFileSync(join(SWIGLU_MODULE_PAGE_DIR, "messages/en.json"), "utf8"),
   ),
 );
 
@@ -96,10 +104,11 @@ function stripHtmlTags(html: string): string {
 function renderRegistryGraph(
   ui: ReactElement,
   pageMessages: PageMessages = messages,
+  pageAssets: PageAssetConfig = assets,
 ) {
   return render(
     <PageMessagesProvider messages={pageMessages} isDev={false}>
-      <PageAssetsProvider assets={assets} isDev={false}>
+      <PageAssetsProvider assets={pageAssets} isDev={false}>
         {ui}
       </PageAssetsProvider>
     </PageMessagesProvider>,
@@ -613,6 +622,92 @@ describe("RegistryGraphFlow", () => {
     expect(html).not.toContain("Summary available");
   });
 
+  test("renders dependency edge popups with relationship text and available docs links", () => {
+    const graph = getGraphById("graph.swiglu-compute-flow");
+    expect(graph).toBeDefined();
+    if (!graph) {
+      return;
+    }
+
+    const { edges } = buildRegistryFlowGraph(
+      graph,
+      swigluMessages as PageMessages,
+    );
+    const dependencyEdge = edges.find(
+      (edge) => edge.id === "gate-activation-to-product",
+    );
+    expect(dependencyEdge?.data).toBeDefined();
+    if (!dependencyEdge?.data) {
+      return;
+    }
+
+    renderRegistryGraph(
+      <RegistryGraphFlowEdgePopup
+        activeEdge={{
+          id: dependencyEdge.id,
+          relationshipSummary:
+            dependencyEdge.data.semantic.relationshipSummary ??
+            "Elementwise multiply depends on SiLU gate.",
+          sourceTitle: dependencyEdge.data.semantic.sourceTitle,
+          targetTitle: dependencyEdge.data.semantic.targetTitle,
+          sourcePageHref: dependencyEdge.data.semantic.sourcePageHref,
+          sourcePageTitle: dependencyEdge.data.semantic.sourcePageTitle,
+          targetPageHref: dependencyEdge.data.semantic.targetPageHref,
+          targetPageTitle: dependencyEdge.data.semantic.targetPageTitle,
+        }}
+        onClose={() => {}}
+        popupId="graph-edge-popup"
+      />,
+      swigluMessages,
+    );
+
+    const popup = screen.getByRole("dialog", {
+      name: /SiLU gate and Elementwise multiply relationship details/,
+    });
+    expect(within(popup).getByText("Dependency edge")).toBeTruthy();
+    expect(
+      within(popup).getByText("Elementwise multiply depends on SiLU gate."),
+    ).toBeTruthy();
+    expect(
+      within(popup)
+        .getByRole("link", { name: "Open SiLU gate" })
+        .getAttribute("href"),
+    ).toBe("/docs/modules/silu");
+  });
+
+  test("marks published dependency edges as interactive in the graph accessibility metadata", () => {
+    renderRegistryGraph(
+      <RegistryGraphFlow
+        assetId="computeFlow"
+        graphId="graph.swiglu-compute-flow"
+        alt={swigluMessages.assets?.computeFlow?.alt}
+      />,
+      swigluMessages,
+      {
+        computeFlow: {
+          type: "graph",
+          graphId: "graph.swiglu-compute-flow",
+          webRenderer: "react-flow",
+          printRenderer: "mermaid",
+          altKey: "assets.computeFlow.alt",
+        },
+      } satisfies PageAssetConfig,
+    );
+
+    const interactiveEdge = document.querySelector(
+      '[data-graph-edge-id="gate-activation-to-product"]',
+    );
+    expect(interactiveEdge?.getAttribute("data-graph-edge-family")).toBe(
+      "depends-on",
+    );
+    expect(interactiveEdge?.getAttribute("data-graph-edge-kind")).toBe(
+      "depends-on",
+    );
+    expect(interactiveEdge?.getAttribute("data-graph-edge-interactive")).toBe(
+      "true",
+    );
+  });
+
   test("preserves explicit size and architecture visual roles for container-style nodes", () => {
     const graph = {
       id: "graph.architecture-fixture",
@@ -809,7 +904,7 @@ describe("RegistryGraphFlow", () => {
 
     expect(edges[0]).toMatchObject({
       id: "depends-edge",
-      type: "smoothstep",
+      type: "interactiveDependency",
       className:
         "registry-graph-flow__edge registry-graph-flow__edge--depends-on",
       data: {
@@ -819,6 +914,8 @@ describe("RegistryGraphFlow", () => {
           edgeKind: "depends-on",
           sourceTitle: "Source module",
           targetTitle: "Target module",
+          relationshipSummary: "Target module depends on Source module.",
+          interactionEnabled: true,
         },
       },
     });
