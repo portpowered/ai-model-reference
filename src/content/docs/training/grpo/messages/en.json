@@ -17,7 +17,7 @@
     },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
-      "body": "GRPO still belongs to reinforcement-learning-style post-training, but its defining idea is local relative comparison. The training signal comes from how answers compare with each other inside one sampled batch, not from one fixed absolute target alone."
+      "body": "Group Relative Policy Optimization still sits inside the broader alignment family, but it is narrower than Reinforcement Learning from Human Feedback as a full pipeline. Reinforcement Learning from Human Feedback often means collecting preference data, training a reward model, and then running a reinforcement-learning update such as Proximal Policy Optimization. GRPO keeps the reinforcement-learning loop, but it replaces the learned critic-style baseline with relative ranking inside one sampled group. Direct Preference Optimization moves in a different direction: it stays closer to supervised-style optimization on chosen-versus-rejected pairs, while GRPO uses rewards over several sampled answers and updates the policy from that within-group ordering instead of from one pairwise objective alone."
     },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
