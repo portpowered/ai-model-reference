@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { generatedTableRegistrySourceFiles } from "@/lib/content/generated/table-registry.generated";
 import {
   getTableById,
   listTableRecords,
@@ -80,7 +81,7 @@ describe("table-registry-runtime", () => {
 
   test("lists bundled table records", () => {
     const tableIds = listTableRecords().map((record) => record.id);
-    expect(tableIds.length).toBe(22);
+    expect(tableIds.length).toBe(generatedTableRegistrySourceFiles.length);
     expect(tableIds).toContain("table.bpe-comparison");
     expect(tableIds).toContain("table.byte-level-tokenization-comparison");
     expect(
