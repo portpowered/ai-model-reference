@@ -206,32 +206,33 @@ import registryRecord_171 from "../../content/registry/citations/kaplan-scaling-
 import registryRecord_172 from "../../content/registry/citations/katharopoulos-linear-attention-paper.json";
 import registryRecord_173 from "../../content/registry/citations/kingma-adam.json";
 import registryRecord_174 from "../../content/registry/citations/kivi-kv-cache-quantization.json";
-import registryRecord_175 from "../../content/registry/citations/layer-normalization.json";
-import registryRecord_176 from "../../content/registry/citations/learning-transferable-visual-models-from-natural-language-supervision.json";
-import registryRecord_177 from "../../content/registry/citations/longformer.json";
-import registryRecord_178 from "../../content/registry/citations/multilayer-feedforward-networks-are-universal-approximators.json";
-import registryRecord_179 from "../../content/registry/citations/on-policy-distillation-of-language-models.json";
-import registryRecord_180 from "../../content/registry/citations/peng-yarn.json";
-import registryRecord_181 from "../../content/registry/citations/press-alibi.json";
-import registryRecord_182 from "../../content/registry/citations/qlora.json";
-import registryRecord_183 from "../../content/registry/citations/quantization-integer-only-inference.json";
-import registryRecord_184 from "../../content/registry/citations/query-key-normalization-for-transformers.json";
-import registryRecord_185 from "../../content/registry/citations/raffel-t5.json";
-import registryRecord_186 from "../../content/registry/citations/rectified-linear-units-improve-restricted-boltzmann-machines.json";
-import registryRecord_187 from "../../content/registry/citations/rectifier-nonlinearities-improve-neural-network-acoustic-models.json";
-import registryRecord_188 from "../../content/registry/citations/root-mean-square-layer-normalization.json";
-import registryRecord_189 from "../../content/registry/citations/self-attention-with-relative-position-representations.json";
-import registryRecord_190 from "../../content/registry/citations/sennrich-bpe.json";
-import registryRecord_191 from "../../content/registry/citations/shazeer-mqa-paper.json";
-import registryRecord_192 from "../../content/registry/citations/sigmoid-weighted-linear-units.json";
-import registryRecord_193 from "../../content/registry/citations/smoothquant.json";
-import registryRecord_194 from "../../content/registry/citations/sparse-transformers.json";
-import registryRecord_195 from "../../content/registry/citations/sparsely-gated-mixture-of-experts-layer.json";
-import registryRecord_196 from "../../content/registry/citations/su-roformer-rope.json";
-import registryRecord_197 from "../../content/registry/citations/training-language-models-to-follow-instructions-with-human-feedback.json";
-import registryRecord_198 from "../../content/registry/citations/transformer-lms-without-positional-encodings.json";
-import registryRecord_199 from "../../content/registry/citations/wei-emergent-abilities.json";
-import registryRecord_200 from "../../content/registry/citations/world-models.json";
+import registryRecord_175 from "../../content/registry/citations/kudo-sentencepiece.json";
+import registryRecord_176 from "../../content/registry/citations/layer-normalization.json";
+import registryRecord_177 from "../../content/registry/citations/learning-transferable-visual-models-from-natural-language-supervision.json";
+import registryRecord_178 from "../../content/registry/citations/longformer.json";
+import registryRecord_179 from "../../content/registry/citations/multilayer-feedforward-networks-are-universal-approximators.json";
+import registryRecord_180 from "../../content/registry/citations/on-policy-distillation-of-language-models.json";
+import registryRecord_181 from "../../content/registry/citations/peng-yarn.json";
+import registryRecord_182 from "../../content/registry/citations/press-alibi.json";
+import registryRecord_183 from "../../content/registry/citations/qlora.json";
+import registryRecord_184 from "../../content/registry/citations/quantization-integer-only-inference.json";
+import registryRecord_185 from "../../content/registry/citations/query-key-normalization-for-transformers.json";
+import registryRecord_186 from "../../content/registry/citations/raffel-t5.json";
+import registryRecord_187 from "../../content/registry/citations/rectified-linear-units-improve-restricted-boltzmann-machines.json";
+import registryRecord_188 from "../../content/registry/citations/rectifier-nonlinearities-improve-neural-network-acoustic-models.json";
+import registryRecord_189 from "../../content/registry/citations/root-mean-square-layer-normalization.json";
+import registryRecord_190 from "../../content/registry/citations/self-attention-with-relative-position-representations.json";
+import registryRecord_191 from "../../content/registry/citations/sennrich-bpe.json";
+import registryRecord_192 from "../../content/registry/citations/shazeer-mqa-paper.json";
+import registryRecord_193 from "../../content/registry/citations/sigmoid-weighted-linear-units.json";
+import registryRecord_194 from "../../content/registry/citations/smoothquant.json";
+import registryRecord_195 from "../../content/registry/citations/sparse-transformers.json";
+import registryRecord_196 from "../../content/registry/citations/sparsely-gated-mixture-of-experts-layer.json";
+import registryRecord_197 from "../../content/registry/citations/su-roformer-rope.json";
+import registryRecord_198 from "../../content/registry/citations/training-language-models-to-follow-instructions-with-human-feedback.json";
+import registryRecord_199 from "../../content/registry/citations/transformer-lms-without-positional-encodings.json";
+import registryRecord_200 from "../../content/registry/citations/wei-emergent-abilities.json";
+import registryRecord_201 from "../../content/registry/citations/world-models.json";
 
 const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(registryRecord_0),
@@ -459,6 +460,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(registryRecord_198),
   citationRecordSchema.parse(registryRecord_199),
   citationRecordSchema.parse(registryRecord_200),
+  citationRecordSchema.parse(registryRecord_201),
 ];
 
 const modulesById = new Map<string, ModuleRecord>(
