@@ -17,11 +17,12 @@ import {
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 const pageDir = FEED_FORWARD_NETWORK_CONCEPT_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
 
-describe("Feed-forward network concept page (feed-forward-network-concept-page-001)", () => {
+describe("Feed-forward network concept page (feed-forward-network-concept-page-003)", () => {
   test("registry record is published and now resolves as a concept page", () => {
     const record = getConceptById("concept.feed-forward-network");
     expect(record?.status).toBe("published");
@@ -163,6 +164,45 @@ describe("Feed-forward network concept page (feed-forward-network-concept-page-0
     expect(document?.tags).toEqual(
       expect.arrayContaining(["feed-forward", "foundations"]),
     );
+  });
+
+  test("registry record, published route, default English messages, and discovery search agree on the canonical concept page", async () => {
+    const registry = await loadRegistry();
+    const page = await loadConceptPage("feed-forward-network");
+    const pages = await loadPublishedDocsPages("en");
+    const bundledMessages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const record = registry.byId.get("concept.feed-forward-network");
+
+    expect(record?.slug).toBe("feed-forward-network");
+    expect(page.frontmatter.registryId).toBe("concept.feed-forward-network");
+    expect(page.frontmatter.kind).toBe("concept");
+    expect(page.messages.title).toBe(bundledMessages.title);
+    expect(page.messages.openingSummary).toBe(bundledMessages.openingSummary);
+
+    const publishedPage = pages.find(
+      (entry) => entry.docsSlug === "concepts/feed-forward-network",
+    );
+    expect(publishedPage?.url).toBe("/docs/concepts/feed-forward-network");
+    expect(publishedPage?.frontmatter.registryId).toBe(
+      "concept.feed-forward-network",
+    );
+    expect(publishedPage?.messages.title).toBe(bundledMessages.title);
+
+    const searchDocument = buildSearchDocuments(pages, registry).find(
+      (entry) => entry.url === "/docs/concepts/feed-forward-network",
+    );
+    expect(searchDocument?.registryId).toBe("concept.feed-forward-network");
+    expect(searchDocument?.title).toBe(bundledMessages.title);
+    expect(searchDocument?.aliases).toEqual(
+      expect.arrayContaining(["FFN", "feedforward network", "MLP block"]),
+    );
+    expect(searchDocument?.relatedIds).toEqual(record?.relatedIds ?? []);
+
+    const results = await docsSearchApi.search("feedforward network");
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe("/docs/concepts/feed-forward-network");
   });
 
   test.each([
