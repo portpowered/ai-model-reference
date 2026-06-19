@@ -375,6 +375,8 @@ export const moduleGraphNodeSchema = z.object({
   labelKey: z.string().min(1),
   summaryKey: z.string().optional(),
   registryId: z.string().optional(),
+  relatedRegistryId: z.string().optional(),
+  relatedHref: z.string().min(1).optional(),
   moduleKind: moduleGraphNodeKindSchema,
   position: z
     .object({

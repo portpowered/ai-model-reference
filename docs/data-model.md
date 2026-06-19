@@ -607,6 +607,8 @@ type ModuleGraphNode = {
   labelKey: string;
   summaryKey?: string;
   registryId?: string;
+  relatedRegistryId?: string;
+  relatedHref?: string;
   moduleKind:
     | "model"
     | "block"
@@ -657,7 +659,9 @@ Graph renderer rules:
 * Node and edge labels use message keys. The renderer resolves labels from the same locale messages as the page.
 * Runtime node rendering should resolve an explicit semantic node family before choosing a React Flow component. V1 families are canonical registry references, structural scaffolding, annotations, operators, architecture blocks, and a default fallback family for older or less specific nodes.
 * Canonical interactive nodes should derive popup titles from the graph label when it is meaningful, but fall back to the canonical record title when the visual graph label is intentionally blank for container-style nodes.
-* The fallback node must preserve label-first rendering for older graphs that only provide the minimum current schema fields. When graph-local summary content exists, the fallback may surface a non-blocking summary affordance without requiring a schema rewrite.
+* A node without a published canonical docs page may still open a graph-local popup when `summaryKey` resolves. That popup must clearly identify itself as graph-local rather than canonical.
+* Graph authors may attach an optional outbound destination for graph-local popups through `relatedRegistryId` when the destination is another published canonical docs page, or `relatedHref` for an explicit docs destination when no registry-backed route is appropriate.
+* The fallback node must preserve label-first rendering for older graphs that only provide the minimum current schema fields. When graph-local summary content exists, the fallback may surface a summary affordance and, in the interactive runtime, open the same graph-local popup without requiring a schema rewrite.
 * Runtime edge rendering should resolve an explicit semantic edge family before choosing React Flow path behavior. V1 families are `data-flow`, `contains`, `residual`, `cache-read`, `cache-write`, `parameter-sharing`, `depends-on`, and a default fallback family for older but still supported relationship kinds such as `control-flow`, `conditioning`, and `loss-signal`.
 * The fallback edge must keep older graphs rendering by using the default path treatment for supported but not-yet-specialized edge kinds instead of failing closed.
 * Web graph rendering uses React Flow as the interaction engine.

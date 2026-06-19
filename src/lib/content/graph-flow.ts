@@ -71,8 +71,12 @@ export type RegistryFlowNodeSemanticData = {
   entityKind?: RegistryKind;
   resolvedTitle: string;
   resolvedSummary?: string;
+  summarySource: "graph-local" | "registry" | "none";
   hasCanonicalPage: boolean;
   canonicalPageHref?: string;
+  interactionKind: "canonical" | "graph-local" | "none";
+  relatedPageHref?: string;
+  relatedPageTitle?: string;
 };
 
 export type RegistryFlowEdgeData = {
@@ -319,6 +323,37 @@ function resolveGraphNodeSummary(
   return summary === node.summaryKey ? undefined : summary;
 }
 
+function resolveGraphNodeRelatedPage(node: ModuleGraphNode): {
+  href?: string;
+  title?: string;
+} {
+  if (node.relatedRegistryId) {
+    const relatedRecord = getRegistryRecordById(node.relatedRegistryId);
+    const hasPublishedPage = Boolean(
+      relatedRecord && PUBLISHED_DOCS_REGISTRY_IDS.has(node.relatedRegistryId),
+    );
+
+    if (relatedRecord && hasPublishedPage) {
+      const relatedMessages = getGraphRegistryMessages(node.relatedRegistryId);
+      const resolvedTitle = relatedMessages
+        ? resolveGraphNodeLabel(relatedMessages, relatedRecord.defaultTitleKey)
+        : undefined;
+      const relatedHref = getPublishedDocsHrefForRecord(relatedRecord);
+
+      return {
+        href: relatedHref ?? undefined,
+        title:
+          !resolvedTitle || resolvedTitle === relatedRecord.defaultTitleKey
+            ? undefined
+            : resolvedTitle,
+      };
+    }
+  }
+
+  const relatedHref = node.relatedHref?.trim();
+  return relatedHref ? { href: relatedHref } : {};
+}
+
 function resolveGraphNodeSemanticData(
   node: ModuleGraphNode,
   labelSources: readonly PageMessages[],
@@ -343,11 +378,16 @@ function resolveGraphNodeSemanticData(
           registryRecord.defaultSummaryKey,
         )
       : undefined;
-  const resolvedSummary =
-    graphLocalSummary ??
-    (registrySummary === registryRecord?.defaultSummaryKey
+  const registryResolvedSummary =
+    registrySummary === registryRecord?.defaultSummaryKey
       ? undefined
-      : registrySummary);
+      : registrySummary;
+  const resolvedSummary = graphLocalSummary ?? registryResolvedSummary;
+  const summarySource = graphLocalSummary
+    ? "graph-local"
+    : registryResolvedSummary
+      ? "registry"
+      : "none";
   const resolvedTitle =
     graphLabel.trim().length > 0
       ? graphLabel
@@ -363,14 +403,24 @@ function resolveGraphNodeSemanticData(
     hasCanonicalPage && registryRecord
       ? getPublishedDocsHrefForRecord(registryRecord)
       : null;
+  const relatedPage = resolveGraphNodeRelatedPage(node);
+  const interactionKind = hasCanonicalPage
+    ? "canonical"
+    : summarySource === "graph-local"
+      ? "graph-local"
+      : "none";
 
   return {
     ...(node.registryId ? { registryId: node.registryId } : {}),
     ...(registryRecord ? { entityKind: registryRecord.kind } : {}),
     resolvedTitle,
     ...(resolvedSummary ? { resolvedSummary } : {}),
+    summarySource,
     hasCanonicalPage,
     ...(canonicalPageHref ? { canonicalPageHref } : {}),
+    interactionKind,
+    ...(relatedPage.href ? { relatedPageHref: relatedPage.href } : {}),
+    ...(relatedPage.title ? { relatedPageTitle: relatedPage.title } : {}),
   };
 }
 

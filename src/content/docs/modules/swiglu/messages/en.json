@@ -161,7 +161,8 @@
         "label": "Value branch"
       },
       "gateActivation": {
-        "label": "SiLU gate"
+        "label": "SiLU gate",
+        "summary": "This branch applies SiLU before the gate scales the value path, so the graph can explain the gate locally while still linking out to the canonical SiLU page."
       },
       "gatedProduct": {
         "label": "Elementwise multiply"

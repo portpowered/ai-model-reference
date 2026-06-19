@@ -112,6 +112,9 @@ function CanonicalNodeHarness({ data }: { data: RegistryFlowNodeData }) {
     entityKind?: RegistryFlowNodeData["semantic"]["entityKind"];
     hasCanonicalPage: boolean;
     id: string;
+    interactionKind: RegistryFlowNodeData["semantic"]["interactionKind"];
+    relatedPageHref?: string;
+    relatedPageTitle?: string;
     resolvedSummary?: string;
     resolvedTitle: string;
   } | null>(null);
@@ -524,6 +527,90 @@ describe("RegistryGraphFlow", () => {
     expect(
       screen.getByRole("dialog", { name: /Input\s+Tokens details/ }),
     ).toBeTruthy();
+  });
+
+  test("opens graph-local fallback popups and exposes related docs destinations", () => {
+    const fallbackNodeData = {
+      label: "Gate branch",
+      moduleKind: "operation",
+      nodeFamily: "fallback",
+      visualRole: "process-node",
+      semantic: {
+        resolvedTitle: "Gate branch",
+        resolvedSummary:
+          "This graph-local branch applies the SiLU gate before multiplication.",
+        summarySource: "graph-local",
+        hasCanonicalPage: false,
+        interactionKind: "graph-local",
+        relatedPageHref: "/docs/concepts/swiglu",
+        relatedPageTitle: "SwiGLU",
+      },
+    } satisfies RegistryFlowNodeData;
+
+    renderRegistryGraph(<CanonicalNodeHarness data={fallbackNodeData} />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /Open Gate branch details/ }),
+    );
+
+    const popup = screen.getByRole("dialog", {
+      name: /Gate branch details/,
+    });
+    expect(within(popup).getByText("Graph-local explanation")).toBeTruthy();
+    expect(
+      within(popup).getByText(
+        "This graph-local branch applies the SiLU gate before multiplication.",
+      ),
+    ).toBeTruthy();
+    expect(
+      within(popup)
+        .getByRole("link", { name: "Open SwiGLU" })
+        .getAttribute("href"),
+    ).toBe("/docs/concepts/swiglu");
+  });
+
+  test("keeps fallback nodes non-clickable when no graph-local summary exists", () => {
+    const fallbackNodeData = {
+      label: "Legacy node",
+      moduleKind: "other",
+      nodeFamily: "fallback",
+      visualRole: "timeline-node",
+      semantic: {
+        resolvedTitle: "Legacy node",
+        summarySource: "none",
+        hasCanonicalPage: false,
+        interactionKind: "none",
+      },
+    } satisfies RegistryFlowNodeData;
+
+    const html = renderToStaticMarkup(
+      <ReactFlowProvider>
+        {FallbackNode({
+          id: "legacy-node",
+          data: fallbackNodeData,
+          type: "fallback",
+          selected: false,
+          dragging: false,
+          zIndex: 0,
+          isConnectable: false,
+          positionAbsoluteX: 0,
+          positionAbsoluteY: 0,
+          xPos: 0,
+          yPos: 0,
+          draggingHandle: null,
+          targetPosition: undefined,
+          sourcePosition: undefined,
+          width: 180,
+          height: 64,
+          parentId: undefined,
+          dragHandle: undefined,
+        } as never)}
+      </ReactFlowProvider>,
+    );
+
+    expect(html).toContain('data-graph-node-interactive="false"');
+    expect(html).not.toContain('data-graph-node-button="true"');
+    expect(html).not.toContain("Summary available");
   });
 
   test("preserves explicit size and architecture visual roles for container-style nodes", () => {

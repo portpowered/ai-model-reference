@@ -53,6 +53,8 @@
     {
       "id": "gate-activation",
       "labelKey": "graph.nodes.gateActivation.label",
+      "summaryKey": "graph.nodes.gateActivation.summary",
+      "relatedRegistryId": "module.silu",
       "moduleKind": "operation",
       "position": { "x": 450, "y": 220 },
       "visualRole": "process-node",

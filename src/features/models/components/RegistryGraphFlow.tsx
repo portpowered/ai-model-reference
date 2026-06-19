@@ -76,6 +76,9 @@ type ActiveRegistryGraphNode = {
   entityKind?: RegistryKind;
   hasCanonicalPage: boolean;
   id: string;
+  interactionKind: RegistryFlowNodeData["semantic"]["interactionKind"];
+  relatedPageHref?: string;
+  relatedPageTitle?: string;
   resolvedSummary?: string;
   resolvedTitle: string;
 };
@@ -283,9 +286,11 @@ export function nodeVisualRoleHasHandles(
 }
 
 function RegistryGraphFlowNodeBody({
+  nodeId,
   data,
   summaryAffordance = false,
 }: {
+  nodeId: string;
   data: RegistryFlowNodeData;
   summaryAffordance?: boolean;
 }) {
@@ -293,25 +298,25 @@ function RegistryGraphFlowNodeBody({
   const visualRole = data.visualRole ?? "default";
   const hasHandles = nodeVisualRoleHasHandles(visualRole);
   const className = getAttentionHeadNodeClassName(visualRole);
-  const isCanonicalNode =
-    data.nodeFamily === "canonical-reference" &&
-    Boolean(data.semantic.registryId) &&
-    interactionContext !== null;
-  const isActive =
-    interactionContext?.activeNodeId === data.semantic.registryId;
+  const isInteractiveNode =
+    interactionContext !== null && data.semantic.interactionKind !== "none";
+  const isActive = interactionContext?.activeNodeId === nodeId;
 
   const openNodePopup = () => {
-    if (!interactionContext || !data.semantic.registryId) {
+    if (!interactionContext || data.semantic.interactionKind === "none") {
       return;
     }
 
     interactionContext.openNodePopup({
-      id: data.semantic.registryId,
+      id: nodeId,
       resolvedTitle: data.semantic.resolvedTitle,
       resolvedSummary: data.semantic.resolvedSummary,
       entityKind: data.semantic.entityKind,
       hasCanonicalPage: data.semantic.hasCanonicalPage,
       canonicalPageHref: data.semantic.canonicalPageHref,
+      interactionKind: data.semantic.interactionKind,
+      relatedPageHref: data.semantic.relatedPageHref,
+      relatedPageTitle: data.semantic.relatedPageTitle,
     });
   };
 
@@ -351,7 +356,7 @@ function RegistryGraphFlowNodeBody({
       data-graph-node-family={data.nodeFamily}
       data-graph-node-type={buildRegistryFlowNodeType(data.nodeFamily)}
       data-graph-summary-affordance={summaryAffordance ? "true" : "false"}
-      data-graph-node-interactive={isCanonicalNode ? "true" : "false"}
+      data-graph-node-interactive={isInteractiveNode ? "true" : "false"}
     >
       {hasHandles ? (
         <>
@@ -379,7 +384,7 @@ function RegistryGraphFlowNodeBody({
             id="target-left"
             className="registry-graph-flow__handle"
           />
-          {isCanonicalNode ? (
+          {isInteractiveNode ? (
             <button
               type="button"
               className="registry-graph-flow__node-button nodrag nopan"
@@ -438,42 +443,49 @@ function RegistryGraphFlowNodeBody({
 }
 
 export function CanonicalReferenceNode({
+  id,
   data,
 }: NodeProps<Node<RegistryFlowNodeData, "canonicalReference">>) {
-  return <RegistryGraphFlowNodeBody data={data} />;
+  return <RegistryGraphFlowNodeBody nodeId={id} data={data} />;
 }
 
 function StructuralNode({
+  id,
   data,
 }: NodeProps<Node<RegistryFlowNodeData, "structural">>) {
-  return <RegistryGraphFlowNodeBody data={data} />;
+  return <RegistryGraphFlowNodeBody nodeId={id} data={data} />;
 }
 
 function AnnotationNode({
+  id,
   data,
 }: NodeProps<Node<RegistryFlowNodeData, "annotation">>) {
-  return <RegistryGraphFlowNodeBody data={data} />;
+  return <RegistryGraphFlowNodeBody nodeId={id} data={data} />;
 }
 
 function OperatorNode({
+  id,
   data,
 }: NodeProps<Node<RegistryFlowNodeData, "operator">>) {
-  return <RegistryGraphFlowNodeBody data={data} />;
+  return <RegistryGraphFlowNodeBody nodeId={id} data={data} />;
 }
 
 function ArchitectureBlockNode({
+  id,
   data,
 }: NodeProps<Node<RegistryFlowNodeData, "architectureBlock">>) {
-  return <RegistryGraphFlowNodeBody data={data} />;
+  return <RegistryGraphFlowNodeBody nodeId={id} data={data} />;
 }
 
 export function FallbackNode({
+  id,
   data,
 }: NodeProps<Node<RegistryFlowNodeData, "fallback">>) {
   return (
     <RegistryGraphFlowNodeBody
+      nodeId={id}
       data={data}
-      summaryAffordance={Boolean(data.semantic.resolvedSummary)}
+      summaryAffordance={data.semantic.summarySource === "graph-local"}
     />
   );
 }
@@ -546,6 +558,25 @@ export function RegistryGraphFlowNodePopup({
   }
 
   const entityKindLabel = formatRegistryKindLabel(activeNode.entityKind);
+  const isGraphLocalPopup = activeNode.interactionKind === "graph-local";
+  const popupKindLabel = isGraphLocalPopup
+    ? "Graph-local explanation"
+    : entityKindLabel;
+  const popupSummary = activeNode.resolvedSummary
+    ? activeNode.resolvedSummary
+    : isGraphLocalPopup
+      ? "This graph node has local context, but its short explanation is not available yet."
+      : "This graph node has a canonical target, but its short summary is not available yet.";
+  const popupLinkHref = isGraphLocalPopup
+    ? activeNode.relatedPageHref
+    : activeNode.hasCanonicalPage
+      ? activeNode.canonicalPageHref
+      : undefined;
+  const popupLinkLabel = isGraphLocalPopup
+    ? activeNode.relatedPageTitle
+      ? `Open ${activeNode.relatedPageTitle}`
+      : "Open related docs page"
+    : "Open canonical docs page";
 
   return (
     <div className="pointer-events-none absolute inset-x-3 bottom-3 z-30 sm:inset-x-auto sm:max-w-md">
@@ -559,9 +590,9 @@ export function RegistryGraphFlowNodePopup({
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            {entityKindLabel ? (
+            {popupKindLabel ? (
               <p className="registry-graph-flow__popup-kind">
-                {entityKindLabel}
+                {popupKindLabel}
               </p>
             ) : null}
             <h3 className="registry-graph-flow__popup-title">
@@ -578,16 +609,10 @@ export function RegistryGraphFlowNodePopup({
             <X />
           </Button>
         </div>
-        <p className="registry-graph-flow__popup-summary">
-          {activeNode.resolvedSummary ??
-            "This graph node has a canonical target, but its short summary is not available yet."}
-        </p>
-        {activeNode.hasCanonicalPage && activeNode.canonicalPageHref ? (
-          <a
-            href={activeNode.canonicalPageHref}
-            className="registry-graph-flow__popup-link"
-          >
-            Open canonical docs page
+        <p className="registry-graph-flow__popup-summary">{popupSummary}</p>
+        {popupLinkHref ? (
+          <a href={popupLinkHref} className="registry-graph-flow__popup-link">
+            {popupLinkLabel}
           </a>
         ) : null}
       </section>
@@ -627,7 +652,7 @@ function RegistryGraphFlowSurface({
     throw new GraphRenderIssueError(graphId, [`react-flow ${id}: ${message}`]);
   };
   const renderedNodes = nodes.map((node) =>
-    node.data.nodeFamily === "canonical-reference"
+    node.data.semantic.interactionKind !== "none"
       ? {
           ...node,
           style: {

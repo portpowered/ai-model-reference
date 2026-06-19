@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import gpt3Messages from "@/content/docs/models/gpt-3/messages/en.json";
 import mixtureOfExpertsMessages from "@/content/docs/modules/mixture-of-experts/messages/en.json";
+import swigluMessages from "@/content/docs/modules/swiglu/messages/en.json";
 import {
   buildRegistryFlowGraph,
   estimateRegistryFlowNodeBoxSize,
@@ -342,9 +343,116 @@ describe("graph-flow", () => {
       registryId: "dataset.deepseek-v4-specialist-corpus",
       entityKind: "dataset",
       hasCanonicalPage: false,
+      interactionKind: "graph-local",
+      summarySource: "graph-local",
       resolvedSummary: "Dataset node without a published canonical docs page.",
     });
     expect(nodes[0]?.data.semantic.canonicalPageHref).toBeUndefined();
+  });
+
+  test("resolves graph-local popup interactions and optional related docs destinations for non-canonical nodes", () => {
+    const graph = {
+      id: "graph.graph-local-popup-fixture",
+      slug: "graph-local-popup-fixture",
+      kind: "graph",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-20T00:00:00.000Z",
+      updatedAt: "2026-06-20T00:00:00.000Z",
+      subjectId: "concept.feed-forward-network",
+      graphType: "concept-map",
+      rootNodeId: "gate-node",
+      layout: "vertical-expandable",
+      defaultExpandedDepth: 1,
+      supportedRenderers: ["react-flow"],
+      nodes: [
+        {
+          id: "gate-node",
+          labelKey: "graph.nodes.gateNode.label",
+          summaryKey: "graph.nodes.gateNode.summary",
+          relatedRegistryId: "module.swiglu",
+          moduleKind: "operation",
+          childNodeIds: [],
+          visualRole: "process-node",
+        },
+        {
+          id: "registry-summary-only",
+          labelKey: "graph.nodes.registrySummaryOnly.label",
+          registryId: "dataset.deepseek-v4-specialist-corpus",
+          moduleKind: "dataset",
+          childNodeIds: [],
+          visualRole: "process-node",
+        },
+      ],
+      edges: [],
+    } satisfies Parameters<typeof buildRegistryFlowGraph>[0];
+
+    const pageMessages = {
+      title: "Fixture",
+      description: "Fixture",
+      graph: {
+        nodes: {
+          gateNode: {
+            label: "Gate branch",
+            summary:
+              "This local gate scales the value branch before projection.",
+          },
+          registrySummaryOnly: {
+            label: "DeepSeek V4 specialist corpus",
+          },
+        },
+      },
+    } satisfies PageMessages;
+
+    const { nodes } = buildRegistryFlowGraph(graph, pageMessages);
+    const gateNode = nodes.find((node) => node.id === "gate-node");
+    const registrySummaryOnlyNode = nodes.find(
+      (node) => node.id === "registry-summary-only",
+    );
+
+    expect(gateNode?.data.semantic).toMatchObject({
+      hasCanonicalPage: false,
+      interactionKind: "graph-local",
+      summarySource: "graph-local",
+      resolvedSummary:
+        "This local gate scales the value branch before projection.",
+      relatedPageHref: "/docs/modules/swiglu",
+    });
+    expect(registrySummaryOnlyNode?.data.semantic).toMatchObject({
+      registryId: "dataset.deepseek-v4-specialist-corpus",
+      hasCanonicalPage: false,
+      summarySource: "none",
+      interactionKind: "none",
+    });
+  });
+
+  test("keeps published SwiGLU operator nodes graph-local while linking out to related canonical docs", () => {
+    const graph = getGraphById("graph.swiglu-compute-flow");
+    expect(graph).toBeDefined();
+    if (!graph) {
+      return;
+    }
+
+    const { nodes } = buildRegistryFlowGraph(
+      graph,
+      swigluMessages as PageMessages,
+    );
+    const gateActivationNode = nodes.find(
+      (node) => node.id === "gate-activation",
+    );
+
+    expect(gateActivationNode?.data.semantic).toMatchObject({
+      resolvedTitle: "SiLU gate",
+      summarySource: "graph-local",
+      interactionKind: "graph-local",
+      relatedPageHref: "/docs/modules/silu",
+    });
+    expect(gateActivationNode?.data.semantic.registryId).toBeUndefined();
   });
 
   test("preserves the requested MoE annotation height when the content already fits", () => {
