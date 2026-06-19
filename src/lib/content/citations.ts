@@ -1,6 +1,7 @@
 import attentionIsAllYouNeed from "@/content/registry/citations/attention-is-all-you-need.json";
 import awq from "@/content/registry/citations/awq.json";
 import batchNormalization from "@/content/registry/citations/batch-normalization.json";
+import bertPreTraining from "@/content/registry/citations/bert-pre-training.json";
 import brownGpt3 from "@/content/registry/citations/brown-gpt-3.json";
 import chenPositionalInterpolation from "@/content/registry/citations/chen-positional-interpolation.json";
 import classifierFreeDiffusionGuidance from "@/content/registry/citations/classifier-free-diffusion-guidance.json";
@@ -56,6 +57,7 @@ import {
 const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(attentionIsAllYouNeed),
   citationRecordSchema.parse(awq),
+  citationRecordSchema.parse(bertPreTraining),
   citationRecordSchema.parse(brownGpt3),
   citationRecordSchema.parse(batchNormalization),
   citationRecordSchema.parse(chenPositionalInterpolation),

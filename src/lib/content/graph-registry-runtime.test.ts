@@ -156,12 +156,15 @@ describe("graph-registry-runtime", () => {
     expect(getGraphById("graph.token-concept-map")?.id).toBe(
       "graph.token-concept-map",
     );
+    expect(getGraphById("graph.wordpiece-compute-flow")?.id).toBe(
+      "graph.wordpiece-compute-flow",
+    );
   });
 
   test("lists all bundled graph records", () => {
     const records = listGraphRecords();
 
-    expect(records.length).toBe(49);
+    expect(records.length).toBe(50);
     expect(records.map((record) => record.id)).toContain(
       "graph.bpe-compute-flow",
     );
@@ -191,6 +194,9 @@ describe("graph-registry-runtime", () => {
     );
     expect(records.map((record) => record.id)).toContain(
       "graph.dpo-training-flow",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.wordpiece-compute-flow",
     );
   });
 

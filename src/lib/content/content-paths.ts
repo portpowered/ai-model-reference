@@ -126,6 +126,9 @@ export const SENTENCEPIECE_MODULE_PAGE_DIR = join(
   "sentencepiece",
 );
 
+/** WordPiece module page directory. */
+export const WORDPIECE_MODULE_PAGE_DIR = join(MODULES_DOCS_ROOT, "wordpiece");
+
 /** Phase 3 multi-head attention module page directory. */
 export const MULTI_HEAD_ATTENTION_PAGE_DIR = join(
   MODULES_DOCS_ROOT,

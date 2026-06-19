@@ -1,0 +1,149 @@
+{
+  "title": "WordPiece",
+  "description": "A subword tokenizer that grows reusable word fragments by scoring candidate pieces instead of merging by raw frequency alone.",
+  "openingSummary": "WordPiece is a subword tokenizer that builds a vocabulary from reusable pieces of words, which lets one model handle common words, rare spellings, and unfamiliar names without needing a separate token for every whole word.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "WordPiece is a subword tokenizer. Instead of insisting that every word must stay whole, it stores a vocabulary of smaller reusable pieces and uses those pieces to spell out text when a full word is missing from the vocabulary."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Whole-word vocabularies break down quickly when text contains rare names, spelling variants, or productive endings such as `-ing` and `-ness`. WordPiece keeps the vocabulary manageable while still letting the tokenizer cover those cases by reusing learned fragments across many words."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "WordPiece usually begins from small units, then adds larger pieces when they help explain many words efficiently. A simple example starts with pieces like `play`, `##ing`, `player`, and `##ers`, where `##` marks a continuation inside the same word. If the tokenizer sees `players`, it can break it into `player` + `##s`; if it sees `playing`, it can use `play` + `##ing`. During vocabulary building, candidate joins are scored instead of being chosen by raw frequency alone, so the algorithm prefers pieces that add useful discrimination rather than only the most common adjacent pair."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "This compact rule says that each training step scores the candidate pieces available at that moment and adds the best-scoring one to the inventory."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "WordPiece sits close to byte pair encoding (BPE) because both learn reusable subword pieces, but WordPiece picks new pieces with a scoring rule rather than raw pair frequency alone. Compared with SentencePiece, WordPiece more often assumes a word-like split first, which makes it feel natural in many encoder-style text pipelines but less independent from upstream pre-tokenization."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Readers most often encounter WordPiece in older encoder-style language-model discussions, especially BERT-family tokenizers and similar text-understanding systems. In those settings, the tokenizer feeds subword IDs into a bidirectional encoder that needs stable handling for common words and rare names alike."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "WordPiece pieces can still look unnatural to a human reader, and the pre-tokenization step matters more than it does in raw-text approaches. If the upstream word split changes, the resulting subword choices can change too. That is one reason tokenizer swaps are risky even when two vocabularies seem conceptually similar."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "WordPiece still matters because it is one of the clearest examples of subword tokenization in mainstream transformer history. Understanding it makes tokenizer comparisons easier, explains why BERT-style systems talk about word pieces, and helps readers reason about why one text string may expand into different token counts across model families."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "WordPiece flow from pre-tokenized words, candidate piece scoring, and reusable continuation pieces to final token IDs",
+      "variants": {
+        "wordpiece": {
+          "label": "WordPiece scoring flow"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "bpe": {
+          "title": "BPE"
+        },
+        "wordpiece": {
+          "title": "WordPiece"
+        },
+        "sentencepiece": {
+          "title": "SentencePiece"
+        }
+      },
+      "dimensions": {
+        "startingView": "Starting view of text",
+        "mergeChoice": "How new pieces are chosen",
+        "spaceHandling": "Handling of spaces and bytes",
+        "mainTradeoff": "Main tradeoff"
+      },
+      "values": {
+        "bpe": {
+          "startingView": "Starts from small symbols and merges common neighbors",
+          "mergeChoice": "Usually picks the most frequent adjacent pair",
+          "spaceHandling": "Often paired with byte-level handling in GPT-style tokenizers",
+          "mainTradeoff": "Simple and reusable, but learned pieces can look unnatural"
+        },
+        "wordpiece": {
+          "startingView": "Starts from word-level splits and reusable continuation pieces",
+          "mergeChoice": "Uses a scoring rule instead of raw pair frequency alone",
+          "spaceHandling": "Usually assumes a word-like pre-tokenization step first",
+          "mainTradeoff": "Good practical coverage, but more dependent on the upstream split"
+        },
+        "sentencepiece": {
+          "startingView": "Trains directly on raw text without fixed word boundaries",
+          "mergeChoice": "Can learn pieces with BPE-style or unigram-style training",
+          "spaceHandling": "Treats spaces as regular symbols so boundaries stay explicit",
+          "mainTradeoff": "Flexible across languages, but its learned pieces may differ more from reader intuition"
+        }
+      }
+    }
+  },
+  "math": {
+    "wordpieceSchema": {
+      "label": "One WordPiece vocabulary-growth step",
+      "formula": "p_t = \\arg\\max_{p \\in P_t} \\operatorname{score}(p, \\tau_t)",
+      "variableDefinitions": {
+        "pt": {
+          "term": "p_t",
+          "definition": "Candidate piece chosen at step t."
+        },
+        "Pt": {
+          "term": "P_t",
+          "definition": "Candidate piece set available at step t."
+        },
+        "tau": {
+          "term": "\\tau_t",
+          "definition": "Current piece inventory after step t."
+        },
+        "t": {
+          "term": "t",
+          "definition": "Vocabulary-growth step index."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "rawWords": {
+        "label": "Raw training text"
+      },
+      "wordSplit": {
+        "label": "Split into word-like units first"
+      },
+      "seedPieces": {
+        "label": "Start from base pieces and continuation markers"
+      },
+      "scoreCandidates": {
+        "label": "Score candidate joins"
+      },
+      "addPiece": {
+        "label": "Add the best-scoring new piece"
+      },
+      "retokenize": {
+        "label": "Reuse pieces such as `play` and `##ing`"
+      },
+      "tokenOutput": {
+        "label": "Final token IDs"
+      }
+    }
+  }
+}
