@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { createElement } from "react";
+import { renderToReadableStream } from "react-dom/server";
+import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { TRAINING_DOCS_ROOT } from "@/lib/content/content-paths";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
@@ -16,6 +19,7 @@ import {
   pageFrontmatterSchema,
   pageMessagesSchema,
 } from "@/lib/content/schemas";
+import { loadTrainingRegimePage } from "@/lib/content/training-regime-page";
 import { parseYamlFrontmatterBlock } from "@/lib/content/validate-registry";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -43,6 +47,14 @@ function loadPretrainingPageBundle() {
       trainingFlow: { type: string; graphId: string };
     },
   };
+}
+
+async function renderHtml(
+  element: ReturnType<typeof createElement>,
+): Promise<string> {
+  const stream = await renderToReadableStream(element);
+  await stream.allReady;
+  return await new Response(stream).text();
 }
 
 describe("pretraining training-regime identity contracts", () => {
@@ -142,6 +154,28 @@ describe("pretraining training-regime identity contracts", () => {
     expect(
       items.find((item) => item.registryId === "training-regime.dpo")?.href,
     ).toBe("/docs/training/dpo");
+  });
+
+  test("page renders the layperson explanation, training-flow graph, and next-token math without reader-shortcut copy", async () => {
+    const page = await loadTrainingRegimePage("pretraining");
+
+    const html = await renderHtml(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain("broad statistical learner");
+    expect(html).toContain(
+      "Pretraining turns huge token corpora into a base model by repeating the next-token objective at scale.",
+    );
+    expect(html).toContain('role="math"');
+    expect(html).toContain("\\max_\\theta");
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).not.toContain("Reader Shortcut");
   });
 
   test("search documents and runtime search resolve pretraining title, aliases, and core terms", async () => {

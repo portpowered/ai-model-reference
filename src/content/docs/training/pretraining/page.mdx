@@ -42,7 +42,9 @@ import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeF
     registryId="training-regime.pretraining"
     assetId="trainingFlow"
   />
-  <BlockMath formula="\\max_\\theta \\sum_t \\log p_\\theta(x_t \\mid x_{<t})" />
+  <BlockMath
+    formula={String.raw`\max_\theta \sum_t \log p_\theta(x_t \mid x_{<t})`}
+  />
 </Section>
 <Section
   id="compared-to-nearby-regimes"
