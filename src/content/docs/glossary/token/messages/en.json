@@ -36,6 +36,9 @@
     "module.byte-level-tokenization": {
       "reason": "Byte-level tokenization shows why tokenizer output does not have to line up with whole words."
     },
+    "concept.special-tokens": {
+      "reason": "Special tokens show which reserved markers the tokenizer keeps aside for boundaries, padding, and control signals."
+    },
     "concept.embedding": {
       "reason": "Each token ID becomes a learned numerical representation before the model mixes context."
     },

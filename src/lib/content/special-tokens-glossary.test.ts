@@ -19,6 +19,7 @@ import {
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 const pageDir = SPECIAL_TOKENS_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
@@ -140,5 +141,32 @@ describe("special tokens glossary page (special-tokens-page-002)", () => {
           item.href === "/docs/glossary/prefill",
       ),
     ).toBe(true);
+  });
+
+  test.each([
+    "special tokens",
+    "BOS EOS",
+    "padding token",
+    "control token",
+  ] as const)("%s query routes discovery into the canonical special-tokens page", async (query) => {
+    const results = await docsSearchApi.search(query);
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe("/docs/glossary/special-tokens");
+  });
+
+  test("token glossary renders a navigable related-doc link to special tokens", async () => {
+    const page = await loadGlossaryPage("token");
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('href="/docs/glossary/special-tokens"');
   });
 });

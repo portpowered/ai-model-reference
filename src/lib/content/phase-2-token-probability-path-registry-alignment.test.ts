@@ -79,7 +79,7 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
     }
   });
 
-  test("token curated relatedIds expose embedding, vocabulary size, logit, and softmax without prose-only links", () => {
+  test("token curated relatedIds expose special tokens, embedding, vocabulary size, logit, and softmax without prose-only links", () => {
     const token = getRegistryRecordById("concept.token");
     if (!token) {
       throw new Error("expected concept.token in registry runtime");
@@ -87,6 +87,7 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
 
     expect(token.relatedIds).toEqual([
       "module.byte-level-tokenization",
+      "concept.special-tokens",
       "concept.embedding",
       "concept.vocabulary-size",
       "concept.logit",
@@ -101,6 +102,7 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
 
     expect(items.map((item) => item.registryId)).toEqual([
       "module.byte-level-tokenization",
+      "concept.special-tokens",
       "concept.embedding",
       "concept.vocabulary-size",
       "concept.logit",
@@ -111,8 +113,15 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
         ?.href,
     ).toBe("/docs/modules/byte-level-tokenization");
     expect(
+      items.find((item) => item.registryId === "concept.special-tokens")?.href,
+    ).toBe("/docs/glossary/special-tokens");
+    expect(
       items
-        .filter((item) => item.registryId !== "module.byte-level-tokenization")
+        .filter(
+          (item) =>
+            item.registryId !== "module.byte-level-tokenization" &&
+            item.registryId !== "concept.special-tokens",
+        )
         .every((item) => item.href?.startsWith("/docs/glossary/")),
     ).toBe(true);
     expect(items.every((item) => item.isPlanned === false)).toBe(true);
