@@ -6,6 +6,7 @@ import { loadModulePage } from "@/lib/content/module-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
   getConceptById,
+  getModuleById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
@@ -13,6 +14,7 @@ import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 describe("Phase 3 relative bias family pages (US-003)", () => {
   test("relative position bias distinguishes the general family from the T5-specific subtype", () => {
     const relativeBias = getConceptById("concept.relative-position-bias");
+    const relativeBiasModule = getModuleById("module.relative-position-bias");
     const t5Bias = getConceptById("concept.t5-relative-position-bias");
 
     expect(relativeBias?.relatedIds).toEqual([
@@ -24,6 +26,18 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
     ]);
     expect(relativeBias?.explainsIds).toEqual([
       "concept.t5-relative-position-bias",
+    ]);
+    expect(relativeBias?.aliases).toEqual([
+      "relative position bias",
+      "Relative position bias",
+      "relative positional bias",
+      "relative attention bias",
+    ]);
+    expect(relativeBiasModule?.aliases).toEqual([
+      "relative position bias",
+      "Relative position bias",
+      "relative positional bias",
+      "relative attention bias",
     ]);
     expect(t5Bias?.relatedIds).toEqual([
       "concept.positional-encodings",
