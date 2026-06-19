@@ -1,23 +1,23 @@
 {
   "title": "Reinforcement Learning from Human Feedback",
   "description": "A post-training alignment regime that uses human preference data to steer a pretrained model toward responses people rate as more helpful, safe, or on-policy.",
-  "openingSummary": "Reinforcement Learning from Human Feedback starts with a pretrained model, gathers human judgments about better and worse answers, turns those judgments into a learned preference signal, and then updates the model to produce answers people are more likely to prefer.",
+  "openingSummary": "Reinforcement Learning from Human Feedback is a post-training workflow that starts with a pretrained model, gathers human judgments about better and worse answers, turns those judgments into a learned preference signal, and then updates the model so its behavior moves toward what people prefer.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
-      "body": "Reinforcement Learning from Human Feedback, usually shortened to RLHF, is a post-training regime for shaping model behavior after pretraining. Teams first collect human comparisons between candidate answers, then train a reward or preference model from those judgments, and finally optimize the policy so the model produces answers that score better under that learned preference signal."
+      "body": "Reinforcement Learning from Human Feedback, usually shortened to RLHF, is a post-training regime for shaping model behavior after pretraining. Teams begin with a base model that already knows language, then use human comparisons to teach the system which answers feel more helpful, safer, or more on-policy than the alternatives."
     },
     "whyItExists": {
       "title": "Why It Exists",
-      "body": "Pretraining teaches a model to continue text, but it does not automatically make the model concise, harmless, or aligned with product policy. RLHF exists because teams often need a second stage that favors answers humans judge as more useful, safer, or more instruction-following than a base model would produce on its own."
+      "body": "Pretraining teaches a model to continue text, but it does not automatically make the model concise, harmless, or aligned with product policy. RLHF exists because teams often need a second stage that pushes a capable base model toward instruction following, safer refusals, and answers that better match what users or product teams actually want."
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "A pretrained policy generates multiple candidate answers for prompts. Human raters compare those answers, the comparisons train a reward model or other preference estimator, and a reinforcement-learning optimizer updates the policy while keeping it from drifting too far from the supervised starting point."
+      "body": "The workflow usually moves in four steps. First, a pretrained or supervised-fine-tuned starting policy generates candidate answers for prompts. Second, human raters rank which answers are better or worse. Third, those rankings train a reward model or other preference estimator that stands in for the human judgments. Fourth, a reinforcement-learning optimizer updates the policy while keeping it from drifting too far from the starting model."
     },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
-      "body": "RLHF is one alignment regime inside the broader alignment toolbox. It differs from plain supervised fine-tuning because it optimizes against preferences instead of only copying demonstrations, and it differs from newer preference-optimization variants because it explicitly keeps a reinforcement-learning loop in the middle."
+      "body": "RLHF is one alignment regime inside the broader alignment toolbox. It differs from plain supervised fine-tuning because it optimizes against preferences instead of only copying demonstrations, and it stays understandable on its own even before you compare it with newer preference-optimization variants."
     },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
