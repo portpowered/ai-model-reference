@@ -107,6 +107,15 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/yarn",
 ] as const;
 
+const CONCEPT_INDEX_URLS = [
+  "/docs/concepts/alibi",
+  "/docs/concepts/context-extension",
+  "/docs/concepts/page-spec-workflow-sample",
+  "/docs/concepts/positional-encodings",
+  "/docs/concepts/transformer-architecture",
+  "/docs/concepts/why-long-context-is-hard",
+] as const;
+
 const MODEL_INDEX_URLS = [
   "/docs/models/deepseek-v4-flash",
   "/docs/models/deepseek-v4-pro",
@@ -165,6 +174,9 @@ describe("docs navigation source", () => {
     for (const url of MODULE_INDEX_URLS) {
       expect(urls).toContain(url);
     }
+    for (const url of CONCEPT_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
     for (const url of MODEL_INDEX_URLS) {
       expect(urls).toContain(url);
     }
@@ -199,6 +211,19 @@ describe("docs navigation source", () => {
 
     const moduleUrls = collectPageUrls(modulesFolder.children).sort();
     expect(moduleUrls).toEqual([...MODULE_INDEX_URLS].sort());
+
+    const conceptsFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Concepts",
+    );
+    expect(conceptsFolder?.type).toBe("folder");
+    if (conceptsFolder?.type !== "folder") {
+      throw new Error("expected Concepts folder in docs sidebar");
+    }
+
+    const conceptUrls = collectPageUrls(conceptsFolder.children);
+    for (const url of CONCEPT_INDEX_URLS) {
+      expect(conceptUrls).toContain(url);
+    }
 
     const modelsFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Models",

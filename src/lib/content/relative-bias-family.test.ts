@@ -71,7 +71,7 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
     ).toBe("/docs/modules/rope");
     expect(
       relativeItems.find((item) => item.registryId === "concept.alibi")?.href,
-    ).toBe("/docs/modules/alibi");
+    ).toBe("/docs/concepts/alibi");
     expect(
       t5Items.find(
         (item) => item.registryId === "concept.relative-position-bias",
@@ -82,7 +82,7 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
     ).toBe("/docs/modules/rope");
     expect(
       t5Items.find((item) => item.registryId === "concept.alibi")?.href,
-    ).toBe("/docs/modules/alibi");
+    ).toBe("/docs/concepts/alibi");
   });
 
   test("published pages render with visible family navigation and references", async () => {

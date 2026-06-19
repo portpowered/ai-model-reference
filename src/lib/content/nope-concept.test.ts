@@ -57,7 +57,7 @@ describe("Phase 3 NoPE glossary page (US-004)", () => {
     );
     expect(
       items.find((item) => item.registryId === "concept.alibi")?.href,
-    ).toBe("/docs/modules/alibi");
+    ).toBe("/docs/concepts/alibi");
   });
 
   test("page render explains NoPE as an unusual baseline rather than long-context support", async () => {
