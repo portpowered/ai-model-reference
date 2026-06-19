@@ -598,6 +598,33 @@ type GraphRecord = BaseRecord & {
   layout: "vertical-expandable";
   defaultExpandedDepth: number;
   supportedRenderers: Array<"react-flow" | "vertical-svg" | "mermaid" | "image">;
+  governance?: {
+    mode: "shared-v1";
+    family: {
+      id: string;
+      version?: string;
+    };
+    posture: {
+      kind: "baseline" | "variant";
+      baselineGraphId?: string;
+      comparisonGraphId?: string;
+    };
+    narrativeCenter: {
+      kind: "node" | "edge" | "region" | "contrast";
+      targetId: string;
+    };
+    framing: {
+      direction: "top-to-bottom" | "left-to-right" | "radial" | "freeform";
+      isDefaultDirection: boolean;
+    };
+    title: {
+      requirement: "required" | "optional" | "not-applicable";
+    };
+    legend: {
+      requirement: "required" | "optional" | "not-applicable";
+    };
+    familyExtension?: Record<string, unknown>;
+  };
   nodes: ModuleGraphNode[];
   edges: ModuleGraphEdge[];
 };
@@ -652,6 +679,8 @@ type ModuleGraphEdge = {
 
 Graph renderer rules:
 
+* Legacy graph records can omit `governance` until a family-specific migration opts them into the shared governance contract.
+* Governed graph records separate cross-family policy from family-owned metadata. Shared posture, framing, narrative-center, title, and legend fields live under `governance`; family-specific fields belong under `governance.familyExtension`.
 * Graph records should live close to the page or registry record they support when practical. Page-local graph asset references live in `assets.json`; reusable graph records live in `src/content/registry/graphs`.
 * Node and edge labels use message keys. The renderer resolves labels from the same locale messages as the page.
 * Web graph rendering uses React Flow as the interaction engine.

@@ -140,4 +140,53 @@ describe("root-graph-registry-load", () => {
       getGraphById("graph.gpt-3-architecture")?.nodes.map((node) => node.id),
     ).not.toContain("fixture-override-node");
   });
+
+  test("loads governed graph metadata from alternate content roots without requiring legacy records to opt in", () => {
+    const contentRoot = createTempContentRoot();
+    writeFileSync(
+      join(contentRoot, "registry", "graphs", "governed-graph.json"),
+      `${JSON.stringify(
+        {
+          ...JSON.parse(
+            createGraphRecordJson("graph.governed-example", "governed-graph"),
+          ),
+          governance: {
+            mode: "shared-v1",
+            family: {
+              id: "concept-map",
+            },
+            posture: {
+              kind: "baseline",
+            },
+            narrativeCenter: {
+              kind: "node",
+              targetId: "node-a",
+            },
+            framing: {
+              direction: "top-to-bottom",
+              isDefaultDirection: true,
+            },
+            title: {
+              requirement: "required",
+            },
+            legend: {
+              requirement: "optional",
+            },
+          },
+        },
+        null,
+        2,
+      )}\n`,
+      "utf8",
+    );
+
+    syncGraphRegistryForContentRoot(contentRoot);
+
+    const governedGraph = getGraphById("graph.governed-example");
+    expect(governedGraph?.governance?.family.id).toBe("concept-map");
+    expect(governedGraph?.governance?.title.requirement).toBe("required");
+
+    syncGraphRegistryForContentRoot(CONTENT_ROOT);
+    expect(getGraphById("graph.token-concept-map")?.governance).toBeUndefined();
+  });
 });

@@ -17,6 +17,34 @@
   "layout": "vertical-expandable",
   "defaultExpandedDepth": 1,
   "supportedRenderers": ["react-flow", "mermaid"],
+  "governance": {
+    "mode": "shared-v1",
+    "family": {
+      "id": "attention-variant"
+    },
+    "posture": {
+      "kind": "variant",
+      "baselineGraphId": "graph.grouped-query-attention-mha-comparison",
+      "comparisonGraphId": "graph.grouped-query-attention-gqa-comparison"
+    },
+    "narrativeCenter": {
+      "kind": "node",
+      "targetId": "shared-kv"
+    },
+    "framing": {
+      "direction": "top-to-bottom",
+      "isDefaultDirection": true
+    },
+    "title": {
+      "requirement": "required"
+    },
+    "legend": {
+      "requirement": "required"
+    },
+    "familyExtension": {
+      "comparisonMode": "shared-kv-variant"
+    }
+  },
   "nodes": [
     {
       "id": "hidden-states",

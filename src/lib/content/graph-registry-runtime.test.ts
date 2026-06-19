@@ -23,6 +23,12 @@ describe("graph-registry-runtime", () => {
     expect(computeFlow?.id).toBe("graph.grouped-query-attention-compute-flow");
     expect(computeFlow?.nodes.length).toBeGreaterThanOrEqual(4);
     expect(computeFlow?.edges.length).toBeGreaterThanOrEqual(3);
+    expect(computeFlow?.governance?.mode).toBe("shared-v1");
+    expect(computeFlow?.governance?.family.id).toBe("attention-variant");
+    expect(computeFlow?.governance?.posture.kind).toBe("variant");
+    expect(computeFlow?.governance?.narrativeCenter.targetId).toBe("shared-kv");
+    expect(computeFlow?.governance?.framing.direction).toBe("top-to-bottom");
+    expect(computeFlow?.governance?.legend.requirement).toBe("required");
 
     const computeSchema = getGraphById(
       "graph.grouped-query-attention-compute-schema",
@@ -32,6 +38,7 @@ describe("graph-registry-runtime", () => {
     );
     expect(computeSchema?.nodes.length).toBeGreaterThanOrEqual(4);
     expect(computeSchema?.edges.length).toBeGreaterThanOrEqual(3);
+    expect(computeSchema?.governance).toBeUndefined();
 
     const mhaComparison = getGraphById(
       "graph.grouped-query-attention-mha-comparison",
@@ -246,5 +253,49 @@ describe("graph-registry-runtime", () => {
     expect(
       getGraphById("graph.gpt-3-architecture")?.nodes.map((node) => node.id),
     ).not.toContain("override-proof-node");
+  });
+
+  test("parses both governed and legacy graph records", () => {
+    const rootRecord = getGraphById("graph.gpt-3-architecture");
+    expect(rootRecord).toBeDefined();
+
+    const legacyRecord = graphRecordSchema.parse(rootRecord);
+    expect(legacyRecord.governance).toBeUndefined();
+
+    const governedRecord = graphRecordSchema.parse({
+      ...rootRecord,
+      governance: {
+        mode: "shared-v1",
+        family: {
+          id: "model-architecture",
+        },
+        posture: {
+          kind: "baseline",
+        },
+        narrativeCenter: {
+          kind: "node",
+          targetId: rootRecord?.rootNodeId ?? "output-probabilities",
+        },
+        framing: {
+          direction: "top-to-bottom",
+          isDefaultDirection: true,
+        },
+        title: {
+          requirement: "required",
+        },
+        legend: {
+          requirement: "optional",
+        },
+        familyExtension: {
+          architectureTier: "decoder-only",
+        },
+      },
+    });
+
+    expect(governedRecord.governance?.family.id).toBe("model-architecture");
+    expect(governedRecord.governance?.posture.kind).toBe("baseline");
+    expect(governedRecord.governance?.familyExtension).toEqual({
+      architectureTier: "decoder-only",
+    });
   });
 });

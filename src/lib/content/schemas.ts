@@ -299,6 +299,26 @@ export const graphTypeSchema = z.enum([
 
 export const graphLayoutSchema = z.literal("vertical-expandable");
 
+export const graphGovernanceModeSchema = z.literal("shared-v1");
+export const graphFamilyPostureSchema = z.enum(["baseline", "variant"]);
+export const graphNarrativeCenterKindSchema = z.enum([
+  "node",
+  "edge",
+  "region",
+  "contrast",
+]);
+export const graphFramingDirectionSchema = z.enum([
+  "top-to-bottom",
+  "left-to-right",
+  "radial",
+  "freeform",
+]);
+export const graphPresentationRequirementSchema = z.enum([
+  "required",
+  "optional",
+  "not-applicable",
+]);
+
 export const graphRendererSchema = z.enum([
   "react-flow",
   "vertical-svg",
@@ -405,6 +425,34 @@ export const moduleGraphEdgeSchema = z.object({
   targetHandleSide: graphHandleSideSchema.optional(),
 });
 
+export const graphGovernanceSchema = z.object({
+  mode: graphGovernanceModeSchema,
+  family: z.object({
+    id: z.string().min(1),
+    version: z.string().min(1).optional(),
+  }),
+  posture: z.object({
+    kind: graphFamilyPostureSchema,
+    baselineGraphId: z.string().min(1).optional(),
+    comparisonGraphId: z.string().min(1).optional(),
+  }),
+  narrativeCenter: z.object({
+    kind: graphNarrativeCenterKindSchema,
+    targetId: z.string().min(1),
+  }),
+  framing: z.object({
+    direction: graphFramingDirectionSchema,
+    isDefaultDirection: z.boolean(),
+  }),
+  title: z.object({
+    requirement: graphPresentationRequirementSchema,
+  }),
+  legend: z.object({
+    requirement: graphPresentationRequirementSchema,
+  }),
+  familyExtension: z.record(z.string(), z.unknown()).optional(),
+});
+
 export const graphRecordSchema = z.object({
   ...baseRecordShape,
   kind: z.literal("graph"),
@@ -414,6 +462,7 @@ export const graphRecordSchema = z.object({
   layout: graphLayoutSchema,
   defaultExpandedDepth: z.number().int().nonnegative(),
   supportedRenderers: z.array(graphRendererSchema).min(1),
+  governance: graphGovernanceSchema.optional(),
   nodes: z.array(moduleGraphNodeSchema).min(1),
   edges: z.array(moduleGraphEdgeSchema),
 });
