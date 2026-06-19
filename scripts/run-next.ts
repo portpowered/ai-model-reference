@@ -2,6 +2,28 @@ import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 
+function runGraphRegistryRuntimeGenerator(cwd: string): void {
+  const result = spawnSync(
+    "bun",
+    ["./scripts/generate-graph-registry-runtime.ts"],
+    {
+      cwd,
+      env: process.env,
+      stdio: "inherit",
+    },
+  );
+
+  if (typeof result.status === "number" && result.status === 0) {
+    return;
+  }
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  process.exit(result.status ?? 1);
+}
+
 function resolveNextBin(startDir: string): string {
   let currentDir = startDir;
 
@@ -34,6 +56,8 @@ const [, , ...args] = process.argv;
 if (args.length === 0) {
   throw new Error("Usage: bun ./scripts/run-next.ts <next-args...>");
 }
+
+runGraphRegistryRuntimeGenerator(process.cwd());
 
 const nextBin = resolveNextBin(process.cwd());
 const result = spawnSync("node", [nextBin, ...args], {
