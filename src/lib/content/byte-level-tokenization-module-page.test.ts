@@ -11,6 +11,7 @@ import {
 import { BYTE_LEVEL_TOKENIZATION_PAGE_DIR } from "@/lib/content/content-paths";
 import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
 const pageDir = BYTE_LEVEL_TOKENIZATION_PAGE_DIR;
@@ -39,6 +40,18 @@ describe("byte-level-tokenization page messages", () => {
 });
 
 describe("loadModulePage byte-level-tokenization", () => {
+  test("published docs inventory resolves the canonical route, registry id, and English messages together", async () => {
+    const pages = await loadPublishedDocsPages("en");
+    const page = pages.find(
+      (entry) => entry.url === "/docs/modules/byte-level-tokenization",
+    );
+
+    expect(page).toBeDefined();
+    expect(page?.frontmatter.registryId).toBe("module.byte-level-tokenization");
+    expect(page?.messages.title).toBe("Byte-Level Tokenization");
+    expect(page?.messages.openingSummary?.length).toBeGreaterThan(0);
+  });
+
   test("compiles MDX with local namespaces and renders byte-level explainer content", async () => {
     const page = await loadModulePage("byte-level-tokenization");
 

@@ -85,9 +85,9 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
     );
     expect(html).toContain(TOKEN_RELATED_EXPLANATIONS["concept.logit"]);
     expect(html).toContain(TOKEN_RELATED_EXPLANATIONS["concept.softmax"]);
-    expect(
-      html,
-    ).toContain(TOKEN_RELATED_EXPLANATIONS["module.byte-level-tokenization"]);
+    expect(html).toContain(
+      TOKEN_RELATED_EXPLANATIONS["module.byte-level-tokenization"],
+    );
     expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain('href="/docs/glossary/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');

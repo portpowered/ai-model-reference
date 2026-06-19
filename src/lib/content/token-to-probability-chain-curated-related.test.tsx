@@ -36,7 +36,9 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
       "concept.logit",
       "concept.softmax",
     ]);
-    const embedding = items.find((item) => item.registryId === "concept.embedding");
+    const embedding = items.find(
+      (item) => item.registryId === "concept.embedding",
+    );
     expect(embedding?.registryId).toBe("concept.embedding");
     expect(embedding?.slug).toBe("embedding");
     expect(embedding?.title).toBe("embeddings");

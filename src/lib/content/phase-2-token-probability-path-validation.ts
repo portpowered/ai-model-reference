@@ -218,9 +218,7 @@ export async function runTokenRelatedDocsGate(): Promise<TokenProbabilityPathVal
   );
 
   const curatedIds = curatedItems.map((item) => item.registryId);
-  if (
-    !TOKEN_RELATED_PATH_REGISTRY_IDS.every((id) => curatedIds.includes(id))
-  ) {
+  if (!TOKEN_RELATED_PATH_REGISTRY_IDS.every((id) => curatedIds.includes(id))) {
     return failResult(
       domainId,
       label,
