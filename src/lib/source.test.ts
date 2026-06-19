@@ -134,6 +134,7 @@ const TRAINING_INDEX_URLS = [
 const SYSTEM_INDEX_URLS = [
   "/docs/systems/expert-parallel-overlap",
   "/docs/systems/on-disk-kv-cache",
+  "/docs/systems/routing",
 ] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {

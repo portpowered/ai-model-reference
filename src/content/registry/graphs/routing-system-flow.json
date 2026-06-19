@@ -1,0 +1,84 @@
+{
+  "id": "graph.routing-system-flow",
+  "slug": "routing-system-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["routing system flow", "request routing system flow"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "system.routing",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "ingress",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "ingress",
+      "labelKey": "graph.nodes.ingress.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["policy"]
+    },
+    {
+      "id": "policy",
+      "labelKey": "graph.nodes.policy.label",
+      "moduleKind": "operation",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 180, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["selection"]
+    },
+    {
+      "id": "selection",
+      "labelKey": "graph.nodes.selection.label",
+      "moduleKind": "other",
+      "position": { "x": 250, "y": 240 },
+      "size": { "width": 180, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["backend"]
+    },
+    {
+      "id": "backend",
+      "labelKey": "graph.nodes.backend.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 370 },
+      "size": { "width": 180, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "ingress-policy",
+      "source": "ingress",
+      "target": "policy",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "policy-selection",
+      "source": "policy",
+      "target": "selection",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "selection-backend",
+      "source": "selection",
+      "target": "backend",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

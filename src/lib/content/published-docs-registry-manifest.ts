@@ -659,6 +659,14 @@ export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
     section: "systems",
   },
   {
+    registryId: "system.routing",
+    slug: "routing",
+    docsSlug: "systems/routing",
+    url: "/docs/systems/routing",
+    pageKind: "system",
+    section: "systems",
+  },
+  {
     registryId: "system.on-disk-kv-cache",
     slug: "on-disk-kv-cache",
     docsSlug: "systems/on-disk-kv-cache",
@@ -1142,6 +1150,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "paper.deepseek-v4",
   "system.expert-parallel-overlap",
   "system.on-disk-kv-cache",
+  "system.routing",
   "training-regime.fp4-quantization-aware-training",
   "training-regime.on-policy-distillation",
   "training-regime.specialist-training",
