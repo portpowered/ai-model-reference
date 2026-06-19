@@ -41,13 +41,13 @@ describe("bpe registry relationships", () => {
     expect(items.map((item) => item.isPlanned)).toEqual([
       false,
       false,
-      true,
+      false,
       true,
       false,
       false,
     ]);
     expect(items.slice(2, 5).map((item) => item.reasonLabel)).toEqual([
-      PLANNED_RELATED_REASON_LABEL,
+      "curated",
       PLANNED_RELATED_REASON_LABEL,
       "curated",
     ]);

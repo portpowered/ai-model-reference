@@ -5,23 +5,36 @@
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
   "aliases": [
+    "tokenizer",
+    "tokenizers",
     "Tokenizer overview",
     "tokenizer overview",
-    "tokenizers overview"
+    "tokenizers overview",
+    "tokenization overview",
+    "text tokenization",
+    "how text becomes tokens"
   ],
   "tags": ["tokenization", "foundations"],
   "relatedIds": [
     "concept.token",
+    "concept.embedding",
+    "concept.vocabulary-size",
+    "concept.special-tokens",
     "module.bpe",
     "module.wordpiece",
     "module.sentencepiece",
-    "model.gpt-3"
+    "module.byte-level-tokenization"
   ],
   "citationIds": [],
-  "status": "draft",
+  "status": "published",
   "createdAt": "2026-06-19T00:00:00.000Z",
   "updatedAt": "2026-06-19T00:00:00.000Z",
   "conceptType": "general",
   "prerequisiteIds": ["concept.token"],
-  "explainsIds": ["module.bpe", "module.wordpiece", "module.sentencepiece"]
+  "explainsIds": [
+    "module.bpe",
+    "module.wordpiece",
+    "module.sentencepiece",
+    "module.byte-level-tokenization"
+  ]
 }
