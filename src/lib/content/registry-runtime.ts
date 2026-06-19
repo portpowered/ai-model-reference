@@ -15,6 +15,7 @@ import kiviKvCacheQuantizationCitation from "@/content/registry/citations/kivi-k
 import kudoSentencePieceCitation from "@/content/registry/citations/kudo-sentencepiece.json";
 import pengYarnCitation from "@/content/registry/citations/peng-yarn.json";
 import pressAlibiCitation from "@/content/registry/citations/press-alibi.json";
+import proximalPolicyOptimizationAlgorithmsCitation from "@/content/registry/citations/proximal-policy-optimization-algorithms.json";
 import qloraCitation from "@/content/registry/citations/qlora.json";
 import quantizationIntegerOnlyInferenceCitation from "@/content/registry/citations/quantization-integer-only-inference.json";
 import raffelT5Citation from "@/content/registry/citations/raffel-t5.json";
@@ -174,6 +175,7 @@ import expertParallelOverlapSystem from "@/content/registry/systems/expert-paral
 import onDiskKvCacheSystem from "@/content/registry/systems/on-disk-kv-cache.json";
 import fp4QuantizationAwareTrainingRegime from "@/content/registry/training-regimes/fp4-quantization-aware-training.json";
 import onPolicyDistillationRegime from "@/content/registry/training-regimes/on-policy-distillation.json";
+import ppoTrainingRegime from "@/content/registry/training-regimes/ppo.json";
 import specialistTrainingRegime from "@/content/registry/training-regimes/specialist-training.json";
 import {
   PUBLISHED_DOCS_REGISTRY_IDS,
@@ -358,6 +360,7 @@ const trainingRegimeRecords: TrainingRegimeRecord[] = [
   trainingRegimeRecordSchema.parse(onPolicyDistillationRegime),
   trainingRegimeRecordSchema.parse(specialistTrainingRegime),
   trainingRegimeRecordSchema.parse(fp4QuantizationAwareTrainingRegime),
+  trainingRegimeRecordSchema.parse(ppoTrainingRegime),
 ];
 const systemRecords: SystemRecord[] = [
   systemRecordSchema.parse(onDiskKvCacheSystem),
@@ -389,6 +392,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(kudoSentencePieceCitation),
   citationRecordSchema.parse(pengYarnCitation),
   citationRecordSchema.parse(pressAlibiCitation),
+  citationRecordSchema.parse(proximalPolicyOptimizationAlgorithmsCitation),
   citationRecordSchema.parse(qloraCitation),
   citationRecordSchema.parse(quantizationIntegerOnlyInferenceCitation),
   citationRecordSchema.parse(raffelT5Citation),
