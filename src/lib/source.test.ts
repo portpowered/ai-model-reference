@@ -87,6 +87,36 @@ const GROUPED_SECTION_CONFIGS = {
   >;
 }>;
 
+const CONCEPT_INDEX_URLS = [
+  "/docs/concepts/alibi",
+  "/docs/concepts/context-extension",
+  "/docs/concepts/page-spec-workflow-sample",
+  "/docs/concepts/positional-encodings",
+  "/docs/concepts/transformer-architecture",
+  "/docs/concepts/why-long-context-is-hard",
+] as const;
+
+const MODEL_INDEX_URLS = [
+  "/docs/models/deepseek-v4-flash",
+  "/docs/models/deepseek-v4-pro",
+  "/docs/models/gpt-3",
+] as const;
+
+const PAPER_INDEX_URLS = ["/docs/papers/deepseek-v4"] as const;
+
+const TRAINING_INDEX_URLS = [
+  "/docs/training/fp4-quantization-aware-training",
+  "/docs/training/on-policy-distillation",
+  "/docs/training/specialist-training",
+] as const;
+
+const SYSTEM_INDEX_URLS = [
+  "/docs/systems/batching",
+  "/docs/systems/expert-parallel-overlap",
+  "/docs/systems/on-disk-kv-cache",
+  "/docs/systems/routing",
+] as const;
+
 function collectPageUrls(nodes: Node[]): string[] {
   const urls: string[] = [];
 

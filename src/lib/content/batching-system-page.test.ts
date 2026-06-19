@@ -106,6 +106,23 @@ describe("batching search and registry convergence", () => {
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url).toBe("/docs/systems/batching");
   });
+
+  test("current shipped docs do not yet include canonical latency or throughput pages", async () => {
+    const pages = await loadPublishedDocsPages("en");
+
+    expect(
+      pages.find((entry) => entry.docsSlug === "concepts/latency"),
+    ).toBeUndefined();
+    expect(
+      pages.find((entry) => entry.docsSlug === "concepts/throughput"),
+    ).toBeUndefined();
+    expect(
+      pages.find((entry) => entry.docsSlug === "systems/latency"),
+    ).toBeUndefined();
+    expect(
+      pages.find((entry) => entry.docsSlug === "systems/throughput"),
+    ).toBeUndefined();
+  });
 });
 
 describe("batching docs route render", () => {
