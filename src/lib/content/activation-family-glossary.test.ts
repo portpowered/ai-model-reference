@@ -190,7 +190,10 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
         PUBLISHED_DOCS_REGISTRY_IDS,
       );
 
-      for (const href of testCase.curatedHrefs ?? testCase.hrefs) {
+      const expectedHrefs =
+        "curatedHrefs" in testCase ? testCase.curatedHrefs : testCase.hrefs;
+
+      for (const href of expectedHrefs) {
         expect(
           items.some((item) => item.href === href && !item.isPlanned),
         ).toBe(true);
