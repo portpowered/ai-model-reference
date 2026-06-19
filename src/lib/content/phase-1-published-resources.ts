@@ -49,9 +49,9 @@ export async function loadPublishedResourcesForTag(
   locale: SiteLocale = defaultLocale,
 ): Promise<DocsPageSource[]> {
   const { loadRegistry } = await import("./registry");
-  const { loadPublishedDocsPages } = await import("./pages");
+  const { loadShippedLocalizedDocsPages } = await import("./pages");
   const indexes = await loadRegistry();
-  const pages = await loadPublishedDocsPages(locale);
+  const pages = await loadShippedLocalizedDocsPages(locale);
   return pages.filter((page) =>
     publishedResourceMatchesTag(page, tagSlug, indexes),
   );

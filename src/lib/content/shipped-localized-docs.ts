@@ -1,3 +1,4 @@
+import { SHIPPED_LOCALIZED_DOCS } from "@/generated/shipped-localized-docs";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 
 export type NonDefaultLocale = Exclude<SiteLocale, "en">;
@@ -6,34 +7,6 @@ export type ShippedLocalizedDocsManifest = Record<
   NonDefaultLocale,
   readonly string[]
 >;
-
-const SHIPPED_LOCALIZED_DOCS: ShippedLocalizedDocsManifest = {
-  ja: [
-    "concepts/transformer-architecture",
-    "glossary/token",
-    "modules/attention",
-    "modules/grouped-query-attention",
-    "modules/linear-attention",
-    "modules/multi-head-attention",
-    "modules/multi-query-attention",
-    "modules/sliding-window-attention",
-  ],
-  vi: [
-    "concepts/transformer-architecture",
-    "glossary/autoregressive-generation",
-    "glossary/embedding",
-    "glossary/logit",
-    "glossary/softmax",
-    "glossary/token",
-    "modules/attention",
-    "modules/grouped-query-attention",
-    "modules/linear-attention",
-    "modules/multi-head-attention",
-    "modules/multi-query-attention",
-    "modules/sliding-window-attention",
-  ],
-};
-
 function shippedLocalizedDocsSet(
   manifest: ShippedLocalizedDocsManifest,
 ): Record<NonDefaultLocale, Set<string>> {

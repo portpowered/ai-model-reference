@@ -5,8 +5,6 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { PageAsset } from "@/features/docs/components/PageAsset";
 import { PageAssetsProvider } from "@/features/docs/components/page-assets-context";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
-import assetFixture from "@/lib/content/__fixtures__/page-assets.json";
-import messageFixture from "@/lib/content/__fixtures__/page-messages.json";
 import { parsePageAssetConfig } from "@/lib/content/assets";
 import {
   GROUPED_QUERY_ATTENTION_PAGE_DIR,
@@ -16,8 +14,21 @@ import {
 import type { PageAssetConfig, PageMessages } from "@/lib/content/schemas";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
-const assets = assetFixture as PageAssetConfig;
-const messages = messageFixture as PageMessages;
+const assets = JSON.parse(
+  readFileSync(
+    join(import.meta.dir, "../../../lib/content/__fixtures__/page-assets.json"),
+    "utf8",
+  ),
+) as PageAssetConfig;
+const messages = JSON.parse(
+  readFileSync(
+    join(
+      import.meta.dir,
+      "../../../lib/content/__fixtures__/page-messages.json",
+    ),
+    "utf8",
+  ),
+) as PageMessages;
 
 const gqaMessages = pageMessagesSchema.parse(
   JSON.parse(
