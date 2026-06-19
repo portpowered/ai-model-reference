@@ -2,8 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToReadableStream } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import { resolveCitations } from "@/lib/content/citations";
 import { loadPaperPage } from "@/lib/content/paper-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import { getPaperById } from "@/lib/content/registry-runtime";
 
 async function renderHtml(
   element: ReturnType<typeof createElement>,
@@ -14,6 +16,28 @@ async function renderHtml(
 }
 
 describe("GPT-2 report paper page", () => {
+  test("keeps the route, registry record, english messages, and citation linkage aligned", async () => {
+    const page = await loadPaperPage("gpt-2-report");
+    const record = getPaperById("paper.gpt-2-report");
+    if (!record) {
+      throw new Error("expected paper.gpt-2-report in registry");
+    }
+
+    expect(page.frontmatter.registryId).toBe(record.id);
+    expect(page.messages.title).toBe("GPT-2 Report");
+    expect(page.messages.openingSummary).toContain(
+      "Language Models are Unsupervised Multitask Learners",
+    );
+
+    const citations = resolveCitations(record.citationIds);
+    expect(citations).toHaveLength(1);
+    expect(citations[0]).toMatchObject({
+      id: "citation.gpt-2-report",
+      title: "Language Models are Unsupervised Multitask Learners",
+      year: 2019,
+    });
+  });
+
   test("is published as a canonical paper route", async () => {
     const page = await loadPaperPage("gpt-2-report");
 
