@@ -15,11 +15,19 @@
   "status": "published",
   "createdAt": "2026-06-08T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
+  "releaseDate": "2017-01-01",
+  "authors": [
+    "Noam Shazeer",
+    "Azalia Mirhoseini",
+    "Krzysztof Maziarz",
+    "Andy Davis",
+    "Quoc Le",
+    "Geoffrey Hinton",
+    "Jeff Dean"
+  ],
+  "sourceId": "citation.sparsely-gated-mixture-of-experts-layer",
   "moduleType": "feed-forward",
   "optimizes": ["parameter-capacity", "compute-efficiency"],
-  "practicalBenefits": [
-    "adds parameter capacity without activating every expert each step"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

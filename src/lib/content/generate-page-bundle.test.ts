@@ -63,7 +63,6 @@ const baseSpecFields = {
   slug: "generated-page",
   title: "Generated Page",
   summary: "Reader-facing summary for cards and search.",
-  openingSummary: "Folded opening summary for the page hero.",
 };
 
 describe("resolvePageBundlePaths", () => {
@@ -196,15 +195,11 @@ describe("generatePageBundle", () => {
     ) as {
       title: string;
       description: string;
-      openingSummary: string;
       sections: { whatItIs: { body: string } };
     };
     expect(messages.title).toBe("Generated Page");
     expect(messages.description).toBe(
       "Reader-facing summary for cards and search.",
-    );
-    expect(messages.openingSummary).toBe(
-      "Folded opening summary for the page hero.",
     );
     expect(messages.sections.whatItIs.body).toBe(
       "Glossary body from page spec.",
@@ -363,7 +358,6 @@ describe("generatePageBundle", () => {
         moduleFamily: "attention",
         variantGroup: "attention-head-sharing",
         optimizes: ["kv-cache"],
-        practicalBenefits: ["lower KV-cache memory"],
         assets: {
           computeFlow: {
             type: "graph",

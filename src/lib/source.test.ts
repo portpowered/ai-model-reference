@@ -52,6 +52,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/scaling-law",
   "/docs/glossary/skip-connection",
   "/docs/glossary/softmax",
+  "/docs/glossary/special-tokens",
   "/docs/glossary/temperature",
   "/docs/glossary/tensor",
   "/docs/glossary/token",
@@ -59,6 +60,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/top-p-sampling",
   "/docs/glossary/transformer",
   "/docs/glossary/vector",
+  "/docs/glossary/vocabulary-size",
   "/docs/glossary/world-model",
 ] as const;
 
@@ -67,7 +69,9 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/alibi",
   "/docs/modules/attention",
   "/docs/modules/batch-norm",
+  "/docs/modules/bpe",
   "/docs/modules/bidirectional-attention",
+  "/docs/modules/byte-level-tokenization",
   "/docs/modules/compressed-sparse-attention",
   "/docs/modules/deepseekmoe",
   "/docs/modules/feed-forward-network",
@@ -101,6 +105,15 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/swiglu",
   "/docs/modules/t5-relative-position-bias",
   "/docs/modules/yarn",
+] as const;
+
+const CONCEPT_INDEX_URLS = [
+  "/docs/concepts/alibi",
+  "/docs/concepts/context-extension",
+  "/docs/concepts/page-spec-workflow-sample",
+  "/docs/concepts/positional-encodings",
+  "/docs/concepts/transformer-architecture",
+  "/docs/concepts/why-long-context-is-hard",
 ] as const;
 
 const MODEL_INDEX_URLS = [
@@ -161,6 +174,9 @@ describe("docs navigation source", () => {
     for (const url of MODULE_INDEX_URLS) {
       expect(urls).toContain(url);
     }
+    for (const url of CONCEPT_INDEX_URLS) {
+      expect(urls).toContain(url);
+    }
     for (const url of MODEL_INDEX_URLS) {
       expect(urls).toContain(url);
     }
@@ -195,6 +211,19 @@ describe("docs navigation source", () => {
 
     const moduleUrls = collectPageUrls(modulesFolder.children).sort();
     expect(moduleUrls).toEqual([...MODULE_INDEX_URLS].sort());
+
+    const conceptsFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Concepts",
+    );
+    expect(conceptsFolder?.type).toBe("folder");
+    if (conceptsFolder?.type !== "folder") {
+      throw new Error("expected Concepts folder in docs sidebar");
+    }
+
+    const conceptUrls = collectPageUrls(conceptsFolder.children);
+    for (const url of CONCEPT_INDEX_URLS) {
+      expect(conceptUrls).toContain(url);
+    }
 
     const modelsFolder = source.pageTree.children.find(
       (node) => node.type === "folder" && node.name === "Models",

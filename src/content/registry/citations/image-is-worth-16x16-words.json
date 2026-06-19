@@ -1,0 +1,33 @@
+{
+  "id": "citation.image-is-worth-16x16-words",
+  "slug": "image-is-worth-16x16-words",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["ViT paper", "image patch transformer paper"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Alexey Dosovitskiy",
+    "Lucas Beyer",
+    "Alexander Kolesnikov",
+    "Dirk Weissenborn",
+    "Xiaohua Zhai",
+    "Thomas Unterthiner",
+    "Mostafa Dehghani",
+    "Matthias Minderer",
+    "Georg Heigold",
+    "Sylvain Gelly",
+    "Jakob Uszkoreit",
+    "Neil Houlsby"
+  ],
+  "title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+  "year": 2020,
+  "url": "https://arxiv.org/abs/2010.11929",
+  "mla": "Dosovitskiy, Alexey, et al. \"An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale.\" arXiv, 2020, https://arxiv.org/abs/2010.11929."
+}

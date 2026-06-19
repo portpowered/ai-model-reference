@@ -202,15 +202,14 @@ Example message file:
 {
   "title": "Grouped-Query Attention",
   "description": "An attention variant that reduces KV cache memory.",
-  "problemStatement": "KV caches get expensive as context length grows.",
-  "coreIdea": "GQA lets several query heads share fewer key-value heads.",
+  "openingSummary": "Grouped-query attention lowers KV-cache cost by letting several query heads share fewer key-value heads.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
       "body": "Grouped-query attention is an attention variant derived from multi-head attention."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "GQA reduces KV-cache size, memory bandwidth, and long-context inference cost."
     }
   }
@@ -231,6 +230,7 @@ Message files should satisfy this general shape:
 type PageMessages = {
   title: string;
   description: string;
+  openingSummary?: string;
   problemStatement?: string;
   coreIdea?: string;
   sections?: Record<
@@ -474,7 +474,6 @@ type ModuleRecord = BaseRecord & {
   conceptType?: string;
   variantGroup?: string;
   optimizes: string[];
-  practicalBenefits: string[];
   exampleModelIds: string[];
   variantOf?: string;
   improvesOnIds: string[];

@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Sliding-window attention is an attention variant that limits each query position to keys within a fixed neighborhood. Instead of a full n-by-n attention matrix, only entries inside the window receive non-zero weight."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "Sliding-window attention targets attention compute, memory bandwidth for score materialization, and the cost of serving long sequences when dense all-pairs attention would dominate runtime."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "Teams adopt sliding-window attention when they need long-context modeling but cannot afford dense quadratic attention. Bounding the attended neighborhood reduces multiply-accumulate work and keeps attention maps within a predictable local footprint."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Dense multi-head attention versus sliding-window local reach",
-      "caption": "Toggle multi-head attention and sliding-window attention to compare full-sequence reach against fixed local windows on one canvas.",
       "variants": {
         "mha": {
           "label": "Multi-head"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How sliding-window attention compares with nearby attention variants"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

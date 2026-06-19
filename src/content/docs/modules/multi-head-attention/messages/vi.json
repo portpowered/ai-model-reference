@@ -7,13 +7,9 @@
       "title": "Nó là gì",
       "body": "Multi-head attention là dạng scaled dot-product attention gốc trong Transformer. Mỗi head tự tính phân phối attention của riêng mình trên key và value, rồi các đầu ra của head được gộp lại trước khi đi vào lớp con tiếp theo."
     },
-    "whatItOptimizes": {
+    "whyItExists": {
       "title": "Nó tối ưu điều gì",
       "body": "MHA nhắm tới độ phong phú biểu diễn: các query head khác nhau có thể chú ý tới những quan hệ khác nhau trong cùng một chuỗi mà không phải dùng chung tham số key-value."
-    },
-    "practicalBenefit": {
-      "title": "Lợi ích thực tế",
-      "body": "Mô hình giữ được đầy đủ khả năng biểu đạt theo từng head trong cả huấn luyện lẫn suy luận. MHA vẫn là thiết kế tham chiếu khi chất lượng quan trọng hơn kích thước KV cache, và là mốc so sánh cho multi-query attention và grouped-query attention."
     },
     "howItWorks": {
       "title": "Cách nó hoạt động",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "So sánh số head giữa multi-head attention và multi-query attention",
-      "caption": "Chuyển giữa MHA và MQA để so sánh số query head với số KV head trên cùng một đồ thị",
       "variants": {
         "mha": {
           "label": "MHA"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "Cách MHA so với các biến thể attention lân cận"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

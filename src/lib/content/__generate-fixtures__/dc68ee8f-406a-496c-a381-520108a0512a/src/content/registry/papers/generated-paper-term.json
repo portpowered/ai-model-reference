@@ -1,0 +1,23 @@
+{
+  "id": "paper.generated-paper-term",
+  "slug": "generated-paper-term",
+  "kind": "paper",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": [],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "authors": ["A. Author"],
+  "publishedAt": "2024-01-01",
+  "url": "https://example.com/paper",
+  "introducesIds": ["module.attention"],
+  "supportsIds": [],
+  "arguesAgainstIds": [],
+  "modelIds": [],
+  "moduleIds": [],
+  "conceptIds": []
+}

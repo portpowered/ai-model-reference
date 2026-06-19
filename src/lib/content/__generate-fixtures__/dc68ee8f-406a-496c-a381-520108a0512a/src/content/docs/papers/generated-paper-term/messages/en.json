@@ -1,0 +1,45 @@
+{
+  "title": "Generated Page",
+  "description": "Reader-facing summary for cards and search.",
+  "sections": {
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Draft placeholder for Generated Page. Replace before publishing."
+    },
+    "methodOrArchitecture": {
+      "title": "Method Or Architecture",
+      "body": "Draft placeholder for Generated Page. Replace before publishing."
+    },
+    "evidence": {
+      "title": "Evidence",
+      "body": "Draft placeholder for Generated Page. Replace before publishing."
+    },
+    "limitations": {
+      "title": "Limitations",
+      "body": "Draft placeholder for Generated Page. Replace before publishing."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "contributionGraph": {
+      "alt": "Draft placeholder for Generated Page. Replace before publishing.",
+      "caption": "Draft placeholder for Generated Page. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for Generated Page. Replace before publishing.",
+        "summary": "Draft placeholder for Generated Page. Replace before publishing."
+      }
+    }
+  }
+}

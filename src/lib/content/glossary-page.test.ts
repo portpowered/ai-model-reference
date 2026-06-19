@@ -56,9 +56,10 @@ describe("loadGlossaryPage token", () => {
     });
     expect(html).toContain('href="/tags/attention"');
     expect(html).toContain('href="/tags/token-to-probability-chain"');
+    expect(html).toContain('href="/docs/glossary/special-tokens"');
     expect(html).toContain('href="/docs/glossary/embedding"');
     expect(html).toContain('data-testid="curated-related-docs"');
-    expect(html).not.toContain('data-testid="citation-list"');
+    expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain("What It Is");
     expect(html).toContain("128k context");
     expect(html).toContain('data-page-asset="conceptMap"');

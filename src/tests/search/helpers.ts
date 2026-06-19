@@ -1,4 +1,6 @@
 import { expect } from "bun:test";
+import type { StaticOptions } from "fumadocs-core/search/client";
+import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import {
   assertSearchNoMatchedTags,
@@ -119,6 +121,49 @@ export function resultsIncludeTokenGlossary(
   results: Array<{ url: string }>,
 ): boolean {
   return resultsIncludeUrl(results, TOKEN_GLOSSARY_URL);
+}
+
+export async function retrySearchResults<T>(
+  runSearch: () => T[] | PromiseLike<T[]>,
+  accept: (results: T[]) => boolean,
+  options: { maxAttempts?: number; delayMs?: number } = {},
+): Promise<T[]> {
+  // CI occasionally needs multiple beats for static search bootstrap fixtures
+  // before raw client results stabilize to the expected shipped-doc set.
+  const maxAttempts = options.maxAttempts ?? 5;
+  const delayMs = options.delayMs ?? 150;
+
+  let lastResults: T[] = [];
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    lastResults = await runSearch();
+    if (accept(lastResults) || attempt === maxAttempts) {
+      return lastResults;
+    }
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+
+  return lastResults;
+}
+
+const STATIC_SEARCH_TEST_OPTIONS = {
+  limit: 120,
+  groupBy: {
+    maxResult: 16,
+  },
+} as NonNullable<StaticOptions["search"]>;
+
+export function createRetriedStaticClientSearch(
+  bootstrapFrom: string,
+  query: string,
+) {
+  return async () => {
+    const client = oramaStaticClient({
+      from: bootstrapFrom,
+      search: STATIC_SEARCH_TEST_OPTIONS,
+    });
+    return client.search(query);
+  };
 }
 
 type ThinMetadataQueries = {

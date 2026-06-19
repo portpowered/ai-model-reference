@@ -7,30 +7,23 @@
       "title": "What It Is",
       "body": "This is a distillation routine used in the DeepSeek-V4 report. The important idea is that data is refreshed from the model's own current behavior rather than treated as one fixed offline replay set."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "It aims to improve policy consistency and reduce the mismatch between training supervision and the states the student actually enters at inference time."
     },
     "howItWorks": {
       "title": "How It Works",
       "body": "A current policy samples trajectories, those trajectories are scored or filtered, and the student is updated on the accepted behavior. The loop then repeats with the new policy."
     },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "This matters when you care about long reasoning traces, because the student is trained on the kinds of rollouts it really produces."
-    },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
       "body": "Unlike plain offline distillation, the training set is not fully frozen. Unlike full RL, the emphasis is still on teacher-guided or filtered behavior rather than only scalar reward optimization."
-    },
-    "modelsAndPapers": {
-      "title": "Models And Papers",
-      "body": "These links are generated from registry metadata for the regime."
     },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
       "body": "If the current policy explores badly, the loop can reinforce narrow behavior. The regime also depends on good filtering or teacher signals."
     },
+    "related": { "title": "Related To" },
     "tags": { "title": "Tags" },
     "references": { "title": "References" }
   },

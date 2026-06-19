@@ -16,16 +16,20 @@ export function renderModuleDocsShell(
       null,
       createElement(DocsTitle, null, loadedPage.messages.title),
       createElement(DocsDescription, null, loadedPage.messages.description),
-      createElement(
-        "article",
-        { "data-registry-id": loadedPage.frontmatter.registryId },
-        createElement(ModulePageProviders, {
-          messages: loadedPage.messages,
-          assets: loadedPage.assets,
-          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-          children: options?.articleChildren ?? loadedPage.content,
-        }),
-      ),
+      createElement(ModulePageProviders, {
+        messages: loadedPage.messages,
+        assets: loadedPage.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: createElement(
+          "div",
+          null,
+          createElement(
+            "article",
+            { "data-registry-id": loadedPage.frontmatter.registryId },
+            options?.articleChildren ?? loadedPage.content,
+          ),
+        ),
+      }),
     ),
   );
 }

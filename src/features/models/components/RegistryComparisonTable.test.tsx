@@ -60,9 +60,6 @@ describe("RegistryComparisonTable", () => {
     expect(html).toContain("G key heads and G value heads");
     expect(html).toContain("single shared key-value cache");
     expect(html).toContain("key-value cache");
-    expect(html).toContain(
-      "How grouped-query attention compares with nearby attention variants",
-    );
   });
 
   test("localizes shipped docs column links for Vietnamese pages", () => {

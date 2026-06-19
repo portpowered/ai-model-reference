@@ -7,7 +7,11 @@
   "aliases": ["activations", "hidden activation", "layer output"],
   "tags": ["token-to-probability-chain", "foundations"],
   "relatedIds": ["concept.computational-graph", "concept.quantization"],
-  "citationIds": [],
+  "citationIds": [
+    "citation.goodfellow-deep-learning",
+    "citation.rectified-linear-units-improve-restricted-boltzmann-machines",
+    "citation.sigmoid-weighted-linear-units"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T23:00:00.000Z",

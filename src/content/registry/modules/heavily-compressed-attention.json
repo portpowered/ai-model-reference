@@ -20,9 +20,6 @@
   "sourceId": "paper.deepseek-v4",
   "moduleType": "attention",
   "optimizes": ["kv-cache", "long-context-inference", "memory-bandwidth"],
-  "practicalBenefits": [
-    "pushes cache compression harder so million-token context stays feasible when detailed sparse lookup would still be too expensive"
-  ],
   "exampleModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "improvesOnIds": ["module.compressed-sparse-attention"],
   "tradeoffIds": [],

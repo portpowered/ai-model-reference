@@ -22,7 +22,6 @@ describe("validatePageSpec", () => {
       ...baseFields,
       kind: "concept",
       conceptType: "architecture",
-      openingSummary: "Folded opening summary for the page.",
       relatedIds: ["concept.token"],
       citationIds: ["citation.example"],
       callouts: {
@@ -48,7 +47,6 @@ describe("validatePageSpec", () => {
       | { nodes: Record<string, { label: string }> }
       | undefined;
 
-    expect(spec.openingSummary).toBe("Folded opening summary for the page.");
     expect(spec.relatedIds).toEqual(["concept.token"]);
     expect(spec.citationIds).toEqual(["citation.example"]);
     expect(callouts?.keyIdea?.body).toContain("compact page spec");

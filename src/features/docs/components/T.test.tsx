@@ -27,10 +27,10 @@ function renderT(key: string, isDev: boolean) {
 
 describe("T", () => {
   test("renders localized copy for a valid key", () => {
-    const html = renderT("problemStatement", false);
+    const html = renderT("description", false);
     expectHtmlToContainProse(
       html,
-      "KV caches grow with context length and head count.",
+      "sharing key-value heads across query heads",
     );
   });
 

@@ -23,6 +23,16 @@ import {
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const ATTENTION_MODULE_URL = "/docs/modules/attention";
+const JAPANESE_ATTENTION_PROOF_SET_URLS = [
+  "/ja/docs/modules/attention",
+  "/ja/docs/modules/linear-attention",
+  "/ja/docs/modules/multi-head-attention",
+  "/ja/docs/modules/grouped-query-attention",
+  "/ja/docs/modules/multi-query-attention",
+  "/ja/docs/modules/sliding-window-attention",
+  "/ja/docs/glossary/token",
+  "/ja/docs/concepts/transformer-architecture",
+] as const;
 
 describe("createModelAtlasSearchClient", () => {
   const originalFetch = globalThis.fetch;
@@ -44,6 +54,9 @@ describe("createModelAtlasSearchClient", () => {
     expect(buildDocsSearchStaticOptions("vi").from).toBe(
       "/api/search?locale=vi",
     );
+    expect(buildDocsSearchStaticOptions("ja").from).toBe(
+      "/api/search?locale=ja",
+    );
   });
 
   test("loads vietnamese result metadata for shipped localized pages", async () => {
@@ -60,6 +73,26 @@ describe("createModelAtlasSearchClient", () => {
     expect(localizedMeta["/vi/docs/glossary/token"]?.description).toContain(
       "Đơn vị văn bản nhỏ nhất",
     );
+  });
+
+  test("loads japanese result metadata for the shipped attention proof set", async () => {
+    const localizedMeta = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap("ja"),
+    );
+
+    expect(localizedMeta["/ja/docs/modules/attention"]?.description).toContain(
+      "query、key、value",
+    );
+    expect(localizedMeta["/ja/docs/glossary/token"]?.description).toContain(
+      "最小の文字単位",
+    );
+    expect(
+      localizedMeta["/ja/docs/concepts/transformer-architecture"]?.title,
+    ).toBe("Transformer アーキテクチャ");
+    expect(
+      localizedMeta["/ja/docs/modules/linear-attention"]?.description,
+    ).toContain("ほぼ線形");
+    expect(localizedMeta["/ja/docs/modules/sparse-attention"]).toBeUndefined();
   });
 
   test("fetches GQA results from a basePath-prefixed static bootstrap URL", async () => {
@@ -86,6 +119,25 @@ describe("createModelAtlasSearchClient", () => {
     expect(fetchedUrl).toBe(bootstrapFrom);
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url).toBe(SAMPLE_URL);
+  });
+
+  test("fetches japanese proof-set results from the locale-specific bootstrap URL", async () => {
+    const metaByUrl = searchResultMetaMapToRecord(
+      await loadSearchResultMetaMap("ja"),
+    );
+    globalThis.fetch = createDocsSearchRouteFetch();
+
+    const client = createModelAtlasSearchClient({
+      metaByUrl,
+      locale: "ja",
+    });
+    const results = await client.search("attention");
+
+    const urls = results.map((result) => result.url);
+    expect(urls).toHaveLength(JAPANESE_ATTENTION_PROOF_SET_URLS.length);
+    expect([...urls].sort()).toEqual(
+      [...JAPANESE_ATTENTION_PROOF_SET_URLS].sort(),
+    );
   });
 
   test("uses the docs search API path and ranks GQA sample page first", async () => {

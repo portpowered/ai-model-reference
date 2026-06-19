@@ -91,9 +91,30 @@ describe("search result meta", () => {
     expect(meta?.aliases.length).toBeGreaterThan(0);
   });
 
-  test("loadSearchResultMetaMap returns no japanese docs entries when no japanese docs pages are shipped", async () => {
+  test("loadSearchResultMetaMap returns the shipped japanese attention proof set", async () => {
     const map = await loadSearchResultMetaMap("ja");
-    expect(map.size).toBe(0);
+    expect(map.size).toBe(8);
+    expect(map.get("/ja/docs/modules/attention")?.title).toBe("Attention");
+    expect(map.get("/ja/docs/modules/grouped-query-attention")?.title).toBe(
+      "Grouped-query attention",
+    );
+    expect(map.get("/ja/docs/modules/multi-head-attention")?.title).toBe(
+      "マルチヘッド attention",
+    );
+    expect(map.get("/ja/docs/modules/multi-query-attention")?.title).toBe(
+      "マルチクエリ attention",
+    );
+    expect(map.get("/ja/docs/modules/sliding-window-attention")?.title).toBe(
+      "スライディングウィンドウ attention",
+    );
+    expect(map.get("/ja/docs/modules/linear-attention")?.title).toBe(
+      "線形 attention",
+    );
+    expect(map.get("/ja/docs/glossary/token")?.title).toBe("Token");
+    expect(map.get("/ja/docs/concepts/transformer-architecture")?.title).toBe(
+      "Transformer アーキテクチャ",
+    );
+    expect(map.has("/ja/docs/modules/swiglu")).toBe(false);
   });
 
   test("buildSearchResultMetaMap keys by url", () => {

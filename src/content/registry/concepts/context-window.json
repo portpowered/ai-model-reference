@@ -8,12 +8,13 @@
   "tags": ["context-window", "foundations"],
   "relatedIds": [
     "concept.context-extension",
-    "concept.why-long-context-is-hard"
+    "concept.why-long-context-is-hard",
+    "concept.alibi"
   ],
-  "citationIds": [],
+  "citationIds": ["citation.brown-gpt-3", "citation.deepseek-v4-paper"],
   "status": "published",
   "createdAt": "2026-06-09T00:00:00.000Z",
-  "updatedAt": "2026-06-09T20:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
   "conceptType": "general",
   "sidebarGrouping": {
     "glossary": "sequence-and-attention"

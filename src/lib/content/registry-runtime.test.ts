@@ -92,6 +92,14 @@ describe("registry-runtime", () => {
       "token-to-probability-chain",
       "foundations",
     ]);
+    expect(record?.relatedIds).toEqual([
+      "module.byte-level-tokenization",
+      "concept.special-tokens",
+      "concept.embedding",
+      "concept.vocabulary-size",
+      "concept.logit",
+      "concept.softmax",
+    ]);
   });
 
   test("getRegistryTags returns undefined for unknown records", () => {
@@ -130,8 +138,11 @@ describe("registry-runtime", () => {
     ]);
   });
 
-  test("getRegistryCitationIds returns empty array for concept.token", () => {
-    expect(getRegistryCitationIds("concept.token")).toEqual([]);
+  test("getRegistryCitationIds returns citations for concept.token", () => {
+    expect(getRegistryCitationIds("concept.token")).toEqual([
+      "citation.gpt-2-report",
+      "citation.sennrich-bpe",
+    ]);
   });
 
   test("getRegistryCitationIds returns undefined for unknown records", () => {
@@ -214,6 +225,37 @@ describe("registry-runtime", () => {
     );
     expect(record?.relatedIds).toContain("concept.embedding");
     expect(record?.relatedIds).toContain("concept.tensor");
+  });
+
+  test("getConceptById returns vocabulary size as a glossary quantity", () => {
+    const record = getConceptById("concept.vocabulary-size");
+    expect(record?.slug).toBe("vocabulary-size");
+    expect(record?.conceptType).toBe("math");
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "vocabulary size",
+        "vocab size",
+        "tokenizer vocabulary",
+        "token vocabulary size",
+      ]),
+    );
+    expect(record?.tags).toEqual(
+      expect.arrayContaining(["token-to-probability-chain", "foundations"]),
+    );
+    expect(record?.sidebarGrouping?.glossary).toBe("sequence-and-attention");
+    expect(record?.relatedIds).toEqual(
+      expect.arrayContaining([
+        "concept.token",
+        "concept.embedding",
+        "concept.hidden-size",
+        "concept.logit",
+        "model.gpt-3",
+      ]),
+    );
+    expect(record?.prerequisiteIds).toEqual([
+      "concept.token",
+      "concept.embedding",
+    ]);
   });
 
   test("listModuleRecords includes attention overview and variant-group peers", () => {

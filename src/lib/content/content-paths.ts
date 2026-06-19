@@ -117,6 +117,9 @@ export const GROUPED_QUERY_ATTENTION_PAGE_DIR = join(
   "grouped-query-attention",
 );
 
+/** Phase 4 byte pair encoding module page directory. */
+export const BPE_MODULE_PAGE_DIR = join(MODULES_DOCS_ROOT, "bpe");
+
 /** Phase 3 multi-head attention module page directory. */
 export const MULTI_HEAD_ATTENTION_PAGE_DIR = join(
   MODULES_DOCS_ROOT,
@@ -153,8 +156,20 @@ export const SPARSE_ATTENTION_PAGE_DIR = join(
   "sparse-attention",
 );
 
+/** Byte-level tokenization module page directory. */
+export const BYTE_LEVEL_TOKENIZATION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "byte-level-tokenization",
+);
+
 /** Phase 1 token glossary sample page directory. */
 export const TOKEN_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "token");
+
+/** Special tokens glossary page directory. */
+export const SPECIAL_TOKENS_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "special-tokens",
+);
 
 /** Phase 1 vector glossary bridge page directory. */
 export const VECTOR_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "vector");
@@ -163,6 +178,12 @@ export const VECTOR_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "vector");
 export const HIDDEN_SIZE_GLOSSARY_PAGE_DIR = join(
   GLOSSARY_DOCS_ROOT,
   "hidden-size",
+);
+
+/** Vocabulary size glossary page directory. */
+export const VOCABULARY_SIZE_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "vocabulary-size",
 );
 
 /** Phase 3 feed-forward network glossary page directory. */
@@ -245,6 +266,9 @@ export const POSITIONAL_ENCODINGS_CONCEPT_PAGE_DIR = join(
   CONCEPTS_DOCS_ROOT,
   "positional-encodings",
 );
+
+/** ALiBi concept page directory. */
+export const ALIBI_CONCEPT_PAGE_DIR = join(CONCEPTS_DOCS_ROOT, "alibi");
 
 /** Phase 3 RoPE glossary page directory. */
 export const ROPE_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "rope");

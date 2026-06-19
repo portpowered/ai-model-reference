@@ -1,0 +1,20 @@
+{
+  "id": "citation.sennrich-bpe",
+  "slug": "sennrich-bpe",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["Sennrich BPE paper"],
+  "tags": ["tokenization"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Rico Sennrich", "Barry Haddow", "Alexandra Birch"],
+  "title": "Neural Machine Translation of Rare Words with Subword Units",
+  "url": "https://arxiv.org/abs/1508.07909",
+  "mla": "Sennrich, Rico, Barry Haddow, and Alexandra Birch. \"Neural Machine Translation of Rare Words with Subword Units.\" arXiv, 10 June 2016, arxiv.org/abs/1508.07909.",
+  "year": 2016
+}

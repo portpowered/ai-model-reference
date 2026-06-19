@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "A mixture-of-experts layer, often shortened to MoE, replaces the single dense feed-forward network in a transformer block with many parallel expert layers plus a router. For each token position, a gating network scores every expert and sends the token state to only the top-k experts. The chosen expert outputs are then weighted and merged back into one updated token state."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "MoE optimizes for parameter capacity without forcing every token to pay for every expert. Instead of making one dense feed-forward block larger, it keeps activation sparse and lets different tokens use different expert subsets."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "This is why MoE matters in large-model scaling discussions: it can grow the total parameter pool sharply while keeping active compute per token much closer to a dense baseline."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Comparison between a standard dense feed-forward network and a mixture-of-experts layer with top-k routing",
-      "caption": "Switch between the dense baseline and a mixture-of-experts layer to see how routing replaces one shared block with a sparse expert pool.",
       "variants": {
         "standard": {
           "label": "Standard feed-forward"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How mixture of experts compares with nearby feed-forward variants"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {
@@ -162,16 +155,22 @@
         "label": "Router scores experts"
       },
       "topkChoice": {
-        "label": "Top-k selection"
+        "label": "Top-k expert selection"
       },
       "expertOne": {
-        "label": "Expert 7 layer"
+        "label": "Expert 7 hidden layer"
       },
       "expertTwo": {
-        "label": "Expert 41 layer"
+        "label": "Expert 19 hidden layer"
+      },
+      "expertEllipsis": {
+        "label": "..."
+      },
+      "expertThree": {
+        "label": "Expert 41 hidden layer"
       },
       "inactiveExperts": {
-        "label": "Other experts stay inactive for this token"
+        "label": "Most of the expert pool stays inactive for this token"
       },
       "weightedMerge": {
         "label": "Weighted sum of chosen experts"

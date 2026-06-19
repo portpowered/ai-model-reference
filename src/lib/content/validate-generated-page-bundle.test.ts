@@ -36,7 +36,6 @@ const baseSpecFields = {
   slug: "generated-page",
   title: "Generated Page",
   summary: "Reader-facing summary for cards and search.",
-  openingSummary: "Folded opening summary for the page hero.",
 };
 
 async function expectGeneratedGraphRecord(input: {
@@ -356,10 +355,7 @@ describe("validateGeneratedPageBundle", () => {
       );
       expect(searchDocument.title).toBe(messages.title);
       expect(searchDocument.description).toBe(messages.description);
-      expect(searchDocument.bodyText).toContain("Folded opening summary");
-      expect(mdxSource).not.toContain(
-        "Folded opening summary for the page hero.",
-      );
+      expect(searchDocument.bodyText).not.toContain("Folded opening summary");
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }
@@ -381,7 +377,6 @@ describe("validateGeneratedPageBundle", () => {
           moduleType: "attention",
           tags: ["attention"],
           optimizes: ["kv-cache"],
-          practicalBenefits: ["lower KV-cache memory"],
         },
         projectRoot: tempRoot,
       });

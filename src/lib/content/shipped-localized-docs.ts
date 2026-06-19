@@ -7,7 +7,6 @@ export type ShippedLocalizedDocsManifest = Record<
   NonDefaultLocale,
   readonly string[]
 >;
-
 function shippedLocalizedDocsSet(
   manifest: ShippedLocalizedDocsManifest,
 ): Record<NonDefaultLocale, Set<string>> {
