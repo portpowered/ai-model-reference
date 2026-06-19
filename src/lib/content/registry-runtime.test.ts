@@ -193,7 +193,7 @@ describe("registry-runtime", () => {
     const record = getSystemById("system.routing");
 
     expect(record?.slug).toBe("routing");
-    expect(record?.status).toBe("draft");
+    expect(record?.status).toBe("published");
     expect(record?.tags).toEqual(["foundations"]);
     expect(record?.aliases).toEqual(
       expect.arrayContaining([

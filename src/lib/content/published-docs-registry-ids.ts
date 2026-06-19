@@ -22,7 +22,6 @@ export type PublishedDocsIndex = {
   bySlug: ReadonlyMap<string, readonly PublishedDocsEntry[]>;
   registryIds: PublishedDocsRegistryIds;
 };
-
 function getModuleBackedConceptEntryBySlug(
   slug: string,
 ): PublishedDocsEntry | undefined {
