@@ -14,7 +14,8 @@
   "relatedIds": [
     "concept.special-tokens",
     "concept.autoregressive-generation",
-    "concept.denoising-generation"
+    "concept.denoising-generation",
+    "model.clip"
   ],
   "citationIds": [
     "citation.classifier-free-diffusion-guidance",

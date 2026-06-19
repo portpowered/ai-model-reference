@@ -15,7 +15,8 @@
     "concept.modality",
     "concept.patch",
     "concept.representation",
-    "concept.generative-model"
+    "concept.generative-model",
+    "model.clip"
   ],
   "citationIds": [
     "citation.learning-transferable-visual-models-from-natural-language-supervision",

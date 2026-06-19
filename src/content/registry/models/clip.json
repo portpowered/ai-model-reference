@@ -8,7 +8,10 @@
     "CLIP",
     "Contrastive Language-Image Pre-training",
     "text-image encoder",
-    "text image encoder"
+    "text image encoder",
+    "contrastive text image model",
+    "multimodal encoder",
+    "text-image conditioning model"
   ],
   "tags": ["foundations", "model-family", "alignment"],
   "relatedIds": [

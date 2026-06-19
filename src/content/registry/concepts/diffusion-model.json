@@ -15,7 +15,8 @@
     "concept.denoising-generation",
     "concept.generative-model",
     "concept.latent",
-    "concept.conditioning"
+    "concept.conditioning",
+    "model.clip"
   ],
   "citationIds": [
     "citation.denoising-diffusion-probabilistic-models",
