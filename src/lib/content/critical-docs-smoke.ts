@@ -1,3 +1,8 @@
+import {
+  getContentRoot,
+  getDocsRoot,
+  getRegistryRoot,
+} from "@/lib/content/content-paths";
 import type { LocalDocsPageRef } from "@/lib/content/local-docs-page";
 import {
   type DocsPageSource,
@@ -5,7 +10,7 @@ import {
   loadShippedLocalizedDocsPages,
 } from "@/lib/content/pages";
 import { resolvePublishedResourceTags } from "@/lib/content/phase-1-published-resources";
-import { loadRegistry } from "@/lib/content/registry";
+import { loadRegistry, type RegistryIndexes } from "@/lib/content/registry";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 
 export const CRITICAL_DOCS_SMOKE_RULES = [
@@ -114,6 +119,12 @@ export type CriticalDocsSmokeLocalRef = LocalDocsPageRef & {
   routeSlug: [string, string];
 };
 
+export type LoadCriticalDocsSmokePagesOptions = {
+  projectRoot?: string;
+  docsRoot?: string;
+  registryRoot?: string;
+};
+
 export function matchCriticalDocsSmokeRule(input: {
   pageKind: DocsPageSource["frontmatter"]["kind"];
   tags: readonly string[];
@@ -144,14 +155,10 @@ export function toCriticalDocsSmokeLocalRef(
   };
 }
 
-export async function loadCriticalDocsSmokePages(
-  locale: SiteLocale = defaultLocale,
-): Promise<readonly CriticalDocsSmokePage[]> {
-  const [pages, registry] = await Promise.all([
-    loadShippedLocalizedDocsPages(locale),
-    loadRegistry(),
-  ]);
-
+export function deriveCriticalDocsSmokePages(
+  pages: readonly LoadedDocsPageSource[],
+  registry: RegistryIndexes,
+): readonly CriticalDocsSmokePage[] {
   const discoveredPages: CriticalDocsSmokePage[] = [];
 
   for (const page of pages) {
@@ -175,4 +182,20 @@ export async function loadCriticalDocsSmokePages(
   return discoveredPages.sort((left, right) =>
     left.url.localeCompare(right.url, "en"),
   );
+}
+
+export async function loadCriticalDocsSmokePages(
+  locale: SiteLocale = defaultLocale,
+  options: LoadCriticalDocsSmokePagesOptions = {},
+): Promise<readonly CriticalDocsSmokePage[]> {
+  const contentRoot = options.projectRoot
+    ? getContentRoot(options.projectRoot)
+    : undefined;
+  const docsRoot = options.docsRoot ?? getDocsRoot(contentRoot);
+  const registryRoot = options.registryRoot ?? getRegistryRoot(contentRoot);
+  const [pages, registry] = await Promise.all([
+    loadShippedLocalizedDocsPages(locale, docsRoot),
+    loadRegistry({ registryRoot }),
+  ]);
+  return deriveCriticalDocsSmokePages(pages, registry);
 }
