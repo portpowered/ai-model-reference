@@ -1,0 +1,37 @@
+{
+  "id": "training-regime.dpo",
+  "slug": "dpo",
+  "kind": "training-regime",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "DPO",
+    "Direct Preference Optimization",
+    "direct preference optimization"
+  ],
+  "tags": ["alignment", "foundations"],
+  "relatedIds": ["concept.alignment"],
+  "citationIds": ["citation.direct-preference-optimization"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "releaseDate": "2023-05-29",
+  "authors": [
+    "Rafael Rafailov",
+    "Archit Sharma",
+    "Eric Mitchell",
+    "Stefano Ermon",
+    "Christopher D. Manning",
+    "Chelsea Finn"
+  ],
+  "sourceId": "citation.direct-preference-optimization",
+  "regimeType": "alignment",
+  "usedByModelIds": [],
+  "relatedModuleIds": [],
+  "paperIds": [],
+  "conceptType": "training",
+  "variantGroup": "alignment-preference-optimization",
+  "sidebarGrouping": {
+    "training": "alignment"
+  }
+}

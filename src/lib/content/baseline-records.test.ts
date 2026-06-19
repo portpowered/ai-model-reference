@@ -7,6 +7,7 @@ import {
   conceptRecordSchema,
   moduleRecordSchema,
   tagRecordSchema,
+  trainingRegimeRecordSchema,
 } from "./schemas";
 
 const registryRoot = join(import.meta.dir, "../../content/registry");
@@ -204,6 +205,16 @@ describe("Phase 1 baseline registry records", () => {
     expect(tag.aliases.length).toBeGreaterThan(0);
   });
 
+  test("alignment tag JSON passes tagRecordSchema", async () => {
+    const tag = await readRegistryJson("tags/alignment.json", tagRecordSchema);
+
+    expect(tag.id).toBe("tag.alignment");
+    expect(tag.kind).toBe("tag");
+    expect(tag.category).toBe("training");
+    expect(tag.parentTagId).toBe("tag.foundations");
+    expect(tag.relatedIds).toContain("concept.alignment");
+  });
+
   test("bpe module JSON passes moduleRecordSchema", async () => {
     const module = await readRegistryJson(
       "modules/bpe.json",
@@ -337,6 +348,38 @@ describe("Phase 1 baseline registry records", () => {
     expect(citation.title.length).toBeGreaterThan(0);
     expect(citation.url).toMatch(/^https:\/\//);
     expect(citation.mla.length).toBeGreaterThan(0);
+  });
+
+  test("dpo citation JSON passes citationRecordSchema", async () => {
+    const citation = await readRegistryJson(
+      "citations/direct-preference-optimization.json",
+      citationRecordSchema,
+    );
+
+    expect(citation.id).toBe("citation.direct-preference-optimization");
+    expect(citation.title).toContain("Direct Preference Optimization");
+    expect(citation.authors).toContain("Rafael Rafailov");
+    expect(citation.url).toBe("https://arxiv.org/abs/2305.18290");
+  });
+
+  test("dpo training regime JSON passes trainingRegimeRecordSchema", async () => {
+    const regime = await readRegistryJson(
+      "training-regimes/dpo.json",
+      trainingRegimeRecordSchema,
+    );
+
+    expect(regime.id).toBe("training-regime.dpo");
+    expect(regime.slug).toBe("dpo");
+    expect(regime.regimeType).toBe("alignment");
+    expect(regime.tags).toEqual(expect.arrayContaining(["alignment"]));
+    expect(regime.aliases).toEqual(
+      expect.arrayContaining(["DPO", "Direct Preference Optimization"]),
+    );
+    expect(regime.citationIds).toContain(
+      "citation.direct-preference-optimization",
+    );
+    expect(regime.relatedIds).toContain("concept.alignment");
+    expect(regime.sidebarGrouping?.training).toBe("alignment");
   });
 
   test("gpt-2-report citation JSON passes citationRecordSchema", async () => {
