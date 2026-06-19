@@ -11,10 +11,7 @@
     "concept.why-long-context-is-hard",
     "concept.alibi"
   ],
-  "citationIds": [
-    "citation.brown-gpt-3",
-    "citation.deepseek-v4-paper"
-  ],
+  "citationIds": ["citation.brown-gpt-3", "citation.deepseek-v4-paper"],
   "status": "published",
   "createdAt": "2026-06-09T00:00:00.000Z",
   "updatedAt": "2026-06-19T00:00:00.000Z",

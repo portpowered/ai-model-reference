@@ -7,9 +7,7 @@
   "aliases": ["logits", "raw score", "pre-softmax score"],
   "tags": ["token-to-probability-chain", "foundations"],
   "relatedIds": ["concept.softmax"],
-  "citationIds": [
-    "citation.goodfellow-deep-learning"
-  ],
+  "citationIds": ["citation.goodfellow-deep-learning"],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T21:00:00.000Z",

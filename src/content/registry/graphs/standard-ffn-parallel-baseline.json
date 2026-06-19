@@ -42,7 +42,7 @@
       "labelKey": "graph.nodes.ffnInternalsHeader.label",
       "moduleKind": "block",
       "position": { "x": 120, "y": 102 },
-      "size": { "width": 180  , "height": 40 },
+      "size": { "width": 180, "height": 40 },
       "visualRole": "group-container",
       "zIndex": 2,
       "childNodeIds": []

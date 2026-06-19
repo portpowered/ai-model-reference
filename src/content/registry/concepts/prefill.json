@@ -22,10 +22,7 @@
     "module.grouped-query-attention",
     "concept.transformer"
   ],
-  "citationIds": [
-    "citation.brown-gpt-3",
-    "citation.shazeer-mqa-paper"
-  ],
+  "citationIds": ["citation.brown-gpt-3", "citation.shazeer-mqa-paper"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",

@@ -19,12 +19,6 @@ import {
 } from "./page-messages-load";
 import { validatePageTemplateConformance } from "./page-template-conformance";
 import {
-  validateGeneratedAssetRules,
-  validateGeneratedFoldedSummary,
-  validateGeneratedGraphPlacement,
-  validateGeneratedKindSpecificStructure,
-} from "./validate-generated-canonical-docs";
-import {
   loadRegistry,
   type RegistryIndexes,
   RegistryLoadError,
@@ -51,6 +45,12 @@ import {
   loadUiMessagesFromDisk,
   UiMessagesLoadError,
 } from "./ui-messages-load";
+import {
+  validateGeneratedAssetRules,
+  validateGeneratedFoldedSummary,
+  validateGeneratedGraphPlacement,
+  validateGeneratedKindSpecificStructure,
+} from "./validate-generated-canonical-docs";
 import { parseYamlFrontmatterBlock } from "./yaml-frontmatter";
 
 export { parseYamlFrontmatterBlock };
@@ -250,7 +250,9 @@ type ReleaseMetadataRecord =
   | SystemRecord
   | TrainingRegimeRecord;
 
-function requiresReleaseMetadata(record: RegistryRecord): record is ReleaseMetadataRecord {
+function requiresReleaseMetadata(
+  record: RegistryRecord,
+): record is ReleaseMetadataRecord {
   return (
     record.kind === "module" ||
     record.kind === "model" ||

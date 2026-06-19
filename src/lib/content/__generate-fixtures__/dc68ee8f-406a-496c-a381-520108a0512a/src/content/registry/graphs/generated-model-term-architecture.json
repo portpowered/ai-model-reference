@@ -16,10 +16,7 @@
   "rootNodeId": "root",
   "layout": "vertical-expandable",
   "defaultExpandedDepth": 1,
-  "supportedRenderers": [
-    "react-flow",
-    "vertical-svg"
-  ],
+  "supportedRenderers": ["react-flow", "vertical-svg"],
   "nodes": [
     {
       "id": "root",

@@ -4,11 +4,7 @@
   "kind": "citation",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "summary",
-  "aliases": [
-    "OPD paper",
-    "GKD paper",
-    "On-policy distillation paper"
-  ],
+  "aliases": ["OPD paper", "GKD paper", "On-policy distillation paper"],
   "tags": ["foundations"],
   "relatedIds": [],
   "citationIds": [],

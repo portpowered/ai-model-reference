@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
-import { GridComponent, TooltipComponent, VisualMapComponent } from "echarts/components";
 import { HeatmapChart } from "echarts/charts";
+import {
+  GridComponent,
+  TooltipComponent,
+  VisualMapComponent,
+} from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
+import { useEffect, useId, useRef } from "react";
 
 const AXIS_LABEL_COLOR = "#f0ede6";
 const AXIS_LINE_COLOR = "#d9ded9";
@@ -230,7 +234,10 @@ export function HeatmapGraph({
           data-echarts-heatmap="true"
           className={`w-full ${heightClassName}`}
         />
-        <div className="mt-3 ml-auto w-44 bg-background px-3 py-2" data-heatmap-legend="true">
+        <div
+          className="mt-3 ml-auto w-44 bg-background px-3 py-2"
+          data-heatmap-legend="true"
+        >
           <div className="relative">
             <div
               aria-hidden="true"

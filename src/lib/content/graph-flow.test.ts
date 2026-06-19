@@ -200,7 +200,9 @@ describe("graph-flow", () => {
     const inactiveExpertsNode = nodes.find(
       (node) => node.id === "inactive-experts",
     );
-    const expertEllipsisNode = nodes.find((node) => node.id === "expert-ellipsis");
+    const expertEllipsisNode = nodes.find(
+      (node) => node.id === "expert-ellipsis",
+    );
     const sourceNode = graph.nodes.find(
       (node) => node.id === "inactive-experts",
     );

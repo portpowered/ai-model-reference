@@ -7,9 +7,7 @@
   "aliases": ["latent code", "latent variable", "latent vector"],
   "tags": ["foundations", "taxonomy"],
   "relatedIds": ["concept.latent-space", "concept.patch"],
-  "citationIds": [
-    "citation.goodfellow-deep-learning"
-  ],
+  "citationIds": ["citation.goodfellow-deep-learning"],
   "status": "published",
   "createdAt": "2026-06-04T11:31:47.920Z",
   "updatedAt": "2026-06-04T12:00:00.000Z",

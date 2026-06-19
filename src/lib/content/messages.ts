@@ -73,10 +73,7 @@ export function formatMissingMessageKey(
 
 /** Collects searchable body text from resolved page messages (not raw MDX). */
 export function collectMessageBodyText(messages: PageMessages): string {
-  const parts: string[] = [
-    messages.title,
-    messages.description,
-  ];
+  const parts: string[] = [messages.title, messages.description];
 
   if (messages.sections) {
     for (const section of Object.values(messages.sections)) {

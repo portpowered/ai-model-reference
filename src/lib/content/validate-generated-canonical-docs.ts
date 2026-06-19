@@ -213,7 +213,10 @@ export function validateGeneratedKindSpecificStructure(options: {
   }
 
   if (kind === "paper") {
-    for (const sectionId of ["what-the-paper-introduced", "what-it-connects-to"]) {
+    for (const sectionId of [
+      "what-the-paper-introduced",
+      "what-it-connects-to",
+    ]) {
       if (sectionSlice(mdxBody, sectionId)) {
         errors.push({
           code: "forbidden-duplicate-related-section",
@@ -251,7 +254,10 @@ export function validateGeneratedKindSpecificStructure(options: {
     }
   }
 
-  if (kind === "training-regime" && sectionSlice(mdxBody, "models-and-papers")) {
+  if (
+    kind === "training-regime" &&
+    sectionSlice(mdxBody, "models-and-papers")
+  ) {
     errors.push({
       code: "forbidden-duplicate-related-section",
       message: `${pagePath}: training-regime pages must not include section id="models-and-papers"`,
@@ -296,8 +302,7 @@ export function validateGeneratedAssetRules(options: {
   }
 
   for (const [assetId, asset] of Object.entries(assets)) {
-    const disallowCaption =
-      asset.type === "graph" || asset.type === "table";
+    const disallowCaption = asset.type === "graph" || asset.type === "table";
 
     if (!disallowCaption) {
       continue;

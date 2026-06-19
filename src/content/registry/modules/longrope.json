@@ -18,7 +18,15 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "releaseDate": "2024-02-01",
-  "authors": ["Yiran Ding", "Liangyue Zhang", "Tianle Cai", "Yuan Hong", "Shangqing Tu", "Jiahang Xu", "Mao Yang"],
+  "authors": [
+    "Yiran Ding",
+    "Liangyue Zhang",
+    "Tianle Cai",
+    "Yuan Hong",
+    "Shangqing Tu",
+    "Jiahang Xu",
+    "Mao Yang"
+  ],
   "sourceId": "citation.ding-longrope",
   "moduleType": "position-encoding",
   "optimizes": ["very-long-context-extrapolation"],

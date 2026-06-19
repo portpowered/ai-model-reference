@@ -65,7 +65,9 @@ describe("ActivationFunctionChart", () => {
         '[data-chart-id="chart.activation-family.relu-hidden-state-heatmap"]',
       ),
     ).toBeTruthy();
-    expect(container.querySelectorAll('[data-echarts-heatmap="true"]').length).toBe(2);
+    expect(
+      container.querySelectorAll('[data-echarts-heatmap="true"]').length,
+    ).toBe(2);
     expect(
       container.querySelector(
         '[data-heatmap-graph="chart.activation-family.relu-hidden-state-heatmap-before"]',

@@ -286,8 +286,8 @@ describe("validateGeneratedCanonicalDocs", () => {
       assets: readTemplateAssets("training-regime"),
     });
 
-    expect(
-      errors.some((error) => error.code === "missing-required-math"),
-    ).toBe(true);
+    expect(errors.some((error) => error.code === "missing-required-math")).toBe(
+      true,
+    );
   });
 });

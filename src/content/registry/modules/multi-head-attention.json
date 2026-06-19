@@ -16,7 +16,16 @@
   "createdAt": "2026-06-01T00:00:00.000Z",
   "updatedAt": "2026-06-02T00:00:00.000Z",
   "releaseDate": "2017-06-01",
-  "authors": ["Ashish Vaswani", "Noam Shazeer", "Niki Parmar", "Jakob Uszkoreit", "Llion Jones", "Aidan N. Gomez", "Łukasz Kaiser", "Illia Polosukhin"],
+  "authors": [
+    "Ashish Vaswani",
+    "Noam Shazeer",
+    "Niki Parmar",
+    "Jakob Uszkoreit",
+    "Llion Jones",
+    "Aidan N. Gomez",
+    "Łukasz Kaiser",
+    "Illia Polosukhin"
+  ],
   "sourceId": "citation.attention-is-all-you-need",
   "moduleType": "attention",
   "moduleFamily": "attention",

@@ -16,10 +16,7 @@
   "rootNodeId": "root",
   "layout": "vertical-expandable",
   "defaultExpandedDepth": 1,
-  "supportedRenderers": [
-    "react-flow",
-    "mermaid"
-  ],
+  "supportedRenderers": ["react-flow", "mermaid"],
   "nodes": [
     {
       "id": "root",
