@@ -36,36 +36,30 @@ import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeF
 
 <Section id="how-it-works" titleKey="sections.howItWorks.title">
   <T k="sections.howItWorks.body" />
-  <TrainingRegimeFlow
-    registryId="training-regime.grpo"
-    assetId="trainingFlow"
-    title="GRPO training flow"
-    legendTitle="Graph legend"
-    legendItems={[
-      "One prompt anchors the whole local comparison.",
-      "The policy samples several candidate answers for that same prompt.",
-      "Those answers are scored relative to each other inside the sampled group.",
-      "The policy update reinforces answers that beat the group baseline and discourages weaker ones.",
-    ]}
-  />
-  <BlockMath
-    formula="A_i = \\frac{r_i - \\operatorname{mean}(r_{1:G})}{\\operatorname{std}(r_{1:G})}"
-    label="Grouped relative advantage sketch"
-    variableDefinitions={[
-      {
-        term: "A_i",
-        definition: "normalized advantage for sampled answer i",
-      },
-      {
-        term: "r_i",
-        definition: "reward score assigned to sampled answer i",
-      },
-      {
-        term: "G",
-        definition: "number of sampled answers in the comparison group",
-      },
-    ]}
-  />
+  <h3 className="text-base font-semibold text-foreground">
+    <T k="callouts.trainingFlowGraph.title" />
+  </h3>
+  <TrainingRegimeFlow registryId="training-regime.grpo" assetId="trainingFlow" />
+  <div className="rounded-lg border border-border bg-card p-4">
+    <p className="text-sm font-medium text-foreground">
+      <T k="callouts.trainingFlowLegend.title" />
+    </p>
+    <ul className="mt-3 space-y-2 pl-5 text-sm text-muted-foreground">
+      <li>
+        <T k="links.trainingFlowLegendPrompt" />
+      </li>
+      <li>
+        <T k="links.trainingFlowLegendSampling" />
+      </li>
+      <li>
+        <T k="links.trainingFlowLegendRelativeScoring" />
+      </li>
+      <li>
+        <T k="links.trainingFlowLegendPolicyUpdate" />
+      </li>
+    </ul>
+  </div>
+  <BlockMath mathId="grpoAdvantage" />
 </Section>
 
 <Section

@@ -33,10 +33,46 @@
       "title": "References"
     }
   },
+  "callouts": {
+    "trainingFlowGraph": {
+      "title": "GRPO training flow",
+      "body": "A visual walkthrough of one prompt, grouped sampling, relative scoring, and the policy update."
+    },
+    "trainingFlowLegend": {
+      "title": "Graph legend",
+      "body": "How to read each stage of the GRPO training flow."
+    }
+  },
+  "links": {
+    "trainingFlowLegendPrompt": "One prompt anchors the whole local comparison.",
+    "trainingFlowLegendSampling": "The policy samples several candidate answers for that same prompt.",
+    "trainingFlowLegendRelativeScoring": "Those answers are scored relative to each other inside the sampled group.",
+    "trainingFlowLegendPolicyUpdate": "The policy update reinforces answers that beat the group baseline and discourages weaker ones."
+  },
   "assets": {
     "trainingFlow": {
       "alt": "A training flow from one prompt to a group of sampled answers, then to relative scoring inside the group, and finally to a policy update.",
       "caption": "GRPO learns from which answers win inside each sampled group instead of relying on one separate critic-estimated baseline."
+    }
+  },
+  "math": {
+    "grpoAdvantage": {
+      "label": "Grouped relative advantage sketch",
+      "formula": "A_i = \\frac{r_i - \\operatorname{mean}(r_{1:G})}{\\operatorname{std}(r_{1:G})}",
+      "variableDefinitions": {
+        "advantage": {
+          "term": "A_i",
+          "definition": "normalized advantage for sampled answer i"
+        },
+        "reward": {
+          "term": "r_i",
+          "definition": "reward score assigned to sampled answer i"
+        },
+        "groupSize": {
+          "term": "G",
+          "definition": "number of sampled answers in the comparison group"
+        }
+      }
     }
   },
   "graph": {

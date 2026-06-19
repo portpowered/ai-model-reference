@@ -56,7 +56,10 @@ describe("grpo training regime comparisons", () => {
     expect(html).toContain("GRPO training flow");
     expect(html).toContain("Graph legend");
     expect(html).toContain("One prompt anchors the whole local comparison.");
-    expect(html).toContain('data-page-math-variable-definitions="inline"');
+    expect(html).toContain('data-page-math-formula="grpoAdvantage"');
+    expect(html).toContain(
+      'data-page-math-variable-definitions="grpoAdvantage"',
+    );
     expect(html).toContain("normalized advantage for sampled answer i");
     expect(html).toContain("reward score assigned to sampled answer i");
     expect(html).toContain("number of sampled answers in the comparison group");
