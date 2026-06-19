@@ -17,11 +17,11 @@
     },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
-      "body": "RLHF is one alignment regime inside the broader alignment toolbox. It differs from plain supervised fine-tuning because it optimizes against preferences instead of only copying demonstrations, and it stays understandable on its own even before you compare it with newer preference-optimization variants."
+      "body": "RLHF is one alignment regime inside the broader alignment toolbox. It differs from plain supervised fine-tuning because it optimizes against preferences instead of only copying demonstrations. In practice, Proximal Policy Optimization, or PPO, is the classic optimizer inside the RLHF loop, while Direct Preference Optimization, or DPO, and Group Relative Policy Optimization, or GRPO, are nearby preference-training approaches that try to remove or simplify parts of the full reward-model-plus-reinforcement-learning pipeline."
     },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
-      "body": "RLHF can be expensive because it needs human preference data, repeated model sampling, and a reward model that is good enough to stand in for people. If the learned reward misses what users really want, the policy can become overly cautious, game the reward, or narrow its behavior in ways that look aligned in training but not in real use."
+      "body": "RLHF can be expensive because it needs human preference data, repeated model sampling, and a reward model that is good enough to stand in for people. The loop can also be slower to iterate than simpler post-training methods because each update depends on fresh rollouts and extra evaluation passes. If the learned reward misses what users really want, optimization can become unstable, the policy can game the reward, or the model can narrow its behavior into answers that look safe in training but feel rigid or evasive in real use."
     },
     "related": {
       "title": "Related To"

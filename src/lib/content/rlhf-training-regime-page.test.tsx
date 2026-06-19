@@ -134,11 +134,32 @@ describe("RLHF training-regime page contract (rlhf-training-regime-page-002)", (
     expect(messages.sections?.howItWorks.body).toContain(
       "reinforcement-learning optimizer updates the policy",
     );
+    expect(messages.sections?.comparedToNearbyRegimes.body).toContain(
+      "Proximal Policy Optimization, or PPO",
+    );
+    expect(messages.sections?.comparedToNearbyRegimes.body).toContain(
+      "Direct Preference Optimization, or DPO",
+    );
+    expect(messages.sections?.comparedToNearbyRegimes.body).toContain(
+      "Group Relative Policy Optimization, or GRPO",
+    );
+    expect(messages.sections?.limitationsAndFailureModes.body).toContain(
+      "expensive because it needs human preference data",
+    );
+    expect(messages.sections?.limitationsAndFailureModes.body).toContain(
+      "slower to iterate",
+    );
+    expect(messages.sections?.limitationsAndFailureModes.body).toContain(
+      "optimization can become unstable",
+    );
+    expect(messages.sections?.limitationsAndFailureModes.body).toContain(
+      "game the reward",
+    );
     expect(assets.trainingFlow.type).toBe("graph");
     expect(validatePageAssetReferences(assets, messages)).toEqual([]);
   });
 
-  test("renders the canonical /docs/training/rlhf route with ordered workflow teaching", async () => {
+  test("renders the canonical /docs/training/rlhf route with one primary flow, nearby-method comparison, and tradeoff teaching", async () => {
     const page = await loadTrainingRegimePage("rlhf");
 
     expect(page.frontmatter.kind).toBe("training-regime");
@@ -155,9 +176,16 @@ describe("RLHF training-regime page contract (rlhf-training-regime-page-002)", (
     expect(html).toContain("How It Works");
     expect(html).toContain('data-page-asset="trainingFlow"');
     expect(html).toContain('data-graph-id="graph.rlhf-training-flow"');
+    expect(html.match(/data-page-asset=/g)?.length ?? 0).toBe(1);
     expect(html).not.toContain(page.messages.openingSummary ?? "");
     expect(html).toContain("post-training regime for shaping model behavior");
     expect(html).toContain("The workflow usually moves in four steps.");
+    expect(html).toContain("Proximal Policy Optimization, or PPO");
+    expect(html).toContain("Direct Preference Optimization, or DPO");
+    expect(html).toContain("Group Relative Policy Optimization, or GRPO");
+    expect(html).toContain("slower to iterate");
+    expect(html).toContain("optimization can become unstable");
+    expect(html).toContain("game the reward");
 
     const startingPolicyIndex = html.indexOf(
       "pretrained or supervised-fine-tuned starting policy",
@@ -172,5 +200,13 @@ describe("RLHF training-regime page contract (rlhf-training-regime-page-002)", (
     expect(humanRankingsIndex).toBeGreaterThan(startingPolicyIndex);
     expect(rewardModelIndex).toBeGreaterThan(humanRankingsIndex);
     expect(policyUpdateIndex).toBeGreaterThan(rewardModelIndex);
+
+    const comparisonSectionIndex = html.indexOf("Compared To Nearby Regimes");
+    const limitationsSectionIndex = html.indexOf(
+      "Limitations And Failure Modes",
+    );
+
+    expect(comparisonSectionIndex).toBeGreaterThan(policyUpdateIndex);
+    expect(limitationsSectionIndex).toBeGreaterThan(comparisonSectionIndex);
   });
 });
