@@ -1,0 +1,32 @@
+{
+  "title": "Rotary position encoding",
+  "description": "Rotary position encoding (RoPE) rotates query and key features by token position so attention can sense order through relative distance instead of a fixed absolute table.",
+  "openingSummary": "Rotary position encoding (RoPE) gives attention a sense of token order by rotating query and key features according to position, which is why many modern decoder models use it instead of storing one learned vector for every absolute slot.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Rotary position encoding, often called rotary position embedding (RoPE), is a way to tell attention where each token sits in a sequence without adding a separate absolute position table onto the token embedding. Instead, the model rotates paired query and key features by an angle tied to token index. When two tokens interact, the score now reflects not only their content but also how far apart they are."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "RoPE became common in decoder transformers because it fits naturally inside causal attention, keeps order information in the same query-key comparison the model already uses, and avoids tying the system to one fixed absolute lookup table. That relative behavior also makes RoPE a natural starting point for long-context follow-up methods such as NTK-aware RoPE scaling and LongRoPE."
+    },
+    "simpleExample": {
+      "title": "How The Rotation Helps",
+      "body": "Imagine the word at position 10 attending to a word at position 14. RoPE rotates both tokens before the attention score is computed, so the four-step gap changes the score in a predictable way. With older absolute positional embeddings, the model first adds a learned vector for position 10 and another for position 14, then hopes later layers preserve the useful distance pattern. RoPE puts that order signal directly into the attention comparison itself."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "RoPE is not a separate attention variant like grouped-query attention or sliding-window attention. It is only the position scheme used inside an attention block. It also does not mean unlimited context by itself: models can still degrade when prompts stretch far past training length. If you want the lower-level implementation surface, the RoPE module page covers how the mechanism plugs into the attention sublayer."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
