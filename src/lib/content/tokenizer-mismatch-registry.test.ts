@@ -35,7 +35,7 @@ describe("tokenizer mismatch registry relationships", () => {
       undefined,
       "/docs/modules/bpe",
       undefined,
-      undefined,
+      "/docs/modules/sentencepiece",
       "/docs/glossary/special-tokens",
       "/docs/glossary/embedding",
       "/docs/models/gpt-3",
@@ -44,17 +44,13 @@ describe("tokenizer mismatch registry relationships", () => {
       true,
       false,
       true,
-      true,
+      false,
       false,
       false,
       false,
     ]);
     expect(
       items.filter((item) => item.isPlanned).map((item) => item.reasonLabel),
-    ).toEqual([
-      PLANNED_RELATED_REASON_LABEL,
-      PLANNED_RELATED_REASON_LABEL,
-      PLANNED_RELATED_REASON_LABEL,
-    ]);
+    ).toEqual([PLANNED_RELATED_REASON_LABEL, PLANNED_RELATED_REASON_LABEL]);
   });
 });
