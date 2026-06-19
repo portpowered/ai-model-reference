@@ -2,6 +2,10 @@
   "title": "Batching",
   "description": "A serving system that groups multiple requests or decode steps together so accelerators stay busier, raising throughput while often adding wait time for each individual request.",
   "openingSummary": "Batching is the serving habit of waiting just long enough to run several requests or token-generation steps together instead of one by one. That denser work usually improves hardware utilization and tokens per second, but it can also make one reader wait longer before service begins.",
+  "links": {
+    "systemFlowTitle": "System flow: how a batch forms and runs",
+    "systemFlowLegend": "Legend: the top and bottom boxes are per-request handling steps, while the middle boxes are the shared batch-formation and shared execution stages."
+  },
   "sections": {
     "whatItIs": {
       "title": "What It Is",

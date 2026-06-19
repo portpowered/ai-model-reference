@@ -14,6 +14,7 @@ import { loadRegistry } from "@/lib/content/registry";
 import { getSystemById } from "@/lib/content/registry-runtime";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { loadSystemPage } from "@/lib/content/system-page";
+import { renderSystemDocsShell } from "@/lib/content/system-shell-render";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
@@ -126,6 +127,19 @@ describe("batching search and registry convergence", () => {
 });
 
 describe("batching docs route render", () => {
+  test("renders the system shell with a visible folded opening summary", async () => {
+    const page = await loadSystemPage("batching");
+    const html = await renderSystemDocsShell(page);
+
+    expect(html).toContain('data-opening-summary="folded"');
+    expect(html).toContain('data-testid="folded-summary"');
+    expect(html).toContain("waiting just long enough");
+    expect(html).toContain("At a glance");
+    expect(html.indexOf('data-opening-summary="folded"')).toBeLessThan(
+      html.indexOf('aria-label="At a glance"'),
+    );
+  });
+
   test("renders the canonical batching content with graph, tags, and related links", async () => {
     const page = await loadSystemPage("batching");
     const html = await renderAsyncMarkup(
@@ -140,6 +154,8 @@ describe("batching docs route render", () => {
     );
 
     expect(html).toContain("At a glance");
+    expect(html).toContain("System flow: how a batch forms and runs");
+    expect(html).toContain("Legend:");
     expect(html).toContain("Queue requests");
     expect(html).toContain('href="/docs/glossary/prefill"');
     expect(html).toContain('href="/docs/glossary/decode"');
