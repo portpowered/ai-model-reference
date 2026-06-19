@@ -9,6 +9,8 @@ import { isShippedLocalizedDocsSlug } from "@/lib/content/shipped-localized-docs
 type JapaneseModuleExpectation = {
   slug: string;
   registryId: string;
+  japaneseTitle: string;
+  englishTitle: string;
   japaneseDescription: string;
   englishFallback: string;
   japaneseBody: string;
@@ -25,6 +27,8 @@ const JAPANESE_MODULE_EXPECTATIONS: readonly JapaneseModuleExpectation[] = [
   {
     slug: "multi-head-attention",
     registryId: "module.multi-head-attention",
+    japaneseTitle: "マルチヘッド attention",
+    englishTitle: "Multi-head attention",
     japaneseDescription:
       "各 query head がそれぞれ固有の key-value head pair を持つ、基準となる attention 設計。",
     englishFallback:
@@ -47,6 +51,8 @@ const JAPANESE_MODULE_EXPECTATIONS: readonly JapaneseModuleExpectation[] = [
   {
     slug: "multi-query-attention",
     registryId: "module.multi-query-attention",
+    japaneseTitle: "マルチクエリ attention",
+    englishTitle: "Multi-query attention",
     japaneseDescription:
       "すべての query head で 1 つの key-value head を共有し、KV-cache メモリを最小化する attention 変種。",
     englishFallback:
@@ -76,6 +82,8 @@ const JAPANESE_MODULE_EXPECTATIONS: readonly JapaneseModuleExpectation[] = [
   {
     slug: "sliding-window-attention",
     registryId: "module.sliding-window-attention",
+    japaneseTitle: "スライディングウィンドウ attention",
+    englishTitle: "Sliding-window attention",
     japaneseDescription:
       "各 query を系列全体ではなく固定の局所 window に制限する attention 変種。",
     englishFallback:
@@ -105,6 +113,8 @@ const JAPANESE_MODULE_EXPECTATIONS: readonly JapaneseModuleExpectation[] = [
   {
     slug: "linear-attention",
     registryId: "module.linear-attention",
+    japaneseTitle: "線形 attention",
+    englishTitle: "Linear attention",
     japaneseDescription:
       "明示的な softmax dot-product attention を、系列長に対してほぼ線形に伸びる kernel または feature-map 形式へ置き換える attention 変種。",
     englishFallback:
@@ -172,6 +182,8 @@ describe("Phase 4 Japanese attention variant proof set", () => {
       );
 
       expect(page.frontmatter.registryId).toBe(expectation.registryId);
+      expect(page.messages.title).toBe(expectation.japaneseTitle);
+      expect(page.messages.title).not.toBe(expectation.englishTitle);
       expect(page.messages.description).toBe(expectation.japaneseDescription);
       expect(page.messages.description).not.toBe(expectation.englishFallback);
       expect(page.messages.sections?.whatItOptimizes.body).toContain(

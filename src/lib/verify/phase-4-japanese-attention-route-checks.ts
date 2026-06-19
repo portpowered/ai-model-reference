@@ -106,7 +106,7 @@ export const JAPANESE_ATTENTION_ROUTE_ASSERTIONS: readonly JapaneseAttentionRout
       assertBody: (html) => {
         const visibleHtml = stripHtmlScripts(html);
         const missing = requireSubstrings(visibleHtml, [
-          "Multi-Head Attention",
+          "マルチヘッド attention",
           'data-registry-id="module.multi-head-attention"',
           'href="/ja/tags/attention"',
           'href="/ja/docs/modules/attention"',
@@ -128,7 +128,7 @@ export const JAPANESE_ATTENTION_ROUTE_ASSERTIONS: readonly JapaneseAttentionRout
       assertBody: (html) => {
         const visibleHtml = stripHtmlScripts(html);
         const missing = requireSubstrings(visibleHtml, [
-          "Multi-Query Attention",
+          "マルチクエリ attention",
           'data-registry-id="module.multi-query-attention"',
           'href="/ja/tags/attention"',
           'href="/ja/docs/modules/grouped-query-attention"',
@@ -151,7 +151,7 @@ export const JAPANESE_ATTENTION_ROUTE_ASSERTIONS: readonly JapaneseAttentionRout
       assertBody: (html) => {
         const visibleHtml = stripHtmlScripts(html);
         const missing = requireSubstrings(visibleHtml, [
-          "Linear Attention",
+          "線形 attention",
           'data-registry-id="module.linear-attention"',
           'href="/ja/tags/attention"',
           'href="/ja/docs/modules/multi-head-attention"',
@@ -174,7 +174,7 @@ export const JAPANESE_ATTENTION_ROUTE_ASSERTIONS: readonly JapaneseAttentionRout
       assertBody: (html) => {
         const visibleHtml = stripHtmlScripts(html);
         const missing = requireSubstrings(visibleHtml, [
-          "Sliding-Window Attention",
+          "スライディングウィンドウ attention",
           'data-registry-id="module.sliding-window-attention"',
           'href="/ja/tags/attention"',
           'href="/ja/docs/modules/multi-head-attention"',

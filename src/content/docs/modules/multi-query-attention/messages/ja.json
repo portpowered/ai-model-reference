@@ -1,5 +1,5 @@
 {
-  "title": "Multi-query attention",
+  "title": "マルチクエリ attention",
   "description": "すべての query head で 1 つの key-value head を共有し、KV-cache メモリを最小化する attention 変種。",
   "openingSummary": "自回帰推論では、過去の各 token に対する key と value を保存し続けるため、KV-cache は文脈長と head 数の両方に応じて増えます。Multi-query attention (MQA) は H 個の query head を保ちながら、それらを 1 組の共有 key-value pair に通すことで、各 layer が保持する K と V を最小化します。",
   "sections": {

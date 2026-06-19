@@ -268,15 +268,21 @@ describe("docs source local pages", () => {
     expect(multiHeadPage.messages.sections?.whatItOptimizes?.body).toContain(
       "表現の幅",
     );
+    expect(multiHeadPage.messages.title).toBe("マルチヘッド attention");
     expect(multiQueryPage.messages.sections?.whatItOptimizes?.body).toContain(
       "KV-cache サイズ",
     );
+    expect(multiQueryPage.messages.title).toBe("マルチクエリ attention");
     expect(
       slidingWindowPage.messages.sections?.whatItOptimizes?.body,
     ).toContain("attention 計算コスト");
+    expect(slidingWindowPage.messages.title).toBe(
+      "スライディングウィンドウ attention",
+    );
     expect(
       linearAttentionPage.messages.sections?.whatItOptimizes?.body,
     ).toContain("系列長スケーリング");
+    expect(linearAttentionPage.messages.title).toBe("線形 attention");
   });
 
   test("loadLocalDocsPage resolves shipped vietnamese head-sharing module messages through the shared MDX route contract", async () => {

@@ -1,5 +1,5 @@
 {
-  "title": "Linear attention",
+  "title": "線形 attention",
   "description": "明示的な softmax dot-product attention を、系列長に対してほぼ線形に伸びる kernel または feature-map 形式へ置き換える attention 変種。",
   "openingSummary": "標準的な attention は softmax の前に全 pair の score 行列を作るため、コストが系列長の二乗で増えます。Linear attention は query と key を feature map に通し、注意計算を結合的な集約や再帰形式で表すことで、正確な dense attention と引き換えに長い入力でより良いスケーリングを得ます。",
   "sections": {

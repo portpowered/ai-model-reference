@@ -262,10 +262,10 @@ describe("attention tag landing page render", () => {
     expect(groups[0]?.resources.map((resource) => resource.url)).toEqual([
       "/ja/docs/modules/attention",
       "/ja/docs/modules/grouped-query-attention",
-      "/ja/docs/modules/linear-attention",
-      "/ja/docs/modules/multi-head-attention",
-      "/ja/docs/modules/multi-query-attention",
       "/ja/docs/modules/sliding-window-attention",
+      "/ja/docs/modules/multi-query-attention",
+      "/ja/docs/modules/multi-head-attention",
+      "/ja/docs/modules/linear-attention",
     ]);
     expect(groups[1]?.resources.map((resource) => resource.url)).toEqual([
       "/ja/docs/glossary/token",

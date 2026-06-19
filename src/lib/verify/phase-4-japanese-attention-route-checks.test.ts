@@ -26,14 +26,14 @@ const PASSING_STUB_HTML: Record<string, string> = {
     <output data-testid="search-page-idle"></output>
   </html>`,
   "/ja/docs/modules/multi-head-attention": `<html>
-    <h1>Multi-Head Attention</h1>
+    <h1>マルチヘッド attention</h1>
     <div data-registry-id="module.multi-head-attention"></div>
     <a href="/ja/tags/attention">attention tag</a>
     <a href="/ja/docs/modules/attention">attention</a>
     <a href="/ja/docs/modules/multi-query-attention">mqa</a>
   </html>`,
   "/ja/docs/modules/multi-query-attention": `<html>
-    <h1>Multi-Query Attention</h1>
+    <h1>マルチクエリ attention</h1>
     <div data-registry-id="module.multi-query-attention"></div>
     <a href="/ja/tags/attention">attention tag</a>
     <a href="/ja/docs/modules/grouped-query-attention">gqa</a>
@@ -41,7 +41,7 @@ const PASSING_STUB_HTML: Record<string, string> = {
     <a href="/docs/glossary/kv-cache">kv cache</a>
   </html>`,
   "/ja/docs/modules/linear-attention": `<html>
-    <h1>Linear Attention</h1>
+    <h1>線形 attention</h1>
     <div data-registry-id="module.linear-attention"></div>
     <a href="/ja/tags/attention">attention tag</a>
     <a href="/ja/docs/modules/multi-head-attention">mha</a>
@@ -49,7 +49,7 @@ const PASSING_STUB_HTML: Record<string, string> = {
     <div data-graph-id="graph.linear-attention-linear-comparison"></div>
   </html>`,
   "/ja/docs/modules/sliding-window-attention": `<html>
-    <h1>Sliding-Window Attention</h1>
+    <h1>スライディングウィンドウ attention</h1>
     <div data-registry-id="module.sliding-window-attention"></div>
     <a href="/ja/tags/attention">attention tag</a>
     <a href="/ja/docs/modules/multi-head-attention">mha</a>
@@ -182,9 +182,7 @@ describe("assertJapaneseAttentionRouteChecks", () => {
 
       const stderr = stderrLines.join("\n");
       expect(stderr).toContain(`${baseUrl}/ja/docs/modules/linear-attention`);
-      expect(stderr).toContain(
-        'missing expected content: data-registry-id="module.linear-attention"',
-      );
+      expect(stderr).toContain("missing expected content: 線形 attention");
     } finally {
       console.error = originalStderr;
       httpServer.closeAllConnections();

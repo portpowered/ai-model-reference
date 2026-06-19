@@ -1,5 +1,5 @@
 {
-  "title": "Multi-head attention",
+  "title": "マルチヘッド attention",
   "description": "各 query head がそれぞれ固有の key-value head pair を持つ、基準となる attention 設計。",
   "openingSummary": "Transformer block では各 token がほかの位置から文脈を集める必要があります。Multi-head attention (MHA) は、その読み取りを複数の並列 head に分割し、各 head が別々の関係に注目できるようにしながら、それぞれの key と value を独立に保つ基準設計です。",
   "sections": {

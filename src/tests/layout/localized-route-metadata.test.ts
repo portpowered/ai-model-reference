@@ -85,6 +85,10 @@ describe("localized route metadata alternates", () => {
         vi: "/vi/docs/modules/sliding-window-attention",
       },
     });
+    expect(multiQueryMetadata.title).toBe("マルチクエリ attention");
+    expect(slidingWindowMetadata.title).toBe(
+      "スライディングウィンドウ attention",
+    );
     expect(kvCacheMetadata.alternates).toEqual({
       canonical: "/docs/glossary/kv-cache",
       languages: {

@@ -1,5 +1,5 @@
 {
-  "title": "Sliding-window attention",
+  "title": "スライディングウィンドウ attention",
   "description": "各 query を系列全体ではなく固定の局所 window に制限する attention 変種。",
   "openingSummary": "Dense attention では各 query が系列内のすべての key を見渡すため、コストは系列長の二乗で増えます。Sliding-window attention は各位置が固定の近傍 window だけを見るように制限し、全系列への到達範囲と引き換えに、長文脈での計算量とメモリを制御しやすくします。",
   "sections": {

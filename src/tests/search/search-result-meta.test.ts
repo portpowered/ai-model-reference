@@ -99,16 +99,16 @@ describe("search result meta", () => {
       "Grouped-query attention",
     );
     expect(map.get("/ja/docs/modules/multi-head-attention")?.title).toBe(
-      "Multi-head attention",
+      "マルチヘッド attention",
     );
     expect(map.get("/ja/docs/modules/multi-query-attention")?.title).toBe(
-      "Multi-query attention",
+      "マルチクエリ attention",
     );
     expect(map.get("/ja/docs/modules/sliding-window-attention")?.title).toBe(
-      "Sliding-window attention",
+      "スライディングウィンドウ attention",
     );
     expect(map.get("/ja/docs/modules/linear-attention")?.title).toBe(
-      "Linear attention",
+      "線形 attention",
     );
     expect(map.get("/ja/docs/glossary/token")?.title).toBe("Token");
     expect(map.get("/ja/docs/concepts/transformer-architecture")?.title).toBe(
