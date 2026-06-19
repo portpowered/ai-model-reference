@@ -74,9 +74,9 @@ describe("special tokens registry record", () => {
 
   test("curated related links bridge tokenization, prompting, and representative model pages", async () => {
     const indexes = await loadRegistry();
-    const source = indexes.byId.get(
-      "concept.special-tokens",
-    ) as ConceptRecord | undefined;
+    const source = indexes.byId.get("concept.special-tokens") as
+      | ConceptRecord
+      | undefined;
     if (!source) {
       throw new Error("expected concept.special-tokens in registry");
     }

@@ -101,6 +101,7 @@ import siluConcept from "@/content/registry/concepts/silu.json";
 import sinusoidalPositionalEmbeddingsConcept from "@/content/registry/concepts/sinusoidal-positional-embeddings.json";
 import skipConnectionConcept from "@/content/registry/concepts/skip-connection.json";
 import softmaxConcept from "@/content/registry/concepts/softmax.json";
+import specialTokensConcept from "@/content/registry/concepts/special-tokens.json";
 import standardFfnConcept from "@/content/registry/concepts/standard-ffn.json";
 import superhotRopeConcept from "@/content/registry/concepts/superhot-rope.json";
 import swigluConcept from "@/content/registry/concepts/swiglu.json";
@@ -330,6 +331,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(ntkAwareRopeScalingConcept),
   conceptRecordSchema.parse(residualConnectionConcept),
   conceptRecordSchema.parse(skipConnectionConcept),
+  conceptRecordSchema.parse(specialTokensConcept),
   conceptRecordSchema.parse(positionalInterpolationConcept),
   conceptRecordSchema.parse(ropeConcept),
   conceptRecordSchema.parse(superhotRopeConcept),

@@ -165,6 +165,12 @@ export const BYTE_LEVEL_TOKENIZATION_PAGE_DIR = join(
 /** Phase 1 token glossary sample page directory. */
 export const TOKEN_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "token");
 
+/** Special tokens glossary page directory. */
+export const SPECIAL_TOKENS_GLOSSARY_PAGE_DIR = join(
+  GLOSSARY_DOCS_ROOT,
+  "special-tokens",
+);
+
 /** Phase 1 vector glossary bridge page directory. */
 export const VECTOR_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "vector");
 

@@ -53,6 +53,7 @@ const CURRENT_GLOSSARY_SLUGS = [
   "overfitting",
   "parameter",
   "scaling-law",
+  "special-tokens",
   "softmax",
   "temperature",
   "tensor",
@@ -119,6 +120,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<
   "residual-connection": "Residual connection",
   "sampling-overview": "Sampling Overview",
   "scaling-law": "Scaling Law",
+  "special-tokens": "Special Tokens",
   "skip-connection": "Skip connection",
   softmax: "Softmax",
   temperature: "Temperature",
@@ -132,8 +134,8 @@ const EXPECTED_GLOSSARY_TITLES: Record<
   "world-model": "World Model",
 };
 
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 58;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 46;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 47;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -233,6 +235,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "/docs/glossary/kv-cache",
       "/docs/glossary/normalization",
       "/docs/glossary/residual-connection",
+      "/docs/glossary/special-tokens",
       "/docs/glossary/token",
       ...ARCHITECTURE_CONCEPT_URLS,
     ] as const) {

@@ -52,6 +52,7 @@ const GLOSSARY_INDEX_URLS = [
   "/docs/glossary/scaling-law",
   "/docs/glossary/skip-connection",
   "/docs/glossary/softmax",
+  "/docs/glossary/special-tokens",
   "/docs/glossary/temperature",
   "/docs/glossary/tensor",
   "/docs/glossary/token",
