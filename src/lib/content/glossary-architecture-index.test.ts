@@ -135,7 +135,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<
 };
 
 const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 47;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 48;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -233,7 +233,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     for (const url of [
       "/docs/glossary/architecture",
       "/docs/glossary/kv-cache",
-      "/docs/glossary/normalization",
+      "/docs/concepts/normalization",
       "/docs/glossary/residual-connection",
       "/docs/glossary/special-tokens",
       "/docs/glossary/token",

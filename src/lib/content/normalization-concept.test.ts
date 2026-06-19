@@ -5,11 +5,19 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
+import { CONCEPTS_DOCS_ROOT } from "@/lib/content/content-paths";
+import { loadPageAssets } from "@/lib/content/page-assets-load";
+import { loadPageMessages } from "@/lib/content/page-messages-load";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
 import { getConceptById } from "@/lib/content/registry-runtime";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
+
+const NORMALIZATION_CONCEPT_PAGE_DIR = join(
+  CONCEPTS_DOCS_ROOT,
+  "normalization",
+);
 
 describe("Normalization concept page (normalization-concept-page-001)", () => {
   test("registry record stays published while the concept route is added", () => {
@@ -80,7 +88,9 @@ describe("Normalization concept page (normalization-concept-page-001)", () => {
     expect(html).toContain('href="/docs/modules/qk-norm"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/glossary/residual-connection"');
+    expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).not.toContain("Draft placeholder");
   });
 
   test("published docs and search documents include the normalization concept route", async () => {
@@ -104,5 +114,23 @@ describe("Normalization concept page (normalization-concept-page-001)", () => {
     );
     expect(document?.bodyText).toContain("Layer norm");
     expect(document?.bodyText).toContain("RMSNorm");
+  });
+
+  test("message and asset bundles load cleanly for the published normalization concept route", async () => {
+    const page = await loadConceptPage("normalization");
+    const messages = await loadPageMessages(
+      NORMALIZATION_CONCEPT_PAGE_DIR,
+      "en",
+    );
+    const assets = await loadPageAssets(NORMALIZATION_CONCEPT_PAGE_DIR);
+
+    expect(messages.title).toBe("Normalization");
+    expect(messages.description).not.toContain("Draft placeholder");
+    expect(messages.openingSummary).toBe(page.messages.openingSummary);
+    expect(messages.sections?.whyItMatters.body).toContain("stabilize");
+    expect(page.messages.title).toBe(messages.title);
+    expect(page.messages.description).toBe(messages.description);
+    expect(Object.keys(assets)).toEqual([]);
+    expect(page.assets).toEqual(assets);
   });
 });
