@@ -1,9 +1,30 @@
 import { describe, expect, test } from "bun:test";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { parsePageAssetConfig } from "@/lib/content/assets";
+import { MODULES_DOCS_ROOT } from "@/lib/content/content-paths";
 import { generatedTableRegistrySourceFiles } from "@/lib/content/generated/table-registry.generated";
 import {
   getTableById,
   listTableRecords,
 } from "@/lib/content/table-registry-runtime";
+
+function listShippedModuleComparisonTableIds(): string[] {
+  return readdirSync(MODULES_DOCS_ROOT, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort()
+    .flatMap((slug) => {
+      const assetsPath = join(MODULES_DOCS_ROOT, slug, "assets.json");
+      const assets = parsePageAssetConfig(
+        JSON.parse(readFileSync(assetsPath, "utf8")),
+      );
+
+      return Object.values(assets)
+        .filter((asset) => asset.type === "table")
+        .map((asset) => asset.tableId);
+    });
+}
 
 describe("table-registry-runtime", () => {
   test("loads the GQA nearby-module comparison table by id", () => {
@@ -87,5 +108,16 @@ describe("table-registry-runtime", () => {
     expect(
       getTableById("table.byte-level-tokenization-comparison")?.subjectId,
     ).toBe("module.byte-level-tokenization");
+  });
+
+  test("resolves every shipped module comparison table through the synchronous helpers", () => {
+    const listedTableIds = new Set(
+      listTableRecords().map((record) => record.id),
+    );
+
+    for (const tableId of listShippedModuleComparisonTableIds()) {
+      expect(getTableById(tableId)?.id).toBe(tableId);
+      expect(listedTableIds.has(tableId)).toBe(true);
+    }
   });
 });
