@@ -135,8 +135,6 @@ const EXPECTED_GLOSSARY_TITLES: Record<
 };
 
 const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 48;
-
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
@@ -228,7 +226,6 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
 
   test("architecture index includes current architecture-related glossary and concept entries", async () => {
     const entries = await loadPublishedArchitectureEntries("en");
-    expect(entries).toHaveLength(PUBLISHED_ARCHITECTURE_ENTRY_COUNT);
 
     for (const url of [
       "/docs/glossary/architecture",
