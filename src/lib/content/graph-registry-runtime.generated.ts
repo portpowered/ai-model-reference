@@ -15,6 +15,7 @@ import dpoTrainingFlowGraphRecord from "@/content/registry/graphs/dpo-training-f
 import expertParallelOverlapSystemFlowGraphRecord from "@/content/registry/graphs/expert-parallel-overlap-system-flow.json";
 import feedForwardNetworkFamilyOverviewGraphRecord from "@/content/registry/graphs/feed-forward-network-family-overview.json";
 import fp4QuantizationAwareTrainingTrainingFlowGraphRecord from "@/content/registry/graphs/fp4-quantization-aware-training-training-flow.json";
+import gpt2ReportContributionGraphRecord from "@/content/registry/graphs/gpt-2-report-contribution.json";
 import gpt3ArchitectureGraphRecord from "@/content/registry/graphs/gpt-3-architecture.json";
 import groupNormComputeFlowGraphRecord from "@/content/registry/graphs/group-norm-compute-flow.json";
 import groupedQueryAttentionComputeFlowGraphRecord from "@/content/registry/graphs/grouped-query-attention-compute-flow.json";
@@ -67,6 +68,7 @@ export const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(expertParallelOverlapSystemFlowGraphRecord),
   graphRecordSchema.parse(feedForwardNetworkFamilyOverviewGraphRecord),
   graphRecordSchema.parse(fp4QuantizationAwareTrainingTrainingFlowGraphRecord),
+  graphRecordSchema.parse(gpt2ReportContributionGraphRecord),
   graphRecordSchema.parse(gpt3ArchitectureGraphRecord),
   graphRecordSchema.parse(groupNormComputeFlowGraphRecord),
   graphRecordSchema.parse(groupedQueryAttentionComputeFlowGraphRecord),

@@ -161,7 +161,7 @@ describe("graph-registry-runtime", () => {
   test("lists all bundled graph records", () => {
     const records = listGraphRecords();
 
-    expect(records.length).toBe(49);
+    expect(records.length).toBe(50);
     expect(records.map((record) => record.id)).toContain(
       "graph.bpe-compute-flow",
     );
@@ -173,6 +173,9 @@ describe("graph-registry-runtime", () => {
     );
     expect(records.map((record) => record.id)).toContain(
       "graph.deepseek-v4-contribution",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.gpt-2-report-contribution",
     );
     expect(records.map((record) => record.id)).toContain(
       "graph.bidirectional-attention-time-pattern",

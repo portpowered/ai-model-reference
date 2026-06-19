@@ -123,7 +123,10 @@ const MODEL_INDEX_URLS = [
   "/docs/models/gpt-3",
 ] as const;
 
-const PAPER_INDEX_URLS = ["/docs/papers/deepseek-v4"] as const;
+const PAPER_INDEX_URLS = [
+  "/docs/papers/deepseek-v4",
+  "/docs/papers/gpt-2-report",
+] as const;
 
 const TRAINING_INDEX_URLS = [
   "/docs/training/dpo",
