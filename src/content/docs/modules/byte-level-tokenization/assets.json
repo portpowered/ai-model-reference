@@ -1,0 +1,15 @@
+{
+  "computeFlow": {
+    "type": "graph",
+    "graphId": "graph.byte-level-tokenization-compute-flow",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.byte-level-tokenization-comparison",
+    "captionKey": "assets.comparisonTable.caption"
+  }
+}

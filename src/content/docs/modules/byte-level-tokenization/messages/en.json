@@ -1,0 +1,145 @@
+{
+  "title": "Byte-Level Tokenization",
+  "description": "A tokenizer design that starts from bytes so models can represent arbitrary text without unknown-character gaps.",
+  "openingSummary": "Byte-level tokenization starts from raw bytes instead of assuming text already fits a word or character inventory, which lets a model cover arbitrary UTF-8 text while accepting that the resulting token pieces are often longer and harder for humans to read.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Byte-level tokenization is a tokenizer design that treats text as byte data first. Instead of beginning with whole words or a fixed list of visible characters, it can fall back to the UTF-8 bytes that make up any string. That means text like \"cafe\", \"cafe with an accent\", emoji, punctuation-heavy code, or mixed-script text can still be represented even when the exact visible piece was not memorized as one vocabulary item."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "Byte-level tokenization optimizes for coverage. A tokenizer built on bytes does not need an unknown token just because an unusual character sequence appears in the input. It also keeps the base inventory small, because the fallback alphabet is the byte range rather than a huge list of pre-listed words."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "This matters when a model sees messy real-world text: source code, markup, usernames, accented words, symbols, or copied text from many languages in one prompt. The tokenizer can always break the string down into representable pieces, so serving systems avoid hard failures where text cannot be encoded at all."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "A byte-level tokenizer first converts the input string into UTF-8 bytes. Those bytes act as the guaranteed fallback pieces. Many systems then learn frequent merges on top of those byte pieces, often with byte pair encoding (BPE), so common patterns become larger subword tokens. In practice, the tokenizer does not stay at one byte per token forever. It starts from bytes so coverage is guaranteed, then merges common byte sequences when that makes the vocabulary more efficient."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The two formulas below describe the two key stages. First, any string can be reduced to a byte sequence. Second, a merge rule can repeatedly combine common neighboring byte pieces into larger subword tokens."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with word-level tokenization, byte-level tokenization does not assume the tokenizer already knows each full word. Compared with character-only tokenization, it usually does not stop at tiny pieces, because learned merges can build larger subwords on top of the byte fallback. That is why byte-level tokenization often appears together with BPE rather than replacing BPE. Bytes provide guaranteed coverage; BPE provides compression into more reusable chunks."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "GPT-style language models use byte-level tokenization because they must accept arbitrary internet text without brittle unknown-character gaps. The byte fallback is especially useful for open-ended prompts where the model may encounter symbols, formatting, or spelling variants that were not worth storing as standalone vocabulary entries."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "The tradeoff is that unusual strings can expand into many small pieces before merges help. That can raise token counts, which raises cost and uses context window budget faster. The pieces are also less readable to humans, so debugging tokenizer output can feel more opaque than with cleaner word-like splits."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Byte-level tokenization remains important because modern language models have to process unpredictable text from real users, not only neat benchmark sentences. Understanding the byte fallback explains why GPT-family tokenizers are robust on odd input, why token counts can spike on unusual strings, and why BPE-style merges are still part of the story."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Byte-level tokenization graph showing raw text turning into UTF-8 bytes, then byte pieces, then merged subword tokens",
+      "caption": "Byte-level tokenization guarantees coverage by starting from UTF-8 bytes, then usually compresses common byte sequences into larger subword tokens."
+    },
+    "comparisonTable": {
+      "caption": "Reference table for the main moving parts and tradeoffs in byte-level tokenization"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "byteLevel": {
+          "title": "Byte-Level Tokenization"
+        }
+      },
+      "dimensions": {
+        "baseUnit": "Base unit before learned merges",
+        "coverageBehavior": "Coverage behavior",
+        "mainTradeoff": "Main tradeoff"
+      },
+      "values": {
+        "byteLevel": {
+          "baseUnit": "UTF-8 byte pieces that can always represent the input string",
+          "coverageBehavior": "Falls back to bytes for arbitrary text, then often merges frequent byte sequences with BPE-style rules",
+          "mainTradeoff": "Robust coverage, but unusual strings can consume more tokens and produce less readable pieces"
+        }
+      }
+    }
+  },
+  "math": {
+    "byteCoverageSchema": {
+      "label": "Byte coverage fallback",
+      "formula": "x \\rightarrow (b_1, b_2, \\ldots, b_n)",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "Input text string before tokenization."
+        },
+        "bi": {
+          "term": "b_i",
+          "definition": "The i-th UTF-8 byte emitted from the input string."
+        },
+        "n": {
+          "term": "n",
+          "definition": "Number of bytes needed to encode the string."
+        }
+      }
+    },
+    "bytePairMergeSchema": {
+      "label": "Merge stage on top of bytes",
+      "formula": "t_{k+1} = \\operatorname{merge}(t_k, p_k)",
+      "variableDefinitions": {
+        "tk": {
+          "term": "t_k",
+          "definition": "Current token sequence after k merge steps."
+        },
+        "tk1": {
+          "term": "t_{k+1}",
+          "definition": "Updated token sequence after applying the next learned merge."
+        },
+        "pk": {
+          "term": "p_k",
+          "definition": "Chosen neighboring token pair for merge step k."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "rawText": {
+        "label": "Raw text"
+      },
+      "utf8Bytes": {
+        "label": "UTF-8 bytes"
+      },
+      "bytePieces": {
+        "label": "Guaranteed byte pieces"
+      },
+      "mergePass": {
+        "label": "Learned merge pass"
+      },
+      "finalTokens": {
+        "label": "Final token IDs"
+      },
+      "coverageNote": {
+        "label": "Any string can fall back to bytes, so coverage does not depend on pre-listed whole words"
+      },
+      "tradeoffNote": {
+        "label": "Unusual text may stay split into many small pieces, which raises token count and hurts readability"
+      }
+    }
+  }
+}

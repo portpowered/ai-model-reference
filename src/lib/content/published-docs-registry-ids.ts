@@ -53,6 +53,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "module.attention",
   "module.bpe",
   "module.bidirectional-attention",
+  "module.byte-level-tokenization",
   "module.compressed-sparse-attention",
   "module.deepseekmoe",
   "module.heavily-compressed-attention",

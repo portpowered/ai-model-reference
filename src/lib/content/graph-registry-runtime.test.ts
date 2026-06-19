@@ -150,9 +150,12 @@ describe("graph-registry-runtime", () => {
   test("lists all bundled graph records", () => {
     const records = listGraphRecords();
 
-    expect(records.length).toBe(45);
+    expect(records.length).toBe(46);
     expect(records.map((record) => record.id)).toContain(
       "graph.bpe-compute-flow",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.byte-level-tokenization-compute-flow",
     );
     expect(records.map((record) => record.id)).toContain(
       "graph.deepseek-v4-contribution",

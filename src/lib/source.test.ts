@@ -70,6 +70,7 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/batch-norm",
   "/docs/modules/bpe",
   "/docs/modules/bidirectional-attention",
+  "/docs/modules/byte-level-tokenization",
   "/docs/modules/compressed-sparse-attention",
   "/docs/modules/deepseekmoe",
   "/docs/modules/feed-forward-network",
