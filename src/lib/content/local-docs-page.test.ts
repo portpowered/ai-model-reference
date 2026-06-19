@@ -162,6 +162,18 @@ describe("docs source local pages", () => {
     expect(page.toc.some(hasTocUrl("#what-it-is"))).toBe(true);
   });
 
+  test("loadLocalDocsPage resolves the canonical GRPO training page through the shared route contract", async () => {
+    const page = await loadLocalDocsPage({
+      section: "training",
+      slug: "grpo",
+    });
+
+    expect(page.messages.title).toBe("Group Relative Policy Optimization");
+    expect(page.messages.sections?.howItWorks?.title).toBe("How It Works");
+    expect(page.frontmatter.registryId).toBe("training-regime.grpo");
+    expect(page.toc.some(hasTocUrl("#what-it-is"))).toBe(true);
+  });
+
   test("loadLocalDocsPage resolves shipped vietnamese canonical page messages without changing the shared MDX route contract", async () => {
     const page = await loadLocalDocsPage(
       {

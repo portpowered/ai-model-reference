@@ -57,6 +57,7 @@ describe("section index page render", () => {
     const html = renderToStaticMarkup(await TrainingIndexPage());
 
     expect(html).toContain("Training");
+    expect(html).toContain('href="/docs/training/grpo"');
     expect(html).toContain('href="/docs/training/on-policy-distillation"');
     expect(html).toContain('href="/docs/training/specialist-training"');
   });

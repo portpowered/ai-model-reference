@@ -133,6 +133,13 @@ describe("generated docs page tree", () => {
       findNodeIndex(trainingChildren, { name: "Optimization" }),
     ).toBeLessThan(
       findNodeIndex(trainingChildren, {
+        url: "/docs/training/grpo",
+      }),
+    );
+    expect(
+      findNodeIndex(trainingChildren, { name: "Optimization" }),
+    ).toBeLessThan(
+      findNodeIndex(trainingChildren, {
         url: "/docs/training/fp4-quantization-aware-training",
       }),
     );

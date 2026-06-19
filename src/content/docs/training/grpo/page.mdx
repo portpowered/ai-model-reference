@@ -1,0 +1,124 @@
+---
+title: "Group Relative Policy Optimization"
+description: "A post-training reinforcement-learning method that compares several sampled answers for the same prompt and updates the model from their relative quality."
+kind: "training-regime"
+registryId: "training-regime.grpo"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+aliases:
+  - "GRPO"
+  - "Group Relative Preference Optimization"
+updatedAt: "2026-06-19"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
+import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeFlow";
+
+
+<TrainingRegimeAtAGlance registryId="training-regime.grpo" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-exists" titleKey="sections.whyItExists.title">
+  <T k="sections.whyItExists.body" />
+</Section>
+
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+  <h3 className="text-base font-semibold text-foreground">
+    <T k="callouts.trainingFlowGraph.title" />
+  </h3>
+  <TrainingRegimeFlow registryId="training-regime.grpo" assetId="trainingFlow" />
+  <div className="rounded-lg border border-border bg-card p-4">
+    <p className="text-sm font-medium text-foreground">
+      <T k="callouts.trainingFlowLegend.title" />
+    </p>
+    <ul className="mt-3 space-y-2 pl-5 text-sm text-muted-foreground">
+      <li>
+        <T k="links.trainingFlowLegendPrompt" />
+      </li>
+      <li>
+        <T k="links.trainingFlowLegendSampling" />
+      </li>
+      <li>
+        <T k="links.trainingFlowLegendRelativeScoring" />
+      </li>
+      <li>
+        <T k="links.trainingFlowLegendPolicyUpdate" />
+      </li>
+    </ul>
+  </div>
+  <BlockMath mathId="grpoAdvantage" />
+</Section>
+
+<Section
+  id="compared-to-nearby-regimes"
+  titleKey="sections.comparedToNearbyRegimes.title"
+>
+  <T k="sections.comparedToNearbyRegimes.body" />
+
+  <ul className="mt-4 space-y-2 list-none pl-0">
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/glossary/alignment"
+      >
+        Alignment
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/glossary/alignment"
+      >
+        RLHF
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/search?q=ppo"
+      >
+        PPO
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/search?q=dpo"
+      >
+        DPO
+      </a>
+    </li>
+  </ul>
+</Section>
+
+<Section
+  id="limitations-and-failure-modes"
+  titleKey="sections.limitationsAndFailureModes.title"
+>
+  <T k="sections.limitationsAndFailureModes.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="training-regime.grpo" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="training-regime.grpo" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="training-regime.grpo" />
+</Section>

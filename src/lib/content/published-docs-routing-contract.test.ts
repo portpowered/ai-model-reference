@@ -87,6 +87,14 @@ describe("published docs routing contract", () => {
         href: "/docs/training/dpo",
       },
       {
+        label: "grpo training regime",
+        record: requireRecord(
+          getTrainingRegimeById("training-regime.grpo"),
+          "grpo training regime",
+        ),
+        href: "/docs/training/grpo",
+      },
+      {
         label: "system",
         record: requireRecord(
           getSystemById("system.on-disk-kv-cache"),

@@ -1,0 +1,94 @@
+{
+  "title": "Group Relative Policy Optimization",
+  "description": "A post-training reinforcement-learning method that compares several sampled answers for the same prompt and updates the model from their relative quality.",
+  "openingSummary": "Group Relative Policy Optimization, usually shortened to GRPO, is a reinforcement-learning post-training method where the model samples several answers to one prompt, scores them as a group, and learns from which answers look better inside that local set.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Group Relative Policy Optimization is a policy-update method used after pretraining or supervised fine-tuning. Instead of judging one answer in isolation, it samples a small group of candidate answers for the same prompt and uses their relative ranking to decide which behaviors should be reinforced."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "A single reward score can be noisy, and PPO-style language-model training often adds the extra cost of a learned critic to estimate a baseline. GRPO tries to keep the signal useful while simplifying the loop: the group itself supplies the local baseline, so the model can learn from which samples look better than their neighbors."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "For one prompt, the policy generates several completions, a reward function scores them, and those scores are normalized within that group. Answers above the group average get a positive learning signal, answers below it get a negative one, and the policy is updated so future samples are more likely to resemble the stronger members of the group."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Group Relative Policy Optimization still sits inside the broader alignment family, but it is narrower than Reinforcement Learning from Human Feedback as a full pipeline. Reinforcement Learning from Human Feedback often means collecting preference data, training a reward model, and then running a reinforcement-learning update such as Proximal Policy Optimization. GRPO keeps the reinforcement-learning loop, but it replaces the learned critic-style baseline with relative ranking inside one sampled group. Direct Preference Optimization moves in a different direction: it stays closer to supervised-style optimization on chosen-versus-rejected pairs, while GRPO uses rewards over several sampled answers and updates the policy from that within-group ordering instead of from one pairwise objective alone."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "The method still depends on reward quality. If the reward function prefers shallow tricks, the whole group can drift in the wrong direction together. Relative scoring also means a weak group can still produce a misleading winner if every sampled answer is bad."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "callouts": {
+    "trainingFlowGraph": {
+      "title": "GRPO training flow",
+      "body": "A visual walkthrough of one prompt, grouped sampling, relative scoring, and the policy update."
+    },
+    "trainingFlowLegend": {
+      "title": "Graph legend",
+      "body": "How to read each stage of the GRPO training flow."
+    }
+  },
+  "links": {
+    "trainingFlowLegendPrompt": "One prompt anchors the whole local comparison.",
+    "trainingFlowLegendSampling": "The policy samples several candidate answers for that same prompt.",
+    "trainingFlowLegendRelativeScoring": "Those answers are scored relative to each other inside the sampled group.",
+    "trainingFlowLegendPolicyUpdate": "The policy update reinforces answers that beat the group baseline and discourages weaker ones."
+  },
+  "assets": {
+    "trainingFlow": {
+      "alt": "A training flow from one prompt to a group of sampled answers, then to relative scoring inside the group, and finally to a policy update.",
+      "caption": "GRPO learns from which answers win inside each sampled group instead of relying on one separate critic-estimated baseline."
+    }
+  },
+  "math": {
+    "grpoAdvantage": {
+      "label": "Grouped relative advantage sketch",
+      "formula": "A_i = \\frac{r_i - \\operatorname{mean}(r_{1:G})}{\\operatorname{std}(r_{1:G})}",
+      "variableDefinitions": {
+        "advantage": {
+          "term": "A_i",
+          "definition": "normalized advantage for sampled answer i"
+        },
+        "reward": {
+          "term": "r_i",
+          "definition": "reward score assigned to sampled answer i"
+        },
+        "groupSize": {
+          "term": "G",
+          "definition": "number of sampled answers in the comparison group"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "prompt": {
+        "label": "One prompt"
+      },
+      "sampleGroup": {
+        "label": "Sample a group of answers"
+      },
+      "relativeScore": {
+        "label": "Score answers relative to the group"
+      },
+      "policyUpdate": {
+        "label": "Update the policy"
+      }
+    }
+  }
+}

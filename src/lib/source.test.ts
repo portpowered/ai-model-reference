@@ -128,6 +128,7 @@ const PAPER_INDEX_URLS = ["/docs/papers/deepseek-v4"] as const;
 const TRAINING_INDEX_URLS = [
   "/docs/training/dpo",
   "/docs/training/fp4-quantization-aware-training",
+  "/docs/training/grpo",
   "/docs/training/on-policy-distillation",
   "/docs/training/specialist-training",
 ] as const;
