@@ -63,15 +63,23 @@ describe("ALiBi concept page", () => {
       items.find((item) => item.registryId === "concept.relative-position-bias")
         ?.href,
     ).toBe("/docs/modules/relative-position-bias");
-    expect(items.find((item) => item.registryId === "concept.rope")?.href).toBe(
-      "/docs/modules/rope",
+    const rope = items.find((item) => item.registryId === "concept.rope");
+    expect(rope?.href).toBe("/docs/concepts/rope");
+    expect(rope?.isPlanned).toBe(false);
+
+    const contextWindow = items.find(
+      (item) => item.registryId === "concept.context-window",
     );
-    expect(
-      items.find((item) => item.registryId === "concept.context-window")?.href,
-    ).toBe("/docs/glossary/context-window");
+    expect(contextWindow?.href).toBe("/docs/glossary/context-window");
+    expect(contextWindow?.isPlanned).toBe(false);
+
     expect(items.find((item) => item.registryId === "module.alibi")?.href).toBe(
       "/docs/modules/alibi",
     );
+
+    const nope = items.find((item) => item.registryId === "concept.nope");
+    expect(nope?.href).toBe("/docs/modules/nope");
+    expect(nope?.isPlanned).toBe(false);
   });
 
   test("messages explain the full name, attention change, absolute-table avoidance, and RoPE tradeoff", () => {
@@ -120,7 +128,7 @@ describe("ALiBi concept page", () => {
     expect(html).toContain("Tradeoffs And Limits");
     expect(html).toContain('href="/docs/concepts/positional-encodings"');
     expect(html).toContain('href="/docs/modules/relative-position-bias"');
-    expect(html).toContain('href="/docs/modules/rope"');
+    expect(html).toContain('href="/docs/concepts/rope"');
     expect(html).toContain('href="/docs/glossary/context-window"');
     expect(html).toContain('href="/docs/modules/alibi"');
     expect(html).toContain('href="/tags/foundations"');

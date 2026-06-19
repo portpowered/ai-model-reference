@@ -57,7 +57,7 @@ describe("Phase 3 long-context extension pages (phase-3-pages-006)", () => {
 
       expect(
         items.find((item) => item.registryId === "concept.rope")?.href,
-      ).toBe("/docs/modules/rope");
+      ).toBe("/docs/concepts/rope");
       expect(
         items.find((item) => item.registryId === "concept.context-extension")
           ?.href,

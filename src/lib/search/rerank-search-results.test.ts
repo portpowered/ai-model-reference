@@ -140,4 +140,31 @@ describe("rerankSearchResults", () => {
 
     expect(findBestTitleMatchPageUrl("RoPE", documentsByUrl)).toBe(conceptUrl);
   });
+
+  test("keeps an exact title match ahead of a different page that only matches by alias", () => {
+    const glossaryUrl = "/docs/glossary/context-window";
+    const conceptUrl = "/docs/concepts/context-extension";
+    const documentsByUrl = new Map<string, SearchDocument>([
+      [
+        glossaryUrl,
+        documentForUrl(glossaryUrl, {
+          title: "Context window",
+          aliases: ["context length", "context window"],
+        }),
+      ],
+      [
+        conceptUrl,
+        documentForUrl(conceptUrl, {
+          kind: "concept",
+          title: "Context extension",
+          aliases: ["context extension", "context window"],
+          facets: { kind: "concept", tags: ["context-window"] },
+        }),
+      ],
+    ]);
+
+    expect(findBestTitleMatchPageUrl("context window", documentsByUrl)).toBe(
+      glossaryUrl,
+    );
+  });
 });

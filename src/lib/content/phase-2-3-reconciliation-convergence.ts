@@ -191,8 +191,8 @@ const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
   },
   {
     query: "RoPE",
-    firstUrl: "/docs/modules/rope",
-    firstKind: "module" as const,
+    firstUrl: "/docs/concepts/rope",
+    firstKind: "concept" as const,
   },
   {
     query: "context window",

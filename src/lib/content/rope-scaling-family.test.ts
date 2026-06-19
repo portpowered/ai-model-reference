@@ -62,7 +62,7 @@ describe("Phase 3 RoPE scaling family pages (phase-3-pages-005)", () => {
 
       expect(
         items.find((item) => item.registryId === "concept.rope")?.href,
-      ).toBe("/docs/modules/rope");
+      ).toBe("/docs/concepts/rope");
       expect(
         items.find((item) => item.registryId === "concept.context-extension")
           ?.href,

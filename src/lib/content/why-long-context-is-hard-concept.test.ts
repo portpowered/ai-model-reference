@@ -51,7 +51,7 @@ describe("Phase 3 why long context is hard concept page (US-013)", () => {
     expect(contextExtension?.isPlanned).toBe(false);
 
     const rope = items.find((item) => item.registryId === "concept.rope");
-    expect(rope?.href).toBe("/docs/modules/rope");
+    expect(rope?.href).toBe("/docs/concepts/rope");
     expect(rope?.isPlanned).toBe(false);
 
     const longrope = items.find(
@@ -101,7 +101,7 @@ describe("Phase 3 why long context is hard concept page (US-013)", () => {
     expect(html).toContain("KV-cache");
     expect(html).toContain("extrapolat");
     expect(html).toContain('href="/docs/concepts/context-extension"');
-    expect(html).toContain('href="/docs/modules/rope"');
+    expect(html).toContain('href="/docs/concepts/rope"');
     expect(html).toContain('href="/docs/modules/longrope"');
     expect(html).toContain('href="/docs/modules/positional-interpolation"');
     expect(html).toContain('href="/docs/modules/attention"');

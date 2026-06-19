@@ -11,6 +11,10 @@ function slugFromUrl(url: string): string {
   return segment.replace(/-/g, " ");
 }
 
+function rawSlugSegment(url: string): string {
+  return url.split("/").pop() ?? "";
+}
+
 function hasExactTagMatch(query: string, document: SearchDocument): boolean {
   const normalizedQuery = normalizeSearchTerm(query);
   return document.tags.some(
@@ -53,18 +57,6 @@ function canonicalRoutePriority(document: SearchDocument): number {
   return 2;
 }
 
-function effectiveMatchScore(query: string, document: SearchDocument): number {
-  const score = scoreDocumentMatch(query, document);
-  if (
-    score >= 95 &&
-    document.kind === "concept" &&
-    document.url.startsWith("/docs/concepts/")
-  ) {
-    return score + 10;
-  }
-  return score;
-}
-
 export function findBestTitleMatchPageUrl(
   query: string,
   documentsByUrl: Map<string, SearchDocument>,
@@ -74,8 +66,39 @@ export function findBestTitleMatchPageUrl(
   let bestRoutePriority = Number.POSITIVE_INFINITY;
 
   for (const [url, document] of documentsByUrl) {
-    const score = effectiveMatchScore(query, document);
+    const score = scoreDocumentMatch(query, document);
     const routePriority = canonicalRoutePriority(document);
+    const isCanonicalConcept =
+      document.kind === "concept" && url.startsWith("/docs/concepts/");
+    const bestDocument = bestUrl ? documentsByUrl.get(bestUrl) : undefined;
+    const bestIsExactMatch = bestScore >= 95;
+    const candidateIsExactMatch = score >= 95;
+    const sameSlugAsBest =
+      bestUrl !== undefined && rawSlugSegment(bestUrl) === rawSlugSegment(url);
+    const prefersCanonicalConceptForSharedSlug =
+      candidateIsExactMatch &&
+      bestIsExactMatch &&
+      sameSlugAsBest &&
+      isCanonicalConcept &&
+      bestDocument?.kind === "module";
+    const preservesCanonicalConceptForSharedSlug =
+      candidateIsExactMatch &&
+      bestIsExactMatch &&
+      sameSlugAsBest &&
+      document.kind === "module" &&
+      bestDocument?.kind === "concept" &&
+      bestUrl?.startsWith("/docs/concepts/") === true;
+
+    if (prefersCanonicalConceptForSharedSlug) {
+      bestScore = score;
+      bestUrl = url;
+      bestRoutePriority = routePriority;
+      continue;
+    }
+    if (preservesCanonicalConceptForSharedSlug) {
+      continue;
+    }
+
     if (
       score > bestScore ||
       (score === bestScore && score > 0 && routePriority < bestRoutePriority)

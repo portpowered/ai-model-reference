@@ -15,7 +15,7 @@ const ATTENTION_MODULE_URL = "/docs/modules/attention";
 const MULTI_HEAD_ATTENTION_URL = "/docs/modules/multi-head-attention";
 const MULTI_QUERY_ATTENTION_URL = "/docs/modules/multi-query-attention";
 const SPARSE_ATTENTION_URL = "/docs/modules/sparse-attention";
-const ROPE_GLOSSARY_URL = "/docs/modules/rope";
+const ROPE_CONCEPT_URL = "/docs/concepts/rope";
 const CONTEXT_WINDOW_GLOSSARY_URL = "/docs/glossary/context-window";
 const FEED_FORWARD_NETWORK_GLOSSARY_URL = "/docs/modules/feed-forward-network";
 const STANDARD_FFN_GLOSSARY_URL = "/docs/modules/standard-ffn";
@@ -40,7 +40,7 @@ const ATTENTION_MODULE_QUERIES = [
 ] as const;
 
 const GLOSSARY_CANONICAL_QUERIES = [
-  { query: "RoPE", url: ROPE_GLOSSARY_URL, kind: "module" as const },
+  { query: "RoPE", url: ROPE_CONCEPT_URL, kind: "concept" as const },
   {
     query: "context window",
     url: CONTEXT_WINDOW_GLOSSARY_URL,
@@ -181,7 +181,7 @@ describe("Phase 2/3 reconciliation search UI kind labels (US-010)", () => {
     [MULTI_HEAD_ATTENTION_URL, "module", "Module"],
     [MULTI_QUERY_ATTENTION_URL, "module", "Module"],
     [SPARSE_ATTENTION_URL, "module", "Module"],
-    [ROPE_GLOSSARY_URL, "module", "Module"],
+    [ROPE_CONCEPT_URL, "concept", "Concept"],
     [CONTEXT_WINDOW_GLOSSARY_URL, "glossary", "Glossary"],
     [FEED_FORWARD_NETWORK_GLOSSARY_URL, "module", "Module"],
     [STANDARD_FFN_GLOSSARY_URL, "module", "Module"],

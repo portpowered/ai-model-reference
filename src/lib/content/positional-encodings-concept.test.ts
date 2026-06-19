@@ -73,7 +73,7 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     expect(relativeBias?.isPlanned).toBe(false);
 
     const rope = items.find((item) => item.registryId === "concept.rope");
-    expect(rope?.href).toBe("/docs/modules/rope");
+    expect(rope?.href).toBe("/docs/concepts/rope");
     expect(rope?.isPlanned).toBe(false);
     expect(rope?.title).toBe("RoPE");
 
@@ -113,7 +113,7 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
       'href="/docs/modules/absolute-positional-embeddings"',
     );
     expect(html).toContain('href="/docs/modules/relative-position-bias"');
-    expect(html).toContain('href="/docs/modules/rope"');
+    expect(html).toContain('href="/docs/concepts/rope"');
     expect(html).toContain('href="/docs/concepts/alibi"');
     expect(html).toContain('href="/docs/modules/nope"');
     expect(html).toContain('data-testid="curated-related-docs"');

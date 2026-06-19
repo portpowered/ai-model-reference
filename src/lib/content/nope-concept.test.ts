@@ -53,7 +53,7 @@ describe("Phase 3 NoPE glossary page (US-004)", () => {
       )?.href,
     ).toBe("/docs/modules/absolute-positional-embeddings");
     expect(items.find((item) => item.registryId === "concept.rope")?.href).toBe(
-      "/docs/modules/rope",
+      "/docs/concepts/rope",
     );
     expect(
       items.find((item) => item.registryId === "concept.alibi")?.href,

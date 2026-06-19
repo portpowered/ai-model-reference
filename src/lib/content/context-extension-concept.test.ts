@@ -59,7 +59,7 @@ describe("Phase 3 context extension concept page (US-012)", () => {
     expect(contextWindow?.isPlanned).toBe(false);
 
     const rope = items.find((item) => item.registryId === "concept.rope");
-    expect(rope?.href).toBe("/docs/modules/rope");
+    expect(rope?.href).toBe("/docs/concepts/rope");
     expect(rope?.isPlanned).toBe(false);
 
     const whyHard = items.find(
@@ -117,7 +117,7 @@ describe("Phase 3 context extension concept page (US-012)", () => {
     expect(html).toContain("Why It Matters");
     expect(html).toContain("position scaling");
     expect(html).toContain('href="/docs/glossary/context-window"');
-    expect(html).toContain('href="/docs/modules/rope"');
+    expect(html).toContain('href="/docs/concepts/rope"');
     expect(html).toContain('href="/docs/modules/positional-interpolation"');
     expect(html).toContain('href="/docs/modules/longrope"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
