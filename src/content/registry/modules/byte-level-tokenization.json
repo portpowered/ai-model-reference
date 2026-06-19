@@ -15,7 +15,13 @@
     "why bytes not words"
   ],
   "tags": ["tokenization"],
-  "relatedIds": ["concept.token", "model.gpt-3"],
+  "relatedIds": [
+    "concept.token",
+    "concept.tokenizers-overview",
+    "module.bpe",
+    "concept.vocabulary-size",
+    "model.gpt-3"
+  ],
   "citationIds": ["citation.gpt-2-report"],
   "status": "published",
   "createdAt": "2026-06-19T00:00:00.000Z",

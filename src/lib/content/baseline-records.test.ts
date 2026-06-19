@@ -148,7 +148,13 @@ describe("Phase 1 baseline registry records", () => {
       ]),
     );
     expect(module.relatedIds).toEqual(
-      expect.arrayContaining(["concept.token", "model.gpt-3"]),
+      expect.arrayContaining([
+        "concept.token",
+        "concept.tokenizers-overview",
+        "module.bpe",
+        "concept.vocabulary-size",
+        "model.gpt-3",
+      ]),
     );
     expect(module.citationIds).toContain("citation.gpt-2-report");
     expect(module.usedByModelIds).toContain("model.gpt-3");
