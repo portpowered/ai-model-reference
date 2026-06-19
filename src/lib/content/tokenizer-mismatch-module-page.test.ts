@@ -8,6 +8,7 @@ import { parsePageAssetConfig } from "@/lib/content/assets";
 import { TOKENIZER_MISMATCH_PAGE_DIR } from "@/lib/content/content-paths";
 import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
+import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
@@ -27,6 +28,12 @@ describe("tokenizer-mismatch page messages", () => {
     expect(messages.coreIdea).toBeUndefined();
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
+    expect(messages.openingSummary).toContain("chat-template boundaries");
+    expect(messages.sections?.howItWorks.body).toContain("shift token counts");
+    expect(messages.sections?.howItWorks.body).toContain("wrong rows");
+    expect(messages.sections?.limitationsAndTradeoffs.body).toContain(
+      "chat separators",
+    );
   });
 });
 
@@ -41,6 +48,21 @@ describe("loadModulePage tokenizer-mismatch", () => {
     expect(page?.frontmatter.registryId).toBe("module.tokenizer-mismatch");
     expect(page?.messages.title).toBe("Tokenizer mismatch");
     expect(page?.messages.openingSummary?.length).toBeGreaterThan(0);
+  });
+
+  test("shell keeps the folded opening summary outside the article body and starts with at-a-glance", async () => {
+    const page = await loadModulePage("tokenizer-mismatch");
+    const html = renderModuleDocsShell(page);
+
+    const atAGlanceIndex = html.indexOf('aria-label="At a glance"');
+    const whatItIsIndex = html.indexOf('id="what-it-is"');
+
+    expect(html).not.toContain('data-testid="folded-summary"');
+    expect(html).not.toContain('data-opening-summary="folded"');
+    if (atAGlanceIndex >= 0) {
+      expect(atAGlanceIndex).toBeLessThan(whatItIsIndex);
+    }
+    expect(whatItIsIndex).toBeGreaterThanOrEqual(0);
   });
 
   test("compiles MDX with local namespaces and renders tokenizer compatibility content", async () => {
@@ -65,6 +87,9 @@ describe("loadModulePage tokenizer-mismatch", () => {
     expect(html).toContain("reader intends one text sequence");
     expect(html).toContain("prompt wrapper before inference");
     expect(html).toContain("chat-template wrappers");
+    expect(html).toContain("wrong rows");
+    expect(html).toContain("weaker completions");
+    expect(html).toContain("weakens embeddings-based retrieval");
     expect(html).toContain(
       'data-graph-id="graph.tokenizer-mismatch-compute-flow"',
     );

@@ -1,7 +1,7 @@
 {
   "title": "Tokenizer mismatch",
   "description": "A failure mode where text is split, labeled, or wrapped differently from what the model was trained or served to expect.",
-  "openingSummary": "Tokenizer mismatch happens when a model receives token IDs, special tokens, or prompt wrappers that come from the wrong tokenizer setup, which can quietly shift token counts, break boundaries, and degrade output even when the raw text looks correct to a reader.",
+  "openingSummary": "Tokenizer mismatch happens when a model receives token IDs, special tokens, or prompt wrappers that come from the wrong tokenizer setup, which can quietly shift token counts, break chat-template boundaries, and degrade output even when the raw text looks correct to a reader.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -13,7 +13,7 @@
     },
     "howItWorks": {
       "title": "How It Works",
-      "body": "A mismatch can come from several places. One tokenizer may split the same text into different subword pieces. Another may assign different IDs to the same-looking special token. A chat wrapper may add start, end, or separator markers the model never learned, or fail to add markers the model expects. Those differences shift embeddings at the first layer, which means every later attention and prediction step starts from the wrong discrete inputs."
+      "body": "A mismatch can come from several places. One tokenizer may split the same text into different subword pieces. Another may assign different IDs to the same-looking special token. A chat wrapper may add start, end, or separator markers the model never learned, or fail to add markers the model expects. Those differences shift token counts, make embedding lookup start from the wrong rows, and can break chat-template boundaries before the model ever begins its deeper attention and prediction steps."
     },
     "mathOrComputeSchema": {
       "title": "Math Or Compute Schema",
@@ -29,11 +29,11 @@
     },
     "limitationsAndTradeoffs": {
       "title": "Limitations And Tradeoffs",
-      "body": "Tokenizer mismatch is often subtle. A request may still produce output, but the output can become less coherent, use context inefficiently, or fail at boundaries around system prompts, stop tokens, or embedded placeholders. The hard part is that teams may blame the model itself when the real problem sits one layer earlier in the input pipeline."
+      "body": "Tokenizer mismatch is often subtle. A request may still produce output, but the output can become less coherent, use context inefficiently, or fail at boundaries around system prompts, stop tokens, chat separators, or embedded placeholders. In severe cases the model can treat a control marker like ordinary text or map a familiar-looking token onto the wrong embedding row. The hard part is that teams may blame the model itself when the real problem sits one layer earlier in the input pipeline."
     },
     "whyItStillMatters": {
       "title": "Why It Still Matters",
-      "body": "This topic matters because modern model usage is full of checkpoint conversions, hosted APIs, chat-template wrappers, and multilingual tokenization choices. Understanding tokenizer mismatch helps readers debug why one deployment suddenly uses more tokens, ignores formatting, mishandles special markers, or produces weaker completions after what looked like a harmless tooling change."
+      "body": "This topic matters because modern model usage is full of checkpoint conversions, hosted APIs, chat-template wrappers, and multilingual tokenization choices. Understanding tokenizer mismatch helps readers debug why one deployment suddenly uses more tokens, ignores formatting, mishandles special markers, weakens embeddings-based retrieval, or produces weaker completions after what looked like a harmless tooling change."
     },
     "related": {
       "title": "Related"
