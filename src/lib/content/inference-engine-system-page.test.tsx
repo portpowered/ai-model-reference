@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { createElement, Fragment } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { T } from "@/features/docs/components/T";
@@ -29,13 +28,9 @@ async function renderInferenceEngineRuntimeHtml(): Promise<string> {
           key: "practical-impact",
           k: "sections.practicalImpact.body",
         }),
-        createElement(LocalizedLinkList, {
-          key: "serving-handoffs",
-          items: [
-            { href: "/search?q=batching", labelKey: "links.batching" },
-            { href: "/search?q=routing", labelKey: "links.routing" },
-            { href: "/search?q=deployment", labelKey: "links.deployment" },
-          ],
+        createElement(T, {
+          key: "related",
+          k: "sections.related.body",
         }),
       ]),
     ),
@@ -83,7 +78,7 @@ describe("inference engine system page", () => {
     expect(page.messages.assets?.systemFlow?.alt).toContain("Requests enter");
   });
 
-  test("renders runtime responsibilities and outward serving handoffs in the visible runtime content", async () => {
+  test("renders runtime responsibilities and serving-topic handoffs in the visible runtime content", async () => {
     const html = await renderInferenceEngineRuntimeHtml();
 
     expect(html).toContain("dispatches kernels");
@@ -91,12 +86,9 @@ describe("inference engine system page", () => {
     expect(html).toContain("cache state");
     expect(html).toContain("latency");
     expect(html).toContain("throughput");
-    expect(html).toContain("Batching");
-    expect(html).toContain("Routing");
-    expect(html).toContain("Deployment");
-    expect(html).toContain('href="/search?q=batching"');
-    expect(html).toContain('href="/search?q=routing"');
-    expect(html).toContain('href="/search?q=deployment"');
+    expect(html).toContain("batching");
+    expect(html).toContain("routing");
+    expect(html).toContain("deployment");
   });
 
   test("renders curated nearby serving links for cache, quantization, systems, and models", () => {

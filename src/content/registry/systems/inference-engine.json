@@ -41,7 +41,6 @@
   ],
   "paperIds": ["paper.deepseek-v4"],
   "datasetIds": [],
-  "organizationId": "organization.openai",
   "conceptType": "inference",
   "variantGroup": "serving-runtime-foundations"
 }
