@@ -1,0 +1,54 @@
+{
+  "title": "Batching",
+  "description": "A serving system that groups multiple requests or decode steps together so accelerators stay busier, raising throughput while often adding wait time for each individual request.",
+  "openingSummary": "Batching is the serving habit of waiting just long enough to run several requests or token-generation steps together instead of one by one. That denser work usually improves hardware utilization and tokens per second, but it can also make one reader wait longer before service begins.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "This is a serving system, not a model architecture change. It decides when separate requests or decode steps should be combined into one larger unit of work so the runtime can use the accelerator more efficiently."
+    },
+    "whereItSits": {
+      "title": "Where It Sits",
+      "body": "Batching sits around the execution path for prefill and decode. The model still computes the same attention and feed-forward layers, but the serving layer decides whether those layers run for one request at a time or for a packed group that shares the same kernel launches, memory movement, and scheduling window."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Incoming work enters a queue, the runtime collects compatible items into a batch, and the accelerator runs that grouped work in one denser pass. During prefill the grouped work may be several prompts at once. During decode it may be one next-token step from many active sequences. After that shared step finishes, each request continues on its own output path even though it just shared compute with its neighbors."
+    },
+    "practicalImpact": {
+      "title": "Practical Impact",
+      "body": "The gain is higher throughput and better device utilization because fixed overhead is amortized across more useful tokens. The cost is that a request may wait in queue for batch formation, and an oversized or poorly matched batch can stretch first-token latency or inter-token latency even while total system output improves."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "systemFlow": {
+      "alt": "Requests enter a queue, are grouped into a shared batch, run through one denser accelerator step, and then continue as separate responses.",
+      "caption": "Batching adds a queue-and-pack step before model execution so more useful work can share the same serving pass."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "queue": {
+        "label": "Queue requests"
+      },
+      "pack": {
+        "label": "Form a batch"
+      },
+      "run": {
+        "label": "Run shared model step"
+      },
+      "return": {
+        "label": "Return per-request outputs"
+      }
+    }
+  }
+}
