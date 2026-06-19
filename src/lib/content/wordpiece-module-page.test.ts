@@ -82,6 +82,22 @@ describe("loadModulePage wordpiece", () => {
     expect(html).toContain("Devlin");
     expect(html).toContain('href="https://arxiv.org/abs/1810.04805"');
     expect(html).toContain('data-graph-id="graph.wordpiece-compute-flow"');
+    expect(html).toContain('data-registry-comparison-table="true"');
+    expect(html).toContain('data-table-id="table.bpe-comparison"');
+    expect(html).toContain('data-rich-content-scroll="table"');
+    expect(html).toContain("registry-comparison-table__scroll");
+    expect(html).toContain("overflow-x-auto");
+    expect(html).toContain(
+      "Uses a scoring rule instead of raw pair frequency alone",
+    );
+    expect(html).toContain("Usually picks the most frequent adjacent pair");
+    expect(html).toContain(
+      "Trains directly on raw text without fixed word boundaries",
+    );
+    expect(html).toContain(
+      "Usually assumes a word-like pre-tokenization step first",
+    );
+    expect(html).toContain('data-attention-schema-comparison="true"');
   });
 
   test("published route is discoverable through source and search documents", async () => {
