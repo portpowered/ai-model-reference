@@ -52,6 +52,18 @@ describe("sentencepiece module page messages", () => {
 });
 
 describe("loadModulePage sentencepiece", () => {
+  test("published docs inventory resolves the canonical route, registry id, and English messages together", async () => {
+    const pages = await loadPublishedDocsPages("en");
+    const page = pages.find(
+      (entry) => entry.url === "/docs/modules/sentencepiece",
+    );
+
+    expect(page).toBeDefined();
+    expect(page?.frontmatter.registryId).toBe("module.sentencepiece");
+    expect(page?.messages.title).toBe("SentencePiece");
+    expect(page?.messages.openingSummary?.length).toBeGreaterThan(0);
+  });
+
   test("compiles MDX with local namespaces and message-driven SentencePiece explainer copy", async () => {
     const page = await loadModulePage("sentencepiece");
 
