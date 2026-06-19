@@ -14,18 +14,37 @@ import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { docsSearchApi } from "@/lib/search/search-server";
 
 describe("tokenizers overview concept page", () => {
-  test("publishes concept.tokenizers-overview as a canonical docs page", async () => {
+  test("route, registry metadata, and English messages resolve as one canonical tokenizer overview page", async () => {
     const record = getConceptById("concept.tokenizers-overview");
+    const page = await loadConceptPage("tokenizers-overview");
     const pages = await loadPublishedDocsPages("en");
+    const publishedPage = pages.find(
+      (candidate) =>
+        candidate.frontmatter.registryId === "concept.tokenizers-overview",
+    );
 
     expect(record?.status).toBe("published");
     expect(record?.conceptType).toBe("general");
     expect(record?.prerequisiteIds).toEqual(["concept.token"]);
-    expect(
-      pages.some(
-        (page) => page.frontmatter.registryId === "concept.tokenizers-overview",
-      ),
-    ).toBe(true);
+    expect(record?.defaultTitleKey).toBe("title");
+    expect(record?.defaultSummaryKey).toBe("description");
+
+    expect(page.frontmatter.registryId).toBe("concept.tokenizers-overview");
+    expect(page.messages.title).toBe("Tokenizers overview");
+    expect(page.messages.description).toContain(
+      "How tokenizers split raw text into model-readable pieces",
+    );
+
+    expect(publishedPage?.docsSlug).toBe("concepts/tokenizers-overview");
+    expect(publishedPage?.url).toBe("/docs/concepts/tokenizers-overview");
+    expect(publishedPage?.frontmatter.registryId).toBe(record?.id);
+    expect(publishedPage?.frontmatter.status).toBe("published");
+    expect(publishedPage?.frontmatter.tags).toEqual([
+      "tokenization",
+      "foundations",
+    ]);
+    expect(publishedPage?.messages.title).toBe(page.messages.title);
+    expect(publishedPage?.messages.description).toBe(page.messages.description);
   });
 
   test("curated related links expose glossary neighbors and tokenizer families in registry order", () => {
