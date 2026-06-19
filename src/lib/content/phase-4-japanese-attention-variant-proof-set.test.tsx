@@ -6,7 +6,22 @@ import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
 import { isShippedLocalizedDocsSlug } from "@/lib/content/shipped-localized-docs";
 
-const JAPANESE_MODULE_EXPECTATIONS = [
+type JapaneseModuleExpectation = {
+  slug: string;
+  registryId: string;
+  japaneseDescription: string;
+  englishFallback: string;
+  japaneseBody: string;
+  graphCaption: string;
+  graphAlt: string;
+  tableCaption: string;
+  tableDimension: string;
+  graphLabel: string;
+  expectedHrefs: readonly string[];
+  expectedCanonicalFallbackHrefs?: readonly string[];
+};
+
+const JAPANESE_MODULE_EXPECTATIONS: readonly JapaneseModuleExpectation[] = [
   {
     slug: "multi-head-attention",
     registryId: "module.multi-head-attention",
@@ -51,6 +66,12 @@ const JAPANESE_MODULE_EXPECTATIONS = [
       "/ja/docs/modules/grouped-query-attention",
       "/ja/docs/modules/multi-head-attention",
     ],
+    expectedCanonicalFallbackHrefs: [
+      "/docs/glossary/kv-cache",
+      "/docs/glossary/decode",
+      "/docs/glossary/prefill-decode-split",
+      "/docs/concepts/quantization",
+    ],
   },
   {
     slug: "sliding-window-attention",
@@ -74,6 +95,11 @@ const JAPANESE_MODULE_EXPECTATIONS = [
       "/ja/docs/modules/multi-head-attention",
       "/ja/docs/modules/multi-query-attention",
       "/ja/docs/modules/grouped-query-attention",
+    ],
+    expectedCanonicalFallbackHrefs: [
+      "/docs/glossary/kv-cache",
+      "/docs/glossary/decode",
+      "/docs/glossary/prefill-decode-split",
     ],
   },
   {
@@ -176,6 +202,11 @@ describe("Phase 4 Japanese attention variant proof set", () => {
 
       for (const href of expectation.expectedHrefs) {
         expect(html).toContain(`href="${href}"`);
+      }
+
+      for (const href of expectation.expectedCanonicalFallbackHrefs ?? []) {
+        expect(html).toContain(`href="${href}"`);
+        expect(html).not.toContain(`href="/ja${href}"`);
       }
 
       expect(html).not.toContain(`href="/docs/modules/${expectation.slug}"`);
