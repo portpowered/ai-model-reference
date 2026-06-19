@@ -5,6 +5,7 @@ import { buildSearchDocuments } from "@/lib/search/build-documents";
 
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
 const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
+const GRPO_URL = "/docs/training/grpo";
 
 describe("buildSearchDocuments", () => {
   test("indexes only published docs pages for the default locale", async () => {
@@ -62,5 +63,30 @@ describe("buildSearchDocuments", () => {
     expect(token?.tags).toEqual(expect.arrayContaining(["attention"]));
     expect(token?.bodyText).toContain("tokenizer");
     expect(token?.bodyText).toContain("token IDs");
+  });
+
+  test("indexes GRPO training page with search aliases and training facets", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const grpo = documents.find((document) => document.url === GRPO_URL);
+
+    expect(grpo).toBeDefined();
+    expect(grpo?.kind).toBe("training-regime");
+    expect(grpo?.registryId).toBe("training-regime.grpo");
+    expect(grpo?.aliases).toEqual(
+      expect.arrayContaining([
+        "GRPO",
+        "group relative policy optimization",
+        "group relative preference optimization",
+        "group-relative policy optimization",
+        "group-relative preference optimization",
+      ]),
+    );
+    expect(grpo?.tags).toEqual(expect.arrayContaining(["foundations"]));
+    expect(grpo?.facets.conceptType).toBe("training");
+    expect(grpo?.facets.variantGroup).toBe(
+      "group-relative-reinforcement-learning",
+    );
   });
 });

@@ -77,6 +77,7 @@ describe("Phase 2 training behavior glossary pages (US-004)", () => {
   test("alignment links to training peers and published token-chain glossary pages", async () => {
     const html = await renderGlossaryHtml("alignment");
 
+    expect(html).toContain('href="/docs/training/grpo"');
     expect(html).toContain('href="/docs/glossary/model-capacity"');
     expect(html).toContain('href="/docs/glossary/overfitting"');
     expect(html).toContain('href="/docs/glossary/generalization"');
@@ -112,6 +113,7 @@ describe("Phase 2 training behavior glossary pages (US-004)", () => {
     ) as ConceptRecord;
 
     expect(alignment.conceptType).toBe("training");
+    expect(alignment.relatedIds).toContain("training-regime.grpo");
     expect(modelCapacity.conceptType).toBe("training");
     expect(overfitting.conceptType).toBe("training");
     expect(generalization.conceptType).toBe("evaluation");

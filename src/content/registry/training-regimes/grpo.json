@@ -7,7 +7,9 @@
   "aliases": [
     "GRPO",
     "group relative policy optimization",
-    "group relative preference optimization"
+    "group relative preference optimization",
+    "group-relative policy optimization",
+    "group-relative preference optimization"
   ],
   "tags": ["foundations"],
   "relatedIds": ["concept.alignment"],

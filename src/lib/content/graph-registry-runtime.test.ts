@@ -166,6 +166,9 @@ describe("graph-registry-runtime", () => {
       "graph.bpe-compute-flow",
     );
     expect(records.map((record) => record.id)).toContain(
+      "graph.grpo-training-flow",
+    );
+    expect(records.map((record) => record.id)).toContain(
       "graph.sentencepiece-compute-flow",
     );
     expect(records.map((record) => record.id)).toContain(

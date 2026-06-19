@@ -75,6 +75,15 @@ function expectRouteRendersOk(
 }
 
 describe("Phase 1 search discovery", () => {
+  test("group relative preference optimization query routes readers to the canonical GRPO page", async () => {
+    const results = await docsSearchApi.search(
+      "group relative preference optimization",
+    );
+    expect(results.length).toBeGreaterThan(0);
+    expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
+    expect(results[0]?.url).toBe("/docs/training/grpo");
+  });
+
   test("GQA query ranks grouped-query attention first", async () => {
     const results = await docsSearchApi.search("GQA");
     expect(results.length).toBeGreaterThan(0);
