@@ -1,0 +1,90 @@
+{
+  "id": "graph.sentencepiece-compute-flow",
+  "slug": "sentencepiece-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "module.sentencepiece",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "rawText",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "rawText",
+      "labelKey": "graph.nodes.rawText.label",
+      "moduleKind": "input",
+      "childNodeIds": ["normalizeText"]
+    },
+    {
+      "id": "normalizeText",
+      "labelKey": "graph.nodes.normalizeText.label",
+      "moduleKind": "operation",
+      "childNodeIds": ["keepWhitespace"]
+    },
+    {
+      "id": "keepWhitespace",
+      "labelKey": "graph.nodes.keepWhitespace.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["learnPieces"]
+    },
+    {
+      "id": "learnPieces",
+      "labelKey": "graph.nodes.learnPieces.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["encodeText"]
+    },
+    {
+      "id": "encodeText",
+      "labelKey": "graph.nodes.encodeText.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["tokenOutput"]
+    },
+    {
+      "id": "tokenOutput",
+      "labelKey": "graph.nodes.tokenOutput.label",
+      "moduleKind": "output",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "raw-to-normalize",
+      "source": "rawText",
+      "target": "normalizeText",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "normalize-to-whitespace",
+      "source": "normalizeText",
+      "target": "keepWhitespace",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "whitespace-to-learn",
+      "source": "keepWhitespace",
+      "target": "learnPieces",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "learn-to-encode",
+      "source": "learnPieces",
+      "target": "encodeText",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "encode-to-output",
+      "source": "encodeText",
+      "target": "tokenOutput",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

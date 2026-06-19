@@ -1,0 +1,20 @@
+{
+  "id": "citation.kudo-sentencepiece",
+  "slug": "kudo-sentencepiece",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["SentencePiece paper"],
+  "tags": ["tokenization"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": ["Taku Kudo", "John Richardson"],
+  "title": "SentencePiece: A Simple and Language Independent Subword Tokenizer and Detokenizer for Neural Text Processing",
+  "url": "https://aclanthology.org/D18-2012/",
+  "mla": "Kudo, Taku, and John Richardson. \"SentencePiece: A Simple and Language Independent Subword Tokenizer and Detokenizer for Neural Text Processing.\" Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing: System Demonstrations, Association for Computational Linguistics, 2018, pp. 66-71, aclanthology.org/D18-2012/.",
+  "year": 2018
+}

@@ -155,6 +155,9 @@ describe("graph-registry-runtime", () => {
       "graph.bpe-compute-flow",
     );
     expect(records.map((record) => record.id)).toContain(
+      "graph.sentencepiece-compute-flow",
+    );
+    expect(records.map((record) => record.id)).toContain(
       "graph.byte-level-tokenization-compute-flow",
     );
     expect(records.map((record) => record.id)).toContain(
