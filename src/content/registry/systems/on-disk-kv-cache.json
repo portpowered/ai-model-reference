@@ -6,7 +6,11 @@
   "defaultSummaryKey": "description",
   "aliases": ["on-disk KV cache"],
   "tags": ["kv-cache", "context-window", "foundations"],
-  "relatedIds": ["paper.deepseek-v4", "system.expert-parallel-overlap"],
+  "relatedIds": [
+    "paper.deepseek-v4",
+    "system.expert-parallel-overlap",
+    "system.batching"
+  ],
   "citationIds": ["citation.deepseek-v4-paper"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",

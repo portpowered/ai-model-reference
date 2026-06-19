@@ -32,6 +32,7 @@ export const SIDEBAR_GROUP_LABELS = {
   systems: {
     memory: "Memory",
     routing: "Routing",
+    serving: "Serving",
   },
 } as const;
 
@@ -302,6 +303,18 @@ function resolveOntologySystemsSidebarGroup(
   const membership = getCanonicalClassificationMembership(record);
   if (membership.has("classification.system.routing")) {
     return createSidebarGroupResolution("routing", "derived-taxonomy");
+  }
+
+  if (record.systemType === "memory") {
+    return createSidebarGroupResolution("memory", "derived-taxonomy");
+  }
+
+  if (record.systemType === "routing") {
+    return createSidebarGroupResolution("routing", "derived-taxonomy");
+  }
+
+  if (record.systemType === "serving") {
+    return createSidebarGroupResolution("serving", "derived-taxonomy");
   }
 
   return undefined;

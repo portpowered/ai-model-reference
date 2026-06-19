@@ -120,4 +120,11 @@ describe("sidebar grouping backfill", () => {
     ).toBeUndefined();
     expect(getSystemById("system.routing")?.sidebarGrouping).toBeUndefined();
   });
+
+  test("serving systems stay derivable without redundant sidebar overrides", () => {
+    const batching = getSystemById("system.batching");
+
+    expect(batching?.systemType).toBe("serving");
+    expect(batching?.sidebarGrouping).toBeUndefined();
+  });
 });

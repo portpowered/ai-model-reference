@@ -1,0 +1,48 @@
+{
+  "id": "system.batching",
+  "slug": "batching",
+  "kind": "system",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Batching",
+    "request batching",
+    "inference batching",
+    "serving batch",
+    "throughput latency tradeoff"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.prefill",
+    "concept.decode",
+    "concept.prefill-decode-split",
+    "concept.kv-cache",
+    "system.on-disk-kv-cache",
+    "system.expert-parallel-overlap"
+  ],
+  "citationIds": ["citation.orca-serving-system"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "releaseDate": "2022-07-01",
+  "authors": [
+    "Gyeong-In Yu",
+    "Joo Seong Jeong",
+    "Geon-Woo Kim",
+    "Soojeong Kim",
+    "Byung-Gon Chun"
+  ],
+  "sourceId": "citation.orca-serving-system",
+  "systemType": "serving",
+  "relatedModelIds": [],
+  "relatedModuleIds": [],
+  "relatedConceptIds": [
+    "concept.prefill",
+    "concept.decode",
+    "concept.prefill-decode-split",
+    "concept.kv-cache"
+  ],
+  "paperIds": [],
+  "datasetIds": [],
+  "conceptType": "systems"
+}
