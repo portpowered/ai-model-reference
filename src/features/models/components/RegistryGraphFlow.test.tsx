@@ -2,11 +2,13 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { ReactFlowProvider } from "@xyflow/react";
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { PageAssetsProvider } from "@/features/docs/components/page-assets-context";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import {
+  FallbackNode,
   GraphNodeLabel,
   nodeVisualRoleHasHandles,
   RegistryGraphFlow,
@@ -14,8 +16,12 @@ import {
 import { REGISTRY_GRAPH_FLOW_INTERACTION } from "@/features/models/components/registry-graph-flow-theme";
 import {
   buildRegistryFlowGraph,
+  buildRegistryFlowNodeType,
   GraphRenderIssueError,
+  type RegistryFlowNodeData,
+  resolveRegistryFlowNodeFamily,
 } from "@/lib/content/graph-flow";
+import { getGraphById } from "@/lib/content/graph-registry-runtime";
 import type {
   GraphRecord,
   PageAssetConfig,
@@ -289,6 +295,16 @@ describe("RegistryGraphFlow", () => {
     expect(html).toContain('data-graph-node-id="input-embedding"');
     expect(html).toContain('data-graph-node-id="softmax"');
     expect(html).toContain('data-graph-node-id="repeat-marker"');
+
+    const graphRecord = getGraphById("graph.gpt-3-architecture");
+    expect(graphRecord).toBeDefined();
+    const { nodes } = buildRegistryFlowGraph(
+      graphRecord as GraphRecord,
+      gpt3Messages,
+    );
+    expect(nodes.some((node) => node.type === "canonicalReference")).toBe(true);
+    expect(nodes.some((node) => node.type === "structural")).toBe(true);
+    expect(nodes.some((node) => node.type === "architectureBlock")).toBe(true);
   });
 
   test("renders timeline and annotation graph families with their node markers", () => {
@@ -434,12 +450,147 @@ describe("RegistryGraphFlow", () => {
     const { nodes } = buildRegistryFlowGraph(graph, graphMessages);
     expect(nodes[0]?.style).toMatchObject({ width: 320, height: 180 });
     expect(nodes[0]?.data.visualRole).toBe("group-container");
+    expect(nodes[0]?.data.nodeFamily).toBe("structural");
+    expect(nodes[0]?.type).toBe("structural");
     expect(nodes[1]?.style).toMatchObject({ width: 180, height: 78 });
     expect(nodes[1]?.data.visualRole).toBe("architecture-attention");
+    expect(nodes[1]?.data.nodeFamily).toBe("architecture-block");
+    expect(nodes[1]?.type).toBe("architectureBlock");
   });
 
   test("allows group containers to expose edge handles for architecture graphs", () => {
     expect(nodeVisualRoleHasHandles("group-container")).toBe(true);
     expect(nodeVisualRoleHasHandles("annotation")).toBe(false);
+  });
+
+  test("classifies runtime node families and react-flow node types explicitly", () => {
+    expect(
+      resolveRegistryFlowNodeFamily({
+        registryId: "module.masked-multi-head-attention",
+      }),
+    ).toBe("canonical-reference");
+    expect(
+      resolveRegistryFlowNodeFamily({
+        visualRole: "group-container",
+      }),
+    ).toBe("structural");
+    expect(
+      resolveRegistryFlowNodeFamily({
+        visualRole: "annotation",
+      }),
+    ).toBe("annotation");
+    expect(
+      resolveRegistryFlowNodeFamily({
+        visualRole: "operator-circle",
+      }),
+    ).toBe("operator");
+    expect(
+      resolveRegistryFlowNodeFamily({
+        visualRole: "architecture-softmax",
+      }),
+    ).toBe("architecture-block");
+    expect(
+      resolveRegistryFlowNodeFamily({
+        visualRole: "timeline-node",
+      }),
+    ).toBe("fallback");
+
+    expect(buildRegistryFlowNodeType("canonical-reference")).toBe(
+      "canonicalReference",
+    );
+    expect(buildRegistryFlowNodeType("structural")).toBe("structural");
+    expect(buildRegistryFlowNodeType("annotation")).toBe("annotation");
+    expect(buildRegistryFlowNodeType("operator")).toBe("operator");
+    expect(buildRegistryFlowNodeType("architecture-block")).toBe(
+      "architectureBlock",
+    );
+    expect(buildRegistryFlowNodeType("fallback")).toBe("fallback");
+  });
+
+  test("uses the fallback node family for legacy nodes and preserves graph-local summary metadata", () => {
+    const graph = {
+      id: "graph.fallback-node-fixture",
+      slug: "fallback-node-fixture",
+      kind: "graph",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-19T00:00:00.000Z",
+      updatedAt: "2026-06-19T00:00:00.000Z",
+      subjectId: "module.grouped-query-attention",
+      graphType: "module-compute-flow",
+      rootNodeId: "fallback-node",
+      layout: "vertical-expandable",
+      defaultExpandedDepth: 1,
+      supportedRenderers: ["react-flow"],
+      nodes: [
+        {
+          id: "fallback-node",
+          labelKey: "graph.nodes.fallbackNode.label",
+          summaryKey: "graph.nodes.fallbackNode.summary",
+          moduleKind: "other",
+          childNodeIds: [],
+          visualRole: "timeline-node",
+        },
+      ],
+      edges: [],
+    } satisfies GraphRecord;
+
+    const graphMessages = {
+      title: "Fixture",
+      description: "Fixture",
+      graph: {
+        nodes: {
+          fallbackNode: {
+            label: "Legacy timeline node",
+            summary: "Graph-local explanation for an older visual role.",
+          },
+        },
+      },
+    } satisfies PageMessages;
+
+    const { nodes } = buildRegistryFlowGraph(graph, graphMessages);
+    const fallbackNode = nodes[0];
+    expect(fallbackNode).toBeDefined();
+    expect(nodes[0]?.data.nodeFamily).toBe("fallback");
+    expect(nodes[0]?.type).toBe("fallback");
+    expect(nodes[0]?.data.semantic.resolvedSummary).toBe(
+      "Graph-local explanation for an older visual role.",
+    );
+
+    const html = renderToStaticMarkup(
+      <ReactFlowProvider>
+        {FallbackNode({
+          id: "fallback-node",
+          data: fallbackNode?.data as RegistryFlowNodeData,
+          type: "fallback",
+          selected: false,
+          dragging: false,
+          zIndex: 0,
+          isConnectable: false,
+          positionAbsoluteX: 0,
+          positionAbsoluteY: 0,
+          xPos: 0,
+          yPos: 0,
+          draggingHandle: null,
+          targetPosition: undefined,
+          sourcePosition: undefined,
+          width: fallbackNode?.style?.width as number | undefined,
+          height: fallbackNode?.style?.height as number | undefined,
+          parentId: undefined,
+          dragHandle: undefined,
+        } as never)}
+      </ReactFlowProvider>,
+    );
+
+    expect(html).toContain('data-graph-node-family="fallback"');
+    expect(html).toContain('data-graph-node-type="fallback"');
+    expect(html).toContain('data-graph-summary-affordance="true"');
+    expect(html).toContain("Summary available");
+    expect(html).toContain("Legacy timeline node");
   });
 });

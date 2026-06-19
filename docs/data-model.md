@@ -654,6 +654,8 @@ Graph renderer rules:
 
 * Graph records should live close to the page or registry record they support when practical. Page-local graph asset references live in `assets.json`; reusable graph records live in `src/content/registry/graphs`.
 * Node and edge labels use message keys. The renderer resolves labels from the same locale messages as the page.
+* Runtime node rendering should resolve an explicit semantic node family before choosing a React Flow component. V1 families are canonical registry references, structural scaffolding, annotations, operators, architecture blocks, and a default fallback family for older or less specific nodes.
+* The fallback node must preserve label-first rendering for older graphs that only provide the minimum current schema fields. When graph-local summary content exists, the fallback may surface a non-blocking summary affordance without requiring a schema rewrite.
 * Web graph rendering uses React Flow as the interaction engine.
 * React Flow is not the visual design system. Visual consistency comes from semantic `moduleKind` node styles, semantic `edgeKind` edge styles, and the vertical expandable layout.
 * Users can expand and collapse nodes recursively.

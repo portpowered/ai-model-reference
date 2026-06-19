@@ -26,10 +26,12 @@ import {
 import type { RegistryFlowNodeData } from "@/lib/content/graph-flow";
 import {
   buildRegistryFlowGraph,
+  buildRegistryFlowNodeType,
   GraphRenderIssueError,
 } from "@/lib/content/graph-flow";
 import { getGraphSubjectMessages } from "@/lib/content/graph-message-runtime";
 import { getGraphById } from "@/lib/content/graph-registry-runtime";
+import { cn } from "@/lib/utils";
 
 const FLOW_NODE_HEIGHT_ESTIMATE = 112;
 const FLOW_VIEWPORT_PADDING_Y = 24;
@@ -38,8 +40,13 @@ const FLOW_MAX_VIEWPORT_HEIGHT = 560;
 const FLOW_EXPANDED_MIN_VIEWPORT_HEIGHT = 448;
 const FLOW_EXPANDED_VIEWPORT_HEIGHT = "max(28rem, calc(100dvh - 8rem))";
 
-const attentionHeadNodeTypes: NodeTypes = {
-  attentionHead: AttentionHeadNode,
+const registryGraphNodeTypes: NodeTypes = {
+  canonicalReference: CanonicalReferenceNode,
+  structural: StructuralNode,
+  annotation: AnnotationNode,
+  operator: OperatorNode,
+  architectureBlock: ArchitectureBlockNode,
+  fallback: FallbackNode,
 };
 
 const REGISTRY_GRAPH_FLOW_FIT_VIEW_OPTIONS: FitViewOptions = {
@@ -252,16 +259,29 @@ export function nodeVisualRoleHasHandles(
   );
 }
 
-function AttentionHeadNode({
+function RegistryGraphFlowNodeBody({
   data,
-}: NodeProps<Node<RegistryFlowNodeData, "attentionHead">>) {
+  summaryAffordance = false,
+}: {
+  data: RegistryFlowNodeData;
+  summaryAffordance?: boolean;
+}) {
   const visualRole = data.visualRole ?? "default";
   const hasHandles = nodeVisualRoleHasHandles(visualRole);
+  const className = getAttentionHeadNodeClassName(visualRole);
 
   return (
     <div
-      className={getAttentionHeadNodeClassName(visualRole)}
+      className={cn(
+        className,
+        summaryAffordance
+          ? "registry-graph-flow__default-node--has-summary"
+          : undefined,
+      )}
       data-graph-visual-role={visualRole}
+      data-graph-node-family={data.nodeFamily}
+      data-graph-node-type={buildRegistryFlowNodeType(data.nodeFamily)}
+      data-graph-summary-affordance={summaryAffordance ? "true" : "false"}
     >
       {hasHandles ? (
         <>
@@ -290,6 +310,14 @@ function AttentionHeadNode({
             className="registry-graph-flow__handle"
           />
           <GraphNodeLabel label={data.label} />
+          {summaryAffordance ? (
+            <span
+              className="registry-graph-flow__summary-affordance"
+              aria-hidden="true"
+            >
+              Summary available
+            </span>
+          ) : null}
           <Handle
             type="source"
             position={Position.Bottom}
@@ -316,9 +344,60 @@ function AttentionHeadNode({
           />
         </>
       ) : (
-        <GraphNodeLabel label={data.label} />
+        <>
+          <GraphNodeLabel label={data.label} />
+          {summaryAffordance ? (
+            <span
+              className="registry-graph-flow__summary-affordance"
+              aria-hidden="true"
+            >
+              Summary available
+            </span>
+          ) : null}
+        </>
       )}
     </div>
+  );
+}
+
+function CanonicalReferenceNode({
+  data,
+}: NodeProps<Node<RegistryFlowNodeData, "canonicalReference">>) {
+  return <RegistryGraphFlowNodeBody data={data} />;
+}
+
+function StructuralNode({
+  data,
+}: NodeProps<Node<RegistryFlowNodeData, "structural">>) {
+  return <RegistryGraphFlowNodeBody data={data} />;
+}
+
+function AnnotationNode({
+  data,
+}: NodeProps<Node<RegistryFlowNodeData, "annotation">>) {
+  return <RegistryGraphFlowNodeBody data={data} />;
+}
+
+function OperatorNode({
+  data,
+}: NodeProps<Node<RegistryFlowNodeData, "operator">>) {
+  return <RegistryGraphFlowNodeBody data={data} />;
+}
+
+function ArchitectureBlockNode({
+  data,
+}: NodeProps<Node<RegistryFlowNodeData, "architectureBlock">>) {
+  return <RegistryGraphFlowNodeBody data={data} />;
+}
+
+export function FallbackNode({
+  data,
+}: NodeProps<Node<RegistryFlowNodeData, "fallback">>) {
+  return (
+    <RegistryGraphFlowNodeBody
+      data={data}
+      summaryAffordance={Boolean(data.semantic.resolvedSummary)}
+    />
   );
 }
 
@@ -440,7 +519,7 @@ function RegistryGraphFlowSurface({
             onError={handleReactFlowError}
             fitView
             fitViewOptions={REGISTRY_GRAPH_FLOW_FIT_VIEW_OPTIONS}
-            nodeTypes={attentionHeadNodeTypes}
+            nodeTypes={registryGraphNodeTypes}
             defaultEdgeOptions={REGISTRY_GRAPH_FLOW_DEFAULT_EDGE_OPTIONS}
             nodesDraggable={REGISTRY_GRAPH_FLOW_INTERACTION.nodesDraggable}
             nodesConnectable={REGISTRY_GRAPH_FLOW_INTERACTION.nodesConnectable}

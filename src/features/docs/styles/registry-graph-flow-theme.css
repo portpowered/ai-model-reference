@@ -100,6 +100,27 @@
   box-shadow: 0 8px 24px rgb(15 23 42 / 0.08);
 }
 
+.registry-graph-flow__default-node--has-summary {
+  align-content: center;
+  gap: 0.35rem;
+}
+
+.registry-graph-flow__summary-affordance {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgb(148 163 184 / 0.9);
+  background: rgb(241 245 249 / 0.95);
+  padding: 0.125rem 0.4rem;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
 .registry-graph-flow__timeline-node {
   display: grid;
   height: 100%;

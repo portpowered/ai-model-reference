@@ -27,6 +27,7 @@ const NODE_BOX_SAFETY_PADDING = 4;
 export type RegistryFlowNodeData = {
   label: string;
   moduleKind: string;
+  nodeFamily: RegistryFlowNodeFamily;
   semantic: RegistryFlowNodeSemanticData;
   size?: { width: number; height: number };
   headCountRole?: "query" | "kv";
@@ -55,6 +56,14 @@ export type RegistryFlowNodeData = {
     | "operator-circle"
     | "default";
 };
+
+export type RegistryFlowNodeFamily =
+  | "canonical-reference"
+  | "structural"
+  | "annotation"
+  | "operator"
+  | "architecture-block"
+  | "fallback";
 
 export type RegistryFlowNodeSemanticData = {
   registryId?: string;
@@ -326,6 +335,55 @@ function resolveGraphNodeSemanticData(
   };
 }
 
+export function resolveRegistryFlowNodeFamily(input: {
+  registryId?: string;
+  visualRole?: RegistryFlowNodeData["visualRole"];
+}): RegistryFlowNodeFamily {
+  if (input.registryId) {
+    return "canonical-reference";
+  }
+
+  switch (input.visualRole) {
+    case "group-container":
+    case "row-label":
+    case "repeat-label":
+      return "structural";
+    case "annotation":
+      return "annotation";
+    case "operator-circle":
+      return "operator";
+    case "architecture-embedding":
+    case "architecture-attention":
+    case "architecture-feed-forward":
+    case "architecture-add-norm":
+    case "architecture-linear":
+    case "architecture-softmax":
+    case "architecture-io":
+      return "architecture-block";
+    default:
+      return "fallback";
+  }
+}
+
+export function buildRegistryFlowNodeType(
+  nodeFamily: RegistryFlowNodeFamily,
+): Node["type"] {
+  switch (nodeFamily) {
+    case "canonical-reference":
+      return "canonicalReference";
+    case "structural":
+      return "structural";
+    case "annotation":
+      return "annotation";
+    case "operator":
+      return "operator";
+    case "architecture-block":
+      return "architectureBlock";
+    default:
+      return "fallback";
+  }
+}
+
 function edgeKindSupportsInteraction(
   _edgeKind: ModuleGraphEdge["edgeKind"],
 ): boolean {
@@ -567,6 +625,10 @@ export function buildRegistryFlowGraph(
         ? { ...basePosition, x: basePosition.x + ROW_LABEL_X_OFFSET }
         : basePosition;
     const semantic = resolveGraphNodeSemanticData(node, labelSources);
+    const nodeFamily = resolveRegistryFlowNodeFamily({
+      registryId: semantic.registryId,
+      visualRole: node.visualRole,
+    });
     const label = semantic.resolvedTitle;
     const resolvedSize = estimateRegistryFlowNodeBoxSize({
       label,
@@ -577,7 +639,7 @@ export function buildRegistryFlowGraph(
     return {
       id: node.id,
       position,
-      type: "attentionHead",
+      type: buildRegistryFlowNodeType(nodeFamily),
       ...(resolvedSize
         ? { style: { width: resolvedSize.width, height: resolvedSize.height } }
         : {}),
@@ -585,6 +647,7 @@ export function buildRegistryFlowGraph(
       data: {
         label,
         moduleKind: node.moduleKind,
+        nodeFamily,
         semantic,
         ...(resolvedSize ? { size: resolvedSize } : {}),
         ...(node.headCountRole ? { headCountRole: node.headCountRole } : {}),
