@@ -24,6 +24,87 @@ export const CRITICAL_DOCS_SMOKE_RULES = [
 export type CriticalDocsSmokeRule = (typeof CRITICAL_DOCS_SMOKE_RULES)[number];
 export type CriticalDocsSmokeRuleId = CriticalDocsSmokeRule["id"];
 
+/**
+ * Shared representative probes for downstream smoke surfaces.
+ * These stay behavior-focused and intentionally do not enumerate every
+ * discovered critical page; export/search verifiers should consume this
+ * projection instead of carrying their own page inventories.
+ */
+export const CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PROBES = [
+  {
+    id: "gqa-abbreviation",
+    criticalRuleId: "attention-module",
+    docsUrl: "/docs/modules/grouped-query-attention",
+    exportRoute: "/docs/modules/grouped-query-attention",
+    searchQuery: "GQA",
+    searchSurface: "api-and-page",
+    purpose:
+      "Proves acronym search still ranks the grouped-query-attention page first.",
+  },
+  {
+    id: "attention-family-overview",
+    criticalRuleId: "attention-module",
+    docsUrl: "/docs/modules/attention",
+    exportRoute: "/docs/modules/attention",
+    searchQuery: "attention",
+    searchSurface: "api-and-page",
+    purpose:
+      "Proves family-level attention discovery still returns the canonical bridge page and nearby variants.",
+  },
+  {
+    id: "vector-foundation",
+    criticalRuleId: "token-to-probability-chain-glossary",
+    docsUrl: "/docs/glossary/vector",
+    exportRoute: "/docs/glossary/vector",
+    searchQuery: "vector",
+    searchSurface: "api-only",
+    purpose:
+      "Proves the token-to-probability chain retains a foundational glossary hit for a single-term query.",
+  },
+  {
+    id: "hidden-size-multiword",
+    criticalRuleId: "token-to-probability-chain-glossary",
+    docsUrl: "/docs/glossary/hidden-size",
+    searchQuery: "hidden size",
+    searchSurface: "api-only",
+    purpose:
+      "Proves glossary discovery still handles a multi-word canonical query without fragment duplication.",
+  },
+  {
+    id: "gqa-kv-cache-variant",
+    criticalRuleId: "attention-module",
+    docsUrl: "/docs/modules/grouped-query-attention",
+    searchQuery: "KV cache",
+    searchSurface: "api-and-page",
+    purpose:
+      "Proves the KV-cache optimization path still exposes a concrete attention variant readers look for.",
+  },
+] as const;
+
+export type CriticalDocsSmokeRepresentativeProbe =
+  (typeof CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PROBES)[number];
+export type CriticalDocsSmokeRepresentativeExportRoute = Extract<
+  CriticalDocsSmokeRepresentativeProbe,
+  { exportRoute: string }
+>["exportRoute"];
+
+export const CRITICAL_DOCS_SMOKE_REPRESENTATIVE_EXPORT_ROUTES =
+  CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PROBES.flatMap((probe) =>
+    "exportRoute" in probe ? [probe.exportRoute] : [],
+  ) as readonly CriticalDocsSmokeRepresentativeExportRoute[];
+
+export const CRITICAL_DOCS_SMOKE_REPRESENTATIVE_API_SEARCH_PROBES =
+  CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PROBES.filter(
+    (probe) =>
+      probe.searchSurface === "api-and-page" ||
+      probe.searchSurface === "api-only",
+  );
+
+export const CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PAGE_SEARCH_QUERIES =
+  CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PROBES.filter(
+    (probe) => probe.searchSurface === "api-and-page",
+  ).map((probe) => probe.searchQuery) as readonly string[];
+
 export type CriticalDocsSmokePage = LoadedDocsPageSource & {
   criticalRuleId: CriticalDocsSmokeRuleId;
   discoveryTags: readonly string[];

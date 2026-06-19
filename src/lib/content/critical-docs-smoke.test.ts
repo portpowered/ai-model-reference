@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import {
+  CRITICAL_DOCS_SMOKE_REPRESENTATIVE_API_SEARCH_PROBES,
+  CRITICAL_DOCS_SMOKE_REPRESENTATIVE_EXPORT_ROUTES,
+  CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PAGE_SEARCH_QUERIES,
+  CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PROBES,
   CRITICAL_DOCS_SMOKE_RULES,
   loadCriticalDocsSmokePages,
   matchCriticalDocsSmokeRule,
@@ -67,6 +71,33 @@ describe("critical docs smoke contract", () => {
     expect(byUrl.get("/docs/glossary/vector")?.criticalRuleId).toBe(
       "token-to-probability-chain-glossary",
     );
+  });
+
+  test("documents representative export and search probes as a shared projection of the discovery contract", async () => {
+    const pages = await loadCriticalDocsSmokePages();
+    const pageByUrl = new Map(pages.map((page) => [page.url, page]));
+
+    expect(CRITICAL_DOCS_SMOKE_REPRESENTATIVE_EXPORT_ROUTES).toEqual([
+      "/docs/modules/grouped-query-attention",
+      "/docs/modules/attention",
+      "/docs/glossary/vector",
+    ]);
+    expect(CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PAGE_SEARCH_QUERIES).toEqual([
+      "GQA",
+      "attention",
+      "KV cache",
+    ]);
+    expect(
+      CRITICAL_DOCS_SMOKE_REPRESENTATIVE_API_SEARCH_PROBES.map(
+        (probe) => probe.searchQuery,
+      ),
+    ).toEqual(["GQA", "attention", "vector", "hidden size", "KV cache"]);
+
+    for (const probe of CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PROBES) {
+      const page = pageByUrl.get(probe.docsUrl);
+      expect(page, probe.id).toBeDefined();
+      expect(page?.criticalRuleId, probe.id).toBe(probe.criticalRuleId);
+    }
   });
 
   test("projects discovered critical pages into stable local docs refs", () => {

@@ -1,4 +1,5 @@
 import type { Browser, Locator, Page } from "playwright";
+import { CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PAGE_SEARCH_QUERIES } from "@/lib/content/critical-docs-smoke";
 import { pageBaseUrl } from "@/lib/search/collapse-search-results-to-page-hits";
 import {
   closePlaywrightBrowserWithTimeout,
@@ -17,12 +18,9 @@ import {
   waitForSearchPageInputHydrationBeforeQuery,
 } from "./static-export-search-input-hydration-http";
 
-/** Phase 1 manual-gate queries exercised on the built `/search` page. */
-export const PHASE_1_SEARCH_PAGE_QUERIES = [
-  "GQA",
-  "attention",
-  "KV cache",
-] as const;
+/** Representative `/search` page probes shared with the critical-doc smoke contract. */
+export const PHASE_1_SEARCH_PAGE_QUERIES =
+  CRITICAL_DOCS_SMOKE_REPRESENTATIVE_PAGE_SEARCH_QUERIES;
 
 export type Phase1SearchPageQuery =
   (typeof PHASE_1_SEARCH_PAGE_QUERIES)[number];

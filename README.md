@@ -480,6 +480,10 @@ GitHub Pages export path and must be refreshed through this pass. See
 `factory/docs/phase-1-github-pages-convergence-validator.md` for prerequisites,
 domain inventory, exit semantics, and loopback usage.
 
+Those GQA, attention, and KV cache queries are representative behavior probes,
+not a hidden page inventory. Critical canonical page coverage for export and
+search smoke is projected from the shared `critical-docs-smoke` contract.
+
 The verifier also exercises the built `/search` page, the header search dialog
 (via the search trigger button), and keyboard shortcuts on the home page:
 **Meta+K** (Cmd+K on macOS) and **Control+K** (Windows/Linux). Each shortcut
