@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { withStaticExportBuildLockSync } from "@/lib/build/run-static-export-build";
 import {
   buildOutputHasTurbopackWholeProjectTracingWarning,
   firstMatchingTurbopackTracingWarningPattern,
@@ -81,40 +82,42 @@ describe("next build turbopack NFT tracing warning", () => {
   test(
     "bun run build exits 0 without whole-project NFT tracing warnings",
     () => {
-      if (existsSync(nextDir)) {
-        rmSync(nextDir, { recursive: true, force: true });
-      }
-
-      try {
-        const result = spawnSync("bun", ["run", "build"], {
-          cwd: repoRoot,
-          encoding: "utf8",
-          env: {
-            ...process.env,
-            GITHUB_PAGES_BASE_PATH: undefined,
-            NEXT_STATIC_EXPORT: undefined,
-          },
-        });
-
-        const combined = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
-
-        expect(result.status).toBe(0);
-
-        const matchedPattern =
-          firstMatchingTurbopackTracingWarningPattern(combined);
-        if (matchedPattern !== undefined) {
-          throw new Error(
-            `Turbopack NFT whole-project tracing warning matched guarded pattern: ${matchedPattern}`,
-          );
-        }
-        expect(
-          buildOutputHasTurbopackWholeProjectTracingWarning(combined),
-        ).toBe(false);
-      } finally {
+      withStaticExportBuildLockSync(() => {
         if (existsSync(nextDir)) {
           rmSync(nextDir, { recursive: true, force: true });
         }
-      }
+
+        try {
+          const result = spawnSync("bun", ["run", "build"], {
+            cwd: repoRoot,
+            encoding: "utf8",
+            env: {
+              ...process.env,
+              GITHUB_PAGES_BASE_PATH: undefined,
+              NEXT_STATIC_EXPORT: undefined,
+            },
+          });
+
+          const combined = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
+
+          expect(result.status).toBe(0);
+
+          const matchedPattern =
+            firstMatchingTurbopackTracingWarningPattern(combined);
+          if (matchedPattern !== undefined) {
+            throw new Error(
+              `Turbopack NFT whole-project tracing warning matched guarded pattern: ${matchedPattern}`,
+            );
+          }
+          expect(
+            buildOutputHasTurbopackWholeProjectTracingWarning(combined),
+          ).toBe(false);
+        } finally {
+          if (existsSync(nextDir)) {
+            rmSync(nextDir, { recursive: true, force: true });
+          }
+        }
+      });
     },
     { timeout: 180_000 },
   );
