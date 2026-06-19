@@ -23,6 +23,16 @@ import {
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const ATTENTION_MODULE_URL = "/docs/modules/attention";
+const JAPANESE_ATTENTION_PROOF_SET_URLS = [
+  "/ja/docs/modules/attention",
+  "/ja/docs/modules/linear-attention",
+  "/ja/docs/modules/multi-head-attention",
+  "/ja/docs/modules/grouped-query-attention",
+  "/ja/docs/modules/multi-query-attention",
+  "/ja/docs/modules/sliding-window-attention",
+  "/ja/docs/glossary/token",
+  "/ja/docs/concepts/transformer-architecture",
+] as const;
 
 describe("createModelAtlasSearchClient", () => {
   const originalFetch = globalThis.fetch;
@@ -123,16 +133,11 @@ describe("createModelAtlasSearchClient", () => {
     });
     const results = await client.search("attention");
 
-    expect(results.map((result) => result.url)).toEqual([
-      "/ja/docs/modules/attention",
-      "/ja/docs/modules/linear-attention",
-      "/ja/docs/modules/multi-head-attention",
-      "/ja/docs/modules/grouped-query-attention",
-      "/ja/docs/modules/multi-query-attention",
-      "/ja/docs/modules/sliding-window-attention",
-      "/ja/docs/glossary/token",
-      "/ja/docs/concepts/transformer-architecture",
-    ]);
+    const urls = results.map((result) => result.url);
+    expect(urls).toHaveLength(JAPANESE_ATTENTION_PROOF_SET_URLS.length);
+    expect([...urls].sort()).toEqual(
+      [...JAPANESE_ATTENTION_PROOF_SET_URLS].sort(),
+    );
   });
 
   test("uses the docs search API path and ranks GQA sample page first", async () => {

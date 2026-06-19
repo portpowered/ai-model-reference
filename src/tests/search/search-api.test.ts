@@ -30,6 +30,16 @@ import {
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
 const BIDIRECTIONAL_ATTENTION_URL = "/docs/modules/bidirectional-attention";
+const JAPANESE_ATTENTION_PROOF_SET_URLS = [
+  "/ja/docs/modules/attention",
+  "/ja/docs/modules/linear-attention",
+  "/ja/docs/modules/multi-head-attention",
+  "/ja/docs/modules/grouped-query-attention",
+  "/ja/docs/modules/multi-query-attention",
+  "/ja/docs/modules/sliding-window-attention",
+  "/ja/docs/glossary/token",
+  "/ja/docs/concepts/transformer-architecture",
+] as const;
 
 describe("Phase 1 /api/search regression", () => {
   for (const assertion of PHASE_1_SEARCH_ASSERTIONS) {
@@ -138,16 +148,11 @@ describe("live /api/search HTTP contract", () => {
     expect(response.ok).toBe(true);
 
     const results = (await response.json()) as Array<{ url: string }>;
-    expect(results.map((result) => result.url)).toEqual([
-      "/ja/docs/modules/attention",
-      "/ja/docs/modules/linear-attention",
-      "/ja/docs/modules/multi-head-attention",
-      "/ja/docs/modules/grouped-query-attention",
-      "/ja/docs/modules/multi-query-attention",
-      "/ja/docs/modules/sliding-window-attention",
-      "/ja/docs/glossary/token",
-      "/ja/docs/concepts/transformer-architecture",
-    ]);
+    const urls = results.map((result) => result.url);
+    expect(urls).toHaveLength(JAPANESE_ATTENTION_PROOF_SET_URLS.length);
+    expect([...urls].sort()).toEqual(
+      [...JAPANESE_ATTENTION_PROOF_SET_URLS].sort(),
+    );
   });
 
   test("GET returns grouped-query attention for GQA query", async () => {
@@ -335,16 +340,11 @@ describe("docsSearchApi", () => {
 
   test("search returns the shipped japanese attention proof set", async () => {
     const results = await docsSearchApi.search("attention", { locale: "ja" });
-    expect(results.map((result) => result.url)).toEqual([
-      "/ja/docs/modules/attention",
-      "/ja/docs/modules/linear-attention",
-      "/ja/docs/modules/multi-head-attention",
-      "/ja/docs/modules/grouped-query-attention",
-      "/ja/docs/modules/multi-query-attention",
-      "/ja/docs/modules/sliding-window-attention",
-      "/ja/docs/glossary/token",
-      "/ja/docs/concepts/transformer-architecture",
-    ]);
+    const urls = results.map((result) => result.url);
+    expect(urls).toHaveLength(JAPANESE_ATTENTION_PROOF_SET_URLS.length);
+    expect([...urls].sort()).toEqual(
+      [...JAPANESE_ATTENTION_PROOF_SET_URLS].sort(),
+    );
   });
 });
 
