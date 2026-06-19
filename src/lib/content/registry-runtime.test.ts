@@ -230,6 +230,18 @@ describe("registry-runtime", () => {
     );
   });
 
+  test("nearby published MoE and training records link back to routing for reciprocal discovery", () => {
+    expect(getModuleById("module.mixture-of-experts")?.relatedIds).toContain(
+      "system.routing",
+    );
+    expect(getModuleById("module.deepseekmoe")?.relatedIds).toContain(
+      "system.routing",
+    );
+    expect(
+      getRegistryRecordById("training-regime.specialist-training")?.relatedIds,
+    ).toContain("system.routing");
+  });
+
   test("listRelatedRegistryRecords includes concepts and modules", () => {
     const kinds = listRelatedRegistryRecords().map((record) => record.kind);
     expect(kinds).toContain("concept");

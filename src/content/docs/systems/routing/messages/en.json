@@ -17,7 +17,7 @@
     },
     "practicalImpact": {
       "title": "Practical Impact",
-      "body": "Good routing lowers cost by keeping easy work off premium paths, lowers latency by avoiding oversized backends when they are not needed, improves safety by inserting stricter gates where risk is higher, and improves specialization by steering requests toward models or systems tuned for narrow jobs."
+      "body": "Good routing lowers cost by keeping easy work off premium paths, lowers latency by avoiding oversized backends when they are not needed, improves safety by inserting stricter gates where risk is higher, and improves specialization by steering requests toward models or systems tuned for narrow jobs. This sits at a different layer than mixture-of-experts routing: serving-time request routing acts on whole requests or large serving stages owned by platform operators, while MoE routing acts inside one model and sends token representations to a few expert sublayers during the forward pass."
     },
     "related": {
       "title": "Related To"
