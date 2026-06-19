@@ -369,13 +369,16 @@ between docs routes resolve (for example
 Optional during iteration:
 
 ```sh
+make help          # supported maintainer workflow summary
 make lint          # Biome check — same as bun run lint
 make typecheck     # fumadocs-mdx (pretypecheck), then tsc --noEmit
+make validate      # typecheck + validate-data + linkcheck
 ```
 
 `make lint` helps when you edit TypeScript, MDX components, or scripts alongside
 docs content. `make typecheck` matters when your change touches typed loaders,
-registry code, or MDX component props.
+registry code, or MDX component props. `make validate` is the compact
+maintainer-facing preflight when you want the non-test checks in one command.
 
 For a visual pass on a published page, start the dev server after installing
 dependencies:
@@ -416,6 +419,11 @@ make ci
 
 You do not need to run `fumadocs-mdx` manually. `pretypecheck` and `pretest` in
 `package.json` generate `.source/` automatically on fresh checkouts.
+
+For maintainers who are new to the repo, the supported top-level command
+surface is intentionally short: `dev`, `build`, `test`, `lint`, `validate`,
+`generate`, `ci`, and `help`. Run `make help` or `bun run help` to print the
+same summary before reaching for specialized verification commands.
 
 For most docs-only pull requests, the **fast content loop** (`make validate-data`
 and `make linkcheck`) catches registry and linking regressions early. Run

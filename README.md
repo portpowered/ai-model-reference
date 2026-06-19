@@ -77,6 +77,18 @@ server with the stable webpack path for this workspace layout. Open
 placeholder docs route. If port `3000` is already in use, set `PORT`, for
 example `PORT=3456 make dev`.
 
+Supported maintainer entrypoints stay intentionally small. Run `make help` or
+`bun run help` to see the default workflow:
+
+```sh
+make help
+# dev, build, test, lint, validate, generate, ci, help
+```
+
+Use `make generate` when you want to refresh the maintainer-visible derived
+artifacts without starting the app, and `make validate` when you want the
+non-test validation path (`typecheck`, registry validation, and linkcheck).
+
 ## Static export (GitHub Pages)
 
 The default `bun run build` / `make build` path keeps the standard Next.js
@@ -285,8 +297,26 @@ Pages deployment runs separately via `.github/workflows/deploy.yml` on pushes to
 `main` (see [Operations and release](#operations-and-release)). PDF validation
 remains deferred to later phases.
 
-The root Makefile mirrors those CI-oriented checks locally. Run `make ci` from
-the repository root after `bun install --frozen-lockfile`; it runs, in order:
+The root Makefile mirrors those CI-oriented checks locally. The supported
+maintainer workflow is:
+
+```sh
+make help
+```
+
+That summary intentionally keeps the default path to eight commands:
+
+1. `make dev` — prepare generated prerequisites, then start the local docs app
+2. `make build` — create the production `.next/` build and run build verifiers
+3. `make test` — run the default website functionality suite
+4. `make lint` — run the Biome lint check
+5. `make validate` — run `typecheck`, `validate-data`, and `linkcheck`
+6. `make generate` — regenerate maintainer-visible derived artifacts
+7. `make ci` — run the full local quality gate sequence
+8. `make help` — print the supported workflow summary
+
+Run `make ci` from the repository root after `bun install --frozen-lockfile`;
+it runs, in order:
 
 1. `make lint` — Biome check (no auto-fix)
 2. `make typecheck` — generates Fumadocs MDX source, then `tsc --noEmit`
@@ -307,7 +337,7 @@ standalone `make typecheck`, `make test`, and `make linkcheck` succeed without
 a manual codegen step.
 
 
-Individual targets:
+Advanced and specialist targets:
 
 ```sh
 make ci            # full gate sequence above
