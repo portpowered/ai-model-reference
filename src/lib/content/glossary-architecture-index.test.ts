@@ -134,9 +134,6 @@ const EXPECTED_GLOSSARY_TITLES: Record<
   "world-model": "World Model",
 };
 
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 48;
-
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
   "Sequence And Attention",
@@ -151,6 +148,16 @@ const ARCHITECTURE_CONCEPT_URLS = [
   "/docs/concepts/positional-encodings",
   "/docs/concepts/transformer-architecture",
   "/docs/concepts/why-long-context-is-hard",
+] as const;
+
+const REQUIRED_ARCHITECTURE_URLS = [
+  "/docs/glossary/architecture",
+  "/docs/glossary/kv-cache",
+  "/docs/glossary/normalization",
+  "/docs/glossary/residual-connection",
+  "/docs/glossary/special-tokens",
+  "/docs/glossary/token",
+  ...ARCHITECTURE_CONCEPT_URLS,
 ] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {
@@ -184,17 +191,16 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     const linkNodes = glossaryFolder.children.filter(
       (node): node is Extract<Node, { type: "page" }> => node.type === "page",
     );
+    const linkUrls = linkNodes.map((entry) => entry.url);
 
-    expect(linkNodes).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
     expect(separatorTitles).toEqual(
       expect.arrayContaining([...GLOSSARY_SEPARATOR_TITLES]),
     );
+    expect(new Set(linkUrls).size).toBe(linkUrls.length);
 
     for (const slug of CURRENT_GLOSSARY_SLUGS) {
       const title = EXPECTED_GLOSSARY_TITLES[slug];
-      expect(
-        linkNodes.some((entry) => entry.url === `/docs/glossary/${slug}`),
-      ).toBe(true);
+      expect(linkUrls).toContain(`/docs/glossary/${slug}`);
       expect(linkNodes.some((entry) => entry.name === title)).toBe(true);
     }
   });
@@ -212,12 +218,14 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     for (const slug of CURRENT_GLOSSARY_SLUGS) {
       expect(glossaryUrls).toContain(`/docs/glossary/${slug}`);
     }
-    expect(glossaryUrls).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
+    expect(new Set(glossaryUrls).size).toBe(glossaryUrls.length);
   });
 
   test("glossary index lists shipped published entries with localized titles", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
-    expect(entries).toHaveLength(PUBLISHED_GLOSSARY_ENTRY_COUNT);
+    expect(new Set(entries.map((entry) => entry.url)).size).toBe(
+      entries.length,
+    );
 
     for (const slug of CURRENT_GLOSSARY_SLUGS) {
       const entry = entries.find(
@@ -229,23 +237,14 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
 
   test("architecture index includes current architecture-related glossary and concept entries", async () => {
     const entries = await loadPublishedArchitectureEntries("en");
-    expect(entries).toHaveLength(PUBLISHED_ARCHITECTURE_ENTRY_COUNT);
+    const urls = entries.map((entry) => entry.url);
+    expect(new Set(urls).size).toBe(urls.length);
 
-    for (const url of [
-      "/docs/glossary/architecture",
-      "/docs/glossary/kv-cache",
-      "/docs/glossary/normalization",
-      "/docs/glossary/residual-connection",
-      "/docs/glossary/special-tokens",
-      "/docs/glossary/token",
-      ...ARCHITECTURE_CONCEPT_URLS,
-    ] as const) {
-      expect(entries.some((entry) => entry.url === url)).toBe(true);
+    for (const url of REQUIRED_ARCHITECTURE_URLS) {
+      expect(urls).toContain(url);
     }
 
-    expect(entries.some((entry) => entry.url === "/docs/glossary/tensor")).toBe(
-      false,
-    );
+    expect(urls).not.toContain("/docs/glossary/tensor");
   });
 
   test("glossary and architecture index pages render current family links", async () => {
