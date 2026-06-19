@@ -37,7 +37,37 @@ async function createFixtureRoot(): Promise<string> {
   await mkdir(join(tempRoot, "src", "content", "registry", "concepts"), {
     recursive: true,
   });
+  await mkdir(join(tempRoot, "src", "content", "registry", "modules"), {
+    recursive: true,
+  });
+  await mkdir(join(tempRoot, "src", "content", "registry", "models"), {
+    recursive: true,
+  });
+  await mkdir(join(tempRoot, "src", "content", "registry", "papers"), {
+    recursive: true,
+  });
+  await mkdir(
+    join(tempRoot, "src", "content", "registry", "training-regimes"),
+    {
+      recursive: true,
+    },
+  );
   await mkdir(join(tempRoot, "src", "content", "docs", "concepts"), {
+    recursive: true,
+  });
+  await mkdir(join(tempRoot, "src", "content", "docs", "glossary"), {
+    recursive: true,
+  });
+  await mkdir(join(tempRoot, "src", "content", "docs", "modules"), {
+    recursive: true,
+  });
+  await mkdir(join(tempRoot, "src", "content", "docs", "models"), {
+    recursive: true,
+  });
+  await mkdir(join(tempRoot, "src", "content", "docs", "papers"), {
+    recursive: true,
+  });
+  await mkdir(join(tempRoot, "src", "content", "docs", "training"), {
     recursive: true,
   });
   return tempRoot;
@@ -140,6 +170,94 @@ describe("runGeneratePageBundleCli", () => {
     }
   });
 
+  test("dry-run supports module, model, paper, and training-regime page specs", async () => {
+    const tempRoot = await createFixtureRoot();
+    const cases = [
+      {
+        spec: {
+          kind: "module",
+          slug: `cli-module-${crypto.randomUUID()}`,
+          title: "CLI Module Dry Run",
+          summary: "Summary for module dry-run review.",
+          moduleType: "attention",
+        },
+        registryId: (slug: string) => `module.${slug}`,
+        route: (slug: string) => `/docs/modules/${slug}`,
+      },
+      {
+        spec: {
+          kind: "model",
+          slug: `cli-model-${crypto.randomUUID()}`,
+          title: "CLI Model Dry Run",
+          summary: "Summary for model dry-run review.",
+          family: "gpt",
+          sourceType: "open-weights",
+          modalities: ["text"],
+        },
+        registryId: (slug: string) => `model.${slug}`,
+        route: (slug: string) => `/docs/models/${slug}`,
+      },
+      {
+        spec: {
+          kind: "paper",
+          slug: `cli-paper-${crypto.randomUUID()}`,
+          title: "CLI Paper Dry Run",
+          summary: "Summary for paper dry-run review.",
+          authors: ["A. Author"],
+          publishedAt: "2024-01-01",
+          url: "https://example.com/paper",
+        },
+        registryId: (slug: string) => `paper.${slug}`,
+        route: (slug: string) => `/docs/papers/${slug}`,
+      },
+      {
+        spec: {
+          kind: "training-regime",
+          slug: `cli-training-${crypto.randomUUID()}`,
+          title: "CLI Training Dry Run",
+          summary: "Summary for training dry-run review.",
+          regimeType: "pretraining",
+        },
+        registryId: (slug: string) => `training-regime.${slug}`,
+        route: (slug: string) => `/docs/training/${slug}`,
+      },
+    ] as const;
+
+    try {
+      for (const testCase of cases) {
+        const specPath = join(tempRoot, `${testCase.spec.kind}-page-spec.json`);
+        await writeFile(specPath, JSON.stringify(testCase.spec));
+
+        const result = await runGeneratePageBundleCli({
+          specPath,
+          dryRun: true,
+          projectRoot: tempRoot,
+        });
+
+        expect(result.dryRun).toBe(true);
+        expect(result.plan).toContain(
+          `Registry id: ${testCase.registryId(testCase.spec.slug)}`,
+        );
+        expect(result.plan).toContain(
+          `Route: ${testCase.route(testCase.spec.slug)}`,
+        );
+        expect(result.plan).toContain("Planned files:");
+
+        for (const line of result.plan.split("\n")) {
+          if (!line.trim().startsWith("- ")) {
+            continue;
+          }
+          const path = line
+            .replace(/^\s*-\s+/, "")
+            .replace(/\s+\([^)]+\)$/, "");
+          expect(await pathExists(path)).toBe(false);
+        }
+      }
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   test("writes a concept bundle from a page-spec file", async () => {
     const tempRoot = await createFixtureRoot();
     const slug = `cli-write-${crypto.randomUUID()}`;
@@ -224,6 +342,73 @@ describe("runGeneratePageBundleCli", () => {
       ).rejects.toMatchObject({
         category: "invalid-input",
       });
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("fails before writes when expanded canonical kinds are missing required fields", async () => {
+    const tempRoot = await createFixtureRoot();
+    const cases = [
+      {
+        filename: "invalid-module-page-spec.json",
+        spec: {
+          kind: "module",
+          slug: "invalid-module",
+          title: "Invalid Module",
+          summary: "Summary",
+        },
+        expectedField: "moduleType",
+      },
+      {
+        filename: "invalid-model-page-spec.json",
+        spec: {
+          kind: "model",
+          slug: "invalid-model",
+          title: "Invalid Model",
+          summary: "Summary",
+          sourceType: "open-weights",
+        },
+        expectedField: "family",
+      },
+      {
+        filename: "invalid-paper-page-spec.json",
+        spec: {
+          kind: "paper",
+          slug: "invalid-paper",
+          title: "Invalid Paper",
+          summary: "Summary",
+          url: "https://example.com/paper",
+        },
+        expectedField: "authors",
+      },
+      {
+        filename: "invalid-training-page-spec.json",
+        spec: {
+          kind: "training-regime",
+          slug: "invalid-training",
+          title: "Invalid Training",
+          summary: "Summary",
+        },
+        expectedField: "regimeType",
+      },
+    ] as const;
+
+    try {
+      for (const testCase of cases) {
+        const specPath = join(tempRoot, testCase.filename);
+        await writeFile(specPath, JSON.stringify(testCase.spec));
+
+        await expect(
+          runGeneratePageBundleCli({
+            specPath,
+            projectRoot: tempRoot,
+          }),
+        ).rejects.toMatchObject({
+          category: "invalid-input",
+          message: expect.stringContaining(testCase.expectedField),
+        });
+      }
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }

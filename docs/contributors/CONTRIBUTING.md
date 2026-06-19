@@ -96,10 +96,11 @@ They differ in frontmatter `kind: glossary`, route prefix
 (`/docs/glossary/<slug>`), and glossary-specific message rules described in
 `glossary.content.md`.
 
-### Page generation for concept and glossary
+### Page generation for canonical bundles
 
-For **concept** and **glossary** pages, the preferred direct-authoring path is
-the page-spec workflow:
+For **concept**, **glossary**, **module**, **model**, **paper**, and
+**training-regime** pages, the preferred direct-authoring path is the page-spec
+workflow:
 
 ```sh
 bun run generate:page-bundle -- --help
@@ -126,13 +127,10 @@ unless you are reproducing an older scaffold-only workflow.
 bun run scaffold:doc-page -- --help
 ```
 
-### Template copy for other canonical kinds
-
-All other canonical kinds (**model**, **module**, **paper**, **training-regime**)
-still start from the template bundle in `docs/templates/`. Copy
-`<kind>.mdx` to `page.mdx`, rename the starter JSON files into the published
-folder, create the matching registry record under `src/content/registry/`, and
-follow `<kind>.content.md` until page-spec or scaffold support expands.
+The page-spec generator is the supported common path for those canonical kinds.
+Templates in `docs/templates/` remain the production structures behind the
+generator and the fallback path for exceptional manual work, but contributors
+should not need template copy plus multi-file hand edits in the common case.
 
 Runtime registry lookups are derived automatically from the authoritative JSON
 records under `src/content/registry/`. Those registry JSON files are the
@@ -183,11 +181,14 @@ resolve to published records in `src/content/registry/tags/` (for example
 the registry record `tags` array.
 
 When using `generate:page-bundle`, set `conceptType` in the page spec for
-concept and glossary pages. Valid values are `architecture`, `math`, `training`,
-`inference`, `systems`, `evaluation`, and `general`. Optional spec fields
-(`tags`, `aliases`, `relatedIds`, `citationIds`) seed registry and frontmatter
-fields in one step. The legacy `scaffold:doc-page` CLI accepts the same values
-through `--concept-type` and comma-separated optional flags.
+concept and glossary pages, `moduleType` for modules, `family` plus
+`sourceType` and `modalities` for models, `authors` plus `publishedAt` and
+`url` for papers, and `regimeType` for training-regime pages. Valid
+`conceptType` values are `architecture`, `math`, `training`, `inference`,
+`systems`, `evaluation`, and `general`. Optional spec fields (`tags`,
+`aliases`, `relatedIds`, `citationIds`) seed registry and frontmatter fields in
+one step. The legacy `scaffold:doc-page` CLI accepts the concept/glossary
+subset through `--concept-type` and comma-separated optional flags.
 
 ## Canonical content requirements
 
@@ -719,8 +720,8 @@ Use direct authoring when you can implement the page yourself in a pull request:
 - The work fits an existing template or the current page-generation support
   boundary.
 
-For **glossary** and **concept** pages, start with the page-spec generator
-(see [Page generation for concept and glossary](#page-generation-for-concept-and-glossary)):
+For canonical page bundles, start with the page-spec generator
+(see [Page generation for canonical bundles](#page-generation-for-canonical-bundles)):
 
 ```sh
 bun run generate:page-bundle -- --help
@@ -733,8 +734,8 @@ bun run generate:page-bundle -- --spec page-specs/page-spec-workflow-sample.json
 ```
 
 For a new page, copy `page-specs/page-spec-workflow-sample.json`, adjust
-`kind`, `slug`, `title`, `summary`, and section bodies, then dry-run before
-writing files.
+`kind`, `slug`, `title`, `summary`, and the kind-specific required fields, then
+dry-run before writing files.
 
 **Legacy scaffold** — when you need the older CLI-flag workflow, `scaffold:doc-page`
 still supports concept and glossary dry runs:
@@ -749,10 +750,6 @@ Equivalent Make entry:
 ```sh
 make scaffold ARGS='--kind glossary --slug my-term --title "My term" --concept-type general --dry-run'
 ```
-
-For **model**, **module**, **paper**, and **training-regime** pages, copy the
-matching template bundle from `docs/templates/` and create the registry record
-manually until page-spec or scaffold support expands.
 
 After generating, scaffolding, or copying a template bundle, replace placeholder copy in
 `messages/en.json`, add or update registry records the page references, and set
@@ -773,19 +770,17 @@ pages.
 
 | Path | When to use it | What you deliver |
 | --- | --- | --- |
-| **Direct pull request** | One page (or a small, tightly related set) you can implement yourself with `generate:page-bundle`, template copy, or the legacy scaffold | MDX, registry records, messages, assets, and passing local checks in a PR |
-| **Factory request** | Generator-assisted page creation for kinds the page-spec workflow does not support yet, broad conversions across many pages, or coordinated multi-page batches | A clear **idea** work item (or batch of ideas) that maintainers can route through the factory pipeline |
+| **Direct pull request** | One page (or a small, tightly related set) you can implement yourself with `generate:page-bundle`, or the legacy scaffold when reproducing older concept/glossary-only flows | MDX, registry records, messages, assets, and passing local checks in a PR |
+| **Factory request** | Broad conversions across many pages, coordinated multi-page batches, or work that goes beyond the current checked-in generator/templates | A clear **idea** work item (or batch of ideas) that maintainers can route through the factory pipeline |
 
 Direct authoring ends in a normal GitHub pull request you can review page by page.
 Factory work ends in one or more executor pull requests produced after planning
 and batch submission. Do not mix the two paths casually: if you can land the page
-with `generate:page-bundle`, template copy, or legacy scaffold plus
-`make validate-data`, prefer a direct PR.
+with `generate:page-bundle` or legacy scaffold plus `make validate-data`,
+prefer a direct PR.
 
 Examples of factory-appropriate requests:
 
-- Generator-assisted page creation for **model**, **module**, **paper**, or
-  **training-regime** kinds before scaffold support expands.
 - Broad content conversions that touch many registry records, templates, or
   message bundles at once.
 - Planned documentation batches tracked in
@@ -854,8 +849,8 @@ fields an `idea` payload needs:
 - **Page kind and slug** — for example `module` / `flash-attention`.
 - **Source material** — paper links, existing pages to align with, or draft
   outline.
-- **Starting path** — `generate:page-bundle` (concept/glossary), template sidecar
-  copy (other kinds), legacy scaffold, or generator-assisted creation.
+- **Starting path** — `generate:page-bundle`, legacy scaffold when needed for
+  older concept/glossary flows, or a broader factory transformation.
 - **Scope** — single page vs multi-page batch; whether registry or template
   changes are in scope.
 
@@ -869,8 +864,8 @@ request reviewer-ready:
 
 1. Name the **page kind** and **slug** using the rules in
    [Choosing slug, title, aliases, tags, and registryId](#choosing-slug-title-aliases-tags-and-registryid).
-2. State whether **page-spec generation**, **template copy**, **legacy scaffold**,
-   or broader **generator-assisted** creation applies today.
+2. State whether **page-spec generation**, **legacy scaffold**, or a broader
+   **generator-assisted** transformation applies today.
 3. List **source references** (papers, upstream docs, related registry IDs).
 4. Call out **tags, citations, and related IDs** you already know.
 5. Say whether the work is **one page** or part of a **larger batch** listed in

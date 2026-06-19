@@ -139,49 +139,37 @@ to `main`.
 
 ## Phase 2 docs authoring
 
-Glossary and concept pages share one scaffold path. Templates live in
+Canonical page bundles share one page-spec generation path. Templates live in
 `docs/templates/`; see [docs/documentation-template.md](./docs/documentation-template.md)
 for the message-key-driven MDX contract.
 
-### Scaffold a new page
+### Generate a canonical page bundle
 
 Preview planned paths without writing files:
 
 ```sh
-bun run scaffold:doc-page -- --kind glossary --slug my-term --title "My term" \
-  --concept-type general --dry-run
+bun run generate:page-bundle -- --spec page-specs/page-spec-workflow-sample.json --dry-run
 ```
 
-Create the four-file bundle (registry record, colocated `page.mdx` / `messages/en.json` /
-`assets.json`):
+Create the canonical bundle from one page spec. This is the supported common
+path for `concept`, `glossary`, `module`, `model`, `paper`, and
+`training-regime` pages:
 
 ```sh
-bun run scaffold:doc-page -- --kind concept --slug my-concept --title "My concept" \
-  --concept-type architecture --tags attention --related-ids concept.token
+bun run generate:page-bundle -- --spec page-specs/my-page.json
 ```
 
-Required flags:
+The generator writes the page bundle and aligned registry artifacts together:
 
-| Flag | Values |
-| --- | --- |
-| `--kind` | `glossary` or `concept` |
-| `--slug` | kebab-case slug (directory name and `concept.<slug>` registry id) |
-| `--title` | reader-facing title (written into draft messages) |
-| `--concept-type` | `architecture`, `math`, `training`, `inference`, `systems`, `evaluation`, or `general` |
+- `src/content/docs/<section>/<slug>/page.mdx`
+- `src/content/docs/<section>/<slug>/messages/en.json`
+- `src/content/docs/<section>/<slug>/assets.json`
+- `src/content/registry/<kind-directory>/<slug>.json`
+- `src/content/registry/graphs/*.json` when the template references a graph
 
-Optional flags: `--tags`, `--related-ids`, `--citation-ids`, `--aliases` (comma-separated),
-and `--dry-run`. Run `bun run scaffold:doc-page -- --help` for the full usage line.
-
-Equivalent Make entry (pass CLI args after `ARGS=`):
-
-```sh
-make scaffold ARGS='--kind glossary --slug my-term --title "My term" --concept-type general --dry-run'
-```
-
-Glossary pages land under `src/content/docs/glossary/<slug>/` and render at
-`/docs/glossary/<slug>` through the docs catch-all route (`src/app/docs/[[...slug]]/page.tsx`).
-Concept pages use `src/content/docs/concepts/<slug>/` and `/docs/concepts/<slug>` the same way.
-No per-slug App Router `page.tsx` stub is generated.
+Run `bun run generate:page-bundle -- --help` for the full page-spec contract.
+The legacy `scaffold:doc-page` CLI remains available for concept and glossary
+backward compatibility, but new canonical bundles should use the page-spec path.
 
 ## Reusable component coverage
 
@@ -337,8 +325,9 @@ the repository root after `bun install --frozen-lockfile`; it runs, in order:
 7. `make validate-data` — registry and content validation
 8. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
 
-Use `bun run scaffold:doc-page` (or `make scaffold`) when adding Phase 2 glossary or
-concept pages, then run `make validate-data` before opening a pull request.
+Use `bun run generate:page-bundle` when adding canonical concept, glossary,
+module, model, paper, or training-regime pages, then run `make validate-data`
+before opening a pull request.
 
 Fumadocs writes generated MDX bindings under `.source/` (gitignored). Fresh
 checkouts do not include that directory; the `typecheck`, `test`,
