@@ -1,10 +1,17 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 import {
+  clearRegisteredGraphRecords,
   getGraphById,
   listGraphRecords,
+  registerGraphRecords,
 } from "@/lib/content/graph-registry-runtime";
+import { graphRecordSchema } from "@/lib/content/schemas";
 
 describe("graph-registry-runtime", () => {
+  afterEach(() => {
+    clearRegisteredGraphRecords();
+  });
+
   test("loads published graph records by id", () => {
     const computeFlow = getGraphById(
       "graph.grouped-query-attention-compute-flow",
@@ -175,5 +182,42 @@ describe("graph-registry-runtime", () => {
     expect(records.map((record) => record.id)).toContain(
       "graph.expert-parallel-overlap-system-flow",
     );
+  });
+
+  test("keeps explicit overrides scoped to runtime lookup and reversible", () => {
+    const rootRecord = getGraphById("graph.gpt-3-architecture");
+    expect(rootRecord).toBeDefined();
+    const proofTemplateNode = rootRecord?.nodes[0];
+    expect(proofTemplateNode).toBeDefined();
+
+    const overrideRecord = graphRecordSchema.parse({
+      ...rootRecord,
+      nodes: [
+        ...(rootRecord?.nodes ?? []),
+        {
+          ...proofTemplateNode,
+          id: "override-proof-node",
+          labelKey: "graph.nodes.overrideProof.label",
+        },
+      ],
+    });
+
+    registerGraphRecords([overrideRecord]);
+
+    const overriddenRecord = getGraphById("graph.gpt-3-architecture");
+    expect(overriddenRecord?.nodes.map((node) => node.id)).toContain(
+      "override-proof-node",
+    );
+    expect(
+      listGraphRecords()
+        .find((record) => record.id === "graph.gpt-3-architecture")
+        ?.nodes.map((node) => node.id),
+    ).not.toContain("override-proof-node");
+
+    clearRegisteredGraphRecords();
+
+    expect(
+      getGraphById("graph.gpt-3-architecture")?.nodes.map((node) => node.id),
+    ).not.toContain("override-proof-node");
   });
 });
