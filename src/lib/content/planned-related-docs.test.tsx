@@ -45,11 +45,13 @@ describe("Phase 2 planned related docs (US-002)", () => {
     }
   });
 
-  test("RelatedDocs renders published token forward link to embedding", () => {
+  test("RelatedDocs renders published token forward links including special tokens and embedding", () => {
     const html = renderToStaticMarkup(
       <RelatedDocs registryId="concept.token" />,
     );
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain("special token");
+    expect(html).toContain('href="/docs/glossary/special-tokens"');
     expect(html).toContain("embeddings");
     expect(html).toContain('href="/docs/glossary/embedding"');
   });

@@ -1,0 +1,59 @@
+{
+  "title": "Special Tokens",
+  "description": "Reserved tokenizer markers such as beginning-of-sequence, end-of-sequence, padding, and separators that carry structural meaning instead of ordinary text meaning.",
+  "openingSummary": "Special tokens are reserved markers that a tokenizer and model agree to treat as structure instead of normal text, which is why you see tokens for sequence start, sequence end, padding, separators, and chat control markers in configs and prompts.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A special token is a vocabulary entry that is set aside for a predefined job instead of representing an ordinary piece of user text. Common examples include a beginning-of-sequence (BOS) token, an end-of-sequence (EOS) token, a padding token, and separator or control tokens. The exact printed string may look like text such as `<s>` or `<pad>`, but the important part is the reserved token ID and the role the model or tokenizer assigns to it."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Models need clear markers for structure. A BOS token can mark where decoding should begin. An EOS token can mark where a response should stop. A separator token can divide segments such as question and context. A padding token can make a batch line up to the same length without pretending those extra positions are real content. Special tokens also power many chat and instruction formats because they tell the model where a system message, user turn, or assistant turn begins."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Imagine two prompts sent together in one batch. One prompt is short and one is long. The shorter prompt is often padded with a padding token so both rows have the same length for efficient processing. A chat-style format might also add a BOS token at the front, separator or role markers between turns, and an EOS token at the end so the model can tell where each structured part begins and ends."
+    },
+    "whereYouSeeThem": {
+      "title": "Where You See Them",
+      "body": "You usually meet special tokens in tokenizer configs, prompt templates, chat formatting, model cards, and batching code. They sit next to ordinary tokens rather than replacing tokenization itself. If you are tracing a prompt through the stack, move from the token glossary into tokenizer algorithms, then into conditioning and prefill to see where the reserved markers become actual model input."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A special token is not just punctuation or a weird text string. It only behaves specially when the tokenizer vocabulary and model training agree on that reserved ID. It is also not the same as a tokenization algorithm such as byte pair encoding (BPE); BPE decides how normal text gets split, while special tokens are explicit reserved entries added around or alongside that text. Finally, seeing a printed marker in raw text does not guarantee the model will treat it as control structure unless that tokenizer maps it to the matching reserved token."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "links": {
+    "token": "Token",
+    "bpe": "Byte Pair Encoding",
+    "conditioning": "Conditioning",
+    "prefill": "Prefill"
+  },
+  "relatedDocs": {
+    "concept.token": {
+      "reason": "Start with the basic unit in the vocabulary before narrowing into reserved structural markers."
+    },
+    "module.bpe": {
+      "reason": "Compare reserved markers with the algorithm that splits ordinary text into reusable pieces."
+    },
+    "concept.conditioning": {
+      "reason": "Prompt structure only matters because the model conditions on those marked input tokens."
+    },
+    "concept.prefill": {
+      "reason": "Prefill is the stage where the structured prompt, including its special tokens, first becomes model state."
+    },
+    "model.gpt-3": {
+      "reason": "A concrete model page helps anchor the idea that reserved tokenizer markers show up in real model families, not just in abstract definitions."
+    }
+  }
+}

@@ -29,6 +29,17 @@ describe("loadPublishedGlossaryEntries", () => {
     expect(token?.summary.length).toBeGreaterThan(0);
   });
 
+  it("includes the special tokens glossary page with correct title and link", async () => {
+    const entries = await loadPublishedGlossaryEntries("en");
+    const specialTokens = entries.find(
+      (entry) => entry.slug === "glossary/special-tokens",
+    );
+    expect(specialTokens).toBeDefined();
+    expect(specialTokens?.title).toBe("Special Tokens");
+    expect(specialTokens?.url).toBe("/docs/glossary/special-tokens");
+    expect(specialTokens?.summary.length).toBeGreaterThan(0);
+  });
+
   it("includes merged glossary entries with title and summary", async () => {
     const entries = await loadPublishedGlossaryEntries("en");
     expect(entries.length).toBeGreaterThanOrEqual(50);
@@ -52,6 +63,7 @@ describe("loadPublishedGlossaryEntries", () => {
       ["/docs/glossary/top-k-sampling", "Top-K Sampling"],
       ["/docs/glossary/top-p-sampling", "Top-P Sampling"],
       ["/docs/glossary/kv-cache", "KV cache"],
+      ["/docs/glossary/special-tokens", "Special Tokens"],
       ["/docs/glossary/decode", "Decode"],
       ["/docs/glossary/prefill", "Prefill"],
       ["/docs/glossary/prefill-decode-split", "Prefill/decode split"],
@@ -125,6 +137,7 @@ describe("glossary index page render", () => {
       ["Computational Graph", "/docs/glossary/computational-graph"],
       ["Sampling Overview", "/docs/glossary/sampling-overview"],
       ["KV cache", "/docs/glossary/kv-cache"],
+      ["Special Tokens", "/docs/glossary/special-tokens"],
       ["Decode", "/docs/glossary/decode"],
       ["Prefill", "/docs/glossary/prefill"],
       ["Transformer", "/docs/glossary/transformer"],

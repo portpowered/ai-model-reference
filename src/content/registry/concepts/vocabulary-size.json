@@ -15,6 +15,7 @@
   "relatedIds": [
     "concept.token",
     "module.byte-level-tokenization",
+    "concept.special-tokens",
     "concept.embedding",
     "concept.hidden-size",
     "concept.logit",

@@ -144,6 +144,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "concept.diffusion-model",
   "concept.multimodal-model",
   "concept.world-model",
+  "concept.special-tokens",
   "concept.page-spec-workflow-sample",
   "concept.transformer-architecture",
   "concept.feed-forward-network",

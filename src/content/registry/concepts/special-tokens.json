@@ -1,0 +1,38 @@
+{
+  "id": "concept.special-tokens",
+  "slug": "special-tokens",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "special token",
+    "special tokens",
+    "control token",
+    "control tokens",
+    "BOS token",
+    "EOS token",
+    "padding token",
+    "separator token"
+  ],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [
+    "concept.token",
+    "concept.tokenizers-overview",
+    "module.bpe",
+    "module.wordpiece",
+    "module.sentencepiece",
+    "concept.conditioning",
+    "concept.prefill",
+    "model.gpt-3"
+  ],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "conceptType": "general",
+  "sidebarGrouping": {
+    "glossary": "sequence-and-attention"
+  },
+  "prerequisiteIds": ["concept.token"],
+  "explainsIds": []
+}

@@ -94,6 +94,7 @@ describe("registry-runtime", () => {
     ]);
     expect(record?.relatedIds).toEqual([
       "module.byte-level-tokenization",
+      "concept.special-tokens",
       "concept.embedding",
       "concept.vocabulary-size",
       "concept.logit",

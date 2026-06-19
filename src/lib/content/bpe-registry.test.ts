@@ -24,6 +24,7 @@ describe("bpe registry relationships", () => {
 
     expect(items.map((item) => item.registryId)).toEqual([
       "concept.token",
+      "concept.special-tokens",
       "concept.tokenizers-overview",
       "module.wordpiece",
       "module.sentencepiece",
@@ -31,6 +32,7 @@ describe("bpe registry relationships", () => {
     ]);
     expect(items.map((item) => item.href)).toEqual([
       "/docs/glossary/token",
+      "/docs/glossary/special-tokens",
       undefined,
       undefined,
       undefined,
@@ -38,12 +40,13 @@ describe("bpe registry relationships", () => {
     ]);
     expect(items.map((item) => item.isPlanned)).toEqual([
       false,
+      false,
       true,
       true,
       true,
       false,
     ]);
-    expect(items.slice(1, 4).map((item) => item.reasonLabel)).toEqual([
+    expect(items.slice(2, 5).map((item) => item.reasonLabel)).toEqual([
       PLANNED_RELATED_REASON_LABEL,
       PLANNED_RELATED_REASON_LABEL,
       PLANNED_RELATED_REASON_LABEL,

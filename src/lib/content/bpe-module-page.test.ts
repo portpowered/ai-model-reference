@@ -76,6 +76,7 @@ describe("loadModulePage bpe", () => {
     expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
     expect(html).toContain('href="/tags/tokenization"');
     expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).toContain('href="/docs/glossary/special-tokens"');
     expect(html).toContain('href="/docs/models/gpt-3"');
     expect(html).toContain("WordPiece");
     expect(html).toContain("SentencePiece");
