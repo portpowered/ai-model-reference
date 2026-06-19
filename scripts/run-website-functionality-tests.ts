@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { readdirSync } from "node:fs";
 import { availableParallelism } from "node:os";
 import { join, relative } from "node:path";
+import { resolveWebsiteTestParallelWorkers } from "../src/lib/verify/website-test-workers";
 
 const repoRoot = join(import.meta.dir, "..");
 const defaultParallelWorkers = Math.max(
@@ -70,17 +71,9 @@ function isExcluded(relativePath: string): boolean {
 }
 
 function resolveShardWorkers(): number {
-  const raw = process.env.WEBSITE_TEST_PARALLEL_WORKERS?.trim();
-  if (!raw) {
-    return defaultParallelWorkers;
-  }
-
-  const parsed = Number.parseInt(raw, 10);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return defaultParallelWorkers;
-  }
-
-  return parsed;
+  return resolveWebsiteTestParallelWorkers({
+    defaultWorkers: defaultParallelWorkers,
+  });
 }
 
 function runBunTestShard(args: string[]): Promise<number> {
