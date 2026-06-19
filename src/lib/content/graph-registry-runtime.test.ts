@@ -52,17 +52,23 @@ describe("graph-registry-runtime", () => {
     const records = listGraphRecords();
     const ids = records.map((record) => record.id);
 
+    expect(records.length).toBe(49);
     expect(ids).toContain(CANONICAL_GRAPH_ID);
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids).toContain("graph.batching-system-flow");
+    expect(ids).toContain("graph.bpe-compute-flow");
+    expect(ids).toContain("graph.sentencepiece-compute-flow");
+    expect(ids).toContain("graph.byte-level-tokenization-compute-flow");
+    expect(ids).toContain("graph.deepseek-v4-contribution");
+    expect(ids).toContain("graph.bidirectional-attention-time-pattern");
+    expect(ids).toContain("graph.deepseek-v4-flash-architecture");
+    expect(ids).toContain("graph.deepseek-v4-pro-architecture");
+    expect(ids).toContain("graph.expert-parallel-overlap-system-flow");
     expect(ids).toContain("graph.inference-engine-system-flow");
     expect(ids).toContain("graph.routing-system-flow");
-    expect(ids).toContain("graph.expert-parallel-overlap-system-flow");
-    expect(ids).toContain("graph.byte-level-tokenization-compute-flow");
-    expect(ids).toContain("graph.deepseek-v4-pro-architecture");
-    expect(records.find((record) => record.id === CANONICAL_GRAPH_ID)?.subjectId).toBe(
-      "model.gpt-3",
-    );
+    expect(
+      records.find((record) => record.id === CANONICAL_GRAPH_ID)?.subjectId,
+    ).toBe("model.gpt-3");
   });
 
   test("uses registered records for lookup without adding override-only records to the bundled listing", () => {
