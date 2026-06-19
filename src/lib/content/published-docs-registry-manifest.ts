@@ -867,6 +867,14 @@ export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
     section: "modules",
   },
   {
+    registryId: "module.sentencepiece",
+    slug: "sentencepiece",
+    docsSlug: "modules/sentencepiece",
+    url: "/docs/modules/sentencepiece",
+    pageKind: "module",
+    section: "modules",
+  },
+  {
     registryId: "module.batch-norm",
     slug: "batch-norm",
     docsSlug: "modules/batch-norm",
@@ -1121,6 +1129,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "module.relu",
   "module.rmsnorm",
   "module.rope",
+  "module.sentencepiece",
   "module.silu",
   "module.sinusoidal-positional-embeddings",
   "module.sliding-window-attention",

@@ -126,8 +126,8 @@ describe("special tokens registry record", () => {
     const sentencepiece = items.find(
       (item) => item.registryId === "module.sentencepiece",
     );
-    expect(sentencepiece?.href).toBeUndefined();
-    expect(sentencepiece?.isPlanned).toBe(true);
+    expect(sentencepiece?.href).toBe("/docs/modules/sentencepiece");
+    expect(sentencepiece?.isPlanned).toBe(false);
   });
 
   test("registry validation accepts the special-tokens record", async () => {

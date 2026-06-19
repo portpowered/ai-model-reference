@@ -275,12 +275,13 @@ describe("Phase 1 baseline registry records", () => {
 
     expect(module.id).toBe("module.sentencepiece");
     expect(module.kind).toBe("module");
-    expect(module.status).toBe("draft");
+    expect(module.status).toBe("published");
     expect(module.moduleType).toBe("tokenizer");
     expect(module.moduleFamily).toBe("tokenization");
     expect(module.variantGroup).toBe("subword-tokenizers");
     expect(module.relatedIds).toContain("module.bpe");
     expect(module.relatedIds).toContain("module.wordpiece");
+    expect(module.citationIds).toContain("citation.kudo-sentencepiece");
   });
 
   test("token concept JSON passes conceptRecordSchema", async () => {

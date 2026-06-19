@@ -10,7 +10,7 @@ import {
 } from "@/lib/content/related-docs";
 
 describe("bpe registry relationships", () => {
-  test("curated related ids preserve published routes and draft tokenizer neighbors", () => {
+  test("curated related ids preserve published routes and draft-or-shipped tokenizer neighbors", () => {
     const source = getRegistryRecordById("module.bpe");
     if (!source) {
       throw new Error("expected module.bpe in registry runtime");
@@ -35,7 +35,7 @@ describe("bpe registry relationships", () => {
       "/docs/glossary/special-tokens",
       undefined,
       undefined,
-      undefined,
+      "/docs/modules/sentencepiece",
       "/docs/models/gpt-3",
     ]);
     expect(items.map((item) => item.isPlanned)).toEqual([
@@ -43,13 +43,13 @@ describe("bpe registry relationships", () => {
       false,
       true,
       true,
-      true,
+      false,
       false,
     ]);
     expect(items.slice(2, 5).map((item) => item.reasonLabel)).toEqual([
       PLANNED_RELATED_REASON_LABEL,
       PLANNED_RELATED_REASON_LABEL,
-      PLANNED_RELATED_REASON_LABEL,
+      "curated",
     ]);
   });
 });
