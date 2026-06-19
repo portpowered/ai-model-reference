@@ -16,6 +16,7 @@
   ],
   "tags": ["tokenization"],
   "relatedIds": [
+    "paper.gpt-2-report",
     "concept.token",
     "concept.tokenizers-overview",
     "module.bpe",
