@@ -1,0 +1,32 @@
+{
+  "id": "citation.deepseekmath-paper",
+  "slug": "deepseekmath-paper",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["DeepSeekMath paper", "GRPO paper"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Zhihong Shao",
+    "Peiyi Wang",
+    "Qihao Zhu",
+    "Runxin Xu",
+    "Junxiao Song",
+    "Xiao Bi",
+    "Haowei Zhang",
+    "Mingchuan Zhang",
+    "Y. K. Li",
+    "Yu Wu",
+    "Daya Guo"
+  ],
+  "title": "DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models",
+  "year": 2024,
+  "url": "https://arxiv.org/abs/2402.03300",
+  "mla": "Shao, Zhihong, et al. \"DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models.\" arXiv, 2024, https://arxiv.org/abs/2402.03300."
+}

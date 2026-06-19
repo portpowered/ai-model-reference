@@ -1,0 +1,67 @@
+---
+title: "Group Relative Policy Optimization"
+description: "A post-training reinforcement-learning method that compares several sampled answers for the same prompt and updates the model from their relative quality."
+kind: "training-regime"
+registryId: "training-regime.grpo"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - foundations
+aliases:
+  - "GRPO"
+  - "Group Relative Preference Optimization"
+updatedAt: "2026-06-19"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { TrainingRegimeAtAGlance } from "@/features/models/components/TrainingRegimeAtAGlance";
+import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeFlow";
+
+
+<TrainingRegimeAtAGlance registryId="training-regime.grpo" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-it-exists" titleKey="sections.whyItExists.title">
+  <T k="sections.whyItExists.body" />
+</Section>
+
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+  <TrainingRegimeFlow registryId="training-regime.grpo" assetId="trainingFlow" />
+  <BlockMath formula="A_i = \\frac{r_i - \\operatorname{mean}(r_{1:G})}{\\operatorname{std}(r_{1:G})}" />
+</Section>
+
+<Section
+  id="compared-to-nearby-regimes"
+  titleKey="sections.comparedToNearbyRegimes.title"
+>
+  <T k="sections.comparedToNearbyRegimes.body" />
+</Section>
+
+<Section
+  id="limitations-and-failure-modes"
+  titleKey="sections.limitationsAndFailureModes.title"
+>
+  <T k="sections.limitationsAndFailureModes.body" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="training-regime.grpo" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="training-regime.grpo" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="training-regime.grpo" />
+</Section>

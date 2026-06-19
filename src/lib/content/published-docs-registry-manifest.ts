@@ -35,6 +35,14 @@ export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
     section: "training",
   },
   {
+    registryId: "training-regime.grpo",
+    slug: "grpo",
+    docsSlug: "training/grpo",
+    url: "/docs/training/grpo",
+    pageKind: "training-regime",
+    section: "training",
+  },
+  {
     registryId: "training-regime.on-policy-distillation",
     slug: "on-policy-distillation",
     docsSlug: "training/on-policy-distillation",
@@ -1161,6 +1169,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "system.routing",
   "training-regime.dpo",
   "training-regime.fp4-quantization-aware-training",
+  "training-regime.grpo",
   "training-regime.on-policy-distillation",
   "training-regime.specialist-training",
 ] as const;

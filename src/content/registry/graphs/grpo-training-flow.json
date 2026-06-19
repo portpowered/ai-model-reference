@@ -1,0 +1,84 @@
+{
+  "id": "graph.grpo-training-flow",
+  "slug": "grpo-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GRPO training flow"],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.deepseekmath-paper"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "training-regime.grpo",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "prompt",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "prompt",
+      "labelKey": "graph.nodes.prompt.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 220, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": ["sample-group"]
+    },
+    {
+      "id": "sample-group",
+      "labelKey": "graph.nodes.sampleGroup.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 110 },
+      "size": { "width": 220, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["relative-score"]
+    },
+    {
+      "id": "relative-score",
+      "labelKey": "graph.nodes.relativeScore.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 240 },
+      "size": { "width": 220, "height": 80 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["policy-update"]
+    },
+    {
+      "id": "policy-update",
+      "labelKey": "graph.nodes.policyUpdate.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 370 },
+      "size": { "width": 220, "height": 70 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "prompt-sample-group",
+      "source": "prompt",
+      "target": "sample-group",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "sample-group-relative-score",
+      "source": "sample-group",
+      "target": "relative-score",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "relative-score-policy-update",
+      "source": "relative-score",
+      "target": "policy-update",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

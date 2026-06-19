@@ -21,6 +21,7 @@ import groupedQueryAttentionComputeFlowGraphRecord from "@/content/registry/grap
 import groupedQueryAttentionComputeSchemaGraphRecord from "@/content/registry/graphs/grouped-query-attention-compute-schema.json";
 import groupedQueryAttentionGqaComparisonGraphRecord from "@/content/registry/graphs/grouped-query-attention-gqa-comparison.json";
 import groupedQueryAttentionMhaComparisonGraphRecord from "@/content/registry/graphs/grouped-query-attention-mha-comparison.json";
+import grpoTrainingFlowGraphRecord from "@/content/registry/graphs/grpo-training-flow.json";
 import heavilyCompressedAttentionFlowGraphRecord from "@/content/registry/graphs/heavily-compressed-attention-flow.json";
 import layerNormComputeFlowGraphRecord from "@/content/registry/graphs/layer-norm-compute-flow.json";
 import leakyReluActivationFlowGraphRecord from "@/content/registry/graphs/leaky-relu-activation-flow.json";
@@ -73,6 +74,7 @@ export const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(groupedQueryAttentionComputeSchemaGraphRecord),
   graphRecordSchema.parse(groupedQueryAttentionGqaComparisonGraphRecord),
   graphRecordSchema.parse(groupedQueryAttentionMhaComparisonGraphRecord),
+  graphRecordSchema.parse(grpoTrainingFlowGraphRecord),
   graphRecordSchema.parse(heavilyCompressedAttentionFlowGraphRecord),
   graphRecordSchema.parse(layerNormComputeFlowGraphRecord),
   graphRecordSchema.parse(leakyReluActivationFlowGraphRecord),
