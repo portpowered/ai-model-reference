@@ -69,9 +69,13 @@ bun install
 make dev
 ```
 
-`make dev` runs the same Next.js dev entrypoint as `bun run dev`. Open
+`make dev` runs the supported local docs workflow: it regenerates shipped
+localized docs, the published docs manifest, registry runtime modules, and
+table-registry verification prerequisites before starting the Next.js dev
+server with the stable webpack path for this workspace layout. Open
 `http://localhost:3000` for the home page and `/docs/getting-started` for the
-placeholder docs route.
+placeholder docs route. If port `3000` is already in use, set `PORT`, for
+example `PORT=3456 make dev`.
 
 ## Static export (GitHub Pages)
 

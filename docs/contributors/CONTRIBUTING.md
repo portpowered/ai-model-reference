@@ -386,8 +386,10 @@ make dev
 ```
 
 Open the page route in the browser (for example
-`http://localhost:3000/docs/modules/grouped-query-attention`). Pick a free port
-if `3000` is already in use: `bun run dev -- -p 3456`.
+`http://localhost:3000/docs/modules/grouped-query-attention`). `make dev`
+regenerates the generated-content prerequisites it depends on before the dev
+server starts. Pick a free port if `3000` is already in use:
+`PORT=3456 make dev`.
 
 ### Full quality gate before PR
 
