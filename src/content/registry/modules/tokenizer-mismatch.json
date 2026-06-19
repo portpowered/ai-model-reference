@@ -22,20 +22,15 @@
     "concept.embedding",
     "model.gpt-3"
   ],
-  "citationIds": ["citation.gpt-2-report"],
+  "citationIds": [
+    "citation.zero-shot-tokenizer-transfer",
+    "citation.sennrich-bpe",
+    "citation.hugging-face-chat-templates",
+    "citation.hugging-face-chat-templates-docs"
+  ],
   "status": "published",
   "createdAt": "2026-06-19T00:00:00.000Z",
   "updatedAt": "2026-06-19T00:00:00.000Z",
-  "releaseDate": "2019-02-14",
-  "authors": [
-    "Alec Radford",
-    "Jeffrey Wu",
-    "Rewon Child",
-    "David Luan",
-    "Dario Amodei",
-    "Ilya Sutskever"
-  ],
-  "sourceId": "citation.gpt-2-report",
   "moduleType": "tokenizer",
   "moduleFamily": "tokenization",
   "conceptType": "tokenizer-compatibility",

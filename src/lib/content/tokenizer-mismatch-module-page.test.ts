@@ -13,6 +13,7 @@ import { TOKENIZER_MISMATCH_PAGE_DIR } from "@/lib/content/content-paths";
 import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
+import { buildPageReleaseMetadata } from "@/lib/content/page-release-metadata";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
 import { getRegistryRecordById } from "@/lib/content/registry-runtime";
@@ -76,6 +77,18 @@ describe("loadModulePage tokenizer-mismatch", () => {
     expect(record.tags).toEqual(
       expect.arrayContaining(["tokenization", "foundations"]),
     );
+    expect(record.citationIds).toEqual(
+      expect.arrayContaining([
+        "citation.zero-shot-tokenizer-transfer",
+        "citation.sennrich-bpe",
+        "citation.hugging-face-chat-templates",
+        "citation.hugging-face-chat-templates-docs",
+      ]),
+    );
+    expect(record.releaseDate).toBeUndefined();
+    expect(record.authors).toBeUndefined();
+    expect(record.sourceId).toBeUndefined();
+    expect(buildPageReleaseMetadata(record)).toBeNull();
 
     const searchDocument = buildSearchDocuments(pages, registry).find(
       (entry) => entry.url === "/docs/modules/tokenizer-mismatch",
@@ -123,6 +136,8 @@ describe("loadModulePage tokenizer-mismatch", () => {
       expect(atAGlanceIndex).toBeLessThan(whatItIsIndex);
     }
     expect(whatItIsIndex).toBeGreaterThanOrEqual(0);
+    expect(html).not.toContain("Released");
+    expect(html).not.toContain("Alec Radford");
   });
 
   test("compiles MDX with local namespaces and renders tokenizer compatibility content", async () => {
