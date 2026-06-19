@@ -43,6 +43,7 @@ describe("Phase 5 prefill glossary page (US-002)", () => {
       "concept.kv-cache",
       "concept.decode",
       "concept.prefill-decode-split",
+      "system.batching",
       "concept.autoregressive-generation",
       "module.attention",
       "module.multi-query-attention",
@@ -136,6 +137,7 @@ describe("Phase 5 prefill glossary page (US-002)", () => {
     expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain('href="/docs/glossary/decode"');
     expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
+    expect(html).toContain('href="/docs/systems/batching"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');

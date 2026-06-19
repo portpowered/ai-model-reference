@@ -72,6 +72,9 @@ describe("batching docs route render", () => {
     expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain('href="/docs/systems/on-disk-kv-cache"');
     expect(html).toContain('href="/docs/systems/expert-parallel-overlap"');
+    expect(html).toContain("batch formation");
+    expect(html).toContain("total system output improves");
+    expect(html).toContain("prefill/decode split");
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain("throughput");
     expect(html).toContain("queue");

@@ -17,7 +17,7 @@
     },
     "practicalImpact": {
       "title": "Practical Impact",
-      "body": "The gain is higher throughput and better device utilization because fixed overhead is amortized across more useful tokens. The cost is that a request may wait in queue for batch formation, and an oversized or poorly matched batch can stretch first-token latency or inter-token latency even while total system output improves."
+      "body": "The gain is higher throughput and better device utilization because fixed overhead is amortized across more useful tokens. The cost is that a request may wait in queue for batch formation, and an oversized or poorly matched batch can stretch first-token latency or inter-token latency even while total system output improves. In practice, batching sits across the same serving path as prefill, decode, and the KV cache, which is why operators sometimes separate the batched prompt pass from the batched token loop with a prefill/decode split."
     },
     "related": {
       "title": "Related To"
