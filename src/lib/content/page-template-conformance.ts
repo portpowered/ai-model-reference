@@ -84,6 +84,8 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/yarn/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "training/ppo/page.mdx":
+    "Canonical PPO page adds symbol-only math definitions under the required BlockMath without changing the baseline training-regime flow.",
 };
 
 const templateStructureCache = new Map<

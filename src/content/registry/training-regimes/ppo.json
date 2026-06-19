@@ -1,0 +1,35 @@
+{
+  "id": "training-regime.ppo",
+  "slug": "ppo",
+  "kind": "training-regime",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["PPO", "Proximal Policy Optimization", "PPO RLHF", "RLHF PPO"],
+  "tags": ["foundations", "taxonomy"],
+  "relatedIds": ["concept.alignment"],
+  "citationIds": [
+    "citation.proximal-policy-optimization-algorithms",
+    "citation.training-language-models-to-follow-instructions-with-human-feedback"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "releaseDate": "2017-07-20",
+  "authors": [
+    "John Schulman",
+    "Filip Wolski",
+    "Prafulla Dhariwal",
+    "Alec Radford",
+    "Oleg Klimov"
+  ],
+  "sourceId": "citation.proximal-policy-optimization-algorithms",
+  "regimeType": "post-training",
+  "usedByModelIds": [],
+  "relatedModuleIds": [],
+  "paperIds": [],
+  "conceptType": "training",
+  "variantGroup": "preference-optimization",
+  "sidebarGrouping": {
+    "training": "post-training"
+  }
+}

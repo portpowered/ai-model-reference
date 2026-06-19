@@ -77,6 +77,7 @@ describe("Phase 2 training behavior glossary pages (US-004)", () => {
   test("alignment links to training peers and published token-chain glossary pages", async () => {
     const html = await renderGlossaryHtml("alignment");
 
+    expect(html).toContain('href="/docs/training/ppo"');
     expect(html).toContain('href="/docs/glossary/model-capacity"');
     expect(html).toContain('href="/docs/glossary/overfitting"');
     expect(html).toContain('href="/docs/glossary/generalization"');

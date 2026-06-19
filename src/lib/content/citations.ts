@@ -29,6 +29,7 @@ import multilayerFeedforwardNetworksAreUniversalApproximators from "@/content/re
 import onPolicyDistillationOfLanguageModels from "@/content/registry/citations/on-policy-distillation-of-language-models.json";
 import pengYarn from "@/content/registry/citations/peng-yarn.json";
 import pressAlibi from "@/content/registry/citations/press-alibi.json";
+import proximalPolicyOptimizationAlgorithms from "@/content/registry/citations/proximal-policy-optimization-algorithms.json";
 import qlora from "@/content/registry/citations/qlora.json";
 import quantizationIntegerOnlyInference from "@/content/registry/citations/quantization-integer-only-inference.json";
 import queryKeyNormalizationForTransformers from "@/content/registry/citations/query-key-normalization-for-transformers.json";
@@ -89,6 +90,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(onPolicyDistillationOfLanguageModels),
   citationRecordSchema.parse(pengYarn),
   citationRecordSchema.parse(pressAlibi),
+  citationRecordSchema.parse(proximalPolicyOptimizationAlgorithms),
   citationRecordSchema.parse(qlora),
   citationRecordSchema.parse(quantizationIntegerOnlyInference),
   citationRecordSchema.parse(queryKeyNormalizationForTransformers),

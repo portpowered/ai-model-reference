@@ -12,7 +12,7 @@ type PageMathFormulaProps = {
   mathId: string;
 };
 
-function PageMathVariableDefinitions({ mathId }: PageMathFormulaProps) {
+export function PageMathVariableDefinitions({ mathId }: PageMathFormulaProps) {
   const { messages, isDev } = usePageMessages();
   const definitionsKey = `math.${mathId}.variableDefinitions`;
   const definitions = messages.math?.[mathId]?.variableDefinitions;
