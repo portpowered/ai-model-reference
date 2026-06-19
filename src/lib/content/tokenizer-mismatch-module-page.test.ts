@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { parsePageAssetConfig } from "@/lib/content/assets";
 import { TOKENIZER_MISMATCH_PAGE_DIR } from "@/lib/content/content-paths";
@@ -10,7 +11,12 @@ import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test
 import { loadModulePage } from "@/lib/content/module-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
+import { loadRegistry } from "@/lib/content/registry";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+import { loadTagResourceGroups } from "@/lib/content/tag-resources";
+import { loadUiMessages } from "@/lib/content/ui-messages";
+import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 const pageDir = TOKENIZER_MISMATCH_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
@@ -98,6 +104,66 @@ describe("loadModulePage tokenizer-mismatch", () => {
     expect(html).toContain('href="/docs/glossary/embedding"');
     expect(html).toContain('href="/docs/models/gpt-3"');
     expect(html).not.toContain("Reader Shortcut");
+  });
+
+  test("search documents and live search surface tokenizer mismatch for representative tokenizer failure queries", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const document = documents.find(
+      (entry) => entry.url === "/docs/modules/tokenizer-mismatch",
+    );
+
+    expect(document?.kind).toBe("module");
+    expect(document?.facets.kind).toBe("module");
+    expect(document?.aliases).toEqual(
+      expect.arrayContaining([
+        "tokenizer mismatch",
+        "wrong tokenizer",
+        "special token mismatch",
+        "prompt token mismatch",
+      ]),
+    );
+    expect(document?.tags).toEqual(
+      expect.arrayContaining(["tokenization", "foundations"]),
+    );
+    expect(document?.bodyText).toContain("chat-template wrappers");
+    expect(document?.bodyText).toContain("weakens embeddings-based retrieval");
+
+    for (const query of [
+      "tokenizer mismatch",
+      "wrong tokenizer",
+      "special token mismatch",
+      "prompt token mismatch",
+    ] as const) {
+      const results = await docsSearchApi.search(query);
+
+      expect(results.length).toBeGreaterThan(0);
+      expect(
+        results.some(
+          (result) => result.url === "/docs/modules/tokenizer-mismatch",
+        ),
+      ).toBe(true);
+    }
+  });
+
+  test("tokenization tag landing page surfaces tokenizer mismatch without typing the direct route", async () => {
+    const messages = await loadUiMessages();
+    const groups = await loadTagResourceGroups("tokenization", messages, "en");
+    const moduleGroup = groups.find((group) => group.kind === "module");
+
+    expect(moduleGroup?.resources.map((resource) => resource.url)).toContain(
+      "/docs/modules/tokenizer-mismatch",
+    );
+
+    const page = await TagLandingPage({
+      params: Promise.resolve({ slug: "tokenization" }),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Tokenization");
+    expect(html).toContain('href="/docs/modules/tokenizer-mismatch"');
+    expect(html).toContain('href="/search?tag=tokenization"');
   });
 });
 
