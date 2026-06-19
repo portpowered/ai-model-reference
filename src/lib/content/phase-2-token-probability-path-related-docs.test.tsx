@@ -118,7 +118,7 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');
-    expect(html).toContain(">curated<");
+    expect(html).toContain("Show 1 more");
   });
 
   test("token related links remain keyboard-focusable docs chrome anchors", async () => {
