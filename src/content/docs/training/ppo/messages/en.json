@@ -39,6 +39,34 @@
       "caption": "PPO keeps sampling, scoring, and clipped policy updates inside one repeated RLHF-style loop."
     }
   },
+  "math": {
+    "ppoClipObjective": {
+      "label": "PPO clipped objective",
+      "formula": "L^{\\mathrm{CLIP}}(\\theta)=\\mathbb{E}_t\\left[\\min\\left(r_t(\\theta)A_t,\\operatorname{clip}(r_t(\\theta),1-\\epsilon,1+\\epsilon)A_t\\right)\\right]",
+      "variableDefinitions": {
+        "lclip": {
+          "term": "L^{\\mathrm{CLIP}}(\\theta)",
+          "definition": "the clipped PPO objective for the current policy parameters"
+        },
+        "rt": {
+          "term": "r_t(\\theta)",
+          "definition": "the ratio between the new policy probability and the old policy probability for sample t"
+        },
+        "at": {
+          "term": "A_t",
+          "definition": "the advantage estimate for sample t"
+        },
+        "epsilon": {
+          "term": "\\epsilon",
+          "definition": "the clip width that limits how far the ratio can move in one update"
+        },
+        "et": {
+          "term": "\\mathbb{E}_t",
+          "definition": "the average over sampled training steps t"
+        }
+      }
+    }
+  },
   "graph": {
     "nodes": {
       "rollout": {
