@@ -355,40 +355,48 @@ describe("docs search static client", () => {
     globalThis.fetch = originalFetch;
   });
 
-  test("orama static client returns grouped-query attention for GQA", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+  test.serial(
+    "orama static client returns grouped-query attention for GQA",
+    async () => {
+      globalThis.fetch = createDocsSearchRouteFetch();
+      const results = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "GQA"),
+        (candidateResults) => candidateResults[0]?.url === SAMPLE_URL,
+      );
 
-    const results = await retrySearchResults(
-      createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "GQA"),
-      (candidateResults) => candidateResults[0]?.url === SAMPLE_URL,
-    );
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0]?.url).toBe(SAMPLE_URL);
+    },
+  );
 
-    expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.url).toBe(SAMPLE_URL);
-  });
+  test.serial(
+    "orama static client returns non-empty attention results including bidirectional attention before app-level reranking",
+    async () => {
+      globalThis.fetch = createDocsSearchRouteFetch();
+      const results = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "attention"),
+        (candidateResults) =>
+          resultsIncludeUrl(candidateResults, PHASE_1_ATTENTION_MODULE_URL),
+      );
 
-  test("orama static client returns non-empty attention results including bidirectional attention before app-level reranking", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+      expect(results.length).toBeGreaterThan(0);
+      expect(resultsIncludeUrl(results, BIDIRECTIONAL_ATTENTION_URL)).toBe(
+        true,
+      );
+    },
+  );
 
-    const results = await retrySearchResults(
-      createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "attention"),
-      (candidateResults) =>
-        resultsIncludeUrl(candidateResults, PHASE_1_ATTENTION_MODULE_URL),
-    );
+  test.serial(
+    "orama static client includes grouped-query attention for KV cache",
+    async () => {
+      globalThis.fetch = createDocsSearchRouteFetch();
+      const results = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "KV cache"),
+        resultsIncludeSampleModule,
+      );
 
-    expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeUrl(results, BIDIRECTIONAL_ATTENTION_URL)).toBe(true);
-  });
-
-  test("orama static client includes grouped-query attention for KV cache", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
-
-    const results = await retrySearchResults(
-      createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "KV cache"),
-      resultsIncludeSampleModule,
-    );
-
-    expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeSampleModule(results)).toBe(true);
-  });
+      expect(results.length).toBeGreaterThan(0);
+      expect(resultsIncludeSampleModule(results)).toBe(true);
+    },
+  );
 });

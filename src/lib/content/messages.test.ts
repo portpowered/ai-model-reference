@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import fixture from "@/lib/content/__fixtures__/page-messages.json";
 import {
   lookupMessage,
   MissingMessageKeyError,
@@ -14,6 +14,13 @@ import {
   tokenGlossaryPageDir,
 } from "./page-messages-load";
 import type { PageMessages } from "./schemas";
+
+const fixture = JSON.parse(
+  readFileSync(
+    join(import.meta.dir, "__fixtures__", "page-messages.json"),
+    "utf8",
+  ),
+);
 
 const validMessages = {
   title: "Grouped-Query Attention",
