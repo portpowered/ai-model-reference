@@ -170,6 +170,7 @@ import yarnModule from "@/content/registry/modules/yarn.json";
 import deepseekAiOrganization from "@/content/registry/organizations/deepseek-ai.json";
 import deepseekV4Paper from "@/content/registry/papers/deepseek-v4.json";
 import expertParallelOverlapSystem from "@/content/registry/systems/expert-parallel-overlap.json";
+import inferenceEngineSystem from "@/content/registry/systems/inference-engine.json";
 import onDiskKvCacheSystem from "@/content/registry/systems/on-disk-kv-cache.json";
 import fp4QuantizationAwareTrainingRegime from "@/content/registry/training-regimes/fp4-quantization-aware-training.json";
 import onPolicyDistillationRegime from "@/content/registry/training-regimes/on-policy-distillation.json";
@@ -359,6 +360,7 @@ const trainingRegimeRecords: TrainingRegimeRecord[] = [
   trainingRegimeRecordSchema.parse(fp4QuantizationAwareTrainingRegime),
 ];
 const systemRecords: SystemRecord[] = [
+  systemRecordSchema.parse(inferenceEngineSystem),
   systemRecordSchema.parse(onDiskKvCacheSystem),
   systemRecordSchema.parse(expertParallelOverlapSystem),
 ];
