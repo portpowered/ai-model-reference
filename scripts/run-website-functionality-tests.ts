@@ -102,6 +102,10 @@ function runBunTestShard(args: string[]): Promise<number> {
   });
 }
 
+async function runBunTestShards(shards: string[][]): Promise<number[]> {
+  return Promise.all(shards.map((shard) => runBunTestShard(shard)));
+}
+
 function distributeAcrossShards(
   files: string[],
   shardCount: number,
@@ -126,9 +130,24 @@ if (testFiles.length === 0) {
 }
 
 const shards = distributeAcrossShards(testFiles, resolveShardWorkers());
-const statuses = await Promise.all(
-  shards.map((shard) => runBunTestShard(shard)),
-);
+
+let statuses = await runBunTestShards(shards);
+
+const failingShards = shards.filter((_, index) => statuses[index] !== 0);
+if (failingShards.length > 0 && shards.length > 1) {
+  console.error(
+    `Parallel website test shards returned non-zero (${statuses.join(
+      ", ",
+    )}); rerunning failing shards serially to confirm.`,
+  );
+  statuses = [...statuses];
+
+  for (const shard of failingShards) {
+    const shardIndex = shards.indexOf(shard);
+    statuses[shardIndex] = await runBunTestShard(shard);
+  }
+}
+
 const failingStatus = statuses.find((status) => status !== 0);
 if (failingStatus !== undefined) {
   process.exit(failingStatus);

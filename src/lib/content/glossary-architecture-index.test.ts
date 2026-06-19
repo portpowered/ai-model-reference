@@ -135,7 +135,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<
 };
 
 const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 48;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 49;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -149,6 +149,7 @@ const ARCHITECTURE_CONCEPT_URLS = [
   "/docs/concepts/context-extension",
   "/docs/concepts/page-spec-workflow-sample",
   "/docs/concepts/positional-encodings",
+  "/docs/concepts/rope",
   "/docs/concepts/transformer-architecture",
   "/docs/concepts/why-long-context-is-hard",
 ] as const;

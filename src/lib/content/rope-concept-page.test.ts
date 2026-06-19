@@ -50,7 +50,7 @@ describe("RoPE concept page", () => {
     ).toBe("/docs/modules/relative-position-bias");
     expect(
       items.find((item) => item.registryId === "concept.alibi")?.href,
-    ).toBe("/docs/modules/alibi");
+    ).toBe("/docs/concepts/alibi");
     expect(
       items.find((item) => item.registryId === "concept.ntk-aware-rope-scaling")
         ?.href,
@@ -114,7 +114,7 @@ describe("RoPE concept page", () => {
     expect(html).toContain("older absolute positional");
     expect(html).toContain('href="/docs/concepts/positional-encodings"');
     expect(html).toContain('href="/docs/modules/relative-position-bias"');
-    expect(html).toContain('href="/docs/modules/alibi"');
+    expect(html).toContain('href="/docs/concepts/alibi"');
     expect(html).toContain('href="/docs/modules/ntk-aware-rope-scaling"');
     expect(html).toContain('href="/docs/modules/longrope"');
     expect(html).toContain('href="/docs/modules/rope"');
