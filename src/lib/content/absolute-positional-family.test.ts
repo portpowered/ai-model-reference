@@ -14,6 +14,7 @@ import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 describe("Phase 3 absolute positional embedding family pages (US-002)", () => {
   test("absolute registry record points to the learned and sinusoidal variants", () => {
     const absolute = getConceptById("concept.absolute-positional-embeddings");
+    expect(absolute?.aliases).toContain("absolute positional encodings");
     expect(absolute?.relatedIds).toEqual([
       "concept.positional-encodings",
       "concept.learned-positional-embeddings",
@@ -104,6 +105,7 @@ describe("Phase 3 absolute positional embedding family pages (US-002)", () => {
     expect(page.frontmatter.registryId).toBe(
       "concept.absolute-positional-embeddings",
     );
+    expect(page.frontmatter.aliases).toContain("absolute positional encodings");
     expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
     expect(page.messages.openingSummary?.toLowerCase()).toContain(
       "fixed index",

@@ -302,6 +302,10 @@ describe("exportOramaIndexSnapshot", () => {
     { query: "MQA", url: MULTI_QUERY_ATTENTION_URL },
     { query: "multi-query attention", url: MULTI_QUERY_ATTENTION_URL },
     { query: "LongRoPE", url: LONGROPE_URL },
+    {
+      query: "absolute positional encodings",
+      url: ABSOLUTE_POSITIONAL_EMBEDDINGS_URL,
+    },
     { query: "positional interpolation", url: POSITIONAL_INTERPOLATION_URL },
     { query: "feed-forward network", url: FEED_FORWARD_NETWORK_URL },
     { query: "standard FFN", url: STANDARD_FFN_URL },
