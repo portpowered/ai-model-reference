@@ -76,4 +76,16 @@ describe("ppo training regime page", () => {
     expect(html).toContain('href="/docs/glossary/alignment"');
     expect(html).toContain("Alignment");
   });
+
+  test("alignment routes readers back to the canonical PPO page", () => {
+    const html = renderToStaticMarkup(
+      createElement(DerivedRelatedDocs, {
+        registryId: "concept.alignment",
+        groups: ["curated-related"],
+      }),
+    );
+
+    expect(html).toContain('href="/docs/training/ppo"');
+    expect(html).toContain(">PPO<");
+  });
 });
