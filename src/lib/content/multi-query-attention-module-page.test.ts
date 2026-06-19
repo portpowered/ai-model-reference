@@ -103,10 +103,10 @@ describe("loadModulePage multi-query-attention", () => {
     expect(html).toContain('data-attention-variant-active="mqa"');
     expect(html).toContain('data-attention-variant-option="mha"');
     expect(html).toContain('data-attention-variant-option="mqa"');
-    expect(html).toContain("--xy-background-color:#ffffff");
-    expect(html).toContain("--xy-node-color:#111827");
-    expect(html).toContain("--xy-node-background-color:#ffffff");
-    expect(html).toContain("--xy-node-border-color:#cbd5e1");
+    expect(html).toContain("--xy-background-color:var(--background)");
+    expect(html).toContain("--xy-node-color:var(--foreground)");
+    expect(html).toContain("--xy-node-background-color:var(--secondary)");
+    expect(html).toContain("--xy-node-border-color:var(--border)");
   });
 });
 

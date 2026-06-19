@@ -27,6 +27,20 @@ type MobileDocsDrawerProps = {
   children?: ReactNode;
 };
 
+function collapseFolderDefaults<T extends PageTree.Root | PageTree.Node>(
+  node: T,
+): T {
+  if ("children" in node && Array.isArray(node.children)) {
+    return {
+      ...node,
+      ...(node.type === "folder" ? { defaultOpen: false } : {}),
+      children: node.children.map((child) => collapseFolderDefaults(child)),
+    };
+  }
+
+  return node;
+}
+
 const drawerPageTree = createPageTreeRenderer({
   SidebarFolder: DrawerSidebarFolder,
   SidebarFolderContent: DrawerSidebarFolderContent,
@@ -45,6 +59,8 @@ export function MobileDocsDrawer({
   messages,
   children,
 }: MobileDocsDrawerProps) {
+  const mobilePageTree = collapseFolderDefaults(pageTree);
+
   useEffect(() => {
     if (!open) {
       return;
@@ -109,7 +125,7 @@ export function MobileDocsDrawer({
             {children}
           </div>
         ) : null}
-        <TreeContextProvider tree={pageTree}>
+        <TreeContextProvider tree={mobilePageTree}>
           <SidebarProvider>
             <SidebarViewport
               area={{ className: "min-h-0 flex-1" }}

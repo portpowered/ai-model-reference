@@ -57,16 +57,16 @@ describe("ModuleGraph live GQA graphs", () => {
     );
     expect(graphWrapper).toBeTruthy();
     expect(graphWrapper?.getAttribute("style")).toContain(
-      "--xy-background-color: #ffffff",
+      "--xy-background-color: var(--background)",
     );
     expect(graphWrapper?.getAttribute("style")).toContain(
-      "--xy-node-color: #111827",
+      "--xy-node-color: var(--foreground)",
     );
     expect(graphWrapper?.getAttribute("style")).toContain(
-      "--xy-node-background-color: #ffffff",
+      "--xy-node-background-color: var(--secondary)",
     );
     expect(graphWrapper?.getAttribute("style")).toContain(
-      "--xy-node-border-color: #cbd5e1",
+      "--xy-node-border-color: var(--border)",
     );
     expect(graphWrapper?.getAttribute("data-graph-interaction-pan")).toBe(
       "true",

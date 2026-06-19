@@ -318,6 +318,16 @@ export const graphPresentationRequirementSchema = z.enum([
   "optional",
   "not-applicable",
 ]);
+export const graphSemanticTokenSchema = z.enum([
+  "background",
+  "foreground",
+  "primary",
+  "secondary",
+  "accent",
+  "border",
+  "muted",
+  "destructive",
+]);
 
 export const graphRendererSchema = z.enum([
   "react-flow",
@@ -449,6 +459,15 @@ export const graphGovernanceSchema = z.object({
   }),
   legend: z.object({
     requirement: graphPresentationRequirementSchema,
+  }),
+  semanticTokens: z.object({
+    surface: graphSemanticTokenSchema,
+    border: graphSemanticTokenSchema,
+    text: graphSemanticTokenSchema,
+    emphasis: graphSemanticTokenSchema,
+    comparison: graphSemanticTokenSchema,
+    muted: graphSemanticTokenSchema,
+    destructive: graphSemanticTokenSchema.optional(),
   }),
   familyExtension: z.record(z.string(), z.unknown()).optional(),
 });

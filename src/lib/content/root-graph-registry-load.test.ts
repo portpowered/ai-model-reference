@@ -172,6 +172,14 @@ describe("root-graph-registry-load", () => {
             legend: {
               requirement: "optional",
             },
+            semanticTokens: {
+              surface: "background",
+              border: "border",
+              text: "foreground",
+              emphasis: "primary",
+              comparison: "accent",
+              muted: "muted",
+            },
           },
         },
         null,
@@ -185,6 +193,9 @@ describe("root-graph-registry-load", () => {
     const governedGraph = getGraphById("graph.governed-example");
     expect(governedGraph?.governance?.family.id).toBe("concept-map");
     expect(governedGraph?.governance?.title.requirement).toBe("required");
+    expect(governedGraph?.governance?.semanticTokens.surface).toBe(
+      "background",
+    );
 
     syncGraphRegistryForContentRoot(CONTENT_ROOT);
     expect(getGraphById("graph.token-concept-map")?.governance).toBeUndefined();

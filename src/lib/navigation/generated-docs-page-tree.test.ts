@@ -28,6 +28,18 @@ function findNodeIndex(
 }
 
 describe("generated docs page tree", () => {
+  test("keeps the glossary section open by default for shared shell link visibility", () => {
+    const glossaryFolder = source.pageTree.children.find(
+      (node) => node.type === "folder" && node.name === "Glossary",
+    );
+    expect(glossaryFolder?.type).toBe("folder");
+    if (glossaryFolder?.type !== "folder") {
+      throw new Error("expected Glossary folder in docs sidebar");
+    }
+
+    expect(glossaryFolder.defaultOpen).toBe(true);
+  });
+
   test("glossary, concepts, and modules keep representative registry-driven subgroup placements", () => {
     const glossaryChildren = getFolderChildren("Glossary");
     expect(

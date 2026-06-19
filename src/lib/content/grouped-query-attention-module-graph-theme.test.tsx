@@ -4,10 +4,13 @@ import { PageAssetsProvider } from "@/features/docs/components/page-assets-conte
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import { RegistryGraphFlow } from "@/features/models/components/RegistryGraphFlow";
 import {
+  GRAPH_SEMANTIC_TOKEN_CSS_VARIABLE,
+  REGISTRY_GRAPH_FLOW_DEFAULT_SEMANTIC_TOKENS,
   REGISTRY_GRAPH_FLOW_INTERACTION,
   REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE,
   REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_SELECTORS,
   REGISTRY_GRAPH_FLOW_NODE_THEME,
+  resolveGraphSemanticTokens,
 } from "@/features/models/components/registry-graph-flow-theme";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
@@ -57,10 +60,40 @@ const assets = {
 
 describe("grouped-query-attention module graph theme", () => {
   test("registry graph flow theme exports stable manual visibility selectors", () => {
-    expect(REGISTRY_GRAPH_FLOW_NODE_THEME.graphBackgroundColor).toBe("#ffffff");
-    expect(REGISTRY_GRAPH_FLOW_NODE_THEME.nodeColor).toBe("#111827");
-    expect(REGISTRY_GRAPH_FLOW_NODE_THEME.nodeBackgroundColor).toBe("#ffffff");
-    expect(REGISTRY_GRAPH_FLOW_NODE_THEME.nodeBorderColor).toBe("#cbd5e1");
+    expect(REGISTRY_GRAPH_FLOW_NODE_THEME.graphBackgroundColor).toBe(
+      "var(--background)",
+    );
+    expect(REGISTRY_GRAPH_FLOW_NODE_THEME.nodeColor).toBe("var(--foreground)");
+    expect(REGISTRY_GRAPH_FLOW_NODE_THEME.nodeBackgroundColor).toBe(
+      "var(--secondary)",
+    );
+    expect(REGISTRY_GRAPH_FLOW_NODE_THEME.nodeBorderColor).toBe(
+      "var(--border)",
+    );
+    expect(REGISTRY_GRAPH_FLOW_DEFAULT_SEMANTIC_TOKENS.comparison).toBe(
+      "accent",
+    );
+    expect(
+      resolveGraphSemanticTokens({
+        mode: "shared-v1",
+        family: { id: "attention-variant" },
+        posture: { kind: "variant" },
+        narrativeCenter: { kind: "node", targetId: "shared-kv" },
+        framing: { direction: "top-to-bottom", isDefaultDirection: true },
+        title: { requirement: "required" },
+        legend: { requirement: "required" },
+        semanticTokens: {
+          surface: "secondary",
+          border: "border",
+          text: "foreground",
+          emphasis: "primary",
+          comparison: "accent",
+          muted: "muted",
+          destructive: "destructive",
+        },
+      }).surface,
+    ).toBe("secondary");
+    expect(GRAPH_SEMANTIC_TOKEN_CSS_VARIABLE.primary).toBe("var(--primary)");
     expect(REGISTRY_GRAPH_FLOW_MANUAL_VISIBILITY_EVIDENCE).toBe(
       "registry-graph-flow-node-contrast",
     );
@@ -94,10 +127,10 @@ describe("grouped-query-attention module graph theme", () => {
     );
 
     expect(html).toContain(`data-graph-id="${GQA_COMPUTE_FLOW_GRAPH_ID}"`);
-    expect(html).toContain("--xy-background-color:#ffffff");
-    expect(html).toContain("--xy-node-color:#111827");
-    expect(html).toContain("--xy-node-background-color:#ffffff");
-    expect(html).toContain("--xy-node-border-color:#cbd5e1");
+    expect(html).toContain("--xy-background-color:var(--background)");
+    expect(html).toContain("--xy-node-color:var(--foreground)");
+    expect(html).toContain("--xy-node-background-color:var(--secondary)");
+    expect(html).toContain("--xy-node-border-color:var(--border)");
     expect(html).toContain(
       'data-manual-visibility-evidence="registry-graph-flow-node-contrast"',
     );

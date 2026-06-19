@@ -29,6 +29,15 @@ describe("graph-registry-runtime", () => {
     expect(computeFlow?.governance?.narrativeCenter.targetId).toBe("shared-kv");
     expect(computeFlow?.governance?.framing.direction).toBe("top-to-bottom");
     expect(computeFlow?.governance?.legend.requirement).toBe("required");
+    expect(computeFlow?.governance?.semanticTokens).toEqual({
+      surface: "secondary",
+      border: "border",
+      text: "foreground",
+      emphasis: "primary",
+      comparison: "accent",
+      muted: "muted",
+      destructive: "destructive",
+    });
 
     const computeSchema = getGraphById(
       "graph.grouped-query-attention-compute-schema",
@@ -286,6 +295,14 @@ describe("graph-registry-runtime", () => {
         legend: {
           requirement: "optional",
         },
+        semanticTokens: {
+          surface: "background",
+          border: "border",
+          text: "foreground",
+          emphasis: "primary",
+          comparison: "accent",
+          muted: "muted",
+        },
         familyExtension: {
           architectureTier: "decoder-only",
         },
@@ -294,6 +311,9 @@ describe("graph-registry-runtime", () => {
 
     expect(governedRecord.governance?.family.id).toBe("model-architecture");
     expect(governedRecord.governance?.posture.kind).toBe("baseline");
+    expect(governedRecord.governance?.semanticTokens.surface).toBe(
+      "background",
+    );
     expect(governedRecord.governance?.familyExtension).toEqual({
       architectureTier: "decoder-only",
     });

@@ -41,6 +41,15 @@
     "legend": {
       "requirement": "required"
     },
+    "semanticTokens": {
+      "surface": "secondary",
+      "border": "border",
+      "text": "foreground",
+      "emphasis": "primary",
+      "comparison": "accent",
+      "muted": "muted",
+      "destructive": "destructive"
+    },
     "familyExtension": {
       "comparisonMode": "shared-kv-variant"
     }

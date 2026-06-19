@@ -57,7 +57,7 @@ export const PRE_REPAIR_BATCH_013_DUPLICATE_GRAPH_HTML = `
     <h1>${GROUPED_QUERY_ATTENTION_MODULE_TITLE}</h1>
     <article data-registry-id="module.grouped-query-attention">
       <section id="how-it-works">
-        <div data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-compute-flow" style="--xy-background-color:#ffffff;--xy-node-color:#111827;--xy-node-background-color:#ffffff;--xy-node-border-color:#cbd5e1"></div>
+        <div data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-compute-flow" style="--xy-background-color:var(--background);--xy-node-color:var(--foreground);--xy-node-background-color:var(--secondary);--xy-node-border-color:var(--border)"></div>
       </section>
       <section id="math-or-compute-schema">
         <div data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-compute-schema"></div>
@@ -88,7 +88,7 @@ export const PRE_REPAIR_BATCH_013_MISSING_MATH_DEFINITIONS_HTML = `
     <h1>${GROUPED_QUERY_ATTENTION_MODULE_TITLE}</h1>
     <article data-registry-id="module.grouped-query-attention">
       <section id="how-it-works">
-        <div data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-compute-flow" style="--xy-background-color:#ffffff;--xy-node-color:#111827;--xy-node-background-color:#ffffff;--xy-node-border-color:#cbd5e1"></div>
+        <div data-react-flow-graph="true" data-graph-id="graph.grouped-query-attention-compute-flow" style="--xy-background-color:var(--background);--xy-node-color:var(--foreground);--xy-node-background-color:var(--secondary);--xy-node-border-color:var(--border)"></div>
       </section>
       <section id="math-or-compute-schema">
         <div data-attention-schema-comparison="true"></div>

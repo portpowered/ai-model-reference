@@ -100,7 +100,7 @@ export function buildLinearAttentionMathComparisonStub(): string {
 
 /** Minimal inner HTML that satisfies {@link assertLinearAttentionModuleConvergence}. */
 export function buildLinearAttentionStubBody(): string {
-  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="linear" data-attention-variant-option="mha" data-attention-variant-option="linear" data-react-flow-graph="true" data-graph-id="graph.linear-attention-linear-comparison" data-graph-node-id="linear-query-heads" data-graph-node-id="linear-summary-node-1" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="11" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-background-color:#ffffff;--xy-node-color:#111827;--xy-node-background-color:#ffffff;--xy-node-border-color:#cbd5e1"></div>`;
+  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="linear" data-attention-variant-option="mha" data-attention-variant-option="linear" data-react-flow-graph="true" data-graph-id="graph.linear-attention-linear-comparison" data-graph-node-id="linear-query-heads" data-graph-node-id="linear-summary-node-1" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="11" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-background-color:var(--background);--xy-node-color:var(--foreground);--xy-node-background-color:var(--secondary);--xy-node-border-color:var(--border)"></div>`;
   const tagPillList = `<ul data-testid="tag-pill-list" aria-label="Tags"></ul>`;
   const mathDefinitions = buildLinearAttentionMathComparisonStub();
 

@@ -19,13 +19,18 @@ Governed graphs opt in through `graph.governance`. The shared fields are:
   and later lint rules.
 * `title` and `legend`: whether those review surfaces are required, optional, or
   not applicable.
+* `semanticTokens`: the allowed semantic token intent for graph surfaces,
+  borders, text, emphasis, comparison highlights, muted context, and optional
+  destructive states. Shared governance allows only `background`,
+  `foreground`, `primary`, `secondary`, `accent`, `border`, `muted`, and
+  `destructive`.
 
 ## Family extension point
 
 The shared contract keeps cross-family policy separate from family-owned fields.
 Later family PRDs may add family-specific metadata under
 `graph.governance.familyExtension` without redefining the shared posture,
-narrative-center, framing, title, or legend rules.
+narrative-center, framing, title, legend, or token allowlist rules.
 
 ## Scope boundary
 

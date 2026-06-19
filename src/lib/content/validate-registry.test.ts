@@ -112,6 +112,67 @@ const validCitationRecord = {
   year: 2023,
 };
 
+const validGraphRecord = {
+  id: "graph.governed-example",
+  slug: "governed-example",
+  kind: "graph",
+  defaultTitleKey: "title",
+  defaultSummaryKey: "description",
+  aliases: [],
+  tags: ["attention"],
+  relatedIds: [],
+  citationIds: [],
+  status: "published",
+  createdAt: "2026-06-01T00:00:00.000Z",
+  updatedAt: "2026-06-02T00:00:00.000Z",
+  subjectId: "concept.example",
+  graphType: "concept-map",
+  rootNodeId: "node-a",
+  layout: "vertical-expandable",
+  defaultExpandedDepth: 1,
+  supportedRenderers: ["react-flow"],
+  governance: {
+    mode: "shared-v1",
+    family: {
+      id: "concept-map",
+    },
+    posture: {
+      kind: "baseline",
+    },
+    narrativeCenter: {
+      kind: "node",
+      targetId: "node-a",
+    },
+    framing: {
+      direction: "top-to-bottom",
+      isDefaultDirection: true,
+    },
+    title: {
+      requirement: "required",
+    },
+    legend: {
+      requirement: "optional",
+    },
+    semanticTokens: {
+      surface: "background",
+      border: "border",
+      text: "foreground",
+      emphasis: "primary",
+      comparison: "accent",
+      muted: "muted",
+    },
+  },
+  nodes: [
+    {
+      id: "node-a",
+      labelKey: "graph.nodes.nodeA.label",
+      moduleKind: "input",
+      childNodeIds: [],
+    },
+  ],
+  edges: [],
+} as const;
+
 const nonDefaultLocales = supportedLocales.filter(
   (locale) => locale !== defaultLocale,
 );
@@ -1016,6 +1077,55 @@ updatedAt: "2026-06-02"
             error.code === "missing-release-metadata" &&
             error.message.includes("training-regime.demo-regime") &&
             error.message.includes("published training-regime records"),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("rejects governed graph semantic tokens outside the shared token allowlist", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "graphs"), { recursive: true });
+    await mkdir(join(registryRoot, "concepts"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "graphs", "governed-example.json"),
+      JSON.stringify({
+        ...validGraphRecord,
+        governance: {
+          ...validGraphRecord.governance,
+          semanticTokens: {
+            ...validGraphRecord.governance.semanticTokens,
+            surface: "#ffffff",
+          },
+        },
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "concepts", "example.json"),
+      JSON.stringify(validConceptRecord),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.message.includes("governance.semanticTokens.surface") &&
+            error.message.includes("received '#ffffff'"),
         ),
       ).toBe(true);
     } finally {

@@ -1,9 +1,41 @@
+import type { GraphRecord } from "@/lib/content/schemas";
+
+export const GRAPH_SEMANTIC_TOKEN_CSS_VARIABLE = {
+  background: "var(--background)",
+  foreground: "var(--foreground)",
+  primary: "var(--primary)",
+  secondary: "var(--secondary)",
+  accent: "var(--accent)",
+  border: "var(--border)",
+  muted: "var(--muted)",
+  destructive: "var(--destructive)",
+} as const;
+
+export const REGISTRY_GRAPH_FLOW_DEFAULT_SEMANTIC_TOKENS = {
+  surface: "secondary",
+  border: "border",
+  text: "foreground",
+  emphasis: "primary",
+  comparison: "accent",
+  muted: "muted",
+  destructive: "destructive",
+} as const;
+
 /** React Flow node theme tokens applied on registry graph wrappers. */
 export const REGISTRY_GRAPH_FLOW_NODE_THEME = {
-  graphBackgroundColor: "#ffffff",
-  nodeColor: "#111827",
-  nodeBackgroundColor: "#ffffff",
-  nodeBorderColor: "#cbd5e1",
+  graphBackgroundColor: GRAPH_SEMANTIC_TOKEN_CSS_VARIABLE.background,
+  nodeColor:
+    GRAPH_SEMANTIC_TOKEN_CSS_VARIABLE[
+      REGISTRY_GRAPH_FLOW_DEFAULT_SEMANTIC_TOKENS.text
+    ],
+  nodeBackgroundColor:
+    GRAPH_SEMANTIC_TOKEN_CSS_VARIABLE[
+      REGISTRY_GRAPH_FLOW_DEFAULT_SEMANTIC_TOKENS.surface
+    ],
+  nodeBorderColor:
+    GRAPH_SEMANTIC_TOKEN_CSS_VARIABLE[
+      REGISTRY_GRAPH_FLOW_DEFAULT_SEMANTIC_TOKENS.border
+    ],
 } as const;
 
 /**
@@ -37,13 +69,27 @@ export const REGISTRY_GRAPH_FLOW_INTERACTION = {
   preventScrolling: true,
 } as const;
 
-export function buildRegistryGraphFlowNodeThemeStyle(): Record<string, string> {
+export function resolveGraphSemanticTokens(
+  governance?: GraphRecord["governance"],
+) {
+  return {
+    ...REGISTRY_GRAPH_FLOW_DEFAULT_SEMANTIC_TOKENS,
+    ...governance?.semanticTokens,
+  } as const;
+}
+
+export function buildRegistryGraphFlowNodeThemeStyle(
+  graphRecord?: Pick<GraphRecord, "governance">,
+): Record<string, string> {
+  const semanticTokens = resolveGraphSemanticTokens(graphRecord?.governance);
+
   return {
     "--xy-background-color":
       REGISTRY_GRAPH_FLOW_NODE_THEME.graphBackgroundColor,
-    "--xy-node-color": REGISTRY_GRAPH_FLOW_NODE_THEME.nodeColor,
+    "--xy-node-color": GRAPH_SEMANTIC_TOKEN_CSS_VARIABLE[semanticTokens.text],
     "--xy-node-background-color":
-      REGISTRY_GRAPH_FLOW_NODE_THEME.nodeBackgroundColor,
-    "--xy-node-border-color": REGISTRY_GRAPH_FLOW_NODE_THEME.nodeBorderColor,
+      GRAPH_SEMANTIC_TOKEN_CSS_VARIABLE[semanticTokens.surface],
+    "--xy-node-border-color":
+      GRAPH_SEMANTIC_TOKEN_CSS_VARIABLE[semanticTokens.border],
   };
 }

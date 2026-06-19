@@ -3,6 +3,7 @@ import {
   baseRecordSchema,
   citationRecordSchema,
   conceptRecordSchema,
+  graphRecordSchema,
   moduleRecordSchema,
   pageAssetConfigSchema,
   pageFrontmatterSchema,
@@ -181,6 +182,120 @@ describe("registry schemas", () => {
       slug: "token",
       kind: "concept",
     });
+    expect(result.success).toBe(false);
+  });
+
+  test("accepts governed graph records with semantic token intent", () => {
+    const result = graphRecordSchema.safeParse({
+      ...validBaseFields,
+      id: "graph.governed-example",
+      slug: "governed-example",
+      kind: "graph",
+      subjectId: "module.grouped-query-attention",
+      graphType: "module-compute-flow",
+      rootNodeId: "input-node",
+      layout: "vertical-expandable",
+      defaultExpandedDepth: 1,
+      supportedRenderers: ["react-flow"],
+      governance: {
+        mode: "shared-v1",
+        family: {
+          id: "attention-variant",
+        },
+        posture: {
+          kind: "variant",
+        },
+        narrativeCenter: {
+          kind: "node",
+          targetId: "input-node",
+        },
+        framing: {
+          direction: "top-to-bottom",
+          isDefaultDirection: true,
+        },
+        title: {
+          requirement: "required",
+        },
+        legend: {
+          requirement: "optional",
+        },
+        semanticTokens: {
+          surface: "secondary",
+          border: "border",
+          text: "foreground",
+          emphasis: "primary",
+          comparison: "accent",
+          muted: "muted",
+        },
+      },
+      nodes: [
+        {
+          id: "input-node",
+          labelKey: "graph.nodes.input.label",
+          moduleKind: "input",
+          childNodeIds: [],
+        },
+      ],
+      edges: [],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  test("rejects governed graph records with unsupported semantic token names", () => {
+    const result = graphRecordSchema.safeParse({
+      ...validBaseFields,
+      id: "graph.invalid-semantic-token",
+      slug: "invalid-semantic-token",
+      kind: "graph",
+      subjectId: "module.grouped-query-attention",
+      graphType: "module-compute-flow",
+      rootNodeId: "input-node",
+      layout: "vertical-expandable",
+      defaultExpandedDepth: 1,
+      supportedRenderers: ["react-flow"],
+      governance: {
+        mode: "shared-v1",
+        family: {
+          id: "attention-variant",
+        },
+        posture: {
+          kind: "variant",
+        },
+        narrativeCenter: {
+          kind: "node",
+          targetId: "input-node",
+        },
+        framing: {
+          direction: "top-to-bottom",
+          isDefaultDirection: true,
+        },
+        title: {
+          requirement: "required",
+        },
+        legend: {
+          requirement: "optional",
+        },
+        semanticTokens: {
+          surface: "#ffffff",
+          border: "border",
+          text: "foreground",
+          emphasis: "primary",
+          comparison: "accent",
+          muted: "muted",
+        },
+      },
+      nodes: [
+        {
+          id: "input-node",
+          labelKey: "graph.nodes.input.label",
+          moduleKind: "input",
+          childNodeIds: [],
+        },
+      ],
+      edges: [],
+    });
+
     expect(result.success).toBe(false);
   });
 });

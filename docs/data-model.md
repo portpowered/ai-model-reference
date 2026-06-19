@@ -623,6 +623,71 @@ type GraphRecord = BaseRecord & {
     legend: {
       requirement: "required" | "optional" | "not-applicable";
     };
+    semanticTokens: {
+      surface:
+        | "background"
+        | "foreground"
+        | "primary"
+        | "secondary"
+        | "accent"
+        | "border"
+        | "muted"
+        | "destructive";
+      border:
+        | "background"
+        | "foreground"
+        | "primary"
+        | "secondary"
+        | "accent"
+        | "border"
+        | "muted"
+        | "destructive";
+      text:
+        | "background"
+        | "foreground"
+        | "primary"
+        | "secondary"
+        | "accent"
+        | "border"
+        | "muted"
+        | "destructive";
+      emphasis:
+        | "background"
+        | "foreground"
+        | "primary"
+        | "secondary"
+        | "accent"
+        | "border"
+        | "muted"
+        | "destructive";
+      comparison:
+        | "background"
+        | "foreground"
+        | "primary"
+        | "secondary"
+        | "accent"
+        | "border"
+        | "muted"
+        | "destructive";
+      muted:
+        | "background"
+        | "foreground"
+        | "primary"
+        | "secondary"
+        | "accent"
+        | "border"
+        | "muted"
+        | "destructive";
+      destructive?:
+        | "background"
+        | "foreground"
+        | "primary"
+        | "secondary"
+        | "accent"
+        | "border"
+        | "muted"
+        | "destructive";
+    };
     familyExtension?: Record<string, unknown>;
   };
   nodes: ModuleGraphNode[];
@@ -680,7 +745,8 @@ type ModuleGraphEdge = {
 Graph renderer rules:
 
 * Legacy graph records can omit `governance` until a family-specific migration opts them into the shared governance contract.
-* Governed graph records separate cross-family policy from family-owned metadata. Shared posture, framing, narrative-center, title, and legend fields live under `governance`; family-specific fields belong under `governance.familyExtension`.
+* Governed graph records separate cross-family policy from family-owned metadata. Shared posture, framing, narrative-center, title, legend, and semantic token intent live under `governance`; family-specific fields belong under `governance.familyExtension`.
+* Semantic graph color intent must use the site token allowlist only: `background`, `foreground`, `primary`, `secondary`, `accent`, `border`, `muted`, and `destructive`. Raw color literals do not belong in governed token fields.
 * Graph records should live close to the page or registry record they support when practical. Page-local graph asset references live in `assets.json`; reusable graph records live in `src/content/registry/graphs`.
 * Node and edge labels use message keys. The renderer resolves labels from the same locale messages as the page.
 * Web graph rendering uses React Flow as the interaction engine.

@@ -101,7 +101,7 @@ export function buildSlidingWindowAttentionMathComparisonStub(): string {
 
 /** Minimal inner HTML that satisfies {@link assertSlidingWindowAttentionModuleConvergence}. */
 export function buildSlidingWindowAttentionStubBody(): string {
-  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="window" data-attention-variant-option="mha" data-attention-variant-option="window" data-react-flow-graph="true" data-graph-id="graph.sliding-window-attention-time-window-pattern" data-graph-node-id="window-time-current-query" data-graph-node-id="window-time-kv-t-2" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="7" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-background-color:#ffffff;--xy-node-color:#111827;--xy-node-background-color:#ffffff;--xy-node-border-color:#cbd5e1"></div>`;
+  const graphWrapper = `<div data-attention-variant-comparison="true" data-attention-variant-active="window" data-attention-variant-option="mha" data-attention-variant-option="window" data-react-flow-graph="true" data-graph-id="graph.sliding-window-attention-time-window-pattern" data-graph-node-id="window-time-current-query" data-graph-node-id="window-time-kv-t-2" data-head-count-role="query" data-head-count-role="kv" data-graph-node-count="7" data-manual-visibility-evidence="registry-graph-flow-node-contrast" style="--xy-background-color:var(--background);--xy-node-color:var(--foreground);--xy-node-background-color:var(--secondary);--xy-node-border-color:var(--border)"></div>`;
   const tagPillList = `<ul data-testid="tag-pill-list" aria-label="Tags"></ul>`;
   const mathDefinitions = buildSlidingWindowAttentionMathComparisonStub();
 

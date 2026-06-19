@@ -350,6 +350,7 @@ function buildRegistryGraphFlowViewportStyle(
 function RegistryGraphFlowSurface({
   assetId,
   graphId,
+  graphRecord,
   accessibleLabel,
   nodes,
   edges,
@@ -358,6 +359,7 @@ function RegistryGraphFlowSurface({
 }: {
   assetId: string;
   graphId: string;
+  graphRecord: ReturnType<typeof getGraphById>;
   accessibleLabel: string;
   edges: ReturnType<typeof buildRegistryFlowGraph>["edges"];
   nodes: ReturnType<typeof buildRegistryFlowGraph>["nodes"];
@@ -413,7 +415,9 @@ function RegistryGraphFlowSurface({
             : "false"
         }
         className="registry-graph-flow w-full min-w-0"
-        style={buildRegistryGraphFlowNodeThemeStyle() as CSSProperties}
+        style={
+          buildRegistryGraphFlowNodeThemeStyle(graphRecord) as CSSProperties
+        }
         role="img"
         aria-label={accessibleLabel}
       >
@@ -528,6 +532,7 @@ export function RegistryGraphFlowCanvas({
       <RegistryGraphFlowSurface
         assetId={assetId}
         graphId={graphId}
+        graphRecord={graphRecord}
         accessibleLabel={accessibleLabel}
         nodes={nodes}
         edges={edges}
@@ -563,6 +568,7 @@ export function RegistryGraphFlowCanvas({
                     <RegistryGraphFlowSurface
                       assetId={assetId}
                       graphId={graphId}
+                      graphRecord={graphRecord}
                       accessibleLabel={accessibleLabel}
                       nodes={nodes}
                       edges={edges}

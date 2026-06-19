@@ -57,21 +57,25 @@ describe("docs sidebar navigation accessibility", () => {
     const glossaryFolder = within(sidebar).getByRole("button", {
       name: "Glossary",
     });
-    await act(async () => {
-      glossaryFolder.click();
-    });
-
-    const modulesFolder = within(sidebar).getByRole("button", {
-      name: "Modules",
-    });
-    await act(async () => {
-      modulesFolder.click();
-    });
+    if (glossaryFolder.getAttribute("aria-expanded") !== "true") {
+      await act(async () => {
+        glossaryFolder.click();
+      });
+    }
 
     const tokenLink = within(sidebar).getByRole("link", { name: "Token" });
     expect(tokenLink.getAttribute("href")).toBe(TOKEN_GLOSSARY_URL);
     tokenLink.focus();
     expect(document.activeElement).toBe(tokenLink);
+
+    const modulesFolder = within(sidebar).getByRole("button", {
+      name: "Modules",
+    });
+    if (modulesFolder.getAttribute("aria-expanded") !== "true") {
+      await act(async () => {
+        modulesFolder.click();
+      });
+    }
 
     const gqaLink = within(sidebar).getByRole("link", {
       name: "Grouped-Query Attention",
@@ -101,20 +105,40 @@ describe("docs sidebar navigation accessibility", () => {
       throw new Error("expected Fumadocs docs sidebar");
     }
 
-    for (const folderName of ["Glossary", "Concepts", "Modules"] as const) {
-      const folder = within(sidebar).getByRole("button", { name: folderName });
+    const glossaryFolder = within(sidebar).getByRole("button", {
+      name: "Glossary",
+    });
+    if (glossaryFolder.getAttribute("aria-expanded") !== "true") {
       await act(async () => {
-        folder.click();
+        glossaryFolder.click();
       });
     }
 
     expect(within(sidebar).getByText("Sequence And Attention")).toBeTruthy();
     expect(within(sidebar).getByRole("link", { name: "Token" })).toBeTruthy();
 
+    const conceptsFolder = within(sidebar).getByRole("button", {
+      name: "Concepts",
+    });
+    if (conceptsFolder.getAttribute("aria-expanded") !== "true") {
+      await act(async () => {
+        conceptsFolder.click();
+      });
+    }
+
     expect(within(sidebar).getByText("Long Context")).toBeTruthy();
     expect(
       within(sidebar).getByRole("link", { name: "Context extension" }),
     ).toBeTruthy();
+
+    const modulesFolder = within(sidebar).getByRole("button", {
+      name: "Modules",
+    });
+    if (modulesFolder.getAttribute("aria-expanded") !== "true") {
+      await act(async () => {
+        modulesFolder.click();
+      });
+    }
 
     expect(within(sidebar).getByText("Attention Variants")).toBeTruthy();
     expect(
@@ -157,19 +181,23 @@ describe("docs sidebar navigation accessibility", () => {
     const glossaryFolder = within(sidebar).getByRole("button", {
       name: "Glossary",
     });
-    await act(async () => {
-      glossaryFolder.click();
-    });
+    if (glossaryFolder.getAttribute("aria-expanded") !== "true") {
+      await act(async () => {
+        glossaryFolder.click();
+      });
+    }
+
+    const tokenLink = within(sidebar).getByRole("link", { name: "Token" });
+    expect(tokenLink.getAttribute("href")).toBe("/vi/docs/glossary/token");
 
     const modulesFolder = within(sidebar).getByRole("button", {
       name: "Modules",
     });
-    await act(async () => {
-      modulesFolder.click();
-    });
-
-    const tokenLink = within(sidebar).getByRole("link", { name: "Token" });
-    expect(tokenLink.getAttribute("href")).toBe("/vi/docs/glossary/token");
+    if (modulesFolder.getAttribute("aria-expanded") !== "true") {
+      await act(async () => {
+        modulesFolder.click();
+      });
+    }
 
     const gqaLink = within(sidebar).getByRole("link", {
       name: "Grouped-Query Attention",
