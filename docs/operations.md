@@ -9,7 +9,7 @@ inferred from workflow files alone.
 
 **Decision: Phase 1 publishes the static export to GitHub Pages via GitHub
 Actions.** Merges to `main` trigger an automatic deploy workflow that builds
-`out/` with `make build-export` and publishes it to the project-site URL.
+`out/` with `make internal-build-export` and publishes it to the project-site URL.
 
 ### Active deploy path
 
@@ -18,13 +18,13 @@ Actions.** Merges to `main` trigger an automatic deploy workflow that builds
 | Workflow file | `.github/workflows/deploy.yml` (separate from `.github/workflows/ci.yml`) |
 | Trigger | `push` to `main` |
 | Install | `bun install --frozen-lockfile` |
-| Build entrypoint | `make build-export` with `GITHUB_PAGES_BASE_PATH: ai-model-reference` |
+| Build entrypoint | `make internal-build-export` with `GITHUB_PAGES_BASE_PATH: ai-model-reference` |
 | Published artifact | `out/` (static export verified by `verify-phase-1-export-routes` and `verify-phase-1-export-search-handoff`) |
 | Public URL | `https://portpowered.github.io/ai-model-reference/` (GitHub Pages project site for `portpowered/ai-model-reference`) |
 | Quality gates | `.github/workflows/ci.yml` runs `make ci` only; deploy does not replace or invoke CI |
 
 The workflow **`build`** job checks out the pushed commit, runs
-`make build-export`, and uploads `out/` with `actions/upload-pages-artifact@v3`.
+`make internal-build-export`, and uploads `out/` with `actions/upload-pages-artifact@v3`.
 The **`deploy`** job publishes that artifact via `actions/deploy-pages@v4`.
 Failed export builds or deploy steps fail the workflow run on the `main` commit.
 
@@ -34,8 +34,8 @@ Observable constraints satisfied in the current repository:
 
 | Constraint | Evidence |
 | --- | --- |
-| Static export is verified in CI and deploy | `NEXT_STATIC_EXPORT=1` (`bun run build:export` / `make build-export`) emits `out/` with `output: "export"`. `make ci` runs the consolidated build-contract gate, which performs one production build contract and one GitHub Pages base-path export artifact contract. The deploy workflow runs `make build-export` with `GITHUB_PAGES_BASE_PATH` set for the project site. |
-| Search works without live API routes on Pages | `make build-export` runs `verify-phase-1-export-search-handoff`, which validates static Orama bootstrap and Phase 1 `GQA` / `attention` / `KV cache` ranking under `out/api/search`. Client search loads the prebuilt index from `/api/search` in the static export. |
+| Static export is verified in CI and deploy | `NEXT_STATIC_EXPORT=1` (`bun run build:export` / `make internal-build-export`) emits `out/` with `output: "export"`. `make ci` runs the consolidated build-contract gate, which performs one production build contract and one GitHub Pages base-path export artifact contract. The deploy workflow runs `make internal-build-export` with `GITHUB_PAGES_BASE_PATH` set for the project site. |
+| Search works without live API routes on Pages | `make internal-build-export` runs `verify-phase-1-export-search-handoff`, which validates static Orama bootstrap and Phase 1 `GQA` / `attention` / `KV cache` ranking under `out/api/search`. Client search loads the prebuilt index from `/api/search` in the static export. |
 | GitHub Pages is static-only | GitHub Pages cannot run Node.js API routes at request time. This site ships a pre-generated static export and search index instead of live `GET` handlers. |
 | CI and deploy are separate | `.github/workflows/ci.yml` runs `make ci` on pull requests and `main` pushes. `.github/workflows/deploy.yml` publishes `out/` on `main` pushes only and does not invoke `make ci`. |
 
@@ -89,9 +89,9 @@ Related operational rows not closed in this section alone:
 - **The public site** is `https://portpowered.github.io/ai-model-reference/`
   after a successful deploy on `main`. Confirm the **deploy** check on the
   merge commit before claiming the site was updated.
-- **Batch-014 GitHub Pages closure** uses `make verify-phase-1-github-pages-convergence`
+- **Batch-014 GitHub Pages closure** uses `make internal-verify-phase-1-github-pages-convergence`
   (or `bun run verify:phase-1-github-pages-convergence`) to prove the static
-  export path end to end. Unlike `make verify-phase-1-follow-up-convergence`,
+  export path end to end. Unlike `make internal-verify-phase-1-follow-up-convergence`,
   this gate exercises the built `out/` artifact served as static files rather
   than only a spawned `next start` server on `.next/`. See
   `factory/docs/phase-1-github-pages-convergence-validator.md` for workflow
@@ -143,7 +143,7 @@ because they contain browser-backed verifier and static export checks. Deploy
 and preview steps are intentionally excluded from CI.
 
 Production publish is workflow file `.github/workflows/deploy.yml`, job **`deploy`**.
-It runs only on `push` to `main`, builds with `make build-export`, and publishes
+It runs only on `push` to `main`, builds with `make internal-build-export`, and publishes
 `out/` to GitHub Pages.
 
 ### When checks run
@@ -182,7 +182,7 @@ It runs only on `push` to `main`, builds with `make build-export`, and publishes
 
 - `make ci` locally does not publish status to GitHub; push or open/update a PR
   to surface the **ci** check.
-- `make build-export` locally verifies the same export artifact deploy publishes;
+- `make internal-build-export` locally verifies the same export artifact deploy publishes;
   it does not push to GitHub Pages.
 
 ### Matching local and CI
@@ -198,7 +198,7 @@ Checklist mechanism coverage for Phase 1 governance passes is recorded in
 [architectural-checklist-mechanism-status.md](./governance/architectural-checklist-mechanism-status.md).
 Reviewers validating that artifact should run, in order:
 
-1. `make verify-architectural-checklist-mechanism-status` — proves the durable
+1. `make internal-verify-architectural-checklist-mechanism-status` — proves the durable
    audit artifact stays complete and aligned with
    [architectural-checklist.md](./architectural-checklist.md).
 2. `make ci` — confirms general site quality gates still pass after governance
@@ -219,7 +219,7 @@ then confirming **deploy** published the merge commit to
 3. **Confirm post-merge CI** on the merge commit: a push to `main` triggers
    `.github/workflows/ci.yml` again on the integrated SHA.
 4. **Confirm post-merge deploy** on the same SHA: `.github/workflows/deploy.yml`
-   builds `out/` with `make build-export` and publishes to GitHub Pages. A green
+   builds `out/` with `make internal-build-export` and publishes to GitHub Pages. A green
    **deploy** check means the public site reflects that commit.
 5. **Optionally tag a release point** on `main` when maintainers want a named
    version in git history, for example `git tag v0.1.0 <merge-commit-sha>` followed

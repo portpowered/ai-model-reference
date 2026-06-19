@@ -187,9 +187,11 @@ describe("formatPhase1FollowUpConvergenceEvidenceSummary", () => {
     expect(report).toContain(
       "checklistRow=phase-1-follow-up-customer-ask-convergence",
     );
-    expect(report).toContain("[PASS] make verify-phase-1-ux — home.brevity");
     expect(report).toContain(
-      "[FAIL] make verify-phase-1-ux — search.page.row-hover-coherence",
+      "[PASS] make internal-verify-phase-1-ux — home.brevity",
+    );
+    expect(report).toContain(
+      "[FAIL] make internal-verify-phase-1-ux — search.page.row-hover-coherence",
     );
     expect(report).toContain(FAIL_ROW.reason ?? "");
     expect(report).toContain("Recommendation: queue-one-narrow-repair-batch");

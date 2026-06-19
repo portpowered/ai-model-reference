@@ -87,7 +87,7 @@ function writeMinimalPassingOutFixture(rootDir: string): void {
 }
 
 describe("buildPhase1GitHubPagesConvergenceEvidenceSummary", () => {
-  test("marks export-command-path pass when make build-export succeeds", () => {
+  test("marks export-command-path pass when make internal-build-export succeeds", () => {
     const dir = mkdtempSync(join(tmpdir(), "gh-pages-summary-pass-"));
     writeMinimalPassingOutFixture(dir);
 
@@ -123,7 +123,7 @@ describe("buildPhase1GitHubPagesConvergenceEvidenceSummary", () => {
       buildExportExitCode: 1,
       staticServerSkipped: true,
       staticServerSkipReason:
-        "Static export server verification skipped because make build-export did not succeed.",
+        "Static export server verification skipped because make internal-build-export did not succeed.",
     });
 
     expect(summary.exportCommandPath.status).toBe("fail");

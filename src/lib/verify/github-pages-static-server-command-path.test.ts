@@ -34,11 +34,13 @@ describe("deriveStaticServerCommandPathEvidence", () => {
     const evidence = deriveStaticServerCommandPathEvidence({
       skipped: true,
       skipReason:
-        "Static export server verification skipped because make build-export did not succeed.",
+        "Static export server verification skipped because make internal-build-export did not succeed.",
     });
 
     expect(evidence.status).toBe("uncertain");
-    expect(evidence.reason).toContain("make build-export did not succeed");
+    expect(evidence.reason).toContain(
+      "make internal-build-export did not succeed",
+    );
   });
 });
 

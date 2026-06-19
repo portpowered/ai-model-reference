@@ -47,7 +47,7 @@ export const PRODUCTION_DEPLOYMENT_DEFERRAL_PATTERNS: readonly RegExp[] = [
 
 export const MAINTAINER_DEPLOY_CONTRACT_MARKERS: readonly string[] = [
   DEPLOY_WORKFLOW_RELATIVE_PATH,
-  "make build-export",
+  "make internal-build-export",
   "GITHUB_PAGES_BASE_PATH",
   "ai-model-reference",
 ] as const;
@@ -123,7 +123,7 @@ function claimsActiveDeployPath(
   const combined = `${readmeMarkdown}\n${operationsMarkdown}`;
   return (
     combined.includes(DEPLOY_WORKFLOW_RELATIVE_PATH) &&
-    combined.includes("make build-export") &&
+    combined.includes("make internal-build-export") &&
     /\*\*Implemented\*\*/i.test(operationsMarkdown)
   );
 }

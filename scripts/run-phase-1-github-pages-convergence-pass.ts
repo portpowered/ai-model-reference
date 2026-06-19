@@ -144,26 +144,26 @@ async function runStaticServerLifecycleStage(
 
 async function main(): Promise<number> {
   console.log(
-    "Phase 1 batch-014 GitHub Pages convergence: running make build-export",
+    "Phase 1 batch-014 GitHub Pages convergence: running make internal-build-export",
   );
-  const buildExportResult = await runShellCommand("make build-export");
+  const buildExportResult = await runShellCommand("make internal-build-export");
   const basePath = resolveBasePathForExportVerification(process.env);
 
   const upstreamStaticSkipReason =
-    "Static export server verification skipped because make build-export did not succeed.";
+    "Static export server verification skipped because make internal-build-export did not succeed.";
   let staticServerInput: StaticServerLifecycleInput = {
     staticServerSkipped: true,
     staticServerSkipReason: upstreamStaticSkipReason,
     staticRegressionSkipped: true,
     staticRegressionSkipReason:
-      "Static regression probes skipped because make build-export did not succeed.",
+      "Static regression probes skipped because make internal-build-export did not succeed.",
   };
 
   let exportSearchShellGate: ExportSearchShellGateOutcome = { ok: true };
 
   if (buildExportResult.exitCode !== 0) {
     console.error(
-      "\nPhase 1 batch-014 GitHub Pages convergence: make build-export failed; skipping static verification.",
+      "\nPhase 1 batch-014 GitHub Pages convergence: make internal-build-export failed; skipping static verification.",
     );
   } else {
     exportSearchShellGate = verifyPhase1ExportSearchShellFromOutDir("out", {

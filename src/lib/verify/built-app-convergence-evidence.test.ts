@@ -187,10 +187,10 @@ describe("formatPhase1BuiltAppConvergenceEvidenceSummary", () => {
     expect(report).toContain("[FAIL] customer-ask-convergence");
     expect(report).toContain("checklistRow=phase-1-customer-ask-convergence");
     expect(report).toContain(
-      "[PASS] make verify-phase-1-ux — home.header-search-entry",
+      "[PASS] make internal-verify-phase-1-ux — home.header-search-entry",
     );
     expect(report).toContain(
-      "[FAIL] make verify-phase-1-ux — docs.footer-hover-focus-parity",
+      "[FAIL] make internal-verify-phase-1-ux — docs.footer-hover-focus-parity",
     );
     expect(report).toContain(FAIL_ROW.reason ?? "");
     expect(report).toContain("Recommendation: queue-one-narrow-repair-batch");

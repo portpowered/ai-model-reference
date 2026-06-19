@@ -1,7 +1,7 @@
 export const EXPORT_COMMAND_PATH_DOMAIN_ID = "export-command-path" as const;
 
 export const EXPORT_COMMAND_PATH_DOMAIN_LABEL =
-  "Static export build command path (make build-export)";
+  "Static export build command path (make internal-build-export)";
 
 export const EXPORT_COMMAND_PATH_CHECKLIST_ROW =
   "phase-1-github-pages-export-command-path";
@@ -37,7 +37,7 @@ const EXPORT_BUILD_FAILURE_PATTERNS: readonly RegExp[] = [
 ];
 
 const INSUFFICIENT_OUTPUT_UNCERTAIN_REASON =
-  "Captured make build-export output lacks export route and search-handoff success markers; cannot confirm export lifecycle health.";
+  "Captured make internal-build-export output lacks export route and search-handoff success markers; cannot confirm export lifecycle health.";
 
 function findExportBuildFailureReason(output: string): string | undefined {
   const lines = output.split(/\r?\n/);
@@ -85,7 +85,7 @@ function buildEvidence(
 
 /**
  * Derives export command-path pass/fail/uncertain evidence from captured
- * `make build-export` output and process exit code.
+ * `make internal-build-export` output and process exit code.
  */
 export function deriveExportCommandPathEvidence(
   input: DeriveExportCommandPathEvidenceInput,
@@ -101,8 +101,8 @@ export function deriveExportCommandPathEvidence(
       "fail",
       trimmedOutput.length > 0
         ? (trimmedOutput.split(/\r?\n/).at(-1)?.trim() ??
-            `make build-export exited with code ${input.exitCode}`)
-        : `make build-export exited with code ${input.exitCode}`,
+            `make internal-build-export exited with code ${input.exitCode}`)
+        : `make internal-build-export exited with code ${input.exitCode}`,
     );
   }
 

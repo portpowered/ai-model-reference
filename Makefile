@@ -1,34 +1,10 @@
-.PHONY: dev lint format typecheck test test-verify-contract test-build-contract test-system test-integration coverage build build-export ci validate-data scaffold linkcheck validate-pdf build-search-index component-examples verify-architectural-checklist-mechanism-status verify-export-routes verify-export-search-shell verify-export-search-handoff verify-export-search-ux verify-phase-1-ux verify-phase-1-convergence verify-phase-1-built-app-convergence verify-phase-1-follow-up-convergence verify-phase-1-batch-012-convergence verify-phase-1-batch-013-convergence verify-phase-1-github-pages-convergence verify-phase-1-github-pages-deploy-convergence verify-phase-2-3-reconciliation-convergence verify-rendered-quality-baseline verify-rendered-quality-regression
+.PHONY: help dev build test lint validate generate ci internal-help internal-format internal-typecheck internal-test-verify-contract internal-test-build-contract internal-test-system internal-test-integration internal-coverage internal-build-export internal-validate-data internal-scaffold internal-linkcheck internal-validate-pdf internal-build-search-index internal-component-examples internal-verify-architectural-checklist-mechanism-status internal-verify-export-routes internal-verify-export-search-shell internal-verify-export-search-handoff internal-verify-export-search-ux internal-verify-phase-1-ux internal-verify-phase-1-convergence internal-verify-phase-1-built-app-convergence internal-verify-phase-1-follow-up-convergence internal-verify-phase-1-batch-012-convergence internal-verify-phase-1-batch-013-convergence internal-verify-phase-1-github-pages-convergence internal-verify-phase-1-github-pages-deploy-convergence internal-verify-phase-2-3-reconciliation-convergence internal-verify-phase-2-token-probability-path-convergence internal-verify-rendered-quality-baseline internal-verify-rendered-quality-regression
+
+help:
+	@bun run help
 
 dev:
 	bun run dev
-
-lint:
-	bun run lint
-
-format:
-	bun run format
-
-typecheck:
-	bun run typecheck
-
-test:
-	bun run test
-
-test-verify-contract:
-	bun run test:verify-contract
-
-test-build-contract:
-	bun run test:build-contract
-
-test-system:
-	bun run test:system
-
-test-integration:
-	bun run test:integration
-
-coverage:
-	bun run coverage
 
 build:
 	bun run build
@@ -36,81 +12,116 @@ build:
 	bun ./scripts/verify-grouped-query-attention-built-route.ts
 	bun ./scripts/verify-docs-footer-hover-built-route.ts
 
-build-export:
+test:
+	bun run test
+
+lint:
+	bun run lint
+
+validate:
+	bun run validate
+
+generate:
+	bun run generate
+
+ci: lint internal-typecheck test internal-test-verify-contract internal-coverage internal-test-build-contract internal-test-integration internal-validate-data internal-linkcheck
+internal-help:
+	@bun run internal:help
+
+internal-format:
+	bun run internal:format
+
+internal-typecheck:
+	bun run internal:typecheck
+
+internal-test-verify-contract:
+	bun run test:verify-contract
+
+internal-test-build-contract:
+	bun run test:build-contract
+
+internal-test-system:
+	bun run internal:test:system
+
+internal-test-integration:
+	bun run test:integration
+
+internal-coverage:
+	bun run internal:coverage
+
+internal-build-export:
 	bun run build:export
 	bun ./scripts/verify-phase-1-export-routes.ts
 	bun ./scripts/verify-phase-1-export-search-shell.ts
 	bun ./scripts/verify-phase-1-export-search-handoff.ts
 	bun ./scripts/verify-phase-1-export-search-ux.ts
 
-verify-architectural-checklist-mechanism-status:
+internal-verify-architectural-checklist-mechanism-status:
 	bun run verify:architectural-checklist-mechanism-status
 
-verify-export-routes:
+internal-verify-export-routes:
 	bun ./scripts/verify-phase-1-export-routes.ts
 
-verify-export-search-shell:
+internal-verify-export-search-shell:
 	bun ./scripts/verify-phase-1-export-search-shell.ts
 
-verify-export-search-handoff:
+internal-verify-export-search-handoff:
 	bun ./scripts/verify-phase-1-export-search-handoff.ts
 
-verify-export-search-ux:
+internal-verify-export-search-ux:
 	bun ./scripts/verify-phase-1-export-search-ux.ts
 
-ci: lint typecheck test test-verify-contract coverage test-build-contract test-integration validate-data linkcheck
+internal-validate-data:
+	bun run internal:validate-data
 
-validate-data:
-	bun run validate-data
-
-scaffold:
+internal-scaffold:
 	bun ./scripts/scaffold-doc-page.ts $(ARGS)
 
-linkcheck:
-	bun run linkcheck
+internal-linkcheck:
+	bun run internal:linkcheck
 
-validate-pdf:
+internal-validate-pdf:
 	@echo "validate-pdf: skipped (not yet implemented in scaffold)"
 	@exit 0
 
-build-search-index:
+internal-build-search-index:
 	bun run build:search-index
 
-component-examples:
-	bun ./scripts/component-examples.ts
+internal-component-examples:
+	bun run internal:component-examples
 
-verify-phase-1-ux:
+internal-verify-phase-1-ux:
 	bun ./scripts/verify-phase-1-route-search-ux.ts
 
-verify-phase-1-convergence:
+internal-verify-phase-1-convergence:
 	bun ./scripts/run-phase-1-convergence-pass.ts
 
-verify-phase-1-built-app-convergence:
+internal-verify-phase-1-built-app-convergence:
 	bun ./scripts/run-phase-1-built-app-convergence-validator.ts
 
-verify-phase-1-follow-up-convergence:
+internal-verify-phase-1-follow-up-convergence:
 	bun ./scripts/run-phase-1-follow-up-convergence-pass.ts
 
-verify-phase-1-batch-012-convergence:
+internal-verify-phase-1-batch-012-convergence:
 	bun ./scripts/run-phase-1-batch-012-convergence-pass.ts
 
-verify-phase-1-batch-013-convergence:
+internal-verify-phase-1-batch-013-convergence:
 	bun ./scripts/run-phase-1-batch-013-convergence-pass.ts
 
-verify-phase-1-github-pages-convergence:
+internal-verify-phase-1-github-pages-convergence:
 	bun ./scripts/run-phase-1-github-pages-convergence-pass.ts
 
-verify-phase-1-github-pages-deploy-convergence:
+internal-verify-phase-1-github-pages-deploy-convergence:
 	bun ./scripts/run-phase-1-github-pages-deploy-convergence-pass.ts
 
-verify-phase-2-3-reconciliation-convergence:
+internal-verify-phase-2-3-reconciliation-convergence:
 	bun ./scripts/run-phase-2-3-reconciliation-convergence-pass.ts
 
-verify-phase-2-token-probability-path-convergence:
+internal-verify-phase-2-token-probability-path-convergence:
 	bun ./scripts/run-phase-2-token-probability-path-convergence-pass.ts
 
-verify-rendered-quality-baseline:
+internal-verify-rendered-quality-baseline:
 	bun ./scripts/run-rendered-quality-baseline-audit.ts
 
-verify-rendered-quality-regression:
+internal-verify-rendered-quality-regression:
 	bun ./scripts/run-rendered-quality-regression-pass.ts

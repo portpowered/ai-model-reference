@@ -345,14 +345,16 @@ while authoring, then run the full gate before opening a pull request.
 ### Fast content loop
 
 While editing page bundles, registry records, or maintainer docs under `docs/`,
-run these lightweight checks often:
+start with `make validate`. Use the narrower internal checks below only when you
+need a content-only pass:
 
 | Command | Equivalent Bun script | What it validates |
 | --- | --- | --- |
-| `make validate-data` | `bun ./scripts/validate-registry.ts` | Registry schema, frontmatter ↔ registry alignment, message keys referenced from MDX, asset ids, graph/table references, tag and citation resolution, and colocated `messages/` + `assets.json` bundles under `src/content/docs/` |
-| `make linkcheck` | `bun ./scripts/validate-links.ts` | Internal links and `#section` anchors in published docs pages served through the Fumadocs catch-all route (`src/content/docs/**/page.mdx`) |
+| `make internal-validate-data` | `bun ./scripts/validate-registry.ts` | Registry schema, frontmatter ↔ registry alignment, message keys referenced from MDX, asset ids, graph/table references, tag and citation resolution, and colocated `messages/` + `assets.json` bundles under `src/content/docs/` |
+| `make internal-linkcheck` | `bun ./scripts/validate-links.ts` | Internal links and `#section` anchors in published docs pages served through the Fumadocs catch-all route (`src/content/docs/**/page.mdx`) |
 
-`make validate-data` is the primary gate for docs content work. It catches the
+`make validate` is the default maintainer-facing gate. `make internal-validate-data`
+is the focused content-only subset when you want to isolate registry issues. It catches the
 structural mistakes contributors make most often:
 
 - Missing or unknown `registryId`, tags, citations, or related record ids
@@ -361,7 +363,7 @@ structural mistakes contributors make most often:
 - `assetId` references missing from `assets.json` or graph/table registry records
 - Invalid or incomplete registry JSON under `src/content/registry/`
 
-`make linkcheck` runs after content shape is stable. It verifies that links
+`make internal-linkcheck` runs after content shape is stable. It verifies that links
 between docs routes resolve (for example
 `/docs/modules/grouped-query-attention`, `/docs/glossary/token`, and in-page
 `#section` anchors). Fix broken relative links in MDX before review.
@@ -369,13 +371,16 @@ between docs routes resolve (for example
 Optional during iteration:
 
 ```sh
+make help          # supported maintainer workflow summary
 make lint          # Biome check — same as bun run lint
-make typecheck     # fumadocs-mdx (pretypecheck), then tsc --noEmit
+make validate      # supported preflight: typecheck + validate-data + linkcheck
+make internal-typecheck     # raw typecheck gate used inside validate and ci
 ```
 
 `make lint` helps when you edit TypeScript, MDX components, or scripts alongside
-docs content. `make typecheck` matters when your change touches typed loaders,
-registry code, or MDX component props.
+docs content. `make internal-typecheck` matters when your change touches typed loaders,
+registry code, or MDX component props. `make validate` is the compact
+maintainer-facing preflight when you want the non-test checks in one command.
 
 For a visual pass on a published page, start the dev server after installing
 dependencies:
@@ -386,8 +391,10 @@ make dev
 ```
 
 Open the page route in the browser (for example
-`http://localhost:3000/docs/modules/grouped-query-attention`). Pick a free port
-if `3000` is already in use: `bun run dev -- -p 3456`.
+`http://localhost:3000/docs/modules/grouped-query-attention`). `make dev`
+regenerates the generated-content prerequisites it depends on before the dev
+server starts. Pick a free port if `3000` is already in use:
+`PORT=3456 make dev`.
 
 ### Full quality gate before PR
 
@@ -404,19 +411,27 @@ make ci
 `make ci` runs, in order:
 
 1. `make lint` — Biome check
-2. `make typecheck` — `fumadocs-mdx`, then `tsc --noEmit`
+2. `make internal-typecheck` — `fumadocs-mdx`, then `tsc --noEmit`
 3. `make test` — `bun test`
-4. `make coverage` — manifest-scoped reusable component coverage gate
-5. `make test-build-contract` — production build contract plus one GitHub Pages base-path export artifact contract
-6. `make test-integration` — served export, built HTML, and production-server integration tests
-7. `make validate-data` — registry and content validation (same as the fast loop above)
-8. `make linkcheck` — internal docs link validation
+4. `make internal-coverage` — manifest-scoped reusable component coverage gate
+5. `make internal-test-build-contract` — production build contract plus one GitHub Pages base-path export artifact contract
+6. `make internal-test-integration` — served export, built HTML, and production-server integration tests
+7. `make internal-validate-data` — registry and content validation (same as the fast loop above)
+8. `make internal-linkcheck` — internal docs link validation
 
-You do not need to run `fumadocs-mdx` manually. `pretypecheck` and `pretest` in
-`package.json` generate `.source/` automatically on fresh checkouts.
+You do not need to run `fumadocs-mdx` manually. `preinternal:typecheck` and
+`pretest` in `package.json` generate `.source/` automatically on fresh
+checkouts.
 
-For most docs-only pull requests, the **fast content loop** (`make validate-data`
-and `make linkcheck`) catches registry and linking regressions early. Run
+For maintainers who are new to the repo, the supported top-level command
+surface is intentionally short: `dev`, `build`, `test`, `lint`, `validate`,
+`generate`, `ci`, and `help`. Run `make help` or `bun run help` to print the
+same summary before reaching for specialized verification commands.
+
+For most docs-only pull requests, `make validate` is the default loop. The
+faster internal split (`make internal-validate-data` and
+`make internal-linkcheck`) catches registry and linking regressions when you do
+not need the full supported preflight. Run
 `make ci` once before opening the PR so you match the required GitHub **ci**
 check.
 
@@ -427,15 +442,15 @@ standard docs contribution loop:
 
 | Command | Status |
 | --- | --- |
-| `make validate-pdf` | Stub — skipped (not implemented) |
-| `make verify-phase-1-ux` | Maintainer convergence tool — requires `make build`, Playwright, and a running server |
-| `make verify-phase-1-*-convergence` | Batch convergence validators for factory/meta-planner review |
-| `make component-examples` | Dev-only component gallery at `/component-examples` |
+| `make internal-validate-pdf` | Stub — skipped (not implemented) |
+| `make internal-verify-phase-1-ux` | Maintainer convergence tool — requires `make build`, Playwright, and a running server |
+| `make internal-verify-phase-1-*-convergence` | Batch convergence validators for factory/meta-planner review |
+| `make internal-component-examples` | Dev-only component gallery at `/component-examples` |
 
 Do not manually inspect bundle internals, emitted route inventories, or export
 artifact file lists unless a maintainer explicitly asks for that evidence in a
 convergence review. The checked-in scripts (`validate-registry.ts`,
-`validate-links.ts`, build verifiers inside `make build` / `make build-export`)
+`validate-links.ts`, build verifiers inside `make build` / `make internal-build-export`)
 are the supported validation surface.
 
 ### After page generation, scaffolding, or template copy
@@ -448,7 +463,7 @@ When you add a new page with `generate:page-bundle`, the legacy
 3. Set `status: published` in `page.mdx` frontmatter when the page is ready for
    published checks (keep `draft` while tags or citations still point at
    unpublished targets).
-4. Run `make validate-data`, then `make linkcheck`.
+4. Run `make internal-validate-data`, then `make internal-linkcheck`.
 5. Run `make ci` before opening the pull request.
 
 This matches the post-scaffolding checklist in [README.md](../../README.md).
@@ -495,7 +510,7 @@ bun run scaffold:doc-page -- --kind concept --slug my-concept --title "My concep
 Equivalent Make entry:
 
 ```sh
-make scaffold ARGS='--kind glossary --slug my-term --title "My term" --concept-type general --dry-run'
+make internal-scaffold ARGS='--kind glossary --slug my-term --title "My term" --concept-type general --dry-run'
 ```
 
 For **model**, **module**, **paper**, and **training-regime** pages, copy the
@@ -528,7 +543,7 @@ Direct authoring ends in a normal GitHub pull request you can review page by pag
 Factory work ends in one or more executor pull requests produced after planning
 and batch submission. Do not mix the two paths casually: if you can land the page
 with `generate:page-bundle`, template copy, or legacy scaffold plus
-`make validate-data`, prefer a direct PR.
+`make internal-validate-data`, prefer a direct PR.
 
 Examples of factory-appropriate requests:
 
@@ -543,7 +558,7 @@ Examples of direct-PR work:
 
 - A single new glossary or concept page from a page spec or legacy scaffold.
 - Corrections to messages, citations, tags, or assets on an existing page.
-- Template-aligned edits that pass `make validate-data` and `make linkcheck`.
+- Template-aligned edits that pass `make internal-validate-data` and `make internal-linkcheck`.
 
 #### How factory batches work
 
@@ -651,7 +666,7 @@ need to scope the work without implying the tooling already exists:
 | Message scope | Whether to translate the full `messages/en.json` tree or named key prefixes only |
 | Asset text | Whether graph labels, captions, and alt text in `assets.json` need locale-specific message keys |
 | Glossary and registry copy | Whether registry `defaultTitleKey` targets or tag display names are in scope |
-| Validation expectation | That new locale files must pass the same `make validate-data` alignment checks as English |
+| Validation expectation | That new locale files must pass the same `make internal-validate-data` alignment checks as English |
 
 Planners may route authorized localization as factory `idea` items. The
 implementation path is phase-gated; this guide documents the request shape only.
@@ -681,8 +696,8 @@ bun test src/tests/ci/contributor-guide-alignment.test.ts
 ```
 
 The test dry-runs the documented `generate:page-bundle` and `scaffold:doc-page`
-entrypoints and runs `make validate-data` against committed content. Run
-`make validate-data` and `make linkcheck` for published page bundles;
+entrypoints and runs `make internal-validate-data` against committed content. Run
+`make internal-validate-data` and `make internal-linkcheck` for published page bundles;
 `linkcheck` does not scan arbitrary markdown under `docs/`.
 
 ## Maintainer references

@@ -62,7 +62,7 @@ evidence.
 | --- | --- | --- |
 | **Mechanism-status completeness** | Without a verifier, the durable audit can drift from `docs/architectural-checklist.md` and overstate controls. | **Enforced** — deterministic verifier below. |
 | **Accessibility tests outside `make ci`** | axe-based tests exist but are not part of the default CI recipe. | Documented as partially implemented; wire into CI in a follow-up pass. |
-| **`make validate-pdf` stub** | Checklist expects PDF validation; Makefile target exits successfully without checking inputs. | Documented as **missing** under PDF Export Contract; implement scripts when print routes land. |
+| **`make internal-validate-pdf` stub** | Checklist expects PDF validation; Makefile target exits successfully without checking inputs. | Documented as **missing** under PDF Export Contract; implement scripts when print routes land. |
 
 ### Mechanism-status completeness verifier
 
@@ -70,7 +70,7 @@ evidence.
 | --- | --- |
 | **Mechanism** | Compare auditable checklist sections to category entries in this artifact; require allowed status values; require repository evidence for **implemented** and **partially implemented** rows; require operator/manual and reviewer command sections. |
 | **Repository evidence** | `src/lib/governance/architectural-checklist-audit.ts`, `src/lib/governance/architectural-checklist-audit.test.ts`, `scripts/verify-architectural-checklist-mechanism-status.ts` |
-| **Verification command** | `make verify-architectural-checklist-mechanism-status` (alias: `bun run verify:architectural-checklist-mechanism-status`) |
+| **Verification command** | `make internal-verify-architectural-checklist-mechanism-status` (alias: `bun run verify:architectural-checklist-mechanism-status`) |
 | **Failure behavior** | Exits non-zero with a list of missing categories, duplicate entries, disallowed statuses, or evidence gaps. |
 
 ## Required fields per category
@@ -85,7 +85,7 @@ Each auditable checklist category section (including nested sections such as
 | **Status** | yes | One of `implemented`, `partially implemented`, or `missing`. |
 | **Summary** | yes | One or two sentences on what the repository does today relative to the checklist. |
 | **Repository evidence** | yes | Comma-separated or bulleted repo paths (workflows, scripts, tests, config, docs, source modules). Use `none` only for **missing** entries. |
-| **Verification commands** | when applicable | At least one reviewer-runnable command when a local mechanism exists, e.g. `bun run typecheck`, `make ci`, `bun test`. Use `n/a` when no local command applies. |
+| **Verification commands** | when applicable | At least one reviewer-runnable command when a local mechanism exists, e.g. `bun run internal:typecheck`, `make ci`, `bun test`. Use `n/a` when no local command applies. |
 | **Gaps** | when applicable | What the checklist expects but the repository does not yet enforce. Omit or write `none` when status is **implemented**. |
 | **Follow-up or operator requirement** | when applicable | Concrete next mechanism (script, test, doc, CI command) or operator/manual action. Omit or write `none` when no follow-up is needed. |
 
@@ -175,7 +175,7 @@ replace operator settings above.
 | **Triggers** | `pull_request` (all branches) and `push` to `main`. |
 | **Permissions** | `contents: read` at job scope. |
 | **Steps** | Checkout → setup Bun → `bun install --frozen-lockfile` → install Playwright Chromium → `make ci`. |
-| **What `make ci` runs** | lint, typecheck, test, manifest-scoped coverage, build-contract tests (`make test-build-contract`), post-build integration tests (`make test-integration`), validate-data, linkcheck (see `Makefile`). |
+| **What `make ci` runs** | lint, typecheck, test, manifest-scoped coverage, build-contract tests (`make internal-test-build-contract`), post-build integration tests (`make internal-test-integration`), validate-data, linkcheck (see `Makefile`). |
 | **What it does not do** | Deploy, publish previews, configure branch protection, or prove GitHub Pages UI settings. |
 
 Verification: `make ci`, `bun test src/tests/ci/github-actions-make-ci.test.ts`
@@ -186,11 +186,11 @@ Verification: `make ci`, `bun test src/tests/ci/github-actions-make-ci.test.ts`
 | --- | --- |
 | **Triggers** | `push` to `main` only (no `pull_request`, no `workflow_dispatch` in Phase 1). |
 | **Permissions** | Workflow scope: `contents: read`, `pages: write`, `id-token: write`. |
-| **Build job** | Checkout → setup Bun → frozen lockfile install → `make build-export` with `GITHUB_PAGES_BASE_PATH: ai-model-reference` → configure Pages → upload `out/` artifact. |
+| **Build job** | Checkout → setup Bun → frozen lockfile install → `make internal-build-export` with `GITHUB_PAGES_BASE_PATH: ai-model-reference` → configure Pages → upload `out/` artifact. |
 | **Deploy job** | Publishes artifact via `actions/deploy-pages@v4` to environment `github-pages`. |
 | **What it does not do** | Run `make ci` (quality gates stay in `ci.yml`); deploy PR heads; validate branch protection. |
 
-Verification: `make build-export`, `bun test src/tests/ci/github-actions-deploy.test.ts` (if present), `docs/operations.md`
+Verification: `make internal-build-export`, `bun test src/tests/ci/github-actions-deploy.test.ts` (if present), `docs/operations.md`
 
 Maintainer narrative for release, rollback, and SHA traceability lives in
 [docs/operations.md](../operations.md). That doc explains operational
@@ -221,8 +221,8 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | CI runs on pull requests and `main` pushes; static export deploys to GitHub Pages on `main` via a separate workflow. Lockfile-backed installs, release/rollback guidance, and SHA traceability are documented. PR preview deploys and GitHub branch protection are not enforced from repository source. |
 | **Repository evidence** | `.github/workflows/ci.yml`, `.github/workflows/deploy.yml`, `docs/operations.md`, `bun.lock`, `Makefile` (`ci`, `build-export`), `src/tests/ci/github-actions-*.test.ts` |
-| **Verification commands** | `make ci`, `make build-export`, `bun test src/tests/ci` |
-| **Gaps** | No PR preview deployment workflow; branch protection rules live in GitHub settings only; `make validate-pdf` is stubbed; environment secrets and Pages UI settings are operator-owned. |
+| **Verification commands** | `make ci`, `make internal-build-export`, `bun test src/tests/ci` |
+| **Gaps** | No PR preview deployment workflow; branch protection rules live in GitHub settings only; `make internal-validate-pdf` is stubbed; environment secrets and Pages UI settings are operator-owned. |
 | **Follow-up or operator requirement** | Configure GitHub branch protection per `docs/operations.md`; treat preview deploys as deferred Phase 1 scope. |
 
 ### Testing
@@ -232,7 +232,7 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | The repository has broad unit, integration, build-export, search, layout, and axe-based accessibility tests. `make ci` runs typecheck, lint, tests, manifest-scoped coverage, build-contract tests, registry validation, and linkcheck. Storybook, Lighthouse CI, visual regression, and accessibility-in-CI are not present. |
 | **Repository evidence** | `src/tests/**`, `Makefile` (`ci`, `test`, `coverage`), `package.json` (`test`, `coverage`), `scripts/component-coverage-gate.ts`, `src/lib/docs/component-coverage-gate.ts`, `src/tests/a11y/*.a11y.test.tsx`, `.github/workflows/ci.yml` |
-| **Verification commands** | `bun test`, `make ci`, `make coverage` |
+| **Verification commands** | `bun test`, `make ci`, `make internal-coverage` |
 | **Gaps** | No Storybook; no Lighthouse or performance regression suite in CI; accessibility tests exist but are not part of `make ci`; no visual regression harness; math/MDX rendering lacks dedicated CI contract beyond page-level tests. |
 | **Follow-up or operator requirement** | Add focused a11y gate to CI or document explicit deferral; evaluate Storybook vs existing `component-examples` harness for visual review. |
 
@@ -243,7 +243,7 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | The codebase follows feature-oriented boundaries (`src/features/docs`, `src/features/models`), shared layout/UI components, and framework-agnostic `src/lib` utilities. ML graph rendering is isolated under `src/features/models`. Design tokens are inlined in CSS rather than a dedicated `src/tokens` package, and no Zustand state layer is present. |
 | **Repository evidence** | `src/features/`, `src/components/`, `src/lib/`, `src/app/`, `src/app/globals.css`, `docs/architecture.md`, `docs/code-standards.md` |
-| **Verification commands** | `bun run typecheck` |
+| **Verification commands** | `bun run internal:typecheck` |
 | **Gaps** | Checklist expects `src/tokens/` and optional Zustand feature state; blog feature directory absent; some checklist package-boundary exports not modeled via `package.json` exports. |
 | **Follow-up or operator requirement** | Extract shared tokens module or document CSS-variable approach as the Phase 1 token source of truth. |
 
@@ -254,7 +254,7 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | Reusable docs and model components include tests, variant styling via Tailwind/shadcn patterns, and explicit empty/missing fallbacks (`MissingMessageKey`, `DocsIndexEmptyState`). A dev `component-examples` gallery supplements Storybook-style review. Not every interactive component has full state-matrix or keyboard-navigation tests. |
 | **Repository evidence** | `src/features/docs/components/*.test.tsx`, `src/features/models/components/*.test.tsx`, `src/components/ui/button.tsx`, `src/app/(dev)/component-examples/`, `scripts/component-examples.ts`, `src/lib/docs/component-manifest.ts` |
-| **Verification commands** | `bun test src/features`, `bun run component-examples` |
+| **Verification commands** | `bun test src/features`, `bun run internal:component-examples` |
 | **Gaps** | No Storybook catalog; loading/error/success coverage is uneven across components; keyboard and responsive variant matrices are not uniformly tested. |
 | **Follow-up or operator requirement** | Extend component coverage manifest for remaining reusable surfaces. |
 
@@ -276,7 +276,7 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | Core App Router, feature, content, lib, and scripts layout matches the checklist intent. Deviations include absent `src/content/blog`, `src/app/blog`, `src/app/print`, `src/tokens`, and `src/features/blog` paths that the checklist still describes as required. |
 | **Repository evidence** | `src/app/`, `src/features/`, `src/content/`, `src/lib/`, `scripts/validate-links.ts`, `scripts/validate-registry.ts`, `source.config.ts`, `biome.json`, `docs/architectural-checklist.md` (Package structure section) |
-| **Verification commands** | `bun run typecheck`, `make validate-data` |
+| **Verification commands** | `bun run internal:typecheck`, `make internal-validate-data` |
 | **Gaps** | Blog, print/PDF, and dedicated tokens directories from the checklist contract are not present; `package.json` does not define subpath exports. |
 | **Follow-up or operator requirement** | Track blog/PDF scaffold work separately; update checklist or add missing directories when those features land. |
 
@@ -320,7 +320,7 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | Biome lint/format, TypeScript strict mode, Bun tests, manifest-scoped coverage, build/export validation, registry validation, and internal linkcheck run through `make ci`. Dependency security scans, bundle-size tracking, performance budgets, and global dead-code detection are not automated. |
 | **Repository evidence** | `biome.json`, `tsconfig.json` (`strict: true`), `Makefile` (`ci`), `package.json`, `scripts/validate-registry.ts`, `scripts/validate-links.ts`, `scripts/component-coverage-gate.ts`, `scripts/verify-architectural-checklist-mechanism-status.ts`, `src/lib/governance/architectural-checklist-audit.ts`, `.github/workflows/ci.yml` |
-| **Verification commands** | `make ci`, `make verify-architectural-checklist-mechanism-status`, `bun run lint`, `bun run typecheck` |
+| **Verification commands** | `make ci`, `make internal-verify-architectural-checklist-mechanism-status`, `bun run lint`, `bun run internal:typecheck` |
 | **Gaps** | No Dependabot/npm-audit gate; no bundle analyzer or Lighthouse budget in CI; MDX prose lint is manual via `factory/docs/standards/docs-writing-standards.md`. |
 | **Follow-up or operator requirement** | Add dependency scan workflow or document operator-owned security review cadence. |
 
@@ -331,8 +331,8 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | Bun drives install, scripts, and tests; the root `Makefile` exposes `ci`, `test`, `test-integration`, `coverage`, `build`, `build-export`, `validate-data`, and `linkcheck` aligned with CI. PDF validation and generation targets are stubbed or absent; checklist-listed accessibility and PDF steps are not in `make ci`. |
 | **Repository evidence** | `Makefile`, `package.json`, `bun.lock`, `.github/workflows/ci.yml`, `scripts/validate-registry.ts`, `scripts/validate-links.ts` |
-| **Verification commands** | `make ci`, `make build`, `make build-export`, `make linkcheck`, `make validate-data` |
-| **Gaps** | `make validate-pdf` exits successfully without validating; no `make pdf` targets; `make ci` omits a11y checks the checklist associates with CI. |
+| **Verification commands** | `make ci`, `make build`, `make internal-build-export`, `make internal-linkcheck`, `make internal-validate-data` |
+| **Gaps** | `make internal-validate-pdf` exits successfully without validating; no `make pdf` targets; `make ci` omits a11y checks the checklist associates with CI. |
 | **Follow-up or operator requirement** | Implement PDF scripts or keep explicit `missing` status in PDF Export Contract entry until implemented. |
 
 ### Website-specific decisions > Technology decisions
@@ -342,7 +342,7 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | The site is a TypeScript Next.js App Router project using Bun, Fumadocs MDX, Tailwind CSS variables, shadcn/ui primitives, React Flow graphs, Recharts (where used), KaTeX math, and Orama-backed search with static export support. PDF export and full blog stack described in the checklist are not yet in the tree. |
 | **Repository evidence** | `package.json`, `next.config.ts`, `source.config.ts`, `src/app/api/search/route.ts`, `src/features/models/components/RegistryGraphFlow.tsx`, `src/features/docs/components/Math.tsx`, `scripts/emit-export-search-index.ts` |
-| **Verification commands** | `make build-export`, `bun run test:build-contract` |
+| **Verification commands** | `make internal-build-export`, `bun run test:build-contract` |
 | **Gaps** | PDF pipeline and blog authoring paths missing; Magic UI usage is minimal/optional and not centrally cataloged. |
 | **Follow-up or operator requirement** | Land print/PDF routes before claiming PDF support as implemented. |
 
@@ -353,7 +353,7 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | Root layout, docs catch-all route, tag/search surfaces, registry-backed content loaders, and feature-owned docs/models rendering match the documented contract. Blog routes, print routes, and some checklist-listed feature paths are absent. |
 | **Repository evidence** | `src/app/layout.tsx`, `src/app/docs/[[...slug]]/page.tsx`, `src/app/(site)/tags/`, `src/app/(site)/search/page.tsx`, `src/features/docs/`, `src/features/models/`, `src/lib/content/`, `src/lib/search/`, `docs/architecture.md` |
-| **Verification commands** | `bun run typecheck`, `bun test src/tests/layout` |
+| **Verification commands** | `bun run internal:typecheck`, `bun test src/tests/layout` |
 | **Gaps** | `src/features/blog`, `src/content/blog`, and `src/app/print/**` not present; `src/lib/seo` helpers may be partial vs checklist enumeration. |
 | **Follow-up or operator requirement** | Add blog/print app structure or revise checklist contract after explicit deferral. |
 
@@ -397,7 +397,7 @@ secrets to satisfy this artifact.
 | **Status** | implemented |
 | **Summary** | Internal docs link validation uses Fumadocs `next-validate-link` integration via `scripts/validate-links.ts`, included in `make ci`. Blog links are not validated because blog content routes are absent. |
 | **Repository evidence** | `scripts/validate-links.ts`, `src/lib/build/validate-links.ts`, `Makefile` (`linkcheck`), `src/tests/ci/github-actions-make-ci.test.ts` |
-| **Verification commands** | `make linkcheck` |
+| **Verification commands** | `make internal-linkcheck` |
 | **Gaps** | Blog MDX links not in scope until blog ships; external URL validation not in CI by design. |
 | **Follow-up or operator requirement** | Include blog pages in validator when blog content exists. |
 
@@ -419,7 +419,7 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | Search, in-page/cross-file navigation, previous/next via Fumadocs, math, code blocks, callouts, tables, glossary pages, citations, model/module graphs, and tag-based discovery are present. PDF export, versioned docs, changelog/blog pages, and API reference pages are not implemented. |
 | **Repository evidence** | `src/features/docs/components/`, `src/features/models/components/`, `src/content/docs/`, `src/content/registry/`, Fumadocs TOC/footer in docs layout, `src/lib/search/` |
-| **Verification commands** | `make build`, `bun test src/tests/docs`, `make linkcheck` |
+| **Verification commands** | `make build`, `bun test src/tests/docs`, `make internal-linkcheck` |
 | **Gaps** | PDF export, doc versioning, and blog/release-note surfaces missing. |
 | **Follow-up or operator requirement** | Implement PDF export contract or keep status `missing` in PDF entry. |
 
@@ -452,7 +452,7 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | Attention-variant module pages, glossary entries, comparison tables/graphs, and writing standards provide structured ML explainers with accessibility-oriented summaries on key module routes. Full model-card coverage, benchmark caveats, and safety/limitations sections are not uniform across all records. |
 | **Repository evidence** | `src/content/docs/modules/`, `src/content/registry/modules/`, `factory/docs/standards/docs-writing-standards.md`, `docs/documentation-template.md`, `src/features/models/components/ModuleAtAGlance.tsx`, `ModuleAttentionSchemaComparison.tsx` |
-| **Verification commands** | `bun test src/lib/content/*-module-page.test.ts`, `make validate-data` |
+| **Verification commands** | `bun test src/lib/content/*-module-page.test.ts`, `make internal-validate-data` |
 | **Gaps** | Few live model/paper pages vs checklist breadth; performance claims and hardware assumptions not consistently documented. |
 | **Follow-up or operator requirement** | Expand model/paper content with registry-backed sections as planner batches land. |
 
@@ -472,7 +472,7 @@ secrets to satisfy this artifact.
 | Field | Value |
 | --- | --- |
 | **Status** | partially implemented |
-| **Summary** | `README.md` documents problem/solution, content-layer shape (`Website Shape`), important governance docs, **Local Development** (`bun install`, `make dev`), **Static export (GitHub Pages)** with `make build-export`, **Quality Gates** with ordered `make ci` steps and full Makefile target listings, operations/release posture, Phase 1 UX verifiers, and the agent factory loop. It carries a CI badge and links to `docs/operations.md`. |
+| **Summary** | `README.md` documents problem/solution, content-layer shape (`Website Shape`), important governance docs, **Local Development** (`bun install`, `make dev`), **Static export (GitHub Pages)** with `make internal-build-export`, **Quality Gates** with ordered `make ci` steps and full Makefile target listings, operations/release posture, Phase 1 UX verifiers, and the agent factory loop. It carries a CI badge and links to `docs/operations.md`. |
 | **Repository evidence** | `README.md` (`## Local Development`, `## Quality Gates`, `## Static export (GitHub Pages)`) |
 | **Verification commands** | Manual review; README prose is not a test-gated contract. |
 | **Gaps** | Missing page-count/license/locale badges (only CI badge present); no explicit one-line published-site URL; no detailed top-level repository tree map beyond content-layer layout in **Website Shape**. |
@@ -485,7 +485,7 @@ secrets to satisfy this artifact.
 | **Status** | partially implemented |
 | **Summary** | shadcn/ui primitives, docs chrome, search UI, callouts, math, tables, graph viewers, and loading/missing fallbacks exist with tests and a component-examples harness. Magic UI, analytics helpers, and some checklist-listed standard components are absent or minimal. |
 | **Repository evidence** | `src/components/ui/`, `src/features/docs/components/`, `src/features/models/components/`, `src/component-examples/`, `components.json`, `src/lib/docs/component-manifest.ts` |
-| **Verification commands** | `bun test src/features/docs/components`, `make coverage` |
+| **Verification commands** | `bun test src/features/docs/components`, `make internal-coverage` |
 | **Gaps** | No analytics/event helpers; not all standard SEO helpers centralized under `src/lib/seo`. |
 | **Follow-up or operator requirement** | Track optional analytics components as observability work, not blocking docs reference scope. |
 
@@ -528,8 +528,8 @@ secrets to satisfy this artifact.
 | --- | --- |
 | **Status** | partially implemented |
 | **Summary** | Static export pre-renders docs pages; heavy graph clients hydrate on module routes with targeted performance tests for export/search paths. Bundle-size tracking, Lighthouse budgets, and CI performance regression gates are not configured. |
-| **Repository evidence** | `next.config.ts`, `make build-export`, `src/tests/build/static-export-*.test.ts`, `scripts/verify-phase-1-export-search-handoff.ts` |
-| **Verification commands** | `make build-export`, `bun run test:build-contract` |
+| **Repository evidence** | `next.config.ts`, `make internal-build-export`, `src/tests/build/static-export-*.test.ts`, `scripts/verify-phase-1-export-search-handoff.ts` |
+| **Verification commands** | `make internal-build-export`, `bun run test:build-contract` |
 | **Gaps** | No bundle analyzer or performance budget enforcement; image/font optimization policies are implicit via Next/static export. |
 | **Follow-up or operator requirement** | Add Lighthouse or bundle-size gate when performance enforcement is prioritized. |
 
@@ -573,7 +573,7 @@ this pass.
 | **PR preview deployments** | Operator/manual; Operational gaps | No preview workflow in `.github/workflows/` | Confirm in GitHub UI; do not expect repository proof. |
 | **Storybook / visual regression** | Testing and Component quality gaps | `src/component-examples/` substitutes for interactive catalog review | Do not fail this pass for absent Storybook. |
 | **Lighthouse / bundle budgets** | Performance and Quality gaps | No CI performance regression gate | Manual spot-check is acceptable for Phase 1. |
-| **Print routes and PDF validation** | PDF Export Contract **missing**; `make validate-pdf` stub | No `src/app/print/**`, `scripts/build-pdf.ts`, or real `scripts/validate-pdf.ts` | Treat PDF checklist rows as a future phase unless routes land. |
+| **Print routes and PDF validation** | PDF Export Contract **missing**; `make internal-validate-pdf` stub | No `src/app/print/**`, `scripts/build-pdf.ts`, or real `scripts/validate-pdf.ts` | Treat PDF checklist rows as a future phase unless routes land. |
 | **Blog routes and components** | Blog Components Contract **missing** | Templates exist under `docs/templates/`; no live blog app routes | Do not backfill blog implementation from checklist text alone. |
 | **Observability / analytics** | Observability **missing** | No client telemetry in application source | Operator-owned or a future instrumentation pass. |
 | **Accessibility in `make ci`** | Accessibility **partially implemented** | axe tests exist but are outside the default CI recipe | Documented deferral; wire into CI in a follow-up pass. |
@@ -599,7 +599,7 @@ health but are not specific to the mechanism-status audit.
 
 Run these steps in order when approving this governance pass:
 
-1. **Governance audit** — `make verify-architectural-checklist-mechanism-status`
+1. **Governance audit** — `make internal-verify-architectural-checklist-mechanism-status`
    (alias: `bun run verify:architectural-checklist-mechanism-status`) proves every
    auditable checklist category, required artifact sections, and repository
    evidence rows stay aligned with `docs/architectural-checklist.md`.
@@ -607,10 +607,10 @@ Run these steps in order when approving this governance pass:
    job: lint, typecheck, tests, component coverage, production build, static
    export build, post-build integration tests, registry validation, and internal
    linkcheck.
-3. **Post-build integration coverage** — `make test-integration` (alias:
+3. **Post-build integration coverage** — `make internal-test-integration` (alias:
    `bun run test:integration`) runs the manifest in
    `src/lib/verify/production-integration-test-paths.ts` via
-   `scripts/run-production-integration-tests.ts` after `make test-build-contract`
+   `scripts/run-production-integration-tests.ts` after `make internal-test-build-contract`
    so the default CI path exercises built HTML, served export checks, and
    production-server convergence assertions that default `make test` skips unless
    `VERIFY_PRODUCTION_INTEGRATION_TESTS=1` is set.
@@ -619,7 +619,7 @@ Run these steps in order when approving this governance pass:
 
 | Command | Purpose |
 | --- | --- |
-| `make verify-architectural-checklist-mechanism-status` | Primary reviewer entrypoint; runs the mechanism-status completeness verifier. |
+| `make internal-verify-architectural-checklist-mechanism-status` | Primary reviewer entrypoint; runs the mechanism-status completeness verifier. |
 | `bun run verify:architectural-checklist-mechanism-status` | Package-script alias for the same verifier. |
 | `bun test src/lib/governance/architectural-checklist-audit.test.ts` | Regression tests for the mechanism-status verifier (category extraction, parsing, failure modes). |
 
@@ -629,12 +629,12 @@ Run these steps in order when approving this governance pass:
 | --- | --- |
 | `make ci` | Default maintainer gate: lint, typecheck, tests, component coverage, build-contract tests, post-build integration tests, registry validation, and internal linkcheck. |
 | `bun run lint` | Biome lint and format checks across the repository. |
-| `bun run typecheck` | TypeScript strict check (`tsc --noEmit`) after Fumadocs MDX generation. |
+| `bun run internal:typecheck` | TypeScript strict check (`tsc --noEmit`) after Fumadocs MDX generation. |
 | `bun test` | Full Bun test suite (includes governance verifier tests and CI contract tests; skips opt-in built HTML / production-server integration unless `VERIFY_PRODUCTION_INTEGRATION_TESTS=1`). |
-| `make test-integration` | Served export, built HTML, and production-server integration manifest (`production-integration-test-paths.ts`); included in `make ci` after the build-contract gate. Script-level E2E validator suites remain opt-in via full `VERIFY_PRODUCTION_INTEGRATION_TESTS=1 bun test`. |
-| `bun run test:integration` | Package-script alias for `make test-integration` (`scripts/run-production-integration-tests.ts`). |
+| `make internal-test-integration` | Served export, built HTML, and production-server integration manifest (`production-integration-test-paths.ts`); included in `make ci` after the build-contract gate. Script-level E2E validator suites remain opt-in via full `VERIFY_PRODUCTION_INTEGRATION_TESTS=1 bun test`. |
+| `bun run test:integration` | Package-script alias for `make internal-test-integration` (`scripts/run-production-integration-tests.ts`). |
 
-Run `make verify-architectural-checklist-mechanism-status` first when reviewing
+Run `make internal-verify-architectural-checklist-mechanism-status` first when reviewing
 changes to this artifact or `docs/architectural-checklist.md`. Run `make ci` (or
 the individual gates above) to confirm existing site quality checks still pass
 after governance edits.

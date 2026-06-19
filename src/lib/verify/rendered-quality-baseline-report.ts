@@ -52,7 +52,7 @@ export function formatRenderedQualityAuditReport(
     "## Manual follow-up",
     "",
     "- Re-run `bun run verify:rendered-quality-baseline` after `make build` when validating fixes from stories 002–007.",
-    "- Run `make verify-rendered-quality-regression` for the full unit regression suite plus built-app baseline audit.",
+    "- Run `make internal-verify-rendered-quality-regression` for the full unit regression suite plus built-app baseline audit.",
     "- Unit-only regression suite: `bun test` on files listed in `src/lib/verify/rendered-quality-regression.ts`.",
     "- Graph pan/zoom and MHA/GQA toggle probes run automatically for grouped-query-attention during this audit.",
     "- Rich-content table, code, and math scroll probes run for grouped-query-attention and backpropagation at desktop and mobile viewports.",

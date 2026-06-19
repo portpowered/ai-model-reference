@@ -15,7 +15,7 @@ function shouldRunExportSearchUxScriptIntegration(): boolean {
 }
 
 /**
- * Served static-export Phase 1 search UX probes run under `make test-integration`
+ * Served static-export Phase 1 search UX probes run under `make internal-test-integration`
  * so they do not contend with parallel export tests or flake on unhydrated
  * `/search` input snapshots during full `make test`.
  */

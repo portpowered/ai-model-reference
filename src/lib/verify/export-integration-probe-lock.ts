@@ -74,7 +74,7 @@ export function shouldRunServedPhase1CanonicalQueriesProbe(
  * probe serialization, hydration, handoff, and GQA graph probes already exercise
  * the same static export earlier in the suite; skipping this duplicate probe
  * avoids a 60m Bun ceiling when it queues behind `withExportIntegrationProbeLock`
- * late in the full test run. `make build-export` runs the standalone verifier.
+ * late in the full test run. `make internal-build-export` runs the standalone verifier.
  */
 export function shouldRunPhase1ExportSearchUxServedProbe(
   env: Record<string, string | undefined> = process.env,

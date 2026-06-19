@@ -9,6 +9,6 @@ import { describe, test } from "bun:test";
 describe("static export search UX", () => {
   test("served export probes run in next-build-tracing-warning.test.ts after in-suite build", () => {
     // Unit and stub coverage lives in export-search-ux-checks.test.ts;
-    // `make build-export` runs scripts/verify-phase-1-export-search-ux.ts.
+    // `make internal-build-export` runs scripts/verify-phase-1-export-search-ux.ts.
   });
 });

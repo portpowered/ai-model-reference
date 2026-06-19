@@ -27,8 +27,12 @@ describe("Phase 2/3 reconciliation Phase 1 static-export dependency (US-013)", (
     expect(notes).toContain(
       "does not depend on any open Phase 1 static-export",
     );
-    expect(notes).toContain("make verify-phase-1-github-pages-convergence");
-    expect(notes).toContain("make verify-phase-2-3-reconciliation-convergence");
+    expect(notes).toContain(
+      "make internal-verify-phase-1-github-pages-convergence",
+    );
+    expect(notes).toContain(
+      "make internal-verify-phase-2-3-reconciliation-convergence",
+    );
     expect(notes).toContain("Files intentionally not modified");
 
     for (const prefix of PHASE_1_STATIC_EXPORT_REPAIR_OWNED_PATH_PREFIXES) {

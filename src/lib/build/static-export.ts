@@ -40,7 +40,7 @@ export function resolveGitHubPagesBasePath(
 /**
  * Reads the documented base path for export artifact verification.
  * Unlike `resolveGitHubPagesBasePath`, this does not require `NEXT_STATIC_EXPORT=1`
- * so `make build-export` can verify prefixed `out/` HTML after the build step.
+ * so `make internal-build-export` can verify prefixed `out/` HTML after the build step.
  */
 export function resolveBasePathForExportVerification(
   env: BuildModeEnv = process.env,

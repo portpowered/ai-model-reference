@@ -9,7 +9,7 @@ const projectRoot = join(import.meta.dir, "..");
 
 async function main(): Promise<number> {
   console.log(
-    "Phase 2/3 reconciliation convergence pass: running make validate-data",
+    "Phase 2/3 reconciliation convergence pass: running make internal-validate-data",
   );
   const validate = Bun.spawnSync(["make", "validate-data"], {
     cwd: projectRoot,

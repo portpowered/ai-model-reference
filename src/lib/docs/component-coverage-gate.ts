@@ -9,7 +9,7 @@ import {
 } from "@/lib/docs/component-manifest";
 import { VERIFIER_COVERAGE_MODULES } from "@/lib/verify/verifier-coverage-manifest";
 
-/** Bun `bun test --coverage` args shared by make coverage and the gate script. */
+/** Bun `bun test --coverage` args shared by make internal-coverage and the gate script. */
 export const COVERAGE_TEST_ARGS = [
   "test",
   "--coverage",

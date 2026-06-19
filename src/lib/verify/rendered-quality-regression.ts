@@ -149,10 +149,10 @@ export const RENDERED_QUALITY_REGRESSION_TEST_FILES = [
 export const RENDERED_QUALITY_REGRESSION_UNIT_TEST_COMMAND = `bun test ${RENDERED_QUALITY_REGRESSION_TEST_FILES.join(" ")}`;
 
 export const RENDERED_QUALITY_REGRESSION_BASELINE_COMMAND =
-  "make build && make verify-rendered-quality-baseline";
+  "make build && make internal-verify-rendered-quality-baseline";
 
 export const RENDERED_QUALITY_REGRESSION_PASS_COMMAND =
-  "make verify-rendered-quality-regression";
+  "make internal-verify-rendered-quality-regression";
 
 export function buildRenderedQualityRegressionCatalog(): RenderedQualityRegressionCatalogEntry[] {
   return RENDERED_QUALITY_REGRESSION_CHECKS.map((check) => ({

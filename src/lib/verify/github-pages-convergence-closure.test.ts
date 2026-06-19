@@ -167,7 +167,7 @@ describe("assertPhase1GitHubPagesConvergenceClosureReady", () => {
     writeMinimalPassingOutFixture(dir);
     const report = formatPhase1GitHubPagesConvergenceEvidenceSummary(
       buildPhase1GitHubPagesConvergenceEvidenceSummary({
-        buildExportOutput: "make build-export failed",
+        buildExportOutput: "make internal-build-export failed",
         buildExportExitCode: 1,
         cwd: dir,
         basePath: "",
@@ -236,13 +236,14 @@ describe("assertExportCommandPathFailureIsActionable", () => {
         exportCommandPath: {
           domainId: "export-command-path",
           status: "fail",
-          label: "Static export build command path (make build-export)",
-          reason: "make build-export exited 1",
+          label:
+            "Static export build command path (make internal-build-export)",
+          reason: "make internal-build-export exited 1",
           checklistRow: "phase-1-github-pages-export-command-path",
         },
         recommendation: "queue-one-narrow-repair-batch",
         recommendationRationale:
-          "Batch-014 GitHub Pages evidence failed: export-command-path (make build-export exited 1).",
+          "Batch-014 GitHub Pages evidence failed: export-command-path (make internal-build-export exited 1).",
       }),
     ).not.toThrow();
   });

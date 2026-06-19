@@ -104,12 +104,12 @@ If CI is still pending or in progress and you have no concrete independent revie
   - Prefer a unique port per work item, for example 3100-3999.
   - Every `curl` must use `--max-time 10` or shorter.
   - Every long-running server must be started in a cleanup trap and killed before the command exits.
-  - Do not leave `bun run dev`, `bun run start`, Storybook, Playwright, or HTTP servers running after verification.
+  - Do not leave `bun run dev`, `bun run internal:start`, Storybook, Playwright, or HTTP servers running after verification.
 
   Use command patterns like:
 
   PORT=3456
-  bun run start -- -p "$PORT" &
+  bun run internal:start -- -p "$PORT" &
   server_pid=$!
   trap 'kill "$server_pid" 2>/dev/null || true' EXIT
 

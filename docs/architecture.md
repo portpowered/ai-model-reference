@@ -502,7 +502,7 @@ src/app/print/[locale]/sets/[set]/page.tsx
 Required commands:
 
 ```txt
-make validate-pdf LOCALE=en
+make internal-validate-pdf LOCALE=en
 make pdf LOCALE=en
 make pdf-page LOCALE=en PAGE=docs/modules/grouped-query-attention
 make pdf-set LOCALE=en SET=attention
@@ -526,7 +526,7 @@ src/content/pdf-sets/
   core-transformers.json
 ```
 
-CI should run `make validate-pdf` to catch unresolved print inputs. CI does not need to generate every PDF on every pull request unless the project chooses that as a release gate.
+CI should run `make internal-validate-pdf` to catch unresolved print inputs. CI does not need to generate every PDF on every pull request unless the project chooses that as a release gate.
 
 ## CI And Quality Gates
 
@@ -536,11 +536,11 @@ The root `make ci` command should run:
 
 ```txt
 make lint
-make typecheck
+make internal-typecheck
 make test
-make coverage
-make validate-data
-make linkcheck
+make internal-coverage
+make internal-validate-data
+make internal-linkcheck
 make build
 ```
 

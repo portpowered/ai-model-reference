@@ -202,7 +202,7 @@ export function getPhase1ConvergencePassExitCode(
 
 export const PHASE_1_CONVERGENCE_PASS_WORKFLOW_STEPS = [
   "make ci",
-  "make build && make verify-phase-1-ux",
+  "make build && make internal-verify-phase-1-ux",
 ] as const;
 
 export const PHASE_1_CONVERGENCE_PASS_PREREQUISITES = [

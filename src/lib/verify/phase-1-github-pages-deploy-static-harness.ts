@@ -57,7 +57,7 @@ export type AcquireStaticExportVerifySessionOptions = {
 
 /**
  * Canonical GitHub Pages project-site base path for deploy-path static harness
- * checks (matches `make build-export` with deploy convergence env).
+ * checks (matches `make internal-build-export` with deploy convergence env).
  */
 export function resolveDeployStaticHarnessBasePath(): string {
   return `/${CANONICAL_GITHUB_PAGES_BASE_PATH}`;

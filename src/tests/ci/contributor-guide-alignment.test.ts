@@ -4,6 +4,7 @@ import { access, mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const repoRoot = join(import.meta.dir, "../../..");
+const VALIDATE_TIMEOUT_MS = 30_000;
 
 function runBun(args: string[]) {
   return spawnSync("bun", args, {
@@ -84,83 +85,105 @@ describe("contributor documented workflow commands", () => {
     expect(output).not.toContain("Scaffold complete.");
   });
 
-  test("generate:page-bundle writes a valid concept bundle that passes validate-data", async () => {
-    const slug = `contrib-write-${crypto.randomUUID()}`;
-    const tempRoot = join(repoRoot, "tmp", "contributor-guide-workflow", slug);
-    const specPath = join(tempRoot, "page-spec.json");
-
-    try {
-      await mkdir(tempRoot, { recursive: true });
-      await writeFile(
-        specPath,
-        JSON.stringify({
-          kind: "concept",
-          slug,
-          title: "Contributor Workflow Write Test",
-          summary: "Generated during contributor guide workflow verification.",
-          conceptType: "general",
-          status: "draft",
-        }),
-      );
-
-      const generateResult = runBun([
-        "run",
-        "generate:page-bundle",
-        "--",
-        "--spec",
-        specPath,
-      ]);
-      expect(generateResult.status).toBe(0);
-      expect(`${generateResult.stdout}${generateResult.stderr}`).toContain(
-        "Page bundle generation complete.",
-      );
-
-      const pagePath = join(
+  test(
+    "generate:page-bundle writes a valid concept bundle that passes validate",
+    async () => {
+      const slug = `contrib-write-${crypto.randomUUID()}`;
+      const tempRoot = join(
         repoRoot,
-        "src/content/docs/concepts",
+        "tmp",
+        "contributor-guide-workflow",
         slug,
-        "page.mdx",
       );
-      const registryPath = join(
-        repoRoot,
-        "src/content/registry/concepts",
-        `${slug}.json`,
-      );
+      const specPath = join(tempRoot, "page-spec.json");
 
-      expect(await pathExists(pagePath)).toBe(true);
-      expect(await pathExists(registryPath)).toBe(true);
+      try {
+        await mkdir(tempRoot, { recursive: true });
+        await writeFile(
+          specPath,
+          JSON.stringify({
+            kind: "concept",
+            slug,
+            title: "Contributor Workflow Write Test",
+            summary:
+              "Generated during contributor guide workflow verification.",
+            conceptType: "general",
+            status: "draft",
+          }),
+        );
 
-      const validateResult = runMake("validate-data");
-      expect(validateResult.status).toBe(0);
-      expect(`${validateResult.stdout}${validateResult.stderr}`).toMatch(
+        const generateResult = runBun([
+          "run",
+          "generate:page-bundle",
+          "--",
+          "--spec",
+          specPath,
+        ]);
+        expect(generateResult.status).toBe(0);
+        expect(`${generateResult.stdout}${generateResult.stderr}`).toContain(
+          "Page bundle generation complete.",
+        );
+
+        const pagePath = join(
+          repoRoot,
+          "src/content/docs/concepts",
+          slug,
+          "page.mdx",
+        );
+        const registryPath = join(
+          repoRoot,
+          "src/content/registry/concepts",
+          `${slug}.json`,
+        );
+
+        expect(await pathExists(pagePath)).toBe(true);
+        expect(await pathExists(registryPath)).toBe(true);
+
+        const validateResult = runMake("validate");
+        expect(validateResult.status).toBe(0);
+        expect(`${validateResult.stdout}${validateResult.stderr}`).toMatch(
+          /validate-registry|validate data|validation/i,
+        );
+      } finally {
+        const pageDir = join(repoRoot, "src/content/docs/concepts", slug);
+        const registryPath = join(
+          repoRoot,
+          "src/content/registry/concepts",
+          `${slug}.json`,
+        );
+        const graphPath = join(
+          repoRoot,
+          "src/content/registry/graphs",
+          `${slug}-concept-map.json`,
+        );
+
+        await rm(pageDir, { recursive: true, force: true });
+        await rm(registryPath, { force: true });
+        await rm(graphPath, { force: true });
+        await rm(tempRoot, { recursive: true, force: true });
+
+        const regenerateSourceResult = spawnSync("bunx", ["fumadocs-mdx"], {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: process.env,
+        });
+
+        expect(regenerateSourceResult.status).toBe(0);
+      }
+    },
+    VALIDATE_TIMEOUT_MS,
+  );
+
+  test(
+    "make validate passes on committed registry content",
+    () => {
+      const result = runMake("validate");
+
+      expect(result.status).toBe(0);
+      expect(`${result.stdout}${result.stderr}`).toMatch(
         /validate-registry|validate data|validation/i,
       );
-    } finally {
-      const pageDir = join(repoRoot, "src/content/docs/concepts", slug);
-      const registryPath = join(
-        repoRoot,
-        "src/content/registry/concepts",
-        `${slug}.json`,
-      );
-      const graphPath = join(
-        repoRoot,
-        "src/content/registry/graphs",
-        `${slug}-concept-map.json`,
-      );
-
-      await rm(pageDir, { recursive: true, force: true });
-      await rm(registryPath, { force: true });
-      await rm(graphPath, { force: true });
-      await rm(tempRoot, { recursive: true, force: true });
-    }
-  });
-
-  test("make validate-data passes on committed registry content", () => {
-    const result = runMake("validate-data");
-
-    expect(result.status).toBe(0);
-    expect(`${result.stdout}${result.stderr}`).toMatch(
-      /validate-registry|validate data|validation/i,
-    );
-  });
+    },
+    VALIDATE_TIMEOUT_MS,
+  );
 });

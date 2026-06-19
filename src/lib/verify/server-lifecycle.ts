@@ -177,7 +177,7 @@ export function shouldRunBuiltHtmlConvergenceTests(
 
 /**
  * Gates the fresh-checkout typecheck proof: skip the coverage subprocess rerun
- * (`make ci` already runs `make typecheck` before `make test`).
+ * (`make ci` already runs `make internal-typecheck` before `make test`).
  */
 export function shouldRunFreshCheckoutTypecheckProof(
   env: Record<string, string | undefined> = process.env,
@@ -185,7 +185,7 @@ export function shouldRunFreshCheckoutTypecheckProof(
   return env[VERIFY_COVERAGE_SUBPROCESS_ENV] !== "1";
 }
 
-/** Bun test ceiling for isolated worktree install + `make typecheck` under full-suite load. */
+/** Bun test ceiling for isolated worktree install + `make internal-typecheck` under full-suite load. */
 export const FRESH_CHECKOUT_TYPECHECK_TEST_TIMEOUT_MS = 600_000;
 
 export function assertNextProductionBuild(

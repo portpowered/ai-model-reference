@@ -40,7 +40,7 @@ Must not own:
 
 ### Build Contract Gate
 
-Command: `bun run test:build-contract` or `make test-build-contract`
+Command: `bun run test:build-contract` or `make internal-test-build-contract`
 
 Owns:
 
@@ -54,7 +54,7 @@ run against that artifact.
 
 ### Production Integration Gate
 
-Command: `bun run test:integration` or `make test-integration`
+Command: `bun run test:integration` or `make internal-test-integration`
 
 Owns:
 

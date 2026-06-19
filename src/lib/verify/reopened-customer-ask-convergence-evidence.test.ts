@@ -234,10 +234,10 @@ describe("formatPhase1Batch013ConvergenceEvidenceSummary", () => {
       "checklistRow=phase-1-batch-013-customer-ask-convergence",
     );
     expect(report).toContain(
-      `[PASS] make verify-phase-1-ux — ${PASS_ROW.checkId}`,
+      `[PASS] make internal-verify-phase-1-ux — ${PASS_ROW.checkId}`,
     );
     expect(report).toContain(
-      `[FAIL] make verify-phase-1-ux — ${FAIL_ROW.checkId}`,
+      `[FAIL] make internal-verify-phase-1-ux — ${FAIL_ROW.checkId}`,
     );
     expect(report).toContain(FAIL_ROW.reason ?? "");
     expect(report).toContain("Recommendation: queue-one-narrow-repair-batch");

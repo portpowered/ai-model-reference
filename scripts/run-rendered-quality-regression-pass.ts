@@ -60,10 +60,10 @@ async function main(): Promise<number> {
 
   console.log("");
   console.log(
-    "Rendered quality regression pass: running make build && make verify-rendered-quality-baseline",
+    "Rendered quality regression pass: running make build && make internal-verify-rendered-quality-baseline",
   );
   const baselineResult = await runShellCommand(
-    "make build && make verify-rendered-quality-baseline",
+    "make build && make internal-verify-rendered-quality-baseline",
   );
 
   return getRenderedQualityRegressionExitCode(

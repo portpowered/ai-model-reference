@@ -165,7 +165,7 @@ function formatCustomerAskCheckIdSourceLine(
 ): string {
   const status = row.status.toUpperCase();
   const reason = row.status !== "pass" && row.reason ? ` — ${row.reason}` : "";
-  return `  [${status}] make verify-phase-1-ux — ${row.checkId}${reason}`;
+  return `  [${status}] make internal-verify-phase-1-ux — ${row.checkId}${reason}`;
 }
 
 export function formatCustomerAskConvergenceDomainLine(
@@ -225,7 +225,7 @@ export function getPhase1BuiltAppConvergenceExitCode(
 
 export const PHASE_1_BUILT_APP_CONVERGENCE_WORKFLOW_STEPS = [
   "make build",
-  "make verify-phase-1-ux",
+  "make internal-verify-phase-1-ux",
 ] as const;
 
 export const PHASE_1_BUILT_APP_CONVERGENCE_PREREQUISITES = [

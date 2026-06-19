@@ -79,7 +79,7 @@ function buildEvidence(
 
 /**
  * Derives verifier command-path pass/fail/uncertain evidence from captured
- * `make verify-phase-1-ux` output when the canonical default spawn path is used.
+ * `make internal-verify-phase-1-ux` output when the canonical default spawn path is used.
  */
 export function deriveVerifierCommandPathEvidence(
   input: DeriveVerifierCommandPathEvidenceInput,

@@ -69,10 +69,10 @@ async function main(): Promise<number> {
   }
 
   console.log(
-    "\nPhase 1 batch-013 convergence: running make verify-phase-1-ux with VERIFY_BASE_URL unset",
+    "\nPhase 1 batch-013 convergence: running make internal-verify-phase-1-ux with VERIFY_BASE_URL unset",
   );
   const verifyResult = await runShellCommand(
-    "make verify-phase-1-ux",
+    "make internal-verify-phase-1-ux",
     canonicalVerifyEnv(),
   );
 

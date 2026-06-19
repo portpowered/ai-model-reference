@@ -64,7 +64,7 @@ describe("phase-1-github-pages-convergence workflow constants", () => {
       PHASE_1_BATCH_014_GITHUB_PAGES_CONVERGENCE_EVIDENCE_SUMMARY_HEADER,
     ).toBe("Phase 1 batch-014 GitHub Pages convergence evidence summary");
     expect(PHASE_1_GITHUB_PAGES_CONVERGENCE_WORKFLOW_STEPS).toEqual([
-      "make build-export",
+      "make internal-build-export",
       "serve out/ on loopback static file server",
       "run Phase 1 static search and route regression probes",
     ]);
@@ -79,7 +79,7 @@ describe("derivePhase1GitHubPagesConvergenceRecommendation", () => {
         label: "Export command path",
         checklistRow: "phase-1-github-pages-export-command-path",
         status: "fail",
-        reason: "make build-export exited 1",
+        reason: "make internal-build-export exited 1",
       },
       exportArtifact: {
         domainId: EXPORT_ARTIFACT_DOMAIN_ID,

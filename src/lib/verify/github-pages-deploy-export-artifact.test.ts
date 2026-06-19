@@ -59,7 +59,7 @@ function successfulBuildExportOutput(): string {
 }
 
 describe("buildDeployConvergenceBuildExportEnv", () => {
-  test("sets canonical GITHUB_PAGES_BASE_PATH for make build-export", () => {
+  test("sets canonical GITHUB_PAGES_BASE_PATH for make internal-build-export", () => {
     const env = buildDeployConvergenceBuildExportEnv({
       ...process.env,
       PATH: "/usr/bin",

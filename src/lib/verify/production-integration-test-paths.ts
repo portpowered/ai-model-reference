@@ -1,5 +1,5 @@
 /**
- * Post-build integration tests exercised by `make test-integration` / `make ci`.
+ * Post-build integration tests exercised by `make internal-test-integration` / `make ci`.
  * Script-level E2E validator suites (convergence validators, UX verifier CLI) stay
  * opt-in via full `VERIFY_PRODUCTION_INTEGRATION_TESTS=1 bun test`.
  */

@@ -106,8 +106,8 @@ function evaluateDeployWorkflowContract(
     failures.push("deploy workflow must set contents: read permission");
   }
 
-  if (!/run:\s*make build-export/m.test(workflow)) {
-    failures.push("deploy workflow must run make build-export");
+  if (!/run:\s*make internal-build-export/m.test(workflow)) {
+    failures.push("deploy workflow must run make internal-build-export");
   }
 
   if (/GITHUB_PAGES_BASE_PATH:\s*\$\{\{/m.test(workflow)) {

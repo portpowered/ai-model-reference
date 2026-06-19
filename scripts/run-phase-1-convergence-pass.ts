@@ -55,10 +55,10 @@ async function main(): Promise<number> {
   printPhase1CiBlockerDomainReport(ciEvidence);
 
   console.log(
-    "\nPhase 1 convergence pass: running make build && make verify-phase-1-ux",
+    "\nPhase 1 convergence pass: running make build && make internal-verify-phase-1-ux",
   );
   const verifyResult = await runShellCommand(
-    "make build && make verify-phase-1-ux",
+    "make build && make internal-verify-phase-1-ux",
   );
 
   const customerAskRows = parseCustomerAskConvergenceReport(

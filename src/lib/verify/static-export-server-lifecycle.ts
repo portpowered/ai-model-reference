@@ -54,7 +54,7 @@ export async function runStaticExportServerLifecycle(
   if (!existsSync(absoluteOutDir)) {
     return {
       status: "fail",
-      reason: `Missing export directory at ${outDir} — run \`make build-export\` first.`,
+      reason: `Missing export directory at ${outDir} — run \`make internal-build-export\` first.`,
     };
   }
 

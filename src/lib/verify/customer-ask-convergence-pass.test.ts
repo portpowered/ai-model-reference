@@ -101,7 +101,7 @@ describe("phase-1 convergence pass workflow constants", () => {
   test("documents ordered make ci then build+verify workflow", () => {
     expect(PHASE_1_CONVERGENCE_PASS_WORKFLOW_STEPS).toEqual([
       "make ci",
-      "make build && make verify-phase-1-ux",
+      "make build && make internal-verify-phase-1-ux",
     ]);
     expect(PHASE_1_CONVERGENCE_PASS_PREREQUISITES.length).toBeGreaterThan(0);
     expect(PHASE_1_CONVERGENCE_PASS_PREREQUISITES.join("\n")).toMatch(

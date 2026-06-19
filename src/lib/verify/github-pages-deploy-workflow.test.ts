@@ -31,7 +31,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - name: Build static export
-        run: make build-export
+        run: make internal-build-export
         env:
           GITHUB_PAGES_BASE_PATH: ai-model-reference
       - uses: actions/configure-pages@v5
@@ -110,7 +110,7 @@ jobs:
 
     expect(evidence.status).toBe("fail");
     expect(evidence.reason).toContain("pages: write permission");
-    expect(evidence.reason).toContain("make build-export");
+    expect(evidence.reason).toContain("make internal-build-export");
     expect(evidence.reason).toContain("actions/deploy-pages@v4");
   });
 

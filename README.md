@@ -69,9 +69,25 @@ bun install
 make dev
 ```
 
-`make dev` runs the same Next.js dev entrypoint as `bun run dev`. Open
+`make dev` runs the supported local docs workflow: it regenerates shipped
+localized docs, the published docs manifest, registry runtime modules, and
+table-registry verification prerequisites before starting the Next.js dev
+server with the stable webpack path for this workspace layout. Open
 `http://localhost:3000` for the home page and `/docs/getting-started` for the
-placeholder docs route.
+placeholder docs route. If port `3000` is already in use, set `PORT`, for
+example `PORT=3456 make dev`.
+
+Supported maintainer entrypoints stay intentionally small. Run `make help` or
+`bun run help` to see the default workflow:
+
+```sh
+make help
+# dev, build, test, lint, validate, generate, ci, help
+```
+
+Use `make generate` when you want to refresh the maintainer-visible derived
+artifacts without starting the app, and `make validate` when you want the
+non-test validation path (`typecheck`, registry validation, and linkcheck).
 
 ## Static export (GitHub Pages)
 
@@ -82,16 +98,16 @@ verifiers. Use the static export path when you need a GitHub Pages–compatible
 project-site base paths locally or confirming the same artifact the deploy
 workflow publishes.
 
-**Single command:** `make build-export` runs the export build and verifies the
+**Single command:** `make internal-build-export` runs the export build and verifies the
 `out/` artifact in one step. It is the local verification command and the deploy
 workflow build entrypoint (`.github/workflows/deploy.yml` runs the same target on
 `main` pushes with `GITHUB_PAGES_BASE_PATH=ai-model-reference`). The same export
-contract is covered by `make test-build-contract` in `make ci` so both the
+contract is covered by `make internal-test-build-contract` in `make ci` so both the
 `.next/` production contract and the GitHub Pages `out/` artifact stay verified
 without duplicate CI builds.
 
 ```sh
-make build-export
+make internal-build-export
 ```
 
 That runs `bun run build:export` (sets `NEXT_STATIC_EXPORT=1`, which toggles
@@ -107,16 +123,16 @@ payload.
 To verify an existing export without rebuilding:
 
 ```sh
-make verify-export-routes
+make internal-verify-export-routes
 # or: bun run verify:export-routes
 
-make verify-export-search-handoff
+make internal-verify-export-search-handoff
 # or: bun run verify:export-search-handoff
 
-make verify-export-search-shell
+make internal-verify-export-search-shell
 # or: bun run verify:export-search-shell
 
-make verify-export-search-ux
+make internal-verify-export-search-ux
 # or: bun run verify:export-search-ux
 ```
 
@@ -127,7 +143,7 @@ slash) when running the export build. The value configures matching
 the project path:
 
 ```sh
-GITHUB_PAGES_BASE_PATH=/ai-model-reference make build-export
+GITHUB_PAGES_BASE_PATH=/ai-model-reference make internal-build-export
 ```
 
 When `GITHUB_PAGES_BASE_PATH` is unset, export builds keep `/` as the base for
@@ -175,7 +191,7 @@ and `--dry-run`. Run `bun run scaffold:doc-page -- --help` for the full usage li
 Equivalent Make entry (pass CLI args after `ARGS=`):
 
 ```sh
-make scaffold ARGS='--kind glossary --slug my-term --title "My term" --concept-type general --dry-run'
+make internal-scaffold ARGS='--kind glossary --slug my-term --title "My term" --concept-type general --dry-run'
 ```
 
 Glossary pages land under `src/content/docs/glossary/<slug>/` and render at
@@ -193,7 +209,7 @@ update steps live in
 [docs/phase-2-component-coverage.md](./docs/phase-2-component-coverage.md);
 machine-readable entries are in `src/lib/docs/component-manifest.ts`.
 
-Run the manifest gate locally with `make coverage` (same as `bun run coverage`).
+Run the manifest gate locally with `make internal-coverage` (same as `bun run internal:coverage`).
 `make ci` includes this gate after `make test` so GitHub Actions enforces the
 same manifest-scoped contract—there are no repository-wide coverage thresholds.
 
@@ -208,10 +224,10 @@ Storybook-style gallery instead of full Storybook. Examples live in
 Start the harness with a single command (picks a free port in `3100-3999`):
 
 ```sh
-make component-examples
+make internal-component-examples
 ```
 
-Equivalent Bun script: `bun run component-examples`. The gallery uses grouped-query-attention
+Equivalent Bun script: `bun run internal:component-examples`. The gallery uses grouped-query-attention
 fixtures and search metadata so reviewers can inspect default and alternate states
 without loading full MDX pages. The route returns 404 in production builds unless
 `ENABLE_COMPONENT_EXAMPLES=1` is set; it is not part of `make ci` or deploy.
@@ -224,7 +240,7 @@ without loading full MDX pages. The route returns 404 in production builds unles
 3. Set `status: published` in `page.mdx` frontmatter when the page is ready for published
    reference checks; keep `draft` while `relatedIds`, tags, or citations still point at
    unpublished targets.
-4. Run `make validate-data` (also part of `make ci`) to catch missing message keys, unknown
+4. Run `make internal-validate-data` (also part of `make ci`) to catch missing message keys, unknown
    assets, unresolved tags, broken references, and page/registry slug mismatches.
 
 ## Operations and release
@@ -234,7 +250,7 @@ release, rollback, and commit-SHA traceability live in
 [docs/operations.md](./docs/operations.md).
 
 Merges to `main` trigger GitHub Pages deployment via
-`.github/workflows/deploy.yml`, which builds `out/` with `make build-export` and
+`.github/workflows/deploy.yml`, which builds `out/` with `make internal-build-export` and
 publishes to the project site. See [docs/operations.md](./docs/operations.md) for
 required Pages settings, deploy check visibility on `main`, and commit-SHA
 traceability.
@@ -264,9 +280,9 @@ make ci
 ```
 
 You do not need to run `fumadocs-mdx` manually. The repository does not commit
-`.source/` (Fumadocs MDX bindings) or `.next/`; `pretypecheck` and `pretest`
-generate `.source/` automatically before typecheck and tests, and
-`prelinkcheck` does the same before standalone link validation.
+`.source/` (Fumadocs MDX bindings) or `.next/`; `preinternal:typecheck` and
+`pretest` generate `.source/` automatically before typecheck and tests, and
+`preinternal:linkcheck` does the same before standalone link validation.
 
 ### CI sequence
 
@@ -281,56 +297,73 @@ Pages deployment runs separately via `.github/workflows/deploy.yml` on pushes to
 `main` (see [Operations and release](#operations-and-release)). PDF validation
 remains deferred to later phases.
 
-The root Makefile mirrors those CI-oriented checks locally. Run `make ci` from
-the repository root after `bun install --frozen-lockfile`; it runs, in order:
-
-1. `make lint` — Biome check (no auto-fix)
-2. `make typecheck` — generates Fumadocs MDX source, then `tsc --noEmit`
-3. `make test` — generates Fumadocs MDX source (when typecheck was skipped), then fast tests via `scripts/run-fast-tests.ts`
-4. `make coverage` — manifest-scoped reusable component coverage gate (same as `bun run coverage`)
-5. `make test-build-contract` — one production build contract and one GitHub Pages base-path export artifact contract (`bun run test:build-contract`)
-6. `make test-integration` — served export, built HTML, and production-server integration manifest (`bun run test:integration` / `scripts/run-production-integration-tests.ts`)
-7. `make validate-data` — registry and content validation
-8. `make linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
-
-Use `bun run scaffold:doc-page` (or `make scaffold`) when adding Phase 2 glossary or
-concept pages, then run `make validate-data` before opening a pull request.
-
-Fumadocs writes generated MDX bindings under `.source/` (gitignored). Fresh
-checkouts do not include that directory; `pretypecheck` and `pretest` in
-`package.json` both run `fumadocs-mdx`, and `prelinkcheck` does as well, so
-standalone `make typecheck`, `make test`, and `make linkcheck` succeed without
-a manual codegen step.
-
-
-Individual targets:
+The root Makefile mirrors those CI-oriented checks locally. The supported
+maintainer workflow is:
 
 ```sh
-make ci            # full gate sequence above
-make lint          # Biome check (no auto-fix)
-make format        # Biome format --write
-make typecheck     # fumadocs-mdx (pretypecheck), then tsc --noEmit
-make test          # fumadocs-mdx (pretest), then fast tests
-make test-build-contract # consolidated build/export contract suites
-make test-system   # build/export contracts plus post-build integration tests
-make coverage      # fumadocs-mdx (precoverage), manifest coverage gate
-make build         # next build + Phase 1 static route check
-make build-export  # static export to out/ + Phase 1 export route verification
-make verify-export-routes # verify existing out/ artifact (requires build-export first)
-make verify-phase-1-ux # HTTP verification for Phase 1 reader routes and search (requires build)
-make verify-phase-1-built-app-convergence # batch-010 built-app gate with planner-facing evidence summary
-make verify-phase-1-follow-up-convergence # batch-011 follow-up gate with planner-facing evidence summary
-make verify-phase-1-github-pages-convergence # batch-014 GitHub Pages closure gate (validates out/ static export)
-make validate-data # registry and content validation
-make linkcheck     # internal docs link validation (also runs in make ci)
-make scaffold       # scaffold glossary/concept page bundles (pass ARGS='...')
+make help
+```
+
+That summary intentionally keeps the default path to eight commands:
+
+1. `make dev` — prepare generated prerequisites, then start the local docs app
+2. `make build` — create the production `.next/` build and run build verifiers
+3. `make test` — run the default website functionality suite
+4. `make lint` — run the Biome lint check
+5. `make validate` — run `typecheck`, `validate-data`, and `linkcheck`
+6. `make generate` — regenerate maintainer-visible derived artifacts
+7. `make ci` — run the full local quality gate sequence
+8. `make help` — print the supported workflow summary
+
+Run `make ci` from the repository root after `bun install --frozen-lockfile`;
+it runs, in order:
+
+1. `make lint` — Biome check (no auto-fix)
+2. `make internal-typecheck` — generates Fumadocs MDX source, then `tsc --noEmit`
+3. `make test` — generates Fumadocs MDX source (when typecheck was skipped), then fast tests via `scripts/run-fast-tests.ts`
+4. `make internal-coverage` — manifest-scoped reusable component coverage gate (same as `bun run internal:coverage`)
+5. `make internal-test-build-contract` — one production build contract and one GitHub Pages base-path export artifact contract (`bun run test:build-contract`)
+6. `make internal-test-integration` — served export, built HTML, and production-server integration manifest (`bun run test:integration` / `scripts/run-production-integration-tests.ts`)
+7. `make internal-validate-data` — registry and content validation
+8. `make internal-linkcheck` — internal docs link validation (Fumadocs routes, module/glossary pages, anchors, MDX href components)
+
+Use `bun run scaffold:doc-page` (or `make internal-scaffold`) when adding Phase 2 glossary or
+concept pages, then run `make validate` before opening a pull request. Reach for
+`make internal-validate-data` only when you want the narrower content-only gate.
+
+Fumadocs writes generated MDX bindings under `.source/` (gitignored). Fresh
+checkouts do not include that directory; `preinternal:typecheck` and `pretest`
+in `package.json` both run `fumadocs-mdx`, and `preinternal:linkcheck` does as
+well, so
+the supported `make validate` path and the narrower internal validation targets
+succeed without a manual codegen step.
+
+
+Advanced and specialist targets:
+
+```sh
+make internal-help # advanced/internal command summary
+make internal-format        # Biome format --write
+make internal-typecheck     # fumadocs-mdx (preinternal:typecheck), then tsc --noEmit
+make internal-test-build-contract # consolidated build/export contract suites
+make internal-test-system   # build/export contracts plus post-build integration tests
+make internal-coverage      # fumadocs-mdx (preinternal:coverage), manifest coverage gate
+make internal-build-export  # static export to out/ + Phase 1 export route verification
+make internal-verify-export-routes # verify existing out/ artifact (requires build-export first)
+make internal-verify-phase-1-ux # HTTP verification for Phase 1 reader routes and search (requires build)
+make internal-verify-phase-1-built-app-convergence # batch-010 built-app gate with planner-facing evidence summary
+make internal-verify-phase-1-follow-up-convergence # batch-011 follow-up gate with planner-facing evidence summary
+make internal-verify-phase-1-github-pages-convergence # batch-014 GitHub Pages closure gate (validates out/ static export)
+make internal-validate-data # registry and content validation
+make internal-linkcheck     # internal docs link validation (also runs in make ci)
+make internal-scaffold       # scaffold glossary/concept page bundles (pass ARGS='...')
 ```
 
 Stub targets exist for later work and are not part of `make ci` or GitHub
 Actions:
 
 ```sh
-make validate-pdf
+make internal-validate-pdf
 ```
 
 ### Phase 1 route and search UX verification
@@ -345,7 +378,7 @@ docs, live `/search` and header search for GQA, attention, and KV cache, plus
 `/api/search` for the same queries):
 
 ```sh
-make verify-phase-1-ux
+make internal-verify-phase-1-ux
 # or
 bun run verify:phase-1-ux
 ```
@@ -356,7 +389,7 @@ it exits with a clear message to run `make build` first—it does not start
 
 When `VERIFY_BASE_URL` is unset, the harness picks a free port on
 `127.0.0.1` in the 3100–3999 range (never port 3000), spawns
-`bun run start` on that port, and always tears down the child server on exit.
+`bun run internal:start` on that port, and always tears down the child server on exit.
 Each HTTP check uses a per-request timeout of at most 10 seconds; server startup
 waits at most 30 seconds. Set `VERIFY_BASE_URL` to an already-running base URL
 (for example `http://127.0.0.1:3456`) to skip spawn and run checks against that
@@ -424,12 +457,12 @@ the canonical built-app gate with planner-facing evidence that separates
 verifier command-path health from customer-ask row outcomes:
 
 ```sh
-make verify-phase-1-built-app-convergence
+make internal-verify-phase-1-built-app-convergence
 # or
 bun run verify:phase-1-built-app-convergence
 ```
 
-This runs `make build` then `make verify-phase-1-ux` with `VERIFY_BASE_URL`
+This runs `make build` then `make internal-verify-phase-1-ux` with `VERIFY_BASE_URL`
 explicitly unset, streams subprocess output to the terminal while capturing it
 for parsing, and prints a **Phase 1 batch-010 built-app convergence evidence
 summary** with `Recommendation` and `Rationale` lines. The process exits `1`
@@ -443,12 +476,12 @@ land, run the canonical follow-up gate with planner-facing evidence for the
 expanded customer-ask inventory:
 
 ```sh
-make verify-phase-1-follow-up-convergence
+make internal-verify-phase-1-follow-up-convergence
 # or
 bun run verify:phase-1-follow-up-convergence
 ```
 
-This runs `make build` then `make verify-phase-1-ux` with `VERIFY_BASE_URL`
+This runs `make build` then `make internal-verify-phase-1-ux` with `VERIFY_BASE_URL`
 explicitly unset, streams subprocess output to the terminal while capturing it
 for parsing, and prints a **Phase 1 batch-011 follow-up convergence evidence
 summary** with `Recommendation` and `Rationale` lines. The process exits `1`
@@ -463,12 +496,12 @@ repairs land, run the canonical static-export closure gate that validates the
 built `out/` artifact rather than only the `next start` spawned-server path:
 
 ```sh
-make verify-phase-1-github-pages-convergence
+make internal-verify-phase-1-github-pages-convergence
 # or
 bun run verify:phase-1-github-pages-convergence
 ```
 
-This runs `make build-export`, inspects the `out/` artifact, serves it from a
+This runs `make internal-build-export`, inspects the `out/` artifact, serves it from a
 loopback static file server, and re-runs Phase 1 search probes for GQA,
 attention, and KV cache plus representative reader-route markers against that
 static export. It prints a **Phase 1 batch-014 GitHub Pages convergence
@@ -489,7 +522,7 @@ need Playwright Chromium once per machine (`npx playwright install chromium`).
 If your environment cannot reliably automate OS keyboard shortcuts in CI, set
 `VERIFY_SEARCH_SHORTCUT_SKIP=1` to skip automated shortcut checks. When
 skipping, reviewers must run this two-step manual check after
-`make verify-phase-1-ux`:
+`make internal-verify-phase-1-ux`:
 
 1. Open the built app home page (`/`).
 2. Press **Cmd+K** (macOS) or **Ctrl+K** (Windows/Linux) and confirm the

@@ -61,7 +61,7 @@ describe("phase-1-github-pages-deploy-convergence workflow constants", () => {
     );
     expect(PHASE_1_GITHUB_PAGES_DEPLOY_CONVERGENCE_WORKFLOW_STEPS).toEqual([
       "inspect deploy workflow and deploy-facing documentation",
-      "make build-export with canonical GITHUB_PAGES_BASE_PATH",
+      "make internal-build-export with canonical GITHUB_PAGES_BASE_PATH",
       "serve out/ on loopback static file server with project-site base path",
       "run Phase 1 deploy-path /search probes (GQA, attention, KV cache)",
     ]);
@@ -111,7 +111,7 @@ describe("derivePhase1GitHubPagesDeployConvergenceRecommendation", () => {
     });
 
     expect(result.recommendation).toBe("stop-and-wait-for-phase-advancement");
-    expect(result.rationale).toContain("make build-export passed");
+    expect(result.rationale).toContain("make internal-build-export passed");
   });
 });
 

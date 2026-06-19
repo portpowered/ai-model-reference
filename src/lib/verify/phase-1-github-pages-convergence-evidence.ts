@@ -96,7 +96,7 @@ export function derivePhase1GitHubPagesConvergenceRecommendation(input: {
     const failureParts: string[] = [];
     if (input.exportCommandPath.status === "fail") {
       failureParts.push(
-        `export-command-path (${input.exportCommandPath.reason ?? "make build-export lifecycle failure"})`,
+        `export-command-path (${input.exportCommandPath.reason ?? "make internal-build-export lifecycle failure"})`,
       );
     }
     if (input.exportArtifact.status === "fail") {
@@ -166,13 +166,13 @@ export function derivePhase1GitHubPagesConvergenceRecommendation(input: {
   return {
     recommendation: "stop-and-wait-for-phase-advancement",
     rationale:
-      "make build-export passed, export-artifact checks passed, the static export server became ready, and Phase 1 static search/route regression probes passed against the exported site.",
+      "make internal-build-export passed, export-artifact checks passed, the static export server became ready, and Phase 1 static search/route regression probes passed against the exported site.",
   };
 }
 
 /**
  * Builds the planner-facing batch-014 GitHub Pages convergence summary from
- * captured `make build-export` output. Additional domains are merged in later
+ * captured `make internal-build-export` output. Additional domains are merged in later
  * stories as static artifact, server, and regression probes land.
  */
 export function buildPhase1GitHubPagesConvergenceEvidenceSummary(
@@ -278,12 +278,12 @@ export function getPhase1GitHubPagesConvergenceExitCode(
 }
 
 export const PHASE_1_GITHUB_PAGES_CONVERGENCE_WORKFLOW_STEPS = [
-  "make build-export",
+  "make internal-build-export",
   "serve out/ on loopback static file server",
   "run Phase 1 static search and route regression probes",
 ] as const;
 
 export const PHASE_1_GITHUB_PAGES_CONVERGENCE_PREREQUISITES = [
   "Bun dependencies installed (`bun install`)",
-  "Static export output (`out/`) produced by `make build-export` inside the workflow",
+  "Static export output (`out/`) produced by `make internal-build-export` inside the workflow",
 ] as const;
