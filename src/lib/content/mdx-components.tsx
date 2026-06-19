@@ -7,7 +7,10 @@ import { DocsPre } from "@/features/docs/components/DocsCodeBlock";
 import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { BlockMath, InlineMath } from "@/features/docs/components/Math";
 import { PageAsset } from "@/features/docs/components/PageAsset";
-import { PageMathFormula } from "@/features/docs/components/PageMathFormula";
+import {
+  PageMathFormula,
+  PageMathVariableDefinitions,
+} from "@/features/docs/components/PageMathFormula";
 import { RegistryAssociatedRecords } from "@/features/docs/components/RegistryAssociatedRecords";
 import { RegistryDeepLinkList } from "@/features/docs/components/RegistryDeepLinkList";
 import { RegistryLinkList } from "@/features/docs/components/RegistryLinkList";
@@ -72,6 +75,7 @@ export const moduleMdxComponents: MDXComponents = {
   PaperAtAGlance,
   PaperContributionGraph,
   PageMathFormula,
+  PageMathVariableDefinitions,
   SystemAtAGlance,
   SystemFlowGraph,
   TrainingRegimeAtAGlance,
