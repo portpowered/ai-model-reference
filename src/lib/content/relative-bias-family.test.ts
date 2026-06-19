@@ -9,7 +9,10 @@ import {
   getModuleById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
-import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import {
+  deriveCuratedRelatedItems,
+  deriveSameVariantGroupPeers,
+} from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
 describe("Phase 3 relative bias family pages (US-003)", () => {
@@ -100,6 +103,67 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
     ).toBe("/docs/modules/alibi");
   });
 
+  test("neighboring family pages surface relative position bias through their real related-doc groups", () => {
+    const relativeBiasModule = getModuleById("module.relative-position-bias");
+    const t5BiasModule = getModuleById("module.t5-relative-position-bias");
+    const alibiModule = getModuleById("module.alibi");
+    const rope = getConceptById("concept.rope");
+    const absolute = getConceptById("concept.absolute-positional-embeddings");
+
+    if (
+      !relativeBiasModule ||
+      !t5BiasModule ||
+      !alibiModule ||
+      !rope ||
+      !absolute
+    ) {
+      throw new Error(
+        "expected relative position bias family records in registry",
+      );
+    }
+
+    const records = listRelatedRegistryRecords();
+    const modules = records.filter((record) => record.kind === "module");
+
+    const alibiVariantGroupItems = deriveSameVariantGroupPeers(
+      alibiModule,
+      modules,
+      PUBLISHED_DOCS_REGISTRY_IDS,
+    );
+    expect(
+      alibiVariantGroupItems.find(
+        (item) => item.registryId === "module.relative-position-bias",
+      )?.href,
+    ).toBe("/docs/modules/relative-position-bias");
+    expect(
+      alibiVariantGroupItems.find(
+        (item) => item.registryId === "module.t5-relative-position-bias",
+      )?.href,
+    ).toBe("/docs/modules/t5-relative-position-bias");
+
+    const ropeCuratedItems = deriveCuratedRelatedItems(
+      rope,
+      records,
+      PUBLISHED_DOCS_REGISTRY_IDS,
+    );
+    expect(
+      ropeCuratedItems.find(
+        (item) => item.registryId === "concept.relative-position-bias",
+      )?.href,
+    ).toBe("/docs/modules/relative-position-bias");
+
+    const absoluteCuratedItems = deriveCuratedRelatedItems(
+      absolute,
+      records,
+      PUBLISHED_DOCS_REGISTRY_IDS,
+    );
+    expect(
+      absoluteCuratedItems.find(
+        (item) => item.registryId === "concept.relative-position-bias",
+      )?.href,
+    ).toBe("/docs/modules/relative-position-bias");
+  });
+
   test("published pages render with visible family navigation and references", async () => {
     for (const slug of [
       "relative-position-bias",
@@ -149,6 +213,47 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
     );
     expect(t5Html).toContain('href="/docs/modules/relative-position-bias"');
     expect(t5Html).toContain("Raffel");
+
+    const alibiPage = await loadModulePage("alibi");
+    const alibiHtml = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: alibiPage.messages,
+        assets: alibiPage.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: alibiPage.content,
+      }),
+    );
+    expect(alibiHtml).toContain('data-testid="variant-group-related-docs"');
+    expect(alibiHtml).toContain('href="/docs/modules/relative-position-bias"');
+    expect(alibiHtml).toContain(
+      'href="/docs/modules/t5-relative-position-bias"',
+    );
+
+    const ropePage = await loadModulePage("rope");
+    const ropeHtml = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: ropePage.messages,
+        assets: ropePage.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: ropePage.content,
+      }),
+    );
+    expect(ropeHtml).toContain('data-testid="curated-related-docs"');
+    expect(ropeHtml).toContain('href="/docs/modules/relative-position-bias"');
+
+    const absolutePage = await loadModulePage("absolute-positional-embeddings");
+    const absoluteHtml = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: absolutePage.messages,
+        assets: absolutePage.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: absolutePage.content,
+      }),
+    );
+    expect(absoluteHtml).toContain('data-testid="curated-related-docs"');
+    expect(absoluteHtml).toContain(
+      'href="/docs/modules/relative-position-bias"',
+    );
   });
 
   test("relative position bias page copy explains the family in plain language and contrasts nearby methods", async () => {
