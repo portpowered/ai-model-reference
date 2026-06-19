@@ -64,7 +64,8 @@
   "shell": {
     "sidebarTitle": "リファレンス",
     "sidebarDescription": "モジュール、概念、タグを参照します。",
-    "onThisPage": "このページ内"
+    "onThisPage": "このページ内",
+    "openingSummary": "要約を開く"
   },
   "home": {
     "title": "Model Atlas",

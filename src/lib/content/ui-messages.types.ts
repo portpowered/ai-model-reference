@@ -61,6 +61,7 @@ export type UiMessages = {
     sidebarTitle: string;
     sidebarDescription: string;
     onThisPage: string;
+    openingSummary: string;
   };
   home: {
     title: string;

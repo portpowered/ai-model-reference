@@ -21,6 +21,7 @@ describe("loadUiMessages shell keys", () => {
   it("loads shell copy for the docs layout", async () => {
     const messages = await loadUiMessages();
     expect(messages.shell.sidebarTitle.length).toBeGreaterThan(0);
+    expect(messages.shell.openingSummary).toBe("Opening summary");
     expect(messages.nav.home).toBe("Home");
     expect(messages.nav.search).toBe("Search");
     expect(messages.nav.menu).toBe("Open menu");
@@ -54,6 +55,7 @@ describe("loadUiMessages shell keys", () => {
     expect(
       messages.topologyBrowse.classificationLabels.transformerBlockStructures,
     ).toBe("Cấu trúc khối transformer");
+    expect(messages.shell.openingSummary).toBe("Tóm tắt mở đầu");
   });
 
   it("loads shipped japanese shell copy when ja shared messages are available", async () => {
@@ -70,6 +72,7 @@ describe("loadUiMessages shell keys", () => {
     expect(
       messages.topologyBrowse.classificationLabels.normalizationLayers,
     ).toBe("正規化層");
+    expect(messages.shell.openingSummary).toBe("要約を開く");
   });
 
   it("fails closed when shipped vietnamese shared UI messages are missing", async () => {

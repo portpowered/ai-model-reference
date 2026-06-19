@@ -97,6 +97,7 @@ async function renderLocalDocsPage(
         <DocsBody>
           {localRef.section === "systems" ? (
             <FoldedOpeningSummary
+              label={uiMessages.shell.openingSummary}
               summary={loadedPage.messages.openingSummary}
             />
           ) : null}
