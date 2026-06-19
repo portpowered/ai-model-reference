@@ -4,12 +4,19 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["sampling temperature", "softmax temperature"],
+  "aliases": [
+    "sampling temperature",
+    "softmax temperature",
+    "decoding temperature"
+  ],
   "tags": ["token-to-probability-chain", "foundations"],
   "relatedIds": [
     "concept.softmax",
+    "concept.entropy",
     "concept.sampling-overview",
-    "concept.greedy-decoding"
+    "concept.greedy-decoding",
+    "concept.top-k-sampling",
+    "concept.top-p-sampling"
   ],
   "citationIds": [],
   "status": "published",
