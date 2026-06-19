@@ -6,6 +6,7 @@ import {
   isRetryableSearchDialogTriggerError,
   PHASE_1_SEARCH_DIALOG_QUERIES,
   resolveSearchDialogCheckOptionsFromEnv,
+  resolveSearchDialogFinalVisibleWaitTimeout,
   runPhase1SearchDialogChecks,
   type SearchDialogDomSnapshot,
 } from "./phase-1-search-dialog-checks";
@@ -154,6 +155,14 @@ describe("isRetryableSearchDialogTriggerError", () => {
       isRetryableSearchDialogTriggerError(new Error("navigation failed")),
     ).toBe(false);
     expect(isRetryableSearchDialogTriggerError("detached")).toBe(false);
+  });
+});
+
+describe("resolveSearchDialogFinalVisibleWaitTimeout", () => {
+  test("keeps a bounded final grace window for dialog visibility", () => {
+    expect(resolveSearchDialogFinalVisibleWaitTimeout(45_000)).toBe(1_000);
+    expect(resolveSearchDialogFinalVisibleWaitTimeout(250)).toBe(250);
+    expect(resolveSearchDialogFinalVisibleWaitTimeout(0)).toBe(1);
   });
 });
 

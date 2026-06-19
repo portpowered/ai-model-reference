@@ -62,6 +62,7 @@ const SEARCH_DIALOG_EMPTY_SELECTOR = '[data-testid="search-dialog-empty"]';
 const SEARCH_DIALOG_LOADING_SELECTOR = '[data-testid="search-dialog-loading"]';
 const SEARCH_RESULT_URL_SELECTOR = '[data-testid="search-result-url"]';
 const SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS = 250;
+const SEARCH_DIALOG_FINAL_VISIBLE_GRACE_MS = 1_000;
 const SEARCH_DIALOG_QUERY_RETRY_DELAY_MS = 250;
 
 /** Default per-query browser deadline (static-export dialog hydration can exceed 30s under CI load). */
@@ -161,6 +162,12 @@ export function isRetryableSearchDialogTriggerError(error: unknown): boolean {
   );
 }
 
+export function resolveSearchDialogFinalVisibleWaitTimeout(
+  timeoutMs: number,
+): number {
+  return Math.min(SEARCH_DIALOG_FINAL_VISIBLE_GRACE_MS, Math.max(1, timeoutMs));
+}
+
 async function openHeaderSearchDialog(
   page: Page,
   baseUrl: string,
@@ -209,7 +216,10 @@ async function openHeaderSearchDialog(
     }
   }
 
-  await dialog.waitFor({ state: "visible", timeout: 1 });
+  await dialog.waitFor({
+    state: "visible",
+    timeout: resolveSearchDialogFinalVisibleWaitTimeout(timeoutMs),
+  });
   return dialog;
 }
 
