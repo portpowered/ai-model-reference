@@ -47,6 +47,7 @@ when writing code, we generally look to standardize and minimize complexity.
 As a general rule, we want docs to be fresh and relevant, meaning that all pages should have references to appropriate other pages for relevant information. i.e. a page on attention variants should link to the other pages around attention and explain why this one is better when its written. 
 
 please follow the appropriate documents when writing docs.
+
 ### guides
 [writing-guide](./docs/guide-to-writing-pages.md)
 [disaggregating-papers](./docs/disaggregating-papers.md)
@@ -70,3 +71,11 @@ These files are the files that are being used as the fundamental customer asks t
 use these when necessary. The planners MUST always read this page. 
 [documentation site pages](./docs/documentation-site-pages-needed.md)
 [architecture-checklist](./docs/architectural-checklist.md)
+
+## Tags
+
+Tags and collection groups (models, modules, papers, etc) should be isolated and flexible. 
+We should not put for example feed forward and activations together. 
+
+We don't have the full set of tags/groups and should add more as necessary/appropriate. 
+- i.e. for some reason we put QAT under concepts, when it should have been put in training, but we didn't have the training group defined yet, but this is a wrong behavior. 

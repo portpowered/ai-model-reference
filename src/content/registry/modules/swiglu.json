@@ -17,6 +17,7 @@
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
+  "releaseDate": "2020-02-01",
   "authors": ["Noam Shazeer"],
   "sourceId": "citation.glu-variants-improve-transformer",
   "moduleType": "feed-forward",
