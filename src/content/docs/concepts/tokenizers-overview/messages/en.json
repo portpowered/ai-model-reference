@@ -1,0 +1,36 @@
+{
+  "title": "Tokenizers overview",
+  "description": "How tokenizers split raw text into model-readable pieces, why that choice affects context length and cost, and how broad tokenization ideas differ from specific tokenizer algorithms.",
+  "openingSummary": "A tokenizer is the text-splitting system that turns raw characters into token IDs before embeddings and attention begin, so its vocabulary and splitting rules shape sequence length, cost, and what the model can represent cleanly.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A tokenizer is the front door to a language model. It reads raw text, breaks that text into reusable pieces, and assigns each piece an integer ID from a fixed vocabulary. Those IDs are what the model actually embeds and processes. The overview concept is broader than any one algorithm: it covers the job tokenizers do before you narrow into families such as Byte Pair Encoding, WordPiece, SentencePiece, or byte-level tokenization."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Tokenization decides how much text fits inside a context window, how many next-token steps a request needs, and how much billing or latency a prompt can create. Two strings that look similar to a person can become very different token sequences if the tokenizer splits them differently. That is why tokenizer design affects downstream concepts like token counting, vocabulary size, special tokens, and the embedding table the model uses right after tokenization."
+    },
+    "howItAffectsRequests": {
+      "title": "How It Affects Requests",
+      "body": "Imagine two tokenizers reading the same long product name. One might split it into a few common subword pieces, while another might fall back to many smaller pieces or raw bytes. The second result uses more tokens, which consumes more context budget and makes the model do more work per prompt and per generated answer. In practice, vocabulary design is a tradeoff: larger vocabularies can shorten many sequences, but they also increase the embedding and output tables the model must learn and score."
+    },
+    "algorithmFamilies": {
+      "title": "Algorithm Families",
+      "body": "This overview page explains the family, not one winner. Byte Pair Encoding learns frequent merges, WordPiece prefers merges that help likelihood-style training, SentencePiece can learn directly from raw text without depending on whitespace, and byte-level tokenization starts from bytes so unusual text stays representable. Read those module pages when you want the mechanics of a specific tokenizer, and use the glossary pages for nearby ideas such as tokens, embeddings, vocabulary size, and special tokens."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A tokenizer is not the same thing as a token. A token is one emitted unit, while a tokenizer is the full system that emits those units. Tokenizers also do not replace embeddings: tokenization picks discrete IDs first, then embeddings turn those IDs into dense vectors. Finally, this overview is not itself a benchmark of tokenizer quality. The point here is to understand the role tokenizers play before you compare specific algorithms or model-specific vocabularies."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

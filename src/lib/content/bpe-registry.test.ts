@@ -33,7 +33,7 @@ describe("bpe registry relationships", () => {
     expect(items.map((item) => item.href)).toEqual([
       "/docs/glossary/token",
       "/docs/glossary/special-tokens",
-      undefined,
+      "/docs/concepts/tokenizers-overview",
       undefined,
       "/docs/modules/sentencepiece",
       "/docs/models/gpt-3",

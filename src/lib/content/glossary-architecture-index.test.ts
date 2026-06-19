@@ -135,7 +135,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<
 };
 
 const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 48;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 49;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -238,6 +238,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "/docs/glossary/residual-connection",
       "/docs/glossary/special-tokens",
       "/docs/glossary/token",
+      "/docs/concepts/tokenizers-overview",
       ...ARCHITECTURE_CONCEPT_URLS,
     ] as const) {
       expect(entries.some((entry) => entry.url === url)).toBe(true);

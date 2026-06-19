@@ -114,7 +114,7 @@ describe("special tokens registry record", () => {
     const tokenizersOverview = items.find(
       (item) => item.registryId === "concept.tokenizers-overview",
     );
-    expect(tokenizersOverview?.href).toBeUndefined();
+    expect(tokenizersOverview?.href).toBe("/docs/concepts/tokenizers-overview");
     expect(tokenizersOverview?.isPlanned).toBe(false);
 
     const wordpiece = items.find(
