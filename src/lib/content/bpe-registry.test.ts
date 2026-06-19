@@ -50,7 +50,6 @@ describe("bpe registry relationships", () => {
       PLANNED_RELATED_REASON_LABEL,
       "curated",
       "curated",
-      "curated",
     ]);
   });
 });
