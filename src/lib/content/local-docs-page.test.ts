@@ -177,6 +177,26 @@ describe("docs source local pages", () => {
     expect(page.toc.some(hasTocUrl("#what-it-is"))).toBe(true);
   });
 
+  test("loadLocalDocsPage resolves the published routing system page with its English messages and graph asset", async () => {
+    const page = await loadLocalDocsPage({
+      section: "systems",
+      slug: "routing",
+    });
+
+    expect(page.messages.title).toBe("Routing");
+    expect(page.messages.openingSummary).toContain(
+      "choosing where a request should go",
+    );
+    expect(page.frontmatter.kind).toBe("system");
+    expect(page.frontmatter.registryId).toBe("system.routing");
+    expect(page.assets.systemFlow).toMatchObject({
+      type: "graph",
+      graphId: "graph.routing-system-flow",
+    });
+    expect(page.toc.some(hasTocUrl("#practical-impact"))).toBe(true);
+    expect(page.toc.some(hasTocUrl("#related"))).toBe(true);
+  });
+
   test("loadLocalDocsPage resolves the shipped japanese attention proof set through the shared MDX route contract", async () => {
     const transformerPage = await loadLocalDocsPage(
       {
