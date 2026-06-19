@@ -12,6 +12,7 @@ import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-regist
 import { loadRegistry } from "@/lib/content/registry";
 import {
   getConceptById,
+  getModuleById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
@@ -24,24 +25,35 @@ const messagesPath = join(pageDir, "messages/en.json");
 describe("Phase 3 mixture of experts module page (US-003)", () => {
   test("registry record is published with aliases, tags, and curated related ids", () => {
     const record = getConceptById("concept.mixture-of-experts");
+    const moduleRecord = getModuleById("module.mixture-of-experts");
     expect(record?.status).toBe("published");
     expect(record?.aliases).toEqual([
       "MoE",
-      "mixture-of-experts layer",
       "sparse MoE",
+      "mixture-of-experts architecture",
+      "expert routing",
     ]);
+    expect(moduleRecord?.aliases).toContain("mixture-of-experts layer");
+    expect(record?.aliases).not.toContain("mixture-of-experts layer");
     expect(record?.tags).toEqual(["feed-forward", "foundations"]);
     expect(record?.relatedIds).toEqual([
       "concept.feed-forward-network",
       "concept.standard-ffn",
+      "module.mixture-of-experts",
+      "module.deepseekmoe",
+      "model.deepseek-v4-pro",
       "concept.transformer-architecture",
+    ]);
+    expect(record?.citationIds).toEqual([
+      "citation.sparsely-gated-mixture-of-experts-layer",
+      "citation.deepseek-v4-paper",
     ]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.mixture-of-experts")).toBe(
       true,
     );
   });
 
-  test("curated related links feed-forward network, standard FFN, and transformer architecture", () => {
+  test("curated related links bridge the broad concept to nearby module and model pages", () => {
     const source = getConceptById("concept.mixture-of-experts");
     if (!source) {
       throw new Error("expected concept.mixture-of-experts in registry");
@@ -64,6 +76,24 @@ describe("Phase 3 mixture of experts module page (US-003)", () => {
     );
     expect(standardFfn?.href).toBe("/docs/modules/standard-ffn");
     expect(standardFfn?.isPlanned).toBe(false);
+
+    const moeModule = items.find(
+      (item) => item.registryId === "module.mixture-of-experts",
+    );
+    expect(moeModule?.href).toBe("/docs/modules/mixture-of-experts");
+    expect(moeModule?.isPlanned).toBe(false);
+
+    const deepseekMoe = items.find(
+      (item) => item.registryId === "module.deepseekmoe",
+    );
+    expect(deepseekMoe?.href).toBe("/docs/modules/deepseekmoe");
+    expect(deepseekMoe?.isPlanned).toBe(false);
+
+    const deepseekV4Pro = items.find(
+      (item) => item.registryId === "model.deepseek-v4-pro",
+    );
+    expect(deepseekV4Pro?.href).toBe("/docs/models/deepseek-v4-pro");
+    expect(deepseekV4Pro?.isPlanned).toBe(false);
 
     const architecture = items.find(
       (item) => item.registryId === "concept.transformer-architecture",
