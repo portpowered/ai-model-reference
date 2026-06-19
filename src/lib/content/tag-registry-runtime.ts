@@ -1,3 +1,4 @@
+import alignmentTag from "@/content/registry/tags/alignment.json";
 import attentionTag from "@/content/registry/tags/attention.json";
 import contextWindowTag from "@/content/registry/tags/context-window.json";
 import foundationsTag from "@/content/registry/tags/foundations.json";
@@ -10,6 +11,7 @@ import tokenizationTag from "@/content/registry/tags/tokenization.json";
 import { type TagRecord, tagRecordSchema } from "@/lib/content/schemas";
 
 const tagRecords: TagRecord[] = [
+  tagRecordSchema.parse(alignmentTag),
   tagRecordSchema.parse(attentionTag),
   tagRecordSchema.parse(contextWindowTag),
   tagRecordSchema.parse(foundationsTag),

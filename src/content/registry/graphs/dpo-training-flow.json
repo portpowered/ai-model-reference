@@ -1,0 +1,67 @@
+{
+  "id": "graph.dpo-training-flow",
+  "slug": "dpo-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["DPO training flow", "direct preference optimization flow"],
+  "tags": ["alignment", "foundations"],
+  "relatedIds": [],
+  "citationIds": ["citation.direct-preference-optimization"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "training-regime.dpo",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "pairs",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "pairs",
+      "labelKey": "graph.nodes.pairs.label",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 230, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": ["objective"]
+    },
+    {
+      "id": "objective",
+      "labelKey": "graph.nodes.objective.label",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 118 },
+      "size": { "width": 210, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["alignedModel"]
+    },
+    {
+      "id": "alignedModel",
+      "labelKey": "graph.nodes.alignedModel.label",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 252 },
+      "size": { "width": 210, "height": 76 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "pairs-objective",
+      "source": "pairs",
+      "target": "objective",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "objective-aligned",
+      "source": "objective",
+      "target": "alignedModel",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}

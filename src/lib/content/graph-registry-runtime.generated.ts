@@ -11,6 +11,7 @@ import deepseekV4ContributionGraphRecord from "@/content/registry/graphs/deepsee
 import deepseekV4FlashArchitectureGraphRecord from "@/content/registry/graphs/deepseek-v4-flash-architecture.json";
 import deepseekV4ProArchitectureGraphRecord from "@/content/registry/graphs/deepseek-v4-pro-architecture.json";
 import deepseekmoeRoutingFlowGraphRecord from "@/content/registry/graphs/deepseekmoe-routing-flow.json";
+import dpoTrainingFlowGraphRecord from "@/content/registry/graphs/dpo-training-flow.json";
 import expertParallelOverlapSystemFlowGraphRecord from "@/content/registry/graphs/expert-parallel-overlap-system-flow.json";
 import feedForwardNetworkFamilyOverviewGraphRecord from "@/content/registry/graphs/feed-forward-network-family-overview.json";
 import fp4QuantizationAwareTrainingTrainingFlowGraphRecord from "@/content/registry/graphs/fp4-quantization-aware-training-training-flow.json";
@@ -62,6 +63,7 @@ export const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(deepseekV4FlashArchitectureGraphRecord),
   graphRecordSchema.parse(deepseekV4ProArchitectureGraphRecord),
   graphRecordSchema.parse(deepseekmoeRoutingFlowGraphRecord),
+  graphRecordSchema.parse(dpoTrainingFlowGraphRecord),
   graphRecordSchema.parse(expertParallelOverlapSystemFlowGraphRecord),
   graphRecordSchema.parse(feedForwardNetworkFamilyOverviewGraphRecord),
   graphRecordSchema.parse(fp4QuantizationAwareTrainingTrainingFlowGraphRecord),
