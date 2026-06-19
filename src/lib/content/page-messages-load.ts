@@ -2,10 +2,7 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { SiteLocale } from "@/lib/i18n/locale-routing";
-import {
-  GROUPED_QUERY_ATTENTION_PAGE_DIR,
-  TOKEN_GLOSSARY_PAGE_DIR,
-} from "./content-paths";
+import { getDocsPageDir } from "./content-paths";
 import { type PageMessages, pageMessagesSchema } from "./schemas";
 
 export type MessageLoadErrorDetail =
@@ -22,9 +19,12 @@ export class MessageLoadError extends Error {
   }
 }
 
-export const groupedQueryAttentionPageDir = GROUPED_QUERY_ATTENTION_PAGE_DIR;
+export const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
 
-export const tokenGlossaryPageDir = TOKEN_GLOSSARY_PAGE_DIR;
+export const tokenGlossaryPageDir = getDocsPageDir("glossary", "token");
 
 type PageMessagesLoadOptions = {
   route?: string;

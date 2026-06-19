@@ -1,13 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import {
-  ATTENTION_MODULE_PAGE_DIR,
   CONTENT_ROOT,
   DOCS_ROOT,
+  DOCS_SECTION_NAMES,
   GLOSSARY_DOCS_ROOT,
-  GROUPED_QUERY_ATTENTION_PAGE_DIR,
   getContentRoot,
+  getDocsPageDir,
   getDocsRoot,
+  getDocsSectionRoot,
   getGlossaryDocsRoot,
   getMessagesRoot,
   getModulesDocsRoot,
@@ -18,7 +19,6 @@ import {
   MODULES_DOCS_ROOT,
   REGISTRY_ROOT,
   TAG_MESSAGES_ROOT,
-  TOKEN_GLOSSARY_PAGE_DIR,
 } from "./content-paths";
 
 describe("content-paths", () => {
@@ -45,12 +45,27 @@ describe("content-paths", () => {
     expect(MESSAGES_ROOT).toBe(getMessagesRoot());
     expect(TAG_MESSAGES_ROOT).toBe(getTagMessagesRoot());
     expect(CONTENT_ROOT.endsWith("src/content")).toBe(true);
-    expect(ATTENTION_MODULE_PAGE_DIR).toBe(
+  });
+
+  test("section and page helpers derive paths without a central page inventory", () => {
+    expect(DOCS_SECTION_NAMES).toEqual([
+      "glossary",
+      "concepts",
+      "modules",
+      "models",
+      "papers",
+      "training",
+      "systems",
+    ]);
+    expect(getDocsSectionRoot("modules")).toBe(MODULES_DOCS_ROOT);
+    expect(getDocsPageDir("modules", "attention")).toBe(
       join(MODULES_DOCS_ROOT, "attention"),
     );
-    expect(GROUPED_QUERY_ATTENTION_PAGE_DIR).toBe(
+    expect(getDocsPageDir("modules", "grouped-query-attention")).toBe(
       join(MODULES_DOCS_ROOT, "grouped-query-attention"),
     );
-    expect(TOKEN_GLOSSARY_PAGE_DIR).toBe(join(GLOSSARY_DOCS_ROOT, "token"));
+    expect(getDocsPageDir("glossary", "token")).toBe(
+      join(GLOSSARY_DOCS_ROOT, "token"),
+    );
   });
 });

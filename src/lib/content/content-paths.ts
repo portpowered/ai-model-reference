@@ -5,6 +5,18 @@ const REPO_ROOT = dirname(
   dirname(dirname(dirname(fileURLToPath(import.meta.url)))),
 );
 
+export const DOCS_SECTION_NAMES = [
+  "glossary",
+  "concepts",
+  "modules",
+  "models",
+  "papers",
+  "training",
+  "systems",
+] as const;
+
+export type DocsSectionName = (typeof DOCS_SECTION_NAMES)[number];
+
 /** Repository root inferred from this module so helper imports remain stable outside repo cwd. */
 export function getProjectRoot(): string {
   return REPO_ROOT;
@@ -20,39 +32,56 @@ export function getDocsRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "docs");
 }
 
+/** Published docs section root under `src/content/docs/<section>`. */
+export function getDocsSectionRoot(
+  section: DocsSectionName,
+  docsRoot = getDocsRoot(),
+): string {
+  return join(docsRoot, section);
+}
+
+/** Published docs page directory under `src/content/docs/<section>/<slug>`. */
+export function getDocsPageDir(
+  section: DocsSectionName,
+  slug: string,
+  docsRoot = getDocsRoot(),
+): string {
+  return join(getDocsSectionRoot(section, docsRoot), slug);
+}
+
 /** Glossary docs under `src/content/docs/glossary`. */
 export function getGlossaryDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "glossary");
+  return getDocsSectionRoot("glossary", docsRoot);
 }
 
 /** Concept docs under `src/content/docs/concepts`. */
 export function getConceptsDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "concepts");
+  return getDocsSectionRoot("concepts", docsRoot);
 }
 
 /** Module docs under `src/content/docs/modules`. */
 export function getModulesDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "modules");
+  return getDocsSectionRoot("modules", docsRoot);
 }
 
 /** Model docs under `src/content/docs/models`. */
 export function getModelsDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "models");
+  return getDocsSectionRoot("models", docsRoot);
 }
 
 /** Paper docs under `src/content/docs/papers`. */
 export function getPapersDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "papers");
+  return getDocsSectionRoot("papers", docsRoot);
 }
 
 /** Training-regime docs under `src/content/docs/training`. */
 export function getTrainingDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "training");
+  return getDocsSectionRoot("training", docsRoot);
 }
 
 /** System docs under `src/content/docs/systems`. */
 export function getSystemsDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "systems");
+  return getDocsSectionRoot("systems", docsRoot);
 }
 
 /** Registry JSON under `src/content/registry`. */
@@ -108,227 +137,225 @@ export const MESSAGES_ROOT = getMessagesRoot(contentRoot);
 /** Default `src/content/registry/tags/messages` root. */
 export const TAG_MESSAGES_ROOT = getTagMessagesRoot(REGISTRY_ROOT);
 
-/** Phase 1 attention module bridge page directory. */
-export const ATTENTION_MODULE_PAGE_DIR = join(MODULES_DOCS_ROOT, "attention");
-
-/** Phase 1 grouped-query attention sample module page directory. */
-export const GROUPED_QUERY_ATTENTION_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+/** Compatibility aliases for existing call sites. Prefer `getDocsPageDir()` for new work. */
+export const ATTENTION_MODULE_PAGE_DIR = getDocsPageDir(
+  "modules",
+  "attention",
+  DOCS_ROOT,
+);
+export const GROUPED_QUERY_ATTENTION_PAGE_DIR = getDocsPageDir(
+  "modules",
   "grouped-query-attention",
+  DOCS_ROOT,
 );
-
-/** Phase 4 byte pair encoding module page directory. */
-export const BPE_MODULE_PAGE_DIR = join(MODULES_DOCS_ROOT, "bpe");
-
-/** Phase 3 multi-head attention module page directory. */
-export const MULTI_HEAD_ATTENTION_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+export const BPE_MODULE_PAGE_DIR = getDocsPageDir("modules", "bpe", DOCS_ROOT);
+export const MULTI_HEAD_ATTENTION_PAGE_DIR = getDocsPageDir(
+  "modules",
   "multi-head-attention",
+  DOCS_ROOT,
 );
-
-/** Phase 3 multi-query attention module page directory. */
-export const MULTI_QUERY_ATTENTION_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+export const MULTI_QUERY_ATTENTION_PAGE_DIR = getDocsPageDir(
+  "modules",
   "multi-query-attention",
+  DOCS_ROOT,
 );
-
-/** Phase 3 multi-head latent attention module page directory. */
-export const MULTI_HEAD_LATENT_ATTENTION_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+export const MULTI_HEAD_LATENT_ATTENTION_PAGE_DIR = getDocsPageDir(
+  "modules",
   "multi-head-latent-attention",
+  DOCS_ROOT,
 );
-
-/** Phase 3 linear attention module page directory. */
-export const LINEAR_ATTENTION_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+export const LINEAR_ATTENTION_PAGE_DIR = getDocsPageDir(
+  "modules",
   "linear-attention",
+  DOCS_ROOT,
 );
-
-/** Phase 3 sliding-window attention module page directory. */
-export const SLIDING_WINDOW_ATTENTION_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+export const SLIDING_WINDOW_ATTENTION_PAGE_DIR = getDocsPageDir(
+  "modules",
   "sliding-window-attention",
+  DOCS_ROOT,
 );
-
-/** Phase 3 sparse attention module page directory. */
-export const SPARSE_ATTENTION_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+export const SPARSE_ATTENTION_PAGE_DIR = getDocsPageDir(
+  "modules",
   "sparse-attention",
+  DOCS_ROOT,
 );
-
-/** Byte-level tokenization module page directory. */
-export const BYTE_LEVEL_TOKENIZATION_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+export const BYTE_LEVEL_TOKENIZATION_PAGE_DIR = getDocsPageDir(
+  "modules",
   "byte-level-tokenization",
+  DOCS_ROOT,
 );
-
-/** Phase 1 token glossary sample page directory. */
-export const TOKEN_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "token");
-
-/** Special tokens glossary page directory. */
-export const SPECIAL_TOKENS_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+export const TOKEN_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
+  "token",
+  DOCS_ROOT,
+);
+export const SPECIAL_TOKENS_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
   "special-tokens",
+  DOCS_ROOT,
 );
-
-/** Phase 1 vector glossary bridge page directory. */
-export const VECTOR_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "vector");
-
-/** Phase 1 hidden size glossary bridge page directory. */
-export const HIDDEN_SIZE_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+export const VECTOR_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
+  "vector",
+  DOCS_ROOT,
+);
+export const HIDDEN_SIZE_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
   "hidden-size",
+  DOCS_ROOT,
 );
-
-/** Vocabulary size glossary page directory. */
-export const VOCABULARY_SIZE_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+export const VOCABULARY_SIZE_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
   "vocabulary-size",
+  DOCS_ROOT,
 );
-
-/** Phase 3 feed-forward network glossary page directory. */
-export const FEED_FORWARD_NETWORK_GLOSSARY_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+export const FEED_FORWARD_NETWORK_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "modules",
   "feed-forward-network",
+  DOCS_ROOT,
 );
-
-/** Phase 3 standard FFN glossary page directory. */
-export const STANDARD_FFN_GLOSSARY_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+export const STANDARD_FFN_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "modules",
   "standard-ffn",
+  DOCS_ROOT,
 );
-
-/** Phase 3 mixture of experts glossary page directory. */
-export const MIXTURE_OF_EXPERTS_GLOSSARY_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+export const MIXTURE_OF_EXPERTS_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "modules",
   "mixture-of-experts",
+  DOCS_ROOT,
 );
-
-/** Phase 3 normalization glossary page directory. */
-export const NORMALIZATION_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+export const NORMALIZATION_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
   "normalization",
+  DOCS_ROOT,
 );
-
-/** Phase 3 batch norm glossary page directory. */
-export const BATCH_NORM_GLOSSARY_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+export const BATCH_NORM_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "modules",
   "batch-norm",
+  DOCS_ROOT,
 );
-
-/** Phase 3 group norm glossary page directory. */
-export const GROUP_NORM_GLOSSARY_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+export const GROUP_NORM_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "modules",
   "group-norm",
+  DOCS_ROOT,
 );
-
-/** Phase 3 layer norm glossary page directory. */
-export const LAYER_NORM_GLOSSARY_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+export const LAYER_NORM_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "modules",
   "layer-norm",
+  DOCS_ROOT,
 );
-
-/** Phase 3 ReLU glossary page directory. */
-export const RELU_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "relu");
-
-/** Phase 3 LeakyReLU glossary page directory. */
-export const LEAKY_RELU_GLOSSARY_PAGE_DIR = join(
-  MODULES_DOCS_ROOT,
+export const RELU_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "modules",
+  "relu",
+  DOCS_ROOT,
+);
+export const LEAKY_RELU_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "modules",
   "leaky-relu",
+  DOCS_ROOT,
 );
-
-/** Phase 3 SiLU glossary page directory. */
-export const SILU_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "silu");
-
-/** Phase 3 SwiGLU glossary page directory. */
-export const SWIGLU_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "swiglu");
-
-/** Phase 3 RMSNorm glossary page directory. */
-export const RMSNORM_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "rmsnorm");
-
-/** Phase 3 QK norm glossary page directory. */
-export const QK_NORM_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "qk-norm");
-
-/** Phase 3 residual connection glossary page directory. */
-export const RESIDUAL_CONNECTION_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+export const SILU_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "modules",
+  "silu",
+  DOCS_ROOT,
+);
+export const SWIGLU_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "modules",
+  "swiglu",
+  DOCS_ROOT,
+);
+export const RMSNORM_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "modules",
+  "rmsnorm",
+  DOCS_ROOT,
+);
+export const QK_NORM_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "modules",
+  "qk-norm",
+  DOCS_ROOT,
+);
+export const RESIDUAL_CONNECTION_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
   "residual-connection",
+  DOCS_ROOT,
 );
-
-/** Phase 3 skip connection glossary page directory. */
-export const SKIP_CONNECTION_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+export const SKIP_CONNECTION_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
   "skip-connection",
+  DOCS_ROOT,
 );
-
-/** Phase 3 positional encodings concept page directory. */
-export const POSITIONAL_ENCODINGS_CONCEPT_PAGE_DIR = join(
-  CONCEPTS_DOCS_ROOT,
+export const POSITIONAL_ENCODINGS_CONCEPT_PAGE_DIR = getDocsPageDir(
+  "concepts",
   "positional-encodings",
+  DOCS_ROOT,
 );
-
-/** ALiBi concept page directory. */
-export const ALIBI_CONCEPT_PAGE_DIR = join(CONCEPTS_DOCS_ROOT, "alibi");
-
-/** Phase 3 RoPE glossary page directory. */
-export const ROPE_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "rope");
-
-/** Phase 3 ALiBi glossary page directory. */
-export const ALIBI_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "alibi");
-
-/** Phase 3 context window glossary page directory. */
-export const CONTEXT_WINDOW_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+export const ALIBI_CONCEPT_PAGE_DIR = getDocsPageDir(
+  "concepts",
+  "alibi",
+  DOCS_ROOT,
+);
+export const ROPE_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "modules",
+  "rope",
+  DOCS_ROOT,
+);
+export const ALIBI_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "modules",
+  "alibi",
+  DOCS_ROOT,
+);
+export const CONTEXT_WINDOW_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
   "context-window",
+  DOCS_ROOT,
 );
-
-/** Phase 5 KV cache glossary page directory. */
-export const KV_CACHE_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "kv-cache");
-
-/** Phase 5 prefill glossary page directory. */
-export const PREFILL_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "prefill");
-
-/** Phase 5 decode glossary page directory. */
-export const DECODE_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "decode");
-
-/** Phase 5 prefill/decode split glossary page directory. */
-export const PREFILL_DECODE_SPLIT_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+export const KV_CACHE_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
+  "kv-cache",
+  DOCS_ROOT,
+);
+export const PREFILL_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
+  "prefill",
+  DOCS_ROOT,
+);
+export const DECODE_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
+  "decode",
+  DOCS_ROOT,
+);
+export const PREFILL_DECODE_SPLIT_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
   "prefill-decode-split",
+  DOCS_ROOT,
 );
-
-/** Phase 5 sampling overview glossary page directory. */
-export const SAMPLING_OVERVIEW_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+export const SAMPLING_OVERVIEW_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
   "sampling-overview",
+  DOCS_ROOT,
 );
-
-/** Phase 5 greedy decoding glossary page directory. */
-export const GREEDY_DECODING_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+export const GREEDY_DECODING_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
   "greedy-decoding",
+  DOCS_ROOT,
 );
-
-/** Phase 5 top-k sampling glossary page directory. */
-export const TOP_K_SAMPLING_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+export const TOP_K_SAMPLING_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
   "top-k-sampling",
+  DOCS_ROOT,
 );
-
-/** Phase 5 top-p sampling glossary page directory. */
-export const TOP_P_SAMPLING_GLOSSARY_PAGE_DIR = join(
-  GLOSSARY_DOCS_ROOT,
+export const TOP_P_SAMPLING_GLOSSARY_PAGE_DIR = getDocsPageDir(
+  "glossary",
   "top-p-sampling",
+  DOCS_ROOT,
 );
-
-/** Phase 3 context extension concept page directory. */
-export const CONTEXT_EXTENSION_CONCEPT_PAGE_DIR = join(
-  CONCEPTS_DOCS_ROOT,
+export const CONTEXT_EXTENSION_CONCEPT_PAGE_DIR = getDocsPageDir(
+  "concepts",
   "context-extension",
+  DOCS_ROOT,
 );
-
-/** Phase 3 why long context is hard concept page directory. */
-export const WHY_LONG_CONTEXT_IS_HARD_CONCEPT_PAGE_DIR = join(
-  CONCEPTS_DOCS_ROOT,
+export const WHY_LONG_CONTEXT_IS_HARD_CONCEPT_PAGE_DIR = getDocsPageDir(
+  "concepts",
   "why-long-context-is-hard",
+  DOCS_ROOT,
 );
