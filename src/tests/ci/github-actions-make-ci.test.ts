@@ -123,6 +123,7 @@ describe("GitHub Actions make ci", () => {
         "internal:linkcheck": string;
         test: string;
         "test:build-contract": string;
+        "test:maintainer-contract": string;
         "test:verify-contract": string;
         "preinternal:linkcheck": string;
       };
@@ -135,7 +136,19 @@ describe("GitHub Actions make ci", () => {
     );
     expect(packageJson.scripts.test).toBe("bun run test:website");
     expect(packageJson.scripts["test:verify-contract"]).toBe(
-      "bun ./scripts/run-website-verifier-tests.ts",
+      "bun ./scripts/run-website-verifier-tests.ts && bun run test:maintainer-contract",
+    );
+    expect(packageJson.scripts["test:maintainer-contract"]).toContain(
+      "src/tests/ci/fresh-checkout-dev.test.ts",
+    );
+    expect(packageJson.scripts["test:maintainer-contract"]).toContain(
+      "src/tests/ci/fresh-checkout-build.test.ts",
+    );
+    expect(packageJson.scripts["test:maintainer-contract"]).toContain(
+      "src/tests/ci/fresh-checkout-validate.test.ts",
+    );
+    expect(packageJson.scripts["test:maintainer-contract"]).toContain(
+      "src/tests/ci/github-actions-make-ci.test.ts",
     );
     expect(packageJson.scripts["test:build-contract"]).toContain(
       "src/tests/build/next-build-tracing-warning.test.ts",

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { spawn, spawnSync } from "node:child_process";
-import { existsSync, rmSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import {
   DEFAULT_FETCH_TIMEOUT_MS,
@@ -19,20 +19,13 @@ import {
   CLEAN_WORKTREE_SOURCE_DIR,
   provisionCleanWorktree,
 } from "./clean-worktree-fixture";
+import {
+  generatedMaintainerArtifactsExist,
+  isGitWorktreeDirty,
+  removeGeneratedMaintainerArtifacts,
+} from "./fresh-checkout-test-helpers";
 
 const repoRoot = join(import.meta.dir, "../../..");
-
-function isGitWorktreeDirty(root: string): boolean {
-  const result = spawnSync("git", ["status", "--porcelain"], {
-    cwd: root,
-    encoding: "utf8",
-    env: process.env,
-  });
-  if (result.status !== 0) {
-    return true;
-  }
-  return (result.stdout ?? "").trim().length > 0;
-}
 
 async function stopChildProcess(
   child: ReturnType<typeof spawn>,
@@ -105,33 +98,12 @@ describe("fresh-checkout dev", () => {
         CLEAN_WORKTREE_SOURCE_DIR,
         "server.ts",
       );
-      const shippedLocalizedDocsPath = join(
-        fixture.worktreePath,
-        "src/generated/shipped-localized-docs.ts",
-      );
-      const publishedDocsManifestPath = join(
-        fixture.worktreePath,
-        "src/lib/content/published-docs-registry-manifest.ts",
-      );
-      const registryRuntimePath = join(
-        fixture.worktreePath,
-        "src/lib/content/registry-runtime.generated.ts",
-      );
-      const graphRegistryRuntimePath = join(
-        fixture.worktreePath,
-        "src/lib/content/graph-registry-runtime.generated.ts",
-      );
-
-      rmSync(shippedLocalizedDocsPath, { force: true });
-      rmSync(publishedDocsManifestPath, { force: true });
-      rmSync(registryRuntimePath, { force: true });
-      rmSync(graphRegistryRuntimePath, { force: true });
+      removeGeneratedMaintainerArtifacts(fixture.worktreePath);
 
       expect(existsSync(sourceServerPath)).toBe(false);
-      expect(existsSync(shippedLocalizedDocsPath)).toBe(false);
-      expect(existsSync(publishedDocsManifestPath)).toBe(false);
-      expect(existsSync(registryRuntimePath)).toBe(false);
-      expect(existsSync(graphRegistryRuntimePath)).toBe(false);
+      expect(generatedMaintainerArtifactsExist(fixture.worktreePath)).toBe(
+        false,
+      );
 
       const child = spawn("make", ["dev"], {
         cwd: fixture.worktreePath,
@@ -149,10 +121,9 @@ describe("fresh-checkout dev", () => {
         await waitForDevServerReady(child, baseUrl);
 
         expect(existsSync(sourceServerPath)).toBe(true);
-        expect(existsSync(shippedLocalizedDocsPath)).toBe(true);
-        expect(existsSync(publishedDocsManifestPath)).toBe(true);
-        expect(existsSync(registryRuntimePath)).toBe(true);
-        expect(existsSync(graphRegistryRuntimePath)).toBe(true);
+        expect(generatedMaintainerArtifactsExist(fixture.worktreePath)).toBe(
+          true,
+        );
       } finally {
         await stopChildProcess(child, port);
         fixture.cleanup();

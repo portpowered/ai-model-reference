@@ -1,17 +1,10 @@
-/**
- * Fresh-checkout typecheck proof.
- *
- * Simulates a clean clone without mutating the developer workspace: provisions a
- * detached git worktree at HEAD, runs `bun install --frozen-lockfile`, asserts
- * `.source/` is absent, then runs `make internal-typecheck` inside the isolated tree.
- * See README.md § Quality Gates — Fresh-checkout CI proof.
- */
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import {
   FRESH_CHECKOUT_TYPECHECK_TEST_TIMEOUT_MS,
+  hasCompleteNextProductionBuild,
   shouldRunFreshCheckoutTypecheckProof,
 } from "@/lib/verify/server-lifecycle";
 import {
@@ -20,16 +13,18 @@ import {
 } from "./clean-worktree-fixture";
 import {
   formatSubprocessOutput,
+  generatedMaintainerArtifactsExist,
   isGitWorktreeDirty,
   missingSourceServerPattern,
+  removeGeneratedMaintainerArtifacts,
 } from "./fresh-checkout-test-helpers";
 
 const repoRoot = join(import.meta.dir, "../../..");
 const mainSourceDir = join(repoRoot, CLEAN_WORKTREE_SOURCE_DIR);
 
-describe("fresh-checkout typecheck", () => {
+describe("fresh-checkout build", () => {
   test(
-    "make internal-typecheck succeeds when .source is absent and regenerates output",
+    "make build regenerates required artifacts before producing a production build",
     () => {
       if (!shouldRunFreshCheckoutTypecheckProof()) {
         return;
@@ -39,20 +34,30 @@ describe("fresh-checkout typecheck", () => {
       }
 
       const mainHadSourceBefore = existsSync(mainSourceDir);
-
       const fixture = provisionCleanWorktree(repoRoot);
 
       try {
-        const isolatedSourceDir = join(
+        const isolatedSourceServerModule = join(
           fixture.worktreePath,
           CLEAN_WORKTREE_SOURCE_DIR,
+          "server.ts",
         );
-        const isolatedSourceServerModule = join(isolatedSourceDir, "server.ts");
 
-        expect(existsSync(isolatedSourceDir)).toBe(false);
+        removeGeneratedMaintainerArtifacts(fixture.worktreePath);
+        rmSync(join(fixture.worktreePath, ".next"), {
+          force: true,
+          recursive: true,
+        });
 
-        // Full Makefile gate: preinternal:typecheck (fumadocs-mdx) then tsc — not fumadocs-mdx alone.
-        const result = spawnSync("make", ["internal-typecheck"], {
+        expect(existsSync(isolatedSourceServerModule)).toBe(false);
+        expect(generatedMaintainerArtifactsExist(fixture.worktreePath)).toBe(
+          false,
+        );
+        expect(hasCompleteNextProductionBuild(fixture.worktreePath)).toBe(
+          false,
+        );
+
+        const result = spawnSync("make", ["build"], {
           cwd: fixture.worktreePath,
           encoding: "utf8",
           env: process.env,
@@ -60,21 +65,24 @@ describe("fresh-checkout typecheck", () => {
 
         if (result.status === null) {
           throw new Error(
-            `make internal-typecheck did not finish within the test budget.\n${formatSubprocessOutput(result)}`,
+            `make build did not finish within the test budget.\n${formatSubprocessOutput(result)}`,
           );
         }
 
         const stderr = result.stderr ?? "";
         expect(stderr).not.toMatch(missingSourceServerPattern);
-        expect(stderr).not.toContain(".source/server");
 
         if (result.status !== 0) {
           throw new Error(
-            `make internal-typecheck exited non-zero.\n${formatSubprocessOutput(result)}`,
+            `make build exited non-zero.\n${formatSubprocessOutput(result)}`,
           );
         }
 
+        expect(generatedMaintainerArtifactsExist(fixture.worktreePath)).toBe(
+          true,
+        );
         expect(existsSync(isolatedSourceServerModule)).toBe(true);
+        expect(hasCompleteNextProductionBuild(fixture.worktreePath)).toBe(true);
       } finally {
         fixture.cleanup();
       }
