@@ -101,6 +101,17 @@ describe("Phase 1 search discovery", () => {
     expect(resultsIncludeSampleModule(results)).toBe(true);
   });
 
+  test.each([
+    "DPO",
+    "Direct Preference Optimization",
+    "preference optimization",
+  ] as const)("%s query routes readers to the canonical DPO training page", async (query) => {
+    const results = await docsSearchApi.search(query);
+    expect(results.length).toBeGreaterThan(0);
+    expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
+    expect(resultsIncludeUrl(results, "/docs/training/dpo")).toBe(true);
+  });
+
   test("vector query returns canonical vector glossary hit without duplicate pages", async () => {
     const results = await docsSearchApi.search("vector");
     expect(results.length).toBeGreaterThan(0);

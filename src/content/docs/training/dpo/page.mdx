@@ -12,10 +12,13 @@ tags:
 aliases:
   - "DPO"
   - "Direct Preference Optimization"
+  - "direct preference optimization"
+  - "preference optimization"
 updatedAt: "2026-06-19"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
 import { BlockMath } from "@/features/docs/components/Math";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
@@ -40,6 +43,14 @@ import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeF
 </Section>
 <Section id="compared-to-nearby-regimes" titleKey="sections.comparedToNearbyRegimes.title">
   <T k="sections.comparedToNearbyRegimes.body" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/glossary/alignment", labelKey: "links.alignment" },
+      { href: "/search?q=RLHF", labelKey: "links.rlhf" },
+      { href: "/search?q=PPO", labelKey: "links.ppo" },
+      { href: "/search?q=GRPO", labelKey: "links.grpo" },
+    ]}
+  />
 </Section>
 <Section id="limitations-and-failure-modes" titleKey="sections.limitationsAndFailureModes.title">
   <T k="sections.limitationsAndFailureModes.body" />

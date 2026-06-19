@@ -33,6 +33,12 @@
       "title": "References"
     }
   },
+  "links": {
+    "alignment": "Alignment overview",
+    "rlhf": "Search for RLHF",
+    "ppo": "Search for PPO",
+    "grpo": "Search for GRPO"
+  },
   "assets": {
     "trainingFlow": {
       "alt": "A three-step DPO flow: prompt with preferred and rejected answers, direct preference objective against a reference model, then the updated aligned model.",

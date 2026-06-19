@@ -7,7 +7,8 @@
   "aliases": [
     "DPO",
     "Direct Preference Optimization",
-    "direct preference optimization"
+    "direct preference optimization",
+    "preference optimization"
   ],
   "tags": ["alignment", "foundations"],
   "relatedIds": ["concept.alignment"],
