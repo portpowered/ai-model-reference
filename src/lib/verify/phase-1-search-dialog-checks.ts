@@ -148,6 +148,19 @@ async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+export function isRetryableSearchDialogTriggerError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("element was detached from the dom") ||
+    message.includes("element is not attached to the dom") ||
+    message.includes("waiting for locator")
+  );
+}
+
 async function openHeaderSearchDialog(
   page: Page,
   baseUrl: string,
@@ -159,7 +172,6 @@ async function openHeaderSearchDialog(
     waitUntil: "domcontentloaded",
   });
 
-  const trigger = page.locator(SEARCH_DIALOG_TRIGGER_SELECTOR).first();
   const dialog = page.getByRole("dialog", { name: "Search" });
   const deadline = Date.now() + timeoutMs;
 
@@ -169,7 +181,22 @@ async function openHeaderSearchDialog(
     }
 
     const remainingMs = Math.max(1, deadline - Date.now());
-    await trigger.click({ timeout: Math.min(remainingMs, timeoutMs) });
+    const trigger = page.locator(SEARCH_DIALOG_TRIGGER_SELECTOR).first();
+
+    try {
+      await trigger.waitFor({
+        state: "visible",
+        timeout: Math.min(1_000, remainingMs),
+      });
+      await trigger.click({ timeout: Math.min(remainingMs, timeoutMs) });
+    } catch (error) {
+      if (!isRetryableSearchDialogTriggerError(error)) {
+        throw error;
+      }
+
+      await sleep(Math.min(SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS, remainingMs));
+      continue;
+    }
 
     try {
       await dialog.waitFor({

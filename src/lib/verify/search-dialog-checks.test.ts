@@ -3,6 +3,7 @@ import { PHASE_1_GROUPED_QUERY_ATTENTION_URL } from "./phase-1-search-checks";
 import {
   evaluateSearchDialogDomSnapshot,
   formatPhase1SearchDialogCheckFailure,
+  isRetryableSearchDialogTriggerError,
   PHASE_1_SEARCH_DIALOG_QUERIES,
   resolveSearchDialogCheckOptionsFromEnv,
   runPhase1SearchDialogChecks,
@@ -131,6 +132,28 @@ describe("resolveSearchDialogCheckOptionsFromEnv", () => {
 
   test("returns empty options when stub env is unset", () => {
     expect(resolveSearchDialogCheckOptionsFromEnv({})).toEqual({});
+  });
+});
+
+describe("isRetryableSearchDialogTriggerError", () => {
+  test("treats detached trigger click failures as retryable", () => {
+    expect(
+      isRetryableSearchDialogTriggerError(
+        new Error("locator.click: element was detached from the DOM"),
+      ),
+    ).toBe(true);
+    expect(
+      isRetryableSearchDialogTriggerError(
+        new Error("locator.click: element is not attached to the DOM"),
+      ),
+    ).toBe(true);
+  });
+
+  test("does not treat unrelated errors as retryable", () => {
+    expect(
+      isRetryableSearchDialogTriggerError(new Error("navigation failed")),
+    ).toBe(false);
+    expect(isRetryableSearchDialogTriggerError("detached")).toBe(false);
   });
 });
 

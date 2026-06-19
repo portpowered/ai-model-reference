@@ -88,6 +88,15 @@ export function stripBasePathFromExportHtml(
     .replaceAll(`href="${normalizedBase}"`, 'href="/"');
 }
 
+export function inferBasePathFromExportHtml(html: string): string {
+  const assetMatch = html.match(/(?:href|src)="(\/[^"]+)\/_next\//);
+  if (assetMatch?.[1]) {
+    return assetMatch[1];
+  }
+
+  return "";
+}
+
 export type VerifyExportOutDirectoryResult =
   | { ok: true }
   | { ok: false; reason: string };
@@ -180,7 +189,6 @@ export function verifyPhase1ExportRouteFromFile(
 ): VerifyPhase1ExportRouteResult {
   const outDir = options.outDir ?? DEFAULT_EXPORT_OUT_DIR;
   const cwd = options.cwd ?? process.cwd();
-  const basePath = normalizeGitHubPagesBasePath(options.basePath ?? "");
   const relativeHtmlPath = join(outDir, exportHtmlRelativePath(route));
   const filePath = resolveExportHtmlFilePath(outDir, route, cwd);
 
@@ -193,6 +201,9 @@ export function verifyPhase1ExportRouteFromFile(
   }
 
   const rawHtml = readFileSync(filePath, "utf8");
+  const basePath = normalizeGitHubPagesBasePath(
+    options.basePath || inferBasePathFromExportHtml(rawHtml),
+  );
   const html = stripBasePathFromExportHtml(rawHtml, basePath);
   const contentReason = assertExportRouteContent(route, html);
   if (contentReason) {
