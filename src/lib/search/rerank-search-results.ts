@@ -40,18 +40,49 @@ function scoreDocumentMatch(query: string, document: SearchDocument): number {
   return 0;
 }
 
+function canonicalRoutePriority(document: SearchDocument): number {
+  if (
+    document.kind === "concept" &&
+    document.url.startsWith("/docs/concepts/")
+  ) {
+    return 0;
+  }
+  if (document.kind === "module") {
+    return 1;
+  }
+  return 2;
+}
+
+function effectiveMatchScore(query: string, document: SearchDocument): number {
+  const score = scoreDocumentMatch(query, document);
+  if (
+    score >= 95 &&
+    document.kind === "concept" &&
+    document.url.startsWith("/docs/concepts/")
+  ) {
+    return score + 10;
+  }
+  return score;
+}
+
 export function findBestTitleMatchPageUrl(
   query: string,
   documentsByUrl: Map<string, SearchDocument>,
 ): string | undefined {
   let bestUrl: string | undefined;
   let bestScore = 0;
+  let bestRoutePriority = Number.POSITIVE_INFINITY;
 
   for (const [url, document] of documentsByUrl) {
-    const score = scoreDocumentMatch(query, document);
-    if (score > bestScore) {
+    const score = effectiveMatchScore(query, document);
+    const routePriority = canonicalRoutePriority(document);
+    if (
+      score > bestScore ||
+      (score === bestScore && score > 0 && routePriority < bestRoutePriority)
+    ) {
       bestScore = score;
       bestUrl = url;
+      bestRoutePriority = routePriority;
     }
   }
 

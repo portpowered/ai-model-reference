@@ -3,13 +3,17 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import { loadRegistry } from "@/lib/content/registry";
+import { registryRecordHref } from "@/lib/content/registry-linking";
 import {
   getConceptById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { buildLocalizedRoute } from "@/lib/i18n/locale-routing";
+import { buildSearchDocuments } from "@/lib/search/build-documents";
 
 describe("RoPE concept page", () => {
   test("publishes the canonical concept record with reader-facing aliases", () => {
@@ -54,6 +58,29 @@ describe("RoPE concept page", () => {
     expect(
       items.find((item) => item.registryId === "concept.longrope")?.href,
     ).toBe("/docs/modules/longrope");
+  });
+
+  test("treats concept.rope as the canonical concept route in shared linking surfaces", async () => {
+    const record = getConceptById("concept.rope");
+    if (!record) {
+      throw new Error("expected concept.rope in registry");
+    }
+
+    expect(registryRecordHref(record)).toBe("/docs/concepts/rope");
+
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const conceptDocument = documents.find(
+      (entry) => entry.url === "/docs/concepts/rope",
+    );
+    const moduleDocument = documents.find(
+      (entry) => entry.url === "/docs/modules/rope",
+    );
+
+    expect(conceptDocument?.aliases).toContain("RoPE");
+    expect(conceptDocument?.aliases).toContain("rotary position encoding");
+    expect(moduleDocument?.aliases).toContain("RoPE");
   });
 
   test("loads and renders at the canonical concept route with plain-language sections", async () => {

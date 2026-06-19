@@ -113,4 +113,31 @@ describe("rerankSearchResults", () => {
       generativeModelUrl,
     );
   });
+
+  test("prefers the canonical concept route when concept and module aliases both match exactly", () => {
+    const conceptUrl = "/docs/concepts/rope";
+    const moduleUrl = "/docs/modules/rope";
+    const documentsByUrl = new Map<string, SearchDocument>([
+      [
+        moduleUrl,
+        documentForUrl(moduleUrl, {
+          kind: "module",
+          title: "RoPE",
+          aliases: ["RoPE", "rotary position encoding"],
+          facets: { kind: "module", tags: ["position-encoding"] },
+        }),
+      ],
+      [
+        conceptUrl,
+        documentForUrl(conceptUrl, {
+          kind: "concept",
+          title: "Rotary position encoding",
+          aliases: ["RoPE", "rotary position encoding"],
+          facets: { kind: "concept", tags: ["position-encoding"] },
+        }),
+      ],
+    ]);
+
+    expect(findBestTitleMatchPageUrl("RoPE", documentsByUrl)).toBe(conceptUrl);
+  });
 });
