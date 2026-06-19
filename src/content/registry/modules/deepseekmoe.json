@@ -6,7 +6,11 @@
   "defaultSummaryKey": "description",
   "aliases": ["DeepSeekMoE", "DeepSeek MoE"],
   "tags": ["feed-forward", "foundations"],
-  "relatedIds": ["module.mixture-of-experts", "paper.deepseek-v4"],
+  "relatedIds": [
+    "concept.mixture-of-experts",
+    "module.mixture-of-experts",
+    "paper.deepseek-v4"
+  ],
   "citationIds": ["citation.deepseek-v4-paper"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
