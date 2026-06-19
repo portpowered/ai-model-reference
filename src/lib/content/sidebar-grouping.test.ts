@@ -33,4 +33,15 @@ describe("sidebar grouping contract", () => {
       "Attention Foundations",
     );
   });
+
+  test("exposes stable subgroup labels for training navigation", () => {
+    expect(getSidebarGroupIdsForSection("training")).toEqual([
+      "pretraining",
+      "alignment",
+      "post-training",
+      "distillation",
+      "optimization",
+    ]);
+    expect(SIDEBAR_GROUP_LABELS.training.pretraining).toBe("Pretraining");
+  });
 });

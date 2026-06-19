@@ -129,6 +129,7 @@ const TRAINING_INDEX_URLS = [
   "/docs/training/dpo",
   "/docs/training/fp4-quantization-aware-training",
   "/docs/training/on-policy-distillation",
+  "/docs/training/pretraining",
   "/docs/training/specialist-training",
 ] as const;
 

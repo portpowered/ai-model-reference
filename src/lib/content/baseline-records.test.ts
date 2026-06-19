@@ -382,6 +382,37 @@ describe("Phase 1 baseline registry records", () => {
     expect(regime.sidebarGrouping?.training).toBe("alignment");
   });
 
+  test("pretraining training regime JSON passes trainingRegimeRecordSchema", async () => {
+    const regime = await readRegistryJson(
+      "training-regimes/pretraining.json",
+      trainingRegimeRecordSchema,
+    );
+
+    expect(regime.id).toBe("training-regime.pretraining");
+    expect(regime.slug).toBe("pretraining");
+    expect(regime.regimeType).toBe("pretraining");
+    expect(regime.tags).toEqual(
+      expect.arrayContaining(["foundations", "tokenization"]),
+    );
+    expect(regime.aliases).toEqual(
+      expect.arrayContaining([
+        "Pretraining",
+        "language model pretraining",
+        "base model training",
+      ]),
+    );
+    expect(regime.relatedIds).toEqual(
+      expect.arrayContaining([
+        "model.gpt-3",
+        "concept.transformer-architecture",
+        "module.byte-level-tokenization",
+        "concept.alignment",
+        "training-regime.dpo",
+      ]),
+    );
+    expect(regime.sidebarGrouping?.training).toBe("pretraining");
+  });
+
   test("gpt-2-report citation JSON passes citationRecordSchema", async () => {
     const citation = await readRegistryJson(
       "citations/gpt-2-report.json",

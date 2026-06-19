@@ -1,0 +1,55 @@
+{
+  "title": "Pretraining",
+  "description": "The large base-model training stage where a transformer learns broad language patterns from massive token sequences before later alignment or deployment shaping.",
+  "openingSummary": "Pretraining is the long first training stage that turns a transformer into a base model: it reads huge amounts of tokenized text, repeatedly guesses the next token, and slowly absorbs broad statistical patterns before any later instruction tuning or preference alignment begins.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Pretraining is the base-model stage of language-model training. A transformer is exposed to very large token sequences from many documents, and its weights are updated so it becomes better at continuing those sequences. The result is not yet a chat assistant or policy-shaped product model. It is a broad statistical learner that has picked up vocabulary, syntax, factual associations, style patterns, and many reusable internal features."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Modern systems need one large shared stage where the model learns general language structure before narrower behavior shaping begins. Pretraining fills that role. It gives later stages such as alignment, instruction tuning, or Direct Preference Optimization a capable starting point, because those later stages work best when the base model already knows how text is usually formed and how many patterns in the world tend to co-occur."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "The training run starts with tokenized corpora such as web text, books, code, or other large text sources. During each update, the model sees a prefix of tokens and predicts the next token. The loss pushes probability mass toward the observed continuation, and gradient updates slowly improve the model across billions or trillions of such prediction events. In plain language, the model learns by being wrong, measuring how wrong it was, and adjusting its parameters so the next-token guess becomes a little better next time."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "Pretraining builds the broad base model. Alignment and other post-training regimes come later and reshape behavior for human use, safety, preference fit, or product constraints. DPO, RLHF-style pipelines, and other alignment methods do not replace pretraining; they start from a model that pretraining already made broadly capable. Tokenization pages matter here because the model does not learn from raw characters or ideas directly. It learns from token sequences produced by choices such as byte-level tokenization or BPE."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "Pretraining can only absorb the patterns available in its data mixture and only up to the compute budget used to fit those patterns. If the corpus is narrow, noisy, or skewed, the base model inherits those limits. If the run is too small or too short, the model leaves capability on the table. And because the objective is usually next-token prediction rather than direct human preference shaping, the pretrained model may still be unhelpful, unsafe, or poorly steered until later post-training stages are added."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "trainingFlow": {
+      "alt": "A three-step pretraining flow: large token corpus, repeated next-token objective, then a broadly capable base model.",
+      "caption": "Pretraining turns huge token corpora into a base model by repeating the next-token objective at scale."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "corpus": {
+        "label": "Large token corpus"
+      },
+      "objective": {
+        "label": "Repeated next-token objective"
+      },
+      "baseModel": {
+        "label": "Broad base model"
+      }
+    }
+  }
+}

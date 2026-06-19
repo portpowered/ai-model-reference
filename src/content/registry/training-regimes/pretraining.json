@@ -1,0 +1,52 @@
+{
+  "id": "training-regime.pretraining",
+  "slug": "pretraining",
+  "kind": "training-regime",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "Pretraining",
+    "language model pretraining",
+    "base model training",
+    "next-token prediction",
+    "next-token pretraining"
+  ],
+  "tags": ["foundations", "tokenization"],
+  "relatedIds": [
+    "model.gpt-3",
+    "concept.transformer-architecture",
+    "module.byte-level-tokenization",
+    "module.bpe",
+    "concept.foundation-model",
+    "concept.autoregressive-generation",
+    "concept.alignment",
+    "training-regime.dpo"
+  ],
+  "citationIds": [
+    "citation.gpt-2-report",
+    "citation.brown-gpt-3",
+    "citation.kaplan-scaling-laws"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "releaseDate": "2019-02-14",
+  "authors": [
+    "Alec Radford",
+    "Jeffrey Wu",
+    "Rewon Child",
+    "David Luan",
+    "Dario Amodei",
+    "Ilya Sutskever"
+  ],
+  "sourceId": "citation.gpt-2-report",
+  "regimeType": "pretraining",
+  "usedByModelIds": ["model.gpt-3"],
+  "relatedModuleIds": ["module.byte-level-tokenization", "module.bpe"],
+  "paperIds": [],
+  "conceptType": "training",
+  "variantGroup": "language-model-training-stages",
+  "sidebarGrouping": {
+    "training": "pretraining"
+  }
+}

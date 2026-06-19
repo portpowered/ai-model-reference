@@ -43,6 +43,14 @@ export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
     section: "training",
   },
   {
+    registryId: "training-regime.pretraining",
+    slug: "pretraining",
+    docsSlug: "training/pretraining",
+    url: "/docs/training/pretraining",
+    pageKind: "training-regime",
+    section: "training",
+  },
+  {
     registryId: "model.deepseek-v4-pro",
     slug: "deepseek-v4-pro",
     docsSlug: "models/deepseek-v4-pro",
@@ -1162,6 +1170,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "training-regime.dpo",
   "training-regime.fp4-quantization-aware-training",
   "training-regime.on-policy-distillation",
+  "training-regime.pretraining",
   "training-regime.specialist-training",
 ] as const;
 

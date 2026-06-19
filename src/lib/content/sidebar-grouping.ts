@@ -24,6 +24,7 @@ export const SIDEBAR_GROUP_LABELS = {
     "positional-and-sequence-encoding": "Positional And Sequence Encoding",
   },
   training: {
+    pretraining: "Pretraining",
     alignment: "Alignment",
     "post-training": "Post-Training",
     distillation: "Distillation",
@@ -172,6 +173,10 @@ export function resolveModulesSidebarGroup(
 export function resolveTrainingSidebarGroup(
   record: TrainingSidebarRecord,
 ): SidebarGroupIdBySection["training"] | undefined {
+  if (record.regimeType === "pretraining") {
+    return "pretraining";
+  }
+
   if (record.regimeType === "alignment") {
     return "alignment";
   }
