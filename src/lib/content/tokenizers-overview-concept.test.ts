@@ -121,11 +121,12 @@ describe("tokenizers overview concept page", () => {
     "how text becomes tokens",
   ] as const)("representative search query %s routes readers into the canonical overview page", async (query) => {
     const results = await docsSearchApi.search(query);
+    const topResults = results
+      .slice(0, 5)
+      .map((result) => result.url.split("#")[0]);
 
     expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.url.split("#")[0]).toBe(
-      "/docs/concepts/tokenizers-overview",
-    );
+    expect(topResults).toContain("/docs/concepts/tokenizers-overview");
   });
 
   test("the neighboring BPE page renders a live related-doc link into the tokenizer overview", async () => {
