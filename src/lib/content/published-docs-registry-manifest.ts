@@ -651,6 +651,14 @@ export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
     section: "glossary",
   },
   {
+    registryId: "system.inference-engine",
+    slug: "inference-engine",
+    docsSlug: "systems/inference-engine",
+    url: "/docs/systems/inference-engine",
+    pageKind: "system",
+    section: "systems",
+  },
+  {
     registryId: "system.expert-parallel-overlap",
     slug: "expert-parallel-overlap",
     docsSlug: "systems/expert-parallel-overlap",
@@ -1132,6 +1140,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "module.yarn",
   "paper.deepseek-v4",
   "system.expert-parallel-overlap",
+  "system.inference-engine",
   "system.on-disk-kv-cache",
   "training-regime.fp4-quantization-aware-training",
   "training-regime.on-policy-distillation",

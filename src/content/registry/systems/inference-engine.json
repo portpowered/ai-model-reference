@@ -22,7 +22,7 @@
     "model.gpt-3",
     "model.deepseek-v4-pro"
   ],
-  "citationIds": [],
+  "citationIds": ["citation.brown-gpt-3", "citation.deepseek-v4-paper"],
   "status": "published",
   "createdAt": "2026-06-19T00:00:00.000Z",
   "updatedAt": "2026-06-19T00:00:00.000Z",
@@ -39,8 +39,9 @@
     "concept.decode",
     "concept.prefill-decode-split"
   ],
-  "paperIds": [],
+  "paperIds": ["paper.deepseek-v4"],
   "datasetIds": [],
+  "organizationId": "organization.openai",
   "conceptType": "inference",
   "variantGroup": "serving-runtime-foundations"
 }

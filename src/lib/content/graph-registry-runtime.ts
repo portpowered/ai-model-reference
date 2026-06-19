@@ -17,6 +17,7 @@ import groupedQueryAttentionComputeSchema from "@/content/registry/graphs/groupe
 import groupedQueryAttentionGqaComparison from "@/content/registry/graphs/grouped-query-attention-gqa-comparison.json";
 import groupedQueryAttentionMhaComparison from "@/content/registry/graphs/grouped-query-attention-mha-comparison.json";
 import heavilyCompressedAttentionFlow from "@/content/registry/graphs/heavily-compressed-attention-flow.json";
+import inferenceEngineSystemFlow from "@/content/registry/graphs/inference-engine-system-flow.json";
 import layerNormComputeFlow from "@/content/registry/graphs/layer-norm-compute-flow.json";
 import leakyReluActivationFlow from "@/content/registry/graphs/leaky-relu-activation-flow.json";
 import linearAttentionLinearComparison from "@/content/registry/graphs/linear-attention-linear-comparison.json";
@@ -66,6 +67,7 @@ const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(groupedQueryAttentionMhaComparison),
   graphRecordSchema.parse(groupedQueryAttentionGqaComparison),
   graphRecordSchema.parse(heavilyCompressedAttentionFlow),
+  graphRecordSchema.parse(inferenceEngineSystemFlow),
   graphRecordSchema.parse(layerNormComputeFlow),
   graphRecordSchema.parse(leakyReluActivationFlow),
   graphRecordSchema.parse(linearAttentionMhaComparison),
