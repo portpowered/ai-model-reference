@@ -65,6 +65,7 @@ describe("section index page render", () => {
     const html = renderToStaticMarkup(await SystemsIndexPage());
 
     expect(html).toContain("Systems");
+    expect(html).toContain('href="/docs/systems/deployment"');
     expect(html).toContain('href="/docs/systems/routing"');
     expect(html).toContain('href="/docs/systems/batching"');
     expect(html).toContain('href="/docs/systems/on-disk-kv-cache"');
