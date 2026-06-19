@@ -1,0 +1,32 @@
+{
+  "title": "Absolute positional embeddings",
+  "description": "Absolute positional embeddings attach position information to each token by using its fixed index in the sequence, giving the model a direct sense of where each token sits before attention begins.",
+  "openingSummary": "Absolute positional embeddings tell a transformer exactly where each token sits by attaching a vector for that fixed index, which makes the family easy to understand but also ties behavior to the position range seen during training.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Absolute positional embeddings are position signals that depend on the token's fixed index in the sequence. Position 1 gets one vector, position 2 gets another, and so on, then the model adds that position vector to the token embedding before attention runs. Because the signal is tied to a specific slot, the model learns, or is given, a direct marker for early, middle, and late positions rather than only learning relative distance between tokens."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "This family is the simplest way to add order to self-attention, which is why it appears in many early transformer systems and remains a useful baseline for comparison. It is easy to wire into the input layer and easy to reason about because every token arrives with a fixed position label already attached. The tradeoff is that fixed-position behavior can become brittle when inference stretches far beyond the lengths the model saw in training, while relative methods often preserve distance cues more gracefully."
+    },
+    "simpleExample": {
+      "title": "Family Split",
+      "body": "The family has two common branches. Learned positional embeddings store a trainable table, so the model can adjust each index vector during training and are worth reading next when you want the classic BERT or GPT-style implementation. Sinusoidal positional embeddings generate index vectors from a deterministic wave pattern, so they are the better follow-up when you want the original Transformer recipe or a scheme that does not need a learned position table. Both count as absolute methods because each token still receives a signal based on its own fixed index before attention starts."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "Absolute positional embeddings are a family, not one single formula. Learned tables and sinusoidal waves both belong here because they both encode the token's absolute slot, even though one is trained and the other is fixed. They also differ from relative position bias, RoPE, and ALiBi: those methods inject position through token-to-token comparisons or distance-aware transforms inside attention, so they care more about relative offsets than about one permanent index label."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

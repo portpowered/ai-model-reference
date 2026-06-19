@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import { loadConceptPage } from "@/lib/content/concept-page";
 import { loadModulePage } from "@/lib/content/module-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
@@ -80,17 +81,53 @@ describe("Phase 3 absolute positional embedding family pages (US-002)", () => {
       learnedItems.find(
         (item) => item.registryId === "concept.absolute-positional-embeddings",
       )?.href,
-    ).toBe("/docs/modules/absolute-positional-embeddings");
+    ).toBe("/docs/concepts/absolute-positional-embeddings");
     expect(
       sinusoidalItems.find(
         (item) => item.registryId === "concept.absolute-positional-embeddings",
       )?.href,
-    ).toBe("/docs/modules/absolute-positional-embeddings");
+    ).toBe("/docs/concepts/absolute-positional-embeddings");
   });
 
-  test("new pages render published glossary content with family navigation", async () => {
+  test("absolute concept page renders the family explanation and navigation", async () => {
+    const page = await loadConceptPage("absolute-positional-embeddings");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(page.frontmatter.status).toBe("published");
+    expect(page.frontmatter.registryId).toBe(
+      "concept.absolute-positional-embeddings",
+    );
+    expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
+    expect(page.messages.openingSummary?.toLowerCase()).toContain(
+      "fixed index",
+    );
+    expect(html).toContain("What It Is");
+    expect(html).toContain("Family Split");
+    expect(html).toContain("Learned positional embeddings");
+    expect(html).toContain("Sinusoidal positional embeddings");
+    expect(html).toContain('href="/docs/concepts/positional-encodings"');
+    expect(html).toContain(
+      'href="/docs/modules/learned-positional-embeddings"',
+    );
+    expect(html).toContain(
+      'href="/docs/modules/sinusoidal-positional-embeddings"',
+    );
+    expect(html).toContain('href="/docs/modules/relative-position-bias"');
+    expect(html).toContain('href="/docs/modules/rope"');
+    expect(html).toContain('href="/docs/modules/alibi"');
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).not.toContain("Reader Shortcut");
+  });
+
+  test("learned and sinusoidal module pages keep their family navigation intact", async () => {
     for (const slug of [
-      "absolute-positional-embeddings",
       "learned-positional-embeddings",
       "sinusoidal-positional-embeddings",
     ] as const) {
@@ -107,25 +144,11 @@ describe("Phase 3 absolute positional embedding family pages (US-002)", () => {
       expect(page.frontmatter.status).toBe("published");
       expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
       expect(html).toContain("Related Concepts And Modules");
+      expect(html).toContain(
+        'href="/docs/modules/absolute-positional-embeddings"',
+      );
       expect(html).toContain('href="/docs/concepts/positional-encodings"');
       expect(html).toContain('href="/tags/foundations"');
     }
-
-    const absolutePage = await loadModulePage("absolute-positional-embeddings");
-    const absoluteHtml = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: absolutePage.messages,
-        assets: absolutePage.assets,
-        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-        children: absolutePage.content,
-      }),
-    );
-
-    expect(absoluteHtml).toContain(
-      'href="/docs/modules/learned-positional-embeddings"',
-    );
-    expect(absoluteHtml).toContain(
-      'href="/docs/modules/sinusoidal-positional-embeddings"',
-    );
   });
 });

@@ -63,7 +63,9 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     const absolute = items.find(
       (item) => item.registryId === "concept.absolute-positional-embeddings",
     );
-    expect(absolute?.href).toBe("/docs/modules/absolute-positional-embeddings");
+    expect(absolute?.href).toBe(
+      "/docs/concepts/absolute-positional-embeddings",
+    );
     expect(absolute?.isPlanned).toBe(false);
 
     const relativeBias = items.find(
@@ -110,7 +112,7 @@ describe("Phase 3 positional encodings concept page (US-008)", () => {
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/modules/attention"');
     expect(html).toContain(
-      'href="/docs/modules/absolute-positional-embeddings"',
+      'href="/docs/concepts/absolute-positional-embeddings"',
     );
     expect(html).toContain('href="/docs/modules/relative-position-bias"');
     expect(html).toContain('href="/docs/modules/rope"');

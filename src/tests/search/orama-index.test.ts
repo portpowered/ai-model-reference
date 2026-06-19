@@ -42,7 +42,7 @@ const RESIDUAL_CONNECTION_URL = "/docs/glossary/residual-connection";
 const SKIP_CONNECTION_URL = "/docs/glossary/skip-connection";
 const POSITIONAL_ENCODINGS_URL = "/docs/concepts/positional-encodings";
 const ABSOLUTE_POSITIONAL_EMBEDDINGS_URL =
-  "/docs/modules/absolute-positional-embeddings";
+  "/docs/concepts/absolute-positional-embeddings";
 const LEARNED_POSITIONAL_EMBEDDINGS_URL =
   "/docs/modules/learned-positional-embeddings";
 const LONGROPE_URL = "/docs/modules/longrope";

@@ -20,7 +20,6 @@ import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
 const POSITIONAL_FAMILY_GLOSSARY_SLUGS = [
-  "absolute-positional-embeddings",
   "relative-position-bias",
   "nope",
 ] as const;
@@ -63,7 +62,7 @@ describe("Phase 3 positional encoding family hub (US-001)", () => {
       items.find(
         (item) => item.registryId === "concept.absolute-positional-embeddings",
       )?.href,
-    ).toBe("/docs/modules/absolute-positional-embeddings");
+    ).toBe("/docs/concepts/absolute-positional-embeddings");
     expect(
       items.find((item) => item.registryId === "concept.relative-position-bias")
         ?.href,
@@ -97,7 +96,7 @@ describe("Phase 3 positional encoding family hub (US-001)", () => {
     );
     expect(html).toContain("Family Split");
     expect(html).toContain(
-      'href="/docs/modules/absolute-positional-embeddings"',
+      'href="/docs/concepts/absolute-positional-embeddings"',
     );
     expect(html).toContain('href="/docs/modules/relative-position-bias"');
     expect(html).toContain('href="/docs/modules/rope"');
@@ -106,7 +105,7 @@ describe("Phase 3 positional encoding family hub (US-001)", () => {
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("[Absolute positional embeddings]");
     expect(html).not.toContain(
-      "](/docs/modules/absolute-positional-embeddings)",
+      "](/docs/concepts/absolute-positional-embeddings)",
     );
     expect(html).not.toContain("](/docs/modules/relative-position-bias)");
     expect(html).not.toContain("](/docs/modules/rope)");
