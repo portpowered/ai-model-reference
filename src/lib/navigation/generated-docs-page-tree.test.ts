@@ -142,9 +142,7 @@ describe("generated docs page tree", () => {
       findNodeIndex(systemsChildren, { url: "/docs/systems/on-disk-kv-cache" }),
     );
     expect(findNodeIndex(systemsChildren, { name: "Routing" })).toBeLessThan(
-      findNodeIndex(systemsChildren, {
-        url: "/docs/systems/expert-parallel-overlap",
-      }),
+      findNodeIndex(systemsChildren, { url: "/docs/systems/routing" }),
     );
   });
 });

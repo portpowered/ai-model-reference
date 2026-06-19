@@ -11,6 +11,7 @@ import deepseekV4ContributionGraphRecord from "@/content/registry/graphs/deepsee
 import deepseekV4FlashArchitectureGraphRecord from "@/content/registry/graphs/deepseek-v4-flash-architecture.json";
 import deepseekV4ProArchitectureGraphRecord from "@/content/registry/graphs/deepseek-v4-pro-architecture.json";
 import deepseekmoeRoutingFlowGraphRecord from "@/content/registry/graphs/deepseekmoe-routing-flow.json";
+import dpoTrainingFlowGraphRecord from "@/content/registry/graphs/dpo-training-flow.json";
 import expertParallelOverlapSystemFlowGraphRecord from "@/content/registry/graphs/expert-parallel-overlap-system-flow.json";
 import feedForwardNetworkFamilyOverviewGraphRecord from "@/content/registry/graphs/feed-forward-network-family-overview.json";
 import fp4QuantizationAwareTrainingTrainingFlowGraphRecord from "@/content/registry/graphs/fp4-quantization-aware-training-training-flow.json";
@@ -21,6 +22,7 @@ import groupedQueryAttentionComputeSchemaGraphRecord from "@/content/registry/gr
 import groupedQueryAttentionGqaComparisonGraphRecord from "@/content/registry/graphs/grouped-query-attention-gqa-comparison.json";
 import groupedQueryAttentionMhaComparisonGraphRecord from "@/content/registry/graphs/grouped-query-attention-mha-comparison.json";
 import heavilyCompressedAttentionFlowGraphRecord from "@/content/registry/graphs/heavily-compressed-attention-flow.json";
+import inferenceEngineSystemFlowGraphRecord from "@/content/registry/graphs/inference-engine-system-flow.json";
 import layerNormComputeFlowGraphRecord from "@/content/registry/graphs/layer-norm-compute-flow.json";
 import leakyReluActivationFlowGraphRecord from "@/content/registry/graphs/leaky-relu-activation-flow.json";
 import linearAttentionLinearComparisonGraphRecord from "@/content/registry/graphs/linear-attention-linear-comparison.json";
@@ -40,6 +42,7 @@ import pageSpecWorkflowSampleConceptMapGraphRecord from "@/content/registry/grap
 import qkNormComputeFlowGraphRecord from "@/content/registry/graphs/qk-norm-compute-flow.json";
 import reluActivationFlowGraphRecord from "@/content/registry/graphs/relu-activation-flow.json";
 import rmsnormComputeFlowGraphRecord from "@/content/registry/graphs/rmsnorm-compute-flow.json";
+import routingSystemFlowGraphRecord from "@/content/registry/graphs/routing-system-flow.json";
 import sentencepieceComputeFlowGraphRecord from "@/content/registry/graphs/sentencepiece-compute-flow.json";
 import siluActivationFlowGraphRecord from "@/content/registry/graphs/silu-activation-flow.json";
 import slidingWindowAttentionTimeWindowPatternGraphRecord from "@/content/registry/graphs/sliding-window-attention-time-window-pattern.json";
@@ -61,6 +64,7 @@ export const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(deepseekV4FlashArchitectureGraphRecord),
   graphRecordSchema.parse(deepseekV4ProArchitectureGraphRecord),
   graphRecordSchema.parse(deepseekmoeRoutingFlowGraphRecord),
+  graphRecordSchema.parse(dpoTrainingFlowGraphRecord),
   graphRecordSchema.parse(expertParallelOverlapSystemFlowGraphRecord),
   graphRecordSchema.parse(feedForwardNetworkFamilyOverviewGraphRecord),
   graphRecordSchema.parse(fp4QuantizationAwareTrainingTrainingFlowGraphRecord),
@@ -71,6 +75,7 @@ export const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(groupedQueryAttentionGqaComparisonGraphRecord),
   graphRecordSchema.parse(groupedQueryAttentionMhaComparisonGraphRecord),
   graphRecordSchema.parse(heavilyCompressedAttentionFlowGraphRecord),
+  graphRecordSchema.parse(inferenceEngineSystemFlowGraphRecord),
   graphRecordSchema.parse(layerNormComputeFlowGraphRecord),
   graphRecordSchema.parse(leakyReluActivationFlowGraphRecord),
   graphRecordSchema.parse(linearAttentionLinearComparisonGraphRecord),
@@ -90,6 +95,7 @@ export const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(qkNormComputeFlowGraphRecord),
   graphRecordSchema.parse(reluActivationFlowGraphRecord),
   graphRecordSchema.parse(rmsnormComputeFlowGraphRecord),
+  graphRecordSchema.parse(routingSystemFlowGraphRecord),
   graphRecordSchema.parse(sentencepieceComputeFlowGraphRecord),
   graphRecordSchema.parse(siluActivationFlowGraphRecord),
   graphRecordSchema.parse(slidingWindowAttentionTimeWindowPatternGraphRecord),
