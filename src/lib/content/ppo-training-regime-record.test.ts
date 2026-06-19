@@ -7,13 +7,13 @@ import {
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 
 describe("ppo training regime registry record", () => {
-  test("classifies PPO as a canonical alignment-era training regime", () => {
+  test("classifies PPO as a canonical post-training regime used in alignment workflows", () => {
     const record = getTrainingRegimeById("training-regime.ppo");
 
     expect(record).toBeDefined();
     expect(record?.slug).toBe("ppo");
     expect(record?.kind).toBe("training-regime");
-    expect(record?.regimeType).toBe("alignment");
+    expect(record?.regimeType).toBe("post-training");
     expect(record?.conceptType).toBe("training");
     expect(record?.variantGroup).toBe("preference-optimization");
     expect(record?.sidebarGrouping?.training).toBe("post-training");

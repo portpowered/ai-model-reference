@@ -101,6 +101,17 @@ describe("Phase 1 search discovery", () => {
     expect(resultsIncludeSampleModule(results)).toBe(true);
   });
 
+  test.each([
+    "DPO",
+    "Direct Preference Optimization",
+    "preference optimization",
+  ] as const)("%s query routes readers to the canonical DPO training page", async (query) => {
+    const results = await docsSearchApi.search(query);
+    expect(results.length).toBeGreaterThan(0);
+    expect(assertCanonicalPageLevelApiResults(results)).toBeNull();
+    expect(resultsIncludeUrl(results, "/docs/training/dpo")).toBe(true);
+  });
+
   test("vector query returns canonical vector glossary hit without duplicate pages", async () => {
     const results = await docsSearchApi.search("vector");
     expect(results.length).toBeGreaterThan(0);
@@ -258,6 +269,26 @@ describe("Phase 1 discovery route smoke", () => {
     expect(page.messages.title).toBe("Grouped-Query Attention");
     expect(page.frontmatter.registryId).toBe("module.grouped-query-attention");
     expect(page.toc.some((item) => item.url === "#how-it-works")).toBe(true);
+  });
+
+  test("/docs/training/dpo loads published local docs content", async () => {
+    const page = await loadLocalDocsPage({
+      section: "training",
+      slug: "dpo",
+    });
+
+    expect(page.messages.title).toBe("Direct Preference Optimization");
+    expect(page.frontmatter.registryId).toBe("training-regime.dpo");
+    expect(page.messages.openingSummary?.toLowerCase()).toContain(
+      "direct preference optimization",
+    );
+    expect(page.messages.sections?.howItWorks.body).toContain(
+      "preferred and one rejected",
+    );
+    expect(page.toc.some((item) => item.url === "#how-it-works")).toBe(true);
+    expect(
+      page.toc.some((item) => item.url === "#compared-to-nearby-regimes"),
+    ).toBe(true);
   });
 });
 

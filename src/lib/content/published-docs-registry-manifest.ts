@@ -27,6 +27,14 @@ export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
     section: "training",
   },
   {
+    registryId: "training-regime.dpo",
+    slug: "dpo",
+    docsSlug: "training/dpo",
+    url: "/docs/training/dpo",
+    pageKind: "training-regime",
+    section: "training",
+  },
+  {
     registryId: "training-regime.ppo",
     slug: "ppo",
     docsSlug: "training/ppo",
@@ -1159,6 +1167,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "system.expert-parallel-overlap",
   "system.on-disk-kv-cache",
   "system.routing",
+  "training-regime.dpo",
   "training-regime.fp4-quantization-aware-training",
   "training-regime.on-policy-distillation",
   "training-regime.ppo",

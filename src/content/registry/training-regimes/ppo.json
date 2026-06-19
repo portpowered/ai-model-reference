@@ -23,7 +23,7 @@
     "Oleg Klimov"
   ],
   "sourceId": "citation.proximal-policy-optimization-algorithms",
-  "regimeType": "alignment",
+  "regimeType": "post-training",
   "usedByModelIds": [],
   "relatedModuleIds": [],
   "paperIds": [],
