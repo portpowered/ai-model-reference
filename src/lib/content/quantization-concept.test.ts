@@ -71,7 +71,7 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
     ).toBe("/docs/glossary/parameter");
     expect(
       items.find((item) => item.registryId === "concept.activation")?.href,
-    ).toBe("/docs/glossary/activation");
+    ).toBe("/docs/concepts/activation");
     expect(
       items.find(
         (item) => item.registryId === "concept.autoregressive-generation",
@@ -118,7 +118,7 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
       'href="/docs/concepts/why-4-bit-models-are-not-exactly-4x-faster"',
     );
     expect(html).toContain('href="/docs/glossary/parameter"');
-    expect(html).toContain('href="/docs/glossary/activation"');
+    expect(html).toContain('href="/docs/concepts/activation"');
     expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');

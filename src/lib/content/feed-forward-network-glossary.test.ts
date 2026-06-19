@@ -75,7 +75,7 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
     const activation = items.find(
       (item) => item.registryId === "concept.activation",
     );
-    expect(activation?.href).toBe("/docs/glossary/activation");
+    expect(activation?.href).toBe("/docs/concepts/activation");
     expect(activation?.isPlanned).toBe(false);
   });
 
@@ -137,7 +137,7 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/modules/standard-ffn"');
     expect(html).toContain('href="/docs/modules/mixture-of-experts"');
-    expect(html).toContain('href="/docs/glossary/activation"');
+    expect(html).toContain('href="/docs/concepts/activation"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="curated-related-docs"');

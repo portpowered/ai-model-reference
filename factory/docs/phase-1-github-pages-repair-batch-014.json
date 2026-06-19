@@ -1,0 +1,18 @@
+{
+  "works": [
+    {
+      "name": "phase-1-github-pages-workflow-and-ops-alignment",
+      "payload": {
+        "summary": "Deployment is wired through `.github/workflows/deploy.yml` and publishes the static export built by `make build-export` with `GITHUB_PAGES_BASE_PATH` set for the project site path.",
+        "implementationStatus": "Current automation ships a live Pages deploy path; the remaining work is keeping the docs and validator guidance converged with the shipped workflow."
+      }
+    },
+    {
+      "name": "ideafy-loopback-phase-1-github-pages-repair-batch-014",
+      "payload": {
+        "summary": "Loopback guidance should reference `.github/workflows/deploy.yml` as the live deploy path and keep convergence notes focused on validator closure instead of missing automation.",
+        "implementationStatus": "Planner follow-up remains about convergence and validator closure, not about adding a deploy workflow."
+      }
+    }
+  ]
+}

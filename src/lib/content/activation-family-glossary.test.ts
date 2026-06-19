@@ -41,7 +41,7 @@ const PAGE_CASES = [
       "concept.silu",
     ],
     hrefs: [
-      "/docs/glossary/activation",
+      "/docs/concepts/activation",
       "/docs/modules/feed-forward-network",
       "/docs/modules/standard-ffn",
       "/docs/modules/leaky-relu",
@@ -73,7 +73,7 @@ const PAGE_CASES = [
       "concept.silu",
     ],
     hrefs: [
-      "/docs/glossary/activation",
+      "/docs/concepts/activation",
       "/docs/modules/feed-forward-network",
       "/docs/modules/standard-ffn",
       "/docs/modules/relu",
@@ -101,7 +101,7 @@ const PAGE_CASES = [
       "concept.swiglu",
     ],
     hrefs: [
-      "/docs/glossary/activation",
+      "/docs/concepts/activation",
       "/docs/modules/feed-forward-network",
       "/docs/modules/standard-ffn",
       "/docs/modules/relu",
@@ -133,7 +133,7 @@ const PAGE_CASES = [
       "/docs/modules/standard-ffn",
       "/docs/modules/mixture-of-experts",
       "/docs/modules/silu",
-      "/docs/glossary/activation",
+      "/docs/concepts/activation",
     ],
     messageNeedles: ["gate", "silu", "mixture of experts"],
     renderNeedle: "input state enters two learned projections",

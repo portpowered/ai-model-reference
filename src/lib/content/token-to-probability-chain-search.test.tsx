@@ -26,7 +26,7 @@ const CHAIN_GLOSSARY_PAGES = [
   { title: "Entropy", url: "/docs/glossary/entropy" },
   { title: "Temperature", url: "/docs/glossary/temperature" },
   { title: "Parameter", url: "/docs/glossary/parameter" },
-  { title: "Activation", url: "/docs/glossary/activation" },
+  { title: "Activation", url: "/docs/concepts/activation" },
   {
     title: "Computational Graph",
     url: "/docs/glossary/computational-graph",
@@ -72,7 +72,9 @@ describe("Phase 2 full chain search indexing (US-011)", () => {
     for (const url of CHAIN_GLOSSARY_URLS) {
       const document = documents.find((entry) => entry.url === url);
       expect(document).toBeDefined();
-      expect(document?.kind).toBe("glossary");
+      expect(document?.kind).toBe(
+        url === "/docs/concepts/activation" ? "concept" : "glossary",
+      );
       expect(document?.tags).toEqual(
         expect.arrayContaining([CHAIN_TAG, "foundations"]),
       );
@@ -88,7 +90,9 @@ describe("Phase 2 full chain search indexing (US-011)", () => {
     for (const url of CHAIN_GLOSSARY_URLS) {
       const meta = metaMap.get(url);
       expect(meta).toBeDefined();
-      expect(meta?.kind).toBe("glossary");
+      expect(meta?.kind).toBe(
+        url === "/docs/concepts/activation" ? "concept" : "glossary",
+      );
       expect(meta?.tags).toEqual(expect.arrayContaining([CHAIN_TAG]));
     }
   });
