@@ -1,5 +1,6 @@
 import attentionIsAllYouNeed from "@/content/registry/citations/attention-is-all-you-need.json";
 import awq from "@/content/registry/citations/awq.json";
+import batchNormalization from "@/content/registry/citations/batch-normalization.json";
 import brownGpt3 from "@/content/registry/citations/brown-gpt-3.json";
 import chenPositionalInterpolation from "@/content/registry/citations/chen-positional-interpolation.json";
 import classifierFreeDiffusionGuidance from "@/content/registry/citations/classifier-free-diffusion-guidance.json";
@@ -9,8 +10,8 @@ import deepseekV4Paper from "@/content/registry/citations/deepseek-v4-paper.json
 import denoisingDiffusionProbabilisticModels from "@/content/registry/citations/denoising-diffusion-probabilistic-models.json";
 import dingLongrope from "@/content/registry/citations/ding-longrope.json";
 import flamingoVisualLanguageModel from "@/content/registry/citations/flamingo-visual-language-model.json";
-import goodfellowDeepLearning from "@/content/registry/citations/goodfellow-deep-learning.json";
 import gluVariantsImproveTransformer from "@/content/registry/citations/glu-variants-improve-transformer.json";
+import goodfellowDeepLearning from "@/content/registry/citations/goodfellow-deep-learning.json";
 import gpt2Report from "@/content/registry/citations/gpt-2-report.json";
 import gqaPaper from "@/content/registry/citations/gqa-paper.json";
 import groupNormalization from "@/content/registry/citations/group-normalization.json";
@@ -29,24 +30,23 @@ import pengYarn from "@/content/registry/citations/peng-yarn.json";
 import pressAlibi from "@/content/registry/citations/press-alibi.json";
 import qlora from "@/content/registry/citations/qlora.json";
 import quantizationIntegerOnlyInference from "@/content/registry/citations/quantization-integer-only-inference.json";
+import queryKeyNormalizationForTransformers from "@/content/registry/citations/query-key-normalization-for-transformers.json";
 import raffelT5 from "@/content/registry/citations/raffel-t5.json";
 import rectifiedLinearUnitsImproveRestrictedBoltzmannMachines from "@/content/registry/citations/rectified-linear-units-improve-restricted-boltzmann-machines.json";
 import rectifierNonlinearitiesImproveNeuralNetworkAcousticModels from "@/content/registry/citations/rectifier-nonlinearities-improve-neural-network-acoustic-models.json";
 import rootMeanSquareLayerNormalization from "@/content/registry/citations/root-mean-square-layer-normalization.json";
 import selfAttentionWithRelativePositionRepresentations from "@/content/registry/citations/self-attention-with-relative-position-representations.json";
 import sennrichBpe from "@/content/registry/citations/sennrich-bpe.json";
-import sparselyGatedMixtureOfExpertsLayer from "@/content/registry/citations/sparsely-gated-mixture-of-experts-layer.json";
 import shazeerMqaPaper from "@/content/registry/citations/shazeer-mqa-paper.json";
 import sigmoidWeightedLinearUnits from "@/content/registry/citations/sigmoid-weighted-linear-units.json";
 import smoothquant from "@/content/registry/citations/smoothquant.json";
 import sparseTransformers from "@/content/registry/citations/sparse-transformers.json";
+import sparselyGatedMixtureOfExpertsLayer from "@/content/registry/citations/sparsely-gated-mixture-of-experts-layer.json";
 import suRoformerRope from "@/content/registry/citations/su-roformer-rope.json";
 import trainingLanguageModelsToFollowInstructionsWithHumanFeedback from "@/content/registry/citations/training-language-models-to-follow-instructions-with-human-feedback.json";
 import transformerLanguageModelsWithoutPositionalEncodings from "@/content/registry/citations/transformer-lms-without-positional-encodings.json";
 import weiEmergentAbilities from "@/content/registry/citations/wei-emergent-abilities.json";
 import worldModels from "@/content/registry/citations/world-models.json";
-import batchNormalization from "@/content/registry/citations/batch-normalization.json";
-import queryKeyNormalizationForTransformers from "@/content/registry/citations/query-key-normalization-for-transformers.json";
 import {
   type CitationRecord,
   citationRecordSchema,
@@ -77,9 +77,13 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(kingmaAdam),
   citationRecordSchema.parse(kiviKvCacheQuantization),
   citationRecordSchema.parse(layerNormalization),
-  citationRecordSchema.parse(learningTransferableVisualModelsFromNaturalLanguageSupervision),
+  citationRecordSchema.parse(
+    learningTransferableVisualModelsFromNaturalLanguageSupervision,
+  ),
   citationRecordSchema.parse(longformer),
-  citationRecordSchema.parse(multilayerFeedforwardNetworksAreUniversalApproximators),
+  citationRecordSchema.parse(
+    multilayerFeedforwardNetworksAreUniversalApproximators,
+  ),
   citationRecordSchema.parse(onPolicyDistillationOfLanguageModels),
   citationRecordSchema.parse(pengYarn),
   citationRecordSchema.parse(pressAlibi),
@@ -87,8 +91,12 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(quantizationIntegerOnlyInference),
   citationRecordSchema.parse(queryKeyNormalizationForTransformers),
   citationRecordSchema.parse(raffelT5),
-  citationRecordSchema.parse(rectifiedLinearUnitsImproveRestrictedBoltzmannMachines),
-  citationRecordSchema.parse(rectifierNonlinearitiesImproveNeuralNetworkAcousticModels),
+  citationRecordSchema.parse(
+    rectifiedLinearUnitsImproveRestrictedBoltzmannMachines,
+  ),
+  citationRecordSchema.parse(
+    rectifierNonlinearitiesImproveNeuralNetworkAcousticModels,
+  ),
   citationRecordSchema.parse(rootMeanSquareLayerNormalization),
   citationRecordSchema.parse(selfAttentionWithRelativePositionRepresentations),
   citationRecordSchema.parse(sennrichBpe),
@@ -98,8 +106,12 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(sparselyGatedMixtureOfExpertsLayer),
   citationRecordSchema.parse(shazeerMqaPaper),
   citationRecordSchema.parse(suRoformerRope),
-  citationRecordSchema.parse(trainingLanguageModelsToFollowInstructionsWithHumanFeedback),
-  citationRecordSchema.parse(transformerLanguageModelsWithoutPositionalEncodings),
+  citationRecordSchema.parse(
+    trainingLanguageModelsToFollowInstructionsWithHumanFeedback,
+  ),
+  citationRecordSchema.parse(
+    transformerLanguageModelsWithoutPositionalEncodings,
+  ),
   citationRecordSchema.parse(weiEmergentAbilities),
   citationRecordSchema.parse(worldModels),
 ];
