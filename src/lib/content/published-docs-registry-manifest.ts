@@ -59,6 +59,14 @@ export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
     section: "models",
   },
   {
+    registryId: "model.gpt-2",
+    slug: "gpt-2",
+    docsSlug: "models/gpt-2",
+    url: "/docs/models/gpt-2",
+    pageKind: "model",
+    section: "models",
+  },
+  {
     registryId: "model.gpt-3",
     slug: "gpt-3",
     docsSlug: "models/gpt-3",
@@ -1113,6 +1121,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "concept.yarn",
   "model.deepseek-v4-flash",
   "model.deepseek-v4-pro",
+  "model.gpt-2",
   "model.gpt-3",
   "module.absolute-positional-embeddings",
   "module.alibi",

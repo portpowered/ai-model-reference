@@ -120,6 +120,7 @@ const CONCEPT_INDEX_URLS = [
 const MODEL_INDEX_URLS = [
   "/docs/models/deepseek-v4-flash",
   "/docs/models/deepseek-v4-pro",
+  "/docs/models/gpt-2",
   "/docs/models/gpt-3",
 ] as const;
 

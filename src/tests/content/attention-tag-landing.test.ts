@@ -71,6 +71,7 @@ describe("attention tag landing resources", () => {
     expect(modelGroup?.resources.map((resource) => resource.url)).toEqual([
       "/docs/models/deepseek-v4-flash",
       "/docs/models/deepseek-v4-pro",
+      "/docs/models/gpt-2",
       "/docs/models/gpt-3",
     ]);
 
