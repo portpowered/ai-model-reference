@@ -28,12 +28,14 @@ describe("GitHub Actions deploy workflow", () => {
     const workflow = readFileSync(deployWorkflowPath, "utf8");
 
     const setupBunIndex = workflow.indexOf("oven-sh/setup-bun@v2");
+    const pinnedBunVersionIndex = workflow.indexOf("bun-version: 1.3.13");
     const frozenInstallIndex = workflow.indexOf(
       "bun install --frozen-lockfile",
     );
     const buildExportIndex = workflow.indexOf("run: make build-export");
 
     expect(setupBunIndex).toBeGreaterThan(-1);
+    expect(pinnedBunVersionIndex).toBeGreaterThan(setupBunIndex);
     expect(frozenInstallIndex).toBeGreaterThan(setupBunIndex);
     expect(buildExportIndex).toBeGreaterThan(frozenInstallIndex);
     expect(workflow).not.toMatch(/run:\s*make ci\b/);

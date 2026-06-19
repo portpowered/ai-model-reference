@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { EXPORT_SEARCH_HYDRATION_SURFACE } from "./phase-1-export-search-convergence-evidence";
 import {
   CI_EXPORT_SEARCH_UX_PROBE_QUERIES,
+  DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS,
   EXPORT_SEARCH_UX_STUB_ENV,
   formatPhase1ExportSearchHydrationUxReason,
   formatPhase1ExportSearchUxCheckFailure,
@@ -113,6 +114,50 @@ describe("runPhase1ExportSearchUxChecks", () => {
     },
     { timeout: 30_000 },
   );
+
+  test("uses the export-specific timeout budget for stubbed search probes", async () => {
+    const root = mkdtempSync(join(tmpdir(), "export-ux-timeout-"));
+    mkdirSync(join(root, "api"), { recursive: true });
+    writeFileSync(
+      join(root, "api", "search"),
+      JSON.stringify({
+        type: "advanced",
+        documents: [{ url: PHASE_1_GROUPED_QUERY_ATTENTION_URL }],
+      }),
+    );
+    writeFileSync(join(root, "index.html"), "<html></html>");
+
+    const observedTimeouts: number[] = [];
+
+    try {
+      const failures = await runPhase1ExportSearchUxChecks({
+        outDir: root,
+        cwd: root,
+        searchPageOptions: {
+          queries: ["GQA"],
+          runQueryCheck: async (_baseUrl, _query, timeoutMs) => {
+            observedTimeouts.push(timeoutMs);
+            return null;
+          },
+        },
+        searchDialogOptions: {
+          queries: ["GQA"],
+          runQueryCheck: async (_baseUrl, _query, timeoutMs) => {
+            observedTimeouts.push(timeoutMs);
+            return null;
+          },
+        },
+      });
+
+      expect(failures).toEqual([]);
+      expect(observedTimeouts).toEqual([
+        DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS,
+        DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS,
+      ]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("formatPhase1ExportSearchHydrationUxReason", () => {

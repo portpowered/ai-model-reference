@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { GET } from "@/app/api/search/route";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -8,6 +8,7 @@ import {
   PHASE_1_SEARCH_ASSERTIONS,
   PHASE_1_VECTOR_GLOSSARY_URL,
 } from "@/lib/verify/phase-1-search-checks";
+import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 import {
   createRetriedStaticClientSearch,
   expectUniqueCanonicalPageUrls,
@@ -349,16 +350,8 @@ describe("docsSearchApi", () => {
 });
 
 describe("docs search static client", () => {
-  const originalFetch = globalThis.fetch;
-
-  afterEach(() => {
-    globalThis.fetch = originalFetch;
-  });
-
-  test.serial(
-    "orama static client returns grouped-query attention for GQA",
-    async () => {
-      globalThis.fetch = createDocsSearchRouteFetch();
+  test("orama static client returns grouped-query attention for GQA", async () => {
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
       const results = await retrySearchResults(
         createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "GQA"),
         (candidateResults) => candidateResults[0]?.url === SAMPLE_URL,
@@ -366,13 +359,11 @@ describe("docs search static client", () => {
 
       expect(results.length).toBeGreaterThan(0);
       expect(results[0]?.url).toBe(SAMPLE_URL);
-    },
-  );
+    });
+  });
 
-  test.serial(
-    "orama static client returns non-empty attention results including bidirectional attention before app-level reranking",
-    async () => {
-      globalThis.fetch = createDocsSearchRouteFetch();
+  test("orama static client returns non-empty attention results including bidirectional attention before app-level reranking", async () => {
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
       const results = await retrySearchResults(
         createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "attention"),
         (candidateResults) =>
@@ -380,16 +371,17 @@ describe("docs search static client", () => {
       );
 
       expect(results.length).toBeGreaterThan(0);
+      expect(resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL)).toBe(
+        true,
+      );
       expect(resultsIncludeUrl(results, BIDIRECTIONAL_ATTENTION_URL)).toBe(
         true,
       );
-    },
-  );
+    });
+  });
 
-  test.serial(
-    "orama static client includes grouped-query attention for KV cache",
-    async () => {
-      globalThis.fetch = createDocsSearchRouteFetch();
+  test("orama static client includes grouped-query attention for KV cache", async () => {
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
       const results = await retrySearchResults(
         createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "KV cache"),
         resultsIncludeSampleModule,
@@ -397,6 +389,6 @@ describe("docs search static client", () => {
 
       expect(results.length).toBeGreaterThan(0);
       expect(resultsIncludeSampleModule(results)).toBe(true);
-    },
-  );
+    });
+  });
 });

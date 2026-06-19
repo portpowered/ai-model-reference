@@ -24,6 +24,7 @@ import {
   restoreFetchMock,
 } from "@/tests/a11y/render";
 import { SAMPLE_MODULE_URL } from "@/tests/search/helpers";
+import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
 
 const STATIC_HANDOFF_CLIENT = { from: STATIC_HANDOFF_BOOTSTRAP_FETCH_URL };
 const FAILING_BOOTSTRAP_URL = "http://static-handoff-fail.test/api/search";
@@ -113,26 +114,37 @@ async function primeStaticHandoffSearch(
 }
 
 describe("static export search surfaces", () => {
+  let releaseFetchLock: (() => void) | null = null;
+
   beforeAll(async () => {
     captureOriginalFetch();
-    await installStaticHandoffFetchMock();
-    await primeStaticHandoffSearch(
-      await loadAppTestContext(),
-      renderSearchPage,
-    );
-    await primeStaticHandoffSearch(
-      await loadAppTestContext(),
-      renderSearchDialog,
-    );
+    await lockGlobalFetch().then(async (release) => {
+      releaseFetchLock = release;
+      await installStaticHandoffFetchMock();
+      await primeStaticHandoffSearch(
+        await loadAppTestContext(),
+        renderSearchPage,
+      );
+      await primeStaticHandoffSearch(
+        await loadAppTestContext(),
+        renderSearchDialog,
+      );
+      restoreFetchMock();
+      releaseFetchLock?.();
+      releaseFetchLock = null;
+    });
   });
 
   beforeEach(async () => {
+    releaseFetchLock = await lockGlobalFetch();
     await installStaticHandoffFetchMock();
   });
 
   afterEach(() => {
     cleanup();
     restoreFetchMock();
+    releaseFetchLock?.();
+    releaseFetchLock = null;
   });
 
   test.each([
