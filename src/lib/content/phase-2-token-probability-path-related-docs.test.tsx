@@ -14,6 +14,8 @@ import {
 } from "@/lib/content/related-docs";
 
 const TOKEN_RELATED_EXPLANATIONS = {
+  "module.byte-level-tokenization":
+    "Byte-level tokenization shows why tokenizer output does not have to line up with whole words.",
   "concept.embedding":
     "Each token ID becomes a learned numerical representation before the model mixes context.",
   "concept.vocabulary-size":
@@ -57,6 +59,7 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
     );
 
     expect(items.map((item) => item.reasonLabel)).toEqual([
+      TOKEN_RELATED_EXPLANATIONS["module.byte-level-tokenization"],
       TOKEN_RELATED_EXPLANATIONS["concept.embedding"],
       TOKEN_RELATED_EXPLANATIONS["concept.vocabulary-size"],
       TOKEN_RELATED_EXPLANATIONS["concept.logit"],
@@ -82,6 +85,10 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
     );
     expect(html).toContain(TOKEN_RELATED_EXPLANATIONS["concept.logit"]);
     expect(html).toContain(TOKEN_RELATED_EXPLANATIONS["concept.softmax"]);
+    expect(
+      html,
+    ).toContain(TOKEN_RELATED_EXPLANATIONS["module.byte-level-tokenization"]);
+    expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain('href="/docs/glossary/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
@@ -101,6 +108,7 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
     );
 
     for (const href of [
+      "/docs/modules/byte-level-tokenization",
       "/docs/glossary/embedding",
       "/docs/glossary/vocabulary-size",
       "/docs/glossary/logit",

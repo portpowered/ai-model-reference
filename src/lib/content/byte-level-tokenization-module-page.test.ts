@@ -68,9 +68,7 @@ describe("loadModulePage byte-level-tokenization", () => {
     expect(html).toContain('data-graph-node-id="byte-pieces"');
     expect(html).toContain('data-math-schema="byteCoverage"');
     expect(html).toContain('data-math-schema="bytePairMerge"');
-    expect(html).toContain(
-      "Example model links will render from registry usage",
-    );
+    expect(html).toContain('href="/docs/models/gpt-3"');
   });
 });
 

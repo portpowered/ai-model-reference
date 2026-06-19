@@ -18,12 +18,12 @@ export function ModelsUsingModule({ registryId }: { registryId: string }) {
   const modelIds = uniqueModelIds([
     ...record.usedByModelIds,
     ...record.exampleModelIds,
-  ]);
+  ]).filter((modelId) => getModelById(modelId));
 
   if (modelIds.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        No example models listed yet.
+        No published example models are linked yet.
       </p>
     );
   }

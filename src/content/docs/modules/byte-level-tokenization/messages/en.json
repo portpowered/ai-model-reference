@@ -1,7 +1,7 @@
 {
   "title": "Byte-Level Tokenization",
   "description": "A tokenizer design that starts from bytes so models can represent arbitrary text without unknown-character gaps.",
-  "openingSummary": "Byte-level tokenization starts from raw bytes instead of assuming text already fits a word or character inventory, which lets a model cover arbitrary UTF-8 text while accepting that the resulting token pieces are often longer and harder for humans to read.",
+  "openingSummary": "Byte-level tokenization starts from raw bytes instead of assuming text already fits a word or character inventory, which is why GPT-style tokenizers often use bytes instead of whole words when they need reliable UTF-8 coverage, even though the resulting token pieces are often longer and harder for humans to read.",
   "sections": {
     "whatItIs": {
       "title": "What It Is",
@@ -25,7 +25,7 @@
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Compared with word-level tokenization, byte-level tokenization does not assume the tokenizer already knows each full word. Compared with character-only tokenization, it usually does not stop at tiny pieces, because learned merges can build larger subwords on top of the byte fallback. That is why byte-level tokenization often appears together with BPE rather than replacing BPE. Bytes provide guaranteed coverage; BPE provides compression into more reusable chunks."
+      "body": "Compared with word-level tokenization, byte-level tokenization does not assume the tokenizer already knows each full word in advance. That is the practical answer to the common question of why some tokenizers use bytes instead of words: bytes keep working even when the next input string is messy, misspelled, code-heavy, or mixed across scripts. Compared with character-only tokenization, it usually does not stop at tiny pieces, because learned merges can build larger subwords on top of the byte fallback. That is why byte-level tokenization often appears together with BPE rather than replacing BPE. Bytes provide guaranteed coverage; BPE provides compression into more reusable chunks."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",

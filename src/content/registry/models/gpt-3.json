@@ -60,6 +60,7 @@
     "concept.autoregressive-generation"
   ],
   "moduleIds": [
+    "module.byte-level-tokenization",
     "module.multi-head-attention",
     "module.standard-ffn",
     "module.layer-norm",

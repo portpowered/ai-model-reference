@@ -11,7 +11,8 @@
     "byte level tokenizer",
     "byte tokenizer",
     "byte-level BPE",
-    "byte level BPE"
+    "byte level BPE",
+    "why bytes not words"
   ],
   "tags": ["tokenization"],
   "relatedIds": ["concept.token", "model.gpt-3"],

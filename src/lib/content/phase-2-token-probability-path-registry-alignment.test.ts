@@ -86,6 +86,7 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
     }
 
     expect(token.relatedIds).toEqual([
+      "module.byte-level-tokenization",
       "concept.embedding",
       "concept.vocabulary-size",
       "concept.logit",
@@ -99,13 +100,20 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
     );
 
     expect(items.map((item) => item.registryId)).toEqual([
+      "module.byte-level-tokenization",
       "concept.embedding",
       "concept.vocabulary-size",
       "concept.logit",
       "concept.softmax",
     ]);
     expect(
-      items.every((item) => item.href?.startsWith("/docs/glossary/")),
+      items.find((item) => item.registryId === "module.byte-level-tokenization")
+        ?.href,
+    ).toBe("/docs/modules/byte-level-tokenization");
+    expect(
+      items
+        .filter((item) => item.registryId !== "module.byte-level-tokenization")
+        .every((item) => item.href?.startsWith("/docs/glossary/")),
     ).toBe(true);
     expect(items.every((item) => item.isPlanned === false)).toBe(true);
   });

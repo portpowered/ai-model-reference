@@ -28,19 +28,21 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
       getPublishedDocsRegistryIds(),
     );
 
-    expect(items).toHaveLength(4);
+    expect(items).toHaveLength(5);
     expect(items.map((item) => item.registryId)).toEqual([
+      "module.byte-level-tokenization",
       "concept.embedding",
       "concept.vocabulary-size",
       "concept.logit",
       "concept.softmax",
     ]);
-    expect(items[0]?.registryId).toBe("concept.embedding");
-    expect(items[0]?.slug).toBe("embedding");
-    expect(items[0]?.title).toBe("embeddings");
-    expect(items[0]?.isPlanned).toBe(false);
-    expect(items[0]?.href).toBe("/docs/glossary/embedding");
-    expect(items[0]?.reasonLabel).toBe(
+    const embedding = items.find((item) => item.registryId === "concept.embedding");
+    expect(embedding?.registryId).toBe("concept.embedding");
+    expect(embedding?.slug).toBe("embedding");
+    expect(embedding?.title).toBe("embeddings");
+    expect(embedding?.isPlanned).toBe(false);
+    expect(embedding?.href).toBe("/docs/glossary/embedding");
+    expect(embedding?.reasonLabel).toBe(
       DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED],
     );
   });
@@ -59,7 +61,9 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain("vocabulary size");
     expect(html).toContain("logits");
     expect(html).toContain("softmax function");
+    expect(html).toContain("byte-level tokenization");
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
+    expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain('href="/docs/glossary/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
@@ -78,6 +82,7 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     );
 
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain("embeddings");
     expect(html).toContain('href="/docs/glossary/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
