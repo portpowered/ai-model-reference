@@ -1,0 +1,25 @@
+{
+  "computeFlow": {
+    "type": "attention-variant-graph",
+    "defaultVariantId": "local",
+    "variants": [
+      {
+        "variantId": "mha",
+        "graphId": "graph.multi-head-attention-time-pattern",
+        "labelKey": "assets.computeFlow.variants.mha.label"
+      },
+      {
+        "variantId": "local",
+        "graphId": "graph.local-attention-neighborhood-pattern",
+        "labelKey": "assets.computeFlow.variants.local.label"
+      }
+    ],
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.computeFlow.alt"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.local-attention-comparison"
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "title": "Local Attention",
+  "description": "A broad attention pattern that lets each query look only at a nearby neighborhood instead of the full sequence.",
+  "openingSummary": "Local attention is a broad attention pattern that limits each token to nearby tokens, lowering long-context attention cost while making distant connections less direct.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Local attention is a broad attention pattern where each query attends only to a nearby neighborhood instead of the full sequence. It is the umbrella idea behind window-limited attention layouts. Sliding-window attention is one common concrete version, while sparse attention is a broader family that may include local links plus other selective long-range links."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Dense attention compares every token with every other token, so score computation and score storage grow quadratically as context gets longer. Local attention keeps most of the useful nearby context while avoiding a full all-pairs score matrix on every layer."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "For each query position, the model keeps only keys inside a local neighborhood and masks the rest before softmax. The neighborhood can be a fixed band, a block, or another nearby-only rule, but the core idea stays the same: spend attention compute on close tokens first instead of on the entire sequence."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "With sequence length n and local radius r, local attention applies a locality mask before softmax. The formulas below contrast dense multi-head attention against a masked local pattern that keeps only nearby token interactions."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with baseline attention, local attention changes where each query is allowed to look. Sliding-window attention is a specific fixed-width local-attention layout. Sparse attention is broader: it also removes many pairs, but it can keep arbitrary selected long-range links instead of only a neighborhood."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Long-context transformers often use local attention as one building block, then add global tokens, occasional dense layers, or retrieval-style paths when they need stronger distant-token communication."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Local attention makes nearby interactions cheap, but it weakens direct one-hop access to distant tokens. Information that starts far away may need several layers, companion global links, or other routing patterns before it can influence the current token strongly."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "As models push toward longer context windows, local attention remains a practical first move because nearby context is often the highest-value signal and because the pattern composes well with broader long-context systems."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Dense multi-head attention versus local attention neighborhood reach",
+      "variants": {
+        "mha": {
+          "label": "Multi-head"
+        },
+        "local": {
+          "label": "Local"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "local": {
+          "title": "Local Attention"
+        },
+        "attention": {
+          "title": "Attention"
+        },
+        "slidingWindow": {
+          "title": "Sliding-Window Attention"
+        },
+        "sparse": {
+          "title": "Sparse Attention"
+        }
+      },
+      "dimensions": {
+        "reachPattern": "Reach pattern",
+        "computeScaling": "Compute scaling with sequence length",
+        "distantTokenPath": "Distant-token path"
+      },
+      "values": {
+        "local": {
+          "reachPattern": "Broad umbrella for nearby-only neighborhoods",
+          "computeScaling": "Often near-linear O(n·r) when the local radius stays fixed",
+          "distantTokenPath": "Usually indirect; far information moves through layers or companion links"
+        },
+        "attention": {
+          "reachPattern": "Full sequence; every query can score every key",
+          "computeScaling": "Quadratic O(n²) per head",
+          "distantTokenPath": "Direct one-hop access to any token"
+        },
+        "slidingWindow": {
+          "reachPattern": "Fixed-width band around each query position",
+          "computeScaling": "Linear O(n·W) per head when W is fixed",
+          "distantTokenPath": "Indirect unless another pattern adds longer-range access"
+        },
+        "sparse": {
+          "reachPattern": "Selected subset of token pairs, which may be local, blockwise, or mixed",
+          "computeScaling": "Subquadratic when the allowed-pair fraction stays fixed",
+          "distantTokenPath": "Depends on the sparsity pattern; some designs keep explicit long-range links"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Local attention",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(L_r \\odot \\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Query vectors for head i."
+        },
+        "k": {
+          "term": "K",
+          "definition": "Key vectors for head i."
+        },
+        "v": {
+          "term": "V",
+          "definition": "Value vectors for head i."
+        },
+        "h": {
+          "term": "H",
+          "definition": "Number of query heads."
+        },
+        "g": {
+          "term": "r",
+          "definition": "Local radius or neighborhood size around each query."
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Key dimension per head."
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head index."
+        },
+        "gi": {
+          "term": "L_r",
+          "definition": "Locality mask that keeps only nearby key positions for each query."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "timeCurrentQuery": {
+        "label": "q_i"
+      },
+      "timeKv0": {
+        "label": "KV_0"
+      },
+      "timeKv1": {
+        "label": "KV_1"
+      },
+      "timeKvEllipsis": {
+        "label": "\\cdots"
+      },
+      "timeKvI2": {
+        "label": "KV_{i-2}"
+      },
+      "timeKvI1": {
+        "label": "KV_{i-1}"
+      },
+      "timeKvI": {
+        "label": "KV_i"
+      },
+      "timeKvIp1": {
+        "label": "KV_{i+1}"
+      },
+      "timeKvIp2": {
+        "label": "KV_{i+2}"
+      }
+    }
+  }
+}
