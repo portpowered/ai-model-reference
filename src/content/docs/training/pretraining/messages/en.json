@@ -9,7 +9,7 @@
     },
     "whyItExists": {
       "title": "Why It Exists",
-      "body": "Modern systems need one large shared stage where the model learns general language structure before narrower behavior shaping begins. Pretraining fills that role. It gives later stages such as alignment, instruction tuning, or Direct Preference Optimization a capable starting point, because those later stages work best when the base model already knows how text is usually formed and how many patterns in the world tend to co-occur."
+      "body": "Modern systems need one large shared stage where the model learns general language structure before narrower behavior shaping begins. Pretraining fills that role. Scale matters here because a larger model, more tokens, and a longer run usually let the system absorb more reusable patterns, though each gain costs more money and time. It gives later stages such as alignment, instruction tuning, or Direct Preference Optimization a capable starting point, because those later stages work best when the base model already knows how text is usually formed and how many patterns in the world tend to co-occur."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -17,11 +17,11 @@
     },
     "comparedToNearbyRegimes": {
       "title": "Compared To Nearby Regimes",
-      "body": "Pretraining builds the broad base model. Alignment and other post-training regimes come later and reshape behavior for human use, safety, preference fit, or product constraints. DPO, RLHF-style pipelines, and other alignment methods do not replace pretraining; they start from a model that pretraining already made broadly capable. Tokenization pages matter here because the model does not learn from raw characters or ideas directly. It learns from token sequences produced by choices such as byte-level tokenization or BPE."
+      "body": "Pretraining builds the broad base model. Alignment and other post-training regimes come later and reshape behavior for human use, safety, preference fit, or product constraints. DPO, reinforcement learning from human feedback, and other alignment methods do not replace pretraining; they start from a model that pretraining already made broadly capable. Tokenization pages matter here because the model does not learn from raw characters or ideas directly. It learns from token sequences produced by choices such as byte-level tokenization or BPE."
     },
     "limitationsAndFailureModes": {
       "title": "Limitations And Failure Modes",
-      "body": "Pretraining can only absorb the patterns available in its data mixture and only up to the compute budget used to fit those patterns. If the corpus is narrow, noisy, or skewed, the base model inherits those limits. If the run is too small or too short, the model leaves capability on the table. And because the objective is usually next-token prediction rather than direct human preference shaping, the pretrained model may still be unhelpful, unsafe, or poorly steered until later post-training stages are added."
+      "body": "Pretraining can only absorb the patterns available in its data mixture and only up to the compute budget used to fit those patterns. Data mixture matters because web text, books, code, and other sources teach different habits, knowledge, and failure modes, so the blend shapes what the base model becomes good at. Compute matters because hardware time, memory, and optimization budget decide how far the training run can push the model before the project has to stop. If the corpus is narrow, noisy, or skewed, the base model inherits those limits. If the run is too small or too short, the model leaves capability on the table. And because the objective is usually next-token prediction rather than direct human preference shaping, the pretrained model may still be unhelpful, unsafe, or poorly steered until later post-training stages are added."
     },
     "related": {
       "title": "Related To"

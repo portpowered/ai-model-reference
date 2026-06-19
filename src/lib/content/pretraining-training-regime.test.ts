@@ -109,6 +109,18 @@ describe("pretraining training-regime identity contracts", () => {
     expect(page.messages.sections?.howItWorks.body).toContain(
       "predicts the next token",
     );
+    expect(page.messages.sections?.whyItExists.body).toContain(
+      "Scale matters here",
+    );
+    expect(page.messages.sections?.limitationsAndFailureModes.body).toContain(
+      "Data mixture matters",
+    );
+    expect(page.messages.sections?.limitationsAndFailureModes.body).toContain(
+      "Compute matters",
+    );
+    expect(page.messages.sections?.comparedToNearbyRegimes.body).toContain(
+      "reinforcement learning from human feedback",
+    );
     expect(page.assets.trainingFlow).toMatchObject({
       type: "graph",
       graphId: "graph.pretraining-training-flow",
@@ -156,7 +168,7 @@ describe("pretraining training-regime identity contracts", () => {
     ).toBe("/docs/training/dpo");
   });
 
-  test("page renders the layperson explanation, training-flow graph, and next-token math without reader-shortcut copy", async () => {
+  test("page renders the layperson explanation, tradeoffs, and reader handoffs without reader-shortcut copy", async () => {
     const page = await loadTrainingRegimePage("pretraining");
 
     const html = await renderHtml(
@@ -169,12 +181,26 @@ describe("pretraining training-regime identity contracts", () => {
     );
 
     expect(html).toContain("broad statistical learner");
+    expect(html).toContain("Scale matters here");
+    expect(html).toContain(
+      "Data mixture matters because web text, books, code",
+    );
+    expect(html).toContain(
+      "Compute matters because hardware time, memory, and optimization budget",
+    );
+    expect(html).toContain("reinforcement learning from human feedback");
     expect(html).toContain(
       "Pretraining turns huge token corpora into a base model by repeating the next-token objective at scale.",
     );
     expect(html).toContain('role="math"');
     expect(html).toContain("\\max_\\theta");
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/models/gpt-3"');
+    expect(html).toContain('href="/docs/concepts/transformer-architecture"');
+    expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
+    expect(html).toContain('href="/docs/glossary/alignment"');
+    expect(html).toContain('href="/docs/training/dpo"');
+    expect(html).toContain('href="/search?q=RLHF"');
     expect(html).not.toContain("Reader Shortcut");
   });
 
