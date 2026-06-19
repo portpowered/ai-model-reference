@@ -54,7 +54,9 @@
         }
       }
     },
-    "comparisonTable": {}
+    "comparisonTable": {
+      "caption": "SentencePiece keeps whitespace in the tokenization stream and can train from raw text, while BPE and WordPiece are more often taught from stronger pre-tokenization assumptions."
+    }
   },
   "tables": {
     "comparison": {

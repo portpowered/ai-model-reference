@@ -36,8 +36,8 @@ import pageSpecWorkflowSampleConceptMap from "@/content/registry/graphs/page-spe
 import qkNormComputeFlow from "@/content/registry/graphs/qk-norm-compute-flow.json";
 import reluActivationFlow from "@/content/registry/graphs/relu-activation-flow.json";
 import rmsnormComputeFlow from "@/content/registry/graphs/rmsnorm-compute-flow.json";
-import siluActivationFlow from "@/content/registry/graphs/silu-activation-flow.json";
 import sentencepieceComputeFlow from "@/content/registry/graphs/sentencepiece-compute-flow.json";
+import siluActivationFlow from "@/content/registry/graphs/silu-activation-flow.json";
 import slidingWindowAttentionTimeWindowPattern from "@/content/registry/graphs/sliding-window-attention-time-window-pattern.json";
 import sparseAttentionTimePattern from "@/content/registry/graphs/sparse-attention-time-pattern.json";
 import specialistTrainingTrainingFlow from "@/content/registry/graphs/specialist-training-training-flow.json";

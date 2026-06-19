@@ -8,6 +8,7 @@
   },
   "comparisonTable": {
     "type": "table",
-    "tableId": "table.bpe-comparison"
+    "tableId": "table.bpe-comparison",
+    "captionKey": "assets.comparisonTable.caption"
   }
 }

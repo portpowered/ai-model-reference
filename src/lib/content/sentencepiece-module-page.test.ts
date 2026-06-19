@@ -78,6 +78,19 @@ describe("loadModulePage sentencepiece", () => {
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain('data-page-asset="comparisonTable"');
+    expect(html).toContain(
+      "SentencePiece keeps whitespace in the tokenization stream and can train from raw text",
+    );
+    expect(html).toContain('data-comparison-column="module.bpe"');
+    expect(html).toContain('data-comparison-column="module.wordpiece"');
+    expect(html).toContain('data-comparison-column="module.sentencepiece"');
+    expect(html).toContain('data-comparison-dimension="spaceHandling"');
+    expect(html).toContain(
+      "Usually assumes a word-like pre-tokenization step first",
+    );
+    expect(html).toContain(
+      "Treats spaces as regular symbols so boundaries stay explicit",
+    );
     expect(html).toContain("Kudo");
     expect(html).toContain('href="https://aclanthology.org/D18-2012/"');
     expect(html).toContain('data-graph-id="graph.sentencepiece-compute-flow"');
