@@ -252,13 +252,32 @@ describe("Phase 1 baseline registry records", () => {
 
     expect(concept.id).toBe("concept.tokenizers-overview");
     expect(concept.kind).toBe("concept");
-    expect(concept.status).toBe("draft");
-    expect(concept.tags).toContain("tokenization");
+    expect(concept.status).toBe("published");
+    expect(concept.tags).toEqual(["tokenization", "foundations"]);
+    expect(concept.aliases).toEqual(
+      expect.arrayContaining([
+        "tokenizer",
+        "tokenizers",
+        "tokenizer overview",
+        "text tokenization",
+      ]),
+    );
     expect(concept.prerequisiteIds).toContain("concept.token");
+    expect(concept.relatedIds).toEqual([
+      "concept.token",
+      "concept.embedding",
+      "concept.vocabulary-size",
+      "concept.special-tokens",
+      "module.bpe",
+      "module.wordpiece",
+      "module.sentencepiece",
+      "module.byte-level-tokenization",
+    ]);
     expect(concept.explainsIds).toEqual([
       "module.bpe",
       "module.wordpiece",
       "module.sentencepiece",
+      "module.byte-level-tokenization",
     ]);
   });
 
