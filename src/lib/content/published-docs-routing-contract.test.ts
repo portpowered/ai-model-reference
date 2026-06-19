@@ -1,0 +1,157 @@
+import { describe, expect, test } from "bun:test";
+import { PROSE_AUTO_LINK_PHRASES } from "@/lib/content/prose-auto-link-runtime";
+import {
+  getPublishedDocsHrefForRecord,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "@/lib/content/published-docs-registry-ids";
+import {
+  hasPublishedDocsPageForRecord,
+  registryRecordHref,
+} from "@/lib/content/registry-linking";
+import {
+  getConceptById,
+  getModelById,
+  getModuleById,
+  getPaperById,
+  getSystemById,
+  getTrainingRegimeById,
+} from "@/lib/content/registry-runtime";
+import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+
+function resolvePhraseHref(phrase: string): string | undefined {
+  const normalized = phrase.toLowerCase();
+  return PROSE_AUTO_LINK_PHRASES.find(
+    (entry) => entry.phrase.toLowerCase() === normalized,
+  )?.href;
+}
+
+function requireRecord<T>(record: T | undefined, label: string): T {
+  if (!record) {
+    throw new Error(`expected ${label} record in registry`);
+  }
+
+  return record;
+}
+
+describe("published docs routing contract", () => {
+  test("derived href lookup covers representative published record kinds", () => {
+    const cases = [
+      {
+        label: "module",
+        record: requireRecord(
+          getModuleById("module.grouped-query-attention"),
+          "grouped-query-attention module",
+        ),
+        href: "/docs/modules/grouped-query-attention",
+      },
+      {
+        label: "concept section concept",
+        record: requireRecord(
+          getConceptById("concept.quantization"),
+          "quantization concept",
+        ),
+        href: "/docs/concepts/quantization",
+      },
+      {
+        label: "glossary concept",
+        record: requireRecord(getConceptById("concept.token"), "token concept"),
+        href: "/docs/glossary/token",
+      },
+      {
+        label: "model",
+        record: requireRecord(getModelById("model.gpt-3"), "gpt-3 model"),
+        href: "/docs/models/gpt-3",
+      },
+      {
+        label: "paper",
+        record: requireRecord(
+          getPaperById("paper.deepseek-v4"),
+          "deepseek-v4 paper",
+        ),
+        href: "/docs/papers/deepseek-v4",
+      },
+      {
+        label: "training regime",
+        record: requireRecord(
+          getTrainingRegimeById("training-regime.on-policy-distillation"),
+          "on-policy-distillation training regime",
+        ),
+        href: "/docs/training/on-policy-distillation",
+      },
+      {
+        label: "system",
+        record: requireRecord(
+          getSystemById("system.on-disk-kv-cache"),
+          "on-disk-kv-cache system",
+        ),
+        href: "/docs/systems/on-disk-kv-cache",
+      },
+    ] as const;
+
+    for (const { label, record, href } of cases) {
+      expect(getPublishedDocsHrefForRecord(record), label).toBe(href);
+      expect(registryRecordHref(record), label).toBe(href);
+      expect(
+        hasPublishedDocsPageForRecord(record, PUBLISHED_DOCS_REGISTRY_IDS),
+        label,
+      ).toBe(true);
+    }
+  });
+
+  test("presence, related-doc hrefs, and prose auto-links stay aligned for representative concept routes", () => {
+    const feedForwardNetwork = requireRecord(
+      getConceptById("concept.feed-forward-network"),
+      "feed-forward-network concept",
+    );
+    const quantization = requireRecord(
+      getConceptById("concept.quantization"),
+      "quantization concept",
+    );
+    const token = requireRecord(
+      getConceptById("concept.token"),
+      "token concept",
+    );
+
+    const representativeConcepts = [
+      {
+        alias: "FFN",
+        href: "/docs/modules/feed-forward-network",
+        record: feedForwardNetwork,
+      },
+      {
+        alias: "low-bit inference",
+        href: "/docs/concepts/quantization",
+        record: quantization,
+      },
+      {
+        alias: "token",
+        href: "/docs/glossary/token",
+        record: token,
+      },
+    ] as const;
+
+    const source = {
+      ...requireRecord(getModelById("model.gpt-3"), "gpt-3 model"),
+      relatedIds: representativeConcepts.map(({ record }) => record.id),
+    };
+    const relatedItems = deriveCuratedRelatedItems(
+      source,
+      representativeConcepts.map(({ record }) => record),
+      PUBLISHED_DOCS_REGISTRY_IDS,
+    );
+    const relatedHrefsById = new Map(
+      relatedItems.map((item) => [item.registryId, item.href]),
+    );
+
+    for (const { alias, href, record } of representativeConcepts) {
+      expect(
+        hasPublishedDocsPageForRecord(record, PUBLISHED_DOCS_REGISTRY_IDS),
+        record.id,
+      ).toBe(true);
+      expect(getPublishedDocsHrefForRecord(record), record.id).toBe(href);
+      expect(registryRecordHref(record), record.id).toBe(href);
+      expect(relatedHrefsById.get(record.id), record.id).toBe(href);
+      expect(resolvePhraseHref(alias), alias).toBe(href);
+    }
+  });
+});
