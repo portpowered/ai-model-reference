@@ -16,7 +16,15 @@ import {
 import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
-import { getRegistryRecordById } from "@/lib/content/registry-runtime";
+import {
+  getPublishedDocsRegistryIds,
+  getRegistryRecordById,
+  listRelatedRegistryRecords,
+} from "@/lib/content/registry-runtime";
+import {
+  deriveCuratedRelatedItems,
+  PLANNED_RELATED_REASON_LABEL,
+} from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -111,6 +119,10 @@ describe("loadModulePage sentencepiece", () => {
     expect(sentencePieceDocument).toBeDefined();
     expect(sentencePieceDocument?.aliases).toContain("SentencePiece");
     expect(sentencePieceDocument?.aliases).toContain("sentence piece");
+    expect(sentencePieceDocument?.aliases).toContain("multilingual tokenizer");
+    expect(sentencePieceDocument?.aliases).toContain(
+      "whitespace agnostic tokenizer",
+    );
     expect(sentencePieceDocument?.tags).toContain("tokenization");
     expect(sentencePieceDocument?.relatedIds).toContain("concept.token");
     expect(sentencePieceDocument?.relatedIds).toContain("module.bpe");
@@ -120,11 +132,41 @@ describe("loadModulePage sentencepiece", () => {
     "SentencePiece",
     "sentence piece",
     "SentencePiece tokenizer",
+    "multilingual tokenizer",
+    "whitespace agnostic tokenizer",
   ] as const)("search ranks the canonical SentencePiece page for %s", async (query) => {
     const results = await docsSearchApi.search(query);
 
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url.split("#")[0]).toBe("/docs/modules/sentencepiece");
+  });
+
+  test("bpe curated discovery path leads readers into the shipped SentencePiece page", () => {
+    const bpe = getRegistryRecordById("module.bpe");
+    if (bpe?.kind !== "module") {
+      throw new Error("expected module.bpe in registry runtime");
+    }
+
+    const items = deriveCuratedRelatedItems(
+      bpe,
+      listRelatedRegistryRecords(),
+      getPublishedDocsRegistryIds(),
+    );
+    const sentencePieceItem = items.find(
+      (item) => item.registryId === "module.sentencepiece",
+    );
+
+    expect(sentencePieceItem).toBeDefined();
+    expect(sentencePieceItem?.href).toBe("/docs/modules/sentencepiece");
+    expect(sentencePieceItem?.isPlanned).toBe(false);
+    expect(sentencePieceItem?.reasonLabel).toBe("curated");
+
+    const tokenizersOverviewItem = items.find(
+      (item) => item.registryId === "concept.tokenizers-overview",
+    );
+    expect(tokenizersOverviewItem?.reasonLabel).toBe(
+      PLANNED_RELATED_REASON_LABEL,
+    );
   });
 });
 

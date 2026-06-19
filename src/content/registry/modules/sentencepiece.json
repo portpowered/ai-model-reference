@@ -4,7 +4,16 @@
   "kind": "module",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["SentencePiece", "sentencepiece", "sentence piece"],
+  "aliases": [
+    "SentencePiece",
+    "sentencepiece",
+    "sentence piece",
+    "multilingual tokenizer",
+    "whitespace-agnostic tokenizer",
+    "whitespace agnostic tokenizer",
+    "raw-text tokenizer",
+    "raw text tokenizer"
+  ],
   "tags": ["tokenization", "foundations"],
   "relatedIds": [
     "concept.tokenizers-overview",
