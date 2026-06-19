@@ -1,0 +1,119 @@
+{
+  "title": "Tokenizer mismatch",
+  "description": "A failure mode where text is split, labeled, or wrapped differently from what the model was trained or served to expect.",
+  "openingSummary": "Tokenizer mismatch happens when a model receives token IDs, special tokens, or prompt wrappers that come from the wrong tokenizer setup, which can quietly shift token counts, break boundaries, and degrade output even when the raw text looks correct to a reader.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Tokenizer mismatch is the broad compatibility problem that appears when the tokenizer in front of a model does not match the tokenizer assumptions behind that model. The visible text may stay the same, but the token IDs, token boundaries, or reserved control symbols can change enough that the model is no longer reading the prompt in the way it was trained to read it."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Models do not ingest raw sentences directly. They ingest token IDs, and those IDs depend on a specific vocabulary, specific split rules, and specific handling for special tokens or chat templates. If serving code swaps in a different tokenizer family, drops required control tokens, or wraps the prompt with the wrong template, the model sees a different sequence from the one the human intended."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "A mismatch can come from several places. One tokenizer may split the same text into different subword pieces. Another may assign different IDs to the same-looking special token. A chat wrapper may add start, end, or separator markers the model never learned, or fail to add markers the model expects. Those differences shift embeddings at the first layer, which means every later attention and prediction step starts from the wrong discrete inputs."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The compact schema below treats tokenizer mismatch as an input-translation error: the reader intends one text sequence, but the serving stack maps that text into a different discrete sequence than the model was trained to expect."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Tokenizer mismatch is not a tokenizer algorithm like byte pair encoding (BPE), WordPiece, or SentencePiece. It is the failure mode you get when those algorithms, vocabularies, or special-token conventions are mixed up across training, fine-tuning, and serving. That is why it belongs next to tokenizer pages and special-token pages rather than replacing them."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Readers see this problem most often in GPT-style text systems, instruction-tuned chat systems, and embedding pipelines that reuse checkpoints through third-party tooling. The same model weights can behave very differently if the deployment stack tokenizes text with the wrong vocabulary file or applies a mismatched prompt wrapper before inference."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Tokenizer mismatch is often subtle. A request may still produce output, but the output can become less coherent, use context inefficiently, or fail at boundaries around system prompts, stop tokens, or embedded placeholders. The hard part is that teams may blame the model itself when the real problem sits one layer earlier in the input pipeline."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "This topic matters because modern model usage is full of checkpoint conversions, hosted APIs, chat-template wrappers, and multilingual tokenization choices. Understanding tokenizer mismatch helps readers debug why one deployment suddenly uses more tokens, ignores formatting, mishandles special markers, or produces weaker completions after what looked like a harmless tooling change."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Tokenizer mismatch flow from reader text through tokenizer rules and special tokens into shifted model input IDs"
+    }
+  },
+  "graph": {
+    "nodes": {
+      "readerText": {
+        "label": "Reader text"
+      },
+      "tokenizerRules": {
+        "label": "Tokenizer rules and vocabulary"
+      },
+      "specialTokens": {
+        "label": "Special-token and chat-template markers"
+      },
+      "tokenIds": {
+        "label": "Produced token IDs"
+      },
+      "modelInput": {
+        "label": "Model input sequence"
+      },
+      "driftNote": {
+        "label": "Different splits or control tokens create a different discrete sequence"
+      },
+      "failureNote": {
+        "label": "The model can still answer, but context use, boundaries, and quality drift"
+      }
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "tokenizerMismatch": {
+          "title": "Tokenizer mismatch"
+        }
+      },
+      "dimensions": {
+        "sourceOfDrift": "Typical source of drift",
+        "readerVisibleSymptom": "Reader-visible symptom",
+        "whyItHurts": "Why it hurts"
+      },
+      "values": {
+        "tokenizerMismatch": {
+          "sourceOfDrift": "Wrong vocabulary file, wrong split rules, or wrong special-token template",
+          "readerVisibleSymptom": "Unexpected token counts, broken separators, or weaker completions",
+          "whyItHurts": "The model starts from token IDs and embeddings it was not trained to interpret in that exact form"
+        }
+      }
+    }
+  },
+  "math": {
+    "tokenizerMismatchSchema": {
+      "label": "Tokenizer mismatch as an input mapping problem",
+      "formula": "\\hat{\\tau}(x) \\neq \\tau_{\\mathrm{train}}(x)",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "Reader-visible input text."
+        },
+        "tauHat": {
+          "term": "\\hat{\\tau}(x)",
+          "definition": "Token sequence produced by the deployed tokenizer stack."
+        },
+        "tauTrain": {
+          "term": "\\tau_{\\mathrm{train}}(x)",
+          "definition": "Token sequence the model was trained or tuned to expect for the same text."
+        }
+      }
+    }
+  }
+}

@@ -343,6 +343,43 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.citationIds).toContain("citation.kudo-sentencepiece");
   });
 
+  test("tokenizer-mismatch module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/tokenizer-mismatch.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.tokenizer-mismatch");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("published");
+    expect(module.moduleType).toBe("tokenizer");
+    expect(module.moduleFamily).toBe("tokenization");
+    expect(module.variantGroup).toBe("tokenizer-failure-modes");
+    expect(module.tags).toEqual(
+      expect.arrayContaining(["tokenization", "foundations"]),
+    );
+    expect(module.aliases).toEqual(
+      expect.arrayContaining([
+        "tokenizer mismatch",
+        "wrong tokenizer",
+        "special token mismatch",
+      ]),
+    );
+    expect(module.relatedIds).toEqual(
+      expect.arrayContaining([
+        "concept.tokenizers-overview",
+        "module.bpe",
+        "module.wordpiece",
+        "module.sentencepiece",
+        "concept.special-tokens",
+        "concept.embedding",
+        "model.gpt-3",
+      ]),
+    );
+    expect(module.exampleModelIds).toContain("model.gpt-3");
+    expect(module.usedByModelIds).toContain("model.gpt-3");
+  });
+
   test("token concept JSON passes conceptRecordSchema", async () => {
     const concept = await readRegistryJson(
       "concepts/token.json",
