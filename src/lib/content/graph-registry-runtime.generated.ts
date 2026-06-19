@@ -40,6 +40,7 @@ import onPolicyDistillationTrainingFlowGraphRecord from "@/content/registry/grap
 import pageSpecWorkflowSampleConceptMapGraphRecord from "@/content/registry/graphs/page-spec-workflow-sample-concept-map.json";
 import qkNormComputeFlowGraphRecord from "@/content/registry/graphs/qk-norm-compute-flow.json";
 import reluActivationFlowGraphRecord from "@/content/registry/graphs/relu-activation-flow.json";
+import rlhfTrainingFlowGraphRecord from "@/content/registry/graphs/rlhf-training-flow.json";
 import rmsnormComputeFlowGraphRecord from "@/content/registry/graphs/rmsnorm-compute-flow.json";
 import routingSystemFlowGraphRecord from "@/content/registry/graphs/routing-system-flow.json";
 import sentencepieceComputeFlowGraphRecord from "@/content/registry/graphs/sentencepiece-compute-flow.json";
@@ -92,6 +93,7 @@ export const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(pageSpecWorkflowSampleConceptMapGraphRecord),
   graphRecordSchema.parse(qkNormComputeFlowGraphRecord),
   graphRecordSchema.parse(reluActivationFlowGraphRecord),
+  graphRecordSchema.parse(rlhfTrainingFlowGraphRecord),
   graphRecordSchema.parse(rmsnormComputeFlowGraphRecord),
   graphRecordSchema.parse(routingSystemFlowGraphRecord),
   graphRecordSchema.parse(sentencepieceComputeFlowGraphRecord),

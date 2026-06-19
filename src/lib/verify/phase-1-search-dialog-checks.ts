@@ -62,6 +62,7 @@ const SEARCH_DIALOG_EMPTY_SELECTOR = '[data-testid="search-dialog-empty"]';
 const SEARCH_DIALOG_LOADING_SELECTOR = '[data-testid="search-dialog-loading"]';
 const SEARCH_RESULT_URL_SELECTOR = '[data-testid="search-result-url"]';
 const SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS = 250;
+const SEARCH_DIALOG_FINAL_VISIBLE_GRACE_MS = 1_000;
 const SEARCH_DIALOG_QUERY_RETRY_DELAY_MS = 250;
 
 /** Default per-query browser deadline (static-export dialog hydration can exceed 30s under CI load). */
@@ -148,6 +149,25 @@ async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+export function isRetryableSearchDialogTriggerError(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("element was detached from the dom") ||
+    message.includes("element is not attached to the dom") ||
+    message.includes("waiting for locator")
+  );
+}
+
+export function resolveSearchDialogFinalVisibleWaitTimeout(
+  timeoutMs: number,
+): number {
+  return Math.min(SEARCH_DIALOG_FINAL_VISIBLE_GRACE_MS, Math.max(1, timeoutMs));
+}
+
 async function openHeaderSearchDialog(
   page: Page,
   baseUrl: string,
@@ -159,7 +179,6 @@ async function openHeaderSearchDialog(
     waitUntil: "domcontentloaded",
   });
 
-  const trigger = page.locator(SEARCH_DIALOG_TRIGGER_SELECTOR).first();
   const dialog = page.getByRole("dialog", { name: "Search" });
   const deadline = Date.now() + timeoutMs;
 
@@ -169,7 +188,22 @@ async function openHeaderSearchDialog(
     }
 
     const remainingMs = Math.max(1, deadline - Date.now());
-    await trigger.click({ timeout: Math.min(remainingMs, timeoutMs) });
+    const trigger = page.locator(SEARCH_DIALOG_TRIGGER_SELECTOR).first();
+
+    try {
+      await trigger.waitFor({
+        state: "visible",
+        timeout: Math.min(1_000, remainingMs),
+      });
+      await trigger.click({ timeout: Math.min(remainingMs, timeoutMs) });
+    } catch (error) {
+      if (!isRetryableSearchDialogTriggerError(error)) {
+        throw error;
+      }
+
+      await sleep(Math.min(SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS, remainingMs));
+      continue;
+    }
 
     try {
       await dialog.waitFor({
@@ -182,7 +216,10 @@ async function openHeaderSearchDialog(
     }
   }
 
-  await dialog.waitFor({ state: "visible", timeout: 1 });
+  await dialog.waitFor({
+    state: "visible",
+    timeout: resolveSearchDialogFinalVisibleWaitTimeout(timeoutMs),
+  });
   return dialog;
 }
 

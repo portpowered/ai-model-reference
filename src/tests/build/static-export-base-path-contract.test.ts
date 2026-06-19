@@ -9,7 +9,10 @@ import {
   EXPORT_SEARCH_BOOTSTRAP_RELATIVE_PATH,
 } from "@/lib/build/export-search-bootstrap";
 import { runPhase1StaticHandoffSearchChecksFromOutDir } from "@/lib/build/run-phase-1-static-handoff-search-checks";
-import { getStaticExportBuildBunTestTimeoutMs } from "@/lib/build/run-static-export-build";
+import {
+  getStaticExportBuildBunTestTimeoutMs,
+  withStaticExportBuildLockSync,
+} from "@/lib/build/run-static-export-build";
 import {
   exportHtmlIncludesGqaAttentionVariantGraphShellMarkers,
   exportHtmlReferencesBasePathAssets,
@@ -60,8 +63,11 @@ describe("static export GitHub Pages base-path contract", () => {
   let metaByUrl: ReturnType<typeof searchResultMetaMapToRecord>;
 
   beforeAll(async () => {
-    removeExportArtifacts();
     metaByUrl = searchResultMetaMapToRecord(await loadSearchResultMetaMap());
+
+    withStaticExportBuildLockSync(() => {
+      removeExportArtifacts();
+    });
 
     ensureExportSearchArtifacts({
       repoRoot,

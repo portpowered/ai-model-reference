@@ -6,6 +6,7 @@ import { buildGroupedQueryAttentionStubBody } from "@/lib/verify/grouped-query-a
 import { buildSearchPageExportShellStubBody } from "@/lib/verify/phase-1-search-export-shell-checks";
 import {
   exportHtmlRelativePath,
+  inferBasePathFromExportHtml,
   resolveExportHtmlFilePath,
   stripBasePathFromExportHtml,
   verifyExportOutDirectory,
@@ -40,6 +41,12 @@ describe("export artifact path helpers", () => {
     expect(stripBasePathFromExportHtml(html, "/ai-model-reference")).toContain(
       'href="/docs/architecture"',
     );
+  });
+
+  test("inferBasePathFromExportHtml detects the prefix from asset URLs", () => {
+    const html =
+      '<script src="/ai-model-reference/_next/static/chunks/main.js"></script>';
+    expect(inferBasePathFromExportHtml(html)).toBe("/ai-model-reference");
   });
 });
 
@@ -123,6 +130,35 @@ describe("verifyPhase1ExportRouteFromFile", () => {
     );
 
     const result = verifyPhase1ExportRouteFromFile("/search", { cwd: dir });
+    expect(result.ok).toBe(true);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("passes prefixed tag export HTML without an explicit basePath option", () => {
+    const dir = mkdtempSync(join(tmpdir(), "export-route-tag-basepath-"));
+    mkdirSync(join(dir, "out", "tags"), { recursive: true });
+    writeFileSync(join(dir, "out", "index.html"), "<html>Model Atlas</html>");
+    writeFileSync(
+      join(dir, "out", "tags", "attention.html"),
+      `
+        <html>
+          <head>
+            <script src="/ai-model-reference/_next/static/chunks/main.js"></script>
+          </head>
+          <body>
+            <h1>Attention</h1>
+            <a href="/ai-model-reference/docs/modules/grouped-query-attention">GQA</a>
+            <a href="/ai-model-reference/docs/glossary/token">Token</a>
+            <a href="/ai-model-reference/search?tag=attention">Search</a>
+          </body>
+        </html>
+      `,
+    );
+
+    const result = verifyPhase1ExportRouteFromFile("/tags/attention", {
+      cwd: dir,
+    });
     expect(result.ok).toBe(true);
 
     rmSync(dir, { recursive: true, force: true });

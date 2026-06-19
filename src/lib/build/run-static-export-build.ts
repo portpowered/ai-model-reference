@@ -105,6 +105,15 @@ function releaseStaticExportBuildLockSync(): void {
   }
 }
 
+export function withStaticExportBuildLockSync<T>(callback: () => T): T {
+  acquireStaticExportBuildLockSync();
+  try {
+    return callback();
+  } finally {
+    releaseStaticExportBuildLockSync();
+  }
+}
+
 export type RunStaticExportBuildOptions = {
   cwd: string;
   env?: Record<string, string | undefined>;
@@ -117,17 +126,14 @@ export type RunStaticExportBuildOptions = {
 export function runStaticExportBuild(
   options: RunStaticExportBuildOptions,
 ): SpawnSyncReturns<string> {
-  acquireStaticExportBuildLockSync();
-  try {
-    return spawnSync("bun", ["run", "build:export"], {
+  return withStaticExportBuildLockSync(() =>
+    spawnSync("bun", ["run", "build:export"], {
       cwd: options.cwd,
       encoding: "utf8",
       env: {
         ...process.env,
         ...options.env,
       },
-    });
-  } finally {
-    releaseStaticExportBuildLockSync();
-  }
+    }),
+  );
 }
