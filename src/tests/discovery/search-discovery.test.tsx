@@ -248,6 +248,26 @@ describe("Phase 1 discovery route smoke", () => {
     expect(page.frontmatter.registryId).toBe("module.grouped-query-attention");
     expect(page.toc.some((item) => item.url === "#how-it-works")).toBe(true);
   });
+
+  test("/docs/training/dpo loads published local docs content", async () => {
+    const page = await loadLocalDocsPage({
+      section: "training",
+      slug: "dpo",
+    });
+
+    expect(page.messages.title).toBe("Direct Preference Optimization");
+    expect(page.frontmatter.registryId).toBe("training-regime.dpo");
+    expect(page.messages.openingSummary?.toLowerCase()).toContain(
+      "direct preference optimization",
+    );
+    expect(page.messages.sections?.howItWorks.body).toContain(
+      "preferred and one rejected",
+    );
+    expect(page.toc.some((item) => item.url === "#how-it-works")).toBe(true);
+    expect(
+      page.toc.some((item) => item.url === "#compared-to-nearby-regimes"),
+    ).toBe(true);
+  });
 });
 
 describe("Phase 1 tag browse helpers", () => {

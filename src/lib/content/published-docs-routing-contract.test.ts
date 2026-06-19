@@ -79,6 +79,14 @@ describe("published docs routing contract", () => {
         href: "/docs/training/on-policy-distillation",
       },
       {
+        label: "dpo training regime",
+        record: requireRecord(
+          getTrainingRegimeById("training-regime.dpo"),
+          "dpo training regime",
+        ),
+        href: "/docs/training/dpo",
+      },
+      {
         label: "system",
         record: requireRecord(
           getSystemById("system.on-disk-kv-cache"),
