@@ -126,8 +126,8 @@ const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
   },
   {
     query: "mixture of experts",
-    firstUrl: "/docs/modules/mixture-of-experts",
-    firstKind: "module" as const,
+    firstUrl: "/docs/concepts/mixture-of-experts",
+    firstKind: "concept" as const,
   },
   {
     query: "ReLU",

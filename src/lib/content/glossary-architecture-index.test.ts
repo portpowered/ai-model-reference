@@ -135,7 +135,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<
 };
 
 const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 47;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 48;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -238,6 +238,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "/docs/glossary/special-tokens",
       "/docs/glossary/token",
       ...ARCHITECTURE_CONCEPT_URLS,
+      "/docs/concepts/mixture-of-experts",
     ] as const) {
       expect(entries.some((entry) => entry.url === url)).toBe(true);
     }
@@ -272,6 +273,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       ["KV cache", "/docs/glossary/kv-cache"],
       ["Decode", "/docs/glossary/decode"],
       ["Prefill", "/docs/glossary/prefill"],
+      ["Mixture of Experts", "/docs/concepts/mixture-of-experts"],
       ["Positional encodings", "/docs/concepts/positional-encodings"],
       ["Token", "/docs/glossary/token"],
       ["Transformer architecture", "/docs/concepts/transformer-architecture"],
