@@ -1,138 +1,16 @@
 import { describe, expect, test } from "bun:test";
 import type { Node } from "fumadocs-core/page-tree";
+import { loadPublishedDocsPagesSync } from "@/lib/content/pages";
 import { source } from "@/lib/source";
 
-const GLOSSARY_INDEX_URLS = [
-  "/docs/glossary/activation",
-  "/docs/glossary/alignment",
-  "/docs/glossary/architecture",
-  "/docs/glossary/autoregressive-generation",
-  "/docs/glossary/backpropagation",
-  "/docs/glossary/component",
-  "/docs/glossary/computational-graph",
-  "/docs/glossary/conditioning",
-  "/docs/glossary/context-window",
-  "/docs/glossary/decode",
-  "/docs/glossary/decoder",
-  "/docs/glossary/denoising-generation",
-  "/docs/glossary/diffusion-model",
-  "/docs/glossary/discriminative-model",
-  "/docs/glossary/embedding",
-  "/docs/glossary/emergent-behavior",
-  "/docs/glossary/encoder",
-  "/docs/glossary/encoder-decoder",
-  "/docs/glossary/entropy",
-  "/docs/glossary/foundation-model",
-  "/docs/glossary/generalization",
-  "/docs/glossary/generative-model",
-  "/docs/glossary/gradient",
-  "/docs/glossary/greedy-decoding",
-  "/docs/glossary/hidden-size",
-  "/docs/glossary/kv-cache",
-  "/docs/glossary/latent",
-  "/docs/glossary/latent-space",
-  "/docs/glossary/logit",
-  "/docs/glossary/loss-function",
-  "/docs/glossary/modality",
-  "/docs/glossary/model",
-  "/docs/glossary/model-capacity",
-  "/docs/glossary/module",
-  "/docs/glossary/multimodal-model",
-  "/docs/glossary/normalization",
-  "/docs/glossary/optimizer-state",
-  "/docs/glossary/overfitting",
-  "/docs/glossary/parameter",
-  "/docs/glossary/patch",
-  "/docs/glossary/perplexity",
-  "/docs/glossary/prefill",
-  "/docs/glossary/prefill-decode-split",
-  "/docs/glossary/representation",
-  "/docs/glossary/residual-connection",
-  "/docs/glossary/sampling-overview",
-  "/docs/glossary/scaling-law",
-  "/docs/glossary/skip-connection",
-  "/docs/glossary/softmax",
-  "/docs/glossary/special-tokens",
-  "/docs/glossary/temperature",
-  "/docs/glossary/tensor",
-  "/docs/glossary/token",
-  "/docs/glossary/top-k-sampling",
-  "/docs/glossary/top-p-sampling",
-  "/docs/glossary/transformer",
-  "/docs/glossary/vector",
-  "/docs/glossary/vocabulary-size",
-  "/docs/glossary/world-model",
-] as const;
-
-const MODULE_INDEX_URLS = [
-  "/docs/modules/absolute-positional-embeddings",
-  "/docs/modules/alibi",
-  "/docs/modules/attention",
-  "/docs/modules/batch-norm",
-  "/docs/modules/bpe",
-  "/docs/modules/bidirectional-attention",
-  "/docs/modules/byte-level-tokenization",
-  "/docs/modules/compressed-sparse-attention",
-  "/docs/modules/deepseekmoe",
-  "/docs/modules/feed-forward-network",
-  "/docs/modules/group-norm",
-  "/docs/modules/grouped-query-attention",
-  "/docs/modules/heavily-compressed-attention",
-  "/docs/modules/layer-norm",
-  "/docs/modules/leaky-relu",
-  "/docs/modules/learned-positional-embeddings",
-  "/docs/modules/linear-attention",
-  "/docs/modules/longrope",
-  "/docs/modules/manifold-constrained-hyper-connections",
-  "/docs/modules/mixture-of-experts",
-  "/docs/modules/multi-head-attention",
-  "/docs/modules/multi-head-latent-attention",
-  "/docs/modules/multi-query-attention",
-  "/docs/modules/nope",
-  "/docs/modules/ntk-aware-rope-scaling",
-  "/docs/modules/positional-interpolation",
-  "/docs/modules/qk-norm",
-  "/docs/modules/relu",
-  "/docs/modules/relative-position-bias",
-  "/docs/modules/rmsnorm",
-  "/docs/modules/rope",
-  "/docs/modules/silu",
-  "/docs/modules/sinusoidal-positional-embeddings",
-  "/docs/modules/sliding-window-attention",
-  "/docs/modules/sparse-attention",
-  "/docs/modules/standard-ffn",
-  "/docs/modules/superhot-rope",
-  "/docs/modules/swiglu",
-  "/docs/modules/t5-relative-position-bias",
-  "/docs/modules/yarn",
-] as const;
-
-const CONCEPT_INDEX_URLS = [
-  "/docs/concepts/alibi",
-  "/docs/concepts/context-extension",
-  "/docs/concepts/page-spec-workflow-sample",
-  "/docs/concepts/positional-encodings",
-  "/docs/concepts/transformer-architecture",
-  "/docs/concepts/why-long-context-is-hard",
-] as const;
-
-const MODEL_INDEX_URLS = [
-  "/docs/models/deepseek-v4-flash",
-  "/docs/models/deepseek-v4-pro",
-  "/docs/models/gpt-3",
-] as const;
-
-const PAPER_INDEX_URLS = ["/docs/papers/deepseek-v4"] as const;
-
-const TRAINING_INDEX_URLS = [
-  "/docs/training/fp4-quantization-aware-training",
-  "/docs/training/on-policy-distillation",
-  "/docs/training/specialist-training",
-] as const;
-
-const SYSTEM_INDEX_URLS = [
-  "/docs/systems/expert-parallel-overlap",
-  "/docs/systems/on-disk-kv-cache",
+const DOCS_SECTION_FOLDERS = [
+  ["glossary", "Glossary"],
+  ["concepts", "Concepts"],
+  ["modules", "Modules"],
+  ["models", "Models"],
+  ["papers", "Papers"],
+  ["training", "Training"],
+  ["systems", "Systems"],
 ] as const;
 
 function collectPageUrls(nodes: Node[]): string[] {
@@ -165,125 +43,55 @@ function collectSeparatorNames(nodes: Node[]): string[] {
   return names;
 }
 
+function findFolder(folderName: string): Extract<Node, { type: "folder" }> {
+  const folder = source.pageTree.children.find(
+    (node) => node.type === "folder" && node.name === folderName,
+  );
+  expect(folder?.type).toBe("folder");
+  if (folder?.type !== "folder") {
+    throw new Error(`expected ${folderName} folder in docs sidebar`);
+  }
+
+  return folder;
+}
+
 describe("docs navigation source", () => {
-  test("page tree includes taxonomy glossary links under Glossary", () => {
-    const urls = collectPageUrls(source.pageTree.children);
-    for (const url of GLOSSARY_INDEX_URLS) {
-      expect(urls).toContain(url);
-    }
-    for (const url of MODULE_INDEX_URLS) {
-      expect(urls).toContain(url);
-    }
-    for (const url of CONCEPT_INDEX_URLS) {
-      expect(urls).toContain(url);
-    }
-    for (const url of MODEL_INDEX_URLS) {
-      expect(urls).toContain(url);
-    }
-    for (const url of PAPER_INDEX_URLS) {
-      expect(urls).toContain(url);
-    }
-    for (const url of TRAINING_INDEX_URLS) {
-      expect(urls).toContain(url);
-    }
-    for (const url of SYSTEM_INDEX_URLS) {
-      expect(urls).toContain(url);
-    }
+  test("page tree exposes the supported docs family folders in the generated order", () => {
+    const folderNames = source.pageTree.children
+      .filter((node): node is Extract<Node, { type: "folder" }> => {
+        return node.type === "folder";
+      })
+      .map((node) => node.name);
 
-    const glossaryFolder = source.pageTree.children.find(
-      (node) => node.type === "folder" && node.name === "Glossary",
+    expect(folderNames).toEqual(
+      DOCS_SECTION_FOLDERS.map(([, folderName]) => folderName),
     );
-    expect(glossaryFolder?.type).toBe("folder");
-    if (glossaryFolder?.type !== "folder") {
-      throw new Error("expected Glossary folder in docs sidebar");
-    }
-
-    const glossaryUrls = collectPageUrls(glossaryFolder.children).sort();
-    expect(glossaryUrls).toEqual([...GLOSSARY_INDEX_URLS].sort());
-
-    const modulesFolder = source.pageTree.children.find(
-      (node) => node.type === "folder" && node.name === "Modules",
-    );
-    expect(modulesFolder?.type).toBe("folder");
-    if (modulesFolder?.type !== "folder") {
-      throw new Error("expected Modules folder in docs sidebar");
-    }
-
-    const moduleUrls = collectPageUrls(modulesFolder.children).sort();
-    expect(moduleUrls).toEqual([...MODULE_INDEX_URLS].sort());
-
-    const conceptsFolder = source.pageTree.children.find(
-      (node) => node.type === "folder" && node.name === "Concepts",
-    );
-    expect(conceptsFolder?.type).toBe("folder");
-    if (conceptsFolder?.type !== "folder") {
-      throw new Error("expected Concepts folder in docs sidebar");
-    }
-
-    const conceptUrls = collectPageUrls(conceptsFolder.children);
-    for (const url of CONCEPT_INDEX_URLS) {
-      expect(conceptUrls).toContain(url);
-    }
-
-    const modelsFolder = source.pageTree.children.find(
-      (node) => node.type === "folder" && node.name === "Models",
-    );
-    expect(modelsFolder?.type).toBe("folder");
-    if (modelsFolder?.type !== "folder") {
-      throw new Error("expected Models folder in docs sidebar");
-    }
-
-    const modelUrls = collectPageUrls(modelsFolder.children).sort();
-    expect(modelUrls).toEqual([...MODEL_INDEX_URLS].sort());
-
-    const papersFolder = source.pageTree.children.find(
-      (node) => node.type === "folder" && node.name === "Papers",
-    );
-    expect(papersFolder?.type).toBe("folder");
-    if (papersFolder?.type !== "folder") {
-      throw new Error("expected Papers folder in docs sidebar");
-    }
-
-    const paperUrls = collectPageUrls(papersFolder.children).sort();
-    expect(paperUrls).toEqual([...PAPER_INDEX_URLS].sort());
-
-    const trainingFolder = source.pageTree.children.find(
-      (node) => node.type === "folder" && node.name === "Training",
-    );
-    expect(trainingFolder?.type).toBe("folder");
-    if (trainingFolder?.type !== "folder") {
-      throw new Error("expected Training folder in docs sidebar");
-    }
-
-    const trainingUrls = collectPageUrls(trainingFolder.children).sort();
-    expect(trainingUrls).toEqual([...TRAINING_INDEX_URLS].sort());
-
-    const systemsFolder = source.pageTree.children.find(
-      (node) => node.type === "folder" && node.name === "Systems",
-    );
-    expect(systemsFolder?.type).toBe("folder");
-    if (systemsFolder?.type !== "folder") {
-      throw new Error("expected Systems folder in docs sidebar");
-    }
-
-    const systemUrls = collectPageUrls(systemsFolder.children).sort();
-    expect(systemUrls).toEqual([...SYSTEM_INDEX_URLS].sort());
   });
 
-  test("glossary navigation URLs resolve through Fumadocs source entries", () => {
-    for (const url of GLOSSARY_INDEX_URLS) {
-      const slug = url.replace("/docs/", "").split("/");
-      expect(source.getPage(slug)).toBeDefined();
+  test("every published docs page resolves through the source and appears once in its family folder", () => {
+    const publishedPages = loadPublishedDocsPagesSync("en");
+    const sidebarUrls = collectPageUrls(source.pageTree.children);
+
+    expect(new Set(sidebarUrls).size).toBe(sidebarUrls.length);
+
+    for (const page of publishedPages) {
+      expect(source.getPage(page.docsSlug.split("/"))).toBeDefined();
+      expect(sidebarUrls).toContain(page.url);
     }
 
-    for (const url of [
-      ...MODEL_INDEX_URLS,
-      ...PAPER_INDEX_URLS,
-      ...TRAINING_INDEX_URLS,
-      ...SYSTEM_INDEX_URLS,
-    ]) {
-      const slug = url.replace("/docs/", "").split("/");
-      expect(source.getPage(slug)).toBeDefined();
+    for (const [section, folderName] of DOCS_SECTION_FOLDERS) {
+      const folder = findFolder(folderName);
+      const folderUrls = collectPageUrls(folder.children).sort();
+      const sectionUrls = publishedPages
+        .filter((page) => page.docsSlug.startsWith(`${section}/`))
+        .map((page) => page.url)
+        .sort();
+
+      expect(sectionUrls.length).toBeGreaterThan(0);
+      expect(folderUrls).toEqual(sectionUrls);
+      expect(
+        folderUrls.every((url) => url.startsWith(`/docs/${section}/`)),
+      ).toBe(true);
     }
   });
 
