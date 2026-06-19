@@ -18,6 +18,7 @@ updatedAt: "2026-06-19"
 
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RegistryLinkList } from "@/features/docs/components/RegistryLinkList";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -37,6 +38,20 @@ import { TagPillList } from "@/features/docs/components/TagPillList";
 
 <Section id="common-confusions" titleKey="sections.commonConfusions.title">
   <T k="sections.commonConfusions.body" />
+
+  <div className="mt-4">
+    <RegistryLinkList
+      registryIds={[
+        "concept.transformer-architecture",
+        "module.standard-ffn",
+        "module.swiglu",
+        "module.mixture-of-experts",
+        "module.relu",
+        "module.silu",
+      ]}
+      emptyLabel="No nearby docs available."
+    />
+  </div>
 </Section>
 
 <Section id="related" titleKey="sections.related.title">

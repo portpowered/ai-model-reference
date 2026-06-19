@@ -35,6 +35,7 @@ describe("Feed-forward network concept page (feed-forward-network-concept-page-0
       "concept.transformer-architecture",
       "concept.standard-ffn",
       "concept.mixture-of-experts",
+      "concept.swiglu",
       "concept.activation",
     ]);
     expect(
@@ -72,6 +73,10 @@ describe("Feed-forward network concept page (feed-forward-network-concept-page-0
     expect(moe?.href).toBe("/docs/modules/mixture-of-experts");
     expect(moe?.isPlanned).toBe(false);
 
+    const swiglu = items.find((item) => item.registryId === "concept.swiglu");
+    expect(swiglu?.href).toBe("/docs/modules/swiglu");
+    expect(swiglu?.isPlanned).toBe(false);
+
     const activation = items.find(
       (item) => item.registryId === "concept.activation",
     );
@@ -101,6 +106,9 @@ describe("Feed-forward network concept page (feed-forward-network-concept-page-0
     expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
       "swiglu",
     );
+    expect(messages.sections?.commonConfusions.body?.toLowerCase()).toContain(
+      "dense",
+    );
   });
 
   test("page renders the concept-template route and sections without raw title duplication", async () => {
@@ -127,7 +135,10 @@ describe("Feed-forward network concept page (feed-forward-network-concept-page-0
     expectHtmlToContainProse(html, "post-attention slot");
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
     expect(html).toContain('href="/docs/modules/standard-ffn"');
+    expect(html).toContain('href="/docs/modules/swiglu"');
     expect(html).toContain('href="/docs/modules/mixture-of-experts"');
+    expect(html).toContain('href="/docs/modules/relu"');
+    expect(html).toContain('href="/docs/modules/silu"');
     expect(html).toContain('href="/docs/glossary/activation"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="curated-related-docs"');
@@ -149,5 +160,26 @@ describe("Feed-forward network concept page (feed-forward-network-concept-page-0
     expect(document?.aliases).toEqual(
       expect.arrayContaining(["FFN", "feedforward network", "MLP block"]),
     );
+    expect(document?.tags).toEqual(
+      expect.arrayContaining(["feed-forward", "foundations"]),
+    );
+  });
+
+  test.each([
+    "FFN",
+    "feedforward network",
+    "MLP block",
+  ])("search index preserves %s as a canonical concept alias", async (query) => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+
+    const document = documents.find(
+      (entry) =>
+        entry.url === "/docs/concepts/feed-forward-network" &&
+        entry.aliases.includes(query),
+    );
+
+    expect(document?.url).toBe("/docs/concepts/feed-forward-network");
   });
 });

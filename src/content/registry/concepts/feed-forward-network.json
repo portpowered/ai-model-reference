@@ -10,6 +10,7 @@
     "concept.transformer-architecture",
     "concept.standard-ffn",
     "concept.mixture-of-experts",
+    "concept.swiglu",
     "concept.activation"
   ],
   "citationIds": [],
