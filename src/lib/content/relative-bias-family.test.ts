@@ -10,6 +10,7 @@ import {
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import { pageMessagesSchema } from "@/lib/content/schemas";
 
 describe("Phase 3 relative bias family pages (US-003)", () => {
   test("relative position bias distinguishes the general family from the T5-specific subtype", () => {
@@ -148,5 +149,36 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
     );
     expect(t5Html).toContain('href="/docs/modules/relative-position-bias"');
     expect(t5Html).toContain("Raffel");
+  });
+
+  test("relative position bias page copy explains the family in plain language and contrasts nearby methods", async () => {
+    const page = await loadModulePage("relative-position-bias");
+    const messages = pageMessagesSchema.parse(page.messages);
+
+    expect(messages.openingSummary).toContain("broad family");
+    expect(messages.openingSummary).toContain("absolute positional embeddings");
+    expect(messages.openingSummary).toContain("T5");
+    expect(messages.openingSummary).toContain("ALiBi");
+    expect(messages.openingSummary).toContain("RoPE");
+
+    expect(messages.sections?.whatItIs.body).toContain("family idea first");
+    expect(messages.sections?.whyItMatters.body).toContain(
+      "absolute positional embeddings",
+    );
+    expect(messages.sections?.simpleExample.body).toContain(
+      "relative gaps such as near, medium, and far",
+    );
+    expect(messages.sections?.commonConfusions.body).toContain(
+      "T5 relative position bias is a bucketed subtype",
+    );
+    expect(messages.sections?.commonConfusions.body).toContain(
+      "ALiBi is a simpler linear-bias member",
+    );
+    expect(messages.sections?.commonConfusions.body).toContain(
+      "RoPE sits nearby but works differently",
+    );
+    expect(messages.sections?.commonConfusions.body).toContain(
+      "Absolute positional embeddings also solve token order in a different way",
+    );
   });
 });
