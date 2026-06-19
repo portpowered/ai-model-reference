@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { defaultLocale, supportedLocales } from "@/lib/i18n/locale-routing";
-import { TAG_MESSAGES_ROOT } from "./content-paths";
+import { MODULES_DOCS_ROOT, TAG_MESSAGES_ROOT } from "./content-paths";
 import { tokenGlossaryPageDir } from "./page-messages-load";
 import { loadRegistry } from "./registry";
 import {
@@ -120,6 +120,23 @@ describe("validateRegistryContent", () => {
   test("returns no errors for the committed Phase 1 baseline", async () => {
     const errors = await validateRegistryContent();
     expect(errors).toEqual([]);
+  });
+
+  test("validates a shipped module comparison-table page through the synchronous table runtime", async () => {
+    const indexes = await loadRegistry();
+    const { errors } = await validateColocatedPageBundle(
+      join(MODULES_DOCS_ROOT, "multi-head-attention"),
+      indexes,
+    );
+
+    expect(
+      errors.filter(
+        (error) =>
+          error.code === "unresolved-table-id" ||
+          error.code === "unresolved-table-module-id" ||
+          error.code === "missing-table-message-key",
+      ),
+    ).toEqual([]);
   });
 
   test("reports duplicate registry ids with record id in the message", async () => {
