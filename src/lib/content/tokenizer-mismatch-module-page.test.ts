@@ -5,13 +5,17 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { parsePageAssetConfig } from "@/lib/content/assets";
+import {
+  parsePageAssetConfig,
+  validatePageAssetReferences,
+} from "@/lib/content/assets";
 import { TOKENIZER_MISMATCH_PAGE_DIR } from "@/lib/content/content-paths";
 import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
+import { getRegistryRecordById } from "@/lib/content/registry-runtime";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
@@ -44,6 +48,56 @@ describe("tokenizer-mismatch page messages", () => {
 });
 
 describe("loadModulePage tokenizer-mismatch", () => {
+  test("keeps the canonical tokenizer-mismatch runtime contract aligned across route, registry, English messages, and discovery", async () => {
+    const [pages, registry, messages] = await Promise.all([
+      loadPublishedDocsPages("en"),
+      loadRegistry(),
+      loadUiMessages(),
+    ]);
+    const page = pages.find(
+      (entry) => entry.url === "/docs/modules/tokenizer-mismatch",
+    );
+
+    expect(page).toBeDefined();
+    expect(page?.frontmatter.registryId).toBe("module.tokenizer-mismatch");
+    expect(page?.messages.title).toBe("Tokenizer mismatch");
+    expect(page?.messages.openingSummary?.length).toBeGreaterThan(0);
+
+    const record = getRegistryRecordById("module.tokenizer-mismatch");
+    expect(record?.kind).toBe("module");
+    if (record?.kind !== "module") {
+      throw new Error("expected module.tokenizer-mismatch in registry runtime");
+    }
+
+    expect(record.status).toBe("published");
+    expect(record.moduleType).toBe("tokenizer");
+    expect(record.moduleFamily).toBe("tokenization");
+    expect(record.slug).toBe("tokenizer-mismatch");
+    expect(record.tags).toEqual(
+      expect.arrayContaining(["tokenization", "foundations"]),
+    );
+
+    const searchDocument = buildSearchDocuments(pages, registry).find(
+      (entry) => entry.url === "/docs/modules/tokenizer-mismatch",
+    );
+    expect(searchDocument?.aliases).toEqual(
+      expect.arrayContaining([
+        "tokenizer mismatch",
+        "wrong tokenizer",
+        "special token mismatch",
+      ]),
+    );
+
+    const groups = await loadTagResourceGroups("tokenization", messages, "en");
+    expect(
+      groups
+        .flatMap((group) => group.resources)
+        .some(
+          (resource) => resource.url === "/docs/modules/tokenizer-mismatch",
+        ),
+    ).toBe(true);
+  });
+
   test("published docs inventory resolves the canonical route, registry id, and English messages together", async () => {
     const pages = await loadPublishedDocsPages("en");
     const page = pages.find(
@@ -169,6 +223,9 @@ describe("loadModulePage tokenizer-mismatch", () => {
 
 describe("tokenizer-mismatch page assets", () => {
   test("parses graph and table assets for the canonical module page", () => {
+    const messages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
     const assets = parsePageAssetConfig(
       JSON.parse(readFileSync(assetsPath, "utf8")),
     );
@@ -180,5 +237,6 @@ describe("tokenizer-mismatch page assets", () => {
       );
     }
     expect(assets.comparisonTable.type).toBe("table");
+    expect(validatePageAssetReferences(assets, messages)).toEqual([]);
   });
 });
