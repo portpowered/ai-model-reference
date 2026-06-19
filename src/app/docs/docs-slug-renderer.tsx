@@ -20,6 +20,19 @@ import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
 import { source } from "@/lib/source";
 import { getMDXComponents } from "../../../mdx-components";
 
+export function resolveLocalDocsShellDescription(options: {
+  description: string;
+  openingSummary?: string;
+  section: string;
+}) {
+  const { description, openingSummary, section } = options;
+  if (section === "glossary") {
+    return description;
+  }
+
+  return openingSummary ?? description;
+}
+
 function buildDocsPageAlternates(docsSlug: string) {
   const alternates = localizedRouteAlternates({
     surface: "docs-page",
@@ -53,11 +66,16 @@ async function renderLocalDocsPage(
 
   const loadedPage = await loadLocalDocsPage(localRef, locale);
   const uiMessages = await loadUiMessages(locale);
+  const shellDescriptionText = resolveLocalDocsShellDescription({
+    description: loadedPage.messages.description,
+    openingSummary: loadedPage.messages.openingSummary,
+    section: localRef.section,
+  });
   const description =
     localRef.section === "glossary" ? (
       <DocsAutoLinkedDescription text={loadedPage.messages.description} />
     ) : (
-      loadedPage.messages.description
+      shellDescriptionText
     );
 
   return (

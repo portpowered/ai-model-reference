@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   buildDocsPageMetadata,
   renderDocsSlugPage,
+  resolveLocalDocsShellDescription,
 } from "@/app/docs/docs-slug-renderer";
 
 describe("docs slug renderer locale gating", () => {
@@ -242,5 +243,22 @@ describe("docs slug renderer locale gating", () => {
         /notFound\(\)|NEXT_HTTP_ERROR_FALLBACK;404/,
       );
     }
+  });
+
+  test("local non-glossary docs shell prefers openingSummary when present", () => {
+    const shellDescription = resolveLocalDocsShellDescription({
+      description:
+        "A post-training reinforcement-learning method that compares several sampled answers for the same prompt and updates the model from their relative quality.",
+      openingSummary:
+        "Group Relative Policy Optimization, usually shortened to GRPO, is a reinforcement-learning post-training method where the model samples several answers to one prompt, scores them as a group, and learns from which answers look better inside that local set.",
+      section: "training",
+    });
+
+    expect(shellDescription).toContain(
+      "Group Relative Policy Optimization, usually shortened to GRPO",
+    );
+    expect(shellDescription).not.toContain(
+      "A post-training reinforcement-learning method that compares several sampled answers for the same prompt and updates the model from their relative quality.",
+    );
   });
 });
