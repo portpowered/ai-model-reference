@@ -112,6 +112,42 @@ const validCitationRecord = {
   year: 2023,
 };
 
+const validDraftModuleRecord = {
+  ...validModuleRecord,
+  status: "draft",
+  citationIds: [],
+};
+
+const validDraftGraphRecord = {
+  id: "graph.demo",
+  slug: "demo",
+  kind: "graph",
+  defaultTitleKey: "title",
+  defaultSummaryKey: "description",
+  aliases: [],
+  tags: [],
+  relatedIds: [],
+  citationIds: [],
+  status: "draft",
+  createdAt: "2026-06-01T00:00:00.000Z",
+  updatedAt: "2026-06-02T00:00:00.000Z",
+  subjectId: "module.grouped-query-attention",
+  graphType: "module-compute-flow",
+  rootNodeId: "subject-node",
+  layout: "vertical-expandable",
+  defaultExpandedDepth: 1,
+  supportedRenderers: ["react-flow"],
+  nodes: [
+    {
+      id: "subject-node",
+      labelKey: "graph.nodes.subjectNode.label",
+      moduleKind: "block",
+      childNodeIds: [],
+    },
+  ],
+  edges: [],
+};
+
 const nonDefaultLocales = supportedLocales.filter(
   (locale) => locale !== defaultLocale,
 );
@@ -327,6 +363,212 @@ describe("validateRegistryContent", () => {
             error.code === "unresolved-graph-id" &&
             error.message.includes("graph.missing-token-map"),
         ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("fails graph validation when a canonical node registry target cannot be resolved", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "graphs"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify(validDraftModuleRecord),
+    );
+    await writeFile(
+      join(registryRoot, "graphs", "demo.json"),
+      JSON.stringify({
+        ...validDraftGraphRecord,
+        nodes: [
+          {
+            id: "subject-node",
+            labelKey: "graph.nodes.subjectNode.label",
+            registryId: "module.missing-target",
+            moduleKind: "block",
+            childNodeIds: [],
+          },
+        ],
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "unresolved-graph-node-registry-id" &&
+            error.message.includes("module.missing-target"),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("fails graph validation when graph-local outbound targets are configured without a local summary", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "graphs"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify(validDraftModuleRecord),
+    );
+    await writeFile(
+      join(registryRoot, "graphs", "demo.json"),
+      JSON.stringify({
+        ...validDraftGraphRecord,
+        nodes: [
+          {
+            id: "subject-node",
+            labelKey: "graph.nodes.subjectNode.label",
+            moduleKind: "operation",
+            relatedRegistryId: "module.grouped-query-attention",
+            childNodeIds: [],
+          },
+        ],
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "graph-local-summary-required" &&
+            error.message.includes('node "subject-node"'),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("allows graph-local popup metadata when the node includes a local summary and published outbound target", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "graphs"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify(validDraftModuleRecord),
+    );
+    await writeFile(
+      join(registryRoot, "graphs", "demo.json"),
+      JSON.stringify({
+        ...validDraftGraphRecord,
+        nodes: [
+          {
+            id: "subject-node",
+            labelKey: "graph.nodes.subjectNode.label",
+            summaryKey: "graph.nodes.subjectNode.summary",
+            moduleKind: "operation",
+            relatedRegistryId: "module.grouped-query-attention",
+            childNodeIds: [],
+          },
+        ],
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some((error) =>
+          [
+            "graph-local-summary-required",
+            "unresolved-graph-node-related-registry-id",
+            "unpublished-graph-node-related-registry-id",
+          ].includes(error.code),
+        ),
+      ).toBe(false);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("fails graph validation when root and edge node references do not resolve", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "modules"), { recursive: true });
+    await mkdir(join(registryRoot, "graphs"), { recursive: true });
+    await mkdir(join(registryRoot, "tags"), { recursive: true });
+
+    await writeFile(
+      join(registryRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify(validDraftModuleRecord),
+    );
+    await writeFile(
+      join(registryRoot, "graphs", "demo.json"),
+      JSON.stringify({
+        ...validDraftGraphRecord,
+        rootNodeId: "missing-root",
+        edges: [
+          {
+            id: "broken-edge",
+            source: "subject-node",
+            target: "missing-target",
+            edgeKind: "depends-on",
+          },
+        ],
+      }),
+    );
+    await writeFile(
+      join(registryRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some((error) => error.code === "unresolved-graph-root-node-id"),
+      ).toBe(true);
+      expect(
+        errors.some((error) => error.code === "unresolved-graph-edge-target"),
       ).toBe(true);
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
