@@ -42,6 +42,26 @@ async function createTempRegistryRoot(): Promise<{
 }
 
 describe("registry-runtime generation", () => {
+  test("checked-in generated runtime stays reproducible from registry sources", async () => {
+    const projectRoot = getProjectRoot();
+    const outputPath = join(
+      projectRoot,
+      "src",
+      "lib",
+      "content",
+      "registry-runtime.generated.ts",
+    );
+    const expectedSource = await readFile(outputPath, "utf8");
+
+    const generatedSource = await generateRegistryRuntimeSource({
+      outputPath,
+      projectRoot,
+      registryRoot: join(projectRoot, "src", "content", "registry"),
+    });
+
+    expect(generatedSource).toBe(expectedSource);
+  });
+
   test("generated runtime resolves a newly added module without manual runtime edits", async () => {
     const { outputPath, registryRoot, tempRoot } =
       await createTempRegistryRoot();
