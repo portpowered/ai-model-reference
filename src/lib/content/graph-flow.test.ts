@@ -6,6 +6,7 @@ import {
   estimateRegistryFlowNodeBoxSize,
   orderGraphNodes,
   resolveGraphNodeLabel,
+  resolveRegistryFlowEdgeFamily,
 } from "@/lib/content/graph-flow";
 import { getGraphById } from "@/lib/content/graph-registry-runtime";
 import type { PageMessages } from "@/lib/content/schemas";
@@ -81,6 +82,7 @@ describe("graph-flow", () => {
     expect(nodes[0]?.data.semantic.resolvedTitle).toBe("Hidden states");
     expect(nodes[0]?.data.semantic.hasCanonicalPage).toBe(false);
     expect(edges[0]?.data?.semantic).toMatchObject({
+      edgeFamily: "data-flow",
       edgeKind: "data-flow",
       sourceNodeId: "hidden-states",
       targetNodeId: "query-projection",
@@ -222,6 +224,7 @@ describe("graph-flow", () => {
       canonicalPageHref: "/docs/modules/multi-head-attention",
     });
     expect(addNormEdge?.data?.semantic).toMatchObject({
+      edgeFamily: "data-flow",
       edgeKind: "data-flow",
       sourceNodeId: "masked-mha",
       targetNodeId: "add-norm-attention",
@@ -267,6 +270,21 @@ describe("graph-flow", () => {
       width: inactiveExpertsNode?.data.size?.width,
       height: inactiveExpertsNode?.data.size?.height,
     });
+  });
+
+  test("classifies explicit edge families and preserves fallback behavior for older supported edge kinds", () => {
+    expect(resolveRegistryFlowEdgeFamily("data-flow")).toBe("data-flow");
+    expect(resolveRegistryFlowEdgeFamily("contains")).toBe("contains");
+    expect(resolveRegistryFlowEdgeFamily("residual")).toBe("residual");
+    expect(resolveRegistryFlowEdgeFamily("cache-read")).toBe("cache-read");
+    expect(resolveRegistryFlowEdgeFamily("cache-write")).toBe("cache-write");
+    expect(resolveRegistryFlowEdgeFamily("parameter-sharing")).toBe(
+      "parameter-sharing",
+    );
+    expect(resolveRegistryFlowEdgeFamily("depends-on")).toBe("depends-on");
+    expect(resolveRegistryFlowEdgeFamily("control-flow")).toBe("fallback");
+    expect(resolveRegistryFlowEdgeFamily("conditioning")).toBe("fallback");
+    expect(resolveRegistryFlowEdgeFamily("loss-signal")).toBe("fallback");
   });
 
   test("keeps the requested annotation box when the MoE inactive-experts label fits", () => {

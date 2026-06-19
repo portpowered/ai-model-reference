@@ -331,6 +331,7 @@ export const moduleGraphNodeKindSchema = z.enum([
 export const moduleGraphEdgeKindSchema = z.enum([
   "data-flow",
   "control-flow",
+  "depends-on",
   "residual",
   "conditioning",
   "cache-read",

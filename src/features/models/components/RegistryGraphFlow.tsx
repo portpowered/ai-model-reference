@@ -508,6 +508,20 @@ function RegistryGraphFlowSurface({
               {node.data.label}
             </span>
           ))}
+          {edges.map((edge) => (
+            <span
+              key={edge.id}
+              data-graph-edge-id={edge.id}
+              data-graph-edge-family={edge.data?.edgeFamily ?? "fallback"}
+              data-graph-edge-kind={edge.data?.semantic.edgeKind ?? "data-flow"}
+              data-graph-edge-source={edge.source}
+              data-graph-edge-target={edge.target}
+            >
+              {edge.data?.semantic.sourceTitle ?? edge.source}
+              {" to "}
+              {edge.data?.semantic.targetTitle ?? edge.target}
+            </span>
+          ))}
         </div>
         <div
           className="registry-graph-flow__viewport w-full max-w-full overflow-hidden"

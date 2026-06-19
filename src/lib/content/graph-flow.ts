@@ -75,10 +75,22 @@ export type RegistryFlowNodeSemanticData = {
 };
 
 export type RegistryFlowEdgeData = {
+  edgeFamily: RegistryFlowEdgeFamily;
   semantic: RegistryFlowEdgeSemanticData;
 };
 
+export type RegistryFlowEdgeFamily =
+  | "data-flow"
+  | "contains"
+  | "residual"
+  | "cache-read"
+  | "cache-write"
+  | "parameter-sharing"
+  | "depends-on"
+  | "fallback";
+
 export type RegistryFlowEdgeSemanticData = {
+  edgeFamily: RegistryFlowEdgeFamily;
   edgeKind: ModuleGraphEdge["edgeKind"];
   sourceNodeId: string;
   targetNodeId: string;
@@ -390,60 +402,89 @@ function edgeKindSupportsInteraction(
   return false;
 }
 
+export function resolveRegistryFlowEdgeFamily(
+  edgeKind: ModuleGraphEdge["edgeKind"],
+): RegistryFlowEdgeFamily {
+  switch (edgeKind) {
+    case "data-flow":
+    case "contains":
+    case "residual":
+    case "cache-read":
+    case "cache-write":
+    case "parameter-sharing":
+    case "depends-on":
+      return edgeKind;
+    default:
+      return "fallback";
+  }
+}
+
+function buildRegistryFlowEdgeClassName(
+  edgeFamily: RegistryFlowEdgeFamily,
+): string {
+  return `registry-graph-flow__edge registry-graph-flow__edge--${edgeFamily}`;
+}
+
 export function buildRegistryFlowEdges(
   graph: GraphRecord,
   nodesById: ReadonlyMap<string, RegistryFlowNodeData>,
 ): Edge<RegistryFlowEdgeData>[] {
   if (graph.edges.length > 0) {
-    return graph.edges.map((edge) => ({
-      id: edge.id,
-      source: edge.source,
-      target: edge.target,
-      type: buildRegistryFlowEdgeType(edge),
-      zIndex: buildRegistryFlowEdgeZIndex(edge),
-      ...(edge.sourceHandleSide
-        ? {
-            sourceHandle: buildRegistryFlowHandleId(
-              "source",
-              edge.sourceHandleSide,
-            ),
-          }
-        : {}),
-      ...(edge.targetHandleSide
-        ? {
-            targetHandle: buildRegistryFlowHandleId(
-              "target",
-              edge.targetHandleSide,
-            ),
-          }
-        : {}),
-      markerEnd: buildRegistryFlowEdgeMarker(edge),
-      style: buildRegistryFlowEdgeStyle(edge),
-      data: {
-        semantic: {
-          edgeKind: edge.edgeKind,
-          sourceNodeId: edge.source,
-          targetNodeId: edge.target,
-          ...(nodesById.get(edge.source)?.semantic.registryId
-            ? {
-                sourceRegistryId: nodesById.get(edge.source)?.semantic
-                  .registryId,
-              }
-            : {}),
-          ...(nodesById.get(edge.target)?.semantic.registryId
-            ? {
-                targetRegistryId: nodesById.get(edge.target)?.semantic
-                  .registryId,
-              }
-            : {}),
-          sourceTitle:
-            nodesById.get(edge.source)?.semantic.resolvedTitle ?? edge.source,
-          targetTitle:
-            nodesById.get(edge.target)?.semantic.resolvedTitle ?? edge.target,
-          interactionEnabled: edgeKindSupportsInteraction(edge.edgeKind),
+    return graph.edges.map((edge) => {
+      const edgeFamily = resolveRegistryFlowEdgeFamily(edge.edgeKind);
+      return {
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        type: buildRegistryFlowEdgeType(edgeFamily),
+        zIndex: buildRegistryFlowEdgeZIndex(edgeFamily),
+        className: buildRegistryFlowEdgeClassName(edgeFamily),
+        ...(edge.sourceHandleSide
+          ? {
+              sourceHandle: buildRegistryFlowHandleId(
+                "source",
+                edge.sourceHandleSide,
+              ),
+            }
+          : {}),
+        ...(edge.targetHandleSide
+          ? {
+              targetHandle: buildRegistryFlowHandleId(
+                "target",
+                edge.targetHandleSide,
+              ),
+            }
+          : {}),
+        markerEnd: buildRegistryFlowEdgeMarker(edgeFamily),
+        style: buildRegistryFlowEdgeStyle(edgeFamily),
+        data: {
+          edgeFamily,
+          semantic: {
+            edgeFamily,
+            edgeKind: edge.edgeKind,
+            sourceNodeId: edge.source,
+            targetNodeId: edge.target,
+            ...(nodesById.get(edge.source)?.semantic.registryId
+              ? {
+                  sourceRegistryId: nodesById.get(edge.source)?.semantic
+                    .registryId,
+                }
+              : {}),
+            ...(nodesById.get(edge.target)?.semantic.registryId
+              ? {
+                  targetRegistryId: nodesById.get(edge.target)?.semantic
+                    .registryId,
+                }
+              : {}),
+            sourceTitle:
+              nodesById.get(edge.source)?.semantic.resolvedTitle ?? edge.source,
+            targetTitle:
+              nodesById.get(edge.target)?.semantic.resolvedTitle ?? edge.target,
+            interactionEnabled: edgeKindSupportsInteraction(edge.edgeKind),
+          },
         },
-      },
-    }));
+      };
+    });
   }
 
   const edges: Edge<RegistryFlowEdgeData>[] = [];
@@ -451,16 +492,20 @@ export function buildRegistryFlowEdges(
     for (const childId of node.childNodeIds) {
       const sourceNode = nodesById.get(node.id);
       const targetNode = nodesById.get(childId);
+      const edgeFamily = resolveRegistryFlowEdgeFamily("data-flow");
       edges.push({
         id: `${node.id}->${childId}`,
         source: node.id,
         target: childId,
-        type: buildRegistryFlowEdgeType({ edgeKind: "data-flow" }),
-        zIndex: buildRegistryFlowEdgeZIndex({ edgeKind: "data-flow" }),
-        markerEnd: buildRegistryFlowEdgeMarker({ edgeKind: "data-flow" }),
-        style: buildRegistryFlowEdgeStyle({ edgeKind: "data-flow" }),
+        type: buildRegistryFlowEdgeType(edgeFamily),
+        zIndex: buildRegistryFlowEdgeZIndex(edgeFamily),
+        className: buildRegistryFlowEdgeClassName(edgeFamily),
+        markerEnd: buildRegistryFlowEdgeMarker(edgeFamily),
+        style: buildRegistryFlowEdgeStyle(edgeFamily),
         data: {
+          edgeFamily,
           semantic: {
+            edgeFamily,
             edgeKind: "data-flow",
             sourceNodeId: node.id,
             targetNodeId: childId,
@@ -489,9 +534,9 @@ function buildRegistryFlowHandleId(
 }
 
 function buildRegistryFlowEdgeZIndex(
-  edge: Pick<ModuleGraphEdge, "edgeKind">,
+  edgeFamily: RegistryFlowEdgeFamily,
 ): number {
-  switch (edge.edgeKind) {
+  switch (edgeFamily) {
     case "contains":
       return 0;
     case "residual":
@@ -502,12 +547,12 @@ function buildRegistryFlowEdgeZIndex(
 }
 
 function buildRegistryFlowEdgeType(
-  edge: Pick<ModuleGraphEdge, "edgeKind">,
+  edgeFamily: RegistryFlowEdgeFamily,
 ): Edge["type"] {
-  switch (edge.edgeKind) {
+  switch (edgeFamily) {
     case "contains":
-    case "control-flow":
     case "residual":
+    case "depends-on":
       return "smoothstep";
     default:
       return "straight";
@@ -515,16 +560,18 @@ function buildRegistryFlowEdgeType(
 }
 
 function buildRegistryFlowEdgeMarker(
-  edge: Pick<ModuleGraphEdge, "edgeKind">,
+  edgeFamily: RegistryFlowEdgeFamily,
 ): EdgeMarker {
   const color =
-    edge.edgeKind === "cache-read" || edge.edgeKind === "cache-write"
+    edgeFamily === "cache-read" || edgeFamily === "cache-write"
       ? "#2563eb"
-      : edge.edgeKind === "residual"
+      : edgeFamily === "residual"
         ? "#7c3aed"
-        : edge.edgeKind === "contains"
+        : edgeFamily === "contains"
           ? "#334155"
-          : "#111111";
+          : edgeFamily === "depends-on"
+            ? "#0f766e"
+            : "#111111";
 
   return {
     type: MarkerType.ArrowClosed,
@@ -535,9 +582,9 @@ function buildRegistryFlowEdgeMarker(
 }
 
 function buildRegistryFlowEdgeStyle(
-  edge: Pick<ModuleGraphEdge, "edgeKind">,
+  edgeFamily: RegistryFlowEdgeFamily,
 ): CSSProperties {
-  switch (edge.edgeKind) {
+  switch (edgeFamily) {
     case "parameter-sharing":
       return {
         strokeWidth: 3,
@@ -559,6 +606,12 @@ function buildRegistryFlowEdgeStyle(
       return {
         strokeWidth: 2.5,
         stroke: "#334155",
+      };
+    case "depends-on":
+      return {
+        strokeWidth: 3,
+        stroke: "#0f766e",
+        strokeDasharray: "7 5",
       };
     default:
       return {

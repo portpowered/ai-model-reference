@@ -15,10 +15,12 @@ import {
 } from "@/features/models/components/RegistryGraphFlow";
 import { REGISTRY_GRAPH_FLOW_INTERACTION } from "@/features/models/components/registry-graph-flow-theme";
 import {
+  buildRegistryFlowEdges,
   buildRegistryFlowGraph,
   buildRegistryFlowNodeType,
   GraphRenderIssueError,
   type RegistryFlowNodeData,
+  resolveRegistryFlowEdgeFamily,
   resolveRegistryFlowNodeFamily,
 } from "@/lib/content/graph-flow";
 import { getGraphById } from "@/lib/content/graph-registry-runtime";
@@ -305,6 +307,10 @@ describe("RegistryGraphFlow", () => {
     expect(nodes.some((node) => node.type === "canonicalReference")).toBe(true);
     expect(nodes.some((node) => node.type === "structural")).toBe(true);
     expect(nodes.some((node) => node.type === "architectureBlock")).toBe(true);
+    expect(html).toContain(
+      'data-graph-edge-id="input-tokens-to-input-embedding"',
+    );
+    expect(html).toContain('data-graph-edge-family="data-flow"');
   });
 
   test("renders timeline and annotation graph families with their node markers", () => {
@@ -505,6 +511,114 @@ describe("RegistryGraphFlow", () => {
       "architectureBlock",
     );
     expect(buildRegistryFlowNodeType("fallback")).toBe("fallback");
+  });
+
+  test("classifies runtime edge families and preserves a fallback family for older supported kinds", () => {
+    expect(resolveRegistryFlowEdgeFamily("data-flow")).toBe("data-flow");
+    expect(resolveRegistryFlowEdgeFamily("contains")).toBe("contains");
+    expect(resolveRegistryFlowEdgeFamily("residual")).toBe("residual");
+    expect(resolveRegistryFlowEdgeFamily("cache-read")).toBe("cache-read");
+    expect(resolveRegistryFlowEdgeFamily("cache-write")).toBe("cache-write");
+    expect(resolveRegistryFlowEdgeFamily("parameter-sharing")).toBe(
+      "parameter-sharing",
+    );
+    expect(resolveRegistryFlowEdgeFamily("depends-on")).toBe("depends-on");
+    expect(resolveRegistryFlowEdgeFamily("control-flow")).toBe("fallback");
+  });
+
+  test("uses explicit edge families for supported kinds and a default fallback family for older graphs", () => {
+    const graph = {
+      id: "graph.edge-family-fixture",
+      slug: "edge-family-fixture",
+      kind: "graph",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-20T00:00:00.000Z",
+      updatedAt: "2026-06-20T00:00:00.000Z",
+      subjectId: "module.grouped-query-attention",
+      graphType: "module-compute-flow",
+      rootNodeId: "source",
+      layout: "vertical-expandable",
+      defaultExpandedDepth: 1,
+      supportedRenderers: ["react-flow"],
+      nodes: [
+        {
+          id: "source",
+          labelKey: "graph.nodes.source.label",
+          moduleKind: "input",
+          childNodeIds: [],
+        },
+        {
+          id: "target",
+          labelKey: "graph.nodes.target.label",
+          moduleKind: "output",
+          childNodeIds: [],
+        },
+      ],
+      edges: [
+        {
+          id: "depends-edge",
+          source: "source",
+          target: "target",
+          edgeKind: "depends-on",
+        },
+        {
+          id: "fallback-edge",
+          source: "target",
+          target: "source",
+          edgeKind: "control-flow",
+        },
+      ],
+    } satisfies GraphRecord;
+
+    const graphMessages = {
+      title: "Fixture",
+      description: "Fixture",
+      graph: {
+        nodes: {
+          source: { label: "Source module" },
+          target: { label: "Target module" },
+        },
+      },
+    } satisfies PageMessages;
+
+    const { nodes } = buildRegistryFlowGraph(graph, graphMessages);
+    const nodesById = new Map(nodes.map((node) => [node.id, node.data]));
+    const edges = buildRegistryFlowEdges(graph, nodesById);
+
+    expect(edges[0]).toMatchObject({
+      id: "depends-edge",
+      type: "smoothstep",
+      className:
+        "registry-graph-flow__edge registry-graph-flow__edge--depends-on",
+      data: {
+        edgeFamily: "depends-on",
+        semantic: {
+          edgeFamily: "depends-on",
+          edgeKind: "depends-on",
+          sourceTitle: "Source module",
+          targetTitle: "Target module",
+        },
+      },
+    });
+    expect(edges[1]).toMatchObject({
+      id: "fallback-edge",
+      type: "straight",
+      className:
+        "registry-graph-flow__edge registry-graph-flow__edge--fallback",
+      data: {
+        edgeFamily: "fallback",
+        semantic: {
+          edgeFamily: "fallback",
+          edgeKind: "control-flow",
+        },
+      },
+    });
   });
 
   test("uses the fallback node family for legacy nodes and preserves graph-local summary metadata", () => {

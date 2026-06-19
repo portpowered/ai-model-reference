@@ -639,6 +639,7 @@ type ModuleGraphEdge = {
   edgeKind:
     | "data-flow"
     | "control-flow"
+    | "depends-on"
     | "residual"
     | "conditioning"
     | "cache-read"
@@ -656,6 +657,8 @@ Graph renderer rules:
 * Node and edge labels use message keys. The renderer resolves labels from the same locale messages as the page.
 * Runtime node rendering should resolve an explicit semantic node family before choosing a React Flow component. V1 families are canonical registry references, structural scaffolding, annotations, operators, architecture blocks, and a default fallback family for older or less specific nodes.
 * The fallback node must preserve label-first rendering for older graphs that only provide the minimum current schema fields. When graph-local summary content exists, the fallback may surface a non-blocking summary affordance without requiring a schema rewrite.
+* Runtime edge rendering should resolve an explicit semantic edge family before choosing React Flow path behavior. V1 families are `data-flow`, `contains`, `residual`, `cache-read`, `cache-write`, `parameter-sharing`, `depends-on`, and a default fallback family for older but still supported relationship kinds such as `control-flow`, `conditioning`, and `loss-signal`.
+* The fallback edge must keep older graphs rendering by using the default path treatment for supported but not-yet-specialized edge kinds instead of failing closed.
 * Web graph rendering uses React Flow as the interaction engine.
 * React Flow is not the visual design system. Visual consistency comes from semantic `moduleKind` node styles, semantic `edgeKind` edge styles, and the vertical expandable layout.
 * Users can expand and collapse nodes recursively.
