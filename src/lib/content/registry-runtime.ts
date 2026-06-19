@@ -130,6 +130,7 @@ import attention from "@/content/registry/modules/attention.json";
 import batchNormModule from "@/content/registry/modules/batch-norm.json";
 import bidirectionalAttentionModule from "@/content/registry/modules/bidirectional-attention.json";
 import bpeModule from "@/content/registry/modules/bpe.json";
+import byteLevelTokenizationModule from "@/content/registry/modules/byte-level-tokenization.json";
 import compressedSparseAttentionModule from "@/content/registry/modules/compressed-sparse-attention.json";
 import deepseekMoeModule from "@/content/registry/modules/deepseekmoe.json";
 import feedForwardNetworkModule from "@/content/registry/modules/feed-forward-network.json";
@@ -205,6 +206,7 @@ const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(batchNormModule),
   moduleRecordSchema.parse(bpeModule),
   moduleRecordSchema.parse(bidirectionalAttentionModule),
+  moduleRecordSchema.parse(byteLevelTokenizationModule),
   moduleRecordSchema.parse(compressedSparseAttentionModule),
   moduleRecordSchema.parse(deepseekMoeModule),
   moduleRecordSchema.parse(feedForwardNetworkModule),

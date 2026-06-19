@@ -1,0 +1,54 @@
+{
+  "id": "module.byte-level-tokenization",
+  "slug": "byte-level-tokenization",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "byte-level tokenization",
+    "byte level tokenization",
+    "byte-level tokenizer",
+    "byte level tokenizer",
+    "byte tokenizer",
+    "byte-level BPE",
+    "byte level BPE",
+    "why bytes not words"
+  ],
+  "tags": ["tokenization"],
+  "relatedIds": [
+    "concept.token",
+    "concept.tokenizers-overview",
+    "module.bpe",
+    "concept.vocabulary-size",
+    "model.gpt-3"
+  ],
+  "citationIds": ["citation.gpt-2-report"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "releaseDate": "2019-02-14",
+  "authors": [
+    "Alec Radford",
+    "Jeffrey Wu",
+    "Rewon Child",
+    "David Luan",
+    "Dario Amodei",
+    "Ilya Sutskever"
+  ],
+  "sourceId": "citation.gpt-2-report",
+  "moduleType": "tokenizer",
+  "moduleFamily": "tokenization",
+  "conceptType": "tokenizer-algorithm",
+  "variantGroup": "subword-tokenizers",
+  "optimizes": ["arbitrary-text-coverage", "open-vocabulary-text"],
+  "practicalBenefits": [
+    "covers any UTF-8 text without unknown-character gaps",
+    "keeps the base symbol inventory small before learned merges"
+  ],
+  "exampleModelIds": ["model.gpt-3"],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": ["model.gpt-3"],
+  "introducedByPaperIds": [],
+  "mathLevel": "none"
+}

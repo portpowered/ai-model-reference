@@ -1,6 +1,7 @@
 import batchNormComparison from "@/content/registry/tables/batch-norm-comparison.json";
 import bidirectionalAttentionComparison from "@/content/registry/tables/bidirectional-attention-comparison.json";
 import bpeComparison from "@/content/registry/tables/bpe-comparison.json";
+import byteLevelTokenizationComparison from "@/content/registry/tables/byte-level-tokenization-comparison.json";
 import feedForwardNetworkComparison from "@/content/registry/tables/feed-forward-network-comparison.json";
 import groupNormComparison from "@/content/registry/tables/group-norm-comparison.json";
 import groupedQueryAttentionComparison from "@/content/registry/tables/grouped-query-attention-comparison.json";
@@ -25,6 +26,7 @@ const tableRecords: TableRecord[] = [
   tableRecordSchema.parse(batchNormComparison),
   tableRecordSchema.parse(bpeComparison),
   tableRecordSchema.parse(bidirectionalAttentionComparison),
+  tableRecordSchema.parse(byteLevelTokenizationComparison),
   tableRecordSchema.parse(feedForwardNetworkComparison),
   tableRecordSchema.parse(groupNormComparison),
   tableRecordSchema.parse(groupedQueryAttentionComparison),

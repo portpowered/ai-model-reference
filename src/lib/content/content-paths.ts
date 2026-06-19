@@ -156,6 +156,12 @@ export const SPARSE_ATTENTION_PAGE_DIR = join(
   "sparse-attention",
 );
 
+/** Byte-level tokenization module page directory. */
+export const BYTE_LEVEL_TOKENIZATION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "byte-level-tokenization",
+);
+
 /** Phase 1 token glossary sample page directory. */
 export const TOKEN_GLOSSARY_PAGE_DIR = join(GLOSSARY_DOCS_ROOT, "token");
 

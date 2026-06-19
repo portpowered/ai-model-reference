@@ -11,6 +11,7 @@ describe("Phase 2 token page learning chain entry (US-010)", () => {
     expect(token?.tags).toContain("token-to-probability-chain");
     expect(token?.tags).toContain("foundations");
     expect(token?.relatedIds).toEqual([
+      "module.byte-level-tokenization",
       "concept.embedding",
       "concept.vocabulary-size",
       "concept.logit",

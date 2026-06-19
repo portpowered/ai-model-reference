@@ -4,7 +4,12 @@
   "kind": "tag",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["tokenizer", "subword tokenization"],
+  "aliases": [
+    "tokenizer",
+    "tokenizers",
+    "subword tokenization",
+    "text tokenization"
+  ],
   "tags": [],
   "relatedIds": [],
   "citationIds": [],
