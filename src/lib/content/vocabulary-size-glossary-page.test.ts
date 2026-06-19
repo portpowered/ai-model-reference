@@ -70,6 +70,9 @@ describe("vocabulary size glossary page", () => {
         ?.href,
     ).toBe("/docs/modules/byte-level-tokenization");
     expect(
+      items.find((item) => item.registryId === "concept.special-tokens")?.href,
+    ).toBe("/docs/glossary/special-tokens");
+    expect(
       items.find((item) => item.registryId === "concept.hidden-size")?.href,
     ).toBe("/docs/glossary/hidden-size");
     expect(items.find((item) => item.registryId === "model.gpt-3")?.href).toBe(
@@ -101,6 +104,8 @@ describe("vocabulary size glossary page", () => {
       "larger vocabulary can let common strings stay in fewer tokens",
     );
     expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
+    expect(html).toContain('href="/docs/glossary/special-tokens"');
     expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain('href="/docs/glossary/hidden-size"');
     expect(html).toContain('href="/docs/models/gpt-3"');

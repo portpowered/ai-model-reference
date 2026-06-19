@@ -12,6 +12,7 @@ import {
   expectGlossarySingleTagPillList,
   expectHtmlToContainProse,
 } from "@/lib/content/glossary-test-helpers";
+import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -206,5 +207,44 @@ describe("special tokens glossary page (special-tokens-page-002)", () => {
     );
 
     expect(html).toContain('href="/docs/glossary/special-tokens"');
+  });
+
+  test("neighboring tokenizer, prompt-adjacent, and vocabulary pages render navigable links back to special tokens", async () => {
+    const [bpe, conditioning, vocabularySize] = await Promise.all([
+      loadModulePage("bpe"),
+      loadGlossaryPage("conditioning"),
+      loadGlossaryPage("vocabulary-size"),
+    ]);
+
+    const bpeHtml = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: bpe.messages,
+        assets: bpe.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: bpe.content,
+      }),
+    );
+    const conditioningHtml = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: conditioning.messages,
+        assets: conditioning.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: conditioning.content,
+      }),
+    );
+    const vocabularySizeHtml = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: vocabularySize.messages,
+        assets: vocabularySize.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: vocabularySize.content,
+      }),
+    );
+
+    expect(bpeHtml).toContain('href="/docs/glossary/special-tokens"');
+    expect(conditioningHtml).toContain('href="/docs/glossary/special-tokens"');
+    expect(vocabularySizeHtml).toContain(
+      'href="/docs/glossary/special-tokens"',
+    );
   });
 });
