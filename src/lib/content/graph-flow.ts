@@ -5,6 +5,7 @@ import {
   type Node,
 } from "@xyflow/react";
 import type { CSSProperties } from "react";
+import { getGraphRegistryMessages } from "@/lib/content/graph-message-runtime";
 import { lookupMessage } from "@/lib/content/messages";
 import {
   getPublishedDocsHrefForRecord,
@@ -322,11 +323,37 @@ function resolveGraphNodeSemanticData(
   node: ModuleGraphNode,
   labelSources: readonly PageMessages[],
 ): RegistryFlowNodeSemanticData {
-  const resolvedTitle = resolveGraphNodeLabel(labelSources, node.labelKey);
-  const resolvedSummary = resolveGraphNodeSummary(node, labelSources);
   const registryRecord = node.registryId
     ? getRegistryRecordById(node.registryId)
     : undefined;
+  const graphLabel = resolveGraphNodeLabel(labelSources, node.labelKey);
+  const graphLocalSummary = resolveGraphNodeSummary(node, labelSources);
+  const registryMessages =
+    node.registryId && registryRecord
+      ? getGraphRegistryMessages(node.registryId)
+      : undefined;
+  const registryTitle =
+    registryRecord && registryMessages
+      ? resolveGraphNodeLabel(registryMessages, registryRecord.defaultTitleKey)
+      : undefined;
+  const registrySummary =
+    registryRecord && registryMessages
+      ? resolveGraphNodeLabel(
+          registryMessages,
+          registryRecord.defaultSummaryKey,
+        )
+      : undefined;
+  const resolvedSummary =
+    graphLocalSummary ??
+    (registrySummary === registryRecord?.defaultSummaryKey
+      ? undefined
+      : registrySummary);
+  const resolvedTitle =
+    graphLabel.trim().length > 0
+      ? graphLabel
+      : registryTitle === registryRecord?.defaultTitleKey
+        ? graphLabel
+        : (registryTitle ?? graphLabel);
   const hasCanonicalPage = Boolean(
     node.registryId &&
       registryRecord &&

@@ -656,11 +656,13 @@ Graph renderer rules:
 * Graph records should live close to the page or registry record they support when practical. Page-local graph asset references live in `assets.json`; reusable graph records live in `src/content/registry/graphs`.
 * Node and edge labels use message keys. The renderer resolves labels from the same locale messages as the page.
 * Runtime node rendering should resolve an explicit semantic node family before choosing a React Flow component. V1 families are canonical registry references, structural scaffolding, annotations, operators, architecture blocks, and a default fallback family for older or less specific nodes.
+* Canonical interactive nodes should derive popup titles from the graph label when it is meaningful, but fall back to the canonical record title when the visual graph label is intentionally blank for container-style nodes.
 * The fallback node must preserve label-first rendering for older graphs that only provide the minimum current schema fields. When graph-local summary content exists, the fallback may surface a non-blocking summary affordance without requiring a schema rewrite.
 * Runtime edge rendering should resolve an explicit semantic edge family before choosing React Flow path behavior. V1 families are `data-flow`, `contains`, `residual`, `cache-read`, `cache-write`, `parameter-sharing`, `depends-on`, and a default fallback family for older but still supported relationship kinds such as `control-flow`, `conditioning`, and `loss-signal`.
 * The fallback edge must keep older graphs rendering by using the default path treatment for supported but not-yet-specialized edge kinds instead of failing closed.
 * Web graph rendering uses React Flow as the interaction engine.
 * React Flow is not the visual design system. Visual consistency comes from semantic `moduleKind` node styles, semantic `edgeKind` edge styles, and the vertical expandable layout.
+* When a React Flow node becomes directly clickable, its hidden handles and the clickable node wrapper must not capture or lose pointer events in a way that blocks popup activation.
 * Users can expand and collapse nodes recursively.
 * Every expandable node should expose icon buttons for expand and collapse. Use accessible icon buttons with labels such as "Expand module" and "Collapse module".
 * Layout is always vertical-first. Expanded modules flow top-to-bottom on mobile and desktop.

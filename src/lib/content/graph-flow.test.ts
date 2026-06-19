@@ -211,6 +211,7 @@ describe("graph-flow", () => {
       gpt3Messages as PageMessages,
     );
     const maskedMhaNode = nodes.find((node) => node.id === "masked-mha");
+    const decoderStackNode = nodes.find((node) => node.id === "decoder-stack");
     const addNormEdge = edges.find(
       (edge) => edge.id === "masked-mha-to-add-norm-attention",
     );
@@ -223,6 +224,10 @@ describe("graph-flow", () => {
       hasCanonicalPage: true,
       canonicalPageHref: "/docs/modules/multi-head-attention",
     });
+    expect(decoderStackNode?.data.semantic).toMatchObject({
+      registryId: "concept.transformer-architecture",
+      resolvedTitle: "Transformer architecture",
+    });
     expect(addNormEdge?.data?.semantic).toMatchObject({
       edgeFamily: "data-flow",
       edgeKind: "data-flow",
@@ -234,6 +239,112 @@ describe("graph-flow", () => {
       targetTitle: "Add & Norm",
       interactionEnabled: false,
     });
+  });
+
+  test("falls back to canonical registry summaries when a graph node does not supply one", () => {
+    const graph = {
+      id: "graph.registry-summary-fixture",
+      slug: "registry-summary-fixture",
+      kind: "graph",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-20T00:00:00.000Z",
+      updatedAt: "2026-06-20T00:00:00.000Z",
+      subjectId: "module.grouped-query-attention",
+      graphType: "module-compute-flow",
+      rootNodeId: "layer-norm-node",
+      layout: "vertical-expandable",
+      defaultExpandedDepth: 1,
+      supportedRenderers: ["react-flow"],
+      nodes: [
+        {
+          id: "layer-norm-node",
+          labelKey: "graph.nodes.layerNormNode.label",
+          registryId: "module.layer-norm",
+          moduleKind: "normalization",
+          childNodeIds: [],
+        },
+      ],
+      edges: [],
+    } satisfies Parameters<typeof buildRegistryFlowGraph>[0];
+
+    const pageMessages = {
+      title: "Fixture",
+      description: "Fixture",
+      graph: {
+        nodes: {
+          layerNormNode: {
+            label: "Layer Norm",
+          },
+        },
+      },
+    } satisfies PageMessages;
+
+    const { nodes } = buildRegistryFlowGraph(graph, pageMessages);
+    expect(nodes[0]?.data.semantic.resolvedSummary).toBe(
+      "Per-token mean-and-variance normalization that rescales each hidden vector before the next sublayer in a transformer block.",
+    );
+  });
+
+  test("marks canonical nodes without published docs pages as non-linkable", () => {
+    const graph = {
+      id: "graph.unpublished-canonical-fixture",
+      slug: "unpublished-canonical-fixture",
+      kind: "graph",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-20T00:00:00.000Z",
+      updatedAt: "2026-06-20T00:00:00.000Z",
+      subjectId: "module.grouped-query-attention",
+      graphType: "module-compute-flow",
+      rootNodeId: "batch-norm-node",
+      layout: "vertical-expandable",
+      defaultExpandedDepth: 1,
+      supportedRenderers: ["react-flow"],
+      nodes: [
+        {
+          id: "dataset-node",
+          labelKey: "graph.nodes.datasetNode.label",
+          summaryKey: "graph.nodes.datasetNode.summary",
+          registryId: "dataset.deepseek-v4-specialist-corpus",
+          moduleKind: "dataset",
+          childNodeIds: [],
+        },
+      ],
+      edges: [],
+    } satisfies Parameters<typeof buildRegistryFlowGraph>[0];
+
+    const pageMessages = {
+      title: "Fixture",
+      description: "Fixture",
+      graph: {
+        nodes: {
+          datasetNode: {
+            label: "DeepSeek V4 specialist corpus",
+            summary: "Dataset node without a published canonical docs page.",
+          },
+        },
+      },
+    } satisfies PageMessages;
+
+    const { nodes } = buildRegistryFlowGraph(graph, pageMessages);
+    expect(nodes[0]?.data.semantic).toMatchObject({
+      registryId: "dataset.deepseek-v4-specialist-corpus",
+      entityKind: "dataset",
+      hasCanonicalPage: false,
+      resolvedSummary: "Dataset node without a published canonical docs page.",
+    });
+    expect(nodes[0]?.data.semantic.canonicalPageHref).toBeUndefined();
   });
 
   test("preserves the requested MoE annotation height when the content already fits", () => {

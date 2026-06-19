@@ -25,11 +25,12 @@
   stroke-width: 4;
 }
 
-.registry-graph-flow__handle {
-  height: 1px;
-  width: 1px;
+.registry-graph-flow .registry-graph-flow__handle {
+  height: 1px !important;
+  width: 1px !important;
   border: 0;
   opacity: 0;
+  pointer-events: none !important;
 }
 
 .registry-graph-flow__row-label {
@@ -98,6 +99,32 @@
   line-height: 1.25;
   text-align: center;
   box-shadow: 0 8px 24px rgb(15 23 42 / 0.08);
+}
+
+.registry-graph-flow__node-content,
+.registry-graph-flow__node-button {
+  display: grid;
+  height: 100%;
+  width: 100%;
+  align-content: center;
+  justify-items: center;
+  gap: 0.35rem;
+  text-align: inherit;
+}
+
+.registry-graph-flow__node-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.registry-graph-flow__node-button:focus-visible {
+  outline: 3px solid var(--ring, #0f766e);
+  outline-offset: 4px;
 }
 
 .registry-graph-flow__default-node--has-summary {
@@ -295,4 +322,48 @@
 
 .registry-graph-flow__math-label .katex {
   white-space: nowrap;
+}
+
+.registry-graph-flow__popup {
+  border: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--popover) 94%, transparent);
+  padding: 0.9rem;
+  color: var(--popover-foreground);
+  box-shadow: 0 20px 48px rgb(2 8 23 / 0.34);
+  backdrop-filter: blur(12px);
+}
+
+.registry-graph-flow__popup-kind {
+  margin: 0 0 0.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.registry-graph-flow__popup-title {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.registry-graph-flow__popup-summary {
+  margin: 0.75rem 0 0;
+  color: var(--foreground);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.registry-graph-flow__popup-link {
+  display: inline-flex;
+  margin-top: 0.85rem;
+  color: var(--primary);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
 }

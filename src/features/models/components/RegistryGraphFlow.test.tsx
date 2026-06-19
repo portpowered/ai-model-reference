@@ -1,17 +1,26 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from "@testing-library/react";
 import { ReactFlowProvider } from "@xyflow/react";
-import type { ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { PageAssetsProvider } from "@/features/docs/components/page-assets-context";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import {
+  CanonicalReferenceNode,
   FallbackNode,
   GraphNodeLabel,
   nodeVisualRoleHasHandles,
   RegistryGraphFlow,
+  RegistryGraphFlowInteractionContext,
+  RegistryGraphFlowNodePopup,
 } from "@/features/models/components/RegistryGraphFlow";
 import { REGISTRY_GRAPH_FLOW_INTERACTION } from "@/features/models/components/registry-graph-flow-theme";
 import {
@@ -94,6 +103,55 @@ function renderRegistryGraph(
         {ui}
       </PageAssetsProvider>
     </PageMessagesProvider>,
+  );
+}
+
+function CanonicalNodeHarness({ data }: { data: RegistryFlowNodeData }) {
+  const [activeNode, setActiveNode] = useState<{
+    canonicalPageHref?: string;
+    entityKind?: RegistryFlowNodeData["semantic"]["entityKind"];
+    hasCanonicalPage: boolean;
+    id: string;
+    resolvedSummary?: string;
+    resolvedTitle: string;
+  } | null>(null);
+
+  return (
+    <RegistryGraphFlowInteractionContext.Provider
+      value={{
+        activeNodeId: activeNode?.id,
+        openNodePopup: setActiveNode,
+        popupId: "graph-node-popup",
+      }}
+    >
+      <ReactFlowProvider>
+        {CanonicalReferenceNode({
+          id: data.semantic.registryId ?? "node",
+          data,
+          type: "canonicalReference",
+          selected: false,
+          dragging: false,
+          zIndex: 0,
+          isConnectable: false,
+          positionAbsoluteX: 0,
+          positionAbsoluteY: 0,
+          xPos: 0,
+          yPos: 0,
+          draggingHandle: null,
+          targetPosition: undefined,
+          sourcePosition: undefined,
+          width: 220,
+          height: 82,
+          parentId: undefined,
+          dragHandle: undefined,
+        } as never)}
+      </ReactFlowProvider>
+      <RegistryGraphFlowNodePopup
+        activeNode={activeNode}
+        onClose={() => setActiveNode(null)}
+        popupId="graph-node-popup"
+      />
+    </RegistryGraphFlowInteractionContext.Provider>
   );
 }
 
@@ -395,6 +453,77 @@ describe("RegistryGraphFlow", () => {
       }),
     ).toBeNull();
     expect(document.body.style.overflow).toBe("");
+  });
+
+  test("opens canonical node popups with summary, kind, and canonical docs links", () => {
+    const graph = getGraphById("graph.gpt-3-architecture");
+    expect(graph).toBeDefined();
+    if (!graph) {
+      return;
+    }
+
+    const { nodes } = buildRegistryFlowGraph(
+      graph,
+      gpt3Messages as PageMessages,
+    );
+    const maskedMhaNode = nodes.find((node) => node.id === "masked-mha");
+    expect(maskedMhaNode).toBeDefined();
+    if (!maskedMhaNode) {
+      return;
+    }
+
+    renderRegistryGraph(<CanonicalNodeHarness data={maskedMhaNode.data} />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /Open Masked\s+Multi-Head\s+Attention details/,
+      }),
+    );
+
+    const popup = screen.getByRole("dialog", {
+      name: /Masked\s+Multi-Head\s+Attention details/,
+    });
+    expect(within(popup).getByText("Module")).toBeTruthy();
+    expect(within(popup).getByText("Masked Multi-Head Attention")).toBeTruthy();
+    expect(
+      within(popup).getByText(
+        "Each token can read earlier tokens but not future ones",
+      ),
+    ).toBeTruthy();
+    expect(
+      within(popup)
+        .getByRole("link", { name: "Open canonical docs page" })
+        .getAttribute("href"),
+    ).toBe("/docs/modules/multi-head-attention");
+  });
+
+  test("opens canonical node popups from keyboard activation", () => {
+    const graph = getGraphById("graph.gpt-3-architecture");
+    expect(graph).toBeDefined();
+    if (!graph) {
+      return;
+    }
+
+    const { nodes } = buildRegistryFlowGraph(
+      graph,
+      gpt3Messages as PageMessages,
+    );
+    const inputTokensNode = nodes.find((node) => node.id === "input-tokens");
+    expect(inputTokensNode).toBeDefined();
+    if (!inputTokensNode) {
+      return;
+    }
+
+    renderRegistryGraph(<CanonicalNodeHarness data={inputTokensNode.data} />);
+
+    const inputTokensButton = screen.getByRole("button", {
+      name: /Open Input\s+Tokens details/,
+    });
+    fireEvent.keyDown(inputTokensButton, { key: "Enter" });
+
+    expect(
+      screen.getByRole("dialog", { name: /Input\s+Tokens details/ }),
+    ).toBeTruthy();
   });
 
   test("preserves explicit size and architecture visual roles for container-style nodes", () => {
