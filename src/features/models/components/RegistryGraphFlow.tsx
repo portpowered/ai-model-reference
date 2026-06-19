@@ -723,9 +723,9 @@ function RegistryGraphFlowSurface({
             className="registry-graph-flow__viewport w-full max-w-full overflow-hidden"
             style={viewportStyle}
           >
-          <ReactFlow
-            nodes={renderedNodes}
-            edges={edges}
+            <ReactFlow
+              nodes={renderedNodes}
+              edges={edges}
               onError={handleReactFlowError}
               fitView
               fitViewOptions={REGISTRY_GRAPH_FLOW_FIT_VIEW_OPTIONS}
