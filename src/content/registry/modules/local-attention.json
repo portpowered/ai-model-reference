@@ -7,6 +7,8 @@
   "aliases": [
     "local attention",
     "Local attention",
+    "local window attention",
+    "long-context attention",
     "windowed attention",
     "windowed local attention",
     "neighborhood attention"

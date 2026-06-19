@@ -33,6 +33,8 @@ describe("local-attention registry record", () => {
     expect(localAttention.aliases).toEqual([
       "local attention",
       "Local attention",
+      "local window attention",
+      "long-context attention",
       "windowed attention",
       "windowed local attention",
       "neighborhood attention",
