@@ -1,0 +1,46 @@
+{
+  "id": "model.gpt-2",
+  "slug": "gpt-2",
+  "kind": "model",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["GPT-2", "Generative Pre-trained Transformer 2", "gpt2"],
+  "tags": ["foundations", "model-family", "attention", "tokenization"],
+  "relatedIds": [
+    "concept.transformer-architecture",
+    "concept.tokenizers-overview",
+    "module.byte-level-tokenization",
+    "module.learned-positional-embeddings",
+    "module.multi-head-attention",
+    "module.feed-forward-network"
+  ],
+  "citationIds": ["citation.gpt-2-report"],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "authors": [
+    "Alec Radford",
+    "Jeffrey Wu",
+    "Rewon Child",
+    "David Luan",
+    "Dario Amodei",
+    "Ilya Sutskever"
+  ],
+  "sourceId": "citation.gpt-2-report",
+  "family": "gpt",
+  "sourceType": "open-weights",
+  "modalities": ["text"],
+  "architectureIds": ["concept.transformer-architecture"],
+  "moduleIds": [
+    "module.byte-level-tokenization",
+    "module.learned-positional-embeddings",
+    "module.multi-head-attention",
+    "module.feed-forward-network"
+  ],
+  "trainingRegimeIds": [],
+  "datasetIds": [],
+  "paperIds": [],
+  "releaseDate": "2019-02-14",
+  "parameterCount": "1.5 billion parameters",
+  "contextLength": 1024
+}

@@ -1,0 +1,109 @@
+{
+  "title": "GPT-2",
+  "description": "An early decoder-only language model that showed broad text generation could emerge from large-scale next-token pretraining.",
+  "openingSummary": "Generative Pre-trained Transformer 2, usually shortened to GPT-2, became a landmark example of a decoder-only transformer because it showed that one large pretrained text model could continue prose, imitate formats, and answer simple prompts without a separate task-specific head.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "GPT-2 is a text-only language model from OpenAI. It is a decoder-only transformer trained to predict the next token in a sequence, and it became one of the clearest early examples of a general-purpose generative model rather than a narrow task model."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "The model reads text that has already been broken into byte-level tokens and produces more text tokens one step at a time. In practice, the prompt can be a sentence, a question, a block of code, or a partial article, and GPT-2 keeps extending that context through next-token prediction."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "GPT-2 keeps the standard decoder-only transformer layout. Token embeddings are combined with learned positional embeddings, then a repeated decoder block applies masked multi-head attention so each position can only read earlier tokens, followed by a feed-forward network and residual normalization steps before an output projection and softmax turn the final state into next-token probabilities."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "These modules explain most of what readers need to know about GPT-2's internals. Byte-level tokenization decides how raw text becomes tokens, learned positional embeddings mark order, multi-head attention mixes information across earlier tokens, and the feed-forward network does the per-token transformation inside each decoder block."
+    },
+    "training": {
+      "title": "Training",
+      "body": "GPT-2 mattered because its public story was simple and influential: scale up plain next-token pretraining on a broad internet text mixture, keep the architecture familiar, and let general language behavior emerge from the training objective. The model predates later instruction tuning workflows, so the base model is best understood as a pretrained text completer rather than a chat system shaped by post-training."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "GPT-2 is historically important, but it also marks an earlier stage of the field. Its 1,024-token context window is small by modern standards, it uses learned absolute positions instead of later long-context schemes such as RoPE scaling, and it is most useful here as a clean reference point for understanding decoder-only transformers before more specialized variants complicate the picture."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "GPT-2 architecture diagram with input tokens, token embeddings, learned positional embeddings, a repeated decoder block with masked multi-head attention and a feed-forward network, then an output linear layer and softmax."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "outputProbabilities": {
+        "label": "Output\nProbabilities",
+        "summary": "The model's probability distribution over the next token"
+      },
+      "softmax": {
+        "label": "Softmax",
+        "summary": "Turns final vocabulary scores into probabilities"
+      },
+      "linear": {
+        "label": "Linear",
+        "summary": "Projects the hidden state into vocabulary logits"
+      },
+      "decoderStack": {
+        "label": " ",
+        "summary": "Repeated decoder block container"
+      },
+      "attentionSublayer": {
+        "label": " ",
+        "summary": "Attention sublayer container"
+      },
+      "ffnSublayer": {
+        "label": " ",
+        "summary": "Feed-forward sublayer container"
+      },
+      "repeatMarker": {
+        "label": "N×",
+        "summary": "This decoder block repeats many times through the stack"
+      },
+      "addNormAttention": {
+        "label": "Add & Norm",
+        "summary": "Residual add followed by normalization after masked attention"
+      },
+      "maskedMha": {
+        "label": "Masked\nMulti-Head\nAttention",
+        "summary": "Each token can read earlier tokens but not future ones"
+      },
+      "addNormFfn": {
+        "label": "Add & Norm",
+        "summary": "Residual add followed by normalization after the feed-forward block"
+      },
+      "feedForward": {
+        "label": "Feed\nForward",
+        "summary": "Per-token dense transformation inside each decoder block"
+      },
+      "positionAdd": {
+        "label": "+",
+        "summary": "Adds token embeddings and learned positional embeddings"
+      },
+      "learnedPositions": {
+        "label": "Learned\nPosition\nEmbeddings",
+        "summary": "Absolute position vectors added before the stack"
+      },
+      "inputEmbedding": {
+        "label": "Input\nEmbedding",
+        "summary": "Maps token IDs to hidden vectors"
+      },
+      "inputTokens": {
+        "label": "Input\nTokens",
+        "summary": "Prompt text after tokenization"
+      }
+    }
+  }
+}
