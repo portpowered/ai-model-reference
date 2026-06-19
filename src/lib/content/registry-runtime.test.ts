@@ -4,12 +4,15 @@ import {
   getDatasetById,
   getModuleById,
   getOrganizationById,
+  getPaperById,
   getRegistryCitationIds,
   getRegistryRecordById,
   getRegistryTags,
+  getSystemById,
   listConceptRecords,
   listModuleRecords,
   listRelatedRegistryRecords,
+  listSystemRecords,
 } from "@/lib/content/registry-runtime";
 
 describe("registry-runtime", () => {
@@ -183,6 +186,47 @@ describe("registry-runtime", () => {
     ).toBe("dataset");
     expect(getRegistryRecordById("organization.deepseek-ai")?.kind).toBe(
       "organization",
+    );
+  });
+
+  test("getSystemById returns the canonical routing system with serving aliases and nearby docs", () => {
+    const record = getSystemById("system.routing");
+
+    expect(record?.slug).toBe("routing");
+    expect(record?.status).toBe("draft");
+    expect(record?.tags).toEqual(["foundations"]);
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "request routing",
+        "inference routing",
+        "serving router",
+        "serve request to specialist model",
+      ]),
+    );
+    expect(record?.relatedIds).toEqual([
+      "training-regime.specialist-training",
+      "module.mixture-of-experts",
+      "module.deepseekmoe",
+      "system.expert-parallel-overlap",
+      "system.on-disk-kv-cache",
+      "paper.deepseek-v4",
+    ]);
+    expect(record?.relatedModuleIds).toEqual([
+      "module.mixture-of-experts",
+      "module.deepseekmoe",
+    ]);
+    expect(record?.organizationId).toBe("organization.deepseek-ai");
+  });
+
+  test("routing system is reachable from paper, organization, and the system registry list", () => {
+    expect(getPaperById("paper.deepseek-v4")?.introducesIds).toContain(
+      "system.routing",
+    );
+    expect(
+      getOrganizationById("organization.deepseek-ai")?.systemIds,
+    ).toContain("system.routing");
+    expect(listSystemRecords().map((record) => record.id)).toContain(
+      "system.routing",
     );
   });
 

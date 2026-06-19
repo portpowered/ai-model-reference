@@ -14,5 +14,9 @@
   "website": "https://huggingface.co/deepseek-ai",
   "modelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "paperIds": ["paper.deepseek-v4"],
-  "systemIds": ["system.on-disk-kv-cache", "system.expert-parallel-overlap"]
+  "systemIds": [
+    "system.routing",
+    "system.on-disk-kv-cache",
+    "system.expert-parallel-overlap"
+  ]
 }
