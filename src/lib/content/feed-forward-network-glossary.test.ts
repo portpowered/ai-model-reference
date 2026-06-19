@@ -35,6 +35,7 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
       "concept.transformer-architecture",
       "concept.standard-ffn",
       "concept.mixture-of-experts",
+      "concept.swiglu",
       "concept.activation",
     ]);
     expect(
@@ -42,7 +43,7 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
     ).toBe(true);
   });
 
-  test("curated related links transformer architecture, standard FFN, mixture of experts, and activation", () => {
+  test("curated related links transformer architecture, standard FFN, mixture of experts, SwiGLU, and activation", () => {
     const source = getConceptById("concept.feed-forward-network");
     if (!source) {
       throw new Error("expected concept.feed-forward-network in registry");
@@ -71,6 +72,10 @@ describe("Phase 3 feed-forward network module page (US-002)", () => {
     );
     expect(moe?.href).toBe("/docs/modules/mixture-of-experts");
     expect(moe?.isPlanned).toBe(false);
+
+    const swiglu = items.find((item) => item.registryId === "concept.swiglu");
+    expect(swiglu?.href).toBe("/docs/modules/swiglu");
+    expect(swiglu?.isPlanned).toBe(false);
 
     const activation = items.find(
       (item) => item.registryId === "concept.activation",

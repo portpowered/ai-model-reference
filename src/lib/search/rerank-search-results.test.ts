@@ -113,4 +113,33 @@ describe("rerankSearchResults", () => {
       generativeModelUrl,
     );
   });
+
+  test("findBestTitleMatchPageUrl prefers the concept page when concept and module share the same exact alias", () => {
+    const conceptUrl = "/docs/concepts/feed-forward-network";
+    const moduleUrl = "/docs/modules/feed-forward-network";
+    const documentsByUrl = new Map<string, SearchDocument>([
+      [
+        moduleUrl,
+        documentForUrl(moduleUrl, {
+          kind: "module",
+          title: "Feed-Forward Network",
+          aliases: ["FFN", "feedforward network", "MLP block"],
+          facets: { kind: "module", tags: ["feed-forward"] },
+        }),
+      ],
+      [
+        conceptUrl,
+        documentForUrl(conceptUrl, {
+          kind: "concept",
+          title: "Feed-Forward Network",
+          aliases: ["FFN", "feedforward network", "MLP block"],
+          facets: { kind: "concept", tags: ["feed-forward"] },
+        }),
+      ],
+    ]);
+
+    expect(
+      findBestTitleMatchPageUrl("feedforward network", documentsByUrl),
+    ).toBe(conceptUrl);
+  });
 });

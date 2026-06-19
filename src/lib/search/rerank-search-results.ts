@@ -40,18 +40,46 @@ function scoreDocumentMatch(query: string, document: SearchDocument): number {
   return 0;
 }
 
+function kindTieBreakPriority(kind: SearchDocument["kind"]): number {
+  switch (kind) {
+    case "concept":
+      return 0;
+    case "glossary":
+      return 1;
+    case "model":
+      return 2;
+    case "paper":
+      return 3;
+    case "training-regime":
+      return 4;
+    case "system":
+      return 5;
+    case "module":
+      return 6;
+    default:
+      return 7;
+  }
+}
+
 export function findBestTitleMatchPageUrl(
   query: string,
   documentsByUrl: Map<string, SearchDocument>,
 ): string | undefined {
   let bestUrl: string | undefined;
   let bestScore = 0;
+  let bestKindPriority = Number.POSITIVE_INFINITY;
 
   for (const [url, document] of documentsByUrl) {
     const score = scoreDocumentMatch(query, document);
-    if (score > bestScore) {
+    const kindPriority = kindTieBreakPriority(document.kind);
+
+    if (
+      score > bestScore ||
+      (score === bestScore && score >= 90 && kindPriority < bestKindPriority)
+    ) {
       bestScore = score;
       bestUrl = url;
+      bestKindPriority = kindPriority;
     }
   }
 
