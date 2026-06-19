@@ -1,10 +1,14 @@
 import { afterEach, describe, expect, test } from "bun:test";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { CONTENT_ROOT } from "@/lib/content/content-paths";
 import {
   clearRegisteredGraphRecords,
   getGraphById,
   listGraphRecords,
   registerGraphRecords,
 } from "@/lib/content/graph-registry-runtime";
+import { parseGraphRegistryRecords } from "@/lib/content/graph-registry-validation";
 import { graphRecordSchema } from "@/lib/content/schemas";
 
 describe("graph-registry-runtime", () => {
@@ -181,6 +185,23 @@ describe("graph-registry-runtime", () => {
     );
     expect(records.map((record) => record.id)).toContain(
       "graph.expert-parallel-overlap-system-flow",
+    );
+  });
+
+  test("matches the root graph registry directory exactly", () => {
+    const graphsRoot = join(CONTENT_ROOT, "registry", "graphs");
+    const graphFileNames = readdirSync(graphsRoot)
+      .filter((fileName) => fileName.endsWith(".json"))
+      .sort((left, right) => left.localeCompare(right));
+    const rootRecords = parseGraphRegistryRecords(
+      graphFileNames.map((fileName) => ({
+        sourcePath: join(graphsRoot, fileName),
+        value: JSON.parse(readFileSync(join(graphsRoot, fileName), "utf8")),
+      })),
+    );
+
+    expect(listGraphRecords().map((record) => record.id)).toEqual(
+      rootRecords.map((record) => record.id),
     );
   });
 

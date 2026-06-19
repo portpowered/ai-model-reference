@@ -8,6 +8,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { getProjectRoot } from "@/lib/content/content-paths";
 import { syncGraphRegistryRuntimeModule } from "./generate-graph-registry-runtime";
 
 const cleanupPaths: string[] = [];
@@ -162,6 +163,30 @@ describe("generate-graph-registry-runtime", () => {
       syncGraphRegistryRuntimeModule({ graphsRoot, outputPath }),
     ).toThrow(
       /Duplicate graph registry id "graph\.duplicate-id" found in: .*alpha-graph\.json, .*beta-graph\.json/,
+    );
+  });
+
+  test("reproduces the committed runtime manifest from the root graph registry directory", () => {
+    const projectRoot = getProjectRoot();
+    const generatedRoot = mkdtempSync(
+      join(tmpdir(), "graph-runtime-generator-"),
+    );
+    cleanupPaths.push(generatedRoot);
+
+    const graphsRoot = join(projectRoot, "src/content/registry/graphs");
+    const outputPath = join(
+      generatedRoot,
+      "graph-registry-runtime.generated.ts",
+    );
+    const committedOutputPath = join(
+      projectRoot,
+      "src/lib/content/graph-registry-runtime.generated.ts",
+    );
+
+    syncGraphRegistryRuntimeModule({ graphsRoot, outputPath });
+
+    expect(readFileSync(outputPath, "utf8")).toBe(
+      readFileSync(committedOutputPath, "utf8"),
     );
   });
 });
