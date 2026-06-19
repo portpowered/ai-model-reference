@@ -19,7 +19,9 @@
     "concept.top-k-sampling",
     "concept.top-p-sampling"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.curious-case-neural-text-degeneration"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",

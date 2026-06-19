@@ -22,7 +22,6 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "activation",
   "optimizes": ["activation-smoothness"],
-  "practicalBenefits": ["adds a smoother activation curve than ReLU"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

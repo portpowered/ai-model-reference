@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Byte pair encoding (BPE) is a subword tokenizer. Instead of treating every whole word as one fixed unit, it starts from smaller symbols and learns which neighboring pieces appear together often enough to be merged into a larger reusable token."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "BPE balances two pressures at once: the vocabulary should stay small enough to manage, but the tokenizer should still cover messy real text. Reusing common pieces like `ing`, `tion`, or `low` lets one vocabulary handle many rare or unseen words."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "For readers, BPE explains why token counts do not line up neatly with word counts. A short word may stay whole, while a longer or stranger-looking word may break into several pieces that the model can still read because those pieces were learned earlier."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -52,16 +48,13 @@
   "assets": {
     "computeFlow": {
       "alt": "Byte pair encoding flow from raw text pieces, pair counting, repeated merges, and final subword tokens",
-      "caption": "BPE repeatedly counts neighboring pairs and promotes the most frequent pair into a reusable subword token.",
       "variants": {
         "bpe": {
           "label": "BPE merge flow"
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How byte pair encoding compares with nearby subword tokenizers"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

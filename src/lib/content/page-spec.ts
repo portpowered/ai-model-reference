@@ -101,7 +101,6 @@ export const modulePageSpecSchema = pageSpecBaseSchema.extend({
   variantGroup: z.string().optional(),
   variantOf: z.string().optional(),
   optimizes: z.array(z.string()).default([]),
-  practicalBenefits: z.array(z.string()).default([]),
   exampleModelIds: z.array(z.string()).default([]),
   improvesOnIds: z.array(z.string()).default([]),
   tradeoffIds: z.array(z.string()).default([]),

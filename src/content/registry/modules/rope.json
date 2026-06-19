@@ -25,9 +25,6 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "position-encoding",
   "optimizes": ["relative-position-awareness"],
-  "practicalBenefits": [
-    "preserves relative position cues inside attention rotations"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

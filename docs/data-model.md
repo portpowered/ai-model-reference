@@ -208,8 +208,8 @@ Example message file:
       "title": "What It Is",
       "body": "Grouped-query attention is an attention variant derived from multi-head attention."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "GQA reduces KV-cache size, memory bandwidth, and long-context inference cost."
     }
   }
@@ -474,7 +474,6 @@ type ModuleRecord = BaseRecord & {
   conceptType?: string;
   variantGroup?: string;
   optimizes: string[];
-  practicalBenefits: string[];
   exampleModelIds: string[];
   variantOf?: string;
   improvesOnIds: string[];

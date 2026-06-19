@@ -17,7 +17,10 @@
     "concept.entropy",
     "concept.generalization"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.brown-gpt-3",
+    "citation.goodfellow-deep-learning"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T12:00:40.319Z",
   "updatedAt": "2026-06-04T15:00:00.000Z",

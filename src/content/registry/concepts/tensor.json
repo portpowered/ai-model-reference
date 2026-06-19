@@ -7,7 +7,9 @@
   "aliases": ["tensors", "multi-dimensional array"],
   "tags": ["token-to-probability-chain", "foundations"],
   "relatedIds": ["concept.logit"],
-  "citationIds": [],
+  "citationIds": [
+    "citation.goodfellow-deep-learning"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T12:00:00.000Z",

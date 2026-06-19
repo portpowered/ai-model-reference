@@ -385,7 +385,7 @@ make clean     # remove generated artifacts
 * `src/features/docs/components/DerivedRelatedDocs.tsx` renders grouped related resources from registry taxonomy, tags, typed fields, and optional `relatedIds` overrides.
 * `DerivedRelatedDocs` derives groups such as same variant group, same concept type, same module family, shared tags, used by the same models, introduced by the same papers, and curated related links.
 * Module pages should use `DerivedRelatedDocs` to show nearby variants and alternatives. For example, Multi-Head Attention should surface GQA, MQA, MLA, sparse attention, and sliding-window attention when they share `variantGroup`, `conceptType`, `moduleFamily`, or relevant tags.
-* `src/features/models/components/ModuleAtAGlance.tsx` renders module `optimizes`, `practicalBenefits`, and `exampleModelIds` near the top of module pages.
+* `src/features/models/components/ModuleAtAGlance.tsx` renders module `optimizes` and `exampleModelIds` near the top of module pages.
 * Model pages should derive related models, modules, training regimes, datasets, and papers from model family, shared modules, training regimes, datasets, organizations, tags, and optional `relatedIds`.
 * Paper pages should derive introduced models/modules/concepts from typed paper fields, plus supporting or conflicting papers from contribution type, tags, and optional `relatedIds`.
 * `src/features/docs/components/TagPillList.tsx` renders clickable tag links for docs, blog posts, cards, and search results.

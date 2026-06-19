@@ -11,7 +11,9 @@
   ],
   "tags": ["taxonomy", "foundations"],
   "relatedIds": ["concept.generative-model"],
-  "citationIds": [],
+  "citationIds": [
+    "citation.goodfellow-deep-learning"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T00:00:00.000Z",

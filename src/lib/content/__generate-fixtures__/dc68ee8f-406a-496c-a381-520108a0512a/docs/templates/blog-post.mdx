@@ -1,0 +1,63 @@
+---
+messageNamespace: "local"
+assetNamespace: "local"
+publishedAt: "2026-06-02"
+updatedAt: "2026-06-02"
+authors:
+  - "site-team"
+tags:
+  - example-tag
+relatedDocIds:
+  - concept.example-concept
+status: "draft"
+---
+
+import { Callout } from "@/features/docs/components/Callout";
+import { CitationList } from "@/features/docs/components/CitationList";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { T } from "@/features/docs/components/T";
+import { BlogRelatedDocs } from "@/features/blog/components/BlogRelatedDocs";
+
+# <T k="title" />
+
+<T k="contextSentence" />
+
+<T k="takeaway" />
+
+<TagPillList tags={["example-tag"]} />
+
+## Summary
+
+Give the compact version first. Blog posts can be more narrative than docs pages, but should still help readers reach canonical reference pages quickly.
+
+<Callout type="note" title="Reference context">
+Use this callout to point readers to the stable concept, model, module, paper, or training-regime page.
+</Callout>
+
+## Context
+
+Explain what changed, what was released, what paper appeared, or what confusion this post addresses.
+
+## Main Idea
+
+Explain the argument or interpretation. Link to canonical docs pages instead of duplicating stable definitions.
+
+## Why It Matters
+
+Explain the practical implication for readers.
+
+## Related Reference Pages
+
+<BlogRelatedDocs relatedDocIds={["concept.example-concept"]} />
+
+## Tags
+
+<TagPillList tags={["example-tag"]} showDescriptions />
+
+## References
+
+<CitationList citationIds={[]} />
+
+## Document History
+
+* Created from the blog-post MDX template.

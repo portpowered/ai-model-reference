@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Sparse attention is an attention variant that restricts which query-key pairs participate in the softmax. Instead of a full n-by-n attention matrix, only entries allowed by a sparsity pattern receive non-zero weight."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "Sparse attention targets attention compute, memory bandwidth for score materialization, and the cost of serving long sequences when dense all-pairs attention would dominate runtime."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "Teams adopt sparse attention when they need long-context modeling but cannot afford dense quadratic attention. Skipping disallowed pairs reduces multiply-accumulate work and the memory traffic needed to form and store full attention maps."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Dense multi-head attention versus sparse attention pair selection",
-      "caption": "Toggle multi-head attention and sparse attention to compare all-pairs scoring against mask-limited pair selection on one canvas.",
       "variants": {
         "mha": {
           "label": "Multi-head"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How sparse attention compares with nearby attention variants"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

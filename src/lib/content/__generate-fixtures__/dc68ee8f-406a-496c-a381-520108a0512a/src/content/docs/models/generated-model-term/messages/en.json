@@ -1,0 +1,52 @@
+{
+  "title": "Generated Page",
+  "description": "Reader-facing summary for cards and search.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Draft placeholder for Generated Page. Replace before publishing."
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": "Draft placeholder for Generated Page. Replace before publishing."
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": "Draft placeholder for Generated Page. Replace before publishing."
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": "Draft placeholder for Generated Page. Replace before publishing."
+    },
+    "training": {
+      "title": "Training",
+      "body": "Draft placeholder for Generated Page. Replace before publishing."
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": "Draft placeholder for Generated Page. Replace before publishing."
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": "Draft placeholder for Generated Page. Replace before publishing."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "Draft placeholder for Generated Page. Replace before publishing.",
+        "summary": "Draft placeholder for Generated Page. Replace before publishing."
+      }
+    }
+  }
+}

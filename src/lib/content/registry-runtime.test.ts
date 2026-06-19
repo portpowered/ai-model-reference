@@ -138,8 +138,11 @@ describe("registry-runtime", () => {
     ]);
   });
 
-  test("getRegistryCitationIds returns empty array for concept.token", () => {
-    expect(getRegistryCitationIds("concept.token")).toEqual([]);
+  test("getRegistryCitationIds returns citations for concept.token", () => {
+    expect(getRegistryCitationIds("concept.token")).toEqual([
+      "citation.gpt-2-report",
+      "citation.sennrich-bpe",
+    ]);
   });
 
   test("getRegistryCitationIds returns undefined for unknown records", () => {

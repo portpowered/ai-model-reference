@@ -20,10 +20,6 @@
   "conceptType": "attention-variant",
   "variantGroup": "subquadratic-attention",
   "optimizes": ["sequence-scaling", "attention-compute", "memory-bandwidth"],
-  "practicalBenefits": [
-    "near-linear sequence scaling for long contexts",
-    "lower quadratic attention cost via kernel or recurrence formulations"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

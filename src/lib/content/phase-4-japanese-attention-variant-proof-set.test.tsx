@@ -186,7 +186,7 @@ describe("Phase 4 Japanese attention variant proof set", () => {
       expect(page.messages.title).not.toBe(expectation.englishTitle);
       expect(page.messages.description).toBe(expectation.japaneseDescription);
       expect(page.messages.description).not.toBe(expectation.englishFallback);
-      expect(page.messages.sections?.whatItOptimizes.body).toContain(
+      expect(page.messages.sections?.whyItExists.body).toContain(
         expectation.japaneseBody,
       );
       expect(page.messages.assets?.computeFlow?.caption).toBe(

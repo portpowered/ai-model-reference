@@ -25,7 +25,6 @@ const validModuleRecord = {
   updatedAt: "2026-06-02T00:00:00.000Z",
   moduleType: "attention",
   optimizes: ["kv-cache"],
-  practicalBenefits: ["lower memory"],
   exampleModelIds: [],
   improvesOnIds: [],
   tradeoffIds: [],
@@ -860,7 +859,7 @@ updatedAt: "2026-06-02"
     }
   });
 
-  test("reports published modules missing At a Glance release metadata", async () => {
+  test("reports published modules missing standardized release metadata", async () => {
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
@@ -898,7 +897,7 @@ updatedAt: "2026-06-02"
       expect(
         errors.some(
           (error) =>
-            error.code === "missing-module-at-a-glance-metadata" &&
+            error.code === "missing-release-metadata" &&
             error.message.includes("module.missing-at-a-glance") &&
             error.message.includes("missing releaseDate, authors, sourceId"),
         ),
@@ -908,7 +907,7 @@ updatedAt: "2026-06-02"
     }
   });
 
-  test("allowlists current legacy modules missing At a Glance release metadata", async () => {
+  test("allowlists current legacy modules missing standardized release metadata", async () => {
     const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
     const registryRoot = join(tempRoot, "registry");
     await mkdir(join(registryRoot, "modules"), { recursive: true });
@@ -946,10 +945,62 @@ updatedAt: "2026-06-02"
       expect(
         errors.some(
           (error) =>
-            error.code === "missing-module-at-a-glance-metadata" &&
+            error.code === "missing-release-metadata" &&
             error.message.includes("module.absolute-positional-embeddings"),
         ),
       ).toBe(false);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("reports published training regimes missing standardized release metadata", async () => {
+    const tempRoot = join(import.meta.dir, "__fixtures__", crypto.randomUUID());
+    const registryRoot = join(tempRoot, "registry");
+    await mkdir(join(registryRoot, "training-regimes"), { recursive: true });
+    await writeFile(
+      join(registryRoot, "training-regimes", "demo-regime.json"),
+      JSON.stringify({
+        id: "training-regime.demo-regime",
+        slug: "demo-regime",
+        kind: "training-regime",
+        defaultTitleKey: "title",
+        defaultSummaryKey: "description",
+        aliases: [],
+        tags: [],
+        relatedIds: [],
+        citationIds: ["citation.gqa-paper"],
+        status: "published",
+        createdAt: "2026-06-01T00:00:00.000Z",
+        updatedAt: "2026-06-02T00:00:00.000Z",
+        regimeType: "distillation",
+        usedByModelIds: [],
+        relatedModuleIds: [],
+        paperIds: [],
+      }),
+    );
+    await mkdir(join(registryRoot, "citations"), { recursive: true });
+    await writeFile(
+      join(registryRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+
+    const docsRoot = join(tempRoot, "docs-empty");
+    await mkdir(docsRoot, { recursive: true });
+
+    try {
+      const errors = await validateRegistryContent({
+        registryRoot,
+        docsRoot,
+      });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "missing-release-metadata" &&
+            error.message.includes("training-regime.demo-regime") &&
+            error.message.includes("published training-regime records"),
+        ),
+      ).toBe(true);
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }

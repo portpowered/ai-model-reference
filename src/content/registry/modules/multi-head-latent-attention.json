@@ -24,10 +24,6 @@
   "conceptType": "attention-variant",
   "variantGroup": "attention-head-sharing",
   "optimizes": ["kv-cache", "memory-bandwidth", "long-context-inference"],
-  "practicalBenefits": [
-    "lower KV-cache memory",
-    "compressed latent KV representation"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

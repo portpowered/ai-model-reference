@@ -1,0 +1,58 @@
+---
+kind: "system"
+registryId: "system.example-system"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "draft"
+tags:
+  - example-tag
+aliases:
+  - "Example Alias"
+updatedAt: "2026-06-18"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { BlockMath } from "@/features/docs/components/Math";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+import { SystemAtAGlance } from "@/features/models/components/SystemAtAGlance";
+import { SystemFlowGraph } from "@/features/models/components/SystemFlowGraph";
+
+
+<SystemAtAGlance registryId="system.example-system" />
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="where-it-sits" titleKey="sections.whereItSits.title">
+  <T k="sections.whereItSits.body" />
+</Section>
+
+<Section id="how-it-works" titleKey="sections.howItWorks.title">
+  <T k="sections.howItWorks.body" />
+
+  <SystemFlowGraph
+    registryId="system.example-system"
+    assetId="systemFlow"
+  />
+</Section>
+
+<Section id="practical-impact" titleKey="sections.practicalImpact.title">
+  <T k="sections.practicalImpact.body" />
+  <BlockMath formula="\\text{served cost per token} \\approx \\text{hot-tier work} + \\text{cold-tier work} + \\text{coordination overhead}" />
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <RelatedDocs registryId="system.example-system" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="system.example-system" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="system.example-system" />
+</Section>

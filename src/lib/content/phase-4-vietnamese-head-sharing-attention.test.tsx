@@ -95,7 +95,7 @@ describe("Phase 4 Vietnamese head-sharing attention coverage", () => {
       expect(page.frontmatter.registryId).toBe(expectation.registryId);
       expect(page.messages.description).toBe(expectation.vietnameseDescription);
       expect(page.messages.description).not.toBe(expectation.englishFallback);
-      expect(page.messages.sections?.whatItOptimizes.body).toContain(
+      expect(page.messages.sections?.whyItExists.body).toContain(
         expectation.vietnameseBody,
       );
       expect(page.messages.assets?.computeFlow?.caption).toBe(

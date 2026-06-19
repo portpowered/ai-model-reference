@@ -21,10 +21,6 @@
   "conceptType": "subword-tokenization",
   "variantGroup": "subword-tokenizers",
   "optimizes": ["subword-coverage", "vocabulary-efficiency"],
-  "practicalBenefits": [
-    "splits rare words into reusable pieces",
-    "keeps token vocabularies smaller than word-level tokenizers"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

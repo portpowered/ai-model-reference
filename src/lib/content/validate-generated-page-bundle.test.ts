@@ -377,7 +377,6 @@ describe("validateGeneratedPageBundle", () => {
           moduleType: "attention",
           tags: ["attention"],
           optimizes: ["kv-cache"],
-          practicalBenefits: ["lower KV-cache memory"],
         },
         projectRoot: tempRoot,
       });

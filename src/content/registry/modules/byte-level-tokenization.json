@@ -41,10 +41,6 @@
   "conceptType": "tokenizer-algorithm",
   "variantGroup": "subword-tokenizers",
   "optimizes": ["arbitrary-text-coverage", "open-vocabulary-text"],
-  "practicalBenefits": [
-    "covers any UTF-8 text without unknown-character gaps",
-    "keeps the base symbol inventory small before learned merges"
-  ],
   "exampleModelIds": ["model.gpt-3"],
   "improvesOnIds": [],
   "tradeoffIds": [],

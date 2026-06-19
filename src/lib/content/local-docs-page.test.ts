@@ -265,22 +265,22 @@ describe("docs source local pages", () => {
       true,
     );
 
-    expect(multiHeadPage.messages.sections?.whatItOptimizes?.body).toContain(
+    expect(multiHeadPage.messages.sections?.whyItExists?.body).toContain(
       "表現の幅",
     );
     expect(multiHeadPage.messages.title).toBe("マルチヘッド attention");
-    expect(multiQueryPage.messages.sections?.whatItOptimizes?.body).toContain(
+    expect(multiQueryPage.messages.sections?.whyItExists?.body).toContain(
       "KV-cache サイズ",
     );
     expect(multiQueryPage.messages.title).toBe("マルチクエリ attention");
     expect(
-      slidingWindowPage.messages.sections?.whatItOptimizes?.body,
+      slidingWindowPage.messages.sections?.whyItExists?.body,
     ).toContain("attention 計算コスト");
     expect(slidingWindowPage.messages.title).toBe(
       "スライディングウィンドウ attention",
     );
     expect(
-      linearAttentionPage.messages.sections?.whatItOptimizes?.body,
+      linearAttentionPage.messages.sections?.whyItExists?.body,
     ).toContain("系列長スケーリング");
     expect(linearAttentionPage.messages.title).toBe("線形 attention");
   });

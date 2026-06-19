@@ -1,0 +1,29 @@
+{
+  "id": "graph.example-system-flow",
+  "slug": "example-system-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": [],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-01T00:00:00.000Z",
+  "updatedAt": "2026-06-01T00:00:00.000Z",
+  "subjectId": "system.example-system",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "root",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "root",
+      "labelKey": "graph.nodes.root.label",
+      "moduleKind": "other",
+      "childNodeIds": []
+    }
+  ],
+  "edges": []
+}

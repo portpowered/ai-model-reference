@@ -7,7 +7,9 @@
   "aliases": ["computation graph", "autograd graph", "forward graph"],
   "tags": ["token-to-probability-chain", "foundations"],
   "relatedIds": ["concept.gradient"],
-  "citationIds": [],
+  "citationIds": [
+    "citation.goodfellow-deep-learning"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-04T23:00:00.000Z",

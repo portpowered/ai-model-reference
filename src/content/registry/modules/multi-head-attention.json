@@ -23,7 +23,6 @@
     "modules": "attention-foundations"
   },
   "optimizes": ["expressiveness"],
-  "practicalBenefits": ["per-head query specialization"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

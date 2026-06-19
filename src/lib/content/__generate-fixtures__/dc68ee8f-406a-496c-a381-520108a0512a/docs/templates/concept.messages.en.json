@@ -1,0 +1,49 @@
+{
+  "title": "",
+  "description": "",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": ""
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": ""
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": ""
+    },
+    "whereItAppears": {
+      "title": "Where It Appears",
+      "body": ""
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": ""
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "",
+      "caption": ""
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "",
+        "summary": ""
+      }
+    }
+  }
+}

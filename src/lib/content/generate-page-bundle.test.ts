@@ -358,7 +358,6 @@ describe("generatePageBundle", () => {
         moduleFamily: "attention",
         variantGroup: "attention-head-sharing",
         optimizes: ["kv-cache"],
-        practicalBenefits: ["lower KV-cache memory"],
         assets: {
           computeFlow: {
             type: "graph",

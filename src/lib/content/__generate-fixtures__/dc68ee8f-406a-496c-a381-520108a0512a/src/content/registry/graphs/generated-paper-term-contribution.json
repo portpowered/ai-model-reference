@@ -1,0 +1,32 @@
+{
+  "id": "graph.generated-paper-term-contribution",
+  "slug": "generated-paper-term-contribution",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": [],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "draft",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "kind": "graph",
+  "subjectId": "paper.generated-paper-term",
+  "graphType": "paper-contribution",
+  "rootNodeId": "root",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": [
+    "react-flow",
+    "mermaid"
+  ],
+  "nodes": [
+    {
+      "id": "root",
+      "labelKey": "graph.nodes.root.label",
+      "moduleKind": "other",
+      "childNodeIds": []
+    }
+  ],
+  "edges": []
+}

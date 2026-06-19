@@ -25,7 +25,6 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "position-encoding",
   "optimizes": ["distance-awareness"],
-  "practicalBenefits": ["adds bucketed distance awareness to attention scores"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

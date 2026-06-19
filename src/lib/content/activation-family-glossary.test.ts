@@ -200,7 +200,8 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
       expect(messages.openingSummary?.length).toBeGreaterThan(0);
       const combinedBody = [
         messages.sections?.whatItIs.body,
-        messages.sections?.practicalBenefit.body,
+        messages.sections?.whyItExists.body,
+        messages.sections?.comparedToNearbyModules.body,
         messages.sections?.limitationsAndTradeoffs.body,
       ].join(" ");
       const normalizedBody = combinedBody.toLowerCase();
@@ -229,7 +230,7 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
       expect(html).not.toContain(`<h1>${testCase.title}</h1>`);
       expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
       expect(html).toContain("What It Is");
-      expect(html).toContain("What It Optimizes");
+      expect(html).toContain("Why It Exists");
       expect(html).toContain("Compared To Nearby Modules");
       expect(html).toContain("Why It Still Matters");
       expect(html).toContain(`data-registry-id="module.${testCase.slug}"`);

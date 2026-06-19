@@ -27,7 +27,7 @@ function readTemplateAssets(kind: string): PageAssetConfig {
 }
 
 describe("validateGeneratedFoldedSummary", () => {
-  test("passes concept template without any summary requirement", () => {
+  test("passes concept template without any rendered opening-summary requirement", () => {
     const errors = validateGeneratedFoldedSummary({
       pagePath: "/docs/concepts/example/page.mdx",
       kind: "concept",
@@ -145,6 +145,35 @@ describe("validateGeneratedGraphPlacement", () => {
     expect(
       errors.some((error) => error.code === "graph-missing-asset-id"),
     ).toBe(true);
+  });
+
+  test("passes multiple module teaching visuals in how-it-works", () => {
+    const moduleMdx = readTemplateMdx("module").replace(
+      '<ModuleGraph registryId="module.example-module" assetId="computeFlow" />',
+      [
+        '<ModuleGraph registryId="module.example-module" assetId="computeFlow" />',
+        '<ModuleChart registryId="module.example-module" assetId="activationHeatmap" />',
+      ].join("\n  "),
+    );
+
+    const assets = {
+      ...readTemplateAssets("module"),
+      activationHeatmap: {
+        type: "chart" as const,
+        chartId: "chart.activation-family.relu-hidden-state-heatmap",
+        altKey: "assets.activationHeatmap.alt",
+        captionKey: "assets.activationHeatmap.caption",
+      },
+    };
+
+    const errors = validateGeneratedGraphPlacement({
+      pagePath: "/docs/modules/example/page.mdx",
+      kind: "module",
+      mdxSource: moduleMdx,
+      assets,
+    });
+
+    expect(errors).toEqual([]);
   });
 });
 

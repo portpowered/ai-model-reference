@@ -38,7 +38,7 @@ describe("multi-head-latent-attention page messages", () => {
     expect(messages.problemStatement).toBeUndefined();
     expect(messages.coreIdea).toBeUndefined();
     expect(messages.sections?.whatItIs.body?.length).toBeGreaterThan(0);
-    expect(messages.sections?.whatItOptimizes.body?.length).toBeGreaterThan(0);
+    expect(messages.sections?.whyItExists.body?.length).toBeGreaterThan(0);
     expect(messages.sections?.howItWorks.body?.length).toBeGreaterThan(0);
     expect(messages.math?.mhaSchema?.variableDefinitions?.q?.term).toBe("Q");
     expect(messages.math?.gqaSchema?.variableDefinitions?.gi?.term).toBe("c");

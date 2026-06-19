@@ -26,7 +26,6 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "activation",
   "optimizes": ["gradient-flow"],
-  "practicalBenefits": ["keeps a small gradient for negative activations"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

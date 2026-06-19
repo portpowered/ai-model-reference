@@ -40,10 +40,6 @@
   "conceptType": "attention-variant",
   "variantGroup": "attention-mask-patterns",
   "optimizes": ["full-sequence-context", "representation-quality"],
-  "practicalBenefits": [
-    "lets each token use both left and right context",
-    "fits encoder-style understanding tasks"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

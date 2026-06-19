@@ -230,7 +230,6 @@ Registry records contribute:
 * concept type
 * variant group
 * optimization targets
-* practical benefits
 * example model IDs
 * training regime IDs
 * modalities

@@ -33,7 +33,6 @@ describe("registry schemas", () => {
       kind: "module",
       moduleType: "attention",
       optimizes: ["kv-cache"],
-      practicalBenefits: ["lower memory"],
       exampleModelIds: [],
       improvesOnIds: [],
       tradeoffIds: [],
@@ -119,7 +118,6 @@ describe("registry schemas", () => {
       ...validBaseFields,
       kind: "module",
       optimizes: ["kv-cache"],
-      practicalBenefits: ["lower memory"],
       mathLevel: "none",
     });
     expect(result.success).toBe(false);

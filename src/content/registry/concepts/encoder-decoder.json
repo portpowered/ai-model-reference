@@ -12,7 +12,10 @@
     "concept.autoregressive-generation",
     "concept.transformer"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.attention-is-all-you-need",
+    "citation.raffel-t5"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T11:39:45.806Z",
   "updatedAt": "2026-06-04T12:30:00.000Z",

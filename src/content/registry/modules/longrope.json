@@ -19,7 +19,6 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "position-encoding",
   "optimizes": ["very-long-context-extrapolation"],
-  "practicalBenefits": ["pushes rotary scaling to very long context windows"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

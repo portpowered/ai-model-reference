@@ -403,7 +403,6 @@ function buildRegistryRecord(
         moduleType: spec.moduleType,
         mathLevel: spec.mathLevel,
         optimizes: spec.optimizes,
-        practicalBenefits: spec.practicalBenefits,
         exampleModelIds: spec.exampleModelIds,
         improvesOnIds: spec.improvesOnIds,
         tradeoffIds: spec.tradeoffIds,

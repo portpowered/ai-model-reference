@@ -24,7 +24,6 @@
   "conceptType": "attention-variant",
   "variantGroup": "attention-head-sharing",
   "optimizes": ["kv-cache", "memory-bandwidth"],
-  "practicalBenefits": ["lower KV-cache memory"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

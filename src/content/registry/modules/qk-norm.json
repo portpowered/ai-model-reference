@@ -17,7 +17,6 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "normalization",
   "optimizes": ["attention-logit-stability"],
-  "practicalBenefits": ["keeps attention logits from growing too sharp"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

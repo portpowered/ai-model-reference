@@ -8,7 +8,6 @@ import { createRelativeLink } from "fumadocs-ui/mdx";
 import { notFound } from "next/navigation";
 import { DocsAutoLinkedDescription } from "@/features/docs/components/DocsAutoLinkedDescription";
 import { DocsPageBreadcrumb } from "@/features/docs/components/DocsPageBreadcrumb";
-import { FoldedSummary } from "@/features/docs/components/FoldedSummary";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
   loadLocalDocsPage,
@@ -76,7 +75,6 @@ async function renderLocalDocsPage(
         />
         <DocsTitle>{loadedPage.messages.title}</DocsTitle>
         <DocsDescription>{description}</DocsDescription>
-        {localRef.section === "glossary" ? null : <FoldedSummary />}
         <DocsBody>
           <article data-registry-id={loadedPage.frontmatter.registryId}>
             {loadedPage.content}

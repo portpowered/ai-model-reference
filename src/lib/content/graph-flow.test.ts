@@ -200,14 +200,16 @@ describe("graph-flow", () => {
     const inactiveExpertsNode = nodes.find(
       (node) => node.id === "inactive-experts",
     );
+    const expertEllipsisNode = nodes.find((node) => node.id === "expert-ellipsis");
     const sourceNode = graph.nodes.find(
       (node) => node.id === "inactive-experts",
     );
 
     expect(sourceNode?.size?.height).toBe(120);
     expect(inactiveExpertsNode?.data.label).toBe(
-      "Other experts stay inactive for this token",
+      "Most of the expert pool stays inactive for this token",
     );
+    expect(expertEllipsisNode?.data.label).toBe("...");
     expect(inactiveExpertsNode?.style).toBeDefined();
     expect(inactiveExpertsNode?.data.size?.height).toBe(
       sourceNode?.size?.height,
@@ -220,7 +222,7 @@ describe("graph-flow", () => {
 
   test("keeps the requested annotation box when the MoE inactive-experts label fits", () => {
     const estimated = estimateRegistryFlowNodeBoxSize({
-      label: "Other experts stay inactive for this token",
+      label: "Most of the expert pool stays inactive for this token",
       visualRole: "annotation",
       requestedSize: { width: 230, height: 120 },
     });

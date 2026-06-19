@@ -19,8 +19,7 @@ const conceptTemplateSectionKeys = [
 
 const moduleTemplateSectionKeys = [
   "whatItIs",
-  "whatItOptimizes",
-  "practicalBenefit",
+  "whyItExists",
   "howItWorks",
 ] as const;
 

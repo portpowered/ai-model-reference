@@ -20,7 +20,8 @@ If the concept is mathematically heavy or conceptually heavy, we must add the
 equations, graphs, charts, or diagrams needed to teach it clearly.
 
 When adding new graphs for a family: 
-0. we should be very sure what we should present as the graph. sometimes the best graph is a chart function like for silu/relu, sometimes its a node graph like ffn/moe. we should consider what si the best presentation.
+0. we should be very sure what we should present as the graph. sometimes the best graph is a chart function like for silu/relu, sometimes its a node graph like ffn/moe. we should consider what si the best presentation. Sometimes its useful to have multiple charts. 
+
 
 #### general 
 the default introduction concept like attention, ffn, relu should be a singular graph. 
@@ -40,3 +41,39 @@ for funtion charts
 
 ## Adding algorithms
 Please ensure that the algorithms are reflective. 
+
+## Types of pages
+
+We define pages as generally as follows: 
+
+1. a baseline. 
+2. a variant. 
+3. generic
+
+### Baselines
+
+base line pages are those that define the standard for a type of component or abstraction and exist in isolation. 
+
+in our systems RELU, and FFNs are baselins. 
+
+They don't put comparisons to other models, they exist independently. 
+
+Some ones we should add later on include stuff like adamW, cross entropy, kaiming/he, dropout + weight decay.
+
+### Variants
+
+Variants are concepts like new training regimes or modules or whatever that modify the original abstract concept. 
+
+These pages tends to have: 
+1. a comparison between the function and the original baseline, or another variant. 
+2. the text is still written in isolation of the paper, but provides some smaller affordances towards the thing it improves on. i.e. variants to MOE, variants to optimizers. 
+3. Papers tend to start as variants, then slowly evolve to become baselines as more things become compared to it. 
+
+### Generic
+
+Generic pages are just pages that are not variants or not baselines. This could just be one offs where no variants are expected to exist or it doesn't make sense to do so. 
+
+Some examples could be like: 
+1. loss
+2. training
+3. neural network

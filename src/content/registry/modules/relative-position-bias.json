@@ -26,7 +26,6 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "position-encoding",
   "optimizes": ["distance-awareness"],
-  "practicalBenefits": ["helps attention reason about token distance"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

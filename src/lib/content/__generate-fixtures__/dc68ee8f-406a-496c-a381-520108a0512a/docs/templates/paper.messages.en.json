@@ -1,0 +1,45 @@
+{
+  "title": "",
+  "description": "",
+  "sections": {
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": ""
+    },
+    "methodOrArchitecture": {
+      "title": "Method Or Architecture",
+      "body": ""
+    },
+    "evidence": {
+      "title": "Evidence",
+      "body": ""
+    },
+    "limitations": {
+      "title": "Limitations",
+      "body": ""
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "contributionGraph": {
+      "alt": "",
+      "caption": ""
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "",
+        "summary": ""
+      }
+    }
+  }
+}

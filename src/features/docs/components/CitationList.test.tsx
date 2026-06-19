@@ -28,11 +28,12 @@ describe("CitationList", () => {
     expect(html).toBe("");
   });
 
-  test("renders nothing when concept.token has empty citationIds", () => {
+  test("renders citations for concept.token", () => {
     const html = renderToStaticMarkup(
       <CitationList registryId="concept.token" />,
     );
-    expect(html).toBe("");
+    expect(html).toContain("Language Models are Unsupervised Multitask Learners");
+    expect(html).toContain("Neural Machine Translation of Rare Words with Subword Units");
   });
 
   test("renders nothing for an unknown registry id", () => {

@@ -16,6 +16,7 @@ const LEGACY_SUMMARY_MDX_MARKERS = [
 
 const GRAPH_COMPONENT_NAMES = [
   "ModuleGraph",
+  "ModuleChart",
   "ConceptMap",
   "ModelArchitectureGraph",
   "PaperContributionGraph",
@@ -29,7 +30,7 @@ type GraphPlacementRule = {
   components: readonly GraphComponentName[];
   requiredSectionId?: string;
   forbiddenSectionIds?: readonly string[];
-  maxPrimaryGraphComponents?: number;
+  minPrimaryGraphComponents?: number;
 };
 
 const graphPlacementRulesByKind: Partial<Record<PageKind, GraphPlacementRule>> =
@@ -41,10 +42,10 @@ const graphPlacementRulesByKind: Partial<Record<PageKind, GraphPlacementRule>> =
       components: ["ConceptMap"],
     },
     module: {
-      components: ["ModuleGraph"],
+      components: ["ModuleGraph", "ModuleChart"],
       requiredSectionId: "how-it-works",
       forbiddenSectionIds: ["math-or-compute-schema"],
-      maxPrimaryGraphComponents: 1,
+      minPrimaryGraphComponents: 1,
     },
     model: {
       components: ["ModelArchitectureGraph"],
@@ -66,6 +67,17 @@ const graphPlacementRulesByKind: Partial<Record<PageKind, GraphPlacementRule>> =
 
 function isGraphAssetType(type: string): boolean {
   return type === "graph" || type === "attention-variant-graph";
+}
+
+function matchesSupportedAssetType(
+  component: GraphComponentName,
+  assetType: string,
+): boolean {
+  if (component === "ModuleChart") {
+    return assetType === "chart";
+  }
+
+  return isGraphAssetType(assetType);
 }
 
 function extractMdxBody(mdxSource: string): string {
@@ -339,12 +351,12 @@ export function validateGeneratedGraphPlacement(options: {
     }
   }
 
-  if (rules.maxPrimaryGraphComponents !== undefined) {
+  if (rules.minPrimaryGraphComponents !== undefined) {
     const graphCount = matchedComponents.length;
-    if (graphCount !== rules.maxPrimaryGraphComponents) {
+    if (graphCount < rules.minPrimaryGraphComponents) {
       errors.push({
         code: "graph-count-mismatch",
-        message: `${pagePath}: ${kind} pages must render exactly ${rules.maxPrimaryGraphComponents} primary graph component(s); found ${graphCount}`,
+        message: `${pagePath}: ${kind} pages must render at least ${rules.minPrimaryGraphComponents} primary graph component(s); found ${graphCount}`,
         path: pagePath,
       });
     }
@@ -371,10 +383,14 @@ export function validateGeneratedGraphPlacement(options: {
       continue;
     }
 
-    if (!isGraphAssetType(asset.type)) {
+    if (!matchesSupportedAssetType(component, asset.type)) {
+      const requiredType =
+        component === "ModuleChart"
+          ? 'type "chart"'
+          : 'type "graph" or "attention-variant-graph"';
       errors.push({
         code: "graph-asset-type-mismatch",
-        message: `${assetsPath}: asset "${assetId}" referenced by ${component} must have type "graph" or "attention-variant-graph"`,
+        message: `${assetsPath}: asset "${assetId}" referenced by ${component} must have ${requiredType}`,
         path: assetsPath,
       });
     }

@@ -32,6 +32,8 @@ export type RegistryFlowNodeData = {
     | "timeline-node-muted"
     | "summary-node"
     | "process-node"
+    | "moe-expert-node"
+    | "moe-merge-node"
     | "latent-node"
     | "annotation"
     | "group-container"
@@ -109,6 +111,8 @@ function getNodeSizeEstimateConfig(
         borderWidth: 2,
       };
     case "process-node":
+    case "moe-expert-node":
+    case "moe-merge-node":
       return {
         minWidth: 134,
         fontSize: 14,

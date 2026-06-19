@@ -1,0 +1,10 @@
+{
+  "contributionGraph": {
+    "type": "graph",
+    "graphId": "graph.example-paper-contribution",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.contributionGraph.alt",
+    "captionKey": "assets.contributionGraph.caption"
+  }
+}

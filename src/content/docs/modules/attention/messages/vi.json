@@ -7,13 +7,9 @@
       "title": "Nó là gì",
       "body": "Attention là cơ chế trộn cốt lõi trong các block transformer. Mỗi vị trí chiếu hidden state thành query, key, và value, so sánh query với key để tạo trọng số, rồi cộng các vector value để tạo biểu diễn đã được cập nhật."
     },
-    "whatItOptimizes": {
+    "whyItExists": {
       "title": "Nó tối ưu điều gì",
       "body": "Attention tối ưu khả năng trộn ngữ cảnh một cách linh hoạt. Thay vì dùng một quy tắc cục bộ cố định, nó cho mô hình tự quyết định vị trí nào quan trọng với token hiện tại và nên đóng góp mạnh đến mức nào."
-    },
-    "practicalBenefit": {
-      "title": "Lợi ích thực tế",
-      "body": "Khi đã hiểu attention, bạn sẽ đọc các biến thể mô hình sau này dễ hơn nhiều. Hầu hết các trang về attention không thay cả transformer; chúng thay cách attention lưu ngữ cảnh, độ xa mỗi token có thể nhìn, hoặc chi phí tính toán cho mỗi lần tra cứu."
     },
     "howItWorks": {
       "title": "Nó hoạt động như thế nào",

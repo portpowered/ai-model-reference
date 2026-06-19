@@ -26,7 +26,6 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "position-encoding",
   "optimizes": ["long-context-extrapolation"],
-  "practicalBenefits": ["extends RoPE to longer context windows"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

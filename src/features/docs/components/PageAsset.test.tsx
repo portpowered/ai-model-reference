@@ -229,6 +229,22 @@ describe("PageAsset", () => {
     expect(html).not.toContain('data-graph-id="graph.relu-activation-flow"');
   });
 
+  test("renders the ReLU hidden-state heatmap chart", () => {
+    const html = renderPageAsset(
+      "hiddenStateHeatmap",
+      false,
+      reluAssets,
+      reluMessages,
+    );
+    expect(html).toContain('data-page-asset="hiddenStateHeatmap"');
+    expect(html).toContain('data-asset-type="chart"');
+    expect(html).toContain('data-activation-chart="true"');
+    expect(html).toContain(
+      'data-chart-id="chart.activation-family.relu-hidden-state-heatmap"',
+    );
+    expect(html).toContain('data-echarts-heatmap="true"');
+  });
+
   test("renders activation chart for the SiLU module page", () => {
     const html = renderPageAsset(
       "computeFlow",

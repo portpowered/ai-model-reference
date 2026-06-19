@@ -24,10 +24,6 @@
     "memory-bandwidth",
     "long-context-inference"
   ],
-  "practicalBenefits": [
-    "lower attention compute from skipped token pairs",
-    "reduced memory traffic for attention scores"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

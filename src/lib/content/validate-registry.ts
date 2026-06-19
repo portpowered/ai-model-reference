@@ -31,11 +31,14 @@ import {
   type RegistryRecord,
 } from "./registry";
 import {
+  type ModelRecord,
   type ModuleRecord,
   type PageAssetConfig,
   type PageKind,
   type PageMessages,
   pageFrontmatterSchema,
+  type SystemRecord,
+  type TrainingRegimeRecord,
 } from "./schemas";
 import {
   isShippedLocalizedDocsSlug,
@@ -128,7 +131,7 @@ const requiredCitationExceptionReasons: Partial<
     "Legacy migrated module is published before citation backfill is complete.",
 };
 
-const moduleAtAGlanceMetadataExceptionReasons: Partial<
+const releaseMetadataExceptionReasons: Partial<
   Record<RegistryRecord["id"], string>
 > = {
   "module.absolute-positional-embeddings":
@@ -241,12 +244,27 @@ function requiresAtLeastOneCitation(record: RegistryRecord): boolean {
   return record.citationIds.length === 0;
 }
 
-function missingModuleAtAGlanceFields(record: RegistryRecord): string[] {
-  if (record.kind !== "module" || record.status !== "published") {
+type ReleaseMetadataRecord =
+  | ModuleRecord
+  | ModelRecord
+  | SystemRecord
+  | TrainingRegimeRecord;
+
+function requiresReleaseMetadata(record: RegistryRecord): record is ReleaseMetadataRecord {
+  return (
+    record.kind === "module" ||
+    record.kind === "model" ||
+    record.kind === "system" ||
+    record.kind === "training-regime"
+  );
+}
+
+function missingReleaseMetadataFields(record: RegistryRecord): string[] {
+  if (!requiresReleaseMetadata(record) || record.status !== "published") {
     return [];
   }
 
-  if (moduleAtAGlanceMetadataExceptionReasons[record.id]) {
+  if (releaseMetadataExceptionReasons[record.id]) {
     return [];
   }
 
@@ -530,11 +548,11 @@ function validateRegistryRecordReferences(
     });
   }
 
-  const missingAtAGlanceFields = missingModuleAtAGlanceFields(record);
-  if (missingAtAGlanceFields.length > 0) {
+  const missingReleaseMetadata = missingReleaseMetadataFields(record);
+  if (missingReleaseMetadata.length > 0) {
     errors.push({
-      code: "missing-module-at-a-glance-metadata",
-      message: `${record.id}: published module pages using ModuleAtAGlance must provide releaseDate, authors, and sourceId so the page can render release date, author, and paper/source details; missing ${missingAtAGlanceFields.join(", ")}`,
+      code: "missing-release-metadata",
+      message: `${record.id}: published ${record.kind} records must provide releaseDate, authors, and sourceId so release metadata stays standardized across at-a-glance surfaces; missing ${missingReleaseMetadata.join(", ")}`,
       path: filePath,
     });
   }

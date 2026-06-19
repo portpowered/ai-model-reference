@@ -17,7 +17,6 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "normalization",
   "optimizes": ["training-stability"],
-  "practicalBenefits": ["stabilizes feature scales across minibatches"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

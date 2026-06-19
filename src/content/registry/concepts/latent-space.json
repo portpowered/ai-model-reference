@@ -16,7 +16,9 @@
     "concept.encoder",
     "concept.denoising-generation"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.goodfellow-deep-learning"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T11:31:47.947Z",
   "updatedAt": "2026-06-04T12:00:00.000Z",

@@ -32,10 +32,6 @@
   "conceptType": "subword-tokenization",
   "variantGroup": "subword-tokenizers",
   "optimizes": ["open-vocabulary-coverage", "vocabulary-size-efficiency"],
-  "practicalBenefits": [
-    "covers rare words without a word-level vocabulary",
-    "reuses frequent subword pieces across many words"
-  ],
   "exampleModelIds": ["model.gpt-3"],
   "improvesOnIds": [],
   "tradeoffIds": [],

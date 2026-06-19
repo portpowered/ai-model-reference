@@ -1,0 +1,52 @@
+{
+  "title": "",
+  "description": "",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": ""
+    },
+    "inputsAndOutputs": {
+      "title": "Inputs And Outputs",
+      "body": ""
+    },
+    "architecture": {
+      "title": "Architecture",
+      "body": ""
+    },
+    "importantModules": {
+      "title": "Important Modules",
+      "body": ""
+    },
+    "training": {
+      "title": "Training",
+      "body": ""
+    },
+    "practicalNotes": {
+      "title": "Practical Notes",
+      "body": ""
+    },
+    "related": {
+      "title": "Related Models, Modules, And Papers"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "architectureGraph": {
+      "alt": ""
+    }
+  },
+  "graph": {
+    "nodes": {
+      "root": {
+        "label": "",
+        "summary": ""
+      }
+    }
+  }
+}

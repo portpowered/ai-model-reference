@@ -7,13 +7,9 @@
       "title": "これは何か",
       "body": "Linear attention は、完全な softmax score 行列を作らずに attention を再定式化する attention 変種です。Query と key に feature map を適用することで、モデルはすべての query-key pair を明示的に採点する代わりに、key-value の統計を線形時間で蓄積できます。"
     },
-    "whatItOptimizes": {
+    "whyItExists": {
       "title": "何を最適化するか",
       "body": "Linear attention は、密な二乗 attention が長文脈で実行時間を支配してしまうときの、系列長スケーリング、attention 計算コスト、メモリ帯域を対象に最適化します。"
-    },
-    "practicalBenefit": {
-      "title": "実務上の利点",
-      "body": "長い系列を処理したいが、二乗 attention のコストは払えないときに linear attention が使われます。Kernel または再帰の見方を取ることで、新しい token ごとに走行中の統計を更新でき、完全な score 行列を毎回見直す必要がありません。"
     },
     "howItWorks": {
       "title": "どう動くか",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Dense multi-head attention と feature-map 型 linear attention の計算フロー比較",
-      "caption": "Multi-head attention と linear attention を切り替えて、完全な softmax dot-product scoring と feature-map による結合的更新を 1 つの図で比較します。",
       "variants": {
         "mha": {
           "label": "MHA"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "Linear attention と近い attention 変種の比較"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

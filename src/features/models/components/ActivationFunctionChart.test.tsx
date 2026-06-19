@@ -43,4 +43,40 @@ describe("ActivationFunctionChart", () => {
     expect(container.querySelector(".line-graph__line--silu")).toBeNull();
     expect(container.textContent).toContain("Activation Curves");
   });
+
+  test("renders the ReLU hidden-state heatmap shell", async () => {
+    const { ActivationFunctionChart } = await import(
+      "@/features/models/components/ActivationFunctionChart"
+    );
+
+    const { container } = render(
+      <PageMessagesProvider messages={reluMessages} isDev={false}>
+        <ActivationFunctionChart
+          assetId="hiddenStateHeatmap"
+          chartId="chart.activation-family.relu-hidden-state-heatmap"
+          alt={reluMessages.assets?.hiddenStateHeatmap?.alt}
+          caption={reluMessages.assets?.hiddenStateHeatmap?.caption}
+        />
+      </PageMessagesProvider>,
+    );
+
+    expect(
+      container.querySelector(
+        '[data-chart-id="chart.activation-family.relu-hidden-state-heatmap"]',
+      ),
+    ).toBeTruthy();
+    expect(container.querySelectorAll('[data-echarts-heatmap="true"]').length).toBe(2);
+    expect(
+      container.querySelector(
+        '[data-heatmap-graph="chart.activation-family.relu-hidden-state-heatmap-before"]',
+      ),
+    ).toBeTruthy();
+    expect(
+      container.querySelector(
+        '[data-heatmap-graph="chart.activation-family.relu-hidden-state-heatmap-after"]',
+      ),
+    ).toBeTruthy();
+    expect(container.textContent).toContain("Hidden State Before ReLU");
+    expect(container.textContent).toContain("Hidden State After ReLU");
+  });
 });

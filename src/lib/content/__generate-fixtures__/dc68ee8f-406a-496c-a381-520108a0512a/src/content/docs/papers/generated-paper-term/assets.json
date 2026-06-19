@@ -1,0 +1,10 @@
+{
+  "contributionGraph": {
+    "type": "graph",
+    "graphId": "graph.generated-paper-term-contribution",
+    "webRenderer": "react-flow",
+    "printRenderer": "mermaid",
+    "altKey": "assets.contributionGraph.alt",
+    "captionKey": "assets.contributionGraph.caption"
+  }
+}

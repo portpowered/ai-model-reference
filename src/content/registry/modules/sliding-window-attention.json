@@ -27,10 +27,6 @@
     "memory-bandwidth",
     "local-context-inference"
   ],
-  "practicalBenefits": [
-    "lower attention cost from fixed local windows",
-    "predictable memory use for long sequences with bounded reach"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

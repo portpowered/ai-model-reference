@@ -41,7 +41,6 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.relatedIds).toContain("module.multi-query-attention");
     expect(module.relatedIds).toContain("module.grouped-query-attention");
     expect(module.optimizes.length).toBeGreaterThan(0);
-    expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
   test("linear-attention module JSON passes moduleRecordSchema", async () => {
@@ -64,7 +63,6 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.relatedIds).toContain("module.multi-query-attention");
     expect(module.relatedIds).toContain("module.grouped-query-attention");
     expect(module.optimizes.length).toBeGreaterThan(0);
-    expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
   test("sliding-window-attention module JSON passes moduleRecordSchema", async () => {
@@ -85,7 +83,6 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.relatedIds).toContain("module.multi-query-attention");
     expect(module.relatedIds).toContain("module.grouped-query-attention");
     expect(module.optimizes.length).toBeGreaterThan(0);
-    expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
   test("sparse-attention module JSON passes moduleRecordSchema", async () => {
@@ -105,7 +102,6 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.relatedIds).toContain("module.multi-query-attention");
     expect(module.relatedIds).toContain("module.grouped-query-attention");
     expect(module.optimizes.length).toBeGreaterThan(0);
-    expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
   test("grouped-query-attention module JSON passes moduleRecordSchema", async () => {
@@ -123,7 +119,6 @@ describe("Phase 1 baseline registry records", () => {
     expect(module.variantGroup).toBe("attention-head-sharing");
     expect(module.citationIds).toContain("citation.gqa-paper");
     expect(module.optimizes.length).toBeGreaterThan(0);
-    expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
   test("byte-level-tokenization module JSON passes moduleRecordSchema", async () => {
@@ -165,7 +160,6 @@ describe("Phase 1 baseline registry records", () => {
         "open-vocabulary-text",
       ]),
     );
-    expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
   test("bidirectional-attention module JSON passes moduleRecordSchema", async () => {
@@ -199,7 +193,6 @@ describe("Phase 1 baseline registry records", () => {
     ]);
     expect(module.citationIds).toContain("citation.attention-is-all-you-need");
     expect(module.optimizes.length).toBeGreaterThan(0);
-    expect(module.practicalBenefits.length).toBeGreaterThan(0);
   });
 
   test("attention tag JSON passes tagRecordSchema", async () => {

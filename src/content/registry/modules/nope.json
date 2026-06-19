@@ -18,7 +18,6 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "position-encoding",
   "optimizes": ["position-encoding-simplicity"],
-  "practicalBenefits": ["removes explicit positional encodings entirely"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

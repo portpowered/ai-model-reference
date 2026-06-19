@@ -18,9 +18,6 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "position-encoding",
   "optimizes": ["long-context-extrapolation"],
-  "practicalBenefits": [
-    "stretches RoPE context with interpolation and rescaling"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

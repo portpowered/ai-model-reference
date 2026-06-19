@@ -22,10 +22,6 @@
   "moduleType": "attention",
   "moduleFamily": "attention",
   "optimizes": ["context-mixing", "sequence-modeling"],
-  "practicalBenefits": [
-    "routes information between positions in a sequence",
-    "enables long-range dependencies without fixed receptive fields"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

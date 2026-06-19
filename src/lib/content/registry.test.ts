@@ -18,7 +18,6 @@ const validModuleRecord = {
   updatedAt: "2026-06-02T00:00:00.000Z",
   moduleType: "attention",
   optimizes: ["kv-cache"],
-  practicalBenefits: ["lower memory"],
   exampleModelIds: [],
   improvesOnIds: [],
   tradeoffIds: [],

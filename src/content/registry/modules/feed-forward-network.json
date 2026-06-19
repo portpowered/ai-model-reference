@@ -18,7 +18,6 @@
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "moduleType": "feed-forward",
   "optimizes": ["per-token-capacity"],
-  "practicalBenefits": ["adds per-token nonlinear compute after attention"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
