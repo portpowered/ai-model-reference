@@ -1,9 +1,15 @@
 import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadModelPage } from "@/lib/content/model-page";
+import { docsSearchApi } from "@/lib/search/search-server";
+
+function pageBaseUrl(url: string): string {
+  return url.split("#")[0] ?? url;
+}
 
 describe("gpt-2 model page", () => {
   test("derived related docs keep core GPT-2 learning paths visible without duplicate module links", () => {
@@ -52,5 +58,39 @@ describe("gpt-2 model page", () => {
     expect(html).toContain("Masked");
     expect(html).toContain("Multi-Head");
     expect(html).not.toContain("Missing graph record");
+  });
+
+  test.each([
+    "GPT-2",
+    "gpt2",
+  ] as const)("search ranks the canonical gpt-2 page first for %s", async (query) => {
+    const results = await docsSearchApi.search(query);
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(pageBaseUrl(results[0]?.url ?? "")).toBe("/docs/models/gpt-2");
+  });
+
+  test.each([
+    "decoder-only transformer",
+    "byte-level tokenization model",
+  ] as const)("search keeps the canonical gpt-2 page discoverable for %s", async (query) => {
+    const results = await docsSearchApi.search(query);
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(
+      results.some(
+        (result) => pageBaseUrl(result.url) === "/docs/models/gpt-2",
+      ),
+    ).toBe(true);
+  });
+
+  test("neighboring attention tag landing routes readers into the gpt-2 page", async () => {
+    const page = await TagLandingPage({
+      params: Promise.resolve({ slug: "attention" }),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain('href="/docs/models/gpt-2"');
+    expect(html).toContain("GPT-2");
   });
 });
