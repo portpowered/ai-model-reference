@@ -6,11 +6,17 @@ import {
 } from "@xyflow/react";
 import type { CSSProperties } from "react";
 import { lookupMessage } from "@/lib/content/messages";
+import {
+  getPublishedDocsHrefForRecord,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "@/lib/content/published-docs-registry-ids";
+import { getRegistryRecordById } from "@/lib/content/registry-runtime";
 import type {
   GraphRecord,
   ModuleGraphEdge,
   ModuleGraphNode,
   PageMessages,
+  RegistryKind,
 } from "@/lib/content/schemas";
 
 const NODE_X = 0;
@@ -21,6 +27,7 @@ const NODE_BOX_SAFETY_PADDING = 4;
 export type RegistryFlowNodeData = {
   label: string;
   moduleKind: string;
+  semantic: RegistryFlowNodeSemanticData;
   size?: { width: number; height: number };
   headCountRole?: "query" | "kv";
   visualRole?:
@@ -47,6 +54,30 @@ export type RegistryFlowNodeData = {
     | "architecture-io"
     | "operator-circle"
     | "default";
+};
+
+export type RegistryFlowNodeSemanticData = {
+  registryId?: string;
+  entityKind?: RegistryKind;
+  resolvedTitle: string;
+  resolvedSummary?: string;
+  hasCanonicalPage: boolean;
+  canonicalPageHref?: string;
+};
+
+export type RegistryFlowEdgeData = {
+  semantic: RegistryFlowEdgeSemanticData;
+};
+
+export type RegistryFlowEdgeSemanticData = {
+  edgeKind: ModuleGraphEdge["edgeKind"];
+  sourceNodeId: string;
+  targetNodeId: string;
+  sourceRegistryId?: string;
+  targetRegistryId?: string;
+  sourceTitle: string;
+  targetTitle: string;
+  interactionEnabled: boolean;
 };
 
 export class GraphRenderIssueError extends Error {
@@ -254,7 +285,57 @@ export function orderGraphNodes(graph: GraphRecord): ModuleGraphNode[] {
   return ordered;
 }
 
-export function buildRegistryFlowEdges(graph: GraphRecord): Edge[] {
+function resolveGraphNodeSummary(
+  node: Pick<ModuleGraphNode, "summaryKey">,
+  labelSources: readonly PageMessages[],
+): string | undefined {
+  if (!node.summaryKey) {
+    return undefined;
+  }
+
+  const summary = resolveGraphNodeLabel(labelSources, node.summaryKey);
+  return summary === node.summaryKey ? undefined : summary;
+}
+
+function resolveGraphNodeSemanticData(
+  node: ModuleGraphNode,
+  labelSources: readonly PageMessages[],
+): RegistryFlowNodeSemanticData {
+  const resolvedTitle = resolveGraphNodeLabel(labelSources, node.labelKey);
+  const resolvedSummary = resolveGraphNodeSummary(node, labelSources);
+  const registryRecord = node.registryId
+    ? getRegistryRecordById(node.registryId)
+    : undefined;
+  const hasCanonicalPage = Boolean(
+    node.registryId &&
+      registryRecord &&
+      PUBLISHED_DOCS_REGISTRY_IDS.has(node.registryId),
+  );
+  const canonicalPageHref =
+    hasCanonicalPage && registryRecord
+      ? getPublishedDocsHrefForRecord(registryRecord)
+      : null;
+
+  return {
+    ...(node.registryId ? { registryId: node.registryId } : {}),
+    ...(registryRecord ? { entityKind: registryRecord.kind } : {}),
+    resolvedTitle,
+    ...(resolvedSummary ? { resolvedSummary } : {}),
+    hasCanonicalPage,
+    ...(canonicalPageHref ? { canonicalPageHref } : {}),
+  };
+}
+
+function edgeKindSupportsInteraction(
+  _edgeKind: ModuleGraphEdge["edgeKind"],
+): boolean {
+  return false;
+}
+
+export function buildRegistryFlowEdges(
+  graph: GraphRecord,
+  nodesById: ReadonlyMap<string, RegistryFlowNodeData>,
+): Edge<RegistryFlowEdgeData>[] {
   if (graph.edges.length > 0) {
     return graph.edges.map((edge) => ({
       id: edge.id,
@@ -280,12 +361,38 @@ export function buildRegistryFlowEdges(graph: GraphRecord): Edge[] {
         : {}),
       markerEnd: buildRegistryFlowEdgeMarker(edge),
       style: buildRegistryFlowEdgeStyle(edge),
+      data: {
+        semantic: {
+          edgeKind: edge.edgeKind,
+          sourceNodeId: edge.source,
+          targetNodeId: edge.target,
+          ...(nodesById.get(edge.source)?.semantic.registryId
+            ? {
+                sourceRegistryId: nodesById.get(edge.source)?.semantic
+                  .registryId,
+              }
+            : {}),
+          ...(nodesById.get(edge.target)?.semantic.registryId
+            ? {
+                targetRegistryId: nodesById.get(edge.target)?.semantic
+                  .registryId,
+              }
+            : {}),
+          sourceTitle:
+            nodesById.get(edge.source)?.semantic.resolvedTitle ?? edge.source,
+          targetTitle:
+            nodesById.get(edge.target)?.semantic.resolvedTitle ?? edge.target,
+          interactionEnabled: edgeKindSupportsInteraction(edge.edgeKind),
+        },
+      },
     }));
   }
 
-  const edges: Edge[] = [];
+  const edges: Edge<RegistryFlowEdgeData>[] = [];
   for (const node of graph.nodes) {
     for (const childId of node.childNodeIds) {
+      const sourceNode = nodesById.get(node.id);
+      const targetNode = nodesById.get(childId);
       edges.push({
         id: `${node.id}->${childId}`,
         source: node.id,
@@ -294,6 +401,22 @@ export function buildRegistryFlowEdges(graph: GraphRecord): Edge[] {
         zIndex: buildRegistryFlowEdgeZIndex({ edgeKind: "data-flow" }),
         markerEnd: buildRegistryFlowEdgeMarker({ edgeKind: "data-flow" }),
         style: buildRegistryFlowEdgeStyle({ edgeKind: "data-flow" }),
+        data: {
+          semantic: {
+            edgeKind: "data-flow",
+            sourceNodeId: node.id,
+            targetNodeId: childId,
+            ...(sourceNode?.semantic.registryId
+              ? { sourceRegistryId: sourceNode.semantic.registryId }
+              : {}),
+            ...(targetNode?.semantic.registryId
+              ? { targetRegistryId: targetNode.semantic.registryId }
+              : {}),
+            sourceTitle: sourceNode?.semantic.resolvedTitle ?? node.id,
+            targetTitle: targetNode?.semantic.resolvedTitle ?? childId,
+            interactionEnabled: edgeKindSupportsInteraction("data-flow"),
+          },
+        },
       });
     }
   }
@@ -428,7 +551,10 @@ export function buildRegistryFlowGraph(
   graph: GraphRecord,
   messages: PageMessages,
   fallbackMessages?: PageMessages,
-): { nodes: Node<RegistryFlowNodeData>[]; edges: Edge[] } {
+): {
+  nodes: Node<RegistryFlowNodeData>[];
+  edges: Edge<RegistryFlowEdgeData>[];
+} {
   const ordered = orderGraphNodes(graph);
   const labelSources = fallbackMessages
     ? [fallbackMessages, messages]
@@ -440,7 +566,8 @@ export function buildRegistryFlowGraph(
       node.visualRole === "row-label"
         ? { ...basePosition, x: basePosition.x + ROW_LABEL_X_OFFSET }
         : basePosition;
-    const label = resolveGraphNodeLabel(labelSources, node.labelKey);
+    const semantic = resolveGraphNodeSemanticData(node, labelSources);
+    const label = semantic.resolvedTitle;
     const resolvedSize = estimateRegistryFlowNodeBoxSize({
       label,
       visualRole: node.visualRole,
@@ -458,15 +585,17 @@ export function buildRegistryFlowGraph(
       data: {
         label,
         moduleKind: node.moduleKind,
+        semantic,
         ...(resolvedSize ? { size: resolvedSize } : {}),
         ...(node.headCountRole ? { headCountRole: node.headCountRole } : {}),
         ...(node.visualRole ? { visualRole: node.visualRole } : {}),
       },
     };
   });
+  const nodesById = new Map(nodes.map((node) => [node.id, node.data]));
 
   return {
     nodes,
-    edges: buildRegistryFlowEdges(graph),
+    edges: buildRegistryFlowEdges(graph, nodesById),
   };
 }

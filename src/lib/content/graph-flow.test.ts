@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import gpt3Messages from "@/content/docs/models/gpt-3/messages/en.json";
 import mixtureOfExpertsMessages from "@/content/docs/modules/mixture-of-experts/messages/en.json";
 import {
   buildRegistryFlowGraph,
@@ -77,6 +78,16 @@ describe("graph-flow", () => {
     expect(nodes.map((node) => node.data.label)).toContain(
       "Shared KV heads per group",
     );
+    expect(nodes[0]?.data.semantic.resolvedTitle).toBe("Hidden states");
+    expect(nodes[0]?.data.semantic.hasCanonicalPage).toBe(false);
+    expect(edges[0]?.data?.semantic).toMatchObject({
+      edgeKind: "data-flow",
+      sourceNodeId: "hidden-states",
+      targetNodeId: "query-projection",
+      sourceTitle: "Hidden states",
+      targetTitle: "H query heads (Q projection)",
+      interactionEnabled: false,
+    });
   });
 
   test("resolves GQA compute-schema graph with shared KV and cache nodes", () => {
@@ -184,6 +195,42 @@ describe("graph-flow", () => {
     expect(nodes.find((node) => node.id === "mha-keys-label")?.data.label).toBe(
       "Subject keys",
     );
+  });
+
+  test("preserves canonical node semantics and resolved summaries for GPT-3 architecture nodes", () => {
+    const graph = getGraphById("graph.gpt-3-architecture");
+    expect(graph).toBeDefined();
+    if (!graph) {
+      return;
+    }
+
+    const { nodes, edges } = buildRegistryFlowGraph(
+      graph,
+      gpt3Messages as PageMessages,
+    );
+    const maskedMhaNode = nodes.find((node) => node.id === "masked-mha");
+    const addNormEdge = edges.find(
+      (edge) => edge.id === "masked-mha-to-add-norm-attention",
+    );
+
+    expect(maskedMhaNode?.data.semantic).toMatchObject({
+      registryId: "module.multi-head-attention",
+      entityKind: "module",
+      resolvedTitle: "Masked\nMulti-Head\nAttention",
+      resolvedSummary: "Each token can read earlier tokens but not future ones",
+      hasCanonicalPage: true,
+      canonicalPageHref: "/docs/modules/multi-head-attention",
+    });
+    expect(addNormEdge?.data?.semantic).toMatchObject({
+      edgeKind: "data-flow",
+      sourceNodeId: "masked-mha",
+      targetNodeId: "add-norm-attention",
+      sourceRegistryId: "module.multi-head-attention",
+      targetRegistryId: "module.layer-norm",
+      sourceTitle: "Masked\nMulti-Head\nAttention",
+      targetTitle: "Add & Norm",
+      interactionEnabled: false,
+    });
   });
 
   test("preserves the requested MoE annotation height when the content already fits", () => {
