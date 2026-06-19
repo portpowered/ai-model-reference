@@ -3,8 +3,9 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CitationList } from "@/features/docs/components/CitationList";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { BlockMath } from "@/features/docs/components/Math";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { PageMathFormula } from "@/features/docs/components/PageMathFormula";
+import { PageMathVariableDefinitions } from "@/features/docs/components/PageMathFormula";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
@@ -60,9 +61,9 @@ describe("ppo training regime page", () => {
     }
     expect(page.assets.trainingFlow.graphId).toBe("graph.ppo-training-flow");
     expect(page.toc.some((item) => item.url === "#how-it-works")).toBe(true);
-    expect(page.messages.math?.ppoClipObjective?.variableDefinitions?.rt?.term).toBe(
-      "r_t(\\theta)",
-    );
+    expect(
+      page.messages.math?.ppoClipObjective?.variableDefinitions?.rt?.term,
+    ).toBe("r_t(\\theta)");
     expect(
       page.messages.math?.ppoClipObjective?.variableDefinitions?.epsilon
         ?.definition,
@@ -76,22 +77,36 @@ describe("ppo training regime page", () => {
     });
 
     const referencesHtml = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: page.messages,
-        assets: page.assets,
-        children: createElement(CitationList, {
+      createElement(
+        ModulePageProviders,
+        {
+          messages: page.messages,
+          assets: page.assets,
+        },
+        createElement(CitationList, {
           registryId: "training-regime.ppo",
         }),
-      }),
+      ),
     );
     const mathHtml = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: page.messages,
-        assets: page.assets,
-        children: createElement(PageMathFormula, {
-          mathId: "ppoClipObjective",
-        }),
-      }),
+      createElement(
+        ModulePageProviders,
+        {
+          messages: page.messages,
+          assets: page.assets,
+        },
+        createElement("div", undefined, [
+          createElement(BlockMath, {
+            key: "formula",
+            formula:
+              "L^{\\mathrm{CLIP}}(\\theta)=\\mathbb{E}_t\\left[\\min\\left(r_t(\\theta)A_t,\\operatorname{clip}(r_t(\\theta),1-\\epsilon,1+\\epsilon)A_t\\right)\\right]",
+          }),
+          createElement(PageMathVariableDefinitions, {
+            key: "definitions",
+            mathId: "ppoClipObjective",
+          }),
+        ]),
+      ),
     );
 
     expect(referencesHtml).toContain('data-testid="citation-list"');
@@ -100,6 +115,7 @@ describe("ppo training regime page", () => {
     expect(referencesHtml).toContain(
       "Training language models to follow instructions with human feedback",
     );
+    expect(mathHtml).toContain('aria-label="L^{\\mathrm{CLIP}}(\\theta)');
     expect(mathHtml).toContain(
       'data-page-math-variable-definitions="ppoClipObjective"',
     );
