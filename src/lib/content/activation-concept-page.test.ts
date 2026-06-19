@@ -24,11 +24,21 @@ describe("Activation concept page (activation-concept-page-001)", () => {
     expect(record?.kind).toBe("concept");
     expect(record?.aliases).toEqual([
       "activations",
+      "activation function",
       "hidden activation",
       "layer output",
     ]);
-    expect(record?.tags).toEqual(["token-to-probability-chain", "foundations"]);
+    expect(record?.tags).toEqual([
+      "activation",
+      "token-to-probability-chain",
+      "foundations",
+    ]);
     expect(record?.relatedIds).toEqual([
+      "module.feed-forward-network",
+      "module.relu",
+      "module.leaky-relu",
+      "module.silu",
+      "module.swiglu",
       "concept.computational-graph",
       "concept.quantization",
     ]);
@@ -38,7 +48,7 @@ describe("Activation concept page (activation-concept-page-001)", () => {
     ).toBe(true);
   });
 
-  test("curated related links resolve to the concept and quantization pages", () => {
+  test("curated related links resolve to the nearby activation and feed-forward pages", () => {
     const source = getConceptById("concept.activation");
     if (!source) {
       throw new Error("expected concept.activation in registry");
@@ -51,12 +61,21 @@ describe("Activation concept page (activation-concept-page-001)", () => {
     );
 
     expect(
-      items.find((item) => item.registryId === "concept.computational-graph")
+      items.find((item) => item.registryId === "module.feed-forward-network")
         ?.href,
-    ).toBe("/docs/glossary/computational-graph");
+    ).toBe("/docs/modules/feed-forward-network");
+    expect(items.find((item) => item.registryId === "module.relu")?.href).toBe(
+      "/docs/modules/relu",
+    );
     expect(
-      items.find((item) => item.registryId === "concept.quantization")?.href,
-    ).toBe("/docs/concepts/quantization");
+      items.find((item) => item.registryId === "module.leaky-relu")?.href,
+    ).toBe("/docs/modules/leaky-relu");
+    expect(items.find((item) => item.registryId === "module.silu")?.href).toBe(
+      "/docs/modules/silu",
+    );
+    expect(
+      items.find((item) => item.registryId === "module.swiglu")?.href,
+    ).toBe("/docs/modules/swiglu");
   });
 
   test("page renders the plain-language explanation and nearby activation links", async () => {
@@ -76,10 +95,17 @@ describe("Activation concept page (activation-concept-page-001)", () => {
 
     expect(html).toContain("What It Is");
     expect(html).toContain("Why Nonlinear Steps Matter");
+    expect(html).toContain("Read Next");
     expect(html).toContain("output softmax");
     expect(html).toContain('href="/docs/concepts/activation"');
+    expect(html).toContain('href="/docs/glossary/activation"');
     expect(html).toContain('href="/docs/glossary/parameter"');
     expect(html).toContain('href="/docs/glossary/softmax"');
+    expect(html).toContain('href="/docs/modules/feed-forward-network"');
+    expect(html).toContain('href="/docs/modules/relu"');
+    expect(html).toContain('href="/docs/modules/leaky-relu"');
+    expect(html).toContain('href="/docs/modules/silu"');
+    expect(html).toContain('href="/docs/modules/swiglu"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");
@@ -96,9 +122,14 @@ describe("Activation concept page (activation-concept-page-001)", () => {
     expect(activationDocument?.aliases).toEqual(
       expect.arrayContaining([
         "activations",
+        "activation function",
         "hidden activation",
         "layer output",
+        "activation layer",
       ]),
+    );
+    expect(activationDocument?.tags).toEqual(
+      expect.arrayContaining(["activation", "foundations"]),
     );
     expect(activationDocument?.bodyText).toContain("output softmax");
     expect(activationDocument?.bodyText).toContain("feed-forward networks");
@@ -110,6 +141,11 @@ describe("Activation concept page (activation-concept-page-001)", () => {
     ).toBe(true);
     expect(
       (await docsSearchApi.search("hidden activation")).some(
+        (result) => result.url === "/docs/concepts/activation",
+      ),
+    ).toBe(true);
+    expect(
+      (await docsSearchApi.search("layer output")).some(
         (result) => result.url === "/docs/concepts/activation",
       ),
     ).toBe(true);

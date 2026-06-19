@@ -19,6 +19,10 @@
       "title": "Common Confusions",
       "body": "A hidden-layer activation is not the same as output softmax. Hidden activations are internal signals between layers, while softmax is a final normalization step that turns output logits into a probability distribution over vocabulary items or classes. People also use the word activation in two nearby ways: for the activation function itself and for the resulting hidden values. Both meanings are common, but the key distinction is still internal nonlinear shaping versus final output normalization."
     },
+    "readNext": {
+      "title": "Read Next",
+      "body": "Use the glossary entry for the shorter definition, then move to the feed-forward network and common activation variants to see where this broad idea becomes a concrete design choice."
+    },
     "related": {
       "title": "Related Concepts And Modules"
     },
