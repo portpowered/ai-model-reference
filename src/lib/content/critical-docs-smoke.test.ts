@@ -3,6 +3,7 @@ import {
   CRITICAL_DOCS_SMOKE_RULES,
   loadCriticalDocsSmokePages,
   matchCriticalDocsSmokeRule,
+  toCriticalDocsSmokeLocalRef,
 } from "@/lib/content/critical-docs-smoke";
 
 describe("critical docs smoke contract", () => {
@@ -65,6 +66,25 @@ describe("critical docs smoke contract", () => {
     ).toBe("attention-module");
     expect(byUrl.get("/docs/glossary/vector")?.criticalRuleId).toBe(
       "token-to-probability-chain-glossary",
+    );
+  });
+
+  test("projects discovered critical pages into stable local docs refs", () => {
+    expect(
+      toCriticalDocsSmokeLocalRef({
+        docsSlug: "modules/grouped-query-attention",
+      } as Awaited<ReturnType<typeof loadCriticalDocsSmokePages>>[number]),
+    ).toEqual({
+      section: "modules",
+      slug: "grouped-query-attention",
+      routeSlug: ["modules", "grouped-query-attention"],
+    });
+    expect(() =>
+      toCriticalDocsSmokeLocalRef({
+        docsSlug: "modules/grouped-query-attention/extra",
+      } as Awaited<ReturnType<typeof loadCriticalDocsSmokePages>>[number]),
+    ).toThrow(
+      "Critical docs smoke page must use a two-segment docsSlug, got modules/grouped-query-attention/extra",
     );
   });
 });

@@ -9,8 +9,14 @@ import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import TagsIndexPage from "@/app/(site)/tags/page";
 import { HomeArticle } from "@/components/home/home-article";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import { loadCriticalDocsSmokePages } from "@/lib/content/critical-docs-smoke";
-import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
+import {
+  loadCriticalDocsSmokePages,
+  toCriticalDocsSmokeLocalRef,
+} from "@/lib/content/critical-docs-smoke";
+import {
+  loadLocalDocsPage,
+  localDocsRoute,
+} from "@/lib/content/local-docs-page";
 import { loadTagResourceGroups } from "@/lib/content/tag-resources";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -185,18 +191,8 @@ describe("Phase 1 discovery route smoke", () => {
     expect(pages.length).toBeGreaterThan(0);
 
     for (const discoveredPage of pages) {
-      const [section, slug] = discoveredPage.docsSlug.split("/");
-      const page = await loadLocalDocsPage({
-        section: section as
-          | "concepts"
-          | "glossary"
-          | "models"
-          | "modules"
-          | "papers"
-          | "systems"
-          | "training",
-        slug,
-      });
+      const localRef = toCriticalDocsSmokeLocalRef(discoveredPage);
+      const page = await loadLocalDocsPage(localRef);
 
       expect(page.frontmatter.registryId).toBe(
         discoveredPage.frontmatter.registryId,
@@ -214,24 +210,14 @@ describe("Phase 1 discovery route smoke", () => {
     }
   });
 
-  test("critical canonical docs autodiscovery renders without bespoke route inventories", async () => {
+  test("critical canonical docs autodiscovery renders discovered docs content without bespoke inventories", async () => {
     const pages = await loadCriticalDocsSmokePages();
 
     expect(pages.length).toBeGreaterThan(0);
 
     for (const discoveredPage of pages) {
-      const [section, slug] = discoveredPage.docsSlug.split("/");
-      const page = await loadLocalDocsPage({
-        section: section as
-          | "concepts"
-          | "glossary"
-          | "models"
-          | "modules"
-          | "papers"
-          | "systems"
-          | "training",
-        slug,
-      });
+      const localRef = toCriticalDocsSmokeLocalRef(discoveredPage);
+      const page = await loadLocalDocsPage(localRef);
       const html = renderToStaticMarkup(
         <ModulePageProviders messages={page.messages} assets={page.assets}>
           {page.content}
@@ -239,6 +225,7 @@ describe("Phase 1 discovery route smoke", () => {
       );
 
       expect(html.length, discoveredPage.url).toBeGreaterThan(0);
+      expect(localDocsRoute(localRef)).toBe(discoveredPage.url);
       expect(html, discoveredPage.url).toContain('data-testid="tag-pill-list"');
       expect(html, discoveredPage.url).toContain('id="related"');
       expect(html, discoveredPage.url).not.toContain("Reader Shortcut");

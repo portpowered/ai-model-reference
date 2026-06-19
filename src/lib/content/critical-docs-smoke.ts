@@ -1,5 +1,6 @@
-import type { DocsPageSource } from "@/lib/content/pages";
+import type { LocalDocsPageRef } from "@/lib/content/local-docs-page";
 import {
+  type DocsPageSource,
   type DocsPageSource as LoadedDocsPageSource,
   loadShippedLocalizedDocsPages,
 } from "@/lib/content/pages";
@@ -28,6 +29,10 @@ export type CriticalDocsSmokePage = LoadedDocsPageSource & {
   discoveryTags: readonly string[];
 };
 
+export type CriticalDocsSmokeLocalRef = LocalDocsPageRef & {
+  routeSlug: [string, string];
+};
+
 export function matchCriticalDocsSmokeRule(input: {
   pageKind: DocsPageSource["frontmatter"]["kind"];
   tags: readonly string[];
@@ -39,6 +44,23 @@ export function matchCriticalDocsSmokeRule(input: {
         input.tags.includes(rule.requiredTag),
     ) ?? null
   );
+}
+
+export function toCriticalDocsSmokeLocalRef(
+  page: Pick<CriticalDocsSmokePage, "docsSlug">,
+): CriticalDocsSmokeLocalRef {
+  const [section, slug, ...rest] = page.docsSlug.split("/");
+  if (!section || !slug || rest.length > 0) {
+    throw new Error(
+      `Critical docs smoke page must use a two-segment docsSlug, got ${page.docsSlug}`,
+    );
+  }
+
+  return {
+    section: section as LocalDocsPageRef["section"],
+    slug,
+    routeSlug: [section, slug],
+  };
 }
 
 export async function loadCriticalDocsSmokePages(
