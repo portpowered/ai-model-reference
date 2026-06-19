@@ -22,6 +22,7 @@ import { isRetryableStaticExportSearchProbeFailure } from "./static-export-searc
 export const DEFAULT_EXPORT_OUT_DIR = "out";
 
 export const EXPORT_SEARCH_UX_STUB_ENV = "VERIFY_EXPORT_SEARCH_UX_STUB";
+export const DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS = 45_000;
 const EXPORT_SEARCH_UX_RETRY_ATTEMPTS = 3;
 const EXPORT_SEARCH_UX_RETRY_DELAY_MS = 5_000;
 
@@ -48,6 +49,18 @@ function withCiScopedSearchUxQueryOptions<
     return { queries } as T;
   }
   return { ...options, queries };
+}
+
+function withDefaultExportSearchUxTimeout<T extends { timeoutMs?: number }>(
+  options: T | undefined,
+): T {
+  if (options === undefined) {
+    return { timeoutMs: DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS } as T;
+  }
+  return {
+    ...options,
+    timeoutMs: options.timeoutMs ?? DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS,
+  };
 }
 
 export type RunPhase1ExportSearchUxChecksOptions = {
@@ -168,11 +181,11 @@ export async function runPhase1ExportSearchUxChecks(
     try {
       const failures: Phase1ExportSearchUxCheckFailure[] = [];
 
-      const searchPageOptions = withCiScopedSearchUxQueryOptions(
-        options.searchPageOptions,
+      const searchPageOptions = withDefaultExportSearchUxTimeout(
+        withCiScopedSearchUxQueryOptions(options.searchPageOptions),
       );
-      const searchDialogOptions = withCiScopedSearchUxQueryOptions(
-        options.searchDialogOptions,
+      const searchDialogOptions = withDefaultExportSearchUxTimeout(
+        withCiScopedSearchUxQueryOptions(options.searchDialogOptions),
       );
 
       const searchPageFailures = await runPhase1SearchPageChecks(

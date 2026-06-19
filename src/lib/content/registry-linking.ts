@@ -1,15 +1,5 @@
 import {
-  conceptPageHref,
-  glossaryPageHref,
-  modelPageHref,
-  modulePageHref,
-  paperPageHref,
-  systemPageHref,
-  trainingPageHref,
-} from "@/lib/content/content-hrefs";
-import {
-  MODULE_BACKED_CONCEPT_REGISTRY_IDS,
-  PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
+  getPublishedDocsHrefForRecord,
   type PublishedDocsRegistryIds,
 } from "@/lib/content/published-docs-registry-ids";
 import type {
@@ -50,36 +40,18 @@ export function registryDisplayTitle(record: LinkableRegistryRecord): string {
   return record.aliases[0] ?? formatSlugLabel(record.slug);
 }
 
-function conceptRecordPageHref(record: ConceptRecord): string {
-  if (MODULE_BACKED_CONCEPT_REGISTRY_IDS.has(record.id)) {
-    return modulePageHref(record.slug);
-  }
-  if (PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has(record.id)) {
-    return conceptPageHref(record.slug);
-  }
-  return glossaryPageHref(record.slug);
-}
-
 export function registryRecordHref(
   record: LinkableRegistryRecord,
 ): string | undefined {
-  if (record.kind === "concept") {
-    return conceptRecordPageHref(record);
-  }
-  if (record.kind === "module") {
-    return modulePageHref(record.slug);
-  }
-  if (record.kind === "model") {
-    return modelPageHref(record.slug);
-  }
-  if (record.kind === "paper") {
-    return paperPageHref(record.slug);
-  }
-  if (record.kind === "training-regime") {
-    return trainingPageHref(record.slug);
-  }
-  if (record.kind === "system") {
-    return systemPageHref(record.slug);
+  if (
+    record.kind === "module" ||
+    record.kind === "concept" ||
+    record.kind === "model" ||
+    record.kind === "paper" ||
+    record.kind === "training-regime" ||
+    record.kind === "system"
+  ) {
+    return getPublishedDocsHrefForRecord(record) ?? undefined;
   }
   return undefined;
 }

@@ -80,4 +80,78 @@ updatedAt: "2026-06-03"
       listPublishedGlossaryPages({ contentRoot: tempRoot }),
     ).resolves.toEqual([]);
   });
+
+  test("returns only shipped localized glossary pages for non-default locales", async () => {
+    tempRoot = await mkdtemp(join(tmpdir(), "glossary-pages-localized-"));
+
+    const shippedDir = join(tempRoot, "token");
+    await mkdir(join(shippedDir, "messages"), { recursive: true });
+    await writeFile(
+      join(shippedDir, "page.mdx"),
+      `---
+kind: glossary
+registryId: concept.token
+messageNamespace: local
+assetNamespace: local
+status: published
+tags:
+  - attention
+updatedAt: "2026-06-03"
+---
+
+# Token
+`,
+    );
+    await writeFile(
+      join(shippedDir, "messages", "en.json"),
+      JSON.stringify({
+        title: "Token",
+        description: "English token page.",
+      }),
+    );
+    await writeFile(
+      join(shippedDir, "messages", "vi.json"),
+      JSON.stringify({
+        title: "Từ mã",
+        description: "Trang token tiếng Việt.",
+      }),
+    );
+
+    const untranslatedDir = join(tempRoot, "vector");
+    await mkdir(join(untranslatedDir, "messages"), { recursive: true });
+    await writeFile(
+      join(untranslatedDir, "page.mdx"),
+      `---
+kind: glossary
+registryId: concept.token
+messageNamespace: local
+assetNamespace: local
+status: published
+tags:
+  - attention
+updatedAt: "2026-06-03"
+---
+
+# Vector
+`,
+    );
+    await writeFile(
+      join(untranslatedDir, "messages", "en.json"),
+      JSON.stringify({
+        title: "Vector",
+        description: "English-only vector page.",
+      }),
+    );
+
+    await expect(
+      listPublishedGlossaryPages({ contentRoot: tempRoot, locale: "vi" }),
+    ).resolves.toEqual([
+      {
+        slug: "token",
+        title: "Từ mã",
+        summary: "Trang token tiếng Việt.",
+        url: "/vi/docs/token",
+      },
+    ]);
+  });
 });

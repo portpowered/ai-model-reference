@@ -59,8 +59,10 @@ export function resolveSearchDialogCheckOptionsFromEnv(
 
 const SEARCH_DIALOG_TRIGGER_SELECTOR = "button[data-search]";
 const SEARCH_DIALOG_EMPTY_SELECTOR = '[data-testid="search-dialog-empty"]';
+const SEARCH_DIALOG_LOADING_SELECTOR = '[data-testid="search-dialog-loading"]';
 const SEARCH_RESULT_URL_SELECTOR = '[data-testid="search-result-url"]';
 const SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS = 250;
+const SEARCH_DIALOG_QUERY_RETRY_DELAY_MS = 250;
 
 /** Default per-query browser deadline (static-export dialog hydration can exceed 30s under CI load). */
 export const DEFAULT_SEARCH_DIALOG_TIMEOUT_MS = 45_000;
@@ -188,8 +190,15 @@ async function waitForSearchDialogOutcome(
   dialog: Locator,
   timeoutMs: number,
 ): Promise<void> {
+  const loading = dialog.locator(SEARCH_DIALOG_LOADING_SELECTOR);
   const results = dialog.locator(SEARCH_RESULT_URL_SELECTOR);
   const empty = dialog.locator(SEARCH_DIALOG_EMPTY_SELECTOR);
+
+  await Promise.race([
+    loading.waitFor({ state: "visible", timeout: timeoutMs }),
+    results.first().waitFor({ state: "visible", timeout: timeoutMs }),
+    empty.waitFor({ state: "visible", timeout: timeoutMs }),
+  ]);
 
   await Promise.race([
     results.first().waitFor({ state: "visible", timeout: timeoutMs }),
@@ -212,17 +221,44 @@ export async function checkSearchDialogQuery(
     dialog ?? (await openHeaderSearchDialog(page, baseUrl, timeoutMs));
 
   const input = activeDialog.getByRole("textbox");
-  await input.fill("");
-  await input.fill(query);
+  const deadline = Date.now() + timeoutMs;
+  let lastReason: string | null = null;
 
-  try {
-    await waitForSearchDialogOutcome(activeDialog, timeoutMs);
-  } catch {
-    return `timed out waiting for search results in header search dialog for query "${query}" after ${timeoutMs}ms`;
+  for (let attempt = 0; Date.now() < deadline; attempt += 1) {
+    const remainingMs = Math.max(1, deadline - Date.now());
+    await input.focus();
+    await input.fill("");
+    await input.pressSequentially(query, { delay: 30 });
+
+    try {
+      await waitForSearchDialogOutcome(activeDialog, remainingMs);
+    } catch {
+      lastReason = `timed out waiting for search results in header search dialog for query "${query}" after ${timeoutMs}ms`;
+    }
+
+    const snapshot = await readSearchDialogDomSnapshot(activeDialog);
+    const reason = evaluateSearchDialogDomSnapshot(snapshot, query);
+    if (reason === null) {
+      return null;
+    }
+
+    lastReason = reason;
+    if (attempt > 0 || snapshot.hasResults || snapshot.hasEmpty) {
+      return reason;
+    }
+
+    await sleep(
+      Math.min(
+        SEARCH_DIALOG_QUERY_RETRY_DELAY_MS,
+        Math.max(1, deadline - Date.now()),
+      ),
+    );
   }
 
-  const snapshot = await readSearchDialogDomSnapshot(activeDialog);
-  return evaluateSearchDialogDomSnapshot(snapshot, query);
+  return (
+    lastReason ??
+    `timed out waiting for search results in header search dialog for query "${query}" after ${timeoutMs}ms`
+  );
 }
 
 /**

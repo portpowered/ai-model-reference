@@ -4,7 +4,16 @@
   "kind": "module",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["SentencePiece", "sentencepiece", "sentence piece"],
+  "aliases": [
+    "SentencePiece",
+    "sentencepiece",
+    "sentence piece",
+    "multilingual tokenizer",
+    "whitespace-agnostic tokenizer",
+    "whitespace agnostic tokenizer",
+    "raw-text tokenizer",
+    "raw text tokenizer"
+  ],
   "tags": ["tokenization", "foundations"],
   "relatedIds": [
     "concept.tokenizers-overview",
@@ -12,10 +21,13 @@
     "module.bpe",
     "module.wordpiece"
   ],
-  "citationIds": [],
-  "status": "draft",
+  "citationIds": ["citation.kudo-sentencepiece"],
+  "status": "published",
   "createdAt": "2026-06-19T00:00:00.000Z",
   "updatedAt": "2026-06-19T00:00:00.000Z",
+  "releaseDate": "2018-11-02",
+  "authors": ["Taku Kudo", "John Richardson"],
+  "sourceId": "citation.kudo-sentencepiece",
   "moduleType": "tokenizer",
   "moduleFamily": "tokenization",
   "conceptType": "subword-tokenization",

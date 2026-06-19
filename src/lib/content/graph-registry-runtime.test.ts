@@ -1,10 +1,21 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { CONTENT_ROOT } from "@/lib/content/content-paths";
 import {
+  clearRegisteredGraphRecords,
   getGraphById,
   listGraphRecords,
+  registerGraphRecords,
 } from "@/lib/content/graph-registry-runtime";
+import { parseGraphRegistryRecords } from "@/lib/content/graph-registry-validation";
+import { graphRecordSchema } from "@/lib/content/schemas";
 
 describe("graph-registry-runtime", () => {
+  afterEach(() => {
+    clearRegisteredGraphRecords();
+  });
+
   test("loads published graph records by id", () => {
     const computeFlow = getGraphById(
       "graph.grouped-query-attention-compute-flow",
@@ -150,9 +161,12 @@ describe("graph-registry-runtime", () => {
   test("lists all bundled graph records", () => {
     const records = listGraphRecords();
 
-    expect(records.length).toBe(46);
+    expect(records.length).toBe(47);
     expect(records.map((record) => record.id)).toContain(
       "graph.bpe-compute-flow",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.sentencepiece-compute-flow",
     );
     expect(records.map((record) => record.id)).toContain(
       "graph.byte-level-tokenization-compute-flow",
@@ -172,5 +186,59 @@ describe("graph-registry-runtime", () => {
     expect(records.map((record) => record.id)).toContain(
       "graph.expert-parallel-overlap-system-flow",
     );
+  });
+
+  test("matches the root graph registry directory exactly", () => {
+    const graphsRoot = join(CONTENT_ROOT, "registry", "graphs");
+    const graphFileNames = readdirSync(graphsRoot)
+      .filter((fileName) => fileName.endsWith(".json"))
+      .sort((left, right) => left.localeCompare(right));
+    const rootRecords = parseGraphRegistryRecords(
+      graphFileNames.map((fileName) => ({
+        sourcePath: join(graphsRoot, fileName),
+        value: JSON.parse(readFileSync(join(graphsRoot, fileName), "utf8")),
+      })),
+    );
+
+    expect(listGraphRecords().map((record) => record.id)).toEqual(
+      rootRecords.map((record) => record.id),
+    );
+  });
+
+  test("keeps explicit overrides scoped to runtime lookup and reversible", () => {
+    const rootRecord = getGraphById("graph.gpt-3-architecture");
+    expect(rootRecord).toBeDefined();
+    const proofTemplateNode = rootRecord?.nodes[0];
+    expect(proofTemplateNode).toBeDefined();
+
+    const overrideRecord = graphRecordSchema.parse({
+      ...rootRecord,
+      nodes: [
+        ...(rootRecord?.nodes ?? []),
+        {
+          ...proofTemplateNode,
+          id: "override-proof-node",
+          labelKey: "graph.nodes.overrideProof.label",
+        },
+      ],
+    });
+
+    registerGraphRecords([overrideRecord]);
+
+    const overriddenRecord = getGraphById("graph.gpt-3-architecture");
+    expect(overriddenRecord?.nodes.map((node) => node.id)).toContain(
+      "override-proof-node",
+    );
+    expect(
+      listGraphRecords()
+        .find((record) => record.id === "graph.gpt-3-architecture")
+        ?.nodes.map((node) => node.id),
+    ).not.toContain("override-proof-node");
+
+    clearRegisteredGraphRecords();
+
+    expect(
+      getGraphById("graph.gpt-3-architecture")?.nodes.map((node) => node.id),
+    ).not.toContain("override-proof-node");
   });
 });

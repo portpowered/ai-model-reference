@@ -12,11 +12,13 @@ describe("GitHub Actions Bun install", () => {
     const workflow = readFileSync(ciWorkflowPath, "utf8");
 
     const setupBunIndex = workflow.indexOf("oven-sh/setup-bun@v2");
+    const pinnedBunVersionIndex = workflow.indexOf("bun-version: 1.3.13");
     const frozenInstallIndex = workflow.indexOf(
       "bun install --frozen-lockfile",
     );
 
     expect(setupBunIndex).toBeGreaterThan(-1);
+    expect(pinnedBunVersionIndex).toBeGreaterThan(setupBunIndex);
     expect(frozenInstallIndex).toBeGreaterThan(setupBunIndex);
     expect(workflow).not.toMatch(/\bbun update\b/);
     expect(workflow).not.toMatch(/\bbun install\b(?!\s+--frozen-lockfile)/);

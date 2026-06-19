@@ -1,12 +1,10 @@
 import {
-  collectSidebarPageLinks,
   extractNdSidebarHtml,
   hasLegacyPlaceholderSidebar,
   PLACEHOLDER_SIDEBAR_DESCRIPTION,
   stripHtmlScripts,
   TOKEN_GLOSSARY_URL,
 } from "@/lib/navigation/docs-sidebar-contract";
-import { source } from "@/lib/source";
 
 /** Stable failure reasons for unified docs shell convergence checks. */
 export const DOCS_SHELL_CONVERGENCE_REASONS = {
@@ -56,8 +54,7 @@ export function assertDocsShellConvergence(html: string): string | null {
     return DOCS_SHELL_CONVERGENCE_REASONS.missingGlossaryLabel;
   }
 
-  const pageTreeLinks = collectSidebarPageLinks(source.pageTree);
-  if (!pageTreeLinks.some((link) => link.url === TOKEN_GLOSSARY_URL)) {
+  if (!sidebar.includes(TOKEN_GLOSSARY_URL)) {
     return DOCS_SHELL_CONVERGENCE_REASONS.missingTokenGlossaryLink;
   }
 

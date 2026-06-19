@@ -1,20 +1,8 @@
-import {
-  conceptPageHref,
-  glossaryPageHref,
-  modelPageHref,
-  modulePageHref,
-  paperPageHref,
-  systemPageHref,
-  trainingPageHref,
-} from "@/lib/content/content-hrefs";
-import {
-  MODULE_BACKED_CONCEPT_REGISTRY_IDS,
-  PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
-  type PublishedDocsRegistryIds,
-} from "@/lib/content/published-docs-registry-ids";
+import type { PublishedDocsRegistryIds } from "@/lib/content/published-docs-registry-ids";
 import {
   hasPublishedDocsPageForRecord,
   registryDisplayTitle,
+  registryRecordHref,
 } from "@/lib/content/registry-linking";
 import type {
   ConceptRecord,
@@ -121,35 +109,6 @@ function dedupeRelatedDocItems(items: RelatedDocItem[]): RelatedDocItem[] {
   return deduped;
 }
 
-function conceptRecordPageHref(record: ConceptRecord): string {
-  if (MODULE_BACKED_CONCEPT_REGISTRY_IDS.has(record.id)) {
-    return modulePageHref(record.slug);
-  }
-  if (PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS.has(record.id)) {
-    return conceptPageHref(record.slug);
-  }
-  return glossaryPageHref(record.slug);
-}
-
-function recordPageHref(record: RelatedRegistryRecord): string {
-  if (record.kind === "concept") {
-    return conceptRecordPageHref(record);
-  }
-  if (record.kind === "module") {
-    return modulePageHref(record.slug);
-  }
-  if (record.kind === "model") {
-    return modelPageHref(record.slug);
-  }
-  if (record.kind === "paper") {
-    return paperPageHref(record.slug);
-  }
-  if (record.kind === "system") {
-    return systemPageHref(record.slug);
-  }
-  return trainingPageHref(record.slug);
-}
-
 function getConceptType(record: RelatedRegistryRecord): string | undefined {
   if (record.kind === "concept") {
     return record.conceptType;
@@ -194,7 +153,7 @@ function toRelatedItem(
     registryId: record.id,
     slug: record.slug,
     title: registryDisplayTitle(record),
-    href: isPlanned || !hasDocsPage ? undefined : recordPageHref(record),
+    href: isPlanned || !hasDocsPage ? undefined : registryRecordHref(record),
     reasonLabel: isPlanned ? PLANNED_RELATED_REASON_LABEL : reasonLabel,
     isPlanned,
   };
