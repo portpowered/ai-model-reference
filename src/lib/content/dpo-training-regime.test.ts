@@ -6,6 +6,7 @@ import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
 import {
+  getCitationById,
   getTrainingRegimeById,
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
@@ -21,7 +22,7 @@ async function renderHtml(
   return await new Response(stream).text();
 }
 
-describe("DPO training-regime page (dpo-training-regime-page-003)", () => {
+describe("DPO training-regime page contracts", () => {
   test("registry record publishes preference-optimization aliases and alignment curated related ids", () => {
     const record = getTrainingRegimeById("training-regime.dpo");
     expect(record?.status).toBe("published");
@@ -34,6 +35,38 @@ describe("DPO training-regime page (dpo-training-regime-page-003)", () => {
     expect(record?.tags).toEqual(["alignment", "foundations"]);
     expect(record?.relatedIds).toEqual(["concept.alignment"]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("training-regime.dpo")).toBe(true);
+  });
+
+  test("canonical DPO bundle resolves the route, registry record, English messages, asset graph, and citation together", async () => {
+    const record = getTrainingRegimeById("training-regime.dpo");
+    if (!record) {
+      throw new Error("expected training-regime.dpo in registry");
+    }
+
+    const page = await loadTrainingRegimePage("dpo");
+    const citation = getCitationById("citation.direct-preference-optimization");
+
+    expect(page.frontmatter.kind).toBe("training-regime");
+    expect(page.frontmatter.registryId).toBe(record.id);
+    expect(page.messages.title).toBe("Direct Preference Optimization");
+    expect(page.messages.description).toContain(
+      "without fitting a separate reward model",
+    );
+    expect(page.messages.openingSummary).toContain("usually shortened to DPO");
+    expect(page.messages.sections?.howItWorks.body).toContain(
+      "preferred and one rejected",
+    );
+    expect(page.assets.trainingFlow).toMatchObject({
+      type: "graph",
+      graphId: "graph.dpo-training-flow",
+    });
+    expect(record.defaultTitleKey).toBe("title");
+    expect(record.defaultSummaryKey).toBe("description");
+    expect(record.citationIds).toEqual([
+      "citation.direct-preference-optimization",
+    ]);
+    expect(citation?.url).toBe("https://arxiv.org/abs/2305.18290");
+    expect(citation?.title).toContain("Direct Preference Optimization");
   });
 
   test("curated related docs keep the DPO page attached to the published alignment lane", () => {
