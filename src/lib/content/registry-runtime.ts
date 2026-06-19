@@ -114,6 +114,7 @@ import topPSamplingConcept from "@/content/registry/concepts/top-p-sampling.json
 import transformerConcept from "@/content/registry/concepts/transformer.json";
 import transformerArchitectureConcept from "@/content/registry/concepts/transformer-architecture.json";
 import vectorConcept from "@/content/registry/concepts/vector.json";
+import vocabularySizeConcept from "@/content/registry/concepts/vocabulary-size.json";
 import weightOnlyQuantizationConcept from "@/content/registry/concepts/weight-only-quantization.json";
 import whyFourBitModelsAreNotExactlyFourXFasterConcept from "@/content/registry/concepts/why-4-bit-models-are-not-exactly-4x-faster.json";
 import whyLongContextIsHardConcept from "@/content/registry/concepts/why-long-context-is-hard.json";
@@ -248,6 +249,7 @@ const conceptRecords: ConceptRecord[] = [
   conceptRecordSchema.parse(vectorConcept),
   conceptRecordSchema.parse(tokenizersOverviewConcept),
   conceptRecordSchema.parse(hiddenSizeConcept),
+  conceptRecordSchema.parse(vocabularySizeConcept),
   conceptRecordSchema.parse(kvCacheConcept),
   conceptRecordSchema.parse(kvCacheQuantizationConcept),
   conceptRecordSchema.parse(logitConcept),

@@ -36,6 +36,9 @@
     "concept.embedding": {
       "reason": "Each token ID becomes a learned numerical representation before the model mixes context."
     },
+    "concept.vocabulary-size": {
+      "reason": "That vocabulary count tells you how many ordinary and reserved tokens the tokenizer can emit IDs for."
+    },
     "concept.logit": {
       "reason": "Next-token prediction starts as a candidate score for each vocabulary token."
     },

@@ -16,6 +16,8 @@ import {
 const TOKEN_RELATED_EXPLANATIONS = {
   "concept.embedding":
     "Each token ID becomes a learned numerical representation before the model mixes context.",
+  "concept.vocabulary-size":
+    "That vocabulary count tells you how many ordinary and reserved tokens the tokenizer can emit IDs for.",
   "concept.logit":
     "Next-token prediction starts as a candidate score for each vocabulary token.",
   "concept.softmax":
@@ -56,6 +58,7 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
 
     expect(items.map((item) => item.reasonLabel)).toEqual([
       TOKEN_RELATED_EXPLANATIONS["concept.embedding"],
+      TOKEN_RELATED_EXPLANATIONS["concept.vocabulary-size"],
       TOKEN_RELATED_EXPLANATIONS["concept.logit"],
       TOKEN_RELATED_EXPLANATIONS["concept.softmax"],
     ]);
@@ -74,9 +77,13 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
 
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain(TOKEN_RELATED_EXPLANATIONS["concept.embedding"]);
+    expect(html).toContain(
+      TOKEN_RELATED_EXPLANATIONS["concept.vocabulary-size"],
+    );
     expect(html).toContain(TOKEN_RELATED_EXPLANATIONS["concept.logit"]);
     expect(html).toContain(TOKEN_RELATED_EXPLANATIONS["concept.softmax"]);
     expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');
     expect(html).not.toContain(">curated<");
@@ -95,6 +102,7 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
 
     for (const href of [
       "/docs/glossary/embedding",
+      "/docs/glossary/vocabulary-size",
       "/docs/glossary/logit",
       "/docs/glossary/softmax",
     ]) {
