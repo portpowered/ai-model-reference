@@ -132,6 +132,7 @@ const TRAINING_INDEX_URLS = [
 
 const SYSTEM_INDEX_URLS = [
   "/docs/systems/expert-parallel-overlap",
+  "/docs/systems/inference-engine",
   "/docs/systems/on-disk-kv-cache",
 ] as const;
 

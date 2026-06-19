@@ -150,7 +150,7 @@ describe("graph-registry-runtime", () => {
   test("lists all bundled graph records", () => {
     const records = listGraphRecords();
 
-    expect(records.length).toBe(46);
+    expect(records.length).toBe(47);
     expect(records.map((record) => record.id)).toContain(
       "graph.bpe-compute-flow",
     );
@@ -171,6 +171,9 @@ describe("graph-registry-runtime", () => {
     );
     expect(records.map((record) => record.id)).toContain(
       "graph.expert-parallel-overlap-system-flow",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.inference-engine-system-flow",
     );
   });
 });
