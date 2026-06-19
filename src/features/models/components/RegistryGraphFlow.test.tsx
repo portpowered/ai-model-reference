@@ -708,6 +708,39 @@ describe("RegistryGraphFlow", () => {
     );
   });
 
+  test("marks GPT-3 dependency proof edges as interactive in the rendered graph metadata", () => {
+    renderRegistryGraph(
+      <RegistryGraphFlow
+        assetId="architectureGraph"
+        graphId="graph.gpt-3-architecture"
+        alt={gpt3Messages.assets?.architectureGraph?.alt}
+      />,
+      gpt3Messages,
+      {
+        architectureGraph: {
+          type: "graph",
+          graphId: "graph.gpt-3-architecture",
+          webRenderer: "react-flow",
+          printRenderer: "vertical-svg",
+          altKey: "assets.architectureGraph.alt",
+        },
+      } satisfies PageAssetConfig,
+    );
+
+    const interactiveEdge = document.querySelector(
+      '[data-graph-edge-id="linear-to-softmax"]',
+    );
+    expect(interactiveEdge?.getAttribute("data-graph-edge-family")).toBe(
+      "depends-on",
+    );
+    expect(interactiveEdge?.getAttribute("data-graph-edge-kind")).toBe(
+      "depends-on",
+    );
+    expect(interactiveEdge?.getAttribute("data-graph-edge-interactive")).toBe(
+      "true",
+    );
+  });
+
   test("preserves explicit size and architecture visual roles for container-style nodes", () => {
     const graph = {
       id: "graph.architecture-fixture",

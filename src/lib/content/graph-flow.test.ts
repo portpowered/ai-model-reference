@@ -212,9 +212,10 @@ describe("graph-flow", () => {
       gpt3Messages as PageMessages,
     );
     const maskedMhaNode = nodes.find((node) => node.id === "masked-mha");
+    const feedForwardNode = nodes.find((node) => node.id === "feed-forward");
     const decoderStackNode = nodes.find((node) => node.id === "decoder-stack");
-    const addNormEdge = edges.find(
-      (edge) => edge.id === "masked-mha-to-add-norm-attention",
+    const softmaxDependencyEdge = edges.find(
+      (edge) => edge.id === "linear-to-softmax",
     );
 
     expect(maskedMhaNode?.data.semantic).toMatchObject({
@@ -225,20 +226,31 @@ describe("graph-flow", () => {
       hasCanonicalPage: true,
       canonicalPageHref: "/docs/modules/multi-head-attention",
     });
+    expect(feedForwardNode?.data.semantic).toMatchObject({
+      registryId: "module.feed-forward-network",
+      entityKind: "module",
+      resolvedTitle: "Feed\nForward",
+      resolvedSummary:
+        "Per-token dense transformation inside each decoder block",
+      hasCanonicalPage: true,
+      canonicalPageHref: "/docs/modules/feed-forward-network",
+    });
     expect(decoderStackNode?.data.semantic).toMatchObject({
       registryId: "concept.transformer-architecture",
       resolvedTitle: "Transformer architecture",
     });
-    expect(addNormEdge?.data?.semantic).toMatchObject({
-      edgeFamily: "data-flow",
-      edgeKind: "data-flow",
-      sourceNodeId: "masked-mha",
-      targetNodeId: "add-norm-attention",
-      sourceRegistryId: "module.multi-head-attention",
-      targetRegistryId: "module.layer-norm",
-      sourceTitle: "Masked\nMulti-Head\nAttention",
-      targetTitle: "Add & Norm",
-      interactionEnabled: false,
+    expect(softmaxDependencyEdge?.data?.semantic).toMatchObject({
+      edgeFamily: "depends-on",
+      edgeKind: "depends-on",
+      sourceNodeId: "linear",
+      targetNodeId: "softmax",
+      targetRegistryId: "concept.softmax",
+      sourceTitle: "Linear",
+      targetTitle: "Softmax",
+      relationshipSummary: "Softmax depends on Linear.",
+      targetPageHref: "/docs/glossary/softmax",
+      targetPageTitle: "Softmax",
+      interactionEnabled: true,
     });
   });
 
