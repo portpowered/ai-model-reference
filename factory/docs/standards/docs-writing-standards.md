@@ -60,7 +60,7 @@ Before approval, reviewers **MUST** check each rule below and mark it `PASS` or
 9. Customer-facing copy contains no reader-shortcut callouts, no "on this
    page" framing, and no internal workflow language.
 10. References and citations are present where factual claims need support, and
-    every cited reference is correct.
+    every cited reference is correct. you MUST check the actual doc if its true, or if you know its not true outright just fail it. 
 11. Related docs, tags, and citations support discovery, but the page body does
     not depend on hand-held cross-page explanation to make sense.
 12. The copy is concise, direct, and conformant with the technical-writing

@@ -23,6 +23,8 @@ import kiviKvCacheQuantization from "@/content/registry/citations/kivi-kv-cache-
 import layerNormalization from "@/content/registry/citations/layer-normalization.json";
 import learningTransferableVisualModelsFromNaturalLanguageSupervision from "@/content/registry/citations/learning-transferable-visual-models-from-natural-language-supervision.json";
 import longformer from "@/content/registry/citations/longformer.json";
+import multilayerFeedforwardNetworksAreUniversalApproximators from "@/content/registry/citations/multilayer-feedforward-networks-are-universal-approximators.json";
+import onPolicyDistillationOfLanguageModels from "@/content/registry/citations/on-policy-distillation-of-language-models.json";
 import pengYarn from "@/content/registry/citations/peng-yarn.json";
 import pressAlibi from "@/content/registry/citations/press-alibi.json";
 import qlora from "@/content/registry/citations/qlora.json";
@@ -77,6 +79,8 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(layerNormalization),
   citationRecordSchema.parse(learningTransferableVisualModelsFromNaturalLanguageSupervision),
   citationRecordSchema.parse(longformer),
+  citationRecordSchema.parse(multilayerFeedforwardNetworksAreUniversalApproximators),
+  citationRecordSchema.parse(onPolicyDistillationOfLanguageModels),
   citationRecordSchema.parse(pengYarn),
   citationRecordSchema.parse(pressAlibi),
   citationRecordSchema.parse(qlora),
