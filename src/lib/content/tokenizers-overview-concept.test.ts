@@ -3,6 +3,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
+import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
@@ -10,6 +11,7 @@ import {
   listRelatedRegistryRecords,
 } from "@/lib/content/registry-runtime";
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 describe("tokenizers overview concept page", () => {
   test("publishes concept.tokenizers-overview as a canonical docs page", async () => {
@@ -91,5 +93,35 @@ describe("tokenizers overview concept page", () => {
     expect(html).not.toContain('id="simple-example"');
     expect(html).not.toContain("Phase");
     expect(html).not.toContain("Reader Shortcut");
+  });
+
+  test.each([
+    "tokenizer",
+    "tokenizers",
+    "text tokenization",
+    "how text becomes tokens",
+  ] as const)("representative search query %s routes readers into the canonical overview page", async (query) => {
+    const results = await docsSearchApi.search(query);
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url.split("#")[0]).toBe(
+      "/docs/concepts/tokenizers-overview",
+    );
+  });
+
+  test("the neighboring BPE page renders a live related-doc link into the tokenizer overview", async () => {
+    const page = await loadModulePage("bpe");
+
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
+    expect(html).toContain('data-testid="curated-related-docs"');
   });
 });
