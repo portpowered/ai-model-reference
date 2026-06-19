@@ -4,6 +4,10 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToReadableStream } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
+import {
+  parsePageAssetConfig,
+  validatePageAssetReferences,
+} from "@/lib/content/assets";
 import { TRAINING_DOCS_ROOT } from "@/lib/content/content-paths";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
@@ -58,6 +62,22 @@ async function renderHtml(
 }
 
 describe("pretraining training-regime identity contracts", () => {
+  test("published docs inventory resolves the canonical route, registry id, and English messages together", async () => {
+    const pages = await loadPublishedDocsPages("en");
+    const page = pages.find(
+      (entry) => entry.url === "/docs/training/pretraining",
+    );
+
+    expect(page).toBeDefined();
+    expect(page?.docsSlug).toBe("training/pretraining");
+    expect(page?.frontmatter.kind).toBe("training-regime");
+    expect(page?.frontmatter.registryId).toBe("training-regime.pretraining");
+    expect(page?.frontmatter.messageNamespace).toBe("local");
+    expect(page?.frontmatter.assetNamespace).toBe("local");
+    expect(page?.messages.title).toBe("Pretraining");
+    expect(page?.messages.openingSummary).toContain("base model");
+  });
+
   test("registry record publishes canonical aliases, relationships, and sidebar grouping", () => {
     const record = getTrainingRegimeById("training-regime.pretraining");
     expect(record?.status).toBe("published");
@@ -134,6 +154,19 @@ describe("pretraining training-regime identity contracts", () => {
     expect(gpt3?.title).toContain("Few-Shot Learners");
     expect(model.trainingRegimeIds).toContain("training-regime.pretraining");
     expect(model.relatedIds).toContain("training-regime.pretraining");
+  });
+
+  test("local asset config resolves the pretraining graph with message-backed references", () => {
+    const page = loadPretrainingPageBundle();
+    const assets = parsePageAssetConfig(page.assets);
+
+    expect(assets.trainingFlow.type).toBe("graph");
+    if (assets.trainingFlow.type === "graph") {
+      expect(assets.trainingFlow.graphId).toBe(
+        "graph.pretraining-training-flow",
+      );
+    }
+    expect(validatePageAssetReferences(assets, page.messages)).toEqual([]);
   });
 
   test("curated related docs keep pretraining attached to model, architecture, tokenization, and alignment paths", () => {
