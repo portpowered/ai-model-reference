@@ -5,19 +5,21 @@ import {
   clearRegisteredGraphRecords,
   registerGraphRecords,
 } from "@/lib/content/graph-registry-runtime";
-import { type GraphRecord, graphRecordSchema } from "@/lib/content/schemas";
+import { parseGraphRegistryRecords } from "@/lib/content/graph-registry-validation";
+import type { GraphRecord } from "@/lib/content/schemas";
 
 function readGraphRecords(contentRoot: string): GraphRecord[] {
   const graphsRoot = join(contentRoot, "registry", "graphs");
-
-  return readdirSync(graphsRoot)
+  const graphFileNames = readdirSync(graphsRoot)
     .filter((fileName) => fileName.endsWith(".json"))
-    .sort((left, right) => left.localeCompare(right))
-    .map((fileName) =>
-      graphRecordSchema.parse(
-        JSON.parse(readFileSync(join(graphsRoot, fileName), "utf8")) as unknown,
-      ),
-    );
+    .sort((left, right) => left.localeCompare(right));
+
+  return parseGraphRegistryRecords(
+    graphFileNames.map((fileName) => ({
+      sourcePath: join(graphsRoot, fileName),
+      value: JSON.parse(readFileSync(join(graphsRoot, fileName), "utf8")),
+    })),
+  );
 }
 
 export function syncGraphRegistryForContentRoot(contentRoot: string): void {
@@ -25,6 +27,7 @@ export function syncGraphRegistryForContentRoot(contentRoot: string): void {
     return;
   }
 
+  const records = readGraphRecords(contentRoot);
   clearRegisteredGraphRecords();
-  registerGraphRecords(readGraphRecords(contentRoot));
+  registerGraphRecords(records);
 }

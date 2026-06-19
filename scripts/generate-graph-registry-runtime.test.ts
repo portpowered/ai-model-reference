@@ -121,4 +121,47 @@ describe("generate-graph-registry-runtime", () => {
     );
     expect(output).toContain("graphRecordSchema.parse(newGraphGraphRecord)");
   });
+
+  test("fails with an actionable error when a graph record is invalid", () => {
+    const root = mkdtempSync(join(tmpdir(), "graph-runtime-generator-"));
+    cleanupPaths.push(root);
+    const graphsRoot = join(root, "graphs");
+    const outputPath = join(root, "graph-registry-runtime.generated.ts");
+    mkdirSync(graphsRoot, { recursive: true });
+
+    writeFileSync(
+      join(graphsRoot, "invalid-graph.json"),
+      JSON.stringify({ id: "graph.invalid", kind: "graph" }, null, 2),
+      "utf8",
+    );
+
+    expect(() =>
+      syncGraphRegistryRuntimeModule({ graphsRoot, outputPath }),
+    ).toThrow(/Graph registry schema validation failed.*invalid-graph\.json/);
+  });
+
+  test("fails with an explicit error when duplicate graph ids are discovered", () => {
+    const root = mkdtempSync(join(tmpdir(), "graph-runtime-generator-"));
+    cleanupPaths.push(root);
+    const graphsRoot = join(root, "graphs");
+    const outputPath = join(root, "graph-registry-runtime.generated.ts");
+    mkdirSync(graphsRoot, { recursive: true });
+
+    writeFileSync(
+      join(graphsRoot, "alpha-graph.json"),
+      createGraphRecordJson("graph.duplicate-id", "alpha-graph"),
+      "utf8",
+    );
+    writeFileSync(
+      join(graphsRoot, "beta-graph.json"),
+      createGraphRecordJson("graph.duplicate-id", "beta-graph"),
+      "utf8",
+    );
+
+    expect(() =>
+      syncGraphRegistryRuntimeModule({ graphsRoot, outputPath }),
+    ).toThrow(
+      /Duplicate graph registry id "graph\.duplicate-id" found in: .*alpha-graph\.json, .*beta-graph\.json/,
+    );
+  });
 });

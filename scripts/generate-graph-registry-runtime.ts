@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { getProjectRoot } from "@/lib/content/content-paths";
-import { graphRecordSchema } from "@/lib/content/schemas";
+import { parseGraphRegistryRecords } from "@/lib/content/graph-registry-validation";
 
 const projectRoot = getProjectRoot();
 const graphRegistryRoot = join(projectRoot, "src/content/registry/graphs");
@@ -41,22 +41,13 @@ function buildGraphModuleDescriptors(
 function validateGraphRegistryFiles(
   graphsRoot: string,
   fileNames: readonly string[],
-) {
-  for (const fileName of fileNames) {
-    const path = join(graphsRoot, fileName);
-    const parsed = graphRecordSchema.safeParse(
-      JSON.parse(readFileSync(path, "utf8")) as unknown,
-    );
-
-    if (!parsed.success) {
-      const issues = parsed.error.issues
-        .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-        .join("; ");
-      throw new Error(
-        `Graph registry schema validation failed for ${path}: ${issues}`,
-      );
-    }
-  }
+): void {
+  parseGraphRegistryRecords(
+    fileNames.map((fileName) => ({
+      sourcePath: join(graphsRoot, fileName),
+      value: JSON.parse(readFileSync(join(graphsRoot, fileName), "utf8")),
+    })),
+  );
 }
 
 export function generateGraphRegistryRuntimeSource(
