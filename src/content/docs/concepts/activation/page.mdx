@@ -1,0 +1,118 @@
+---
+title: Activation
+description: The nonlinear step that reshapes a layer's output so stacked layers can model richer patterns than repeated linear transforms alone.
+kind: "concept"
+registryId: "concept.activation"
+messageNamespace: "local"
+assetNamespace: "local"
+status: "published"
+tags:
+  - "activation"
+  - "token-to-probability-chain"
+  - "foundations"
+aliases:
+  - "activations"
+  - "activation function"
+  - "hidden activation"
+  - "layer output"
+updatedAt: "2026-06-19"
+---
+
+import { CitationList } from "@/features/docs/components/CitationList";
+import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
+import { Section } from "@/features/docs/components/Section";
+import { T } from "@/features/docs/components/T";
+import { TagPillList } from "@/features/docs/components/TagPillList";
+
+<Section id="what-it-is" titleKey="sections.whatItIs.title">
+  <T k="sections.whatItIs.body" />
+</Section>
+
+<Section id="why-nonlinear-steps-matter" titleKey="sections.whyNonlinearStepsMatter.title">
+  <T k="sections.whyNonlinearStepsMatter.body" />
+</Section>
+
+<Section id="where-readers-meet-it" titleKey="sections.whereReadersMeetIt.title">
+  <T k="sections.whereReadersMeetIt.body" />
+</Section>
+
+<Section id="common-confusions" titleKey="sections.commonConfusions.title">
+  <T k="sections.commonConfusions.body" />
+</Section>
+
+<Section id="read-next" titleKey="sections.readNext.title">
+  <T k="sections.readNext.body" />
+
+  <ul className="mt-4 space-y-2 list-none pl-0">
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/glossary/activation"
+      >
+        Activation glossary entry
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/modules/feed-forward-network"
+      >
+        Feed-Forward Network
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/modules/relu"
+      >
+        Rectified Linear Unit
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/modules/leaky-relu"
+      >
+        Leaky Rectified Linear Unit
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/modules/silu"
+      >
+        Sigmoid Linear Unit
+      </a>
+    </li>
+    <li>
+      <a
+        className="text-primary underline underline-offset-4"
+        href="/docs/modules/swiglu"
+      >
+        Swish Gated Linear Unit
+      </a>
+    </li>
+  </ul>
+</Section>
+
+<Section id="related" titleKey="sections.related.title">
+  <DerivedRelatedDocs
+    registryId="concept.activation"
+    groups={[
+      "same-concept-type",
+      "shared-tags",
+      "curated-related"
+    ]}
+  />
+
+  <RelatedDocs registryId="concept.activation" />
+</Section>
+
+<Section id="tags" titleKey="sections.tags.title">
+  <TagPillList registryId="concept.activation" showDescriptions />
+</Section>
+
+<Section id="references" titleKey="sections.references.title">
+  <CitationList registryId="concept.activation" />
+</Section>

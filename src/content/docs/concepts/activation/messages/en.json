@@ -1,0 +1,36 @@
+{
+  "title": "Activation",
+  "description": "The nonlinear step that reshapes a layer's output so stacked layers can model richer patterns than repeated linear transforms alone.",
+  "openingSummary": "An activation function applies a simple nonlinear rule to a layer output so the model can keep, dampen, or reshape signals before the next layer. Without those nonlinear steps, stacking many layers would still behave like one larger linear transform, and the network would lose much of the expressive behavior people expect from deep models.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "An activation is the value a layer passes forward after applying its learned transform and then an activation rule such as rectified linear unit (ReLU) or sigmoid linear unit (SiLU). In plain language, the weights produce a draft signal and the activation function decides how strongly each part of that signal should survive. That extra rule is usually applied point by point across the hidden values rather than by mixing tokens together."
+    },
+    "whyNonlinearStepsMatter": {
+      "title": "Why Nonlinear Steps Matter",
+      "body": "Nonlinearity is the reason stacked layers can build richer patterns instead of collapsing into one big linear mapping. A linear layer can scale and combine features, but repeated linear steps alone cannot create the same kinds of thresholds, smooth gates, and selective feature responses that modern models rely on. Activation functions give the network a way to bend the signal between layers so later blocks can react differently to different ranges of input."
+    },
+    "whereReadersMeetIt": {
+      "title": "Where Readers Meet It",
+      "body": "Readers most often meet activations inside feed-forward networks, where each token state is expanded, filtered through an activation, and projected back down. That is why pages like ReLU, Leaky ReLU, SiLU, and SwiGLU matter: they are different answers to the same question of how the hidden layer should shape its intermediate values. The broad activation idea also shows up in other architectures, but the feed-forward slot in transformers is the most common place to study it first."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A hidden-layer activation is not the same as output softmax. Hidden activations are internal signals between layers, while softmax is a final normalization step that turns output logits into a probability distribution over vocabulary items or classes. People also use the word activation in two nearby ways: for the activation function itself and for the resulting hidden values. Both meanings are common, but the key distinction is still internal nonlinear shaping versus final output normalization."
+    },
+    "readNext": {
+      "title": "Read Next",
+      "body": "Use the glossary entry for the shorter definition, then move to the feed-forward network and common activation variants to see where this broad idea becomes a concrete design choice."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

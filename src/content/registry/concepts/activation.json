@@ -4,9 +4,22 @@
   "kind": "concept",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["activations", "hidden activation", "layer output"],
-  "tags": ["token-to-probability-chain", "foundations"],
-  "relatedIds": ["concept.computational-graph", "concept.quantization"],
+  "aliases": [
+    "activations",
+    "activation function",
+    "hidden activation",
+    "layer output"
+  ],
+  "tags": ["activation", "token-to-probability-chain", "foundations"],
+  "relatedIds": [
+    "module.feed-forward-network",
+    "module.relu",
+    "module.leaky-relu",
+    "module.silu",
+    "module.swiglu",
+    "concept.computational-graph",
+    "concept.quantization"
+  ],
   "citationIds": [],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
