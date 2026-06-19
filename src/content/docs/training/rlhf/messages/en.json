@@ -1,0 +1,66 @@
+{
+  "title": "Reinforcement Learning from Human Feedback",
+  "description": "A post-training alignment regime that uses human preference data to steer a pretrained model toward responses people rate as more helpful, safe, or on-policy.",
+  "openingSummary": "Reinforcement Learning from Human Feedback starts with a pretrained model, gathers human judgments about better and worse answers, turns those judgments into a learned preference signal, and then updates the model to produce answers people are more likely to prefer.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Reinforcement Learning from Human Feedback, usually shortened to RLHF, is a post-training regime for shaping model behavior after pretraining. Teams first collect human comparisons between candidate answers, then train a reward or preference model from those judgments, and finally optimize the policy so the model produces answers that score better under that learned preference signal."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Pretraining teaches a model to continue text, but it does not automatically make the model concise, harmless, or aligned with product policy. RLHF exists because teams often need a second stage that favors answers humans judge as more useful, safer, or more instruction-following than a base model would produce on its own."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "A pretrained policy generates multiple candidate answers for prompts. Human raters compare those answers, the comparisons train a reward model or other preference estimator, and a reinforcement-learning optimizer updates the policy while keeping it from drifting too far from the supervised starting point."
+    },
+    "comparedToNearbyRegimes": {
+      "title": "Compared To Nearby Regimes",
+      "body": "RLHF is one alignment regime inside the broader alignment toolbox. It differs from plain supervised fine-tuning because it optimizes against preferences instead of only copying demonstrations, and it differs from newer preference-optimization variants because it explicitly keeps a reinforcement-learning loop in the middle."
+    },
+    "limitationsAndFailureModes": {
+      "title": "Limitations And Failure Modes",
+      "body": "RLHF can be expensive because it needs human preference data, repeated model sampling, and a reward model that is good enough to stand in for people. If the learned reward misses what users really want, the policy can become overly cautious, game the reward, or narrow its behavior in ways that look aligned in training but not in real use."
+    },
+    "related": {
+      "title": "Related To"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "trainingFlow": {
+      "alt": "An RLHF loop from a pretrained policy to sampled answers, human rankings, a learned reward model, and a policy update.",
+      "caption": "RLHF turns human comparisons into a learned preference signal, then updates the policy against that signal."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "policy": {
+        "label": "Pretrained policy",
+        "summary": "Starting model"
+      },
+      "sample": {
+        "label": "Sample answers",
+        "summary": "Generate candidate responses"
+      },
+      "rank": {
+        "label": "Human rankings",
+        "summary": "Collect better-versus-worse judgments"
+      },
+      "reward": {
+        "label": "Reward model",
+        "summary": "Learn a preference signal"
+      },
+      "update": {
+        "label": "Policy update",
+        "summary": "Optimize the model with a KL anchor"
+      }
+    }
+  }
+}

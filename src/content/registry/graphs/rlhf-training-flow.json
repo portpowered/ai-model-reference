@@ -1,0 +1,111 @@
+{
+  "id": "graph.rlhf-training-flow",
+  "slug": "rlhf-training-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "RLHF training flow",
+    "reinforcement learning from human feedback flow"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [],
+  "citationIds": [
+    "citation.training-language-models-to-follow-instructions-with-human-feedback"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "training-regime.rlhf",
+  "graphType": "recursive-module-graph",
+  "rootNodeId": "policy",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "vertical-svg"],
+  "nodes": [
+    {
+      "id": "policy",
+      "labelKey": "graph.nodes.policy.label",
+      "summaryKey": "graph.nodes.policy.summary",
+      "moduleKind": "input",
+      "position": { "x": 250, "y": 0 },
+      "size": { "width": 190, "height": 74 },
+      "visualRole": "process-node",
+      "childNodeIds": ["sample"]
+    },
+    {
+      "id": "sample",
+      "labelKey": "graph.nodes.sample.label",
+      "summaryKey": "graph.nodes.sample.summary",
+      "moduleKind": "block",
+      "position": { "x": 250, "y": 118 },
+      "size": { "width": 190, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["rank"]
+    },
+    {
+      "id": "rank",
+      "labelKey": "graph.nodes.rank.label",
+      "summaryKey": "graph.nodes.rank.summary",
+      "moduleKind": "dataset",
+      "position": { "x": 250, "y": 256 },
+      "size": { "width": 190, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["reward"]
+    },
+    {
+      "id": "reward",
+      "labelKey": "graph.nodes.reward.label",
+      "summaryKey": "graph.nodes.reward.summary",
+      "moduleKind": "loss",
+      "position": { "x": 250, "y": 394 },
+      "size": { "width": 190, "height": 84 },
+      "visualRole": "summary-node",
+      "childNodeIds": ["update"]
+    },
+    {
+      "id": "update",
+      "labelKey": "graph.nodes.update.label",
+      "summaryKey": "graph.nodes.update.summary",
+      "moduleKind": "output",
+      "position": { "x": 250, "y": 532 },
+      "size": { "width": 190, "height": 84 },
+      "visualRole": "process-node",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "policy-sample",
+      "source": "policy",
+      "target": "sample",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "sample-rank",
+      "source": "sample",
+      "target": "rank",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "rank-reward",
+      "source": "rank",
+      "target": "reward",
+      "edgeKind": "data-flow",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    },
+    {
+      "id": "reward-update",
+      "source": "reward",
+      "target": "update",
+      "edgeKind": "loss-signal",
+      "sourceHandleSide": "bottom",
+      "targetHandleSide": "top"
+    }
+  ]
+}
