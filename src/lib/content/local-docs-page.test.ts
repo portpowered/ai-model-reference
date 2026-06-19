@@ -177,7 +177,7 @@ describe("docs source local pages", () => {
     expect(page.toc.some(hasTocUrl("#what-it-is"))).toBe(true);
   });
 
-  test("loadLocalDocsPage resolves the shipped japanese core reader path through the shared MDX route contract", async () => {
+  test("loadLocalDocsPage resolves the shipped japanese attention proof set through the shared MDX route contract", async () => {
     const transformerPage = await loadLocalDocsPage(
       {
         section: "concepts",
@@ -203,6 +203,34 @@ describe("docs source local pages", () => {
       {
         section: "modules",
         slug: "grouped-query-attention",
+      },
+      "ja",
+    );
+    const multiHeadPage = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "multi-head-attention",
+      },
+      "ja",
+    );
+    const multiQueryPage = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "multi-query-attention",
+      },
+      "ja",
+    );
+    const slidingWindowPage = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "sliding-window-attention",
+      },
+      "ja",
+    );
+    const linearAttentionPage = await loadLocalDocsPage(
+      {
+        section: "modules",
+        slug: "linear-attention",
       },
       "ja",
     );
@@ -236,6 +264,25 @@ describe("docs source local pages", () => {
     expect(groupedQueryAttentionPage.toc.some(hasTocUrl("#what-it-is"))).toBe(
       true,
     );
+
+    expect(multiHeadPage.messages.sections?.whatItOptimizes?.body).toContain(
+      "表現の幅",
+    );
+    expect(multiHeadPage.messages.title).toBe("マルチヘッド attention");
+    expect(multiQueryPage.messages.sections?.whatItOptimizes?.body).toContain(
+      "KV-cache サイズ",
+    );
+    expect(multiQueryPage.messages.title).toBe("マルチクエリ attention");
+    expect(
+      slidingWindowPage.messages.sections?.whatItOptimizes?.body,
+    ).toContain("attention 計算コスト");
+    expect(slidingWindowPage.messages.title).toBe(
+      "スライディングウィンドウ attention",
+    );
+    expect(
+      linearAttentionPage.messages.sections?.whatItOptimizes?.body,
+    ).toContain("系列長スケーリング");
+    expect(linearAttentionPage.messages.title).toBe("線形 attention");
   });
 
   test("loadLocalDocsPage resolves shipped vietnamese head-sharing module messages through the shared MDX route contract", async () => {

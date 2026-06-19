@@ -2,7 +2,10 @@ import { describe, expect, it } from "bun:test";
 import { generateMetadata as generateHomeMetadata } from "@/app/(site)/page";
 import { generateMetadata as generateSearchMetadata } from "@/app/(site)/search/page";
 import { generateMetadata as generateTagMetadata } from "@/app/(site)/tags/[slug]/page";
-import { generateStaticParams as generateLocalizedDocsStaticParams } from "@/app/[locale]/docs/[[...slug]]/page";
+import {
+  generateMetadata as generateLocalizedDocsMetadata,
+  generateStaticParams as generateLocalizedDocsStaticParams,
+} from "@/app/[locale]/docs/[[...slug]]/page";
 import { generateMetadata as generateLocalizedArchitectureMetadata } from "@/app/[locale]/docs/architecture/page";
 import { generateMetadata as generateLocalizedGlossaryMetadata } from "@/app/[locale]/docs/glossary/page";
 import { generateMetadata as generateLocalizedHomeMetadata } from "@/app/[locale]/page";
@@ -49,6 +52,51 @@ describe("localized route metadata alternates", () => {
     );
   });
 
+  it("keeps localized docs alternates fail closed for the shipped japanese attention proof set", async () => {
+    const multiQueryMetadata = await generateLocalizedDocsMetadata({
+      params: Promise.resolve({
+        locale: "ja",
+        slug: ["modules", "multi-query-attention"],
+      }),
+    });
+    const slidingWindowMetadata = await generateLocalizedDocsMetadata({
+      params: Promise.resolve({
+        locale: "ja",
+        slug: ["modules", "sliding-window-attention"],
+      }),
+    });
+    const kvCacheMetadata = await generateDocsMetadata({
+      params: Promise.resolve({ slug: ["glossary", "kv-cache"] }),
+    });
+
+    expect(multiQueryMetadata.alternates).toEqual({
+      canonical: "/docs/modules/multi-query-attention",
+      languages: {
+        en: "/docs/modules/multi-query-attention",
+        ja: "/ja/docs/modules/multi-query-attention",
+        vi: "/vi/docs/modules/multi-query-attention",
+      },
+    });
+    expect(slidingWindowMetadata.alternates).toEqual({
+      canonical: "/docs/modules/sliding-window-attention",
+      languages: {
+        en: "/docs/modules/sliding-window-attention",
+        ja: "/ja/docs/modules/sliding-window-attention",
+        vi: "/vi/docs/modules/sliding-window-attention",
+      },
+    });
+    expect(multiQueryMetadata.title).toBe("マルチクエリ attention");
+    expect(slidingWindowMetadata.title).toBe(
+      "スライディングウィンドウ attention",
+    );
+    expect(kvCacheMetadata.alternates).toEqual({
+      canonical: "/docs/glossary/kv-cache",
+      languages: {
+        en: "/docs/glossary/kv-cache",
+      },
+    });
+  });
+
   it("loads localized shell metadata copy from the requested locale", async () => {
     const jaHomeMetadata = await generateLocalizedHomeMetadata({
       params: Promise.resolve({ locale: "ja" }),
@@ -86,7 +134,7 @@ describe("localized route metadata alternates", () => {
     expect(jaHomeMetadata.alternates?.languages?.ja).toBe("/ja");
   });
 
-  it("generates japanese docs routes only for the shipped core reader path", async () => {
+  it("generates japanese docs routes for the shipped attention proof set", async () => {
     const params = await generateLocalizedDocsStaticParams();
 
     expect(
@@ -113,6 +161,32 @@ describe("localized route metadata alternates", () => {
         ({ locale, slug }) =>
           locale === "ja" &&
           slug?.join("/") === "concepts/transformer-architecture",
+      ),
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" && slug?.join("/") === "modules/multi-head-attention",
+      ),
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" &&
+          slug?.join("/") === "modules/multi-query-attention",
+      ),
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" &&
+          slug?.join("/") === "modules/sliding-window-attention",
+      ),
+    ).toBe(true);
+    expect(
+      params.some(
+        ({ locale, slug }) =>
+          locale === "ja" && slug?.join("/") === "modules/linear-attention",
       ),
     ).toBe(true);
     expect(

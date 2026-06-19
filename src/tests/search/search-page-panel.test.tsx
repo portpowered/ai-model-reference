@@ -66,6 +66,17 @@ function installDocsSearchRouteFetch(): void {
   globalThis.fetch = createDocsSearchRouteFetch();
 }
 
+const JAPANESE_ATTENTION_PROOF_SET_URLS = [
+  "/ja/docs/modules/attention",
+  "/ja/docs/modules/linear-attention",
+  "/ja/docs/modules/multi-head-attention",
+  "/ja/docs/modules/grouped-query-attention",
+  "/ja/docs/modules/multi-query-attention",
+  "/ja/docs/modules/sliding-window-attention",
+  "/ja/docs/glossary/token",
+  "/ja/docs/concepts/transformer-architecture",
+] as const;
+
 async function typeQueryAndExpectGqaResult(
   context: Awaited<ReturnType<typeof loadAppTestContext>>,
   query: string,
@@ -435,7 +446,7 @@ describe("SearchPagePanel tag handoff", () => {
     ).toBeTruthy();
   });
 
-  test("renders the japanese shipped search slice with locale-aware copy and urls", async () => {
+  test("renders the japanese shipped attention proof set with locale-aware copy and urls", async () => {
     const context = await loadAppTestContext("ja");
     const searchParams = new URLSearchParams("tag=attention");
     await renderWithAppProviders(
@@ -467,12 +478,10 @@ describe("SearchPagePanel tag handoff", () => {
       within(results).getAllByTestId("search-result-url"),
     );
 
-    expect(urls).toEqual([
-      "/ja/docs/modules/attention",
-      "/ja/docs/modules/grouped-query-attention",
-      "/ja/docs/glossary/token",
-      "/ja/docs/concepts/transformer-architecture",
-    ]);
+    expect(urls).toHaveLength(JAPANESE_ATTENTION_PROOF_SET_URLS.length);
+    expect([...urls].sort()).toEqual(
+      [...JAPANESE_ATTENTION_PROOF_SET_URLS].sort(),
+    );
     expect(results.textContent).toContain("最小の文字単位");
     expect(results.textContent).toContain("Transformer アーキテクチャ");
     expect(results.textContent).not.toContain(

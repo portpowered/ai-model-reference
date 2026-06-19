@@ -23,6 +23,16 @@ import {
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const ATTENTION_MODULE_URL = "/docs/modules/attention";
+const JAPANESE_ATTENTION_PROOF_SET_URLS = [
+  "/ja/docs/modules/attention",
+  "/ja/docs/modules/linear-attention",
+  "/ja/docs/modules/multi-head-attention",
+  "/ja/docs/modules/grouped-query-attention",
+  "/ja/docs/modules/multi-query-attention",
+  "/ja/docs/modules/sliding-window-attention",
+  "/ja/docs/glossary/token",
+  "/ja/docs/concepts/transformer-architecture",
+] as const;
 
 describe("createModelAtlasSearchClient", () => {
   const originalFetch = globalThis.fetch;
@@ -65,7 +75,7 @@ describe("createModelAtlasSearchClient", () => {
     );
   });
 
-  test("loads japanese result metadata for the shipped core reader path only", async () => {
+  test("loads japanese result metadata for the shipped attention proof set", async () => {
     const localizedMeta = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap("ja"),
     );
@@ -79,6 +89,9 @@ describe("createModelAtlasSearchClient", () => {
     expect(
       localizedMeta["/ja/docs/concepts/transformer-architecture"]?.title,
     ).toBe("Transformer アーキテクチャ");
+    expect(
+      localizedMeta["/ja/docs/modules/linear-attention"]?.description,
+    ).toContain("ほぼ線形");
     expect(localizedMeta["/ja/docs/modules/sparse-attention"]).toBeUndefined();
   });
 
@@ -108,7 +121,7 @@ describe("createModelAtlasSearchClient", () => {
     expect(results[0]?.url).toBe(SAMPLE_URL);
   });
 
-  test("fetches japanese results from the locale-specific bootstrap URL", async () => {
+  test("fetches japanese proof-set results from the locale-specific bootstrap URL", async () => {
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap("ja"),
     );
@@ -120,12 +133,11 @@ describe("createModelAtlasSearchClient", () => {
     });
     const results = await client.search("attention");
 
-    expect(results.map((result) => result.url)).toEqual([
-      "/ja/docs/modules/attention",
-      "/ja/docs/modules/grouped-query-attention",
-      "/ja/docs/glossary/token",
-      "/ja/docs/concepts/transformer-architecture",
-    ]);
+    const urls = results.map((result) => result.url);
+    expect(urls).toHaveLength(JAPANESE_ATTENTION_PROOF_SET_URLS.length);
+    expect([...urls].sort()).toEqual(
+      [...JAPANESE_ATTENTION_PROOF_SET_URLS].sort(),
+    );
   });
 
   test("uses the docs search API path and ranks GQA sample page first", async () => {

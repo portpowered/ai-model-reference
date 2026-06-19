@@ -1,0 +1,259 @@
+{
+  "title": "スライディングウィンドウ attention",
+  "description": "各 query を系列全体ではなく固定の局所 window に制限する attention 変種。",
+  "openingSummary": "Dense attention では各 query が系列内のすべての key を見渡すため、コストは系列長の二乗で増えます。Sliding-window attention は各位置が固定の近傍 window だけを見るように制限し、全系列への到達範囲と引き換えに、長文脈での計算量とメモリを制御しやすくします。",
+  "sections": {
+    "whatItIs": {
+      "title": "これは何か",
+      "body": "Sliding-window attention は、各 query 位置が固定の近傍内にある key だけに attention する attention 変種です。完全な n×n attention 行列を使う代わりに、window の内側にある要素だけが 0 以外の重みを受け取ります。"
+    },
+    "whatItOptimizes": {
+      "title": "何を最適化するか",
+      "body": "Sliding-window attention は、attention 計算コスト、score 行列の生成に必要なメモリ帯域、そして全 pair の dense attention が支配的になる長系列 serving のコストを対象に最適化します。"
+    },
+    "practicalBenefit": {
+      "title": "実務上の利点",
+      "body": "長文脈を扱いたいが dense な二乗 attention のコストは払えないときに、sliding-window attention が採用されます。注目範囲を局所近傍に限定することで、積和演算を減らし、attention map の大きさを予測しやすい局所サイズに保てます。"
+    },
+    "howItWorks": {
+      "title": "どう動くか",
+      "body": "各 query 位置は、自分の左側 W token 以内にある key だけに attention します。Pattern によっては右側も含みます。Window の外にある key は softmax 正規化の前に 0 化されるため、モデルは全 token 格子ではなく、近傍文脈に計算を集中させます。"
+    },
+    "mathOrComputeSchema": {
+      "title": "数式または計算図式",
+      "body": "系列長を n、window size を W とすると、sliding-window attention は softmax の前に帯状マスクを適用します。下の式は、dense な multi-head attention と、各 query が届く key を window 内に制限した attention を対比しています。"
+    },
+    "comparedToNearbyModules": {
+      "title": "近い module との違い",
+      "body": "Multi-head attention と比べると、sliding-window attention はすべての位置を採点する代わりに、到達範囲を局所近傍に制限します。Multi-query attention や grouped-query attention は許可された位置に対しては dense なままで、key-value head 数だけを減らします。Sliding-window attention は、その代わりに各 query がどこまで見られるかを変えます。"
+    },
+    "exampleArchitectures": {
+      "title": "例となるアーキテクチャ",
+      "body": "Sliding-window attention は、局所 window に加えて周期的な global layer や別の pattern を組み合わせ、遠い依存関係を補う長文脈 decoder モデルに現れます。"
+    },
+    "limitationsAndTradeoffs": {
+      "title": "限界とトレードオフ",
+      "body": "固定 window だけでは、遠く離れた token を 1 layer で直接つなげません。局所 window のみを使うモデルは、系列全体へ情報を運ぶために layer の積み重ねや補助 pattern を必要とすることがあります。"
+    },
+    "whyItStillMatters": {
+      "title": "今でも重要な理由",
+      "body": "系列長が伸びるほど、二乗 attention のコストは locality pattern を重要にします。Sliding-window attention は、近くの有用な信号を保ちながら、各 layer で完全な n×n score 行列を避けるための実用的な選択肢です。"
+    },
+    "related": {
+      "title": "関連"
+    },
+    "tags": {
+      "title": "タグ"
+    },
+    "references": {
+      "title": "参考文献"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Dense multi-head attention と sliding-window attention の局所到達範囲比較",
+      "caption": "Multi-head attention と sliding-window attention を切り替えて、全系列への到達範囲と固定の局所 window を 1 つの図で比較します。",
+      "variants": {
+        "mha": {
+          "label": "MHA"
+        },
+        "window": {
+          "label": "Window"
+        }
+      }
+    },
+    "comparisonTable": {
+      "caption": "Sliding-window attention と近い attention 変種の比較"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "window": {
+          "title": "Sliding-window attention"
+        },
+        "mha": {
+          "title": "Multi-head attention"
+        },
+        "mqa": {
+          "title": "Multi-query attention"
+        },
+        "gqa": {
+          "title": "Grouped-query attention"
+        }
+      },
+      "dimensions": {
+        "attentionLocality": "Attention の局所性",
+        "computeScaling": "系列長に対する計算スケーリング",
+        "globalReach": "遠距離 token への到達範囲"
+      },
+      "values": {
+        "window": {
+          "attentionLocality": "各 query あたり W token の固定局所 window",
+          "computeScaling": "W が固定なら head ごとに線形 O(n·W)",
+          "globalReach": "遠い token には layer の積み重ねや補助 pattern が必要"
+        },
+        "mha": {
+          "attentionLocality": "系列全体。すべての query がすべての key を見る",
+          "computeScaling": "Head ごとに二乗 O(n²)",
+          "globalReach": "任意の位置が任意のほかの位置に attention できる"
+        },
+        "mqa": {
+          "attentionLocality": "共有 key-value head を持つ系列全体",
+          "computeScaling": "Key-value 射影を減らした二乗 O(n²)",
+          "globalReach": "任意の位置が任意のほかの位置に attention できる"
+        },
+        "gqa": {
+          "attentionLocality": "group 化された key-value head を持つ系列全体",
+          "computeScaling": "Key-value head 数を減らした二乗 O(n²)",
+          "globalReach": "任意の位置が任意のほかの位置に attention できる"
+        }
+      }
+    }
+  },
+  "math": {
+    "mhaSchema": {
+      "label": "Multi-head attention (MHA)",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(\\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Head i の query vector。"
+        },
+        "k": {
+          "term": "K",
+          "definition": "Head i の key vector。"
+        },
+        "v": {
+          "term": "V",
+          "definition": "Head i の value vector。"
+        },
+        "h": {
+          "term": "H",
+          "definition": "Query head の数。"
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Head ごとの key 次元。"
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head の index。"
+        }
+      }
+    },
+    "gqaSchema": {
+      "label": "Sliding-window attention",
+      "formula": "\\text{Attention}(Q_i, K_i, V_i) = \\mathrm{softmax}\\!\\left(B_W \\odot \\frac{Q_i K_i^{\\top}}{\\sqrt{d_k}}\\right) V_i",
+      "variableDefinitions": {
+        "q": {
+          "term": "Q",
+          "definition": "Head i の query vector。"
+        },
+        "k": {
+          "term": "K",
+          "definition": "Head i の key vector。"
+        },
+        "v": {
+          "term": "V",
+          "definition": "Head i の value vector。"
+        },
+        "h": {
+          "term": "H",
+          "definition": "Query head の数。"
+        },
+        "g": {
+          "term": "W",
+          "definition": "各 query が attention できる最大 token 距離を表す window size。"
+        },
+        "dk": {
+          "term": "d_k",
+          "definition": "Head ごとの key 次元。"
+        },
+        "i": {
+          "term": "i",
+          "definition": "Query head の index。"
+        },
+        "gi": {
+          "term": "B_W",
+          "definition": "Sliding window の外にある key 位置を 0 化する帯状マスク。"
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "valuesLabel": {
+        "label": "Values"
+      },
+      "keysLabel": {
+        "label": "Keys"
+      },
+      "queriesLabel": {
+        "label": "Queries"
+      },
+      "queryHead": {
+        "label": "q"
+      },
+      "keyHead": {
+        "label": "k"
+      },
+      "valueHead": {
+        "label": "V"
+      },
+      "mhaQueryHeads": {
+        "label": "H query heads"
+      },
+      "mhaKvHeads": {
+        "label": "H 個の key-value head pair（query と 1:1）"
+      },
+      "mhaOneToOne": {
+        "label": "各 query はすべての key 位置に attention する"
+      },
+      "windowQueryHeads": {
+        "label": "H query heads"
+      },
+      "windowLocalBoundary": {
+        "label": "W token の局所 window"
+      },
+      "windowLimitedReach": {
+        "label": "Window 内の key だけに attention する"
+      },
+      "windowReachNote": {
+        "label": "各 query は sliding window 内の近くの key にしか届かない"
+      },
+      "timeCurrentQuery": {
+        "label": "q_t"
+      },
+      "timeKv0": {
+        "label": "KV_0"
+      },
+      "timeKv1": {
+        "label": "KV_1"
+      },
+      "timeKvEllipsis": {
+        "label": "\\cdots"
+      },
+      "timeKvT3": {
+        "label": "KV_{t-3}"
+      },
+      "timeKvT2": {
+        "label": "KV_{t-2}"
+      },
+      "timeKvT1": {
+        "label": "KV_{t-1}"
+      }
+    }
+  },
+  "relatedDocs": {
+    "module.attention": {
+      "reason": "Dense attention は、sliding-window attention が時間方向の到達範囲を切り詰める基準設計です。"
+    },
+    "module.multi-head-attention": {
+      "reason": "MHA は各位置が系列全体を見られるため、sliding-window attention がどの範囲を削ってコストを下げるかを比べる直接の対象になります。"
+    },
+    "module.linear-attention": {
+      "reason": "Linear attention も長文脈を狙いますが、window を制限する代わりに attention の計算式自体を変えます。"
+    }
+  }
+}

@@ -33,4 +33,5 @@ export const PRODUCTION_INTEGRATION_TEST_PATHS = [
   "src/tests/layout/site-routes-shell.test.tsx",
   "src/tests/content/phase-1-attention-tag-landing-built-app.test.ts",
   "src/tests/content/phase-1-shell-discovery-built-app.test.ts",
+  "src/tests/content/phase-4-japanese-attention-proof-set-built-app.test.ts",
 ] as const;
