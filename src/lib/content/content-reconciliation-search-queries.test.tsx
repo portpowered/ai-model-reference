@@ -24,6 +24,7 @@ const RELU_GLOSSARY_URL = "/docs/modules/relu";
 const LEAKY_RELU_GLOSSARY_URL = "/docs/modules/leaky-relu";
 const SILU_GLOSSARY_URL = "/docs/modules/silu";
 const SWIGLU_GLOSSARY_URL = "/docs/modules/swiglu";
+const NORMALIZATION_CONCEPT_URL = "/docs/concepts/normalization";
 const NORMALIZATION_GLOSSARY_URL = "/docs/glossary/normalization";
 const LAYER_NORM_GLOSSARY_URL = "/docs/modules/layer-norm";
 const BATCH_NORM_GLOSSARY_URL = "/docs/modules/batch-norm";
@@ -71,8 +72,8 @@ const GLOSSARY_CANONICAL_QUERIES = [
   { query: "SwiGLU", url: SWIGLU_GLOSSARY_URL, kind: "module" as const },
   {
     query: "normalization",
-    url: NORMALIZATION_GLOSSARY_URL,
-    kind: "glossary" as const,
+    url: NORMALIZATION_CONCEPT_URL,
+    kind: "concept" as const,
   },
   {
     query: "layer norm",
@@ -190,6 +191,7 @@ describe("Phase 2/3 reconciliation search UI kind labels (US-010)", () => {
     [LEAKY_RELU_GLOSSARY_URL, "module", "Module"],
     [SILU_GLOSSARY_URL, "module", "Module"],
     [SWIGLU_GLOSSARY_URL, "module", "Module"],
+    [NORMALIZATION_CONCEPT_URL, "concept", "Concept"],
     [NORMALIZATION_GLOSSARY_URL, "glossary", "Glossary"],
     [LAYER_NORM_GLOSSARY_URL, "module", "Module"],
     [BATCH_NORM_GLOSSARY_URL, "module", "Module"],

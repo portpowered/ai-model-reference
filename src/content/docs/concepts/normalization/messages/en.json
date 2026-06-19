@@ -1,0 +1,32 @@
+{
+  "title": "Normalization",
+  "description": "Keeping activations on a predictable scale so deep model stacks stay trainable and their sublayers receive stable inputs.",
+  "openingSummary": "Normalization is the broad idea of rescaling model activations so each layer receives numbers in a stable range, which makes deep stacks easier to train and keeps later computations from being dominated by runaway magnitudes.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "Normalization means taking a vector or feature group whose values may have drifted too large or too unevenly, then rescaling it into a more predictable numeric band before the next computation runs. In modern model stacks, that usually happens inside attention blocks, feed-forward blocks, or nearby residual paths. The exact recipe differs by variant, but the family goal stays the same: keep the signal usable without erasing what the model learned."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Deep networks repeatedly multiply, add, and route activations. Without some control over scale, those values can grow, shrink, or wobble enough that optimization becomes fragile and later layers see noisy inputs. Normalization helps stabilize training, and in some inference settings it keeps attention scores or hidden states from becoming numerically awkward. That is why normalization shows up as a recurring support mechanism rather than as the main task-performing layer."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Picture one token vector leaving self-attention with a few very large features and many small ones. A normalization step measures that vector with its chosen statistics, rescales it, and then applies any learned gain or shift terms. The next feed-forward or attention sublayer sees an input whose overall scale is easier to work with, even though the token still carries its original information pattern."
+    },
+    "whenToOpenAVariantPage": {
+      "title": "When To Open A Variant Page",
+      "body": "Stay on this page when you want the family-level idea: why normalization exists, what problem it addresses, and why many architectures need some form of it. Open a variant page when the question becomes about one specific rule. Layer norm and RMSNorm are common per-token choices in transformers, batch norm is the classic minibatch-based rule from convolutional networks, group norm splits channels into fixed groups, and QK norm specifically rescales query and key paths inside attention rather than acting as the general block-level normalization slot."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}

@@ -151,8 +151,8 @@ const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
   },
   {
     query: "normalization",
-    firstUrl: "/docs/glossary/normalization",
-    firstKind: "glossary" as const,
+    firstUrl: "/docs/concepts/normalization",
+    firstKind: "concept" as const,
   },
   {
     query: "layer norm",

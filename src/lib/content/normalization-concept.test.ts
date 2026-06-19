@@ -1,0 +1,83 @@
+import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { loadConceptPage } from "@/lib/content/concept-page";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
+import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import { loadRegistry } from "@/lib/content/registry";
+import { getConceptById } from "@/lib/content/registry-runtime";
+import { buildSearchDocuments } from "@/lib/search/build-documents";
+
+describe("Normalization concept page (normalization-concept-page-001)", () => {
+  test("registry record stays published while the concept route is added", () => {
+    const record = getConceptById("concept.normalization");
+
+    expect(record?.status).toBe("published");
+    expect(record?.kind).toBe("concept");
+    expect(record?.aliases).toEqual(["normalization layer", "norm layer"]);
+    expect(record?.tags).toEqual(["normalization", "foundations"]);
+    expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.normalization")).toBe(true);
+  });
+
+  test("page bundle teaches the broad normalization idea and hands off to variant pages", async () => {
+    const page = await loadConceptPage("normalization");
+    const mdxSource = readFileSync(
+      join("src/content/docs/concepts/normalization", "page.mdx"),
+      "utf8",
+    );
+
+    expect(page.frontmatter.status).toBe("published");
+    expect(page.frontmatter.kind).toBe("concept");
+    expect(page.frontmatter.registryId).toBe("concept.normalization");
+    expect(page.messages.openingSummary?.toLowerCase()).toContain(
+      "stable range",
+    );
+    expect(page.messages.sections?.whatItIs.body).toContain("rescaling");
+    expect(page.messages.sections?.whyItMatters.body).toContain("training");
+    expect(page.messages.sections?.whyItMatters.body).toContain("inference");
+    expect(page.messages.sections?.whenToOpenAVariantPage.body)?.toContain(
+      "Layer norm",
+    );
+    expect(page.messages.sections?.whenToOpenAVariantPage.body)?.toContain(
+      "QK norm",
+    );
+    expect(page.toc.map((item) => item.title)).toEqual(
+      expect.arrayContaining([
+        "What It Is",
+        "Why It Matters",
+        "Simple Example",
+        "When To Open A Variant Page",
+      ]),
+    );
+    expect(mdxSource).toContain('href="/docs/modules/layer-norm"');
+    expect(mdxSource).toContain('href="/docs/modules/rmsnorm"');
+    expect(mdxSource).toContain('href="/docs/modules/batch-norm"');
+    expect(mdxSource).toContain('href="/docs/modules/group-norm"');
+    expect(mdxSource).toContain('href="/docs/modules/qk-norm"');
+    expect(mdxSource).not.toContain("Reader Shortcut");
+    expect(mdxSource).not.toContain("benchmark leaderboard");
+  });
+
+  test("published docs and search documents include the normalization concept route", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+
+    expect(
+      pages.some((page) => page.url === "/docs/concepts/normalization"),
+    ).toBe(true);
+
+    const documents = buildSearchDocuments(pages, registry);
+    const document = documents.find(
+      (entry) => entry.url === "/docs/concepts/normalization",
+    );
+
+    expect(document?.kind).toBe("concept");
+    expect(document?.facets.kind).toBe("concept");
+    expect(document?.registryId).toBe("concept.normalization");
+    expect(document?.tags).toEqual(
+      expect.arrayContaining(["normalization", "foundations"]),
+    );
+    expect(document?.bodyText).toContain("Layer norm");
+    expect(document?.bodyText).toContain("RMSNorm");
+  });
+});
