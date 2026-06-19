@@ -115,8 +115,7 @@ bun run generate:page-bundle -- --spec page-specs/page-spec-workflow-sample.json
 ```
 
 See `page-specs/page-spec-workflow-sample.json` for the input shape and
-`docs/temp/processes/content-page-generation-workflow-relevant-files.md` for the
-full contract.
+`bun run generate:page-bundle -- --help` for the full checked-in contract.
 
 **Legacy scaffold** — `scaffold:doc-page` still generates concept and glossary
 bundles from CLI flags for backward compatibility. Its `--help` output points
@@ -640,7 +639,7 @@ convergence review. The checked-in scripts (`validate-registry.ts`,
 `validate-links.ts`, build verifiers inside `make build` / `make build-export`)
 are the supported validation surface.
 
-### After page generation, scaffolding, or template copy
+### After page generation or exceptional manual fallback
 
 When you add a new page with `generate:page-bundle`, the legacy
 `scaffold:doc-page` command, or by copying a template bundle:
@@ -735,7 +734,9 @@ bun run generate:page-bundle -- --spec page-specs/page-spec-workflow-sample.json
 
 For a new page, copy `page-specs/page-spec-workflow-sample.json`, adjust
 `kind`, `slug`, `title`, `summary`, and the kind-specific required fields, then
-dry-run before writing files.
+dry-run before writing files. For module, model, paper, and training-regime
+pages, this page-spec flow is the supported common path; template-copy work is
+for exceptional cases only.
 
 **Legacy scaffold** — when you need the older CLI-flag workflow, `scaffold:doc-page`
 still supports concept and glossary dry runs:
@@ -776,8 +777,8 @@ pages.
 Direct authoring ends in a normal GitHub pull request you can review page by page.
 Factory work ends in one or more executor pull requests produced after planning
 and batch submission. Do not mix the two paths casually: if you can land the page
-with `generate:page-bundle` or legacy scaffold plus `make validate-data`,
-prefer a direct PR.
+with `generate:page-bundle` plus `make validate-data`, prefer a direct PR. Use
+the legacy scaffold only when reproducing the older concept/glossary-only flow.
 
 Examples of factory-appropriate requests:
 
@@ -817,7 +818,7 @@ Minimal request shape contributors and maintainers should recognize:
     {
       "name": "module-flash-attention-page",
       "workTypeName": "idea",
-      "payload": "Add a canonical module page for flash-attention: kind module, slug flash-attention, source paper and existing attention concept links, start from docs/templates/module.mdx because scaffold does not support module yet."
+      "payload": "Add a canonical module page for flash-attention: kind module, slug flash-attention, source paper and existing attention concept links, use generate:page-bundle with a page spec and keep the emitted page bundle, registry record, messages, assets, and graph record aligned."
     }
   ]
 }
@@ -849,8 +850,9 @@ fields an `idea` payload needs:
 - **Page kind and slug** — for example `module` / `flash-attention`.
 - **Source material** — paper links, existing pages to align with, or draft
   outline.
-- **Starting path** — `generate:page-bundle`, legacy scaffold when needed for
-  older concept/glossary flows, or a broader factory transformation.
+- **Starting path** — `generate:page-bundle` for canonical bundles in the
+  common case, legacy scaffold only for older concept/glossary flows, or a
+  broader factory transformation.
 - **Scope** — single page vs multi-page batch; whether registry or template
   changes are in scope.
 

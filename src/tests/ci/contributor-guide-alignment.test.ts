@@ -1,9 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { access, mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const repoRoot = join(import.meta.dir, "../../..");
+const contributorGuidePath = join(
+  repoRoot,
+  "docs/contributors/CONTRIBUTING.md",
+);
 
 function runBun(args: string[]) {
   return spawnSync("bun", args, {
@@ -57,6 +62,21 @@ describe("contributor documented workflow commands", () => {
     const output = `${result.stdout}${result.stderr}`;
     expect(output).toContain("generate-page-bundle");
     expect(output).toMatch(/prefer/i);
+  });
+
+  test("contributor guide presents generate:page-bundle as the common canonical path", () => {
+    const guide = readFileSync(contributorGuidePath, "utf8");
+
+    expect(guide).toContain(
+      "For module, model, paper, and training-regime\npages, this page-spec flow is the supported common path; template-copy work is\nfor exceptional cases only.",
+    );
+    expect(guide).toContain(
+      "use generate:page-bundle with a page spec and keep the emitted page bundle, registry record, messages, assets, and graph record aligned.",
+    );
+    expect(guide).not.toContain("because scaffold does not support module yet");
+    expect(guide).not.toContain(
+      "docs/temp/processes/content-page-generation-workflow-relevant-files.md",
+    );
   });
 
   test("scaffold:doc-page dry-run prints planned paths without writing files", () => {
