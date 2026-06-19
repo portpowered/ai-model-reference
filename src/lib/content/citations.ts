@@ -21,6 +21,7 @@ import kaplanScalingLaws from "@/content/registry/citations/kaplan-scaling-laws.
 import katharopoulosLinearAttentionPaper from "@/content/registry/citations/katharopoulos-linear-attention-paper.json";
 import kingmaAdam from "@/content/registry/citations/kingma-adam.json";
 import kiviKvCacheQuantization from "@/content/registry/citations/kivi-kv-cache-quantization.json";
+import kudoSentencepiece from "@/content/registry/citations/kudo-sentencepiece.json";
 import layerNormalization from "@/content/registry/citations/layer-normalization.json";
 import learningTransferableVisualModelsFromNaturalLanguageSupervision from "@/content/registry/citations/learning-transferable-visual-models-from-natural-language-supervision.json";
 import longformer from "@/content/registry/citations/longformer.json";
@@ -76,6 +77,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(katharopoulosLinearAttentionPaper),
   citationRecordSchema.parse(kingmaAdam),
   citationRecordSchema.parse(kiviKvCacheQuantization),
+  citationRecordSchema.parse(kudoSentencepiece),
   citationRecordSchema.parse(layerNormalization),
   citationRecordSchema.parse(
     learningTransferableVisualModelsFromNaturalLanguageSupervision,

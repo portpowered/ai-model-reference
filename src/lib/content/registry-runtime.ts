@@ -12,6 +12,7 @@ import kaplanScalingLawsCitation from "@/content/registry/citations/kaplan-scali
 import katharopoulosLinearAttentionPaperCitation from "@/content/registry/citations/katharopoulos-linear-attention-paper.json";
 import kingmaAdamCitation from "@/content/registry/citations/kingma-adam.json";
 import kiviKvCacheQuantizationCitation from "@/content/registry/citations/kivi-kv-cache-quantization.json";
+import kudoSentencePieceCitation from "@/content/registry/citations/kudo-sentencepiece.json";
 import pengYarnCitation from "@/content/registry/citations/peng-yarn.json";
 import pressAlibiCitation from "@/content/registry/citations/press-alibi.json";
 import qloraCitation from "@/content/registry/citations/qlora.json";
@@ -385,6 +386,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(katharopoulosLinearAttentionPaperCitation),
   citationRecordSchema.parse(kingmaAdamCitation),
   citationRecordSchema.parse(kiviKvCacheQuantizationCitation),
+  citationRecordSchema.parse(kudoSentencePieceCitation),
   citationRecordSchema.parse(pengYarnCitation),
   citationRecordSchema.parse(pressAlibiCitation),
   citationRecordSchema.parse(qloraCitation),

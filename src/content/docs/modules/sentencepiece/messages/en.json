@@ -1,0 +1,142 @@
+{
+  "title": "SentencePiece",
+  "description": "A tokenizer system that learns subword pieces directly from raw text, including spaces, without requiring word splitting first.",
+  "openingSummary": "SentencePiece is a subword tokenizer system that can learn directly from raw text, which makes it useful when spaces are unreliable boundaries or when the text spans many languages and writing styles.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "SentencePiece is a tokenizer system for building subword vocabularies. Instead of assuming the text has already been split into words, it trains on the original character stream and learns reusable pieces from that raw input."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Many languages do not mark word boundaries with simple spaces, and even languages that do still contain punctuation, mixed scripts, and messy formatting. SentencePiece keeps the tokenizer closer to the raw text so one training pipeline can work across multilingual or whitespace-agnostic data without relying on a separate word-splitting step first."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "SentencePiece normalizes the text, treats whitespace as part of the tokenization stream, and then learns a vocabulary of subword pieces from that raw text sequence. In practice, that means a leading space marker can be preserved as part of a piece, and the model can later reconstruct where boundaries were instead of pretending spaces never existed. The same framework can train BPE-style merges or unigram-style token pieces, but the core idea is the same: learn directly from sentences rather than from pre-split word lists."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The schema below expresses the basic contract: a learned SentencePiece tokenizer maps a raw text stream into a token sequence without requiring a separate word-splitting stage first."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "SentencePiece sits close to BPE and WordPiece because all three build reusable subword pieces. The reader-facing difference is where they start: SentencePiece is designed to learn from raw text with explicit whitespace handling, while WordPiece more often assumes a word-like split upstream and BPE discussions often focus on repeated merges over smaller starting symbols."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Readers usually meet SentencePiece in multilingual encoder-decoder models, translation systems, and other text models that need one tokenizer to survive many scripts or inconsistent spacing. Once the text has been turned into subword pieces, the rest of the transformer stack can consume those tokens like any other model input."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "SentencePiece improves language independence, but its learned pieces can feel less intuitive to humans because the tokenizer is optimizing coverage and consistency, not readable word parts. It also does not remove the need to choose a vocabulary size or training objective carefully, since those choices still affect token counts and downstream behavior."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "SentencePiece remains a useful reference point because it separates tokenization from language-specific word splitting. That makes it easier to reason about multilingual models, raw-text preprocessing, and why tokenizers such as WordPiece or byte-pair encoding behave differently when they start from stronger assumptions about word boundaries."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "SentencePiece flow from raw text through normalization, whitespace-aware pieces, learned subword vocabulary, and final token output",
+      "variants": {
+        "sentencepiece": {
+          "label": "SentencePiece raw-text flow"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "bpe": {
+          "title": "BPE"
+        },
+        "wordpiece": {
+          "title": "WordPiece"
+        },
+        "sentencepiece": {
+          "title": "SentencePiece"
+        }
+      },
+      "dimensions": {
+        "startingView": "Starting view of text",
+        "mergeChoice": "How new pieces are chosen",
+        "spaceHandling": "Handling of spaces and bytes",
+        "mainTradeoff": "Main tradeoff"
+      },
+      "values": {
+        "bpe": {
+          "startingView": "Starts from small symbols and merges common neighbors",
+          "mergeChoice": "Usually picks the most frequent adjacent pair",
+          "spaceHandling": "Often paired with byte-level handling in GPT-style tokenizers",
+          "mainTradeoff": "Simple and reusable, but learned pieces can look unnatural"
+        },
+        "wordpiece": {
+          "startingView": "Starts from subword candidates and grows a vocabulary",
+          "mergeChoice": "Uses a scoring rule instead of raw pair frequency alone",
+          "spaceHandling": "Usually assumes a word-like pre-tokenization step first",
+          "mainTradeoff": "Works well for many text models, but depends more on the upstream text split"
+        },
+        "sentencepiece": {
+          "startingView": "Trains directly on raw text without fixed word boundaries",
+          "mergeChoice": "Can learn pieces with BPE-style or unigram-style training",
+          "spaceHandling": "Treats spaces as regular symbols so boundaries stay explicit",
+          "mainTradeoff": "Flexible across languages, but its learned pieces may differ more from reader intuition"
+        }
+      }
+    }
+  },
+  "math": {
+    "sentencepieceSchema": {
+      "label": "SentencePiece tokenization view",
+      "formula": "y = T(x)",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "Raw text sequence before word splitting."
+        },
+        "t": {
+          "term": "T",
+          "definition": "Learned SentencePiece tokenizer."
+        },
+        "y": {
+          "term": "y",
+          "definition": "Output token sequence."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "rawText": {
+        "label": "Raw text"
+      },
+      "normalizeText": {
+        "label": "Normalize the character stream"
+      },
+      "keepWhitespace": {
+        "label": "Keep whitespace as a visible symbol"
+      },
+      "learnPieces": {
+        "label": "Learn reusable subword pieces"
+      },
+      "encodeText": {
+        "label": "Encode text with those learned pieces"
+      },
+      "tokenOutput": {
+        "label": "Final token sequence"
+      }
+    }
+  }
+}
