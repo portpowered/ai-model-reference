@@ -9,8 +9,13 @@ import {
   validatePageAssetReferences,
 } from "@/lib/content/assets";
 import { SYSTEMS_DOCS_ROOT } from "@/lib/content/content-paths";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
+import { loadRegistry } from "@/lib/content/registry";
+import { getSystemById } from "@/lib/content/registry-runtime";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { loadSystemPage } from "@/lib/content/system-page";
+import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 const pageDir = join(SYSTEMS_DOCS_ROOT, "batching");
 const messagesPath = join(pageDir, "messages/en.json");
@@ -47,6 +52,59 @@ describe("loadSystemPage batching", () => {
     expect(page.messages.title).toBe("Batching");
     expect(page.messages.openingSummary).toContain("serving habit");
     expect(page.toc.some((item) => item.url === "#what-it-is")).toBe(true);
+  });
+});
+
+describe("batching search and registry convergence", () => {
+  test("published route, registry record, English messages, and search document stay aligned", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const page = await loadSystemPage("batching");
+    const bundledMessages = pageMessagesSchema.parse(
+      JSON.parse(readFileSync(messagesPath, "utf8")),
+    );
+    const record = getSystemById("system.batching");
+
+    expect(record?.slug).toBe("batching");
+    expect(page.frontmatter.registryId).toBe("system.batching");
+    expect(page.frontmatter.kind).toBe("system");
+    expect(page.messages.title).toBe(bundledMessages.title);
+    expect(page.messages.openingSummary).toBe(bundledMessages.openingSummary);
+
+    const publishedPage = pages.find(
+      (entry) => entry.docsSlug === "systems/batching",
+    );
+    expect(publishedPage?.url).toBe("/docs/systems/batching");
+    expect(publishedPage?.frontmatter.registryId).toBe("system.batching");
+    expect(publishedPage?.messages.title).toBe(bundledMessages.title);
+
+    const searchDocument = buildSearchDocuments(pages, registry).find(
+      (entry) => entry.url === "/docs/systems/batching",
+    );
+    expect(searchDocument?.registryId).toBe("system.batching");
+    expect(searchDocument?.kind).toBe("system");
+    expect(searchDocument?.title).toBe(bundledMessages.title);
+    expect(searchDocument?.aliases).toEqual(
+      expect.arrayContaining([
+        "request batching",
+        "inference batching",
+        "throughput latency tradeoff",
+      ]),
+    );
+    expect(searchDocument?.tags).toEqual(["foundations"]);
+    expect(searchDocument?.relatedIds).toEqual(record?.relatedIds ?? []);
+  });
+
+  test.each([
+    "batching",
+    "request batching",
+    "inference batching",
+    "throughput latency tradeoff",
+  ] as const)("%s query resolves to the canonical batching system page", async (query) => {
+    const results = await docsSearchApi.search(query);
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe("/docs/systems/batching");
   });
 });
 
