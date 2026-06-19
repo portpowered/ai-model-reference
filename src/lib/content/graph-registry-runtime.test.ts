@@ -186,6 +186,9 @@ describe("graph-registry-runtime", () => {
     expect(records.map((record) => record.id)).toContain(
       "graph.expert-parallel-overlap-system-flow",
     );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.routing-system-flow",
+    );
   });
 
   test("matches the root graph registry directory exactly", () => {

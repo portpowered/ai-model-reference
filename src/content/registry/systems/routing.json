@@ -5,6 +5,7 @@
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
   "aliases": [
+    "Routing",
     "request routing",
     "inference routing",
     "serving router",

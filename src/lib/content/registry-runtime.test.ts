@@ -197,6 +197,7 @@ describe("registry-runtime", () => {
     expect(record?.tags).toEqual(["foundations"]);
     expect(record?.aliases).toEqual(
       expect.arrayContaining([
+        "Routing",
         "request routing",
         "inference routing",
         "serving router",

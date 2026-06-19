@@ -9,6 +9,6 @@ describe("RelatedDocs", () => {
     );
 
     expect(html).toContain('href="/docs/systems/routing"');
-    expect(html).toContain(">request routing<");
+    expect(html).toContain(">Routing<");
   });
 });
