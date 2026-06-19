@@ -2,7 +2,11 @@ import { readdirSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 import { getProjectRoot, getRegistryRoot } from "./content-paths";
-import { loadRegistry } from "./registry";
+import {
+  loadRegistry,
+  RegistryLoadError,
+  type RegistryLoadErrorDetail,
+} from "./registry";
 
 type RuntimeRegistryDirectory = {
   directory: string;
@@ -91,6 +95,33 @@ export type GenerateRegistryRuntimeSourceOptions = {
   projectRoot?: string;
   registryRoot?: string;
 };
+
+function formatRegistryLoadErrorDetail(
+  detail: RegistryLoadErrorDetail,
+): string {
+  switch (detail.type) {
+    case "duplicate-id":
+      return `duplicate registry id "${detail.id}" in ${detail.paths.join(", ")}`;
+    case "duplicate-slug":
+      return `duplicate registry slug "${detail.slug}" in ${detail.paths.join(", ")}`;
+    case "parse-error":
+      return `${detail.path}: ${detail.message}`;
+  }
+}
+
+function buildRegistryRuntimeGenerationError(
+  registryRoot: string,
+  error: RegistryLoadError,
+): Error {
+  const message = [
+    `Failed to generate registry runtime from ${registryRoot}.`,
+    ...error.details.map(
+      (detail) => `- ${formatRegistryLoadErrorDetail(detail)}`,
+    ),
+  ].join("\n");
+
+  return new Error(message, { cause: error });
+}
 
 function normalizeImportPath(path: string): string {
   const normalized = path.replace(/\\/g, "/");
@@ -380,7 +411,14 @@ export async function generateRegistryRuntimeSource(
 ): Promise<string> {
   const projectRoot = options.projectRoot ?? getProjectRoot();
   const registryRoot = options.registryRoot ?? getRegistryRoot(projectRoot);
-  await loadRegistry({ registryRoot });
+  try {
+    await loadRegistry({ registryRoot });
+  } catch (error) {
+    if (error instanceof RegistryLoadError) {
+      throw buildRegistryRuntimeGenerationError(registryRoot, error);
+    }
+    throw error;
+  }
   return buildGeneratedSource(options.outputPath, projectRoot, registryRoot);
 }
 

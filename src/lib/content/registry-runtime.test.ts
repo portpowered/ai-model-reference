@@ -149,6 +149,20 @@ describe("registry-runtime", () => {
     expect(getRegistryCitationIds("module.unknown")).toBeUndefined();
   });
 
+  test("missing runtime lookups stay scoped to undefined without affecting known records", () => {
+    expect(getModuleById("module.missing-runtime-record")).toBeUndefined();
+    expect(getConceptById("concept.missing-runtime-record")).toBeUndefined();
+    expect(
+      getRegistryRecordById("module.missing-runtime-record"),
+    ).toBeUndefined();
+    expect(getRegistryTags("module.missing-runtime-record")).toBeUndefined();
+    expect(
+      getRegistryCitationIds("module.missing-runtime-record"),
+    ).toBeUndefined();
+
+    expect(getModuleById("module.attention")?.slug).toBe("attention");
+  });
+
   test("getRegistryRecordById resolves modules and concepts", () => {
     expect(getRegistryRecordById("concept.token")?.kind).toBe("concept");
     expect(getRegistryRecordById("module.grouped-query-attention")?.kind).toBe(

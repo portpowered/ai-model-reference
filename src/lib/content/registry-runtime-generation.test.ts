@@ -139,4 +139,79 @@ describe("registry-runtime generation", () => {
       await rm(tempRoot, { recursive: true, force: true });
     }
   });
+
+  test("generation fails with duplicate registry ids named in the error", async () => {
+    const { outputPath, registryRoot, tempRoot } =
+      await createTempRegistryRoot();
+    try {
+      const sourcePath = join(
+        getProjectRoot(),
+        "src",
+        "content",
+        "registry",
+        "modules",
+        "attention.json",
+      );
+      const baseRecord = JSON.parse(
+        await readFile(sourcePath, "utf8"),
+      ) as Record<string, unknown>;
+
+      await writeFile(
+        join(registryRoot, "modules", "duplicate-a.json"),
+        JSON.stringify({
+          ...baseRecord,
+          id: "module.duplicate-runtime-id",
+          slug: "duplicate-runtime-a",
+        }),
+      );
+      await writeFile(
+        join(registryRoot, "modules", "duplicate-b.json"),
+        JSON.stringify({
+          ...baseRecord,
+          id: "module.duplicate-runtime-id",
+          slug: "duplicate-runtime-b",
+        }),
+      );
+
+      await expect(
+        generateRegistryRuntimeSource({
+          outputPath,
+          projectRoot: getProjectRoot(),
+          registryRoot,
+        }),
+      ).rejects.toThrow(
+        /duplicate registry id "module\.duplicate-runtime-id"[\s\S]*duplicate-a\.json[\s\S]*duplicate-b\.json/,
+      );
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("generation fails with invalid registry file paths and schema details", async () => {
+    const { outputPath, registryRoot, tempRoot } =
+      await createTempRegistryRoot();
+    try {
+      await writeFile(
+        join(registryRoot, "modules", "invalid-module.json"),
+        JSON.stringify({
+          id: "module.invalid-runtime-record",
+          slug: "invalid-runtime-record",
+          kind: "module",
+          defaultTitleKey: "title",
+        }),
+      );
+
+      await expect(
+        generateRegistryRuntimeSource({
+          outputPath,
+          projectRoot: getProjectRoot(),
+          registryRoot,
+        }),
+      ).rejects.toThrow(
+        /invalid-module\.json:[\s\S]*defaultSummaryKey: Required[\s\S]*moduleType: Required/,
+      );
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
 });
