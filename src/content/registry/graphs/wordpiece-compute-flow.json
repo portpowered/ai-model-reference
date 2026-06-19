@@ -1,0 +1,102 @@
+{
+  "id": "graph.wordpiece-compute-flow",
+  "slug": "wordpiece-compute-flow",
+  "kind": "graph",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "subjectId": "module.wordpiece",
+  "graphType": "module-compute-flow",
+  "rootNodeId": "rawWords",
+  "layout": "vertical-expandable",
+  "defaultExpandedDepth": 1,
+  "supportedRenderers": ["react-flow", "mermaid"],
+  "nodes": [
+    {
+      "id": "rawWords",
+      "labelKey": "graph.nodes.rawWords.label",
+      "moduleKind": "input",
+      "childNodeIds": ["wordSplit"]
+    },
+    {
+      "id": "wordSplit",
+      "labelKey": "graph.nodes.wordSplit.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["seedPieces"]
+    },
+    {
+      "id": "seedPieces",
+      "labelKey": "graph.nodes.seedPieces.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["scoreCandidates"]
+    },
+    {
+      "id": "scoreCandidates",
+      "labelKey": "graph.nodes.scoreCandidates.label",
+      "moduleKind": "operation",
+      "childNodeIds": ["addPiece"]
+    },
+    {
+      "id": "addPiece",
+      "labelKey": "graph.nodes.addPiece.label",
+      "moduleKind": "operation",
+      "childNodeIds": ["retokenize"]
+    },
+    {
+      "id": "retokenize",
+      "labelKey": "graph.nodes.retokenize.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["tokenOutput"]
+    },
+    {
+      "id": "tokenOutput",
+      "labelKey": "graph.nodes.tokenOutput.label",
+      "moduleKind": "output",
+      "childNodeIds": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "raw-to-split",
+      "source": "rawWords",
+      "target": "wordSplit",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "split-to-seed",
+      "source": "wordSplit",
+      "target": "seedPieces",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "seed-to-score",
+      "source": "seedPieces",
+      "target": "scoreCandidates",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "score-to-add",
+      "source": "scoreCandidates",
+      "target": "addPiece",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "add-to-retokenize",
+      "source": "addPiece",
+      "target": "retokenize",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "retokenize-to-output",
+      "source": "retokenize",
+      "target": "tokenOutput",
+      "edgeKind": "data-flow"
+    }
+  ]
+}

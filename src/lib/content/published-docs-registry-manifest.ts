@@ -875,6 +875,14 @@ export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
     section: "modules",
   },
   {
+    registryId: "module.wordpiece",
+    slug: "wordpiece",
+    docsSlug: "modules/wordpiece",
+    url: "/docs/modules/wordpiece",
+    pageKind: "module",
+    section: "modules",
+  },
+  {
     registryId: "module.learned-positional-embeddings",
     slug: "learned-positional-embeddings",
     docsSlug: "modules/learned-positional-embeddings",
@@ -1154,6 +1162,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "module.superhot-rope",
   "module.swiglu",
   "module.t5-relative-position-bias",
+  "module.wordpiece",
   "module.yarn",
   "paper.deepseek-v4",
   "system.expert-parallel-overlap",

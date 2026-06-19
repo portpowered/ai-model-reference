@@ -51,6 +51,7 @@ import standardFfnComputeFlowGraphRecord from "@/content/registry/graphs/standar
 import standardFfnParallelBaselineGraphRecord from "@/content/registry/graphs/standard-ffn-parallel-baseline.json";
 import swigluComputeFlowGraphRecord from "@/content/registry/graphs/swiglu-compute-flow.json";
 import tokenConceptMapGraphRecord from "@/content/registry/graphs/token-concept-map.json";
+import wordpieceComputeFlowGraphRecord from "@/content/registry/graphs/wordpiece-compute-flow.json";
 import { type GraphRecord, graphRecordSchema } from "@/lib/content/schemas";
 
 export const graphRecords: GraphRecord[] = [
@@ -103,4 +104,5 @@ export const graphRecords: GraphRecord[] = [
   graphRecordSchema.parse(standardFfnParallelBaselineGraphRecord),
   graphRecordSchema.parse(swigluComputeFlowGraphRecord),
   graphRecordSchema.parse(tokenConceptMapGraphRecord),
+  graphRecordSchema.parse(wordpieceComputeFlowGraphRecord),
 ];

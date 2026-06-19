@@ -102,6 +102,7 @@ describe("registry-runtime", () => {
       "concept.vocabulary-size",
       "concept.logit",
       "concept.softmax",
+      "module.wordpiece",
     ]);
   });
 

@@ -62,6 +62,7 @@ const SEARCH_DIALOG_EMPTY_SELECTOR = '[data-testid="search-dialog-empty"]';
 const SEARCH_DIALOG_LOADING_SELECTOR = '[data-testid="search-dialog-loading"]';
 const SEARCH_RESULT_URL_SELECTOR = '[data-testid="search-result-url"]';
 const SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS = 250;
+const SEARCH_DIALOG_OPEN_ATTEMPT_TIMEOUT_MS = 5_000;
 const SEARCH_DIALOG_QUERY_RETRY_DELAY_MS = 250;
 
 /** Default per-query browser deadline (static-export dialog hydration can exceed 30s under CI load). */
@@ -148,6 +149,70 @@ async function sleep(ms: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function waitForSearchDialogVisible(
+  dialog: Locator,
+  timeoutMs: number,
+): Promise<boolean> {
+  try {
+    await dialog.waitFor({ state: "visible", timeout: timeoutMs });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function waitForSearchDialogSurfaceReady(
+  page: Page,
+  timeoutMs: number,
+): Promise<Locator> {
+  const trigger = page.locator(SEARCH_DIALOG_TRIGGER_SELECTOR).first();
+  await trigger.waitFor({ state: "visible", timeout: timeoutMs });
+  await page.locator("body").click({ position: { x: 8, y: 8 }, force: true });
+  return trigger;
+}
+
+async function tryOpenSearchDialog(
+  page: Page,
+  trigger: Locator,
+  dialog: Locator,
+  timeoutMs: number,
+): Promise<boolean> {
+  await trigger.scrollIntoViewIfNeeded({ timeout: timeoutMs }).catch(() => {});
+
+  try {
+    await trigger.click({ timeout: timeoutMs });
+  } catch {
+    // Fall through to keyboard and DOM click activation when hydration races.
+  }
+
+  if (await waitForSearchDialogVisible(dialog, Math.min(1_000, timeoutMs))) {
+    return true;
+  }
+
+  try {
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+  } catch {
+    // Retry with a DOM-level click when focus activation is not ready yet.
+  }
+
+  if (await waitForSearchDialogVisible(dialog, Math.min(1_000, timeoutMs))) {
+    return true;
+  }
+
+  try {
+    await trigger.evaluate((element) => {
+      if (element instanceof HTMLElement) {
+        element.click();
+      }
+    });
+  } catch {
+    // Retry on the next loop iteration if the trigger detaches during hydration.
+  }
+
+  return waitForSearchDialogVisible(dialog, Math.min(1_000, timeoutMs));
+}
+
 async function openHeaderSearchDialog(
   page: Page,
   baseUrl: string,
@@ -159,7 +224,7 @@ async function openHeaderSearchDialog(
     waitUntil: "domcontentloaded",
   });
 
-  const trigger = page.locator(SEARCH_DIALOG_TRIGGER_SELECTOR).first();
+  const trigger = await waitForSearchDialogSurfaceReady(page, timeoutMs);
   const dialog = page.getByRole("dialog", { name: "Search" });
   const deadline = Date.now() + timeoutMs;
 
@@ -169,21 +234,20 @@ async function openHeaderSearchDialog(
     }
 
     const remainingMs = Math.max(1, deadline - Date.now());
-    await trigger.click({ timeout: Math.min(remainingMs, timeoutMs) });
-
-    try {
-      await dialog.waitFor({
-        state: "visible",
-        timeout: Math.min(1_000, remainingMs),
-      });
+    const attemptTimeoutMs = Math.min(
+      remainingMs,
+      SEARCH_DIALOG_OPEN_ATTEMPT_TIMEOUT_MS,
+    );
+    if (await tryOpenSearchDialog(page, trigger, dialog, attemptTimeoutMs)) {
       return dialog;
-    } catch {
-      await sleep(Math.min(SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS, remainingMs));
     }
+
+    await sleep(Math.min(SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS, remainingMs));
   }
 
-  await dialog.waitFor({ state: "visible", timeout: 1 });
-  return dialog;
+  throw new Error(
+    `timed out opening header search dialog on the home page after ${timeoutMs}ms`,
+  );
 }
 
 async function waitForSearchDialogOutcome(
@@ -289,7 +353,20 @@ export async function runPhase1SearchDialogChecks(
     const page = await browser.newPage();
     page.setDefaultTimeout(timeoutMs);
 
-    const dialog = await openHeaderSearchDialog(page, baseUrl, timeoutMs);
+    let dialog: Locator;
+    try {
+      dialog = await openHeaderSearchDialog(page, baseUrl, timeoutMs);
+    } catch (error) {
+      const reason =
+        error instanceof Error
+          ? error.message
+          : `timed out opening header search dialog on the home page after ${timeoutMs}ms`;
+      return queries.map((query) => ({
+        query,
+        surface: "header-dialog" as const,
+        reason,
+      }));
+    }
 
     for (const query of queries) {
       const reason = await checkSearchDialogQuery(

@@ -26,6 +26,8 @@ const TOKEN_RELATED_EXPLANATIONS = {
     "Next-token prediction starts as a candidate score for each vocabulary token.",
   "concept.softmax":
     "Those candidate scores convert into probabilities across the vocabulary.",
+  "module.wordpiece":
+    "WordPiece gives one concrete example of how many tokenizers break unfamiliar words into reusable subword pieces.",
 } as const;
 
 describe("Phase 2 token-probability path related docs (phase-2-token-probability-path-convergence-005)", () => {
@@ -67,6 +69,7 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
       "concept.vocabulary-size",
       "concept.logit",
       "concept.softmax",
+      "module.wordpiece",
     ]);
     expect(items[0]?.reasonLabel).toBe(
       TOKEN_RELATED_EXPLANATIONS["module.byte-level-tokenization"],
@@ -85,6 +88,9 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
     );
     expect(items[5]?.reasonLabel).toBe(
       TOKEN_RELATED_EXPLANATIONS["concept.softmax"],
+    );
+    expect(items[6]?.reasonLabel).toBe(
+      TOKEN_RELATED_EXPLANATIONS["module.wordpiece"],
     );
   });
 
@@ -112,13 +118,15 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
     );
     expect(html).toContain(TOKEN_RELATED_EXPLANATIONS["concept.logit"]);
     expect(html).toContain(TOKEN_RELATED_EXPLANATIONS["concept.softmax"]);
+    expect(html).toContain(TOKEN_RELATED_EXPLANATIONS["module.wordpiece"]);
     expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain('href="/docs/glossary/special-tokens"');
     expect(html).toContain('href="/docs/glossary/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');
     expect(html).toContain('href="/docs/glossary/logit"');
     expect(html).toContain('href="/docs/glossary/softmax"');
-    expect(html).toContain("Show 1 more");
+    expect(html).toContain('href="/docs/modules/wordpiece"');
+    expect(html).toContain("Show 2 more");
   });
 
   test("token related links remain keyboard-focusable docs chrome anchors", async () => {
@@ -139,6 +147,7 @@ describe("Phase 2 token-probability path related docs (phase-2-token-probability
       "/docs/glossary/vocabulary-size",
       "/docs/glossary/logit",
       "/docs/glossary/softmax",
+      "/docs/modules/wordpiece",
     ]) {
       expect(html).toContain(`href="${href}"`);
       expect(html).toContain("focus-visible:ring-2");

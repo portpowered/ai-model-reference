@@ -105,6 +105,7 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/superhot-rope",
   "/docs/modules/swiglu",
   "/docs/modules/t5-relative-position-bias",
+  "/docs/modules/wordpiece",
   "/docs/modules/yarn",
 ] as const;
 
