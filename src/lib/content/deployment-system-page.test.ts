@@ -1,4 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { getGraphById } from "@/lib/content/graph-registry-runtime";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
@@ -30,8 +33,10 @@ describe("Deployment system page (deployment-system-page-001)", () => {
       "concept.quantization",
       "concept.prefill-decode-split",
       "concept.kv-cache",
+      "concept.kv-cache-quantization",
       "system.on-disk-kv-cache",
       "model.gpt-3",
+      "model.deepseek-v4-pro",
     ]);
     expect(record?.relatedConceptIds).toEqual([
       "concept.quantization",
@@ -67,6 +72,9 @@ describe("Deployment system page (deployment-system-page-001)", () => {
     expect(items.find((item) => item.registryId === "model.gpt-3")?.href).toBe(
       "/docs/models/gpt-3",
     );
+    expect(
+      items.find((item) => item.registryId === "model.deepseek-v4-pro")?.href,
+    ).toBe("/docs/models/deepseek-v4-pro");
   });
 
   test("page bundle carries deployment framing and the system flow graph contract", async () => {
@@ -80,10 +88,21 @@ describe("Deployment system page (deployment-system-page-001)", () => {
       "kv-cache",
     ]);
     expect(page.messages.openingSummary).toContain("becomes a service");
+    expect(page.messages.openingSummary).toContain("traffic policy");
     expect(page.messages.sections?.whereItSits.body).toContain(
       "target hardware",
     );
+    expect(page.messages.sections?.whereItSits.body).toContain(
+      "Deployment does neither",
+    );
+    expect(page.messages.sections?.howItWorks.body).toContain(
+      "Hardware shape matters",
+    );
     expect(page.messages.sections?.practicalImpact.body).toContain("rollback");
+    expect(page.messages.sections?.practicalImpact.body).toContain("KV cache");
+    expect(page.messages.sections?.practicalImpact.body).toContain(
+      "actually operable",
+    );
     const systemFlowAsset = page.assets.systemFlow;
     expect(systemFlowAsset?.type).toBe("graph");
     if (systemFlowAsset?.type !== "graph") {
@@ -110,6 +129,19 @@ describe("Deployment system page (deployment-system-page-001)", () => {
     expect(html).toContain(
       "The job is not just to copy weights onto a machine.",
     );
+  });
+
+  test("related docs render deployment-facing canonical neighbors", () => {
+    const html = renderToStaticMarkup(
+      createElement(RelatedDocs, { registryId: "system.deployment" }),
+    );
+
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/concepts/quantization"');
+    expect(html).toContain('href="/docs/glossary/prefill-decode-split"');
+    expect(html).toContain('href="/docs/systems/on-disk-kv-cache"');
+    expect(html).toContain('href="/docs/models/gpt-3"');
+    expect(html).toContain('href="/docs/models/deepseek-v4-pro"');
   });
 
   test("search indexes deployment for representative deployment queries", async () => {

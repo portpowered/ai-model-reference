@@ -10,8 +10,10 @@
     "concept.quantization",
     "concept.prefill-decode-split",
     "concept.kv-cache",
+    "concept.kv-cache-quantization",
     "system.on-disk-kv-cache",
-    "model.gpt-3"
+    "model.gpt-3",
+    "model.deepseek-v4-pro"
   ],
   "citationIds": [
     "citation.goodfellow-deep-learning",
