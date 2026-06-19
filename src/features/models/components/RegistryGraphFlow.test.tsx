@@ -647,7 +647,7 @@ describe("RegistryGraphFlow", () => {
           id: dependencyEdge.id,
           relationshipSummary:
             dependencyEdge.data.semantic.relationshipSummary ??
-            "Elementwise multiply depends on SiLU gate.",
+            "Elementwise multiply depends on SiLU.",
           sourceTitle: dependencyEdge.data.semantic.sourceTitle,
           targetTitle: dependencyEdge.data.semantic.targetTitle,
           sourcePageHref: dependencyEdge.data.semantic.sourcePageHref,
@@ -662,17 +662,76 @@ describe("RegistryGraphFlow", () => {
     );
 
     const popup = screen.getByRole("dialog", {
-      name: /SiLU gate and Elementwise multiply relationship details/,
+      name: /SiLU and Elementwise multiply relationship details/,
     });
     expect(within(popup).getByText("Dependency edge")).toBeTruthy();
     expect(
-      within(popup).getByText("Elementwise multiply depends on SiLU gate."),
+      within(popup).getByText("Elementwise multiply depends on SiLU."),
     ).toBeTruthy();
     expect(
       within(popup)
-        .getByRole("link", { name: "Open SiLU gate" })
+        .getByRole("link", { name: "Open SiLU" })
         .getAttribute("href"),
     ).toBe("/docs/modules/silu");
+  });
+
+  test("renders published SwiGLU proof nodes with canonical and graph-local popup behavior", () => {
+    const graph = getGraphById("graph.swiglu-compute-flow");
+    expect(graph).toBeDefined();
+    if (!graph) {
+      return;
+    }
+
+    const { nodes } = buildRegistryFlowGraph(
+      graph,
+      swigluMessages as PageMessages,
+    );
+    const swigluNode = nodes.find((node) => node.id === "swiglu-module");
+    const multiplyNode = nodes.find((node) => node.id === "gated-product");
+    expect(swigluNode).toBeDefined();
+    expect(multiplyNode).toBeDefined();
+    if (!swigluNode || !multiplyNode) {
+      return;
+    }
+
+    renderRegistryGraph(
+      <>
+        <CanonicalNodeHarness data={swigluNode.data} />
+        <CanonicalNodeHarness data={multiplyNode.data} />
+      </>,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /Open SwiGLU details/ }),
+    );
+
+    const swigluPopup = screen.getByRole("dialog", {
+      name: /SwiGLU details/,
+    });
+    expect(within(swigluPopup).getByText("Module")).toBeTruthy();
+    expect(
+      within(swigluPopup)
+        .getByRole("link", { name: "Open canonical docs page" })
+        .getAttribute("href"),
+    ).toBe("/docs/modules/swiglu");
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /Open Elementwise multiply details/,
+      }),
+    );
+
+    const multiplyPopup = screen.getByRole("dialog", {
+      name: /Elementwise multiply details/,
+    });
+    expect(
+      within(multiplyPopup).getByText("Graph-local explanation"),
+    ).toBeTruthy();
+    expect(
+      within(multiplyPopup).getByText(
+        "This graph-local operator multiplies the value path by the SiLU-shaped gate, which is the moment the two branches become one SwiGLU update.",
+      ),
+    ).toBeTruthy();
   });
 
   test("marks published dependency edges as interactive in the graph accessibility metadata", () => {

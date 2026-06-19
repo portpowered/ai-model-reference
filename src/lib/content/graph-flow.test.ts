@@ -443,7 +443,7 @@ describe("graph-flow", () => {
     });
   });
 
-  test("keeps published SwiGLU operator nodes graph-local while linking out to related canonical docs", () => {
+  test("resolves published SwiGLU proof nodes as canonical and preserves a graph-local operator fallback", () => {
     const graph = getGraphById("graph.swiglu-compute-flow");
     expect(graph).toBeDefined();
     if (!graph) {
@@ -454,17 +454,36 @@ describe("graph-flow", () => {
       graph,
       swigluMessages as PageMessages,
     );
+    const swigluModuleNode = nodes.find((node) => node.id === "swiglu-module");
     const gateActivationNode = nodes.find(
       (node) => node.id === "gate-activation",
     );
+    const gatedProductNode = nodes.find((node) => node.id === "gated-product");
 
+    expect(swigluModuleNode?.data.semantic).toMatchObject({
+      registryId: "module.swiglu",
+      entityKind: "module",
+      resolvedTitle: "SwiGLU",
+      summarySource: "graph-local",
+      interactionKind: "canonical",
+      canonicalPageHref: "/docs/modules/swiglu",
+    });
     expect(gateActivationNode?.data.semantic).toMatchObject({
-      resolvedTitle: "SiLU gate",
+      registryId: "module.silu",
+      entityKind: "module",
+      resolvedTitle: "SiLU",
+      summarySource: "graph-local",
+      interactionKind: "canonical",
+      canonicalPageHref: "/docs/modules/silu",
+    });
+    expect(gatedProductNode?.data.semantic).toMatchObject({
+      resolvedTitle: "Elementwise multiply",
       summarySource: "graph-local",
       interactionKind: "graph-local",
-      relatedPageHref: "/docs/modules/silu",
+      hasCanonicalPage: false,
+      resolvedSummary:
+        "This graph-local operator multiplies the value path by the SiLU-shaped gate, which is the moment the two branches become one SwiGLU update.",
     });
-    expect(gateActivationNode?.data.semantic.registryId).toBeUndefined();
   });
 
   test("enables dependency edge interaction metadata and outbound destinations on the published SwiGLU graph", () => {
@@ -486,11 +505,12 @@ describe("graph-flow", () => {
     expect(dependencyEdge?.data?.semantic).toMatchObject({
       edgeFamily: "depends-on",
       edgeKind: "depends-on",
-      sourceTitle: "SiLU gate",
+      sourceRegistryId: "module.silu",
+      sourceTitle: "SiLU",
       targetTitle: "Elementwise multiply",
-      relationshipSummary: "Elementwise multiply depends on SiLU gate.",
+      relationshipSummary: "Elementwise multiply depends on SiLU.",
       sourcePageHref: "/docs/modules/silu",
-      sourcePageTitle: "SiLU gate",
+      sourcePageTitle: "SiLU",
       interactionEnabled: true,
     });
     expect(dependencyEdge?.data?.semantic.targetPageHref).toBeUndefined();
