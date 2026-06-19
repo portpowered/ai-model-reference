@@ -40,7 +40,14 @@ const PAGE_CASES = [
       "concept.leaky-relu",
       "concept.silu",
     ],
-    hrefs: [
+    curatedHrefs: [
+      "/docs/glossary/activation",
+      "/docs/concepts/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/leaky-relu",
+      "/docs/modules/silu",
+    ],
+    renderHrefs: [
       "/docs/glossary/activation",
       "/docs/modules/feed-forward-network",
       "/docs/modules/standard-ffn",
@@ -72,7 +79,14 @@ const PAGE_CASES = [
       "concept.relu",
       "concept.silu",
     ],
-    hrefs: [
+    curatedHrefs: [
+      "/docs/glossary/activation",
+      "/docs/concepts/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/relu",
+      "/docs/modules/silu",
+    ],
+    renderHrefs: [
       "/docs/glossary/activation",
       "/docs/modules/feed-forward-network",
       "/docs/modules/standard-ffn",
@@ -100,7 +114,14 @@ const PAGE_CASES = [
       "concept.relu",
       "concept.swiglu",
     ],
-    hrefs: [
+    curatedHrefs: [
+      "/docs/glossary/activation",
+      "/docs/concepts/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/relu",
+      "/docs/modules/swiglu",
+    ],
+    renderHrefs: [
       "/docs/glossary/activation",
       "/docs/modules/feed-forward-network",
       "/docs/modules/standard-ffn",
@@ -128,7 +149,14 @@ const PAGE_CASES = [
       "concept.silu",
       "concept.activation",
     ],
-    hrefs: [
+    curatedHrefs: [
+      "/docs/concepts/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/mixture-of-experts",
+      "/docs/modules/silu",
+      "/docs/glossary/activation",
+    ],
+    renderHrefs: [
       "/docs/modules/feed-forward-network",
       "/docs/modules/standard-ffn",
       "/docs/modules/mixture-of-experts",
@@ -151,7 +179,8 @@ const PAGE_CASES = [
   expectedTags: readonly string[];
   aliases: readonly string[];
   relatedIds: readonly string[];
-  hrefs: readonly string[];
+  curatedHrefs: readonly string[];
+  renderHrefs: readonly string[];
   messageNeedles: readonly string[];
   renderNeedle: string;
   searchQuery: string;
@@ -182,7 +211,7 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
         PUBLISHED_DOCS_REGISTRY_IDS,
       );
 
-      for (const href of testCase.hrefs) {
+      for (const href of testCase.curatedHrefs) {
         expect(
           items.some((item) => item.href === href && !item.isPlanned),
         ).toBe(true);
@@ -246,7 +275,7 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
             html.includes('data-attention-variant-comparison="true"'),
         ).toBe(true);
       }
-      for (const href of testCase.hrefs) {
+      for (const href of testCase.renderHrefs) {
         expect(html).toContain(`href="${href}"`);
       }
       expect(html).toContain('href="/tags/foundations"');

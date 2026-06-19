@@ -17,7 +17,7 @@ const MULTI_QUERY_ATTENTION_URL = "/docs/modules/multi-query-attention";
 const SPARSE_ATTENTION_URL = "/docs/modules/sparse-attention";
 const ROPE_GLOSSARY_URL = "/docs/modules/rope";
 const CONTEXT_WINDOW_GLOSSARY_URL = "/docs/glossary/context-window";
-const FEED_FORWARD_NETWORK_GLOSSARY_URL = "/docs/modules/feed-forward-network";
+const FEED_FORWARD_NETWORK_CONCEPT_URL = "/docs/concepts/feed-forward-network";
 const STANDARD_FFN_GLOSSARY_URL = "/docs/modules/standard-ffn";
 const MIXTURE_OF_EXPERTS_GLOSSARY_URL = "/docs/modules/mixture-of-experts";
 const RELU_GLOSSARY_URL = "/docs/modules/relu";
@@ -48,8 +48,8 @@ const GLOSSARY_CANONICAL_QUERIES = [
   },
   {
     query: "feed-forward network",
-    url: FEED_FORWARD_NETWORK_GLOSSARY_URL,
-    kind: "module" as const,
+    url: FEED_FORWARD_NETWORK_CONCEPT_URL,
+    kind: "concept" as const,
   },
   {
     query: "standard FFN",
@@ -183,7 +183,7 @@ describe("Phase 2/3 reconciliation search UI kind labels (US-010)", () => {
     [SPARSE_ATTENTION_URL, "module", "Module"],
     [ROPE_GLOSSARY_URL, "module", "Module"],
     [CONTEXT_WINDOW_GLOSSARY_URL, "glossary", "Glossary"],
-    [FEED_FORWARD_NETWORK_GLOSSARY_URL, "module", "Module"],
+    [FEED_FORWARD_NETWORK_CONCEPT_URL, "concept", "Concept"],
     [STANDARD_FFN_GLOSSARY_URL, "module", "Module"],
     [MIXTURE_OF_EXPERTS_GLOSSARY_URL, "module", "Module"],
     [RELU_GLOSSARY_URL, "module", "Module"],

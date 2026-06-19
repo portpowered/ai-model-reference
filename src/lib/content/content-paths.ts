@@ -192,6 +192,12 @@ export const FEED_FORWARD_NETWORK_GLOSSARY_PAGE_DIR = join(
   "feed-forward-network",
 );
 
+/** Feed-forward network concept page directory. */
+export const FEED_FORWARD_NETWORK_CONCEPT_PAGE_DIR = join(
+  CONCEPTS_DOCS_ROOT,
+  "feed-forward-network",
+);
+
 /** Phase 3 standard FFN glossary page directory. */
 export const STANDARD_FFN_GLOSSARY_PAGE_DIR = join(
   MODULES_DOCS_ROOT,

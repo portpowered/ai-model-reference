@@ -51,6 +51,7 @@ export const BATCH_017_DOCS_URLS = [
   "/docs/modules/sliding-window-attention",
   "/docs/modules/linear-attention",
   "/docs/concepts/transformer-architecture",
+  "/docs/concepts/feed-forward-network",
   "/docs/modules/feed-forward-network",
   "/docs/modules/batch-norm",
   "/docs/modules/group-norm",
@@ -116,8 +117,8 @@ const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
   },
   {
     query: "feed-forward network",
-    firstUrl: "/docs/modules/feed-forward-network",
-    firstKind: "module" as const,
+    firstUrl: "/docs/concepts/feed-forward-network",
+    firstKind: "concept" as const,
   },
   {
     query: "standard FFN",

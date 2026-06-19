@@ -2,6 +2,7 @@
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
   "concept.page-spec-workflow-sample",
   "concept.transformer-architecture",
+  "concept.feed-forward-network",
   "concept.positional-encodings",
   "concept.context-extension",
   "concept.why-long-context-is-hard",
@@ -18,7 +19,6 @@ export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS = new Set<string>([
 
 /** Registry ids for docs pages with `status: published` in frontmatter. */
 export const MODULE_BACKED_CONCEPT_REGISTRY_IDS = new Set<string>([
-  "concept.feed-forward-network",
   "concept.standard-ffn",
   "concept.mixture-of-experts",
   "concept.relu",

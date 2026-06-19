@@ -25,7 +25,8 @@ const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
 const TRANSFORMER_ARCHITECTURE_URL = "/docs/concepts/transformer-architecture";
 const PAGE_SPEC_WORKFLOW_SAMPLE_URL =
   "/docs/concepts/page-spec-workflow-sample";
-const FEED_FORWARD_NETWORK_URL = "/docs/modules/feed-forward-network";
+const FEED_FORWARD_NETWORK_CONCEPT_URL = "/docs/concepts/feed-forward-network";
+const FEED_FORWARD_NETWORK_MODULE_URL = "/docs/modules/feed-forward-network";
 const STANDARD_FFN_URL = "/docs/modules/standard-ffn";
 const NORMALIZATION_URL = "/docs/glossary/normalization";
 const LAYER_NORM_URL = "/docs/modules/layer-norm";
@@ -162,7 +163,8 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   TOKEN_GLOSSARY_URL,
   TRANSFORMER_ARCHITECTURE_URL,
   PAGE_SPEC_WORKFLOW_SAMPLE_URL,
-  FEED_FORWARD_NETWORK_URL,
+  FEED_FORWARD_NETWORK_CONCEPT_URL,
+  FEED_FORWARD_NETWORK_MODULE_URL,
   BATCH_NORM_URL,
   GROUP_NORM_URL,
   STANDARD_FFN_URL,
@@ -303,7 +305,7 @@ describe("exportOramaIndexSnapshot", () => {
     { query: "multi-query attention", url: MULTI_QUERY_ATTENTION_URL },
     { query: "LongRoPE", url: LONGROPE_URL },
     { query: "positional interpolation", url: POSITIONAL_INTERPOLATION_URL },
-    { query: "feed-forward network", url: FEED_FORWARD_NETWORK_URL },
+    { query: "feed-forward network", url: FEED_FORWARD_NETWORK_CONCEPT_URL },
     { query: "standard FFN", url: STANDARD_FFN_URL },
     { query: "normalization", url: NORMALIZATION_URL },
     { query: "layer norm", url: LAYER_NORM_URL },

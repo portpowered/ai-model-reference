@@ -56,7 +56,7 @@ describe("Phase 3 mixture of experts module page (US-003)", () => {
     const feedForward = items.find(
       (item) => item.registryId === "concept.feed-forward-network",
     );
-    expect(feedForward?.href).toBe("/docs/modules/feed-forward-network");
+    expect(feedForward?.href).toBe("/docs/concepts/feed-forward-network");
     expect(feedForward?.isPlanned).toBe(false);
 
     const standardFfn = items.find(

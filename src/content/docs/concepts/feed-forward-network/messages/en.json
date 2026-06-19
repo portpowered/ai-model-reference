@@ -1,0 +1,32 @@
+{
+  "title": "Feed-Forward Network",
+  "description": "The broad transformer-block concept for the per-token layer that adds nonlinear processing after attention.",
+  "openingSummary": "A feed-forward network is the part of a transformer block that works on each token state after attention, adding nonlinear processing so the model can reshape features instead of only passing context around.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "A feed-forward network, often shortened to FFN, is the broad name for the per-token computation stage inside a transformer block. Attention gathers information from other positions first. The feed-forward network then takes each token state on its own, pushes it through learned projections and an activation, and returns an updated state to the residual stream. The same feed-forward design is reused at every token position, so it adds capacity without creating another token-to-token communication step."
+    },
+    "whyItMatters": {
+      "title": "Why It Matters",
+      "body": "Attention and feed-forward networks do different jobs. Attention decides which outside context each token should read. The feed-forward network turns that mixed context into sharper features, pattern detectors, and intermediate representations inside the token itself. Without this second stage, a transformer would move information between positions but would have much less room to transform that information into useful nonlinear features."
+    },
+    "simpleExample": {
+      "title": "Simple Example",
+      "body": "Picture the word vector for \"bank\" after attention has read the rest of the sentence. Attention can bring in clues such as money or river. The feed-forward network is the next step that reshapes that updated vector so the model can emphasize the meaning that now fits the surrounding context. In a standard dense feed-forward network every token goes through the same hidden path. In a sparse mixture-of-experts design a router sends the token through only a few expert paths. Both are still feed-forward networks because they fill the same post-attention slot."
+    },
+    "commonConfusions": {
+      "title": "Common Confusions",
+      "body": "A feed-forward network is a broad slot, not just one exact implementation. Standard dense FFNs, SwiGLU-style gated variants, and sparse mixture-of-experts layers are different ways to build the same stage. The feed-forward network is also not a replacement for attention: it does not decide which other tokens to read. It works after attention and transforms each token state separately once that context has already been gathered."
+    },
+    "related": {
+      "title": "Related Concepts And Modules"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  }
+}
