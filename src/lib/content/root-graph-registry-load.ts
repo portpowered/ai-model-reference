@@ -24,6 +24,7 @@ function readGraphRecords(contentRoot: string): GraphRecord[] {
 
 export function syncGraphRegistryForContentRoot(contentRoot: string): void {
   if (contentRoot === CONTENT_ROOT) {
+    clearRegisteredGraphRecords();
     return;
   }
 

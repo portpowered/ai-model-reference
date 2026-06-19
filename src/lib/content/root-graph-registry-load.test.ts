@@ -2,11 +2,13 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { CONTENT_ROOT } from "@/lib/content/content-paths";
 import {
   clearRegisteredGraphRecords,
   getGraphById,
 } from "@/lib/content/graph-registry-runtime";
 import { syncGraphRegistryForContentRoot } from "@/lib/content/root-graph-registry-load";
+import { graphRecordSchema } from "@/lib/content/schemas";
 
 const cleanupPaths: string[] = [];
 
@@ -100,5 +102,42 @@ describe("root-graph-registry-load", () => {
     expect(getGraphById("graph.gpt-3-architecture")?.id).toBe(
       "graph.gpt-3-architecture",
     );
+  });
+
+  test("restores canonical root graph records after syncing an alternate content root", () => {
+    const rootRecord = getGraphById("graph.gpt-3-architecture");
+    expect(rootRecord).toBeDefined();
+
+    const contentRoot = createTempContentRoot();
+    writeFileSync(
+      join(contentRoot, "registry", "graphs", "gpt-3-architecture.json"),
+      `${JSON.stringify(
+        graphRecordSchema.parse({
+          ...rootRecord,
+          nodes: [
+            ...(rootRecord?.nodes ?? []),
+            {
+              id: "fixture-override-node",
+              labelKey: "graph.fixture-override-node.label",
+              moduleKind: "input",
+              childNodeIds: [],
+            },
+          ],
+        }),
+        null,
+        2,
+      )}\n`,
+      "utf8",
+    );
+
+    syncGraphRegistryForContentRoot(contentRoot);
+    expect(
+      getGraphById("graph.gpt-3-architecture")?.nodes.map((node) => node.id),
+    ).toContain("fixture-override-node");
+
+    syncGraphRegistryForContentRoot(CONTENT_ROOT);
+    expect(
+      getGraphById("graph.gpt-3-architecture")?.nodes.map((node) => node.id),
+    ).not.toContain("fixture-override-node");
   });
 });
