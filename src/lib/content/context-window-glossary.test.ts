@@ -39,13 +39,14 @@ describe("Phase 3 context window glossary page (US-011)", () => {
     expect(record?.relatedIds).toEqual([
       "concept.context-extension",
       "concept.why-long-context-is-hard",
+      "concept.alibi",
     ]);
     expect(PUBLISHED_DOCS_REGISTRY_IDS.has("concept.context-window")).toBe(
       true,
     );
   });
 
-  test("curated related links context extension and why long context is hard with navigable hrefs", () => {
+  test("curated related links bridge context-window readers to long-context guidance and ALiBi", () => {
     const source = getConceptById("concept.context-window");
     if (!source) {
       throw new Error("expected concept.context-window in registry");
@@ -68,6 +69,10 @@ describe("Phase 3 context window glossary page (US-011)", () => {
     );
     expect(whyHard?.href).toBe("/docs/concepts/why-long-context-is-hard");
     expect(whyHard?.isPlanned).toBe(false);
+
+    const alibi = items.find((item) => item.registryId === "concept.alibi");
+    expect(alibi?.href).toBe("/docs/concepts/alibi");
+    expect(alibi?.isPlanned).toBe(false);
   });
 
   test("messages distinguish context window, training length, and generation budget", () => {
@@ -115,6 +120,7 @@ describe("Phase 3 context window glossary page (US-011)", () => {
     expectHtmlToContainProse(html, "context window");
     expect(html).toContain('href="/docs/concepts/context-extension"');
     expect(html).toContain('href="/docs/concepts/why-long-context-is-hard"');
+    expect(html).toContain('href="/docs/concepts/alibi"');
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('data-testid="tag-pill-list"');
     expect(html).toContain('data-testid="curated-related-docs"');
