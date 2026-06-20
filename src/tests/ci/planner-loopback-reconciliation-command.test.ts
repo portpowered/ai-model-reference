@@ -143,7 +143,7 @@ describe("report-planner-loopback-reconciliation script", () => {
       );
       expect(humanResult.stdout).toContain("classification=repairable");
       expect(humanResult.stdout).toContain(
-        "next-step=dispatch or recreate the missing dependency targets before moving this loopback: missing-lane",
+        "next-step=dispatch the missing dependency targets before moving this loopback: missing-lane",
       );
       expect(humanResult.stdout).toContain(
         "depends-on=missing-lane status=missing-from-queue",
@@ -195,7 +195,7 @@ describe("report-planner-loopback-reconciliation script", () => {
       expect(jsonReport.loopbacks[0]?.recommendedNextStep).toBeUndefined();
       expect(jsonReport.loopbacks[1]?.recommendedNextStep).toBeUndefined();
       expect(jsonReport.loopbacks[2]?.recommendedNextStep).toBe(
-        "dispatch or recreate the missing dependency targets before moving this loopback: missing-lane",
+        "dispatch the missing dependency targets before moving this loopback: missing-lane",
       );
       expect(jsonReport.loopbacks[3]?.recommendedNextStep).toBeUndefined();
       expect(

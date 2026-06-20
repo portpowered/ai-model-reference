@@ -174,7 +174,7 @@ describe("discoverPlannerLoopbackReconciliationReport", () => {
         "dependency evidence is inconsistent because required targets are missing from the queue: missing-lane (missing-from-queue)",
       ],
       recommendedNextStep:
-        "dispatch or recreate the missing dependency targets before moving this loopback: missing-lane",
+        "dispatch the missing dependency targets before moving this loopback: missing-lane",
     });
     expect(report.loopbacks[3]?.dependencies).toEqual([
       expect.objectContaining({
@@ -246,7 +246,7 @@ describe("discoverPlannerLoopbackReconciliationReport", () => {
       "reason=dependency evidence is inconsistent because required targets are missing from the queue: missing-lane (missing-from-queue)",
     );
     expect(reportText).toContain(
-      "next-step=dispatch or recreate the missing dependency targets before moving this loopback: missing-lane",
+      "next-step=dispatch the missing dependency targets before moving this loopback: missing-lane",
     );
     expect(reportText).toContain("depends-on=review-lane status=active");
     expect(reportText).toContain(
@@ -336,7 +336,7 @@ describe("discoverPlannerLoopbackReconciliationReport", () => {
         "- work-item=loopback-waiting state=init/initial classification=blocked type=thoughts work-id=loopback-blocked reason=waiting on unfinished dependencies: review-lane (in-review/processing) dependencies=depends-on=review-lane status=active required-state=complete declared-target-work-id=task-active resolved-work-id=task-active resolved-type=task resolved-state=in-review/processing",
         "",
         "repairable (1)",
-        "- work-item=loopback-missing state=failed/terminal classification=repairable type=thoughts work-id=loopback-repairable reason=dependency evidence is inconsistent because required targets are missing from the queue: missing-lane (missing-from-queue) next-step=dispatch or recreate the missing dependency targets before moving this loopback: missing-lane dependencies=depends-on=missing-lane status=missing-from-queue required-state=complete declared-target-work-id=task-missing",
+        "- work-item=loopback-missing state=failed/terminal classification=repairable type=thoughts work-id=loopback-repairable reason=dependency evidence is inconsistent because required targets are missing from the queue: missing-lane (missing-from-queue) next-step=dispatch the missing dependency targets before moving this loopback: missing-lane dependencies=depends-on=missing-lane status=missing-from-queue required-state=complete declared-target-work-id=task-missing",
       ].join("\n"),
     );
   });
@@ -398,7 +398,7 @@ describe("discoverPlannerLoopbackReconciliationReport", () => {
         "dependency evidence could not be classified from the queue snapshot: weird-state (mystery/unknown)",
       ],
       recommendedNextStep:
-        "inspect the live queue state for weird-state before any manual move; if the snapshot is still inconsistent afterward, requeue the loopback with `you work move --session ~planner`",
+        "inspect the live queue state for weird-state before moving this loopback",
     });
   });
 });

@@ -323,13 +323,12 @@ function summarizeDependencyStatuses(
 
 function buildRepairableNextStep(
   dependencies: LoopbackDependencyEvidence[],
-  sourceSession: string,
 ): string {
   const missingDependencies = dependencies.filter(
     (dependency) => dependency.status === "missing-from-queue",
   );
   if (missingDependencies.length > 0) {
-    return `dispatch or recreate the missing dependency targets before moving this loopback: ${missingDependencies
+    return `dispatch the missing dependency targets before moving this loopback: ${missingDependencies
       .map((dependency) => dependency.targetWorkName)
       .join(", ")}`;
   }
@@ -339,14 +338,11 @@ function buildRepairableNextStep(
   );
   return `inspect the live queue state for ${unknownDependencies
     .map((dependency) => dependency.targetWorkName)
-    .join(
-      ", ",
-    )} before any manual move; if the snapshot is still inconsistent afterward, requeue the loopback with \`you work move --session ${sourceSession}\``;
+    .join(", ")} before moving this loopback`;
 }
 
 function classifyLoopback(
   dependencies: LoopbackDependencyEvidence[],
-  sourceSession: string,
 ): Pick<
   LoopbackReconciliationItem,
   "classification" | "reasons" | "recommendedNextStep"
@@ -401,10 +397,7 @@ function classifyLoopback(
     return {
       classification: "repairable",
       reasons,
-      recommendedNextStep: buildRepairableNextStep(
-        repairableDependencies,
-        sourceSession,
-      ),
+      recommendedNextStep: buildRepairableNextStep(repairableDependencies),
     };
   }
 
@@ -599,10 +592,7 @@ export function discoverPlannerLoopbackReconciliationReport(options: {
             resolvedStateType: target?.stateType,
           } satisfies LoopbackDependencyEvidence;
         });
-      const classification = classifyLoopback(
-        dependencies,
-        options.sourceSession ?? "~default",
-      );
+      const classification = classifyLoopback(dependencies);
 
       return {
         workId: record.workId,
