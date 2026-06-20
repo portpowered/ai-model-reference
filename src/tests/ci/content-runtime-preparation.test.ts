@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join, relative } from "node:path";
 import { getGeneratedContentRuntimeRoot } from "@/lib/content/content-paths";
 import {
@@ -49,6 +49,12 @@ describe("content runtime preparation", () => {
     expect(commands).toEqual(
       CONTENT_RUNTIME_PREPARATION_STEPS.map((step) => step.command.join(" ")),
     );
+    expect(CONTENT_RUNTIME_PREPARATION_STEPS).toContainEqual({
+      id: "graph-registry-runtime",
+      command: ["bun", "run", "generate:graph-registry-runtime"],
+      outputPath:
+        "src/lib/content/generated/graph-registry-runtime.generated.ts",
+    });
   });
 
   test("stops at the first failing step and reports the step id", () => {
@@ -107,6 +113,9 @@ describe("content runtime preparation", () => {
     expect(firstRunOutput).toContain(
       `[content-runtime] Preparing registry-runtime -> ${GENERATED_REGISTRY_RUNTIME_RELATIVE_PATH}`,
     );
+    expect(firstRunOutput).toContain(
+      "[content-runtime] Preparing graph-registry-runtime",
+    );
     expect(existsSync(generatedRegistryRuntimePath)).toBe(true);
 
     for (const step of CONTENT_RUNTIME_PREPARATION_STEPS) {
@@ -120,6 +129,20 @@ describe("content runtime preparation", () => {
         ),
       ).toBe(false);
     }
+
+    const graphRuntimeOutput = readFileSync(
+      join(
+        repoRoot,
+        "src/lib/content/generated/graph-registry-runtime.generated.ts",
+      ),
+      "utf8",
+    );
+    expect(graphRuntimeOutput).toContain(
+      'import batchNormComputeFlowGraphRecord from "@/content/registry/graphs/batch-norm-compute-flow.json";',
+    );
+    expect(graphRuntimeOutput).toContain(
+      "graphRecordSchema.parse(batchNormComputeFlowGraphRecord)",
+    );
 
     for (const legacyPath of LEGACY_TOP_LEVEL_GENERATED_RUNTIME_PATHS) {
       expect(existsSync(join(repoRoot, legacyPath))).toBe(false);
