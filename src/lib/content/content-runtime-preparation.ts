@@ -4,6 +4,8 @@ export type ContentRuntimePreparationStep = {
   id: string;
   command: readonly [string, ...string[]];
   outputPath: string;
+  gitClassification: "committed" | "ignored";
+  owningSurface: string;
 };
 
 export type ContentRuntimePreparationCommandResult = {
@@ -21,37 +23,50 @@ export type RunContentRuntimePreparationCommand = (
 
 export type ContentRuntimePreparationLogger = (message: string) => void;
 
-export const CONTENT_RUNTIME_PREPARATION_STEPS: readonly ContentRuntimePreparationStep[] =
+export const CONTENT_RUNTIME_COMPLETENESS_CONTRACT: readonly ContentRuntimePreparationStep[] =
   [
     {
       id: "shipped-localized-docs",
       command: ["bun", "run", "generate:shipped-localized-docs"],
       outputPath:
         "src/lib/content/generated/shipped-localized-docs.generated.ts",
+      gitClassification: "committed",
+      owningSurface: "shipped localized docs runtime helpers",
     },
     {
       id: "graph-registry-runtime",
       command: ["bun", "run", "generate:graph-registry-runtime"],
       outputPath:
         "src/lib/content/generated/graph-registry-runtime.generated.ts",
+      gitClassification: "ignored",
+      owningSurface: "graph registry runtime lookups",
     },
     {
       id: "published-docs-registry",
       command: ["bun", "run", "generate:published-docs-registry"],
       outputPath:
         "src/lib/content/generated/published-docs-registry.generated.ts",
+      gitClassification: "ignored",
+      owningSurface: "published docs registry manifest",
     },
     {
       id: "registry-runtime",
       command: ["bun", "run", "generate:registry-runtime"],
       outputPath: "src/lib/content/generated/registry-runtime.generated.ts",
+      gitClassification: "ignored",
+      owningSurface: "main content registry runtime",
     },
     {
       id: "table-registry-runtime",
       command: ["bun", "run", "generate:table-registry"],
       outputPath: "src/lib/content/generated/table-registry.generated.ts",
+      gitClassification: "committed",
+      owningSurface: "table registry runtime payloads",
     },
   ] as const;
+
+export const CONTENT_RUNTIME_PREPARATION_STEPS =
+  CONTENT_RUNTIME_COMPLETENESS_CONTRACT;
 
 export type RunContentRuntimePreparationOptions = {
   cwd: string;

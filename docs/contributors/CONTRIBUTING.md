@@ -497,6 +497,12 @@ When you need to recreate generated content runtime artifacts locally, use
 localized docs, graph runtime data, the generated published-docs manifest, the
 generated main registry runtime, and table registry runtime data.
 
+The authoritative generated-runtime contract lives in
+`src/lib/content/content-runtime-preparation.ts` as
+`CONTENT_RUNTIME_COMPLETENESS_CONTRACT`. That one list defines each supported
+runtime-preparation step, the generated output path, and whether the file is
+expected to be committed or intentionally ignored in git.
+
 For the main registry runtime specifically, author changes in
 `src/content/registry/` and do not manually edit or commit
 `src/lib/content/generated/registry-runtime.generated.ts`.
