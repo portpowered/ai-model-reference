@@ -3,7 +3,9 @@ import { join } from "node:path";
 import { REGISTRY_ROOT } from "./content-paths";
 import type { RegistryIndexes, RegistryRecord } from "./registry-index";
 import {
+  type ClassificationRecord,
   citationRecordSchema,
+  classificationRecordSchema,
   conceptRecordSchema,
   datasetRecordSchema,
   graphRecordSchema,
@@ -43,6 +45,7 @@ type RegistryDirectory = {
     | "modules"
     | "concepts"
     | "models"
+    | "classifications"
     | "papers"
     | "training-regimes"
     | "systems"
@@ -55,6 +58,7 @@ type RegistryDirectory = {
     | typeof moduleRecordSchema
     | typeof conceptRecordSchema
     | typeof modelRecordSchema
+    | typeof classificationRecordSchema
     | typeof paperRecordSchema
     | typeof trainingRegimeRecordSchema
     | typeof systemRecordSchema
@@ -69,6 +73,7 @@ const registryDirectories: RegistryDirectory[] = [
   { name: "modules", schema: moduleRecordSchema },
   { name: "concepts", schema: conceptRecordSchema },
   { name: "models", schema: modelRecordSchema },
+  { name: "classifications", schema: classificationRecordSchema },
   { name: "papers", schema: paperRecordSchema },
   { name: "training-regimes", schema: trainingRegimeRecordSchema },
   { name: "systems", schema: systemRecordSchema },
@@ -171,6 +176,7 @@ async function readRegistryDirectory(
 function buildIndexes(files: ParsedRegistryFile[]): RegistryIndexes {
   const byId = new Map<string, RegistryRecord>();
   const bySlug = new Map<string, RegistryRecord>();
+  const classificationsById = new Map<string, ClassificationRecord>();
   const tagsById = new Map<string, TagRecord>();
   const tagsBySlug = new Map<string, TagRecord>();
   const idPaths = new Map<string, string[]>();
@@ -192,6 +198,10 @@ function buildIndexes(files: ParsedRegistryFile[]): RegistryIndexes {
     if (record.kind === "tag") {
       tagsById.set(record.id, record);
       tagsBySlug.set(record.slug, record);
+    }
+
+    if (record.kind === "classification") {
+      classificationsById.set(record.id, record);
     }
   }
 
@@ -215,7 +225,127 @@ function buildIndexes(files: ParsedRegistryFile[]): RegistryIndexes {
     );
   }
 
-  return { byId, bySlug, tagsById, tagsBySlug };
+  return { byId, bySlug, classificationsById, tagsById, tagsBySlug };
+}
+
+type OntologyParticipatingRecord = Extract<
+  RegistryRecord,
+  {
+    primaryClassificationId?: string;
+    secondaryClassificationIds?: string[];
+    relationships?: Array<{ targetId: string }>;
+  }
+>;
+
+function isOntologyParticipatingRecord(
+  record: RegistryRecord,
+): record is OntologyParticipatingRecord {
+  return (
+    record.kind === "module" ||
+    record.kind === "concept" ||
+    record.kind === "model" ||
+    record.kind === "paper" ||
+    record.kind === "training-regime" ||
+    record.kind === "system" ||
+    record.kind === "dataset"
+  );
+}
+
+function validateOntologyReferences(
+  files: ParsedRegistryFile[],
+  indexes: RegistryIndexes,
+): void {
+  const details: RegistryLoadErrorDetail[] = [];
+
+  for (const { path, record } of files) {
+    if (record.kind === "classification" && record.parentClassificationId) {
+      const parent = indexes.byId.get(record.parentClassificationId);
+      if (parent?.kind !== "classification") {
+        details.push({
+          type: "parse-error",
+          path,
+          message: `parentClassificationId must reference a classification record, found "${record.parentClassificationId}"`,
+        });
+      }
+    }
+
+    if (!isOntologyParticipatingRecord(record)) {
+      continue;
+    }
+
+    const primaryClassificationId = record.primaryClassificationId;
+    const secondaryClassificationIds = record.secondaryClassificationIds ?? [];
+    const hasOntologyFields =
+      primaryClassificationId !== undefined ||
+      secondaryClassificationIds.length > 0 ||
+      (record.relationships?.length ?? 0) > 0;
+
+    if (hasOntologyFields && !primaryClassificationId) {
+      details.push({
+        type: "parse-error",
+        path,
+        message:
+          "primaryClassificationId is required when a record opts into ontology membership or relationships",
+      });
+    }
+
+    const seenClassificationIds = new Set<string>();
+    if (primaryClassificationId) {
+      seenClassificationIds.add(primaryClassificationId);
+    }
+
+    for (const classificationId of secondaryClassificationIds) {
+      if (seenClassificationIds.has(classificationId)) {
+        details.push({
+          type: "parse-error",
+          path,
+          message:
+            "secondaryClassificationIds must not repeat the primary classification or contain duplicates",
+        });
+        continue;
+      }
+      seenClassificationIds.add(classificationId);
+    }
+
+    if (primaryClassificationId) {
+      const primary = indexes.byId.get(primaryClassificationId);
+      if (primary?.kind !== "classification") {
+        details.push({
+          type: "parse-error",
+          path,
+          message: `primaryClassificationId must reference a classification record, found "${primaryClassificationId}"`,
+        });
+      }
+    }
+
+    for (const classificationId of secondaryClassificationIds) {
+      const classification = indexes.byId.get(classificationId);
+      if (classification?.kind !== "classification") {
+        details.push({
+          type: "parse-error",
+          path,
+          message: `secondaryClassificationIds must reference classification records, found "${classificationId}"`,
+        });
+      }
+    }
+
+    for (const relationship of record.relationships ?? []) {
+      if (!indexes.byId.has(relationship.targetId)) {
+        details.push({
+          type: "parse-error",
+          path,
+          message: `relationships targetId references missing record "${relationship.targetId}"`,
+        });
+      }
+    }
+  }
+
+  if (details.length > 0) {
+    throw new RegistryLoadError(
+      "Ontology reference validation failed",
+      details,
+    );
+  }
 }
 
 export type LoadRegistryOptions = {
@@ -233,5 +363,7 @@ export async function loadRegistry(
     files.push(...parsed);
   }
 
-  return buildIndexes(files);
+  const indexes = buildIndexes(files);
+  validateOntologyReferences(files, indexes);
+  return indexes;
 }

@@ -13,22 +13,24 @@ import {
 import type { RelatedRegistryRecord } from "../related-docs";
 import {
   type CitationRecord,
+  type ClassificationRecord,
   type ConceptRecord,
-  citationRecordSchema,
-  conceptRecordSchema,
   type DatasetRecord,
-  datasetRecordSchema,
   type ModelRecord,
   type ModuleRecord,
+  type OrganizationRecord,
+  type PaperRecord,
+  type SystemRecord,
+  type TrainingRegimeRecord,
+  citationRecordSchema,
+  classificationRecordSchema,
+  conceptRecordSchema,
+  datasetRecordSchema,
   modelRecordSchema,
   moduleRecordSchema,
-  type OrganizationRecord,
   organizationRecordSchema,
-  type PaperRecord,
   paperRecordSchema,
-  type SystemRecord,
   systemRecordSchema,
-  type TrainingRegimeRecord,
   trainingRegimeRecordSchema,
 } from "../schemas";
 import registryRecord_0 from "../../../content/registry/modules/absolute-positional-embeddings.json";
@@ -175,67 +177,70 @@ import registryRecord_140 from "../../../content/registry/concepts/yarn.json";
 import registryRecord_141 from "../../../content/registry/models/deepseek-v4-flash.json";
 import registryRecord_142 from "../../../content/registry/models/deepseek-v4-pro.json";
 import registryRecord_143 from "../../../content/registry/models/gpt-3.json";
-import registryRecord_144 from "../../../content/registry/papers/deepseek-v4.json";
-import registryRecord_145 from "../../../content/registry/training-regimes/dpo.json";
-import registryRecord_146 from "../../../content/registry/training-regimes/fp4-quantization-aware-training.json";
-import registryRecord_147 from "../../../content/registry/training-regimes/on-policy-distillation.json";
-import registryRecord_148 from "../../../content/registry/training-regimes/specialist-training.json";
-import registryRecord_149 from "../../../content/registry/systems/expert-parallel-overlap.json";
-import registryRecord_150 from "../../../content/registry/systems/on-disk-kv-cache.json";
-import registryRecord_151 from "../../../content/registry/systems/routing.json";
-import registryRecord_152 from "../../../content/registry/datasets/deepseek-v4-specialist-corpus.json";
-import registryRecord_153 from "../../../content/registry/organizations/deepseek-ai.json";
-import registryRecord_154 from "../../../content/registry/citations/attention-is-all-you-need.json";
-import registryRecord_155 from "../../../content/registry/citations/awq.json";
-import registryRecord_156 from "../../../content/registry/citations/batch-normalization.json";
-import registryRecord_157 from "../../../content/registry/citations/brown-gpt-3.json";
-import registryRecord_158 from "../../../content/registry/citations/chen-positional-interpolation.json";
-import registryRecord_159 from "../../../content/registry/citations/classifier-free-diffusion-guidance.json";
-import registryRecord_160 from "../../../content/registry/citations/curious-case-neural-text-degeneration.json";
-import registryRecord_161 from "../../../content/registry/citations/deepseek-v2-mla-paper.json";
-import registryRecord_162 from "../../../content/registry/citations/deepseek-v4-paper.json";
-import registryRecord_163 from "../../../content/registry/citations/denoising-diffusion-probabilistic-models.json";
-import registryRecord_164 from "../../../content/registry/citations/ding-longrope.json";
-import registryRecord_165 from "../../../content/registry/citations/direct-preference-optimization.json";
-import registryRecord_166 from "../../../content/registry/citations/flamingo-visual-language-model.json";
-import registryRecord_167 from "../../../content/registry/citations/glu-variants-improve-transformer.json";
-import registryRecord_168 from "../../../content/registry/citations/goodfellow-deep-learning.json";
-import registryRecord_169 from "../../../content/registry/citations/gpt-2-report.json";
-import registryRecord_170 from "../../../content/registry/citations/gqa-paper.json";
-import registryRecord_171 from "../../../content/registry/citations/group-normalization.json";
-import registryRecord_172 from "../../../content/registry/citations/image-is-worth-16x16-words.json";
-import registryRecord_173 from "../../../content/registry/citations/kaiokendev-superhot.json";
-import registryRecord_174 from "../../../content/registry/citations/kaplan-scaling-laws.json";
-import registryRecord_175 from "../../../content/registry/citations/katharopoulos-linear-attention-paper.json";
-import registryRecord_176 from "../../../content/registry/citations/kingma-adam.json";
-import registryRecord_177 from "../../../content/registry/citations/kivi-kv-cache-quantization.json";
-import registryRecord_178 from "../../../content/registry/citations/kudo-sentencepiece.json";
-import registryRecord_179 from "../../../content/registry/citations/layer-normalization.json";
-import registryRecord_180 from "../../../content/registry/citations/learning-transferable-visual-models-from-natural-language-supervision.json";
-import registryRecord_181 from "../../../content/registry/citations/longformer.json";
-import registryRecord_182 from "../../../content/registry/citations/multilayer-feedforward-networks-are-universal-approximators.json";
-import registryRecord_183 from "../../../content/registry/citations/on-policy-distillation-of-language-models.json";
-import registryRecord_184 from "../../../content/registry/citations/peng-yarn.json";
-import registryRecord_185 from "../../../content/registry/citations/press-alibi.json";
-import registryRecord_186 from "../../../content/registry/citations/qlora.json";
-import registryRecord_187 from "../../../content/registry/citations/quantization-integer-only-inference.json";
-import registryRecord_188 from "../../../content/registry/citations/query-key-normalization-for-transformers.json";
-import registryRecord_189 from "../../../content/registry/citations/raffel-t5.json";
-import registryRecord_190 from "../../../content/registry/citations/rectified-linear-units-improve-restricted-boltzmann-machines.json";
-import registryRecord_191 from "../../../content/registry/citations/rectifier-nonlinearities-improve-neural-network-acoustic-models.json";
-import registryRecord_192 from "../../../content/registry/citations/root-mean-square-layer-normalization.json";
-import registryRecord_193 from "../../../content/registry/citations/self-attention-with-relative-position-representations.json";
-import registryRecord_194 from "../../../content/registry/citations/sennrich-bpe.json";
-import registryRecord_195 from "../../../content/registry/citations/shazeer-mqa-paper.json";
-import registryRecord_196 from "../../../content/registry/citations/sigmoid-weighted-linear-units.json";
-import registryRecord_197 from "../../../content/registry/citations/smoothquant.json";
-import registryRecord_198 from "../../../content/registry/citations/sparse-transformers.json";
-import registryRecord_199 from "../../../content/registry/citations/sparsely-gated-mixture-of-experts-layer.json";
-import registryRecord_200 from "../../../content/registry/citations/su-roformer-rope.json";
-import registryRecord_201 from "../../../content/registry/citations/training-language-models-to-follow-instructions-with-human-feedback.json";
-import registryRecord_202 from "../../../content/registry/citations/transformer-lms-without-positional-encodings.json";
-import registryRecord_203 from "../../../content/registry/citations/wei-emergent-abilities.json";
-import registryRecord_204 from "../../../content/registry/citations/world-models.json";
+import registryRecord_144 from "../../../content/registry/classifications/activation-functions.json";
+import registryRecord_145 from "../../../content/registry/classifications/feed-forward-networks.json";
+import registryRecord_146 from "../../../content/registry/classifications/neural-network-components.json";
+import registryRecord_147 from "../../../content/registry/papers/deepseek-v4.json";
+import registryRecord_148 from "../../../content/registry/training-regimes/dpo.json";
+import registryRecord_149 from "../../../content/registry/training-regimes/fp4-quantization-aware-training.json";
+import registryRecord_150 from "../../../content/registry/training-regimes/on-policy-distillation.json";
+import registryRecord_151 from "../../../content/registry/training-regimes/specialist-training.json";
+import registryRecord_152 from "../../../content/registry/systems/expert-parallel-overlap.json";
+import registryRecord_153 from "../../../content/registry/systems/on-disk-kv-cache.json";
+import registryRecord_154 from "../../../content/registry/systems/routing.json";
+import registryRecord_155 from "../../../content/registry/datasets/deepseek-v4-specialist-corpus.json";
+import registryRecord_156 from "../../../content/registry/organizations/deepseek-ai.json";
+import registryRecord_157 from "../../../content/registry/citations/attention-is-all-you-need.json";
+import registryRecord_158 from "../../../content/registry/citations/awq.json";
+import registryRecord_159 from "../../../content/registry/citations/batch-normalization.json";
+import registryRecord_160 from "../../../content/registry/citations/brown-gpt-3.json";
+import registryRecord_161 from "../../../content/registry/citations/chen-positional-interpolation.json";
+import registryRecord_162 from "../../../content/registry/citations/classifier-free-diffusion-guidance.json";
+import registryRecord_163 from "../../../content/registry/citations/curious-case-neural-text-degeneration.json";
+import registryRecord_164 from "../../../content/registry/citations/deepseek-v2-mla-paper.json";
+import registryRecord_165 from "../../../content/registry/citations/deepseek-v4-paper.json";
+import registryRecord_166 from "../../../content/registry/citations/denoising-diffusion-probabilistic-models.json";
+import registryRecord_167 from "../../../content/registry/citations/ding-longrope.json";
+import registryRecord_168 from "../../../content/registry/citations/direct-preference-optimization.json";
+import registryRecord_169 from "../../../content/registry/citations/flamingo-visual-language-model.json";
+import registryRecord_170 from "../../../content/registry/citations/glu-variants-improve-transformer.json";
+import registryRecord_171 from "../../../content/registry/citations/goodfellow-deep-learning.json";
+import registryRecord_172 from "../../../content/registry/citations/gpt-2-report.json";
+import registryRecord_173 from "../../../content/registry/citations/gqa-paper.json";
+import registryRecord_174 from "../../../content/registry/citations/group-normalization.json";
+import registryRecord_175 from "../../../content/registry/citations/image-is-worth-16x16-words.json";
+import registryRecord_176 from "../../../content/registry/citations/kaiokendev-superhot.json";
+import registryRecord_177 from "../../../content/registry/citations/kaplan-scaling-laws.json";
+import registryRecord_178 from "../../../content/registry/citations/katharopoulos-linear-attention-paper.json";
+import registryRecord_179 from "../../../content/registry/citations/kingma-adam.json";
+import registryRecord_180 from "../../../content/registry/citations/kivi-kv-cache-quantization.json";
+import registryRecord_181 from "../../../content/registry/citations/kudo-sentencepiece.json";
+import registryRecord_182 from "../../../content/registry/citations/layer-normalization.json";
+import registryRecord_183 from "../../../content/registry/citations/learning-transferable-visual-models-from-natural-language-supervision.json";
+import registryRecord_184 from "../../../content/registry/citations/longformer.json";
+import registryRecord_185 from "../../../content/registry/citations/multilayer-feedforward-networks-are-universal-approximators.json";
+import registryRecord_186 from "../../../content/registry/citations/on-policy-distillation-of-language-models.json";
+import registryRecord_187 from "../../../content/registry/citations/peng-yarn.json";
+import registryRecord_188 from "../../../content/registry/citations/press-alibi.json";
+import registryRecord_189 from "../../../content/registry/citations/qlora.json";
+import registryRecord_190 from "../../../content/registry/citations/quantization-integer-only-inference.json";
+import registryRecord_191 from "../../../content/registry/citations/query-key-normalization-for-transformers.json";
+import registryRecord_192 from "../../../content/registry/citations/raffel-t5.json";
+import registryRecord_193 from "../../../content/registry/citations/rectified-linear-units-improve-restricted-boltzmann-machines.json";
+import registryRecord_194 from "../../../content/registry/citations/rectifier-nonlinearities-improve-neural-network-acoustic-models.json";
+import registryRecord_195 from "../../../content/registry/citations/root-mean-square-layer-normalization.json";
+import registryRecord_196 from "../../../content/registry/citations/self-attention-with-relative-position-representations.json";
+import registryRecord_197 from "../../../content/registry/citations/sennrich-bpe.json";
+import registryRecord_198 from "../../../content/registry/citations/shazeer-mqa-paper.json";
+import registryRecord_199 from "../../../content/registry/citations/sigmoid-weighted-linear-units.json";
+import registryRecord_200 from "../../../content/registry/citations/smoothquant.json";
+import registryRecord_201 from "../../../content/registry/citations/sparse-transformers.json";
+import registryRecord_202 from "../../../content/registry/citations/sparsely-gated-mixture-of-experts-layer.json";
+import registryRecord_203 from "../../../content/registry/citations/su-roformer-rope.json";
+import registryRecord_204 from "../../../content/registry/citations/training-language-models-to-follow-instructions-with-human-feedback.json";
+import registryRecord_205 from "../../../content/registry/citations/transformer-lms-without-positional-encodings.json";
+import registryRecord_206 from "../../../content/registry/citations/wei-emergent-abilities.json";
+import registryRecord_207 from "../../../content/registry/citations/world-models.json";
 
 const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(registryRecord_0),
@@ -390,35 +395,38 @@ const modelRecords: ModelRecord[] = [
   modelRecordSchema.parse(registryRecord_143),
 ];
 
+const classificationRecords: ClassificationRecord[] = [
+  classificationRecordSchema.parse(registryRecord_144),
+  classificationRecordSchema.parse(registryRecord_145),
+  classificationRecordSchema.parse(registryRecord_146),
+];
+
 const paperRecords: PaperRecord[] = [
-  paperRecordSchema.parse(registryRecord_144),
+  paperRecordSchema.parse(registryRecord_147),
 ];
 
 const trainingRegimeRecords: TrainingRegimeRecord[] = [
-  trainingRegimeRecordSchema.parse(registryRecord_145),
-  trainingRegimeRecordSchema.parse(registryRecord_146),
-  trainingRegimeRecordSchema.parse(registryRecord_147),
   trainingRegimeRecordSchema.parse(registryRecord_148),
+  trainingRegimeRecordSchema.parse(registryRecord_149),
+  trainingRegimeRecordSchema.parse(registryRecord_150),
+  trainingRegimeRecordSchema.parse(registryRecord_151),
 ];
 
 const systemRecords: SystemRecord[] = [
-  systemRecordSchema.parse(registryRecord_149),
-  systemRecordSchema.parse(registryRecord_150),
-  systemRecordSchema.parse(registryRecord_151),
+  systemRecordSchema.parse(registryRecord_152),
+  systemRecordSchema.parse(registryRecord_153),
+  systemRecordSchema.parse(registryRecord_154),
 ];
 
 const datasetRecords: DatasetRecord[] = [
-  datasetRecordSchema.parse(registryRecord_152),
+  datasetRecordSchema.parse(registryRecord_155),
 ];
 
 const organizationRecords: OrganizationRecord[] = [
-  organizationRecordSchema.parse(registryRecord_153),
+  organizationRecordSchema.parse(registryRecord_156),
 ];
 
 const citationRecords: CitationRecord[] = [
-  citationRecordSchema.parse(registryRecord_154),
-  citationRecordSchema.parse(registryRecord_155),
-  citationRecordSchema.parse(registryRecord_156),
   citationRecordSchema.parse(registryRecord_157),
   citationRecordSchema.parse(registryRecord_158),
   citationRecordSchema.parse(registryRecord_159),
@@ -467,6 +475,9 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(registryRecord_202),
   citationRecordSchema.parse(registryRecord_203),
   citationRecordSchema.parse(registryRecord_204),
+  citationRecordSchema.parse(registryRecord_205),
+  citationRecordSchema.parse(registryRecord_206),
+  citationRecordSchema.parse(registryRecord_207),
 ];
 
 const modulesById = new Map<string, ModuleRecord>(
@@ -477,6 +488,9 @@ const conceptsById = new Map<string, ConceptRecord>(
 );
 const modelsById = new Map<string, ModelRecord>(
   modelRecords.map((record) => [record.id, record]),
+);
+const classificationsById = new Map<string, ClassificationRecord>(
+  classificationRecords.map((record) => [record.id, record]),
 );
 const papersById = new Map<string, PaperRecord>(
   paperRecords.map((record) => [record.id, record]),
@@ -507,6 +521,40 @@ type TaggedRegistryRecord =
   | DatasetRecord
   | OrganizationRecord;
 
+type OntologyParticipatingRegistryRecord =
+  | ModuleRecord
+  | ConceptRecord
+  | ModelRecord
+  | PaperRecord
+  | TrainingRegimeRecord
+  | SystemRecord
+  | DatasetRecord;
+
+type RuntimeRegistryRecord =
+  | TaggedRegistryRecord
+  | ClassificationRecord
+  | CitationRecord;
+
+type OntologyRelationshipType =
+  | "variant"
+  | "part-of"
+  | "uses"
+  | "used-by"
+  | "explains"
+  | "prerequisite"
+  | "related";
+
+export type ResolvedOntologyRelationship = {
+  relationshipType: OntologyRelationshipType;
+  targetId: string;
+  target: RuntimeRegistryRecord | undefined;
+};
+
+export type ClassificationMember = {
+  membershipType: "primary" | "secondary";
+  record: OntologyParticipatingRegistryRecord;
+};
+
 function getTaggedRecordById(
   registryId: string,
 ): TaggedRegistryRecord | undefined {
@@ -519,6 +567,30 @@ function getTaggedRecordById(
     systemsById.get(registryId) ??
     datasetsById.get(registryId) ??
     organizationsById.get(registryId)
+  );
+}
+
+function getOntologyParticipatingRecordById(
+  registryId: string,
+): OntologyParticipatingRegistryRecord | undefined {
+  return (
+    modulesById.get(registryId) ??
+    conceptsById.get(registryId) ??
+    modelsById.get(registryId) ??
+    papersById.get(registryId) ??
+    trainingRegimesById.get(registryId) ??
+    systemsById.get(registryId) ??
+    datasetsById.get(registryId)
+  );
+}
+
+function getRuntimeRecordById(
+  registryId: string,
+): RuntimeRegistryRecord | undefined {
+  return (
+    getTaggedRecordById(registryId) ??
+    classificationsById.get(registryId) ??
+    citationsById.get(registryId)
   );
 }
 
@@ -535,6 +607,12 @@ export function getConceptById(registryId: string): ConceptRecord | undefined {
 /** Synchronous model lookup for docs components and tests. */
 export function getModelById(registryId: string): ModelRecord | undefined {
   return modelsById.get(registryId);
+}
+
+export function getClassificationById(
+  registryId: string,
+): ClassificationRecord | undefined {
+  return classificationsById.get(registryId);
 }
 
 export function getPaperById(registryId: string): PaperRecord | undefined {
@@ -578,6 +656,10 @@ export function listConceptRecords(): ConceptRecord[] {
 
 export function listModelRecords(): ModelRecord[] {
   return [...modelRecords];
+}
+
+export function listClassificationRecords(): ClassificationRecord[] {
+  return [...classificationRecords];
 }
 
 export function listPaperRecords(): PaperRecord[] {
@@ -628,4 +710,76 @@ export function getRegistryCitationIds(
   registryId: string,
 ): string[] | undefined {
   return getTaggedRecordById(registryId)?.citationIds;
+}
+
+export function getPrimaryClassificationForRecord(
+  registryId: string,
+): ClassificationRecord | undefined {
+  const record = getOntologyParticipatingRecordById(registryId);
+  if (!record?.primaryClassificationId) {
+    return undefined;
+  }
+  return classificationsById.get(record.primaryClassificationId);
+}
+
+export function listSecondaryClassificationsForRecord(
+  registryId: string,
+): ClassificationRecord[] {
+  const record = getOntologyParticipatingRecordById(registryId);
+  if (!record?.secondaryClassificationIds?.length) {
+    return [];
+  }
+
+  return record.secondaryClassificationIds.flatMap((classificationId) => {
+    const classification = classificationsById.get(classificationId);
+    return classification ? [classification] : [];
+  });
+}
+
+export function listOntologyRelationshipsForRecord(
+  registryId: string,
+  relationshipType?: OntologyRelationshipType,
+): ResolvedOntologyRelationship[] {
+  const record = getOntologyParticipatingRecordById(registryId);
+  if (!record?.relationships?.length) {
+    return [];
+  }
+
+  return record.relationships
+    .filter(
+      (relationship) =>
+        relationshipType === undefined ||
+        relationship.relationshipType === relationshipType,
+    )
+    .map((relationship) => ({
+      relationshipType: relationship.relationshipType,
+      targetId: relationship.targetId,
+      target: getRuntimeRecordById(relationship.targetId),
+    }));
+}
+
+export function listClassificationMembers(
+  classificationId: string,
+): ClassificationMember[] {
+  if (!classificationsById.has(classificationId)) {
+    return [];
+  }
+
+  const members: ClassificationMember[] = [];
+
+  for (const record of listRelatedRegistryRecords()) {
+    if (record.kind === "organization") {
+      continue;
+    }
+
+    if (record.primaryClassificationId === classificationId) {
+      members.push({ membershipType: "primary", record });
+    }
+
+    if (record.secondaryClassificationIds?.includes(classificationId)) {
+      members.push({ membershipType: "secondary", record });
+    }
+  }
+
+  return members;
 }
