@@ -5,6 +5,7 @@ import {
 import {
   type DocsPageSource,
   loadPublishedDocsPagesSync,
+  loadShippedLocalizedDocsPagesSync,
 } from "@/lib/content/pages";
 import { registryDisplayTitle } from "@/lib/content/registry-linking";
 import {
@@ -152,6 +153,22 @@ function pageByRegistryId(
   pages: readonly DocsPageSource[],
 ): Map<string, DocsPageSource> {
   return new Map(pages.map((page) => [page.frontmatter.registryId, page]));
+}
+
+function loadTimelineDocsPages(locale: SiteLocale): DocsPageSource[] {
+  const defaultPages = loadPublishedDocsPagesSync(defaultLocale);
+  if (locale === defaultLocale) {
+    return defaultPages;
+  }
+
+  const localizedPagesByRegistryId = pageByRegistryId(
+    loadShippedLocalizedDocsPagesSync(locale),
+  );
+
+  return defaultPages.map(
+    (page) =>
+      localizedPagesByRegistryId.get(page.frontmatter.registryId) ?? page,
+  );
 }
 
 function isTimelineSourceRecord(
@@ -504,7 +521,7 @@ export function loadOntologyTimelineData(
 ): OntologyTimelineResult {
   return buildOntologyTimelineDataFromSources({
     classification,
-    pages: loadPublishedDocsPagesSync(locale),
+    pages: loadTimelineDocsPages(locale),
     classifications: listClassificationRecords(),
     records: listRelatedRegistryRecords(),
   });

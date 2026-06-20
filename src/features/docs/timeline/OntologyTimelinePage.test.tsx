@@ -58,4 +58,17 @@ describe("OntologyTimelinePage", () => {
     expect(html).toContain("not-a-real-slice");
     expect(html).toContain('href="/docs/timeline?classification=activation"');
   });
+
+  test("renders the localized timeline route without crashing when docs pages are only partially translated", async () => {
+    const html = renderToStaticMarkup(
+      await renderTimelinePage("ja", {
+        searchParams: Promise.resolve({ classification: "activation" }),
+      }),
+    );
+
+    expect(html).toContain("Activation Timeline");
+    expect(html).toContain("Rectified Linear Unit");
+    expect(html).toContain('href="/docs/modules/relu"');
+    expect(html).toContain('data-testid="ontology-chrono-timeline"');
+  });
 });

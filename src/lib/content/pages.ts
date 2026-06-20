@@ -141,6 +141,47 @@ export function loadPublishedDocsPagesSync(
   return pages;
 }
 
+export function loadShippedLocalizedDocsPagesSync(
+  locale: SiteLocale,
+  rootDir = DOCS_ROOT,
+): DocsPageSource[] {
+  if (locale === defaultLocale) {
+    return loadPublishedDocsPagesSync(locale, rootDir);
+  }
+
+  const pages: DocsPageSource[] = [];
+
+  for (const pageDir of findPageDirectories(rootDir)) {
+    const pageMdx = path.join(pageDir, "page.mdx");
+    const frontmatter = parseFrontmatter(pageMdx);
+    if (frontmatter.status !== "published") {
+      continue;
+    }
+
+    if (
+      !isDocsPageShippedForLocale(
+        path.relative(rootDir, pageDir),
+        locale,
+        rootDir,
+      )
+    ) {
+      continue;
+    }
+
+    const docsSlug = path.relative(rootDir, pageDir);
+    const url = docsUrlFromSlug(docsSlug, locale);
+    pages.push({
+      pageDir,
+      docsSlug,
+      url,
+      frontmatter,
+      messages: loadPageMessagesSync(pageDir, locale),
+    });
+  }
+
+  return pages;
+}
+
 /**
  * Loads the docs pages that are actually shippable for the requested locale.
  * Non-default locales only include pages declared in the shipped-docs manifest.

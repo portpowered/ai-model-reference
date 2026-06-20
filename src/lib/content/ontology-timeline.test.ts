@@ -152,4 +152,21 @@ describe("ontology timeline data", () => {
       "classification.activation-functions",
     );
   });
+
+  test("non-default locales fall back to default docs page metadata for unshipped pages", () => {
+    const timeline = loadOntologyTimelineData("activation", "ja");
+
+    expect(timeline.status).toBe("success");
+    if (timeline.status !== "success") {
+      throw new Error("Expected activation timeline to resolve successfully");
+    }
+
+    const relu = timeline.items.find(
+      (item) => item.registryId === "module.relu",
+    );
+    expect(relu).toMatchObject({
+      title: "Rectified Linear Unit",
+      href: "/docs/modules/relu",
+    });
+  });
 });
