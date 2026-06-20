@@ -1,4 +1,5 @@
 import type { SortedResult } from "fumadocs-core/search";
+import type { SearchClassificationScope } from "./classification-scope";
 import { pageBaseUrl } from "./collapse-search-results-to-page-hits";
 import { expandTopologySearchTerm } from "./topology-search-terms";
 import type { SearchDocument } from "./types";
@@ -58,7 +59,7 @@ function topologyMatchPriority(
   query: string,
   document: SearchDocument | undefined,
 ): number {
-  if (!document) {
+  if (!document || !query.trim()) {
     return 3;
   }
 
@@ -81,6 +82,32 @@ function topologyMatchPriority(
   }
 
   if (topologyTermsMatchQuery(query, topologyRelationshipTerms(document))) {
+    return 2;
+  }
+
+  return 3;
+}
+
+function classificationScopePriority(
+  scope: SearchClassificationScope | undefined,
+  document: SearchDocument | undefined,
+): number {
+  if (!scope || !document) {
+    return 3;
+  }
+
+  if (document.topology.primaryClassificationId === scope.id) {
+    return 0;
+  }
+
+  if (document.topology.secondaryClassificationIds.includes(scope.id)) {
+    return 1;
+  }
+
+  if (
+    topologyTermsMatchQuery(scope.label, document.topology.terms) ||
+    topologyTermsMatchQuery(scope.slug, document.topology.terms)
+  ) {
     return 2;
   }
 
@@ -129,12 +156,18 @@ export function findBestTitleMatchPageUrl(
 
 function resultPriority(
   query: string,
+  scope: SearchClassificationScope | undefined,
   bestPageUrl: string | undefined,
   resultUrl: string,
   document: SearchDocument | undefined,
 ): number {
   if (resultUrl === bestPageUrl) {
     return 0;
+  }
+
+  const scopePriority = classificationScopePriority(scope, document);
+  if (scopePriority < 3) {
+    return 5 + scopePriority;
   }
 
   const topologyPriority = topologyMatchPriority(query, document);
@@ -157,8 +190,10 @@ export function rerankSearchResults(
   query: string,
   results: SortedResult[],
   documentsByUrl: Map<string, SearchDocument>,
+  options: { classificationScope?: SearchClassificationScope } = {},
 ): SortedResult[] {
   const bestPageUrl = findBestTitleMatchPageUrl(query, documentsByUrl);
+  const { classificationScope } = options;
 
   return results
     .map((result, index) => ({ result, index }))
@@ -170,12 +205,14 @@ export function rerankSearchResults(
 
       const leftPriority = resultPriority(
         query,
+        classificationScope,
         bestPageUrl,
         leftUrl,
         leftDocument,
       );
       const rightPriority = resultPriority(
         query,
+        classificationScope,
         bestPageUrl,
         rightUrl,
         rightDocument,

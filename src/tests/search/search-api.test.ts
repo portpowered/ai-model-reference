@@ -192,6 +192,41 @@ describe("live /api/search HTTP contract", () => {
     expect(results[0]?.url).toBe(SAMPLE_URL);
   });
 
+  test("GET accepts classification=activation without a query and returns activation-family results", async () => {
+    const response = await GET(
+      new Request("http://localhost/api/search?classification=activation"),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    const urls = results.map((result) => result.url);
+    expect(urls).toEqual(expect.arrayContaining([RELU_URL, LEAKY_RELU_URL]));
+  });
+
+  test("GET accepts canonical classification IDs and combines query text with the classification scope", async () => {
+    const response = await GET(
+      new Request(
+        "http://localhost/api/search?query=relu&classification=classification.activation-functions",
+      ),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    const urls = results.map((result) => result.url);
+    expect(results[0]?.url).toBe(RELU_URL);
+    expect(urls).toEqual(expect.arrayContaining([RELU_URL, LEAKY_RELU_URL]));
+  });
+
+  test("GET with an unknown classification falls back to empty search results instead of crashing", async () => {
+    const response = await GET(
+      new Request("http://localhost/api/search?classification=unknown-topic"),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    expect(results).toEqual([]);
+  });
+
   test("GET returns multi-head attention for MHA query", async () => {
     const response = await GET(
       new Request("http://localhost/api/search?query=MHA"),

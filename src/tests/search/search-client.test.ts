@@ -179,6 +179,20 @@ describe("createModelAtlasSearchClient", () => {
     });
   });
 
+  test("uses a classification scope when the static client searches without q text", async () => {
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const client = createModelAtlasSearchClient({
+        metaByUrl,
+        client: { from: TEST_DOCS_SEARCH_URL },
+        classification: "activation",
+      });
+      const results = await client.search("");
+
+      expect(results.length).toBeGreaterThan(0);
+      expect(resultsIncludeUrl(results, "/docs/modules/relu")).toBe(true);
+    });
+  });
+
   test("returns at most one hit per canonical page URL for KV cache query", async () => {
     await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
       const client = createModelAtlasSearchClient({

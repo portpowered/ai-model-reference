@@ -30,7 +30,12 @@ import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
 const STATIC_HANDOFF_CLIENT = { from: STATIC_HANDOFF_BOOTSTRAP_FETCH_URL };
 const FAILING_BOOTSTRAP_URL = "http://static-handoff-fail.test/api/search";
 const FAILING_BOOTSTRAP_CLIENT = { from: FAILING_BOOTSTRAP_URL };
-const STATIC_EXPORT_EMPTY_HANDOFF = { q: null, tag: null } as const;
+<<<<<<< HEAD
+const STATIC_EXPORT_EMPTY_HANDOFF = {
+  q: null,
+  tag: null,
+  classification: null,
+} as const;
 const defaultContextPromise = loadAppTestContext();
 let staticHandoffBootstrapPayload: Awaited<
   ReturnType<Response["json"]>
@@ -329,7 +334,7 @@ describe("static export search bootstrap failures", () => {
       <SearchPagePanelContent
         messages={context.messages}
         metaByUrl={context.metaByUrl}
-        handoff={{ q: null, tag: null }}
+        handoff={{ q: null, tag: null, classification: null }}
         searchClient={FAILING_BOOTSTRAP_CLIENT}
       />,
       { context },

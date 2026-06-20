@@ -62,17 +62,23 @@ export function SearchPagePanelContent({
     null,
   );
   const { searchEntry, search: searchCopy } = messages;
-  const { search, setSearch, query } = useModelAtlasDocsSearch({
-    metaByUrl,
-    locale,
-    client: searchClient,
-  });
   const effectiveHandoff = resolveEffectiveSearchPageHandoff(
     handoff,
     clientHandoff,
   );
   const tagSlug = effectiveHandoff.tag?.trim() || undefined;
+  const classificationSlug =
+    effectiveHandoff.classification?.trim() || undefined;
   const queryParam = effectiveHandoff.q;
+  const { search, setSearch, query } = useModelAtlasDocsSearch(
+    {
+      metaByUrl,
+      locale,
+      client: searchClient,
+      classification: effectiveHandoff.classification,
+    },
+    [effectiveHandoff.classification],
+  );
 
   useEffect(() => {
     const resolvedHandoff = hasSearchPageHandoff(handoff)
@@ -86,6 +92,7 @@ export function SearchPagePanelContent({
     const initial = resolveInitialSearchPageQuery(
       resolvedHandoff.q,
       resolvedHandoff.tag,
+      resolvedHandoff.classification,
     );
     if (!initial) {
       return;
@@ -125,6 +132,14 @@ export function SearchPagePanelContent({
       {tagSlug && !queryParam ? (
         <p className="mb-3 text-sm text-muted-foreground">
           {searchEntry.tagFilterDescription.replace("{tag}", tagSlug)}
+        </p>
+      ) : null}
+      {classificationSlug ? (
+        <p className="mb-3 text-sm text-muted-foreground">
+          {searchEntry.classificationScopeDescription.replace(
+            "{classification}",
+            classificationSlug,
+          )}
         </p>
       ) : null}
       <label className="sr-only" htmlFor="search-page-input">
@@ -247,6 +262,7 @@ export function SearchPagePanel({ messages, metaByUrl }: SearchPagePanelProps) {
       handoff={{
         q: searchParams.get("q"),
         tag: searchParams.get("tag"),
+        classification: searchParams.get("classification"),
       }}
       locale={defaultLocale}
     />

@@ -111,6 +111,7 @@ function buildClassificationTerms(
     classification.slug,
     humanizeSlug(classification.slug),
     ...classification.aliases,
+    ...classification.tags,
   ]);
 }
 
