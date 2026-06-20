@@ -80,7 +80,10 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
     );
     expect(result.stdout).toContain("lane=alpha");
     expect(result.stdout).toContain("pr=#42");
+    expect(result.stdout).toContain("pr-status=resolved");
+    expect(result.stdout).toContain("pr-url=https://example.com/pr/42");
     expect(result.stdout).toContain("lane=beta");
+    expect(result.stdout).toContain("pr-status=missing");
     expect(result.stdout).toContain(
       "missing=no matching worktree under .claude/worktrees",
     );
@@ -165,6 +168,9 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
             number: 42,
             url: "https://example.com/pr/42",
           }),
+          pullRequestLookup: {
+            status: "resolved",
+          },
           missingLinkageReasons: [],
         }),
         expect.objectContaining({
@@ -174,6 +180,11 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
           branchName: "beta",
           branchMetadataSource: "prd",
           pullRequest: null,
+          pullRequestLookup: {
+            status: "missing",
+            failureKind: "not-found",
+            failureReason: "no open PR metadata found for branch beta",
+          },
           missingLinkageReasons: ["no open PR metadata found for branch beta"],
         }),
       ]),

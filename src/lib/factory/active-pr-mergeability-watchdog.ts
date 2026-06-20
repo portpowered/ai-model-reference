@@ -91,6 +91,8 @@ export interface LaneDiscoveryRecord {
   branchMetadataSource?: "git" | "prd";
   prNumber?: number;
   prUrl?: string;
+  prLookupFailureKind?: PullRequestLookupFailureKind;
+  prLookupFailureReason?: string;
   sessionId?: string;
   sessionState?: string;
   driftStatus?: BranchDriftStatus;
@@ -879,6 +881,8 @@ export function discoverActivePrLaneReport(
         ),
         branchName,
         branchMetadataSource: worktree.branchMetadataSource,
+        prLookupFailureKind: pullRequestLookup.failureKind,
+        prLookupFailureReason: failureReason,
         sessionId: queueLane.sessionId ?? session?.sessionId,
         sessionState: session?.rawState,
         driftStatus: drift.status,

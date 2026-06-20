@@ -5,6 +5,7 @@ import {
   type LaneDiscoveryRecord,
   type MergeabilityClass,
   type PlannerNextAction,
+  type PullRequestLookupFailureKind,
   type QueueLaneState,
   type QueueMismatchRisk,
 } from "@/lib/factory/active-pr-mergeability-watchdog";
@@ -16,6 +17,12 @@ export interface QueueWorktreePrIdentity {
   url?: string;
 }
 
+export interface QueueWorktreePrLookup {
+  status: "resolved" | "missing";
+  failureKind?: PullRequestLookupFailureKind;
+  failureReason?: string;
+}
+
 export interface QueueWorktreePrLinkageLane {
   laneName: string;
   queueState: QueueLaneState;
@@ -25,6 +32,7 @@ export interface QueueWorktreePrLinkageLane {
   branchName?: string;
   branchMetadataSource?: "git" | "prd";
   pullRequest: QueueWorktreePrIdentity | null;
+  pullRequestLookup: QueueWorktreePrLookup;
   missingLinkageReasons: string[];
   sessionId?: string;
   sessionState?: string;
@@ -67,6 +75,14 @@ function mapLaneRecord(lane: LaneDiscoveryRecord): QueueWorktreePrLinkageLane {
             url: lane.prUrl,
           }
         : null,
+    pullRequestLookup:
+      typeof lane.prNumber === "number"
+        ? { status: "resolved" }
+        : {
+            status: "missing",
+            failureKind: lane.prLookupFailureKind,
+            failureReason: lane.prLookupFailureReason,
+          },
     missingLinkageReasons,
     sessionId: lane.sessionId,
     sessionState: lane.sessionState,
@@ -155,8 +171,13 @@ export function formatQueueWorktreePrLinkageSummary(
       `branch-source=${lane.branchMetadataSource ?? "?"}`,
       `worktree=${lane.worktreePath ?? "?"}`,
       `pr=${lane.pullRequest ? `#${lane.pullRequest.number}` : "?"}`,
+      `pr-status=${lane.pullRequestLookup.status}`,
       `drift=${formatDrift(lane)}`,
     ];
+
+    if (lane.pullRequest?.url) {
+      details.push(`pr-url=${lane.pullRequest.url}`);
+    }
 
     if (lane.sessionId) {
       details.push(`session=${lane.sessionId}`);
@@ -175,6 +196,9 @@ export function formatQueueWorktreePrLinkageSummary(
     }
     if (lane.nextAction) {
       details.push(`next-action=${lane.nextAction}`);
+    }
+    if (lane.pullRequestLookup.failureKind) {
+      details.push(`pr-failure=${lane.pullRequestLookup.failureKind}`);
     }
     if (lane.missingLinkageReasons.length > 0) {
       details.push(`missing=${lane.missingLinkageReasons.join("; ")}`);
