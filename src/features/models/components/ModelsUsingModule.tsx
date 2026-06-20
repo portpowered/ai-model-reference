@@ -21,11 +21,7 @@ export function ModelsUsingModule({ registryId }: { registryId: string }) {
   ]).filter((modelId) => getModelById(modelId));
 
   if (modelIds.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        No published example models are linked yet.
-      </p>
-    );
+    return null;
   }
 
   return (

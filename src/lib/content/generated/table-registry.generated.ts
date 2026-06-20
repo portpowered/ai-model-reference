@@ -19,7 +19,6 @@ import multiQueryAttentionComparisonTableRecord from "@/content/registry/tables/
 import qkNormComparisonTableRecord from "@/content/registry/tables/qk-norm-comparison.json";
 import reluComparisonTableRecord from "@/content/registry/tables/relu-comparison.json";
 import rmsnormComparisonTableRecord from "@/content/registry/tables/rmsnorm-comparison.json";
-import sentencepieceComparisonTableRecord from "@/content/registry/tables/sentencepiece-comparison.json";
 import sigmoidComparisonTableRecord from "@/content/registry/tables/sigmoid-comparison.json";
 import siluComparisonTableRecord from "@/content/registry/tables/silu-comparison.json";
 import slidingWindowAttentionComparisonTableRecord from "@/content/registry/tables/sliding-window-attention-comparison.json";
@@ -47,7 +46,6 @@ export const generatedTableRegistrySourceFiles = [
   "qk-norm-comparison.json",
   "relu-comparison.json",
   "rmsnorm-comparison.json",
-  "sentencepiece-comparison.json",
   "sigmoid-comparison.json",
   "silu-comparison.json",
   "sliding-window-attention-comparison.json",
@@ -76,7 +74,6 @@ export const generatedTableRegistryPayloads = [
   qkNormComparisonTableRecord,
   reluComparisonTableRecord,
   rmsnormComparisonTableRecord,
-  sentencepieceComparisonTableRecord,
   sigmoidComparisonTableRecord,
   siluComparisonTableRecord,
   slidingWindowAttentionComparisonTableRecord,

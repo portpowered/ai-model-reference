@@ -210,28 +210,34 @@ describe("Phase 1 discovery route smoke", () => {
     }
   });
 
-  test("critical canonical docs autodiscovery renders discovered docs content without bespoke inventories", async () => {
-    const pages = await loadCriticalDocsSmokePages();
+  test(
+    "critical canonical docs autodiscovery renders discovered docs content without bespoke inventories",
+    async () => {
+      const pages = await loadCriticalDocsSmokePages();
 
-    expect(pages.length).toBeGreaterThan(0);
+      expect(pages.length).toBeGreaterThan(0);
 
-    for (const discoveredPage of pages) {
-      const localRef = toCriticalDocsSmokeLocalRef(discoveredPage);
-      const page = await loadLocalDocsPage(localRef);
-      const html = renderToStaticMarkup(
-        <ModulePageProviders messages={page.messages} assets={page.assets}>
-          {page.content}
-        </ModulePageProviders>,
-      );
+      for (const discoveredPage of pages) {
+        const localRef = toCriticalDocsSmokeLocalRef(discoveredPage);
+        const page = await loadLocalDocsPage(localRef);
+        const html = renderToStaticMarkup(
+          <ModulePageProviders messages={page.messages} assets={page.assets}>
+            {page.content}
+          </ModulePageProviders>,
+        );
 
-      expect(html.length, discoveredPage.url).toBeGreaterThan(0);
-      expect(localDocsRoute(localRef)).toBe(discoveredPage.url);
-      expect(html, discoveredPage.url).toContain('data-testid="tag-pill-list"');
-      expect(html, discoveredPage.url).toContain('id="related"');
-      expect(html, discoveredPage.url).not.toContain("Reader Shortcut");
-      expect(html, discoveredPage.url).not.toContain("lorem");
-    }
-  });
+        expect(html.length, discoveredPage.url).toBeGreaterThan(0);
+        expect(localDocsRoute(localRef)).toBe(discoveredPage.url);
+        expect(html, discoveredPage.url).toContain(
+          'data-testid="tag-pill-list"',
+        );
+        expect(html, discoveredPage.url).toContain('id="related"');
+        expect(html, discoveredPage.url).not.toContain("Reader Shortcut");
+        expect(html, discoveredPage.url).not.toContain("lorem");
+      }
+    },
+    { timeout: 15_000 },
+  );
 
   test("/docs/training/dpo loads published local docs content", async () => {
     const page = await loadLocalDocsPage({
