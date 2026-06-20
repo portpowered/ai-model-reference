@@ -264,9 +264,20 @@ make ci
 ```
 
 You do not need to run `fumadocs-mdx` manually. The repository does not commit
-`.source/` (Fumadocs MDX bindings) or `.next/`; `pretypecheck` and `pretest`
-generate `.source/` automatically before typecheck and tests, and
-`prelinkcheck` does the same before standalone link validation.
+`.source/` (Fumadocs MDX bindings) or `.next/`; the supported command scripts
+run `prepare:content-runtime` first and invoke `fumadocs-mdx` automatically
+where `.source/` is part of the command contract.
+
+The canonical derived-content bootstrap command is:
+
+```sh
+bun run prepare:content-runtime
+```
+
+It prepares shipped localized docs, the published docs registry manifest, graph
+registry runtime, registry runtime, and table registry runtime in one fixed
+order. Re-running it is safe; it refreshes the checked-in generated runtime
+artifacts in place when needed.
 
 ### CI sequence
 
@@ -297,32 +308,38 @@ Use `bun run scaffold:doc-page` (or `make scaffold`) when adding Phase 2 glossar
 concept pages, then run `make validate-data` before opening a pull request.
 
 Fumadocs writes generated MDX bindings under `.source/` (gitignored). Fresh
-checkouts do not include that directory; `pretypecheck` and `pretest` in
-`package.json` both run `fumadocs-mdx`, and `prelinkcheck` does as well, so
-standalone `make typecheck`, `make test`, and `make linkcheck` succeed without
-a manual codegen step.
+checkouts do not include that directory; the `typecheck`, `test`,
+`test:build-contract`, `test:verify-contract`, `coverage`, `build`, and
+`linkcheck` command paths all invoke `fumadocs-mdx` after the shared
+`prepare:content-runtime` flow when `.source/` is required, so standalone
+`make typecheck`, `make test`, and `make linkcheck` succeed without a manual
+codegen step.
+
+When you need to refresh the checked-in content-runtime artifacts directly, use
+`bun run prepare:content-runtime` rather than running the five runtime
+generation commands separately.
 
 
 Individual targets:
 
 ```sh
 make ci            # full gate sequence above
+make build         # prepare:content-runtime + fumadocs-mdx via package scripts, then next build + Phase 1 static route check
 make lint          # Biome check (no auto-fix)
 make format        # Biome format --write
-make typecheck     # fumadocs-mdx (pretypecheck), then tsc --noEmit
-make test          # fumadocs-mdx (pretest), then fast tests
+make typecheck     # prepare:content-runtime + fumadocs-mdx, then tsc --noEmit
+make test          # prepare:content-runtime + fumadocs-mdx, then fast tests
 make test-build-contract # consolidated build/export contract suites
 make test-system   # build/export contracts plus post-build integration tests
-make coverage      # fumadocs-mdx (precoverage), manifest coverage gate
-make build         # next build + Phase 1 static route check
-make build-export  # static export to out/ + Phase 1 export route verification
+make coverage      # prepare:content-runtime + fumadocs-mdx, manifest coverage gate
+make build-export  # prepare:content-runtime + fumadocs-mdx, static export to out/ + Phase 1 export route verification
 make verify-export-routes # verify existing out/ artifact (requires build-export first)
 make verify-phase-1-ux # HTTP verification for Phase 1 reader routes and search (requires build)
 make verify-phase-1-built-app-convergence # batch-010 built-app gate with planner-facing evidence summary
 make verify-phase-1-follow-up-convergence # batch-011 follow-up gate with planner-facing evidence summary
 make verify-phase-1-github-pages-convergence # batch-014 GitHub Pages closure gate (validates out/ static export)
 make validate-data # registry and content validation
-make linkcheck     # internal docs link validation (also runs in make ci)
+make linkcheck     # prepare:content-runtime + fumadocs-mdx, internal docs link validation (also runs in make ci)
 make scaffold       # scaffold glossary/concept page bundles (pass ARGS='...')
 ```
 
