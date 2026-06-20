@@ -286,6 +286,27 @@ describe("buildPlannerWorktreeDriftSnapshot", () => {
       "investigate",
       "investigate",
     ]);
+
+    const report = formatPlannerWorktreeDriftReport(snapshot);
+    expect(report).toContain(
+      "risk=ambiguous-shared-surface-ownership path=src/lib/factory/root-only.ts surface=src/lib/factory lanes=alpha,beta next-action=investigate evidence=Root dirty path src/lib/factory/root-only.ts overlaps shared surface src/lib/factory across active lanes alpha, beta.",
+    );
+    expect(report).toContain(
+      "risk=multi-lane-hotspot-collision path=- surface=src/lib/factory lanes=alpha,beta next-action=open-follow-up-throughput-prd evidence=Multiple active lanes currently have dirty paths on shared surface src/lib/factory: alpha, beta.",
+    );
+    expect(report).toContain(
+      "path=src/lib/factory/root-only.ts status= M change=modified surface=src/lib/factory category=shared-helper owner=unowned ownership-reason=Ownership is ambiguous across active lanes alpha, beta on shared surface src/lib/factory.",
+    );
+    expect(report).toContain(
+      "- location=worktree lane=alpha branch=alpha linkage=linked worktree=.claude/worktrees/alpha dirty-shared-paths=1 next-action=investigate",
+    );
+    expect(report).toContain(
+      "- location=worktree lane=beta branch=beta linkage=linked worktree=.claude/worktrees/beta dirty-shared-paths=1 next-action=investigate",
+    );
+
+    expect(JSON.parse(serializePlannerWorktreeDriftSnapshot(snapshot))).toEqual(
+      snapshot,
+    );
   });
 
   test("reports unmatched root drift as root-owned when no active lane evidence claims it", () => {
