@@ -4,7 +4,12 @@ import type { Socket } from "node:net";
 import { isAbsolute, join } from "node:path";
 import { normalizeGitHubPagesBasePath } from "@/lib/build/static-export";
 import { exportHtmlRelativePath } from "@/lib/build/verify-phase-1-export-routes";
-import { pickListenPort } from "./http-harness";
+import {
+  reserveListenPort,
+  VERIFY_PORT_RANGE_END,
+  VERIFY_PORT_RANGE_START,
+} from "./http-harness";
+import { withVerifyListenPortLock } from "./verify-listen-port-lock";
 
 export type StaticExportHttpServerSession = {
   baseUrl: string;
@@ -19,6 +24,8 @@ export type CreateStaticExportHttpServerOptions = {
   host?: string;
   port?: number;
 };
+
+const STATIC_EXPORT_HTTP_SERVER_MAX_START_ATTEMPTS = 3;
 
 function resolveOutDir(outDir: string, cwd: string): string {
   return isAbsolute(outDir) ? outDir : join(cwd, outDir);
@@ -76,6 +83,42 @@ function contentTypeForFile(filePath: string): string {
   return "application/octet-stream";
 }
 
+function isPortInUseError(error: unknown): error is NodeJS.ErrnoException {
+  return (
+    !!error &&
+    typeof error === "object" &&
+    "code" in error &&
+    error.code === "EADDRINUSE"
+  );
+}
+
+function formatStaticExportServerPortExhaustedError(): Error {
+  return new Error(
+    `Failed to start server. No free port on 127.0.0.1 in ${VERIFY_PORT_RANGE_START}-${VERIFY_PORT_RANGE_END}.`,
+  );
+}
+
+async function listenHttpServer(
+  server: Server,
+  host: string,
+  port: number,
+): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const onError = (error: Error) => {
+      server.removeListener("listening", onListening);
+      reject(error);
+    };
+    const onListening = () => {
+      server.removeListener("error", onError);
+      resolve();
+    };
+
+    server.once("error", onError);
+    server.once("listening", onListening);
+    server.listen(port, host);
+  });
+}
+
 /**
  * Serves a Next.js static export `out/` directory over loopback HTTP for browser checks.
  */
@@ -86,7 +129,6 @@ export async function createStaticExportHttpServer(
   const outDir = resolveOutDir(options.outDir ?? "out", cwd);
   const basePath = normalizeGitHubPagesBasePath(options.basePath ?? "");
   const host = options.host ?? "127.0.0.1";
-  const port = options.port ?? (await pickListenPort());
 
   const activeSockets = new Set<Socket>();
   const server = createServer((req, res) => {
@@ -111,10 +153,41 @@ export async function createStaticExportHttpServer(
     });
   });
 
-  await new Promise<void>((resolve, reject) => {
-    server.once("error", reject);
-    server.listen(port, host, () => resolve());
-  });
+  let port = options.port;
+
+  if (port !== undefined) {
+    await listenHttpServer(server, host, port);
+  } else {
+    await withVerifyListenPortLock(async () => {
+      let lastError: unknown = formatStaticExportServerPortExhaustedError();
+
+      for (
+        let attempt = 0;
+        attempt < STATIC_EXPORT_HTTP_SERVER_MAX_START_ATTEMPTS;
+        attempt += 1
+      ) {
+        const reservation = await reserveListenPort();
+
+        try {
+          port = reservation.port;
+          await reservation.release();
+          await listenHttpServer(server, host, port);
+          return;
+        } catch (error) {
+          lastError = error;
+          if (!isPortInUseError(error)) {
+            throw error;
+          }
+        }
+      }
+
+      throw lastError;
+    });
+  }
+
+  if (port === undefined) {
+    throw formatStaticExportServerPortExhaustedError();
+  }
 
   const normalizedBasePath = basePath === "" ? "" : basePath;
   const baseUrl = `http://${host}:${port}${normalizedBasePath}`;

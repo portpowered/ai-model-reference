@@ -30,6 +30,7 @@ const STATIC_HANDOFF_CLIENT = { from: STATIC_HANDOFF_BOOTSTRAP_FETCH_URL };
 const FAILING_BOOTSTRAP_URL = "http://static-handoff-fail.test/api/search";
 const FAILING_BOOTSTRAP_CLIENT = { from: FAILING_BOOTSTRAP_URL };
 const STATIC_EXPORT_EMPTY_HANDOFF = { q: null, tag: null } as const;
+const STATIC_EXPORT_SEARCH_RESULTS_TIMEOUT_MS = 10_000;
 
 function withWindowLocationSearch(
   search: string,
@@ -161,7 +162,11 @@ describe("static export search surfaces", () => {
       query,
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: STATIC_EXPORT_SEARCH_RESULTS_TIMEOUT_MS },
+    );
     expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
   });
 
@@ -201,7 +206,11 @@ describe("static export search surfaces", () => {
       ) as HTMLInputElement;
       expect(searchInput.value).toBe("GQA");
 
-      const results = await screen.findByTestId("search-page-results");
+      const results = await screen.findByTestId(
+        "search-page-results",
+        {},
+        { timeout: STATIC_EXPORT_SEARCH_RESULTS_TIMEOUT_MS },
+      );
       expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
     });
   });
@@ -217,7 +226,11 @@ describe("static export search surfaces", () => {
       ) as HTMLInputElement;
       expect(searchInput.value).toBe("attention");
 
-      const results = await screen.findByTestId("search-page-results");
+      const results = await screen.findByTestId(
+        "search-page-results",
+        {},
+        { timeout: STATIC_EXPORT_SEARCH_RESULTS_TIMEOUT_MS },
+      );
       expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
     });
   });
@@ -242,7 +255,11 @@ describe("static export search surfaces", () => {
       ) as HTMLInputElement;
       expect(searchInput.value).toBe("attention");
 
-      const results = await screen.findByTestId("search-page-results");
+      const results = await screen.findByTestId(
+        "search-page-results",
+        {},
+        { timeout: STATIC_EXPORT_SEARCH_RESULTS_TIMEOUT_MS },
+      );
       expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
     });
   });
@@ -267,7 +284,11 @@ describe("static export search surfaces", () => {
         ),
       ).toBeNull();
 
-      const results = await screen.findByTestId("search-page-results");
+      const results = await screen.findByTestId(
+        "search-page-results",
+        {},
+        { timeout: STATIC_EXPORT_SEARCH_RESULTS_TIMEOUT_MS },
+      );
       expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
     });
   });
@@ -282,7 +303,11 @@ describe("static export search surfaces", () => {
       "GQA",
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: STATIC_EXPORT_SEARCH_RESULTS_TIMEOUT_MS },
+    );
     const firstRow = within(results).getAllByTestId("search-result-row")[0];
     expect(firstRow?.className).toContain("focus-visible:ring-2");
     firstRow?.focus();

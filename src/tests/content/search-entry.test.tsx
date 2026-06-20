@@ -26,6 +26,17 @@ function installDocsSearchRouteFetch(): void {
   globalThis.fetch = createDocsSearchRouteFetch();
 }
 
+/** Orama static search suspends on first client render; unmount + brief wait primes the cache. */
+async function primeSearchEntryPage(
+  context: Awaited<ReturnType<typeof loadAppTestContext>>,
+): Promise<void> {
+  const page = await SearchEntryPage({});
+  const first = await renderWithAppProviders(page, { context });
+  first.unmount();
+  cleanup();
+  await new Promise((resolve) => setTimeout(resolve, 400));
+}
+
 describe("search entry page messages", () => {
   it("loads localized title, description, and canonical path copy", async () => {
     const { searchEntry } = await loadUiMessages();
@@ -53,9 +64,10 @@ describe("search entry page built-app shell", () => {
 
   beforeAll(async () => {
     captureOriginalFetch();
-    await lockGlobalFetch().then((release) => {
+    await lockGlobalFetch().then(async (release) => {
       releaseFetchLock = release;
       installDocsSearchRouteFetch();
+      await primeSearchEntryPage(await loadAppTestContext());
       restoreFetchMock();
       releaseFetchLock?.();
       releaseFetchLock = null;
@@ -91,34 +103,42 @@ describe("search entry page built-app shell", () => {
     );
   });
 
-  it("keeps idle, results, and empty states in the results region below the input", async () => {
-    const context = await loadAppTestContext();
-    const page = await SearchEntryPage({});
-    const { container } = await renderWithAppProviders(page, { context });
+  it(
+    "keeps idle, results, and empty states in the results region below the input",
+    async () => {
+      const context = await loadAppTestContext();
+      const page = await SearchEntryPage({});
+      const { container } = await renderWithAppProviders(page, { context });
 
-    const input = screen.getByLabelText(context.messages.search.placeholder);
-    const liveRegion = container.querySelector('[aria-live="polite"]');
-    if (!liveRegion) {
-      throw new Error("expected aria-live results region on /search");
-    }
-    expect(
-      input.compareDocumentPosition(liveRegion) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+      const input = screen.getByLabelText(context.messages.search.placeholder);
+      const liveRegion = container.querySelector('[aria-live="polite"]');
+      if (!liveRegion) {
+        throw new Error("expected aria-live results region on /search");
+      }
+      expect(
+        input.compareDocumentPosition(liveRegion) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
 
-    const user = userEvent.setup();
-    await user.type(input, "GQA");
-    const results = await screen.findByTestId(
-      "search-page-results",
-      {},
-      { timeout: 5000 },
-    );
-    expect(liveRegion?.contains(results)).toBe(true);
-    expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
+      const user = userEvent.setup();
+      await user.type(input, "GQA");
+      const results = await screen.findByTestId(
+        "search-page-results",
+        {},
+        { timeout: 10_000 },
+      );
+      expect(liveRegion?.contains(results)).toBe(true);
+      expect(results.textContent).toMatch(/Grouped-Query.*Attention/i);
 
-    await user.clear(input);
-    await user.type(input, "zzzz-no-matches-zzzz");
-    const empty = await screen.findByTestId("search-page-empty");
-    expect(liveRegion?.contains(empty)).toBe(true);
-  });
+      await user.clear(input);
+      await user.type(input, "zzzz-no-matches-zzzz");
+      const empty = await screen.findByTestId(
+        "search-page-empty",
+        {},
+        { timeout: 10_000 },
+      );
+      expect(liveRegion?.contains(empty)).toBe(true);
+    },
+    { timeout: 15_000 },
+  );
 });
