@@ -37,6 +37,7 @@ export interface LoopbackReconciliationItem {
   stateType: LoopbackReconciliationStateType;
   classification: LoopbackReconciliationClassification;
   reasons: string[];
+  recommendedNextStep?: string;
   dependencies: LoopbackDependencyEvidence[];
 }
 
@@ -320,9 +321,36 @@ function summarizeDependencyStatuses(
     .join(", ");
 }
 
+function buildRepairableNextStep(
+  dependencies: LoopbackDependencyEvidence[],
+  sourceSession: string,
+): string {
+  const missingDependencies = dependencies.filter(
+    (dependency) => dependency.status === "missing-from-queue",
+  );
+  if (missingDependencies.length > 0) {
+    return `dispatch or recreate the missing dependency targets before moving this loopback: ${missingDependencies
+      .map((dependency) => dependency.targetWorkName)
+      .join(", ")}`;
+  }
+
+  const unknownDependencies = dependencies.filter(
+    (dependency) => dependency.status === "unknown",
+  );
+  return `inspect the live queue state for ${unknownDependencies
+    .map((dependency) => dependency.targetWorkName)
+    .join(
+      ", ",
+    )} before any manual move; if the snapshot is still inconsistent afterward, requeue the loopback with \`you work move --session ${sourceSession}\``;
+}
+
 function classifyLoopback(
   dependencies: LoopbackDependencyEvidence[],
-): Pick<LoopbackReconciliationItem, "classification" | "reasons"> {
+  sourceSession: string,
+): Pick<
+  LoopbackReconciliationItem,
+  "classification" | "reasons" | "recommendedNextStep"
+> {
   const completeDependencies = dependencies.filter(
     (dependency) => dependency.status === "complete",
   );
@@ -373,6 +401,10 @@ function classifyLoopback(
     return {
       classification: "repairable",
       reasons,
+      recommendedNextStep: buildRepairableNextStep(
+        repairableDependencies,
+        sourceSession,
+      ),
     };
   }
 
@@ -437,6 +469,9 @@ function formatLoopbackItem(item: LoopbackReconciliationItem): string {
   fields.push(`work-id=${item.workId}`);
   if (item.reasons.length > 0) {
     fields.push(`reason=${item.reasons.join("; ")}`);
+  }
+  if (item.recommendedNextStep) {
+    fields.push(`next-step=${item.recommendedNextStep}`);
   }
   if (item.dependencies.length > 0) {
     fields.push(
@@ -564,7 +599,10 @@ export function discoverPlannerLoopbackReconciliationReport(options: {
             resolvedStateType: target?.stateType,
           } satisfies LoopbackDependencyEvidence;
         });
-      const classification = classifyLoopback(dependencies);
+      const classification = classifyLoopback(
+        dependencies,
+        options.sourceSession ?? "~default",
+      );
 
       return {
         workId: record.workId,
@@ -575,6 +613,7 @@ export function discoverPlannerLoopbackReconciliationReport(options: {
         stateType: record.stateType,
         classification: classification.classification,
         reasons: classification.reasons,
+        recommendedNextStep: classification.recommendedNextStep,
         dependencies,
       } satisfies LoopbackReconciliationItem;
     })
