@@ -27,12 +27,28 @@ export type PlannerWorktreeDriftOwnershipKind =
   | "root-owned"
   | "worktree-owned"
   | "unowned";
+export type PlannerWorktreeDriftOwnershipReasonCode =
+  | "not-attributed-yet"
+  | "direct-worktree-match"
+  | "shared-surface-match"
+  | "ambiguous-shared-surface"
+  | "linkage-gaps-unresolved"
+  | "root-unmatched";
+export type PlannerWorktreeDriftNextAction =
+  | "wait"
+  | "investigate"
+  | "open-follow-up-throughput-prd";
+export type PlannerWorktreeDriftRiskKind =
+  | "multi-lane-hotspot-collision"
+  | "root-drift-without-obvious-owner"
+  | "ambiguous-shared-surface-ownership";
 
 export interface PlannerWorktreeDriftOwnership {
   branchName?: string;
   kind: PlannerWorktreeDriftOwnershipKind;
   laneName?: string;
   linkageStatus?: QueueWorktreePrLinkageLane["linkageStatus"];
+  reasonCode: PlannerWorktreeDriftOwnershipReasonCode;
   reason: string;
   worktreePath?: string;
 }
@@ -59,7 +75,18 @@ export interface PlannerWorktreeDriftLaneSnapshot {
   dirtyPaths: PlannerWorktreeDirtyPath[];
   laneName: string;
   linkageStatus: QueueWorktreePrLinkageLane["linkageStatus"];
+  nextAction: PlannerWorktreeDriftNextAction;
   worktreePath: string;
+}
+
+export interface PlannerWorktreeDriftRisk {
+  category?: ConflictHotspotSurfaceCategory;
+  evidenceSummary: string;
+  kind: PlannerWorktreeDriftRiskKind;
+  laneNames: string[];
+  nextAction: PlannerWorktreeDriftNextAction;
+  path?: string;
+  surface?: string;
 }
 
 export interface PlannerWorktreeDriftSnapshot {
@@ -67,6 +94,7 @@ export interface PlannerWorktreeDriftSnapshot {
   evaluatedWorktreeCount: number;
   generatedAtUtc: string;
   issues: string[];
+  risks: PlannerWorktreeDriftRisk[];
   root: PlannerWorktreeDriftRootSnapshot;
   totalDirtyPathCount: number;
   worktrees: PlannerWorktreeDriftLaneSnapshot[];
@@ -222,6 +250,7 @@ export function parsePlannerRelevantDirtyPaths(
       location,
       ownership: {
         kind: "unowned",
+        reasonCode: "not-attributed-yet",
         reason: "Ownership has not been attributed yet.",
       },
       path,
@@ -295,6 +324,7 @@ function collectWorktreeSnapshot(
     dirtyPaths,
     laneName: lane.laneName,
     linkageStatus: lane.linkageStatus,
+    nextAction: "wait",
     worktreePath: resolvedWorktreePath,
   };
 }
@@ -311,6 +341,7 @@ function buildWorktreeOwnedReason(
     kind: "worktree-owned",
     laneName: lane.laneName,
     linkageStatus: lane.linkageStatus,
+    reasonCode: "direct-worktree-match",
     reason: `Dirty path was observed directly in active lane ${lane.laneName}.`,
     worktreePath: formatWorktreePath(repoRoot, lane.worktreePath),
   };
@@ -367,6 +398,11 @@ function attributeRootDirtyPathOwnership(
       kind: "worktree-owned",
       laneName: match?.laneName,
       linkageStatus: match?.linkageStatus,
+      reasonCode: match?.dirtyPaths.some(
+        (candidatePath) => candidatePath.path === dirtyPath.path,
+      )
+        ? "direct-worktree-match"
+        : "shared-surface-match",
       reason: match?.dirtyPaths.some(
         (candidatePath) => candidatePath.path === dirtyPath.path,
       )
@@ -381,6 +417,7 @@ function attributeRootDirtyPathOwnership(
   if (matchingCandidates.length > 1) {
     return {
       kind: "unowned",
+      reasonCode: "ambiguous-shared-surface",
       reason: `Ownership is ambiguous across active lanes ${matchingCandidates.map((candidate) => candidate.laneName).join(", ")} on shared surface ${dirtyPath.surface}.`,
     };
   }
@@ -388,6 +425,7 @@ function attributeRootDirtyPathOwnership(
   if (linkageIssues.length > 0) {
     return {
       kind: "unowned",
+      reasonCode: "linkage-gaps-unresolved",
       reason:
         "No active lane currently matches this root drift, and linkage gaps leave ownership unresolved.",
     };
@@ -395,9 +433,121 @@ function attributeRootDirtyPathOwnership(
 
   return {
     kind: "root-owned",
+    reasonCode: "root-unmatched",
     reason:
       "No active lane currently matches this dirty path or shared surface, so the drift remains rooted in the planner checkout.",
   };
+}
+
+function collectSharedSurfaceLaneMap(
+  worktrees: PlannerWorktreeDriftLaneSnapshot[],
+): Map<
+  string,
+  { category: ConflictHotspotSurfaceCategory; laneNames: Set<string> }
+> {
+  const surfaces = new Map<
+    string,
+    { category: ConflictHotspotSurfaceCategory; laneNames: Set<string> }
+  >();
+
+  for (const worktree of worktrees) {
+    for (const dirtyPath of worktree.dirtyPaths) {
+      const existing = surfaces.get(dirtyPath.surface);
+      if (existing) {
+        existing.laneNames.add(worktree.laneName);
+        continue;
+      }
+      surfaces.set(dirtyPath.surface, {
+        category: dirtyPath.category,
+        laneNames: new Set([worktree.laneName]),
+      });
+    }
+  }
+
+  return surfaces;
+}
+
+function buildDriftRisks(
+  snapshot: PlannerWorktreeDriftSnapshot,
+): PlannerWorktreeDriftRisk[] {
+  const risks: PlannerWorktreeDriftRisk[] = [];
+  const sharedSurfaceLaneMap = collectSharedSurfaceLaneMap(snapshot.worktrees);
+
+  for (const [surface, details] of sharedSurfaceLaneMap.entries()) {
+    const laneNames = [...details.laneNames].sort((left, right) =>
+      left.localeCompare(right),
+    );
+    if (laneNames.length < 2) {
+      continue;
+    }
+    risks.push({
+      category: details.category,
+      evidenceSummary: `Multiple active lanes currently have dirty paths on shared surface ${surface}: ${laneNames.join(", ")}.`,
+      kind: "multi-lane-hotspot-collision",
+      laneNames,
+      nextAction: "open-follow-up-throughput-prd",
+      surface,
+    });
+  }
+
+  for (const dirtyPath of snapshot.root.dirtyPaths) {
+    if (dirtyPath.ownership.reasonCode === "ambiguous-shared-surface") {
+      const laneNames = [
+        ...(sharedSurfaceLaneMap.get(dirtyPath.surface)?.laneNames ?? []),
+      ].sort((left, right) => left.localeCompare(right));
+      risks.push({
+        category: dirtyPath.category,
+        evidenceSummary: `Root dirty path ${dirtyPath.path} overlaps shared surface ${dirtyPath.surface} across active lanes ${laneNames.join(", ")}.`,
+        kind: "ambiguous-shared-surface-ownership",
+        laneNames,
+        nextAction: "investigate",
+        path: dirtyPath.path,
+        surface: dirtyPath.surface,
+      });
+      continue;
+    }
+
+    if (
+      dirtyPath.ownership.reasonCode === "root-unmatched" ||
+      dirtyPath.ownership.reasonCode === "linkage-gaps-unresolved"
+    ) {
+      risks.push({
+        category: dirtyPath.category,
+        evidenceSummary: `Root dirty path ${dirtyPath.path} has no obvious active owner.`,
+        kind: "root-drift-without-obvious-owner",
+        laneNames: [],
+        nextAction: "investigate",
+        path: dirtyPath.path,
+        surface: dirtyPath.surface,
+      });
+    }
+  }
+
+  return risks.sort((left, right) => {
+    if (left.kind !== right.kind) {
+      return left.kind.localeCompare(right.kind);
+    }
+    return (left.path ?? left.surface ?? "").localeCompare(
+      right.path ?? right.surface ?? "",
+    );
+  });
+}
+
+function recommendWorktreeNextAction(
+  worktree: PlannerWorktreeDriftLaneSnapshot,
+  risks: PlannerWorktreeDriftRisk[],
+): PlannerWorktreeDriftNextAction {
+  if (
+    risks.some(
+      (risk) =>
+        risk.kind === "multi-lane-hotspot-collision" &&
+        risk.laneNames.includes(worktree.laneName),
+    )
+  ) {
+    return "investigate";
+  }
+
+  return "wait";
 }
 
 function attributeDirtyPathOwnership(
@@ -422,14 +572,23 @@ function attributeDirtyPathOwnership(
       ownership: buildWorktreeOwnedReason(worktree, snapshot.root.repoRoot),
     })),
   }));
-
-  return {
+  const attributedSnapshot = {
     ...snapshot,
     root: {
       ...snapshot.root,
       dirtyPaths: rootDirtyPaths,
     },
     worktrees,
+  };
+  const risks = buildDriftRisks(attributedSnapshot);
+
+  return {
+    ...attributedSnapshot,
+    risks,
+    worktrees: worktrees.map((worktree) => ({
+      ...worktree,
+      nextAction: recommendWorktreeNextAction(worktree, risks),
+    })),
   };
 }
 
@@ -456,9 +615,13 @@ export function buildPlannerWorktreeDriftSnapshot(
     evaluatedWorktreeCount: worktrees.length,
     generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
     issues: [...ledger.issues],
+    risks: [],
     root,
     totalDirtyPathCount,
-    worktrees,
+    worktrees: worktrees.map((worktree) => ({
+      ...worktree,
+      nextAction: "wait",
+    })),
   });
 }
 
@@ -498,7 +661,7 @@ export function formatPlannerWorktreeDriftReport(
   );
   const lines = [
     PLANNER_WORKTREE_DRIFT_WATCHDOG_HEADER,
-    `active-lanes=${snapshot.activeLaneCount} evaluated-worktrees=${snapshot.evaluatedWorktreeCount} root-dirty-shared-paths=${rootDirtyCount} worktree-dirty-shared-paths=${worktreeDirtyCount} total-dirty-shared-paths=${snapshot.totalDirtyPathCount}`,
+    `active-lanes=${snapshot.activeLaneCount} evaluated-worktrees=${snapshot.evaluatedWorktreeCount} risk-cases=${snapshot.risks.length} root-dirty-shared-paths=${rootDirtyCount} worktree-dirty-shared-paths=${worktreeDirtyCount} total-dirty-shared-paths=${snapshot.totalDirtyPathCount}`,
   ];
 
   if (snapshot.issues.length > 0) {
@@ -509,6 +672,18 @@ export function formatPlannerWorktreeDriftReport(
   }
 
   lines.push("");
+  if (snapshot.risks.length > 0) {
+    lines.push("- risks");
+    for (const risk of snapshot.risks) {
+      const laneList =
+        risk.laneNames.length > 0 ? risk.laneNames.join(",") : "none";
+      lines.push(
+        `  - risk=${risk.kind} path=${risk.path ?? "-"} surface=${risk.surface ?? "-"} lanes=${laneList} next-action=${risk.nextAction} evidence=${risk.evidenceSummary}`,
+      );
+    }
+    lines.push("");
+  }
+
   lines.push(
     `- location=root repo=${snapshot.root.repoRoot} dirty-shared-paths=${snapshot.root.dirtyPathCount}`,
   );
@@ -523,7 +698,7 @@ export function formatPlannerWorktreeDriftReport(
 
   for (const worktree of snapshot.worktrees) {
     lines.push(
-      `- location=worktree lane=${worktree.laneName} branch=${worktree.branchName ?? "?"} linkage=${worktree.linkageStatus} worktree=${formatWorktreePath(snapshot.root.repoRoot, worktree.worktreePath)} dirty-shared-paths=${worktree.dirtyPathCount}`,
+      `- location=worktree lane=${worktree.laneName} branch=${worktree.branchName ?? "?"} linkage=${worktree.linkageStatus} worktree=${formatWorktreePath(snapshot.root.repoRoot, worktree.worktreePath)} dirty-shared-paths=${worktree.dirtyPathCount} next-action=${worktree.nextAction}`,
     );
     for (const dirtyPath of worktree.dirtyPaths) {
       lines.push(`  - ${formatDirtyPath(dirtyPath)}`);

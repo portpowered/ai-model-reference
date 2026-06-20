@@ -93,7 +93,11 @@ describe("planner-worktree-drift-watchdog script", () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("Planner Worktree Drift Watchdog");
     expect(result.stdout).toContain(
-      "active-lanes=1 evaluated-worktrees=1 root-dirty-shared-paths=1 worktree-dirty-shared-paths=1 total-dirty-shared-paths=2",
+      "active-lanes=1 evaluated-worktrees=1 risk-cases=1 root-dirty-shared-paths=1 worktree-dirty-shared-paths=1 total-dirty-shared-paths=2",
+    );
+    expect(result.stdout).toContain("- risks");
+    expect(result.stdout).toContain(
+      "risk=root-drift-without-obvious-owner path=src/lib/factory/root.ts surface=src/lib/factory lanes=none next-action=investigate evidence=Root dirty path src/lib/factory/root.ts has no obvious active owner.",
     );
     expect(result.stdout).toContain(
       `- location=root repo=${repoRoot} dirty-shared-paths=1`,
@@ -102,7 +106,7 @@ describe("planner-worktree-drift-watchdog script", () => {
       "path=src/lib/factory/root.ts status= M change=modified surface=src/lib/factory category=shared-helper owner=root-owned ownership-reason=No active lane currently matches this dirty path or shared surface, so the drift remains rooted in the planner checkout.",
     );
     expect(result.stdout).toContain(
-      "- location=worktree lane=alpha branch=alpha linkage=linked-with-gaps worktree=.claude/worktrees/alpha dirty-shared-paths=1",
+      "- location=worktree lane=alpha branch=alpha linkage=linked-with-gaps worktree=.claude/worktrees/alpha dirty-shared-paths=1 next-action=wait",
     );
     expect(result.stdout).toContain(
       "path=docs/planner/notes.md status=?? change=untracked surface=docs/planner category=authored-content owner=worktree-owned:alpha ownership-reason=Dirty path was observed directly in active lane alpha.",
@@ -135,10 +139,18 @@ describe("planner-worktree-drift-watchdog script", () => {
             expect.objectContaining({
               ownership: expect.objectContaining({
                 kind: "root-owned",
+                reasonCode: "root-unmatched",
               }),
             }),
           ],
         }),
+        risks: [
+          expect.objectContaining({
+            kind: "root-drift-without-obvious-owner",
+            nextAction: "investigate",
+            path: "src/lib/factory/root.ts",
+          }),
+        ],
         totalDirtyPathCount: 2,
       }),
     );
