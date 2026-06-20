@@ -63,6 +63,23 @@ describe("registry-runtime", () => {
     ]);
   });
 
+  test("getModuleById returns sentencepiece as a tokenizer-family module", () => {
+    const record = getModuleById("module.sentencepiece");
+    expect(record?.slug).toBe("sentencepiece");
+    expect(record?.moduleType).toBe("tokenizer");
+    expect(record?.tags).toEqual(["tokenization", "foundations"]);
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "SentencePiece",
+        "sentence piece",
+        "sentencepiece tokenizer",
+        "sentencepiece unigram",
+      ]),
+    );
+    expect(record?.relatedIds).toEqual(["concept.token"]);
+    expect(record?.citationIds).toEqual(["citation.sentencepiece-paper"]);
+  });
+
   test("getRegistryTags returns tags for a known module", () => {
     expect(getRegistryTags("module.grouped-query-attention")).toEqual([
       "attention",
@@ -73,6 +90,13 @@ describe("registry-runtime", () => {
   test("getRegistryTags returns tags for bidirectional attention", () => {
     expect(getRegistryTags("module.bidirectional-attention")).toEqual([
       "attention",
+    ]);
+  });
+
+  test("getRegistryTags returns tokenization tags for sentencepiece", () => {
+    expect(getRegistryTags("module.sentencepiece")).toEqual([
+      "tokenization",
+      "foundations",
     ]);
   });
 

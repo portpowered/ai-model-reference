@@ -17,6 +17,7 @@ import pressAlibiCitation from "@/content/registry/citations/press-alibi.json";
 import qloraCitation from "@/content/registry/citations/qlora.json";
 import quantizationIntegerOnlyInferenceCitation from "@/content/registry/citations/quantization-integer-only-inference.json";
 import raffelT5Citation from "@/content/registry/citations/raffel-t5.json";
+import sentencepiecePaperCitation from "@/content/registry/citations/sentencepiece-paper.json";
 import shazeerMqaPaperCitation from "@/content/registry/citations/shazeer-mqa-paper.json";
 import smoothquantCitation from "@/content/registry/citations/smoothquant.json";
 import suRoformerRopeCitation from "@/content/registry/citations/su-roformer-rope.json";
@@ -150,6 +151,7 @@ import relativePositionBiasModule from "@/content/registry/modules/relative-posi
 import reluModule from "@/content/registry/modules/relu.json";
 import rmsnormModule from "@/content/registry/modules/rmsnorm.json";
 import ropeModule from "@/content/registry/modules/rope.json";
+import sentencepieceModule from "@/content/registry/modules/sentencepiece.json";
 import siluModule from "@/content/registry/modules/silu.json";
 import sinusoidalPositionalEmbeddingsModule from "@/content/registry/modules/sinusoidal-positional-embeddings.json";
 import slidingWindowAttention from "@/content/registry/modules/sliding-window-attention.json";
@@ -222,6 +224,7 @@ const moduleRecords: ModuleRecord[] = [
   moduleRecordSchema.parse(reluModule),
   moduleRecordSchema.parse(rmsnormModule),
   moduleRecordSchema.parse(ropeModule),
+  moduleRecordSchema.parse(sentencepieceModule),
   moduleRecordSchema.parse(siluModule),
   moduleRecordSchema.parse(sinusoidalPositionalEmbeddingsModule),
   moduleRecordSchema.parse(slidingWindowAttention),
@@ -374,6 +377,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(qloraCitation),
   citationRecordSchema.parse(quantizationIntegerOnlyInferenceCitation),
   citationRecordSchema.parse(raffelT5Citation),
+  citationRecordSchema.parse(sentencepiecePaperCitation),
   citationRecordSchema.parse(shazeerMqaPaperCitation),
   citationRecordSchema.parse(smoothquantCitation),
   citationRecordSchema.parse(suRoformerRopeCitation),

@@ -169,6 +169,20 @@ describe("Phase 1 baseline registry records", () => {
     expect(tag.aliases.length).toBeGreaterThan(0);
   });
 
+  test("tokenization tag JSON passes tagRecordSchema", async () => {
+    const tag = await readRegistryJson(
+      "tags/tokenization.json",
+      tagRecordSchema,
+    );
+
+    expect(tag.id).toBe("tag.tokenization");
+    expect(tag.kind).toBe("tag");
+    expect(tag.category).toBe("module-type");
+    expect(tag.aliases).toEqual(
+      expect.arrayContaining(["tokenizer", "tokenizers"]),
+    );
+  });
+
   test("token concept JSON passes conceptRecordSchema", async () => {
     const concept = await readRegistryJson(
       "concepts/token.json",
@@ -205,11 +219,54 @@ describe("Phase 1 baseline registry records", () => {
     expect(citation.mla.length).toBeGreaterThan(0);
   });
 
+  test("sentencepiece citation JSON passes citationRecordSchema", async () => {
+    const citation = await readRegistryJson(
+      "citations/sentencepiece-paper.json",
+      citationRecordSchema,
+    );
+
+    expect(citation.id).toBe("citation.sentencepiece-paper");
+    expect(citation.kind).toBe("citation");
+    expect(citation.status).toBe("published");
+    expect(citation.authors).toEqual(["Taku Kudo", "John Richardson"]);
+    expect(citation.title).toContain("SentencePiece");
+    expect(citation.url).toBe("https://arxiv.org/abs/1808.06226");
+  });
+
+  test("sentencepiece module JSON passes moduleRecordSchema", async () => {
+    const module = await readRegistryJson(
+      "modules/sentencepiece.json",
+      moduleRecordSchema,
+    );
+
+    expect(module.id).toBe("module.sentencepiece");
+    expect(module.kind).toBe("module");
+    expect(module.status).toBe("published");
+    expect(module.moduleType).toBe("tokenizer");
+    expect(module.tags).toContain("tokenization");
+    expect(module.aliases).toEqual(
+      expect.arrayContaining([
+        "SentencePiece",
+        "sentence piece",
+        "sentencepiece tokenizer",
+        "sentencepiece unigram",
+      ]),
+    );
+    expect(module.relatedIds).toEqual(["concept.token"]);
+    expect(module.citationIds).toEqual(["citation.sentencepiece-paper"]);
+    expect(module.optimizes.length).toBeGreaterThan(0);
+    expect(module.practicalBenefits.length).toBeGreaterThan(0);
+  });
+
   test("Phase 1 starter records cross-reference via loadRegistry", async () => {
     const indexes = await loadRegistry();
 
     const module = indexes.byId.get("module.grouped-query-attention");
     expect(module?.kind).toBe("module");
+
+    const sentencepiece = indexes.byId.get("module.sentencepiece");
+    expect(sentencepiece?.kind).toBe("module");
+    expect(resolveTag(indexes, "tokenization")?.id).toBe("tag.tokenization");
 
     const concept = indexes.byId.get("concept.token");
     expect(concept?.kind).toBe("concept");
