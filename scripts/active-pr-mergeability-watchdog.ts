@@ -204,6 +204,8 @@ function isStaleFailedLoopbackLane(lane: QueueWorktreePrLinkageLane): boolean {
   return (
     lane.queueState === "failed" &&
     !lane.pullRequest &&
+    lane.workTypeName === "thoughts" &&
+    lane.hasDependsOnRelation === true &&
     lane.nextAction !== "repair-token" &&
     !isQueueOnlyMissingLinkageLane(lane)
   );

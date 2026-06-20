@@ -201,10 +201,13 @@ describe("planner live queue snapshot alignment", () => {
         );
         expect(mergeabilityStdout).toContain("work-item=alpha");
         expect(mergeabilityStdout).toContain(
-          "noise=stale-failed-loopbacks count=1 work-items=beta",
+          "- status=linked-with-gaps queue=failed work-item=beta",
         );
         expect(mergeabilityStdout).toContain(
           "noise=queue-only-missing-linkage count=1 work-items=planner-follow-up",
+        );
+        expect(mergeabilityStdout).not.toContain(
+          "noise=stale-failed-loopbacks count=1 work-items=beta",
         );
         expect(mergeabilityStdout).not.toContain(
           "- status=linked-with-gaps queue=failed work-item=planner-follow-up",

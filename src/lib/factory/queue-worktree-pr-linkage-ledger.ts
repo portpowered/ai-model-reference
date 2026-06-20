@@ -28,6 +28,8 @@ export interface QueueWorktreePrLinkageLane {
   queueState: QueueLaneState;
   rawQueueState: string;
   linkageStatus: QueueWorktreePrLinkageStatus;
+  workTypeName?: string;
+  hasDependsOnRelation?: boolean;
   worktreePath?: string;
   workItemNameSource?: "metadata" | "directory" | "queue";
   branchName?: string;
@@ -68,6 +70,8 @@ function mapLaneRecord(lane: LaneDiscoveryRecord): QueueWorktreePrLinkageLane {
     rawQueueState: lane.rawQueueState,
     linkageStatus:
       missingLinkageReasons.length > 0 ? "linked-with-gaps" : "linked",
+    workTypeName: lane.workTypeName,
+    hasDependsOnRelation: lane.hasDependsOnRelation,
     worktreePath: lane.worktreePath,
     workItemNameSource: lane.workItemNameSource,
     branchName: lane.branchName,
