@@ -4,8 +4,10 @@ import {
 } from "@/lib/content/registry-linking";
 import {
   getClassificationById,
+  getPrimaryClassificationForRecord,
   listClassificationMembers,
   listOntologyRelationshipsForRecord,
+  listSecondaryClassificationsForRecord,
 } from "@/lib/content/registry-runtime";
 import type {
   ClassificationRecord,
@@ -71,6 +73,7 @@ export type TopologyNode =
       label: string;
       slug: string;
       classificationType: ClassificationRecord["classificationType"];
+      classifiesKinds: ClassificationRecord["classifiesKinds"];
       canonicalHref?: undefined;
     }
   | {
@@ -81,7 +84,9 @@ export type TopologyNode =
       slug: string;
       recordKind: TopologyRecord["kind"];
       primaryClassificationId?: string;
+      primaryClassificationLabel?: string;
       secondaryClassificationIds: string[];
+      secondaryClassificationLabels: string[];
       canonicalHref?: string;
     };
 
@@ -159,6 +164,7 @@ function toClassificationNode(record: ClassificationRecord): TopologyNode {
     label: registryDisplayTitle(record),
     slug: record.slug,
     classificationType: record.classificationType,
+    classifiesKinds: record.classifiesKinds,
   };
 }
 
@@ -166,6 +172,11 @@ function toRecordNode(record: TopologyRecord): TopologyNode {
   if (record.kind === "classification") {
     return toClassificationNode(record);
   }
+
+  const primaryClassification = getPrimaryClassificationForRecord(record.id);
+  const secondaryClassifications = listSecondaryClassificationsForRecord(
+    record.id,
+  );
 
   return {
     id: record.id,
@@ -175,7 +186,13 @@ function toRecordNode(record: TopologyRecord): TopologyNode {
     slug: record.slug,
     recordKind: record.kind,
     primaryClassificationId: record.primaryClassificationId,
+    primaryClassificationLabel: primaryClassification
+      ? registryDisplayTitle(primaryClassification)
+      : undefined,
     secondaryClassificationIds: record.secondaryClassificationIds ?? [],
+    secondaryClassificationLabels: secondaryClassifications.map((item) =>
+      registryDisplayTitle(item),
+    ),
     canonicalHref: registryRecordHref(record),
   };
 }

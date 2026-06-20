@@ -21,6 +21,7 @@ import { TagLandingEmptyState } from "@/features/docs/tags/TagLandingEmptyState"
 import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
 import { TopologyPrototype } from "@/features/topology/TopologyPrototype";
+import type { TopologyDocsPageContentByRegistryId } from "@/features/topology/topology-content";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
 import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
@@ -309,14 +310,29 @@ export async function renderTopologyPrototypePage(
   locale: SiteLocale = defaultLocale,
 ) {
   const messages = await loadUiMessages(locale);
+  const docsPages = await loadShippedLocalizedDocsPages(locale);
   const { topologyPrototype } = messages;
+  const docsPageContentByRegistryId: TopologyDocsPageContentByRegistryId =
+    Object.fromEntries(
+      docsPages.map((page) => [
+        page.frontmatter.registryId,
+        {
+          href: page.url,
+          summary: page.messages.description,
+          title: page.messages.title,
+        },
+      ]),
+    );
 
   return (
     <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
       <DocsTitle>{topologyPrototype.title}</DocsTitle>
       <DocsDescription>{topologyPrototype.description}</DocsDescription>
       <DocsBody>
-        <TopologyPrototype messages={messages} />
+        <TopologyPrototype
+          messages={messages}
+          docsPageContentByRegistryId={docsPageContentByRegistryId}
+        />
       </DocsBody>
     </DocsPage>
   );

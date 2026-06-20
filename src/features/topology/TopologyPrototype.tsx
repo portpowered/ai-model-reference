@@ -5,10 +5,12 @@ import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { TopologyCytoscapeGraph } from "./TopologyCytoscapeGraph";
+import type { TopologyDocsPageContentByRegistryId } from "./topology-content";
 import { buildTopologyGraph } from "./topology-data";
 import { buildTopologyHref, parseTopologyQuery } from "./topology-query";
 
 type TopologyPrototypeProps = {
+  docsPageContentByRegistryId: TopologyDocsPageContentByRegistryId;
   messages: UiMessages;
 };
 
@@ -18,7 +20,10 @@ const topologyChips = [
   { selector: "feed-forward", labelKey: "feedForwardChip" },
 ] as const;
 
-export function TopologyPrototype({ messages }: TopologyPrototypeProps) {
+export function TopologyPrototype({
+  messages,
+  docsPageContentByRegistryId,
+}: TopologyPrototypeProps) {
   const pathname = usePathname() ?? "/topology";
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -163,7 +168,12 @@ export function TopologyPrototype({ messages }: TopologyPrototypeProps) {
       </div>
 
       {graph.status === "success" ? (
-        <TopologyCytoscapeGraph graph={graph} text={text} />
+        <TopologyCytoscapeGraph
+          docsPageContentByRegistryId={docsPageContentByRegistryId}
+          graph={graph}
+          pageKindLabels={messages.pageKind}
+          text={text}
+        />
       ) : null}
 
       {graph.status === "empty" ? (

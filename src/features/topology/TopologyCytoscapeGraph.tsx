@@ -6,10 +6,11 @@ import type {
   StylesheetJson as CytoscapeStylesheetJson,
 } from "cytoscape";
 import cytoscape from "cytoscape";
-import { Maximize2, RotateCcw } from "lucide-react";
+import { Maximize2, RotateCcw, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import type { TopologyDocsPageContentByRegistryId } from "./topology-content";
 import type {
   TopologyEdge,
   TopologyGraph,
@@ -17,9 +18,16 @@ import type {
 } from "./topology-data";
 
 type TopologyCytoscapeGraphProps = {
+  docsPageContentByRegistryId: TopologyDocsPageContentByRegistryId;
   graph: TopologyGraph;
+  pageKindLabels: UiMessages["pageKind"];
   text: UiMessages["topologyPrototype"];
 };
+
+type SelectedGraphItem =
+  | { kind: "node"; nodeId: string }
+  | { kind: "edge"; edgeId: string }
+  | null;
 
 const topologyNodePositions: Record<string, { x: number; y: number }> = {
   "classification.neural-network-components": { x: 360, y: 40 },
@@ -181,13 +189,77 @@ function edgeSummary(
   return `${source} -> ${edge.label} -> ${target}`;
 }
 
+function titleCase(value: string) {
+  return value
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function getClassificationTypeLabel(
+  classificationType: string,
+  text: UiMessages["topologyPrototype"],
+) {
+  switch (classificationType) {
+    case "domain":
+      return text.classificationTypeDomain;
+    case "family":
+      return text.classificationTypeFamily;
+    case "topology":
+      return text.classificationTypeTopology;
+    default:
+      return titleCase(classificationType);
+  }
+}
+
+function getRecordSummary(
+  node: Extract<TopologyNode, { kind: "record" }>,
+  docsPageContentByRegistryId: TopologyDocsPageContentByRegistryId,
+  text: UiMessages["topologyPrototype"],
+) {
+  return (
+    docsPageContentByRegistryId[node.registryId]?.summary ??
+    text.detailMissingSummary
+  );
+}
+
+function getRecordTitle(
+  node: Extract<TopologyNode, { kind: "record" }>,
+  docsPageContentByRegistryId: TopologyDocsPageContentByRegistryId,
+  text: UiMessages["topologyPrototype"],
+) {
+  return (
+    docsPageContentByRegistryId[node.registryId]?.title ??
+    getNodeLabel(node, text)
+  );
+}
+
+function getRecordHref(
+  node: Extract<TopologyNode, { kind: "record" }>,
+  docsPageContentByRegistryId: TopologyDocsPageContentByRegistryId,
+) {
+  return (
+    docsPageContentByRegistryId[node.registryId]?.href ?? node.canonicalHref
+  );
+}
+
+function getPageKindLabel(
+  kind: string,
+  pageKindLabels: UiMessages["pageKind"],
+) {
+  return pageKindLabels[kind] ?? titleCase(kind);
+}
+
 export function TopologyCytoscapeGraph({
+  docsPageContentByRegistryId,
   graph,
+  pageKindLabels,
   text,
 }: TopologyCytoscapeGraphProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const cytoscapeRef = useRef<CytoscapeCore | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<SelectedGraphItem>(null);
   const elements = useMemo(
     () => toCytoscapeElements(graph, text),
     [graph, text],
@@ -199,6 +271,27 @@ export function TopologyCytoscapeGraph({
       ),
     [graph.nodes, text],
   );
+  const nodesById = useMemo(
+    () => new Map(graph.nodes.map((node) => [node.id, node] as const)),
+    [graph.nodes],
+  );
+  const edgesById = useMemo(
+    () => new Map(graph.edges.map((edge) => [edge.id, edge] as const)),
+    [graph.edges],
+  );
+  const visibleMemberCountByClassificationId = useMemo(() => {
+    const counts = new Map<string, number>();
+
+    for (const edge of graph.edges) {
+      if (edge.kind !== "membership") {
+        continue;
+      }
+
+      counts.set(edge.sourceId, (counts.get(edge.sourceId) ?? 0) + 1);
+    }
+
+    return counts;
+  }, [graph.edges]);
   const legendItems = useMemo(
     () =>
       [...new Map(graph.edges.map((edge) => [edge.label, edge])).values()].map(
@@ -212,6 +305,21 @@ export function TopologyCytoscapeGraph({
       ),
     [graph.edges, text],
   );
+
+  useEffect(() => {
+    if (!selectedItem) {
+      return;
+    }
+
+    if (selectedItem.kind === "node" && !nodesById.has(selectedItem.nodeId)) {
+      setSelectedItem(null);
+      return;
+    }
+
+    if (selectedItem.kind === "edge" && !edgesById.has(selectedItem.edgeId)) {
+      setSelectedItem(null);
+    }
+  }, [edgesById, nodesById, selectedItem]);
 
   useEffect(() => {
     if (!containerRef.current) {
@@ -238,6 +346,17 @@ export function TopologyCytoscapeGraph({
     });
 
     cytoscapeRef.current = cy;
+    cy.on("tap", "node", (event) => {
+      setSelectedItem({ kind: "node", nodeId: event.target.id() });
+    });
+    cy.on("tap", "edge", (event) => {
+      setSelectedItem({ kind: "edge", edgeId: event.target.id() });
+    });
+    cy.on("tap", (event) => {
+      if (event.target === cy) {
+        setSelectedItem(null);
+      }
+    });
     cy.ready(() => {
       cy.fit(undefined, 34);
       setIsReady(true);
@@ -249,6 +368,28 @@ export function TopologyCytoscapeGraph({
       setIsReady(false);
     };
   }, [elements]);
+
+  useEffect(() => {
+    const cy = cytoscapeRef.current;
+    if (!cy) {
+      return;
+    }
+
+    cy.elements().unselect();
+
+    if (!selectedItem) {
+      return;
+    }
+
+    const selectedElement =
+      selectedItem.kind === "node"
+        ? cy.getElementById(selectedItem.nodeId)
+        : cy.getElementById(selectedItem.edgeId);
+
+    if (selectedElement.length > 0) {
+      selectedElement.select();
+    }
+  }, [selectedItem]);
 
   const fitGraph = useCallback(() => {
     cytoscapeRef.current?.fit(undefined, 34);
@@ -262,7 +403,17 @@ export function TopologyCytoscapeGraph({
 
     cy.reset();
     cy.fit(undefined, 34);
+    setSelectedItem(null);
   }, []);
+
+  const selectedNode =
+    selectedItem?.kind === "node"
+      ? nodesById.get(selectedItem.nodeId)
+      : undefined;
+  const selectedEdge =
+    selectedItem?.kind === "edge"
+      ? edgesById.get(selectedItem.edgeId)
+      : undefined;
 
   return (
     <article
@@ -340,60 +491,288 @@ export function TopologyCytoscapeGraph({
         </ul>
       </div>
 
-      <div className="mt-4 grid gap-3 lg:grid-cols-2">
-        <section
-          className="rounded-lg border border-border bg-muted/20 p-3"
-          aria-labelledby="topology-node-list-title"
-        >
-          <h3
-            id="topology-node-list-title"
-            className="text-sm font-semibold text-foreground"
+      <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="grid gap-3 lg:grid-cols-2">
+          <section
+            className="rounded-lg border border-border bg-muted/20 p-3"
+            aria-labelledby="topology-node-list-title"
           >
-            {text.accessibleNodeListTitle}
-          </h3>
-          <ul className="mt-2 grid gap-2 text-sm text-muted-foreground">
-            {graph.nodes.map((node) => (
-              <li
-                key={node.id}
-                className="flex flex-wrap items-center gap-x-2 gap-y-1"
-                data-registry-id={node.registryId}
-              >
-                <span className="font-medium text-foreground">
-                  {getNodeLabel(node, text)}
-                </span>
-                <span className="rounded-md border border-border px-1.5 py-0.5 text-[0.7rem] uppercase">
-                  {node.kind === "classification"
-                    ? text.classificationNodeLabel
-                    : text.recordNodeLabel}
-                </span>
-                {node.kind === "record" && node.canonicalHref ? (
-                  <a
-                    className="text-primary underline-offset-4 hover:underline"
-                    href={node.canonicalHref}
+            <h3
+              id="topology-node-list-title"
+              className="text-sm font-semibold text-foreground"
+            >
+              {text.accessibleNodeListTitle}
+            </h3>
+            <ul className="mt-2 grid gap-2 text-sm text-muted-foreground">
+              {graph.nodes.map((node) => {
+                const isSelected =
+                  selectedItem?.kind === "node" &&
+                  selectedItem.nodeId === node.id;
+
+                return (
+                  <li
+                    key={node.id}
+                    className="flex flex-wrap items-center gap-2"
+                    data-registry-id={node.registryId}
                   >
-                    {node.canonicalHref}
-                  </a>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        </section>
+                    <Button
+                      type="button"
+                      variant={isSelected ? "secondary" : "outline"}
+                      size="sm"
+                      aria-pressed={isSelected}
+                      onClick={() =>
+                        setSelectedItem({ kind: "node", nodeId: node.id })
+                      }
+                    >
+                      {getNodeLabel(node, text)}
+                    </Button>
+                    <span className="rounded-md border border-border px-1.5 py-0.5 text-[0.7rem] uppercase">
+                      {node.kind === "classification"
+                        ? text.classificationNodeLabel
+                        : getPageKindLabel(node.recordKind, pageKindLabels)}
+                    </span>
+                    {node.kind === "record" &&
+                    getRecordHref(node, docsPageContentByRegistryId) ? (
+                      <a
+                        className="text-xs text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:underline"
+                        href={getRecordHref(node, docsPageContentByRegistryId)}
+                      >
+                        {text.detailOpenCanonicalPage}
+                      </a>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+
+          <section
+            className="rounded-lg border border-border bg-muted/20 p-3"
+            aria-labelledby="topology-edge-list-title"
+          >
+            <h3
+              id="topology-edge-list-title"
+              className="text-sm font-semibold text-foreground"
+            >
+              {text.accessibleRelationshipListTitle}
+            </h3>
+            <ul className="mt-2 grid gap-2 text-sm text-muted-foreground">
+              {graph.edges.map((edge) => {
+                const isSelected =
+                  selectedItem?.kind === "edge" &&
+                  selectedItem.edgeId === edge.id;
+
+                return (
+                  <li key={edge.id}>
+                    <Button
+                      type="button"
+                      variant={isSelected ? "secondary" : "outline"}
+                      size="sm"
+                      className="h-auto min-h-8 w-full justify-start px-2 py-1.5 text-left whitespace-normal"
+                      aria-pressed={isSelected}
+                      onClick={() =>
+                        setSelectedItem({ kind: "edge", edgeId: edge.id })
+                      }
+                    >
+                      {edgeSummary(edge, nodeLabelsById)}
+                    </Button>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        </div>
 
         <section
-          className="rounded-lg border border-border bg-muted/20 p-3"
-          aria-labelledby="topology-edge-list-title"
+          className="rounded-lg border border-border bg-muted/20 p-4"
+          aria-labelledby="topology-detail-panel-title"
+          tabIndex={-1}
         >
-          <h3
-            id="topology-edge-list-title"
-            className="text-sm font-semibold text-foreground"
-          >
-            {text.accessibleRelationshipListTitle}
-          </h3>
-          <ul className="mt-2 grid gap-2 text-sm text-muted-foreground">
-            {graph.edges.map((edge) => (
-              <li key={edge.id}>{edgeSummary(edge, nodeLabelsById)}</li>
-            ))}
-          </ul>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3
+                id="topology-detail-panel-title"
+                className="text-sm font-semibold text-foreground"
+              >
+                {text.detailPanelTitle}
+              </h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {text.detailPanelHint}
+              </p>
+            </div>
+            {selectedItem ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label={text.detailPanelDismissLabel}
+                title={text.detailPanelDismissLabel}
+                onClick={() => setSelectedItem(null)}
+              >
+                <X />
+              </Button>
+            ) : null}
+          </div>
+
+          {!selectedNode && !selectedEdge ? (
+            <div className="mt-4 space-y-2">
+              <p className="text-sm font-medium text-foreground">
+                {text.detailPanelEmptyTitle}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {text.detailPanelEmptyDescription}
+              </p>
+            </div>
+          ) : null}
+
+          {selectedNode?.kind === "record" ? (
+            <div className="mt-4 space-y-3">
+              <div>
+                <p className="text-lg font-semibold text-foreground">
+                  {getRecordTitle(
+                    selectedNode,
+                    docsPageContentByRegistryId,
+                    text,
+                  )}
+                </p>
+                <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
+                  {getPageKindLabel(selectedNode.recordKind, pageKindLabels)}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  {text.detailLabelSummary}
+                </p>
+                <p className="mt-1 text-sm text-foreground">
+                  {getRecordSummary(
+                    selectedNode,
+                    docsPageContentByRegistryId,
+                    text,
+                  )}
+                </p>
+              </div>
+              <dl className="grid gap-3 text-sm">
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {text.detailLabelPrimaryClassification}
+                  </dt>
+                  <dd className="mt-1 text-foreground">
+                    {selectedNode.primaryClassificationLabel ??
+                      text.selectedViewNone}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {text.detailLabelSecondaryClassifications}
+                  </dt>
+                  <dd className="mt-1 text-foreground">
+                    {selectedNode.secondaryClassificationLabels.length > 0
+                      ? selectedNode.secondaryClassificationLabels.join(", ")
+                      : text.detailNoSecondaryClassifications}
+                  </dd>
+                </div>
+                {getRecordHref(selectedNode, docsPageContentByRegistryId) ? (
+                  <div>
+                    <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                      {text.detailLabelCanonicalPage}
+                    </dt>
+                    <dd className="mt-1">
+                      <a
+                        className="text-sm text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:underline"
+                        href={getRecordHref(
+                          selectedNode,
+                          docsPageContentByRegistryId,
+                        )}
+                      >
+                        {text.detailOpenCanonicalPage}
+                      </a>
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
+            </div>
+          ) : null}
+
+          {selectedNode?.kind === "classification" ? (
+            <div className="mt-4 space-y-3">
+              <div>
+                <p className="text-lg font-semibold text-foreground">
+                  {getNodeLabel(selectedNode, text)}
+                </p>
+                <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
+                  {text.classificationNodeLabel}
+                </p>
+              </div>
+              <dl className="grid gap-3 text-sm">
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {text.detailLabelScope}
+                  </dt>
+                  <dd className="mt-1 text-foreground">
+                    {getClassificationTypeLabel(
+                      selectedNode.classificationType,
+                      text,
+                    )}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {text.detailLabelAppliesTo}
+                  </dt>
+                  <dd className="mt-1 text-foreground">
+                    {selectedNode.classifiesKinds
+                      .map((kind) => getPageKindLabel(kind, pageKindLabels))
+                      .join(", ")}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {text.detailLabelVisibleMembers}
+                  </dt>
+                  <dd className="mt-1 text-foreground">
+                    {String(
+                      visibleMemberCountByClassificationId.get(
+                        selectedNode.id,
+                      ) ?? 0,
+                    )}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          ) : null}
+
+          {selectedEdge ? (
+            <div className="mt-4 space-y-3">
+              <div>
+                <p className="text-lg font-semibold text-foreground">
+                  {selectedEdge.label}
+                </p>
+                <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
+                  {text.detailLabelRelationship}
+                </p>
+              </div>
+              <dl className="grid gap-3 text-sm">
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {text.detailLabelSource}
+                  </dt>
+                  <dd className="mt-1 text-foreground">
+                    {nodeLabelsById.get(selectedEdge.sourceId) ??
+                      selectedEdge.sourceId}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {text.detailLabelTarget}
+                  </dt>
+                  <dd className="mt-1 text-foreground">
+                    {nodeLabelsById.get(selectedEdge.targetId) ??
+                      selectedEdge.targetId}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          ) : null}
         </section>
       </div>
     </article>
