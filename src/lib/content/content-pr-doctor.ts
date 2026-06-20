@@ -34,7 +34,9 @@ export const CONTENT_PR_DOCTOR_PREPARATION_COMMAND = [
 ] as const;
 
 export const CONTENT_PR_DOCTOR_DERIVED_ARTIFACT_PATHS =
-  CONTENT_RUNTIME_PREPARATION_STEPS.map((step) => step.outputPath);
+  CONTENT_RUNTIME_PREPARATION_STEPS.filter(
+    (step) => step.gitClassification === "committed",
+  ).map((step) => step.outputPath);
 
 export const CONTENT_PR_DOCTOR_SCOPED_PATHS = [
   ...CONTENT_PR_DOCTOR_SOURCE_PATHS,

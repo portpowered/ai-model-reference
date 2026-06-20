@@ -348,6 +348,13 @@ When you need to refresh the checked-in content-runtime artifacts directly, use
 `bun run prepare:content-runtime` rather than running the five runtime
 generation commands separately.
 
+When a planner or reviewer needs one narrow proof that a normal checkout can
+materialize the full generated runtime surface, run
+`make verify-content-runtime-completeness`. That target reruns the canonical
+`prepare:content-runtime` flow through the existing verifier, then fails
+non-zero if any required runtime module is missing or if its committed-versus-
+ignored git classification no longer matches the completeness contract.
+
 
 Individual targets:
 
@@ -362,6 +369,7 @@ make test-build-contract # consolidated build/export contract suites
 make test-system   # build/export contracts plus post-build integration tests
 make coverage      # prepare:content-runtime + fumadocs-mdx, manifest coverage gate
 make build-export  # prepare:content-runtime + fumadocs-mdx, static export to out/ + Phase 1 export route verification
+make verify-content-runtime-completeness # authoritative reviewer proof for generated runtime completeness
 make verify-export-routes # verify existing out/ artifact (requires build-export first)
 make verify-phase-1-ux # HTTP verification for Phase 1 reader routes and search (requires build)
 make verify-phase-1-built-app-convergence # batch-010 built-app gate with planner-facing evidence summary
