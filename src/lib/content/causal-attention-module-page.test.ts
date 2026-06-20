@@ -11,7 +11,11 @@ import {
 import { MODULES_DOCS_ROOT } from "@/lib/content/content-paths";
 import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
+import { loadPublishedDocsPages } from "@/lib/content/pages";
+import { loadRegistry } from "@/lib/content/registry";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 const pageDir = join(MODULES_DOCS_ROOT, "causal-attention");
 const messagesPath = join(pageDir, "messages/en.json");
@@ -100,5 +104,43 @@ describe("causal-attention page assets", () => {
     }
     expect(assets.comparisonTable.type).toBe("table");
     expect(validatePageAssetReferences(assets, messages)).toEqual([]);
+  });
+});
+
+describe("causal-attention discovery", () => {
+  test("search document preserves causal-mask aliases and attention tagging", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const document = documents.find(
+      (entry) => entry.url === "/docs/modules/causal-attention",
+    );
+
+    expect(document?.kind).toBe("module");
+    expect(document?.facets.kind).toBe("module");
+    expect(document?.aliases).toEqual(
+      expect.arrayContaining([
+        "causal attention",
+        "causal self-attention",
+        "causal mask",
+        "look-ahead mask",
+      ]),
+    );
+    expect(document?.tags).toEqual(expect.arrayContaining(["attention"]));
+  });
+
+  test.each([
+    "causal attention",
+    "causal self-attention",
+    "causal mask",
+    "look-ahead mask",
+  ] as const)('search routes "%s" to the canonical causal-attention page', async (query) => {
+    const results = await docsSearchApi.search(query);
+
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]?.url).toBe("/docs/modules/causal-attention");
+    expect(
+      results.some((result) => result.url === "/docs/modules/causal-attention"),
+    ).toBe(true);
   });
 });
