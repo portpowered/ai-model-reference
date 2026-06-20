@@ -53,6 +53,19 @@ exit 1
 `,
   );
   chmodSync(binaryPath, 0o755);
+  writeFileSync(
+    join(binDir, "gh"),
+    `#!/bin/sh
+set -eu
+if [ "$1" = "pr" ] && [ "$2" = "list" ]; then
+  printf '%s' '[]'
+  exit 0
+fi
+echo "unexpected args: $*" >&2
+exit 1
+`,
+  );
+  chmodSync(join(binDir, "gh"), 0o755);
   return binDir;
 }
 
