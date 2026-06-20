@@ -1,0 +1,23 @@
+{
+  "id": "tag.alignment",
+  "slug": "alignment",
+  "kind": "tag",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": [
+    "preference alignment",
+    "post-training alignment",
+    "alignment training"
+  ],
+  "tags": [],
+  "relatedIds": ["concept.alignment"],
+  "citationIds": [
+    "citation.training-language-models-to-follow-instructions-with-human-feedback"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "category": "training",
+  "landingPage": "generated-tag-page",
+  "parentTagId": "tag.foundations"
+}

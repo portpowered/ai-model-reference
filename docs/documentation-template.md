@@ -37,7 +37,7 @@ Canonical docs pages should include:
 
 * frontmatter with `kind`, `registryId`, `messageNamespace`, `assetNamespace`, `status`, `tags`, `aliases`, and `updatedAt`
 * `messageNamespace` and `assetNamespace` references, usually `local`
-* a localized folded `openingSummary` rendered from messages (merge legacy `problemStatement` + `coreIdea` into one key; glossary pages keep `openingSummary` in messages but omit it from MDX—see [writing standards](../factory/docs/standards/docs-writing-standards.md))
+* optional lead copy in messages when the page benefits from it; if used, prefer one concise `openingSummary` key instead of split `problemStatement` / `coreIdea` keys (see [writing standards](../factory/docs/standards/docs-writing-standards.md))
 * no in-body `# <T k="title" />` heading; the docs shell renders the page title once
 * registry-backed metadata or at-a-glance component where relevant
 * clickable tags through `TagPillList`
@@ -45,11 +45,12 @@ Canonical docs pages should include:
 * derived related documents through `DerivedRelatedDocs` where useful
 * references through `CitationList`
 
-The page structure should support a reader who lands on the page directly from search.
+The page structure should support a reader who lands on the page directly from search and should teach the topic without depending on adjacent pages.
 
 * Introductory sections should define the topic in isolation before narrowing into one implementation context.
 * Section order should move from definition -> value -> mechanism -> comparison -> tradeoffs.
 * Avoid templates that force authors to restate the same idea in multiple adjacent sections.
+* Narrative sections should stay focused on the concept itself, not on the page, nearby pages, or the documentation structure.
 
 Production docs pages should render sections through localized section components, for example:
 

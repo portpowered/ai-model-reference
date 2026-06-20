@@ -29,16 +29,28 @@ describe("sentencepiece tokenization discovery surfaces (sentencepiece-page-003)
     expect(context?.title).toBe("Tokenization");
     expect(context?.summary.length).toBeGreaterThan(0);
     expect(context?.categoryLabel).toBe("Module type");
-    expect(groups.map((group) => group.kind)).toEqual(["module"]);
+    expect(groups.map((group) => group.kind)).toEqual(["module", "glossary"]);
     expect(moduleGroup?.kindLabel).toBe("Module");
-    expect(moduleGroup?.resources).toEqual([
-      expect.objectContaining({
-        kind: "module",
-        slug: "sentencepiece",
-        title: "SentencePiece",
-        url: SENTENCEPIECE_URL,
-      }),
-    ]);
+    expect(moduleGroup?.resources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "module",
+          slug: "sentencepiece",
+          title: "SentencePiece",
+          url: SENTENCEPIECE_URL,
+        }),
+      ]),
+    );
+    expect(
+      groups.find((group) => group.kind === "glossary")?.resources,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "glossary",
+          slug: "special-tokens",
+        }),
+      ]),
+    );
   });
 
   test("tokenization tag landing renders SentencePiece without empty-state placeholders", async () => {
@@ -65,8 +77,8 @@ describe("sentencepiece tokenization discovery surfaces (sentencepiece-page-003)
 
   test.each([
     "sentence piece tokenizer",
-    "unigram tokenizer",
     "multilingual tokenizer",
+    "whitespace agnostic tokenizer",
   ] as const)("search returns SentencePiece as a direct top hit for %s", async (query) => {
     const results = await docsSearchApi.search(query);
     const topUrls = results.slice(0, 3).map((result) => result.url);

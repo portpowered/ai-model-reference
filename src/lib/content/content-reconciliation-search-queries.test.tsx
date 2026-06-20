@@ -42,6 +42,21 @@ const ATTENTION_MODULE_QUERIES = [
 const GLOSSARY_CANONICAL_QUERIES = [
   { query: "RoPE", url: ROPE_GLOSSARY_URL, kind: "module" as const },
   {
+    query: "relative position bias",
+    url: "/docs/modules/relative-position-bias",
+    kind: "module" as const,
+  },
+  {
+    query: "relative positional bias",
+    url: "/docs/modules/relative-position-bias",
+    kind: "module" as const,
+  },
+  {
+    query: "relative attention bias",
+    url: "/docs/modules/relative-position-bias",
+    kind: "module" as const,
+  },
+  {
     query: "context window",
     url: CONTEXT_WINDOW_GLOSSARY_URL,
     kind: "glossary" as const,

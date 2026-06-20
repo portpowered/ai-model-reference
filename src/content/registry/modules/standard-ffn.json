@@ -15,11 +15,34 @@
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
+  "releaseDate": "2017-06-01",
+  "authors": [
+    "Ashish Vaswani",
+    "Noam Shazeer",
+    "Niki Parmar",
+    "Jakob Uszkoreit",
+    "Llion Jones",
+    "Aidan N. Gomez",
+    "Łukasz Kaiser",
+    "Illia Polosukhin"
+  ],
+  "sourceId": "citation.attention-is-all-you-need",
+  "primaryClassificationId": "classification.feed-forward-networks",
+  "secondaryClassificationIds": [
+    "classification.transformer-feed-forward-components"
+  ],
+  "relationships": [
+    {
+      "relationshipType": "variant",
+      "targetId": "module.feed-forward-network"
+    },
+    {
+      "relationshipType": "uses",
+      "targetId": "concept.activation"
+    }
+  ],
   "moduleType": "feed-forward",
   "optimizes": ["per-token-capacity"],
-  "practicalBenefits": [
-    "provides a simple dense baseline for transformer blocks"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

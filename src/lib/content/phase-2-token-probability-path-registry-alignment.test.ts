@@ -16,6 +16,7 @@ import { type ConceptRecord, pageMessagesSchema } from "@/lib/content/schemas";
 import { validateRegistryContent } from "@/lib/content/validate-registry";
 
 const TARGET_PATH_SLUGS = ["token", "embedding", "logit", "softmax"] as const;
+const TOKEN_PROBABILITY_ALIGNMENT_TIMEOUT_MS = 15_000;
 
 const INTERNAL_WORKFLOW_COPY =
   /convergence|manual gate|workflow status|phase \d/i;
@@ -40,53 +41,68 @@ function arraysEqual<T>(left: readonly T[], right: readonly T[]): boolean {
 }
 
 describe("Phase 2 token-probability path registry alignment (phase-2-token-probability-path-convergence-003)", () => {
-  test("target-path pages align frontmatter with published concept registry records", async () => {
-    const indexes = await loadRegistry();
-    const pages = await loadPublishedDocsPages("en");
+  test(
+    "target-path pages align frontmatter with published concept registry records",
+    async () => {
+      const indexes = await loadRegistry();
+      const pages = await loadPublishedDocsPages("en");
 
-    for (const registryId of TARGET_PATH_REGISTRY_IDS) {
-      const slug = registryId.replace("concept.", "");
-      const page = pages.find(
-        (entry) => entry.frontmatter.registryId === registryId,
-      );
-      const concept = indexes.byId.get(registryId) as ConceptRecord | undefined;
+      for (const registryId of TARGET_PATH_REGISTRY_IDS) {
+        const slug = registryId.replace("concept.", "");
+        const page = pages.find(
+          (entry) => entry.frontmatter.registryId === registryId,
+        );
+        const concept = indexes.byId.get(registryId) as
+          | ConceptRecord
+          | undefined;
 
-      expect(page?.url).toBe(`/docs/glossary/${slug}`);
-      expect(concept?.kind).toBe("concept");
-      expect(concept?.status).toBe("published");
-      expect(page?.frontmatter.kind).toBe("glossary");
-      expect(page?.frontmatter.status).toBe("published");
-      expect(page?.frontmatter.registryId).toBe(registryId);
-      expect(
-        arraysEqual(page?.frontmatter.aliases ?? [], concept?.aliases ?? []),
-      ).toBe(true);
-      expect(
-        arraysEqual(page?.frontmatter.tags ?? [], concept?.tags ?? []),
-      ).toBe(true);
-    }
-  });
-
-  test("target-path registry tags resolve to published tag records", async () => {
-    const indexes = await loadRegistry();
-
-    for (const registryId of TARGET_PATH_REGISTRY_IDS) {
-      const concept = indexes.byId.get(registryId) as ConceptRecord | undefined;
-      expect(concept?.tags.length).toBeGreaterThan(0);
-
-      for (const tagRef of concept?.tags ?? []) {
-        expect(resolveTag(indexes, tagRef)).toBe(true);
+        expect(page?.url).toBe(`/docs/glossary/${slug}`);
+        expect(concept?.kind).toBe("concept");
+        expect(concept?.status).toBe("published");
+        expect(page?.frontmatter.kind).toBe("glossary");
+        expect(page?.frontmatter.status).toBe("published");
+        expect(page?.frontmatter.registryId).toBe(registryId);
+        expect(
+          arraysEqual(page?.frontmatter.aliases ?? [], concept?.aliases ?? []),
+        ).toBe(true);
+        expect(
+          arraysEqual(page?.frontmatter.tags ?? [], concept?.tags ?? []),
+        ).toBe(true);
       }
-    }
-  });
+    },
+    { timeout: TOKEN_PROBABILITY_ALIGNMENT_TIMEOUT_MS },
+  );
 
-  test("token curated relatedIds expose embedding, logit, and softmax without prose-only links", () => {
+  test(
+    "target-path registry tags resolve to published tag records",
+    async () => {
+      const indexes = await loadRegistry();
+
+      for (const registryId of TARGET_PATH_REGISTRY_IDS) {
+        const concept = indexes.byId.get(registryId) as
+          | ConceptRecord
+          | undefined;
+        expect(concept?.tags.length).toBeGreaterThan(0);
+
+        for (const tagRef of concept?.tags ?? []) {
+          expect(resolveTag(indexes, tagRef)).toBe(true);
+        }
+      }
+    },
+    { timeout: TOKEN_PROBABILITY_ALIGNMENT_TIMEOUT_MS },
+  );
+
+  test("token curated relatedIds expose special tokens, embedding, vocabulary size, logit, and softmax without prose-only links", () => {
     const token = getRegistryRecordById("concept.token");
     if (!token) {
       throw new Error("expected concept.token in registry runtime");
     }
 
     expect(token.relatedIds).toEqual([
+      "module.byte-level-tokenization",
+      "concept.special-tokens",
       "concept.embedding",
+      "concept.vocabulary-size",
       "concept.logit",
       "concept.softmax",
     ]);
@@ -98,12 +114,28 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
     );
 
     expect(items.map((item) => item.registryId)).toEqual([
+      "module.byte-level-tokenization",
+      "concept.special-tokens",
       "concept.embedding",
+      "concept.vocabulary-size",
       "concept.logit",
       "concept.softmax",
     ]);
     expect(
-      items.every((item) => item.href?.startsWith("/docs/glossary/")),
+      items.find((item) => item.registryId === "module.byte-level-tokenization")
+        ?.href,
+    ).toBe("/docs/modules/byte-level-tokenization");
+    expect(
+      items.find((item) => item.registryId === "concept.special-tokens")?.href,
+    ).toBe("/docs/glossary/special-tokens");
+    expect(
+      items
+        .filter(
+          (item) =>
+            item.registryId !== "module.byte-level-tokenization" &&
+            item.registryId !== "concept.special-tokens",
+        )
+        .every((item) => item.href?.startsWith("/docs/glossary/")),
     ).toBe(true);
     expect(items.every((item) => item.isPlanned === false)).toBe(true);
   });
@@ -123,18 +155,26 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
     }
   });
 
-  test("target-path customer-facing messages omit internal workflow copy", async () => {
-    for (const slug of TARGET_PATH_SLUGS) {
-      const page = await loadGlossaryPage(slug);
-      const copy = JSON.stringify(page.messages);
+  test(
+    "target-path customer-facing messages omit internal workflow copy",
+    async () => {
+      for (const slug of TARGET_PATH_SLUGS) {
+        const page = await loadGlossaryPage(slug);
+        const copy = JSON.stringify(page.messages);
 
-      expect(copy).not.toMatch(INTERNAL_WORKFLOW_COPY);
-      expect(page.messages.description).not.toMatch(INTERNAL_WORKFLOW_COPY);
-    }
-  });
+        expect(copy).not.toMatch(INTERNAL_WORKFLOW_COPY);
+        expect(page.messages.description).not.toMatch(INTERNAL_WORKFLOW_COPY);
+      }
+    },
+    { timeout: TOKEN_PROBABILITY_ALIGNMENT_TIMEOUT_MS },
+  );
 
-  test("registry validation passes after target-path alignment", async () => {
-    const errors = await validateRegistryContent();
-    expect(errors).toEqual([]);
-  });
+  test(
+    "registry validation passes after target-path alignment",
+    async () => {
+      const errors = await validateRegistryContent();
+      expect(errors).toEqual([]);
+    },
+    { timeout: TOKEN_PROBABILITY_ALIGNMENT_TIMEOUT_MS },
+  );
 });

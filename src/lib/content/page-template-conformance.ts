@@ -16,11 +16,13 @@ type PageTemplateStructure = {
   sections: SectionStructure[];
 };
 
-type SupportedTemplateKind = "module" | "paper";
+type SupportedTemplateKind = "module" | "paper" | "system" | "training-regime";
 
 const supportedTemplateKinds = new Set<SupportedTemplateKind>([
   "module",
   "paper",
+  "system",
+  "training-regime",
 ]);
 
 const ignoredStructuralComponents = new Set(["Section", "T"]);
@@ -40,6 +42,8 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "DeepSeek-V4 module uses a custom math and comparison structure outside the baseline module template.",
   "modules/deepseekmoe/page.mdx":
     "DeepSeek-V4 module uses a custom math and comparison structure outside the baseline module template.",
+  "modules/feed-forward-network/page.mdx":
+    "Baseline feed-forward overview intentionally omits nearby-module comparison because it serves as the family root page.",
   "modules/heavily-compressed-attention/page.mdx":
     "DeepSeek-V4 module uses a custom math and comparison structure outside the baseline module template.",
   "modules/learned-positional-embeddings/page.mdx":
@@ -60,22 +64,28 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/positional-interpolation/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "modules/sigmoid/page.mdx":
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/relu/page.mdx":
-    "Activation modules use an inline chart in how-it-works instead of the default ModuleGraph slot.",
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/relative-position-bias/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/rope/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "modules/tanh/page.mdx":
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/sinusoidal-positional-embeddings/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/silu/page.mdx":
-    "Activation modules use an inline chart in how-it-works instead of the default ModuleGraph slot.",
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/sliding-window-attention/page.mdx":
     "Legacy module page predates the variants-and-nearby-modules section.",
   "modules/sparse-attention/page.mdx":
     "Legacy module page predates the variants-and-nearby-modules section.",
   "modules/superhot-rope/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "modules/gelu/page.mdx":
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/t5-relative-position-bias/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/yarn/page.mdx":

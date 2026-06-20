@@ -1,15 +1,33 @@
 import { describe, expect, test } from "bun:test";
 import {
+  getCitationById,
+  getClassificationById,
   getConceptById,
   getDatasetById,
+  getModelById,
   getModuleById,
   getOrganizationById,
+  getPaperById,
+  getPrimaryClassificationForRecord,
   getRegistryCitationIds,
   getRegistryRecordById,
   getRegistryTags,
+  getSystemById,
+  getTrainingRegimeById,
+  listCitationRecords,
+  listClassificationMembers,
+  listClassificationRecords,
   listConceptRecords,
+  listDatasetRecords,
+  listModelRecords,
   listModuleRecords,
+  listOntologyRelationshipsForRecord,
+  listOrganizationRecords,
+  listPaperRecords,
   listRelatedRegistryRecords,
+  listSecondaryClassificationsForRecord,
+  listSystemRecords,
+  listTrainingRegimeRecords,
 } from "@/lib/content/registry-runtime";
 
 describe("registry-runtime", () => {
@@ -71,13 +89,19 @@ describe("registry-runtime", () => {
     expect(record?.aliases).toEqual(
       expect.arrayContaining([
         "SentencePiece",
+        "sentencepiece",
         "sentence piece",
-        "sentencepiece tokenizer",
-        "sentencepiece unigram",
+        "multilingual tokenizer",
+        "whitespace agnostic tokenizer",
       ]),
     );
-    expect(record?.relatedIds).toEqual(["concept.token"]);
-    expect(record?.citationIds).toEqual(["citation.sentencepiece-paper"]);
+    expect(record?.relatedIds).toEqual([
+      "concept.tokenizers-overview",
+      "concept.token",
+      "module.bpe",
+      "module.wordpiece",
+    ]);
+    expect(record?.citationIds).toEqual(["citation.kudo-sentencepiece"]);
   });
 
   test("getRegistryTags returns tags for a known module", () => {
@@ -115,6 +139,14 @@ describe("registry-runtime", () => {
       "attention",
       "token-to-probability-chain",
       "foundations",
+    ]);
+    expect(record?.relatedIds).toEqual([
+      "module.byte-level-tokenization",
+      "concept.special-tokens",
+      "concept.embedding",
+      "concept.vocabulary-size",
+      "concept.logit",
+      "concept.softmax",
     ]);
   });
 
@@ -154,12 +186,210 @@ describe("registry-runtime", () => {
     ]);
   });
 
-  test("getRegistryCitationIds returns empty array for concept.token", () => {
-    expect(getRegistryCitationIds("concept.token")).toEqual([]);
+  test("getRegistryCitationIds returns citations for concept.token", () => {
+    expect(getRegistryCitationIds("concept.token")).toEqual([
+      "citation.gpt-2-report",
+      "citation.sennrich-bpe",
+    ]);
   });
 
   test("getRegistryCitationIds returns undefined for unknown records", () => {
     expect(getRegistryCitationIds("module.unknown")).toBeUndefined();
+  });
+
+  test("ontology helpers return stable empty results for records without ontology data", () => {
+    expect(
+      getPrimaryClassificationForRecord("module.grouped-query-attention"),
+    ).toBeUndefined();
+    expect(
+      listSecondaryClassificationsForRecord("module.grouped-query-attention"),
+    ).toEqual([]);
+    expect(
+      listOntologyRelationshipsForRecord("module.grouped-query-attention"),
+    ).toEqual([]);
+  });
+
+  test("ontology helpers return stable empty results for unknown records and classifications", () => {
+    expect(
+      getPrimaryClassificationForRecord("module.missing-runtime-record"),
+    ).toBeUndefined();
+    expect(
+      listSecondaryClassificationsForRecord("module.missing-runtime-record"),
+    ).toEqual([]);
+    expect(
+      listOntologyRelationshipsForRecord("module.missing-runtime-record"),
+    ).toEqual([]);
+    expect(
+      listClassificationMembers("classification.missing-runtime-record"),
+    ).toEqual([]);
+  });
+
+  test("activation and feed-forward classification seed records are published", () => {
+    expect(
+      getClassificationById("classification.activation-functions")?.kind,
+    ).toBe("classification");
+    expect(
+      getClassificationById("classification.feed-forward-networks")
+        ?.parentClassificationId,
+    ).toBe("classification.neural-network-components");
+
+    expect(listClassificationRecords().map((record) => record.id)).toEqual(
+      expect.arrayContaining([
+        "classification.neural-network-components",
+        "classification.activation-functions",
+        "classification.feed-forward-networks",
+      ]),
+    );
+  });
+
+  test("seeded activation records resolve through ontology classification helpers", () => {
+    expect(getPrimaryClassificationForRecord("concept.activation")?.id).toBe(
+      "classification.activation-functions",
+    );
+    expect(getPrimaryClassificationForRecord("module.sigmoid")?.id).toBe(
+      "classification.activation-functions",
+    );
+    expect(listSecondaryClassificationsForRecord("module.sigmoid")).toEqual([
+      expect.objectContaining({
+        id: "classification.feed-forward-networks",
+      }),
+    ]);
+    expect(getPrimaryClassificationForRecord("module.relu")?.id).toBe(
+      "classification.activation-functions",
+    );
+    expect(getPrimaryClassificationForRecord("module.leaky-relu")?.id).toBe(
+      "classification.activation-functions",
+    );
+    expect(getPrimaryClassificationForRecord("module.silu")?.id).toBe(
+      "classification.activation-functions",
+    );
+
+    expect(
+      listClassificationMembers("classification.activation-functions").map(
+        (member) => `${member.membershipType}:${member.record.id}`,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "primary:concept.activation",
+        "primary:module.sigmoid",
+        "primary:module.relu",
+        "primary:module.leaky-relu",
+        "primary:module.silu",
+      ]),
+    );
+  });
+
+  test("seeded feed-forward records resolve through ontology classification helpers", () => {
+    expect(
+      getPrimaryClassificationForRecord("module.feed-forward-network")?.id,
+    ).toBe("classification.feed-forward-networks");
+    expect(
+      listSecondaryClassificationsForRecord("module.feed-forward-network"),
+    ).toEqual([]);
+    for (const registryId of ["module.standard-ffn", "module.swiglu"]) {
+      expect(getPrimaryClassificationForRecord(registryId)?.id).toBe(
+        "classification.feed-forward-networks",
+      );
+      expect(listSecondaryClassificationsForRecord(registryId)).toEqual([
+        expect.objectContaining({
+          id: "classification.transformer-feed-forward-components",
+        }),
+      ]);
+    }
+
+    expect(
+      listClassificationMembers("classification.feed-forward-networks").map(
+        (member) => `${member.membershipType}:${member.record.id}`,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "secondary:module.sigmoid",
+        "primary:module.feed-forward-network",
+        "primary:module.standard-ffn",
+        "primary:module.swiglu",
+      ]),
+    );
+    expect(
+      listClassificationMembers(
+        "classification.transformer-feed-forward-components",
+      ).map((member) => `${member.membershipType}:${member.record.id}`),
+    ).toEqual(
+      expect.arrayContaining([
+        "secondary:module.gelu",
+        "secondary:module.standard-ffn",
+        "secondary:module.swiglu",
+      ]),
+    );
+  });
+
+  test("seeded ontology relationships resolve typed activation and feed-forward topology", () => {
+    expect(
+      listOntologyRelationshipsForRecord("module.standard-ffn", "uses").map(
+        (relationship) => relationship.target?.id,
+      ),
+    ).toEqual(["concept.activation"]);
+    expect(
+      listOntologyRelationshipsForRecord("module.sigmoid", "used-by").map(
+        (relationship) => relationship.target?.id,
+      ),
+    ).toEqual(["module.standard-ffn"]);
+    expect(
+      listOntologyRelationshipsForRecord("module.swiglu", "uses").map(
+        (relationship) => relationship.target?.id,
+      ),
+    ).toEqual(["module.silu"]);
+    expect(
+      listOntologyRelationshipsForRecord("module.swiglu", "variant").map(
+        (relationship) => relationship.target?.id,
+      ),
+    ).toEqual(["module.standard-ffn"]);
+    expect(
+      listOntologyRelationshipsForRecord("module.feed-forward-network").map(
+        (relationship) => relationship.targetId,
+      ),
+    ).toEqual([
+      "classification.neural-network-components",
+      "concept.activation",
+    ]);
+  });
+
+  test("seeded ontology fields preserve existing tags and curated related ids", () => {
+    expect(getConceptById("concept.activation")?.tags).toEqual([
+      "token-to-probability-chain",
+      "foundations",
+    ]);
+    expect(getModuleById("module.relu")?.relatedIds).toEqual([
+      "concept.activation",
+      "module.feed-forward-network",
+      "module.standard-ffn",
+      "module.leaky-relu",
+      "module.silu",
+    ]);
+    expect(getModuleById("module.sigmoid")?.relatedIds).toEqual([
+      "concept.activation",
+      "module.feed-forward-network",
+      "module.standard-ffn",
+      "module.relu",
+      "module.silu",
+    ]);
+    expect(getModuleById("module.swiglu")?.tags).toEqual([
+      "feed-forward",
+      "foundations",
+    ]);
+  });
+
+  test("missing runtime lookups stay scoped to undefined without affecting known records", () => {
+    expect(getModuleById("module.missing-runtime-record")).toBeUndefined();
+    expect(getConceptById("concept.missing-runtime-record")).toBeUndefined();
+    expect(
+      getRegistryRecordById("module.missing-runtime-record"),
+    ).toBeUndefined();
+    expect(getRegistryTags("module.missing-runtime-record")).toBeUndefined();
+    expect(
+      getRegistryCitationIds("module.missing-runtime-record"),
+    ).toBeUndefined();
+
+    expect(getModuleById("module.attention")?.slug).toBe("attention");
   });
 
   test("getRegistryRecordById resolves modules and concepts", () => {
@@ -183,6 +413,117 @@ describe("registry-runtime", () => {
     expect(getRegistryRecordById("organization.deepseek-ai")?.kind).toBe(
       "organization",
     );
+    expect(
+      listClassificationMembers("classification.deepseek-runtime-missing"),
+    ).toEqual([]);
+  });
+
+  test("representative runtime helpers resolve every generated registry kind", () => {
+    expect(getModuleById("module.grouped-query-attention")?.kind).toBe(
+      "module",
+    );
+    expect(getConceptById("concept.kv-cache")?.kind).toBe("concept");
+    expect(getModelById("model.gpt-3")?.kind).toBe("model");
+    expect(getPaperById("paper.deepseek-v4")?.kind).toBe("paper");
+    expect(getTrainingRegimeById("training-regime.dpo")?.kind).toBe(
+      "training-regime",
+    );
+    expect(getSystemById("system.routing")?.kind).toBe("system");
+    expect(getDatasetById("dataset.deepseek-v4-specialist-corpus")?.kind).toBe(
+      "dataset",
+    );
+    expect(getOrganizationById("organization.deepseek-ai")?.kind).toBe(
+      "organization",
+    );
+    expect(
+      getClassificationById("classification.activation-functions")?.kind,
+    ).toBe("classification");
+    expect(getCitationById("citation.gqa-paper")?.kind).toBe("citation");
+
+    expect(listModuleRecords().map((record) => record.id)).toContain(
+      "module.grouped-query-attention",
+    );
+    expect(listConceptRecords().map((record) => record.id)).toContain(
+      "concept.kv-cache",
+    );
+    expect(listModelRecords().map((record) => record.id)).toContain(
+      "model.gpt-3",
+    );
+    expect(listPaperRecords().map((record) => record.id)).toContain(
+      "paper.deepseek-v4",
+    );
+    expect(listTrainingRegimeRecords().map((record) => record.id)).toContain(
+      "training-regime.dpo",
+    );
+    expect(listSystemRecords().map((record) => record.id)).toContain(
+      "system.routing",
+    );
+    expect(listDatasetRecords().map((record) => record.id)).toContain(
+      "dataset.deepseek-v4-specialist-corpus",
+    );
+    expect(listOrganizationRecords().map((record) => record.id)).toContain(
+      "organization.deepseek-ai",
+    );
+    expect(listClassificationRecords().map((record) => record.id)).toContain(
+      "classification.activation-functions",
+    );
+    expect(listCitationRecords().map((record) => record.id)).toContain(
+      "citation.gqa-paper",
+    );
+  });
+
+  test("getSystemById returns the canonical routing system with serving aliases and nearby docs", () => {
+    const record = getSystemById("system.routing");
+
+    expect(record?.slug).toBe("routing");
+    expect(record?.status).toBe("published");
+    expect(record?.tags).toEqual(["foundations"]);
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "Routing",
+        "request routing",
+        "inference routing",
+        "serving router",
+        "serve request to specialist model",
+      ]),
+    );
+    expect(record?.relatedIds).toEqual([
+      "training-regime.specialist-training",
+      "module.mixture-of-experts",
+      "module.deepseekmoe",
+      "system.expert-parallel-overlap",
+      "system.on-disk-kv-cache",
+      "paper.deepseek-v4",
+    ]);
+    expect(record?.relatedModuleIds).toEqual([
+      "module.mixture-of-experts",
+      "module.deepseekmoe",
+    ]);
+    expect(record?.organizationId).toBe("organization.deepseek-ai");
+  });
+
+  test("routing system is reachable from paper, organization, and the system registry list", () => {
+    expect(getPaperById("paper.deepseek-v4")?.introducesIds).toContain(
+      "system.routing",
+    );
+    expect(
+      getOrganizationById("organization.deepseek-ai")?.systemIds,
+    ).toContain("system.routing");
+    expect(listSystemRecords().map((record) => record.id)).toContain(
+      "system.routing",
+    );
+  });
+
+  test("nearby published MoE and training records link back to routing for reciprocal discovery", () => {
+    expect(getModuleById("module.mixture-of-experts")?.relatedIds).toContain(
+      "system.routing",
+    );
+    expect(getModuleById("module.deepseekmoe")?.relatedIds).toContain(
+      "system.routing",
+    );
+    expect(
+      getRegistryRecordById("training-regime.specialist-training")?.relatedIds,
+    ).toContain("system.routing");
   });
 
   test("listRelatedRegistryRecords includes concepts and modules", () => {
@@ -238,6 +579,37 @@ describe("registry-runtime", () => {
     );
     expect(record?.relatedIds).toContain("concept.embedding");
     expect(record?.relatedIds).toContain("concept.tensor");
+  });
+
+  test("getConceptById returns vocabulary size as a glossary quantity", () => {
+    const record = getConceptById("concept.vocabulary-size");
+    expect(record?.slug).toBe("vocabulary-size");
+    expect(record?.conceptType).toBe("math");
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "vocabulary size",
+        "vocab size",
+        "tokenizer vocabulary",
+        "token vocabulary size",
+      ]),
+    );
+    expect(record?.tags).toEqual(
+      expect.arrayContaining(["token-to-probability-chain", "foundations"]),
+    );
+    expect(record?.sidebarGrouping?.glossary).toBe("sequence-and-attention");
+    expect(record?.relatedIds).toEqual(
+      expect.arrayContaining([
+        "concept.token",
+        "concept.embedding",
+        "concept.hidden-size",
+        "concept.logit",
+        "model.gpt-3",
+      ]),
+    );
+    expect(record?.prerequisiteIds).toEqual([
+      "concept.token",
+      "concept.embedding",
+    ]);
   });
 
   test("listModuleRecords includes attention overview and variant-group peers", () => {

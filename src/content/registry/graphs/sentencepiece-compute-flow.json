@@ -9,87 +9,81 @@
   "relatedIds": [],
   "citationIds": [],
   "status": "published",
-  "createdAt": "2026-06-21T00:00:00.000Z",
-  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
   "subjectId": "module.sentencepiece",
   "graphType": "module-compute-flow",
-  "rootNodeId": "raw-text",
+  "rootNodeId": "rawText",
   "layout": "vertical-expandable",
   "defaultExpandedDepth": 1,
   "supportedRenderers": ["react-flow", "mermaid"],
   "nodes": [
     {
-      "id": "raw-text",
+      "id": "rawText",
       "labelKey": "graph.nodes.rawText.label",
       "moduleKind": "input",
-      "position": { "x": 180, "y": 0 },
-      "visualRole": "process-node",
-      "childNodeIds": ["normalization"]
+      "childNodeIds": ["normalizeText"]
     },
     {
-      "id": "normalization",
-      "labelKey": "graph.nodes.normalization.label",
+      "id": "normalizeText",
+      "labelKey": "graph.nodes.normalizeText.label",
       "moduleKind": "operation",
-      "position": { "x": 170, "y": 110 },
-      "visualRole": "process-node",
-      "childNodeIds": ["candidate-pieces"]
+      "childNodeIds": ["keepWhitespace"]
     },
     {
-      "id": "candidate-pieces",
-      "labelKey": "graph.nodes.candidatePieces.label",
-      "moduleKind": "feed-forward",
-      "position": { "x": 150, "y": 220 },
-      "visualRole": "summary-node",
-      "childNodeIds": ["learned-vocabulary"]
+      "id": "keepWhitespace",
+      "labelKey": "graph.nodes.keepWhitespace.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["learnPieces"]
     },
     {
-      "id": "learned-vocabulary",
-      "labelKey": "graph.nodes.learnedVocabulary.label",
-      "moduleKind": "other",
-      "position": { "x": 150, "y": 330 },
-      "visualRole": "process-node",
-      "childNodeIds": ["token-ids"]
+      "id": "learnPieces",
+      "labelKey": "graph.nodes.learnPieces.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["encodeText"]
     },
     {
-      "id": "token-ids",
-      "labelKey": "graph.nodes.tokenIds.label",
+      "id": "encodeText",
+      "labelKey": "graph.nodes.encodeText.label",
+      "moduleKind": "tokenizer",
+      "childNodeIds": ["tokenOutput"]
+    },
+    {
+      "id": "tokenOutput",
+      "labelKey": "graph.nodes.tokenOutput.label",
       "moduleKind": "output",
-      "position": { "x": 185, "y": 440 },
-      "visualRole": "process-node",
-      "childNodeIds": []
-    },
-    {
-      "id": "whitespace-note",
-      "labelKey": "graph.nodes.whitespaceNote.label",
-      "moduleKind": "other",
-      "position": { "x": 430, "y": 150 },
-      "visualRole": "annotation",
       "childNodeIds": []
     }
   ],
   "edges": [
     {
-      "id": "raw-to-normalization",
-      "source": "raw-text",
-      "target": "normalization",
+      "id": "raw-to-normalize",
+      "source": "rawText",
+      "target": "normalizeText",
       "edgeKind": "data-flow"
     },
     {
-      "id": "normalization-to-candidates",
-      "source": "normalization",
-      "target": "candidate-pieces",
+      "id": "normalize-to-whitespace",
+      "source": "normalizeText",
+      "target": "keepWhitespace",
       "edgeKind": "data-flow"
     },
     {
-      "id": "candidates-to-vocabulary",
-      "source": "candidate-pieces",
-      "target": "learned-vocabulary",
+      "id": "whitespace-to-learn",
+      "source": "keepWhitespace",
+      "target": "learnPieces",
       "edgeKind": "data-flow"
     },
     {
-      "id": "vocabulary-to-token-ids",
-      "source": "learned-vocabulary",
-      "target": "token-ids",
+      "id": "learn-to-encode",
+      "source": "learnPieces",
+      "target": "encodeText",
+      "edgeKind": "data-flow"
+    },
+    {
+      "id": "encode-to-output",
+      "source": "encodeText",
+      "target": "tokenOutput",
       "edgeKind": "data-flow"
     }
   ]

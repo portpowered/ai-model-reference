@@ -1,6 +1,6 @@
 ---
 title: SentencePiece
-description: SentencePiece learns subword pieces directly from raw text, which helps models tokenize many languages and scripts without depending on whitespace-first splitting.
+description: A tokenizer system that learns subword pieces directly from raw text, including spaces, without requiring word splitting first.
 kind: "module"
 registryId: "module.sentencepiece"
 messageNamespace: "local"
@@ -10,10 +10,9 @@ tags:
   - tokenization
   - foundations
 aliases:
-  - "SentencePiece"
+  - "sentencepiece"
   - "sentence piece"
-  - "sentencepiece tokenizer"
-updatedAt: "2026-06-21"
+updatedAt: "2026-06-19"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
@@ -22,9 +21,9 @@ import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
 import { TagPillList } from "@/features/docs/components/TagPillList";
 import { ModuleComparisonTable } from "@/features/models/components/ModuleComparisonTable";
+import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
 import { ModuleGraph } from "@/features/models/components/ModuleGraph";
 import { ModuleAtAGlance } from "@/features/models/components/ModuleAtAGlance";
-import { ModuleAttentionSchemaComparison } from "@/features/models/components/ModuleAttentionSchemaComparison";
 import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModule";
 
 <ModuleAtAGlance registryId="module.sentencepiece" />
@@ -33,12 +32,8 @@ import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModul
   <T k="sections.whatItIs.body" />
 </Section>
 
-<Section id="what-it-optimizes" titleKey="sections.whatItOptimizes.title">
-  <T k="sections.whatItOptimizes.body" />
-</Section>
-
-<Section id="practical-benefit" titleKey="sections.practicalBenefit.title">
-  <T k="sections.practicalBenefit.body" />
+<Section id="why-it-exists" titleKey="sections.whyItExists.title">
+  <T k="sections.whyItExists.body" />
 </Section>
 
 <Section id="how-it-works" titleKey="sections.howItWorks.title">
@@ -49,9 +44,7 @@ import { ModelsUsingModule } from "@/features/models/components/ModelsUsingModul
 
 <Section id="math-or-compute-schema" titleKey="sections.mathOrComputeSchema.title">
   <T k="sections.mathOrComputeSchema.body" />
-  <ModuleAttentionSchemaComparison
-    schemaIds={["sentencepiece", "bpe"]}
-  />
+  <ModuleAttentionSchemaComparison schemaIds={["sentencepiece"]} />
 </Section>
 
 <Section id="compared-to-nearby-modules" titleKey="sections.comparedToNearbyModules.title">

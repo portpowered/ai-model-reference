@@ -19,7 +19,11 @@
     "module.grouped-query-attention",
     "module.attention"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.chen-positional-interpolation",
+    "citation.peng-yarn",
+    "citation.ding-longrope"
+  ],
   "status": "published",
   "createdAt": "2026-06-09T00:00:00.000Z",
   "updatedAt": "2026-06-09T21:00:00.000Z",

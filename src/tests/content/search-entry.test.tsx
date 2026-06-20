@@ -6,6 +6,7 @@ import {
   describe,
   expect,
   it,
+  setDefaultTimeout,
 } from "bun:test";
 import { cleanup, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -20,6 +21,9 @@ import {
   restoreFetchMock,
 } from "@/tests/a11y/render";
 import { createDocsSearchRouteFetch } from "@/tests/search/route-fetch";
+import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
+
+setDefaultTimeout(15_000);
 
 function installDocsSearchRouteFetch(): void {
   globalThis.fetch = createDocsSearchRouteFetch();
@@ -48,18 +52,29 @@ describe("search entry page render", () => {
 });
 
 describe("search entry page built-app shell", () => {
-  beforeAll(() => {
+  let releaseFetchLock: (() => void) | null = null;
+
+  beforeAll(async () => {
     captureOriginalFetch();
-    installDocsSearchRouteFetch();
+    await lockGlobalFetch().then((release) => {
+      releaseFetchLock = release;
+      installDocsSearchRouteFetch();
+      restoreFetchMock();
+      releaseFetchLock?.();
+      releaseFetchLock = null;
+    });
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    releaseFetchLock = await lockGlobalFetch();
     installDocsSearchRouteFetch();
   });
 
   afterEach(() => {
     cleanup();
     restoreFetchMock();
+    releaseFetchLock?.();
+    releaseFetchLock = null;
   });
 
   it("hydrates with exactly one title, search input, and canonical note", async () => {

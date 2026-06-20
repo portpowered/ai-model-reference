@@ -7,13 +7,9 @@
       "title": "Nó là gì",
       "body": "Multi-query attention là một biến thể attention phát triển từ multi-head attention. Mỗi query head vẫn tự tính điểm attention của riêng mình, nhưng tất cả cùng đọc từ một key head và một value head dùng chung."
     },
-    "whatItOptimizes": {
+    "whyItExists": {
       "title": "Nó tối ưu điều gì",
       "body": "MQA nhắm vào dung lượng KV cache và băng thông bộ nhớ trong giải mã tự hồi quy. Việc chia sẻ một cặp KV cho toàn bộ query head giúp giảm tối đa số tensor phải lưu cho mỗi token."
-    },
-    "practicalBenefit": {
-      "title": "Lợi ích thực tế",
-      "body": "Các hệ thống phục vụ chọn MQA khi suy luận ngữ cảnh dài sẽ làm kích thước cache tăng quá mạnh nếu giữ KV riêng cho từng head. MQA mang lại dung lượng KV nhỏ nhất trong họ attention chia sẻ head mà vẫn giữ các phép chiếu query tách biệt."
     },
     "howItWorks": {
       "title": "Cách nó hoạt động",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "So sánh số head giữa multi-head attention và multi-query attention",
-      "caption": "Chuyển giữa MHA và MQA để so sánh số query head với số KV head trên cùng một đồ thị",
       "variants": {
         "mha": {
           "label": "MHA"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "Cách MQA so với các biến thể attention lân cận"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

@@ -6,36 +6,37 @@
   "defaultSummaryKey": "description",
   "aliases": [
     "SentencePiece",
+    "sentencepiece",
     "sentence piece",
-    "sentencepiece tokenizer",
-    "sentencepiece unigram"
+    "multilingual tokenizer",
+    "whitespace-agnostic tokenizer",
+    "whitespace agnostic tokenizer",
+    "raw-text tokenizer",
+    "raw text tokenizer"
   ],
   "tags": ["tokenization", "foundations"],
-  "relatedIds": ["concept.token"],
-  "citationIds": ["citation.sentencepiece-paper"],
+  "relatedIds": [
+    "concept.tokenizers-overview",
+    "concept.token",
+    "module.bpe",
+    "module.wordpiece"
+  ],
+  "citationIds": ["citation.kudo-sentencepiece"],
   "status": "published",
-  "createdAt": "2026-06-21T00:00:00.000Z",
-  "updatedAt": "2026-06-21T00:00:00.000Z",
-  "releaseDate": "2018-08-19",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "releaseDate": "2018-11-02",
   "authors": ["Taku Kudo", "John Richardson"],
-  "sourceId": "citation.sentencepiece-paper",
+  "sourceId": "citation.kudo-sentencepiece",
   "moduleType": "tokenizer",
-  "optimizes": [
-    "multilingual tokenization",
-    "raw-text training",
-    "tokenization reproducibility"
-  ],
-  "practicalBenefits": [
-    "trains subword vocabularies directly from raw text without separate whitespace tokenizers",
-    "keeps tokenization behavior consistent across scripts and languages",
-    "packages normalization and segmentation rules into one reproducible tokenizer model"
-  ],
+  "moduleFamily": "tokenization",
+  "conceptType": "subword-tokenization",
+  "variantGroup": "subword-tokenizers",
+  "optimizes": ["open-vocabulary-coverage", "pretokenization-independence"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "none",
-  "moduleFamily": "tokenization",
-  "conceptType": "tokenizer-algorithm"
+  "mathLevel": "none"
 }

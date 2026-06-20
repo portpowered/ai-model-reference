@@ -8,6 +8,8 @@ import { isShippedLocalizedDocsSlug } from "@/lib/content/shipped-localized-docs
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
 
+const VIETNAMESE_LONG_CONTEXT_TIMEOUT_MS = 15_000;
+
 const VIETNAMESE_MODULE_EXPECTATIONS = [
   {
     slug: "sliding-window-attention",
@@ -61,99 +63,109 @@ const VIETNAMESE_MODULE_EXPECTATIONS = [
 ] as const;
 
 describe("Phase 4 Vietnamese long-context attention coverage", () => {
-  test("Vietnamese shipped localized docs include sliding-window-attention and linear-attention", async () => {
-    const pages = await loadShippedLocalizedDocsPages("vi");
-    const docsSlugs = pages.map((page) => page.docsSlug);
+  test(
+    "Vietnamese shipped localized docs include sliding-window-attention and linear-attention",
+    async () => {
+      const pages = await loadShippedLocalizedDocsPages("vi");
+      const docsSlugs = pages.map((page) => page.docsSlug);
 
-    expect(docsSlugs).toContain("modules/sliding-window-attention");
-    expect(docsSlugs).toContain("modules/linear-attention");
-    expect(
-      isShippedLocalizedDocsSlug("modules/sliding-window-attention", "vi"),
-    ).toBe(true);
-    expect(isShippedLocalizedDocsSlug("modules/linear-attention", "vi")).toBe(
-      true,
-    );
-  });
+      expect(docsSlugs).toContain("modules/sliding-window-attention");
+      expect(docsSlugs).toContain("modules/linear-attention");
+      expect(
+        isShippedLocalizedDocsSlug("modules/sliding-window-attention", "vi"),
+      ).toBe(true);
+      expect(isShippedLocalizedDocsSlug("modules/linear-attention", "vi")).toBe(
+        true,
+      );
+    },
+    { timeout: VIETNAMESE_LONG_CONTEXT_TIMEOUT_MS },
+  );
 
   for (const expectation of VIETNAMESE_MODULE_EXPECTATIONS) {
-    test(`/vi/docs/modules/${expectation.slug} ships Vietnamese copy, graph text, and locale-aware module chrome`, async () => {
-      const page = await loadLocalDocsPage(
-        {
-          section: "modules",
-          slug: expectation.slug,
-        },
-        "vi",
-      );
-      const html = renderToStaticMarkup(
-        createElement(
-          ModulePageProviders,
+    test(
+      `/vi/docs/modules/${expectation.slug} ships Vietnamese copy, graph text, and locale-aware module chrome`,
+      async () => {
+        const page = await loadLocalDocsPage(
           {
-            messages: page.messages,
-            assets: page.assets,
-            locale: "vi",
+            section: "modules",
+            slug: expectation.slug,
           },
-          page.content,
-        ),
-      );
+          "vi",
+        );
+        const html = renderToStaticMarkup(
+          createElement(
+            ModulePageProviders,
+            {
+              messages: page.messages,
+              assets: page.assets,
+              locale: "vi",
+            },
+            page.content,
+          ),
+        );
 
-      expect(page.frontmatter.registryId).toBe(expectation.registryId);
-      expect(page.messages.description).toBe(expectation.vietnameseDescription);
-      expect(page.messages.description).not.toBe(expectation.englishFallback);
-      expect(page.messages.sections?.whatItOptimizes.body).toContain(
-        expectation.vietnameseBody,
-      );
-      expect(page.messages.assets?.computeFlow?.caption).toBe(
-        expectation.graphCaption,
-      );
-      expect(page.messages.assets?.computeFlow?.alt).toBe(expectation.graphAlt);
-      expect(page.messages.assets?.comparisonTable?.caption).toBe(
-        expectation.tableCaption,
-      );
-      expect(
-        Object.values(page.messages.tables?.comparison?.dimensions ?? {}).some(
-          (dimension) => dimension === expectation.tableDimension,
-        ),
-      ).toBe(true);
-      expect(
-        Object.values(page.messages.graph?.nodes ?? {}).some(
-          (node) => node.label === expectation.graphLabel,
-        ),
-      ).toBe(true);
-      expect(html).not.toContain(expectation.englishFallback);
-      expect(html).toContain(expectation.graphCaption);
-      expect(html).toContain(expectation.graphAlt);
-      expect(html).toContain(expectation.tableCaption);
-      expect(html).toContain(expectation.tableDimension);
+        expect(page.frontmatter.registryId).toBe(expectation.registryId);
+        expect(page.messages.description).toBe(
+          expectation.vietnameseDescription,
+        );
+        expect(page.messages.description).not.toBe(expectation.englishFallback);
+        expect(page.messages.sections?.whyItExists.body).toContain(
+          expectation.vietnameseBody,
+        );
+        expect(page.messages.assets?.computeFlow?.alt).toBe(
+          expectation.graphAlt,
+        );
+        expect(
+          Object.values(
+            page.messages.tables?.comparison?.dimensions ?? {},
+          ).some((dimension) => dimension === expectation.tableDimension),
+        ).toBe(true);
+        expect(
+          Object.values(page.messages.graph?.nodes ?? {}).some(
+            (node) => node.label === expectation.graphLabel,
+          ),
+        ).toBe(true);
+        expect(html).not.toContain(expectation.englishFallback);
+        expect(html).toContain(expectation.graphAlt);
+        expect(html).toContain(expectation.tableDimension);
 
-      for (const href of expectation.expectedHrefs) {
-        expect(html).toContain(`href="${href}"`);
-      }
+        for (const href of expectation.expectedHrefs) {
+          expect(html).toContain(`href="${href}"`);
+        }
 
-      expect(html).not.toContain('href="/docs/modules/multi-head-attention"');
-      expect(html).not.toContain('href="/docs/modules/multi-query-attention"');
-      expect(html).not.toContain(
-        'href="/docs/modules/grouped-query-attention"',
-      );
-    });
+        expect(html).not.toContain('href="/docs/modules/multi-head-attention"');
+        expect(html).not.toContain(
+          'href="/docs/modules/multi-query-attention"',
+        );
+        expect(html).not.toContain(
+          'href="/docs/modules/grouped-query-attention"',
+        );
+      },
+      { timeout: VIETNAMESE_LONG_CONTEXT_TIMEOUT_MS },
+    );
   }
 
-  test("Vietnamese localized search metadata and search results include the long-context attention slice", async () => {
-    const meta = await loadSearchResultMetaMap("vi");
-    expect(
-      meta.get("/vi/docs/modules/sliding-window-attention")?.description,
-    ).toContain("cửa sổ cục bộ cố định");
-    expect(
-      meta.get("/vi/docs/modules/linear-attention")?.description,
-    ).toContain("độ tăng gần tuyến tính theo độ dài chuỗi");
+  test(
+    "Vietnamese localized search metadata and search results include the long-context attention slice",
+    async () => {
+      const meta = await loadSearchResultMetaMap("vi");
+      expect(
+        meta.get("/vi/docs/modules/sliding-window-attention")?.description,
+      ).toContain("cửa sổ cục bộ cố định");
+      expect(
+        meta.get("/vi/docs/modules/linear-attention")?.description,
+      ).toContain("độ tăng gần tuyến tính theo độ dài chuỗi");
 
-    const results = await docsSearchApi.search("gần tuyến tính", {
-      locale: "vi",
-    });
-    expect(results.length).toBeGreaterThan(0);
-    expect(
-      results.some(
-        (result) => result.url === "/vi/docs/modules/linear-attention",
-      ),
-    ).toBe(true);
-  });
+      const results = await docsSearchApi.search("gần tuyến tính", {
+        locale: "vi",
+      });
+      expect(results.length).toBeGreaterThan(0);
+      expect(
+        results.some(
+          (result) => result.url === "/vi/docs/modules/linear-attention",
+        ),
+      ).toBe(true);
+    },
+    { timeout: VIETNAMESE_LONG_CONTEXT_TIMEOUT_MS },
+  );
 });

@@ -152,6 +152,10 @@ function getAttentionHeadNodeClassName(
       return "registry-graph-flow__summary-node";
     case "process-node":
       return "registry-graph-flow__process-node";
+    case "moe-expert-node":
+      return "registry-graph-flow__process-node registry-graph-flow__process-node--moe-expert";
+    case "moe-merge-node":
+      return "registry-graph-flow__process-node registry-graph-flow__process-node--moe-merge";
     case "latent-node":
       return "registry-graph-flow__latent-node";
     case "annotation":
@@ -202,6 +206,8 @@ function estimateNodeHeight(
       return 56;
     case "summary-node":
     case "process-node":
+    case "moe-expert-node":
+    case "moe-merge-node":
     case "latent-node":
       return 64;
     case "architecture-embedding":
@@ -230,6 +236,8 @@ export function nodeVisualRoleHasHandles(
     visualRole === "timeline-node-muted" ||
     visualRole === "summary-node" ||
     visualRole === "process-node" ||
+    visualRole === "moe-expert-node" ||
+    visualRole === "moe-merge-node" ||
     visualRole === "latent-node" ||
     visualRole === "group-container" ||
     visualRole === "architecture-embedding" ||

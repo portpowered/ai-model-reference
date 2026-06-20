@@ -81,12 +81,9 @@ describe("home page render", () => {
       "現代の AI モデルとモジュールのためのフィールドガイド",
     );
     expect(html).toContain('href="/ja/browse"');
-    expect(html).toContain('href="/docs/modules/grouped-query-attention"');
+    expect(html).toContain('href="/ja/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/docs/modules/swiglu"');
     expect(html).toContain('href="/docs/modules/relu"');
-    expect(html).not.toContain(
-      'href="/ja/docs/modules/grouped-query-attention"',
-    );
     expect(html).not.toContain('href="/ja/docs/modules/swiglu"');
     expect(html).not.toContain('href="/ja/docs/modules/relu"');
   });

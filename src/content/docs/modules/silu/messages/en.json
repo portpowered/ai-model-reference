@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "The sigmoid linear unit (SiLU) is an activation function that multiplies each value x by sigmoid(x). Large positive values pass through strongly, values near zero are softened, and negative values are reduced smoothly instead of being cut off sharply. In transformer feed-forward layers, that gives the model a softer filter than ReLU."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "SiLU optimizes for a smoother activation rule. Instead of a hard cutoff, it lets the negative side fade gradually, which often fits modern wide feed-forward layers better than a sharp zero clamp."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "SiLU matters because it shows up both as a plain activation and as the gate nonlinearity inside SwiGLU. Learning this page makes the jump from classic activations to modern gated feed-forward variants much easier."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Activation comparison chart showing how rectified linear unit, leaky rectified linear unit, and sigmoid linear unit reshape positive and negative values",
-      "caption": "This chart compares the hard cutoff in ReLU, the small negative leak in LeakyReLU, and the smooth self-gating curve in SiLU.",
       "variants": {
         "relu": {
           "label": "ReLU"
@@ -65,9 +60,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How sigmoid linear unit compares with nearby activation variants"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

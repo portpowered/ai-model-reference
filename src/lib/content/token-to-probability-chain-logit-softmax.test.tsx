@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
@@ -15,6 +15,7 @@ import {
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
+import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 
 const LOGIT_GLOSSARY_URL = "/docs/glossary/logit";
 const SOFTMAX_GLOSSARY_URL = "/docs/glossary/softmax";
@@ -73,27 +74,24 @@ describe("Phase 2 logit and softmax glossary pages (US-005)", () => {
 });
 
 describe("Phase 2 logit and softmax search discoverability (US-005)", () => {
-  const originalFetch = globalThis.fetch;
-
-  afterEach(() => {
-    globalThis.fetch = originalFetch;
-  });
-
   test("search finds logit glossary for logits alias query", async () => {
     const exported = await (await docsSearchApi.staticGET()).json();
-    globalThis.fetch = (async () =>
-      new Response(JSON.stringify(exported), {
-        status: 200,
-      })) as unknown as typeof fetch;
-
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
     );
-    const client = createDocsSearchClient({
-      metaByUrl,
-      client: { from: DOCS_SEARCH_API_PATH },
-    });
-    const results = await client.search("logits");
+    const results = await withGlobalFetchOverride(
+      (async () =>
+        new Response(JSON.stringify(exported), {
+          status: 200,
+        })) as unknown as typeof fetch,
+      async () => {
+        const client = createDocsSearchClient({
+          metaByUrl,
+          client: { from: DOCS_SEARCH_API_PATH },
+        });
+        return client.search("logits");
+      },
+    );
 
     expect(results.some((result) => result.url === LOGIT_GLOSSARY_URL)).toBe(
       true,
@@ -102,19 +100,22 @@ describe("Phase 2 logit and softmax search discoverability (US-005)", () => {
 
   test("search ranks softmax glossary first for Softmax title query", async () => {
     const exported = await (await docsSearchApi.staticGET()).json();
-    globalThis.fetch = (async () =>
-      new Response(JSON.stringify(exported), {
-        status: 200,
-      })) as unknown as typeof fetch;
-
     const metaByUrl = searchResultMetaMapToRecord(
       await loadSearchResultMetaMap(),
     );
-    const client = createDocsSearchClient({
-      metaByUrl,
-      client: { from: DOCS_SEARCH_API_PATH },
-    });
-    const results = await client.search("Softmax");
+    const results = await withGlobalFetchOverride(
+      (async () =>
+        new Response(JSON.stringify(exported), {
+          status: 200,
+        })) as unknown as typeof fetch,
+      async () => {
+        const client = createDocsSearchClient({
+          metaByUrl,
+          client: { from: DOCS_SEARCH_API_PATH },
+        });
+        return client.search("Softmax");
+      },
+    );
 
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url).toBe(SOFTMAX_GLOSSARY_URL);

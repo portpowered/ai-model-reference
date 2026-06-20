@@ -17,7 +17,10 @@
     "concept.latent",
     "concept.conditioning"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.denoising-diffusion-probabilistic-models",
+    "citation.classifier-free-diffusion-guidance"
+  ],
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-08T00:00:00.000Z",

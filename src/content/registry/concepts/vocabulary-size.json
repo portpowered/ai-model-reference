@@ -1,0 +1,34 @@
+{
+  "id": "concept.vocabulary-size",
+  "slug": "vocabulary-size",
+  "kind": "concept",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "vocabulary size",
+    "vocab size",
+    "tokenizer vocabulary",
+    "token vocabulary size",
+    "tokenizer vocab size"
+  ],
+  "tags": ["token-to-probability-chain", "foundations"],
+  "relatedIds": [
+    "concept.token",
+    "module.byte-level-tokenization",
+    "concept.special-tokens",
+    "concept.embedding",
+    "concept.hidden-size",
+    "concept.logit",
+    "model.gpt-3"
+  ],
+  "citationIds": ["citation.gpt-2-report", "citation.sennrich-bpe"],
+  "status": "published",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "conceptType": "math",
+  "sidebarGrouping": {
+    "glossary": "sequence-and-attention"
+  },
+  "prerequisiteIds": ["concept.token", "concept.embedding"],
+  "explainsIds": []
+}

@@ -1,0 +1,56 @@
+{
+  "id": "table.bpe-comparison",
+  "subjectId": "module.bpe",
+  "columns": [
+    {
+      "moduleId": "module.bpe",
+      "titleKey": "tables.comparison.columns.bpe.title"
+    },
+    {
+      "moduleId": "module.wordpiece",
+      "titleKey": "tables.comparison.columns.wordpiece.title"
+    },
+    {
+      "moduleId": "module.sentencepiece",
+      "titleKey": "tables.comparison.columns.sentencepiece.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "startingView",
+      "labelKey": "tables.comparison.dimensions.startingView"
+    },
+    {
+      "id": "mergeChoice",
+      "labelKey": "tables.comparison.dimensions.mergeChoice"
+    },
+    {
+      "id": "spaceHandling",
+      "labelKey": "tables.comparison.dimensions.spaceHandling"
+    },
+    {
+      "id": "mainTradeoff",
+      "labelKey": "tables.comparison.dimensions.mainTradeoff"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.bpe": {
+      "startingView": "tables.comparison.values.bpe.startingView",
+      "mergeChoice": "tables.comparison.values.bpe.mergeChoice",
+      "spaceHandling": "tables.comparison.values.bpe.spaceHandling",
+      "mainTradeoff": "tables.comparison.values.bpe.mainTradeoff"
+    },
+    "module.wordpiece": {
+      "startingView": "tables.comparison.values.wordpiece.startingView",
+      "mergeChoice": "tables.comparison.values.wordpiece.mergeChoice",
+      "spaceHandling": "tables.comparison.values.wordpiece.spaceHandling",
+      "mainTradeoff": "tables.comparison.values.wordpiece.mainTradeoff"
+    },
+    "module.sentencepiece": {
+      "startingView": "tables.comparison.values.sentencepiece.startingView",
+      "mergeChoice": "tables.comparison.values.sentencepiece.mergeChoice",
+      "spaceHandling": "tables.comparison.values.sentencepiece.spaceHandling",
+      "mainTradeoff": "tables.comparison.values.sentencepiece.mainTradeoff"
+    }
+  }
+}

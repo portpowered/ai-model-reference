@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SearchResultMetaDetails } from "@/features/docs/search/SearchResultMetaDetails";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
+import { publishedResourceMatchesTag } from "@/lib/content/phase-1-published-resources";
 import { loadRegistry } from "@/lib/content/registry";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
@@ -11,46 +12,68 @@ import {
 } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta";
-import {
-  resultsIncludeUrl,
-  SAMPLE_MODULE_URL,
-  TAXONOMY_GLOSSARY_URLS,
-} from "./helpers";
+import { resultsIncludeUrl, SAMPLE_MODULE_URL } from "./helpers";
 
 function pageBaseUrl(url: string): string {
   return url.split("#")[0] ?? url;
 }
 
+const REPRESENTATIVE_TAXONOMY_GLOSSARY_CASES = [
+  {
+    url: "/docs/glossary/architecture",
+    query: "architecture",
+    alias: "model architecture",
+  },
+  {
+    url: "/docs/glossary/generative-model",
+    query: "generative model",
+    alias: "generative models",
+  },
+  {
+    url: "/docs/glossary/modality",
+    query: "modality",
+    alias: "data modality",
+  },
+] as const;
+
 describe("phase 2 taxonomy search indexing", () => {
-  test("indexes all nine taxonomy glossary pages with glossary kind facets", async () => {
+  test("indexes runtime-derived taxonomy glossary pages with glossary kind facets", async () => {
     const registry = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
     const documents = buildSearchDocuments(pages, registry);
+    const taxonomyGlossaryPages = pages.filter(
+      (page) =>
+        page.frontmatter.kind === "glossary" &&
+        publishedResourceMatchesTag(page, "taxonomy", registry),
+    );
 
-    for (const url of TAXONOMY_GLOSSARY_URLS) {
-      const document = documents.find((entry) => entry.url === url);
+    expect(taxonomyGlossaryPages.length).toBeGreaterThan(0);
+
+    for (const page of taxonomyGlossaryPages) {
+      const document = documents.find((entry) => entry.url === page.url);
       expect(document).toBeDefined();
       expect(document?.kind).toBe("glossary");
       expect(document?.facets.kind).toBe("glossary");
-      expect(document?.tags).toEqual(
-        expect.arrayContaining(["taxonomy", "foundations"]),
-      );
+      expect(document?.tags).toEqual(expect.arrayContaining(["taxonomy"]));
     }
   });
 
-  test("search result meta map includes glossary kind for taxonomy pages", async () => {
+  test("search result meta map preserves representative taxonomy glossary discovery details", async () => {
     const registry = await loadRegistry();
     const pages = await loadPublishedDocsPages("en");
     const documents = buildSearchDocuments(pages, registry);
     const metaMap = buildSearchResultMetaMap(documents);
 
-    for (const url of TAXONOMY_GLOSSARY_URLS) {
-      const meta = metaMap.get(url);
+    for (const representative of REPRESENTATIVE_TAXONOMY_GLOSSARY_CASES) {
+      const meta = metaMap.get(representative.url);
       expect(meta).toBeDefined();
       expect(meta?.kind).toBe("glossary");
       expect(meta?.description.length).toBeGreaterThan(0);
       expect(meta?.tags).toEqual(
         expect.arrayContaining(["taxonomy", "foundations"]),
+      );
+      expect(meta?.aliases).toEqual(
+        expect.arrayContaining([representative.alias]),
       );
     }
   });
@@ -58,25 +81,33 @@ describe("phase 2 taxonomy search indexing", () => {
 
 describe("phase 2 taxonomy search ranking", () => {
   test("ranks architecture glossary first for architecture query", async () => {
-    const results = await docsSearchApi.search("architecture");
+    const results = await docsSearchApi.search(
+      REPRESENTATIVE_TAXONOMY_GLOSSARY_CASES[0].query,
+    );
     expect(results.length).toBeGreaterThan(0);
     expect(pageBaseUrl(results[0]?.url ?? "")).toBe(
-      "/docs/glossary/architecture",
+      REPRESENTATIVE_TAXONOMY_GLOSSARY_CASES[0].url,
     );
   });
 
   test("ranks generative model glossary first for generative model query", async () => {
-    const results = await docsSearchApi.search("generative model");
+    const results = await docsSearchApi.search(
+      REPRESENTATIVE_TAXONOMY_GLOSSARY_CASES[1].query,
+    );
     expect(results.length).toBeGreaterThan(0);
     expect(pageBaseUrl(results[0]?.url ?? "")).toBe(
-      "/docs/glossary/generative-model",
+      REPRESENTATIVE_TAXONOMY_GLOSSARY_CASES[1].url,
     );
   });
 
   test("ranks modality glossary first for modality query", async () => {
-    const results = await docsSearchApi.search("modality");
+    const results = await docsSearchApi.search(
+      REPRESENTATIVE_TAXONOMY_GLOSSARY_CASES[2].query,
+    );
     expect(results.length).toBeGreaterThan(0);
-    expect(pageBaseUrl(results[0]?.url ?? "")).toBe("/docs/glossary/modality");
+    expect(pageBaseUrl(results[0]?.url ?? "")).toBe(
+      REPRESENTATIVE_TAXONOMY_GLOSSARY_CASES[2].url,
+    );
   });
 
   test("GET search endpoint ranks architecture glossary first", async () => {

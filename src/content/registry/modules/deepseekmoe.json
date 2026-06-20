@@ -6,7 +6,11 @@
   "defaultSummaryKey": "description",
   "aliases": ["DeepSeekMoE", "DeepSeek MoE"],
   "tags": ["feed-forward", "foundations"],
-  "relatedIds": ["module.mixture-of-experts", "paper.deepseek-v4"],
+  "relatedIds": [
+    "module.mixture-of-experts",
+    "paper.deepseek-v4",
+    "system.routing"
+  ],
   "citationIds": ["citation.deepseek-v4-paper"],
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
@@ -19,9 +23,6 @@
     "parameter-capacity",
     "compute-efficiency",
     "routing-specialization"
-  ],
-  "practicalBenefits": [
-    "uses specialized experts without paying dense-feed-forward cost on every token"
   ],
   "exampleModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "improvesOnIds": ["module.mixture-of-experts"],

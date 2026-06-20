@@ -20,9 +20,22 @@
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
+  "releaseDate": "2017-02-01",
+  "authors": ["Stefan Elfwing", "Eiji Uchibe", "Kenji Doya"],
+  "sourceId": "citation.sigmoid-weighted-linear-units",
+  "primaryClassificationId": "classification.activation-functions",
+  "relationships": [
+    {
+      "relationshipType": "variant",
+      "targetId": "concept.activation"
+    },
+    {
+      "relationshipType": "used-by",
+      "targetId": "module.swiglu"
+    }
+  ],
   "moduleType": "activation",
   "optimizes": ["activation-smoothness"],
-  "practicalBenefits": ["adds a smoother activation curve than ReLU"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

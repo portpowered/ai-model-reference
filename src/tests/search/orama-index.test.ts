@@ -8,6 +8,7 @@ import {
   createOramaDatabase,
   exportOramaIndexSnapshot,
   type OramaSnapshotDocument,
+  toOramaRecord,
 } from "@/lib/search/orama-index";
 
 const ATTENTION_MODULE_URL = "/docs/modules/attention";
@@ -25,11 +26,13 @@ const PAGE_SPEC_WORKFLOW_SAMPLE_URL =
   "/docs/concepts/page-spec-workflow-sample";
 const FEED_FORWARD_NETWORK_URL = "/docs/modules/feed-forward-network";
 const STANDARD_FFN_URL = "/docs/modules/standard-ffn";
+const ACTIVATION_GLOSSARY_URL = "/docs/glossary/activation";
 const NORMALIZATION_URL = "/docs/glossary/normalization";
 const LAYER_NORM_URL = "/docs/modules/layer-norm";
 const BATCH_NORM_URL = "/docs/modules/batch-norm";
 const GROUP_NORM_URL = "/docs/modules/group-norm";
 const MIXTURE_OF_EXPERTS_URL = "/docs/modules/mixture-of-experts";
+const ROUTING_SYSTEM_URL = "/docs/systems/routing";
 const RELU_URL = "/docs/modules/relu";
 const LEAKY_RELU_URL = "/docs/modules/leaky-relu";
 const SILU_URL = "/docs/modules/silu";
@@ -165,6 +168,7 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   GROUP_NORM_URL,
   STANDARD_FFN_URL,
   MIXTURE_OF_EXPERTS_URL,
+  ROUTING_SYSTEM_URL,
   RELU_URL,
   LEAKY_RELU_URL,
   SILU_URL,
@@ -291,6 +295,76 @@ describe("exportOramaIndexSnapshot", () => {
     expect((gqaHit?.document as { tags: string }).tags).toContain("attention");
   });
 
+  test("Orama database records include expanded topology terms", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const relu = documents.find((document) => document.url === RELU_URL);
+
+    expect(relu).toBeDefined();
+    if (!relu) {
+      throw new Error("Expected ReLU search document to exist.");
+    }
+    const record = toOramaRecord(relu);
+
+    expect(record.topology).toContain("classification.activation-functions");
+    expect(record.topology).toContain("activation functions");
+    expect(record.topology).toContain("Gaussian error linear unit");
+    expect(record.topology).toContain("used by");
+    expect(record.topology).toContain("module standard ffn");
+    expect(record.topology).toContain("dense FFN");
+  });
+
+  test.each([
+    {
+      query: "activation",
+      expectedUrls: [
+        ACTIVATION_GLOSSARY_URL,
+        RELU_URL,
+        LEAKY_RELU_URL,
+        SILU_URL,
+      ],
+    },
+    {
+      query: "relu",
+      expectedUrls: [RELU_URL, LEAKY_RELU_URL, SILU_URL],
+    },
+    {
+      query: "gelu",
+      expectedUrls: [
+        ACTIVATION_GLOSSARY_URL,
+        RELU_URL,
+        LEAKY_RELU_URL,
+        SILU_URL,
+      ],
+    },
+    {
+      query: "feed forward",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+    {
+      query: "feedforward",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+    {
+      query: "ffn",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+  ] as const)("Orama database resolves topology-aware seed results for $query", async ({
+    query,
+    expectedUrls,
+  }) => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const db = await createOramaDatabase(documents);
+    const { hits } = await search(db, { term: query, limit: 20 });
+    const urls = hits.map((hit) => (hit.document as { url: string }).url);
+
+    expect(urls.length).toBeGreaterThan(0);
+    expect(urls).toEqual(expect.arrayContaining([...expectedUrls]));
+  });
+
   test.each([
     { query: "MHA", url: MULTI_HEAD_ATTENTION_URL },
     { query: "multi-head attention", url: MULTI_HEAD_ATTENTION_URL },
@@ -320,6 +394,37 @@ describe("exportOramaIndexSnapshot", () => {
 
     expect(hits.length).toBeGreaterThan(0);
     expect((hits[0]?.document as { url: string }).url).toBe(url);
+  });
+
+  test.each([
+    { query: "routing", expectedRank: "first" },
+    { query: "request routing", expectedRank: "first" },
+    { query: "inference routing", expectedRank: "first" },
+    { query: "serve request to specialist model", expectedRank: "contains" },
+  ] as const)("Orama database resolves the canonical routing system page for %s", async ({
+    query,
+    expectedRank,
+  }) => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const db = await createOramaDatabase(documents);
+    const { hits } = await search(db, { term: query });
+
+    expect(hits.length).toBeGreaterThan(0);
+
+    if (expectedRank === "first") {
+      expect((hits[0]?.document as { url: string }).url).toBe(
+        ROUTING_SYSTEM_URL,
+      );
+      return;
+    }
+
+    expect(
+      hits.some(
+        (hit) => (hit.document as { url: string }).url === ROUTING_SYSTEM_URL,
+      ),
+    ).toBe(true);
   });
 });
 

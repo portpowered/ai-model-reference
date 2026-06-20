@@ -14,8 +14,7 @@ This index is the entry point to the standards used by this repository. Read it 
 - `factory/docs/standards/planning-standards.md` — required PRD, work-story, and acceptance-criteria planning behavior
 - `factory/docs/standards/general-backend-standards.md` — required backend architecture, state management, linting, testing, CI, and complexity expectations
 - `factory/docs/standards/general-website-standards.md` — required website architecture, accessibility, responsive design, styling, performance, and testing expectations
-- `factory/docs/standards/docs-writing-standards.md` — required canonical-docs writing rules, layperson tone, acronym handling, math placement, and review checklist
-- `factory/docs/standards/docs-quality-standards.md` — concise canonical-docs quality checklist used during review
+- `factory/docs/standards/docs-writing-standards.md` — required canonical-docs writing rules, layperson tone, acronym handling, math placement, graph/equation expectations, and review checklist
 
 ## Selection Guidance
 
@@ -23,6 +22,6 @@ This index is the entry point to the standards used by this repository. Read it 
 - For PRDs, `prd.json`, task decomposition, and work-story planning, start with the planning standard and then read the review standard.
 - For backend and runtime work, also read the general backend standard before making structural, stateful, testing, or CI-related changes.
 - For frontend and website work, also read the general website standard before making structural, UI, state, or testing changes.
-- For canonical docs authoring or review, also read the docs writing standard and use the docs quality standard as a concise review checklist.
+- For canonical docs authoring or review, read the docs writing standard and use its review checklist.
 - For feature work that changes tests, contracts, or public behavior, use the review standard to confirm the required evidence is present.
 - If this standards corpus expands, add new standards here and keep this index current.

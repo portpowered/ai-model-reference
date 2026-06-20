@@ -1,7 +1,9 @@
 import { loader } from "fumadocs-core/source";
 import { excludeNonPublishedLocalDocsPlugin } from "@/lib/content/exclude-non-published-local-docs-plugin";
+import { loadGeneratedDocsSourceBinding } from "@/lib/fumadocs-source-runtime";
 import { buildGeneratedDocsPageTree } from "@/lib/navigation/generated-docs-page-tree";
-import { docs } from "../../.source/server";
+
+const { docs } = await loadGeneratedDocsSourceBinding();
 
 /** Maps local docs page bundles to reader URLs. */
 function pageBundleSlug(file: { path: string }): string[] | undefined {

@@ -65,6 +65,7 @@ describe("section index page render", () => {
     const html = renderToStaticMarkup(await SystemsIndexPage());
 
     expect(html).toContain("Systems");
+    expect(html).toContain('href="/docs/systems/routing"');
     expect(html).toContain('href="/docs/systems/on-disk-kv-cache"');
     expect(html).toContain('href="/docs/systems/expert-parallel-overlap"');
   });

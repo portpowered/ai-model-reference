@@ -88,9 +88,6 @@ export function ModuleAtAGlance({ registryId }: { registryId: string }) {
         <AtAGlanceListSection title="Optimizes">
           <BulletList items={record.optimizes} formatItem={formatToken} />
         </AtAGlanceListSection>
-        <AtAGlanceListSection title="Practical benefits">
-          <BulletList items={record.practicalBenefits} />
-        </AtAGlanceListSection>
         <AtAGlanceListSection title="Example models">
           <RegistryLinkList
             registryIds={record.exampleModelIds}

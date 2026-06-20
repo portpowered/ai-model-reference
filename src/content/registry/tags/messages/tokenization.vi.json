@@ -1,4 +1,4 @@
 {
-  "title": "Tokenization",
-  "summary": "Cac thuat toan tokenizer, cach tach subword, va cac trang tham chieu giai thich cach mo hinh chia van ban thuan thanh token."
+  "title": "Phan tach token",
+  "summary": "Cac thuat toan tokenizer, ranh gioi token, va cac trang tham khao lien quan den cach mo hinh tach van ban thanh token."
 }

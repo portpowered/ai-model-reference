@@ -26,33 +26,69 @@ describe("search page query prefill", () => {
     expect(resolveInitialSearchPageQuery(null, null)).toBe("");
   });
 
-  it("encodes handoff keys for client dedupe", () => {
-    expect(encodeSearchPageHandoffKey({ q: "GQA", tag: "attention" })).toBe(
-      "GQA\0attention",
+  it("seeds classification when q and tag are absent", () => {
+    expect(resolveInitialSearchPageQuery(null, null, "activation")).toBe(
+      "activation",
     );
-    expect(encodeSearchPageHandoffKey({ q: null, tag: null })).toBe("\0");
+  });
+
+  it("encodes handoff keys for client dedupe", () => {
+    expect(
+      encodeSearchPageHandoffKey({
+        q: "GQA",
+        tag: "attention",
+        classification: "activation",
+      }),
+    ).toBe("GQA\0attention\0activation");
+    expect(
+      encodeSearchPageHandoffKey({
+        q: null,
+        tag: null,
+        classification: null,
+      }),
+    ).toBe("\0\0");
   });
 });
 
 describe("search page server handoff", () => {
   it("resolves q and tag from request search params", () => {
-    expect(resolveSearchPageHandoff({ q: "GQA", tag: "attention" })).toEqual({
+    expect(
+      resolveSearchPageHandoff({
+        q: "GQA",
+        tag: "attention",
+        classification: "activation",
+      }),
+    ).toEqual({
       q: "GQA",
       tag: "attention",
+      classification: "activation",
     });
   });
 
   it("trims whitespace and ignores empty values", () => {
-    expect(resolveSearchPageHandoff({ q: "  ", tag: " attention " })).toEqual({
+    expect(
+      resolveSearchPageHandoff({
+        q: "  ",
+        tag: " attention ",
+        classification: " classification.activation-functions ",
+      }),
+    ).toEqual({
       q: null,
       tag: "attention",
+      classification: "classification.activation-functions",
     });
   });
 
   it("reads the first value when Next passes repeated params", () => {
-    expect(resolveSearchPageHandoff({ tag: ["attention", "gqa"] })).toEqual({
+    expect(
+      resolveSearchPageHandoff({
+        tag: ["attention", "gqa"],
+        classification: ["activation", "feed-forward"],
+      }),
+    ).toEqual({
       q: null,
       tag: "attention",
+      classification: "activation",
     });
   });
 });
@@ -94,6 +130,18 @@ describe("Phase 1 discovery search handoffs", () => {
     );
     const html = renderToStaticMarkup(page);
     expect(html).toContain('href="/vi/search?tag=attention"');
+    expect(html).toContain("data-search");
+  });
+
+  it("attention tag landing preserves the locale in japanese search handoffs", async () => {
+    const page = await renderTagLandingPage(
+      {
+        params: Promise.resolve({ slug: "attention" }),
+      },
+      "ja",
+    );
+    const html = renderToStaticMarkup(page);
+    expect(html).toContain('href="/ja/search?tag=attention"');
     expect(html).toContain("data-search");
   });
 

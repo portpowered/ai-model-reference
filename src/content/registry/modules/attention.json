@@ -19,13 +19,21 @@
   "status": "published",
   "createdAt": "2026-06-06T00:00:00.000Z",
   "updatedAt": "2026-06-06T00:00:00.000Z",
+  "releaseDate": "2017-06-01",
+  "authors": [
+    "Ashish Vaswani",
+    "Noam Shazeer",
+    "Niki Parmar",
+    "Jakob Uszkoreit",
+    "Llion Jones",
+    "Aidan N. Gomez",
+    "Łukasz Kaiser",
+    "Illia Polosukhin"
+  ],
+  "sourceId": "citation.attention-is-all-you-need",
   "moduleType": "attention",
   "moduleFamily": "attention",
   "optimizes": ["context-mixing", "sequence-modeling"],
-  "practicalBenefits": [
-    "routes information between positions in a sequence",
-    "enables long-range dependencies without fixed receptive fields"
-  ],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

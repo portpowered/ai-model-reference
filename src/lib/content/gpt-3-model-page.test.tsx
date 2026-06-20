@@ -4,8 +4,14 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { DerivedRelatedDocs } from "@/features/docs/components/DerivedRelatedDocs";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadModelPage } from "@/lib/content/model-page";
+import { getModelById } from "@/lib/content/registry-runtime";
 
 describe("gpt-3 model page related docs", () => {
+  test("registry keeps BPE as an explicit curated discovery path", () => {
+    const record = getModelById("model.gpt-3");
+    expect(record?.relatedIds).toContain("module.bpe");
+  });
+
   test("derived related docs do not duplicate module-backed positional links", () => {
     const html = renderToStaticMarkup(
       <DerivedRelatedDocs
@@ -27,6 +33,26 @@ describe("gpt-3 model page related docs", () => {
     ).toHaveLength(1);
   });
 
+  test("derived related docs surface BPE as a visible curated link", () => {
+    const html = renderToStaticMarkup(
+      <DerivedRelatedDocs
+        registryId="model.gpt-3"
+        groups={[
+          "same-model-family",
+          "shared-modules",
+          "shared-training-regimes",
+          "shared-tags",
+          "curated-related",
+        ]}
+      />,
+    );
+
+    expect(html.match(/href="\/docs\/modules\/bpe"/g) ?? []).toHaveLength(1);
+    expect(html).toMatch(
+      /data-related-group="curated-related"[\s\S]*href="\/docs\/modules\/bpe"/,
+    );
+  });
+
   test("page relies on the derived related docs block without a second curated list", async () => {
     const page = await loadModelPage("gpt-3");
     const html = renderToStaticMarkup(
@@ -40,5 +66,24 @@ describe("gpt-3 model page related docs", () => {
 
     expect(html).toContain('data-testid="derived-related-docs"');
     expect(html).not.toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/modules/bpe"');
+  });
+
+  test("page renders its architecture graph from the root registry-backed asset reference", async () => {
+    const page = await loadModelPage("gpt-3");
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('data-page-asset="architectureGraph"');
+    expect(html).toContain('data-graph-id="graph.gpt-3-architecture"');
+    expect(html).toContain('data-react-flow-graph="true"');
+    expect(html).toContain("Input");
+    expect(html).toContain("Embedding");
   });
 });

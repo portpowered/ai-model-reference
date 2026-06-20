@@ -6,13 +6,18 @@ import { PageAssetsProvider } from "@/features/docs/components/page-assets-conte
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import { RegistryComparisonTable } from "@/features/models/components/RegistryComparisonTable";
 import { parsePageAssetConfig, resolveAssetText } from "@/lib/content/assets";
-import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
 
 const messages = pageMessagesSchema.parse(
   JSON.parse(
     readFileSync(
-      join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "messages/en.json"),
+      join(groupedQueryAttentionPageDir, "messages/en.json"),
       "utf8",
     ),
   ),
@@ -20,7 +25,7 @@ const messages = pageMessagesSchema.parse(
 
 const assets = parsePageAssetConfig(
   JSON.parse(
-    readFileSync(join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "assets.json"), "utf8"),
+    readFileSync(join(groupedQueryAttentionPageDir, "assets.json"), "utf8"),
   ),
 );
 
@@ -58,11 +63,9 @@ describe("RegistryComparisonTable", () => {
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain('href="/docs/modules/multi-query-attention"');
     expect(html).toContain("G key heads and G value heads");
-    expect(html).toContain("single shared key-value cache");
+    expect(html).toContain("single shared ");
+    expect(html).toContain('href="/docs/glossary/kv-cache"');
     expect(html).toContain("key-value cache");
-    expect(html).toContain(
-      "How grouped-query attention compares with nearby attention variants",
-    );
   });
 
   test("localizes shipped docs column links for Vietnamese pages", () => {

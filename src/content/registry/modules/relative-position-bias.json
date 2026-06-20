@@ -5,6 +5,7 @@
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
   "aliases": [
+    "relative position bias",
     "Relative position bias",
     "relative positional bias",
     "relative attention bias"
@@ -23,9 +24,11 @@
   "status": "published",
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
+  "releaseDate": "2018-03-01",
+  "authors": ["Peter Shaw", "Jakob Uszkoreit", "Ashish Vaswani"],
+  "sourceId": "citation.self-attention-with-relative-position-representations",
   "moduleType": "position-encoding",
   "optimizes": ["distance-awareness"],
-  "practicalBenefits": ["helps attention reason about token distance"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],

@@ -5,6 +5,7 @@ export const registryKindSchema = z.enum([
   "model",
   "module",
   "concept",
+  "classification",
   "paper",
   "training-regime",
   "system",
@@ -17,6 +18,37 @@ export const registryKindSchema = z.enum([
 ]);
 
 export const registryStatusSchema = z.enum(["draft", "published", "archived"]);
+
+export const ontologyParticipantKindSchema = z.enum([
+  "model",
+  "module",
+  "concept",
+  "paper",
+  "training-regime",
+  "system",
+  "dataset",
+]);
+
+export const ontologyRelationshipTypeSchema = z.enum([
+  "variant",
+  "part-of",
+  "uses",
+  "used-by",
+  "explains",
+  "prerequisite",
+  "related",
+]);
+
+export const ontologyRelationshipSchema = z.object({
+  relationshipType: ontologyRelationshipTypeSchema,
+  targetId: z.string().min(1),
+});
+
+const ontologyMembershipShape = {
+  primaryClassificationId: z.string().min(1).optional(),
+  secondaryClassificationIds: z.array(z.string().min(1)).optional(),
+  relationships: z.array(ontologyRelationshipSchema).optional(),
+};
 
 const baseRecordShape = {
   id: z.string().min(1),
@@ -75,9 +107,9 @@ export const moduleRecordSchema = z.object({
   ...baseRecordShape,
   kind: z.literal("module"),
   ...releaseMetadataShape,
+  ...ontologyMembershipShape,
   moduleType: moduleTypeSchema,
   optimizes: z.array(z.string()),
-  practicalBenefits: z.array(z.string()),
   exampleModelIds: z.array(z.string()),
   improvesOnIds: z.array(z.string()),
   tradeoffIds: z.array(z.string()),
@@ -154,10 +186,27 @@ export const conceptRecordSchema = z.object({
   ...baseRecordShape,
   kind: z.literal("concept"),
   ...releaseMetadataShape,
+  ...ontologyMembershipShape,
   conceptType: conceptTypeSchema,
   prerequisiteIds: z.array(z.string()),
   explainsIds: z.array(z.string()),
   sidebarGrouping: sidebarGroupingSchema,
+});
+
+export const classificationTypeSchema = z.enum([
+  "domain",
+  "family",
+  "mechanism",
+  "topology",
+  "behavior",
+]);
+
+export const classificationRecordSchema = z.object({
+  ...baseRecordShape,
+  kind: z.literal("classification"),
+  classificationType: classificationTypeSchema,
+  classifiesKinds: z.array(ontologyParticipantKindSchema).min(1),
+  parentClassificationId: z.string().min(1).optional(),
 });
 
 export const modelSourceTypeSchema = z.enum([
@@ -179,6 +228,7 @@ export const modelRecordSchema = z.object({
   ...baseRecordShape,
   kind: z.literal("model"),
   ...releaseMetadataShape,
+  ...ontologyMembershipShape,
   family: z.string().min(1),
   sourceType: modelSourceTypeSchema,
   modalities: z.array(modelModalitySchema).min(1),
@@ -197,6 +247,7 @@ export const modelRecordSchema = z.object({
 export const paperRecordSchema = z.object({
   ...baseRecordShape,
   kind: z.literal("paper"),
+  ...ontologyMembershipShape,
   authors: z.array(z.string().min(1)).min(1),
   publishedAt: z.string().min(1),
   url: z.string().url(),
@@ -224,6 +275,7 @@ export const trainingRegimeRecordSchema = z.object({
   ...baseRecordShape,
   kind: z.literal("training-regime"),
   ...releaseMetadataShape,
+  ...ontologyMembershipShape,
   regimeType: trainingRegimeTypeSchema,
   usedByModelIds: z.array(z.string()),
   relatedModuleIds: z.array(z.string()),
@@ -247,6 +299,7 @@ export const systemRecordSchema = z.object({
   ...baseRecordShape,
   kind: z.literal("system"),
   ...releaseMetadataShape,
+  ...ontologyMembershipShape,
   systemType: systemTypeSchema,
   relatedModelIds: z.array(z.string()),
   relatedModuleIds: z.array(z.string()),
@@ -263,6 +316,7 @@ export const datasetRecordSchema = z.object({
   ...baseRecordShape,
   kind: z.literal("dataset"),
   ...releaseMetadataShape,
+  ...ontologyMembershipShape,
   usedByModelIds: z.array(z.string()),
   paperIds: z.array(z.string()),
   organizationId: z.string().optional(),
@@ -353,6 +407,8 @@ export const graphVisualRoleSchema = z.enum([
   "timeline-node-muted",
   "summary-node",
   "process-node",
+  "moe-expert-node",
+  "moe-merge-node",
   "latent-node",
   "annotation",
   "group-container",
@@ -420,6 +476,7 @@ export const graphRecordSchema = z.object({
 export const registryRecordSchema = z.discriminatedUnion("kind", [
   moduleRecordSchema,
   conceptRecordSchema,
+  classificationRecordSchema,
   modelRecordSchema,
   paperRecordSchema,
   trainingRegimeRecordSchema,
@@ -626,12 +683,17 @@ export type RegistryStatus = z.infer<typeof registryStatusSchema>;
 export type BaseRecord = z.infer<typeof baseRecordSchema>;
 export type ModuleRecord = z.infer<typeof moduleRecordSchema>;
 export type ConceptRecord = z.infer<typeof conceptRecordSchema>;
+export type ClassificationRecord = z.infer<typeof classificationRecordSchema>;
 export type ModelRecord = z.infer<typeof modelRecordSchema>;
 export type PaperRecord = z.infer<typeof paperRecordSchema>;
 export type TrainingRegimeRecord = z.infer<typeof trainingRegimeRecordSchema>;
 export type SystemRecord = z.infer<typeof systemRecordSchema>;
 export type DatasetRecord = z.infer<typeof datasetRecordSchema>;
 export type OrganizationRecord = z.infer<typeof organizationRecordSchema>;
+export type OntologyParticipantKind = z.infer<
+  typeof ontologyParticipantKindSchema
+>;
+export type OntologyRelationship = z.infer<typeof ontologyRelationshipSchema>;
 export type GeneratedPageBundleRegistryRecord = z.infer<
   typeof generatedPageBundleRegistryRecordSchema
 >;

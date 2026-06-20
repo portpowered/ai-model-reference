@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "Root mean square normalization rescales one token's hidden vector by dividing by the root mean square of its features, then applying learned gain. Unlike layer norm, it does not subtract the feature mean first."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "RMSNorm targets stable hidden-state scale with less normalization work than full layer norm. It keeps per-token magnitudes predictable while avoiding the mean-centering step."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "Many modern decoder-only language models use RMSNorm because it is simple, fast, and usually good enough for the residual-stream stability they need. It preserves the familiar per-token normalization pattern while trimming some overhead."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -52,7 +48,6 @@
   "assets": {
     "computeFlow": {
       "alt": "Normalization comparison showing LayerNorm and RMSNorm as two per-token normalization paths in the same transformer slot",
-      "caption": "Switch between LayerNorm and RMSNorm to compare full mean-and-variance normalization against lighter scale-only normalization",
       "variants": {
         "layer": {
           "label": "LayerNorm"
@@ -62,9 +57,7 @@
         }
       }
     },
-    "comparisonTable": {
-      "caption": "How RMSNorm compares with nearby normalization modules"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

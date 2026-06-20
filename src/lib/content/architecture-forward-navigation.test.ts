@@ -17,6 +17,7 @@ import { pageMessagesSchema } from "@/lib/content/schemas";
 const PLANNED_ROW_META_SNIPPETS = [
   "not links yet",
   "later phase",
+  "Planned related doc",
   "planned reference",
   "Upcoming model family",
 ] as const;

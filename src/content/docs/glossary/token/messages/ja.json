@@ -1,0 +1,72 @@
+{
+  "title": "Token",
+  "description": "言語モデルが読み取り、予測する最小の文字単位です。多くの場合は単語そのものではなく単語の一部で、各 token ID は attention の前に model hidden size の dense vector へ埋め込まれます。",
+  "sections": {
+    "whatItIs": {
+      "title": "これは何か",
+      "body": "Token は、モデルが使う離散的な語彙の 1 ステップです。Subword tokenizer は珍しい単語を複数の断片に分けることが多く、語彙を有限に保ちながら未知語を含むテキストも扱えるようにします。"
+    },
+    "whyItMatters": {
+      "title": "なぜ重要か",
+      "body": "Tokenization は token 単位の context 長を決め、1 リクエストあたりのコストを左右し、2 つの文字列がモデルにとって同じに見えるかどうかも決めます。学習時と serving 時で tokenizer がずれるのは、よくある統合バグです。誰かが「128k context」と言うとき、それは embedding や次 token の scoring の前に tokenizer が吐き出す同じ単位、つまり 128k tokens を意味します。関連ドキュメントをたどると、token から embedding、そこから logit と softmax へ進めます。"
+    },
+    "simpleExample": {
+      "title": "簡単な例",
+      "body": "「language models」という語句は tokenizer によって 2 個または 3 個の token になることがあります。各 ID は attention 層が動く前に embedding table から参照されます。"
+    },
+    "whereItAppears": {
+      "title": "どこで使われるか",
+      "body": "Token は入力 embedding 層、自回帰の次 token scoring、そして decoding 中の KV-cache 管理に現れます。Attention module が扱うのは生の文字ではなく token の位置です。ここから embeddings への選択リンクをたどると、token から確率までの流れを続けて学べます。"
+    },
+    "commonConfusions": {
+      "title": "よくある混同",
+      "body": "Token は必ずしも単語ではありません。Byte-level BPE は 1 文字だけの token を出すこともあります。Token 数は単語数とも Unicode の grapheme 数とも一致しません。"
+    },
+    "related": {
+      "title": "関連する概念と module"
+    },
+    "tags": {
+      "title": "タグ"
+    },
+    "references": {
+      "title": "参考文献"
+    }
+  },
+  "relatedDocs": {
+    "concept.embedding": {
+      "reason": "各 token ID は、モデルが文脈を混ぜる前に学習済みの数値表現へ変換されます。"
+    },
+    "concept.vocabulary-size": {
+      "reason": "その語彙数は、tokenizer が ID を割り当てられる通常 token と予約 token の総数を示します。"
+    },
+    "concept.logit": {
+      "reason": "次 token の予測は、語彙中の各 token 候補に対する score として始まります。"
+    },
+    "concept.softmax": {
+      "reason": "その候補 score は softmax によって語彙全体の確率へ変換されます。"
+    }
+  },
+  "assets": {
+    "conceptMap": {
+      "alt": "生テキストが tokenizer を通って token ID と embeddings になる流れを示す図",
+      "caption": "生テキストが transformer stack に入る前に token ID へ変わる流れ"
+    }
+  },
+  "graph": {
+    "nodes": {
+      "rawText": {
+        "label": "生テキスト"
+      },
+      "tokenizer": {
+        "label": "Tokenizer"
+      },
+      "tokenIds": {
+        "label": "Token ID"
+      },
+      "embeddings": {
+        "label": "Embeddings"
+      }
+    }
+  },
+  "openingSummary": "モデルは固定の tokenizer 語彙を使い、テキストを整数 ID に写して埋め込みと scoring を行います。生の文字列をそのまま読むわけではありません。"
+}

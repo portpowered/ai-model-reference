@@ -84,4 +84,37 @@ describe("validatePageTemplateConformance", () => {
 
     expect(errors).toEqual([]);
   });
+
+  test("passes the paper template itself", () => {
+    const errors = validatePageTemplateConformance({
+      pagePath: `${docsRoot}/papers/example-paper/page.mdx`,
+      docsRoot,
+      kind: "paper",
+      mdxSource: readTemplate("paper"),
+    });
+
+    expect(errors).toEqual([]);
+  });
+
+  test("passes the training-regime template itself", () => {
+    const errors = validatePageTemplateConformance({
+      pagePath: `${docsRoot}/training/example-regime/page.mdx`,
+      docsRoot,
+      kind: "training-regime",
+      mdxSource: readTemplate("training-regime"),
+    });
+
+    expect(errors).toEqual([]);
+  });
+
+  test("passes the system template itself", () => {
+    const errors = validatePageTemplateConformance({
+      pagePath: `${docsRoot}/systems/example-system/page.mdx`,
+      docsRoot,
+      kind: "system",
+      mdxSource: readTemplate("system"),
+    });
+
+    expect(errors).toEqual([]);
+  });
 });

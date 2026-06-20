@@ -1,0 +1,11 @@
+{
+  "computeFlow": {
+    "type": "chart",
+    "chartId": "chart.activation-family.tanh-intro",
+    "altKey": "assets.computeFlow.alt"
+  },
+  "comparisonTable": {
+    "type": "table",
+    "tableId": "table.tanh-comparison"
+  }
+}

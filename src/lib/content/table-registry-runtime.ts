@@ -1,49 +1,9 @@
-import batchNormComparison from "@/content/registry/tables/batch-norm-comparison.json";
-import bidirectionalAttentionComparison from "@/content/registry/tables/bidirectional-attention-comparison.json";
-import feedForwardNetworkComparison from "@/content/registry/tables/feed-forward-network-comparison.json";
-import groupNormComparison from "@/content/registry/tables/group-norm-comparison.json";
-import groupedQueryAttentionComparison from "@/content/registry/tables/grouped-query-attention-comparison.json";
-import layerNormComparison from "@/content/registry/tables/layer-norm-comparison.json";
-import leakyReluComparison from "@/content/registry/tables/leaky-relu-comparison.json";
-import linearAttentionComparison from "@/content/registry/tables/linear-attention-comparison.json";
-import mixtureOfExpertsComparison from "@/content/registry/tables/mixture-of-experts-comparison.json";
-import multiHeadAttentionComparison from "@/content/registry/tables/multi-head-attention-comparison.json";
-import multiHeadLatentAttentionComparison from "@/content/registry/tables/multi-head-latent-attention-comparison.json";
-import multiQueryAttentionComparison from "@/content/registry/tables/multi-query-attention-comparison.json";
-import qkNormComparison from "@/content/registry/tables/qk-norm-comparison.json";
-import reluComparison from "@/content/registry/tables/relu-comparison.json";
-import rmsNormComparison from "@/content/registry/tables/rmsnorm-comparison.json";
-import sentencepieceComparison from "@/content/registry/tables/sentencepiece-comparison.json";
-import siluComparison from "@/content/registry/tables/silu-comparison.json";
-import slidingWindowAttentionComparison from "@/content/registry/tables/sliding-window-attention-comparison.json";
-import sparseAttentionComparison from "@/content/registry/tables/sparse-attention-comparison.json";
-import standardFfnComparison from "@/content/registry/tables/standard-ffn-comparison.json";
-import swigluComparison from "@/content/registry/tables/swiglu-comparison.json";
+import { generatedTableRegistryPayloads } from "@/lib/content/generated/table-registry.generated";
 import { type TableRecord, tableRecordSchema } from "@/lib/content/schemas";
 
-const tableRecords: TableRecord[] = [
-  tableRecordSchema.parse(batchNormComparison),
-  tableRecordSchema.parse(bidirectionalAttentionComparison),
-  tableRecordSchema.parse(feedForwardNetworkComparison),
-  tableRecordSchema.parse(groupNormComparison),
-  tableRecordSchema.parse(groupedQueryAttentionComparison),
-  tableRecordSchema.parse(layerNormComparison),
-  tableRecordSchema.parse(leakyReluComparison),
-  tableRecordSchema.parse(multiHeadAttentionComparison),
-  tableRecordSchema.parse(linearAttentionComparison),
-  tableRecordSchema.parse(mixtureOfExpertsComparison),
-  tableRecordSchema.parse(multiHeadLatentAttentionComparison),
-  tableRecordSchema.parse(multiQueryAttentionComparison),
-  tableRecordSchema.parse(qkNormComparison),
-  tableRecordSchema.parse(reluComparison),
-  tableRecordSchema.parse(rmsNormComparison),
-  tableRecordSchema.parse(sentencepieceComparison),
-  tableRecordSchema.parse(siluComparison),
-  tableRecordSchema.parse(slidingWindowAttentionComparison),
-  tableRecordSchema.parse(standardFfnComparison),
-  tableRecordSchema.parse(sparseAttentionComparison),
-  tableRecordSchema.parse(swigluComparison),
-];
+const tableRecords: TableRecord[] = generatedTableRegistryPayloads.map(
+  (record) => tableRecordSchema.parse(record),
+);
 
 const tablesById = new Map(tableRecords.map((record) => [record.id, record]));
 

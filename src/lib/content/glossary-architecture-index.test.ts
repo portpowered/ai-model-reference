@@ -53,6 +53,7 @@ const CURRENT_GLOSSARY_SLUGS = [
   "overfitting",
   "parameter",
   "scaling-law",
+  "special-tokens",
   "softmax",
   "temperature",
   "tensor",
@@ -65,6 +66,7 @@ const CURRENT_GLOSSARY_SLUGS = [
   "conditioning",
   "denoising-generation",
   "diffusion-model",
+  "vocabulary-size",
 ] as const;
 
 const EXPECTED_GLOSSARY_TITLES: Record<
@@ -118,6 +120,7 @@ const EXPECTED_GLOSSARY_TITLES: Record<
   "residual-connection": "Residual connection",
   "sampling-overview": "Sampling Overview",
   "scaling-law": "Scaling Law",
+  "special-tokens": "Special Tokens",
   "skip-connection": "Skip connection",
   softmax: "Softmax",
   temperature: "Temperature",
@@ -127,11 +130,12 @@ const EXPECTED_GLOSSARY_TITLES: Record<
   "top-p-sampling": "Top-P Sampling",
   transformer: "Transformer",
   vector: "Vector",
+  "vocabulary-size": "Vocabulary Size",
   "world-model": "World Model",
 };
 
-const PUBLISHED_GLOSSARY_ENTRY_COUNT = 57;
-const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 46;
+const PUBLISHED_GLOSSARY_ENTRY_COUNT = 59;
+const PUBLISHED_ARCHITECTURE_ENTRY_COUNT = 48;
 
 const GLOSSARY_SEPARATOR_TITLES = [
   "Model Taxonomy",
@@ -141,6 +145,7 @@ const GLOSSARY_SEPARATOR_TITLES = [
 ] as const;
 
 const ARCHITECTURE_CONCEPT_URLS = [
+  "/docs/concepts/alibi",
   "/docs/concepts/context-extension",
   "/docs/concepts/page-spec-workflow-sample",
   "/docs/concepts/positional-encodings",
@@ -231,6 +236,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
       "/docs/glossary/kv-cache",
       "/docs/glossary/normalization",
       "/docs/glossary/residual-connection",
+      "/docs/glossary/special-tokens",
       "/docs/glossary/token",
       ...ARCHITECTURE_CONCEPT_URLS,
     ] as const) {
@@ -262,6 +268,7 @@ describe("Phase 2 glossary and architecture index navigation (US-007)", () => {
     }
 
     for (const [title, href] of [
+      ["Attention with linear biases (ALiBi)", "/docs/concepts/alibi"],
       ["Architecture", "/docs/glossary/architecture"],
       ["Foundation Model", "/docs/glossary/foundation-model"],
       ["KV cache", "/docs/glossary/kv-cache"],

@@ -32,7 +32,9 @@ export const VERIFY_SEARCH_DIALOG_STUB_ENV = "VERIFY_SEARCH_DIALOG_STUB";
 export type RunPhase1SearchDialogChecksOptions = {
   timeoutMs?: number;
   queries?: readonly string[];
+  browser?: Browser;
   launchBrowser?: () => Promise<Browser>;
+  logger?: (message: string) => void;
   /**
    * Test hook: when set, skips Playwright and runs this checker per query instead.
    */
@@ -59,8 +61,10 @@ export function resolveSearchDialogCheckOptionsFromEnv(
 
 const SEARCH_DIALOG_TRIGGER_SELECTOR = "button[data-search]";
 const SEARCH_DIALOG_EMPTY_SELECTOR = '[data-testid="search-dialog-empty"]';
+const SEARCH_DIALOG_LOADING_SELECTOR = '[data-testid="search-dialog-loading"]';
 const SEARCH_RESULT_URL_SELECTOR = '[data-testid="search-result-url"]';
 const SEARCH_DIALOG_OPEN_RETRY_INTERVAL_MS = 250;
+const SEARCH_DIALOG_QUERY_RETRY_DELAY_MS = 250;
 
 /** Default per-query browser deadline (static-export dialog hydration can exceed 30s under CI load). */
 export const DEFAULT_SEARCH_DIALOG_TIMEOUT_MS = 45_000;
@@ -188,8 +192,15 @@ async function waitForSearchDialogOutcome(
   dialog: Locator,
   timeoutMs: number,
 ): Promise<void> {
+  const loading = dialog.locator(SEARCH_DIALOG_LOADING_SELECTOR);
   const results = dialog.locator(SEARCH_RESULT_URL_SELECTOR);
   const empty = dialog.locator(SEARCH_DIALOG_EMPTY_SELECTOR);
+
+  await Promise.race([
+    loading.waitFor({ state: "visible", timeout: timeoutMs }),
+    results.first().waitFor({ state: "visible", timeout: timeoutMs }),
+    empty.waitFor({ state: "visible", timeout: timeoutMs }),
+  ]);
 
   await Promise.race([
     results.first().waitFor({ state: "visible", timeout: timeoutMs }),
@@ -212,17 +223,44 @@ export async function checkSearchDialogQuery(
     dialog ?? (await openHeaderSearchDialog(page, baseUrl, timeoutMs));
 
   const input = activeDialog.getByRole("textbox");
-  await input.fill("");
-  await input.fill(query);
+  const deadline = Date.now() + timeoutMs;
+  let lastReason: string | null = null;
 
-  try {
-    await waitForSearchDialogOutcome(activeDialog, timeoutMs);
-  } catch {
-    return `timed out waiting for search results in header search dialog for query "${query}" after ${timeoutMs}ms`;
+  for (let attempt = 0; Date.now() < deadline; attempt += 1) {
+    const remainingMs = Math.max(1, deadline - Date.now());
+    await input.focus();
+    await input.fill("");
+    await input.pressSequentially(query, { delay: 30 });
+
+    try {
+      await waitForSearchDialogOutcome(activeDialog, remainingMs);
+    } catch {
+      lastReason = `timed out waiting for search results in header search dialog for query "${query}" after ${timeoutMs}ms`;
+    }
+
+    const snapshot = await readSearchDialogDomSnapshot(activeDialog);
+    const reason = evaluateSearchDialogDomSnapshot(snapshot, query);
+    if (reason === null) {
+      return null;
+    }
+
+    lastReason = reason;
+    if (attempt > 0 || snapshot.hasResults || snapshot.hasEmpty) {
+      return reason;
+    }
+
+    await sleep(
+      Math.min(
+        SEARCH_DIALOG_QUERY_RETRY_DELAY_MS,
+        Math.max(1, deadline - Date.now()),
+      ),
+    );
   }
 
-  const snapshot = await readSearchDialogDomSnapshot(activeDialog);
-  return evaluateSearchDialogDomSnapshot(snapshot, query);
+  return (
+    lastReason ??
+    `timed out waiting for search results in header search dialog for query "${query}" after ${timeoutMs}ms`
+  );
 }
 
 /**
@@ -235,27 +273,47 @@ export async function runPhase1SearchDialogChecks(
   const queries = options.queries ?? PHASE_1_SEARCH_DIALOG_QUERIES;
   const timeoutMs = options.timeoutMs ?? DEFAULT_SEARCH_DIALOG_TIMEOUT_MS;
   const failures: Phase1SearchDialogCheckFailure[] = [];
+  const log = options.logger ?? (() => {});
 
   if (options.runQueryCheck) {
     for (const query of queries) {
+      log(`[phase-1-search-dialog] running stubbed query "${query}"`);
       const reason = await options.runQueryCheck(baseUrl, query, timeoutMs);
       if (reason) {
+        log(`[phase-1-search-dialog] query "${query}" failed: ${reason}`);
         failures.push({ query, surface: "header-dialog", reason });
+        continue;
       }
+      log(`[phase-1-search-dialog] query "${query}" passed`);
     }
     return failures;
   }
 
-  const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
-  const browser = await launchBrowser();
+  const browser = options.browser;
+  const ownsBrowser = browser === undefined;
+  if (ownsBrowser) {
+    log(
+      `[phase-1-search-dialog] launching browser for ${queries.length} quer${queries.length === 1 ? "y" : "ies"} at ${baseUrl}`,
+    );
+  } else {
+    log("[phase-1-search-dialog] using shared browser");
+  }
+  const activeBrowser =
+    browser ?? (await (options.launchBrowser ?? defaultLaunchBrowser)());
+  if (ownsBrowser) {
+    log("[phase-1-search-dialog] browser launched");
+  }
 
   try {
-    const page = await browser.newPage();
+    const page = await activeBrowser.newPage();
     page.setDefaultTimeout(timeoutMs);
 
+    log("[phase-1-search-dialog] opening header search dialog");
     const dialog = await openHeaderSearchDialog(page, baseUrl, timeoutMs);
+    log("[phase-1-search-dialog] header search dialog opened");
 
     for (const query of queries) {
+      log(`[phase-1-search-dialog] starting query "${query}"`);
       const reason = await checkSearchDialogQuery(
         page,
         baseUrl,
@@ -264,11 +322,18 @@ export async function runPhase1SearchDialogChecks(
         dialog,
       );
       if (reason) {
+        log(`[phase-1-search-dialog] query "${query}" failed: ${reason}`);
         failures.push({ query, surface: "header-dialog", reason });
+        continue;
       }
+      log(`[phase-1-search-dialog] query "${query}" passed`);
     }
   } finally {
-    await closePlaywrightBrowserWithTimeout(browser, timeoutMs);
+    if (ownsBrowser) {
+      log("[phase-1-search-dialog] closing browser");
+      await closePlaywrightBrowserWithTimeout(activeBrowser, timeoutMs);
+      log("[phase-1-search-dialog] browser closed");
+    }
   }
 
   return failures;

@@ -27,9 +27,11 @@ const publishedRegistryIds = new Set([
   "module.multi-head-attention",
   "module.multi-query-attention",
   "module.sparse-attention",
+  "module.byte-level-tokenization",
   "module.learned-positional-embeddings",
   "concept.token",
   "concept.learned-positional-embeddings",
+  "model.gpt-3",
 ]);
 
 const gqa: ModuleRecord = {
@@ -48,7 +50,6 @@ const gqa: ModuleRecord = {
   moduleType: "attention",
   variantGroup: "attention-head-sharing",
   optimizes: [],
-  practicalBenefits: [],
   exampleModelIds: [],
   improvesOnIds: [],
   tradeoffIds: [],
@@ -79,6 +80,27 @@ const sparse: ModuleRecord = {
   slug: "sparse-attention",
   aliases: ["Sparse attention"],
   variantGroup: "sparse-patterns",
+};
+
+const byteLevelTokenization: ModuleRecord = {
+  ...gqa,
+  id: "module.byte-level-tokenization",
+  slug: "byte-level-tokenization",
+  aliases: ["Byte-Level Tokenization"],
+  tags: ["tokenization"],
+  relatedIds: ["concept.token", "model.gpt-3"],
+  citationIds: ["citation.gpt-2-report"],
+  moduleType: "tokenizer",
+  moduleFamily: "tokenization",
+  conceptType: "tokenizer-algorithm",
+  variantGroup: "subword-tokenizers",
+  optimizes: ["arbitrary-text-coverage"],
+  exampleModelIds: ["model.gpt-3"],
+  usedByModelIds: ["model.gpt-3"],
+  mathLevel: "none",
+  releaseDate: "2019-02-14",
+  authors: ["Alec Radford"],
+  sourceId: "citation.gpt-2-report",
 };
 
 const token: ConceptRecord = {
@@ -313,6 +335,24 @@ describe("related-docs", () => {
     expect(items[0]?.isPlanned).toBe(true);
     expect(items[0]?.href).toBeUndefined();
     expect(items[1]?.href).toBe("/docs/modules/grouped-query-attention");
+  });
+
+  test("deriveCuratedRelatedItems keeps byte-level tokenization links pointed at current shipped neighbors", () => {
+    const items = deriveCuratedRelatedItems(
+      byteLevelTokenization,
+      [token, gpt3, gqa, byteLevelTokenization],
+      publishedRegistryIds,
+    );
+
+    expect(items.map((item) => item.registryId)).toEqual([
+      "concept.token",
+      "model.gpt-3",
+    ]);
+    expect(items.every((item) => item.isPlanned)).toBe(false);
+    expect(items.map((item) => item.href)).toEqual([
+      "/docs/glossary/token",
+      "/docs/models/gpt-3",
+    ]);
   });
 
   test("deriveSharedTagPeers collapses module-backed concept and module duplicates to one visible link", () => {

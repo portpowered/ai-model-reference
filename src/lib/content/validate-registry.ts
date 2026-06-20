@@ -7,15 +7,13 @@ import {
   supportedLocales,
 } from "@/lib/i18n/locale-routing";
 import { tagPageHref } from "./content-hrefs";
-import { CONTENT_ROOT, DOCS_ROOT } from "./content-paths";
+import { CONTENT_ROOT, DOCS_ROOT, getDocsPageDir } from "./content-paths";
 import { collectTableMessageKeys } from "./module-comparison-table";
 import { assetMessageKeys, loadPageAssets } from "./page-assets-load";
 import {
   getMessageString,
-  groupedQueryAttentionPageDir,
   hasPageMessagesFile,
   loadPageMessages,
-  tokenGlossaryPageDir,
 } from "./page-messages-load";
 import { validatePageTemplateConformance } from "./page-template-conformance";
 import {
@@ -25,23 +23,35 @@ import {
   type RegistryRecord,
 } from "./registry";
 import {
+  type ModelRecord,
   type ModuleRecord,
   type PageAssetConfig,
   type PageKind,
   type PageMessages,
   pageFrontmatterSchema,
+  type SystemRecord,
+  type TrainingRegimeRecord,
 } from "./schemas";
 import {
   isShippedLocalizedDocsSlug,
-  resolveShippedLocalizedDocsManifest,
   type ShippedLocalizedDocsManifest,
 } from "./shipped-localized-docs";
+import {
+  resetDerivedShippedLocalizedDocsManifestCache,
+  resolveDerivedShippedLocalizedDocsManifest,
+} from "./shipped-localized-docs.server";
 import { getTableById } from "./table-registry-runtime";
 import { loadTagMessages, TagMessagesLoadError } from "./tag-messages";
 import {
   loadUiMessagesFromDisk,
   UiMessagesLoadError,
 } from "./ui-messages-load";
+import {
+  validateGeneratedAssetRules,
+  validateGeneratedFoldedSummary,
+  validateGeneratedGraphPlacement,
+  validateGeneratedKindSpecificStructure,
+} from "./validate-generated-canonical-docs";
 import { parseYamlFrontmatterBlock } from "./yaml-frontmatter";
 
 export { parseYamlFrontmatterBlock };
@@ -59,6 +69,7 @@ const registryKindDirectories: Record<string, string> = {
   module: "modules",
   concept: "concepts",
   model: "models",
+  classification: "classifications",
   paper: "papers",
   "training-regime": "training-regimes",
   system: "systems",
@@ -122,7 +133,7 @@ const requiredCitationExceptionReasons: Partial<
     "Legacy migrated module is published before citation backfill is complete.",
 };
 
-const moduleAtAGlanceMetadataExceptionReasons: Partial<
+const releaseMetadataExceptionReasons: Partial<
   Record<RegistryRecord["id"], string>
 > = {
   "module.absolute-positional-embeddings":
@@ -235,12 +246,29 @@ function requiresAtLeastOneCitation(record: RegistryRecord): boolean {
   return record.citationIds.length === 0;
 }
 
-function missingModuleAtAGlanceFields(record: RegistryRecord): string[] {
-  if (record.kind !== "module" || record.status !== "published") {
+type ReleaseMetadataRecord =
+  | ModuleRecord
+  | ModelRecord
+  | SystemRecord
+  | TrainingRegimeRecord;
+
+function requiresReleaseMetadata(
+  record: RegistryRecord,
+): record is ReleaseMetadataRecord {
+  return (
+    record.kind === "module" ||
+    record.kind === "model" ||
+    record.kind === "system" ||
+    record.kind === "training-regime"
+  );
+}
+
+function missingReleaseMetadataFields(record: RegistryRecord): string[] {
+  if (!requiresReleaseMetadata(record) || record.status !== "published") {
     return [];
   }
 
-  if (moduleAtAGlanceMetadataExceptionReasons[record.id]) {
+  if (releaseMetadataExceptionReasons[record.id]) {
     return [];
   }
 
@@ -263,8 +291,8 @@ function missingModuleAtAGlanceFields(record: RegistryRecord): string[] {
 
 /** Phase 1 page directories validated even when `page.mdx` is not present yet. */
 export const phase1PageDirectories = [
-  groupedQueryAttentionPageDir,
-  tokenGlossaryPageDir,
+  getDocsPageDir("modules", "grouped-query-attention"),
+  getDocsPageDir("glossary", "token"),
 ] as const;
 
 export type ValidateRegistryContentOptions = {
@@ -273,7 +301,7 @@ export type ValidateRegistryContentOptions = {
   messagesRoot?: string;
   /** Override Phase 1 page directories (for tests). */
   phase1PageDirectories?: readonly string[];
-  /** Override shipped localized docs manifest entries in tests. */
+  /** Override derived shipped localized docs entries in tests. */
   shippedLocalizedDocsManifest?: Partial<ShippedLocalizedDocsManifest>;
 };
 
@@ -524,11 +552,11 @@ function validateRegistryRecordReferences(
     });
   }
 
-  const missingAtAGlanceFields = missingModuleAtAGlanceFields(record);
-  if (missingAtAGlanceFields.length > 0) {
+  const missingReleaseMetadata = missingReleaseMetadataFields(record);
+  if (missingReleaseMetadata.length > 0) {
     errors.push({
-      code: "missing-module-at-a-glance-metadata",
-      message: `${record.id}: published module pages using ModuleAtAGlance must provide releaseDate, authors, and sourceId so the page can render release date, author, and paper/source details; missing ${missingAtAGlanceFields.join(", ")}`,
+      code: "missing-release-metadata",
+      message: `${record.id}: published ${record.kind} records must provide releaseDate, authors, and sourceId so release metadata stays standardized across at-a-glance surfaces; missing ${missingReleaseMetadata.join(", ")}`,
       path: filePath,
     });
   }
@@ -785,7 +813,7 @@ async function validateLocalizedPageMessages(
     if (!isShipped && hasMessages) {
       errors.push({
         code: "unexpected-localized-page-messages",
-        message: `${pageDirectory}: locale "${locale}" has page messages but docs slug "${docsSlug}" is not declared in the shipped localized docs manifest`,
+        message: `${pageDirectory}: locale "${locale}" has page messages but docs slug "${docsSlug}" does not derive as a shipped localized docs page`,
         path: messagesPath,
       });
       continue;
@@ -960,7 +988,55 @@ async function validatePageMdx(
       kind: frontmatter.data.kind,
       mdxSource: raw,
     }),
+    ...validateGeneratedFoldedSummary({
+      pagePath,
+      kind: frontmatter.data.kind,
+      mdxSource: raw,
+      messages,
+    }),
   );
+
+  if (
+    frontmatter.data.kind === "model" ||
+    frontmatter.data.kind === "paper" ||
+    frontmatter.data.kind === "training-regime" ||
+    frontmatter.data.kind === "system"
+  ) {
+    errors.push(
+      ...validateGeneratedGraphPlacement({
+        pagePath,
+        kind: frontmatter.data.kind,
+        mdxSource: raw,
+        assets,
+      }),
+    );
+  }
+
+  if (
+    frontmatter.data.kind === "concept" ||
+    frontmatter.data.kind === "paper" ||
+    frontmatter.data.kind === "training-regime" ||
+    frontmatter.data.kind === "system"
+  ) {
+    errors.push(
+      ...validateGeneratedKindSpecificStructure({
+        pagePath,
+        kind: frontmatter.data.kind,
+        mdxSource: raw,
+      }),
+    );
+  }
+
+  if (frontmatter.data.kind === "model") {
+    errors.push(
+      ...validateGeneratedAssetRules({
+        pagePath,
+        kind: frontmatter.data.kind,
+        assets,
+        messages,
+      }),
+    );
+  }
 
   return errors;
 }
@@ -1087,6 +1163,7 @@ async function validateRegistryFiles(
         indexes: {
           byId: new Map(),
           bySlug: new Map(),
+          classificationsById: new Map(),
           tagsById: new Map(),
           tagsBySlug: new Map(),
         },
@@ -1101,9 +1178,12 @@ export async function validateRegistryContent(
   options: ValidateRegistryContentOptions = {},
 ): Promise<ValidationError[]> {
   const docsRoot = options.docsRoot ?? defaultDocsRoot;
-  const shippedLocalizedDocsManifest = resolveShippedLocalizedDocsManifest(
-    options.shippedLocalizedDocsManifest,
-  );
+  resetDerivedShippedLocalizedDocsManifestCache();
+  const shippedLocalizedDocsManifest =
+    resolveDerivedShippedLocalizedDocsManifest(
+      options.shippedLocalizedDocsManifest,
+      docsRoot,
+    );
   const { indexes, errors: registryErrors } =
     await validateRegistryFiles(options);
 

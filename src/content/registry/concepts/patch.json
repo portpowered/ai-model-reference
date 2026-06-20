@@ -7,7 +7,7 @@
   "aliases": ["image patch", "vision patch", "token patch"],
   "tags": ["foundations", "taxonomy"],
   "relatedIds": ["concept.latent", "concept.modality"],
-  "citationIds": [],
+  "citationIds": ["citation.image-is-worth-16x16-words"],
   "status": "published",
   "createdAt": "2026-06-04T11:31:47.893Z",
   "updatedAt": "2026-06-04T12:00:00.000Z",

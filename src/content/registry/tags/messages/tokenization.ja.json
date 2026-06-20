@@ -1,4 +1,4 @@
 {
   "title": "Tokenization",
-  "summary": "モデルが生のテキストをトークンに分ける方法を説明する、トークナイザー手法とサブワード分割のリファレンスページ。"
+  "summary": "Tokenizer no arugorizumu, token no kugiri, soshite model ga tekisuto o token ni bunkatsu suru shikumi ni kansuru kanren reference page."
 }

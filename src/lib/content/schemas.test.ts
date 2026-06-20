@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   baseRecordSchema,
   citationRecordSchema,
+  classificationRecordSchema,
   conceptRecordSchema,
   moduleRecordSchema,
   pageAssetConfigSchema,
@@ -33,7 +34,6 @@ describe("registry schemas", () => {
       kind: "module",
       moduleType: "attention",
       optimizes: ["kv-cache"],
-      practicalBenefits: ["lower memory"],
       exampleModelIds: [],
       improvesOnIds: [],
       tradeoffIds: [],
@@ -91,6 +91,18 @@ describe("registry schemas", () => {
     expect(result.success).toBe(true);
   });
 
+  test("accepts a valid classification record", () => {
+    const result = classificationRecordSchema.safeParse({
+      ...validBaseFields,
+      id: "classification.activation-functions",
+      slug: "activation-functions",
+      kind: "classification",
+      classificationType: "family",
+      classifiesKinds: ["module", "concept"],
+    });
+    expect(result.success).toBe(true);
+  });
+
   test("parses registry records through the kind discriminated union", () => {
     const result = registryRecordSchema.safeParse({
       ...validBaseFields,
@@ -119,8 +131,52 @@ describe("registry schemas", () => {
       ...validBaseFields,
       kind: "module",
       optimizes: ["kv-cache"],
-      practicalBenefits: ["lower memory"],
       mathLevel: "none",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  test("accepts ontology metadata on participating records", () => {
+    const result = moduleRecordSchema.safeParse({
+      ...validBaseFields,
+      kind: "module",
+      moduleType: "activation",
+      optimizes: ["activation-sparsity"],
+      exampleModelIds: [],
+      improvesOnIds: [],
+      tradeoffIds: [],
+      usedByModelIds: [],
+      introducedByPaperIds: [],
+      mathLevel: "none",
+      primaryClassificationId: "classification.activation-functions",
+      secondaryClassificationIds: ["classification.feed-forward-family"],
+      relationships: [
+        {
+          relationshipType: "uses",
+          targetId: "concept.activation",
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  test("rejects malformed ontology relationships", () => {
+    const result = moduleRecordSchema.safeParse({
+      ...validBaseFields,
+      kind: "module",
+      moduleType: "activation",
+      optimizes: ["activation-sparsity"],
+      exampleModelIds: [],
+      improvesOnIds: [],
+      tradeoffIds: [],
+      usedByModelIds: [],
+      introducedByPaperIds: [],
+      mathLevel: "none",
+      relationships: [
+        {
+          relationshipType: "uses",
+        },
+      ],
     });
     expect(result.success).toBe(false);
   });

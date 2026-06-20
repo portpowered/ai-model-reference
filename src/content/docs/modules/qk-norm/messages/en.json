@@ -7,13 +7,9 @@
       "title": "What It Is",
       "body": "QK norm applies normalization directly to the query and key vectors used in attention scoring. Instead of normalizing the whole residual stream, it targets the part of the block that decides how sharply one token attends to another."
     },
-    "whatItOptimizes": {
-      "title": "What It Optimizes",
+    "whyItExists": {
+      "title": "Why It Exists",
       "body": "QK norm mainly targets attention-logit stability. It reduces the chance that raw query or key magnitude will make the softmax too sharp, especially in deeper models or longer-context settings."
-    },
-    "practicalBenefit": {
-      "title": "Practical Benefit",
-      "body": "Because the change is local to attention scoring, QK norm can complement layer norm or RMSNorm rather than replace them. Model designers can tune the score path without rewriting the whole normalization pattern of the block."
     },
     "howItWorks": {
       "title": "How It Works",
@@ -51,12 +47,9 @@
   },
   "assets": {
     "computeFlow": {
-      "alt": "QK norm flow from query and key projections to normalized scores and attended output",
-      "caption": "QK norm inserts normalization into the query-key score path before softmax"
+      "alt": "QK norm flow from query and key projections to normalized scores and attended output"
     },
-    "comparisonTable": {
-      "caption": "How QK norm compares with nearby normalization modules"
-    }
+    "comparisonTable": {}
   },
   "tables": {
     "comparison": {

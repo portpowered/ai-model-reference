@@ -1,5 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
-import { oramaStaticClient } from "fumadocs-core/search/client/orama-static";
+import { describe, expect, test } from "bun:test";
 import { GET } from "@/app/api/search/route";
 import { loadSearchResultMetaMap } from "@/lib/search/search-result-meta";
 import { docsSearchApi } from "@/lib/search/search-server";
@@ -9,7 +8,9 @@ import {
   PHASE_1_SEARCH_ASSERTIONS,
   PHASE_1_VECTOR_GLOSSARY_URL,
 } from "@/lib/verify/phase-1-search-checks";
+import { withGlobalFetchOverride } from "@/tests/shared/global-fetch-lock";
 import {
+  createRetriedStaticClientSearch,
   expectUniqueCanonicalPageUrls,
   MULTI_HEAD_ATTENTION_URL,
   MULTI_QUERY_ATTENTION_URL,
@@ -18,6 +19,7 @@ import {
   resultsIncludeSampleModule,
   resultsIncludeTokenGlossary,
   resultsIncludeUrl,
+  retrySearchResults,
   SAMPLE_MODULE_URL,
   TOKEN_GLOSSARY_URL,
 } from "./helpers";
@@ -28,7 +30,42 @@ import {
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
+const ACTIVATION_GLOSSARY_URL = "/docs/glossary/activation";
 const BIDIRECTIONAL_ATTENTION_URL = "/docs/modules/bidirectional-attention";
+const FEED_FORWARD_NETWORK_URL = "/docs/modules/feed-forward-network";
+const STANDARD_FFN_URL = "/docs/modules/standard-ffn";
+const EXPERT_PARALLEL_OVERLAP_URL = "/docs/systems/expert-parallel-overlap";
+const ACTIVATION_QUANTIZATION_URL = "/docs/concepts/activation-quantization";
+const RELU_URL = "/docs/modules/relu";
+const LEAKY_RELU_URL = "/docs/modules/leaky-relu";
+const SILU_URL = "/docs/modules/silu";
+const SWIGLU_URL = "/docs/modules/swiglu";
+const JAPANESE_ATTENTION_PROOF_SET_URLS = [
+  "/ja/docs/modules/attention",
+  "/ja/docs/modules/linear-attention",
+  "/ja/docs/modules/multi-head-attention",
+  "/ja/docs/modules/grouped-query-attention",
+  "/ja/docs/modules/multi-query-attention",
+  "/ja/docs/modules/sliding-window-attention",
+  "/ja/docs/glossary/token",
+  "/ja/docs/concepts/transformer-architecture",
+] as const;
+
+function expectUrlsBefore(
+  urls: string[],
+  promotedUrls: readonly string[],
+  laterUrl: string,
+) {
+  const laterIndex = urls.indexOf(laterUrl);
+
+  for (const promotedUrl of promotedUrls) {
+    const promotedIndex = urls.indexOf(promotedUrl);
+    expect(promotedIndex).toBeGreaterThanOrEqual(0);
+    if (laterIndex >= 0) {
+      expect(promotedIndex).toBeLessThan(laterIndex);
+    }
+  }
+}
 
 describe("Phase 1 /api/search regression", () => {
   for (const assertion of PHASE_1_SEARCH_ASSERTIONS) {
@@ -130,14 +167,18 @@ describe("live /api/search HTTP contract", () => {
     ).toContain("gần tuyến tính");
   });
 
-  test("GET with a japanese locale query stays empty when no japanese docs pages are shipped", async () => {
+  test("GET with a japanese locale query returns the shipped japanese attention proof set", async () => {
     const response = await GET(
       new Request("http://localhost/api/search?query=attention&locale=ja"),
     );
     expect(response.ok).toBe(true);
 
     const results = (await response.json()) as Array<{ url: string }>;
-    expect(results).toEqual([]);
+    const urls = results.map((result) => result.url);
+    expect(urls).toHaveLength(JAPANESE_ATTENTION_PROOF_SET_URLS.length);
+    expect([...urls].sort()).toEqual(
+      [...JAPANESE_ATTENTION_PROOF_SET_URLS].sort(),
+    );
   });
 
   test("GET returns grouped-query attention for GQA query", async () => {
@@ -149,6 +190,41 @@ describe("live /api/search HTTP contract", () => {
     const results = (await response.json()) as Array<{ url: string }>;
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url).toBe(SAMPLE_URL);
+  });
+
+  test("GET accepts classification=activation without a query and returns activation-family results", async () => {
+    const response = await GET(
+      new Request("http://localhost/api/search?classification=activation"),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    const urls = results.map((result) => result.url);
+    expect(urls).toEqual(expect.arrayContaining([RELU_URL, LEAKY_RELU_URL]));
+  });
+
+  test("GET accepts canonical classification IDs and combines query text with the classification scope", async () => {
+    const response = await GET(
+      new Request(
+        "http://localhost/api/search?query=relu&classification=classification.activation-functions",
+      ),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    const urls = results.map((result) => result.url);
+    expect(results[0]?.url).toBe(RELU_URL);
+    expect(urls).toEqual(expect.arrayContaining([RELU_URL, LEAKY_RELU_URL]));
+  });
+
+  test("GET with an unknown classification falls back to empty search results instead of crashing", async () => {
+    const response = await GET(
+      new Request("http://localhost/api/search?classification=unknown-topic"),
+    );
+    expect(response.ok).toBe(true);
+
+    const results = (await response.json()) as Array<{ url: string }>;
+    expect(results).toEqual([]);
   });
 
   test("GET returns multi-head attention for MHA query", async () => {
@@ -307,6 +383,84 @@ describe("docsSearchApi", () => {
     expect(resultsIncludeSampleModule(results)).toBe(true);
   });
 
+  test.each([
+    {
+      query: "activation",
+      expectedUrls: [
+        ACTIVATION_GLOSSARY_URL,
+        RELU_URL,
+        LEAKY_RELU_URL,
+        SILU_URL,
+      ],
+    },
+    {
+      query: "relu",
+      expectedUrls: [RELU_URL, LEAKY_RELU_URL, SILU_URL],
+    },
+    {
+      query: "gelu",
+      expectedUrls: [
+        ACTIVATION_GLOSSARY_URL,
+        RELU_URL,
+        LEAKY_RELU_URL,
+        SILU_URL,
+      ],
+    },
+    {
+      query: "feed forward",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+    {
+      query: "feedforward",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+    {
+      query: "ffn",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+  ] as const)("search includes topology-aware seed results for $query", async ({
+    query,
+    expectedUrls,
+  }) => {
+    const results = await docsSearchApi.search(query);
+    const urls = results.map((result) => result.url);
+
+    expect(urls.length).toBeGreaterThan(0);
+    expect(urls).toEqual(expect.arrayContaining([...expectedUrls]));
+    expectUniqueCanonicalPageUrls(urls);
+  });
+
+  test("search promotes activation-function modules above incidental activation body matches", async () => {
+    const results = await docsSearchApi.search("activation");
+    const urls = results.map((result) => result.url);
+
+    expectUrlsBefore(
+      urls,
+      [RELU_URL, LEAKY_RELU_URL, SILU_URL],
+      ACTIVATION_QUANTIZATION_URL,
+    );
+  });
+
+  test.each([
+    "feed forward",
+    "feedforward",
+  ] as const)("search promotes feed-forward family modules above unrelated tag matches for %s", async (query) => {
+    const results = await docsSearchApi.search(query);
+    const urls = results.map((result) => result.url);
+
+    expectUrlsBefore(
+      urls,
+      [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+      EXPERT_PARALLEL_OVERLAP_URL,
+    );
+  });
+
+  test("search ranks the canonical feed-forward network page first for the direct FFN alias", async () => {
+    const results = await docsSearchApi.search("ffn");
+
+    expect(results[0]?.url).toBe(FEED_FORWARD_NETWORK_URL);
+  });
+
   test("staticGET exports an advanced Orama index", async () => {
     const response = await docsSearchApi.staticGET();
     expect(response.ok).toBe(true);
@@ -323,46 +477,86 @@ describe("docsSearchApi", () => {
     expect(payload.type).toBe("advanced");
   });
 
-  test("search returns no japanese results when no japanese docs pages are shipped", async () => {
+  test("search returns the shipped japanese attention proof set", async () => {
     const results = await docsSearchApi.search("attention", { locale: "ja" });
-    expect(results).toEqual([]);
+    const urls = results.map((result) => result.url);
+    expect(urls).toHaveLength(JAPANESE_ATTENTION_PROOF_SET_URLS.length);
+    expect([...urls].sort()).toEqual(
+      [...JAPANESE_ATTENTION_PROOF_SET_URLS].sort(),
+    );
   });
 });
 
 describe("docs search static client", () => {
-  const originalFetch = globalThis.fetch;
-
-  afterEach(() => {
-    globalThis.fetch = originalFetch;
-  });
-
   test("orama static client returns grouped-query attention for GQA", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const results = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "GQA"),
+        (candidateResults) => candidateResults[0]?.url === SAMPLE_URL,
+      );
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const results = await client.search("GQA");
-
-    expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.url).toBe(SAMPLE_URL);
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0]?.url).toBe(SAMPLE_URL);
+    });
   });
 
   test("orama static client returns non-empty attention results including bidirectional attention before app-level reranking", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const results = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "attention"),
+        (candidateResults) =>
+          resultsIncludeUrl(candidateResults, PHASE_1_ATTENTION_MODULE_URL),
+      );
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const results = await client.search("attention");
-
-    expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeUrl(results, BIDIRECTIONAL_ATTENTION_URL)).toBe(true);
+      expect(results.length).toBeGreaterThan(0);
+      expect(resultsIncludeUrl(results, PHASE_1_ATTENTION_MODULE_URL)).toBe(
+        true,
+      );
+      expect(resultsIncludeUrl(results, BIDIRECTIONAL_ATTENTION_URL)).toBe(
+        true,
+      );
+    });
   });
 
   test("orama static client includes grouped-query attention for KV cache", async () => {
-    globalThis.fetch = createDocsSearchRouteFetch();
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const results = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, "KV cache"),
+        resultsIncludeSampleModule,
+      );
 
-    const client = oramaStaticClient({ from: TEST_DOCS_SEARCH_URL });
-    const results = await client.search("KV cache");
+      expect(results.length).toBeGreaterThan(0);
+      expect(resultsIncludeSampleModule(results)).toBe(true);
+    });
+  });
 
-    expect(results.length).toBeGreaterThan(0);
-    expect(resultsIncludeSampleModule(results)).toBe(true);
+  test.each([
+    {
+      query: "gelu",
+      expectedUrls: [
+        ACTIVATION_GLOSSARY_URL,
+        RELU_URL,
+        LEAKY_RELU_URL,
+        SILU_URL,
+      ],
+    },
+    {
+      query: "feedforward",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+  ] as const)("orama static client includes topology-aware seed results for $query", async ({
+    query,
+    expectedUrls,
+  }) => {
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const results = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, query),
+        (candidateResults) =>
+          expectedUrls.every((url) => resultsIncludeUrl(candidateResults, url)),
+      );
+      const urls = results.map((result) => result.url);
+
+      expect(urls).toEqual(expect.arrayContaining([...expectedUrls]));
+    });
   });
 });
