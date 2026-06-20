@@ -125,6 +125,84 @@ describe("active-pr-mergeability-watchdog script", () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
+  test("keeps live-schema results payload lanes visible in the watchdog output", () => {
+    const dir = mkdtempSync(join(tmpdir(), "active-pr-watchdog-script-"));
+    const workListPath = join(dir, "work-list.json");
+    const sessionListPath = join(dir, "session-list.json");
+    const prMapPath = join(dir, "pr-map.json");
+    const worktreesRoot = join(dir, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    createWorktree(worktreesRoot, "alpha", "alpha");
+    createWorktree(worktreesRoot, "beta", "beta");
+
+    writeFileSync(
+      workListPath,
+      JSON.stringify({
+        results: [
+          {
+            workId: "task-active",
+            name: "alpha",
+            placeId: "lane-alpha",
+            state: { name: "in-review", type: "PROCESSING" },
+            sessionId: "sess-1",
+          },
+          {
+            workId: "task-failed",
+            name: "beta",
+            placeId: "lane-beta",
+            state: { name: "failed", type: "FAILED" },
+          },
+        ],
+      }),
+    );
+    writeFileSync(
+      sessionListPath,
+      JSON.stringify({
+        sessions: [{ id: "sess-1", workItemName: "alpha", status: "running" }],
+      }),
+    );
+    writeFileSync(
+      prMapPath,
+      JSON.stringify({
+        alpha: {
+          number: 42,
+          headRefName: "alpha",
+          mergeStateStatus: "CLEAN",
+          statusCheckRollup: [{ conclusion: "SUCCESS" }],
+        },
+      }),
+    );
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/active-pr-mergeability-watchdog.ts",
+        "--work-list-json",
+        workListPath,
+        "--session-list-json",
+        sessionListPath,
+        "--worktrees-dir",
+        worktreesRoot,
+        "--pr-map-json",
+        prMapPath,
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("lanes=2 pr-backed=1 linked-with-gaps=1");
+    expect(result.stdout).toContain(
+      "- status=pr-backed queue=active work-item=alpha branch=alpha",
+    );
+    expect(result.stdout).toContain("mergeability=mergeable");
+    expect(result.stdout).toContain(
+      "- status=linked-with-gaps queue=failed work-item=beta branch=beta",
+    );
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   test("keeps reporting other lanes when fixture PR metadata fails", () => {
     const dir = mkdtempSync(join(tmpdir(), "active-pr-watchdog-script-"));
     const workListPath = join(dir, "work-list.json");

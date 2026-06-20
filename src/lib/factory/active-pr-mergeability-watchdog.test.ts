@@ -104,6 +104,47 @@ describe("queue and session payload parsing", () => {
     ]);
   });
 
+  test("accepts live work-list records with nested state objects and extra placement metadata", () => {
+    const payload = JSON.stringify({
+      results: [
+        {
+          workId: "task-active",
+          name: "alpha",
+          placeId: "lane-alpha",
+          state: { name: "in-review", type: "PROCESSING" },
+          sessionId: "sess-1",
+        },
+        {
+          workId: "task-failed",
+          name: "beta",
+          placeId: "lane-beta",
+          state: { name: "failed", type: "FAILED" },
+        },
+        {
+          workId: "task-queued",
+          name: "gamma",
+          placeId: "lane-gamma",
+          state: { name: "init", type: "INITIAL" },
+        },
+      ],
+    });
+
+    expect(parseQueueLaneRecords(payload)).toEqual([
+      {
+        workItemName: "alpha",
+        queueState: "active",
+        rawState: "in-review",
+        sessionId: "sess-1",
+      },
+      {
+        workItemName: "beta",
+        queueState: "failed",
+        rawState: "failed",
+        sessionId: undefined,
+      },
+    ]);
+  });
+
   test("reads work item names from session payload JSON", () => {
     const payload = JSON.stringify({
       sessions: [
@@ -220,6 +261,95 @@ describe("discoverActivePrLaneReport", () => {
         sessionState: undefined,
         reasons: ["no matching worktree under .claude/worktrees"],
       },
+    ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+
+  test("keeps live-schema active and failed lanes visible through discovery", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "active-pr-watchdog-live-"));
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const alphaPath = createWorktree(worktreesRoot, "alpha", "alpha");
+    const betaPath = createWorktree(worktreesRoot, "beta", "beta");
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        results: [
+          {
+            workId: "task-active",
+            name: "alpha",
+            placeId: "lane-alpha",
+            state: { name: "in-review", type: "PROCESSING" },
+            sessionId: "sess-1",
+          },
+          {
+            workId: "task-failed",
+            name: "beta",
+            placeId: "lane-beta",
+            state: { name: "failed", type: "FAILED" },
+          },
+        ],
+      }),
+      sessionListJsonText: JSON.stringify({
+        sessions: [{ id: "sess-1", workItemName: "alpha", status: "running" }],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(
+        new Map([
+          [alphaPath, "alpha"],
+          [betaPath, "beta"],
+        ]),
+        new Map([
+          ["alpha", "0\t0"],
+          ["beta", "0\t1"],
+        ]),
+      ),
+      lookupPullRequest: (branchName): PullRequestLookupResult =>
+        branchName === "alpha"
+          ? {
+              pullRequest: {
+                number: 42,
+                headRefName: "alpha",
+                mergeStateStatus: "CLEAN",
+                statusCheckRollup: [{ conclusion: "SUCCESS" }],
+              },
+            }
+          : {
+              pullRequest: null,
+              failureKind: "not-found",
+              failureReason: "no open PR metadata found for branch beta",
+            },
+    });
+
+    expect(report.issues).toEqual([]);
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "pr-backed",
+        workItemName: "alpha",
+        queueState: "active",
+        rawQueueState: "in-review",
+        worktreePath: ".claude/worktrees/alpha",
+        branchName: "alpha",
+        branchMetadataSource: "git",
+        sessionId: "sess-1",
+        sessionState: "running",
+        mergeabilityClass: "mergeable",
+        checkHealth: "passing",
+      }),
+      expect.objectContaining({
+        status: "unclassified",
+        workItemName: "beta",
+        queueState: "failed",
+        rawQueueState: "failed",
+        worktreePath: ".claude/worktrees/beta",
+        branchName: "beta",
+        branchMetadataSource: "git",
+        prLookupFailureKind: "not-found",
+        prLookupFailureReason: "no open PR metadata found for branch beta",
+      }),
     ]);
 
     rmSync(repoRoot, { recursive: true, force: true });

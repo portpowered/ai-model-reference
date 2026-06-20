@@ -192,6 +192,28 @@ function readNestedStringField(
   return "";
 }
 
+function readQueueStateValues(record: Record<string, unknown>): string[] {
+  const stateRecord = isRecord(record.state) ? record.state : undefined;
+  const values = [
+    readStringField(record, ["state", "status", "queueState", "phase"]),
+    readStringField(stateRecord ?? {}, ["name", "status", "type"]),
+    readNestedStringField(record, ["runtime", "workItem"], ["state", "status"]),
+  ];
+  return values.filter((value): value is string => value.length > 0);
+}
+
+function resolveQueueState(
+  record: Record<string, unknown>,
+): { rawState: string; queueState: QueueLaneState } | null {
+  for (const rawState of readQueueStateValues(record)) {
+    const queueState = normalizeQueueState(rawState);
+    if (queueState) {
+      return { rawState, queueState };
+    }
+  }
+  return null;
+}
+
 function extractCandidateItemArray(
   payload: unknown,
 ): Record<string, unknown>[] {
@@ -239,6 +261,7 @@ function normalizeQueueState(rawState: string): QueueLaneState | null {
     value.includes("active") ||
     value.includes("running") ||
     value.includes("progress") ||
+    value.includes("review") ||
     value.includes("started")
   ) {
     return "active";
@@ -265,11 +288,8 @@ export function parseQueueLaneRecords(jsonText: string): QueueLaneRecord[] {
     const workItemName =
       readStringField(item, ["name", "workItemName", "title", "id"]) ||
       readNestedStringField(item, ["workItem", "item"], ["name", "id"]);
-    const rawState =
-      readStringField(item, ["state", "status", "queueState", "phase"]) ||
-      readNestedStringField(item, ["runtime", "workItem"], ["state", "status"]);
-    const queueState = normalizeQueueState(rawState);
-    if (!workItemName || !queueState) {
+    const state = resolveQueueState(item);
+    if (!workItemName || !state) {
       continue;
     }
     const sessionId =
@@ -282,8 +302,8 @@ export function parseQueueLaneRecords(jsonText: string): QueueLaneRecord[] {
       undefined;
     records.push({
       workItemName,
-      queueState,
-      rawState,
+      queueState: state.queueState,
+      rawState: state.rawState,
       sessionId,
     });
   }
@@ -308,7 +328,7 @@ export function parseSessionLaneRecords(jsonText: string): SessionLaneRecord[] {
       readNestedStringField(item, ["session"], ["id", "sessionId"]) ||
       undefined;
     const rawState =
-      readStringField(item, ["state", "status", "phase"]) ||
+      readQueueStateValues(item)[0] ||
       readNestedStringField(
         item,
         ["runtime", "session"],
