@@ -78,6 +78,7 @@ export const PUBLISHED_DOCS_REGISTRY_IDS = new Set<string>([
   "module.absolute-positional-embeddings",
   "module.learned-positional-embeddings",
   "module.sinusoidal-positional-embeddings",
+  "module.sentencepiece",
   "module.rope",
   "module.alibi",
   "module.relative-position-bias",

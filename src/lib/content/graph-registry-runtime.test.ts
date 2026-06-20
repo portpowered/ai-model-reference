@@ -150,7 +150,7 @@ describe("graph-registry-runtime", () => {
   test("lists all bundled graph records", () => {
     const records = listGraphRecords();
 
-    expect(records.length).toBe(44);
+    expect(records.length).toBe(45);
     expect(records.map((record) => record.id)).toContain(
       "graph.deepseek-v4-contribution",
     );
@@ -165,6 +165,9 @@ describe("graph-registry-runtime", () => {
     );
     expect(records.map((record) => record.id)).toContain(
       "graph.expert-parallel-overlap-system-flow",
+    );
+    expect(records.map((record) => record.id)).toContain(
+      "graph.sentencepiece-compute-flow",
     );
   });
 });

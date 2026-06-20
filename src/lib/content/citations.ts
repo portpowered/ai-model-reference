@@ -12,6 +12,7 @@ import kingmaAdam from "@/content/registry/citations/kingma-adam.json";
 import pengYarn from "@/content/registry/citations/peng-yarn.json";
 import pressAlibi from "@/content/registry/citations/press-alibi.json";
 import raffelT5 from "@/content/registry/citations/raffel-t5.json";
+import sentencepiecePaper from "@/content/registry/citations/sentencepiece-paper.json";
 import shazeerMqaPaper from "@/content/registry/citations/shazeer-mqa-paper.json";
 import suRoformerRope from "@/content/registry/citations/su-roformer-rope.json";
 import weiEmergentAbilities from "@/content/registry/citations/wei-emergent-abilities.json";
@@ -36,6 +37,7 @@ const citationRecords: CitationRecord[] = [
   citationRecordSchema.parse(pressAlibi),
   citationRecordSchema.parse(raffelT5),
   citationRecordSchema.parse(shazeerMqaPaper),
+  citationRecordSchema.parse(sentencepiecePaper),
   citationRecordSchema.parse(suRoformerRope),
   citationRecordSchema.parse(weiEmergentAbilities),
 ];

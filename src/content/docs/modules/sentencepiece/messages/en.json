@@ -1,0 +1,150 @@
+{
+  "title": "SentencePiece",
+  "description": "SentencePiece learns subword pieces directly from raw text, which helps models tokenize many languages and scripts without depending on whitespace-first splitting.",
+  "openingSummary": "SentencePiece is a text tokenization system that learns subword pieces from raw text, so models can split many languages consistently even when spaces are unreliable or absent.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "SentencePiece is a tokenizer training and segmentation system for turning raw text into reusable subword pieces. Instead of assuming the text has already been split into words, it learns pieces directly from the original character stream and then uses the learned tokenizer model to break new text into tokens."
+    },
+    "whatItOptimizes": {
+      "title": "What It Optimizes",
+      "body": "SentencePiece optimizes for multilingual tokenization, reproducible preprocessing, and direct raw-text training. It reduces the need for separate language-specific word splitters before subword learning starts."
+    },
+    "practicalBenefit": {
+      "title": "Practical Benefit",
+      "body": "That raw-text workflow matters because many languages and scripts do not mark word boundaries as neatly as English prose with spaces. SentencePiece gives teams one tokenizer model that can normalize text and segment it the same way during training and inference, which is why it is useful in multilingual and cross-script model pipelines."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "SentencePiece starts from raw text, applies its built-in normalization rules, gathers candidate subword pieces, and then keeps the vocabulary that best fits the training corpus. At inference time it reuses that same learned model to map fresh text into token IDs, so the segmentation policy stays stable between offline training jobs and live requests."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formulas below contrast the two high-level vocabulary-building ideas readers usually meet around SentencePiece. SentencePiece is often used with a unigram-style objective that scores whole candidate vocabularies, while BPE keeps adding the most frequent merge step by step."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "SentencePiece is best understood as the tokenizer system around the vocabulary, normalization, and segmentation workflow. Unigram tokenization describes the probabilistic vocabulary objective most readers associate with SentencePiece, while BPE is a different subword-building strategy that the same SentencePiece tooling can also train."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "SentencePiece is common in multilingual encoder-decoder and cross-script text models because one raw-text tokenizer can be reused across languages without custom whitespace rules for each one."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "SentencePiece does not remove the need to choose a vocabulary size, normalization policy, or training objective carefully. A tokenizer that works well across many scripts can still produce awkward splits for domain-specific jargon, and changing the tokenizer later usually means retraining or costly migration work."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Modern language models still begin with tokenization, so readers repeatedly run into SentencePiece when they inspect multilingual systems, encoder-decoder families, and training pipelines that need one consistent subword policy from raw text to token IDs."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Flow showing raw text moving through normalization, candidate piece collection, vocabulary selection, and token ID emission",
+      "caption": "SentencePiece trains on raw text, keeps a reusable piece vocabulary, and then applies that same learned tokenizer model during inference."
+    },
+    "comparisonTable": {
+      "caption": "SentencePiece reference points for raw-text tokenization"
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "sentencepiece": {
+          "title": "SentencePiece"
+        }
+      },
+      "dimensions": {
+        "rawTextTraining": "Raw-text training",
+        "normalizationPolicy": "Normalization policy",
+        "outputContract": "Output contract"
+      },
+      "values": {
+        "sentencepiece": {
+          "rawTextTraining": "Learns directly from raw text instead of requiring a separate whitespace-first word splitter",
+          "normalizationPolicy": "Stores normalization and segmentation behavior inside one reusable tokenizer model",
+          "outputContract": "Produces stable token IDs at inference time using the same learned vocabulary and rules"
+        }
+      }
+    }
+  },
+  "math": {
+    "sentencepieceSchema": {
+      "label": "SentencePiece unigram-style vocabulary selection",
+      "formula": "\\hat{V} = \\arg\\max_V P(V \\mid X), \\quad X \\rightarrow p_{1:m}",
+      "variableDefinitions": {
+        "vocab": {
+          "term": "V",
+          "definition": "Candidate subword vocabulary."
+        },
+        "bestVocab": {
+          "term": "\\hat{V}",
+          "definition": "Selected vocabulary after training."
+        },
+        "corpus": {
+          "term": "X",
+          "definition": "Raw training corpus."
+        },
+        "pieces": {
+          "term": "p_{1:m}",
+          "definition": "Piece sequence emitted for one text span."
+        }
+      }
+    },
+    "bpeSchema": {
+      "label": "Byte Pair Encoding merge growth",
+      "formula": "V_{t+1} = V_t \\cup \\arg\\max_{(a,b)} \\operatorname{count}_X(ab)",
+      "variableDefinitions": {
+        "vt": {
+          "term": "V_t",
+          "definition": "Vocabulary after step t."
+        },
+        "vtNext": {
+          "term": "V_{t+1}",
+          "definition": "Vocabulary after adding one merge."
+        },
+        "pair": {
+          "term": "(a,b)",
+          "definition": "Adjacent symbol pair considered for merging."
+        },
+        "count": {
+          "term": "\\operatorname{count}_X(ab)",
+          "definition": "How often that pair appears in corpus X."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "rawText": {
+        "label": "Raw text"
+      },
+      "normalization": {
+        "label": "Normalize text"
+      },
+      "candidatePieces": {
+        "label": "Collect candidate pieces"
+      },
+      "learnedVocabulary": {
+        "label": "Learned piece vocabulary"
+      },
+      "tokenIds": {
+        "label": "Token IDs"
+      },
+      "whitespaceNote": {
+        "label": "No separate whitespace-first splitter is required"
+      }
+    }
+  }
+}

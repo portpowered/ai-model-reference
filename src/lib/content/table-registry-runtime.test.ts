@@ -79,6 +79,11 @@ describe("table-registry-runtime", () => {
   });
 
   test("lists bundled table records", () => {
-    expect(listTableRecords().length).toBe(20);
+    const tables = listTableRecords();
+
+    expect(tables.length).toBe(21);
+    expect(
+      tables.some((table) => table.id === "table.sentencepiece-comparison"),
+    ).toBe(true);
   });
 });

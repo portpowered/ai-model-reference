@@ -13,6 +13,7 @@ import multiQueryAttentionComparison from "@/content/registry/tables/multi-query
 import qkNormComparison from "@/content/registry/tables/qk-norm-comparison.json";
 import reluComparison from "@/content/registry/tables/relu-comparison.json";
 import rmsNormComparison from "@/content/registry/tables/rmsnorm-comparison.json";
+import sentencepieceComparison from "@/content/registry/tables/sentencepiece-comparison.json";
 import siluComparison from "@/content/registry/tables/silu-comparison.json";
 import slidingWindowAttentionComparison from "@/content/registry/tables/sliding-window-attention-comparison.json";
 import sparseAttentionComparison from "@/content/registry/tables/sparse-attention-comparison.json";
@@ -36,6 +37,7 @@ const tableRecords: TableRecord[] = [
   tableRecordSchema.parse(qkNormComparison),
   tableRecordSchema.parse(reluComparison),
   tableRecordSchema.parse(rmsNormComparison),
+  tableRecordSchema.parse(sentencepieceComparison),
   tableRecordSchema.parse(siluComparison),
   tableRecordSchema.parse(slidingWindowAttentionComparison),
   tableRecordSchema.parse(standardFfnComparison),
