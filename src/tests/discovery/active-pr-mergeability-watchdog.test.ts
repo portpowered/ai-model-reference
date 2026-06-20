@@ -24,6 +24,19 @@ function createWorktree(
   );
 }
 
+function writeLaneMetadata(
+  worktreesRoot: string,
+  worktreeName: string,
+  metadata: Record<string, unknown>,
+): void {
+  const metadataDir = join(worktreesRoot, worktreeName, ".claude");
+  mkdirSync(metadataDir, { recursive: true });
+  writeFileSync(
+    join(metadataDir, "lane-metadata.json"),
+    `${JSON.stringify(metadata, null, 2)}\n`,
+  );
+}
+
 function installFakeYouBinary(dir: string, logPath: string): string {
   const binDir = join(dir, "bin");
   const binaryPath = join(binDir, "you");
@@ -92,6 +105,26 @@ describe("active-pr-mergeability-watchdog script", () => {
 
     createWorktree(worktreesRoot, "alpha", "alpha");
     createWorktree(worktreesRoot, "beta", "beta");
+    writeLaneMetadata(worktreesRoot, "alpha", {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "alpha"),
+      sessionId: "sess-1",
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+    writeLaneMetadata(worktreesRoot, "beta", {
+      schemaVersion: 1,
+      workItemName: "beta",
+      worktreePath: join(worktreesRoot, "beta"),
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
 
     writeFileSync(
       workListPath,
@@ -140,18 +173,22 @@ describe("active-pr-mergeability-watchdog script", () => {
     expect(result.stdout).toContain("Active PR Mergeability Watchdog");
     expect(result.stdout).toContain("lanes=2 pr-backed=1 linked-with-gaps=1");
     expect(result.stdout).toContain("work-item=alpha");
+    expect(result.stdout).toContain("work-item-source=metadata");
     expect(result.stdout).toContain("pr=#42");
     expect(result.stdout).toContain("pr-status=resolved");
     expect(result.stdout).toContain("drift=unknown");
     expect(result.stdout).toContain("mergeability=mergeable");
     expect(result.stdout).toContain("checks=passing");
+    expect(result.stdout).toContain("branch-source=metadata");
+    expect(result.stdout).toContain("metadata=present");
     expect(result.stdout).not.toContain("next-action=");
     expect(result.stdout).toContain(
-      "- status=linked-with-gaps queue=failed work-item=beta branch=beta",
+      "- status=linked-with-gaps queue=failed work-item=beta work-item-source=metadata branch=beta branch-source=prd metadata=incomplete",
     );
+    expect(result.stdout).toContain("metadata=incomplete");
     expect(result.stdout).toContain("pr-status=missing");
     expect(result.stdout).toContain(
-      "reason=no open PR metadata found for branch beta",
+      "reason=stamped lane metadata is incomplete: missing branch name; no open PR metadata found for branch beta",
     );
 
     rmSync(dir, { recursive: true, force: true });
@@ -167,6 +204,26 @@ describe("active-pr-mergeability-watchdog script", () => {
 
     createWorktree(worktreesRoot, "alpha", "alpha");
     createWorktree(worktreesRoot, "beta", "beta");
+    writeLaneMetadata(worktreesRoot, "alpha", {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "alpha"),
+      sessionId: "sess-1",
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+    writeLaneMetadata(worktreesRoot, "beta", {
+      schemaVersion: 1,
+      workItemName: "beta",
+      worktreePath: join(worktreesRoot, "beta"),
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
 
     writeFileSync(
       workListPath,
@@ -225,11 +282,11 @@ describe("active-pr-mergeability-watchdog script", () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("lanes=2 pr-backed=1 linked-with-gaps=1");
     expect(result.stdout).toContain(
-      "- status=pr-backed queue=active work-item=alpha branch=alpha",
+      "- status=pr-backed queue=active work-item=alpha work-item-source=metadata branch=alpha branch-source=metadata metadata=present",
     );
     expect(result.stdout).toContain("mergeability=mergeable");
     expect(result.stdout).toContain(
-      "- status=linked-with-gaps queue=failed work-item=beta branch=beta",
+      "- status=linked-with-gaps queue=failed work-item=beta work-item-source=metadata branch=beta branch-source=prd metadata=incomplete",
     );
 
     rmSync(dir, { recursive: true, force: true });
@@ -246,6 +303,39 @@ describe("active-pr-mergeability-watchdog script", () => {
     createWorktree(worktreesRoot, "alpha", "alpha");
     createWorktree(worktreesRoot, "beta", "beta");
     createWorktree(worktreesRoot, "gamma", "gamma");
+    writeLaneMetadata(worktreesRoot, "alpha", {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "alpha"),
+      sessionId: "sess-1",
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+    writeLaneMetadata(worktreesRoot, "beta", {
+      schemaVersion: 1,
+      workItemName: "beta",
+      branchName: "beta",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "beta"),
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+    writeLaneMetadata(worktreesRoot, "gamma", {
+      schemaVersion: 1,
+      workItemName: "gamma",
+      branchName: "gamma",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "gamma"),
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
 
     writeFileSync(
       workListPath,
@@ -305,21 +395,21 @@ describe("active-pr-mergeability-watchdog script", () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("lanes=3 pr-backed=2 linked-with-gaps=1");
     expect(result.stdout).toContain(
-      "- status=pr-backed queue=active work-item=alpha branch=alpha",
+      "- status=pr-backed queue=active work-item=alpha work-item-source=metadata branch=alpha branch-source=metadata metadata=present",
     );
     expect(result.stdout).toContain("pr=#42 pr-status=resolved");
     expect(result.stdout).toContain("mergeability=conflicting");
     expect(result.stdout).toContain("risk=conflict-drift");
     expect(result.stdout).toContain("next-action=refresh-branch");
     expect(result.stdout).toContain(
-      "- status=pr-backed queue=active work-item=beta branch=beta",
+      "- status=pr-backed queue=active work-item=beta work-item-source=metadata branch=beta branch-source=metadata metadata=present",
     );
     expect(result.stdout).toContain("pr=#43 pr-status=resolved");
     expect(result.stdout).toContain("mergeability=check-blocked");
     expect(result.stdout).toContain("checks=pending");
     expect(result.stdout).toContain("next-action=wait");
     expect(result.stdout).toContain(
-      "- status=linked-with-gaps queue=failed work-item=gamma branch=gamma",
+      "- status=linked-with-gaps queue=failed work-item=gamma work-item-source=metadata branch=gamma branch-source=metadata metadata=present",
     );
     expect(result.stdout).toContain("pr-status=missing");
     expect(result.stdout).toContain("pr-failure=auth");
@@ -336,6 +426,17 @@ describe("active-pr-mergeability-watchdog script", () => {
     const worktreesRoot = join(dir, ".claude", "worktrees");
     mkdirSync(worktreesRoot, { recursive: true });
     createWorktree(worktreesRoot, "alpha", "alpha");
+    writeLaneMetadata(worktreesRoot, "alpha", {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "alpha"),
+      sessionId: "sess-1",
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
     const fakeYouBinDir = installFakeYouBinary(dir, commandLogPath);
 
     const result = spawnSync(
@@ -360,6 +461,7 @@ describe("active-pr-mergeability-watchdog script", () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("lanes=1 pr-backed=0 linked-with-gaps=1");
     expect(result.stdout).toContain("work-item=alpha");
+    expect(result.stdout).toContain("metadata=present");
     expect(result.stdout).toContain("queue=active");
 
     const commandLog = readFileSync(commandLogPath, "utf8");
@@ -377,6 +479,17 @@ describe("active-pr-mergeability-watchdog script", () => {
     const worktreesRoot = join(dir, ".claude", "worktrees");
     mkdirSync(worktreesRoot, { recursive: true });
     createWorktree(worktreesRoot, "alpha", "alpha");
+    writeLaneMetadata(worktreesRoot, "alpha", {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "alpha"),
+      sessionId: "sess-1",
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
     const fakeYouBinDir = installFakeYouBinary(dir, commandLogPath);
 
     const result = spawnSync(
@@ -403,9 +516,11 @@ describe("active-pr-mergeability-watchdog script", () => {
     expect(result.stdout).toContain("Active PR Mergeability Watchdog");
     expect(result.stdout).toContain("lanes=1 pr-backed=0 linked-with-gaps=1");
     expect(result.stdout).toContain(
-      "- status=linked-with-gaps queue=active work-item=alpha branch=alpha",
+      "- status=linked-with-gaps queue=active work-item=alpha work-item-source=metadata branch=alpha branch-source=metadata metadata=present",
     );
-    expect(result.stdout).toContain("session=sess-1 session-state=running");
+    expect(result.stdout).toContain(
+      "session=sess-1 session-source=queue session-state=running",
+    );
 
     const commandLog = readFileSync(commandLogPath, "utf8");
     expect(commandLog).toContain(

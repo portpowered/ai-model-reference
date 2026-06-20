@@ -174,7 +174,10 @@ function formatWatchdogReportFromLedger(
       `status=${lane.pullRequest ? "pr-backed" : lane.linkageStatus}`,
       `queue=${lane.queueState}`,
       `work-item=${lane.laneName}`,
+      `work-item-source=${lane.workItemNameSource ?? "queue"}`,
       `branch=${lane.branchName ?? "?"}`,
+      `branch-source=${lane.branchMetadataSource ?? "?"}`,
+      `metadata=${lane.metadataStatus ?? "?"}`,
       `worktree=${lane.worktreePath ?? "?"}`,
       `pr=${lane.pullRequest ? `#${lane.pullRequest.number}` : "?"}`,
       `pr-status=${lane.pullRequestLookup.status}`,
@@ -183,6 +186,7 @@ function formatWatchdogReportFromLedger(
 
     if (lane.sessionId) {
       details.push(`session=${lane.sessionId}`);
+      details.push(`session-source=${lane.sessionIdSource ?? "?"}`);
     }
     if (lane.sessionState) {
       details.push(`session-state=${lane.sessionState}`);

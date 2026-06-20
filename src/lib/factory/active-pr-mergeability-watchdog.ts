@@ -1,6 +1,11 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
+import {
+  readWorktreeLaneMetadata,
+  refreshWorktreeLaneMetadata,
+  type WorktreeLaneMetadataLinkageField,
+} from "@/lib/factory/worktree-lane-metadata";
 
 export type QueueLaneState = "active" | "failed";
 export type LaneDiscoveryStatus = "pr-backed" | "unclassified";
@@ -53,10 +58,17 @@ export interface SessionLaneRecord {
 export interface WorktreeLaneRecord {
   worktreeName: string;
   worktreePath: string;
+  workItemName: string;
+  workItemNameSource: "metadata" | "directory";
   branchName?: string;
-  branchMetadataSource?: "git" | "prd";
+  branchMetadataSource?: "metadata" | "git" | "prd";
   gitBranchName?: string;
   prdBranchName?: string;
+  metadataStatus: "present" | "missing" | "incomplete" | "conflicting";
+  metadataIssues: string[];
+  metadataSessionId?: string | null;
+  metadataBranchLinkage?: WorktreeLaneMetadataLinkageField;
+  metadataPullRequestLinkage?: WorktreeLaneMetadataLinkageField;
 }
 
 export interface PullRequestRecord {
@@ -88,12 +100,15 @@ export interface LaneDiscoveryRecord {
   rawQueueState: string;
   worktreePath?: string;
   branchName?: string;
-  branchMetadataSource?: "git" | "prd";
+  workItemNameSource?: "metadata" | "directory" | "queue";
+  branchMetadataSource?: "metadata" | "git" | "prd";
+  metadataStatus?: "present" | "missing" | "incomplete" | "conflicting";
   prNumber?: number;
   prUrl?: string;
   prLookupFailureKind?: PullRequestLookupFailureKind;
   prLookupFailureReason?: string;
   sessionId?: string;
+  sessionIdSource?: "queue" | "session" | "metadata";
   sessionState?: string;
   driftStatus?: BranchDriftStatus;
   commitsAheadOfMain?: number;
@@ -132,6 +147,7 @@ export interface WatchdogDataSources {
 export interface DiscoverActivePrLanesOptions extends WatchdogDataSources {
   baseBranchName?: string;
   repoRoot?: string;
+  refreshWorktreeMetadata?: boolean;
   runCommand?: RunCommand;
   lookupPullRequest?: (
     branchName: string,
@@ -383,22 +399,108 @@ export function discoverWorktreeLaneRecords(
     .filter((entry) => entry.isDirectory())
     .map((entry) => {
       const worktreePath = join(worktreesDir, entry.name);
+      const metadata = readWorktreeLaneMetadata(worktreePath);
       const prdBranchName = tryReadPrdBranchName(worktreePath);
       const gitBranchName = readGitBranchName(worktreePath, runCommand);
-      const branchName = gitBranchName ?? prdBranchName;
-      const branchMetadataSource = gitBranchName
-        ? "git"
-        : prdBranchName
-          ? "prd"
-          : undefined;
+      const metadataIssues: string[] = [];
+      const metadataWorkItemName = metadata?.workItemName?.trim() || undefined;
+      const metadataBranchName = metadata?.branchName?.trim() || undefined;
+      const metadataSessionId = metadata?.sessionId;
+
+      if (!metadata) {
+        metadataIssues.push(
+          "stamped lane metadata missing; fell back to worktree heuristics",
+        );
+      } else {
+        if (!metadataWorkItemName) {
+          metadataIssues.push(
+            "stamped lane metadata is incomplete: missing work item name",
+          );
+        }
+        if (!metadataBranchName) {
+          metadataIssues.push(
+            "stamped lane metadata is incomplete: missing branch name",
+          );
+        }
+        if (
+          metadata.worktreePath?.trim() &&
+          metadata.worktreePath !== worktreePath
+        ) {
+          metadataIssues.push(
+            `stamped lane metadata points to ${metadata.worktreePath} but worktree is ${worktreePath}`,
+          );
+        }
+        if (
+          metadataWorkItemName &&
+          metadataWorkItemName !== entry.name &&
+          normalizeWorktreeName(metadataWorkItemName) !== entry.name
+        ) {
+          metadataIssues.push(
+            `stamped work item ${metadataWorkItemName} does not match worktree directory ${entry.name}`,
+          );
+        }
+      }
+
+      if (
+        metadataBranchName &&
+        gitBranchName &&
+        metadataBranchName !== gitBranchName
+      ) {
+        metadataIssues.push(
+          `stamped branch ${metadataBranchName} disagrees with git branch ${gitBranchName}`,
+        );
+      }
+      if (
+        metadataBranchName &&
+        prdBranchName &&
+        metadataBranchName !== prdBranchName
+      ) {
+        metadataIssues.push(
+          `stamped branch ${metadataBranchName} disagrees with prd branch ${prdBranchName}`,
+        );
+      }
+
+      let metadataStatus: WorktreeLaneRecord["metadataStatus"];
+      if (!metadata) {
+        metadataStatus = "missing";
+      } else if (
+        metadataIssues.some(
+          (issue) =>
+            issue.startsWith("stamped branch ") ||
+            issue.startsWith("stamped work item ") ||
+            issue.startsWith("stamped lane metadata points to "),
+        )
+      ) {
+        metadataStatus = "conflicting";
+      } else if (!metadataWorkItemName || !metadataBranchName) {
+        metadataStatus = "incomplete";
+      } else {
+        metadataStatus = "present";
+      }
+
+      const branchName = metadataBranchName ?? gitBranchName ?? prdBranchName;
+      const branchMetadataSource = metadataBranchName
+        ? "metadata"
+        : gitBranchName
+          ? "git"
+          : prdBranchName
+            ? "prd"
+            : undefined;
 
       return {
         worktreeName: entry.name,
         worktreePath,
+        workItemName: metadataWorkItemName ?? entry.name,
+        workItemNameSource: metadataWorkItemName ? "metadata" : "directory",
         branchName,
         branchMetadataSource,
         gitBranchName,
         prdBranchName,
+        metadataStatus,
+        metadataIssues,
+        metadataSessionId,
+        metadataBranchLinkage: metadata?.linkage.branch,
+        metadataPullRequestLinkage: metadata?.linkage.pullRequest,
       } satisfies WorktreeLaneRecord;
     });
 }
@@ -406,6 +508,8 @@ export function discoverWorktreeLaneRecords(
 function worktreeAliases(record: WorktreeLaneRecord): Set<string> {
   const aliases = new Set<string>();
   aliases.add(record.worktreeName);
+  aliases.add(record.workItemName);
+  aliases.add(normalizeWorktreeName(record.workItemName));
   if (record.branchName) {
     aliases.add(record.branchName);
     aliases.add(normalizeWorktreeName(record.branchName));
@@ -421,12 +525,26 @@ function normalizeWorktreeName(name: string): string {
   return name.replaceAll("/", "-");
 }
 
+function pushUniqueReason(reasons: string[], reason?: string): void {
+  const normalizedReason = reason?.trim();
+  if (!normalizedReason || reasons.includes(normalizedReason)) {
+    return;
+  }
+  reasons.push(normalizedReason);
+}
+
 function relativeDisplayPath(path: string, repoRoot?: string): string {
   if (!repoRoot) {
     return path;
   }
   const relativePath = relative(repoRoot, path);
   return relativePath && !relativePath.startsWith("..") ? relativePath : path;
+}
+
+function toRefreshableBranchMetadataSource(
+  source: WorktreeLaneRecord["branchMetadataSource"],
+): "git" | "prd" | undefined {
+  return source === "git" || source === "prd" ? source : undefined;
 }
 
 function parseIntegerPair(stdout: string): [number, number] | null {
@@ -825,10 +943,26 @@ export function discoverActivePrLaneReport(
         workItemName: queueLane.workItemName,
         queueState: queueLane.queueState,
         rawQueueState: queueLane.rawState,
+        workItemNameSource: "queue",
         sessionId: queueLane.sessionId ?? session?.sessionId,
+        sessionIdSource: queueLane.sessionId
+          ? "queue"
+          : session?.sessionId
+            ? "session"
+            : undefined,
         sessionState: session?.rawState,
         reasons,
       } satisfies LaneDiscoveryRecord;
+    }
+
+    reasons.push(...worktree.metadataIssues);
+    if (worktree.metadataBranchLinkage?.status === "stale") {
+      pushUniqueReason(
+        reasons,
+        worktree.metadataBranchLinkage.issue
+          ? `stamped branch linkage is stale: ${worktree.metadataBranchLinkage.issue}`
+          : "stamped branch linkage is stale and should be refreshed",
+      );
     }
 
     const branchName = worktree.branchName ?? worktree.prdBranchName;
@@ -836,6 +970,12 @@ export function discoverActivePrLaneReport(
       reasons.push(
         "worktree exists but branch metadata could not be determined",
       );
+      if (options.refreshWorktreeMetadata) {
+        refreshWorktreeLaneMetadata({
+          worktreePath: worktree.worktreePath,
+          branchIssue: reasons[0],
+        });
+      }
       return {
         status: "unclassified",
         workItemName: queueLane.workItemName,
@@ -845,8 +985,21 @@ export function discoverActivePrLaneReport(
           worktree.worktreePath,
           options.repoRoot,
         ),
+        workItemNameSource: worktree.workItemNameSource,
         branchMetadataSource: worktree.branchMetadataSource,
-        sessionId: queueLane.sessionId ?? session?.sessionId,
+        metadataStatus: worktree.metadataStatus,
+        sessionId:
+          queueLane.sessionId ??
+          session?.sessionId ??
+          worktree.metadataSessionId ??
+          undefined,
+        sessionIdSource: queueLane.sessionId
+          ? "queue"
+          : session?.sessionId
+            ? "session"
+            : worktree.metadataSessionId
+              ? "metadata"
+              : undefined,
         sessionState: session?.rawState,
         driftStatus: "unknown",
         reasons,
@@ -873,10 +1026,18 @@ export function discoverActivePrLaneReport(
     const pullRequestLookup = lookupPullRequest(branchName, runCommand);
     const pullRequest = pullRequestLookup.pullRequest;
     if (!pullRequest) {
+      if (worktree.metadataPullRequestLinkage?.status === "stale") {
+        pushUniqueReason(
+          reasons,
+          worktree.metadataPullRequestLinkage.issue
+            ? `stamped pull request linkage is stale: ${worktree.metadataPullRequestLinkage.issue}`
+            : "stamped pull request linkage is stale and should be refreshed",
+        );
+      }
       const failureReason =
         pullRequestLookup.failureReason ??
         `no open PR metadata found for branch ${branchName}`;
-      reasons.push(failureReason);
+      pushUniqueReason(reasons, failureReason);
       const queueMismatchRisk =
         pullRequestLookup.failureKind &&
         pullRequestLookup.failureKind !== "not-found"
@@ -890,6 +1051,21 @@ export function discoverActivePrLaneReport(
               checkHealth: "unavailable",
             })
           : undefined;
+      if (options.refreshWorktreeMetadata) {
+        refreshWorktreeLaneMetadata({
+          worktreePath: worktree.worktreePath,
+          branchName,
+          branchMetadataSource: toRefreshableBranchMetadataSource(
+            worktree.branchMetadataSource,
+          ),
+          pullRequestLookup: {
+            status: "missing",
+            pullRequest: null,
+            failureKind: pullRequestLookup.failureKind,
+            failureReason: failureReason,
+          },
+        });
+      }
       return {
         status: "unclassified",
         workItemName: queueLane.workItemName,
@@ -900,10 +1076,23 @@ export function discoverActivePrLaneReport(
           options.repoRoot,
         ),
         branchName,
+        workItemNameSource: worktree.workItemNameSource,
         branchMetadataSource: worktree.branchMetadataSource,
+        metadataStatus: worktree.metadataStatus,
         prLookupFailureKind: pullRequestLookup.failureKind,
         prLookupFailureReason: failureReason,
-        sessionId: queueLane.sessionId ?? session?.sessionId,
+        sessionId:
+          queueLane.sessionId ??
+          session?.sessionId ??
+          worktree.metadataSessionId ??
+          undefined,
+        sessionIdSource: queueLane.sessionId
+          ? "queue"
+          : session?.sessionId
+            ? "session"
+            : worktree.metadataSessionId
+              ? "metadata"
+              : undefined,
         sessionState: session?.rawState,
         driftStatus: drift.status,
         commitsAheadOfMain: drift.commitsAheadOfMain,
@@ -930,10 +1119,23 @@ export function discoverActivePrLaneReport(
         options.repoRoot,
       ),
       branchName,
+      workItemNameSource: worktree.workItemNameSource,
       branchMetadataSource: worktree.branchMetadataSource,
+      metadataStatus: worktree.metadataStatus,
       prNumber: pullRequest.number,
       prUrl: pullRequest.url,
-      sessionId: queueLane.sessionId ?? session?.sessionId,
+      sessionId:
+        queueLane.sessionId ??
+        session?.sessionId ??
+        worktree.metadataSessionId ??
+        undefined,
+      sessionIdSource: queueLane.sessionId
+        ? "queue"
+        : session?.sessionId
+          ? "session"
+          : worktree.metadataSessionId
+            ? "metadata"
+            : undefined,
       sessionState: session?.rawState,
       driftStatus: drift.status,
       commitsAheadOfMain: drift.commitsAheadOfMain,
@@ -942,6 +1144,23 @@ export function discoverActivePrLaneReport(
       mergeabilityClass,
       reasons,
     } satisfies LaneDiscoveryRecord;
+
+    if (options.refreshWorktreeMetadata) {
+      refreshWorktreeLaneMetadata({
+        worktreePath: worktree.worktreePath,
+        branchName,
+        branchMetadataSource: toRefreshableBranchMetadataSource(
+          worktree.branchMetadataSource,
+        ),
+        pullRequestLookup: {
+          status: "resolved",
+          pullRequest: {
+            number: pullRequest.number,
+            url: pullRequest.url,
+          },
+        },
+      });
+    }
 
     const queueMismatchRisk = determineQueueMismatchRisk(laneRecord);
     return {
@@ -992,16 +1211,22 @@ export function formatActivePrLaneReport(report: LaneDiscoveryReport): string {
       `status=${lane.status}`,
       `queue=${lane.queueState}`,
       `work-item=${lane.workItemName}`,
+      `work-item-source=${lane.workItemNameSource ?? "queue"}`,
       `branch=${lane.branchName ?? "?"}`,
+      `branch-source=${lane.branchMetadataSource ?? "?"}`,
       `worktree=${lane.worktreePath ?? "?"}`,
       `pr=${lane.prNumber ? `#${lane.prNumber}` : "?"}`,
       `drift=${drift}`,
     ];
     if (lane.sessionId) {
       details.push(`session=${lane.sessionId}`);
+      details.push(`session-source=${lane.sessionIdSource ?? "?"}`);
     }
     if (lane.sessionState) {
       details.push(`session-state=${lane.sessionState}`);
+    }
+    if (lane.metadataStatus) {
+      details.push(`metadata=${lane.metadataStatus}`);
     }
     if (lane.mergeabilityClass) {
       details.push(`mergeability=${lane.mergeabilityClass}`);
