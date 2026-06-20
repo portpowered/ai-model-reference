@@ -183,13 +183,17 @@ describe("active-pr-mergeability-watchdog script", () => {
     expect(result.stdout).toContain("metadata=present");
     expect(result.stdout).not.toContain("Action Queue");
     expect(result.stdout).not.toContain("next-action=");
+    expect(result.stdout).toContain("Noise Summary");
+    expect(result.stdout).toContain("noise=stale-failed-loopbacks count=1");
+    expect(result.stdout).toContain("work-items=beta");
     expect(result.stdout).toContain(
-      "- status=linked-with-gaps queue=failed work-item=beta work-item-source=metadata branch=beta branch-source=prd metadata=incomplete",
+      "1x:stamped lane metadata is incomplete: missing branch name",
     );
-    expect(result.stdout).toContain("metadata=incomplete");
-    expect(result.stdout).toContain("pr-status=missing");
     expect(result.stdout).toContain(
-      "reason=stamped lane metadata is incomplete: missing branch name; no open PR metadata found for branch beta",
+      "1x:no open PR metadata found for branch beta",
+    );
+    expect(result.stdout).not.toContain(
+      "- status=linked-with-gaps queue=failed work-item=beta",
     );
 
     rmSync(dir, { recursive: true, force: true });
@@ -286,8 +290,11 @@ describe("active-pr-mergeability-watchdog script", () => {
       "- status=pr-backed queue=active work-item=alpha work-item-source=metadata branch=alpha branch-source=metadata metadata=present",
     );
     expect(result.stdout).toContain("mergeability=mergeable");
-    expect(result.stdout).toContain(
-      "- status=linked-with-gaps queue=failed work-item=beta work-item-source=metadata branch=beta branch-source=prd metadata=incomplete",
+    expect(result.stdout).toContain("Noise Summary");
+    expect(result.stdout).toContain("noise=stale-failed-loopbacks count=1");
+    expect(result.stdout).toContain("work-items=beta");
+    expect(result.stdout).not.toContain(
+      "- status=linked-with-gaps queue=failed work-item=beta",
     );
 
     rmSync(dir, { recursive: true, force: true });
@@ -533,9 +540,7 @@ describe("active-pr-mergeability-watchdog script", () => {
     const betaIndex = result.stdout.indexOf(
       "- status=pr-backed queue=active work-item=beta",
     );
-    const gammaIndex = result.stdout.indexOf(
-      "- status=linked-with-gaps queue=failed work-item=gamma",
-    );
+    const noiseSummaryIndex = result.stdout.indexOf("Noise Summary");
     const refreshActionIndex = result.stdout.indexOf(
       "1. action=refresh-branch work-item=alpha pr=#42 branch=alpha",
     );
@@ -544,13 +549,17 @@ describe("active-pr-mergeability-watchdog script", () => {
     );
     expect(alphaIndex).toBeGreaterThanOrEqual(0);
     expect(betaIndex).toBeGreaterThan(alphaIndex);
-    expect(gammaIndex).toBeGreaterThan(betaIndex);
+    expect(noiseSummaryIndex).toBeGreaterThan(betaIndex);
     expect(refreshActionIndex).toBeGreaterThanOrEqual(0);
     expect(waitActionIndex).toBeGreaterThan(refreshActionIndex);
     expect(alphaIndex).toBeGreaterThan(waitActionIndex);
     expect(result.stdout).toContain("next-action=refresh-branch");
     expect(result.stdout).toContain("next-action=wait");
+    expect(result.stdout).toContain("Noise Summary");
     expect(result.stdout).toContain(
+      "noise=stale-failed-loopbacks count=1 work-items=gamma",
+    );
+    expect(result.stdout).not.toContain(
       "- status=linked-with-gaps queue=failed work-item=gamma",
     );
 
@@ -697,9 +706,16 @@ describe("active-pr-mergeability-watchdog script", () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("lanes=2 pr-backed=0 linked-with-gaps=2");
-    expect(result.stdout).toContain("work-item=alpha");
-    expect(result.stdout).toContain("work-item=beta");
-    expect(result.stdout).toContain("queue=failed");
+    expect(result.stdout).toContain("Noise Summary");
+    expect(result.stdout).toContain(
+      "- status=linked-with-gaps queue=active work-item=alpha",
+    );
+    expect(result.stdout).toContain(
+      "noise=stale-failed-loopbacks count=1 work-items=beta",
+    );
+    expect(result.stdout).not.toContain(
+      "- status=linked-with-gaps queue=failed",
+    );
 
     const commandLog = readFileSync(commandLogPath, "utf8");
     expect(commandLog).toContain(
@@ -708,6 +724,136 @@ describe("active-pr-mergeability-watchdog script", () => {
     expect(commandLog).toContain(
       "work list --session planner-session-77 --next-token cursor-page-2 --json",
     );
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("summarizes stale loopbacks and queue-only missing linkage as compact noise", () => {
+    const dir = mkdtempSync(join(tmpdir(), "active-pr-watchdog-script-"));
+    const workListPath = join(dir, "work-list.json");
+    const sessionListPath = join(dir, "session-list.json");
+    const prMapPath = join(dir, "pr-map.json");
+    const worktreesRoot = join(dir, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    createWorktree(worktreesRoot, "alpha", "alpha");
+    createWorktree(worktreesRoot, "beta", "beta");
+    createWorktree(worktreesRoot, "gamma", "gamma");
+    writeLaneMetadata(worktreesRoot, "alpha", {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "alpha"),
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+    writeLaneMetadata(worktreesRoot, "beta", {
+      schemaVersion: 1,
+      workItemName: "beta",
+      worktreePath: join(worktreesRoot, "beta"),
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+    writeLaneMetadata(worktreesRoot, "gamma", {
+      schemaVersion: 1,
+      workItemName: "gamma",
+      branchName: "gamma",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "gamma"),
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+
+    writeFileSync(
+      workListPath,
+      JSON.stringify({
+        items: [
+          { name: "alpha", state: "active" },
+          { name: "beta", state: "failed" },
+          { name: "delta", state: "failed" },
+          { name: "epsilon", state: "active" },
+          { name: "gamma", state: "failed" },
+        ],
+      }),
+    );
+    writeFileSync(sessionListPath, JSON.stringify({ sessions: [] }));
+    writeFileSync(
+      prMapPath,
+      JSON.stringify({
+        alpha: {
+          number: 42,
+          headRefName: "alpha",
+          mergeStateStatus: "DIRTY",
+          statusCheckRollup: [{ conclusion: "SUCCESS" }],
+        },
+        gamma: {
+          pullRequest: null,
+          failureKind: "auth",
+          failureReason: "gh auth token is expired",
+        },
+      }),
+    );
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/active-pr-mergeability-watchdog.ts",
+        "--work-list-json",
+        workListPath,
+        "--session-list-json",
+        sessionListPath,
+        "--worktrees-dir",
+        worktreesRoot,
+        "--pr-map-json",
+        prMapPath,
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("Action Queue");
+    expect(result.stdout).toContain(
+      "1. action=refresh-branch work-item=alpha pr=#42 branch=alpha",
+    );
+    expect(result.stdout).toContain(
+      "- status=pr-backed queue=active work-item=alpha work-item-source=metadata branch=alpha",
+    );
+    expect(result.stdout).toContain(
+      "- status=linked-with-gaps queue=failed work-item=gamma work-item-source=metadata branch=gamma",
+    );
+    expect(result.stdout).toContain("Noise Summary");
+    expect(result.stdout).toContain(
+      "noise=stale-failed-loopbacks count=1 work-items=beta",
+    );
+    expect(result.stdout).toContain(
+      "noise=queue-only-missing-linkage count=2 work-items=delta,epsilon",
+    );
+    expect(result.stdout).toContain(
+      "2x:no matching worktree under .claude/worktrees",
+    );
+    expect(result.stdout).not.toContain(
+      "- status=linked-with-gaps queue=failed work-item=beta",
+    );
+    expect(result.stdout).not.toContain(
+      "- status=linked-with-gaps queue=failed work-item=delta",
+    );
+    expect(result.stdout).not.toContain(
+      "- status=linked-with-gaps queue=active work-item=epsilon",
+    );
+
+    const gammaIndex = result.stdout.indexOf(
+      "- status=linked-with-gaps queue=failed work-item=gamma",
+    );
+    const noiseSummaryIndex = result.stdout.indexOf("Noise Summary");
+    expect(gammaIndex).toBeGreaterThanOrEqual(0);
+    expect(noiseSummaryIndex).toBeGreaterThan(gammaIndex);
 
     rmSync(dir, { recursive: true, force: true });
   });

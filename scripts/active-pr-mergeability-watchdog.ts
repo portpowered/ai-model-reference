@@ -185,6 +185,115 @@ function buildPlannerActionQueue(
     });
 }
 
+function isQueueOnlyMissingLinkageLane(
+  lane: QueueWorktreePrLinkageLane,
+): boolean {
+  return (
+    !lane.pullRequest &&
+    !lane.worktreePath &&
+    lane.missingLinkageReasons.some((reason) =>
+      reason.includes("no matching worktree under .claude/worktrees"),
+    )
+  );
+}
+
+function isStaleFailedLoopbackLane(lane: QueueWorktreePrLinkageLane): boolean {
+  return (
+    lane.queueState === "failed" &&
+    !lane.pullRequest &&
+    lane.nextAction !== "repair-token" &&
+    !isQueueOnlyMissingLinkageLane(lane)
+  );
+}
+
+function formatNoiseWorkItems(lanes: QueueWorktreePrLinkageLane[]): string {
+  const workItems = lanes.map((lane) => lane.laneName);
+  if (workItems.length <= 3) {
+    return workItems.join(",");
+  }
+  return `${workItems.slice(0, 3).join(",")},+${workItems.length - 3} more`;
+}
+
+function formatNoiseEvidence(lanes: QueueWorktreePrLinkageLane[]): string {
+  const reasonCounts = new Map<string, number>();
+  for (const lane of lanes) {
+    for (const reason of new Set(lane.missingLinkageReasons)) {
+      reasonCounts.set(reason, (reasonCounts.get(reason) ?? 0) + 1);
+    }
+  }
+
+  return [...reasonCounts.entries()]
+    .sort((left, right) => {
+      if (right[1] !== left[1]) {
+        return right[1] - left[1];
+      }
+      return left[0].localeCompare(right[0]);
+    })
+    .slice(0, 2)
+    .map(([reason, count]) => `${count}x:${reason}`)
+    .join(" | ");
+}
+
+function formatNoiseSummaryRow(
+  noiseClass: string,
+  lanes: QueueWorktreePrLinkageLane[],
+): string {
+  const details = [
+    `noise=${noiseClass}`,
+    `count=${lanes.length}`,
+    `work-items=${formatNoiseWorkItems(lanes)}`,
+  ];
+  const evidence = formatNoiseEvidence(lanes);
+  if (evidence) {
+    details.push(`evidence=${evidence}`);
+  }
+  return `- ${details.join(" ")}`;
+}
+
+function formatLaneRow(lane: QueueWorktreePrLinkageLane): string {
+  const details = [
+    `status=${lane.pullRequest ? "pr-backed" : lane.linkageStatus}`,
+    `queue=${lane.queueState}`,
+    `work-item=${lane.laneName}`,
+    `work-item-source=${lane.workItemNameSource ?? "queue"}`,
+    `branch=${lane.branchName ?? "?"}`,
+    `branch-source=${lane.branchMetadataSource ?? "?"}`,
+    `metadata=${lane.metadataStatus ?? "?"}`,
+    `worktree=${lane.worktreePath ?? "?"}`,
+    `pr=${lane.pullRequest ? `#${lane.pullRequest.number}` : "?"}`,
+    `pr-status=${lane.pullRequestLookup.status}`,
+    `drift=${formatDrift(lane)}`,
+  ];
+
+  if (lane.sessionId) {
+    details.push(`session=${lane.sessionId}`);
+    details.push(`session-source=${lane.sessionIdSource ?? "?"}`);
+  }
+  if (lane.sessionState) {
+    details.push(`session-state=${lane.sessionState}`);
+  }
+  if (lane.mergeabilityClass) {
+    details.push(`mergeability=${lane.mergeabilityClass}`);
+  }
+  if (lane.checkHealth) {
+    details.push(`checks=${lane.checkHealth}`);
+  }
+  if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
+    details.push(`risk=${lane.queueMismatchRisk}`);
+  }
+  if (lane.nextAction) {
+    details.push(`next-action=${lane.nextAction}`);
+  }
+  if (lane.pullRequestLookup.failureKind) {
+    details.push(`pr-failure=${lane.pullRequestLookup.failureKind}`);
+  }
+  if (lane.missingLinkageReasons.length > 0) {
+    details.push(`reason=${lane.missingLinkageReasons.join("; ")}`);
+  }
+
+  return `- ${details.join(" ")}`;
+}
+
 function formatWatchdogReportFromLedger(
   lanes: QueueWorktreePrLinkageLane[],
   issues: string[],
@@ -220,49 +329,47 @@ function formatWatchdogReportFromLedger(
     lines.push(...actionQueue);
   }
 
-  lines.push("");
-  for (const lane of orderedLanes) {
-    const details = [
-      `status=${lane.pullRequest ? "pr-backed" : lane.linkageStatus}`,
-      `queue=${lane.queueState}`,
-      `work-item=${lane.laneName}`,
-      `work-item-source=${lane.workItemNameSource ?? "queue"}`,
-      `branch=${lane.branchName ?? "?"}`,
-      `branch-source=${lane.branchMetadataSource ?? "?"}`,
-      `metadata=${lane.metadataStatus ?? "?"}`,
-      `worktree=${lane.worktreePath ?? "?"}`,
-      `pr=${lane.pullRequest ? `#${lane.pullRequest.number}` : "?"}`,
-      `pr-status=${lane.pullRequestLookup.status}`,
-      `drift=${formatDrift(lane)}`,
-    ];
+  const queueOnlyMissingLinkageLanes = orderedLanes.filter(
+    isQueueOnlyMissingLinkageLane,
+  );
+  const staleFailedLoopbackLanes = orderedLanes.filter(
+    isStaleFailedLoopbackLane,
+  );
+  const detailedLanes = orderedLanes.filter(
+    (lane) =>
+      !queueOnlyMissingLinkageLanes.includes(lane) &&
+      !staleFailedLoopbackLanes.includes(lane),
+  );
 
-    if (lane.sessionId) {
-      details.push(`session=${lane.sessionId}`);
-      details.push(`session-source=${lane.sessionIdSource ?? "?"}`);
+  if (detailedLanes.length > 0) {
+    lines.push("");
+    for (const lane of detailedLanes) {
+      lines.push(formatLaneRow(lane));
     }
-    if (lane.sessionState) {
-      details.push(`session-state=${lane.sessionState}`);
-    }
-    if (lane.mergeabilityClass) {
-      details.push(`mergeability=${lane.mergeabilityClass}`);
-    }
-    if (lane.checkHealth) {
-      details.push(`checks=${lane.checkHealth}`);
-    }
-    if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
-      details.push(`risk=${lane.queueMismatchRisk}`);
-    }
-    if (lane.nextAction) {
-      details.push(`next-action=${lane.nextAction}`);
-    }
-    if (lane.pullRequestLookup.failureKind) {
-      details.push(`pr-failure=${lane.pullRequestLookup.failureKind}`);
-    }
-    if (lane.missingLinkageReasons.length > 0) {
-      details.push(`reason=${lane.missingLinkageReasons.join("; ")}`);
-    }
+  }
 
-    lines.push(`- ${details.join(" ")}`);
+  if (
+    staleFailedLoopbackLanes.length > 0 ||
+    queueOnlyMissingLinkageLanes.length > 0
+  ) {
+    lines.push("");
+    lines.push("Noise Summary");
+    if (staleFailedLoopbackLanes.length > 0) {
+      lines.push(
+        formatNoiseSummaryRow(
+          "stale-failed-loopbacks",
+          staleFailedLoopbackLanes,
+        ),
+      );
+    }
+    if (queueOnlyMissingLinkageLanes.length > 0) {
+      lines.push(
+        formatNoiseSummaryRow(
+          "queue-only-missing-linkage",
+          queueOnlyMissingLinkageLanes,
+        ),
+      );
+    }
   }
 
   return lines.join("\n");
