@@ -549,6 +549,16 @@ The loop is documented in:
 * [factory/docs/batch-inputs.md](./factory/docs/batch-inputs.md)
 * [factory/docs/batch-input-example.json](./factory/docs/batch-input-example.json)
 
+Maintainers can refresh current repo-local dispatch evidence with:
+
+```bash
+make planner-conflict-hotspots
+```
+
+That command reads current `git log --name-only` history plus tracked worktree
+state and prints a concise planner-facing hotspot snapshot, including a short
+safe-next-lanes hint, without relying on handwritten temp notes.
+
 Project-level meta state lives in:
 
 ```txt

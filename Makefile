@@ -1,4 +1,4 @@
-.PHONY: dev lint format typecheck test test-verify-contract test-build-contract test-system test-integration coverage build build-export ci validate-data scaffold linkcheck validate-pdf build-search-index component-examples verify-architectural-checklist-mechanism-status verify-export-routes verify-export-search-shell verify-export-search-handoff verify-export-search-ux verify-phase-1-ux verify-phase-1-convergence verify-phase-1-built-app-convergence verify-phase-1-follow-up-convergence verify-phase-1-batch-012-convergence verify-phase-1-batch-013-convergence verify-phase-1-github-pages-convergence verify-phase-1-github-pages-deploy-convergence verify-phase-2-3-reconciliation-convergence verify-rendered-quality-baseline verify-rendered-quality-regression
+.PHONY: dev lint format typecheck test test-verify-contract test-build-contract test-system test-integration coverage build build-export ci validate-data scaffold linkcheck validate-pdf build-search-index component-examples planner-conflict-hotspots verify-architectural-checklist-mechanism-status verify-export-routes verify-export-search-shell verify-export-search-handoff verify-export-search-ux verify-phase-1-ux verify-phase-1-convergence verify-phase-1-built-app-convergence verify-phase-1-follow-up-convergence verify-phase-1-batch-012-convergence verify-phase-1-batch-013-convergence verify-phase-1-github-pages-convergence verify-phase-1-github-pages-deploy-convergence verify-phase-2-3-reconciliation-convergence verify-rendered-quality-baseline verify-rendered-quality-regression
 
 dev:
 	bun run dev
@@ -78,6 +78,9 @@ build-search-index:
 
 component-examples:
 	bun ./scripts/component-examples.ts
+
+planner-conflict-hotspots:
+	bun run report:planner-conflict-hotspots
 
 verify-phase-1-ux:
 	bun ./scripts/verify-phase-1-route-search-ux.ts

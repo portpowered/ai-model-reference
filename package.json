@@ -43,6 +43,7 @@
     "validate-data": "bun ./scripts/validate-registry.ts",
     "watch:active-pr-mergeability": "bun ./scripts/active-pr-mergeability-watchdog.ts",
     "cleanup:merged-worktrees": "bash ./scripts/cleanup-merged-worktrees.sh",
+    "report:planner-conflict-hotspots": "bun ./scripts/report-planner-conflict-hotspots.ts",
     "scaffold:doc-page": "bun ./scripts/scaffold-doc-page.ts",
     "generate:page-bundle": "bun ./scripts/generate-page-bundle.ts",
     "generate:table-registry": "bun ./scripts/generate-table-registry-runtime.ts",
