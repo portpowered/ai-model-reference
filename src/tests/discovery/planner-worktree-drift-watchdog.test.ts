@@ -99,13 +99,13 @@ describe("planner-worktree-drift-watchdog script", () => {
       `- location=root repo=${repoRoot} dirty-shared-paths=1`,
     );
     expect(result.stdout).toContain(
-      "path=src/lib/factory/root.ts status= M change=modified surface=src/lib/factory category=shared-helper",
+      "path=src/lib/factory/root.ts status= M change=modified surface=src/lib/factory category=shared-helper owner=root-owned ownership-reason=No active lane currently matches this dirty path or shared surface, so the drift remains rooted in the planner checkout.",
     );
     expect(result.stdout).toContain(
       "- location=worktree lane=alpha branch=alpha linkage=linked-with-gaps worktree=.claude/worktrees/alpha dirty-shared-paths=1",
     );
     expect(result.stdout).toContain(
-      "path=docs/planner/notes.md status=?? change=untracked surface=docs/planner category=authored-content",
+      "path=docs/planner/notes.md status=?? change=untracked surface=docs/planner category=authored-content owner=worktree-owned:alpha ownership-reason=Dirty path was observed directly in active lane alpha.",
     );
 
     const jsonResult = spawnSync(
@@ -130,6 +130,15 @@ describe("planner-worktree-drift-watchdog script", () => {
       expect.objectContaining({
         activeLaneCount: 1,
         evaluatedWorktreeCount: 1,
+        root: expect.objectContaining({
+          dirtyPaths: [
+            expect.objectContaining({
+              ownership: expect.objectContaining({
+                kind: "root-owned",
+              }),
+            }),
+          ],
+        }),
         totalDirtyPathCount: 2,
       }),
     );

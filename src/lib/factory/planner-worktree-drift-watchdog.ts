@@ -23,11 +23,25 @@ export type PlannerWorktreeDriftChangeKind =
   | "untracked"
   | "type-changed"
   | "unknown";
+export type PlannerWorktreeDriftOwnershipKind =
+  | "root-owned"
+  | "worktree-owned"
+  | "unowned";
+
+export interface PlannerWorktreeDriftOwnership {
+  branchName?: string;
+  kind: PlannerWorktreeDriftOwnershipKind;
+  laneName?: string;
+  linkageStatus?: QueueWorktreePrLinkageLane["linkageStatus"];
+  reason: string;
+  worktreePath?: string;
+}
 
 export interface PlannerWorktreeDirtyPath {
   category: ConflictHotspotSurfaceCategory;
   changeKind: PlannerWorktreeDriftChangeKind;
   location: PlannerWorktreeDriftLocation;
+  ownership: PlannerWorktreeDriftOwnership;
   path: string;
   statusCode: string;
   surface: string;
@@ -68,6 +82,14 @@ export interface DiscoverPlannerWorktreeDriftOptions {
 }
 
 type RunGitStatus = (cwd: string) => string;
+
+interface PlannerWorktreeOwnershipCandidate {
+  branchName?: string;
+  dirtyPaths: PlannerWorktreeDirtyPath[];
+  laneName: string;
+  linkageStatus: QueueWorktreePrLinkageLane["linkageStatus"];
+  worktreePath: string;
+}
 
 const NON_PLANNER_SURFACE_PATHS = new Set([
   "prd.json",
@@ -198,6 +220,10 @@ export function parsePlannerRelevantDirtyPaths(
       category: classifyConflictHotspotSurfaceCategory(path),
       changeKind: classifyChangeKind(statusCode),
       location,
+      ownership: {
+        kind: "unowned",
+        reason: "Ownership has not been attributed yet.",
+      },
       path,
       statusCode,
       surface: deriveSurfaceLabel(path),
@@ -273,6 +299,140 @@ function collectWorktreeSnapshot(
   };
 }
 
+function buildWorktreeOwnedReason(
+  lane: Pick<
+    PlannerWorktreeDriftLaneSnapshot,
+    "laneName" | "branchName" | "linkageStatus" | "worktreePath"
+  >,
+  repoRoot: string,
+): PlannerWorktreeDriftOwnership {
+  return {
+    branchName: lane.branchName,
+    kind: "worktree-owned",
+    laneName: lane.laneName,
+    linkageStatus: lane.linkageStatus,
+    reason: `Dirty path was observed directly in active lane ${lane.laneName}.`,
+    worktreePath: formatWorktreePath(repoRoot, lane.worktreePath),
+  };
+}
+
+function buildOwnershipCandidates(
+  worktrees: PlannerWorktreeDriftLaneSnapshot[],
+): PlannerWorktreeOwnershipCandidate[] {
+  return worktrees.map((worktree) => ({
+    branchName: worktree.branchName,
+    dirtyPaths: worktree.dirtyPaths,
+    laneName: worktree.laneName,
+    linkageStatus: worktree.linkageStatus,
+    worktreePath: worktree.worktreePath,
+  }));
+}
+
+function collectMatchingOwnershipCandidates(
+  dirtyPath: PlannerWorktreeDirtyPath,
+  candidates: PlannerWorktreeOwnershipCandidate[],
+): PlannerWorktreeOwnershipCandidate[] {
+  const pathMatches = candidates.filter((candidate) =>
+    candidate.dirtyPaths.some(
+      (candidatePath) => candidatePath.path === dirtyPath.path,
+    ),
+  );
+
+  if (pathMatches.length > 0) {
+    return pathMatches;
+  }
+
+  return candidates.filter((candidate) =>
+    candidate.dirtyPaths.some(
+      (candidatePath) => candidatePath.surface === dirtyPath.surface,
+    ),
+  );
+}
+
+function attributeRootDirtyPathOwnership(
+  dirtyPath: PlannerWorktreeDirtyPath,
+  candidates: PlannerWorktreeOwnershipCandidate[],
+  linkageIssues: string[],
+  repoRoot: string,
+): PlannerWorktreeDriftOwnership {
+  const matchingCandidates = collectMatchingOwnershipCandidates(
+    dirtyPath,
+    candidates,
+  );
+
+  if (matchingCandidates.length === 1) {
+    const [match] = matchingCandidates;
+    return {
+      branchName: match?.branchName,
+      kind: "worktree-owned",
+      laneName: match?.laneName,
+      linkageStatus: match?.linkageStatus,
+      reason: match?.dirtyPaths.some(
+        (candidatePath) => candidatePath.path === dirtyPath.path,
+      )
+        ? `Root drift matches dirty path ownership already visible in active lane ${match?.laneName}.`
+        : `Root drift matches shared surface ${dirtyPath.surface} already dirty in active lane ${match?.laneName}.`,
+      worktreePath: match
+        ? formatWorktreePath(repoRoot, match.worktreePath)
+        : undefined,
+    };
+  }
+
+  if (matchingCandidates.length > 1) {
+    return {
+      kind: "unowned",
+      reason: `Ownership is ambiguous across active lanes ${matchingCandidates.map((candidate) => candidate.laneName).join(", ")} on shared surface ${dirtyPath.surface}.`,
+    };
+  }
+
+  if (linkageIssues.length > 0) {
+    return {
+      kind: "unowned",
+      reason:
+        "No active lane currently matches this root drift, and linkage gaps leave ownership unresolved.",
+    };
+  }
+
+  return {
+    kind: "root-owned",
+    reason:
+      "No active lane currently matches this dirty path or shared surface, so the drift remains rooted in the planner checkout.",
+  };
+}
+
+function attributeDirtyPathOwnership(
+  snapshot: PlannerWorktreeDriftSnapshot,
+): PlannerWorktreeDriftSnapshot {
+  const ownershipCandidates = buildOwnershipCandidates(snapshot.worktrees);
+
+  const rootDirtyPaths = snapshot.root.dirtyPaths.map((dirtyPath) => ({
+    ...dirtyPath,
+    ownership: attributeRootDirtyPathOwnership(
+      dirtyPath,
+      ownershipCandidates,
+      snapshot.issues,
+      snapshot.root.repoRoot,
+    ),
+  }));
+
+  const worktrees = snapshot.worktrees.map((worktree) => ({
+    ...worktree,
+    dirtyPaths: worktree.dirtyPaths.map((dirtyPath) => ({
+      ...dirtyPath,
+      ownership: buildWorktreeOwnedReason(worktree, snapshot.root.repoRoot),
+    })),
+  }));
+
+  return {
+    ...snapshot,
+    root: {
+      ...snapshot.root,
+      dirtyPaths: rootDirtyPaths,
+    },
+    worktrees,
+  };
+}
+
 export function buildPlannerWorktreeDriftSnapshot(
   ledger: QueueWorktreePrLinkageLedger,
   options: {
@@ -291,7 +451,7 @@ export function buildPlannerWorktreeDriftSnapshot(
     root.dirtyPathCount +
     worktrees.reduce((total, lane) => total + lane.dirtyPathCount, 0);
 
-  return {
+  return attributeDirtyPathOwnership({
     activeLaneCount: ledger.activeLaneCount,
     evaluatedWorktreeCount: worktrees.length,
     generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
@@ -299,7 +459,7 @@ export function buildPlannerWorktreeDriftSnapshot(
     root,
     totalDirtyPathCount,
     worktrees,
-  };
+  });
 }
 
 export function discoverPlannerWorktreeDriftSnapshot(
@@ -315,7 +475,10 @@ export function discoverPlannerWorktreeDriftSnapshot(
 }
 
 function formatDirtyPath(path: PlannerWorktreeDirtyPath): string {
-  return `path=${path.path} status=${path.statusCode} change=${path.changeKind} surface=${path.surface} category=${path.category}`;
+  const owner = path.ownership.laneName
+    ? `${path.ownership.kind}:${path.ownership.laneName}`
+    : path.ownership.kind;
+  return `path=${path.path} status=${path.statusCode} change=${path.changeKind} surface=${path.surface} category=${path.category} owner=${owner} ownership-reason=${path.ownership.reason}`;
 }
 
 function formatWorktreePath(repoRoot: string, worktreePath: string): string {
