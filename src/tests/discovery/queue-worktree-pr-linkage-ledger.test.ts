@@ -50,6 +50,89 @@ exit 1
 }
 
 describe("queue-worktree-pr-linkage-ledger script", () => {
+  test("keeps live-schema queue lanes visible in the ledger summary", () => {
+    const dir = mkdtempSync(join(tmpdir(), "queue-linkage-ledger-script-"));
+    const workListPath = join(dir, "work-list.json");
+    const sessionListPath = join(dir, "session-list.json");
+    const prMapPath = join(dir, "pr-map.json");
+    const worktreesRoot = join(dir, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    createWorktree(worktreesRoot, "alpha", "alpha");
+    createWorktree(worktreesRoot, "beta", "beta");
+
+    writeFileSync(
+      workListPath,
+      JSON.stringify({
+        results: [
+          {
+            workId: "task-active",
+            name: "alpha",
+            placeId: "lane-alpha",
+            state: { name: "in-review", type: "PROCESSING" },
+            sessionId: "sess-1",
+          },
+          {
+            workId: "task-failed",
+            name: "beta",
+            placeId: "lane-beta",
+            state: { name: "failed", type: "FAILED" },
+          },
+        ],
+      }),
+    );
+    writeFileSync(
+      sessionListPath,
+      JSON.stringify({
+        sessions: [{ id: "sess-1", workItemName: "alpha", status: "running" }],
+      }),
+    );
+    writeFileSync(
+      prMapPath,
+      JSON.stringify({
+        alpha: {
+          number: 42,
+          headRefName: "alpha",
+          mergeStateStatus: "CLEAN",
+          statusCheckRollup: [{ conclusion: "SUCCESS" }],
+          url: "https://example.com/pr/42",
+        },
+      }),
+    );
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-queue-worktree-pr-linkage-ledger.ts",
+        "--work-list-json",
+        workListPath,
+        "--session-list-json",
+        sessionListPath,
+        "--worktrees-dir",
+        worktreesRoot,
+        "--pr-map-json",
+        prMapPath,
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+      "queue-derived-lanes=2 active=1 failed=1 linked=1 linked-with-gaps=1",
+    );
+    expect(result.stdout).toContain("lane=alpha");
+    expect(result.stdout).toContain("queue=active");
+    expect(result.stdout).toContain("pr=#42");
+    expect(result.stdout).toContain("lane=beta");
+    expect(result.stdout).toContain("queue=failed");
+    expect(result.stdout).toContain("linkage=linked-with-gaps");
+    expect(result.stdout).toContain(
+      "missing=no open PR metadata found for branch beta",
+    );
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   test("prints a planner-facing queue summary while keeping missing-linkage lanes visible", () => {
     const dir = mkdtempSync(join(tmpdir(), "queue-linkage-ledger-script-"));
     const workListPath = join(dir, "work-list.json");
