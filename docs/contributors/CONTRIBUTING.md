@@ -420,7 +420,9 @@ Use these patterns:
 - **Representative anchors** for reader journeys. Example: assert that one or a
   few canonical routes per behavior class appear in the sidebar, browse page,
   tag landing, or taxonomy/search flow instead of listing every page in that
-  class.
+  class. Prefer runtime-derived positions such as the first and last visible
+  route in a section when the contract is about discovery order rather than a
+  specific page slug.
 - **Shared discovery-contract checks** when multiple surfaces should agree about
   the same content. Example: reuse the same representative route across
   published-doc loading, tag-group membership, and search-document assertions so

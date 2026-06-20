@@ -1,6 +1,25 @@
 import { describe, expect, test } from "bun:test";
 import type { Node } from "fumadocs-core/page-tree";
-import { loadPublishedDocsPagesSync } from "@/lib/content/pages";
+import {
+  type DocsPageSource,
+  loadPublishedDocsPagesSync,
+} from "@/lib/content/pages";
+import {
+  getConceptById,
+  getModuleById,
+  getSystemById,
+  getTrainingRegimeById,
+} from "@/lib/content/registry-runtime";
+import {
+  getSidebarGroupIdsForSection,
+  resolveConceptsSidebarGroup,
+  resolveGlossarySidebarGroup,
+  resolveModulesSidebarGroup,
+  resolveSystemsSidebarGroup,
+  resolveTrainingSidebarGroup,
+  type SidebarGroupIdBySection,
+  type SidebarGroupingSection,
+} from "@/lib/content/sidebar-grouping";
 import { source } from "@/lib/source";
 
 const SECTION_FOLDER_NAMES = {
@@ -12,6 +31,61 @@ const SECTION_FOLDER_NAMES = {
   training: "Training",
   systems: "Systems",
 } as const;
+
+type SectionKey = keyof typeof SECTION_FOLDER_NAMES;
+type GroupedSectionConfig<Section extends SidebarGroupingSection> = {
+  section: Section;
+  resolveGroupId: (
+    page: DocsPageSource,
+  ) => SidebarGroupIdBySection[Section] | undefined;
+};
+
+const GROUPED_SECTION_CONFIGS = {
+  glossary: {
+    section: "glossary",
+    resolveGroupId: (page) =>
+      resolveGlossarySidebarGroup(
+        getConceptById(page.frontmatter.registryId) ??
+          failMissingRecord(page.frontmatter.registryId, "glossary concept"),
+      ),
+  },
+  concepts: {
+    section: "concepts",
+    resolveGroupId: (page) =>
+      resolveConceptsSidebarGroup(
+        getConceptById(page.frontmatter.registryId) ??
+          failMissingRecord(page.frontmatter.registryId, "concept"),
+      ),
+  },
+  modules: {
+    section: "modules",
+    resolveGroupId: (page) =>
+      resolveModulesSidebarGroup(
+        getModuleById(page.frontmatter.registryId) ??
+          failMissingRecord(page.frontmatter.registryId, "module"),
+      ),
+  },
+  training: {
+    section: "training",
+    resolveGroupId: (page) =>
+      resolveTrainingSidebarGroup(
+        getTrainingRegimeById(page.frontmatter.registryId) ??
+          failMissingRecord(page.frontmatter.registryId, "training regime"),
+      ),
+  },
+  systems: {
+    section: "systems",
+    resolveGroupId: (page) =>
+      resolveSystemsSidebarGroup(
+        getSystemById(page.frontmatter.registryId) ??
+          failMissingRecord(page.frontmatter.registryId, "system"),
+      ),
+  },
+} as const satisfies Partial<{
+  [Key in SectionKey]: GroupedSectionConfig<
+    Extract<Key, SidebarGroupingSection>
+  >;
+}>;
 
 function collectPageUrls(nodes: Node[]): string[] {
   const urls: string[] = [];
@@ -46,6 +120,82 @@ function docsSlugFromUrl(url: string): string[] {
 
 function countUnique(values: string[]): number {
   return new Set(values).size;
+}
+
+function failMissingRecord(recordId: string, kind: string): never {
+  throw new Error(`expected ${kind} record for ${recordId}`);
+}
+
+function sortPagesByTitle(pages: DocsPageSource[]): DocsPageSource[] {
+  return [...pages].sort((left, right) =>
+    left.messages.title.localeCompare(right.messages.title, "en", {
+      sensitivity: "base",
+    }),
+  );
+}
+
+function getPublishedSectionPages(
+  pages: DocsPageSource[],
+  section: SectionKey,
+): DocsPageSource[] {
+  return pages.filter((page) => page.docsSlug.startsWith(`${section}/`));
+}
+
+function getOrderedSectionPages(
+  pages: DocsPageSource[],
+  section: SectionKey,
+): DocsPageSource[] {
+  const sectionPages = getPublishedSectionPages(pages, section);
+  const groupedSection =
+    section in GROUPED_SECTION_CONFIGS
+      ? GROUPED_SECTION_CONFIGS[
+          section as keyof typeof GROUPED_SECTION_CONFIGS
+        ]
+      : undefined;
+  if (!groupedSection) {
+    return sortPagesByTitle(sectionPages);
+  }
+
+  const groupedPages = new Map<string, DocsPageSource[]>();
+  const ungroupedPages: DocsPageSource[] = [];
+
+  for (const page of sectionPages) {
+    const groupId = groupedSection.resolveGroupId(page);
+    if (!groupId) {
+      ungroupedPages.push(page);
+      continue;
+    }
+
+    const pagesForGroup = groupedPages.get(groupId) ?? [];
+    pagesForGroup.push(page);
+    groupedPages.set(groupId, pagesForGroup);
+  }
+
+  const orderedPages: DocsPageSource[] = [];
+  for (const groupId of getSidebarGroupIdsForSection(groupedSection.section)) {
+    orderedPages.push(...sortPagesByTitle(groupedPages.get(groupId) ?? []));
+  }
+
+  orderedPages.push(...sortPagesByTitle(ungroupedPages));
+  return orderedPages;
+}
+
+function getRepresentativeAnchorUrls(
+  pages: DocsPageSource[],
+  section: SectionKey,
+): { first: string; last: string } {
+  const orderedPages = getOrderedSectionPages(pages, section);
+  const firstPage = orderedPages[0];
+  const lastPage = orderedPages.at(-1);
+
+  if (!firstPage || !lastPage) {
+    throw new Error(`expected published pages for ${section}`);
+  }
+
+  return {
+    first: firstPage.url,
+    last: lastPage.url,
+  };
 }
 
 describe("docs navigation source", () => {
@@ -93,6 +243,36 @@ describe("docs navigation source", () => {
         expect(
           source.getPage(docsSlugFromUrl(url)),
           `${folderName} route ${url} should resolve through the Fumadocs source`,
+        ).toBeDefined();
+      }
+    }
+  });
+
+  test("section folders preserve runtime-derived first and last reader anchors", () => {
+    const publishedPages = loadPublishedDocsPagesSync("en");
+
+    for (const [section, folderName] of Object.entries(
+      SECTION_FOLDER_NAMES,
+    ) as [SectionKey, (typeof SECTION_FOLDER_NAMES)[SectionKey]][]) {
+      const folderUrls = collectPageUrls(getFolderChildren(folderName));
+      const representativeAnchors = getRepresentativeAnchorUrls(
+        publishedPages,
+        section,
+      );
+
+      expect(
+        folderUrls[0],
+        `${folderName} should keep the first reader-facing route aligned with the published runtime`,
+      ).toBe(representativeAnchors.first);
+      expect(
+        folderUrls.at(-1),
+        `${folderName} should keep the last reader-facing route aligned with the published runtime`,
+      ).toBe(representativeAnchors.last);
+
+      for (const anchorUrl of Object.values(representativeAnchors)) {
+        expect(
+          source.getPage(docsSlugFromUrl(anchorUrl)),
+          `${folderName} representative route ${anchorUrl} should resolve through the Fumadocs source`,
         ).toBeDefined();
       }
     }
