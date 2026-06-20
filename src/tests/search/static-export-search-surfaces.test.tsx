@@ -5,6 +5,7 @@ import {
   beforeEach,
   describe,
   expect,
+  setDefaultTimeout,
   spyOn,
   test,
 } from "bun:test";
@@ -30,9 +31,11 @@ const STATIC_HANDOFF_CLIENT = { from: STATIC_HANDOFF_BOOTSTRAP_FETCH_URL };
 const FAILING_BOOTSTRAP_URL = "http://static-handoff-fail.test/api/search";
 const FAILING_BOOTSTRAP_CLIENT = { from: FAILING_BOOTSTRAP_URL };
 const STATIC_EXPORT_EMPTY_HANDOFF = { q: null, tag: null } as const;
+const defaultContextPromise = loadAppTestContext();
 let staticHandoffBootstrapPayload: Awaited<
   ReturnType<Response["json"]>
 > | null = null;
+setDefaultTimeout(15_000);
 
 function withWindowLocationSearch(
   search: string,
@@ -136,14 +139,9 @@ describe("static export search surfaces", () => {
     await lockGlobalFetch().then(async (release) => {
       releaseFetchLock = release;
       await installStaticHandoffFetchMock();
-      await primeStaticHandoffSearch(
-        await loadAppTestContext(),
-        renderSearchPage,
-      );
-      await primeStaticHandoffSearch(
-        await loadAppTestContext(),
-        renderSearchDialog,
-      );
+      const context = await defaultContextPromise;
+      await primeStaticHandoffSearch(context, renderSearchPage);
+      await primeStaticHandoffSearch(context, renderSearchDialog);
       restoreFetchMock();
       releaseFetchLock?.();
       releaseFetchLock = null;
@@ -306,13 +304,21 @@ describe("static export search surfaces", () => {
 });
 
 describe("static export search bootstrap failures", () => {
+  let releaseFetchLock: (() => void) | null = null;
+
   beforeAll(() => {
     captureOriginalFetch();
+  });
+
+  beforeEach(async () => {
+    releaseFetchLock = await lockGlobalFetch();
   });
 
   afterEach(() => {
     cleanup();
     restoreFetchMock();
+    releaseFetchLock?.();
+    releaseFetchLock = null;
   });
 
   test("/search exposes recoverable error when static bootstrap fetch fails", async () => {

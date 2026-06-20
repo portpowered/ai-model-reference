@@ -6,6 +6,7 @@ import bidirectionalAttentionComparisonTableRecord from "@/content/registry/tabl
 import bpeComparisonTableRecord from "@/content/registry/tables/bpe-comparison.json";
 import byteLevelTokenizationComparisonTableRecord from "@/content/registry/tables/byte-level-tokenization-comparison.json";
 import feedForwardNetworkComparisonTableRecord from "@/content/registry/tables/feed-forward-network-comparison.json";
+import geluComparisonTableRecord from "@/content/registry/tables/gelu-comparison.json";
 import groupNormComparisonTableRecord from "@/content/registry/tables/group-norm-comparison.json";
 import groupedQueryAttentionComparisonTableRecord from "@/content/registry/tables/grouped-query-attention-comparison.json";
 import layerNormComparisonTableRecord from "@/content/registry/tables/layer-norm-comparison.json";
@@ -18,11 +19,13 @@ import multiQueryAttentionComparisonTableRecord from "@/content/registry/tables/
 import qkNormComparisonTableRecord from "@/content/registry/tables/qk-norm-comparison.json";
 import reluComparisonTableRecord from "@/content/registry/tables/relu-comparison.json";
 import rmsnormComparisonTableRecord from "@/content/registry/tables/rmsnorm-comparison.json";
+import sigmoidComparisonTableRecord from "@/content/registry/tables/sigmoid-comparison.json";
 import siluComparisonTableRecord from "@/content/registry/tables/silu-comparison.json";
 import slidingWindowAttentionComparisonTableRecord from "@/content/registry/tables/sliding-window-attention-comparison.json";
 import sparseAttentionComparisonTableRecord from "@/content/registry/tables/sparse-attention-comparison.json";
 import standardFfnComparisonTableRecord from "@/content/registry/tables/standard-ffn-comparison.json";
 import swigluComparisonTableRecord from "@/content/registry/tables/swiglu-comparison.json";
+import tanhComparisonTableRecord from "@/content/registry/tables/tanh-comparison.json";
 
 export const generatedTableRegistrySourceFiles = [
   "batch-norm-comparison.json",
@@ -30,6 +33,7 @@ export const generatedTableRegistrySourceFiles = [
   "bpe-comparison.json",
   "byte-level-tokenization-comparison.json",
   "feed-forward-network-comparison.json",
+  "gelu-comparison.json",
   "group-norm-comparison.json",
   "grouped-query-attention-comparison.json",
   "layer-norm-comparison.json",
@@ -42,11 +46,13 @@ export const generatedTableRegistrySourceFiles = [
   "qk-norm-comparison.json",
   "relu-comparison.json",
   "rmsnorm-comparison.json",
+  "sigmoid-comparison.json",
   "silu-comparison.json",
   "sliding-window-attention-comparison.json",
   "sparse-attention-comparison.json",
   "standard-ffn-comparison.json",
   "swiglu-comparison.json",
+  "tanh-comparison.json",
 ] as const;
 
 export const generatedTableRegistryPayloads = [
@@ -55,6 +61,7 @@ export const generatedTableRegistryPayloads = [
   bpeComparisonTableRecord,
   byteLevelTokenizationComparisonTableRecord,
   feedForwardNetworkComparisonTableRecord,
+  geluComparisonTableRecord,
   groupNormComparisonTableRecord,
   groupedQueryAttentionComparisonTableRecord,
   layerNormComparisonTableRecord,
@@ -67,9 +74,11 @@ export const generatedTableRegistryPayloads = [
   qkNormComparisonTableRecord,
   reluComparisonTableRecord,
   rmsnormComparisonTableRecord,
+  sigmoidComparisonTableRecord,
   siluComparisonTableRecord,
   slidingWindowAttentionComparisonTableRecord,
   sparseAttentionComparisonTableRecord,
   standardFfnComparisonTableRecord,
   swigluComparisonTableRecord,
+  tanhComparisonTableRecord,
 ] as const;

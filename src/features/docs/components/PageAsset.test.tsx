@@ -7,9 +7,12 @@ import { PageAssetsProvider } from "@/features/docs/components/page-assets-conte
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import { parsePageAssetConfig } from "@/lib/content/assets";
 import {
+  GELU_GLOSSARY_PAGE_DIR,
   GROUPED_QUERY_ATTENTION_PAGE_DIR,
   RELU_GLOSSARY_PAGE_DIR,
+  SIGMOID_GLOSSARY_PAGE_DIR,
   SILU_GLOSSARY_PAGE_DIR,
+  TANH_GLOSSARY_PAGE_DIR,
 } from "@/lib/content/content-paths";
 import type { PageAssetConfig, PageMessages } from "@/lib/content/schemas";
 import { pageMessagesSchema } from "@/lib/content/schemas";
@@ -63,6 +66,38 @@ const siluMessages = pageMessagesSchema.parse(
 
 const siluAssets = parsePageAssetConfig(
   JSON.parse(readFileSync(join(SILU_GLOSSARY_PAGE_DIR, "assets.json"), "utf8")),
+);
+
+const sigmoidMessages = pageMessagesSchema.parse(
+  JSON.parse(
+    readFileSync(join(SIGMOID_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
+  ),
+);
+
+const sigmoidAssets = parsePageAssetConfig(
+  JSON.parse(
+    readFileSync(join(SIGMOID_GLOSSARY_PAGE_DIR, "assets.json"), "utf8"),
+  ),
+);
+
+const tanhMessages = pageMessagesSchema.parse(
+  JSON.parse(
+    readFileSync(join(TANH_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
+  ),
+);
+
+const tanhAssets = parsePageAssetConfig(
+  JSON.parse(readFileSync(join(TANH_GLOSSARY_PAGE_DIR, "assets.json"), "utf8")),
+);
+
+const geluMessages = pageMessagesSchema.parse(
+  JSON.parse(
+    readFileSync(join(GELU_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
+  ),
+);
+
+const geluAssets = parsePageAssetConfig(
+  JSON.parse(readFileSync(join(GELU_GLOSSARY_PAGE_DIR, "assets.json"), "utf8")),
 );
 
 function renderPageAsset(
@@ -272,6 +307,60 @@ describe("PageAsset", () => {
     expect(html).toContain("ReLU");
     expect(html).toContain("SiLU");
     expect(html).not.toContain('data-graph-id="graph.silu-activation-flow"');
+  });
+
+  test("renders activation chart for the sigmoid module page", () => {
+    const html = renderPageAsset(
+      "computeFlow",
+      false,
+      sigmoidAssets,
+      sigmoidMessages,
+    );
+    expect(html).toContain('data-page-asset="computeFlow"');
+    expect(html).toContain('data-asset-type="chart"');
+    expect(html).toContain('data-activation-chart="true"');
+    expect(html).toContain(
+      'data-chart-id="chart.activation-family.sigmoid-intro"',
+    );
+    expect(html).toContain("Activation Curves");
+    expect(html).toContain("Sigmoid");
+    expect(html).not.toContain('data-graph-id="graph.sigmoid-activation-flow"');
+  });
+
+  test("renders activation chart for the tanh module page", () => {
+    const html = renderPageAsset(
+      "computeFlow",
+      false,
+      tanhAssets,
+      tanhMessages,
+    );
+    expect(html).toContain('data-page-asset="computeFlow"');
+    expect(html).toContain('data-asset-type="chart"');
+    expect(html).toContain('data-activation-chart="true"');
+    expect(html).toContain(
+      'data-chart-id="chart.activation-family.tanh-intro"',
+    );
+    expect(html).toContain("Activation Curves");
+    expect(html).toContain("Tanh");
+    expect(html).not.toContain('data-graph-id="graph.tanh-activation-flow"');
+  });
+
+  test("renders activation chart for the GELU module page", () => {
+    const html = renderPageAsset(
+      "computeFlow",
+      false,
+      geluAssets,
+      geluMessages,
+    );
+    expect(html).toContain('data-page-asset="computeFlow"');
+    expect(html).toContain('data-asset-type="chart"');
+    expect(html).toContain('data-activation-chart="true"');
+    expect(html).toContain(
+      'data-chart-id="chart.activation-family.gelu-intro"',
+    );
+    expect(html).toContain("GELU");
+    expect(html).toContain("ReLU");
+    expect(html).toContain("SiLU");
   });
 
   test("renders non-react-flow graph fallback markup when webRenderer is not react-flow", () => {

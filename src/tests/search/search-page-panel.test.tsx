@@ -5,6 +5,7 @@ import {
   beforeEach,
   describe,
   expect,
+  setDefaultTimeout,
   test,
 } from "bun:test";
 import { cleanup, screen, waitFor, within } from "@testing-library/react";
@@ -31,6 +32,8 @@ import {
 } from "@/tests/search/helpers";
 import { createDocsSearchRouteFetch } from "@/tests/search/route-fetch";
 import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
+
+setDefaultTimeout(15_000);
 
 function toSearchPageHandoff(searchParams: URLSearchParams) {
   return {

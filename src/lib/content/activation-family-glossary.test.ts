@@ -5,10 +5,13 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
+  GELU_GLOSSARY_PAGE_DIR,
   LEAKY_RELU_GLOSSARY_PAGE_DIR,
   RELU_GLOSSARY_PAGE_DIR,
+  SIGMOID_GLOSSARY_PAGE_DIR,
   SILU_GLOSSARY_PAGE_DIR,
   SWIGLU_GLOSSARY_PAGE_DIR,
+  TANH_GLOSSARY_PAGE_DIR,
 } from "@/lib/content/content-paths";
 import { expectHtmlToContainProse } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
@@ -22,10 +25,105 @@ import {
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 const ACTIVATION_FAMILY_TIMEOUT_MS = 15_000;
 
 const PAGE_CASES = [
+  {
+    slug: "sigmoid",
+    registryId: "concept.sigmoid",
+    title: "Sigmoid Activation",
+    pageDir: SIGMOID_GLOSSARY_PAGE_DIR,
+    pageKind: "module",
+    usesModuleTemplate: true,
+    expectedTags: ["activation", "foundations"],
+    aliases: ["logistic activation", "logistic sigmoid", "sigmoid function"],
+    relatedIds: [
+      "concept.activation",
+      "concept.feed-forward-network",
+      "concept.standard-ffn",
+      "concept.relu",
+      "concept.silu",
+    ],
+    hrefs: [
+      "/docs/glossary/activation",
+      "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/relu",
+      "/docs/modules/silu",
+    ],
+    messageNeedles: ["smooth", "saturat", "0-to-1"],
+    renderNeedle: "maps each input value",
+    searchQuery: "sigmoid",
+    searchQueries: ["sigmoid", "logistic activation", "activation"],
+    searchUrl: "/docs/modules/sigmoid",
+  },
+  {
+    slug: "tanh",
+    registryId: "concept.tanh",
+    title: "Hyperbolic Tangent Activation",
+    pageDir: TANH_GLOSSARY_PAGE_DIR,
+    pageKind: "module",
+    usesModuleTemplate: true,
+    expectedTags: ["activation", "foundations"],
+    aliases: ["tanh", "hyperbolic tangent", "tanh activation"],
+    relatedIds: [
+      "concept.activation",
+      "concept.feed-forward-network",
+      "concept.standard-ffn",
+      "concept.sigmoid",
+      "concept.relu",
+    ],
+    hrefs: [
+      "/docs/glossary/activation",
+      "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/sigmoid",
+      "/docs/modules/relu",
+    ],
+    messageNeedles: ["centered", "saturat", "-1 and 1"],
+    renderNeedle: "centered range lets a hidden value",
+    searchQuery: "tanh",
+    searchQueries: ["tanh", "hyperbolic tangent", "activation"],
+    searchUrl: "/docs/modules/tanh",
+  },
+  {
+    slug: "gelu",
+    registryId: "concept.gelu",
+    title: "Gaussian Error Linear Unit",
+    pageDir: GELU_GLOSSARY_PAGE_DIR,
+    pageKind: "module",
+    usesModuleTemplate: true,
+    expectedTags: ["activation", "foundations"],
+    aliases: ["gelu", "Gaussian Error Linear Unit", "transformer activation"],
+    relatedIds: [
+      "concept.activation",
+      "concept.feed-forward-network",
+      "concept.standard-ffn",
+      "concept.relu",
+      "concept.silu",
+      "concept.swiglu",
+    ],
+    hrefs: [
+      "/docs/glossary/activation",
+      "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/relu",
+      "/docs/modules/silu",
+      "/docs/modules/swiglu",
+    ],
+    messageNeedles: ["smooth", "transformer", "negative values"],
+    renderNeedle: "Gaussian Error Linear Unit",
+    searchQuery: "GELU",
+    searchQueries: [
+      "gelu",
+      "Gaussian Error Linear Unit",
+      "transformer activation",
+      "activation",
+    ],
+    searchUrl: "/docs/modules/gelu",
+  },
   {
     slug: "relu",
     registryId: "concept.relu",
@@ -157,11 +255,12 @@ const PAGE_CASES = [
   messageNeedles: readonly string[];
   renderNeedle: string;
   searchQuery: string;
+  searchQueries?: readonly string[];
   searchUrl: string;
   expectedGraphId?: string;
 }>;
 
-describe("Phase 3 activation-family glossary pages (US-002)", () => {
+describe("Phase 3 activation-family glossary pages", () => {
   for (const testCase of PAGE_CASES) {
     test(`${testCase.title} registry record is published with aliases, tags, and curated related ids`, () => {
       const record = getConceptById(testCase.registryId);
@@ -287,5 +386,20 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
       },
       { timeout: ACTIVATION_FAMILY_TIMEOUT_MS },
     );
+
+    if ("searchQueries" in testCase) {
+      test(
+        `${testCase.title} search queries return the published module page`,
+        async () => {
+          for (const query of testCase.searchQueries) {
+            const results = await docsSearchApi.search(query);
+            expect(
+              results.some((result) => result.url === testCase.searchUrl),
+            ).toBe(true);
+          }
+        },
+        { timeout: ACTIVATION_FAMILY_TIMEOUT_MS },
+      );
+    }
   }
 });
