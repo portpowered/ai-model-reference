@@ -1,6 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { basename, join, relative } from "node:path";
 import { getGeneratedContentRuntimeRoot } from "@/lib/content/content-paths";
 import {
@@ -18,9 +24,15 @@ const INVALID_REGISTRY_FIXTURE_RELATIVE_PATH =
 const LEGACY_TOP_LEVEL_GENERATED_RUNTIME_PATHS = [
   "src/lib/content/published-docs-registry-manifest.ts",
 ] as const;
-const publishedDocsRegistryStep = CONTENT_RUNTIME_PREPARATION_STEPS.find(
-  (step) => step.id === "published-docs-registry",
+const GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH =
+  "src/lib/content/generated/published-docs-registry.generated.ts";
+const RUNTIME_DISCOVERY_TEST_DOCS_SLUG = "glossary/runtime-recovery-smoke-test";
+const RUNTIME_DISCOVERY_TEST_PAGE_RELATIVE_PATH = join(
+  "src/content/docs",
+  RUNTIME_DISCOVERY_TEST_DOCS_SLUG,
 );
+const RUNTIME_DISCOVERY_TEST_REGISTRY_ID =
+  "concept.runtime-recovery-smoke-test";
 
 function runPrepareContentRuntime() {
   return spawnSync("bun", ["run", "prepare:content-runtime"], {
@@ -28,6 +40,45 @@ function runPrepareContentRuntime() {
     encoding: "utf8",
     env: process.env,
   });
+}
+
+function writePublishedDocsPage(
+  pageRelativePath: string,
+  frontmatter: {
+    kind: string;
+    registryId: string;
+    status: string;
+  },
+) {
+  const pagePath = join(repoRoot, pageRelativePath);
+  mkdirSync(join(pagePath, "messages"), { recursive: true });
+  writeFileSync(
+    join(pagePath, "page.mdx"),
+    `---
+kind: "${frontmatter.kind}"
+registryId: "${frontmatter.registryId}"
+messageNamespace: "local"
+assetNamespace: "local"
+tags:
+  - test
+status: ${frontmatter.status}
+updatedAt: "2026-06-20"
+---
+`,
+    "utf8",
+  );
+  writeFileSync(
+    join(pagePath, "messages", "en.json"),
+    JSON.stringify(
+      {
+        title: frontmatter.registryId,
+        description: `${frontmatter.registryId} description`,
+      },
+      null,
+      2,
+    ),
+    "utf8",
+  );
 }
 
 describe("content runtime preparation", () => {
@@ -85,48 +136,11 @@ describe("content runtime preparation", () => {
 
     expect(result.completedSteps.map((step) => step.id)).toEqual([
       "shipped-localized-docs",
-      "published-docs-registry",
     ]);
     expect(result.failedStep.id).toBe("graph-registry-runtime");
     expect(result.commandResult.status).toBe(23);
     expect(errors).toEqual([
       expect.stringContaining('Failed step "graph-registry-runtime"'),
-    ]);
-  });
-
-  test("reports published docs registry generation failures at the generation step", () => {
-    if (!publishedDocsRegistryStep) {
-      throw new Error("Expected a published-docs-registry preparation step");
-    }
-
-    const errors: string[] = [];
-    const result = runContentRuntimePreparation({
-      cwd: repoRoot,
-      log: () => {},
-      logError(message) {
-        errors.push(message);
-      },
-      runCommand(command) {
-        const step = command[2];
-        return {
-          signal: null,
-          status: step === "generate:published-docs-registry" ? 19 : 0,
-        } satisfies ContentRuntimePreparationCommandResult;
-      },
-    });
-
-    expect(result.ok).toBe(false);
-    if (result.ok) {
-      return;
-    }
-
-    expect(result.completedSteps.map((step) => step.id)).toEqual([
-      "shipped-localized-docs",
-    ]);
-    expect(result.failedStep).toBe(publishedDocsRegistryStep);
-    expect(result.commandResult.status).toBe(19);
-    expect(errors).toEqual([
-      expect.stringContaining('Failed step "published-docs-registry"'),
     ]);
   });
 
@@ -176,39 +190,49 @@ describe("content runtime preparation", () => {
     { timeout: CONTENT_RUNTIME_PREPARATION_TIMEOUT_MS },
   );
 
-  test("prepare:content-runtime recreates a missing published docs registry manifest", () => {
-    if (!publishedDocsRegistryStep) {
-      throw new Error("Expected a published-docs-registry preparation step");
-    }
-
-    const manifestPath = join(repoRoot, publishedDocsRegistryStep.outputPath);
+  test("prepare:content-runtime recreates the ignored published docs manifest before runtime import", () => {
+    const manifestPath = join(
+      repoRoot,
+      GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH,
+    );
     const originalManifest = existsSync(manifestPath)
       ? readFileSync(manifestPath, "utf8")
       : null;
 
     try {
       rmSync(manifestPath, { force: true });
+      expect(existsSync(manifestPath)).toBe(false);
 
-      const result = spawnSync("bun", ["run", "prepare:content-runtime"], {
-        cwd: repoRoot,
-        encoding: "utf8",
-        env: process.env,
-      });
+      const prepareResult = runPrepareContentRuntime();
+      const prepareOutput = `${prepareResult.stdout}\n${prepareResult.stderr}`;
 
-      expect(result.status).toBe(0);
+      expect(prepareResult.status).toBe(0);
+      expect(prepareOutput).toContain(
+        `[content-runtime] Preparing published-docs-registry -> ${GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH}`,
+      );
       expect(existsSync(manifestPath)).toBe(true);
 
-      const generatedManifest = readFileSync(manifestPath, "utf8");
-      expect(generatedManifest).toContain(
-        "Generated by scripts/generate-published-docs-registry.ts",
+      const importResult = spawnSync(
+        "bun",
+        [
+          "--eval",
+          [
+            'import { getPublishedDocsEntryByRegistryId } from "./src/lib/content/published-docs-registry-ids";',
+            'const entry = getPublishedDocsEntryByRegistryId("module.grouped-query-attention");',
+            'if (!entry) throw new Error("missing grouped-query-attention published docs entry");',
+            "console.log(entry.docsSlug);",
+          ].join(" "),
+        ],
+        {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: process.env,
+        },
       );
-      expect(generatedManifest).toContain(
-        "Do not edit by hand or commit regenerated output.",
-      );
-      expect(generatedManifest).toContain("GENERATED_PUBLISHED_DOCS_ENTRIES");
-      expect(generatedManifest).toContain(
-        "GENERATED_PUBLISHED_DOCS_REGISTRY_IDS",
-      );
+
+      expect(importResult.status).toBe(0);
+      expect(importResult.stdout).toContain("modules/grouped-query-attention");
+      expect(existsSync(manifestPath)).toBe(true);
     } finally {
       if (originalManifest === null) {
         rmSync(manifestPath, { force: true });
@@ -218,14 +242,80 @@ describe("content runtime preparation", () => {
     }
   });
 
-  test("published docs registry manifest stays out of the authored git surface", () => {
-    if (!publishedDocsRegistryStep) {
-      throw new Error("Expected a published-docs-registry preparation step");
-    }
+  test("fresh-checkout preparation refreshes the published docs manifest so newly authored pages appear without a manual manifest edit", () => {
+    const manifestPath = join(
+      repoRoot,
+      GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH,
+    );
+    const pagePath = join(repoRoot, RUNTIME_DISCOVERY_TEST_PAGE_RELATIVE_PATH);
+    const originalManifest = existsSync(manifestPath)
+      ? readFileSync(manifestPath, "utf8")
+      : null;
 
+    try {
+      rmSync(manifestPath, { force: true });
+      rmSync(pagePath, { force: true, recursive: true });
+      writePublishedDocsPage(RUNTIME_DISCOVERY_TEST_PAGE_RELATIVE_PATH, {
+        kind: "glossary",
+        registryId: RUNTIME_DISCOVERY_TEST_REGISTRY_ID,
+        status: "published",
+      });
+
+      const prepareResult = runPrepareContentRuntime();
+      const prepareOutput = `${prepareResult.stdout}\n${prepareResult.stderr}`;
+
+      expect(prepareResult.status).toBe(0);
+      expect(prepareOutput).toContain(
+        `[content-runtime] Preparing published-docs-registry -> ${GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH}`,
+      );
+      expect(existsSync(manifestPath)).toBe(true);
+
+      const importResult = spawnSync(
+        "bun",
+        [
+          "--eval",
+          [
+            'import { getPublishedDocsEntryByRegistryId, listPublishedDocsEntries } from "./src/lib/content/published-docs-registry-ids";',
+            `const registryId = "${RUNTIME_DISCOVERY_TEST_REGISTRY_ID}";`,
+            "const entry = getPublishedDocsEntryByRegistryId(registryId);",
+            "if (!entry) throw new Error('missing published docs entry for ' + registryId);",
+            "const listed = listPublishedDocsEntries().some((candidate) => candidate.registryId === registryId);",
+            "if (!listed) throw new Error('listPublishedDocsEntries omitted ' + registryId);",
+            "console.log(JSON.stringify({ docsSlug: entry.docsSlug, url: entry.url, listed }));",
+          ].join(" "),
+        ],
+        {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: process.env,
+        },
+      );
+
+      expect(importResult.status).toBe(0);
+      expect(importResult.stdout).toContain(RUNTIME_DISCOVERY_TEST_DOCS_SLUG);
+      expect(importResult.stdout).toContain(
+        "/docs/glossary/runtime-recovery-smoke-test",
+      );
+      expect(importResult.stdout).toContain('"listed":true');
+      expect(existsSync(manifestPath)).toBe(true);
+    } finally {
+      rmSync(pagePath, { force: true, recursive: true });
+      if (originalManifest === null) {
+        rmSync(manifestPath, { force: true });
+      } else {
+        writeFileSync(manifestPath, originalManifest, "utf8");
+      }
+    }
+  });
+
+  test("published docs registry manifest stays out of the authored git surface", () => {
     const checkIgnored = spawnSync(
       "git",
-      ["check-ignore", "--quiet", publishedDocsRegistryStep.outputPath],
+      [
+        "check-ignore",
+        "--quiet",
+        GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH,
+      ],
       {
         cwd: repoRoot,
         encoding: "utf8",
@@ -233,7 +323,11 @@ describe("content runtime preparation", () => {
     );
     const checkTracked = spawnSync(
       "git",
-      ["ls-files", "--error-unmatch", publishedDocsRegistryStep.outputPath],
+      [
+        "ls-files",
+        "--error-unmatch",
+        GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH,
+      ],
       {
         cwd: repoRoot,
         encoding: "utf8",

@@ -5,6 +5,7 @@ import {
   getPublishedDocsEntryByRegistryId,
   getPublishedDocsHrefForRecord,
   listPublishedDocsEntries,
+  MODULE_BACKED_CONCEPT_REGISTRY_IDS,
   PUBLISHED_DOCS_REGISTRY_IDS,
 } from "@/lib/content/published-docs-registry-ids";
 import {
@@ -179,5 +180,54 @@ describe("published docs routing contract", () => {
       expect(relatedHrefsById.get(record.id), record.id).toBe(href);
       expect(resolvePhraseHref(alias), alias).toBe(href);
     }
+  });
+
+  test("module-backed concepts keep stable membership and href behavior for runtime callers", () => {
+    const feedForwardNetwork = requireRecord(
+      getConceptById("concept.feed-forward-network"),
+      "feed-forward-network concept",
+    );
+    const publishedModuleEntry = requireRecord(
+      getPublishedDocsEntryByRegistryId("module.feed-forward-network"),
+      "feed-forward-network module entry",
+    );
+    const source = {
+      ...requireRecord(getModelById("model.gpt-3"), "gpt-3 model"),
+      relatedIds: [feedForwardNetwork.id],
+    };
+    const [relatedItem] = deriveCuratedRelatedItems(
+      source,
+      [feedForwardNetwork],
+      PUBLISHED_DOCS_REGISTRY_IDS,
+    );
+
+    expect(getPublishedDocsEntryByRegistryId(feedForwardNetwork.id)).toBe(
+      undefined,
+    );
+    expect(getPublishedDocsEntriesBySlug(feedForwardNetwork.slug)).toEqual([
+      publishedModuleEntry,
+    ]);
+    expect(MODULE_BACKED_CONCEPT_REGISTRY_IDS.has(feedForwardNetwork.id)).toBe(
+      true,
+    );
+    expect(
+      hasPublishedDocsPageForRecord(
+        feedForwardNetwork,
+        PUBLISHED_DOCS_REGISTRY_IDS,
+      ),
+    ).toBe(true);
+    expect(getPublishedDocsHrefForRecord(feedForwardNetwork)).toBe(
+      "/docs/modules/feed-forward-network",
+    );
+    expect(registryRecordHref(feedForwardNetwork)).toBe(
+      "/docs/modules/feed-forward-network",
+    );
+    expect(relatedItem).toEqual(
+      expect.objectContaining({
+        registryId: feedForwardNetwork.id,
+        href: "/docs/modules/feed-forward-network",
+        isPlanned: false,
+      }),
+    );
   });
 });

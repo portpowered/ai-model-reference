@@ -16,6 +16,7 @@ import {
 import {
   buildPublishedDocsIndex,
   derivePublishedDocsRegistryIds,
+  derivePublishedDocsRuntimeManifest,
 } from "@/lib/content/published-docs-registry-source";
 
 function writePage(
@@ -167,6 +168,23 @@ describe("published-docs-registry-ids", () => {
         }),
       ]),
     );
+  });
+
+  test("runtime manifest is derived from the scanner-backed source manifest", () => {
+    const manifest = derivePublishedDocsRuntimeManifest(
+      buildPublishedDocsIndex(loadPublishedDocsPagesSync("en")),
+    );
+
+    expect(listPublishedDocsEntries()).toEqual(manifest.entries);
+    expect([...PUBLISHED_DOCS_REGISTRY_IDS].sort()).toEqual([
+      ...manifest.registryIds,
+    ]);
+    expect([...PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS].sort()).toEqual([
+      ...manifest.publishedConceptSectionRegistryIds,
+    ]);
+    expect([...MODULE_BACKED_CONCEPT_REGISTRY_IDS].sort()).toEqual([
+      ...manifest.moduleBackedConceptRegistryIds,
+    ]);
   });
 
   test("derived compatibility sets come from published page discovery", () => {
