@@ -51,7 +51,7 @@ describe("tokenizers overview registry", () => {
     );
   });
 
-  test("tokenizer algorithm placeholders stay draft but resolve as valid related targets", async () => {
+  test("tokenizer algorithm records preserve the merged tokenizer-family relationships and publish state", async () => {
     const indexes = await loadRegistry();
     const bpe = indexes.byId.get("module.bpe");
     const wordpiece = indexes.byId.get("module.wordpiece");
@@ -63,18 +63,39 @@ describe("tokenizers overview registry", () => {
         throw new Error("expected tokenizer module placeholder in registry");
       }
 
-      expect(record.status).toBe("draft");
       expect(record.moduleType).toBe("tokenizer");
-      expect(record.tags).toEqual(["tokenization"]);
+      expect(record.tags).toContain("tokenization");
       expect(record.variantGroup).toBe("subword-tokenizers");
-      expect(record.relatedIds).toEqual([
-        "concept.tokenizers-overview",
-        "concept.token",
-      ]);
     }
+
+    expect(bpe?.status).toBe("published");
+    expect(bpe?.relatedIds).toEqual([
+      "concept.token",
+      "concept.special-tokens",
+      "concept.tokenizers-overview",
+      "module.wordpiece",
+      "module.sentencepiece",
+      "model.gpt-3",
+    ]);
+
+    expect(wordpiece?.status).toBe("draft");
+    expect(wordpiece?.relatedIds).toEqual([
+      "concept.tokenizers-overview",
+      "concept.token",
+      "module.bpe",
+      "module.sentencepiece",
+    ]);
+
+    expect(sentencepiece?.status).toBe("published");
+    expect(sentencepiece?.relatedIds).toEqual([
+      "concept.tokenizers-overview",
+      "concept.token",
+      "module.bpe",
+      "module.wordpiece",
+    ]);
   });
 
-  test("curated related items stay navigable for shipped targets and planned for unpublished tokenizer modules", async () => {
+  test("curated related items stay navigable for shipped targets while draft tokenizer neighbors remain planned", async () => {
     const indexes = await loadRegistry();
     const source = indexes.byId.get("concept.tokenizers-overview");
     if (source?.kind !== "concept") {
@@ -112,15 +133,21 @@ describe("tokenizers overview registry", () => {
     expect(gpt3?.href).toBe("/docs/models/gpt-3");
     expect(gpt3?.isPlanned).toBe(false);
 
-    for (const registryId of [
-      "module.bpe",
-      "module.wordpiece",
-      "module.sentencepiece",
-    ]) {
-      const item = items.find((entry) => entry.registryId === registryId);
-      expect(item?.href).toBeUndefined();
-      expect(item?.isPlanned).toBe(true);
-    }
+    const bpe = items.find((item) => item.registryId === "module.bpe");
+    expect(bpe?.href).toBe("/docs/modules/bpe");
+    expect(bpe?.isPlanned).toBe(false);
+
+    const sentencepiece = items.find(
+      (item) => item.registryId === "module.sentencepiece",
+    );
+    expect(sentencepiece?.href).toBe("/docs/modules/sentencepiece");
+    expect(sentencepiece?.isPlanned).toBe(false);
+
+    const wordpiece = items.find(
+      (item) => item.registryId === "module.wordpiece",
+    );
+    expect(wordpiece?.href).toBeUndefined();
+    expect(wordpiece?.isPlanned).toBe(true);
   });
 
   test("registry validation passes with tokenizers overview concept and tokenization tag wiring", async () => {

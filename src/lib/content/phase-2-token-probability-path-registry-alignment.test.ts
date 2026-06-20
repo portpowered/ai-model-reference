@@ -144,8 +144,7 @@ describe("Phase 2 token-probability path registry alignment (phase-2-token-proba
       items.find((item) => item.registryId === "concept.softmax")?.href,
     ).toBe("/docs/glossary/softmax");
     expect(
-      items.find((item) => item.registryId === "concept.vocabulary-size")
-        ?.href,
+      items.find((item) => item.registryId === "concept.vocabulary-size")?.href,
     ).toBe("/docs/glossary/vocabulary-size");
     expect(items.every((item) => item.isPlanned === false)).toBe(true);
   });

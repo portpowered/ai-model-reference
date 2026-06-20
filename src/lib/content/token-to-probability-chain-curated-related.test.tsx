@@ -56,7 +56,7 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     );
     expect(items[2]?.registryId).toBe("concept.tokenizers-overview");
     expect(items[2]?.slug).toBe("tokenizers-overview");
-    expect(items[2]?.title).toBe("tokenizer overview");
+    expect(items[2]?.title).toBe("Tokenizer overview");
     expect(items[2]?.isPlanned).toBe(false);
     expect(items[2]?.href).toBe("/docs/concepts/tokenizers-overview");
     expect(items[2]?.reasonLabel).toBe(
@@ -85,7 +85,7 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
     expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
     expect(html).toContain('href="/docs/glossary/special-tokens"');
-    expect(html).toContain("tokenizer overview");
+    expect(html).toContain("Tokenizer overview");
     expect(html).toContain(DERIVED_RELATED_DOC_GROUP_LABELS[CURATED_RELATED]);
     expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
     expect(html).toContain('href="/docs/glossary/embedding"');
@@ -110,7 +110,7 @@ describe("Phase 2 token-to-probability chain curated related docs (US-002)", () 
     expect(html).toContain("special token");
     expect(html).toContain('href="/docs/glossary/special-tokens"');
     expect(html).toContain("embeddings");
-    expect(html).toContain("tokenizer overview");
+    expect(html).toContain("Tokenizer overview");
     expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
     expect(html).toContain('href="/docs/glossary/embedding"');
     expect(html).toContain('href="/docs/glossary/vocabulary-size"');

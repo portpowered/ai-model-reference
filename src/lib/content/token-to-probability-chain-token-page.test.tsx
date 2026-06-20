@@ -37,7 +37,7 @@ describe("Phase 2 token page learning chain entry (US-010)", () => {
     expect(page.frontmatter.tags).toContain("foundations");
   });
 
-  test("token page related section links to embedding and vocabulary size with a visible reason label", async () => {
+  test("token page related section links to tokenizer overview, embedding, and vocabulary size with visible reason labels", async () => {
     const page = await loadGlossaryPage("token");
     const html = renderToStaticMarkup(
       createElement(ModulePageProviders, {
@@ -49,7 +49,7 @@ describe("Phase 2 token page learning chain entry (US-010)", () => {
     );
 
     expect(html).toContain('data-testid="curated-related-docs"');
-    expect(html).toContain("tokenizer overview");
+    expect(html).toContain("Tokenizer overview");
     expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
     expect(html).toContain("embeddings");
     expect(html).toContain('href="/docs/glossary/embedding"');

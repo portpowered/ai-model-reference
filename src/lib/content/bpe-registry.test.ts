@@ -33,7 +33,7 @@ describe("bpe registry relationships", () => {
     expect(items.map((item) => item.href)).toEqual([
       "/docs/glossary/token",
       "/docs/glossary/special-tokens",
-      undefined,
+      "/docs/concepts/tokenizers-overview",
       undefined,
       "/docs/modules/sentencepiece",
       "/docs/models/gpt-3",
@@ -41,15 +41,13 @@ describe("bpe registry relationships", () => {
     expect(items.map((item) => item.isPlanned)).toEqual([
       false,
       false,
-      true,
+      false,
       true,
       false,
       false,
     ]);
-    expect(items.slice(2, 5).map((item) => item.reasonLabel)).toEqual([
-      PLANNED_RELATED_REASON_LABEL,
-      PLANNED_RELATED_REASON_LABEL,
-      "curated",
-    ]);
+    expect(items[2]?.reasonLabel).toBe("curated");
+    expect(items[3]?.reasonLabel).toBe(PLANNED_RELATED_REASON_LABEL);
+    expect(items[4]?.reasonLabel).toBe("curated");
   });
 });
