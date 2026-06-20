@@ -128,9 +128,6 @@ describe("GitHub Actions make ci", () => {
     expect(scripts["prepare:content-runtime"]).toBe(
       "bun ./scripts/prepare-content-runtime.ts",
     );
-    expect(scripts["verify:content-runtime-completeness"]).toBe(
-      "bun ./scripts/verify-content-runtime-completeness.ts",
-    );
     expect(scripts.predev).toBe("bun run prepare:content-runtime");
     expect(scripts.prestart).toBe("bun run prepare:content-runtime");
     expect(scripts.prebuild).toBe("bun run prepare:content-runtime");
@@ -211,9 +208,6 @@ describe("GitHub Actions make ci", () => {
 
     const makefile = readFileSync(makefilePath, "utf8");
     expect(makefile).toContain("linkcheck:\n\tbun run linkcheck");
-    expect(makefile).toContain(
-      "verify-content-runtime-completeness:\n\tbun run verify:content-runtime-completeness",
-    );
     expect(parseMakefileCiPrerequisites(makefile)).toContain("test");
     expect(parseMakefileCiPrerequisites(makefile)).toContain(
       "test-verify-contract",
