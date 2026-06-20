@@ -454,6 +454,84 @@ describe("active-pr-mergeability-watchdog script", () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
+  test("renders failing-check follow-up lanes with a planner-facing action label", () => {
+    const dir = mkdtempSync(join(tmpdir(), "active-pr-watchdog-script-"));
+    const workListPath = join(dir, "work-list.json");
+    const sessionListPath = join(dir, "session-list.json");
+    const prMapPath = join(dir, "pr-map.json");
+    const worktreesRoot = join(dir, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    createWorktree(worktreesRoot, "alpha", "alpha");
+    writeLaneMetadata(worktreesRoot, "alpha", {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "alpha"),
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+
+    writeFileSync(
+      workListPath,
+      JSON.stringify({
+        items: [{ name: "alpha", state: "active" }],
+      }),
+    );
+    writeFileSync(sessionListPath, JSON.stringify({ sessions: [] }));
+    writeFileSync(
+      prMapPath,
+      JSON.stringify({
+        alpha: {
+          number: 42,
+          headRefName: "alpha",
+          mergeStateStatus: "BLOCKED",
+          statusCheckRollup: [{ conclusion: "FAILURE" }],
+        },
+      }),
+    );
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/active-pr-mergeability-watchdog.ts",
+        "--work-list-json",
+        workListPath,
+        "--session-list-json",
+        sessionListPath,
+        "--worktrees-dir",
+        worktreesRoot,
+        "--pr-map-json",
+        prMapPath,
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("Action Queue");
+    expect(result.stdout).toContain(
+      "1. action=open-follow-up work-item=alpha pr=#42 branch=alpha",
+    );
+    const detailedLaneIndex = result.stdout.indexOf(
+      "- status=pr-backed queue=active work-item=alpha",
+    );
+    const actionQueueOutput = result.stdout.slice(0, detailedLaneIndex);
+    expect(actionQueueOutput).not.toContain(
+      "action=open-follow-up-throughput-prd",
+    );
+    expect(result.stdout).toContain("mergeability=check-blocked");
+    expect(result.stdout).toContain("checks=failing");
+    expect(result.stdout).toContain("risk=checks-blocked");
+    expect(result.stdout).toContain(
+      "next-action=open-follow-up-throughput-prd",
+    );
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   test("surfaces actionable PR-backed lanes before queue-only linkage noise", () => {
     const dir = mkdtempSync(join(tmpdir(), "active-pr-watchdog-script-"));
     const workListPath = join(dir, "work-list.json");

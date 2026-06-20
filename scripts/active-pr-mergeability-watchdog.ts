@@ -152,6 +152,9 @@ function formatPlannerActionLabel(lane: QueueWorktreePrLinkageLane): string {
   if (lane.nextAction === "repair-token") {
     return "repair-metadata";
   }
+  if (lane.nextAction === "open-follow-up-throughput-prd") {
+    return "open-follow-up";
+  }
   return lane.nextAction ?? "review";
 }
 
