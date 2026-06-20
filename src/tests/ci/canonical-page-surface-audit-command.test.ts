@@ -213,4 +213,38 @@ describe("audit-canonical-page-surface script", () => {
     );
     expect(result.stdout ?? "").toContain("Visible exception declared:");
   });
+
+  test("redirects multi-page authored-content work even when an explicit exception is declared", () => {
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/audit-canonical-page-surface.ts",
+        "--repo-root",
+        process.cwd(),
+        "--page-dir",
+        "src/content/docs/modules/grouped-query-attention",
+        "--files",
+        "src/content/docs/modules/grouped-query-attention/page.mdx",
+        "src/content/docs/modules/linear-attention/page.mdx",
+        "--exception-reason",
+        "Trying to keep two authored page bundles together.",
+      ],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8",
+      },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout ?? "").toContain("Budget status: over-budget");
+    expect(result.stdout ?? "").toContain(
+      "Recommended action: redirect-to-throughput-prd",
+    );
+    expect(result.stdout ?? "").toContain(
+      "shared hotspot surface [authored content]",
+    );
+    expect(result.stdout ?? "").toContain(
+      'A visible exception was declared ("Trying to keep two authored page bundles together."), but the branch still exceeds the narrow one-page exception lane.',
+    );
+  });
 });

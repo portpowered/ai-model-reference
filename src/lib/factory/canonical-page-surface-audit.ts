@@ -539,8 +539,17 @@ function collectGuidance(
   const hasSharedTestCategory = sharedHotspotCategories.some(
     (item) => item.category === "shared-test",
   );
+  const hasAuthoredContentCategory = sharedHotspotCategories.some(
+    (item) => item.category === "authored-content",
+  );
   const hasMultipleSharedCategories = sharedHotspotCategories.length > 1;
   const hasMultipleSharedPaths = sharedPaths.length > 1;
+  const canStayInExceptionLane =
+    !hasSharedTestCategory &&
+    !hasAuthoredContentCategory &&
+    !hasMultipleSharedCategories &&
+    !hasMultipleSharedPaths &&
+    generatedOutputs.length === 0;
 
   if (generatedOutputs.length === 0 && sharedHotspotCategories.length === 0) {
     return {
@@ -564,12 +573,7 @@ function collectGuidance(
     };
   }
 
-  if (
-    !hasSharedTestCategory &&
-    !hasMultipleSharedCategories &&
-    !hasMultipleSharedPaths &&
-    generatedOutputs.length === 0
-  ) {
+  if (canStayInExceptionLane) {
     const details = [
       `One shared hotspot category is touched: ${sharedCategoryLabels.join(", ")}.`,
       `Shared path: ${sharedPaths.join(", ")}.`,

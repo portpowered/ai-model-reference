@@ -216,6 +216,95 @@ describe("canonical page surface audit", () => {
     }
   });
 
+  test("redirects a second authored page bundle out of the exception lane", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "canonical-page-surface-"));
+
+    try {
+      mkdirSync(
+        join(repoRoot, "src/content/docs/modules/example-page/messages"),
+        {
+          recursive: true,
+        },
+      );
+      mkdirSync(
+        join(repoRoot, "src/content/docs/modules/second-example/messages"),
+        {
+          recursive: true,
+        },
+      );
+      mkdirSync(join(repoRoot, "src/content/registry/modules"), {
+        recursive: true,
+      });
+
+      writeFileSync(
+        join(repoRoot, "src/content/docs/modules/example-page/page.mdx"),
+        `---\nkind: "module"\nregistryId: "module.example-page"\nmessageNamespace: "local"\nassetNamespace: "local"\nstatus: "published"\ntags:\n  - "attention"\nupdatedAt: "2026-06-20"\n---\n`,
+      );
+      writeFileSync(
+        join(repoRoot, "src/content/docs/modules/second-example/page.mdx"),
+        `---\nkind: "module"\nregistryId: "module.second-example"\nmessageNamespace: "local"\nassetNamespace: "local"\nstatus: "published"\ntags:\n  - "attention"\nupdatedAt: "2026-06-20"\n---\n`,
+      );
+      writeJson(
+        join(repoRoot, "src/content/registry/modules/example-page.json"),
+        {
+          id: "module.example-page",
+        },
+      );
+      writeJson(
+        join(repoRoot, "src/content/registry/modules/second-example.json"),
+        {
+          id: "module.second-example",
+        },
+      );
+
+      const snapshot: ConflictHotspotSnapshot = {
+        generatedAtUtc: "2026-06-20T12:00:00.000Z",
+        rankedSurfaces: [
+          {
+            category: "authored-content",
+            distinctPaths: 2,
+            representativePaths: [
+              "src/content/docs/modules/example-page/page.mdx",
+              "src/content/docs/modules/second-example/page.mdx",
+            ],
+            surface: "src/content/docs",
+            touches: 6,
+          },
+        ],
+        recentCommitLimit: 40,
+        repoRoot,
+        topPaths: [],
+        worktrees: [],
+      };
+
+      const audit = collectCanonicalPageSurfaceAudit(repoRoot, {
+        changedPaths: [
+          "src/content/docs/modules/example-page/page.mdx",
+          "src/content/docs/modules/second-example/page.mdx",
+        ],
+        exception: {
+          reason: "Trying to carry a second page bundle in one branch.",
+        },
+        pageDirectory: "src/content/docs/modules/example-page",
+        snapshot,
+      });
+
+      expect(audit.budgetStatus).toBe("over-budget");
+      expect(audit.guidance.recommendedAction).toBe(
+        "redirect-to-throughput-prd",
+      );
+      expect(audit.guidance.headline).toContain(
+        "redirected out of the routine canonical-page lane",
+      );
+      expect(audit.guidance.details.join("\n")).toContain("authored content");
+      expect(audit.guidance.details.join("\n")).toContain(
+        "still exceeds the narrow one-page exception lane",
+      );
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
+
   test("treats generated outputs without shared hotspot paths as split-back work", () => {
     const repoRoot = mkdtempSync(join(tmpdir(), "canonical-page-surface-"));
 
