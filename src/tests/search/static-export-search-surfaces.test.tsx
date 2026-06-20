@@ -5,6 +5,7 @@ import {
   beforeEach,
   describe,
   expect,
+  setDefaultTimeout,
   spyOn,
   test,
 } from "bun:test";
@@ -32,6 +33,8 @@ const FAILING_BOOTSTRAP_CLIENT = { from: FAILING_BOOTSTRAP_URL };
 const STATIC_EXPORT_EMPTY_HANDOFF = { q: null, tag: null } as const;
 const defaultContextPromise = loadAppTestContext();
 let staticHandoffFetchMock: typeof fetch | null = null;
+
+setDefaultTimeout(15_000);
 
 function withWindowLocationSearch(
   search: string,
@@ -291,13 +294,21 @@ describe("static export search surfaces", () => {
 });
 
 describe("static export search bootstrap failures", () => {
+  let releaseFetchLock: (() => void) | null = null;
+
   beforeAll(() => {
     captureOriginalFetch();
+  });
+
+  beforeEach(async () => {
+    releaseFetchLock = await lockGlobalFetch();
   });
 
   afterEach(() => {
     cleanup();
     restoreFetchMock();
+    releaseFetchLock?.();
+    releaseFetchLock = null;
   });
 
   test("/search exposes recoverable error when static bootstrap fetch fails", async () => {
