@@ -32,5 +32,10 @@
     "references": {
       "title": "References"
     }
+  },
+  "relatedDocs": {
+    "concept.tokenizers-overview": {
+      "reason": "Read this first if you want the step that turns raw text into token IDs before the transformer stack starts mixing context."
+    }
   }
 }
