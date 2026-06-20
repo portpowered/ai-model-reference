@@ -1,4 +1,4 @@
-import { source } from "@/lib/source";
+import { loadPublishedDocsPagesSync } from "@/lib/content/pages";
 
 /** Phase 1 routes that must appear in Next.js `app-path-routes-manifest.json` after build. */
 export const PHASE_1_STATIC_ROUTES = [
@@ -43,7 +43,11 @@ export type RequiredBuildStaticRoute =
   (typeof REQUIRED_BUILD_STATIC_ROUTES)[number];
 
 function defaultCatchAllDocsSlugs(): Set<string> {
-  return new Set(source.generateParams().map((entry) => entry.slug.join("/")));
+  return new Set(
+    loadPublishedDocsPagesSync("en").map((page) =>
+      page.docsSlug.replace(/^\//, ""),
+    ),
+  );
 }
 
 /** Converts `/docs/<slug>` reader URLs into catch-all slug paths. */
