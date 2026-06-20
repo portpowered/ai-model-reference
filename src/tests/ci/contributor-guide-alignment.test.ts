@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { access, mkdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const repoRoot = join(import.meta.dir, "../../..");
@@ -162,5 +162,16 @@ describe("contributor documented workflow commands", () => {
     expect(`${result.stdout}${result.stderr}`).toMatch(
       /validate-registry|validate data|validation/i,
     );
+  });
+
+  test("contributor guide documents churn-resistant discovery test patterns", async () => {
+    const guidePath = join(repoRoot, "docs/contributors/CONTRIBUTING.md");
+    const guide = await readFile(guidePath, "utf8");
+
+    expect(guide).toContain("### Discovery and navigation test strategy");
+    expect(guide).toContain("Structural invariants");
+    expect(guide).toContain("Representative anchors");
+    expect(guide).toContain("Shared discovery-contract checks");
+    expect(guide).toContain("An exact manual list is still appropriate");
   });
 });
