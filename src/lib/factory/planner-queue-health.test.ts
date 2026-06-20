@@ -535,4 +535,61 @@ describe("discoverPlannerQueueHealthReport", () => {
       "command=you work move cron-1 init --session ~default",
     );
   });
+
+  test("does not treat later-page completed dependencies as missing from queue", () => {
+    const report = discoverPlannerQueueHealthReport({
+      generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      sourceSession: "~default",
+      workListJsonText: JSON.stringify({
+        items: [
+          {
+            workId: "loopback-repair",
+            name: "planner-follow-up",
+            traceId: "trace-follow-up",
+            workTypeName: "thoughts",
+            state: { name: "failed", type: "FAILED" },
+            relations: [
+              {
+                type: "DEPENDS_ON",
+                targetWorkId: "task-known-complete-1",
+                targetWorkName:
+                  "planner-loopback-reconciliation-and-completion-repair",
+                requiredState: "complete",
+              },
+              {
+                type: "DEPENDS_ON",
+                targetWorkId: "task-known-complete-2",
+                targetWorkName: "ontology-topology-search-topology-prototype",
+                requiredState: "complete",
+              },
+            ],
+          },
+          {
+            workId: "task-known-complete-1",
+            name: "planner-loopback-reconciliation-and-completion-repair",
+            traceId: "trace-complete-1",
+            workTypeName: "task",
+            state: { name: "complete", type: "TERMINAL" },
+          },
+          {
+            workId: "task-known-complete-2",
+            name: "ontology-topology-search-topology-prototype",
+            traceId: "trace-complete-2",
+            workTypeName: "task",
+            state: { name: "complete", type: "TERMINAL" },
+          },
+        ],
+      }),
+    });
+
+    expect(report.expectedBlockedItems.items).toEqual([]);
+    expect(
+      report.repairableFailures.items.map((item) => item.workItemName),
+    ).toEqual(["planner-follow-up"]);
+    expect(
+      report.repairableFailures.items[0]?.reasons.some((reason) =>
+        reason.includes("missing-from-queue"),
+      ),
+    ).toBe(false);
+  });
 });

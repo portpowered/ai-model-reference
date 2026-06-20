@@ -1,8 +1,43 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+
+function installFakePaginatedYouBinary(dir: string, logPath: string): string {
+  const binDir = join(dir, "bin");
+  const binaryPath = join(binDir, "you");
+  mkdirSync(binDir, { recursive: true });
+  writeFileSync(
+    binaryPath,
+    `#!/bin/sh
+set -eu
+printf '%s\\n' "$*" >> "${logPath}"
+if [ "$1" = "work" ] && [ "$2" = "list" ]; then
+  case "$*" in
+    *"--next-token cursor-page-2"*)
+      printf '%s' '{"results":[{"workId":"task-known-complete-1","name":"planner-loopback-reconciliation-and-completion-repair","traceId":"trace-complete-1","workTypeName":"task","state":{"name":"complete","type":"TERMINAL"}},{"workId":"task-known-complete-2","name":"ontology-topology-search-topology-prototype","traceId":"trace-complete-2","workTypeName":"task","state":{"name":"complete","type":"TERMINAL"}}]}'
+      ;;
+    *)
+      printf '%s' '{"results":[{"workId":"loopback-known-complete","name":"loopback-known-complete","traceId":"trace-loopback-known-complete","workTypeName":"thoughts","state":{"name":"failed","type":"FAILED"},"relations":[{"type":"DEPENDS_ON","targetWorkId":"task-known-complete-1","targetWorkName":"planner-loopback-reconciliation-and-completion-repair","requiredState":"complete"},{"type":"DEPENDS_ON","targetWorkId":"task-known-complete-2","targetWorkName":"ontology-topology-search-topology-prototype","requiredState":"complete"}]}],"paginationContext":{"nextToken":"cursor-page-2"}}'
+      ;;
+  esac
+  exit 0
+fi
+echo "unexpected args: $*" >&2
+exit 1
+`,
+  );
+  chmodSync(binaryPath, 0o755);
+  return binDir;
+}
 
 describe("report-planner-loopback-reconciliation script", () => {
   test("prints matching text and JSON loopback dependency evidence", () => {
@@ -203,6 +238,106 @@ describe("report-planner-loopback-reconciliation script", () => {
           (loopback) => loopback.dependencies[0]?.status,
         ),
       ).toEqual(["active", "failed", "missing-from-queue", "complete"]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("follows paginated live queue snapshots so known completed dependencies stay out of missing-from-queue output", () => {
+    const dir = mkdtempSync(join(tmpdir(), "planner-loopback-reconciliation-"));
+    const commandLogPath = join(dir, "you-command.log");
+    const fakeYouBinDir = installFakePaginatedYouBinary(dir, commandLogPath);
+
+    try {
+      const humanResult = spawnSync(
+        "bun",
+        [
+          "./scripts/report-planner-loopback-reconciliation.ts",
+          "--session",
+          "planner-session-89",
+        ],
+        {
+          cwd: process.cwd(),
+          encoding: "utf8",
+          env: {
+            ...process.env,
+            PATH: `${fakeYouBinDir}:${process.env.PATH ?? ""}`,
+          },
+        },
+      );
+      const jsonResult = spawnSync(
+        "bun",
+        [
+          "./scripts/report-planner-loopback-reconciliation.ts",
+          "--session",
+          "planner-session-89",
+          "--json",
+        ],
+        {
+          cwd: process.cwd(),
+          encoding: "utf8",
+          env: {
+            ...process.env,
+            PATH: `${fakeYouBinDir}:${process.env.PATH ?? ""}`,
+          },
+        },
+      );
+
+      expect(humanResult.status).toBe(0);
+      expect(jsonResult.status).toBe(0);
+      expect(humanResult.stdout).toContain(
+        "totals loopbacks=1 stale-noise=1 blocked=0 repairable=0 dependencies=2 complete=2 active=0 failed=0 missing-from-queue=0 unknown=0",
+      );
+      expect(humanResult.stdout).toContain(
+        "planner-loopback-reconciliation-and-completion-repair",
+      );
+      expect(humanResult.stdout).toContain(
+        "ontology-topology-search-topology-prototype",
+      );
+      expect(humanResult.stdout).not.toContain("status=missing-from-queue");
+
+      const jsonReport = JSON.parse(jsonResult.stdout) as {
+        summary: {
+          staleNoiseLoopbacks: number;
+          completeDependencies: number;
+          missingFromQueueDependencies: number;
+        };
+        loopbacks: Array<{
+          workItemName: string;
+          classification: string;
+          dependencies: Array<{ targetWorkName: string; status: string }>;
+        }>;
+      };
+      expect(jsonReport.summary).toMatchObject({
+        staleNoiseLoopbacks: 1,
+        completeDependencies: 2,
+        missingFromQueueDependencies: 0,
+      });
+      expect(jsonReport.loopbacks).toEqual([
+        expect.objectContaining({
+          workItemName: "loopback-known-complete",
+          classification: "stale-noise",
+          dependencies: [
+            expect.objectContaining({
+              targetWorkName:
+                "planner-loopback-reconciliation-and-completion-repair",
+              status: "complete",
+            }),
+            expect.objectContaining({
+              targetWorkName: "ontology-topology-search-topology-prototype",
+              status: "complete",
+            }),
+          ],
+        }),
+      ]);
+
+      const commandLog = readFileSync(commandLogPath, "utf8");
+      expect(commandLog).toContain(
+        "work list --session planner-session-89 --json",
+      );
+      expect(commandLog).toContain(
+        "work list --session planner-session-89 --next-token cursor-page-2 --json",
+      );
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
