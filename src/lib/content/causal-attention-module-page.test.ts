@@ -8,14 +8,19 @@ import {
   parsePageAssetConfig,
   validatePageAssetReferences,
 } from "@/lib/content/assets";
+import { modulePageHref, tagPageHref } from "@/lib/content/content-hrefs";
 import { MODULES_DOCS_ROOT } from "@/lib/content/content-paths";
 import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
+import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { loadModulePage } from "@/lib/content/module-page";
+import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
+import { getModuleById } from "@/lib/content/registry-runtime";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
+import { source } from "@/lib/source";
 
 const pageDir = join(MODULES_DOCS_ROOT, "causal-attention");
 const messagesPath = join(pageDir, "messages/en.json");
@@ -142,5 +147,43 @@ describe("causal-attention discovery", () => {
     expect(
       results.some((result) => result.url === "/docs/modules/causal-attention"),
     ).toBe(true);
+  });
+});
+
+describe("causal-attention route and shell convergence", () => {
+  test("the canonical route resolves published docs, registry metadata, English messages, and visible discovery links together", async () => {
+    const canonicalRoute = modulePageHref("causal-attention");
+    const publishedPages = await loadPublishedDocsPages("en");
+    const publishedPage = publishedPages.find(
+      (page) => page.frontmatter.registryId === "module.causal-attention",
+    );
+    const sourcePage = source.getPage(["modules", "causal-attention"]);
+    const loadedPage = await loadLocalDocsPage({
+      section: "modules",
+      slug: "causal-attention",
+    });
+    const registryRecord = getModuleById("module.causal-attention");
+    const html = renderModuleDocsShell(loadedPage);
+
+    expect(publishedPage?.url).toBe(canonicalRoute);
+    expect(sourcePage?.url).toBe(canonicalRoute);
+    expect(loadedPage.frontmatter.registryId).toBe("module.causal-attention");
+    expect(loadedPage.messages.title).toBe("Causal Attention");
+    expect(registryRecord?.slug).toBe("causal-attention");
+    expect(registryRecord?.status).toBe("published");
+    expect(registryRecord?.aliases).toEqual(
+      expect.arrayContaining([
+        "causal attention",
+        "causal self-attention",
+        "causal mask",
+      ]),
+    );
+    expect(registryRecord?.tags).toEqual(expect.arrayContaining(["attention"]));
+    expect(html).toContain('data-registry-id="module.causal-attention"');
+    expect(html).toContain(">Causal Attention<");
+    expect(html).toContain('href="/docs/modules/bidirectional-attention"');
+    expect(html).toContain('href="/docs/glossary/autoregressive-generation"');
+    expect(html).toContain(`href="${tagPageHref("attention")}"`);
+    expect(html).not.toMatch(/\bMISSING\b|undefined|Draft placeholder/);
   });
 });
