@@ -30,7 +30,6 @@ import { lockGlobalFetch } from "@/tests/shared/global-fetch-lock";
 const STATIC_HANDOFF_CLIENT = { from: STATIC_HANDOFF_BOOTSTRAP_FETCH_URL };
 const FAILING_BOOTSTRAP_URL = "http://static-handoff-fail.test/api/search";
 const FAILING_BOOTSTRAP_CLIENT = { from: FAILING_BOOTSTRAP_URL };
-<<<<<<< HEAD
 const STATIC_EXPORT_EMPTY_HANDOFF = {
   q: null,
   tag: null,
