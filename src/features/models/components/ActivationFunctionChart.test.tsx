@@ -3,36 +3,28 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { cleanup, render } from "@testing-library/react";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
-import {
-  GELU_GLOSSARY_PAGE_DIR,
-  RELU_GLOSSARY_PAGE_DIR,
-  SIGMOID_GLOSSARY_PAGE_DIR,
-  TANH_GLOSSARY_PAGE_DIR,
-} from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
+const reluPageDir = getDocsPageDir("modules", "relu");
+const sigmoidPageDir = getDocsPageDir("modules", "sigmoid");
+const tanhPageDir = getDocsPageDir("modules", "tanh");
+const geluPageDir = getDocsPageDir("modules", "gelu");
+
 const reluMessages = pageMessagesSchema.parse(
-  JSON.parse(
-    readFileSync(join(RELU_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
-  ),
+  JSON.parse(readFileSync(join(reluPageDir, "messages/en.json"), "utf8")),
 );
 
 const sigmoidMessages = pageMessagesSchema.parse(
-  JSON.parse(
-    readFileSync(join(SIGMOID_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
-  ),
+  JSON.parse(readFileSync(join(sigmoidPageDir, "messages/en.json"), "utf8")),
 );
 
 const tanhMessages = pageMessagesSchema.parse(
-  JSON.parse(
-    readFileSync(join(TANH_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
-  ),
+  JSON.parse(readFileSync(join(tanhPageDir, "messages/en.json"), "utf8")),
 );
 
 const geluMessages = pageMessagesSchema.parse(
-  JSON.parse(
-    readFileSync(join(GELU_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
-  ),
+  JSON.parse(readFileSync(join(geluPageDir, "messages/en.json"), "utf8")),
 );
 
 describe("ActivationFunctionChart", () => {

@@ -2,17 +2,13 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { getDocsPageDir } from "./content-paths";
 import {
   lookupMessage,
   MissingMessageKeyError,
   resolveMessage,
 } from "./messages";
-import {
-  groupedQueryAttentionPageDir,
-  loadPageMessages,
-  MessageLoadError,
-  tokenGlossaryPageDir,
-} from "./page-messages-load";
+import { loadPageMessages, MessageLoadError } from "./page-messages-load";
 import type { PageMessages } from "./schemas";
 
 const fixture = JSON.parse(
@@ -34,6 +30,11 @@ const validMessages = {
 };
 
 const lookupFixture = fixture as PageMessages;
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
+const tokenGlossaryPageDir = getDocsPageDir("glossary", "token");
 
 describe("loadPageMessages", () => {
   test("loads baseline grouped-query-attention messages for locale en", async () => {

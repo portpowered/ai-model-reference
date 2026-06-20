@@ -4,15 +4,7 @@ import { join } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
-import {
-  GELU_GLOSSARY_PAGE_DIR,
-  LEAKY_RELU_GLOSSARY_PAGE_DIR,
-  RELU_GLOSSARY_PAGE_DIR,
-  SIGMOID_GLOSSARY_PAGE_DIR,
-  SILU_GLOSSARY_PAGE_DIR,
-  SWIGLU_GLOSSARY_PAGE_DIR,
-  TANH_GLOSSARY_PAGE_DIR,
-} from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { expectHtmlToContainProse } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
@@ -34,7 +26,7 @@ const PAGE_CASES = [
     slug: "sigmoid",
     registryId: "concept.sigmoid",
     title: "Sigmoid Activation",
-    pageDir: SIGMOID_GLOSSARY_PAGE_DIR,
+    pageDir: getDocsPageDir("modules", "sigmoid"),
     pageKind: "module",
     usesModuleTemplate: true,
     expectedTags: ["activation", "foundations"],
@@ -63,7 +55,7 @@ const PAGE_CASES = [
     slug: "tanh",
     registryId: "concept.tanh",
     title: "Hyperbolic Tangent Activation",
-    pageDir: TANH_GLOSSARY_PAGE_DIR,
+    pageDir: getDocsPageDir("modules", "tanh"),
     pageKind: "module",
     usesModuleTemplate: true,
     expectedTags: ["activation", "foundations"],
@@ -92,7 +84,7 @@ const PAGE_CASES = [
     slug: "gelu",
     registryId: "concept.gelu",
     title: "Gaussian Error Linear Unit",
-    pageDir: GELU_GLOSSARY_PAGE_DIR,
+    pageDir: getDocsPageDir("modules", "gelu"),
     pageKind: "module",
     usesModuleTemplate: true,
     expectedTags: ["activation", "foundations"],
@@ -128,7 +120,7 @@ const PAGE_CASES = [
     slug: "relu",
     registryId: "concept.relu",
     title: "Rectified Linear Unit",
-    pageDir: RELU_GLOSSARY_PAGE_DIR,
+    pageDir: getDocsPageDir("modules", "relu"),
     pageKind: "module",
     usesModuleTemplate: true,
     expectedTags: ["activation", "foundations"],
@@ -156,7 +148,7 @@ const PAGE_CASES = [
     slug: "leaky-relu",
     registryId: "concept.leaky-relu",
     title: "Leaky Rectified Linear Unit",
-    pageDir: LEAKY_RELU_GLOSSARY_PAGE_DIR,
+    pageDir: getDocsPageDir("modules", "leaky-relu"),
     pageKind: "module",
     usesModuleTemplate: true,
     expectedTags: ["activation", "foundations"],
@@ -188,7 +180,7 @@ const PAGE_CASES = [
     slug: "silu",
     registryId: "concept.silu",
     title: "Sigmoid Linear Unit",
-    pageDir: SILU_GLOSSARY_PAGE_DIR,
+    pageDir: getDocsPageDir("modules", "silu"),
     pageKind: "module",
     usesModuleTemplate: true,
     expectedTags: ["activation", "foundations"],
@@ -216,7 +208,7 @@ const PAGE_CASES = [
     slug: "swiglu",
     registryId: "concept.swiglu",
     title: "Swish Gated Linear Unit",
-    pageDir: SWIGLU_GLOSSARY_PAGE_DIR,
+    pageDir: getDocsPageDir("modules", "swiglu"),
     pageKind: "module",
     usesModuleTemplate: true,
     expectedTags: ["feed-forward", "foundations"],
