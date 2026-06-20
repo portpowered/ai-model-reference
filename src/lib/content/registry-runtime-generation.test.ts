@@ -30,6 +30,7 @@ async function createTempRegistryRoot(): Promise<{
     "systems",
     "datasets",
     "organizations",
+    "tags",
     "citations",
   ]) {
     await mkdir(join(registryRoot, directory), { recursive: true });
@@ -107,6 +108,50 @@ describe("registry-runtime generation", () => {
         generatedRuntime.getCitationById("citation.runtime-generated-citation")
           ?.title,
       ).toBe("Runtime Generated Citation");
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("generated runtime resolves a newly added tag without manual runtime edits", async () => {
+    const { outputPath, registryRoot, tempRoot } =
+      await createTempRegistryRoot();
+    try {
+      await writeRegistryJson(
+        registryRoot,
+        "tags",
+        "runtime-generated-tag.json",
+        {
+          id: "tag.runtime-generated-tag",
+          slug: "runtime-generated-tag",
+          kind: "tag",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: ["runtime generated tag"],
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-02T00:00:00.000Z",
+          category: "architecture",
+          landingPage: "generated-tag-page",
+        },
+      );
+
+      await writeGeneratedRegistryRuntimeModule({
+        outputPath,
+        projectRoot: getProjectRoot(),
+        registryRoot,
+      });
+
+      const generatedRuntime = await importGeneratedRuntime(outputPath);
+      const ids = generatedRuntime.listTagRecords().map((record) => record.id);
+
+      expect(ids).toContain("tag.runtime-generated-tag");
+      expect(
+        generatedRuntime.getTagById("tag.runtime-generated-tag")?.slug,
+      ).toBe("runtime-generated-tag");
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }

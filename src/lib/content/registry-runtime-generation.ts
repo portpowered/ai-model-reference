@@ -81,6 +81,13 @@ const runtimeRegistryDirectories: RuntimeRegistryDirectory[] = [
     mapConst: "organizationsById",
   },
   {
+    directory: "tags",
+    recordType: "TagRecord",
+    schemaName: "tagRecordSchema",
+    recordsConst: "tagRecords",
+    mapConst: "tagsById",
+  },
+  {
     directory: "citations",
     recordType: "CitationRecord",
     schemaName: "citationRecordSchema",
@@ -262,6 +269,7 @@ function buildGeneratedSource(
     "type OrganizationRecord",
     "type PaperRecord",
     "type SystemRecord",
+    "type TagRecord",
     "type TrainingRegimeRecord",
   ];
   const schemaImports = [
@@ -274,6 +282,7 @@ function buildGeneratedSource(
     "organizationRecordSchema",
     "paperRecordSchema",
     "systemRecordSchema",
+    "tagRecordSchema",
     "trainingRegimeRecordSchema",
   ].filter((schemaName) => usedSchemaNames.has(schemaName));
   const recordImports = [...recordTypeImports, ...schemaImports].join(",\n  ");
@@ -315,6 +324,7 @@ type OntologyParticipatingRegistryRecord =
 type RuntimeRegistryRecord =
   | TaggedRegistryRecord
   | ClassificationRecord
+  | TagRecord
   | CitationRecord;
 
 type OntologyRelationshipType =
@@ -372,6 +382,7 @@ function getRuntimeRecordById(
   return (
     getTaggedRecordById(registryId) ??
     classificationsById.get(registryId) ??
+    tagsById.get(registryId) ??
     citationsById.get(registryId)
   );
 }
@@ -421,6 +432,11 @@ export function getOrganizationById(
   return organizationsById.get(registryId);
 }
 
+/** Synchronous tag lookup for client prose auto-linking and tests. */
+export function getTagById(registryId: string): TagRecord | undefined {
+  return tagsById.get(registryId);
+}
+
 /** Synchronous citation lookup for source metadata and tests. */
 export function getCitationById(
   registryId: string,
@@ -462,6 +478,10 @@ export function listDatasetRecords(): DatasetRecord[] {
 
 export function listOrganizationRecords(): OrganizationRecord[] {
   return [...organizationRecords];
+}
+
+export function listTagRecords(): TagRecord[] {
+  return [...tagRecords];
 }
 
 export function listCitationRecords(): CitationRecord[] {
