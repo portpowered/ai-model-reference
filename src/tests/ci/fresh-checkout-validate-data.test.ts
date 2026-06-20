@@ -1,9 +1,9 @@
 /**
- * Fresh-checkout linkcheck proof.
+ * Fresh-checkout validate-data proof.
  *
  * Simulates a clean clone without mutating the developer workspace: provisions a
- * detached git worktree at HEAD, runs `bun install --frozen-lockfile`, asserts
- * `.source/` is absent, then runs `make linkcheck` inside the isolated tree.
+ * detached git worktree at HEAD, poisons the generated runtime artifacts, then
+ * runs `make validate-data` inside the isolated tree.
  */
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
@@ -18,17 +18,18 @@ import {
   provisionCleanWorktree,
 } from "./clean-worktree-fixture";
 import {
+  expectGeneratedRuntimeArtifactsRefreshed,
   formatSubprocessOutput,
   isGitWorktreeDirty,
-  missingSourceServerPattern,
+  poisonGeneratedRuntimeArtifacts,
   repoRoot,
 } from "./fresh-checkout-command-proof";
 
 const mainSourceDir = join(repoRoot, CLEAN_WORKTREE_SOURCE_DIR);
 
-describe("fresh-checkout linkcheck", () => {
+describe("fresh-checkout validate-data", () => {
   test(
-    "make linkcheck succeeds when .source is absent and regenerates output",
+    "make validate-data refreshes stale generated runtime artifacts before validation",
     () => {
       if (!shouldRunFreshCheckoutTypecheckProof()) {
         return;
@@ -41,15 +42,11 @@ describe("fresh-checkout linkcheck", () => {
       const fixture = provisionCleanWorktree(repoRoot);
 
       try {
-        const isolatedSourceDir = join(
+        const staleArtifactPaths = poisonGeneratedRuntimeArtifacts(
           fixture.worktreePath,
-          CLEAN_WORKTREE_SOURCE_DIR,
         );
-        const isolatedSourceServerModule = join(isolatedSourceDir, "server.ts");
 
-        expect(existsSync(isolatedSourceDir)).toBe(false);
-
-        const result = spawnSync("make", ["linkcheck"], {
+        const result = spawnSync("make", ["validate-data"], {
           cwd: fixture.worktreePath,
           encoding: "utf8",
           env: process.env,
@@ -57,22 +54,17 @@ describe("fresh-checkout linkcheck", () => {
 
         if (result.status === null) {
           throw new Error(
-            `make linkcheck did not finish within the test budget.\n${formatSubprocessOutput(result)}`,
+            `make validate-data did not finish within the test budget.\n${formatSubprocessOutput(result)}`,
           );
         }
-
-        const stderr = result.stderr ?? "";
-        expect(stderr).not.toMatch(missingSourceServerPattern);
-        expect(stderr).not.toContain(".source/server");
 
         if (result.status !== 0) {
           throw new Error(
-            `make linkcheck exited non-zero.\n${formatSubprocessOutput(result)}`,
+            `make validate-data exited non-zero.\n${formatSubprocessOutput(result)}`,
           );
         }
 
-        expect(result.stdout ?? "").toContain("Link validation passed.");
-        expect(existsSync(isolatedSourceServerModule)).toBe(true);
+        expectGeneratedRuntimeArtifactsRefreshed(staleArtifactPaths);
       } finally {
         fixture.cleanup();
       }
