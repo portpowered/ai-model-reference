@@ -11,6 +11,11 @@ export type LoopbackDependencyStatus =
   | "missing-from-queue"
   | "unknown";
 
+export type LoopbackReconciliationClassification =
+  | "stale-noise"
+  | "blocked"
+  | "repairable";
+
 export interface LoopbackDependencyEvidence {
   relationType: string;
   targetWorkId?: string;
@@ -30,12 +35,17 @@ export interface LoopbackReconciliationItem {
   traceId?: string;
   stateName: string;
   stateType: LoopbackReconciliationStateType;
+  classification: LoopbackReconciliationClassification;
+  reasons: string[];
   dependencies: LoopbackDependencyEvidence[];
 }
 
 export interface LoopbackReconciliationSummary {
   loopbackCount: number;
   dependencyCount: number;
+  staleNoiseLoopbacks: number;
+  blockedLoopbacks: number;
+  repairableLoopbacks: number;
   completeDependencies: number;
   activeDependencies: number;
   failedDependencies: number;
@@ -295,6 +305,92 @@ function resolveDependencyStatus(
   return "unknown";
 }
 
+function summarizeDependencyStatuses(
+  dependencies: LoopbackDependencyEvidence[],
+  status: LoopbackDependencyStatus,
+): string {
+  return dependencies
+    .filter((dependency) => dependency.status === status)
+    .map((dependency) => {
+      const resolvedState = dependency.resolvedStateName
+        ? `${dependency.resolvedStateName}/${dependency.resolvedStateType?.toLowerCase() ?? "unknown"}`
+        : dependency.status;
+      return `${dependency.targetWorkName} (${resolvedState})`;
+    })
+    .join(", ");
+}
+
+function classifyLoopback(
+  dependencies: LoopbackDependencyEvidence[],
+): Pick<LoopbackReconciliationItem, "classification" | "reasons"> {
+  const completeDependencies = dependencies.filter(
+    (dependency) => dependency.status === "complete",
+  );
+  const activeOrFailedDependencies = dependencies.filter(
+    (dependency) =>
+      dependency.status === "active" || dependency.status === "failed",
+  );
+  const repairableDependencies = dependencies.filter(
+    (dependency) =>
+      dependency.status === "missing-from-queue" ||
+      dependency.status === "unknown",
+  );
+
+  if (
+    dependencies.length > 0 &&
+    completeDependencies.length === dependencies.length
+  ) {
+    return {
+      classification: "stale-noise",
+      reasons: [
+        `all DEPENDS_ON targets already satisfy the loopback: ${summarizeDependencyStatuses(dependencies, "complete")}`,
+      ],
+    };
+  }
+
+  if (repairableDependencies.length > 0) {
+    const missingDependencies = summarizeDependencyStatuses(
+      dependencies,
+      "missing-from-queue",
+    );
+    const unknownDependencies = summarizeDependencyStatuses(
+      dependencies,
+      "unknown",
+    );
+    const reasons: string[] = [];
+
+    if (missingDependencies) {
+      reasons.push(
+        `dependency evidence is inconsistent because required targets are missing from the queue: ${missingDependencies}`,
+      );
+    }
+    if (unknownDependencies) {
+      reasons.push(
+        `dependency evidence could not be classified from the queue snapshot: ${unknownDependencies}`,
+      );
+    }
+
+    return {
+      classification: "repairable",
+      reasons,
+    };
+  }
+
+  return {
+    classification: "blocked",
+    reasons: [
+      `waiting on unfinished dependencies: ${activeOrFailedDependencies
+        .map((dependency) => {
+          const resolvedState = dependency.resolvedStateName
+            ? `${dependency.resolvedStateName}/${dependency.resolvedStateType?.toLowerCase() ?? "unknown"}`
+            : dependency.status;
+          return `${dependency.targetWorkName} (${resolvedState})`;
+        })
+        .join(", ")}`,
+    ],
+  };
+}
+
 function formatDependencyEvidence(
   dependency: LoopbackDependencyEvidence,
 ): string {
@@ -328,6 +424,7 @@ function formatLoopbackItem(item: LoopbackReconciliationItem): string {
   const fields = [
     `work-item=${item.workItemName}`,
     `state=${item.stateName}/${item.stateType.toLowerCase()}`,
+    `classification=${item.classification}`,
   ];
 
   if (item.workTypeName) {
@@ -338,6 +435,9 @@ function formatLoopbackItem(item: LoopbackReconciliationItem): string {
   }
 
   fields.push(`work-id=${item.workId}`);
+  if (item.reasons.length > 0) {
+    fields.push(`reason=${item.reasons.join("; ")}`);
+  }
   if (item.dependencies.length > 0) {
     fields.push(
       `dependencies=${item.dependencies
@@ -423,6 +523,7 @@ export function discoverPlannerLoopbackReconciliationReport(options: {
             resolvedStateType: target?.stateType,
           } satisfies LoopbackDependencyEvidence;
         });
+      const classification = classifyLoopback(dependencies);
 
       return {
         workId: record.workId,
@@ -431,6 +532,8 @@ export function discoverPlannerLoopbackReconciliationReport(options: {
         traceId: record.traceId,
         stateName: record.stateName,
         stateType: record.stateType,
+        classification: classification.classification,
+        reasons: classification.reasons,
         dependencies,
       } satisfies LoopbackReconciliationItem;
     })
@@ -439,6 +542,9 @@ export function discoverPlannerLoopbackReconciliationReport(options: {
   const summary: LoopbackReconciliationSummary = {
     loopbackCount: loopbacks.length,
     dependencyCount: 0,
+    staleNoiseLoopbacks: 0,
+    blockedLoopbacks: 0,
+    repairableLoopbacks: 0,
     completeDependencies: 0,
     activeDependencies: 0,
     failedDependencies: 0,
@@ -448,6 +554,13 @@ export function discoverPlannerLoopbackReconciliationReport(options: {
 
   for (const loopback of loopbacks) {
     summary.dependencyCount += loopback.dependencies.length;
+    if (loopback.classification === "stale-noise") {
+      summary.staleNoiseLoopbacks += 1;
+    } else if (loopback.classification === "blocked") {
+      summary.blockedLoopbacks += 1;
+    } else {
+      summary.repairableLoopbacks += 1;
+    }
     for (const dependency of loopback.dependencies) {
       if (dependency.status === "complete") {
         summary.completeDependencies += 1;

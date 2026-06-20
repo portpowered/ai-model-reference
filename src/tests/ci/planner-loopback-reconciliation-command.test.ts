@@ -126,16 +126,19 @@ describe("report-planner-loopback-reconciliation script", () => {
         "totals loopbacks=4 dependencies=4 complete=1 active=1 failed=1 missing-from-queue=1 unknown=0",
       );
       expect(humanResult.stdout).toContain("work-item=loopback-ready");
+      expect(humanResult.stdout).toContain("classification=stale-noise");
       expect(humanResult.stdout).toContain(
         "depends-on=done-lane status=complete",
       );
       expect(humanResult.stdout).toContain("work-item=loopback-blocked");
+      expect(humanResult.stdout).toContain("classification=blocked");
       expect(humanResult.stdout).toContain(
         "depends-on=review-lane status=active",
       );
       expect(humanResult.stdout).toContain(
         "depends-on=failed-lane status=failed",
       );
+      expect(humanResult.stdout).toContain("classification=repairable");
       expect(humanResult.stdout).toContain(
         "depends-on=missing-lane status=missing-from-queue",
       );
@@ -143,6 +146,9 @@ describe("report-planner-loopback-reconciliation script", () => {
       const jsonReport = JSON.parse(jsonResult.stdout) as {
         summary: {
           loopbackCount: number;
+          staleNoiseLoopbacks: number;
+          blockedLoopbacks: number;
+          repairableLoopbacks: number;
           completeDependencies: number;
           activeDependencies: number;
           failedDependencies: number;
@@ -150,6 +156,7 @@ describe("report-planner-loopback-reconciliation script", () => {
         };
         loopbacks: Array<{
           workItemName: string;
+          classification: string;
           dependencies: Array<{
             targetWorkName: string;
             status: string;
@@ -159,6 +166,9 @@ describe("report-planner-loopback-reconciliation script", () => {
 
       expect(jsonReport.summary).toMatchObject({
         loopbackCount: 4,
+        staleNoiseLoopbacks: 1,
+        blockedLoopbacks: 2,
+        repairableLoopbacks: 1,
         completeDependencies: 1,
         activeDependencies: 1,
         failedDependencies: 1,
@@ -172,6 +182,9 @@ describe("report-planner-loopback-reconciliation script", () => {
         "loopback-missing-dependency",
         "loopback-ready",
       ]);
+      expect(
+        jsonReport.loopbacks.map((loopback) => loopback.classification),
+      ).toEqual(["blocked", "blocked", "repairable", "stale-noise"]);
       expect(
         jsonReport.loopbacks.map(
           (loopback) => loopback.dependencies[0]?.status,

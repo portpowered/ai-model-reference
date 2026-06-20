@@ -107,6 +107,9 @@ describe("discoverPlannerLoopbackReconciliationReport", () => {
     expect(report.summary).toEqual({
       loopbackCount: 4,
       dependencyCount: 4,
+      staleNoiseLoopbacks: 1,
+      blockedLoopbacks: 2,
+      repairableLoopbacks: 1,
       completeDependencies: 1,
       activeDependencies: 1,
       failedDependencies: 1,
@@ -123,6 +126,10 @@ describe("discoverPlannerLoopbackReconciliationReport", () => {
       workId: "loopback-2",
       stateName: "init",
       stateType: "INITIAL",
+      classification: "blocked",
+      reasons: [
+        "waiting on unfinished dependencies: review-lane (in-review/processing)",
+      ],
       dependencies: [
         {
           targetWorkId: "task-active",
@@ -145,6 +152,12 @@ describe("discoverPlannerLoopbackReconciliationReport", () => {
         resolvedStateType: "TERMINAL",
       }),
     ]);
+    expect(report.loopbacks[1]).toMatchObject({
+      classification: "blocked",
+      reasons: [
+        "waiting on unfinished dependencies: failed-lane (failed/terminal)",
+      ],
+    });
     expect(report.loopbacks[2]?.dependencies).toEqual([
       expect.objectContaining({
         targetWorkId: "task-missing",
@@ -155,6 +168,12 @@ describe("discoverPlannerLoopbackReconciliationReport", () => {
         resolvedStateType: undefined,
       }),
     ]);
+    expect(report.loopbacks[2]).toMatchObject({
+      classification: "repairable",
+      reasons: [
+        "dependency evidence is inconsistent because required targets are missing from the queue: missing-lane (missing-from-queue)",
+      ],
+    });
     expect(report.loopbacks[3]?.dependencies).toEqual([
       expect.objectContaining({
         targetWorkId: "task-complete",
@@ -165,6 +184,12 @@ describe("discoverPlannerLoopbackReconciliationReport", () => {
         resolvedStateType: "TERMINAL",
       }),
     ]);
+    expect(report.loopbacks[3]).toMatchObject({
+      classification: "stale-noise",
+      reasons: [
+        "all DEPENDS_ON targets already satisfy the loopback: done-lane (complete/terminal)",
+      ],
+    });
   });
 
   test("formats text and JSON output from the same loopback evidence", () => {
@@ -212,6 +237,10 @@ describe("discoverPlannerLoopbackReconciliationReport", () => {
     );
     expect(reportText).toContain("Loopbacks (1)");
     expect(reportText).toContain("work-item=loopback-blocked");
+    expect(reportText).toContain("classification=repairable");
+    expect(reportText).toContain(
+      "reason=dependency evidence is inconsistent because required targets are missing from the queue: missing-lane (missing-from-queue)",
+    );
     expect(reportText).toContain("depends-on=review-lane status=active");
     expect(reportText).toContain(
       "depends-on=missing-lane status=missing-from-queue",
@@ -221,5 +250,64 @@ describe("discoverPlannerLoopbackReconciliationReport", () => {
       serializePlannerLoopbackReconciliationReport(report),
     ) as typeof report;
     expect(parsedReport).toEqual(report);
+  });
+
+  test("classifies missing or unknown dependency evidence as repairable before live blockers", () => {
+    const report = discoverPlannerLoopbackReconciliationReport({
+      generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      sourceSession: "~planner",
+      workListJsonText: JSON.stringify({
+        results: [
+          {
+            workId: "task-weird",
+            name: "weird-state",
+            traceId: "trace-weird",
+            workTypeName: "task",
+            state: { name: "mystery", type: "UNKNOWN" },
+          },
+          {
+            workId: "task-active",
+            name: "still-running",
+            traceId: "trace-active",
+            workTypeName: "task",
+            state: { name: "in-review", type: "PROCESSING" },
+          },
+          {
+            workId: "loopback-1",
+            name: "loopback-repairable",
+            traceId: "trace-loopback",
+            workTypeName: "thoughts",
+            state: { name: "failed", type: "FAILED" },
+            relations: [
+              {
+                type: "DEPENDS_ON",
+                targetWorkId: "task-active",
+                targetWorkName: "still-running",
+                requiredState: "complete",
+              },
+              {
+                type: "DEPENDS_ON",
+                targetWorkId: "task-weird",
+                targetWorkName: "weird-state",
+                requiredState: "complete",
+              },
+            ],
+          },
+        ],
+      }),
+    });
+
+    expect(report.summary).toMatchObject({
+      blockedLoopbacks: 0,
+      repairableLoopbacks: 1,
+      unknownDependencies: 1,
+      activeDependencies: 1,
+    });
+    expect(report.loopbacks[0]).toMatchObject({
+      classification: "repairable",
+      reasons: [
+        "dependency evidence could not be classified from the queue snapshot: weird-state (mystery/unknown)",
+      ],
+    });
   });
 });
