@@ -20,6 +20,7 @@ import {
 import { TagLandingEmptyState } from "@/features/docs/tags/TagLandingEmptyState";
 import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
+import { TopologyPrototype } from "@/features/topology/TopologyPrototype";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
 import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
@@ -299,6 +300,23 @@ export async function renderArchitectureIndexPage(
             listLabel={architectureIndex.listLabel}
           />
         )}
+      </DocsBody>
+    </DocsPage>
+  );
+}
+
+export async function renderTopologyPrototypePage(
+  locale: SiteLocale = defaultLocale,
+) {
+  const messages = await loadUiMessages(locale);
+  const { topologyPrototype } = messages;
+
+  return (
+    <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
+      <DocsTitle>{topologyPrototype.title}</DocsTitle>
+      <DocsDescription>{topologyPrototype.description}</DocsDescription>
+      <DocsBody>
+        <TopologyPrototype messages={messages} />
       </DocsBody>
     </DocsPage>
   );

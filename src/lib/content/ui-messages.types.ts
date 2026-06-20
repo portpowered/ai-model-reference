@@ -16,6 +16,7 @@ export type UiMessages = {
     search: string;
     menu: string;
     architecture: string;
+    topology: string;
     glossary: string;
     tags: string;
   };
@@ -151,6 +152,29 @@ export type UiMessages = {
     emptyTitle: string;
     emptyDescription: string;
     emptyHomeLink: string;
+  };
+  topologyPrototype: {
+    title: string;
+    description: string;
+    selectedViewLabel: string;
+    selectedViewValue: string;
+    loadingTitle: string;
+    loadingDescription: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    errorTitle: string;
+    errorDescription: string;
+    successTitle: string;
+    successDescription: string;
+    graphLabel: string;
+    activationChip: string;
+    activationFunctionChip: string;
+    feedForwardChip: string;
+    nodeActivation: string;
+    nodeRelu: string;
+    nodeSilu: string;
+    nodeSwiGLU: string;
+    nodeFeedForward: string;
   };
   tagsIndex: {
     title: string;

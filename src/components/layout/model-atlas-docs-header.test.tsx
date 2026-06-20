@@ -72,6 +72,7 @@ describe("ModelAtlasDocsHeader", () => {
     expect(expectedItems.map((item) => item.href)).toEqual([
       "/",
       "/docs/architecture",
+      "/topology",
       "/docs/glossary",
       "/tags",
     ]);

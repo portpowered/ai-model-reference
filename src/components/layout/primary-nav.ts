@@ -34,6 +34,10 @@ export function getPrimaryNavItems(
       label: messages.nav.architecture,
     },
     {
+      href: buildLocalizedRoute({ surface: "topology" }, locale),
+      label: messages.nav.topology,
+    },
+    {
       href: buildLocalizedRoute({ surface: "glossary-index" }, locale),
       label: messages.nav.glossary,
     },

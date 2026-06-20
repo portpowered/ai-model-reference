@@ -16,6 +16,7 @@
     "search": "Tìm kiếm",
     "menu": "Mở menu",
     "architecture": "Kiến trúc",
+    "topology": "Bản đồ",
     "glossary": "Thuật ngữ",
     "tags": "Thẻ"
   },
@@ -155,6 +156,29 @@
     "emptyTitle": "Chưa có mục kiến trúc nào",
     "emptyDescription": "Các trang khái niệm kiến trúc đã xuất bản và các trang trong nhóm nội dung kiến trúc sẽ xuất hiện ở đây. Trong lúc này, hãy quay lại trang chủ hoặc mở tìm kiếm để khám phá module và thẻ.",
     "emptyHomeLink": "Về trang chủ"
+  },
+  "topologyPrototype": {
+    "title": "Bản đồ topology",
+    "description": "Prototype bản đồ graph có giới hạn cho vùng activation và feed-forward.",
+    "selectedViewLabel": "Chế độ đang chọn",
+    "selectedViewValue": "activation + activation-function + feed-forward",
+    "loadingTitle": "Đang chuẩn bị graph",
+    "loadingDescription": "Bề mặt topology dành sẵn vùng loading trước khi dữ liệu graph sẵn sàng.",
+    "emptyTitle": "Không có node phù hợp",
+    "emptyDescription": "Bề mặt topology dành sẵn vùng empty cho classification không có member hiển thị.",
+    "errorTitle": "Topology chưa khả dụng",
+    "errorDescription": "Bề mặt topology dành sẵn vùng error cho lỗi classification hoặc dữ liệu graph có thể phục hồi.",
+    "successTitle": "Vùng activation và feed-forward",
+    "successDescription": "Prototype mặc định bắt đầu với activation, activation-function, và feed-forward được chọn.",
+    "graphLabel": "Bản xem trước topology activation/feed-forward",
+    "activationChip": "activation",
+    "activationFunctionChip": "activation-function",
+    "feedForwardChip": "feed-forward",
+    "nodeActivation": "Activation",
+    "nodeRelu": "ReLU",
+    "nodeSilu": "SiLU",
+    "nodeSwiGLU": "SwiGLU",
+    "nodeFeedForward": "Feed-forward"
   },
   "tagsIndex": {
     "title": "Thẻ",

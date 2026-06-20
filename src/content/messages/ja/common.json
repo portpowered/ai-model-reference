@@ -16,6 +16,7 @@
     "search": "検索",
     "menu": "メニューを開く",
     "architecture": "アーキテクチャ",
+    "topology": "トポロジー",
     "glossary": "用語集",
     "tags": "タグ"
   },
@@ -155,6 +156,29 @@
     "emptyTitle": "アーキテクチャ項目はまだありません",
     "emptyDescription": "公開されたアーキテクチャ概念ページと、architecture コンテンツ群のページがここに表示されます。それまではホームに戻るか検索を開いて、モジュールやタグを参照してください。",
     "emptyHomeLink": "ホームに戻る"
+  },
+  "topologyPrototype": {
+    "title": "トポロジーマップ",
+    "description": "activation と feed-forward 近傍のための制約付きグラフマップのプロトタイプです。",
+    "selectedViewLabel": "選択中のビュー",
+    "selectedViewValue": "activation + activation-function + feed-forward",
+    "loadingTitle": "グラフを準備中",
+    "loadingDescription": "グラフデータが準備できる前の loading 領域をトポロジー画面に用意します。",
+    "emptyTitle": "一致するノードはありません",
+    "emptyDescription": "表示できる member がない classification のための empty 領域をトポロジー画面に用意します。",
+    "errorTitle": "トポロジーを利用できません",
+    "errorDescription": "classification またはグラフデータの回復可能な失敗に備えた error 領域を用意します。",
+    "successTitle": "Activation と feed-forward の近傍",
+    "successDescription": "既定のプロトタイプでは activation、activation-function、feed-forward が選択されています。",
+    "graphLabel": "Activation/feed-forward トポロジーのプレビュー",
+    "activationChip": "activation",
+    "activationFunctionChip": "activation-function",
+    "feedForwardChip": "feed-forward",
+    "nodeActivation": "Activation",
+    "nodeRelu": "ReLU",
+    "nodeSilu": "SiLU",
+    "nodeSwiGLU": "SwiGLU",
+    "nodeFeedForward": "Feed-forward"
   },
   "tagsIndex": {
     "title": "タグ",

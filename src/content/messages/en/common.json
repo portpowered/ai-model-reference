@@ -16,6 +16,7 @@
     "search": "Search",
     "menu": "Open menu",
     "architecture": "Architecture",
+    "topology": "Topology",
     "glossary": "Glossary",
     "tags": "Tags"
   },
@@ -155,6 +156,29 @@
     "emptyTitle": "No architecture entries yet",
     "emptyDescription": "Published architecture concept pages and pages under the architecture content grouping will appear here. Return home or open search to explore modules and tags in the meantime.",
     "emptyHomeLink": "Return home"
+  },
+  "topologyPrototype": {
+    "title": "Topology Map",
+    "description": "A constrained graph-map prototype for the activation and feed-forward neighborhood.",
+    "selectedViewLabel": "Selected view",
+    "selectedViewValue": "activation + activation-function + feed-forward",
+    "loadingTitle": "Preparing graph",
+    "loadingDescription": "The topology surface reserves a loading region before the graph data is ready.",
+    "emptyTitle": "No matching nodes",
+    "emptyDescription": "The topology surface reserves an empty region for classifications without visible members.",
+    "errorTitle": "Topology unavailable",
+    "errorDescription": "The topology surface reserves an error region for recoverable classification or graph-data failures.",
+    "successTitle": "Activation and feed-forward neighborhood",
+    "successDescription": "The default prototype starts with activation, activation-function, and feed-forward selected.",
+    "graphLabel": "Activation/feed-forward topology preview",
+    "activationChip": "activation",
+    "activationFunctionChip": "activation-function",
+    "feedForwardChip": "feed-forward",
+    "nodeActivation": "Activation",
+    "nodeRelu": "ReLU",
+    "nodeSilu": "SiLU",
+    "nodeSwiGLU": "SwiGLU",
+    "nodeFeedForward": "Feed-forward"
   },
   "tagsIndex": {
     "title": "Tags",
