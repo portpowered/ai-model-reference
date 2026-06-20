@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join, relative } from "node:path";
+import { getGeneratedContentRuntimeRoot } from "@/lib/content/content-paths";
 import {
   CONTENT_RUNTIME_PREPARATION_STEPS,
   type ContentRuntimePreparationCommandResult,
@@ -69,6 +70,11 @@ describe("content runtime preparation", () => {
   });
 
   test("prepare:content-runtime succeeds on the repository and is safe to rerun", () => {
+    const generatedRuntimeRoot = getGeneratedContentRuntimeRoot(repoRoot);
+    const generatedRuntimeRootRelative = relative(
+      repoRoot,
+      generatedRuntimeRoot,
+    );
     const firstRun = spawnSync("bun", ["run", "prepare:content-runtime"], {
       cwd: repoRoot,
       encoding: "utf8",
@@ -84,7 +90,15 @@ describe("content runtime preparation", () => {
     expect(secondRun.status).toBe(0);
 
     for (const step of CONTENT_RUNTIME_PREPARATION_STEPS) {
+      expect(
+        step.outputPath.startsWith(`${generatedRuntimeRootRelative}/`),
+      ).toBe(true);
       expect(existsSync(join(repoRoot, step.outputPath))).toBe(true);
+      expect(
+        existsSync(
+          join(repoRoot, "src/lib/content", basename(step.outputPath)),
+        ),
+      ).toBe(false);
     }
   });
 });
