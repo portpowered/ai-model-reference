@@ -100,6 +100,32 @@ export function getRegistryRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "registry");
 }
 
+export const REGISTRY_COLLECTIONS = [
+  "citations",
+  "classifications",
+  "concepts",
+  "datasets",
+  "graphs",
+  "models",
+  "modules",
+  "organizations",
+  "papers",
+  "systems",
+  "tables",
+  "tags",
+  "training-regimes",
+] as const;
+
+export type RegistryCollection = (typeof REGISTRY_COLLECTIONS)[number];
+
+/** Supported registry collection root under `src/content/registry/<collection>`. */
+export function getRegistryCollectionRoot(
+  collection: RegistryCollection,
+  registryRoot = getRegistryRoot(),
+): string {
+  return join(registryRoot, collection);
+}
+
 /** Generated content runtime artifacts under `src/lib/content/generated`. */
 export function getGeneratedContentRuntimeRoot(
   projectRoot = getProjectRoot(),
@@ -114,7 +140,7 @@ export function getMessagesRoot(contentRoot = getContentRoot()): string {
 
 /** Localized tag copy under `src/content/registry/tags/messages`. */
 export function getTagMessagesRoot(registryRoot = getRegistryRoot()): string {
-  return join(registryRoot, "tags", "messages");
+  return join(getRegistryCollectionRoot("tags", registryRoot), "messages");
 }
 
 const contentRoot = getContentRoot();

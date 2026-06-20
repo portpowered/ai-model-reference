@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { REGISTRY_ROOT } from "@/lib/content/content-paths";
+import { getRegistryCollectionRoot } from "@/lib/content/content-paths";
 import type { DocsPageSource } from "@/lib/content/pages";
 import {
   docsSectionFromSlug,
@@ -77,7 +77,9 @@ export function buildPublishedDocsIndex(
 }
 
 function hasConceptRegistryRecord(slug: string): boolean {
-  return existsSync(join(REGISTRY_ROOT, "concepts", `${slug}.json`));
+  return existsSync(
+    join(getRegistryCollectionRoot("concepts"), `${slug}.json`),
+  );
 }
 
 export function derivePublishedConceptSectionRegistryIds(

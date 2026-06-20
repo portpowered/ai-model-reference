@@ -13,10 +13,12 @@ import {
   getMessagesRoot,
   getModulesDocsRoot,
   getProjectRoot,
+  getRegistryCollectionRoot,
   getRegistryRoot,
   getTagMessagesRoot,
   MESSAGES_ROOT,
   MODULES_DOCS_ROOT,
+  REGISTRY_COLLECTIONS,
   REGISTRY_ROOT,
   TAG_MESSAGES_ROOT,
   TOKEN_GLOSSARY_PAGE_DIR,
@@ -53,6 +55,18 @@ describe("content-paths", () => {
     );
     expect(getDocsPageDir("modules", "grouped-query-attention")).toBe(
       join(MODULES_DOCS_ROOT, "grouped-query-attention"),
+    );
+  });
+
+  test("generic registry collection helpers derive canonical collection roots", () => {
+    for (const collection of REGISTRY_COLLECTIONS) {
+      expect(getRegistryCollectionRoot(collection)).toBe(
+        join(REGISTRY_ROOT, collection),
+      );
+    }
+
+    expect(getTagMessagesRoot()).toBe(
+      join(getRegistryCollectionRoot("tags"), "messages"),
     );
   });
 

@@ -9,11 +9,12 @@ import { dirname, join, relative } from "node:path";
 import {
   getGeneratedContentRuntimeRoot,
   getProjectRoot,
+  getRegistryCollectionRoot,
 } from "@/lib/content/content-paths";
 import { parseGraphRegistryRecords } from "@/lib/content/graph-registry-validation";
 
 const projectRoot = getProjectRoot();
-const graphRegistryRoot = join(projectRoot, "src/content/registry/graphs");
+const graphRegistryRoot = getRegistryCollectionRoot("graphs");
 const outputPath = join(
   getGeneratedContentRuntimeRoot(projectRoot),
   "graph-registry-runtime.generated.ts",
