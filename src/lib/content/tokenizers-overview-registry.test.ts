@@ -78,12 +78,16 @@ describe("tokenizers overview registry", () => {
       "model.gpt-3",
     ]);
 
-    expect(wordpiece?.status).toBe("draft");
+    expect(wordpiece?.status).toBe("published");
     expect(wordpiece?.relatedIds).toEqual([
       "concept.tokenizers-overview",
       "concept.token",
       "module.bpe",
       "module.sentencepiece",
+    ]);
+    expect(wordpiece?.citationIds).toEqual([
+      "citation.gnmt-wordpiece",
+      "citation.bert-pre-training-of-deep-bidirectional-transformers",
     ]);
 
     expect(sentencepiece?.status).toBe("published");
@@ -95,7 +99,7 @@ describe("tokenizers overview registry", () => {
     ]);
   });
 
-  test("curated related items stay navigable for shipped targets while draft tokenizer neighbors remain planned", async () => {
+  test("curated related items stay navigable for shipped targets across the tokenizer family", async () => {
     const indexes = await loadRegistry();
     const source = indexes.byId.get("concept.tokenizers-overview");
     if (source?.kind !== "concept") {
@@ -146,8 +150,8 @@ describe("tokenizers overview registry", () => {
     const wordpiece = items.find(
       (item) => item.registryId === "module.wordpiece",
     );
-    expect(wordpiece?.href).toBeUndefined();
-    expect(wordpiece?.isPlanned).toBe(true);
+    expect(wordpiece?.href).toBe("/docs/modules/wordpiece");
+    expect(wordpiece?.isPlanned).toBe(false);
   });
 
   test("registry validation passes with tokenizers overview concept and tokenization tag wiring", async () => {

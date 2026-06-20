@@ -21,10 +21,14 @@
     "module.sentencepiece",
     "model.gpt-3"
   ],
-  "citationIds": [],
+  "citationIds": [
+    "citation.sennrich-bpe",
+    "citation.gnmt-wordpiece",
+    "citation.kudo-sentencepiece"
+  ],
   "status": "published",
   "createdAt": "2026-06-18T20:45:43Z",
-  "updatedAt": "2026-06-18T20:45:43Z",
+  "updatedAt": "2026-06-21T00:00:00Z",
   "conceptType": "architecture",
   "sidebarGrouping": {
     "concepts": "architecture"

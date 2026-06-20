@@ -120,8 +120,8 @@ describe("special tokens registry record", () => {
     const wordpiece = items.find(
       (item) => item.registryId === "module.wordpiece",
     );
-    expect(wordpiece?.href).toBeUndefined();
-    expect(wordpiece?.isPlanned).toBe(true);
+    expect(wordpiece?.href).toBe("/docs/modules/wordpiece");
+    expect(wordpiece?.isPlanned).toBe(false);
 
     const sentencepiece = items.find(
       (item) => item.registryId === "module.sentencepiece",

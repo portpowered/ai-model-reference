@@ -39,8 +39,10 @@ describe("tokenizers overview concept page", () => {
     );
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
+    expect(html).toContain('href="/docs/modules/wordpiece"');
     expect(html).toContain('href="/docs/models/gpt-3"');
     expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('data-testid="citation-list"');
     expect(html).not.toContain('data-planned="true"');
     expect(html).not.toContain(
       "planned - coming in a later phase to be planned",
