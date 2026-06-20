@@ -20,39 +20,79 @@ export function getDocsRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "docs");
 }
 
+export const DOCS_SECTIONS = [
+  "glossary",
+  "concepts",
+  "modules",
+  "models",
+  "papers",
+  "training",
+  "systems",
+] as const;
+
+export type DocsSection = (typeof DOCS_SECTIONS)[number];
+
+/** Supported docs sections keyed to the canonical content tree. */
+const docsSectionPaths: Record<DocsSection, string> = {
+  glossary: "glossary",
+  concepts: "concepts",
+  modules: "modules",
+  models: "models",
+  papers: "papers",
+  training: "training",
+  systems: "systems",
+};
+
+/** Docs section root under `src/content/docs/<section>`. */
+export function getDocsSectionRoot(
+  section: DocsSection,
+  docsRoot = getDocsRoot(),
+): string {
+  return join(docsRoot, docsSectionPaths[section]);
+}
+
+/** Docs page directory under `src/content/docs/<section>/<slug>`. */
+export function getDocsPageDir(
+  section: DocsSection,
+  slug: string,
+  docsRoot = getDocsRoot(),
+): string {
+  return join(getDocsSectionRoot(section, docsRoot), slug);
+}
+
 /** Glossary docs under `src/content/docs/glossary`. */
 export function getGlossaryDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "glossary");
+  return getDocsSectionRoot("glossary", docsRoot);
 }
 
 /** Concept docs under `src/content/docs/concepts`. */
 export function getConceptsDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "concepts");
+  return getDocsSectionRoot("concepts", docsRoot);
 }
 
 /** Module docs under `src/content/docs/modules`. */
 export function getModulesDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "modules");
+  return getDocsSectionRoot("modules", docsRoot);
 }
 
 /** Model docs under `src/content/docs/models`. */
 export function getModelsDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "models");
+  return getDocsSectionRoot("models", docsRoot);
 }
 
 /** Paper docs under `src/content/docs/papers`. */
 export function getPapersDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "papers");
+  return getDocsSectionRoot("papers", docsRoot);
 }
 
 /** Training-regime docs under `src/content/docs/training`. */
 export function getTrainingDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "training");
+  return getDocsSectionRoot("training", docsRoot);
 }
 
 /** System docs under `src/content/docs/systems`. */
 export function getSystemsDocsRoot(docsRoot = getDocsRoot()): string {
-  return join(docsRoot, "systems");
+  return getDocsSectionRoot("systems", docsRoot);
 }
 
 /** Registry JSON under `src/content/registry`. */

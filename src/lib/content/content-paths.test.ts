@@ -1,13 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import {
-  ATTENTION_MODULE_PAGE_DIR,
   CONTENT_ROOT,
   DOCS_ROOT,
+  DOCS_SECTIONS,
   GLOSSARY_DOCS_ROOT,
-  GROUPED_QUERY_ATTENTION_PAGE_DIR,
   getContentRoot,
+  getDocsPageDir,
   getDocsRoot,
+  getDocsSectionRoot,
   getGlossaryDocsRoot,
   getMessagesRoot,
   getModulesDocsRoot,
@@ -37,6 +38,24 @@ describe("content-paths", () => {
     );
   });
 
+  test("generic docs section helpers derive canonical section roots", () => {
+    for (const section of DOCS_SECTIONS) {
+      expect(getDocsSectionRoot(section)).toBe(join(DOCS_ROOT, section));
+    }
+
+    expect(getGlossaryDocsRoot()).toBe(getDocsSectionRoot("glossary"));
+    expect(getModulesDocsRoot()).toBe(getDocsSectionRoot("modules"));
+  });
+
+  test("generic docs page helper derives representative page directories", () => {
+    expect(getDocsPageDir("glossary", "token")).toBe(
+      join(GLOSSARY_DOCS_ROOT, "token"),
+    );
+    expect(getDocsPageDir("modules", "grouped-query-attention")).toBe(
+      join(MODULES_DOCS_ROOT, "grouped-query-attention"),
+    );
+  });
+
   test("exported production roots match helper-derived paths", () => {
     expect(DOCS_ROOT).toBe(getDocsRoot());
     expect(GLOSSARY_DOCS_ROOT).toBe(getGlossaryDocsRoot());
@@ -45,12 +64,6 @@ describe("content-paths", () => {
     expect(MESSAGES_ROOT).toBe(getMessagesRoot());
     expect(TAG_MESSAGES_ROOT).toBe(getTagMessagesRoot());
     expect(CONTENT_ROOT.endsWith("src/content")).toBe(true);
-    expect(ATTENTION_MODULE_PAGE_DIR).toBe(
-      join(MODULES_DOCS_ROOT, "attention"),
-    );
-    expect(GROUPED_QUERY_ATTENTION_PAGE_DIR).toBe(
-      join(MODULES_DOCS_ROOT, "grouped-query-attention"),
-    );
-    expect(TOKEN_GLOSSARY_PAGE_DIR).toBe(join(GLOSSARY_DOCS_ROOT, "token"));
+    expect(TOKEN_GLOSSARY_PAGE_DIR).toBe(getDocsPageDir("glossary", "token"));
   });
 });
