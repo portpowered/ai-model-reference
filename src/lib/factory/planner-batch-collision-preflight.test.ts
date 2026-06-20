@@ -116,7 +116,9 @@ function runCommand(cwd: string, args: string[]): void {
   }
 }
 
-function createOwnedLaneRepoFixture(): {
+function createOwnedLaneRepoFixture(options?: {
+  leaveDirtyTrackedChange?: boolean;
+}): {
   cleanup: () => void;
   repoRoot: string;
   worktreePath: string;
@@ -164,6 +166,15 @@ function createOwnedLaneRepoFixture(): {
     join(worktreePath, "src", "lib", "factory", "conflict-hotspot-report.ts"),
     "export const hotspot = 'changed';\n",
   );
+
+  if (options?.leaveDirtyTrackedChange) {
+    return {
+      cleanup: () => rmSync(repoRoot, { recursive: true, force: true }),
+      repoRoot,
+      worktreePath,
+    };
+  }
+
   runCommand(worktreePath, ["git", "add", "."]);
   runCommand(worktreePath, ["git", "commit", "-m", "feature"]);
 
@@ -351,6 +362,56 @@ describe("planner batch collision preflight", () => {
       generatedAtUtc: "2026-06-20T00:05:00.000Z",
       linkedWithGapsLaneCount: 0,
     });
+    expect(snapshot.candidates[0]?.collisionRisk).toBe("high");
+    expect(snapshot.candidates[0]?.activeLaneOverlaps).toEqual([
+      {
+        branchName: "alpha-lane",
+        category: "shared-helper",
+        categoryLabel: "shared helper",
+        laneName: "alpha-lane",
+        linkageStatus: "linked",
+        matchedHints: ["src/lib/factory"],
+        ownedPathCount: 2,
+        ownedPaths: [
+          "src/lib/factory/conflict-hotspot-report.ts",
+          "src/lib/factory/queue-worktree-pr-linkage-ledger.ts",
+        ],
+        ownedSurface: "src/lib/factory",
+        worktreePath: ".claude/worktrees/alpha-lane",
+      },
+    ]);
+    expect(snapshot.candidates[0]?.activeLaneEvidenceSummary).toContain(
+      "Active ownership raises the current collision risk to high.",
+    );
+    expect(snapshot.candidates[0]?.recommendation).toBe("hold");
+    expect(snapshot.candidates[0]?.recommendationEvidenceSummary).toContain(
+      "Every submitted surface overlaps active lane alpha-lane",
+    );
+
+    fixture.cleanup();
+  });
+
+  test("counts dirty tracked linked-worktree files as active lane ownership", () => {
+    const fixture = createOwnedLaneRepoFixture({
+      leaveDirtyTrackedChange: true,
+    });
+    const snapshot = collectPlannerBatchCollisionPreflightSnapshot(
+      ["factory-lane=src/lib/factory"],
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        hotspotSnapshot,
+        linkageLedger: {
+          ...linkageLedger,
+          lanes: [
+            {
+              ...linkageLedger.lanes[0],
+            },
+          ],
+        },
+        repoRoot: fixture.repoRoot,
+      },
+    );
+
     expect(snapshot.candidates[0]?.collisionRisk).toBe("high");
     expect(snapshot.candidates[0]?.activeLaneOverlaps).toEqual([
       {

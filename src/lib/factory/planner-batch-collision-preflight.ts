@@ -326,7 +326,7 @@ function collectOwnedPathsFromWorktree(
     );
   }
 
-  const diff = spawnSync(
+  const committedDiff = spawnSync(
     "git",
     ["diff", "--name-only", mergeBase.stdout.trim(), "HEAD"],
     {
@@ -336,15 +336,31 @@ function collectOwnedPathsFromWorktree(
     },
   );
 
-  if (diff.status !== 0) {
+  if (committedDiff.status !== 0) {
     throw new PlannerBatchCollisionPreflightCollectionError(
       `Unable to read owned paths from active lane worktree ${worktreePath}.`,
     );
   }
 
-  return [...new Set(diff.stdout.split("\n").map(normalizeRepoPath))].filter(
-    Boolean,
-  );
+  const dirtyTrackedDiff = spawnSync("git", ["diff", "--name-only", "HEAD"], {
+    cwd: worktreePath,
+    encoding: "utf8",
+    env: process.env,
+  });
+
+  if (dirtyTrackedDiff.status !== 0) {
+    throw new PlannerBatchCollisionPreflightCollectionError(
+      `Unable to read dirty tracked owned paths from active lane worktree ${worktreePath}.`,
+    );
+  }
+
+  return [
+    ...new Set(
+      [committedDiff.stdout, dirtyTrackedDiff.stdout]
+        .flatMap((stdout) => stdout.split("\n"))
+        .map(normalizeRepoPath),
+    ),
+  ].filter(Boolean);
 }
 
 function collectActiveLaneOwnership(
