@@ -157,6 +157,98 @@ describe("registry-runtime generation", () => {
     }
   });
 
+  test("generated runtime preparation fails fast for invalid tag registry JSON", async () => {
+    const { outputPath, registryRoot, tempRoot } =
+      await createTempRegistryRoot();
+    try {
+      await writeRegistryJson(
+        registryRoot,
+        "tags",
+        "runtime-invalid-tag.json",
+        {
+          id: "tag.runtime-invalid-tag",
+          slug: "runtime-invalid-tag",
+          kind: "tag",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: ["runtime invalid tag"],
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-02T00:00:00.000Z",
+          category: "architecture",
+        },
+      );
+
+      await expect(
+        generateRegistryRuntimeSource({
+          outputPath,
+          projectRoot: getProjectRoot(),
+          registryRoot,
+        }),
+      ).rejects.toThrow(/runtime-invalid-tag\.json/);
+      await expect(
+        generateRegistryRuntimeSource({
+          outputPath,
+          projectRoot: getProjectRoot(),
+          registryRoot,
+        }),
+      ).rejects.toThrow(/landingPage/);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("generated runtime preparation fails fast for invalid citation registry JSON", async () => {
+    const { outputPath, registryRoot, tempRoot } =
+      await createTempRegistryRoot();
+    try {
+      await writeRegistryJson(
+        registryRoot,
+        "citations",
+        "runtime-invalid-citation.json",
+        {
+          id: "citation.runtime-invalid-citation",
+          slug: "runtime-invalid-citation",
+          kind: "citation",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: ["runtime invalid citation"],
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-02T00:00:00.000Z",
+          citationType: "paper",
+          authors: ["R. Author"],
+          title: "Runtime Invalid Citation",
+          url: "https://example.com/runtime-invalid-citation",
+          year: 2026,
+        },
+      );
+
+      await expect(
+        generateRegistryRuntimeSource({
+          outputPath,
+          projectRoot: getProjectRoot(),
+          registryRoot,
+        }),
+      ).rejects.toThrow(/runtime-invalid-citation\.json/);
+      await expect(
+        generateRegistryRuntimeSource({
+          outputPath,
+          projectRoot: getProjectRoot(),
+          registryRoot,
+        }),
+      ).rejects.toThrow(/mla/);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   test("generated runtime resolves newly added module and concept records without manual runtime edits", async () => {
     const { outputPath, registryRoot, tempRoot } =
       await createTempRegistryRoot();
