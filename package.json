@@ -53,6 +53,7 @@
     "generate:page-bundle": "bun ./scripts/generate-page-bundle.ts",
     "generate:table-registry": "bun ./scripts/generate-table-registry-runtime.ts",
     "verify:table-registry": "bun ./scripts/verify-table-registry-runtime.ts",
+    "verify:content-runtime-completeness": "bun ./scripts/verify-content-runtime-completeness.ts",
     "build:search-index": "bun ./scripts/build-search-index.ts",
     "component-examples": "bun ./scripts/component-examples.ts",
     "verify:export-routes": "bun ./scripts/verify-phase-1-export-routes.ts",

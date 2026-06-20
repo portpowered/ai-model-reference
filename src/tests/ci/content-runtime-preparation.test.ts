@@ -12,7 +12,9 @@ import { getGeneratedContentRuntimeRoot } from "@/lib/content/content-paths";
 import {
   CONTENT_RUNTIME_COMPLETENESS_CONTRACT,
   CONTENT_RUNTIME_PREPARATION_STEPS,
+  type ContentRuntimeGitCommandResult,
   type ContentRuntimePreparationCommandResult,
+  runContentRuntimeCompletenessGate,
   runContentRuntimePreparation,
 } from "@/lib/content/content-runtime-preparation";
 
@@ -192,6 +194,126 @@ describe("content runtime preparation", () => {
     expect(errors).toEqual([
       expect.stringContaining('Failed step "graph-registry-runtime"'),
     ]);
+  });
+
+  test("completeness gate fails with targeted guidance when a required ignored runtime output is still missing after preparation", () => {
+    const result = runContentRuntimeCompletenessGate({
+      cwd: repoRoot,
+      log: () => {},
+      logError: () => {},
+      runPreparation() {
+        return {
+          ok: true,
+          completedSteps: [...CONTENT_RUNTIME_PREPARATION_STEPS],
+        };
+      },
+      fileExists(path) {
+        return !path.endsWith("graph-registry-runtime.generated.ts");
+      },
+      runGitCommand(command) {
+        if (command[1] === "ls-files") {
+          return {
+            signal: null,
+            status: 0,
+            stdout: command[command.length - 1],
+            stderr: "",
+          } satisfies ContentRuntimeGitCommandResult;
+        }
+
+        return {
+          signal: null,
+          status: 1,
+          stdout: "",
+          stderr: "",
+        } satisfies ContentRuntimeGitCommandResult;
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+
+    expect(result.stage).toBe("verification");
+    expect(result.step?.id).toBe("graph-registry-runtime");
+    expect(result.message).toContain(
+      "src/lib/content/generated/graph-registry-runtime.generated.ts",
+    );
+    expect(result.message).toContain("graph registry runtime lookups");
+    expect(result.repairGuidance).toContain(
+      "bun run generate:graph-registry-runtime",
+    );
+    expect(result.repairGuidance).toContain("leave it out of the commit");
+  });
+
+  test("completeness gate fails when a required committed runtime output is classified as ignored", () => {
+    const result = runContentRuntimeCompletenessGate({
+      cwd: repoRoot,
+      log: () => {},
+      logError: () => {},
+      runPreparation() {
+        return {
+          ok: true,
+          completedSteps: [...CONTENT_RUNTIME_PREPARATION_STEPS],
+        };
+      },
+      fileExists() {
+        return true;
+      },
+      runGitCommand(command) {
+        const targetPath = command[command.length - 1];
+        if (
+          targetPath ===
+          "src/lib/content/generated/shipped-localized-docs.generated.ts"
+        ) {
+          if (command[1] === "ls-files") {
+            return {
+              signal: null,
+              status: 1,
+              stdout: "",
+              stderr: "",
+            } satisfies ContentRuntimeGitCommandResult;
+          }
+
+          return {
+            signal: null,
+            status: 0,
+            stdout: targetPath,
+            stderr: "",
+          } satisfies ContentRuntimeGitCommandResult;
+        }
+
+        if (command[1] === "ls-files") {
+          return {
+            signal: null,
+            status: 0,
+            stdout: targetPath,
+            stderr: "",
+          } satisfies ContentRuntimeGitCommandResult;
+        }
+
+        return {
+          signal: null,
+          status: 1,
+          stdout: "",
+          stderr: "",
+        } satisfies ContentRuntimeGitCommandResult;
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+
+    expect(result.stage).toBe("verification");
+    expect(result.step?.id).toBe("shipped-localized-docs");
+    expect(result.message).toContain('git classification "ignored"');
+    expect(result.message).toContain('requires "committed"');
+    expect(result.message).toContain("shipped localized docs runtime helpers");
+    expect(result.repairGuidance).toContain(
+      "commit the regenerated file because this runtime module is authoritative repo state",
+    );
   });
 
   test(
@@ -433,5 +555,22 @@ describe("content runtime preparation", () => {
 
     expect(generatedRuntimePath).toBe(GENERATED_REGISTRY_RUNTIME_RELATIVE_PATH);
     expect(checkIgnore.status).toBe(0);
+  });
+
+  test("verify:content-runtime-completeness succeeds on the healthy repo checkout", () => {
+    const result = spawnSync(
+      "bun",
+      ["run", "verify:content-runtime-completeness"],
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+        env: process.env,
+      },
+    );
+
+    expect(result.status).toBe(0);
+    expect(`${result.stdout}\n${result.stderr}`).toContain(
+      "Generated-runtime completeness gate passed",
+    );
   });
 });
