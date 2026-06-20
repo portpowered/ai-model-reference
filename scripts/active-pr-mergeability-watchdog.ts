@@ -66,6 +66,7 @@ const sessionListPath = readFlagValue("--session-list-json");
 const worktreesDir =
   readFlagValue("--worktrees-dir") ?? join(repoRoot, ".claude", "worktrees");
 const prMapPath = readFlagValue("--pr-map-json");
+const plannerSession = readFlagValue("--session") ?? "~default";
 
 interface PullRequestFixtureFailure {
   failureKind?: PullRequestLookupFailureKind;
@@ -152,7 +153,10 @@ function lookupPullRequestFromFixture(
 
 const workListJsonText = workListPath
   ? readRequiredJsonFile(workListPath, "work list")
-  : readLiveQueueJson(["work", "list"], "work list");
+  : readLiveQueueJson(
+      ["work", "list", "--session", plannerSession],
+      "work list",
+    );
 const sessionListJsonText = sessionListPath
   ? readRequiredJsonFile(sessionListPath, "session list")
   : readLiveQueueJson(["session", "list"], "session list");

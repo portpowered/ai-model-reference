@@ -1,6 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -15,6 +22,31 @@ function createWorktree(
     join(worktreePath, "prd.json"),
     JSON.stringify({ branchName }, null, 2),
   );
+}
+
+function installFakeYouBinary(dir: string, logPath: string): string {
+  const binDir = join(dir, "bin");
+  const binaryPath = join(binDir, "you");
+  mkdirSync(binDir, { recursive: true });
+  writeFileSync(
+    binaryPath,
+    `#!/bin/sh
+set -eu
+printf '%s\\n' "$*" >> "${logPath}"
+if [ "$1" = "work" ] && [ "$2" = "list" ]; then
+  printf '%s' '{"items":[{"name":"alpha","state":"active","sessionId":"sess-1"}]}'
+  exit 0
+fi
+if [ "$1" = "session" ] && [ "$2" = "list" ]; then
+  printf '%s' '{"sessions":[{"id":"sess-1","workItemName":"alpha","status":"running"}]}'
+  exit 0
+fi
+echo "unexpected args: $*" >&2
+exit 1
+`,
+  );
+  chmodSync(binaryPath, 0o755);
+  return binDir;
 }
 
 describe("active-pr-mergeability-watchdog script", () => {
@@ -184,6 +216,45 @@ describe("active-pr-mergeability-watchdog script", () => {
     expect(result.stdout).toContain("risk=metadata-unavailable");
     expect(result.stdout).toContain("next-action=repair-token");
     expect(result.stdout).toContain("reason=gh auth token is expired");
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("passes the planner session to live work-list discovery", () => {
+    const dir = mkdtempSync(join(tmpdir(), "active-pr-watchdog-script-"));
+    const commandLogPath = join(dir, "you-command.log");
+    const worktreesRoot = join(dir, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+    createWorktree(worktreesRoot, "alpha", "alpha");
+    const fakeYouBinDir = installFakeYouBinary(dir, commandLogPath);
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/active-pr-mergeability-watchdog.ts",
+        "--worktrees-dir",
+        worktreesRoot,
+        "--session",
+        "planner-session-42",
+      ],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          PATH: `${fakeYouBinDir}:${process.env.PATH ?? ""}`,
+        },
+      },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("work-item=alpha");
+
+    const commandLog = readFileSync(commandLogPath, "utf8");
+    expect(commandLog).toContain(
+      "work list --session planner-session-42 --json",
+    );
+    expect(commandLog).toContain("session list --json");
 
     rmSync(dir, { recursive: true, force: true });
   });
