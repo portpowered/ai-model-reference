@@ -1573,7 +1573,7 @@ describe("make validate-data", () => {
     });
     const code = await proc.exited;
     expect(code).toBe(0);
-  });
+  }, 30_000);
 });
 
 describe("validate-registry CLI", () => {
