@@ -74,13 +74,18 @@ describe("active-pr-mergeability-watchdog script", () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("Active PR Mergeability Watchdog");
-    expect(result.stdout).toContain("lanes=2 pr-backed=1 unclassified=1");
+    expect(result.stdout).toContain("lanes=2 pr-backed=1 linked-with-gaps=1");
     expect(result.stdout).toContain("work-item=alpha");
     expect(result.stdout).toContain("pr=#42");
+    expect(result.stdout).toContain("pr-status=resolved");
     expect(result.stdout).toContain("drift=unknown");
     expect(result.stdout).toContain("mergeability=mergeable");
     expect(result.stdout).toContain("checks=passing");
     expect(result.stdout).not.toContain("next-action=");
+    expect(result.stdout).toContain(
+      "- status=linked-with-gaps queue=failed work-item=beta branch=beta",
+    );
+    expect(result.stdout).toContain("pr-status=missing");
     expect(result.stdout).toContain(
       "reason=no open PR metadata found for branch beta",
     );
@@ -156,22 +161,26 @@ describe("active-pr-mergeability-watchdog script", () => {
     );
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("lanes=3 pr-backed=2 unclassified=1");
+    expect(result.stdout).toContain("lanes=3 pr-backed=2 linked-with-gaps=1");
     expect(result.stdout).toContain(
       "- status=pr-backed queue=active work-item=alpha branch=alpha",
     );
+    expect(result.stdout).toContain("pr=#42 pr-status=resolved");
     expect(result.stdout).toContain("mergeability=conflicting");
     expect(result.stdout).toContain("risk=conflict-drift");
     expect(result.stdout).toContain("next-action=refresh-branch");
     expect(result.stdout).toContain(
       "- status=pr-backed queue=active work-item=beta branch=beta",
     );
+    expect(result.stdout).toContain("pr=#43 pr-status=resolved");
     expect(result.stdout).toContain("mergeability=check-blocked");
     expect(result.stdout).toContain("checks=pending");
     expect(result.stdout).toContain("next-action=wait");
     expect(result.stdout).toContain(
-      "- status=unclassified queue=failed work-item=gamma branch=gamma",
+      "- status=linked-with-gaps queue=failed work-item=gamma branch=gamma",
     );
+    expect(result.stdout).toContain("pr-status=missing");
+    expect(result.stdout).toContain("pr-failure=auth");
     expect(result.stdout).toContain("risk=metadata-unavailable");
     expect(result.stdout).toContain("next-action=repair-token");
     expect(result.stdout).toContain("reason=gh auth token is expired");

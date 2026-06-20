@@ -1,13 +1,15 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import {
-  type CommandResult,
-  discoverActivePrLaneReport,
-  formatActivePrLaneReport,
-  type PullRequestLookupFailureKind,
-  type PullRequestLookupResult,
-  type PullRequestRecord,
+import type {
+  CommandResult,
+  PullRequestLookupFailureKind,
+  PullRequestLookupResult,
+  PullRequestRecord,
 } from "@/lib/factory/active-pr-mergeability-watchdog";
+import {
+  discoverQueueWorktreePrLinkageLedger,
+  type QueueWorktreePrLinkageLane,
+} from "@/lib/factory/queue-worktree-pr-linkage-ledger";
 
 const repoRoot = join(import.meta.dir, "..");
 
@@ -155,7 +157,86 @@ const sessionListJsonText = sessionListPath
   ? readRequiredJsonFile(sessionListPath, "session list")
   : readLiveQueueJson(["session", "list"], "session list");
 
-const report = discoverActivePrLaneReport({
+function formatDrift(lane: QueueWorktreePrLinkageLane): string {
+  if (!lane.driftStatus || lane.driftStatus === "unknown") {
+    return lane.driftStatus ?? "unknown";
+  }
+
+  return `${lane.driftStatus}(ahead=${lane.commitsAheadOfMain ?? 0},behind=${lane.commitsBehindMain ?? 0})`;
+}
+
+function formatWatchdogReportFromLedger(
+  lanes: QueueWorktreePrLinkageLane[],
+  issues: string[],
+): string {
+  const prBackedCount = lanes.filter((lane) => lane.pullRequest).length;
+  const linkedWithGapsCount = lanes.filter(
+    (lane) => lane.linkageStatus === "linked-with-gaps",
+  ).length;
+
+  const lines = [
+    "Active PR Mergeability Watchdog",
+    `lanes=${lanes.length} pr-backed=${prBackedCount} linked-with-gaps=${linkedWithGapsCount}`,
+  ];
+
+  if (issues.length > 0) {
+    lines.push("");
+    for (const issue of issues) {
+      lines.push(`issue=${issue}`);
+    }
+  }
+
+  if (lanes.length === 0) {
+    lines.push("");
+    lines.push("No active or failed queue lanes were discovered.");
+    return lines.join("\n");
+  }
+
+  lines.push("");
+  for (const lane of lanes) {
+    const details = [
+      `status=${lane.pullRequest ? "pr-backed" : lane.linkageStatus}`,
+      `queue=${lane.queueState}`,
+      `work-item=${lane.laneName}`,
+      `branch=${lane.branchName ?? "?"}`,
+      `worktree=${lane.worktreePath ?? "?"}`,
+      `pr=${lane.pullRequest ? `#${lane.pullRequest.number}` : "?"}`,
+      `pr-status=${lane.pullRequestLookup.status}`,
+      `drift=${formatDrift(lane)}`,
+    ];
+
+    if (lane.sessionId) {
+      details.push(`session=${lane.sessionId}`);
+    }
+    if (lane.sessionState) {
+      details.push(`session-state=${lane.sessionState}`);
+    }
+    if (lane.mergeabilityClass) {
+      details.push(`mergeability=${lane.mergeabilityClass}`);
+    }
+    if (lane.checkHealth) {
+      details.push(`checks=${lane.checkHealth}`);
+    }
+    if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
+      details.push(`risk=${lane.queueMismatchRisk}`);
+    }
+    if (lane.nextAction) {
+      details.push(`next-action=${lane.nextAction}`);
+    }
+    if (lane.pullRequestLookup.failureKind) {
+      details.push(`pr-failure=${lane.pullRequestLookup.failureKind}`);
+    }
+    if (lane.missingLinkageReasons.length > 0) {
+      details.push(`reason=${lane.missingLinkageReasons.join("; ")}`);
+    }
+
+    lines.push(`- ${details.join(" ")}`);
+  }
+
+  return lines.join("\n");
+}
+
+const ledger = discoverQueueWorktreePrLinkageLedger({
   repoRoot,
   workListJsonText,
   sessionListJsonText,
@@ -163,4 +244,4 @@ const report = discoverActivePrLaneReport({
   lookupPullRequest: pullRequestMap ? lookupPullRequestFromFixture : undefined,
 });
 
-console.log(formatActivePrLaneReport(report));
+console.log(formatWatchdogReportFromLedger(ledger.lanes, ledger.issues));
