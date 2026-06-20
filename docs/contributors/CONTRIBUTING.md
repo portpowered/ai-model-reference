@@ -390,9 +390,10 @@ immediately if that generation step leaves tracked derived-artifact drift, and
 finishes with the lightweight content checks `validate-data` and `linkcheck`.
 It reports scoped tracked-path drift and tells you to review, commit, stash, or
 discard those changes before rerunning; it does not attempt unrelated cleanup
-for the rest of the repository. The same preparation command also regenerates
-`src/lib/content/generated/published-docs-registry.generated.ts`, but that
-manifest stays gitignored and is therefore outside the tracked clean-tree proof.
+for the rest of the repository. Published docs membership and href lookup now
+derive directly from the source pages at runtime, so the ignored
+`src/lib/content/generated/published-docs-registry.generated.ts` compatibility
+artifact is outside the canonical preparation and clean-tree proof.
 
 ### Discovery and navigation test strategy
 
@@ -476,8 +477,8 @@ You do not need to run `fumadocs-mdx` manually. Supported command paths invoke
 
 When you need to recreate generated content runtime artifacts locally, use
 `bun run prepare:content-runtime`. It is the canonical entrypoint for shipped
-localized docs, published docs registry data, graph runtime data, the generated
-main registry runtime, and table registry runtime data.
+localized docs, graph runtime data, the generated main registry runtime, and
+table registry runtime data.
 
 For the main registry runtime specifically, author changes in
 `src/content/registry/` and do not manually edit or commit
@@ -486,8 +487,8 @@ For the main registry runtime specifically, author changes in
 For the published docs registry manifest specifically, author changes in the
 published docs pages, colocated messages/assets, and registry JSON inputs rather
 than editing the generated manifest. `src/lib/content/generated/published-docs-registry.generated.ts`
-is scanner-derived, recreated by `prepare:content-runtime`, and intentionally
-kept out of routine commits.
+is scanner-derived, can be regenerated with `bun run generate:published-docs-registry`
+when a compatibility export is needed, and stays out of routine commits.
 
 For most docs-only pull requests, the **fast content loop** (`make validate-data`
 and `make linkcheck`) catches registry and linking regressions early. Run
