@@ -12,6 +12,7 @@ import {
 import {
   discoverQueueWorktreePrLinkageLedger,
   type QueueWorktreePrLinkageLane,
+  sortPlannerWatchdogLanes,
 } from "@/lib/factory/queue-worktree-pr-linkage-ledger";
 
 const repoRoot = join(import.meta.dir, "..");
@@ -141,10 +142,168 @@ function formatDrift(lane: QueueWorktreePrLinkageLane): string {
   return `${lane.driftStatus}(ahead=${lane.commitsAheadOfMain ?? 0},behind=${lane.commitsBehindMain ?? 0})`;
 }
 
+function formatPlannerActionLabel(lane: QueueWorktreePrLinkageLane): string {
+  if (lane.nextAction === "refresh-branch") {
+    return "refresh-branch";
+  }
+  if (lane.nextAction === "wait") {
+    return lane.checkHealth === "pending" ? "wait-on-checks" : "wait";
+  }
+  if (lane.nextAction === "repair-token") {
+    return "repair-metadata";
+  }
+  if (lane.nextAction === "open-follow-up-throughput-prd") {
+    return "open-follow-up";
+  }
+  return lane.nextAction ?? "review";
+}
+
+function buildPlannerActionQueue(
+  lanes: QueueWorktreePrLinkageLane[],
+): string[] {
+  return lanes
+    .filter(
+      (lane) =>
+        Boolean(lane.nextAction) &&
+        (Boolean(lane.pullRequest) || lane.nextAction === "repair-token"),
+    )
+    .map((lane, index) => {
+      const details = [
+        `action=${formatPlannerActionLabel(lane)}`,
+        `work-item=${lane.laneName}`,
+        `pr=${lane.pullRequest ? `#${lane.pullRequest.number}` : "?"}`,
+      ];
+
+      if (lane.branchName) {
+        details.push(`branch=${lane.branchName}`);
+      }
+      if (lane.checkHealth === "pending") {
+        details.push("checks=pending");
+      }
+      if (lane.nextAction === "repair-token") {
+        details.push(`pr-status=${lane.pullRequestLookup.status}`);
+      }
+
+      return `${index + 1}. ${details.join(" ")}`;
+    });
+}
+
+function isQueueOnlyMissingLinkageLane(
+  lane: QueueWorktreePrLinkageLane,
+): boolean {
+  return (
+    !lane.pullRequest &&
+    !lane.worktreePath &&
+    lane.missingLinkageReasons.some((reason) =>
+      reason.includes("no matching worktree under .claude/worktrees"),
+    )
+  );
+}
+
+function isStaleFailedLoopbackLane(lane: QueueWorktreePrLinkageLane): boolean {
+  return (
+    lane.queueState === "failed" &&
+    !lane.pullRequest &&
+    lane.workTypeName === "thoughts" &&
+    lane.hasDependsOnRelation === true &&
+    lane.nextAction !== "repair-token" &&
+    !isQueueOnlyMissingLinkageLane(lane)
+  );
+}
+
+function formatNoiseWorkItems(lanes: QueueWorktreePrLinkageLane[]): string {
+  const workItems = lanes.map((lane) => lane.laneName);
+  if (workItems.length <= 3) {
+    return workItems.join(",");
+  }
+  return `${workItems.slice(0, 3).join(",")},+${workItems.length - 3} more`;
+}
+
+function formatNoiseEvidence(lanes: QueueWorktreePrLinkageLane[]): string {
+  const reasonCounts = new Map<string, number>();
+  for (const lane of lanes) {
+    for (const reason of new Set(lane.missingLinkageReasons)) {
+      reasonCounts.set(reason, (reasonCounts.get(reason) ?? 0) + 1);
+    }
+  }
+
+  return [...reasonCounts.entries()]
+    .sort((left, right) => {
+      if (right[1] !== left[1]) {
+        return right[1] - left[1];
+      }
+      return left[0].localeCompare(right[0]);
+    })
+    .slice(0, 2)
+    .map(([reason, count]) => `${count}x:${reason}`)
+    .join(" | ");
+}
+
+function formatNoiseSummaryRow(
+  noiseClass: string,
+  lanes: QueueWorktreePrLinkageLane[],
+): string {
+  const details = [
+    `noise=${noiseClass}`,
+    `count=${lanes.length}`,
+    `work-items=${formatNoiseWorkItems(lanes)}`,
+  ];
+  const evidence = formatNoiseEvidence(lanes);
+  if (evidence) {
+    details.push(`evidence=${evidence}`);
+  }
+  return `- ${details.join(" ")}`;
+}
+
+function formatLaneRow(lane: QueueWorktreePrLinkageLane): string {
+  const details = [
+    `status=${lane.pullRequest ? "pr-backed" : lane.linkageStatus}`,
+    `queue=${lane.queueState}`,
+    `work-item=${lane.laneName}`,
+    `work-item-source=${lane.workItemNameSource ?? "queue"}`,
+    `branch=${lane.branchName ?? "?"}`,
+    `branch-source=${lane.branchMetadataSource ?? "?"}`,
+    `metadata=${lane.metadataStatus ?? "?"}`,
+    `worktree=${lane.worktreePath ?? "?"}`,
+    `pr=${lane.pullRequest ? `#${lane.pullRequest.number}` : "?"}`,
+    `pr-status=${lane.pullRequestLookup.status}`,
+    `drift=${formatDrift(lane)}`,
+  ];
+
+  if (lane.sessionId) {
+    details.push(`session=${lane.sessionId}`);
+    details.push(`session-source=${lane.sessionIdSource ?? "?"}`);
+  }
+  if (lane.sessionState) {
+    details.push(`session-state=${lane.sessionState}`);
+  }
+  if (lane.mergeabilityClass) {
+    details.push(`mergeability=${lane.mergeabilityClass}`);
+  }
+  if (lane.checkHealth) {
+    details.push(`checks=${lane.checkHealth}`);
+  }
+  if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
+    details.push(`risk=${lane.queueMismatchRisk}`);
+  }
+  if (lane.nextAction) {
+    details.push(`next-action=${lane.nextAction}`);
+  }
+  if (lane.pullRequestLookup.failureKind) {
+    details.push(`pr-failure=${lane.pullRequestLookup.failureKind}`);
+  }
+  if (lane.missingLinkageReasons.length > 0) {
+    details.push(`reason=${lane.missingLinkageReasons.join("; ")}`);
+  }
+
+  return `- ${details.join(" ")}`;
+}
+
 function formatWatchdogReportFromLedger(
   lanes: QueueWorktreePrLinkageLane[],
   issues: string[],
 ): string {
+  const orderedLanes = sortPlannerWatchdogLanes(lanes);
   const prBackedCount = lanes.filter((lane) => lane.pullRequest).length;
   const linkedWithGapsCount = lanes.filter(
     (lane) => lane.linkageStatus === "linked-with-gaps",
@@ -168,49 +327,54 @@ function formatWatchdogReportFromLedger(
     return lines.join("\n");
   }
 
-  lines.push("");
-  for (const lane of lanes) {
-    const details = [
-      `status=${lane.pullRequest ? "pr-backed" : lane.linkageStatus}`,
-      `queue=${lane.queueState}`,
-      `work-item=${lane.laneName}`,
-      `work-item-source=${lane.workItemNameSource ?? "queue"}`,
-      `branch=${lane.branchName ?? "?"}`,
-      `branch-source=${lane.branchMetadataSource ?? "?"}`,
-      `metadata=${lane.metadataStatus ?? "?"}`,
-      `worktree=${lane.worktreePath ?? "?"}`,
-      `pr=${lane.pullRequest ? `#${lane.pullRequest.number}` : "?"}`,
-      `pr-status=${lane.pullRequestLookup.status}`,
-      `drift=${formatDrift(lane)}`,
-    ];
+  const actionQueue = buildPlannerActionQueue(orderedLanes);
+  if (actionQueue.length > 0) {
+    lines.push("");
+    lines.push("Action Queue");
+    lines.push(...actionQueue);
+  }
 
-    if (lane.sessionId) {
-      details.push(`session=${lane.sessionId}`);
-      details.push(`session-source=${lane.sessionIdSource ?? "?"}`);
-    }
-    if (lane.sessionState) {
-      details.push(`session-state=${lane.sessionState}`);
-    }
-    if (lane.mergeabilityClass) {
-      details.push(`mergeability=${lane.mergeabilityClass}`);
-    }
-    if (lane.checkHealth) {
-      details.push(`checks=${lane.checkHealth}`);
-    }
-    if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
-      details.push(`risk=${lane.queueMismatchRisk}`);
-    }
-    if (lane.nextAction) {
-      details.push(`next-action=${lane.nextAction}`);
-    }
-    if (lane.pullRequestLookup.failureKind) {
-      details.push(`pr-failure=${lane.pullRequestLookup.failureKind}`);
-    }
-    if (lane.missingLinkageReasons.length > 0) {
-      details.push(`reason=${lane.missingLinkageReasons.join("; ")}`);
-    }
+  const queueOnlyMissingLinkageLanes = orderedLanes.filter(
+    isQueueOnlyMissingLinkageLane,
+  );
+  const staleFailedLoopbackLanes = orderedLanes.filter(
+    isStaleFailedLoopbackLane,
+  );
+  const detailedLanes = orderedLanes.filter(
+    (lane) =>
+      !queueOnlyMissingLinkageLanes.includes(lane) &&
+      !staleFailedLoopbackLanes.includes(lane),
+  );
 
-    lines.push(`- ${details.join(" ")}`);
+  if (detailedLanes.length > 0) {
+    lines.push("");
+    for (const lane of detailedLanes) {
+      lines.push(formatLaneRow(lane));
+    }
+  }
+
+  if (
+    staleFailedLoopbackLanes.length > 0 ||
+    queueOnlyMissingLinkageLanes.length > 0
+  ) {
+    lines.push("");
+    lines.push("Noise Summary");
+    if (staleFailedLoopbackLanes.length > 0) {
+      lines.push(
+        formatNoiseSummaryRow(
+          "stale-failed-loopbacks",
+          staleFailedLoopbackLanes,
+        ),
+      );
+    }
+    if (queueOnlyMissingLinkageLanes.length > 0) {
+      lines.push(
+        formatNoiseSummaryRow(
+          "queue-only-missing-linkage",
+          queueOnlyMissingLinkageLanes,
+        ),
+      );
+    }
   }
 
   return lines.join("\n");

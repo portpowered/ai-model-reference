@@ -3,6 +3,7 @@ import {
   buildQueueWorktreePrLinkageLedger,
   discoverQueueWorktreePrLinkageLedger,
   formatQueueWorktreePrLinkageSummary,
+  sortPlannerWatchdogLanes,
 } from "@/lib/factory/queue-worktree-pr-linkage-ledger";
 
 describe("queue-worktree-pr-linkage-ledger", () => {
@@ -136,5 +137,71 @@ describe("queue-worktree-pr-linkage-ledger", () => {
     expect(formatQueueWorktreePrLinkageSummary(ledger)).toContain(
       "missing=git branch alpha-git disagrees with prd branch alpha-prd; no open PR metadata found for branch alpha-git",
     );
+  });
+
+  test("sorts actionable PR-backed lanes ahead of waiting cases and linkage noise", () => {
+    const ordered = sortPlannerWatchdogLanes([
+      {
+        laneName: "metadata-repair",
+        queueState: "failed",
+        rawQueueState: "failed",
+        linkageStatus: "linked-with-gaps",
+        pullRequest: null,
+        pullRequestLookup: {
+          status: "missing",
+          failureKind: "auth",
+          failureReason: "gh auth token is expired",
+        },
+        missingLinkageReasons: ["gh auth token is expired"],
+        queueMismatchRisk: "metadata-unavailable",
+        nextAction: "repair-token",
+      },
+      {
+        laneName: "wait-lane",
+        queueState: "active",
+        rawQueueState: "in-review",
+        linkageStatus: "linked",
+        pullRequest: { number: 43 },
+        pullRequestLookup: { status: "resolved" },
+        missingLinkageReasons: [],
+        checkHealth: "pending",
+        mergeabilityClass: "check-blocked",
+        queueMismatchRisk: "checks-blocked",
+        nextAction: "wait",
+      },
+      {
+        laneName: "conflict-lane",
+        queueState: "active",
+        rawQueueState: "in-review",
+        linkageStatus: "linked",
+        pullRequest: { number: 42 },
+        pullRequestLookup: { status: "resolved" },
+        missingLinkageReasons: [],
+        checkHealth: "passing",
+        mergeabilityClass: "conflicting",
+        queueMismatchRisk: "conflict-drift",
+        nextAction: "refresh-branch",
+      },
+      {
+        laneName: "failing-checks",
+        queueState: "active",
+        rawQueueState: "in-review",
+        linkageStatus: "linked",
+        pullRequest: { number: 44 },
+        pullRequestLookup: { status: "resolved" },
+        missingLinkageReasons: [],
+        checkHealth: "failing",
+        mergeabilityClass: "check-blocked",
+        queueMismatchRisk: "checks-blocked",
+        nextAction: "open-follow-up-throughput-prd",
+      },
+    ]);
+
+    expect(ordered.map((lane) => lane.laneName)).toEqual([
+      "conflict-lane",
+      "failing-checks",
+      "wait-lane",
+      "metadata-repair",
+    ]);
   });
 });
