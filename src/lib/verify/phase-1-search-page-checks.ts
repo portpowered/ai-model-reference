@@ -48,6 +48,7 @@ export const VERIFY_SEARCH_PAGE_STUB_ENV = "VERIFY_SEARCH_PAGE_STUB";
 export type RunPhase1SearchPageChecksOptions = {
   timeoutMs?: number;
   queries?: readonly string[];
+  browser?: Browser;
   launchBrowser?: () => Promise<Browser>;
   logger?: (message: string) => void;
   /**
@@ -341,9 +342,7 @@ export async function runPhase1SearchPageChecks(
       log(`[phase-1-search-page] running stubbed query "${query}"`);
       const reason = await options.runQueryCheck(baseUrl, query, timeoutMs);
       if (reason) {
-        log(
-          `[phase-1-search-page] query "${query}" failed: ${reason}`,
-        );
+        log(`[phase-1-search-page] query "${query}" failed: ${reason}`);
         failures.push({ query, surface: "/search", reason });
         continue;
       }
@@ -352,18 +351,26 @@ export async function runPhase1SearchPageChecks(
     return failures;
   }
 
-  const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
-  log(
-    `[phase-1-search-page] launching browser for ${queries.length} quer${queries.length === 1 ? "y" : "ies"} at ${baseUrl}`,
-  );
-  const browser = await launchBrowser();
-  log("[phase-1-search-page] browser launched");
+  const browser = options.browser;
+  const ownsBrowser = browser === undefined;
+  if (ownsBrowser) {
+    log(
+      `[phase-1-search-page] launching browser for ${queries.length} quer${queries.length === 1 ? "y" : "ies"} at ${baseUrl}`,
+    );
+  } else {
+    log("[phase-1-search-page] using shared browser");
+  }
+  const activeBrowser =
+    browser ?? (await (options.launchBrowser ?? defaultLaunchBrowser)());
+  if (ownsBrowser) {
+    log("[phase-1-search-page] browser launched");
+  }
 
   try {
     const queryFailures = await Promise.all(
       queries.map(async (query) => {
         log(`[phase-1-search-page] starting query "${query}"`);
-        const context = await browser.newContext();
+        const context = await activeBrowser.newContext();
         try {
           const page = await context.newPage();
           page.setDefaultTimeout(timeoutMs);
@@ -394,9 +401,11 @@ export async function runPhase1SearchPageChecks(
       }
     }
   } finally {
-    log("[phase-1-search-page] closing browser");
-    await closePlaywrightBrowserWithTimeout(browser, timeoutMs);
-    log("[phase-1-search-page] browser closed");
+    if (ownsBrowser) {
+      log("[phase-1-search-page] closing browser");
+      await closePlaywrightBrowserWithTimeout(activeBrowser, timeoutMs);
+      log("[phase-1-search-page] browser closed");
+    }
   }
 
   return failures;

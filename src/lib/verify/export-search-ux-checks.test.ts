@@ -4,15 +4,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { EXPORT_SEARCH_HYDRATION_SURFACE } from "./phase-1-export-search-convergence-evidence";
 import {
-  CI_SCRIPT_TIMEOUT_MS_ENV,
   CI_EXPORT_SEARCH_UX_PROBE_QUERIES,
+  CI_SCRIPT_TIMEOUT_MS_ENV,
   DEFAULT_CI_SCRIPT_TIMEOUT_MS,
   DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS,
   EXPORT_SEARCH_UX_STUB_ENV,
   formatPhase1ExportSearchHydrationUxReason,
   formatPhase1ExportSearchUxCheckFailure,
-  resolveCiScriptTimeoutMs,
   resolveCiExportSearchUxProbeQueries,
+  resolveCiScriptTimeoutMs,
   resolveExportSearchUxCheckOptionsFromEnv,
   runPhase1ExportSearchUxChecks,
 } from "./phase-1-export-search-ux-checks";

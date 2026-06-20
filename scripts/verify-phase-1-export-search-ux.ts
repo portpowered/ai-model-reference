@@ -1,8 +1,9 @@
 import {
   CI_SCRIPT_TIMEOUT_MS_ENV,
   DEFAULT_EXPORT_OUT_DIR,
-  resolveCiScriptTimeoutMs,
   formatPhase1ExportSearchUxCheckFailure,
+  type Phase1ExportSearchUxCheckFailure,
+  resolveCiScriptTimeoutMs,
   resolveExportSearchUxCheckOptionsFromEnv,
   runPhase1ExportSearchUxChecks,
 } from "../src/lib/verify/phase-1-export-search-ux-checks";
@@ -56,7 +57,7 @@ if (shouldLog && scriptTimeoutMs !== null) {
   );
 }
 
-let failures;
+let failures: Phase1ExportSearchUxCheckFailure[];
 try {
   failures = await runWithOptionalTimeout(
     runPhase1ExportSearchUxChecks({

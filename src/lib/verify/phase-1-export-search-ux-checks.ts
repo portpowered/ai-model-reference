@@ -1,11 +1,16 @@
 import { existsSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
+import type { Browser } from "playwright";
 import { resolveBasePathForExportVerification } from "@/lib/build/static-export";
 import { verifyPhase1ExportSearchFromOutDir } from "@/lib/build/verify-phase-1-export-search";
 import {
   shouldSerializeExportIntegrationProbes,
   withExportIntegrationProbeLock,
 } from "./export-integration-probe-lock";
+import {
+  closePlaywrightBrowserWithTimeout,
+  launchPlaywrightBrowser,
+} from "./launch-playwright-browser";
 import { EXPORT_SEARCH_HYDRATION_SURFACE } from "./phase-1-export-search-convergence-evidence";
 import {
   type RunPhase1SearchDialogChecksOptions,
@@ -162,6 +167,15 @@ function isRetryableExportSearchUxFailure(
   return reason.includes("search input did not hydrate on /search within");
 }
 
+function usesPlaywrightBrowser(
+  options:
+    | RunPhase1SearchPageChecksOptions
+    | RunPhase1SearchDialogChecksOptions
+    | undefined,
+): boolean {
+  return options?.runQueryCheck === undefined;
+}
+
 /**
  * Verifies Phase 1 `/search` and header dialog queries against a served static export artifact.
  */
@@ -228,41 +242,68 @@ export async function runPhase1ExportSearchUxChecks(
       const searchDialogOptions = withDefaultExportSearchUxTimeout(
         withCiScopedSearchUxQueryOptions(options.searchDialogOptions),
       );
+      const sharedBrowserTimeoutMs = Math.max(
+        searchPageOptions.timeoutMs ?? DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS,
+        searchDialogOptions.timeoutMs ?? DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS,
+      );
+      const needsSharedBrowser =
+        usesPlaywrightBrowser(searchPageOptions) ||
+        usesPlaywrightBrowser(searchDialogOptions);
+      let sharedBrowser: Browser | undefined;
 
-      const searchPageFailures = await runPhase1SearchPageChecks(
-        session.baseUrl,
-        {
-          ...searchPageOptions,
-          logger: options.searchPageOptions?.logger ?? log,
-        },
-      );
-      log(
-        `[phase-1-export-search-ux] /search checks completed with ${searchPageFailures.length} failure(s)`,
-      );
-      for (const failure of searchPageFailures) {
-        failures.push({
-          surface: "/search",
-          query: failure.query,
-          reason: formatPhase1ExportSearchHydrationUxReason(failure.reason),
-        });
+      if (needsSharedBrowser) {
+        log("[phase-1-export-search-ux] launching shared browser");
+        sharedBrowser = await launchPlaywrightBrowser();
+        log("[phase-1-export-search-ux] shared browser launched");
       }
 
-      const searchDialogFailures = await runPhase1SearchDialogChecks(
-        session.baseUrl,
-        {
-          ...searchDialogOptions,
-          logger: options.searchDialogOptions?.logger ?? log,
-        },
-      );
-      log(
-        `[phase-1-export-search-ux] header dialog checks completed with ${searchDialogFailures.length} failure(s)`,
-      );
-      for (const failure of searchDialogFailures) {
-        failures.push({
-          surface: "header-dialog",
-          query: failure.query,
-          reason: failure.reason,
-        });
+      try {
+        const searchPageFailures = await runPhase1SearchPageChecks(
+          session.baseUrl,
+          {
+            ...searchPageOptions,
+            browser: sharedBrowser,
+            logger: options.searchPageOptions?.logger ?? log,
+          },
+        );
+        log(
+          `[phase-1-export-search-ux] /search checks completed with ${searchPageFailures.length} failure(s)`,
+        );
+        for (const failure of searchPageFailures) {
+          failures.push({
+            surface: "/search",
+            query: failure.query,
+            reason: formatPhase1ExportSearchHydrationUxReason(failure.reason),
+          });
+        }
+
+        const searchDialogFailures = await runPhase1SearchDialogChecks(
+          session.baseUrl,
+          {
+            ...searchDialogOptions,
+            browser: sharedBrowser,
+            logger: options.searchDialogOptions?.logger ?? log,
+          },
+        );
+        log(
+          `[phase-1-export-search-ux] header dialog checks completed with ${searchDialogFailures.length} failure(s)`,
+        );
+        for (const failure of searchDialogFailures) {
+          failures.push({
+            surface: "header-dialog",
+            query: failure.query,
+            reason: failure.reason,
+          });
+        }
+      } finally {
+        if (sharedBrowser) {
+          log("[phase-1-export-search-ux] closing shared browser");
+          await closePlaywrightBrowserWithTimeout(
+            sharedBrowser,
+            sharedBrowserTimeoutMs,
+          );
+          log("[phase-1-export-search-ux] shared browser closed");
+        }
       }
 
       return failures;

@@ -32,6 +32,7 @@ export const VERIFY_SEARCH_DIALOG_STUB_ENV = "VERIFY_SEARCH_DIALOG_STUB";
 export type RunPhase1SearchDialogChecksOptions = {
   timeoutMs?: number;
   queries?: readonly string[];
+  browser?: Browser;
   launchBrowser?: () => Promise<Browser>;
   logger?: (message: string) => void;
   /**
@@ -279,9 +280,7 @@ export async function runPhase1SearchDialogChecks(
       log(`[phase-1-search-dialog] running stubbed query "${query}"`);
       const reason = await options.runQueryCheck(baseUrl, query, timeoutMs);
       if (reason) {
-        log(
-          `[phase-1-search-dialog] query "${query}" failed: ${reason}`,
-        );
+        log(`[phase-1-search-dialog] query "${query}" failed: ${reason}`);
         failures.push({ query, surface: "header-dialog", reason });
         continue;
       }
@@ -290,15 +289,23 @@ export async function runPhase1SearchDialogChecks(
     return failures;
   }
 
-  const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
-  log(
-    `[phase-1-search-dialog] launching browser for ${queries.length} quer${queries.length === 1 ? "y" : "ies"} at ${baseUrl}`,
-  );
-  const browser = await launchBrowser();
-  log("[phase-1-search-dialog] browser launched");
+  const browser = options.browser;
+  const ownsBrowser = browser === undefined;
+  if (ownsBrowser) {
+    log(
+      `[phase-1-search-dialog] launching browser for ${queries.length} quer${queries.length === 1 ? "y" : "ies"} at ${baseUrl}`,
+    );
+  } else {
+    log("[phase-1-search-dialog] using shared browser");
+  }
+  const activeBrowser =
+    browser ?? (await (options.launchBrowser ?? defaultLaunchBrowser)());
+  if (ownsBrowser) {
+    log("[phase-1-search-dialog] browser launched");
+  }
 
   try {
-    const page = await browser.newPage();
+    const page = await activeBrowser.newPage();
     page.setDefaultTimeout(timeoutMs);
 
     log("[phase-1-search-dialog] opening header search dialog");
@@ -322,9 +329,11 @@ export async function runPhase1SearchDialogChecks(
       log(`[phase-1-search-dialog] query "${query}" passed`);
     }
   } finally {
-    log("[phase-1-search-dialog] closing browser");
-    await closePlaywrightBrowserWithTimeout(browser, timeoutMs);
-    log("[phase-1-search-dialog] browser closed");
+    if (ownsBrowser) {
+      log("[phase-1-search-dialog] closing browser");
+      await closePlaywrightBrowserWithTimeout(activeBrowser, timeoutMs);
+      log("[phase-1-search-dialog] browser closed");
+    }
   }
 
   return failures;
