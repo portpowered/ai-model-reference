@@ -1,11 +1,18 @@
+import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import {
   ConflictHotspotCollectionError,
   type ConflictHotspotSnapshot,
   type ConflictHotspotSurfaceCategory,
+  classifyConflictHotspotSurfaceCategory,
   collectConflictHotspotSnapshot,
   formatConflictHotspotSurfaceCategory,
 } from "./conflict-hotspot-report";
+import {
+  discoverQueueWorktreePrLinkageLedger,
+  type QueueWorktreePrLinkageLane,
+  type QueueWorktreePrLinkageLedger,
+} from "./queue-worktree-pr-linkage-ledger";
 
 export const PLANNER_BATCH_COLLISION_PREFLIGHT_HEADER =
   "Planner Batch Collision Preflight";
@@ -35,12 +42,36 @@ export interface PlannerBatchCollisionHotspotPathOverlap {
 
 export interface PlannerBatchCollisionCandidateReport
   extends PlannerBatchCollisionCandidateInput {
+  activeLaneEvidenceSummary: string[];
+  activeLaneOverlaps: PlannerBatchCollisionOwnedLaneOverlap[];
+  activeOwnershipGaps: string[];
+  collisionRisk: PlannerBatchCollisionRisk;
   hotspotEvidenceSummary: string[];
   hotspotPathOverlaps: PlannerBatchCollisionHotspotPathOverlap[];
   hotspotSurfaceOverlaps: PlannerBatchCollisionHotspotSurfaceOverlap[];
 }
 
+export type PlannerBatchCollisionRisk = "low" | "medium" | "high";
+
+export interface PlannerBatchCollisionOwnedLaneOverlap {
+  branchName?: string;
+  category: ConflictHotspotSurfaceCategory;
+  categoryLabel: string;
+  laneName: string;
+  linkageStatus: QueueWorktreePrLinkageLane["linkageStatus"];
+  matchedHints: string[];
+  ownedPathCount: number;
+  ownedPaths: string[];
+  ownedSurface: string;
+  worktreePath?: string;
+}
+
 export interface PlannerBatchCollisionPreflightSnapshot {
+  activeLaneEvidence: {
+    activeLaneCount: number;
+    generatedAtUtc: string;
+    linkedWithGapsLaneCount: number;
+  };
   generatedAtUtc: string;
   candidates: PlannerBatchCollisionCandidateReport[];
   hotspotEvidence: {
@@ -52,9 +83,15 @@ export interface PlannerBatchCollisionPreflightSnapshot {
 }
 
 export interface CollectPlannerBatchCollisionPreflightOptions {
+  baseBranchName?: string;
   generatedAtUtc?: string;
   hotspotSnapshot?: ConflictHotspotSnapshot;
+  linkageLedger?: QueueWorktreePrLinkageLedger;
+  plannerSession?: string;
   repoRoot?: string;
+  sessionListJsonText?: string;
+  workListJsonText?: string;
+  worktreesDir?: string;
 }
 
 export class PlannerBatchCollisionPreflightInputError extends Error {
@@ -86,6 +123,13 @@ function normalizeSurfaceHint(value: string): string {
     .replace(/\\/g, "/")
     .replace(/^\.\/+/, "")
     .replace(/^\/+/, "")
+    .replace(/\/+/g, "/");
+}
+
+function normalizeRepoPath(value: string): string {
+  return value
+    .replace(/\\/g, "/")
+    .replace(/^\.\/+/, "")
     .replace(/\/+/g, "/");
 }
 
@@ -146,6 +190,63 @@ function pathMatchesHint(target: string, hint: string): boolean {
   );
 }
 
+function deriveOwnedSurfaceLabel(path: string): string {
+  const normalizedPath = normalizeRepoPath(path);
+  const segments = normalizedPath.split("/").filter(Boolean);
+
+  if (segments.length <= 1) {
+    return normalizedPath;
+  }
+
+  if (segments[0] === "src" || segments[0] === "factory") {
+    return segments.slice(0, Math.min(3, segments.length)).join("/");
+  }
+
+  if (segments[0] === "docs") {
+    return segments.length >= 3 ? segments.slice(0, 2).join("/") : "docs";
+  }
+
+  return segments.slice(0, Math.min(2, segments.length)).join("/");
+}
+
+function runYouJsonCommand(
+  repoRoot: string,
+  args: string[],
+): { ok: boolean; stdout: string } {
+  const proc = spawnSync("you", args, {
+    cwd: repoRoot,
+    encoding: "utf8",
+    env: process.env,
+  });
+
+  return {
+    ok: proc.status === 0 && proc.stdout.trim().length > 0,
+    stdout: proc.stdout,
+  };
+}
+
+function readLiveQueueJson(
+  repoRoot: string,
+  args: string[],
+  label: string,
+): string {
+  const attempts = [
+    [...args, "--json"],
+    [...args, "--format", "json"],
+  ];
+
+  for (const attempt of attempts) {
+    const result = runYouJsonCommand(repoRoot, attempt);
+    if (result.ok) {
+      return result.stdout;
+    }
+  }
+
+  throw new PlannerBatchCollisionPreflightCollectionError(
+    `Unable to read ${label} for the planner batch collision preflight from \`you ${args.join(" ")}\` with JSON output.`,
+  );
+}
+
 function collectHotspotSnapshot(
   options: CollectPlannerBatchCollisionPreflightOptions,
 ): ConflictHotspotSnapshot {
@@ -170,6 +271,168 @@ function collectHotspotSnapshot(
 
     throw error;
   }
+}
+
+function collectLinkageLedger(
+  options: CollectPlannerBatchCollisionPreflightOptions,
+  repoRoot: string | undefined,
+): QueueWorktreePrLinkageLedger | null {
+  if (options.linkageLedger) {
+    return options.linkageLedger;
+  }
+
+  if (!repoRoot) {
+    return null;
+  }
+
+  const plannerSession = options.plannerSession ?? "~default";
+
+  return discoverQueueWorktreePrLinkageLedger({
+    repoRoot,
+    sessionListJsonText:
+      options.sessionListJsonText ??
+      readLiveQueueJson(repoRoot, ["session", "list"], "session list"),
+    workListJsonText:
+      options.workListJsonText ??
+      readLiveQueueJson(
+        repoRoot,
+        ["work", "list", "--session", plannerSession],
+        "work list",
+      ),
+    worktreesDir:
+      options.worktreesDir ?? resolve(repoRoot, ".claude", "worktrees"),
+  });
+}
+
+function collectOwnedPathsFromWorktree(
+  worktreePath: string,
+  baseBranchName: string,
+): string[] {
+  const mergeBase = spawnSync("git", ["merge-base", baseBranchName, "HEAD"], {
+    cwd: worktreePath,
+    encoding: "utf8",
+    env: process.env,
+  });
+
+  if (mergeBase.status !== 0 || !mergeBase.stdout.trim()) {
+    throw new PlannerBatchCollisionPreflightCollectionError(
+      `Unable to compute a merge-base against ${baseBranchName} for active lane worktree ${worktreePath}.`,
+    );
+  }
+
+  const diff = spawnSync(
+    "git",
+    ["diff", "--name-only", mergeBase.stdout.trim(), "HEAD"],
+    {
+      cwd: worktreePath,
+      encoding: "utf8",
+      env: process.env,
+    },
+  );
+
+  if (diff.status !== 0) {
+    throw new PlannerBatchCollisionPreflightCollectionError(
+      `Unable to read owned paths from active lane worktree ${worktreePath}.`,
+    );
+  }
+
+  return [...new Set(diff.stdout.split("\n").map(normalizeRepoPath))].filter(
+    Boolean,
+  );
+}
+
+function collectActiveLaneOwnership(
+  linkageLedger: QueueWorktreePrLinkageLedger | null,
+  repoRoot: string | undefined,
+  baseBranchName: string,
+): {
+  activeLaneCount: number;
+  generatedAtUtc: string;
+  gaps: string[];
+  lanes: Array<{
+    branchName?: string;
+    laneName: string;
+    linkageStatus: QueueWorktreePrLinkageLane["linkageStatus"];
+    ownedPaths: string[];
+    worktreePath?: string;
+  }>;
+  linkedWithGapsLaneCount: number;
+} {
+  if (!linkageLedger) {
+    return {
+      activeLaneCount: 0,
+      generatedAtUtc: new Date().toISOString(),
+      gaps: [
+        "Active-lane ownership was not collected because queue/worktree linkage data was unavailable.",
+      ],
+      lanes: [],
+      linkedWithGapsLaneCount: 0,
+    };
+  }
+
+  const activeLanes = linkageLedger.lanes.filter(
+    (lane) => lane.queueState === "active",
+  );
+  const gaps = [...linkageLedger.issues];
+  const lanes: Array<{
+    branchName?: string;
+    laneName: string;
+    linkageStatus: QueueWorktreePrLinkageLane["linkageStatus"];
+    ownedPaths: string[];
+    worktreePath?: string;
+  }> = [];
+
+  for (const lane of activeLanes) {
+    if (lane.missingLinkageReasons.length > 0) {
+      gaps.push(
+        `Lane ${lane.laneName} has linkage gaps: ${lane.missingLinkageReasons.join("; ")}`,
+      );
+    }
+
+    if (!repoRoot) {
+      gaps.push(
+        `Lane ${lane.laneName} ownership could not be collected because repoRoot was unavailable.`,
+      );
+      continue;
+    }
+
+    if (!lane.worktreePath) {
+      gaps.push(
+        `Lane ${lane.laneName} ownership could not be collected because no worktree path was linked.`,
+      );
+      continue;
+    }
+
+    const resolvedWorktreePath = resolve(repoRoot, lane.worktreePath);
+
+    try {
+      lanes.push({
+        branchName: lane.branchName,
+        laneName: lane.laneName,
+        linkageStatus: lane.linkageStatus,
+        ownedPaths: collectOwnedPathsFromWorktree(
+          resolvedWorktreePath,
+          baseBranchName,
+        ),
+        worktreePath: lane.worktreePath,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      gaps.push(
+        `Lane ${lane.laneName} ownership collection failed: ${message}`,
+      );
+    }
+  }
+
+  return {
+    activeLaneCount: activeLanes.length,
+    generatedAtUtc: linkageLedger.generatedAtUtc,
+    gaps,
+    lanes,
+    linkedWithGapsLaneCount: activeLanes.filter(
+      (lane) => lane.linkageStatus === "linked-with-gaps",
+    ).length,
+  };
 }
 
 function collectHotspotSurfaceOverlaps(
@@ -270,6 +533,124 @@ function buildHotspotEvidenceSummary(
   return lines;
 }
 
+function collectActiveLaneOverlaps(
+  candidate: PlannerBatchCollisionCandidateInput,
+  activeLaneOwnership: ReturnType<typeof collectActiveLaneOwnership>,
+): PlannerBatchCollisionOwnedLaneOverlap[] {
+  const grouped = new Map<string, PlannerBatchCollisionOwnedLaneOverlap>();
+
+  for (const lane of activeLaneOwnership.lanes) {
+    const matchedPaths = lane.ownedPaths.filter((path) =>
+      candidate.expectedSurfaceHints.some((hint) =>
+        pathMatchesHint(path, hint),
+      ),
+    );
+
+    if (matchedPaths.length === 0) {
+      continue;
+    }
+
+    for (const path of matchedPaths) {
+      const ownedSurface = deriveOwnedSurfaceLabel(path);
+      const category = classifyConflictHotspotSurfaceCategory(path);
+      const key = `${lane.laneName}:${ownedSurface}:${category}`;
+      const matchedHints = candidate.expectedSurfaceHints.filter(
+        (hint) =>
+          pathMatchesHint(path, hint) || pathMatchesHint(ownedSurface, hint),
+      );
+      const existing = grouped.get(key);
+
+      if (existing) {
+        existing.ownedPathCount += 1;
+        existing.ownedPaths = [...new Set([...existing.ownedPaths, path])];
+        existing.matchedHints = [
+          ...new Set([...existing.matchedHints, ...matchedHints]),
+        ];
+        continue;
+      }
+
+      grouped.set(key, {
+        branchName: lane.branchName,
+        category,
+        categoryLabel: formatConflictHotspotSurfaceCategory(category),
+        laneName: lane.laneName,
+        linkageStatus: lane.linkageStatus,
+        matchedHints,
+        ownedPathCount: 1,
+        ownedPaths: [path],
+        ownedSurface,
+        worktreePath: lane.worktreePath,
+      });
+    }
+  }
+
+  return [...grouped.values()].sort((left, right) => {
+    if (right.ownedPathCount !== left.ownedPathCount) {
+      return right.ownedPathCount - left.ownedPathCount;
+    }
+    return left.laneName.localeCompare(right.laneName);
+  });
+}
+
+function classifyCandidateCollisionRisk(
+  hotspotSurfaceOverlaps: PlannerBatchCollisionHotspotSurfaceOverlap[],
+  activeLaneOverlaps: PlannerBatchCollisionOwnedLaneOverlap[],
+): PlannerBatchCollisionRisk {
+  const hasSharedHotspot = hotspotSurfaceOverlaps.some(
+    (surface) => surface.category !== "authored-content",
+  );
+  const hasAnyActiveOwnership = activeLaneOverlaps.length > 0;
+  const hasSharedActiveOwnership = activeLaneOverlaps.some(
+    (overlap) => overlap.category !== "authored-content",
+  );
+
+  if (hasSharedActiveOwnership) {
+    return "high";
+  }
+
+  if (hasAnyActiveOwnership) {
+    return hasSharedHotspot ? "high" : "medium";
+  }
+
+  if (hasSharedHotspot) {
+    return "medium";
+  }
+
+  return "low";
+}
+
+function buildActiveLaneEvidenceSummary(
+  candidate: PlannerBatchCollisionCandidateInput,
+  activeLaneOverlaps: PlannerBatchCollisionOwnedLaneOverlap[],
+  activeOwnershipGaps: string[],
+  collisionRisk: PlannerBatchCollisionRisk,
+): string[] {
+  const lines: string[] = [];
+
+  if (activeLaneOverlaps.length === 0) {
+    lines.push(
+      `No active-lane ownership overlap was confirmed for ${candidate.name}.`,
+    );
+  } else {
+    const topOverlap = activeLaneOverlaps[0];
+    lines.push(
+      `Active lane ${topOverlap.laneName} currently owns ${topOverlap.ownedSurface} [${topOverlap.categoryLabel}] through ${topOverlap.ownedPathCount} matching paths.`,
+    );
+
+    if (collisionRisk !== "low") {
+      lines.push(
+        `Active ownership raises the current collision risk to ${collisionRisk}.`,
+      );
+    }
+  }
+
+  if (activeOwnershipGaps.length > 0) {
+    lines.push(`Ownership coverage gaps: ${activeOwnershipGaps.join(" | ")}`);
+  }
+
+  return lines;
+}
+
 export function collectPlannerBatchCollisionPreflightSnapshot(
   candidateArgs: readonly string[],
   options: CollectPlannerBatchCollisionPreflightOptions = {},
@@ -283,9 +664,20 @@ export function collectPlannerBatchCollisionPreflightSnapshot(
   const candidates = candidateArgs.map(
     parsePlannerBatchCollisionCandidateInput,
   );
+  const repoRoot = options.repoRoot ? resolve(options.repoRoot) : undefined;
   const hotspotSnapshot = collectHotspotSnapshot(options);
+  const activeLaneOwnership = collectActiveLaneOwnership(
+    collectLinkageLedger(options, repoRoot),
+    repoRoot,
+    options.baseBranchName ?? "main",
+  );
 
   return {
+    activeLaneEvidence: {
+      activeLaneCount: activeLaneOwnership.activeLaneCount,
+      generatedAtUtc: activeLaneOwnership.generatedAtUtc,
+      linkedWithGapsLaneCount: activeLaneOwnership.linkedWithGapsLaneCount,
+    },
     generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
     candidates: candidates.map((candidate) => {
       const hotspotSurfaceOverlaps = collectHotspotSurfaceOverlaps(
@@ -296,9 +688,26 @@ export function collectPlannerBatchCollisionPreflightSnapshot(
         candidate,
         hotspotSnapshot,
       );
+      const activeLaneOverlaps = collectActiveLaneOverlaps(
+        candidate,
+        activeLaneOwnership,
+      );
+      const collisionRisk = classifyCandidateCollisionRisk(
+        hotspotSurfaceOverlaps,
+        activeLaneOverlaps,
+      );
 
       return {
         ...candidate,
+        activeLaneEvidenceSummary: buildActiveLaneEvidenceSummary(
+          candidate,
+          activeLaneOverlaps,
+          activeLaneOwnership.gaps,
+          collisionRisk,
+        ),
+        activeLaneOverlaps,
+        activeOwnershipGaps: [...activeLaneOwnership.gaps],
+        collisionRisk,
         hotspotEvidenceSummary: buildHotspotEvidenceSummary(
           candidate,
           hotspotSurfaceOverlaps,
@@ -325,6 +734,7 @@ export function formatPlannerBatchCollisionPreflightSnapshot(
     `Generated: ${snapshot.generatedAtUtc}`,
     `Candidates: ${snapshot.candidates.length}`,
     `Hotspot sample: last ${snapshot.hotspotEvidence.recentCommitLimit} commits from ${snapshot.hotspotEvidence.repoRoot}`,
+    `Active lanes: ${snapshot.activeLaneEvidence.activeLaneCount} linked-with-gaps=${snapshot.activeLaneEvidence.linkedWithGapsLaneCount}`,
     "",
     "Candidate batches",
   ];
@@ -333,17 +743,31 @@ export function formatPlannerBatchCollisionPreflightSnapshot(
     lines.push(
       `- candidate=${candidate.name} expected-surfaces=${candidate.expectedSurfaceHints.join(", ")} hint-count=${candidate.expectedSurfaceHints.length}`,
     );
+    lines.push(`  collision-risk=${candidate.collisionRisk}`);
     for (const hotspotSummary of candidate.hotspotEvidenceSummary) {
       lines.push(`  hotspot-evidence=${hotspotSummary}`);
     }
+    for (const activeLaneSummary of candidate.activeLaneEvidenceSummary) {
+      lines.push(`  active-lane-evidence=${activeLaneSummary}`);
+    }
     if (candidate.hotspotSurfaceOverlaps.length === 0) {
       lines.push("  hotspot-overlap=none");
+    } else {
+      for (const overlap of candidate.hotspotSurfaceOverlaps) {
+        lines.push(
+          `  hotspot-overlap=${overlap.surface} [${overlap.categoryLabel}] touches=${overlap.touches} matched-hints=${overlap.matchedHints.join(", ")} examples=${overlap.representativePaths.join(", ")}`,
+        );
+      }
+    }
+
+    if (candidate.activeLaneOverlaps.length === 0) {
+      lines.push("  active-lane-overlap=none");
       continue;
     }
 
-    for (const overlap of candidate.hotspotSurfaceOverlaps) {
+    for (const overlap of candidate.activeLaneOverlaps) {
       lines.push(
-        `  hotspot-overlap=${overlap.surface} [${overlap.categoryLabel}] touches=${overlap.touches} matched-hints=${overlap.matchedHints.join(", ")} examples=${overlap.representativePaths.join(", ")}`,
+        `  active-lane-overlap=${overlap.laneName} surface=${overlap.ownedSurface} [${overlap.categoryLabel}] matched-hints=${overlap.matchedHints.join(", ")} owned-paths=${overlap.ownedPaths.join(", ")}`,
       );
     }
   }

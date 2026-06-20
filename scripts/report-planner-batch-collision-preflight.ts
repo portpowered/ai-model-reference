@@ -7,6 +7,7 @@ import {
   PlannerBatchCollisionPreflightCollectionError,
   PlannerBatchCollisionPreflightInputError,
 } from "../src/lib/factory/planner-batch-collision-preflight";
+import type { QueueWorktreePrLinkageLedger } from "../src/lib/factory/queue-worktree-pr-linkage-ledger";
 
 function readFlagValues(flag: string): string[] {
   const values: string[] = [];
@@ -31,6 +32,12 @@ function readFlagValue(flag: string): string | undefined {
 const candidateArgs = readFlagValues("--candidate");
 const format = readFlagValue("--format") ?? "summary";
 const hotspotSnapshotJson = readFlagValue("--hotspot-snapshot-json");
+const queueLinkageLedgerJson = readFlagValue("--queue-linkage-ledger-json");
+const workListJson = readFlagValue("--work-list-json");
+const sessionListJson = readFlagValue("--session-list-json");
+const worktreesDir = readFlagValue("--worktrees-dir");
+const plannerSession = readFlagValue("--session");
+const baseBranchName = readFlagValue("--base-branch");
 
 function readHotspotSnapshot(
   snapshotPath: string | undefined,
@@ -44,12 +51,34 @@ function readHotspotSnapshot(
   ) as ConflictHotspotSnapshot;
 }
 
+function readQueueLinkageLedger(
+  snapshotPath: string | undefined,
+): QueueWorktreePrLinkageLedger | undefined {
+  if (!snapshotPath) {
+    return undefined;
+  }
+
+  return JSON.parse(
+    readFileSync(resolve(snapshotPath), "utf8"),
+  ) as QueueWorktreePrLinkageLedger;
+}
+
 try {
   const snapshot = collectPlannerBatchCollisionPreflightSnapshot(
     candidateArgs,
     {
+      baseBranchName,
       hotspotSnapshot: readHotspotSnapshot(hotspotSnapshotJson),
+      linkageLedger: readQueueLinkageLedger(queueLinkageLedgerJson),
+      plannerSession,
       repoRoot: process.cwd(),
+      sessionListJsonText: sessionListJson
+        ? readFileSync(resolve(sessionListJson), "utf8")
+        : undefined,
+      workListJsonText: workListJson
+        ? readFileSync(resolve(workListJson), "utf8")
+        : undefined,
+      worktreesDir: worktreesDir ? resolve(worktreesDir) : undefined,
     },
   );
 

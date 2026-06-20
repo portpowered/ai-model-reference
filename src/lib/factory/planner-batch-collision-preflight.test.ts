@@ -1,4 +1,8 @@
 import { describe, expect, test } from "bun:test";
+import { spawnSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import type { ConflictHotspotSnapshot } from "./conflict-hotspot-report";
 import {
   collectPlannerBatchCollisionPreflightSnapshot,
@@ -7,6 +11,7 @@ import {
   PlannerBatchCollisionPreflightInputError,
   parsePlannerBatchCollisionCandidateInput,
 } from "./planner-batch-collision-preflight";
+import type { QueueWorktreePrLinkageLedger } from "./queue-worktree-pr-linkage-ledger";
 
 const hotspotSnapshot: ConflictHotspotSnapshot = {
   generatedAtUtc: "2026-06-20T00:00:00.000Z",
@@ -48,6 +53,127 @@ const hotspotSnapshot: ConflictHotspotSnapshot = {
   worktrees: [],
 };
 
+const linkageLedger: QueueWorktreePrLinkageLedger = {
+  generatedAtUtc: "2026-06-20T00:05:00.000Z",
+  laneCount: 2,
+  activeLaneCount: 2,
+  failedLaneCount: 0,
+  linkedLaneCount: 1,
+  linkedWithGapsLaneCount: 1,
+  issues: [],
+  lanes: [
+    {
+      laneName: "alpha-lane",
+      queueState: "active",
+      rawQueueState: "active",
+      linkageStatus: "linked",
+      worktreePath: ".claude/worktrees/alpha-lane",
+      branchName: "alpha-lane",
+      branchMetadataSource: "prd",
+      pullRequest: {
+        number: 42,
+        url: "https://example.com/pr/42",
+      },
+      pullRequestLookup: {
+        status: "resolved",
+      },
+      missingLinkageReasons: [],
+    },
+    {
+      laneName: "beta-lane",
+      queueState: "active",
+      rawQueueState: "active",
+      linkageStatus: "linked-with-gaps",
+      worktreePath: ".claude/worktrees/beta-lane",
+      branchName: "beta-lane",
+      branchMetadataSource: "prd",
+      pullRequest: null,
+      pullRequestLookup: {
+        status: "missing",
+        failureKind: "not-found",
+        failureReason: "no open PR metadata found for branch beta-lane",
+      },
+      missingLinkageReasons: ["no open PR metadata found for branch beta-lane"],
+    },
+  ],
+};
+
+function runCommand(cwd: string, args: string[]): void {
+  const [command, ...rest] = args;
+  if (!command) {
+    throw new Error("Missing command");
+  }
+
+  const result = spawnSync(command, rest, {
+    cwd,
+    encoding: "utf8",
+  });
+
+  if (result.status !== 0) {
+    throw new Error(
+      result.stderr || result.stdout || `command failed: ${args.join(" ")}`,
+    );
+  }
+}
+
+function createOwnedLaneRepoFixture(): {
+  cleanup: () => void;
+  repoRoot: string;
+  worktreePath: string;
+} {
+  const repoRoot = mkdtempSync(join(tmpdir(), "planner-batch-preflight-"));
+  const worktreePath = join(repoRoot, ".claude", "worktrees", "alpha-lane");
+  mkdirSync(worktreePath, { recursive: true });
+  runCommand(worktreePath, ["git", "init", "--initial-branch=main"]);
+  runCommand(worktreePath, [
+    "git",
+    "config",
+    "user.email",
+    "fixture@example.com",
+  ]);
+  runCommand(worktreePath, ["git", "config", "user.name", "Fixture"]);
+  mkdirSync(join(worktreePath, "src", "lib", "factory"), { recursive: true });
+  writeFileSync(
+    join(
+      worktreePath,
+      "src",
+      "lib",
+      "factory",
+      "queue-worktree-pr-linkage-ledger.ts",
+    ),
+    "export const ledger = 'base';\n",
+  );
+  writeFileSync(
+    join(worktreePath, "src", "lib", "factory", "conflict-hotspot-report.ts"),
+    "export const hotspot = 'base';\n",
+  );
+  runCommand(worktreePath, ["git", "add", "."]);
+  runCommand(worktreePath, ["git", "commit", "-m", "base"]);
+  runCommand(worktreePath, ["git", "checkout", "-b", "alpha-lane"]);
+  writeFileSync(
+    join(
+      worktreePath,
+      "src",
+      "lib",
+      "factory",
+      "queue-worktree-pr-linkage-ledger.ts",
+    ),
+    "export const ledger = 'changed';\n",
+  );
+  writeFileSync(
+    join(worktreePath, "src", "lib", "factory", "conflict-hotspot-report.ts"),
+    "export const hotspot = 'changed';\n",
+  );
+  runCommand(worktreePath, ["git", "add", "."]);
+  runCommand(worktreePath, ["git", "commit", "-m", "feature"]);
+
+  return {
+    cleanup: () => rmSync(repoRoot, { recursive: true, force: true }),
+    repoRoot,
+    worktreePath,
+  };
+}
+
 describe("planner batch collision preflight", () => {
   test("accepts multiple candidates with normalized surface hints", () => {
     const snapshot = collectPlannerBatchCollisionPreflightSnapshot(
@@ -58,6 +184,7 @@ describe("planner batch collision preflight", () => {
       {
         generatedAtUtc: "2026-06-20T00:00:00.000Z",
         hotspotSnapshot,
+        linkageLedger,
       },
     );
 
@@ -118,6 +245,7 @@ describe("planner batch collision preflight", () => {
       {
         generatedAtUtc: "2026-06-20T00:00:00.000Z",
         hotspotSnapshot,
+        linkageLedger,
       },
     );
 
@@ -160,6 +288,7 @@ describe("planner batch collision preflight", () => {
       {
         generatedAtUtc: "2026-06-20T00:00:00.000Z",
         hotspotSnapshot,
+        linkageLedger,
       },
     );
 
@@ -194,8 +323,83 @@ describe("planner batch collision preflight", () => {
     );
   });
 
+  test("reports active-lane overlaps and raises risk when a shared active lane owns the same surface", () => {
+    const fixture = createOwnedLaneRepoFixture();
+    const snapshot = collectPlannerBatchCollisionPreflightSnapshot(
+      ["factory-lane=src/lib/factory"],
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        hotspotSnapshot,
+        linkageLedger: {
+          ...linkageLedger,
+          lanes: [
+            {
+              ...linkageLedger.lanes[0],
+            },
+          ],
+        },
+        repoRoot: fixture.repoRoot,
+      },
+    );
+
+    expect(snapshot.activeLaneEvidence).toEqual({
+      activeLaneCount: 1,
+      generatedAtUtc: "2026-06-20T00:05:00.000Z",
+      linkedWithGapsLaneCount: 0,
+    });
+    expect(snapshot.candidates[0]?.collisionRisk).toBe("high");
+    expect(snapshot.candidates[0]?.activeLaneOverlaps).toEqual([
+      {
+        branchName: "alpha-lane",
+        category: "shared-helper",
+        categoryLabel: "shared helper",
+        laneName: "alpha-lane",
+        linkageStatus: "linked",
+        matchedHints: ["src/lib/factory"],
+        ownedPathCount: 2,
+        ownedPaths: [
+          "src/lib/factory/conflict-hotspot-report.ts",
+          "src/lib/factory/queue-worktree-pr-linkage-ledger.ts",
+        ],
+        ownedSurface: "src/lib/factory",
+        worktreePath: ".claude/worktrees/alpha-lane",
+      },
+    ]);
+    expect(snapshot.candidates[0]?.activeLaneEvidenceSummary).toContain(
+      "Active ownership raises the current collision risk to high.",
+    );
+
+    fixture.cleanup();
+  });
+
+  test("keeps active ownership gaps explicit when a linked lane cannot provide ownership details", () => {
+    const snapshot = collectPlannerBatchCollisionPreflightSnapshot(
+      ["docs-lane=src/content/docs/attention/page.mdx"],
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        hotspotSnapshot,
+        linkageLedger,
+      },
+    );
+
+    expect(snapshot.candidates[0]?.activeLaneOverlaps).toEqual([]);
+    expect(snapshot.candidates[0]?.activeOwnershipGaps).toEqual([
+      "Lane alpha-lane ownership could not be collected because repoRoot was unavailable.",
+      "Lane beta-lane has linkage gaps: no open PR metadata found for branch beta-lane",
+      "Lane beta-lane ownership could not be collected because repoRoot was unavailable.",
+    ]);
+    expect(snapshot.candidates[0]?.activeLaneEvidenceSummary).toContain(
+      "Ownership coverage gaps: Lane alpha-lane ownership could not be collected because repoRoot was unavailable. | Lane beta-lane has linkage gaps: no open PR metadata found for branch beta-lane | Lane beta-lane ownership could not be collected because repoRoot was unavailable.",
+    );
+  });
+
   test("formats every submitted candidate by name in one compact report", () => {
     const output = formatPlannerBatchCollisionPreflightSnapshot({
+      activeLaneEvidence: {
+        activeLaneCount: 1,
+        generatedAtUtc: "2026-06-20T00:05:00.000Z",
+        linkedWithGapsLaneCount: 0,
+      },
       generatedAtUtc: "2026-06-20T00:00:00.000Z",
       hotspotEvidence: {
         generatedAtUtc: "2026-06-20T00:00:00.000Z",
@@ -205,6 +409,12 @@ describe("planner batch collision preflight", () => {
       },
       candidates: [
         {
+          activeLaneEvidenceSummary: [
+            "No active-lane ownership overlap was confirmed for alpha.",
+          ],
+          activeLaneOverlaps: [],
+          activeOwnershipGaps: [],
+          collisionRisk: "low",
           name: "alpha",
           expectedSurfaceHints: ["docs/guide.md"],
           hotspotEvidenceSummary: [
@@ -214,6 +424,29 @@ describe("planner batch collision preflight", () => {
           hotspotSurfaceOverlaps: [],
         },
         {
+          activeLaneEvidenceSummary: [
+            "Active lane alpha-lane currently owns src/lib/factory [shared helper] through 2 matching paths.",
+            "Active ownership raises the current collision risk to high.",
+          ],
+          activeLaneOverlaps: [
+            {
+              branchName: "alpha-lane",
+              category: "shared-helper",
+              categoryLabel: "shared helper",
+              laneName: "alpha-lane",
+              linkageStatus: "linked",
+              matchedHints: ["src/lib/factory"],
+              ownedPathCount: 2,
+              ownedPaths: [
+                "src/lib/factory/conflict-hotspot-report.ts",
+                "src/lib/factory/queue-worktree-pr-linkage-ledger.ts",
+              ],
+              ownedSurface: "src/lib/factory",
+              worktreePath: ".claude/worktrees/alpha-lane",
+            },
+          ],
+          activeOwnershipGaps: [],
+          collisionRisk: "high",
           name: "beta",
           expectedSurfaceHints: ["src/lib/factory"],
           hotspotEvidenceSummary: [
@@ -241,12 +474,19 @@ describe("planner batch collision preflight", () => {
     expect(output).toContain("Planner Batch Collision Preflight");
     expect(output).toContain("Candidates: 2");
     expect(output).toContain("Hotspot sample: last 40 commits from /repo");
+    expect(output).toContain("Active lanes: 1 linked-with-gaps=0");
     expect(output).toContain(
       "- candidate=alpha expected-surfaces=docs/guide.md hint-count=1",
     );
+    expect(output).toContain("collision-risk=low");
     expect(output).toContain("hotspot-overlap=none");
+    expect(output).toContain("active-lane-overlap=none");
     expect(output).toContain(
       "- candidate=beta expected-surfaces=src/lib/factory hint-count=1",
+    );
+    expect(output).toContain("collision-risk=high");
+    expect(output).toContain(
+      "active-lane-overlap=alpha-lane surface=src/lib/factory [shared helper] matched-hints=src/lib/factory",
     );
     expect(output).toContain(
       "hotspot-overlap=src/lib/factory [shared helper] touches=7 matched-hints=src/lib/factory",
