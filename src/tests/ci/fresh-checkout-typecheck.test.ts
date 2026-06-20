@@ -8,8 +8,9 @@
  */
 import { describe, expect, test } from "bun:test";
 import { type SpawnSyncReturns, spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { CONTENT_RUNTIME_PREPARATION_STEPS } from "@/lib/content/content-runtime-preparation";
 import {
   FRESH_CHECKOUT_TYPECHECK_TEST_TIMEOUT_MS,
   shouldRunFreshCheckoutTypecheckProof,
@@ -21,6 +22,7 @@ import {
 
 const repoRoot = join(import.meta.dir, "../../..");
 const mainSourceDir = join(repoRoot, CLEAN_WORKTREE_SOURCE_DIR);
+const STALE_CONTENT_RUNTIME_SENTINEL = "__STALE_CONTENT_RUNTIME_SENTINEL__";
 
 /** TypeScript missing-module errors for the gitignored Fumadocs import path. */
 const missingSourceServerPattern =
@@ -60,6 +62,34 @@ function isGitWorktreeDirty(repoRoot: string): boolean {
     return true;
   }
   return (result.stdout ?? "").trim().length > 0;
+}
+
+function poisonGeneratedRuntimeArtifacts(worktreePath: string): string[] {
+  const artifactPaths = CONTENT_RUNTIME_PREPARATION_STEPS.map((step) =>
+    join(worktreePath, step.outputPath),
+  );
+
+  for (const [index, artifactPath] of artifactPaths.entries()) {
+    mkdirSync(dirname(artifactPath), { recursive: true });
+    writeFileSync(
+      artifactPath,
+      `export const staleRuntimeArtifact${index} = "${STALE_CONTENT_RUNTIME_SENTINEL}:${index}";\n`,
+      "utf8",
+    );
+  }
+
+  return artifactPaths;
+}
+
+function expectGeneratedRuntimeArtifactsRefreshed(
+  artifactPaths: readonly string[],
+): void {
+  for (const artifactPath of artifactPaths) {
+    expect(existsSync(artifactPath)).toBe(true);
+    expect(readFileSync(artifactPath, "utf8")).not.toContain(
+      STALE_CONTENT_RUNTIME_SENTINEL,
+    );
+  }
 }
 
 describe("fresh-checkout typecheck", () => {
@@ -110,6 +140,69 @@ describe("fresh-checkout typecheck", () => {
         }
 
         expect(existsSync(isolatedSourceServerModule)).toBe(true);
+      } finally {
+        fixture.cleanup();
+      }
+
+      expect(existsSync(mainSourceDir)).toBe(mainHadSourceBefore);
+    },
+    FRESH_CHECKOUT_TYPECHECK_TEST_TIMEOUT_MS,
+  );
+
+  test(
+    "make typecheck refreshes stale generated runtime artifacts before compiling",
+    () => {
+      if (!shouldRunFreshCheckoutTypecheckProof()) {
+        return;
+      }
+      if (isGitWorktreeDirty(repoRoot)) {
+        return;
+      }
+
+      const mainHadSourceBefore = existsSync(mainSourceDir);
+      const fixture = provisionCleanWorktree(repoRoot);
+
+      try {
+        const isolatedSourceDir = join(
+          fixture.worktreePath,
+          CLEAN_WORKTREE_SOURCE_DIR,
+        );
+        const isolatedSourceServerModule = join(isolatedSourceDir, "server.ts");
+        const staleArtifactPaths = poisonGeneratedRuntimeArtifacts(
+          fixture.worktreePath,
+        );
+
+        expect(existsSync(isolatedSourceDir)).toBe(false);
+        for (const artifactPath of staleArtifactPaths) {
+          expect(readFileSync(artifactPath, "utf8")).toContain(
+            STALE_CONTENT_RUNTIME_SENTINEL,
+          );
+        }
+
+        const result = spawnSync("make", ["typecheck"], {
+          cwd: fixture.worktreePath,
+          encoding: "utf8",
+          env: process.env,
+        });
+
+        if (result.status === null) {
+          throw new Error(
+            `make typecheck did not finish within the test budget.\n${formatSubprocessOutput(result)}`,
+          );
+        }
+
+        const stderr = result.stderr ?? "";
+        expect(stderr).not.toMatch(missingSourceServerPattern);
+        expect(stderr).not.toContain(".source/server");
+
+        if (result.status !== 0) {
+          throw new Error(
+            `make typecheck exited non-zero.\n${formatSubprocessOutput(result)}`,
+          );
+        }
+
+        expect(existsSync(isolatedSourceServerModule)).toBe(true);
+        expectGeneratedRuntimeArtifactsRefreshed(staleArtifactPaths);
       } finally {
         fixture.cleanup();
       }
