@@ -2,13 +2,18 @@ import { describe, expect, test } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { defaultLocale, supportedLocales } from "@/lib/i18n/locale-routing";
-import { MODULES_DOCS_ROOT, TAG_MESSAGES_ROOT } from "./content-paths";
-import { tokenGlossaryPageDir } from "./page-messages-load";
+import {
+  getDocsPageDir,
+  MODULES_DOCS_ROOT,
+  TAG_MESSAGES_ROOT,
+} from "./content-paths";
 import { loadRegistry } from "./registry";
 import {
   validateColocatedPageBundle,
   validateRegistryContent,
 } from "./validate-registry";
+
+const tokenGlossaryPageDir = getDocsPageDir("glossary", "token");
 
 const validModuleRecord = {
   id: "module.grouped-query-attention",

@@ -1,7 +1,12 @@
 import { readdirSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
-import { getProjectRoot, getRegistryRoot } from "./content-paths";
+import {
+  getProjectRoot,
+  getRegistryCollectionRoot,
+  getRegistryRoot,
+  type RegistryCollection,
+} from "./content-paths";
 import {
   loadRegistry,
   RegistryLoadError,
@@ -9,7 +14,7 @@ import {
 } from "./registry";
 
 type RuntimeRegistryDirectory = {
-  directory: string;
+  directory: Exclude<RegistryCollection, "graphs" | "tables" | "tags">;
   recordType: string;
   schemaName: string;
   recordsConst: string;
@@ -208,7 +213,10 @@ function buildGeneratedSource(
   let importIndex = 0;
 
   for (const directory of runtimeRegistryDirectories) {
-    const directoryPath = join(registryRoot, directory.directory);
+    const directoryPath = getRegistryCollectionRoot(
+      directory.directory,
+      registryRoot,
+    );
     const jsonFiles = listJsonFiles(directoryPath);
 
     for (const fileName of jsonFiles) {

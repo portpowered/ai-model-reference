@@ -1,6 +1,10 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { REGISTRY_ROOT } from "./content-paths";
+import {
+  getRegistryCollectionRoot,
+  REGISTRY_ROOT,
+  type RegistryCollection,
+} from "./content-paths";
 import type { RegistryIndexes, RegistryRecord } from "./registry-index";
 import {
   type ClassificationRecord,
@@ -41,19 +45,7 @@ export class RegistryLoadError extends Error {
 const defaultRegistryRoot = REGISTRY_ROOT;
 
 type RegistryDirectory = {
-  name:
-    | "modules"
-    | "concepts"
-    | "models"
-    | "classifications"
-    | "papers"
-    | "training-regimes"
-    | "systems"
-    | "datasets"
-    | "organizations"
-    | "tags"
-    | "citations"
-    | "graphs";
+  name: Exclude<RegistryCollection, "tables">;
   schema:
     | typeof moduleRecordSchema
     | typeof conceptRecordSchema
@@ -93,7 +85,7 @@ async function readRegistryDirectory(
   registryRoot: string,
   directory: RegistryDirectory,
 ): Promise<ParsedRegistryFile[]> {
-  const directoryPath = join(registryRoot, directory.name);
+  const directoryPath = getRegistryCollectionRoot(directory.name, registryRoot);
   let entries: string[];
   try {
     entries = await readdir(directoryPath);

@@ -7,15 +7,13 @@ import {
   supportedLocales,
 } from "@/lib/i18n/locale-routing";
 import { tagPageHref } from "./content-hrefs";
-import { CONTENT_ROOT, DOCS_ROOT } from "./content-paths";
+import { CONTENT_ROOT, DOCS_ROOT, getDocsPageDir } from "./content-paths";
 import { collectTableMessageKeys } from "./module-comparison-table";
 import { assetMessageKeys, loadPageAssets } from "./page-assets-load";
 import {
   getMessageString,
-  groupedQueryAttentionPageDir,
   hasPageMessagesFile,
   loadPageMessages,
-  tokenGlossaryPageDir,
 } from "./page-messages-load";
 import { validatePageTemplateConformance } from "./page-template-conformance";
 import {
@@ -293,8 +291,8 @@ function missingReleaseMetadataFields(record: RegistryRecord): string[] {
 
 /** Phase 1 page directories validated even when `page.mdx` is not present yet. */
 export const phase1PageDirectories = [
-  groupedQueryAttentionPageDir,
-  tokenGlossaryPageDir,
+  getDocsPageDir("modules", "grouped-query-attention"),
+  getDocsPageDir("glossary", "token"),
 ] as const;
 
 export type ValidateRegistryContentOptions = {
