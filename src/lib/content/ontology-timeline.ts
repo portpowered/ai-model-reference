@@ -334,6 +334,33 @@ function collectCandidateRecords(
   return candidates;
 }
 
+function buildTimelineItemsForClassification(
+  classification: ClassificationRecord,
+  recordsById: ReadonlyMap<string, RelatedRegistryRecord>,
+  pagesByRegistryId: ReadonlyMap<string, DocsPageSource>,
+): OntologyTimelineItem[] {
+  const candidates = collectCandidateRecords(
+    classification,
+    recordsById,
+    pagesByRegistryId,
+  );
+
+  return sortTimelineItems(
+    [...candidates.entries()].flatMap(([registryId, relationshipContext]) => {
+      const record = recordsById.get(registryId);
+      if (!isTimelineSourceRecord(record)) {
+        return [];
+      }
+      const item = toTimelineItem(
+        record,
+        relationshipContext,
+        pagesByRegistryId,
+      );
+      return item ? [item] : [];
+    }),
+  );
+}
+
 function toClassificationSlice(
   classification: ClassificationRecord,
   eventCount: number,
@@ -354,22 +381,15 @@ function buildNearbyClassificationSlices(
   items: readonly OntologyTimelineItem[],
   classifications: readonly ClassificationRecord[],
   activeClassification: ClassificationRecord,
+  recordsById: ReadonlyMap<string, RelatedRegistryRecord>,
   pagesByRegistryId: ReadonlyMap<string, DocsPageSource>,
 ): OntologyTimelineClassificationSlice[] {
-  const eventCountsByClassificationId = new Map<string, number>();
+  const nearbyClassificationIds = new Set<string>([activeClassification.id]);
 
   for (const item of items) {
     for (const membership of item.classificationMemberships) {
-      eventCountsByClassificationId.set(
-        membership.classificationId,
-        (eventCountsByClassificationId.get(membership.classificationId) ?? 0) +
-          1,
-      );
+      nearbyClassificationIds.add(membership.classificationId);
     }
-  }
-
-  if (!eventCountsByClassificationId.has(activeClassification.id)) {
-    eventCountsByClassificationId.set(activeClassification.id, items.length);
   }
 
   const classificationsById = new Map(
@@ -379,14 +399,18 @@ function buildNearbyClassificationSlices(
     ]),
   );
 
-  return [...eventCountsByClassificationId.entries()]
-    .flatMap(([classificationId, eventCount]) => {
+  return [...nearbyClassificationIds]
+    .flatMap((classificationId) => {
       const classification = classificationsById.get(classificationId);
       return classification
         ? [
             toClassificationSlice(
               classification,
-              eventCount,
+              buildTimelineItemsForClassification(
+                classification,
+                recordsById,
+                pagesByRegistryId,
+              ).length,
               activeClassification.id,
               pagesByRegistryId,
             ),
@@ -467,25 +491,16 @@ export function buildOntologyTimelineDataFromSources(
   const recordsById = new Map(
     input.records.map((record) => [record.id, record]),
   );
-  const candidates = collectCandidateRecords(
+  const items = buildTimelineItemsForClassification(
     classification,
     recordsById,
     pagesById,
-  );
-  const items = sortTimelineItems(
-    [...candidates.entries()].flatMap(([registryId, relationshipContext]) => {
-      const record = recordsById.get(registryId);
-      if (!isTimelineSourceRecord(record)) {
-        return [];
-      }
-      const item = toTimelineItem(record, relationshipContext, pagesById);
-      return item ? [item] : [];
-    }),
   );
   const nearbyClassifications = buildNearbyClassificationSlices(
     items,
     input.classifications,
     classification,
+    recordsById,
     pagesById,
   );
   const classificationSlice = toClassificationSlice(

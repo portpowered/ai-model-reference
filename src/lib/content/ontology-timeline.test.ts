@@ -98,10 +98,12 @@ describe("ontology timeline data", () => {
       expect.arrayContaining([
         expect.objectContaining({
           classificationId: "classification.activation-functions",
+          eventCount: 6,
           active: true,
         }),
         expect.objectContaining({
           classificationId: "classification.feed-forward-networks",
+          eventCount: 4,
           active: false,
         }),
       ]),

@@ -10,6 +10,18 @@ async function renderTimeline(searchParams?: Record<string, string>) {
   );
 }
 
+function extractChipEventCount(
+  html: string,
+  classificationSlug: string,
+): number | undefined {
+  const match = html.match(
+    new RegExp(
+      `href="/docs/timeline\\?classification=${classificationSlug}"[\\s\\S]*?<span class="sr-only">(\\d+) dated events</span>`,
+    ),
+  );
+  return match?.[1] ? Number(match[1]) : undefined;
+}
+
 describe("OntologyTimelinePage", () => {
   test("renders the activation chronology in the docs shell with Timeline Chrono", async () => {
     const html = renderToStaticMarkup(
@@ -49,6 +61,18 @@ describe("OntologyTimelinePage", () => {
     expect(html).toContain(
       'href="/docs/timeline?classification=feed-forward-networks"',
     );
+    expect(extractChipEventCount(html, "activation-functions")).toBe(6);
+    expect(extractChipEventCount(html, "feed-forward-networks")).toBe(4);
+  });
+
+  test("keeps chip event counts aligned with the rendered feed-forward timeline slice", async () => {
+    const html = await renderTimeline({
+      classification: "feed-forward-networks",
+    });
+
+    expect(html).toContain("Showing 4 dated events for feed-forward network.");
+    expect(extractChipEventCount(html, "feed-forward-networks")).toBe(4);
+    expect(extractChipEventCount(html, "activation-functions")).toBe(6);
   });
 
   test("renders a recoverable empty state for invalid classification parameters", async () => {
