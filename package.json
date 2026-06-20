@@ -49,6 +49,7 @@
     "report:planner-conflict-hotspots": "bun ./scripts/report-planner-conflict-hotspots.ts",
     "report:planner-batch-collision-preflight": "bun ./scripts/report-planner-batch-collision-preflight.ts",
     "report:planner-queue-health": "bun ./scripts/report-planner-queue-health.ts",
+    "report:planner-loopback-reconciliation": "bun ./scripts/report-planner-loopback-reconciliation.ts",
     "audit:canonical-page-surface": "bun ./scripts/audit-canonical-page-surface.ts",
     "scaffold:doc-page": "bun ./scripts/scaffold-doc-page.ts",
     "generate:page-bundle": "bun ./scripts/generate-page-bundle.ts",
