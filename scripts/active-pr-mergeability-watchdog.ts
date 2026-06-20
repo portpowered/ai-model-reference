@@ -4,6 +4,7 @@ import {
   type CommandResult,
   discoverActivePrLaneReport,
   formatActivePrLaneReport,
+  type PullRequestLookupResult,
   type PullRequestRecord,
 } from "@/lib/factory/active-pr-mergeability-watchdog";
 
@@ -72,8 +73,15 @@ if (prMapPath) {
 
 function lookupPullRequestFromFixture(
   branchName: string,
-): PullRequestRecord | null {
-  return pullRequestMap?.[branchName] ?? null;
+): PullRequestLookupResult {
+  const pullRequest = pullRequestMap?.[branchName] ?? null;
+  return pullRequest
+    ? { pullRequest }
+    : {
+        pullRequest: null,
+        failureKind: "not-found",
+        failureReason: `no open PR metadata found for branch ${branchName}`,
+      };
 }
 
 const workListJsonText = workListPath

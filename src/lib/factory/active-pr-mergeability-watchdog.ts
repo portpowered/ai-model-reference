@@ -20,6 +20,22 @@ export type MergeabilityClass =
   | "conflicting"
   | "check-blocked"
   | "unknown";
+export type QueueMismatchRisk =
+  | "none"
+  | "queue-stale"
+  | "conflict-drift"
+  | "checks-blocked"
+  | "metadata-unavailable";
+export type PlannerNextAction =
+  | "wait"
+  | "refresh-branch"
+  | "repair-token"
+  | "open-follow-up-throughput-prd";
+export type PullRequestLookupFailureKind =
+  | "not-found"
+  | "auth"
+  | "api"
+  | "unknown";
 
 export interface QueueLaneRecord {
   workItemName: string;
@@ -51,6 +67,12 @@ export interface PullRequestRecord {
   state?: string;
 }
 
+export interface PullRequestLookupResult {
+  pullRequest: PullRequestRecord | null;
+  failureKind?: PullRequestLookupFailureKind;
+  failureReason?: string;
+}
+
 export interface BranchDriftRecord {
   status: BranchDriftStatus;
   commitsAheadOfMain?: number;
@@ -73,6 +95,8 @@ export interface LaneDiscoveryRecord {
   commitsBehindMain?: number;
   checkHealth?: CheckHealthStatus;
   mergeabilityClass?: MergeabilityClass;
+  queueMismatchRisk?: QueueMismatchRisk;
+  nextAction?: PlannerNextAction;
   reasons: string[];
 }
 
@@ -107,7 +131,7 @@ export interface DiscoverActivePrLanesOptions extends WatchdogDataSources {
   lookupPullRequest?: (
     branchName: string,
     runCommand: RunCommand,
-  ) => PullRequestRecord | null;
+  ) => PullRequestLookupResult;
 }
 
 function defaultRunCommand(
@@ -532,10 +556,37 @@ export function classifyMergeability(
   return "unknown";
 }
 
+function summarizeLookupFailure(
+  stderr: string,
+): Pick<PullRequestLookupResult, "failureKind" | "failureReason"> {
+  const normalized = stderr.trim().toLowerCase();
+  if (!normalized) {
+    return {
+      failureKind: "unknown",
+      failureReason: "GitHub CLI returned no PR metadata",
+    };
+  }
+  if (
+    normalized.includes("authentication") ||
+    normalized.includes("auth") ||
+    normalized.includes("token") ||
+    normalized.includes("login")
+  ) {
+    return {
+      failureKind: "auth",
+      failureReason: stderr.trim(),
+    };
+  }
+  return {
+    failureKind: "api",
+    failureReason: stderr.trim(),
+  };
+}
+
 export function defaultPullRequestLookup(
   branchName: string,
   runCommand: RunCommand = defaultRunCommand,
-): PullRequestRecord | null {
+): PullRequestLookupResult {
   const result = runCommand("gh", [
     "pr",
     "list",
@@ -548,19 +599,37 @@ export function defaultPullRequestLookup(
     "--limit",
     "1",
   ]);
-  if (!result.ok || !result.stdout.trim()) {
-    return null;
+  if (!result.ok) {
+    return {
+      pullRequest: null,
+      ...summarizeLookupFailure(result.stderr),
+    };
+  }
+  if (!result.stdout.trim()) {
+    return {
+      pullRequest: null,
+      failureKind: "not-found",
+      failureReason: `no open PR metadata found for branch ${branchName}`,
+    };
   }
 
   try {
     const parsed = JSON.parse(result.stdout) as unknown;
     if (!Array.isArray(parsed) || parsed.length === 0 || !isRecord(parsed[0])) {
-      return null;
+      return {
+        pullRequest: null,
+        failureKind: "not-found",
+        failureReason: `no open PR metadata found for branch ${branchName}`,
+      };
     }
     const first = parsed[0];
     const number = typeof first.number === "number" ? first.number : NaN;
     if (!Number.isFinite(number)) {
-      return null;
+      return {
+        pullRequest: null,
+        failureKind: "unknown",
+        failureReason: `PR lookup returned invalid number for branch ${branchName}`,
+      };
     }
     const detailResult = runCommand("gh", [
       "pr",
@@ -574,25 +643,27 @@ export function defaultPullRequestLookup(
         const details = JSON.parse(detailResult.stdout) as unknown;
         if (isRecord(details)) {
           return {
-            number,
-            headRefName:
-              typeof details.headRefName === "string"
-                ? details.headRefName
+            pullRequest: {
+              number,
+              headRefName:
+                typeof details.headRefName === "string"
+                  ? details.headRefName
+                  : undefined,
+              baseRefName:
+                typeof details.baseRefName === "string"
+                  ? details.baseRefName
+                  : undefined,
+              mergeStateStatus:
+                typeof details.mergeStateStatus === "string"
+                  ? details.mergeStateStatus
+                  : undefined,
+              statusCheckRollup: Array.isArray(details.statusCheckRollup)
+                ? details.statusCheckRollup
                 : undefined,
-            baseRefName:
-              typeof details.baseRefName === "string"
-                ? details.baseRefName
-                : undefined,
-            mergeStateStatus:
-              typeof details.mergeStateStatus === "string"
-                ? details.mergeStateStatus
-                : undefined,
-            statusCheckRollup: Array.isArray(details.statusCheckRollup)
-              ? details.statusCheckRollup
-              : undefined,
-            url: typeof details.url === "string" ? details.url : undefined,
-            state:
-              typeof details.state === "string" ? details.state : undefined,
+              url: typeof details.url === "string" ? details.url : undefined,
+              state:
+                typeof details.state === "string" ? details.state : undefined,
+            },
           };
         }
       } catch {
@@ -600,16 +671,69 @@ export function defaultPullRequestLookup(
       }
     }
     return {
-      number,
-      headRefName:
-        typeof first.headRefName === "string" ? first.headRefName : undefined,
-      baseRefName:
-        typeof first.baseRefName === "string" ? first.baseRefName : undefined,
-      url: typeof first.url === "string" ? first.url : undefined,
-      state: typeof first.state === "string" ? first.state : undefined,
+      pullRequest: {
+        number,
+        headRefName:
+          typeof first.headRefName === "string" ? first.headRefName : undefined,
+        baseRefName:
+          typeof first.baseRefName === "string" ? first.baseRefName : undefined,
+        url: typeof first.url === "string" ? first.url : undefined,
+        state: typeof first.state === "string" ? first.state : undefined,
+      },
     };
   } catch {
-    return null;
+    return {
+      pullRequest: null,
+      failureKind: "unknown",
+      failureReason: `PR lookup returned invalid JSON for branch ${branchName}`,
+    };
+  }
+}
+
+export function determineQueueMismatchRisk(
+  lane: Pick<
+    LaneDiscoveryRecord,
+    "queueState" | "mergeabilityClass" | "checkHealth"
+  >,
+): QueueMismatchRisk {
+  if (lane.mergeabilityClass === "conflicting") {
+    return "conflict-drift";
+  }
+  if (
+    lane.mergeabilityClass === "check-blocked" ||
+    lane.checkHealth === "pending" ||
+    lane.checkHealth === "failing"
+  ) {
+    return "checks-blocked";
+  }
+  if (lane.queueState === "failed" && lane.mergeabilityClass === "mergeable") {
+    return "queue-stale";
+  }
+  if (lane.mergeabilityClass === "unknown") {
+    return "metadata-unavailable";
+  }
+  return "none";
+}
+
+export function recommendPlannerNextAction(
+  lane: Pick<
+    LaneDiscoveryRecord,
+    "checkHealth" | "mergeabilityClass" | "queueMismatchRisk"
+  >,
+): PlannerNextAction | undefined {
+  switch (lane.queueMismatchRisk) {
+    case "conflict-drift":
+      return "refresh-branch";
+    case "checks-blocked":
+      return lane.checkHealth === "pending"
+        ? "wait"
+        : "open-follow-up-throughput-prd";
+    case "metadata-unavailable":
+      return "repair-token";
+    case "queue-stale":
+      return "open-follow-up-throughput-prd";
+    default:
+      return undefined;
   }
 }
 
@@ -703,9 +827,26 @@ export function discoverActivePrLaneReport(
       options.repoRoot ?? worktree.worktreePath,
     );
 
-    const pullRequest = lookupPullRequest(branchName, runCommand);
+    const pullRequestLookup = lookupPullRequest(branchName, runCommand);
+    const pullRequest = pullRequestLookup.pullRequest;
     if (!pullRequest) {
-      reasons.push(`no open PR metadata found for branch ${branchName}`);
+      const failureReason =
+        pullRequestLookup.failureReason ??
+        `no open PR metadata found for branch ${branchName}`;
+      reasons.push(failureReason);
+      const queueMismatchRisk =
+        pullRequestLookup.failureKind &&
+        pullRequestLookup.failureKind !== "not-found"
+          ? "metadata-unavailable"
+          : undefined;
+      const nextAction =
+        queueMismatchRisk === "metadata-unavailable"
+          ? recommendPlannerNextAction({
+              queueMismatchRisk,
+              mergeabilityClass: "unknown",
+              checkHealth: "unavailable",
+            })
+          : undefined;
       return {
         status: "unclassified",
         workItemName: queueLane.workItemName,
@@ -721,6 +862,8 @@ export function discoverActivePrLaneReport(
         driftStatus: drift.status,
         commitsAheadOfMain: drift.commitsAheadOfMain,
         commitsBehindMain: drift.commitsBehindMain,
+        queueMismatchRisk,
+        nextAction,
         reasons,
       } satisfies LaneDiscoveryRecord;
     }
@@ -731,7 +874,7 @@ export function discoverActivePrLaneReport(
       checkHealth,
     );
 
-    return {
+    const laneRecord = {
       status: "pr-backed",
       workItemName: queueLane.workItemName,
       queueState: queueLane.queueState,
@@ -751,6 +894,17 @@ export function discoverActivePrLaneReport(
       checkHealth,
       mergeabilityClass,
       reasons,
+    } satisfies LaneDiscoveryRecord;
+
+    const queueMismatchRisk = determineQueueMismatchRisk(laneRecord);
+    return {
+      ...laneRecord,
+      queueMismatchRisk,
+      nextAction: recommendPlannerNextAction({
+        queueMismatchRisk,
+        checkHealth,
+        mergeabilityClass,
+      }),
     } satisfies LaneDiscoveryRecord;
   });
 
@@ -807,6 +961,12 @@ export function formatActivePrLaneReport(report: LaneDiscoveryReport): string {
     }
     if (lane.checkHealth) {
       details.push(`checks=${lane.checkHealth}`);
+    }
+    if (lane.queueMismatchRisk && lane.queueMismatchRisk !== "none") {
+      details.push(`risk=${lane.queueMismatchRisk}`);
+    }
+    if (lane.nextAction) {
+      details.push(`next-action=${lane.nextAction}`);
     }
     if (lane.reasons.length > 0) {
       details.push(`reason=${lane.reasons.join("; ")}`);

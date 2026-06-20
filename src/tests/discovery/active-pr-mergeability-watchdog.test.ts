@@ -80,6 +80,7 @@ describe("active-pr-mergeability-watchdog script", () => {
     expect(result.stdout).toContain("drift=unknown");
     expect(result.stdout).toContain("mergeability=mergeable");
     expect(result.stdout).toContain("checks=passing");
+    expect(result.stdout).not.toContain("next-action=");
     expect(result.stdout).toContain(
       "reason=no open PR metadata found for branch beta",
     );

@@ -5,12 +5,14 @@ import { join } from "node:path";
 import {
   classifyBranchDrift,
   classifyMergeability,
+  determineQueueMismatchRisk,
   discoverActivePrLaneReport,
   formatActivePrLaneReport,
-  type PullRequestRecord,
+  type PullRequestLookupResult,
   parseQueueLaneRecords,
   parseSessionLaneRecords,
   type RunCommand,
+  recommendPlannerNextAction,
   summarizeCheckHealth,
 } from "@/lib/factory/active-pr-mergeability-watchdog";
 
@@ -148,16 +150,22 @@ describe("discoverActivePrLaneReport", () => {
           ["beta", "3\t0"],
         ]),
       ),
-      lookupPullRequest: (branchName): PullRequestRecord | null =>
+      lookupPullRequest: (branchName): PullRequestLookupResult =>
         branchName === "alpha"
           ? {
-              number: 42,
-              headRefName: "alpha",
-              baseRefName: "main",
-              mergeStateStatus: "BLOCKED",
-              statusCheckRollup: [{ status: "IN_PROGRESS" }],
+              pullRequest: {
+                number: 42,
+                headRefName: "alpha",
+                baseRefName: "main",
+                mergeStateStatus: "BLOCKED",
+                statusCheckRollup: [{ status: "IN_PROGRESS" }],
+              },
             }
-          : null,
+          : {
+              pullRequest: null,
+              failureKind: "not-found",
+              failureReason: `no open PR metadata found for branch ${branchName}`,
+            },
     });
 
     expect(report.issues).toEqual([]);
@@ -178,6 +186,8 @@ describe("discoverActivePrLaneReport", () => {
         commitsBehindMain: 0,
         checkHealth: "pending",
         mergeabilityClass: "check-blocked",
+        queueMismatchRisk: "checks-blocked",
+        nextAction: "wait",
         reasons: [],
       },
       {
@@ -192,6 +202,8 @@ describe("discoverActivePrLaneReport", () => {
         driftStatus: "behind",
         commitsAheadOfMain: 0,
         commitsBehindMain: 3,
+        queueMismatchRisk: undefined,
+        nextAction: undefined,
         reasons: ["no open PR metadata found for branch beta"],
       },
       {
@@ -225,6 +237,8 @@ describe("discoverActivePrLaneReport", () => {
           commitsBehindMain: 1,
           checkHealth: "failing",
           mergeabilityClass: "conflicting",
+          queueMismatchRisk: "conflict-drift",
+          nextAction: "refresh-branch",
           reasons: [],
         },
         {
@@ -243,7 +257,7 @@ describe("discoverActivePrLaneReport", () => {
     expect(reportText).toContain("Active PR Mergeability Watchdog");
     expect(reportText).toContain("lanes=2 pr-backed=1 unclassified=1");
     expect(reportText).toContain(
-      "- status=pr-backed queue=active work-item=alpha branch=alpha worktree=.claude/worktrees/alpha pr=#42 drift=diverged(ahead=2,behind=1) mergeability=conflicting checks=failing",
+      "- status=pr-backed queue=active work-item=alpha branch=alpha worktree=.claude/worktrees/alpha pr=#42 drift=diverged(ahead=2,behind=1) mergeability=conflicting checks=failing risk=conflict-drift next-action=refresh-branch",
     );
     expect(reportText).toContain(
       "pr=? drift=unknown reason=no open PR metadata found for branch beta",
@@ -299,5 +313,110 @@ describe("story 002 classification helpers", () => {
     expect(classifyMergeability("DIRTY", "passing")).toBe("conflicting");
     expect(classifyMergeability("BLOCKED", "pending")).toBe("check-blocked");
     expect(classifyMergeability(undefined, "unavailable")).toBe("unknown");
+  });
+
+  test("maps lane risk to one constrained planner action", () => {
+    expect(
+      determineQueueMismatchRisk({
+        queueState: "active",
+        mergeabilityClass: "conflicting",
+        checkHealth: "passing",
+      }),
+    ).toBe("conflict-drift");
+    expect(
+      recommendPlannerNextAction({
+        queueMismatchRisk: "conflict-drift",
+        mergeabilityClass: "conflicting",
+        checkHealth: "passing",
+      }),
+    ).toBe("refresh-branch");
+
+    expect(
+      determineQueueMismatchRisk({
+        queueState: "active",
+        mergeabilityClass: "check-blocked",
+        checkHealth: "pending",
+      }),
+    ).toBe("checks-blocked");
+    expect(
+      recommendPlannerNextAction({
+        queueMismatchRisk: "checks-blocked",
+        mergeabilityClass: "check-blocked",
+        checkHealth: "pending",
+      }),
+    ).toBe("wait");
+    expect(
+      recommendPlannerNextAction({
+        queueMismatchRisk: "checks-blocked",
+        mergeabilityClass: "check-blocked",
+        checkHealth: "failing",
+      }),
+    ).toBe("open-follow-up-throughput-prd");
+
+    expect(
+      determineQueueMismatchRisk({
+        queueState: "failed",
+        mergeabilityClass: "mergeable",
+        checkHealth: "passing",
+      }),
+    ).toBe("queue-stale");
+    expect(
+      recommendPlannerNextAction({
+        queueMismatchRisk: "queue-stale",
+        mergeabilityClass: "mergeable",
+        checkHealth: "passing",
+      }),
+    ).toBe("open-follow-up-throughput-prd");
+
+    expect(
+      recommendPlannerNextAction({
+        queueMismatchRisk: "metadata-unavailable",
+        mergeabilityClass: "unknown",
+        checkHealth: "unavailable",
+      }),
+    ).toBe("repair-token");
+  });
+
+  test("surfaces auth failures as planner-usable metadata risk", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "active-pr-watchdog-auth-"));
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const alphaPath = createWorktree(worktreesRoot, "alpha", "alpha");
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [{ name: "alpha", state: "active" }],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(new Map([[alphaPath, "alpha"]])),
+      lookupPullRequest: () => ({
+        pullRequest: null,
+        failureKind: "auth",
+        failureReason: "gh auth token is expired",
+      }),
+    });
+
+    expect(report.lanes).toEqual([
+      {
+        status: "unclassified",
+        workItemName: "alpha",
+        queueState: "active",
+        rawQueueState: "active",
+        worktreePath: ".claude/worktrees/alpha",
+        branchName: "alpha",
+        sessionId: undefined,
+        sessionState: undefined,
+        driftStatus: "unknown",
+        commitsAheadOfMain: undefined,
+        commitsBehindMain: undefined,
+        queueMismatchRisk: "metadata-unavailable",
+        nextAction: "repair-token",
+        reasons: ["gh auth token is expired"],
+      },
+    ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
   });
 });
