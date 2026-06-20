@@ -66,6 +66,35 @@ function initAuditFixtureRepo(): string {
 }
 
 describe("audit-canonical-page-surface script", () => {
+  test("keeps a narrow canonical-page change inside the routine owned-file budget", () => {
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/audit-canonical-page-surface.ts",
+        "--repo-root",
+        process.cwd(),
+        "--page-dir",
+        "src/content/docs/modules/grouped-query-attention",
+        "--files",
+        "src/content/docs/modules/grouped-query-attention/page.mdx",
+        "src/content/docs/modules/grouped-query-attention/messages/en.json",
+        "src/content/registry/modules/grouped-query-attention.json",
+      ],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8",
+      },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout ?? "").toContain("Budget status: within-budget");
+    expect(result.stdout ?? "").toContain("Recommended action: keep-routine");
+    expect(result.stdout ?? "").toContain(
+      "This branch stays inside the default owned page surface for one canonical page.",
+    );
+    expect(result.stdout ?? "").not.toContain("shared hotspot surface");
+  });
+
   test("audits the current branch against the inferred canonical page scope", () => {
     const repoRoot = initAuditFixtureRepo();
 

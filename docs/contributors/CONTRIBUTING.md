@@ -353,6 +353,7 @@ run these lightweight checks often:
 | Command | Equivalent Bun script | What it validates |
 | --- | --- | --- |
 | `make validate-data` | `bun ./scripts/validate-registry.ts` | Registry schema, frontmatter ↔ registry alignment, message keys referenced from MDX, asset ids, graph/table references, tag and citation resolution, and colocated `messages/` + `assets.json` bundles under `src/content/docs/` |
+| `bun run audit:canonical-page-surface` | `bun ./scripts/audit-canonical-page-surface.ts` | Whether one canonical-page branch still fits the routine owned-file budget or has spilled into shared hotspot surfaces that need either a visible exception or a broader throughput lane |
 | `make linkcheck` | `bun ./scripts/validate-links.ts` | Internal links and `#section` anchors in published docs pages served through the Fumadocs catch-all route (`src/content/docs/**/page.mdx`) |
 
 `make validate-data` is the primary gate for docs content work. It catches the
@@ -368,6 +369,14 @@ structural mistakes contributors make most often:
 between docs routes resolve (for example
 `/docs/modules/grouped-query-attention`, `/docs/glossary/token`, and in-page
 `#section` anchors). Fix broken relative links in MDX before review.
+
+`bun run audit:canonical-page-surface` fits between the content checks and PR
+review for ordinary canonical-page work. Run it after `make validate-data`
+confirms the page bundle and registry shape, rerun
+`bun run prepare:content-runtime` locally if you needed generated artifacts for
+validation, and use the audit to confirm the review commit stays on the owned
+page surface instead of carrying shared tests, generated runtime churn, or
+other hotspot edits into review.
 
 Optional during iteration:
 
@@ -560,8 +569,13 @@ When you add a new page with `generate:page-bundle`, the legacy
 3. Set `status: published` in `page.mdx` frontmatter when the page is ready for
    published checks (keep `draft` while tags or citations still point at
    unpublished targets).
-4. Run `make validate-data`, then `make linkcheck`.
-5. Run `make ci` before opening the pull request.
+4. Run `make validate-data`.
+5. If the branch is meant to stay one routine canonical-page PR, run
+   `bun run audit:canonical-page-surface` and keep the review commit in the
+   `keep-routine` lane unless you are carrying a visible exception or moving
+   the work into a broader throughput PRD.
+6. Run `make linkcheck`.
+7. Run `make ci` before opening the pull request.
 
 This matches the post-scaffolding checklist in [README.md](../../README.md).
 
