@@ -181,6 +181,7 @@ describe("active-pr-mergeability-watchdog script", () => {
     expect(result.stdout).toContain("checks=passing");
     expect(result.stdout).toContain("branch-source=metadata");
     expect(result.stdout).toContain("metadata=present");
+    expect(result.stdout).not.toContain("Action Queue");
     expect(result.stdout).not.toContain("next-action=");
     expect(result.stdout).toContain(
       "- status=linked-with-gaps queue=failed work-item=beta work-item-source=metadata branch=beta branch-source=prd metadata=incomplete",
@@ -416,10 +417,29 @@ describe("active-pr-mergeability-watchdog script", () => {
     expect(result.stdout).toContain("risk=metadata-unavailable");
     expect(result.stdout).toContain("next-action=repair-token");
     expect(result.stdout).toContain("reason=gh auth token is expired");
+    expect(result.stdout).toContain("Action Queue");
+    expect(result.stdout).toContain(
+      "1. action=refresh-branch work-item=alpha pr=#42 branch=alpha",
+    );
+    expect(result.stdout).toContain(
+      "2. action=wait-on-checks work-item=beta pr=#43 branch=beta checks=pending",
+    );
+    expect(result.stdout).toContain(
+      "3. action=repair-metadata work-item=gamma pr=? branch=gamma pr-status=missing",
+    );
 
-    const alphaIndex = result.stdout.indexOf("work-item=alpha");
-    const betaIndex = result.stdout.indexOf("work-item=beta");
-    const gammaIndex = result.stdout.indexOf("work-item=gamma");
+    const actionQueueIndex = result.stdout.indexOf("Action Queue");
+    const alphaIndex = result.stdout.indexOf(
+      "- status=pr-backed queue=active work-item=alpha",
+    );
+    const betaIndex = result.stdout.indexOf(
+      "- status=pr-backed queue=active work-item=beta",
+    );
+    const gammaIndex = result.stdout.indexOf(
+      "- status=linked-with-gaps queue=failed work-item=gamma",
+    );
+    expect(actionQueueIndex).toBeGreaterThanOrEqual(0);
+    expect(alphaIndex).toBeGreaterThan(actionQueueIndex);
     expect(alphaIndex).toBeGreaterThanOrEqual(0);
     expect(betaIndex).toBeGreaterThan(alphaIndex);
     expect(gammaIndex).toBeGreaterThan(betaIndex);
@@ -507,12 +527,27 @@ describe("active-pr-mergeability-watchdog script", () => {
     );
 
     expect(result.status).toBe(0);
-    const alphaIndex = result.stdout.indexOf("work-item=alpha");
-    const betaIndex = result.stdout.indexOf("work-item=beta");
-    const gammaIndex = result.stdout.indexOf("work-item=gamma");
+    const alphaIndex = result.stdout.indexOf(
+      "- status=pr-backed queue=active work-item=alpha",
+    );
+    const betaIndex = result.stdout.indexOf(
+      "- status=pr-backed queue=active work-item=beta",
+    );
+    const gammaIndex = result.stdout.indexOf(
+      "- status=linked-with-gaps queue=failed work-item=gamma",
+    );
+    const refreshActionIndex = result.stdout.indexOf(
+      "1. action=refresh-branch work-item=alpha pr=#42 branch=alpha",
+    );
+    const waitActionIndex = result.stdout.indexOf(
+      "2. action=wait-on-checks work-item=beta pr=#43 branch=beta checks=pending",
+    );
     expect(alphaIndex).toBeGreaterThanOrEqual(0);
     expect(betaIndex).toBeGreaterThan(alphaIndex);
     expect(gammaIndex).toBeGreaterThan(betaIndex);
+    expect(refreshActionIndex).toBeGreaterThanOrEqual(0);
+    expect(waitActionIndex).toBeGreaterThan(refreshActionIndex);
+    expect(alphaIndex).toBeGreaterThan(waitActionIndex);
     expect(result.stdout).toContain("next-action=refresh-branch");
     expect(result.stdout).toContain("next-action=wait");
     expect(result.stdout).toContain(

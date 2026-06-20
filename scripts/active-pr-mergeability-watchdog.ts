@@ -142,6 +142,49 @@ function formatDrift(lane: QueueWorktreePrLinkageLane): string {
   return `${lane.driftStatus}(ahead=${lane.commitsAheadOfMain ?? 0},behind=${lane.commitsBehindMain ?? 0})`;
 }
 
+function formatPlannerActionLabel(lane: QueueWorktreePrLinkageLane): string {
+  if (lane.nextAction === "refresh-branch") {
+    return "refresh-branch";
+  }
+  if (lane.nextAction === "wait") {
+    return lane.checkHealth === "pending" ? "wait-on-checks" : "wait";
+  }
+  if (lane.nextAction === "repair-token") {
+    return "repair-metadata";
+  }
+  return lane.nextAction ?? "review";
+}
+
+function buildPlannerActionQueue(
+  lanes: QueueWorktreePrLinkageLane[],
+): string[] {
+  return lanes
+    .filter(
+      (lane) =>
+        Boolean(lane.nextAction) &&
+        (Boolean(lane.pullRequest) || lane.nextAction === "repair-token"),
+    )
+    .map((lane, index) => {
+      const details = [
+        `action=${formatPlannerActionLabel(lane)}`,
+        `work-item=${lane.laneName}`,
+        `pr=${lane.pullRequest ? `#${lane.pullRequest.number}` : "?"}`,
+      ];
+
+      if (lane.branchName) {
+        details.push(`branch=${lane.branchName}`);
+      }
+      if (lane.checkHealth === "pending") {
+        details.push("checks=pending");
+      }
+      if (lane.nextAction === "repair-token") {
+        details.push(`pr-status=${lane.pullRequestLookup.status}`);
+      }
+
+      return `${index + 1}. ${details.join(" ")}`;
+    });
+}
+
 function formatWatchdogReportFromLedger(
   lanes: QueueWorktreePrLinkageLane[],
   issues: string[],
@@ -168,6 +211,13 @@ function formatWatchdogReportFromLedger(
     lines.push("");
     lines.push("No active or failed queue lanes were discovered.");
     return lines.join("\n");
+  }
+
+  const actionQueue = buildPlannerActionQueue(orderedLanes);
+  if (actionQueue.length > 0) {
+    lines.push("");
+    lines.push("Action Queue");
+    lines.push(...actionQueue);
   }
 
   lines.push("");
