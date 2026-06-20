@@ -191,6 +191,7 @@ describe("planner batch collision preflight script", () => {
     expect(result.stdout).toContain("candidate=docs-lane");
     expect(result.stdout).toContain("candidate=factory-lane");
     expect(result.stdout).toContain("collision-risk=high");
+    expect(result.stdout).toContain("recommendation=hold");
     expect(result.stdout).toContain("hotspot-overlap=src/lib/factory");
     expect(result.stdout).toContain(
       "active-lane-overlap=alpha-lane surface=src/lib/factory [shared helper]",
@@ -250,6 +251,9 @@ describe("planner batch collision preflight script", () => {
       expect.objectContaining({
         collisionRisk: "high",
         name: "alpha",
+        recommendation: "hold",
+        recommendationEvidenceSummary:
+          "Every submitted surface overlaps active lane alpha-lane or hot shared paths, so dispatch would collide immediately.",
         expectedSurfaceHints: ["src/lib/factory"],
         activeLaneOverlaps: [
           expect.objectContaining({

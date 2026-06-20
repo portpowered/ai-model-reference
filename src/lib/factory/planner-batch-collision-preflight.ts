@@ -49,9 +49,15 @@ export interface PlannerBatchCollisionCandidateReport
   hotspotEvidenceSummary: string[];
   hotspotPathOverlaps: PlannerBatchCollisionHotspotPathOverlap[];
   hotspotSurfaceOverlaps: PlannerBatchCollisionHotspotSurfaceOverlap[];
+  recommendation: PlannerBatchCollisionRecommendation;
+  recommendationEvidenceSummary: string;
 }
 
 export type PlannerBatchCollisionRisk = "low" | "medium" | "high";
+export type PlannerBatchCollisionRecommendation =
+  | "dispatch now"
+  | "hold"
+  | "split the batch";
 
 export interface PlannerBatchCollisionOwnedLaneOverlap {
   branchName?: string;
@@ -619,6 +625,105 @@ function classifyCandidateCollisionRisk(
   return "low";
 }
 
+function collectRiskyHints(
+  candidate: PlannerBatchCollisionCandidateInput,
+  hotspotSurfaceOverlaps: PlannerBatchCollisionHotspotSurfaceOverlap[],
+  hotspotPathOverlaps: PlannerBatchCollisionHotspotPathOverlap[],
+  activeLaneOverlaps: PlannerBatchCollisionOwnedLaneOverlap[],
+): string[] {
+  const riskyHints = new Set<string>();
+
+  for (const overlap of hotspotSurfaceOverlaps) {
+    if (overlap.category === "authored-content") {
+      continue;
+    }
+
+    for (const hint of overlap.matchedHints) {
+      riskyHints.add(hint);
+    }
+  }
+
+  for (const overlap of hotspotPathOverlaps) {
+    for (const hint of overlap.matchedHints) {
+      riskyHints.add(hint);
+    }
+  }
+
+  for (const overlap of activeLaneOverlaps) {
+    for (const hint of overlap.matchedHints) {
+      riskyHints.add(hint);
+    }
+  }
+
+  return candidate.expectedSurfaceHints.filter((hint) => riskyHints.has(hint));
+}
+
+function choosePlannerBatchCollisionRecommendation(
+  candidate: PlannerBatchCollisionCandidateInput,
+  collisionRisk: PlannerBatchCollisionRisk,
+  hotspotSurfaceOverlaps: PlannerBatchCollisionHotspotSurfaceOverlap[],
+  hotspotPathOverlaps: PlannerBatchCollisionHotspotPathOverlap[],
+  activeLaneOverlaps: PlannerBatchCollisionOwnedLaneOverlap[],
+): {
+  recommendation: PlannerBatchCollisionRecommendation;
+  recommendationEvidenceSummary: string;
+} {
+  const riskyHints = collectRiskyHints(
+    candidate,
+    hotspotSurfaceOverlaps,
+    hotspotPathOverlaps,
+    activeLaneOverlaps,
+  );
+  const safeHints = candidate.expectedSurfaceHints.filter(
+    (hint) => !riskyHints.includes(hint),
+  );
+  const sharedActiveOverlap = activeLaneOverlaps.find(
+    (overlap) => overlap.category !== "authored-content",
+  );
+
+  if (collisionRisk === "low") {
+    return {
+      recommendation: "dispatch now",
+      recommendationEvidenceSummary:
+        "No shared hotspot or active-lane overlap was confirmed for the submitted surfaces.",
+    };
+  }
+
+  if (
+    sharedActiveOverlap &&
+    riskyHints.length === candidate.expectedSurfaceHints.length
+  ) {
+    return {
+      recommendation: "hold",
+      recommendationEvidenceSummary: `Every submitted surface overlaps active lane ${sharedActiveOverlap.laneName} or hot shared paths, so dispatch would collide immediately.`,
+    };
+  }
+
+  if (safeHints.length > 0) {
+    return {
+      recommendation: "split the batch",
+      recommendationEvidenceSummary: `Risk is concentrated in ${riskyHints.join(", ")}, while ${safeHints.join(", ")} remains lower-risk and can be dispatched separately.`,
+    };
+  }
+
+  const topSharedHotspot = hotspotSurfaceOverlaps.find(
+    (overlap) => overlap.category !== "authored-content",
+  );
+
+  if (topSharedHotspot) {
+    return {
+      recommendation: "split the batch",
+      recommendationEvidenceSummary: `The current candidate is aimed at hot shared surface ${topSharedHotspot.surface}, so it should be narrowed before dispatch.`,
+    };
+  }
+
+  return {
+    recommendation: "hold",
+    recommendationEvidenceSummary:
+      "Current ownership evidence is incomplete or fully overlapping, so hold until the overlapping lane clears or the candidate is re-scoped.",
+  };
+}
+
 function buildActiveLaneEvidenceSummary(
   candidate: PlannerBatchCollisionCandidateInput,
   activeLaneOverlaps: PlannerBatchCollisionOwnedLaneOverlap[],
@@ -696,6 +801,14 @@ export function collectPlannerBatchCollisionPreflightSnapshot(
         hotspotSurfaceOverlaps,
         activeLaneOverlaps,
       );
+      const { recommendation, recommendationEvidenceSummary } =
+        choosePlannerBatchCollisionRecommendation(
+          candidate,
+          collisionRisk,
+          hotspotSurfaceOverlaps,
+          hotspotPathOverlaps,
+          activeLaneOverlaps,
+        );
 
       return {
         ...candidate,
@@ -715,6 +828,8 @@ export function collectPlannerBatchCollisionPreflightSnapshot(
         ),
         hotspotPathOverlaps,
         hotspotSurfaceOverlaps,
+        recommendation,
+        recommendationEvidenceSummary,
       };
     }),
     hotspotEvidence: {
@@ -744,6 +859,10 @@ export function formatPlannerBatchCollisionPreflightSnapshot(
       `- candidate=${candidate.name} expected-surfaces=${candidate.expectedSurfaceHints.join(", ")} hint-count=${candidate.expectedSurfaceHints.length}`,
     );
     lines.push(`  collision-risk=${candidate.collisionRisk}`);
+    lines.push(`  recommendation=${candidate.recommendation}`);
+    lines.push(
+      `  recommendation-evidence=${candidate.recommendationEvidenceSummary}`,
+    );
     for (const hotspotSummary of candidate.hotspotEvidenceSummary) {
       lines.push(`  hotspot-evidence=${hotspotSummary}`);
     }

@@ -202,6 +202,7 @@ describe("planner batch collision preflight", () => {
           "docs/guide.md",
           "src/content/docs/attention/page.mdx",
         ],
+        recommendation: "dispatch now",
       }),
       expect.objectContaining({
         name: "factory-lane",
@@ -209,6 +210,7 @@ describe("planner batch collision preflight", () => {
           "scripts/report-planner-conflict-hotspots.ts",
           "src/lib/factory/queue-worktree-pr-linkage-ledger.ts",
         ],
+        recommendation: "split the batch",
       }),
     ]);
   });
@@ -306,6 +308,8 @@ describe("planner batch collision preflight", () => {
     expect(snapshot.candidates[0]?.hotspotEvidenceSummary).toContain(
       "Overlap is limited to authored-content surfaces in the current hotspot sample.",
     );
+    expect(snapshot.candidates[0]?.collisionRisk).toBe("low");
+    expect(snapshot.candidates[0]?.recommendation).toBe("dispatch now");
   });
 
   test("requires repo-local hotspot evidence when no injected snapshot is provided", () => {
@@ -368,8 +372,29 @@ describe("planner batch collision preflight", () => {
     expect(snapshot.candidates[0]?.activeLaneEvidenceSummary).toContain(
       "Active ownership raises the current collision risk to high.",
     );
+    expect(snapshot.candidates[0]?.recommendation).toBe("hold");
+    expect(snapshot.candidates[0]?.recommendationEvidenceSummary).toContain(
+      "Every submitted surface overlaps active lane alpha-lane",
+    );
 
     fixture.cleanup();
+  });
+
+  test("recommends splitting the batch when only part of the candidate hits risky shared surfaces", () => {
+    const snapshot = collectPlannerBatchCollisionPreflightSnapshot(
+      ["mixed-lane=src/lib/factory,docs/guide.md"],
+      {
+        generatedAtUtc: "2026-06-20T00:00:00.000Z",
+        hotspotSnapshot,
+        linkageLedger,
+      },
+    );
+
+    expect(snapshot.candidates[0]?.collisionRisk).toBe("medium");
+    expect(snapshot.candidates[0]?.recommendation).toBe("split the batch");
+    expect(snapshot.candidates[0]?.recommendationEvidenceSummary).toBe(
+      "Risk is concentrated in src/lib/factory, while docs/guide.md remains lower-risk and can be dispatched separately.",
+    );
   });
 
   test("keeps active ownership gaps explicit when a linked lane cannot provide ownership details", () => {
@@ -422,6 +447,9 @@ describe("planner batch collision preflight", () => {
           ],
           hotspotPathOverlaps: [],
           hotspotSurfaceOverlaps: [],
+          recommendation: "dispatch now",
+          recommendationEvidenceSummary:
+            "No shared hotspot or active-lane overlap was confirmed for the submitted surfaces.",
         },
         {
           activeLaneEvidenceSummary: [
@@ -467,6 +495,9 @@ describe("planner batch collision preflight", () => {
               touches: 7,
             },
           ],
+          recommendation: "hold",
+          recommendationEvidenceSummary:
+            "Every submitted surface overlaps active lane alpha-lane or hot shared paths, so dispatch would collide immediately.",
         },
       ],
     });
@@ -479,12 +510,14 @@ describe("planner batch collision preflight", () => {
       "- candidate=alpha expected-surfaces=docs/guide.md hint-count=1",
     );
     expect(output).toContain("collision-risk=low");
+    expect(output).toContain("recommendation=dispatch now");
     expect(output).toContain("hotspot-overlap=none");
     expect(output).toContain("active-lane-overlap=none");
     expect(output).toContain(
       "- candidate=beta expected-surfaces=src/lib/factory hint-count=1",
     );
     expect(output).toContain("collision-risk=high");
+    expect(output).toContain("recommendation=hold");
     expect(output).toContain(
       "active-lane-overlap=alpha-lane surface=src/lib/factory [shared helper] matched-hints=src/lib/factory",
     );
