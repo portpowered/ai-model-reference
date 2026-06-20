@@ -279,6 +279,24 @@ registry runtime, registry runtime, and table registry runtime in one fixed
 order. Re-running it is safe; it refreshes the checked-in generated runtime
 artifacts in place when needed.
 
+For content pull requests, the supported local review-readiness proof is:
+
+```sh
+bun run doctor:content-pr
+```
+
+This maintainer-facing doctor flow is scoped to content-branch review readiness,
+not the full `make ci` gate. It proves four stages in order:
+
+1. preflight cleanliness check for tracked `src/content` and `src/lib/content/generated` paths
+2. canonical content-runtime preparation through `bun run prepare:content-runtime`
+3. narrow content validation (`validate-data` and `linkcheck`)
+4. final clean-tree proof for the same tracked scoped paths
+
+Use this command when you want one repeatable content-PR proof without manually
+remembering the generation and lightweight validation sequence. Use `make ci`
+when you need the full repository gate.
+
 ### CI sequence
 
 GitHub Actions runs the same gate sequence on pull requests and pushes to

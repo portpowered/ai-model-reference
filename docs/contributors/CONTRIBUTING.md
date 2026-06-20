@@ -375,11 +375,19 @@ Optional during iteration:
 make lint          # Biome check — same as bun run lint
 make typecheck     # prepare:content-runtime + fumadocs-mdx, then tsc --noEmit
 bun run prepare:content-runtime # recreate generated content runtime artifacts locally
+bun run doctor:content-pr # supported content-PR review-readiness proof
 ```
 
 `make lint` helps when you edit TypeScript, MDX components, or scripts alongside
 docs content. `make typecheck` matters when your change touches typed loaders,
 registry code, or MDX component props.
+
+When a maintainer wants one repeatable content-branch proof before review,
+prefer `bun run doctor:content-pr`. It is intentionally narrower than `make ci`:
+the doctor flow checks tracked cleanliness for `src/content` plus
+`src/lib/content/generated`, reruns the canonical `bun run prepare:content-runtime`
+entrypoint, and finishes with the lightweight content checks `validate-data`
+and `linkcheck`.
 
 For a visual pass on a published page, start the dev server after installing
 dependencies:
