@@ -95,20 +95,46 @@ describe("setup-workspace metadata stamp", () => {
       schemaVersion: number;
       workItemName: string;
       branchName: string;
+      branchMetadataSource: string;
       worktreePath: string;
       sessionId: string | null;
+      pullRequest: null;
       createdAtUtc: string;
       refreshedAtUtc: string;
+      linkage: {
+        branch: {
+          status: string;
+          refreshedAtUtc: string;
+        };
+        pullRequest: {
+          status: string;
+          issue: string;
+          refreshedAtUtc: string;
+        };
+      };
     };
 
     expect(firstMetadata).toEqual({
       schemaVersion: 1,
       workItemName: prdName,
       branchName: prdName,
+      branchMetadataSource: "setup",
       worktreePath: firstOutput.worktree,
       sessionId: "session-setup-1",
+      pullRequest: null,
       createdAtUtc: firstMetadata.createdAtUtc,
       refreshedAtUtc: firstMetadata.refreshedAtUtc,
+      linkage: {
+        branch: {
+          status: "current",
+          refreshedAtUtc: firstMetadata.refreshedAtUtc,
+        },
+        pullRequest: {
+          status: "missing",
+          issue: "pull request linkage has not been refreshed yet",
+          refreshedAtUtc: firstMetadata.refreshedAtUtc,
+        },
+      },
     });
     expect(firstMetadata.createdAtUtc).toMatch(/Z$/);
     expect(firstMetadata.refreshedAtUtc).toMatch(/Z$/);

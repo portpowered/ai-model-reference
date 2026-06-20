@@ -54,6 +54,9 @@ Executor and review workstations run in worktrees under
 `.claude/worktrees/<work-item-name>/`, created by `factory/scripts/setup-workspace.py`.
 Workspace setup also stamps canonical planner lane metadata at
 `.claude/worktrees/<work-item-name>/.claude/lane-metadata.json`.
+Planner linkage reporting can refresh mutable branch and PR linkage inside that
+record later with `bun ./scripts/report-queue-worktree-pr-linkage-ledger.ts --refresh-metadata`
+without recreating the worktree.
 
 ## Batch Submission
 

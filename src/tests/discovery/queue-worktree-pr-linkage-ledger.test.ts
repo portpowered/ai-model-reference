@@ -24,6 +24,19 @@ function createWorktree(
   );
 }
 
+function writeLaneMetadata(
+  worktreesRoot: string,
+  worktreeName: string,
+  metadata: Record<string, unknown>,
+): void {
+  const metadataDir = join(worktreesRoot, worktreeName, ".claude");
+  mkdirSync(metadataDir, { recursive: true });
+  writeFileSync(
+    join(metadataDir, "lane-metadata.json"),
+    `${JSON.stringify(metadata, null, 2)}\n`,
+  );
+}
+
 function installFakeYouBinary(dir: string, logPath: string): string {
   const binDir = join(dir, "bin");
   const binaryPath = join(binDir, "you");
@@ -82,6 +95,107 @@ exit 1
 }
 
 describe("queue-worktree-pr-linkage-ledger script", () => {
+  test("can refresh stamped worktree metadata during planner linkage reporting", () => {
+    const dir = mkdtempSync(join(tmpdir(), "queue-linkage-ledger-script-"));
+    const workListPath = join(dir, "work-list.json");
+    const sessionListPath = join(dir, "session-list.json");
+    const prMapPath = join(dir, "pr-map.json");
+    const worktreesRoot = join(dir, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    createWorktree(worktreesRoot, "alpha", "alpha");
+    writeLaneMetadata(worktreesRoot, "alpha", {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "alpha"),
+      sessionId: "sess-1",
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+
+    writeFileSync(
+      workListPath,
+      JSON.stringify({
+        results: [
+          {
+            workId: "task-active",
+            name: "alpha",
+            placeId: "lane-alpha",
+            state: { name: "in-review", type: "PROCESSING" },
+            sessionId: "sess-1",
+          },
+        ],
+      }),
+    );
+    writeFileSync(
+      sessionListPath,
+      JSON.stringify({
+        sessions: [{ id: "sess-1", workItemName: "alpha", status: "running" }],
+      }),
+    );
+    writeFileSync(
+      prMapPath,
+      JSON.stringify({
+        alpha: {
+          number: 42,
+          headRefName: "alpha",
+          mergeStateStatus: "CLEAN",
+          statusCheckRollup: [{ conclusion: "SUCCESS" }],
+          url: "https://example.com/pr/42",
+        },
+      }),
+    );
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-queue-worktree-pr-linkage-ledger.ts",
+        "--work-list-json",
+        workListPath,
+        "--session-list-json",
+        sessionListPath,
+        "--worktrees-dir",
+        worktreesRoot,
+        "--pr-map-json",
+        prMapPath,
+        "--refresh-metadata",
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    const metadata = JSON.parse(
+      readFileSync(
+        join(worktreesRoot, "alpha", ".claude", "lane-metadata.json"),
+        "utf8",
+      ),
+    ) as {
+      branchName: string;
+      branchMetadataSource: string;
+      pullRequest: { number: number; url: string } | null;
+      linkage: {
+        branch: { status: string };
+        pullRequest: { status: string };
+      };
+    };
+
+    expect(metadata.branchName).toBe("alpha");
+    expect(metadata.branchMetadataSource).toBe("prd");
+    expect(metadata.pullRequest).toEqual({
+      number: 42,
+      url: "https://example.com/pr/42",
+    });
+    expect(metadata.linkage).toEqual({
+      branch: expect.objectContaining({ status: "current" }),
+      pullRequest: expect.objectContaining({ status: "current" }),
+    });
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   test("keeps live-schema queue lanes visible in the ledger summary", () => {
     const dir = mkdtempSync(join(tmpdir(), "queue-linkage-ledger-script-"));
     const workListPath = join(dir, "work-list.json");

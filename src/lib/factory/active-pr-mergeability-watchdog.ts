@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
+import { refreshWorktreeLaneMetadata } from "@/lib/factory/worktree-lane-metadata";
 
 export type QueueLaneState = "active" | "failed";
 export type LaneDiscoveryStatus = "pr-backed" | "unclassified";
@@ -132,6 +133,7 @@ export interface WatchdogDataSources {
 export interface DiscoverActivePrLanesOptions extends WatchdogDataSources {
   baseBranchName?: string;
   repoRoot?: string;
+  refreshWorktreeMetadata?: boolean;
   runCommand?: RunCommand;
   lookupPullRequest?: (
     branchName: string,
@@ -836,6 +838,12 @@ export function discoverActivePrLaneReport(
       reasons.push(
         "worktree exists but branch metadata could not be determined",
       );
+      if (options.refreshWorktreeMetadata) {
+        refreshWorktreeLaneMetadata({
+          worktreePath: worktree.worktreePath,
+          branchIssue: reasons[0],
+        });
+      }
       return {
         status: "unclassified",
         workItemName: queueLane.workItemName,
@@ -890,6 +898,19 @@ export function discoverActivePrLaneReport(
               checkHealth: "unavailable",
             })
           : undefined;
+      if (options.refreshWorktreeMetadata) {
+        refreshWorktreeLaneMetadata({
+          worktreePath: worktree.worktreePath,
+          branchName,
+          branchMetadataSource: worktree.branchMetadataSource,
+          pullRequestLookup: {
+            status: "missing",
+            pullRequest: null,
+            failureKind: pullRequestLookup.failureKind,
+            failureReason: failureReason,
+          },
+        });
+      }
       return {
         status: "unclassified",
         workItemName: queueLane.workItemName,
@@ -942,6 +963,21 @@ export function discoverActivePrLaneReport(
       mergeabilityClass,
       reasons,
     } satisfies LaneDiscoveryRecord;
+
+    if (options.refreshWorktreeMetadata) {
+      refreshWorktreeLaneMetadata({
+        worktreePath: worktree.worktreePath,
+        branchName,
+        branchMetadataSource: worktree.branchMetadataSource,
+        pullRequestLookup: {
+          status: "resolved",
+          pullRequest: {
+            number: pullRequest.number,
+            url: pullRequest.url,
+          },
+        },
+      });
+    }
 
     const queueMismatchRisk = determineQueueMismatchRisk(laneRecord);
     return {

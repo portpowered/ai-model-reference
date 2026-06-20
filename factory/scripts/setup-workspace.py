@@ -94,10 +94,23 @@ def write_worktree_lane_metadata(prd_name, branch, worktree_path, session_id):
         "schemaVersion": WORKTREE_LANE_METADATA_SCHEMA_VERSION,
         "workItemName": prd_name,
         "branchName": branch,
+        "branchMetadataSource": "setup",
         "worktreePath": str(worktree_path.resolve()),
         "sessionId": session_id,
+        "pullRequest": None,
         "createdAtUtc": created_at_utc,
         "refreshedAtUtc": refreshed_at_utc,
+        "linkage": {
+            "branch": {
+                "status": "current",
+                "refreshedAtUtc": refreshed_at_utc,
+            },
+            "pullRequest": {
+                "status": "missing",
+                "issue": "pull request linkage has not been refreshed yet",
+                "refreshedAtUtc": refreshed_at_utc,
+            },
+        },
     }
 
     with open(metadata_path, "w", encoding="utf-8") as f:

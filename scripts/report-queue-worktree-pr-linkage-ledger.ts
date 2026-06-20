@@ -38,6 +38,7 @@ const worktreesDir =
 const prMapPath = readFlagValue("--pr-map-json");
 const format = readFlagValue("--format") ?? "summary";
 const plannerSession = readFlagValue("--session") ?? "~default";
+const refreshMetadata = process.argv.includes("--refresh-metadata");
 
 interface PullRequestFixtureFailure {
   failureKind?: PullRequestLookupFailureKind;
@@ -138,6 +139,7 @@ const ledger = discoverQueueWorktreePrLinkageLedger({
   repoRoot,
   workListJsonText,
   sessionListJsonText,
+  refreshWorktreeMetadata: refreshMetadata,
   worktreesDir,
   lookupPullRequest: pullRequestMap ? lookupPullRequestFromFixture : undefined,
 });
