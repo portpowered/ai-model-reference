@@ -504,6 +504,14 @@ In practice, a routine canonical-page branch should normally avoid:
 - Build, search, factory, or repository tooling files unless the work item is
   explicitly broader than one page
 
+Run `bun run audit:canonical-page-surface` before review when you need a quick
+branch-local check against this budget. The command audits the current branch by
+default, or you can pass an explicit file set with
+`bun run audit:canonical-page-surface -- --page-dir src/content/docs/<group>/<slug> --files <path...>`.
+It reads the canonical page frontmatter, classifies each changed path as
+page-owned, declared generated output, or a shared hotspot surface, and fails
+clearly if it cannot determine one page scope or current hotspot evidence.
+
 When a page truly needs cross-surface work, keep the exception visible. State
 which shared category was touched, why the owned page surface was insufficient,
 and whether the change still fits one narrow PR or should move into a dedicated
