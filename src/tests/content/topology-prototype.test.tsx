@@ -69,5 +69,34 @@ describe("topology prototype page", () => {
     expect(
       screen.getByText(messages.topologyPrototype.selectedViewValue),
     ).toBeTruthy();
+    expect(
+      screen.getByRole("list", {
+        name: messages.topologyPrototype.chipListLabel,
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(messages.topologyPrototype.detailPanelTitle),
+    ).toBeTruthy();
+  });
+
+  test("renders localized vietnamese topology copy", async () => {
+    const messages = await loadUiMessages("vi");
+    setMockPathname("/vi/topology");
+    setMockSearchParams(new URLSearchParams());
+
+    render(await renderTopologyPrototypePage("vi"));
+
+    expect(screen.getByText(messages.topologyPrototype.title)).toBeTruthy();
+    expect(
+      screen.getByText(messages.topologyPrototype.description),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("list", {
+        name: messages.topologyPrototype.chipListLabel,
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(messages.topologyPrototype.detailPanelTitle),
+    ).toBeTruthy();
   });
 });
