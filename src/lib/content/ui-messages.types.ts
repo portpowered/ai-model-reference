@@ -18,6 +18,7 @@ export type UiMessages = {
     architecture: string;
     topology: string;
     glossary: string;
+    timeline: string;
     tags: string;
   };
   language: {

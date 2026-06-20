@@ -60,6 +60,7 @@ describe("Phase 1 home shell styling contracts", () => {
       "/docs/architecture",
       "/topology",
       "/docs/glossary",
+      "/docs/timeline",
       "/tags",
     ]);
     expect(

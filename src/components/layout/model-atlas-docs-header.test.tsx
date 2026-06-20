@@ -79,6 +79,7 @@ describe("ModelAtlasDocsHeader", () => {
       "/docs/architecture",
       "/topology",
       "/docs/glossary",
+      "/docs/timeline",
       "/tags",
     ]);
 

@@ -23,6 +23,7 @@ describe("getPrimaryNavItems", () => {
       "/docs/architecture",
       "/topology",
       "/docs/glossary",
+      "/docs/timeline",
       "/tags",
     ]);
     expect(items.map((item) => item.label)).toEqual([
@@ -30,6 +31,7 @@ describe("getPrimaryNavItems", () => {
       messages.nav.architecture,
       messages.nav.topology,
       messages.nav.glossary,
+      messages.nav.timeline,
       messages.nav.tags,
     ]);
   });
@@ -43,6 +45,7 @@ describe("getPrimaryNavItems", () => {
       "/vi/docs/architecture",
       "/vi/topology",
       "/vi/docs/glossary",
+      "/vi/docs/timeline",
       "/vi/tags",
     ]);
   });
