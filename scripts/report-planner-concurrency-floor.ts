@@ -4,9 +4,11 @@ import {
   discoverPlannerConcurrencyFloorReport,
   formatPlannerConcurrencyFloorReport,
   type PlannerBacklogTaskFile,
+  type PlannerRootDirtyPathEvidence,
   type PlannerTempStateFile,
   serializePlannerConcurrencyFloorReport,
 } from "../src/lib/factory/planner-concurrency-floor-report";
+import { parsePlannerRelevantDirtyPaths } from "../src/lib/factory/planner-worktree-drift-watchdog";
 
 const defaultRepoRoot = resolve(import.meta.dir, "..");
 const DEFAULT_CONCURRENCY_FLOOR = 3;
@@ -22,6 +24,13 @@ function readFlagValue(flag: string): string | undefined {
 function readRequiredJsonFile(path: string, label: string): string {
   if (!existsSync(path)) {
     throw new Error(`Missing ${label} fixture at ${path}`);
+  }
+  return readFileSync(path, "utf8");
+}
+
+function readOptionalTextFile(path: string): string | undefined {
+  if (!existsSync(path)) {
+    return undefined;
   }
   return readFileSync(path, "utf8");
 }
@@ -95,6 +104,54 @@ function runYouJsonCommand(repoRoot: string, args: string[]): string {
   );
 }
 
+function readPlannerRootDirtyPathSnapshot(repoRoot: string): {
+  available: boolean;
+  paths: PlannerRootDirtyPathEvidence[];
+} {
+  const gitStatusOverridePath = readFlagValue("--root-git-status-file");
+  const gitStatusText = gitStatusOverridePath
+    ? readOptionalTextFile(resolve(gitStatusOverridePath))
+    : undefined;
+
+  if (typeof gitStatusText === "string") {
+    return {
+      available: true,
+      paths: parsePlannerRelevantDirtyPaths(gitStatusText, "root").map(
+        (dirtyPath) => ({
+          path: dirtyPath.path,
+          surface: dirtyPath.surface,
+        }),
+      ),
+    };
+  }
+
+  const proc = Bun.spawnSync(
+    ["git", "status", "--porcelain=v1", "--untracked-files=all"],
+    {
+      cwd: repoRoot,
+      env: process.env,
+      stdout: "pipe",
+      stderr: "pipe",
+    },
+  );
+  if (proc.exitCode !== 0) {
+    return {
+      available: false,
+      paths: [],
+    };
+  }
+
+  return {
+    available: true,
+    paths: parsePlannerRelevantDirtyPaths(proc.stdout.toString(), "root").map(
+      (dirtyPath) => ({
+        path: dirtyPath.path,
+        surface: dirtyPath.surface,
+      }),
+    ),
+  };
+}
+
 function readConcurrencyFloor(): number {
   const rawValue =
     readFlagValue("--floor") ?? process.env.PLANNER_CONCURRENCY_FLOOR;
@@ -129,9 +186,12 @@ const workListJsonText = workListPath
   : runYouJsonCommand(repoRoot, ["work", "list", "--session", sourceSession]);
 const taskFiles = collectTextSnapshots<PlannerBacklogTaskFile>(tasksRoot);
 const tempStateFiles = collectTextSnapshots<PlannerTempStateFile>(tempRoot);
+const plannerRootDirtyPaths = readPlannerRootDirtyPathSnapshot(repoRoot);
 
 const report = discoverPlannerConcurrencyFloorReport({
   concurrencyFloor,
+  plannerRootDirtyPaths: plannerRootDirtyPaths.paths,
+  plannerRootDirtyPathsAvailable: plannerRootDirtyPaths.available,
   sourceSession,
   taskFiles,
   tempStateFiles,

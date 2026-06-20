@@ -8,6 +8,7 @@ describe("report-planner-concurrency-floor script", () => {
   test("prints matching human-readable and machine-readable floor summaries for the same queue snapshot", () => {
     const dir = mkdtempSync(join(tmpdir(), "planner-concurrency-floor-"));
     const workListPath = join(dir, "work-list.json");
+    const rootStatusPath = join(dir, "root-status.txt");
     const tasksRoot = join(dir, "tasks");
     const tempRoot = join(dir, "docs", "temp");
 
@@ -35,6 +36,7 @@ describe("report-planner-concurrency-floor script", () => {
         ],
       }),
     );
+    writeFileSync(rootStatusPath, "");
     mkdirSync(join(tasksRoot, "ideas-to-review", "content"), {
       recursive: true,
     });
@@ -45,6 +47,8 @@ describe("report-planner-concurrency-floor script", () => {
         "bun",
         [
           "./scripts/report-planner-concurrency-floor.ts",
+          "--root-git-status-file",
+          rootStatusPath,
           "--work-list-json",
           workListPath,
           "--tasks-root",
@@ -60,6 +64,8 @@ describe("report-planner-concurrency-floor script", () => {
         "bun",
         [
           "./scripts/report-planner-concurrency-floor.ts",
+          "--root-git-status-file",
+          rootStatusPath,
           "--work-list-json",
           workListPath,
           "--tasks-root",
@@ -108,6 +114,7 @@ describe("report-planner-concurrency-floor script", () => {
   test("surfaces stale noise evidence without letting it raise the useful active lane count", () => {
     const dir = mkdtempSync(join(tmpdir(), "planner-concurrency-floor-"));
     const workListPath = join(dir, "work-list.json");
+    const rootStatusPath = join(dir, "root-status.txt");
     const tasksRoot = join(dir, "tasks");
     const tempRoot = join(dir, "docs", "temp");
 
@@ -151,6 +158,7 @@ describe("report-planner-concurrency-floor script", () => {
         ],
       }),
     );
+    writeFileSync(rootStatusPath, "");
     mkdirSync(tasksRoot, { recursive: true });
     mkdirSync(tempRoot, { recursive: true });
 
@@ -159,6 +167,8 @@ describe("report-planner-concurrency-floor script", () => {
         "bun",
         [
           "./scripts/report-planner-concurrency-floor.ts",
+          "--root-git-status-file",
+          rootStatusPath,
           "--work-list-json",
           workListPath,
           "--tasks-root",
@@ -187,6 +197,7 @@ describe("report-planner-concurrency-floor script", () => {
   test("reads planner-owned backlog candidates from tasks and excludes held or already-active lanes from refill suggestions", () => {
     const dir = mkdtempSync(join(tmpdir(), "planner-concurrency-floor-"));
     const workListPath = join(dir, "work-list.json");
+    const rootStatusPath = join(dir, "root-status.txt");
     const tasksRoot = join(dir, "tasks");
     const tempRoot = join(dir, "docs", "temp");
 
@@ -203,13 +214,14 @@ describe("report-planner-concurrency-floor script", () => {
         ],
       }),
     );
+    writeFileSync(rootStatusPath, "");
     mkdirSync(join(tasksRoot, "ideas-to-review", "content"), {
       recursive: true,
     });
     mkdirSync(tempRoot, { recursive: true });
     writeFileSync(
       join(tasksRoot, "ideas-to-review", "content", "alpha-refill.md"),
-      "# Alpha Refill\n",
+      "# Alpha Refill\n- Scope `src/features/docs/search`\n",
     );
     writeFileSync(
       join(tasksRoot, "ideas-to-review", "content", "beta-held.md"),
@@ -234,6 +246,8 @@ describe("report-planner-concurrency-floor script", () => {
         "bun",
         [
           "./scripts/report-planner-concurrency-floor.ts",
+          "--root-git-status-file",
+          rootStatusPath,
           "--work-list-json",
           workListPath,
           "--tasks-root",
@@ -249,6 +263,8 @@ describe("report-planner-concurrency-floor script", () => {
         "bun",
         [
           "./scripts/report-planner-concurrency-floor.ts",
+          "--root-git-status-file",
+          rootStatusPath,
           "--work-list-json",
           workListPath,
           "--tasks-root",
@@ -268,58 +284,195 @@ describe("report-planner-concurrency-floor script", () => {
         "Planner-Owned Backlog Candidates (3)",
       );
       expect(humanResult.stdout).toContain(
-        "task=ideas-to-review/content/alpha-refill status=ready eligible=true",
+        "task=ideas-to-review/content/alpha-refill status=ready eligible=true recommendation=prefer evidence=grounded",
       );
       expect(humanResult.stdout).toContain(
-        "task=ideas-to-review/content/beta-held status=held eligible=false",
+        "task=ideas-to-review/content/beta-held status=held eligible=false recommendation=hold",
       );
       expect(humanResult.stdout).toContain(
-        "task=ideas-to-review/content/active-lane status=already-active eligible=false",
+        "task=ideas-to-review/content/active-lane status=already-active eligible=false recommendation=hold",
       );
       expect(humanResult.stdout).toContain("Refill Candidates (1)");
       expect(humanResult.stdout).toContain(
-        "task=ideas-to-review/content/alpha-refill title=Alpha Refill",
+        "task=ideas-to-review/content/alpha-refill title=Alpha Refill recommendation=prefer evidence=grounded",
       );
 
       const jsonReport = JSON.parse(jsonResult.stdout) as {
         plannerOwnedBacklogCandidates: Array<{
+          refillRecommendation: string;
           taskId: string;
           status: string;
           eligibleForRefill: boolean;
         }>;
-        refillCandidates: Array<{ taskId: string }>;
+        refillCandidates: Array<{
+          refillRecommendation: string;
+          taskId: string;
+        }>;
       };
 
       expect(
         jsonReport.plannerOwnedBacklogCandidates.map((candidate) => ({
           eligibleForRefill: candidate.eligibleForRefill,
+          recommendation: candidate.refillRecommendation,
           status: candidate.status,
           taskId: candidate.taskId,
         })),
       ).toEqual([
         {
           eligibleForRefill: false,
+          recommendation: "hold",
           status: "already-active",
           taskId: "ideas-to-review/content/active-lane",
         },
         {
           eligibleForRefill: true,
+          recommendation: "prefer",
           status: "ready",
           taskId: "ideas-to-review/content/alpha-refill",
         },
         {
           eligibleForRefill: false,
+          recommendation: "hold",
           status: "held",
           taskId: "ideas-to-review/content/beta-held",
         },
       ]);
       expect(
         jsonReport.refillCandidates.map((candidate) => ({
+          recommendation: candidate.refillRecommendation,
           taskId: candidate.taskId,
         })),
       ).toEqual([
         {
+          recommendation: "prefer",
           taskId: "ideas-to-review/content/alpha-refill",
+        },
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("ranks refill recommendations by dirty-path overlap and evidence completeness", () => {
+    const dir = mkdtempSync(join(tmpdir(), "planner-concurrency-floor-"));
+    const workListPath = join(dir, "work-list.json");
+    const rootStatusPath = join(dir, "root-status.txt");
+    const tasksRoot = join(dir, "tasks");
+    const tempRoot = join(dir, "docs", "temp");
+
+    writeFileSync(
+      workListPath,
+      JSON.stringify({
+        results: [
+          {
+            workId: "task-active",
+            name: "active-lane",
+            sessionId: "session-active",
+            state: { name: "in-review", type: "PROCESSING" },
+          },
+        ],
+      }),
+    );
+    writeFileSync(
+      rootStatusPath,
+      " M src/lib/factory/planner-concurrency-floor-report.ts\n",
+    );
+    mkdirSync(join(tasksRoot, "ideas-to-review", "content"), {
+      recursive: true,
+    });
+    mkdirSync(tempRoot, { recursive: true });
+    writeFileSync(
+      join(tasksRoot, "ideas-to-review", "content", "alpha-safe.md"),
+      ["# Alpha Safe", "", "- Scope `src/features/docs/search` only."].join(
+        "\n",
+      ),
+    );
+    writeFileSync(
+      join(tasksRoot, "ideas-to-review", "content", "beta-overlap.md"),
+      [
+        "# Beta Overlap",
+        "",
+        "- Touches `src/lib/factory/planner-concurrency-floor-report.ts`.",
+      ].join("\n"),
+    );
+    writeFileSync(
+      join(tasksRoot, "ideas-to-review", "content", "gamma-unclear.md"),
+      "# Gamma Unclear\n",
+    );
+
+    try {
+      const humanResult = spawnSync(
+        "bun",
+        [
+          "./scripts/report-planner-concurrency-floor.ts",
+          "--root-git-status-file",
+          rootStatusPath,
+          "--work-list-json",
+          workListPath,
+          "--tasks-root",
+          tasksRoot,
+          "--temp-root",
+          tempRoot,
+          "--floor",
+          "4",
+        ],
+        { cwd: process.cwd(), encoding: "utf8" },
+      );
+      const jsonResult = spawnSync(
+        "bun",
+        [
+          "./scripts/report-planner-concurrency-floor.ts",
+          "--root-git-status-file",
+          rootStatusPath,
+          "--work-list-json",
+          workListPath,
+          "--tasks-root",
+          tasksRoot,
+          "--temp-root",
+          tempRoot,
+          "--floor",
+          "4",
+          "--json",
+        ],
+        { cwd: process.cwd(), encoding: "utf8" },
+      );
+
+      expect(humanResult.status).toBe(0);
+      expect(jsonResult.status).toBe(0);
+      expect(humanResult.stdout).toContain("Refill Candidates (3)");
+
+      const jsonReport = JSON.parse(jsonResult.stdout) as {
+        refillCandidates: Array<{
+          evidenceQuality: string;
+          refillRecommendation: string;
+          taskId: string;
+        }>;
+      };
+
+      expect(
+        jsonReport.refillCandidates.map((candidate) => candidate.taskId),
+      ).toEqual([
+        "ideas-to-review/content/alpha-safe",
+        "ideas-to-review/content/gamma-unclear",
+        "ideas-to-review/content/beta-overlap",
+      ]);
+      expect(
+        jsonReport.refillCandidates.map((candidate) => ({
+          evidenceQuality: candidate.evidenceQuality,
+          refillRecommendation: candidate.refillRecommendation,
+        })),
+      ).toEqual([
+        {
+          evidenceQuality: "grounded",
+          refillRecommendation: "prefer",
+        },
+        {
+          evidenceQuality: "missing",
+          refillRecommendation: "uncertain",
+        },
+        {
+          evidenceQuality: "partial",
+          refillRecommendation: "hold",
         },
       ]);
     } finally {

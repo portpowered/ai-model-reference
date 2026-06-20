@@ -9,6 +9,9 @@ import {
 
 const HOLD_SECTION_HEADING = /^##\s+holds\s*$/i;
 const MARKDOWN_HEADING = /^#\s+(.+?)\s*$/;
+const INLINE_CODE_SPAN = /`([^`\n]+)`/g;
+const REPO_PATH_HINT =
+  /(^|[^A-Za-z0-9._/-])((?:src|docs|scripts|factory|tasks|app|components|features|lib|tests?|packages)\/[A-Za-z0-9._/-]+)/g;
 const HOLD_KEYWORDS = [
   "hold",
   "held",
@@ -67,10 +70,21 @@ export interface PlannerBacklogTaskFile {
   text: string;
 }
 
+export interface PlannerRootDirtyPathEvidence {
+  path: string;
+  surface: string;
+}
+
 export interface PlannerTempStateFile {
   path: string;
   text: string;
 }
+
+export type PlannerRefillRecommendation = "prefer" | "uncertain" | "hold";
+export type PlannerCollisionEvidenceQuality =
+  | "grounded"
+  | "partial"
+  | "missing";
 
 export interface PlannerBacklogCandidate {
   taskPath: string;
@@ -80,6 +94,12 @@ export interface PlannerBacklogCandidate {
   eligibleForRefill: boolean;
   holdReasons: string[];
   activeLaneName?: string;
+  refillRecommendation: PlannerRefillRecommendation;
+  evidenceQuality: PlannerCollisionEvidenceQuality;
+  taskPathHints: string[];
+  overlappingDirtyPaths: string[];
+  overlappingDirtySurfaces: string[];
+  recommendationReasons: string[];
 }
 
 export interface PlannerConcurrencyFloorReport {
@@ -168,6 +188,91 @@ function deriveTaskId(taskPath: string): string {
     : normalizedPath.replace(/\.md$/i, "");
 }
 
+function normalizeRepoPath(value: string): string {
+  return value
+    .trim()
+    .replace(/\\/g, "/")
+    .replace(/^\.\/+/, "")
+    .replace(/^\/+/, "")
+    .replace(/\/+/g, "/")
+    .replace(/[),.:;]+$/g, "");
+}
+
+function deriveSurfaceLabel(path: string): string {
+  const normalizedPath = normalizeRepoPath(path);
+  const segments = normalizedPath.split("/").filter(Boolean);
+
+  if (segments.length <= 1) {
+    return normalizedPath;
+  }
+
+  if (segments[0] === "src" || segments[0] === "factory") {
+    return segments.slice(0, Math.min(3, segments.length)).join("/");
+  }
+
+  if (segments[0] === "docs") {
+    return segments.length >= 3 ? segments.slice(0, 2).join("/") : "docs";
+  }
+
+  return segments.slice(0, Math.min(2, segments.length)).join("/");
+}
+
+function looksLikeRepoPathHint(value: string): boolean {
+  if (!value || value.includes("://")) {
+    return false;
+  }
+
+  const normalized = normalizeRepoPath(value);
+  if (!normalized.includes("/")) {
+    return false;
+  }
+
+  return /^(src|docs|scripts|factory|tasks|app|components|features|lib|tests?|packages)\//.test(
+    normalized,
+  );
+}
+
+function extractRepoPathHints(text: string): string[] {
+  const hints = new Set<string>();
+
+  for (const match of text.matchAll(INLINE_CODE_SPAN)) {
+    const hint = normalizeRepoPath(match[1] ?? "");
+    if (looksLikeRepoPathHint(hint)) {
+      hints.add(hint);
+    }
+  }
+
+  for (const match of text.matchAll(REPO_PATH_HINT)) {
+    const hint = normalizeRepoPath(match[2] ?? "");
+    if (looksLikeRepoPathHint(hint)) {
+      hints.add(hint);
+    }
+  }
+
+  return [...hints].sort();
+}
+
+function pathMatchesHint(target: string, hint: string): boolean {
+  return (
+    target === hint ||
+    target.startsWith(`${hint}/`) ||
+    hint.startsWith(`${target}/`)
+  );
+}
+
+function rankRecommendation(
+  recommendation: PlannerRefillRecommendation,
+): number {
+  switch (recommendation) {
+    case "prefer":
+      return 0;
+    case "uncertain":
+      return 1;
+    case "hold":
+      return 2;
+  }
+}
+
 function collectCandidateAliases(taskPath: string, title: string): string[] {
   const normalizedPath = taskPath.replace(/\\/g, "/");
   const taskStem =
@@ -249,12 +354,107 @@ function collectHoldReasonsForAliases(
   return [...reasons].sort();
 }
 
+function buildReadyCandidateRecommendation(options: {
+  rootDirtyPaths: PlannerRootDirtyPathEvidence[];
+  rootDirtyPathsAvailable: boolean;
+  taskFile: PlannerBacklogTaskFile;
+}): Pick<
+  PlannerBacklogCandidate,
+  | "evidenceQuality"
+  | "overlappingDirtyPaths"
+  | "overlappingDirtySurfaces"
+  | "recommendationReasons"
+  | "refillRecommendation"
+  | "taskPathHints"
+> {
+  const taskPathHints = extractRepoPathHints(options.taskFile.text);
+  const overlappingDirtyPaths = [
+    ...new Set(
+      options.rootDirtyPaths
+        .filter((dirtyPath) =>
+          taskPathHints.some((hint) => pathMatchesHint(dirtyPath.path, hint)),
+        )
+        .map((dirtyPath) => dirtyPath.path),
+    ),
+  ].sort();
+  const overlappingDirtySurfaces = [
+    ...new Set(
+      options.rootDirtyPaths
+        .filter((dirtyPath) =>
+          taskPathHints.map(deriveSurfaceLabel).includes(dirtyPath.surface),
+        )
+        .map((dirtyPath) => dirtyPath.surface),
+    ),
+  ]
+    .filter(
+      (surface) =>
+        !overlappingDirtyPaths.some(
+          (path) => deriveSurfaceLabel(path) === surface,
+        ),
+    )
+    .sort();
+
+  const recommendationReasons: string[] = [];
+  let refillRecommendation: PlannerRefillRecommendation = "prefer";
+  let evidenceQuality: PlannerCollisionEvidenceQuality = "grounded";
+
+  if (taskPathHints.length === 0) {
+    refillRecommendation = "uncertain";
+    evidenceQuality = "missing";
+    recommendationReasons.push(
+      "Task file does not name repo-local paths, so collision evidence is incomplete.",
+    );
+  }
+
+  if (!options.rootDirtyPathsAvailable) {
+    refillRecommendation = "uncertain";
+    evidenceQuality =
+      evidenceQuality === "grounded" ? "partial" : evidenceQuality;
+    recommendationReasons.push(
+      "Planner root dirty-surface evidence was unavailable for this snapshot.",
+    );
+  }
+
+  if (overlappingDirtyPaths.length > 0) {
+    refillRecommendation = "hold";
+    evidenceQuality = "partial";
+    recommendationReasons.push(
+      `Task hints overlap current planner dirty path(s): ${overlappingDirtyPaths.join(", ")}.`,
+    );
+  } else if (overlappingDirtySurfaces.length > 0) {
+    refillRecommendation = "uncertain";
+    evidenceQuality = "partial";
+    recommendationReasons.push(
+      `Task hints overlap current planner dirty surface(s): ${overlappingDirtySurfaces.join(", ")}.`,
+    );
+  }
+
+  if (recommendationReasons.length === 0) {
+    recommendationReasons.push(
+      `No active alias conflict was found, and ${taskPathHints.length} repo-local path hint(s) avoid current planner dirty surfaces.`,
+    );
+  }
+
+  return {
+    evidenceQuality,
+    overlappingDirtyPaths,
+    overlappingDirtySurfaces,
+    recommendationReasons,
+    refillRecommendation,
+    taskPathHints,
+  };
+}
+
 function discoverPlannerOwnedBacklogCandidates(options: {
   taskFiles: PlannerBacklogTaskFile[];
   tempStateFiles: PlannerTempStateFile[];
   usefulActiveLanes: PlannerUsefulActiveLane[];
+  rootDirtyPaths?: PlannerRootDirtyPathEvidence[];
+  rootDirtyPathsAvailable?: boolean;
 }): PlannerBacklogCandidate[] {
   const activeAliases = collectActiveLaneAliasMap(options.usefulActiveLanes);
+  const rootDirtyPaths = options.rootDirtyPaths ?? [];
+  const rootDirtyPathsAvailable = options.rootDirtyPathsAvailable ?? false;
 
   return options.taskFiles
     .filter((taskFile) => taskFile.path.toLowerCase().endsWith(".md"))
@@ -278,6 +478,27 @@ function discoverPlannerOwnedBacklogCandidates(options: {
         : holdReasons.length > 0
           ? "held"
           : "ready";
+      const readyRecommendation = buildReadyCandidateRecommendation({
+        rootDirtyPaths,
+        rootDirtyPathsAvailable,
+        taskFile,
+      });
+
+      const refillRecommendation: PlannerRefillRecommendation = activeLaneName
+        ? "hold"
+        : holdReasons.length > 0
+          ? "hold"
+          : readyRecommendation.refillRecommendation;
+      const evidenceQuality: PlannerCollisionEvidenceQuality = activeLaneName
+        ? "grounded"
+        : holdReasons.length > 0
+          ? readyRecommendation.evidenceQuality
+          : readyRecommendation.evidenceQuality;
+      const recommendationReasons = activeLaneName
+        ? [`An active lane already owns alias ${activeLaneName}.`]
+        : holdReasons.length > 0
+          ? ["Explicit hold evidence exists in planner temp-state notes."]
+          : readyRecommendation.recommendationReasons;
 
       return {
         taskPath: normalizedPath,
@@ -287,6 +508,12 @@ function discoverPlannerOwnedBacklogCandidates(options: {
         eligibleForRefill: status === "ready",
         holdReasons,
         activeLaneName,
+        refillRecommendation,
+        evidenceQuality,
+        taskPathHints: readyRecommendation.taskPathHints,
+        overlappingDirtyPaths: readyRecommendation.overlappingDirtyPaths,
+        overlappingDirtySurfaces: readyRecommendation.overlappingDirtySurfaces,
+        recommendationReasons,
       };
     })
     .sort((left, right) => left.taskPath.localeCompare(right.taskPath));
@@ -301,6 +528,8 @@ export function serializePlannerConcurrencyFloorReport(
 export function discoverPlannerConcurrencyFloorReport(options: {
   concurrencyFloor: number;
   generatedAtUtc?: string;
+  plannerRootDirtyPaths?: PlannerRootDirtyPathEvidence[];
+  plannerRootDirtyPathsAvailable?: boolean;
   sourceSession?: string;
   taskFiles?: PlannerBacklogTaskFile[];
   tempStateFiles?: PlannerTempStateFile[];
@@ -318,15 +547,46 @@ export function discoverPlannerConcurrencyFloorReport(options: {
     .sort((left, right) => left.workItemName.localeCompare(right.workItemName));
   const usefulActiveLaneCount = usefulActiveLanes.length;
   const plannerOwnedBacklogCandidates = discoverPlannerOwnedBacklogCandidates({
+    rootDirtyPaths: options.plannerRootDirtyPaths,
+    rootDirtyPathsAvailable: options.plannerRootDirtyPathsAvailable,
     taskFiles: options.taskFiles ?? [],
     tempStateFiles: options.tempStateFiles ?? [],
     usefulActiveLanes,
   });
   const refillCandidates =
     usefulActiveLaneCount < options.concurrencyFloor
-      ? plannerOwnedBacklogCandidates.filter(
-          (candidate) => candidate.eligibleForRefill,
-        )
+      ? plannerOwnedBacklogCandidates
+          .filter((candidate) => candidate.eligibleForRefill)
+          .sort((left, right) => {
+            const recommendationOrder =
+              rankRecommendation(left.refillRecommendation) -
+              rankRecommendation(right.refillRecommendation);
+            if (recommendationOrder !== 0) {
+              return recommendationOrder;
+            }
+
+            const pathOverlapOrder =
+              left.overlappingDirtyPaths.length -
+              right.overlappingDirtyPaths.length;
+            if (pathOverlapOrder !== 0) {
+              return pathOverlapOrder;
+            }
+
+            const surfaceOverlapOrder =
+              left.overlappingDirtySurfaces.length -
+              right.overlappingDirtySurfaces.length;
+            if (surfaceOverlapOrder !== 0) {
+              return surfaceOverlapOrder;
+            }
+
+            const evidenceHintOrder =
+              right.taskPathHints.length - left.taskPathHints.length;
+            if (evidenceHintOrder !== 0) {
+              return evidenceHintOrder;
+            }
+
+            return left.taskPath.localeCompare(right.taskPath);
+          })
       : [];
 
   return {
@@ -415,6 +675,8 @@ function formatPlannerOwnedBacklogCandidates(
       `task=${candidate.taskId}`,
       `status=${candidate.status}`,
       `eligible=${candidate.eligibleForRefill}`,
+      `recommendation=${candidate.refillRecommendation}`,
+      `evidence=${candidate.evidenceQuality}`,
       `path=${candidate.taskPath}`,
     ];
     if (candidate.activeLaneName) {
@@ -423,6 +685,18 @@ function formatPlannerOwnedBacklogCandidates(
     if (candidate.holdReasons.length > 0) {
       fields.push(`hold=${candidate.holdReasons.join(" | ")}`);
     }
+    if (candidate.taskPathHints.length > 0) {
+      fields.push(`path-hints=${candidate.taskPathHints.join(" | ")}`);
+    }
+    if (candidate.overlappingDirtyPaths.length > 0) {
+      fields.push(`dirty-paths=${candidate.overlappingDirtyPaths.join(" | ")}`);
+    }
+    if (candidate.overlappingDirtySurfaces.length > 0) {
+      fields.push(
+        `dirty-surfaces=${candidate.overlappingDirtySurfaces.join(" | ")}`,
+      );
+    }
+    fields.push(`reason=${candidate.recommendationReasons.join(" | ")}`);
     lines.push(`- ${fields.join(" ")}`);
   }
 
@@ -440,7 +714,7 @@ function formatRefillCandidates(
 
   for (const candidate of candidates) {
     lines.push(
-      `- task=${candidate.taskId} title=${candidate.title} path=${candidate.taskPath}`,
+      `- task=${candidate.taskId} title=${candidate.title} recommendation=${candidate.refillRecommendation} evidence=${candidate.evidenceQuality} path=${candidate.taskPath} reason=${candidate.recommendationReasons.join(" | ")}`,
     );
   }
 

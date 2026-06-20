@@ -10,6 +10,8 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
     const report = discoverPlannerConcurrencyFloorReport({
       concurrencyFloor: 3,
       generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      plannerRootDirtyPaths: [],
+      plannerRootDirtyPathsAvailable: true,
       sourceSession: "~planner",
       taskFiles: [],
       tempStateFiles: [],
@@ -62,6 +64,8 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
     const report = discoverPlannerConcurrencyFloorReport({
       concurrencyFloor: 1,
       generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      plannerRootDirtyPaths: [],
+      plannerRootDirtyPathsAvailable: true,
       taskFiles: [],
       tempStateFiles: [],
       workListJsonText: JSON.stringify({
@@ -122,6 +126,8 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
     const report = discoverPlannerConcurrencyFloorReport({
       concurrencyFloor: 2,
       generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      plannerRootDirtyPaths: [],
+      plannerRootDirtyPathsAvailable: true,
       sourceSession: "~default",
       taskFiles: [],
       tempStateFiles: [],
@@ -177,15 +183,21 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
     const report = discoverPlannerConcurrencyFloorReport({
       concurrencyFloor: 3,
       generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      plannerRootDirtyPaths: [],
+      plannerRootDirtyPathsAvailable: true,
       sourceSession: "~planner",
       taskFiles: [
         {
           path: "tasks/ideas-to-review/content/alpha-refill.md",
-          text: "# Alpha Refill\n",
+          text: [
+            "# Alpha Refill",
+            "",
+            "- Scope `src/features/docs/search` for follow-up work.",
+          ].join("\n"),
         },
         {
           path: "tasks/ideas-to-review/content/beta-held.md",
-          text: "# Beta Held\n",
+          text: "# Beta Held\n- Touches `src/lib/content/registry-runtime.ts`\n",
         },
         {
           path: "tasks/ideas-to-review/content/active-lane.md",
@@ -218,40 +230,154 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
     expect(report.plannerOwnedBacklogCandidates).toEqual([
       {
         activeLaneName: "active-lane",
+        evidenceQuality: "grounded",
         eligibleForRefill: false,
         holdReasons: [],
+        overlappingDirtyPaths: [],
+        overlappingDirtySurfaces: [],
+        recommendationReasons: [
+          "An active lane already owns alias active-lane.",
+        ],
+        refillRecommendation: "hold",
         status: "already-active",
         taskId: "ideas-to-review/content/active-lane",
         taskPath: "tasks/ideas-to-review/content/active-lane.md",
+        taskPathHints: [],
         title: "Active Lane",
       },
       {
+        evidenceQuality: "grounded",
         eligibleForRefill: true,
         holdReasons: [],
+        overlappingDirtyPaths: [],
+        overlappingDirtySurfaces: [],
+        recommendationReasons: [
+          "No active alias conflict was found, and 1 repo-local path hint(s) avoid current planner dirty surfaces.",
+        ],
+        refillRecommendation: "prefer",
         status: "ready",
         taskId: "ideas-to-review/content/alpha-refill",
         taskPath: "tasks/ideas-to-review/content/alpha-refill.md",
+        taskPathHints: ["src/features/docs/search"],
         title: "Alpha Refill",
       },
       {
+        evidenceQuality: "grounded",
         eligibleForRefill: false,
         holdReasons: [
           "checklist.md: - beta-held blocked by dependency on shared registry cleanup",
         ],
+        overlappingDirtyPaths: [],
+        overlappingDirtySurfaces: [],
+        recommendationReasons: [
+          "Explicit hold evidence exists in planner temp-state notes.",
+        ],
+        refillRecommendation: "hold",
         status: "held",
         taskId: "ideas-to-review/content/beta-held",
         taskPath: "tasks/ideas-to-review/content/beta-held.md",
+        taskPathHints: ["src/lib/content/registry-runtime.ts"],
         title: "Beta Held",
       },
     ]);
     expect(report.refillCandidates).toEqual([
       {
+        evidenceQuality: "grounded",
         eligibleForRefill: true,
         holdReasons: [],
+        overlappingDirtyPaths: [],
+        overlappingDirtySurfaces: [],
+        recommendationReasons: [
+          "No active alias conflict was found, and 1 repo-local path hint(s) avoid current planner dirty surfaces.",
+        ],
+        refillRecommendation: "prefer",
         status: "ready",
         taskId: "ideas-to-review/content/alpha-refill",
         taskPath: "tasks/ideas-to-review/content/alpha-refill.md",
+        taskPathHints: ["src/features/docs/search"],
         title: "Alpha Refill",
+      },
+    ]);
+  });
+
+  test("ranks refill recommendations using dirty-surface overlap and evidence completeness", () => {
+    const report = discoverPlannerConcurrencyFloorReport({
+      concurrencyFloor: 4,
+      generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      plannerRootDirtyPaths: [
+        {
+          path: "src/lib/factory/planner-concurrency-floor-report.ts",
+          surface: "src/lib/factory",
+        },
+      ],
+      plannerRootDirtyPathsAvailable: true,
+      sourceSession: "~planner",
+      taskFiles: [
+        {
+          path: "tasks/ideas-to-review/content/alpha-safe.md",
+          text: [
+            "# Alpha Safe",
+            "",
+            "- Scope `src/features/docs/search` only.",
+          ].join("\n"),
+        },
+        {
+          path: "tasks/ideas-to-review/content/beta-overlap.md",
+          text: [
+            "# Beta Overlap",
+            "",
+            "- Touches `src/lib/factory/planner-concurrency-floor-report.ts`.",
+          ].join("\n"),
+        },
+        {
+          path: "tasks/ideas-to-review/content/gamma-unclear.md",
+          text: "# Gamma Unclear\n",
+        },
+      ],
+      tempStateFiles: [],
+      workListJsonText: JSON.stringify({
+        results: [
+          {
+            workId: "task-active",
+            name: "active-lane",
+            sessionId: "session-active",
+            state: { name: "in-review", type: "PROCESSING" },
+          },
+        ],
+      }),
+    });
+
+    expect(
+      report.refillCandidates.map((candidate) => ({
+        evidenceQuality: candidate.evidenceQuality,
+        recommendation: candidate.refillRecommendation,
+        reasons: candidate.recommendationReasons,
+        taskId: candidate.taskId,
+      })),
+    ).toEqual([
+      {
+        evidenceQuality: "grounded",
+        recommendation: "prefer",
+        reasons: [
+          "No active alias conflict was found, and 1 repo-local path hint(s) avoid current planner dirty surfaces.",
+        ],
+        taskId: "ideas-to-review/content/alpha-safe",
+      },
+      {
+        evidenceQuality: "missing",
+        recommendation: "uncertain",
+        reasons: [
+          "Task file does not name repo-local paths, so collision evidence is incomplete.",
+        ],
+        taskId: "ideas-to-review/content/gamma-unclear",
+      },
+      {
+        evidenceQuality: "partial",
+        recommendation: "hold",
+        reasons: [
+          "Task hints overlap current planner dirty path(s): src/lib/factory/planner-concurrency-floor-report.ts.",
+        ],
+        taskId: "ideas-to-review/content/beta-overlap",
       },
     ]);
   });
