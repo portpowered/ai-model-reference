@@ -261,12 +261,16 @@ describe("content PR doctor", () => {
     expect(CONTENT_PR_DOCTOR_SCOPED_PATHS).not.toContain(
       "src/lib/content/generated/published-docs-registry.generated.ts",
     );
+    expect(CONTENT_PR_DOCTOR_SCOPED_PATHS).not.toContain(
+      "src/lib/content/generated/graph-registry-runtime.generated.ts",
+    );
+    expect(CONTENT_PR_DOCTOR_SCOPED_PATHS).not.toContain(
+      "src/lib/content/generated/registry-runtime.generated.ts",
+    );
     expect(CONTENT_PR_DOCTOR_SCOPED_PATHS).toEqual(
       expect.arrayContaining([
         "src/content",
         "src/lib/content/generated/shipped-localized-docs.generated.ts",
-        "src/lib/content/generated/graph-registry-runtime.generated.ts",
-        "src/lib/content/generated/registry-runtime.generated.ts",
         "src/lib/content/generated/table-registry.generated.ts",
       ]),
     );
