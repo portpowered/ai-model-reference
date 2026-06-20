@@ -60,6 +60,13 @@ export function getRegistryRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "registry");
 }
 
+/** Generated content runtime artifacts under `src/lib/content/generated`. */
+export function getGeneratedContentRuntimeRoot(
+  projectRoot = getProjectRoot(),
+): string {
+  return join(projectRoot, "src", "lib", "content", "generated");
+}
+
 /** Site-wide UI messages under `src/content/messages`. */
 export function getMessagesRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "messages");
@@ -101,6 +108,9 @@ export const SYSTEMS_DOCS_ROOT = getSystemsDocsRoot(DOCS_ROOT);
 
 /** Default `src/content/registry` root. */
 export const REGISTRY_ROOT = getRegistryRoot(contentRoot);
+
+/** Default generated content runtime artifact root. */
+export const GENERATED_CONTENT_RUNTIME_ROOT = getGeneratedContentRuntimeRoot();
 
 /** Default `src/content/messages` root. */
 export const MESSAGES_ROOT = getMessagesRoot(contentRoot);

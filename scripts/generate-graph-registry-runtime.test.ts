@@ -180,7 +180,7 @@ describe("generate-graph-registry-runtime", () => {
     );
     const committedOutputPath = join(
       projectRoot,
-      "src/lib/content/graph-registry-runtime.generated.ts",
+      "src/lib/content/generated/graph-registry-runtime.generated.ts",
     );
 
     syncGraphRegistryRuntimeModule({ graphsRoot, outputPath });

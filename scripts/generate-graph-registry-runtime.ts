@@ -1,13 +1,16 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
-import { getProjectRoot } from "@/lib/content/content-paths";
+import {
+  getGeneratedContentRuntimeRoot,
+  getProjectRoot,
+} from "@/lib/content/content-paths";
 import { parseGraphRegistryRecords } from "@/lib/content/graph-registry-validation";
 
 const projectRoot = getProjectRoot();
 const graphRegistryRoot = join(projectRoot, "src/content/registry/graphs");
 const outputPath = join(
-  projectRoot,
-  "src/lib/content/graph-registry-runtime.generated.ts",
+  getGeneratedContentRuntimeRoot(projectRoot),
+  "graph-registry-runtime.generated.ts",
 );
 
 type GraphModuleDescriptor = {

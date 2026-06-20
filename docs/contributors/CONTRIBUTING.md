@@ -136,7 +136,7 @@ follow `<kind>.content.md` until page-spec or scaffold support expands.
 
 Runtime registry lookups are derived automatically from the authoritative JSON
 records under `src/content/registry/`. Do not hand-edit
-`src/lib/content/registry-runtime.generated.ts`; normal `dev`, `build`,
+`src/lib/content/generated/registry-runtime.generated.ts`; normal `dev`, `build`,
 `typecheck`, and `test` commands regenerate or verify it for you.
 
 ### Choosing slug, title, aliases, tags, and registryId

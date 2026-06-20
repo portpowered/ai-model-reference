@@ -1,15 +1,15 @@
 import {
+  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS,
+  GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
+  GENERATED_PUBLISHED_DOCS_ENTRIES,
+  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS,
+} from "@/lib/content/generated/published-docs-registry.generated";
+import {
   type PublishedDocsEntry,
   type PublishedDocsRecordRef,
   type PublishedDocsRegistryIds,
   publishedDocsHrefFromEntry,
 } from "@/lib/content/published-docs-registry-contract";
-import {
-  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS,
-  GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
-  GENERATED_PUBLISHED_DOCS_ENTRIES,
-  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS,
-} from "@/lib/content/published-docs-registry-manifest";
 
 export type {
   PublishedDocsEntry,
