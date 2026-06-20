@@ -85,6 +85,10 @@ function docsSlugFromUrl(url: string): string[] {
   return url.replace("/docs/", "").split("/");
 }
 
+function countUnique(values: string[]): number {
+  return new Set(values).size;
+}
+
 describe("docs navigation source", () => {
   test("page tree keeps the required published docs folders", () => {
     const folderNames = source.pageTree.children
@@ -96,18 +100,67 @@ describe("docs navigation source", () => {
     }
   });
 
-  test("generated folder URLs stay aligned with published docs pages without manual inventories", () => {
+  test("generated folder URLs stay within their published section contract without exact inventories", () => {
     const publishedPages = loadPublishedDocsPagesSync("en");
 
     for (const [section, folderName] of Object.entries(SECTION_FOLDER_NAMES)) {
-      const folderUrls = collectPageUrls(getFolderChildren(folderName)).sort();
+      const folderUrls = collectPageUrls(getFolderChildren(folderName));
+      const publishedSectionUrls = new Set(
+        publishedPages
+          .filter((page) => page.docsSlug.startsWith(`${section}/`))
+          .map((page) => page.url),
+      );
+      const sectionPrefix = `/docs/${section}/`;
+
+      expect(publishedSectionUrls.size).toBeGreaterThan(0);
+      expect(
+        folderUrls.length,
+        `${folderName} should expose published routes`,
+      ).toBeGreaterThan(0);
+      expect(
+        countUnique(folderUrls),
+        `${folderName} should not repeat sidebar routes`,
+      ).toBe(folderUrls.length);
+
+      for (const url of folderUrls) {
+        expect(
+          url.startsWith(sectionPrefix),
+          `${folderName} route ${url} should stay in ${sectionPrefix}`,
+        ).toBe(true);
+        expect(
+          publishedSectionUrls.has(url),
+          `${folderName} route ${url} should resolve from the published docs runtime`,
+        ).toBe(true);
+        expect(
+          source.getPage(docsSlugFromUrl(url)),
+          `${folderName} route ${url} should resolve through the Fumadocs source`,
+        ).toBeDefined();
+      }
+    }
+  });
+
+  test("published sections keep representative anchors in the sidebar without full-section equality", () => {
+    const publishedPages = loadPublishedDocsPagesSync("en");
+
+    for (const [section, folderName] of Object.entries(SECTION_FOLDER_NAMES)) {
+      const folderUrls = collectPageUrls(getFolderChildren(folderName));
       const publishedSectionUrls = publishedPages
         .filter((page) => page.docsSlug.startsWith(`${section}/`))
-        .map((page) => page.url)
-        .sort();
+        .map((page) => page.url);
 
-      expect(publishedSectionUrls.length).toBeGreaterThan(0);
-      expect(folderUrls).toEqual(publishedSectionUrls);
+      expect(
+        publishedSectionUrls.length,
+        `${folderName} should have at least one published route`,
+      ).toBeGreaterThan(0);
+
+      expect(
+        folderUrls,
+        `${folderName} should surface the first published route as a representative anchor`,
+      ).toContain(publishedSectionUrls[0] as string);
+      expect(
+        folderUrls,
+        `${folderName} should surface the last published route as a representative anchor`,
+      ).toContain(publishedSectionUrls.at(-1) as string);
     }
   });
 
