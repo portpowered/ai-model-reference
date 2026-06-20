@@ -11,6 +11,7 @@ const LEAKY_RELU_ALPHA = 0.1;
 const ACTIVATION_VARIANTS = [
   "sigmoid",
   "tanh",
+  "gelu",
   "relu",
   "leakyRelu",
   "silu",
@@ -55,6 +56,13 @@ const ACTIVATION_SERIES: Record<ActivationVariant, ActivationSeriesDefinition> =
     tanh: {
       evaluate: (x) => Math.tanh(x),
       color: "var(--accent)",
+    },
+    gelu: {
+      evaluate: (x) =>
+        0.5 *
+        x *
+        (1 + Math.tanh(Math.sqrt(2 / Math.PI) * (x + 0.044715 * x ** 3))),
+      color: "color-mix(in oklch, var(--accent) 45%, var(--primary) 55%)",
     },
     relu: {
       evaluate: (x) => Math.max(0, x),
@@ -105,6 +113,10 @@ const ACTIVATION_CHARTS: Record<string, ActivationChartDefinition> = {
       ticks: [-1, 0, 1],
     },
   },
+  "chart.activation-family.gelu-intro": {
+    kind: "line",
+    variants: ["gelu", "relu", "silu"],
+  },
   "chart.activation-family.relu-intro": {
     kind: "line",
     variants: ["relu"],
@@ -136,6 +148,10 @@ const ACTIVATION_DATA = sampleLineGraphFunctions({
     {
       dataKey: "tanh",
       evaluate: (x: number) => ACTIVATION_SERIES.tanh.evaluate(x),
+    },
+    {
+      dataKey: "gelu",
+      evaluate: (x: number) => ACTIVATION_SERIES.gelu.evaluate(x),
     },
     {
       dataKey: "relu",
@@ -190,6 +206,10 @@ function resolveVariantLabel(
 
   if (variantId === "tanh") {
     return "Tanh";
+  }
+
+  if (variantId === "gelu") {
+    return "GELU";
   }
 
   return variantId === "sigmoid" ? "Sigmoid" : "ReLU";

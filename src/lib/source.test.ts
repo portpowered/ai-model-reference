@@ -75,6 +75,7 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/compressed-sparse-attention",
   "/docs/modules/deepseekmoe",
   "/docs/modules/feed-forward-network",
+  "/docs/modules/gelu",
   "/docs/modules/group-norm",
   "/docs/modules/grouped-query-attention",
   "/docs/modules/heavily-compressed-attention",

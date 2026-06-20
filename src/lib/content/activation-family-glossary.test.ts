@@ -5,6 +5,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import {
+  GELU_GLOSSARY_PAGE_DIR,
   LEAKY_RELU_GLOSSARY_PAGE_DIR,
   RELU_GLOSSARY_PAGE_DIR,
   SIGMOID_GLOSSARY_PAGE_DIR,
@@ -84,6 +85,42 @@ const PAGE_CASES = [
     searchQuery: "tanh",
     searchQueries: ["tanh", "hyperbolic tangent", "activation"],
     searchUrl: "/docs/modules/tanh",
+  },
+  {
+    slug: "gelu",
+    registryId: "concept.gelu",
+    title: "Gaussian Error Linear Unit",
+    pageDir: GELU_GLOSSARY_PAGE_DIR,
+    pageKind: "module",
+    usesModuleTemplate: true,
+    expectedTags: ["activation", "foundations"],
+    aliases: ["gelu", "Gaussian Error Linear Unit", "transformer activation"],
+    relatedIds: [
+      "concept.activation",
+      "concept.feed-forward-network",
+      "concept.standard-ffn",
+      "concept.relu",
+      "concept.silu",
+      "concept.swiglu",
+    ],
+    hrefs: [
+      "/docs/glossary/activation",
+      "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/relu",
+      "/docs/modules/silu",
+      "/docs/modules/swiglu",
+    ],
+    messageNeedles: ["smooth", "transformer", "negative values"],
+    renderNeedle: "Gaussian Error Linear Unit",
+    searchQuery: "GELU",
+    searchQueries: [
+      "gelu",
+      "Gaussian Error Linear Unit",
+      "transformer activation",
+      "activation",
+    ],
+    searchUrl: "/docs/modules/gelu",
   },
   {
     slug: "relu",
@@ -221,7 +258,7 @@ const PAGE_CASES = [
   expectedGraphId?: string;
 }>;
 
-describe("Phase 3 activation-family glossary pages (US-002)", () => {
+describe("Phase 3 activation-family glossary pages", () => {
   for (const testCase of PAGE_CASES) {
     test(`${testCase.title} registry record is published with aliases, tags, and curated related ids`, () => {
       const record = getConceptById(testCase.registryId);

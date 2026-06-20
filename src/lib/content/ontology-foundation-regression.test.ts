@@ -27,6 +27,7 @@ const seededPrimaryClassifications = new Map([
   ["concept.activation", "classification.activation-functions"],
   ["module.sigmoid", "classification.activation-functions"],
   ["module.tanh", "classification.activation-functions"],
+  ["module.gelu", "classification.activation-functions"],
   ["module.relu", "classification.activation-functions"],
   ["module.leaky-relu", "classification.activation-functions"],
   ["module.silu", "classification.activation-functions"],
@@ -39,6 +40,7 @@ const seededPublishedRoutes = new Map([
   ["concept.activation", "/docs/glossary/activation"],
   ["module.sigmoid", "/docs/modules/sigmoid"],
   ["module.tanh", "/docs/modules/tanh"],
+  ["module.gelu", "/docs/modules/gelu"],
   ["module.relu", "/docs/modules/relu"],
   ["module.leaky-relu", "/docs/modules/leaky-relu"],
   ["module.silu", "/docs/modules/silu"],
@@ -123,6 +125,9 @@ describe("ontology foundation regression coverage", () => {
     expect(getPrimaryClassificationForRecord("module.tanh")?.id).toBe(
       "classification.activation-functions",
     );
+    expect(getPrimaryClassificationForRecord("module.gelu")?.id).toBe(
+      "classification.activation-functions",
+    );
     expect(getPrimaryClassificationForRecord("module.relu")?.id).toBe(
       "classification.activation-functions",
     );
@@ -139,6 +144,7 @@ describe("ontology foundation regression coverage", () => {
         "primary:concept.activation",
         "primary:module.sigmoid",
         "primary:module.tanh",
+        "primary:module.gelu",
         "primary:module.relu",
         "primary:module.leaky-relu",
         "primary:module.silu",
@@ -152,6 +158,7 @@ describe("ontology foundation regression coverage", () => {
       expect.arrayContaining([
         "secondary:module.sigmoid",
         "secondary:module.tanh",
+        "secondary:module.gelu",
         "primary:module.feed-forward-network",
         "primary:module.standard-ffn",
         "primary:module.swiglu",
@@ -170,6 +177,11 @@ describe("ontology foundation regression coverage", () => {
     ).toEqual(["module.standard-ffn"]);
     expect(
       listOntologyRelationshipsForRecord("module.tanh", "used-by").map(
+        (relationship) => relationship.target?.id,
+      ),
+    ).toEqual(["module.standard-ffn"]);
+    expect(
+      listOntologyRelationshipsForRecord("module.gelu", "used-by").map(
         (relationship) => relationship.target?.id,
       ),
     ).toEqual(["module.standard-ffn"]);
@@ -199,18 +211,20 @@ describe("ontology foundation regression coverage", () => {
     const relu = getRegistryRecordById("module.relu");
     const sigmoid = getRegistryRecordById("module.sigmoid");
     const tanh = getRegistryRecordById("module.tanh");
+    const gelu = getRegistryRecordById("module.gelu");
     const swiglu = getRegistryRecordById("module.swiglu");
     const activation = getRegistryRecordById("concept.activation");
     expect(relu?.tags).toEqual(["activation", "foundations"]);
     expect(sigmoid?.tags).toEqual(["activation", "foundations"]);
     expect(tanh?.tags).toEqual(["activation", "foundations"]);
+    expect(gelu?.tags).toEqual(["activation", "foundations"]);
     expect(swiglu?.tags).toEqual(["feed-forward", "foundations"]);
     expect(activation?.tags).toEqual([
       "token-to-probability-chain",
       "foundations",
     ]);
 
-    if (!relu || !sigmoid || !tanh || !swiglu) {
+    if (!relu || !sigmoid || !tanh || !gelu || !swiglu) {
       throw new Error("Expected seeded runtime records for curated links");
     }
 
@@ -255,6 +269,22 @@ describe("ontology foundation regression coverage", () => {
         "/docs/modules/standard-ffn",
         "/docs/modules/sigmoid",
         "/docs/modules/relu",
+      ]),
+    );
+    expect(
+      deriveCuratedRelatedItems(
+        gelu,
+        listRelatedRegistryRecords(),
+        PUBLISHED_DOCS_REGISTRY_IDS,
+      ).map((item) => item.href),
+    ).toEqual(
+      expect.arrayContaining([
+        "/docs/glossary/activation",
+        "/docs/modules/feed-forward-network",
+        "/docs/modules/standard-ffn",
+        "/docs/modules/relu",
+        "/docs/modules/silu",
+        "/docs/modules/swiglu",
       ]),
     );
     expect(

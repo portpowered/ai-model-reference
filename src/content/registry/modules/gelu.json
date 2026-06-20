@@ -1,0 +1,62 @@
+{
+  "id": "module.gelu",
+  "slug": "gelu",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["gelu", "Gaussian Error Linear Unit", "transformer activation"],
+  "tags": ["activation", "foundations"],
+  "relatedIds": [
+    "concept.activation",
+    "module.feed-forward-network",
+    "module.standard-ffn",
+    "module.relu",
+    "module.silu",
+    "module.swiglu"
+  ],
+  "citationIds": [
+    "citation.gaussian-error-linear-units",
+    "citation.bert-pre-training-of-deep-bidirectional-transformers"
+  ],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "releaseDate": "2016-06-27",
+  "authors": ["Dan Hendrycks", "Kevin Gimpel"],
+  "sourceId": "citation.gaussian-error-linear-units",
+  "primaryClassificationId": "classification.activation-functions",
+  "secondaryClassificationIds": ["classification.feed-forward-networks"],
+  "relationships": [
+    {
+      "relationshipType": "variant",
+      "targetId": "concept.activation"
+    },
+    {
+      "relationshipType": "used-by",
+      "targetId": "module.standard-ffn"
+    },
+    {
+      "relationshipType": "related",
+      "targetId": "module.relu"
+    },
+    {
+      "relationshipType": "related",
+      "targetId": "module.silu"
+    },
+    {
+      "relationshipType": "related",
+      "targetId": "module.swiglu"
+    }
+  ],
+  "moduleType": "activation",
+  "optimizes": ["smooth-gating"],
+  "exampleModelIds": [],
+  "improvesOnIds": [],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light",
+  "moduleFamily": "activation-functions",
+  "conceptType": "activation-function",
+  "variantGroup": "activation-variants"
+}

@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { cleanup, render } from "@testing-library/react";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import {
+  GELU_GLOSSARY_PAGE_DIR,
   RELU_GLOSSARY_PAGE_DIR,
   SIGMOID_GLOSSARY_PAGE_DIR,
   TANH_GLOSSARY_PAGE_DIR,
@@ -25,6 +26,12 @@ const sigmoidMessages = pageMessagesSchema.parse(
 const tanhMessages = pageMessagesSchema.parse(
   JSON.parse(
     readFileSync(join(TANH_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
+  ),
+);
+
+const geluMessages = pageMessagesSchema.parse(
+  JSON.parse(
+    readFileSync(join(GELU_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
   ),
 );
 
@@ -114,6 +121,36 @@ describe("ActivationFunctionChart", () => {
     expect(container.querySelector(".line-graph__line--sigmoid")).toBeNull();
     expect(container.textContent).toContain("Activation Curves");
     expect(container.textContent).toContain("Tanh");
+  });
+
+  test("renders GELU alongside ReLU and SiLU on the GELU intro chart", async () => {
+    const { ActivationFunctionChart } = await import(
+      "@/features/models/components/ActivationFunctionChart"
+    );
+
+    const { container } = render(
+      <PageMessagesProvider messages={geluMessages} isDev={false}>
+        <ActivationFunctionChart
+          assetId="computeFlow"
+          chartId="chart.activation-family.gelu-intro"
+          alt={geluMessages.assets?.computeFlow?.alt}
+          caption={geluMessages.assets?.computeFlow?.caption}
+        />
+      </PageMessagesProvider>,
+    );
+
+    expect(
+      container.querySelector(
+        '[data-chart-id="chart.activation-family.gelu-intro"]',
+      ),
+    ).toBeTruthy();
+    expect(container.querySelectorAll(".recharts-line-curve").length).toBe(3);
+    expect(container.querySelector(".line-graph__line--gelu")).toBeTruthy();
+    expect(container.querySelector(".line-graph__line--relu")).toBeTruthy();
+    expect(container.querySelector(".line-graph__line--silu")).toBeTruthy();
+    expect(container.textContent).toContain("GELU");
+    expect(container.textContent).toContain("ReLU");
+    expect(container.textContent).toContain("SiLU");
   });
 
   test("renders the ReLU hidden-state heatmap shell", async () => {

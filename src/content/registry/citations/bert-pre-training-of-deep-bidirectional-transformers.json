@@ -1,0 +1,25 @@
+{
+  "id": "citation.bert-pre-training-of-deep-bidirectional-transformers",
+  "slug": "bert-pre-training-of-deep-bidirectional-transformers",
+  "kind": "citation",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "summary",
+  "aliases": ["BERT paper", "BERT pre-training paper"],
+  "tags": ["foundations", "model-family"],
+  "relatedIds": [],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-20T00:00:00.000Z",
+  "updatedAt": "2026-06-20T00:00:00.000Z",
+  "citationType": "paper",
+  "authors": [
+    "Jacob Devlin",
+    "Ming-Wei Chang",
+    "Kenton Lee",
+    "Kristina Toutanova"
+  ],
+  "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+  "year": 2018,
+  "url": "https://arxiv.org/abs/1810.04805",
+  "mla": "Devlin, Jacob, et al. \"BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding.\" arXiv, 2018, https://arxiv.org/abs/1810.04805."
+}
