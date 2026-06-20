@@ -8,7 +8,10 @@ import {
   writeFileSync,
 } from "node:fs";
 import { basename, join, relative } from "node:path";
-import { getGeneratedContentRuntimeRoot } from "@/lib/content/content-paths";
+import {
+  getGeneratedContentRuntimeRoot,
+  getGeneratedDocsSourceRoot,
+} from "@/lib/content/content-paths";
 import {
   CONTENT_RUNTIME_COMPLETENESS_CONTRACT,
   CONTENT_RUNTIME_PREPARATION_STEPS,
@@ -134,11 +137,16 @@ describe("content runtime preparation", () => {
 
   test("runs required runtime generation steps in canonical order", () => {
     const commands: string[] = [];
+    const lifecycle: string[] = [];
     const result = runContentRuntimePreparation({
       cwd: repoRoot,
       log: () => {},
       logError: () => {},
+      removeDirectory(path) {
+        lifecycle.push(`remove ${relative(repoRoot, path)}`);
+      },
       runCommand(command) {
+        lifecycle.push(`run ${command.join(" ")}`);
         commands.push(command.join(" "));
         return {
           signal: null,
@@ -151,6 +159,12 @@ describe("content runtime preparation", () => {
       ok: true,
       completedSteps: [...CONTENT_RUNTIME_PREPARATION_STEPS],
     });
+    expect(lifecycle[0]).toBe("remove .source");
+    expect(lifecycle.slice(1)).toEqual(
+      CONTENT_RUNTIME_PREPARATION_STEPS.map(
+        (step) => `run ${step.command.join(" ")}`,
+      ),
+    );
     expect(commands).toEqual(
       CONTENT_RUNTIME_PREPARATION_STEPS.map((step) => step.command.join(" ")),
     );
@@ -479,6 +493,67 @@ describe("content runtime preparation", () => {
       }
     }
   });
+
+  test(
+    "prepare:content-runtime clears stale Fumadocs bindings so deleted docs pages disappear after regeneration",
+    () => {
+      const pagePath = join(
+        repoRoot,
+        RUNTIME_DISCOVERY_TEST_PAGE_RELATIVE_PATH,
+      );
+      const sourceRoot = getGeneratedDocsSourceRoot(repoRoot);
+      const sourceServerPath = join(sourceRoot, "server.ts");
+
+      try {
+        rmSync(sourceRoot, { force: true, recursive: true });
+        rmSync(pagePath, { force: true, recursive: true });
+        writePublishedDocsPage(RUNTIME_DISCOVERY_TEST_PAGE_RELATIVE_PATH, {
+          kind: "glossary",
+          registryId: RUNTIME_DISCOVERY_TEST_REGISTRY_ID,
+          status: "published",
+        });
+
+        const firstPrepare = runPrepareContentRuntime();
+        expect(firstPrepare.status).toBe(0);
+
+        const firstGenerate = spawnSync("bunx", ["fumadocs-mdx"], {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: process.env,
+        });
+        expect(firstGenerate.status).toBe(0);
+        expect(existsSync(sourceServerPath)).toBe(true);
+        expect(readFileSync(sourceServerPath, "utf8")).toContain(
+          RUNTIME_DISCOVERY_TEST_DOCS_SLUG,
+        );
+
+        rmSync(pagePath, { force: true, recursive: true });
+
+        const secondPrepare = runPrepareContentRuntime();
+        expect(secondPrepare.status).toBe(0);
+        expect(existsSync(sourceRoot)).toBe(false);
+
+        const secondGenerate = spawnSync("bunx", ["fumadocs-mdx"], {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: process.env,
+        });
+        expect(secondGenerate.status).toBe(0);
+        expect(existsSync(sourceServerPath)).toBe(true);
+
+        const regeneratedServer = readFileSync(sourceServerPath, "utf8");
+        expect(regeneratedServer).not.toContain(
+          RUNTIME_DISCOVERY_TEST_DOCS_SLUG,
+        );
+        expect(regeneratedServer).toContain("modules/grouped-query-attention");
+      } finally {
+        rmSync(pagePath, { force: true, recursive: true });
+        rmSync(sourceRoot, { force: true, recursive: true });
+        runPrepareContentRuntime();
+      }
+    },
+    { timeout: CONTENT_RUNTIME_PREPARATION_TIMEOUT_MS },
+  );
 
   test("published docs registry manifest stays out of the authored git surface", () => {
     const checkIgnored = spawnSync(

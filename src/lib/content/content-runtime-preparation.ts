@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, rmSync } from "node:fs";
+import { join, relative } from "node:path";
+import { getGeneratedDocsSourceRoot } from "./content-paths";
 
 export type ContentRuntimePreparationStep = {
   id: string;
@@ -92,6 +93,10 @@ export type RunContentRuntimePreparationOptions = {
   log?: ContentRuntimePreparationLogger;
   logError?: ContentRuntimePreparationLogger;
   runCommand?: RunContentRuntimePreparationCommand;
+  removeDirectory?: (
+    path: string,
+    options: { force: boolean; recursive: boolean },
+  ) => void;
   steps?: readonly ContentRuntimePreparationStep[];
 };
 
@@ -163,6 +168,22 @@ export type ContentRuntimeCompletenessGateResult =
       preparationResult?: ContentRuntimePreparationResult;
       verificationResult?: VerifyContentRuntimeCompletenessResult;
     };
+
+function removeGeneratedDocsSource(
+  cwd: string,
+  removeDirectory: (
+    path: string,
+    options: { force: boolean; recursive: boolean },
+  ) => void = rmSync,
+): string {
+  const generatedDocsSourceRoot = getGeneratedDocsSourceRoot(cwd);
+  removeDirectory(generatedDocsSourceRoot, {
+    force: true,
+    recursive: true,
+  });
+
+  return generatedDocsSourceRoot;
+}
 
 function runCommandSync(
   command: readonly [string, ...string[]],
@@ -366,8 +387,17 @@ export function runContentRuntimePreparation(
   const runCommand = options.runCommand ?? runCommandSync;
   const log = options.log ?? console.log;
   const logError = options.logError ?? console.error;
+  const removeDirectory = options.removeDirectory ?? rmSync;
   const steps = options.steps ?? CONTENT_RUNTIME_PREPARATION_STEPS;
   const completedSteps: ContentRuntimePreparationStep[] = [];
+  const removedSourceRoot = removeGeneratedDocsSource(
+    options.cwd,
+    removeDirectory,
+  );
+
+  log(
+    `[content-runtime] Removing stale generated Fumadocs bindings -> ${relative(options.cwd, removedSourceRoot) || ".source"}`,
+  );
 
   for (const step of steps) {
     log(

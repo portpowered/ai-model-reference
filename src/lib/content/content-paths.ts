@@ -133,6 +133,13 @@ export function getGeneratedContentRuntimeRoot(
   return join(projectRoot, "src", "lib", "content", "generated");
 }
 
+/** Generated Fumadocs bindings under `.source`. */
+export function getGeneratedDocsSourceRoot(
+  projectRoot = getProjectRoot(),
+): string {
+  return join(projectRoot, ".source");
+}
+
 /** Site-wide UI messages under `src/content/messages`. */
 export function getMessagesRoot(contentRoot = getContentRoot()): string {
   return join(contentRoot, "messages");
@@ -177,6 +184,9 @@ export const REGISTRY_ROOT = getRegistryRoot(contentRoot);
 
 /** Default generated content runtime artifact root. */
 export const GENERATED_CONTENT_RUNTIME_ROOT = getGeneratedContentRuntimeRoot();
+
+/** Default generated Fumadocs bindings root. */
+export const GENERATED_DOCS_SOURCE_ROOT = getGeneratedDocsSourceRoot();
 
 /** Default `src/content/messages` root. */
 export const MESSAGES_ROOT = getMessagesRoot(contentRoot);

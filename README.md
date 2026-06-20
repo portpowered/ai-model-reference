@@ -342,7 +342,9 @@ checkouts do not include that directory; the `typecheck`, `test`,
 `linkcheck` command paths all invoke `fumadocs-mdx` after the shared
 `prepare:content-runtime` flow when `.source/` is required, so standalone
 `make typecheck`, `make test`, and `make linkcheck` succeed without a manual
-codegen step.
+codegen step. That shared preparation flow also removes any existing `.source/`
+tree before regeneration so deleted or moved docs pages cannot survive as stale
+generated imports between runs.
 
 When you need to refresh the checked-in content-runtime artifacts directly, use
 `bun run prepare:content-runtime` rather than running the five runtime
