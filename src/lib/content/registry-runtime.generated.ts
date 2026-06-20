@@ -13,22 +13,23 @@ import {
 import type { RelatedRegistryRecord } from "./related-docs";
 import {
   type CitationRecord,
+  type ClassificationRecord,
   type ConceptRecord,
-  citationRecordSchema,
-  conceptRecordSchema,
   type DatasetRecord,
-  datasetRecordSchema,
   type ModelRecord,
   type ModuleRecord,
+  type OrganizationRecord,
+  type PaperRecord,
+  type SystemRecord,
+  type TrainingRegimeRecord,
+  citationRecordSchema,
+  conceptRecordSchema,
+  datasetRecordSchema,
   modelRecordSchema,
   moduleRecordSchema,
-  type OrganizationRecord,
   organizationRecordSchema,
-  type PaperRecord,
   paperRecordSchema,
-  type SystemRecord,
   systemRecordSchema,
-  type TrainingRegimeRecord,
   trainingRegimeRecordSchema,
 } from "./schemas";
 import registryRecord_0 from "../../content/registry/modules/absolute-positional-embeddings.json";
@@ -390,6 +391,8 @@ const modelRecords: ModelRecord[] = [
   modelRecordSchema.parse(registryRecord_143),
 ];
 
+const classificationRecords: ClassificationRecord[] = [];
+
 const paperRecords: PaperRecord[] = [
   paperRecordSchema.parse(registryRecord_144),
 ];
@@ -478,6 +481,9 @@ const conceptsById = new Map<string, ConceptRecord>(
 const modelsById = new Map<string, ModelRecord>(
   modelRecords.map((record) => [record.id, record]),
 );
+const classificationsById = new Map<string, ClassificationRecord>(
+  classificationRecords.map((record) => [record.id, record]),
+);
 const papersById = new Map<string, PaperRecord>(
   paperRecords.map((record) => [record.id, record]),
 );
@@ -537,6 +543,12 @@ export function getModelById(registryId: string): ModelRecord | undefined {
   return modelsById.get(registryId);
 }
 
+export function getClassificationById(
+  registryId: string,
+): ClassificationRecord | undefined {
+  return classificationsById.get(registryId);
+}
+
 export function getPaperById(registryId: string): PaperRecord | undefined {
   return papersById.get(registryId);
 }
@@ -578,6 +590,10 @@ export function listConceptRecords(): ConceptRecord[] {
 
 export function listModelRecords(): ModelRecord[] {
   return [...modelRecords];
+}
+
+export function listClassificationRecords(): ClassificationRecord[] {
+  return [...classificationRecords];
 }
 
 export function listPaperRecords(): PaperRecord[] {

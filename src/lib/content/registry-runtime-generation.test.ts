@@ -24,6 +24,7 @@ async function createTempRegistryRoot(): Promise<{
     "modules",
     "concepts",
     "models",
+    "classifications",
     "papers",
     "training-regimes",
     "systems",
@@ -87,6 +88,50 @@ describe("registry-runtime generation", () => {
           "module.runtime-generated-module",
         )?.kind,
       ).toBe("module");
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("generated runtime resolves a newly added classification without manual runtime edits", async () => {
+    const { outputPath, registryRoot, tempRoot } =
+      await createTempRegistryRoot();
+    try {
+      await writeFile(
+        join(registryRoot, "classifications", "activation-functions.json"),
+        JSON.stringify({
+          id: "classification.activation-functions",
+          slug: "activation-functions",
+          kind: "classification",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: ["activation family"],
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-02T00:00:00.000Z",
+          classificationType: "family",
+          classifiesKinds: ["module", "concept"],
+        }),
+      );
+
+      await writeGeneratedRegistryRuntimeModule({
+        outputPath,
+        projectRoot: getProjectRoot(),
+        registryRoot,
+      });
+
+      const generatedRuntime = (await import(
+        `${pathToFileURL(outputPath).href}?t=${Date.now()}`
+      )) as typeof import("./registry-runtime");
+
+      expect(
+        generatedRuntime.getClassificationById(
+          "classification.activation-functions",
+        )?.slug,
+      ).toBe("activation-functions");
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }

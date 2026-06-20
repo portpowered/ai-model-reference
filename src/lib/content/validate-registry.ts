@@ -71,6 +71,7 @@ const registryKindDirectories: Record<string, string> = {
   module: "modules",
   concept: "concepts",
   model: "models",
+  classification: "classifications",
   paper: "papers",
   "training-regime": "training-regimes",
   system: "systems",
@@ -1164,6 +1165,7 @@ async function validateRegistryFiles(
         indexes: {
           byId: new Map(),
           bySlug: new Map(),
+          classificationsById: new Map(),
           tagsById: new Map(),
           tagsBySlug: new Map(),
         },

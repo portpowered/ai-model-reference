@@ -39,6 +39,13 @@ const runtimeRegistryDirectories: RuntimeRegistryDirectory[] = [
     mapConst: "modelsById",
   },
   {
+    directory: "classifications",
+    recordType: "ClassificationRecord",
+    schemaName: "classificationRecordSchema",
+    recordsConst: "classificationRecords",
+    mapConst: "classificationsById",
+  },
+  {
     directory: "papers",
     recordType: "PaperRecord",
     schemaName: "paperRecordSchema",
@@ -197,6 +204,7 @@ function buildGeneratedSource(
   const importLines: string[] = [];
   const arrayLines: string[] = [];
   const mapLines: string[] = [];
+  const usedSchemaNames = new Set<string>();
   let importIndex = 0;
 
   for (const directory of runtimeRegistryDirectories) {
@@ -213,6 +221,10 @@ function buildGeneratedSource(
       arrayLines.push(`  ${directory.schemaName}.parse(${variableName}),`);
     }
 
+    if (jsonFiles.length > 0) {
+      usedSchemaNames.add(directory.schemaName);
+    }
+
     const records = arrayLines.splice(
       Math.max(0, arrayLines.length - jsonFiles.length),
       jsonFiles.length,
@@ -220,13 +232,18 @@ function buildGeneratedSource(
 
     const source = records.length > 0 ? records.join("\n") : "";
 
-    arrayLines.push(
-      `const ${directory.recordsConst}: ${directory.recordType}[] = [`,
-    );
     if (source.length > 0) {
+      arrayLines.push(
+        `const ${directory.recordsConst}: ${directory.recordType}[] = [`,
+      );
       arrayLines.push(source);
+      arrayLines.push("];", "");
+    } else {
+      arrayLines.push(
+        `const ${directory.recordsConst}: ${directory.recordType}[] = [];`,
+        "",
+      );
     }
-    arrayLines.push("];", "");
 
     mapLines.push(
       `const ${directory.mapConst} = new Map<string, ${directory.recordType}>(`,
@@ -235,26 +252,31 @@ function buildGeneratedSource(
     );
   }
 
-  const recordImports = [
+  const recordTypeImports = [
     "type CitationRecord",
+    "type ClassificationRecord",
     "type ConceptRecord",
-    "citationRecordSchema",
-    "conceptRecordSchema",
     "type DatasetRecord",
-    "datasetRecordSchema",
     "type ModelRecord",
     "type ModuleRecord",
+    "type OrganizationRecord",
+    "type PaperRecord",
+    "type SystemRecord",
+    "type TrainingRegimeRecord",
+  ];
+  const schemaImports = [
+    "citationRecordSchema",
+    "classificationRecordSchema",
+    "conceptRecordSchema",
+    "datasetRecordSchema",
     "modelRecordSchema",
     "moduleRecordSchema",
-    "type OrganizationRecord",
     "organizationRecordSchema",
-    "type PaperRecord",
     "paperRecordSchema",
-    "type SystemRecord",
     "systemRecordSchema",
-    "type TrainingRegimeRecord",
     "trainingRegimeRecordSchema",
-  ].join(",\n  ");
+  ].filter((schemaName) => usedSchemaNames.has(schemaName));
+  const recordImports = [...recordTypeImports, ...schemaImports].join(",\n  ");
 
   return `${generatedModuleHeader}
 // biome-ignore assist/source/organizeImports: generated file preserves deterministic discovery order
@@ -311,6 +333,12 @@ export function getModelById(registryId: string): ModelRecord | undefined {
   return modelsById.get(registryId);
 }
 
+export function getClassificationById(
+  registryId: string,
+): ClassificationRecord | undefined {
+  return classificationsById.get(registryId);
+}
+
 export function getPaperById(registryId: string): PaperRecord | undefined {
   return papersById.get(registryId);
 }
@@ -352,6 +380,10 @@ export function listConceptRecords(): ConceptRecord[] {
 
 export function listModelRecords(): ModelRecord[] {
   return [...modelRecords];
+}
+
+export function listClassificationRecords(): ClassificationRecord[] {
+  return [...classificationRecords];
 }
 
 export function listPaperRecords(): PaperRecord[] {

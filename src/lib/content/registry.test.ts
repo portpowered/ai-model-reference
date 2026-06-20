@@ -61,6 +61,23 @@ const validConceptRecord = {
   explainsIds: [],
 };
 
+const validClassificationRecord = {
+  id: "classification.activation-functions",
+  slug: "activation-functions",
+  kind: "classification",
+  defaultTitleKey: "title",
+  defaultSummaryKey: "description",
+  aliases: ["activation family"],
+  tags: [],
+  relatedIds: [],
+  citationIds: [],
+  status: "published",
+  createdAt: "2026-06-01T00:00:00.000Z",
+  updatedAt: "2026-06-02T00:00:00.000Z",
+  classificationType: "family",
+  classifiesKinds: ["module", "concept"],
+};
+
 const validCitationRecord = {
   id: "citation.gqa-paper",
   slug: "gqa-paper",
@@ -230,6 +247,50 @@ describe("loadRegistry", () => {
     await rm(tempRoot, { recursive: true, force: true });
   });
 
+  test("loads classification records from the classifications directory", async () => {
+    const tempRoot = join(
+      import.meta.dir,
+      "__fixtures__",
+      "classification-registry",
+    );
+    await rm(tempRoot, { recursive: true, force: true });
+    await mkdir(join(tempRoot, "modules"), { recursive: true });
+    await mkdir(join(tempRoot, "classifications"), { recursive: true });
+    await mkdir(join(tempRoot, "tags"), { recursive: true });
+    await mkdir(join(tempRoot, "citations"), { recursive: true });
+
+    await writeFile(
+      join(tempRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify({
+        ...validModuleRecord,
+        primaryClassificationId: "classification.activation-functions",
+      }),
+    );
+    await writeFile(
+      join(tempRoot, "classifications", "activation-functions.json"),
+      JSON.stringify(validClassificationRecord),
+    );
+    await writeFile(
+      join(tempRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(tempRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+
+    const indexes = await loadRegistry({ registryRoot: tempRoot });
+    expect(indexes.byId.get("classification.activation-functions")?.kind).toBe(
+      "classification",
+    );
+    expect(
+      indexes.classificationsById.get("classification.activation-functions")
+        ?.slug,
+    ).toBe("activation-functions");
+
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
   test("loads model, paper, and training-regime records from their registry directories", async () => {
     const tempRoot = join(import.meta.dir, "__fixtures__", "extended-registry");
     await rm(tempRoot, { recursive: true, force: true });
@@ -258,6 +319,103 @@ describe("loadRegistry", () => {
     expect(indexes.byId.get("training-regime.demo")?.kind).toBe(
       "training-regime",
     );
+
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  test("rejects ontology participants that reference missing classifications", async () => {
+    const tempRoot = join(
+      import.meta.dir,
+      "__fixtures__",
+      "invalid-ontology-registry",
+    );
+    await rm(tempRoot, { recursive: true, force: true });
+    await mkdir(join(tempRoot, "modules"), { recursive: true });
+    await mkdir(join(tempRoot, "tags"), { recursive: true });
+    await mkdir(join(tempRoot, "citations"), { recursive: true });
+
+    await writeFile(
+      join(tempRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify({
+        ...validModuleRecord,
+        primaryClassificationId: "classification.missing",
+      }),
+    );
+    await writeFile(
+      join(tempRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(tempRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+
+    await expect(
+      loadRegistry({ registryRoot: tempRoot }),
+    ).rejects.toMatchObject({
+      details: expect.arrayContaining([
+        expect.objectContaining({
+          type: "parse-error",
+          message: expect.stringContaining(
+            "primaryClassificationId must reference a classification record",
+          ),
+        }),
+      ]),
+    });
+
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  test("rejects ontology relationships that point at missing records", async () => {
+    const tempRoot = join(
+      import.meta.dir,
+      "__fixtures__",
+      "invalid-ontology-relationships",
+    );
+    await rm(tempRoot, { recursive: true, force: true });
+    await mkdir(join(tempRoot, "modules"), { recursive: true });
+    await mkdir(join(tempRoot, "classifications"), { recursive: true });
+    await mkdir(join(tempRoot, "tags"), { recursive: true });
+    await mkdir(join(tempRoot, "citations"), { recursive: true });
+
+    await writeFile(
+      join(tempRoot, "modules", "grouped-query-attention.json"),
+      JSON.stringify({
+        ...validModuleRecord,
+        primaryClassificationId: "classification.activation-functions",
+        relationships: [
+          {
+            relationshipType: "uses",
+            targetId: "module.missing-target",
+          },
+        ],
+      }),
+    );
+    await writeFile(
+      join(tempRoot, "classifications", "activation-functions.json"),
+      JSON.stringify(validClassificationRecord),
+    );
+    await writeFile(
+      join(tempRoot, "tags", "attention.json"),
+      JSON.stringify(validTagRecord),
+    );
+    await writeFile(
+      join(tempRoot, "citations", "gqa-paper.json"),
+      JSON.stringify(validCitationRecord),
+    );
+
+    await expect(
+      loadRegistry({ registryRoot: tempRoot }),
+    ).rejects.toMatchObject({
+      details: expect.arrayContaining([
+        expect.objectContaining({
+          type: "parse-error",
+          message: expect.stringContaining(
+            'relationships targetId references missing record "module.missing-target"',
+          ),
+        }),
+      ]),
+    });
 
     await rm(tempRoot, { recursive: true, force: true });
   });
