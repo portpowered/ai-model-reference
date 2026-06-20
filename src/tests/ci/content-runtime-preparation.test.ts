@@ -10,6 +10,9 @@ import {
 } from "@/lib/content/content-runtime-preparation";
 
 const repoRoot = join(import.meta.dir, "../../..");
+const LEGACY_TOP_LEVEL_GENERATED_RUNTIME_PATHS = [
+  "src/lib/content/published-docs-registry-manifest.ts",
+] as const;
 
 describe("content runtime preparation", () => {
   test("runs required runtime generation steps in canonical order", () => {
@@ -99,6 +102,10 @@ describe("content runtime preparation", () => {
           join(repoRoot, "src/lib/content", basename(step.outputPath)),
         ),
       ).toBe(false);
+    }
+
+    for (const legacyPath of LEGACY_TOP_LEVEL_GENERATED_RUNTIME_PATHS) {
+      expect(existsSync(join(repoRoot, legacyPath))).toBe(false);
     }
   });
 });
