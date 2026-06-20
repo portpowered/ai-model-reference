@@ -1,15 +1,10 @@
 import {
-  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS,
-  GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
-  GENERATED_PUBLISHED_DOCS_ENTRIES,
-  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS,
-} from "@/lib/content/generated/published-docs-registry.generated";
-import {
   type PublishedDocsEntry,
   type PublishedDocsRecordRef,
   type PublishedDocsRegistryIds,
   publishedDocsHrefFromEntry,
 } from "@/lib/content/published-docs-registry-contract";
+import { loadPublishedDocsRuntimeManifestSync } from "@/lib/content/published-docs-registry-source";
 
 export type {
   PublishedDocsEntry,
@@ -22,6 +17,9 @@ export type PublishedDocsIndex = {
   bySlug: ReadonlyMap<string, readonly PublishedDocsEntry[]>;
   registryIds: PublishedDocsRegistryIds;
 };
+
+const publishedDocsRuntimeManifest = loadPublishedDocsRuntimeManifestSync("en");
+
 function getModuleBackedConceptEntryBySlug(
   slug: string,
 ): PublishedDocsEntry | undefined {
@@ -67,18 +65,18 @@ function buildRuntimePublishedDocsIndex(
 }
 
 export const publishedDocsIndex = buildRuntimePublishedDocsIndex(
-  GENERATED_PUBLISHED_DOCS_ENTRIES,
+  publishedDocsRuntimeManifest.entries,
 );
 
 export const PUBLISHED_DOCS_REGISTRY_IDS: ReadonlySet<string> = new Set(
-  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS,
+  publishedDocsRuntimeManifest.registryIds,
 );
 
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS: ReadonlySet<string> =
-  new Set(GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS);
+  new Set(publishedDocsRuntimeManifest.publishedConceptSectionRegistryIds);
 
 export const MODULE_BACKED_CONCEPT_REGISTRY_IDS: ReadonlySet<string> = new Set(
-  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS,
+  publishedDocsRuntimeManifest.moduleBackedConceptRegistryIds,
 );
 
 export function listPublishedDocsEntries(): readonly PublishedDocsEntry[] {

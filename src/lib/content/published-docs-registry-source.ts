@@ -1,12 +1,16 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { getRegistryCollectionRoot } from "@/lib/content/content-paths";
-import type { DocsPageSource } from "@/lib/content/pages";
+import {
+  type DocsPageSource,
+  loadPublishedDocsPagesSync,
+} from "@/lib/content/pages";
 import {
   docsSectionFromSlug,
   type PublishedDocsEntry,
   type PublishedDocsRegistryIds,
 } from "@/lib/content/published-docs-registry-contract";
+import type { SiteLocale } from "@/lib/i18n/locale-routing";
 
 export type ScannedPublishedDocsEntry = PublishedDocsEntry & {
   pageDir: string;
@@ -17,6 +21,13 @@ export type ScannedPublishedDocsIndex = {
   byRegistryId: ReadonlyMap<string, ScannedPublishedDocsEntry>;
   bySlug: ReadonlyMap<string, readonly ScannedPublishedDocsEntry[]>;
   registryIds: PublishedDocsRegistryIds;
+};
+
+export type PublishedDocsRuntimeManifest = {
+  entries: readonly PublishedDocsEntry[];
+  registryIds: readonly string[];
+  publishedConceptSectionRegistryIds: readonly string[];
+  moduleBackedConceptRegistryIds: readonly string[];
 };
 
 function toScannedPublishedDocsEntry(
@@ -119,4 +130,24 @@ export function derivePublishedDocsRegistryIds(
   }
 
   return [...registryIds].sort();
+}
+
+export function derivePublishedDocsRuntimeManifest(
+  index: ScannedPublishedDocsIndex,
+): PublishedDocsRuntimeManifest {
+  return {
+    entries: index.entries.map(({ pageDir: _pageDir, ...entry }) => entry),
+    registryIds: derivePublishedDocsRegistryIds(index),
+    publishedConceptSectionRegistryIds:
+      derivePublishedConceptSectionRegistryIds(index),
+    moduleBackedConceptRegistryIds: deriveModuleBackedConceptRegistryIds(index),
+  };
+}
+
+export function loadPublishedDocsRuntimeManifestSync(
+  locale: SiteLocale,
+): PublishedDocsRuntimeManifest {
+  return derivePublishedDocsRuntimeManifest(
+    buildPublishedDocsIndex(loadPublishedDocsPagesSync(locale)),
+  );
 }
