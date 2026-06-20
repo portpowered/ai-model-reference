@@ -54,6 +54,8 @@ export interface WorktreeLaneRecord {
   worktreeName: string;
   worktreePath: string;
   branchName?: string;
+  branchMetadataSource?: "git" | "prd";
+  gitBranchName?: string;
   prdBranchName?: string;
 }
 
@@ -86,8 +88,11 @@ export interface LaneDiscoveryRecord {
   rawQueueState: string;
   worktreePath?: string;
   branchName?: string;
+  branchMetadataSource?: "git" | "prd";
   prNumber?: number;
   prUrl?: string;
+  prLookupFailureKind?: PullRequestLookupFailureKind;
+  prLookupFailureReason?: string;
   sessionId?: string;
   sessionState?: string;
   driftStatus?: BranchDriftStatus;
@@ -359,13 +364,20 @@ export function discoverWorktreeLaneRecords(
     .map((entry) => {
       const worktreePath = join(worktreesDir, entry.name);
       const prdBranchName = tryReadPrdBranchName(worktreePath);
-      const branchName =
-        readGitBranchName(worktreePath, runCommand) ?? prdBranchName;
+      const gitBranchName = readGitBranchName(worktreePath, runCommand);
+      const branchName = gitBranchName ?? prdBranchName;
+      const branchMetadataSource = gitBranchName
+        ? "git"
+        : prdBranchName
+          ? "prd"
+          : undefined;
 
       return {
         worktreeName: entry.name,
         worktreePath,
         branchName,
+        branchMetadataSource,
+        gitBranchName,
         prdBranchName,
       } satisfies WorktreeLaneRecord;
     });
@@ -813,11 +825,22 @@ export function discoverActivePrLaneReport(
           worktree.worktreePath,
           options.repoRoot,
         ),
+        branchMetadataSource: worktree.branchMetadataSource,
         sessionId: queueLane.sessionId ?? session?.sessionId,
         sessionState: session?.rawState,
         driftStatus: "unknown",
         reasons,
       } satisfies LaneDiscoveryRecord;
+    }
+
+    if (
+      worktree.gitBranchName &&
+      worktree.prdBranchName &&
+      worktree.gitBranchName !== worktree.prdBranchName
+    ) {
+      reasons.push(
+        `git branch ${worktree.gitBranchName} disagrees with prd branch ${worktree.prdBranchName}`,
+      );
     }
 
     const drift = classifyBranchDrift(
@@ -857,6 +880,9 @@ export function discoverActivePrLaneReport(
           options.repoRoot,
         ),
         branchName,
+        branchMetadataSource: worktree.branchMetadataSource,
+        prLookupFailureKind: pullRequestLookup.failureKind,
+        prLookupFailureReason: failureReason,
         sessionId: queueLane.sessionId ?? session?.sessionId,
         sessionState: session?.rawState,
         driftStatus: drift.status,
@@ -884,6 +910,7 @@ export function discoverActivePrLaneReport(
         options.repoRoot,
       ),
       branchName,
+      branchMetadataSource: worktree.branchMetadataSource,
       prNumber: pullRequest.number,
       prUrl: pullRequest.url,
       sessionId: queueLane.sessionId ?? session?.sessionId,

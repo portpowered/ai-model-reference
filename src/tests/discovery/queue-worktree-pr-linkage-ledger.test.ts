@@ -49,9 +49,9 @@ exit 1
   return binDir;
 }
 
-describe("active-pr-mergeability-watchdog script", () => {
-  test("prints compact discovery rows from fixture queue and worktree state", () => {
-    const dir = mkdtempSync(join(tmpdir(), "active-pr-watchdog-script-"));
+describe("queue-worktree-pr-linkage-ledger script", () => {
+  test("prints a planner-facing queue summary while keeping missing-linkage lanes visible", () => {
+    const dir = mkdtempSync(join(tmpdir(), "queue-linkage-ledger-script-"));
     const workListPath = join(dir, "work-list.json");
     const sessionListPath = join(dir, "session-list.json");
     const prMapPath = join(dir, "pr-map.json");
@@ -59,7 +59,6 @@ describe("active-pr-mergeability-watchdog script", () => {
     mkdirSync(worktreesRoot, { recursive: true });
 
     createWorktree(worktreesRoot, "alpha", "alpha");
-    createWorktree(worktreesRoot, "beta", "beta");
 
     writeFileSync(
       workListPath,
@@ -67,6 +66,7 @@ describe("active-pr-mergeability-watchdog script", () => {
         items: [
           { name: "alpha", state: "active", sessionId: "sess-1" },
           { name: "beta", state: "failed" },
+          { name: "gamma", state: "queued" },
         ],
       }),
     );
@@ -84,6 +84,7 @@ describe("active-pr-mergeability-watchdog script", () => {
           headRefName: "alpha",
           mergeStateStatus: "CLEAN",
           statusCheckRollup: [{ conclusion: "SUCCESS" }],
+          url: "https://example.com/pr/42",
         },
       }),
     );
@@ -91,7 +92,7 @@ describe("active-pr-mergeability-watchdog script", () => {
     const result = spawnSync(
       "bun",
       [
-        "./scripts/active-pr-mergeability-watchdog.ts",
+        "./scripts/report-queue-worktree-pr-linkage-ledger.ts",
         "--work-list-json",
         workListPath,
         "--session-list-json",
@@ -105,28 +106,26 @@ describe("active-pr-mergeability-watchdog script", () => {
     );
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("Active PR Mergeability Watchdog");
-    expect(result.stdout).toContain("lanes=2 pr-backed=1 linked-with-gaps=1");
-    expect(result.stdout).toContain("work-item=alpha");
+    expect(result.stdout).toContain("Queue Worktree PR Linkage Ledger");
+    expect(result.stdout).toContain(
+      "queue-derived-lanes=2 active=1 failed=1 linked=1 linked-with-gaps=1",
+    );
+    expect(result.stdout).toContain("lane=alpha");
     expect(result.stdout).toContain("pr=#42");
     expect(result.stdout).toContain("pr-status=resolved");
-    expect(result.stdout).toContain("drift=unknown");
-    expect(result.stdout).toContain("mergeability=mergeable");
-    expect(result.stdout).toContain("checks=passing");
-    expect(result.stdout).not.toContain("next-action=");
-    expect(result.stdout).toContain(
-      "- status=linked-with-gaps queue=failed work-item=beta branch=beta",
-    );
+    expect(result.stdout).toContain("pr-url=https://example.com/pr/42");
+    expect(result.stdout).toContain("lane=beta");
     expect(result.stdout).toContain("pr-status=missing");
     expect(result.stdout).toContain(
-      "reason=no open PR metadata found for branch beta",
+      "missing=no matching worktree under .claude/worktrees",
     );
+    expect(result.stdout).not.toContain("lane=gamma");
 
     rmSync(dir, { recursive: true, force: true });
   });
 
-  test("keeps reporting other lanes when fixture PR metadata fails", () => {
-    const dir = mkdtempSync(join(tmpdir(), "active-pr-watchdog-script-"));
+  test("emits a machine-readable ledger with explicit missing-linkage reasons", () => {
+    const dir = mkdtempSync(join(tmpdir(), "queue-linkage-ledger-script-"));
     const workListPath = join(dir, "work-list.json");
     const sessionListPath = join(dir, "session-list.json");
     const prMapPath = join(dir, "pr-map.json");
@@ -135,43 +134,31 @@ describe("active-pr-mergeability-watchdog script", () => {
 
     createWorktree(worktreesRoot, "alpha", "alpha");
     createWorktree(worktreesRoot, "beta", "beta");
-    createWorktree(worktreesRoot, "gamma", "gamma");
 
     writeFileSync(
       workListPath,
       JSON.stringify({
         items: [
-          { name: "alpha", state: "active", sessionId: "sess-1" },
-          { name: "beta", state: "active" },
-          { name: "gamma", state: "failed" },
+          { name: "alpha", state: "active" },
+          { name: "beta", state: "failed" },
         ],
       }),
     );
-    writeFileSync(
-      sessionListPath,
-      JSON.stringify({
-        sessions: [{ id: "sess-1", workItemName: "alpha", status: "running" }],
-      }),
-    );
+    writeFileSync(sessionListPath, JSON.stringify({ sessions: [] }));
     writeFileSync(
       prMapPath,
       JSON.stringify({
         alpha: {
           number: 42,
           headRefName: "alpha",
-          mergeStateStatus: "DIRTY",
+          mergeStateStatus: "CLEAN",
           statusCheckRollup: [{ conclusion: "SUCCESS" }],
+          url: "https://example.com/pr/42",
         },
         beta: {
-          number: 43,
-          headRefName: "beta",
-          mergeStateStatus: "BLOCKED",
-          statusCheckRollup: [{ status: "IN_PROGRESS" }],
-        },
-        gamma: {
           pullRequest: null,
-          failureKind: "auth",
-          failureReason: "gh auth token is expired",
+          failureKind: "not-found",
+          failureReason: "no open PR metadata found for branch beta",
         },
       }),
     );
@@ -179,7 +166,7 @@ describe("active-pr-mergeability-watchdog script", () => {
     const result = spawnSync(
       "bun",
       [
-        "./scripts/active-pr-mergeability-watchdog.ts",
+        "./scripts/report-queue-worktree-pr-linkage-ledger.ts",
         "--work-list-json",
         workListPath,
         "--session-list-json",
@@ -188,40 +175,58 @@ describe("active-pr-mergeability-watchdog script", () => {
         worktreesRoot,
         "--pr-map-json",
         prMapPath,
+        "--format",
+        "json",
       ],
       { cwd: process.cwd(), encoding: "utf8" },
     );
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("lanes=3 pr-backed=2 linked-with-gaps=1");
-    expect(result.stdout).toContain(
-      "- status=pr-backed queue=active work-item=alpha branch=alpha",
+    const ledger = JSON.parse(result.stdout);
+    expect(ledger.laneCount).toBe(2);
+    expect(ledger.activeLaneCount).toBe(1);
+    expect(ledger.failedLaneCount).toBe(1);
+    expect(ledger.linkedLaneCount).toBe(1);
+    expect(ledger.linkedWithGapsLaneCount).toBe(1);
+    expect(ledger.lanes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          laneName: "alpha",
+          queueState: "active",
+          linkageStatus: "linked",
+          branchName: "alpha",
+          branchMetadataSource: "prd",
+          pullRequest: expect.objectContaining({
+            number: 42,
+            url: "https://example.com/pr/42",
+          }),
+          pullRequestLookup: {
+            status: "resolved",
+          },
+          missingLinkageReasons: [],
+        }),
+        expect.objectContaining({
+          laneName: "beta",
+          queueState: "failed",
+          linkageStatus: "linked-with-gaps",
+          branchName: "beta",
+          branchMetadataSource: "prd",
+          pullRequest: null,
+          pullRequestLookup: {
+            status: "missing",
+            failureKind: "not-found",
+            failureReason: "no open PR metadata found for branch beta",
+          },
+          missingLinkageReasons: ["no open PR metadata found for branch beta"],
+        }),
+      ]),
     );
-    expect(result.stdout).toContain("pr=#42 pr-status=resolved");
-    expect(result.stdout).toContain("mergeability=conflicting");
-    expect(result.stdout).toContain("risk=conflict-drift");
-    expect(result.stdout).toContain("next-action=refresh-branch");
-    expect(result.stdout).toContain(
-      "- status=pr-backed queue=active work-item=beta branch=beta",
-    );
-    expect(result.stdout).toContain("pr=#43 pr-status=resolved");
-    expect(result.stdout).toContain("mergeability=check-blocked");
-    expect(result.stdout).toContain("checks=pending");
-    expect(result.stdout).toContain("next-action=wait");
-    expect(result.stdout).toContain(
-      "- status=linked-with-gaps queue=failed work-item=gamma branch=gamma",
-    );
-    expect(result.stdout).toContain("pr-status=missing");
-    expect(result.stdout).toContain("pr-failure=auth");
-    expect(result.stdout).toContain("risk=metadata-unavailable");
-    expect(result.stdout).toContain("next-action=repair-token");
-    expect(result.stdout).toContain("reason=gh auth token is expired");
 
     rmSync(dir, { recursive: true, force: true });
   });
 
-  test("passes the planner session to live work-list discovery", () => {
-    const dir = mkdtempSync(join(tmpdir(), "active-pr-watchdog-script-"));
+  test("scopes live queue discovery to the requested planner session", () => {
+    const dir = mkdtempSync(join(tmpdir(), "queue-linkage-ledger-script-"));
     const commandLogPath = join(dir, "you-command.log");
     const worktreesRoot = join(dir, ".claude", "worktrees");
     mkdirSync(worktreesRoot, { recursive: true });
@@ -231,7 +236,7 @@ describe("active-pr-mergeability-watchdog script", () => {
     const result = spawnSync(
       "bun",
       [
-        "./scripts/active-pr-mergeability-watchdog.ts",
+        "./scripts/report-queue-worktree-pr-linkage-ledger.ts",
         "--worktrees-dir",
         worktreesRoot,
         "--session",
@@ -248,7 +253,7 @@ describe("active-pr-mergeability-watchdog script", () => {
     );
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("work-item=alpha");
+    expect(result.stdout).toContain("lane=alpha");
 
     const commandLog = readFileSync(commandLogPath, "utf8");
     expect(commandLog).toContain(

@@ -43,6 +43,7 @@
     "prevalidate-data": "bun run prepare:content-runtime",
     "validate-data": "bun ./scripts/validate-registry.ts",
     "watch:active-pr-mergeability": "bun ./scripts/active-pr-mergeability-watchdog.ts",
+    "report:queue-worktree-pr-linkage-ledger": "bun ./scripts/report-queue-worktree-pr-linkage-ledger.ts",
     "cleanup:merged-worktrees": "bash ./scripts/cleanup-merged-worktrees.sh",
     "report:planner-conflict-hotspots": "bun ./scripts/report-planner-conflict-hotspots.ts",
     "audit:canonical-page-surface": "bun ./scripts/audit-canonical-page-surface.ts",
