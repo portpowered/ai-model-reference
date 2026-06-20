@@ -111,4 +111,78 @@ describe("discoverPlannerQueueHealthReport", () => {
     expect(reportText).toContain("Repairable Failures (1)");
     expect(reportText).toContain("Ignorable Stale Noise (0)");
   });
+
+  test("demotes superseded failed duplicates and groups repeated cron failures as ignorable noise", () => {
+    const report = discoverPlannerQueueHealthReport({
+      generatedAtUtc: "2026-06-20T00:00:00.000Z",
+      workListJsonText: JSON.stringify({
+        results: [
+          {
+            workId: "task-active-1",
+            name: "shared-work-name",
+            traceId: "trace-shared",
+            workTypeName: "idea",
+            state: { name: "to-complete", type: "PROCESSING" },
+          },
+          {
+            workId: "task-failed-1",
+            name: "shared-work-name",
+            traceId: "trace-shared",
+            workTypeName: "task",
+            state: { name: "failed", type: "FAILED" },
+          },
+          {
+            workId: "cron-1",
+            name: "cron:though-retrigger",
+            traceId: "trace-cron-1",
+            workTypeName: "thoughts",
+            state: { name: "failed", type: "FAILED" },
+          },
+          {
+            workId: "cron-2",
+            name: "cron:though-retrigger",
+            traceId: "trace-cron-2",
+            workTypeName: "thoughts",
+            state: { name: "failed", type: "FAILED" },
+          },
+          {
+            workId: "task-failed-unique",
+            name: "unique-failed-work",
+            traceId: "trace-unique-failed",
+            workTypeName: "task",
+            state: { name: "failed", type: "FAILED" },
+          },
+        ],
+      }),
+    });
+
+    expect(
+      report.repairableFailures.items.map((item) => item.workItemName),
+    ).toEqual(["unique-failed-work"]);
+    expect(
+      report.ignorableStaleNoise.items.map((item) => item.workItemName),
+    ).toEqual(["cron:though-retrigger", "shared-work-name"]);
+
+    const staleDuplicate = report.ignorableStaleNoise.items.find(
+      (item) => item.workItemName === "shared-work-name",
+    );
+    expect(staleDuplicate?.reasons).toEqual([
+      "failed item is superseded by shared-work-name to-complete/processing type=idea work-id=task-active-1 trace=trace-shared",
+    ]);
+
+    const groupedCronNoise = report.ignorableStaleNoise.items.find(
+      (item) => item.workItemName === "cron:though-retrigger",
+    );
+    expect(groupedCronNoise?.occurrenceCount).toBe(2);
+    expect(groupedCronNoise?.relatedWorkIds).toEqual(["cron-1", "cron-2"]);
+    expect(groupedCronNoise?.relatedTraceIds).toEqual([
+      "trace-cron-1",
+      "trace-cron-2",
+    ]);
+    expect(groupedCronNoise?.reasons).toEqual([
+      "grouped 2 repeated failed cron thoughts items",
+      "group-work-ids=cron-1,cron-2",
+      "group-traces=trace-cron-1,trace-cron-2",
+    ]);
+  });
 });

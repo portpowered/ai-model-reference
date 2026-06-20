@@ -22,6 +22,9 @@ export interface QueueHealthItem {
   workItemName: string;
   workTypeName?: string;
   traceId?: string;
+  occurrenceCount?: number;
+  relatedWorkIds?: string[];
+  relatedTraceIds?: string[];
   stateName: string;
   stateType: QueueHealthStateType;
   bucket: QueueHealthBucket;
@@ -111,9 +114,10 @@ function normalizeStateType(value: string | undefined): QueueHealthStateType {
   if (
     normalized === "INITIAL" ||
     normalized === "PROCESSING" ||
-    normalized === "TERMINAL"
+    normalized === "TERMINAL" ||
+    normalized === "FAILED"
   ) {
-    return normalized;
+    return normalized === "FAILED" ? "TERMINAL" : normalized;
   }
   return "UNKNOWN";
 }
@@ -193,10 +197,43 @@ function isFailureState(record: ParsedQueueRecord): boolean {
   );
 }
 
+function isActiveState(record: ParsedQueueRecord): boolean {
+  return (
+    !isFailureState(record) &&
+    (record.stateType === "INITIAL" || record.stateType === "PROCESSING")
+  );
+}
+
+function summarizeRecord(record: ParsedQueueRecord): string {
+  const fields = [
+    `${record.workItemName}`,
+    `${record.stateName}/${record.stateType.toLowerCase()}`,
+  ];
+  if (record.workTypeName) {
+    fields.push(`type=${record.workTypeName}`);
+  }
+  fields.push(`work-id=${record.workId}`);
+  if (record.traceId) {
+    fields.push(`trace=${record.traceId}`);
+  }
+  return fields.join(" ");
+}
+
+function findSupersedingRecord(
+  record: ParsedQueueRecord,
+  siblingRecords: ParsedQueueRecord[],
+): ParsedQueueRecord | undefined {
+  return siblingRecords.find(
+    (candidate) =>
+      candidate.workId !== record.workId &&
+      (isCompleteState(candidate) || isActiveState(candidate)),
+  );
+}
+
 function classifyQueueRecord(
   record: ParsedQueueRecord,
   recordsByWorkId: Map<string, ParsedQueueRecord>,
-  recordsByName: Map<string, ParsedQueueRecord>,
+  recordsByName: Map<string, ParsedQueueRecord[]>,
 ): QueueHealthItem | null {
   if (isCompleteState(record)) {
     return null;
@@ -209,7 +246,7 @@ function classifyQueueRecord(
       target:
         (relation.targetWorkId
           ? recordsByWorkId.get(relation.targetWorkId)
-          : undefined) ?? recordsByName.get(relation.targetWorkName),
+          : undefined) ?? recordsByName.get(relation.targetWorkName)?.[0],
     }))
     .filter(({ target, relation }) => {
       const requiredComplete =
@@ -233,8 +270,25 @@ function classifyQueueRecord(
         .join(", ")}`,
     );
   } else if (isFailureState(record)) {
-    bucket = "repairable-failures";
-    reasons.push(`queue item is in failed state ${record.stateName}`);
+    const siblingRecords = recordsByName.get(record.workItemName) ?? [];
+    const supersedingRecord = findSupersedingRecord(record, siblingRecords);
+
+    if (supersedingRecord) {
+      bucket = "ignorable-stale-noise";
+      reasons.push(
+        `failed item is superseded by ${summarizeRecord(supersedingRecord)}`,
+      );
+    } else if (
+      record.workItemName === "cron:though-retrigger" &&
+      record.workTypeName === "thoughts" &&
+      siblingRecords.filter(isFailureState).length > 1
+    ) {
+      bucket = "ignorable-stale-noise";
+      reasons.push("recurring failed cron thoughts noise");
+    } else {
+      bucket = "repairable-failures";
+      reasons.push(`queue item is in failed state ${record.stateName}`);
+    }
   } else if (
     record.stateType === "INITIAL" ||
     record.stateType === "PROCESSING"
@@ -257,6 +311,51 @@ function classifyQueueRecord(
     dependencies: record.relations,
     reasons,
   };
+}
+
+function collapseRecurringCronNoiseItems(
+  items: QueueHealthItem[],
+): QueueHealthItem[] {
+  const recurringCronItems = items.filter(
+    (item) =>
+      item.bucket === "ignorable-stale-noise" &&
+      item.workItemName === "cron:though-retrigger" &&
+      item.workTypeName === "thoughts" &&
+      item.reasons.includes("recurring failed cron thoughts noise"),
+  );
+
+  if (recurringCronItems.length <= 1) {
+    return items;
+  }
+
+  const representative = [...recurringCronItems].sort((left, right) =>
+    left.workId.localeCompare(right.workId),
+  )[0];
+  if (!representative) {
+    return items;
+  }
+
+  const groupedItem: QueueHealthItem = {
+    ...representative,
+    occurrenceCount: recurringCronItems.length,
+    relatedWorkIds: recurringCronItems.map((item) => item.workId),
+    relatedTraceIds: recurringCronItems
+      .map((item) => item.traceId)
+      .filter((traceId): traceId is string => Boolean(traceId)),
+    reasons: [
+      `grouped ${recurringCronItems.length} repeated failed cron thoughts items`,
+      `group-work-ids=${recurringCronItems.map((item) => item.workId).join(",")}`,
+      `group-traces=${recurringCronItems
+        .map((item) => item.traceId)
+        .filter((traceId): traceId is string => Boolean(traceId))
+        .join(",")}`,
+    ],
+  };
+
+  return [
+    ...items.filter((item) => !recurringCronItems.includes(item)),
+    groupedItem,
+  ];
 }
 
 function createBucketSummary(
@@ -282,15 +381,20 @@ export function discoverPlannerQueueHealthReport(options: {
   const recordsByWorkId = new Map(
     records.map((record) => [record.workId, record]),
   );
-  const recordsByName = new Map(
-    records.map((record) => [record.workItemName, record]),
-  );
+  const recordsByName = new Map<string, ParsedQueueRecord[]>();
+  for (const record of records) {
+    const siblings = recordsByName.get(record.workItemName) ?? [];
+    siblings.push(record);
+    recordsByName.set(record.workItemName, siblings);
+  }
 
-  const items = records
-    .map((record) =>
-      classifyQueueRecord(record, recordsByWorkId, recordsByName),
-    )
-    .filter((record): record is QueueHealthItem => Boolean(record));
+  const items = collapseRecurringCronNoiseItems(
+    records
+      .map((record) =>
+        classifyQueueRecord(record, recordsByWorkId, recordsByName),
+      )
+      .filter((record): record is QueueHealthItem => Boolean(record)),
+  );
 
   return {
     generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
@@ -330,7 +434,16 @@ function formatQueueHealthItem(item: QueueHealthItem): string {
   if (item.traceId) {
     fields.push(`trace=${item.traceId}`);
   }
+  if (item.occurrenceCount && item.occurrenceCount > 1) {
+    fields.push(`occurrences=${item.occurrenceCount}`);
+  }
   fields.push(`work-id=${item.workId}`);
+  if (item.relatedWorkIds && item.relatedWorkIds.length > 0) {
+    fields.push(`related-work-ids=${item.relatedWorkIds.join(",")}`);
+  }
+  if (item.relatedTraceIds && item.relatedTraceIds.length > 0) {
+    fields.push(`related-traces=${item.relatedTraceIds.join(",")}`);
+  }
   if (item.reasons.length > 0) {
     fields.push(`reason=${item.reasons.join("; ")}`);
   }
