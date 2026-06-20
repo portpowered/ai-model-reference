@@ -135,9 +135,12 @@ folder, create the matching registry record under `src/content/registry/`, and
 follow `<kind>.content.md` until page-spec or scaffold support expands.
 
 Runtime registry lookups are derived automatically from the authoritative JSON
-records under `src/content/registry/`. Do not hand-edit
-`src/lib/content/generated/registry-runtime.generated.ts`; normal `dev`, `build`,
-`typecheck`, and `test` commands regenerate or verify it for you.
+records under `src/content/registry/`. Those registry JSON files are the
+authored source of truth for the main registry runtime. Do not hand-edit or
+commit `src/lib/content/generated/registry-runtime.generated.ts`; use
+`bun run prepare:content-runtime` when you need to recreate it locally, and let
+the normal `dev`, `build`, `typecheck`, and `test` command paths regenerate or
+verify it for you.
 
 ### Choosing slug, title, aliases, tags, and registryId
 
@@ -371,7 +374,7 @@ Optional during iteration:
 ```sh
 make lint          # Biome check — same as bun run lint
 make typecheck     # prepare:content-runtime + fumadocs-mdx, then tsc --noEmit
-bun run prepare:content-runtime # refresh derived runtime artifacts directly
+bun run prepare:content-runtime # recreate generated content runtime artifacts locally
 ```
 
 `make lint` helps when you edit TypeScript, MDX components, or scripts alongside
@@ -417,13 +420,20 @@ You do not need to run `fumadocs-mdx` manually. Supported command paths invoke
 `prepare:content-runtime` first and then run `fumadocs-mdx` automatically when
 `.source/` is required on fresh checkouts.
 
-When you need to refresh generated runtime artifacts themselves, use
+When you need to recreate generated content runtime artifacts locally, use
 `bun run prepare:content-runtime`. It is the canonical entrypoint for shipped
-localized docs, published docs registry data, graph runtime data, registry
-runtime data, and table registry runtime data. The published docs registry
-manifest is derived from scanner-backed page discovery and intentionally stays
-out of commits; review the authored docs, messages, assets, and registry JSON
-instead.
+localized docs, published docs registry data, graph runtime data, the generated
+main registry runtime, and table registry runtime data.
+
+For the main registry runtime specifically, author changes in
+`src/content/registry/` and do not manually edit or commit
+`src/lib/content/generated/registry-runtime.generated.ts`.
+
+For the published docs registry manifest specifically, author changes in the
+published docs pages, colocated messages/assets, and registry JSON inputs rather
+than editing the generated manifest. `src/lib/content/generated/published-docs-registry.generated.ts`
+is scanner-derived, recreated by `prepare:content-runtime`, and intentionally
+kept out of routine commits.
 
 For most docs-only pull requests, the **fast content loop** (`make validate-data`
 and `make linkcheck`) catches registry and linking regressions early. Run
