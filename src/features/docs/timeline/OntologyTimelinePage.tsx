@@ -148,6 +148,10 @@ export function OntologyTimelinePage({
                 docsLink: timelinePage.docsLink,
                 regionLabel: timelinePage.regionLabel,
                 sourcePrefix: timelinePage.sourcePrefix,
+                loadingTitle: timelinePage.loadingTitle,
+                loadingDescription: timelinePage.loadingDescription,
+                errorTitle: timelinePage.errorTitle,
+                errorDescription: timelinePage.errorDescription,
               }}
             />
           </div>

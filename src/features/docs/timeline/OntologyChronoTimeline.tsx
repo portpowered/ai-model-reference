@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { Component, type ReactNode, useEffect, useMemo, useState } from "react";
 import { Chrono } from "react-chrono";
 import type { OntologyTimelineItem } from "@/lib/content/ontology-timeline";
 
@@ -11,7 +11,21 @@ type OntologyChronoTimelineProps = {
     regionLabel: string;
     docsLink: string;
     sourcePrefix: string;
+    loadingTitle: string;
+    loadingDescription: string;
+    errorTitle: string;
+    errorDescription: string;
   };
+};
+
+type TimelineRendererBoundaryProps = {
+  resetKey: string;
+  fallback: ReactNode;
+  children: ReactNode;
+};
+
+type TimelineRendererBoundaryState = {
+  hasError: boolean;
 };
 
 const chronoTheme = {
@@ -43,12 +57,40 @@ function toChronoItems(items: readonly OntologyTimelineItem[]) {
   }));
 }
 
+class TimelineRendererBoundary extends Component<
+  TimelineRendererBoundaryProps,
+  TimelineRendererBoundaryState
+> {
+  state: TimelineRendererBoundaryState = {
+    hasError: false,
+  };
+
+  static getDerivedStateFromError(): TimelineRendererBoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidUpdate(prevProps: TimelineRendererBoundaryProps) {
+    if (this.state.hasError && prevProps.resetKey !== this.props.resetKey) {
+      this.setState({ hasError: false });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+
+    return this.props.children;
+  }
+}
+
 export function OntologyChronoTimeline({
   items,
   labels,
 }: OntologyChronoTimelineProps) {
   const [isMounted, setIsMounted] = useState(false);
   const chronoItems = useMemo(() => toChronoItems(items), [items]);
+  const resetKey = items.map((item) => item.registryId).join("|");
 
   useEffect(() => {
     setIsMounted(true);
@@ -88,36 +130,61 @@ export function OntologyChronoTimeline({
       </ol>
       <div className="ontology-timeline__chrono-shell">
         {isMounted ? (
-          <Chrono
-            items={chronoItems}
-            mode="vertical"
-            theme={chronoTheme}
-            layout={{
-              cardHeight: 220,
-              cardWidth: 520,
-              pointSize: 18,
-              responsive: { enabled: true, breakpoint: 768 },
-            }}
-            content={{
-              alignment: { horizontal: "left", vertical: "top" },
-              compactText: false,
-              semanticTags: { title: "h2", subtitle: "span" },
-            }}
-            display={{
-              borderless: true,
-              toolbar: { enabled: false },
-            }}
-            interaction={{
-              autoScroll: true,
-              cardHover: true,
-              keyboardNavigation: true,
-              pointClick: true,
-            }}
-            darkMode={{ enabled: true, showToggle: false }}
-          />
+          <TimelineRendererBoundary
+            fallback={
+              <div
+                aria-live="polite"
+                className="ontology-timeline__state ontology-timeline__state--error"
+                data-testid="ontology-timeline-error"
+                role="status"
+              >
+                <p className="ontology-timeline__state-title">
+                  {labels.errorTitle}
+                </p>
+                <p>{labels.errorDescription}</p>
+              </div>
+            }
+            resetKey={resetKey}
+          >
+            <Chrono
+              items={chronoItems}
+              mode="vertical"
+              theme={chronoTheme}
+              layout={{
+                cardHeight: 220,
+                cardWidth: 520,
+                pointSize: 18,
+                responsive: { enabled: true, breakpoint: 768 },
+              }}
+              content={{
+                alignment: { horizontal: "left", vertical: "top" },
+                compactText: false,
+                semanticTags: { title: "h2", subtitle: "span" },
+              }}
+              display={{
+                borderless: true,
+                toolbar: { enabled: false },
+              }}
+              interaction={{
+                autoScroll: true,
+                cardHover: true,
+                keyboardNavigation: true,
+                pointClick: true,
+              }}
+              darkMode={{ enabled: true, showToggle: false }}
+            />
+          </TimelineRendererBoundary>
         ) : (
-          <div className="ontology-timeline__loading" role="status">
-            Loading timeline renderer...
+          <div
+            aria-live="polite"
+            className="ontology-timeline__state ontology-timeline__state--loading"
+            data-testid="ontology-timeline-loading"
+            role="status"
+          >
+            <p className="ontology-timeline__state-title">
+              {labels.loadingTitle}
+            </p>
+            <p>{labels.loadingDescription}</p>
           </div>
         )}
       </div>

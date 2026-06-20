@@ -22,7 +22,8 @@ describe("OntologyTimelinePage", () => {
     expect(html).toContain("Showing 6 dated events for activation function.");
     expect(html).toContain('data-testid="ontology-chrono-timeline"');
     expect(html).toContain("ontology-timeline__chrono-shell");
-    expect(html).toContain("Loading timeline renderer...");
+    expect(html).toContain("Loading timeline");
+    expect(html).toContain("Preparing the interactive timeline renderer.");
 
     for (const title of [
       "Rectified Linear Unit",

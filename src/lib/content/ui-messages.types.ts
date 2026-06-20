@@ -44,6 +44,10 @@ export type UiMessages = {
     description: string;
     eyebrow: string;
     successSummary: string;
+    loadingTitle: string;
+    loadingDescription: string;
+    errorTitle: string;
+    errorDescription: string;
     selectorLabel: string;
     eventCountLabel: string;
     regionLabel: string;

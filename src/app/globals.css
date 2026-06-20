@@ -109,15 +109,31 @@ article[data-registry-id] > section:first-of-type > h2 {
   min-height: 680px;
 }
 
-.ontology-timeline__loading {
+.ontology-timeline__state {
   display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   min-height: 18rem;
   align-items: center;
   justify-content: center;
+  padding: 1.5rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: color-mix(in oklch, var(--card) 62%, transparent);
+  text-align: center;
   color: var(--muted-foreground);
+}
+
+.ontology-timeline__state-title {
+  margin: 0;
+  color: var(--foreground);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.ontology-timeline__state p:last-child {
+  margin: 0;
+  max-width: 32rem;
 }
 
 .ontology-timeline .timeline-main-wrapper {
