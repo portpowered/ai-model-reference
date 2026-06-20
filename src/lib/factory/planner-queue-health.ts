@@ -140,6 +140,43 @@ function normalizeStateType(value: string | undefined): QueueHealthStateType {
   return "UNKNOWN";
 }
 
+function inferStateTypeFromStateName(
+  value: string | undefined,
+): QueueHealthStateType {
+  const normalized = value?.trim().toLowerCase();
+  if (!normalized) {
+    return "UNKNOWN";
+  }
+  if (
+    normalized.includes("fail") ||
+    normalized.includes("error") ||
+    normalized.includes("reject") ||
+    normalized.includes("complete") ||
+    normalized.includes("done")
+  ) {
+    return "TERMINAL";
+  }
+  if (
+    normalized.includes("active") ||
+    normalized.includes("progress") ||
+    normalized.includes("review") ||
+    normalized.includes("running") ||
+    normalized.includes("started")
+  ) {
+    return "PROCESSING";
+  }
+  if (
+    normalized === "init" ||
+    normalized === "initial" ||
+    normalized.includes("queued") ||
+    normalized.includes("pending") ||
+    normalized.includes("todo")
+  ) {
+    return "INITIAL";
+  }
+  return "UNKNOWN";
+}
+
 function parseQueueDependencies(value: unknown): QueueHealthDependency[] {
   if (!Array.isArray(value)) {
     return [];
@@ -161,6 +198,19 @@ function parseQueueDependencies(value: unknown): QueueHealthDependency[] {
 
 function parseQueueRecord(item: Record<string, unknown>): ParsedQueueRecord {
   const stateRecord = isRecord(item.state) ? item.state : undefined;
+  const stringStateName =
+    !stateRecord && typeof item.state === "string"
+      ? readString(item.state)
+      : undefined;
+  const stateName =
+    readStringField(stateRecord ?? {}, ["name"]) ??
+    stringStateName ??
+    readStringField(item, ["status", "phase"]) ??
+    "unknown";
+  const explicitStateType = normalizeStateType(
+    readStringField(stateRecord ?? {}, ["type"]) ??
+      readStringField(item, ["stateType"]),
+  );
   return {
     workId:
       readStringField(item, ["workId", "id"]) ??
@@ -176,14 +226,11 @@ function parseQueueRecord(item: Record<string, unknown>): ParsedQueueRecord {
         ? readStringField(item.tags, ["_work_type"])
         : undefined),
     traceId: readStringField(item, ["traceId", "currentChainingTraceId"]),
-    stateName:
-      readStringField(stateRecord ?? {}, ["name"]) ??
-      readStringField(item, ["status", "phase"]) ??
-      "unknown",
-    stateType: normalizeStateType(
-      readStringField(stateRecord ?? {}, ["type"]) ??
-        readStringField(item, ["stateType"]),
-    ),
+    stateName,
+    stateType:
+      explicitStateType === "UNKNOWN"
+        ? inferStateTypeFromStateName(stateName)
+        : explicitStateType,
     relations: parseQueueDependencies(item.relations),
   };
 }
@@ -239,9 +286,9 @@ function summarizeRecord(record: ParsedQueueRecord): string {
 
 function findSupersedingRecord(
   record: ParsedQueueRecord,
-  siblingRecords: ParsedQueueRecord[],
+  relatedRecords: ParsedQueueRecord[],
 ): ParsedQueueRecord | undefined {
-  return siblingRecords.find(
+  return relatedRecords.find(
     (candidate) =>
       candidate.workId !== record.workId &&
       (isCompleteState(candidate) || isActiveState(candidate)),
@@ -252,6 +299,7 @@ function classifyQueueRecord(
   record: ParsedQueueRecord,
   recordsByWorkId: Map<string, ParsedQueueRecord>,
   recordsByName: Map<string, ParsedQueueRecord[]>,
+  recordsByTraceId: Map<string, ParsedQueueRecord[]>,
 ): QueueHealthItem | null {
   if (isCompleteState(record)) {
     return null;
@@ -289,7 +337,18 @@ function classifyQueueRecord(
     );
   } else if (isFailureState(record)) {
     const siblingRecords = recordsByName.get(record.workItemName) ?? [];
-    const supersedingRecord = findSupersedingRecord(record, siblingRecords);
+    const traceSiblingRecords = record.traceId
+      ? (recordsByTraceId.get(record.traceId) ?? [])
+      : [];
+    const relatedRecords = [
+      ...new Map(
+        [...siblingRecords, ...traceSiblingRecords].map((candidate) => [
+          candidate.workId,
+          candidate,
+        ]),
+      ).values(),
+    ];
+    const supersedingRecord = findSupersedingRecord(record, relatedRecords);
 
     if (supersedingRecord) {
       bucket = "ignorable-stale-noise";
@@ -423,16 +482,27 @@ export function discoverPlannerQueueHealthReport(options: {
     records.map((record) => [record.workId, record]),
   );
   const recordsByName = new Map<string, ParsedQueueRecord[]>();
+  const recordsByTraceId = new Map<string, ParsedQueueRecord[]>();
   for (const record of records) {
     const siblings = recordsByName.get(record.workItemName) ?? [];
     siblings.push(record);
     recordsByName.set(record.workItemName, siblings);
+    if (record.traceId) {
+      const traceSiblings = recordsByTraceId.get(record.traceId) ?? [];
+      traceSiblings.push(record);
+      recordsByTraceId.set(record.traceId, traceSiblings);
+    }
   }
 
   const items = collapseRecurringCronNoiseItems(
     records
       .map((record) =>
-        classifyQueueRecord(record, recordsByWorkId, recordsByName),
+        classifyQueueRecord(
+          record,
+          recordsByWorkId,
+          recordsByName,
+          recordsByTraceId,
+        ),
       )
       .filter((record): record is QueueHealthItem => Boolean(record)),
   );

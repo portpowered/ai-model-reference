@@ -192,6 +192,39 @@ describe("discoverPlannerQueueHealthReport", () => {
     ]);
   });
 
+  test("demotes a failed item when a newer active path shares its trace even with a different work name", () => {
+    const report = discoverPlannerQueueHealthReport({
+      generatedAtUtc: "2026-06-20T00:00:00.000Z",
+      workListJsonText: JSON.stringify({
+        results: [
+          {
+            workId: "alpha-old",
+            name: "alpha-old",
+            traceId: "trace-1",
+            workTypeName: "task",
+            state: { name: "failed", type: "FAILED" },
+          },
+          {
+            workId: "alpha-new",
+            name: "alpha-new",
+            traceId: "trace-1",
+            workTypeName: "task",
+            state: { name: "in-review", type: "PROCESSING" },
+          },
+        ],
+      }),
+    });
+
+    expect(report.repairableFailures.items).toEqual([]);
+    expect(
+      report.ignorableStaleNoise.items.map((item) => item.workItemName),
+    ).toEqual(["alpha-old"]);
+    expect(report.ignorableStaleNoise.items[0]?.reasons).toEqual([
+      "failed item is superseded by alpha-new in-review/processing type=task work-id=alpha-new trace=trace-1",
+    ]);
+    expect(report.repairRecommendations).toEqual([]);
+  });
+
   test("emits repair guidance only for unique repairable failures", () => {
     const report = discoverPlannerQueueHealthReport({
       generatedAtUtc: "2026-06-20T00:00:00.000Z",
@@ -329,6 +362,40 @@ describe("discoverPlannerQueueHealthReport", () => {
     expect(
       parsedReport.repairRecommendations.map((item) => item.workItemName),
     ).toEqual(["gamma"]);
+  });
+
+  test("accepts plain string queue states from work-list payloads already used in adjacent tooling", () => {
+    const report = discoverPlannerQueueHealthReport({
+      generatedAtUtc: "2026-06-20T00:00:00.000Z",
+      sourceSession: "~default",
+      workListJsonText: JSON.stringify({
+        items: [
+          {
+            name: "alpha",
+            state: "active",
+            sessionId: "~default",
+          },
+          {
+            name: "beta",
+            state: "failed",
+            sessionId: "~default",
+          },
+        ],
+      }),
+    });
+
+    expect(report.activeWork.items.map((item) => item.workItemName)).toEqual([
+      "alpha",
+    ]);
+    expect(
+      report.repairableFailures.items.map((item) => item.workItemName),
+    ).toEqual(["beta"]);
+    expect(report.ignorableStaleNoise.items).toEqual([]);
+    expect(report.repairRecommendations).toEqual([
+      expect.objectContaining({
+        workId: "beta",
+      }),
+    ]);
   });
 
   test("covers the full planner-facing classification fixture without promoting stale noise into repair guidance", () => {
