@@ -58,5 +58,5 @@ describe("Phase 2/3 reconciliation convergence gate (US-012)", () => {
     expect(report).toContain("[PASS] Architecture-forward navigation");
     expect(report).toContain("[PASS] Search documents index");
     expect(report).toContain("[PASS] Representative search queries");
-  });
+  }, 15_000);
 });

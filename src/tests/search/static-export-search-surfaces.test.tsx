@@ -30,6 +30,9 @@ const STATIC_HANDOFF_CLIENT = { from: STATIC_HANDOFF_BOOTSTRAP_FETCH_URL };
 const FAILING_BOOTSTRAP_URL = "http://static-handoff-fail.test/api/search";
 const FAILING_BOOTSTRAP_CLIENT = { from: FAILING_BOOTSTRAP_URL };
 const STATIC_EXPORT_EMPTY_HANDOFF = { q: null, tag: null } as const;
+let staticHandoffBootstrapPayload: Awaited<
+  ReturnType<Response["json"]>
+> | null = null;
 
 function withWindowLocationSearch(
   search: string,
@@ -69,9 +72,21 @@ function installFailingBootstrapFetchMock(): void {
   }) as unknown as typeof fetch;
 }
 
+async function loadStaticHandoffBootstrapPayload() {
+  if (staticHandoffBootstrapPayload !== null) {
+    return staticHandoffBootstrapPayload;
+  }
+
+  staticHandoffBootstrapPayload = await (
+    await docsSearchApi.staticGET()
+  ).json();
+  return staticHandoffBootstrapPayload;
+}
+
 async function installStaticHandoffFetchMock(): Promise<void> {
-  const exported = await (await docsSearchApi.staticGET()).json();
-  globalThis.fetch = createStaticHandoffBootstrapFetch(exported);
+  globalThis.fetch = createStaticHandoffBootstrapFetch(
+    await loadStaticHandoffBootstrapPayload(),
+  );
 }
 
 function renderSearchPage(
