@@ -69,24 +69,6 @@ describe("validatePageTemplateConformance", () => {
     ).toBe(true);
   });
 
-  test("allows activation module charts in the how-it-works section", () => {
-    const activationChartPage = readTemplate("module")
-      .replace("- example-tag", "- activation")
-      .replace(
-        '<ModuleGraph registryId="module.example-module" assetId="computeFlow" />',
-        '<ModuleChart registryId="module.example-module" assetId="computeFlow" />',
-      );
-
-    const errors = validatePageTemplateConformance({
-      pagePath: `${docsRoot}/modules/example-activation/page.mdx`,
-      docsRoot,
-      kind: "module",
-      mdxSource: activationChartPage,
-    });
-
-    expect(errors).toEqual([]);
-  });
-
   test("skips configured exception pages", () => {
     const legacyGroupedQueryPage = readTemplate("module").replace(
       /\n<Section id="compared-to-nearby-modules"[\s\S]*?<\/Section>\n/,

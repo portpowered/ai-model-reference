@@ -4,7 +4,6 @@ import { getProjectRoot } from "./content-paths";
 import type { PageKind } from "./schemas";
 import { splitMdxFrontmatter } from "./validate-canonical-mdx-prose";
 import type { ValidationError } from "./validate-registry";
-import { parseYamlFrontmatterBlock } from "./yaml-frontmatter";
 
 type SectionStructure = {
   id: string;
@@ -65,12 +64,16 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/positional-interpolation/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "modules/sigmoid/page.mdx":
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/relu/page.mdx":
     "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/relative-position-bias/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/rope/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "modules/tanh/page.mdx":
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/sinusoidal-positional-embeddings/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/silu/page.mdx":
@@ -81,6 +84,8 @@ const pageTemplateConformanceExceptions: Record<string, string> = {
     "Legacy module page predates the variants-and-nearby-modules section.",
   "modules/superhot-rope/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
+  "modules/gelu/page.mdx":
+    "Activation modules use inline charts in how-it-works instead of the default ModuleGraph slot.",
   "modules/t5-relative-position-bias/page.mdx":
     "Legacy module migration still uses the older glossary-shaped structure.",
   "modules/yarn/page.mdx":
@@ -180,47 +185,6 @@ function formatComponentList(components: string[]): string {
   return components.length > 0 ? components.join(", ") : "(none)";
 }
 
-function getFrontmatterTags(mdxSource: string): string[] {
-  const { frontmatter } = splitMdxFrontmatter(mdxSource);
-  if (!frontmatter) {
-    return [];
-  }
-
-  const tags = parseYamlFrontmatterBlock(frontmatter).tags;
-  return Array.isArray(tags)
-    ? tags.filter((tag): tag is string => typeof tag === "string")
-    : [];
-}
-
-function sectionComponentsMatch(options: {
-  actualComponents: string[];
-  expectedComponents: string[];
-  isActivationModule: boolean;
-  kind: PageKind;
-  sectionId: string;
-}): boolean {
-  const {
-    actualComponents,
-    expectedComponents,
-    isActivationModule,
-    kind,
-    sectionId,
-  } = options;
-
-  if (JSON.stringify(actualComponents) === JSON.stringify(expectedComponents)) {
-    return true;
-  }
-
-  return (
-    kind === "module" &&
-    isActivationModule &&
-    sectionId === "how-it-works" &&
-    JSON.stringify(expectedComponents) === JSON.stringify(["ModuleGraph"]) &&
-    actualComponents.length > 0 &&
-    actualComponents.every((component) => component === "ModuleChart")
-  );
-}
-
 function pagePathRelativeToDocsRoot(
   pagePath: string,
   docsRoot: string,
@@ -248,8 +212,6 @@ export function validatePageTemplateConformance(options: {
 
   const expected = readTemplateStructure(kind);
   const actual = extractTemplateStructure(mdxSource);
-  const isActivationModule =
-    kind === "module" && getFrontmatterTags(mdxSource).includes("activation");
   const errors: ValidationError[] = [];
 
   if (
@@ -291,13 +253,8 @@ export function validatePageTemplateConformance(options: {
     }
 
     if (
-      !sectionComponentsMatch({
-        actualComponents: actualSection.components,
-        expectedComponents: expectedSection.components,
-        isActivationModule,
-        kind,
-        sectionId: expectedSection.id,
-      })
+      JSON.stringify(actualSection.components) !==
+      JSON.stringify(expectedSection.components)
     ) {
       errors.push({
         code: "page-template-section-components-mismatch",
