@@ -186,9 +186,16 @@ describe("planner live queue snapshot alignment", () => {
         expect(mergeabilityStdout).toContain(
           "lanes=3 pr-backed=0 linked-with-gaps=3",
         );
-        expect(mergeabilityStdout).toContain("work-item=planner-follow-up");
         expect(mergeabilityStdout).toContain("work-item=alpha");
-        expect(mergeabilityStdout).toContain("work-item=beta");
+        expect(mergeabilityStdout).toContain(
+          "noise=stale-failed-loopbacks count=1 work-items=beta",
+        );
+        expect(mergeabilityStdout).toContain(
+          "noise=queue-only-missing-linkage count=1 work-items=planner-follow-up",
+        );
+        expect(mergeabilityStdout).not.toContain(
+          "- status=linked-with-gaps queue=failed work-item=planner-follow-up",
+        );
         expect(mergeabilityStdout).not.toContain(
           "No active or failed queue lanes were discovered.",
         );
