@@ -11,6 +11,8 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
       concurrencyFloor: 3,
       generatedAtUtc: "2026-06-21T00:00:00.000Z",
       sourceSession: "~planner",
+      taskFiles: [],
+      tempStateFiles: [],
       workListJsonText: JSON.stringify({
         results: [
           {
@@ -60,6 +62,8 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
     const report = discoverPlannerConcurrencyFloorReport({
       concurrencyFloor: 1,
       generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      taskFiles: [],
+      tempStateFiles: [],
       workListJsonText: JSON.stringify({
         results: [
           {
@@ -119,6 +123,8 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
       concurrencyFloor: 2,
       generatedAtUtc: "2026-06-21T00:00:00.000Z",
       sourceSession: "~default",
+      taskFiles: [],
+      tempStateFiles: [],
       workListJsonText: JSON.stringify({
         results: [
           {
@@ -156,6 +162,8 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
       "- work-item=alpha raw-state=in-review session=session-alpha",
     );
     expect(reportText).toContain("Ignored Stale Noise (0)");
+    expect(reportText).toContain("Planner-Owned Backlog Candidates (0)");
+    expect(reportText).toContain("Refill Candidates (0)");
     expect(jsonReport).toMatchObject({
       usefulActiveLaneCount: 1,
       concurrencyFloor: 2,
@@ -163,5 +171,88 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
       lanesNeededToReachFloor: 1,
     });
     expect(jsonReport.ignoredStaleNoise).toEqual([]);
+  });
+
+  test("derives planner-owned refill candidates from tasks and marks explicit holds from docs/temp state", () => {
+    const report = discoverPlannerConcurrencyFloorReport({
+      concurrencyFloor: 3,
+      generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      sourceSession: "~planner",
+      taskFiles: [
+        {
+          path: "tasks/ideas-to-review/content/alpha-refill.md",
+          text: "# Alpha Refill\n",
+        },
+        {
+          path: "tasks/ideas-to-review/content/beta-held.md",
+          text: "# Beta Held\n",
+        },
+        {
+          path: "tasks/ideas-to-review/content/active-lane.md",
+          text: "# Active Lane\n",
+        },
+      ],
+      tempStateFiles: [
+        {
+          path: "checklist.md",
+          text: [
+            "# Planner Checklist",
+            "",
+            "## Holds",
+            "- beta-held blocked by dependency on shared registry cleanup",
+          ].join("\n"),
+        },
+      ],
+      workListJsonText: JSON.stringify({
+        results: [
+          {
+            workId: "task-active",
+            name: "active-lane",
+            sessionId: "session-active",
+            state: { name: "in-review", type: "PROCESSING" },
+          },
+        ],
+      }),
+    });
+
+    expect(report.plannerOwnedBacklogCandidates).toEqual([
+      {
+        activeLaneName: "active-lane",
+        eligibleForRefill: false,
+        holdReasons: [],
+        status: "already-active",
+        taskId: "ideas-to-review/content/active-lane",
+        taskPath: "tasks/ideas-to-review/content/active-lane.md",
+        title: "Active Lane",
+      },
+      {
+        eligibleForRefill: true,
+        holdReasons: [],
+        status: "ready",
+        taskId: "ideas-to-review/content/alpha-refill",
+        taskPath: "tasks/ideas-to-review/content/alpha-refill.md",
+        title: "Alpha Refill",
+      },
+      {
+        eligibleForRefill: false,
+        holdReasons: [
+          "checklist.md: - beta-held blocked by dependency on shared registry cleanup",
+        ],
+        status: "held",
+        taskId: "ideas-to-review/content/beta-held",
+        taskPath: "tasks/ideas-to-review/content/beta-held.md",
+        title: "Beta Held",
+      },
+    ]);
+    expect(report.refillCandidates).toEqual([
+      {
+        eligibleForRefill: true,
+        holdReasons: [],
+        status: "ready",
+        taskId: "ideas-to-review/content/alpha-refill",
+        taskPath: "tasks/ideas-to-review/content/alpha-refill.md",
+        title: "Alpha Refill",
+      },
+    ]);
   });
 });

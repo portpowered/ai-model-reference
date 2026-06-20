@@ -1,8 +1,10 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   discoverPlannerConcurrencyFloorReport,
   formatPlannerConcurrencyFloorReport,
+  type PlannerBacklogTaskFile,
+  type PlannerTempStateFile,
   serializePlannerConcurrencyFloorReport,
 } from "../src/lib/factory/planner-concurrency-floor-report";
 
@@ -22,6 +24,44 @@ function readRequiredJsonFile(path: string, label: string): string {
     throw new Error(`Missing ${label} fixture at ${path}`);
   }
   return readFileSync(path, "utf8");
+}
+
+function collectMarkdownFiles(rootPath: string): string[] {
+  if (!existsSync(rootPath)) {
+    return [];
+  }
+
+  const pending = [rootPath];
+  const files: string[] = [];
+
+  while (pending.length > 0) {
+    const current = pending.pop();
+    if (!current) {
+      continue;
+    }
+
+    for (const entry of readdirSync(current, { withFileTypes: true })) {
+      const entryPath = resolve(current, entry.name);
+      if (entry.isDirectory()) {
+        pending.push(entryPath);
+        continue;
+      }
+      if (entry.isFile() && entry.name.toLowerCase().endsWith(".md")) {
+        files.push(entryPath);
+      }
+    }
+  }
+
+  return files.sort();
+}
+
+function collectTextSnapshots<
+  T extends PlannerBacklogTaskFile | PlannerTempStateFile,
+>(rootPath: string): T[] {
+  return collectMarkdownFiles(rootPath).map((path) => ({
+    path: path.replace(`${rootPath}/`, "").replace(/\\/g, "/"),
+    text: readFileSync(path, "utf8"),
+  })) as T[];
 }
 
 function isJsonOutputRequested(argv: string[]): boolean {
@@ -74,6 +114,12 @@ function readConcurrencyFloor(): number {
 const repoRoot = readFlagValue("--repo-root")
   ? resolve(readFlagValue("--repo-root") as string)
   : defaultRepoRoot;
+const tasksRoot = readFlagValue("--tasks-root")
+  ? resolve(readFlagValue("--tasks-root") as string)
+  : resolve(repoRoot, "tasks");
+const tempRoot = readFlagValue("--temp-root")
+  ? resolve(readFlagValue("--temp-root") as string)
+  : resolve(repoRoot, "docs", "temp");
 const sourceSession = readFlagValue("--session") ?? "~default";
 const workListPath = readFlagValue("--work-list-json");
 const concurrencyFloor = readConcurrencyFloor();
@@ -81,10 +127,14 @@ const concurrencyFloor = readConcurrencyFloor();
 const workListJsonText = workListPath
   ? readRequiredJsonFile(workListPath, "work list")
   : runYouJsonCommand(repoRoot, ["work", "list", "--session", sourceSession]);
+const taskFiles = collectTextSnapshots<PlannerBacklogTaskFile>(tasksRoot);
+const tempStateFiles = collectTextSnapshots<PlannerTempStateFile>(tempRoot);
 
 const report = discoverPlannerConcurrencyFloorReport({
   concurrencyFloor,
   sourceSession,
+  taskFiles,
+  tempStateFiles,
   workListJsonText,
 });
 
