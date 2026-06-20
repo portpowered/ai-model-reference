@@ -303,6 +303,40 @@ type TaggedRegistryRecord =
   | DatasetRecord
   | OrganizationRecord;
 
+type OntologyParticipatingRegistryRecord =
+  | ModuleRecord
+  | ConceptRecord
+  | ModelRecord
+  | PaperRecord
+  | TrainingRegimeRecord
+  | SystemRecord
+  | DatasetRecord;
+
+type RuntimeRegistryRecord =
+  | TaggedRegistryRecord
+  | ClassificationRecord
+  | CitationRecord;
+
+type OntologyRelationshipType =
+  | "variant"
+  | "part-of"
+  | "uses"
+  | "used-by"
+  | "explains"
+  | "prerequisite"
+  | "related";
+
+export type ResolvedOntologyRelationship = {
+  relationshipType: OntologyRelationshipType;
+  targetId: string;
+  target: RuntimeRegistryRecord | undefined;
+};
+
+export type ClassificationMember = {
+  membershipType: "primary" | "secondary";
+  record: OntologyParticipatingRegistryRecord;
+};
+
 function getTaggedRecordById(
   registryId: string,
 ): TaggedRegistryRecord | undefined {
@@ -315,6 +349,30 @@ function getTaggedRecordById(
     systemsById.get(registryId) ??
     datasetsById.get(registryId) ??
     organizationsById.get(registryId)
+  );
+}
+
+function getOntologyParticipatingRecordById(
+  registryId: string,
+): OntologyParticipatingRegistryRecord | undefined {
+  return (
+    modulesById.get(registryId) ??
+    conceptsById.get(registryId) ??
+    modelsById.get(registryId) ??
+    papersById.get(registryId) ??
+    trainingRegimesById.get(registryId) ??
+    systemsById.get(registryId) ??
+    datasetsById.get(registryId)
+  );
+}
+
+function getRuntimeRecordById(
+  registryId: string,
+): RuntimeRegistryRecord | undefined {
+  return (
+    getTaggedRecordById(registryId) ??
+    classificationsById.get(registryId) ??
+    citationsById.get(registryId)
   );
 }
 
@@ -434,6 +492,78 @@ export function getRegistryCitationIds(
   registryId: string,
 ): string[] | undefined {
   return getTaggedRecordById(registryId)?.citationIds;
+}
+
+export function getPrimaryClassificationForRecord(
+  registryId: string,
+): ClassificationRecord | undefined {
+  const record = getOntologyParticipatingRecordById(registryId);
+  if (!record?.primaryClassificationId) {
+    return undefined;
+  }
+  return classificationsById.get(record.primaryClassificationId);
+}
+
+export function listSecondaryClassificationsForRecord(
+  registryId: string,
+): ClassificationRecord[] {
+  const record = getOntologyParticipatingRecordById(registryId);
+  if (!record?.secondaryClassificationIds?.length) {
+    return [];
+  }
+
+  return record.secondaryClassificationIds.flatMap((classificationId) => {
+    const classification = classificationsById.get(classificationId);
+    return classification ? [classification] : [];
+  });
+}
+
+export function listOntologyRelationshipsForRecord(
+  registryId: string,
+  relationshipType?: OntologyRelationshipType,
+): ResolvedOntologyRelationship[] {
+  const record = getOntologyParticipatingRecordById(registryId);
+  if (!record?.relationships?.length) {
+    return [];
+  }
+
+  return record.relationships
+    .filter(
+      (relationship) =>
+        relationshipType === undefined ||
+        relationship.relationshipType === relationshipType,
+    )
+    .map((relationship) => ({
+      relationshipType: relationship.relationshipType,
+      targetId: relationship.targetId,
+      target: getRuntimeRecordById(relationship.targetId),
+    }));
+}
+
+export function listClassificationMembers(
+  classificationId: string,
+): ClassificationMember[] {
+  if (!classificationsById.has(classificationId)) {
+    return [];
+  }
+
+  const members: ClassificationMember[] = [];
+
+  for (const record of listRelatedRegistryRecords()) {
+    if (record.kind === "organization") {
+      continue;
+    }
+
+    if (record.primaryClassificationId === classificationId) {
+      members.push({ membershipType: "primary", record });
+    }
+
+    if (record.secondaryClassificationIds?.includes(classificationId)) {
+      members.push({ membershipType: "secondary", record });
+    }
+  }
+
+  return members;
 }
 `;
 }

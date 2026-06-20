@@ -5,13 +5,17 @@ import {
   getModuleById,
   getOrganizationById,
   getPaperById,
+  getPrimaryClassificationForRecord,
   getRegistryCitationIds,
   getRegistryRecordById,
   getRegistryTags,
   getSystemById,
+  listClassificationMembers,
   listConceptRecords,
   listModuleRecords,
+  listOntologyRelationshipsForRecord,
   listRelatedRegistryRecords,
+  listSecondaryClassificationsForRecord,
   listSystemRecords,
 } from "@/lib/content/registry-runtime";
 
@@ -152,6 +156,33 @@ describe("registry-runtime", () => {
     expect(getRegistryCitationIds("module.unknown")).toBeUndefined();
   });
 
+  test("ontology helpers return stable empty results for records without ontology data", () => {
+    expect(
+      getPrimaryClassificationForRecord("module.grouped-query-attention"),
+    ).toBeUndefined();
+    expect(
+      listSecondaryClassificationsForRecord("module.grouped-query-attention"),
+    ).toEqual([]);
+    expect(
+      listOntologyRelationshipsForRecord("module.grouped-query-attention"),
+    ).toEqual([]);
+  });
+
+  test("ontology helpers return stable empty results for unknown records and classifications", () => {
+    expect(
+      getPrimaryClassificationForRecord("module.missing-runtime-record"),
+    ).toBeUndefined();
+    expect(
+      listSecondaryClassificationsForRecord("module.missing-runtime-record"),
+    ).toEqual([]);
+    expect(
+      listOntologyRelationshipsForRecord("module.missing-runtime-record"),
+    ).toEqual([]);
+    expect(
+      listClassificationMembers("classification.missing-runtime-record"),
+    ).toEqual([]);
+  });
+
   test("missing runtime lookups stay scoped to undefined without affecting known records", () => {
     expect(getModuleById("module.missing-runtime-record")).toBeUndefined();
     expect(getConceptById("concept.missing-runtime-record")).toBeUndefined();
@@ -187,6 +218,9 @@ describe("registry-runtime", () => {
     expect(getRegistryRecordById("organization.deepseek-ai")?.kind).toBe(
       "organization",
     );
+    expect(
+      listClassificationMembers("classification.deepseek-runtime-missing"),
+    ).toEqual([]);
   });
 
   test("getSystemById returns the canonical routing system with serving aliases and nearby docs", () => {
