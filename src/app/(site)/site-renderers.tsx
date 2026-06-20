@@ -6,6 +6,7 @@ import {
 } from "fumadocs-ui/layouts/docs/page";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { HomeArticle } from "@/components/home/home-article";
 import { BrowseAtlasPage } from "@/features/docs/components/BrowseAtlasPage";
 import { DocsIndexEmptyState } from "@/features/docs/components/DocsIndexEmptyState";
@@ -329,12 +330,48 @@ export async function renderTopologyPrototypePage(
       <DocsTitle>{topologyPrototype.title}</DocsTitle>
       <DocsDescription>{topologyPrototype.description}</DocsDescription>
       <DocsBody>
-        <TopologyPrototype
-          messages={messages}
-          docsPageContentByRegistryId={docsPageContentByRegistryId}
-        />
+        <Suspense
+          fallback={
+            <TopologyPrototypeLoadingFallback
+              title={topologyPrototype.loadingTitle}
+              description={topologyPrototype.loadingDescription}
+            />
+          }
+        >
+          <TopologyPrototype
+            messages={messages}
+            docsPageContentByRegistryId={docsPageContentByRegistryId}
+          />
+        </Suspense>
       </DocsBody>
     </DocsPage>
+  );
+}
+
+function TopologyPrototypeLoadingFallback({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <section className="space-y-6" aria-labelledby="topology-success-title">
+      <div className="grid gap-3 md:grid-cols-3">
+        <article
+          className="rounded-lg border border-border bg-muted/20 p-4"
+          aria-labelledby="topology-loading-title"
+        >
+          <h2
+            id="topology-loading-title"
+            className="text-sm font-semibold text-foreground"
+          >
+            {title}
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+        </article>
+      </div>
+    </section>
   );
 }
 
