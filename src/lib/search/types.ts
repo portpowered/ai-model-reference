@@ -12,6 +12,31 @@ export type SearchDocumentFacets = {
   sourceType?: string;
 };
 
+export type SearchDocumentTopologyClassification = {
+  id: string;
+  slug: string;
+  label: string;
+  aliases: string[];
+  terms: string[];
+};
+
+export type SearchDocumentTopologyRelationship = {
+  relationshipType: string;
+  targetId: string;
+  targetKind?: string;
+  targetSlug?: string;
+  targetAliases: string[];
+};
+
+export type SearchDocumentTopology = {
+  primaryClassificationId?: string;
+  secondaryClassificationIds: string[];
+  primaryClassification?: SearchDocumentTopologyClassification;
+  secondaryClassifications: SearchDocumentTopologyClassification[];
+  relationships: SearchDocumentTopologyRelationship[];
+  terms: string[];
+};
+
 export type SearchDocument = {
   id: string;
   registryId?: string;
@@ -25,6 +50,7 @@ export type SearchDocument = {
   tags: string[];
   relatedIds: string[];
   facets: SearchDocumentFacets;
+  topology: SearchDocumentTopology;
 };
 
 export type FumadocsStructuredData = {

@@ -26,6 +26,12 @@ export function documentsByUrlFromMeta(
       tags: meta.tags,
       relatedIds: [],
       facets: { kind: meta.kind, tags: meta.tags },
+      topology: {
+        secondaryClassificationIds: [],
+        secondaryClassifications: [],
+        relationships: [],
+        terms: [],
+      },
     });
   }
   return map;

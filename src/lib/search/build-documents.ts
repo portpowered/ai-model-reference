@@ -6,13 +6,24 @@ import type { DocsPageSource } from "@/lib/content/pages";
 import { resolvePublishedResourceTags } from "@/lib/content/phase-1-published-resources";
 import type { RegistryIndexes, RegistryRecord } from "@/lib/content/registry";
 import type {
+  ClassificationRecord,
   ConceptRecord,
+  DatasetRecord,
   ModelRecord,
   ModuleRecord,
+  OntologyRelationship,
+  PaperRecord,
+  SystemRecord,
   TagRecord,
   TrainingRegimeRecord,
 } from "@/lib/content/schemas";
-import type { SearchDocument, SearchDocumentFacets } from "./types";
+import type {
+  SearchDocument,
+  SearchDocumentFacets,
+  SearchDocumentTopology,
+  SearchDocumentTopologyClassification,
+  SearchDocumentTopologyRelationship,
+} from "./types";
 
 function unique(values: string[]): string[] {
   return [...new Set(values.filter(Boolean))];
@@ -40,6 +51,29 @@ function isTrainingRegimeRecord(
   return record.kind === "training-regime";
 }
 
+type OntologyParticipatingRecord =
+  | ModuleRecord
+  | ConceptRecord
+  | ModelRecord
+  | PaperRecord
+  | TrainingRegimeRecord
+  | SystemRecord
+  | DatasetRecord;
+
+function isOntologyParticipatingRecord(
+  record: RegistryRecord,
+): record is OntologyParticipatingRecord {
+  return (
+    record.kind === "module" ||
+    record.kind === "concept" ||
+    record.kind === "model" ||
+    record.kind === "paper" ||
+    record.kind === "training-regime" ||
+    record.kind === "system" ||
+    record.kind === "dataset"
+  );
+}
+
 function getRegistryRecord(
   indexes: RegistryIndexes,
   registryId?: string,
@@ -63,6 +97,112 @@ function tagSearchTerms(
     }
   }
   return unique(terms);
+}
+
+function humanizeSlug(slug: string): string {
+  return slug.replace(/-/g, " ");
+}
+
+function buildClassificationTerms(
+  classification: ClassificationRecord,
+): string[] {
+  return unique([
+    classification.id,
+    classification.slug,
+    humanizeSlug(classification.slug),
+    ...classification.aliases,
+  ]);
+}
+
+function toTopologyClassification(
+  classification: ClassificationRecord | undefined,
+): SearchDocumentTopologyClassification | undefined {
+  if (classification?.status !== "published") {
+    return undefined;
+  }
+
+  const label = humanizeSlug(classification.slug);
+
+  return {
+    id: classification.id,
+    slug: classification.slug,
+    label,
+    aliases: classification.aliases,
+    terms: buildClassificationTerms(classification),
+  };
+}
+
+function toTopologyRelationship(
+  relationship: OntologyRelationship,
+  indexes: RegistryIndexes,
+): SearchDocumentTopologyRelationship {
+  const target = indexes.byId.get(relationship.targetId);
+
+  return {
+    relationshipType: relationship.relationshipType,
+    targetId: relationship.targetId,
+    targetKind: target?.kind,
+    targetSlug: target?.slug,
+    targetAliases:
+      target && "aliases" in target && Array.isArray(target.aliases)
+        ? target.aliases
+        : [],
+  };
+}
+
+function buildTopology(
+  registryRecord: RegistryRecord | undefined,
+  indexes: RegistryIndexes,
+): SearchDocumentTopology {
+  const emptyTopology: SearchDocumentTopology = {
+    secondaryClassificationIds: [],
+    secondaryClassifications: [],
+    relationships: [],
+    terms: [],
+  };
+
+  if (!registryRecord || !isOntologyParticipatingRecord(registryRecord)) {
+    return emptyTopology;
+  }
+
+  const primaryClassificationId = registryRecord.primaryClassificationId;
+  const secondaryClassificationIds =
+    registryRecord.secondaryClassificationIds ?? [];
+  const primaryClassification = toTopologyClassification(
+    primaryClassificationId
+      ? indexes.classificationsById.get(primaryClassificationId)
+      : undefined,
+  );
+  const secondaryClassifications = secondaryClassificationIds.flatMap((id) => {
+    const classification = toTopologyClassification(
+      indexes.classificationsById.get(id),
+    );
+    return classification ? [classification] : [];
+  });
+  const relationships = (registryRecord.relationships ?? []).map(
+    (relationship) => toTopologyRelationship(relationship, indexes),
+  );
+  const terms = unique([
+    ...(primaryClassification?.terms ?? []),
+    ...secondaryClassifications.flatMap(
+      (classification) => classification.terms,
+    ),
+    ...relationships.flatMap((relationship) => [
+      relationship.relationshipType,
+      relationship.targetId,
+      relationship.targetSlug ?? "",
+      ...relationship.targetAliases,
+    ]),
+  ]);
+
+  return {
+    primaryClassificationId,
+    secondaryClassificationIds,
+    primaryClassification,
+    secondaryClassifications,
+    relationships,
+    terms,
+  };
 }
 
 function buildFacets(
@@ -112,6 +252,7 @@ export function buildSearchDocument(
   const tagTerms = tagSearchTerms(indexes, pageTags);
   const headings = collectMessageHeadings(page.messages);
   const bodyText = collectMessageBodyText(page.messages);
+  const topology = buildTopology(registryRecord, indexes);
   const aliases = unique([
     ...(page.frontmatter.aliases ?? []),
     ...registryAliases,
@@ -131,6 +272,7 @@ export function buildSearchDocument(
     tags: pageTags,
     relatedIds: registryRecord?.relatedIds ?? [],
     facets: buildFacets(page.frontmatter.kind, pageTags, registryRecord),
+    topology,
   };
 }
 

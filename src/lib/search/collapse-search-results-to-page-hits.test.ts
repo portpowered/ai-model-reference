@@ -21,6 +21,12 @@ function documentForUrl(
     tags: ["attention"],
     relatedIds: [],
     facets: { kind: "module", tags: ["attention"] },
+    topology: {
+      secondaryClassificationIds: [],
+      secondaryClassifications: [],
+      relationships: [],
+      terms: [],
+    },
     ...overrides,
   };
 }

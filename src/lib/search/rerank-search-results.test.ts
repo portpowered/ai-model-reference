@@ -21,6 +21,12 @@ function documentForUrl(
     tags: ["taxonomy"],
     relatedIds: [],
     facets: { kind: "glossary", tags: ["taxonomy"] },
+    topology: {
+      secondaryClassificationIds: [],
+      secondaryClassifications: [],
+      relationships: [],
+      terms: [],
+    },
     ...overrides,
   };
 }
