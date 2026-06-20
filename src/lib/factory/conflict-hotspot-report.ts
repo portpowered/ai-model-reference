@@ -20,6 +20,7 @@ export type ConflictHotspotPathTouch = {
 
 export type ConflictHotspotSurfaceCategory =
   | "authored-content"
+  | "generated-artifact"
   | "shared-helper"
   | "shared-registry"
   | "shared-test";
@@ -141,6 +142,17 @@ function classifySurfaceCategory(path: string): ConflictHotspotSurfaceCategory {
   const normalizedPath = path.replace(/\\/g, "/");
 
   if (
+    normalizedPath.includes(".generated.") ||
+    normalizedPath.startsWith("src/generated/") ||
+    normalizedPath.startsWith(".next/") ||
+    normalizedPath.includes("generated-tag-page") ||
+    normalizedPath.includes("search-index") ||
+    normalizedPath.includes("fingerprint")
+  ) {
+    return "generated-artifact";
+  }
+
+  if (
     normalizedPath.includes(".test.") ||
     normalizedPath.startsWith("src/tests/") ||
     normalizedPath.startsWith("tests/") ||
@@ -154,8 +166,7 @@ function classifySurfaceCategory(path: string): ConflictHotspotSurfaceCategory {
   if (
     normalizedPath.includes("registry") ||
     normalizedPath.includes("manifest") ||
-    normalizedPath.includes("fingerprint") ||
-    normalizedPath.includes("search-index")
+    normalizedPath.includes("runtime")
   ) {
     return "shared-registry";
   }
@@ -402,6 +413,8 @@ function formatSurfaceCategory(
   switch (category) {
     case "authored-content":
       return "authored content";
+    case "generated-artifact":
+      return "generated artifact/runtime churn";
     case "shared-helper":
       return "shared helper";
     case "shared-registry":
@@ -461,8 +474,16 @@ export function formatConflictHotspotSnapshot(
   const authoredContentSurfaces = snapshot.rankedSurfaces.filter(
     (surface) => surface.category === "authored-content",
   );
+  const generatedArtifactSurfaces = snapshot.rankedSurfaces.filter(
+    (surface) => surface.category === "generated-artifact",
+  );
+  const sharedTestSurfaces = snapshot.rankedSurfaces.filter(
+    (surface) => surface.category === "shared-test",
+  );
   const sharedSupportSurfaces = snapshot.rankedSurfaces.filter(
-    (surface) => surface.category !== "authored-content",
+    (surface) =>
+      surface.category === "shared-helper" ||
+      surface.category === "shared-registry",
   );
 
   lines.push("", "Ranked collision surfaces");
@@ -475,7 +496,25 @@ export function formatConflictHotspotSnapshot(
     }
   }
 
-  lines.push("", "Shared helper, registry, manifest, and test surfaces");
+  lines.push("", "Recurring generated artifact/runtime churn");
+  if (generatedArtifactSurfaces.length === 0) {
+    lines.push("- None in the sampled evidence.");
+  } else {
+    for (const surface of generatedArtifactSurfaces) {
+      lines.push(formatRankedSurfaceLine(surface));
+    }
+  }
+
+  lines.push("", "High-collision test and verification surfaces");
+  if (sharedTestSurfaces.length === 0) {
+    lines.push("- None in the sampled evidence.");
+  } else {
+    for (const surface of sharedTestSurfaces) {
+      lines.push(formatRankedSurfaceLine(surface));
+    }
+  }
+
+  lines.push("", "Shared helper and registry surfaces");
   if (sharedSupportSurfaces.length === 0) {
     lines.push("- None in the sampled evidence.");
   } else {

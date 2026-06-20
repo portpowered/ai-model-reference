@@ -21,12 +21,17 @@ function initFixtureRepo(): string {
 
   mkdirSync(join(repoRoot, "docs"), { recursive: true });
   mkdirSync(join(repoRoot, "src/content"), { recursive: true });
+  mkdirSync(join(repoRoot, "src/generated"), { recursive: true });
   mkdirSync(join(repoRoot, "src/tests/ci"), { recursive: true });
   mkdirSync(join(repoRoot, "scripts"), { recursive: true });
 
   writeFileSync(join(repoRoot, "docs/guide.md"), "# Guide\n");
   writeFileSync(join(repoRoot, "docs/overview.md"), "# Overview\n");
   writeFileSync(join(repoRoot, "src/content/page.mdx"), "# Page\n");
+  writeFileSync(
+    join(repoRoot, "src/generated/search-index.json"),
+    '{"docs":["guide"]}\n',
+  );
   writeFileSync(
     join(repoRoot, "src/tests/ci/planner-hotspots.test.ts"),
     "export {};\n",
@@ -40,6 +45,10 @@ function initFixtureRepo(): string {
 
   writeFileSync(join(repoRoot, "docs/guide.md"), "# Guide\nupdated\n");
   writeFileSync(join(repoRoot, "docs/overview.md"), "# Overview\nupdated\n");
+  writeFileSync(
+    join(repoRoot, "src/generated/search-index.json"),
+    '{"docs":["guide","overview"]}\n',
+  );
   writeFileSync(
     join(repoRoot, "src/tests/ci/planner-hotspots.test.ts"),
     "export const touched = true;\n",
@@ -94,7 +103,16 @@ describe("report-planner-conflict-hotspots script", () => {
       expect(result.stdout ?? "").toContain("Ranked collision surfaces");
       expect(result.stdout ?? "").toContain("Authored content surfaces");
       expect(result.stdout ?? "").toContain(
+        "Recurring generated artifact/runtime churn",
+      );
+      expect(result.stdout ?? "").toContain(
+        "High-collision test and verification surfaces",
+      );
+      expect(result.stdout ?? "").toContain(
         "docs [authored content] (4 touches across 2 paths; examples: docs/guide.md, docs/overview.md)",
+      );
+      expect(result.stdout ?? "").toContain(
+        "src/generated/search-index.json [generated artifact/runtime churn] (2 touches across 1 path; examples: src/generated/search-index.json)",
       );
       expect(result.stdout ?? "").toContain(
         "src/tests/ci [shared test/verification] (2 touches across 1 path; examples: src/tests/ci/planner-hotspots.test.ts)",

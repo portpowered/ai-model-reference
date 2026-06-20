@@ -62,6 +62,13 @@ describe("formatConflictHotspotSnapshot", () => {
           touches: 5,
         },
         {
+          category: "generated-artifact",
+          distinctPaths: 1,
+          representativePaths: ["src/generated/search-index.json"],
+          surface: "src/generated/search-index.json",
+          touches: 3,
+        },
+        {
           category: "shared-test",
           distinctPaths: 1,
           representativePaths: ["src/tests/ci/planner-hotspots.test.ts"],
@@ -92,9 +99,38 @@ describe("formatConflictHotspotSnapshot", () => {
       "docs [authored content] (5 touches across 2 paths; examples: docs/guide.md, docs/overview.md)",
     );
     expect(report).toContain(
+      "src/generated/search-index.json [generated artifact/runtime churn] (3 touches across 1 path; examples: src/generated/search-index.json)",
+    );
+    expect(report).toContain("Recurring generated artifact/runtime churn");
+    expect(report).toContain("High-collision test and verification surfaces");
+    expect(report).toContain(
       "src/tests/ci [shared test/verification] (2 touches across 1 path; examples: src/tests/ci/planner-hotspots.test.ts)",
     );
     expect(report).toContain("docs/guide.md (4 touches)");
+  });
+
+  test("explicitly says when generated churn and test-helper hotspots are absent", () => {
+    const report = formatConflictHotspotSnapshot({
+      generatedAtUtc: "2026-06-20T12:00:00.000Z",
+      recentCommitLimit: 20,
+      repoRoot: "/repo",
+      rankedSurfaces: [
+        {
+          category: "authored-content",
+          distinctPaths: 1,
+          representativePaths: ["docs/guide.md"],
+          surface: "docs",
+          touches: 2,
+        },
+      ],
+      topPaths: [{ path: "docs/guide.md", touches: 2 }],
+      worktrees: [{ branch: "main", path: "/repo", state: "current-clean" }],
+    });
+
+    expect(report).toContain("Recurring generated artifact/runtime churn");
+    expect(report).toContain("High-collision test and verification surfaces");
+    expect(report).toContain("Shared helper and registry surfaces");
+    expect(report).toContain("- None in the sampled evidence.");
   });
 });
 
@@ -106,6 +142,7 @@ describe("rankConflictHotspotSurfaces", () => {
         { path: "docs/overview.md", touches: 2 },
         { path: "src/content/docs/modules/gelu/page.mdx", touches: 2 },
         { path: "src/tests/ci/planner-hotspots.test.ts", touches: 4 },
+        { path: "src/generated/search-index.json", touches: 3 },
         { path: "scripts/generate-registry-runtime.ts", touches: 1 },
       ]),
     ).toEqual([
@@ -122,6 +159,13 @@ describe("rankConflictHotspotSurfaces", () => {
         representativePaths: ["src/tests/ci/planner-hotspots.test.ts"],
         surface: "src/tests/ci",
         touches: 4,
+      },
+      {
+        category: "generated-artifact",
+        distinctPaths: 1,
+        representativePaths: ["src/generated/search-index.json"],
+        surface: "src/generated/search-index.json",
+        touches: 3,
       },
       {
         category: "authored-content",
