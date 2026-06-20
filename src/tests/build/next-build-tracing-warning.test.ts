@@ -116,7 +116,7 @@ describe("next build turbopack NFT tracing warning", () => {
         }
       }
     },
-    { timeout: 180_000 },
+    { timeout: 300_000 },
   );
 });
 

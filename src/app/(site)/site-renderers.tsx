@@ -6,11 +6,13 @@ import {
 } from "fumadocs-ui/layouts/docs/page";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { HomeArticle } from "@/components/home/home-article";
 import { BrowseAtlasPage } from "@/features/docs/components/BrowseAtlasPage";
 import { DocsIndexEmptyState } from "@/features/docs/components/DocsIndexEmptyState";
 import type { DocsIndexEntry } from "@/features/docs/components/DocsIndexEntryList";
 import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
+import { StaticExportBrowsePage } from "@/features/docs/components/StaticExportBrowsePage";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
 import {
   TopologyBrowsePage,
@@ -206,39 +208,8 @@ export async function renderBrowseIndexPage(
   const messages = await loadUiMessages(locale);
   const pages = await loadShippedLocalizedDocsPages(locale);
   const topologyOptions = listTopologyNavigationOptions({ locale });
-  const topologyState = resolveTopologyBrowseState(
-    await searchParams,
-    topologyOptions,
-  );
-
-  if (topologyState.kind !== "not-requested") {
-    const topologyMembers =
-      topologyState.kind === "selected"
-        ? toTopologyMemberEntries(
-            topologyState.option.classificationId,
-            pages,
-            locale,
-          )
-        : [];
-
-    return (
-      <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
-        <DocsTitle>{topologyBrowseTitle(messages, topologyState)}</DocsTitle>
-        <DocsDescription>
-          {topologyBrowseDescription(messages, topologyState)}
-        </DocsDescription>
-        <DocsBody>
-          <TopologyBrowsePage
-            messages={messages}
-            state={topologyState}
-            members={topologyMembers}
-          />
-        </DocsBody>
-      </DocsPage>
-    );
-  }
-
-  return (
+  const isStaticExport = process.env.NEXT_STATIC_EXPORT === "1";
+  const defaultPage = (
     <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
       <DocsTitle>{messages.browseIndex.title}</DocsTitle>
       <DocsDescription>{messages.browseIndex.description}</DocsDescription>
@@ -285,6 +256,60 @@ export async function renderBrowseIndexPage(
       </DocsBody>
     </DocsPage>
   );
+
+  if (isStaticExport) {
+    const membersByClassificationSlug = Object.fromEntries(
+      topologyOptions.map((option) => [
+        option.classificationSlug,
+        toTopologyMemberEntries(option.classificationId, pages, locale),
+      ]),
+    ) as Record<string, TopologyMemberEntry[]>;
+
+    return (
+      <Suspense fallback={defaultPage}>
+        <StaticExportBrowsePage
+          messages={messages}
+          options={topologyOptions}
+          membersByClassificationSlug={membersByClassificationSlug}
+          defaultPage={defaultPage}
+        />
+      </Suspense>
+    );
+  }
+
+  const topologyState = resolveTopologyBrowseState(
+    await searchParams,
+    topologyOptions,
+  );
+
+  if (topologyState.kind !== "not-requested") {
+    const topologyMembers =
+      topologyState.kind === "selected"
+        ? toTopologyMemberEntries(
+            topologyState.option.classificationId,
+            pages,
+            locale,
+          )
+        : [];
+
+    return (
+      <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
+        <DocsTitle>{topologyBrowseTitle(messages, topologyState)}</DocsTitle>
+        <DocsDescription>
+          {topologyBrowseDescription(messages, topologyState)}
+        </DocsDescription>
+        <DocsBody>
+          <TopologyBrowsePage
+            messages={messages}
+            state={topologyState}
+            members={topologyMembers}
+          />
+        </DocsBody>
+      </DocsPage>
+    );
+  }
+
+  return defaultPage;
 }
 
 export async function renderSectionKindIndexPage(

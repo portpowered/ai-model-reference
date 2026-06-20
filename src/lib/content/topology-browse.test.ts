@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  readTopologyBrowseStateFromLocationSearch,
   resolveTopologyBrowseState,
   type TopologySearchParams,
 } from "@/lib/content/topology-browse";
@@ -84,5 +85,19 @@ describe("topology browse request state", () => {
     }
     expect(state.option.classificationSlug).toBe("feed-forward-networks");
     expect(state.mode).toBe("timeline");
+  });
+
+  test("reads topology state from a browser-style location search string", () => {
+    const state = readTopologyBrowseStateFromLocationSearch(
+      listTopologyNavigationOptions(),
+      "?classification=activation-functions&mode=graph-map",
+    );
+
+    expect(state.kind).toBe("selected");
+    if (state.kind !== "selected") {
+      return;
+    }
+    expect(state.option.classificationSlug).toBe("activation-functions");
+    expect(state.mode).toBe("graph-map");
   });
 });

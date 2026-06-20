@@ -131,4 +131,24 @@ describe("browse index page render", () => {
       'href="/browse?classification=feed-forward-networks&amp;mode=timeline"',
     );
   });
+
+  it("ignores server search params during static export rendering", async () => {
+    const previousStaticExport = process.env.NEXT_STATIC_EXPORT;
+    process.env.NEXT_STATIC_EXPORT = "1";
+
+    try {
+      const page = await renderBrowseIndexPage(undefined, {
+        searchParams: Promise.resolve({
+          classification: "activation-functions",
+          mode: "graph-map",
+        }),
+      });
+      const html = renderToStaticMarkup(page);
+
+      expect(html).toContain("Browse the Atlas");
+      expect(html).not.toContain("Activation Functions Graph Map");
+    } finally {
+      process.env.NEXT_STATIC_EXPORT = previousStaticExport;
+    }
+  });
 });

@@ -115,3 +115,14 @@ export function resolveTopologyBrowseState(
     options,
   };
 }
+
+/** Reads `/browse` topology state from a browser location search string. */
+export function readTopologyBrowseStateFromLocationSearch(
+  options: readonly TopologyNavigationOption[],
+  search = typeof window === "undefined" ? "" : window.location.search,
+): TopologyBrowseState {
+  return resolveTopologyBrowseState(
+    Object.fromEntries(new URLSearchParams(search)),
+    options,
+  );
+}
