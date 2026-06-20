@@ -18,10 +18,25 @@ export type ConflictHotspotPathTouch = {
   touches: number;
 };
 
+export type ConflictHotspotSurfaceCategory =
+  | "authored-content"
+  | "shared-helper"
+  | "shared-registry"
+  | "shared-test";
+
+export type ConflictHotspotSurface = {
+  category: ConflictHotspotSurfaceCategory;
+  distinctPaths: number;
+  representativePaths: readonly string[];
+  surface: string;
+  touches: number;
+};
+
 export type ConflictHotspotSnapshot = {
   generatedAtUtc: string;
   recentCommitLimit: number;
   repoRoot: string;
+  rankedSurfaces: readonly ConflictHotspotSurface[];
   topPaths: readonly ConflictHotspotPathTouch[];
   worktrees: readonly ConflictHotspotWorktree[];
 };
@@ -122,6 +137,113 @@ export function parseRecentPathTouches(
     });
 }
 
+function classifySurfaceCategory(path: string): ConflictHotspotSurfaceCategory {
+  const normalizedPath = path.replace(/\\/g, "/");
+
+  if (
+    normalizedPath.includes(".test.") ||
+    normalizedPath.startsWith("src/tests/") ||
+    normalizedPath.startsWith("tests/") ||
+    normalizedPath.startsWith("scripts/verify-") ||
+    normalizedPath.startsWith("scripts/run-") ||
+    normalizedPath.startsWith("scripts/validate-")
+  ) {
+    return "shared-test";
+  }
+
+  if (
+    normalizedPath.includes("registry") ||
+    normalizedPath.includes("manifest") ||
+    normalizedPath.includes("fingerprint") ||
+    normalizedPath.includes("search-index")
+  ) {
+    return "shared-registry";
+  }
+
+  if (
+    normalizedPath.startsWith("docs/") ||
+    normalizedPath.startsWith("content/") ||
+    normalizedPath.startsWith("src/content/docs/") ||
+    normalizedPath.endsWith(".md") ||
+    normalizedPath.endsWith(".mdx")
+  ) {
+    return "authored-content";
+  }
+
+  return "shared-helper";
+}
+
+function deriveSurfaceLabel(path: string): string {
+  const normalizedPath = path.replace(/\\/g, "/");
+  const segments = normalizedPath.split("/").filter(Boolean);
+
+  if (segments.length <= 1) {
+    return normalizedPath;
+  }
+
+  if (segments[0] === "src") {
+    return segments.slice(0, Math.min(3, segments.length)).join("/");
+  }
+
+  if (segments[0] === "factory") {
+    return segments.slice(0, Math.min(3, segments.length)).join("/");
+  }
+
+  if (segments[0] === "docs") {
+    return segments.length >= 3 ? segments.slice(0, 2).join("/") : "docs";
+  }
+
+  return segments.slice(0, Math.min(2, segments.length)).join("/");
+}
+
+type RankedSurfaceAccumulator = {
+  category: ConflictHotspotSurfaceCategory;
+  representativePaths: Set<string>;
+  touches: number;
+};
+
+export function rankConflictHotspotSurfaces(
+  pathTouches: readonly ConflictHotspotPathTouch[],
+): readonly ConflictHotspotSurface[] {
+  const surfaces = new Map<string, RankedSurfaceAccumulator>();
+
+  for (const pathTouch of pathTouches) {
+    const surface = deriveSurfaceLabel(pathTouch.path);
+    const category = classifySurfaceCategory(pathTouch.path);
+    const existing = surfaces.get(surface);
+
+    if (existing) {
+      existing.touches += pathTouch.touches;
+      existing.representativePaths.add(pathTouch.path);
+      continue;
+    }
+
+    surfaces.set(surface, {
+      category,
+      representativePaths: new Set([pathTouch.path]),
+      touches: pathTouch.touches,
+    });
+  }
+
+  return [...surfaces.entries()]
+    .map(([surface, value]) => ({
+      category: value.category,
+      distinctPaths: value.representativePaths.size,
+      representativePaths: [...value.representativePaths].sort().slice(0, 3),
+      surface,
+      touches: value.touches,
+    }))
+    .sort((left, right) => {
+      if (right.touches !== left.touches) {
+        return right.touches - left.touches;
+      }
+      if (right.distinctPaths !== left.distinctPaths) {
+        return right.distinctPaths - left.distinctPaths;
+      }
+      return left.surface.localeCompare(right.surface);
+    });
+}
+
 function listTrackedWorktrees(
   repoRoot: string,
 ): readonly ParsedWorktreeRecord[] {
@@ -180,7 +302,6 @@ function collectWorktreeSnapshot(
 function collectRecentPathSnapshot(
   repoRoot: string,
   recentCommitLimit: number,
-  topPathLimit: number,
 ): readonly ConflictHotspotPathTouch[] {
   const result = runGit(repoRoot, [
     "log",
@@ -202,7 +323,15 @@ function collectRecentPathSnapshot(
       `Unable to collect recent path evidence from the last ${recentCommitLimit} commits.`,
     );
   }
-  return pathTouches.slice(0, topPathLimit);
+  return pathTouches;
+}
+
+function formatCount(value: number, noun: string): string {
+  if (noun === "touch") {
+    return `${value} ${value === 1 ? "touch" : "touches"}`;
+  }
+
+  return `${value} ${noun}${value === 1 ? "" : "s"}`;
 }
 
 export type CollectConflictHotspotSnapshotOptions = {
@@ -242,13 +371,18 @@ export function collectConflictHotspotSnapshot(
   }
 
   const canonicalRepoRoot = gitRootResult.stdout.trim();
+  const recentPathTouches = collectRecentPathSnapshot(
+    canonicalRepoRoot,
+    recentCommitLimit,
+  );
+
   return {
     generatedAtUtc: options.generatedAtUtc ?? new Date().toISOString(),
     recentCommitLimit,
     repoRoot: canonicalRepoRoot,
-    topPaths: collectRecentPathSnapshot(
-      canonicalRepoRoot,
-      recentCommitLimit,
+    topPaths: recentPathTouches.slice(0, topPathLimit),
+    rankedSurfaces: rankConflictHotspotSurfaces(recentPathTouches).slice(
+      0,
       topPathLimit,
     ),
     worktrees: collectWorktreeSnapshot(canonicalRepoRoot),
@@ -260,6 +394,25 @@ function formatWorktreePath(repoRoot: string, worktreePath: string): string {
   return relativePath.length > 0 && !relativePath.startsWith("..")
     ? relativePath
     : worktreePath;
+}
+
+function formatSurfaceCategory(
+  category: ConflictHotspotSurfaceCategory,
+): string {
+  switch (category) {
+    case "authored-content":
+      return "authored content";
+    case "shared-helper":
+      return "shared helper";
+    case "shared-registry":
+      return "shared registry/manifest";
+    case "shared-test":
+      return "shared test/verification";
+  }
+}
+
+function formatRankedSurfaceLine(surface: ConflictHotspotSurface): string {
+  return `- ${surface.surface} [${formatSurfaceCategory(surface.category)}] (${formatCount(surface.touches, "touch")} across ${formatCount(surface.distinctPaths, "path")}; examples: ${surface.representativePaths.join(", ")})`;
 }
 
 export function formatConflictHotspotSnapshot(
@@ -303,6 +456,32 @@ export function formatConflictHotspotSnapshot(
     lines.push(
       `- Additional tracked worktrees omitted: ${snapshot.worktrees.length - listedWorktrees.length}`,
     );
+  }
+
+  const authoredContentSurfaces = snapshot.rankedSurfaces.filter(
+    (surface) => surface.category === "authored-content",
+  );
+  const sharedSupportSurfaces = snapshot.rankedSurfaces.filter(
+    (surface) => surface.category !== "authored-content",
+  );
+
+  lines.push("", "Ranked collision surfaces");
+  lines.push("Authored content surfaces");
+  if (authoredContentSurfaces.length === 0) {
+    lines.push("- None in the sampled evidence.");
+  } else {
+    for (const surface of authoredContentSurfaces) {
+      lines.push(formatRankedSurfaceLine(surface));
+    }
+  }
+
+  lines.push("", "Shared helper, registry, manifest, and test surfaces");
+  if (sharedSupportSurfaces.length === 0) {
+    lines.push("- None in the sampled evidence.");
+  } else {
+    for (const surface of sharedSupportSurfaces) {
+      lines.push(formatRankedSurfaceLine(surface));
+    }
   }
 
   lines.push("", "Recent shared-path sample");
