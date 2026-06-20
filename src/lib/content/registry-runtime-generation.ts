@@ -456,6 +456,18 @@ export function listSystemRecords(): SystemRecord[] {
   return [...systemRecords];
 }
 
+export function listDatasetRecords(): DatasetRecord[] {
+  return [...datasetRecords];
+}
+
+export function listOrganizationRecords(): OrganizationRecord[] {
+  return [...organizationRecords];
+}
+
+export function listCitationRecords(): CitationRecord[] {
+  return [...citationRecords];
+}
+
 /** Registry records used for derived related-document groups. */
 export function listRelatedRegistryRecords(): RelatedRegistryRecord[] {
   return [
