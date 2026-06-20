@@ -1,13 +1,13 @@
 import { spawn } from "node:child_process";
 import { readdirSync } from "node:fs";
-import { availableParallelism } from "node:os";
 import { join, relative } from "node:path";
 
 const repoRoot = join(import.meta.dir, "..");
-const defaultParallelWorkers = Math.max(
-  1,
-  Math.min(4, availableParallelism() - 1),
-);
+// The website suite contains several long-running render/a11y files whose
+// timeouts become scheduler-dependent under aggressive sharding. Keep the
+// default serial so `bun run test` stays deterministic; callers can still opt
+// into more shards through WEBSITE_TEST_PARALLEL_WORKERS when they want speed.
+const defaultParallelWorkers = 1;
 
 const excludedPrefixes = [
   "src/lib/verify/",
