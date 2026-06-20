@@ -110,6 +110,10 @@ describe("discoverPlannerQueueHealthReport", () => {
     expect(reportText).toContain("Expected Blocked Items (0)");
     expect(reportText).toContain("Repairable Failures (1)");
     expect(reportText).toContain("Ignorable Stale Noise (0)");
+    expect(reportText).toContain("Repair Guidance (1)");
+    expect(reportText).toContain(
+      "command=you work move task-2 init --session ~default",
+    );
   });
 
   test("demotes superseded failed duplicates and groups repeated cron failures as ignorable noise", () => {
@@ -184,5 +188,85 @@ describe("discoverPlannerQueueHealthReport", () => {
       "group-work-ids=cron-1,cron-2",
       "group-traces=trace-cron-1,trace-cron-2",
     ]);
+  });
+
+  test("emits repair guidance only for unique repairable failures", () => {
+    const report = discoverPlannerQueueHealthReport({
+      generatedAtUtc: "2026-06-20T00:00:00.000Z",
+      sourceSession: "~planner",
+      workListJsonText: JSON.stringify({
+        results: [
+          {
+            workId: "task-repairable",
+            name: "repair-me",
+            traceId: "trace-repairable",
+            workTypeName: "task",
+            state: { name: "failed", type: "FAILED" },
+          },
+          {
+            workId: "task-active",
+            name: "still-running",
+            traceId: "trace-active",
+            workTypeName: "task",
+            state: { name: "in-review", type: "PROCESSING" },
+          },
+          {
+            workId: "thoughts-blocked",
+            name: "loopback",
+            traceId: "trace-loopback",
+            workTypeName: "thoughts",
+            state: { name: "init", type: "INITIAL" },
+            relations: [
+              {
+                type: "DEPENDS_ON",
+                targetWorkId: "task-active",
+                targetWorkName: "still-running",
+                requiredState: "complete",
+              },
+            ],
+          },
+          {
+            workId: "task-active-copy",
+            name: "shadowed-failure",
+            traceId: "trace-shadow-active",
+            workTypeName: "task",
+            state: { name: "init", type: "INITIAL" },
+          },
+          {
+            workId: "task-failed-copy",
+            name: "shadowed-failure",
+            traceId: "trace-shadow-failed",
+            workTypeName: "task",
+            state: { name: "failed", type: "FAILED" },
+          },
+        ],
+      }),
+    });
+
+    expect(report.repairRecommendations).toEqual([
+      {
+        workId: "task-repairable",
+        workItemName: "repair-me",
+        workTypeName: "task",
+        currentStateName: "failed",
+        currentStateType: "TERMINAL",
+        suggestedStateName: "init",
+        reason:
+          "queue evidence shows repair-me is terminal failed; factory repair guidance only recommends manual moves for unique repairable failures; factory workflow docs use `init` as the safe re-entry state after the failure is understood",
+        command: "you work move task-repairable init --session ~planner",
+      },
+    ]);
+
+    const reportText = formatPlannerQueueHealthReport(report);
+    expect(reportText).toContain("Repair Guidance (1)");
+    expect(reportText).toContain(
+      "command=you work move task-repairable init --session ~planner",
+    );
+    expect(reportText).not.toContain(
+      "command=you work move task-failed-copy init --session ~planner",
+    );
+    expect(reportText).not.toContain(
+      "command=you work move thoughts-blocked init --session ~planner",
+    );
   });
 });

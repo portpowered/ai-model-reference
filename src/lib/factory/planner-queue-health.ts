@@ -38,6 +38,17 @@ export interface QueueHealthBucketSummary {
   items: QueueHealthItem[];
 }
 
+export interface QueueHealthRepairRecommendation {
+  workId: string;
+  workItemName: string;
+  workTypeName?: string;
+  currentStateName: string;
+  currentStateType: QueueHealthStateType;
+  suggestedStateName: string;
+  reason: string;
+  command: string;
+}
+
 export interface QueueHealthReport {
   generatedAtUtc: string;
   sourceSession: string;
@@ -45,6 +56,7 @@ export interface QueueHealthReport {
   expectedBlockedItems: QueueHealthBucketSummary;
   repairableFailures: QueueHealthBucketSummary;
   ignorableStaleNoise: QueueHealthBucketSummary;
+  repairRecommendations: QueueHealthRepairRecommendation[];
   issues: string[];
 }
 
@@ -372,6 +384,29 @@ function createBucketSummary(
   };
 }
 
+function buildRepairRecommendations(
+  items: QueueHealthItem[],
+  sourceSession: string,
+): QueueHealthRepairRecommendation[] {
+  return items
+    .filter((item) => item.bucket === "repairable-failures")
+    .map((item) => ({
+      workId: item.workId,
+      workItemName: item.workItemName,
+      workTypeName: item.workTypeName,
+      currentStateName: item.stateName,
+      currentStateType: item.stateType,
+      suggestedStateName: "init",
+      reason: [
+        `queue evidence shows ${item.workItemName} is terminal failed`,
+        "factory repair guidance only recommends manual moves for unique repairable failures",
+        "factory workflow docs use `init` as the safe re-entry state after the failure is understood",
+      ].join("; "),
+      command: `you work move ${item.workId} init --session ${sourceSession}`,
+    }))
+    .sort((left, right) => left.workItemName.localeCompare(right.workItemName));
+}
+
 export function discoverPlannerQueueHealthReport(options: {
   generatedAtUtc?: string;
   sourceSession?: string;
@@ -419,6 +454,10 @@ export function discoverPlannerQueueHealthReport(options: {
       "Ignorable Stale Noise",
       items.filter((item) => item.bucket === "ignorable-stale-noise"),
     ),
+    repairRecommendations: buildRepairRecommendations(
+      items,
+      options.sourceSession ?? "~default",
+    ),
     issues: [],
   };
 }
@@ -463,6 +502,27 @@ function formatBucketSummary(summary: QueueHealthBucketSummary): string[] {
   return lines;
 }
 
+function formatRepairRecommendations(
+  recommendations: QueueHealthRepairRecommendation[],
+): string[] {
+  const lines = [`Repair Guidance (${recommendations.length})`];
+  for (const recommendation of recommendations) {
+    const fields = [
+      `work-item=${recommendation.workItemName}`,
+      `state=${recommendation.currentStateName}/${recommendation.currentStateType.toLowerCase()}`,
+    ];
+    if (recommendation.workTypeName) {
+      fields.push(`type=${recommendation.workTypeName}`);
+    }
+    fields.push(`work-id=${recommendation.workId}`);
+    fields.push(`suggested-state=${recommendation.suggestedStateName}`);
+    fields.push(`command=${recommendation.command}`);
+    fields.push(`reason=${recommendation.reason}`);
+    lines.push(`- ${fields.join(" ")}`);
+  }
+  return lines;
+}
+
 export function formatPlannerQueueHealthReport(
   report: QueueHealthReport,
 ): string {
@@ -485,6 +545,13 @@ export function formatPlannerQueueHealthReport(
     for (const issue of report.issues) {
       lines.push(`- ${issue}`);
     }
+  }
+
+  if (report.repairRecommendations.length > 0) {
+    lines.push(
+      "",
+      ...formatRepairRecommendations(report.repairRecommendations),
+    );
   }
 
   return lines.join("\n");
