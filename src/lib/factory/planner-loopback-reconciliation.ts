@@ -449,6 +449,15 @@ function formatLoopbackItem(item: LoopbackReconciliationItem): string {
   return `- ${fields.join(" ")}`;
 }
 
+function getLoopbacksForClassification(
+  report: LoopbackReconciliationReport,
+  classification: LoopbackReconciliationClassification,
+): LoopbackReconciliationItem[] {
+  return report.loopbacks.filter(
+    (loopback) => loopback.classification === classification,
+  );
+}
+
 export function serializePlannerLoopbackReconciliationReport(
   report: LoopbackReconciliationReport,
 ): string {
@@ -458,23 +467,55 @@ export function serializePlannerLoopbackReconciliationReport(
 export function formatPlannerLoopbackReconciliationReport(
   report: LoopbackReconciliationReport,
 ): string {
+  const groupedLoopbacks: Array<{
+    classification: LoopbackReconciliationClassification;
+    count: number;
+    items: LoopbackReconciliationItem[];
+  }> = [
+    {
+      classification: "stale-noise",
+      count: report.summary.staleNoiseLoopbacks,
+      items: getLoopbacksForClassification(report, "stale-noise"),
+    },
+    {
+      classification: "blocked",
+      count: report.summary.blockedLoopbacks,
+      items: getLoopbacksForClassification(report, "blocked"),
+    },
+    {
+      classification: "repairable",
+      count: report.summary.repairableLoopbacks,
+      items: getLoopbacksForClassification(report, "repairable"),
+    },
+  ];
+
   const lines = [
     "Planner loopback reconciliation",
     `generated-at=${report.generatedAtUtc} session=${report.sourceSession}`,
-    `totals loopbacks=${report.summary.loopbackCount} dependencies=${report.summary.dependencyCount} complete=${report.summary.completeDependencies} active=${report.summary.activeDependencies} failed=${report.summary.failedDependencies} missing-from-queue=${report.summary.missingFromQueueDependencies} unknown=${report.summary.unknownDependencies}`,
+    `totals loopbacks=${report.summary.loopbackCount} stale-noise=${report.summary.staleNoiseLoopbacks} blocked=${report.summary.blockedLoopbacks} repairable=${report.summary.repairableLoopbacks} dependencies=${report.summary.dependencyCount} complete=${report.summary.completeDependencies} active=${report.summary.activeDependencies} failed=${report.summary.failedDependencies} missing-from-queue=${report.summary.missingFromQueueDependencies} unknown=${report.summary.unknownDependencies}`,
     "",
-    `Loopbacks (${report.loopbacks.length})`,
   ];
 
   if (report.loopbacks.length === 0) {
-    lines.push("- none");
-  } else {
-    for (const loopback of report.loopbacks) {
-      lines.push(formatLoopbackItem(loopback));
-    }
+    lines.push("Loopbacks", "- none");
+    return lines.join("\n");
   }
 
-  return lines.join("\n");
+  for (const group of groupedLoopbacks) {
+    lines.push(`${group.classification} (${group.count})`);
+
+    if (group.items.length === 0) {
+      lines.push("- none");
+    } else {
+      for (const loopback of group.items) {
+        lines.push(formatLoopbackItem(loopback));
+      }
+    }
+
+    lines.push("");
+  }
+
+  return lines.join("\n").trimEnd();
 }
 
 export function discoverPlannerLoopbackReconciliationReport(options: {

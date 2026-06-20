@@ -123,8 +123,11 @@ describe("report-planner-loopback-reconciliation script", () => {
       expect(jsonResult.status).toBe(0);
       expect(humanResult.stdout).toContain("Planner loopback reconciliation");
       expect(humanResult.stdout).toContain(
-        "totals loopbacks=4 dependencies=4 complete=1 active=1 failed=1 missing-from-queue=1 unknown=0",
+        "totals loopbacks=4 stale-noise=1 blocked=2 repairable=1 dependencies=4 complete=1 active=1 failed=1 missing-from-queue=1 unknown=0",
       );
+      expect(humanResult.stdout).toContain("stale-noise (1)");
+      expect(humanResult.stdout).toContain("blocked (2)");
+      expect(humanResult.stdout).toContain("repairable (1)");
       expect(humanResult.stdout).toContain("work-item=loopback-ready");
       expect(humanResult.stdout).toContain("classification=stale-noise");
       expect(humanResult.stdout).toContain(
