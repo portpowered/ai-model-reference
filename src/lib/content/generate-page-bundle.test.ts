@@ -5,7 +5,11 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPageFromDisk } from "./concept-page-load";
-import { getProjectRoot } from "./content-paths";
+import {
+  getDocsPageDir,
+  getProjectRoot,
+  getRegistryCollectionRoot,
+} from "./content-paths";
 import {
   formatGeneratePageBundlePlan,
   GeneratePageBundleError,
@@ -14,7 +18,9 @@ import {
 } from "./generate-page-bundle";
 import { loadGlossaryPageFromDisk } from "./glossary-page-load";
 import { type PageSpec, validatePageSpec } from "./page-spec";
+import { loadRegistry } from "./registry";
 import { readScaffoldedPageRegistryId } from "./scaffold-doc-page";
+import { validateGeneratedPageBundle } from "./validate-generated-page-bundle";
 
 async function pathExists(path: string): Promise<boolean> {
   try {
@@ -414,6 +420,49 @@ describe("generatePageBundle", () => {
     expect(messages.title).toBe("Generated Page");
 
     await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  test("supported-section add-page workflow derives a valid bundle from generic section and collection helpers", async () => {
+    const tempRoot = await createTemplateFixtureRoot();
+    const contentRoot = await prepareContentRoots(tempRoot);
+    const docsRoot = join(contentRoot, "docs");
+    const registryRoot = join(contentRoot, "registry");
+    const slug = "maintainer-proof-concept";
+
+    try {
+      await generatePageBundle({
+        spec: {
+          ...baseSpecFields,
+          slug,
+          kind: "concept",
+          conceptType: "general",
+          tags: ["attention"],
+        },
+        projectRoot: tempRoot,
+      });
+
+      const pageDirectory = getDocsPageDir("concepts", slug, docsRoot);
+      const registryPath = join(
+        getRegistryCollectionRoot("concepts", registryRoot),
+        `${slug}.json`,
+      );
+      const indexes = await loadRegistry({ registryRoot });
+
+      const errors = await validateGeneratedPageBundle({
+        registryRoot,
+        docsRoot,
+        pageDirectory,
+        registryPath,
+        pageUrl: `/docs/concepts/${slug}`,
+        indexes,
+      });
+
+      expect(pageDirectory).toBe(join(docsRoot, "concepts", slug));
+      expect(registryPath).toBe(join(registryRoot, "concepts", `${slug}.json`));
+      expect(errors).toEqual([]);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
   });
 
   test("writes model, paper, and training-regime bundles to expected paths", async () => {
