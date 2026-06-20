@@ -289,7 +289,7 @@ This maintainer-facing doctor flow is scoped to content-branch review readiness,
 not the full `make ci` gate. It proves four stages in order:
 
 1. preflight cleanliness check for tracked `src/content` and `src/lib/content/generated` paths
-2. canonical content-runtime preparation through `bun run prepare:content-runtime`
+2. canonical content-runtime preparation through `bun run prepare:content-runtime`, including an immediate scoped drift proof for authoritative derived artifacts
 3. narrow content validation (`validate-data` and `linkcheck`)
 4. final clean-tree proof for the same tracked scoped paths
 

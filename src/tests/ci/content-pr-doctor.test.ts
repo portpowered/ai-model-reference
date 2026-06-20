@@ -70,6 +70,9 @@ describe("content PR doctor", () => {
       "bun run generate:graph-registry-runtime",
       "bun run generate:registry-runtime",
       "bun run generate:table-registry",
+      `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
+        " ",
+      )}`,
       ...CONTENT_PR_DOCTOR_VALIDATION_STEPS.map((step) =>
         step.command.join(" "),
       ),
@@ -137,6 +140,60 @@ describe("content PR doctor", () => {
 
     expect(result.ok).toBe(false);
     expect(commands).toEqual([
+      `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
+        " ",
+      )}`,
+    ]);
+  });
+
+  test("fails at the preparation stage when canonical generation leaves scoped drift", () => {
+    const commands: string[] = [];
+    let gitStatusCallCount = 0;
+    const result = runContentPrDoctor({
+      cwd: repoRoot,
+      log: () => {},
+      logError: () => {},
+      runCommand(command, _options) {
+        commands.push(command.join(" "));
+
+        if (command[0] === "git") {
+          gitStatusCallCount += 1;
+          return {
+            signal: null,
+            status: 0,
+            stdout:
+              gitStatusCallCount === 2
+                ? " M src/lib/content/generated/registry-runtime.generated.ts\n"
+                : "",
+          } satisfies ContentPrDoctorCommandResult;
+        }
+
+        return {
+          signal: null,
+          status: 0,
+        } satisfies ContentPrDoctorCommandResult;
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+
+    expect(result.stage).toBe("prepare-content-runtime");
+    expect(result.details).toEqual([
+      " M src/lib/content/generated/registry-runtime.generated.ts",
+    ]);
+    expect(result.repairGuidance).toContain("bun run prepare:content-runtime");
+    expect(commands).toEqual([
+      `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
+        " ",
+      )}`,
+      "bun run generate:shipped-localized-docs",
+      "bun run generate:published-docs-registry",
+      "bun run generate:graph-registry-runtime",
+      "bun run generate:registry-runtime",
+      "bun run generate:table-registry",
       `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
         " ",
       )}`,

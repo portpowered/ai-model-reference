@@ -386,7 +386,8 @@ When a maintainer wants one repeatable content-branch proof before review,
 prefer `bun run doctor:content-pr`. It is intentionally narrower than `make ci`:
 the doctor flow checks tracked cleanliness for `src/content` plus
 the five authoritative generated runtime modules owned by
-`bun run prepare:content-runtime`, reruns that canonical entrypoint, and
+`bun run prepare:content-runtime`, reruns that canonical entrypoint, fails
+immediately if that generation step leaves tracked derived-artifact drift, and
 finishes with the lightweight content checks `validate-data` and `linkcheck`.
 It reports scoped tracked-path drift and tells you to review, commit, stash, or
 discard those changes before rerunning; it does not attempt unrelated cleanup

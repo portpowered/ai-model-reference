@@ -276,6 +276,36 @@ export function runContentPrDoctor(
       commandResult: preparation.commandResult,
     };
   }
+  const postPreparationCheck = listTrackedScopedChanges(
+    options.cwd,
+    scopedPaths,
+    runCommand,
+  );
+  if (postPreparationCheck.commandResult.status !== 0) {
+    return {
+      ok: false,
+      stage: "prepare-content-runtime",
+      message:
+        "Unable to verify authoritative derived-artifact state after content-runtime preparation.",
+      repairGuidance:
+        "Fix the git status failure in this worktree, then rerun `bun run doctor:content-pr`.",
+      scopedPaths,
+      commandResult: postPreparationCheck.commandResult,
+    };
+  }
+  if (postPreparationCheck.changes.length > 0) {
+    return {
+      ok: false,
+      stage: "prepare-content-runtime",
+      message:
+        "Content runtime preparation regenerated tracked scoped paths, so the branch is not review-ready until the authoritative derived artifacts are reviewed and committed.",
+      repairGuidance:
+        "Regenerate through `bun run prepare:content-runtime`, review the listed derived-artifact changes, commit the authoritative updates, and rerun `bun run doctor:content-pr` before requesting review.",
+      scopedPaths,
+      details: postPreparationCheck.changes,
+      commandResult: postPreparationCheck.commandResult,
+    };
+  }
 
   logStage(
     log,
