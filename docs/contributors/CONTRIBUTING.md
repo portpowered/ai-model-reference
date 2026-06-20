@@ -440,6 +440,75 @@ and `make linkcheck`) catches registry and linking regressions early. Run
 `make ci` once before opening the PR so you match the required GitHub **ci**
 check.
 
+## Routine canonical-page PR surface budget
+
+Use one visible default contract for ordinary canonical-page pull requests: keep
+the authored surface centered on one page bundle and its directly paired
+structured data, and treat shared collision surfaces as an exception path rather
+than the routine case.
+
+### What counts as page-owned work
+
+For one canonical page, the routine owned surface is:
+
+- The page bundle under `src/content/docs/<group>/<slug>/`, including
+  `page.mdx`, `messages/en.json`, `assets.json`, and page-local asset files.
+- The matching primary structured record for that page under
+  `src/content/registry/<group>/<slug>.json`.
+- Page-specific supporting records that only exist to render that same page,
+  such as a matching graph or table registry record when the page bundle
+  declares one.
+- Generated outputs recreated by supported commands such as
+  `bun run prepare:content-runtime`, as long as you regenerate them locally and
+  leave generated runtime artifacts out of the routine commit.
+
+This is the narrow default reviewers should expect from ordinary page work:
+authored content, colocated messages/assets, the matching registry record, and
+no unrelated shared-surface churn.
+
+### What counts as a shared hotspot surface
+
+`bun run report:planner-conflict-hotspots` is the maintained evidence source for
+collision-prone surfaces. Today it groups recurrent conflict areas into these
+review-relevant categories:
+
+- `generated artifact/runtime churn` such as
+  `src/lib/content/generated/*.generated.ts`
+- `shared test/verification` such as `src/lib/content/*.test.ts`,
+  `src/tests/ci`, and `scripts/validate-*.ts`
+- `shared registry/manifest` such as broad `src/content/registry/` edits beyond
+  the page's own primary record
+- `shared helper` such as `src/lib/content`, `src/lib/search`, `package.json`,
+  and `Makefile`
+
+The current hotspot snapshot shows why these categories need separate handling:
+`src/lib/content` test files, `src/tests/search`, `src/tests/ci`, generated
+runtime artifacts, and broad registry/helper paths are touched more often than
+an individual page bundle.
+
+### Expected budget for routine page work
+
+Treat the budget as three lanes:
+
+| Lane | What belongs there | Review expectation |
+| --- | --- | --- |
+| **Default pass** | One page bundle, its localized messages, page-local assets, the matching primary registry record, and page-specific supporting graph/table records | Normal canonical-page PR. No extra justification needed. |
+| **Allowed with justification** | A small shared touch that is directly required to ship the page, such as a narrowly scoped shared helper adjustment or one additional registry/support file | Call out the reason in the PR so reviewers can see why the page could not stay fully owned. |
+| **Redirect to a broader throughput lane** | Generated runtime artifacts committed as authored output, broad validator or verification churn, shared test suites, manifest/runtime rewrites, build/search/tooling changes, or multiple shared hotspot categories at once | Split the work or open/use a dedicated throughput PRD instead of hiding it inside a routine page PR. |
+
+In practice, a routine canonical-page branch should normally avoid:
+
+- Shared test and verification files
+- Generated runtime artifacts checked in as authored changes
+- Broad registry sweeps, manifest rewrites, or validator updates
+- Build, search, factory, or repository tooling files unless the work item is
+  explicitly broader than one page
+
+When a page truly needs cross-surface work, keep the exception visible. State
+which shared category was touched, why the owned page surface was insufficient,
+and whether the change still fits one narrow PR or should move into a dedicated
+throughput/factory lane.
+
 ### Checks that are not the default contributor path
 
 These commands exist in the repository but are not part of `make ci` or the
