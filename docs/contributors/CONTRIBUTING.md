@@ -429,6 +429,12 @@ For the main registry runtime specifically, author changes in
 `src/content/registry/` and do not manually edit or commit
 `src/lib/content/generated/registry-runtime.generated.ts`.
 
+For the published docs registry manifest specifically, author changes in the
+published docs pages, colocated messages/assets, and registry JSON inputs rather
+than editing the generated manifest. `src/lib/content/generated/published-docs-registry.generated.ts`
+is scanner-derived, recreated by `prepare:content-runtime`, and intentionally
+kept out of routine commits.
+
 For most docs-only pull requests, the **fast content loop** (`make validate-data`
 and `make linkcheck`) catches registry and linking regressions early. Run
 `make ci` once before opening the PR so you match the required GitHub **ci**

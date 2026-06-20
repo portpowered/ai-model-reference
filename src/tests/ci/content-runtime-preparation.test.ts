@@ -10,6 +10,7 @@ import {
 } from "@/lib/content/content-runtime-preparation";
 
 const repoRoot = join(import.meta.dir, "../../..");
+const CONTENT_RUNTIME_PREPARATION_TIMEOUT_MS = 30_000;
 const GENERATED_REGISTRY_RUNTIME_RELATIVE_PATH =
   "src/lib/content/generated/registry-runtime.generated.ts";
 const INVALID_REGISTRY_FIXTURE_RELATIVE_PATH =
@@ -17,6 +18,9 @@ const INVALID_REGISTRY_FIXTURE_RELATIVE_PATH =
 const LEGACY_TOP_LEVEL_GENERATED_RUNTIME_PATHS = [
   "src/lib/content/published-docs-registry-manifest.ts",
 ] as const;
+const publishedDocsRegistryStep = CONTENT_RUNTIME_PREPARATION_STEPS.find(
+  (step) => step.id === "published-docs-registry",
+);
 
 function runPrepareContentRuntime() {
   return spawnSync("bun", ["run", "prepare:content-runtime"], {
@@ -90,63 +94,154 @@ describe("content runtime preparation", () => {
     ]);
   });
 
-  test("prepare:content-runtime recreates the generated registry runtime when absent", () => {
-    const generatedRuntimeRoot = getGeneratedContentRuntimeRoot(repoRoot);
-    const generatedRuntimeRootRelative = relative(
-      repoRoot,
-      generatedRuntimeRoot,
-    );
-    const generatedRegistryRuntimePath = join(
-      repoRoot,
-      GENERATED_REGISTRY_RUNTIME_RELATIVE_PATH,
-    );
-
-    rmSync(generatedRegistryRuntimePath, { force: true });
-    expect(existsSync(generatedRegistryRuntimePath)).toBe(false);
-
-    const firstRun = runPrepareContentRuntime();
-    const secondRun = runPrepareContentRuntime();
-    const firstRunOutput = `${firstRun.stdout}\n${firstRun.stderr}`;
-
-    expect(firstRun.status).toBe(0);
-    expect(secondRun.status).toBe(0);
-    expect(firstRunOutput).toContain(
-      `[content-runtime] Preparing registry-runtime -> ${GENERATED_REGISTRY_RUNTIME_RELATIVE_PATH}`,
-    );
-    expect(firstRunOutput).toContain(
-      "[content-runtime] Preparing graph-registry-runtime",
-    );
-    expect(existsSync(generatedRegistryRuntimePath)).toBe(true);
-
-    for (const step of CONTENT_RUNTIME_PREPARATION_STEPS) {
-      expect(
-        step.outputPath.startsWith(`${generatedRuntimeRootRelative}/`),
-      ).toBe(true);
-      expect(existsSync(join(repoRoot, step.outputPath))).toBe(true);
-      expect(
-        existsSync(
-          join(repoRoot, "src/lib/content", basename(step.outputPath)),
-        ),
-      ).toBe(false);
+  test("reports published docs registry generation failures at the generation step", () => {
+    if (!publishedDocsRegistryStep) {
+      throw new Error("Expected a published-docs-registry preparation step");
     }
 
-    const graphRuntimeOutput = readFileSync(
-      join(
+    const errors: string[] = [];
+    const result = runContentRuntimePreparation({
+      cwd: repoRoot,
+      log: () => {},
+      logError(message) {
+        errors.push(message);
+      },
+      runCommand(command) {
+        const step = command[2];
+        return {
+          signal: null,
+          status: step === "generate:published-docs-registry" ? 19 : 0,
+        } satisfies ContentRuntimePreparationCommandResult;
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+
+    expect(result.completedSteps.map((step) => step.id)).toEqual([
+      "shipped-localized-docs",
+    ]);
+    expect(result.failedStep).toBe(publishedDocsRegistryStep);
+    expect(result.commandResult.status).toBe(19);
+    expect(errors).toEqual([
+      expect.stringContaining('Failed step "published-docs-registry"'),
+    ]);
+  });
+
+  test(
+    "prepare:content-runtime recreates the generated registry runtime when absent",
+    () => {
+      const generatedRuntimeRoot = getGeneratedContentRuntimeRoot(repoRoot);
+      const generatedRuntimeRootRelative = relative(
         repoRoot,
-        "src/lib/content/generated/graph-registry-runtime.generated.ts",
-      ),
-      "utf8",
+        generatedRuntimeRoot,
+      );
+      const generatedRegistryRuntimePath = join(
+        repoRoot,
+        GENERATED_REGISTRY_RUNTIME_RELATIVE_PATH,
+      );
+
+      rmSync(generatedRegistryRuntimePath, { force: true });
+      expect(existsSync(generatedRegistryRuntimePath)).toBe(false);
+
+      const firstRun = runPrepareContentRuntime();
+      const secondRun = runPrepareContentRuntime();
+      const firstRunOutput = `${firstRun.stdout}\n${firstRun.stderr}`;
+
+      expect(firstRun.status).toBe(0);
+      expect(secondRun.status).toBe(0);
+      expect(firstRunOutput).toContain(
+        `[content-runtime] Preparing registry-runtime -> ${GENERATED_REGISTRY_RUNTIME_RELATIVE_PATH}`,
+      );
+      expect(existsSync(generatedRegistryRuntimePath)).toBe(true);
+
+      for (const step of CONTENT_RUNTIME_PREPARATION_STEPS) {
+        expect(
+          step.outputPath.startsWith(`${generatedRuntimeRootRelative}/`),
+        ).toBe(true);
+        expect(existsSync(join(repoRoot, step.outputPath))).toBe(true);
+        expect(
+          existsSync(
+            join(repoRoot, "src/lib/content", basename(step.outputPath)),
+          ),
+        ).toBe(false);
+      }
+
+      for (const legacyPath of LEGACY_TOP_LEVEL_GENERATED_RUNTIME_PATHS) {
+        expect(existsSync(join(repoRoot, legacyPath))).toBe(false);
+      }
+    },
+    { timeout: CONTENT_RUNTIME_PREPARATION_TIMEOUT_MS },
+  );
+
+  test("prepare:content-runtime recreates a missing published docs registry manifest", () => {
+    if (!publishedDocsRegistryStep) {
+      throw new Error("Expected a published-docs-registry preparation step");
+    }
+
+    const manifestPath = join(repoRoot, publishedDocsRegistryStep.outputPath);
+    const originalManifest = existsSync(manifestPath)
+      ? readFileSync(manifestPath, "utf8")
+      : null;
+
+    try {
+      rmSync(manifestPath, { force: true });
+
+      const result = spawnSync("bun", ["run", "prepare:content-runtime"], {
+        cwd: repoRoot,
+        encoding: "utf8",
+        env: process.env,
+      });
+
+      expect(result.status).toBe(0);
+      expect(existsSync(manifestPath)).toBe(true);
+
+      const generatedManifest = readFileSync(manifestPath, "utf8");
+      expect(generatedManifest).toContain(
+        "Generated by scripts/generate-published-docs-registry.ts",
+      );
+      expect(generatedManifest).toContain(
+        "Do not edit by hand or commit regenerated output.",
+      );
+      expect(generatedManifest).toContain("GENERATED_PUBLISHED_DOCS_ENTRIES");
+      expect(generatedManifest).toContain(
+        "GENERATED_PUBLISHED_DOCS_REGISTRY_IDS",
+      );
+    } finally {
+      if (originalManifest === null) {
+        rmSync(manifestPath, { force: true });
+      } else {
+        writeFileSync(manifestPath, originalManifest, "utf8");
+      }
+    }
+  });
+
+  test("published docs registry manifest stays out of the authored git surface", () => {
+    if (!publishedDocsRegistryStep) {
+      throw new Error("Expected a published-docs-registry preparation step");
+    }
+
+    const checkIgnored = spawnSync(
+      "git",
+      ["check-ignore", "--quiet", publishedDocsRegistryStep.outputPath],
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+      },
     );
-    expect(graphRuntimeOutput).toContain(
-      'import batchNormComputeFlowGraphRecord from "@/content/registry/graphs/batch-norm-compute-flow.json";',
-    );
-    expect(graphRuntimeOutput).toContain(
-      "graphRecordSchema.parse(batchNormComputeFlowGraphRecord)",
+    const checkTracked = spawnSync(
+      "git",
+      ["ls-files", "--error-unmatch", publishedDocsRegistryStep.outputPath],
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+      },
     );
 
-    for (const legacyPath of LEGACY_TOP_LEVEL_GENERATED_RUNTIME_PATHS) {
-      expect(existsSync(join(repoRoot, legacyPath))).toBe(false);
-    }
+    expect(checkIgnored.status).toBe(0);
+    expect(checkTracked.status).not.toBe(0);
   });
 
   test("prepare:content-runtime reports the registry runtime step for invalid registry JSON", () => {

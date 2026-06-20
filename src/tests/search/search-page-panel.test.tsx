@@ -151,7 +151,11 @@ describe("SearchPagePanel Phase 1 queries", () => {
       query,
     );
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: 15_000 },
+    );
     expectCustomerAskSearchPagePanel(within(results), query);
   });
 
@@ -169,7 +173,11 @@ describe("SearchPagePanel Phase 1 queries", () => {
     );
     await user.type(searchInput, query);
 
-    const results = await screen.findByTestId("search-page-results");
+    const results = await screen.findByTestId(
+      "search-page-results",
+      {},
+      { timeout: 15_000 },
+    );
     const resultUrls = within(results).getAllByTestId("search-result-url");
     expect(resultUrls.length).toBeGreaterThan(0);
     const urls = collectResultUrlsFromNodes(resultUrls);

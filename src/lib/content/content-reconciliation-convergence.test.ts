@@ -53,7 +53,6 @@ describe("Phase 2/3 reconciliation convergence gate (US-012)", () => {
       expect(results).toHaveLength(6);
       expect(getPhase23ReconciliationConvergenceExitCode(results)).toBe(0);
       expect(results.every((result) => result.status === "pass")).toBe(true);
-
       const report = formatPhase23ReconciliationConvergenceReport(results);
       expect(report).toContain(
         PHASE_2_3_RECONCILIATION_CONVERGENCE_GATE_HEADER,

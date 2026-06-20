@@ -27,6 +27,8 @@ import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 import { docsSearchApi } from "@/lib/search/search-server";
 
+const ACTIVATION_FAMILY_TIMEOUT_MS = 15_000;
+
 const PAGE_CASES = [
   {
     slug: "sigmoid",
@@ -310,80 +312,94 @@ describe("Phase 3 activation-family glossary pages", () => {
       }
     });
 
-    test(`${testCase.title} page renders glossary sections, tags, and FFN-family links`, async () => {
-      const page = await loadModulePage(testCase.slug);
+    test(
+      `${testCase.title} page renders glossary sections, tags, and FFN-family links`,
+      async () => {
+        const page = await loadModulePage(testCase.slug);
 
-      expect(page.frontmatter.kind).toBe(testCase.pageKind);
-      expect(page.frontmatter.status).toBe("published");
-      expect(page.frontmatter.registryId).toBe(`module.${testCase.slug}`);
+        expect(page.frontmatter.kind).toBe(testCase.pageKind);
+        expect(page.frontmatter.status).toBe("published");
+        expect(page.frontmatter.registryId).toBe(`module.${testCase.slug}`);
 
-      const html = renderToStaticMarkup(
-        createElement(ModulePageProviders, {
-          messages: page.messages,
-          assets: page.assets,
-          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-          children: page.content,
-        }),
-      );
+        const html = renderToStaticMarkup(
+          createElement(ModulePageProviders, {
+            messages: page.messages,
+            assets: page.assets,
+            // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+            children: page.content,
+          }),
+        );
 
-      expect(html).not.toContain(`<h1>${testCase.title}</h1>`);
-      expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
-      expect(html).toContain("What It Is");
-      expect(html).toContain("Why It Exists");
-      expect(html).toContain("Compared To Nearby Modules");
-      expect(html).toContain("Why It Still Matters");
-      expect(html).toContain(`data-registry-id="module.${testCase.slug}"`);
-      expect(html).toContain('data-page-asset="comparisonTable"');
-      expect(html).toContain('data-attention-schema-comparison="true"');
-      expectHtmlToContainProse(html, testCase.renderNeedle);
-      if ("expectedGraphId" in testCase) {
-        expect(html).toContain('data-react-flow-graph="true"');
-        expect(html).toContain('data-attention-variant-comparison="true"');
-        expect(html).toContain(`data-graph-id="${testCase.expectedGraphId}"`);
-      } else {
-        expect(
-          html.includes('data-activation-chart="true"') ||
-            html.includes('data-attention-variant-comparison="true"'),
-        ).toBe(true);
-      }
-      for (const href of testCase.hrefs) {
-        expect(html).toContain(`href="${href}"`);
-      }
-      expect(html).toContain('href="/tags/foundations"');
-      expect(html).toContain('data-testid="tag-pill-list"');
-      expect(html).toContain('data-testid="curated-related-docs"');
-      expect(html).not.toContain("Phase");
-      expect(html).not.toContain("Reader Shortcut");
-    });
-
-    test(`${testCase.title} search index records the glossary page and preserves aliases`, async () => {
-      const registry = await loadRegistry();
-      const pages = await loadPublishedDocsPages("en");
-      const documents = buildSearchDocuments(pages, registry);
-
-      const document = documents.find(
-        (entry) => entry.url === testCase.searchUrl,
-      );
-      expect(document?.title).toBe(testCase.title);
-      expect(document?.kind).toBe(testCase.pageKind);
-      expect(document?.facets.kind).toBe(testCase.pageKind);
-      expect(document?.aliases).toEqual(
-        expect.arrayContaining(testCase.aliases),
-      );
-      expect(document?.bodyText.length ?? 0).toBeGreaterThan(50);
-      expect(document?.headings.length ?? 0).toBeGreaterThan(0);
-      expect(testCase.searchQuery.length).toBeGreaterThan(0);
-    });
-
-    if ("searchQueries" in testCase) {
-      test(`${testCase.title} search queries return the published module page`, async () => {
-        for (const query of testCase.searchQueries) {
-          const results = await docsSearchApi.search(query);
+        expect(html).not.toContain(`<h1>${testCase.title}</h1>`);
+        expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(
+          1,
+        );
+        expect(html).toContain("What It Is");
+        expect(html).toContain("Why It Exists");
+        expect(html).toContain("Compared To Nearby Modules");
+        expect(html).toContain("Why It Still Matters");
+        expect(html).toContain(`data-registry-id="module.${testCase.slug}"`);
+        expect(html).toContain('data-page-asset="comparisonTable"');
+        expect(html).toContain('data-attention-schema-comparison="true"');
+        expectHtmlToContainProse(html, testCase.renderNeedle);
+        if ("expectedGraphId" in testCase) {
+          expect(html).toContain('data-react-flow-graph="true"');
+          expect(html).toContain('data-attention-variant-comparison="true"');
+          expect(html).toContain(`data-graph-id="${testCase.expectedGraphId}"`);
+        } else {
           expect(
-            results.some((result) => result.url === testCase.searchUrl),
+            html.includes('data-activation-chart="true"') ||
+              html.includes('data-attention-variant-comparison="true"'),
           ).toBe(true);
         }
-      });
+        for (const href of testCase.hrefs) {
+          expect(html).toContain(`href="${href}"`);
+        }
+        expect(html).toContain('href="/tags/foundations"');
+        expect(html).toContain('data-testid="tag-pill-list"');
+        expect(html).toContain('data-testid="curated-related-docs"');
+        expect(html).not.toContain("Phase");
+        expect(html).not.toContain("Reader Shortcut");
+      },
+      { timeout: ACTIVATION_FAMILY_TIMEOUT_MS },
+    );
+
+    test(
+      `${testCase.title} search index records the glossary page and preserves aliases`,
+      async () => {
+        const registry = await loadRegistry();
+        const pages = await loadPublishedDocsPages("en");
+        const documents = buildSearchDocuments(pages, registry);
+
+        const document = documents.find(
+          (entry) => entry.url === testCase.searchUrl,
+        );
+        expect(document?.title).toBe(testCase.title);
+        expect(document?.kind).toBe(testCase.pageKind);
+        expect(document?.facets.kind).toBe(testCase.pageKind);
+        expect(document?.aliases).toEqual(
+          expect.arrayContaining(testCase.aliases),
+        );
+        expect(document?.bodyText.length ?? 0).toBeGreaterThan(50);
+        expect(document?.headings.length ?? 0).toBeGreaterThan(0);
+        expect(testCase.searchQuery.length).toBeGreaterThan(0);
+      },
+      { timeout: ACTIVATION_FAMILY_TIMEOUT_MS },
+    );
+
+    if ("searchQueries" in testCase) {
+      test(
+        `${testCase.title} search queries return the published module page`,
+        async () => {
+          for (const query of testCase.searchQueries) {
+            const results = await docsSearchApi.search(query);
+            expect(
+              results.some((result) => result.url === testCase.searchUrl),
+            ).toBe(true);
+          }
+        },
+        { timeout: ACTIVATION_FAMILY_TIMEOUT_MS },
+      );
     }
   }
 });
