@@ -30,7 +30,14 @@ import {
 
 const SAMPLE_URL = SAMPLE_MODULE_URL;
 const TOKEN_URL = TOKEN_GLOSSARY_URL;
+const ACTIVATION_GLOSSARY_URL = "/docs/glossary/activation";
 const BIDIRECTIONAL_ATTENTION_URL = "/docs/modules/bidirectional-attention";
+const FEED_FORWARD_NETWORK_URL = "/docs/modules/feed-forward-network";
+const STANDARD_FFN_URL = "/docs/modules/standard-ffn";
+const RELU_URL = "/docs/modules/relu";
+const LEAKY_RELU_URL = "/docs/modules/leaky-relu";
+const SILU_URL = "/docs/modules/silu";
+const SWIGLU_URL = "/docs/modules/swiglu";
 const JAPANESE_ATTENTION_PROOF_SET_URLS = [
   "/ja/docs/modules/attention",
   "/ja/docs/modules/linear-attention",
@@ -323,6 +330,53 @@ describe("docsSearchApi", () => {
     expect(resultsIncludeSampleModule(results)).toBe(true);
   });
 
+  test.each([
+    {
+      query: "activation",
+      expectedUrls: [
+        ACTIVATION_GLOSSARY_URL,
+        RELU_URL,
+        LEAKY_RELU_URL,
+        SILU_URL,
+      ],
+    },
+    {
+      query: "relu",
+      expectedUrls: [RELU_URL, LEAKY_RELU_URL, SILU_URL],
+    },
+    {
+      query: "gelu",
+      expectedUrls: [
+        ACTIVATION_GLOSSARY_URL,
+        RELU_URL,
+        LEAKY_RELU_URL,
+        SILU_URL,
+      ],
+    },
+    {
+      query: "feed forward",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+    {
+      query: "feedforward",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+    {
+      query: "ffn",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+  ] as const)("search includes topology-aware seed results for $query", async ({
+    query,
+    expectedUrls,
+  }) => {
+    const results = await docsSearchApi.search(query);
+    const urls = results.map((result) => result.url);
+
+    expect(urls.length).toBeGreaterThan(0);
+    expect(urls).toEqual(expect.arrayContaining([...expectedUrls]));
+    expectUniqueCanonicalPageUrls(urls);
+  });
+
   test("staticGET exports an advanced Orama index", async () => {
     const response = await docsSearchApi.staticGET();
     expect(response.ok).toBe(true);
@@ -389,6 +443,36 @@ describe("docs search static client", () => {
 
       expect(results.length).toBeGreaterThan(0);
       expect(resultsIncludeSampleModule(results)).toBe(true);
+    });
+  });
+
+  test.each([
+    {
+      query: "gelu",
+      expectedUrls: [
+        ACTIVATION_GLOSSARY_URL,
+        RELU_URL,
+        LEAKY_RELU_URL,
+        SILU_URL,
+      ],
+    },
+    {
+      query: "feedforward",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+  ] as const)("orama static client includes topology-aware seed results for $query", async ({
+    query,
+    expectedUrls,
+  }) => {
+    await withGlobalFetchOverride(createDocsSearchRouteFetch(), async () => {
+      const results = await retrySearchResults(
+        createRetriedStaticClientSearch(TEST_DOCS_SEARCH_URL, query),
+        (candidateResults) =>
+          expectedUrls.every((url) => resultsIncludeUrl(candidateResults, url)),
+      );
+      const urls = results.map((result) => result.url);
+
+      expect(urls).toEqual(expect.arrayContaining([...expectedUrls]));
     });
   });
 });
