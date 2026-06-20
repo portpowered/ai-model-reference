@@ -28,7 +28,7 @@ describe("unigram tokenizer discovery registry", () => {
     ]);
   });
 
-  test("curated related items keep published token navigable and draft tokenizer neighbors planned", () => {
+  test("curated related items preserve configured tokenizer-family order before duplicate shipped peers are regrouped", () => {
     const source = getRegistryRecordById("module.unigram-tokenizer");
     if (source?.kind !== "module") {
       throw new Error("expected module.unigram-tokenizer in registry runtime");
@@ -55,30 +55,33 @@ describe("unigram tokenizer discovery registry", () => {
     expect(items[2]).toMatchObject({
       registryId: "module.sentencepiece",
       title: "SentencePiece",
-      href: undefined,
-      isPlanned: true,
+      href: "/docs/modules/sentencepiece",
+      isPlanned: false,
     });
     expect(items[3]).toMatchObject({
       registryId: "module.bpe",
       title: "BPE",
-      href: undefined,
-      isPlanned: true,
+      href: "/docs/modules/bpe",
+      isPlanned: false,
     });
   });
 
-  test("RelatedDocs renders the tokenizer-family planned rows without broken links", () => {
+  test("RelatedDocs renders shipped tokenizer peers plus the remaining planned overview row", () => {
     const html = renderToStaticMarkup(
       <RelatedDocs registryId="module.unigram-tokenizer" />,
     );
 
+    expect(html).toContain('data-testid="variant-group-related-docs"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).toContain("Tokenizer overview");
     expect(html).toContain("SentencePiece");
     expect(html).toContain("BPE");
-    expect(html.match(/data-planned="true"/g)).toHaveLength(3);
-    expect(html).not.toContain('href="/docs/modules/sentencepiece"');
-    expect(html).not.toContain('href="/docs/modules/bpe"');
+    expect(html).toContain("WordPiece");
+    expect(html).toContain('href="/docs/modules/byte-level-tokenization"');
+    expect(html.match(/data-planned="true"/g)).toHaveLength(2);
+    expect(html).toContain('href="/docs/modules/sentencepiece"');
+    expect(html).toContain('href="/docs/modules/bpe"');
     expect(html).not.toContain('href="/docs/glossary/tokenizers-overview"');
   });
 

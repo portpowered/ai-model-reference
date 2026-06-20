@@ -257,7 +257,12 @@ describe("Phase 1 baseline registry records", () => {
     expect(concept.tags).toContain("tokenization");
     expect(concept.prerequisiteIds).toContain("concept.token");
     expect(concept.relatedIds).toContain("concept.transformer-architecture");
-    expect(concept.explainsIds).toEqual([]);
+    expect(concept.explainsIds).toEqual([
+      "module.bpe",
+      "module.wordpiece",
+      "module.sentencepiece",
+      "module.unigram-tokenizer",
+    ]);
   });
 
   test("wordpiece module JSON passes moduleRecordSchema", async () => {
