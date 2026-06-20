@@ -353,6 +353,7 @@ run these lightweight checks often:
 | Command | Equivalent Bun script | What it validates |
 | --- | --- | --- |
 | `make validate-data` | `bun ./scripts/validate-registry.ts` | Registry schema, frontmatter ↔ registry alignment, message keys referenced from MDX, asset ids, graph/table references, tag and citation resolution, and colocated `messages/` + `assets.json` bundles under `src/content/docs/` |
+| `bun run audit:canonical-page-surface` | `bun ./scripts/audit-canonical-page-surface.ts` | Whether one canonical-page branch still fits the routine owned-file budget or has spilled into shared hotspot surfaces that need either a visible exception or a broader throughput lane |
 | `make linkcheck` | `bun ./scripts/validate-links.ts` | Internal links and `#section` anchors in published docs pages served through the Fumadocs catch-all route (`src/content/docs/**/page.mdx`) |
 
 `make validate-data` is the primary gate for docs content work. It catches the
@@ -368,6 +369,14 @@ structural mistakes contributors make most often:
 between docs routes resolve (for example
 `/docs/modules/grouped-query-attention`, `/docs/glossary/token`, and in-page
 `#section` anchors). Fix broken relative links in MDX before review.
+
+`bun run audit:canonical-page-surface` fits between the content checks and PR
+review for ordinary canonical-page work. Run it after `make validate-data`
+confirms the page bundle and registry shape, rerun
+`bun run prepare:content-runtime` locally if you needed generated artifacts for
+validation, and use the audit to confirm the review commit stays on the owned
+page surface instead of carrying shared tests, generated runtime churn, or
+other hotspot edits into review.
 
 Optional during iteration:
 
@@ -494,6 +503,98 @@ and `make linkcheck`) catches registry and linking regressions early. Run
 `make ci` once before opening the PR so you match the required GitHub **ci**
 check.
 
+## Routine canonical-page PR surface budget
+
+Use one visible default contract for ordinary canonical-page pull requests: keep
+the authored surface centered on one page bundle and its directly paired
+structured data, and treat shared collision surfaces as an exception path rather
+than the routine case.
+
+### What counts as page-owned work
+
+For one canonical page, the routine owned surface is:
+
+- The page bundle under `src/content/docs/<group>/<slug>/`, including
+  `page.mdx`, `messages/en.json`, `assets.json`, and page-local asset files.
+- The matching primary structured record for that page under
+  `src/content/registry/<group>/<slug>.json`.
+- Page-specific supporting records that only exist to render that same page,
+  such as a matching graph or table registry record when the page bundle
+  declares one.
+- Generated outputs recreated by supported commands such as
+  `bun run prepare:content-runtime`, as long as you regenerate them locally and
+  leave generated runtime artifacts out of the routine commit.
+
+This is the narrow default reviewers should expect from ordinary page work:
+authored content, colocated messages/assets, the matching registry record, and
+no unrelated shared-surface churn.
+
+### What counts as a shared hotspot surface
+
+`bun run report:planner-conflict-hotspots` is the maintained evidence source for
+collision-prone surfaces. Today it groups recurrent conflict areas into these
+review-relevant categories:
+
+- `generated artifact/runtime churn` such as
+  `src/lib/content/generated/*.generated.ts`
+- `shared test/verification` such as `src/lib/content/*.test.ts`,
+  `src/tests/ci`, and `scripts/validate-*.ts`
+- `shared registry/manifest` such as broad `src/content/registry/` edits beyond
+  the page's own primary record
+- `shared helper` such as `src/lib/content`, `src/lib/search`, `package.json`,
+  and `Makefile`
+
+The current hotspot snapshot shows why these categories need separate handling:
+`src/lib/content` test files, `src/tests/search`, `src/tests/ci`, generated
+runtime artifacts, and broad registry/helper paths are touched more often than
+an individual page bundle.
+
+### Expected budget for routine page work
+
+Treat the budget as three lanes:
+
+| Lane | What belongs there | Review expectation |
+| --- | --- | --- |
+| **Default pass** | One page bundle, its localized messages, page-local assets, the matching primary registry record, and page-specific supporting graph/table records | Normal canonical-page PR. No extra justification needed. |
+| **Allowed with justification** | A small shared touch that is directly required to ship the page, such as a narrowly scoped shared helper adjustment or one additional registry/support file | Call out the reason in the PR so reviewers can see why the page could not stay fully owned. |
+| **Redirect to a broader throughput lane** | Generated runtime artifacts committed as authored output, broad validator or verification churn, shared test suites, manifest/runtime rewrites, build/search/tooling changes, or multiple shared hotspot categories at once | Split the work or open/use a dedicated throughput PRD instead of hiding it inside a routine page PR. |
+
+In practice, a routine canonical-page branch should normally avoid:
+
+- Shared test and verification files
+- Generated runtime artifacts checked in as authored changes
+- Broad registry sweeps, manifest rewrites, or validator updates
+- Build, search, factory, or repository tooling files unless the work item is
+  explicitly broader than one page
+
+Run `bun run audit:canonical-page-surface` before review when you need a quick
+branch-local check against this budget. The command audits the current branch by
+default, or you can pass an explicit file set with
+`bun run audit:canonical-page-surface -- --page-dir src/content/docs/<group>/<slug> --files <path...>`.
+It reads the canonical page frontmatter, classifies each changed path as
+page-owned, declared generated output, or a shared hotspot surface, then
+prints one recommended action:
+
+- `keep-routine` when the branch stays inside the default owned page surface
+- `split-to-page-owned-work` when the diff mainly includes generated outputs
+  that should be removed from the routine review commit
+- `declare-exception` when one narrow shared touch can stay in the PR with an
+  explicit justification
+- `redirect-to-throughput-prd` when the branch crosses broader shared hotspot
+  categories or multiple shared surfaces at once
+
+The audit fails clearly only when it cannot determine one page scope or current
+hotspot evidence.
+
+When a page truly needs cross-surface work, keep the exception visible. State
+which shared category was touched, why the owned page surface was insufficient,
+and whether the change still fits one narrow PR or should move into a dedicated
+throughput/factory lane. Use
+`bun run audit:canonical-page-surface -- --exception-reason "<why this shared touch is required>"`
+for those cases. The guard still reports `over-budget`, but it echoes the
+exception so you can paste the same wording into the PR conversation comment and
+keep the broader touch reviewable instead of silently downgrading the warning.
+
 ### Checks that are not the default contributor path
 
 These commands exist in the repository but are not part of `make ci` or the
@@ -522,8 +623,13 @@ When you add a new page with `generate:page-bundle`, the legacy
 3. Set `status: published` in `page.mdx` frontmatter when the page is ready for
    published checks (keep `draft` while tags or citations still point at
    unpublished targets).
-4. Run `make validate-data`, then `make linkcheck`.
-5. Run `make ci` before opening the pull request.
+4. Run `make validate-data`.
+5. If the branch is meant to stay one routine canonical-page PR, run
+   `bun run audit:canonical-page-surface` and keep the review commit in the
+   `keep-routine` lane unless you are carrying a visible exception or moving
+   the work into a broader throughput PRD.
+6. Run `make linkcheck`.
+7. Run `make ci` before opening the pull request.
 
 This matches the post-scaffolding checklist in [README.md](../../README.md).
 
