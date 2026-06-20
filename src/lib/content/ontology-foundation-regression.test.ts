@@ -1,4 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { getProjectRoot } from "@/lib/content/content-paths";
 import {
   getPublishedDocsHrefForRecord,
   PUBLISHED_DOCS_REGISTRY_IDS,
@@ -49,6 +52,36 @@ const seededPublishedRoutes = new Map([
   ["module.feed-forward-network", "/docs/modules/feed-forward-network"],
 ]);
 
+async function createTempRegistryRoot(): Promise<{
+  registryRoot: string;
+  tempRoot: string;
+}> {
+  const tempRoot = join(
+    import.meta.dir,
+    "__ontology-foundation-fixtures__",
+    crypto.randomUUID(),
+  );
+  const registryRoot = join(tempRoot, "registry");
+  await mkdir(tempRoot, { recursive: true });
+  await cp(join(getProjectRoot(), "src", "content", "registry"), registryRoot, {
+    recursive: true,
+  });
+  return { registryRoot, tempRoot };
+}
+
+async function updateTempRegistryRecord(
+  registryRoot: string,
+  relativePath: string,
+  transform: (record: Record<string, unknown>) => Record<string, unknown>,
+): Promise<void> {
+  const filePath = join(registryRoot, relativePath);
+  const record = JSON.parse(await readFile(filePath, "utf8")) as Record<
+    string,
+    unknown
+  >;
+  await writeFile(filePath, `${JSON.stringify(transform(record), null, 2)}\n`);
+}
+
 function expectSeedRecord(
   record: RegistryRecord | undefined,
   registryId: string,
@@ -62,6 +95,99 @@ function expectSeedRecord(
 describe("ontology foundation regression coverage", () => {
   test("committed registry validation accepts the classification schema and seeded ontology references", async () => {
     await expect(validateRegistryContent()).resolves.toEqual([]);
+  });
+
+  test("validation fails when a participating activation record drops its primary classification", async () => {
+    const { registryRoot, tempRoot } = await createTempRegistryRoot();
+    try {
+      await updateTempRegistryRecord(
+        registryRoot,
+        "modules/sigmoid.json",
+        (record) => {
+          const { primaryClassificationId: _ignored, ...rest } = record;
+          return rest;
+        },
+      );
+
+      const errors = await validateRegistryContent({ registryRoot });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "parse-error" &&
+            error.path?.includes("modules/sigmoid.json") &&
+            error.message.includes(
+              "primaryClassificationId is required when a record opts into ontology membership or relationships",
+            ),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("validation fails when a participating activation record repeats its primary classification as a secondary classification", async () => {
+    const { registryRoot, tempRoot } = await createTempRegistryRoot();
+    try {
+      await updateTempRegistryRecord(
+        registryRoot,
+        "modules/tanh.json",
+        (record) => ({
+          ...record,
+          secondaryClassificationIds: [
+            "classification.activation-functions",
+            "classification.feed-forward-networks",
+            "classification.feed-forward-networks",
+          ],
+        }),
+      );
+
+      const errors = await validateRegistryContent({ registryRoot });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "parse-error" &&
+            error.path?.includes("modules/tanh.json") &&
+            error.message.includes(
+              "secondaryClassificationIds must not repeat the primary classification or contain duplicates",
+            ),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("validation fails when a participating activation record points at a missing relationship target", async () => {
+    const { registryRoot, tempRoot } = await createTempRegistryRoot();
+    try {
+      await updateTempRegistryRecord(
+        registryRoot,
+        "modules/gelu.json",
+        (record) => ({
+          ...record,
+          relationships: [
+            {
+              relationshipType: "used-by",
+              targetId: "module.missing-feed-forward-target",
+            },
+          ],
+        }),
+      );
+
+      const errors = await validateRegistryContent({ registryRoot });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "parse-error" &&
+            error.path?.includes("modules/gelu.json") &&
+            error.message.includes(
+              'relationships targetId references missing record "module.missing-feed-forward-target"',
+            ),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
   });
 
   test("loader validates seeded classification membership and typed relationship targets", async () => {
