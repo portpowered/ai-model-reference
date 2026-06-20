@@ -86,7 +86,7 @@ describe("fresh-checkout typecheck", () => {
 
         expect(existsSync(isolatedSourceDir)).toBe(false);
 
-        // Full Makefile gate: pretypecheck (fumadocs-mdx) then tsc — not fumadocs-mdx alone.
+        // Full Makefile gate: prepare:content-runtime, then fumadocs-mdx, then tsc.
         const result = spawnSync("make", ["typecheck"], {
           cwd: fixture.worktreePath,
           encoding: "utf8",

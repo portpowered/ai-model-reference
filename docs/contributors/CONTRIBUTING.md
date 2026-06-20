@@ -370,7 +370,7 @@ Optional during iteration:
 
 ```sh
 make lint          # Biome check — same as bun run lint
-make typecheck     # fumadocs-mdx (pretypecheck), then tsc --noEmit
+make typecheck     # prepare:content-runtime + fumadocs-mdx, then tsc --noEmit
 bun run prepare:content-runtime # refresh checked-in runtime artifacts directly
 ```
 
@@ -405,7 +405,7 @@ make ci
 `make ci` runs, in order:
 
 1. `make lint` — Biome check
-2. `make typecheck` — `fumadocs-mdx`, then `tsc --noEmit`
+2. `make typecheck` — `prepare:content-runtime`, then `fumadocs-mdx`, then `tsc --noEmit`
 3. `make test` — `bun test`
 4. `make coverage` — manifest-scoped reusable component coverage gate
 5. `make test-build-contract` — production build contract plus one GitHub Pages base-path export artifact contract
@@ -413,8 +413,9 @@ make ci
 7. `make validate-data` — registry and content validation (same as the fast loop above)
 8. `make linkcheck` — internal docs link validation
 
-You do not need to run `fumadocs-mdx` manually. `pretypecheck` and `pretest` in
-`package.json` generate `.source/` automatically on fresh checkouts.
+You do not need to run `fumadocs-mdx` manually. Supported command paths invoke
+`prepare:content-runtime` first and then run `fumadocs-mdx` automatically when
+`.source/` is required on fresh checkouts.
 
 When you need to refresh the checked-in generated runtime artifacts themselves,
 use `bun run prepare:content-runtime`. It is the canonical entrypoint for
