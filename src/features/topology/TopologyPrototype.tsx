@@ -1,24 +1,59 @@
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import {
+  buildTopologyGraph,
+  DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS,
+  type TopologyNode,
+} from "./topology-data";
 
 type TopologyPrototypeProps = {
   messages: UiMessages;
 };
 
-const previewNodes = [
-  { key: "nodeActivation", className: "left-[8%] top-[38%]" },
-  { key: "nodeRelu", className: "left-[38%] top-[16%]" },
-  { key: "nodeSilu", className: "left-[63%] top-[34%]" },
-  { key: "nodeSwiGLU", className: "left-[42%] top-[66%]" },
-  { key: "nodeFeedForward", className: "left-[72%] top-[66%]" },
+const previewPositions: Record<string, string> = {
+  "classification.activation-functions": "left-[5%] top-[10%]",
+  "classification.feed-forward-networks": "left-[58%] top-[10%]",
+  "classification.neural-network-components": "left-[34%] top-[6%]",
+  "concept.activation": "left-[8%] top-[42%]",
+  "module.relu": "left-[33%] top-[28%]",
+  "module.leaky-relu": "left-[54%] top-[30%]",
+  "module.silu": "left-[72%] top-[42%]",
+  "module.swiglu": "left-[43%] top-[68%]",
+  "module.standard-ffn": "left-[17%] top-[68%]",
+  "module.feed-forward-network": "left-[69%] top-[70%]",
+};
+
+const fallbackPositions = [
+  "left-[8%] top-[38%]",
+  "left-[32%] top-[18%]",
+  "left-[58%] top-[34%]",
+  "left-[38%] top-[66%]",
+  "left-[70%] top-[66%]",
 ] as const;
+
+function getNodeLabel(
+  node: TopologyNode,
+  text: UiMessages["topologyPrototype"],
+) {
+  const labelOverrides: Record<string, string> = {
+    "concept.activation": text.nodeActivation,
+    "module.relu": text.nodeRelu,
+    "module.silu": text.nodeSilu,
+    "module.swiglu": text.nodeSwiGLU,
+    "module.feed-forward-network": text.nodeFeedForward,
+  };
+
+  return labelOverrides[node.registryId] ?? node.label;
+}
 
 export function TopologyPrototype({ messages }: TopologyPrototypeProps) {
   const text = messages.topologyPrototype;
+  const graph = buildTopologyGraph(DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS);
   const chips = [
     text.activationChip,
     text.activationFunctionChip,
     text.feedForwardChip,
   ];
+  const previewNodes = graph.nodes.slice(0, 10);
 
   return (
     <section className="space-y-6" aria-labelledby="topology-success-title">
@@ -103,19 +138,36 @@ export function TopologyPrototype({ messages }: TopologyPrototypeProps) {
           role="img"
           aria-label={text.graphLabel}
         >
-          <div className="absolute left-[18%] top-[48%] h-px w-[28%] rotate-[-24deg] bg-primary/60" />
-          <div className="absolute left-[45%] top-[31%] h-px w-[26%] rotate-[18deg] bg-primary/60" />
-          <div className="absolute left-[47%] top-[55%] h-px w-[24%] rotate-[35deg] bg-primary/60" />
-          <div className="absolute left-[55%] top-[72%] h-px w-[21%] bg-primary/60" />
-          {previewNodes.map((node) => (
+          <div className="absolute left-[16%] top-[48%] h-px w-[30%] rotate-[-24deg] bg-primary/60" />
+          <div className="absolute left-[41%] top-[34%] h-px w-[26%] rotate-[13deg] bg-primary/60" />
+          <div className="absolute left-[45%] top-[58%] h-px w-[24%] rotate-[33deg] bg-primary/60" />
+          <div className="absolute left-[52%] top-[74%] h-px w-[22%] bg-primary/60" />
+          {previewNodes.map((node, index) => (
             <span
-              key={node.key}
-              className={`${node.className} absolute rounded-md border border-border bg-secondary px-3 py-2 text-sm text-foreground shadow-sm`}
+              key={node.id}
+              className={`${
+                previewPositions[node.registryId] ??
+                fallbackPositions[index % fallbackPositions.length]
+              } absolute max-w-36 rounded-md border border-border bg-secondary px-3 py-2 text-sm text-foreground shadow-sm`}
+              data-registry-id={node.registryId}
             >
-              {text[node.key]}
+              {getNodeLabel(node, text)}
             </span>
           ))}
         </div>
+        <ul
+          className="mt-4 flex flex-wrap gap-2"
+          aria-label="Derived topology relationships"
+        >
+          {graph.edges.slice(0, 8).map((edge) => (
+            <li
+              key={edge.id}
+              className="rounded-md border border-border bg-muted/30 px-2 py-1 text-xs text-muted-foreground"
+            >
+              {edge.label}
+            </li>
+          ))}
+        </ul>
       </article>
     </section>
   );
