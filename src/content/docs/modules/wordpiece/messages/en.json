@@ -1,0 +1,139 @@
+{
+  "title": "WordPiece",
+  "description": "A subword tokenizer that grows a vocabulary of reusable pieces and usually tokenizes each word with the longest matching subword sequence.",
+  "openingSummary": "WordPiece is a subword tokenizer that breaks rare words into reusable pieces, which helps models cover new spellings without needing one vocabulary entry for every full word.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "WordPiece is a tokenizer that builds a vocabulary from subword pieces instead of only whole words. At inference time, it usually starts from a pre-tokenized word-like chunk and then chooses the longest matching pieces from its vocabulary until the chunk has been fully covered."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Whole-word vocabularies become large quickly and still fail on rare names, new product strings, or mixed-language text. WordPiece keeps the vocabulary smaller by reusing pieces such as prefixes, roots, and suffixes, while still letting common words stay whole when that is efficient."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Imagine the word \"unhappiness\". A WordPiece vocabulary might contain `un`, `happi`, and `##ness`. The tokenizer first splits the text into word-like chunks, then looks for the longest known piece at each step. If the whole word is not present, it falls back to smaller pieces until the full word can be represented. Compared with byte pair encoding (BPE), the reader-visible idea is similar, but WordPiece vocabulary building uses a scoring rule rather than choosing merges only by raw pair frequency."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The notation below captures the practical contract: first break a word-like chunk into the longest reusable subword pieces that exist in the vocabulary, then emit those pieces as the token sequence for that chunk."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "WordPiece sits between BPE and SentencePiece in how people usually explain tokenizer families. Like BPE, it creates reusable subword units. Unlike SentencePiece, it is commonly taught with a word-like split upstream. That makes it a good bridge concept for readers moving from general tokenization into the tokenizer choices used by many encoder-style transformer models."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Readers most often encounter WordPiece in BERT-style model families and related encoder-heavy systems. Those models benefit from a tokenizer that can keep common words compact while still decomposing unfamiliar strings into meaningful smaller parts."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "WordPiece still depends on upstream normalization and pre-tokenization choices, so the same sentence can break differently if punctuation, casing, or whitespace handling changes. Its pieces can also look less intuitive than full words, especially when one rare term becomes several short subword units."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "WordPiece remains a useful reference because it shows one mainstream answer to the open-vocabulary problem. Once you understand how it reuses pieces and why it depends on a word-like split, it becomes easier to compare BPE, SentencePiece, and the token counts that shape model cost and context length."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "WordPiece flow from word-like text chunks through longest-match lookup, subword fallback, and final token output"
+    },
+    "comparisonTable": {
+      "caption": "WordPiece stays close to BPE in its subword vocabulary goal, but it is usually explained with a word-like split upstream and a longest-match tokenization pass at inference time."
+    }
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "bpe": {
+          "title": "BPE"
+        },
+        "wordpiece": {
+          "title": "WordPiece"
+        },
+        "sentencepiece": {
+          "title": "SentencePiece"
+        }
+      },
+      "dimensions": {
+        "startingView": "Starting view of text",
+        "mergeChoice": "How new pieces are chosen",
+        "spaceHandling": "Handling of spaces and bytes",
+        "mainTradeoff": "Main tradeoff"
+      },
+      "values": {
+        "bpe": {
+          "startingView": "Starts from small symbols and merges common neighbors",
+          "mergeChoice": "Usually picks the most frequent adjacent pair",
+          "spaceHandling": "Often paired with byte-level handling in GPT-style tokenizers",
+          "mainTradeoff": "Simple and reusable, but learned pieces can look unnatural"
+        },
+        "wordpiece": {
+          "startingView": "Starts from subword candidates and grows a vocabulary",
+          "mergeChoice": "Uses a scoring rule instead of raw pair frequency alone",
+          "spaceHandling": "Usually assumes a word-like pre-tokenization step first",
+          "mainTradeoff": "Works well for many text models, but depends more on the upstream text split"
+        },
+        "sentencepiece": {
+          "startingView": "Trains directly on raw text without fixed word boundaries",
+          "mergeChoice": "Can learn pieces with BPE-style or unigram-style training",
+          "spaceHandling": "Treats spaces as regular symbols so boundaries stay explicit",
+          "mainTradeoff": "Flexible across languages, but its learned pieces may differ more from reader intuition"
+        }
+      }
+    }
+  },
+  "math": {
+    "wordpieceSchema": {
+      "label": "WordPiece tokenization view",
+      "formula": "y = W(x)",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "Word-like text chunk after the upstream split."
+        },
+        "w": {
+          "term": "W",
+          "definition": "Learned WordPiece tokenizer and vocabulary."
+        },
+        "y": {
+          "term": "y",
+          "definition": "Output sequence of reusable subword pieces."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "rawWord": {
+        "label": "Word-like text chunk"
+      },
+      "lookupWholeWord": {
+        "label": "Check for the longest vocabulary match"
+      },
+      "emitKnownPiece": {
+        "label": "Emit the matched subword piece"
+      },
+      "fallbackSmallerPiece": {
+        "label": "Fallback to a smaller piece when needed"
+      },
+      "continueRemainder": {
+        "label": "Repeat on the remaining characters"
+      },
+      "tokenOutput": {
+        "label": "Final token sequence"
+      }
+    }
+  }
+}
