@@ -47,6 +47,8 @@ export interface QueueLaneRecord {
   queueState: QueueLaneState;
   rawState: string;
   sessionId?: string;
+  workTypeName?: string;
+  hasDependsOnRelation: boolean;
 }
 
 export interface SessionLaneRecord {
@@ -98,6 +100,8 @@ export interface LaneDiscoveryRecord {
   workItemName: string;
   queueState: QueueLaneState;
   rawQueueState: string;
+  workTypeName?: string;
+  hasDependsOnRelation?: boolean;
   worktreePath?: string;
   branchName?: string;
   workItemNameSource?: "metadata" | "directory" | "queue";
@@ -206,6 +210,17 @@ function readNestedStringField(
     }
   }
   return "";
+}
+
+function hasDependsOnRelation(value: unknown): boolean {
+  return (
+    Array.isArray(value) &&
+    value.some(
+      (item) =>
+        isRecord(item) &&
+        readStringField(item, ["type"]).trim().toUpperCase() === "DEPENDS_ON",
+    )
+  );
 }
 
 function readQueueStateValues(record: Record<string, unknown>): string[] {
@@ -321,6 +336,11 @@ export function parseQueueLaneRecords(jsonText: string): QueueLaneRecord[] {
       queueState: state.queueState,
       rawState: state.rawState,
       sessionId,
+      workTypeName:
+        readStringField(item, ["workTypeName"]) ||
+        readNestedStringField(item, ["workItem", "item"], ["workTypeName"]) ||
+        undefined,
+      hasDependsOnRelation: hasDependsOnRelation(item.relations),
     });
   }
 
@@ -943,6 +963,8 @@ export function discoverActivePrLaneReport(
         workItemName: queueLane.workItemName,
         queueState: queueLane.queueState,
         rawQueueState: queueLane.rawState,
+        workTypeName: queueLane.workTypeName,
+        hasDependsOnRelation: queueLane.hasDependsOnRelation,
         workItemNameSource: "queue",
         sessionId: queueLane.sessionId ?? session?.sessionId,
         sessionIdSource: queueLane.sessionId
@@ -981,6 +1003,8 @@ export function discoverActivePrLaneReport(
         workItemName: queueLane.workItemName,
         queueState: queueLane.queueState,
         rawQueueState: queueLane.rawState,
+        workTypeName: queueLane.workTypeName,
+        hasDependsOnRelation: queueLane.hasDependsOnRelation,
         worktreePath: relativeDisplayPath(
           worktree.worktreePath,
           options.repoRoot,
@@ -1071,6 +1095,8 @@ export function discoverActivePrLaneReport(
         workItemName: queueLane.workItemName,
         queueState: queueLane.queueState,
         rawQueueState: queueLane.rawState,
+        workTypeName: queueLane.workTypeName,
+        hasDependsOnRelation: queueLane.hasDependsOnRelation,
         worktreePath: relativeDisplayPath(
           worktree.worktreePath,
           options.repoRoot,
@@ -1114,6 +1140,8 @@ export function discoverActivePrLaneReport(
       workItemName: queueLane.workItemName,
       queueState: queueLane.queueState,
       rawQueueState: queueLane.rawState,
+      workTypeName: queueLane.workTypeName,
+      hasDependsOnRelation: queueLane.hasDependsOnRelation,
       worktreePath: relativeDisplayPath(
         worktree.worktreePath,
         options.repoRoot,

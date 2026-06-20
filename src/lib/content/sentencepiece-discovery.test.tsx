@@ -24,13 +24,29 @@ describe("sentencepiece tokenization discovery surfaces (sentencepiece-page-003)
       messages,
       "en",
     );
+    const conceptGroup = groups.find((group) => group.kind === "concept");
     const moduleGroup = groups.find((group) => group.kind === "module");
 
     expect(context?.title).toBe("Tokenization");
     expect(context?.summary.length).toBeGreaterThan(0);
     expect(context?.categoryLabel).toBe("Module type");
-    expect(groups.map((group) => group.kind)).toEqual(["module", "glossary"]);
+    expect(groups.map((group) => group.kind)).toEqual([
+      "module",
+      "concept",
+      "glossary",
+    ]);
     expect(moduleGroup?.kindLabel).toBe("Module");
+    expect(conceptGroup?.kindLabel).toBe("Concept");
+    expect(conceptGroup?.resources).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "concept",
+          slug: "tokenizers-overview",
+          title: "Tokenizers overview",
+          url: "/docs/concepts/tokenizers-overview",
+        }),
+      ]),
+    );
     expect(moduleGroup?.resources).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
