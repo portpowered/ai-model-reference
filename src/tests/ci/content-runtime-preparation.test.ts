@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join, relative } from "node:path";
 import { getGeneratedContentRuntimeRoot } from "@/lib/content/content-paths";
 import {
@@ -12,9 +12,19 @@ import {
 const repoRoot = join(import.meta.dir, "../../..");
 const GENERATED_REGISTRY_RUNTIME_RELATIVE_PATH =
   "src/lib/content/generated/registry-runtime.generated.ts";
+const INVALID_REGISTRY_FIXTURE_RELATIVE_PATH =
+  "src/content/registry/modules/__invalid-runtime-preparation-test.json";
 const LEGACY_TOP_LEVEL_GENERATED_RUNTIME_PATHS = [
   "src/lib/content/published-docs-registry-manifest.ts",
 ] as const;
+
+function runPrepareContentRuntime() {
+  return spawnSync("bun", ["run", "prepare:content-runtime"], {
+    cwd: repoRoot,
+    encoding: "utf8",
+    env: process.env,
+  });
+}
 
 describe("content runtime preparation", () => {
   test("runs required runtime generation steps in canonical order", () => {
@@ -74,25 +84,30 @@ describe("content runtime preparation", () => {
     ]);
   });
 
-  test("prepare:content-runtime succeeds on the repository and is safe to rerun", () => {
+  test("prepare:content-runtime recreates the generated registry runtime when absent", () => {
     const generatedRuntimeRoot = getGeneratedContentRuntimeRoot(repoRoot);
     const generatedRuntimeRootRelative = relative(
       repoRoot,
       generatedRuntimeRoot,
     );
-    const firstRun = spawnSync("bun", ["run", "prepare:content-runtime"], {
-      cwd: repoRoot,
-      encoding: "utf8",
-      env: process.env,
-    });
-    const secondRun = spawnSync("bun", ["run", "prepare:content-runtime"], {
-      cwd: repoRoot,
-      encoding: "utf8",
-      env: process.env,
-    });
+    const generatedRegistryRuntimePath = join(
+      repoRoot,
+      GENERATED_REGISTRY_RUNTIME_RELATIVE_PATH,
+    );
+
+    rmSync(generatedRegistryRuntimePath, { force: true });
+    expect(existsSync(generatedRegistryRuntimePath)).toBe(false);
+
+    const firstRun = runPrepareContentRuntime();
+    const secondRun = runPrepareContentRuntime();
+    const firstRunOutput = `${firstRun.stdout}\n${firstRun.stderr}`;
 
     expect(firstRun.status).toBe(0);
     expect(secondRun.status).toBe(0);
+    expect(firstRunOutput).toContain(
+      `[content-runtime] Preparing registry-runtime -> ${GENERATED_REGISTRY_RUNTIME_RELATIVE_PATH}`,
+    );
+    expect(existsSync(generatedRegistryRuntimePath)).toBe(true);
 
     for (const step of CONTENT_RUNTIME_PREPARATION_STEPS) {
       expect(
@@ -108,6 +123,31 @@ describe("content runtime preparation", () => {
 
     for (const legacyPath of LEGACY_TOP_LEVEL_GENERATED_RUNTIME_PATHS) {
       expect(existsSync(join(repoRoot, legacyPath))).toBe(false);
+    }
+  });
+
+  test("prepare:content-runtime reports the registry runtime step for invalid registry JSON", () => {
+    const invalidRegistryFixturePath = join(
+      repoRoot,
+      INVALID_REGISTRY_FIXTURE_RELATIVE_PATH,
+    );
+    writeFileSync(
+      invalidRegistryFixturePath,
+      "{ invalid registry json",
+      "utf8",
+    );
+
+    try {
+      const result = runPrepareContentRuntime();
+      const output = `${result.stdout}\n${result.stderr}`;
+
+      expect(result.status).not.toBe(0);
+      expect(output).toContain('Failed step "registry-runtime"');
+      expect(output).toContain("bun run generate:registry-runtime");
+      expect(output).toContain(INVALID_REGISTRY_FIXTURE_RELATIVE_PATH);
+    } finally {
+      rmSync(invalidRegistryFixturePath, { force: true });
+      runPrepareContentRuntime();
     }
   });
 
