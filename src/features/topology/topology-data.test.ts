@@ -105,6 +105,18 @@ describe("topology data builder", () => {
     });
   });
 
+  test("returns a stable empty result for valid classifications without visible members", () => {
+    expect(buildTopologyGraph(["neural-network-components"])).toMatchObject({
+      status: "empty",
+      reason: "no-members",
+      selectedClassifications: [
+        expect.objectContaining({
+          classificationId: "classification.neural-network-components",
+        }),
+      ],
+    });
+  });
+
   test("returns a recoverable error for invalid classification selectors", () => {
     expect(buildTopologyGraph(["activation", "missing-slice"])).toEqual({
       status: "error",

@@ -218,6 +218,12 @@ export function TopologyCytoscapeGraph({
       return;
     }
 
+    const canvas = document.createElement("canvas");
+    if (canvas.getContext("2d") === null) {
+      setIsReady(true);
+      return;
+    }
+
     const cy = cytoscape({
       autoungrabify: true,
       boxSelectionEnabled: false,

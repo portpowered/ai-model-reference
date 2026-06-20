@@ -1,29 +1,159 @@
-import { describe, expect, test } from "bun:test";
-import { renderToStaticMarkup } from "react-dom/server";
+import "@/tests/a11y/mock-navigation";
+import { afterEach, describe, expect, test } from "bun:test";
+import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import {
+  getMockRouter,
+  resetMockNavigation,
+  setMockPathname,
+  setMockSearchParams,
+} from "@/tests/a11y/mock-navigation";
 import { TopologyPrototype } from "./TopologyPrototype";
 
 describe("TopologyPrototype", () => {
+  afterEach(() => {
+    cleanup();
+    resetMockNavigation();
+  });
+
   test("renders a Cytoscape-backed topology viewport with controls and accessible graph lists", async () => {
     const messages = await loadUiMessages();
-    const html = renderToStaticMarkup(
-      <TopologyPrototype messages={messages} />,
+    setMockPathname("/topology");
+    setMockSearchParams(new URLSearchParams());
+
+    render(<TopologyPrototype messages={messages} />);
+
+    expect(
+      screen.getByRole("img", { name: messages.topologyPrototype.graphLabel }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", {
+        name: messages.topologyPrototype.fitGraphLabel,
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", {
+        name: messages.topologyPrototype.resetGraphLabel,
+      }),
+    ).toBeTruthy();
+    expect(screen.getByText("SwiGLU -> uses -> SiLU")).toBeTruthy();
+    expect(
+      screen
+        .getByRole("button", {
+          name: messages.topologyPrototype.activationChip,
+        })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(
+      screen
+        .getByRole("button", {
+          name: messages.topologyPrototype.activationFunctionChip,
+        })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(
+      screen
+        .getByRole("button", {
+          name: messages.topologyPrototype.feedForwardChip,
+        })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
+  });
+
+  test("reads classification chip state from the URL and updates the URL when chips change", async () => {
+    const messages = await loadUiMessages();
+    const user = userEvent.setup();
+    const router = getMockRouter();
+
+    setMockPathname("/topology");
+    setMockSearchParams(new URLSearchParams("classification=feed-forward"));
+
+    render(<TopologyPrototype messages={messages} />);
+
+    expect(
+      screen
+        .getByRole("button", {
+          name: messages.topologyPrototype.feedForwardChip,
+        })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(
+      screen
+        .getByRole("button", {
+          name: messages.topologyPrototype.activationChip,
+        })
+        .getAttribute("aria-pressed"),
+    ).toBe("false");
+
+    await user.click(
+      screen.getByRole("button", {
+        name: messages.topologyPrototype.activationChip,
+      }),
     );
 
-    expect(html).toContain('data-cytoscape-graph="true"');
-    expect(html).toContain('data-graph-interaction-pan="true"');
-    expect(html).toContain('data-graph-interaction-zoom="true"');
-    expect(html).toContain('data-graph-node-count="10"');
-    expect(html).toContain(
-      'aria-label="Activation/feed-forward topology preview"',
+    expect(router.push).toHaveBeenCalledWith(
+      "/topology?classification=feed-forward&classification=activation",
     );
-    expect(html).toContain("Fit graph");
-    expect(html).toContain('aria-label="Reset graph"');
-    expect(html).toContain("Relationship legend");
-    expect(html).toContain("Graph nodes");
-    expect(html).toContain("Graph relationships");
-    expect(html).toContain('data-registry-id="module.relu"');
-    expect(html).toContain("/docs/modules/relu");
-    expect(html).toContain("SwiGLU -&gt; uses -&gt; SiLU");
+  });
+
+  test("renders a recoverable empty state for explicit empty selections", async () => {
+    const messages = await loadUiMessages();
+
+    setMockPathname("/topology");
+    setMockSearchParams(new URLSearchParams("classification="));
+
+    render(<TopologyPrototype messages={messages} />);
+
+    expect(
+      screen.getAllByText(messages.topologyPrototype.emptyTitle).length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getByText(messages.topologyPrototype.emptyNoSelectionDescription),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", {
+        name: messages.topologyPrototype.emptyReturnAction,
+      }),
+    ).toBeTruthy();
+  });
+
+  test("renders a named empty state for valid classifications without visible members", async () => {
+    const messages = await loadUiMessages();
+
+    setMockPathname("/topology");
+    setMockSearchParams(
+      new URLSearchParams("classification=neural-network-components"),
+    );
+
+    render(<TopologyPrototype messages={messages} />);
+
+    expect(
+      screen.getAllByText(messages.topologyPrototype.emptyTitle).length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getByText("Selected classification: neural-network-components."),
+    ).toBeTruthy();
+  });
+
+  test("renders invalid classification recovery state from the URL", async () => {
+    const messages = await loadUiMessages();
+
+    setMockPathname("/topology");
+    setMockSearchParams(new URLSearchParams("classification=missing-slice"));
+
+    render(<TopologyPrototype messages={messages} />);
+
+    expect(
+      screen.getAllByText(messages.topologyPrototype.errorTitle).length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getByText("Invalid classification: missing-slice."),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", {
+        name: messages.topologyPrototype.errorReturnAction,
+      }),
+    ).toBeTruthy();
   });
 });

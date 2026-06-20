@@ -35,8 +35,18 @@ export function setMockSearchParams(params: URLSearchParams): void {
   mockSearchParams = params;
 }
 
+export function getMockRouter() {
+  return router;
+}
+
 export function resetMockNavigation(): void {
   mockPathname = "/";
   mockParams = {};
   mockSearchParams = new URLSearchParams();
+  router.push.mockClear();
+  router.replace.mockClear();
+  router.back.mockClear();
+  router.forward.mockClear();
+  router.refresh.mockClear();
+  router.prefetch.mockClear();
 }

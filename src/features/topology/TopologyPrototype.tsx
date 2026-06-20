@@ -1,22 +1,78 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMemo } from "react";
+import { Button } from "@/components/ui/button";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { TopologyCytoscapeGraph } from "./TopologyCytoscapeGraph";
-import {
-  buildTopologyGraph,
-  DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS,
-} from "./topology-data";
+import { buildTopologyGraph } from "./topology-data";
+import { buildTopologyHref, parseTopologyQuery } from "./topology-query";
 
 type TopologyPrototypeProps = {
   messages: UiMessages;
 };
 
+const topologyChips = [
+  { selector: "activation", labelKey: "activationChip" },
+  { selector: "activation-function", labelKey: "activationFunctionChip" },
+  { selector: "feed-forward", labelKey: "feedForwardChip" },
+] as const;
+
 export function TopologyPrototype({ messages }: TopologyPrototypeProps) {
+  const pathname = usePathname() ?? "/topology";
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const text = messages.topologyPrototype;
-  const graph = buildTopologyGraph(DEFAULT_TOPOLOGY_CLASSIFICATION_SELECTORS);
-  const chips = [
-    text.activationChip,
-    text.activationFunctionChip,
-    text.feedForwardChip,
-  ];
+  const queryState = useMemo(
+    () => parseTopologyQuery(searchParams),
+    [searchParams],
+  );
+  const graph = buildTopologyGraph(queryState.selectors);
+  const chips = topologyChips.map((chip) => ({
+    selector: chip.selector,
+    label: text[chip.labelKey],
+  }));
+  const activeSelectors = new Set(queryState.selectors);
+
+  const selectedViewValue =
+    queryState.selectors.length === 0
+      ? text.selectedViewNone
+      : queryState.usesDefault
+        ? text.selectedViewValue
+        : formatSelectedViewValue(
+            chips,
+            activeSelectors,
+            queryState.selectors,
+            text.selectedViewDefault,
+          );
+
+  const emptySelectionLabel =
+    graph.status === "empty" && graph.selectedClassifications.length > 0
+      ? graph.selectedClassifications
+          .map((selection) => selection.classification.slug)
+          .join(", ")
+      : null;
+
+  function updateSelection(
+    nextSelectors: string[],
+    options?: { explicitEmpty?: boolean },
+  ) {
+    router.push(
+      buildTopologyHref(pathname, nextSelectors, searchParams, options),
+    );
+  }
+
+  function toggleSelector(selector: string) {
+    if (activeSelectors.has(selector)) {
+      updateSelection(
+        queryState.selectors.filter((item) => item !== selector),
+        { explicitEmpty: true },
+      );
+      return;
+    }
+
+    updateSelection([...queryState.selectors, selector]);
+  }
 
   return (
     <section className="space-y-6" aria-labelledby="topology-success-title">
@@ -24,16 +80,41 @@ export function TopologyPrototype({ messages }: TopologyPrototypeProps) {
         <legend className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
           {text.selectedViewLabel}
         </legend>
-        <p className="mt-1 text-sm text-foreground">{text.selectedViewValue}</p>
-        <ul className="mt-3 flex flex-wrap gap-2" aria-label="Classifications">
-          {chips.map((chip) => (
-            <li key={chip}>
-              <span className="rounded-md border border-primary/50 bg-primary/10 px-2.5 py-1 text-xs font-medium text-foreground">
-                {chip}
-              </span>
-            </li>
-          ))}
+        <p className="mt-1 text-sm text-foreground">{selectedViewValue}</p>
+        <p className="mt-2 text-xs text-muted-foreground">{text.chipHint}</p>
+        <ul
+          className="mt-3 flex flex-wrap gap-2"
+          aria-label={text.chipListLabel}
+        >
+          {chips.map((chip) => {
+            const isActive = activeSelectors.has(chip.selector);
+
+            return (
+              <li key={chip.selector}>
+                <Button
+                  type="button"
+                  variant={isActive ? "default" : "outline"}
+                  size="sm"
+                  aria-pressed={isActive}
+                  onClick={() => toggleSelector(chip.selector)}
+                >
+                  {chip.label}
+                </Button>
+              </li>
+            );
+          })}
         </ul>
+        {!queryState.usesDefault ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="mt-3"
+            onClick={() => updateSelection([])}
+          >
+            {text.resetToDefaultLabel}
+          </Button>
+        ) : null}
       </fieldset>
 
       <div className="grid gap-3 md:grid-cols-3">
@@ -84,6 +165,77 @@ export function TopologyPrototype({ messages }: TopologyPrototypeProps) {
       {graph.status === "success" ? (
         <TopologyCytoscapeGraph graph={graph} text={text} />
       ) : null}
+
+      {graph.status === "empty" ? (
+        <article
+          className="rounded-lg border border-border bg-card p-4"
+          aria-labelledby="topology-empty-state-title"
+        >
+          <h2
+            id="topology-empty-state-title"
+            className="text-lg font-semibold text-foreground"
+          >
+            {text.emptyTitle}
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {graph.reason === "no-selection"
+              ? text.emptyNoSelectionDescription
+              : `${text.emptySelectedPrefix}: ${emptySelectionLabel ?? text.selectedViewNone}.`}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-4"
+            onClick={() => updateSelection([])}
+          >
+            {text.emptyReturnAction}
+          </Button>
+        </article>
+      ) : null}
+
+      {graph.status === "error" ? (
+        <article
+          className="rounded-lg border border-destructive/40 bg-card p-4"
+          aria-labelledby="topology-error-state-title"
+        >
+          <h2
+            id="topology-error-state-title"
+            className="text-lg font-semibold text-foreground"
+          >
+            {text.errorTitle}
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {text.errorInvalidPrefix}: {graph.invalidSelections.join(", ")}.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-4"
+            onClick={() => updateSelection([])}
+          >
+            {text.errorReturnAction}
+          </Button>
+        </article>
+      ) : null}
     </section>
   );
+}
+
+function formatSelectedViewValue(
+  chips: { selector: string; label: string }[],
+  activeSelectors: Set<string>,
+  selectors: string[],
+  fallback: string,
+): string {
+  const matchingLabels = chips
+    .filter((chip) => activeSelectors.has(chip.selector))
+    .map((chip) => chip.label);
+
+  if (matchingLabels.length > 0) {
+    return matchingLabels.join(" + ");
+  }
+
+  return selectors.join(" + ") || fallback;
 }

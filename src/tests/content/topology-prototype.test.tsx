@@ -1,43 +1,73 @@
-import { describe, expect, test } from "bun:test";
-import { renderToStaticMarkup } from "react-dom/server";
+import "@/tests/a11y/mock-navigation";
+import { afterEach, describe, expect, test } from "bun:test";
+import { cleanup, render, screen } from "@testing-library/react";
 import { renderTopologyPrototypePage } from "@/app/(site)/site-renderers";
 import { loadUiMessages } from "@/lib/content/ui-messages";
+import {
+  resetMockNavigation,
+  setMockPathname,
+  setMockSearchParams,
+} from "@/tests/a11y/mock-navigation";
 
 describe("topology prototype page", () => {
+  afterEach(() => {
+    cleanup();
+    resetMockNavigation();
+  });
+
   test("renders the default activation/feed-forward graph state", async () => {
     const messages = await loadUiMessages();
-    const html = renderToStaticMarkup(await renderTopologyPrototypePage());
-    const { topologyPrototype } = messages;
+    setMockPathname("/topology");
+    setMockSearchParams(new URLSearchParams());
 
-    expect(html).toContain(topologyPrototype.title);
-    expect(html).toContain(topologyPrototype.description);
-    expect(html).toContain(topologyPrototype.selectedViewValue);
-    expect(html).toContain(topologyPrototype.successTitle);
-    expect(html).toContain(topologyPrototype.nodeActivation);
-    expect(html).toContain(topologyPrototype.nodeRelu);
-    expect(html).toContain(topologyPrototype.nodeSwiGLU);
-    expect(html).toContain(topologyPrototype.nodeFeedForward);
-    expect(html).toContain(`aria-label="${topologyPrototype.graphLabel}"`);
+    render(await renderTopologyPrototypePage());
+
+    const { topologyPrototype } = messages;
+    expect(screen.getByText(topologyPrototype.title)).toBeTruthy();
+    expect(screen.getByText(topologyPrototype.description)).toBeTruthy();
+    expect(screen.getByText(topologyPrototype.selectedViewValue)).toBeTruthy();
+    expect(screen.getByText(topologyPrototype.successTitle)).toBeTruthy();
+    expect(screen.getByText(topologyPrototype.nodeActivation)).toBeTruthy();
+    expect(screen.getByText(topologyPrototype.nodeRelu)).toBeTruthy();
+    expect(screen.getByText(topologyPrototype.nodeSwiGLU)).toBeTruthy();
+    expect(screen.getByText(topologyPrototype.nodeFeedForward)).toBeTruthy();
+    expect(
+      screen.getByRole("img", { name: topologyPrototype.graphLabel }),
+    ).toBeTruthy();
   });
 
   test("renders loading, empty, error, and success regions in the docs shell", async () => {
     const messages = await loadUiMessages();
-    const html = renderToStaticMarkup(await renderTopologyPrototypePage());
-    const { topologyPrototype } = messages;
+    setMockPathname("/topology");
+    setMockSearchParams(new URLSearchParams());
 
-    expect(html).toContain(topologyPrototype.loadingTitle);
-    expect(html).toContain(topologyPrototype.emptyTitle);
-    expect(html).toContain(topologyPrototype.errorTitle);
-    expect(html).toContain(topologyPrototype.successTitle);
-    expect(html).toContain('id="nd-page"');
+    render(await renderTopologyPrototypePage());
+
+    const { topologyPrototype } = messages;
+    expect(screen.getByText(topologyPrototype.loadingTitle)).toBeTruthy();
+    expect(
+      screen.getAllByText(topologyPrototype.emptyTitle).length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText(topologyPrototype.errorTitle).length,
+    ).toBeGreaterThan(0);
+    expect(screen.getByText(topologyPrototype.successTitle)).toBeTruthy();
+    expect(document.getElementById("nd-page")).toBeTruthy();
   });
 
   test("renders localized japanese topology copy", async () => {
     const messages = await loadUiMessages("ja");
-    const html = renderToStaticMarkup(await renderTopologyPrototypePage("ja"));
+    setMockPathname("/ja/topology");
+    setMockSearchParams(new URLSearchParams());
 
-    expect(html).toContain(messages.topologyPrototype.title);
-    expect(html).toContain(messages.topologyPrototype.description);
-    expect(html).toContain(messages.topologyPrototype.selectedViewValue);
+    render(await renderTopologyPrototypePage("ja"));
+
+    expect(screen.getByText(messages.topologyPrototype.title)).toBeTruthy();
+    expect(
+      screen.getByText(messages.topologyPrototype.description),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(messages.topologyPrototype.selectedViewValue),
+    ).toBeTruthy();
   });
 });
