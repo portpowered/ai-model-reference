@@ -97,6 +97,7 @@ export type RunContentRuntimePreparationOptions = {
     path: string,
     options: { force: boolean; recursive: boolean },
   ) => void;
+  removeFile?: (path: string, options: { force: boolean }) => void;
   steps?: readonly ContentRuntimePreparationStep[];
 };
 
@@ -183,6 +184,26 @@ function removeGeneratedDocsSource(
   });
 
   return generatedDocsSourceRoot;
+}
+
+function removeIgnoredGeneratedRuntimeOutputs(
+  cwd: string,
+  steps: readonly ContentRuntimePreparationStep[],
+  removeFile: (path: string, options: { force: boolean }) => void = rmSync,
+): string[] {
+  const removedPaths: string[] = [];
+
+  for (const step of steps) {
+    if (step.gitClassification !== "ignored") {
+      continue;
+    }
+
+    const absoluteOutputPath = join(cwd, step.outputPath);
+    removeFile(absoluteOutputPath, { force: true });
+    removedPaths.push(absoluteOutputPath);
+  }
+
+  return removedPaths;
 }
 
 function runCommandSync(
@@ -389,15 +410,26 @@ export function runContentRuntimePreparation(
   const logError = options.logError ?? console.error;
   const removeDirectory = options.removeDirectory ?? rmSync;
   const steps = options.steps ?? CONTENT_RUNTIME_PREPARATION_STEPS;
+  const removeFile = options.removeFile ?? rmSync;
   const completedSteps: ContentRuntimePreparationStep[] = [];
   const removedSourceRoot = removeGeneratedDocsSource(
     options.cwd,
     removeDirectory,
   );
+  const removedIgnoredOutputs = removeIgnoredGeneratedRuntimeOutputs(
+    options.cwd,
+    steps,
+    removeFile,
+  );
 
   log(
     `[content-runtime] Removing stale generated Fumadocs bindings -> ${relative(options.cwd, removedSourceRoot) || ".source"}`,
   );
+  for (const removedOutputPath of removedIgnoredOutputs) {
+    log(
+      `[content-runtime] Invalidating stale ignored generated runtime output -> ${relative(options.cwd, removedOutputPath)}`,
+    );
+  }
 
   for (const step of steps) {
     log(

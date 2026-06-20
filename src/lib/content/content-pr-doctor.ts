@@ -1,5 +1,9 @@
 import { spawnSync } from "node:child_process";
-import { CONTENT_RUNTIME_PREPARATION_STEPS } from "@/lib/content/content-runtime-preparation";
+import {
+  CONTENT_RUNTIME_PREPARATION_STEPS,
+  type VerifyContentRuntimeCompletenessResult,
+  verifyContentRuntimeCompleteness,
+} from "@/lib/content/content-runtime-preparation";
 
 export type ContentPrDoctorCommandResult = {
   error?: Error;
@@ -70,6 +74,9 @@ export type RunContentPrDoctorOptions = {
   log?: ContentPrDoctorLogger;
   logError?: ContentPrDoctorLogger;
   runCommand?: RunContentPrDoctorCommand;
+  verifyRuntimeCompleteness?: (options: {
+    cwd: string;
+  }) => VerifyContentRuntimeCompletenessResult;
   validationSteps?: readonly ContentPrDoctorValidationStep[];
   scopedPaths?: readonly string[];
 };
@@ -88,6 +95,7 @@ export type ContentPrDoctorResult =
       scopedPaths: readonly string[];
       details?: readonly string[];
       failedValidationStep?: ContentPrDoctorValidationStep;
+      failedRuntimeStep?: (typeof CONTENT_RUNTIME_PREPARATION_STEPS)[number];
       commandResult?: ContentPrDoctorCommandResult;
     };
 
@@ -191,6 +199,24 @@ export function runContentPrDoctor(
 ): ContentPrDoctorResult {
   const log = options.log ?? console.log;
   const runCommand = options.runCommand ?? runCommandSync;
+  const verifyRuntimeCompleteness =
+    options.verifyRuntimeCompleteness ??
+    ((verificationOptions) =>
+      verifyContentRuntimeCompleteness({
+        cwd: verificationOptions.cwd,
+        runGitCommand(command, commandOptions) {
+          const result = runCommand(command, {
+            cwd: commandOptions.cwd,
+            captureOutput: true,
+          });
+
+          return {
+            ...result,
+            stderr: result.stderr,
+            stdout: result.stdout,
+          };
+        },
+      }));
   const validationSteps =
     options.validationSteps ?? CONTENT_PR_DOCTOR_VALIDATION_STEPS;
   const scopedPaths = options.scopedPaths ?? CONTENT_PR_DOCTOR_SCOPED_PATHS;
@@ -288,6 +314,30 @@ export function runContentPrDoctor(
       scopedPaths,
       details: postPreparationCheck.changes,
       commandResult: postPreparationCheck.commandResult,
+    };
+  }
+  const runtimeCompletenessResult = verifyRuntimeCompleteness({
+    cwd: options.cwd,
+  });
+  if (!runtimeCompletenessResult.ok) {
+    const deletedRouteInvariantPrefix =
+      runtimeCompletenessResult.step.gitClassification === "ignored"
+        ? "Generated-source freshness invariant failed after the supported preparation flow."
+        : "Generated-source completeness invariant failed after the supported preparation flow.";
+
+    return {
+      ok: false,
+      stage: "prepare-content-runtime",
+      message: `${deletedRouteInvariantPrefix} ${runtimeCompletenessResult.message}`,
+      repairGuidance: runtimeCompletenessResult.repairGuidance,
+      scopedPaths,
+      details: [
+        `generated-runtime-step=${runtimeCompletenessResult.step.id}`,
+        `generated-runtime-output=${runtimeCompletenessResult.step.outputPath}`,
+        `generated-runtime-kind=${runtimeCompletenessResult.step.gitClassification}`,
+        `generated-runtime-check=${runtimeCompletenessResult.kind}`,
+      ],
+      failedRuntimeStep: runtimeCompletenessResult.step,
     };
   }
 
