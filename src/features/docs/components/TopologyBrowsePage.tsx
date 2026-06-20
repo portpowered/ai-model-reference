@@ -7,6 +7,7 @@ import type {
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   bulletlessListClassName,
+  bulletlessListMarkersClassName,
   docsResourceCardLinkClassName,
 } from "./list-decoration";
 
@@ -48,6 +49,76 @@ function formatModeLabel(
   return mode === "graph-map"
     ? messages.topologyBrowse.graphMapLabel
     : messages.topologyBrowse.timelineLabel;
+}
+
+function destinationHrefForMode(
+  option: TopologyNavigationOption,
+  mode: TopologySurfaceMode,
+): string {
+  return (
+    option.destinations.find((destination) => destination.mode === mode)
+      ?.href ??
+    option.destinations[0]?.href ??
+    "#"
+  );
+}
+
+function TopologyClassificationSelector({
+  messages,
+  options,
+  selectedClassificationSlug,
+  mode,
+}: {
+  messages: UiMessages;
+  options: readonly TopologyNavigationOption[];
+  selectedClassificationSlug: string;
+  mode: TopologySurfaceMode;
+}) {
+  return (
+    <section
+      className="rounded-lg border border-border bg-card p-4"
+      aria-labelledby="topology-classification-selector-heading"
+    >
+      <h2
+        id="topology-classification-selector-heading"
+        className="font-serif text-2xl font-semibold text-foreground"
+      >
+        {messages.topologyBrowse.classificationSelectorTitle}
+      </h2>
+      <p className="mt-3 text-sm leading-7 text-muted-foreground">
+        {messages.topologyBrowse.classificationSelectorDescription}
+      </p>
+      <nav
+        className="mt-4"
+        aria-label={messages.topologyBrowse.classificationSelectorLabel}
+      >
+        <ul
+          className={`${bulletlessListMarkersClassName} flex flex-wrap gap-3`}
+        >
+          {options.map((option) => {
+            const isSelected =
+              option.classificationSlug === selectedClassificationSlug;
+
+            return (
+              <li key={option.classificationSlug}>
+                <Link
+                  href={destinationHrefForMode(option, mode)}
+                  aria-current={isSelected ? "page" : undefined}
+                  className={`inline-flex min-h-10 items-center rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${
+                    isSelected
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-background text-foreground hover:bg-muted"
+                  }`}
+                >
+                  {option.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </section>
+  );
 }
 
 function TopologyOptionLinks({
@@ -167,8 +238,15 @@ function TopologySelectedState({
 
   return (
     <>
+      <TopologyClassificationSelector
+        messages={messages}
+        options={state.options}
+        selectedClassificationSlug={state.option.classificationSlug}
+        mode={state.mode}
+      />
+
       <section
-        className="rounded-lg border border-border bg-card p-4"
+        className="mt-8 rounded-lg border border-border bg-card p-4"
         aria-labelledby="topology-selected-heading"
       >
         <h2

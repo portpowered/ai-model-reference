@@ -92,6 +92,9 @@ export type UiMessages = {
     descriptionTemplate: string;
     graphMapLabel: string;
     timelineLabel: string;
+    classificationSelectorTitle: string;
+    classificationSelectorDescription: string;
+    classificationSelectorLabel: string;
     selectedClassificationLabel: string;
     selectedModeLabel: string;
     membersTitle: string;

@@ -79,6 +79,14 @@ describe("browse index page render", () => {
     expect(html).toContain("Activation Functions");
     expect(html).toContain("Selected surface");
     expect(html).toContain("Graph Map");
+    expect(html).toContain("Seed classifications");
+    expect(html).toContain('aria-label="Topology seed classifications"');
+    expect(html).toContain(
+      'href="/browse?classification=feed-forward-networks&amp;mode=graph-map"',
+    );
+    expect(html).toMatch(
+      /<a aria-current="page"[^>]*href="\/browse\?classification=activation-functions&amp;mode=graph-map"[^>]*>Activation Functions<\/a>/,
+    );
     expect(html).toContain("Rectified Linear Unit");
     expect(html).toContain('href="/docs/modules/relu"');
   });
@@ -94,6 +102,12 @@ describe("browse index page render", () => {
 
     expect(html).toContain("Feed Forward Networks Timeline");
     expect(html).toContain("Timeline");
+    expect(html).toContain(
+      'href="/browse?classification=activation-functions&amp;mode=timeline"',
+    );
+    expect(html).toMatch(
+      /<a aria-current="page"[^>]*href="\/browse\?classification=feed-forward-networks&amp;mode=timeline"[^>]*>Feed Forward Networks<\/a>/,
+    );
     expect(html).toContain("Swish Gated Linear Unit");
     expect(html).toContain('href="/docs/modules/swiglu"');
   });
