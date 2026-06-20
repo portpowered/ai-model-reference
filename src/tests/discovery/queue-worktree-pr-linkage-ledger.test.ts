@@ -49,6 +49,38 @@ exit 1
   return binDir;
 }
 
+function installFakePaginatedYouBinary(dir: string, logPath: string): string {
+  const binDir = join(dir, "bin");
+  const binaryPath = join(binDir, "you");
+  mkdirSync(binDir, { recursive: true });
+  writeFileSync(
+    binaryPath,
+    `#!/bin/sh
+set -eu
+printf '%s\\n' "$*" >> "${logPath}"
+if [ "$1" = "work" ] && [ "$2" = "list" ]; then
+  case "$*" in
+    *"--next-token cursor-page-2"*)
+      printf '%s' '{"results":[{"workId":"task-beta","name":"beta","placeId":"lane-beta","state":{"name":"failed","type":"FAILED"}}]}'
+      ;;
+    *)
+      printf '%s' '{"results":[{"workId":"task-alpha","name":"alpha","placeId":"lane-alpha","state":{"name":"in-review","type":"PROCESSING"},"sessionId":"sess-1"}],"paginationContext":{"nextToken":"cursor-page-2"}}'
+      ;;
+  esac
+  exit 0
+fi
+if [ "$1" = "session" ] && [ "$2" = "list" ]; then
+  printf '%s' '{"sessions":[{"id":"sess-1","workItemName":"alpha","status":"running"}]}'
+  exit 0
+fi
+echo "unexpected args: $*" >&2
+exit 1
+`,
+  );
+  chmodSync(binaryPath, 0o755);
+  return binDir;
+}
+
 describe("queue-worktree-pr-linkage-ledger script", () => {
   test("keeps live-schema queue lanes visible in the ledger summary", () => {
     const dir = mkdtempSync(join(tmpdir(), "queue-linkage-ledger-script-"));
@@ -343,6 +375,53 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
       "work list --session planner-session-42 --json",
     );
     expect(commandLog).toContain("session list --json");
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("follows live work-list pagination so later-page lanes stay visible in the ledger", () => {
+    const dir = mkdtempSync(join(tmpdir(), "queue-linkage-ledger-script-"));
+    const commandLogPath = join(dir, "you-command.log");
+    const worktreesRoot = join(dir, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+    createWorktree(worktreesRoot, "alpha", "alpha");
+    createWorktree(worktreesRoot, "beta", "beta");
+    const fakeYouBinDir = installFakePaginatedYouBinary(dir, commandLogPath);
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-queue-worktree-pr-linkage-ledger.ts",
+        "--worktrees-dir",
+        worktreesRoot,
+        "--session",
+        "planner-session-77",
+      ],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          PATH: `${fakeYouBinDir}:${process.env.PATH ?? ""}`,
+        },
+      },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+      "queue-derived-lanes=2 active=1 failed=1 linked=0 linked-with-gaps=2",
+    );
+    expect(result.stdout).toContain("lane=alpha");
+    expect(result.stdout).toContain("lane=beta");
+    expect(result.stdout).toContain("queue=failed");
+
+    const commandLog = readFileSync(commandLogPath, "utf8");
+    expect(commandLog).toContain(
+      "work list --session planner-session-77 --json",
+    );
+    expect(commandLog).toContain(
+      "work list --session planner-session-77 --next-token cursor-page-2 --json",
+    );
 
     rmSync(dir, { recursive: true, force: true });
   });

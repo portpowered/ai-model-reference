@@ -1,11 +1,14 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type {
-  CommandResult,
   PullRequestLookupFailureKind,
   PullRequestLookupResult,
   PullRequestRecord,
 } from "@/lib/factory/active-pr-mergeability-watchdog";
+import {
+  readCompleteLiveWorkListSnapshotJson,
+  readLiveYouJsonCommand,
+} from "@/lib/factory/live-queue-snapshot";
 import {
   discoverQueueWorktreePrLinkageLedger,
   formatQueueWorktreePrLinkageSummary,
@@ -26,39 +29,6 @@ function readRequiredJsonFile(path: string, label: string): string {
     throw new Error(`Missing ${label} fixture at ${path}`);
   }
   return readFileSync(path, "utf8");
-}
-
-function runYouJsonCommand(args: string[]): CommandResult {
-  const proc = Bun.spawnSync(["you", ...args], {
-    cwd: repoRoot,
-    env: process.env,
-    stdout: "pipe",
-    stderr: "pipe",
-  });
-  return {
-    ok: proc.exitCode === 0,
-    stdout: proc.stdout.toString(),
-    stderr: proc.stderr.toString(),
-    exitCode: proc.exitCode,
-  };
-}
-
-function readLiveQueueJson(args: string[], label: string): string {
-  const attempts = [
-    [...args, "--json"],
-    [...args, "--format", "json"],
-  ];
-
-  for (const attempt of attempts) {
-    const result = runYouJsonCommand(attempt);
-    if (result.ok && result.stdout.trim()) {
-      return result.stdout;
-    }
-  }
-
-  throw new Error(
-    `Unable to read ${label} from \`you ${args.join(" ")}\` with JSON output.`,
-  );
 }
 
 const workListPath = readFlagValue("--work-list-json");
@@ -154,13 +124,15 @@ function lookupPullRequestFromFixture(
 
 const workListJsonText = workListPath
   ? readRequiredJsonFile(workListPath, "work list")
-  : readLiveQueueJson(
-      ["work", "list", "--session", plannerSession],
-      "work list",
-    );
+  : readCompleteLiveWorkListSnapshotJson(repoRoot, [
+      "work",
+      "list",
+      "--session",
+      plannerSession,
+    ]);
 const sessionListJsonText = sessionListPath
   ? readRequiredJsonFile(sessionListPath, "session list")
-  : readLiveQueueJson(["session", "list"], "session list");
+  : readLiveYouJsonCommand(repoRoot, ["session", "list"], "session list");
 
 const ledger = discoverQueueWorktreePrLinkageLedger({
   repoRoot,

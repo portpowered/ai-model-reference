@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { readCompleteLiveWorkListSnapshotJson } from "../src/lib/factory/live-queue-snapshot";
 import {
   discoverPlannerLoopbackReconciliationReport,
   formatPlannerLoopbackReconciliationReport,
@@ -31,29 +32,6 @@ function isJsonOutputRequested(argv: string[]): boolean {
   );
 }
 
-function runYouJsonCommand(repoRoot: string, args: string[]): string {
-  const attempts = [
-    [...args, "--json"],
-    [...args, "--format", "json"],
-  ];
-
-  for (const attempt of attempts) {
-    const proc = Bun.spawnSync(["you", ...attempt], {
-      cwd: repoRoot,
-      env: process.env,
-      stdout: "pipe",
-      stderr: "pipe",
-    });
-    if (proc.exitCode === 0 && proc.stdout.toString().trim()) {
-      return proc.stdout.toString();
-    }
-  }
-
-  throw new Error(
-    `Unable to read live queue JSON from \`you ${args.join(" ")}\`.`,
-  );
-}
-
 const repoRoot = readFlagValue("--repo-root")
   ? resolve(readFlagValue("--repo-root") as string)
   : defaultRepoRoot;
@@ -62,7 +40,12 @@ const workListPath = readFlagValue("--work-list-json");
 
 const workListJsonText = workListPath
   ? readRequiredJsonFile(workListPath, "work list")
-  : runYouJsonCommand(repoRoot, ["work", "list", "--session", sourceSession]);
+  : readCompleteLiveWorkListSnapshotJson(repoRoot, [
+      "work",
+      "list",
+      "--session",
+      sourceSession,
+    ]);
 
 const report = discoverPlannerLoopbackReconciliationReport({
   sourceSession,
