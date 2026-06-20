@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
 import {
+  CONTENT_RUNTIME_PREPARATION_STEPS,
   type ContentRuntimePreparationCommandResult,
   runContentRuntimePreparation,
 } from "@/lib/content/content-runtime-preparation";
@@ -28,9 +29,14 @@ export type ContentPrDoctorValidationStep = {
   guidance: string;
 };
 
+export const CONTENT_PR_DOCTOR_SOURCE_PATHS = ["src/content"] as const;
+
+export const CONTENT_PR_DOCTOR_DERIVED_ARTIFACT_PATHS =
+  CONTENT_RUNTIME_PREPARATION_STEPS.map((step) => step.outputPath);
+
 export const CONTENT_PR_DOCTOR_SCOPED_PATHS = [
-  "src/content",
-  "src/lib/content/generated",
+  ...CONTENT_PR_DOCTOR_SOURCE_PATHS,
+  ...CONTENT_PR_DOCTOR_DERIVED_ARTIFACT_PATHS,
 ] as const;
 
 export const CONTENT_PR_DOCTOR_VALIDATION_STEPS: readonly ContentPrDoctorValidationStep[] =

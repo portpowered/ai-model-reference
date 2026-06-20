@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  CONTENT_PR_DOCTOR_SCOPED_PATHS,
   CONTENT_PR_DOCTOR_VALIDATION_STEPS,
   type ContentPrDoctorCommandResult,
   runContentPrDoctor,
@@ -61,7 +62,9 @@ describe("content PR doctor", () => {
       ]),
     );
     expect(commands).toEqual([
-      "git status --porcelain --untracked-files=no -- src/content src/lib/content/generated",
+      `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
+        " ",
+      )}`,
       "bun run generate:shipped-localized-docs",
       "bun run generate:published-docs-registry",
       "bun run generate:graph-registry-runtime",
@@ -70,7 +73,9 @@ describe("content PR doctor", () => {
       ...CONTENT_PR_DOCTOR_VALIDATION_STEPS.map((step) =>
         step.command.join(" "),
       ),
-      "git status --porcelain --untracked-files=no -- src/content src/lib/content/generated",
+      `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
+        " ",
+      )}`,
     ]);
   });
 
@@ -108,5 +113,33 @@ describe("content PR doctor", () => {
     expect(result.repairGuidance).toContain(
       "Review, commit, stash, or discard",
     );
+  });
+
+  test("does not start preparation when preflight finds scoped tracked changes", () => {
+    const commands: string[] = [];
+    const result = runContentPrDoctor({
+      cwd: repoRoot,
+      log: () => {},
+      logError: () => {},
+      runCommand(command, _options) {
+        commands.push(command.join(" "));
+
+        return {
+          signal: null,
+          status: 0,
+          stdout:
+            command[0] === "git"
+              ? " M src/lib/content/generated/registry-runtime.generated.ts\n"
+              : "",
+        } satisfies ContentPrDoctorCommandResult;
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    expect(commands).toEqual([
+      `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
+        " ",
+      )}`,
+    ]);
   });
 });

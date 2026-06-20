@@ -385,9 +385,12 @@ registry code, or MDX component props.
 When a maintainer wants one repeatable content-branch proof before review,
 prefer `bun run doctor:content-pr`. It is intentionally narrower than `make ci`:
 the doctor flow checks tracked cleanliness for `src/content` plus
-`src/lib/content/generated`, reruns the canonical `bun run prepare:content-runtime`
-entrypoint, and finishes with the lightweight content checks `validate-data`
-and `linkcheck`.
+the five authoritative generated runtime modules owned by
+`bun run prepare:content-runtime`, reruns that canonical entrypoint, and
+finishes with the lightweight content checks `validate-data` and `linkcheck`.
+It reports scoped tracked-path drift and tells you to review, commit, stash, or
+discard those changes before rerunning; it does not attempt unrelated cleanup
+for the rest of the repository.
 
 For a visual pass on a published page, start the dev server after installing
 dependencies:

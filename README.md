@@ -293,6 +293,11 @@ not the full `make ci` gate. It proves four stages in order:
 3. narrow content validation (`validate-data` and `linkcheck`)
 4. final clean-tree proof for the same tracked scoped paths
 
+The tracked scope is intentionally limited to `src/content` plus the five
+authoritative generated runtime modules owned by
+`bun run prepare:content-runtime`; unrelated repository cleanup is left to the
+maintainer rather than performed automatically by the doctor flow.
+
 Use this command when you want one repeatable content-PR proof without manually
 remembering the generation and lightweight validation sequence. Use `make ci`
 when you need the full repository gate.
