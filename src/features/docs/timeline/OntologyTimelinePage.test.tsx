@@ -44,5 +44,17 @@ describe("OntologyTimelinePage", () => {
     expect(html).toContain("Showing 6 dated events for activation function.");
     expect(html).toContain("Rectified Linear Unit");
     expect(html).toContain("Swish Gated Linear Unit");
+    expect(html).toContain('aria-current="page"');
+    expect(html).toContain(
+      'href="/docs/timeline?classification=feed-forward-networks"',
+    );
+  });
+
+  test("renders a recoverable empty state for invalid classification parameters", async () => {
+    const html = await renderTimeline({ classification: "not-a-real-slice" });
+
+    expect(html).toContain("No dated timeline events");
+    expect(html).toContain("not-a-real-slice");
+    expect(html).toContain('href="/docs/timeline?classification=activation"');
   });
 });

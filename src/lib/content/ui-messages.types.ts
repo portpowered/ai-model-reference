@@ -43,6 +43,8 @@ export type UiMessages = {
     description: string;
     eyebrow: string;
     successSummary: string;
+    selectorLabel: string;
+    eventCountLabel: string;
     regionLabel: string;
     docsLink: string;
     sourcePrefix: string;

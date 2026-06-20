@@ -47,6 +47,8 @@
     "description": "Xem các hàm activation bước vào vốn từ kiến trúc mô hình theo thời gian.",
     "eyebrow": "Dòng thời gian ontology",
     "successSummary": "Đang hiển thị {count} sự kiện có ngày cho {classification}.",
+    "selectorLabel": "Duyệt các phân loại lân cận",
+    "eventCountLabel": "{count} sự kiện có ngày",
     "regionLabel": "Niên biểu activation",
     "docsLink": "Mở trang tài liệu",
     "sourcePrefix": "Nguồn ngày:",
