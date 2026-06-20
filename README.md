@@ -484,6 +484,33 @@ Those GQA, attention, and KV cache queries are representative behavior probes,
 not a hidden page inventory. Critical canonical page coverage for export and
 search smoke is projected from the shared `critical-docs-smoke` contract.
 
+That contract derives its page set from the same published-docs workflow used
+elsewhere in the site:
+
+- `loadShippedLocalizedDocsPages` supplies the published canonical page set.
+- `resolvePublishedResourceTags` merges page frontmatter tags with registry
+  tags.
+- the published-docs registry/discovery manifest remains the supported route
+  and page inventory surface for those published pages.
+
+In practice, a normal canonical page addition should enter critical-doc smoke
+automatically when it is published through the supported workflow and matches an
+existing critical rule. For example, a published module page with the merged
+`attention` tag or a published glossary page with the merged
+`token-to-probability-chain` tag is picked up without editing separate route or
+search smoke arrays.
+
+Manual smoke-test edits are still expected only when behavior changes rather
+than page count changes. Typical examples are adding a new representative
+search query, changing the critical-rule definitions themselves, introducing a
+new export-facing route expectation, or expanding smoke coverage to a new
+behavior class.
+
+Keep the ownership boundary narrow: contributor docs or canonical page additions
+should not reopen the active built-app or GitHub Pages static-export repair
+tracks unless the change exposes a concrete customer-visible gap in those
+verifiers.
+
 The verifier also exercises the built `/search` page, the header search dialog
 (via the search trigger button), and keyboard shortcuts on the home page:
 **Meta+K** (Cmd+K on macOS) and **Control+K** (Windows/Linux). Each shortcut
