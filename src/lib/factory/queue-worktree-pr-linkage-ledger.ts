@@ -23,6 +23,7 @@ export interface QueueWorktreePrLinkageLane {
   linkageStatus: QueueWorktreePrLinkageStatus;
   worktreePath?: string;
   branchName?: string;
+  branchMetadataSource?: "git" | "prd";
   pullRequest: QueueWorktreePrIdentity | null;
   missingLinkageReasons: string[];
   sessionId?: string;
@@ -58,6 +59,7 @@ function mapLaneRecord(lane: LaneDiscoveryRecord): QueueWorktreePrLinkageLane {
       missingLinkageReasons.length > 0 ? "linked-with-gaps" : "linked",
     worktreePath: lane.worktreePath,
     branchName: lane.branchName,
+    branchMetadataSource: lane.branchMetadataSource,
     pullRequest:
       typeof lane.prNumber === "number"
         ? {
@@ -150,6 +152,7 @@ export function formatQueueWorktreePrLinkageSummary(
       `queue=${lane.queueState}`,
       `linkage=${lane.linkageStatus}`,
       `branch=${lane.branchName ?? "?"}`,
+      `branch-source=${lane.branchMetadataSource ?? "?"}`,
       `worktree=${lane.worktreePath ?? "?"}`,
       `pr=${lane.pullRequest ? `#${lane.pullRequest.number}` : "?"}`,
       `drift=${formatDrift(lane)}`,

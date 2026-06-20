@@ -160,6 +160,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
           queueState: "active",
           linkageStatus: "linked",
           branchName: "alpha",
+          branchMetadataSource: "prd",
           pullRequest: expect.objectContaining({
             number: 42,
             url: "https://example.com/pr/42",
@@ -171,6 +172,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
           queueState: "failed",
           linkageStatus: "linked-with-gaps",
           branchName: "beta",
+          branchMetadataSource: "prd",
           pullRequest: null,
           missingLinkageReasons: ["no open PR metadata found for branch beta"],
         }),
