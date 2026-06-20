@@ -659,6 +659,52 @@ When you add a new page with `generate:page-bundle`, the legacy
 
 This matches the post-scaffolding checklist in [README.md](../../README.md).
 
+### Critical docs smoke autodiscovery
+
+The critical-doc smoke path is metadata-driven. Contributors should treat it as
+an extension of the normal published canonical page workflow, not as a set of
+hand-maintained route lists.
+
+The shared contract in `src/lib/content/critical-docs-smoke.ts` derives smoke
+coverage from three supported inputs:
+
+1. `loadShippedLocalizedDocsPages` loads the published canonical page set.
+2. `resolvePublishedResourceTags` merges page frontmatter tags with registry
+   tags.
+3. The published-docs registry/discovery manifest remains the supported route
+   inventory for those published pages.
+
+This means a normal page addition should be picked up automatically when all of
+the following are true:
+
+- the page is a published canonical docs page that already participates in the
+  shipped published-docs workflow
+- its `kind`, `registryId`, and route are valid under `make validate-data`
+- its merged page-plus-registry tags satisfy an existing critical smoke rule
+
+Current examples:
+
+- published module pages with the merged `attention` tag enter the critical
+  attention smoke set automatically
+- published glossary pages with the merged `token-to-probability-chain` tag
+  enter the glossary smoke set automatically
+
+Do not add a bespoke smoke entry just because a new eligible page exists. A
+manual smoke update is expected only when behavior changes. Common cases are:
+
+- adding or changing a representative search probe because the reader-facing
+  discovery behavior under test changed
+- changing the critical-rule definitions in
+  `src/lib/content/critical-docs-smoke.ts`
+- adding a new export-facing route expectation or a new smoke behavior class
+  that is not covered by the existing projections
+
+Keep the ownership boundary explicit. If a docs change is correctly discovered
+by the shared contract but a built-app or GitHub Pages static-export verifier
+still fails, do not broaden the docs-authoring change into unrelated verifier
+repair unless you have reproduced a concrete customer-visible coverage gap that
+belongs to the current work item.
+
 ## Choose your path
 
 Contributors can land docs work in two ways.
