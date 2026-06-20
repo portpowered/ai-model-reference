@@ -375,7 +375,6 @@ Optional during iteration:
 make lint          # Biome check — same as bun run lint
 make typecheck     # prepare:content-runtime + fumadocs-mdx, then tsc --noEmit
 bun run prepare:content-runtime # recreate generated content runtime artifacts locally
-bun run doctor:content-pr # supported content-PR review-readiness proof
 ```
 
 `make lint` helps when you edit TypeScript, MDX components, or scripts alongside
@@ -394,6 +393,47 @@ discard those changes before rerunning; it does not attempt unrelated cleanup
 for the rest of the repository. The same preparation command also regenerates
 `src/lib/content/generated/published-docs-registry.generated.ts`, but that
 manifest stays gitignored and is therefore outside the tracked clean-tree proof.
+
+### Discovery and navigation test strategy
+
+When a docs change affects discovery surfaces such as the sidebar, browse
+indexes, tag landing pages, taxonomy pages, or search, prefer tests that track
+the runtime contract instead of freezing the entire current corpus.
+
+Use these patterns:
+
+- **Structural invariants** for stable shape rules. Example: assert that the
+  required top-level docs folders exist, that configured subgroup separators are
+  present, or that a generated page tree stays aligned with the runtime-derived
+  published-page set for one section.
+- **Representative anchors** for reader journeys. Example: assert that one or a
+  few canonical routes per behavior class appear in the sidebar, browse page,
+  tag landing, or taxonomy/search flow instead of listing every page in that
+  class.
+- **Shared discovery-contract checks** when multiple surfaces should agree about
+  the same content. Example: reuse the same representative route across
+  published-doc loading, tag-group membership, and search-document assertions so
+  one contract proves the surfaces stay aligned.
+
+Avoid broad exact inventories when the product behavior under test is
+discoverability. New published pages should usually land without unrelated edits
+to `src/lib/source.test.ts`,
+`src/lib/navigation/generated-docs-page-tree.test.ts`, tag landing tests,
+browse-index tests, or search discovery tests, as long as the new page follows
+existing grouping and discovery rules.
+
+An exact manual list is still appropriate when the list itself is the intended
+reader-visible contract. Examples include:
+
+- a fixed ordered command list documented for contributors
+- a small curated set of top-level navigation items where every entry is
+  intentionally hand-chosen
+- a deliberately limited proof set whose membership is itself the behavior under
+  review
+
+If you keep a manual list in a test, document the behavior class it protects so
+future contributors can tell that it is curated on purpose rather than acting as
+hidden whole-site inventory.
 
 For a visual pass on a published page, start the dev server after installing
 dependencies:
