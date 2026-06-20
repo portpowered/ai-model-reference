@@ -33,6 +33,18 @@ function createWorktree(
   return worktreePath;
 }
 
+function writeLaneMetadata(
+  worktreePath: string,
+  metadata: Record<string, unknown>,
+): void {
+  const metadataDir = join(worktreePath, ".claude");
+  mkdirSync(metadataDir, { recursive: true });
+  writeFileSync(
+    join(metadataDir, "lane-metadata.json"),
+    `${JSON.stringify(metadata, null, 2)}\n`,
+  );
+}
+
 function runCommandStub(
   branchesByPath: Map<string, string>,
   driftCountsByBranch: Map<string, string> = new Map(),
@@ -168,6 +180,28 @@ describe("discoverActivePrLaneReport", () => {
 
     const alphaPath = createWorktree(worktreesRoot, "alpha", "alpha");
     const betaPath = createWorktree(worktreesRoot, "beta", "beta");
+    writeLaneMetadata(alphaPath, {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: alphaPath,
+      sessionId: "sess-1",
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+    writeLaneMetadata(betaPath, {
+      schemaVersion: 1,
+      workItemName: "beta",
+      branchName: "beta",
+      branchMetadataSource: "setup",
+      worktreePath: betaPath,
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
 
     const report = discoverActivePrLaneReport({
       repoRoot,
@@ -219,10 +253,13 @@ describe("discoverActivePrLaneReport", () => {
         rawQueueState: "active",
         worktreePath: ".claude/worktrees/alpha",
         branchName: "alpha",
-        branchMetadataSource: "git",
+        workItemNameSource: "metadata",
+        branchMetadataSource: "metadata",
+        metadataStatus: "present",
         prNumber: 42,
         prUrl: undefined,
         sessionId: "sess-1",
+        sessionIdSource: "queue",
         sessionState: "running",
         driftStatus: "ahead",
         commitsAheadOfMain: 2,
@@ -240,10 +277,13 @@ describe("discoverActivePrLaneReport", () => {
         rawQueueState: "failed",
         worktreePath: ".claude/worktrees/beta",
         branchName: "beta",
-        branchMetadataSource: "git",
+        workItemNameSource: "metadata",
+        branchMetadataSource: "metadata",
+        metadataStatus: "present",
         prLookupFailureKind: "not-found",
         prLookupFailureReason: "no open PR metadata found for branch beta",
         sessionId: undefined,
+        sessionIdSource: undefined,
         sessionState: undefined,
         driftStatus: "behind",
         commitsAheadOfMain: 0,
@@ -258,8 +298,10 @@ describe("discoverActivePrLaneReport", () => {
         queueState: "active",
         rawQueueState: "active",
         sessionId: undefined,
+        sessionIdSource: undefined,
         sessionState: undefined,
         reasons: ["no matching worktree under .claude/worktrees"],
+        workItemNameSource: "queue",
       },
     ]);
 
@@ -273,6 +315,28 @@ describe("discoverActivePrLaneReport", () => {
 
     const alphaPath = createWorktree(worktreesRoot, "alpha", "alpha");
     const betaPath = createWorktree(worktreesRoot, "beta", "beta");
+    writeLaneMetadata(alphaPath, {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: alphaPath,
+      sessionId: "sess-1",
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+    writeLaneMetadata(betaPath, {
+      schemaVersion: 1,
+      workItemName: "beta",
+      branchName: "beta",
+      branchMetadataSource: "setup",
+      worktreePath: betaPath,
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
 
     const report = discoverActivePrLaneReport({
       repoRoot,
@@ -333,8 +397,11 @@ describe("discoverActivePrLaneReport", () => {
         rawQueueState: "in-review",
         worktreePath: ".claude/worktrees/alpha",
         branchName: "alpha",
-        branchMetadataSource: "git",
+        workItemNameSource: "metadata",
+        branchMetadataSource: "metadata",
+        metadataStatus: "present",
         sessionId: "sess-1",
+        sessionIdSource: "queue",
         sessionState: "running",
         mergeabilityClass: "mergeable",
         checkHealth: "passing",
@@ -346,7 +413,9 @@ describe("discoverActivePrLaneReport", () => {
         rawQueueState: "failed",
         worktreePath: ".claude/worktrees/beta",
         branchName: "beta",
-        branchMetadataSource: "git",
+        workItemNameSource: "metadata",
+        branchMetadataSource: "metadata",
+        metadataStatus: "present",
         prLookupFailureKind: "not-found",
         prLookupFailureReason: "no open PR metadata found for branch beta",
       }),
@@ -365,6 +434,9 @@ describe("discoverActivePrLaneReport", () => {
           queueState: "active",
           rawQueueState: "active",
           branchName: "alpha",
+          workItemNameSource: "metadata",
+          branchMetadataSource: "metadata",
+          metadataStatus: "present",
           worktreePath: ".claude/worktrees/alpha",
           prNumber: 42,
           driftStatus: "diverged",
@@ -382,6 +454,7 @@ describe("discoverActivePrLaneReport", () => {
           queueState: "failed",
           rawQueueState: "failed",
           branchName: "beta",
+          workItemNameSource: "queue",
           worktreePath: ".claude/worktrees/beta",
           driftStatus: "unknown",
           reasons: ["no open PR metadata found for branch beta"],
@@ -392,7 +465,7 @@ describe("discoverActivePrLaneReport", () => {
     expect(reportText).toContain("Active PR Mergeability Watchdog");
     expect(reportText).toContain("lanes=2 pr-backed=1 unclassified=1");
     expect(reportText).toContain(
-      "- status=pr-backed queue=active work-item=alpha branch=alpha worktree=.claude/worktrees/alpha pr=#42 drift=diverged(ahead=2,behind=1) mergeability=conflicting checks=failing risk=conflict-drift next-action=refresh-branch",
+      "- status=pr-backed queue=active work-item=alpha work-item-source=metadata branch=alpha branch-source=metadata worktree=.claude/worktrees/alpha pr=#42 drift=diverged(ahead=2,behind=1) metadata=present mergeability=conflicting checks=failing risk=conflict-drift next-action=refresh-branch",
     );
     expect(reportText).toContain(
       "pr=? drift=unknown reason=no open PR metadata found for branch beta",
@@ -401,14 +474,34 @@ describe("discoverActivePrLaneReport", () => {
 });
 
 describe("story 002 classification helpers", () => {
-  test("prefers live git branch metadata and falls back to prd branch metadata", () => {
+  test("prefers stamped metadata before git and prd fallback metadata", () => {
     const repoRoot = mkdtempSync(join(tmpdir(), "worktree-branch-resolution-"));
     const worktreesRoot = join(repoRoot, ".claude", "worktrees");
     mkdirSync(worktreesRoot, { recursive: true });
 
     const gitBackedPath = createWorktree(worktreesRoot, "alpha", "alpha-prd");
-    createWorktree(worktreesRoot, "beta", "beta-prd");
+    const betaPath = createWorktree(worktreesRoot, "beta", "beta-prd");
     createWorktree(worktreesRoot, "gamma");
+    writeLaneMetadata(gitBackedPath, {
+      schemaVersion: 1,
+      workItemName: "alpha-lane",
+      branchName: "alpha-metadata",
+      branchMetadataSource: "setup",
+      worktreePath: gitBackedPath,
+      sessionId: "sess-1",
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+    writeLaneMetadata(betaPath, {
+      schemaVersion: 1,
+      workItemName: "beta",
+      worktreePath: betaPath,
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
 
     const records = discoverWorktreeLaneRecords(
       worktreesRoot,
@@ -421,26 +514,49 @@ describe("story 002 classification helpers", () => {
       {
         worktreeName: "alpha",
         worktreePath: gitBackedPath,
-        branchName: "alpha-git",
-        branchMetadataSource: "git",
+        workItemName: "alpha-lane",
+        workItemNameSource: "metadata",
+        branchName: "alpha-metadata",
+        branchMetadataSource: "metadata",
         gitBranchName: "alpha-git",
         prdBranchName: "alpha-prd",
+        metadataStatus: "conflicting",
+        metadataIssues: [
+          "stamped work item alpha-lane does not match worktree directory alpha",
+          "stamped branch alpha-metadata disagrees with git branch alpha-git",
+          "stamped branch alpha-metadata disagrees with prd branch alpha-prd",
+        ],
+        metadataSessionId: "sess-1",
       },
       {
         worktreeName: "beta",
-        worktreePath: join(worktreesRoot, "beta"),
+        worktreePath: betaPath,
+        workItemName: "beta",
+        workItemNameSource: "metadata",
         branchName: "beta-prd",
         branchMetadataSource: "prd",
         gitBranchName: undefined,
         prdBranchName: "beta-prd",
+        metadataStatus: "incomplete",
+        metadataIssues: [
+          "stamped lane metadata is incomplete: missing branch name",
+        ],
+        metadataSessionId: null,
       },
       {
         worktreeName: "gamma",
         worktreePath: join(worktreesRoot, "gamma"),
+        workItemName: "gamma",
+        workItemNameSource: "directory",
         branchName: undefined,
         branchMetadataSource: undefined,
         gitBranchName: undefined,
         prdBranchName: undefined,
+        metadataStatus: "missing",
+        metadataIssues: [
+          "stamped lane metadata missing; fell back to worktree heuristics",
+        ],
+        metadataSessionId: undefined,
       },
     ]);
 
@@ -564,6 +680,17 @@ describe("story 002 classification helpers", () => {
     mkdirSync(worktreesRoot, { recursive: true });
 
     const alphaPath = createWorktree(worktreesRoot, "alpha", "alpha");
+    writeLaneMetadata(alphaPath, {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: alphaPath,
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
 
     const report = discoverActivePrLaneReport({
       repoRoot,
@@ -587,10 +714,13 @@ describe("story 002 classification helpers", () => {
         rawQueueState: "active",
         worktreePath: ".claude/worktrees/alpha",
         branchName: "alpha",
-        branchMetadataSource: "git",
+        workItemNameSource: "metadata",
+        branchMetadataSource: "metadata",
+        metadataStatus: "present",
         prLookupFailureKind: "auth",
         prLookupFailureReason: "gh auth token is expired",
         sessionId: undefined,
+        sessionIdSource: undefined,
         sessionState: undefined,
         driftStatus: "unknown",
         commitsAheadOfMain: undefined,
@@ -612,6 +742,17 @@ describe("story 002 classification helpers", () => {
     mkdirSync(worktreesRoot, { recursive: true });
 
     const alphaPath = createWorktree(worktreesRoot, "alpha", "alpha-prd");
+    writeLaneMetadata(alphaPath, {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha-meta",
+      branchMetadataSource: "setup",
+      worktreePath: alphaPath,
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
 
     const report = discoverActivePrLaneReport({
       repoRoot,
@@ -637,18 +778,23 @@ describe("story 002 classification helpers", () => {
         queueState: "active",
         rawQueueState: "active",
         worktreePath: ".claude/worktrees/alpha",
-        branchName: "alpha-git",
-        branchMetadataSource: "git",
+        branchName: "alpha-meta",
+        workItemNameSource: "metadata",
+        branchMetadataSource: "metadata",
+        metadataStatus: "conflicting",
         prLookupFailureKind: "not-found",
         prLookupFailureReason: "no open PR metadata found for branch alpha-git",
         sessionId: undefined,
+        sessionIdSource: undefined,
         sessionState: undefined,
-        driftStatus: "up-to-date",
-        commitsAheadOfMain: 0,
-        commitsBehindMain: 0,
+        driftStatus: "unknown",
+        commitsAheadOfMain: undefined,
+        commitsBehindMain: undefined,
         queueMismatchRisk: undefined,
         nextAction: undefined,
         reasons: [
+          "stamped branch alpha-meta disagrees with git branch alpha-git",
+          "stamped branch alpha-meta disagrees with prd branch alpha-prd",
           "git branch alpha-git disagrees with prd branch alpha-prd",
           "no open PR metadata found for branch alpha-git",
         ],

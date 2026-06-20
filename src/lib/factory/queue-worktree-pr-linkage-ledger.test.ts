@@ -86,8 +86,10 @@ describe("queue-worktree-pr-linkage-ledger", () => {
           queueState: "active",
           rawQueueState: "active",
           worktreePath: ".claude/worktrees/alpha",
+          workItemNameSource: "metadata",
           branchName: "alpha-git",
-          branchMetadataSource: "git",
+          branchMetadataSource: "metadata",
+          metadataStatus: "conflicting",
           driftStatus: "up-to-date",
           commitsAheadOfMain: 0,
           commitsBehindMain: 0,
@@ -106,7 +108,9 @@ describe("queue-worktree-pr-linkage-ledger", () => {
       expect.objectContaining({
         laneName: "alpha",
         branchName: "alpha-git",
-        branchMetadataSource: "git",
+        workItemNameSource: "metadata",
+        branchMetadataSource: "metadata",
+        metadataStatus: "conflicting",
         linkageStatus: "linked-with-gaps",
         pullRequestLookup: {
           status: "missing",
@@ -121,7 +125,7 @@ describe("queue-worktree-pr-linkage-ledger", () => {
     ]);
 
     expect(formatQueueWorktreePrLinkageSummary(ledger)).toContain(
-      "branch=alpha-git branch-source=git",
+      "work-item-source=metadata branch=alpha-git branch-source=metadata metadata=conflicting",
     );
     expect(formatQueueWorktreePrLinkageSummary(ledger)).toContain(
       "pr-status=missing",

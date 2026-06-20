@@ -183,7 +183,7 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
     };
 
     expect(metadata.branchName).toBe("alpha");
-    expect(metadata.branchMetadataSource).toBe("prd");
+    expect(metadata.branchMetadataSource).toBe("setup");
     expect(metadata.pullRequest).toEqual({
       number: 42,
       url: "https://example.com/pr/42",
@@ -206,6 +206,26 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
 
     createWorktree(worktreesRoot, "alpha", "alpha");
     createWorktree(worktreesRoot, "beta", "beta");
+    writeLaneMetadata(worktreesRoot, "alpha", {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "alpha"),
+      sessionId: "sess-1",
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+    writeLaneMetadata(worktreesRoot, "beta", {
+      schemaVersion: 1,
+      workItemName: "beta",
+      worktreePath: join(worktreesRoot, "beta"),
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
 
     writeFileSync(
       workListPath,
@@ -269,11 +289,13 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
     expect(result.stdout).toContain("lane=alpha");
     expect(result.stdout).toContain("queue=active");
     expect(result.stdout).toContain("pr=#42");
+    expect(result.stdout).toContain("branch-source=metadata");
     expect(result.stdout).toContain("lane=beta");
     expect(result.stdout).toContain("queue=failed");
     expect(result.stdout).toContain("linkage=linked-with-gaps");
+    expect(result.stdout).toContain("metadata=incomplete");
     expect(result.stdout).toContain(
-      "missing=no open PR metadata found for branch beta",
+      "missing=stamped lane metadata is incomplete: missing branch name; no open PR metadata found for branch beta",
     );
 
     rmSync(dir, { recursive: true, force: true });
@@ -288,6 +310,17 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
     mkdirSync(worktreesRoot, { recursive: true });
 
     createWorktree(worktreesRoot, "alpha", "alpha");
+    writeLaneMetadata(worktreesRoot, "alpha", {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "alpha"),
+      sessionId: "sess-1",
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
 
     writeFileSync(
       workListPath,
@@ -343,6 +376,8 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
     expect(result.stdout).toContain("pr=#42");
     expect(result.stdout).toContain("pr-status=resolved");
     expect(result.stdout).toContain("pr-url=https://example.com/pr/42");
+    expect(result.stdout).toContain("work-item-source=metadata");
+    expect(result.stdout).toContain("metadata=present");
     expect(result.stdout).toContain("lane=beta");
     expect(result.stdout).toContain("pr-status=missing");
     expect(result.stdout).toContain(
@@ -363,6 +398,26 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
 
     createWorktree(worktreesRoot, "alpha", "alpha");
     createWorktree(worktreesRoot, "beta", "beta");
+    writeLaneMetadata(worktreesRoot, "alpha", {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "alpha"),
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+    writeLaneMetadata(worktreesRoot, "beta", {
+      schemaVersion: 1,
+      workItemName: "beta",
+      worktreePath: join(worktreesRoot, "beta"),
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
 
     writeFileSync(
       workListPath,
@@ -424,7 +479,9 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
           queueState: "active",
           linkageStatus: "linked",
           branchName: "alpha",
-          branchMetadataSource: "prd",
+          workItemNameSource: "metadata",
+          branchMetadataSource: "metadata",
+          metadataStatus: "present",
           pullRequest: expect.objectContaining({
             number: 42,
             url: "https://example.com/pr/42",
@@ -439,14 +496,19 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
           queueState: "failed",
           linkageStatus: "linked-with-gaps",
           branchName: "beta",
+          workItemNameSource: "metadata",
           branchMetadataSource: "prd",
+          metadataStatus: "incomplete",
           pullRequest: null,
           pullRequestLookup: {
             status: "missing",
             failureKind: "not-found",
             failureReason: "no open PR metadata found for branch beta",
           },
-          missingLinkageReasons: ["no open PR metadata found for branch beta"],
+          missingLinkageReasons: [
+            "stamped lane metadata is incomplete: missing branch name",
+            "no open PR metadata found for branch beta",
+          ],
         }),
       ]),
     );

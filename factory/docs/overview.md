@@ -56,7 +56,9 @@ Workspace setup also stamps canonical planner lane metadata at
 `.claude/worktrees/<work-item-name>/.claude/lane-metadata.json`.
 Planner linkage reporting can refresh mutable branch and PR linkage inside that
 record later with `bun ./scripts/report-queue-worktree-pr-linkage-ledger.ts --refresh-metadata`
-without recreating the worktree.
+without recreating the worktree. Planner linkage discovery now reads that
+stamped record first for local lane identity and reports explicit metadata gaps
+before falling back to `git` or `prd.json` heuristics.
 
 ## Batch Submission
 

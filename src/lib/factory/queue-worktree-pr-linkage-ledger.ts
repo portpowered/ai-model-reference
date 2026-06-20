@@ -29,12 +29,15 @@ export interface QueueWorktreePrLinkageLane {
   rawQueueState: string;
   linkageStatus: QueueWorktreePrLinkageStatus;
   worktreePath?: string;
+  workItemNameSource?: "metadata" | "directory" | "queue";
   branchName?: string;
-  branchMetadataSource?: "git" | "prd";
+  branchMetadataSource?: "metadata" | "git" | "prd";
+  metadataStatus?: "present" | "missing" | "incomplete" | "conflicting";
   pullRequest: QueueWorktreePrIdentity | null;
   pullRequestLookup: QueueWorktreePrLookup;
   missingLinkageReasons: string[];
   sessionId?: string;
+  sessionIdSource?: "queue" | "session" | "metadata";
   sessionState?: string;
   driftStatus?: LaneDiscoveryRecord["driftStatus"];
   commitsAheadOfMain?: number;
@@ -66,8 +69,10 @@ function mapLaneRecord(lane: LaneDiscoveryRecord): QueueWorktreePrLinkageLane {
     linkageStatus:
       missingLinkageReasons.length > 0 ? "linked-with-gaps" : "linked",
     worktreePath: lane.worktreePath,
+    workItemNameSource: lane.workItemNameSource,
     branchName: lane.branchName,
     branchMetadataSource: lane.branchMetadataSource,
+    metadataStatus: lane.metadataStatus,
     pullRequest:
       typeof lane.prNumber === "number"
         ? {
@@ -85,6 +90,7 @@ function mapLaneRecord(lane: LaneDiscoveryRecord): QueueWorktreePrLinkageLane {
           },
     missingLinkageReasons,
     sessionId: lane.sessionId,
+    sessionIdSource: lane.sessionIdSource,
     sessionState: lane.sessionState,
     driftStatus: lane.driftStatus,
     commitsAheadOfMain: lane.commitsAheadOfMain,
@@ -167,8 +173,10 @@ export function formatQueueWorktreePrLinkageSummary(
       `lane=${lane.laneName}`,
       `queue=${lane.queueState}`,
       `linkage=${lane.linkageStatus}`,
+      `work-item-source=${lane.workItemNameSource ?? "queue"}`,
       `branch=${lane.branchName ?? "?"}`,
       `branch-source=${lane.branchMetadataSource ?? "?"}`,
+      `metadata=${lane.metadataStatus ?? "?"}`,
       `worktree=${lane.worktreePath ?? "?"}`,
       `pr=${lane.pullRequest ? `#${lane.pullRequest.number}` : "?"}`,
       `pr-status=${lane.pullRequestLookup.status}`,
@@ -181,6 +189,7 @@ export function formatQueueWorktreePrLinkageSummary(
 
     if (lane.sessionId) {
       details.push(`session=${lane.sessionId}`);
+      details.push(`session-source=${lane.sessionIdSource ?? "?"}`);
     }
     if (lane.sessionState) {
       details.push(`session-state=${lane.sessionState}`);
