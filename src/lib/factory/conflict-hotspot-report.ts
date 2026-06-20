@@ -428,6 +428,58 @@ function formatRankedSurfaceLine(surface: ConflictHotspotSurface): string {
   return `- ${surface.surface} [${formatSurfaceCategory(surface.category)}] (${formatCount(surface.touches, "touch")} across ${formatCount(surface.distinctPaths, "path")}; examples: ${surface.representativePaths.join(", ")})`;
 }
 
+function formatDispatchRecommendationLine(
+  surface: ConflictHotspotSurface,
+  action: "hold" | "prefer",
+): string {
+  const actionLabel = action === "hold" ? "Hold" : "Prefer";
+  return `- ${actionLabel} lanes around ${surface.surface} [${formatSurfaceCategory(surface.category)}] (${formatCount(surface.touches, "touch")}).`;
+}
+
+function formatDispatchGuidance(
+  snapshot: ConflictHotspotSnapshot,
+): readonly string[] {
+  const authoredSurfaces = snapshot.rankedSurfaces.filter(
+    (surface) => surface.category === "authored-content",
+  );
+  const sharedHotspot = snapshot.rankedSurfaces.find(
+    (surface) => surface.category !== "authored-content",
+  );
+
+  if (snapshot.rankedSurfaces.length < 2) {
+    return [
+      "- Evidence is insufficient for a strong dispatch recommendation because the sample only produced one hotspot surface.",
+    ];
+  }
+
+  if (!sharedHotspot) {
+    return [
+      "- Evidence is insufficient for a strong dispatch recommendation because the sample did not surface any shared helper, registry, generated, or verification hotspot to hold against.",
+    ];
+  }
+
+  const lowerCollisionAuthoredSurface = [...authoredSurfaces]
+    .filter((surface) => surface.touches < sharedHotspot.touches)
+    .sort((left, right) => {
+      if (left.touches !== right.touches) {
+        return left.touches - right.touches;
+      }
+      return left.surface.localeCompare(right.surface);
+    })[0];
+
+  if (lowerCollisionAuthoredSurface) {
+    return [
+      formatDispatchRecommendationLine(sharedHotspot, "hold"),
+      `- Prefer authored lanes around ${lowerCollisionAuthoredSurface.surface} [${formatSurfaceCategory(lowerCollisionAuthoredSurface.category)}] (${formatCount(lowerCollisionAuthoredSurface.touches, "touch")}) while ${sharedHotspot.surface} stays hotter in the same sample.`,
+    ];
+  }
+
+  return [
+    `- Evidence is insufficient for a lower-collision authored recommendation because every authored surface in the sample is at least as hot as ${sharedHotspot.surface} [${formatSurfaceCategory(sharedHotspot.category)}] (${formatCount(sharedHotspot.touches, "touch")}).`,
+    formatDispatchRecommendationLine(sharedHotspot, "hold"),
+  ];
+}
+
 export function formatConflictHotspotSnapshot(
   snapshot: ConflictHotspotSnapshot,
 ): string {
@@ -526,6 +578,11 @@ export function formatConflictHotspotSnapshot(
   lines.push("", "Recent shared-path sample");
   for (const hotspot of snapshot.topPaths) {
     lines.push(`- ${hotspot.path} (${hotspot.touches} touches)`);
+  }
+
+  lines.push("", "Safe next-lanes dispatch hint");
+  for (const line of formatDispatchGuidance(snapshot)) {
+    lines.push(line);
   }
 
   return lines.join("\n");

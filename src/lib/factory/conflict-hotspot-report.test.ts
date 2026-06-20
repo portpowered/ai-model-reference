@@ -69,6 +69,13 @@ describe("formatConflictHotspotSnapshot", () => {
           touches: 3,
         },
         {
+          category: "authored-content",
+          distinctPaths: 1,
+          representativePaths: ["src/content/docs/modules/gelu/page.mdx"],
+          surface: "src/content/docs",
+          touches: 2,
+        },
+        {
           category: "shared-test",
           distinctPaths: 1,
           representativePaths: ["src/tests/ci/planner-hotspots.test.ts"],
@@ -107,6 +114,13 @@ describe("formatConflictHotspotSnapshot", () => {
       "src/tests/ci [shared test/verification] (2 touches across 1 path; examples: src/tests/ci/planner-hotspots.test.ts)",
     );
     expect(report).toContain("docs/guide.md (4 touches)");
+    expect(report).toContain("Safe next-lanes dispatch hint");
+    expect(report).toContain(
+      "Hold lanes around src/generated/search-index.json [generated artifact/runtime churn] (3 touches).",
+    );
+    expect(report).toContain(
+      "Prefer authored lanes around src/content/docs [authored content] (2 touches) while src/generated/search-index.json stays hotter in the same sample.",
+    );
   });
 
   test("explicitly says when generated churn and test-helper hotspots are absent", () => {
@@ -131,6 +145,10 @@ describe("formatConflictHotspotSnapshot", () => {
     expect(report).toContain("High-collision test and verification surfaces");
     expect(report).toContain("Shared helper and registry surfaces");
     expect(report).toContain("- None in the sampled evidence.");
+    expect(report).toContain("Safe next-lanes dispatch hint");
+    expect(report).toContain(
+      "Evidence is insufficient for a strong dispatch recommendation because the sample only produced one hotspot surface.",
+    );
   });
 });
 

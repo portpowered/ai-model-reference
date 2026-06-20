@@ -122,6 +122,13 @@ describe("report-planner-conflict-hotspots script", () => {
       );
       expect(result.stdout ?? "").toContain("docs/guide.md (2 touches)");
       expect(result.stdout ?? "").toContain("main (clean)");
+      expect(result.stdout ?? "").toContain("Safe next-lanes dispatch hint");
+      expect(result.stdout ?? "").toContain(
+        "Hold lanes around src/generated/search-index.json [generated artifact/runtime churn] (2 touches).",
+      );
+      expect(result.stdout ?? "").toContain(
+        "Prefer authored lanes around src/content/page.mdx [authored content] (1 touch) while src/generated/search-index.json stays hotter in the same sample.",
+      );
     } finally {
       rmSync(repoRoot, { recursive: true, force: true });
     }
