@@ -6,6 +6,7 @@ import { PageMessagesProvider } from "@/features/docs/components/page-messages-c
 import {
   RELU_GLOSSARY_PAGE_DIR,
   SIGMOID_GLOSSARY_PAGE_DIR,
+  TANH_GLOSSARY_PAGE_DIR,
 } from "@/lib/content/content-paths";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
@@ -18,6 +19,12 @@ const reluMessages = pageMessagesSchema.parse(
 const sigmoidMessages = pageMessagesSchema.parse(
   JSON.parse(
     readFileSync(join(SIGMOID_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
+  ),
+);
+
+const tanhMessages = pageMessagesSchema.parse(
+  JSON.parse(
+    readFileSync(join(TANH_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
   ),
 );
 
@@ -79,6 +86,34 @@ describe("ActivationFunctionChart", () => {
     expect(container.querySelector(".line-graph__line--relu")).toBeNull();
     expect(container.textContent).toContain("Activation Curves");
     expect(container.textContent).toContain("Sigmoid");
+  });
+
+  test("renders only the tanh curve on the tanh intro chart", async () => {
+    const { ActivationFunctionChart } = await import(
+      "@/features/models/components/ActivationFunctionChart"
+    );
+
+    const { container } = render(
+      <PageMessagesProvider messages={tanhMessages} isDev={false}>
+        <ActivationFunctionChart
+          assetId="computeFlow"
+          chartId="chart.activation-family.tanh-intro"
+          alt={tanhMessages.assets?.computeFlow?.alt}
+          caption={tanhMessages.assets?.computeFlow?.caption}
+        />
+      </PageMessagesProvider>,
+    );
+
+    expect(
+      container.querySelector(
+        '[data-chart-id="chart.activation-family.tanh-intro"]',
+      ),
+    ).toBeTruthy();
+    expect(container.querySelectorAll(".recharts-line-curve").length).toBe(1);
+    expect(container.querySelector(".line-graph__line--tanh")).toBeTruthy();
+    expect(container.querySelector(".line-graph__line--sigmoid")).toBeNull();
+    expect(container.textContent).toContain("Activation Curves");
+    expect(container.textContent).toContain("Tanh");
   });
 
   test("renders the ReLU hidden-state heatmap shell", async () => {

@@ -100,6 +100,7 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/sigmoid",
   "/docs/modules/silu",
   "/docs/modules/sinusoidal-positional-embeddings",
+  "/docs/modules/tanh",
   "/docs/modules/sliding-window-attention",
   "/docs/modules/sparse-attention",
   "/docs/modules/standard-ffn",

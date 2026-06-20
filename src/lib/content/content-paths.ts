@@ -259,6 +259,9 @@ export const SILU_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "silu");
 /** Phase 3 sigmoid activation glossary page directory. */
 export const SIGMOID_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "sigmoid");
 
+/** Phase 3 tanh activation glossary page directory. */
+export const TANH_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "tanh");
+
 /** Phase 3 SwiGLU glossary page directory. */
 export const SWIGLU_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "swiglu");
 

@@ -899,6 +899,14 @@ export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
     section: "modules",
   },
   {
+    registryId: "module.tanh",
+    slug: "tanh",
+    docsSlug: "modules/tanh",
+    url: "/docs/modules/tanh",
+    pageKind: "module",
+    section: "modules",
+  },
+  {
     registryId: "module.manifold-constrained-hyper-connections",
     slug: "manifold-constrained-hyper-connections",
     docsSlug: "modules/manifold-constrained-hyper-connections",
@@ -1106,6 +1114,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "concept.superhot-rope",
   "concept.swiglu",
   "concept.t5-relative-position-bias",
+  "concept.tanh",
   "concept.temperature",
   "concept.tensor",
   "concept.token",
@@ -1164,6 +1173,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "module.superhot-rope",
   "module.swiglu",
   "module.t5-relative-position-bias",
+  "module.tanh",
   "module.yarn",
   "paper.deepseek-v4",
   "system.expert-parallel-overlap",
@@ -1219,5 +1229,6 @@ export const GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS = [
   "concept.superhot-rope",
   "concept.swiglu",
   "concept.t5-relative-position-bias",
+  "concept.tanh",
   "concept.yarn",
 ] as const;

@@ -24,6 +24,7 @@ import slidingWindowAttentionComparisonTableRecord from "@/content/registry/tabl
 import sparseAttentionComparisonTableRecord from "@/content/registry/tables/sparse-attention-comparison.json";
 import standardFfnComparisonTableRecord from "@/content/registry/tables/standard-ffn-comparison.json";
 import swigluComparisonTableRecord from "@/content/registry/tables/swiglu-comparison.json";
+import tanhComparisonTableRecord from "@/content/registry/tables/tanh-comparison.json";
 
 export const generatedTableRegistrySourceFiles = [
   "batch-norm-comparison.json",
@@ -49,6 +50,7 @@ export const generatedTableRegistrySourceFiles = [
   "sparse-attention-comparison.json",
   "standard-ffn-comparison.json",
   "swiglu-comparison.json",
+  "tanh-comparison.json",
 ] as const;
 
 export const generatedTableRegistryPayloads = [
@@ -75,4 +77,5 @@ export const generatedTableRegistryPayloads = [
   sparseAttentionComparisonTableRecord,
   standardFfnComparisonTableRecord,
   swigluComparisonTableRecord,
+  tanhComparisonTableRecord,
 ] as const;

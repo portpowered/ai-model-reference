@@ -10,6 +10,7 @@ import {
   SIGMOID_GLOSSARY_PAGE_DIR,
   SILU_GLOSSARY_PAGE_DIR,
   SWIGLU_GLOSSARY_PAGE_DIR,
+  TANH_GLOSSARY_PAGE_DIR,
 } from "@/lib/content/content-paths";
 import { expectHtmlToContainProse } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
@@ -54,6 +55,35 @@ const PAGE_CASES = [
     searchQuery: "sigmoid",
     searchQueries: ["sigmoid", "logistic activation", "activation"],
     searchUrl: "/docs/modules/sigmoid",
+  },
+  {
+    slug: "tanh",
+    registryId: "concept.tanh",
+    title: "Hyperbolic Tangent Activation",
+    pageDir: TANH_GLOSSARY_PAGE_DIR,
+    pageKind: "module",
+    usesModuleTemplate: true,
+    expectedTags: ["activation", "foundations"],
+    aliases: ["tanh", "hyperbolic tangent", "tanh activation"],
+    relatedIds: [
+      "concept.activation",
+      "concept.feed-forward-network",
+      "concept.standard-ffn",
+      "concept.sigmoid",
+      "concept.relu",
+    ],
+    hrefs: [
+      "/docs/glossary/activation",
+      "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/sigmoid",
+      "/docs/modules/relu",
+    ],
+    messageNeedles: ["centered", "saturat", "-1 and 1"],
+    renderNeedle: "centered range lets a hidden value",
+    searchQuery: "tanh",
+    searchQueries: ["tanh", "hyperbolic tangent", "activation"],
+    searchUrl: "/docs/modules/tanh",
   },
   {
     slug: "relu",

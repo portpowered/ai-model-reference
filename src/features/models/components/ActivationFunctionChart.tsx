@@ -8,7 +8,13 @@ import { lookupMessage } from "@/lib/content/messages";
 
 const LEAKY_RELU_ALPHA = 0.1;
 
-const ACTIVATION_VARIANTS = ["sigmoid", "relu", "leakyRelu", "silu"] as const;
+const ACTIVATION_VARIANTS = [
+  "sigmoid",
+  "tanh",
+  "relu",
+  "leakyRelu",
+  "silu",
+] as const;
 
 type ActivationVariant = (typeof ACTIVATION_VARIANTS)[number];
 
@@ -45,6 +51,10 @@ const ACTIVATION_SERIES: Record<ActivationVariant, ActivationSeriesDefinition> =
     sigmoid: {
       evaluate: (x) => 1 / (1 + Math.exp(-x)),
       color: "var(--primary)",
+    },
+    tanh: {
+      evaluate: (x) => Math.tanh(x),
+      color: "var(--accent)",
     },
     relu: {
       evaluate: (x) => Math.max(0, x),
@@ -87,6 +97,14 @@ const ACTIVATION_CHARTS: Record<string, ActivationChartDefinition> = {
       ticks: [0, 0.5, 1],
     },
   },
+  "chart.activation-family.tanh-intro": {
+    kind: "line",
+    variants: ["tanh"],
+    yAxis: {
+      domain: [-1, 1],
+      ticks: [-1, 0, 1],
+    },
+  },
   "chart.activation-family.relu-intro": {
     kind: "line",
     variants: ["relu"],
@@ -114,6 +132,10 @@ const ACTIVATION_DATA = sampleLineGraphFunctions({
     {
       dataKey: "sigmoid",
       evaluate: (x: number) => ACTIVATION_SERIES.sigmoid.evaluate(x),
+    },
+    {
+      dataKey: "tanh",
+      evaluate: (x: number) => ACTIVATION_SERIES.tanh.evaluate(x),
     },
     {
       dataKey: "relu",
@@ -164,6 +186,10 @@ function resolveVariantLabel(
 
   if (variantId === "silu") {
     return "SiLU";
+  }
+
+  if (variantId === "tanh") {
+    return "Tanh";
   }
 
   return variantId === "sigmoid" ? "Sigmoid" : "ReLU";

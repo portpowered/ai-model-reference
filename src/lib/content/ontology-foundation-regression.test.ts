@@ -26,6 +26,7 @@ type OntologySeedRecord = Extract<
 const seededPrimaryClassifications = new Map([
   ["concept.activation", "classification.activation-functions"],
   ["module.sigmoid", "classification.activation-functions"],
+  ["module.tanh", "classification.activation-functions"],
   ["module.relu", "classification.activation-functions"],
   ["module.leaky-relu", "classification.activation-functions"],
   ["module.silu", "classification.activation-functions"],
@@ -37,6 +38,7 @@ const seededPrimaryClassifications = new Map([
 const seededPublishedRoutes = new Map([
   ["concept.activation", "/docs/glossary/activation"],
   ["module.sigmoid", "/docs/modules/sigmoid"],
+  ["module.tanh", "/docs/modules/tanh"],
   ["module.relu", "/docs/modules/relu"],
   ["module.leaky-relu", "/docs/modules/leaky-relu"],
   ["module.silu", "/docs/modules/silu"],
@@ -118,6 +120,9 @@ describe("ontology foundation regression coverage", () => {
     expect(getPrimaryClassificationForRecord("module.sigmoid")?.id).toBe(
       "classification.activation-functions",
     );
+    expect(getPrimaryClassificationForRecord("module.tanh")?.id).toBe(
+      "classification.activation-functions",
+    );
     expect(getPrimaryClassificationForRecord("module.relu")?.id).toBe(
       "classification.activation-functions",
     );
@@ -133,6 +138,7 @@ describe("ontology foundation regression coverage", () => {
       expect.arrayContaining([
         "primary:concept.activation",
         "primary:module.sigmoid",
+        "primary:module.tanh",
         "primary:module.relu",
         "primary:module.leaky-relu",
         "primary:module.silu",
@@ -145,6 +151,7 @@ describe("ontology foundation regression coverage", () => {
     ).toEqual(
       expect.arrayContaining([
         "secondary:module.sigmoid",
+        "secondary:module.tanh",
         "primary:module.feed-forward-network",
         "primary:module.standard-ffn",
         "primary:module.swiglu",
@@ -158,6 +165,11 @@ describe("ontology foundation regression coverage", () => {
     ).toEqual(["concept.activation"]);
     expect(
       listOntologyRelationshipsForRecord("module.sigmoid", "used-by").map(
+        (relationship) => relationship.target?.id,
+      ),
+    ).toEqual(["module.standard-ffn"]);
+    expect(
+      listOntologyRelationshipsForRecord("module.tanh", "used-by").map(
         (relationship) => relationship.target?.id,
       ),
     ).toEqual(["module.standard-ffn"]);
@@ -186,17 +198,19 @@ describe("ontology foundation regression coverage", () => {
 
     const relu = getRegistryRecordById("module.relu");
     const sigmoid = getRegistryRecordById("module.sigmoid");
+    const tanh = getRegistryRecordById("module.tanh");
     const swiglu = getRegistryRecordById("module.swiglu");
     const activation = getRegistryRecordById("concept.activation");
     expect(relu?.tags).toEqual(["activation", "foundations"]);
     expect(sigmoid?.tags).toEqual(["activation", "foundations"]);
+    expect(tanh?.tags).toEqual(["activation", "foundations"]);
     expect(swiglu?.tags).toEqual(["feed-forward", "foundations"]);
     expect(activation?.tags).toEqual([
       "token-to-probability-chain",
       "foundations",
     ]);
 
-    if (!relu || !sigmoid || !swiglu) {
+    if (!relu || !sigmoid || !tanh || !swiglu) {
       throw new Error("Expected seeded runtime records for curated links");
     }
 
@@ -226,6 +240,21 @@ describe("ontology foundation regression coverage", () => {
         "/docs/modules/standard-ffn",
         "/docs/modules/relu",
         "/docs/modules/silu",
+      ]),
+    );
+    expect(
+      deriveCuratedRelatedItems(
+        tanh,
+        listRelatedRegistryRecords(),
+        PUBLISHED_DOCS_REGISTRY_IDS,
+      ).map((item) => item.href),
+    ).toEqual(
+      expect.arrayContaining([
+        "/docs/glossary/activation",
+        "/docs/modules/feed-forward-network",
+        "/docs/modules/standard-ffn",
+        "/docs/modules/sigmoid",
+        "/docs/modules/relu",
       ]),
     );
     expect(
