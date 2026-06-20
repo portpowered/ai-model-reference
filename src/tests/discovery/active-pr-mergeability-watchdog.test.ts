@@ -417,6 +417,108 @@ describe("active-pr-mergeability-watchdog script", () => {
     expect(result.stdout).toContain("next-action=repair-token");
     expect(result.stdout).toContain("reason=gh auth token is expired");
 
+    const alphaIndex = result.stdout.indexOf("work-item=alpha");
+    const betaIndex = result.stdout.indexOf("work-item=beta");
+    const gammaIndex = result.stdout.indexOf("work-item=gamma");
+    expect(alphaIndex).toBeGreaterThanOrEqual(0);
+    expect(betaIndex).toBeGreaterThan(alphaIndex);
+    expect(gammaIndex).toBeGreaterThan(betaIndex);
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("surfaces actionable PR-backed lanes before queue-only linkage noise", () => {
+    const dir = mkdtempSync(join(tmpdir(), "active-pr-watchdog-script-"));
+    const workListPath = join(dir, "work-list.json");
+    const sessionListPath = join(dir, "session-list.json");
+    const prMapPath = join(dir, "pr-map.json");
+    const worktreesRoot = join(dir, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    createWorktree(worktreesRoot, "alpha", "alpha");
+    createWorktree(worktreesRoot, "beta", "beta");
+    createWorktree(worktreesRoot, "gamma", "gamma");
+    writeLaneMetadata(worktreesRoot, "alpha", {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "alpha"),
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+    writeLaneMetadata(worktreesRoot, "beta", {
+      schemaVersion: 1,
+      workItemName: "beta",
+      branchName: "beta",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "beta"),
+      sessionId: null,
+      pullRequest: null,
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+    });
+
+    writeFileSync(
+      workListPath,
+      JSON.stringify({
+        items: [
+          { name: "gamma", state: "failed" },
+          { name: "beta", state: "active" },
+          { name: "alpha", state: "active" },
+        ],
+      }),
+    );
+    writeFileSync(sessionListPath, JSON.stringify({ sessions: [] }));
+    writeFileSync(
+      prMapPath,
+      JSON.stringify({
+        alpha: {
+          number: 42,
+          headRefName: "alpha",
+          mergeStateStatus: "DIRTY",
+          statusCheckRollup: [{ conclusion: "SUCCESS" }],
+        },
+        beta: {
+          number: 43,
+          headRefName: "beta",
+          mergeStateStatus: "BLOCKED",
+          statusCheckRollup: [{ status: "IN_PROGRESS" }],
+        },
+      }),
+    );
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/active-pr-mergeability-watchdog.ts",
+        "--work-list-json",
+        workListPath,
+        "--session-list-json",
+        sessionListPath,
+        "--worktrees-dir",
+        worktreesRoot,
+        "--pr-map-json",
+        prMapPath,
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    const alphaIndex = result.stdout.indexOf("work-item=alpha");
+    const betaIndex = result.stdout.indexOf("work-item=beta");
+    const gammaIndex = result.stdout.indexOf("work-item=gamma");
+    expect(alphaIndex).toBeGreaterThanOrEqual(0);
+    expect(betaIndex).toBeGreaterThan(alphaIndex);
+    expect(gammaIndex).toBeGreaterThan(betaIndex);
+    expect(result.stdout).toContain("next-action=refresh-branch");
+    expect(result.stdout).toContain("next-action=wait");
+    expect(result.stdout).toContain(
+      "- status=linked-with-gaps queue=failed work-item=gamma",
+    );
+
     rmSync(dir, { recursive: true, force: true });
   });
 

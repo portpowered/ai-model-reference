@@ -218,3 +218,40 @@ export function formatQueueWorktreePrLinkageSummary(
 
   return lines.join("\n");
 }
+
+function rankPlannerWatchdogLane(lane: QueueWorktreePrLinkageLane): number {
+  if (lane.pullRequest) {
+    if (lane.nextAction === "refresh-branch") {
+      return 0;
+    }
+    if (lane.checkHealth === "failing") {
+      return 1;
+    }
+    if (lane.nextAction === "wait") {
+      return 2;
+    }
+    return 3;
+  }
+
+  return 4;
+}
+
+export function sortPlannerWatchdogLanes(
+  lanes: QueueWorktreePrLinkageLane[],
+): QueueWorktreePrLinkageLane[] {
+  return [...lanes].sort((left, right) => {
+    const rankDifference =
+      rankPlannerWatchdogLane(left) - rankPlannerWatchdogLane(right);
+    if (rankDifference !== 0) {
+      return rankDifference;
+    }
+
+    const leftPrNumber = left.pullRequest?.number ?? Number.MAX_SAFE_INTEGER;
+    const rightPrNumber = right.pullRequest?.number ?? Number.MAX_SAFE_INTEGER;
+    if (leftPrNumber !== rightPrNumber) {
+      return leftPrNumber - rightPrNumber;
+    }
+
+    return left.laneName.localeCompare(right.laneName);
+  });
+}

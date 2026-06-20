@@ -12,6 +12,7 @@ import {
 import {
   discoverQueueWorktreePrLinkageLedger,
   type QueueWorktreePrLinkageLane,
+  sortPlannerWatchdogLanes,
 } from "@/lib/factory/queue-worktree-pr-linkage-ledger";
 
 const repoRoot = join(import.meta.dir, "..");
@@ -145,6 +146,7 @@ function formatWatchdogReportFromLedger(
   lanes: QueueWorktreePrLinkageLane[],
   issues: string[],
 ): string {
+  const orderedLanes = sortPlannerWatchdogLanes(lanes);
   const prBackedCount = lanes.filter((lane) => lane.pullRequest).length;
   const linkedWithGapsCount = lanes.filter(
     (lane) => lane.linkageStatus === "linked-with-gaps",
@@ -169,7 +171,7 @@ function formatWatchdogReportFromLedger(
   }
 
   lines.push("");
-  for (const lane of lanes) {
+  for (const lane of orderedLanes) {
     const details = [
       `status=${lane.pullRequest ? "pr-backed" : lane.linkageStatus}`,
       `queue=${lane.queueState}`,
