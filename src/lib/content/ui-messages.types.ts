@@ -38,6 +38,18 @@ export type UiMessages = {
     emptySuggestionMiddle: string;
     emptySuggestionSuffix: string;
   };
+  timelinePage: {
+    title: string;
+    description: string;
+    eyebrow: string;
+    successSummary: string;
+    regionLabel: string;
+    docsLink: string;
+    sourcePrefix: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    activationLink: string;
+  };
   shell: {
     sidebarTitle: string;
     sidebarDescription: string;

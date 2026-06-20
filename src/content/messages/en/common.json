@@ -42,6 +42,18 @@
     "emptySuggestionMiddle": "or browse the",
     "emptySuggestionSuffix": "."
   },
+  "timelinePage": {
+    "title": "Activation Timeline",
+    "description": "Browse how activation functions entered the model architecture vocabulary over time.",
+    "eyebrow": "Ontology timeline",
+    "successSummary": "Showing {count} dated events for {classification}.",
+    "regionLabel": "Activation chronology",
+    "docsLink": "Open docs page",
+    "sourcePrefix": "Date source:",
+    "emptyTitle": "No dated timeline events",
+    "emptyDescription": "No dated events are available for {classification}.",
+    "activationLink": "Return to the activation timeline"
+  },
   "shell": {
     "sidebarTitle": "Reference",
     "sidebarDescription": "Browse modules, concepts, and tags.",

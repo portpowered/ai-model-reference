@@ -42,6 +42,18 @@
     "emptySuggestionMiddle": "を検索するか、",
     "emptySuggestionSuffix": "を参照してください。"
   },
+  "timelinePage": {
+    "title": "Activation Timeline",
+    "description": "Activation functions entered the model architecture vocabulary over time.",
+    "eyebrow": "Ontology timeline",
+    "successSummary": "Showing {count} dated events for {classification}.",
+    "regionLabel": "Activation chronology",
+    "docsLink": "Open docs page",
+    "sourcePrefix": "Date source:",
+    "emptyTitle": "No dated timeline events",
+    "emptyDescription": "No dated events are available for {classification}.",
+    "activationLink": "Return to the activation timeline"
+  },
   "shell": {
     "sidebarTitle": "リファレンス",
     "sidebarDescription": "モジュール、概念、タグを参照します。",

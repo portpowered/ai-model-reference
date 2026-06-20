@@ -28,6 +28,7 @@ import {
 import { TagLandingEmptyState } from "@/features/docs/tags/TagLandingEmptyState";
 import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
+import { OntologyTimelinePage } from "@/features/docs/timeline/OntologyTimelinePage";
 import { TopologyPrototype } from "@/features/topology/TopologyPrototype";
 import type { TopologyDocsPageContentByRegistryId } from "@/features/topology/topology-content";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
@@ -74,6 +75,7 @@ export type SearchPageProps = {
 export type BrowseIndexPageProps = {
   searchParams?: Promise<TopologySearchParams>;
 };
+export type TimelinePageProps = SearchPageProps;
 
 export type TagLandingPageProps = {
   params: Promise<{ slug: string }>;
@@ -416,6 +418,29 @@ export async function renderSearchPage(
           metaByUrl={metaByUrl}
           handoff={handoff}
           locale={locale}
+        />
+      </DocsBody>
+    </DocsPage>
+  );
+}
+
+export async function renderTimelinePage(
+  locale: SiteLocale = defaultLocale,
+  { searchParams }: TimelinePageProps = {},
+) {
+  const messages = await loadUiMessages(locale);
+  const classification = await resolveTimelineClassification(searchParams);
+  const { timelinePage } = messages;
+
+  return (
+    <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
+      <DocsTitle>{timelinePage.title}</DocsTitle>
+      <DocsDescription>{timelinePage.description}</DocsDescription>
+      <DocsBody>
+        <OntologyTimelinePage
+          classification={classification}
+          locale={locale}
+          messages={messages}
         />
       </DocsBody>
     </DocsPage>
