@@ -8,7 +8,6 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { getProjectRoot } from "@/lib/content/content-paths";
 import { syncGraphRegistryRuntimeModule } from "./generate-graph-registry-runtime";
 
 const cleanupPaths: string[] = [];
@@ -170,27 +169,25 @@ describe("generate-graph-registry-runtime", () => {
     );
   });
 
-  test("reproduces the committed runtime manifest from the root graph registry directory", () => {
-    const projectRoot = getProjectRoot();
-    const generatedRoot = mkdtempSync(
-      join(tmpdir(), "graph-runtime-generator-"),
-    );
-    cleanupPaths.push(generatedRoot);
+  test("re-running generation is stable without a committed runtime manifest", () => {
+    const root = mkdtempSync(join(tmpdir(), "graph-runtime-generator-"));
+    cleanupPaths.push(root);
+    const graphsRoot = join(root, "graphs");
+    const outputPath = join(root, "graph-registry-runtime.generated.ts");
+    mkdirSync(graphsRoot, { recursive: true });
 
-    const graphsRoot = join(projectRoot, "src/content/registry/graphs");
-    const outputPath = join(
-      generatedRoot,
-      "graph-registry-runtime.generated.ts",
-    );
-    const committedOutputPath = join(
-      projectRoot,
-      "src/lib/content/generated/graph-registry-runtime.generated.ts",
+    writeFileSync(
+      join(graphsRoot, "stable-graph.json"),
+      createGraphRecordJson("graph.stable-graph", "stable-graph"),
+      "utf8",
     );
 
-    syncGraphRegistryRuntimeModule({ graphsRoot, outputPath });
+    const initial = syncGraphRegistryRuntimeModule({ graphsRoot, outputPath });
+    const generatedOutput = readFileSync(outputPath, "utf8");
+    const rerun = syncGraphRegistryRuntimeModule({ graphsRoot, outputPath });
 
-    expect(readFileSync(outputPath, "utf8")).toBe(
-      readFileSync(committedOutputPath, "utf8"),
-    );
+    expect(initial.changed).toBe(true);
+    expect(rerun.changed).toBe(false);
+    expect(readFileSync(outputPath, "utf8")).toBe(generatedOutput);
   });
 });

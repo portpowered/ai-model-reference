@@ -53,6 +53,12 @@ describe("content runtime preparation", () => {
     expect(commands).toEqual(
       CONTENT_RUNTIME_PREPARATION_STEPS.map((step) => step.command.join(" ")),
     );
+    expect(CONTENT_RUNTIME_PREPARATION_STEPS).toContainEqual({
+      id: "graph-registry-runtime",
+      command: ["bun", "run", "generate:graph-registry-runtime"],
+      outputPath:
+        "src/lib/content/generated/graph-registry-runtime.generated.ts",
+    });
   });
 
   test("stops at the first failing step and reports the step id", () => {
