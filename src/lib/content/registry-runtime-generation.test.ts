@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { getProjectRoot } from "./content-paths";
@@ -13,10 +13,10 @@ async function createTempRegistryRoot(): Promise<{
   registryRoot: string;
   tempRoot: string;
 }> {
-  const tempRoot = join(
-    import.meta.dir,
-    "__registry-runtime-generation-fixtures__",
-    crypto.randomUUID(),
+  const tempRootParent = join(getProjectRoot(), ".claude");
+  await mkdir(tempRootParent, { recursive: true });
+  const tempRoot = await mkdtemp(
+    join(tempRootParent, "registry-runtime-generation-"),
   );
   const registryRoot = join(tempRoot, "registry");
 
@@ -30,6 +30,7 @@ async function createTempRegistryRoot(): Promise<{
     "systems",
     "datasets",
     "organizations",
+    "tags",
     "citations",
   ]) {
     await mkdir(join(registryRoot, directory), { recursive: true });
@@ -61,6 +62,193 @@ async function importGeneratedRuntime(outputPath: string) {
 }
 
 describe("registry-runtime generation", () => {
+  test("generated runtime resolves a newly added citation without manual runtime edits", async () => {
+    const { outputPath, registryRoot, tempRoot } =
+      await createTempRegistryRoot();
+    try {
+      await writeRegistryJson(
+        registryRoot,
+        "citations",
+        "runtime-generated-citation.json",
+        {
+          id: "citation.runtime-generated-citation",
+          slug: "runtime-generated-citation",
+          kind: "citation",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: ["runtime generated citation"],
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-02T00:00:00.000Z",
+          citationType: "paper",
+          authors: ["R. Author"],
+          title: "Runtime Generated Citation",
+          url: "https://example.com/runtime-generated-citation",
+          mla: "Author, R. Runtime Generated Citation.",
+          year: 2026,
+        },
+      );
+
+      await writeGeneratedRegistryRuntimeModule({
+        outputPath,
+        projectRoot: getProjectRoot(),
+        registryRoot,
+      });
+
+      const generatedRuntime = await importGeneratedRuntime(outputPath);
+      const ids = generatedRuntime
+        .listCitationRecords()
+        .map((record) => record.id);
+
+      expect(ids).toContain("citation.runtime-generated-citation");
+      expect(
+        generatedRuntime.getCitationById("citation.runtime-generated-citation")
+          ?.title,
+      ).toBe("Runtime Generated Citation");
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("generated runtime resolves a newly added tag without manual runtime edits", async () => {
+    const { outputPath, registryRoot, tempRoot } =
+      await createTempRegistryRoot();
+    try {
+      await writeRegistryJson(
+        registryRoot,
+        "tags",
+        "runtime-generated-tag.json",
+        {
+          id: "tag.runtime-generated-tag",
+          slug: "runtime-generated-tag",
+          kind: "tag",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: ["runtime generated tag"],
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-02T00:00:00.000Z",
+          category: "architecture",
+          landingPage: "generated-tag-page",
+        },
+      );
+
+      await writeGeneratedRegistryRuntimeModule({
+        outputPath,
+        projectRoot: getProjectRoot(),
+        registryRoot,
+      });
+
+      const generatedRuntime = await importGeneratedRuntime(outputPath);
+      const ids = generatedRuntime.listTagRecords().map((record) => record.id);
+
+      expect(ids).toContain("tag.runtime-generated-tag");
+      expect(
+        generatedRuntime.getTagById("tag.runtime-generated-tag")?.slug,
+      ).toBe("runtime-generated-tag");
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("generated runtime preparation fails fast for invalid tag registry JSON", async () => {
+    const { outputPath, registryRoot, tempRoot } =
+      await createTempRegistryRoot();
+    try {
+      await writeRegistryJson(
+        registryRoot,
+        "tags",
+        "runtime-invalid-tag.json",
+        {
+          id: "tag.runtime-invalid-tag",
+          slug: "runtime-invalid-tag",
+          kind: "tag",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: ["runtime invalid tag"],
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-02T00:00:00.000Z",
+          category: "architecture",
+        },
+      );
+
+      await expect(
+        generateRegistryRuntimeSource({
+          outputPath,
+          projectRoot: getProjectRoot(),
+          registryRoot,
+        }),
+      ).rejects.toThrow(/runtime-invalid-tag\.json/);
+      await expect(
+        generateRegistryRuntimeSource({
+          outputPath,
+          projectRoot: getProjectRoot(),
+          registryRoot,
+        }),
+      ).rejects.toThrow(/landingPage/);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("generated runtime preparation fails fast for invalid citation registry JSON", async () => {
+    const { outputPath, registryRoot, tempRoot } =
+      await createTempRegistryRoot();
+    try {
+      await writeRegistryJson(
+        registryRoot,
+        "citations",
+        "runtime-invalid-citation.json",
+        {
+          id: "citation.runtime-invalid-citation",
+          slug: "runtime-invalid-citation",
+          kind: "citation",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: ["runtime invalid citation"],
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-02T00:00:00.000Z",
+          citationType: "paper",
+          authors: ["R. Author"],
+          title: "Runtime Invalid Citation",
+          url: "https://example.com/runtime-invalid-citation",
+          year: 2026,
+        },
+      );
+
+      await expect(
+        generateRegistryRuntimeSource({
+          outputPath,
+          projectRoot: getProjectRoot(),
+          registryRoot,
+        }),
+      ).rejects.toThrow(/runtime-invalid-citation\.json/);
+      await expect(
+        generateRegistryRuntimeSource({
+          outputPath,
+          projectRoot: getProjectRoot(),
+          registryRoot,
+        }),
+      ).rejects.toThrow(/mla/);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   test("generated runtime resolves newly added module and concept records without manual runtime edits", async () => {
     const { outputPath, registryRoot, tempRoot } =
       await createTempRegistryRoot();
