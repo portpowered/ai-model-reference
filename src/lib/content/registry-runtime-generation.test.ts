@@ -24,6 +24,7 @@ async function createTempRegistryRoot(): Promise<{
     "modules",
     "concepts",
     "models",
+    "classifications",
     "papers",
     "training-regimes",
     "systems",
@@ -87,6 +88,180 @@ describe("registry-runtime generation", () => {
           "module.runtime-generated-module",
         )?.kind,
       ).toBe("module");
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("generated runtime resolves a newly added classification without manual runtime edits", async () => {
+    const { outputPath, registryRoot, tempRoot } =
+      await createTempRegistryRoot();
+    try {
+      await writeFile(
+        join(registryRoot, "modules", "runtime-generated-activation.json"),
+        JSON.stringify({
+          id: "module.runtime-generated-activation",
+          slug: "runtime-generated-activation",
+          kind: "module",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: ["runtime generated activation"],
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-02T00:00:00.000Z",
+          moduleType: "activation",
+          optimizes: [],
+          exampleModelIds: [],
+          improvesOnIds: [],
+          tradeoffIds: [],
+          usedByModelIds: [],
+          introducedByPaperIds: [],
+          mathLevel: "light",
+          primaryClassificationId: "classification.activation-functions",
+          secondaryClassificationIds: ["classification.feed-forward-blocks"],
+          relationships: [
+            {
+              relationshipType: "uses",
+              targetId: "citation.runtime-generated-activation-paper",
+            },
+          ],
+        }),
+      );
+      await writeFile(
+        join(registryRoot, "classifications", "activation-functions.json"),
+        JSON.stringify({
+          id: "classification.activation-functions",
+          slug: "activation-functions",
+          kind: "classification",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: ["activation family"],
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-02T00:00:00.000Z",
+          classificationType: "family",
+          classifiesKinds: ["module", "concept"],
+        }),
+      );
+      await writeFile(
+        join(registryRoot, "classifications", "feed-forward-blocks.json"),
+        JSON.stringify({
+          id: "classification.feed-forward-blocks",
+          slug: "feed-forward-blocks",
+          kind: "classification",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: ["feed-forward branch"],
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-02T00:00:00.000Z",
+          classificationType: "topology",
+          classifiesKinds: ["module"],
+        }),
+      );
+      await writeFile(
+        join(
+          registryRoot,
+          "citations",
+          "runtime-generated-activation-paper.json",
+        ),
+        JSON.stringify({
+          id: "citation.runtime-generated-activation-paper",
+          slug: "runtime-generated-activation-paper",
+          kind: "citation",
+          defaultTitleKey: "title",
+          defaultSummaryKey: "description",
+          aliases: [],
+          tags: [],
+          relatedIds: [],
+          citationIds: [],
+          status: "published",
+          createdAt: "2026-06-01T00:00:00.000Z",
+          updatedAt: "2026-06-02T00:00:00.000Z",
+          citationType: "paper",
+          authors: ["A. Author"],
+          title: "Runtime Generated Activation Paper",
+          url: "https://example.com/runtime-generated-activation-paper",
+          mla: "Author. Runtime Generated Activation Paper.",
+          year: 2026,
+        }),
+      );
+
+      await writeGeneratedRegistryRuntimeModule({
+        outputPath,
+        projectRoot: getProjectRoot(),
+        registryRoot,
+      });
+
+      const generatedRuntime = (await import(
+        `${pathToFileURL(outputPath).href}?t=${Date.now()}`
+      )) as typeof import("./registry-runtime");
+
+      expect(
+        generatedRuntime.getClassificationById(
+          "classification.activation-functions",
+        )?.slug,
+      ).toBe("activation-functions");
+      expect(
+        generatedRuntime.getPrimaryClassificationForRecord(
+          "module.runtime-generated-activation",
+        )?.id,
+      ).toBe("classification.activation-functions");
+      expect(
+        generatedRuntime.listSecondaryClassificationsForRecord(
+          "module.runtime-generated-activation",
+        ),
+      ).toEqual([
+        expect.objectContaining({
+          id: "classification.feed-forward-blocks",
+        }),
+      ]);
+      expect(
+        generatedRuntime.listOntologyRelationshipsForRecord(
+          "module.runtime-generated-activation",
+        ),
+      ).toEqual([
+        expect.objectContaining({
+          relationshipType: "uses",
+          targetId: "citation.runtime-generated-activation-paper",
+          target: expect.objectContaining({
+            id: "citation.runtime-generated-activation-paper",
+          }),
+        }),
+      ]);
+      expect(
+        generatedRuntime.listClassificationMembers(
+          "classification.activation-functions",
+        ),
+      ).toEqual([
+        expect.objectContaining({
+          membershipType: "primary",
+          record: expect.objectContaining({
+            id: "module.runtime-generated-activation",
+          }),
+        }),
+      ]);
+      expect(
+        generatedRuntime.listClassificationMembers(
+          "classification.feed-forward-blocks",
+        ),
+      ).toEqual([
+        expect.objectContaining({
+          membershipType: "secondary",
+          record: expect.objectContaining({
+            id: "module.runtime-generated-activation",
+          }),
+        }),
+      ]);
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }
