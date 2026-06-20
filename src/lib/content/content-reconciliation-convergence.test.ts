@@ -12,6 +12,8 @@ import {
   runSourceDiscoveryGate,
 } from "./phase-2-3-reconciliation-convergence";
 
+const COMBINED_CONVERGENCE_GATE_TIMEOUT_MS = 30_000;
+
 describe("Phase 2/3 reconciliation convergence gate (US-012)", () => {
   test("registry validation gate passes with zero errors", async () => {
     const result = await runRegistryValidationGate();
@@ -43,20 +45,26 @@ describe("Phase 2/3 reconciliation convergence gate (US-012)", () => {
     expect(result.status).toBe("pass");
   });
 
-  test("combined convergence gate reports pass for all domains", async () => {
-    const results = await runPhase23ReconciliationConvergenceGate();
+  test(
+    "combined convergence gate reports pass for all domains",
+    async () => {
+      const results = await runPhase23ReconciliationConvergenceGate();
 
-    expect(results).toHaveLength(6);
-    expect(getPhase23ReconciliationConvergenceExitCode(results)).toBe(0);
-    expect(results.every((result) => result.status === "pass")).toBe(true);
+      expect(results).toHaveLength(6);
+      expect(getPhase23ReconciliationConvergenceExitCode(results)).toBe(0);
+      expect(results.every((result) => result.status === "pass")).toBe(true);
 
-    const report = formatPhase23ReconciliationConvergenceReport(results);
-    expect(report).toContain(PHASE_2_3_RECONCILIATION_CONVERGENCE_GATE_HEADER);
-    expect(report).toContain("[PASS] Registry validation passes");
-    expect(report).toContain("[PASS] Fumadocs source discovers");
-    expect(report).toContain("[PASS] /tags/attention lists");
-    expect(report).toContain("[PASS] Architecture-forward navigation");
-    expect(report).toContain("[PASS] Search documents index");
-    expect(report).toContain("[PASS] Representative search queries");
-  });
+      const report = formatPhase23ReconciliationConvergenceReport(results);
+      expect(report).toContain(
+        PHASE_2_3_RECONCILIATION_CONVERGENCE_GATE_HEADER,
+      );
+      expect(report).toContain("[PASS] Registry validation passes");
+      expect(report).toContain("[PASS] Fumadocs source discovers");
+      expect(report).toContain("[PASS] /tags/attention lists");
+      expect(report).toContain("[PASS] Architecture-forward navigation");
+      expect(report).toContain("[PASS] Search documents index");
+      expect(report).toContain("[PASS] Representative search queries");
+    },
+    { timeout: COMBINED_CONVERGENCE_GATE_TIMEOUT_MS },
+  );
 });

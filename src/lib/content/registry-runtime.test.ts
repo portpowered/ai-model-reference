@@ -1,8 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import {
+  getCitationById,
   getClassificationById,
   getConceptById,
   getDatasetById,
+  getModelById,
   getModuleById,
   getOrganizationById,
   getPaperById,
@@ -11,14 +13,21 @@ import {
   getRegistryRecordById,
   getRegistryTags,
   getSystemById,
+  getTrainingRegimeById,
+  listCitationRecords,
   listClassificationMembers,
   listClassificationRecords,
   listConceptRecords,
+  listDatasetRecords,
+  listModelRecords,
   listModuleRecords,
   listOntologyRelationshipsForRecord,
+  listOrganizationRecords,
+  listPaperRecords,
   listRelatedRegistryRecords,
   listSecondaryClassificationsForRecord,
   listSystemRecords,
+  listTrainingRegimeRecords,
 } from "@/lib/content/registry-runtime";
 
 describe("registry-runtime", () => {
@@ -338,6 +347,60 @@ describe("registry-runtime", () => {
     expect(
       listClassificationMembers("classification.deepseek-runtime-missing"),
     ).toEqual([]);
+  });
+
+  test("representative runtime helpers resolve every generated registry kind", () => {
+    expect(getModuleById("module.grouped-query-attention")?.kind).toBe(
+      "module",
+    );
+    expect(getConceptById("concept.kv-cache")?.kind).toBe("concept");
+    expect(getModelById("model.gpt-3")?.kind).toBe("model");
+    expect(getPaperById("paper.deepseek-v4")?.kind).toBe("paper");
+    expect(getTrainingRegimeById("training-regime.dpo")?.kind).toBe(
+      "training-regime",
+    );
+    expect(getSystemById("system.routing")?.kind).toBe("system");
+    expect(getDatasetById("dataset.deepseek-v4-specialist-corpus")?.kind).toBe(
+      "dataset",
+    );
+    expect(getOrganizationById("organization.deepseek-ai")?.kind).toBe(
+      "organization",
+    );
+    expect(
+      getClassificationById("classification.activation-functions")?.kind,
+    ).toBe("classification");
+    expect(getCitationById("citation.gqa-paper")?.kind).toBe("citation");
+
+    expect(listModuleRecords().map((record) => record.id)).toContain(
+      "module.grouped-query-attention",
+    );
+    expect(listConceptRecords().map((record) => record.id)).toContain(
+      "concept.kv-cache",
+    );
+    expect(listModelRecords().map((record) => record.id)).toContain(
+      "model.gpt-3",
+    );
+    expect(listPaperRecords().map((record) => record.id)).toContain(
+      "paper.deepseek-v4",
+    );
+    expect(listTrainingRegimeRecords().map((record) => record.id)).toContain(
+      "training-regime.dpo",
+    );
+    expect(listSystemRecords().map((record) => record.id)).toContain(
+      "system.routing",
+    );
+    expect(listDatasetRecords().map((record) => record.id)).toContain(
+      "dataset.deepseek-v4-specialist-corpus",
+    );
+    expect(listOrganizationRecords().map((record) => record.id)).toContain(
+      "organization.deepseek-ai",
+    );
+    expect(listClassificationRecords().map((record) => record.id)).toContain(
+      "classification.activation-functions",
+    );
+    expect(listCitationRecords().map((record) => record.id)).toContain(
+      "citation.gqa-paper",
+    );
   });
 
   test("getSystemById returns the canonical routing system with serving aliases and nearby docs", () => {
