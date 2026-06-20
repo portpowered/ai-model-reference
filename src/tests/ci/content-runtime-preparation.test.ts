@@ -145,6 +145,9 @@ describe("content runtime preparation", () => {
       removeDirectory(path) {
         lifecycle.push(`remove ${relative(repoRoot, path)}`);
       },
+      removeFile(path) {
+        lifecycle.push(`invalidate ${relative(repoRoot, path)}`);
+      },
       runCommand(command) {
         lifecycle.push(`run ${command.join(" ")}`);
         commands.push(command.join(" "));
@@ -160,11 +163,14 @@ describe("content runtime preparation", () => {
       completedSteps: [...CONTENT_RUNTIME_PREPARATION_STEPS],
     });
     expect(lifecycle[0]).toBe("remove .source");
-    expect(lifecycle.slice(1)).toEqual(
-      CONTENT_RUNTIME_PREPARATION_STEPS.map(
+    expect(lifecycle.slice(1)).toEqual([
+      ...CONTENT_RUNTIME_PREPARATION_STEPS.filter(
+        (step) => step.gitClassification === "ignored",
+      ).map((step) => `invalidate ${step.outputPath}`),
+      ...CONTENT_RUNTIME_PREPARATION_STEPS.map(
         (step) => `run ${step.command.join(" ")}`,
       ),
-    );
+    ]);
     expect(commands).toEqual(
       CONTENT_RUNTIME_PREPARATION_STEPS.map((step) => step.command.join(" ")),
     );
@@ -484,6 +490,72 @@ describe("content runtime preparation", () => {
       );
       expect(importResult.stdout).toContain('"listed":true');
       expect(existsSync(manifestPath)).toBe(true);
+    } finally {
+      rmSync(pagePath, { force: true, recursive: true });
+      if (originalManifest === null) {
+        rmSync(manifestPath, { force: true });
+      } else {
+        writeFileSync(manifestPath, originalManifest, "utf8");
+      }
+    }
+  });
+
+  test("fresh-checkout preparation removes deleted pages from the ignored published docs manifest", () => {
+    const manifestPath = join(
+      repoRoot,
+      GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH,
+    );
+    const pagePath = join(repoRoot, RUNTIME_DISCOVERY_TEST_PAGE_RELATIVE_PATH);
+    const originalManifest = existsSync(manifestPath)
+      ? readFileSync(manifestPath, "utf8")
+      : null;
+
+    try {
+      rmSync(pagePath, { force: true, recursive: true });
+      writePublishedDocsPage(RUNTIME_DISCOVERY_TEST_PAGE_RELATIVE_PATH, {
+        kind: "glossary",
+        registryId: RUNTIME_DISCOVERY_TEST_REGISTRY_ID,
+        status: "published",
+      });
+
+      const firstPrepare = runPrepareContentRuntime();
+      expect(firstPrepare.status).toBe(0);
+      expect(readFileSync(manifestPath, "utf8")).toContain(
+        RUNTIME_DISCOVERY_TEST_DOCS_SLUG,
+      );
+
+      rmSync(pagePath, { force: true, recursive: true });
+
+      const secondPrepare = runPrepareContentRuntime();
+      const secondPrepareOutput = `${secondPrepare.stdout}\n${secondPrepare.stderr}`;
+
+      expect(secondPrepare.status).toBe(0);
+      expect(secondPrepareOutput).toContain(
+        `[content-runtime] Invalidating stale ignored generated runtime output -> ${GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH}`,
+      );
+      expect(readFileSync(manifestPath, "utf8")).not.toContain(
+        RUNTIME_DISCOVERY_TEST_DOCS_SLUG,
+      );
+
+      const importResult = spawnSync(
+        "bun",
+        [
+          "--eval",
+          [
+            'import { getPublishedDocsEntryByRegistryId } from "./src/lib/content/published-docs-registry-ids";',
+            `const entry = getPublishedDocsEntryByRegistryId("${RUNTIME_DISCOVERY_TEST_REGISTRY_ID}");`,
+            "console.log(entry === undefined ? 'missing' : entry.docsSlug);",
+          ].join(" "),
+        ],
+        {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: process.env,
+        },
+      );
+
+      expect(importResult.status).toBe(0);
+      expect(importResult.stdout.trim()).toBe("missing");
     } finally {
       rmSync(pagePath, { force: true, recursive: true });
       if (originalManifest === null) {
