@@ -1559,20 +1559,16 @@ updatedAt: "2026-06-02"
 });
 
 describe("make validate-data", () => {
-  test(
-    "succeeds on the committed Phase 1 baseline",
-    async () => {
-      const proc = Bun.spawn({
-        cmd: ["make", "validate-data"],
-        cwd: join(import.meta.dir, "../../.."),
-        stdout: "pipe",
-        stderr: "pipe",
-      });
-      const code = await proc.exited;
-      expect(code).toBe(0);
-    },
-    30_000,
-  );
+  test("succeeds on the committed Phase 1 baseline", async () => {
+    const proc = Bun.spawn({
+      cmd: ["make", "validate-data"],
+      cwd: join(import.meta.dir, "../../.."),
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    const code = await proc.exited;
+    expect(code).toBe(0);
+  }, 30_000);
 });
 
 describe("validate-registry CLI", () => {

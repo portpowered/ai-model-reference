@@ -199,4 +199,146 @@ describe("content PR doctor", () => {
       )}`,
     ]);
   });
+
+  test("identifies the failed narrow validation step and reports repair guidance", () => {
+    const commands: string[] = [];
+    const logs: string[] = [];
+    const result = runContentPrDoctor({
+      cwd: repoRoot,
+      log(message) {
+        logs.push(message);
+      },
+      logError: () => {},
+      runCommand(command, _options) {
+        commands.push(command.join(" "));
+
+        if (command[0] === "git") {
+          return {
+            signal: null,
+            status: 0,
+            stdout: "",
+          } satisfies ContentPrDoctorCommandResult;
+        }
+
+        if (command.join(" ") === "bun run linkcheck") {
+          return {
+            signal: null,
+            status: 1,
+          } satisfies ContentPrDoctorCommandResult;
+        }
+
+        return {
+          signal: null,
+          status: 0,
+        } satisfies ContentPrDoctorCommandResult;
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+
+    expect(result.stage).toBe("narrow-validation");
+    expect(result.message).toContain('failed at "linkcheck"');
+    expect(result.failedValidationStep).toEqual(
+      CONTENT_PR_DOCTOR_VALIDATION_STEPS[1],
+    );
+    expect(result.repairGuidance).toContain("Fix the reported docs links");
+    expect(logs).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("Running validate-data"),
+        expect.stringContaining("Running linkcheck"),
+      ]),
+    );
+    expect(commands).toEqual([
+      `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
+        " ",
+      )}`,
+      "bun run generate:shipped-localized-docs",
+      "bun run generate:published-docs-registry",
+      "bun run generate:graph-registry-runtime",
+      "bun run generate:registry-runtime",
+      "bun run generate:table-registry",
+      `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
+        " ",
+      )}`,
+      "bun run validate-data",
+      "bun run linkcheck",
+    ]);
+  });
+
+  test("fails the final clean-tree proof when validation leaves tracked scoped drift", () => {
+    let gitStatusCallCount = 0;
+    const result = runContentPrDoctor({
+      cwd: repoRoot,
+      log: () => {},
+      logError: () => {},
+      runCommand(command, _options) {
+        if (command[0] === "git") {
+          gitStatusCallCount += 1;
+          return {
+            signal: null,
+            status: 0,
+            stdout:
+              gitStatusCallCount === 3
+                ? " M src/content/docs/modules/grouped-query-attention/page.mdx\n"
+                : "",
+          } satisfies ContentPrDoctorCommandResult;
+        }
+
+        return {
+          signal: null,
+          status: 0,
+        } satisfies ContentPrDoctorCommandResult;
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+
+    expect(result.stage).toBe("final-cleanliness");
+    expect(result.details).toEqual([
+      " M src/content/docs/modules/grouped-query-attention/page.mdx",
+    ]);
+    expect(result.repairGuidance).toContain(
+      "rerun `bun run doctor:content-pr` until the final clean-tree proof passes",
+    );
+  });
+
+  test("reports the supported success proof only after validation and final cleanliness pass", () => {
+    const logs: string[] = [];
+    const result = runContentPrDoctor({
+      cwd: repoRoot,
+      log(message) {
+        logs.push(message);
+      },
+      logError: () => {},
+      runCommand(command, _options) {
+        if (command[0] === "git") {
+          return {
+            signal: null,
+            status: 0,
+            stdout: "",
+          } satisfies ContentPrDoctorCommandResult;
+        }
+
+        return {
+          signal: null,
+          status: 0,
+        } satisfies ContentPrDoctorCommandResult;
+      },
+    });
+
+    expect(result).toEqual({
+      ok: true,
+      scopedPaths: CONTENT_PR_DOCTOR_SCOPED_PATHS,
+      validationSteps: CONTENT_PR_DOCTOR_VALIDATION_STEPS,
+    });
+    expect(logs.at(-1)).toBe(
+      "[content-pr-doctor] Review-ready proof complete for .: canonical preparation + validate-data + linkcheck + clean-tree proof.",
+    );
+  });
 });
