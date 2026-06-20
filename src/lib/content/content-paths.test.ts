@@ -21,7 +21,6 @@ import {
   REGISTRY_COLLECTIONS,
   REGISTRY_ROOT,
   TAG_MESSAGES_ROOT,
-  TOKEN_GLOSSARY_PAGE_DIR,
 } from "./content-paths";
 
 describe("content-paths", () => {
@@ -58,6 +57,28 @@ describe("content-paths", () => {
     );
   });
 
+  test("generic docs page helper preserves section-plus-slug invariants for custom roots", () => {
+    const docsRoot = "/tmp/model-reference/docs";
+    const representativePages = [
+      { section: "glossary", slug: "token" },
+      { section: "concepts", slug: "alibi" },
+      { section: "modules", slug: "grouped-query-attention" },
+      { section: "models", slug: "gpt-2" },
+      { section: "papers", slug: "attention-is-all-you-need" },
+      { section: "training", slug: "instruction-tuning" },
+      { section: "systems", slug: "vllm" },
+    ] as const;
+
+    for (const { section, slug } of representativePages) {
+      const sectionRoot = getDocsSectionRoot(section, docsRoot);
+
+      expect(sectionRoot).toBe(join(docsRoot, section));
+      expect(getDocsPageDir(section, slug, docsRoot)).toBe(
+        join(sectionRoot, slug),
+      );
+    }
+  });
+
   test("generic registry collection helpers derive canonical collection roots", () => {
     for (const collection of REGISTRY_COLLECTIONS) {
       expect(getRegistryCollectionRoot(collection)).toBe(
@@ -70,6 +91,20 @@ describe("content-paths", () => {
     );
   });
 
+  test("generic registry helpers preserve collection derivation invariants for custom roots", () => {
+    const registryRoot = "/tmp/model-reference/registry";
+
+    for (const collection of REGISTRY_COLLECTIONS) {
+      expect(getRegistryCollectionRoot(collection, registryRoot)).toBe(
+        join(registryRoot, collection),
+      );
+    }
+
+    expect(getTagMessagesRoot(registryRoot)).toBe(
+      join(registryRoot, "tags", "messages"),
+    );
+  });
+
   test("exported production roots match helper-derived paths", () => {
     expect(DOCS_ROOT).toBe(getDocsRoot());
     expect(GLOSSARY_DOCS_ROOT).toBe(getGlossaryDocsRoot());
@@ -78,6 +113,5 @@ describe("content-paths", () => {
     expect(MESSAGES_ROOT).toBe(getMessagesRoot());
     expect(TAG_MESSAGES_ROOT).toBe(getTagMessagesRoot());
     expect(CONTENT_ROOT.endsWith("src/content")).toBe(true);
-    expect(TOKEN_GLOSSARY_PAGE_DIR).toBe(getDocsPageDir("glossary", "token"));
   });
 });
