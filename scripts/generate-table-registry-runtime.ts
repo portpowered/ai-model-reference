@@ -2,6 +2,7 @@ import { mkdir, readdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import {
   getContentRoot,
+  getGeneratedContentRuntimeRoot,
   getProjectRoot,
   getRegistryRoot,
 } from "@/lib/content/content-paths";
@@ -16,8 +17,8 @@ const tablesRegistryRoot = join(
   "tables",
 );
 const outputPath = join(
-  projectRoot,
-  "src/lib/content/generated/table-registry.generated.ts",
+  getGeneratedContentRuntimeRoot(projectRoot),
+  "table-registry.generated.ts",
 );
 
 async function main(): Promise<void> {

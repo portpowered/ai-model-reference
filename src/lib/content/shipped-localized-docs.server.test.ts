@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { SHIPPED_LOCALIZED_DOCS } from "@/generated/shipped-localized-docs";
+import { resolveShippedLocalizedDocsManifest } from "./shipped-localized-docs";
 import {
   deriveShippedLocalizedDocsManifest,
   resetDerivedShippedLocalizedDocsManifestCache,
@@ -95,7 +95,7 @@ describe("deriveShippedLocalizedDocsManifest", () => {
   test("generated shipped localized docs artifact matches the committed docs tree", () => {
     resetDerivedShippedLocalizedDocsManifestCache();
     expect(deriveShippedLocalizedDocsManifest()).toEqual(
-      SHIPPED_LOCALIZED_DOCS,
+      resolveShippedLocalizedDocsManifest(),
     );
   });
 });

@@ -60,7 +60,11 @@ describe("generate-graph-registry-runtime", () => {
     const root = mkdtempSync(join(tmpdir(), "graph-runtime-generator-"));
     cleanupPaths.push(root);
     const graphsRoot = join(root, "graphs");
-    const outputPath = join(root, "graph-registry-runtime.generated.ts");
+    const outputPath = join(
+      root,
+      "generated",
+      "graph-registry-runtime.generated.ts",
+    );
     mkdirSync(graphsRoot, { recursive: true });
 
     writeFileSync(
@@ -180,7 +184,7 @@ describe("generate-graph-registry-runtime", () => {
     );
     const committedOutputPath = join(
       projectRoot,
-      "src/lib/content/graph-registry-runtime.generated.ts",
+      "src/lib/content/generated/graph-registry-runtime.generated.ts",
     );
 
     syncGraphRegistryRuntimeModule({ graphsRoot, outputPath });

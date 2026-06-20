@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { getGeneratedContentRuntimeRoot } from "../src/lib/content/content-paths";
 import { loadPublishedDocsPagesSync } from "../src/lib/content/pages";
 import {
   buildPublishedDocsIndex,
@@ -13,8 +14,8 @@ import {
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, "..");
 const outputPath = join(
-  repoRoot,
-  "src/lib/content/published-docs-registry-manifest.ts",
+  getGeneratedContentRuntimeRoot(repoRoot),
+  "published-docs-registry.generated.ts",
 );
 
 const index = buildPublishedDocsIndex(loadPublishedDocsPagesSync("en"));

@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join, relative } from "node:path";
+import { getGeneratedContentRuntimeRoot } from "@/lib/content/content-paths";
 import {
   CONTENT_RUNTIME_PREPARATION_STEPS,
   type ContentRuntimePreparationCommandResult,
@@ -9,6 +10,9 @@ import {
 } from "@/lib/content/content-runtime-preparation";
 
 const repoRoot = join(import.meta.dir, "../../..");
+const LEGACY_TOP_LEVEL_GENERATED_RUNTIME_PATHS = [
+  "src/lib/content/published-docs-registry-manifest.ts",
+] as const;
 
 describe("content runtime preparation", () => {
   test("runs required runtime generation steps in canonical order", () => {
@@ -69,6 +73,11 @@ describe("content runtime preparation", () => {
   });
 
   test("prepare:content-runtime succeeds on the repository and is safe to rerun", () => {
+    const generatedRuntimeRoot = getGeneratedContentRuntimeRoot(repoRoot);
+    const generatedRuntimeRootRelative = relative(
+      repoRoot,
+      generatedRuntimeRoot,
+    );
     const firstRun = spawnSync("bun", ["run", "prepare:content-runtime"], {
       cwd: repoRoot,
       encoding: "utf8",
@@ -84,7 +93,19 @@ describe("content runtime preparation", () => {
     expect(secondRun.status).toBe(0);
 
     for (const step of CONTENT_RUNTIME_PREPARATION_STEPS) {
+      expect(
+        step.outputPath.startsWith(`${generatedRuntimeRootRelative}/`),
+      ).toBe(true);
       expect(existsSync(join(repoRoot, step.outputPath))).toBe(true);
+      expect(
+        existsSync(
+          join(repoRoot, "src/lib/content", basename(step.outputPath)),
+        ),
+      ).toBe(false);
+    }
+
+    for (const legacyPath of LEGACY_TOP_LEVEL_GENERATED_RUNTIME_PATHS) {
+      expect(existsSync(join(repoRoot, legacyPath))).toBe(false);
     }
   });
 });

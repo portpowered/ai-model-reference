@@ -26,22 +26,25 @@ export const CONTENT_RUNTIME_PREPARATION_STEPS: readonly ContentRuntimePreparati
     {
       id: "shipped-localized-docs",
       command: ["bun", "run", "generate:shipped-localized-docs"],
-      outputPath: "src/generated/shipped-localized-docs.ts",
+      outputPath:
+        "src/lib/content/generated/shipped-localized-docs.generated.ts",
     },
     {
       id: "published-docs-registry",
       command: ["bun", "run", "generate:published-docs-registry"],
-      outputPath: "src/lib/content/published-docs-registry-manifest.ts",
+      outputPath:
+        "src/lib/content/generated/published-docs-registry.generated.ts",
     },
     {
       id: "graph-registry-runtime",
       command: ["bun", "run", "generate:graph-registry-runtime"],
-      outputPath: "src/lib/content/graph-registry-runtime.generated.ts",
+      outputPath:
+        "src/lib/content/generated/graph-registry-runtime.generated.ts",
     },
     {
       id: "registry-runtime",
       command: ["bun", "run", "generate:registry-runtime"],
-      outputPath: "src/lib/content/registry-runtime.generated.ts",
+      outputPath: "src/lib/content/generated/registry-runtime.generated.ts",
     },
     {
       id: "table-registry-runtime",

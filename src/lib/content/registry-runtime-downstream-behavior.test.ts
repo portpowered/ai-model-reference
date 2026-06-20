@@ -1,8 +1,16 @@
 import { describe, expect, test } from "bun:test";
+import {
+  getGraphById,
+  listGraphRecords,
+} from "@/lib/content/graph-registry-runtime";
 import { buildPageReleaseMetadata } from "@/lib/content/page-release-metadata";
 import { loadPublishedDocsPagesSync } from "@/lib/content/pages";
 import { resolvePublishedResourceTags } from "@/lib/content/phase-1-published-resources";
-import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
+import {
+  getPublishedDocsEntryByRegistryId,
+  getPublishedDocsHrefForRecord,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
 import {
   getModuleById,
@@ -24,6 +32,35 @@ function findPageByRegistryId(registryId: string) {
 }
 
 describe("registry-runtime downstream behavior", () => {
+  test("authored runtime entrypoints expose relocated generated artifacts", () => {
+    const groupedQueryAttention = getModuleById(
+      "module.grouped-query-attention",
+    );
+    expect(groupedQueryAttention?.slug).toBe("grouped-query-attention");
+    if (!groupedQueryAttention) {
+      throw new Error("expected grouped-query attention registry record");
+    }
+    expect(getRegistryRecordById("module.grouped-query-attention")?.kind).toBe(
+      "module",
+    );
+
+    const computeFlow = getGraphById(
+      "graph.grouped-query-attention-compute-flow",
+    );
+    expect(computeFlow?.subjectId).toBe("module.grouped-query-attention");
+    expect(listGraphRecords().map((record) => record.id)).toContain(
+      "graph.grouped-query-attention-compute-flow",
+    );
+
+    expect(
+      getPublishedDocsEntryByRegistryId("module.grouped-query-attention")
+        ?.docsSlug,
+    ).toBe("modules/grouped-query-attention");
+    expect(getPublishedDocsHrefForRecord(groupedQueryAttention)).toBe(
+      "/docs/modules/grouped-query-attention",
+    );
+  });
+
   test("derived runtime continues to feed related docs, tags, and release metadata", async () => {
     const registryIndexes = await loadRegistry();
     const groupedQueryAttention = getModuleById(
