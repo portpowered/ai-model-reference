@@ -401,4 +401,79 @@ describe("discoverPlannerLoopbackReconciliationReport", () => {
         "inspect the live queue state for weird-state before moving this loopback",
     });
   });
+
+  test("keeps later-page completed dependency targets discoverable for loopback reconciliation", () => {
+    const report = discoverPlannerLoopbackReconciliationReport({
+      generatedAtUtc: "2026-06-21T00:00:00.000Z",
+      sourceSession: "~default",
+      workListJsonText: JSON.stringify({
+        items: [
+          {
+            workId: "loopback-known-complete",
+            name: "loopback-known-complete",
+            traceId: "trace-loopback-known-complete",
+            workTypeName: "thoughts",
+            state: { name: "failed", type: "FAILED" },
+            relations: [
+              {
+                type: "DEPENDS_ON",
+                targetWorkId: "task-known-complete-1",
+                targetWorkName:
+                  "planner-loopback-reconciliation-and-completion-repair",
+                requiredState: "complete",
+              },
+              {
+                type: "DEPENDS_ON",
+                targetWorkId: "task-known-complete-2",
+                targetWorkName: "ontology-topology-search-topology-prototype",
+                requiredState: "complete",
+              },
+            ],
+          },
+          {
+            workId: "task-known-complete-1",
+            name: "planner-loopback-reconciliation-and-completion-repair",
+            traceId: "trace-complete-1",
+            workTypeName: "task",
+            state: { name: "complete", type: "TERMINAL" },
+          },
+          {
+            workId: "task-known-complete-2",
+            name: "ontology-topology-search-topology-prototype",
+            traceId: "trace-complete-2",
+            workTypeName: "task",
+            state: { name: "complete", type: "TERMINAL" },
+          },
+        ],
+      }),
+    });
+
+    expect(report.summary).toMatchObject({
+      loopbackCount: 1,
+      completeDependencies: 2,
+      missingFromQueueDependencies: 0,
+      staleNoiseLoopbacks: 1,
+      repairableLoopbacks: 0,
+    });
+    expect(report.loopbacks).toEqual([
+      expect.objectContaining({
+        workItemName: "loopback-known-complete",
+        classification: "stale-noise",
+        reasons: [
+          "all DEPENDS_ON targets already satisfy the loopback: planner-loopback-reconciliation-and-completion-repair (complete/terminal), ontology-topology-search-topology-prototype (complete/terminal)",
+        ],
+        dependencies: [
+          expect.objectContaining({
+            targetWorkName:
+              "planner-loopback-reconciliation-and-completion-repair",
+            status: "complete",
+          }),
+          expect.objectContaining({
+            targetWorkName: "ontology-topology-search-topology-prototype",
+            status: "complete",
+          }),
+        ],
+      }),
+    ]);
+  });
 });
