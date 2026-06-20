@@ -27,6 +27,7 @@ import sparseAttentionComparisonTableRecord from "@/content/registry/tables/spar
 import standardFfnComparisonTableRecord from "@/content/registry/tables/standard-ffn-comparison.json";
 import swigluComparisonTableRecord from "@/content/registry/tables/swiglu-comparison.json";
 import tanhComparisonTableRecord from "@/content/registry/tables/tanh-comparison.json";
+import unigramTokenizerComparisonTableRecord from "@/content/registry/tables/unigram-tokenizer-comparison.json";
 
 export const generatedTableRegistrySourceFiles = [
   "batch-norm-comparison.json",
@@ -55,6 +56,7 @@ export const generatedTableRegistrySourceFiles = [
   "standard-ffn-comparison.json",
   "swiglu-comparison.json",
   "tanh-comparison.json",
+  "unigram-tokenizer-comparison.json",
 ] as const;
 
 export const generatedTableRegistryPayloads = [
@@ -84,4 +86,5 @@ export const generatedTableRegistryPayloads = [
   standardFfnComparisonTableRecord,
   swigluComparisonTableRecord,
   tanhComparisonTableRecord,
+  unigramTokenizerComparisonTableRecord,
 ] as const;

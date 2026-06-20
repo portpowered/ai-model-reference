@@ -7,6 +7,10 @@
       "title": "What It Is",
       "body": "A unigram tokenizer is a subword tokenizer that treats segmentation as a scoring problem over whole candidate segmentations. Instead of constructing text by replaying one merge rule after another, it keeps a learned vocabulary of possible pieces and selects the segmentation that scores best for the input string."
     },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Unigram tokenization exists so a tokenizer can keep a fixed-size subword vocabulary, still cover open-vocabulary text, and choose among multiple plausible segmentations instead of hard-coding one merge path. That makes it useful for rare words, spacing-heavy text, and multilingual raw-text pipelines such as SentencePiece-style training."
+    },
     "whatItOptimizes": {
       "title": "What It Optimizes",
       "body": "Unigram tokenization optimizes for a fixed-size subword vocabulary that can still cover open-vocabulary text. The model can keep multiple candidate pieces for the same substring and let the scoring function decide which combination best explains the sentence."

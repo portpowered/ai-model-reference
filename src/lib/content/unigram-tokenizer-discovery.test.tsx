@@ -48,7 +48,7 @@ describe("unigram tokenizer discovery registry", () => {
     });
     expect(items[1]).toMatchObject({
       registryId: "concept.tokenizers-overview",
-      title: "Tokenizers Overview",
+      title: "Tokenizer overview",
       href: undefined,
       isPlanned: true,
     });
@@ -73,7 +73,7 @@ describe("unigram tokenizer discovery registry", () => {
 
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/glossary/token"');
-    expect(html).toContain("Tokenizers Overview");
+    expect(html).toContain("Tokenizer overview");
     expect(html).toContain("SentencePiece");
     expect(html).toContain("BPE");
     expect(html.match(/data-planned="true"/g)).toHaveLength(3);

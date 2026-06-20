@@ -71,7 +71,7 @@ describe("loadModulePage unigram-tokenizer", () => {
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/glossary/token"');
     expect(html).not.toContain('href="/docs/glossary/embedding"');
-    expect(html).toContain("Tokenizers Overview");
+    expect(html).toContain("Tokenizer overview");
     expect(html).toContain("SentencePiece");
     expect(html).toContain("BPE");
     expect(html).toContain('data-planned="true"');
