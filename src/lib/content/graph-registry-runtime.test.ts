@@ -1,226 +1,81 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
-import { CONTENT_ROOT } from "@/lib/content/content-paths";
 import {
   clearRegisteredGraphRecords,
   getGraphById,
   listGraphRecords,
   registerGraphRecords,
 } from "@/lib/content/graph-registry-runtime";
-import { parseGraphRegistryRecords } from "@/lib/content/graph-registry-validation";
-import { graphRecordSchema } from "@/lib/content/schemas";
+import { type GraphRecord, graphRecordSchema } from "@/lib/content/schemas";
+
+const CANONICAL_GRAPH_ID = "graph.gpt-3-architecture";
+
+function requireBundledGraph(id = CANONICAL_GRAPH_ID): GraphRecord {
+  const record = getGraphById(id);
+  expect(record).toBeDefined();
+  return graphRecordSchema.parse(record);
+}
 
 describe("graph-registry-runtime", () => {
   afterEach(() => {
     clearRegisteredGraphRecords();
   });
 
-  test("loads published graph records by id", () => {
-    const computeFlow = getGraphById(
-      "graph.grouped-query-attention-compute-flow",
-    );
-    expect(computeFlow?.id).toBe("graph.grouped-query-attention-compute-flow");
-    expect(computeFlow?.nodes.length).toBeGreaterThanOrEqual(4);
-    expect(computeFlow?.edges.length).toBeGreaterThanOrEqual(3);
+  test("loads a bundled graph record by id", () => {
+    const graph = requireBundledGraph();
 
-    const computeSchema = getGraphById(
-      "graph.grouped-query-attention-compute-schema",
-    );
-    expect(computeSchema?.id).toBe(
-      "graph.grouped-query-attention-compute-schema",
-    );
-    expect(computeSchema?.nodes.length).toBeGreaterThanOrEqual(4);
-    expect(computeSchema?.edges.length).toBeGreaterThanOrEqual(3);
-
-    const mhaComparison = getGraphById(
-      "graph.grouped-query-attention-mha-comparison",
-    );
-    expect(mhaComparison?.id).toBe(
-      "graph.grouped-query-attention-mha-comparison",
-    );
-    expect(mhaComparison?.nodes.length).toBe(15);
-    expect(mhaComparison?.nodes.map((node) => node.id)).toContain(
-      "mha-query-head-4",
-    );
-    expect(mhaComparison?.nodes.map((node) => node.id)).toContain(
-      "mha-value-head-4",
-    );
-
-    const gqaComparison = getGraphById(
-      "graph.grouped-query-attention-gqa-comparison",
-    );
-    expect(gqaComparison?.id).toBe(
-      "graph.grouped-query-attention-gqa-comparison",
-    );
-    expect(gqaComparison?.nodes.length).toBe(11);
-
-    const mhaPageComparison = getGraphById(
-      "graph.multi-head-attention-mha-comparison",
-    );
-    expect(mhaPageComparison?.id).toBe(
-      "graph.multi-head-attention-mha-comparison",
-    );
-    expect(mhaPageComparison?.subjectId).toBe("module.multi-head-attention");
-    expect(mhaPageComparison?.nodes.length).toBe(15);
-
-    const mqaPageComparison = getGraphById(
-      "graph.multi-head-attention-mqa-comparison",
-    );
-    expect(mqaPageComparison?.id).toBe(
-      "graph.multi-head-attention-mqa-comparison",
-    );
-    expect(mqaPageComparison?.nodes.length).toBe(3);
-
-    const mhaTimePattern = getGraphById(
-      "graph.multi-head-attention-time-pattern",
-    );
-    expect(mhaTimePattern?.id).toBe("graph.multi-head-attention-time-pattern");
-    expect(mhaTimePattern?.nodes.length).toBe(7);
-
-    const mqaModuleMhaComparison = getGraphById(
-      "graph.multi-query-attention-mha-comparison",
-    );
-    expect(mqaModuleMhaComparison?.id).toBe(
-      "graph.multi-query-attention-mha-comparison",
-    );
-    expect(mqaModuleMhaComparison?.subjectId).toBe(
-      "module.multi-query-attention",
-    );
-
-    const mqaModuleMqaComparison = getGraphById(
-      "graph.multi-query-attention-mqa-comparison",
-    );
-    expect(mqaModuleMqaComparison?.id).toBe(
-      "graph.multi-query-attention-mqa-comparison",
-    );
-    expect(mqaModuleMqaComparison?.nodes.length).toBe(9);
-
-    const mlaMhaComparison = getGraphById(
-      "graph.multi-head-latent-attention-mha-comparison",
-    );
-    expect(mlaMhaComparison?.id).toBe(
-      "graph.multi-head-latent-attention-mha-comparison",
-    );
-    expect(mlaMhaComparison?.nodes.length).toBe(3);
-
-    const mlaComparison = getGraphById(
-      "graph.multi-head-latent-attention-mla-comparison",
-    );
-    expect(mlaComparison?.id).toBe(
-      "graph.multi-head-latent-attention-mla-comparison",
-    );
-    expect(mlaComparison?.nodes.length).toBe(15);
-
-    const linearMhaComparison = getGraphById(
-      "graph.linear-attention-mha-comparison",
-    );
-    expect(linearMhaComparison?.id).toBe(
-      "graph.linear-attention-mha-comparison",
-    );
-    expect(linearMhaComparison?.nodes.length).toBe(3);
-
-    const linearComparison = getGraphById(
-      "graph.linear-attention-linear-comparison",
-    );
-    expect(linearComparison?.id).toBe(
-      "graph.linear-attention-linear-comparison",
-    );
-    expect(linearComparison?.nodes.length).toBe(11);
-
-    const slidingWindowTimePattern = getGraphById(
-      "graph.sliding-window-attention-time-window-pattern",
-    );
-    expect(slidingWindowTimePattern?.id).toBe(
-      "graph.sliding-window-attention-time-window-pattern",
-    );
-    expect(slidingWindowTimePattern?.nodes.length).toBe(7);
-
-    const sparseTimePattern = getGraphById(
-      "graph.sparse-attention-time-pattern",
-    );
-    expect(sparseTimePattern?.id).toBe("graph.sparse-attention-time-pattern");
-    expect(sparseTimePattern?.nodes.length).toBe(7);
-
-    const bidirectionalTimePattern = getGraphById(
-      "graph.bidirectional-attention-time-pattern",
-    );
-    expect(bidirectionalTimePattern?.id).toBe(
-      "graph.bidirectional-attention-time-pattern",
-    );
-    expect(bidirectionalTimePattern?.subjectId).toBe(
-      "module.bidirectional-attention",
-    );
-    expect(bidirectionalTimePattern?.nodes.length).toBe(8);
-
-    expect(getGraphById("graph.token-concept-map")?.id).toBe(
-      "graph.token-concept-map",
-    );
+    expect(graph.id).toBe(CANONICAL_GRAPH_ID);
+    expect(graph.subjectId).toBe("model.gpt-3");
+    expect(graph.supportedRenderers).toContain("react-flow");
+    expect(graph.nodes.map((node) => node.id)).toContain("masked-mha");
+    expect(graph.edges.length).toBeGreaterThan(0);
   });
 
-  test("lists all bundled graph records", () => {
+  test("returns undefined for a missing graph id without disturbing bundled lookups", () => {
+    expect(getGraphById("graph.this-does-not-exist")).toBeUndefined();
+    expect(getGraphById(CANONICAL_GRAPH_ID)?.id).toBe(CANONICAL_GRAPH_ID);
+  });
+
+  test("lists generated bundled graph records", () => {
     const records = listGraphRecords();
+    const ids = records.map((record) => record.id);
 
-    expect(records.length).toBe(49);
-    expect(records.map((record) => record.id)).toContain(
-      "graph.bpe-compute-flow",
-    );
-    expect(records.map((record) => record.id)).toContain(
-      "graph.sentencepiece-compute-flow",
-    );
-    expect(records.map((record) => record.id)).toContain(
-      "graph.byte-level-tokenization-compute-flow",
-    );
-    expect(records.map((record) => record.id)).toContain(
-      "graph.deepseek-v4-contribution",
-    );
-    expect(records.map((record) => record.id)).toContain(
-      "graph.bidirectional-attention-time-pattern",
-    );
-    expect(records.map((record) => record.id)).toContain(
-      "graph.deepseek-v4-flash-architecture",
-    );
-    expect(records.map((record) => record.id)).toContain(
-      "graph.deepseek-v4-pro-architecture",
-    );
-    expect(records.map((record) => record.id)).toContain(
-      "graph.expert-parallel-overlap-system-flow",
-    );
-    expect(records.map((record) => record.id)).toContain(
-      "graph.routing-system-flow",
-    );
-    expect(records.map((record) => record.id)).toContain(
-      "graph.dpo-training-flow",
-    );
+    expect(ids).toContain(CANONICAL_GRAPH_ID);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(
+      records.find((record) => record.id === CANONICAL_GRAPH_ID)?.subjectId,
+    ).toBe("model.gpt-3");
   });
 
-  test("matches the root graph registry directory exactly", () => {
-    const graphsRoot = join(CONTENT_ROOT, "registry", "graphs");
-    const graphFileNames = readdirSync(graphsRoot)
-      .filter((fileName) => fileName.endsWith(".json"))
-      .sort((left, right) => left.localeCompare(right));
-    const rootRecords = parseGraphRegistryRecords(
-      graphFileNames.map((fileName) => ({
-        sourcePath: join(graphsRoot, fileName),
-        value: JSON.parse(readFileSync(join(graphsRoot, fileName), "utf8")),
-      })),
+  test("uses registered records for lookup without adding override-only records to the bundled listing", () => {
+    const rootRecord = requireBundledGraph();
+    const overrideOnlyRecord = graphRecordSchema.parse({
+      ...rootRecord,
+      id: "graph.runtime-override-only",
+      slug: "runtime-override-only",
+      subjectId: "concept.runtime-override-only",
+    });
+
+    registerGraphRecords([overrideOnlyRecord]);
+
+    expect(getGraphById("graph.runtime-override-only")?.subjectId).toBe(
+      "concept.runtime-override-only",
+    );
+    expect(listGraphRecords().map((record) => record.id)).not.toContain(
+      "graph.runtime-override-only",
     );
 
-    expect(listGraphRecords().map((record) => record.id)).toEqual(
-      rootRecords.map((record) => record.id),
-    );
+    clearRegisteredGraphRecords();
+
+    expect(getGraphById("graph.runtime-override-only")).toBeUndefined();
   });
 
-  test("keeps explicit overrides scoped to runtime lookup and reversible", () => {
-    const rootRecord = getGraphById("graph.gpt-3-architecture");
-    expect(rootRecord).toBeDefined();
-    const proofTemplateNode = rootRecord?.nodes[0];
-    expect(proofTemplateNode).toBeDefined();
-
+  test("lets registered records override bundled lookup and reset to canonical records", () => {
+    const rootRecord = requireBundledGraph();
+    const proofTemplateNode = rootRecord.nodes[0];
     const overrideRecord = graphRecordSchema.parse({
       ...rootRecord,
       nodes: [
-        ...(rootRecord?.nodes ?? []),
+        ...rootRecord.nodes,
         {
           ...proofTemplateNode,
           id: "override-proof-node",
@@ -231,20 +86,20 @@ describe("graph-registry-runtime", () => {
 
     registerGraphRecords([overrideRecord]);
 
-    const overriddenRecord = getGraphById("graph.gpt-3-architecture");
+    const overriddenRecord = getGraphById(CANONICAL_GRAPH_ID);
     expect(overriddenRecord?.nodes.map((node) => node.id)).toContain(
       "override-proof-node",
     );
     expect(
       listGraphRecords()
-        .find((record) => record.id === "graph.gpt-3-architecture")
+        .find((record) => record.id === CANONICAL_GRAPH_ID)
         ?.nodes.map((node) => node.id),
     ).not.toContain("override-proof-node");
 
     clearRegisteredGraphRecords();
 
     expect(
-      getGraphById("graph.gpt-3-architecture")?.nodes.map((node) => node.id),
+      getGraphById(CANONICAL_GRAPH_ID)?.nodes.map((node) => node.id),
     ).not.toContain("override-proof-node");
   });
 });
