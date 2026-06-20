@@ -10,6 +10,8 @@ import {
 } from "@/lib/content/content-runtime-preparation";
 
 const repoRoot = join(import.meta.dir, "../../..");
+const GENERATED_REGISTRY_RUNTIME_RELATIVE_PATH =
+  "src/lib/content/generated/registry-runtime.generated.ts";
 const LEGACY_TOP_LEVEL_GENERATED_RUNTIME_PATHS = [
   "src/lib/content/published-docs-registry-manifest.ts",
 ] as const;
@@ -107,5 +109,27 @@ describe("content runtime preparation", () => {
     for (const legacyPath of LEGACY_TOP_LEVEL_GENERATED_RUNTIME_PATHS) {
       expect(existsSync(join(repoRoot, legacyPath))).toBe(false);
     }
+  });
+
+  test("generated registry runtime is ignored as a derived artifact", () => {
+    const generatedRuntimePath = relative(
+      repoRoot,
+      join(
+        getGeneratedContentRuntimeRoot(repoRoot),
+        "registry-runtime.generated.ts",
+      ),
+    );
+    const checkIgnore = spawnSync(
+      "git",
+      ["check-ignore", "--quiet", "--no-index", generatedRuntimePath],
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+        env: process.env,
+      },
+    );
+
+    expect(generatedRuntimePath).toBe(GENERATED_REGISTRY_RUNTIME_RELATIVE_PATH);
+    expect(checkIgnore.status).toBe(0);
   });
 });

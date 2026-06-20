@@ -7,6 +7,7 @@ bin/
 out/
 .source/
 src/generated/
+src/lib/content/generated/registry-runtime.generated.ts
 storybook-static/
 coverage/
 playwright-report/
