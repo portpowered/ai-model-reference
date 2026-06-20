@@ -5,6 +5,24 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 describe("report-planner-concurrency-floor script", () => {
+  test("prints usage guidance for the planner-facing report contract", () => {
+    const result = spawnSync(
+      "bun",
+      ["./scripts/report-planner-concurrency-floor.ts", "--help"],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+      "Usage: bun ./scripts/report-planner-concurrency-floor.ts [options]",
+    );
+    expect(result.stdout).toContain("--floor <positive-integer>");
+    expect(result.stdout).toContain("--format <human|json>");
+    expect(result.stdout).toContain("status=below-target");
+    expect(result.stdout).toContain("recommendation=hold");
+    expect(result.stdout).toContain("advisory only");
+  });
+
   test("prints matching human-readable and machine-readable floor summaries for the same queue snapshot", () => {
     const dir = mkdtempSync(join(tmpdir(), "planner-concurrency-floor-"));
     const workListPath = join(dir, "work-list.json");
@@ -90,6 +108,7 @@ describe("report-planner-concurrency-floor script", () => {
 
       const jsonReport = JSON.parse(jsonResult.stdout) as {
         advisoryOnly: boolean;
+        contractVersion: string;
         usefulActiveLaneCount: number;
         concurrencyFloor: number;
         floorStatus: string;
@@ -98,6 +117,7 @@ describe("report-planner-concurrency-floor script", () => {
       };
       expect(jsonReport).toMatchObject({
         advisoryOnly: true,
+        contractVersion: "planner-concurrency-floor/v1",
         usefulActiveLaneCount: 2,
         concurrencyFloor: 3,
         floorStatus: "below-target",

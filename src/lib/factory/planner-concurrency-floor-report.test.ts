@@ -44,6 +44,7 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
     });
 
     expect(report.usefulActiveLaneCount).toBe(2);
+    expect(report.contractVersion).toBe("planner-concurrency-floor/v1");
     expect(report.floorStatus).toBe("below-target");
     expect(report.lanesNeededToReachFloor).toBe(1);
     expect(report.usefulActiveLanes).toEqual([
@@ -152,6 +153,7 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
     const jsonReport = JSON.parse(
       serializePlannerConcurrencyFloorReport(report),
     ) as {
+      contractVersion: string;
       usefulActiveLaneCount: number;
       concurrencyFloor: number;
       floorStatus: string;
@@ -171,6 +173,7 @@ describe("discoverPlannerConcurrencyFloorReport", () => {
     expect(reportText).toContain("Planner-Owned Backlog Candidates (0)");
     expect(reportText).toContain("Refill Candidates (0)");
     expect(jsonReport).toMatchObject({
+      contractVersion: "planner-concurrency-floor/v1",
       usefulActiveLaneCount: 1,
       concurrencyFloor: 2,
       floorStatus: "below-target",

@@ -103,6 +103,7 @@ export interface PlannerBacklogCandidate {
 }
 
 export interface PlannerConcurrencyFloorReport {
+  contractVersion: "planner-concurrency-floor/v1";
   advisoryOnly: true;
   generatedAtUtc: string;
   sourceSession: string;
@@ -590,6 +591,7 @@ export function discoverPlannerConcurrencyFloorReport(options: {
       : [];
 
   return {
+    contractVersion: "planner-concurrency-floor/v1",
     advisoryOnly: true,
     generatedAtUtc: queueHealth.generatedAtUtc,
     sourceSession,

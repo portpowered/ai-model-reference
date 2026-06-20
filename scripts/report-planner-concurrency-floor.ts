@@ -12,6 +12,36 @@ import { parsePlannerRelevantDirtyPaths } from "../src/lib/factory/planner-workt
 
 const defaultRepoRoot = resolve(import.meta.dir, "..");
 const DEFAULT_CONCURRENCY_FLOOR = 3;
+const HUMAN_OUTPUT_FORMAT = "human";
+const JSON_OUTPUT_FORMAT = "json";
+
+function formatPlannerConcurrencyFloorUsage(): string {
+  return [
+    "Usage: bun ./scripts/report-planner-concurrency-floor.ts [options]",
+    "",
+    "Planner-facing advisory report for useful active lanes, the configured concurrency floor, and the next safest planner-owned refill candidates.",
+    "",
+    "Options:",
+    "  --help                         Show this usage summary",
+    "  --json                         Shortcut for --format json",
+    "  --format <human|json>         Output format. Default: human",
+    `  --floor <positive-integer>     Concurrency floor. Default: ${DEFAULT_CONCURRENCY_FLOOR} or PLANNER_CONCURRENCY_FLOOR`,
+    "  --session <name>              Planner session to inspect. Default: ~default",
+    "  --repo-root <path>            Repository root for live queue and git evidence",
+    "  --work-list-json <path>       Use a saved `you work list` JSON snapshot instead of live queue data",
+    "  --tasks-root <path>           Backlog root to scan for planner-owned task markdown",
+    "  --temp-root <path>            Optional docs/temp root for explicit hold evidence",
+    "  --root-git-status-file <path> Use a saved `git status --porcelain=v1 --untracked-files=all` snapshot",
+    "",
+    "Interpretation:",
+    "  - `status=below-target` means useful active lanes are under the floor and `Refill Candidates` lists the safest planner-owned work to consider next.",
+    "  - `recommendation=prefer` means the candidate has grounded repo-path evidence and no current alias or dirty-surface conflict.",
+    "  - `recommendation=uncertain` means evidence is incomplete or only partial, so a planner should review the candidate before refilling.",
+    "  - `recommendation=hold` means active ownership, explicit temp-state holds, or dirty-path overlap make the candidate unsafe to dispatch now.",
+    "",
+    "The report is advisory only. It never submits work or mutates queue state.",
+  ].join("\n");
+}
 
 function readFlagValue(flag: string): string | undefined {
   const index = process.argv.indexOf(flag);
@@ -74,10 +104,26 @@ function collectTextSnapshots<
 }
 
 function isJsonOutputRequested(argv: string[]): boolean {
-  return (
-    argv.includes("--json") ||
-    (argv.includes("--format") &&
-      argv[argv.indexOf("--format") + 1]?.trim().toLowerCase() === "json")
+  return readOutputFormat(argv) === JSON_OUTPUT_FORMAT;
+}
+
+function readOutputFormat(argv: string[]): "human" | "json" {
+  if (argv.includes("--json")) {
+    return JSON_OUTPUT_FORMAT;
+  }
+
+  const rawFormat = readFlagValue("--format");
+  if (!rawFormat) {
+    return HUMAN_OUTPUT_FORMAT;
+  }
+
+  const normalized = rawFormat.trim().toLowerCase();
+  if (normalized === HUMAN_OUTPUT_FORMAT || normalized === JSON_OUTPUT_FORMAT) {
+    return normalized;
+  }
+
+  throw new Error(
+    `Invalid output format "${rawFormat}". Use --format human or --format json.`,
   );
 }
 
@@ -166,6 +212,11 @@ function readConcurrencyFloor(): number {
     );
   }
   return parsed;
+}
+
+if (process.argv.includes("--help")) {
+  process.stdout.write(`${formatPlannerConcurrencyFloorUsage()}\n`);
+  process.exit(0);
 }
 
 const repoRoot = readFlagValue("--repo-root")
