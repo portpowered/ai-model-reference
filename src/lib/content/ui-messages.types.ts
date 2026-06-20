@@ -167,6 +167,15 @@ export type UiMessages = {
     successTitle: string;
     successDescription: string;
     graphLabel: string;
+    fitGraphLabel: string;
+    resetGraphLabel: string;
+    legendTitle: string;
+    membershipLegendDescription: string;
+    relationshipLegendDescription: string;
+    accessibleNodeListTitle: string;
+    accessibleRelationshipListTitle: string;
+    classificationNodeLabel: string;
+    recordNodeLabel: string;
     activationChip: string;
     activationFunctionChip: string;
     feedForwardChip: string;

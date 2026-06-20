@@ -85,6 +85,7 @@
     "@xyflow/react": "^12.11.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cytoscape": "^3.34.0",
     "echarts": "^6.1.0",
     "fumadocs-core": "^16.9.3",
     "fumadocs-mdx": "^15.0.10",
