@@ -7,15 +7,13 @@ import {
   supportedLocales,
 } from "@/lib/i18n/locale-routing";
 import { tagPageHref } from "./content-hrefs";
-import { CONTENT_ROOT, DOCS_ROOT } from "./content-paths";
+import { CONTENT_ROOT, DOCS_ROOT, getDocsPageDir } from "./content-paths";
 import { collectTableMessageKeys } from "./module-comparison-table";
 import { assetMessageKeys, loadPageAssets } from "./page-assets-load";
 import {
   getMessageString,
-  groupedQueryAttentionPageDir,
   hasPageMessagesFile,
   loadPageMessages,
-  tokenGlossaryPageDir,
 } from "./page-messages-load";
 import { validatePageTemplateConformance } from "./page-template-conformance";
 import {
@@ -71,6 +69,7 @@ const registryKindDirectories: Record<string, string> = {
   module: "modules",
   concept: "concepts",
   model: "models",
+  classification: "classifications",
   paper: "papers",
   "training-regime": "training-regimes",
   system: "systems",
@@ -292,8 +291,8 @@ function missingReleaseMetadataFields(record: RegistryRecord): string[] {
 
 /** Phase 1 page directories validated even when `page.mdx` is not present yet. */
 export const phase1PageDirectories = [
-  groupedQueryAttentionPageDir,
-  tokenGlossaryPageDir,
+  getDocsPageDir("modules", "grouped-query-attention"),
+  getDocsPageDir("glossary", "token"),
 ] as const;
 
 export type ValidateRegistryContentOptions = {
@@ -1164,6 +1163,7 @@ async function validateRegistryFiles(
         indexes: {
           byId: new Map(),
           bySlug: new Map(),
+          classificationsById: new Map(),
           tagsById: new Map(),
           tagsBySlug: new Map(),
         },

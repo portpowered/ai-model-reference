@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { loadPublishedDocsPagesSync } from "@/lib/content/pages";
+import { publishedDocsHrefFromEntry } from "@/lib/content/published-docs-registry-contract";
 import {
   getPublishedDocsEntriesBySlug,
   getPublishedDocsEntryByRegistryId,
@@ -12,7 +13,11 @@ import {
   PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS,
   PUBLISHED_DOCS_REGISTRY_IDS,
 } from "@/lib/content/published-docs-registry-ids";
-import { buildPublishedDocsIndex } from "@/lib/content/published-docs-registry-source";
+import {
+  buildPublishedDocsIndex,
+  derivePublishedDocsRegistryIds,
+  derivePublishedDocsRuntimeManifest,
+} from "@/lib/content/published-docs-registry-source";
 
 function writePage(
   rootDir: string,
@@ -92,6 +97,60 @@ describe("published-docs-registry-ids", () => {
     ]);
   });
 
+  test("new published page discovery comes from source pages without a manual manifest edit", () => {
+    const docsRoot = mkdtempSync(join(tmpdir(), "published-docs-discovery-"));
+
+    writePage(docsRoot, "modules/feed-forward-network", {
+      kind: "module",
+      registryId: "module.feed-forward-network",
+      status: "published",
+    });
+    writePage(docsRoot, "modules/draft-quantization", {
+      kind: "module",
+      registryId: "module.grouped-query-attention",
+      status: "draft",
+    });
+    writePage(docsRoot, "glossary/archived-token", {
+      kind: "glossary",
+      registryId: "concept.token",
+      status: "archived",
+    });
+
+    const pages = loadPublishedDocsPagesSync("en", docsRoot);
+    const index = buildPublishedDocsIndex(pages);
+    const derivedRegistryIds = new Set(derivePublishedDocsRegistryIds(index));
+    const publishedEntry = index.byRegistryId.get(
+      "module.feed-forward-network",
+    );
+
+    expect(pages.map((page) => page.frontmatter.registryId)).toEqual([
+      "module.feed-forward-network",
+    ]);
+    expect(publishedEntry).toBeDefined();
+    if (!publishedEntry) {
+      throw new Error("Expected feed-forward-network module entry");
+    }
+    expect(publishedEntry).toEqual(
+      expect.objectContaining({
+        registryId: "module.feed-forward-network",
+        slug: "feed-forward-network",
+        docsSlug: "modules/feed-forward-network",
+        pageKind: "module",
+        section: "modules",
+      }),
+    );
+    expect(index.bySlug.get("feed-forward-network")).toEqual([publishedEntry]);
+    expect(publishedDocsHrefFromEntry(publishedEntry)).toBe(
+      "/docs/modules/feed-forward-network",
+    );
+    expect(derivedRegistryIds.has("module.feed-forward-network")).toBe(true);
+    expect(derivedRegistryIds.has("concept.feed-forward-network")).toBe(true);
+    expect(derivedRegistryIds.has("module.grouped-query-attention")).toBe(
+      false,
+    );
+    expect(derivedRegistryIds.has("concept.token")).toBe(false);
+  });
+
   test("derived runtime exposes published page lookup by registry id and slug", () => {
     const entry = getPublishedDocsEntryByRegistryId(
       "module.grouped-query-attention",
@@ -109,6 +168,23 @@ describe("published-docs-registry-ids", () => {
         }),
       ]),
     );
+  });
+
+  test("runtime manifest is derived from the scanner-backed source manifest", () => {
+    const manifest = derivePublishedDocsRuntimeManifest(
+      buildPublishedDocsIndex(loadPublishedDocsPagesSync("en")),
+    );
+
+    expect(listPublishedDocsEntries()).toEqual(manifest.entries);
+    expect([...PUBLISHED_DOCS_REGISTRY_IDS].sort()).toEqual([
+      ...manifest.registryIds,
+    ]);
+    expect([...PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS].sort()).toEqual([
+      ...manifest.publishedConceptSectionRegistryIds,
+    ]);
+    expect([...MODULE_BACKED_CONCEPT_REGISTRY_IDS].sort()).toEqual([
+      ...manifest.moduleBackedConceptRegistryIds,
+    ]);
   });
 
   test("derived compatibility sets come from published page discovery", () => {

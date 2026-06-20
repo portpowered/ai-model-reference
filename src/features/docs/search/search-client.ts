@@ -44,14 +44,16 @@ export type ModelAtlasDocsSearchOptions = {
   metaByUrl: SearchResultMetaRecord;
   locale?: SiteLocale;
   client?: StaticOptions;
+  classification?: string | null;
 };
 
 export function createModelAtlasSearchClient({
   metaByUrl,
   locale = defaultLocale,
   client = buildDocsSearchStaticOptions(locale),
+  classification,
 }: ModelAtlasDocsSearchOptions) {
-  return modelAtlasOramaSearchClient(client, metaByUrl);
+  return modelAtlasOramaSearchClient(client, metaByUrl, { classification });
 }
 
 /** @deprecated Use createModelAtlasSearchClient */
@@ -62,12 +64,18 @@ export function useModelAtlasDocsSearch(
     metaByUrl,
     locale = defaultLocale,
     client = buildDocsSearchStaticOptions(locale),
+    classification,
   }: ModelAtlasDocsSearchOptions,
   deps?: DependencyList,
 ) {
   return useDocsSearch(
     {
-      client: createModelAtlasSearchClient({ metaByUrl, locale, client }),
+      client: createModelAtlasSearchClient({
+        metaByUrl,
+        locale,
+        client,
+        classification,
+      }),
     },
     deps,
   );

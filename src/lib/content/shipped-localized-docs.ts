@@ -1,4 +1,4 @@
-import { SHIPPED_LOCALIZED_DOCS } from "@/generated/shipped-localized-docs";
+import { SHIPPED_LOCALIZED_DOCS } from "@/lib/content/generated/shipped-localized-docs.generated";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 
 export type NonDefaultLocale = Exclude<SiteLocale, "en">;

@@ -8,7 +8,14 @@ import { lookupMessage } from "@/lib/content/messages";
 
 const LEAKY_RELU_ALPHA = 0.1;
 
-const ACTIVATION_VARIANTS = ["relu", "leakyRelu", "silu"] as const;
+const ACTIVATION_VARIANTS = [
+  "sigmoid",
+  "tanh",
+  "gelu",
+  "relu",
+  "leakyRelu",
+  "silu",
+] as const;
 
 type ActivationVariant = (typeof ACTIVATION_VARIANTS)[number];
 
@@ -20,6 +27,10 @@ type ActivationSeriesDefinition = {
 type ActivationLineChartDefinition = {
   kind: "line";
   variants: readonly ActivationVariant[];
+  yAxis?: {
+    domain: readonly [number, number];
+    ticks: readonly number[];
+  };
 };
 
 type ActivationHeatmapChartDefinition = {
@@ -38,6 +49,21 @@ type ActivationChartDefinition =
 
 const ACTIVATION_SERIES: Record<ActivationVariant, ActivationSeriesDefinition> =
   {
+    sigmoid: {
+      evaluate: (x) => 1 / (1 + Math.exp(-x)),
+      color: "var(--primary)",
+    },
+    tanh: {
+      evaluate: (x) => Math.tanh(x),
+      color: "var(--accent)",
+    },
+    gelu: {
+      evaluate: (x) =>
+        0.5 *
+        x *
+        (1 + Math.tanh(Math.sqrt(2 / Math.PI) * (x + 0.044715 * x ** 3))),
+      color: "color-mix(in oklch, var(--accent) 45%, var(--primary) 55%)",
+    },
     relu: {
       evaluate: (x) => Math.max(0, x),
       color: "var(--primary)",
@@ -71,6 +97,26 @@ const HEATMAP_MIN = -3;
 const HEATMAP_MAX = 3;
 
 const ACTIVATION_CHARTS: Record<string, ActivationChartDefinition> = {
+  "chart.activation-family.sigmoid-intro": {
+    kind: "line",
+    variants: ["sigmoid"],
+    yAxis: {
+      domain: [0, 1],
+      ticks: [0, 0.5, 1],
+    },
+  },
+  "chart.activation-family.tanh-intro": {
+    kind: "line",
+    variants: ["tanh"],
+    yAxis: {
+      domain: [-1, 1],
+      ticks: [-1, 0, 1],
+    },
+  },
+  "chart.activation-family.gelu-intro": {
+    kind: "line",
+    variants: ["gelu", "relu", "silu"],
+  },
   "chart.activation-family.relu-intro": {
     kind: "line",
     variants: ["relu"],
@@ -95,6 +141,18 @@ const ACTIVATION_DATA = sampleLineGraphFunctions({
   sampleCount: 121,
   mapArgs: (x): [number] => [x],
   functions: [
+    {
+      dataKey: "sigmoid",
+      evaluate: (x: number) => ACTIVATION_SERIES.sigmoid.evaluate(x),
+    },
+    {
+      dataKey: "tanh",
+      evaluate: (x: number) => ACTIVATION_SERIES.tanh.evaluate(x),
+    },
+    {
+      dataKey: "gelu",
+      evaluate: (x: number) => ACTIVATION_SERIES.gelu.evaluate(x),
+    },
     {
       dataKey: "relu",
       evaluate: (x: number) => ACTIVATION_SERIES.relu.evaluate(x),
@@ -142,7 +200,19 @@ function resolveVariantLabel(
     return "LeakyReLU";
   }
 
-  return variantId === "silu" ? "SiLU" : "ReLU";
+  if (variantId === "silu") {
+    return "SiLU";
+  }
+
+  if (variantId === "tanh") {
+    return "Tanh";
+  }
+
+  if (variantId === "gelu") {
+    return "GELU";
+  }
+
+  return variantId === "sigmoid" ? "Sigmoid" : "ReLU";
 }
 
 function buildLineChartConfig(
@@ -278,8 +348,8 @@ function ActivationLineChart({
           ticks: [-6, -3, 0, 3, 6],
         }}
         yAxis={{
-          domain: [-1.5, 6],
-          ticks: [-1, 0, 2, 4, 6],
+          domain: definition.yAxis?.domain ?? [-1.5, 6],
+          ticks: definition.yAxis?.ticks ?? [-1, 0, 2, 4, 6],
           width: 36,
         }}
       />

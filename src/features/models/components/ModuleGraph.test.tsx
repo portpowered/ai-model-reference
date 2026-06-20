@@ -6,13 +6,18 @@ import { PageAssetsProvider } from "@/features/docs/components/page-assets-conte
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
 import { ModuleGraph } from "@/features/models/components/ModuleGraph";
 import { parsePageAssetConfig } from "@/lib/content/assets";
-import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { pageMessagesSchema } from "@/lib/content/schemas";
+
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
 
 const gqaMessages = pageMessagesSchema.parse(
   JSON.parse(
     readFileSync(
-      join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "messages/en.json"),
+      join(groupedQueryAttentionPageDir, "messages/en.json"),
       "utf8",
     ),
   ),
@@ -20,7 +25,7 @@ const gqaMessages = pageMessagesSchema.parse(
 
 const gqaAssets = parsePageAssetConfig(
   JSON.parse(
-    readFileSync(join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "assets.json"), "utf8"),
+    readFileSync(join(groupedQueryAttentionPageDir, "assets.json"), "utf8"),
   ),
 );
 

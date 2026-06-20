@@ -5,7 +5,7 @@ import {
   GROUPED_QUERY_ATTENTION_BUILT_HTML_PATH,
   verifyGroupedQueryAttentionBuiltRouteFromFile,
 } from "@/lib/build/verify-grouped-query-attention-built-route";
-import { GROUPED_QUERY_ATTENTION_PAGE_DIR } from "@/lib/content/content-paths";
+import { getDocsPageDir } from "@/lib/content/content-paths";
 import { loadLocalDocsPage } from "@/lib/content/local-docs-page";
 import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import { expectModuleCompanionSections } from "@/lib/content/module-test-helpers";
@@ -15,10 +15,15 @@ import {
   assertGroupedQueryAttentionModuleConvergence,
 } from "@/lib/verify/grouped-query-attention-module-convergence";
 
+const groupedQueryAttentionPageDir = getDocsPageDir(
+  "modules",
+  "grouped-query-attention",
+);
+
 describe("grouped-query-attention module companion sections", () => {
   test("published GQA page keeps comparison table, related docs, and attention bridge wiring", () => {
     const raw = readFileSync(
-      join(GROUPED_QUERY_ATTENTION_PAGE_DIR, "page.mdx"),
+      join(groupedQueryAttentionPageDir, "page.mdx"),
       "utf8",
     );
 

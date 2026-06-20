@@ -24,6 +24,7 @@ function toSearchPageHandoff(searchParams: URLSearchParams) {
   return {
     q: searchParams.get("q"),
     tag: searchParams.get("tag"),
+    classification: searchParams.get("classification"),
   };
 }
 

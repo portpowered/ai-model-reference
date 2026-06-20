@@ -1,7 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { PROSE_AUTO_LINK_PHRASES } from "@/lib/content/prose-auto-link-runtime";
 import {
+  getPublishedDocsEntriesBySlug,
+  getPublishedDocsEntryByRegistryId,
   getPublishedDocsHrefForRecord,
+  listPublishedDocsEntries,
+  MODULE_BACKED_CONCEPT_REGISTRY_IDS,
   PUBLISHED_DOCS_REGISTRY_IDS,
 } from "@/lib/content/published-docs-registry-ids";
 import {
@@ -34,7 +38,7 @@ function requireRecord<T>(record: T | undefined, label: string): T {
 }
 
 describe("published docs routing contract", () => {
-  test("derived href lookup covers representative published record kinds", () => {
+  test("derived lookup surface covers representative published record kinds", () => {
     const cases = [
       {
         label: "module",
@@ -95,8 +99,23 @@ describe("published docs routing contract", () => {
         href: "/docs/systems/on-disk-kv-cache",
       },
     ] as const;
+    const listedEntriesByRegistryId = new Map(
+      listPublishedDocsEntries().map((entry) => [entry.registryId, entry]),
+    );
 
     for (const { label, record, href } of cases) {
+      const entryByRegistryId = getPublishedDocsEntryByRegistryId(record.id);
+      const entriesBySlug = getPublishedDocsEntriesBySlug(record.slug);
+
+      expect(listedEntriesByRegistryId.get(record.id), label).toEqual(
+        entryByRegistryId,
+      );
+      expect(entryByRegistryId?.registryId, label).toBe(record.id);
+      expect(entryByRegistryId?.slug, label).toBe(record.slug);
+      expect(
+        entriesBySlug.some((entry) => entry.registryId === record.id),
+        label,
+      ).toBe(true);
       expect(getPublishedDocsHrefForRecord(record), label).toBe(href);
       expect(registryRecordHref(record), label).toBe(href);
       expect(
@@ -161,5 +180,54 @@ describe("published docs routing contract", () => {
       expect(relatedHrefsById.get(record.id), record.id).toBe(href);
       expect(resolvePhraseHref(alias), alias).toBe(href);
     }
+  });
+
+  test("module-backed concepts keep stable membership and href behavior for runtime callers", () => {
+    const feedForwardNetwork = requireRecord(
+      getConceptById("concept.feed-forward-network"),
+      "feed-forward-network concept",
+    );
+    const publishedModuleEntry = requireRecord(
+      getPublishedDocsEntryByRegistryId("module.feed-forward-network"),
+      "feed-forward-network module entry",
+    );
+    const source = {
+      ...requireRecord(getModelById("model.gpt-3"), "gpt-3 model"),
+      relatedIds: [feedForwardNetwork.id],
+    };
+    const [relatedItem] = deriveCuratedRelatedItems(
+      source,
+      [feedForwardNetwork],
+      PUBLISHED_DOCS_REGISTRY_IDS,
+    );
+
+    expect(getPublishedDocsEntryByRegistryId(feedForwardNetwork.id)).toBe(
+      undefined,
+    );
+    expect(getPublishedDocsEntriesBySlug(feedForwardNetwork.slug)).toEqual([
+      publishedModuleEntry,
+    ]);
+    expect(MODULE_BACKED_CONCEPT_REGISTRY_IDS.has(feedForwardNetwork.id)).toBe(
+      true,
+    );
+    expect(
+      hasPublishedDocsPageForRecord(
+        feedForwardNetwork,
+        PUBLISHED_DOCS_REGISTRY_IDS,
+      ),
+    ).toBe(true);
+    expect(getPublishedDocsHrefForRecord(feedForwardNetwork)).toBe(
+      "/docs/modules/feed-forward-network",
+    );
+    expect(registryRecordHref(feedForwardNetwork)).toBe(
+      "/docs/modules/feed-forward-network",
+    );
+    expect(relatedItem).toEqual(
+      expect.objectContaining({
+        registryId: feedForwardNetwork.id,
+        href: "/docs/modules/feed-forward-network",
+        isPlanned: false,
+      }),
+    );
   });
 });

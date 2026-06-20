@@ -5,11 +5,14 @@ import { join } from "node:path";
 import { EXPORT_SEARCH_HYDRATION_SURFACE } from "./phase-1-export-search-convergence-evidence";
 import {
   CI_EXPORT_SEARCH_UX_PROBE_QUERIES,
+  CI_SCRIPT_TIMEOUT_MS_ENV,
+  DEFAULT_CI_SCRIPT_TIMEOUT_MS,
   DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS,
   EXPORT_SEARCH_UX_STUB_ENV,
   formatPhase1ExportSearchHydrationUxReason,
   formatPhase1ExportSearchUxCheckFailure,
   resolveCiExportSearchUxProbeQueries,
+  resolveCiScriptTimeoutMs,
   resolveExportSearchUxCheckOptionsFromEnv,
   runPhase1ExportSearchUxChecks,
 } from "./phase-1-export-search-ux-checks";
@@ -69,6 +72,36 @@ describe("resolveExportSearchUxCheckOptionsFromEnv", () => {
     });
     expect(options.searchPageOptions?.runQueryCheck).toBeDefined();
     expect(options.searchDialogOptions?.runQueryCheck).toBeDefined();
+  });
+});
+
+describe("resolveCiScriptTimeoutMs", () => {
+  test("returns null outside CI", () => {
+    expect(resolveCiScriptTimeoutMs({})).toBeNull();
+  });
+
+  test("defaults to five minutes in CI", () => {
+    expect(resolveCiScriptTimeoutMs({ CI: "true" })).toBe(
+      DEFAULT_CI_SCRIPT_TIMEOUT_MS,
+    );
+  });
+
+  test("accepts explicit CI script timeout overrides", () => {
+    expect(
+      resolveCiScriptTimeoutMs({
+        GITHUB_ACTIONS: "true",
+        [CI_SCRIPT_TIMEOUT_MS_ENV]: "1234",
+      }),
+    ).toBe(1234);
+  });
+
+  test("falls back to five minutes for invalid overrides", () => {
+    expect(
+      resolveCiScriptTimeoutMs({
+        CI: "true",
+        [CI_SCRIPT_TIMEOUT_MS_ENV]: "not-a-number",
+      }),
+    ).toBe(DEFAULT_CI_SCRIPT_TIMEOUT_MS);
   });
 });
 

@@ -100,7 +100,7 @@ export const JAPANESE_ATTENTION_ROUTE_ASSERTIONS: readonly JapaneseAttentionRout
         const missing = requireSubstrings(visibleHtml, [
           "検索",
           "正規の検索エントリ URL: /search。",
-          "/search?tag=attention",
+          "?tag=&lt;slug&gt;",
           'data-testid="search-page-idle"',
         ]);
         if (missing) {
