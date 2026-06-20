@@ -139,6 +139,142 @@ describe("canonical page surface audit", () => {
           paths: ["src/tests/ci/example.test.ts"],
         },
       ]);
+      expect(audit.guidance.recommendedAction).toBe(
+        "redirect-to-throughput-prd",
+      );
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
+
+  test("keeps a single shared helper touch in the visible exception lane", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "canonical-page-surface-"));
+
+    try {
+      mkdirSync(
+        join(repoRoot, "src/content/docs/modules/example-page/messages"),
+        {
+          recursive: true,
+        },
+      );
+      mkdirSync(join(repoRoot, "src/content/registry/modules"), {
+        recursive: true,
+      });
+      mkdirSync(join(repoRoot, "src/lib/content"), {
+        recursive: true,
+      });
+
+      writeFileSync(
+        join(repoRoot, "src/content/docs/modules/example-page/page.mdx"),
+        `---\nkind: "module"\nregistryId: "module.example-page"\nmessageNamespace: "local"\nassetNamespace: "local"\nstatus: "published"\ntags:\n  - "attention"\nupdatedAt: "2026-06-20"\n---\n`,
+      );
+      writeJson(
+        join(repoRoot, "src/content/registry/modules/example-page.json"),
+        {
+          id: "module.example-page",
+        },
+      );
+
+      const snapshot: ConflictHotspotSnapshot = {
+        generatedAtUtc: "2026-06-20T12:00:00.000Z",
+        rankedSurfaces: [
+          {
+            category: "shared-helper",
+            distinctPaths: 1,
+            representativePaths: ["src/lib/content/slug-utils.ts"],
+            surface: "src/lib/content",
+            touches: 5,
+          },
+        ],
+        recentCommitLimit: 40,
+        repoRoot,
+        topPaths: [],
+        worktrees: [],
+      };
+
+      const audit = collectCanonicalPageSurfaceAudit(repoRoot, {
+        changedPaths: [
+          "src/content/docs/modules/example-page/page.mdx",
+          "src/lib/content/slug-utils.ts",
+        ],
+        exception: {
+          reason:
+            "Page publish requires one narrow shared helper update for slug normalization.",
+        },
+        pageDirectory: "src/content/docs/modules/example-page",
+        snapshot,
+      });
+
+      expect(audit.budgetStatus).toBe("over-budget");
+      expect(audit.guidance.recommendedAction).toBe("declare-exception");
+      expect(audit.exception?.reason).toContain("slug normalization");
+      expect(audit.guidance.details.join("\n")).toContain(
+        "Visible exception declared",
+      );
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
+
+  test("treats generated outputs without shared hotspot paths as split-back work", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "canonical-page-surface-"));
+
+    try {
+      mkdirSync(
+        join(repoRoot, "src/content/docs/modules/example-page/messages"),
+        {
+          recursive: true,
+        },
+      );
+      mkdirSync(join(repoRoot, "src/content/registry/modules"), {
+        recursive: true,
+      });
+      mkdirSync(join(repoRoot, "src/lib/content/generated"), {
+        recursive: true,
+      });
+
+      writeFileSync(
+        join(repoRoot, "src/content/docs/modules/example-page/page.mdx"),
+        `---\nkind: "module"\nregistryId: "module.example-page"\nmessageNamespace: "local"\nassetNamespace: "local"\nstatus: "published"\ntags:\n  - "attention"\nupdatedAt: "2026-06-20"\n---\n`,
+      );
+      writeJson(
+        join(repoRoot, "src/content/registry/modules/example-page.json"),
+        {
+          id: "module.example-page",
+        },
+      );
+
+      const snapshot: ConflictHotspotSnapshot = {
+        generatedAtUtc: "2026-06-20T12:00:00.000Z",
+        rankedSurfaces: [
+          {
+            category: "generated-artifact",
+            distinctPaths: 1,
+            representativePaths: [
+              "src/lib/content/generated/runtime.generated.ts",
+            ],
+            surface: "src/lib/content",
+            touches: 4,
+          },
+        ],
+        recentCommitLimit: 40,
+        repoRoot,
+        topPaths: [],
+        worktrees: [],
+      };
+
+      const audit = collectCanonicalPageSurfaceAudit(repoRoot, {
+        changedPaths: [
+          "src/content/docs/modules/example-page/page.mdx",
+          "src/lib/content/generated/runtime.generated.ts",
+        ],
+        pageDirectory: "src/content/docs/modules/example-page",
+        snapshot,
+      });
+
+      expect(audit.budgetStatus).toBe("over-budget");
+      expect(audit.guidance.recommendedAction).toBe("split-to-page-owned-work");
+      expect(audit.guidance.headline).toContain("Split this branch back");
     } finally {
       rmSync(repoRoot, { force: true, recursive: true });
     }

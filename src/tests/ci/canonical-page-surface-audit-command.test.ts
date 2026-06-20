@@ -94,6 +94,12 @@ describe("audit-canonical-page-surface script", () => {
       expect(result.stdout ?? "").toContain(
         "src/tests/ci/example-surface.test.ts -> shared hotspot surface [shared test/verification]",
       );
+      expect(result.stdout ?? "").toContain(
+        "Recommended action: redirect-to-throughput-prd",
+      );
+      expect(result.stdout ?? "").toContain(
+        "This branch crosses known shared conflict surfaces and should be redirected out of the routine canonical-page lane.",
+      );
     } finally {
       rmSync(repoRoot, { force: true, recursive: true });
     }
@@ -146,5 +152,36 @@ describe("audit-canonical-page-surface script", () => {
     expect(result.stdout ?? "").toContain(
       "Changed paths: explicit changed-file set",
     );
+  });
+
+  test("prints a visible exception reason for a narrow shared-surface exception", () => {
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/audit-canonical-page-surface.ts",
+        "--repo-root",
+        process.cwd(),
+        "--page-dir",
+        "src/content/docs/modules/grouped-query-attention",
+        "--files",
+        "src/content/docs/modules/grouped-query-attention/page.mdx",
+        "src/lib/content/slug-utils.ts",
+        "--exception-reason",
+        "One shared helper update is required to publish the page.",
+      ],
+      {
+        cwd: process.cwd(),
+        encoding: "utf8",
+      },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout ?? "").toContain(
+      "Recommended action: declare-exception",
+    );
+    expect(result.stdout ?? "").toContain(
+      "Visible exception: One shared helper update is required to publish the page.",
+    );
+    expect(result.stdout ?? "").toContain("Visible exception declared:");
   });
 });

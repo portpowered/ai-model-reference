@@ -509,13 +509,28 @@ branch-local check against this budget. The command audits the current branch by
 default, or you can pass an explicit file set with
 `bun run audit:canonical-page-surface -- --page-dir src/content/docs/<group>/<slug> --files <path...>`.
 It reads the canonical page frontmatter, classifies each changed path as
-page-owned, declared generated output, or a shared hotspot surface, and fails
-clearly if it cannot determine one page scope or current hotspot evidence.
+page-owned, declared generated output, or a shared hotspot surface, then
+prints one recommended action:
+
+- `keep-routine` when the branch stays inside the default owned page surface
+- `split-to-page-owned-work` when the diff mainly includes generated outputs
+  that should be removed from the routine review commit
+- `declare-exception` when one narrow shared touch can stay in the PR with an
+  explicit justification
+- `redirect-to-throughput-prd` when the branch crosses broader shared hotspot
+  categories or multiple shared surfaces at once
+
+The audit fails clearly only when it cannot determine one page scope or current
+hotspot evidence.
 
 When a page truly needs cross-surface work, keep the exception visible. State
 which shared category was touched, why the owned page surface was insufficient,
 and whether the change still fits one narrow PR or should move into a dedicated
-throughput/factory lane.
+throughput/factory lane. Use
+`bun run audit:canonical-page-surface -- --exception-reason "<why this shared touch is required>"`
+for those cases. The guard still reports `over-budget`, but it echoes the
+exception so you can paste the same wording into the PR conversation comment and
+keep the broader touch reviewable instead of silently downgrading the warning.
 
 ### Checks that are not the default contributor path
 

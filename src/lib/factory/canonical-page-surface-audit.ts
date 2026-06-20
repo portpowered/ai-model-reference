@@ -56,11 +56,29 @@ export type CanonicalPageSurfaceSharedCategorySummary = {
   paths: readonly string[];
 };
 
+export type CanonicalPageSurfaceRecommendedAction =
+  | "declare-exception"
+  | "keep-routine"
+  | "redirect-to-throughput-prd"
+  | "split-to-page-owned-work";
+
+export type CanonicalPageSurfaceException = {
+  reason: string;
+};
+
+export type CanonicalPageSurfaceGuidance = {
+  details: readonly string[];
+  headline: string;
+  recommendedAction: CanonicalPageSurfaceRecommendedAction;
+};
+
 export type CanonicalPageSurfaceAuditResult = {
   budgetStatus: "over-budget" | "within-budget";
   changedPathSource: string;
   classifications: readonly CanonicalPageSurfaceClassification[];
+  exception: CanonicalPageSurfaceException | null;
   generatedOutputs: readonly string[];
+  guidance: CanonicalPageSurfaceGuidance;
   pageOwnedPaths: readonly string[];
   pageScope: {
     docsSlug: string;
@@ -83,6 +101,7 @@ export class CanonicalPageSurfaceAuditError extends Error {
 type CollectCanonicalPageSurfaceAuditOptions = {
   baseRef?: string;
   changedPaths?: readonly string[];
+  exception?: CanonicalPageSurfaceException;
   pageDirectory?: string;
   snapshot?: ConflictHotspotSnapshot;
 };
@@ -503,6 +522,106 @@ function classifyChangedPath(
   };
 }
 
+function collectGuidance(
+  classifications: readonly CanonicalPageSurfaceClassification[],
+  exception: CanonicalPageSurfaceException | null,
+  sharedHotspotCategories: readonly CanonicalPageSurfaceSharedCategorySummary[],
+): CanonicalPageSurfaceGuidance {
+  const generatedOutputs = classifications
+    .filter((item) => item.kind === "declared-generated-output")
+    .map((item) => item.path);
+  const sharedPaths = classifications
+    .filter((item) => item.kind === "shared-hotspot-surface")
+    .map((item) => item.path);
+  const sharedCategoryLabels = sharedHotspotCategories.map(
+    (item) => item.categoryLabel,
+  );
+  const hasSharedTestCategory = sharedHotspotCategories.some(
+    (item) => item.category === "shared-test",
+  );
+  const hasMultipleSharedCategories = sharedHotspotCategories.length > 1;
+  const hasMultipleSharedPaths = sharedPaths.length > 1;
+
+  if (generatedOutputs.length === 0 && sharedHotspotCategories.length === 0) {
+    return {
+      details: [
+        "This branch stays inside the default owned page surface for one canonical page.",
+      ],
+      headline: "Routine page-owned work; no extra justification is needed.",
+      recommendedAction: "keep-routine",
+    };
+  }
+
+  if (generatedOutputs.length > 0 && sharedHotspotCategories.length === 0) {
+    return {
+      details: [
+        `Generated outputs are present in the branch diff: ${generatedOutputs.join(", ")}.`,
+        "Regenerate supported outputs locally, then drop generated runtime artifacts from the routine commit unless this branch is explicitly broader than one page.",
+      ],
+      headline:
+        "Split this branch back to page-owned work by removing generated output churn from the review commit.",
+      recommendedAction: "split-to-page-owned-work",
+    };
+  }
+
+  if (
+    !hasSharedTestCategory &&
+    !hasMultipleSharedCategories &&
+    !hasMultipleSharedPaths &&
+    generatedOutputs.length === 0
+  ) {
+    const details = [
+      `One shared hotspot category is touched: ${sharedCategoryLabels.join(", ")}.`,
+      `Shared path: ${sharedPaths.join(", ")}.`,
+    ];
+    if (exception) {
+      details.push(
+        `Visible exception declared: "${exception.reason}". Repeat that justification in the PR conversation comment so reviewers can evaluate the broader touch explicitly.`,
+      );
+    } else {
+      details.push(
+        'If this shared touch is truly required to ship the page, rerun the guard with --exception-reason "..." and copy the same justification into the PR conversation comment.',
+      );
+    }
+
+    return {
+      details,
+      headline:
+        "This branch is over the routine budget, but it can stay in one narrow PR if you make the exception explicit and reviewable.",
+      recommendedAction: "declare-exception",
+    };
+  }
+
+  const details = [
+    sharedCategoryLabels.length > 0
+      ? `Shared hotspot categories in this branch: ${sharedCategoryLabels.join(", ")}.`
+      : "This branch exceeds the routine page-owned budget.",
+  ];
+  if (sharedPaths.length > 0) {
+    details.push(`Representative shared paths: ${sharedPaths.join(", ")}.`);
+  }
+  if (generatedOutputs.length > 0) {
+    details.push(
+      `Generated outputs are also present: ${generatedOutputs.join(", ")}.`,
+    );
+  }
+  details.push(
+    "Split the broader work into a dedicated throughput PRD lane, or separate the shared-surface changes from the routine canonical-page branch.",
+  );
+  if (exception) {
+    details.push(
+      `A visible exception was declared ("${exception.reason}"), but the branch still exceeds the narrow one-page exception lane.`,
+    );
+  }
+
+  return {
+    details,
+    headline:
+      "This branch crosses known shared conflict surfaces and should be redirected out of the routine canonical-page lane.",
+    recommendedAction: "redirect-to-throughput-prd",
+  };
+}
+
 export function collectCanonicalPageSurfaceAudit(
   repoRoot: string,
   options: CollectCanonicalPageSurfaceAuditOptions = {},
@@ -542,15 +661,26 @@ export function collectCanonicalPageSurfaceAudit(
     classifications,
     resolvedSnapshot,
   );
+  const generatedOutputs = classifications
+    .filter((item) => item.kind === "declared-generated-output")
+    .map((item) => item.path);
+  const budgetStatus =
+    sharedHotspotCategories.length > 0 || generatedOutputs.length > 0
+      ? "over-budget"
+      : "within-budget";
+  const exception = options.exception ?? null;
 
   return {
-    budgetStatus:
-      sharedHotspotCategories.length > 0 ? "over-budget" : "within-budget",
+    budgetStatus,
     changedPathSource: changedPathSet.source,
     classifications,
-    generatedOutputs: classifications
-      .filter((item) => item.kind === "declared-generated-output")
-      .map((item) => item.path),
+    exception,
+    generatedOutputs,
+    guidance: collectGuidance(
+      classifications,
+      exception,
+      sharedHotspotCategories,
+    ),
     pageOwnedPaths: classifications
       .filter((item) => item.kind === "page-owned")
       .map((item) => item.path),
@@ -585,6 +715,11 @@ export function formatCanonicalPageSurfaceAudit(
     lines.push(
       `- Page-specific support records: ${result.pageScope.supportRecordPaths.join(", ")}`,
     );
+  }
+
+  lines.push(`- Recommended action: ${result.guidance.recommendedAction}`);
+  if (result.exception) {
+    lines.push(`- Visible exception: ${result.exception.reason}`);
   }
 
   lines.push("", "Changed path classifications");
@@ -625,6 +760,12 @@ export function formatCanonicalPageSurfaceAudit(
         lines.push(`  Evidence: ${summary.evidenceSurfaces.join(", ")}`);
       }
     }
+  }
+
+  lines.push("", "Guidance");
+  lines.push(`- ${result.guidance.headline}`);
+  for (const detail of result.guidance.details) {
+    lines.push(`- ${detail}`);
   }
 
   return lines.join("\n");

@@ -8,6 +8,7 @@ import {
 type ParsedArgs = {
   baseRef?: string;
   changedPaths: string[];
+  exceptionReason?: string;
   pageDirectory?: string;
   repoRoot: string;
 };
@@ -15,6 +16,7 @@ type ParsedArgs = {
 function parseArgs(argv: readonly string[]): ParsedArgs {
   const changedPaths: string[] = [];
   let baseRef: string | undefined;
+  let exceptionReason: string | undefined;
   let pageDirectory: string | undefined;
   let repoRoot = resolve(import.meta.dir, "..");
 
@@ -29,6 +31,12 @@ function parseArgs(argv: readonly string[]): ParsedArgs {
 
     if (value === "--page-dir") {
       pageDirectory = argv[index + 1];
+      index += 1;
+      continue;
+    }
+
+    if (value === "--exception-reason") {
+      exceptionReason = argv[index + 1];
       index += 1;
       continue;
     }
@@ -54,6 +62,7 @@ function parseArgs(argv: readonly string[]): ParsedArgs {
   return {
     baseRef,
     changedPaths,
+    exceptionReason,
     pageDirectory,
     repoRoot,
   };
@@ -65,6 +74,9 @@ try {
   const audit = collectCanonicalPageSurfaceAudit(args.repoRoot, {
     baseRef: args.baseRef,
     changedPaths: args.changedPaths.length > 0 ? args.changedPaths : undefined,
+    exception: args.exceptionReason
+      ? { reason: args.exceptionReason }
+      : undefined,
     pageDirectory: args.pageDirectory,
   });
   console.log(formatCanonicalPageSurfaceAudit(audit));
