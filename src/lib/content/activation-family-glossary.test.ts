@@ -7,6 +7,7 @@ import { ModulePageProviders } from "@/features/docs/components/ModulePageProvid
 import {
   LEAKY_RELU_GLOSSARY_PAGE_DIR,
   RELU_GLOSSARY_PAGE_DIR,
+  SIGMOID_GLOSSARY_PAGE_DIR,
   SILU_GLOSSARY_PAGE_DIR,
   SWIGLU_GLOSSARY_PAGE_DIR,
 } from "@/lib/content/content-paths";
@@ -22,8 +23,38 @@ import {
 import { deriveCuratedRelatedItems } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
+import { docsSearchApi } from "@/lib/search/search-server";
 
 const PAGE_CASES = [
+  {
+    slug: "sigmoid",
+    registryId: "concept.sigmoid",
+    title: "Sigmoid Activation",
+    pageDir: SIGMOID_GLOSSARY_PAGE_DIR,
+    pageKind: "module",
+    usesModuleTemplate: true,
+    expectedTags: ["activation", "foundations"],
+    aliases: ["logistic activation", "logistic sigmoid", "sigmoid function"],
+    relatedIds: [
+      "concept.activation",
+      "concept.feed-forward-network",
+      "concept.standard-ffn",
+      "concept.relu",
+      "concept.silu",
+    ],
+    hrefs: [
+      "/docs/glossary/activation",
+      "/docs/modules/feed-forward-network",
+      "/docs/modules/standard-ffn",
+      "/docs/modules/relu",
+      "/docs/modules/silu",
+    ],
+    messageNeedles: ["smooth", "saturat", "0-to-1"],
+    renderNeedle: "maps each input value",
+    searchQuery: "sigmoid",
+    searchQueries: ["sigmoid", "logistic activation", "activation"],
+    searchUrl: "/docs/modules/sigmoid",
+  },
   {
     slug: "relu",
     registryId: "concept.relu",
@@ -155,6 +186,7 @@ const PAGE_CASES = [
   messageNeedles: readonly string[];
   renderNeedle: string;
   searchQuery: string;
+  searchQueries?: readonly string[];
   searchUrl: string;
   expectedGraphId?: string;
 }>;
@@ -275,5 +307,16 @@ describe("Phase 3 activation-family glossary pages (US-002)", () => {
       expect(document?.headings.length ?? 0).toBeGreaterThan(0);
       expect(testCase.searchQuery.length).toBeGreaterThan(0);
     });
+
+    if ("searchQueries" in testCase) {
+      test(`${testCase.title} search queries return the published module page`, async () => {
+        for (const query of testCase.searchQueries) {
+          const results = await docsSearchApi.search(query);
+          expect(
+            results.some((result) => result.url === testCase.searchUrl),
+          ).toBe(true);
+        }
+      });
+    }
   }
 });

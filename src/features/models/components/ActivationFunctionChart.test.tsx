@@ -3,12 +3,21 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { cleanup, render } from "@testing-library/react";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
-import { RELU_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
+import {
+  RELU_GLOSSARY_PAGE_DIR,
+  SIGMOID_GLOSSARY_PAGE_DIR,
+} from "@/lib/content/content-paths";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
 const reluMessages = pageMessagesSchema.parse(
   JSON.parse(
     readFileSync(join(RELU_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
+  ),
+);
+
+const sigmoidMessages = pageMessagesSchema.parse(
+  JSON.parse(
+    readFileSync(join(SIGMOID_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
   ),
 );
 
@@ -42,6 +51,34 @@ describe("ActivationFunctionChart", () => {
     expect(container.querySelector(".line-graph__line--relu")).toBeTruthy();
     expect(container.querySelector(".line-graph__line--silu")).toBeNull();
     expect(container.textContent).toContain("Activation Curves");
+  });
+
+  test("renders only the sigmoid curve on the sigmoid intro chart", async () => {
+    const { ActivationFunctionChart } = await import(
+      "@/features/models/components/ActivationFunctionChart"
+    );
+
+    const { container } = render(
+      <PageMessagesProvider messages={sigmoidMessages} isDev={false}>
+        <ActivationFunctionChart
+          assetId="computeFlow"
+          chartId="chart.activation-family.sigmoid-intro"
+          alt={sigmoidMessages.assets?.computeFlow?.alt}
+          caption={sigmoidMessages.assets?.computeFlow?.caption}
+        />
+      </PageMessagesProvider>,
+    );
+
+    expect(
+      container.querySelector(
+        '[data-chart-id="chart.activation-family.sigmoid-intro"]',
+      ),
+    ).toBeTruthy();
+    expect(container.querySelectorAll(".recharts-line-curve").length).toBe(1);
+    expect(container.querySelector(".line-graph__line--sigmoid")).toBeTruthy();
+    expect(container.querySelector(".line-graph__line--relu")).toBeNull();
+    expect(container.textContent).toContain("Activation Curves");
+    expect(container.textContent).toContain("Sigmoid");
   });
 
   test("renders the ReLU hidden-state heatmap shell", async () => {

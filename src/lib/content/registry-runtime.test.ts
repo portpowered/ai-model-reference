@@ -216,6 +216,14 @@ describe("registry-runtime", () => {
     expect(getPrimaryClassificationForRecord("concept.activation")?.id).toBe(
       "classification.activation-functions",
     );
+    expect(getPrimaryClassificationForRecord("module.sigmoid")?.id).toBe(
+      "classification.activation-functions",
+    );
+    expect(listSecondaryClassificationsForRecord("module.sigmoid")).toEqual([
+      expect.objectContaining({
+        id: "classification.feed-forward-networks",
+      }),
+    ]);
     expect(getPrimaryClassificationForRecord("module.relu")?.id).toBe(
       "classification.activation-functions",
     );
@@ -233,6 +241,7 @@ describe("registry-runtime", () => {
     ).toEqual(
       expect.arrayContaining([
         "primary:concept.activation",
+        "primary:module.sigmoid",
         "primary:module.relu",
         "primary:module.leaky-relu",
         "primary:module.silu",
@@ -258,6 +267,7 @@ describe("registry-runtime", () => {
       ),
     ).toEqual(
       expect.arrayContaining([
+        "secondary:module.sigmoid",
         "primary:module.feed-forward-network",
         "primary:module.standard-ffn",
         "primary:module.swiglu",
@@ -271,6 +281,11 @@ describe("registry-runtime", () => {
         (relationship) => relationship.target?.id,
       ),
     ).toEqual(["concept.activation"]);
+    expect(
+      listOntologyRelationshipsForRecord("module.sigmoid", "used-by").map(
+        (relationship) => relationship.target?.id,
+      ),
+    ).toEqual(["module.standard-ffn"]);
     expect(
       listOntologyRelationshipsForRecord("module.swiglu", "uses").map(
         (relationship) => relationship.target?.id,
@@ -301,6 +316,13 @@ describe("registry-runtime", () => {
       "module.feed-forward-network",
       "module.standard-ffn",
       "module.leaky-relu",
+      "module.silu",
+    ]);
+    expect(getModuleById("module.sigmoid")?.relatedIds).toEqual([
+      "concept.activation",
+      "module.feed-forward-network",
+      "module.standard-ffn",
+      "module.relu",
       "module.silu",
     ]);
     expect(getModuleById("module.swiglu")?.tags).toEqual([

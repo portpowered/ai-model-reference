@@ -9,6 +9,7 @@ import { parsePageAssetConfig } from "@/lib/content/assets";
 import {
   GROUPED_QUERY_ATTENTION_PAGE_DIR,
   RELU_GLOSSARY_PAGE_DIR,
+  SIGMOID_GLOSSARY_PAGE_DIR,
   SILU_GLOSSARY_PAGE_DIR,
 } from "@/lib/content/content-paths";
 import type { PageAssetConfig, PageMessages } from "@/lib/content/schemas";
@@ -63,6 +64,18 @@ const siluMessages = pageMessagesSchema.parse(
 
 const siluAssets = parsePageAssetConfig(
   JSON.parse(readFileSync(join(SILU_GLOSSARY_PAGE_DIR, "assets.json"), "utf8")),
+);
+
+const sigmoidMessages = pageMessagesSchema.parse(
+  JSON.parse(
+    readFileSync(join(SIGMOID_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
+  ),
+);
+
+const sigmoidAssets = parsePageAssetConfig(
+  JSON.parse(
+    readFileSync(join(SIGMOID_GLOSSARY_PAGE_DIR, "assets.json"), "utf8"),
+  ),
 );
 
 function renderPageAsset(
@@ -272,6 +285,24 @@ describe("PageAsset", () => {
     expect(html).toContain("ReLU");
     expect(html).toContain("SiLU");
     expect(html).not.toContain('data-graph-id="graph.silu-activation-flow"');
+  });
+
+  test("renders activation chart for the sigmoid module page", () => {
+    const html = renderPageAsset(
+      "computeFlow",
+      false,
+      sigmoidAssets,
+      sigmoidMessages,
+    );
+    expect(html).toContain('data-page-asset="computeFlow"');
+    expect(html).toContain('data-asset-type="chart"');
+    expect(html).toContain('data-activation-chart="true"');
+    expect(html).toContain(
+      'data-chart-id="chart.activation-family.sigmoid-intro"',
+    );
+    expect(html).toContain("Activation Curves");
+    expect(html).toContain("Sigmoid");
+    expect(html).not.toContain('data-graph-id="graph.sigmoid-activation-flow"');
   });
 
   test("renders non-react-flow graph fallback markup when webRenderer is not react-flow", () => {

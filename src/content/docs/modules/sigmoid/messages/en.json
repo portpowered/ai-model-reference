@@ -1,0 +1,144 @@
+{
+  "title": "Sigmoid Activation",
+  "description": "A smooth activation function that maps each value into a 0-to-1 gate.",
+  "openingSummary": "The sigmoid activation, also called the logistic sigmoid, turns any input value into a number between 0 and 1. It was useful in earlier neural networks because that output can act like a soft gate or probability-like score, but its flat tails make deep networks train slowly when many values saturate.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "The sigmoid activation is a smooth function that maps each input value x to a value between 0 and 1. Large negative inputs move close to 0, large positive inputs move close to 1, and inputs near 0 land near 0.5. In a neural network, that shape can turn a raw hidden value into a soft gate."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "Sigmoid became common because early neural networks needed a differentiable nonlinear rule. A stack of linear layers without activation functions still behaves like one linear layer. Sigmoid added a smooth bend and gave outputs that looked easy to interpret as on-or-off scores."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "Sigmoid works one value at a time. It exponentiates the negative input, adds 1, and takes the reciprocal. Near x = 0, small input changes still move the output. Far from 0, the curve flattens near 0 or 1, so very large positive or negative values change the output only a little."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formula below shows the logistic sigmoid rule. The important feature is the bounded output range and the flat tails on both sides."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with ReLU and SiLU, sigmoid is the most strongly bounded curve. ReLU keeps growing for positive inputs, SiLU uses sigmoid as a smooth self-gate, and sigmoid by itself compresses every value into the same 0-to-1 range."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "Sigmoid appears in older dense networks and still appears inside gates, probabilities, and binary-output heads. Modern transformer feed-forward blocks usually avoid using plain sigmoid as the main hidden activation because saturation can weaken gradient flow through deep stacks."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "Sigmoid saturation is the main tradeoff. Once an input lands far into either tail, the output is almost fixed near 0 or 1, and the local gradient becomes small. That can make early layers learn slowly in deep networks, especially compared with activations whose positive side keeps a stronger slope."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "Sigmoid still matters because it teaches the idea of a smooth gate. Understanding why it saturates also explains why later activation functions, including ReLU and SiLU, changed the curve shape to keep useful signal moving through deep networks."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Activation chart showing the sigmoid curve bounded between 0 and 1 with flat tails for large negative and positive inputs",
+      "variants": {
+        "sigmoid": {
+          "label": "Sigmoid"
+        },
+        "relu": {
+          "label": "ReLU"
+        },
+        "silu": {
+          "label": "SiLU"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "sigmoid": {
+          "title": "Sigmoid"
+        },
+        "relu": {
+          "title": "ReLU"
+        },
+        "silu": {
+          "title": "SiLU"
+        }
+      },
+      "dimensions": {
+        "outputRange": "Output range",
+        "curveShape": "Curve shape",
+        "mainTradeoff": "Main tradeoff"
+      },
+      "values": {
+        "sigmoid": {
+          "outputRange": "Always between 0 and 1",
+          "curveShape": "Smooth S-curve with flat tails",
+          "mainTradeoff": "Useful as a gate, but saturated tails weaken gradients"
+        },
+        "relu": {
+          "outputRange": "0 for negative values, unbounded for positive values",
+          "curveShape": "Hard corner at 0",
+          "mainTradeoff": "Cheap and strong on the positive side, but drops negative signal"
+        },
+        "silu": {
+          "outputRange": "Unbounded on the positive side with smooth negative shrinkage",
+          "curveShape": "Smooth self-gated curve through 0",
+          "mainTradeoff": "Keeps sigmoid-like smooth gating while preserving a stronger positive path"
+        }
+      }
+    }
+  },
+  "math": {
+    "sigmoidSchema": {
+      "label": "Sigmoid activation",
+      "formula": "\\sigma(x) = \\frac{1}{1 + e^{-x}}",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "One input value before the activation rule is applied."
+        },
+        "sigma": {
+          "term": "\\sigma",
+          "definition": "Sigmoid function."
+        },
+        "e": {
+          "term": "e",
+          "definition": "Base of the natural exponential."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "inputState": {
+        "label": "Token state h_t"
+      },
+      "expandProjection": {
+        "label": "Wide projection W_1"
+      },
+      "activationRule": {
+        "label": "sigma(x) = 1 / (1 + e^-x)"
+      },
+      "saturationBehavior": {
+        "label": "Tails flatten near 0 and 1"
+      },
+      "projectBack": {
+        "label": "Project back with W_2"
+      },
+      "outputState": {
+        "label": "Updated token state"
+      }
+    }
+  }
+}

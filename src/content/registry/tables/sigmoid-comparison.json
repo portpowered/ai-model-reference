@@ -1,0 +1,49 @@
+{
+  "id": "table.sigmoid-comparison",
+  "subjectId": "module.sigmoid",
+  "columns": [
+    {
+      "moduleId": "module.sigmoid",
+      "titleKey": "tables.comparison.columns.sigmoid.title"
+    },
+    {
+      "moduleId": "module.relu",
+      "titleKey": "tables.comparison.columns.relu.title"
+    },
+    {
+      "moduleId": "module.silu",
+      "titleKey": "tables.comparison.columns.silu.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "outputRange",
+      "labelKey": "tables.comparison.dimensions.outputRange"
+    },
+    {
+      "id": "curveShape",
+      "labelKey": "tables.comparison.dimensions.curveShape"
+    },
+    {
+      "id": "mainTradeoff",
+      "labelKey": "tables.comparison.dimensions.mainTradeoff"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.sigmoid": {
+      "outputRange": "tables.comparison.values.sigmoid.outputRange",
+      "curveShape": "tables.comparison.values.sigmoid.curveShape",
+      "mainTradeoff": "tables.comparison.values.sigmoid.mainTradeoff"
+    },
+    "module.relu": {
+      "outputRange": "tables.comparison.values.relu.outputRange",
+      "curveShape": "tables.comparison.values.relu.curveShape",
+      "mainTradeoff": "tables.comparison.values.relu.mainTradeoff"
+    },
+    "module.silu": {
+      "outputRange": "tables.comparison.values.silu.outputRange",
+      "curveShape": "tables.comparison.values.silu.curveShape",
+      "mainTradeoff": "tables.comparison.values.silu.mainTradeoff"
+    }
+  }
+}

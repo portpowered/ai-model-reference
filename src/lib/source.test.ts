@@ -97,6 +97,7 @@ const MODULE_INDEX_URLS = [
   "/docs/modules/rmsnorm",
   "/docs/modules/rope",
   "/docs/modules/sentencepiece",
+  "/docs/modules/sigmoid",
   "/docs/modules/silu",
   "/docs/modules/sinusoidal-positional-embeddings",
   "/docs/modules/sliding-window-attention",
