@@ -33,6 +33,7 @@ export type RunPhase1SearchDialogChecksOptions = {
   timeoutMs?: number;
   queries?: readonly string[];
   launchBrowser?: () => Promise<Browser>;
+  logger?: (message: string) => void;
   /**
    * Test hook: when set, skips Playwright and runs this checker per query instead.
    */
@@ -271,27 +272,41 @@ export async function runPhase1SearchDialogChecks(
   const queries = options.queries ?? PHASE_1_SEARCH_DIALOG_QUERIES;
   const timeoutMs = options.timeoutMs ?? DEFAULT_SEARCH_DIALOG_TIMEOUT_MS;
   const failures: Phase1SearchDialogCheckFailure[] = [];
+  const log = options.logger ?? (() => {});
 
   if (options.runQueryCheck) {
     for (const query of queries) {
+      log(`[phase-1-search-dialog] running stubbed query "${query}"`);
       const reason = await options.runQueryCheck(baseUrl, query, timeoutMs);
       if (reason) {
+        log(
+          `[phase-1-search-dialog] query "${query}" failed: ${reason}`,
+        );
         failures.push({ query, surface: "header-dialog", reason });
+        continue;
       }
+      log(`[phase-1-search-dialog] query "${query}" passed`);
     }
     return failures;
   }
 
   const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
+  log(
+    `[phase-1-search-dialog] launching browser for ${queries.length} quer${queries.length === 1 ? "y" : "ies"} at ${baseUrl}`,
+  );
   const browser = await launchBrowser();
+  log("[phase-1-search-dialog] browser launched");
 
   try {
     const page = await browser.newPage();
     page.setDefaultTimeout(timeoutMs);
 
+    log("[phase-1-search-dialog] opening header search dialog");
     const dialog = await openHeaderSearchDialog(page, baseUrl, timeoutMs);
+    log("[phase-1-search-dialog] header search dialog opened");
 
     for (const query of queries) {
+      log(`[phase-1-search-dialog] starting query "${query}"`);
       const reason = await checkSearchDialogQuery(
         page,
         baseUrl,
@@ -300,11 +315,16 @@ export async function runPhase1SearchDialogChecks(
         dialog,
       );
       if (reason) {
+        log(`[phase-1-search-dialog] query "${query}" failed: ${reason}`);
         failures.push({ query, surface: "header-dialog", reason });
+        continue;
       }
+      log(`[phase-1-search-dialog] query "${query}" passed`);
     }
   } finally {
+    log("[phase-1-search-dialog] closing browser");
     await closePlaywrightBrowserWithTimeout(browser, timeoutMs);
+    log("[phase-1-search-dialog] browser closed");
   }
 
   return failures;

@@ -23,6 +23,8 @@ export const DEFAULT_EXPORT_OUT_DIR = "out";
 
 export const EXPORT_SEARCH_UX_STUB_ENV = "VERIFY_EXPORT_SEARCH_UX_STUB";
 export const DEFAULT_EXPORT_SEARCH_UX_TIMEOUT_MS = 45_000;
+export const CI_SCRIPT_TIMEOUT_MS_ENV = "CI_SCRIPT_TIMEOUT_MS";
+export const DEFAULT_CI_SCRIPT_TIMEOUT_MS = 300_000;
 const EXPORT_SEARCH_UX_RETRY_ATTEMPTS = 3;
 const EXPORT_SEARCH_UX_RETRY_DELAY_MS = 5_000;
 
@@ -67,6 +69,7 @@ export type RunPhase1ExportSearchUxChecksOptions = {
   outDir?: string;
   cwd?: string;
   basePath?: string;
+  logger?: (message: string) => void;
   searchPageOptions?: RunPhase1SearchPageChecksOptions;
   searchDialogOptions?: RunPhase1SearchDialogChecksOptions;
 };
@@ -98,6 +101,27 @@ export function resolveExportSearchUxCheckOptionsFromEnv(
     };
   }
   return {};
+}
+
+export function resolveCiScriptTimeoutMs(
+  env: Record<string, string | undefined> = process.env,
+): number | null {
+  const isCi = env.CI === "true" || env.GITHUB_ACTIONS === "true";
+  if (!isCi) {
+    return null;
+  }
+
+  const raw = env[CI_SCRIPT_TIMEOUT_MS_ENV]?.trim();
+  if (!raw) {
+    return DEFAULT_CI_SCRIPT_TIMEOUT_MS;
+  }
+
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return DEFAULT_CI_SCRIPT_TIMEOUT_MS;
+  }
+
+  return parsed;
 }
 
 function resolveOutDirAbsolute(outDir: string, cwd: string): string {
@@ -149,8 +173,16 @@ export async function runPhase1ExportSearchUxChecks(
   const absoluteOutDir = resolveOutDirAbsolute(outDir, cwd);
   const basePath =
     options.basePath ?? resolveBasePathForExportVerification(process.env);
+  const log = options.logger ?? (() => {});
+
+  log(
+    `[phase-1-export-search-ux] starting verification outDir=${outDir} cwd=${cwd} basePath=${basePath || "/"}`,
+  );
 
   if (!existsSync(absoluteOutDir)) {
+    log(
+      `[phase-1-export-search-ux] missing export directory at ${absoluteOutDir}`,
+    );
     return [
       {
         surface: "export-artifact",
@@ -159,8 +191,12 @@ export async function runPhase1ExportSearchUxChecks(
     ];
   }
 
+  log("[phase-1-export-search-ux] verifying export search artifact");
   const artifact = await verifyPhase1ExportSearchFromOutDir(outDir, { cwd });
   if (!artifact.ok) {
+    log(
+      `[phase-1-export-search-ux] export artifact verification failed: ${artifact.reason}`,
+    );
     return [
       {
         surface: "export-artifact",
@@ -168,15 +204,20 @@ export async function runPhase1ExportSearchUxChecks(
       },
     ];
   }
+  log("[phase-1-export-search-ux] export search artifact verified");
 
   const runServedChecksOnce = async (): Promise<
     Phase1ExportSearchUxCheckFailure[]
   > => {
+    log("[phase-1-export-search-ux] starting static export HTTP server");
     const session = await createStaticExportHttpServer({
       outDir,
       cwd,
       basePath,
     });
+    log(
+      `[phase-1-export-search-ux] static export HTTP server listening at ${session.baseUrl}`,
+    );
 
     try {
       const failures: Phase1ExportSearchUxCheckFailure[] = [];
@@ -190,7 +231,13 @@ export async function runPhase1ExportSearchUxChecks(
 
       const searchPageFailures = await runPhase1SearchPageChecks(
         session.baseUrl,
-        searchPageOptions,
+        {
+          ...searchPageOptions,
+          logger: options.searchPageOptions?.logger ?? log,
+        },
+      );
+      log(
+        `[phase-1-export-search-ux] /search checks completed with ${searchPageFailures.length} failure(s)`,
       );
       for (const failure of searchPageFailures) {
         failures.push({
@@ -202,7 +249,13 @@ export async function runPhase1ExportSearchUxChecks(
 
       const searchDialogFailures = await runPhase1SearchDialogChecks(
         session.baseUrl,
-        searchDialogOptions,
+        {
+          ...searchDialogOptions,
+          logger: options.searchDialogOptions?.logger ?? log,
+        },
+      );
+      log(
+        `[phase-1-export-search-ux] header dialog checks completed with ${searchDialogFailures.length} failure(s)`,
       );
       for (const failure of searchDialogFailures) {
         failures.push({
@@ -214,7 +267,9 @@ export async function runPhase1ExportSearchUxChecks(
 
       return failures;
     } finally {
+      log("[phase-1-export-search-ux] stopping static export HTTP server");
       await session.cleanup();
+      log("[phase-1-export-search-ux] static export HTTP server stopped");
     }
   };
 
@@ -228,6 +283,9 @@ export async function runPhase1ExportSearchUxChecks(
       attempt <= EXPORT_SEARCH_UX_RETRY_ATTEMPTS;
       attempt += 1
     ) {
+      log(
+        `[phase-1-export-search-ux] served verification attempt ${attempt}/${EXPORT_SEARCH_UX_RETRY_ATTEMPTS}`,
+      );
       failures = await runServedChecksOnce();
       const shouldRetry =
         failures.length > 0 &&
@@ -235,9 +293,15 @@ export async function runPhase1ExportSearchUxChecks(
         attempt < EXPORT_SEARCH_UX_RETRY_ATTEMPTS;
 
       if (!shouldRetry) {
+        log(
+          `[phase-1-export-search-ux] served verification completed with ${failures.length} failure(s)`,
+        );
         return failures;
       }
 
+      log(
+        `[phase-1-export-search-ux] retrying after ${EXPORT_SEARCH_UX_RETRY_DELAY_MS}ms because all ${failures.length} failure(s) were retryable`,
+      );
       await sleep(EXPORT_SEARCH_UX_RETRY_DELAY_MS);
     }
 

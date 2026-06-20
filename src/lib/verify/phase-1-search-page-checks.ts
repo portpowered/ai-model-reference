@@ -49,6 +49,7 @@ export type RunPhase1SearchPageChecksOptions = {
   timeoutMs?: number;
   queries?: readonly string[];
   launchBrowser?: () => Promise<Browser>;
+  logger?: (message: string) => void;
   /**
    * Test hook: when set, skips Playwright and runs this checker per query instead.
    */
@@ -333,23 +334,35 @@ export async function runPhase1SearchPageChecks(
   const queries = options.queries ?? PHASE_1_SEARCH_PAGE_QUERIES;
   const timeoutMs = options.timeoutMs ?? DEFAULT_SEARCH_PAGE_TIMEOUT_MS;
   const failures: Phase1SearchPageCheckFailure[] = [];
+  const log = options.logger ?? (() => {});
 
   if (options.runQueryCheck) {
     for (const query of queries) {
+      log(`[phase-1-search-page] running stubbed query "${query}"`);
       const reason = await options.runQueryCheck(baseUrl, query, timeoutMs);
       if (reason) {
+        log(
+          `[phase-1-search-page] query "${query}" failed: ${reason}`,
+        );
         failures.push({ query, surface: "/search", reason });
+        continue;
       }
+      log(`[phase-1-search-page] query "${query}" passed`);
     }
     return failures;
   }
 
   const launchBrowser = options.launchBrowser ?? defaultLaunchBrowser;
+  log(
+    `[phase-1-search-page] launching browser for ${queries.length} quer${queries.length === 1 ? "y" : "ies"} at ${baseUrl}`,
+  );
   const browser = await launchBrowser();
+  log("[phase-1-search-page] browser launched");
 
   try {
     const queryFailures = await Promise.all(
       queries.map(async (query) => {
+        log(`[phase-1-search-page] starting query "${query}"`);
         const context = await browser.newContext();
         try {
           const page = await context.newPage();
@@ -363,10 +376,13 @@ export async function runPhase1SearchPageChecks(
             timeoutMs,
           );
           if (reason) {
+            log(`[phase-1-search-page] query "${query}" failed: ${reason}`);
             return { query, surface: "/search" as const, reason };
           }
+          log(`[phase-1-search-page] query "${query}" passed`);
           return null;
         } finally {
+          log(`[phase-1-search-page] closing browser context for "${query}"`);
           await Promise.race([context.close(), sleep(timeoutMs)]);
         }
       }),
@@ -378,7 +394,9 @@ export async function runPhase1SearchPageChecks(
       }
     }
   } finally {
+    log("[phase-1-search-page] closing browser");
     await closePlaywrightBrowserWithTimeout(browser, timeoutMs);
+    log("[phase-1-search-page] browser closed");
   }
 
   return failures;
