@@ -4,7 +4,12 @@
   "kind": "classification",
   "defaultTitleKey": "title",
   "defaultSummaryKey": "description",
-  "aliases": ["activation function", "activation family"],
+  "aliases": [
+    "activation function",
+    "activation family",
+    "GELU",
+    "Gaussian error linear unit"
+  ],
   "tags": ["activation", "foundations"],
   "relatedIds": ["concept.activation"],
   "citationIds": [

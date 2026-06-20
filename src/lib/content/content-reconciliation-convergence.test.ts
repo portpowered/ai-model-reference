@@ -12,13 +12,18 @@ import {
   runSourceDiscoveryGate,
 } from "./phase-2-3-reconciliation-convergence";
 
+const REGISTRY_VALIDATION_GATE_TIMEOUT_MS = 10_000;
 const COMBINED_CONVERGENCE_GATE_TIMEOUT_MS = 30_000;
 
 describe("Phase 2/3 reconciliation convergence gate (US-012)", () => {
-  test("registry validation gate passes with zero errors", async () => {
-    const result = await runRegistryValidationGate();
-    expect(result.status).toBe("pass");
-  });
+  test(
+    "registry validation gate passes with zero errors",
+    async () => {
+      const result = await runRegistryValidationGate();
+      expect(result.status).toBe("pass");
+    },
+    { timeout: REGISTRY_VALIDATION_GATE_TIMEOUT_MS },
+  );
 
   test("source discovery gate resolves every batch 017 URL", async () => {
     const result = await runSourceDiscoveryGate();

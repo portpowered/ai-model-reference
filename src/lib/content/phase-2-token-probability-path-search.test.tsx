@@ -94,7 +94,7 @@ async function primeDocsSearchClient(
     <SearchPagePanelContent
       messages={context.messages}
       metaByUrl={context.metaByUrl}
-      handoff={{ q: null, tag: null }}
+      handoff={{ q: null, tag: null, classification: null }}
     />,
     { context },
   );
@@ -251,7 +251,7 @@ describe("Phase 2 token-probability path search panel verification (phase-2-toke
       <SearchPagePanelContent
         messages={context.messages}
         metaByUrl={context.metaByUrl}
-        handoff={{ q: null, tag: null }}
+        handoff={{ q: null, tag: null, classification: null }}
       />,
       { context },
     );

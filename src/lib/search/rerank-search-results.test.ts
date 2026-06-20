@@ -17,10 +17,17 @@ function documentForUrl(
     description: "Architecture description",
     bodyText: "",
     headings: [],
+    directAliases: ["model architecture"],
     aliases: ["model architecture"],
     tags: ["taxonomy"],
     relatedIds: [],
     facets: { kind: "glossary", tags: ["taxonomy"] },
+    topology: {
+      secondaryClassificationIds: [],
+      secondaryClassifications: [],
+      relationships: [],
+      terms: [],
+    },
     ...overrides,
   };
 }
@@ -39,6 +46,7 @@ describe("rerankSearchResults", () => {
         documentForUrl(moduleUrl, {
           kind: "module",
           title: "Grouped-Query Attention",
+          directAliases: ["GQA"],
           aliases: ["GQA"],
           facets: { kind: "module", tags: ["attention"] },
         }),
@@ -73,6 +81,7 @@ describe("rerankSearchResults", () => {
         "/docs/glossary/token",
         documentForUrl("/docs/glossary/token", {
           title: "Token",
+          directAliases: ["tokens"],
           aliases: ["tokens"],
         }),
       ],
@@ -112,5 +121,131 @@ describe("rerankSearchResults", () => {
     expect(findBestTitleMatchPageUrl("generative model", documentsByUrl)).toBe(
       generativeModelUrl,
     );
+  });
+
+  test("uses direct aliases instead of broad tag aliases for exact page boosts", () => {
+    const canonicalUrl = "/docs/modules/feed-forward-network";
+    const taggedUrl = "/docs/systems/expert-parallel-overlap";
+    const documentsByUrl = new Map<string, SearchDocument>([
+      [
+        taggedUrl,
+        documentForUrl(taggedUrl, {
+          kind: "system",
+          title: "Expert Parallel Overlap",
+          directAliases: ["expert parallel overlap"],
+          aliases: ["expert parallel overlap", "FFN"],
+          tags: ["feed-forward"],
+          facets: { kind: "system", tags: ["feed-forward"] },
+        }),
+      ],
+      [
+        canonicalUrl,
+        documentForUrl(canonicalUrl, {
+          kind: "module",
+          title: "Feed-Forward Network",
+          directAliases: ["FFN", "feedforward network"],
+          aliases: ["FFN", "feedforward network", "feed-forward"],
+          tags: ["feed-forward"],
+          facets: { kind: "module", tags: ["feed-forward"] },
+        }),
+      ],
+    ]);
+
+    expect(findBestTitleMatchPageUrl("ffn", documentsByUrl)).toBe(canonicalUrl);
+  });
+
+  test("ranks primary classification matches before secondary and relationship matches", () => {
+    const relationshipUrl = "/docs/modules/relationship";
+    const secondaryUrl = "/docs/modules/secondary";
+    const primaryUrl = "/docs/modules/primary";
+    const documentsByUrl = new Map<string, SearchDocument>([
+      [
+        relationshipUrl,
+        documentForUrl(relationshipUrl, {
+          topology: {
+            secondaryClassificationIds: [],
+            secondaryClassifications: [],
+            relationships: [
+              {
+                relationshipType: "uses",
+                targetId: "classification.activation-functions",
+                targetSlug: "activation-functions",
+                targetAliases: ["activation family"],
+              },
+            ],
+            terms: ["uses", "activation family"],
+          },
+        }),
+      ],
+      [
+        secondaryUrl,
+        documentForUrl(secondaryUrl, {
+          topology: {
+            secondaryClassificationIds: ["classification.activation-functions"],
+            secondaryClassifications: [
+              {
+                id: "classification.activation-functions",
+                slug: "activation-functions",
+                label: "activation functions",
+                aliases: ["activation family"],
+                terms: ["activation-functions", "activation family"],
+              },
+            ],
+            relationships: [],
+            terms: ["activation-functions", "activation family"],
+          },
+        }),
+      ],
+      [
+        primaryUrl,
+        documentForUrl(primaryUrl, {
+          topology: {
+            primaryClassificationId: "classification.activation-functions",
+            secondaryClassificationIds: [],
+            primaryClassification: {
+              id: "classification.activation-functions",
+              slug: "activation-functions",
+              label: "activation functions",
+              aliases: ["activation family"],
+              terms: ["activation-functions", "activation family"],
+            },
+            secondaryClassifications: [],
+            relationships: [],
+            terms: ["activation-functions", "activation family"],
+          },
+        }),
+      ],
+    ]);
+
+    const results = rerankSearchResults(
+      "activation",
+      [
+        {
+          id: "relationship",
+          type: "page",
+          url: relationshipUrl,
+          content: "Relationship",
+        },
+        {
+          id: "secondary",
+          type: "page",
+          url: secondaryUrl,
+          content: "Secondary",
+        },
+        {
+          id: "primary",
+          type: "page",
+          url: primaryUrl,
+          content: "Primary",
+        },
+      ],
+      documentsByUrl,
+    );
+
+    expect(results.map((result) => result.url)).toEqual([
+      primaryUrl,
+      secondaryUrl,
+      relationshipUrl,
+    ]);
   });
 });

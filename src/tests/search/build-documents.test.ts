@@ -1,10 +1,72 @@
 import { describe, expect, test } from "bun:test";
+import type { DocsPageSource } from "@/lib/content/pages";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
-import { loadRegistry } from "@/lib/content/registry";
+import { loadRegistry, type RegistryIndexes } from "@/lib/content/registry";
+import type { ClassificationRecord, ModuleRecord } from "@/lib/content/schemas";
 import { buildSearchDocuments } from "@/lib/search/build-documents";
 
 const SAMPLE_URL = "/docs/modules/grouped-query-attention";
 const TOKEN_GLOSSARY_URL = "/docs/glossary/token";
+const RELU_MODULE_URL = "/docs/modules/relu";
+
+function buildRegistryIndexes(records: ModuleRecord[]): RegistryIndexes {
+  return {
+    byId: new Map(records.map((record) => [record.id, record])),
+    bySlug: new Map(records.map((record) => [record.slug, record])),
+    classificationsById: new Map(),
+    tagsById: new Map(),
+    tagsBySlug: new Map(),
+  };
+}
+
+function buildSyntheticPage(registryId: string): DocsPageSource {
+  return {
+    pageDir: "/tmp/synthetic-module",
+    docsSlug: "modules/synthetic-module",
+    url: "/docs/modules/synthetic-module",
+    frontmatter: {
+      kind: "module",
+      registryId,
+      messageNamespace: "local",
+      assetNamespace: "local",
+      tags: [],
+      status: "published",
+      updatedAt: "2026-06-20T00:00:00.000Z",
+    },
+    messages: {
+      title: "Synthetic Module",
+      description: "Synthetic module description",
+    },
+  };
+}
+
+function buildSyntheticModule(
+  overrides: Partial<ModuleRecord> = {},
+): ModuleRecord {
+  return {
+    id: "module.synthetic-module",
+    slug: "synthetic-module",
+    kind: "module",
+    defaultTitleKey: "title",
+    defaultSummaryKey: "description",
+    aliases: [],
+    tags: [],
+    relatedIds: [],
+    citationIds: [],
+    status: "published",
+    createdAt: "2026-06-20T00:00:00.000Z",
+    updatedAt: "2026-06-20T00:00:00.000Z",
+    moduleType: "other",
+    optimizes: [],
+    exampleModelIds: [],
+    improvesOnIds: [],
+    tradeoffIds: [],
+    usedByModelIds: [],
+    introducedByPaperIds: [],
+    mathLevel: "none",
+    ...overrides,
+  };
+}
 
 describe("buildSearchDocuments", () => {
   test("indexes only published docs pages for the default locale", async () => {
@@ -62,5 +124,145 @@ describe("buildSearchDocuments", () => {
     expect(token?.tags).toEqual(expect.arrayContaining(["attention"]));
     expect(token?.bodyText).toContain("tokenizer");
     expect(token?.bodyText).toContain("token IDs");
+  });
+
+  test("normalizes topology metadata for seeded ontology records", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const relu = documents.find((document) => document.url === RELU_MODULE_URL);
+
+    expect(relu).toBeDefined();
+    expect(relu?.topology.primaryClassificationId).toBe(
+      "classification.activation-functions",
+    );
+    expect(relu?.topology.secondaryClassificationIds).toEqual([]);
+    expect(relu?.topology.primaryClassification).toEqual(
+      expect.objectContaining({
+        id: "classification.activation-functions",
+        slug: "activation-functions",
+        label: "activation functions",
+        aliases: expect.arrayContaining([
+          "activation function",
+          "activation family",
+        ]),
+        terms: expect.arrayContaining([
+          "classification.activation-functions",
+          "activation-functions",
+          "activation functions",
+          "activation family",
+        ]),
+      }),
+    );
+    expect(relu?.topology.relationships).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          relationshipType: "variant",
+          targetId: "concept.activation",
+          targetKind: "concept",
+          targetSlug: "activation",
+          targetAliases: expect.arrayContaining(["activations"]),
+        }),
+        expect.objectContaining({
+          relationshipType: "used-by",
+          targetId: "module.standard-ffn",
+          targetKind: "module",
+          targetSlug: "standard-ffn",
+          targetAliases: expect.arrayContaining(["dense FFN"]),
+        }),
+      ]),
+    );
+    expect(relu?.topology.terms).toEqual(
+      expect.arrayContaining([
+        "activation-functions",
+        "activation family",
+        "variant",
+        "concept.activation",
+        "activation",
+        "used-by",
+        "module.standard-ffn",
+        "standard-ffn",
+        "dense FFN",
+      ]),
+    );
+  });
+
+  test("builds stable empty topology metadata for records without ontology fields", () => {
+    const record = buildSyntheticModule();
+    const document = buildSearchDocuments(
+      [buildSyntheticPage(record.id)],
+      buildRegistryIndexes([record]),
+    )[0];
+
+    expect(document?.topology).toEqual({
+      primaryClassificationId: undefined,
+      secondaryClassificationIds: [],
+      primaryClassification: undefined,
+      secondaryClassifications: [],
+      relationships: [],
+      terms: [],
+    });
+    expect(document?.title).toBe("Synthetic Module");
+    expect(document?.facets.moduleType).toBe("other");
+  });
+
+  test("keeps documents searchable when classification targets are missing or draft", () => {
+    const draftClassification: ClassificationRecord = {
+      id: "classification.draft-family",
+      slug: "draft-family",
+      kind: "classification",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: ["draft family"],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "draft",
+      createdAt: "2026-06-20T00:00:00.000Z",
+      updatedAt: "2026-06-20T00:00:00.000Z",
+      classificationType: "family",
+      classifiesKinds: ["module"],
+    };
+    const record = buildSyntheticModule({
+      primaryClassificationId: "classification.missing-family",
+      secondaryClassificationIds: [draftClassification.id],
+      relationships: [
+        {
+          relationshipType: "related",
+          targetId: "module.missing-neighbor",
+        },
+      ],
+    });
+    const indexes = buildRegistryIndexes([record]);
+    indexes.byId.set(draftClassification.id, draftClassification);
+    indexes.bySlug.set(draftClassification.slug, draftClassification);
+    indexes.classificationsById.set(
+      draftClassification.id,
+      draftClassification,
+    );
+
+    const document = buildSearchDocuments(
+      [buildSyntheticPage(record.id)],
+      indexes,
+    )[0];
+
+    expect(document?.topology.primaryClassificationId).toBe(
+      "classification.missing-family",
+    );
+    expect(document?.topology.primaryClassification).toBeUndefined();
+    expect(document?.topology.secondaryClassificationIds).toEqual([
+      "classification.draft-family",
+    ]);
+    expect(document?.topology.secondaryClassifications).toEqual([]);
+    expect(document?.topology.relationships).toEqual([
+      {
+        relationshipType: "related",
+        targetId: "module.missing-neighbor",
+        targetKind: undefined,
+        targetSlug: undefined,
+        targetAliases: [],
+      },
+    ]);
+    expect(document?.title).toBe("Synthetic Module");
   });
 });
