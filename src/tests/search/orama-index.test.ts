@@ -1,7 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, rmSync } from "node:fs";
-import path from "node:path";
 import { search } from "@orama/orama";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
@@ -213,10 +211,6 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ...MODEL_FAMILY_URLS,
   ...CHAIN_GLOSSARY_URLS,
 ] as const;
-const GENERATED_INDEX_PATH = path.join(
-  process.cwd(),
-  "src/generated/search-index.json",
-);
 const BUILD_SEARCH_INDEX_TEST_ENV: NodeJS.ProcessEnv = {
   PATH: process.env.PATH ?? "",
   HOME: process.env.HOME ?? "",
@@ -225,6 +219,7 @@ const BUILD_SEARCH_INDEX_TEST_ENV: NodeJS.ProcessEnv = {
   SHELL: process.env.SHELL ?? "",
   TERM: process.env.TERM ?? "",
   NODE_ENV: process.env.NODE_ENV ?? "test",
+  SEARCH_INDEX_OUTPUT_STDOUT: "1",
 };
 
 function findSnapshotDocument(
@@ -330,23 +325,18 @@ describe("exportOramaIndexSnapshot", () => {
 
 describe("build-search-index script", () => {
   test("writes generated snapshot for all published docs pages", async () => {
-    if (existsSync(GENERATED_INDEX_PATH)) {
-      rmSync(GENERATED_INDEX_PATH);
-    }
-
     const result = spawnSync("bun", ["./scripts/build-search-index.ts"], {
       cwd: process.cwd(),
       encoding: "utf8",
       env: BUILD_SEARCH_INDEX_TEST_ENV,
+      maxBuffer: 10 * 1024 * 1024,
     });
 
     expect(result.status).toBe(0);
     expect(result.stderr).toBe("");
-    expect(existsSync(GENERATED_INDEX_PATH)).toBe(true);
-
-    const snapshot = JSON.parse(
-      readFileSync(GENERATED_INDEX_PATH, "utf8"),
-    ) as Awaited<ReturnType<typeof exportOramaIndexSnapshot>>;
+    const snapshot = JSON.parse(result.stdout) as Awaited<
+      ReturnType<typeof exportOramaIndexSnapshot>
+    >;
 
     expect(snapshot.version).toBe(1);
     expect(snapshot.orama).toBeDefined();
@@ -365,7 +355,5 @@ describe("build-search-index script", () => {
     expect(gqa?.tags).toEqual(
       expect.arrayContaining(["attention", "kv-cache"]),
     );
-
-    rmSync(GENERATED_INDEX_PATH, { force: true });
   });
 });
