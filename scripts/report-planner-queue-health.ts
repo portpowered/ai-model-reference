@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import {
   discoverPlannerQueueHealthReport,
   formatPlannerQueueHealthReport,
+  serializePlannerQueueHealthReport,
 } from "../src/lib/factory/planner-queue-health";
 
 const defaultRepoRoot = resolve(import.meta.dir, "..");
@@ -20,6 +21,14 @@ function readRequiredJsonFile(path: string, label: string): string {
     throw new Error(`Missing ${label} fixture at ${path}`);
   }
   return readFileSync(path, "utf8");
+}
+
+function isJsonOutputRequested(argv: string[]): boolean {
+  return (
+    argv.includes("--json") ||
+    (argv.includes("--format") &&
+      argv[argv.indexOf("--format") + 1]?.trim().toLowerCase() === "json")
+  );
 }
 
 function runYouJsonCommand(repoRoot: string, args: string[]): string {
@@ -60,4 +69,8 @@ const report = discoverPlannerQueueHealthReport({
   workListJsonText,
 });
 
-console.log(formatPlannerQueueHealthReport(report));
+const output = isJsonOutputRequested(process.argv)
+  ? serializePlannerQueueHealthReport(report)
+  : `${formatPlannerQueueHealthReport(report)}\n`;
+
+process.stdout.write(output);

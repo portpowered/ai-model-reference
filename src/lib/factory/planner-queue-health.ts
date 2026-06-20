@@ -60,6 +60,12 @@ export interface QueueHealthReport {
   issues: string[];
 }
 
+export function serializePlannerQueueHealthReport(
+  report: QueueHealthReport,
+): string {
+  return `${JSON.stringify(report, null, 2)}\n`;
+}
+
 interface ParsedQueueRecord {
   workId: string;
   workItemName: string;

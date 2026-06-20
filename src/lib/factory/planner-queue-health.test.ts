@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   discoverPlannerQueueHealthReport,
   formatPlannerQueueHealthReport,
+  serializePlannerQueueHealthReport,
 } from "@/lib/factory/planner-queue-health";
 
 describe("discoverPlannerQueueHealthReport", () => {
@@ -268,5 +269,64 @@ describe("discoverPlannerQueueHealthReport", () => {
     expect(reportText).not.toContain(
       "command=you work move thoughts-blocked init --session ~planner",
     );
+  });
+
+  test("serializes the same classification decisions for machine-readable consumers", () => {
+    const report = discoverPlannerQueueHealthReport({
+      generatedAtUtc: "2026-06-20T00:00:00.000Z",
+      sourceSession: "~default",
+      workListJsonText: JSON.stringify({
+        results: [
+          {
+            workId: "task-active",
+            name: "alpha",
+            traceId: "trace-alpha",
+            workTypeName: "task",
+            state: { name: "init", type: "INITIAL" },
+          },
+          {
+            workId: "task-blocked",
+            name: "beta",
+            traceId: "trace-beta",
+            workTypeName: "thoughts",
+            state: { name: "init", type: "INITIAL" },
+            relations: [
+              {
+                type: "DEPENDS_ON",
+                targetWorkId: "task-active",
+                targetWorkName: "alpha",
+                requiredState: "complete",
+              },
+            ],
+          },
+          {
+            workId: "task-failed",
+            name: "gamma",
+            traceId: "trace-gamma",
+            workTypeName: "task",
+            state: { name: "failed", type: "FAILED" },
+          },
+        ],
+      }),
+    });
+
+    const reportJsonText = serializePlannerQueueHealthReport(report);
+    const parsedReport = JSON.parse(reportJsonText) as typeof report;
+
+    expect(parsedReport).toEqual(report);
+
+    const reportText = formatPlannerQueueHealthReport(report);
+    expect(reportText).toContain(
+      "totals active=1 blocked=1 repairable=1 noise=0",
+    );
+    expect(
+      parsedReport.activeWork.items.map((item) => item.workItemName),
+    ).toEqual(["alpha"]);
+    expect(
+      parsedReport.expectedBlockedItems.items.map((item) => item.workItemName),
+    ).toEqual(["beta"]);
+    expect(
+      parsedReport.repairRecommendations.map((item) => item.workItemName),
+    ).toEqual(["gamma"]);
   });
 });
