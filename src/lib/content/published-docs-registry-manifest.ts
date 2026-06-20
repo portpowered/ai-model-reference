@@ -811,6 +811,14 @@ export const GENERATED_PUBLISHED_DOCS_ENTRIES = [
     section: "modules",
   },
   {
+    registryId: "module.causal-attention",
+    slug: "causal-attention",
+    docsSlug: "modules/causal-attention",
+    url: "/docs/modules/causal-attention",
+    pageKind: "module",
+    section: "modules",
+  },
+  {
     registryId: "module.rope",
     slug: "rope",
     docsSlug: "modules/rope",
@@ -1121,6 +1129,7 @@ export const GENERATED_PUBLISHED_DOCS_REGISTRY_IDS = [
   "module.bidirectional-attention",
   "module.bpe",
   "module.byte-level-tokenization",
+  "module.causal-attention",
   "module.compressed-sparse-attention",
   "module.deepseekmoe",
   "module.feed-forward-network",

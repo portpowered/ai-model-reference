@@ -5,6 +5,7 @@ import batchNormComparisonTableRecord from "@/content/registry/tables/batch-norm
 import bidirectionalAttentionComparisonTableRecord from "@/content/registry/tables/bidirectional-attention-comparison.json";
 import bpeComparisonTableRecord from "@/content/registry/tables/bpe-comparison.json";
 import byteLevelTokenizationComparisonTableRecord from "@/content/registry/tables/byte-level-tokenization-comparison.json";
+import causalAttentionComparisonTableRecord from "@/content/registry/tables/causal-attention-comparison.json";
 import feedForwardNetworkComparisonTableRecord from "@/content/registry/tables/feed-forward-network-comparison.json";
 import groupNormComparisonTableRecord from "@/content/registry/tables/group-norm-comparison.json";
 import groupedQueryAttentionComparisonTableRecord from "@/content/registry/tables/grouped-query-attention-comparison.json";
@@ -29,6 +30,7 @@ export const generatedTableRegistrySourceFiles = [
   "bidirectional-attention-comparison.json",
   "bpe-comparison.json",
   "byte-level-tokenization-comparison.json",
+  "causal-attention-comparison.json",
   "feed-forward-network-comparison.json",
   "group-norm-comparison.json",
   "grouped-query-attention-comparison.json",
@@ -54,6 +56,7 @@ export const generatedTableRegistryPayloads = [
   bidirectionalAttentionComparisonTableRecord,
   bpeComparisonTableRecord,
   byteLevelTokenizationComparisonTableRecord,
+  causalAttentionComparisonTableRecord,
   feedForwardNetworkComparisonTableRecord,
   groupNormComparisonTableRecord,
   groupedQueryAttentionComparisonTableRecord,
