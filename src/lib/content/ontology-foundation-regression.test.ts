@@ -39,6 +39,12 @@ const seededPrimaryClassifications = new Map([
   ["module.feed-forward-network", "classification.feed-forward-networks"],
 ]);
 
+const transformerFeedForwardClassificationMembers = [
+  "module.gelu",
+  "module.standard-ffn",
+  "module.swiglu",
+] as const;
+
 const seededPublishedRoutes = new Map([
   ["concept.activation", "/docs/glossary/activation"],
   ["module.sigmoid", "/docs/modules/sigmoid"],
@@ -212,6 +218,19 @@ describe("ontology foundation regression coverage", () => {
         feedForwardClassification?.parentClassificationId ?? "",
       )?.classificationType,
     ).toBe("domain");
+    const transformerFeedForwardClassification =
+      indexes.classificationsById.get(
+        "classification.transformer-feed-forward-components",
+      );
+    expect(transformerFeedForwardClassification?.classificationType).toBe(
+      "topology",
+    );
+    expect(transformerFeedForwardClassification?.classifiesKinds).toEqual([
+      "module",
+    ]);
+    expect(transformerFeedForwardClassification?.parentClassificationId).toBe(
+      "classification.feed-forward-networks",
+    );
 
     for (const [
       registryId,
@@ -289,6 +308,22 @@ describe("ontology foundation regression coverage", () => {
         "primary:module.standard-ffn",
         "primary:module.swiglu",
       ]),
+    );
+    expect(
+      listClassificationMembers(
+        "classification.transformer-feed-forward-components",
+      ).map((member) => `${member.membershipType}:${member.record.id}`),
+    ).toEqual(
+      expect.arrayContaining([
+        ...transformerFeedForwardClassificationMembers.map(
+          (registryId) => `secondary:${registryId}`,
+        ),
+      ]),
+    );
+    const gelu = getRegistryRecordById("module.gelu");
+    expectSeedRecord(gelu, "module.gelu");
+    expect(gelu.secondaryClassificationIds).toContain(
+      "classification.transformer-feed-forward-components",
     );
 
     expect(

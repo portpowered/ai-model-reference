@@ -250,15 +250,21 @@ describe("registry-runtime", () => {
   });
 
   test("seeded feed-forward records resolve through ontology classification helpers", () => {
-    for (const registryId of [
-      "module.feed-forward-network",
-      "module.standard-ffn",
-      "module.swiglu",
-    ]) {
+    expect(
+      getPrimaryClassificationForRecord("module.feed-forward-network")?.id,
+    ).toBe("classification.feed-forward-networks");
+    expect(
+      listSecondaryClassificationsForRecord("module.feed-forward-network"),
+    ).toEqual([]);
+    for (const registryId of ["module.standard-ffn", "module.swiglu"]) {
       expect(getPrimaryClassificationForRecord(registryId)?.id).toBe(
         "classification.feed-forward-networks",
       );
-      expect(listSecondaryClassificationsForRecord(registryId)).toEqual([]);
+      expect(listSecondaryClassificationsForRecord(registryId)).toEqual([
+        expect.objectContaining({
+          id: "classification.transformer-feed-forward-components",
+        }),
+      ]);
     }
 
     expect(
@@ -271,6 +277,17 @@ describe("registry-runtime", () => {
         "primary:module.feed-forward-network",
         "primary:module.standard-ffn",
         "primary:module.swiglu",
+      ]),
+    );
+    expect(
+      listClassificationMembers(
+        "classification.transformer-feed-forward-components",
+      ).map((member) => `${member.membershipType}:${member.record.id}`),
+    ).toEqual(
+      expect.arrayContaining([
+        "secondary:module.gelu",
+        "secondary:module.standard-ffn",
+        "secondary:module.swiglu",
       ]),
     );
   });
