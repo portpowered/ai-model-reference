@@ -63,11 +63,15 @@ describe("Phase 2/3 reconciliation convergence gate (US-012)", () => {
         PHASE_2_3_RECONCILIATION_CONVERGENCE_GATE_HEADER,
       );
       expect(report).toContain("[PASS] Registry validation passes");
-      expect(report).toContain("[PASS] Fumadocs source discovers");
-      expect(report).toContain("[PASS] /tags/attention lists");
+      expect(report).toContain("[PASS] Fumadocs source resolves");
+      expect(report).toContain("[PASS] Representative tag landing routes");
       expect(report).toContain("[PASS] Architecture-forward navigation");
-      expect(report).toContain("[PASS] Search documents index");
-      expect(report).toContain("[PASS] Representative search queries");
+      expect(report).toContain(
+        "[PASS] Search documents index representative routes",
+      );
+      expect(report).toContain(
+        "[PASS] Representative search queries stay aligned",
+      );
     },
     { timeout: COMBINED_CONVERGENCE_GATE_TIMEOUT_MS },
   );
