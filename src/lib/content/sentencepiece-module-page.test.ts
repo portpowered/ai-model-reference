@@ -98,6 +98,7 @@ describe("loadModulePage sentencepiece", () => {
     expect(html).toContain(
       "SentencePiece keeps whitespace in the tokenization stream and can train from raw text",
     );
+    expect(html).not.toContain("No published example models are linked yet.");
     expect(html).toContain('data-comparison-column="module.bpe"');
     expect(html).toContain('data-comparison-column="module.wordpiece"');
     expect(html).toContain('data-comparison-column="module.sentencepiece"');
