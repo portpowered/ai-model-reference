@@ -124,10 +124,17 @@ describe("GitHub Actions make ci", () => {
         test: string;
         "test:build-contract": string;
         "test:verify-contract": string;
+        "prepare:content-runtime": string;
         prelinkcheck: string;
       };
     };
-    expect(packageJson.scripts.prelinkcheck).toBe("fumadocs-mdx");
+    expect(packageJson.scripts["prepare:content-runtime"]).toBe(
+      "bun ./scripts/prepare-content-runtime.ts",
+    );
+    expect(packageJson.scripts.prelinkcheck).toContain(
+      "generate:graph-registry-runtime",
+    );
+    expect(packageJson.scripts.prelinkcheck).toContain("fumadocs-mdx");
     expect(packageJson.scripts.linkcheck).toBe(
       "bun ./scripts/validate-links.ts",
     );

@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prepare:content-runtime": "bun ./scripts/prepare-content-runtime.ts",
     "generate:shipped-localized-docs": "bun ./scripts/generate-shipped-localized-docs.ts",
     "generate:graph-registry-runtime": "bun ./scripts/generate-graph-registry-runtime.ts",
     "generate:registry-runtime": "bun ./scripts/generate-registry-runtime.ts",
