@@ -476,7 +476,7 @@ describe("SearchPagePanel classification handoff", () => {
       screen.getByText(
         context.messages.searchEntry.classificationScopeDescription.replace(
           "{classification}",
-          "activation",
+          "activation-functions",
         ),
       ),
     ).toBeTruthy();
@@ -500,7 +500,7 @@ describe("SearchPagePanel classification handoff", () => {
       screen.getByText(
         context.messages.searchEntry.classificationScopeDescription.replace(
           "{classification}",
-          "activation",
+          "activation-functions",
         ),
       ),
     ).toBeTruthy();
@@ -521,6 +521,38 @@ describe("SearchPagePanel classification handoff", () => {
 
     const empty = await screen.findByTestId("search-page-empty");
     expect(empty.textContent).toContain(context.messages.search.noResults);
+    expect(
+      screen.queryByText(
+        context.messages.searchEntry.classificationScopeDescription.replace(
+          "{classification}",
+          "unknown-topic",
+        ),
+      ),
+    ).toBeNull();
+  });
+
+  test("/search?q=token&classification=unknown-topic falls back to unscoped results without a scope banner", async () => {
+    const context = await loadAppTestContext();
+    const searchParams = new URLSearchParams(
+      "q=token&classification=unknown-topic",
+    );
+    await renderSearchPagePanelContent(context, searchParams);
+
+    const searchInput = screen.getByLabelText(
+      context.messages.search.placeholder,
+    ) as HTMLInputElement;
+    expect(searchInput.value).toBe("token");
+
+    const results = await screen.findByTestId("search-page-results");
+    expect(results.textContent).toMatch(/Token/i);
+    expect(
+      screen.queryByText(
+        context.messages.searchEntry.classificationScopeDescription.replace(
+          "{classification}",
+          "unknown-topic",
+        ),
+      ),
+    ).toBeNull();
   });
 });
 

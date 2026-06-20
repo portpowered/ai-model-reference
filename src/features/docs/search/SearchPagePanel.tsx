@@ -5,7 +5,7 @@ import type { SearchItemType } from "fumadocs-ui/components/dialog/search";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { searchInlineResultsListClassName } from "@/features/docs/components/list-decoration";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
@@ -14,6 +14,8 @@ import {
   type SiteLocale,
   switchRouteLocale,
 } from "@/lib/i18n/locale-routing";
+import { resolveSearchClassificationScope } from "@/lib/search/classification-scope";
+import { documentsByUrlFromMeta } from "@/lib/search/collapse-search-results-from-meta";
 import { SearchInlineResultItem } from "./SearchResults";
 import { useModelAtlasDocsSearch } from "./search-client";
 import {
@@ -67,8 +69,19 @@ export function SearchPagePanelContent({
     clientHandoff,
   );
   const tagSlug = effectiveHandoff.tag?.trim() || undefined;
-  const classificationSlug =
-    effectiveHandoff.classification?.trim() || undefined;
+  const documentsByUrl = useMemo(
+    () => documentsByUrlFromMeta(metaByUrl),
+    [metaByUrl],
+  );
+  const classificationScope = useMemo(
+    () =>
+      resolveSearchClassificationScope(
+        effectiveHandoff.classification,
+        documentsByUrl,
+      ),
+    [documentsByUrl, effectiveHandoff.classification],
+  );
+  const classificationSlug = classificationScope?.slug;
   const queryParam = effectiveHandoff.q;
   const { search, setSearch, query } = useModelAtlasDocsSearch(
     {
