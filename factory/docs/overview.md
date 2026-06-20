@@ -52,6 +52,8 @@ idea:to-complete + task:to-complete with the same name -> consume
 
 Executor and review workstations run in worktrees under
 `.claude/worktrees/<work-item-name>/`, created by `factory/scripts/setup-workspace.py`.
+Workspace setup also stamps canonical planner lane metadata at
+`.claude/worktrees/<work-item-name>/.claude/lane-metadata.json`.
 
 ## Batch Submission
 

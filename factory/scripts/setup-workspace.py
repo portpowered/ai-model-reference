@@ -11,11 +11,15 @@ Exit 0 on success (stdout = JSON blob), exit 1 on failure (stderr = stage-specif
 """
 
 import json
-
+import os
 import shutil
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
+
+WORKTREE_LANE_METADATA_RELATIVE_PATH = Path(".claude") / "lane-metadata.json"
+WORKTREE_LANE_METADATA_SCHEMA_VERSION = 1
 
 
 def run_git(*args, cwd=None, check=True):
@@ -43,6 +47,64 @@ def read_prd(prd_path):
     """Read and parse a PRD JSON file. Returns the parsed dict."""
     with open(prd_path, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def current_timestamp_utc():
+    """Return an ISO-8601 UTC timestamp."""
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def read_optional_session_id():
+    """Read an optional setup-session identifier from known environment keys."""
+    for env_key in (
+        "YOU_SESSION_ID",
+        "FACTORY_SESSION_ID",
+        "WORK_SESSION_ID",
+        "SESSION_ID",
+    ):
+        value = os.environ.get(env_key, "").strip()
+        if value:
+            return value
+    return None
+
+
+def read_existing_created_at(metadata_path):
+    """Preserve the original creation timestamp when metadata already exists."""
+    if not metadata_path.exists():
+        return None
+
+    try:
+        with open(metadata_path, "r", encoding="utf-8") as f:
+            parsed = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return None
+
+    created_at = parsed.get("createdAtUtc")
+    return created_at if isinstance(created_at, str) and created_at.strip() else None
+
+
+def write_worktree_lane_metadata(prd_name, branch, worktree_path, session_id):
+    """Write the canonical per-worktree lane metadata record."""
+    metadata_path = worktree_path / WORKTREE_LANE_METADATA_RELATIVE_PATH
+    metadata_path.parent.mkdir(parents=True, exist_ok=True)
+
+    refreshed_at_utc = current_timestamp_utc()
+    created_at_utc = read_existing_created_at(metadata_path) or refreshed_at_utc
+    metadata = {
+        "schemaVersion": WORKTREE_LANE_METADATA_SCHEMA_VERSION,
+        "workItemName": prd_name,
+        "branchName": branch,
+        "worktreePath": str(worktree_path.resolve()),
+        "sessionId": session_id,
+        "createdAtUtc": created_at_utc,
+        "refreshedAtUtc": refreshed_at_utc,
+    }
+
+    with open(metadata_path, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
+        f.write("\n")
+
+    return metadata_path
 
 
 def has_origin_remote(repo_root):
@@ -338,6 +400,7 @@ def main():
         sys.exit(1)
 
     branch = f"{prd_name}"
+    session_id = read_optional_session_id()
     if not branch:
         print("PRD name must not be empty", file=sys.stderr)
         sys.exit(1)
@@ -366,6 +429,17 @@ def main():
         print(f"PRD copy failed: {e}", file=sys.stderr)
         sys.exit(1)
 
+    try:
+        metadata_path = write_worktree_lane_metadata(
+            prd_name,
+            branch,
+            worktree_dir,
+            session_id,
+        )
+    except OSError as e:
+        print(f"Metadata stamp failed: {e}", file=sys.stderr)
+        sys.exit(1)
+
     # Output result.
     result = {
         "status": "ready",
@@ -373,6 +447,7 @@ def main():
         "branch": branch,
         "prd_path": str(dest_json),
         "prd_md_path": str(dest_md) if dest_md else None,
+        "worktree_metadata_path": str(metadata_path),
         "reused": reused,
     }
     print(json.dumps(result, indent=2))
