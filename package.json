@@ -41,6 +41,7 @@
     "generate:published-docs-registry": "bun ./scripts/generate-published-docs-registry.ts",
     "prevalidate-data": "bun run prepare:content-runtime",
     "validate-data": "bun ./scripts/validate-registry.ts",
+    "watch:active-pr-mergeability": "bun ./scripts/active-pr-mergeability-watchdog.ts",
     "cleanup:merged-worktrees": "bash ./scripts/cleanup-merged-worktrees.sh",
     "scaffold:doc-page": "bun ./scripts/scaffold-doc-page.ts",
     "generate:page-bundle": "bun ./scripts/generate-page-bundle.ts",
