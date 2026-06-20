@@ -1,5 +1,11 @@
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
+import { dirname, join, relative } from "node:path";
 import {
   getGeneratedContentRuntimeRoot,
   getProjectRoot,
@@ -110,6 +116,7 @@ export function syncGraphRegistryRuntimeModule(
     };
   }
 
+  mkdirSync(dirname(resolvedOutputPath), { recursive: true });
   writeFileSync(resolvedOutputPath, source, "utf8");
   return {
     changed: true,
