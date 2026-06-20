@@ -210,6 +210,7 @@ function deriveSurfaceLabel(path: string): string {
 type RankedSurfaceAccumulator = {
   category: ConflictHotspotSurfaceCategory;
   representativePaths: Set<string>;
+  surface: string;
   touches: number;
 };
 
@@ -221,7 +222,8 @@ export function rankConflictHotspotSurfaces(
   for (const pathTouch of pathTouches) {
     const surface = deriveSurfaceLabel(pathTouch.path);
     const category = classifySurfaceCategory(pathTouch.path);
-    const existing = surfaces.get(surface);
+    const surfaceKey = `${category}:${surface}`;
+    const existing = surfaces.get(surfaceKey);
 
     if (existing) {
       existing.touches += pathTouch.touches;
@@ -229,19 +231,20 @@ export function rankConflictHotspotSurfaces(
       continue;
     }
 
-    surfaces.set(surface, {
+    surfaces.set(surfaceKey, {
       category,
       representativePaths: new Set([pathTouch.path]),
+      surface,
       touches: pathTouch.touches,
     });
   }
 
-  return [...surfaces.entries()]
-    .map(([surface, value]) => ({
+  return [...surfaces.values()]
+    .map((value) => ({
       category: value.category,
       distinctPaths: value.representativePaths.size,
       representativePaths: [...value.representativePaths].sort().slice(0, 3),
-      surface,
+      surface: value.surface,
       touches: value.touches,
     }))
     .sort((left, right) => {

@@ -22,6 +22,7 @@ function initFixtureRepo(): string {
   mkdirSync(join(repoRoot, "docs"), { recursive: true });
   mkdirSync(join(repoRoot, "src/content"), { recursive: true });
   mkdirSync(join(repoRoot, "src/generated"), { recursive: true });
+  mkdirSync(join(repoRoot, "src/lib/content/generated"), { recursive: true });
   mkdirSync(join(repoRoot, "src/tests/ci"), { recursive: true });
   mkdirSync(join(repoRoot, "scripts"), { recursive: true });
 
@@ -31,6 +32,17 @@ function initFixtureRepo(): string {
   writeFileSync(
     join(repoRoot, "src/generated/search-index.json"),
     '{"docs":["guide"]}\n',
+  );
+  writeFileSync(
+    join(
+      repoRoot,
+      "src/lib/content/generated/published-docs-registry.generated.ts",
+    ),
+    "export const publishedDocs = [];\n",
+  );
+  writeFileSync(
+    join(repoRoot, "src/lib/content/published-docs-registry.ts"),
+    "export const registry = [];\n",
   );
   writeFileSync(
     join(repoRoot, "src/tests/ci/planner-hotspots.test.ts"),
@@ -48,6 +60,17 @@ function initFixtureRepo(): string {
   writeFileSync(
     join(repoRoot, "src/generated/search-index.json"),
     '{"docs":["guide","overview"]}\n',
+  );
+  writeFileSync(
+    join(
+      repoRoot,
+      "src/lib/content/generated/published-docs-registry.generated.ts",
+    ),
+    "export const publishedDocs = ['guide', 'overview'];\n",
+  );
+  writeFileSync(
+    join(repoRoot, "src/lib/content/published-docs-registry.ts"),
+    "export const registry = ['guide'];\n",
   );
   writeFileSync(
     join(repoRoot, "src/tests/ci/planner-hotspots.test.ts"),
@@ -115,7 +138,13 @@ describe("report-planner-conflict-hotspots script", () => {
         "src/generated/search-index.json [generated artifact/runtime churn] (2 touches across 1 path; examples: src/generated/search-index.json)",
       );
       expect(result.stdout ?? "").toContain(
+        "src/lib/content [generated artifact/runtime churn] (2 touches across 1 path; examples: src/lib/content/generated/published-docs-registry.generated.ts)",
+      );
+      expect(result.stdout ?? "").toContain(
         "src/tests/ci [shared test/verification] (2 touches across 1 path; examples: src/tests/ci/planner-hotspots.test.ts)",
+      );
+      expect(result.stdout ?? "").toContain(
+        "src/lib/content [shared registry/manifest] (2 touches across 1 path; examples: src/lib/content/published-docs-registry.ts)",
       );
       expect(result.stdout ?? "").toContain(
         "scripts/generate-registry-runtime.ts [shared registry/manifest] (1 touch across 1 path; examples: scripts/generate-registry-runtime.ts)",

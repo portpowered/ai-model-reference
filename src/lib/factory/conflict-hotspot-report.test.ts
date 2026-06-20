@@ -201,4 +201,36 @@ describe("rankConflictHotspotSurfaces", () => {
       },
     ]);
   });
+
+  test("keeps generated and helper evidence separate when they share a derived surface label", () => {
+    expect(
+      rankConflictHotspotSurfaces([
+        {
+          path: "src/lib/content/generated/published-docs-registry.generated.ts",
+          touches: 5,
+        },
+        {
+          path: "src/lib/content/published-docs-registry.ts",
+          touches: 3,
+        },
+      ]),
+    ).toEqual([
+      {
+        category: "generated-artifact",
+        distinctPaths: 1,
+        representativePaths: [
+          "src/lib/content/generated/published-docs-registry.generated.ts",
+        ],
+        surface: "src/lib/content",
+        touches: 5,
+      },
+      {
+        category: "shared-registry",
+        distinctPaths: 1,
+        representativePaths: ["src/lib/content/published-docs-registry.ts"],
+        surface: "src/lib/content",
+        touches: 3,
+      },
+    ]);
+  });
 });
