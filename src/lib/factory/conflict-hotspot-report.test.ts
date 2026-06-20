@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   CONFLICT_HOTSPOT_REPORT_HEADER,
+  collectConflictHotspotSnapshot,
   formatConflictHotspotSnapshot,
   parseRecentPathTouches,
   parseWorktreeListPorcelain,
@@ -150,6 +151,65 @@ describe("formatConflictHotspotSnapshot", () => {
       "Evidence is insufficient for a strong dispatch recommendation because the sample only produced one hotspot surface.",
     );
   });
+
+  test("retains lower-ranked generated evidence for dedicated sections and dispatch guidance", () => {
+    const report = formatConflictHotspotSnapshot({
+      generatedAtUtc: "2026-06-20T12:00:00.000Z",
+      recentCommitLimit: 20,
+      repoRoot: "/repo",
+      rankedSurfaces: [
+        {
+          category: "authored-content",
+          distinctPaths: 1,
+          representativePaths: ["docs/a.md"],
+          surface: "docs/a.md",
+          touches: 9,
+        },
+        {
+          category: "authored-content",
+          distinctPaths: 1,
+          representativePaths: ["docs/b.md"],
+          surface: "docs/b.md",
+          touches: 8,
+        },
+        {
+          category: "authored-content",
+          distinctPaths: 1,
+          representativePaths: ["docs/c.md"],
+          surface: "docs/c.md",
+          touches: 7,
+        },
+        {
+          category: "authored-content",
+          distinctPaths: 1,
+          representativePaths: ["docs/d.md"],
+          surface: "docs/d.md",
+          touches: 6,
+        },
+        {
+          category: "generated-artifact",
+          distinctPaths: 1,
+          representativePaths: ["src/generated/search-index.json"],
+          surface: "src/generated/search-index.json",
+          touches: 5,
+        },
+      ],
+      topPaths: [
+        { path: "docs/a.md", touches: 9 },
+        { path: "docs/b.md", touches: 8 },
+        { path: "docs/c.md", touches: 7 },
+        { path: "docs/d.md", touches: 6 },
+      ],
+      worktrees: [{ branch: "main", path: "/repo", state: "current-clean" }],
+    });
+
+    expect(report).toContain(
+      "src/generated/search-index.json [generated artifact/runtime churn] (5 touches across 1 path; examples: src/generated/search-index.json)",
+    );
+    expect(report).toContain(
+      "Hold lanes around src/generated/search-index.json [generated artifact/runtime churn] (5 touches).",
+    );
+  });
 });
 
 describe("rankConflictHotspotSurfaces", () => {
@@ -232,5 +292,18 @@ describe("rankConflictHotspotSurfaces", () => {
         touches: 3,
       },
     ]);
+  });
+});
+
+describe("collectConflictHotspotSnapshot", () => {
+  test("preserves ranked surfaces beyond the top-path display limit", () => {
+    const snapshot = collectConflictHotspotSnapshot(process.cwd(), {
+      generatedAtUtc: "2026-06-20T12:00:00.000Z",
+      recentCommitLimit: 40,
+      topPathLimit: 1,
+    });
+
+    expect(snapshot.topPaths).toHaveLength(1);
+    expect(snapshot.rankedSurfaces.length).toBeGreaterThan(1);
   });
 });

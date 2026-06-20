@@ -82,6 +82,57 @@ function initFixtureRepo(): string {
   return repoRoot;
 }
 
+function initTruncationFixtureRepo(): string {
+  const repoRoot = mkdtempSync(join(tmpdir(), "planner-hotspots-truncation-"));
+  runGit(repoRoot, ["init"]);
+  runGit(repoRoot, ["checkout", "-b", "main"]);
+  runGit(repoRoot, ["config", "user.name", "Planner Tests"]);
+  runGit(repoRoot, ["config", "user.email", "planner-tests@example.com"]);
+
+  const authoredSurfaces = [
+    "alpha",
+    "beta",
+    "gamma",
+    "delta",
+    "epsilon",
+    "zeta",
+    "eta",
+    "theta",
+    "iota",
+  ];
+
+  for (const surface of authoredSurfaces) {
+    mkdirSync(join(repoRoot, "src/content", surface), { recursive: true });
+    writeFileSync(
+      join(repoRoot, "src/content", surface, "page.mdx"),
+      `# ${surface}\n`,
+    );
+  }
+
+  mkdirSync(join(repoRoot, "src/generated"), { recursive: true });
+  writeFileSync(
+    join(repoRoot, "src/generated/search-index.json"),
+    '{"docs":[]}\n',
+  );
+  runGit(repoRoot, ["add", "."]);
+  runGit(repoRoot, ["commit", "-m", "seed truncation evidence"]);
+
+  for (const surface of authoredSurfaces) {
+    writeFileSync(
+      join(repoRoot, "src/content", surface, "page.mdx"),
+      `# ${surface}\nupdated\n`,
+    );
+  }
+  writeFileSync(
+    join(repoRoot, "src/generated/search-index.json"),
+    '{"docs":["alpha"]}\n',
+  );
+  runGit(repoRoot, ["add", "."]);
+  runGit(repoRoot, ["commit", "-m", "touch authored hotspots"]);
+
+  return repoRoot;
+}
+
 describe("report-planner-conflict-hotspots script", () => {
   test("exits non-zero with a clear reason when repository evidence cannot be collected", () => {
     const nonRepoDir = mkdtempSync(join(tmpdir(), "planner-hotspots-missing-"));
@@ -157,6 +208,37 @@ describe("report-planner-conflict-hotspots script", () => {
       );
       expect(result.stdout ?? "").toContain(
         "Prefer authored lanes around src/content/page.mdx [authored content] (1 touch) while src/generated/search-index.json stays hotter in the same sample.",
+      );
+    } finally {
+      rmSync(repoRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("keeps lower-ranked generated churn visible when hotter authored surfaces fill the top path sample", () => {
+    const repoRoot = initTruncationFixtureRepo();
+
+    try {
+      const result = spawnSync(
+        "bun",
+        ["./scripts/report-planner-conflict-hotspots.ts", repoRoot],
+        {
+          cwd: process.cwd(),
+          encoding: "utf8",
+        },
+      );
+
+      expect(result.status).toBe(0);
+      expect(result.stdout ?? "").toContain(
+        "Recurring generated artifact/runtime churn",
+      );
+      expect(result.stdout ?? "").toContain(
+        "src/generated/search-index.json [generated artifact/runtime churn] (2 touches across 1 path; examples: src/generated/search-index.json)",
+      );
+      expect(result.stdout ?? "").toContain(
+        "Hold lanes around src/generated/search-index.json [generated artifact/runtime churn] (2 touches).",
+      );
+      expect(result.stdout ?? "").not.toContain(
+        "Recurring generated artifact/runtime churn\n- None in the sampled evidence.",
       );
     } finally {
       rmSync(repoRoot, { recursive: true, force: true });

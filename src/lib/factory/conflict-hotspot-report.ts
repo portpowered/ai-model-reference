@@ -395,10 +395,7 @@ export function collectConflictHotspotSnapshot(
     recentCommitLimit,
     repoRoot: canonicalRepoRoot,
     topPaths: recentPathTouches.slice(0, topPathLimit),
-    rankedSurfaces: rankConflictHotspotSurfaces(recentPathTouches).slice(
-      0,
-      topPathLimit,
-    ),
+    rankedSurfaces: rankConflictHotspotSurfaces(recentPathTouches),
     worktrees: collectWorktreeSnapshot(canonicalRepoRoot),
   };
 }
