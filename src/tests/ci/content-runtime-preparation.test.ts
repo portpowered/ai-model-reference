@@ -1,6 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { basename, join, relative } from "node:path";
 import { getGeneratedContentRuntimeRoot } from "@/lib/content/content-paths";
 import {
@@ -20,6 +26,13 @@ const LEGACY_TOP_LEVEL_GENERATED_RUNTIME_PATHS = [
 ] as const;
 const GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH =
   "src/lib/content/generated/published-docs-registry.generated.ts";
+const RUNTIME_DISCOVERY_TEST_DOCS_SLUG = "glossary/runtime-recovery-smoke-test";
+const RUNTIME_DISCOVERY_TEST_PAGE_RELATIVE_PATH = join(
+  "src/content/docs",
+  RUNTIME_DISCOVERY_TEST_DOCS_SLUG,
+);
+const RUNTIME_DISCOVERY_TEST_REGISTRY_ID =
+  "concept.runtime-recovery-smoke-test";
 
 function runPrepareContentRuntime() {
   return spawnSync("bun", ["run", "prepare:content-runtime"], {
@@ -27,6 +40,45 @@ function runPrepareContentRuntime() {
     encoding: "utf8",
     env: process.env,
   });
+}
+
+function writePublishedDocsPage(
+  pageRelativePath: string,
+  frontmatter: {
+    kind: string;
+    registryId: string;
+    status: string;
+  },
+) {
+  const pagePath = join(repoRoot, pageRelativePath);
+  mkdirSync(join(pagePath, "messages"), { recursive: true });
+  writeFileSync(
+    join(pagePath, "page.mdx"),
+    `---
+kind: "${frontmatter.kind}"
+registryId: "${frontmatter.registryId}"
+messageNamespace: "local"
+assetNamespace: "local"
+tags:
+  - test
+status: ${frontmatter.status}
+updatedAt: "2026-06-20"
+---
+`,
+    "utf8",
+  );
+  writeFileSync(
+    join(pagePath, "messages", "en.json"),
+    JSON.stringify(
+      {
+        title: frontmatter.registryId,
+        description: `${frontmatter.registryId} description`,
+      },
+      null,
+      2,
+    ),
+    "utf8",
+  );
 }
 
 describe("content runtime preparation", () => {
@@ -180,6 +232,63 @@ describe("content runtime preparation", () => {
       expect(prepareOutput).not.toContain("published-docs-registry");
       expect(existsSync(manifestPath)).toBe(false);
     } finally {
+      if (originalManifest === null) {
+        rmSync(manifestPath, { force: true });
+      } else {
+        writeFileSync(manifestPath, originalManifest, "utf8");
+      }
+    }
+  });
+
+  test("fresh-checkout runtime import discovers newly authored published docs without a manual manifest edit", () => {
+    const manifestPath = join(
+      repoRoot,
+      GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH,
+    );
+    const pagePath = join(repoRoot, RUNTIME_DISCOVERY_TEST_PAGE_RELATIVE_PATH);
+    const originalManifest = existsSync(manifestPath)
+      ? readFileSync(manifestPath, "utf8")
+      : null;
+
+    try {
+      rmSync(manifestPath, { force: true });
+      rmSync(pagePath, { force: true, recursive: true });
+      writePublishedDocsPage(RUNTIME_DISCOVERY_TEST_PAGE_RELATIVE_PATH, {
+        kind: "glossary",
+        registryId: RUNTIME_DISCOVERY_TEST_REGISTRY_ID,
+        status: "published",
+      });
+
+      const importResult = spawnSync(
+        "bun",
+        [
+          "--eval",
+          [
+            'import { getPublishedDocsEntryByRegistryId, listPublishedDocsEntries } from "./src/lib/content/published-docs-registry-ids";',
+            `const registryId = "${RUNTIME_DISCOVERY_TEST_REGISTRY_ID}";`,
+            "const entry = getPublishedDocsEntryByRegistryId(registryId);",
+            "if (!entry) throw new Error('missing published docs entry for ' + registryId);",
+            "const listed = listPublishedDocsEntries().some((candidate) => candidate.registryId === registryId);",
+            "if (!listed) throw new Error('listPublishedDocsEntries omitted ' + registryId);",
+            "console.log(JSON.stringify({ docsSlug: entry.docsSlug, url: entry.url, listed }));",
+          ].join(" "),
+        ],
+        {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: process.env,
+        },
+      );
+
+      expect(importResult.status).toBe(0);
+      expect(importResult.stdout).toContain(RUNTIME_DISCOVERY_TEST_DOCS_SLUG);
+      expect(importResult.stdout).toContain(
+        "/docs/glossary/runtime-recovery-smoke-test",
+      );
+      expect(importResult.stdout).toContain('"listed":true');
+      expect(existsSync(manifestPath)).toBe(false);
+    } finally {
+      rmSync(pagePath, { force: true, recursive: true });
       if (originalManifest === null) {
         rmSync(manifestPath, { force: true });
       } else {
