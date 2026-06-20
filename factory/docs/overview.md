@@ -58,7 +58,10 @@ Planner linkage reporting can refresh mutable branch and PR linkage inside that
 record later with `bun ./scripts/report-queue-worktree-pr-linkage-ledger.ts --refresh-metadata`
 without recreating the worktree. Planner linkage discovery now reads that
 stamped record first for local lane identity and reports explicit metadata gaps
-before falling back to `git` or `prd.json` heuristics.
+before falling back to `git` or `prd.json` heuristics. If stamped linkage is
+already marked `stale`, planner reports keep the lane visible and surface the
+stale branch or PR issue text as an actionable gap instead of silently hiding
+the lane.
 
 ## Batch Submission
 

@@ -301,6 +301,86 @@ describe("queue-worktree-pr-linkage-ledger script", () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
+  test("prints explicit stale metadata gaps without dropping the lane", () => {
+    const dir = mkdtempSync(join(tmpdir(), "queue-linkage-ledger-script-"));
+    const workListPath = join(dir, "work-list.json");
+    const sessionListPath = join(dir, "session-list.json");
+    const prMapPath = join(dir, "pr-map.json");
+    const worktreesRoot = join(dir, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    createWorktree(worktreesRoot, "alpha", "alpha");
+    writeLaneMetadata(worktreesRoot, "alpha", {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: join(worktreesRoot, "alpha"),
+      sessionId: "sess-1",
+      pullRequest: {
+        number: 7,
+        url: "https://example.com/pr/7",
+      },
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-21T00:05:00.000Z",
+      linkage: {
+        branch: {
+          status: "stale",
+          issue: "git branch inspection failed during the last refresh",
+          refreshedAtUtc: "2026-06-21T00:05:00.000Z",
+        },
+        pullRequest: {
+          status: "stale",
+          issue: "pull request lookup API returned 502",
+          refreshedAtUtc: "2026-06-21T00:05:00.000Z",
+        },
+      },
+    });
+
+    writeFileSync(
+      workListPath,
+      JSON.stringify({
+        items: [{ name: "alpha", state: "active", sessionId: "sess-1" }],
+      }),
+    );
+    writeFileSync(
+      sessionListPath,
+      JSON.stringify({
+        sessions: [{ id: "sess-1", workItemName: "alpha", status: "running" }],
+      }),
+    );
+    writeFileSync(prMapPath, JSON.stringify({}));
+
+    const result = spawnSync(
+      "bun",
+      [
+        "./scripts/report-queue-worktree-pr-linkage-ledger.ts",
+        "--work-list-json",
+        workListPath,
+        "--session-list-json",
+        sessionListPath,
+        "--worktrees-dir",
+        worktreesRoot,
+        "--pr-map-json",
+        prMapPath,
+      ],
+      { cwd: process.cwd(), encoding: "utf8" },
+    );
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+      "queue-derived-lanes=1 active=1 failed=0 linked=0 linked-with-gaps=1",
+    );
+    expect(result.stdout).toContain("lane=alpha");
+    expect(result.stdout).toContain("metadata=present");
+    expect(result.stdout).toContain("linkage=linked-with-gaps");
+    expect(result.stdout).toContain(
+      "missing=stamped branch linkage is stale: git branch inspection failed during the last refresh; stamped pull request linkage is stale: pull request lookup API returned 502; no open PR metadata found for branch alpha",
+    );
+
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   test("prints a planner-facing queue summary while keeping missing-linkage lanes visible", () => {
     const dir = mkdtempSync(join(tmpdir(), "queue-linkage-ledger-script-"));
     const workListPath = join(dir, "work-list.json");

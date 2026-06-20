@@ -424,6 +424,84 @@ describe("discoverActivePrLaneReport", () => {
     rmSync(repoRoot, { recursive: true, force: true });
   });
 
+  test("keeps lanes visible and surfaces stamped stale linkage as explicit gaps", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "active-pr-watchdog-stale-"));
+    const worktreesRoot = join(repoRoot, ".claude", "worktrees");
+    mkdirSync(worktreesRoot, { recursive: true });
+
+    const alphaPath = createWorktree(worktreesRoot, "alpha", "alpha");
+    writeLaneMetadata(alphaPath, {
+      schemaVersion: 1,
+      workItemName: "alpha",
+      branchName: "alpha",
+      branchMetadataSource: "setup",
+      worktreePath: alphaPath,
+      sessionId: "sess-1",
+      pullRequest: {
+        number: 7,
+        url: "https://example.com/pr/7",
+      },
+      createdAtUtc: "2026-06-20T21:08:34.000Z",
+      refreshedAtUtc: "2026-06-21T00:05:00.000Z",
+      linkage: {
+        branch: {
+          status: "stale",
+          issue: "git branch inspection failed during the last refresh",
+          refreshedAtUtc: "2026-06-21T00:05:00.000Z",
+        },
+        pullRequest: {
+          status: "stale",
+          issue: "pull request lookup API returned 502",
+          refreshedAtUtc: "2026-06-21T00:05:00.000Z",
+        },
+      },
+    });
+
+    const report = discoverActivePrLaneReport({
+      repoRoot,
+      workListJsonText: JSON.stringify({
+        items: [{ name: "alpha", state: "active", sessionId: "sess-1" }],
+      }),
+      sessionListJsonText: JSON.stringify({
+        sessions: [{ id: "sess-1", workItemName: "alpha", status: "running" }],
+      }),
+      worktreesDir: worktreesRoot,
+      runCommand: runCommandStub(new Map([[alphaPath, "alpha"]])),
+      lookupPullRequest: () => ({
+        pullRequest: null,
+        failureKind: "api",
+        failureReason: "GitHub CLI returned 502 while refreshing PR metadata",
+      }),
+    });
+
+    expect(report.issues).toEqual([]);
+    expect(report.lanes).toEqual([
+      expect.objectContaining({
+        status: "unclassified",
+        workItemName: "alpha",
+        queueState: "active",
+        rawQueueState: "active",
+        worktreePath: ".claude/worktrees/alpha",
+        branchName: "alpha",
+        workItemNameSource: "metadata",
+        branchMetadataSource: "metadata",
+        metadataStatus: "present",
+        prLookupFailureKind: "api",
+        prLookupFailureReason:
+          "GitHub CLI returned 502 while refreshing PR metadata",
+        queueMismatchRisk: "metadata-unavailable",
+        nextAction: "repair-token",
+        reasons: [
+          "stamped branch linkage is stale: git branch inspection failed during the last refresh",
+          "stamped pull request linkage is stale: pull request lookup API returned 502",
+          "GitHub CLI returned 502 while refreshing PR metadata",
+        ],
+      }),
+    ]);
+
+    rmSync(repoRoot, { recursive: true, force: true });
+  });
+
   test("formats a compact planner-facing report", () => {
     const reportText = formatActivePrLaneReport({
       issues: [],
@@ -527,6 +605,14 @@ describe("story 002 classification helpers", () => {
           "stamped branch alpha-metadata disagrees with prd branch alpha-prd",
         ],
         metadataSessionId: "sess-1",
+        metadataBranchLinkage: {
+          status: "current",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+        metadataPullRequestLinkage: {
+          status: "missing",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
       },
       {
         worktreeName: "beta",
@@ -542,6 +628,14 @@ describe("story 002 classification helpers", () => {
           "stamped lane metadata is incomplete: missing branch name",
         ],
         metadataSessionId: null,
+        metadataBranchLinkage: {
+          status: "missing",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
+        metadataPullRequestLinkage: {
+          status: "missing",
+          refreshedAtUtc: "2026-06-20T21:08:34.000Z",
+        },
       },
       {
         worktreeName: "gamma",
@@ -557,6 +651,8 @@ describe("story 002 classification helpers", () => {
           "stamped lane metadata missing; fell back to worktree heuristics",
         ],
         metadataSessionId: undefined,
+        metadataBranchLinkage: undefined,
+        metadataPullRequestLinkage: undefined,
       },
     ]);
 

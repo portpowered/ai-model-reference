@@ -4,6 +4,7 @@ import { join, relative } from "node:path";
 import {
   readWorktreeLaneMetadata,
   refreshWorktreeLaneMetadata,
+  type WorktreeLaneMetadataLinkageField,
 } from "@/lib/factory/worktree-lane-metadata";
 
 export type QueueLaneState = "active" | "failed";
@@ -66,6 +67,8 @@ export interface WorktreeLaneRecord {
   metadataStatus: "present" | "missing" | "incomplete" | "conflicting";
   metadataIssues: string[];
   metadataSessionId?: string | null;
+  metadataBranchLinkage?: WorktreeLaneMetadataLinkageField;
+  metadataPullRequestLinkage?: WorktreeLaneMetadataLinkageField;
 }
 
 export interface PullRequestRecord {
@@ -496,6 +499,8 @@ export function discoverWorktreeLaneRecords(
         metadataStatus,
         metadataIssues,
         metadataSessionId,
+        metadataBranchLinkage: metadata?.linkage.branch,
+        metadataPullRequestLinkage: metadata?.linkage.pullRequest,
       } satisfies WorktreeLaneRecord;
     });
 }
@@ -518,6 +523,14 @@ function worktreeAliases(record: WorktreeLaneRecord): Set<string> {
 
 function normalizeWorktreeName(name: string): string {
   return name.replaceAll("/", "-");
+}
+
+function pushUniqueReason(reasons: string[], reason?: string): void {
+  const normalizedReason = reason?.trim();
+  if (!normalizedReason || reasons.includes(normalizedReason)) {
+    return;
+  }
+  reasons.push(normalizedReason);
 }
 
 function relativeDisplayPath(path: string, repoRoot?: string): string {
@@ -943,6 +956,14 @@ export function discoverActivePrLaneReport(
     }
 
     reasons.push(...worktree.metadataIssues);
+    if (worktree.metadataBranchLinkage?.status === "stale") {
+      pushUniqueReason(
+        reasons,
+        worktree.metadataBranchLinkage.issue
+          ? `stamped branch linkage is stale: ${worktree.metadataBranchLinkage.issue}`
+          : "stamped branch linkage is stale and should be refreshed",
+      );
+    }
 
     const branchName = worktree.branchName ?? worktree.prdBranchName;
     if (!branchName) {
@@ -1005,10 +1026,18 @@ export function discoverActivePrLaneReport(
     const pullRequestLookup = lookupPullRequest(branchName, runCommand);
     const pullRequest = pullRequestLookup.pullRequest;
     if (!pullRequest) {
+      if (worktree.metadataPullRequestLinkage?.status === "stale") {
+        pushUniqueReason(
+          reasons,
+          worktree.metadataPullRequestLinkage.issue
+            ? `stamped pull request linkage is stale: ${worktree.metadataPullRequestLinkage.issue}`
+            : "stamped pull request linkage is stale and should be refreshed",
+        );
+      }
       const failureReason =
         pullRequestLookup.failureReason ??
         `no open PR metadata found for branch ${branchName}`;
-      reasons.push(failureReason);
+      pushUniqueReason(reasons, failureReason);
       const queueMismatchRisk =
         pullRequestLookup.failureKind &&
         pullRequestLookup.failureKind !== "not-found"
