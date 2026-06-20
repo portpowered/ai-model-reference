@@ -190,7 +190,7 @@ describe("content runtime preparation", () => {
     { timeout: CONTENT_RUNTIME_PREPARATION_TIMEOUT_MS },
   );
 
-  test("published docs runtime imports succeed without the ignored generated manifest", () => {
+  test("prepare:content-runtime recreates the ignored published docs manifest before runtime import", () => {
     const manifestPath = join(
       repoRoot,
       GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH,
@@ -202,6 +202,15 @@ describe("content runtime preparation", () => {
     try {
       rmSync(manifestPath, { force: true });
       expect(existsSync(manifestPath)).toBe(false);
+
+      const prepareResult = runPrepareContentRuntime();
+      const prepareOutput = `${prepareResult.stdout}\n${prepareResult.stderr}`;
+
+      expect(prepareResult.status).toBe(0);
+      expect(prepareOutput).toContain(
+        `[content-runtime] Preparing published-docs-registry -> ${GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH}`,
+      );
+      expect(existsSync(manifestPath)).toBe(true);
 
       const importResult = spawnSync(
         "bun",
@@ -223,14 +232,7 @@ describe("content runtime preparation", () => {
 
       expect(importResult.status).toBe(0);
       expect(importResult.stdout).toContain("modules/grouped-query-attention");
-      expect(existsSync(manifestPath)).toBe(false);
-
-      const prepareResult = runPrepareContentRuntime();
-      const prepareOutput = `${prepareResult.stdout}\n${prepareResult.stderr}`;
-
-      expect(prepareResult.status).toBe(0);
-      expect(prepareOutput).not.toContain("published-docs-registry");
-      expect(existsSync(manifestPath)).toBe(false);
+      expect(existsSync(manifestPath)).toBe(true);
     } finally {
       if (originalManifest === null) {
         rmSync(manifestPath, { force: true });
@@ -240,7 +242,7 @@ describe("content runtime preparation", () => {
     }
   });
 
-  test("fresh-checkout runtime import discovers newly authored published docs without a manual manifest edit", () => {
+  test("fresh-checkout preparation refreshes the published docs manifest so newly authored pages appear without a manual manifest edit", () => {
     const manifestPath = join(
       repoRoot,
       GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH,
@@ -258,6 +260,15 @@ describe("content runtime preparation", () => {
         registryId: RUNTIME_DISCOVERY_TEST_REGISTRY_ID,
         status: "published",
       });
+
+      const prepareResult = runPrepareContentRuntime();
+      const prepareOutput = `${prepareResult.stdout}\n${prepareResult.stderr}`;
+
+      expect(prepareResult.status).toBe(0);
+      expect(prepareOutput).toContain(
+        `[content-runtime] Preparing published-docs-registry -> ${GENERATED_PUBLISHED_DOCS_REGISTRY_RELATIVE_PATH}`,
+      );
+      expect(existsSync(manifestPath)).toBe(true);
 
       const importResult = spawnSync(
         "bun",
@@ -286,7 +297,7 @@ describe("content runtime preparation", () => {
         "/docs/glossary/runtime-recovery-smoke-test",
       );
       expect(importResult.stdout).toContain('"listed":true');
-      expect(existsSync(manifestPath)).toBe(false);
+      expect(existsSync(manifestPath)).toBe(true);
     } finally {
       rmSync(pagePath, { force: true, recursive: true });
       if (originalManifest === null) {

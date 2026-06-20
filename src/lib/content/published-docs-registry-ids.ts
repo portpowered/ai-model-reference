@@ -1,10 +1,15 @@
 import {
+  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS as GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS_DATA,
+  GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS as GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS_DATA,
+  GENERATED_PUBLISHED_DOCS_ENTRIES as GENERATED_PUBLISHED_DOCS_ENTRIES_DATA,
+  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS as GENERATED_PUBLISHED_DOCS_REGISTRY_IDS_DATA,
+} from "@/lib/content/generated/published-docs-registry.generated";
+import {
   type PublishedDocsEntry,
   type PublishedDocsRecordRef,
   type PublishedDocsRegistryIds,
   publishedDocsHrefFromEntry,
 } from "@/lib/content/published-docs-registry-contract";
-import { loadPublishedDocsRuntimeManifestSync } from "@/lib/content/published-docs-registry-source";
 
 export type {
   PublishedDocsEntry,
@@ -17,8 +22,6 @@ export type PublishedDocsIndex = {
   bySlug: ReadonlyMap<string, readonly PublishedDocsEntry[]>;
   registryIds: PublishedDocsRegistryIds;
 };
-
-const publishedDocsRuntimeManifest = loadPublishedDocsRuntimeManifestSync("en");
 
 function getModuleBackedConceptEntryBySlug(
   slug: string,
@@ -65,18 +68,20 @@ function buildRuntimePublishedDocsIndex(
 }
 
 export const publishedDocsIndex = buildRuntimePublishedDocsIndex(
-  publishedDocsRuntimeManifest.entries,
+  GENERATED_PUBLISHED_DOCS_ENTRIES_DATA as readonly PublishedDocsEntry[],
 );
 
 export const PUBLISHED_DOCS_REGISTRY_IDS: ReadonlySet<string> = new Set(
-  publishedDocsRuntimeManifest.registryIds,
+  GENERATED_PUBLISHED_DOCS_REGISTRY_IDS_DATA as readonly string[],
 );
 
 export const PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS: ReadonlySet<string> =
-  new Set(publishedDocsRuntimeManifest.publishedConceptSectionRegistryIds);
+  new Set(
+    GENERATED_PUBLISHED_CONCEPT_SECTION_REGISTRY_IDS_DATA as readonly string[],
+  );
 
 export const MODULE_BACKED_CONCEPT_REGISTRY_IDS: ReadonlySet<string> = new Set(
-  publishedDocsRuntimeManifest.moduleBackedConceptRegistryIds,
+  GENERATED_MODULE_BACKED_CONCEPT_REGISTRY_IDS_DATA as readonly string[],
 );
 
 export function listPublishedDocsEntries(): readonly PublishedDocsEntry[] {
