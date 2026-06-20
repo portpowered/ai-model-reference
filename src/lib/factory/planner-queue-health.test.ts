@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   discoverPlannerQueueHealthReport,
   formatPlannerQueueHealthReport,
+  type QueueHealthReport,
   serializePlannerQueueHealthReport,
 } from "@/lib/factory/planner-queue-health";
 
@@ -328,5 +329,143 @@ describe("discoverPlannerQueueHealthReport", () => {
     expect(
       parsedReport.repairRecommendations.map((item) => item.workItemName),
     ).toEqual(["gamma"]);
+  });
+
+  test("covers the full planner-facing classification fixture without promoting stale noise into repair guidance", () => {
+    const report = discoverPlannerQueueHealthReport({
+      generatedAtUtc: "2026-06-20T00:00:00.000Z",
+      sourceSession: "~default",
+      workListJsonText: JSON.stringify({
+        results: [
+          {
+            workId: "idea-active",
+            name: "fresh-idea",
+            traceId: "trace-active",
+            workTypeName: "idea",
+            state: { name: "init", type: "INITIAL" },
+          },
+          {
+            workId: "thoughts-blocked",
+            name: "loopback-waiting",
+            traceId: "trace-blocked",
+            workTypeName: "thoughts",
+            state: { name: "init", type: "INITIAL" },
+            relations: [
+              {
+                type: "DEPENDS_ON",
+                targetWorkId: "task-running",
+                targetWorkName: "review-lane",
+                requiredState: "complete",
+              },
+            ],
+          },
+          {
+            workId: "task-running",
+            name: "review-lane",
+            traceId: "trace-running",
+            workTypeName: "task",
+            state: { name: "in-review", type: "PROCESSING" },
+          },
+          {
+            workId: "task-failed-stale",
+            name: "shared-history",
+            traceId: "trace-stale",
+            workTypeName: "task",
+            state: { name: "failed", type: "FAILED" },
+          },
+          {
+            workId: "task-complete",
+            name: "shared-history",
+            traceId: "trace-complete",
+            workTypeName: "task",
+            state: { name: "complete", type: "TERMINAL" },
+          },
+          {
+            workId: "cron-1",
+            name: "cron:though-retrigger",
+            traceId: "trace-cron-1",
+            workTypeName: "thoughts",
+            state: { name: "failed", type: "FAILED" },
+          },
+          {
+            workId: "cron-2",
+            name: "cron:though-retrigger",
+            traceId: "trace-cron-2",
+            workTypeName: "thoughts",
+            state: { name: "failed", type: "FAILED" },
+          },
+          {
+            workId: "task-repair",
+            name: "needs-repair",
+            traceId: "trace-repair",
+            workTypeName: "task",
+            state: { name: "failed", type: "FAILED" },
+          },
+        ],
+      }),
+    });
+
+    expect(report.activeWork.items.map((item) => item.workItemName)).toEqual([
+      "fresh-idea",
+      "review-lane",
+    ]);
+    expect(
+      report.expectedBlockedItems.items.map((item) => item.workItemName),
+    ).toEqual(["loopback-waiting"]);
+    expect(
+      report.repairableFailures.items.map((item) => item.workItemName),
+    ).toEqual(["needs-repair"]);
+    expect(
+      report.ignorableStaleNoise.items.map((item) => item.workItemName),
+    ).toEqual(["cron:though-retrigger", "shared-history"]);
+    expect(report.repairRecommendations).toEqual([
+      expect.objectContaining({
+        workItemName: "needs-repair",
+        command: "you work move task-repair init --session ~default",
+      }),
+    ]);
+
+    const parsedReport = JSON.parse(
+      serializePlannerQueueHealthReport(report),
+    ) as QueueHealthReport;
+    expect(
+      parsedReport.activeWork.items.map((item) => item.workItemName),
+    ).toEqual(["fresh-idea", "review-lane"]);
+    expect(
+      parsedReport.ignorableStaleNoise.items.find(
+        (item) => item.workItemName === "shared-history",
+      )?.reasons,
+    ).toEqual([
+      "failed item is superseded by shared-history complete/terminal type=task work-id=task-complete trace=trace-complete",
+    ]);
+    expect(
+      parsedReport.ignorableStaleNoise.items.find(
+        (item) => item.workItemName === "cron:though-retrigger",
+      ),
+    ).toMatchObject({
+      occurrenceCount: 2,
+      relatedWorkIds: ["cron-1", "cron-2"],
+      relatedTraceIds: ["trace-cron-1", "trace-cron-2"],
+    });
+
+    const reportText = formatPlannerQueueHealthReport(report);
+    expect(reportText).toContain("Active Work (2)");
+    expect(reportText).toContain("Expected Blocked Items (1)");
+    expect(reportText).toContain("Repairable Failures (1)");
+    expect(reportText).toContain("Ignorable Stale Noise (2)");
+    expect(reportText).toContain(
+      "reason=failed item is superseded by shared-history complete/terminal type=task work-id=task-complete trace=trace-complete",
+    );
+    expect(reportText).toContain(
+      "reason=grouped 2 repeated failed cron thoughts items; group-work-ids=cron-1,cron-2; group-traces=trace-cron-1,trace-cron-2",
+    );
+    expect(reportText).toContain("Repair Guidance (1)");
+    expect(reportText).toContain("work-item=needs-repair");
+    expect(reportText).not.toContain(
+      "command=you work move task-failed-stale init --session ~default",
+    );
+    expect(reportText).not.toContain(
+      "command=you work move cron-1 init --session ~default",
+    );
   });
 });
