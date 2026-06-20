@@ -253,11 +253,11 @@ export function buildSearchDocument(
   const headings = collectMessageHeadings(page.messages);
   const bodyText = collectMessageBodyText(page.messages);
   const topology = buildTopology(registryRecord, indexes);
-  const aliases = unique([
+  const directAliases = unique([
     ...(page.frontmatter.aliases ?? []),
     ...registryAliases,
-    ...tagTerms,
   ]);
+  const aliases = unique([...directAliases, ...tagTerms]);
 
   return {
     id: page.url,
@@ -268,6 +268,7 @@ export function buildSearchDocument(
     description: page.messages.description,
     bodyText,
     headings,
+    directAliases,
     aliases,
     tags: pageTags,
     relatedIds: registryRecord?.relatedIds ?? [],

@@ -34,6 +34,8 @@ const ACTIVATION_GLOSSARY_URL = "/docs/glossary/activation";
 const BIDIRECTIONAL_ATTENTION_URL = "/docs/modules/bidirectional-attention";
 const FEED_FORWARD_NETWORK_URL = "/docs/modules/feed-forward-network";
 const STANDARD_FFN_URL = "/docs/modules/standard-ffn";
+const EXPERT_PARALLEL_OVERLAP_URL = "/docs/systems/expert-parallel-overlap";
+const ACTIVATION_QUANTIZATION_URL = "/docs/concepts/activation-quantization";
 const RELU_URL = "/docs/modules/relu";
 const LEAKY_RELU_URL = "/docs/modules/leaky-relu";
 const SILU_URL = "/docs/modules/silu";
@@ -48,6 +50,22 @@ const JAPANESE_ATTENTION_PROOF_SET_URLS = [
   "/ja/docs/glossary/token",
   "/ja/docs/concepts/transformer-architecture",
 ] as const;
+
+function expectUrlsBefore(
+  urls: string[],
+  promotedUrls: readonly string[],
+  laterUrl: string,
+) {
+  const laterIndex = urls.indexOf(laterUrl);
+
+  for (const promotedUrl of promotedUrls) {
+    const promotedIndex = urls.indexOf(promotedUrl);
+    expect(promotedIndex).toBeGreaterThanOrEqual(0);
+    if (laterIndex >= 0) {
+      expect(promotedIndex).toBeLessThan(laterIndex);
+    }
+  }
+}
 
 describe("Phase 1 /api/search regression", () => {
   for (const assertion of PHASE_1_SEARCH_ASSERTIONS) {
@@ -375,6 +393,37 @@ describe("docsSearchApi", () => {
     expect(urls.length).toBeGreaterThan(0);
     expect(urls).toEqual(expect.arrayContaining([...expectedUrls]));
     expectUniqueCanonicalPageUrls(urls);
+  });
+
+  test("search promotes activation-function modules above incidental activation body matches", async () => {
+    const results = await docsSearchApi.search("activation");
+    const urls = results.map((result) => result.url);
+
+    expectUrlsBefore(
+      urls,
+      [RELU_URL, LEAKY_RELU_URL, SILU_URL],
+      ACTIVATION_QUANTIZATION_URL,
+    );
+  });
+
+  test.each([
+    "feed forward",
+    "feedforward",
+  ] as const)("search promotes feed-forward family modules above unrelated tag matches for %s", async (query) => {
+    const results = await docsSearchApi.search(query);
+    const urls = results.map((result) => result.url);
+
+    expectUrlsBefore(
+      urls,
+      [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+      EXPERT_PARALLEL_OVERLAP_URL,
+    );
+  });
+
+  test("search ranks the canonical feed-forward network page first for the direct FFN alias", async () => {
+    const results = await docsSearchApi.search("ffn");
+
+    expect(results[0]?.url).toBe(FEED_FORWARD_NETWORK_URL);
   });
 
   test("staticGET exports an advanced Orama index", async () => {

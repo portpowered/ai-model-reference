@@ -46,6 +46,7 @@ export type SearchDocument = {
   description: string;
   bodyText: string;
   headings: string[];
+  directAliases: string[];
   aliases: string[];
   tags: string[];
   relatedIds: string[];

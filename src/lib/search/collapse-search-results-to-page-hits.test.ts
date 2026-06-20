@@ -17,6 +17,7 @@ function documentForUrl(
     description: "GQA module",
     bodyText: "",
     headings: [],
+    directAliases: ["GQA"],
     aliases: ["GQA"],
     tags: ["attention"],
     relatedIds: [],

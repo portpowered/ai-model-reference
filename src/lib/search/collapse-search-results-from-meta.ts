@@ -1,12 +1,21 @@
 import type { SortedResult } from "fumadocs-core/search";
 import { collapseSearchResultsToPageHits } from "./collapse-search-results-to-page-hits";
-import type { SearchDocument } from "./types";
+import type { SearchDocument, SearchDocumentTopology } from "./types";
 
 export type SearchResultMetaForCollapse = {
   title: string;
   kind: string;
   tags: string[];
+  directAliases?: string[];
   aliases?: string[];
+  topology?: SearchDocumentTopology;
+};
+
+const emptyTopology: SearchDocumentTopology = {
+  secondaryClassificationIds: [],
+  secondaryClassifications: [],
+  relationships: [],
+  terms: [],
 };
 
 export function documentsByUrlFromMeta(
@@ -22,16 +31,12 @@ export function documentsByUrlFromMeta(
       description: "",
       bodyText: "",
       headings: [],
+      directAliases: meta.directAliases ?? meta.aliases ?? [],
       aliases: meta.aliases ?? [],
       tags: meta.tags,
       relatedIds: [],
       facets: { kind: meta.kind, tags: meta.tags },
-      topology: {
-        secondaryClassificationIds: [],
-        secondaryClassifications: [],
-        relationships: [],
-        terms: [],
-      },
+      topology: meta.topology ?? emptyTopology,
     });
   }
   return map;
