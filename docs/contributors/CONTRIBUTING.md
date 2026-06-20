@@ -371,7 +371,7 @@ Optional during iteration:
 ```sh
 make lint          # Biome check — same as bun run lint
 make typecheck     # prepare:content-runtime + fumadocs-mdx, then tsc --noEmit
-bun run prepare:content-runtime # refresh checked-in runtime artifacts directly
+bun run prepare:content-runtime # refresh derived runtime artifacts directly
 ```
 
 `make lint` helps when you edit TypeScript, MDX components, or scripts alongside
@@ -417,10 +417,13 @@ You do not need to run `fumadocs-mdx` manually. Supported command paths invoke
 `prepare:content-runtime` first and then run `fumadocs-mdx` automatically when
 `.source/` is required on fresh checkouts.
 
-When you need to refresh the checked-in generated runtime artifacts themselves,
-use `bun run prepare:content-runtime`. It is the canonical entrypoint for
-shipped localized docs, published docs registry data, graph runtime data,
-registry runtime data, and table registry runtime data.
+When you need to refresh generated runtime artifacts themselves, use
+`bun run prepare:content-runtime`. It is the canonical entrypoint for shipped
+localized docs, published docs registry data, graph runtime data, registry
+runtime data, and table registry runtime data. The published docs registry
+manifest is derived from scanner-backed page discovery and intentionally stays
+out of commits; review the authored docs, messages, assets, and registry JSON
+instead.
 
 For most docs-only pull requests, the **fast content loop** (`make validate-data`
 and `make linkcheck`) catches registry and linking regressions early. Run
