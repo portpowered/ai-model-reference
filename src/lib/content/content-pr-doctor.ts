@@ -1,9 +1,5 @@
 import { spawnSync } from "node:child_process";
-import {
-  CONTENT_RUNTIME_PREPARATION_STEPS,
-  type ContentRuntimePreparationCommandResult,
-  runContentRuntimePreparation,
-} from "@/lib/content/content-runtime-preparation";
+import { CONTENT_RUNTIME_PREPARATION_STEPS } from "@/lib/content/content-runtime-preparation";
 
 export type ContentPrDoctorCommandResult = {
   error?: Error;
@@ -31,8 +27,16 @@ export type ContentPrDoctorValidationStep = {
 
 export const CONTENT_PR_DOCTOR_SOURCE_PATHS = ["src/content"] as const;
 
+export const CONTENT_PR_DOCTOR_PREPARATION_COMMAND = [
+  "bun",
+  "run",
+  "prepare:content-runtime",
+] as const;
+
 export const CONTENT_PR_DOCTOR_DERIVED_ARTIFACT_PATHS =
-  CONTENT_RUNTIME_PREPARATION_STEPS.map((step) => step.outputPath);
+  CONTENT_RUNTIME_PREPARATION_STEPS.filter(
+    (step) => step.id !== "published-docs-registry",
+  ).map((step) => step.outputPath);
 
 export const CONTENT_PR_DOCTOR_SCOPED_PATHS = [
   ...CONTENT_PR_DOCTOR_SOURCE_PATHS,
@@ -171,25 +175,6 @@ function listTrackedScopedChanges(
   };
 }
 
-function toPreparationRunner(runCommand: RunContentPrDoctorCommand): (
-  command: readonly [string, ...string[]],
-  options: {
-    cwd: string;
-  },
-) => ContentRuntimePreparationCommandResult {
-  return (command, options) => {
-    const result = runCommand(command, {
-      cwd: options.cwd,
-    });
-
-    return {
-      error: result.error,
-      signal: result.signal,
-      status: result.status,
-    };
-  };
-}
-
 function logStage(
   log: ContentPrDoctorLogger,
   stageNumber: number,
@@ -205,7 +190,6 @@ export function runContentPrDoctor(
   options: RunContentPrDoctorOptions,
 ): ContentPrDoctorResult {
   const log = options.log ?? console.log;
-  const logError = options.logError ?? console.error;
   const runCommand = options.runCommand ?? runCommandSync;
   const validationSteps =
     options.validationSteps ?? CONTENT_PR_DOCTOR_VALIDATION_STEPS;
@@ -257,23 +241,23 @@ export function runContentPrDoctor(
     log,
     2,
     "prepare-content-runtime",
-    "run the canonical content-runtime preparation path in fixed order",
+    "run the supported content-runtime preparation entrypoint, then prove the tracked authoritative outputs stayed clean",
   );
-  const preparation = runContentRuntimePreparation({
+  log(
+    `[content-pr-doctor] Running canonical preparation entrypoint (${formatCommand(CONTENT_PR_DOCTOR_PREPARATION_COMMAND)})`,
+  );
+  const preparation = runCommand(CONTENT_PR_DOCTOR_PREPARATION_COMMAND, {
     cwd: options.cwd,
-    log,
-    logError,
-    runCommand: toPreparationRunner(runCommand),
   });
-  if (!preparation.ok) {
+  if (preparation.status !== 0) {
     return {
       ok: false,
       stage: "prepare-content-runtime",
-      message: `Content runtime preparation failed at "${preparation.failedStep.id}" (${formatFailureReason(preparation.commandResult)}).`,
+      message: `Content runtime preparation failed while running "${formatCommand(CONTENT_PR_DOCTOR_PREPARATION_COMMAND)}" (${formatFailureReason(preparation)}).`,
       repairGuidance:
         "Fix the failing content-runtime preparation step, then rerun `bun run doctor:content-pr` so the authoritative derived artifacts are refreshed through the supported command path.",
       scopedPaths,
-      commandResult: preparation.commandResult,
+      commandResult: preparation,
     };
   }
   const postPreparationCheck = listTrackedScopedChanges(

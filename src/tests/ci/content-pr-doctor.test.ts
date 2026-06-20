@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  CONTENT_PR_DOCTOR_PREPARATION_COMMAND,
   CONTENT_PR_DOCTOR_SCOPED_PATHS,
   CONTENT_PR_DOCTOR_VALIDATION_STEPS,
   type ContentPrDoctorCommandResult,
@@ -51,7 +52,7 @@ describe("content PR doctor", () => {
           "Stage 1/4: preflight-cleanliness - verify the tracked content and derived-artifact paths are clean before regeneration starts",
         ),
         expect.stringContaining(
-          "Stage 2/4: prepare-content-runtime - run the canonical content-runtime preparation path in fixed order",
+          "Stage 2/4: prepare-content-runtime - run the supported content-runtime preparation entrypoint, then prove the tracked authoritative outputs stayed clean",
         ),
         expect.stringContaining(
           "Stage 3/4: narrow-validation - run the narrow content PR validation checks expected for review readiness",
@@ -65,11 +66,7 @@ describe("content PR doctor", () => {
       `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
         " ",
       )}`,
-      "bun run generate:shipped-localized-docs",
-      "bun run generate:published-docs-registry",
-      "bun run generate:graph-registry-runtime",
-      "bun run generate:registry-runtime",
-      "bun run generate:table-registry",
+      CONTENT_PR_DOCTOR_PREPARATION_COMMAND.join(" "),
       `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
         " ",
       )}`,
@@ -189,11 +186,7 @@ describe("content PR doctor", () => {
       `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
         " ",
       )}`,
-      "bun run generate:shipped-localized-docs",
-      "bun run generate:published-docs-registry",
-      "bun run generate:graph-registry-runtime",
-      "bun run generate:registry-runtime",
-      "bun run generate:table-registry",
+      CONTENT_PR_DOCTOR_PREPARATION_COMMAND.join(" "),
       `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
         " ",
       )}`,
@@ -255,17 +248,28 @@ describe("content PR doctor", () => {
       `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
         " ",
       )}`,
-      "bun run generate:shipped-localized-docs",
-      "bun run generate:published-docs-registry",
-      "bun run generate:graph-registry-runtime",
-      "bun run generate:registry-runtime",
-      "bun run generate:table-registry",
+      CONTENT_PR_DOCTOR_PREPARATION_COMMAND.join(" "),
       `git status --porcelain --untracked-files=no -- ${CONTENT_PR_DOCTOR_SCOPED_PATHS.join(
         " ",
       )}`,
       "bun run validate-data",
       "bun run linkcheck",
     ]);
+  });
+
+  test("scopes tracked drift checks to the checked-in generated outputs, not the ignored published docs manifest", () => {
+    expect(CONTENT_PR_DOCTOR_SCOPED_PATHS).not.toContain(
+      "src/lib/content/generated/published-docs-registry.generated.ts",
+    );
+    expect(CONTENT_PR_DOCTOR_SCOPED_PATHS).toEqual(
+      expect.arrayContaining([
+        "src/content",
+        "src/lib/content/generated/shipped-localized-docs.generated.ts",
+        "src/lib/content/generated/graph-registry-runtime.generated.ts",
+        "src/lib/content/generated/registry-runtime.generated.ts",
+        "src/lib/content/generated/table-registry.generated.ts",
+      ]),
+    );
   });
 
   test("fails the final clean-tree proof when validation leaves tracked scoped drift", () => {
