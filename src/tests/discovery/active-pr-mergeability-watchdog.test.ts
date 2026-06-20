@@ -47,7 +47,12 @@ describe("active-pr-mergeability-watchdog script", () => {
     writeFileSync(
       prMapPath,
       JSON.stringify({
-        alpha: { number: 42, headRefName: "alpha" },
+        alpha: {
+          number: 42,
+          headRefName: "alpha",
+          mergeStateStatus: "CLEAN",
+          statusCheckRollup: [{ conclusion: "SUCCESS" }],
+        },
       }),
     );
 
@@ -72,6 +77,9 @@ describe("active-pr-mergeability-watchdog script", () => {
     expect(result.stdout).toContain("lanes=2 pr-backed=1 unclassified=1");
     expect(result.stdout).toContain("work-item=alpha");
     expect(result.stdout).toContain("pr=#42");
+    expect(result.stdout).toContain("drift=unknown");
+    expect(result.stdout).toContain("mergeability=mergeable");
+    expect(result.stdout).toContain("checks=passing");
     expect(result.stdout).toContain(
       "reason=no open PR metadata found for branch beta",
     );

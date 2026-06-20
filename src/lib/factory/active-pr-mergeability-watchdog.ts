@@ -4,6 +4,22 @@ import { join, relative } from "node:path";
 
 export type QueueLaneState = "active" | "failed";
 export type LaneDiscoveryStatus = "pr-backed" | "unclassified";
+export type BranchDriftStatus =
+  | "up-to-date"
+  | "ahead"
+  | "behind"
+  | "diverged"
+  | "unknown";
+export type CheckHealthStatus =
+  | "passing"
+  | "pending"
+  | "failing"
+  | "unavailable";
+export type MergeabilityClass =
+  | "mergeable"
+  | "conflicting"
+  | "check-blocked"
+  | "unknown";
 
 export interface QueueLaneRecord {
   workItemName: string;
@@ -28,8 +44,17 @@ export interface WorktreeLaneRecord {
 export interface PullRequestRecord {
   number: number;
   headRefName?: string;
+  baseRefName?: string;
+  mergeStateStatus?: string;
+  statusCheckRollup?: unknown[];
   url?: string;
   state?: string;
+}
+
+export interface BranchDriftRecord {
+  status: BranchDriftStatus;
+  commitsAheadOfMain?: number;
+  commitsBehindMain?: number;
 }
 
 export interface LaneDiscoveryRecord {
@@ -43,6 +68,11 @@ export interface LaneDiscoveryRecord {
   prUrl?: string;
   sessionId?: string;
   sessionState?: string;
+  driftStatus?: BranchDriftStatus;
+  commitsAheadOfMain?: number;
+  commitsBehindMain?: number;
+  checkHealth?: CheckHealthStatus;
+  mergeabilityClass?: MergeabilityClass;
   reasons: string[];
 }
 
@@ -71,6 +101,7 @@ export interface WatchdogDataSources {
 }
 
 export interface DiscoverActivePrLanesOptions extends WatchdogDataSources {
+  baseBranchName?: string;
   repoRoot?: string;
   runCommand?: RunCommand;
   lookupPullRequest?: (
@@ -342,6 +373,165 @@ function relativeDisplayPath(path: string, repoRoot?: string): string {
   return relativePath && !relativePath.startsWith("..") ? relativePath : path;
 }
 
+function parseIntegerPair(stdout: string): [number, number] | null {
+  const parts = stdout
+    .trim()
+    .split(/\s+/)
+    .map((part) => Number.parseInt(part, 10));
+  if (
+    parts.length !== 2 ||
+    parts.some((part) => !Number.isFinite(part) || part < 0)
+  ) {
+    return null;
+  }
+  return [parts[0], parts[1]];
+}
+
+export function classifyBranchDrift(
+  branchName: string,
+  runCommand: RunCommand = defaultRunCommand,
+  baseBranchName = "main",
+  cwd?: string,
+): BranchDriftRecord {
+  const result = runCommand(
+    "git",
+    [
+      "rev-list",
+      "--left-right",
+      "--count",
+      `${baseBranchName}...${branchName}`,
+    ],
+    cwd,
+  );
+  if (!result.ok) {
+    return { status: "unknown" };
+  }
+
+  const counts = parseIntegerPair(result.stdout);
+  if (!counts) {
+    return { status: "unknown" };
+  }
+
+  const [commitsBehindMain, commitsAheadOfMain] = counts;
+  if (commitsBehindMain === 0 && commitsAheadOfMain === 0) {
+    return { status: "up-to-date", commitsAheadOfMain, commitsBehindMain };
+  }
+  if (commitsBehindMain > 0 && commitsAheadOfMain > 0) {
+    return { status: "diverged", commitsAheadOfMain, commitsBehindMain };
+  }
+  if (commitsBehindMain > 0) {
+    return { status: "behind", commitsAheadOfMain, commitsBehindMain };
+  }
+  return { status: "ahead", commitsAheadOfMain, commitsBehindMain };
+}
+
+function normalizeCheckState(value: string): CheckHealthStatus | null {
+  const state = value.trim().toLowerCase();
+  if (!state) {
+    return null;
+  }
+  if (
+    state.includes("pending") ||
+    state.includes("queued") ||
+    state.includes("progress") ||
+    state.includes("waiting") ||
+    state.includes("requested")
+  ) {
+    return "pending";
+  }
+  if (
+    state.includes("fail") ||
+    state.includes("error") ||
+    state.includes("cancel") ||
+    state.includes("timed_out") ||
+    state.includes("action_required")
+  ) {
+    return "failing";
+  }
+  if (
+    state.includes("success") ||
+    state.includes("neutral") ||
+    state.includes("skip") ||
+    state.includes("pass")
+  ) {
+    return "passing";
+  }
+  return null;
+}
+
+export function summarizeCheckHealth(
+  statusCheckRollup: unknown[] | undefined,
+): CheckHealthStatus {
+  if (!statusCheckRollup) {
+    return "unavailable";
+  }
+  if (statusCheckRollup.length === 0) {
+    return "passing";
+  }
+
+  let sawPending = false;
+  let sawPassing = false;
+  for (const item of statusCheckRollup) {
+    if (!isRecord(item)) {
+      continue;
+    }
+    const normalized =
+      normalizeCheckState(
+        readStringField(item, ["conclusion", "state", "status"]),
+      ) ??
+      normalizeCheckState(
+        readNestedStringField(
+          item,
+          ["commit", "checkRun"],
+          ["conclusion", "state", "status"],
+        ),
+      );
+    if (normalized === "failing") {
+      return "failing";
+    }
+    if (normalized === "pending") {
+      sawPending = true;
+      continue;
+    }
+    if (normalized === "passing") {
+      sawPassing = true;
+    }
+  }
+
+  if (sawPending) {
+    return "pending";
+  }
+  if (sawPassing) {
+    return "passing";
+  }
+  return "unavailable";
+}
+
+export function classifyMergeability(
+  mergeStateStatus: string | undefined,
+  checkHealth: CheckHealthStatus,
+): MergeabilityClass {
+  const state = mergeStateStatus?.trim().toUpperCase() ?? "";
+  if (state === "DIRTY") {
+    return "conflicting";
+  }
+  if (checkHealth === "pending" || checkHealth === "failing") {
+    return "check-blocked";
+  }
+  if (
+    state === "CLEAN" ||
+    state === "HAS_HOOKS" ||
+    state === "UNSTABLE" ||
+    state === "BEHIND"
+  ) {
+    return "mergeable";
+  }
+  if (state === "BLOCKED") {
+    return checkHealth === "passing" ? "unknown" : "check-blocked";
+  }
+  return "unknown";
+}
+
 export function defaultPullRequestLookup(
   branchName: string,
   runCommand: RunCommand = defaultRunCommand,
@@ -372,10 +562,49 @@ export function defaultPullRequestLookup(
     if (!Number.isFinite(number)) {
       return null;
     }
+    const detailResult = runCommand("gh", [
+      "pr",
+      "view",
+      String(number),
+      "--json",
+      "number,headRefName,baseRefName,mergeStateStatus,statusCheckRollup,url,state",
+    ]);
+    if (detailResult.ok && detailResult.stdout.trim()) {
+      try {
+        const details = JSON.parse(detailResult.stdout) as unknown;
+        if (isRecord(details)) {
+          return {
+            number,
+            headRefName:
+              typeof details.headRefName === "string"
+                ? details.headRefName
+                : undefined,
+            baseRefName:
+              typeof details.baseRefName === "string"
+                ? details.baseRefName
+                : undefined,
+            mergeStateStatus:
+              typeof details.mergeStateStatus === "string"
+                ? details.mergeStateStatus
+                : undefined,
+            statusCheckRollup: Array.isArray(details.statusCheckRollup)
+              ? details.statusCheckRollup
+              : undefined,
+            url: typeof details.url === "string" ? details.url : undefined,
+            state:
+              typeof details.state === "string" ? details.state : undefined,
+          };
+        }
+      } catch {
+        // Fall through to the basic list metadata when detail JSON is unavailable.
+      }
+    }
     return {
       number,
       headRefName:
         typeof first.headRefName === "string" ? first.headRefName : undefined,
+      baseRefName:
+        typeof first.baseRefName === "string" ? first.baseRefName : undefined,
       url: typeof first.url === "string" ? first.url : undefined,
       state: typeof first.state === "string" ? first.state : undefined,
     };
@@ -390,6 +619,7 @@ export function discoverActivePrLaneReport(
   const runCommand = options.runCommand ?? defaultRunCommand;
   const lookupPullRequest =
     options.lookupPullRequest ?? defaultPullRequestLookup;
+  const baseBranchName = options.baseBranchName ?? "main";
   const issues: string[] = [];
 
   let queueLanes: QueueLaneRecord[] = [];
@@ -461,9 +691,17 @@ export function discoverActivePrLaneReport(
         ),
         sessionId: queueLane.sessionId ?? session?.sessionId,
         sessionState: session?.rawState,
+        driftStatus: "unknown",
         reasons,
       } satisfies LaneDiscoveryRecord;
     }
+
+    const drift = classifyBranchDrift(
+      branchName,
+      runCommand,
+      baseBranchName,
+      options.repoRoot ?? worktree.worktreePath,
+    );
 
     const pullRequest = lookupPullRequest(branchName, runCommand);
     if (!pullRequest) {
@@ -480,9 +718,18 @@ export function discoverActivePrLaneReport(
         branchName,
         sessionId: queueLane.sessionId ?? session?.sessionId,
         sessionState: session?.rawState,
+        driftStatus: drift.status,
+        commitsAheadOfMain: drift.commitsAheadOfMain,
+        commitsBehindMain: drift.commitsBehindMain,
         reasons,
       } satisfies LaneDiscoveryRecord;
     }
+
+    const checkHealth = summarizeCheckHealth(pullRequest.statusCheckRollup);
+    const mergeabilityClass = classifyMergeability(
+      pullRequest.mergeStateStatus,
+      checkHealth,
+    );
 
     return {
       status: "pr-backed",
@@ -498,6 +745,11 @@ export function discoverActivePrLaneReport(
       prUrl: pullRequest.url,
       sessionId: queueLane.sessionId ?? session?.sessionId,
       sessionState: session?.rawState,
+      driftStatus: drift.status,
+      commitsAheadOfMain: drift.commitsAheadOfMain,
+      commitsBehindMain: drift.commitsBehindMain,
+      checkHealth,
+      mergeabilityClass,
       reasons,
     } satisfies LaneDiscoveryRecord;
   });
@@ -531,6 +783,10 @@ export function formatActivePrLaneReport(report: LaneDiscoveryReport): string {
 
   lines.push("");
   for (const lane of report.lanes) {
+    const drift =
+      lane.driftStatus && lane.driftStatus !== "unknown"
+        ? `${lane.driftStatus}(ahead=${lane.commitsAheadOfMain ?? 0},behind=${lane.commitsBehindMain ?? 0})`
+        : (lane.driftStatus ?? "unknown");
     const details = [
       `status=${lane.status}`,
       `queue=${lane.queueState}`,
@@ -538,12 +794,19 @@ export function formatActivePrLaneReport(report: LaneDiscoveryReport): string {
       `branch=${lane.branchName ?? "?"}`,
       `worktree=${lane.worktreePath ?? "?"}`,
       `pr=${lane.prNumber ? `#${lane.prNumber}` : "?"}`,
+      `drift=${drift}`,
     ];
     if (lane.sessionId) {
       details.push(`session=${lane.sessionId}`);
     }
     if (lane.sessionState) {
       details.push(`session-state=${lane.sessionState}`);
+    }
+    if (lane.mergeabilityClass) {
+      details.push(`mergeability=${lane.mergeabilityClass}`);
+    }
+    if (lane.checkHealth) {
+      details.push(`checks=${lane.checkHealth}`);
     }
     if (lane.reasons.length > 0) {
       details.push(`reason=${lane.reasons.join("; ")}`);

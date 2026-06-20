@@ -3,12 +3,15 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  classifyBranchDrift,
+  classifyMergeability,
   discoverActivePrLaneReport,
   formatActivePrLaneReport,
   type PullRequestRecord,
   parseQueueLaneRecords,
   parseSessionLaneRecords,
   type RunCommand,
+  summarizeCheckHealth,
 } from "@/lib/factory/active-pr-mergeability-watchdog";
 
 function createWorktree(
@@ -27,7 +30,10 @@ function createWorktree(
   return worktreePath;
 }
 
-function runCommandStub(branchesByPath: Map<string, string>): RunCommand {
+function runCommandStub(
+  branchesByPath: Map<string, string>,
+  driftCountsByBranch: Map<string, string> = new Map(),
+): RunCommand {
   return (binary, args, cwd) => {
     if (
       binary === "git" &&
@@ -41,6 +47,24 @@ function runCommandStub(branchesByPath: Map<string, string>): RunCommand {
         stderr: "",
         exitCode: 0,
       };
+    }
+    if (
+      binary === "git" &&
+      args[0] === "rev-list" &&
+      args[1] === "--left-right" &&
+      args[2] === "--count"
+    ) {
+      const spec = args[3] ?? "";
+      const branchName = spec.split("...")[1] ?? "";
+      const stdout = driftCountsByBranch.get(branchName);
+      if (stdout) {
+        return {
+          ok: true,
+          stdout: `${stdout}\n`,
+          stderr: "",
+          exitCode: 0,
+        };
+      }
     }
     return {
       ok: false,
@@ -93,7 +117,7 @@ describe("queue and session payload parsing", () => {
 });
 
 describe("discoverActivePrLaneReport", () => {
-  test("reports PR-backed and unclassified lanes from queue and worktree state", () => {
+  test("reports PR-backed and unclassified lanes with drift, checks, and mergeability", () => {
     const repoRoot = mkdtempSync(join(tmpdir(), "active-pr-watchdog-"));
     const worktreesRoot = join(repoRoot, ".claude", "worktrees");
     mkdirSync(worktreesRoot, { recursive: true });
@@ -119,9 +143,21 @@ describe("discoverActivePrLaneReport", () => {
           [alphaPath, "alpha"],
           [betaPath, "beta"],
         ]),
+        new Map([
+          ["alpha", "0\t2"],
+          ["beta", "3\t0"],
+        ]),
       ),
       lookupPullRequest: (branchName): PullRequestRecord | null =>
-        branchName === "alpha" ? { number: 42, headRefName: "alpha" } : null,
+        branchName === "alpha"
+          ? {
+              number: 42,
+              headRefName: "alpha",
+              baseRefName: "main",
+              mergeStateStatus: "BLOCKED",
+              statusCheckRollup: [{ status: "IN_PROGRESS" }],
+            }
+          : null,
     });
 
     expect(report.issues).toEqual([]);
@@ -137,6 +173,11 @@ describe("discoverActivePrLaneReport", () => {
         prUrl: undefined,
         sessionId: "sess-1",
         sessionState: "running",
+        driftStatus: "ahead",
+        commitsAheadOfMain: 2,
+        commitsBehindMain: 0,
+        checkHealth: "pending",
+        mergeabilityClass: "check-blocked",
         reasons: [],
       },
       {
@@ -148,6 +189,9 @@ describe("discoverActivePrLaneReport", () => {
         branchName: "beta",
         sessionId: undefined,
         sessionState: undefined,
+        driftStatus: "behind",
+        commitsAheadOfMain: 0,
+        commitsBehindMain: 3,
         reasons: ["no open PR metadata found for branch beta"],
       },
       {
@@ -176,6 +220,11 @@ describe("discoverActivePrLaneReport", () => {
           branchName: "alpha",
           worktreePath: ".claude/worktrees/alpha",
           prNumber: 42,
+          driftStatus: "diverged",
+          commitsAheadOfMain: 2,
+          commitsBehindMain: 1,
+          checkHealth: "failing",
+          mergeabilityClass: "conflicting",
           reasons: [],
         },
         {
@@ -185,6 +234,7 @@ describe("discoverActivePrLaneReport", () => {
           rawQueueState: "failed",
           branchName: "beta",
           worktreePath: ".claude/worktrees/beta",
+          driftStatus: "unknown",
           reasons: ["no open PR metadata found for branch beta"],
         },
       ],
@@ -193,10 +243,61 @@ describe("discoverActivePrLaneReport", () => {
     expect(reportText).toContain("Active PR Mergeability Watchdog");
     expect(reportText).toContain("lanes=2 pr-backed=1 unclassified=1");
     expect(reportText).toContain(
-      "- status=pr-backed queue=active work-item=alpha branch=alpha worktree=.claude/worktrees/alpha pr=#42",
+      "- status=pr-backed queue=active work-item=alpha branch=alpha worktree=.claude/worktrees/alpha pr=#42 drift=diverged(ahead=2,behind=1) mergeability=conflicting checks=failing",
     );
     expect(reportText).toContain(
-      "reason=no open PR metadata found for branch beta",
+      "pr=? drift=unknown reason=no open PR metadata found for branch beta",
     );
+  });
+});
+
+describe("story 002 classification helpers", () => {
+  test("classifies drift against main from git rev-list counts", () => {
+    const runCommand: RunCommand = (_, args) => ({
+      ok: true,
+      stdout:
+        args[3] === "main...ahead-branch"
+          ? "0\t4\n"
+          : args[3] === "main...behind-branch"
+            ? "2\t0\n"
+            : args[3] === "main...diverged-branch"
+              ? "3\t1\n"
+              : "0\t0\n",
+      stderr: "",
+      exitCode: 0,
+    });
+
+    expect(classifyBranchDrift("ahead-branch", runCommand)).toEqual({
+      status: "ahead",
+      commitsAheadOfMain: 4,
+      commitsBehindMain: 0,
+    });
+    expect(classifyBranchDrift("behind-branch", runCommand)).toEqual({
+      status: "behind",
+      commitsAheadOfMain: 0,
+      commitsBehindMain: 2,
+    });
+    expect(classifyBranchDrift("diverged-branch", runCommand)).toEqual({
+      status: "diverged",
+      commitsAheadOfMain: 1,
+      commitsBehindMain: 3,
+    });
+    expect(classifyBranchDrift("clean-branch", runCommand)).toEqual({
+      status: "up-to-date",
+      commitsAheadOfMain: 0,
+      commitsBehindMain: 0,
+    });
+  });
+
+  test("summarizes check health and mergeability into planner-facing classes", () => {
+    expect(summarizeCheckHealth([{ conclusion: "SUCCESS" }])).toBe("passing");
+    expect(summarizeCheckHealth([{ status: "IN_PROGRESS" }])).toBe("pending");
+    expect(summarizeCheckHealth([{ conclusion: "FAILURE" }])).toBe("failing");
+    expect(summarizeCheckHealth(undefined)).toBe("unavailable");
+
+    expect(classifyMergeability("CLEAN", "passing")).toBe("mergeable");
+    expect(classifyMergeability("DIRTY", "passing")).toBe("conflicting");
+    expect(classifyMergeability("BLOCKED", "pending")).toBe("check-blocked");
+    expect(classifyMergeability(undefined, "unavailable")).toBe("unknown");
   });
 });
