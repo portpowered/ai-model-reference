@@ -148,9 +148,7 @@ function getOrderedSectionPages(
   const sectionPages = getPublishedSectionPages(pages, section);
   const groupedSection =
     section in GROUPED_SECTION_CONFIGS
-      ? GROUPED_SECTION_CONFIGS[
-          section as keyof typeof GROUPED_SECTION_CONFIGS
-        ]
+      ? GROUPED_SECTION_CONFIGS[section as keyof typeof GROUPED_SECTION_CONFIGS]
       : undefined;
   if (!groupedSection) {
     return sortPagesByTitle(sectionPages);

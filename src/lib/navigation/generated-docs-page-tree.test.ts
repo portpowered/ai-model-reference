@@ -76,6 +76,18 @@ function requireFirstPage(
   return representativePage;
 }
 
+function requireLastPage(
+  pages: DocsPageSource[],
+  groupLabel: string,
+): DocsPageSource {
+  const representativePage = sortPagesByTitle(pages).at(-1);
+  if (!representativePage) {
+    throw new Error(`expected representative page for ${groupLabel}`);
+  }
+
+  return representativePage;
+}
+
 type GroupedSection<Section extends SidebarGroupingSection> = {
   folderName: string;
   section: Section;
@@ -148,7 +160,11 @@ function collectExpectedGroups<Section extends SidebarGroupingSection>({
 }: GroupedSection<Section>): Array<{
   groupId: SidebarGroupIdBySection[Section];
   label: string;
-  representativePage: DocsPageSource;
+  representativePages: {
+    first: DocsPageSource;
+    last: DocsPageSource;
+  };
+  pageUrls: string[];
 }> {
   const pages = loadPublishedDocsPagesSync("en").filter((page) =>
     page.docsSlug.startsWith(`${section}/`),
@@ -174,9 +190,18 @@ function collectExpectedGroups<Section extends SidebarGroupingSection>({
     .map((groupId) => ({
       groupId,
       label: getSidebarGroupLabel(section, groupId),
-      representativePage: requireFirstPage(
-        pagesByGroup.get(groupId) ?? [],
-        getSidebarGroupLabel(section, groupId),
+      representativePages: {
+        first: requireFirstPage(
+          pagesByGroup.get(groupId) ?? [],
+          getSidebarGroupLabel(section, groupId),
+        ),
+        last: requireLastPage(
+          pagesByGroup.get(groupId) ?? [],
+          getSidebarGroupLabel(section, groupId),
+        ),
+      },
+      pageUrls: sortPagesByTitle(pagesByGroup.get(groupId) ?? []).map(
+        (page) => page.url,
       ),
     }));
 }
@@ -187,6 +212,12 @@ function expectIndex(targetLabel: string, index: number): number {
   }
 
   return index;
+}
+
+function findNextSeparatorIndex(nodes: Node[], currentIndex: number): number {
+  return nodes.findIndex(
+    (node, index) => index > currentIndex && node.type === "separator",
+  );
 }
 
 describe("generated docs page tree", () => {
@@ -203,7 +234,7 @@ describe("generated docs page tree", () => {
     }
   });
 
-  test("representative subgroup pages appear after the correct separator", () => {
+  test("runtime-derived subgroup pages stay contiguous after the correct separator", () => {
     for (const sectionConfig of GROUPED_SECTIONS) {
       const children = getFolderChildren(sectionConfig.folderName);
 
@@ -212,15 +243,55 @@ describe("generated docs page tree", () => {
           `${sectionConfig.folderName} separator ${group.label}`,
           findNodeIndex(children, { name: group.label }),
         );
-        const pageIndex = expectIndex(
-          `${sectionConfig.folderName} representative page ${group.representativePage.url}`,
-          findNodeIndex(children, { url: group.representativePage.url }),
+        const nextSeparatorIndex = findNextSeparatorIndex(
+          children,
+          separatorIndex,
         );
+        const pageIndexes = group.pageUrls
+          .map((url) =>
+            expectIndex(
+              `${sectionConfig.folderName} grouped page ${url}`,
+              findNodeIndex(children, { url }),
+            ),
+          )
+          .sort((left, right) => left - right);
+        const firstPageIndex = pageIndexes[0];
+        const lastPageIndex = pageIndexes.at(-1);
+        if (firstPageIndex === undefined || lastPageIndex === undefined) {
+          throw new Error(
+            `expected runtime-derived subgroup pages for ${sectionConfig.folderName} ${group.label}`,
+          );
+        }
+        const separatorBound =
+          nextSeparatorIndex >= 0 ? nextSeparatorIndex : children.length;
 
         expect(
-          pageIndex,
+          firstPageIndex,
           `${sectionConfig.folderName} ${group.label}`,
         ).toBeGreaterThan(separatorIndex);
+        expect(
+          lastPageIndex,
+          `${sectionConfig.folderName} ${group.label}`,
+        ).toBeLessThan(separatorBound);
+        expect(
+          lastPageIndex - firstPageIndex + 1,
+          `${sectionConfig.folderName} ${group.label} should stay contiguous`,
+        ).toBe(pageIndexes.length);
+
+        expect(
+          children[firstPageIndex],
+          `${sectionConfig.folderName} ${group.label} should start with the runtime-derived first anchor`,
+        ).toMatchObject({
+          type: "page",
+          url: group.representativePages.first.url,
+        });
+        expect(
+          children[lastPageIndex],
+          `${sectionConfig.folderName} ${group.label} should end with the runtime-derived last anchor`,
+        ).toMatchObject({
+          type: "page",
+          url: group.representativePages.last.url,
+        });
       }
     }
   });

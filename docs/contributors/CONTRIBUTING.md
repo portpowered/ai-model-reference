@@ -423,6 +423,11 @@ Use these patterns:
   class. Prefer runtime-derived positions such as the first and last visible
   route in a section when the contract is about discovery order rather than a
   specific page slug.
+- **Grouped-sidebar bounds** for separator-driven sections. Example: in grouped
+  page-tree tests, assert that each runtime-derived subgroup stays contiguous
+  after its separator and that the subgroup's first and last runtime-derived
+  pages remain the visible anchors, rather than snapshotting every page in the
+  subgroup.
 - **Shared discovery-contract checks** when multiple surfaces should agree about
   the same content. Example: reuse the same representative route across
   published-doc loading, tag-group membership, and search-document assertions so
