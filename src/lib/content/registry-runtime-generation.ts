@@ -14,7 +14,7 @@ import {
 } from "./registry";
 
 type RuntimeRegistryDirectory = {
-  directory: Exclude<RegistryCollection, "graphs" | "tables" | "tags">;
+  directory: Exclude<RegistryCollection, "graphs" | "tables">;
   recordType: string;
   schemaName: string;
   recordsConst: string;
