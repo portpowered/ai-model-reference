@@ -64,4 +64,57 @@ describe("browse index page render", () => {
     expect(html).toContain('href="/vi/tags"');
     expect(html).toContain('href="/vi/docs/glossary/token"');
   });
+
+  it("renders activation graph-map state from URL parameters on first load", async () => {
+    const page = await renderBrowseIndexPage(undefined, {
+      searchParams: Promise.resolve({
+        classification: "activation-functions",
+        mode: "graph-map",
+      }),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Activation Functions Graph Map");
+    expect(html).toContain("Selected classification");
+    expect(html).toContain("Activation Functions");
+    expect(html).toContain("Selected surface");
+    expect(html).toContain("Graph Map");
+    expect(html).toContain("Rectified Linear Unit");
+    expect(html).toContain('href="/docs/modules/relu"');
+  });
+
+  it("renders feed-forward timeline state from URL parameters on first load", async () => {
+    const page = await renderBrowseIndexPage(undefined, {
+      searchParams: Promise.resolve({
+        classification: "feed-forward-networks",
+        mode: "timeline",
+      }),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Feed Forward Networks Timeline");
+    expect(html).toContain("Timeline");
+    expect(html).toContain("Swish Gated Linear Unit");
+    expect(html).toContain('href="/docs/modules/swiglu"');
+  });
+
+  it("renders invalid topology state and valid seed links for unsupported URL parameters", async () => {
+    const page = await renderBrowseIndexPage(undefined, {
+      searchParams: Promise.resolve({
+        classification: "attention",
+        mode: "matrix",
+      }),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Invalid topology selection");
+    expect(html).toContain("attention");
+    expect(html).toContain("matrix");
+    expect(html).toContain(
+      'href="/browse?classification=activation-functions&amp;mode=graph-map"',
+    );
+    expect(html).toContain(
+      'href="/browse?classification=feed-forward-networks&amp;mode=timeline"',
+    );
+  });
 });

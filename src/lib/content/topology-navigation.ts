@@ -71,7 +71,7 @@ function listPublishedDocsBackedMembers(
   );
 }
 
-function topologyDestinationHref(
+export function buildTopologyDestinationHref(
   classificationSlug: string,
   mode: TopologySurfaceMode,
   locale: SiteLocale,
@@ -91,7 +91,7 @@ function buildDestinations(
   return TOPOLOGY_SURFACE_MODES.map((mode) => ({
     mode,
     label: topologySurfaceLabels[mode],
-    href: topologyDestinationHref(classificationSlug, mode, locale),
+    href: buildTopologyDestinationHref(classificationSlug, mode, locale),
   }));
 }
 

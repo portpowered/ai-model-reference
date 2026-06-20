@@ -91,6 +91,26 @@
     "glossarySectionDescription": "用語集ページでは、モデルアーキテクチャ、学習、推論、評価まわりの語彙を定義し、アトラス全体を読みやすくします。",
     "glossarySectionLinkLabel": "用語集をすべて見る"
   },
+  "topologyBrowse": {
+    "titleTemplate": "{classification} {mode}",
+    "descriptionTemplate": "{classification} のための ontology ビューのプロトタイプです。共有 classification レイヤーから導出され、URL 状態から直接開かれます。",
+    "graphMapLabel": "グラフマップ",
+    "timelineLabel": "タイムライン",
+    "selectedClassificationLabel": "選択中の分類",
+    "selectedModeLabel": "選択中の表示",
+    "membersTitle": "公開済みメンバー",
+    "graphMapDescription": "このグラフマップのプロトタイプは、選択中の分類に紐づく公開済みメンバーを一覧し、完全なグラフ描画を接続する前に topology の範囲を確認できるようにします。",
+    "timelineDescription": "このタイムラインのプロトタイプは、選択中の分類に含まれる公開済みメンバーを並べ、同じ ontology の範囲を時間指向の表示で確認できるようにします。",
+    "invalidTitle": "無効な topology 選択",
+    "invalidDescription": "要求された分類または表示モードは、このプロトタイプでは利用できません。下の有効な topology リンクから選んでください。",
+    "invalidClassificationLabel": "要求された分類",
+    "invalidModeLabel": "要求された表示",
+    "missingValue": "未指定",
+    "emptyTitle": "利用できる topology オプションがありません",
+    "emptyDescription": "現在、topology プロトタイプに使える公開済みメンバーを持つ seed 分類はありません。",
+    "validOptionsTitle": "有効な topology リンク",
+    "memberListLabel": "Topology メンバー"
+  },
   "modelsIndex": {
     "title": "モデル",
     "description": "公開済みのモデルページでは、具体的なモデルファミリーやチェックポイントと、それらが依拠するアーキテクチャやモジュールを説明します。",

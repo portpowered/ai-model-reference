@@ -91,6 +91,26 @@
     "glossarySectionDescription": "Glossary pages define the vocabulary around model architecture, training, inference, and evaluation so the rest of the atlas reads more naturally.",
     "glossarySectionLinkLabel": "Browse the full glossary"
   },
+  "topologyBrowse": {
+    "titleTemplate": "{classification} {mode}",
+    "descriptionTemplate": "A prototype ontology view for {classification}, derived from the shared classification layer and opened directly from the URL state.",
+    "graphMapLabel": "Graph Map",
+    "timelineLabel": "Timeline",
+    "selectedClassificationLabel": "Selected classification",
+    "selectedModeLabel": "Selected surface",
+    "membersTitle": "Published members",
+    "graphMapDescription": "This graph-map prototype lists the published members attached to the selected classification so reviewers can check the topology slice before the full graph renderer is connected.",
+    "timelineDescription": "This timeline prototype orders the published members in the selected classification so reviewers can check the same ontology slice through a time-oriented surface.",
+    "invalidTitle": "Invalid topology selection",
+    "invalidDescription": "The requested classification or surface mode is not available for this prototype. Choose one of the valid topology links below.",
+    "invalidClassificationLabel": "Requested classification",
+    "invalidModeLabel": "Requested surface",
+    "missingValue": "Missing",
+    "emptyTitle": "No topology options available",
+    "emptyDescription": "No eligible seed classifications currently have published members for the topology prototype.",
+    "validOptionsTitle": "Valid topology links",
+    "memberListLabel": "Topology members"
+  },
   "modelsIndex": {
     "title": "Models",
     "description": "Published model pages that explain concrete model families and checkpoints, along with the architectures and modules they rely on.",

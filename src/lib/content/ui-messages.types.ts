@@ -87,6 +87,26 @@ export type UiMessages = {
     glossarySectionDescription: string;
     glossarySectionLinkLabel: string;
   };
+  topologyBrowse: {
+    titleTemplate: string;
+    descriptionTemplate: string;
+    graphMapLabel: string;
+    timelineLabel: string;
+    selectedClassificationLabel: string;
+    selectedModeLabel: string;
+    membersTitle: string;
+    graphMapDescription: string;
+    timelineDescription: string;
+    invalidTitle: string;
+    invalidDescription: string;
+    invalidClassificationLabel: string;
+    invalidModeLabel: string;
+    missingValue: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    validOptionsTitle: string;
+    memberListLabel: string;
+  };
   modelsIndex: {
     title: string;
     description: string;
