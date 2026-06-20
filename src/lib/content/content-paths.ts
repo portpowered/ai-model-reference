@@ -256,6 +256,15 @@ export const LEAKY_RELU_GLOSSARY_PAGE_DIR = join(
 /** Phase 3 SiLU glossary page directory. */
 export const SILU_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "silu");
 
+/** Phase 3 sigmoid activation glossary page directory. */
+export const SIGMOID_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "sigmoid");
+
+/** Phase 3 tanh activation glossary page directory. */
+export const TANH_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "tanh");
+
+/** Phase 3 GELU activation glossary page directory. */
+export const GELU_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "gelu");
+
 /** Phase 3 SwiGLU glossary page directory. */
 export const SWIGLU_GLOSSARY_PAGE_DIR = join(MODULES_DOCS_ROOT, "swiglu");
 

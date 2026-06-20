@@ -3,12 +3,35 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { cleanup, render } from "@testing-library/react";
 import { PageMessagesProvider } from "@/features/docs/components/page-messages-context";
-import { RELU_GLOSSARY_PAGE_DIR } from "@/lib/content/content-paths";
+import {
+  GELU_GLOSSARY_PAGE_DIR,
+  RELU_GLOSSARY_PAGE_DIR,
+  SIGMOID_GLOSSARY_PAGE_DIR,
+  TANH_GLOSSARY_PAGE_DIR,
+} from "@/lib/content/content-paths";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
 const reluMessages = pageMessagesSchema.parse(
   JSON.parse(
     readFileSync(join(RELU_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
+  ),
+);
+
+const sigmoidMessages = pageMessagesSchema.parse(
+  JSON.parse(
+    readFileSync(join(SIGMOID_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
+  ),
+);
+
+const tanhMessages = pageMessagesSchema.parse(
+  JSON.parse(
+    readFileSync(join(TANH_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
+  ),
+);
+
+const geluMessages = pageMessagesSchema.parse(
+  JSON.parse(
+    readFileSync(join(GELU_GLOSSARY_PAGE_DIR, "messages/en.json"), "utf8"),
   ),
 );
 
@@ -42,6 +65,92 @@ describe("ActivationFunctionChart", () => {
     expect(container.querySelector(".line-graph__line--relu")).toBeTruthy();
     expect(container.querySelector(".line-graph__line--silu")).toBeNull();
     expect(container.textContent).toContain("Activation Curves");
+  });
+
+  test("renders only the sigmoid curve on the sigmoid intro chart", async () => {
+    const { ActivationFunctionChart } = await import(
+      "@/features/models/components/ActivationFunctionChart"
+    );
+
+    const { container } = render(
+      <PageMessagesProvider messages={sigmoidMessages} isDev={false}>
+        <ActivationFunctionChart
+          assetId="computeFlow"
+          chartId="chart.activation-family.sigmoid-intro"
+          alt={sigmoidMessages.assets?.computeFlow?.alt}
+          caption={sigmoidMessages.assets?.computeFlow?.caption}
+        />
+      </PageMessagesProvider>,
+    );
+
+    expect(
+      container.querySelector(
+        '[data-chart-id="chart.activation-family.sigmoid-intro"]',
+      ),
+    ).toBeTruthy();
+    expect(container.querySelectorAll(".recharts-line-curve").length).toBe(1);
+    expect(container.querySelector(".line-graph__line--sigmoid")).toBeTruthy();
+    expect(container.querySelector(".line-graph__line--relu")).toBeNull();
+    expect(container.textContent).toContain("Activation Curves");
+    expect(container.textContent).toContain("Sigmoid");
+  });
+
+  test("renders only the tanh curve on the tanh intro chart", async () => {
+    const { ActivationFunctionChart } = await import(
+      "@/features/models/components/ActivationFunctionChart"
+    );
+
+    const { container } = render(
+      <PageMessagesProvider messages={tanhMessages} isDev={false}>
+        <ActivationFunctionChart
+          assetId="computeFlow"
+          chartId="chart.activation-family.tanh-intro"
+          alt={tanhMessages.assets?.computeFlow?.alt}
+          caption={tanhMessages.assets?.computeFlow?.caption}
+        />
+      </PageMessagesProvider>,
+    );
+
+    expect(
+      container.querySelector(
+        '[data-chart-id="chart.activation-family.tanh-intro"]',
+      ),
+    ).toBeTruthy();
+    expect(container.querySelectorAll(".recharts-line-curve").length).toBe(1);
+    expect(container.querySelector(".line-graph__line--tanh")).toBeTruthy();
+    expect(container.querySelector(".line-graph__line--sigmoid")).toBeNull();
+    expect(container.textContent).toContain("Activation Curves");
+    expect(container.textContent).toContain("Tanh");
+  });
+
+  test("renders GELU alongside ReLU and SiLU on the GELU intro chart", async () => {
+    const { ActivationFunctionChart } = await import(
+      "@/features/models/components/ActivationFunctionChart"
+    );
+
+    const { container } = render(
+      <PageMessagesProvider messages={geluMessages} isDev={false}>
+        <ActivationFunctionChart
+          assetId="computeFlow"
+          chartId="chart.activation-family.gelu-intro"
+          alt={geluMessages.assets?.computeFlow?.alt}
+          caption={geluMessages.assets?.computeFlow?.caption}
+        />
+      </PageMessagesProvider>,
+    );
+
+    expect(
+      container.querySelector(
+        '[data-chart-id="chart.activation-family.gelu-intro"]',
+      ),
+    ).toBeTruthy();
+    expect(container.querySelectorAll(".recharts-line-curve").length).toBe(3);
+    expect(container.querySelector(".line-graph__line--gelu")).toBeTruthy();
+    expect(container.querySelector(".line-graph__line--relu")).toBeTruthy();
+    expect(container.querySelector(".line-graph__line--silu")).toBeTruthy();
+    expect(container.textContent).toContain("GELU");
+    expect(container.textContent).toContain("ReLU");
+    expect(container.textContent).toContain("SiLU");
   });
 
   test("renders the ReLU hidden-state heatmap shell", async () => {

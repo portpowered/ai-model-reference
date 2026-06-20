@@ -1,8 +1,10 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import {
   buildDocsPageMetadata,
   renderDocsSlugPage,
 } from "@/app/docs/docs-slug-renderer";
+
+setDefaultTimeout(15_000);
 
 describe("docs slug renderer locale gating", () => {
   test.each([

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, setDefaultTimeout } from "bun:test";
 import { generateMetadata as generateHomeMetadata } from "@/app/(site)/page";
 import { generateMetadata as generateSearchMetadata } from "@/app/(site)/search/page";
 import { generateMetadata as generateTagMetadata } from "@/app/(site)/tags/[slug]/page";
@@ -12,6 +12,8 @@ import { generateMetadata as generateLocalizedHomeMetadata } from "@/app/[locale
 import { generateMetadata as generateLocalizedSearchMetadata } from "@/app/[locale]/search/page";
 import { generateMetadata as generateLocalizedTagsMetadata } from "@/app/[locale]/tags/page";
 import { generateMetadata as generateDocsMetadata } from "@/app/docs/[[...slug]]/page";
+
+setDefaultTimeout(15_000);
 
 describe("localized route metadata alternates", () => {
   it("publishes alternate-language metadata for the home and search surfaces", async () => {

@@ -216,6 +216,14 @@ describe("registry-runtime", () => {
     expect(getPrimaryClassificationForRecord("concept.activation")?.id).toBe(
       "classification.activation-functions",
     );
+    expect(getPrimaryClassificationForRecord("module.sigmoid")?.id).toBe(
+      "classification.activation-functions",
+    );
+    expect(listSecondaryClassificationsForRecord("module.sigmoid")).toEqual([
+      expect.objectContaining({
+        id: "classification.feed-forward-networks",
+      }),
+    ]);
     expect(getPrimaryClassificationForRecord("module.relu")?.id).toBe(
       "classification.activation-functions",
     );
@@ -233,6 +241,7 @@ describe("registry-runtime", () => {
     ).toEqual(
       expect.arrayContaining([
         "primary:concept.activation",
+        "primary:module.sigmoid",
         "primary:module.relu",
         "primary:module.leaky-relu",
         "primary:module.silu",
@@ -241,15 +250,21 @@ describe("registry-runtime", () => {
   });
 
   test("seeded feed-forward records resolve through ontology classification helpers", () => {
-    for (const registryId of [
-      "module.feed-forward-network",
-      "module.standard-ffn",
-      "module.swiglu",
-    ]) {
+    expect(
+      getPrimaryClassificationForRecord("module.feed-forward-network")?.id,
+    ).toBe("classification.feed-forward-networks");
+    expect(
+      listSecondaryClassificationsForRecord("module.feed-forward-network"),
+    ).toEqual([]);
+    for (const registryId of ["module.standard-ffn", "module.swiglu"]) {
       expect(getPrimaryClassificationForRecord(registryId)?.id).toBe(
         "classification.feed-forward-networks",
       );
-      expect(listSecondaryClassificationsForRecord(registryId)).toEqual([]);
+      expect(listSecondaryClassificationsForRecord(registryId)).toEqual([
+        expect.objectContaining({
+          id: "classification.transformer-feed-forward-components",
+        }),
+      ]);
     }
 
     expect(
@@ -258,9 +273,21 @@ describe("registry-runtime", () => {
       ),
     ).toEqual(
       expect.arrayContaining([
+        "secondary:module.sigmoid",
         "primary:module.feed-forward-network",
         "primary:module.standard-ffn",
         "primary:module.swiglu",
+      ]),
+    );
+    expect(
+      listClassificationMembers(
+        "classification.transformer-feed-forward-components",
+      ).map((member) => `${member.membershipType}:${member.record.id}`),
+    ).toEqual(
+      expect.arrayContaining([
+        "secondary:module.gelu",
+        "secondary:module.standard-ffn",
+        "secondary:module.swiglu",
       ]),
     );
   });
@@ -271,6 +298,11 @@ describe("registry-runtime", () => {
         (relationship) => relationship.target?.id,
       ),
     ).toEqual(["concept.activation"]);
+    expect(
+      listOntologyRelationshipsForRecord("module.sigmoid", "used-by").map(
+        (relationship) => relationship.target?.id,
+      ),
+    ).toEqual(["module.standard-ffn"]);
     expect(
       listOntologyRelationshipsForRecord("module.swiglu", "uses").map(
         (relationship) => relationship.target?.id,
@@ -301,6 +333,13 @@ describe("registry-runtime", () => {
       "module.feed-forward-network",
       "module.standard-ffn",
       "module.leaky-relu",
+      "module.silu",
+    ]);
+    expect(getModuleById("module.sigmoid")?.relatedIds).toEqual([
+      "concept.activation",
+      "module.feed-forward-network",
+      "module.standard-ffn",
+      "module.relu",
       "module.silu",
     ]);
     expect(getModuleById("module.swiglu")?.tags).toEqual([

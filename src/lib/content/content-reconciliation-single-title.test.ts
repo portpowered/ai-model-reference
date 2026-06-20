@@ -60,8 +60,10 @@ const SPOT_CHECK_URLS = [
 ] as const;
 
 const BATCH_017_DOCS_URL_GROUPS = [
-  BATCH_017_DOCS_URLS.slice(0, 12),
-  BATCH_017_DOCS_URLS.slice(12),
+  BATCH_017_DOCS_URLS.slice(0, 9),
+  BATCH_017_DOCS_URLS.slice(9, 18),
+  BATCH_017_DOCS_URLS.slice(18, 26),
+  BATCH_017_DOCS_URLS.slice(26),
 ] as const;
 const SHELL_TITLE_CONVERGENCE_TIMEOUT_MS = 30_000;
 
