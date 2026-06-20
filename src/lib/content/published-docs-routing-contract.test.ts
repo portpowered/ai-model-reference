@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { PROSE_AUTO_LINK_PHRASES } from "@/lib/content/prose-auto-link-runtime";
 import {
+  getPublishedDocsEntriesBySlug,
+  getPublishedDocsEntryByRegistryId,
   getPublishedDocsHrefForRecord,
+  listPublishedDocsEntries,
   PUBLISHED_DOCS_REGISTRY_IDS,
 } from "@/lib/content/published-docs-registry-ids";
 import {
@@ -34,7 +37,7 @@ function requireRecord<T>(record: T | undefined, label: string): T {
 }
 
 describe("published docs routing contract", () => {
-  test("derived href lookup covers representative published record kinds", () => {
+  test("derived lookup surface covers representative published record kinds", () => {
     const cases = [
       {
         label: "module",
@@ -95,8 +98,23 @@ describe("published docs routing contract", () => {
         href: "/docs/systems/on-disk-kv-cache",
       },
     ] as const;
+    const listedEntriesByRegistryId = new Map(
+      listPublishedDocsEntries().map((entry) => [entry.registryId, entry]),
+    );
 
     for (const { label, record, href } of cases) {
+      const entryByRegistryId = getPublishedDocsEntryByRegistryId(record.id);
+      const entriesBySlug = getPublishedDocsEntriesBySlug(record.slug);
+
+      expect(listedEntriesByRegistryId.get(record.id), label).toEqual(
+        entryByRegistryId,
+      );
+      expect(entryByRegistryId?.registryId, label).toBe(record.id);
+      expect(entryByRegistryId?.slug, label).toBe(record.slug);
+      expect(
+        entriesBySlug.some((entry) => entry.registryId === record.id),
+        label,
+      ).toBe(true);
       expect(getPublishedDocsHrefForRecord(record), label).toBe(href);
       expect(registryRecordHref(record), label).toBe(href);
       expect(
