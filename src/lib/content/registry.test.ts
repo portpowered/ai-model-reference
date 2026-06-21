@@ -16,6 +16,7 @@ const validModuleRecord = {
   status: "published",
   createdAt: "2026-06-01T00:00:00.000Z",
   updatedAt: "2026-06-02T00:00:00.000Z",
+  primaryClassificationId: "classification.module.attention",
   moduleType: "attention",
   optimizes: ["kv-cache"],
   exampleModelIds: [],
@@ -78,6 +79,26 @@ const validClassificationRecord = {
   classifiesKinds: ["module"],
   parentClassificationId: "classification.module",
   legacyIds: ["classification.activation-functions"],
+};
+
+const validModuleRootClassificationRecord = {
+  ...validClassificationRecord,
+  id: "classification.module",
+  slug: "module",
+  aliases: [],
+  classificationType: "domain",
+  classifiesKinds: ["module"],
+  parentClassificationId: undefined,
+  legacyIds: ["classification.neural-network-components"],
+};
+
+const validAttentionClassificationRecord = {
+  ...validClassificationRecord,
+  id: "classification.module.attention",
+  slug: "attention-mechanisms",
+  aliases: ["attention family"],
+  parentClassificationId: "classification.module",
+  legacyIds: ["classification.attention-mechanisms"],
 };
 
 const validCitationRecord = {
@@ -221,6 +242,7 @@ describe("loadRegistry", () => {
     await rm(tempRoot, { recursive: true, force: true });
     await mkdir(join(tempRoot, "modules"), { recursive: true });
     await mkdir(join(tempRoot, "concepts"), { recursive: true });
+    await mkdir(join(tempRoot, "classifications"), { recursive: true });
     await mkdir(join(tempRoot, "tags"), { recursive: true });
     await mkdir(join(tempRoot, "citations"), { recursive: true });
 
@@ -231,6 +253,14 @@ describe("loadRegistry", () => {
     await writeFile(
       join(tempRoot, "concepts", "token.json"),
       JSON.stringify(validConceptRecord),
+    );
+    await writeFile(
+      join(tempRoot, "classifications", "module.json"),
+      JSON.stringify(validModuleRootClassificationRecord),
+    );
+    await writeFile(
+      join(tempRoot, "classifications", "attention.json"),
+      JSON.stringify(validAttentionClassificationRecord),
     );
     await writeFile(
       join(tempRoot, "tags", "attention.json"),
@@ -266,20 +296,16 @@ describe("loadRegistry", () => {
       JSON.stringify({
         ...validModuleRecord,
         primaryClassificationId: "classification.module.activation",
+        moduleType: "activation",
       }),
     );
     await writeFile(
       join(tempRoot, "classifications", "module.json"),
-      JSON.stringify({
-        ...validClassificationRecord,
-        id: "classification.module",
-        slug: "module",
-        aliases: [],
-        classificationType: "domain",
-        classifiesKinds: ["module"],
-        parentClassificationId: undefined,
-        legacyIds: ["classification.neural-network-components"],
-      }),
+      JSON.stringify(validModuleRootClassificationRecord),
+    );
+    await writeFile(
+      join(tempRoot, "classifications", "attention.json"),
+      JSON.stringify(validAttentionClassificationRecord),
     );
     await writeFile(
       join(tempRoot, "classifications", "activation-functions.json"),

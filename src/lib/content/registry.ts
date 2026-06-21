@@ -260,6 +260,11 @@ type OntologyParticipatingRecord = Extract<
   }
 >;
 
+type OntologyTaxonomyExpectation = {
+  field: string;
+  expectedValue: string;
+};
+
 const classificationIdPattern = /^classification\.[a-z0-9]+(?:\.[a-z0-9-]+)*$/;
 
 const canonicalClassificationDomainKinds = new Map<
@@ -271,6 +276,58 @@ const canonicalClassificationDomainKinds = new Map<
   ["training", "training-regime"],
   ["system", "system"],
 ]);
+
+const recordsRequiringOntologyPrimaryClassification = new Set<string>([
+  "concept.activation",
+  "training-regime.dpo",
+  "system.routing",
+]);
+
+const taxonomyExpectationPrefixes: Array<{
+  classificationIdPrefix: string;
+  expectation: OntologyTaxonomyExpectation;
+}> = [
+  {
+    classificationIdPrefix: "classification.module.activation",
+    expectation: { field: "moduleType", expectedValue: "activation" },
+  },
+  {
+    classificationIdPrefix: "classification.module.attention",
+    expectation: { field: "moduleType", expectedValue: "attention" },
+  },
+  {
+    classificationIdPrefix: "classification.module.feed-forward",
+    expectation: { field: "moduleType", expectedValue: "feed-forward" },
+  },
+  {
+    classificationIdPrefix: "classification.module.normalization",
+    expectation: { field: "moduleType", expectedValue: "normalization" },
+  },
+  {
+    classificationIdPrefix: "classification.module.positional-encoding",
+    expectation: { field: "moduleType", expectedValue: "position-encoding" },
+  },
+  {
+    classificationIdPrefix: "classification.module.tokenization",
+    expectation: { field: "moduleType", expectedValue: "tokenizer" },
+  },
+  {
+    classificationIdPrefix: "classification.module.transformer-block",
+    expectation: { field: "moduleType", expectedValue: "other" },
+  },
+  {
+    classificationIdPrefix: "classification.concept.architecture",
+    expectation: { field: "conceptType", expectedValue: "architecture" },
+  },
+  {
+    classificationIdPrefix: "classification.training.alignment",
+    expectation: { field: "regimeType", expectedValue: "alignment" },
+  },
+  {
+    classificationIdPrefix: "classification.system.routing",
+    expectation: { field: "systemType", expectedValue: "routing" },
+  },
+];
 
 function getClassificationNamespaceSegments(
   classificationId: string,
@@ -305,6 +362,42 @@ function isOntologyParticipatingRecord(
     record.kind === "system" ||
     record.kind === "dataset"
   );
+}
+
+function requiresPrimaryClassification(
+  record: OntologyParticipatingRecord,
+): boolean {
+  return (
+    record.kind === "module" ||
+    recordsRequiringOntologyPrimaryClassification.has(record.id)
+  );
+}
+
+function classificationMatchesPrefix(
+  classificationId: string,
+  prefix: string,
+): boolean {
+  return (
+    classificationId === prefix || classificationId.startsWith(`${prefix}.`)
+  );
+}
+
+function getTaxonomyExpectationForClassification(
+  classificationId: string,
+): OntologyTaxonomyExpectation | undefined {
+  return taxonomyExpectationPrefixes.find(({ classificationIdPrefix }) =>
+    classificationMatchesPrefix(classificationId, classificationIdPrefix),
+  )?.expectation;
+}
+
+function getLegacyTaxonomyFieldValue(
+  record: OntologyParticipatingRecord,
+  field: string,
+): string | undefined {
+  const taxonomyCarrier = record as OntologyParticipatingRecord &
+    Partial<Record<string, string>>;
+  const value = taxonomyCarrier[field];
+  return typeof value === "string" ? value : undefined;
 }
 
 function validateOntologyReferences(
@@ -432,12 +525,16 @@ function validateOntologyReferences(
       secondaryClassificationIds.length > 0 ||
       (record.relationships?.length ?? 0) > 0;
 
-    if (hasOntologyFields && !primaryClassificationId) {
+    if (
+      (hasOntologyFields || requiresPrimaryClassification(record)) &&
+      !primaryClassificationId
+    ) {
       details.push({
         type: "parse-error",
         path,
-        message:
-          "primaryClassificationId is required when a record opts into ontology membership or relationships",
+        message: requiresPrimaryClassification(record)
+          ? `record "${record.id}" requires primaryClassificationId under the ontology-first taxonomy contract`
+          : "primaryClassificationId is required when a record opts into ontology membership or relationships",
       });
     }
 
@@ -471,6 +568,30 @@ function validateOntologyReferences(
           path,
           message: `primaryClassificationId must reference a classification record, found "${primaryClassificationId}"`,
         });
+      } else if (!primary.classifiesKinds.includes(record.kind)) {
+        details.push({
+          type: "parse-error",
+          path,
+          message: `primaryClassificationId "${primary.id}" cannot classify ${record.kind} records`,
+        });
+      } else {
+        const expectation = getTaxonomyExpectationForClassification(primary.id);
+        if (expectation) {
+          const actualValue = getLegacyTaxonomyFieldValue(
+            record,
+            expectation.field,
+          );
+          if (
+            actualValue !== undefined &&
+            actualValue !== expectation.expectedValue
+          ) {
+            details.push({
+              type: "parse-error",
+              path,
+              message: `primaryClassificationId "${primary.id}" conflicts with legacy taxonomy field ${expectation.field}="${actualValue}"; expected "${expectation.expectedValue}"`,
+            });
+          }
+        }
       }
     }
 
@@ -481,6 +602,15 @@ function validateOntologyReferences(
           type: "parse-error",
           path,
           message: `secondaryClassificationIds must reference classification records, found "${classificationId}"`,
+        });
+        continue;
+      }
+
+      if (!classification.classifiesKinds.includes(record.kind)) {
+        details.push({
+          type: "parse-error",
+          path,
+          message: `secondaryClassificationIds entry "${classification.id}" cannot classify ${record.kind} records`,
         });
       }
     }

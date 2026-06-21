@@ -138,7 +138,7 @@ describe("ontology foundation regression coverage", () => {
             error.code === "parse-error" &&
             error.path?.includes("modules/sigmoid.json") &&
             error.message.includes(
-              "primaryClassificationId is required when a record opts into ontology membership or relationships",
+              'record "module.sigmoid" requires primaryClassificationId under the ontology-first taxonomy contract',
             ),
         ),
       ).toBe(true);
@@ -204,6 +204,90 @@ describe("ontology foundation regression coverage", () => {
             error.path?.includes("modules/gelu.json") &&
             error.message.includes(
               'relationships targetId references missing record "module.missing-feed-forward-target"',
+            ),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("validation fails when a migrated concept record drops its required primary classification", async () => {
+    const { registryRoot, tempRoot } = await createTempRegistryRoot();
+    try {
+      await updateTempRegistryRecord(
+        registryRoot,
+        "concepts/activation.json",
+        (record) => {
+          const { primaryClassificationId: _ignored, ...rest } = record;
+          return rest;
+        },
+      );
+
+      const errors = await validateRegistryContent({ registryRoot });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "parse-error" &&
+            error.path?.includes("concepts/activation.json") &&
+            error.message.includes(
+              'record "concept.activation" requires primaryClassificationId under the ontology-first taxonomy contract',
+            ),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("validation fails when a module classification conflicts with the legacy taxonomy field bridge", async () => {
+    const { registryRoot, tempRoot } = await createTempRegistryRoot();
+    try {
+      await updateTempRegistryRecord(
+        registryRoot,
+        "modules/relu.json",
+        (record) => ({
+          ...record,
+          primaryClassificationId: "classification.module.feed-forward",
+        }),
+      );
+
+      const errors = await validateRegistryContent({ registryRoot });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "parse-error" &&
+            error.path?.includes("modules/relu.json") &&
+            error.message.includes(
+              'primaryClassificationId "classification.module.feed-forward" conflicts with legacy taxonomy field moduleType="activation"; expected "feed-forward"',
+            ),
+        ),
+      ).toBe(true);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("validation fails when a secondary classification points at the wrong ontology kind", async () => {
+    const { registryRoot, tempRoot } = await createTempRegistryRoot();
+    try {
+      await updateTempRegistryRecord(
+        registryRoot,
+        "modules/grouped-query-attention.json",
+        (record) => ({
+          ...record,
+          secondaryClassificationIds: ["classification.concept.architecture"],
+        }),
+      );
+
+      const errors = await validateRegistryContent({ registryRoot });
+      expect(
+        errors.some(
+          (error) =>
+            error.code === "parse-error" &&
+            error.path?.includes("modules/grouped-query-attention.json") &&
+            error.message.includes(
+              'secondaryClassificationIds entry "classification.concept.architecture" cannot classify module records',
             ),
         ),
       ).toBe(true);

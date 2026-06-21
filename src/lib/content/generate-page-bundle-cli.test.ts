@@ -147,6 +147,7 @@ async function writeReferenceModuleFixture(
       status: "draft",
       createdAt: "2026-06-01T00:00:00.000Z",
       updatedAt: "2026-06-02T00:00:00.000Z",
+      primaryClassificationId: "classification.module.attention",
       moduleType: "attention",
       optimizes: [],
       exampleModelIds: [],
@@ -207,6 +208,60 @@ async function writeClassificationFixture(
 async function seedExpandedKindValidationFixtures(
   tempRoot: string,
 ): Promise<void> {
+  await writeFile(
+    join(
+      tempRoot,
+      "src",
+      "content",
+      "registry",
+      "classifications",
+      "module.json",
+    ),
+    JSON.stringify({
+      id: "classification.module",
+      slug: "module",
+      kind: "classification",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-02T00:00:00.000Z",
+      classificationType: "domain",
+      classifiesKinds: ["module"],
+    }),
+  );
+  await writeFile(
+    join(
+      tempRoot,
+      "src",
+      "content",
+      "registry",
+      "classifications",
+      "attention-mechanisms.json",
+    ),
+    JSON.stringify({
+      id: "classification.module.attention",
+      slug: "attention-mechanisms",
+      kind: "classification",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: ["attention family"],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-01T00:00:00.000Z",
+      updatedAt: "2026-06-02T00:00:00.000Z",
+      classificationType: "family",
+      classifiesKinds: ["module"],
+      parentClassificationId: "classification.module",
+      legacyIds: ["classification.attention-mechanisms"],
+    }),
+  );
   await copyRegistryFixture(tempRoot, {
     kindDirectory: "tags",
     slug: "attention",
