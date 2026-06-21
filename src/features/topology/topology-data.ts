@@ -1,4 +1,7 @@
-import { resolveOntologyClassificationSelector } from "@/lib/content/ontology-classification-selectors";
+import {
+  listOntologyClassificationCompatibilitySelectors,
+  resolveOntologyClassificationSelector,
+} from "@/lib/content/ontology-classification-selectors";
 import {
   registryDisplayTitle,
   registryRecordHref,
@@ -30,18 +33,11 @@ export function getDefaultTopologyClassificationSelectors(): string[] {
   );
 }
 
-const TEMPORARY_TOPOLOGY_LEGACY_SELECTOR_ALIASES = new Map<string, string>([
-  ["activation", "classification.module.activation"],
-  ["activation-function", "classification.module.activation"],
-  ["feed-forward", "classification.module.feed-forward"],
-  ["feed-forward-network", "classification.module.feed-forward"],
-]);
-
 function listTemporaryTopologyLegacyCompatibilitySelectors(): Map<
   string,
   string
 > {
-  const selectors = new Map(TEMPORARY_TOPOLOGY_LEGACY_SELECTOR_ALIASES);
+  const selectors = new Map<string, string>();
 
   for (const option of listTopologyNavigationOptions()) {
     const classification = getClassificationById(option.classificationId);
@@ -49,8 +45,10 @@ function listTemporaryTopologyLegacyCompatibilitySelectors(): Map<
       continue;
     }
 
-    for (const legacyId of classification.legacyIds ?? []) {
-      selectors.set(legacyId, classification.id);
+    for (const selector of listOntologyClassificationCompatibilitySelectors(
+      classification,
+    )) {
+      selectors.set(selector, classification.id);
     }
   }
 

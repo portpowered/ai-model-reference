@@ -43,6 +43,23 @@ function buildCompatibilitySelectorMap(
   return selectors;
 }
 
+export function listOntologyClassificationCompatibilitySelectors(
+  classification: ClassificationRecord,
+): string[] {
+  const selectors = [...(classification.legacyIds ?? [])];
+
+  for (const [
+    selector,
+    classificationId,
+  ] of TEMPORARY_ONTOLOGY_LEGACY_SELECTOR_ALIASES) {
+    if (classificationId === classification.id) {
+      selectors.push(selector);
+    }
+  }
+
+  return [...new Set(selectors.map(normalizeOntologyClassificationSelector))];
+}
+
 export function resolveOntologyClassificationSelector(
   selector: string,
   classifications: readonly ClassificationRecord[],
@@ -72,20 +89,11 @@ export function resolveOntologyClassificationSelector(
 export function listSupportedOntologyClassificationSelectors(
   classification: ClassificationRecord,
 ): string[] {
-  const selectors = [classification.id, classification.slug];
-
-  for (const legacyId of classification.legacyIds ?? []) {
-    selectors.push(legacyId);
-  }
-
-  for (const [
-    selector,
-    classificationId,
-  ] of TEMPORARY_ONTOLOGY_LEGACY_SELECTOR_ALIASES) {
-    if (classificationId === classification.id) {
-      selectors.push(selector);
-    }
-  }
+  const selectors = [
+    classification.id,
+    classification.slug,
+    ...listOntologyClassificationCompatibilitySelectors(classification),
+  ];
 
   return [...new Set(selectors.map(normalizeOntologyClassificationSelector))];
 }
