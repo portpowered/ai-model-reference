@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ModulePageProviders } from "@/features/docs/components/ModulePageProviders";
 import { loadConceptPage } from "@/lib/content/concept-page";
 import { loadGlossaryPage } from "@/lib/content/glossary-page";
+import { loadModulePage } from "@/lib/content/module-page";
 import { docsSearchApi } from "@/lib/search/search-server";
 import { source } from "@/lib/source";
 import {
@@ -43,6 +44,24 @@ describe("wordpiece committed page contract", () => {
 
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]?.url).toBe("/docs/modules/wordpiece");
+  });
+
+  test("renders the required nearby concept and module links from the WordPiece surface", async () => {
+    const page = await loadModulePage(WORDPIECE_SLUG);
+    const html = renderToStaticMarkup(
+      createElement(ModulePageProviders, {
+        messages: page.messages,
+        assets: page.assets,
+        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+        children: page.content,
+      }),
+    );
+
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/glossary/token"');
+    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/glossary/encoder"');
+    expect(html).toContain('href="/docs/modules/bidirectional-attention"');
   });
 
   test("stays reachable through the shipped token -> tokenizers overview discovery path", async () => {

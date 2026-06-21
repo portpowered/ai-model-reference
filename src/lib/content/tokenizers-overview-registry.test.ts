@@ -82,6 +82,9 @@ describe("tokenizers overview registry", () => {
     expect(wordpiece?.relatedIds).toEqual([
       "concept.tokenizers-overview",
       "concept.token",
+      "concept.embedding",
+      "concept.encoder",
+      "module.bidirectional-attention",
       "module.bpe",
       "module.sentencepiece",
     ]);

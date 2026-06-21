@@ -9,6 +9,9 @@
   "relatedIds": [
     "concept.tokenizers-overview",
     "concept.token",
+    "concept.embedding",
+    "concept.encoder",
+    "module.bidirectional-attention",
     "module.bpe",
     "module.sentencepiece"
   ],

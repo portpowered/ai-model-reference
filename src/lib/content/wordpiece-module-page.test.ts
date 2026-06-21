@@ -38,6 +38,9 @@ describe("wordpiece module page", () => {
     expect(html).toContain("At a glance");
     expect(html).toContain("longest matching pieces");
     expect(html).toContain('href="/docs/concepts/tokenizers-overview"');
+    expect(html).toContain('href="/docs/glossary/embedding"');
+    expect(html).toContain('href="/docs/glossary/encoder"');
+    expect(html).toContain('href="/docs/modules/bidirectional-attention"');
     expect(html).toContain('href="/docs/modules/bpe"');
     expect(html).toContain('href="/docs/modules/sentencepiece"');
     expect(html).toContain('data-testid="curated-related-docs"');
@@ -88,6 +91,14 @@ describe("wordpiece module page", () => {
     expect(wordpieceDocument?.tags).toContain("tokenization");
     expect(wordpieceDocument?.relatedIds).toContain(
       "concept.tokenizers-overview",
+    );
+    expect(wordpieceDocument?.relatedIds).toEqual(
+      expect.arrayContaining([
+        "concept.token",
+        "concept.embedding",
+        "concept.encoder",
+        "module.bidirectional-attention",
+      ]),
     );
   });
 });
