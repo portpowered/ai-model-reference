@@ -665,7 +665,7 @@ describe("related-docs", () => {
     ).toEqual([]);
   });
 
-  test("deriveRelatedDocGroups upgrades legacy module groups to ontology-derived siblings when ancestry exists", () => {
+  test("deriveRelatedDocGroups upgrades legacy module groups to ontology-derived peers when ancestry exists", () => {
     const source = getRegistryRecordById("module.grouped-query-attention");
     if (source?.kind !== "module") {
       throw new Error(
@@ -688,7 +688,83 @@ describe("related-docs", () => {
     expect(groups.map((group) => group.id)).toEqual([
       CURATED_RELATED,
       CLASSIFICATION_SIBLINGS,
+      SHARED_PARENT_CLASSIFICATION,
     ]);
+  });
+
+  test("deriveRelatedDocGroups expands legacy module peer aliases into ontology groups before shared tags", () => {
+    const source = getRegistryRecordById("module.grouped-query-attention");
+    if (source?.kind !== "module") {
+      throw new Error(
+        "expected module.grouped-query-attention to exist in the runtime",
+      );
+    }
+
+    const groups = deriveRelatedDocGroups(
+      source,
+      listRelatedRegistryRecords(),
+      [SAME_VARIANT_GROUP, SHARED_TAGS],
+      new Set([
+        "module.grouped-query-attention",
+        "module.multi-head-attention",
+        "module.multi-query-attention",
+        "module.feed-forward-network",
+        "concept.token",
+      ]),
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([
+      CLASSIFICATION_SIBLINGS,
+      SHARED_PARENT_CLASSIFICATION,
+      SHARED_TAGS,
+    ]);
+    expect(groups[0]?.items.map((item) => item.registryId)).toContain(
+      "module.multi-head-attention",
+    );
+    expect(groups[1]?.items.map((item) => item.registryId)).toContain(
+      "module.feed-forward-network",
+    );
+    expect(groups[2]?.items.map((item) => item.registryId)).toContain(
+      "concept.token",
+    );
+  });
+
+  test("deriveRelatedDocGroups expands legacy same-concept-type requests into the full ontology-first branch for ontology-backed records", () => {
+    const source = getRegistryRecordById("module.standard-ffn");
+    if (source?.kind !== "module") {
+      throw new Error("expected module.standard-ffn to exist in the runtime");
+    }
+
+    const groups = deriveRelatedDocGroups(
+      source,
+      listRelatedRegistryRecords(),
+      [SAME_CONCEPT_TYPE],
+      new Set([
+        "module.standard-ffn",
+        "module.feed-forward-network",
+        "module.swiglu",
+        "concept.activation",
+        "module.relu",
+      ]),
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([
+      DIRECT_RELATIONSHIPS,
+      CLASSIFICATION_SIBLINGS,
+      SHARED_PARENT_CLASSIFICATION,
+    ]);
+    expect(groups[0]?.items.map((item) => item.registryId)).toContain(
+      "module.feed-forward-network",
+    );
+    expect(groups[1]?.items.map((item) => item.registryId)).toEqual(
+      expect.arrayContaining([
+        "module.deepseekmoe",
+        "module.mixture-of-experts",
+      ]),
+    );
+    expect(groups[2]?.items.map((item) => item.registryId)).toContain(
+      "module.grouped-query-attention",
+    );
   });
 
   test("deriveRelatedDocGroups keeps explicit ontology groups in policy order", () => {

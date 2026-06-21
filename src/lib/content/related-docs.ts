@@ -409,7 +409,7 @@ function normalizeRequestedGroups(
   requestedGroups: string[],
 ): Set<DerivedRelatedDocGroupId> {
   const normalized = new Set<DerivedRelatedDocGroupId>();
-  const shouldUpgradeLegacyGroups = hasOntologyPeerData(source);
+  const shouldExpandLegacyPeerAliases = hasOntologyPeerData(source);
 
   for (const groupId of requestedGroups) {
     if (
@@ -426,12 +426,12 @@ function normalizeRequestedGroups(
       groupId === SAME_CONCEPT_TYPE
     ) {
       if (
-        shouldUpgradeLegacyGroups &&
-        (groupId === SAME_VARIANT_GROUP ||
-          groupId === SHARED_TAGS ||
-          groupId === SAME_CONCEPT_TYPE)
+        shouldExpandLegacyPeerAliases &&
+        (groupId === SAME_VARIANT_GROUP || groupId === SAME_CONCEPT_TYPE)
       ) {
+        normalized.add(DIRECT_RELATIONSHIPS);
         normalized.add(CLASSIFICATION_SIBLINGS);
+        normalized.add(SHARED_PARENT_CLASSIFICATION);
         continue;
       }
 
