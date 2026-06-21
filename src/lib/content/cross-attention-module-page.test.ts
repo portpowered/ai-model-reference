@@ -60,6 +60,12 @@ describe("loadModulePage cross-attention", () => {
     expect(html).toContain("Math Or Compute Schema");
     expect(html).toContain("Compared To Nearby Modules");
     expect(html).toContain("external memory slots");
+    expect(html).toContain(
+      "usually still reads the same growing sequence, while",
+    );
+    expect(html).toContain(
+      "again changes the memory source rather than simply opening left and right context",
+    );
     expect(html).toContain('data-attention-variant-comparison="true"');
     expect(html).toContain('data-attention-variant-active="cross"');
     expect(html).toContain('data-attention-variant-option="self"');
@@ -74,6 +80,10 @@ describe("loadModulePage cross-attention", () => {
     expect(html).toContain('href="/docs/glossary/multimodal-model"');
     expect(html).toContain('data-testid="curated-related-docs"');
     expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
+    expect(html).toContain('href="/tags/attention"');
+    expect(html).toContain('data-testid="citation-list"');
+    expect(html).toContain("Vaswani, Ashish");
+    expect(html).toContain('href="https://arxiv.org/abs/1706.03762"');
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain('aria-label="Module metadata"');
   });

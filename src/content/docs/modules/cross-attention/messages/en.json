@@ -21,7 +21,7 @@
     },
     "comparedToNearbyModules": {
       "title": "Compared To Nearby Modules",
-      "body": "Compared with the broader attention overview, cross-attention is one specific memory-source pattern. Compared with multi-head attention, it can still use multiple heads but changes where keys and values come from. Compared with causal and bidirectional attention, the main contrast is not the mask direction but the fact that the model reads from a different sequence."
+      "body": "Compared with the broader attention overview, cross-attention is one specific memory-source pattern rather than the whole family. Compared with multi-head attention, it can still use multiple heads but changes where keys and values come from. Compared with causal attention, the key difference is not next-token masking: causal attention usually still reads the same growing sequence, while cross-attention reads a different memory and can appear inside a causal decoder block. Compared with bidirectional attention, cross-attention again changes the memory source rather than simply opening left and right context inside one sequence."
     },
     "exampleArchitectures": {
       "title": "Example Architectures",
