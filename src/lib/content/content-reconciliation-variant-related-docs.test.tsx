@@ -24,6 +24,7 @@ const ATTENTION_VARIANT_MODULE_IDS = [
   "module.multi-query-attention",
   "module.grouped-query-attention",
   "module.multi-head-latent-attention",
+  "module.local-attention",
   "module.sparse-attention",
   "module.sliding-window-attention",
   "module.linear-attention",
@@ -49,13 +50,14 @@ const SOLO_VARIANT_GROUP_MODULES = [
     variantGroup: "sparse-patterns",
   },
   {
-    registryId: "module.sliding-window-attention",
-    variantGroup: "attention-locality",
-  },
-  {
     registryId: "module.linear-attention",
     variantGroup: "subquadratic-attention",
   },
+] as const;
+
+const ATTENTION_LOCALITY_REGISTRY_IDS = [
+  "module.local-attention",
+  "module.sliding-window-attention",
 ] as const;
 
 function expectModuleRecord(registryId: string): ModuleRecord {
@@ -97,6 +99,33 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
       );
 
       const expectedPeerIds = HEAD_SHARING_REGISTRY_IDS.filter(
+        (id) => id !== sourceId,
+      );
+      expect(peers.map((peer) => peer.registryId).sort()).toEqual(
+        [...expectedPeerIds].sort(),
+      );
+      expect(
+        peers.every((peer) => peer.reasonLabel === "Same variant group"),
+      ).toBe(true);
+      expect(
+        peers.every((peer) => peer.href?.startsWith("/docs/modules/")),
+      ).toBe(true);
+      expect(peers.every((peer) => !peer.isPlanned)).toBe(true);
+    }
+  });
+
+  test("attention-locality peers cross-link local attention and sliding-window attention", () => {
+    const modules = listPublishedModuleRecords();
+
+    for (const sourceId of ATTENTION_LOCALITY_REGISTRY_IDS) {
+      const source = expectModuleRecord(sourceId);
+      const peers = deriveSameVariantGroupPeers(
+        source,
+        modules,
+        PUBLISHED_DOCS_REGISTRY_IDS,
+      );
+
+      const expectedPeerIds = ATTENTION_LOCALITY_REGISTRY_IDS.filter(
         (id) => id !== sourceId,
       );
       expect(peers.map((peer) => peer.registryId).sort()).toEqual(
@@ -229,5 +258,20 @@ describe("Phase 2/3 reconciliation attention-variant related docs (US-011)", () 
       expect(html).toContain('data-testid="curated-related-docs"');
       expect(html).toContain("curated");
     }
+  });
+
+  test("sliding-window attention renders local-attention as its same-variant-group peer without duplicating curated links", () => {
+    const html = renderToStaticMarkup(
+      <RelatedDocs registryId="module.sliding-window-attention" />,
+    );
+
+    expect(html).toContain('data-related-group="same-variant-group"');
+    expect(html).toContain('href="/docs/modules/local-attention"');
+    expect(html).toContain('data-testid="curated-related-docs"');
+    expect(html).toContain('href="/docs/modules/grouped-query-attention"');
+    expect(html).toContain('href="/docs/glossary/kv-cache"');
+    expect(html.match(/href="\/docs\/modules\/local-attention"/g)).toHaveLength(
+      1,
+    );
   });
 });
