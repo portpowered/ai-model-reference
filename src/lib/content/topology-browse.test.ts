@@ -1,10 +1,44 @@
 import { describe, expect, test } from "bun:test";
+import type { ClassificationSubtreeClassificationNode } from "@/lib/content/registry-runtime";
 import {
   readTopologyBrowseStateFromLocationSearch,
   resolveTopologyBrowseState,
   type TopologySearchParams,
 } from "@/lib/content/topology-browse";
 import { listTopologyNavigationOptions } from "@/lib/content/topology-navigation";
+
+function publishedClassificationNode(
+  overrides: Partial<ClassificationSubtreeClassificationNode>,
+): ClassificationSubtreeClassificationNode {
+  return {
+    nodeType: "classification",
+    classification: {
+      id: "classification.example",
+      slug: "example",
+      kind: "classification",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-20T00:00:00.000Z",
+      updatedAt: "2026-06-20T00:00:00.000Z",
+      classificationType: "family",
+      classifiesKinds: ["module"],
+      parentClassificationId: "classification.module",
+    },
+    children: [],
+    classificationChildren: [],
+    recordChildren: [],
+    directMemberCount: 0,
+    descendantMemberCount: 0,
+    hasMatchingMembers: false,
+    totalMemberCount: 0,
+    ...overrides,
+  };
+}
 
 describe("topology browse request state", () => {
   test("leaves the standard browse page active when no topology params are present", () => {
@@ -65,6 +99,60 @@ describe("topology browse request state", () => {
       requestedMode: "matrix",
       classificationStatus: "unsupported",
       modeStatus: "unsupported",
+    });
+  });
+
+  test("treats filtered-out branches as invalid when the runtime subtree has no matching descendants", () => {
+    const emptyBranch = publishedClassificationNode({
+      classification: {
+        ...publishedClassificationNode({}).classification,
+        id: "classification.no-matching-descendants",
+        slug: "no-matching-descendants",
+      },
+    });
+    const eligibleBranch = publishedClassificationNode({
+      classification: {
+        ...publishedClassificationNode({}).classification,
+        id: "classification.activation-functions",
+        slug: "activation-functions",
+      },
+      totalMemberCount: 2,
+    });
+    const options = listTopologyNavigationOptions({
+      tree: [
+        publishedClassificationNode({
+          classification: {
+            ...publishedClassificationNode({}).classification,
+            id: "classification.module",
+            slug: "module",
+            classificationType: "domain",
+            parentClassificationId: undefined,
+          },
+          classificationChildren: [emptyBranch, eligibleBranch],
+          children: [emptyBranch, eligibleBranch],
+          totalMemberCount: 2,
+        }),
+      ],
+    });
+
+    expect(options.map((option) => option.classificationSlug)).toEqual([
+      "activation-functions",
+    ]);
+
+    expect(
+      resolveTopologyBrowseState(
+        {
+          classification: "no-matching-descendants",
+          mode: "graph-map",
+        },
+        options,
+      ),
+    ).toMatchObject({
+      kind: "invalid",
+      requestedClassification: "no-matching-descendants",
+      requestedMode: "graph-map",
+      classificationStatus: "unsupported",
+      modeStatus: "valid",
     });
   });
 

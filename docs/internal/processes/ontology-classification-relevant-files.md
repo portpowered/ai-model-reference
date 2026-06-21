@@ -27,6 +27,17 @@ the temporary legacy-id bridge.
   Search-term expansion that keeps canonical and legacy classification terms
   discoverable during migration.
 
+## Remaining compatibility fallback outside the proving consumer
+
+* `src/lib/search/build-documents.ts`
+  Search still keeps legacy flat classification ids and canonical ids side by
+  side for discoverability during migration; this slice does not remove that
+  compatibility expansion.
+* `src/lib/content/page-spec.ts`
+  Page-spec generation and validation still accept legacy taxonomy fields such
+  as `conceptType`, `moduleFamily`, and `variantGroup` as temporary
+  compatibility inputs outside the migrated `/browse` navigation surface.
+
 ## Reviewer-facing verification
 
 * `src/lib/content/registry-runtime.test.ts`
