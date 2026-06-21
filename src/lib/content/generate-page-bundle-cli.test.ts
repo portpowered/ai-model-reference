@@ -262,7 +262,6 @@ async function seedExpandedKindValidationFixtures(
       classificationType: "family",
       classifiesKinds: ["module"],
       parentClassificationId: "classification.module",
-      legacyIds: ["classification.attention-mechanisms"],
     }),
   );
   await copyRegistryFixture(tempRoot, {
@@ -278,10 +277,6 @@ async function seedExpandedKindValidationFixtures(
     slug: "model-family",
   });
   await copyRegistryFixture(tempRoot, {
-    kindDirectory: "classifications",
-    slug: "attention-mechanisms",
-  });
-  await copyRegistryFixture(tempRoot, {
     kindDirectory: "citations",
     slug: "attention-is-all-you-need",
   });
@@ -290,7 +285,6 @@ async function seedExpandedKindValidationFixtures(
     slug: "kv-cache-optimizations",
     classificationType: "behavior",
     classifiesKinds: ["module"],
-    legacyIds: ["classification.kv-cache-optimizations"],
     parentClassificationId: "classification.module.attention",
   });
   await writeClassificationFixture(tempRoot, {
@@ -365,6 +359,28 @@ async function seedExpandedKindValidationFixtures(
       },
     }),
   );
+}
+
+async function seedExpandedKindCompatibilityFixtures(
+  tempRoot: string,
+): Promise<void> {
+  await seedExpandedKindValidationFixtures(tempRoot);
+  await writeClassificationFixture(tempRoot, {
+    id: "classification.module.attention",
+    slug: "attention-mechanisms",
+    classificationType: "family",
+    classifiesKinds: ["module"],
+    legacyIds: ["classification.attention-mechanisms"],
+    parentClassificationId: "classification.module",
+  });
+  await writeClassificationFixture(tempRoot, {
+    id: "classification.module.attention.kv-cache-optimizations",
+    slug: "kv-cache-optimizations",
+    classificationType: "behavior",
+    classifiesKinds: ["module"],
+    legacyIds: ["classification.kv-cache-optimizations"],
+    parentClassificationId: "classification.module.attention",
+  });
 }
 
 describe("parseGeneratePageBundleArgv", () => {
@@ -666,7 +682,7 @@ describe("runGeneratePageBundleCli", () => {
     }
   });
 
-  test("generation CLI writes and validates expanded canonical kind bundles from committed sample specs with temporary compatibility fields where still required", async () => {
+  test("generation CLI writes and validates expanded canonical kind bundles from committed sample specs", async () => {
     const tempRoot = await createFixtureRoot();
     const samplePaths = [
       "module-page-spec-workflow-sample.json",
@@ -713,15 +729,8 @@ describe("runGeneratePageBundleCli", () => {
         const sampleSpec = JSON.parse(
           await readFile(specPath, "utf8"),
         ) as Record<string, unknown> & { kind: string; slug: string };
-        const compatibilitySpec = {
-          ...sampleSpec,
-          ...(sampleSpec.kind === "module" ? { moduleType: "attention" } : {}),
-          ...(sampleSpec.kind === "training-regime"
-            ? { regimeType: "alignment" }
-            : {}),
-        };
         const tempSpecPath = join(tempRoot, `${sampleSpec.slug}.spec.json`);
-        await writeFile(tempSpecPath, JSON.stringify(compatibilitySpec));
+        await writeFile(tempSpecPath, JSON.stringify(sampleSpec));
 
         const result = await runGeneratePageBundleCli({
           specPath: tempSpecPath,
@@ -769,6 +778,46 @@ describe("runGeneratePageBundleCli", () => {
         docsRoot: join(tempRoot, "src", "content", "docs"),
       });
       expect(registryErrors).toEqual([]);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("generation CLI compatibility fixtures keep deprecated taxonomy bridge behavior explicit", async () => {
+    const tempRoot = await createFixtureRoot();
+    const samplePaths = [
+      "module-page-spec-workflow-sample.json",
+      "training-regime-page-spec-workflow-sample.json",
+    ].map((filename) => join(getProjectRoot(), "page-specs", filename));
+
+    try {
+      await seedExpandedKindCompatibilityFixtures(tempRoot);
+
+      for (const specPath of samplePaths) {
+        const sampleSpec = JSON.parse(
+          await readFile(specPath, "utf8"),
+        ) as Record<string, unknown> & { kind: string; slug: string };
+        const compatibilitySpec = {
+          ...sampleSpec,
+          ...(sampleSpec.kind === "module" ? { moduleType: "attention" } : {}),
+          ...(sampleSpec.kind === "training-regime"
+            ? { regimeType: "alignment" }
+            : {}),
+        };
+        const tempSpecPath = join(
+          tempRoot,
+          `${sampleSpec.slug}.compatibility.spec.json`,
+        );
+        await writeFile(tempSpecPath, JSON.stringify(compatibilitySpec));
+
+        const result = await runGeneratePageBundleCli({
+          specPath: tempSpecPath,
+          projectRoot: tempRoot,
+        });
+
+        expect(result.dryRun).toBe(false);
+        expect(result.plan).toContain("Written files:");
+      }
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }

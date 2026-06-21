@@ -164,7 +164,6 @@ describe("validatePageSpec", () => {
       ...baseFields,
       kind: "module",
       primaryClassificationId: "classification.module.attention",
-      secondaryClassificationIds: ["classification.kv-cache-optimizations"],
       relationships: [
         {
           relationshipType: "variant",
@@ -215,7 +214,6 @@ describe("validatePageSpec", () => {
       ...baseFields,
       kind: "module",
       primaryClassificationId: "classification.module.attention",
-      secondaryClassificationIds: ["classification.kv-cache-optimizations"],
       relationships: [
         {
           relationshipType: "variant",

@@ -207,7 +207,6 @@ describe("generatePageBundle", () => {
         slug,
         kind: "module",
         primaryClassificationId: "classification.module.attention",
-        secondaryClassificationIds: ["classification.kv-cache-optimizations"],
         relationships: [
           {
             relationshipType: "variant",
@@ -799,7 +798,6 @@ describe("generatePageBundle", () => {
           slug: "generated-ontology-first-module",
           kind: "module",
           primaryClassificationId: "classification.module.attention",
-          secondaryClassificationIds: ["classification.kv-cache-optimizations"],
           relationships: [
             {
               relationshipType: "related",
