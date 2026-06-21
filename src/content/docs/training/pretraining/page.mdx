@@ -19,7 +19,8 @@ updatedAt: "2026-06-20"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
-import { BlockMath } from "@/features/docs/components/Math";
+import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
+import { PageMathFormula } from "@/features/docs/components/PageMathFormula";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -42,39 +43,30 @@ import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeF
     registryId="training-regime.pretraining"
     assetId="trainingFlow"
   />
-  <BlockMath
-    formula={String.raw`\max_\theta \sum_t \log p_\theta(x_t \mid x_{<t})`}
-  />
+  <PageMathFormula mathId="nextTokenObjective" />
 </Section>
 <Section
   id="compared-to-nearby-regimes"
   titleKey="sections.comparedToNearbyRegimes.title"
 >
   <T k="sections.comparedToNearbyRegimes.body" />
-  <ul className="mt-3 list-disc pl-6">
-    <li>
-      <a href="/docs/models/gpt-3">GPT-3 model page</a>
-    </li>
-    <li>
-      <a href="/docs/concepts/transformer-architecture">
-        Transformer architecture
-      </a>
-    </li>
-    <li>
-      <a href="/docs/modules/byte-level-tokenization">
-        Byte-level tokenization
-      </a>
-    </li>
-    <li>
-      <a href="/docs/glossary/alignment">Alignment overview</a>
-    </li>
-    <li>
-      <a href="/docs/training/dpo">Direct Preference Optimization</a>
-    </li>
-    <li>
-      <a href="/search?q=RLHF">RLHF search</a>
-    </li>
-  </ul>
+  <T k="links.gpt2Bridge" />
+  <LocalizedLinkList
+    items={[
+      { href: "/docs/models/gpt-3", labelKey: "links.gpt3ModelPage" },
+      {
+        href: "/docs/concepts/transformer-architecture",
+        labelKey: "links.transformerArchitecture",
+      },
+      {
+        href: "/docs/modules/byte-level-tokenization",
+        labelKey: "links.byteLevelTokenization",
+      },
+      { href: "/docs/glossary/alignment", labelKey: "links.alignmentOverview" },
+      { href: "/docs/training/dpo", labelKey: "links.dpo" },
+      { href: "/search?q=RLHF", labelKey: "links.rlhfSearch" },
+    ]}
+  />
 </Section>
 <Section
   id="limitations-and-failure-modes"

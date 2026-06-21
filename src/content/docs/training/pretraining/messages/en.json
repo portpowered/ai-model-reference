@@ -39,6 +39,43 @@
       "caption": "Pretraining turns huge token corpora into a base model by repeating the next-token objective at scale."
     }
   },
+  "links": {
+    "gpt2Bridge": "GPT-2 is a useful historical bridge for this stage: it showed that a transformer pretrained at broad internet scale could already perform many language tasks before any later chat-style alignment layer was added. GPT-3 then pushed the same pretraining idea much further in model size, data, and compute.",
+    "gpt3ModelPage": "GPT-3 model page",
+    "transformerArchitecture": "Transformer architecture",
+    "byteLevelTokenization": "Byte-level tokenization",
+    "alignmentOverview": "Alignment overview",
+    "dpo": "Direct Preference Optimization",
+    "rlhfSearch": "RLHF search"
+  },
+  "math": {
+    "nextTokenObjective": {
+      "label": "Next-token pretraining objective",
+      "formula": "\\max_\\theta \\sum_t \\log p_\\theta(x_t \\mid x_{<t})",
+      "variableDefinitions": {
+        "theta": {
+          "term": "\\theta",
+          "definition": "model weights"
+        },
+        "t": {
+          "term": "t",
+          "definition": "token position"
+        },
+        "xt": {
+          "term": "x_t",
+          "definition": "the observed next token at position t"
+        },
+        "xprefix": {
+          "term": "x_{<t}",
+          "definition": "all earlier tokens before position t"
+        },
+        "ptheta": {
+          "term": "p_\\theta(\\cdot)",
+          "definition": "the model probability distribution given weights \\theta"
+        }
+      }
+    }
+  },
   "graph": {
     "nodes": {
       "corpus": {

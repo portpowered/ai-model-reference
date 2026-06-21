@@ -41,6 +41,7 @@ function loadPretrainingPageBundle() {
   }
 
   return {
+    source,
     frontmatter: pageFrontmatterSchema.parse(
       parseYamlFrontmatterBlock(frontmatterBlock[1]),
     ),
@@ -129,6 +130,9 @@ describe("pretraining training-regime identity contracts", () => {
     expect(page.messages.sections?.howItWorks.body).toContain(
       "predicts the next token",
     );
+    expect(page.messages.math?.nextTokenObjective?.formula).toBe(
+      "\\max_\\theta \\sum_t \\log p_\\theta(x_t \\mid x_{<t})",
+    );
     expect(page.messages.sections?.whyItExists.body).toContain(
       "Scale matters here",
     );
@@ -141,6 +145,13 @@ describe("pretraining training-regime identity contracts", () => {
     expect(page.messages.sections?.comparedToNearbyRegimes.body).toContain(
       "reinforcement learning from human feedback",
     );
+    expect(page.messages.links?.gpt2Bridge).toContain(
+      "GPT-2 is a useful historical bridge",
+    );
+    expect(
+      page.messages.math?.nextTokenObjective?.variableDefinitions?.theta
+        ?.definition,
+    ).toBe("model weights");
     expect(page.assets.trainingFlow).toMatchObject({
       type: "graph",
       graphId: "graph.pretraining-training-flow",
@@ -221,12 +232,25 @@ describe("pretraining training-regime identity contracts", () => {
     expect(html).toContain(
       "Compute matters because hardware time, memory, and optimization budget",
     );
+    expect(html).toContain("GPT-2 is a useful historical bridge");
+    expect(html).toContain("later chat-style");
     expect(html).toContain("reinforcement learning from human feedback");
     expect(html).toContain(
       "Pretraining turns huge token corpora into a base model by repeating the next-token objective at scale.",
     );
+    expect(html).toContain(
+      'data-graph-title="graph.pretraining-training-flow"',
+    );
+    expect(html).toContain(
+      'data-graph-legend="graph.pretraining-training-flow"',
+    );
     expect(html).toContain('role="math"');
     expect(html).toContain("\\max_\\theta");
+    expect(html).toContain(
+      'data-page-math-variable-definitions="nextTokenObjective"',
+    );
+    expect(html).toContain('data-math-variable-definition="theta"');
+    expect(html).toContain(">weights<");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/models/gpt-3"');
     expect(html).toContain('href="/docs/concepts/transformer-architecture"');
@@ -235,6 +259,24 @@ describe("pretraining training-regime identity contracts", () => {
     expect(html).toContain('href="/docs/training/dpo"');
     expect(html).toContain('href="/search?q=RLHF"');
     expect(html).not.toContain("Reader Shortcut");
+  });
+
+  test("page source keeps nearby-regime labels message-backed instead of hard-coding visible prose", () => {
+    const page = loadPretrainingPageBundle();
+
+    expect(page.source).toContain('labelKey: "links.gpt3ModelPage"');
+    expect(page.source).toContain('labelKey: "links.transformerArchitecture"');
+    expect(page.source).toContain('labelKey: "links.byteLevelTokenization"');
+    expect(page.source).toContain('labelKey: "links.alignmentOverview"');
+    expect(page.source).toContain('labelKey: "links.dpo"');
+    expect(page.source).toContain('labelKey: "links.rlhfSearch"');
+    expect(page.source).toContain('k="links.gpt2Bridge"');
+    expect(page.source).not.toContain(">GPT-3 model page<");
+    expect(page.source).not.toContain(">Transformer architecture<");
+    expect(page.source).not.toContain(">Byte-level tokenization<");
+    expect(page.source).not.toContain(">Alignment overview<");
+    expect(page.source).not.toContain(">Direct Preference Optimization<");
+    expect(page.source).not.toContain(">RLHF search<");
   });
 
   test("search documents and runtime search resolve pretraining title, aliases, and core terms", async () => {
