@@ -236,6 +236,12 @@ export const LINEAR_ATTENTION_PAGE_DIR = join(
   "linear-attention",
 );
 
+/** Local attention module page directory. */
+export const LOCAL_ATTENTION_PAGE_DIR = join(
+  MODULES_DOCS_ROOT,
+  "local-attention",
+);
+
 /** Phase 3 sliding-window attention module page directory. */
 export const SLIDING_WINDOW_ATTENTION_PAGE_DIR = join(
   MODULES_DOCS_ROOT,

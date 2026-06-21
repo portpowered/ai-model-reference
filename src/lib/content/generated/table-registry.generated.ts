@@ -14,6 +14,7 @@ import groupedQueryAttentionComparisonTableRecord from "@/content/registry/table
 import layerNormComparisonTableRecord from "@/content/registry/tables/layer-norm-comparison.json";
 import leakyReluComparisonTableRecord from "@/content/registry/tables/leaky-relu-comparison.json";
 import linearAttentionComparisonTableRecord from "@/content/registry/tables/linear-attention-comparison.json";
+import localAttentionComparisonTableRecord from "@/content/registry/tables/local-attention-comparison.json";
 import mixtureOfExpertsComparisonTableRecord from "@/content/registry/tables/mixture-of-experts-comparison.json";
 import multiHeadAttentionComparisonTableRecord from "@/content/registry/tables/multi-head-attention-comparison.json";
 import multiHeadLatentAttentionComparisonTableRecord from "@/content/registry/tables/multi-head-latent-attention-comparison.json";
@@ -44,6 +45,7 @@ export const generatedTableRegistrySourceFiles = [
   "layer-norm-comparison.json",
   "leaky-relu-comparison.json",
   "linear-attention-comparison.json",
+  "local-attention-comparison.json",
   "mixture-of-experts-comparison.json",
   "multi-head-attention-comparison.json",
   "multi-head-latent-attention-comparison.json",
@@ -75,6 +77,7 @@ export const generatedTableRegistryPayloads = [
   layerNormComparisonTableRecord,
   leakyReluComparisonTableRecord,
   linearAttentionComparisonTableRecord,
+  localAttentionComparisonTableRecord,
   mixtureOfExpertsComparisonTableRecord,
   multiHeadAttentionComparisonTableRecord,
   multiHeadLatentAttentionComparisonTableRecord,
