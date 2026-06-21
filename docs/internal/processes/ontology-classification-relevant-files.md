@@ -13,7 +13,8 @@ the temporary legacy-id bridge.
   ontology-first content checks.
 * `src/lib/content/registry-runtime-generation.ts`
   Generated runtime source contract for canonical lookup, legacy-id
-  canonicalization, parent-child traversal, and `listLegacyClassificationBridges`.
+  canonicalization, parent-child traversal, filtered subtree generation,
+  branch-membership authority, and `listLegacyClassificationBridges`.
 * `src/lib/search/build-documents.ts`
   Search-term expansion that keeps canonical and legacy classification terms
   discoverable during migration.

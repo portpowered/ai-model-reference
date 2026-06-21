@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import {
+  buildClassificationSubtree,
   buildClassificationTree,
   getCitationById,
+  getClassificationBranchMembership,
   getClassificationById,
   getConceptById,
   getDatasetById,
@@ -530,6 +532,114 @@ describe("registry-runtime", () => {
         totalMemberCount: 0,
       },
     ]);
+  });
+
+  test("classification subtree runtime exposes stable filters, owning-branch record placement, and empty results", () => {
+    const subtree = buildClassificationSubtree({
+      rootClassificationIds: ["classification.attention-mechanisms"],
+      memberKinds: ["module"],
+    });
+
+    expect(subtree).toMatchObject({
+      emptyBehavior: "prune-empty-leaves",
+      isEmpty: false,
+      memberPlacement: "owning-classification",
+      filters: {
+        memberKinds: ["module"],
+        memberPlacement: "owning-classification",
+        rootClassificationIds: ["classification.module.attention"],
+        statuses: ["published"],
+        includeSecondary: false,
+      },
+    });
+    expect(subtree.roots).toHaveLength(1);
+    expect(
+      subtree.roots[0]?.recordChildren.map((child) => child.member.record.id),
+    ).toEqual(
+      expect.arrayContaining([
+        "module.attention",
+        "module.bidirectional-attention",
+        "module.causal-attention",
+        "module.multi-query-attention",
+      ]),
+    );
+    expect(
+      subtree.roots[0]?.recordChildren.some(
+        (child) => child.member.record.id === "module.grouped-query-attention",
+      ),
+    ).toBe(false);
+
+    const groupedQueryBranch = subtree.roots[0]?.classificationChildren.find(
+      (child) =>
+        child.classification.id ===
+        "classification.module.attention.grouped-query",
+    );
+    expect(
+      groupedQueryBranch?.recordChildren.map((child) => child.member.record.id),
+    ).toEqual(["module.grouped-query-attention"]);
+
+    expect(
+      buildClassificationSubtree({
+        rootClassificationIds: ["classification.activation-functions"],
+        memberKinds: ["paper"],
+      }),
+    ).toMatchObject({
+      emptyBehavior: "prune-empty-leaves",
+      isEmpty: true,
+      roots: [],
+      memberPlacement: "owning-classification",
+      filters: {
+        rootClassificationIds: ["classification.module.activation"],
+      },
+    });
+  });
+
+  test("classification branch membership keeps descendants separate from direct owners", () => {
+    const branchMembership = getClassificationBranchMembership(
+      "classification.attention-mechanisms",
+      {
+        memberKinds: ["module"],
+      },
+    );
+
+    expect(branchMembership).toMatchObject({
+      classification: {
+        id: "classification.module.attention",
+      },
+      directMemberCount: expect.any(Number),
+      descendantMemberCount: 2,
+      memberPlacement: "owning-classification",
+      totalMemberCount: expect.any(Number),
+    });
+    expect(
+      branchMembership?.directMembers.map((member) => member.record.id),
+    ).toEqual(
+      expect.arrayContaining([
+        "module.attention",
+        "module.bidirectional-attention",
+        "module.causal-attention",
+        "module.multi-query-attention",
+      ]),
+    );
+    expect(
+      branchMembership?.directMembers.some(
+        (member) => member.record.id === "module.grouped-query-attention",
+      ),
+    ).toBe(false);
+    expect(
+      branchMembership?.descendantMembers.map(
+        (member) =>
+          `${member.classificationId}:${member.isInherited}:${member.record.id}`,
+      ),
+    ).toEqual([
+      "classification.module.attention.grouped-query:true:module.grouped-query-attention",
+      "classification.module.attention.multi-head:true:module.multi-head-attention",
+    ]);
+    expect(
+      getClassificationBranchMembership(
+        "classification.missing-runtime-record",
+      ),
+    ).toBeUndefined();
   });
 
   test("legacy classification bridge remains explicit and measurable", () => {

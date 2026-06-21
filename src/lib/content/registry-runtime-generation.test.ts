@@ -1313,6 +1313,90 @@ describe("registry-runtime generation", () => {
         "classification.module.runtime-attention-mechanisms",
         "classification.module.runtime-empty-modules",
       ]);
+      expect(
+        generatedRuntime.buildClassificationSubtree({
+          rootClassificationIds: ["classification.module"],
+          memberKinds: ["module"],
+        }),
+      ).toMatchObject({
+        emptyBehavior: "prune-empty-leaves",
+        isEmpty: false,
+        memberPlacement: "owning-classification",
+        filters: {
+          rootClassificationIds: ["classification.module"],
+          memberKinds: ["module"],
+          memberPlacement: "owning-classification",
+          statuses: ["published"],
+          includeSecondary: false,
+        },
+      });
+      expect(
+        generatedRuntime
+          .buildClassificationSubtree({
+            rootClassificationIds: ["classification.module"],
+            memberKinds: ["module"],
+          })
+          .roots[0]?.classificationChildren.map((child) => ({
+            id: child.classification.id,
+            directMemberCount: child.directMemberCount,
+            descendantMemberCount: child.descendantMemberCount,
+          })),
+      ).toEqual([
+        {
+          id: "classification.module.runtime-position-encodings",
+          directMemberCount: 2,
+          descendantMemberCount: 0,
+        },
+        {
+          id: "classification.module.runtime-attention-mechanisms",
+          directMemberCount: 1,
+          descendantMemberCount: 0,
+        },
+      ]);
+      expect(
+        generatedRuntime.getClassificationBranchMembership(
+          "classification.module",
+          {
+            memberKinds: ["module"],
+          },
+        ),
+      ).toMatchObject({
+        directMemberCount: 0,
+        descendantMemberCount: 3,
+        totalMemberCount: 3,
+        memberPlacement: "owning-classification",
+      });
+      expect(
+        generatedRuntime
+          .getClassificationBranchMembership("classification.module", {
+            memberKinds: ["module"],
+          })
+          ?.descendantMembers.map(
+            (member) =>
+              `${member.classificationId}:${member.isInherited}:${member.record.id}`,
+          ),
+      ).toEqual([
+        "classification.module.runtime-position-encodings:true:module.runtime-alibi",
+        "classification.module.runtime-position-encodings:true:module.runtime-rope",
+        "classification.module.runtime-attention-mechanisms:true:module.runtime-causal",
+      ]);
+      expect(
+        generatedRuntime.buildClassificationSubtree({
+          rootClassificationIds: [
+            "classification.module.runtime-empty-modules",
+          ],
+          memberKinds: ["module"],
+        }),
+      ).toMatchObject({
+        isEmpty: true,
+        roots: [],
+        memberPlacement: "owning-classification",
+        filters: {
+          rootClassificationIds: [
+            "classification.module.runtime-empty-modules",
+          ],
+        },
+      });
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
     }
