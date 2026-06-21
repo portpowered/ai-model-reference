@@ -2,6 +2,9 @@ import { describe, expect, test } from "bun:test";
 import {
   getSidebarGroupIdsForSection,
   getSidebarGroupingSectionsForKind,
+  resolveModulesSidebarGroupWithSource,
+  resolveSystemsSidebarGroupWithSource,
+  resolveTrainingSidebarGroupWithSource,
   SIDEBAR_GROUP_LABELS,
   SIDEBAR_GROUPING_PRECEDENCE,
 } from "./sidebar-grouping";
@@ -32,5 +35,76 @@ describe("sidebar grouping contract", () => {
     expect(SIDEBAR_GROUP_LABELS.modules["attention-foundations"]).toBe(
       "Attention Foundations",
     );
+  });
+
+  test("derives covered module groups from ontology membership before compatibility fallback", () => {
+    expect(
+      resolveModulesSidebarGroupWithSource({
+        primaryClassificationId: "classification.module.feed-forward",
+        moduleType: "feed-forward",
+      }),
+    ).toEqual({
+      groupId: "feed-forward-and-activation",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveModulesSidebarGroupWithSource({
+        primaryClassificationId: "classification.module.attention",
+        moduleType: "attention",
+      }),
+    ).toEqual({
+      groupId: "attention-variants",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveModulesSidebarGroupWithSource({
+        primaryClassificationId: "classification.module.attention",
+        moduleType: "attention",
+        sidebarGrouping: {
+          modules: "attention-foundations",
+        },
+      }),
+    ).toEqual({
+      groupId: "attention-foundations",
+      source: "editorial-sidebar-grouping",
+    });
+  });
+
+  test("derives training and system groups from ontology when the branch is modeled", () => {
+    expect(
+      resolveTrainingSidebarGroupWithSource({
+        primaryClassificationId: "classification.training.alignment",
+        regimeType: "alignment",
+      }),
+    ).toEqual({
+      groupId: "alignment",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveTrainingSidebarGroupWithSource({
+        regimeType: "distillation",
+      }),
+    ).toEqual({
+      groupId: "distillation",
+      source: "editorial-sidebar-grouping",
+    });
+
+    expect(
+      resolveSystemsSidebarGroupWithSource({
+        primaryClassificationId: "classification.system.routing",
+        systemType: "routing",
+      }),
+    ).toEqual({
+      groupId: "routing",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveSystemsSidebarGroupWithSource({
+        systemType: "memory",
+      }),
+    ).toEqual({
+      groupId: "memory",
+      source: "editorial-sidebar-grouping",
+    });
   });
 });

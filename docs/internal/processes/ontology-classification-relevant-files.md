@@ -32,6 +32,11 @@ the temporary legacy-id bridge.
   Shared canonical-plus-compatibility selector contract for customer-visible
   ontology consumers. Use this when topology and timeline must accept the same
   supported selector set across static preload and client hydration.
+* `src/lib/content/sidebar-grouping.ts`
+  Docs-shell sidebar subgroup resolver. Module, training, and system subgroup
+  placement should derive from canonical classification membership first, with
+  any remaining customer-visible exceptions fenced behind one explicit fallback
+  path instead of scattered typed-taxonomy reads.
 * `src/lib/content/topology-selector-compatibility.ts`
   Topology-specific temporary selector fence. Keep any remaining shorthand or
   legacy topology-only aliases here instead of expanding the generic

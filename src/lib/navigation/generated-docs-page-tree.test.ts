@@ -16,8 +16,11 @@ import {
   resolveConceptsSidebarGroup,
   resolveGlossarySidebarGroup,
   resolveModulesSidebarGroup,
+  resolveModulesSidebarGroupWithSource,
   resolveSystemsSidebarGroup,
+  resolveSystemsSidebarGroupWithSource,
   resolveTrainingSidebarGroup,
+  resolveTrainingSidebarGroupWithSource,
   type SidebarGroupIdBySection,
   type SidebarGroupingSection,
 } from "@/lib/content/sidebar-grouping";
@@ -305,5 +308,73 @@ describe("generated docs page tree", () => {
         });
       }
     }
+  });
+
+  test("representative covered records prove ontology-derived versus fallback subgroup sources", () => {
+    expect(
+      resolveModulesSidebarGroupWithSource(
+        requireRecord(
+          getModuleById("module.grouped-query-attention"),
+          "module.grouped-query-attention module",
+        ),
+      ),
+    ).toEqual({
+      groupId: "attention-variants",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveModulesSidebarGroupWithSource(
+        requireRecord(
+          getModuleById("module.attention"),
+          "module.attention module",
+        ),
+      ),
+    ).toEqual({
+      groupId: "attention-foundations",
+      source: "editorial-sidebar-grouping",
+    });
+
+    expect(
+      resolveTrainingSidebarGroupWithSource(
+        requireRecord(
+          getTrainingRegimeById("training-regime.dpo"),
+          "training-regime.dpo training regime",
+        ),
+      ),
+    ).toEqual({
+      groupId: "alignment",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveTrainingSidebarGroupWithSource(
+        requireRecord(
+          getTrainingRegimeById("training-regime.on-policy-distillation"),
+          "training-regime.on-policy-distillation training regime",
+        ),
+      ),
+    ).toEqual({
+      groupId: "distillation",
+      source: "editorial-sidebar-grouping",
+    });
+
+    expect(
+      resolveSystemsSidebarGroupWithSource(
+        requireRecord(getSystemById("system.routing"), "system.routing system"),
+      ),
+    ).toEqual({
+      groupId: "routing",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveSystemsSidebarGroupWithSource(
+        requireRecord(
+          getSystemById("system.on-disk-kv-cache"),
+          "system.on-disk-kv-cache system",
+        ),
+      ),
+    ).toEqual({
+      groupId: "memory",
+      source: "editorial-sidebar-grouping",
+    });
   });
 });
