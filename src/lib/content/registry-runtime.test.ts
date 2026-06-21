@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import {
   buildClassificationSubtree,
   buildClassificationTree,
+  CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE,
+  CLASSIFICATION_RUNTIME_ORDERING_RULE,
   getCitationById,
   getClassificationBranchMembership,
   getClassificationById,
@@ -389,6 +391,16 @@ describe("registry-runtime", () => {
   });
 
   test("classification traversal helpers expose stable roots, children, ancestors, and descendants", () => {
+    expect(CLASSIFICATION_RUNTIME_ORDERING_RULE.classifications).toBe(
+      "sortOrder asc, slug asc, id asc",
+    );
+    expect(CLASSIFICATION_RUNTIME_ORDERING_RULE.members).toBe(
+      "record.sortOrder asc, record.kind asc, record.slug asc, record.id asc, membershipType asc, classification sortOrder/slug/id",
+    );
+    expect(CLASSIFICATION_RUNTIME_ORDERING_RULE.nodeChildren).toBe(
+      "classification children first, then record children",
+    );
+
     expect(
       listClassificationRoots().map((classification) => classification.id),
     ).toEqual([
@@ -459,6 +471,32 @@ describe("registry-runtime", () => {
       "classification.module.attention.grouped-query",
       "classification.module.attention.multi-head",
     ]);
+    const repeatedChildIds = listClassificationChildren(
+      "classification.module",
+    ).map((classification) => classification.id);
+    expect(repeatedChildIds).toEqual(
+      listClassificationChildren("classification.module").map(
+        (classification) => classification.id,
+      ),
+    );
+
+    const repeatedMemberIds = listClassificationMembers(
+      "classification.attention-mechanisms",
+      {
+        includeDescendants: true,
+      },
+    ).map(
+      (member) =>
+        `${member.record.id}:${member.membershipType}:${member.classificationId}:${member.isInherited}`,
+    );
+    expect(repeatedMemberIds).toEqual(
+      listClassificationMembers("classification.attention-mechanisms", {
+        includeDescendants: true,
+      }).map(
+        (member) =>
+          `${member.record.id}:${member.membershipType}:${member.classificationId}:${member.isInherited}`,
+      ),
+    );
   });
 
   test("classification tree runtime builds renderable nodes and hides empty branches by default", () => {
@@ -541,12 +579,14 @@ describe("registry-runtime", () => {
     });
 
     expect(subtree).toMatchObject({
-      emptyBehavior: "prune-empty-leaves",
+      emptyBehavior: CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.defaultBehavior,
       isEmpty: false,
-      memberPlacement: "owning-classification",
+      memberPlacement:
+        CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.subtreeMemberPlacement,
       filters: {
         memberKinds: ["module"],
-        memberPlacement: "owning-classification",
+        memberPlacement:
+          CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.subtreeMemberPlacement,
         rootClassificationIds: ["classification.module.attention"],
         statuses: ["published"],
         includeSecondary: false,
@@ -584,10 +624,11 @@ describe("registry-runtime", () => {
         memberKinds: ["paper"],
       }),
     ).toMatchObject({
-      emptyBehavior: "prune-empty-leaves",
+      emptyBehavior: CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.defaultBehavior,
       isEmpty: true,
       roots: [],
-      memberPlacement: "owning-classification",
+      memberPlacement:
+        CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.subtreeMemberPlacement,
       filters: {
         rootClassificationIds: ["classification.module.activation"],
       },

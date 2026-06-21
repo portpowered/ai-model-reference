@@ -14,7 +14,10 @@ the temporary legacy-id bridge.
 * `src/lib/content/registry-runtime-generation.ts`
   Generated runtime source contract for canonical lookup, legacy-id
   canonicalization, parent-child traversal, filtered subtree generation,
-  branch-membership authority, and `listLegacyClassificationBridges`.
+  branch-membership authority, deterministic ordering
+  (`sortOrder -> slug -> id` for classifications; record-aware ordering for
+  members), explicit empty-branch behavior, and
+  `listLegacyClassificationBridges`.
 * `src/lib/search/build-documents.ts`
   Search-term expansion that keeps canonical and legacy classification terms
   discoverable during migration.
@@ -29,4 +32,5 @@ the temporary legacy-id bridge.
 * `src/lib/content/ontology-foundation-regression.test.ts`
   Focused proving-ground regression coverage for the migrated ontology slice.
 * `docs/data-model.md`
-  Human-readable ontology contract and temporary bridge rules.
+  Human-readable ontology contract, runtime ordering rules, empty-branch
+  behavior, and temporary bridge rules.

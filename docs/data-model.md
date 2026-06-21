@@ -146,6 +146,25 @@ Temporary bridge rules:
 * The measurable migration target is to drive `listLegacyClassificationBridges()`
   to an empty result over time rather than expanding it.
 
+Runtime tree and subtree rules:
+
+* Reusable classification traversal should canonicalize incoming ids through
+  `resolveClassificationId(...)` before following parent-child edges.
+* Classification ordering is deterministic: sort by `sortOrder` ascending when
+  present, then `slug` ascending, then `id` ascending.
+* Classification-member ordering is deterministic: sort by the attached
+  record's `sortOrder`, then record kind, then record slug, then record id;
+  if those tie, sort by membership type and then by the owning classification's
+  classification-order rule.
+* Tree node `children` arrays are stable and always list classification
+  children before record children.
+* Empty-branch behavior is explicit, not consumer-defined. The default subtree
+  and tree behavior is to prune empty leaves; callers may opt into
+  `include-empty-leaves` through `includeEmptyClassifications: true`.
+* Subtree member placement for this migration slice is
+  `owning-classification`: descendant records stay attached to their own
+  classification branch instead of rolling up into parent `recordChildren`.
+
 ## Page Model
 
 MDX pages define structure and references. Canonical docs pages should not contain raw user-visible prose. They should reference localized text through message keys and reference media, graphs, charts, code schemas, and tables through asset IDs or registry-backed components. Blog posts may contain raw MDX prose because they are narrative content. Published docs pages should include:

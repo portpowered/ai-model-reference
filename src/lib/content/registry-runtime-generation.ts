@@ -481,6 +481,19 @@ const defaultClassificationStatuses: ClassificationRecord["status"][] = [
   "published",
 ];
 
+export const CLASSIFICATION_RUNTIME_ORDERING_RULE = {
+  classifications: "sortOrder asc, slug asc, id asc",
+  members:
+    "record.sortOrder asc, record.kind asc, record.slug asc, record.id asc, membershipType asc, classification sortOrder/slug/id",
+  nodeChildren: "classification children first, then record children",
+} as const;
+
+export const CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE = {
+  defaultBehavior: "prune-empty-leaves",
+  includeEmptyBehavior: "include-empty-leaves",
+  subtreeMemberPlacement: "owning-classification",
+} as const;
+
 function compareOptionalSortOrder(
   left: number | undefined,
   right: number | undefined,
@@ -1234,14 +1247,15 @@ export function buildClassificationSubtree(
   return {
     emptyBehavior:
       options.includeEmptyClassifications === true
-        ? "include-empty-leaves"
-        : "prune-empty-leaves",
+        ? CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.includeEmptyBehavior
+        : CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.defaultBehavior,
     filters: {
       classificationKinds: [
         ...(classificationTraversal.classifiesKinds ?? []),
       ],
       memberKinds: [...(options.memberKinds ?? [])],
-      memberPlacement: "owning-classification",
+      memberPlacement:
+        CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.subtreeMemberPlacement,
       rootClassificationIds: rootClassifications.map(
         (classification) => classification.id,
       ),
@@ -1249,7 +1263,7 @@ export function buildClassificationSubtree(
       includeSecondary: options.memberQuery?.includeSecondary === true,
     },
     isEmpty: roots.length === 0,
-    memberPlacement: "owning-classification",
+    memberPlacement: CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.subtreeMemberPlacement,
     roots,
   };
 }
@@ -1297,7 +1311,7 @@ export function getClassificationBranchMembership(
     descendantMembers,
     directMemberCount: directMembers.length,
     directMembers,
-    memberPlacement: "owning-classification",
+    memberPlacement: CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE.subtreeMemberPlacement,
     totalMemberCount: totalMembers.length,
     totalMembers,
   };

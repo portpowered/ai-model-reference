@@ -1249,7 +1249,23 @@ describe("registry-runtime generation", () => {
       });
 
       const generatedRuntime = await importGeneratedRuntime(outputPath);
+      expect(generatedRuntime.CLASSIFICATION_RUNTIME_ORDERING_RULE).toEqual({
+        classifications: "sortOrder asc, slug asc, id asc",
+        members:
+          "record.sortOrder asc, record.kind asc, record.slug asc, record.id asc, membershipType asc, classification sortOrder/slug/id",
+        nodeChildren: "classification children first, then record children",
+      });
+      expect(generatedRuntime.CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE).toEqual(
+        {
+          defaultBehavior: "prune-empty-leaves",
+          includeEmptyBehavior: "include-empty-leaves",
+          subtreeMemberPlacement: "owning-classification",
+        },
+      );
       const tree = generatedRuntime.buildClassificationTree({
+        rootClassificationIds: ["classification.module"],
+      });
+      const repeatedTree = generatedRuntime.buildClassificationTree({
         rootClassificationIds: ["classification.module"],
       });
 
@@ -1275,6 +1291,25 @@ describe("registry-runtime generation", () => {
           ],
         },
       ]);
+      expect(
+        repeatedTree.map((node) => ({
+          id: node.classification.id,
+          children: node.children.map((child) =>
+            child.nodeType === "classification"
+              ? `classification:${child.classification.id}`
+              : `record:${child.member.record.id}`,
+          ),
+        })),
+      ).toEqual(
+        tree.map((node) => ({
+          id: node.classification.id,
+          children: node.children.map((child) =>
+            child.nodeType === "classification"
+              ? `classification:${child.classification.id}`
+              : `record:${child.member.record.id}`,
+          ),
+        })),
+      );
       expect(
         tree[0]?.classificationChildren.map((child) => child.classification.id),
       ).toEqual([
@@ -1319,13 +1354,19 @@ describe("registry-runtime generation", () => {
           memberKinds: ["module"],
         }),
       ).toMatchObject({
-        emptyBehavior: "prune-empty-leaves",
+        emptyBehavior:
+          generatedRuntime.CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE
+            .defaultBehavior,
         isEmpty: false,
-        memberPlacement: "owning-classification",
+        memberPlacement:
+          generatedRuntime.CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE
+            .subtreeMemberPlacement,
         filters: {
           rootClassificationIds: ["classification.module"],
           memberKinds: ["module"],
-          memberPlacement: "owning-classification",
+          memberPlacement:
+            generatedRuntime.CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE
+              .subtreeMemberPlacement,
           statuses: ["published"],
           includeSecondary: false,
         },
@@ -1364,7 +1405,9 @@ describe("registry-runtime generation", () => {
         directMemberCount: 0,
         descendantMemberCount: 3,
         totalMemberCount: 3,
-        memberPlacement: "owning-classification",
+        memberPlacement:
+          generatedRuntime.CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE
+            .subtreeMemberPlacement,
       });
       expect(
         generatedRuntime
@@ -1390,7 +1433,9 @@ describe("registry-runtime generation", () => {
       ).toMatchObject({
         isEmpty: true,
         roots: [],
-        memberPlacement: "owning-classification",
+        memberPlacement:
+          generatedRuntime.CLASSIFICATION_RUNTIME_EMPTY_BRANCH_RULE
+            .subtreeMemberPlacement,
         filters: {
           rootClassificationIds: [
             "classification.module.runtime-empty-modules",
