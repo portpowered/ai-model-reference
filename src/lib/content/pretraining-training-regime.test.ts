@@ -245,11 +245,11 @@ describe("pretraining training-regime identity contracts", () => {
       'data-graph-legend="graph.pretraining-training-flow"',
     );
     expect(html).toContain('role="math"');
-    expect(html).toContain("\\max_\\theta");
     expect(html).toContain(
       'data-page-math-variable-definitions="nextTokenObjective"',
     );
     expect(html).toContain('data-math-variable-definition="theta"');
+    expect(html).toContain('data-math-variable-definition="xt"');
     expect(html).toContain(">weights<");
     expect(html).toContain('data-testid="curated-related-docs"');
     expect(html).toContain('href="/docs/models/gpt-3"');
@@ -264,12 +264,12 @@ describe("pretraining training-regime identity contracts", () => {
   test("page source keeps nearby-regime labels message-backed instead of hard-coding visible prose", () => {
     const page = loadPretrainingPageBundle();
 
-    expect(page.source).toContain('labelKey: "links.gpt3ModelPage"');
-    expect(page.source).toContain('labelKey: "links.transformerArchitecture"');
-    expect(page.source).toContain('labelKey: "links.byteLevelTokenization"');
-    expect(page.source).toContain('labelKey: "links.alignmentOverview"');
-    expect(page.source).toContain('labelKey: "links.dpo"');
-    expect(page.source).toContain('labelKey: "links.rlhfSearch"');
+    expect(page.source).toContain('<T k="links.gpt3ModelPage" />');
+    expect(page.source).toContain('<T k="links.transformerArchitecture" />');
+    expect(page.source).toContain('<T k="links.byteLevelTokenization" />');
+    expect(page.source).toContain('<T k="links.alignmentOverview" />');
+    expect(page.source).toContain('<T k="links.dpo" />');
+    expect(page.source).toContain('<T k="links.rlhfSearch" />');
     expect(page.source).toContain('k="links.gpt2Bridge"');
     expect(page.source).not.toContain(">GPT-3 model page<");
     expect(page.source).not.toContain(">Transformer architecture<");

@@ -19,8 +19,7 @@ updatedAt: "2026-06-20"
 ---
 
 import { CitationList } from "@/features/docs/components/CitationList";
-import { LocalizedLinkList } from "@/features/docs/components/LocalizedLinkList";
-import { PageMathFormula } from "@/features/docs/components/PageMathFormula";
+import { BlockMath } from "@/features/docs/components/Math";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { Section } from "@/features/docs/components/Section";
 import { T } from "@/features/docs/components/T";
@@ -43,7 +42,73 @@ import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeF
     registryId="training-regime.pretraining"
     assetId="trainingFlow"
   />
-  <PageMathFormula mathId="nextTokenObjective" />
+  <BlockMath formula="\\max_\\theta \\sum_t \\log p_\\theta(x_t \\mid x_{<t})" />
+  <div
+    className="rounded-lg border border-border bg-card p-4"
+    data-page-math-variable-definitions="nextTokenObjective"
+  >
+    <dl className="space-y-2">
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="theta"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>&theta;</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.nextTokenObjective.variableDefinitions.theta.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="t"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>t</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.nextTokenObjective.variableDefinitions.t.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="xt"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            x<sub>t</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.nextTokenObjective.variableDefinitions.xt.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="xprefix"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>
+            x<sub>&lt;t</sub>
+          </span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.nextTokenObjective.variableDefinitions.xprefix.definition" />
+        </dd>
+      </div>
+      <div
+        className="flex flex-col gap-0 sm:flex-row sm:items-baseline sm:gap-4"
+        data-math-variable-definition="ptheta"
+      >
+        <dt className="w-40 shrink-0 text-sm font-medium text-foreground">
+          <span>p&theta;(&middot;)</span>
+        </dt>
+        <dd className="text-sm text-muted-foreground">
+          <T k="math.nextTokenObjective.variableDefinitions.ptheta.definition" />
+        </dd>
+      </div>
+    </dl>
+  </div>
 </Section>
 <Section
   id="compared-to-nearby-regimes"
@@ -51,22 +116,38 @@ import { TrainingRegimeFlow } from "@/features/models/components/TrainingRegimeF
 >
   <T k="sections.comparedToNearbyRegimes.body" />
   <T k="links.gpt2Bridge" />
-  <LocalizedLinkList
-    items={[
-      { href: "/docs/models/gpt-3", labelKey: "links.gpt3ModelPage" },
-      {
-        href: "/docs/concepts/transformer-architecture",
-        labelKey: "links.transformerArchitecture",
-      },
-      {
-        href: "/docs/modules/byte-level-tokenization",
-        labelKey: "links.byteLevelTokenization",
-      },
-      { href: "/docs/glossary/alignment", labelKey: "links.alignmentOverview" },
-      { href: "/docs/training/dpo", labelKey: "links.dpo" },
-      { href: "/search?q=RLHF", labelKey: "links.rlhfSearch" },
-    ]}
-  />
+  <ul className="mt-3 list-disc pl-6">
+    <li>
+      <a href="/docs/models/gpt-3">
+        <T k="links.gpt3ModelPage" />
+      </a>
+    </li>
+    <li>
+      <a href="/docs/concepts/transformer-architecture">
+        <T k="links.transformerArchitecture" />
+      </a>
+    </li>
+    <li>
+      <a href="/docs/modules/byte-level-tokenization">
+        <T k="links.byteLevelTokenization" />
+      </a>
+    </li>
+    <li>
+      <a href="/docs/glossary/alignment">
+        <T k="links.alignmentOverview" />
+      </a>
+    </li>
+    <li>
+      <a href="/docs/training/dpo">
+        <T k="links.dpo" />
+      </a>
+    </li>
+    <li>
+      <a href="/search?q=RLHF">
+        <T k="links.rlhfSearch" />
+      </a>
+    </li>
+  </ul>
 </Section>
 <Section
   id="limitations-and-failure-modes"
