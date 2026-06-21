@@ -463,18 +463,18 @@ Compatibility inputs that may still support fallback behavior on older surfaces:
 
 ## Sidebar Grouping Metadata
 
-Generated docs sidebar subgroup placement should be derived from typed taxonomy
-fields before using editorial overrides.
+Generated docs sidebar subgroup placement should be derived from canonical
+ontology classification membership before using editorial overrides.
 
 Precedence:
 
-* First derive sidebar grouping from existing typed fields such as
-  `conceptType`, `moduleType`, `variantGroup`, `regimeType`, and `systemType`.
-* Use `sidebarGrouping` only when those typed fields are not enough to place a
-  page in the intended reader-facing subgroup.
+* First derive sidebar grouping from canonical `primaryClassificationId` and
+  `secondaryClassificationIds` membership.
+* Use `sidebarGrouping` only when the ontology model is still too coarse to
+  place a page in the intended reader-facing subgroup.
 * `sidebarGrouping` is editorial navigation metadata. It does not replace
-  taxonomy fields such as `moduleType`, `conceptType`, `variantGroup`,
-  `regimeType`, or `systemType`.
+  canonical classification membership, and validation should reject redundant
+  overrides once ontology already resolves the subgroup.
 * The generated `/browse` module-topology surface now derives its primary branch
   shape from published classification parent-child edges plus
   `primaryClassificationId` membership. Existing `moduleType` and

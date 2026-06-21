@@ -35,15 +35,20 @@ the temporary legacy-id bridge.
 * `src/lib/content/sidebar-grouping.ts`
   Docs-shell sidebar subgroup resolver. Module, training, and system subgroup
   placement should derive from canonical classification membership first, with
-  any remaining customer-visible exceptions fenced behind one explicit fallback
-  path instead of scattered typed-taxonomy reads. For concept/glossary slices,
+  any remaining customer-visible exceptions fenced behind explicit
+  `sidebarGrouping` editorial overrides instead of scattered typed-taxonomy
+  reads. Backfill those override entries onto the specific registry records
+  that still need manual placement before removing a legacy typed branch. For
+  concept/glossary slices,
   migrate the currently grouped published records onto canonical concept
   classifications first, then keep any still-curated families on one named
   editorial fallback helper instead of reintroducing `conceptType` branching.
   For modules, only use the editorial bridge when the canonical classification
   is still too coarse to distinguish the intended subgroup, such as the
   `module.attention` foundation page whose current ontology membership alone
-  cannot separate `attention-foundations` from `attention-variants`.
+  cannot separate `attention-foundations` from `attention-variants`. Validation
+  should reject redundant or ignored `sidebarGrouping` entries once ontology
+  already resolves the same subgroup.
 * `src/lib/content/topology-selector-compatibility.ts`
   Topology-specific temporary selector fence. Keep any remaining shorthand or
   legacy topology-only aliases here instead of expanding the generic

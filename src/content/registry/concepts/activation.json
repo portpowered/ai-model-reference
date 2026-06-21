@@ -27,9 +27,6 @@
     }
   ],
   "conceptType": "architecture",
-  "sidebarGrouping": {
-    "glossary": "math-and-training"
-  },
   "prerequisiteIds": ["concept.parameter"],
   "explainsIds": []
 }

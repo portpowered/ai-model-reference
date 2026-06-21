@@ -32,8 +32,5 @@
   "relatedModuleIds": [],
   "paperIds": [],
   "conceptType": "training",
-  "variantGroup": "alignment-preference-optimization",
-  "sidebarGrouping": {
-    "training": "alignment"
-  }
+  "variantGroup": "alignment-preference-optimization"
 }

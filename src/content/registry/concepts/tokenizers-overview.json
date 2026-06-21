@@ -33,9 +33,6 @@
   "updatedAt": "2026-06-21T00:00:00Z",
   "primaryClassificationId": "classification.concept.architecture",
   "conceptType": "architecture",
-  "sidebarGrouping": {
-    "concepts": "architecture"
-  },
   "prerequisiteIds": ["concept.token"],
   "explainsIds": [
     "module.bpe",

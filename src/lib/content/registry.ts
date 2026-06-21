@@ -143,7 +143,7 @@ async function readRegistryDirectory(
       const sidebarIssues = validateSidebarGroupingForRecord(
         sidebarGroupingRecord.kind,
         sidebarGroupingRecord.id,
-        sidebarGroupingRecord.sidebarGrouping,
+        sidebarGroupingRecord,
       );
       if (sidebarIssues.length > 0) {
         const message = sidebarIssues

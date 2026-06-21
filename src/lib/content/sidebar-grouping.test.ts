@@ -9,6 +9,7 @@ import {
   resolveTrainingSidebarGroupWithSource,
   SIDEBAR_GROUP_LABELS,
   SIDEBAR_GROUPING_PRECEDENCE,
+  validateSidebarGroupingForRecord,
 } from "./sidebar-grouping";
 
 describe("sidebar grouping contract", () => {
@@ -43,7 +44,6 @@ describe("sidebar grouping contract", () => {
     expect(
       resolveModulesSidebarGroupWithSource({
         primaryClassificationId: "classification.module.feed-forward",
-        moduleType: "feed-forward",
       }),
     ).toEqual({
       groupId: "feed-forward-and-activation",
@@ -52,7 +52,6 @@ describe("sidebar grouping contract", () => {
     expect(
       resolveModulesSidebarGroupWithSource({
         primaryClassificationId: "classification.module.attention",
-        moduleType: "attention",
       }),
     ).toEqual({
       groupId: "attention-variants",
@@ -61,7 +60,6 @@ describe("sidebar grouping contract", () => {
     expect(
       resolveModulesSidebarGroupWithSource({
         primaryClassificationId: "classification.module.attention",
-        moduleType: "attention",
         sidebarGrouping: {
           modules: "attention-foundations",
         },
@@ -74,7 +72,6 @@ describe("sidebar grouping contract", () => {
       resolveModulesSidebarGroupWithSource({
         primaryClassificationId: "classification.module.attention.multi-head",
         secondaryClassificationIds: ["classification.module.attention"],
-        moduleType: "attention",
         sidebarGrouping: {
           modules: "attention-foundations",
         },
@@ -85,11 +82,51 @@ describe("sidebar grouping contract", () => {
     });
   });
 
+  test("rejects redundant or ignored editorial sidebar metadata once ontology already resolves the subgroup", () => {
+    expect(
+      validateSidebarGroupingForRecord(
+        "concept",
+        "concept.transformer-architecture",
+        {
+          primaryClassificationId: "classification.concept.architecture",
+          sidebarGrouping: {
+            concepts: "architecture",
+          },
+        },
+      ),
+    ).toEqual([
+      {
+        path: ["concepts"],
+        message:
+          'Record concept.transformer-architecture defines redundant sidebarGrouping.concepts = "architecture". Canonical classification membership already resolves this subgroup to "architecture". Remove the editorial override until the ontology model needs a true exception.',
+      },
+    ]);
+
+    expect(
+      validateSidebarGroupingForRecord(
+        "module",
+        "module.multi-head-attention",
+        {
+          primaryClassificationId: "classification.module.attention.multi-head",
+          secondaryClassificationIds: ["classification.module.attention"],
+          sidebarGrouping: {
+            modules: "attention-foundations",
+          },
+        },
+      ),
+    ).toEqual([
+      {
+        path: ["modules"],
+        message:
+          'Record module.multi-head-attention defines redundant sidebarGrouping.modules = "attention-foundations". Canonical classification membership already resolves this subgroup to "attention-variants". Remove the editorial override until the ontology model needs a true exception.',
+      },
+    ]);
+  });
+
   test("derives training and system groups from ontology when the branch is modeled", () => {
     expect(
       resolveTrainingSidebarGroupWithSource({
         primaryClassificationId: "classification.training.alignment",
-        regimeType: "alignment",
       }),
     ).toEqual({
       groupId: "alignment",
@@ -97,7 +134,9 @@ describe("sidebar grouping contract", () => {
     });
     expect(
       resolveTrainingSidebarGroupWithSource({
-        regimeType: "distillation",
+        sidebarGrouping: {
+          training: "distillation",
+        },
       }),
     ).toEqual({
       groupId: "distillation",
@@ -107,7 +146,6 @@ describe("sidebar grouping contract", () => {
     expect(
       resolveSystemsSidebarGroupWithSource({
         primaryClassificationId: "classification.system.routing",
-        systemType: "routing",
       }),
     ).toEqual({
       groupId: "routing",
@@ -115,7 +153,9 @@ describe("sidebar grouping contract", () => {
     });
     expect(
       resolveSystemsSidebarGroupWithSource({
-        systemType: "memory",
+        sidebarGrouping: {
+          systems: "memory",
+        },
       }),
     ).toEqual({
       groupId: "memory",
@@ -123,11 +163,23 @@ describe("sidebar grouping contract", () => {
     });
   });
 
+  test("does not silently derive training or system groups without ontology detail or explicit overrides", () => {
+    expect(
+      resolveTrainingSidebarGroupWithSource({
+        primaryClassificationId: undefined,
+      }),
+    ).toBeUndefined();
+    expect(
+      resolveSystemsSidebarGroupWithSource({
+        primaryClassificationId: undefined,
+      }),
+    ).toBeUndefined();
+  });
+
   test("derives concept and glossary groups from ontology first, then explicit editorial fallback", () => {
     expect(
       resolveConceptsSidebarGroupWithSource({
         primaryClassificationId: "classification.concept.inference",
-        conceptType: "inference",
       }),
     ).toEqual({
       groupId: "inference",
@@ -147,7 +199,6 @@ describe("sidebar grouping contract", () => {
     expect(
       resolveGlossarySidebarGroupWithSource({
         primaryClassificationId: "classification.concept.math",
-        conceptType: "math",
       }),
     ).toEqual({
       groupId: "math-and-training",
