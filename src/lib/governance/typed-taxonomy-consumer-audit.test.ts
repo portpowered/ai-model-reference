@@ -161,4 +161,109 @@ describe("typed taxonomy consumer audit", () => {
       rmSync(repoRoot, { force: true, recursive: true });
     }
   });
+
+  test("scopes shared-file field references to the declared resolver slice", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "typed-taxonomy-audit-"));
+
+    try {
+      mkdirSync(join(repoRoot, "src/lib/content"), { recursive: true });
+      writeFileSync(
+        join(repoRoot, "src/lib/content/sidebar-grouping.ts"),
+        [
+          "type ModulesSidebarRecord = {",
+          "  moduleType?: string;",
+          "  sidebarGrouping?: SidebarGrouping;",
+          "};",
+          "",
+          'if (membership.has("classification.module.attention")) {',
+          '  return createSidebarGroupResolution("attention-variants", "derived-taxonomy");',
+          "}",
+          "const editorialGroup = record.sidebarGrouping?.modules;",
+          "",
+          "type ConceptsSidebarRecord = {",
+          "  sidebarGrouping?: SidebarGrouping;",
+          "};",
+          'if (membership.has("classification.concept.inference")) {',
+          '  return createSidebarGroupResolution("inference", "derived-taxonomy");',
+          "}",
+          "const conceptEditorialGroup = record.sidebarGrouping?.concepts;",
+          "",
+        ].join("\n"),
+      );
+
+      const contractEntries: readonly TypedTaxonomyConsumerContractEntry[] = [
+        {
+          id: "sidebar-modules",
+          path: "src/lib/content/sidebar-grouping.ts",
+          cluster: "sidebar-topology",
+          status: "migrated-ontology-first-consumer",
+          owner: "navigation/docs-shell",
+          fields: ["moduleType", "sidebarGrouping"],
+          evidence: [
+            'membership.has("classification.module.attention")',
+            "record.sidebarGrouping?.modules",
+          ],
+          fieldReferenceScopeSnippets: [
+            'membership.has("classification.module.attention")',
+            "record.sidebarGrouping?.modules",
+          ],
+          rationale:
+            "Module sidebar grouping is scoped to module resolver lines.",
+        },
+        {
+          id: "sidebar-concepts",
+          path: "src/lib/content/sidebar-grouping.ts",
+          cluster: "sidebar-topology",
+          status: "migrated-ontology-first-consumer",
+          owner: "navigation/docs-shell",
+          fields: ["sidebarGrouping"],
+          evidence: [
+            'membership.has("classification.concept.inference")',
+            "record.sidebarGrouping?.concepts",
+          ],
+          fieldReferenceScopeSnippets: [
+            'membership.has("classification.concept.inference")',
+            "record.sidebarGrouping?.concepts",
+          ],
+          rationale:
+            "Concept sidebar grouping is scoped to concept resolver lines.",
+        },
+      ];
+
+      const audit = collectTypedTaxonomyConsumerAudit(repoRoot, {
+        contractEntries,
+      });
+
+      expect(audit.contractStatus).toBe("aligned");
+      expect(audit.clusterSummaries).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            cluster: "sidebar-topology",
+            fieldCount: 2,
+          }),
+        ]),
+      );
+      expect(audit.entries[0]?.fieldReferences).toEqual([
+        {
+          field: "sidebarGrouping",
+          line: 9,
+          text: "const editorialGroup = record.sidebarGrouping?.modules;",
+        },
+      ]);
+      expect(audit.entries[1]?.fieldReferences).toEqual([
+        {
+          field: "sidebarGrouping",
+          line: 17,
+          text: "const conceptEditorialGroup = record.sidebarGrouping?.concepts;",
+        },
+      ]);
+
+      const report = formatTypedTaxonomyConsumerAudit(audit);
+      expect(report).toContain("reference scope:");
+      expect(report).toContain("sidebar-modules");
+      expect(report).toContain("sidebar-concepts");
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
 });

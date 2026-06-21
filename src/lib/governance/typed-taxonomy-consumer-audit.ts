@@ -39,6 +39,7 @@ export type TypedTaxonomyConsumerCluster =
 export type TypedTaxonomyConsumerContractEntry = {
   cluster: TypedTaxonomyConsumerCluster;
   evidence: readonly string[];
+  fieldReferenceScopeSnippets?: readonly string[];
   fields: readonly LegacyTypedTaxonomyField[];
   id: string;
   owner: string;
@@ -175,6 +176,20 @@ export const typedTaxonomyConsumerAuditContract: readonly TypedTaxonomyConsumerC
         'record.regimeType === "distillation"',
         'record.systemType === "memory"',
       ],
+      fieldReferenceScopeSnippets: [
+        'membership.has("classification.module.attention")',
+        'membership.has("classification.training.alignment")',
+        'membership.has("classification.system.routing")',
+        "record.sidebarGrouping?.modules",
+        'record.regimeType === "alignment"',
+        'record.regimeType === "post-training"',
+        'record.regimeType === "distillation"',
+        'record.regimeType === "optimization"',
+        "record.sidebarGrouping?.training",
+        'record.systemType === "memory"',
+        'record.systemType === "routing"',
+        "record.sidebarGrouping?.systems",
+      ],
       rationale:
         "Module, training, and system sidebar subgroup placement now resolves through canonical classification membership first and only falls back through one explicit compatibility path for records whose ontology shape is still incomplete.",
     },
@@ -189,6 +204,16 @@ export const typedTaxonomyConsumerAuditContract: readonly TypedTaxonomyConsumerC
         'membership.has("classification.concept.math")',
         'membership.has("classification.concept.inference")',
         "record.sidebarGrouping?.glossary",
+        "record.sidebarGrouping?.concepts",
+      ],
+      fieldReferenceScopeSnippets: [
+        'membership.has("classification.concept.math")',
+        'membership.has("classification.concept.training")',
+        'membership.has("classification.concept.evaluation")',
+        'membership.has("classification.concept.architecture.activation")',
+        "record.sidebarGrouping?.glossary",
+        'membership.has("classification.concept.inference")',
+        'membership.has("classification.concept.architecture")',
         "record.sidebarGrouping?.concepts",
       ],
       rationale:
@@ -507,6 +532,7 @@ function collectFilesRecursively(directory: string): string[] {
 function collectFieldReferences(
   source: string,
   fields: readonly LegacyTypedTaxonomyField[],
+  scopeSnippets?: readonly string[],
 ): TypedTaxonomyConsumerFieldReference[] {
   if (fields.length === 0) {
     return [];
@@ -520,6 +546,14 @@ function collectFieldReferences(
   return source
     .split(/\r?\n/)
     .flatMap((line, index): TypedTaxonomyConsumerFieldReference[] => {
+      if (
+        scopeSnippets &&
+        scopeSnippets.length > 0 &&
+        !scopeSnippets.some((snippet) => line.includes(snippet))
+      ) {
+        return [];
+      }
+
       const matches = [...line.matchAll(fieldPattern)];
       if (matches.length === 0) {
         return [];
@@ -629,7 +663,11 @@ export function collectTypedTaxonomyConsumerAudit(
       ...entry,
       path: normalizedPath,
       contractDrift,
-      fieldReferences: collectFieldReferences(source, entry.fields),
+      fieldReferences: collectFieldReferences(
+        source,
+        entry.fields,
+        entry.fieldReferenceScopeSnippets,
+      ),
     };
   });
 
@@ -737,6 +775,14 @@ export function formatTypedTaxonomyConsumerAudit(
       lines.push(`  owner: ${entry.owner}`);
       lines.push(`  fields: ${entry.fields.join(", ")}`);
       lines.push(`  rationale: ${entry.rationale}`);
+      if (
+        entry.fieldReferenceScopeSnippets &&
+        entry.fieldReferenceScopeSnippets.length > 0
+      ) {
+        lines.push(
+          `  reference scope: ${entry.fieldReferenceScopeSnippets.join(" | ")}`,
+        );
+      }
 
       if (entry.fieldReferences.length > 0) {
         const fieldReferenceSummary = entry.fieldReferences

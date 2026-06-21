@@ -113,7 +113,9 @@ the temporary legacy-id bridge.
   Machine-checkable contract for remaining typed-taxonomy consumer clusters,
   ownership, compatibility status, the recommended next migration target, and
   the targeted deprecation fence across runtime, generation, and authoring
-  surfaces.
+  surfaces. When multiple migration slices intentionally share one file, scope
+  the entry's field-reference inventory to resolver-specific snippets so the
+  audit stays reviewer-visible instead of double-counting the entire file.
 * `src/lib/governance/legacy-taxonomy-compatibility-budget.ts`
   Shared reviewer-facing budget contract that records the approved baseline for
   one explicit legacy classification-id bridge inventory and one explicit

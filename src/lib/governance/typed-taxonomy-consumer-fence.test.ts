@@ -187,4 +187,50 @@ describe("typed taxonomy consumer deprecation fence", () => {
       rmSync(repoRoot, { force: true, recursive: true });
     }
   });
+
+  test("fails when sidebar grouping introduces an uncategorized typed-taxonomy read", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "typed-taxonomy-fence-"));
+
+    try {
+      mkdirSync(join(repoRoot, "src/lib/content"), { recursive: true });
+      writeFileSync(
+        join(repoRoot, "src/lib/content/sidebar-grouping.ts"),
+        [
+          "const editorialGroup = record.sidebarGrouping?.modules;",
+          "return record.conceptType;",
+          "",
+        ].join("\n"),
+      );
+
+      const contractEntries: readonly TypedTaxonomyConsumerContractEntry[] = [
+        {
+          id: "sidebar",
+          path: "src/lib/content/sidebar-grouping.ts",
+          cluster: "sidebar-topology",
+          status: "migrated-ontology-first-consumer",
+          owner: "navigation/docs-shell",
+          fields: ["sidebarGrouping"],
+          evidence: ["record.sidebarGrouping?.modules"],
+          rationale: "Sidebar grouping keeps one explicit editorial fallback.",
+        },
+      ];
+
+      const result = collectTypedTaxonomyConsumerFence(repoRoot, {
+        contractEntries,
+      });
+
+      expect(result.violationStatus).toBe("violations-found");
+      expect(result.violations).toEqual([
+        expect.objectContaining({
+          cluster: "sidebar-topology",
+          field: "conceptType",
+          line: 2,
+          path: "src/lib/content/sidebar-grouping.ts",
+          reason: "undeclared-field",
+        }),
+      ]);
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
 });
