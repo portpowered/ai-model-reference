@@ -201,7 +201,13 @@ describe("buildSearchDocuments", () => {
       secondaryClassificationIds: [],
       primaryClassification: undefined,
       secondaryClassifications: [],
+      classificationIds: [],
+      ancestorClassificationIds: [],
+      ancestorClassifications: [],
+      rootClassificationIds: [],
+      rootClassifications: [],
       relationships: [],
+      relatedTopologyIds: [],
       terms: [],
     });
     expect(document?.title).toBe("Synthetic Module");

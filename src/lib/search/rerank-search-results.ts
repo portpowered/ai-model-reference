@@ -1,4 +1,8 @@
 import type { SortedResult } from "fumadocs-core/search";
+import {
+  ontologyRelationshipPriority,
+  relationshipOutranksClassificationSibling,
+} from "@/lib/content/ontology-peer-policy";
 import type { SearchClassificationScope } from "./classification-scope";
 import { pageBaseUrl } from "./collapse-search-results-to-page-hits";
 import { expandTopologySearchTerm } from "./topology-search-terms";
@@ -55,6 +59,39 @@ function topologyRelationshipTerms(document: SearchDocument): string[] {
   ]);
 }
 
+function matchingRelationshipPriority(
+  predicate: (
+    relationship: SearchDocument["topology"]["relationships"][number],
+  ) => boolean,
+  document: SearchDocument,
+): { priority: number; outranksClassificationSibling: boolean } | undefined {
+  const matchingRelationships =
+    document.topology.relationships.filter(predicate);
+  if (matchingRelationships.length === 0) {
+    return undefined;
+  }
+
+  let bestPriority = Number.POSITIVE_INFINITY;
+  let outranksSibling = false;
+
+  for (const relationship of matchingRelationships) {
+    bestPriority = Math.min(
+      bestPriority,
+      ontologyRelationshipPriority(relationship.relationshipType),
+    );
+    if (
+      relationshipOutranksClassificationSibling(relationship.relationshipType)
+    ) {
+      outranksSibling = true;
+    }
+  }
+
+  return {
+    priority: bestPriority,
+    outranksClassificationSibling: outranksSibling,
+  };
+}
+
 function topologyMatchPriority(
   query: string,
   document: SearchDocument | undefined,
@@ -73,19 +110,37 @@ function topologyMatchPriority(
     return 0;
   }
 
+  const relationshipPriority = matchingRelationshipPriority(
+    (relationship) =>
+      topologyTermsMatchQuery(query, [
+        relationship.relationshipType,
+        relationship.targetId,
+        relationship.targetSlug ?? "",
+        ...relationship.targetAliases,
+      ]),
+    document,
+  );
+  if (relationshipPriority?.outranksClassificationSibling) {
+    return 1 + relationshipPriority.priority;
+  }
+
   if (
     document.topology.secondaryClassifications.some((classification) =>
       topologyTermsMatchQuery(query, classification.terms),
     )
   ) {
-    return 1;
+    return 10;
+  }
+
+  if (relationshipPriority) {
+    return 20 + relationshipPriority.priority;
   }
 
   if (topologyTermsMatchQuery(query, topologyRelationshipTerms(document))) {
-    return 2;
+    return 30;
   }
 
-  return 3;
+  return 40;
 }
 
 function classificationScopePriority(
@@ -104,14 +159,31 @@ function classificationScopePriority(
     return 1;
   }
 
-  if (
-    topologyTermsMatchQuery(scope.label, document.topology.terms) ||
-    topologyTermsMatchQuery(scope.slug, document.topology.terms)
-  ) {
+  if (document.topology.ancestorClassificationIds?.includes(scope.id)) {
     return 2;
   }
 
-  return 3;
+  const relationshipPriority = matchingRelationshipPriority(
+    (relationship) => relationship.targetId === scope.id,
+    document,
+  );
+  if (relationshipPriority?.outranksClassificationSibling) {
+    return 3 + relationshipPriority.priority;
+  }
+
+  if (
+    topologyTermsMatchQuery(scope.label, document.topology.terms) ||
+    topologyTermsMatchQuery(scope.slug, document.topology.terms) ||
+    topologyTermsMatchQuery(scope.requested, document.topology.terms)
+  ) {
+    return 20;
+  }
+
+  if (relationshipPriority) {
+    return 30 + relationshipPriority.priority;
+  }
+
+  return 40;
 }
 
 function scoreDocumentMatch(query: string, document: SearchDocument): number {
