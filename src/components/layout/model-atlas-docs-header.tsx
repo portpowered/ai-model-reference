@@ -10,10 +10,12 @@ import { MobileDocsDrawer } from "@/components/layout/mobile-docs-drawer";
 import {
   getPrimaryNavItems,
   PRIMARY_NAV_LINK_CLASS,
+  PRIMARY_NAV_MOBILE_LINK_CLASS,
   PRIMARY_NAV_MOBILE_MENU_BUTTON_CLASS,
 } from "@/components/layout/primary-nav";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { SearchTrigger } from "@/features/docs/search/SearchTrigger";
+import type { TopologyNavigationOption } from "@/lib/content/topology-navigation";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import { defaultLocale, type SiteLocale } from "@/lib/i18n/locale-routing";
 
@@ -21,6 +23,7 @@ type ModelAtlasDocsHeaderProps = {
   messages: UiMessages;
   pageTree: PageTree.Root;
   locale?: SiteLocale;
+  topologyOptions?: readonly TopologyNavigationOption[];
   trailing?: ReactNode;
 };
 
@@ -30,9 +33,12 @@ export function ModelAtlasDocsHeader({
   messages,
   pageTree,
   locale = defaultLocale,
+  topologyOptions = [],
   trailing,
 }: ModelAtlasDocsHeaderProps) {
-  const primaryNavItems = getPrimaryNavItems(messages, locale);
+  const primaryNavItems = getPrimaryNavItems(messages, locale, {
+    topologyOptions,
+  });
   const [menuOpen, setMenuOpen] = useState(false);
   const menuPanelId = useId();
 
@@ -56,7 +62,7 @@ export function ModelAtlasDocsHeader({
             className="hidden md:col-start-3 md:col-end-4 md:row-start-1 md:block"
             aria-label="Primary"
           >
-            <div className="mx-auto flex w-full max-w-[900px] items-center gap-4 px-6 xl:px-8">
+            <div className="mx-auto flex w-full max-w-[900px] flex-wrap items-center gap-x-4 gap-y-2 px-6 text-sm xl:px-8">
               {primaryNavItems.map((item) => (
                 <Link
                   key={item.href}
@@ -109,7 +115,7 @@ export function ModelAtlasDocsHeader({
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="flex rounded-lg border border-sidebar-border px-3 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  className={PRIMARY_NAV_MOBILE_LINK_CLASS}
                   onClick={() => setMenuOpen(false)}
                 >
                   {item.label}

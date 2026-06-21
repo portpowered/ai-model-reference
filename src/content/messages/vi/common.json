@@ -93,6 +93,34 @@
     "glossarySectionDescription": "Trang thuật ngữ định nghĩa từ vựng về kiến trúc mô hình, huấn luyện, suy luận, và đánh giá để phần còn lại của atlas dễ đọc hơn.",
     "glossarySectionLinkLabel": "Duyệt toàn bộ thuật ngữ"
   },
+  "topologyBrowse": {
+    "titleTemplate": "{classification} {mode}",
+    "descriptionTemplate": "Một chế độ xem ontology nguyên mẫu cho {classification}, lấy từ lớp phân loại chung và mở trực tiếp từ trạng thái URL.",
+    "navigationLabelTemplate": "{mode} {classification}",
+    "graphMapLabel": "Bản đồ đồ thị",
+    "timelineLabel": "Dòng thời gian",
+    "classificationLabels": {
+      "activationFunctions": "Hàm kích hoạt",
+      "feedForwardNetworks": "Mạng feed-forward"
+    },
+    "classificationSelectorTitle": "Phân loại seed",
+    "classificationSelectorDescription": "Chuyển giữa lát cắt activation và feed-forward mà không rời khỏi bề mặt topology.",
+    "classificationSelectorLabel": "Các phân loại seed topology",
+    "selectedClassificationLabel": "Phân loại đã chọn",
+    "selectedModeLabel": "Bề mặt đã chọn",
+    "membersTitle": "Thành viên đã xuất bản",
+    "graphMapDescription": "Nguyên mẫu bản đồ đồ thị này liệt kê các thành viên đã xuất bản gắn với phân loại đã chọn để người review kiểm tra lát cắt topology trước khi nối trình vẽ đồ thị đầy đủ.",
+    "timelineDescription": "Nguyên mẫu dòng thời gian này sắp xếp các thành viên đã xuất bản trong phân loại đã chọn để người review kiểm tra cùng lát cắt ontology qua một bề mặt theo thời gian.",
+    "invalidTitle": "Lựa chọn topology không hợp lệ",
+    "invalidDescription": "Phân loại hoặc chế độ bề mặt được yêu cầu không khả dụng trong nguyên mẫu này. Hãy chọn một liên kết topology hợp lệ bên dưới.",
+    "invalidClassificationLabel": "Phân loại được yêu cầu",
+    "invalidModeLabel": "Bề mặt được yêu cầu",
+    "missingValue": "Thiếu",
+    "emptyTitle": "Chưa có tùy chọn topology",
+    "emptyDescription": "Hiện không có phân loại seed đủ điều kiện nào có thành viên đã xuất bản cho nguyên mẫu topology.",
+    "validOptionsTitle": "Liên kết topology hợp lệ",
+    "memberListLabel": "Thành viên topology"
+  },
   "modelsIndex": {
     "title": "Mô hình",
     "description": "Các trang mô hình đã xuất bản giải thích các họ mô hình và checkpoint cụ thể, cùng với kiến trúc và module mà chúng dựa vào.",
