@@ -141,7 +141,16 @@ the temporary legacy-id bridge.
   related-doc work specifically, ontology-first behavior should appear here as
   either a migrated consumer or an explicitly named compatibility-only bridge;
   it should not remain listed as an unresolved primary consumer once direct
-  relationships and classification peers define the default reader path.
+  relationships and classification peers define the default reader path. Treat
+  shared ancestor secondary classifications as supporting metadata rather than
+  exact sibling evidence so child-classification cousins can surface through an
+  explicit shared-parent related-doc branch.
+* `src/lib/content/related-docs.ts`
+  Keep ontology-group normalization and compatibility fallback routing on
+  separate helper paths. Legacy peer aliases may expand into ontology groups
+  for ontology-backed records, but any remaining `variantGroup` or
+  `conceptType` reads should stay reachable only through explicitly named
+  compatibility group requests or a no-ontology-data fallback helper.
 * `src/lib/governance/legacy-taxonomy-compatibility-budget.ts`
   Shared reviewer-facing budget contract that records the approved baseline for
   one explicit legacy classification-id bridge inventory and one explicit

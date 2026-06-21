@@ -428,7 +428,7 @@ describe("related-docs", () => {
       ]),
     );
 
-    expect(peers.map((item) => item.registryId)).toContain(
+    expect(peers.map((item) => item.registryId)).not.toContain(
       "module.multi-head-attention",
     );
     expect(peers.map((item) => item.registryId)).toContain(
@@ -456,23 +456,27 @@ describe("related-docs", () => {
       listRelatedRegistryRecords(),
       new Set([
         "module.grouped-query-attention",
+        "module.multi-head-attention",
         "module.feed-forward-network",
         "module.relu",
       ]),
     );
 
     expect(peers.map((item) => item.registryId)).toContain(
+      "module.multi-head-attention",
+    );
+    expect(peers.map((item) => item.registryId)).toContain(
       "module.feed-forward-network",
     );
     expect(peers.map((item) => item.registryId)).toContain("module.relu");
-    expect(peers.map((item) => item.registryId)).not.toContain(
-      "module.multi-head-attention",
-    );
     expect(
-      peers.every((item) =>
-        item.reasonLabel.includes("Shares parent classification: module"),
-      ),
-    ).toBe(true);
+      peers.find((item) => item.registryId === "module.multi-head-attention")
+        ?.reasonLabel,
+    ).toBe("Shares parent classification: attention mechanisms");
+    expect(
+      peers.find((item) => item.registryId === "module.feed-forward-network")
+        ?.reasonLabel,
+    ).toBe("Shares parent classification: module");
   });
 
   test("excludeRelatedDocItems removes already-rendered peers without reordering the rest", () => {
@@ -736,6 +740,9 @@ describe("related-docs", () => {
       SHARED_TAGS,
     ]);
     expect(groups[0]?.items.map((item) => item.registryId)).toContain(
+      "module.multi-query-attention",
+    );
+    expect(groups[1]?.items.map((item) => item.registryId)).toContain(
       "module.multi-head-attention",
     );
     expect(groups[1]?.items.map((item) => item.registryId)).toContain(
@@ -781,6 +788,64 @@ describe("related-docs", () => {
     );
     expect(groups[2]?.items.map((item) => item.registryId)).toContain(
       "module.grouped-query-attention",
+    );
+  });
+
+  test("deriveRelatedDocGroups keeps explicit compatibility groups isolated even for ontology-backed records", () => {
+    const source = getRegistryRecordById("module.grouped-query-attention");
+    if (source?.kind !== "module") {
+      throw new Error(
+        "expected module.grouped-query-attention to exist in the runtime",
+      );
+    }
+
+    const groups = deriveRelatedDocGroups(
+      source,
+      listRelatedRegistryRecords(),
+      [COMPATIBILITY_SAME_VARIANT_GROUP],
+      new Set([
+        "module.grouped-query-attention",
+        "module.multi-head-attention",
+        "module.multi-query-attention",
+      ]),
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([
+      COMPATIBILITY_SAME_VARIANT_GROUP,
+    ]);
+    expect(groups[0]?.items.map((item) => item.registryId)).toEqual([
+      "module.multi-head-attention",
+      "module.multi-query-attention",
+    ]);
+  });
+
+  test("deriveRelatedDocGroups only adds compatibility peer groups for ontology-backed records when they are explicitly requested", () => {
+    const source = getRegistryRecordById("concept.transformer-architecture");
+    if (source?.kind !== "concept") {
+      throw new Error(
+        "expected concept.transformer-architecture to exist in the runtime",
+      );
+    }
+
+    const groups = deriveRelatedDocGroups(
+      source,
+      listRelatedRegistryRecords(),
+      [SAME_CONCEPT_TYPE, COMPATIBILITY_SAME_CONCEPT_TYPE],
+      new Set([
+        "concept.transformer-architecture",
+        "concept.tokenizers-overview",
+        "concept.activation",
+        "concept.embedding",
+      ]),
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([
+      CLASSIFICATION_SIBLINGS,
+      SHARED_PARENT_CLASSIFICATION,
+      COMPATIBILITY_SAME_CONCEPT_TYPE,
+    ]);
+    expect(groups[2]?.items.map((item) => item.registryId)).toEqual(
+      expect.arrayContaining(["concept.activation", "concept.embedding"]),
     );
   });
 

@@ -26,4 +26,19 @@ describe("RelatedDocs", () => {
       html.indexOf('data-related-group="classification-siblings"'),
     );
   });
+
+  test("renders visible direct-relationship peers ahead of broader ontology groups on relu", () => {
+    const html = renderToStaticMarkup(<RelatedDocs registryId="module.relu" />);
+
+    expect(html).toContain('data-related-group="direct-relationships"');
+    expect(html).toContain('href="/docs/modules/gelu"');
+    expect(html).toContain("Directly related");
+    expect(html).toContain('data-related-group="classification-siblings"');
+    expect(html).toContain("Same classification: activation functions");
+    expect(
+      html.indexOf('data-related-group="direct-relationships"'),
+    ).toBeLessThan(
+      html.indexOf('data-related-group="classification-siblings"'),
+    );
+  });
 });
