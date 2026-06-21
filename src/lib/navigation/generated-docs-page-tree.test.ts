@@ -14,7 +14,9 @@ import {
   getSidebarGroupIdsForSection,
   getSidebarGroupLabel,
   resolveConceptsSidebarGroup,
+  resolveConceptsSidebarGroupWithSource,
   resolveGlossarySidebarGroup,
+  resolveGlossarySidebarGroupWithSource,
   resolveModulesSidebarGroup,
   resolveModulesSidebarGroupWithSource,
   resolveSystemsSidebarGroup,
@@ -311,6 +313,74 @@ describe("generated docs page tree", () => {
   });
 
   test("representative covered records prove ontology-derived versus fallback subgroup sources", () => {
+    expect(
+      resolveGlossarySidebarGroupWithSource(
+        requireRecord(
+          getConceptById("concept.backpropagation"),
+          "concept.backpropagation glossary concept",
+        ),
+      ),
+    ).toEqual({
+      groupId: "math-and-training",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveGlossarySidebarGroupWithSource(
+        requireRecord(
+          getConceptById("concept.transformer"),
+          "concept.transformer glossary concept",
+        ),
+      ),
+    ).toEqual({
+      groupId: "sequence-and-attention",
+      source: "editorial-sidebar-grouping",
+    });
+
+    expect(
+      resolveConceptsSidebarGroupWithSource(
+        requireRecord(
+          getConceptById("concept.quantization"),
+          "concept.quantization concept",
+        ),
+      ),
+    ).toEqual({
+      groupId: "inference",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveConceptsSidebarGroupWithSource(
+        requireRecord(
+          getConceptById("concept.page-spec-workflow-sample"),
+          "concept.page-spec-workflow-sample concept",
+        ),
+      ),
+    ).toEqual({
+      groupId: "reference-samples",
+      source: "editorial-sidebar-grouping",
+    });
+    expect(
+      resolveConceptsSidebarGroupWithSource(
+        requireRecord(
+          getConceptById("concept.transformer-architecture"),
+          "concept.transformer-architecture concept",
+        ),
+      ),
+    ).toEqual({
+      groupId: "architecture",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveConceptsSidebarGroupWithSource(
+        requireRecord(
+          getConceptById("concept.why-long-context-is-hard"),
+          "concept.why-long-context-is-hard concept",
+        ),
+      ),
+    ).toEqual({
+      groupId: "long-context",
+      source: "editorial-sidebar-grouping",
+    });
+
     expect(
       resolveModulesSidebarGroupWithSource(
         requireRecord(

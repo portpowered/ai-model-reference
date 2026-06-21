@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import {
   getSidebarGroupIdsForSection,
   getSidebarGroupingSectionsForKind,
+  resolveConceptsSidebarGroupWithSource,
+  resolveGlossarySidebarGroupWithSource,
   resolveModulesSidebarGroupWithSource,
   resolveSystemsSidebarGroupWithSource,
   resolveTrainingSidebarGroupWithSource,
@@ -104,6 +106,52 @@ describe("sidebar grouping contract", () => {
       }),
     ).toEqual({
       groupId: "memory",
+      source: "editorial-sidebar-grouping",
+    });
+  });
+
+  test("derives concept and glossary groups from ontology first, then explicit editorial fallback", () => {
+    expect(
+      resolveConceptsSidebarGroupWithSource({
+        primaryClassificationId: "classification.concept.inference",
+        conceptType: "inference",
+      }),
+    ).toEqual({
+      groupId: "inference",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveConceptsSidebarGroupWithSource({
+        sidebarGrouping: {
+          concepts: "long-context",
+        },
+      }),
+    ).toEqual({
+      groupId: "long-context",
+      source: "editorial-sidebar-grouping",
+    });
+
+    expect(
+      resolveGlossarySidebarGroupWithSource({
+        primaryClassificationId: "classification.concept.math",
+        conceptType: "math",
+      }),
+    ).toEqual({
+      groupId: "math-and-training",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveGlossarySidebarGroupWithSource({
+        sidebarGrouping: {
+          glossary: "sequence-and-attention",
+        },
+      }),
+    ).toEqual({
+      groupId: "sequence-and-attention",
+      source: "editorial-sidebar-grouping",
+    });
+    expect(resolveGlossarySidebarGroupWithSource({})).toEqual({
+      groupId: "model-taxonomy",
       source: "editorial-sidebar-grouping",
     });
   });

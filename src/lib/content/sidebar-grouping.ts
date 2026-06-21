@@ -142,7 +142,11 @@ function createSidebarGroupResolution<
 
 function getCanonicalClassificationMembership(
   record: Pick<
-    ModulesSidebarRecord | TrainingSidebarRecord | SystemsSidebarRecord,
+    | GlossarySidebarRecord
+    | ConceptsSidebarRecord
+    | ModulesSidebarRecord
+    | TrainingSidebarRecord
+    | SystemsSidebarRecord,
     "primaryClassificationId" | "secondaryClassificationIds"
   >,
 ): Set<string> {
@@ -337,37 +341,124 @@ export function resolveSystemsSidebarGroupWithSource(
   );
 }
 
-export function resolveGlossarySidebarGroup(
+function resolveOntologyGlossarySidebarGroup(
   record: GlossarySidebarRecord,
-): SidebarGroupIdBySection["glossary"] | undefined {
+):
+  | SidebarGroupResolution<
+      SidebarGroupIdBySection["glossary"],
+      "derived-taxonomy"
+    >
+  | undefined {
+  const membership = getCanonicalClassificationMembership(record);
+
   if (
-    record.conceptType === "math" ||
-    record.conceptType === "training" ||
-    record.conceptType === "evaluation"
+    membership.has("classification.concept.math") ||
+    membership.has("classification.concept.training") ||
+    membership.has("classification.concept.evaluation") ||
+    membership.has("classification.concept.architecture.activation")
   ) {
-    return "math-and-training";
-  }
-
-  const editorialGroup = record.sidebarGrouping?.glossary;
-  if (editorialGroup) {
-    return editorialGroup;
-  }
-
-  if (record.conceptType !== "inference") {
-    return "model-taxonomy";
+    return createSidebarGroupResolution(
+      "math-and-training",
+      "derived-taxonomy",
+    );
   }
 
   return undefined;
 }
 
+function resolveEditorialGlossarySidebarGroup(
+  record: GlossarySidebarRecord,
+):
+  | SidebarGroupResolution<
+      SidebarGroupIdBySection["glossary"],
+      "editorial-sidebar-grouping"
+    >
+  | undefined {
+  const editorialGroup = record.sidebarGrouping?.glossary;
+  if (editorialGroup) {
+    return createSidebarGroupResolution(
+      editorialGroup,
+      "editorial-sidebar-grouping",
+    );
+  }
+
+  return createSidebarGroupResolution(
+    "model-taxonomy",
+    "editorial-sidebar-grouping",
+  );
+}
+
+export function resolveGlossarySidebarGroupWithSource(
+  record: GlossarySidebarRecord,
+): SidebarGroupResolution<SidebarGroupIdBySection["glossary"]> | undefined {
+  return (
+    resolveOntologyGlossarySidebarGroup(record) ??
+    resolveEditorialGlossarySidebarGroup(record)
+  );
+}
+
+function resolveOntologyConceptsSidebarGroup(
+  record: ConceptsSidebarRecord,
+):
+  | SidebarGroupResolution<
+      SidebarGroupIdBySection["concepts"],
+      "derived-taxonomy"
+    >
+  | undefined {
+  const membership = getCanonicalClassificationMembership(record);
+
+  if (membership.has("classification.concept.inference")) {
+    return createSidebarGroupResolution("inference", "derived-taxonomy");
+  }
+
+  if (
+    membership.has("classification.concept.architecture") ||
+    membership.has("classification.concept.architecture.activation")
+  ) {
+    return createSidebarGroupResolution("architecture", "derived-taxonomy");
+  }
+
+  return undefined;
+}
+
+function resolveEditorialConceptsSidebarGroup(
+  record: ConceptsSidebarRecord,
+):
+  | SidebarGroupResolution<
+      SidebarGroupIdBySection["concepts"],
+      "editorial-sidebar-grouping"
+    >
+  | undefined {
+  const editorialGroup = record.sidebarGrouping?.concepts;
+  if (!editorialGroup) {
+    return undefined;
+  }
+
+  return createSidebarGroupResolution(
+    editorialGroup,
+    "editorial-sidebar-grouping",
+  );
+}
+
+export function resolveConceptsSidebarGroupWithSource(
+  record: ConceptsSidebarRecord,
+): SidebarGroupResolution<SidebarGroupIdBySection["concepts"]> | undefined {
+  return (
+    resolveOntologyConceptsSidebarGroup(record) ??
+    resolveEditorialConceptsSidebarGroup(record)
+  );
+}
+
+export function resolveGlossarySidebarGroup(
+  record: GlossarySidebarRecord,
+): SidebarGroupIdBySection["glossary"] | undefined {
+  return resolveGlossarySidebarGroupWithSource(record)?.groupId;
+}
+
 export function resolveConceptsSidebarGroup(
   record: ConceptsSidebarRecord,
 ): SidebarGroupIdBySection["concepts"] | undefined {
-  if (record.conceptType === "inference") {
-    return "inference";
-  }
-
-  return record.sidebarGrouping?.concepts;
+  return resolveConceptsSidebarGroupWithSource(record)?.groupId;
 }
 
 export function resolveModulesSidebarGroup(

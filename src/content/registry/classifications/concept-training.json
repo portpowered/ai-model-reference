@@ -1,0 +1,17 @@
+{
+  "id": "classification.concept.training",
+  "slug": "concept-training",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["training concept", "optimization concept", "learning concept"],
+  "tags": ["foundations"],
+  "relatedIds": ["concept.alignment", "concept.model-capacity"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "family",
+  "classifiesKinds": ["concept"],
+  "parentClassificationId": "classification.concept"
+}

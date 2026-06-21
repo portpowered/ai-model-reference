@@ -182,16 +182,17 @@ export const typedTaxonomyConsumerAuditContract: readonly TypedTaxonomyConsumerC
       id: "sidebar-group-derivation-concept-glossary",
       path: "src/lib/content/sidebar-grouping.ts",
       cluster: "sidebar-topology",
-      status: "unresolved-migration-target",
+      status: "migrated-ontology-first-consumer",
       owner: "navigation/docs-shell",
-      fields: ["conceptType", "sidebarGrouping"],
+      fields: ["sidebarGrouping"],
       evidence: [
-        'record.conceptType === "math"',
+        'membership.has("classification.concept.math")',
+        'membership.has("classification.concept.inference")',
         "record.sidebarGrouping?.glossary",
         "record.sidebarGrouping?.concepts",
       ],
       rationale:
-        "Concept and glossary sidebar subgroup placement still relies on legacy conceptType checks and curated sidebarGrouping fallbacks until the ontology-first concept migration lands.",
+        "Concept and glossary sidebar subgroup placement now checks canonical concept classification membership first and funnels the remaining curated labels through one explicit editorial fallback path.",
     },
     {
       id: "related-doc-legacy-peer-fallbacks",

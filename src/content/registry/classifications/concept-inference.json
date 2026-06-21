@@ -1,0 +1,17 @@
+{
+  "id": "classification.concept.inference",
+  "slug": "concept-inference",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["inference concept", "serving concept", "runtime concept"],
+  "tags": ["foundations"],
+  "relatedIds": ["concept.quantization", "concept.calibration"],
+  "citationIds": [],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "family",
+  "classifiesKinds": ["concept"],
+  "parentClassificationId": "classification.concept"
+}

@@ -36,7 +36,10 @@ the temporary legacy-id bridge.
   Docs-shell sidebar subgroup resolver. Module, training, and system subgroup
   placement should derive from canonical classification membership first, with
   any remaining customer-visible exceptions fenced behind one explicit fallback
-  path instead of scattered typed-taxonomy reads.
+  path instead of scattered typed-taxonomy reads. For concept/glossary slices,
+  migrate the currently grouped published records onto canonical concept
+  classifications first, then keep any still-curated families on one named
+  editorial fallback helper instead of reintroducing `conceptType` branching.
 * `src/lib/content/topology-selector-compatibility.ts`
   Topology-specific temporary selector fence. Keep any remaining shorthand or
   legacy topology-only aliases here instead of expanding the generic

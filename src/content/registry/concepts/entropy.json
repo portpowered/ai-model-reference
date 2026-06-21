@@ -11,6 +11,7 @@
   "status": "published",
   "createdAt": "2026-06-04T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
+  "primaryClassificationId": "classification.concept.math",
   "conceptType": "math",
   "prerequisiteIds": ["concept.softmax"],
   "explainsIds": []
