@@ -164,7 +164,6 @@ describe("validatePageSpec", () => {
       ...baseFields,
       kind: "module",
       primaryClassificationId: "classification.module.attention",
-      secondaryClassificationIds: ["classification.kv-cache-optimizations"],
       relationships: [
         {
           relationshipType: "variant",
@@ -215,7 +214,6 @@ describe("validatePageSpec", () => {
       ...baseFields,
       kind: "module",
       primaryClassificationId: "classification.module.attention",
-      secondaryClassificationIds: ["classification.kv-cache-optimizations"],
       relationships: [
         {
           relationshipType: "variant",
@@ -279,7 +277,7 @@ describe("validatePageSpec", () => {
     const spec = validatePageSpec({
       ...baseFields,
       kind: "training-regime",
-      primaryClassificationId: "classification.training-behaviors",
+      primaryClassificationId: "classification.training.alignment",
       relationships: [
         {
           relationshipType: "uses",
@@ -291,7 +289,7 @@ describe("validatePageSpec", () => {
     expect(spec.kind).toBe("training-regime");
     if (spec.kind === "training-regime") {
       expect(spec.primaryClassificationId).toBe(
-        "classification.training-behaviors",
+        "classification.training.alignment",
       );
       expect(spec.regimeType).toBeUndefined();
     }
@@ -316,7 +314,7 @@ describe("validatePageSpec", () => {
     const spec = validatePageSpec({
       ...baseFields,
       kind: "system",
-      primaryClassificationId: "classification.serving-systems",
+      primaryClassificationId: "classification.system.routing",
       relationships: [
         {
           relationshipType: "used-by",
@@ -328,7 +326,7 @@ describe("validatePageSpec", () => {
     expect(spec.kind).toBe("system");
     if (spec.kind === "system") {
       expect(spec.primaryClassificationId).toBe(
-        "classification.serving-systems",
+        "classification.system.routing",
       );
       expect(spec.systemType).toBeUndefined();
     }

@@ -5,7 +5,6 @@
   "summary": "A generated module page spec that exercises the canonical bundle workflow for modules.",
   "status": "draft",
   "primaryClassificationId": "classification.module.attention",
-  "secondaryClassificationIds": ["classification.kv-cache-optimizations"],
   "relationships": [
     {
       "relationshipType": "variant",

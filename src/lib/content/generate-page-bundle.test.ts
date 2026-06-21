@@ -50,6 +50,40 @@ async function createTemplateFixtureRoot(): Promise<string> {
   return tempRoot;
 }
 
+async function copyRegistryFixture(
+  tempRoot: string,
+  input: {
+    kindDirectory:
+      | "classifications"
+      | "concepts"
+      | "modules"
+      | "systems"
+      | "models"
+      | "tags"
+      | "citations";
+    slug: string;
+  },
+): Promise<void> {
+  const sourcePath = join(
+    getProjectRoot(),
+    "src",
+    "content",
+    "registry",
+    input.kindDirectory,
+    `${input.slug}.json`,
+  );
+  const destinationPath = join(
+    tempRoot,
+    "src",
+    "content",
+    "registry",
+    input.kindDirectory,
+    `${input.slug}.json`,
+  );
+  await mkdir(join(destinationPath, ".."), { recursive: true });
+  await writeFile(destinationPath, await readFile(sourcePath, "utf8"));
+}
+
 async function prepareContentRoots(tempRoot: string): Promise<string> {
   const contentRoot = join(tempRoot, "src", "content");
   await mkdir(join(contentRoot, "registry", "concepts"), { recursive: true });
@@ -68,6 +102,29 @@ async function prepareContentRoots(tempRoot: string): Promise<string> {
   await mkdir(join(contentRoot, "docs", "systems"), { recursive: true });
   await mkdir(join(contentRoot, "docs", "training"), { recursive: true });
   return contentRoot;
+}
+
+async function seedCanonicalBundleValidationFixtures(
+  tempRoot: string,
+): Promise<void> {
+  const fixtures = [
+    { kindDirectory: "classifications", slug: "concept" },
+    { kindDirectory: "classifications", slug: "concept-architecture" },
+    {
+      kindDirectory: "classifications",
+      slug: "concept-architecture-activation",
+    },
+    { kindDirectory: "classifications", slug: "module" },
+    { kindDirectory: "classifications", slug: "attention-mechanisms" },
+    { kindDirectory: "classifications", slug: "training" },
+    { kindDirectory: "classifications", slug: "training-alignment" },
+    { kindDirectory: "classifications", slug: "system" },
+    { kindDirectory: "classifications", slug: "system-routing" },
+  ] as const;
+
+  for (const fixture of fixtures) {
+    await copyRegistryFixture(tempRoot, fixture);
+  }
 }
 
 const baseSpecFields = {
@@ -149,8 +206,7 @@ describe("generatePageBundle", () => {
         ...baseSpecFields,
         slug,
         kind: "module",
-        primaryClassificationId: "classification.attention-mechanisms",
-        secondaryClassificationIds: ["classification.kv-cache-optimizations"],
+        primaryClassificationId: "classification.module.attention",
         relationships: [
           {
             relationshipType: "variant",
@@ -741,8 +797,7 @@ describe("generatePageBundle", () => {
           ...baseSpecFields,
           slug: "generated-ontology-first-module",
           kind: "module",
-          primaryClassificationId: "classification.attention-mechanisms",
-          secondaryClassificationIds: ["classification.kv-cache-optimizations"],
+          primaryClassificationId: "classification.module.attention",
           relationships: [
             {
               relationshipType: "related",
@@ -768,7 +823,7 @@ describe("generatePageBundle", () => {
           ...baseSpecFields,
           slug: "generated-ontology-first-training",
           kind: "training-regime",
-          primaryClassificationId: "classification.training-behaviors",
+          primaryClassificationId: "classification.training.alignment",
           relationships: [
             {
               relationshipType: "used-by",
@@ -786,7 +841,7 @@ describe("generatePageBundle", () => {
           ...baseSpecFields,
           slug: "generated-ontology-first-system",
           kind: "system",
-          primaryClassificationId: "classification.serving-systems",
+          primaryClassificationId: "classification.system.routing",
           relationships: [
             {
               relationshipType: "uses",
@@ -827,6 +882,116 @@ describe("generatePageBundle", () => {
         for (const field of testCase.absentLegacyFields) {
           expect(registry).not.toHaveProperty(field);
         }
+      }
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("validates generated canonical bundles for concept, module, training-regime, and system kinds", async () => {
+    const tempRoot = await createTemplateFixtureRoot();
+    const contentRoot = await prepareContentRoots(tempRoot);
+    await seedCanonicalBundleValidationFixtures(tempRoot);
+
+    const cases: Array<{
+      pageUrl: string;
+      pageDirectorySegments: string[];
+      registrySegments: string[];
+      spec: PageSpec;
+    }> = [
+      {
+        pageUrl: "/docs/concepts/generated-validated-concept",
+        pageDirectorySegments: ["concepts", "generated-validated-concept"],
+        registrySegments: ["concepts", "generated-validated-concept.json"],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-validated-concept",
+          kind: "concept",
+          primaryClassificationId: "classification.concept.architecture",
+          secondaryClassificationIds: [
+            "classification.concept.architecture.activation",
+          ],
+        }),
+      },
+      {
+        pageUrl: "/docs/modules/generated-validated-module",
+        pageDirectorySegments: ["modules", "generated-validated-module"],
+        registrySegments: ["modules", "generated-validated-module.json"],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-validated-module",
+          kind: "module",
+          primaryClassificationId: "classification.module.attention",
+          assets: {
+            comparisonTable: {
+              type: "graph",
+              graphId: "graph.generated-validated-module-compute-flow",
+              webRenderer: "react-flow",
+              printRenderer: "mermaid",
+            },
+          },
+        }),
+      },
+      {
+        pageUrl: "/docs/training/generated-validated-training",
+        pageDirectorySegments: ["training", "generated-validated-training"],
+        registrySegments: [
+          "training-regimes",
+          "generated-validated-training.json",
+        ],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-validated-training",
+          kind: "training-regime",
+          primaryClassificationId: "classification.training.alignment",
+        }),
+      },
+      {
+        pageUrl: "/docs/systems/generated-validated-system",
+        pageDirectorySegments: ["systems", "generated-validated-system"],
+        registrySegments: ["systems", "generated-validated-system.json"],
+        spec: validatePageSpec({
+          ...baseSpecFields,
+          slug: "generated-validated-system",
+          kind: "system",
+          primaryClassificationId: "classification.system.routing",
+        }),
+      },
+    ];
+
+    try {
+      for (const testCase of cases) {
+        const result = await generatePageBundle({
+          spec: testCase.spec,
+          projectRoot: tempRoot,
+        });
+
+        expect(result.warnings).toEqual([]);
+      }
+
+      const registryRoot = join(contentRoot, "registry");
+      const docsRoot = join(contentRoot, "docs");
+      const indexes = await loadRegistry({ registryRoot });
+
+      for (const testCase of cases) {
+        const errors = await validateGeneratedPageBundle({
+          registryRoot,
+          docsRoot,
+          pageDirectory: join(
+            contentRoot,
+            "docs",
+            ...testCase.pageDirectorySegments,
+          ),
+          registryPath: join(
+            contentRoot,
+            "registry",
+            ...testCase.registrySegments,
+          ),
+          pageUrl: testCase.pageUrl,
+          indexes,
+        });
+
+        expect(errors).toEqual([]);
       }
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
