@@ -36,11 +36,13 @@ export async function SystemAtAGlance({ registryId }: { registryId: string }) {
             </p>
           </div>
         ) : null}
-        <AtAGlanceListSection title="System type">
-          <p className="text-sm text-foreground">
-            {formatToken(record.systemType)}
-          </p>
-        </AtAGlanceListSection>
+        {record.systemType ? (
+          <AtAGlanceListSection title="System type">
+            <p className="text-sm text-foreground">
+              {formatToken(record.systemType)}
+            </p>
+          </AtAGlanceListSection>
+        ) : null}
         <AtAGlanceListSection title="Related models">
           <RegistryLinkList
             registryIds={record.relatedModelIds}

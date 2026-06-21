@@ -52,11 +52,13 @@ export async function TrainingRegimeAtAGlance({
             </p>
           </div>
         ) : null}
-        <AtAGlanceListSection title="Regime type">
-          <p className="text-sm text-foreground">
-            {formatToken(record.regimeType)}
-          </p>
-        </AtAGlanceListSection>
+        {record.regimeType ? (
+          <AtAGlanceListSection title="Regime type">
+            <p className="text-sm text-foreground">
+              {formatToken(record.regimeType)}
+            </p>
+          </AtAGlanceListSection>
+        ) : null}
         <AtAGlanceListSection title="Related modules">
           <RegistryLinkList
             registryIds={record.relatedModuleIds}

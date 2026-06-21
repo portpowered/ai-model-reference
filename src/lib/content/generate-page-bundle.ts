@@ -379,6 +379,21 @@ function buildRegistryRecord(
   spec: PageSpec,
   timestamp: string,
 ): Record<string, unknown> {
+  const ontologyFirstFields =
+    "primaryClassificationId" in spec
+      ? {
+          ...(spec.primaryClassificationId
+            ? { primaryClassificationId: spec.primaryClassificationId }
+            : {}),
+          ...(spec.secondaryClassificationIds.length > 0
+            ? { secondaryClassificationIds: spec.secondaryClassificationIds }
+            : {}),
+          ...(spec.relationships.length > 0
+            ? { relationships: spec.relationships }
+            : {}),
+        }
+      : {};
+
   const base = {
     id: registryIdForPageSpec(spec),
     slug: spec.slug,
@@ -392,6 +407,7 @@ function buildRegistryRecord(
     status: spec.status,
     createdAt: timestamp,
     updatedAt: timestamp,
+    ...ontologyFirstFields,
   };
 
   switch (spec.kind) {
@@ -402,7 +418,8 @@ function buildRegistryRecord(
         ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
         ...(spec.authors ? { authors: spec.authors } : {}),
         ...(spec.sourceId ? { sourceId: spec.sourceId } : {}),
-        conceptType: spec.conceptType,
+        // Deprecated typed taxonomy fields remain compatibility-only inputs.
+        ...(spec.conceptType ? { conceptType: spec.conceptType } : {}),
         prerequisiteIds: spec.prerequisiteIds,
         explainsIds: spec.explainsIds,
       };
@@ -412,7 +429,6 @@ function buildRegistryRecord(
         ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
         ...(spec.authors ? { authors: spec.authors } : {}),
         ...(spec.sourceId ? { sourceId: spec.sourceId } : {}),
-        moduleType: spec.moduleType,
         mathLevel: spec.mathLevel,
         optimizes: spec.optimizes,
         exampleModelIds: spec.exampleModelIds,
@@ -420,6 +436,7 @@ function buildRegistryRecord(
         tradeoffIds: spec.tradeoffIds,
         usedByModelIds: spec.usedByModelIds,
         introducedByPaperIds: spec.introducedByPaperIds,
+        ...(spec.moduleType ? { moduleType: spec.moduleType } : {}),
         ...(spec.moduleFamily ? { moduleFamily: spec.moduleFamily } : {}),
         ...(spec.variantGroup ? { variantGroup: spec.variantGroup } : {}),
         ...(spec.variantOf ? { variantOf: spec.variantOf } : {}),
@@ -467,10 +484,10 @@ function buildRegistryRecord(
         ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
         ...(spec.authors ? { authors: spec.authors } : {}),
         ...(spec.sourceId ? { sourceId: spec.sourceId } : {}),
-        regimeType: spec.regimeType,
         usedByModelIds: spec.usedByModelIds,
         relatedModuleIds: spec.relatedModuleIds,
         paperIds: spec.paperIds,
+        ...(spec.regimeType ? { regimeType: spec.regimeType } : {}),
         ...(spec.conceptType ? { conceptType: spec.conceptType } : {}),
         ...(spec.variantGroup ? { variantGroup: spec.variantGroup } : {}),
       };
@@ -480,13 +497,13 @@ function buildRegistryRecord(
         ...(spec.releaseDate ? { releaseDate: spec.releaseDate } : {}),
         ...(spec.authors ? { authors: spec.authors } : {}),
         ...(spec.sourceId ? { sourceId: spec.sourceId } : {}),
-        systemType: spec.systemType,
         relatedModelIds: spec.relatedModelIds,
         relatedModuleIds: spec.relatedModuleIds,
         relatedConceptIds: spec.relatedConceptIds,
         paperIds: spec.paperIds,
         datasetIds: spec.datasetIds,
         ...(spec.organizationId ? { organizationId: spec.organizationId } : {}),
+        ...(spec.systemType ? { systemType: spec.systemType } : {}),
         ...(spec.conceptType ? { conceptType: spec.conceptType } : {}),
         ...(spec.variantGroup ? { variantGroup: spec.variantGroup } : {}),
       };
