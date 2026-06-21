@@ -62,6 +62,7 @@ const baseRecordShape = {
   status: registryStatusSchema,
   createdAt: z.string().min(1),
   updatedAt: z.string().min(1),
+  sortOrder: z.number().int().optional(),
 };
 
 export const baseRecordSchema = z.object({

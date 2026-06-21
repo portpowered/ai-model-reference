@@ -122,14 +122,14 @@
       "activationFunctions": "活性化関数",
       "feedForwardNetworks": "フィードフォワードネットワーク"
     },
-    "classificationSelectorTitle": "シード分類",
-    "classificationSelectorDescription": "topology サーフェスを離れずに activation と feed-forward のシードスライスを切り替えます。",
-    "classificationSelectorLabel": "Topology シード分類",
+    "classificationSelectorTitle": "モジュール分類",
+    "classificationSelectorDescription": "選択中の topology サーフェスを離れずに、モジュール指向の ontology ブランチを参照します。",
+    "classificationSelectorLabel": "Topology モジュール分類",
     "selectedClassificationLabel": "選択中の分類",
     "selectedModeLabel": "選択中の表示",
-    "membersTitle": "公開済みメンバー",
-    "graphMapDescription": "このグラフマップのプロトタイプは、選択中の分類に紐づく公開済みメンバーを一覧し、完全なグラフ描画を接続する前に topology の範囲を確認できるようにします。",
-    "timelineDescription": "このタイムラインのプロトタイプは、選択中の分類に含まれる公開済みメンバーを並べ、同じ ontology の範囲を時間指向の表示で確認できるようにします。",
+    "membersTitle": "分類ツリー",
+    "graphMapDescription": "このグラフマップのプロトタイプは、選択中のブランチに対して生成された classification ツリーを描画し、完全なグラフ描画を接続する前に入れ子のモジュール所属を確認できるようにします。",
+    "timelineDescription": "このタイムラインのプロトタイプは、同じ生成 classification ツリーを時間順表示で描画し、選択中ブランチを時間指向の表示で確認できるようにします。",
     "invalidTitle": "無効な topology 選択",
     "invalidDescription": "要求された分類または表示モードは、このプロトタイプでは利用できません。下の有効な topology リンクから選んでください。",
     "invalidClassificationLabel": "要求された分類",
@@ -138,7 +138,11 @@
     "emptyTitle": "利用できる topology オプションがありません",
     "emptyDescription": "現在、topology プロトタイプに使える公開済みメンバーを持つ seed 分類はありません。",
     "validOptionsTitle": "有効な topology リンク",
-    "memberListLabel": "Topology メンバー"
+    "memberListLabel": "Topology 分類ツリー",
+    "classificationChildrenLabel": "入れ子の分類",
+    "recordChildrenLabel": "公開済みモジュール",
+    "directMembersLabel": "直接メンバー",
+    "totalMembersLabel": "表示メンバー"
   },
   "modelsIndex": {
     "title": "モデル",

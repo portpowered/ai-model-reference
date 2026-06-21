@@ -1,10 +1,8 @@
 import { getPublishedDocsHrefForRecord } from "@/lib/content/published-docs-registry-ids";
 import {
-  type ClassificationMember,
-  listClassificationMembers,
-  listClassificationRecords,
+  buildClassificationTree,
+  type ClassificationTreeClassificationNode,
 } from "@/lib/content/registry-runtime";
-import type { ClassificationRecord } from "@/lib/content/schemas";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 import {
   buildLocalizedRoute,
@@ -30,6 +28,7 @@ export type TopologyNavigationOption = {
   classificationSlug: string;
   label: string;
   memberCount: number;
+  tree: ClassificationTreeClassificationNode;
   destinations: TopologyNavigationDestination[];
 };
 
@@ -50,8 +49,7 @@ export type TopologyNavigationLabels = {
 
 type TopologyNavigationInput = {
   locale?: SiteLocale;
-  classifications?: readonly ClassificationRecord[];
-  listMembers?: (classificationId: string) => readonly ClassificationMember[];
+  tree?: readonly ClassificationTreeClassificationNode[];
   labels?: TopologyNavigationLabels;
 };
 
@@ -85,33 +83,13 @@ function formatClassificationLabel(slug: string): string {
     .join(" ");
 }
 
-function getClassificationLabel(
+export function getTopologyClassificationLabel(
   slug: string,
   labels?: TopologyNavigationLabels,
 ): string {
   return (
     labels?.classificationLabels?.[slug as TopologySeedClassificationSlug] ??
     formatClassificationLabel(slug)
-  );
-}
-
-function isEligibleSeedClassification(record: ClassificationRecord): boolean {
-  return (
-    record.status === "published" &&
-    record.parentClassificationId === TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID &&
-    record.classifiesKinds.some(
-      (kind) => kind === "concept" || kind === "module",
-    )
-  );
-}
-
-function listPublishedDocsBackedMembers(
-  members: readonly ClassificationMember[],
-): ClassificationMember[] {
-  return members.filter(
-    (member) =>
-      member.record.status === "published" &&
-      getPublishedDocsHrefForRecord(member.record) !== null,
   );
 }
 
@@ -142,30 +120,45 @@ function buildDestinations(
 
 export function listTopologyNavigationOptions({
   locale = defaultLocale,
-  classifications = listClassificationRecords(),
-  listMembers = listClassificationMembers,
+  tree = buildClassificationTree({
+    rootClassificationIds: [TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID],
+    memberKinds: ["module"],
+  }),
   labels,
 }: TopologyNavigationInput = {}): TopologyNavigationOption[] {
-  return classifications.flatMap((classification) => {
-    if (!isEligibleSeedClassification(classification)) {
-      return [];
-    }
+  const topologyRoot = tree.find(
+    (classification) =>
+      classification.classification.id ===
+      TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
+  );
 
-    const publishedMembers = listPublishedDocsBackedMembers(
-      listMembers(classification.id),
-    );
-    if (publishedMembers.length === 0) {
-      return [];
-    }
+  if (!topologyRoot) {
+    return [];
+  }
 
-    return [
-      {
-        classificationId: classification.id,
-        classificationSlug: classification.slug,
-        label: getClassificationLabel(classification.slug, labels),
-        memberCount: publishedMembers.length,
-        destinations: buildDestinations(classification.slug, locale, labels),
-      },
-    ];
-  });
+  return topologyRoot.classificationChildren
+    .filter(
+      (classification) =>
+        classification.totalMemberCount > 0 &&
+        classification.recordChildren.every(
+          (recordNode) =>
+            recordNode.member.record.status === "published" &&
+            getPublishedDocsHrefForRecord(recordNode.member.record) !== null,
+        ),
+    )
+    .map((classification) => ({
+      classificationId: classification.classification.id,
+      classificationSlug: classification.classification.slug,
+      label: getTopologyClassificationLabel(
+        classification.classification.slug,
+        labels,
+      ),
+      memberCount: classification.totalMemberCount,
+      tree: classification,
+      destinations: buildDestinations(
+        classification.classification.slug,
+        locale,
+        labels,
+      ),
+    }));
 }

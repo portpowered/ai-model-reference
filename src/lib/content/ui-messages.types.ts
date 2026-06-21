@@ -135,6 +135,10 @@ export type UiMessages = {
     emptyDescription: string;
     validOptionsTitle: string;
     memberListLabel: string;
+    classificationChildrenLabel: string;
+    recordChildrenLabel: string;
+    directMembersLabel: string;
+    totalMembersLabel: string;
   };
   modelsIndex: {
     title: string;

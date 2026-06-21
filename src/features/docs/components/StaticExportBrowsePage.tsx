@@ -11,7 +11,6 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import {
   TopologyBrowsePage,
-  type TopologyMemberEntry,
   topologyBrowseDescription,
   topologyBrowseTitle,
 } from "@/features/docs/components/TopologyBrowsePage";
@@ -20,19 +19,20 @@ import {
   type TopologyBrowseState,
 } from "@/lib/content/topology-browse";
 import type { TopologyNavigationOption } from "@/lib/content/topology-navigation";
+import type { TopologyClassificationEntry } from "@/lib/content/topology-tree-entries";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
 
 type StaticExportBrowsePageProps = {
   messages: UiMessages;
   options: readonly TopologyNavigationOption[];
-  membersByClassificationSlug: Record<string, TopologyMemberEntry[]>;
+  treeByClassificationSlug: Record<string, TopologyClassificationEntry[]>;
   defaultPage: ReactNode;
 };
 
 export function StaticExportBrowsePage({
   messages,
   options,
-  membersByClassificationSlug,
+  treeByClassificationSlug,
   defaultPage,
 }: StaticExportBrowsePageProps) {
   const searchParams = useSearchParams();
@@ -51,9 +51,9 @@ export function StaticExportBrowsePage({
     return <>{defaultPage}</>;
   }
 
-  const members =
+  const tree =
     state.kind === "selected"
-      ? (membersByClassificationSlug[state.option.classificationSlug] ?? [])
+      ? (treeByClassificationSlug[state.option.classificationSlug] ?? [])
       : [];
 
   return (
@@ -63,11 +63,7 @@ export function StaticExportBrowsePage({
         {topologyBrowseDescription(messages, state)}
       </DocsDescription>
       <DocsBody>
-        <TopologyBrowsePage
-          messages={messages}
-          state={state}
-          members={members}
-        />
+        <TopologyBrowsePage messages={messages} state={state} tree={tree} />
       </DocsBody>
     </DocsPage>
   );

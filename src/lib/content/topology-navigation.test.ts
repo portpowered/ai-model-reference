@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { ClassificationRecord } from "@/lib/content/schemas";
+import type { ClassificationTreeClassificationNode } from "@/lib/content/registry-runtime";
 import {
   getTopologyNavigationLabels,
   listTopologyNavigationOptions,
@@ -7,25 +7,33 @@ import {
 } from "@/lib/content/topology-navigation";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 
-function publishedClassification(
-  overrides: Partial<ClassificationRecord>,
-): ClassificationRecord {
+function publishedClassificationNode(
+  overrides: Partial<ClassificationTreeClassificationNode>,
+): ClassificationTreeClassificationNode {
   return {
-    id: "classification.example",
-    slug: "example",
-    kind: "classification",
-    defaultTitleKey: "title",
-    defaultSummaryKey: "description",
-    aliases: [],
-    tags: [],
-    relatedIds: [],
-    citationIds: [],
-    status: "published",
-    createdAt: "2026-06-20T00:00:00.000Z",
-    updatedAt: "2026-06-20T00:00:00.000Z",
-    classificationType: "family",
-    classifiesKinds: ["concept", "module"],
-    parentClassificationId: TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
+    nodeType: "classification",
+    classification: {
+      id: "classification.example",
+      slug: "example",
+      kind: "classification",
+      defaultTitleKey: "title",
+      defaultSummaryKey: "description",
+      aliases: [],
+      tags: [],
+      relatedIds: [],
+      citationIds: [],
+      status: "published",
+      createdAt: "2026-06-20T00:00:00.000Z",
+      updatedAt: "2026-06-20T00:00:00.000Z",
+      classificationType: "family",
+      classifiesKinds: ["module"],
+      parentClassificationId: TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
+    },
+    children: [],
+    classificationChildren: [],
+    recordChildren: [],
+    directMemberCount: 0,
+    totalMemberCount: 0,
     ...overrides,
   };
 }
@@ -129,28 +137,72 @@ describe("topology navigation model", () => {
   });
 
   test("returns an empty model when no eligible seed classifications exist", () => {
-    expect(listTopologyNavigationOptions({ classifications: [] })).toEqual([]);
+    expect(listTopologyNavigationOptions({ tree: [] })).toEqual([]);
 
     expect(
       listTopologyNavigationOptions({
-        classifications: [
-          publishedClassification({
-            id: "classification.domain-root",
-            slug: "domain-root",
-            parentClassificationId: undefined,
-          }),
-          publishedClassification({
-            id: "classification.unpublished-seed",
-            slug: "unpublished-seed",
-            status: "draft",
-          }),
-          publishedClassification({
-            id: "classification.no-members",
-            slug: "no-members",
+        tree: [
+          publishedClassificationNode({
+            classification: {
+              ...publishedClassificationNode({}).classification,
+              id: TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
+              slug: "neural-network-components",
+            },
+            classificationChildren: [
+              publishedClassificationNode({
+                classification: {
+                  ...publishedClassificationNode({}).classification,
+                  id: "classification.no-members",
+                  slug: "no-members",
+                },
+              }),
+            ],
           }),
         ],
-        listMembers: () => [],
       }),
     ).toEqual([]);
+  });
+
+  test("derives option counts from generated child trees", () => {
+    const nestedChild = publishedClassificationNode({
+      classification: {
+        ...publishedClassificationNode({}).classification,
+        id: "classification.gated-ffn",
+        slug: "gated-ffn",
+      },
+      totalMemberCount: 2,
+    });
+    const optionTree = publishedClassificationNode({
+      classification: {
+        ...publishedClassificationNode({}).classification,
+        id: "classification.feed-forward-networks",
+        slug: "feed-forward-networks",
+      },
+      classificationChildren: [nestedChild],
+      children: [nestedChild],
+      totalMemberCount: 2,
+    });
+
+    const options = listTopologyNavigationOptions({
+      tree: [
+        publishedClassificationNode({
+          classification: {
+            ...publishedClassificationNode({}).classification,
+            id: TOPOLOGY_SEED_PARENT_CLASSIFICATION_ID,
+            slug: "neural-network-components",
+          },
+          classificationChildren: [optionTree],
+          children: [optionTree],
+          totalMemberCount: 2,
+        }),
+      ],
+    });
+
+    expect(options).toHaveLength(1);
+    expect(options[0]).toMatchObject({
+      classificationId: "classification.feed-forward-networks",
+      classificationSlug: "feed-forward-networks",
+      memberCount: 2,
+    });
   });
 });

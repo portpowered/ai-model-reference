@@ -16,7 +16,6 @@ import { StaticExportBrowsePage } from "@/features/docs/components/StaticExportB
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
 import {
   TopologyBrowsePage,
-  type TopologyMemberEntry,
   topologyBrowseDescription,
   topologyBrowseTitle,
 } from "@/features/docs/components/TopologyBrowsePage";
@@ -33,13 +32,10 @@ import { TopologyPrototype } from "@/features/topology/TopologyPrototype";
 import type { TopologyDocsPageContentByRegistryId } from "@/features/topology/topology-content";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
-import { localizeDocsHref } from "@/lib/content/localized-docs-href";
 import {
   loadPublishedDocsPages,
   loadShippedLocalizedDocsPages,
 } from "@/lib/content/pages";
-import { getPublishedDocsHrefForRecord } from "@/lib/content/published-docs-registry-ids";
-import { listClassificationMembers } from "@/lib/content/registry-runtime";
 import {
   loadTagLandingContext,
   loadTagResourceGroups,
@@ -56,6 +52,10 @@ import {
   getTopologyNavigationLabels,
   listTopologyNavigationOptions,
 } from "@/lib/content/topology-navigation";
+import {
+  buildTopologyTreeEntries,
+  type TopologyClassificationEntry,
+} from "@/lib/content/topology-tree-entries";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import {
   buildLocalizedRoute,
@@ -110,58 +110,6 @@ function toDocsIndexEntries(
     summary: page.messages.description,
     url: page.url,
   }));
-}
-
-function formatFallbackRegistryTitle(slug: string): string {
-  return slug
-    .split("-")
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function toTopologyMemberEntries(
-  classificationId: string,
-  localizedPages: Awaited<ReturnType<typeof loadShippedLocalizedDocsPages>>,
-  canonicalPages: Awaited<ReturnType<typeof loadPublishedDocsPages>>,
-  locale: SiteLocale,
-): TopologyMemberEntry[] {
-  const localizedPagesByRegistryId = new Map(
-    localizedPages.map((page) => [page.frontmatter.registryId, page]),
-  );
-  const canonicalPagesByRegistryId = new Map(
-    canonicalPages.map((page) => [page.frontmatter.registryId, page]),
-  );
-
-  return listClassificationMembers(classificationId)
-    .flatMap((member): TopologyMemberEntry[] => {
-      const docsHref = getPublishedDocsHrefForRecord(member.record);
-      if (member.record.status !== "published" || docsHref === null) {
-        return [];
-      }
-
-      const page =
-        localizedPagesByRegistryId.get(member.record.id) ??
-        canonicalPagesByRegistryId.get(member.record.id);
-      const title =
-        page?.messages.title ?? formatFallbackRegistryTitle(member.record.slug);
-      const summary = page?.messages.description ?? title;
-
-      return [
-        {
-          registryId: member.record.id,
-          slug: page?.docsSlug ?? member.record.slug,
-          title,
-          summary,
-          url: localizeDocsHref(docsHref, locale),
-          kind: member.record.kind,
-          membershipType: member.membershipType,
-        },
-      ];
-    })
-    .sort((left, right) =>
-      left.title.localeCompare(right.title, locale, { sensitivity: "base" }),
-    );
 }
 
 const BROWSE_MODELS_STARTER_SLUGS = ["models/gpt-3"] as const;
@@ -228,9 +176,10 @@ export async function renderBrowseIndexPage(
     locale === defaultLocale
       ? pages
       : await loadPublishedDocsPages(defaultLocale);
+  const topologyLabels = getTopologyNavigationLabels(messages);
   const topologyOptions = listTopologyNavigationOptions({
     locale,
-    labels: getTopologyNavigationLabels(messages),
+    labels: topologyLabels,
   });
   const isStaticExport = process.env.NEXT_STATIC_EXPORT === "1";
   const defaultPage = (
@@ -282,24 +231,25 @@ export async function renderBrowseIndexPage(
   );
 
   if (isStaticExport) {
-    const membersByClassificationSlug = Object.fromEntries(
+    const treeByClassificationSlug = Object.fromEntries(
       topologyOptions.map((option) => [
         option.classificationSlug,
-        toTopologyMemberEntries(
-          option.classificationId,
-          pages,
+        buildTopologyTreeEntries({
+          tree: option.tree,
+          localizedPages: pages,
           canonicalPages,
           locale,
-        ),
+          topologyLabels,
+        }),
       ]),
-    ) as Record<string, TopologyMemberEntry[]>;
+    ) as Record<string, TopologyClassificationEntry[]>;
 
     return (
       <Suspense fallback={defaultPage}>
         <StaticExportBrowsePage
           messages={messages}
           options={topologyOptions}
-          membersByClassificationSlug={membersByClassificationSlug}
+          treeByClassificationSlug={treeByClassificationSlug}
           defaultPage={defaultPage}
         />
       </Suspense>
@@ -312,14 +262,15 @@ export async function renderBrowseIndexPage(
   );
 
   if (topologyState.kind !== "not-requested") {
-    const topologyMembers =
+    const topologyTree =
       topologyState.kind === "selected"
-        ? toTopologyMemberEntries(
-            topologyState.option.classificationId,
-            pages,
+        ? buildTopologyTreeEntries({
+            tree: topologyState.option.tree,
+            localizedPages: pages,
             canonicalPages,
             locale,
-          )
+            topologyLabels,
+          })
         : [];
 
     return (
@@ -332,7 +283,7 @@ export async function renderBrowseIndexPage(
           <TopologyBrowsePage
             messages={messages}
             state={topologyState}
-            members={topologyMembers}
+            tree={topologyTree}
           />
         </DocsBody>
       </DocsPage>

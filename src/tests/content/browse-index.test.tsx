@@ -79,19 +79,22 @@ describe("browse index page render", () => {
     expect(html).toContain("Activation Functions");
     expect(html).toContain("Selected surface");
     expect(html).toContain("Graph Map");
-    expect(html).toContain("Seed classifications");
-    expect(html).toContain('aria-label="Topology seed classifications"');
+    expect(html).toContain("Module classifications");
+    expect(html).toContain('aria-label="Topology module classifications"');
     expect(html).toContain(
       'href="/browse?classification=feed-forward-networks&amp;mode=graph-map"',
     );
     expect(html).toMatch(
       /<a aria-current="page"[^>]*href="\/browse\?classification=activation-functions&amp;mode=graph-map"[^>]*>Activation Functions<\/a>/,
     );
+    expect(html).toContain("Classification tree");
+    expect(html).toContain("Published modules");
+    expect(html).toContain("Visible members");
     expect(html).toContain("Rectified Linear Unit");
     expect(html).toContain('href="/docs/modules/relu"');
   });
 
-  it("falls back to canonical member routes and readable summaries on localized topology pages", async () => {
+  it("falls back to canonical member routes and readable summaries on localized topology trees", async () => {
     const page = await renderBrowseIndexPage("vi", {
       searchParams: Promise.resolve({
         classification: "activation-functions",
@@ -102,12 +105,12 @@ describe("browse index page render", () => {
 
     expect(html).toContain("Bản đồ đồ thị Hàm kích hoạt");
     expect(html).toContain("Phân loại đã chọn");
-    expect(html).toContain('href="/docs/glossary/activation"');
-    expect(html).not.toContain('href="/vi/docs/glossary/activation"');
+    expect(html).toContain("Cây phân loại");
+    expect(html).toContain('href="/docs/modules/relu"');
+    expect(html).not.toContain('href="/vi/docs/modules/relu"');
     expect(html).toContain(
-      "The numeric output of a layer after its linear transform and nonlinearity, passed forward through the network.",
+      "A simple activation function that keeps positive values and turns negative values into zero.",
     );
-    expect(html).not.toContain(">description<");
   });
 
   it("renders feed-forward timeline state from URL parameters on first load", async () => {

@@ -122,14 +122,14 @@
       "activationFunctions": "Hàm kích hoạt",
       "feedForwardNetworks": "Mạng feed-forward"
     },
-    "classificationSelectorTitle": "Phân loại seed",
-    "classificationSelectorDescription": "Chuyển giữa lát cắt activation và feed-forward mà không rời khỏi bề mặt topology.",
-    "classificationSelectorLabel": "Các phân loại seed topology",
+    "classificationSelectorTitle": "Phân loại module",
+    "classificationSelectorDescription": "Duyệt các nhánh ontology theo module mà không rời khỏi bề mặt topology đã chọn.",
+    "classificationSelectorLabel": "Các phân loại module topology",
     "selectedClassificationLabel": "Phân loại đã chọn",
     "selectedModeLabel": "Bề mặt đã chọn",
-    "membersTitle": "Thành viên đã xuất bản",
-    "graphMapDescription": "Nguyên mẫu bản đồ đồ thị này liệt kê các thành viên đã xuất bản gắn với phân loại đã chọn để người review kiểm tra lát cắt topology trước khi nối trình vẽ đồ thị đầy đủ.",
-    "timelineDescription": "Nguyên mẫu dòng thời gian này sắp xếp các thành viên đã xuất bản trong phân loại đã chọn để người review kiểm tra cùng lát cắt ontology qua một bề mặt theo thời gian.",
+    "membersTitle": "Cây phân loại",
+    "graphMapDescription": "Nguyên mẫu bản đồ đồ thị này dựng cây phân loại được tạo ra cho nhánh đã chọn để người review kiểm tra quyền sở hữu module lồng nhau trước khi nối trình vẽ đồ thị đầy đủ.",
+    "timelineDescription": "Nguyên mẫu dòng thời gian này dựng cùng cây phân loại được tạo ra với thứ tự timeline để người review kiểm tra nhánh đã chọn theo một bề mặt định hướng thời gian.",
     "invalidTitle": "Lựa chọn topology không hợp lệ",
     "invalidDescription": "Phân loại hoặc chế độ bề mặt được yêu cầu không khả dụng trong nguyên mẫu này. Hãy chọn một liên kết topology hợp lệ bên dưới.",
     "invalidClassificationLabel": "Phân loại được yêu cầu",
@@ -138,7 +138,11 @@
     "emptyTitle": "Chưa có tùy chọn topology",
     "emptyDescription": "Hiện không có phân loại seed đủ điều kiện nào có thành viên đã xuất bản cho nguyên mẫu topology.",
     "validOptionsTitle": "Liên kết topology hợp lệ",
-    "memberListLabel": "Thành viên topology"
+    "memberListLabel": "Cây phân loại topology",
+    "classificationChildrenLabel": "Phân loại lồng nhau",
+    "recordChildrenLabel": "Module đã xuất bản",
+    "directMembersLabel": "Thành viên trực tiếp",
+    "totalMembersLabel": "Thành viên hiển thị"
   },
   "modelsIndex": {
     "title": "Mô hình",
