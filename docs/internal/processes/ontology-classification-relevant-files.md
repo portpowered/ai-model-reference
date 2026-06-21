@@ -189,7 +189,10 @@ the temporary legacy-id bridge.
   budget.
 * `src/tests/ci/typed-taxonomy-consumer-audit-command.test.ts`
   CLI-level proof that maintainers can render the current audit summary from the
-  repository root.
+  repository root. Keep reviewer-facing assertions pinned to the measured
+  governance contract, including `Contract status: aligned` and the explicit
+  `none: no unresolved migration targets remain in the audit` outcome whenever
+  the current slice claims the audit has no unresolved migration target.
 * `scripts/report-legacy-taxonomy-compatibility-budget.ts`
   Maintainer entrypoint for printing the approved legacy taxonomy compatibility
   budget and the current measured result for each governed surface.
@@ -202,7 +205,9 @@ the temporary legacy-id bridge.
   budget.
 * `src/tests/ci/typed-taxonomy-consumer-fence-command.test.ts`
   CLI-level proof that the targeted deprecation fence stays green for the
-  committed compatibility contract.
+  committed compatibility contract, including the reviewer-visible
+  `Contract status: aligned` and `Violation status: clear` lines rather than
+  only the banner text.
 * `scripts/audit-typed-taxonomy-consumers.ts`
   Maintainer entrypoint for printing the typed-taxonomy consumer inventory.
 * `scripts/verify-typed-taxonomy-consumer-fence.ts`
