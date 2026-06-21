@@ -30,7 +30,11 @@ import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
-import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
+import { localizeDocsHref } from "@/lib/content/localized-docs-href";
+import {
+  loadPublishedDocsPages,
+  loadShippedLocalizedDocsPages,
+} from "@/lib/content/pages";
 import { getPublishedDocsHrefForRecord } from "@/lib/content/published-docs-registry-ids";
 import { listClassificationMembers } from "@/lib/content/registry-runtime";
 import {
@@ -54,7 +58,6 @@ import {
   buildLocalizedRoute,
   defaultLocale,
   type LocalizedRouteDestination,
-  localizePath,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
 import { localizedRouteAlternates } from "@/lib/i18n/route-locale";
@@ -115,11 +118,15 @@ function formatFallbackRegistryTitle(slug: string): string {
 
 function toTopologyMemberEntries(
   classificationId: string,
-  pages: Awaited<ReturnType<typeof loadShippedLocalizedDocsPages>>,
+  localizedPages: Awaited<ReturnType<typeof loadShippedLocalizedDocsPages>>,
+  canonicalPages: Awaited<ReturnType<typeof loadPublishedDocsPages>>,
   locale: SiteLocale,
 ): TopologyMemberEntry[] {
-  const pagesByRegistryId = new Map(
-    pages.map((page) => [page.frontmatter.registryId, page]),
+  const localizedPagesByRegistryId = new Map(
+    localizedPages.map((page) => [page.frontmatter.registryId, page]),
+  );
+  const canonicalPagesByRegistryId = new Map(
+    canonicalPages.map((page) => [page.frontmatter.registryId, page]),
   );
 
   return listClassificationMembers(classificationId)
@@ -129,17 +136,20 @@ function toTopologyMemberEntries(
         return [];
       }
 
-      const page = pagesByRegistryId.get(member.record.id);
+      const page =
+        localizedPagesByRegistryId.get(member.record.id) ??
+        canonicalPagesByRegistryId.get(member.record.id);
+      const title =
+        page?.messages.title ?? formatFallbackRegistryTitle(member.record.slug);
+      const summary = page?.messages.description ?? title;
+
       return [
         {
           registryId: member.record.id,
           slug: page?.docsSlug ?? member.record.slug,
-          title:
-            page?.messages.title ??
-            formatFallbackRegistryTitle(member.record.slug),
-          summary:
-            page?.messages.description ?? member.record.defaultSummaryKey,
-          url: page?.url ?? localizePath(docsHref, locale),
+          title,
+          summary,
+          url: localizeDocsHref(docsHref, locale),
           kind: member.record.kind,
           membershipType: member.membershipType,
         },
@@ -210,6 +220,10 @@ export async function renderBrowseIndexPage(
 ) {
   const messages = await loadUiMessages(locale);
   const pages = await loadShippedLocalizedDocsPages(locale);
+  const canonicalPages =
+    locale === defaultLocale
+      ? pages
+      : await loadPublishedDocsPages(defaultLocale);
   const topologyOptions = listTopologyNavigationOptions({
     locale,
     labels: getTopologyNavigationLabels(messages),
@@ -267,7 +281,12 @@ export async function renderBrowseIndexPage(
     const membersByClassificationSlug = Object.fromEntries(
       topologyOptions.map((option) => [
         option.classificationSlug,
-        toTopologyMemberEntries(option.classificationId, pages, locale),
+        toTopologyMemberEntries(
+          option.classificationId,
+          pages,
+          canonicalPages,
+          locale,
+        ),
       ]),
     ) as Record<string, TopologyMemberEntry[]>;
 
@@ -294,6 +313,7 @@ export async function renderBrowseIndexPage(
         ? toTopologyMemberEntries(
             topologyState.option.classificationId,
             pages,
+            canonicalPages,
             locale,
           )
         : [];

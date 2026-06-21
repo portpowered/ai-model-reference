@@ -91,6 +91,24 @@ describe("browse index page render", () => {
     expect(html).toContain('href="/docs/modules/relu"');
   });
 
+  it("falls back to canonical member routes and readable summaries on localized topology pages", async () => {
+    const page = await renderBrowseIndexPage("vi", {
+      searchParams: Promise.resolve({
+        classification: "activation-functions",
+        mode: "graph-map",
+      }),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Bản đồ đồ thị Hàm kích hoạt");
+    expect(html).toContain('href="/docs/glossary/activation"');
+    expect(html).not.toContain('href="/vi/docs/glossary/activation"');
+    expect(html).toContain(
+      "The numeric output of a layer after its linear transform and nonlinearity, passed forward through the network.",
+    );
+    expect(html).not.toContain(">description<");
+  });
+
   it("renders feed-forward timeline state from URL parameters on first load", async () => {
     const page = await renderBrowseIndexPage(undefined, {
       searchParams: Promise.resolve({
