@@ -386,7 +386,7 @@ describe("Phase 1 baseline registry records", () => {
       "citation.direct-preference-optimization",
     );
     expect(regime.relatedIds).toContain("concept.alignment");
-    expect(regime.sidebarGrouping?.training).toBe("alignment");
+    expect(regime.sidebarGrouping).toBeUndefined();
   });
 
   test("gpt-2-report citation JSON passes citationRecordSchema", async () => {

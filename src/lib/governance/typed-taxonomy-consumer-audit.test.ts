@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import {
   collectTypedTaxonomyConsumerAudit,
   formatTypedTaxonomyConsumerAudit,
@@ -266,5 +266,53 @@ describe("typed taxonomy consumer audit", () => {
     } finally {
       rmSync(repoRoot, { force: true, recursive: true });
     }
+  });
+
+  test("tracks sidebar grouping as migrated ontology-first audit evidence in the current repo", () => {
+    const repoRoot = resolve(import.meta.dir, "../../..");
+
+    const audit = collectTypedTaxonomyConsumerAudit(repoRoot, {
+      auditedAtUtc: "2026-06-22T00:00:00.000Z",
+    });
+
+    expect(audit.contractStatus).toBe("aligned");
+    expect(audit.nextMigrationTarget).toBeNull();
+
+    const sidebarEntries = audit.entries.filter(
+      (entry) => entry.cluster === "sidebar-topology",
+    );
+
+    expect(sidebarEntries).toEqual([
+      expect.objectContaining({
+        id: "sidebar-group-derivation-module-training-system",
+        status: "migrated-ontology-first-consumer",
+        fields: ["sidebarGrouping"],
+      }),
+      expect.objectContaining({
+        id: "sidebar-group-derivation-concept-glossary",
+        status: "migrated-ontology-first-consumer",
+        fields: ["sidebarGrouping"],
+      }),
+    ]);
+    expect(
+      sidebarEntries
+        .flatMap((entry) => entry.fieldReferences)
+        .map((ref) => ref.field),
+    ).toEqual(Array(6).fill("sidebarGrouping"));
+    expect(
+      audit.clusterSummaries.find(
+        (entry) => entry.cluster === "sidebar-topology",
+      ),
+    ).toEqual(
+      expect.objectContaining({
+        entryCount: 2,
+        fieldCount: 6,
+        statusCounts: {
+          "approved-compatibility-bridge": 0,
+          "migrated-ontology-first-consumer": 2,
+          "unresolved-migration-target": 0,
+        },
+      }),
+    );
   });
 });
