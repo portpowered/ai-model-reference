@@ -1,4 +1,8 @@
-import { getDefaultTopologyClassificationSelectors } from "./topology-data";
+import { listTopologyNavigationOptions } from "@/lib/content/topology-navigation";
+import {
+  getDefaultTopologyClassificationSelectors,
+  resolveTopologyClassificationId,
+} from "./topology-data";
 
 export const TOPOLOGY_CLASSIFICATION_QUERY_KEY = "classification";
 
@@ -13,6 +17,25 @@ function normalizeSelector(selector: string): string {
 
 function dedupeSelectors(selectors: readonly string[]): string[] {
   return [...new Set(selectors.map(normalizeSelector).filter(Boolean))];
+}
+
+function canonicalizeTopologySelectorForOutput(selector: string): string {
+  const classificationId = resolveTopologyClassificationId(selector);
+  if (!classificationId) {
+    return normalizeSelector(selector);
+  }
+
+  const navigationOption = listTopologyNavigationOptions().find(
+    (option) => option.classificationId === classificationId,
+  );
+
+  return navigationOption?.classificationSlug ?? classificationId;
+}
+
+function canonicalizeTopologySelectorsForOutput(
+  selectors: readonly string[],
+): string[] {
+  return dedupeSelectors(selectors.map(canonicalizeTopologySelectorForOutput));
 }
 
 export function getDefaultTopologySelectors(): string[] {
@@ -37,7 +60,7 @@ export function parseTopologyQuery(
 }
 
 function hasDefaultSelectorSet(selectors: readonly string[]): boolean {
-  const normalized = dedupeSelectors(selectors);
+  const normalized = canonicalizeTopologySelectorsForOutput(selectors);
   const defaults = dedupeSelectors(getDefaultTopologyClassificationSelectors());
 
   return (
@@ -62,7 +85,7 @@ export function buildTopologyHref(
       nextParams.set(TOPOLOGY_CLASSIFICATION_QUERY_KEY, "");
     }
   } else if (!hasDefaultSelectorSet(selectors)) {
-    for (const selector of dedupeSelectors(selectors)) {
+    for (const selector of canonicalizeTopologySelectorsForOutput(selectors)) {
       nextParams.append(TOPOLOGY_CLASSIFICATION_QUERY_KEY, selector);
     }
   }

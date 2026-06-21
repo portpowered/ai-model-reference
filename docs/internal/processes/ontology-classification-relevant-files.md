@@ -42,6 +42,16 @@ the temporary legacy-id bridge.
   temporary compatibility branch, and accepted legacy ids or shorthand
   selectors should stay on one explicit temporary path instead of piggybacking
   on generic runtime lookup.
+* `src/features/topology/topology-query.ts`
+  Outbound topology URL contract for the graph surface. Keep entry-time
+  compatibility support separate from emitted selector URLs so chip toggles,
+  clear actions, and other steady-state topology links normalize back to the
+  canonical runtime-backed selector set.
+* `src/features/topology/TopologyPrototype.tsx`
+  Customer-visible topology chip interactions and recovery actions. When
+  selector semantics change, verify both the graph-state resolver and the
+  emitted URL updates here so compatibility aliases do not leak back into the
+  steady-state browser URL.
 * `src/lib/content/ontology-timeline.ts`
   Timeline classification resolution and item assembly. Keep selector matching
   aligned with the shared ontology selector contract instead of ad hoc fuzzy
@@ -102,6 +112,13 @@ the temporary legacy-id bridge.
 * `src/features/topology/topology-data.test.ts`
   Topology-surface assertions for canonical selection, invalid-selector
   recovery, and membership/relationship graph output.
+* `src/features/topology/topology-query.test.ts`
+  Focused proof that topology query serialization normalizes supported
+  compatibility selectors and canonical ids back to the canonical outbound URL
+  contract.
+* `src/features/topology/TopologyPrototype.test.tsx`
+  Browser-interaction-level proof for topology chip hrefs and router pushes
+  after selector canonicalization changes.
 * `src/lib/content/ontology-timeline.test.ts`
   Canonical-versus-compatibility selector assertions for the timeline data
   layer.

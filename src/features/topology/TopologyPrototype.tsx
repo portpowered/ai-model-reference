@@ -1,16 +1,18 @@
 "use client";
 
 import { X } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { MouseEvent } from "react";
 import { useMemo } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { FilterChipNav } from "@/features/docs/components/FilterChipNav";
 import {
   getTopologyNavigationLabels,
   listTopologyNavigationOptions,
 } from "@/lib/content/topology-navigation";
 import type { UiMessages } from "@/lib/content/ui-messages.types";
+import { cn } from "@/lib/utils";
 import { TopologyCytoscapeGraph } from "./TopologyCytoscapeGraph";
 import type { TopologyDocsPageContentByRegistryId } from "./topology-content";
 import {
@@ -36,6 +38,7 @@ export function TopologyPrototype({
     () => parseTopologyQuery(searchParams),
     [searchParams],
   );
+  const defaultTopologyHref = buildTopologyHref(pathname, [], searchParams);
   const graph = buildTopologyGraph(queryState.selectors);
   const chips = useMemo(
     () =>
@@ -83,6 +86,11 @@ export function TopologyPrototype({
     }
 
     updateSelection([...queryState.selectors, selector]);
+  }
+
+  function navigateToDefaultTopology(event: MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+    globalThis.location.assign(defaultTopologyHref);
   }
 
   const filterItems = chips.map((chip) => {
@@ -161,15 +169,16 @@ export function TopologyPrototype({
               ? text.emptyNoSelectionDescription
               : `${text.emptySelectedPrefix}: ${emptySelectionLabel ?? text.selectedViewNone}.`}
           </p>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mt-4"
-            onClick={() => updateSelection([])}
+          <Link
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "mt-4",
+            )}
+            href={defaultTopologyHref}
+            onClick={navigateToDefaultTopology}
           >
             {text.emptyReturnAction}
-          </Button>
+          </Link>
         </article>
       ) : null}
 
@@ -187,15 +196,16 @@ export function TopologyPrototype({
           <p className="mt-2 text-sm text-muted-foreground">
             {text.errorInvalidPrefix}: {graph.invalidSelections.join(", ")}.
           </p>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mt-4"
-            onClick={() => updateSelection([])}
+          <Link
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "mt-4",
+            )}
+            href={defaultTopologyHref}
+            onClick={navigateToDefaultTopology}
           >
             {text.errorReturnAction}
-          </Button>
+          </Link>
         </article>
       ) : null}
     </section>
