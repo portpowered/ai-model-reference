@@ -636,6 +636,23 @@ describe("related-docs", () => {
     expect(groups[0]?.items).toHaveLength(2);
   });
 
+  test("deriveRelatedDocGroups keeps legacy variant-group requests on the explicit compatibility branch when ontology data is absent", () => {
+    const groups = deriveRelatedDocGroups(
+      gqa,
+      [gqa, mqa, mha, sparse],
+      [SAME_VARIANT_GROUP],
+      publishedRegistryIds,
+    );
+
+    expect(groups.map((group) => group.id)).toEqual([
+      COMPATIBILITY_SAME_VARIANT_GROUP,
+    ]);
+    expect(groups[0]?.items.map((item) => item.registryId)).toEqual([
+      "module.multi-head-attention",
+      "module.multi-query-attention",
+    ]);
+  });
+
   test("deriveRelatedDocGroups returns shared-tags for concept sources", () => {
     const groups = deriveRelatedDocGroups(
       token,

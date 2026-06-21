@@ -76,6 +76,11 @@ describe("DerivedRelatedDocs", () => {
     expect(html).toContain(
       'data-related-group="compatibility-same-concept-type"',
     );
+    expect(html).not.toContain('data-related-group="direct-relationships"');
+    expect(html).not.toContain('data-related-group="classification-siblings"');
+    expect(html).not.toContain(
+      'data-related-group="shared-parent-classification"',
+    );
     expect(html).toContain('href="/docs/glossary/transformer"');
   });
 
