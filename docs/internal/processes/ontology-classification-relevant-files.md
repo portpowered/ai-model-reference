@@ -82,7 +82,10 @@ the temporary legacy-id bridge.
 * `src/lib/content/timeline-selector-compatibility.ts`
   Timeline-specific temporary selector fence. Keep any still-supported legacy
   timeline ids or shorthand selectors here so canonical timeline resolution can
-  stay separate from explicit compatibility handling.
+  stay separate from explicit compatibility handling. When timeline query or
+  preload code needs to turn an accepted selector back into the steady-state
+  browser output, route that through this helper too so customer-path files do
+  not hardcode legacy aliases outside the named fence.
 * `src/features/docs/timeline/timeline-query.ts`
   Timeline-specific selector parsing and outbound URL normalization. Keep the
   accepted selector set and the emitted steady-state selector URLs separate

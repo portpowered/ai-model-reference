@@ -2,7 +2,9 @@ import {
   normalizeOntologyClassificationSelector,
   resolveCanonicalOntologyClassificationSelector,
 } from "@/lib/content/ontology-classification-selectors";
+import { listClassificationRecords } from "@/lib/content/registry-runtime";
 import type { ClassificationRecord } from "@/lib/content/schemas";
+import { listTopologyNavigationOptions } from "@/lib/content/topology-navigation";
 
 type TimelineCompatibilitySelectorEntry = {
   selector: string;
@@ -81,6 +83,12 @@ export function listTimelineCompatibilitySelectors(
   ).map((entry) => normalizeOntologyClassificationSelector(entry.selector));
 }
 
+function findCanonicalTimelineOption(classificationId: string) {
+  return listTopologyNavigationOptions().find(
+    (option) => option.classificationId === classificationId,
+  );
+}
+
 export function resolveTimelineClassificationSelector(
   selector: string,
   classifications: readonly ClassificationRecord[],
@@ -103,6 +111,15 @@ export function resolveTimelineClassificationSelector(
   );
 }
 
+export function resolveTimelineClassification(
+  selector: string,
+): ClassificationRecord | undefined {
+  return resolveTimelineClassificationSelector(
+    selector,
+    listClassificationRecords(),
+  );
+}
+
 export function listSupportedTimelineClassificationSelectors(
   classification: ClassificationRecord,
 ): string[] {
@@ -111,4 +128,20 @@ export function listSupportedTimelineClassificationSelectors(
     normalizeOntologyClassificationSelector(classification.slug),
     ...listTimelineCompatibilitySelectors(classification),
   ];
+}
+
+export function getCanonicalTimelineSelectorForOutput(
+  selector: string,
+): string {
+  const normalizedSelector = normalizeOntologyClassificationSelector(selector);
+  const classification = resolveTimelineClassification(normalizedSelector);
+
+  if (!classification) {
+    return normalizedSelector;
+  }
+
+  return (
+    findCanonicalTimelineOption(classification.id)?.classificationSlug ??
+    classification.slug
+  );
 }

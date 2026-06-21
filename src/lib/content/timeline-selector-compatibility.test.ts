@@ -1,8 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { listClassificationRecords } from "@/lib/content/registry-runtime";
 import {
+  getCanonicalTimelineSelectorForOutput,
   listSupportedTimelineClassificationSelectors,
   listTimelineCompatibilitySelectorEntries,
+  resolveTimelineClassification,
   resolveTimelineClassificationSelector,
   resolveTimelineCompatibilityClassificationId,
 } from "@/lib/content/timeline-selector-compatibility";
@@ -75,6 +77,20 @@ describe("timeline selector compatibility fence", () => {
       "classification.module.feed-forward",
       "classification.module.feed-forward",
     ]);
+  });
+
+  test("keeps timeline output selectors canonical even when compatibility inputs are accepted", () => {
+    expect(
+      resolveTimelineClassification("classification.feed-forward-networks")?.id,
+    ).toBe("classification.module.feed-forward");
+    expect(getCanonicalTimelineSelectorForOutput("feed-forward")).toBe(
+      "feed-forward-networks",
+    );
+    expect(
+      getCanonicalTimelineSelectorForOutput(
+        "classification.module.feed-forward",
+      ),
+    ).toBe("feed-forward-networks");
   });
 
   test("rejects undeclared compatibility near misses", () => {
