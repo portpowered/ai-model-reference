@@ -25,6 +25,12 @@ describe("loadUiMessages shell keys", () => {
     expect(messages.nav.search).toBe("Search");
     expect(messages.nav.menu).toBe("Open menu");
     expect(messages.nav.architecture).toBe("Architecture");
+    expect(
+      messages.topologyBrowse.classificationLabels.activationFunctions,
+    ).toBe("Activation Functions");
+    expect(
+      messages.topologyBrowse.classificationLabels.attentionMechanisms,
+    ).toBe("Attention Mechanisms");
     expect(messages.searchEntry.title).toBe("Search");
     expect(messages.browseIndex.title).toBe("Browse the Atlas");
     expect(messages.modelsIndex.title).toBe("Models");
@@ -42,6 +48,12 @@ describe("loadUiMessages shell keys", () => {
     expect(messages.modelsIndex.title).toBe("Mô hình");
     expect(messages.searchEntry.title).toBe("Tìm kiếm");
     expect(messages.tagsIndex.title).toBe("Thẻ");
+    expect(messages.topologyBrowse.navigationLabelTemplate).toBe(
+      "{mode} {classification}",
+    );
+    expect(
+      messages.topologyBrowse.classificationLabels.transformerBlockStructures,
+    ).toBe("Cấu trúc khối transformer");
   });
 
   it("loads shipped japanese shell copy when ja shared messages are available", async () => {
@@ -52,6 +64,12 @@ describe("loadUiMessages shell keys", () => {
     expect(messages.searchEntry.title).toBe("検索");
     expect(messages.tagsIndex.title).toBe("タグ");
     expect(messages.shell.sidebarTitle).toBe("リファレンス");
+    expect(
+      messages.topologyBrowse.classificationLabels.feedForwardNetworks,
+    ).toBe("フィードフォワードネットワーク");
+    expect(
+      messages.topologyBrowse.classificationLabels.normalizationLayers,
+    ).toBe("正規化層");
   });
 
   it("fails closed when shipped vietnamese shared UI messages are missing", async () => {

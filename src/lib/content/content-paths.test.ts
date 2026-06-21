@@ -1,24 +1,26 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import {
-  ATTENTION_MODULE_PAGE_DIR,
   CONTENT_ROOT,
   DOCS_ROOT,
+  DOCS_SECTIONS,
   GLOSSARY_DOCS_ROOT,
-  GROUPED_QUERY_ATTENTION_PAGE_DIR,
   getContentRoot,
+  getDocsPageDir,
   getDocsRoot,
+  getDocsSectionRoot,
   getGlossaryDocsRoot,
   getMessagesRoot,
   getModulesDocsRoot,
   getProjectRoot,
+  getRegistryCollectionRoot,
   getRegistryRoot,
   getTagMessagesRoot,
   MESSAGES_ROOT,
   MODULES_DOCS_ROOT,
+  REGISTRY_COLLECTIONS,
   REGISTRY_ROOT,
   TAG_MESSAGES_ROOT,
-  TOKEN_GLOSSARY_PAGE_DIR,
 } from "./content-paths";
 
 describe("content-paths", () => {
@@ -37,6 +39,72 @@ describe("content-paths", () => {
     );
   });
 
+  test("generic docs section helpers derive canonical section roots", () => {
+    for (const section of DOCS_SECTIONS) {
+      expect(getDocsSectionRoot(section)).toBe(join(DOCS_ROOT, section));
+    }
+
+    expect(getGlossaryDocsRoot()).toBe(getDocsSectionRoot("glossary"));
+    expect(getModulesDocsRoot()).toBe(getDocsSectionRoot("modules"));
+  });
+
+  test("generic docs page helper derives representative page directories", () => {
+    expect(getDocsPageDir("glossary", "token")).toBe(
+      join(GLOSSARY_DOCS_ROOT, "token"),
+    );
+    expect(getDocsPageDir("modules", "grouped-query-attention")).toBe(
+      join(MODULES_DOCS_ROOT, "grouped-query-attention"),
+    );
+  });
+
+  test("generic docs page helper preserves section-plus-slug invariants for custom roots", () => {
+    const docsRoot = "/tmp/model-reference/docs";
+    const representativePages = [
+      { section: "glossary", slug: "token" },
+      { section: "concepts", slug: "alibi" },
+      { section: "modules", slug: "grouped-query-attention" },
+      { section: "models", slug: "gpt-2" },
+      { section: "papers", slug: "attention-is-all-you-need" },
+      { section: "training", slug: "instruction-tuning" },
+      { section: "systems", slug: "vllm" },
+    ] as const;
+
+    for (const { section, slug } of representativePages) {
+      const sectionRoot = getDocsSectionRoot(section, docsRoot);
+
+      expect(sectionRoot).toBe(join(docsRoot, section));
+      expect(getDocsPageDir(section, slug, docsRoot)).toBe(
+        join(sectionRoot, slug),
+      );
+    }
+  });
+
+  test("generic registry collection helpers derive canonical collection roots", () => {
+    for (const collection of REGISTRY_COLLECTIONS) {
+      expect(getRegistryCollectionRoot(collection)).toBe(
+        join(REGISTRY_ROOT, collection),
+      );
+    }
+
+    expect(getTagMessagesRoot()).toBe(
+      join(getRegistryCollectionRoot("tags"), "messages"),
+    );
+  });
+
+  test("generic registry helpers preserve collection derivation invariants for custom roots", () => {
+    const registryRoot = "/tmp/model-reference/registry";
+
+    for (const collection of REGISTRY_COLLECTIONS) {
+      expect(getRegistryCollectionRoot(collection, registryRoot)).toBe(
+        join(registryRoot, collection),
+      );
+    }
+
+    expect(getTagMessagesRoot(registryRoot)).toBe(
+      join(registryRoot, "tags", "messages"),
+    );
+  });
+
   test("exported production roots match helper-derived paths", () => {
     expect(DOCS_ROOT).toBe(getDocsRoot());
     expect(GLOSSARY_DOCS_ROOT).toBe(getGlossaryDocsRoot());
@@ -45,12 +113,5 @@ describe("content-paths", () => {
     expect(MESSAGES_ROOT).toBe(getMessagesRoot());
     expect(TAG_MESSAGES_ROOT).toBe(getTagMessagesRoot());
     expect(CONTENT_ROOT.endsWith("src/content")).toBe(true);
-    expect(ATTENTION_MODULE_PAGE_DIR).toBe(
-      join(MODULES_DOCS_ROOT, "attention"),
-    );
-    expect(GROUPED_QUERY_ATTENTION_PAGE_DIR).toBe(
-      join(MODULES_DOCS_ROOT, "grouped-query-attention"),
-    );
-    expect(TOKEN_GLOSSARY_PAGE_DIR).toBe(join(GLOSSARY_DOCS_ROOT, "token"));
   });
 });

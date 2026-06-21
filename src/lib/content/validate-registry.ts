@@ -7,17 +7,19 @@ import {
   supportedLocales,
 } from "@/lib/i18n/locale-routing";
 import { tagPageHref } from "./content-hrefs";
-import { CONTENT_ROOT, DOCS_ROOT } from "./content-paths";
+import { CONTENT_ROOT, DOCS_ROOT, getDocsPageDir } from "./content-paths";
 import { collectTableMessageKeys } from "./module-comparison-table";
 import { assetMessageKeys, loadPageAssets } from "./page-assets-load";
 import {
   getMessageString,
-  groupedQueryAttentionPageDir,
   hasPageMessagesFile,
   loadPageMessages,
-  tokenGlossaryPageDir,
 } from "./page-messages-load";
 import { validatePageTemplateConformance } from "./page-template-conformance";
+import {
+  getPublishedDocsHrefForRecord,
+  PUBLISHED_DOCS_REGISTRY_IDS,
+} from "./published-docs-registry-ids";
 import {
   loadRegistry,
   type RegistryIndexes,
@@ -26,13 +28,16 @@ import {
 } from "./registry";
 import {
   type ModelRecord,
+  type ModuleGraphNode,
   type ModuleRecord,
   type PageAssetConfig,
   type PageKind,
   type PageMessages,
   pageFrontmatterSchema,
   type SystemRecord,
+  type TableRecord,
   type TrainingRegimeRecord,
+  tableRecordSchema,
 } from "./schemas";
 import {
   isShippedLocalizedDocsSlug,
@@ -71,6 +76,7 @@ const registryKindDirectories: Record<string, string> = {
   module: "modules",
   concept: "concepts",
   model: "models",
+  classification: "classifications",
   paper: "papers",
   "training-regime": "training-regimes",
   system: "systems",
@@ -292,8 +298,8 @@ function missingReleaseMetadataFields(record: RegistryRecord): string[] {
 
 /** Phase 1 page directories validated even when `page.mdx` is not present yet. */
 export const phase1PageDirectories = [
-  groupedQueryAttentionPageDir,
-  tokenGlossaryPageDir,
+  getDocsPageDir("modules", "grouped-query-attention"),
+  getDocsPageDir("glossary", "token"),
 ] as const;
 
 export type ValidateRegistryContentOptions = {
@@ -374,6 +380,146 @@ function moduleReferenceFields(
     fields.push({ field: "sourceId", ids: [record.sourceId] });
   }
   return fields;
+}
+
+function hasPublishedDocsPage(record: RegistryRecord): boolean {
+  return (
+    PUBLISHED_DOCS_REGISTRY_IDS.has(record.id) &&
+    Boolean(getPublishedDocsHrefForRecord(record))
+  );
+}
+
+function isValidGraphRelatedHref(href: string): boolean {
+  if (href.startsWith("/")) {
+    return true;
+  }
+
+  try {
+    const parsed = new URL(href);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function validateGraphNodeContracts(
+  record: RegistryRecord,
+  node: ModuleGraphNode,
+  indexes: RegistryIndexes,
+  filePath: string,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  const hasGraphLocalSummary = Boolean(node.summaryKey?.trim());
+  const hasGraphLocalDestination = Boolean(
+    node.relatedRegistryId || node.relatedHref?.trim(),
+  );
+
+  if (node.registryId && !indexes.byId.has(node.registryId)) {
+    errors.push({
+      code: "unresolved-graph-node-registry-id",
+      message: `${record.id}: node "${node.id}" registryId references missing record "${node.registryId}"`,
+      path: filePath,
+    });
+  }
+
+  if (node.relatedRegistryId && node.relatedHref?.trim()) {
+    errors.push({
+      code: "ambiguous-graph-node-related-target",
+      message: `${record.id}: node "${node.id}" must not define both relatedRegistryId and relatedHref`,
+      path: filePath,
+    });
+  }
+
+  if (hasGraphLocalDestination && !hasGraphLocalSummary) {
+    errors.push({
+      code: "graph-local-summary-required",
+      message: `${record.id}: node "${node.id}" must define summaryKey before exposing graph-local related docs destinations`,
+      path: filePath,
+    });
+  }
+
+  if (node.relatedRegistryId) {
+    const relatedRecord = indexes.byId.get(node.relatedRegistryId);
+
+    if (!relatedRecord) {
+      errors.push({
+        code: "unresolved-graph-node-related-registry-id",
+        message: `${record.id}: node "${node.id}" relatedRegistryId references missing record "${node.relatedRegistryId}"`,
+        path: filePath,
+      });
+    } else if (!hasPublishedDocsPage(relatedRecord)) {
+      errors.push({
+        code: "unpublished-graph-node-related-registry-id",
+        message: `${record.id}: node "${node.id}" relatedRegistryId "${node.relatedRegistryId}" does not resolve to a published docs page`,
+        path: filePath,
+      });
+    }
+  }
+
+  const relatedHref = node.relatedHref?.trim();
+  if (relatedHref && !isValidGraphRelatedHref(relatedHref)) {
+    errors.push({
+      code: "invalid-graph-node-related-href",
+      message: `${record.id}: node "${node.id}" relatedHref "${node.relatedHref}" must be an absolute http(s) URL or site-relative path`,
+      path: filePath,
+    });
+  }
+
+  return errors;
+}
+
+function validateGraphRecordStructure(
+  record: RegistryRecord,
+  graph: Extract<RegistryRecord, { kind: "graph" }>,
+  indexes: RegistryIndexes,
+  filePath: string,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  const nodeIds = new Set(graph.nodes.map((node) => node.id));
+
+  if (!nodeIds.has(graph.rootNodeId)) {
+    errors.push({
+      code: "unresolved-graph-root-node-id",
+      message: `${record.id}: rootNodeId references missing node "${graph.rootNodeId}"`,
+      path: filePath,
+    });
+  }
+
+  for (const node of graph.nodes) {
+    errors.push(...validateGraphNodeContracts(record, node, indexes, filePath));
+
+    for (const childNodeId of node.childNodeIds) {
+      if (nodeIds.has(childNodeId)) {
+        continue;
+      }
+
+      errors.push({
+        code: "unresolved-graph-child-node-id",
+        message: `${record.id}: node "${node.id}" childNodeIds references missing node "${childNodeId}"`,
+        path: filePath,
+      });
+    }
+  }
+
+  for (const edge of graph.edges) {
+    if (!nodeIds.has(edge.source)) {
+      errors.push({
+        code: "unresolved-graph-edge-source",
+        message: `${record.id}: edge "${edge.id}" source references missing node "${edge.source}"`,
+        path: filePath,
+      });
+    }
+
+    if (!nodeIds.has(edge.target)) {
+      errors.push({
+        code: "unresolved-graph-edge-target",
+        message: `${record.id}: edge "${edge.id}" target references missing node "${edge.target}"`,
+        path: filePath,
+      });
+    }
+  }
+
+  return errors;
 }
 
 function validateRegistryRecordReferences(
@@ -489,6 +635,12 @@ function validateRegistryRecordReferences(
       message: `${record.id}: subjectId references missing record "${record.subjectId}"`,
       path: filePath,
     });
+  }
+
+  if (record.kind === "graph") {
+    errors.push(
+      ...validateGraphRecordStructure(record, record, indexes, filePath),
+    );
   }
 
   if (isPublishedSourceRecord(record)) {
@@ -641,11 +793,58 @@ function validateGraphAssetReferences(
   return errors;
 }
 
+export async function loadTableRecordsFromRegistry(
+  registryRoot: string,
+): Promise<{
+  recordsById: Map<string, TableRecord>;
+  errors: ValidationError[];
+}> {
+  const tablesRoot = join(registryRoot, "tables");
+  let entries: string[];
+  try {
+    entries = (await readdir(tablesRoot)).filter((entry) =>
+      entry.endsWith(".json"),
+    );
+  } catch {
+    return { recordsById: new Map(), errors: [] };
+  }
+
+  const recordsById = new Map<string, TableRecord>();
+  const errors: ValidationError[] = [];
+
+  for (const entry of entries.sort()) {
+    const recordPath = join(tablesRoot, entry);
+    try {
+      const raw = JSON.parse(await readFile(recordPath, "utf8")) as unknown;
+      const record = tableRecordSchema.parse(raw);
+      if (recordsById.has(record.id)) {
+        errors.push({
+          code: "duplicate-table-id",
+          message: `Duplicate table registry id "${record.id}" in ${recordPath}`,
+          path: recordPath,
+        });
+        continue;
+      }
+      recordsById.set(record.id, record);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      errors.push({
+        code: "invalid-table-record",
+        message: `${recordPath}: ${message}`,
+        path: recordPath,
+      });
+    }
+  }
+
+  return { recordsById, errors };
+}
+
 function validateTableAssetReferences(
   pageDirectory: string,
   assets: PageAssetConfig,
   messages: PageMessages,
   indexes: RegistryIndexes,
+  tableRecordsById?: ReadonlyMap<string, TableRecord>,
   locale: SiteLocale = defaultLocale,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
@@ -655,7 +854,8 @@ function validateTableAssetReferences(
       continue;
     }
 
-    const tableRecord = getTableById(asset.tableId);
+    const tableRecord =
+      tableRecordsById?.get(asset.tableId) ?? getTableById(asset.tableId);
     if (!tableRecord) {
       errors.push({
         code: "unresolved-table-id",
@@ -719,6 +919,7 @@ async function discoverPageMdxFiles(docsRoot: string): Promise<string[]> {
 export async function validateColocatedPageBundle(
   pageDirectory: string,
   indexes?: RegistryIndexes,
+  tableRecordsById?: ReadonlyMap<string, TableRecord>,
 ): Promise<{
   errors: ValidationError[];
   messages?: PageMessages;
@@ -757,7 +958,13 @@ export async function validateColocatedPageBundle(
   if (indexes) {
     errors.push(
       ...validateGraphAssetReferences(pageDirectory, assets, indexes),
-      ...validateTableAssetReferences(pageDirectory, assets, messages, indexes),
+      ...validateTableAssetReferences(
+        pageDirectory,
+        assets,
+        messages,
+        indexes,
+        tableRecordsById,
+      ),
     );
   }
 
@@ -782,6 +989,7 @@ async function validateLocalizedPageMessages(
   mdxBody: string,
   assets: PageAssetConfig,
   indexes: RegistryIndexes,
+  tableRecordsById: ReadonlyMap<string, TableRecord> | undefined,
   shippedLocalizedDocsManifest: ShippedLocalizedDocsManifest,
 ): Promise<ValidationError[]> {
   const errors: ValidationError[] = [];
@@ -846,6 +1054,7 @@ async function validateLocalizedPageMessages(
         assets,
         messages,
         indexes,
+        tableRecordsById,
         locale,
       ),
     );
@@ -868,6 +1077,7 @@ async function validatePageMdx(
   pagePath: string,
   docsRoot: string,
   indexes: RegistryIndexes,
+  tableRecordsById: ReadonlyMap<string, TableRecord> | undefined,
   shippedLocalizedDocsManifest: ShippedLocalizedDocsManifest,
 ): Promise<ValidationError[]> {
   const errors: ValidationError[] = [];
@@ -942,7 +1152,11 @@ async function validatePageMdx(
     }
   }
 
-  const bundle = await validateColocatedPageBundle(pageDirectory, indexes);
+  const bundle = await validateColocatedPageBundle(
+    pageDirectory,
+    indexes,
+    tableRecordsById,
+  );
   errors.push(...bundle.errors);
   if (!bundle.messages || !bundle.assets) {
     return errors;
@@ -978,6 +1192,7 @@ async function validatePageMdx(
       mdxBody,
       assets,
       indexes,
+      tableRecordsById,
       shippedLocalizedDocsManifest,
     )),
   );
@@ -1164,6 +1379,7 @@ async function validateRegistryFiles(
         indexes: {
           byId: new Map(),
           bySlug: new Map(),
+          classificationsById: new Map(),
           tagsById: new Map(),
           tagsBySlug: new Map(),
         },
@@ -1178,12 +1394,15 @@ export async function validateRegistryContent(
   options: ValidateRegistryContentOptions = {},
 ): Promise<ValidationError[]> {
   const docsRoot = options.docsRoot ?? defaultDocsRoot;
+  const registryRoot =
+    options.registryRoot ?? join(defaultContentRoot, "registry");
   resetDerivedShippedLocalizedDocsManifestCache();
   const shippedLocalizedDocsManifest =
     resolveDerivedShippedLocalizedDocsManifest(
       options.shippedLocalizedDocsManifest,
       docsRoot,
     );
+  const tableRegistry = await loadTableRecordsFromRegistry(registryRoot);
   const { indexes, errors: registryErrors } =
     await validateRegistryFiles(options);
 
@@ -1191,7 +1410,7 @@ export async function validateRegistryContent(
     return registryErrors;
   }
 
-  const errors = [...registryErrors];
+  const errors = [...registryErrors, ...tableRegistry.errors];
 
   const pagePaths = await discoverPageMdxFiles(docsRoot);
   const validatedPageDirectories = new Set<string>();
@@ -1203,6 +1422,7 @@ export async function validateRegistryContent(
         pagePath,
         docsRoot,
         indexes,
+        tableRegistry.recordsById,
         shippedLocalizedDocsManifest,
       )),
     );
@@ -1215,7 +1435,13 @@ export async function validateRegistryContent(
       continue;
     }
     errors.push(
-      ...(await validateColocatedPageBundle(pageDirectory, indexes)).errors,
+      ...(
+        await validateColocatedPageBundle(
+          pageDirectory,
+          indexes,
+          tableRegistry.recordsById,
+        )
+      ).errors,
     );
   }
 

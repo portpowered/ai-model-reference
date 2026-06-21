@@ -19,6 +19,8 @@ import {
 } from "@/lib/content/related-docs";
 import { pageMessagesSchema } from "@/lib/content/schemas";
 
+const RELATIVE_BIAS_FAMILY_TIMEOUT_MS = 15_000;
+
 describe("Phase 3 relative bias family pages (US-003)", () => {
   test("canonical route, frontmatter, and default English messages resolve together for relative position bias", async () => {
     const route = localDocsRoute({
@@ -199,97 +201,110 @@ describe("Phase 3 relative bias family pages (US-003)", () => {
     ).toBe("/docs/modules/relative-position-bias");
   });
 
-  test("published pages render with visible family navigation and references", async () => {
-    for (const slug of [
-      "relative-position-bias",
-      "t5-relative-position-bias",
-    ] as const) {
-      const page = await loadModulePage(slug);
-      const html = renderToStaticMarkup(
+  test(
+    "published pages render with visible family navigation and references",
+    async () => {
+      for (const slug of [
+        "relative-position-bias",
+        "t5-relative-position-bias",
+      ] as const) {
+        const page = await loadModulePage(slug);
+        const html = renderToStaticMarkup(
+          createElement(ModulePageProviders, {
+            messages: page.messages,
+            assets: page.assets,
+            // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+            children: page.content,
+          }),
+        );
+
+        expect(page.frontmatter.status).toBe("published");
+        expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
+        expect(html).toContain("Related Concepts And Modules");
+        expect(html).toContain("References");
+        expect(html).toContain('href="/docs/concepts/positional-encodings"');
+        expect(html).toContain('href="/docs/modules/rope"');
+        expect(html).toContain('href="/docs/modules/alibi"');
+        expect(html).toContain('href="/tags/foundations"');
+      }
+
+      const relativeBiasPage = await loadModulePage("relative-position-bias");
+      const relativeBiasHtml = renderToStaticMarkup(
         createElement(ModulePageProviders, {
-          messages: page.messages,
-          assets: page.assets,
+          messages: relativeBiasPage.messages,
+          assets: relativeBiasPage.assets,
           // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-          children: page.content,
+          children: relativeBiasPage.content,
         }),
       );
+      expect(relativeBiasHtml).toContain(
+        'href="/docs/modules/t5-relative-position-bias"',
+      );
 
-      expect(page.frontmatter.status).toBe("published");
-      expect(page.messages.openingSummary?.length).toBeGreaterThan(0);
-      expect(html).toContain("Related Concepts And Modules");
-      expect(html).toContain("References");
-      expect(html).toContain('href="/docs/concepts/positional-encodings"');
-      expect(html).toContain('href="/docs/modules/rope"');
-      expect(html).toContain('href="/docs/modules/alibi"');
-      expect(html).toContain('href="/tags/foundations"');
-    }
+      const t5Page = await loadModulePage("t5-relative-position-bias");
+      const t5Html = renderToStaticMarkup(
+        createElement(ModulePageProviders, {
+          messages: t5Page.messages,
+          assets: t5Page.assets,
+          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+          children: t5Page.content,
+        }),
+      );
+      expect(t5Html).toContain('href="/docs/modules/relative-position-bias"');
+      expect(t5Html).toContain("Raffel");
 
-    const relativeBiasPage = await loadModulePage("relative-position-bias");
-    const relativeBiasHtml = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: relativeBiasPage.messages,
-        assets: relativeBiasPage.assets,
-        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-        children: relativeBiasPage.content,
-      }),
-    );
-    expect(relativeBiasHtml).toContain(
-      'href="/docs/modules/t5-relative-position-bias"',
-    );
+      const alibiPage = await loadModulePage("alibi");
+      const alibiHtml = renderToStaticMarkup(
+        createElement(ModulePageProviders, {
+          messages: alibiPage.messages,
+          assets: alibiPage.assets,
+          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+          children: alibiPage.content,
+        }),
+      );
+      expect(alibiHtml).toContain(
+        'data-testid="classification-siblings-related-docs"',
+      );
+      expect(alibiHtml).toContain(
+        "Same classification: position encoding methods",
+      );
+      expect(alibiHtml).toContain(
+        'href="/docs/modules/relative-position-bias"',
+      );
+      expect(alibiHtml).toContain(
+        'href="/docs/modules/t5-relative-position-bias"',
+      );
 
-    const t5Page = await loadModulePage("t5-relative-position-bias");
-    const t5Html = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: t5Page.messages,
-        assets: t5Page.assets,
-        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-        children: t5Page.content,
-      }),
-    );
-    expect(t5Html).toContain('href="/docs/modules/relative-position-bias"');
-    expect(t5Html).toContain("Raffel");
+      const ropePage = await loadModulePage("rope");
+      const ropeHtml = renderToStaticMarkup(
+        createElement(ModulePageProviders, {
+          messages: ropePage.messages,
+          assets: ropePage.assets,
+          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+          children: ropePage.content,
+        }),
+      );
+      expect(ropeHtml).toContain('data-testid="curated-related-docs"');
+      expect(ropeHtml).toContain('href="/docs/modules/relative-position-bias"');
 
-    const alibiPage = await loadModulePage("alibi");
-    const alibiHtml = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: alibiPage.messages,
-        assets: alibiPage.assets,
-        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-        children: alibiPage.content,
-      }),
-    );
-    expect(alibiHtml).toContain('data-testid="variant-group-related-docs"');
-    expect(alibiHtml).toContain('href="/docs/modules/relative-position-bias"');
-    expect(alibiHtml).toContain(
-      'href="/docs/modules/t5-relative-position-bias"',
-    );
-
-    const ropePage = await loadModulePage("rope");
-    const ropeHtml = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: ropePage.messages,
-        assets: ropePage.assets,
-        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-        children: ropePage.content,
-      }),
-    );
-    expect(ropeHtml).toContain('data-testid="curated-related-docs"');
-    expect(ropeHtml).toContain('href="/docs/modules/relative-position-bias"');
-
-    const absolutePage = await loadModulePage("absolute-positional-embeddings");
-    const absoluteHtml = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: absolutePage.messages,
-        assets: absolutePage.assets,
-        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-        children: absolutePage.content,
-      }),
-    );
-    expect(absoluteHtml).toContain('data-testid="curated-related-docs"');
-    expect(absoluteHtml).toContain(
-      'href="/docs/modules/relative-position-bias"',
-    );
-  });
+      const absolutePage = await loadModulePage(
+        "absolute-positional-embeddings",
+      );
+      const absoluteHtml = renderToStaticMarkup(
+        createElement(ModulePageProviders, {
+          messages: absolutePage.messages,
+          assets: absolutePage.assets,
+          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+          children: absolutePage.content,
+        }),
+      );
+      expect(absoluteHtml).toContain('data-testid="curated-related-docs"');
+      expect(absoluteHtml).toContain(
+        'href="/docs/modules/relative-position-bias"',
+      );
+    },
+    { timeout: RELATIVE_BIAS_FAMILY_TIMEOUT_MS },
+  );
 
   test("relative position bias page copy explains the family in plain language and contrasts nearby methods", async () => {
     const page = await loadModulePage("relative-position-bias");

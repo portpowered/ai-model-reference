@@ -1,0 +1,49 @@
+{
+  "id": "table.causal-attention-comparison",
+  "subjectId": "module.causal-attention",
+  "columns": [
+    {
+      "moduleId": "module.causal-attention",
+      "titleKey": "tables.comparison.columns.causal.title"
+    },
+    {
+      "moduleId": "module.bidirectional-attention",
+      "titleKey": "tables.comparison.columns.bidirectional.title"
+    },
+    {
+      "moduleId": "module.attention",
+      "titleKey": "tables.comparison.columns.attention.title"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "visibleContext",
+      "labelKey": "tables.comparison.dimensions.visibleContext"
+    },
+    {
+      "id": "bestFitTask",
+      "labelKey": "tables.comparison.dimensions.bestFitTask"
+    },
+    {
+      "id": "generationBehavior",
+      "labelKey": "tables.comparison.dimensions.generationBehavior"
+    }
+  ],
+  "valueKeysByModuleId": {
+    "module.causal-attention": {
+      "visibleContext": "tables.comparison.values.causal.visibleContext",
+      "bestFitTask": "tables.comparison.values.causal.bestFitTask",
+      "generationBehavior": "tables.comparison.values.causal.generationBehavior"
+    },
+    "module.bidirectional-attention": {
+      "visibleContext": "tables.comparison.values.bidirectional.visibleContext",
+      "bestFitTask": "tables.comparison.values.bidirectional.bestFitTask",
+      "generationBehavior": "tables.comparison.values.bidirectional.generationBehavior"
+    },
+    "module.attention": {
+      "visibleContext": "tables.comparison.values.attention.visibleContext",
+      "bestFitTask": "tables.comparison.values.attention.bestFitTask",
+      "generationBehavior": "tables.comparison.values.attention.generationBehavior"
+    }
+  }
+}

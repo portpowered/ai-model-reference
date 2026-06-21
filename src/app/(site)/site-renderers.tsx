@@ -6,12 +6,19 @@ import {
 } from "fumadocs-ui/layouts/docs/page";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { HomeArticle } from "@/components/home/home-article";
 import { BrowseAtlasPage } from "@/features/docs/components/BrowseAtlasPage";
 import { DocsIndexEmptyState } from "@/features/docs/components/DocsIndexEmptyState";
 import type { DocsIndexEntry } from "@/features/docs/components/DocsIndexEntryList";
 import { DocsIndexEntryList } from "@/features/docs/components/DocsIndexEntryList";
+import { StaticExportBrowsePage } from "@/features/docs/components/StaticExportBrowsePage";
 import { TagResourceList } from "@/features/docs/components/TagResourceList";
+import {
+  TopologyBrowsePage,
+  topologyBrowseDescription,
+  topologyBrowseTitle,
+} from "@/features/docs/components/TopologyBrowsePage";
 import { SearchPagePanelContent } from "@/features/docs/search/SearchPagePanel";
 import {
   EMPTY_SEARCH_PAGE_HANDOFF,
@@ -20,9 +27,15 @@ import {
 import { TagLandingEmptyState } from "@/features/docs/tags/TagLandingEmptyState";
 import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
+import { OntologyTimelinePage } from "@/features/docs/timeline/OntologyTimelinePage";
+import { TopologyPrototype } from "@/features/topology/TopologyPrototype";
+import type { TopologyDocsPageContentByRegistryId } from "@/features/topology/topology-content";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
-import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
+import {
+  loadPublishedDocsPages,
+  loadShippedLocalizedDocsPages,
+} from "@/lib/content/pages";
 import {
   loadTagLandingContext,
   loadTagResourceGroups,
@@ -31,6 +44,18 @@ import {
   loadPublishedTagIndexEntries,
   loadPublishedTagIndexGroups,
 } from "@/lib/content/tags";
+import {
+  resolveTopologyBrowseState,
+  type TopologySearchParams,
+} from "@/lib/content/topology-browse";
+import {
+  getTopologyNavigationLabels,
+  listTopologyNavigationOptions,
+} from "@/lib/content/topology-navigation";
+import {
+  buildTopologyTreeEntries,
+  type TopologyClassificationEntry,
+} from "@/lib/content/topology-tree-entries";
 import { loadUiMessages } from "@/lib/content/ui-messages";
 import {
   buildLocalizedRoute,
@@ -46,6 +71,11 @@ import { searchResultMetaMapToRecord } from "@/lib/search/serialize-result-meta"
 export type SearchPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export type BrowseIndexPageProps = {
+  searchParams?: Promise<TopologySearchParams>;
+};
+export type TimelinePageProps = SearchPageProps;
 
 export type TagLandingPageProps = {
   params: Promise<{ slug: string }>;
@@ -138,11 +168,21 @@ export async function renderHomePage(locale: SiteLocale = defaultLocale) {
 
 export async function renderBrowseIndexPage(
   locale: SiteLocale = defaultLocale,
+  { searchParams }: BrowseIndexPageProps = {},
 ) {
   const messages = await loadUiMessages(locale);
   const pages = await loadShippedLocalizedDocsPages(locale);
-
-  return (
+  const canonicalPages =
+    locale === defaultLocale
+      ? pages
+      : await loadPublishedDocsPages(defaultLocale);
+  const topologyLabels = getTopologyNavigationLabels(messages);
+  const topologyOptions = listTopologyNavigationOptions({
+    locale,
+    labels: topologyLabels,
+  });
+  const isStaticExport = process.env.NEXT_STATIC_EXPORT === "1";
+  const defaultPage = (
     <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
       <DocsTitle>{messages.browseIndex.title}</DocsTitle>
       <DocsDescription>{messages.browseIndex.description}</DocsDescription>
@@ -189,6 +229,68 @@ export async function renderBrowseIndexPage(
       </DocsBody>
     </DocsPage>
   );
+
+  if (isStaticExport) {
+    const treeByClassificationSlug = Object.fromEntries(
+      topologyOptions.map((option) => [
+        option.classificationSlug,
+        buildTopologyTreeEntries({
+          tree: option.tree,
+          localizedPages: pages,
+          canonicalPages,
+          locale,
+          topologyLabels,
+        }),
+      ]),
+    ) as Record<string, TopologyClassificationEntry[]>;
+
+    return (
+      <Suspense fallback={defaultPage}>
+        <StaticExportBrowsePage
+          messages={messages}
+          options={topologyOptions}
+          treeByClassificationSlug={treeByClassificationSlug}
+          defaultPage={defaultPage}
+        />
+      </Suspense>
+    );
+  }
+
+  const topologyState = resolveTopologyBrowseState(
+    await searchParams,
+    topologyOptions,
+  );
+
+  if (topologyState.kind !== "not-requested") {
+    const topologyTree =
+      topologyState.kind === "selected"
+        ? buildTopologyTreeEntries({
+            tree: topologyState.option.tree,
+            localizedPages: pages,
+            canonicalPages,
+            locale,
+            topologyLabels,
+          })
+        : [];
+
+    return (
+      <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
+        <DocsTitle>{topologyBrowseTitle(messages, topologyState)}</DocsTitle>
+        <DocsDescription>
+          {topologyBrowseDescription(messages, topologyState)}
+        </DocsDescription>
+        <DocsBody>
+          <TopologyBrowsePage
+            messages={messages}
+            state={topologyState}
+            tree={topologyTree}
+          />
+        </DocsBody>
+      </DocsPage>
+    );
+  }
+
+  return defaultPage;
 }
 
 export async function renderSectionKindIndexPage(
@@ -273,6 +375,24 @@ export async function renderSearchPage(
   );
 }
 
+export async function renderTimelinePage(
+  locale: SiteLocale = defaultLocale,
+  _props: TimelinePageProps = {},
+) {
+  const messages = await loadUiMessages(locale);
+  const { timelinePage } = messages;
+
+  return (
+    <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
+      <DocsTitle>{timelinePage.title}</DocsTitle>
+      <DocsDescription>{timelinePage.description}</DocsDescription>
+      <DocsBody>
+        <OntologyTimelinePage locale={locale} messages={messages} />
+      </DocsBody>
+    </DocsPage>
+  );
+}
+
 export async function renderArchitectureIndexPage(
   locale: SiteLocale = defaultLocale,
 ) {
@@ -301,6 +421,73 @@ export async function renderArchitectureIndexPage(
         )}
       </DocsBody>
     </DocsPage>
+  );
+}
+
+export async function renderTopologyPrototypePage(
+  locale: SiteLocale = defaultLocale,
+) {
+  const messages = await loadUiMessages(locale);
+  const docsPages = await loadShippedLocalizedDocsPages(locale);
+  const { topologyPrototype } = messages;
+  const docsPageContentByRegistryId: TopologyDocsPageContentByRegistryId =
+    Object.fromEntries(
+      docsPages.map((page) => [
+        page.frontmatter.registryId,
+        {
+          href: page.url,
+          summary: page.messages.description,
+          title: page.messages.title,
+        },
+      ]),
+    );
+
+  return (
+    <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
+      <DocsTitle>{topologyPrototype.title}</DocsTitle>
+      <DocsBody>
+        <Suspense
+          fallback={
+            <TopologyPrototypeLoadingFallback
+              title={topologyPrototype.loadingTitle}
+              description={topologyPrototype.loadingDescription}
+            />
+          }
+        >
+          <TopologyPrototype
+            messages={messages}
+            docsPageContentByRegistryId={docsPageContentByRegistryId}
+          />
+        </Suspense>
+      </DocsBody>
+    </DocsPage>
+  );
+}
+
+function TopologyPrototypeLoadingFallback({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <section className="space-y-6" aria-labelledby="topology-success-title">
+      <div className="grid gap-3 md:grid-cols-3">
+        <article
+          className="rounded-lg border border-border bg-muted/20 p-4"
+          aria-labelledby="topology-loading-title"
+        >
+          <h2
+            id="topology-loading-title"
+            className="text-sm font-semibold text-foreground"
+          >
+            {title}
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+        </article>
+      </div>
+    </section>
   );
 }
 

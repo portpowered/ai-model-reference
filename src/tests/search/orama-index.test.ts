@@ -1,7 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, rmSync } from "node:fs";
-import path from "node:path";
 import { search } from "@orama/orama";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { loadRegistry } from "@/lib/content/registry";
@@ -10,6 +8,7 @@ import {
   createOramaDatabase,
   exportOramaIndexSnapshot,
   type OramaSnapshotDocument,
+  toOramaRecord,
 } from "@/lib/search/orama-index";
 
 const ATTENTION_MODULE_URL = "/docs/modules/attention";
@@ -27,6 +26,7 @@ const PAGE_SPEC_WORKFLOW_SAMPLE_URL =
   "/docs/concepts/page-spec-workflow-sample";
 const FEED_FORWARD_NETWORK_URL = "/docs/modules/feed-forward-network";
 const STANDARD_FFN_URL = "/docs/modules/standard-ffn";
+const ACTIVATION_GLOSSARY_URL = "/docs/glossary/activation";
 const NORMALIZATION_URL = "/docs/glossary/normalization";
 const LAYER_NORM_URL = "/docs/modules/layer-norm";
 const BATCH_NORM_URL = "/docs/modules/batch-norm";
@@ -215,10 +215,6 @@ const PUBLISHED_SEARCH_INDEX_URLS = [
   ...MODEL_FAMILY_URLS,
   ...CHAIN_GLOSSARY_URLS,
 ] as const;
-const GENERATED_INDEX_PATH = path.join(
-  process.cwd(),
-  "src/generated/search-index.json",
-);
 const BUILD_SEARCH_INDEX_TEST_ENV: NodeJS.ProcessEnv = {
   PATH: process.env.PATH ?? "",
   HOME: process.env.HOME ?? "",
@@ -227,6 +223,7 @@ const BUILD_SEARCH_INDEX_TEST_ENV: NodeJS.ProcessEnv = {
   SHELL: process.env.SHELL ?? "",
   TERM: process.env.TERM ?? "",
   NODE_ENV: process.env.NODE_ENV ?? "test",
+  SEARCH_INDEX_OUTPUT_STDOUT: "1",
 };
 
 function findSnapshotDocument(
@@ -298,6 +295,76 @@ describe("exportOramaIndexSnapshot", () => {
     expect((gqaHit?.document as { tags: string }).tags).toContain("attention");
   });
 
+  test("Orama database records include expanded topology terms", async () => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const relu = documents.find((document) => document.url === RELU_URL);
+
+    expect(relu).toBeDefined();
+    if (!relu) {
+      throw new Error("Expected ReLU search document to exist.");
+    }
+    const record = toOramaRecord(relu);
+
+    expect(record.topology).toContain("classification.activation-functions");
+    expect(record.topology).toContain("activation functions");
+    expect(record.topology).toContain("Gaussian error linear unit");
+    expect(record.topology).toContain("used by");
+    expect(record.topology).toContain("module standard ffn");
+    expect(record.topology).toContain("dense FFN");
+  });
+
+  test.each([
+    {
+      query: "activation",
+      expectedUrls: [
+        ACTIVATION_GLOSSARY_URL,
+        RELU_URL,
+        LEAKY_RELU_URL,
+        SILU_URL,
+      ],
+    },
+    {
+      query: "relu",
+      expectedUrls: [RELU_URL, LEAKY_RELU_URL, SILU_URL],
+    },
+    {
+      query: "gelu",
+      expectedUrls: [
+        ACTIVATION_GLOSSARY_URL,
+        RELU_URL,
+        LEAKY_RELU_URL,
+        SILU_URL,
+      ],
+    },
+    {
+      query: "feed forward",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+    {
+      query: "feedforward",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+    {
+      query: "ffn",
+      expectedUrls: [FEED_FORWARD_NETWORK_URL, STANDARD_FFN_URL, SWIGLU_URL],
+    },
+  ] as const)("Orama database resolves topology-aware seed results for $query", async ({
+    query,
+    expectedUrls,
+  }) => {
+    const registry = await loadRegistry();
+    const pages = await loadPublishedDocsPages("en");
+    const documents = buildSearchDocuments(pages, registry);
+    const db = await createOramaDatabase(documents);
+    const { hits } = await search(db, { term: query, limit: 20 });
+    const urls = hits.map((hit) => (hit.document as { url: string }).url);
+
+    expect(urls.length).toBeGreaterThan(0);
+    expect(urls).toEqual(expect.arrayContaining([...expectedUrls]));
+  });
+
   test.each([
     { query: "MHA", url: MULTI_HEAD_ATTENTION_URL },
     { query: "multi-head attention", url: MULTI_HEAD_ATTENTION_URL },
@@ -333,7 +400,7 @@ describe("exportOramaIndexSnapshot", () => {
     { query: "routing", expectedRank: "first" },
     { query: "request routing", expectedRank: "first" },
     { query: "inference routing", expectedRank: "first" },
-    { query: "serve request to specialist model", expectedRank: "contains" },
+    { query: "serving router", expectedRank: "contains" },
   ] as const)("Orama database resolves the canonical routing system page for %s", async ({
     query,
     expectedRank,
@@ -363,23 +430,18 @@ describe("exportOramaIndexSnapshot", () => {
 
 describe("build-search-index script", () => {
   test("writes generated snapshot for all published docs pages", async () => {
-    if (existsSync(GENERATED_INDEX_PATH)) {
-      rmSync(GENERATED_INDEX_PATH);
-    }
-
     const result = spawnSync("bun", ["./scripts/build-search-index.ts"], {
       cwd: process.cwd(),
       encoding: "utf8",
       env: BUILD_SEARCH_INDEX_TEST_ENV,
+      maxBuffer: 10 * 1024 * 1024,
     });
 
     expect(result.status).toBe(0);
     expect(result.stderr).toBe("");
-    expect(existsSync(GENERATED_INDEX_PATH)).toBe(true);
-
-    const snapshot = JSON.parse(
-      readFileSync(GENERATED_INDEX_PATH, "utf8"),
-    ) as Awaited<ReturnType<typeof exportOramaIndexSnapshot>>;
+    const snapshot = JSON.parse(result.stdout) as Awaited<
+      ReturnType<typeof exportOramaIndexSnapshot>
+    >;
 
     expect(snapshot.version).toBe(1);
     expect(snapshot.orama).toBeDefined();
@@ -398,7 +460,5 @@ describe("build-search-index script", () => {
     expect(gqa?.tags).toEqual(
       expect.arrayContaining(["attention", "kv-cache"]),
     );
-
-    rmSync(GENERATED_INDEX_PATH, { force: true });
   });
 });

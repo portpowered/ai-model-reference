@@ -1,0 +1,63 @@
+{
+  "title": "Inference Engine",
+  "description": "The serving runtime layer that takes model weights plus live requests and turns them into token outputs by coordinating kernels, scheduling, memory movement, and cache state on real hardware.",
+  "openingSummary": "Model weights store what the model learned, but they do not decide how a real machine should serve requests. An inference engine is the runtime software that loads those weights, chooses kernels, schedules work, manages memory and key-value cache state, and turns live inputs into output tokens.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "An inference engine is the serving runtime around a trained model. It is the software layer that takes model weights plus live requests and actually executes the forward pass on hardware, instead of leaving those parameters as a passive checkpoint on disk."
+    },
+    "whereItSits": {
+      "title": "Where It Sits",
+      "body": "It sits between applications that send prompts and the accelerators or CPUs that run the math. The model weights define the learned parameters and architecture. The inference engine decides how those parameters are loaded, how token steps are scheduled, which kernels run, where data moves, and how reusable state such as the key-value cache stays available across prefill and decode."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "A request enters the runtime, the runtime loads or reuses model weights, dispatches kernels for the next layer operations, batches or interleaves work with other requests, moves activations and cache state through the available memory tiers, and emits output tokens. Kernels, scheduling, memory movement, and cache handling all live here because they are execution choices about how the same learned weights are served efficiently on real hardware."
+    },
+    "practicalImpact": {
+      "title": "Practical Impact",
+      "body": "This layer decides much of the real serving experience: latency, throughput, memory fit, and how gracefully the system handles long contexts or many simultaneous users. Quantization, cache policies, and batching strategies often look like separate serving topics, but in practice they become useful only when the inference engine coordinates them into one runtime plan."
+    },
+    "related": {
+      "title": "Related To",
+      "body": "Use the linked runtime pages below for concrete cache and quantization examples, then follow batching, routing, and deployment searches to trace how the engine fits into queueing, traffic steering, and production rollout."
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "systemFlow": {
+      "alt": "Requests enter the inference engine, which coordinates model weights, kernels, scheduling, memory and cache state, then returns output tokens.",
+      "caption": "The model defines the computation. The inference engine decides how that computation is executed efficiently on actual hardware."
+    }
+  },
+  "graph": {
+    "nodes": {
+      "requests": {
+        "label": "Live requests"
+      },
+      "runtime": {
+        "label": "Inference engine runtime"
+      },
+      "weights": {
+        "label": "Model weights"
+      },
+      "memory": {
+        "label": "Memory and KV cache"
+      },
+      "outputs": {
+        "label": "Output tokens"
+      }
+    }
+  },
+  "links": {
+    "batching": "Batching",
+    "routing": "Routing",
+    "deployment": "Deployment"
+  }
+}

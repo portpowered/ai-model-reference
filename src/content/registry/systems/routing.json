@@ -27,6 +27,7 @@
   "releaseDate": "2026-06-13",
   "authors": ["DeepSeek-AI"],
   "sourceId": "paper.deepseek-v4",
+  "primaryClassificationId": "classification.system.routing",
   "systemType": "routing",
   "relatedModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
   "relatedModuleIds": ["module.mixture-of-experts", "module.deepseekmoe"],

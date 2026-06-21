@@ -26,6 +26,9 @@
   ],
   "sourceId": "citation.on-policy-distillation-of-language-models",
   "regimeType": "distillation",
+  "sidebarGrouping": {
+    "training": "distillation"
+  },
   "usedByModelIds": ["model.deepseek-v4-pro"],
   "relatedModuleIds": ["module.deepseekmoe"],
   "paperIds": ["paper.deepseek-v4"],

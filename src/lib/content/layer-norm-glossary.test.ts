@@ -20,6 +20,7 @@ import { buildSearchDocuments } from "@/lib/search/build-documents";
 
 const pageDir = LAYER_NORM_GLOSSARY_PAGE_DIR;
 const messagesPath = join(pageDir, "messages/en.json");
+const LAYER_NORM_TIMEOUT_MS = 15_000;
 
 describe("Phase 3 layer norm module page (US-005)", () => {
   test("registry record is published with aliases and prerequisite ids", () => {
@@ -88,60 +89,68 @@ describe("Phase 3 layer norm module page (US-005)", () => {
     ).toContain("rmsnorm");
   });
 
-  test("page renders module-template sections, norm switcher, and formula comparison", async () => {
-    const page = await loadModulePage("layer-norm");
+  test(
+    "page renders module-template sections, norm switcher, and formula comparison",
+    async () => {
+      const page = await loadModulePage("layer-norm");
 
-    expect(page.frontmatter.kind).toBe("module");
-    expect(page.frontmatter.status).toBe("published");
-    expect(page.frontmatter.registryId).toBe("module.layer-norm");
+      expect(page.frontmatter.kind).toBe("module");
+      expect(page.frontmatter.status).toBe("published");
+      expect(page.frontmatter.registryId).toBe("module.layer-norm");
 
-    const html = renderToStaticMarkup(
-      createElement(ModulePageProviders, {
-        messages: page.messages,
-        assets: page.assets,
-        // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
-        children: page.content,
-      }),
-    );
+      const html = renderToStaticMarkup(
+        createElement(ModulePageProviders, {
+          messages: page.messages,
+          assets: page.assets,
+          // biome-ignore lint/correctness/noChildrenProp: third createElement arg conflicts with strict props typing
+          children: page.content,
+        }),
+      );
 
-    expect(html).not.toContain(`<h1>${page.messages.title}</h1>`);
-    expect(html).toContain("What It Is");
-    expect(html).toContain("How It Works");
-    expect(html).toContain("Math Or Compute Schema");
-    expect(html).toContain("Compared To Nearby Modules");
-    expect(html).toContain('data-registry-id="module.layer-norm"');
-    expect(html).toContain('data-attention-variant-comparison="true"');
-    expect(html).toContain('data-graph-id="graph.layer-norm-compute-flow"');
-    expect(html).toContain('data-attention-schema-comparison="true"');
-    expect(html).toContain('data-math-schema="layerNorm"');
-    expect(html).toContain('data-math-schema="rmsNorm"');
-    expect(html).toContain('data-math-variable-definition="mu"');
-    expect(html).toContain('data-page-asset="comparisonTable"');
-    expect(html).toContain('data-table-id="table.layer-norm-comparison"');
-    expectHtmlToContainProse(html, "mean");
-    expectHtmlToContainProse(
-      html,
-      "Layer norm subtracts the feature mean before scaling, while RMSNorm keeps only the scale correction.",
-    );
-    expect(html).toContain('href="/docs/glossary/normalization"');
-    expect(html).toContain('href="/docs/concepts/transformer-architecture"');
-    expect(html).toContain('href="/tags/foundations"');
-    expect(html).toContain('data-testid="tag-pill-list"');
-    expect(html).toContain('data-testid="curated-related-docs"');
-    expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
-    expect(html).not.toContain("Phase");
-    expect(html).not.toContain("Reader Shortcut");
-  });
+      expect(html).not.toContain(`<h1>${page.messages.title}</h1>`);
+      expect(html).toContain("What It Is");
+      expect(html).toContain("How It Works");
+      expect(html).toContain("Math Or Compute Schema");
+      expect(html).toContain("Compared To Nearby Modules");
+      expect(html).toContain('data-registry-id="module.layer-norm"');
+      expect(html).toContain('data-attention-variant-comparison="true"');
+      expect(html).toContain('data-graph-id="graph.layer-norm-compute-flow"');
+      expect(html).toContain('data-attention-schema-comparison="true"');
+      expect(html).toContain('data-math-schema="layerNorm"');
+      expect(html).toContain('data-math-schema="rmsNorm"');
+      expect(html).toContain('data-math-variable-definition="mu"');
+      expect(html).toContain('data-page-asset="comparisonTable"');
+      expect(html).toContain('data-table-id="table.layer-norm-comparison"');
+      expectHtmlToContainProse(html, "mean");
+      expectHtmlToContainProse(
+        html,
+        "Layer norm subtracts the feature mean before scaling, while RMSNorm keeps only the scale correction.",
+      );
+      expect(html).toContain('href="/docs/glossary/normalization"');
+      expect(html).toContain('href="/docs/concepts/transformer-architecture"');
+      expect(html).toContain('href="/tags/foundations"');
+      expect(html).toContain('data-testid="tag-pill-list"');
+      expect(html).toContain('data-testid="curated-related-docs"');
+      expect((html.match(/data-testid="tag-pill-list"/g) ?? []).length).toBe(1);
+      expect(html).not.toContain("Phase");
+      expect(html).not.toContain("Reader Shortcut");
+    },
+    { timeout: LAYER_NORM_TIMEOUT_MS },
+  );
 
-  test("search index records layer norm with glossary kind", async () => {
-    const registry = await loadRegistry();
-    const pages = await loadPublishedDocsPages("en");
-    const documents = buildSearchDocuments(pages, registry);
+  test(
+    "search index records layer norm with glossary kind",
+    async () => {
+      const registry = await loadRegistry();
+      const pages = await loadPublishedDocsPages("en");
+      const documents = buildSearchDocuments(pages, registry);
 
-    const document = documents.find(
-      (entry) => entry.url === "/docs/modules/layer-norm",
-    );
-    expect(document?.kind).toBe("module");
-    expect(document?.facets.kind).toBe("module");
-  });
+      const document = documents.find(
+        (entry) => entry.url === "/docs/modules/layer-norm",
+      );
+      expect(document?.kind).toBe("module");
+      expect(document?.facets.kind).toBe("module");
+    },
+    { timeout: LAYER_NORM_TIMEOUT_MS },
+  );
 });

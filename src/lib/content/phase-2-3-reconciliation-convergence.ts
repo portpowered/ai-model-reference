@@ -1,6 +1,6 @@
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
-import { loadPhase1AttentionModuleUrls } from "@/lib/content/phase-1-published-resources";
+import { publishedResourceMatchesTag } from "@/lib/content/phase-1-published-resources";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
 import {
@@ -37,42 +37,39 @@ export type Phase23ReconciliationConvergenceDomainResult = {
   reason?: string;
 };
 
-/** Batch 017 pages reconciled in Phase 2/3 (see prd.md). */
-export const BATCH_017_DOCS_URLS = [
-  "/docs/glossary/transformer",
-  "/docs/glossary/diffusion-model",
-  "/docs/glossary/multimodal-model",
-  "/docs/glossary/world-model",
-  "/docs/modules/attention",
-  "/docs/modules/multi-head-attention",
-  "/docs/modules/multi-query-attention",
-  "/docs/modules/multi-head-latent-attention",
-  "/docs/modules/sparse-attention",
-  "/docs/modules/sliding-window-attention",
-  "/docs/modules/linear-attention",
-  "/docs/concepts/transformer-architecture",
-  "/docs/modules/feed-forward-network",
-  "/docs/modules/batch-norm",
-  "/docs/modules/group-norm",
-  "/docs/modules/standard-ffn",
-  "/docs/modules/mixture-of-experts",
-  "/docs/modules/relu",
-  "/docs/modules/leaky-relu",
-  "/docs/modules/silu",
-  "/docs/modules/swiglu",
-  "/docs/glossary/normalization",
-  "/docs/modules/qk-norm",
-  "/docs/modules/layer-norm",
-  "/docs/modules/rmsnorm",
-  "/docs/glossary/residual-connection",
-  "/docs/glossary/skip-connection",
-  "/docs/concepts/positional-encodings",
-  "/docs/modules/rope",
-  "/docs/modules/alibi",
-  "/docs/glossary/context-window",
-  "/docs/concepts/context-extension",
-  "/docs/concepts/why-long-context-is-hard",
-] as const;
+type RepresentativeDiscoveryContract = {
+  pageUrl: string;
+  expectedKind: "concept" | "glossary" | "module";
+  requiredTagSlugs: readonly string[];
+  representativeQueries: readonly string[];
+};
+
+const REPRESENTATIVE_DISCOVERY_CONTRACTS = [
+  {
+    pageUrl: "/docs/modules/grouped-query-attention",
+    expectedKind: "module",
+    requiredTagSlugs: ["attention", "kv-cache"],
+    representativeQueries: ["GQA"],
+  },
+  {
+    pageUrl: "/docs/glossary/transformer",
+    expectedKind: "glossary",
+    requiredTagSlugs: ["taxonomy", "model-family"],
+    representativeQueries: ["transformer"],
+  },
+  {
+    pageUrl: "/docs/concepts/positional-encodings",
+    expectedKind: "concept",
+    requiredTagSlugs: ["position-encoding", "foundations"],
+    representativeQueries: ["positional encodings"],
+  },
+  {
+    pageUrl: "/docs/glossary/skip-connection",
+    expectedKind: "glossary",
+    requiredTagSlugs: ["foundations"],
+    representativeQueries: ["skip connection"],
+  },
+] as const satisfies readonly RepresentativeDiscoveryContract[];
 
 const MODEL_FAMILY_REGISTRY_IDS = [
   "concept.transformer",
@@ -86,119 +83,6 @@ const MODEL_FAMILY_GLOSSARY_URLS = [
   "/docs/glossary/diffusion-model",
   "/docs/glossary/multimodal-model",
   "/docs/glossary/world-model",
-] as const;
-
-const REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS = [
-  {
-    query: "transformer",
-    firstUrl: "/docs/glossary/transformer",
-    firstKind: "glossary" as const,
-  },
-  {
-    query: "diffusion model",
-    firstUrl: "/docs/glossary/diffusion-model",
-    firstKind: "glossary" as const,
-  },
-  {
-    query: "MHA",
-    firstUrl: "/docs/modules/multi-head-attention",
-    firstKind: "module" as const,
-  },
-  {
-    query: "MQA",
-    firstUrl: "/docs/modules/multi-query-attention",
-    firstKind: "module" as const,
-  },
-  {
-    query: "sparse attention",
-    firstUrl: "/docs/modules/sparse-attention",
-    firstKind: "module" as const,
-  },
-  {
-    query: "feed-forward network",
-    firstUrl: "/docs/modules/feed-forward-network",
-    firstKind: "module" as const,
-  },
-  {
-    query: "standard FFN",
-    firstUrl: "/docs/modules/standard-ffn",
-    firstKind: "module" as const,
-  },
-  {
-    query: "mixture of experts",
-    firstUrl: "/docs/modules/mixture-of-experts",
-    firstKind: "module" as const,
-  },
-  {
-    query: "ReLU",
-    firstUrl: "/docs/modules/relu",
-    firstKind: "module" as const,
-  },
-  {
-    query: "LeakyReLU",
-    firstUrl: "/docs/modules/leaky-relu",
-    firstKind: "module" as const,
-  },
-  {
-    query: "SiLU",
-    firstUrl: "/docs/modules/silu",
-    firstKind: "module" as const,
-  },
-  {
-    query: "SwiGLU",
-    firstUrl: "/docs/modules/swiglu",
-    firstKind: "module" as const,
-  },
-  {
-    query: "normalization",
-    firstUrl: "/docs/glossary/normalization",
-    firstKind: "glossary" as const,
-  },
-  {
-    query: "layer norm",
-    firstUrl: "/docs/modules/layer-norm",
-    firstKind: "module" as const,
-  },
-  {
-    query: "batch norm",
-    firstUrl: "/docs/modules/batch-norm",
-    firstKind: "module" as const,
-  },
-  {
-    query: "group norm",
-    firstUrl: "/docs/modules/group-norm",
-    firstKind: "module" as const,
-  },
-  {
-    query: "RMSNorm",
-    firstUrl: "/docs/modules/rmsnorm",
-    firstKind: "module" as const,
-  },
-  {
-    query: "QK norm",
-    firstUrl: "/docs/modules/qk-norm",
-    firstKind: "module" as const,
-  },
-  {
-    query: "residual connection",
-    firstUrl: "/docs/glossary/residual-connection",
-    firstKind: "glossary" as const,
-  },
-  {
-    query: "skip connection",
-    firstUrl: "/docs/glossary/skip-connection",
-    firstKind: "glossary" as const,
-  },
-  {
-    query: "RoPE",
-    firstUrl: "/docs/modules/rope",
-    firstKind: "module" as const,
-  },
-  {
-    query: "context window",
-    firstUrl: "/docs/glossary/context-window",
-    firstKind: "glossary" as const,
-  },
 ] as const;
 
 function docsSlugFromUrl(url: string): string[] {
@@ -238,22 +122,36 @@ export async function runRegistryValidationGate(): Promise<Phase23Reconciliation
 
 export async function runSourceDiscoveryGate(): Promise<Phase23ReconciliationConvergenceDomainResult> {
   const domainId = "source-discovery";
-  const label = "Fumadocs source discovers every batch 017 published page";
+  const label =
+    "Fumadocs source resolves representative glossary, concept, and module pages";
 
   const pages = await loadPublishedDocsPages("en");
-  const urls = new Set(pages.map((page) => page.url));
+  const pageByUrl = new Map(pages.map((page) => [page.url, page]));
 
-  for (const url of BATCH_017_DOCS_URLS) {
-    if (!urls.has(url)) {
-      return failResult(domainId, label, `missing published page URL ${url}`);
-    }
-
-    const page = source.getPage(docsSlugFromUrl(url));
+  for (const contract of REPRESENTATIVE_DISCOVERY_CONTRACTS) {
+    const page = pageByUrl.get(contract.pageUrl);
     if (!page) {
       return failResult(
         domainId,
         label,
-        `source.getPage returned undefined for ${url}`,
+        `missing representative published page ${contract.pageUrl}`,
+      );
+    }
+
+    if (page.frontmatter.kind !== contract.expectedKind) {
+      return failResult(
+        domainId,
+        label,
+        `${contract.pageUrl} kind ${page.frontmatter.kind} !== ${contract.expectedKind}`,
+      );
+    }
+
+    const sourcePage = source.getPage(docsSlugFromUrl(contract.pageUrl));
+    if (!sourcePage) {
+      return failResult(
+        domainId,
+        label,
+        `source.getPage returned undefined for ${contract.pageUrl}`,
       );
     }
   }
@@ -263,38 +161,56 @@ export async function runSourceDiscoveryGate(): Promise<Phase23ReconciliationCon
 
 export async function runAttentionTagGroupingGate(): Promise<Phase23ReconciliationConvergenceDomainResult> {
   const domainId = "attention-tag-grouping";
-  const label = "/tags/attention lists all published attention modules by kind";
+  const label =
+    "Representative tag landing routes stay aligned with published-page discovery contracts";
 
   const messages = await loadUiMessages();
-  const groups = await loadTagResourceGroups("attention", messages, "en");
-  const moduleGroup = groups.find((group) => group.kind === "module");
+  const registry = await loadRegistry();
+  const pages = await loadPublishedDocsPages("en");
+  const pageByUrl = new Map(pages.map((page) => [page.url, page]));
 
-  if (!moduleGroup) {
-    return failResult(
-      domainId,
-      label,
-      "missing Module kind group on /tags/attention",
-    );
-  }
-
-  const moduleUrls = moduleGroup.resources.map((resource) => resource.url);
-  const expectedModuleUrls = await loadPhase1AttentionModuleUrls("en");
-  for (const url of expectedModuleUrls) {
-    if (!moduleUrls.includes(url)) {
+  for (const contract of REPRESENTATIVE_DISCOVERY_CONTRACTS) {
+    const page = pageByUrl.get(contract.pageUrl);
+    if (!page) {
       return failResult(
         domainId,
         label,
-        `missing attention module resource ${url}`,
+        `missing representative published page ${contract.pageUrl}`,
       );
     }
-  }
 
-  if (moduleUrls.length !== expectedModuleUrls.length) {
-    return failResult(
-      domainId,
-      label,
-      `expected ${expectedModuleUrls.length} attention modules, found ${moduleUrls.length}`,
-    );
+    for (const tagSlug of contract.requiredTagSlugs) {
+      if (!publishedResourceMatchesTag(page, tagSlug, registry)) {
+        return failResult(
+          domainId,
+          label,
+          `${contract.pageUrl} no longer resolves tag ${tagSlug} from published-page discovery`,
+        );
+      }
+
+      const groups = await loadTagResourceGroups(tagSlug, messages, "en");
+      const expectedGroup = groups.find(
+        (group) => group.kind === contract.expectedKind,
+      );
+
+      if (!expectedGroup) {
+        return failResult(
+          domainId,
+          label,
+          `/tags/${tagSlug} is missing ${contract.expectedKind} group`,
+        );
+      }
+
+      if (
+        !expectedGroup.resources.some((entry) => entry.url === contract.pageUrl)
+      ) {
+        return failResult(
+          domainId,
+          label,
+          `/tags/${tagSlug} is missing representative route ${contract.pageUrl}`,
+        );
+      }
+    }
   }
 
   return passResult(domainId, label);
@@ -375,30 +291,51 @@ export async function runArchitectureForwardLinksGate(): Promise<Phase23Reconcil
 export async function runSearchDocumentKindFacetsGate(): Promise<Phase23ReconciliationConvergenceDomainResult> {
   const domainId = "search-document-kind-facets";
   const label =
-    "Search documents index batch 017 pages with correct kind facets";
+    "Search documents index representative routes with correct kinds and discovery tags";
 
   const registry = await loadRegistry();
   const pages = await loadPublishedDocsPages("en");
   const documents = buildSearchDocuments(pages, registry);
   const byUrl = new Map(documents.map((document) => [document.url, document]));
 
-  for (const url of BATCH_017_DOCS_URLS) {
-    const document = byUrl.get(url);
+  for (const contract of REPRESENTATIVE_DISCOVERY_CONTRACTS) {
+    const document = byUrl.get(contract.pageUrl);
     if (!document) {
-      return failResult(domainId, label, `missing search document for ${url}`);
-    }
-
-    const expectedKind = url.startsWith("/docs/glossary/")
-      ? "glossary"
-      : url.startsWith("/docs/concepts/")
-        ? "concept"
-        : "module";
-
-    if (document.kind !== expectedKind) {
       return failResult(
         domainId,
         label,
-        `${url} kind ${document.kind ?? "undefined"} !== ${expectedKind}`,
+        `missing search document for ${contract.pageUrl}`,
+      );
+    }
+
+    if (document.kind !== contract.expectedKind) {
+      return failResult(
+        domainId,
+        label,
+        `${contract.pageUrl} kind ${document.kind ?? "undefined"} !== ${contract.expectedKind}`,
+      );
+    }
+
+    for (const tagSlug of contract.requiredTagSlugs) {
+      if (!document.tags.includes(tagSlug)) {
+        return failResult(
+          domainId,
+          label,
+          `${contract.pageUrl} search document is missing tag ${tagSlug}`,
+        );
+      }
+    }
+  }
+
+  const representedKinds = new Set(
+    REPRESENTATIVE_DISCOVERY_CONTRACTS.map((contract) => contract.expectedKind),
+  );
+  for (const kind of ["glossary", "concept", "module"] as const) {
+    if (!representedKinds.has(kind)) {
+      return failResult(
+        domainId,
+        label,
+        `missing representative discovery contract for ${kind}`,
       );
     }
   }
@@ -409,36 +346,38 @@ export async function runSearchDocumentKindFacetsGate(): Promise<Phase23Reconcil
 export async function runRepresentativeSearchQueriesGate(): Promise<Phase23ReconciliationConvergenceDomainResult> {
   const domainId = "representative-search-queries";
   const label =
-    "Representative search queries rank canonical pages with correct kind metadata";
+    "Representative search queries stay aligned with the published-page discovery contracts";
 
   const metaMap = await loadSearchResultMetaMap();
 
-  for (const expectation of REPRESENTATIVE_SEARCH_QUERY_EXPECTATIONS) {
-    const results = await docsSearchApi.search(expectation.query);
-    if (results.length === 0) {
-      return failResult(
-        domainId,
-        label,
-        `query "${expectation.query}" returned no results`,
-      );
-    }
+  for (const contract of REPRESENTATIVE_DISCOVERY_CONTRACTS) {
+    for (const query of contract.representativeQueries) {
+      const results = await docsSearchApi.search(query);
+      if (results.length === 0) {
+        return failResult(
+          domainId,
+          label,
+          `query "${query}" returned no results`,
+        );
+      }
 
-    const firstUrl = pageBaseUrl(results[0]?.url ?? "");
-    if (firstUrl !== expectation.firstUrl) {
-      return failResult(
-        domainId,
-        label,
-        `query "${expectation.query}" first hit ${firstUrl} !== ${expectation.firstUrl}`,
-      );
-    }
+      const firstUrl = pageBaseUrl(results[0]?.url ?? "");
+      if (firstUrl !== contract.pageUrl) {
+        return failResult(
+          domainId,
+          label,
+          `query "${query}" first hit ${firstUrl} !== ${contract.pageUrl}`,
+        );
+      }
 
-    const kind = metaMap.get(expectation.firstUrl)?.kind;
-    if (kind !== expectation.firstKind) {
-      return failResult(
-        domainId,
-        label,
-        `query "${expectation.query}" kind ${kind ?? "undefined"} !== ${expectation.firstKind}`,
-      );
+      const kind = metaMap.get(contract.pageUrl)?.kind;
+      if (kind !== contract.expectedKind) {
+        return failResult(
+          domainId,
+          label,
+          `query "${query}" kind ${kind ?? "undefined"} !== ${contract.expectedKind}`,
+        );
+      }
     }
   }
 

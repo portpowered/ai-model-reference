@@ -1,0 +1,47 @@
+{
+  "id": "module.block-sparse-attention",
+  "slug": "block-sparse-attention",
+  "kind": "module",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "block-sparse attention",
+    "block sparse attention",
+    "block-sparse self-attention",
+    "block sparse self-attention",
+    "structured sparse attention",
+    "sparse attention blocks",
+    "long-context sparse attention"
+  ],
+  "tags": ["attention", "context-window"],
+  "relatedIds": [
+    "module.attention",
+    "module.sparse-attention",
+    "module.sliding-window-attention",
+    "concept.context-window",
+    "concept.why-long-context-is-hard"
+  ],
+  "citationIds": ["citation.sparse-transformers", "citation.longformer"],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "releaseDate": "2019-04-01",
+  "authors": ["Rewon Child", "Scott Gray", "Alec Radford", "Ilya Sutskever"],
+  "sourceId": "citation.sparse-transformers",
+  "primaryClassificationId": "classification.module.attention",
+  "moduleType": "attention",
+  "moduleFamily": "attention",
+  "conceptType": "attention-variant",
+  "variantGroup": "sparse-patterns",
+  "optimizes": [
+    "attention-compute",
+    "memory-bandwidth",
+    "long-context-inference"
+  ],
+  "exampleModelIds": [],
+  "improvesOnIds": ["module.attention"],
+  "tradeoffIds": [],
+  "usedByModelIds": [],
+  "introducedByPaperIds": [],
+  "mathLevel": "light"
+}

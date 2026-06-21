@@ -14,6 +14,7 @@
   "releaseDate": "2016-07-01",
   "authors": ["Jimmy Lei Ba", "Jamie Ryan Kiros", "Geoffrey E. Hinton"],
   "sourceId": "citation.layer-normalization",
+  "primaryClassificationId": "classification.module.normalization",
   "moduleType": "normalization",
   "optimizes": ["training-stability"],
   "exampleModelIds": [],

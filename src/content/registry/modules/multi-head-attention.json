@@ -27,13 +27,12 @@
     "Illia Polosukhin"
   ],
   "sourceId": "citation.attention-is-all-you-need",
+  "primaryClassificationId": "classification.module.attention.multi-head",
+  "secondaryClassificationIds": ["classification.module.attention"],
   "moduleType": "attention",
   "moduleFamily": "attention",
   "conceptType": "attention-variant",
   "variantGroup": "attention-head-sharing",
-  "sidebarGrouping": {
-    "modules": "attention-foundations"
-  },
   "optimizes": ["expressiveness"],
   "exampleModelIds": [],
   "improvesOnIds": [],

@@ -33,6 +33,7 @@
     "Yunfeng Liu"
   ],
   "sourceId": "citation.su-roformer-rope",
+  "primaryClassificationId": "classification.module.positional-encoding",
   "moduleType": "position-encoding",
   "optimizes": ["relative-position-awareness"],
   "exampleModelIds": [],

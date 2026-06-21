@@ -1,0 +1,144 @@
+{
+  "title": "Gaussian Error Linear Unit",
+  "description": "A smooth activation function that keeps small negative values and is common in transformer feed-forward blocks.",
+  "openingSummary": "The Gaussian Error Linear Unit, usually shortened to GELU, scales each input by how likely it is to be useful under a Gaussian-shaped gate. That gives transformer feed-forward blocks a smoother transition than rectified linear unit (ReLU), keeps some small negative values, and avoids the hard cutoff that classic ReLU uses.",
+  "sections": {
+    "whatItIs": {
+      "title": "What It Is",
+      "body": "The Gaussian Error Linear Unit, usually shortened to GELU, is an activation function that keeps an input value x, shrinks it, or nearly removes it depending on where x falls on a smooth Gaussian-shaped curve. Large positive values pass through strongly, values near 0 are only partly kept, and small negative values can still survive instead of being cut off at exactly 0."
+    },
+    "whyItExists": {
+      "title": "Why It Exists",
+      "body": "GELU exists because a hard on-or-off gate is not always the best filter for deep hidden states. ReLU keeps every positive value and drops every negative value. GELU instead treats the gate as smooth and probabilistic, so values near 0 are not forced into a sharp decision boundary."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "body": "GELU works one value at a time. It multiplies x by a Gaussian cumulative score Phi(x). Large positive values get a score near 1, so they mostly pass through. Large negative values get a score near 0, so they mostly disappear. Values near 0 are only partly passed, which makes the curve look like a softened version of ReLU. In transformer feed-forward blocks, that smoother gate is often used after the first wide projection and before projecting back to the model width."
+    },
+    "mathOrComputeSchema": {
+      "title": "Math Or Compute Schema",
+      "body": "The formula below shows the exact GELU rule. The important idea is that x is scaled by the Gaussian cumulative distribution Phi(x), which creates a smooth gate instead of a hard sign check."
+    },
+    "comparedToNearbyModules": {
+      "title": "Compared To Nearby Modules",
+      "body": "Compared with ReLU, GELU keeps the same broad idea of favoring positive values but replaces the hard cutoff with a smooth curve. Compared with SiLU, GELU is another smooth self-scaling activation, but the gate comes from the Gaussian cumulative distribution rather than sigmoid. That smoother shape is one reason transformer feed-forward blocks often prefer GELU over plain ReLU."
+    },
+    "exampleArchitectures": {
+      "title": "Example Architectures",
+      "body": "GELU appears in transformer feed-forward blocks where authors want a smooth dense activation instead of a hard ReLU cutoff. The original GELU paper introduced the function, and BERT helped make GELU a familiar default inside transformer encoder feed-forward layers."
+    },
+    "limitationsAndTradeoffs": {
+      "title": "Limitations And Tradeoffs",
+      "body": "GELU is smoother than ReLU, but that smoothness also makes it a little less simple to explain and implement. It is still a dense activation, so every token still runs through the full feed-forward path. When a model wants even stronger feature selection, authors may move from one-branch activations such as GELU to gated designs such as SwiGLU."
+    },
+    "whyItStillMatters": {
+      "title": "Why It Still Matters",
+      "body": "GELU still matters because it marks the shift from older saturating curves and hard piecewise cutoffs toward smoother transformer-friendly activations. Once a reader understands GELU, it becomes easier to read modern feed-forward papers that compare smooth dense baselines against gated or expert variants."
+    },
+    "related": {
+      "title": "Related"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "assets": {
+    "computeFlow": {
+      "alt": "Activation chart comparing GELU, ReLU, and SiLU, showing GELU as a smooth ReLU-like curve that keeps small negative values",
+      "variants": {
+        "gelu": {
+          "label": "GELU"
+        },
+        "relu": {
+          "label": "ReLU"
+        },
+        "silu": {
+          "label": "SiLU"
+        }
+      }
+    },
+    "comparisonTable": {}
+  },
+  "tables": {
+    "comparison": {
+      "columns": {
+        "gelu": {
+          "title": "GELU"
+        },
+        "relu": {
+          "title": "ReLU"
+        },
+        "silu": {
+          "title": "SiLU"
+        }
+      },
+      "dimensions": {
+        "negativeBranch": "Negative branch",
+        "transitionShape": "Transition shape",
+        "commonUse": "Common use"
+      },
+      "values": {
+        "gelu": {
+          "negativeBranch": "Keeps some small negative values with smooth shrinkage",
+          "transitionShape": "Smooth ReLU-like curve with no hard corner",
+          "commonUse": "Common dense activation in transformer feed-forward blocks"
+        },
+        "relu": {
+          "negativeBranch": "Drops every negative value to 0",
+          "transitionShape": "Piecewise-linear with a hard corner at 0",
+          "commonUse": "Classic cheap baseline for dense hidden layers"
+        },
+        "silu": {
+          "negativeBranch": "Shrinks negative values smoothly with x sigma(x)",
+          "transitionShape": "Smooth self-gated curve through 0",
+          "commonUse": "Smooth activation and gate inside SwiGLU-style feed-forward variants"
+        }
+      }
+    }
+  },
+  "math": {
+    "geluSchema": {
+      "label": "Gaussian Error Linear Unit activation",
+      "formula": "\\mathrm{GELU}(x) = x\\,\\Phi(x)",
+      "variableDefinitions": {
+        "x": {
+          "term": "x",
+          "definition": "One input value before the activation rule is applied."
+        },
+        "gelu": {
+          "term": "\\mathrm{GELU}",
+          "definition": "Gaussian Error Linear Unit activation."
+        },
+        "Phi": {
+          "term": "\\Phi",
+          "definition": "Cumulative distribution function of the standard normal distribution."
+        }
+      }
+    }
+  },
+  "graph": {
+    "nodes": {
+      "inputState": {
+        "label": "Token state h_t"
+      },
+      "expandProjection": {
+        "label": "Wide projection W_1"
+      },
+      "activationRule": {
+        "label": "GELU(x) = x Phi(x)"
+      },
+      "transitionBehavior": {
+        "label": "Smoothly keeps, shrinks, or drops values near 0"
+      },
+      "projectBack": {
+        "label": "Project back with W_2"
+      },
+      "outputState": {
+        "label": "Updated token state"
+      }
+    }
+  }
+}
