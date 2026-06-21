@@ -395,6 +395,17 @@ describe("generated docs page tree", () => {
     expect(
       resolveModulesSidebarGroupWithSource(
         requireRecord(
+          getModuleById("module.multi-head-attention"),
+          "module.multi-head-attention module",
+        ),
+      ),
+    ).toEqual({
+      groupId: "attention-variants",
+      source: "derived-taxonomy",
+    });
+    expect(
+      resolveModulesSidebarGroupWithSource(
+        requireRecord(
           getModuleById("module.attention"),
           "module.attention module",
         ),

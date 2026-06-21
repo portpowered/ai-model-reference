@@ -40,6 +40,10 @@ the temporary legacy-id bridge.
   migrate the currently grouped published records onto canonical concept
   classifications first, then keep any still-curated families on one named
   editorial fallback helper instead of reintroducing `conceptType` branching.
+  For modules, only use the editorial bridge when the canonical classification
+  is still too coarse to distinguish the intended subgroup, such as the
+  `module.attention` foundation page whose current ontology membership alone
+  cannot separate `attention-foundations` from `attention-variants`.
 * `src/lib/content/topology-selector-compatibility.ts`
   Topology-specific temporary selector fence. Keep any remaining shorthand or
   legacy topology-only aliases here instead of expanding the generic

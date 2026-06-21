@@ -70,6 +70,19 @@ describe("sidebar grouping contract", () => {
       groupId: "attention-foundations",
       source: "editorial-sidebar-grouping",
     });
+    expect(
+      resolveModulesSidebarGroupWithSource({
+        primaryClassificationId: "classification.module.attention.multi-head",
+        secondaryClassificationIds: ["classification.module.attention"],
+        moduleType: "attention",
+        sidebarGrouping: {
+          modules: "attention-foundations",
+        },
+      }),
+    ).toEqual({
+      groupId: "attention-variants",
+      source: "derived-taxonomy",
+    });
   });
 
   test("derives training and system groups from ontology when the branch is modeled", () => {

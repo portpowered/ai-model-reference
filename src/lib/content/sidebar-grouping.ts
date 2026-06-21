@@ -225,13 +225,32 @@ function resolveEditorialModulesSidebarGroup(
   );
 }
 
+function shouldUseEditorialModulesSidebarFallback(
+  record: ModulesSidebarRecord,
+  ontologyGroup: SidebarGroupResolution<
+    SidebarGroupIdBySection["modules"],
+    "derived-taxonomy"
+  >,
+): boolean {
+  return (
+    ontologyGroup.groupId === "attention-variants" &&
+    record.primaryClassificationId === "classification.module.attention" &&
+    record.sidebarGrouping?.modules === "attention-foundations"
+  );
+}
+
 export function resolveModulesSidebarGroupWithSource(
   record: ModulesSidebarRecord,
 ): SidebarGroupResolution<SidebarGroupIdBySection["modules"]> | undefined {
-  return (
-    resolveEditorialModulesSidebarGroup(record) ??
-    resolveOntologyModulesSidebarGroup(record)
-  );
+  const ontologyGroup = resolveOntologyModulesSidebarGroup(record);
+  if (
+    ontologyGroup &&
+    !shouldUseEditorialModulesSidebarFallback(record, ontologyGroup)
+  ) {
+    return ontologyGroup;
+  }
+
+  return resolveEditorialModulesSidebarGroup(record) ?? ontologyGroup;
 }
 
 function resolveOntologyTrainingSidebarGroup(
