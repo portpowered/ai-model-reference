@@ -90,6 +90,7 @@ describe("typed taxonomy consumer audit", () => {
         expect.objectContaining({
           cluster: "search",
           entryCount: 1,
+          fieldCount: 3,
           unresolvedFieldBreadth: ["conceptType", "moduleType"],
         }),
       );

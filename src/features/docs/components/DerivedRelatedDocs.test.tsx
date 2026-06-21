@@ -21,6 +21,29 @@ describe("DerivedRelatedDocs", () => {
     expect(html).toContain("Same classification");
   });
 
+  test("expands legacy module peer requests into ontology-first groups for ontology-backed pages", () => {
+    const html = renderToStaticMarkup(
+      <DerivedRelatedDocs
+        registryId="module.standard-ffn"
+        groups={["same-variant-group"]}
+      />,
+    );
+
+    expect(html).toContain('data-testid="derived-related-docs"');
+    expect(html).toContain('data-related-group="direct-relationships"');
+    expect(html).toContain('data-related-group="classification-siblings"');
+    expect(html).toContain('data-related-group="shared-parent-classification"');
+    expect(html).not.toContain(
+      'data-related-group="compatibility-same-variant-group"',
+    );
+    expect(html).toContain('href="/docs/modules/feed-forward-network"');
+    expect(html).toContain('href="/docs/modules/swiglu"');
+    expect(html).toContain('href="/docs/modules/relu"');
+    expect(html).toContain("Direct variant relationship");
+    expect(html).toContain("Same classification");
+    expect(html).toContain("Shared parent classification");
+  });
+
   test("renders direct ontology relationships for standard FFN", () => {
     const html = renderToStaticMarkup(
       <DerivedRelatedDocs
@@ -50,7 +73,14 @@ describe("DerivedRelatedDocs", () => {
     expect(html).toContain('href="/docs/modules/grouped-query-attention"');
     expect(html).toContain('href="/docs/modules/multi-head-attention"');
     expect(html).toContain("Shared tag");
-    expect(html).toContain('data-related-group="same-concept-type"');
+    expect(html).toContain(
+      'data-related-group="compatibility-same-concept-type"',
+    );
+    expect(html).not.toContain('data-related-group="direct-relationships"');
+    expect(html).not.toContain('data-related-group="classification-siblings"');
+    expect(html).not.toContain(
+      'data-related-group="shared-parent-classification"',
+    );
     expect(html).toContain('href="/docs/glossary/transformer"');
   });
 

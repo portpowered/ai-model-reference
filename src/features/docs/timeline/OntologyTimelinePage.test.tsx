@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { renderTimelinePage } from "@/app/(site)/site-renderers";
 import { loadPreloadedTimelineSelections } from "@/features/docs/timeline/OntologyTimelinePage";
+import { getDefaultTimelineClassificationSelector } from "@/features/docs/timeline/timeline-query";
 import { loadOntologyTimelineData } from "@/lib/content/ontology-timeline";
 
 async function renderTimeline() {
@@ -16,6 +17,16 @@ const timelineClassificationSlugs = [
   "position-encoding-methods",
   "tokenization-methods",
   "transformer-block-structures",
+] as const;
+
+const legacyTimelineCompatibilitySelectors = [
+  "classification.activation-functions",
+  "classification.attention-mechanisms",
+  "classification.feed-forward-networks",
+  "classification.normalization-layers",
+  "classification.position-encoding-methods",
+  "classification.tokenization-methods",
+  "classification.transformer-block-structures",
 ] as const;
 
 function extractChipEventCount(
@@ -48,6 +59,7 @@ describe("OntologyTimelinePage", () => {
 
   test("defaults to the activation prototype when no classification parameter is provided", async () => {
     const html = await renderTimeline();
+    const defaultClassification = getDefaultTimelineClassificationSelector();
     const activationTimeline = loadOntologyTimelineData("activation");
     const feedForwardTimeline = loadOntologyTimelineData(
       "feed-forward-networks",
@@ -72,6 +84,9 @@ describe("OntologyTimelinePage", () => {
     }
 
     expect(html).toContain('aria-current="page"');
+    expect(html).not.toContain(
+      'href="/docs/timeline?classification=activation"',
+    );
     expect(html).toContain(
       'href="/docs/timeline?classification=attention-mechanisms"',
     );
@@ -126,6 +141,10 @@ describe("OntologyTimelinePage", () => {
       "module.swiglu",
       "module.deepseekmoe",
     ]);
+    expect(defaultClassification).toBe("activation-functions");
+    for (const selector of legacyTimelineCompatibilitySelectors) {
+      expect(html).not.toContain(selector);
+    }
   });
 
   test("does not depend on searchParams during static prerender", async () => {
@@ -158,9 +177,17 @@ describe("OntologyTimelinePage", () => {
     expect(html).toContain('data-testid="ontology-chrono-timeline"');
   });
 
-  test("preloads canonical and legacy selectors for client-side timeline hydration", () => {
+  test("preloads canonical and explicitly fenced compatibility selectors for client-side timeline hydration", () => {
     const preloaded = loadPreloadedTimelineSelections("en");
 
+    expect(preloaded[getDefaultTimelineClassificationSelector()]).toMatchObject(
+      {
+        status: "success",
+        classification: {
+          classificationId: "classification.module.activation",
+        },
+      },
+    );
     expect(preloaded["classification.module.feed-forward"]).toMatchObject({
       status: "success",
       classification: {
@@ -179,5 +206,21 @@ describe("OntologyTimelinePage", () => {
         classificationId: "classification.module.feed-forward",
       },
     });
+    expect(preloaded["classification.activation"]).toBeUndefined();
+  });
+
+  test("keeps legacy selector support in preload only and emits canonical timeline selectors in the rendered shell", async () => {
+    const html = await renderTimeline();
+
+    expect(html).toContain(
+      'href="/docs/timeline?classification=feed-forward-networks"',
+    );
+    expect(html).not.toContain(
+      'href="/docs/timeline?classification=classification.feed-forward-networks"',
+    );
+    expect(html).not.toContain(
+      'href="/docs/timeline?classification=classification.module.feed-forward"',
+    );
+    expect(html).not.toContain("classification.feed-forward-networks");
   });
 });

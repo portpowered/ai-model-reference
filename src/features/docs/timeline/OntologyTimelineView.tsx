@@ -10,11 +10,16 @@ import {
   buildLocalizedRoute,
   type SiteLocale,
 } from "@/lib/i18n/locale-routing";
+import {
+  buildTimelineClassificationHref,
+  getDefaultTimelineClassificationSelector,
+} from "./timeline-query";
 
 type OntologyTimelineViewProps = {
   locale: SiteLocale;
   messages: UiMessages;
   timeline: OntologyTimelineResult;
+  fallbackChips: readonly OntologyTimelineClassificationSlice[];
   onSelectClassification?: (classification: string) => void;
 };
 
@@ -27,6 +32,7 @@ function timelineClassificationHref(locale: SiteLocale): string {
 
 function buildTimelineChips(
   timeline: OntologyTimelineResult,
+  fallbackChips: readonly OntologyTimelineClassificationSlice[],
 ): OntologyTimelineClassificationSlice[] {
   if (timeline.nearbyClassifications.length > 0) {
     return timeline.nearbyClassifications;
@@ -36,22 +42,17 @@ function buildTimelineChips(
     return [timeline.classification];
   }
 
-  return [
-    {
-      classificationId: "classification.activation-functions",
-      slug: "activation",
-      title: "activation function",
-      classificationType: "family",
-      eventCount: 0,
-      active: false,
-    },
-  ];
+  return fallbackChips.map((chip) => ({
+    ...chip,
+    active: false,
+  }));
 }
 
 function renderEmptyTimeline(
   timeline: Extract<OntologyTimelineResult, { status: "empty" }>,
   messages: UiMessages,
   locale: SiteLocale,
+  fallbackChips: readonly OntologyTimelineClassificationSlice[],
   onSelectClassification?: (classification: string) => void,
 ) {
   const { timelinePage } = messages;
@@ -76,7 +77,7 @@ function renderEmptyTimeline(
       </p>
       <TimelineClassificationChips
         basePath={basePath}
-        chips={buildTimelineChips(timeline)}
+        chips={buildTimelineChips(timeline, fallbackChips)}
         labels={{
           navigation: timelinePage.selectorLabel,
           eventCount: timelinePage.eventCountLabel,
@@ -85,8 +86,13 @@ function renderEmptyTimeline(
       />
       <Link
         className="mt-4 inline-flex rounded-md border border-border bg-secondary px-3 py-1.5 text-sm text-secondary-foreground no-underline transition-colors hover:bg-muted hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        href={`${basePath}?classification=activation`}
-        onClick={() => onSelectClassification?.("activation")}
+        href={buildTimelineClassificationHref(
+          basePath,
+          getDefaultTimelineClassificationSelector(),
+        )}
+        onClick={() =>
+          onSelectClassification?.(getDefaultTimelineClassificationSelector())
+        }
       >
         {timelinePage.activationLink}
       </Link>
@@ -98,6 +104,7 @@ export function OntologyTimelineView({
   locale,
   messages,
   timeline,
+  fallbackChips,
   onSelectClassification,
 }: OntologyTimelineViewProps) {
   const { timelinePage } = messages;
@@ -110,7 +117,7 @@ export function OntologyTimelineView({
       </p>
       <TimelineClassificationChips
         basePath={basePath}
-        chips={buildTimelineChips(timeline)}
+        chips={buildTimelineChips(timeline, fallbackChips)}
         labels={{
           navigation: timelinePage.selectorLabel,
           eventCount: timelinePage.eventCountLabel,
@@ -133,7 +140,13 @@ export function OntologyTimelineView({
           />
         </div>
       ) : (
-        renderEmptyTimeline(timeline, messages, locale, onSelectClassification)
+        renderEmptyTimeline(
+          timeline,
+          messages,
+          locale,
+          fallbackChips,
+          onSelectClassification,
+        )
       )}
     </div>
   );

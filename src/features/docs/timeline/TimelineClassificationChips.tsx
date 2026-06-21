@@ -2,6 +2,7 @@
 
 import { FilterChipNav } from "@/features/docs/components/FilterChipNav";
 import type { OntologyTimelineClassificationSlice } from "@/lib/content/ontology-timeline";
+import { buildTimelineClassificationHref } from "./timeline-query";
 
 type TimelineClassificationChipsProps = {
   basePath: string;
@@ -24,7 +25,7 @@ export function TimelineClassificationChips({
       className="mt-6"
       items={chips.map((chip) => ({
         id: chip.classificationId,
-        href: `${basePath}?classification=${encodeURIComponent(chip.slug)}`,
+        href: buildTimelineClassificationHref(basePath, chip.slug),
         label: chip.title,
         active: chip.active,
         ariaCurrent: chip.active ? "page" : undefined,

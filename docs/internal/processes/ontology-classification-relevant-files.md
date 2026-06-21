@@ -79,6 +79,19 @@ the temporary legacy-id bridge.
   Timeline static preload registration. Any selector the timeline route accepts
   must be preloaded here as well or the client route will drift from the
   server-resolved contract.
+* `src/lib/content/timeline-selector-compatibility.ts`
+  Timeline-specific temporary selector fence. Keep any still-supported legacy
+  timeline ids or shorthand selectors here so canonical timeline resolution can
+  stay separate from explicit compatibility handling.
+* `src/features/docs/timeline/timeline-query.ts`
+  Timeline-specific selector parsing and outbound URL normalization. Keep the
+  accepted selector set and the emitted steady-state selector URLs separate
+  here so legacy or shorthand entry compatibility does not leak back into
+  canonical chip and recovery links.
+* `src/features/docs/timeline/timeline-query.test.ts`
+  Focused proof that timeline query normalization keeps accepted compatibility
+  selectors on the input side while chip and recovery href builders emit only
+  canonical outbound selectors and preserve unknown-selector empty states.
 
 ## Remaining compatibility fallback outside the proving consumer
 
@@ -119,7 +132,11 @@ the temporary legacy-id bridge.
   the targeted deprecation fence across runtime, generation, and authoring
   surfaces. When multiple migration slices intentionally share one file, scope
   the entry's field-reference inventory to resolver-specific snippets so the
-  audit stays reviewer-visible instead of double-counting the entire file.
+  audit stays reviewer-visible instead of double-counting the entire file. For
+  related-doc work specifically, ontology-first behavior should appear here as
+  either a migrated consumer or an explicitly named compatibility-only bridge;
+  it should not remain listed as an unresolved primary consumer once direct
+  relationships and classification peers define the default reader path.
 * `src/lib/governance/legacy-taxonomy-compatibility-budget.ts`
   Shared reviewer-facing budget contract that records the approved baseline for
   one explicit legacy classification-id bridge inventory and one explicit
@@ -185,6 +202,9 @@ the temporary legacy-id bridge.
 * `src/lib/content/ontology-timeline.test.ts`
   Canonical-versus-compatibility selector assertions for the timeline data
   layer.
+* `src/lib/content/timeline-selector-compatibility.test.ts`
+  Focused proof that the timeline compatibility fence stays reviewable,
+  canonicalizes approved selectors, and rejects undeclared near misses.
 * `src/features/docs/timeline/OntologyTimelinePage.test.tsx`
   Static preload coverage proving accepted selector forms survive the
   server-to-client handoff.
