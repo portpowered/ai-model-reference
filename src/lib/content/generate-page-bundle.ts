@@ -131,7 +131,7 @@ export class GeneratePageBundleError extends Error {
 }
 
 const defaultModulePrimaryClassificationByType: Partial<
-  Record<ModulePageSpec["moduleType"], string>
+  Record<NonNullable<ModulePageSpec["moduleType"]>, string>
 > = {
   attention: "classification.module.attention",
   normalization: "classification.module.normalization",
@@ -441,7 +441,9 @@ function buildRegistryRecord(
     case "module": {
       const primaryClassificationId =
         spec.primaryClassificationId ??
-        defaultModulePrimaryClassificationByType[spec.moduleType];
+        (spec.moduleType
+          ? defaultModulePrimaryClassificationByType[spec.moduleType]
+          : undefined);
       if (!primaryClassificationId) {
         throw new GeneratePageBundleError(
           `Module page specs with moduleType "${spec.moduleType}" must declare primaryClassificationId until the ontology mapping is defined for that module type.`,

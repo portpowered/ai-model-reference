@@ -462,6 +462,7 @@ describe("registry-runtime generation", () => {
           classificationType: "family",
           classifiesKinds: ["module"],
           parentClassificationId: "classification.module",
+          legacyIds: ["classification.feed-forward-blocks"],
         },
       );
       await writeRegistryJson(registryRoot, "classifications", "module.json", {
@@ -623,31 +624,50 @@ describe("registry-runtime generation", () => {
         ...timestamps,
       };
 
+      await writeRegistryJson(registryRoot, "classifications", "module.json", {
+        ...baseFields,
+        id: "classification.module",
+        slug: "module",
+        kind: "classification",
+        classificationType: "domain",
+        classifiesKinds: ["module"],
+      });
+      await writeRegistryJson(registryRoot, "classifications", "concept.json", {
+        ...baseFields,
+        id: "classification.concept",
+        slug: "concept",
+        kind: "classification",
+        classificationType: "domain",
+        classifiesKinds: ["concept"],
+      });
       await writeRegistryJson(registryRoot, "classifications", "zeta.json", {
         ...baseFields,
-        id: "classification.runtime-zeta",
+        id: "classification.module.runtime-zeta",
         slug: "runtime-zeta",
         kind: "classification",
         classificationType: "family",
         classifiesKinds: ["module"],
+        parentClassificationId: "classification.module",
       });
       await writeRegistryJson(registryRoot, "classifications", "alpha.json", {
         ...baseFields,
-        id: "classification.runtime-alpha",
+        id: "classification.module.runtime-alpha",
         slug: "runtime-alpha",
         kind: "classification",
         classificationType: "family",
         classifiesKinds: ["module"],
         sortOrder: 1,
+        parentClassificationId: "classification.module",
       });
       await writeRegistryJson(registryRoot, "classifications", "draft.json", {
         ...baseFields,
-        id: "classification.runtime-draft",
+        id: "classification.module.runtime-draft",
         slug: "runtime-draft",
         kind: "classification",
         status: "draft",
         classificationType: "family",
         classifiesKinds: ["module"],
+        parentClassificationId: "classification.module",
       });
       await writeRegistryJson(
         registryRoot,
@@ -655,11 +675,12 @@ describe("registry-runtime generation", () => {
         "paper-only.json",
         {
           ...baseFields,
-          id: "classification.runtime-paper-only",
+          id: "classification.concept.runtime-paper-only",
           slug: "runtime-paper-only",
           kind: "classification",
           classificationType: "family",
-          classifiesKinds: ["paper"],
+          classifiesKinds: ["concept"],
+          parentClassificationId: "classification.concept",
         },
       );
 
@@ -677,10 +698,10 @@ describe("registry-runtime generation", () => {
         introducedByPaperIds: [],
         mathLevel: "none",
         sortOrder: 2,
-        primaryClassificationId: "classification.runtime-zeta",
+        primaryClassificationId: "classification.module.runtime-zeta",
         secondaryClassificationIds: [
-          "classification.runtime-alpha",
-          "classification.runtime-draft",
+          "classification.module.runtime-alpha",
+          "classification.module.runtime-draft",
         ],
       });
       await writeRegistryJson(registryRoot, "modules", "alpha.json", {
@@ -697,22 +718,18 @@ describe("registry-runtime generation", () => {
         introducedByPaperIds: [],
         mathLevel: "none",
         sortOrder: 1,
-        primaryClassificationId: "classification.runtime-zeta",
+        primaryClassificationId: "classification.module.runtime-zeta",
       });
-      await writeRegistryJson(registryRoot, "modules", "paper-owned.json", {
+      await writeRegistryJson(registryRoot, "concepts", "paper-owned.json", {
         ...baseFields,
-        id: "module.runtime-paper-owned",
+        id: "concept.runtime-paper-owned",
         slug: "runtime-paper-owned",
-        kind: "module",
-        moduleType: "other",
-        optimizes: [],
-        exampleModelIds: [],
-        improvesOnIds: [],
-        tradeoffIds: [],
-        usedByModelIds: [],
-        introducedByPaperIds: [],
-        mathLevel: "none",
-        primaryClassificationId: "classification.runtime-paper-only",
+        kind: "concept",
+        conceptType: "architecture",
+        prerequisiteIds: [],
+        explainsIds: [],
+        relatedModuleIds: [],
+        primaryClassificationId: "classification.concept.runtime-paper-only",
       });
 
       await writeGeneratedRegistryRuntimeModule({
@@ -725,24 +742,20 @@ describe("registry-runtime generation", () => {
 
       expect(
         generatedRuntime.listClassificationRoots().map((record) => record.id),
-      ).toEqual([
-        "classification.runtime-alpha",
-        "classification.runtime-paper-only",
-        "classification.runtime-zeta",
-      ]);
+      ).toEqual(["classification.concept", "classification.module"]);
       expect(
         generatedRuntime
-          .listClassificationMembers("classification.runtime-zeta")
+          .listClassificationMembers("classification.module.runtime-zeta")
           .map((member) => member.record.id),
       ).toEqual(["module.runtime-alpha", "module.runtime-beta"]);
       expect(
         generatedRuntime
-          .listClassificationMembers("classification.runtime-alpha")
+          .listClassificationMembers("classification.module.runtime-alpha")
           .map((member) => member.record.id),
       ).toEqual([]);
       expect(
         generatedRuntime
-          .listClassificationMembers("classification.runtime-alpha", {
+          .listClassificationMembers("classification.module.runtime-alpha", {
             includeSecondary: true,
           })
           .map((member) => member.record.id),
@@ -755,10 +768,10 @@ describe("registry-runtime generation", () => {
             classifiesKinds: ["module"],
           },
         )?.id,
-      ).toBe("classification.runtime-zeta");
+      ).toBe("classification.module.runtime-zeta");
       expect(
         generatedRuntime.getPrimaryClassificationForRecord(
-          "module.runtime-paper-owned",
+          "concept.runtime-paper-owned",
           {
             statuses: ["published"],
             classifiesKinds: ["module"],
@@ -771,7 +784,7 @@ describe("registry-runtime generation", () => {
           { statuses: ["published"], classifiesKinds: ["module"] },
         ),
       ).toEqual([
-        expect.objectContaining({ id: "classification.runtime-alpha" }),
+        expect.objectContaining({ id: "classification.module.runtime-alpha" }),
       ]);
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
@@ -996,7 +1009,7 @@ describe("registry-runtime generation", () => {
 
       await writeRegistryJson(registryRoot, "classifications", "root.json", {
         ...baseFields,
-        id: "classification.runtime-root",
+        id: "classification.module",
         slug: "runtime-root",
         kind: "classification",
         classificationType: "domain",
@@ -1004,21 +1017,21 @@ describe("registry-runtime generation", () => {
       });
       await writeRegistryJson(registryRoot, "classifications", "branch.json", {
         ...baseFields,
-        id: "classification.runtime-branch",
+        id: "classification.module.runtime-branch",
         slug: "runtime-branch",
         kind: "classification",
         classificationType: "family",
         classifiesKinds: ["module"],
-        parentClassificationId: "classification.runtime-root",
+        parentClassificationId: "classification.module",
       });
       await writeRegistryJson(registryRoot, "classifications", "leaf.json", {
         ...baseFields,
-        id: "classification.runtime-leaf",
+        id: "classification.module.runtime-branch.runtime-leaf",
         slug: "runtime-leaf",
         kind: "classification",
         classificationType: "mechanism",
         classifiesKinds: ["module"],
-        parentClassificationId: "classification.runtime-branch",
+        parentClassificationId: "classification.module.runtime-branch",
       });
       await writeRegistryJson(registryRoot, "modules", "branch-module.json", {
         ...baseFields,
@@ -1033,7 +1046,7 @@ describe("registry-runtime generation", () => {
         usedByModelIds: [],
         introducedByPaperIds: [],
         mathLevel: "none",
-        primaryClassificationId: "classification.runtime-branch",
+        primaryClassificationId: "classification.module.runtime-branch",
       });
       await writeRegistryJson(registryRoot, "modules", "leaf-module.json", {
         ...baseFields,
@@ -1048,7 +1061,8 @@ describe("registry-runtime generation", () => {
         usedByModelIds: [],
         introducedByPaperIds: [],
         mathLevel: "none",
-        primaryClassificationId: "classification.runtime-leaf",
+        primaryClassificationId:
+          "classification.module.runtime-branch.runtime-leaf",
       });
 
       await writeGeneratedRegistryRuntimeModule({
@@ -1061,36 +1075,38 @@ describe("registry-runtime generation", () => {
 
       expect(
         generatedRuntime.listClassificationRoots().map((record) => record.id),
-      ).toEqual(["classification.runtime-root"]);
+      ).toEqual(["classification.module"]);
       expect(
         generatedRuntime
-          .listClassificationChildren("classification.runtime-root")
+          .listClassificationChildren("classification.module")
           .map((record) => record.id),
-      ).toEqual(["classification.runtime-branch"]);
+      ).toEqual(["classification.module.runtime-branch"]);
       expect(
         generatedRuntime
-          .listClassificationAncestors("classification.runtime-leaf")
+          .listClassificationAncestors(
+            "classification.module.runtime-branch.runtime-leaf",
+          )
           .map((record) => record.id),
       ).toEqual([
-        "classification.runtime-branch",
-        "classification.runtime-root",
+        "classification.module.runtime-branch",
+        "classification.module",
       ]);
       expect(
         generatedRuntime
-          .listClassificationDescendants("classification.runtime-root")
+          .listClassificationDescendants("classification.module")
           .map((record) => record.id),
       ).toEqual([
-        "classification.runtime-branch",
-        "classification.runtime-leaf",
+        "classification.module.runtime-branch",
+        "classification.module.runtime-branch.runtime-leaf",
       ]);
       expect(
         generatedRuntime
-          .listClassificationMembers("classification.runtime-root")
+          .listClassificationMembers("classification.module")
           .map((member) => member.record.id),
       ).toEqual([]);
       expect(
         generatedRuntime
-          .listClassificationMembers("classification.runtime-root", {
+          .listClassificationMembers("classification.module", {
             includeDescendants: true,
           })
           .map(
@@ -1098,8 +1114,8 @@ describe("registry-runtime generation", () => {
               `${member.classificationId}:${member.isInherited}:${member.record.id}`,
           ),
       ).toEqual([
-        "classification.runtime-branch:true:module.runtime-branch-module",
-        "classification.runtime-leaf:true:module.runtime-leaf-module",
+        "classification.module.runtime-branch:true:module.runtime-branch-module",
+        "classification.module.runtime-branch.runtime-leaf:true:module.runtime-leaf-module",
       ]);
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
@@ -1124,11 +1140,11 @@ describe("registry-runtime generation", () => {
 
       await writeRegistryJson(registryRoot, "classifications", "root.json", {
         ...baseFields,
-        id: "classification.runtime-root",
+        id: "classification.module",
         slug: "runtime-root",
         kind: "classification",
         classificationType: "domain",
-        classifiesKinds: ["module", "concept"],
+        classifiesKinds: ["module"],
       });
       await writeRegistryJson(
         registryRoot,
@@ -1136,13 +1152,13 @@ describe("registry-runtime generation", () => {
         "position-encodings.json",
         {
           ...baseFields,
-          id: "classification.runtime-position-encodings",
+          id: "classification.module.runtime-position-encodings",
           slug: "runtime-position-encodings",
           kind: "classification",
           classificationType: "family",
           classifiesKinds: ["module"],
           sortOrder: 1,
-          parentClassificationId: "classification.runtime-root",
+          parentClassificationId: "classification.module",
         },
       );
       await writeRegistryJson(
@@ -1151,28 +1167,28 @@ describe("registry-runtime generation", () => {
         "attention-mechanisms.json",
         {
           ...baseFields,
-          id: "classification.runtime-attention-mechanisms",
+          id: "classification.module.runtime-attention-mechanisms",
           slug: "runtime-attention-mechanisms",
           kind: "classification",
           classificationType: "family",
           classifiesKinds: ["module"],
           sortOrder: 2,
-          parentClassificationId: "classification.runtime-root",
+          parentClassificationId: "classification.module",
         },
       );
       await writeRegistryJson(
         registryRoot,
         "classifications",
-        "empty-concepts.json",
+        "empty-modules.json",
         {
           ...baseFields,
-          id: "classification.runtime-empty-concepts",
-          slug: "runtime-empty-concepts",
+          id: "classification.module.runtime-empty-modules",
+          slug: "runtime-empty-modules",
           kind: "classification",
           classificationType: "family",
-          classifiesKinds: ["concept"],
+          classifiesKinds: ["module"],
           sortOrder: 3,
-          parentClassificationId: "classification.runtime-root",
+          parentClassificationId: "classification.module",
         },
       );
       await writeRegistryJson(registryRoot, "modules", "rope.json", {
@@ -1189,7 +1205,8 @@ describe("registry-runtime generation", () => {
         introducedByPaperIds: [],
         mathLevel: "none",
         sortOrder: 2,
-        primaryClassificationId: "classification.runtime-position-encodings",
+        primaryClassificationId:
+          "classification.module.runtime-position-encodings",
       });
       await writeRegistryJson(registryRoot, "modules", "alibi.json", {
         ...baseFields,
@@ -1205,7 +1222,8 @@ describe("registry-runtime generation", () => {
         introducedByPaperIds: [],
         mathLevel: "none",
         sortOrder: 1,
-        primaryClassificationId: "classification.runtime-position-encodings",
+        primaryClassificationId:
+          "classification.module.runtime-position-encodings",
       });
       await writeRegistryJson(registryRoot, "modules", "causal.json", {
         ...baseFields,
@@ -1220,18 +1238,8 @@ describe("registry-runtime generation", () => {
         usedByModelIds: [],
         introducedByPaperIds: [],
         mathLevel: "none",
-        primaryClassificationId: "classification.runtime-attention-mechanisms",
-      });
-      await writeRegistryJson(registryRoot, "concepts", "activation.json", {
-        ...baseFields,
-        id: "concept.runtime-activation",
-        slug: "runtime-activation",
-        kind: "concept",
-        conceptType: "architecture",
-        prerequisiteIds: [],
-        explainsIds: [],
-        relatedModuleIds: [],
-        primaryClassificationId: "classification.runtime-root",
+        primaryClassificationId:
+          "classification.module.runtime-attention-mechanisms",
       });
 
       await writeGeneratedRegistryRuntimeModule({
@@ -1242,7 +1250,7 @@ describe("registry-runtime generation", () => {
 
       const generatedRuntime = await importGeneratedRuntime(outputPath);
       const tree = generatedRuntime.buildClassificationTree({
-        rootClassificationIds: ["classification.runtime-root"],
+        rootClassificationIds: ["classification.module"],
       });
 
       expect(
@@ -1258,21 +1266,20 @@ describe("registry-runtime generation", () => {
         })),
       ).toEqual([
         {
-          id: "classification.runtime-root",
-          directMemberCount: 1,
-          totalMemberCount: 4,
+          id: "classification.module",
+          directMemberCount: 0,
+          totalMemberCount: 3,
           children: [
-            "classification:classification.runtime-position-encodings",
-            "classification:classification.runtime-attention-mechanisms",
-            "record:concept.runtime-activation",
+            "classification:classification.module.runtime-position-encodings",
+            "classification:classification.module.runtime-attention-mechanisms",
           ],
         },
       ]);
       expect(
         tree[0]?.classificationChildren.map((child) => child.classification.id),
       ).toEqual([
-        "classification.runtime-position-encodings",
-        "classification.runtime-attention-mechanisms",
+        "classification.module.runtime-position-encodings",
+        "classification.module.runtime-attention-mechanisms",
       ]);
       expect(
         tree[0]?.classificationChildren[0]?.recordChildren.map(
@@ -1282,7 +1289,7 @@ describe("registry-runtime generation", () => {
       expect(
         generatedRuntime
           .buildClassificationTree({
-            rootClassificationIds: ["classification.runtime-root"],
+            rootClassificationIds: ["classification.module"],
             memberKinds: ["module"],
           })[0]
           ?.children.map((child) =>
@@ -1291,20 +1298,20 @@ describe("registry-runtime generation", () => {
               : child.member.record.id,
           ),
       ).toEqual([
-        "classification.runtime-position-encodings",
-        "classification.runtime-attention-mechanisms",
+        "classification.module.runtime-position-encodings",
+        "classification.module.runtime-attention-mechanisms",
       ]);
       expect(
         generatedRuntime
           .buildClassificationTree({
-            rootClassificationIds: ["classification.runtime-root"],
+            rootClassificationIds: ["classification.module"],
             includeEmptyClassifications: true,
           })[0]
           ?.classificationChildren.map((child) => child.classification.id),
       ).toEqual([
-        "classification.runtime-position-encodings",
-        "classification.runtime-attention-mechanisms",
-        "classification.runtime-empty-concepts",
+        "classification.module.runtime-position-encodings",
+        "classification.module.runtime-attention-mechanisms",
+        "classification.module.runtime-empty-modules",
       ]);
     } finally {
       await rm(tempRoot, { recursive: true, force: true });

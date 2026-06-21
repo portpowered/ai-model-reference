@@ -390,10 +390,10 @@ describe("registry-runtime", () => {
     expect(
       listClassificationRoots().map((classification) => classification.id),
     ).toEqual([
-      "classification.module",
       "classification.concept",
-      "classification.training",
+      "classification.module",
       "classification.system",
+      "classification.training",
     ]);
 
     expect(

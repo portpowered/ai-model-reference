@@ -79,20 +79,20 @@ describe("topology data builder", () => {
         expect.objectContaining({
           kind: "membership",
           sourceId: "classification.module.feed-forward",
-          targetId: "module.standard-ffn",
+          targetId: "module.feed-forward-network",
           membershipType: "primary",
         }),
         expect.objectContaining({
           kind: "relationship",
-          sourceId: "module.standard-ffn",
+          sourceId: "module.feed-forward-network",
           targetId: "concept.activation",
           relationshipType: "uses",
         }),
         expect.objectContaining({
-          kind: "relationship",
-          sourceId: "module.swiglu",
-          targetId: "module.silu",
-          relationshipType: "uses",
+          kind: "membership",
+          sourceId: "classification.module.activation",
+          targetId: "module.gelu",
+          membershipType: "primary",
         }),
         expect.objectContaining({
           kind: "relationship",

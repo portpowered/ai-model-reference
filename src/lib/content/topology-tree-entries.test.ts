@@ -34,7 +34,7 @@ describe("topology tree entries", () => {
 
     expect(tree).toHaveLength(1);
     expect(tree[0]).toMatchObject({
-      classificationId: "classification.activation-functions",
+      classificationId: "classification.module.activation",
       title: "Hàm kích hoạt",
       directMemberCount: activation.memberCount,
       totalMemberCount: activation.memberCount,

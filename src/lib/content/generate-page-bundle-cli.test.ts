@@ -163,6 +163,7 @@ async function writeReferenceModuleFixture(
 async function writeClassificationFixture(
   tempRoot: string,
   input: {
+    id: string;
     slug: string;
     classificationType:
       | "domain"
@@ -171,6 +172,7 @@ async function writeClassificationFixture(
       | "topology"
       | "behavior";
     classifiesKinds: string[];
+    legacyIds?: string[];
     parentClassificationId?: string;
   },
 ): Promise<void> {
@@ -184,7 +186,7 @@ async function writeClassificationFixture(
       `${input.slug}.json`,
     ),
     JSON.stringify({
-      id: `classification.${input.slug}`,
+      id: input.id,
       slug: input.slug,
       kind: "classification",
       defaultTitleKey: "title",
@@ -198,6 +200,7 @@ async function writeClassificationFixture(
       updatedAt: "2026-06-02T00:00:00.000Z",
       classificationType: input.classificationType,
       classifiesKinds: input.classifiesKinds,
+      ...(input.legacyIds?.length ? { legacyIds: input.legacyIds } : {}),
       ...(input.parentClassificationId
         ? { parentClassificationId: input.parentClassificationId }
         : {}),
@@ -283,20 +286,26 @@ async function seedExpandedKindValidationFixtures(
     slug: "attention-is-all-you-need",
   });
   await writeClassificationFixture(tempRoot, {
-    slug: "neural-network-components",
-    classificationType: "family",
-    classifiesKinds: ["module"],
-  });
-  await writeClassificationFixture(tempRoot, {
+    id: "classification.module.attention.kv-cache-optimizations",
     slug: "kv-cache-optimizations",
     classificationType: "behavior",
     classifiesKinds: ["module"],
-    parentClassificationId: "classification.attention-mechanisms",
+    legacyIds: ["classification.kv-cache-optimizations"],
+    parentClassificationId: "classification.module.attention",
   });
   await writeClassificationFixture(tempRoot, {
+    id: "classification.training",
+    slug: "training",
+    classificationType: "domain",
+    classifiesKinds: ["training-regime"],
+  });
+  await writeClassificationFixture(tempRoot, {
+    id: "classification.training.behaviors",
     slug: "training-behaviors",
     classificationType: "behavior",
     classifiesKinds: ["training-regime"],
+    legacyIds: ["classification.training-behaviors"],
+    parentClassificationId: "classification.training",
   });
   await writeReferenceModuleFixture(tempRoot, {
     slug: "multi-head-attention",

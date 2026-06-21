@@ -435,6 +435,15 @@ describe("ontology foundation regression coverage", () => {
       expect.arrayContaining([
         "primary:module.attention",
         "primary:module.causal-attention",
+      ]),
+    );
+    expect(
+      listClassificationMembers("classification.module.attention", {
+        includeSecondary: true,
+      }).map((member) => `${member.membershipType}:${member.record.id}`),
+    ).toEqual(
+      expect.arrayContaining([
+        "secondary:module.multi-head-attention",
         "secondary:module.grouped-query-attention",
       ]),
     );

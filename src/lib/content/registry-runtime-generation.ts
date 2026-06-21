@@ -554,7 +554,12 @@ function listDirectClassificationMembers(
   classificationId: string,
   options: ClassificationMemberQueryOptions = {},
 ): ClassificationMember[] {
-  const classification = classificationsById.get(classificationId);
+  const resolvedClassificationId = resolveClassificationId(classificationId);
+  if (!resolvedClassificationId) {
+    return [];
+  }
+
+  const classification = classificationsById.get(resolvedClassificationId);
   if (!classification) {
     return [];
   }
@@ -566,9 +571,13 @@ function listDirectClassificationMembers(
       continue;
     }
 
-    if (record.primaryClassificationId === classificationId) {
+    if (
+      record.primaryClassificationId &&
+      resolveClassificationId(record.primaryClassificationId) ===
+        resolvedClassificationId
+    ) {
       members.push({
-        classificationId,
+        classificationId: resolvedClassificationId,
         classification,
         isInherited: false,
         membershipType: "primary",
@@ -578,10 +587,14 @@ function listDirectClassificationMembers(
 
     if (
       options.includeSecondary &&
-      record.secondaryClassificationIds?.includes(classificationId)
+      record.secondaryClassificationIds?.some(
+        (secondaryClassificationId) =>
+          resolveClassificationId(secondaryClassificationId) ===
+          resolvedClassificationId,
+      )
     ) {
       members.push({
-        classificationId,
+        classificationId: resolvedClassificationId,
         classification,
         isInherited: false,
         membershipType: "secondary",
