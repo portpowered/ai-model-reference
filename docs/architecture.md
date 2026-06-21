@@ -218,6 +218,12 @@ Localized messages contribute:
 * captions
 * alt text when useful for discovery
 
+Registry topology contributes:
+
+* primary and secondary classification membership
+* ancestor and root classification ancestry for ontology-backed pages
+* related topology ids and relationship types used for filtering and reranking
+
 Registry records contribute:
 
 * stable `registryId`

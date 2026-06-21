@@ -3,13 +3,23 @@ export type SearchDocumentFacets = {
   tags: string[];
   modelFamily?: string;
   moduleType?: string;
-  moduleFamily?: string;
-  conceptType?: string;
-  variantGroup?: string;
   optimizes?: string[];
   trainingRegimeIds?: string[];
   modalities?: string[];
   sourceType?: string;
+  primaryClassificationId?: string;
+  primaryClassificationSlug?: string;
+  classificationIds?: string[];
+  classificationSlugs?: string[];
+  ancestorClassificationIds?: string[];
+  ancestorClassificationSlugs?: string[];
+  rootClassificationIds?: string[];
+  rootClassificationSlugs?: string[];
+  relatedTopologyIds?: string[];
+  relationshipTypes?: string[];
+  legacyModuleFamily?: string;
+  legacyConceptType?: string;
+  legacyVariantGroup?: string;
 };
 
 export type SearchDocumentTopologyClassification = {
@@ -33,7 +43,13 @@ export type SearchDocumentTopology = {
   secondaryClassificationIds: string[];
   primaryClassification?: SearchDocumentTopologyClassification;
   secondaryClassifications: SearchDocumentTopologyClassification[];
+  classificationIds?: string[];
+  ancestorClassificationIds?: string[];
+  ancestorClassifications?: SearchDocumentTopologyClassification[];
+  rootClassificationIds?: string[];
+  rootClassifications?: SearchDocumentTopologyClassification[];
   relationships: SearchDocumentTopologyRelationship[];
+  relatedTopologyIds?: string[];
   terms: string[];
 };
 

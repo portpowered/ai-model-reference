@@ -753,13 +753,31 @@ type SearchDocument = {
     tags: string[];
     modelFamily?: string;
     moduleType?: string;
-    moduleFamily?: string;
-    conceptType?: string;
-    variantGroup?: string;
     optimizes?: string[];
     trainingRegimeIds?: string[];
     modalities?: string[];
     sourceType?: string;
+    primaryClassificationId?: string;
+    primaryClassificationSlug?: string;
+    classificationIds?: string[];
+    classificationSlugs?: string[];
+    ancestorClassificationIds?: string[];
+    ancestorClassificationSlugs?: string[];
+    rootClassificationIds?: string[];
+    rootClassificationSlugs?: string[];
+    relatedTopologyIds?: string[];
+    relationshipTypes?: string[];
+    legacyModuleFamily?: string;
+    legacyConceptType?: string;
+    legacyVariantGroup?: string;
+  };
+  topology: {
+    primaryClassificationId?: string;
+    secondaryClassificationIds: string[];
+    classificationIds?: string[];
+    ancestorClassificationIds?: string[];
+    rootClassificationIds?: string[];
+    relatedTopologyIds?: string[];
   };
 };
 ```
@@ -768,7 +786,9 @@ Search rules:
 
 * Full-text search indexes title, description, headings, body text, aliases, and tag aliases.
 * Facets come from registry fields and tag records, not from prose scraping.
+* Ontology-backed pages should publish classification ancestry and related topology ids as the primary facet contract for grouping, filtering, and reranking.
 * Tags are always indexed as both searchable text and filterable facets.
+* Legacy taxonomy strings such as `moduleFamily`, `conceptType`, and `variantGroup` should only survive as explicit `legacy*` compatibility fields when ontology ancestry already exists.
 * Relationship fields such as `relatedIds`, `moduleIds`, and `paperIds` are indexed for result enrichment and optional filtering, but the registry remains the source of truth.
 * Orama handles retrieval. The registry handles canonical relationships, graph traversal, and related-link generation.
 
