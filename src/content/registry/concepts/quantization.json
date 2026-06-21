@@ -34,7 +34,6 @@
   "createdAt": "2026-06-18T00:00:00.000Z",
   "updatedAt": "2026-06-18T00:00:00.000Z",
   "primaryClassificationId": "classification.concept.inference",
-  "conceptType": "inference",
   "prerequisiteIds": ["concept.parameter", "concept.activation"],
   "explainsIds": [
     "concept.weight-only-quantization",

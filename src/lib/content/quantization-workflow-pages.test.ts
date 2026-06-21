@@ -18,7 +18,9 @@ describe("Phase 5 quantization workflow concept pages (chapter-5-quantization-00
   test("registry records publish post-training quantization and calibration with expected links and citations", () => {
     const ptq = getConceptById("concept.post-training-quantization");
     expect(ptq?.status).toBe("published");
-    expect(ptq?.conceptType).toBe("inference");
+    expect(ptq?.primaryClassificationId).toBe(
+      "classification.concept.inference",
+    );
     expect(ptq?.aliases).toEqual([
       "PTQ",
       "post training quantization",
@@ -39,7 +41,9 @@ describe("Phase 5 quantization workflow concept pages (chapter-5-quantization-00
 
     const calibration = getConceptById("concept.calibration");
     expect(calibration?.status).toBe("published");
-    expect(calibration?.conceptType).toBe("inference");
+    expect(calibration?.primaryClassificationId).toBe(
+      "classification.concept.inference",
+    );
     expect(calibration?.aliases).toEqual([
       "quantization calibration",
       "representative dataset",

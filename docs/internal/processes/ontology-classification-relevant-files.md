@@ -49,6 +49,10 @@ the temporary legacy-id bridge.
   cannot separate `attention-foundations` from `attention-variants`. Validation
   should reject redundant or ignored `sidebarGrouping` entries once ontology
   already resolves the same subgroup.
+  For concept records that already declare canonical
+  `primaryClassificationId`, prefer asserting that ontology classification in
+  regression coverage and removing redundant `conceptType` values from the
+  record instead of keeping both fields aligned by hand.
 * `src/lib/content/topology-selector-compatibility.ts`
   Topology-specific temporary selector fence. Keep any remaining shorthand or
   legacy topology-only aliases here instead of expanding the generic
