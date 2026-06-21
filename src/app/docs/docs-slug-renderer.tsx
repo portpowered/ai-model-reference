@@ -8,6 +8,7 @@ import { createRelativeLink } from "fumadocs-ui/mdx";
 import { notFound } from "next/navigation";
 import type { ComponentProps, ComponentType } from "react";
 import { DocsAutoLinkedDescription } from "@/features/docs/components/DocsAutoLinkedDescription";
+import { DocsFoldedSummary } from "@/features/docs/components/DocsFoldedSummary";
 import { DocsOpeningSummary } from "@/features/docs/components/DocsOpeningSummary";
 import { DocsPageBreadcrumb } from "@/features/docs/components/DocsPageBreadcrumb";
 import { FoldedOpeningSummary } from "@/features/docs/components/FoldedOpeningSummary";
@@ -91,6 +92,12 @@ async function renderLocalDocsPage(
         />
         <DocsTitle>{loadedPage.messages.title}</DocsTitle>
         <DocsDescription>{description}</DocsDescription>
+        {localRef.section !== "glossary" &&
+        loadedPage.messages.openingSummary?.length ? (
+          <DocsFoldedSummary>
+            {loadedPage.messages.openingSummary}
+          </DocsFoldedSummary>
+        ) : null}
         <DocsBody>
           {localRef.section !== "systems" && localRef.section !== "glossary" ? (
             <DocsOpeningSummary

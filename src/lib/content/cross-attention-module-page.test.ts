@@ -11,6 +11,7 @@ import {
 import { MODULES_DOCS_ROOT } from "@/lib/content/content-paths";
 import { expectGlossaryBodyOmitsTitleHeading } from "@/lib/content/glossary-test-helpers";
 import { loadModulePage } from "@/lib/content/module-page";
+import { renderModuleDocsShell } from "@/lib/content/module-shell-render";
 import { loadPublishedDocsPages } from "@/lib/content/pages";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import { loadRegistry } from "@/lib/content/registry";
@@ -78,6 +79,9 @@ describe("loadModulePage cross-attention", () => {
     expect(html).toContain(
       'data-graph-id="graph.cross-attention-memory-pattern"',
     );
+    expect(html).toContain(
+      "Cross-attention keeps the query on the active target stream while keys and values stay on a separate memory source",
+    );
     expect(html).toContain('data-graph-node-id="cross-time-kv-s-2"');
     expect(html).toContain('data-table-id="table.cross-attention-comparison"');
     expect(html).toContain("Where keys and values come from");
@@ -91,6 +95,16 @@ describe("loadModulePage cross-attention", () => {
     expect(html).toContain('href="https://arxiv.org/abs/1706.03762"');
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain('aria-label="Module metadata"');
+  });
+
+  test("renders the opening summary in the shared docs shell", async () => {
+    const page = await loadModulePage("cross-attention");
+    const html = renderModuleDocsShell(page);
+
+    expect(html).toContain('data-testid="folded-summary"');
+    expect(html).toContain(
+      "lets one sequence ask questions of a different sequence or memory bank",
+    );
   });
 });
 
@@ -106,6 +120,7 @@ describe("cross-attention page assets", () => {
     expect(assets.computeFlow.type).toBe("attention-variant-graph");
     if (assets.computeFlow.type === "attention-variant-graph") {
       expect(assets.computeFlow.defaultVariantId).toBe("cross");
+      expect(assets.computeFlow.captionKey).toBe("assets.computeFlow.caption");
       expect(
         assets.computeFlow.variants.map((variant) => variant.graphId),
       ).toEqual([

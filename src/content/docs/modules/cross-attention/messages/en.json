@@ -48,6 +48,7 @@
   "assets": {
     "computeFlow": {
       "alt": "Self-attention versus cross-attention memory source comparison",
+      "caption": "Cross-attention keeps the query on the active target stream while keys and values stay on a separate memory source, unlike self-attention where all three come from the same sequence.",
       "variants": {
         "self": {
           "label": "Self-attention"

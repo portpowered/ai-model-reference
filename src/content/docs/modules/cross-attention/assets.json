@@ -16,7 +16,8 @@
     ],
     "webRenderer": "react-flow",
     "printRenderer": "mermaid",
-    "altKey": "assets.computeFlow.alt"
+    "altKey": "assets.computeFlow.alt",
+    "captionKey": "assets.computeFlow.caption"
   },
   "comparisonTable": {
     "type": "table",
