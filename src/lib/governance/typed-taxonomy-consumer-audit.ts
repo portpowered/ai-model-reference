@@ -1,5 +1,5 @@
-import { existsSync, readFileSync } from "node:fs";
-import { relative, resolve } from "node:path";
+import { type Dirent, existsSync, readdirSync, readFileSync } from "node:fs";
+import { extname, relative, resolve } from "node:path";
 
 export const LEGACY_TYPED_TAXONOMY_FIELDS = [
   "moduleType",
@@ -78,6 +78,27 @@ export type TypedTaxonomyConsumerAuditResult = {
     fieldReferenceCount: number;
     statusCounts: Record<TypedTaxonomyConsumerStatus, number>;
   };
+};
+
+export type TypedTaxonomyConsumerFenceViolationReason =
+  | "uncategorized-path"
+  | "undeclared-field";
+
+export type TypedTaxonomyConsumerFenceViolation = {
+  cluster: TypedTaxonomyConsumerCluster;
+  field: LegacyTypedTaxonomyField;
+  line: number;
+  path: string;
+  reason: TypedTaxonomyConsumerFenceViolationReason;
+  text: string;
+};
+
+export type TypedTaxonomyConsumerFenceResult = {
+  audit: TypedTaxonomyConsumerAuditResult;
+  auditedAtUtc: string;
+  scannedFileCount: number;
+  violationStatus: "clear" | "violations-found";
+  violations: readonly TypedTaxonomyConsumerFenceViolation[];
 };
 
 export class TypedTaxonomyConsumerAuditError extends Error {
@@ -309,6 +330,19 @@ export const typedTaxonomyConsumerAuditContract: readonly TypedTaxonomyConsumerC
         "Concept authoring guidance still documents legacy glossary compatibility inputs.",
     },
     {
+      id: "glossary-template-legacy-authoring-guidance",
+      path: "docs/templates/glossary.content.md",
+      cluster: "authoring-guidance",
+      status: "approved-compatibility-bridge",
+      owner: "content-authoring",
+      fields: ["conceptType"],
+      evidence: [
+        "The backing concept registry record at `src/content/registry/concepts/<slug>.json` should include `conceptType`,",
+      ],
+      rationale:
+        "Glossary authoring guidance still documents conceptType as temporary compatibility metadata for concept-backed glossary records.",
+    },
+    {
       id: "training-template-legacy-authoring-guidance",
       path: "docs/templates/training-regime.content.md",
       cluster: "authoring-guidance",
@@ -342,6 +376,60 @@ type CollectTypedTaxonomyConsumerAuditOptions = {
   contractEntries?: readonly TypedTaxonomyConsumerContractEntry[];
 };
 
+type CollectTypedTaxonomyConsumerFenceOptions =
+  CollectTypedTaxonomyConsumerAuditOptions;
+
+type TypedTaxonomyConsumerFenceTarget = {
+  cluster: TypedTaxonomyConsumerCluster;
+  path: string;
+  type: "directory" | "file";
+};
+
+const TYPED_TAXONOMY_CONSUMER_FENCE_TARGETS: readonly TypedTaxonomyConsumerFenceTarget[] =
+  [
+    { cluster: "search", path: "src/lib/search", type: "directory" },
+    {
+      cluster: "sidebar-topology",
+      path: "src/lib/content/sidebar-grouping.ts",
+      type: "file",
+    },
+    {
+      cluster: "related-doc-derivation",
+      path: "src/lib/content/related-docs.ts",
+      type: "file",
+    },
+    {
+      cluster: "authoring-page-spec",
+      path: "src/lib/content/page-spec.ts",
+      type: "file",
+    },
+    {
+      cluster: "generation-page-bundle",
+      path: "src/lib/content/generate-page-bundle.ts",
+      type: "file",
+    },
+    {
+      cluster: "registry-validation",
+      path: "src/lib/content/registry.ts",
+      type: "file",
+    },
+    {
+      cluster: "metadata-ui",
+      path: "src/features/models/components",
+      type: "directory",
+    },
+    {
+      cluster: "authoring-guidance",
+      path: "docs/templates",
+      type: "directory",
+    },
+    {
+      cluster: "authoring-guidance",
+      path: "docs/contributors/CONTRIBUTING.md",
+      type: "file",
+    },
+  ] as const;
+
 function toRepoRelativePath(repoRoot: string, path: string): string {
   const absolute = resolve(repoRoot, path);
   return relative(repoRoot, absolute).replace(/\\/g, "/");
@@ -349,6 +437,36 @@ function toRepoRelativePath(repoRoot: string, path: string): string {
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function shouldScanTypedTaxonomyFencePath(path: string): boolean {
+  const normalizedPath = path.replace(/\\/g, "/");
+  const extension = extname(normalizedPath);
+
+  if (![".ts", ".tsx", ".md"].includes(extension)) {
+    return false;
+  }
+
+  if (
+    normalizedPath.includes("/__generate-fixtures__/") ||
+    normalizedPath.endsWith(".test.ts") ||
+    normalizedPath.endsWith(".test.tsx")
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+function collectFilesRecursively(directory: string): string[] {
+  const entries = readdirSync(directory, {
+    recursive: true,
+    withFileTypes: true,
+  }) as Dirent[];
+
+  return entries
+    .filter((entry) => entry.isFile())
+    .map((entry) => resolve(directory, entry.parentPath, entry.name));
 }
 
 function collectFieldReferences(
@@ -521,6 +639,136 @@ export function formatTypedTaxonomyConsumerAudit(
         );
       }
     }
+  }
+
+  return `${lines.join("\n")}\n`;
+}
+
+export function collectTypedTaxonomyConsumerFence(
+  repoRoot: string,
+  options: CollectTypedTaxonomyConsumerFenceOptions = {},
+): TypedTaxonomyConsumerFenceResult {
+  const audit = collectTypedTaxonomyConsumerAudit(repoRoot, options);
+  const allowedFieldsByPath = new Map<string, Set<LegacyTypedTaxonomyField>>();
+
+  for (const entry of audit.entries) {
+    const allowedFields = allowedFieldsByPath.get(entry.path) ?? new Set();
+    for (const field of entry.fields) {
+      allowedFields.add(field);
+    }
+    allowedFieldsByPath.set(entry.path, allowedFields);
+  }
+
+  const scannedPaths = new Map<string, TypedTaxonomyConsumerCluster>();
+  for (const target of TYPED_TAXONOMY_CONSUMER_FENCE_TARGETS) {
+    const normalizedTargetPath = toRepoRelativePath(repoRoot, target.path);
+    const absoluteTargetPath = resolve(repoRoot, normalizedTargetPath);
+    if (!existsSync(absoluteTargetPath)) {
+      continue;
+    }
+
+    if (target.type === "file") {
+      if (shouldScanTypedTaxonomyFencePath(normalizedTargetPath)) {
+        scannedPaths.set(normalizedTargetPath, target.cluster);
+      }
+      continue;
+    }
+
+    for (const absoluteFilePath of collectFilesRecursively(
+      absoluteTargetPath,
+    )) {
+      const relativePath = toRepoRelativePath(repoRoot, absoluteFilePath);
+      if (shouldScanTypedTaxonomyFencePath(relativePath)) {
+        scannedPaths.set(relativePath, target.cluster);
+      }
+    }
+  }
+
+  const violations: TypedTaxonomyConsumerFenceViolation[] = [];
+
+  for (const [path, cluster] of [...scannedPaths.entries()].sort((a, b) =>
+    a[0].localeCompare(b[0]),
+  )) {
+    const source = readFileSync(resolve(repoRoot, path), "utf8");
+    const fieldReferences = collectFieldReferences(
+      source,
+      LEGACY_TYPED_TAXONOMY_FIELDS,
+    );
+    if (fieldReferences.length === 0) {
+      continue;
+    }
+
+    const allowedFields = allowedFieldsByPath.get(path);
+    if (!allowedFields) {
+      for (const reference of fieldReferences) {
+        violations.push({
+          cluster,
+          field: reference.field,
+          line: reference.line,
+          path,
+          reason: "uncategorized-path",
+          text: reference.text,
+        });
+      }
+      continue;
+    }
+
+    for (const reference of fieldReferences) {
+      if (allowedFields.has(reference.field)) {
+        continue;
+      }
+
+      violations.push({
+        cluster,
+        field: reference.field,
+        line: reference.line,
+        path,
+        reason: "undeclared-field",
+        text: reference.text,
+      });
+    }
+  }
+
+  return {
+    audit,
+    auditedAtUtc: options.auditedAtUtc ?? audit.auditedAtUtc,
+    scannedFileCount: scannedPaths.size,
+    violationStatus: violations.length === 0 ? "clear" : "violations-found",
+    violations,
+  };
+}
+
+export function formatTypedTaxonomyConsumerFence(
+  result: TypedTaxonomyConsumerFenceResult,
+): string {
+  const lines = [
+    "Typed taxonomy consumer deprecation fence",
+    `Audited at (UTC): ${result.auditedAtUtc}`,
+    `Contract status: ${result.audit.contractStatus}`,
+    `Targeted files scanned: ${result.scannedFileCount}`,
+    `Violation status: ${result.violationStatus}`,
+  ];
+
+  if (result.violations.length === 0) {
+    lines.push(
+      "No uncategorized or undeclared typed-taxonomy usage was found in the targeted runtime, generation, or authoring surfaces.",
+    );
+    return `${lines.join("\n")}\n`;
+  }
+
+  lines.push("", "Violations");
+
+  for (const violation of result.violations) {
+    const clusterLabel =
+      TYPED_TAXONOMY_CONSUMER_CLUSTER_LABELS[violation.cluster];
+    const reason =
+      violation.reason === "uncategorized-path"
+        ? "uncategorized targeted-surface usage"
+        : "field is not declared in the audit contract for this path";
+    lines.push(
+      `- ${violation.path}:${violation.line} [${clusterLabel}] ${violation.field} -> ${reason}`,
+    );
+    lines.push(`  snippet: ${violation.text}`);
   }
 
   return `${lines.join("\n")}\n`;
