@@ -36,6 +36,7 @@
     "Peter J. Liu"
   ],
   "sourceId": "citation.raffel-t5",
+  "primaryClassificationId": "classification.position-encoding-methods",
   "moduleType": "position-encoding",
   "optimizes": ["distance-awareness"],
   "exampleModelIds": [],

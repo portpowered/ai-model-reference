@@ -28,9 +28,6 @@
   ],
   "sourceId": "citation.attention-is-all-you-need",
   "primaryClassificationId": "classification.feed-forward-networks",
-  "secondaryClassificationIds": [
-    "classification.transformer-feed-forward-components"
-  ],
   "relationships": [
     {
       "relationshipType": "variant",

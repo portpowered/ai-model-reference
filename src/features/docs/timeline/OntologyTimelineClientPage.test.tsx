@@ -50,12 +50,31 @@ describe("OntologyTimelineClientPage", () => {
     );
 
     await waitFor(() => {
+      const feedForwardChip = screen
+        .getAllByRole("link", { name: /feed-forward network/i })
+        .find(
+          (element) =>
+            element.getAttribute("href") ===
+            "/docs/timeline?classification=feed-forward-networks",
+        );
+
       expect(
-        screen.getByText(
-          `Showing ${feedForwardTimeline.items.length} dated events for feed-forward network.`,
-        ),
-      ).toBeTruthy();
+        feedForwardChip?.getAttribute("aria-current"),
+      ).toBe("page");
     });
+
+    expect(
+      screen.getByRole("link", { name: /attention/i }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("link", { name: /normalization/i }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("link", { name: /position encoding/i }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("link", { name: /tokenization/i }),
+    ).toBeTruthy();
   });
 
   test("hydrates an invalid classification into the recoverable empty state", async () => {

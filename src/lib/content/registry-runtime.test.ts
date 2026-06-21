@@ -277,14 +277,14 @@ describe("registry-runtime", () => {
 
   test("ontology helpers return stable empty results for records without ontology data", () => {
     expect(
-      getPrimaryClassificationForRecord("module.grouped-query-attention"),
+      getPrimaryClassificationForRecord("citation.sennrich-bpe"),
     ).toBeUndefined();
-    expect(
-      listSecondaryClassificationsForRecord("module.grouped-query-attention"),
-    ).toEqual([]);
-    expect(
-      listOntologyRelationshipsForRecord("module.grouped-query-attention"),
-    ).toEqual([]);
+    expect(listSecondaryClassificationsForRecord("citation.sennrich-bpe")).toEqual(
+      [],
+    );
+    expect(listOntologyRelationshipsForRecord("citation.sennrich-bpe")).toEqual(
+      [],
+    );
   });
 
   test("ontology helpers return stable empty results for unknown records and classifications", () => {
@@ -315,7 +315,12 @@ describe("registry-runtime", () => {
       expect.arrayContaining([
         "classification.neural-network-components",
         "classification.activation-functions",
+        "classification.attention-mechanisms",
         "classification.feed-forward-networks",
+        "classification.normalization-layers",
+        "classification.position-encoding-methods",
+        "classification.tokenization-methods",
+        "classification.transformer-block-structures",
       ]),
     );
   });
@@ -327,11 +332,7 @@ describe("registry-runtime", () => {
     expect(getPrimaryClassificationForRecord("module.sigmoid")?.id).toBe(
       "classification.activation-functions",
     );
-    expect(listSecondaryClassificationsForRecord("module.sigmoid")).toEqual([
-      expect.objectContaining({
-        id: "classification.feed-forward-networks",
-      }),
-    ]);
+    expect(listSecondaryClassificationsForRecord("module.sigmoid")).toEqual([]);
     expect(getPrimaryClassificationForRecord("module.relu")?.id).toBe(
       "classification.activation-functions",
     );
@@ -364,15 +365,16 @@ describe("registry-runtime", () => {
     expect(
       listSecondaryClassificationsForRecord("module.feed-forward-network"),
     ).toEqual([]);
-    for (const registryId of ["module.standard-ffn", "module.swiglu"]) {
+    for (const registryId of [
+      "module.standard-ffn",
+      "module.swiglu",
+      "module.mixture-of-experts",
+      "module.deepseekmoe",
+    ]) {
       expect(getPrimaryClassificationForRecord(registryId)?.id).toBe(
         "classification.feed-forward-networks",
       );
-      expect(listSecondaryClassificationsForRecord(registryId)).toEqual([
-        expect.objectContaining({
-          id: "classification.transformer-feed-forward-components",
-        }),
-      ]);
+      expect(listSecondaryClassificationsForRecord(registryId)).toEqual([]);
     }
 
     expect(
@@ -381,23 +383,82 @@ describe("registry-runtime", () => {
       ),
     ).toEqual(
       expect.arrayContaining([
-        "secondary:module.sigmoid",
         "primary:module.feed-forward-network",
         "primary:module.standard-ffn",
         "primary:module.swiglu",
+        "primary:module.mixture-of-experts",
+        "primary:module.deepseekmoe",
+      ]),
+    );
+  });
+
+  test("new module-family classifications cover supported attention, normalization, position, tokenization, and structural modules", () => {
+    expect(getPrimaryClassificationForRecord("module.attention")?.id).toBe(
+      "classification.attention-mechanisms",
+    );
+    expect(getPrimaryClassificationForRecord("module.layer-norm")?.id).toBe(
+      "classification.normalization-layers",
+    );
+    expect(getPrimaryClassificationForRecord("module.rope")?.id).toBe(
+      "classification.position-encoding-methods",
+    );
+    expect(getPrimaryClassificationForRecord("module.bpe")?.id).toBe(
+      "classification.tokenization-methods",
+    );
+    expect(
+      getPrimaryClassificationForRecord(
+        "module.manifold-constrained-hyper-connections",
+      )?.id,
+    ).toBe("classification.transformer-block-structures");
+
+    expect(
+      listClassificationMembers("classification.attention-mechanisms").map(
+        (member) => `${member.membershipType}:${member.record.id}`,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "primary:module.attention",
+        "primary:module.causal-attention",
+        "primary:module.multi-head-attention",
+      ]),
+    );
+    expect(
+      listClassificationMembers("classification.normalization-layers").map(
+        (member) => `${member.membershipType}:${member.record.id}`,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "primary:module.layer-norm",
+        "primary:module.rmsnorm",
+      ]),
+    );
+    expect(
+      listClassificationMembers("classification.position-encoding-methods").map(
+        (member) => `${member.membershipType}:${member.record.id}`,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "primary:module.rope",
+        "primary:module.alibi",
+      ]),
+    );
+    expect(
+      listClassificationMembers("classification.tokenization-methods").map(
+        (member) => `${member.membershipType}:${member.record.id}`,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "primary:module.bpe",
+        "primary:module.wordpiece",
       ]),
     );
     expect(
       listClassificationMembers(
-        "classification.transformer-feed-forward-components",
+        "classification.transformer-block-structures",
       ).map((member) => `${member.membershipType}:${member.record.id}`),
-    ).toEqual(
-      expect.arrayContaining([
-        "secondary:module.gelu",
-        "secondary:module.standard-ffn",
-        "secondary:module.swiglu",
-      ]),
-    );
+    ).toEqual([
+      "primary:module.manifold-constrained-hyper-connections",
+    ]);
   });
 
   test("seeded ontology relationships resolve typed activation and feed-forward topology", () => {

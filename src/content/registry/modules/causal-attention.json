@@ -37,6 +37,7 @@
     "Illia Polosukhin"
   ],
   "sourceId": "citation.attention-is-all-you-need",
+  "primaryClassificationId": "classification.attention-mechanisms",
   "moduleType": "attention",
   "moduleFamily": "attention",
   "conceptType": "attention-variant",

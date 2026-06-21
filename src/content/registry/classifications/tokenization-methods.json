@@ -1,0 +1,17 @@
+{
+  "id": "classification.tokenization-methods",
+  "slug": "tokenization-methods",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": ["tokenization", "tokenizer family", "tokenization method"],
+  "tags": ["tokenization", "foundations"],
+  "relatedIds": ["concept.tokenizers-overview", "module.bpe"],
+  "citationIds": ["citation.sennrich-bpe"],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "family",
+  "classifiesKinds": ["module"],
+  "parentClassificationId": "classification.neural-network-components"
+}

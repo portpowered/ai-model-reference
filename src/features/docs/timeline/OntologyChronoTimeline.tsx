@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Component, type ReactNode, useEffect, useMemo, useState } from "react";
-import { Chrono } from "react-chrono";
+import { useEffect, useMemo, useState } from "react";
 import type { OntologyTimelineItem } from "@/lib/content/ontology-timeline";
 
 type OntologyChronoTimelineProps = {
@@ -18,70 +17,73 @@ type OntologyChronoTimelineProps = {
   };
 };
 
-type TimelineRendererBoundaryProps = {
-  resetKey: string;
-  fallback: ReactNode;
-  children: ReactNode;
-};
+const timelineShellClassName =
+  "rounded-[var(--radius)]  bg-card/40 px-4 py-4 md:px-6";
 
-type TimelineRendererBoundaryState = {
-  hasError: boolean;
-};
+const timelineListClassName =
+  "relative m-0 list-none p-0 before:absolute before:bottom-0 before:left-5 before:top-6 before:w-1 before:-translate-x-1/2 before:rounded-full before:bg-primary";
 
-const chronoTheme = {
-  cardBgColor: "#1e2b31",
-  cardDetailsBackGround: "#1e2b31",
-  cardDetailsColor: "#f6f1df",
-  cardSubtitleColor: "#ada99c",
-  cardTitleColor: "#f6f1df",
-  detailsColor: "#f6f1df",
-  iconBackgroundColor: "#5f9aaa",
-  iconColor: "#fffaf0",
-  primary: "#5f9aaa",
-  secondary: "#df8f7d",
-  titleColor: "#ada99c",
-  titleColorActive: "#f6f1df",
-  toolbarBgColor: "#182329",
-  toolbarBtnBgColor: "#26363d",
-  toolbarTextColor: "#f6f1df",
-} as const;
+const timelineItemClassName =
+  "relative grid grid-cols-[2.5rem_minmax(0,1fr)] gap-4 pb-6 last:pb-0";
 
-function toChronoItems(items: readonly OntologyTimelineItem[]) {
-  return items.map((item) => ({
-    id: item.registryId,
-    title: item.dateLabel,
-    cardTitle: item.title,
-    cardSubtitle: `${item.dateKind} ${item.dateLabel}`,
-    cardDetailedText: item.summary,
-    date: item.dateValue,
-  }));
-}
+const timelineDotClassName =
+  "mt-4 block h-4 w-4 rounded-full bg-primary shadow-[0_0_0_6px_hsl(var(--primary)/0.16)]";
 
-class TimelineRendererBoundary extends Component<
-  TimelineRendererBoundaryProps,
-  TimelineRendererBoundaryState
-> {
-  state: TimelineRendererBoundaryState = {
-    hasError: false,
-  };
+const timelineCardClassName =
+  "rounded-[var(--radius)] border border-zinc-800 bg-zinc-950 px-6 py-5";
 
-  static getDerivedStateFromError(): TimelineRendererBoundaryState {
-    return { hasError: true };
-  }
+const timelineDateClassName =
+  "m-0 text-sm font-semibold uppercase tracking-[0.04em] text-primary";
 
-  componentDidUpdate(prevProps: TimelineRendererBoundaryProps) {
-    if (this.state.hasError && prevProps.resetKey !== this.props.resetKey) {
-      this.setState({ hasError: false });
-    }
-  }
+const timelineTitleLinkClassName =
+  "text-[1.9rem] font-medium leading-tight text-zinc-50 no-underline transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950";
 
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback;
-    }
+const timelineTitleClassName =
+  "m-0 text-[1.9rem] font-medium leading-tight text-zinc-50";
 
-    return this.props.children;
-  }
+const timelineSummaryClassName = "m-0 text-lg leading-8 text-zinc-400";
+
+
+const timelineStateClassName =
+  "flex min-h-72 flex-col items-center justify-center gap-2 rounded-[var(--radius)] border border-border bg-card/60 p-6 text-center text-muted-foreground";
+
+const timelineStateTitleClassName = "m-0 text-base font-semibold text-foreground";
+
+const timelineStateBodyClassName = "m-0 max-w-[32rem]";
+
+function renderTimelineItems(
+  items: readonly OntologyTimelineItem[],
+  labels: OntologyChronoTimelineProps["labels"],
+) {
+  return (
+    <ol className={timelineListClassName}>
+      {items.map((item) => (
+        <li className={timelineItemClassName} key={item.registryId}>
+          <div aria-hidden="true" className="flex justify-center">
+            <span className={timelineDotClassName} />
+          </div>
+          <article className={timelineCardClassName} data-registry-id={item.registryId}>
+            <div className="flex flex-col gap-5">
+              <p className={timelineDateClassName}>
+                {item.dateKind} {item.dateLabel}
+              </p>
+              <div className="flex flex-col gap-4">
+                {item.href ? (
+                  <Link className={timelineTitleLinkClassName} href={item.href}>
+                    {item.title}
+                  </Link>
+                ) : (
+                  <h2 className={timelineTitleClassName}>{item.title}</h2>
+                )}
+                <p className={timelineSummaryClassName}>{item.summary}</p>
+              </div>
+
+            </div>
+          </article>
+        </li>
+      ))}
+    </ol>
+  );
 }
 
 export function OntologyChronoTimeline({
@@ -89,8 +91,7 @@ export function OntologyChronoTimeline({
   labels,
 }: OntologyChronoTimelineProps) {
   const [isMounted, setIsMounted] = useState(false);
-  const chronoItems = useMemo(() => toChronoItems(items), [items]);
-  const resetKey = items.map((item) => item.registryId).join("|");
+  const renderedItems = useMemo(() => renderTimelineItems(items, labels), [items, labels]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -99,95 +100,22 @@ export function OntologyChronoTimeline({
   return (
     <section
       aria-label={labels.regionLabel}
-      className="ontology-timeline"
+      className={timelineShellClassName}
       data-testid="ontology-chrono-timeline"
     >
-      <ol className="ontology-timeline__event-list">
-        {items.map((item) => (
-          <li className="ontology-timeline__event" key={item.registryId}>
-            <article
-              className="ontology-timeline__card"
-              data-registry-id={item.registryId}
-            >
-              <p className="ontology-timeline__date">
-                {item.dateKind} {item.dateLabel}
-              </p>
-              <h2>{item.title}</h2>
-              <p>{item.summary}</p>
-              <div className="ontology-timeline__meta">
-                {item.href ? (
-                  <Link href={item.href}>{labels.docsLink}</Link>
-                ) : null}
-                {item.source ? (
-                  <span>
-                    {labels.sourcePrefix} {item.source.title}
-                  </span>
-                ) : null}
-              </div>
-            </article>
-          </li>
-        ))}
-      </ol>
-      <div className="ontology-timeline__chrono-shell">
-        {isMounted ? (
-          <TimelineRendererBoundary
-            fallback={
-              <div
-                aria-live="polite"
-                className="ontology-timeline__state ontology-timeline__state--error"
-                data-testid="ontology-timeline-error"
-                role="status"
-              >
-                <p className="ontology-timeline__state-title">
-                  {labels.errorTitle}
-                </p>
-                <p>{labels.errorDescription}</p>
-              </div>
-            }
-            resetKey={resetKey}
-          >
-            <Chrono
-              items={chronoItems}
-              mode="vertical"
-              theme={chronoTheme}
-              layout={{
-                cardHeight: 220,
-                cardWidth: 520,
-                pointSize: 18,
-                responsive: { enabled: true, breakpoint: 768 },
-              }}
-              content={{
-                alignment: { horizontal: "left", vertical: "top" },
-                compactText: false,
-                semanticTags: { title: "h2", subtitle: "span" },
-              }}
-              display={{
-                borderless: true,
-                toolbar: { enabled: false },
-              }}
-              interaction={{
-                autoScroll: true,
-                cardHover: true,
-                keyboardNavigation: true,
-                pointClick: true,
-              }}
-              darkMode={{ enabled: true, showToggle: false }}
-            />
-          </TimelineRendererBoundary>
-        ) : (
-          <div
-            aria-live="polite"
-            className="ontology-timeline__state ontology-timeline__state--loading"
-            data-testid="ontology-timeline-loading"
-            role="status"
-          >
-            <p className="ontology-timeline__state-title">
-              {labels.loadingTitle}
-            </p>
-            <p>{labels.loadingDescription}</p>
-          </div>
-        )}
-      </div>
+      {isMounted ? (
+        renderedItems
+      ) : (
+        <div
+          aria-live="polite"
+          className={timelineStateClassName}
+          data-testid="ontology-timeline-loading"
+          role="status"
+        >
+          <p className={timelineStateTitleClassName}>{labels.loadingTitle}</p>
+          <p className={timelineStateBodyClassName}>{labels.loadingDescription}</p>
+        </div>
+      )}
     </section>
   );
 }

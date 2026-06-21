@@ -27,6 +27,7 @@
   "releaseDate": "2016-06-10",
   "authors": ["Rico Sennrich", "Barry Haddow", "Alexandra Birch"],
   "sourceId": "citation.sennrich-bpe",
+  "primaryClassificationId": "classification.tokenization-methods",
   "moduleType": "tokenizer",
   "moduleFamily": "tokenization",
   "conceptType": "subword-tokenization",

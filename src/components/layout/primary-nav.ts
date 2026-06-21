@@ -55,28 +55,14 @@ export function getPrimaryNavItems(
   locale: SiteLocale = defaultLocale,
   options: PrimaryNavOptions = {},
 ): PrimaryNavItem[] {
-  const topologyItems = getTopologyPrimaryNavItems(
-    messages,
-    options.topologyOptions,
-  );
-
   return [
     {
       href: buildLocalizedRoute({ surface: "home" }, locale),
       label: messages.nav.home,
     },
     {
-      href: buildLocalizedRoute({ surface: "architecture-index" }, locale),
-      label: messages.nav.architecture,
-    },
-    ...topologyItems,
-    {
       href: buildLocalizedRoute({ surface: "topology" }, locale),
       label: messages.nav.topology,
-    },
-    {
-      href: buildLocalizedRoute({ surface: "glossary-index" }, locale),
-      label: messages.nav.glossary,
     },
     {
       href: buildLocalizedRoute(

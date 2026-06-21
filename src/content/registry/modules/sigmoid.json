@@ -24,7 +24,6 @@
   "authors": ["David E. Rumelhart", "Geoffrey E. Hinton", "Ronald J. Williams"],
   "sourceId": "citation.learning-representations-by-back-propagating-errors",
   "primaryClassificationId": "classification.activation-functions",
-  "secondaryClassificationIds": ["classification.feed-forward-networks"],
   "relationships": [
     {
       "relationshipType": "variant",

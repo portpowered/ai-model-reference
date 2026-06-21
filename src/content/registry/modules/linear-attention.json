@@ -23,6 +23,7 @@
     "Fleuret, François"
   ],
   "sourceId": "citation.katharopoulos-linear-attention-paper",
+  "primaryClassificationId": "classification.attention-mechanisms",
   "moduleType": "attention",
   "moduleFamily": "attention",
   "conceptType": "attention-variant",

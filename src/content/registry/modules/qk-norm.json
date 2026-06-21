@@ -23,6 +23,7 @@
     "Yuxuan Chen"
   ],
   "sourceId": "citation.query-key-normalization-for-transformers",
+  "primaryClassificationId": "classification.normalization-layers",
   "moduleType": "normalization",
   "optimizes": ["attention-logit-stability"],
   "exampleModelIds": [],

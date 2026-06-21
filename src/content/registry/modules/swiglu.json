@@ -21,9 +21,6 @@
   "authors": ["Noam Shazeer"],
   "sourceId": "citation.glu-variants-improve-transformer",
   "primaryClassificationId": "classification.feed-forward-networks",
-  "secondaryClassificationIds": [
-    "classification.transformer-feed-forward-components"
-  ],
   "relationships": [
     {
       "relationshipType": "variant",

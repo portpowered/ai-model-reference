@@ -34,18 +34,35 @@ describe("topology navigation model", () => {
   test("derives graph-map and timeline destinations from seeded classifications", () => {
     const options = listTopologyNavigationOptions();
 
-    expect(options.map((option) => option.classificationId)).toEqual([
-      "classification.activation-functions",
-      "classification.feed-forward-networks",
-    ]);
-    expect(options.map((option) => option.classificationSlug)).toEqual([
-      "activation-functions",
-      "feed-forward-networks",
-    ]);
-    expect(options.map((option) => option.label)).toEqual([
-      "Activation Functions",
-      "Feed Forward Networks",
-    ]);
+    expect(options.map((option) => option.classificationId)).toEqual(
+      expect.arrayContaining([
+        "classification.activation-functions",
+        "classification.attention-mechanisms",
+        "classification.feed-forward-networks",
+        "classification.normalization-layers",
+        "classification.position-encoding-methods",
+        "classification.tokenization-methods",
+        "classification.transformer-block-structures",
+      ]),
+    );
+    expect(options.map((option) => option.classificationSlug)).toEqual(
+      expect.arrayContaining([
+        "activation-functions",
+        "attention-mechanisms",
+        "feed-forward-networks",
+        "normalization-layers",
+        "position-encoding-methods",
+        "tokenization-methods",
+        "transformer-block-structures",
+      ]),
+    );
+    expect(options.map((option) => option.label)).toEqual(
+      expect.arrayContaining([
+        "Activation Functions",
+        "Attention Mechanisms",
+        "Feed Forward Networks",
+      ]),
+    );
 
     const activation = options.find(
       (option) =>
@@ -91,13 +108,20 @@ describe("topology navigation model", () => {
       labels: getTopologyNavigationLabels(messages),
     });
 
-    expect(options[0]?.label).toBe("Hàm kích hoạt");
-    expect(options[0]?.destinations).toContainEqual({
+    const activation = options.find(
+      (option) => option.classificationSlug === "activation-functions",
+    );
+    const feedForward = options.find(
+      (option) => option.classificationSlug === "feed-forward-networks",
+    );
+
+    expect(activation?.label).toBe("Hàm kích hoạt");
+    expect(activation?.destinations).toContainEqual({
       mode: "graph-map",
       label: "Bản đồ đồ thị",
       href: "/vi/browse?classification=activation-functions&mode=graph-map",
     });
-    expect(options[1]?.destinations).toContainEqual({
+    expect(feedForward?.destinations).toContainEqual({
       mode: "timeline",
       label: "Dòng thời gian",
       href: "/vi/browse?classification=feed-forward-networks&mode=timeline",

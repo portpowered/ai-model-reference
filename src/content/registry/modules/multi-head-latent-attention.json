@@ -22,6 +22,7 @@
   "releaseDate": "2024-05-01",
   "authors": ["DeepSeek-AI"],
   "sourceId": "citation.deepseek-v2-mla-paper",
+  "primaryClassificationId": "classification.attention-mechanisms",
   "moduleType": "attention",
   "moduleFamily": "attention",
   "conceptType": "attention-variant",

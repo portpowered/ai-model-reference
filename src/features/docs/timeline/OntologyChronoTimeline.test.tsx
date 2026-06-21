@@ -1,12 +1,5 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 import { cleanup, render, screen } from "@testing-library/react";
-
-mock.module("react-chrono", () => ({
-  Chrono: () => {
-    throw new Error("chrono render failed");
-  },
-}));
-
 import { OntologyChronoTimeline } from "@/features/docs/timeline/OntologyChronoTimeline";
 
 const defaultLabels = {
@@ -21,28 +14,11 @@ const defaultLabels = {
 };
 
 describe("OntologyChronoTimeline", () => {
-  const originalConsoleError = console.error;
-
-  beforeEach(() => {
-    console.error = (...args: unknown[]) => {
-      const [firstArg] = args;
-      if (
-        firstArg instanceof Error ||
-        (typeof firstArg === "string" &&
-          firstArg.includes("chrono render failed"))
-      ) {
-        return;
-      }
-      originalConsoleError(...args);
-    };
-  });
-
   afterEach(() => {
     cleanup();
-    console.error = originalConsoleError;
   });
 
-  test("shows a non-destructive error state when the timeline renderer throws", async () => {
+  test("renders clickable timeline cards after mount", async () => {
     render(
       <OntologyChronoTimeline
         items={[
@@ -76,16 +52,12 @@ describe("OntologyChronoTimeline", () => {
       />,
     );
 
-    const errorState = await screen.findByTestId("ontology-timeline-error");
-    expect(errorState.textContent).toContain(defaultLabels.errorTitle);
-    expect(screen.getByText(defaultLabels.errorDescription)).toBeTruthy();
     expect(
-      screen.getByRole("heading", { name: "Rectified Linear Unit" }),
+      await screen.findByRole("link", { name: "Rectified Linear Unit" }),
     ).toBeTruthy();
     expect(
-      screen
-        .getByRole("link", { name: defaultLabels.docsLink })
-        .getAttribute("href"),
+      screen.getByRole("link", { name: defaultLabels.docsLink }).getAttribute("href"),
     ).toBe("/docs/modules/relu");
+    expect(screen.getByText(/Date source:/)).toBeTruthy();
   });
 });

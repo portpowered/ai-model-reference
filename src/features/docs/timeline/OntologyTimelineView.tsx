@@ -119,15 +119,6 @@ export function OntologyTimelineView({
       />
       {timeline.status === "success" ? (
         <>
-          <div
-            aria-live="polite"
-            className="mt-6 block rounded-lg border border-border bg-card/40 p-4 text-sm text-muted-foreground"
-            role="status"
-          >
-            {timelinePage.successSummary
-              .replace("{count}", String(timeline.items.length))
-              .replace("{classification}", timeline.classification.title)}
-          </div>
           <div className="mt-8">
             <OntologyChronoTimeline
               items={timeline.items}

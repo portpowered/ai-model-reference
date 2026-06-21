@@ -31,6 +31,7 @@
     "Jonathan H. Clark"
   ],
   "sourceId": "citation.gqa-paper",
+  "primaryClassificationId": "classification.attention-mechanisms",
   "moduleType": "attention",
   "moduleFamily": "attention",
   "conceptType": "attention-variant",

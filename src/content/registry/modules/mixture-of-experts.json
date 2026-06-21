@@ -27,6 +27,7 @@
     "Jeff Dean"
   ],
   "sourceId": "citation.sparsely-gated-mixture-of-experts-layer",
+  "primaryClassificationId": "classification.feed-forward-networks",
   "moduleType": "feed-forward",
   "optimizes": ["parameter-capacity", "compute-efficiency"],
   "exampleModelIds": [],

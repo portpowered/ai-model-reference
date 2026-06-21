@@ -44,8 +44,8 @@
     "emptySuggestionSuffix": "."
   },
   "timelinePage": {
-    "title": "Activation Timeline",
-    "description": "Browse how activation functions entered the model architecture vocabulary over time.",
+    "title": "Timeline",
+    "description": "Browse how things change over time.",
     "eyebrow": "Ontology timeline",
     "successSummary": "Showing {count} dated events for {classification}.",
     "loadingTitle": "Loading timeline",

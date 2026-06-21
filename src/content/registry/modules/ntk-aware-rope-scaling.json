@@ -30,6 +30,7 @@
     "Enrico Shippole"
   ],
   "sourceId": "citation.peng-yarn",
+  "primaryClassificationId": "classification.position-encoding-methods",
   "moduleType": "position-encoding",
   "optimizes": ["long-context-extrapolation"],
   "exampleModelIds": [],

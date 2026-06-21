@@ -21,14 +21,14 @@ describe("ontology timeline data", () => {
     expect(timeline.classification.classificationId).toBe(
       "classification.activation-functions",
     );
-    expect(timeline.items.map((item) => item.registryId)).toEqual(
-      expect.arrayContaining([
-        "module.relu",
-        "module.leaky-relu",
-        "module.silu",
-        "module.swiglu",
-      ]),
-    );
+    expect(timeline.items.map((item) => item.registryId)).toEqual([
+      "module.tanh",
+      "module.sigmoid",
+      "module.relu",
+      "module.leaky-relu",
+      "module.gelu",
+      "module.silu",
+    ]);
 
     const relu = timeline.items.find(
       (item) => item.registryId === "module.relu",
@@ -69,22 +69,20 @@ describe("ontology timeline data", () => {
     );
     expect(
       timeline.items.findIndex((item) => item.registryId === "module.silu"),
-    ).toBeLessThan(
-      timeline.items.findIndex((item) => item.registryId === "module.swiglu"),
-    );
-    expect(timeline.items.map((item) => item.registryId)).toEqual(
-      expect.arrayContaining([
-        "module.feed-forward-network",
-        "module.relu",
-        "module.leaky-relu",
-        "module.silu",
-        "module.standard-ffn",
-        "module.swiglu",
-      ]),
-    );
+    ).toBe(timeline.items.length - 1);
+    expect(
+      timeline.items.every((item) =>
+        item.classificationMemberships.some(
+          (membership) =>
+            membership.classificationId ===
+              "classification.activation-functions" &&
+            membership.membershipType === "primary",
+        ),
+      ),
+    ).toBe(true);
   });
 
-  test("relationship-derived activation neighbors carry typed context and nearby slices", () => {
+  test("timelines keep activation and feed-forward records isolated by primary classification", () => {
     const timeline = loadOntologyTimelineData("activation");
     const feedForwardTimeline = loadOntologyTimelineData(
       "feed-forward-networks",
@@ -98,22 +96,30 @@ describe("ontology timeline data", () => {
       throw new Error("Expected feed-forward timeline to resolve successfully");
     }
 
-    const swiglu = timeline.items.find(
-      (item) => item.registryId === "module.swiglu",
+    expect(timeline.items.map((item) => item.registryId)).not.toEqual(
+      expect.arrayContaining([
+        "module.feed-forward-network",
+        "module.standard-ffn",
+        "module.swiglu",
+      ]),
     );
-    expect(swiglu?.classificationMemberships).toContainEqual({
-      classificationId: "classification.feed-forward-networks",
-      classificationSlug: "feed-forward-networks",
-      classificationTitle: "feed-forward network",
-      membershipType: "primary",
-    });
-    expect(swiglu?.relationshipContext).toContainEqual({
-      relationshipType: "used-by",
-      sourceId: "module.silu",
-      sourceTitle: "Sigmoid Linear Unit",
-      targetId: "module.swiglu",
-      targetTitle: "Swish Gated Linear Unit",
-    });
+    expect(feedForwardTimeline.items.map((item) => item.registryId)).toEqual([
+      "module.feed-forward-network",
+      "module.mixture-of-experts",
+      "module.standard-ffn",
+      "module.swiglu",
+      "module.deepseekmoe",
+    ]);
+    expect(
+      feedForwardTimeline.items.every((item) =>
+        item.classificationMemberships.some(
+          (membership) =>
+            membership.classificationId ===
+              "classification.feed-forward-networks" &&
+            membership.membershipType === "primary",
+        ),
+      ),
+    ).toBe(true);
 
     expect(timeline.nearbyClassifications).toEqual(
       expect.arrayContaining([
@@ -123,8 +129,19 @@ describe("ontology timeline data", () => {
           active: true,
         }),
         expect.objectContaining({
-          classificationId: "classification.feed-forward-networks",
-          eventCount: feedForwardTimeline.items.length,
+          classificationId: "classification.attention-mechanisms",
+          active: false,
+        }),
+        expect.objectContaining({
+          classificationId: "classification.normalization-layers",
+          active: false,
+        }),
+        expect.objectContaining({
+          classificationId: "classification.position-encoding-methods",
+          active: false,
+        }),
+        expect.objectContaining({
+          classificationId: "classification.tokenization-methods",
           active: false,
         }),
       ]),

@@ -297,24 +297,34 @@ function buildRelationshipContext(
   };
 }
 
+function memberRecordsForClassification(
+  classification: ClassificationRecord,
+  recordsById: ReadonlyMap<string, RelatedRegistryRecord>,
+): TimelineSourceRecord[] {
+  return listClassificationMembers(classification.id).flatMap((member) => {
+    const record = recordsById.get(member.record.id);
+    return isTimelineSourceRecord(record) ? [record] : [];
+  });
+}
+
 function collectCandidateRecords(
   classification: ClassificationRecord,
   recordsById: ReadonlyMap<string, RelatedRegistryRecord>,
   pagesByRegistryId: ReadonlyMap<string, DocsPageSource>,
 ): Map<string, OntologyTimelineRelationshipContext[]> {
   const candidates = new Map<string, OntologyTimelineRelationshipContext[]>();
+  const directMembers = memberRecordsForClassification(classification, recordsById);
+  const directMemberIds = new Set(directMembers.map((record) => record.id));
 
-  for (const member of listClassificationMembers(classification.id)) {
-    const source = recordsById.get(member.record.id);
-    if (!isTimelineSourceRecord(source)) {
-      continue;
-    }
-
+  for (const source of directMembers) {
     candidates.set(source.id, candidates.get(source.id) ?? []);
 
     for (const relationship of listOntologyRelationshipsForRecord(source.id)) {
       const relatedRecord = getRegistryRecordById(relationship.targetId);
       if (!isTimelineSourceRecord(relatedRecord)) {
+        continue;
+      }
+      if (!directMemberIds.has(relatedRecord.id)) {
         continue;
       }
 
@@ -377,6 +387,14 @@ function toClassificationSlice(
   };
 }
 
+function isEligibleTimelineClassification(
+  classification: ClassificationRecord,
+): boolean {
+  return (
+    classification.status === "published"
+  );
+}
+
 function buildNearbyClassificationSlices(
   items: readonly OntologyTimelineItem[],
   classifications: readonly ClassificationRecord[],
@@ -384,11 +402,35 @@ function buildNearbyClassificationSlices(
   recordsById: ReadonlyMap<string, RelatedRegistryRecord>,
   pagesByRegistryId: ReadonlyMap<string, DocsPageSource>,
 ): OntologyTimelineClassificationSlice[] {
-  const nearbyClassificationIds = new Set<string>([activeClassification.id]);
+  const nearbyClassificationIds = new Set<string>(
+    classifications
+      .filter(isEligibleTimelineClassification)
+      .map((classification) => classification.id),
+  );
+  nearbyClassificationIds.add(activeClassification.id);
 
   for (const item of items) {
     for (const membership of item.classificationMemberships) {
       nearbyClassificationIds.add(membership.classificationId);
+    }
+  }
+
+  for (const record of memberRecordsForClassification(
+    activeClassification,
+    recordsById,
+  )) {
+    for (const relationship of listOntologyRelationshipsForRecord(record.id)) {
+      const relatedRecord = getRegistryRecordById(relationship.targetId);
+      if (!isTimelineSourceRecord(relatedRecord)) {
+        continue;
+      }
+
+      for (const membership of classificationMembershipsForRecord(
+        relatedRecord.id,
+        pagesByRegistryId,
+      )) {
+        nearbyClassificationIds.add(membership.classificationId);
+      }
     }
   }
 

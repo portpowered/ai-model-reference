@@ -25,10 +25,6 @@
   "authors": ["Dan Hendrycks", "Kevin Gimpel"],
   "sourceId": "citation.gaussian-error-linear-units",
   "primaryClassificationId": "classification.activation-functions",
-  "secondaryClassificationIds": [
-    "classification.feed-forward-networks",
-    "classification.transformer-feed-forward-components"
-  ],
   "relationships": [
     {
       "relationshipType": "variant",

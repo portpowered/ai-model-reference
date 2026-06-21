@@ -1,0 +1,24 @@
+{
+  "id": "classification.transformer-block-structures",
+  "slug": "transformer-block-structures",
+  "kind": "classification",
+  "defaultTitleKey": "title",
+  "defaultSummaryKey": "description",
+  "aliases": [
+    "transformer block structure",
+    "transformer block wiring",
+    "block structure family"
+  ],
+  "tags": ["foundations"],
+  "relatedIds": [
+    "concept.transformer-architecture",
+    "module.manifold-constrained-hyper-connections"
+  ],
+  "citationIds": ["citation.deepseek-v4-paper"],
+  "status": "published",
+  "createdAt": "2026-06-21T00:00:00.000Z",
+  "updatedAt": "2026-06-21T00:00:00.000Z",
+  "classificationType": "topology",
+  "classifiesKinds": ["module"],
+  "parentClassificationId": "classification.neural-network-components"
+}
