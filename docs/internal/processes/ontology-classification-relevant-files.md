@@ -49,6 +49,10 @@ the temporary legacy-id bridge.
   cannot separate `attention-foundations` from `attention-variants`. Validation
   should reject redundant or ignored `sidebarGrouping` entries once ontology
   already resolves the same subgroup.
+  For concept records that already declare canonical
+  `primaryClassificationId`, prefer asserting that ontology classification in
+  regression coverage and removing redundant `conceptType` values from the
+  record instead of keeping both fields aligned by hand.
 * `src/lib/content/topology-selector-compatibility.ts`
   Topology-specific temporary selector fence. Keep any remaining shorthand or
   legacy topology-only aliases here instead of expanding the generic
@@ -136,6 +140,10 @@ the temporary legacy-id bridge.
   runtime regeneration.
 * `src/lib/content/ontology-foundation-regression.test.ts`
   Focused proving-ground regression coverage for the migrated ontology slice.
+* `src/lib/content/architecture.ts`
+  Architecture browse/index classification should treat ontology architecture
+  membership, including descendant branches such as activation, as canonical
+  evidence before any legacy `conceptType` fallback.
 * `src/lib/governance/typed-taxonomy-consumer-audit.ts`
   Machine-checkable contract for remaining typed-taxonomy consumer clusters,
   ownership, compatibility status, the recommended next migration target, and

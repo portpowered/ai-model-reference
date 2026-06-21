@@ -38,15 +38,11 @@
       "targetId": "module.standard-ffn"
     }
   ],
-  "moduleType": "activation",
   "optimizes": ["gradient-flow"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "none",
-  "moduleFamily": "activation-functions",
-  "conceptType": "activation-function",
-  "variantGroup": "activation-variants"
+  "mathLevel": "none"
 }

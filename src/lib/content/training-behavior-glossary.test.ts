@@ -98,7 +98,7 @@ describe("Phase 2 training behavior glossary pages (US-004)", () => {
     expect(generalizationHtml).toContain("curated");
   });
 
-  test("registry uses training and evaluation concept types", async () => {
+  test("registry uses ontology classifications for training and evaluation peers", async () => {
     const registry = await loadRegistry();
     const alignment = registry.byId.get("concept.alignment") as ConceptRecord;
     const modelCapacity = registry.byId.get(
@@ -111,10 +111,18 @@ describe("Phase 2 training behavior glossary pages (US-004)", () => {
       "concept.generalization",
     ) as ConceptRecord;
 
-    expect(alignment.conceptType).toBe("training");
-    expect(modelCapacity.conceptType).toBe("training");
-    expect(overfitting.conceptType).toBe("training");
-    expect(generalization.conceptType).toBe("evaluation");
+    expect(alignment.primaryClassificationId).toBe(
+      "classification.concept.training",
+    );
+    expect(modelCapacity.primaryClassificationId).toBe(
+      "classification.concept.training",
+    );
+    expect(overfitting.primaryClassificationId).toBe(
+      "classification.concept.training",
+    );
+    expect(generalization.primaryClassificationId).toBe(
+      "classification.concept.evaluation",
+    );
   });
 
   test("search index records training behavior pages with glossary kind", async () => {

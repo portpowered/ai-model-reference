@@ -31,15 +31,11 @@
       "targetId": "module.silu"
     }
   ],
-  "moduleType": "feed-forward",
   "optimizes": ["feed-forward-expressiveness"],
   "exampleModelIds": [],
   "improvesOnIds": [],
   "tradeoffIds": [],
   "usedByModelIds": [],
   "introducedByPaperIds": [],
-  "mathLevel": "none",
-  "moduleFamily": "feed-forward-network",
-  "conceptType": "feed-forward-variant",
-  "variantGroup": "feed-forward-family"
+  "mathLevel": "none"
 }

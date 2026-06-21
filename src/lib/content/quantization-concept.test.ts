@@ -24,7 +24,9 @@ describe("Phase 5 quantization overview concept page (chapter-5-quantization-001
     const record = getConceptById("concept.quantization");
     expect(record?.status).toBe("published");
     expect(record?.kind).toBe("concept");
-    expect(record?.conceptType).toBe("inference");
+    expect(record?.primaryClassificationId).toBe(
+      "classification.concept.inference",
+    );
     expect(record?.aliases).toEqual([
       "model quantization",
       "low-bit inference",

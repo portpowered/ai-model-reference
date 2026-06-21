@@ -65,6 +65,21 @@ const seededPublishedRoutes = new Map([
   ["module.feed-forward-network", "/docs/modules/feed-forward-network"],
 ]);
 
+const provingSliceWithoutTypedTaxonomy = [
+  "module.feed-forward-network",
+  "module.standard-ffn",
+  "module.mixture-of-experts",
+  "module.deepseekmoe",
+  "module.swiglu",
+  "module.relu",
+  "module.gelu",
+  "module.silu",
+  "module.sigmoid",
+  "module.tanh",
+  "module.leaky-relu",
+  "concept.activation",
+] as const;
+
 async function createTempRegistryRoot(): Promise<{
   registryRoot: string;
   tempRoot: string;
@@ -248,6 +263,7 @@ describe("ontology foundation regression coverage", () => {
         "modules/relu.json",
         (record) => ({
           ...record,
+          moduleType: "activation",
           primaryClassificationId: "classification.module.feed-forward",
         }),
       );
@@ -657,5 +673,18 @@ describe("ontology foundation regression coverage", () => {
         "/docs/glossary/activation",
       ]),
     );
+  });
+
+  test("activation and feed-forward proving records no longer depend on deprecated typed-taxonomy fields", () => {
+    for (const registryId of provingSliceWithoutTypedTaxonomy) {
+      const record = getRegistryRecordById(registryId);
+      expectSeedRecord(record, registryId);
+      expect(record).not.toHaveProperty("moduleType");
+      expect(record).not.toHaveProperty("moduleFamily");
+      expect(record).not.toHaveProperty("conceptType");
+      expect(record).not.toHaveProperty("variantGroup");
+      expect(record).not.toHaveProperty("sidebarGrouping");
+      expect(record.primaryClassificationId).toBeDefined();
+    }
   });
 });
