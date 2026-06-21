@@ -315,6 +315,36 @@ describe("TopologyPrototype", () => {
     ).toBe("/topology");
   });
 
+  test("drops invalid selectors from chip recovery links and click navigation", async () => {
+    const messages = await loadUiMessages();
+    const user = userEvent.setup();
+    const router = getMockRouter();
+
+    setMockPathname("/topology");
+    setMockSearchParams(new URLSearchParams("classification=missing-slice"));
+
+    render(
+      <TopologyPrototype
+        messages={messages}
+        docsPageContentByRegistryId={docsPageContentByRegistryId}
+      />,
+    );
+
+    const activationChip = screen.getByRole("link", {
+      name: messages.topologyBrowse.classificationLabels.activationFunctions,
+    });
+
+    expect(activationChip.getAttribute("href")).toBe(
+      "/topology?classification=activation-functions",
+    );
+
+    await user.click(activationChip);
+
+    expect(router.push).toHaveBeenCalledWith(
+      "/topology?classification=activation-functions",
+    );
+  });
+
   test("renders the inspection panel shell in the default state", async () => {
     const messages = await loadUiMessages();
 

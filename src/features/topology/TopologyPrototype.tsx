@@ -19,7 +19,11 @@ import {
   buildTopologyGraph,
   resolveTopologyClassificationId,
 } from "./topology-data";
-import { buildTopologyHref, parseTopologyQuery } from "./topology-query";
+import {
+  buildTopologyHref,
+  getCanonicalTopologySelectorsForOutput,
+  parseTopologyQuery,
+} from "./topology-query";
 
 type TopologyPrototypeProps = {
   docsPageContentByRegistryId: TopologyDocsPageContentByRegistryId;
@@ -56,6 +60,11 @@ export function TopologyPrototype({
       (selection) => selection.classificationId,
     ),
   );
+  const validSelectors = getCanonicalTopologySelectorsForOutput(
+    queryState.selectors.filter((selector) =>
+      Boolean(resolveTopologyClassificationId(selector)),
+    ),
+  );
 
   const emptySelectionLabel =
     graph.status === "empty" && graph.selectedClassifications.length > 0
@@ -77,7 +86,7 @@ export function TopologyPrototype({
     const classificationId = resolveTopologyClassificationId(selector);
     if (classificationId && activeClassificationIds.has(classificationId)) {
       updateSelection(
-        queryState.selectors.filter(
+        validSelectors.filter(
           (item) => resolveTopologyClassificationId(item) !== classificationId,
         ),
         { explicitEmpty: true },
@@ -85,7 +94,7 @@ export function TopologyPrototype({
       return;
     }
 
-    updateSelection([...queryState.selectors, selector]);
+    updateSelection([...validSelectors, selector]);
   }
 
   function navigateToDefaultTopology(event: MouseEvent<HTMLAnchorElement>) {
@@ -98,11 +107,11 @@ export function TopologyPrototype({
     const href = buildTopologyHref(
       pathname,
       isActive
-        ? queryState.selectors.filter(
+        ? validSelectors.filter(
             (item) =>
               resolveTopologyClassificationId(item) !== chip.classificationId,
           )
-        : [...queryState.selectors, chip.selector],
+        : [...validSelectors, chip.selector],
       searchParams,
       isActive ? { explicitEmpty: true } : undefined,
     );

@@ -38,6 +38,12 @@ function canonicalizeTopologySelectorsForOutput(
   return dedupeSelectors(selectors.map(canonicalizeTopologySelectorForOutput));
 }
 
+export function getCanonicalTopologySelectorsForOutput(
+  selectors: readonly string[],
+): string[] {
+  return canonicalizeTopologySelectorsForOutput(selectors);
+}
+
 export function getDefaultTopologySelectors(): string[] {
   return getDefaultTopologyClassificationSelectors();
 }
@@ -85,7 +91,7 @@ export function buildTopologyHref(
       nextParams.set(TOPOLOGY_CLASSIFICATION_QUERY_KEY, "");
     }
   } else if (!hasDefaultSelectorSet(selectors)) {
-    for (const selector of canonicalizeTopologySelectorsForOutput(selectors)) {
+    for (const selector of getCanonicalTopologySelectorsForOutput(selectors)) {
       nextParams.append(TOPOLOGY_CLASSIFICATION_QUERY_KEY, selector);
     }
   }
