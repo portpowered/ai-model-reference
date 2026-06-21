@@ -1039,6 +1039,7 @@ describe("registry-runtime", () => {
       "training-regime.specialist-training",
       "module.mixture-of-experts",
       "module.deepseekmoe",
+      "system.batching",
       "system.expert-parallel-overlap",
       "system.on-disk-kv-cache",
       "paper.deepseek-v4",
@@ -1072,6 +1073,46 @@ describe("registry-runtime", () => {
     expect(
       getRegistryRecordById("training-regime.specialist-training")?.relatedIds,
     ).toContain("system.routing");
+  });
+
+  test("getSystemById returns batching as the canonical serving system record", () => {
+    const record = getSystemById("system.batching");
+
+    expect(record?.slug).toBe("batching");
+    expect(record?.systemType).toBe("serving");
+    expect(record?.tags).toEqual(["foundations"]);
+    expect(record?.aliases).toEqual(
+      expect.arrayContaining([
+        "request batching",
+        "inference batching",
+        "throughput latency tradeoff",
+      ]),
+    );
+    expect(record?.relatedIds).toEqual([
+      "concept.prefill",
+      "concept.decode",
+      "concept.prefill-decode-split",
+      "concept.kv-cache",
+      "system.routing",
+      "system.inference-engine",
+      "system.on-disk-kv-cache",
+      "system.expert-parallel-overlap",
+    ]);
+    expect(record?.relatedConceptIds).toEqual([
+      "concept.prefill",
+      "concept.decode",
+      "concept.prefill-decode-split",
+      "concept.kv-cache",
+    ]);
+  });
+
+  test("routing and inference engine keep reciprocal registry-backed links to batching", () => {
+    expect(getSystemById("system.routing")?.relatedIds).toContain(
+      "system.batching",
+    );
+    expect(getSystemById("system.inference-engine")?.relatedIds).toContain(
+      "system.batching",
+    );
   });
 
   test("listRelatedRegistryRecords includes concepts and modules", () => {
@@ -1166,5 +1207,13 @@ describe("registry-runtime", () => {
     expect(ids).toContain("module.bidirectional-attention");
     expect(ids).toContain("module.multi-query-attention");
     expect(ids).toContain("module.multi-head-attention");
+  });
+
+  test("listSystemRecords includes batching and adjacent system peers", () => {
+    const ids = listSystemRecords().map((record) => record.id);
+
+    expect(ids).toContain("system.batching");
+    expect(ids).toContain("system.on-disk-kv-cache");
+    expect(ids).toContain("system.expert-parallel-overlap");
   });
 });

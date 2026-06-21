@@ -455,7 +455,7 @@ describe("generated docs page tree", () => {
       ),
     ).toEqual({
       groupId: "memory",
-      source: "editorial-sidebar-grouping",
+      source: "derived-taxonomy",
     });
   });
 });

@@ -17,6 +17,7 @@
     "concept.prefill",
     "concept.decode",
     "concept.prefill-decode-split",
+    "system.batching",
     "system.on-disk-kv-cache",
     "system.expert-parallel-overlap",
     "model.gpt-3",

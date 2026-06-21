@@ -20,7 +20,20 @@ describe("graph-registry-runtime", () => {
     clearRegisteredGraphRecords();
   });
 
-  test("loads a bundled graph record by id", () => {
+  test("loads published graph records by id", () => {
+    const batchingSystemFlow = getGraphById("graph.batching-system-flow");
+    expect(batchingSystemFlow?.id).toBe("graph.batching-system-flow");
+    expect(batchingSystemFlow?.subjectId).toBe("system.batching");
+    expect(batchingSystemFlow?.nodes.length).toBe(4);
+    expect(batchingSystemFlow?.edges.length).toBe(3);
+
+    const computeFlow = getGraphById(
+      "graph.grouped-query-attention-compute-flow",
+    );
+    expect(computeFlow?.id).toBe("graph.grouped-query-attention-compute-flow");
+    expect(computeFlow?.nodes.length).toBeGreaterThanOrEqual(4);
+    expect(computeFlow?.edges.length).toBeGreaterThanOrEqual(3);
+
     const graph = requireBundledGraph();
 
     expect(graph.id).toBe(CANONICAL_GRAPH_ID);
@@ -39,9 +52,20 @@ describe("graph-registry-runtime", () => {
     const records = listGraphRecords();
     const ids = records.map((record) => record.id);
 
+    expect(records.length).toBe(55);
     expect(ids).toContain(CANONICAL_GRAPH_ID);
     expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toContain("graph.batching-system-flow");
+    expect(ids).toContain("graph.bpe-compute-flow");
+    expect(ids).toContain("graph.sentencepiece-compute-flow");
+    expect(ids).toContain("graph.byte-level-tokenization-compute-flow");
+    expect(ids).toContain("graph.deepseek-v4-contribution");
+    expect(ids).toContain("graph.bidirectional-attention-time-pattern");
+    expect(ids).toContain("graph.deepseek-v4-flash-architecture");
+    expect(ids).toContain("graph.deepseek-v4-pro-architecture");
+    expect(ids).toContain("graph.expert-parallel-overlap-system-flow");
     expect(ids).toContain("graph.inference-engine-system-flow");
+    expect(ids).toContain("graph.routing-system-flow");
     expect(
       records.find((record) => record.id === CANONICAL_GRAPH_ID)?.subjectId,
     ).toBe("model.gpt-3");

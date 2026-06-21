@@ -43,6 +43,7 @@ describe("Phase 5 decode glossary page (US-003)", () => {
       "concept.prefill",
       "concept.kv-cache",
       "concept.prefill-decode-split",
+      "system.batching",
       "concept.autoregressive-generation",
       "module.attention",
       "module.multi-query-attention",
