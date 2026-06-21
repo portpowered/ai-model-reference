@@ -27,7 +27,7 @@
   "releaseDate": "2023-01-01",
   "authors": ["kaiokendev"],
   "sourceId": "citation.kaiokendev-superhot",
-  "primaryClassificationId": "classification.position-encoding-methods",
+  "primaryClassificationId": "classification.module.positional-encoding",
   "moduleType": "position-encoding",
   "optimizes": ["long-context-extrapolation"],
   "exampleModelIds": [],

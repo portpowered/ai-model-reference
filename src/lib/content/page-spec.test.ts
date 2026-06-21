@@ -92,7 +92,7 @@ describe("validatePageSpec", () => {
     const spec = validatePageSpec({
       ...baseFields,
       kind: "concept",
-      primaryClassificationId: "classification.attention-mechanisms",
+      primaryClassificationId: "classification.module.attention",
       secondaryClassificationIds: ["classification.attention-variants"],
       relationships: [
         {
@@ -105,7 +105,7 @@ describe("validatePageSpec", () => {
     expect(spec.kind).toBe("concept");
     if (spec.kind === "concept") {
       expect(spec.primaryClassificationId).toBe(
-        "classification.attention-mechanisms",
+        "classification.module.attention",
       );
       expect(spec.secondaryClassificationIds).toEqual([
         "classification.attention-variants",
@@ -163,7 +163,7 @@ describe("validatePageSpec", () => {
     const spec = validatePageSpec({
       ...baseFields,
       kind: "module",
-      primaryClassificationId: "classification.attention-mechanisms",
+      primaryClassificationId: "classification.module.attention",
       secondaryClassificationIds: ["classification.kv-cache-optimizations"],
       relationships: [
         {
@@ -176,7 +176,7 @@ describe("validatePageSpec", () => {
     expect(spec.kind).toBe("module");
     if (spec.kind === "module") {
       expect(spec.primaryClassificationId).toBe(
-        "classification.attention-mechanisms",
+        "classification.module.attention",
       );
       expect(spec.moduleType).toBeUndefined();
       expect(spec.relationships).toEqual([
@@ -214,7 +214,7 @@ describe("validatePageSpec", () => {
     const spec = validatePageSpec({
       ...baseFields,
       kind: "module",
-      primaryClassificationId: "classification.attention-mechanisms",
+      primaryClassificationId: "classification.module.attention",
       secondaryClassificationIds: ["classification.kv-cache-optimizations"],
       relationships: [
         {
@@ -470,7 +470,7 @@ describe("validatePageSpec", () => {
       validatePageSpec({
         ...baseFields,
         kind: "module",
-        secondaryClassificationIds: ["classification.attention-mechanisms"],
+        secondaryClassificationIds: ["classification.module.attention"],
       });
     } catch (error) {
       expect(error).toBeInstanceOf(PageSpecValidationError);

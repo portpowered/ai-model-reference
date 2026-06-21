@@ -35,7 +35,7 @@
     "Illia Polosukhin"
   ],
   "sourceId": "citation.attention-is-all-you-need",
-  "primaryClassificationId": "classification.position-encoding-methods",
+  "primaryClassificationId": "classification.module.positional-encoding",
   "moduleType": "position-encoding",
   "optimizes": ["token-order-awareness"],
   "exampleModelIds": [],

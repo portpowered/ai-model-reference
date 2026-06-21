@@ -36,7 +36,7 @@
     "Klaus Macherey"
   ],
   "sourceId": "citation.gnmt-wordpiece",
-  "primaryClassificationId": "classification.tokenization-methods",
+  "primaryClassificationId": "classification.module.tokenization",
   "moduleType": "tokenizer",
   "moduleFamily": "tokenization",
   "conceptType": "subword-tokenization",

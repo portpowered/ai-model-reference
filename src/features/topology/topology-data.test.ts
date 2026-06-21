@@ -104,6 +104,91 @@ describe("topology data builder", () => {
     );
   });
 
+  test("resolves canonical classification ids and canonical slugs without selector shims", () => {
+    const canonicalIdGraph = buildTopologyGraph([
+      "classification.module.activation",
+    ]);
+    const canonicalSlugGraph = buildTopologyGraph(["activation-functions"]);
+
+    expectSuccessGraph(canonicalIdGraph);
+    expectSuccessGraph(canonicalSlugGraph);
+
+    expect(canonicalIdGraph.selectedClassifications).toEqual([
+      expect.objectContaining({
+        selector: "classification.module.activation",
+        classificationId: "classification.module.activation",
+      }),
+    ]);
+    expect(canonicalSlugGraph.selectedClassifications).toEqual([
+      expect.objectContaining({
+        selector: "activation-functions",
+        classificationId: "classification.module.activation",
+      }),
+    ]);
+    expect(canonicalIdGraph.nodes.map((node) => node.registryId)).toEqual(
+      canonicalSlugGraph.nodes.map((node) => node.registryId),
+    );
+    expect(canonicalIdGraph.edges.map((edge) => edge.id)).toEqual(
+      canonicalSlugGraph.edges.map((edge) => edge.id),
+    );
+  });
+
+  test("keeps shorthand selectors on an explicit temporary compatibility path", () => {
+    const graph = buildTopologyGraph(["activation", "feed-forward-network"]);
+    expectSuccessGraph(graph);
+
+    expect(
+      graph.selectedClassifications.map((selection) => ({
+        selector: selection.selector,
+        classificationId: selection.classificationId,
+      })),
+    ).toEqual([
+      {
+        selector: "activation",
+        classificationId: "classification.module.activation",
+      },
+      {
+        selector: "feed-forward-network",
+        classificationId: "classification.module.feed-forward",
+      },
+    ]);
+  });
+
+  test("keeps legacy classification ids on an explicit temporary compatibility path", () => {
+    const graph = buildTopologyGraph([
+      "classification.activation-functions",
+      "classification.feed-forward-networks",
+    ]);
+    expectSuccessGraph(graph);
+
+    expect(
+      graph.selectedClassifications.map((selection) => ({
+        selector: selection.selector,
+        classificationId: selection.classificationId,
+      })),
+    ).toEqual([
+      {
+        selector: "classification.activation-functions",
+        classificationId: "classification.module.activation",
+      },
+      {
+        selector: "classification.feed-forward-networks",
+        classificationId: "classification.module.feed-forward",
+      },
+    ]);
+  });
+
+  test("does not accept unrelated shorthand selectors outside the explicit compatibility set", () => {
+    expect(buildTopologyGraph(["attention"])).toEqual({
+      status: "error",
+      invalidSelections: ["attention"],
+      recoverySelection: getDefaultTopologyClassificationSelectors(),
+      selectedClassifications: [],
+      nodes: [],
+      edges: [],
+    });
+  });
+
   test("returns a stable empty result for empty selections", () => {
     expect(buildTopologyGraph([])).toEqual({
       status: "empty",

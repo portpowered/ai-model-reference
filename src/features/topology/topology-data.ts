@@ -1,4 +1,8 @@
 import {
+  listOntologyClassificationCompatibilitySelectors,
+  resolveOntologyClassificationSelector,
+} from "@/lib/content/ontology-classification-selectors";
+import {
   registryDisplayTitle,
   registryRecordHref,
 } from "@/lib/content/registry-linking";
@@ -29,43 +33,55 @@ export function getDefaultTopologyClassificationSelectors(): string[] {
   );
 }
 
-const selectorClassificationIds = new Map<string, string>([
-  ["activation", "classification.activation-functions"],
-  ["activation-function", "classification.activation-functions"],
-  ["activation-functions", "classification.activation-functions"],
-  [
-    "classification.activation-functions",
-    "classification.activation-functions",
-  ],
-  ["feed-forward", "classification.feed-forward-networks"],
-  ["feed-forward-network", "classification.feed-forward-networks"],
-  ["feed-forward-networks", "classification.feed-forward-networks"],
-  [
-    "classification.feed-forward-networks",
-    "classification.feed-forward-networks",
-  ],
-  ["neural-network-components", "classification.neural-network-components"],
-  [
-    "classification.neural-network-components",
-    "classification.neural-network-components",
-  ],
-]);
+function listTemporaryTopologyLegacyCompatibilitySelectors(): Map<
+  string,
+  string
+> {
+  const selectors = new Map<string, string>();
+
+  for (const option of listTopologyNavigationOptions()) {
+    const classification = getClassificationById(option.classificationId);
+    if (!classification) {
+      continue;
+    }
+
+    for (const selector of listOntologyClassificationCompatibilitySelectors(
+      classification,
+    )) {
+      selectors.set(selector, classification.id);
+    }
+  }
+
+  return selectors;
+}
 
 function resolveClassificationForSelector(
   selector: string,
 ): ClassificationRecord | undefined {
   const normalizedSelector = normalizeSelector(selector);
-  const classificationId =
-    selectorClassificationIds.get(normalizedSelector) ?? normalizedSelector;
-
-  return (
-    getClassificationById(classificationId) ??
-    listClassificationRecords().find(
-      (classification) =>
-        classification.slug === normalizedSelector ||
-        classification.id === normalizedSelector,
-    )
+  const classifications = listClassificationRecords();
+  const classification = resolveOntologyClassificationSelector(
+    normalizedSelector,
+    classifications,
   );
+
+  if (!classification) {
+    return undefined;
+  }
+
+  const supportedCompatibilitySelectors =
+    listTemporaryTopologyLegacyCompatibilitySelectors();
+
+  if (
+    classification.id === normalizedSelector ||
+    classification.slug === normalizedSelector ||
+    supportedCompatibilitySelectors.get(normalizedSelector) ===
+      classification.id
+  ) {
+    return classification;
+  }
+
+  return undefined;
 }
 
 export function resolveTopologyClassificationId(

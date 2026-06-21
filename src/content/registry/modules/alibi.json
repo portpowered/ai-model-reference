@@ -25,7 +25,7 @@
   "releaseDate": "2021-08-01",
   "authors": ["Ofir Press", "Noah A. Smith", "Mike Lewis"],
   "sourceId": "citation.press-alibi",
-  "primaryClassificationId": "classification.position-encoding-methods",
+  "primaryClassificationId": "classification.module.positional-encoding",
   "moduleType": "position-encoding",
   "optimizes": ["long-context-extrapolation"],
   "exampleModelIds": [],

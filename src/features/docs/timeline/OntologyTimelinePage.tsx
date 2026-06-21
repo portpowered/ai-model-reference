@@ -1,7 +1,9 @@
+import { listSupportedOntologyClassificationSelectors } from "@/lib/content/ontology-classification-selectors";
 import {
   loadOntologyTimelineData,
   type OntologyTimelineResult,
 } from "@/lib/content/ontology-timeline";
+import { getClassificationById } from "@/lib/content/registry-runtime";
 import type { UiMessages } from "@/lib/content/ui-messages";
 import type { SiteLocale } from "@/lib/i18n/locale-routing";
 import { OntologyTimelineClientPage } from "./OntologyTimelineClientPage";
@@ -22,14 +24,26 @@ function registerPreloadedTimeline(
   requestedClassification: string,
   timeline: OntologyTimelineResult,
 ) {
-  preloadedTimelines[
-    normalizeRequestedClassification(requestedClassification)
-  ] = timeline;
+  const selectors = new Set<string>([
+    normalizeRequestedClassification(requestedClassification),
+  ]);
 
   if (timeline.classification) {
-    preloadedTimelines[
-      normalizeRequestedClassification(timeline.classification.slug)
-    ] = timeline;
+    const classification = getClassificationById(
+      timeline.classification.classificationId,
+    );
+
+    if (classification) {
+      for (const selector of listSupportedOntologyClassificationSelectors(
+        classification,
+      )) {
+        selectors.add(selector);
+      }
+    }
+  }
+
+  for (const selector of selectors) {
+    preloadedTimelines[selector] = timeline;
   }
 }
 

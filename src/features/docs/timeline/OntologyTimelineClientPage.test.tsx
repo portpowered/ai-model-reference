@@ -77,6 +77,66 @@ describe("OntologyTimelineClientPage", () => {
     }
   });
 
+  test("hydrates the canonical classification id from the URI through the shared preload map", async () => {
+    setWindowLocationSearch(
+      "?classification=classification.module.feed-forward",
+    );
+
+    const messages = await loadUiMessages("en");
+    const preloadedTimelines = loadPreloadedTimelineSelections("en");
+
+    render(
+      <OntologyTimelineClientPage
+        initialTimeline={preloadedTimelines.activation}
+        locale="en"
+        messages={messages}
+        preloadedTimelines={preloadedTimelines}
+      />,
+    );
+
+    await waitFor(() => {
+      const feedForwardChip = screen
+        .getAllByRole("link", { name: /feed-forward network/i })
+        .find(
+          (element) =>
+            element.getAttribute("href") ===
+            "/docs/timeline?classification=feed-forward-networks",
+        );
+
+      expect(feedForwardChip?.getAttribute("aria-current")).toBe("page");
+    });
+  });
+
+  test("hydrates the explicit legacy classification id from the URI through the shared preload map", async () => {
+    setWindowLocationSearch(
+      "?classification=classification.feed-forward-networks",
+    );
+
+    const messages = await loadUiMessages("en");
+    const preloadedTimelines = loadPreloadedTimelineSelections("en");
+
+    render(
+      <OntologyTimelineClientPage
+        initialTimeline={preloadedTimelines.activation}
+        locale="en"
+        messages={messages}
+        preloadedTimelines={preloadedTimelines}
+      />,
+    );
+
+    await waitFor(() => {
+      const feedForwardChip = screen
+        .getAllByRole("link", { name: /feed-forward network/i })
+        .find(
+          (element) =>
+            element.getAttribute("href") ===
+            "/docs/timeline?classification=feed-forward-networks",
+        );
+
+      expect(feedForwardChip?.getAttribute("aria-current")).toBe("page");
+    });
+  });
+
   test("hydrates an invalid classification into the recoverable empty state", async () => {
     setWindowLocationSearch("?classification=not-a-real-slice");
 

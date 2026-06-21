@@ -22,7 +22,7 @@
   "releaseDate": "2019-11-01",
   "authors": ["Noam Shazeer"],
   "sourceId": "citation.shazeer-mqa-paper",
-  "primaryClassificationId": "classification.attention-mechanisms",
+  "primaryClassificationId": "classification.module.attention",
   "moduleType": "attention",
   "moduleFamily": "attention",
   "conceptType": "attention-variant",

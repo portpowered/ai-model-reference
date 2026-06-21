@@ -10,6 +10,56 @@ import {
 } from "@/lib/content/registry-runtime";
 
 describe("ontology timeline data", () => {
+  test("accepts canonical ids, canonical slugs, and explicit compatibility selectors for the active slice", () => {
+    const canonicalIdTimeline = loadOntologyTimelineData(
+      "classification.module.feed-forward",
+    );
+    const canonicalSlugTimeline = loadOntologyTimelineData(
+      "feed-forward-networks",
+    );
+    const legacyIdTimeline = loadOntologyTimelineData(
+      "classification.feed-forward-networks",
+    );
+    const shorthandTimeline = loadOntologyTimelineData("feed-forward");
+
+    expect(canonicalIdTimeline.status).toBe("success");
+    expect(canonicalSlugTimeline.status).toBe("success");
+    expect(legacyIdTimeline.status).toBe("success");
+    expect(shorthandTimeline.status).toBe("success");
+
+    for (const timeline of [
+      canonicalIdTimeline,
+      canonicalSlugTimeline,
+      legacyIdTimeline,
+      shorthandTimeline,
+    ]) {
+      if (timeline.status !== "success") {
+        throw new Error("Expected feed-forward timeline to resolve");
+      }
+
+      expect(timeline.classification.classificationId).toBe(
+        "classification.module.feed-forward",
+      );
+      expect(timeline.items.map((item) => item.registryId)).toEqual([
+        "module.feed-forward-network",
+        "module.mixture-of-experts",
+        "module.standard-ffn",
+        "module.swiglu",
+        "module.deepseekmoe",
+      ]);
+    }
+  });
+
+  test("rejects unsupported shorthand selectors outside the explicit compatibility set", () => {
+    expect(loadOntologyTimelineData("attention")).toEqual({
+      status: "empty",
+      reason: "unknown-classification",
+      requestedClassification: "attention",
+      items: [],
+      nearbyClassifications: [],
+    });
+  });
+
   test("activation resolves from the reader-facing slug and returns dated chronology items", () => {
     const timeline = loadOntologyTimelineData("activation");
 

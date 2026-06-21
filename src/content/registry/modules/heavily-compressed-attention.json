@@ -18,7 +18,7 @@
   "releaseDate": "2026-06-13",
   "authors": ["DeepSeek-AI"],
   "sourceId": "paper.deepseek-v4",
-  "primaryClassificationId": "classification.attention-mechanisms",
+  "primaryClassificationId": "classification.module.attention",
   "moduleType": "attention",
   "optimizes": ["kv-cache", "long-context-inference", "memory-bandwidth"],
   "exampleModelIds": ["model.deepseek-v4-pro", "model.deepseek-v4-flash"],
