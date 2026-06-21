@@ -92,14 +92,50 @@ the temporary legacy-id bridge.
   ownership, compatibility status, the recommended next migration target, and
   the targeted deprecation fence across runtime, generation, and authoring
   surfaces.
+* `src/lib/governance/legacy-taxonomy-compatibility-budget.ts`
+  Shared reviewer-facing budget contract that records the approved baseline for
+  one explicit legacy classification-id bridge inventory and one explicit
+  deprecated typed-taxonomy compatibility cluster, including the approved
+  search-cluster entry inventory and per-entry field-reference budgets used by
+  the narrow no-growth guards. The contract is shrink-only: removals stay
+  green, while additions, path moves, or field-reference growth fail.
+* `src/lib/governance/legacy-taxonomy-compatibility-budget.test.ts`
+  Coverage that proves the committed repo still matches the recorded
+  compatibility-budget baselines and that budget drift is reported in maintainer
+  terms when either governed surface grows, while explicit shrink-path fixtures
+  stay aligned.
+* `src/tests/ci/legacy-classification-budget-command.test.ts`
+  CLI-level proof that the dedicated legacy bridge no-growth verifier stays
+  green for the committed runtime bridge inventory and fails red when a fixture
+  bridge inventory grows beyond the approved baseline; shrink fixtures should
+  remain green.
 * `src/lib/governance/typed-taxonomy-consumer-audit.test.ts`
   Regression coverage for grouped audit summaries and contract-drift detection.
 * `src/lib/governance/typed-taxonomy-consumer-fence.test.ts`
   Regression coverage proving that new uncategorized or undeclared typed-taxonomy
   usage fails in the targeted surfaces.
+* `src/tests/ci/legacy-taxonomy-compatibility-budget-command.test.ts`
+  CLI-level proof that maintainers can print the current approved compatibility
+  budget for both governed legacy surfaces from the repository root.
+* `src/tests/ci/typed-taxonomy-budget-command.test.ts`
+  CLI-level proof that the dedicated search typed-taxonomy budget guard stays
+  green for the committed approved consumer inventory and field-reference
+  counts, remains green for shrink-only reductions, and fails red when an
+  approved search-cluster entry grows beyond its recorded field-reference
+  budget.
 * `src/tests/ci/typed-taxonomy-consumer-audit-command.test.ts`
   CLI-level proof that maintainers can render the current audit summary from the
   repository root.
+* `scripts/report-legacy-taxonomy-compatibility-budget.ts`
+  Maintainer entrypoint for printing the approved legacy taxonomy compatibility
+  budget and the current measured result for each governed surface.
+* `scripts/verify-legacy-classification-budget.ts`
+  Maintainer and CI entrypoint that fails when the runtime legacy
+  classification bridge inventory grows beyond the approved budget.
+* `scripts/verify-typed-taxonomy-budget.ts`
+  Maintainer and CI entrypoint that fails when the governed search
+  typed-taxonomy compatibility cluster grows beyond the approved per-entry
+  budget.
 * `src/tests/ci/typed-taxonomy-consumer-fence-command.test.ts`
   CLI-level proof that the targeted deprecation fence stays green for the
   committed compatibility contract.
