@@ -65,6 +65,7 @@ describe("loadModulePage unigram-tokenizer", () => {
     expect(html).not.toContain("Reader Shortcut");
     expect(html).not.toContain("Example model links will render");
     expect(html).toContain("At a glance");
+    expect(html).toContain('href="/tags/tokenization"');
     expectModuleTagPillListOnlyInTagsSection(html);
     expect(html).toContain('href="/tags/foundations"');
     expect(html).toContain('href="/tags/token-to-probability-chain"');
@@ -78,7 +79,7 @@ describe("loadModulePage unigram-tokenizer", () => {
     expect(html).not.toContain('data-planned="true"');
     expect(html).toContain('data-testid="citation-list"');
     expect(html).toContain("Kudo, Taku, and John Richardson.");
-    expect(html).toContain('href="https://arxiv.org/abs/1808.06226"');
+    expect(html).toContain('href="https://aclanthology.org/D18-2012/"');
     expect(html).toContain(
       "Sennrich, Rico, Barry Haddow, and Alexandra Birch.",
     );

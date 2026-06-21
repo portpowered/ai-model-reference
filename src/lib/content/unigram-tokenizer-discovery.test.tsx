@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import TagLandingPage from "@/app/(site)/tags/[slug]/page";
 import { RelatedDocs } from "@/features/docs/components/RelatedDocs";
 import { PUBLISHED_DOCS_REGISTRY_IDS } from "@/lib/content/published-docs-registry-ids";
 import {
@@ -13,6 +14,7 @@ import { loadUiMessages } from "@/lib/content/ui-messages";
 import { docsSearchApi } from "@/lib/search/search-server";
 
 const UNIGRAM_TOKENIZER_URL = "/docs/modules/unigram-tokenizer";
+const TOKENIZATION_TAG_SLUG = "tokenization";
 
 function pageBaseUrl(url: string): string {
   return url.split("#")[0] ?? url;
@@ -101,6 +103,38 @@ describe("unigram tokenizer discovery registry", () => {
         (resource) => resource.url === UNIGRAM_TOKENIZER_URL,
       ),
     ).toBe(true);
+  });
+
+  test("tokenization tag landing surfaces unigram tokenizer as a tokenizer-family module entry point", async () => {
+    const messages = await loadUiMessages();
+    const groups = await loadTagResourceGroups(
+      TOKENIZATION_TAG_SLUG,
+      messages,
+      "en",
+    );
+    const moduleGroup = groups.find((group) => group.kind === "module");
+
+    expect(moduleGroup).toBeDefined();
+    expect(moduleGroup?.kindLabel).toBe("Module");
+    expect(
+      moduleGroup?.resources.some(
+        (resource) => resource.url === UNIGRAM_TOKENIZER_URL,
+      ),
+    ).toBe(true);
+  });
+
+  test("tokenization tag landing renders unigram tokenizer without empty-state placeholders", async () => {
+    const page = await TagLandingPage({
+      params: Promise.resolve({ slug: TOKENIZATION_TAG_SLUG }),
+    });
+    const html = renderToStaticMarkup(page);
+
+    expect(html).toContain("Tokenization");
+    expect(html).toContain("Unigram Tokenizer");
+    expect(html).toContain(`href="${UNIGRAM_TOKENIZER_URL}"`);
+    expect(html).toContain('href="/search?tag=tokenization"');
+    expect(html).not.toContain("No resources");
+    expect(html).not.toContain("Nothing has shipped");
   });
 
   test.each([

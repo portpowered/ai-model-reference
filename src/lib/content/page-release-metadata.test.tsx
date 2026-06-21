@@ -28,8 +28,8 @@ describe("buildPageReleaseMetadata", () => {
     expect(metadata?.authors).toEqual(["Taku Kudo", "John Richardson"]);
     expect(metadata?.source).toEqual({
       title:
-        "SentencePiece: A simple and language independent subword tokenizer and detokenizer for Neural Text Processing",
-      url: "https://arxiv.org/abs/1808.06226",
+        "SentencePiece: A Simple and Language Independent Subword Tokenizer and Detokenizer for Neural Text Processing",
+      url: "https://aclanthology.org/D18-2012/",
     });
   });
 

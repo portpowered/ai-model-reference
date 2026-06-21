@@ -98,15 +98,19 @@ describe("registry-runtime", () => {
         "SentencePiece unigram",
       ]),
     );
-    expect(record?.tags).toEqual(["foundations", "token-to-probability-chain"]);
+    expect(record?.tags).toEqual([
+      "tokenization",
+      "foundations",
+      "token-to-probability-chain",
+    ]);
     expect(record?.moduleType).toBe("tokenizer");
     expect(record?.moduleFamily).toBe("tokenization");
     expect(record?.conceptType).toBe("tokenizer-variant");
     expect(record?.variantGroup).toBe("subword-tokenizers");
-    expect(record?.sourceId).toBe("citation.sentencepiece-paper");
+    expect(record?.sourceId).toBe("citation.kudo-sentencepiece");
     expect(record?.citationIds).toEqual([
-      "citation.sentencepiece-paper",
-      "citation.sennrich-bpe-paper",
+      "citation.kudo-sentencepiece",
+      "citation.sennrich-bpe",
     ]);
     expect(record?.relatedIds).toEqual([
       "concept.token",
