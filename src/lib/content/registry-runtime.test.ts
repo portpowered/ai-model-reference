@@ -1039,6 +1039,7 @@ describe("registry-runtime", () => {
       "training-regime.specialist-training",
       "module.mixture-of-experts",
       "module.deepseekmoe",
+      "system.batching",
       "system.expert-parallel-overlap",
       "system.on-disk-kv-cache",
       "paper.deepseek-v4",
@@ -1092,6 +1093,8 @@ describe("registry-runtime", () => {
       "concept.decode",
       "concept.prefill-decode-split",
       "concept.kv-cache",
+      "system.routing",
+      "system.inference-engine",
       "system.on-disk-kv-cache",
       "system.expert-parallel-overlap",
     ]);
@@ -1101,6 +1104,15 @@ describe("registry-runtime", () => {
       "concept.prefill-decode-split",
       "concept.kv-cache",
     ]);
+  });
+
+  test("routing and inference engine keep reciprocal registry-backed links to batching", () => {
+    expect(getSystemById("system.routing")?.relatedIds).toContain(
+      "system.batching",
+    );
+    expect(getSystemById("system.inference-engine")?.relatedIds).toContain(
+      "system.batching",
+    );
   });
 
   test("listRelatedRegistryRecords includes concepts and modules", () => {

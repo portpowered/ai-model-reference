@@ -27,6 +27,7 @@ describe("inference engine system registry", () => {
       "concept.prefill",
       "concept.decode",
       "concept.prefill-decode-split",
+      "system.batching",
       "system.on-disk-kv-cache",
       "system.expert-parallel-overlap",
       "model.gpt-3",
@@ -73,6 +74,9 @@ describe("inference engine system registry", () => {
       items.find((item) => item.registryId === "concept.prefill-decode-split")
         ?.href,
     ).toBe("/docs/glossary/prefill-decode-split");
+    expect(
+      items.find((item) => item.registryId === "system.batching")?.href,
+    ).toBe("/docs/systems/batching");
     expect(
       items.find((item) => item.registryId === "system.on-disk-kv-cache")?.href,
     ).toBe("/docs/systems/on-disk-kv-cache");
