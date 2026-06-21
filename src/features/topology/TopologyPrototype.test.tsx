@@ -170,6 +170,34 @@ describe("TopologyPrototype", () => {
     );
   });
 
+  test("treats canonical classification ids in the URL as the same active selection", async () => {
+    const messages = await loadUiMessages();
+
+    setMockPathname("/topology");
+    setMockSearchParams(
+      new URLSearchParams("classification=classification.module.feed-forward"),
+    );
+
+    render(
+      <TopologyPrototype
+        messages={messages}
+        docsPageContentByRegistryId={docsPageContentByRegistryId}
+      />,
+    );
+
+    expect(
+      screen
+        .getByRole("link", {
+          name: messages.topologyBrowse.classificationLabels
+            .feedForwardNetworks,
+        })
+        .getAttribute("href"),
+    ).toBe("/topology?classification=");
+    expect(
+      screen.getByRole("img", { name: messages.topologyPrototype.graphLabel }),
+    ).toBeTruthy();
+  });
+
   test("renders a recoverable empty state for explicit empty selections", async () => {
     const messages = await loadUiMessages();
 

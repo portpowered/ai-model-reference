@@ -29,37 +29,25 @@ export function getDefaultTopologyClassificationSelectors(): string[] {
   );
 }
 
-const selectorClassificationIds = new Map<string, string>([
-  ["activation", "classification.activation-functions"],
-  ["activation-function", "classification.activation-functions"],
-  ["activation-functions", "classification.activation-functions"],
-  [
-    "classification.activation-functions",
-    "classification.activation-functions",
-  ],
-  ["feed-forward", "classification.feed-forward-networks"],
-  ["feed-forward-network", "classification.feed-forward-networks"],
-  ["feed-forward-networks", "classification.feed-forward-networks"],
-  [
-    "classification.feed-forward-networks",
-    "classification.feed-forward-networks",
-  ],
-  ["neural-network-components", "classification.neural-network-components"],
-  [
-    "classification.neural-network-components",
-    "classification.neural-network-components",
-  ],
+const TEMPORARY_TOPOLOGY_LEGACY_SELECTOR_ALIASES = new Map<string, string>([
+  ["activation", "classification.module.activation"],
+  ["activation-function", "classification.module.activation"],
+  ["feed-forward", "classification.module.feed-forward"],
+  ["feed-forward-network", "classification.module.feed-forward"],
 ]);
 
 function resolveClassificationForSelector(
   selector: string,
 ): ClassificationRecord | undefined {
   const normalizedSelector = normalizeSelector(selector);
-  const classificationId =
-    selectorClassificationIds.get(normalizedSelector) ?? normalizedSelector;
+  const compatibilityClassificationId =
+    TEMPORARY_TOPOLOGY_LEGACY_SELECTOR_ALIASES.get(normalizedSelector);
 
   return (
-    getClassificationById(classificationId) ??
+    getClassificationById(normalizedSelector) ??
+    (compatibilityClassificationId
+      ? getClassificationById(compatibilityClassificationId)
+      : undefined) ??
     listClassificationRecords().find(
       (classification) =>
         classification.slug === normalizedSelector ||
