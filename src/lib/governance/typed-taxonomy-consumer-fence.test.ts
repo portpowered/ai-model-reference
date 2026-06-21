@@ -142,4 +142,49 @@ describe("typed taxonomy consumer deprecation fence", () => {
       rmSync(repoRoot, { force: true, recursive: true });
     }
   });
+
+  test("fails when an undeclared legacy field shares a line with an approved field", () => {
+    const repoRoot = mkdtempSync(join(tmpdir(), "typed-taxonomy-fence-"));
+
+    try {
+      mkdirSync(join(repoRoot, "src/lib/search"), { recursive: true });
+      writeFileSync(
+        join(repoRoot, "src/lib/search/build-documents.ts"),
+        "return [record.moduleType, record.conceptType].filter(Boolean);\n",
+      );
+
+      const contractEntries: readonly TypedTaxonomyConsumerContractEntry[] = [
+        {
+          id: "search",
+          path: "src/lib/search/build-documents.ts",
+          cluster: "search",
+          status: "approved-compatibility-bridge",
+          owner: "search/discovery",
+          fields: ["moduleType"],
+          evidence: [
+            "return [record.moduleType, record.conceptType].filter(Boolean);",
+          ],
+          rationale: "Temporary search compatibility bridge.",
+        },
+      ];
+
+      const result = collectTypedTaxonomyConsumerFence(repoRoot, {
+        contractEntries,
+      });
+
+      expect(result.violationStatus).toBe("violations-found");
+      expect(result.violations).toEqual([
+        expect.objectContaining({
+          cluster: "search",
+          field: "conceptType",
+          line: 1,
+          path: "src/lib/search/build-documents.ts",
+          reason: "undeclared-field",
+          text: "return [record.moduleType, record.conceptType].filter(Boolean);",
+        }),
+      ]);
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
 });

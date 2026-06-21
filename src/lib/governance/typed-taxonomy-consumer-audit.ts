@@ -503,23 +503,22 @@ function collectFieldReferences(
 
   const fieldPattern = new RegExp(
     `\\b(${fields.map((field) => escapeRegExp(field)).join("|")})\\b`,
+    "g",
   );
 
   return source
     .split(/\r?\n/)
     .flatMap((line, index): TypedTaxonomyConsumerFieldReference[] => {
-      const match = line.match(fieldPattern);
-      if (!match) {
+      const matches = [...line.matchAll(fieldPattern)];
+      if (matches.length === 0) {
         return [];
       }
 
-      return [
-        {
-          field: match[1] as LegacyTypedTaxonomyField,
-          line: index + 1,
-          text: line.trim(),
-        },
-      ];
+      return matches.map((match) => ({
+        field: match[1] as LegacyTypedTaxonomyField,
+        line: index + 1,
+        text: line.trim(),
+      }));
     });
 }
 
