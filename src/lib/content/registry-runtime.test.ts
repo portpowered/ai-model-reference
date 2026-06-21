@@ -15,8 +15,12 @@ import {
   getSystemById,
   getTrainingRegimeById,
   listCitationRecords,
+  listClassificationAncestors,
+  listClassificationChildren,
+  listClassificationDescendants,
   listClassificationMembers,
   listClassificationRecords,
+  listClassificationRoots,
   listConceptRecords,
   listDatasetRecords,
   listModelRecords,
@@ -325,6 +329,47 @@ describe("registry-runtime", () => {
     );
   });
 
+  test("classification traversal helpers expose stable roots, children, and ancestors", () => {
+    expect(
+      listClassificationRoots().map((classification) => classification.id),
+    ).toEqual(["classification.neural-network-components"]);
+
+    expect(
+      listClassificationRoots({
+        classifiesKinds: ["module"],
+      }).map((classification) => classification.id),
+    ).toEqual(["classification.neural-network-components"]);
+
+    expect(
+      listClassificationChildren(
+        "classification.neural-network-components",
+      ).map((classification) => classification.id),
+    ).toEqual([
+      "classification.activation-functions",
+      "classification.attention-mechanisms",
+      "classification.feed-forward-networks",
+      "classification.normalization-layers",
+      "classification.position-encoding-methods",
+      "classification.tokenization-methods",
+      "classification.transformer-block-structures",
+    ]);
+
+    expect(
+      listClassificationAncestors("classification.activation-functions").map(
+        (classification) => classification.id,
+      ),
+    ).toEqual(["classification.neural-network-components"]);
+    expect(
+      listClassificationChildren("classification.missing-runtime-record"),
+    ).toEqual([]);
+    expect(
+      listClassificationAncestors("classification.missing-runtime-record"),
+    ).toEqual([]);
+    expect(
+      listClassificationDescendants("classification.activation-functions"),
+    ).toEqual([]);
+  });
+
   test("seeded activation records resolve through ontology classification helpers", () => {
     expect(getPrimaryClassificationForRecord("concept.activation")?.id).toBe(
       "classification.activation-functions",
@@ -345,15 +390,16 @@ describe("registry-runtime", () => {
 
     expect(
       listClassificationMembers("classification.activation-functions").map(
-        (member) => `${member.membershipType}:${member.record.id}`,
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
       ),
     ).toEqual(
       expect.arrayContaining([
-        "primary:concept.activation",
-        "primary:module.sigmoid",
-        "primary:module.relu",
-        "primary:module.leaky-relu",
-        "primary:module.silu",
+        "primary:classification.activation-functions:concept.activation",
+        "primary:classification.activation-functions:module.sigmoid",
+        "primary:classification.activation-functions:module.relu",
+        "primary:classification.activation-functions:module.leaky-relu",
+        "primary:classification.activation-functions:module.silu",
       ]),
     );
   });
@@ -379,15 +425,16 @@ describe("registry-runtime", () => {
 
     expect(
       listClassificationMembers("classification.feed-forward-networks").map(
-        (member) => `${member.membershipType}:${member.record.id}`,
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
       ),
     ).toEqual(
       expect.arrayContaining([
-        "primary:module.feed-forward-network",
-        "primary:module.standard-ffn",
-        "primary:module.swiglu",
-        "primary:module.mixture-of-experts",
-        "primary:module.deepseekmoe",
+        "primary:classification.feed-forward-networks:module.feed-forward-network",
+        "primary:classification.feed-forward-networks:module.standard-ffn",
+        "primary:classification.feed-forward-networks:module.swiglu",
+        "primary:classification.feed-forward-networks:module.mixture-of-experts",
+        "primary:classification.feed-forward-networks:module.deepseekmoe",
       ]),
     );
   });
@@ -413,47 +460,59 @@ describe("registry-runtime", () => {
 
     expect(
       listClassificationMembers("classification.attention-mechanisms").map(
-        (member) => `${member.membershipType}:${member.record.id}`,
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
       ),
     ).toEqual(
       expect.arrayContaining([
-        "primary:module.attention",
-        "primary:module.causal-attention",
-        "primary:module.multi-head-attention",
+        "primary:classification.attention-mechanisms:module.attention",
+        "primary:classification.attention-mechanisms:module.causal-attention",
+        "primary:classification.attention-mechanisms:module.multi-head-attention",
       ]),
     );
     expect(
       listClassificationMembers("classification.normalization-layers").map(
-        (member) => `${member.membershipType}:${member.record.id}`,
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
       ),
     ).toEqual(
       expect.arrayContaining([
-        "primary:module.layer-norm",
-        "primary:module.rmsnorm",
+        "primary:classification.normalization-layers:module.layer-norm",
+        "primary:classification.normalization-layers:module.rmsnorm",
       ]),
     );
     expect(
       listClassificationMembers("classification.position-encoding-methods").map(
-        (member) => `${member.membershipType}:${member.record.id}`,
-      ),
-    ).toEqual(
-      expect.arrayContaining(["primary:module.rope", "primary:module.alibi"]),
-    );
-    expect(
-      listClassificationMembers("classification.tokenization-methods").map(
-        (member) => `${member.membershipType}:${member.record.id}`,
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
       ),
     ).toEqual(
       expect.arrayContaining([
-        "primary:module.bpe",
-        "primary:module.wordpiece",
+        "primary:classification.position-encoding-methods:module.rope",
+        "primary:classification.position-encoding-methods:module.alibi",
+      ]),
+    );
+    expect(
+      listClassificationMembers("classification.tokenization-methods").map(
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "primary:classification.tokenization-methods:module.bpe",
+        "primary:classification.tokenization-methods:module.wordpiece",
       ]),
     );
     expect(
       listClassificationMembers(
         "classification.transformer-block-structures",
-      ).map((member) => `${member.membershipType}:${member.record.id}`),
-    ).toEqual(["primary:module.manifold-constrained-hyper-connections"]);
+      ).map(
+        (member) =>
+          `${member.membershipType}:${member.classificationId}:${member.record.id}`,
+      ),
+    ).toEqual([
+      "primary:classification.transformer-block-structures:module.manifold-constrained-hyper-connections",
+    ]);
   });
 
   test("seeded ontology relationships resolve typed activation and feed-forward topology", () => {

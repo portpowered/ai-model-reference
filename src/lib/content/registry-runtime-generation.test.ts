@@ -736,6 +736,134 @@ describe("registry-runtime generation", () => {
     }
   });
 
+  test("generated runtime classification traversal includes roots, descendants, and inherited members", async () => {
+    const { outputPath, registryRoot, tempRoot } =
+      await createTempRegistryRoot();
+    try {
+      const baseFields = {
+        defaultTitleKey: "title",
+        defaultSummaryKey: "description",
+        aliases: [],
+        tags: [],
+        relatedIds: [],
+        citationIds: [],
+        status: "published" as const,
+        createdAt: "2026-06-01T00:00:00.000Z",
+        updatedAt: "2026-06-02T00:00:00.000Z",
+      };
+
+      await writeRegistryJson(registryRoot, "classifications", "root.json", {
+        ...baseFields,
+        id: "classification.runtime-root",
+        slug: "runtime-root",
+        kind: "classification",
+        classificationType: "domain",
+        classifiesKinds: ["module"],
+      });
+      await writeRegistryJson(registryRoot, "classifications", "branch.json", {
+        ...baseFields,
+        id: "classification.runtime-branch",
+        slug: "runtime-branch",
+        kind: "classification",
+        classificationType: "family",
+        classifiesKinds: ["module"],
+        parentClassificationId: "classification.runtime-root",
+      });
+      await writeRegistryJson(registryRoot, "classifications", "leaf.json", {
+        ...baseFields,
+        id: "classification.runtime-leaf",
+        slug: "runtime-leaf",
+        kind: "classification",
+        classificationType: "mechanism",
+        classifiesKinds: ["module"],
+        parentClassificationId: "classification.runtime-branch",
+      });
+      await writeRegistryJson(registryRoot, "modules", "branch-module.json", {
+        ...baseFields,
+        id: "module.runtime-branch-module",
+        slug: "runtime-branch-module",
+        kind: "module",
+        moduleType: "other",
+        optimizes: [],
+        exampleModelIds: [],
+        improvesOnIds: [],
+        tradeoffIds: [],
+        usedByModelIds: [],
+        introducedByPaperIds: [],
+        mathLevel: "none",
+        primaryClassificationId: "classification.runtime-branch",
+      });
+      await writeRegistryJson(registryRoot, "modules", "leaf-module.json", {
+        ...baseFields,
+        id: "module.runtime-leaf-module",
+        slug: "runtime-leaf-module",
+        kind: "module",
+        moduleType: "other",
+        optimizes: [],
+        exampleModelIds: [],
+        improvesOnIds: [],
+        tradeoffIds: [],
+        usedByModelIds: [],
+        introducedByPaperIds: [],
+        mathLevel: "none",
+        primaryClassificationId: "classification.runtime-leaf",
+      });
+
+      await writeGeneratedRegistryRuntimeModule({
+        outputPath,
+        projectRoot: getProjectRoot(),
+        registryRoot,
+      });
+
+      const generatedRuntime = await importGeneratedRuntime(outputPath);
+
+      expect(
+        generatedRuntime.listClassificationRoots().map((record) => record.id),
+      ).toEqual(["classification.runtime-root"]);
+      expect(
+        generatedRuntime
+          .listClassificationChildren("classification.runtime-root")
+          .map((record) => record.id),
+      ).toEqual(["classification.runtime-branch"]);
+      expect(
+        generatedRuntime
+          .listClassificationAncestors("classification.runtime-leaf")
+          .map((record) => record.id),
+      ).toEqual([
+        "classification.runtime-branch",
+        "classification.runtime-root",
+      ]);
+      expect(
+        generatedRuntime
+          .listClassificationDescendants("classification.runtime-root")
+          .map((record) => record.id),
+      ).toEqual([
+        "classification.runtime-branch",
+        "classification.runtime-leaf",
+      ]);
+      expect(
+        generatedRuntime
+          .listClassificationMembers("classification.runtime-root")
+          .map((member) => member.record.id),
+      ).toEqual([]);
+      expect(
+        generatedRuntime
+          .listClassificationMembers("classification.runtime-root", {
+            includeDescendants: true,
+          })
+          .map(
+            (member) =>
+              `${member.classificationId}:${member.isInherited}:${member.record.id}`,
+          ),
+      ).toEqual([
+        "classification.runtime-branch:true:module.runtime-branch-module",
+        "classification.runtime-leaf:true:module.runtime-leaf-module",
+      ]);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
   test("generated runtime helpers return undefined and empty arrays for missing records", async () => {
     const { outputPath, registryRoot, tempRoot } =
       await createTempRegistryRoot();

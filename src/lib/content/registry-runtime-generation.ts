@@ -350,10 +350,144 @@ export type ResolvedOntologyRelationship = {
   target: RuntimeRegistryRecord | undefined;
 };
 
+type OntologyParticipantKind = OntologyParticipatingRegistryRecord["kind"];
+
+export type ClassificationTraversalOptions = {
+  classifiesKinds?: readonly OntologyParticipantKind[];
+  statuses?: readonly ClassificationRecord["status"][];
+};
+
+export type ClassificationMemberQueryOptions = {
+  includeDescendants?: boolean;
+};
+
 export type ClassificationMember = {
+  classificationId: string;
+  classification: ClassificationRecord;
+  isInherited: boolean;
   membershipType: "primary" | "secondary";
   record: OntologyParticipatingRegistryRecord;
 };
+
+const defaultClassificationStatuses: ClassificationRecord["status"][] = [
+  "published",
+];
+
+function compareString(left: string, right: string): number {
+  return left.localeCompare(right);
+}
+
+function compareClassificationRecords(
+  left: ClassificationRecord,
+  right: ClassificationRecord,
+): number {
+  const slugOrder = compareString(left.slug, right.slug);
+  if (slugOrder !== 0) {
+    return slugOrder;
+  }
+
+  return compareString(left.id, right.id);
+}
+
+function compareOntologyParticipatingRecords(
+  left: OntologyParticipatingRegistryRecord,
+  right: OntologyParticipatingRegistryRecord,
+): number {
+  const kindOrder = compareString(left.kind, right.kind);
+  if (kindOrder !== 0) {
+    return kindOrder;
+  }
+
+  const slugOrder = compareString(left.slug, right.slug);
+  if (slugOrder !== 0) {
+    return slugOrder;
+  }
+
+  return compareString(left.id, right.id);
+}
+
+function compareClassificationMembers(
+  left: ClassificationMember,
+  right: ClassificationMember,
+): number {
+  const recordOrder = compareOntologyParticipatingRecords(
+    left.record,
+    right.record,
+  );
+  if (recordOrder !== 0) {
+    return recordOrder;
+  }
+
+  const membershipOrder = compareString(
+    left.membershipType,
+    right.membershipType,
+  );
+  if (membershipOrder !== 0) {
+    return membershipOrder;
+  }
+
+  return compareClassificationRecords(left.classification, right.classification);
+}
+
+function matchesClassificationTraversalOptions(
+  classification: ClassificationRecord,
+  options: ClassificationTraversalOptions = {},
+): boolean {
+  const statuses = options.statuses ?? defaultClassificationStatuses;
+  if (
+    statuses.length > 0 &&
+    !statuses.some((status) => status === classification.status)
+  ) {
+    return false;
+  }
+
+  if (!options.classifiesKinds?.length) {
+    return true;
+  }
+
+  return options.classifiesKinds.some((kind) =>
+    classification.classifiesKinds.includes(kind),
+  );
+}
+
+function listDirectClassificationMembers(
+  classificationId: string,
+): ClassificationMember[] {
+  const classification = classificationsById.get(classificationId);
+  if (!classification) {
+    return [];
+  }
+
+  const members: ClassificationMember[] = [];
+
+  for (const record of listRelatedRegistryRecords()) {
+    if (record.kind === "organization") {
+      continue;
+    }
+
+    if (record.primaryClassificationId === classificationId) {
+      members.push({
+        classificationId,
+        classification,
+        isInherited: false,
+        membershipType: "primary",
+        record,
+      });
+    }
+
+    if (record.secondaryClassificationIds?.includes(classificationId)) {
+      members.push({
+        classificationId,
+        classification,
+        isInherited: false,
+        membershipType: "secondary",
+        record,
+      });
+    }
+  }
+
+  return members.sort(compareClassificationMembers);
+}
 
 function getTaggedRecordById(
   registryId: string,
@@ -466,6 +600,106 @@ export function listModelRecords(): ModelRecord[] {
 
 export function listClassificationRecords(): ClassificationRecord[] {
   return [...classificationRecords];
+}
+
+export function listClassificationRoots(
+  options: ClassificationTraversalOptions = {},
+): ClassificationRecord[] {
+  return classificationRecords
+    .filter(
+      (classification) =>
+        !classification.parentClassificationId &&
+        matchesClassificationTraversalOptions(classification, options),
+    )
+    .sort(compareClassificationRecords);
+}
+
+export function listClassificationChildren(
+  classificationId: string,
+  options: ClassificationTraversalOptions = {},
+): ClassificationRecord[] {
+  if (!classificationsById.has(classificationId)) {
+    return [];
+  }
+
+  return classificationRecords
+    .filter(
+      (classification) =>
+        classification.parentClassificationId === classificationId &&
+        matchesClassificationTraversalOptions(classification, options),
+    )
+    .sort(compareClassificationRecords);
+}
+
+export function listClassificationAncestors(
+  classificationId: string,
+  options: ClassificationTraversalOptions = {},
+): ClassificationRecord[] {
+  if (!classificationsById.has(classificationId)) {
+    return [];
+  }
+
+  const ancestors: ClassificationRecord[] = [];
+  const visited = new Set<string>();
+  let parentClassificationId =
+    classificationsById.get(classificationId)?.parentClassificationId;
+
+  while (parentClassificationId && !visited.has(parentClassificationId)) {
+    visited.add(parentClassificationId);
+    const parent = classificationsById.get(parentClassificationId);
+    if (!parent) {
+      break;
+    }
+
+    if (matchesClassificationTraversalOptions(parent, options)) {
+      ancestors.push(parent);
+    }
+    parentClassificationId = parent.parentClassificationId;
+  }
+
+  return ancestors;
+}
+
+export function listClassificationDescendants(
+  classificationId: string,
+  options: ClassificationTraversalOptions = {},
+): ClassificationRecord[] {
+  if (!classificationsById.has(classificationId)) {
+    return [];
+  }
+
+  const descendants: ClassificationRecord[] = [];
+  const visited = new Set<string>();
+  const stack = listClassificationChildren(classificationId, {
+    ...options,
+    statuses: options.statuses ?? [],
+  })
+    .sort(compareClassificationRecords)
+    .reverse();
+
+  while (stack.length > 0) {
+    const classification = stack.pop();
+    if (!classification || visited.has(classification.id)) {
+      continue;
+    }
+
+    visited.add(classification.id);
+    if (matchesClassificationTraversalOptions(classification, options)) {
+      descendants.push(classification);
+    }
+
+    const children = listClassificationChildren(classification.id, {
+      ...options,
+      statuses: options.statuses ?? [],
+    })
+      .sort(compareClassificationRecords)
+      .reverse();
+    for (const child of children) {
+      stack.push(child);
+    }
+  }
+
+  return descendants;
 }
 
 export function listPaperRecords(): PaperRecord[] {
@@ -582,28 +816,26 @@ export function listOntologyRelationshipsForRecord(
 
 export function listClassificationMembers(
   classificationId: string,
+  options: ClassificationMemberQueryOptions = {},
 ): ClassificationMember[] {
   if (!classificationsById.has(classificationId)) {
     return [];
   }
 
-  const members: ClassificationMember[] = [];
-
-  for (const record of listRelatedRegistryRecords()) {
-    if (record.kind === "organization") {
-      continue;
-    }
-
-    if (record.primaryClassificationId === classificationId) {
-      members.push({ membershipType: "primary", record });
-    }
-
-    if (record.secondaryClassificationIds?.includes(classificationId)) {
-      members.push({ membershipType: "secondary", record });
-    }
+  const directMembers = listDirectClassificationMembers(classificationId);
+  if (!options.includeDescendants) {
+    return directMembers;
   }
 
-  return members;
+  const inheritedMembers = listClassificationDescendants(classificationId, {
+  }).flatMap((classification) =>
+    listDirectClassificationMembers(classification.id).map((member) => ({
+      ...member,
+      isInherited: true,
+    })),
+  );
+
+  return [...directMembers, ...inheritedMembers].sort(compareClassificationMembers);
 }
 `;
 }
