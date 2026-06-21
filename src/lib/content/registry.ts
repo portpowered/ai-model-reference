@@ -260,6 +260,39 @@ type OntologyParticipatingRecord = Extract<
   }
 >;
 
+const classificationIdPattern = /^classification\.[a-z0-9]+(?:\.[a-z0-9-]+)*$/;
+
+const canonicalClassificationDomainKinds = new Map<
+  string,
+  ClassificationRecord["classifiesKinds"][number]
+>([
+  ["module", "module"],
+  ["concept", "concept"],
+  ["training", "training-regime"],
+  ["system", "system"],
+]);
+
+function getClassificationNamespaceSegments(
+  classificationId: string,
+): string[] | undefined {
+  if (!classificationIdPattern.test(classificationId)) {
+    return undefined;
+  }
+
+  return classificationId.split(".");
+}
+
+function getExpectedParentClassificationId(
+  classificationId: string,
+): string | undefined {
+  const segments = getClassificationNamespaceSegments(classificationId);
+  if (!segments || segments.length <= 2) {
+    return undefined;
+  }
+
+  return segments.slice(0, -1).join(".");
+}
+
 function isOntologyParticipatingRecord(
   record: RegistryRecord,
 ): record is OntologyParticipatingRecord {
@@ -283,13 +316,107 @@ function validateOntologyReferences(
     indexes.classificationsById.get(classificationId)?.id ?? classificationId;
 
   for (const { path, record } of files) {
-    if (record.kind === "classification" && record.parentClassificationId) {
+    if (record.kind === "classification") {
+      const classificationSegments = getClassificationNamespaceSegments(
+        record.id,
+      );
+      if (!classificationSegments) {
+        details.push({
+          type: "parse-error",
+          path,
+          message: `classification id must use the canonical dotted namespace format, found "${record.id}"`,
+        });
+        continue;
+      }
+
+      const expectedParentClassificationId = getExpectedParentClassificationId(
+        record.id,
+      );
+      const domain = classificationSegments[1];
+      const expectedDomainKind = canonicalClassificationDomainKinds.get(domain);
+
+      if (!expectedParentClassificationId && record.parentClassificationId) {
+        details.push({
+          type: "parse-error",
+          path,
+          message: `root classification "${record.id}" must not declare parentClassificationId`,
+        });
+      }
+
+      if (expectedParentClassificationId && !record.parentClassificationId) {
+        details.push({
+          type: "parse-error",
+          path,
+          message: `classification "${record.id}" must declare parentClassificationId "${expectedParentClassificationId}"`,
+        });
+      }
+
+      if (
+        expectedDomainKind &&
+        (record.classifiesKinds.length !== 1 ||
+          record.classifiesKinds[0] !== expectedDomainKind)
+      ) {
+        details.push({
+          type: "parse-error",
+          path,
+          message: `classification "${record.id}" must classify only "${expectedDomainKind}" records`,
+        });
+      }
+
+      if (!record.parentClassificationId) {
+        continue;
+      }
+
+      if (!classificationIdPattern.test(record.parentClassificationId)) {
+        details.push({
+          type: "parse-error",
+          path,
+          message: `parentClassificationId must use a canonical classification id, found "${record.parentClassificationId}"`,
+        });
+        continue;
+      }
+
       const parent = indexes.byId.get(record.parentClassificationId);
       if (parent?.kind !== "classification") {
         details.push({
           type: "parse-error",
           path,
           message: `parentClassificationId must reference a classification record, found "${record.parentClassificationId}"`,
+        });
+        continue;
+      }
+
+      if (
+        expectedParentClassificationId &&
+        parent.id !== expectedParentClassificationId
+      ) {
+        details.push({
+          type: "parse-error",
+          path,
+          message: `classification "${record.id}" must reference its direct namespace parent "${expectedParentClassificationId}", found "${parent.id}"`,
+        });
+      }
+
+      const parentSegments = getClassificationNamespaceSegments(parent.id);
+      if (parentSegments && classificationSegments[1] !== parentSegments[1]) {
+        details.push({
+          type: "parse-error",
+          path,
+          message: `classification "${record.id}" must stay within the "${classificationSegments[1]}" domain, found parent "${parent.id}"`,
+        });
+      }
+
+      if (
+        parent.classifiesKinds.length !== record.classifiesKinds.length ||
+        parent.classifiesKinds.some(
+          (classificationKind, index) =>
+            classificationKind !== record.classifiesKinds[index],
+        )
+      ) {
+        details.push({
+          type: "parse-error",
+          path,
+          message: `classification "${record.id}" must match parent "${parent.id}" classifiesKinds`,
         });
       }
     }

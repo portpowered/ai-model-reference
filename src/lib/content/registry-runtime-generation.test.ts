@@ -520,6 +520,21 @@ describe("registry-runtime generation", () => {
         )?.id,
       ).toBe("classification.module.activation");
       expect(
+        generatedRuntime.getParentClassificationById(
+          "classification.activation-functions",
+        )?.id,
+      ).toBe("classification.module");
+      expect(
+        generatedRuntime
+          .listChildClassifications("classification.module")
+          .map((classification) => classification.id),
+      ).toEqual(
+        expect.arrayContaining([
+          "classification.module.activation",
+          "classification.module.feed-forward",
+        ]),
+      );
+      expect(
         generatedRuntime.getPrimaryClassificationForRecord(
           "module.runtime-generated-activation",
         )?.id,
@@ -780,11 +795,11 @@ describe("registry-runtime generation", () => {
         "runtime-family.json",
         {
           ...baseFields,
-          id: "classification.runtime-family",
-          slug: "runtime-family",
+          id: "classification.model",
+          slug: "model",
           kind: "classification",
-          classificationType: "family",
-          classifiesKinds: ["model", "module", "concept", "paper"],
+          classificationType: "domain",
+          classifiesKinds: ["model"],
         },
       );
       await writeRegistryJson(registryRoot, "models", "runtime-model.json", {
@@ -920,8 +935,7 @@ describe("registry-runtime generation", () => {
         )?.kind,
       ).toBe("organization");
       expect(
-        generatedRuntime.getClassificationById("classification.runtime-family")
-          ?.kind,
+        generatedRuntime.getClassificationById("classification.model")?.kind,
       ).toBe("classification");
       expect(
         generatedRuntime.getCitationById("citation.runtime-citation")?.kind,
@@ -947,7 +961,7 @@ describe("registry-runtime generation", () => {
       ).toEqual(["organization.runtime-organization"]);
       expect(
         generatedRuntime.listClassificationRecords().map((record) => record.id),
-      ).toEqual(["classification.runtime-family"]);
+      ).toEqual(["classification.model"]);
       expect(
         generatedRuntime.listCitationRecords().map((record) => record.id),
       ).toEqual(["citation.runtime-citation"]);
@@ -1321,6 +1335,9 @@ describe("registry-runtime generation", () => {
         generatedRuntime.getClassificationById("classification.missing"),
       ).toBeUndefined();
       expect(
+        generatedRuntime.getParentClassificationById("classification.missing"),
+      ).toBeUndefined();
+      expect(
         generatedRuntime.getCitationById("citation.missing"),
       ).toBeUndefined();
       expect(
@@ -1342,6 +1359,9 @@ describe("registry-runtime generation", () => {
       ).toEqual([]);
       expect(
         generatedRuntime.listClassificationMembers("classification.missing"),
+      ).toEqual([]);
+      expect(
+        generatedRuntime.listChildClassifications("classification.missing"),
       ).toEqual([]);
     } finally {
       await rm(tempRoot, { recursive: true, force: true });

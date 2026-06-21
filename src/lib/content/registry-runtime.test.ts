@@ -9,12 +9,14 @@ import {
   getModuleById,
   getOrganizationById,
   getPaperById,
+  getParentClassificationById,
   getPrimaryClassificationForRecord,
   getRegistryCitationIds,
   getRegistryRecordById,
   getRegistryTags,
   getSystemById,
   getTrainingRegimeById,
+  listChildClassifications,
   listCitationRecords,
   listClassificationAncestors,
   listClassificationChildren,
@@ -342,36 +344,82 @@ describe("registry-runtime", () => {
     );
   });
 
+  test("classification helpers expose explicit parent and child hierarchy edges", () => {
+    expect(
+      getParentClassificationById("classification.module.attention")?.id,
+    ).toBe("classification.module");
+    expect(
+      getParentClassificationById("classification.module"),
+    ).toBeUndefined();
+    expect(
+      getParentClassificationById("classification.attention-mechanisms")?.id,
+    ).toBe("classification.module");
+
+    expect(
+      listChildClassifications("classification.module").map(
+        (classification) => classification.id,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "classification.module.activation",
+        "classification.module.attention",
+        "classification.module.feed-forward",
+        "classification.module.normalization",
+        "classification.module.positional-encoding",
+        "classification.module.tokenization",
+        "classification.module.transformer-block",
+      ]),
+    );
+    expect(
+      listChildClassifications("classification.attention-mechanisms").map(
+        (classification) => classification.id,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "classification.module.attention.grouped-query",
+        "classification.module.attention.multi-head",
+      ]),
+    );
+    expect(
+      listChildClassifications("classification.missing-runtime-record"),
+    ).toEqual([]);
+  });
+
   test("classification traversal helpers expose stable roots, children, and ancestors", () => {
     expect(
       listClassificationRoots().map((classification) => classification.id),
-    ).toEqual(["classification.neural-network-components"]);
+    ).toEqual([
+      "classification.module",
+      "classification.concept",
+      "classification.training",
+      "classification.system",
+    ]);
 
     expect(
       listClassificationRoots({
         classifiesKinds: ["module"],
       }).map((classification) => classification.id),
-    ).toEqual(["classification.neural-network-components"]);
+    ).toEqual(["classification.module"]);
 
     expect(
-      listClassificationChildren(
-        "classification.neural-network-components",
-      ).map((classification) => classification.id),
+      listClassificationChildren("classification.module").map(
+        (classification) => classification.id,
+      ),
     ).toEqual([
-      "classification.activation-functions",
-      "classification.attention-mechanisms",
-      "classification.feed-forward-networks",
-      "classification.normalization-layers",
-      "classification.position-encoding-methods",
-      "classification.tokenization-methods",
-      "classification.transformer-block-structures",
+      "classification.module.activation",
+      "classification.module.attention",
+      "classification.module.feed-forward",
+      "classification.module.normalization",
+      "classification.module.positional-encoding",
+      "classification.module.tokenization",
+      "classification.module.transformer-block",
     ]);
 
     expect(
       listClassificationAncestors("classification.activation-functions").map(
         (classification) => classification.id,
       ),
-    ).toEqual(["classification.neural-network-components"]);
+    ).toEqual(["classification.module"]);
     expect(
       listClassificationChildren("classification.missing-runtime-record"),
     ).toEqual([]);
@@ -385,7 +433,7 @@ describe("registry-runtime", () => {
 
   test("classification tree runtime builds renderable nodes and hides empty branches by default", () => {
     const tree = buildClassificationTree({
-      rootClassificationIds: ["classification.neural-network-components"],
+      rootClassificationIds: ["classification.module"],
       memberKinds: ["module"],
     });
 
@@ -403,25 +451,24 @@ describe("registry-runtime", () => {
       })),
     ).toEqual([
       {
-        id: "classification.neural-network-components",
+        id: "classification.module",
         directMemberCount: 0,
         totalMemberCount: expect.any(Number),
         childClassificationIds: [
-          "classification.activation-functions",
-          "classification.attention-mechanisms",
-          "classification.feed-forward-networks",
-          "classification.normalization-layers",
-          "classification.position-encoding-methods",
-          "classification.tokenization-methods",
-          "classification.transformer-block-structures",
+          "classification.module.activation",
+          "classification.module.attention",
+          "classification.module.feed-forward",
+          "classification.module.normalization",
+          "classification.module.positional-encoding",
+          "classification.module.tokenization",
+          "classification.module.transformer-block",
         ],
         childRecordIds: [],
       },
     ]);
 
     const activationBranch = tree[0]?.classificationChildren.find(
-      (child) =>
-        child.classification.id === "classification.activation-functions",
+      (child) => child.classification.id === "classification.module.activation",
     );
     expect(activationBranch?.children[0]?.nodeType).toBe("record");
     expect(
@@ -451,7 +498,7 @@ describe("registry-runtime", () => {
       })),
     ).toEqual([
       {
-        id: "classification.activation-functions",
+        id: "classification.module.activation",
         totalMemberCount: 0,
       },
     ]);

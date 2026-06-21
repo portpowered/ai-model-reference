@@ -321,6 +321,21 @@ ${importLines.join("\n")}
 
 ${arrayLines.join("\n")}
 ${mapLines.join("\n")}
+const classificationChildrenByParentId = new Map<string, ClassificationRecord[]>();
+
+for (const record of classificationRecords) {
+  if (!record.parentClassificationId) {
+    continue;
+  }
+
+  const existingChildren =
+    classificationChildrenByParentId.get(record.parentClassificationId) ?? [];
+  existingChildren.push(record);
+  classificationChildrenByParentId.set(
+    record.parentClassificationId,
+    existingChildren,
+  );
+}
 
 type TaggedRegistryRecord =
   | ModuleRecord
@@ -632,6 +647,27 @@ export function getClassificationById(
   registryId: string,
 ): ClassificationRecord | undefined {
   return classificationsById.get(registryId);
+}
+
+export function getParentClassificationById(
+  registryId: string,
+): ClassificationRecord | undefined {
+  const classification = getClassificationById(registryId);
+  if (!classification?.parentClassificationId) {
+    return undefined;
+  }
+  return classificationsById.get(classification.parentClassificationId);
+}
+
+export function listChildClassifications(
+  classificationId: string,
+): ClassificationRecord[] {
+  const resolvedClassificationId = resolveClassificationId(classificationId);
+  if (!resolvedClassificationId) {
+    return [];
+  }
+
+  return classificationChildrenByParentId.get(resolvedClassificationId) ?? [];
 }
 
 export function resolveClassificationId(

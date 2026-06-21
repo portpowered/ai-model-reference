@@ -387,6 +387,175 @@ describe("loadRegistry", () => {
     await rm(tempRoot, { recursive: true, force: true });
   });
 
+  test("rejects classifications that do not use the canonical dotted namespace format", async () => {
+    const tempRoot = join(
+      import.meta.dir,
+      "__fixtures__",
+      "invalid-classification-id-registry",
+    );
+    await rm(tempRoot, { recursive: true, force: true });
+    await mkdir(join(tempRoot, "classifications"), { recursive: true });
+
+    await writeFile(
+      join(tempRoot, "classifications", "attention.json"),
+      JSON.stringify({
+        ...validClassificationRecord,
+        id: "classification.attention-mechanisms",
+        slug: "attention-mechanisms",
+        parentClassificationId: undefined,
+        legacyIds: undefined,
+      }),
+    );
+
+    await expect(
+      loadRegistry({ registryRoot: tempRoot }),
+    ).rejects.toMatchObject({
+      details: expect.arrayContaining([
+        expect.objectContaining({
+          type: "parse-error",
+          message: expect.stringContaining(
+            "classification id must use the canonical dotted namespace format",
+          ),
+        }),
+      ]),
+    });
+
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  test("rejects classifications whose parentClassificationId skips the direct namespace parent", async () => {
+    const tempRoot = join(
+      import.meta.dir,
+      "__fixtures__",
+      "invalid-classification-parent-registry",
+    );
+    await rm(tempRoot, { recursive: true, force: true });
+    await mkdir(join(tempRoot, "classifications"), { recursive: true });
+
+    await writeFile(
+      join(tempRoot, "classifications", "module.json"),
+      JSON.stringify({
+        ...validClassificationRecord,
+        id: "classification.module",
+        slug: "module",
+        aliases: [],
+        classificationType: "domain",
+        classifiesKinds: ["module"],
+        parentClassificationId: undefined,
+        legacyIds: undefined,
+      }),
+    );
+    await writeFile(
+      join(tempRoot, "classifications", "attention.json"),
+      JSON.stringify({
+        ...validClassificationRecord,
+        id: "classification.module.attention",
+        slug: "attention-mechanisms",
+        parentClassificationId: "classification.module",
+        legacyIds: ["classification.attention-mechanisms"],
+      }),
+    );
+    await writeFile(
+      join(tempRoot, "classifications", "grouped-query.json"),
+      JSON.stringify({
+        ...validClassificationRecord,
+        id: "classification.module.attention.grouped-query",
+        slug: "attention-grouped-query",
+        parentClassificationId: "classification.module",
+        legacyIds: undefined,
+      }),
+    );
+
+    await expect(
+      loadRegistry({ registryRoot: tempRoot }),
+    ).rejects.toMatchObject({
+      details: expect.arrayContaining([
+        expect.objectContaining({
+          type: "parse-error",
+          message: expect.stringContaining(
+            'must reference its direct namespace parent "classification.module.attention"',
+          ),
+        }),
+      ]),
+    });
+
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
+  test("rejects classifications whose parentClassificationId crosses ontology domains", async () => {
+    const tempRoot = join(
+      import.meta.dir,
+      "__fixtures__",
+      "cross-domain-classification-registry",
+    );
+    await rm(tempRoot, { recursive: true, force: true });
+    await mkdir(join(tempRoot, "classifications"), { recursive: true });
+
+    await writeFile(
+      join(tempRoot, "classifications", "concept.json"),
+      JSON.stringify({
+        ...validClassificationRecord,
+        id: "classification.concept",
+        slug: "concept",
+        aliases: [],
+        classificationType: "domain",
+        classifiesKinds: ["concept"],
+        parentClassificationId: undefined,
+        legacyIds: undefined,
+      }),
+    );
+    await writeFile(
+      join(tempRoot, "classifications", "module.json"),
+      JSON.stringify({
+        ...validClassificationRecord,
+        id: "classification.module",
+        slug: "module",
+        aliases: [],
+        classificationType: "domain",
+        classifiesKinds: ["module"],
+        parentClassificationId: undefined,
+        legacyIds: undefined,
+      }),
+    );
+    await writeFile(
+      join(tempRoot, "classifications", "attention.json"),
+      JSON.stringify({
+        ...validClassificationRecord,
+        id: "classification.module.attention",
+        slug: "attention-mechanisms",
+        parentClassificationId: "classification.concept",
+        legacyIds: ["classification.attention-mechanisms"],
+      }),
+    );
+
+    await expect(
+      loadRegistry({ registryRoot: tempRoot }),
+    ).rejects.toMatchObject({
+      details: expect.arrayContaining([
+        expect.objectContaining({
+          type: "parse-error",
+          message: expect.stringContaining(
+            'must reference its direct namespace parent "classification.module"',
+          ),
+        }),
+        expect.objectContaining({
+          type: "parse-error",
+          message: expect.stringContaining(
+            'must stay within the "module" domain',
+          ),
+        }),
+        expect.objectContaining({
+          type: "parse-error",
+          message: expect.stringContaining(
+            'must match parent "classification.concept" classifiesKinds',
+          ),
+        }),
+      ]),
+    });
+
+    await rm(tempRoot, { recursive: true, force: true });
+  });
+
   test("rejects ontology relationships that point at missing records", async () => {
     const tempRoot = join(
       import.meta.dir,
