@@ -359,6 +359,7 @@ export type ClassificationTraversalOptions = {
 
 export type ClassificationMemberQueryOptions = {
   includeDescendants?: boolean;
+  includeSecondary?: boolean;
 };
 
 export type ClassificationMember = {
@@ -373,6 +374,25 @@ const defaultClassificationStatuses: ClassificationRecord["status"][] = [
   "published",
 ];
 
+function compareOptionalSortOrder(
+  left: number | undefined,
+  right: number | undefined,
+): number {
+  if (left === undefined && right === undefined) {
+    return 0;
+  }
+
+  if (left === undefined) {
+    return 1;
+  }
+
+  if (right === undefined) {
+    return -1;
+  }
+
+  return left - right;
+}
+
 function compareString(left: string, right: string): number {
   return left.localeCompare(right);
 }
@@ -381,6 +401,11 @@ function compareClassificationRecords(
   left: ClassificationRecord,
   right: ClassificationRecord,
 ): number {
+  const sortOrder = compareOptionalSortOrder(left.sortOrder, right.sortOrder);
+  if (sortOrder !== 0) {
+    return sortOrder;
+  }
+
   const slugOrder = compareString(left.slug, right.slug);
   if (slugOrder !== 0) {
     return slugOrder;
@@ -393,6 +418,11 @@ function compareOntologyParticipatingRecords(
   left: OntologyParticipatingRegistryRecord,
   right: OntologyParticipatingRegistryRecord,
 ): number {
+  const sortOrder = compareOptionalSortOrder(left.sortOrder, right.sortOrder);
+  if (sortOrder !== 0) {
+    return sortOrder;
+  }
+
   const kindOrder = compareString(left.kind, right.kind);
   if (kindOrder !== 0) {
     return kindOrder;
@@ -452,6 +482,7 @@ function matchesClassificationTraversalOptions(
 
 function listDirectClassificationMembers(
   classificationId: string,
+  options: ClassificationMemberQueryOptions = {},
 ): ClassificationMember[] {
   const classification = classificationsById.get(classificationId);
   if (!classification) {
@@ -475,7 +506,10 @@ function listDirectClassificationMembers(
       });
     }
 
-    if (record.secondaryClassificationIds?.includes(classificationId)) {
+    if (
+      options.includeSecondary &&
+      record.secondaryClassificationIds?.includes(classificationId)
+    ) {
       members.push({
         classificationId,
         classification,
@@ -770,26 +804,51 @@ export function getRegistryCitationIds(
 
 export function getPrimaryClassificationForRecord(
   registryId: string,
+  options?: ClassificationTraversalOptions,
 ): ClassificationRecord | undefined {
   const record = getOntologyParticipatingRecordById(registryId);
   if (!record?.primaryClassificationId) {
     return undefined;
   }
-  return classificationsById.get(record.primaryClassificationId);
+
+  const classification = classificationsById.get(record.primaryClassificationId);
+  if (!classification) {
+    return undefined;
+  }
+
+  if (options && !matchesClassificationTraversalOptions(classification, options)) {
+    return undefined;
+  }
+
+  return classification;
 }
 
 export function listSecondaryClassificationsForRecord(
   registryId: string,
+  options?: ClassificationTraversalOptions,
 ): ClassificationRecord[] {
   const record = getOntologyParticipatingRecordById(registryId);
   if (!record?.secondaryClassificationIds?.length) {
     return [];
   }
 
-  return record.secondaryClassificationIds.flatMap((classificationId) => {
-    const classification = classificationsById.get(classificationId);
-    return classification ? [classification] : [];
-  });
+  return record.secondaryClassificationIds
+    .flatMap((classificationId) => {
+      const classification = classificationsById.get(classificationId);
+      if (!classification) {
+        return [];
+      }
+
+      if (
+        options &&
+        !matchesClassificationTraversalOptions(classification, options)
+      ) {
+        return [];
+      }
+
+      return [classification];
+    })
+    .sort(compareClassificationRecords);
 }
 
 export function listOntologyRelationshipsForRecord(
@@ -822,14 +881,14 @@ export function listClassificationMembers(
     return [];
   }
 
-  const directMembers = listDirectClassificationMembers(classificationId);
+  const directMembers = listDirectClassificationMembers(classificationId, options);
   if (!options.includeDescendants) {
     return directMembers;
   }
 
   const inheritedMembers = listClassificationDescendants(classificationId, {
   }).flatMap((classification) =>
-    listDirectClassificationMembers(classification.id).map((member) => ({
+    listDirectClassificationMembers(classification.id, options).map((member) => ({
       ...member,
       isInherited: true,
     })),

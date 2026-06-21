@@ -388,6 +388,7 @@ describe("registry-runtime generation", () => {
           usedByModelIds: [],
           introducedByPaperIds: [],
           mathLevel: "light",
+          sortOrder: 5,
           primaryClassificationId: "classification.activation-functions",
           secondaryClassificationIds: ["classification.feed-forward-blocks"],
           relationships: [
@@ -415,6 +416,7 @@ describe("registry-runtime generation", () => {
           status: "published",
           createdAt: "2026-06-01T00:00:00.000Z",
           updatedAt: "2026-06-02T00:00:00.000Z",
+          sortOrder: 20,
           classificationType: "family",
           classifiesKinds: ["module", "concept"],
         },
@@ -436,6 +438,7 @@ describe("registry-runtime generation", () => {
           status: "published",
           createdAt: "2026-06-01T00:00:00.000Z",
           updatedAt: "2026-06-02T00:00:00.000Z",
+          sortOrder: 10,
           classificationType: "topology",
           classifiesKinds: ["module"],
         },
@@ -522,6 +525,12 @@ describe("registry-runtime generation", () => {
         generatedRuntime.listClassificationMembers(
           "classification.feed-forward-blocks",
         ),
+      ).toEqual([]);
+      expect(
+        generatedRuntime.listClassificationMembers(
+          "classification.feed-forward-blocks",
+          { includeSecondary: true },
+        ),
       ).toEqual([
         expect.objectContaining({
           membershipType: "secondary",
@@ -529,6 +538,180 @@ describe("registry-runtime generation", () => {
             id: "module.runtime-generated-activation",
           }),
         }),
+      ]);
+    } finally {
+      await rm(tempRoot, { recursive: true, force: true });
+    }
+  });
+
+  test("generated runtime applies explicit sort order and surface filters to ownership lookups", async () => {
+    const { outputPath, registryRoot, tempRoot } =
+      await createTempRegistryRoot();
+    try {
+      const timestamps = {
+        createdAt: "2026-06-01T00:00:00.000Z",
+        updatedAt: "2026-06-02T00:00:00.000Z",
+      };
+      const baseFields = {
+        defaultTitleKey: "title",
+        defaultSummaryKey: "description",
+        aliases: [],
+        tags: [],
+        relatedIds: [],
+        citationIds: [],
+        status: "published",
+        ...timestamps,
+      };
+
+      await writeRegistryJson(registryRoot, "classifications", "zeta.json", {
+        ...baseFields,
+        id: "classification.runtime-zeta",
+        slug: "runtime-zeta",
+        kind: "classification",
+        classificationType: "family",
+        classifiesKinds: ["module"],
+      });
+      await writeRegistryJson(registryRoot, "classifications", "alpha.json", {
+        ...baseFields,
+        id: "classification.runtime-alpha",
+        slug: "runtime-alpha",
+        kind: "classification",
+        classificationType: "family",
+        classifiesKinds: ["module"],
+        sortOrder: 1,
+      });
+      await writeRegistryJson(registryRoot, "classifications", "draft.json", {
+        ...baseFields,
+        id: "classification.runtime-draft",
+        slug: "runtime-draft",
+        kind: "classification",
+        status: "draft",
+        classificationType: "family",
+        classifiesKinds: ["module"],
+      });
+      await writeRegistryJson(
+        registryRoot,
+        "classifications",
+        "paper-only.json",
+        {
+          ...baseFields,
+          id: "classification.runtime-paper-only",
+          slug: "runtime-paper-only",
+          kind: "classification",
+          classificationType: "family",
+          classifiesKinds: ["paper"],
+        },
+      );
+
+      await writeRegistryJson(registryRoot, "modules", "beta.json", {
+        ...baseFields,
+        id: "module.runtime-beta",
+        slug: "runtime-beta",
+        kind: "module",
+        moduleType: "other",
+        optimizes: [],
+        exampleModelIds: [],
+        improvesOnIds: [],
+        tradeoffIds: [],
+        usedByModelIds: [],
+        introducedByPaperIds: [],
+        mathLevel: "none",
+        sortOrder: 2,
+        primaryClassificationId: "classification.runtime-zeta",
+        secondaryClassificationIds: [
+          "classification.runtime-alpha",
+          "classification.runtime-draft",
+        ],
+      });
+      await writeRegistryJson(registryRoot, "modules", "alpha.json", {
+        ...baseFields,
+        id: "module.runtime-alpha",
+        slug: "runtime-alpha",
+        kind: "module",
+        moduleType: "other",
+        optimizes: [],
+        exampleModelIds: [],
+        improvesOnIds: [],
+        tradeoffIds: [],
+        usedByModelIds: [],
+        introducedByPaperIds: [],
+        mathLevel: "none",
+        sortOrder: 1,
+        primaryClassificationId: "classification.runtime-zeta",
+      });
+      await writeRegistryJson(registryRoot, "modules", "paper-owned.json", {
+        ...baseFields,
+        id: "module.runtime-paper-owned",
+        slug: "runtime-paper-owned",
+        kind: "module",
+        moduleType: "other",
+        optimizes: [],
+        exampleModelIds: [],
+        improvesOnIds: [],
+        tradeoffIds: [],
+        usedByModelIds: [],
+        introducedByPaperIds: [],
+        mathLevel: "none",
+        primaryClassificationId: "classification.runtime-paper-only",
+      });
+
+      await writeGeneratedRegistryRuntimeModule({
+        outputPath,
+        projectRoot: getProjectRoot(),
+        registryRoot,
+      });
+
+      const generatedRuntime = await importGeneratedRuntime(outputPath);
+
+      expect(
+        generatedRuntime.listClassificationRoots().map((record) => record.id),
+      ).toEqual([
+        "classification.runtime-alpha",
+        "classification.runtime-paper-only",
+        "classification.runtime-zeta",
+      ]);
+      expect(
+        generatedRuntime
+          .listClassificationMembers("classification.runtime-zeta")
+          .map((member) => member.record.id),
+      ).toEqual(["module.runtime-alpha", "module.runtime-beta"]);
+      expect(
+        generatedRuntime
+          .listClassificationMembers("classification.runtime-alpha")
+          .map((member) => member.record.id),
+      ).toEqual([]);
+      expect(
+        generatedRuntime
+          .listClassificationMembers("classification.runtime-alpha", {
+            includeSecondary: true,
+          })
+          .map((member) => member.record.id),
+      ).toEqual(["module.runtime-beta"]);
+      expect(
+        generatedRuntime.getPrimaryClassificationForRecord(
+          "module.runtime-beta",
+          {
+            statuses: ["published"],
+            classifiesKinds: ["module"],
+          },
+        )?.id,
+      ).toBe("classification.runtime-zeta");
+      expect(
+        generatedRuntime.getPrimaryClassificationForRecord(
+          "module.runtime-paper-owned",
+          {
+            statuses: ["published"],
+            classifiesKinds: ["module"],
+          },
+        ),
+      ).toBeUndefined();
+      expect(
+        generatedRuntime.listSecondaryClassificationsForRecord(
+          "module.runtime-beta",
+          { statuses: ["published"], classifiesKinds: ["module"] },
+        ),
+      ).toEqual([
+        expect.objectContaining({ id: "classification.runtime-alpha" }),
       ]);
     } finally {
       await rm(tempRoot, { recursive: true, force: true });
