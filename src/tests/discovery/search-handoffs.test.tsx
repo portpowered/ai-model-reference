@@ -106,6 +106,7 @@ describe("Phase 1 discovery search handoffs", () => {
     expect(items.map((item) => item.href)).toEqual([
       "/",
       "/docs/architecture",
+      "/topology",
       "/docs/glossary",
       "/tags",
     ]);

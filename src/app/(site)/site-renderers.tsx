@@ -6,6 +6,7 @@ import {
 } from "fumadocs-ui/layouts/docs/page";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { HomeArticle } from "@/components/home/home-article";
 import { BrowseAtlasPage } from "@/features/docs/components/BrowseAtlasPage";
 import { DocsIndexEmptyState } from "@/features/docs/components/DocsIndexEmptyState";
@@ -20,6 +21,8 @@ import {
 import { TagLandingEmptyState } from "@/features/docs/tags/TagLandingEmptyState";
 import { TagSearchHandoff } from "@/features/docs/tags/TagSearchHandoff";
 import { TagsIndexList } from "@/features/docs/tags/TagsIndexList";
+import { TopologyPrototype } from "@/features/topology/TopologyPrototype";
+import type { TopologyDocsPageContentByRegistryId } from "@/features/topology/topology-content";
 import { loadPublishedArchitectureEntries } from "@/lib/content/architecture";
 import { loadPublishedGlossaryEntries } from "@/lib/content/glossary";
 import { loadShippedLocalizedDocsPages } from "@/lib/content/pages";
@@ -301,6 +304,74 @@ export async function renderArchitectureIndexPage(
         )}
       </DocsBody>
     </DocsPage>
+  );
+}
+
+export async function renderTopologyPrototypePage(
+  locale: SiteLocale = defaultLocale,
+) {
+  const messages = await loadUiMessages(locale);
+  const docsPages = await loadShippedLocalizedDocsPages(locale);
+  const { topologyPrototype } = messages;
+  const docsPageContentByRegistryId: TopologyDocsPageContentByRegistryId =
+    Object.fromEntries(
+      docsPages.map((page) => [
+        page.frontmatter.registryId,
+        {
+          href: page.url,
+          summary: page.messages.description,
+          title: page.messages.title,
+        },
+      ]),
+    );
+
+  return (
+    <DocsPage breadcrumb={{ enabled: false }} footer={{ enabled: false }}>
+      <DocsTitle>{topologyPrototype.title}</DocsTitle>
+      <DocsDescription>{topologyPrototype.description}</DocsDescription>
+      <DocsBody>
+        <Suspense
+          fallback={
+            <TopologyPrototypeLoadingFallback
+              title={topologyPrototype.loadingTitle}
+              description={topologyPrototype.loadingDescription}
+            />
+          }
+        >
+          <TopologyPrototype
+            messages={messages}
+            docsPageContentByRegistryId={docsPageContentByRegistryId}
+          />
+        </Suspense>
+      </DocsBody>
+    </DocsPage>
+  );
+}
+
+function TopologyPrototypeLoadingFallback({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <section className="space-y-6" aria-labelledby="topology-success-title">
+      <div className="grid gap-3 md:grid-cols-3">
+        <article
+          className="rounded-lg border border-border bg-muted/20 p-4"
+          aria-labelledby="topology-loading-title"
+        >
+          <h2
+            id="topology-loading-title"
+            className="text-sm font-semibold text-foreground"
+          >
+            {title}
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+        </article>
+      </div>
+    </section>
   );
 }
 
